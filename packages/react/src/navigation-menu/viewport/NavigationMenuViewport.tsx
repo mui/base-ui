@@ -13,7 +13,10 @@ import {
   isOutsideEvent,
   contains,
 } from '../../floating-ui-react/utils';
+import { getEmptyRootContext } from '../../floating-ui-react/utils/getEmptyRootContext';
 import { useNavigationMenuPositionerContext } from '../positioner/NavigationMenuPositionerContext';
+
+const EMPTY_ROOT_CONTEXT = getEmptyRootContext();
 
 function Guards({ children }: { children: React.ReactNode }) {
   const {
@@ -66,6 +69,7 @@ function Guards({ children }: { children: React.ReactNode }) {
  *
  * Documentation: [Base UI Navigation Menu](https://base-ui.com/react/components/navigation-menu)
  */
+
 export const NavigationMenuViewport = React.forwardRef(function NavigationMenuViewport(
   componentProps: NavigationMenuViewport.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
@@ -84,7 +88,7 @@ export const NavigationMenuViewport = React.forwardRef(function NavigationMenuVi
   } = useNavigationMenuRootContext();
 
   const hasPositioner = Boolean(useNavigationMenuPositionerContext(true));
-  const domReference = floatingRootContext?.elements.domReference;
+  const domReference = (floatingRootContext || EMPTY_ROOT_CONTEXT).useState('domReferenceElement');
 
   useIsoLayoutEffect(() => {
     if (domReference) {
@@ -127,8 +131,12 @@ export const NavigationMenuViewport = React.forwardRef(function NavigationMenuVi
   return hasPositioner ? <Guards>{element}</Guards> : element;
 });
 
-export namespace NavigationMenuViewport {
-  export interface State {}
+export interface NavigationMenuViewportState {}
 
-  export interface Props extends BaseUIComponentProps<'div', State> {}
+export interface NavigationMenuViewportProps
+  extends BaseUIComponentProps<'div', NavigationMenuViewport.State> {}
+
+export namespace NavigationMenuViewport {
+  export type State = NavigationMenuViewportState;
+  export type Props = NavigationMenuViewportProps;
 }

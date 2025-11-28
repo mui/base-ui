@@ -2,6 +2,7 @@ import { Store, createSelector } from '@base-ui-components/utils/store';
 import type { TransitionStatus } from '../utils/useTransitionStatus';
 import type { HTMLProps } from '../utils/types';
 import { compareItemEquality } from '../utils/itemEquality';
+import { stringifyAsValue } from '../utils/resolveValueLabel';
 
 export type State = {
   id: string | undefined;
@@ -17,7 +18,6 @@ export type State = {
   isItemEqualToValue: (item: any, value: any) => boolean;
 
   value: any;
-  label: string;
 
   open: boolean;
   mounted: boolean;
@@ -53,8 +53,6 @@ export const selectors = {
   isItemEqualToValue: createSelector((state: State) => state.isItemEqualToValue),
 
   value: createSelector((state: State) => state.value),
-  label: createSelector((state: State) => state.label),
-
   open: createSelector((state: State) => state.open),
   mounted: createSelector((state: State) => state.mounted),
   forceMount: createSelector((state: State) => state.forceMount),
@@ -98,4 +96,12 @@ export const selectors = {
   scrollDownArrowVisible: createSelector((state: State) => state.scrollDownArrowVisible),
 
   hasScrollArrows: createSelector((state: State) => state.hasScrollArrows),
+
+  serializedValue: createSelector((state: State) => {
+    const { multiple, value, itemToStringValue } = state;
+    if (multiple && Array.isArray(value) && value.length === 0) {
+      return '';
+    }
+    return stringifyAsValue(value, itemToStringValue);
+  }),
 };

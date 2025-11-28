@@ -42,7 +42,7 @@ const Inner = React.memo(
 
       const indicatorRef = React.useRef<HTMLSpanElement | null>(null);
 
-      const { mounted, transitionStatus, setMounted } = useTransitionStatus(selected);
+      const { transitionStatus, setMounted } = useTransitionStatus(selected);
 
       const state: ComboboxItemIndicator.State = React.useMemo(
         () => ({
@@ -57,7 +57,6 @@ const Inner = React.memo(
         state,
         props: [
           {
-            hidden: !mounted,
             'aria-hidden': true,
             children: '✔️',
           },
@@ -81,18 +80,22 @@ const Inner = React.memo(
   ),
 );
 
-export namespace ComboboxItemIndicator {
-  export interface Props extends BaseUIComponentProps<'span', State> {
-    children?: React.ReactNode;
-    /**
-     * Whether to keep the HTML element in the DOM when the item is not selected.
-     * @default false
-     */
-    keepMounted?: boolean;
-  }
+export interface ComboboxItemIndicatorProps
+  extends BaseUIComponentProps<'span', ComboboxItemIndicator.State> {
+  children?: React.ReactNode;
+  /**
+   * Whether to keep the HTML element in the DOM when the item is not selected.
+   * @default false
+   */
+  keepMounted?: boolean;
+}
 
-  export interface State {
-    selected: boolean;
-    transitionStatus: TransitionStatus;
-  }
+export interface ComboboxItemIndicatorState {
+  selected: boolean;
+  transitionStatus: TransitionStatus;
+}
+
+export namespace ComboboxItemIndicator {
+  export type Props = ComboboxItemIndicatorProps;
+  export type State = ComboboxItemIndicatorState;
 }

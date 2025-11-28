@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import clsx from 'clsx';
-import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { observeScrollableInner } from '../utils/observeScrollableInner';
 
 const ARROW_UP = 'ArrowUp';
@@ -107,7 +107,7 @@ export function Item(props: React.ComponentProps<'details'>) {
   // in Chrome, the <details> opens automatically when the hash part of a URL
   // matches the `id` on <summary> but needs to be manually handled for Safari
   // and Firefox
-  const handleRef = useEventCallback((element: HTMLDetailsElement | null) => {
+  const handleRef = useStableCallback((element: HTMLDetailsElement | null) => {
     if (element) {
       const trigger = element.querySelector<HTMLElement>('summary');
       const triggerId = trigger?.getAttribute('id');
@@ -141,20 +141,22 @@ export function Content(props: React.ComponentProps<'div'>) {
 export function Scrollable({
   children,
   className,
+  tag: Tag = 'span',
   gradientColor = 'var(--color-content)',
   ...props
-}: React.ComponentProps<'div'> & {
+}: React.ComponentProps<'span'> & {
   gradientColor?: string;
+  tag?: React.ElementType;
 }) {
   return (
-    <div
+    <Tag
       ref={observeScrollableInner}
       className={clsx('AccordionScrollable', className)}
       style={{ '--scrollable-gradient-color': gradientColor } as React.CSSProperties}
       {...props}
     >
-      <div className="AccordionScrollableInner">{children}</div>
-    </div>
+      <Tag className="AccordionScrollableInner">{children}</Tag>
+    </Tag>
   );
 }
 

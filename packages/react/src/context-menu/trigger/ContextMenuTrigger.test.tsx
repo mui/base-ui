@@ -1,4 +1,3 @@
-import * as React from 'react';
 import { expect } from 'chai';
 import { fireEvent, flushMicrotasks, screen } from '@mui/internal-test-utils';
 import { spy } from 'sinon';
@@ -6,7 +5,11 @@ import { ContextMenu } from '@base-ui-components/react/context-menu';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 
 describe('<ContextMenu.Trigger />', () => {
-  const { render, clock } = createRenderer();
+  const { render, clock } = createRenderer({
+    clockOptions: {
+      shouldAdvanceTime: true,
+    },
+  });
 
   clock.withFakeTimers();
 
@@ -34,6 +37,25 @@ describe('<ContextMenu.Trigger />', () => {
     await flushMicrotasks();
 
     expect(screen.queryByRole('menu')).not.to.equal(null);
+  });
+
+  it('adds open state attributes', async () => {
+    const { user } = await render(
+      <ContextMenu.Root defaultOpen>
+        <ContextMenu.Trigger data-testid="trigger">Right click me</ContextMenu.Trigger>
+        <ContextMenu.Portal>
+          <ContextMenu.Positioner>
+            <ContextMenu.Popup />
+          </ContextMenu.Positioner>
+        </ContextMenu.Portal>
+      </ContextMenu.Root>,
+    );
+
+    const trigger = screen.getByTestId('trigger');
+    expect(trigger).to.have.attribute('data-popup-open', '');
+
+    await user.keyboard('{Escape}');
+    expect(trigger).to.not.have.attribute('data-popup-open');
   });
 
   it('should call onOpenChange when menu is opened via right click', async () => {

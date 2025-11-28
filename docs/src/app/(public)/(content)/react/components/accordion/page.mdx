@@ -6,7 +6,9 @@
   content="A high-quality, unstyled React accordion component that displays a set of collapsible panels with headings."
 />
 
-<Demo path="./demos/hero" />
+import { DemoAccordionHero } from './demos/hero';
+
+<DemoAccordionHero />
 
 ## Anatomy
 
@@ -24,6 +26,16 @@ import { Accordion } from '@base-ui-components/react/accordion';
   </Accordion.Item>
 </Accordion.Root>;
 ```
+
+## Examples
+
+### Open multiple panels
+
+You can set up the accordion to allow multiple panels to be open at the same time using the `multiple` prop.
+
+import { DemoAccordionMultiple } from './demos/multiple';
+
+<DemoAccordionMultiple compact />
 
 ## API reference
 

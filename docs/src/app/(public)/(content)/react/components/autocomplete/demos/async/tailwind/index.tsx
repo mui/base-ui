@@ -1,3 +1,4 @@
+'use client';
 import * as React from 'react';
 import { Autocomplete } from '@base-ui-components/react/autocomplete';
 
@@ -52,7 +53,7 @@ export default function ExampleAsyncAutocomplete() {
     status = (
       <React.Fragment>
         <div
-          className="size-4 animate-spin rounded-full border-2 border-gray-200 border-t-gray-600"
+          className="size-4 rounded-full border-2 border-gray-200 border-t-gray-600 animate-spin"
           aria-hidden
         />
         Searching...
@@ -78,7 +79,7 @@ export default function ExampleAsyncAutocomplete() {
         Search movies by name or year
         <Autocomplete.Input
           placeholder="e.g. Pulp Fiction or 1994"
-          className="h-10 w-[16rem] rounded-md border border-gray-200 bg-[canvas] pl-3.5 text-base font-normal text-gray-900 focus:outline focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800 md:w-[20rem]"
+          className="bg-[canvas] h-10 w-[16rem] md:w-[20rem] font-normal rounded-md border border-gray-200 pl-3.5 text-base text-gray-900 focus:outline focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800"
         />
       </label>
 
@@ -86,10 +87,10 @@ export default function ExampleAsyncAutocomplete() {
         <Autocomplete.Portal>
           <Autocomplete.Positioner className="outline-none" sideOffset={4} align="start">
             <Autocomplete.Popup
-              className="max-h-[min(var(--available-height),23rem)] w-[var(--anchor-width)] max-w-[var(--available-width)] scroll-pt-2 scroll-pb-2 overflow-y-auto overscroll-contain rounded-md bg-[canvas] py-2 text-gray-900 shadow-lg shadow-gray-200 outline-1 outline-gray-200 dark:shadow-none dark:-outline-offset-1 dark:outline-gray-300"
+              className="w-[var(--anchor-width)] max-h-[min(var(--available-height),23rem)] max-w-[var(--available-width)] overflow-y-auto scroll-pt-2 scroll-pb-2 overscroll-contain rounded-md bg-[canvas] py-2 text-gray-900 shadow-lg shadow-gray-200 outline-1 outline-gray-200 dark:shadow-none dark:-outline-offset-1 dark:outline-gray-300"
               aria-busy={isLoading || undefined}
             >
-              <Autocomplete.Status className="flex items-center gap-2 py-1 pr-8 pl-4 text-sm text-gray-600">
+              <Autocomplete.Status className="flex items-center gap-2 py-1 pl-4 pr-8 text-sm text-gray-600">
                 {status}
               </Autocomplete.Status>
               <Autocomplete.List>
@@ -100,7 +101,7 @@ export default function ExampleAsyncAutocomplete() {
                     value={movie}
                   >
                     <div className="flex w-full flex-col gap-1">
-                      <div className="leading-5 font-medium">{movie.title}</div>
+                      <div className="font-medium leading-5">{movie.title}</div>
                       <div className="text-sm leading-4 opacity-80">{movie.year}</div>
                     </div>
                   </Autocomplete.Item>

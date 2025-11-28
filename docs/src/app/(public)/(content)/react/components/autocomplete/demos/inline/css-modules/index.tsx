@@ -1,4 +1,4 @@
-import * as React from 'react';
+'use client';
 import { Autocomplete } from '@base-ui-components/react/autocomplete';
 import styles from './index.module.css';
 
@@ -13,7 +13,7 @@ export default function ExampleAutocompleteInline() {
       <Autocomplete.Portal>
         <Autocomplete.Positioner className={styles.Positioner} sideOffset={4}>
           <Autocomplete.Popup className={styles.Popup}>
-            <Autocomplete.List>
+            <Autocomplete.List className={styles.List}>
               {(tag: Tag) => (
                 <Autocomplete.Item key={tag.id} className={styles.Item} value={tag}>
                   {tag.value}

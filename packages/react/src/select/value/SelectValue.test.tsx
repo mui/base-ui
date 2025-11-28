@@ -209,7 +209,7 @@ describe('<Select.Value />', () => {
       ];
 
       function App() {
-        const [value, setValue] = React.useState('sans');
+        const [value, setValue] = React.useState<string | null>('sans');
         return (
           <div>
             <button onClick={() => setValue('serif')}>serif</button>
@@ -275,7 +275,7 @@ describe('<Select.Value />', () => {
 
     it('is not stale after being updated', async () => {
       function App() {
-        const [value, setValue] = React.useState('a');
+        const [value, setValue] = React.useState<string | null>('a');
         const [items, setItems] = React.useState([
           { value: 'a', label: 'a' },
           { value: 'b', label: 'b' },
@@ -366,7 +366,7 @@ describe('<Select.Value />', () => {
         { label: 'Canada', value: 'CA' },
       ];
 
-      const { container } = await render(
+      await render(
         <Select.Root name="country" value={items[1]}>
           <Select.Trigger>
             <Select.Value data-testid="value" />
@@ -385,9 +385,11 @@ describe('<Select.Value />', () => {
         </Select.Root>,
       );
 
-      expect(screen.getByTestId('value')).to.have.text('Canada');
-      const hiddenInput = container.querySelector('input[name="country"]');
+      const hiddenInput = screen.getByRole('textbox', {
+        hidden: true,
+      });
       expect(hiddenInput).to.have.value('CA');
+      expect(hiddenInput).to.have.attribute('name', 'country');
     });
   });
 

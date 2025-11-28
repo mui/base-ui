@@ -25,6 +25,7 @@ export function ContextMenuRoot(props: ContextMenuRoot.Props) {
   const actionsRef: ContextMenuRootContext['actionsRef'] = React.useRef(null);
   const positionerRef = React.useRef<HTMLElement | null>(null);
   const allowMouseUpTriggerRef = React.useRef(true);
+  const initialCursorPointRef = React.useRef<{ x: number; y: number } | null>(null);
   const id = useId();
 
   const contextValue: ContextMenuRootContext = React.useMemo(
@@ -36,6 +37,7 @@ export function ContextMenuRoot(props: ContextMenuRoot.Props) {
       internalBackdropRef,
       positionerRef,
       allowMouseUpTriggerRef,
+      initialCursorPointRef,
       rootId: id,
     }),
     [anchor, id],
@@ -50,20 +52,23 @@ export function ContextMenuRoot(props: ContextMenuRoot.Props) {
   );
 }
 
+export interface ContextMenuRootState {}
+
+export interface ContextMenuRootProps
+  extends Omit<Menu.Root.Props, 'modal' | 'openOnHover' | 'delay' | 'closeDelay' | 'onOpenChange'> {
+  /**
+   * Event handler called when the menu is opened or closed.
+   */
+  onOpenChange?: (open: boolean, eventDetails: ContextMenuRoot.ChangeEventDetails) => void;
+}
+
+export type ContextMenuRootChangeEventReason = MenuRoot.ChangeEventReason;
+export type ContextMenuRootChangeEventDetails =
+  BaseUIChangeEventDetails<ContextMenuRoot.ChangeEventReason>;
+
 export namespace ContextMenuRoot {
-  export interface State {}
-
-  export interface Props
-    extends Omit<
-      Menu.Root.Props,
-      'modal' | 'openOnHover' | 'delay' | 'closeDelay' | 'onOpenChange'
-    > {
-    /**
-     * Event handler called when the menu is opened or closed.
-     */
-    onOpenChange?: (open: boolean, eventDetails: ChangeEventDetails) => void;
-  }
-
-  export type ChangeEventReason = MenuRoot.ChangeEventReason;
-  export type ChangeEventDetails = BaseUIChangeEventDetails<ChangeEventReason>;
+  export type State = ContextMenuRootState;
+  export type Props = ContextMenuRootProps;
+  export type ChangeEventReason = ContextMenuRootChangeEventReason;
+  export type ChangeEventDetails = ContextMenuRootChangeEventDetails;
 }

@@ -18,6 +18,11 @@ export enum ComboboxInputDataAttributes {
    */
   readonly = 'data-readonly',
   /**
+   * Indicates which side the corresponding popup is positioned relative to its anchor.
+   * @type {'top' | 'bottom' | 'left' | 'right' | 'inline-end' | 'inline-start' | null}
+   */
+  popupSide = 'data-popup-side',
+  /**
    * Present when the component is required.
    */
   required = 'data-required',
@@ -45,4 +50,8 @@ export enum ComboboxInputDataAttributes {
    * Present when the input is focused (when wrapped in Field.Root).
    */
   focused = 'data-focused',
+  /**
+   * Present when the corresponding items list is empty.
+   */
+  listEmpty = 'data-list-empty',
 }

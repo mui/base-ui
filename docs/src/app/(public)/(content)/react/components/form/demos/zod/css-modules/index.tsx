@@ -1,7 +1,9 @@
+'use client';
 import * as React from 'react';
 import { z } from 'zod';
 import { Field } from '@base-ui-components/react/field';
 import { Form } from '@base-ui-components/react/form';
+import { Button } from '@base-ui-components/react/button';
 import styles from './index.module.css';
 
 const schema = z.object({
@@ -9,11 +11,8 @@ const schema = z.object({
   age: z.coerce.number('Age must be a number').positive('Age must be a positive number'),
 });
 
-async function submitForm(event: React.FormEvent<HTMLFormElement>) {
-  event.preventDefault();
-
-  const formData = new FormData(event.currentTarget);
-  const result = schema.safeParse(Object.fromEntries(formData as any));
+async function submitForm(formValues: Form.Values) {
+  const result = schema.safeParse(formValues);
 
   if (!result.success) {
     return {
@@ -33,9 +32,8 @@ export default function Page() {
     <Form
       className={styles.Form}
       errors={errors}
-      onClearErrors={setErrors}
-      onSubmit={async (event) => {
-        const response = await submitForm(event);
+      onFormSubmit={async (formValues) => {
+        const response = await submitForm(formValues);
         setErrors(response.errors);
       }}
     >
@@ -49,9 +47,9 @@ export default function Page() {
         <Field.Control placeholder="Enter age" className={styles.Input} />
         <Field.Error className={styles.Error} />
       </Field.Root>
-      <button type="submit" className={styles.Button}>
+      <Button type="submit" className={styles.Button}>
         Submit
-      </button>
+      </Button>
     </Form>
   );
 }

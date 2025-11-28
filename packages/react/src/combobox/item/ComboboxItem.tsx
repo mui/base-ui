@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
+import * as ReactDOM from 'react-dom';
 import { useStore } from '@base-ui-components/utils/store';
-import { useLatestRef } from '@base-ui-components/utils/useLatestRef';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import {
   useComboboxRootContext,
@@ -38,6 +38,7 @@ export const ComboboxItem = React.memo(
       ...elementProps
     } = componentProps;
 
+    const didPointerDownRef = React.useRef(false);
     const textRef = React.useRef<HTMLElement | null>(null);
     const listItem = useCompositeListItem({
       index: indexProp,
@@ -49,30 +50,25 @@ export const ComboboxItem = React.memo(
     const isRow = useComboboxRowContext();
     const { flatFilteredItems } = useComboboxDerivedItemsContext();
 
+    const open = useStore(store, selectors.open);
     const selectionMode = useStore(store, selectors.selectionMode);
     const readOnly = useStore(store, selectors.readOnly);
     const virtualized = useStore(store, selectors.virtualized);
-    const listRef = useStore(store, selectors.listRef);
-    const valuesRef = useStore(store, selectors.valuesRef);
-    const allValuesRef = useStore(store, selectors.allValuesRef);
     const isItemEqualToValue = useStore(store, selectors.isItemEqualToValue);
 
     const selectable = selectionMode !== 'none';
     const index =
       indexProp ??
       (virtualized ? findItemIndex(flatFilteredItems, value, isItemEqualToValue) : listItem.index);
+    const hasRegistered = listItem.index !== -1;
 
     const rootId = useStore(store, selectors.id);
     const highlighted = useStore(store, selectors.isActive, index);
     const matchesSelectedValue = useStore(store, selectors.isSelected, value);
-    const rootSelectedValue = useStore(store, selectors.selectedValue);
     const items = useStore(store, selectors.items);
     const getItemProps = useStore(store, selectors.getItemProps);
 
     const itemRef = React.useRef<HTMLDivElement | null>(null);
-    const indexRef = useLatestRef(index);
-
-    const hasRegistered = listItem.index !== -1;
 
     const id = rootId != null && hasRegistered ? `${rootId}-${index}` : undefined;
     const selected = matchesSelectedValue && selectable;
@@ -83,49 +79,53 @@ export const ComboboxItem = React.memo(
         return undefined;
       }
 
-      const list = listRef.current;
+      const list = store.state.listRef.current;
       list[index] = itemRef.current;
 
       return () => {
         delete list[index];
       };
-    }, [hasRegistered, virtualized, index, listRef, indexProp]);
+    }, [hasRegistered, virtualized, index, indexProp, store]);
 
     useIsoLayoutEffect(() => {
       if (!hasRegistered || items) {
         return undefined;
       }
 
-      const visibleMap = valuesRef.current;
+      const visibleMap = store.state.valuesRef.current;
       visibleMap[index] = value;
 
       // Stable registry that doesn't depend on filtering. Assume that no
       // filtering had occurred at this point; otherwise, an `items` prop is
       // required.
       if (selectionMode !== 'none') {
-        allValuesRef.current.push(value);
+        store.state.allValuesRef.current.push(value);
       }
 
       return () => {
         delete visibleMap[index];
       };
-    }, [hasRegistered, items, index, value, valuesRef, allValuesRef, selectionMode]);
+    }, [hasRegistered, items, index, value, store, selectionMode]);
 
-    // When items are uncontrolled (no `items` prop), ensure selectedIndex is
-    // derived from the mounted item whose value matches the selected value.
     useIsoLayoutEffect(() => {
+      if (!open) {
+        didPointerDownRef.current = false;
+        return;
+      }
+
       if (!hasRegistered || items) {
         return;
       }
 
-      const lastSelectedValue = Array.isArray(rootSelectedValue)
-        ? rootSelectedValue[rootSelectedValue.length - 1]
-        : rootSelectedValue;
+      const selectedValue = store.state.selectedValue;
+      const lastSelectedValue = Array.isArray(selectedValue)
+        ? selectedValue[selectedValue.length - 1]
+        : selectedValue;
 
       if (compareItemEquality(lastSelectedValue, value, isItemEqualToValue)) {
         store.set('selectedIndex', index);
       }
-    }, [hasRegistered, items, store, index, value, rootSelectedValue, isItemEqualToValue]);
+    }, [hasRegistered, items, open, store, index, value, isItemEqualToValue]);
 
     const state: ComboboxItem.State = React.useMemo(
       () => ({
@@ -137,14 +137,27 @@ export const ComboboxItem = React.memo(
     );
 
     const rootProps = getItemProps({ active: highlighted, selected });
-    delete rootProps.id;
-    delete rootProps.onFocus;
+    rootProps.id = undefined;
+    rootProps.onFocus = undefined;
 
     const { getButtonProps, buttonRef } = useButton({
       disabled,
       focusableWhenDisabled: true,
       native: nativeButton,
     });
+
+    function commitSelection(nativeEvent: MouseEvent) {
+      function selectItem() {
+        store.state.handleSelection(nativeEvent, value);
+      }
+
+      if (store.state.submitOnItemClick) {
+        ReactDOM.flushSync(selectItem);
+        store.state.requestSubmit();
+      } else {
+        selectItem();
+      }
+    }
 
     const defaultProps: HTMLProps = {
       id,
@@ -155,14 +168,26 @@ export const ComboboxItem = React.memo(
       // Warn if the user renders a natively focusable element like `<button>`,
       // as it should be a `<div>` instead.
       tabIndex: undefined,
-      onPointerDown(event) {
+      onPointerDownCapture(event) {
+        didPointerDownRef.current = true;
         event.preventDefault();
       },
       onClick(event) {
         if (disabled || readOnly) {
           return;
         }
-        store.state.handleSelection(event.nativeEvent, value);
+
+        commitSelection(event.nativeEvent);
+      },
+      onMouseUp(event) {
+        const pointerStartedOnItem = didPointerDownRef.current;
+        didPointerDownRef.current = false;
+
+        if (disabled || readOnly || event.button !== 0 || pointerStartedOnItem || !highlighted) {
+          return;
+        }
+
+        commitSelection(event.nativeEvent);
       },
     };
 
@@ -175,10 +200,9 @@ export const ComboboxItem = React.memo(
     const contextValue: ComboboxItemContext = React.useMemo(
       () => ({
         selected,
-        indexRef,
         textRef,
       }),
-      [selected, indexRef, textRef],
+      [selected, textRef],
     );
 
     return (
@@ -187,44 +211,47 @@ export const ComboboxItem = React.memo(
   }),
 );
 
-export namespace ComboboxItem {
-  export interface State {
-    /**
-     * Whether the item should ignore user interaction.
-     */
-    disabled: boolean;
-    /**
-     * Whether the item is selected.
-     */
-    selected: boolean;
-    /**
-     * Whether the item is highlighted.
-     */
-    highlighted: boolean;
-  }
+export interface ComboboxItemState {
+  /**
+   * Whether the item should ignore user interaction.
+   */
+  disabled: boolean;
+  /**
+   * Whether the item is selected.
+   */
+  selected: boolean;
+  /**
+   * Whether the item is highlighted.
+   */
+  highlighted: boolean;
+}
 
-  export interface Props
-    extends NonNativeButtonProps,
-      Omit<BaseUIComponentProps<'div', State>, 'id'> {
-    children?: React.ReactNode;
-    /**
-     * An optional click handler for the item when selected.
-     * It fires when clicking the item with the pointer, as well as when pressing `Enter` with the keyboard if the item is highlighted when the `Input` or `List` element has focus.
-     */
-    onClick?: React.MouseEventHandler<HTMLElement>;
-    /**
-     * The index of the item in the list. Improves performance when specified by avoiding the need to calculate the index automatically from the DOM.
-     */
-    index?: number;
-    /**
-     * A unique value that identifies this item.
-     * @default null
-     */
-    value?: any;
-    /**
-     * Whether the component should ignore user interaction.
-     * @default false
-     */
-    disabled?: boolean;
-  }
+export interface ComboboxItemProps
+  extends NonNativeButtonProps,
+    Omit<BaseUIComponentProps<'div', ComboboxItem.State>, 'id'> {
+  children?: React.ReactNode;
+  /**
+   * An optional click handler for the item when selected.
+   * It fires when clicking the item with the pointer, as well as when pressing `Enter` with the keyboard if the item is highlighted when the `Input` or `List` element has focus.
+   */
+  onClick?: React.MouseEventHandler<HTMLElement>;
+  /**
+   * The index of the item in the list. Improves performance when specified by avoiding the need to calculate the index automatically from the DOM.
+   */
+  index?: number;
+  /**
+   * A unique value that identifies this item.
+   * @default null
+   */
+  value?: any;
+  /**
+   * Whether the component should ignore user interaction.
+   * @default false
+   */
+  disabled?: boolean;
+}
+
+export namespace ComboboxItem {
+  export type State = ComboboxItemState;
+  export type Props = ComboboxItemProps;
 }

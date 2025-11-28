@@ -3,7 +3,7 @@
   "description": "Groups an accordion header with the corresponding panel.\nRenders a `<div>` element.",
   "props": {
     "value": {
-      "type": "AccordionItemValue",
+      "type": "any",
       "description": "A unique value that identifies this accordion item.\nIf no value is provided, a unique ID will be generated automatically.\nUse when controlling the accordion programmatically, or to set an initial\nopen state.",
       "example": "```tsx\n<Accordion.Root value={['a']}>\n  <Accordion.Item value=\"a\" /> // initially open\n  <Accordion.Item value=\"b\" /> // initially closed\n</Accordion.Root>\n```"
     },
@@ -19,8 +19,13 @@
       "detailedType": "boolean | undefined"
     },
     "className": {
-      "type": "string | ((state: Accordion.Item.State) => string)",
-      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
+      "type": "string | ((state: Accordion.Item.State) => string | undefined)",
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
+      "detailedType": "| string\n| ((state: Accordion.Item.State) => string | undefined)"
+    },
+    "style": {
+      "type": "CSSProperties | ((state: Accordion.Item.State) => CSSProperties | undefined)",
+      "detailedType": "| React.CSSProperties\n| ((\n    state: Accordion.Item.State,\n  ) => CSSProperties | undefined)\n| undefined"
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: Accordion.Item.State) => ReactElement)",

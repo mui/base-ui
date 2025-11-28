@@ -148,7 +148,7 @@
     transform 150ms,
     opacity 150ms;
   max-width: var(--available-width);
-  max-height: min(20.5rem, var(--available-height));
+  max-height: 20.5rem;
 
   &[data-starting-style],
   &[data-ending-style] {

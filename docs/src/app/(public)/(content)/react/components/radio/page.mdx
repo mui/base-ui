@@ -6,7 +6,13 @@
   content="A high-quality, unstyled React radio button component that is easy to style."
 />
 
-<Demo path="./demos/hero" />
+import { DemoRadioHero } from './demos/hero';
+
+<DemoRadioHero />
+
+## Usage guidelines
+
+- **Form controls must have an accessible name**: Radio group and individual Radio elements must have a meaningful label. Prefer using [`<Fieldset>`](/react/components/fieldset) and [`<Field>`](/react/components/field) to provide visible text labels and descriptions, or use the `aria-label` attribute as an alternative. See the [forms guide](/react/handbook/forms) for more on building form controls.
 
 ## Anatomy
 
@@ -31,31 +37,3 @@ Provides a shared state to a series of radio buttons. Renders a `<div>` element.
 
 <Reference component="RadioGroup" />
 <Reference component="Radio" parts="Root, Indicator" />
-
-## Examples
-
-### Form integration
-
-To use a radio group in a form:
-
-1. Pass the group's `name` to `Field`
-2. Use `Field.Label` to label each radio
-3. Use the `render` prop to render the field as a `Fieldset` in order to label the group
-
-```tsx title="Using RadioGroup in a form"
-<Form>
-  <Field.Root name="shipping" render={<Fieldset.Root />}>
-    <Fieldset.Legend>Shipping method</Fieldset.Legend>
-    <RadioGroup>
-      <Field.Label>
-        <Radio.Root value="standard" />
-        Standard
-      </Field.Label>
-      <Field.Label>
-        <Radio.Root value="express" />
-        Express
-      </Field.Label>
-    </RadioGroup>
-  </Field.Root>
-</Form>
-```

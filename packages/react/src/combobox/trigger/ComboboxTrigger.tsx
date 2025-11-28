@@ -1,20 +1,31 @@
 'use client';
 import * as React from 'react';
 import { useStore } from '@base-ui-components/utils/store';
-import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { useTimeout } from '@base-ui-components/utils/useTimeout';
+import { ownerDocument } from '@base-ui-components/utils/owner';
 import { BaseUIComponentProps, NativeButtonProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useButton } from '../../use-button';
-import { useComboboxInputValueContext, useComboboxRootContext } from '../root/ComboboxRootContext';
+import {
+  useComboboxFloatingContext,
+  useComboboxInputValueContext,
+  useComboboxRootContext,
+} from '../root/ComboboxRootContext';
 import { selectors } from '../store';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
+import { useLabelableContext } from '../../labelable-provider/LabelableContext';
 import { pressableTriggerOpenStateMapping } from '../../utils/popupStateMapping';
-import { stopEvent } from '../../floating-ui-react/utils';
+import { stopEvent, contains, getTarget } from '../../floating-ui-react/utils';
+import { getPseudoElementBounds } from '../../utils/getPseudoElementBounds';
 import type { FieldRoot } from '../../field/root/FieldRoot';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
+import { REASONS } from '../../utils/reasons';
 import { fieldValidityMapping } from '../../field/utils/constants';
 import { StateAttributesMapping } from '../../utils/getStateAttributesProps';
+import { useClick, useTypeahead } from '../../floating-ui-react';
+
+const BOUNDARY_OFFSET = 2;
 
 const stateAttributesMapping: StateAttributesMapping<ComboboxTrigger.State> = {
   ...pressableTriggerOpenStateMapping,
@@ -40,34 +51,68 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
   const {
     state: fieldState,
     disabled: fieldDisabled,
-    labelId,
     setTouched,
     setFocused,
     validationMode,
+    validation,
   } = useFieldRootContext();
+  const { labelId } = useLabelableContext();
   const store = useComboboxRootContext();
 
   const selectionMode = useStore(store, selectors.selectionMode);
-  const fieldControlValidation = useStore(store, selectors.fieldControlValidation);
   const comboboxDisabled = useStore(store, selectors.disabled);
   const readOnly = useStore(store, selectors.readOnly);
   const listElement = useStore(store, selectors.listElement);
   const triggerProps = useStore(store, selectors.triggerProps);
-  const typeaheadTriggerProps = useStore(store, selectors.typeaheadTriggerProps);
+  const triggerElement = useStore(store, selectors.triggerElement);
   const inputInsidePopup = useStore(store, selectors.inputInsidePopup);
   const open = useStore(store, selectors.open);
   const selectedValue = useStore(store, selectors.selectedValue);
+  const activeIndex = useStore(store, selectors.activeIndex);
+  const selectedIndex = useStore(store, selectors.selectedIndex);
 
+  const floatingRootContext = useComboboxFloatingContext();
   const inputValue = useComboboxInputValueContext();
-
-  const disabled = fieldDisabled || comboboxDisabled || disabledProp;
 
   const focusTimeout = useTimeout();
 
+  const disabled = fieldDisabled || comboboxDisabled || disabledProp;
+
   const currentPointerTypeRef = React.useRef<PointerEvent['pointerType']>('');
 
-  const trackPointerType = useEventCallback((event: React.PointerEvent) => {
+  function trackPointerType(event: React.PointerEvent) {
     currentPointerTypeRef.current = event.pointerType;
+  }
+
+  const domReference = floatingRootContext.select('domReferenceElement');
+
+  // Update the floating root context to use the trigger element when it differs from the current reference.
+  // This ensures useClick and useTypeahead attach handlers to the correct element.
+  React.useEffect(() => {
+    if (!inputInsidePopup) {
+      return;
+    }
+    if (triggerElement && triggerElement !== domReference) {
+      floatingRootContext.set('domReferenceElement', triggerElement);
+    }
+  }, [triggerElement, domReference, floatingRootContext, inputInsidePopup]);
+
+  const { reference: triggerTypeaheadProps } = useTypeahead(floatingRootContext, {
+    enabled: !open && !readOnly && !comboboxDisabled && selectionMode === 'single',
+    listRef: store.state.labelsRef,
+    activeIndex,
+    selectedIndex,
+    onMatch(index) {
+      const nextSelectedValue = store.state.valuesRef.current[index];
+      if (nextSelectedValue !== undefined) {
+        store.state.setSelectedValue(nextSelectedValue, createChangeEventDetails('none'));
+      }
+    },
+  });
+
+  const { reference: triggerClickProps } = useClick(floatingRootContext, {
+    enabled: !readOnly && !comboboxDisabled,
+    event: 'mousedown',
   });
 
   const { buttonRef, getButtonProps } = useButton({
@@ -84,7 +129,7 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
     [fieldState, open, disabled],
   );
 
-  const setTriggerElement = useEventCallback((element) => {
+  const setTriggerElement = useStableCallback((element) => {
     store.set('triggerElement', element);
   });
 
@@ -93,10 +138,12 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
     state,
     props: [
       triggerProps,
-      typeaheadTriggerProps,
+      triggerClickProps,
+      triggerTypeaheadProps,
       {
         tabIndex: inputInsidePopup ? 0 : -1,
         disabled,
+        role: inputInsidePopup ? 'combobox' : undefined,
         'aria-expanded': open ? 'true' : 'false',
         'aria-haspopup': inputInsidePopup ? 'dialog' : 'listbox',
         'aria-controls': open ? listElement?.id : undefined,
@@ -119,7 +166,7 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
 
           if (validationMode === 'onBlur') {
             const valueToValidate = selectionMode === 'none' ? inputValue : selectedValue;
-            fieldControlValidation.commitValidation(valueToValidate);
+            validation.commit(valueToValidate);
           }
         },
         onMouseDown(event) {
@@ -127,26 +174,63 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
             return;
           }
 
+          if (!inputInsidePopup) {
+            floatingRootContext.set('domReferenceElement', event.currentTarget);
+          }
+
           // Ensure items are registered for initial selection highlight.
           store.state.forceMount();
 
-          if (!store.state.inputInsidePopup) {
-            event.preventDefault();
+          if (currentPointerTypeRef.current !== 'touch') {
+            store.state.inputRef.current?.focus();
+
+            if (!inputInsidePopup) {
+              event.preventDefault();
+            }
           }
-        },
-        onClick(event) {
-          if (disabled || readOnly) {
+
+          if (open) {
             return;
           }
 
-          const nextOpen = !open;
-          store.state.setOpen(
-            nextOpen,
-            createChangeEventDetails('trigger-press', event.nativeEvent),
-          );
+          const doc = ownerDocument(event.currentTarget);
 
-          if (nextOpen && currentPointerTypeRef.current !== 'touch') {
-            store.state.inputRef.current?.focus();
+          function handleMouseUp(mouseEvent: MouseEvent) {
+            if (!triggerElement) {
+              return;
+            }
+
+            const mouseUpTarget = getTarget(mouseEvent) as Element | null;
+            const positioner = store.state.positionerElement;
+            const list = store.state.listElement;
+
+            if (
+              contains(triggerElement, mouseUpTarget) ||
+              contains(positioner, mouseUpTarget) ||
+              contains(list, mouseUpTarget) ||
+              mouseUpTarget === triggerElement
+            ) {
+              return;
+            }
+
+            const bounds = getPseudoElementBounds(triggerElement);
+
+            const withinHorizontal =
+              mouseEvent.clientX >= bounds.left - BOUNDARY_OFFSET &&
+              mouseEvent.clientX <= bounds.right + BOUNDARY_OFFSET;
+            const withinVertical =
+              mouseEvent.clientY >= bounds.top - BOUNDARY_OFFSET &&
+              mouseEvent.clientY <= bounds.bottom + BOUNDARY_OFFSET;
+
+            if (withinHorizontal && withinVertical) {
+              return;
+            }
+
+            store.state.setOpen(false, createChangeEventDetails('cancel-open', mouseEvent));
+          }
+
+          if (inputInsidePopup) {
+            doc.addEventListener('mouseup', handleMouseUp, { once: true });
           }
         },
         onKeyDown(event) {
@@ -158,15 +242,13 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
             stopEvent(event);
             store.state.setOpen(
               true,
-              createChangeEventDetails('list-navigation', event.nativeEvent),
+              createChangeEventDetails(REASONS.listNavigation, event.nativeEvent),
             );
             store.state.inputRef.current?.focus();
           }
         },
       },
-      fieldControlValidation
-        ? fieldControlValidation.getValidationProps(elementProps)
-        : elementProps,
+      validation ? validation.getValidationProps(elementProps) : elementProps,
       getButtonProps,
     ],
     stateAttributesMapping,
@@ -175,23 +257,28 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
   return element;
 });
 
-export namespace ComboboxTrigger {
-  export interface State extends FieldRoot.State {
-    /**
-     * Whether the popup is open.
-     */
-    open: boolean;
-    /**
-     * Whether the component should ignore user interaction.
-     */
-    disabled: boolean;
-  }
+export interface ComboboxTriggerState extends FieldRoot.State {
+  /**
+   * Whether the popup is open.
+   */
+  open: boolean;
+  /**
+   * Whether the component should ignore user interaction.
+   */
+  disabled: boolean;
+}
 
-  export interface Props extends NativeButtonProps, BaseUIComponentProps<'button', State> {
-    /**
-     * Whether the component should ignore user interaction.
-     * @default false
-     */
-    disabled?: boolean;
-  }
+export interface ComboboxTriggerProps
+  extends NativeButtonProps,
+    BaseUIComponentProps<'button', ComboboxTrigger.State> {
+  /**
+   * Whether the component should ignore user interaction.
+   * @default false
+   */
+  disabled?: boolean;
+}
+
+export namespace ComboboxTrigger {
+  export type State = ComboboxTriggerState;
+  export type Props = ComboboxTriggerProps;
 }

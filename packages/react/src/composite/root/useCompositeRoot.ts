@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { isElementDisabled } from '@base-ui-components/utils/isElementDisabled';
-import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
 import type { TextDirection } from '../../direction-provider/DirectionContext';
 import {
@@ -39,7 +39,7 @@ import { HTMLProps } from '../../utils/types';
 export interface UseCompositeRootParameters {
   orientation?: 'horizontal' | 'vertical' | 'both';
   cols?: number;
-  loop?: boolean;
+  loopFocus?: boolean;
   highlightedIndex?: number;
   onHighlightedIndexChange?: (index: number) => void;
   dense?: boolean;
@@ -77,7 +77,7 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
   const {
     itemSizes,
     cols = 1,
-    loop = true,
+    loopFocus = true,
     dense = false,
     orientation = 'both',
     direction,
@@ -101,7 +101,7 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
   const hasSetDefaultIndexRef = React.useRef(false);
 
   const highlightedIndex = externalHighlightedIndex ?? internalHighlightedIndex;
-  const onHighlightedIndexChange = useEventCallback((index, shouldScrollIntoView = false) => {
+  const onHighlightedIndexChange = useStableCallback((index, shouldScrollIntoView = false) => {
     (externalSetHighlightedIndex ?? internalSetHighlightedIndex)(index);
     if (shouldScrollIntoView) {
       const newActiveItem = elementsRef.current[index];
@@ -109,7 +109,7 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
     }
   });
 
-  const onMapChange = useEventCallback((map: Map<Element, CompositeMetadata<any>>) => {
+  const onMapChange = useStableCallback((map: Map<Element, CompositeMetadata<any>>) => {
     if (map.size === 0 || hasSetDefaultIndexRef.current) {
       return;
     }
@@ -223,7 +223,7 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
               {
                 event,
                 orientation,
-                loop,
+                loopFocus,
                 cols,
                 // treat undefined (empty grid spaces) as disabled indices so we
                 // don't end up in them
@@ -288,9 +288,9 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
           nextIndex === highlightedIndex &&
           (forwardKeys.includes(event.key) || backwardKeys.includes(event.key))
         ) {
-          if (loop && nextIndex === maxIndex && forwardKeys.includes(event.key)) {
+          if (loopFocus && nextIndex === maxIndex && forwardKeys.includes(event.key)) {
             nextIndex = minIndex;
-          } else if (loop && nextIndex === minIndex && backwardKeys.includes(event.key)) {
+          } else if (loopFocus && nextIndex === minIndex && backwardKeys.includes(event.key)) {
             nextIndex = maxIndex;
           } else {
             nextIndex = findNonDisabledListIndex(elementsRef, {
@@ -328,7 +328,7 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
       highlightedIndex,
       isGrid,
       itemSizes,
-      loop,
+      loopFocus,
       mergedRef,
       modifierKeys,
       onHighlightedIndexChange,
@@ -345,6 +345,7 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
       elementsRef,
       disabledIndices,
       onMapChange,
+      relayKeyboardEvent: props.onKeyDown!,
     }),
     [props, highlightedIndex, onHighlightedIndexChange, elementsRef, disabledIndices, onMapChange],
   );

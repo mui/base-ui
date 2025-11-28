@@ -1,10 +1,9 @@
 /* eslint-disable no-console */
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { readFile, writeFile } from 'node:fs/promises';
 import { globby } from 'globby';
-import * as jsxRuntime from 'react/jsx-runtime';
-import { evaluate } from '@mdx-js/mdx';
+import { compile } from '@mdx-js/mdx';
 import rehypeExtractToc, { type Toc, type TocEntry } from '@stefanprobst/rehype-extract-toc';
 import rehypeExportToc from '@stefanprobst/rehype-extract-toc/mdx';
 import { rehypeSlug } from 'docs/src/components/QuickNav/rehypeSlug.mjs';
@@ -106,8 +105,10 @@ async function getLinksAndAnchors(
 
   let rawLinks: Set<string> = new Set();
 
-  const { tableOfContents } = await evaluate(mdxSource, {
-    ...jsxRuntime,
+  // Use compile instead of evaluate to avoid executing imports
+  // This processes the MDX syntax without running the JavaScript
+  const compiledMdx = await compile(mdxSource, {
+    baseUrl: pathToFileURL(filePath),
     remarkPlugins: [remarkGfm],
     rehypePlugins: [
       rehypeReference,
@@ -126,6 +127,10 @@ async function getLinksAndAnchors(
     ],
   });
 
+  // Extract tableOfContents from the compiled output
+  // The rehypeExportToc plugin puts it in data.toc
+  const tableOfContents = compiledMdx.data?.toc as Toc | undefined;
+
   const links = [...rawLinks]
     .filter((link) => link.startsWith('/') || link.startsWith('#'))
     .filter((link) => !link.endsWith('.md') && !link.endsWith('.txt'))
@@ -133,11 +138,10 @@ async function getLinksAndAnchors(
       if (link.startsWith('#')) {
         return `${pageUrl}${link}`;
       }
-
       return link;
     });
 
-  const anchors = getAnchorsFromTableOfContents(tableOfContents as Toc);
+  const anchors = tableOfContents ? getAnchorsFromTableOfContents(tableOfContents) : [];
 
   return {
     anchors,

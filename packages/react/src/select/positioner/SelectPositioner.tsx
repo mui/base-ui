@@ -2,7 +2,8 @@
 import * as React from 'react';
 import { inertValue } from '@base-ui-components/utils/inertValue';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
-import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useScrollLock } from '@base-ui-components/utils/useScrollLock';
+import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { useStore } from '@base-ui-components/utils/store';
 import { useSelectRootContext, useSelectFloatingContext } from '../root/SelectRootContext';
 import { CompositeList } from '../../composite/list/CompositeList';
@@ -15,8 +16,8 @@ import { useRenderElement } from '../../utils/useRenderElement';
 import { DROPDOWN_COLLISION_AVOIDANCE } from '../../utils/constants';
 import { clearStyles } from '../popup/utils';
 import { selectors } from '../store';
-import { useScrollLock } from '../../utils/useScrollLock';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
+import { REASONS } from '../../utils/reasons';
 import { findItemIndex, itemIncludes } from '../../utils/itemEquality';
 
 const FIXED: React.CSSProperties = { position: 'fixed' };
@@ -44,7 +45,7 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
     collisionPadding,
     arrowPadding = 5,
     sticky = false,
-    trackAnchor = true,
+    disableAnchorTracking,
     alignItemWithTrigger = true,
     collisionAvoidance = DROPDOWN_COLLISION_AVOIDANCE,
     ...elementProps
@@ -55,6 +56,7 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
     listRef,
     labelsRef,
     alignItemWithTriggerActiveRef,
+    selectedItemTextRef,
     valuesRef,
     initialValueRef,
     popupRef,
@@ -95,12 +97,7 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
 
   React.useImperativeHandle(alignItemWithTriggerActiveRef, () => alignItemWithTriggerActive);
 
-  useScrollLock({
-    enabled: (alignItemWithTriggerActive || modal) && open && !touchModality,
-    mounted,
-    open,
-    referenceElement: triggerElement,
-  });
+  useScrollLock((alignItemWithTriggerActive || modal) && open && !touchModality, triggerElement);
 
   const positioning = useAnchorPositioning({
     anchor,
@@ -115,7 +112,7 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
     collisionBoundary,
     collisionPadding,
     sticky,
-    trackAnchor: trackAnchor ?? !alignItemWithTriggerActive,
+    disableAnchorTracking: disableAnchorTracking ?? alignItemWithTriggerActive,
     collisionAvoidance,
     keepMounted: true,
   });
@@ -150,7 +147,7 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
     [open, renderedSide, positioning.align, positioning.anchorHidden],
   );
 
-  const setPositionerElement = useEventCallback((element) => {
+  const setPositionerElement = useStableCallback((element) => {
     store.set('positionerElement', element);
   });
 
@@ -163,7 +160,7 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
 
   const prevMapSizeRef = React.useRef(0);
 
-  const onMapChange = useEventCallback((map: Map<Element, { index?: number | null } | null>) => {
+  const onMapChange = useStableCallback((map: Map<Element, { index?: number | null } | null>) => {
     if (map.size === 0 && prevMapSizeRef.current === 0) {
       return;
     }
@@ -179,7 +176,7 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
       return;
     }
 
-    const eventDetails = createChangeEventDetails('none');
+    const eventDetails = createChangeEventDetails(REASONS.none);
 
     if (prevSize !== 0 && !store.state.multiple && value !== null) {
       const valueIndex = findItemIndex(valuesRef.current, value, isItemEqualToValue);
@@ -189,6 +186,11 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
           initial != null && itemIncludes(valuesRef.current, initial, isItemEqualToValue);
         const nextValue = hasInitial ? initial : null;
         setValue(nextValue, eventDetails);
+
+        if (nextValue === null) {
+          store.set('selectedIndex', null);
+          selectedItemTextRef.current = null;
+        }
       }
     }
 
@@ -199,11 +201,16 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
         nextValue.some((v) => !itemIncludes(value, v, isItemEqualToValue))
       ) {
         setValue(nextValue, eventDetails);
+
+        if (nextValue.length === 0) {
+          store.set('selectedIndex', null);
+          selectedItemTextRef.current = null;
+        }
       }
     }
 
     if (open && alignItemWithTriggerActive) {
-      store.apply({
+      store.update({
         scrollUpArrowVisible: false,
         scrollDownArrowVisible: false,
       });
@@ -236,21 +243,24 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
   );
 });
 
-export namespace SelectPositioner {
-  export interface State {
-    open: boolean;
-    side: Side | 'none';
-    align: Align;
-    anchorHidden: boolean;
-  }
+export interface SelectPositionerState {
+  open: boolean;
+  side: Side | 'none';
+  align: Align;
+  anchorHidden: boolean;
+}
 
-  export interface Props
-    extends useAnchorPositioning.SharedParameters,
-      BaseUIComponentProps<'div', State> {
-    /**
-     * Whether the positioner overlaps the trigger so the selected item's text is aligned with the trigger's value text. This only applies to mouse input and is automatically disabled if there is not enough space.
-     * @default true
-     */
-    alignItemWithTrigger?: boolean;
-  }
+export interface SelectPositionerProps
+  extends useAnchorPositioning.SharedParameters,
+    BaseUIComponentProps<'div', SelectPositioner.State> {
+  /**
+   * Whether the positioner overlaps the trigger so the selected item's text is aligned with the trigger's value text. This only applies to mouse input and is automatically disabled if there is not enough space.
+   * @default true
+   */
+  alignItemWithTrigger?: boolean;
+}
+
+export namespace SelectPositioner {
+  export type State = SelectPositionerState;
+  export type Props = SelectPositionerProps;
 }

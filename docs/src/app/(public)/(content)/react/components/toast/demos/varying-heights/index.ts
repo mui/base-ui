@@ -1,2 +1,4 @@
-'use client';
-export { default as CssModules } from './css-modules/index';
+import { createDemoWithVariants } from 'docs/src/utils/createDemo';
+import CssModules from './css-modules';
+
+export const DemoToastVaryingHeights = createDemoWithVariants(import.meta.url, { CssModules });

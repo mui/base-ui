@@ -15,11 +15,11 @@ import { popupStateMapping } from '../../utils/popupStateMapping';
 import { useComboboxPositionerContext } from '../positioner/ComboboxPositionerContext';
 import type { Side, Align } from '../../utils/useAnchorPositioning';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
-import { DISABLED_TRANSITIONS_STYLE, EMPTY_OBJECT } from '../../utils/constants';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
 import { StateAttributesMapping } from '../../utils/getStateAttributesProps';
 import { contains, getTarget } from '../../floating-ui-react/utils';
+import { getDisabledMountTransitionStyles } from '../../utils/getDisabledMountTransitionStyles';
 
 const stateAttributesMapping: StateAttributesMapping<ComboboxPopup.State> = {
   ...popupStateMapping,
@@ -47,7 +47,6 @@ export const ComboboxPopup = React.forwardRef(function ComboboxPopup(
   const transitionStatus = useStore(store, selectors.transitionStatus);
   const inputInsidePopup = useStore(store, selectors.inputInsidePopup);
   const inputElement = useStore(store, selectors.inputElement);
-  const listElement = useStore(store, selectors.listElement);
 
   const empty = filteredItems.length === 0;
 
@@ -78,15 +77,19 @@ export const ComboboxPopup = React.forwardRef(function ComboboxPopup(
     ref: [forwardedRef, store.state.popupRef],
     props: [
       {
+        role: inputInsidePopup ? 'dialog' : 'presentation',
         tabIndex: -1,
         onFocus(event) {
           const target = getTarget(event.nativeEvent) as Element | null;
-          if (openMethod !== 'touch' && !contains(listElement, target)) {
+          if (
+            openMethod !== 'touch' &&
+            (contains(store.state.listElement, target) || target === event.currentTarget)
+          ) {
             store.state.inputRef.current?.focus();
           }
         },
       },
-      transitionStatus === 'starting' ? DISABLED_TRANSITIONS_STYLE : EMPTY_OBJECT,
+      getDisabledMountTransitionStyles(transitionStatus),
       elementProps,
     ],
     stateAttributesMapping,
@@ -124,42 +127,45 @@ export const ComboboxPopup = React.forwardRef(function ComboboxPopup(
   );
 });
 
-export namespace ComboboxPopup {
-  export interface State {
-    open: boolean;
-    side: Side;
-    align: Align;
-    anchorHidden: boolean;
-    transitionStatus: TransitionStatus;
-    empty: boolean;
-  }
+export interface ComboboxPopupState {
+  open: boolean;
+  side: Side;
+  align: Align;
+  anchorHidden: boolean;
+  transitionStatus: TransitionStatus;
+  empty: boolean;
+}
 
-  export interface Props extends BaseUIComponentProps<'div', State> {
-    /**
-     * Determines the element to focus when the popup is opened.
-     *
-     * - `false`: Do not move focus.
-     * - `true`: Move focus based on the default behavior (first tabbable element or popup).
-     * - `RefObject`: Move focus to the ref element.
-     * - `function`: Called with the interaction type (`mouse`, `touch`, `pen`, or `keyboard`).
-     *   Return an element to focus, `true` to use the default behavior, or `false`/`undefined` to do nothing.
-     */
-    initialFocus?:
-      | boolean
-      | React.RefObject<HTMLElement | null>
-      | ((openType: InteractionType) => void | boolean | HTMLElement | null);
-    /**
-     * Determines the element to focus when the popup is closed.
-     *
-     * - `false`: Do not move focus.
-     * - `true`: Move focus based on the default behavior (trigger or previously focused element).
-     * - `RefObject`: Move focus to the ref element.
-     * - `function`: Called with the interaction type (`mouse`, `touch`, `pen`, or `keyboard`).
-     *   Return an element to focus, `true` to use the default behavior, or `false`/`undefined` to do nothing.
-     */
-    finalFocus?:
-      | boolean
-      | React.RefObject<HTMLElement | null>
-      | ((closeType: InteractionType) => void | boolean | HTMLElement | null);
-  }
+export interface ComboboxPopupProps extends BaseUIComponentProps<'div', ComboboxPopup.State> {
+  /**
+   * Determines the element to focus when the popup is opened.
+   *
+   * - `false`: Do not move focus.
+   * - `true`: Move focus based on the default behavior (first tabbable element or popup).
+   * - `RefObject`: Move focus to the ref element.
+   * - `function`: Called with the interaction type (`mouse`, `touch`, `pen`, or `keyboard`).
+   *   Return an element to focus, `true` to use the default behavior, or `false`/`undefined` to do nothing.
+   */
+  initialFocus?:
+    | boolean
+    | React.RefObject<HTMLElement | null>
+    | ((openType: InteractionType) => void | boolean | HTMLElement | null);
+  /**
+   * Determines the element to focus when the popup is closed.
+   *
+   * - `false`: Do not move focus.
+   * - `true`: Move focus based on the default behavior (trigger or previously focused element).
+   * - `RefObject`: Move focus to the ref element.
+   * - `function`: Called with the interaction type (`mouse`, `touch`, `pen`, or `keyboard`).
+   *   Return an element to focus, `true` to use the default behavior, or `false`/`undefined` to do nothing.
+   */
+  finalFocus?:
+    | boolean
+    | React.RefObject<HTMLElement | null>
+    | ((closeType: InteractionType) => void | boolean | HTMLElement | null);
+}
+
+export namespace ComboboxPopup {
+  export type State = ComboboxPopupState;
+  export type Props = ComboboxPopupProps;
 }

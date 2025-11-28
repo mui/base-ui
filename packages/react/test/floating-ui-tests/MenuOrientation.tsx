@@ -84,7 +84,7 @@ export const MenuComponent = React.forwardRef<
   const parent = React.useContext(MenuContext);
   const item = useCompositeListItem();
 
-  const { floatingStyles, refs, context } = useFloating<HTMLButtonElement>({
+  const { floatingStyles, refs, context } = useFloating({
     nodeId,
     open: isOpen,
     onOpenChange: setIsOpen,
@@ -204,9 +204,9 @@ export const MenuComponent = React.forwardRef<
         className={c(
           props.className || 'flex items-center justify-between gap-4 rounded px-2 py-1 text-left',
           {
-            'outline-none focus:bg-blue-500 focus:text-white': isNested,
+            'focus:bg-blue-500 outline-none focus:text-white': isNested,
             'bg-blue-500 text-white': isOpen && isNested && !hasFocusInside,
-            'rounded bg-slate-200 px-2 py-1': isNested && isOpen && hasFocusInside,
+            'bg-slate-200 rounded px-2 py-1': isNested && isOpen && hasFocusInside,
             'bg-slate-200': !isNested && isOpen,
           },
         )}
@@ -260,7 +260,7 @@ export const MenuComponent = React.forwardRef<
                 <div
                   ref={refs.setFloating}
                   className={c(
-                    'rounded border border-slate-900/10 bg-white bg-clip-padding p-1 shadow-lg outline-none',
+                    'border-slate-900/10 rounded border bg-white bg-clip-padding p-1 shadow-lg outline-none',
                     {
                       'flex flex-col': !cols && orientation !== 'horizontal',
                     },
@@ -316,7 +316,7 @@ export const MenuItem = React.forwardRef<
       disabled={disabled}
       tabIndex={isActive ? 0 : -1}
       className={c(
-        'flex rounded px-2 py-1 text-left outline-none focus:bg-blue-500 focus:text-white',
+        'focus:bg-blue-500 flex rounded px-2 py-1 text-left outline-none focus:text-white',
         { 'opacity-40': disabled },
       )}
       {...menu.getItemProps({
@@ -381,7 +381,7 @@ export function HorizontalMenu() {
   return (
     <React.Fragment>
       <h1 className="mb-8 text-5xl font-bold">Horizontal menu</h1>
-      <div className="mb-4 grid h-[20rem] place-items-center rounded border border-slate-400 lg:w-[40rem]">
+      <div className="border-slate-400 mb-4 grid h-[20rem] place-items-center rounded border lg:w-[40rem]">
         <Menu label="Edit" orientation="horizontal">
           <MenuItem
             label="Undo"
@@ -418,7 +418,7 @@ export function VerticalMenu() {
   return (
     <React.Fragment>
       <h1 className="mb-8 text-5xl font-bold">Vertical menu</h1>
-      <div className="mb-4 grid h-[20rem] place-items-center rounded border border-slate-400 lg:w-[40rem]">
+      <div className="border-slate-400 mb-4 grid h-[20rem] place-items-center rounded border lg:w-[40rem]">
         <Menu label="Edit">
           <MenuItem
             label="Undo"
@@ -455,7 +455,7 @@ export function HorizontalMenuWithHorizontalSubmenus() {
   return (
     <React.Fragment>
       <h1 className="mb-8 text-5xl font-bold">Horizontal menu with horizontal submenus</h1>
-      <div className="mb-4 grid h-[20rem] place-items-center rounded border border-slate-400 lg:w-[40rem]">
+      <div className="border-slate-400 mb-4 grid h-[20rem] place-items-center rounded border lg:w-[40rem]">
         <Menu label="Edit" orientation="horizontal">
           <MenuItem
             label="Undo"

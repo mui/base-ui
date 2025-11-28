@@ -1,6 +1,4 @@
 import * as React from 'react';
-import { NoSsr } from '@base-ui-components/react/unstable-no-ssr';
-import { DemoLoader } from './components/Demo/DemoLoader';
 import * as CodeBlock from './components/CodeBlock';
 import * as Table from './components/Table';
 import * as QuickNav from './components/QuickNav/QuickNav';
@@ -32,7 +30,7 @@ export const mdxComponents: MDXComponents = {
   h2: ({ children, id, ...otherProps }) => {
     return (
       <h2
-        className="show-side-nav:scroll-mt-6 mt-10 mb-4 scroll-mt-18 text-xl font-medium text-balance"
+        className="mt-10 mb-4 scroll-mt-18 text-xl font-medium text-balance show-side-nav:scroll-mt-6"
         id={id}
         {...otherProps}
       >
@@ -43,7 +41,7 @@ export const mdxComponents: MDXComponents = {
   h3: ({ children, id, ...otherProps }) => {
     return (
       <h3
-        className="show-side-nav:scroll-mt-6 mt-8 mb-1.5 scroll-mt-18 text-lg font-medium text-balance"
+        className="mt-8 mb-1.5 scroll-mt-18 text-lg font-medium text-balance show-side-nav:scroll-mt-6"
         id={id}
         {...otherProps}
       >
@@ -84,16 +82,7 @@ export const mdxComponents: MDXComponents = {
   th: (props: React.ComponentProps<'th'>) =>
     props.scope === 'row' ? <Table.RowHeader {...props} /> : <Table.ColumnHeader {...props} />,
   td: Table.Cell,
-
   // Custom components
-  Demo:
-    process.env.DISABLE_DEMO_SSR === 'true'
-      ? (props) => (
-          <NoSsr>
-            <DemoLoader className="mt-5 mb-6" {...props} />
-          </NoSsr>
-        )
-      : (props) => <DemoLoader className="mt-5 mb-6" {...props} />,
   QuickNav,
   Meta: (props: React.ComponentProps<'meta'>) => {
     if (props.name === 'description' && String(props.content).length > 170) {
@@ -115,7 +104,7 @@ export const mdxComponents: MDXComponents = {
 
 export const inlineMdxComponents: MDXComponents = {
   ...mdxComponents,
-  p: (props) => <p {...props} />,
+  p: (props) => props.children,
 };
 
 export function useMDXComponents(): MDXComponents {

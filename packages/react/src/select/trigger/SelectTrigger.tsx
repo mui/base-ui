@@ -2,13 +2,14 @@
 import * as React from 'react';
 import { ownerDocument } from '@base-ui-components/utils/owner';
 import { useTimeout } from '@base-ui-components/utils/useTimeout';
-import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
-import { useLatestRef } from '@base-ui-components/utils/useLatestRef';
+import { useValueAsRef } from '@base-ui-components/utils/useValueAsRef';
 import { useStore } from '@base-ui-components/utils/store';
 import { useSelectRootContext } from '../root/SelectRootContext';
-import { BaseUIComponentProps, HTMLProps, NonNativeButtonProps } from '../../utils/types';
+import { BaseUIComponentProps, HTMLProps, NativeButtonProps } from '../../utils/types';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
+import { useLabelableContext } from '../../labelable-provider/LabelableContext';
 import { pressableTriggerOpenStateMapping } from '../../utils/popupStateMapping';
 import { fieldValidityMapping } from '../../field/utils/constants';
 import { useRenderElement } from '../../utils/useRenderElement';
@@ -20,6 +21,7 @@ import { mergeProps } from '../../merge-props';
 import { useButton } from '../../use-button';
 import type { FieldRoot } from '../../field/root/FieldRoot';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
+import { REASONS } from '../../utils/reasons';
 
 const BOUNDARY_OFFSET = 2;
 
@@ -31,28 +33,35 @@ const stateAttributesMapping: StateAttributesMapping<SelectTrigger.State> = {
 
 /**
  * A button that opens the select popup.
- * Renders a `<div>` element.
+ * Renders a `<button>` element.
  *
  * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
  */
 export const SelectTrigger = React.forwardRef(function SelectTrigger(
   componentProps: SelectTrigger.Props,
-  forwardedRef: React.ForwardedRef<HTMLElement>,
+  forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
   const {
     render,
     className,
     disabled: disabledProp = false,
-    nativeButton = false,
+    nativeButton = true,
     ...elementProps
   } = componentProps;
 
-  const { state: fieldState, disabled: fieldDisabled } = useFieldRootContext();
+  const {
+    setTouched,
+    setFocused,
+    validationMode,
+    state: fieldState,
+    disabled: fieldDisabled,
+  } = useFieldRootContext();
+  const { labelId } = useLabelableContext();
   const {
     store,
     setOpen,
     selectionRef,
-    fieldControlValidation,
+    validation,
     readOnly,
     alignItemWithTriggerActiveRef,
     disabled: selectDisabled,
@@ -66,10 +75,9 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
   const triggerProps = useStore(store, selectors.triggerProps);
   const positionerElement = useStore(store, selectors.positionerElement);
   const listElement = useStore(store, selectors.listElement);
+  const serializedValue = useStore(store, selectors.serializedValue);
 
-  const positionerRef = useLatestRef(positionerElement);
-
-  const { labelId, setTouched, setFocused, validationMode } = useFieldRootContext();
+  const positionerRef = useValueAsRef(positionerElement);
 
   const triggerRef = React.useRef<HTMLElement | null>(null);
   const timeoutFocus = useTimeout();
@@ -80,7 +88,7 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
     native: nativeButton,
   });
 
-  const setTriggerElement = useEventCallback((element) => {
+  const setTriggerElement = useStableCallback((element) => {
     store.set('triggerElement', element);
   });
 
@@ -126,7 +134,7 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
     return listElement?.id ?? getFloatingFocusElement(positionerElement)?.id;
   }, [listElement, positionerElement]);
 
-  const props: HTMLProps = mergeProps<'div'>(
+  const props: HTMLProps = mergeProps<'button'>(
     triggerProps,
     {
       role: 'combobox',
@@ -141,7 +149,7 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
         setFocused(true);
         // The popup element shouldn't obscure the focused trigger.
         if (open && alignItemWithTriggerActiveRef.current) {
-          setOpen(false, createChangeEventDetails('focus-out', event.nativeEvent));
+          setOpen(false, createChangeEventDetails(REASONS.focusOut, event.nativeEvent));
         }
 
         // Saves a re-render on initial click: `forceMount === true` mounts
@@ -158,7 +166,7 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
         setFocused(false);
 
         if (validationMode === 'onBlur') {
-          fieldControlValidation.commitValidation(value);
+          validation.commit(value);
         }
       },
       onPointerMove({ pointerType }) {
@@ -205,7 +213,7 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
             return;
           }
 
-          setOpen(false, createChangeEventDetails('cancel-open', mouseEvent));
+          setOpen(false, createChangeEventDetails(REASONS.cancelOpen, mouseEvent));
         }
 
         // Firefox can fire this upon mousedown
@@ -214,7 +222,7 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
         });
       },
     },
-    fieldControlValidation.getValidationProps,
+    validation.getValidationProps,
     elementProps,
     getButtonProps,
   );
@@ -230,11 +238,12 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
       disabled,
       value,
       readOnly,
+      placeholder: !serializedValue,
     }),
-    [fieldState, open, disabled, readOnly, value],
+    [fieldState, open, disabled, value, readOnly, serializedValue],
   );
 
-  return useRenderElement('div', componentProps, {
+  return useRenderElement('button', componentProps, {
     ref: [forwardedRef, triggerRef],
     state,
     stateAttributesMapping,
@@ -242,28 +251,24 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
   });
 });
 
-export namespace SelectTrigger {
-  export interface Props extends NonNativeButtonProps, BaseUIComponentProps<'div', State> {
-    children?: React.ReactNode;
-    /**
-     * Whether the component should ignore user interaction.
-     * @default false
-     */
-    disabled?: boolean;
-  }
+export interface SelectTriggerState extends FieldRoot.State {
+  /** Whether the select popup is currently open. */
+  open: boolean;
+  /** Whether the select popup is readonly. */
+  readOnly: boolean;
+  /** The value of the currently selected item. */
+  value: any;
+}
 
-  export interface State extends FieldRoot.State {
-    /**
-     * Whether the select popup is currently open.
-     */
-    open: boolean;
-    /**
-     * Whether the select popup is readonly.
-     */
-    readOnly: boolean;
-    /**
-     * The value of the currently selected item.
-     */
-    value: any;
-  }
+export interface SelectTriggerProps
+  extends NativeButtonProps,
+    BaseUIComponentProps<'button', SelectTrigger.State> {
+  children?: React.ReactNode;
+  /** Whether the component should ignore user interaction. */
+  disabled?: boolean;
+}
+
+export namespace SelectTrigger {
+  export type State = SelectTriggerState;
+  export type Props = SelectTriggerProps;
 }

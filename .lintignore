@@ -1,5 +1,6 @@
 .git
 /coverage
+/docs/next-env.d.ts
 /docs/.next
 /docs/export
 /docs/src/app/(private)/playground/

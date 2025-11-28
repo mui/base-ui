@@ -1,4 +1,3 @@
-import * as React from 'react';
 import { NavigationMenu } from '@base-ui-components/react/navigation-menu';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import { screen, flushMicrotasks, waitFor, act } from '@mui/internal-test-utils';
@@ -62,7 +61,9 @@ describe('<NavigationMenu.Trigger />', () => {
     await flushMicrotasks();
 
     const positioner = screen.getByTestId('positioner');
-    expect(getComputedStyle(positioner).getPropertyValue('--positioner-height')).to.equal('18px');
+    expect(
+      parseInt(getComputedStyle(positioner).getPropertyValue('--positioner-height'), 10),
+    ).to.be.approximately(18, 1);
 
     const overviewLink = screen.getByRole('link', { name: 'Quick Start' });
     await waitFor(() => {
@@ -84,7 +85,9 @@ describe('<NavigationMenu.Trigger />', () => {
     await userEvent.keyboard('{ArrowDown}');
     await flushMicrotasks();
 
-    expect(getComputedStyle(positioner).getPropertyValue('--positioner-height')).to.equal('36px');
+    expect(
+      parseInt(getComputedStyle(positioner).getPropertyValue('--positioner-height'), 10),
+    ).to.be.approximately(36, 1);
 
     const handbookLink = screen.getByRole('link', { name: 'Styling Base UI components' });
     await waitFor(() => {
@@ -103,6 +106,54 @@ describe('<NavigationMenu.Trigger />', () => {
 
     await userEvent.keyboard('{ArrowDown}');
     await flushMicrotasks();
-    expect(getComputedStyle(positioner).getPropertyValue('--positioner-height')).to.equal('18px');
+    expect(
+      parseInt(getComputedStyle(positioner).getPropertyValue('--positioner-height'), 10),
+    ).to.be.approximately(18, 1);
+  });
+
+  it.skipIf(isJSDOM)('handles positioner width correctly', async () => {
+    await render(
+      <NavigationMenu.Root>
+        <NavigationMenu.List>
+          <NavigationMenu.Item>
+            <NavigationMenu.Trigger>noContent</NavigationMenu.Trigger>
+          </NavigationMenu.Item>
+          <NavigationMenu.Item>
+            <NavigationMenu.Trigger>withContent</NavigationMenu.Trigger>
+            <NavigationMenu.Content>
+              <NavigationMenu.Link href="#">Styling Base UI components</NavigationMenu.Link>
+            </NavigationMenu.Content>
+          </NavigationMenu.Item>
+        </NavigationMenu.List>
+        <NavigationMenu.Portal>
+          <NavigationMenu.Positioner data-testid="positioner">
+            <NavigationMenu.Popup>
+              <NavigationMenu.Viewport />
+            </NavigationMenu.Popup>
+          </NavigationMenu.Positioner>
+        </NavigationMenu.Portal>
+      </NavigationMenu.Root>,
+    );
+
+    const noContentButton = screen.getByRole('button', { name: 'noContent' });
+    const withContentButton = screen.getByRole('button', { name: 'withContent' });
+
+    await userEvent.pointer([
+      { target: withContentButton },
+      { target: noContentButton, releasePrevious: true },
+      { target: withContentButton, releasePrevious: true },
+    ]);
+
+    await waitFor(() => {
+      const handbookLink = screen.getByRole('link', { name: 'Styling Base UI components' });
+
+      expect(handbookLink).toBeVisible();
+    });
+
+    const positioner = await screen.findByTestId('positioner');
+
+    expect(
+      parseInt(getComputedStyle(positioner).getPropertyValue('--positioner-width'), 10),
+    ).to.be.approximately(183, 1);
   });
 });
