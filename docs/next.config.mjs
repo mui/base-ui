@@ -63,14 +63,14 @@ const nextConfig = {
   webpack: (config, { defaultLoaders }) => {
     // for production builds
     config.module.rules.push({
-      test: /\/demos\/[^/]+\/index\.ts$/,
+      test: /[/\\\\]demos[/\\\\][^/\\\\]+[/\\\\]index\.ts$/,
       use: [
         defaultLoaders.babel,
         '@mui/internal-docs-infra/pipeline/loadPrecomputedCodeHighlighter',
       ],
     });
     config.module.rules.push({
-      test: /\/src\/demo-data\/[^/]+\/index\.ts$/,
+      test: /[/\\\\]src[/\\\\]demo-data[/\\\\][^/\\\\]+[/\\\\]index\.ts$/,
       use: [
         defaultLoaders.babel,
         '@mui/internal-docs-infra/pipeline/loadPrecomputedCodeHighlighter',
