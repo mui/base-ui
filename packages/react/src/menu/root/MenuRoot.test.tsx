@@ -4,6 +4,7 @@ import { act, flushMicrotasks, waitFor, screen, fireEvent } from '@mui/internal-
 import { DirectionProvider } from '@base-ui-components/react/direction-provider';
 import { useRefWithInit } from '@base-ui-components/utils/useRefWithInit';
 import { Menu } from '@base-ui-components/react/menu';
+import { Dialog } from '@base-ui-components/react/dialog';
 import userEvent from '@testing-library/user-event';
 import { spy } from 'sinon';
 import { createRenderer, isJSDOM, popupConformanceTests, wait } from '#test-utils';
@@ -536,6 +537,77 @@ describe('<Menu.Root />', () => {
       });
     });
 
+    describe('nested popups', () => {
+      it('keeps the menu and dialog open when pressing Shift+Tab inside a nested dialog', async () => {
+        function MenuWithNestedDialog() {
+          return (
+            <Menu.Root>
+              <Menu.Trigger data-testid="menu-trigger">Open Menu</Menu.Trigger>
+              <Menu.Portal>
+                <Menu.Positioner>
+                  <Menu.Popup data-testid="menu-popup">
+                    <Menu.Item>Item 1</Menu.Item>
+                    <Dialog.Root>
+                      <Menu.Item
+                        render={<Dialog.Trigger />}
+                        closeOnClick={false}
+                        nativeButton
+                        data-testid="dialog-trigger"
+                      >
+                        Open Dialog
+                      </Menu.Item>
+                      <Dialog.Portal>
+                        <Dialog.Popup data-testid="dialog-popup">
+                          <button type="button" data-testid="dialog-button">
+                            Dialog Button
+                          </button>
+                        </Dialog.Popup>
+                      </Dialog.Portal>
+                    </Dialog.Root>
+                    <Menu.Item>Item 2</Menu.Item>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+          );
+        }
+
+        const { user } = await render(<MenuWithNestedDialog />);
+
+        const menuTrigger = screen.getByTestId('menu-trigger');
+        await user.click(menuTrigger);
+
+        await waitFor(() => {
+          expect(screen.queryByTestId('menu-popup')).not.to.equal(null);
+        });
+
+        const dialogTrigger = screen.getByTestId('dialog-trigger');
+        await user.click(dialogTrigger);
+
+        await waitFor(() => {
+          expect(screen.queryByTestId('dialog-popup')).not.to.equal(null);
+        });
+
+        const dialogButton = screen.getByTestId('dialog-button');
+        await act(async () => {
+          dialogButton.focus();
+        });
+
+        await waitFor(() => {
+          expect(dialogButton).toHaveFocus();
+        });
+
+        // Shift+Tab inside the dialog should NOT close the menu or the dialog
+        await user.keyboard('{Shift>}{Tab}{/Shift}');
+
+        // Both menu and dialog should still be open
+        await waitFor(() => {
+          expect(screen.queryByTestId('menu-popup')).not.to.equal(null);
+          expect(screen.queryByTestId('dialog-popup')).not.to.equal(null);
+        });
+      });
+    });
+
     describe('focus management', () => {
       it('focuses the first item after the menu is opened by keyboard', async () => {
         await render(<TestMenu />);
@@ -773,10 +845,20 @@ describe('<Menu.Root />', () => {
         const actionsRef = {
           current: {
             unmount: spy(),
+            close: spy(),
           },
         };
 
-        const { user } = await render(<TestMenu rootProps={{ actionsRef }} />);
+        const { user } = await render(
+          <TestMenu
+            rootProps={{
+              actionsRef,
+              onOpenChange: (open, details) => {
+                details.preventUnmountOnClose();
+              },
+            }}
+          />,
+        );
 
         const trigger = screen.getByRole('button', { name: 'Toggle' });
         await act(() => {

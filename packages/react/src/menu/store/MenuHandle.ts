@@ -20,7 +20,7 @@ export class MenuHandle<Payload> {
    */
   open(triggerId: string) {
     const triggerElement = triggerId
-      ? (this.store.state.triggers.get(triggerId) ?? undefined)
+      ? (this.store.context.triggerElements.getById(triggerId) as HTMLElement | undefined)
       : undefined;
 
     if (triggerId && !triggerElement) {

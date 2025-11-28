@@ -3,7 +3,6 @@ import * as ReactDOM from 'react-dom';
 import { isNode } from '@floating-ui/utils/dom';
 import { useId } from '@base-ui-components/utils/useId';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
-import { visuallyHidden } from '@base-ui-components/utils/visuallyHidden';
 import { FocusGuard } from '../../utils/FocusGuard';
 import {
   enableFocusInside,
@@ -16,7 +15,7 @@ import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
 import { createAttribute } from '../utils/createAttribute';
 import { useRenderElement } from '../../utils/useRenderElement';
-import { EMPTY_OBJECT } from '../../utils/constants';
+import { EMPTY_OBJECT, ownerVisuallyHidden } from '../../utils/constants';
 import type { BaseUIComponentProps } from '../../utils/types';
 
 type FocusManagerState = null | {
@@ -240,7 +239,7 @@ export const FloatingPortal = React.forwardRef(function FloatingPortal(
           />
         )}
         {shouldRenderGuards && portalNode && (
-          <span aria-owns={portalNode.id} style={visuallyHidden} />
+          <span aria-owns={portalNode.id} style={ownerVisuallyHidden} />
         )}
         {portalNode && ReactDOM.createPortal(children, portalNode)}
         {shouldRenderGuards && portalNode && (
