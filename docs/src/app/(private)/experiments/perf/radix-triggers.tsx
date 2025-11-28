@@ -1,8 +1,6 @@
 'use client';
 import * as React from 'react';
-import { Menu } from '@base-ui-components/react/menu';
-import { Tooltip } from '@base-ui-components/react/tooltip';
-import { Popover } from '@base-ui-components/react/popover';
+import { DropdownMenu, Tooltip, Popover } from 'radix-ui';
 import menuDemoStyles from 'docs/src/app/(public)/(content)/react/components/menu/demos/submenu/css-modules/index.module.css';
 import tooltipDemoStyles from 'docs/src/app/(public)/(content)/react/components/tooltip/demos/hero/css-modules/index.module.css';
 import popoverDemoStyles from 'docs/src/app/(public)/(content)/react/components/popover/demos/_index.module.css';
@@ -30,9 +28,11 @@ const menuItems = Array.from({ length: menuItemCount }).map((_, i) => ({
 export default function PerfExperiment() {
   return (
     <div className={styles.container}>
-      <h1>Component performance - contained triggers</h1>
+      <h1>Component performance - Radix contained triggers</h1>
       <PerformanceBenchmark>
-        <TestComponent />
+        <Tooltip.Provider>
+          <TestComponent />
+        </Tooltip.Provider>
       </PerformanceBenchmark>
     </div>
   );
@@ -60,45 +60,39 @@ interface RowMenuProps {
 
 function RowMenu({ rowData }: RowMenuProps) {
   return (
-    <Menu.Root>
+    <DropdownMenu.Root>
       <Tooltip.Root>
-        <Tooltip.Trigger
-          className={menuDemoStyles.Trigger}
-          data-id={rowData.index}
-          render={(props) => <Menu.Trigger {...props} />}
-        >
-          •••
+        <Tooltip.Trigger asChild>
+          <DropdownMenu.Trigger className={menuDemoStyles.Trigger} data-id={rowData.index}>
+            •••
+          </DropdownMenu.Trigger>
         </Tooltip.Trigger>
         <Tooltip.Portal>
-          <Tooltip.Positioner sideOffset={10}>
-            <Tooltip.Popup className={tooltipDemoStyles.Popup}>
-              <Tooltip.Arrow className={tooltipDemoStyles.Arrow}>
-                <ArrowSvg />
-              </Tooltip.Arrow>
-              Actions menu for {rowData.label}
-            </Tooltip.Popup>
-          </Tooltip.Positioner>
+          <Tooltip.Content sideOffset={10} className={tooltipDemoStyles.Popup}>
+            <Tooltip.Arrow asChild className={tooltipDemoStyles.Arrow}>
+              <ArrowSvg />
+            </Tooltip.Arrow>
+            Actions menu for {rowData.label}
+          </Tooltip.Content>
         </Tooltip.Portal>
       </Tooltip.Root>
-      <Menu.Portal>
-        <Menu.Positioner sideOffset={8} className={menuDemoStyles.Positioner}>
-          <Menu.Popup className={menuDemoStyles.Popup}>
-            <Menu.Arrow className={menuDemoStyles.Arrow}>
-              <ArrowSvg />
-            </Menu.Arrow>
-            {menuItems.map((item) => (
-              <Menu.Item
-                key={item.index}
-                onClick={() => console.log(`Clicked ${item.label} for ${rowData.label}`)}
-                className={menuDemoStyles.Item}
-              >
-                {item.label} for {rowData.label}
-              </Menu.Item>
-            ))}
-          </Menu.Popup>
-        </Menu.Positioner>
-      </Menu.Portal>
-    </Menu.Root>
+      <DropdownMenu.Portal>
+        <DropdownMenu.Content sideOffset={8} className={menuDemoStyles.Popup}>
+          <DropdownMenu.Arrow asChild className={menuDemoStyles.Arrow}>
+            <ArrowSvg />
+          </DropdownMenu.Arrow>
+          {menuItems.map((item) => (
+            <DropdownMenu.Item
+              key={item.index}
+              onSelect={() => console.log(`Clicked ${item.label} for ${rowData.label}`)}
+              className={menuDemoStyles.Item}
+            >
+              {item.label} for {rowData.label}
+            </DropdownMenu.Item>
+          ))}
+        </DropdownMenu.Content>
+      </DropdownMenu.Portal>
+    </DropdownMenu.Root>
   );
 }
 
@@ -107,14 +101,12 @@ function RowPopover({ rowData }: RowMenuProps) {
     <Popover.Root>
       <Popover.Trigger className={popoverDemoStyles.Button}>info</Popover.Trigger>
       <Popover.Portal>
-        <Popover.Positioner sideOffset={8} className={popoverDemoStyles.Positioner}>
-          <Popover.Popup className={popoverDemoStyles.Popup}>
-            <Popover.Arrow className={popoverDemoStyles.Arrow}>
-              <ArrowSvg />
-            </Popover.Arrow>
-            {rowData && <div>Details for {rowData.label}</div>}
-          </Popover.Popup>
-        </Popover.Positioner>
+        <Popover.Content sideOffset={8} className={popoverDemoStyles.Popup}>
+          <Popover.Arrow asChild className={popoverDemoStyles.Arrow}>
+            <ArrowSvg />
+          </Popover.Arrow>
+          {rowData && <div>Details for {rowData.label}</div>}
+        </Popover.Content>
       </Popover.Portal>
     </Popover.Root>
   );
