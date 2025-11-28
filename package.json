@@ -104,9 +104,9 @@
     "vitest": "^3.2.4",
     "yargs": "^18.0.0"
   },
-  "packageManager": "pnpm@10.20.0",
+  "packageManager": "pnpm@10.23.0",
   "engines": {
-    "pnpm": "10.20.0",
+    "pnpm": "10.23.0",
     "node": ">=22.18.0"
   },
   "resolutions": {
