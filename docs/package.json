@@ -14,6 +14,7 @@
   },
   "dependencies": {
     "@base-ui-components/react": "workspace:*",
+    "@base-ui-components/react-before-detached": "npm:@base-ui-components/react@1.0.0-beta.4",
     "@base-ui-components/utils": "workspace:*",
     "@emotion/cache": "^11.14.0",
     "@emotion/react": "^11.14.0",
@@ -43,6 +44,7 @@
     "postcss": "^8.5.6",
     "postcss-custom-media": "^11.0.6",
     "postcss-import": "^16.1.1",
+    "radix-ui": "^1.4.3",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "react-error-boundary": "^6.0.0",
