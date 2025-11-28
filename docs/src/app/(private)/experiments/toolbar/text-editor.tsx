@@ -275,7 +275,7 @@ export default function App() {
             <Toolbar.Separator className={styles.toolbar.Separator} />
 
             <ToggleGroup
-              defaultValue={['left']}
+              defaultValue="left"
               className={styles.toolbar.ToggleGroup}
               disabled={settings.toolbarDisabled}
             >

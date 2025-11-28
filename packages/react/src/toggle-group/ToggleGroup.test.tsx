@@ -56,7 +56,7 @@ describe('<ToggleGroup />', () => {
 
     it('prop: defaultValue', async () => {
       const { user } = await render(
-        <ToggleGroup defaultValue={['two']}>
+        <ToggleGroup defaultValue="two">
           <Toggle value="one" />
           <Toggle value="two" />
         </ToggleGroup>,
@@ -79,7 +79,7 @@ describe('<ToggleGroup />', () => {
   describe('controlled', () => {
     it('pressed state', async () => {
       const { setProps } = await render(
-        <ToggleGroup value={['two']}>
+        <ToggleGroup value="two">
           <Toggle value="one" />
           <Toggle value="two" />
         </ToggleGroup>,
@@ -106,7 +106,7 @@ describe('<ToggleGroup />', () => {
 
     it('prop: value', async () => {
       const { setProps } = await render(
-        <ToggleGroup value={['two']}>
+        <ToggleGroup value="two">
           <Toggle value="one" />
           <Toggle value="two" />
         </ToggleGroup>,
@@ -196,7 +196,7 @@ describe('<ToggleGroup />', () => {
 
     it('only one item can be pressed when false', async () => {
       const { user } = await render(
-        <ToggleGroup multiple={false} defaultValue={['one']}>
+        <ToggleGroup defaultValue="one">
           <Toggle value="one" />
           <Toggle value="two" />
         </ToggleGroup>,
@@ -318,12 +318,12 @@ describe('<ToggleGroup />', () => {
       await user.pointer({ keys: '[MouseLeft]', target: button1 });
 
       expect(onValueChange.callCount).to.equal(1);
-      expect(onValueChange.args[0][0]).to.deep.equal(['one']);
+      expect(onValueChange.args[0][0]).to.equal('one');
 
       await user.pointer({ keys: '[MouseLeft]', target: button2 });
 
       expect(onValueChange.callCount).to.equal(2);
-      expect(onValueChange.args[1][0]).to.deep.equal(['two']);
+      expect(onValueChange.args[1][0]).to.equal('two');
     });
 
     ['Enter', 'Space'].forEach((key) => {
@@ -352,7 +352,7 @@ describe('<ToggleGroup />', () => {
         await user.keyboard(`[${key}]`);
 
         expect(onValueChange.callCount).to.equal(1);
-        expect(onValueChange.args[0][0]).to.deep.equal(['one']);
+        expect(onValueChange.args[0][0]).to.equal('one');
 
         await act(async () => {
           button2.focus();
@@ -361,7 +361,7 @@ describe('<ToggleGroup />', () => {
         await user.keyboard(`[${key}]`);
 
         expect(onValueChange.callCount).to.equal(2);
-        expect(onValueChange.args[1][0]).to.deep.equal(['two']);
+        expect(onValueChange.args[1][0]).to.equal('two');
       });
     });
   });

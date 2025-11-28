@@ -5,7 +5,7 @@ import { ToggleGroup } from '@base-ui-components/react/toggle-group';
 export default function ExampleToggleGroup() {
   return (
     <ToggleGroup
-      defaultValue={['left']}
+      defaultValue="left"
       className="flex gap-px rounded-md border border-gray-200 bg-gray-50 p-0.5"
     >
       <Toggle
