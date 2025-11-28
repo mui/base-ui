@@ -120,6 +120,7 @@ let mutationObserver: MutationObserver | null = null;
  */
 export default function ExampleTooltipPerf() {
   const [mode, setMode] = React.useState<Mode>('plain');
+  const [forcedUpdate, forceUpdate] = React.useReducer((x) => x + 1, 0);
   const demoRef = React.useRef<HTMLDivElement | null>(null);
   const [mutationTimeByMode, setMutationTimeByMode] = React.useState<Record<Mode, number>>({
     plain: 0,
@@ -133,6 +134,12 @@ export default function ExampleTooltipPerf() {
     const nextMode = event.target.value as Mode;
     modeChangeStartRef.current = { mode: nextMode, time: performance.now() };
     setMode(nextMode);
+  };
+
+  const handleReRenderClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    event.preventDefault();
+    modeChangeStartRef.current = { mode, time: performance.now() };
+    forceUpdate();
   };
 
   React.useLayoutEffect(() => {
@@ -149,7 +156,11 @@ export default function ExampleTooltipPerf() {
       }
     });
     if (demoRef.current && mutationObserver) {
-      mutationObserver.observe(demoRef.current, { subtree: true, childList: true });
+      mutationObserver.observe(demoRef.current, {
+        subtree: true,
+        childList: true,
+        attributes: true,
+      });
     }
     return () => {
       mutationObserver?.disconnect();
@@ -158,18 +169,18 @@ export default function ExampleTooltipPerf() {
 
   let demo: React.ReactNode = null;
   if (mode === 'plain') {
-    demo = <ExamplePlainButtons />;
+    demo = <ExamplePlainButtons key={forcedUpdate} />;
   } else if (mode === 'base') {
-    demo = <ExampleBaseUITooltip />;
+    demo = <ExampleBaseUITooltip key={forcedUpdate} />;
   } else if (mode === 'base-old') {
-    demo = <ExampleBaseOldUITooltip />;
+    demo = <ExampleBaseOldUITooltip key={forcedUpdate} />;
   } else {
-    demo = <ExampleRadixTooltip />;
+    demo = <ExampleRadixTooltip key={forcedUpdate} />;
   }
 
   return (
     <div className={styles.Root}>
-      <h1>Tooltip Performance Experiment</h1>
+      <h1>Tooltip performance experiment</h1>
       <h2>Change demo to re-render and measure time until full DOM mutation.</h2>
       <Field.Root className={styles.Field}>
         <Field.Label className={styles.Label}>Demo</Field.Label>
@@ -184,7 +195,7 @@ export default function ExampleTooltipPerf() {
           Initial render time is not measured
         </Field.Description>
       </Field.Root>
-      Last mutation time:{' '}
+      <h3>Last mutation time</h3>
       <table className={styles.Table}>
         <thead className={styles.TableHeader}>
           <tr>
@@ -201,6 +212,9 @@ export default function ExampleTooltipPerf() {
           ))}
         </tbody>
       </table>
+      <button type="button" onClick={handleReRenderClick} className={styles.ReRenderButton}>
+        Re-render
+      </button>
       <div ref={demoRef}>{demo}</div>
     </div>
   );

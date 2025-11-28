@@ -72,6 +72,14 @@
   }
 }
 
+.ReRenderButton {
+  margin: 8px 0;
+  background-color: buttonface;
+  border: revert;
+  border-radius: revert;
+  padding: revert;
+}
+
 .Table {
   margin: 4px 0;
   border-collapse: collapse;
