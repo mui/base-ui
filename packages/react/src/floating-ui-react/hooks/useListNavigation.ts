@@ -1,3 +1,4 @@
+'use client';
 import * as React from 'react';
 import { isHTMLElement } from '@floating-ui/utils/dom';
 import { useValueAsRef } from '@base-ui-components/utils/useValueAsRef';

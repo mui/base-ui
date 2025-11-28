@@ -1,3 +1,4 @@
+'use client';
 import * as React from 'react';
 import { tabbable, isTabbable, focusable, type FocusableElement } from 'tabbable';
 import { getNodeName, isHTMLElement } from '@floating-ui/utils/dom';

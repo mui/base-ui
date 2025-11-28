@@ -1,3 +1,4 @@
+'use client';
 import * as React from 'react';
 
 import { useId } from '@base-ui-components/utils/useId';

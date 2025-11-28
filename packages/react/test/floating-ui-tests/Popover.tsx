@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-shadow */
+'use client';
 import * as React from 'react';
 import type { Placement } from '../../src/floating-ui-react/types';
 import {

@@ -1,3 +1,4 @@
+'use client';
 import * as React from 'react';
 import { isElement } from '@floating-ui/utils/dom';
 import { useTimeout } from '@base-ui-components/utils/useTimeout';

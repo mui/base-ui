@@ -1,3 +1,4 @@
+'use client';
 import * as ReactDOM from 'react-dom';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui-components/utils/useStableCallback';

@@ -1,5 +1,6 @@
 /* False positives - ESLint thinks we're calling a hook from a class component. */
 /* eslint-disable react-hooks/rules-of-hooks */
+'use client';
 import * as React from 'react';
 import { Store } from './Store';
 import { useStore } from './useStore';

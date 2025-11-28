@@ -1,3 +1,4 @@
+'use client';
 import * as React from 'react';
 import { useFloatingRootContext, type FloatingRootContext } from '../../floating-ui-react';
 import type { SelectStore } from '../store';

@@ -1,3 +1,4 @@
+'use client';
 import * as React from 'react';
 import { isElement } from '@floating-ui/utils/dom';
 import { useStableCallback } from '@base-ui-components/utils/useStableCallback';

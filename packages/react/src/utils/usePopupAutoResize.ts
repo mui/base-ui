@@ -1,3 +1,4 @@
+'use client';
 import * as React from 'react';
 import { useAnimationFrame } from '@base-ui-components/utils/useAnimationFrame';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';

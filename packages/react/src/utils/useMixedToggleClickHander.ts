@@ -1,3 +1,4 @@
+'use client';
 import * as React from 'react';
 import { ownerDocument } from '@base-ui-components/utils/owner';
 import { BaseUIEvent } from './types';

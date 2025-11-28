@@ -1,3 +1,4 @@
+'use client';
 import * as React from 'react';
 import type { FloatingRootContext } from '../../floating-ui-react';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';

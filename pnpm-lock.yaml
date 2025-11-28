@@ -31,8 +31,8 @@ importers:
         specifier: workspace:*
         version: link:test
       '@mui/internal-code-infra':
-        specifier: ^0.0.3-canary.49
-        version: 0.0.3-canary.49(@next/eslint-plugin-next@15.5.6)(@types/node@22.18.13)(eslint@9.39.1(jiti@2.6.1))(postcss@8.5.6)(prettier@3.6.2)(stylelint@16.25.0(typescript@5.9.3))(typescript@5.9.3)
+        specifier: https://pkg.pr.new/mui/mui-public/@mui/internal-code-infra@e49bf36
+        version: https://pkg.pr.new/mui/mui-public/@mui/internal-code-infra@e49bf36(@next/eslint-plugin-next@15.5.6)(@types/node@22.18.13)(eslint@9.39.1(jiti@2.6.1))(postcss@8.5.6)(prettier@3.6.2)(stylelint@16.25.0(typescript@5.9.3))(typescript@5.9.3)(vitest@3.2.4)
       '@mui/internal-netlify-cache':
         specifier: ^0.0.2-canary.1
         version: 0.0.2-canary.1
@@ -188,7 +188,7 @@ importers:
         version: 3.1.1(@types/react@19.2.2)(react@19.2.0)
       '@mui/internal-docs-infra':
         specifier: ^0.2.3-canary.12
-        version: 0.2.3-canary.12(@types/react@19.2.2)(next@16.0.1(@babel/core@7.28.5)(@playwright/test@1.56.1)(babel-plugin-macros@3.1.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(react@19.2.0)
+        version: 0.2.3-canary.12(@types/react@19.2.2)(next@16.0.1(@babel/core@7.28.5)(@playwright/test@1.56.1)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(react@19.2.0)
       '@next/mdx':
         specifier: ^16.0.1
         version: 16.0.1(@mdx-js/loader@3.1.1(webpack@5.102.1))(@mdx-js/react@3.1.1(@types/react@19.2.2)(react@19.2.0))
@@ -242,7 +242,7 @@ importers:
         version: 8.1.0
       next:
         specifier: 16.0.1
-        version: 16.0.1(@babel/core@7.28.5)(@playwright/test@1.56.1)(babel-plugin-macros@3.1.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+        version: 16.0.1(@babel/core@7.28.5)(@playwright/test@1.56.1)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       postcss:
         specifier: ^8.5.6
         version: 8.5.6
@@ -393,7 +393,7 @@ importers:
     dependencies:
       '@base-ui-components/react':
         specifier: latest
-        version: 1.0.0-beta.5(@types/react@19.2.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+        version: 1.0.0-beta.7(@types/react@19.2.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
@@ -1504,8 +1504,8 @@ packages:
     resolution: {integrity: sha512-qQ5m48eI/MFLQ5PxQj4PFaprjyCTLI37ElWMmNs0K8Lk3dVeOdNpB3ks8jc7yM5CDmVC73eMVk/trk3fgmrUpA==}
     engines: {node: '>=6.9.0'}
 
-  '@base-ui-components/react@1.0.0-beta.5':
-    resolution: {integrity: sha512-fOvqQIJIeG6h+1CUpA0rnyH2cFa+QxgOrRohkRv1182o5I04GjTG6tqCCxSmtqT0VZmOX88GPYiHz9Sh4j/pyw==}
+  '@base-ui-components/react@1.0.0-beta.7':
+    resolution: {integrity: sha512-jZoU6ZzPPDhiP62ToFpIZVkLDzYleL8NJhiw4Dm9Q+N7Q+/rOW+N6YN0URuQ9zMdcl8jvIks/8iY1cyD/VC87A==}
     engines: {node: '>=14.0.0'}
     peerDependencies:
       '@types/react': ^19.2.2
@@ -1515,8 +1515,8 @@ packages:
       '@types/react':
         optional: true
 
-  '@base-ui-components/utils@0.2.0':
-    resolution: {integrity: sha512-uLLsLpYxPVq/QNsrfHwXuI+uiCr8+P/SLtTgrA4hL5b4UmWo3dnhwo38edfu+gCgfblrJveDj1D4RxEvDc7RXw==}
+  '@base-ui-components/utils@0.2.1':
+    resolution: {integrity: sha512-6D3PNibMXWPxiXCW/aMTclTypNG/QPCUc5vwGS6yKIcoYGDmjLiG3VyJ7hlGAnXiMGJMWH2TVl335N+zkRAKZQ==}
     peerDependencies:
       '@types/react': ^19.2.2
       react: ^17 || ^18 || ^19
@@ -2254,20 +2254,23 @@ packages:
       '@types/react': ^19.2.2
       react: '>=16'
 
-  '@mui/internal-babel-plugin-display-name@1.0.4-canary.8':
-    resolution: {integrity: sha512-6chxQriAEqaJiOq6DErpaPlng2UmOjrI/+iCxz0vp8uCl7DJbzAbBoUHpaBGSX43luPLg2b6BzDoxWffRH7OGg==}
+  '@mui/internal-babel-plugin-display-name@https://pkg.pr.new/mui/mui-public/@mui/internal-babel-plugin-display-name@e49bf360026e65f1608b2d079019fb18dcf1c3cc':
+    resolution: {tarball: https://pkg.pr.new/mui/mui-public/@mui/internal-babel-plugin-display-name@e49bf360026e65f1608b2d079019fb18dcf1c3cc}
+    version: 1.0.2
     peerDependencies:
       '@babel/core': ^7.28.5
       '@babel/preset-react': ^7.28.5
 
-  '@mui/internal-babel-plugin-minify-errors@2.0.8-canary.11':
-    resolution: {integrity: sha512-OXM9F731yQXq9XZxmrTq4Hn9VwXGdlMczhnjv+IuQY8JmBQvumM3vphjbvHBbhHw3YjqgdtJ8/Ezy+QwQCzmKQ==}
+  '@mui/internal-babel-plugin-minify-errors@https://pkg.pr.new/mui/mui-public/@mui/internal-babel-plugin-minify-errors@e49bf360026e65f1608b2d079019fb18dcf1c3cc':
+    resolution: {tarball: https://pkg.pr.new/mui/mui-public/@mui/internal-babel-plugin-minify-errors@e49bf360026e65f1608b2d079019fb18dcf1c3cc}
+    version: 2.0.6
     engines: {node: '>=14.0.0'}
     peerDependencies:
       '@babel/core': ^7.28.5
 
-  '@mui/internal-babel-plugin-resolve-imports@2.0.7-canary.28':
-    resolution: {integrity: sha512-1FOMLY9mYTsD/cFJVGJJduzp1LA8Kc3717uPPI8RA51vb0eGJj6uI4Yo/BBdQV3kHlsHe+z2j44L3F0oGsjCdQ==}
+  '@mui/internal-babel-plugin-resolve-imports@https://pkg.pr.new/mui/mui-public/@mui/internal-babel-plugin-resolve-imports@e49bf360026e65f1608b2d079019fb18dcf1c3cc':
+    resolution: {tarball: https://pkg.pr.new/mui/mui-public/@mui/internal-babel-plugin-resolve-imports@e49bf360026e65f1608b2d079019fb18dcf1c3cc}
+    version: 2.0.5
     peerDependencies:
       '@babel/core': ^7.28.5
 
@@ -2275,8 +2278,9 @@ packages:
     resolution: {integrity: sha512-oL9xh9fXI0xfqO4P1NPdUOTOXD9jFkI9l0FWcKAl2TkdEaxvVn6d4UUo6S98oReeVDx9U+3zd0/h6jHgsn8hEA==}
     hasBin: true
 
-  '@mui/internal-code-infra@0.0.3-canary.49':
-    resolution: {integrity: sha512-CamTYYxvfTFTk8baSrFL6R5EdkBjNDUvjs0ARS75ukgp/NGL/ZZ0VU2+llWMuT4t/iKK2GgwGpyMl4yCi8H9LA==}
+  '@mui/internal-code-infra@https://pkg.pr.new/mui/mui-public/@mui/internal-code-infra@e49bf36':
+    resolution: {tarball: https://pkg.pr.new/mui/mui-public/@mui/internal-code-infra@e49bf36}
+    version: 0.0.2
     hasBin: true
     peerDependencies:
       '@next/eslint-plugin-next': '*'
@@ -4466,6 +4470,19 @@ packages:
     peerDependencies:
       vitest: 3.2.4
 
+  '@vitest/eslint-plugin@1.5.0':
+    resolution: {integrity: sha512-j3uuIAPTYWYnSit9lspb08/EKsxEmGqjQf+Wpb1DQkxc+mMkhL58ZknDCgjYhY4Zu76oxZ0hVWTHlmRW0mJq5w==}
+    engines: {node: '>=18'}
+    peerDependencies:
+      eslint: '>=8.57.0'
+      typescript: '>=5.0.0'
+      vitest: '*'
+    peerDependenciesMeta:
+      typescript:
+        optional: true
+      vitest:
+        optional: true
+
   '@vitest/expect@3.2.4':
     resolution: {integrity: sha512-Io0yyORnB6sikFlt8QW5K7slY4OjqNX9jmJQ02QDda8lyM6B5oNgVWoSoKPac8/kgnCUzuHQKrSLtu/uOqqrig==}
 
@@ -4812,6 +4829,9 @@ packages:
     resolution: {integrity: sha512-ISqQ2frbiNU9vIJkzg7dlPpznPZ4jOiUQ1uSmB0fEHeowtN3COYRsXr/xexn64NpU13P06jc/L5TgiJXOgrbEg==}
     peerDependencies:
       '@babel/core': ^7.28.5
+
+  babel-plugin-react-compiler@1.0.0:
+    resolution: {integrity: sha512-Ixm8tFfoKKIPYdCCKYTsqv+Fd4IJ0DQqMyEimo+pxUOMUR9cVPlwTrFt9Avu+3cb6Zp3mAzl+t1MrG2fxxKsxw==}
 
   babel-plugin-transform-inline-environment-variables@0.4.4:
     resolution: {integrity: sha512-bJILBtn5a11SmtR2j/3mBOjX4K3weC6cq+NNZ7hG22wCAqpc3qtj/iN7dSe9HDiS46lgp1nHsQgeYrea/RUe+g==}
@@ -11168,10 +11188,10 @@ snapshots:
       '@babel/helper-string-parser': 7.27.1
       '@babel/helper-validator-identifier': 7.28.5
 
-  '@base-ui-components/react@1.0.0-beta.5(@types/react@19.2.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)':
+  '@base-ui-components/react@1.0.0-beta.7(@types/react@19.2.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)':
     dependencies:
       '@babel/runtime': 7.28.4
-      '@base-ui-components/utils': 0.2.0(@types/react@19.2.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      '@base-ui-components/utils': 0.2.1(@types/react@19.2.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       '@floating-ui/react-dom': 2.1.6(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       '@floating-ui/utils': 0.2.10
       react: 19.2.0
@@ -11182,7 +11202,7 @@ snapshots:
     optionalDependencies:
       '@types/react': 19.2.2
 
-  '@base-ui-components/utils@0.2.0(@types/react@19.2.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)':
+  '@base-ui-components/utils@0.2.1(@types/react@19.2.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)':
     dependencies:
       '@babel/runtime': 7.28.4
       '@floating-ui/utils': 0.2.10
@@ -11911,7 +11931,7 @@ snapshots:
       '@types/react': 19.2.2
       react: 19.2.0
 
-  '@mui/internal-babel-plugin-display-name@1.0.4-canary.8(@babel/core@7.28.5)(@babel/preset-react@7.28.5(@babel/core@7.28.5))':
+  '@mui/internal-babel-plugin-display-name@https://pkg.pr.new/mui/mui-public/@mui/internal-babel-plugin-display-name@e49bf360026e65f1608b2d079019fb18dcf1c3cc(@babel/core@7.28.5)(@babel/preset-react@7.28.5(@babel/core@7.28.5))':
     dependencies:
       '@babel/core': 7.28.5
       '@babel/helper-module-imports': 7.27.1
@@ -11920,7 +11940,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@mui/internal-babel-plugin-minify-errors@2.0.8-canary.11(@babel/core@7.28.5)':
+  '@mui/internal-babel-plugin-minify-errors@https://pkg.pr.new/mui/mui-public/@mui/internal-babel-plugin-minify-errors@e49bf360026e65f1608b2d079019fb18dcf1c3cc(@babel/core@7.28.5)':
     dependencies:
       '@babel/core': 7.28.5
       '@babel/helper-module-imports': 7.27.1
@@ -11928,7 +11948,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@mui/internal-babel-plugin-resolve-imports@2.0.7-canary.28(@babel/core@7.28.5)':
+  '@mui/internal-babel-plugin-resolve-imports@https://pkg.pr.new/mui/mui-public/@mui/internal-babel-plugin-resolve-imports@e49bf360026e65f1608b2d079019fb18dcf1c3cc(@babel/core@7.28.5)':
     dependencies:
       '@babel/core': 7.28.5
       resolve: 1.22.11
@@ -11963,7 +11983,7 @@ snapshots:
       - tsx
       - yaml
 
-  '@mui/internal-code-infra@0.0.3-canary.49(@next/eslint-plugin-next@15.5.6)(@types/node@22.18.13)(eslint@9.39.1(jiti@2.6.1))(postcss@8.5.6)(prettier@3.6.2)(stylelint@16.25.0(typescript@5.9.3))(typescript@5.9.3)':
+  '@mui/internal-code-infra@https://pkg.pr.new/mui/mui-public/@mui/internal-code-infra@e49bf36(@next/eslint-plugin-next@15.5.6)(@types/node@22.18.13)(eslint@9.39.1(jiti@2.6.1))(postcss@8.5.6)(prettier@3.6.2)(stylelint@16.25.0(typescript@5.9.3))(typescript@5.9.3)(vitest@3.2.4)':
     dependencies:
       '@argos-ci/core': 4.5.0
       '@babel/cli': 7.28.3(@babel/core@7.28.5)
@@ -11979,16 +11999,18 @@ snapshots:
       '@eslint/json': 0.14.0
       '@inquirer/confirm': 5.1.19(@types/node@22.18.13)
       '@inquirer/select': 4.4.0(@types/node@22.18.13)
-      '@mui/internal-babel-plugin-display-name': 1.0.4-canary.8(@babel/core@7.28.5)(@babel/preset-react@7.28.5(@babel/core@7.28.5))
-      '@mui/internal-babel-plugin-minify-errors': 2.0.8-canary.11(@babel/core@7.28.5)
-      '@mui/internal-babel-plugin-resolve-imports': 2.0.7-canary.28(@babel/core@7.28.5)
+      '@mui/internal-babel-plugin-display-name': https://pkg.pr.new/mui/mui-public/@mui/internal-babel-plugin-display-name@e49bf360026e65f1608b2d079019fb18dcf1c3cc(@babel/core@7.28.5)(@babel/preset-react@7.28.5(@babel/core@7.28.5))
+      '@mui/internal-babel-plugin-minify-errors': https://pkg.pr.new/mui/mui-public/@mui/internal-babel-plugin-minify-errors@e49bf360026e65f1608b2d079019fb18dcf1c3cc(@babel/core@7.28.5)
+      '@mui/internal-babel-plugin-resolve-imports': https://pkg.pr.new/mui/mui-public/@mui/internal-babel-plugin-resolve-imports@e49bf360026e65f1608b2d079019fb18dcf1c3cc(@babel/core@7.28.5)
       '@napi-rs/keyring': 1.2.0
       '@next/eslint-plugin-next': 15.5.6
       '@octokit/auth-action': 6.0.2
       '@octokit/oauth-methods': 6.0.2
       '@octokit/rest': 22.0.1
       '@pnpm/find-workspace-dir': 1000.1.3
+      '@vitest/eslint-plugin': 1.5.0(eslint@9.39.1(jiti@2.6.1))(typescript@5.9.3)(vitest@3.2.4)
       babel-plugin-optimize-clsx: 2.6.2
+      babel-plugin-react-compiler: 1.0.0
       babel-plugin-transform-inline-environment-variables: 0.4.4
       babel-plugin-transform-react-remove-prop-types: 0.4.24
       babel-plugin-transform-remove-imports: 1.8.1(@babel/core@7.28.5)
@@ -12033,8 +12055,9 @@ snapshots:
       - postcss
       - stylelint
       - supports-color
+      - vitest
 
-  '@mui/internal-docs-infra@0.2.3-canary.12(@types/react@19.2.2)(next@16.0.1(@babel/core@7.28.5)(@playwright/test@1.56.1)(babel-plugin-macros@3.1.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(react@19.2.0)':
+  '@mui/internal-docs-infra@0.2.3-canary.12(@types/react@19.2.2)(next@16.0.1(@babel/core@7.28.5)(@playwright/test@1.56.1)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(react@19.2.0)':
     dependencies:
       '@babel/runtime': 7.28.4
       '@babel/standalone': 7.28.5
@@ -12054,7 +12077,7 @@ snapshots:
       vscode-oniguruma: 2.0.1
     optionalDependencies:
       '@types/react': 19.2.2
-      next: 16.0.1(@babel/core@7.28.5)(@playwright/test@1.56.1)(babel-plugin-macros@3.1.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      next: 16.0.1(@babel/core@7.28.5)(@playwright/test@1.56.1)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
     transitivePeerDependencies:
       - supports-color
 
@@ -14436,6 +14459,17 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
+  '@vitest/eslint-plugin@1.5.0(eslint@9.39.1(jiti@2.6.1))(typescript@5.9.3)(vitest@3.2.4)':
+    dependencies:
+      '@typescript-eslint/scope-manager': 8.46.3
+      '@typescript-eslint/utils': 8.46.3(eslint@9.39.1(jiti@2.6.1))(typescript@5.9.3)
+      eslint: 9.39.1(jiti@2.6.1)
+    optionalDependencies:
+      typescript: 5.9.3
+      vitest: 3.2.4(@types/debug@4.1.12)(@types/node@22.18.13)(@vitest/browser@3.2.4)(@vitest/ui@3.2.4)(jiti@2.6.1)(jsdom@26.1.0)(lightningcss@1.30.2)(terser@5.44.0)(tsx@4.20.6)(yaml@2.8.1)
+    transitivePeerDependencies:
+      - supports-color
+
   '@vitest/expect@3.2.4':
     dependencies:
       '@types/chai': 5.2.3
@@ -14859,6 +14893,10 @@ snapshots:
       '@babel/helper-define-polyfill-provider': 0.6.5(@babel/core@7.28.5)
     transitivePeerDependencies:
       - supports-color
+
+  babel-plugin-react-compiler@1.0.0:
+    dependencies:
+      '@babel/types': 7.28.5
 
   babel-plugin-transform-inline-environment-variables@0.4.4: {}
 
@@ -18299,7 +18337,7 @@ snapshots:
 
   neo-async@2.6.2: {}
 
-  next@16.0.1(@babel/core@7.28.5)(@playwright/test@1.56.1)(babel-plugin-macros@3.1.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0):
+  next@16.0.1(@babel/core@7.28.5)(@playwright/test@1.56.1)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0):
     dependencies:
       '@next/env': 16.0.1
       '@swc/helpers': 0.5.15
@@ -18318,6 +18356,7 @@ snapshots:
       '@next/swc-win32-arm64-msvc': 16.0.1
       '@next/swc-win32-x64-msvc': 16.0.1
       '@playwright/test': 1.56.1
+      babel-plugin-react-compiler: 1.0.0
       sharp: 0.34.4
     transitivePeerDependencies:
       - '@babel/core'

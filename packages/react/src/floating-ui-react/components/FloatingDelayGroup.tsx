@@ -1,3 +1,4 @@
+'use client';
 import * as React from 'react';
 import { useTimeout, Timeout } from '@base-ui-components/utils/useTimeout';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
