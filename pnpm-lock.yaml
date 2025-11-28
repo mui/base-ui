@@ -128,7 +128,7 @@ importers:
         version: 3.1.1
       rimraf:
         specifier: ^6.1.0
-        version: 6.1.0
+        version: 6.1.2
       serve:
         specifier: ^14.2.5
         version: 14.2.5
@@ -366,7 +366,7 @@ importers:
         version: 11.0.0
       rimraf:
         specifier: ^6.1.0
-        version: 6.1.0
+        version: 6.1.2
       serve:
         specifier: ^14.2.5
         version: 14.2.5
@@ -589,8 +589,8 @@ importers:
         specifier: ^1.42.0
         version: 1.42.0
       rimraf:
-        specifier: ^6.1.0
-        version: 6.1.0
+        specifier: ^6.1.2
+        version: 6.1.2
       tsx:
         specifier: ^4.20.6
         version: 4.20.6
@@ -8547,8 +8547,8 @@ packages:
     resolution: {integrity: sha512-l0OE8wL34P4nJH/H2ffoaniAokM2qSmrtXHmlpvYr5AVVX8msAyW0l8NVJFDxlSK4u3Uh/f41cQheDVdnYijwQ==}
     hasBin: true
 
-  rimraf@6.1.0:
-    resolution: {integrity: sha512-DxdlA1bdNzkZK7JiNWH+BAx1x4tEJWoTofIopFo6qWUU94jYrFZ0ubY05TqH3nWPJ1nKa1JWVFDINZ3fnrle/A==}
+  rimraf@6.1.2:
+    resolution: {integrity: sha512-cFCkPslJv7BAXJsYlK1dZsbP8/ZNLkCAQ0bi1hf5EKX2QHegmDFEFA6QhuYJlk7UDdc+02JjO80YSOrWPpw06g==}
     engines: {node: 20 || >=22}
     hasBin: true
 
@@ -19463,9 +19463,9 @@ snapshots:
     dependencies:
       glob: 10.4.5
 
-  rimraf@6.1.0:
+  rimraf@6.1.2:
     dependencies:
-      glob: 11.0.3
+      glob: 13.0.0
       package-json-from-dist: 1.0.1
 
   rollup-plugin-visualizer@6.0.5(rollup@4.50.1):
