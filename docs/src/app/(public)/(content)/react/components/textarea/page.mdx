@@ -6,7 +6,9 @@
 
 <Meta name="description" content="A high-quality, unstyled React textarea component." />
 
-<Demo path="./demos/hero" />
+import { DemoTextareaHero } from './demos/hero';
+
+<DemoTextareaHero />
 
 ## Anatomy
 
@@ -28,19 +30,25 @@ import { Textarea } from '@base-ui-components/react/textarea';
 
 Setting only a `minRows` will make the textarea automatically resize to fit its content.
 
-<Demo path="./demos/infinite-resize" />
+import { DemoInfiniteResize } from './demos/infinite-resize';
+
+<DemoInfiniteResize />
 
 ### Max rows
 
 Setting both `minRows` and `maxRows` will make the textarea automatically resize between those limits.
 
-<Demo path="./demos/max-rows" />
+import { DemoMaxRows } from './demos/max-rows';
+
+<DemoMaxRows />
 
 ### Form integration
 
 The textarea works seamlessly with the [Form](/react/components/form) component and supports libraries like [Zod](https://zod.dev/) for schema validation.
 
-<Demo path="./demos/form" />
+import { DemoTextareaForm } from './demos/form';
+
+<DemoTextareaForm />
 
 ### Field sizing
 
@@ -54,4 +62,6 @@ Because support is incomplete, the demo may not work in older browsers or Safari
 
 > Once support passes ~90 %, we plan to switch the Textarea component to `field-sizing` by default, dropping the JS fallback.
 
-<Demo path="./demos/field-sizing" />
+import { DemoFieldSizing } from './demos/field-sizing';
+
+<DemoFieldSizing />

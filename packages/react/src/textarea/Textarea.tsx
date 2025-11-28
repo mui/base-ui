@@ -9,13 +9,12 @@ import { fieldValidityMapping } from '../field/utils/constants';
 import { BaseUIComponentProps } from '../utils/types';
 import { useRenderElement } from '../utils/useRenderElement';
 import { useField } from '../field/useField';
-import { useBaseUiId } from '../utils/useBaseUiId';
-import { useFieldControlValidation } from '../field/control/useFieldControlValidation';
-import {
-  BaseUIChangeEventDetails,
-  createChangeEventDetails,
-} from '../utils/createBaseUIEventDetails';
+import { REASONS } from '../utils/reasons';
+import { createChangeEventDetails } from '../utils/createBaseUIEventDetails';
 import { calculateTextareaHeight } from './calculateTextareaHeight';
+import { useLabelableContext } from '../labelable-provider/LabelableContext';
+import { useLabelableId } from '../labelable-provider/useLabelableId';
+import { FieldControlChangeEventDetails, FieldControlChangeEventReason } from '../field';
 
 /**
  * A native textarea element that automatically works with [Field](https://base-ui.com/react/components/field).
@@ -57,31 +56,16 @@ export const Textarea = React.forwardRef(function Textarea(
     [fieldState, disabled],
   );
 
-  const {
-    setControlId,
-    labelId,
-    setTouched,
-    setDirty,
-    validityData,
-    setFocused,
-    setFilled,
-    validationMode,
-  } = useFieldRootContext();
+  const { setTouched, setDirty, validityData, setFocused, setFilled, validationMode, validation } =
+    useFieldRootContext();
+  const { labelId } = useLabelableContext();
 
-  const { getValidationProps, getInputValidationProps, commitValidation, inputRef } =
-    useFieldControlValidation();
+  const inputRef = validation.inputRef as unknown as React.RefObject<HTMLTextAreaElement>;
 
   const hiddenTextareaRef = React.useRef<HTMLTextAreaElement>(null);
   const heightRef = React.useRef<number | null>(null);
 
-  const id = useBaseUiId(idProp);
-
-  useIsoLayoutEffect(() => {
-    setControlId(id);
-    return () => {
-      setControlId(undefined);
-    };
-  }, [id, setControlId]);
+  const id = useLabelableId({ id: idProp });
 
   useIsoLayoutEffect(() => {
     const hasExternalValue = valueProp != null;
@@ -116,7 +100,7 @@ export const Textarea = React.forwardRef(function Textarea(
   useField({
     id,
     name,
-    commitValidation,
+    commit: validation.commit,
     value,
     getValue: () => inputRef.current?.value,
     controlRef: inputRef,
@@ -284,19 +268,19 @@ export const Textarea = React.forwardRef(function Textarea(
         ...(isControlled ? { value } : { defaultValue }),
         onChange(event) {
           const inputValue = event.currentTarget.value;
-          setValue(inputValue, createChangeEventDetails('none', event.nativeEvent));
+          setValue(inputValue, createChangeEventDetails(REASONS.none, event.nativeEvent));
           setDirty(inputValue !== validityData.initialValue);
           setFilled(inputValue !== '');
         },
         onFocus() {
           setFocused(true);
         },
-        onBlur(event: React.FocusEvent<HTMLTextAreaElement>) {
+        onBlur(event) {
           setTouched(true);
           setFocused(false);
 
           if (validationMode === 'onBlur') {
-            commitValidation(event.currentTarget.value);
+            validation.commit(event.currentTarget.value);
           }
         },
         onKeyDown(event) {
@@ -306,12 +290,11 @@ export const Textarea = React.forwardRef(function Textarea(
             event.shiftKey === true
           ) {
             setTouched(true);
-            commitValidation(event.currentTarget.value);
+            validation.commit(event.currentTarget.value);
           }
         },
       },
-      getValidationProps(),
-      getInputValidationProps(),
+      validation.getInputValidationProps(),
       elementProps,
     ],
     stateAttributesMapping: fieldValidityMapping,
@@ -361,6 +344,6 @@ export namespace Textarea {
     defaultValue?: React.ComponentProps<'textarea'>['defaultValue'];
   }
 
-  export type ChangeEventReason = 'none';
-  export type ChangeEventDetails = BaseUIChangeEventDetails<ChangeEventReason>;
+  export type ChangeEventReason = FieldControlChangeEventReason;
+  export type ChangeEventDetails = FieldControlChangeEventDetails;
 }
