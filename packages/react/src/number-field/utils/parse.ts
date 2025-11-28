@@ -147,9 +147,19 @@ export function parseNumber(
 
   let groupRegex: RegExp | null = null;
   if (group) {
+    const isSpaceGroup = /\p{Zs}/u.test(group);
+    const isApostropheGroup = group === "'" || group === '’';
+
     // Check if the group separator is a space-like character.
     // If so, we'll replace all such characters with an empty string.
-    groupRegex = /\p{Zs}/u.test(group) ? /\p{Zs}/gu : new RegExp(escapeRegExp(group), 'g');
+    if (isSpaceGroup) {
+      groupRegex = /\p{Zs}/gu;
+    } else if (isApostropheGroup) {
+      // Some environments format numbers with ASCII apostrophe and others with a curly apostrophe.
+      groupRegex = /['’]/g;
+    } else {
+      groupRegex = new RegExp(escapeRegExp(group), 'g');
+    }
   }
 
   const replacements: Array<{
