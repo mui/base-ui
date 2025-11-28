@@ -89,7 +89,7 @@
     "tailwindcss": "4.1.17",
     "unified": "^11.0.5",
     "unist-util-visit": "^5.0.0",
-    "webpack-bundle-analyzer": "^4.10.2",
+    "webpack-bundle-analyzer": "^5.0.1",
     "yargs": "^18.0.0",
     "zod": "^4.1.12"
   }
