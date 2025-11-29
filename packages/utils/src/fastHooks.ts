@@ -3,7 +3,7 @@ import { useRefWithInit } from './useRefWithInit';
 
 type Effect = {
   cleanup: (() => void) | undefined;
-  create: () => (() => void) | undefined;
+  create: () => (() => void) | void;
   deps: unknown[] | undefined;
   didChange: boolean;
 };
@@ -65,7 +65,7 @@ export function use(): Disposable {
 export const createUseEffect = (name: 'useEffect' | 'useLayoutEffect') => {
   const reactUseEffect = name === 'useEffect' ? React.useEffect : React.useLayoutEffect;
 
-  const useEffect = (create: () => (() => void) | undefined, deps: unknown[] | undefined): void => {
+  const useEffect = (create: () => (() => void) | void, deps?: unknown[]): void => {
     const context = currentContext?.[name];
 
     if (!context) {
@@ -100,7 +100,7 @@ export const createUseEffect = (name: 'useEffect' | 'useLayoutEffect') => {
         for (const effect of context.data) {
           if (effect.didChange) {
             effect.didChange = false;
-            effect.cleanup = effect.create();
+            effect.cleanup = effect.create() as any;
           }
         }
         return () => {
