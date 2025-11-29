@@ -4,6 +4,7 @@ import { isHTMLElement } from '@floating-ui/utils/dom';
 import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { error } from '@base-ui-components/utils/error';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
+import { useEffect } from '@base-ui-components/utils/useEffect';
 import { makeEventPreventable, mergeProps } from '../merge-props';
 import { useCompositeRootContext } from '../composite/root/CompositeRootContext';
 import { BaseUIEvent, HTMLProps } from '../utils/types';
@@ -36,7 +37,7 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
 
   if (process.env.NODE_ENV !== 'production') {
     // eslint-disable-next-line react-hooks/rules-of-hooks
-    React.useEffect(() => {
+    useEffect(() => {
       if (!elementRef.current) {
         return;
       }

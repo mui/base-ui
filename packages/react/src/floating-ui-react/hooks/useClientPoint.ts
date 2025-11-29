@@ -2,6 +2,7 @@ import * as React from 'react';
 import { getWindow } from '@floating-ui/utils/dom';
 import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
+import { useEffect } from '@base-ui-components/utils/useEffect';
 import { contains, getTarget, isMouseLikePointerType } from '../utils';
 
 import type { ContextData, ElementProps, FloatingContext, FloatingRootContext } from '../types';
@@ -212,17 +213,17 @@ export function useClientPoint(
     return undefined;
   }, [openCheck, enabled, x, y, floating, dataRef, domReference, store, setReference]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     return addListener();
   }, [addListener, reactive]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (enabled && !floating) {
       initialRef.current = false;
     }
   }, [enabled, floating]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!enabled && open) {
       initialRef.current = true;
     }

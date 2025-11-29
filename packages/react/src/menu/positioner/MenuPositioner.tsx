@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import { inertValue } from '@base-ui-components/utils/inertValue';
+import { useEffect } from '@base-ui-components/utils/useEffect';
 import { FloatingNode } from '../../floating-ui-react';
 import { MenuPositionerContext } from './MenuPositionerContext';
 import { useMenuRootContext } from '../root/MenuRootContext';
@@ -125,7 +126,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
     };
   }, [open, mounted, positioner.positionerStyles]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     function onMenuOpenChange(details: MenuOpenEventDetails) {
       if (details.open) {
         if (details.parentNodeId === floatingNodeId) {
@@ -155,7 +156,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
     };
   }, [store, floatingTreeRoot.events, floatingNodeId]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (store.select('floatingParentNodeId') == null) {
       return undefined;
     }
@@ -177,7 +178,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
   }, [floatingTreeRoot.events, store]);
 
   // Close unrelated child submenus when hovering a different item in the parent menu.
-  React.useEffect(() => {
+  useEffect(() => {
     function onItemHover(event: { nodeId: string | undefined; target: Element | null }) {
       // If an item within our parent menu is hovered, and this menu's trigger is not that item,
       // close this submenu. This ensures hovering a different item in the parent closes other branches.
@@ -196,7 +197,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
     };
   }, [floatingTreeRoot.events, open, triggerElement, store]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     const eventDetails: MenuOpenEventDetails = {
       open,
       nodeId: floatingNodeId,

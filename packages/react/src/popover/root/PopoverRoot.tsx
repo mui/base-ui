@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useScrollLock } from '@base-ui-components/utils/useScrollLock';
+import { useEffect } from '@base-ui-components/utils/useEffect';
 import {
   useDismiss,
   useInteractions,
@@ -71,7 +72,7 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
     positionerElement,
   );
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!open) {
       store.context.stickIfOpenTimeout.clear();
     }

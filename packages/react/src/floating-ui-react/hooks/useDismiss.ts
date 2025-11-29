@@ -10,6 +10,7 @@ import {
 } from '@floating-ui/utils/dom';
 import { Timeout, useTimeout } from '@base-ui-components/utils/useTimeout';
 import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
+import { useEffect } from '@base-ui-components/utils/useEffect';
 import {
   contains,
   getDocument,
@@ -533,7 +534,7 @@ export function useDismiss(
     target?.addEventListener(event.type, callback);
   });
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!open || !enabled) {
       return undefined;
     }
@@ -656,7 +657,7 @@ export function useDismiss(
     store,
   ]);
 
-  React.useEffect(clearInsideReactTree, [outsidePress, clearInsideReactTree]);
+  useEffect(clearInsideReactTree, [outsidePress, clearInsideReactTree]);
 
   const reference: ElementProps['reference'] = React.useMemo(
     () => ({

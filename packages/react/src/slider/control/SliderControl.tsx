@@ -5,6 +5,7 @@ import { ownerDocument } from '@base-ui-components/utils/owner';
 import { useAnimationFrame } from '@base-ui-components/utils/useAnimationFrame';
 import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { useValueAsRef } from '@base-ui-components/utils/useValueAsRef';
+import { useEffect } from '@base-ui-components/utils/useEffect';
 import { activeElement, contains } from '../../floating-ui-react/utils';
 import type { Coords } from '../../floating-ui-react/types';
 import { clamp } from '../../utils/clamp';
@@ -403,7 +404,7 @@ export const SliderControl = React.forwardRef(function SliderControl(
 
   const focusFrame = useAnimationFrame();
 
-  React.useEffect(() => {
+  useEffect(() => {
     const control = controlRef.current;
     if (!control) {
       return () => stopListening();
@@ -421,7 +422,7 @@ export const SliderControl = React.forwardRef(function SliderControl(
     };
   }, [stopListening, handleTouchStart, controlRef, focusFrame]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (disabled) {
       stopListening();
     }

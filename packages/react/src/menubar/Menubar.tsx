@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useScrollLock } from '@base-ui-components/utils/useScrollLock';
+import { useEffect } from '@base-ui-components/utils/useEffect';
 import {
   FloatingNode,
   FloatingTree,
@@ -53,7 +54,7 @@ export const Menubar = React.forwardRef(function Menubar(
     reset: resetOpenInteractionType,
   } = useOpenInteractionType(hasSubmenuOpen);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!hasSubmenuOpen) {
       resetOpenInteractionType();
     }
@@ -116,7 +117,7 @@ function MenubarContent(props: React.PropsWithChildren<{}>) {
   const { events: menuEvents } = useFloatingTree()!;
   const rootContext = useMenubarContext();
 
-  React.useEffect(() => {
+  useEffect(() => {
     function onSubmenuOpenChange(details: MenuOpenEventDetails) {
       if (!details.nodeId || details.parentNodeId !== nodeId) {
         return;

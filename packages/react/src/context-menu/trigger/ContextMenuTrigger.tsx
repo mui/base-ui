@@ -2,6 +2,7 @@
 import * as React from 'react';
 import { ownerDocument } from '@base-ui-components/utils/owner';
 import { useTimeout } from '@base-ui-components/utils/useTimeout';
+import { useEffect } from '@base-ui-components/utils/useEffect';
 import { contains, getTarget, stopEvent } from '../../floating-ui-react/utils';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useContextMenuRootContext } from '../root/ContextMenuRootContext';
@@ -144,7 +145,7 @@ export const ContextMenuTrigger = React.forwardRef(function ContextMenuTrigger(
     touchPositionRef.current = null;
   }
 
-  React.useEffect(() => {
+  useEffect(() => {
     function handleDocumentContextMenu(event: MouseEvent) {
       const target = getTarget(event);
       const targetElement = target as HTMLElement | null;

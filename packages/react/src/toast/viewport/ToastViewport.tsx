@@ -2,6 +2,7 @@
 import * as React from 'react';
 import { ownerDocument, ownerWindow } from '@base-ui-components/utils/owner';
 import { visuallyHidden } from '@base-ui-components/utils/visuallyHidden';
+import { useEffect } from '@base-ui-components/utils/useEffect';
 import { activeElement, contains, getTarget } from '../../floating-ui-react/utils';
 import { FocusGuard } from '../../utils/FocusGuard';
 import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
@@ -49,7 +50,7 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
   );
 
   // Listen globally for F6 so we can force-focus the viewport.
-  React.useEffect(() => {
+  useEffect(() => {
     if (!viewportRef.current) {
       return undefined;
     }
@@ -79,7 +80,7 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
     };
   }, [pauseTimers, setFocused, setPrevFocusElement, numToasts, viewportRef]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!viewportRef.current || !numToasts) {
       return undefined;
     }
@@ -135,7 +136,7 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
     numToasts,
   ]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     const viewportNode = viewportRef.current;
     if (!viewportNode || numToasts === 0) {
       return undefined;
@@ -188,7 +189,7 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
     }
   }
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (
       !windowFocusedRef.current ||
       hasTransitioningToasts ||

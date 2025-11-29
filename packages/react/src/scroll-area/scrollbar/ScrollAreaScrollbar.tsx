@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { useEffect } from '@base-ui-components/utils/useEffect';
 import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 import { useScrollAreaRootContext } from '../root/ScrollAreaRootContext';
 import { ScrollAreaScrollbarContext } from './ScrollAreaScrollbarContext';
@@ -67,7 +68,7 @@ export const ScrollAreaScrollbar = React.forwardRef(function ScrollAreaScrollbar
 
   const direction = useDirection();
 
-  React.useEffect(() => {
+  useEffect(() => {
     const viewportEl = viewportRef.current;
     const scrollbarEl = orientation === 'vertical' ? scrollbarYRef.current : scrollbarXRef.current;
 

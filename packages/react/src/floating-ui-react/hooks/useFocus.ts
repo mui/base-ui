@@ -2,6 +2,7 @@ import * as React from 'react';
 import { getWindow, isElement, isHTMLElement } from '@floating-ui/utils/dom';
 import { isMac, isSafari } from '@base-ui-components/utils/detectBrowser';
 import { useTimeout } from '@base-ui-components/utils/useTimeout';
+import { useEffect } from '@base-ui-components/utils/useEffect';
 import {
   activeElement,
   contains,
@@ -52,7 +53,7 @@ export function useFocus(
   const timeout = useTimeout();
   const keyboardModalityRef = React.useRef(true);
 
-  React.useEffect(() => {
+  useEffect(() => {
     const domReference = store.select('domReferenceElement');
     if (!enabled) {
       return undefined;
@@ -98,7 +99,7 @@ export function useFocus(
     };
   }, [store, enabled]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!enabled) {
       return undefined;
     }

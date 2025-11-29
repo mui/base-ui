@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useTimeout } from '@base-ui-components/utils/useTimeout';
+import { useEffect } from '@base-ui-components/utils/useEffect';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useAvatarRootContext } from '../root/AvatarRootContext';
@@ -23,7 +24,7 @@ export const AvatarFallback = React.forwardRef(function AvatarFallback(
   const [delayPassed, setDelayPassed] = React.useState(delay === undefined);
   const timeout = useTimeout();
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (delay !== undefined) {
       timeout.start(delay, () => setDelayPassed(true));
     }

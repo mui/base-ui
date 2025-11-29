@@ -7,6 +7,7 @@ import { ownerDocument } from '@base-ui-components/utils/owner';
 import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { EMPTY_OBJECT } from '@base-ui-components/utils/empty';
+import { useEffect } from '@base-ui-components/utils/useEffect';
 import {
   safePolygon,
   useClick,
@@ -121,7 +122,7 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
     native: nativeButton,
   });
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!isOpenedByThisTrigger && parent.type === undefined) {
       store.context.allowMouseUpTriggerRef.current = false;
     }
@@ -166,7 +167,7 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
     floatingTreeRoot.events.emit('close', { domEvent: mouseEvent, reason: REASONS.cancelOpen });
   });
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (isOpenedByThisTrigger && store.select('lastOpenChangeReason') === REASONS.triggerHover) {
       const doc = ownerDocument(triggerRef.current);
       doc.addEventListener('mouseup', handleDocumentMouseUp, { once: true });

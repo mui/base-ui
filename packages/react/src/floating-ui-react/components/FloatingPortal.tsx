@@ -3,6 +3,7 @@ import * as ReactDOM from 'react-dom';
 import { isNode } from '@floating-ui/utils/dom';
 import { useId } from '@base-ui-components/utils/useId';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
+import { useEffect } from '@base-ui-components/utils/useEffect';
 import { FocusGuard } from '../../utils/FocusGuard';
 import {
   enableFocusInside,
@@ -174,7 +175,7 @@ export const FloatingPortal = React.forwardRef(function FloatingPortal(
       : !!focusManagerState && !focusManagerState.modal && focusManagerState.open && !!portalNode;
 
   // https://codesandbox.io/s/tabbable-portal-f4tng?file=/src/TabbablePortal.tsx
-  React.useEffect(() => {
+  useEffect(() => {
     if (!portalNode || modal) {
       return undefined;
     }
@@ -200,7 +201,7 @@ export const FloatingPortal = React.forwardRef(function FloatingPortal(
     };
   }, [portalNode, modal]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!portalNode || open) {
       return;
     }

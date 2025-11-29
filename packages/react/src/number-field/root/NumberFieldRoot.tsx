@@ -9,6 +9,7 @@ import { useValueAsRef } from '@base-ui-components/utils/useValueAsRef';
 import { useForcedRerendering } from '@base-ui-components/utils/useForcedRerendering';
 import { ownerDocument, ownerWindow } from '@base-ui-components/utils/owner';
 import { isIOS } from '@base-ui-components/utils/detectBrowser';
+import { useEffect } from '@base-ui-components/utils/useEffect';
 import { InputMode, NumberFieldRootContext } from './NumberFieldRootContext';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import type { FieldRoot } from '../../field/root/FieldRoot';
@@ -376,12 +377,12 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
     [minWithDefault, formatStyle],
   );
 
-  React.useEffect(() => {
+  useEffect(() => {
     return () => stopAutoChange();
   }, [stopAutoChange]);
 
   // The `onWheel` prop can't be prevented, so we need to use a global event listener.
-  React.useEffect(
+  useEffect(
     function registerElementWheelListener() {
       const element = inputRef.current;
       if (disabled || readOnly || !allowWheelScrub || !element) {

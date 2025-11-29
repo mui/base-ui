@@ -8,6 +8,7 @@ import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect
 import { useAnimationFrame } from '@base-ui-components/utils/useAnimationFrame';
 import { useScrollLock } from '@base-ui-components/utils/useScrollLock';
 import { EMPTY_ARRAY } from '@base-ui-components/utils/empty';
+import { useEffect } from '@base-ui-components/utils/useEffect';
 import {
   FloatingEvents,
   FloatingTree,
@@ -191,7 +192,7 @@ export function MenuRoot<Payload>(props: MenuRoot.Props<Payload>) {
   const allowOutsidePressDismissalRef = React.useRef(parent.type !== 'context-menu');
   const allowOutsidePressDismissalTimeout = useTimeout();
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!open) {
       openEventRef.current = null;
     }
@@ -387,7 +388,7 @@ export function MenuRoot<Payload>(props: MenuRoot.Props<Payload>) {
 
   floatingEvents = floatingRootContext.context.events;
 
-  React.useEffect(() => {
+  useEffect(() => {
     const handleSetOpenEvent = ({
       open: nextOpen,
       eventDetails,

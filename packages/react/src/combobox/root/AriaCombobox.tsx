@@ -9,6 +9,7 @@ import { visuallyHidden } from '@base-ui-components/utils/visuallyHidden';
 import { useRefWithInit } from '@base-ui-components/utils/useRefWithInit';
 import { Store, useStore } from '@base-ui-components/utils/store';
 import { useValueAsRef } from '@base-ui-components/utils/useValueAsRef';
+import { useEffect } from '@base-ui-components/utils/useEffect';
 import {
   ElementProps,
   useDismiss,
@@ -896,7 +897,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
 
   // Ensures that the active index is not set to 0 when the list is empty.
   // This avoids needing to press ArrowDown twice under certain conditions.
-  React.useEffect(() => {
+  useEffect(() => {
     if (hasItems && autoHighlightMode && flatFilteredItems.length === 0) {
       setIndices({ activeIndex: null });
     }

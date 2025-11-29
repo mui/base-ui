@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
+import { useEffect } from '@base-ui-components/utils/useEffect';
 import { AriaCombobox } from '../../combobox/root/AriaCombobox';
 import { useCoreFilter } from '../../combobox/root/utils/useFilter';
 import { stringifyAsLabel } from '../../utils/resolveValueLabel';
@@ -52,7 +53,7 @@ export function AutocompleteRoot<ItemValue>(
   const [internalValue, setInternalValue] = React.useState(defaultValue ?? '');
   const [inlineInputValue, setInlineInputValue] = React.useState('');
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (isControlled) {
       setInlineInputValue('');
     }

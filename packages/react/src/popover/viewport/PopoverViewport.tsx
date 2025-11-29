@@ -4,6 +4,7 @@ import { useAnimationFrame } from '@base-ui-components/utils/useAnimationFrame';
 import { usePreviousValue } from '@base-ui-components/utils/usePreviousValue';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
+import { useEffect } from '@base-ui-components/utils/useEffect';
 import { usePopoverRootContext } from '../root/PopoverRootContext';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useAnimationsFinished } from '../../utils/useAnimationsFinished';
@@ -105,7 +106,7 @@ export const PopoverViewport = React.forwardRef(function PopoverViewport(
     }
   });
 
-  React.useEffect(() => {
+  useEffect(() => {
     floatingContext.context.events.on('measure-layout', handleMeasureLayout);
     floatingContext.context.events.on('measure-layout-complete', handleMeasureLayoutComplete);
 

@@ -4,6 +4,7 @@ import { useTimeout } from '@base-ui-components/utils/useTimeout';
 import { useValueAsRef } from '@base-ui-components/utils/useValueAsRef';
 import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
+import { useEffect } from '@base-ui-components/utils/useEffect';
 import { contains, getDocument, getTarget, isMouseLikePointerType } from '../utils';
 
 import { useFloatingParentNodeId, useFloatingTree } from '../components/FloatingTree';
@@ -178,7 +179,7 @@ export function useHover(
 
   // When closing before opening, clear the delay timeouts to cancel it
   // from showing.
-  React.useEffect(() => {
+  useEffect(() => {
     if (!enabled) {
       return undefined;
     }
@@ -198,7 +199,7 @@ export function useHover(
     };
   }, [enabled, events, timeout, restTimeout]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!enabled) {
       return undefined;
     }
@@ -275,7 +276,7 @@ export function useHover(
   // Registering the mouse events on the reference directly to bypass React's
   // delegation system. If the cursor was on a disabled element and then entered
   // the reference (no gap), `mouseenter` doesn't fire in the delegation system.
-  React.useEffect(() => {
+  useEffect(() => {
     if (!enabled) {
       return undefined;
     }
@@ -547,7 +548,7 @@ export function useHover(
     }
   }, [open, cleanupMouseMoveHandler, clearPointerEvents]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     return () => {
       cleanupMouseMoveHandler();
       timeout.clear();
@@ -556,7 +557,7 @@ export function useHover(
     };
   }, [enabled, domReferenceElement, cleanupMouseMoveHandler, timeout, restTimeout]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     return clearPointerEvents;
   }, [clearPointerEvents]);
 

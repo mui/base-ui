@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
+import { useEffect } from '@base-ui-components/utils/useEffect';
 import {
   createGenericEventDetails,
   type BaseUIGenericEventDetails,
@@ -53,7 +54,7 @@ export const Form = React.forwardRef(function Form<
     setErrors(externalErrors);
   });
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!submittedRef.current) {
       return;
     }
