@@ -56,11 +56,10 @@ const BOUNDARY_OFFSET = 2;
  *
  * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
  */
-export const MenuTrigger = React.forwardRef(function MenuTrigger(
+export const MenuTrigger = fastHooks.createComponent(function MenuTrigger(
   componentProps: MenuTrigger.Props,
   forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
-  using _ = fastHooks.use();
   const {
     render,
     className,

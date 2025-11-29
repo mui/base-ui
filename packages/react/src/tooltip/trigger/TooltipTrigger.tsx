@@ -19,11 +19,10 @@ import { OPEN_DELAY } from '../utils/constants';
  *
  * Documentation: [Base UI Tooltip](https://base-ui.com/react/components/tooltip)
  */
-export const TooltipTrigger = React.forwardRef(function TooltipTrigger(
+export const TooltipTrigger = fastHooks.createComponent(function TooltipTrigger(
   componentProps: TooltipTrigger.Props,
   forwardedRef: React.ForwardedRef<any>,
 ) {
-  using _ = fastHooks.use();
   const {
     className,
     render,

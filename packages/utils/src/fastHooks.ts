@@ -62,6 +62,35 @@ export function use(): Disposable {
   };
 }
 
+export function test() {
+  return 42;
+}
+
+export function createComponent<P extends object, E extends HTMLElement>(
+  fn: (props: P, forwardedRef: React.Ref<E>) => React.ReactNode,
+) {
+  const Wrapped = React.forwardRef(((props: P, forwardedRef: React.Ref<E>) => {
+    const context = useRefWithInit(createContext).current;
+
+    const previousContext = currentContext;
+    currentContext = context;
+
+    context.useEffect.index = 0;
+    context.useLayoutEffect.index = 0;
+
+    const result = fn(props, forwardedRef);
+
+    context.useEffect.didInitialize = true;
+    context.useLayoutEffect.didInitialize = true;
+    currentContext = previousContext;
+
+    return result;
+  }) as any);
+  Wrapped.displayName = (fn as any).displayName || fn.name;
+
+  return Wrapped;
+}
+
 export const createUseEffect = (name: 'useEffect' | 'useLayoutEffect') => {
   const reactUseEffect = name === 'useEffect' ? React.useEffect : React.useLayoutEffect;
 
