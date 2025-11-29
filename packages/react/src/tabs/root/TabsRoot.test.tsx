@@ -118,6 +118,27 @@ describe('<Tabs.Root />', () => {
       expect(tabs[2]).to.have.attribute('aria-controls', tabPanels[2].id);
       expect(tabs[3]).to.have.attribute('aria-controls', tabPanels[3].id);
     });
+
+    it('sets aria-controls on the first tab when no value is provided', async () => {
+      await render(
+        <Tabs.Root>
+          <Tabs.List>
+            <Tabs.Tab />
+            <Tabs.Tab />
+          </Tabs.List>
+          <Tabs.Panel />
+          <Tabs.Panel />
+        </Tabs.Root>,
+      );
+
+      const tabs = screen.getAllByRole('tab');
+      const tabPanels = screen.getAllByRole('tabpanel', { hidden: true });
+
+      expect(tabs[0]).to.have.attribute('aria-controls', tabPanels[0].id);
+      expect(tabs[1]).to.have.attribute('aria-controls', tabPanels[1].id);
+      expect(tabPanels[0]).to.have.attribute('aria-labelledby', tabs[0].id);
+      expect(tabPanels[1]).to.have.attribute('aria-labelledby', tabs[1].id);
+    });
   });
 
   describe('prop: value', () => {
