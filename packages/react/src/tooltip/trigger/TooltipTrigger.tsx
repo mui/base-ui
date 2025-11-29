@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import * as fastHooks from '@base-ui-components/utils/fastHooks';
 import { useTooltipRootContext } from '../root/TooltipRootContext';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
@@ -22,6 +23,7 @@ export const TooltipTrigger = React.forwardRef(function TooltipTrigger(
   componentProps: TooltipTrigger.Props,
   forwardedRef: React.ForwardedRef<any>,
 ) {
+  using _ = fastHooks.use();
   const {
     className,
     render,
