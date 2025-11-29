@@ -1,3 +1,4 @@
+import * as React from 'react';
 import { useRefWithInit } from './useRefWithInit';
 
 type Effect = {
@@ -14,14 +15,20 @@ type EffectContext = {
 };
 
 type Context = {
-  effects: EffectContext;
+  useEffect: EffectContext;
+  useLayoutEffect: EffectContext;
 };
 
 let currentContext: Context | undefined = undefined;
 
 export function createContext(): Context {
   return {
-    effects: {
+    useEffect: {
+      index: 0,
+      data: [],
+      didInitialize: false,
+    },
+    useLayoutEffect: {
       index: 0,
       data: [],
       didInitialize: false,
@@ -37,39 +44,89 @@ export function setContext(context: Context | undefined): void {
   currentContext = context;
 }
 
-export function createComponent<C extends React.FC>(component: C): C {
-  const ComponentWrapper = (props: any) => {
-    const context = useRefWithInit(createContext).current;
-
-    const previousContext = currentContext;
-    currentContext = context;
-
-    context.effects.index = 0;
-
-    try {
-      return component(props);
-    } finally {
-      context.effects.didInitialize = true;
-      currentContext = previousContext;
-    }
-  };
-  ComponentWrapper.displayName = component.name || 'Component';
-
-  return ComponentWrapper as C;
-}
-
 export function use(): Disposable {
   const context = useRefWithInit(createContext).current;
 
   const previousContext = currentContext;
   currentContext = context;
 
-  context.effects.index = 0;
+  context.useEffect.index = 0;
+  context.useLayoutEffect.index = 0;
 
   return {
     [Symbol.dispose]() {
-      context.effects.didInitialize = true;
+      context.useEffect.didInitialize = true;
+      context.useLayoutEffect.didInitialize = true;
       currentContext = previousContext;
     },
   };
+}
+
+export const createUseEffect = (name: 'useEffect' | 'useLayoutEffect') => {
+  const reactUseEffect = name === 'useEffect' ? React.useEffect : React.useLayoutEffect;
+
+  const useEffect = (create: () => (() => void) | undefined, deps: unknown[] | undefined): void => {
+    const context = currentContext?.[name];
+
+    if (!context) {
+      return reactUseEffect(create, deps);
+    }
+
+    if (context.didInitialize === false) {
+      context.data.push({
+        create,
+        cleanup: undefined,
+        deps,
+        didChange: true,
+      });
+    } else {
+      const effect = context.data[context.index];
+      const previousDeps = effect.deps;
+      const currentDeps = deps;
+
+      effect.didChange =
+        effect.didChange ||
+        currentDeps === undefined ||
+        previousDeps === undefined ||
+        areDepsEqual(previousDeps, currentDeps) === false;
+      effect.create = create;
+      effect.deps = deps;
+    }
+
+    context.index += 1;
+
+    if (context.index === 1) {
+      reactUseEffect(() => {
+        for (const effect of context.data) {
+          if (effect.didChange) {
+            effect.didChange = false;
+            effect.cleanup = effect.create();
+          }
+        }
+        return () => {
+          for (const effect of context.data) {
+            if (effect.didChange) {
+              effect.cleanup?.();
+            }
+          }
+        };
+      });
+    }
+  };
+
+  return useEffect;
+};
+
+function areDepsEqual(depsA: unknown[], depsB: unknown[]): boolean {
+  if (depsA.length !== depsB.length) {
+    return false;
+  }
+
+  for (let i = 0; i < depsA.length; i++) {
+    if (Object.is(depsA[i], depsB[i]) === false) {
+      return false;
+    }
+  }
+
+  return true;
 }
