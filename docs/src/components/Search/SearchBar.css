@@ -1,8 +1,3 @@
-.search-results-item[data-highlighted] .search-results {
-  background-color: var(--color-gray-900);
-  color: var(--color-gray-50);
-}
-
 .search-button-hidden {
   opacity: 0;
   pointer-events: none;
@@ -42,21 +37,5 @@
     transform: none !important;
     opacity: 1 !important;
     scale: 1 !important;
-  }
-}
-
-@supports (view-transition-name: none) {
-  .search-dialog-popup-active .search-results-scroll {
-    view-transition-name: search-results-scroll;
-  }
-
-  .search-dialog-popup-active .search-no-results {
-    view-transition-name: search-no-results;
-    view-transition-class: search-result;
-  }
-
-  .search-dialog-popup-active .search-results-stats {
-    view-transition-name: search-results-stats;
-    view-transition-class: search-result;
   }
 }

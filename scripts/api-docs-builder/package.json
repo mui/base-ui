@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "dependencies": {
-    "@mui/internal-docs-infra": "https://pkg.pr.new/mui/mui-public/@mui/internal-docs-infra@0556596",
+    "@mui/internal-docs-infra": "https://pkg.pr.new/mui/mui-public/@mui/internal-docs-infra@6acb5ce",
     "@types/yargs": "^17.0.35",
     "es-toolkit": "^1.42.0",
     "rimraf": "^6.1.0",

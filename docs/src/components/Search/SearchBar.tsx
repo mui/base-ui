@@ -16,24 +16,32 @@ import { FileText, Blocks, Package, Heading2, Heading3, Search } from 'lucide-re
 import './SearchBar.css';
 import { ExpandingBox } from './ExpandingBox';
 
-function normalizeGroupName(name: string) {
-  if (name.startsWith('React ')) {
-    name = name.replace('React ', '');
-  }
-
-  if (name.endsWith(' page')) {
-    return name.replace(' page', '');
-  }
-
-  if (name.endsWith(' export')) {
-    return name.replace(' export', ' API Reference');
-  }
-
-  if (name.endsWith(' part')) {
-    return name.replace(' part', ' API Reference');
-  }
-
-  return name;
+function SearchItem({ result }: { result: SearchResult }) {
+  return (
+    <React.Fragment>
+      <div className="flex items-baseline justify-between gap-2">
+        <div className="flex items-baseline gap-2">
+          {result.type === 'page' && <FileText className="h-4 w-4" />}
+          {result.type === 'part' && <Blocks className="h-4 w-4" />}
+          {result.type === 'export' && <Package className="h-4 w-4" />}
+          {result.type === 'section' && <Heading2 className="h-4 w-4" />}
+          {result.type === 'subsection' && <Heading3 className="h-4 w-4" />}
+          <strong className="font-semibold">{result.title}</strong>
+          {result.type === 'page' && (
+            <span className="text-xs opacity-50 capitalize">
+              {result.sectionTitle.replace('React ', '')}
+            </span>
+          )}
+        </div>
+        {process.env.NODE_ENV === 'development' && result.score && (
+          <span className="text-xs opacity-70">{result.score.toFixed(2)}</span>
+        )}
+      </div>
+      {result.type === 'page' && result.description && (
+        <div className="mt-0.5 text-sm opacity-80">{result.description}</div>
+      )}
+    </React.Fragment>
+  );
 }
 
 export function SearchBar({
@@ -65,7 +73,7 @@ export function SearchBar({
       slug: 2,
       path: 2,
       title: 2,
-      page: 3.5,
+      page: 6,
       pageKeywords: 15,
       description: 1.5,
       part: 1.5,
@@ -93,15 +101,7 @@ export function SearchBar({
   // Update search results when hook results change
   React.useEffect(() => {
     const updateResults = () => {
-      if ('startViewTransition' in document) {
-        (document as any).startViewTransition(() => {
-          ReactDOM.flushSync(() => {
-            setSearchResults(results);
-          });
-        });
-      } else {
-        setSearchResults(results);
-      }
+      setSearchResults(results);
     };
 
     // Delay empty results to avoid flashing "No results" while typing
@@ -113,17 +113,6 @@ export function SearchBar({
     updateResults();
     return undefined;
   }, [results]);
-
-  // Reset to default results when dialog closes
-  React.useEffect(() => {
-    if (!dialogOpen) {
-      setSearchResults({
-        results: defaultResults,
-        count: defaultResults.length,
-        elapsed: { raw: 0, formatted: '0ms' },
-      });
-    }
-  }, [dialogOpen, defaultResults]);
 
   const handleOpenDialog = React.useCallback(() => {
     // Prevent double-opening across all instances
@@ -181,11 +170,21 @@ export function SearchBar({
           });
 
           transition.finished.then(() => {
-            // Results will be reset by useEffect
+            setSearchResults({
+              results: defaultResults,
+              count: defaultResults.length,
+              elapsed: { raw: 0, formatted: '0ms' },
+            });
           });
         } else {
           setDialogOpen(false);
-          // Results will be reset by useEffect
+          queueMicrotask(() => {
+            setSearchResults({
+              results: defaultResults,
+              count: defaultResults.length,
+              elapsed: { raw: 0, formatted: '0ms' },
+            });
+          });
         }
 
         // Reset after a short delay
@@ -196,7 +195,7 @@ export function SearchBar({
         handleOpenDialog();
       }
     },
-    [handleOpenDialog],
+    [handleOpenDialog, defaultResults],
   );
 
   const handleAutocompleteEscape = React.useCallback(
@@ -277,7 +276,7 @@ export function SearchBar({
           id={`search-group-${group.group}`}
           className="search-results sticky top-0 z-1 m-0 w-100% bg-[canvas] px-4 pb-1 pt-2 text-xs font-semibold uppercase tracking-wider"
         >
-          {normalizeGroupName(group.group)}
+          {group.group}
         </Autocomplete.GroupLabel>
       )}
       <Autocomplete.Collection>
@@ -286,34 +285,9 @@ export function SearchBar({
             key={result.id || i}
             value={result}
             onClick={() => handleItemClick(result)}
-            className="search-results-item"
+            className="flex cursor-default select-none flex-col gap-1 px-4 py-3 text-base leading-4 outline-none data-highlighted:bg-gray-200"
           >
-            <div
-              id={`search-results-${result.id || i}`}
-              className="search-results flex cursor-default select-none flex-col gap-1 px-4 py-3 text-base leading-4 outline-none hover:bg-gray-100"
-            >
-              <div className="flex items-baseline justify-between gap-2">
-                <div className="flex items-baseline gap-2">
-                  {result.type === 'page' && <FileText className="h-4 w-4" />}
-                  {result.type === 'part' && <Blocks className="h-4 w-4" />}
-                  {result.type === 'export' && <Package className="h-4 w-4" />}
-                  {result.type === 'section' && <Heading2 className="h-4 w-4" />}
-                  {result.type === 'subsection' && <Heading3 className="h-4 w-4" />}
-                  <strong className="font-semibold">{result.title}</strong>
-                  {result.type === 'page' && (
-                    <span className="text-xs opacity-50 capitalize">
-                      {result.sectionTitle.replace('React ', '')}
-                    </span>
-                  )}
-                </div>
-                {process.env.NODE_ENV === 'development' && result.score && (
-                  <span className="text-xs opacity-70">{result.score.toFixed(2)}</span>
-                )}
-              </div>
-              {result.type === 'page' && result.description && (
-                <div className="mt-0.5 text-sm opacity-80">{result.description}</div>
-              )}
-            </div>
+            <SearchItem result={result} />
           </Autocomplete.Item>
         )}
       </Autocomplete.Collection>
@@ -385,7 +359,7 @@ export function SearchBar({
                             )}
                           </ScrollArea.Content>
                         </ScrollArea.Viewport>
-                        <ScrollArea.Scrollbar className="pointer-events-none absolute m-1 flex w-1 z-1 justify-center rounded-2xl opacity-0 transition-opacity duration-250 data-hovering:pointer-events-auto data-hovering:opacity-100 data-hovering:duration-75 data-scrolling:pointer-events-auto data-scrolling:opacity-100 data-scrolling:duration-75 md:w-1.25">
+                        <ScrollArea.Scrollbar className="pointer-events-none absolute m-1 flex w-1 z-1 justify-center rounded-2xl opacity-0 transition-opacity duration-250 data-hovering:pointer-events-auto hover:opacity-100 hover:duration-75 data-scrolling:pointer-events-auto data-scrolling:opacity-100 data-scrolling:duration-75 md:w-1.25">
                           <ScrollArea.Thumb className="w-full rounded-[inherit] bg-gray-500 before:absolute before:left-1/2 before:top-1/2 before:h-[calc(100%+1rem)] before:w-[calc(100%+1rem)] before:-translate-x-1/2 before:-translate-y-1/2 before:content-['']" />
                         </ScrollArea.Scrollbar>
                       </ScrollArea.Root>
