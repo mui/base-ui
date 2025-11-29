@@ -300,8 +300,11 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
       const isAllSelected = selectionStart === 0 && selectionEnd === inputValue.length;
 
       // Normalize handling of plus/minus signs via precomputed regexes
-      const selectionIsExactlyCharAt = (index: number) =>
-        selectionStart === index && selectionEnd === index + 1;
+      const selectionContainsIndex = (index: number) =>
+        selectionStart != null &&
+        selectionEnd != null &&
+        index >= selectionStart &&
+        index < selectionEnd;
 
       if (
         ANY_MINUS_DETECT_RE.test(event.key) &&
@@ -310,7 +313,7 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
         // Only allow one sign unless replacing the existing one or all text is selected
         const existingIndex = inputValue.search(ANY_MINUS_RE);
         const isReplacingExisting =
-          existingIndex != null && existingIndex !== -1 && selectionIsExactlyCharAt(existingIndex);
+          existingIndex != null && existingIndex !== -1 && selectionContainsIndex(existingIndex);
         isAllowedNonNumericKey =
           !(ANY_MINUS_DETECT_RE.test(inputValue) || ANY_PLUS_DETECT_RE.test(inputValue)) ||
           isAllSelected ||
@@ -322,7 +325,7 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
       ) {
         const existingIndex = inputValue.search(ANY_PLUS_RE);
         const isReplacingExisting =
-          existingIndex != null && existingIndex !== -1 && selectionIsExactlyCharAt(existingIndex);
+          existingIndex != null && existingIndex !== -1 && selectionContainsIndex(existingIndex);
         isAllowedNonNumericKey =
           !(ANY_MINUS_DETECT_RE.test(inputValue) || ANY_PLUS_DETECT_RE.test(inputValue)) ||
           isAllSelected ||
@@ -333,8 +336,7 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
       [decimal, currency, percentSign].forEach((symbol) => {
         if (event.key === symbol) {
           const symbolIndex = inputValue.indexOf(symbol);
-          const isSymbolHighlighted =
-            selectionStart === symbolIndex && selectionEnd === symbolIndex + 1;
+          const isSymbolHighlighted = selectionContainsIndex(symbolIndex);
           isAllowedNonNumericKey =
             !inputValue.includes(symbol) || isAllSelected || isSymbolHighlighted;
         }
