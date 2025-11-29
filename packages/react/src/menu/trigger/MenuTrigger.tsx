@@ -2,6 +2,7 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { FocusableElement } from 'tabbable';
+import * as fastHooks from '@base-ui-components/utils/fastHooks';
 import { useTimeout } from '@base-ui-components/utils/useTimeout';
 import { ownerDocument } from '@base-ui-components/utils/owner';
 import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
@@ -59,6 +60,7 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
   componentProps: MenuTrigger.Props,
   forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
+  using _ = fastHooks.use();
   const {
     render,
     className,
