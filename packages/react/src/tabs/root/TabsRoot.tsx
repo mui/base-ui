@@ -37,6 +37,9 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
   const direction = useDirection();
 
   const tabPanelRefs = React.useRef<(HTMLElement | null)[]>([]);
+  const [mountedTabPanels, setMountedTabPanels] = React.useState(
+    () => new Map<TabsTab.Value | number, string>(),
+  );
 
   const [value, setValue] = useControlled({
     controlled: valueProp,
@@ -68,6 +71,34 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
     },
   );
 
+  const registerMountedTabPanel = useStableCallback(
+    (panelValue: TabsTab.Value | number, panelId: string) => {
+      setMountedTabPanels((prev) => {
+        if (prev.get(panelValue) === panelId) {
+          return prev;
+        }
+
+        const next = new Map(prev);
+        next.set(panelValue, panelId);
+        return next;
+      });
+    },
+  );
+
+  const unregisterMountedTabPanel = useStableCallback(
+    (panelValue: TabsTab.Value | number, panelId: string) => {
+      setMountedTabPanels((prev) => {
+        if (!prev.has(panelValue) || prev.get(panelValue) !== panelId) {
+          return prev;
+        }
+
+        const next = new Map(prev);
+        next.delete(panelValue);
+        return next;
+      });
+    },
+  );
+
   // get the `id` attribute of <Tabs.Panel> to set as the value of `aria-controls` on <Tabs.Tab>
   const getTabPanelIdByTabValueOrIndex = React.useCallback(
     (tabValue: TabsTab.Value | undefined, index: number) => {
@@ -75,7 +106,25 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
         return undefined;
       }
 
-      for (const tabPanelMetadata of tabPanelMap.values()) {
+      if (tabValue !== undefined) {
+        const mountedPanelId = mountedTabPanels.get(tabValue);
+        if (mountedPanelId) {
+          return mountedPanelId;
+        }
+      }
+
+      if (tabValue === undefined && index > -1) {
+        const mountedPanelId = mountedTabPanels.get(index);
+        if (mountedPanelId) {
+          return mountedPanelId;
+        }
+      }
+
+      for (const [tabPanelNode, tabPanelMetadata] of tabPanelMap.entries()) {
+        if (!tabPanelNode.isConnected) {
+          continue;
+        }
+
         // find by tabValue
         if (tabValue !== undefined && tabPanelMetadata && tabValue === tabPanelMetadata?.value) {
           return tabPanelMetadata.id;
@@ -93,7 +142,7 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
 
       return undefined;
     },
-    [tabPanelMap],
+    [mountedTabPanels, tabPanelMap],
   );
 
   // get the `id` attribute of <Tabs.Tab> to set as the value of `aria-labelledby` on <Tabs.Panel>
@@ -154,7 +203,9 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
       getTabPanelIdByTabValueOrIndex,
       onValueChange,
       orientation,
+      registerMountedTabPanel,
       setTabMap,
+      unregisterMountedTabPanel,
       tabActivationDirection,
       value,
     }),
@@ -165,7 +216,9 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
       getTabPanelIdByTabValueOrIndex,
       onValueChange,
       orientation,
+      registerMountedTabPanel,
       setTabMap,
+      unregisterMountedTabPanel,
       tabActivationDirection,
       value,
     ],

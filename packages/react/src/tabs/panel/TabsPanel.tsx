@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useRenderElement } from '../../utils/useRenderElement';
 import type { BaseUIComponentProps } from '../../utils/types';
@@ -24,7 +25,6 @@ export const TabsPanel = React.forwardRef(function TabPanel(
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const {
-    children,
     className,
     value: valueProp,
     render,
@@ -37,6 +37,8 @@ export const TabsPanel = React.forwardRef(function TabPanel(
     getTabIdByPanelValueOrIndex,
     orientation,
     tabActivationDirection,
+    registerMountedTabPanel,
+    unregisterMountedTabPanel,
   } = useTabsRootContext();
 
   const id = useBaseUiId();
@@ -56,7 +58,12 @@ export const TabsPanel = React.forwardRef(function TabPanel(
 
   const tabPanelValue = valueProp ?? index;
 
-  const hidden = tabPanelValue !== selectedValue;
+  // If using index as value (valueProp is undefined), don't hide until
+  // the index has been determined (index !== -1).
+  let hidden = tabPanelValue !== selectedValue;
+  if (valueProp === undefined && index === -1) {
+    hidden = false;
+  }
 
   const correspondingTabId = React.useMemo(() => {
     return getTabIdByPanelValueOrIndex(valueProp, index);
@@ -84,10 +91,29 @@ export const TabsPanel = React.forwardRef(function TabPanel(
         [TabsPanelDataAttributes.index as string]: index,
       },
       elementProps,
-      { children: hidden && !keepMounted ? undefined : children },
     ],
     stateAttributesMapping: tabsStateAttributesMapping,
   });
+
+  useIsoLayoutEffect(() => {
+    if (hidden && !keepMounted) {
+      return undefined;
+    }
+
+    if (tabPanelValue == null || id == null) {
+      return undefined;
+    }
+
+    registerMountedTabPanel(tabPanelValue, id);
+    return () => {
+      unregisterMountedTabPanel(tabPanelValue, id);
+    };
+  }, [hidden, keepMounted, tabPanelValue, id, registerMountedTabPanel, unregisterMountedTabPanel]);
+
+  const shouldRender = !hidden || keepMounted;
+  if (!shouldRender) {
+    return null;
+  }
 
   return element;
 });

@@ -50,7 +50,11 @@ export function CompositeList<Metadata>(props: CompositeList.Props<Metadata>) {
     disableEslintWarning(mapTick);
 
     const newMap = new Map<Element, CompositeMetadata<Metadata>>();
-    const sortedNodes = Array.from(map.keys()).sort(sortByDocumentPosition);
+    // Filter out disconnected elements before sorting to avoid inconsistent
+    // compareDocumentPosition results when elements are detached from the DOM.
+    const sortedNodes = Array.from(map.keys())
+      .filter((node) => node.isConnected)
+      .sort(sortByDocumentPosition);
 
     sortedNodes.forEach((node, index) => {
       const metadata = map.get(node) ?? ({} as CompositeMetadata<Metadata>);
