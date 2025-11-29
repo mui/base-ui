@@ -596,7 +596,7 @@ describe('<NumberField />', () => {
     it('should set the name attribute on the hidden input', async () => {
       await render(<NumberField name="test" />);
       const hiddenInput = screen.getByText('', {
-        selector: 'input[type=hidden]',
+        selector: 'input[aria-hidden][type=number]',
       });
       expect(hiddenInput).to.have.attribute('name', 'test');
     });
@@ -1087,6 +1087,28 @@ describe('<NumberField />', () => {
       expect(screen.queryByTestId('error')).to.equal(null);
       expect(input).not.to.have.attribute('aria-invalid');
     });
+
+    it('should handle browser autofill', async () => {
+      const onValueChange = spy();
+
+      await render(
+        <Field.Root name="quantity">
+          <NumberFieldBase.Root onValueChange={onValueChange}>
+            <NumberFieldBase.Input />
+          </NumberFieldBase.Root>
+        </Field.Root>,
+      );
+
+      const input = screen.getByRole('textbox');
+      const hiddenInput = document.querySelector('input[type="number"][name="quantity"]');
+
+      expect(hiddenInput).not.to.equal(null);
+      fireEvent.change(hiddenInput!, { target: { value: '42' } });
+
+      expect(onValueChange.callCount).to.equal(1);
+      expect(onValueChange.firstCall.args[0]).to.equal(42);
+      expect(input).to.have.value('42');
+    });
   });
 
   describe('Field', () => {
@@ -1347,6 +1369,70 @@ describe('<NumberField />', () => {
         expect(input).not.to.have.attribute('aria-invalid');
         expect(screen.queryByTestId('error')).to.equal(null);
       });
+    });
+
+    // Chromium shows a native validation popup when stepMismatch occurs that blocks the test
+    it.skipIf(!isJSDOM)(
+      'prevents form submission when the value does not match the step',
+      async () => {
+        const handleSubmit = spy();
+        await render(
+          <form onSubmit={handleSubmit}>
+            <NumberFieldBase.Root name="quantity" defaultValue={0} min={0} step={0.1}>
+              <NumberFieldBase.Input data-testid="input" />
+            </NumberFieldBase.Root>
+            <button type="submit">submit</button>
+          </form>,
+        );
+
+        const input = screen.getByTestId('input');
+
+        await act(async () => {
+          input.focus();
+        });
+
+        fireEvent.change(input, { target: { value: '0.11' } });
+        fireEvent.click(screen.getByText('submit'));
+
+        expect(handleSubmit.callCount).to.equal(0);
+
+        fireEvent.change(input, { target: { value: '0.1' } });
+        fireEvent.click(screen.getByText('submit'));
+
+        expect(handleSubmit.callCount).to.equal(1);
+        expect(new FormData(handleSubmit.firstCall.args[0].target).get('quantity')).to.equal('0.1');
+      },
+    );
+
+    it('prevents Form/Field submission when the value does not match the step', async () => {
+      const handleSubmit = spy();
+      await render(
+        <Form onFormSubmit={handleSubmit}>
+          <Field.Root name="quantity">
+            <NumberFieldBase.Root defaultValue={0} min={0} step={0.1}>
+              <NumberFieldBase.Input data-testid="input" />
+            </NumberFieldBase.Root>
+          </Field.Root>
+          <button type="submit">submit</button>
+        </Form>,
+      );
+
+      const input = screen.getByTestId('input');
+
+      await act(async () => {
+        input.focus();
+      });
+
+      fireEvent.change(input, { target: { value: '0.11' } });
+      fireEvent.click(screen.getByText('submit'));
+
+      expect(handleSubmit.callCount).to.equal(0);
+
+      fireEvent.change(input, { target: { value: '0.1' } });
+      fireEvent.click(screen.getByText('submit'));
+
+      expect(handleSubmit.callCount).to.equal(1);
+      expect(handleSubmit.firstCall.args[0].quantity).to.equal(0.1);
     });
 
     it('disables the input when disabled=true', async () => {
