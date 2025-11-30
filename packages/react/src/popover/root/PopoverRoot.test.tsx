@@ -169,6 +169,51 @@ describe('<Popover.Root />', () => {
 
       expect(screen.getByTestId('popover-popup')).not.to.equal(null);
     });
+
+    it('keeps the popover open when a nested menu opens via pointer using a shared container', async () => {
+      function Test() {
+        const [dialogNode, setDialogNode] = React.useState<HTMLDialogElement | null>(null);
+        const handleDialogRef = React.useCallback((node: HTMLDialogElement | null) => {
+          if (node) {
+            setDialogNode(node);
+          }
+        }, []);
+
+        return (
+          <dialog open ref={handleDialogRef}>
+            <Popover.Root>
+              <Popover.Trigger>Open</Popover.Trigger>
+              <Popover.Portal container={dialogNode ?? undefined}>
+                <Popover.Positioner>
+                  <Popover.Popup data-testid="popover-popup">
+                    <Menu.Root>
+                      <Menu.Trigger>Open nested</Menu.Trigger>
+                      <Menu.Portal container={dialogNode ?? undefined}>
+                        <Menu.Positioner>
+                          <Menu.Popup data-testid="menu-popup">Nested Menu</Menu.Popup>
+                        </Menu.Positioner>
+                      </Menu.Portal>
+                    </Menu.Root>
+                  </Popover.Popup>
+                </Popover.Positioner>
+              </Popover.Portal>
+            </Popover.Root>
+          </dialog>
+        );
+      }
+
+      const { user } = await render(<Test />);
+
+      const popoverTrigger = screen.getByRole('button', { name: 'Open' });
+      await user.click(popoverTrigger);
+      await screen.findByTestId('popover-popup');
+
+      const nestedTrigger = await screen.findByRole('button', { name: 'Open nested' });
+      await user.click(nestedTrigger);
+      await screen.findByTestId('menu-popup');
+
+      expect(screen.getByTestId('popover-popup')).not.to.equal(null);
+    });
   });
 
   describe('prop: defaultOpen', () => {
@@ -738,6 +783,47 @@ describe('<Popover.Root />', () => {
         expect(screen.queryByRole('dialog')).to.equal(null);
       });
       expect(handleOpenChange.callCount).to.equal(1);
+    });
+  });
+
+  describe('non-modal focus transitions', () => {
+    it('closes as soon as focus leaves the popup on pointer down outside', async () => {
+      function TestCase() {
+        return (
+          <React.Fragment>
+            <Popover.Root defaultOpen>
+              <Popover.Trigger>Toggle</Popover.Trigger>
+              <Popover.Portal>
+                <Popover.Positioner>
+                  <Popover.Popup>
+                    <button data-testid="inside">Inside</button>
+                  </Popover.Popup>
+                </Popover.Positioner>
+              </Popover.Portal>
+            </Popover.Root>
+            <button data-testid="outside">Outside</button>
+          </React.Fragment>
+        );
+      }
+
+      await render(<TestCase />);
+
+      const inside = screen.getByTestId('inside');
+      await act(async () => {
+        inside.focus();
+      });
+
+      const outside = screen.getByTestId('outside');
+
+      fireEvent.pointerDown(outside);
+      await act(async () => {
+        outside.focus();
+      });
+      fireEvent.focusOut(inside, { relatedTarget: outside });
+
+      await flushMicrotasks();
+
+      expect(screen.queryByRole('dialog')).to.equal(null);
     });
   });
 
