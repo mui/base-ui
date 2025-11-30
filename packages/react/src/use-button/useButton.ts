@@ -119,21 +119,22 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
             }
 
             const shouldClick =
-              event.target === event.currentTarget &&
-              !isNativeButton &&
-              !isValidLink() &&
-              !disabled;
+              event.target === event.currentTarget && !isNativeButton && !disabled;
             const isEnterKey = event.key === 'Enter';
             const isSpaceKey = event.key === ' ';
 
             // Keyboard accessibility for non interactive elements
             if (shouldClick) {
-              if (isSpaceKey || isEnterKey) {
-                event.preventDefault();
-              }
+              if (!isValidLink()) {
+                if (isSpaceKey || isEnterKey) {
+                  event.preventDefault();
+                }
 
-              if (isEnterKey) {
-                externalOnClick?.(event);
+                if (isEnterKey) {
+                  externalOnClick?.(event);
+                }
+              } else if (isSpaceKey) {
+                event.preventDefault();
               }
             }
           },
