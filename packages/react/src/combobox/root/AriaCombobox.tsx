@@ -1375,6 +1375,7 @@ interface ComboboxRootProps<ItemValue> {
   keepHighlight?: boolean;
   /**
    * Whether moving the pointer over items should highlight them.
+   * Disabling this prop allows CSS `:hover` to be differentiated from the `:focus` (`data-highlighted`) state.
    * @default true
    */
   highlightItemOnHover?: boolean;

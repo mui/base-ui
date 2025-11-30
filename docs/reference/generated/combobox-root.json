@@ -59,16 +59,10 @@
       "description": "Whether the first matching item is highlighted automatically while filtering.",
       "detailedType": "boolean | undefined"
     },
-    "keepHighlight": {
-      "type": "boolean",
-      "default": "false",
-      "description": "Whether the highlighted item should be preserved when the pointer leaves the list.",
-      "detailedType": "boolean | undefined"
-    },
     "highlightItemOnHover": {
       "type": "boolean",
       "default": "true",
-      "description": "Whether moving the pointer over items should highlight them.",
+      "description": "Whether moving the pointer over items should highlight them.\nDisabling this prop allows CSS `:hover` to be differentiated from the `:focus` (`data-highlighted`) state.",
       "detailedType": "boolean | undefined"
     },
     "actionsRef": {
