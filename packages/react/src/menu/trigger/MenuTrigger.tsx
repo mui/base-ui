@@ -2,11 +2,13 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { FocusableElement } from 'tabbable';
+import * as fastHooks from '@base-ui-components/utils/fastHooks';
 import { useTimeout } from '@base-ui-components/utils/useTimeout';
 import { ownerDocument } from '@base-ui-components/utils/owner';
 import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { EMPTY_OBJECT } from '@base-ui-components/utils/empty';
+import { useEffect } from '@base-ui-components/utils/useEffect';
 import {
   safePolygon,
   useClick,
@@ -54,7 +56,7 @@ const BOUNDARY_OFFSET = 2;
  *
  * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
  */
-export const MenuTrigger = React.forwardRef(function MenuTrigger(
+export const MenuTrigger = fastHooks.createComponent(function MenuTrigger(
   componentProps: MenuTrigger.Props,
   forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
@@ -121,7 +123,7 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
     native: nativeButton,
   });
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!isOpenedByThisTrigger && parent.type === undefined) {
       store.context.allowMouseUpTriggerRef.current = false;
     }
@@ -166,7 +168,7 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
     floatingTreeRoot.events.emit('close', { domEvent: mouseEvent, reason: REASONS.cancelOpen });
   });
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (isOpenedByThisTrigger && store.select('lastOpenChangeReason') === REASONS.triggerHover) {
       const doc = ownerDocument(triggerRef.current);
       doc.addEventListener('mouseup', handleDocumentMouseUp, { once: true });

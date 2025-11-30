@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
+import { useEffect } from '@base-ui-components/utils/useEffect';
 import { NoSsrProps } from './NoSsr.types';
 
 /**
@@ -25,7 +26,7 @@ export function NoSsr(props: NoSsrProps): React.JSX.Element {
     }
   }, [defer]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (defer) {
       setMountedState(true);
     }

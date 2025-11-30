@@ -2,6 +2,7 @@
 import * as React from 'react';
 import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { useValueAsRef } from '@base-ui-components/utils/useValueAsRef';
+import { useEffect } from '@base-ui-components/utils/useEffect';
 import { useAnimationsFinished } from './useAnimationsFinished';
 
 /**
@@ -14,7 +15,7 @@ export function useOpenChangeComplete(parameters: useOpenChangeComplete.Paramete
   const onComplete = useStableCallback(onCompleteParam);
   const runOnceAnimationsFinish = useAnimationsFinished(ref, open);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!enabled) {
       return;
     }

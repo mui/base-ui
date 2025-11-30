@@ -10,6 +10,7 @@ import { useTimeout } from '@base-ui-components/utils/useTimeout';
 import type { InteractionType } from '@base-ui-components/utils/useEnhancedClickHandler';
 import { useAnimationFrame } from '@base-ui-components/utils/useAnimationFrame';
 import { ownerWindow } from '@base-ui-components/utils/owner';
+import { useEffect } from '@base-ui-components/utils/useEffect';
 import { FocusGuard } from '../../utils/FocusGuard';
 import {
   activeElement,
@@ -329,7 +330,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
       .flat() as Array<FocusableElement>;
   });
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (disabled) {
       return undefined;
     }
@@ -366,7 +367,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     getTabbableElements,
   ]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (disabled) {
       return undefined;
     }
@@ -391,7 +392,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
   }, [disabled, floating, getTabbableContent]);
 
   // Track the last interaction type at the document level to disambiguate focus events
-  React.useEffect(() => {
+  useEffect(() => {
     if (disabled || !open) {
       return undefined;
     }
@@ -415,7 +416,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     };
   }, [disabled, floating, domReference, floatingFocusElement, open]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (disabled) {
       return undefined;
     }
@@ -607,7 +608,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
   );
   const mergedAfterGuardRef = useMergedRefs(afterGuardRef, portalContext?.afterInsideRef);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (disabled || !floating || !open) {
       return undefined;
     }
@@ -844,7 +845,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     getNodeId,
   ]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     // The `returnFocus` cleanup behavior is inside a microtask; ensure we
     // wait for it to complete before resetting the flag.
     queueMicrotask(() => {
@@ -852,7 +853,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     });
   }, [disabled]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (disabled || !open) {
       return undefined;
     }

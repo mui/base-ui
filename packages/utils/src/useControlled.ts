@@ -2,6 +2,7 @@
 // TODO: uncomment once we enable eslint-plugin-react-compiler // eslint-disable-next-line react-compiler/react-compiler -- process.env never changes, dependency arrays are intentionally ignored
 /* eslint-disable react-hooks/rules-of-hooks, react-hooks/exhaustive-deps */
 import * as React from 'react';
+import { useEffect } from './useEffect';
 
 export interface UseControlledProps<T = unknown> {
   /**
@@ -34,7 +35,7 @@ export function useControlled<T = unknown>({
   const value = isControlled ? controlled : valueState;
 
   if (process.env.NODE_ENV !== 'production') {
-    React.useEffect(() => {
+    useEffect(() => {
       if (isControlled !== (controlled !== undefined)) {
         console.error(
           [
@@ -53,7 +54,7 @@ export function useControlled<T = unknown>({
 
     const { current: defaultValue } = React.useRef(defaultProp);
 
-    React.useEffect(() => {
+    useEffect(() => {
       // See https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/is for more details.
       if (!isControlled && JSON.stringify(defaultValue) !== JSON.stringify(defaultProp)) {
         console.error(

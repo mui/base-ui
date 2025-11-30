@@ -6,6 +6,7 @@ import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
 import { useOnMount } from '@base-ui-components/utils/useOnMount';
 import { AnimationFrame, useAnimationFrame } from '@base-ui-components/utils/useAnimationFrame';
 import { warn } from '@base-ui-components/utils/warn';
+import { useEffect } from '@base-ui-components/utils/useEffect';
 import { HTMLProps } from '../../utils/types';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
@@ -380,7 +381,7 @@ export function useCollapsiblePanel(
     }
   }, [hiddenUntilFound, hidden, animationTypeRef, panelRef]);
 
-  React.useEffect(
+  useEffect(
     function registerBeforeMatchListener() {
       const panel = panelRef.current;
       if (!panel) {

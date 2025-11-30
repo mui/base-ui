@@ -4,6 +4,7 @@ import { isHTMLElement } from '@floating-ui/utils/dom';
 import { useControlled } from '@base-ui-components/utils/useControlled';
 import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { ownerDocument } from '@base-ui-components/utils/owner';
+import { useEffect } from '@base-ui-components/utils/useEffect';
 import {
   FloatingTree,
   useFloatingNodeId,
@@ -88,7 +89,7 @@ export const NavigationMenuRoot = React.forwardRef(function NavigationMenuRoot(
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
 
-  React.useEffect(() => {
+  useEffect(() => {
     setViewportInert(false);
   }, [value]);
 

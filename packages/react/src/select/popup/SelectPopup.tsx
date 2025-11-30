@@ -9,6 +9,7 @@ import { isMouseWithinBounds } from '@base-ui-components/utils/isMouseWithinBoun
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { useStore } from '@base-ui-components/utils/store';
 import { useAnimationFrame } from '@base-ui-components/utils/useAnimationFrame';
+import { useEffect } from '@base-ui-components/utils/useEffect';
 import { FloatingFocusManager } from '../../floating-ui-react';
 import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 import { useSelectFloatingContext, useSelectRootContext } from '../root/SelectRootContext';
@@ -355,7 +356,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
     listElement,
   ]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!alignItemWithTriggerActive || !positionerElement || !mounted) {
       return undefined;
     }

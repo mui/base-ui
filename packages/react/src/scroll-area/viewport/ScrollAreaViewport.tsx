@@ -5,6 +5,7 @@ import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { isWebKit } from '@base-ui-components/utils/detectBrowser';
 import { useTimeout } from '@base-ui-components/utils/useTimeout';
+import { useEffect } from '@base-ui-components/utils/useEffect';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useScrollAreaRootContext } from '../root/ScrollAreaRootContext';
 import { ScrollAreaViewportContext } from './ScrollAreaViewportContext';
@@ -299,7 +300,7 @@ export const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
     }
   }, [viewportRef, setHovering]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     const viewport = viewportRef.current;
     if (typeof ResizeObserver === 'undefined' || !viewport) {
       return undefined;

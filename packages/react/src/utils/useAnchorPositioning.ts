@@ -5,6 +5,7 @@ import { ownerDocument } from '@base-ui-components/utils/owner';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { useValueAsRef } from '@base-ui-components/utils/useValueAsRef';
 import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
+import { useEffect } from '@base-ui-components/utils/useEffect';
 import {
   autoUpdate,
   flip,
@@ -449,7 +450,7 @@ export function useAnchorPositioning(
     }
   }, [mounted, refs, anchorDep, anchorValueRef]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!mounted) {
       return;
     }
@@ -468,7 +469,7 @@ export function useAnchorPositioning(
     }
   }, [mounted, refs, anchorDep, anchorValueRef]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (keepMounted && mounted && elements.domReference && elements.floating) {
       return autoUpdate(elements.domReference, elements.floating, update, autoUpdateOptions);
     }

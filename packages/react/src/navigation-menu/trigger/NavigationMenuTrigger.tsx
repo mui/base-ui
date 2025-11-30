@@ -7,6 +7,7 @@ import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect
 import { useTimeout } from '@base-ui-components/utils/useTimeout';
 import { useAnimationFrame } from '@base-ui-components/utils/useAnimationFrame';
 import { useValueAsRef } from '@base-ui-components/utils/useValueAsRef';
+import { useEffect } from '@base-ui-components/utils/useEffect';
 import {
   safePolygon,
   useClick,
@@ -105,7 +106,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
 
   const runOnceAnimationsFinish = useAnimationsFinished(popupElement);
 
-  React.useEffect(() => {
+  useEffect(() => {
     animationAbortControllerRef.current?.abort();
   }, [isActiveItem]);
 
@@ -159,7 +160,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
     });
   });
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!open) {
       stickIfOpenTimeout.clear();
       sizeFrame1.cancel();
@@ -167,13 +168,13 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
     }
   }, [stickIfOpenTimeout, open, sizeFrame1, sizeFrame2]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!mounted) {
       prevSizeRef.current = DEFAULT_SIZE;
     }
   }, [mounted]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!popupElement || typeof ResizeObserver !== 'function') {
       return undefined;
     }
@@ -193,7 +194,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
     };
   }, [popupElement]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!popupElement || !isActiveItem || typeof MutationObserver !== 'function') {
       return undefined;
     }
@@ -214,7 +215,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
     };
   }, [popupElement, positionerElement, isActiveItem, handleValueChange]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (isActiveItem && open && popupElement && allowFocusRef.current) {
       allowFocusRef.current = false;
       focusFrame.request(() => {

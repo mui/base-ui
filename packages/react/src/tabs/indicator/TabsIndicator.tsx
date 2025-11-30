@@ -2,6 +2,7 @@
 import * as React from 'react';
 import { useForcedRerendering } from '@base-ui-components/utils/useForcedRerendering';
 import { useOnMount } from '@base-ui-components/utils/useOnMount';
+import { useEffect } from '@base-ui-components/utils/useEffect';
 import { useRenderElement } from '../../utils/useRenderElement';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useDirection } from '../../direction-provider/DirectionContext';
@@ -45,7 +46,7 @@ export const TabsIndicator = React.forwardRef(function TabIndicator(
 
   const rerender = useForcedRerendering();
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (value != null && tabsListElement != null && typeof ResizeObserver !== 'undefined') {
       const resizeObserver = new ResizeObserver(rerender);
 

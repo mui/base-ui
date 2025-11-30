@@ -2,6 +2,7 @@
 import * as React from 'react';
 import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { useScrollLock } from '@base-ui-components/utils/useScrollLock';
+import { useEffect } from '@base-ui-components/utils/useEffect';
 import {
   useDismiss,
   useInteractions,
@@ -124,7 +125,7 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
   });
 
   // Notify parent of our open/close state using parent callbacks, if any
-  React.useEffect(() => {
+  useEffect(() => {
     if (parentContext?.onNestedDialogOpen && open) {
       parentContext.onNestedDialogOpen(ownNestedOpenDialogs);
     }

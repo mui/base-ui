@@ -3,6 +3,7 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { ownerWindow } from '@base-ui-components/utils/owner';
 import { useTimeout } from '@base-ui-components/utils/useTimeout';
+import { useEffect } from '@base-ui-components/utils/useEffect';
 import {
   disableFocusInside,
   enableFocusInside,
@@ -74,7 +75,7 @@ export const NavigationMenuPositioner = React.forwardRef(function NavigationMenu
   const prevTriggerElementRef = React.useRef<Element | null>(null);
 
   // https://codesandbox.io/s/tabbable-portal-f4tng?file=/src/TabbablePortal.tsx
-  React.useEffect(() => {
+  useEffect(() => {
     if (!positionerElement) {
       return undefined;
     }
@@ -152,7 +153,7 @@ export const NavigationMenuPositioner = React.forwardRef(function NavigationMenu
     [open, positioning.side, positioning.align, positioning.anchorHidden, instant],
   );
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!open) {
       return undefined;
     }

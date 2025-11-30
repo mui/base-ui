@@ -4,6 +4,7 @@ import { ownerDocument } from '@base-ui-components/utils/owner';
 import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { generateId } from '@base-ui-components/utils/generateId';
 import { Timeout } from '@base-ui-components/utils/useTimeout';
+import { useEffect } from '@base-ui-components/utils/useEffect';
 import { activeElement, contains } from '../../floating-ui-react/utils';
 import { ToastContext } from './ToastProviderContext';
 import { isFocusVisible } from '../utils/focusVisible';
@@ -297,7 +298,7 @@ export const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvid
     },
   );
 
-  React.useEffect(
+  useEffect(
     function subscribeToToastManager() {
       if (!toastManager) {
         return undefined;
