@@ -5,6 +5,7 @@ type Effect = {
   cleanup: (() => void) | undefined;
   create: () => (() => void) | void;
   deps: unknown[] | undefined;
+  renderedDeps: unknown[] | undefined;
   didChange: boolean;
 };
 
@@ -62,27 +63,28 @@ export function use(): Disposable {
   };
 }
 
-export function test() {
-  return 42;
-}
-
 export function createComponent<P extends object, E extends HTMLElement>(
   fn: (props: P, forwardedRef: React.Ref<E>) => React.ReactNode,
 ) {
   const Wrapped = React.forwardRef(((props: P, forwardedRef: React.Ref<E>) => {
     const context = useRefWithInit(createContext).current;
 
-    const previousContext = currentContext;
-    currentContext = context;
+    let result;
+    try {
+      currentContext = context;
 
-    context.useEffect.index = 0;
-    context.useLayoutEffect.index = 0;
+      context.useEffect.index = 0;
+      context.useLayoutEffect.index = 0;
 
-    const result = fn(props, forwardedRef);
+      result = fn(props, forwardedRef);
 
-    context.useEffect.didInitialize = true;
-    context.useLayoutEffect.didInitialize = true;
-    currentContext = previousContext;
+      context.useEffect.didInitialize = true;
+      context.useLayoutEffect.didInitialize = true;
+    } catch (error) {
+      throw error;
+    } finally {
+      currentContext = undefined;
+    }
 
     return result;
   }) as any);
@@ -106,18 +108,12 @@ export const createUseEffect = (name: 'useEffect' | 'useLayoutEffect') => {
         create,
         cleanup: undefined,
         deps,
+        renderedDeps: undefined,
         didChange: true,
       });
     } else {
       const effect = context.data[context.index];
-      const previousDeps = effect.deps;
-      const currentDeps = deps;
 
-      effect.didChange =
-        effect.didChange ||
-        currentDeps === undefined ||
-        previousDeps === undefined ||
-        areDepsEqual(previousDeps, currentDeps) === false;
       effect.create = create;
       effect.deps = deps;
     }
@@ -130,10 +126,20 @@ export const createUseEffect = (name: 'useEffect' | 'useLayoutEffect') => {
           if (effect.didChange) {
             effect.didChange = false;
             effect.cleanup = effect.create() as any;
+            effect.renderedDeps = effect.deps;
           }
         }
         return () => {
           for (const effect of context.data) {
+            const previousDeps = effect.renderedDeps;
+            const currentDeps = effect.deps;
+
+            effect.didChange =
+              effect.didChange ||
+              currentDeps === undefined ||
+              previousDeps === undefined ||
+              areDepsEqual(previousDeps, currentDeps) === false;
+
             if (effect.didChange) {
               effect.cleanup?.();
             }
