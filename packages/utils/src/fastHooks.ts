@@ -45,6 +45,7 @@ type Instance = {
   didInitialize: boolean;
   useEffect: EffectContext;
   useLayoutEffect: EffectContext;
+  useInsertionEffect: EffectContext;
   useRef: RefContext;
   useCallback: CallbackContext;
   useState: StateContext;
@@ -64,6 +65,10 @@ export function createInstance(): Instance {
       data: [],
     },
     useLayoutEffect: {
+      index: 0,
+      data: [],
+    },
+    useInsertionEffect: {
       index: 0,
       data: [],
     },
@@ -99,6 +104,7 @@ export function use(): Disposable {
 
   instance.useEffect.index = 0;
   instance.useLayoutEffect.index = 0;
+  instance.useInsertionEffect.index = 0;
   instance.useRef.index = 0;
   instance.useCallback.index = 0;
   instance.useState.index = 0;
@@ -123,6 +129,7 @@ export function createComponent<P extends object, E extends HTMLElement>(
 
       context.useEffect.index = 0;
       context.useLayoutEffect.index = 0;
+      context.useInsertionEffect.index = 0;
       context.useRef.index = 0;
       context.useCallback.index = 0;
       context.useState.index = 0;
@@ -143,8 +150,13 @@ export function createComponent<P extends object, E extends HTMLElement>(
   return Wrapped;
 }
 
-export const createUseEffect = (name: 'useEffect' | 'useLayoutEffect') => {
-  const reactUseEffect = name === 'useEffect' ? React.useEffect : React.useLayoutEffect;
+export const createUseEffect = (name: 'useEffect' | 'useLayoutEffect' | 'useInsertionEffect') => {
+  const reactUseEffect =
+    name === 'useEffect'
+      ? React.useEffect
+      : name === 'useLayoutEffect'
+        ? React.useLayoutEffect
+        : React.useInsertionEffect;
 
   const useEffect = (create: () => (() => void) | void, deps?: unknown[]): void => {
     const context = currentInstance?.[name];
