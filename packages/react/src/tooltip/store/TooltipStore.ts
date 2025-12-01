@@ -123,7 +123,7 @@ function createInitialState<Payload>(): State<Payload> {
     ...createInitialPopupStoreState(),
     disabled: false,
     instantType: undefined,
-    isInstantPhase: true,
+    isInstantPhase: false,
     trackCursorAxis: 'none',
     disableHoverablePopup: false,
     openChangeReason: null,
