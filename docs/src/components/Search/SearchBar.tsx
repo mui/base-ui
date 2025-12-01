@@ -244,6 +244,13 @@ export function SearchBar({
     (result: SearchResult) => {
       const url = buildResultUrl(result);
       handleCloseDialog(false);
+      document.documentElement.dataset.navigating = '';
+      // Clean up after view transition completes
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          delete document.documentElement.dataset.navigating;
+        });
+      });
       router.push(url);
     },
     [router, handleCloseDialog, buildResultUrl],
