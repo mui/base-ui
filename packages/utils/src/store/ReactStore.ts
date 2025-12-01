@@ -31,7 +31,7 @@ export class ReactStore<
   /**
    * Non-reactive values such as refs, callbacks, etc.
    */
-  public readonly context: Context;
+  readonly context: Context;
 
   private selectors: Selectors | undefined;
 
@@ -41,7 +41,7 @@ export class ReactStore<
    * Note that the while the value in `state` is updated immediately, the value returned
    * by `useState` is updated before the next render (similarly to React's `useState`).
    */
-  public useSyncedValue<Key extends keyof State, Value extends State[Key]>(
+  useSyncedValue<Key extends keyof State, Value extends State[Key]>(
     key: keyof State,
     value: Value,
   ) {
@@ -60,10 +60,7 @@ export class ReactStore<
    * Note that the while the value in `state` is updated immediately, the value returned
    * by `useState` is updated before the next render (similarly to React's `useState`).
    */
-  public useSyncedValueWithCleanup<Key extends KeysAllowingUndefined<State>>(
-    key: Key,
-    value: State[Key],
-  ) {
+  useSyncedValueWithCleanup<Key extends KeysAllowingUndefined<State>>(key: Key, value: State[Key]) {
     useIsoLayoutEffect(() => {
       if (this.state[key] !== value) {
         this.set(key, value);
@@ -81,7 +78,7 @@ export class ReactStore<
    * Note that the while the values in `state` are updated immediately, the values returned
    * by `useState` are updated before the next render (similarly to React's `useState`).
    */
-  public useSyncedValues(statePart: Partial<State>) {
+  useSyncedValues(statePart: Partial<State>) {
     if (process.env.NODE_ENV !== 'production') {
       // Check that an object with the same shape is passed on every render
       React.useDebugValue(statePart, (p) => Object.keys(p));
@@ -112,7 +109,7 @@ export class ReactStore<
    * - If `controlled` is undefined, the key is marked as uncontrolled. The store's state
    *   is initialized to `defaultValue` on first render and can be updated with local writes.
    */
-  public useControlledProp<Key extends keyof State, Value extends State[Key]>(
+  useControlledProp<Key extends keyof State, Value extends State[Key]>(
     key: keyof State,
     controlled: Value | undefined,
   ): void {
@@ -147,12 +144,12 @@ export class ReactStore<
    *
    * @param key Key of the selector to use.
    */
-  public select<Key extends keyof Selectors>(
+  select<Key extends keyof Selectors>(
     key: Key,
     ...args: SelectorArgs<Selectors[Key]>
   ): ReturnType<Selectors[Key]>;
 
-  public select(key: keyof Selectors, a1?: unknown, a2?: unknown, a3?: unknown) {
+  select(key: keyof Selectors, a1?: unknown, a2?: unknown, a3?: unknown) {
     const selector = this.selectors![key];
     return selector(this.state, a1, a2, a3);
   }
@@ -164,12 +161,12 @@ export class ReactStore<
    *
    * @param key Key of the selector to use.
    */
-  public useState<Key extends keyof Selectors>(
+  useState<Key extends keyof Selectors>(
     key: Key,
     ...args: SelectorArgs<Selectors[Key]>
   ): ReturnType<Selectors[Key]>;
 
-  public useState(key: keyof Selectors, a1?: unknown, a2?: unknown, a3?: unknown) {
+  useState(key: keyof Selectors, a1?: unknown, a2?: unknown, a3?: unknown) {
     React.useDebugValue(key);
     return useStore(this, this.selectors![key], a1, a2, a3);
   }
@@ -181,7 +178,7 @@ export class ReactStore<
    * @param key Key of the event callback. Must be a function in the context.
    * @param fn Function to assign.
    */
-  public useContextCallback<Key extends ContextFunctionKeys<Context>>(
+  useContextCallback<Key extends ContextFunctionKeys<Context>>(
     key: Key,
     fn: ContextFunction<Context, Key> | undefined,
   ) {
@@ -196,7 +193,7 @@ export class ReactStore<
    *
    * @param key Key of the state to set.
    */
-  public useStateSetter<const Key extends keyof State, Value extends State[Key]>(key: keyof State) {
+  useStateSetter<const Key extends keyof State, Value extends State[Key]>(key: keyof State) {
     const ref = React.useRef<(v: Value) => void>(undefined as any);
     if (ref.current === undefined) {
       ref.current = (value: Value) => {
@@ -212,7 +209,7 @@ export class ReactStore<
    * @param key Key of the selector to observe.
    * @param listener Listener function called when the selector result changes.
    */
-  public observe<Key extends keyof Selectors>(
+  observe<Key extends keyof Selectors>(
     selector: Key,
     listener: (
       newValue: ReturnType<Selectors[Key]>,
@@ -221,12 +218,12 @@ export class ReactStore<
     ) => void,
   ): () => void;
 
-  public observe<Selector extends ObserveSelector<State>>(
+  observe<Selector extends ObserveSelector<State>>(
     selector: Selector,
     listener: (newValue: ReturnType<Selector>, oldValue: ReturnType<Selector>, store: this) => void,
   ): () => void;
 
-  public observe(
+  observe(
     selector: keyof Selectors | ObserveSelector<State>,
     listener: (newValue: any, oldValue: any, store: this) => void,
   ) {
