@@ -14,6 +14,7 @@ const Controls = React.memo(function Controls(props: {
   const { setShowBenchmark, benchmarkRootRef } = props;
   const settleTimeout = useTimeout();
   const [isRunning, setIsRunning] = React.useState(false);
+  const [shouldRemoveOutliers, setShouldRemoveOutliers] = React.useState(true);
 
   const measureDomSettled = useStableCallback(() => {
     const start = performance.now();
@@ -85,26 +86,14 @@ const Controls = React.memo(function Controls(props: {
         results.push(Math.round(domSettleDuration * 10) / 10);
       }
 
-      const average = results.reduce((a, b) => a + b, 0) / results.length;
-      const stdDev = (() => {
-        const squareDiffs = results.map((value) => {
-          const diff = value - average;
-          return diff * diff;
-        });
-        const avgSquareDiff = squareDiffs.reduce((a, b) => a + b, 0) / squareDiffs.length;
-        return +Math.sqrt(avgSquareDiff).toFixed(2);
-      })();
-
-      console.log('DOM settled durations (ms):', results);
-      console.log('Average:', Math.round(average * 10) / 10);
-      console.log('Std Dev:', stdDev);
+      logResults(shouldRemoveOutliers ? removeOutliers(results) : results);
     } finally {
       setIsRunning(false);
     }
   });
 
   return (
-    <div className="flex gap-2">
+    <div className="flex gap-2 items-baseline">
       <button
         type="button"
         onClick={() => setShowBenchmark((prev: boolean) => !prev)}
@@ -137,6 +126,15 @@ const Controls = React.memo(function Controls(props: {
       >
         Run 50
       </button>
+      <label style={{ marginLeft: 8 }}>
+        <input
+          type="checkbox"
+          style={{ marginRight: 4 }}
+          checked={shouldRemoveOutliers}
+          onChange={(ev) => setShouldRemoveOutliers(ev.target.checked)}
+        />
+        Remove outliers
+      </label>
     </div>
   );
 });
@@ -151,4 +149,37 @@ export default function PerformanceBenchmark(props: React.PropsWithChildren<{}>)
       <div ref={benchmarkRootRef}>{showBenchmark && props.children}</div>
     </div>
   );
+}
+
+function logResults(results: number[]) {
+  console.log(results);
+  console.log(
+    'Average:',
+    Math.round((results.reduce((a, b) => a + b, 0) / results.length) * 10) / 10,
+  );
+  console.log(
+    'Std Dev:',
+    (() => {
+      const avg = results.reduce((a, b) => a + b, 0) / results.length;
+      const squareDiffs = results.map((value) => {
+        const diff = value - avg;
+        return diff * diff;
+      });
+      const avgSquareDiff = squareDiffs.reduce((a, b) => a + b, 0) / squareDiffs.length;
+      return +Math.sqrt(avgSquareDiff).toFixed(2);
+    })(),
+  );
+}
+
+function removeOutliers(data: number[]) {
+  const sortedData = data.slice().sort((a, b) => a - b);
+  const q1Index = Math.floor(sortedData.length / 4);
+  const q3Index = Math.floor((sortedData.length * 3) / 4);
+  const q1 = sortedData[q1Index];
+  const q3 = sortedData[q3Index];
+  const iqr = q3 - q1;
+  const lowerBound = q1 - 1.5 * iqr;
+  const upperBound = q3 + 1.5 * iqr;
+
+  return data.filter((value) => value >= lowerBound && value <= upperBound);
 }
