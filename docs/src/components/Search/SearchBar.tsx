@@ -280,7 +280,7 @@ export function SearchBar({
                 ref={popupRef}
                 initialFocus={inputRef}
                 data-open={dialogOpen}
-                className="search-dialog-popup relative flex min-h-0 max-h-full w-[min(40rem,calc(100vw-2rem))] flex-col overflow-hidden p-0 bg-(--color-popup) text-gray-900 px-4 py-3"
+                className="search-dialog-popup relative flex rounded-md min-h-0 max-h-full w-[min(40rem,calc(100vw-2rem))] flex-col overflow-hidden p-0 bg-(--color-popup) text-gray-900 px-4 py-3"
               >
                 <Autocomplete.Root
                   items={searchResults.results}
@@ -331,7 +331,7 @@ export function SearchBar({
                       ref={popupRef}
                       initialFocus={inputRef}
                       data-open={dialogOpen}
-                      className="search-dialog-popup relative mx-auto my-18 w-[min(40rem,calc(100vw-2rem))] p-0 bg-(--color-popup) text-gray-900 px-4 pt-3 min-h-[80vh]"
+                      className="search-dialog-popup relative mx-auto rounded-md my-18 w-[min(40rem,calc(100vw-2rem))] p-0 bg-(--color-popup) text-gray-900 px-4 pt-3 min-h-[80vh]"
                     >
                       <Autocomplete.Root
                         items={searchResults.results}
