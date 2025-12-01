@@ -5,6 +5,7 @@ import { useTimeout } from '@base-ui-components/utils/useTimeout';
 import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { useId } from '@base-ui-components/utils/useId';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
+import { useOnFirstRender } from '@base-ui-components/utils/useOnFirstRender';
 import { useAnimationFrame } from '@base-ui-components/utils/useAnimationFrame';
 import { useScrollLock } from '@base-ui-components/utils/useScrollLock';
 import { EMPTY_ARRAY } from '@base-ui-components/utils/empty';
@@ -110,6 +111,21 @@ export function MenuRoot<Payload>(props: MenuRoot.Props<Payload>) {
     activeTriggerId: defaultTriggerIdProp,
     triggerIdProp,
     parent: parentFromContext,
+  });
+
+  // Support initially open state when uncontrolled
+  useOnFirstRender(() => {
+    if (
+      openProp === undefined &&
+      store.state.open === false &&
+      defaultOpen === true &&
+      defaultTriggerIdProp != null
+    ) {
+      store.update({
+        open: true,
+        activeTriggerId: defaultTriggerIdProp,
+      });
+    }
   });
 
   store.useControlledProp('openProp', openProp);

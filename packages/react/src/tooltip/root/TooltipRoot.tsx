@@ -52,7 +52,7 @@ export function TooltipRoot<Payload>(props: TooltipRoot.Props<Payload>) {
     triggerIdProp,
   });
 
-  // Support initially open tooltip
+  // Support initially open state when uncontrolled
   useOnFirstRender(() => {
     if (
       openProp === undefined &&

@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useScrollLock } from '@base-ui-components/utils/useScrollLock';
+import { useOnFirstRender } from '@base-ui-components/utils/useOnFirstRender';
 import {
   useDismiss,
   useInteractions,
@@ -43,6 +44,21 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
     openProp,
     activeTriggerId: defaultTriggerIdProp,
     triggerIdProp,
+  });
+
+  // Support initially open state when uncontrolled
+  useOnFirstRender(() => {
+    if (
+      openProp === undefined &&
+      store.state.open === false &&
+      defaultOpen === true &&
+      defaultTriggerIdProp != null
+    ) {
+      store.update({
+        open: true,
+        activeTriggerId: defaultTriggerIdProp,
+      });
+    }
   });
 
   store.useControlledProp('openProp', openProp);
