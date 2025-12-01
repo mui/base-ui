@@ -3,6 +3,7 @@ import * as React from 'react';
 import { useScrollLock } from '@base-ui-components/utils/useScrollLock';
 import { useEffect } from '@base-ui-components/utils/useEffect';
 import { useRef } from '@base-ui-components/utils/useRef';
+import { useState } from '@base-ui-components/utils/useState';
 import {
   FloatingNode,
   FloatingTree,
@@ -46,8 +47,8 @@ export const Menubar = React.forwardRef(function Menubar(
     ...elementProps
   } = props;
 
-  const [contentElement, setContentElement] = React.useState<HTMLElement | null>(null);
-  const [hasSubmenuOpen, setHasSubmenuOpen] = React.useState(false);
+  const [contentElement, setContentElement] = useState<HTMLElement | null>(null);
+  const [hasSubmenuOpen, setHasSubmenuOpen] = useState(false);
 
   const {
     openMethod,

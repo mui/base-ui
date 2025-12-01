@@ -36,11 +36,23 @@ type CallbackContext = {
   didInitialize: boolean;
 };
 
+type StateData<T> = {
+  value: T;
+  setValue: React.Dispatch<React.SetStateAction<T>>;
+};
+
+type StateContext = {
+  index: number;
+  data: StateData<unknown>[];
+  didInitialize: boolean;
+};
+
 type Context = {
   useEffect: EffectContext;
   useLayoutEffect: EffectContext;
   useRef: RefContext;
   useCallback: CallbackContext;
+  useState: StateContext;
 };
 
 let currentContext: Context | undefined = undefined;
@@ -67,6 +79,11 @@ export function createContext(): Context {
       data: [],
       didInitialize: false,
     },
+    useState: {
+      index: 0,
+      data: [],
+      didInitialize: false,
+    },
   };
 }
 
@@ -88,6 +105,7 @@ export function use(): Disposable {
   context.useLayoutEffect.index = 0;
   context.useRef.index = 0;
   context.useCallback.index = 0;
+  context.useState.index = 0;
 
   return {
     [Symbol.dispose]() {
@@ -95,6 +113,7 @@ export function use(): Disposable {
       context.useLayoutEffect.didInitialize = true;
       context.useRef.didInitialize = true;
       context.useCallback.didInitialize = true;
+      context.useState.didInitialize = true;
       currentContext = previousContext;
     },
   };
@@ -114,6 +133,7 @@ export function createComponent<P extends object, E extends HTMLElement>(
       context.useLayoutEffect.index = 0;
       context.useRef.index = 0;
       context.useCallback.index = 0;
+      context.useState.index = 0;
 
       result = fn(props, forwardedRef);
 
@@ -121,6 +141,7 @@ export function createComponent<P extends object, E extends HTMLElement>(
       context.useLayoutEffect.didInitialize = true;
       context.useRef.didInitialize = true;
       context.useCallback.didInitialize = true;
+      context.useState.didInitialize = true;
     } catch (error) {
       throw error;
     } finally {
@@ -261,4 +282,44 @@ export const createUseCallback = () => {
   }
 
   return useCallback;
+};
+
+export const createUseState = () => {
+  function useState<S>(initialState: S | (() => S)): [S, React.Dispatch<React.SetStateAction<S>>];
+  function useState<S = undefined>(): [S | undefined, React.Dispatch<React.SetStateAction<S | undefined>>];
+  function useState<S>(initialState?: S | (() => S)): [S | undefined, React.Dispatch<React.SetStateAction<S | undefined>>] {
+    const context = currentContext?.useState;
+
+    if (!context) {
+      // eslint-disable-next-line react-hooks/rules-of-hooks
+      return React.useState(initialState);
+    }
+
+    if (context.didInitialize === false) {
+      // On first render, compute initial value and create state entry
+      const value = typeof initialState === 'function' ? (initialState as () => S)() : initialState;
+      const stateData: StateData<S | undefined> = {
+        value,
+        setValue: undefined as any, // Will be set below
+      };
+
+      // Create the setValue function that updates stateData.value
+      stateData.setValue = ((action: React.SetStateAction<S | undefined>) => {
+        const newValue = typeof action === 'function'
+          ? (action as (prev: S | undefined) => S | undefined)(stateData.value)
+          : action;
+        stateData.value = newValue;
+      }) as React.Dispatch<React.SetStateAction<S | undefined>>;
+
+      context.data.push(stateData as StateData<unknown>);
+      context.index += 1;
+      return [stateData.value, stateData.setValue];
+    }
+
+    const stateData = context.data[context.index] as StateData<S | undefined>;
+    context.index += 1;
+    return [stateData.value, stateData.setValue];
+  }
+
+  return useState;
 };

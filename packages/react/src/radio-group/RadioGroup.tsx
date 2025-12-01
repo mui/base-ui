@@ -5,6 +5,7 @@ import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
 import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { visuallyHidden } from '@base-ui-components/utils/visuallyHidden';
 import { useRef } from '@base-ui-components/utils/useRef';
+import { useState } from '@base-ui-components/utils/useState';
 import { NOOP } from '../utils/noop';
 import type { BaseUIComponentProps, HTMLProps } from '../utils/types';
 import { useBaseUiId } from '../utils/useBaseUiId';
@@ -122,7 +123,7 @@ export const RadioGroup = React.forwardRef(function RadioGroup(
     }
   });
 
-  const [touched, setTouched] = React.useState(false);
+  const [touched, setTouched] = useState(false);
 
   const onBlur = useStableCallback((event) => {
     if (!contains(event.currentTarget, event.relatedTarget)) {

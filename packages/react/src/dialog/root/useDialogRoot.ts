@@ -4,6 +4,7 @@ import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { useScrollLock } from '@base-ui-components/utils/useScrollLock';
 import { useEffect } from '@base-ui-components/utils/useEffect';
 import { useCallback } from '@base-ui-components/utils/useCallback';
+import { useState } from '@base-ui-components/utils/useState';
 import {
   useDismiss,
   useInteractions,
@@ -66,7 +67,7 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
     noEmit: true,
   });
 
-  const [ownNestedOpenDialogs, setOwnNestedOpenDialogs] = React.useState(0);
+  const [ownNestedOpenDialogs, setOwnNestedOpenDialogs] = useState(0);
   const isTopmost = ownNestedOpenDialogs === 0;
 
   const role = useRole(floatingRootContext);

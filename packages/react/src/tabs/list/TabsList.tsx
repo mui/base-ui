@@ -3,6 +3,7 @@ import * as React from 'react';
 import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { useCallback } from '@base-ui-components/utils/useCallback';
+import { useState } from '@base-ui-components/utils/useState';
 import { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 import type { TabsRoot } from '../root/TabsRoot';
 import { CompositeRoot } from '../../composite/root/CompositeRoot';
@@ -39,9 +40,9 @@ export const TabsList = React.forwardRef(function TabsList(
     tabActivationDirection,
   } = useTabsRootContext();
 
-  const [highlightedTabIndex, setHighlightedTabIndex] = React.useState(0);
+  const [highlightedTabIndex, setHighlightedTabIndex] = useState(0);
 
-  const [tabsListElement, setTabsListElement] = React.useState<HTMLElement | null>(null);
+  const [tabsListElement, setTabsListElement] = useState<HTMLElement | null>(null);
 
   const detectActivationDirection = useActivationDirectionDetector(
     value, // the old value
@@ -130,7 +131,7 @@ function useActivationDirectionDetector(
   tabsListElement: HTMLElement | null,
   getTabElement: (selectedValue: any) => HTMLElement | null,
 ): (newValue: any) => TabsTab.ActivationDirection {
-  const [previousTabEdge, setPreviousTabEdge] = React.useState<number | null>(null);
+  const [previousTabEdge, setPreviousTabEdge] = useState<number | null>(null);
 
   useIsoLayoutEffect(() => {
     // Whenever orientation changes, reset the state.

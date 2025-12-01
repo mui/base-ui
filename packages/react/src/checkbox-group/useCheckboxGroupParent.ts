@@ -3,6 +3,7 @@ import * as React from 'react';
 import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { useRef } from '@base-ui-components/utils/useRef';
 import { useCallback } from '@base-ui-components/utils/useCallback';
+import { useState } from '@base-ui-components/utils/useState';
 import { useBaseUiId } from '../utils/useBaseUiId';
 import type { BaseUIChangeEventDetails } from '../utils/createBaseUIEventDetails';
 import type { BaseUIEventReasons } from '../utils/reasons';
@@ -17,7 +18,7 @@ export function useCheckboxGroupParent(
   const uncontrolledStateRef = useRef(value);
   const disabledStatesRef = useRef(new Map<string, boolean>());
 
-  const [status, setStatus] = React.useState<'on' | 'off' | 'mixed'>('mixed');
+  const [status, setStatus] = useState<'on' | 'off' | 'mixed'>('mixed');
 
   const id = useBaseUiId();
   const checked = value.length === allValues.length;

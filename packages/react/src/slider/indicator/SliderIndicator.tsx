@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useOnMount } from '@base-ui-components/utils/useOnMount';
+import { useState } from '@base-ui-components/utils/useState';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { valueToPercent } from '../../utils/valueToPercent';
 import { useRenderElement } from '../../utils/useRenderElement';
@@ -91,7 +92,7 @@ export const SliderIndicator = React.forwardRef(function SliderIndicator(
   const { indicatorPosition, inset, max, min, orientation, renderBeforeHydration, state, values } =
     useSliderRootContext();
 
-  const [isMounted, setIsMounted] = React.useState(false);
+  const [isMounted, setIsMounted] = useState(false);
   useOnMount(() => setIsMounted(true));
 
   const vertical = orientation === 'vertical';

@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { useState } from '@base-ui-components/utils/useState';
 import { Combobox } from '@base-ui-components/react/combobox';
 import { mergeProps } from '../../merge-props';
 
@@ -184,7 +185,7 @@ const groupItemsReadonly = [
 />;
 
 function App() {
-  const [multiple, setMultiple] = React.useState(false);
+  const [multiple, setMultiple] = useState(false);
   return (
     <Combobox.Root
       multiple={multiple}
@@ -227,7 +228,7 @@ function App() {
 />;
 
 function App2() {
-  const [value, setValue] = React.useState('a');
+  const [value, setValue] = useState('a');
   return (
     <Combobox.Root
       value={value}
@@ -243,7 +244,7 @@ function App2() {
 }
 
 function App3() {
-  const [value, setValue] = React.useState<string | null>('a');
+  const [value, setValue] = useState<string | null>('a');
   return (
     <Combobox.Root
       value={value}

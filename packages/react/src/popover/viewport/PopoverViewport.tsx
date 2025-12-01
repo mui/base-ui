@@ -6,6 +6,7 @@ import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect
 import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { useEffect } from '@base-ui-components/utils/useEffect';
 import { useRef } from '@base-ui-components/utils/useRef';
+import { useState } from '@base-ui-components/utils/useState';
 import { usePopoverRootContext } from '../root/PopoverRootContext';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useAnimationsFinished } from '../../utils/useAnimationsFinished';
@@ -45,9 +46,9 @@ export const PopoverViewport = React.forwardRef(function PopoverViewport(
   const previousActiveTrigger = usePreviousValue(open ? activeTrigger : null);
 
   const capturedNodeRef = useRef<HTMLElement | null>(null);
-  const [previousContentNode, setPreviousContentNode] = React.useState<HTMLElement | null>(null);
+  const [previousContentNode, setPreviousContentNode] = useState<HTMLElement | null>(null);
 
-  const [newTriggerOffset, setNewTriggerOffset] = React.useState<Offset | null>(null);
+  const [newTriggerOffset, setNewTriggerOffset] = useState<Offset | null>(null);
 
   const currentContainerRef = useRef<HTMLDivElement>(null);
   const previousContainerRef = useRef<HTMLDivElement>(null);
@@ -55,12 +56,12 @@ export const PopoverViewport = React.forwardRef(function PopoverViewport(
   const onAnimationsFinished = useAnimationsFinished(currentContainerRef, true, false);
   const cleanupTimeout = useAnimationFrame();
 
-  const [previousContentDimensions, setPreviousContentDimensions] = React.useState<{
+  const [previousContentDimensions, setPreviousContentDimensions] = useState<{
     width: number;
     height: number;
   } | null>(null);
 
-  const [showStartingStyleAttribute, setShowStartingStyleAttribute] = React.useState(false);
+  const [showStartingStyleAttribute, setShowStartingStyleAttribute] = useState(false);
 
   // Capture a clone of the current content DOM subtree when not transitioning.
   // We can't store previous React nodes as they may be stateful; instead we capture DOM clones for visual continuity.

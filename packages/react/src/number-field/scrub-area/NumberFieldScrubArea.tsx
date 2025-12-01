@@ -7,6 +7,7 @@ import { useValueAsRef } from '@base-ui-components/utils/useValueAsRef';
 import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { useEffect } from '@base-ui-components/utils/useEffect';
 import { useRef } from '@base-ui-components/utils/useRef';
+import { useState } from '@base-ui-components/utils/useState';
 import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 import { useNumberFieldRootContext } from '../root/NumberFieldRootContext';
 import type { NumberFieldRoot } from '../root/NumberFieldRoot';
@@ -63,8 +64,8 @@ export const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubAr
   const virtualCursorCoords = useRef({ x: 0, y: 0 });
   const visualScaleRef = useRef(1);
 
-  const [isTouchInput, setIsTouchInput] = React.useState(false);
-  const [isPointerLockDenied, setIsPointerLockDenied] = React.useState(false);
+  const [isTouchInput, setIsTouchInput] = useState(false);
+  const [isPointerLockDenied, setIsPointerLockDenied] = useState(false);
 
   useEffect(() => {
     if (!isScrubbing || !scrubAreaCursorRef.current) {

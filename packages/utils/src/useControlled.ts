@@ -5,6 +5,7 @@ import * as React from 'react';
 import { useEffect } from './useEffect';
 import { useRef } from './useRef';
 import { useCallback } from './useCallback';
+import { useState } from './useState';
 
 export interface UseControlledProps<T = unknown> {
   /**
@@ -33,7 +34,7 @@ export function useControlled<T = unknown>({
 }: UseControlledProps<T>): [T, (newValue: T | ((prevValue: T) => T)) => void] {
   // isControlled is ignored in the hook dependency lists as it should never change.
   const { current: isControlled } = useRef(controlled !== undefined);
-  const [valueState, setValue] = React.useState(defaultProp);
+  const [valueState, setValue] = useState(defaultProp);
   const value = isControlled ? controlled : valueState;
 
   if (process.env.NODE_ENV !== 'production') {

@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useValueAsRef } from '@base-ui-components/utils/useValueAsRef';
+import { useState } from '@base-ui-components/utils/useState';
 import { formatNumber } from '../../utils/formatNumber';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { ProgressRootContext } from './ProgressRootContext';
@@ -53,7 +54,7 @@ export const ProgressRoot = React.forwardRef(function ProgressRoot(
     ...elementProps
   } = componentProps;
 
-  const [labelId, setLabelId] = React.useState<string | undefined>();
+  const [labelId, setLabelId] = useState<string | undefined>();
 
   const formatOptionsRef = useValueAsRef(format);
 

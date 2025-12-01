@@ -4,6 +4,7 @@ import { isElement } from '@floating-ui/utils/dom';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { useRef } from '@base-ui-components/utils/useRef';
 import { useCallback } from '@base-ui-components/utils/useCallback';
+import { useState } from '@base-ui-components/utils/useState';
 
 import { useFloatingTree } from '../components/FloatingTree';
 import type {
@@ -32,7 +33,7 @@ export function useFloating(options: UseFloatingOptions = {}): UseFloatingReturn
     domReference: rootContext.useState('domReferenceElement'),
   };
 
-  const [positionReference, setPositionReferenceRaw] = React.useState<ReferenceType | null>(null);
+  const [positionReference, setPositionReferenceRaw] = useState<ReferenceType | null>(null);
 
   const domReferenceRef = useRef<NarrowedElement<ReferenceType> | null>(null);
 
@@ -71,8 +72,8 @@ export function useFloating(options: UseFloatingOptions = {}): UseFloatingReturn
   );
 
   const [localDomReference, setLocalDomReference] =
-    React.useState<NarrowedElement<ReferenceType> | null>(null);
-  const [localFloatingElement, setLocalFloatingElement] = React.useState<HTMLElement | null>(null);
+    useState<NarrowedElement<ReferenceType> | null>(null);
+  const [localFloatingElement, setLocalFloatingElement] = useState<HTMLElement | null>(null);
   rootContext.useSyncedValue('referenceElement', localDomReference);
   rootContext.useSyncedValue(
     'domReferenceElement',

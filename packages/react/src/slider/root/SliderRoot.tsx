@@ -7,6 +7,7 @@ import { useValueAsRef } from '@base-ui-components/utils/useValueAsRef';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { warn } from '@base-ui-components/utils/warn';
 import { useRef } from '@base-ui-components/utils/useRef';
+import { useState } from '@base-ui-components/utils/useState';
 import type { BaseUIComponentProps, Orientation } from '../../utils/types';
 import {
   createChangeEventDetails,
@@ -146,13 +147,13 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
   // We can't use the :active browser pseudo-classes.
   // - The active state isn't triggered when clicking on the rail.
   // - The active state isn't transferred when inversing a range slider.
-  const [active, setActiveState] = React.useState(-1);
-  const [lastUsedThumbIndex, setLastUsedThumbIndex] = React.useState(-1);
-  const [dragging, setDragging] = React.useState(false);
-  const [thumbMap, setThumbMap] = React.useState(
+  const [active, setActiveState] = useState(-1);
+  const [lastUsedThumbIndex, setLastUsedThumbIndex] = useState(-1);
+  const [dragging, setDragging] = useState(false);
+  const [thumbMap, setThumbMap] = useState(
     () => new Map<Node, CompositeMetadata<ThumbMetadata> | null>(),
   );
-  const [indicatorPosition, setIndicatorPosition] = React.useState<(number | undefined)[]>([
+  const [indicatorPosition, setIndicatorPosition] = useState<(number | undefined)[]>([
     undefined,
     undefined,
   ]);

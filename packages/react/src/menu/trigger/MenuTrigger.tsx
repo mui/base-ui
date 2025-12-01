@@ -10,6 +10,7 @@ import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect
 import { EMPTY_OBJECT } from '@base-ui-components/utils/empty';
 import { useEffect } from '@base-ui-components/utils/useEffect';
 import { useRef } from '@base-ui-components/utils/useRef';
+import { useState } from '@base-ui-components/utils/useState';
 import {
   safePolygon,
   useClick,
@@ -88,7 +89,7 @@ export const MenuTrigger = fastHooks.createComponent(function MenuTrigger(
   const floatingRootContext = store.useState('floatingRootContext');
   const isOpenedByThisTrigger = store.useState('isOpenedByTrigger', thisTriggerId);
 
-  const [triggerElement, setTriggerElement] = React.useState<HTMLElement | null>(null);
+  const [triggerElement, setTriggerElement] = useState<HTMLElement | null>(null);
 
   const parent = useMenuParent();
   const compositeRootContext = useCompositeRootContext(true);
@@ -422,7 +423,7 @@ export namespace MenuTrigger {
  */
 function useStickIfOpen(open: boolean, openReason: string | null) {
   const stickIfOpenTimeout = useTimeout();
-  const [stickIfOpen, setStickIfOpen] = React.useState(false);
+  const [stickIfOpen, setStickIfOpen] = useState(false);
   useIsoLayoutEffect(() => {
     if (open && openReason === 'trigger-hover') {
       // Only allow "patient" clicks to close the menu if it's open.

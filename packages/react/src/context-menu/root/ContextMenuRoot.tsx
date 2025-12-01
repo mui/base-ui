@@ -2,6 +2,7 @@
 import * as React from 'react';
 import { useId } from '@base-ui-components/utils/useId';
 import { useRef } from '@base-ui-components/utils/useRef';
+import { useState } from '@base-ui-components/utils/useState';
 import { ContextMenuRootContext } from './ContextMenuRootContext';
 import { Menu } from '../../menu';
 import { MenuRootContext } from '../../menu/root/MenuRootContext';
@@ -15,7 +16,7 @@ import type { MenuRoot } from '../../menu/root/MenuRoot';
  * Documentation: [Base UI Context Menu](https://base-ui.com/react/components/context-menu)
  */
 export function ContextMenuRoot(props: ContextMenuRoot.Props) {
-  const [anchor, setAnchor] = React.useState<ContextMenuRootContext['anchor']>({
+  const [anchor, setAnchor] = useState<ContextMenuRootContext['anchor']>({
     getBoundingClientRect() {
       return DOMRect.fromRect({ width: 0, height: 0, x: 0, y: 0 });
     },

@@ -6,6 +6,7 @@ import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { ownerDocument } from '@base-ui-components/utils/owner';
 import { useEffect } from '@base-ui-components/utils/useEffect';
 import { useRef } from '@base-ui-components/utils/useRef';
+import { useState } from '@base-ui-components/utils/useState';
 import {
   FloatingTree,
   useFloatingNodeId,
@@ -68,18 +69,18 @@ export const NavigationMenuRoot = React.forwardRef(function NavigationMenuRoot(
   const closeReasonRef = useRef<NavigationMenuRoot.ChangeEventReason | undefined>(undefined);
   const rootRef = useRef<HTMLDivElement | null>(null);
 
-  const [positionerElement, setPositionerElement] = React.useState<HTMLElement | null>(null);
-  const [popupElement, setPopupElement] = React.useState<HTMLElement | null>(null);
-  const [viewportElement, setViewportElement] = React.useState<HTMLElement | null>(null);
-  const [viewportTargetElement, setViewportTargetElement] = React.useState<HTMLElement | null>(
+  const [positionerElement, setPositionerElement] = useState<HTMLElement | null>(null);
+  const [popupElement, setPopupElement] = useState<HTMLElement | null>(null);
+  const [viewportElement, setViewportElement] = useState<HTMLElement | null>(null);
+  const [viewportTargetElement, setViewportTargetElement] = useState<HTMLElement | null>(
     null,
   );
   const [activationDirection, setActivationDirection] =
-    React.useState<NavigationMenuRootContext['activationDirection']>(null);
-  const [floatingRootContext, setFloatingRootContext] = React.useState<
+    useState<NavigationMenuRootContext['activationDirection']>(null);
+  const [floatingRootContext, setFloatingRootContext] = useState<
     FloatingRootContext | undefined
   >(undefined);
-  const [viewportInert, setViewportInert] = React.useState(false);
+  const [viewportInert, setViewportInert] = useState(false);
 
   const prevTriggerElementRef = useRef<Element | null | undefined>(null);
   const currentContentRef = useRef<HTMLDivElement | null>(null);

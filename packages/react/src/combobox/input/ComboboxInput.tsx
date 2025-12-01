@@ -4,6 +4,7 @@ import { useStore } from '@base-ui-components/utils/store';
 import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { isAndroid, isFirefox } from '@base-ui-components/utils/detectBrowser';
 import { useRef } from '@base-ui-components/utils/useRef';
+import { useState } from '@base-ui-components/utils/useState';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useRenderElement } from '../../utils/useRenderElement';
@@ -89,7 +90,7 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
   const disabled = fieldDisabled || comboboxDisabled || disabledProp;
   const listEmpty = filteredItems.length === 0;
 
-  const [composingValue, setComposingValue] = React.useState<string | null>(null);
+  const [composingValue, setComposingValue] = useState<string | null>(null);
   const isComposingRef = useRef(false);
 
   const setInputElement = useStableCallback((element: HTMLInputElement | null) => {

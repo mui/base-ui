@@ -11,6 +11,7 @@ import { Store, useStore } from '@base-ui-components/utils/store';
 import { useValueAsRef } from '@base-ui-components/utils/useValueAsRef';
 import { useEffect } from '@base-ui-components/utils/useEffect';
 import { useRef } from '@base-ui-components/utils/useRef';
+import { useState } from '@base-ui-components/utils/useState';
 import {
   ElementProps,
   useDismiss,
@@ -127,8 +128,8 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
   const id = useLabelableId({ id: idProp });
   const collatorFilter = useCoreFilter({ locale });
 
-  const [queryChangedAfterOpen, setQueryChangedAfterOpen] = React.useState(false);
-  const [closeQuery, setCloseQuery] = React.useState<string | null>(null);
+  const [queryChangedAfterOpen, setQueryChangedAfterOpen] = useState(false);
+  const [closeQuery, setCloseQuery] = useState<string | null>(null);
 
   const listRef = useRef<Array<HTMLElement | null>>([]);
   const labelsRef = useRef<Array<string | null>>([]);

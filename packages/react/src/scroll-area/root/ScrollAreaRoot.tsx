@@ -3,6 +3,7 @@ import * as React from 'react';
 import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { useTimeout } from '@base-ui-components/utils/useTimeout';
 import { useRef } from '@base-ui-components/utils/useRef';
+import { useState } from '@base-ui-components/utils/useState';
 import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 import { ScrollAreaRootContext } from './ScrollAreaRootContext';
 import { useRenderElement } from '../../utils/useRenderElement';
@@ -48,13 +49,13 @@ export const ScrollAreaRoot = React.forwardRef(function ScrollAreaRoot(
     ...elementProps
   } = componentProps;
 
-  const [hovering, setHovering] = React.useState(false);
-  const [scrollingX, setScrollingX] = React.useState(false);
-  const [scrollingY, setScrollingY] = React.useState(false);
-  const [cornerSize, setCornerSize] = React.useState<Size>(DEFAULT_SIZE);
-  const [thumbSize, setThumbSize] = React.useState<Size>(DEFAULT_SIZE);
-  const [touchModality, setTouchModality] = React.useState(false);
-  const [overflowEdges, setOverflowEdges] = React.useState(DEFAULT_OVERFLOW_EDGES);
+  const [hovering, setHovering] = useState(false);
+  const [scrollingX, setScrollingX] = useState(false);
+  const [scrollingY, setScrollingY] = useState(false);
+  const [cornerSize, setCornerSize] = useState<Size>(DEFAULT_SIZE);
+  const [thumbSize, setThumbSize] = useState<Size>(DEFAULT_SIZE);
+  const [touchModality, setTouchModality] = useState(false);
+  const [overflowEdges, setOverflowEdges] = useState(DEFAULT_OVERFLOW_EDGES);
 
   const rootId = useBaseUiId();
 
@@ -76,7 +77,7 @@ export const ScrollAreaRoot = React.forwardRef(function ScrollAreaRoot(
   const scrollXTimeout = useTimeout();
   const scrollPositionRef = useRef({ x: 0, y: 0 });
 
-  const [hiddenState, setHiddenState] = React.useState({
+  const [hiddenState, setHiddenState] = useState({
     scrollbarYHidden: false,
     scrollbarXHidden: false,
     cornerHidden: false,

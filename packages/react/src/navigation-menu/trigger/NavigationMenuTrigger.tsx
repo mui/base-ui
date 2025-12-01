@@ -9,6 +9,7 @@ import { useAnimationFrame } from '@base-ui-components/utils/useAnimationFrame';
 import { useValueAsRef } from '@base-ui-components/utils/useValueAsRef';
 import { useEffect } from '@base-ui-components/utils/useEffect';
 import { useRef } from '@base-ui-components/utils/useRef';
+import { useState } from '@base-ui-components/utils/useState';
 import {
   safePolygon,
   useClick,
@@ -93,9 +94,9 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
   const sizeFrame1 = useAnimationFrame();
   const sizeFrame2 = useAnimationFrame();
 
-  const [triggerElement, setTriggerElement] = React.useState<HTMLElement | null>(null);
-  const [stickIfOpen, setStickIfOpen] = React.useState(true);
-  const [pointerType, setPointerType] = React.useState<'mouse' | 'touch' | 'pen' | ''>('');
+  const [triggerElement, setTriggerElement] = useState<HTMLElement | null>(null);
+  const [stickIfOpen, setStickIfOpen] = useState(true);
+  const [pointerType, setPointerType] = useState<'mouse' | 'touch' | 'pen' | ''>('');
 
   const allowFocusRef = useRef(false);
   const prevSizeRef = useRef(DEFAULT_SIZE);

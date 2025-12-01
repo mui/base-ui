@@ -6,6 +6,7 @@ import { useScrollLock } from '@base-ui-components/utils/useScrollLock';
 import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { useStore } from '@base-ui-components/utils/store';
 import { useRef } from '@base-ui-components/utils/useRef';
+import { useState } from '@base-ui-components/utils/useState';
 import { useSelectRootContext, useSelectFloatingContext } from '../root/SelectRootContext';
 import { CompositeList } from '../../composite/list/CompositeList';
 import type { BaseUIComponentProps } from '../../utils/types';
@@ -78,7 +79,7 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
   const scrollDownArrowRef = useRef<HTMLDivElement | null>(null);
 
   const [controlledAlignItemWithTrigger, setControlledAlignItemWithTrigger] =
-    React.useState(alignItemWithTrigger);
+    useState(alignItemWithTrigger);
   const alignItemWithTriggerActive = mounted && controlledAlignItemWithTrigger && !touchModality;
 
   if (!mounted && controlledAlignItemWithTrigger !== alignItemWithTrigger) {

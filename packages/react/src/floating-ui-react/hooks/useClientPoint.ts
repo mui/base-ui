@@ -5,6 +5,7 @@ import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect
 import { useEffect } from '@base-ui-components/utils/useEffect';
 import { useRef } from '@base-ui-components/utils/useRef';
 import { useCallback } from '@base-ui-components/utils/useCallback';
+import { useState } from '@base-ui-components/utils/useState';
 import { contains, getTarget, isMouseLikePointerType } from '../utils';
 
 import type { ContextData, ElementProps, FloatingContext, FloatingRootContext } from '../types';
@@ -134,8 +135,8 @@ export function useClientPoint(
   const initialRef = useRef(false);
   const cleanupListenerRef = useRef<null | (() => void)>(null);
 
-  const [pointerType, setPointerType] = React.useState<string | undefined>();
-  const [reactive, setReactive] = React.useState([]);
+  const [pointerType, setPointerType] = useState<string | undefined>();
+  const [reactive, setReactive] = useState([]);
 
   const setReference = useStableCallback((newX: number | null, newY: number | null) => {
     if (initialRef.current) {

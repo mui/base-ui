@@ -2,6 +2,7 @@
 import * as React from 'react';
 import { useStore } from '@base-ui-components/utils/store';
 import { useRef } from '@base-ui-components/utils/useRef';
+import { useState } from '@base-ui-components/utils/useState';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { BaseUIComponentProps } from '../../utils/types';
 import { ComboboxChipsContext } from './ComboboxChipsContext';
@@ -23,7 +24,7 @@ export const ComboboxChips = React.forwardRef(function ComboboxChips(
 
   const open = useStore(store, selectors.open);
 
-  const [highlightedChipIndex, setHighlightedChipIndex] = React.useState<number | undefined>(
+  const [highlightedChipIndex, setHighlightedChipIndex] = useState<number | undefined>(
     undefined,
   );
 

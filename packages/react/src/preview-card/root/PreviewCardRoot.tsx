@@ -4,6 +4,7 @@ import * as ReactDOM from 'react-dom';
 import { useControlled } from '@base-ui-components/utils/useControlled';
 import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { useRef } from '@base-ui-components/utils/useRef';
+import { useState } from '@base-ui-components/utils/useState';
 import {
   safePolygon,
   useDismiss,
@@ -42,9 +43,9 @@ export function PreviewCardRoot(props: PreviewCardRoot.Props) {
     closeDelayRef.current = config.closeDelay ?? CLOSE_DELAY;
   });
 
-  const [triggerElement, setTriggerElement] = React.useState<Element | null>(null);
-  const [positionerElement, setPositionerElement] = React.useState<HTMLElement | null>(null);
-  const [instantTypeState, setInstantTypeState] = React.useState<'dismiss' | 'focus'>();
+  const [triggerElement, setTriggerElement] = useState<Element | null>(null);
+  const [positionerElement, setPositionerElement] = useState<HTMLElement | null>(null);
+  const [instantTypeState, setInstantTypeState] = useState<'dismiss' | 'focus'>();
 
   const popupRef = useRef<HTMLDivElement | null>(null);
 

@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useCallback } from '@base-ui-components/utils/useCallback';
+import { useState } from '@base-ui-components/utils/useState';
 import {
   safePolygon,
   useClick,
@@ -69,7 +70,7 @@ export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerCompon
     [baseRegisterTrigger, closeDelay, store, thisTriggerId],
   );
 
-  const [triggerElement, setTriggerElement] = React.useState<HTMLElement | null>(null);
+  const [triggerElement, setTriggerElement] = useState<HTMLElement | null>(null);
 
   const submenuRootContext = useMenuSubmenuRootContext();
   if (!submenuRootContext?.parentMenu) {

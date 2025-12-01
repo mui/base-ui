@@ -3,6 +3,7 @@ import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { useRef } from '@base-ui-components/utils/useRef';
 import { useCallback } from '@base-ui-components/utils/useCallback';
+import { useState } from '@base-ui-components/utils/useState';
 import { useCompositeListContext } from './CompositeListContext';
 
 export interface UseCompositeListItemParameters<Metadata> {
@@ -38,7 +39,7 @@ export function useCompositeListItem<Metadata>(
     useCompositeListContext();
 
   const indexRef = useRef(-1);
-  const [index, setIndex] = React.useState<number>(
+  const [index, setIndex] = useState<number>(
     externalIndex ??
       (indexGuessBehavior === IndexGuessBehavior.GuessFromOrder
         ? () => {

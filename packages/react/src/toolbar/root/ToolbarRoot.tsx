@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { useState } from '@base-ui-components/utils/useState';
 import { BaseUIComponentProps, Orientation as BaseOrientation, HTMLProps } from '../../utils/types';
 import { CompositeRoot } from '../../composite/root/CompositeRoot';
 import type { CompositeMetadata } from '../../composite/list/CompositeList';
@@ -24,7 +25,7 @@ export const ToolbarRoot = React.forwardRef(function ToolbarRoot(
     ...elementProps
   } = componentProps;
 
-  const [itemMap, setItemMap] = React.useState(
+  const [itemMap, setItemMap] = useState(
     () => new Map<Node, CompositeMetadata<ToolbarRoot.ItemMetadata> | null>(),
   );
 

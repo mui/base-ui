@@ -4,6 +4,7 @@ import { useControlled } from '@base-ui-components/utils/useControlled';
 import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { useRef } from '@base-ui-components/utils/useRef';
 import { useCallback } from '@base-ui-components/utils/useCallback';
+import { useState } from '@base-ui-components/utils/useState';
 import type { BaseUIComponentProps, Orientation as BaseOrientation } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { CompositeList } from '../../composite/list/CompositeList';
@@ -47,15 +48,15 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
     state: 'value',
   });
 
-  const [tabPanelMap, setTabPanelMap] = React.useState(
+  const [tabPanelMap, setTabPanelMap] = useState(
     () => new Map<Node, CompositeMetadata<TabsPanel.Metadata> | null>(),
   );
-  const [tabMap, setTabMap] = React.useState(
+  const [tabMap, setTabMap] = useState(
     () => new Map<Node, CompositeMetadata<TabsTab.Metadata> | null>(),
   );
 
   const [tabActivationDirection, setTabActivationDirection] =
-    React.useState<TabsTab.ActivationDirection>('none');
+    useState<TabsTab.ActivationDirection>('none');
 
   const onValueChange = useStableCallback(
     (newValue: TabsTab.Value, eventDetails: TabsRoot.ChangeEventDetails) => {

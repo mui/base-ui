@@ -4,6 +4,7 @@ import { isElementDisabled } from '@base-ui-components/utils/isElementDisabled';
 import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
 import { useRef } from '@base-ui-components/utils/useRef';
+import { useState } from '@base-ui-components/utils/useState';
 import type { TextDirection } from '../../direction-provider/DirectionContext';
 import {
   ALL_KEYS,
@@ -91,7 +92,7 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
     modifierKeys = EMPTY_ARRAY,
   } = params;
 
-  const [internalHighlightedIndex, internalSetHighlightedIndex] = React.useState(0);
+  const [internalHighlightedIndex, internalSetHighlightedIndex] = useState(0);
 
   const isGrid = cols > 1;
 

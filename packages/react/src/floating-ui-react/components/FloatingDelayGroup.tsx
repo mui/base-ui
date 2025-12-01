@@ -2,6 +2,7 @@ import * as React from 'react';
 import { useTimeout, Timeout } from '@base-ui-components/utils/useTimeout';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { useRef } from '@base-ui-components/utils/useRef';
+import { useState } from '@base-ui-components/utils/useState';
 
 import { getDelay } from '../hooks/useHover';
 import type { FloatingRootContext, Delay, FloatingContext } from '../types';
@@ -140,7 +141,7 @@ export function useDelayGroup(
     timeout,
   } = groupContext;
 
-  const [isInstantPhase, setIsInstantPhase] = React.useState(false);
+  const [isInstantPhase, setIsInstantPhase] = useState(false);
 
   useIsoLayoutEffect(() => {
     function unset() {

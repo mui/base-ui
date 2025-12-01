@@ -3,6 +3,7 @@ import * as React from 'react';
 import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { useEffect } from '@base-ui-components/utils/useEffect';
 import { useRef } from '@base-ui-components/utils/useRef';
+import { useState } from '@base-ui-components/utils/useState';
 import {
   createGenericEventDetails,
   type BaseUIGenericEventDetails,
@@ -49,7 +50,7 @@ export const Form = React.forwardRef(function Form<
     }
   });
 
-  const [errors, setErrors] = React.useState(externalErrors);
+  const [errors, setErrors] = useState(externalErrors);
 
   useValueChanged(externalErrors, () => {
     setErrors(externalErrors);

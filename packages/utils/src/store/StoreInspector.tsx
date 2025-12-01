@@ -1,6 +1,7 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { Store } from './Store';
+import { useState } from '../useState';
 import { useRef } from '../useRef';
 import { useForcedRerendering } from '../useForcedRerendering';
 import { useStableCallback } from '../useStableCallback';
@@ -137,7 +138,7 @@ export interface StoreInspectorProps {
  */
 export function StoreInspector(props: StoreInspectorProps) {
   const { store, title, additionalData, defaultOpen = false } = props;
-  const [open, setOpen] = React.useState(defaultOpen);
+  const [open, setOpen] = useState(defaultOpen);
 
   return (
     <React.Fragment>
@@ -298,7 +299,7 @@ function Window({ title, onClose, children, headerActions }: WindowProps) {
   const minHeight = 52;
 
   // Track position when user drags the window
-  const [position, setPosition] = React.useState<{ left: number; top: number } | null>(null);
+  const [position, setPosition] = useState<{ left: number; top: number } | null>(null);
   const dragStateRef = useRef<{
     dragging: boolean;
     startX: number;
@@ -308,7 +309,7 @@ function Window({ title, onClose, children, headerActions }: WindowProps) {
   } | null>(null);
 
   // Track size when user resizes the window
-  const [size, setSize] = React.useState<{ width: number; height: number } | null>(null);
+  const [size, setSize] = useState<{ width: number; height: number } | null>(null);
   const resizeStateRef = useRef<{
     resizing: boolean;
     startX: number;

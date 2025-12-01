@@ -2,6 +2,7 @@
 import * as React from 'react';
 import { useTimeout } from '@base-ui-components/utils/useTimeout';
 import { useEffect } from '@base-ui-components/utils/useEffect';
+import { useState } from '@base-ui-components/utils/useState';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useAvatarRootContext } from '../root/AvatarRootContext';
@@ -21,7 +22,7 @@ export const AvatarFallback = React.forwardRef(function AvatarFallback(
   const { className, render, delay, ...elementProps } = componentProps;
 
   const { imageLoadingStatus } = useAvatarRootContext();
-  const [delayPassed, setDelayPassed] = React.useState(delay === undefined);
+  const [delayPassed, setDelayPassed] = useState(delay === undefined);
   const timeout = useTimeout();
 
   useEffect(() => {

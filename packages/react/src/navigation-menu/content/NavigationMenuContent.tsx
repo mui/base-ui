@@ -4,6 +4,7 @@ import * as ReactDOM from 'react-dom';
 import { inertValue } from '@base-ui-components/utils/inertValue';
 import { useRef } from '@base-ui-components/utils/useRef';
 import { useCallback } from '@base-ui-components/utils/useCallback';
+import { useState } from '@base-ui-components/utils/useState';
 import { FloatingNode } from '../../floating-ui-react';
 import { contains, getTarget } from '../../floating-ui-react/utils';
 import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
@@ -60,7 +61,7 @@ export const NavigationMenuContent = React.forwardRef(function NavigationMenuCon
 
   const ref = useRef<HTMLDivElement | null>(null);
 
-  const [focusInside, setFocusInside] = React.useState(false);
+  const [focusInside, setFocusInside] = useState(false);
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
 

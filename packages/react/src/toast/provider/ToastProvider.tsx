@@ -6,6 +6,7 @@ import { generateId } from '@base-ui-components/utils/generateId';
 import { Timeout } from '@base-ui-components/utils/useTimeout';
 import { useEffect } from '@base-ui-components/utils/useEffect';
 import { useRef } from '@base-ui-components/utils/useRef';
+import { useState } from '@base-ui-components/utils/useState';
 import { activeElement, contains } from '../../floating-ui-react/utils';
 import { ToastContext } from './ToastProviderContext';
 import { isFocusVisible } from '../utils/focusVisible';
@@ -34,10 +35,10 @@ interface TimerInfo {
 export const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvider(props) {
   const { children, timeout = 5000, limit = 3, toastManager } = props;
 
-  const [toasts, setToasts] = React.useState<ToastObject<any>[]>([]);
-  const [hovering, setHovering] = React.useState(false);
-  const [focused, setFocused] = React.useState(false);
-  const [prevFocusElement, setPrevFocusElement] = React.useState<HTMLElement | null>(null);
+  const [toasts, setToasts] = useState<ToastObject<any>[]>([]);
+  const [hovering, setHovering] = useState(false);
+  const [focused, setFocused] = useState(false);
+  const [prevFocusElement, setPrevFocusElement] = useState<HTMLElement | null>(null);
 
   if (toasts.length === 0) {
     if (hovering) {

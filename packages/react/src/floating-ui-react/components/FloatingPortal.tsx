@@ -5,6 +5,7 @@ import { useId } from '@base-ui-components/utils/useId';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { useEffect } from '@base-ui-components/utils/useEffect';
 import { useRef } from '@base-ui-components/utils/useRef';
+import { useState } from '@base-ui-components/utils/useState';
 import { FocusGuard } from '../../utils/FocusGuard';
 import {
   enableFocusInside,
@@ -69,10 +70,10 @@ export function useFloatingPortalNode(
   const portalContext = usePortalContext();
   const parentPortalNode = portalContext?.portalNode;
 
-  const [containerElement, setContainerElement] = React.useState<HTMLElement | ShadowRoot | null>(
+  const [containerElement, setContainerElement] = useState<HTMLElement | ShadowRoot | null>(
     null,
   );
-  const [portalNode, setPortalNode] = React.useState<HTMLElement | null>(null);
+  const [portalNode, setPortalNode] = useState<HTMLElement | null>(null);
 
   const containerRef = useRef<HTMLElement | ShadowRoot | null>(null);
 
@@ -165,7 +166,7 @@ export const FloatingPortal = React.forwardRef(function FloatingPortal(
   const beforeInsideRef = useRef<HTMLSpanElement>(null);
   const afterInsideRef = useRef<HTMLSpanElement>(null);
 
-  const [focusManagerState, setFocusManagerState] = React.useState<FocusManagerState>(null);
+  const [focusManagerState, setFocusManagerState] = useState<FocusManagerState>(null);
 
   const modal = focusManagerState?.modal;
   const open = focusManagerState?.open;

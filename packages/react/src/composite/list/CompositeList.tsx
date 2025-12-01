@@ -5,6 +5,7 @@ import { useRefWithInit } from '@base-ui-components/utils/useRefWithInit';
 import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { useRef } from '@base-ui-components/utils/useRef';
+import { useState } from '@base-ui-components/utils/useState';
 import { CompositeListContext } from './CompositeListContext';
 
 export type CompositeMetadata<CustomMetadata> = { index?: number | null } & CustomMetadata;
@@ -31,7 +32,7 @@ export function CompositeList<Metadata>(props: CompositeList.Props<Metadata>) {
 
   const map = useRefWithInit(createMap<Metadata>).current;
   // `mapTick` uses a counter rather than objects for low precision-loss risk and better memory efficiency
-  const [mapTick, setMapTick] = React.useState(0);
+  const [mapTick, setMapTick] = useState(0);
   const lastTickRef = useRef(mapTick);
 
   const register = useStableCallback((node: Element, metadata: Metadata) => {

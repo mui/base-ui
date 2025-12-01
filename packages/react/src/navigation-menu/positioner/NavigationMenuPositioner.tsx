@@ -5,6 +5,7 @@ import { ownerWindow } from '@base-ui-components/utils/owner';
 import { useTimeout } from '@base-ui-components/utils/useTimeout';
 import { useEffect } from '@base-ui-components/utils/useEffect';
 import { useRef } from '@base-ui-components/utils/useRef';
+import { useState } from '@base-ui-components/utils/useState';
 import {
   disableFocusInside,
   enableFocusInside,
@@ -70,7 +71,7 @@ export const NavigationMenuPositioner = React.forwardRef(function NavigationMenu
 
   const resizeTimeout = useTimeout();
 
-  const [instant, setInstant] = React.useState(false);
+  const [instant, setInstant] = useState(false);
 
   const positionerRef = useRef<HTMLDivElement | null>(null);
   const prevTriggerElementRef = useRef<Element | null>(null);

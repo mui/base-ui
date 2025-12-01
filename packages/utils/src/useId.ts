@@ -2,12 +2,13 @@
 import * as React from 'react';
 import { SafeReact } from './safeReact';
 import { useEffect } from './useEffect';
+import { useState } from './useState';
 
 let globalId = 0;
 
 // TODO React 17: Remove `useGlobalId` once React 17 support is removed
 function useGlobalId(idOverride?: string, prefix: string = 'mui'): string | undefined {
-  const [defaultId, setDefaultId] = React.useState(idOverride);
+  const [defaultId, setDefaultId] = useState(idOverride);
   const id = idOverride || defaultId;
   useEffect(() => {
     if (defaultId == null) {

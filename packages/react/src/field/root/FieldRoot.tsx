@@ -2,6 +2,7 @@
 import * as React from 'react';
 import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { useRef } from '@base-ui-components/utils/useRef';
+import { useState } from '@base-ui-components/utils/useState';
 import { FieldRootContext } from './FieldRootContext';
 import { DEFAULT_VALIDITY_STATE, fieldValidityMapping } from '../utils/constants';
 import { useFieldsetRootContext } from '../../fieldset/root/FieldsetRootContext';
@@ -41,10 +42,10 @@ const FieldRootInner = React.forwardRef(function FieldRootInner(
 
   const disabled = disabledFieldset || disabledProp;
 
-  const [touchedState, setTouchedUnwrapped] = React.useState(false);
-  const [dirtyState, setDirtyUnwrapped] = React.useState(false);
-  const [filled, setFilled] = React.useState(false);
-  const [focused, setFocused] = React.useState(false);
+  const [touchedState, setTouchedUnwrapped] = useState(false);
+  const [dirtyState, setDirtyUnwrapped] = useState(false);
+  const [filled, setFilled] = useState(false);
+  const [focused, setFocused] = useState(false);
 
   const dirty = dirtyProp ?? dirtyState;
   const touched = touchedProp ?? touchedState;
@@ -79,7 +80,7 @@ const FieldRootInner = React.forwardRef(function FieldRootInner(
     invalidProp || (name && {}.hasOwnProperty.call(errors, name) && errors[name] !== undefined),
   );
 
-  const [validityData, setValidityData] = React.useState<FieldValidityData>({
+  const [validityData, setValidityData] = useState<FieldValidityData>({
     state: DEFAULT_VALIDITY_STATE,
     error: '',
     errors: [],
