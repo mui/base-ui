@@ -187,8 +187,8 @@ importers:
         specifier: ^3.1.1
         version: 3.1.1(@types/react@19.2.2)(react@19.2.0)
       '@mui/internal-docs-infra':
-        specifier: ^0.2.3-canary.12
-        version: 0.2.3-canary.12(@types/react@19.2.2)(next@16.0.1(@babel/core@7.28.5)(@playwright/test@1.56.1)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(react@19.2.0)
+        specifier: https://pkg.pr.new/mui/mui-public/@mui/internal-docs-infra@97e5f31
+        version: https://pkg.pr.new/mui/mui-public/@mui/internal-docs-infra@97e5f31(@types/react@19.2.2)(next@16.0.1(@babel/core@7.28.5)(@playwright/test@1.56.1)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(react@19.2.0)
       '@next/mdx':
         specifier: ^16.0.1
         version: 16.0.1(@mdx-js/loader@3.1.1(webpack@5.102.1))(@mdx-js/react@3.1.1(@types/react@19.2.2)(react@19.2.0))
@@ -393,7 +393,7 @@ importers:
     dependencies:
       '@base-ui-components/react':
         specifier: latest
-        version: 1.0.0-beta.6(@types/react@19.2.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+        version: 1.0.0-beta.7(@types/react@19.2.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
@@ -1504,8 +1504,8 @@ packages:
     resolution: {integrity: sha512-qQ5m48eI/MFLQ5PxQj4PFaprjyCTLI37ElWMmNs0K8Lk3dVeOdNpB3ks8jc7yM5CDmVC73eMVk/trk3fgmrUpA==}
     engines: {node: '>=6.9.0'}
 
-  '@base-ui-components/react@1.0.0-beta.6':
-    resolution: {integrity: sha512-jE07DkS7JcGKGH4/hNPTabyGfEzrfDhGPM0h9exGDWwRhEJXZK9xhJ4m3fr+yPf8gpddOCMMoKyV4xITJKrSOA==}
+  '@base-ui-components/react@1.0.0-beta.7':
+    resolution: {integrity: sha512-jZoU6ZzPPDhiP62ToFpIZVkLDzYleL8NJhiw4Dm9Q+N7Q+/rOW+N6YN0URuQ9zMdcl8jvIks/8iY1cyD/VC87A==}
     engines: {node: '>=14.0.0'}
     peerDependencies:
       '@types/react': ^19.2.2
@@ -1515,8 +1515,8 @@ packages:
       '@types/react':
         optional: true
 
-  '@base-ui-components/utils@0.2.0':
-    resolution: {integrity: sha512-uLLsLpYxPVq/QNsrfHwXuI+uiCr8+P/SLtTgrA4hL5b4UmWo3dnhwo38edfu+gCgfblrJveDj1D4RxEvDc7RXw==}
+  '@base-ui-components/utils@0.2.1':
+    resolution: {integrity: sha512-6D3PNibMXWPxiXCW/aMTclTypNG/QPCUc5vwGS6yKIcoYGDmjLiG3VyJ7hlGAnXiMGJMWH2TVl335N+zkRAKZQ==}
     peerDependencies:
       '@types/react': ^19.2.2
       react: ^17 || ^18 || ^19
@@ -2284,8 +2284,9 @@ packages:
       prettier: ^3.5.3
       typescript: ^5.0.0
 
-  '@mui/internal-docs-infra@0.2.3-canary.12':
-    resolution: {integrity: sha512-KDF8/6rDU1PPm+IPi1Tlr2P3CJv8ji4bd3RL1r9c9qHQNdcxO86E8sFtfGRMm7uK+1cZjQ7lsqNEy0KiOXkHeg==}
+  '@mui/internal-docs-infra@https://pkg.pr.new/mui/mui-public/@mui/internal-docs-infra@97e5f31':
+    resolution: {tarball: https://pkg.pr.new/mui/mui-public/@mui/internal-docs-infra@97e5f31}
+    version: 0.2.2
     engines: {node: '>=22.12.0'}
     peerDependencies:
       '@types/react': ^19.2.2
@@ -11165,10 +11166,10 @@ snapshots:
       '@babel/helper-string-parser': 7.27.1
       '@babel/helper-validator-identifier': 7.28.5
 
-  '@base-ui-components/react@1.0.0-beta.6(@types/react@19.2.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)':
+  '@base-ui-components/react@1.0.0-beta.7(@types/react@19.2.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)':
     dependencies:
       '@babel/runtime': 7.28.4
-      '@base-ui-components/utils': 0.2.0(@types/react@19.2.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      '@base-ui-components/utils': 0.2.1(@types/react@19.2.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       '@floating-ui/react-dom': 2.1.6(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       '@floating-ui/utils': 0.2.10
       react: 19.2.0
@@ -11179,7 +11180,7 @@ snapshots:
     optionalDependencies:
       '@types/react': 19.2.2
 
-  '@base-ui-components/utils@0.2.0(@types/react@19.2.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)':
+  '@base-ui-components/utils@0.2.1(@types/react@19.2.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)':
     dependencies:
       '@babel/runtime': 7.28.4
       '@floating-ui/utils': 0.2.10
@@ -11999,7 +12000,7 @@ snapshots:
       eslint-import-resolver-typescript: 4.4.4(eslint-plugin-import@2.32.0(eslint@9.39.1(jiti@2.6.1)))(eslint@9.39.1(jiti@2.6.1))
       eslint-module-utils: 2.12.1(eslint-import-resolver-node@0.3.9)(eslint-import-resolver-typescript@4.4.4(eslint-plugin-import@2.32.0(eslint@9.39.1(jiti@2.6.1)))(eslint@9.39.1(jiti@2.6.1)))(eslint@9.39.1(jiti@2.6.1))
       eslint-plugin-compat: 6.0.2(eslint@9.39.1(jiti@2.6.1))
-      eslint-plugin-import: 2.32.0(eslint-import-resolver-typescript@4.4.4(eslint-plugin-import@2.32.0(eslint@9.39.1(jiti@2.6.1)))(eslint@9.39.1(jiti@2.6.1)))(eslint@9.39.1(jiti@2.6.1))
+      eslint-plugin-import: 2.32.0(eslint-import-resolver-typescript@4.4.4)(eslint@9.39.1(jiti@2.6.1))
       eslint-plugin-jsx-a11y: 6.10.2(eslint@9.39.1(jiti@2.6.1))
       eslint-plugin-mocha: 11.2.0(eslint@9.39.1(jiti@2.6.1))
       eslint-plugin-react: 7.37.5(eslint@9.39.1(jiti@2.6.1))
@@ -12032,7 +12033,7 @@ snapshots:
       - stylelint
       - supports-color
 
-  '@mui/internal-docs-infra@0.2.3-canary.12(@types/react@19.2.2)(next@16.0.1(@babel/core@7.28.5)(@playwright/test@1.56.1)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(react@19.2.0)':
+  '@mui/internal-docs-infra@https://pkg.pr.new/mui/mui-public/@mui/internal-docs-infra@97e5f31(@types/react@19.2.2)(next@16.0.1(@babel/core@7.28.5)(@playwright/test@1.56.1)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(react@19.2.0)':
     dependencies:
       '@babel/runtime': 7.28.4
       '@babel/standalone': 7.28.5
@@ -15818,7 +15819,7 @@ snapshots:
       tinyglobby: 0.2.15
       unrs-resolver: 1.11.1
     optionalDependencies:
-      eslint-plugin-import: 2.32.0(eslint-import-resolver-typescript@4.4.4(eslint-plugin-import@2.32.0(eslint@9.39.1(jiti@2.6.1)))(eslint@9.39.1(jiti@2.6.1)))(eslint@9.39.1(jiti@2.6.1))
+      eslint-plugin-import: 2.32.0(eslint-import-resolver-typescript@4.4.4)(eslint@9.39.1(jiti@2.6.1))
     transitivePeerDependencies:
       - supports-color
 
@@ -15844,7 +15845,7 @@ snapshots:
       lodash.memoize: 4.1.2
       semver: 7.7.3
 
-  eslint-plugin-import@2.32.0(eslint-import-resolver-typescript@4.4.4(eslint-plugin-import@2.32.0(eslint@9.39.1(jiti@2.6.1)))(eslint@9.39.1(jiti@2.6.1)))(eslint@9.39.1(jiti@2.6.1)):
+  eslint-plugin-import@2.32.0(eslint-import-resolver-typescript@4.4.4)(eslint@9.39.1(jiti@2.6.1)):
     dependencies:
       '@rtsao/scc': 1.1.0
       array-includes: 3.1.9
