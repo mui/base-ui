@@ -33,12 +33,11 @@ type CallbackContext = {
   data: CallbackData<unknown>[];
 };
 
-type StateData<T> = {
-  value: T;
-  setValue: React.Dispatch<React.SetStateAction<T>>;
-};
+type StateData<T> = [T, React.Dispatch<React.SetStateAction<T>>];
 
 type StateContext = {
+  tick: number;
+  setTick: React.Dispatch<React.SetStateAction<number>>;
   index: number;
   data: StateData<unknown>[];
 };
@@ -289,31 +288,49 @@ export const createUseState = () => {
       return React.useState(initialState);
     }
 
-    if (currentInstance!.didInitialize === false) {
-      // On first render, compute initial value and create state entry
-      const value = typeof initialState === 'function' ? (initialState as () => S)() : initialState;
-      const stateData: StateData<S | undefined> = {
-        value,
-        setValue: undefined as any, // Will be set below
-      };
+    if (context.index === 0) {
+      const [tick, setTick] = React.useState(0);
+      context.tick = tick;
+      context.setTick = setTick;
+    }
 
-      // Create the setValue function that updates stateData.value
-      stateData.setValue = ((action: React.SetStateAction<S | undefined>) => {
+    if (currentInstance!.didInitialize === false) {
+      const index = context.index;
+
+      const value = typeof initialState === 'function' ? (initialState as () => S)() : initialState;
+
+      const setValue = (action: React.SetStateAction<S | undefined>) => {
+        const previousData = context.data[index];
+
+        const previousValue = previousData[0];
+        const previousSetValue = previousData[1];
+
         const newValue =
           typeof action === 'function'
-            ? (action as (prev: S | undefined) => S | undefined)(stateData.value)
+            ? (action as (prev: S | undefined) => S | undefined)(previousValue as any)
             : action;
-        stateData.value = newValue;
-      }) as React.Dispatch<React.SetStateAction<S | undefined>>;
+
+        if (Object.is(previousValue, newValue) === false) {
+          const nextData = [newValue, previousSetValue] as StateData<S | undefined>;
+          context.data[index] = nextData as any;
+
+          context.tick = (context.tick + 1) >> 0;
+          context.setTick(context.tick);
+        }
+      };
+
+      const stateData: StateData<S | undefined> = [value, setValue];
 
       context.data.push(stateData as StateData<unknown>);
       context.index += 1;
-      return [stateData.value, stateData.setValue];
+
+      return stateData;
     }
 
     const stateData = context.data[context.index] as StateData<S | undefined>;
     context.index += 1;
-    return [stateData.value, stateData.setValue];
+
+    return stateData;
   }
 
   return useState;
