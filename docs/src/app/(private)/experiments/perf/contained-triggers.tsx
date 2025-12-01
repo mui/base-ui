@@ -3,16 +3,30 @@ import * as React from 'react';
 import { Menu } from '@base-ui-components/react/menu';
 import { Tooltip } from '@base-ui-components/react/tooltip';
 import { Popover } from '@base-ui-components/react/popover';
+import {
+  SettingsMetadata,
+  useExperimentSettings,
+} from 'docs/src/components/Experiments/SettingsPanel';
 import menuDemoStyles from 'docs/src/app/(public)/(content)/react/components/menu/demos/submenu/css-modules/index.module.css';
 import tooltipDemoStyles from 'docs/src/app/(public)/(content)/react/components/tooltip/demos/hero/css-modules/index.module.css';
 import popoverDemoStyles from 'docs/src/app/(public)/(content)/react/components/popover/demos/_index.module.css';
 import styles from './perf.module.css';
 import PerformanceBenchmark from './utils/benchmark';
 
-type RowData = {
+interface Settings {
+  renderMenu: boolean;
+  renderTooltip: boolean;
+  renderPopover: boolean;
+}
+
+interface RowData {
   label: string;
   index: number;
-};
+}
+
+interface RowProps {
+  rowData: RowData;
+}
 
 const rowCount = 500;
 const menuItemCount = 50;
@@ -39,14 +53,17 @@ export default function PerfExperiment() {
 }
 
 function TestComponent() {
+  const { settings } = useExperimentSettings<Settings>();
+  const { renderMenu, renderTooltip, renderPopover } = settings;
   return (
     <div className={styles.rows}>
       {rows.map((row) => (
         <div key={row.index} className={styles.row}>
           <span className={styles.label}>{row.label}</span>
           <span className={styles.actions}>
-            <RowPopover rowData={row} />
-            <RowMenu rowData={row} />
+            {renderPopover && <RowPopover rowData={row} />}
+            {renderTooltip && <RowTooltip rowData={row} />}
+            {renderMenu && <RowMenu rowData={row} />}
           </span>
         </div>
       ))}
@@ -54,32 +71,12 @@ function TestComponent() {
   );
 }
 
-interface RowMenuProps {
-  rowData: RowData;
-}
-
-function RowMenu({ rowData }: RowMenuProps) {
+function RowMenu({ rowData }: RowProps) {
   return (
     <Menu.Root>
-      <Tooltip.Root>
-        <Tooltip.Trigger
-          className={menuDemoStyles.Trigger}
-          data-id={rowData.index}
-          render={(props) => <Menu.Trigger {...props} />}
-        >
-          •••
-        </Tooltip.Trigger>
-        <Tooltip.Portal>
-          <Tooltip.Positioner sideOffset={10}>
-            <Tooltip.Popup className={tooltipDemoStyles.Popup}>
-              <Tooltip.Arrow className={tooltipDemoStyles.Arrow}>
-                <ArrowSvg />
-              </Tooltip.Arrow>
-              Actions menu for {rowData.label}
-            </Tooltip.Popup>
-          </Tooltip.Positioner>
-        </Tooltip.Portal>
-      </Tooltip.Root>
+      <Menu.Trigger className={menuDemoStyles.Button} data-id={rowData.index}>
+        Menu
+      </Menu.Trigger>
       <Menu.Portal>
         <Menu.Positioner sideOffset={8} className={menuDemoStyles.Positioner}>
           <Menu.Popup className={menuDemoStyles.Popup}>
@@ -102,21 +99,43 @@ function RowMenu({ rowData }: RowMenuProps) {
   );
 }
 
-function RowPopover({ rowData }: RowMenuProps) {
+function RowPopover({ rowData }: RowProps) {
   return (
     <Popover.Root>
-      <Popover.Trigger className={popoverDemoStyles.Button}>info</Popover.Trigger>
+      <Popover.Trigger className={menuDemoStyles.Button} data-id={rowData.index}>
+        Popover
+      </Popover.Trigger>
       <Popover.Portal>
         <Popover.Positioner sideOffset={8} className={popoverDemoStyles.Positioner}>
           <Popover.Popup className={popoverDemoStyles.Popup}>
             <Popover.Arrow className={popoverDemoStyles.Arrow}>
               <ArrowSvg />
             </Popover.Arrow>
-            {rowData && <div>Details for {rowData.label}</div>}
+            {rowData && <div>Popover for {rowData.label}</div>}
           </Popover.Popup>
         </Popover.Positioner>
       </Popover.Portal>
     </Popover.Root>
+  );
+}
+
+function RowTooltip({ rowData }: RowProps) {
+  return (
+    <Tooltip.Root>
+      <Tooltip.Trigger className={menuDemoStyles.Button} data-id={rowData.index}>
+        Tooltip
+      </Tooltip.Trigger>
+      <Tooltip.Portal>
+        <Tooltip.Positioner sideOffset={10}>
+          <Tooltip.Popup className={tooltipDemoStyles.Popup}>
+            <Tooltip.Arrow className={tooltipDemoStyles.Arrow}>
+              <ArrowSvg />
+            </Tooltip.Arrow>
+            Tooltip for {rowData.label}
+          </Tooltip.Popup>
+        </Tooltip.Positioner>
+      </Tooltip.Portal>
+    </Tooltip.Root>
   );
 }
 
@@ -138,3 +157,21 @@ function ArrowSvg(props: React.ComponentProps<'svg'>) {
     </svg>
   );
 }
+
+export const settingsMetadata: SettingsMetadata<Settings> = {
+  renderMenu: {
+    type: 'boolean',
+    default: true,
+    label: 'Render Menu',
+  },
+  renderTooltip: {
+    type: 'boolean',
+    default: true,
+    label: 'Render Tooltip',
+  },
+  renderPopover: {
+    type: 'boolean',
+    default: true,
+    label: 'Render Popover',
+  },
+};

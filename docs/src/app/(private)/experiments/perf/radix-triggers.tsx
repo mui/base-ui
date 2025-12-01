@@ -1,16 +1,30 @@
 'use client';
 import * as React from 'react';
 import { DropdownMenu, Tooltip, Popover } from 'radix-ui';
+import {
+  SettingsMetadata,
+  useExperimentSettings,
+} from 'docs/src/components/Experiments/SettingsPanel';
 import menuDemoStyles from 'docs/src/app/(public)/(content)/react/components/menu/demos/submenu/css-modules/index.module.css';
 import tooltipDemoStyles from 'docs/src/app/(public)/(content)/react/components/tooltip/demos/hero/css-modules/index.module.css';
 import popoverDemoStyles from 'docs/src/app/(public)/(content)/react/components/popover/demos/_index.module.css';
 import styles from './perf.module.css';
 import PerformanceBenchmark from './utils/benchmark';
 
-type RowData = {
+interface Settings {
+  renderMenu: boolean;
+  renderTooltip: boolean;
+  renderPopover: boolean;
+}
+
+interface RowData {
   label: string;
   index: number;
-};
+}
+
+interface RowProps {
+  rowData: RowData;
+}
 
 const rowCount = 500;
 const menuItemCount = 50;
@@ -39,14 +53,17 @@ export default function PerfExperiment() {
 }
 
 function TestComponent() {
+  const { settings } = useExperimentSettings<Settings>();
+  const { renderMenu, renderTooltip, renderPopover } = settings;
   return (
     <div className={styles.rows}>
       {rows.map((row) => (
         <div key={row.index} className={styles.row}>
           <span className={styles.label}>{row.label}</span>
           <span className={styles.actions}>
-            <RowPopover rowData={row} />
-            <RowMenu rowData={row} />
+            {renderPopover && <RowPopover rowData={row} />}
+            {renderTooltip && <RowTooltip rowData={row} />}
+            {renderMenu && <RowMenu rowData={row} />}
           </span>
         </div>
       ))}
@@ -54,28 +71,12 @@ function TestComponent() {
   );
 }
 
-interface RowMenuProps {
-  rowData: RowData;
-}
-
-function RowMenu({ rowData }: RowMenuProps) {
+function RowMenu({ rowData }: RowProps) {
   return (
     <DropdownMenu.Root>
-      <Tooltip.Root>
-        <Tooltip.Trigger asChild>
-          <DropdownMenu.Trigger className={menuDemoStyles.Trigger} data-id={rowData.index}>
-            •••
-          </DropdownMenu.Trigger>
-        </Tooltip.Trigger>
-        <Tooltip.Portal>
-          <Tooltip.Content sideOffset={10} className={tooltipDemoStyles.Popup}>
-            <Tooltip.Arrow asChild className={tooltipDemoStyles.Arrow}>
-              <ArrowSvg />
-            </Tooltip.Arrow>
-            Actions menu for {rowData.label}
-          </Tooltip.Content>
-        </Tooltip.Portal>
-      </Tooltip.Root>
+      <DropdownMenu.Trigger className={menuDemoStyles.Button} data-id={rowData.index}>
+        Menu
+      </DropdownMenu.Trigger>
       <DropdownMenu.Portal>
         <DropdownMenu.Content sideOffset={8} className={menuDemoStyles.Popup}>
           <DropdownMenu.Arrow asChild className={menuDemoStyles.Arrow}>
@@ -96,10 +97,12 @@ function RowMenu({ rowData }: RowMenuProps) {
   );
 }
 
-function RowPopover({ rowData }: RowMenuProps) {
+function RowPopover({ rowData }: RowProps) {
   return (
     <Popover.Root>
-      <Popover.Trigger className={popoverDemoStyles.Button}>info</Popover.Trigger>
+      <Popover.Trigger className={menuDemoStyles.Button} data-id={rowData.index}>
+        Popover
+      </Popover.Trigger>
       <Popover.Portal>
         <Popover.Content sideOffset={8} className={popoverDemoStyles.Popup}>
           <Popover.Arrow asChild className={popoverDemoStyles.Arrow}>
@@ -109,6 +112,24 @@ function RowPopover({ rowData }: RowMenuProps) {
         </Popover.Content>
       </Popover.Portal>
     </Popover.Root>
+  );
+}
+
+function RowTooltip({ rowData }: RowProps) {
+  return (
+    <Tooltip.Root>
+      <Tooltip.Trigger className={menuDemoStyles.Button} data-id={rowData.index}>
+        Tooltip
+      </Tooltip.Trigger>
+      <Tooltip.Portal>
+        <Tooltip.Content sideOffset={10} className={tooltipDemoStyles.Popup}>
+          <Tooltip.Arrow asChild className={tooltipDemoStyles.Arrow}>
+            <ArrowSvg />
+          </Tooltip.Arrow>
+          Tooltip for {rowData.label}
+        </Tooltip.Content>
+      </Tooltip.Portal>
+    </Tooltip.Root>
   );
 }
 
@@ -130,3 +151,21 @@ function ArrowSvg(props: React.ComponentProps<'svg'>) {
     </svg>
   );
 }
+
+export const settingsMetadata: SettingsMetadata<Settings> = {
+  renderMenu: {
+    type: 'boolean',
+    default: true,
+    label: 'Render Menu',
+  },
+  renderTooltip: {
+    type: 'boolean',
+    default: true,
+    label: 'Render Tooltip',
+  },
+  renderPopover: {
+    type: 'boolean',
+    default: true,
+    label: 'Render Popover',
+  },
+};
