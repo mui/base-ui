@@ -691,8 +691,10 @@ export function useDismiss(
       onKeyDown: closeOnEscapeKeyDown,
       onMouseDown: handlePressedInside,
       onMouseUp: handlePressedInside,
-      onPointerDownCapture: markInsideReactTree,
-      onMouseDownCapture: markInsideReactTree,
+      onPointerDownCapture(event) {
+        markInsideReactTree();
+        handlePressedInside(event);
+      },
       onClickCapture: markInsideReactTree,
       onMouseUpCapture: markInsideReactTree,
       onTouchEndCapture: markInsideReactTree,
