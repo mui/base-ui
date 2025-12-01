@@ -20,19 +20,14 @@ function normalizeGroup(group: string) {
 
 function SearchItem({ result }: { result: SearchResult }) {
   return (
-    <React.Fragment>
-      <div className="flex items-baseline justify-between gap-2">
-        <div className="flex items-baseline gap-2">
-          <strong className="font-semibold">{result.title}</strong>
-        </div>
-        {process.env.NODE_ENV === 'development' && result.score && (
-          <span className="text-xs opacity-70">{result.score.toFixed(2)}</span>
-        )}
+    <div className="flex items-baseline justify-between gap-2">
+      <div className="flex items-baseline gap-2">
+        <strong className="font-semibold">{result.title}</strong>
       </div>
-      {result.type === 'page' && result.description && (
-        <div className="mt-0.5 text-sm opacity-80">{result.description}</div>
+      {process.env.NODE_ENV === 'development' && result.score && (
+        <span className="text-xs opacity-70">{result.score.toFixed(2)}</span>
       )}
-    </React.Fragment>
+    </div>
   );
 }
 
@@ -55,40 +50,14 @@ export function SearchBar({
   // Use the generic search hook with Base UI specific configuration
   const { results, search, defaultResults, buildResultUrl } = useSearch({
     sitemap: sitemapImport,
-    maxDefaultResults: 10,
     tolerance: 1,
     limit: 20,
     enableStemming: true,
     includeCategoryInGroup: true,
-    boost: {
-      type: 100,
-      group: 100,
-      slug: 2,
-      path: 2,
-      title: 2,
-      page: 6,
-      pageKeywords: 15,
-      description: 1.5,
-      part: 1.5,
-      export: 1.3,
-      sectionTitle: 50,
-      section: 3,
-      subsection: 2.5,
-      props: 1.5,
-      dataAttributes: 1.5,
-      cssVariables: 1.5,
-      sections: 0.7,
-      subsections: 0.3,
-      keywords: 1.5,
-    },
   });
 
   const [searchResults, setSearchResults] = React.useState<ReturnType<typeof useSearch>['results']>(
-    {
-      results: defaultResults,
-      count: defaultResults.length,
-      elapsed: { raw: 0, formatted: '0ms' },
-    },
+    defaultResults,
   );
 
   // Update search results when hook results change
@@ -133,11 +102,7 @@ export function SearchBar({
 
         setDialogOpen(false);
         queueMicrotask(() => {
-          setSearchResults({
-            results: defaultResults,
-            count: defaultResults.length,
-            elapsed: { raw: 0, formatted: '0ms' },
-          });
+          setSearchResults(defaultResults);
         });
 
         // Reset after a short delay
@@ -227,7 +192,7 @@ export function SearchBar({
       {group.group !== 'Default' && (
         <Autocomplete.GroupLabel
           id={`search-group-${group.group}`}
-          className="search-results sticky top-0 z-40 m-0 w-100% bg-gray-50 px-4 pb-1 pt-2 text-xs font-semibold uppercase tracking-wider"
+          className="search-results sticky top-0 z-40 m-0 w-100% bg-gray-75 px-4 pb-1 pt-2 text-xs font-semibold uppercase tracking-wider"
         >
           {normalizeGroup(group.group)}
         </Autocomplete.GroupLabel>
@@ -280,7 +245,7 @@ export function SearchBar({
                 ref={popupRef}
                 initialFocus={inputRef}
                 data-open={dialogOpen}
-                className="search-dialog-popup relative flex rounded-md min-h-0 max-h-full w-[min(40rem,calc(100vw-2rem))] flex-col overflow-hidden p-0 bg-(--color-popup) text-gray-900 px-4 py-3"
+                className="search-dialog-popup relative flex rounded-2xl min-h-0 max-h-full w-[min(40rem,calc(100vw-2rem))] flex-col overflow-hidden p-0 bg-(--color-popup) text-gray-900 px-4 py-3"
               >
                 <Autocomplete.Root
                   items={searchResults.results}
@@ -331,7 +296,7 @@ export function SearchBar({
                       ref={popupRef}
                       initialFocus={inputRef}
                       data-open={dialogOpen}
-                      className="search-dialog-popup relative mx-auto rounded-md my-18 w-[min(40rem,calc(100vw-2rem))] p-0 bg-(--color-popup) text-gray-900 px-4 pt-3 min-h-[80vh]"
+                      className="search-dialog-popup relative mx-auto rounded-2xl my-18 w-[min(40rem,calc(100vw-2rem))] p-0 bg-(--color-popup) text-gray-900 px-4 pt-3 min-h-[80vh]"
                     >
                       <Autocomplete.Root
                         items={searchResults.results}
