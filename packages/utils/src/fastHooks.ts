@@ -1,5 +1,4 @@
 import * as React from 'react';
-import { useRefWithInit } from './useRefWithInit';
 
 type Effect = {
   cleanup: (() => void) | undefined;
@@ -341,3 +340,14 @@ export const createUseState = () => {
 
   return useState;
 };
+
+const UNINITIALIZED = {};
+
+/* We need to re-implement it here to avoid circular dependencies */
+function useRefWithInit(init: (arg?: unknown) => unknown, initArg?: unknown) {
+  const ref = React.useRef(UNINITIALIZED as any);
+  if (ref.current === UNINITIALIZED) {
+    ref.current = init(initArg);
+  }
+  return ref;
+}

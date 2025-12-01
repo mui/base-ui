@@ -1,5 +1,5 @@
 'use client';
-import * as React from 'react';
+import { useRef } from './useRef';
 
 const UNINITIALIZED = {};
 
@@ -15,7 +15,7 @@ export function useRefWithInit<T, U>(init: (arg: U) => T, initArg: U): React.Ref
 export function useRefWithInit(init: (arg?: unknown) => unknown, initArg?: unknown) {
   // Note: We use React.useRef directly here to avoid circular dependencies
   // since fastHooks.ts depends on useRefWithInit
-  const ref = React.useRef(UNINITIALIZED as any);
+  const ref = useRef(UNINITIALIZED as any);
 
   if (ref.current === UNINITIALIZED) {
     ref.current = init(initArg);
