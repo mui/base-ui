@@ -43,7 +43,7 @@ type StateContext = {
   data: StateData<unknown>[];
 };
 
-type Context = {
+type Instance = {
   didInitialize: boolean;
   useEffect: EffectContext;
   useLayoutEffect: EffectContext;
@@ -52,9 +52,9 @@ type Context = {
   useState: StateContext;
 };
 
-let currentContext: Context | undefined = undefined;
+let currentInstance: Instance | undefined = undefined;
 
-export function createContext(): Context {
+export function createInstance(): Instance {
   return {
     didInitialize: false,
     useEffect: {
@@ -81,29 +81,28 @@ export function createContext(): Context {
 }
 
 export function getContext() {
-  return currentContext;
+  return currentInstance;
 }
 
-export function setContext(context: Context | undefined): void {
-  currentContext = context;
+export function setContext(context: Instance | undefined): void {
+  currentInstance = context;
 }
 
 export function use(): Disposable {
-  const context = useRefWithInit(createContext).current;
+  const instance = useRefWithInit(createInstance).current;
 
-  const previousContext = currentContext;
-  currentContext = context;
+  currentInstance = instance;
 
-  context.useEffect.index = 0;
-  context.useLayoutEffect.index = 0;
-  context.useRef.index = 0;
-  context.useCallback.index = 0;
-  context.useState.index = 0;
+  instance.useEffect.index = 0;
+  instance.useLayoutEffect.index = 0;
+  instance.useRef.index = 0;
+  instance.useCallback.index = 0;
+  instance.useState.index = 0;
 
   return {
     [Symbol.dispose]() {
-      context.didInitialize = true;
-      currentContext = previousContext;
+      instance.didInitialize = true;
+      currentInstance = undefined;
     },
   };
 }
@@ -112,11 +111,11 @@ export function createComponent<P extends object, E extends HTMLElement>(
   fn: (props: P, forwardedRef: React.Ref<E>) => React.ReactNode,
 ) {
   const Wrapped = React.forwardRef(((props: P, forwardedRef: React.Ref<E>) => {
-    const context = useRefWithInit(createContext).current;
+    const context = useRefWithInit(createInstance).current;
 
     let result;
     try {
-      currentContext = context;
+      currentInstance = context;
 
       context.useEffect.index = 0;
       context.useLayoutEffect.index = 0;
@@ -130,7 +129,7 @@ export function createComponent<P extends object, E extends HTMLElement>(
     } catch (error) {
       throw error;
     } finally {
-      currentContext = undefined;
+      currentInstance = undefined;
     }
 
     return result;
@@ -144,13 +143,13 @@ export const createUseEffect = (name: 'useEffect' | 'useLayoutEffect') => {
   const reactUseEffect = name === 'useEffect' ? React.useEffect : React.useLayoutEffect;
 
   const useEffect = (create: () => (() => void) | void, deps?: unknown[]): void => {
-    const context = currentContext?.[name];
+    const context = currentInstance?.[name];
 
     if (!context) {
       return reactUseEffect(create, deps);
     }
 
-    if (currentContext!.didInitialize === false) {
+    if (currentInstance!.didInitialize === false) {
       context.data.push({
         create,
         cleanup: undefined,
@@ -215,15 +214,17 @@ function areDepsEqual(depsA: readonly unknown[], depsB: readonly unknown[]): boo
 
 export const createUseRef = () => {
   // Use the same signature as React.useRef
-  const useRef = <T,>(initialValue?: T | null): React.MutableRefObject<T | undefined> | React.RefObject<T | null> => {
-    const context = currentContext?.useRef;
+  const useRef = <T>(
+    initialValue?: T | null,
+  ): React.MutableRefObject<T | undefined> | React.RefObject<T | null> => {
+    const context = currentInstance?.useRef;
 
     if (!context) {
       // eslint-disable-next-line react-hooks/rules-of-hooks
       return React.useRef(initialValue) as React.MutableRefObject<T | undefined>;
     }
 
-    if (currentContext!.didInitialize === false) {
+    if (currentInstance!.didInitialize === false) {
       const refData: RefData<T | undefined | null> = { current: initialValue };
       context.data.push(refData as RefData<unknown>);
       context.index += 1;
@@ -240,14 +241,14 @@ export const createUseRef = () => {
 
 export const createUseCallback = () => {
   function useCallback<T extends Function>(callback: T, deps: React.DependencyList): T {
-    const context = currentContext?.useCallback;
+    const context = currentInstance?.useCallback;
 
     if (!context) {
       // eslint-disable-next-line react-hooks/rules-of-hooks
       return React.useCallback(callback, deps);
     }
 
-    if (currentContext!.didInitialize === false) {
+    if (currentInstance!.didInitialize === false) {
       const callbackData: CallbackData<T> = { callback, deps };
       context.data.push(callbackData as CallbackData<unknown>);
       context.index += 1;
@@ -257,7 +258,10 @@ export const createUseCallback = () => {
     const callbackData = context.data[context.index] as CallbackData<T>;
     const previousDeps = callbackData.deps;
 
-    if (previousDeps === undefined || areDepsEqual(previousDeps as unknown[], deps as unknown[]) === false) {
+    if (
+      previousDeps === undefined ||
+      areDepsEqual(previousDeps as unknown[], deps as unknown[]) === false
+    ) {
       callbackData.callback = callback;
       callbackData.deps = deps;
     }
@@ -271,16 +275,21 @@ export const createUseCallback = () => {
 
 export const createUseState = () => {
   function useState<S>(initialState: S | (() => S)): [S, React.Dispatch<React.SetStateAction<S>>];
-  function useState<S = undefined>(): [S | undefined, React.Dispatch<React.SetStateAction<S | undefined>>];
-  function useState<S>(initialState?: S | (() => S)): [S | undefined, React.Dispatch<React.SetStateAction<S | undefined>>] {
-    const context = currentContext?.useState;
+  function useState<S = undefined>(): [
+    S | undefined,
+    React.Dispatch<React.SetStateAction<S | undefined>>,
+  ];
+  function useState<S>(
+    initialState?: S | (() => S),
+  ): [S | undefined, React.Dispatch<React.SetStateAction<S | undefined>>] {
+    const context = currentInstance?.useState;
 
     if (!context) {
       // eslint-disable-next-line react-hooks/rules-of-hooks
       return React.useState(initialState);
     }
 
-    if (currentContext!.didInitialize === false) {
+    if (currentInstance!.didInitialize === false) {
       // On first render, compute initial value and create state entry
       const value = typeof initialState === 'function' ? (initialState as () => S)() : initialState;
       const stateData: StateData<S | undefined> = {
@@ -290,9 +299,10 @@ export const createUseState = () => {
 
       // Create the setValue function that updates stateData.value
       stateData.setValue = ((action: React.SetStateAction<S | undefined>) => {
-        const newValue = typeof action === 'function'
-          ? (action as (prev: S | undefined) => S | undefined)(stateData.value)
-          : action;
+        const newValue =
+          typeof action === 'function'
+            ? (action as (prev: S | undefined) => S | undefined)(stateData.value)
+            : action;
         stateData.value = newValue;
       }) as React.Dispatch<React.SetStateAction<S | undefined>>;
 
