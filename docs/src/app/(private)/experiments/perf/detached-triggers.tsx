@@ -3,6 +3,7 @@ import * as React from 'react';
 import { Menu } from '@base-ui-components/react/menu';
 import { Tooltip } from '@base-ui-components/react/tooltip';
 import { Popover } from '@base-ui-components/react/popover';
+import { Dialog } from '@base-ui-components/react/dialog';
 import {
   SettingsMetadata,
   useExperimentSettings,
@@ -10,13 +11,15 @@ import {
 import menuDemoStyles from 'docs/src/app/(public)/(content)/react/components/menu/demos/submenu/css-modules/index.module.css';
 import tooltipDemoStyles from 'docs/src/app/(public)/(content)/react/components/tooltip/demos/hero/css-modules/index.module.css';
 import popoverDemoStyles from 'docs/src/app/(public)/(content)/react/components/popover/demos/_index.module.css';
+import dialogDemoStyles from 'docs/src/app/(public)/(content)/react/components/dialog/demos/_index.module.css';
 import styles from './perf.module.css';
 import PerformanceBenchmark from './utils/benchmark';
 
 interface Settings {
+  renderDialog: boolean;
   renderMenu: boolean;
-  renderTooltip: boolean;
   renderPopover: boolean;
+  renderTooltip: boolean;
 }
 
 interface RowData {
@@ -40,6 +43,7 @@ const menuItems = Array.from({ length: menuItemCount }).map((_, i) => ({
 const rowMenuHandle = Menu.createHandle<RowData>();
 const genericTooltipHandle = Tooltip.createHandle<RowData>();
 const rowPopoverHandle = Popover.createHandle<RowData>();
+const rowDialogHandle = Dialog.createHandle<RowData>();
 
 export default function PerfExperiment() {
   return (
@@ -54,7 +58,7 @@ export default function PerfExperiment() {
 
 function TestComponent() {
   const { settings } = useExperimentSettings<Settings>();
-  const { renderMenu, renderTooltip, renderPopover } = settings;
+  const { renderMenu, renderTooltip, renderPopover, renderDialog } = settings;
   return (
     <div>
       <div className={styles.rows}>
@@ -62,11 +66,31 @@ function TestComponent() {
           <div key={row.index} className={styles.row}>
             <span className={styles.label}>{row.label}</span>
             <span className={styles.actions}>
+              {renderDialog && (
+                <Dialog.Trigger
+                  handle={rowDialogHandle}
+                  payload={row}
+                  className={styles.button}
+                  data-id={row.index}
+                >
+                  Dialog
+                </Dialog.Trigger>
+              )}
+              {renderMenu && (
+                <Menu.Trigger
+                  handle={rowMenuHandle}
+                  payload={row}
+                  className={styles.button}
+                  data-id={row.index}
+                >
+                  Menu
+                </Menu.Trigger>
+              )}
               {renderPopover && (
                 <Popover.Trigger
                   handle={rowPopoverHandle}
                   payload={row}
-                  className={menuDemoStyles.Button}
+                  className={styles.button}
                   data-id={row.index}
                 >
                   Popover
@@ -77,29 +101,20 @@ function TestComponent() {
                 <Tooltip.Trigger
                   handle={genericTooltipHandle}
                   payload={row}
-                  className={menuDemoStyles.Button}
+                  className={styles.button}
                   data-id={row.index}
                 >
                   Tooltip
                 </Tooltip.Trigger>
               )}
-              {renderMenu && (
-                <Menu.Trigger
-                  handle={rowMenuHandle}
-                  payload={row}
-                  className={menuDemoStyles.Button}
-                  data-id={row.index}
-                >
-                  Menu
-                </Menu.Trigger>
-              )}
             </span>
           </div>
         ))}
       </div>
+      {renderDialog && <RowDialog />}
       {renderMenu && <RowMenu />}
-      {renderTooltip && <RowTooltip />}
       {renderPopover && <RowPopover />}
+      {renderTooltip && <RowTooltip />}
     </div>
   );
 }
@@ -175,6 +190,29 @@ function RowTooltip() {
   );
 }
 
+function RowDialog() {
+  return (
+    <Dialog.Root handle={rowDialogHandle}>
+      {({ payload: rowData }) =>
+        rowData ? (
+          <Dialog.Portal>
+            <Dialog.Backdrop className={dialogDemoStyles.Backdrop} />
+            <Dialog.Popup className={dialogDemoStyles.Popup}>
+              <Dialog.Title className={dialogDemoStyles.Title}>Dialog</Dialog.Title>
+              <Dialog.Description className={dialogDemoStyles.Description}>
+                Dialog content for {rowData.label}
+              </Dialog.Description>
+              <div className={dialogDemoStyles.Actions}>
+                <Dialog.Close className={dialogDemoStyles.Button}>Close</Dialog.Close>
+              </div>
+            </Dialog.Popup>
+          </Dialog.Portal>
+        ) : null
+      }
+    </Dialog.Root>
+  );
+}
+
 function ArrowSvg(props: React.ComponentProps<'svg'>) {
   return (
     <svg width="20" height="10" viewBox="0 0 20 10" fill="none" {...props}>
@@ -195,19 +233,24 @@ function ArrowSvg(props: React.ComponentProps<'svg'>) {
 }
 
 export const settingsMetadata: SettingsMetadata<Settings> = {
+  renderDialog: {
+    type: 'boolean',
+    default: true,
+    label: 'Render Dialog',
+  },
   renderMenu: {
     type: 'boolean',
     default: true,
     label: 'Render Menu',
   },
-  renderTooltip: {
-    type: 'boolean',
-    default: true,
-    label: 'Render Tooltip',
-  },
   renderPopover: {
     type: 'boolean',
     default: true,
     label: 'Render Popover',
+  },
+  renderTooltip: {
+    type: 'boolean',
+    default: true,
+    label: 'Render Tooltip',
   },
 };

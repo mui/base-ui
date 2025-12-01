@@ -3,6 +3,7 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { useTimeout } from '@base-ui-components/utils/useTimeout';
+import styles from '../perf.module.css';
 
 const DOM_SETTLE_QUIET_WINDOW_MS = 32;
 
@@ -107,17 +108,33 @@ const Controls = React.memo(function Controls(props: {
       <button
         type="button"
         onClick={() => setShowBenchmark((prev: boolean) => !prev)}
+        className={styles.button}
         disabled={isRunning}
       >
         Toggle
       </button>
-      <button type="button" onClick={() => runBenchmark(10, 5)} disabled={isRunning}>
+      <button
+        type="button"
+        onClick={() => runBenchmark(10, 5)}
+        className={styles.button}
+        disabled={isRunning}
+      >
         Run 10
       </button>
-      <button type="button" onClick={() => runBenchmark(20, 5)} disabled={isRunning}>
+      <button
+        type="button"
+        onClick={() => runBenchmark(20, 5)}
+        className={styles.button}
+        disabled={isRunning}
+      >
         Run 20
       </button>
-      <button type="button" onClick={() => runBenchmark(50, 5)} disabled={isRunning}>
+      <button
+        type="button"
+        onClick={() => runBenchmark(50, 5)}
+        className={styles.button}
+        disabled={isRunning}
+      >
         Run 50
       </button>
     </div>
