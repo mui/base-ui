@@ -28,7 +28,7 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
   const {
     children,
     open: openProp,
-    defaultOpen: defaultOpenProp = false,
+    defaultOpen: defaultOpen = false,
     onOpenChange,
     onOpenChangeComplete,
     modal = false,
@@ -38,13 +38,15 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
   } = props;
 
   const store = PopoverStore.useStore(handle?.store, {
-    open: openProp ?? defaultOpenProp,
     modal,
-    activeTriggerId: triggerIdProp !== undefined ? triggerIdProp : defaultTriggerIdProp,
+    open: defaultOpen,
+    openProp: openProp,
+    activeTriggerId: defaultTriggerIdProp,
+    triggerIdProp: triggerIdProp ?? undefined,
   });
 
-  store.useControlledProp('open', openProp, defaultOpenProp);
-  store.useControlledProp('activeTriggerId', triggerIdProp, defaultTriggerIdProp);
+  store.useControlledProp('openProp', openProp);
+  store.useControlledProp('triggerIdProp', triggerIdProp);
 
   const open = store.useState('open');
   const positionerElement = store.useState('positionerElement');

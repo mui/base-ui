@@ -34,8 +34,10 @@ export function AlertDialogRoot<Payload>(props: AlertDialogRoot.Props<Payload>) 
     return (
       handle?.store ??
       new DialogStore<Payload>({
-        open: openProp ?? defaultOpen,
-        activeTriggerId: triggerIdProp !== undefined ? triggerIdProp : defaultTriggerIdProp,
+        open: defaultOpen,
+        openProp: openProp,
+        activeTriggerId: defaultTriggerIdProp,
+        triggerIdProp: triggerIdProp ?? undefined,
         modal: true,
         disablePointerDismissal: true,
         nested,
@@ -44,8 +46,8 @@ export function AlertDialogRoot<Payload>(props: AlertDialogRoot.Props<Payload>) 
     );
   }).current;
 
-  store.useControlledProp('open', openProp, defaultOpen);
-  store.useControlledProp('activeTriggerId', triggerIdProp, defaultTriggerIdProp);
+  store.useControlledProp('openProp', openProp);
+  store.useControlledProp('triggerIdProp', triggerIdProp);
   store.useSyncedValue('nested', nested);
   store.useContextCallback('onOpenChange', onOpenChange);
   store.useContextCallback('onOpenChangeComplete', onOpenChangeComplete);

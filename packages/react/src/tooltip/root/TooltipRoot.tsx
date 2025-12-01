@@ -44,13 +44,15 @@ export function TooltipRoot<Payload>(props: TooltipRoot.Props<Payload>) {
     children,
   } = props;
 
-  const store = TooltipStore.useStore<Payload>(handle?.store, {
-    open: openProp ?? defaultOpen,
-    activeTriggerId: triggerIdProp !== undefined ? triggerIdProp : defaultTriggerIdProp,
+  const store = TooltipStore.use<Payload>(handle?.store, {
+    open: defaultOpen,
+    openProp: openProp,
+    activeTriggerId: defaultTriggerIdProp,
+    triggerIdProp: triggerIdProp ?? undefined,
   });
 
-  store.useControlledProp('open', openProp, defaultOpen);
-  store.useControlledProp('activeTriggerId', triggerIdProp, defaultTriggerIdProp);
+  store.useControlledProp('openProp', openProp);
+  store.useControlledProp('triggerIdProp', triggerIdProp);
 
   store.useContextCallback('onOpenChange', onOpenChange);
   store.useContextCallback('onOpenChangeComplete', onOpenChangeComplete);

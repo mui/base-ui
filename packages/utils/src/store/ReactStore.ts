@@ -33,11 +33,6 @@ export class ReactStore<
    */
   public readonly context: Context;
 
-  /**
-   * Keeps track of which properties are controlled.
-   */
-  private controlledValues: Map<keyof State, boolean> = new Map();
-
   private selectors: Selectors | undefined;
 
   /**
@@ -120,13 +115,23 @@ export class ReactStore<
   public useControlledProp<Key extends keyof State, Value extends State[Key]>(
     key: keyof State,
     controlled: Value | undefined,
-    defaultValue: Value,
   ): void {
     React.useDebugValue(key);
     const isControlled = controlled !== undefined;
 
+    useIsoLayoutEffect(() => {
+      if (isControlled && !Object.is(this.state[key], controlled)) {
+        // Set the internal state to match the controlled value.
+        super.setState({ ...this.state, [key]: controlled });
+      }
+    }, [key, controlled, isControlled]);
+
     if (process.env.NODE_ENV !== 'production') {
-      const previouslyControlled = this.controlledValues.get(key);
+      const cache = ((this as any).controlledValues ??= new Map<keyof State, boolean>());
+      if (isControlled && !cache.has(key)) {
+        cache.set(key, isControlled);
+      }
+      const previouslyControlled = cache.get(key);
       if (previouslyControlled !== undefined && previouslyControlled !== isControlled) {
         console.error(
           `A component is changing the ${
@@ -135,85 +140,6 @@ export class ReactStore<
         );
       }
     }
-
-    if (!this.controlledValues.has(key)) {
-      // First time initialization
-      this.controlledValues.set(key, isControlled);
-
-      if (!isControlled && !Object.is(this.state[key], defaultValue)) {
-        super.setState({ ...this.state, [key]: defaultValue });
-      }
-    }
-
-    useIsoLayoutEffect(() => {
-      if (isControlled && !Object.is(this.state[key], controlled)) {
-        // Set the internal state to match the controlled value.
-        super.setState({ ...this.state, [key]: controlled });
-      }
-    }, [key, controlled, defaultValue, isControlled]);
-  }
-
-  /**
-   * Sets a specific key in the store's state to a new value and notifies listeners if the value has changed.
-   * If the key is controlled (registered via {@link useControlledProp} with a non-undefined value),
-   * the update is ignored and no listeners are notified.
-   *
-   * @param key The state key to update.
-   * @param value The new value to set for the specified key.
-   */
-  public set<T>(key: keyof State, value: T): void {
-    if (this.controlledValues.get(key) === true) {
-      // Ignore updates to controlled values
-      return;
-    }
-
-    super.set(key, value);
-  }
-
-  /**
-   * Merges the provided changes into the current state and notifies listeners if there are changes.
-   * Controlled keys are filtered out and not updated.
-   *
-   * @param values An object containing the changes to apply to the current state.
-   */
-  public update(values: Partial<State>): void {
-    const newValues = { ...values };
-    for (const key in newValues) {
-      if (!Object.hasOwn(newValues, key)) {
-        continue;
-      }
-
-      if (this.controlledValues.get(key) === true) {
-        // Ignore updates to controlled values
-        delete newValues[key];
-        continue;
-      }
-    }
-
-    super.update(newValues);
-  }
-
-  /**
-   * Updates the entire store's state and notifies all registered listeners.
-   * Controlled keys are left unchanged; only uncontrolled keys from `newState` are applied.
-   *
-   * @param newState The new state to set for the store.
-   */
-  public setState(newState: State) {
-    const newValues = { ...newState };
-    for (const key in newValues) {
-      if (!Object.hasOwn(newValues, key)) {
-        continue;
-      }
-
-      if (this.controlledValues.get(key) === true) {
-        // Ignore updates to controlled values
-        delete newValues[key];
-        continue;
-      }
-    }
-
-    super.setState({ ...this.state, ...newValues });
   }
 
   /** Gets the current value from the store using a selector with the provided key.

@@ -42,6 +42,15 @@ export class TooltipStore<Payload> extends ReactStore<
   Context,
   typeof selectors
 > {
+  static use<Payload>(
+    externalStore: TooltipStore<Payload> | undefined,
+    initialState?: Partial<State<Payload>>,
+  ) {
+    return useRefWithInit(() => {
+      return externalStore ?? new TooltipStore<Payload>(initialState);
+    }).current;
+  }
+
   constructor(initialState?: Partial<State<Payload>>) {
     super(
       { ...createInitialState(), ...initialState },
@@ -55,7 +64,7 @@ export class TooltipStore<Payload> extends ReactStore<
     );
   }
 
-  public setOpen = (
+  setOpen = (
     nextOpen: boolean,
     eventDetails: Omit<TooltipRoot.ChangeEventDetails, 'preventUnmountOnClose'>,
   ) => {
@@ -106,16 +115,6 @@ export class TooltipStore<Payload> extends ReactStore<
       changeState();
     }
   };
-
-  public static useStore<Payload>(
-    externalStore: TooltipStore<Payload> | undefined,
-    initialState?: Partial<State<Payload>>,
-  ) {
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    return useRefWithInit(() => {
-      return externalStore ?? new TooltipStore<Payload>(initialState);
-    }).current;
-  }
 }
 
 function createInitialState<Payload>(): State<Payload> {

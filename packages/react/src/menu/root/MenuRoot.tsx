@@ -105,8 +105,17 @@ export function MenuRoot<Payload>(props: MenuRoot.Props<Payload>) {
   }, [contextMenuContext, parentMenuRootContext, menubarContext, isSubmenu]);
 
   const store = MenuStore.useStore(handle?.store, {
+    open: defaultOpen,
+    openProp: openProp,
+    activeTriggerId: defaultTriggerIdProp,
+    triggerIdProp: triggerIdProp ?? undefined,
     parent: parentFromContext,
   });
+
+  store.useControlledProp('openProp', openProp);
+  store.useControlledProp('triggerIdProp', triggerIdProp);
+
+  store.useContextCallback('onOpenChangeComplete', onOpenChangeComplete);
 
   const floatingTreeRoot = store.useState('floatingTreeRoot');
   const floatingNodeIdFromContext = useFloatingNodeId(floatingTreeRoot);
@@ -137,11 +146,6 @@ export function MenuRoot<Payload>(props: MenuRoot.Props<Payload>) {
     floatingParentNodeIdFromContext,
     store,
   ]);
-
-  store.useControlledProp('open', openProp, defaultOpen);
-  store.useControlledProp('activeTriggerId', triggerIdProp, defaultTriggerIdProp);
-
-  store.useContextCallback('onOpenChangeComplete', onOpenChangeComplete);
 
   const open = store.useState('open');
   const activeTriggerElement = store.useState('activeTriggerElement');

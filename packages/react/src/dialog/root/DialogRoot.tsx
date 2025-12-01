@@ -37,8 +37,10 @@ export function DialogRoot<Payload>(props: DialogRoot.Props<Payload>) {
     return (
       handle?.store ??
       new DialogStore<Payload>({
-        open: openProp ?? defaultOpen,
-        activeTriggerId: triggerIdProp !== undefined ? triggerIdProp : defaultTriggerIdProp,
+        open: defaultOpen,
+        openProp: openProp,
+        activeTriggerId: defaultTriggerIdProp,
+        triggerIdProp: triggerIdProp ?? undefined,
         modal,
         disablePointerDismissal,
         nested,
@@ -46,8 +48,9 @@ export function DialogRoot<Payload>(props: DialogRoot.Props<Payload>) {
     );
   }).current;
 
-  store.useControlledProp('open', openProp, defaultOpen);
-  store.useControlledProp('activeTriggerId', triggerIdProp, defaultTriggerIdProp);
+  store.useControlledProp('openProp', openProp);
+  store.useControlledProp('triggerIdProp', triggerIdProp);
+
   store.useSyncedValues({ disablePointerDismissal, nested, modal });
   store.useContextCallback('onOpenChange', onOpenChange);
   store.useContextCallback('onOpenChangeComplete', onOpenChangeComplete);

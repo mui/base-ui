@@ -20,7 +20,7 @@ describe('ReactStore', () => {
 
     function Test() {
       store = useStableStore<TestState>({ value: 0, label: '' });
-      store.useControlledProp('value', undefined, 5);
+      store.useControlledProp('value', undefined);
       return null;
     }
 
@@ -33,7 +33,7 @@ describe('ReactStore', () => {
 
     function Test({ controlled }: { controlled: number | undefined }) {
       store = useStableStore<TestState>({ value: 0, label: '' });
-      store.useControlledProp('value', controlled, 1);
+      store.useControlledProp('value', controlled);
       return null;
     }
 
@@ -72,7 +72,7 @@ describe('ReactStore', () => {
 
     function Test() {
       store = useStableStore<TestState>({ value: 0, label: '' });
-      store.useControlledProp('value', undefined, 1);
+      store.useControlledProp('value', undefined);
       return null;
     }
 
@@ -99,7 +99,7 @@ describe('ReactStore', () => {
   it('warns on switching from uncontrolled to controlled', () => {
     function Test({ controlled }: { controlled?: number }) {
       const store = useStableStore<TestState>({ value: 0, label: '' });
-      store.useControlledProp('value', controlled, undefined as any);
+      store.useControlledProp('value', controlled);
       return null;
     }
 
@@ -116,7 +116,7 @@ describe('ReactStore', () => {
   it('warns on switching from controlled to uncontrolled', () => {
     function Test({ controlled }: { controlled?: number }) {
       const store = useStableStore<TestState>({ value: 0, label: '' });
-      store.useControlledProp('value', controlled, undefined as any);
+      store.useControlledProp('value', controlled);
       return null;
     }
 
