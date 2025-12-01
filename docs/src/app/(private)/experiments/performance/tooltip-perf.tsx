@@ -6,7 +6,7 @@ import { Tooltip as BaseOldTooltip } from '@base-ui-components/react-before-deta
 import { Tooltip as RadixTooltip } from 'radix-ui';
 import styles from './tooltip-perf.module.css';
 
-type Mode = 'plain' | 'base' | 'base-old' | 'radix';
+type Mode = 'plain' | 'base' | 'base-detached' | 'base-old' | 'radix';
 
 type ModeRecord = {
   mode: Mode;
@@ -16,6 +16,7 @@ type ModeRecord = {
 const modes: ModeRecord[] = [
   { mode: 'plain', label: 'Plain buttons' },
   { mode: 'base', label: 'Base UI' },
+  { mode: 'base-detached', label: 'Base UI with detached triggers' },
   { mode: 'base-old', label: 'Base UI before detached triggers' },
   { mode: 'radix', label: 'Radix' },
 ];
@@ -90,6 +91,43 @@ function ExampleBaseOldUITooltip() {
 }
 
 /**
+ * 2,000 Base UI tooltips with detached triggers
+ */
+function ExampleBaseUIDetachedTooltip() {
+  const perfTooltip = BaseTooltip.createHandle<number>();
+  const result = array.map((i) => (
+    <BaseTooltip.Trigger
+      key={i}
+      handle={perfTooltip}
+      aria-label="Bold"
+      className={styles.Button}
+      payload={i}
+    >
+      Button {i}
+    </BaseTooltip.Trigger>
+  ));
+
+  return (
+    <BaseTooltip.Provider>
+      <div className={styles.Panel}>{result}</div>
+      <BaseTooltip.Root handle={perfTooltip}>
+        {({ payload }) => (
+          <BaseTooltip.Portal>
+            <BaseTooltip.Positioner sideOffset={10}>
+              <BaseTooltip.Popup className={styles.Popup}>
+                <BaseTooltip.Arrow className={styles.Arrow} />
+                <span>payload: {payload}</span>
+                <span>{payload !== undefined && `Bold Item ${payload + 1}`}</span>
+              </BaseTooltip.Popup>
+            </BaseTooltip.Positioner>
+          </BaseTooltip.Portal>
+        )}
+      </BaseTooltip.Root>
+    </BaseTooltip.Provider>
+  );
+}
+
+/**
  * 2,000 Radix tooltips
  */
 function ExampleRadixTooltip() {
@@ -125,6 +163,7 @@ export default function ExampleTooltipPerf() {
   const [mutationTimeByMode, setMutationTimeByMode] = React.useState<Record<Mode, number>>({
     plain: 0,
     base: 0,
+    'base-detached': 0,
     'base-old': 0,
     radix: 0,
   });
@@ -172,6 +211,8 @@ export default function ExampleTooltipPerf() {
     demo = <ExamplePlainButtons key={forcedUpdate} />;
   } else if (mode === 'base') {
     demo = <ExampleBaseUITooltip key={forcedUpdate} />;
+  } else if (mode === 'base-detached') {
+    demo = <ExampleBaseUIDetachedTooltip key={forcedUpdate} />;
   } else if (mode === 'base-old') {
     demo = <ExampleBaseOldUITooltip key={forcedUpdate} />;
   } else {
