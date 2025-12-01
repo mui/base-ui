@@ -44,7 +44,7 @@ export function TooltipRoot<Payload>(props: TooltipRoot.Props<Payload>) {
     children,
   } = props;
 
-  const store = TooltipStore.use<Payload>(handle?.store, {
+  const store = TooltipStore.useStore<Payload>(handle?.store, {
     open: defaultOpen,
     openProp,
     activeTriggerId: defaultTriggerIdProp,

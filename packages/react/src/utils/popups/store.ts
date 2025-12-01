@@ -116,6 +116,10 @@ export type PopupStoreContext<ChangeEventDetails> = {
 
 type S = PopupStoreState<unknown>;
 
+const activeTriggerIdSelector = createSelector(
+  (state: S) => state.triggerIdProp ?? state.activeTriggerId,
+);
+
 export const popupStoreSelectors = {
   open: createSelector((state: S) => state.openProp ?? state.open),
   mounted: createSelector((state: S) => state.mounted),
@@ -124,7 +128,7 @@ export const popupStoreSelectors = {
   preventUnmountingOnClose: createSelector((state: S) => state.preventUnmountingOnClose),
   payload: createSelector((state: S) => state.payload),
 
-  activeTriggerId: createSelector((state: S) => state.triggerIdProp ?? state.activeTriggerId),
+  activeTriggerId: activeTriggerIdSelector,
   activeTriggerElement: createSelector((state: S) =>
     state.mounted ? state.activeTriggerElement : null,
   ),
@@ -133,21 +137,21 @@ export const popupStoreSelectors = {
    */
   isTriggerActive: createSelector(
     (state: S, triggerId: string | undefined) =>
-      triggerId !== undefined && state.activeTriggerId === triggerId,
+      triggerId !== undefined && activeTriggerIdSelector(state) === triggerId,
   ),
   /**
    * Whether the popup is open and was activated by a trigger with the given ID.
    */
   isOpenedByTrigger: createSelector(
     (state: S, triggerId: string | undefined) =>
-      triggerId !== undefined && state.activeTriggerId === triggerId && state.open,
+      triggerId !== undefined && activeTriggerIdSelector(state) === triggerId && state.open,
   ),
   /**
    * Whether the popup is mounted and was activated by a trigger with the given ID.
    */
   isMountedByTrigger: createSelector(
     (state: S, triggerId: string | undefined) =>
-      triggerId !== undefined && state.activeTriggerId === triggerId && state.mounted,
+      triggerId !== undefined && activeTriggerIdSelector(state) === triggerId && state.mounted,
   ),
 
   triggerProps: createSelector((state: S, isActive: boolean) =>

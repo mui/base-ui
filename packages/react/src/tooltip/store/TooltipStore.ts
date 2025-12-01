@@ -42,7 +42,7 @@ export class TooltipStore<Payload> extends ReactStore<
   Context,
   typeof selectors
 > {
-  static use<Payload>(
+  static useStore<Payload>(
     externalStore: TooltipStore<Payload> | undefined,
     initialState?: Partial<State<Payload>>,
   ) {
