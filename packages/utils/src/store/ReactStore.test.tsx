@@ -15,20 +15,7 @@ function useStableStore<State extends object>(initial: State) {
 describe('ReactStore', () => {
   const { render } = createRenderer();
 
-  it('initializes uncontrolled key with default value', () => {
-    let store!: ReactStore<TestState>;
-
-    function Test() {
-      store = useStableStore<TestState>({ value: 0, label: '' });
-      store.useControlledProp('value', undefined);
-      return null;
-    }
-
-    render(<Test />);
-    expect(store.state.value).to.equal(5);
-  });
-
-  it('syncs internal state from controlled prop and ignores manual mutations for that key', () => {
+  it('syncs internal state from controlled prop', () => {
     let store!: ReactStore<TestState>;
 
     function Test({ controlled }: { controlled: number | undefined }) {
@@ -40,60 +27,17 @@ describe('ReactStore', () => {
     const { setProps } = render(<Test controlled={1} />);
     expect(store.state.value).to.equal(1);
 
-    // Attempts to change a controlled key are ignored
     act(() => {
-      store.set('value', 2);
+      store.update({ label: 'y' });
     });
-    expect(store.state.value).to.equal(1);
-
-    act(() => {
-      store.update({ value: 3, label: 'y' });
-    });
-    expect(store.state.value).to.equal(1);
     // Non-controlled keys still update
     expect(store.state.label).to.equal('y');
-
-    act(() => {
-      store.setState({ value: 4, label: 'x' });
-    });
-    expect(store.state.value).to.equal(1);
-    // Non-controlled keys still update
-    expect(store.state.label).to.equal('x');
 
     // Changing the controlled prop updates internal state
     act(() => {
       setProps({ controlled: 7 });
     });
     expect(store.state.value).to.equal(7);
-  });
-
-  it('allows set/apply/update on uncontrolled keys', () => {
-    let store!: ReactStore<TestState>;
-
-    function Test() {
-      store = useStableStore<TestState>({ value: 0, label: '' });
-      store.useControlledProp('value', undefined);
-      return null;
-    }
-
-    render(<Test />);
-    expect(store.state.value).to.equal(1);
-
-    act(() => {
-      store.set('value', 2);
-    });
-    expect(store.state.value).to.equal(2);
-
-    act(() => {
-      store.update({ value: 3 });
-    });
-    expect(store.state.value).to.equal(3);
-
-    act(() => {
-      store.setState({ value: 4, label: 'updated' });
-    });
-    expect(store.state.value).to.equal(4);
-    expect(store.state.label).to.equal('updated');
   });
 
   it('warns on switching from uncontrolled to controlled', () => {

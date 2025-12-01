@@ -129,7 +129,7 @@ export class ReactStore<
     if (process.env.NODE_ENV !== 'production') {
       // eslint-disable-next-line
       const cache = ((this as any).controlledValues ??= new Map<keyof State, boolean>());
-      if (isControlled && !cache.has(key)) {
+      if (!cache.has(key)) {
         cache.set(key, isControlled);
       }
       const previouslyControlled = cache.get(key);
