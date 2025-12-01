@@ -6,6 +6,7 @@ import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect
 import { isWebKit } from '@base-ui-components/utils/detectBrowser';
 import { useTimeout } from '@base-ui-components/utils/useTimeout';
 import { useEffect } from '@base-ui-components/utils/useEffect';
+import { useRef } from '@base-ui-components/utils/useRef';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useScrollAreaRootContext } from '../root/ScrollAreaRootContext';
 import { ScrollAreaViewportContext } from './ScrollAreaViewportContext';
@@ -98,7 +99,7 @@ export const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
 
   const direction = useDirection();
 
-  const programmaticScrollRef = React.useRef(true);
+  const programmaticScrollRef = useRef(true);
   const scrollEndTimeout = useTimeout();
   const waitForAnimationsTimeout = useTimeout();
 

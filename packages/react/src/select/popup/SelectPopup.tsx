@@ -10,6 +10,7 @@ import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect
 import { useStore } from '@base-ui-components/utils/store';
 import { useAnimationFrame } from '@base-ui-components/utils/useAnimationFrame';
 import { useEffect } from '@base-ui-components/utils/useEffect';
+import { useRef } from '@base-ui-components/utils/useRef';
 import { FloatingFocusManager } from '../../floating-ui-react';
 import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 import { useSelectFloatingContext, useSelectRootContext } from '../root/SelectRootContext';
@@ -81,11 +82,11 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
   const positionerElement = useStore(store, selectors.positionerElement);
   const listElement = useStore(store, selectors.listElement);
 
-  const initialHeightRef = React.useRef(0);
-  const reachedMaxHeightRef = React.useRef(false);
-  const maxHeightRef = React.useRef(0);
-  const initialPlacedRef = React.useRef(false);
-  const originalPositionerStylesRef = React.useRef<React.CSSProperties>({});
+  const initialHeightRef = useRef(0);
+  const reachedMaxHeightRef = useRef(false);
+  const maxHeightRef = useRef(0);
+  const initialPlacedRef = useRef(false);
+  const originalPositionerStylesRef = useRef<React.CSSProperties>({});
 
   const scrollArrowFrame = useAnimationFrame();
 

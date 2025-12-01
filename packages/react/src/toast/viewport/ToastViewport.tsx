@@ -3,6 +3,7 @@ import * as React from 'react';
 import { ownerDocument, ownerWindow } from '@base-ui-components/utils/owner';
 import { visuallyHidden } from '@base-ui-components/utils/visuallyHidden';
 import { useEffect } from '@base-ui-components/utils/useEffect';
+import { useRef } from '@base-ui-components/utils/useRef';
 import { activeElement, contains, getTarget } from '../../floating-ui-react/utils';
 import { FocusGuard } from '../../utils/FocusGuard';
 import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
@@ -38,8 +39,8 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
     focused,
   } = useToastContext();
 
-  const handlingFocusGuardRef = React.useRef(false);
-  const markedReadyForMouseLeaveRef = React.useRef(false);
+  const handlingFocusGuardRef = useRef(false);
+  const markedReadyForMouseLeaveRef = useRef(false);
 
   const numToasts = toasts.length;
   const frontmostHeight = toasts[0]?.height ?? 0;

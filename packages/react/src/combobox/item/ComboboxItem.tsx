@@ -3,6 +3,7 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { useStore } from '@base-ui-components/utils/store';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
+import { useRef } from '@base-ui-components/utils/useRef';
 import {
   useComboboxRootContext,
   useComboboxDerivedItemsContext,
@@ -38,8 +39,8 @@ export const ComboboxItem = React.memo(
       ...elementProps
     } = componentProps;
 
-    const didPointerDownRef = React.useRef(false);
-    const textRef = React.useRef<HTMLElement | null>(null);
+    const didPointerDownRef = useRef(false);
+    const textRef = useRef<HTMLElement | null>(null);
     const listItem = useCompositeListItem({
       index: indexProp,
       textRef,
@@ -68,7 +69,7 @@ export const ComboboxItem = React.memo(
     const items = useStore(store, selectors.items);
     const getItemProps = useStore(store, selectors.getItemProps);
 
-    const itemRef = React.useRef<HTMLDivElement | null>(null);
+    const itemRef = useRef<HTMLDivElement | null>(null);
 
     const id = rootId != null && hasRegistered ? `${rootId}-${index}` : undefined;
     const selected = matchesSelectedValue && selectable;

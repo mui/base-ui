@@ -2,6 +2,7 @@
 import * as React from 'react';
 import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
+import { useCallback } from '@base-ui-components/utils/useCallback';
 import { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 import type { TabsRoot } from '../root/TabsRoot';
 import { CompositeRoot } from '../../composite/root/CompositeRoot';
@@ -148,7 +149,7 @@ function useActivationDirectionDetector(
     setPreviousTabEdge(orientation === 'horizontal' ? left : top);
   }, [orientation, getTabElement, tabsListElement, activeTabValue]);
 
-  return React.useCallback(
+  return useCallback(
     (newValue: any) => {
       if (newValue === activeTabValue) {
         return 'none';

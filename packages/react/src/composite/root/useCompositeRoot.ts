@@ -3,6 +3,7 @@ import * as React from 'react';
 import { isElementDisabled } from '@base-ui-components/utils/isElementDisabled';
 import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
+import { useRef } from '@base-ui-components/utils/useRef';
 import type { TextDirection } from '../../direction-provider/DirectionContext';
 import {
   ALL_KEYS,
@@ -94,11 +95,11 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
 
   const isGrid = cols > 1;
 
-  const rootRef = React.useRef<HTMLElement | null>(null);
+  const rootRef = useRef<HTMLElement | null>(null);
   const mergedRef = useMergedRefs(rootRef, externalRef);
 
-  const elementsRef = React.useRef<Array<HTMLDivElement | null>>([]);
-  const hasSetDefaultIndexRef = React.useRef(false);
+  const elementsRef = useRef<Array<HTMLDivElement | null>>([]);
+  const hasSetDefaultIndexRef = useRef(false);
 
   const highlightedIndex = externalHighlightedIndex ?? internalHighlightedIndex;
   const onHighlightedIndexChange = useStableCallback((index, shouldScrollIntoView = false) => {

@@ -2,6 +2,8 @@ import * as React from 'react';
 import { useFloating as usePosition, type VirtualElement } from '@floating-ui/react-dom';
 import { isElement } from '@floating-ui/utils/dom';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
+import { useRef } from '@base-ui-components/utils/useRef';
+import { useCallback } from '@base-ui-components/utils/useCallback';
 
 import { useFloatingTree } from '../components/FloatingTree';
 import type {
@@ -32,7 +34,7 @@ export function useFloating(options: UseFloatingOptions = {}): UseFloatingReturn
 
   const [positionReference, setPositionReferenceRaw] = React.useState<ReferenceType | null>(null);
 
-  const domReferenceRef = React.useRef<NarrowedElement<ReferenceType> | null>(null);
+  const domReferenceRef = useRef<NarrowedElement<ReferenceType> | null>(null);
 
   const tree = useFloatingTree(externalTree);
 
@@ -51,7 +53,7 @@ export function useFloating(options: UseFloatingOptions = {}): UseFloatingReturn
     },
   });
 
-  const setPositionReference = React.useCallback(
+  const setPositionReference = useCallback(
     (node: ReferenceType | null) => {
       const computedPositionReference = isElement(node)
         ? ({
@@ -78,7 +80,7 @@ export function useFloating(options: UseFloatingOptions = {}): UseFloatingReturn
   );
   rootContext.useSyncedValue('floatingElement', localFloatingElement);
 
-  const setReference = React.useCallback(
+  const setReference = useCallback(
     (node: ReferenceType | null) => {
       if (isElement(node) || node === null) {
         (domReferenceRef as React.MutableRefObject<Element | null>).current = node;
@@ -101,7 +103,7 @@ export function useFloating(options: UseFloatingOptions = {}): UseFloatingReturn
     [position.refs, setLocalDomReference],
   );
 
-  const setFloating = React.useCallback(
+  const setFloating = useCallback(
     (node: HTMLElement | null) => {
       setLocalFloatingElement(node);
       position.refs.setFloating(node);

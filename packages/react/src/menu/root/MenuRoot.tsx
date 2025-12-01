@@ -10,6 +10,8 @@ import { useAnimationFrame } from '@base-ui-components/utils/useAnimationFrame';
 import { useScrollLock } from '@base-ui-components/utils/useScrollLock';
 import { EMPTY_ARRAY } from '@base-ui-components/utils/empty';
 import { useEffect } from '@base-ui-components/utils/useEffect';
+import { useRef } from '@base-ui-components/utils/useRef';
+import { useCallback } from '@base-ui-components/utils/useCallback';
 import {
   FloatingEvents,
   FloatingTree,
@@ -160,7 +162,7 @@ export const MenuRoot = fastHooks.createComponent(function MenuRoot<Payload>(
   const payload = store.useState('payload') as Payload | undefined;
   const floatingParentNodeId = store.useState('floatingParentNodeId');
 
-  const openEventRef = React.useRef<Event | null>(null);
+  const openEventRef = useRef<Event | null>(null);
 
   const nested = floatingParentNodeId != null;
 
@@ -192,7 +194,7 @@ export const MenuRoot = fastHooks.createComponent(function MenuRoot<Payload>(
     resetOpenInteractionType();
   });
 
-  const allowOutsidePressDismissalRef = React.useRef(parent.type !== 'context-menu');
+  const allowOutsidePressDismissalRef = useRef(parent.type !== 'context-menu');
   const allowOutsidePressDismissalTimeout = useTimeout();
 
   useEffect(() => {
@@ -229,7 +231,7 @@ export const MenuRoot = fastHooks.createComponent(function MenuRoot<Payload>(
     }
   }, [open, hoverEnabled, store]);
 
-  const allowTouchToCloseRef = React.useRef(true);
+  const allowTouchToCloseRef = useRef(true);
   const allowTouchToCloseTimeout = useTimeout();
 
   const setOpen = useStableCallback(
@@ -348,7 +350,7 @@ export const MenuRoot = fastHooks.createComponent(function MenuRoot<Payload>(
     },
   );
 
-  const createMenuEventDetails = React.useCallback(
+  const createMenuEventDetails = useCallback(
     (reason: MenuRoot.ChangeEventReason) => {
       const details: MenuRoot.ChangeEventDetails =
         createChangeEventDetails<MenuRoot.ChangeEventReason>(reason) as MenuRoot.ChangeEventDetails;
@@ -361,7 +363,7 @@ export const MenuRoot = fastHooks.createComponent(function MenuRoot<Payload>(
     [store],
   );
 
-  const handleImperativeClose = React.useCallback(() => {
+  const handleImperativeClose = useCallback(() => {
     store.setOpen(false, createMenuEventDetails(REASONS.imperativeAction));
   }, [store, createMenuEventDetails]);
 
@@ -426,7 +428,7 @@ export const MenuRoot = fastHooks.createComponent(function MenuRoot<Payload>(
 
   const direction = useDirection();
 
-  const setActiveIndex = React.useCallback(
+  const setActiveIndex = useCallback(
     (index: number | null) => {
       if (store.select('activeIndex') === index) {
         return;
@@ -451,7 +453,7 @@ export const MenuRoot = fastHooks.createComponent(function MenuRoot<Payload>(
     externalTree: nested ? floatingTreeRoot : undefined,
   });
 
-  const onTypingChange = React.useCallback(
+  const onTypingChange = useCallback(
     (nextTyping: boolean) => {
       store.context.typingRef.current = nextTyping;
     },

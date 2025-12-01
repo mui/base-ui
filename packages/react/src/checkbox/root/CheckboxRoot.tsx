@@ -7,6 +7,7 @@ import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect
 import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
 import { visuallyHidden } from '@base-ui-components/utils/visuallyHidden';
 import { useEffect } from '@base-ui-components/utils/useEffect';
+import { useRef } from '@base-ui-components/utils/useRef';
 import { NOOP } from '../../utils/noop';
 import { useStateAttributesMapping } from '../utils/useStateAttributesMapping';
 import { useRenderElement } from '../../utils/useRenderElement';
@@ -118,7 +119,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
   const setGroupValue = groupContext?.setValue;
   const defaultGroupValue = groupContext?.defaultValue;
 
-  const controlRef = React.useRef<HTMLButtonElement>(null);
+  const controlRef = useRef<HTMLButtonElement>(null);
 
   const { getButtonProps, buttonRef } = useButton({
     disabled,
@@ -158,7 +159,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     getValue: () => checked,
   });
 
-  const inputRef = React.useRef<HTMLInputElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
   const mergedInputRef = useMergedRefs(inputRefProp, inputRef, validation.inputRef);
 
   useIsoLayoutEffect(() => {

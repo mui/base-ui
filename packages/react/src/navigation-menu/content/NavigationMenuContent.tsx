@@ -2,6 +2,8 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { inertValue } from '@base-ui-components/utils/inertValue';
+import { useRef } from '@base-ui-components/utils/useRef';
+import { useCallback } from '@base-ui-components/utils/useCallback';
 import { FloatingNode } from '../../floating-ui-react';
 import { contains, getTarget } from '../../floating-ui-react/utils';
 import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
@@ -56,7 +58,7 @@ export const NavigationMenuContent = React.forwardRef(function NavigationMenuCon
 
   const open = popupMounted && value === itemValue;
 
-  const ref = React.useRef<HTMLDivElement | null>(null);
+  const ref = useRef<HTMLDivElement | null>(null);
 
   const [focusInside, setFocusInside] = React.useState(false);
 
@@ -81,7 +83,7 @@ export const NavigationMenuContent = React.forwardRef(function NavigationMenuCon
     [open, transitionStatus, activationDirection],
   );
 
-  const handleCurrentContentRef = React.useCallback(
+  const handleCurrentContentRef = useCallback(
     (node: HTMLDivElement | null) => {
       if (node) {
         currentContentRef.current = node;

@@ -8,6 +8,7 @@ import { useTimeout } from '@base-ui-components/utils/useTimeout';
 import { useAnimationFrame } from '@base-ui-components/utils/useAnimationFrame';
 import { useValueAsRef } from '@base-ui-components/utils/useValueAsRef';
 import { useEffect } from '@base-ui-components/utils/useEffect';
+import { useRef } from '@base-ui-components/utils/useRef';
 import {
   safePolygon,
   useClick,
@@ -96,9 +97,9 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
   const [stickIfOpen, setStickIfOpen] = React.useState(true);
   const [pointerType, setPointerType] = React.useState<'mouse' | 'touch' | 'pen' | ''>('');
 
-  const allowFocusRef = React.useRef(false);
-  const prevSizeRef = React.useRef(DEFAULT_SIZE);
-  const animationAbortControllerRef = React.useRef<AbortController | null>(null);
+  const allowFocusRef = useRef(false);
+  const prevSizeRef = useRef(DEFAULT_SIZE);
+  const animationAbortControllerRef = useRef<AbortController | null>(null);
 
   const isActiveItem = open && value === itemValue;
   const isActiveItemRef = useValueAsRef(isActiveItem);

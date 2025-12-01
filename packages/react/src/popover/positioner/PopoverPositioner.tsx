@@ -2,6 +2,8 @@
 import * as React from 'react';
 import { inertValue } from '@base-ui-components/utils/inertValue';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
+import { useRef } from '@base-ui-components/utils/useRef';
+import { useCallback } from '@base-ui-components/utils/useCallback';
 import { FloatingNode, useFloatingNodeId } from '../../floating-ui-react';
 import { usePopoverRootContext } from '../root/PopoverRootContext';
 import { PopoverPositionerContext } from './PopoverPositionerContext';
@@ -60,7 +62,7 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
   const instantType = store.useState('instantType');
   const transitionStatus = store.useState('transitionStatus');
 
-  const prevTriggerElementRef = React.useRef<Element | null>(null);
+  const prevTriggerElementRef = useRef<Element | null>(null);
 
   const runOnceAnimationsFinish = useAnimationsFinished(positionerElement, false, false);
 
@@ -151,7 +153,7 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
     [open, positioner.side, positioner.align, positioner.anchorHidden, instantType],
   );
 
-  const setPositionerElement = React.useCallback(
+  const setPositionerElement = useCallback(
     (element: HTMLElement | null) => {
       store.set('positionerElement', element);
     },

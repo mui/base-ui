@@ -2,6 +2,7 @@
 import * as React from 'react';
 import { useScrollLock } from '@base-ui-components/utils/useScrollLock';
 import { useEffect } from '@base-ui-components/utils/useEffect';
+import { useRef } from '@base-ui-components/utils/useRef';
 import {
   FloatingNode,
   FloatingTree,
@@ -73,8 +74,8 @@ export const Menubar = React.forwardRef(function Menubar(
     [orientation, modal, hasSubmenuOpen],
   );
 
-  const contentRef = React.useRef<HTMLDivElement>(null);
-  const allowMouseUpTriggerRef = React.useRef(false);
+  const contentRef = useRef<HTMLDivElement>(null);
+  const allowMouseUpTriggerRef = useRef(false);
 
   const context: MenubarContext = React.useMemo(
     () => ({

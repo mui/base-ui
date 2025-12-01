@@ -2,6 +2,7 @@
 import * as React from 'react';
 import { useScrollLock } from '@base-ui-components/utils/useScrollLock';
 import { useEffect } from '@base-ui-components/utils/useEffect';
+import { useCallback } from '@base-ui-components/utils/useCallback';
 import {
   useDismiss,
   useInteractions,
@@ -78,7 +79,7 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
     }
   }, [store, open]);
 
-  const createPopoverEventDetails = React.useCallback(
+  const createPopoverEventDetails = useCallback(
     (reason: PopoverRoot.ChangeEventReason) => {
       const details: PopoverRoot.ChangeEventDetails =
         createChangeEventDetails<PopoverRoot.ChangeEventReason>(
@@ -93,7 +94,7 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
     [store],
   );
 
-  const handleImperativeClose = React.useCallback(() => {
+  const handleImperativeClose = useCallback(() => {
     store.setOpen(false, createPopoverEventDetails(REASONS.imperativeAction));
   }, [store, createPopoverEventDetails]);
 

@@ -2,6 +2,8 @@
 import * as React from 'react';
 import * as fastHooks from '@base-ui-components/utils/fastHooks';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
+import { useRef } from '@base-ui-components/utils/useRef';
+import { useCallback } from '@base-ui-components/utils/useCallback';
 import { TooltipRootContext } from './TooltipRootContext';
 import {
   useClientPoint,
@@ -89,7 +91,7 @@ export const TooltipRoot = fastHooks.createComponent(function TooltipRoot<Payloa
   // 2) Closing because another tooltip opened (reason === 'none')
   // Otherwise, allow the animation to play. In particular, do not disable animations
   // during the 'ending' phase unless it's due to a sibling opening.
-  const previousInstantTypeRef = React.useRef<string | undefined | null>(null);
+  const previousInstantTypeRef = useRef<string | undefined | null>(null);
   useIsoLayoutEffect(() => {
     if (
       (transitionStatus === 'ending' && lastOpenChangeReason === REASONS.none) ||
@@ -116,7 +118,7 @@ export const TooltipRoot = fastHooks.createComponent(function TooltipRoot<Payloa
     }
   }, [store, activeTriggerId, open]);
 
-  const handleImperativeClose = React.useCallback(() => {
+  const handleImperativeClose = useCallback(() => {
     store.setOpen(false, createTooltipEventDetails(store, REASONS.imperativeAction));
   }, [store]);
 

@@ -5,6 +5,7 @@ import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { visuallyHidden } from '@base-ui-components/utils/visuallyHidden';
+import { useRef } from '@base-ui-components/utils/useRef';
 import { useRenderElement } from '../../utils/useRenderElement';
 import type { BaseUIComponentProps, NonNativeButtonProps } from '../../utils/types';
 import { mergeProps } from '../../merge-props';
@@ -70,10 +71,10 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
 
   const onCheckedChange = useStableCallback(onCheckedChangeProp);
 
-  const inputRef = React.useRef<HTMLInputElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
   const handleInputRef = useMergedRefs(inputRef, externalInputRef, validation.inputRef);
 
-  const switchRef = React.useRef<HTMLButtonElement | null>(null);
+  const switchRef = useRef<HTMLButtonElement | null>(null);
 
   const id = useBaseUiId();
 

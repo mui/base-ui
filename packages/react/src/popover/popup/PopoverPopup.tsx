@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import { InteractionType } from '@base-ui-components/utils/useEnhancedClickHandler';
+import { useCallback } from '@base-ui-components/utils/useCallback';
 import { isHTMLElement } from '@floating-ui/utils/dom';
 import {
   Dimensions,
@@ -103,7 +104,7 @@ export const PopoverPopup = React.forwardRef(function PopoverPopup(
     [open, positioner.side, positioner.align, instantType, transitionStatus],
   );
 
-  const setPopupElement = React.useCallback(
+  const setPopupElement = useCallback(
     (element: HTMLElement | null) => {
       store.set('popupElement', element);
     },

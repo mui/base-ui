@@ -6,6 +6,7 @@ import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect
 import { useValueAsRef } from '@base-ui-components/utils/useValueAsRef';
 import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { useEffect } from '@base-ui-components/utils/useEffect';
+import { useRef } from '@base-ui-components/utils/useRef';
 import {
   autoUpdate,
   flip,
@@ -205,7 +206,7 @@ export function useAnchorPositioning(
   // Using a ref assumes that the arrow element is always present in the DOM for the lifetime of the
   // popup. If this assumption ends up being false, we can switch to state to manage the arrow's
   // presence.
-  const arrowRef = React.useRef<Element | null>(null);
+  const arrowRef = useRef<Element | null>(null);
 
   // Keep these reactive if they're not functions
   const sideOffsetRef = useValueAsRef(sideOffset);
@@ -431,7 +432,7 @@ export function useAnchorPositioning(
     [adaptiveOrigin, resolvedPosition, sideX, x, sideY, y, originalFloatingStyles],
   );
 
-  const registeredPositionReferenceRef = React.useRef<Element | VirtualElement | null>(null);
+  const registeredPositionReferenceRef = useRef<Element | VirtualElement | null>(null);
 
   useIsoLayoutEffect(() => {
     if (!mounted) {

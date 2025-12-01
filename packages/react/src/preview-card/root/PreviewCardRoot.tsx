@@ -3,6 +3,7 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { useControlled } from '@base-ui-components/utils/useControlled';
 import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
+import { useRef } from '@base-ui-components/utils/useRef';
 import {
   safePolygon,
   useDismiss,
@@ -33,8 +34,8 @@ export function PreviewCardRoot(props: PreviewCardRoot.Props) {
     actionsRef,
   } = props;
 
-  const delayRef = React.useRef(OPEN_DELAY);
-  const closeDelayRef = React.useRef(CLOSE_DELAY);
+  const delayRef = useRef(OPEN_DELAY);
+  const closeDelayRef = useRef(CLOSE_DELAY);
 
   const writeDelayRefs = useStableCallback((config: PreviewCardTriggerDelayConfig) => {
     delayRef.current = config.delay ?? OPEN_DELAY;
@@ -45,7 +46,7 @@ export function PreviewCardRoot(props: PreviewCardRoot.Props) {
   const [positionerElement, setPositionerElement] = React.useState<HTMLElement | null>(null);
   const [instantTypeState, setInstantTypeState] = React.useState<'dismiss' | 'focus'>();
 
-  const popupRef = React.useRef<HTMLDivElement | null>(null);
+  const popupRef = useRef<HTMLDivElement | null>(null);
 
   const [open, setOpenUnwrapped] = useControlled({
     controlled: externalOpen,

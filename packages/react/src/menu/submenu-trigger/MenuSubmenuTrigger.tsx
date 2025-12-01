@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { useCallback } from '@base-ui-components/utils/useCallback';
 import {
   safePolygon,
   useClick,
@@ -51,7 +52,7 @@ export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerCompon
   const floatingTreeRoot = store.useState('floatingTreeRoot');
 
   const baseRegisterTrigger = useTriggerRegistration(thisTriggerId, store);
-  const registerTrigger = React.useCallback(
+  const registerTrigger = useCallback(
     (element: Element | null) => {
       const cleanup = baseRegisterTrigger(element);
 

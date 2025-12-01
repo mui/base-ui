@@ -2,6 +2,7 @@
 import * as React from 'react';
 import { ownerDocument } from '@base-ui-components/utils/owner';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
+import { useRef } from '@base-ui-components/utils/useRef';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useRenderElement } from '../../utils/useRenderElement';
 import type { BaseUIComponentProps, NativeButtonProps } from '../../utils/types';
@@ -76,7 +77,7 @@ export const TabsTab = React.forwardRef(function TabsTab(
     return valueProp === activeTabValue;
   }, [index, activeTabValue, valueProp]);
 
-  const isNavigatingRef = React.useRef(false);
+  const isNavigatingRef = useRef(false);
 
   // Keep the highlighted item in sync with the currently active tab
   // when the value prop changes externally (controlled mode)
@@ -112,8 +113,8 @@ export const TabsTab = React.forwardRef(function TabsTab(
 
   const tabPanelId = index > -1 ? getTabPanelIdByTabValueOrIndex(valueProp, index) : undefined;
 
-  const isPressingRef = React.useRef(false);
-  const isMainButtonRef = React.useRef(false);
+  const isPressingRef = useRef(false);
+  const isMainButtonRef = useRef(false);
 
   function onClick(event: React.MouseEvent<HTMLButtonElement>) {
     if (active || disabled) {

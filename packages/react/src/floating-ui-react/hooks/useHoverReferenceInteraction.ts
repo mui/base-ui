@@ -4,6 +4,7 @@ import { isElement } from '@floating-ui/utils/dom';
 import { useValueAsRef } from '@base-ui-components/utils/useValueAsRef';
 import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { useEffect } from '@base-ui-components/utils/useEffect';
+import { useCallback } from '@base-ui-components/utils/useCallback';
 import type { FloatingContext, FloatingRootContext } from '../types';
 import { contains, getDocument, isMouseLikePointerType } from '../utils';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
@@ -91,7 +92,7 @@ export function useHoverReferenceInteraction(
       : false;
   });
 
-  const closeWithDelay = React.useCallback(
+  const closeWithDelay = useCallback(
     (event: MouseEvent, runElseBranch = true) => {
       const closeDelay = getDelay(delayRef.current, 'close', pointerTypeRef.current);
       if (closeDelay && !closeHandlerRef.current) {

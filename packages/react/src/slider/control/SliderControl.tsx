@@ -6,6 +6,7 @@ import { useAnimationFrame } from '@base-ui-components/utils/useAnimationFrame';
 import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { useValueAsRef } from '@base-ui-components/utils/useValueAsRef';
 import { useEffect } from '@base-ui-components/utils/useEffect';
+import { useRef } from '@base-ui-components/utils/useRef';
 import { activeElement, contains } from '../../floating-ui-react/utils';
 import type { Coords } from '../../floating-ui-react/types';
 import { clamp } from '../../utils/clamp';
@@ -120,8 +121,8 @@ export const SliderControl = React.forwardRef(function SliderControl(
   const range = values.length > 1;
   const vertical = orientation === 'vertical';
 
-  const controlRef = React.useRef<HTMLElement>(null);
-  const stylesRef = React.useRef<CSSStyleDeclaration>(null);
+  const controlRef = useRef<HTMLElement>(null);
+  const stylesRef = useRef<CSSStyleDeclaration>(null);
   const setStylesRef = useStableCallback((element: HTMLElement | null) => {
     if (element && stylesRef.current == null) {
       if (stylesRef.current == null) {
@@ -131,12 +132,12 @@ export const SliderControl = React.forwardRef(function SliderControl(
   });
 
   // A number that uniquely identifies the current finger in the touch session.
-  const touchIdRef = React.useRef<number>(null);
+  const touchIdRef = useRef<number>(null);
   // The number of touch/pointermove events that have fired.
-  const moveCountRef = React.useRef(0);
+  const moveCountRef = useRef(0);
   // The offset amount to each side of the control for inset sliders.
   // This value should be equal to the radius or half the width/height of the thumb.
-  const insetThumbOffsetRef = React.useRef(0);
+  const insetThumbOffsetRef = useRef(0);
   const latestValuesRef = useValueAsRef(values);
 
   const updatePressedThumb = useStableCallback((nextIndex: number) => {

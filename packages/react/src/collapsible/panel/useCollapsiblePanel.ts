@@ -7,6 +7,7 @@ import { useOnMount } from '@base-ui-components/utils/useOnMount';
 import { AnimationFrame, useAnimationFrame } from '@base-ui-components/utils/useAnimationFrame';
 import { warn } from '@base-ui-components/utils/warn';
 import { useEffect } from '@base-ui-components/utils/useEffect';
+import { useRef } from '@base-ui-components/utils/useRef';
 import { HTMLProps } from '../../utils/types';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
@@ -40,10 +41,10 @@ export function useCollapsiblePanel(
     width,
   } = parameters;
 
-  const isBeforeMatchRef = React.useRef(false);
-  const latestAnimationNameRef = React.useRef<string>(null);
-  const shouldCancelInitialOpenAnimationRef = React.useRef(open);
-  const shouldCancelInitialOpenTransitionRef = React.useRef(open);
+  const isBeforeMatchRef = useRef(false);
+  const latestAnimationNameRef = useRef<string>(null);
+  const shouldCancelInitialOpenAnimationRef = useRef(open);
+  const shouldCancelInitialOpenTransitionRef = useRef(open);
 
   const endingStyleFrame = useAnimationFrame();
 

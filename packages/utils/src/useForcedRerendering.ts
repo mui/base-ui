@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { useCallback } from './useCallback';
 
 /**
  * Returns a function that forces a rerender.
@@ -7,7 +8,7 @@ import * as React from 'react';
 export function useForcedRerendering() {
   const [, setState] = React.useState({});
 
-  return React.useCallback(() => {
+  return useCallback(() => {
     setState({});
   }, []);
 }

@@ -9,6 +9,7 @@ import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { EMPTY_OBJECT } from '@base-ui-components/utils/empty';
 import { useEffect } from '@base-ui-components/utils/useEffect';
+import { useRef } from '@base-ui-components/utils/useRef';
 import {
   safePolygon,
   useClick,
@@ -129,7 +130,7 @@ export const MenuTrigger = fastHooks.createComponent(function MenuTrigger(
     }
   }, [store, isOpenedByThisTrigger, parent.type]);
 
-  const triggerRef = React.useRef<HTMLElement | null>(null);
+  const triggerRef = useRef<HTMLElement | null>(null);
   const allowMouseUpTriggerTimeout = useTimeout();
 
   const handleDocumentMouseUp = useStableCallback((mouseEvent: MouseEvent) => {
@@ -261,7 +262,7 @@ export const MenuTrigger = fastHooks.createComponent(function MenuTrigger(
     getButtonProps,
   ];
 
-  const preFocusGuardRef = React.useRef<HTMLElement>(null);
+  const preFocusGuardRef = useRef<HTMLElement>(null);
 
   const handlePreFocusGuardFocus = useStableCallback((event: React.FocusEvent) => {
     ReactDOM.flushSync(() => {

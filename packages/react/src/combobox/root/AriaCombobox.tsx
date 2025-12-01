@@ -10,6 +10,7 @@ import { useRefWithInit } from '@base-ui-components/utils/useRefWithInit';
 import { Store, useStore } from '@base-ui-components/utils/store';
 import { useValueAsRef } from '@base-ui-components/utils/useValueAsRef';
 import { useEffect } from '@base-ui-components/utils/useEffect';
+import { useRef } from '@base-ui-components/utils/useRef';
 import {
   ElementProps,
   useDismiss,
@@ -129,30 +130,30 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
   const [queryChangedAfterOpen, setQueryChangedAfterOpen] = React.useState(false);
   const [closeQuery, setCloseQuery] = React.useState<string | null>(null);
 
-  const listRef = React.useRef<Array<HTMLElement | null>>([]);
-  const labelsRef = React.useRef<Array<string | null>>([]);
-  const popupRef = React.useRef<HTMLDivElement | null>(null);
-  const inputRef = React.useRef<HTMLInputElement | null>(null);
-  const emptyRef = React.useRef<HTMLDivElement | null>(null);
-  const keyboardActiveRef = React.useRef(true);
-  const hadInputClearRef = React.useRef(false);
-  const chipsContainerRef = React.useRef<HTMLDivElement | null>(null);
-  const clearRef = React.useRef<HTMLButtonElement | null>(null);
-  const selectionEventRef = React.useRef<MouseEvent | PointerEvent | KeyboardEvent | null>(null);
-  const lastHighlightRef = React.useRef(INITIAL_LAST_HIGHLIGHT);
-  const pendingQueryHighlightRef = React.useRef<null | { hasQuery: boolean }>(null);
+  const listRef = useRef<Array<HTMLElement | null>>([]);
+  const labelsRef = useRef<Array<string | null>>([]);
+  const popupRef = useRef<HTMLDivElement | null>(null);
+  const inputRef = useRef<HTMLInputElement | null>(null);
+  const emptyRef = useRef<HTMLDivElement | null>(null);
+  const keyboardActiveRef = useRef(true);
+  const hadInputClearRef = useRef(false);
+  const chipsContainerRef = useRef<HTMLDivElement | null>(null);
+  const clearRef = useRef<HTMLButtonElement | null>(null);
+  const selectionEventRef = useRef<MouseEvent | PointerEvent | KeyboardEvent | null>(null);
+  const lastHighlightRef = useRef(INITIAL_LAST_HIGHLIGHT);
+  const pendingQueryHighlightRef = useRef<null | { hasQuery: boolean }>(null);
 
   /**
    * Contains the currently visible list of item values post-filtering.
    */
-  const valuesRef = React.useRef<any[]>([]);
+  const valuesRef = useRef<any[]>([]);
   /**
    * Contains all item values in a stable, unfiltered order.
    * This is only used when `items` prop is not provided.
    * It accumulates values on first mount and does not remove them on unmount due to
    * filtering, providing a stable index for selected value tracking.
    */
-  const allValuesRef = React.useRef<any[]>([]);
+  const allValuesRef = useRef<any[]>([]);
 
   const disabled = fieldDisabled || disabledProp;
   const name = fieldName ?? nameProp;
@@ -437,7 +438,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     }
   });
 
-  const initialSelectedValueRef = React.useRef(selectedValue);
+  const initialSelectedValueRef = useRef(selectedValue);
   useIsoLayoutEffect(() => {
     // Ensure the values and labels are registered for programmatic value changes.
     if (selectedValue !== initialSelectedValueRef.current) {

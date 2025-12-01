@@ -4,6 +4,7 @@ import * as ReactDOM from 'react-dom';
 import { ownerWindow } from '@base-ui-components/utils/owner';
 import { useTimeout } from '@base-ui-components/utils/useTimeout';
 import { useEffect } from '@base-ui-components/utils/useEffect';
+import { useRef } from '@base-ui-components/utils/useRef';
 import {
   disableFocusInside,
   enableFocusInside,
@@ -71,8 +72,8 @@ export const NavigationMenuPositioner = React.forwardRef(function NavigationMenu
 
   const [instant, setInstant] = React.useState(false);
 
-  const positionerRef = React.useRef<HTMLDivElement | null>(null);
-  const prevTriggerElementRef = React.useRef<Element | null>(null);
+  const positionerRef = useRef<HTMLDivElement | null>(null);
+  const prevTriggerElementRef = useRef<Element | null>(null);
 
   // https://codesandbox.io/s/tabbable-portal-f4tng?file=/src/TabbablePortal.tsx
   useEffect(() => {

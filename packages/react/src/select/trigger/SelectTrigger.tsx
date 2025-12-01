@@ -7,6 +7,7 @@ import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
 import { useValueAsRef } from '@base-ui-components/utils/useValueAsRef';
 import { useStore } from '@base-ui-components/utils/store';
 import { useEffect } from '@base-ui-components/utils/useEffect';
+import { useRef } from '@base-ui-components/utils/useRef';
 import { useSelectRootContext } from '../root/SelectRootContext';
 import { BaseUIComponentProps, HTMLProps, NativeButtonProps } from '../../utils/types';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
@@ -80,7 +81,7 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
 
   const positionerRef = useValueAsRef(positionerElement);
 
-  const triggerRef = React.useRef<HTMLElement | null>(null);
+  const triggerRef = useRef<HTMLElement | null>(null);
   const timeoutFocus = useTimeout();
   const timeoutMouseDown = useTimeout();
 

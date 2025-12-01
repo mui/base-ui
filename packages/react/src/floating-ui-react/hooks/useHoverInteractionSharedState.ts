@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { useTimeout } from '@base-ui-components/utils/useTimeout';
+import { useRef } from '@base-ui-components/utils/useRef';
 
 import type { ContextData, FloatingRootContext, SafePolygonOptions } from '../types';
 import { createAttribute } from '../utils/createAttribute';
@@ -32,16 +33,16 @@ type HoverContextData = ContextData & {
 export function useHoverInteractionSharedState(
   store: FloatingRootContext,
 ): HoverInteractionSharedState {
-  const pointerTypeRef = React.useRef<string | undefined>(undefined);
-  const interactedInsideRef = React.useRef(false);
-  const handlerRef = React.useRef<((event: MouseEvent) => void) | undefined>(undefined);
-  const blockMouseMoveRef = React.useRef(true);
-  const performedPointerEventsMutationRef = React.useRef(false);
-  const unbindMouseMoveRef = React.useRef<() => void>(() => {});
-  const restTimeoutPendingRef = React.useRef(false);
+  const pointerTypeRef = useRef<string | undefined>(undefined);
+  const interactedInsideRef = useRef(false);
+  const handlerRef = useRef<((event: MouseEvent) => void) | undefined>(undefined);
+  const blockMouseMoveRef = useRef(true);
+  const performedPointerEventsMutationRef = useRef(false);
+  const unbindMouseMoveRef = useRef<() => void>(() => {});
+  const restTimeoutPendingRef = useRef(false);
   const openChangeTimeout = useTimeout();
   const restTimeout = useTimeout();
-  const handleCloseOptionsRef = React.useRef<SafePolygonOptions | undefined>(undefined);
+  const handleCloseOptionsRef = useRef<SafePolygonOptions | undefined>(undefined);
 
   return React.useMemo(() => {
     const data = store.context.dataRef.current as HoverContextData;

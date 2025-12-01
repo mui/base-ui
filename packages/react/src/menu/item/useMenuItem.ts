@@ -1,6 +1,8 @@
 'use client';
 import * as React from 'react';
 import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
+import { useRef } from '@base-ui-components/utils/useRef';
+import { useCallback } from '@base-ui-components/utils/useCallback';
 import { useButton } from '../../use-button';
 import { mergeProps } from '../../merge-props';
 import { HTMLProps, BaseUIEvent } from '../../utils/types';
@@ -24,7 +26,7 @@ export function useMenuItem(params: useMenuItem.Parameters): useMenuItem.ReturnV
     nodeId,
   } = params;
 
-  const itemRef = React.useRef<HTMLElement | null>(null);
+  const itemRef = useRef<HTMLElement | null>(null);
   const contextMenuContext = useContextMenuRootContext(true);
   const isContextMenu = contextMenuContext !== undefined;
   const { events: menuEvents } = store.useState('floatingTreeRoot');
@@ -35,7 +37,7 @@ export function useMenuItem(params: useMenuItem.Parameters): useMenuItem.ReturnV
     native: nativeButton,
   });
 
-  const getItemProps = React.useCallback(
+  const getItemProps = useCallback(
     (externalProps?: HTMLProps): HTMLProps => {
       return mergeProps<'div'>(
         {

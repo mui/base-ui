@@ -11,6 +11,7 @@ import {
 import { Timeout, useTimeout } from '@base-ui-components/utils/useTimeout';
 import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { useEffect } from '@base-ui-components/utils/useEffect';
+import { useRef } from '@base-ui-components/utils/useRef';
 import {
   contains,
   getDocument,
@@ -157,10 +158,10 @@ export function useDismiss(
   );
   const outsidePress = typeof outsidePressProp === 'function' ? outsidePressFn : outsidePressProp;
 
-  const endedOrStartedInsideRef = React.useRef(false);
+  const endedOrStartedInsideRef = useRef(false);
   const { escapeKey: escapeKeyBubbles, outsidePress: outsidePressBubbles } = normalizeProp(bubbles);
 
-  const touchStateRef = React.useRef<{
+  const touchStateRef = useRef<{
     startTime: number;
     startX: number;
     startY: number;
@@ -176,8 +177,8 @@ export function useDismiss(
     dataRef.current.insideReactTree = false;
   });
 
-  const isComposingRef = React.useRef(false);
-  const currentPointerTypeRef = React.useRef<PointerEvent['pointerType']>('');
+  const isComposingRef = useRef(false);
+  const currentPointerTypeRef = useRef<PointerEvent['pointerType']>('');
 
   const trackPointerType = useStableCallback((event: PointerEvent) => {
     currentPointerTypeRef.current = event.pointerType;

@@ -4,6 +4,7 @@ import { isNode } from '@floating-ui/utils/dom';
 import { useId } from '@base-ui-components/utils/useId';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { useEffect } from '@base-ui-components/utils/useEffect';
+import { useRef } from '@base-ui-components/utils/useRef';
 import { FocusGuard } from '../../utils/FocusGuard';
 import {
   enableFocusInside,
@@ -73,7 +74,7 @@ export function useFloatingPortalNode(
   );
   const [portalNode, setPortalNode] = React.useState<HTMLElement | null>(null);
 
-  const containerRef = React.useRef<HTMLElement | ShadowRoot | null>(null);
+  const containerRef = useRef<HTMLElement | ShadowRoot | null>(null);
 
   useIsoLayoutEffect(() => {
     // Wait for the container to be resolved if explicitly `null`.
@@ -159,10 +160,10 @@ export const FloatingPortal = React.forwardRef(function FloatingPortal(
     elementProps,
   });
 
-  const beforeOutsideRef = React.useRef<HTMLSpanElement>(null);
-  const afterOutsideRef = React.useRef<HTMLSpanElement>(null);
-  const beforeInsideRef = React.useRef<HTMLSpanElement>(null);
-  const afterInsideRef = React.useRef<HTMLSpanElement>(null);
+  const beforeOutsideRef = useRef<HTMLSpanElement>(null);
+  const afterOutsideRef = useRef<HTMLSpanElement>(null);
+  const beforeInsideRef = useRef<HTMLSpanElement>(null);
+  const afterInsideRef = useRef<HTMLSpanElement>(null);
 
   const [focusManagerState, setFocusManagerState] = React.useState<FocusManagerState>(null);
 

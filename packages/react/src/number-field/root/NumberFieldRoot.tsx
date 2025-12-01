@@ -10,6 +10,7 @@ import { useForcedRerendering } from '@base-ui-components/utils/useForcedRerende
 import { ownerDocument, ownerWindow } from '@base-ui-components/utils/owner';
 import { isIOS } from '@base-ui-components/utils/detectBrowser';
 import { useEffect } from '@base-ui-components/utils/useEffect';
+import { useRef } from '@base-ui-components/utils/useRef';
 import { InputMode, NumberFieldRootContext } from './NumberFieldRootContext';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import type { FieldRoot } from '../../field/root/FieldRoot';
@@ -95,7 +96,7 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
   const minWithZeroDefault = min ?? 0;
   const formatStyle = format?.style;
 
-  const inputRef = React.useRef<HTMLInputElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const id = useLabelableId({ id: idProp });
 
@@ -117,7 +118,7 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
 
   const formatOptionsRef = useValueAsRef(format);
 
-  const hasPendingCommitRef = React.useRef(false);
+  const hasPendingCommitRef = useRef(false);
 
   const onValueCommitted = useStableCallback(
     (nextValue: number | null, eventDetails: NumberFieldRoot.CommitEventDetails) => {
@@ -130,11 +131,11 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
   const tickInterval = useInterval();
   const intentionalTouchCheckTimeout = useTimeout();
 
-  const isPressedRef = React.useRef(false);
-  const movesAfterTouchRef = React.useRef(0);
-  const allowInputSyncRef = React.useRef(true);
-  const lastChangedValueRef = React.useRef<number | null>(null);
-  const unsubscribeFromGlobalContextMenuRef = React.useRef<() => void>(() => {});
+  const isPressedRef = useRef(false);
+  const movesAfterTouchRef = useRef(0);
+  const allowInputSyncRef = useRef(true);
+  const lastChangedValueRef = useRef<number | null>(null);
+  const unsubscribeFromGlobalContextMenuRef = useRef<() => void>(() => {});
 
   // During SSR, the value is formatted on the server, whose locale may differ from the client's
   // locale. This causes a hydration mismatch, which we manually suppress. This is preferable to

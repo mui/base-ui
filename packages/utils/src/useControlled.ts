@@ -3,6 +3,8 @@
 /* eslint-disable react-hooks/rules-of-hooks, react-hooks/exhaustive-deps */
 import * as React from 'react';
 import { useEffect } from './useEffect';
+import { useRef } from './useRef';
+import { useCallback } from './useCallback';
 
 export interface UseControlledProps<T = unknown> {
   /**
@@ -30,7 +32,7 @@ export function useControlled<T = unknown>({
   state = 'value',
 }: UseControlledProps<T>): [T, (newValue: T | ((prevValue: T) => T)) => void] {
   // isControlled is ignored in the hook dependency lists as it should never change.
-  const { current: isControlled } = React.useRef(controlled !== undefined);
+  const { current: isControlled } = useRef(controlled !== undefined);
   const [valueState, setValue] = React.useState(defaultProp);
   const value = isControlled ? controlled : valueState;
 
@@ -52,7 +54,7 @@ export function useControlled<T = unknown>({
       }
     }, [state, name, controlled]);
 
-    const { current: defaultValue } = React.useRef(defaultProp);
+    const { current: defaultValue } = useRef(defaultProp);
 
     useEffect(() => {
       // See https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/is for more details.
@@ -67,7 +69,7 @@ export function useControlled<T = unknown>({
     }, [JSON.stringify(defaultProp)]);
   }
 
-  const setValueIfUncontrolled = React.useCallback((newValue: React.SetStateAction<T>) => {
+  const setValueIfUncontrolled = useCallback((newValue: React.SetStateAction<T>) => {
     if (!isControlled) {
       setValue(newValue as T);
     }

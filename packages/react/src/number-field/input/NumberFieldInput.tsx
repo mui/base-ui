@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { useRef } from '@base-ui-components/utils/useRef';
 import { stopEvent } from '../../floating-ui-react/utils';
 import { useNumberFieldRootContext } from '../root/NumberFieldRootContext';
 import type { BaseUIComponentProps } from '../../utils/types';
@@ -91,8 +92,8 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
     useFieldRootContext();
   const { labelId } = useLabelableContext();
 
-  const hasTouchedInputRef = React.useRef(false);
-  const blockRevalidationRef = React.useRef(false);
+  const hasTouchedInputRef = useRef(false);
+  const blockRevalidationRef = useRef(false);
 
   useField({
     id,

@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { useRef } from '@base-ui-components/utils/useRef';
 import { useMenuCheckboxItemContext } from '../checkbox-item/MenuCheckboxItemContext';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { BaseUIComponentProps } from '../../utils/types';
@@ -21,7 +22,7 @@ export const MenuCheckboxItemIndicator = React.forwardRef(function MenuCheckboxI
 
   const item = useMenuCheckboxItemContext();
 
-  const indicatorRef = React.useRef<HTMLSpanElement | null>(null);
+  const indicatorRef = useRef<HTMLSpanElement | null>(null);
 
   const { transitionStatus, setMounted } = useTransitionStatus(item.checked);
 

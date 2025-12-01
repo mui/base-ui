@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
+import { useCallback } from '@base-ui-components/utils/useCallback';
 import {
   InteractionType,
   useEnhancedClickHandler,
@@ -22,7 +23,7 @@ export function useOpenInteractionType(open: boolean) {
     },
   );
 
-  const reset = React.useCallback(() => {
+  const reset = useCallback(() => {
     setOpenMethod(null);
   }, []);
 

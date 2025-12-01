@@ -5,6 +5,7 @@ import { useControlled } from '@base-ui-components/utils/useControlled';
 import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { ownerDocument } from '@base-ui-components/utils/owner';
 import { useEffect } from '@base-ui-components/utils/useEffect';
+import { useRef } from '@base-ui-components/utils/useRef';
 import {
   FloatingTree,
   useFloatingNodeId,
@@ -64,8 +65,8 @@ export const NavigationMenuRoot = React.forwardRef(function NavigationMenuRoot(
   // Derive open state from value being non-nullish
   const open = value != null;
 
-  const closeReasonRef = React.useRef<NavigationMenuRoot.ChangeEventReason | undefined>(undefined);
-  const rootRef = React.useRef<HTMLDivElement | null>(null);
+  const closeReasonRef = useRef<NavigationMenuRoot.ChangeEventReason | undefined>(undefined);
+  const rootRef = useRef<HTMLDivElement | null>(null);
 
   const [positionerElement, setPositionerElement] = React.useState<HTMLElement | null>(null);
   const [popupElement, setPopupElement] = React.useState<HTMLElement | null>(null);
@@ -80,12 +81,12 @@ export const NavigationMenuRoot = React.forwardRef(function NavigationMenuRoot(
   >(undefined);
   const [viewportInert, setViewportInert] = React.useState(false);
 
-  const prevTriggerElementRef = React.useRef<Element | null | undefined>(null);
-  const currentContentRef = React.useRef<HTMLDivElement | null>(null);
-  const beforeInsideRef = React.useRef<HTMLSpanElement | null>(null);
-  const afterInsideRef = React.useRef<HTMLSpanElement | null>(null);
-  const beforeOutsideRef = React.useRef<HTMLSpanElement | null>(null);
-  const afterOutsideRef = React.useRef<HTMLSpanElement | null>(null);
+  const prevTriggerElementRef = useRef<Element | null | undefined>(null);
+  const currentContentRef = useRef<HTMLDivElement | null>(null);
+  const beforeInsideRef = useRef<HTMLSpanElement | null>(null);
+  const afterInsideRef = useRef<HTMLSpanElement | null>(null);
+  const beforeOutsideRef = useRef<HTMLSpanElement | null>(null);
+  const afterOutsideRef = useRef<HTMLSpanElement | null>(null);
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
 

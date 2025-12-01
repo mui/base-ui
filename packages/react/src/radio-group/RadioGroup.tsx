@@ -4,6 +4,7 @@ import { useControlled } from '@base-ui-components/utils/useControlled';
 import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
 import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { visuallyHidden } from '@base-ui-components/utils/visuallyHidden';
+import { useRef } from '@base-ui-components/utils/useRef';
 import { NOOP } from '../utils/noop';
 import type { BaseUIComponentProps, HTMLProps } from '../utils/types';
 import { useBaseUiId } from '../utils/useBaseUiId';
@@ -92,7 +93,7 @@ export const RadioGroup = React.forwardRef(function RadioGroup(
     },
   );
 
-  const controlRef = React.useRef<HTMLElement>(null);
+  const controlRef = useRef<HTMLElement>(null);
   const registerControlRef = useStableCallback((element: HTMLElement | null) => {
     if (controlRef.current == null && element != null) {
       controlRef.current = element;

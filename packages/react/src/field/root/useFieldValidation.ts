@@ -3,6 +3,8 @@ import * as React from 'react';
 import { EMPTY_OBJECT } from '@base-ui-components/utils/empty';
 import { useTimeout } from '@base-ui-components/utils/useTimeout';
 import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
+import { useRef } from '@base-ui-components/utils/useRef';
+import { useCallback } from '@base-ui-components/utils/useCallback';
 import { useLabelableContext } from '../../labelable-provider/LabelableContext';
 import { mergeProps } from '../../merge-props';
 import { DEFAULT_VALIDITY_STATE } from '../utils/constants';
@@ -56,7 +58,7 @@ export function useFieldValidation(
   const { controlId, getDescriptionProps } = useLabelableContext();
 
   const timeout = useTimeout();
-  const inputRef = React.useRef<HTMLInputElement | null>(null);
+  const inputRef = useRef<HTMLInputElement | null>(null);
 
   const commit = useStableCallback(async (value: unknown, revalidate = false) => {
     const element = inputRef.current;
@@ -232,7 +234,7 @@ export function useFieldValidation(
     setValidityData(nextValidityData);
   });
 
-  const getValidationProps = React.useCallback(
+  const getValidationProps = useCallback(
     (externalProps = {}) =>
       mergeProps<any>(
         getDescriptionProps,
@@ -242,7 +244,7 @@ export function useFieldValidation(
     [getDescriptionProps, state.valid],
   );
 
-  const getInputValidationProps = React.useCallback(
+  const getInputValidationProps = useCallback(
     (externalProps = {}) =>
       mergeProps<'input'>(
         {

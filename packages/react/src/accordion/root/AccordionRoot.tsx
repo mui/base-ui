@@ -4,6 +4,7 @@ import { useControlled } from '@base-ui-components/utils/useControlled';
 import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { warn } from '@base-ui-components/utils/warn';
+import { useRef } from '@base-ui-components/utils/useRef';
 import { BaseUIComponentProps, Orientation } from '../../utils/types';
 import { CompositeList } from '../../composite/list/CompositeList';
 import { useDirection } from '../../direction-provider/DirectionContext';
@@ -69,7 +70,7 @@ export const AccordionRoot = React.forwardRef(function AccordionRoot(
 
   const onValueChange = useStableCallback(onValueChangeProp);
 
-  const accordionItemRefs = React.useRef<(HTMLElement | null)[]>([]);
+  const accordionItemRefs = useRef<(HTMLElement | null)[]>([]);
 
   const [value, setValue] = useControlled({
     controlled: valueProp,

@@ -2,6 +2,8 @@
 import * as React from 'react';
 import { useControlled } from '@base-ui-components/utils/useControlled';
 import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
+import { useRef } from '@base-ui-components/utils/useRef';
+import { useCallback } from '@base-ui-components/utils/useCallback';
 import type { BaseUIComponentProps, Orientation as BaseOrientation } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { CompositeList } from '../../composite/list/CompositeList';
@@ -36,7 +38,7 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
 
   const direction = useDirection();
 
-  const tabPanelRefs = React.useRef<(HTMLElement | null)[]>([]);
+  const tabPanelRefs = useRef<(HTMLElement | null)[]>([]);
 
   const [value, setValue] = useControlled({
     controlled: valueProp,
@@ -69,7 +71,7 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
   );
 
   // get the `id` attribute of <Tabs.Panel> to set as the value of `aria-controls` on <Tabs.Tab>
-  const getTabPanelIdByTabValueOrIndex = React.useCallback(
+  const getTabPanelIdByTabValueOrIndex = useCallback(
     (tabValue: TabsTab.Value | undefined, index: number) => {
       if (tabValue === undefined && index < 0) {
         return undefined;
@@ -97,7 +99,7 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
   );
 
   // get the `id` attribute of <Tabs.Tab> to set as the value of `aria-labelledby` on <Tabs.Panel>
-  const getTabIdByPanelValueOrIndex = React.useCallback(
+  const getTabIdByPanelValueOrIndex = useCallback(
     (tabPanelValue: TabsTab.Value | undefined, index: number) => {
       if (tabPanelValue === undefined && index < 0) {
         return undefined;
@@ -129,7 +131,7 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
   );
 
   // used in `useActivationDirectionDetector` for setting data-activation-direction
-  const getTabElementBySelectedValue = React.useCallback(
+  const getTabElementBySelectedValue = useCallback(
     (selectedValue: TabsTab.Value | undefined): HTMLElement | null => {
       if (selectedValue === undefined) {
         return null;

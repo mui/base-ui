@@ -3,6 +3,7 @@ import * as React from 'react';
 import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { useScrollLock } from '@base-ui-components/utils/useScrollLock';
 import { useEffect } from '@base-ui-components/utils/useEffect';
+import { useCallback } from '@base-ui-components/utils/useCallback';
 import {
   useDismiss,
   useInteractions,
@@ -48,7 +49,7 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
     return details;
   });
 
-  const handleImperativeClose = React.useCallback(() => {
+  const handleImperativeClose = useCallback(() => {
     store.setOpen(false, createDialogEventDetails(REASONS.imperativeAction));
   }, [store, createDialogEventDetails]);
 

@@ -5,6 +5,7 @@ import { inertValue } from '@base-ui-components/utils/inertValue';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { useEffect } from '@base-ui-components/utils/useEffect';
+import { useRef } from '@base-ui-components/utils/useRef';
 import { activeElement, contains, getTarget } from '../../floating-ui-react/utils';
 import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 import type { ToastObject as ToastObjectType } from '../useToastManager';
@@ -116,16 +117,16 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
     null,
   );
 
-  const rootRef = React.useRef<HTMLDivElement | null>(null);
-  const dragStartPosRef = React.useRef({ x: 0, y: 0 });
-  const initialTransformRef = React.useRef({ x: 0, y: 0, scale: 1 });
-  const intendedSwipeDirectionRef = React.useRef<'up' | 'down' | 'left' | 'right' | undefined>(
+  const rootRef = useRef<HTMLDivElement | null>(null);
+  const dragStartPosRef = useRef({ x: 0, y: 0 });
+  const initialTransformRef = useRef({ x: 0, y: 0, scale: 1 });
+  const intendedSwipeDirectionRef = useRef<'up' | 'down' | 'left' | 'right' | undefined>(
     undefined,
   );
-  const maxSwipeDisplacementRef = React.useRef(0);
-  const cancelledSwipeRef = React.useRef(false);
-  const swipeCancelBaselineRef = React.useRef({ x: 0, y: 0 });
-  const isFirstPointerMoveRef = React.useRef(false);
+  const maxSwipeDisplacementRef = useRef(0);
+  const cancelledSwipeRef = useRef(false);
+  const swipeCancelBaselineRef = useRef({ x: 0, y: 0 });
+  const isFirstPointerMoveRef = useRef(false);
 
   const domIndex = React.useMemo(() => toasts.indexOf(toast), [toast, toasts]);
   const visibleIndex = React.useMemo(

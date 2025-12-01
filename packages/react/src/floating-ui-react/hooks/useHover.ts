@@ -5,6 +5,8 @@ import { useValueAsRef } from '@base-ui-components/utils/useValueAsRef';
 import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { useEffect } from '@base-ui-components/utils/useEffect';
+import { useRef } from '@base-ui-components/utils/useRef';
+import { useCallback } from '@base-ui-components/utils/useCallback';
 import { contains, getDocument, getTarget, isMouseLikePointerType } from '../utils';
 
 import { useFloatingParentNodeId, useFloatingTree } from '../components/FloatingTree';
@@ -152,15 +154,15 @@ export function useHover(
   const delayRef = useValueAsRef(delay);
   const restMsRef = useValueAsRef(restMs);
 
-  const pointerTypeRef = React.useRef<string>(undefined);
-  const interactedInsideRef = React.useRef(false);
+  const pointerTypeRef = useRef<string>(undefined);
+  const interactedInsideRef = useRef(false);
   const timeout = useTimeout();
-  const handlerRef = React.useRef<(event: MouseEvent) => void>(undefined);
+  const handlerRef = useRef<(event: MouseEvent) => void>(undefined);
   const restTimeout = useTimeout();
-  const blockMouseMoveRef = React.useRef(true);
-  const performedPointerEventsMutationRef = React.useRef(false);
-  const unbindMouseMoveRef = React.useRef(() => {});
-  const restTimeoutPendingRef = React.useRef(false);
+  const blockMouseMoveRef = useRef(true);
+  const performedPointerEventsMutationRef = useRef(false);
+  const unbindMouseMoveRef = useRef(() => {});
+  const restTimeoutPendingRef = useRef(false);
 
   const isHoverOpen = useStableCallback(() => {
     const type = dataRef.current.openEvent?.type;
@@ -234,7 +236,7 @@ export function useHover(
     };
   }, [floatingElement, open, store, enabled, handleCloseRef, isHoverOpen, isClickLikeOpenEvent]);
 
-  const closeWithDelay = React.useCallback(
+  const closeWithDelay = useCallback(
     (event: MouseEvent, runElseBranch = true) => {
       const closeDelay = getDelay(delayRef.current, 'close', pointerTypeRef.current);
       if (closeDelay && !handlerRef.current) {
