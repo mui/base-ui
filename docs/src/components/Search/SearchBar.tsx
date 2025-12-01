@@ -56,9 +56,8 @@ export function SearchBar({
     includeCategoryInGroup: true,
   });
 
-  const [searchResults, setSearchResults] = React.useState<ReturnType<typeof useSearch>['results']>(
-    defaultResults,
-  );
+  const [searchResults, setSearchResults] =
+    React.useState<ReturnType<typeof useSearch>['results']>(defaultResults);
 
   // Update search results when hook results change
   React.useEffect(() => {
