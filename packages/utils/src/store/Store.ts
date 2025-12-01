@@ -1,3 +1,5 @@
+import { useStore } from './useStore';
+
 type Listener<T> = (state: T) => void;
 
 /**
@@ -103,6 +105,17 @@ export class Store<State> {
     const newState = { ...this.state };
     Store.prototype.setState.call(this, newState);
   }
+
+  public use<F extends (...args: any) => any>(selector: F, ...args: SelectorArgs<F>): ReturnType<F>;
+  public use(selector: any, a1?: unknown, a2?: unknown, a3?: unknown) {
+    return useStore(this, selector, a1, a2, a3);
+  }
 }
 
 export type ReadonlyStore<State> = Pick<Store<State>, 'getSnapshot' | 'subscribe' | 'state'>;
+
+type SelectorArgs<Selector> = Selector extends (...params: infer Params) => any
+  ? Tail<Params>
+  : never;
+
+type Tail<T extends readonly any[]> = T extends readonly [any, ...infer Rest] ? Rest : [];

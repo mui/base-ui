@@ -220,10 +220,14 @@ export class ReactStore<
    *
    * @param key Key of the selector to use.
    */
-  public select = ((key: keyof Selectors, a1?: unknown, a2?: unknown, a3?: unknown) => {
+  public select<Key extends keyof Selectors>(
+    key: Key,
+    ...args: SelectorArgs<Selectors[Key]>
+  ): ReturnType<Selectors[Key]>;
+  public select(key: keyof Selectors, a1?: unknown, a2?: unknown, a3?: unknown) {
     const selector = this.selectors![key];
     return selector(this.state, a1, a2, a3);
-  }) as ReactStoreSelectorMethod<Selectors>;
+  }
 
   /**
    * Returns a value from the store's state using a selector function.
@@ -232,12 +236,14 @@ export class ReactStore<
    *
    * @param key Key of the selector to use.
    */
-  public useState = ((key: keyof Selectors, a1?: unknown, a2?: unknown, a3?: unknown) => {
+  public useState<Key extends keyof Selectors>(
+    key: Key,
+    ...args: SelectorArgs<Selectors[Key]>
+  ): ReturnType<Selectors[Key]>;
+  public useState(key: keyof Selectors, a1?: unknown, a2?: unknown, a3?: unknown) {
     React.useDebugValue(key);
-    const selector = this.selectors![key];
-    const value = useStore(this, selector, a1, a2, a3);
-    return value;
-  }) as ReactStoreSelectorMethod<Selectors>;
+    return useStore(this, this.selectors![key], a1, a2, a3);
+  }
 
   /**
    * Wraps a function with `useStableCallback` to ensure it has a stable reference
@@ -329,13 +335,6 @@ type ContextFunction<Context, Key extends keyof Context> = Extract<Context[Key],
 type KeysAllowingUndefined<State> = {
   [Key in keyof State]-?: undefined extends State[Key] ? Key : never;
 }[keyof State];
-
-type ReactStoreSelectorMethod<Selectors extends Record<PropertyKey, SelectorFunction<any>>> = <
-  Key extends keyof Selectors,
->(
-  key: Key,
-  ...args: SelectorArgs<Selectors[Key]>
-) => ReturnType<Selectors[Key]>;
 
 type ObserveSelector<State> = (state: State) => any;
 
