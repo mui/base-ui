@@ -53,6 +53,10 @@ type Instance = {
 
 let currentInstance: Instance | undefined = undefined;
 
+const emptySetState = (_: React.SetStateAction<number>) => {
+  throw new Error('Function not implemented.');
+};
+
 export function createInstance(): Instance {
   return {
     didInitialize: false,
@@ -75,6 +79,8 @@ export function createInstance(): Instance {
     useState: {
       index: 0,
       data: [],
+      tick: 0,
+      setTick: emptySetState,
     },
   };
 }
