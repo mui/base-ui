@@ -15,9 +15,32 @@ type EffectContext = {
   didInitialize: boolean;
 };
 
+type RefData<T> = {
+  current: T;
+};
+
+type RefContext = {
+  index: number;
+  data: RefData<unknown>[];
+  didInitialize: boolean;
+};
+
+type CallbackData<T> = {
+  callback: T;
+  deps: readonly unknown[] | undefined;
+};
+
+type CallbackContext = {
+  index: number;
+  data: CallbackData<unknown>[];
+  didInitialize: boolean;
+};
+
 type Context = {
   useEffect: EffectContext;
   useLayoutEffect: EffectContext;
+  useRef: RefContext;
+  useCallback: CallbackContext;
 };
 
 let currentContext: Context | undefined = undefined;
@@ -30,6 +53,16 @@ export function createContext(): Context {
       didInitialize: false,
     },
     useLayoutEffect: {
+      index: 0,
+      data: [],
+      didInitialize: false,
+    },
+    useRef: {
+      index: 0,
+      data: [],
+      didInitialize: false,
+    },
+    useCallback: {
       index: 0,
       data: [],
       didInitialize: false,
@@ -53,11 +86,15 @@ export function use(): Disposable {
 
   context.useEffect.index = 0;
   context.useLayoutEffect.index = 0;
+  context.useRef.index = 0;
+  context.useCallback.index = 0;
 
   return {
     [Symbol.dispose]() {
       context.useEffect.didInitialize = true;
       context.useLayoutEffect.didInitialize = true;
+      context.useRef.didInitialize = true;
+      context.useCallback.didInitialize = true;
       currentContext = previousContext;
     },
   };
@@ -75,11 +112,15 @@ export function createComponent<P extends object, E extends HTMLElement>(
 
       context.useEffect.index = 0;
       context.useLayoutEffect.index = 0;
+      context.useRef.index = 0;
+      context.useCallback.index = 0;
 
       result = fn(props, forwardedRef);
 
       context.useEffect.didInitialize = true;
       context.useLayoutEffect.didInitialize = true;
+      context.useRef.didInitialize = true;
+      context.useCallback.didInitialize = true;
     } catch (error) {
       throw error;
     } finally {
@@ -152,7 +193,7 @@ export const createUseEffect = (name: 'useEffect' | 'useLayoutEffect') => {
   return useEffect;
 };
 
-function areDepsEqual(depsA: unknown[], depsB: unknown[]): boolean {
+function areDepsEqual(depsA: readonly unknown[], depsB: readonly unknown[]): boolean {
   if (depsA.length !== depsB.length) {
     return false;
   }
@@ -165,3 +206,59 @@ function areDepsEqual(depsA: unknown[], depsB: unknown[]): boolean {
 
   return true;
 }
+
+export const createUseRef = () => {
+  // Use the same signature as React.useRef
+  const useRef = <T,>(initialValue?: T | null): React.MutableRefObject<T | undefined> | React.RefObject<T | null> => {
+    const context = currentContext?.useRef;
+
+    if (!context) {
+      // eslint-disable-next-line react-hooks/rules-of-hooks
+      return React.useRef(initialValue) as React.MutableRefObject<T | undefined>;
+    }
+
+    if (context.didInitialize === false) {
+      const refData: RefData<T | undefined | null> = { current: initialValue };
+      context.data.push(refData as RefData<unknown>);
+      context.index += 1;
+      return refData as React.MutableRefObject<T | undefined>;
+    }
+
+    const refData = context.data[context.index] as RefData<T | undefined | null>;
+    context.index += 1;
+    return refData as React.MutableRefObject<T | undefined>;
+  };
+
+  return useRef as typeof React.useRef;
+};
+
+export const createUseCallback = () => {
+  function useCallback<T extends Function>(callback: T, deps: React.DependencyList): T {
+    const context = currentContext?.useCallback;
+
+    if (!context) {
+      // eslint-disable-next-line react-hooks/rules-of-hooks
+      return React.useCallback(callback, deps);
+    }
+
+    if (context.didInitialize === false) {
+      const callbackData: CallbackData<T> = { callback, deps };
+      context.data.push(callbackData as CallbackData<unknown>);
+      context.index += 1;
+      return callback;
+    }
+
+    const callbackData = context.data[context.index] as CallbackData<T>;
+    const previousDeps = callbackData.deps;
+
+    if (previousDeps === undefined || areDepsEqual(previousDeps as unknown[], deps as unknown[]) === false) {
+      callbackData.callback = callback;
+      callbackData.deps = deps;
+    }
+
+    context.index += 1;
+    return callbackData.callback;
+  }
+
+  return useCallback;
+};
