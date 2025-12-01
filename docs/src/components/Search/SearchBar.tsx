@@ -258,7 +258,7 @@ export function SearchBar({
     <React.Fragment>
       <Button
         onClick={handleOpenDialog}
-        className={`search-button relative h-7 w-50 text-left text-sm font-normal text-gray-900 rounded-md pt-0.75 pb-0.75 pl-3 pr-3 border border-gray-200 bg-(--color-popup) focus-visible:outline-none ${dialogOpen ? 'search-button-hidden' : ''}`}
+        className={`search-button relative h-7 w-50 text-left text-sm font-normal text-gray-900 rounded-md pt-0.75 pb-0.75 pl-3 pr-3 border border-gray-200 bg-(--color-popup) hover:bg-gray-100 active:bg-gray-200 active:shadow-[inset_0_1px_3px_rgba(0,0,0,0.1)] active:border-t-gray-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-800 focus-visible:-outline-offset-1 ${dialogOpen ? 'search-button-hidden' : ''}`}
       >
         <div>
           <div className="flex items-center gap-2">
