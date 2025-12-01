@@ -214,7 +214,7 @@ export function SearchBar({
       />
       <Button
         onClick={handleEscapeButtonClick}
-        className="expanding-box-content-right rounded border border-gray-300 bg-gray-50 px-1.5 hidden focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800 lg:flex"
+        className="expanding-box-content-right rounded border border-gray-300 bg-gray-50 px-1.5 hidden hover:bg-gray-100 active:bg-gray-200 active:shadow-[inset_0_1px_3px_rgba(0,0,0,0.1)] active:border-t-gray-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-800 focus-visible:-outline-offset-1 lg:flex"
       >
         <kbd className="text-xs text-gray-600 whitespace-nowrap">esc</kbd>
       </Button>
