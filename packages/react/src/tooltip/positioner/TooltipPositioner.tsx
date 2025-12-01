@@ -39,7 +39,7 @@ export const TooltipPositioner = React.forwardRef(function TooltipPositioner(
     ...elementProps
   } = componentProps;
 
-  const { store } = useTooltipRootContext();
+  const store = useTooltipRootContext();
   const keepMounted = useTooltipPortalContext();
 
   const open = store.useState('open');
@@ -86,27 +86,19 @@ export const TooltipPositioner = React.forwardRef(function TooltipPositioner(
     };
   }, [open, trackCursorAxis, disableHoverablePopup, mounted, positioning.positionerStyles]);
 
-  const positioner = React.useMemo(
-    () => ({
-      props: defaultProps,
-      ...positioning,
-    }),
-    [defaultProps, positioning],
-  );
-
   const state: TooltipPositioner.State = React.useMemo(
     () => ({
       open,
-      side: positioner.side,
-      align: positioner.align,
-      anchorHidden: positioner.anchorHidden,
+      side: positioning.side,
+      align: positioning.align,
+      anchorHidden: positioning.anchorHidden,
       instant: trackCursorAxis !== 'none' ? 'tracking-cursor' : instantType,
     }),
     [
       open,
-      positioner.side,
-      positioner.align,
-      positioner.anchorHidden,
+      positioning.side,
+      positioning.align,
+      positioning.anchorHidden,
       trackCursorAxis,
       instantType,
     ],
@@ -115,16 +107,16 @@ export const TooltipPositioner = React.forwardRef(function TooltipPositioner(
   const contextValue: TooltipPositionerContext = React.useMemo(
     () => ({
       ...state,
-      arrowRef: positioner.arrowRef,
-      arrowStyles: positioner.arrowStyles,
-      arrowUncentered: positioner.arrowUncentered,
+      arrowRef: positioning.arrowRef,
+      arrowStyles: positioning.arrowStyles,
+      arrowUncentered: positioning.arrowUncentered,
     }),
-    [state, positioner.arrowRef, positioner.arrowStyles, positioner.arrowUncentered],
+    [state, positioning.arrowRef, positioning.arrowStyles, positioning.arrowUncentered],
   );
 
   const element = useRenderElement('div', componentProps, {
     state,
-    props: [positioner.props, getDisabledMountTransitionStyles(transitionStatus), elementProps],
+    props: [defaultProps, getDisabledMountTransitionStyles(transitionStatus), elementProps],
     ref: [forwardedRef, store.useStateSetter('positionerElement')],
     stateAttributesMapping: popupStateMapping,
   });

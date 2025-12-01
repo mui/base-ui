@@ -34,7 +34,7 @@ export const TooltipViewport = React.forwardRef(function TooltipViewport(
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const { render, className, children, ...elementProps } = componentProps;
-  const { store } = useTooltipRootContext();
+  const store = useTooltipRootContext();
 
   const activeTrigger = store.useState('activeTriggerElement');
   const open = store.useState('open');
@@ -61,28 +61,6 @@ export const TooltipViewport = React.forwardRef(function TooltipViewport(
 
   const [showStartingStyleAttribute, setShowStartingStyleAttribute] = React.useState(false);
 
-  // Capture a clone of the current content DOM subtree when not transitioning.
-  // We can't store previous React nodes as they may be stateful; instead we capture DOM clones for visual continuity.
-  useIsoLayoutEffect(() => {
-    // When a transition is in progress, we store the next content in capturedNodeRef.
-    // This handles the case where the trigger changes multiple times before the transition finishes.
-    // We want to always capture the latest content for the previous snapshot.
-    // So clicking quickly on T1, T2, T3 will result in the following sequence:
-    // 1. T1 -> T2: previousContent = T1, currentContent = T2
-    // 2. T2 -> T3: previousContent = T2, currentContent = T3
-    const source = currentContainerRef.current;
-    if (!source) {
-      return;
-    }
-
-    const wrapper = document.createElement('div');
-    for (const child of Array.from(source.childNodes)) {
-      wrapper.appendChild(child.cloneNode(true));
-    }
-
-    capturedNodeRef.current = wrapper;
-  });
-
   const handleMeasureLayout = useStableCallback(() => {
     currentContainerRef.current?.style.setProperty('animation', 'none');
     currentContainerRef.current?.style.setProperty('transition', 'none');
@@ -107,16 +85,16 @@ export const TooltipViewport = React.forwardRef(function TooltipViewport(
   });
 
   React.useEffect(() => {
-    floatingContext.events.on('measure-layout', handleMeasureLayout);
-    floatingContext.events.on('measure-layout-complete', handleMeasureLayoutComplete);
+    floatingContext.context.events.on('measure-layout', handleMeasureLayout);
+    floatingContext.context.events.on('measure-layout-complete', handleMeasureLayoutComplete);
 
     return () => {
-      floatingContext.events.off('measure-layout', handleMeasureLayout);
-      floatingContext.events.off('measure-layout-complete', handleMeasureLayoutComplete);
+      floatingContext.context.events.off('measure-layout', handleMeasureLayout);
+      floatingContext.context.events.off('measure-layout-complete', handleMeasureLayoutComplete);
     };
   }, [floatingContext, handleMeasureLayout, handleMeasureLayoutComplete]);
 
-  const lastHandledTriggerRef = React.useRef<HTMLElement | null>(null);
+  const lastHandledTriggerRef = React.useRef<Element | null>(null);
 
   useIsoLayoutEffect(() => {
     // When a trigger changes, set the captured children HTML to state,
@@ -154,6 +132,28 @@ export const TooltipViewport = React.forwardRef(function TooltipViewport(
     onAnimationsFinished,
     cleanupTimeout,
   ]);
+
+  // Capture a clone of the current content DOM subtree when not transitioning.
+  // We can't store previous React nodes as they may be stateful; instead we capture DOM clones for visual continuity.
+  useIsoLayoutEffect(() => {
+    // When a transition is in progress, we store the next content in capturedNodeRef.
+    // This handles the case where the trigger changes multiple times before the transition finishes.
+    // We want to always capture the latest content for the previous snapshot.
+    // So clicking quickly on T1, T2, T3 will result in the following sequence:
+    // 1. T1 -> T2: previousContent = T1, currentContent = T2
+    // 2. T2 -> T3: previousContent = T2, currentContent = T3
+    const source = currentContainerRef.current;
+    if (!source) {
+      return;
+    }
+
+    const wrapper = document.createElement('div');
+    for (const child of Array.from(source.childNodes)) {
+      wrapper.appendChild(child.cloneNode(true));
+    }
+
+    capturedNodeRef.current = wrapper;
+  });
 
   const isTransitioning = previousContentNode != null;
   let childrenToRender: React.ReactNode;
@@ -280,7 +280,7 @@ function getValueWithTolerance(
 /**
  * Calculates the relative position between centers of two elements.
  */
-function calculateRelativePosition(from: HTMLElement, to: HTMLElement): Offset {
+function calculateRelativePosition(from: Element, to: Element): Offset {
   const fromRect = from.getBoundingClientRect();
   const toRect = to.getBoundingClientRect();
 

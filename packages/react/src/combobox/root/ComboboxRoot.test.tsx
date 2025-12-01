@@ -126,6 +126,34 @@ describe('<Combobox.Root />', () => {
     });
   });
 
+  it('does not cause infinite re-renders when items becomes undefined', async () => {
+    const { rerender } = await render(
+      <Combobox.Root items={[]} defaultOpen>
+        <Combobox.Input />
+        <Combobox.Portal>
+          <Combobox.Positioner>
+            <Combobox.Popup>
+              <Combobox.List />
+            </Combobox.Popup>
+          </Combobox.Positioner>
+        </Combobox.Portal>
+      </Combobox.Root>,
+    );
+
+    rerender(
+      <Combobox.Root items={undefined} defaultOpen>
+        <Combobox.Input />
+        <Combobox.Portal>
+          <Combobox.Positioner>
+            <Combobox.Popup>
+              <Combobox.List />
+            </Combobox.Popup>
+          </Combobox.Positioner>
+        </Combobox.Portal>
+      </Combobox.Root>,
+    );
+  });
+
   describe('selection behavior', () => {
     describe('single', () => {
       it('fires onOpenChange once with reason item-press on mouse click', async () => {

@@ -49,7 +49,7 @@ export const NavigationItem = React.forwardRef<
 
   const nodeId = useFloatingNodeId();
 
-  const { floatingStyles, refs, context } = useFloating<HTMLAnchorElement>({
+  const { floatingStyles, refs, context } = useFloating({
     open,
     nodeId,
     onOpenChange: setOpen,

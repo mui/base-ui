@@ -15,25 +15,28 @@ interface UseFocusWithDelayProps {
  * Adds support for delay, since Floating UI's `useFocus` hook does not support it.
  */
 export function useFocusWithDelay(
-  context: FloatingRootContext,
+  store: FloatingRootContext,
   props: UseFocusWithDelayProps = {},
 ): ElementProps {
-  const { onOpenChange, elements, open, dataRef } = context;
+  const domReference = store.useState('domReferenceElement');
+  const dataRef = store.context.dataRef;
   const { delay } = props;
 
   const timeout = useTimeout();
   const blockFocusRef = React.useRef(false);
 
   React.useEffect(() => {
-    const win = getWindow(elements.domReference);
+    // TODO: remove domReference from dependencies or split this hook into trigger/popup hooks.
+    const win = getWindow(domReference);
 
     // If the reference was focused and the user left the tab/window, and the preview card was not
     // open, the focus should be blocked when they return to the tab/window.
     function handleBlur() {
+      const currentDomReference = store.select('domReferenceElement');
       if (
-        !open &&
-        isHTMLElement(elements.domReference) &&
-        elements.domReference === activeElement(getDocument(elements.domReference))
+        !store.select('open') &&
+        isHTMLElement(currentDomReference) &&
+        currentDomReference === activeElement(getDocument(currentDomReference))
       ) {
         blockFocusRef.current = true;
       }
@@ -43,7 +46,7 @@ export function useFocusWithDelay(
     return () => {
       win.removeEventListener('blur', handleBlur);
     };
-  }, [elements.domReference, open]);
+  }, [store, domReference]);
 
   const reference: ElementProps['reference'] = React.useMemo(
     () => ({
@@ -51,7 +54,7 @@ export function useFocusWithDelay(
         const { nativeEvent } = event;
         const delayValue = typeof delay === 'function' ? delay() : delay;
         timeout.start(delayValue ?? 0, () => {
-          onOpenChange(true, createChangeEventDetails(REASONS.triggerFocus, nativeEvent));
+          store.setOpen(true, createChangeEventDetails(REASONS.triggerFocus, nativeEvent));
         });
       },
       onBlur(event) {
@@ -60,12 +63,13 @@ export function useFocusWithDelay(
 
         // Wait for the window blur listener to fire.
         timeout.start(0, () => {
+          const currentDomReference = store.select('domReferenceElement');
           const activeEl = activeElement(
-            elements.domReference ? elements.domReference.ownerDocument : document,
+            currentDomReference ? currentDomReference.ownerDocument : document,
           );
 
           // Focus left the page, keep it open.
-          if (!relatedTarget && activeEl === elements.domReference) {
+          if (!relatedTarget && activeEl === currentDomReference) {
             return;
           }
 
@@ -78,16 +82,16 @@ export function useFocusWithDelay(
           // inside a shadow root.
           if (
             contains(dataRef.current.floatingContext?.refs.floating.current, activeEl) ||
-            contains(elements.domReference, activeEl)
+            contains(currentDomReference, activeEl)
           ) {
             return;
           }
 
-          onOpenChange(false, createChangeEventDetails(REASONS.triggerFocus, nativeEvent));
+          store.setOpen(false, createChangeEventDetails(REASONS.triggerFocus, nativeEvent));
         });
       },
     }),
-    [delay, onOpenChange, elements.domReference, dataRef, timeout],
+    [delay, store, dataRef, timeout],
   );
 
   return React.useMemo(() => ({ reference }), [reference]);

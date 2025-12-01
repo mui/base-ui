@@ -14,11 +14,11 @@ export default function ExampleGroupAutocomplete() {
 
       <Autocomplete.Portal>
         <Autocomplete.Positioner className="outline-none" sideOffset={4}>
-          <Autocomplete.Popup className="w-[var(--anchor-width)] max-h-[min(var(--available-height),22.5rem)] max-w-[var(--available-width)] overflow-hidden rounded-lg bg-[canvas] text-gray-900 outline-1 outline-gray-200 shadow-lg shadow-gray-200 dark:outline-gray-300 dark:shadow-none">
+          <Autocomplete.Popup className="w-[var(--anchor-width)] max-h-[22.5rem] max-w-[var(--available-width)] rounded-lg bg-[canvas] text-gray-900 outline-1 outline-gray-200 shadow-lg shadow-gray-200 dark:outline-gray-300 dark:shadow-none">
             <Autocomplete.Empty className="px-4 py-2 text-[0.925rem] leading-4 text-gray-600 empty:m-0 empty:p-0">
               No tags found.
             </Autocomplete.Empty>
-            <Autocomplete.List className="outline-0 overflow-y-auto scroll-pt-[2.25rem] scroll-pb-[0.5rem] overscroll-contain max-h-[min(22.5rem,var(--available-height))]">
+            <Autocomplete.List className="outline-0 overflow-y-auto scroll-pt-[2.25rem] scroll-pb-[0.5rem] overscroll-contain max-h-[min(22.5rem,var(--available-height))] data-[empty]:p-0">
               {(group: TagGroup) => (
                 <Autocomplete.Group key={group.value} items={group.items} className="block pb-2">
                   <Autocomplete.GroupLabel className="sticky top-0 z-[1] mb-0 mr-2 mt-0 ml-0 w-[calc(100%-0.5rem)] bg-[canvas] px-4 pb-1 pt-2 text-xs font-semibold uppercase tracking-wider">
@@ -28,7 +28,7 @@ export default function ExampleGroupAutocomplete() {
                     {(tag: Tag) => (
                       <Autocomplete.Item
                         key={tag.id}
-                        className="flex cursor-default py-2 pr-8 pl-4 text-base leading-4 outline-none select-none data-[highlighted]:relative data-[highlighted]:z-0 data-[highlighted]:text-gray-50 data-[highlighted]:before:absolute data-[highlighted]:before:inset-x-2 data-[highlighted]:before:inset-y-0 data-[highlighted]:before:z-[-1] data-[highlighted]:before:rounded data-[highlighted]:before:bg-gray-900"
+                        className="flex cursor-default items-center gap-2 py-2 pr-8 pl-4 text-base leading-4 outline-none select-none data-[highlighted]:relative data-[highlighted]:z-0 data-[highlighted]:text-gray-50 data-[highlighted]:before:absolute data-[highlighted]:before:inset-x-2 data-[highlighted]:before:inset-y-0 data-[highlighted]:before:z-[-1] data-[highlighted]:before:rounded-sm data-[highlighted]:before:bg-gray-900"
                         value={tag}
                       >
                         {tag.label}

@@ -4,7 +4,6 @@ import * as ReactDOM from 'react-dom';
 import { isTabbable } from 'tabbable';
 import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
-import { visuallyHidden } from '@base-ui-components/utils/visuallyHidden';
 import { useTimeout } from '@base-ui-components/utils/useTimeout';
 import { useAnimationFrame } from '@base-ui-components/utils/useAnimationFrame';
 import { useValueAsRef } from '@base-ui-components/utils/useValueAsRef';
@@ -31,7 +30,7 @@ import {
 } from '../root/NavigationMenuRootContext';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
-import { EMPTY_ARRAY, PATIENT_CLICK_THRESHOLD } from '../../utils/constants';
+import { EMPTY_ARRAY, ownerVisuallyHidden, PATIENT_CLICK_THRESHOLD } from '../../utils/constants';
 import { FocusGuard } from '../../utils/FocusGuard';
 import { pressableTriggerOpenStateMapping } from '../../utils/popupStateMapping';
 import { isOutsideMenuEvent } from '../utils/isOutsideMenuEvent';
@@ -80,6 +79,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
     closeDelay,
     orientation,
     setViewportInert,
+    nested,
   } = useNavigationMenuRootContext();
   const { value: itemValue } = useNavigationMenuItemContext();
   const nodeId = useNavigationMenuTreeContext();
@@ -326,7 +326,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
       // `click` -> `hover` on new trigger -> `hover` back to old trigger doesn't unexpectedly
       // cause the popup to remain stuck open when leaving the old trigger.
       if (event.type !== 'click') {
-        context.dataRef.current.openEvent = undefined;
+        context.context.dataRef.current.openEvent = undefined;
       }
 
       if (pointerType === 'touch' && event.type !== 'click') {
@@ -390,6 +390,14 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
     },
     onKeyDown(event) {
       allowFocusRef.current = true;
+
+      // For nested (submenu) triggers, don't intercept arrow keys that are used for
+      // navigation in the parent content. The arrow keys should be handled by the
+      // parent's CompositeRoot for navigating between items.
+      if (nested) {
+        return;
+      }
+
       const openHorizontal = orientation === 'horizontal' && event.key === 'ArrowDown';
       const openVertical = orientation === 'vertical' && event.key === 'ArrowRight';
 
@@ -454,7 +462,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
               }
             }}
           />
-          <span aria-owns={viewportElement?.id} style={visuallyHidden} />
+          <span aria-owns={viewportElement?.id} style={ownerVisuallyHidden} />
           <FocusGuard
             ref={afterOutsideRef}
             onFocus={(event) => {

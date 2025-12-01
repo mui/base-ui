@@ -182,7 +182,7 @@ describe('useListNavigation', () => {
 
       const listRef = React.useRef<Array<HTMLElement | null>>([]);
 
-      const { x, y, strategy, context, refs } = useFloating<HTMLInputElement>({
+      const { x, y, strategy, context, refs } = useFloating({
         open,
         onOpenChange: setOpen,
       });
@@ -250,7 +250,7 @@ describe('useListNavigation', () => {
                       onClick() {
                         setInputValue(item);
                         setOpen(false);
-                        refs.domReference.current?.focus();
+                        (refs.domReference.current as HTMLElement | null)?.focus();
                       },
                     })}
                   >

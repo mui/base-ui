@@ -1,5 +1,82 @@
 # Versions
 
+## v1.0.0-beta.7
+
+_Nov 27, 2025_
+
+### General changes
+
+- Fix error about `props.ref` access in React &lt;=18 (#3257) by @atomiks
+- Prefer non-adaptive anchoring position in `<Positioner>` components and fix `autoFocus` scroll jumps (#3250) by @atomiks
+- Make popups' `data-anchor-hidden` state attribute check for anchor presence in layout (#3267) by @atomiks
+- Prevent popups from sticking after hover when pressing `&lt;a&gt;` tags inside them (#3318) by @atomiks
+- Improve performance when detached triggers are used (#3277)
+- Fix iOS VoiceOver voice control accessibility in non-modal popups (#3340)
+
+### Alert Dialog
+
+- Fix trigger registration loop (#3249) by @atomiks
+- Fix focus restoration when focused element is hidden with CSS (#3313)
+
+### Checkbox Group
+
+- Fix `aria-describedby` on checkbox group (#3269) by @mj12albert
+
+### Combobox
+
+- Revert overload types to ensure typed wrappers work correctly (#3254) by @atomiks
+- Fix ignored `filteredItems` instances (#3272) by @atomiks
+- Fix loop when passing `undefined` to `items` prop (#3348)
+
+### Context Menu
+
+- Block mouseup at initial cursor point (#3274) by @atomiks
+
+### Dialog
+
+- Fix trigger registration loop (#3249) by @atomiks
+- Fix focus restoration when focused element is hidden with CSS (#3313)
+
+### Form
+
+- Fix cast `ref` type (#3324) by @mj12albert
+
+### Menu
+
+- Fix trigger registration loop (#3249) by @atomiks
+- Do not pass `key` to the rendered element (#3255) by @michaldudak
+- Fix nested dialog from closing on <kbd>Shift+Tab</kbd> (#3346)
+
+### Navigation Menu
+
+- Fix Safari 18 issue where `<Positioner>` width may be set to 0 on hover (#3309) by @EmilNordling
+- Ensure submenu triggers participate in composite list (#3344) by @atomiks
+
+### Number Field
+
+- Fix literal space handling with symbols (#3334) by @atomiks
+
+### Popover
+
+- Fix trigger registration loop (#3249) by @atomiks
+- Do not pass `key` to the rendered element (#3255) by @michaldudak
+- Fix focus restoration when focused element is hidden with CSS (#3313)
+
+### Select
+
+- Revert overload types to ensure typed wrappers work correctly (#3254) by @atomiks
+
+### Slider
+
+- Fix extra `onValueCommitted` calls (#3312) by @mj12albert
+- Fix cast `ref` type (#3324) by @mj12albert
+
+### Tooltip
+
+- Fix trigger registration loop (#3249) by @atomiks
+
+All contributors of this release in alphabetical order: @atomiks, @brijeshb42, @Copilot, @EmilNordling, @michaldudak, @mj12albert, @oliviertassinari, @ZeeshanTamboli
+
 ## v1.0.0-beta.6
 
 _Nov 17, 2025_

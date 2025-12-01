@@ -1,7 +1,12 @@
 'use client';
 import * as React from 'react';
 import { InteractionType } from '@base-ui-components/utils/useEnhancedClickHandler';
-import { Dimensions, FloatingFocusManager } from '../../floating-ui-react';
+import { isHTMLElement } from '@floating-ui/utils/dom';
+import {
+  Dimensions,
+  FloatingFocusManager,
+  useHoverFloatingInteraction,
+} from '../../floating-ui-react';
 import { usePopoverRootContext } from '../root/PopoverRootContext';
 import { usePopoverPositionerContext } from '../positioner/PopoverPositionerContext';
 import type { Side, Align } from '../../utils/useAnchorPositioning';
@@ -52,9 +57,8 @@ export const PopoverPopup = React.forwardRef(function PopoverPopup(
   const descriptionId = store.useState('descriptionElementId');
   const modal = store.useState('modal');
   const mounted = store.useState('mounted');
-  const openReason = store.useState('openReason');
+  const openReason = store.useState('openChangeReason');
   const popupElement = store.useState('popupElement');
-  const triggers = store.useState('triggers');
   const payload = store.useState('payload');
   const positionerElement = store.useState('positionerElement');
   const activeTriggerElement = store.useState('activeTriggerElement');
@@ -69,6 +73,12 @@ export const PopoverPopup = React.forwardRef(function PopoverPopup(
       }
     },
   });
+
+  const disabled = store.useState('disabled');
+  const openOnHover = store.useState('openOnHover');
+  const closeDelay = store.useState('closeDelay');
+
+  useHoverFloatingInteraction(floatingContext, { enabled: openOnHover && !disabled, closeDelay });
 
   // Default initial focus logic:
   // If opened by touch, focus the popup element to prevent the virtual keyboard from opening
@@ -101,14 +111,14 @@ export const PopoverPopup = React.forwardRef(function PopoverPopup(
   );
 
   function handleMeasureLayout() {
-    floatingContext.events.emit('measure-layout');
+    floatingContext.context.events.emit('measure-layout');
   }
 
   function handleMeasureLayoutComplete(
     previousDimensions: Dimensions | null,
     nextDimensions: Dimensions,
   ) {
-    floatingContext.events.emit('measure-layout-complete', {
+    floatingContext.context.events.emit('measure-layout-complete', {
       previousDimensions,
       nextDimensions,
     });
@@ -116,7 +126,7 @@ export const PopoverPopup = React.forwardRef(function PopoverPopup(
 
   // If there's just one trigger, we can skip the auto-resize logic as
   // the popover will always be anchored to the same position.
-  const autoresizeEnabled = triggers.size > 1;
+  const autoresizeEnabled = () => store.context.triggerElements.size > 1;
 
   usePopupAutoResize({
     popupElement,
@@ -129,10 +139,6 @@ export const PopoverPopup = React.forwardRef(function PopoverPopup(
   });
 
   const anchoringStyles: React.CSSProperties = React.useMemo(() => {
-    if (!autoresizeEnabled) {
-      return EMPTY_OBJECT;
-    }
-
     // Ensure popup size transitions correctly when anchored to `bottom` (side=top) or `right` (side=left).
     let isOriginSide = positioner.side === 'top';
     let isPhysicalLeft = positioner.side === 'left';
@@ -151,7 +157,7 @@ export const PopoverPopup = React.forwardRef(function PopoverPopup(
           [isPhysicalLeft ? 'right' : 'left']: '0',
         }
       : EMPTY_OBJECT;
-  }, [positioner.side, direction, autoresizeEnabled]);
+  }, [positioner.side, direction]);
 
   const element = useRenderElement('div', componentProps, {
     state,
@@ -176,14 +182,16 @@ export const PopoverPopup = React.forwardRef(function PopoverPopup(
 
   return (
     <FloatingFocusManager
-      context={positioner.context}
+      context={floatingContext}
       openInteractionType={openMethod}
       modal={modal === 'trap-focus'}
       disabled={!mounted || openReason === REASONS.triggerHover}
       initialFocus={resolvedInitialFocus}
       returnFocus={finalFocus}
       restoreFocus="popup"
-      previousFocusableElement={activeTriggerElement}
+      previousFocusableElement={
+        isHTMLElement(activeTriggerElement) ? activeTriggerElement : undefined
+      }
       nextFocusableElement={store.context.triggerFocusTargetRef}
       beforeContentFocusGuardRef={store.context.beforeContentFocusGuardRef}
     >

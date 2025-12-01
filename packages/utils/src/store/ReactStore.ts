@@ -86,11 +86,28 @@ export class ReactStore<
    * Note that the while the values in `state` are updated immediately, the values returned
    * by `useState` are updated before the next render (similarly to React's `useState`).
    */
-  public useSyncedValues(props: Partial<State>) {
-    React.useDebugValue(props, (p) => Object.keys(p));
+  public useSyncedValues(statePart: Partial<State>) {
+    if (process.env.NODE_ENV !== 'production') {
+      // Check that an object with the same shape is passed on every render
+      React.useDebugValue(statePart, (p) => Object.keys(p));
+      const keys = React.useRef<Array<keyof State>>(
+        Object.keys(statePart) as Array<keyof State>,
+      ).current;
+
+      const nextKeys = Object.keys(statePart);
+      if (keys.length !== nextKeys.length || keys.some((key, index) => key !== nextKeys[index])) {
+        console.error(
+          'ReactStore.useSyncedValues expects the same prop keys on every render. Keys should be stable.',
+        );
+      }
+    }
+
+    const dependencies = Object.values(statePart);
+
     useIsoLayoutEffect(() => {
-      this.update(props);
-    }, [props]);
+      this.update(statePart);
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, dependencies);
   }
 
   /**
@@ -244,13 +261,14 @@ export class ReactStore<
    *
    * @param key Key of the state to set.
    */
-  public useStateSetter<Key extends keyof State, Value extends State[Key]>(key: keyof State) {
-    return React.useCallback(
-      (value: Value) => {
+  public useStateSetter<const Key extends keyof State, Value extends State[Key]>(key: keyof State) {
+    const ref = React.useRef<(v: Value) => void>(undefined as any);
+    if (ref.current === undefined) {
+      ref.current = (value: Value) => {
         this.set(key, value);
-      },
-      [key],
-    );
+      };
+    }
+    return ref.current;
   }
 
   /**

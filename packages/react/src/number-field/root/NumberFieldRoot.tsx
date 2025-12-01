@@ -148,7 +148,7 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
   const [inputMode, setInputMode] = React.useState<InputMode>('numeric');
 
   const getAllowedNonNumericKeys = useStableCallback(() => {
-    const { decimal, group, currency } = getNumberLocaleDetails(locale, format);
+    const { decimal, group, currency, literal } = getNumberLocaleDetails(locale, format);
 
     const keys = new Set<string>();
     BASE_NON_NUMERIC_SYMBOLS.forEach((symbol) => keys.add(symbol));
@@ -176,6 +176,15 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
 
     if (formatStyle === 'currency' && currency) {
       keys.add(currency);
+    }
+
+    if (literal) {
+      // Some locales (e.g. de-DE) insert a literal space character between the number
+      // and the symbol, so allow those characters to be typed/removed.
+      Array.from(literal).forEach((char) => keys.add(char));
+      if (SPACE_SEPARATOR_RE.test(literal)) {
+        keys.add(' ');
+      }
     }
 
     // Allow plus sign in all cases; minus sign only when negatives are valid
