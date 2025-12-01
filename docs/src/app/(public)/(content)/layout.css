@@ -34,10 +34,6 @@
     padding-bottom: 5rem;
     margin: 0 auto;
 
-    :root[data-navigating] & {
-      view-transition-name: main-content;
-    }
-
     @media (--sm) {
       padding-top: 2rem;
     }
@@ -50,16 +46,5 @@
     @media (--show-quick-nav) {
       margin: 0;
     }
-  }
-}
-
-@supports (view-transition-name: none) {
-  ::view-transition-old(main-content) {
-    animation-duration: 200ms;
-  }
-
-  ::view-transition-new(main-content) {
-    animation-delay: 200ms;
-    animation-duration: 150ms;
   }
 }

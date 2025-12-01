@@ -22,10 +22,6 @@
 
     display: none;
 
-    :root[data-navigating] & {
-      view-transition-name: side-nav;
-    }
-
     @media (--show-side-nav) {
       display: block;
     }
@@ -154,15 +150,4 @@
   letter-spacing: 0.035em;
   padding-inline: 2px;
   translate: 0 -2px;
-}
-
-@supports (view-transition-name: none) {
-  ::view-transition-old(side-nav) {
-    animation-duration: 200ms;
-  }
-
-  ::view-transition-new(side-nav) {
-    animation-delay: 200ms;
-    animation-duration: 150ms;
-  }
 }
