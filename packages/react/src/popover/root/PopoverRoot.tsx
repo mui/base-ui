@@ -40,9 +40,9 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
   const store = PopoverStore.useStore(handle?.store, {
     modal,
     open: defaultOpen,
-    openProp: openProp,
+    openProp,
     activeTriggerId: defaultTriggerIdProp,
-    triggerIdProp: triggerIdProp ?? undefined,
+    triggerIdProp,
   });
 
   store.useControlledProp('openProp', openProp);

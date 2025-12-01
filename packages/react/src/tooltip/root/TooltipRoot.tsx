@@ -46,9 +46,9 @@ export function TooltipRoot<Payload>(props: TooltipRoot.Props<Payload>) {
 
   const store = TooltipStore.use<Payload>(handle?.store, {
     open: defaultOpen,
-    openProp: openProp,
+    openProp,
     activeTriggerId: defaultTriggerIdProp,
-    triggerIdProp: triggerIdProp ?? undefined,
+    triggerIdProp,
   });
 
   store.useControlledProp('openProp', openProp);

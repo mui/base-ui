@@ -38,9 +38,9 @@ export function DialogRoot<Payload>(props: DialogRoot.Props<Payload>) {
       handle?.store ??
       new DialogStore<Payload>({
         open: defaultOpen,
-        openProp: openProp,
+        openProp,
         activeTriggerId: defaultTriggerIdProp,
-        triggerIdProp: triggerIdProp ?? undefined,
+        triggerIdProp,
         modal,
         disablePointerDismissal,
         nested,

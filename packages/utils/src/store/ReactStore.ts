@@ -127,6 +127,7 @@ export class ReactStore<
     }, [key, controlled, isControlled]);
 
     if (process.env.NODE_ENV !== 'production') {
+      // eslint-disable-next-line
       const cache = ((this as any).controlledValues ??= new Map<keyof State, boolean>());
       if (isControlled && !cache.has(key)) {
         cache.set(key, isControlled);
@@ -150,6 +151,7 @@ export class ReactStore<
     key: Key,
     ...args: SelectorArgs<Selectors[Key]>
   ): ReturnType<Selectors[Key]>;
+
   public select(key: keyof Selectors, a1?: unknown, a2?: unknown, a3?: unknown) {
     const selector = this.selectors![key];
     return selector(this.state, a1, a2, a3);
@@ -166,6 +168,7 @@ export class ReactStore<
     key: Key,
     ...args: SelectorArgs<Selectors[Key]>
   ): ReturnType<Selectors[Key]>;
+
   public useState(key: keyof Selectors, a1?: unknown, a2?: unknown, a3?: unknown) {
     React.useDebugValue(key);
     return useStore(this, this.selectors![key], a1, a2, a3);

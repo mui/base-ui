@@ -46,6 +46,7 @@ export class TooltipStore<Payload> extends ReactStore<
     externalStore: TooltipStore<Payload> | undefined,
     initialState?: Partial<State<Payload>>,
   ) {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
     return useRefWithInit(() => {
       return externalStore ?? new TooltipStore<Payload>(initialState);
     }).current;

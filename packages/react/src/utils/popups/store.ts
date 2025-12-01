@@ -51,7 +51,7 @@ export type PopupStoreState<Payload> = {
   /**
    * ID of the trigger (external prop).
    */
-  readonly triggerIdProp: string | undefined;
+  readonly triggerIdProp: string | null | undefined;
   /**
    * The popup DOM element.
    */

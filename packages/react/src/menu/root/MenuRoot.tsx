@@ -106,9 +106,9 @@ export function MenuRoot<Payload>(props: MenuRoot.Props<Payload>) {
 
   const store = MenuStore.useStore(handle?.store, {
     open: defaultOpen,
-    openProp: openProp,
+    openProp,
     activeTriggerId: defaultTriggerIdProp,
-    triggerIdProp: triggerIdProp ?? undefined,
+    triggerIdProp,
     parent: parentFromContext,
   });
 

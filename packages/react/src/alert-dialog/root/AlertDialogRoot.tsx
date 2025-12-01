@@ -35,9 +35,9 @@ export function AlertDialogRoot<Payload>(props: AlertDialogRoot.Props<Payload>) 
       handle?.store ??
       new DialogStore<Payload>({
         open: defaultOpen,
-        openProp: openProp,
+        openProp,
         activeTriggerId: defaultTriggerIdProp,
-        triggerIdProp: triggerIdProp ?? undefined,
+        triggerIdProp,
         modal: true,
         disablePointerDismissal: true,
         nested,
