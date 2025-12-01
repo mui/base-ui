@@ -7,6 +7,9 @@ const htmlHeadWithDefaultStyles: ExportConfig['headTemplate'] = () => defaultSty
 const demoCss = `body {
   font-family: system-ui;
   margin: 0;
+
+  /* iOS 26+ Safari: https://base-ui.com/react/overview/quick-start#ios-26-safari */
+  position: relative;
 }
 
 #root {
