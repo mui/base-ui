@@ -12,7 +12,6 @@ type Effect = {
 type EffectContext = {
   index: number;
   data: Effect[];
-  didInitialize: boolean;
 };
 
 type RefData<T> = {
@@ -22,7 +21,6 @@ type RefData<T> = {
 type RefContext = {
   index: number;
   data: RefData<unknown>[];
-  didInitialize: boolean;
 };
 
 type CallbackData<T> = {
@@ -33,7 +31,6 @@ type CallbackData<T> = {
 type CallbackContext = {
   index: number;
   data: CallbackData<unknown>[];
-  didInitialize: boolean;
 };
 
 type StateData<T> = {
@@ -44,10 +41,10 @@ type StateData<T> = {
 type StateContext = {
   index: number;
   data: StateData<unknown>[];
-  didInitialize: boolean;
 };
 
 type Context = {
+  didInitialize: boolean;
   useEffect: EffectContext;
   useLayoutEffect: EffectContext;
   useRef: RefContext;
@@ -59,30 +56,26 @@ let currentContext: Context | undefined = undefined;
 
 export function createContext(): Context {
   return {
+    didInitialize: false,
     useEffect: {
       index: 0,
       data: [],
-      didInitialize: false,
     },
     useLayoutEffect: {
       index: 0,
       data: [],
-      didInitialize: false,
     },
     useRef: {
       index: 0,
       data: [],
-      didInitialize: false,
     },
     useCallback: {
       index: 0,
       data: [],
-      didInitialize: false,
     },
     useState: {
       index: 0,
       data: [],
-      didInitialize: false,
     },
   };
 }
@@ -109,11 +102,7 @@ export function use(): Disposable {
 
   return {
     [Symbol.dispose]() {
-      context.useEffect.didInitialize = true;
-      context.useLayoutEffect.didInitialize = true;
-      context.useRef.didInitialize = true;
-      context.useCallback.didInitialize = true;
-      context.useState.didInitialize = true;
+      context.didInitialize = true;
       currentContext = previousContext;
     },
   };
@@ -137,11 +126,7 @@ export function createComponent<P extends object, E extends HTMLElement>(
 
       result = fn(props, forwardedRef);
 
-      context.useEffect.didInitialize = true;
-      context.useLayoutEffect.didInitialize = true;
-      context.useRef.didInitialize = true;
-      context.useCallback.didInitialize = true;
-      context.useState.didInitialize = true;
+      context.didInitialize = true;
     } catch (error) {
       throw error;
     } finally {
@@ -165,7 +150,7 @@ export const createUseEffect = (name: 'useEffect' | 'useLayoutEffect') => {
       return reactUseEffect(create, deps);
     }
 
-    if (context.didInitialize === false) {
+    if (currentContext!.didInitialize === false) {
       context.data.push({
         create,
         cleanup: undefined,
@@ -238,7 +223,7 @@ export const createUseRef = () => {
       return React.useRef(initialValue) as React.MutableRefObject<T | undefined>;
     }
 
-    if (context.didInitialize === false) {
+    if (currentContext!.didInitialize === false) {
       const refData: RefData<T | undefined | null> = { current: initialValue };
       context.data.push(refData as RefData<unknown>);
       context.index += 1;
@@ -262,7 +247,7 @@ export const createUseCallback = () => {
       return React.useCallback(callback, deps);
     }
 
-    if (context.didInitialize === false) {
+    if (currentContext!.didInitialize === false) {
       const callbackData: CallbackData<T> = { callback, deps };
       context.data.push(callbackData as CallbackData<unknown>);
       context.index += 1;
@@ -295,7 +280,7 @@ export const createUseState = () => {
       return React.useState(initialState);
     }
 
-    if (context.didInitialize === false) {
+    if (currentContext!.didInitialize === false) {
       // On first render, compute initial value and create state entry
       const value = typeof initialState === 'function' ? (initialState as () => S)() : initialState;
       const stateData: StateData<S | undefined> = {
