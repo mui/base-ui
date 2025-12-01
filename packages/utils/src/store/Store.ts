@@ -104,3 +104,5 @@ export class Store<State> {
     Store.prototype.setState.call(this, newState);
   }
 }
+
+export type ReadonlyStore<State> = Pick<Store<State>, 'getSnapshot' | 'subscribe' | 'state'>;
