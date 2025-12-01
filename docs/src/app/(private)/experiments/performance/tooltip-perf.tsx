@@ -116,8 +116,7 @@ function ExampleBaseUIDetachedTooltip() {
             <BaseTooltip.Positioner sideOffset={10}>
               <BaseTooltip.Popup className={styles.Popup}>
                 <BaseTooltip.Arrow className={styles.Arrow} />
-                <span>payload: {payload}</span>
-                <span>{payload !== undefined && `Bold Item ${payload + 1}`}</span>
+                <span>{payload !== undefined && `Bold Item ${payload}`}</span>
               </BaseTooltip.Popup>
             </BaseTooltip.Positioner>
           </BaseTooltip.Portal>
