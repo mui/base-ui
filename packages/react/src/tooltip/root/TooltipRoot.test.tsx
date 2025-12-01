@@ -1186,9 +1186,9 @@ describe('<Tooltip.Root />', () => {
 
     it('allows setting an initially open tooltip', async () => {
       const triggerId = randomStringValue();
-      const testTooltip = Tooltip.createHandle<number>({ open: true, activeTriggerId: triggerId });
+      const testTooltip = Tooltip.createHandle<number>();
       await render(
-        <Tooltip.Root handle={testTooltip}>
+        <Tooltip.Root handle={testTooltip} defaultOpen defaultTriggerId={triggerId}>
           {({ payload }: NumberPayload) => (
             <React.Fragment>
               <Tooltip.Trigger handle={testTooltip} payload={1}>
@@ -1482,7 +1482,7 @@ describe('<Tooltip.Root />', () => {
 
     it('allows setting an initially open tooltip', async () => {
       const triggerId = randomStringValue();
-      const testTooltip = Tooltip.createHandle<number>({ open: true, activeTriggerId: triggerId });
+      const testTooltip = Tooltip.createHandle<number>();
       await render(
         <React.Fragment>
           <button type="button" aria-label="Initial focus" autoFocus />
@@ -1493,7 +1493,7 @@ describe('<Tooltip.Root />', () => {
             Trigger 2
           </Tooltip.Trigger>
 
-          <Tooltip.Root handle={testTooltip}>
+          <Tooltip.Root handle={testTooltip} defaultOpen defaultTriggerId={triggerId}>
             {({ payload }: NumberPayload) => (
               <Tooltip.Portal>
                 <Tooltip.Positioner>

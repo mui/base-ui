@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { useOnFirstRender } from '@base-ui-components/utils/useOnFirstRender';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { TooltipRootContext } from './TooltipRootContext';
 import {
@@ -49,6 +50,21 @@ export function TooltipRoot<Payload>(props: TooltipRoot.Props<Payload>) {
     openProp,
     activeTriggerId: defaultTriggerIdProp,
     triggerIdProp,
+  });
+
+  // Support initially open tooltip
+  useOnFirstRender(() => {
+    if (
+      openProp === undefined &&
+      store.state.open === false &&
+      defaultOpen === true &&
+      defaultTriggerIdProp != null
+    ) {
+      store.update({
+        open: true,
+        activeTriggerId: defaultTriggerIdProp,
+      });
+    }
   });
 
   store.useControlledProp('openProp', openProp);

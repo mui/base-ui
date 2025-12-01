@@ -1,4 +1,4 @@
-import { TooltipStore, State } from './TooltipStore';
+import { TooltipStore } from './TooltipStore';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
 
@@ -12,8 +12,8 @@ export class TooltipHandle<Payload> {
    */
   public readonly store: TooltipStore<Payload>;
 
-  constructor(initialState?: Partial<State<Payload>>) {
-    this.store = new TooltipStore<Payload>(initialState);
+  constructor() {
+    this.store = new TooltipStore<Payload>();
   }
 
   /**
@@ -60,8 +60,6 @@ export class TooltipHandle<Payload> {
 /**
  * Creates a new handle to connect a Tooltip.Root with detached Tooltip.Trigger components.
  */
-export function createTooltipHandle<Payload>(
-  initialState?: Partial<State<Payload>>,
-): TooltipHandle<Payload> {
-  return new TooltipHandle<Payload>(initialState);
+export function createTooltipHandle<Payload>(): TooltipHandle<Payload> {
+  return new TooltipHandle<Payload>();
 }
