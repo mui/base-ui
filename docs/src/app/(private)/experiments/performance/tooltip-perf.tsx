@@ -23,6 +23,8 @@ const modes: ModeRecord[] = [
 
 const array = [...new Array(2000).keys()];
 
+const perfTooltip = BaseTooltip.createHandle<number>();
+
 /**
  * 2,000 plain buttons (baseline)
  */
@@ -94,7 +96,6 @@ function ExampleBaseOldUITooltip() {
  * 2,000 Base UI tooltips with detached triggers
  */
 function ExampleBaseUIDetachedTooltip() {
-  const perfTooltip = BaseTooltip.createHandle<number>();
   const result = array.map((i) => (
     <BaseTooltip.Trigger
       key={i}
