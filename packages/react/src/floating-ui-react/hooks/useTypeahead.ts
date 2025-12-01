@@ -1,9 +1,7 @@
 import * as React from 'react';
 import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
-import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { useTimeout } from '@base-ui-components/utils/useTimeout';
 import { stopEvent } from '../utils';
-
 import type { ElementProps, FloatingContext, FloatingRootContext } from '../types';
 import { EMPTY_ARRAY } from '../../utils/constants';
 
@@ -69,6 +67,7 @@ export function useTypeahead(
   const store = 'rootStore' in context ? context.rootStore : context;
   const open = store.useState('open');
   const dataRef = store.context.dataRef;
+
   const {
     listRef,
     activeIndex,
@@ -86,15 +85,19 @@ export function useTypeahead(
   const prevIndexRef = React.useRef<number | null>(selectedIndex ?? activeIndex ?? -1);
   const matchIndexRef = React.useRef<number | null>(null);
 
-  useIsoLayoutEffect(() => {
-    if (open) {
-      timeout.clear();
-      matchIndexRef.current = null;
-      stringRef.current = '';
-    }
-  }, [open, timeout]);
+  const clear = useStableCallback(() => {
+    timeout.clear();
+    matchIndexRef.current = null;
+    stringRef.current = '';
+  });
 
-  useIsoLayoutEffect(() => {
+  React.useEffect(() => {
+    if (open) {
+      clear();
+    }
+  }, [open, clear]);
+
+  React.useEffect(() => {
     // Sync arrow key navigation but not typeahead navigation.
     if (open && stringRef.current === '') {
       prevIndexRef.current = selectedIndex ?? activeIndex ?? -1;
@@ -193,7 +196,10 @@ export function useTypeahead(
     }
   });
 
-  const reference: ElementProps['reference'] = React.useMemo(() => ({ onKeyDown }), [onKeyDown]);
+  const reference: ElementProps['reference'] = React.useMemo(
+    () => ({ onKeyDown, onBlur: clear }),
+    [onKeyDown, clear],
+  );
 
   const floating: ElementProps['floating'] = React.useMemo(() => {
     return {

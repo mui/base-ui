@@ -2583,4 +2583,135 @@ describe('<Select.Root />', () => {
       });
     });
   });
+
+  describe('typeahead', () => {
+    it('should reset typeahead string when the value is cleared while the trigger is focused', async () => {
+      function App() {
+        const [value, setValue] = React.useState<string | null>('A1');
+
+        return (
+          <div>
+            <button onClick={() => setValue(null)}>Reset</button>
+            <Select.Root value={value} onValueChange={setValue} modal={false}>
+              <Select.Trigger data-testid="trigger">
+                <Select.Value />
+              </Select.Trigger>
+              <Select.Portal>
+                <Select.Positioner>
+                  <Select.Popup>
+                    <Select.Item value="A1">A1</Select.Item>
+                    <Select.Item value="A2">A2</Select.Item>
+                  </Select.Popup>
+                </Select.Positioner>
+              </Select.Portal>
+            </Select.Root>
+          </div>
+        );
+      }
+
+      const { user } = await render(<App />);
+      const trigger = screen.getByTestId('trigger');
+
+      act(() => {
+        trigger.focus();
+      });
+
+      await waitFor(() => {
+        expect(screen.queryByRole('listbox', { hidden: true })).not.to.equal(null);
+      });
+
+      fireEvent.keyDown(trigger, { key: 'A' });
+
+      await waitFor(() => {
+        expect(screen.getByRole('option', { name: 'A1', hidden: true })).to.have.attribute(
+          'data-selected',
+        );
+      });
+
+      await user.click(screen.getByText('Reset'));
+      await waitFor(() => {
+        expect(trigger).to.have.text('');
+      });
+
+      act(() => {
+        trigger.focus();
+      });
+
+      fireEvent.keyDown(trigger, { key: 'A' });
+      await waitFor(() => {
+        expect(screen.getByRole('option', { name: 'A1', hidden: true })).to.have.attribute(
+          'data-selected',
+        );
+      });
+      expect(screen.getByRole('option', { name: 'A2', hidden: true })).not.to.have.attribute(
+        'data-selected',
+      );
+    });
+
+    it('should reset typeahead when value changes to a null-value item in the list', async () => {
+      function App() {
+        const [value, setValue] = React.useState<string | null>('A1');
+
+        return (
+          <div>
+            <button onClick={() => setValue(null)}>Reset</button>
+            <Select.Root value={value} onValueChange={setValue} modal={false}>
+              <Select.Trigger data-testid="trigger">
+                <Select.Value />
+              </Select.Trigger>
+              <Select.Portal>
+                <Select.Positioner>
+                  <Select.Popup>
+                    <Select.Item value={null}>Select...</Select.Item>
+                    <Select.Item value="A1">A1</Select.Item>
+                    <Select.Item value="A2">A2</Select.Item>
+                  </Select.Popup>
+                </Select.Positioner>
+              </Select.Portal>
+            </Select.Root>
+          </div>
+        );
+      }
+
+      const { user } = await render(<App />);
+      const trigger = screen.getByTestId('trigger');
+
+      act(() => {
+        trigger.focus();
+      });
+
+      await waitFor(() => {
+        expect(screen.queryByRole('listbox', { hidden: true })).not.to.equal(null);
+      });
+
+      fireEvent.keyDown(trigger, { key: 'A' });
+
+      await waitFor(() => {
+        expect(screen.getByRole('option', { name: 'A1', hidden: true })).to.have.attribute(
+          'data-selected',
+        );
+      });
+
+      await user.click(screen.getByText('Reset'));
+      await waitFor(() => {
+        expect(screen.getByRole('option', { name: 'Select...', hidden: true })).to.have.attribute(
+          'data-selected',
+        );
+      });
+
+      act(() => {
+        trigger.focus();
+      });
+
+      fireEvent.keyDown(trigger, { key: 'A' });
+      await waitFor(() => {
+        expect(screen.getByRole('option', { name: 'A1', hidden: true })).to.have.attribute(
+          'data-selected',
+        );
+      });
+      expect(screen.getByRole('option', { name: 'A2', hidden: true })).not.to.have.attribute(
+        'data-selected',
+      );
+    });
+  });
 });
