@@ -14,12 +14,12 @@
     pointer-events: none;
     border-radius: 0.375rem;
     transition: height 0.1s ease-out;
-    z-index: 100;
+    z-index: 30;
   }
   &::before {
     --scroll-area-overflow-y-start: inherit;
     top: 0;
-    height: min(80px, var(--scroll-area-overflow-y-start));
+    height: min(100px, var(--scroll-area-overflow-y-start));
     background: linear-gradient(to bottom, var(--color-gray-50), transparent);
   }
   &::after {

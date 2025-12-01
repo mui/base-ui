@@ -261,7 +261,7 @@ export function SearchBar({
       />
       <Button
         onClick={handleEscapeButtonClick}
-        className="expanding-box-content-right rounded border border-gray-300 bg-gray-50 px-1.5 hidden hover:bg-gray-100 focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800 lg:flex"
+        className="expanding-box-content-right rounded border border-gray-300 bg-gray-50 px-1.5 hidden focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800 lg:flex"
       >
         <kbd className="text-xs text-gray-600 whitespace-nowrap">esc</kbd>
       </Button>
@@ -270,11 +270,11 @@ export function SearchBar({
 
   // Reusable results list render function
   const renderResultsList = (group: SearchResults[number]) => (
-    <Autocomplete.Group key={group.group} items={group.items} className="block pb-2">
+    <Autocomplete.Group key={group.group} items={group.items} className="block">
       {group.group !== 'Default' && (
         <Autocomplete.GroupLabel
           id={`search-group-${group.group}`}
-          className="search-results sticky top-0 z-1 m-0 w-100% bg-[canvas] px-4 pb-1 pt-2 text-xs font-semibold uppercase tracking-wider"
+          className="search-results sticky top-0 z-40 m-0 w-100% bg-[canvas] px-4 pb-1 pt-2 text-xs font-semibold uppercase tracking-wider"
         >
           {group.group}
         </Autocomplete.GroupLabel>
@@ -285,7 +285,7 @@ export function SearchBar({
             key={result.id || i}
             value={result}
             onClick={() => handleItemClick(result)}
-            className="flex cursor-default select-none flex-col gap-1 px-4 py-3 text-base leading-4 outline-none data-highlighted:bg-gray-200"
+            className="flex cursor-default select-none flex-col gap-1 px-4 py-3 text-base leading-4 outline-none data-highlighted:bg-gray-100"
           >
             <SearchItem result={result} />
           </Autocomplete.Item>
@@ -305,9 +305,13 @@ export function SearchBar({
     <React.Fragment>
       <Button
         onClick={handleOpenDialog}
-        className={`search-button relative h-7 w-50 text-left text-sm font-normal text-gray-900 rounded-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-blue-800 ${dialogOpen ? 'search-button-hidden' : ''}`}
+        className={`search-button relative h-7 w-50 text-left text-sm font-normal text-gray-900 rounded-md focus-visible:outline-none ${dialogOpen ? 'search-button-hidden' : ''}`}
       >
-        <ExpandingBox isActive={!dialogOpen} className="pt-0.75 pb-0.75 pl-3 pr-3">
+        <ExpandingBox
+          isActive={!dialogOpen}
+          isCollapsed={true}
+          className="pt-0.75 pb-0.75 pl-3 pr-3"
+        >
           <div>
             <div className="flex items-center gap-2">
               <Search className="h-4 w-4 text-gray-500" />
@@ -348,7 +352,7 @@ export function SearchBar({
                     <div className="shrink-0">{searchInput}</div>
                     <div className="border-t border-gray-200 mt-3 -ml-4 -mr-4 flex min-h-0 flex-1">
                       <ScrollArea.Root className="search-results-scroll relative flex min-h-0 flex-1 overflow-hidden">
-                        <ScrollArea.Viewport className="search-results-scroll-viewport flex-1 min-h-0 overflow-y-auto overscroll-contain">
+                        <ScrollArea.Viewport className="search-results-scroll-viewport flex-1 min-h-0 overflow-y-auto overscroll-contain scroll-pt-20 scroll-pb-18">
                           <ScrollArea.Content>
                             {searchResults.results.length === 0 ? (
                               emptyState
@@ -359,7 +363,7 @@ export function SearchBar({
                             )}
                           </ScrollArea.Content>
                         </ScrollArea.Viewport>
-                        <ScrollArea.Scrollbar className="pointer-events-none absolute m-1 flex w-1 z-1 justify-center rounded-2xl opacity-0 transition-opacity duration-250 data-hovering:pointer-events-auto hover:opacity-100 hover:duration-75 data-scrolling:pointer-events-auto data-scrolling:opacity-100 data-scrolling:duration-75 md:w-1.25">
+                        <ScrollArea.Scrollbar className="pointer-events-none absolute m-1 flex w-1 z-50 justify-center rounded-2xl opacity-0 transition-opacity duration-250 data-hovering:pointer-events-auto hover:opacity-100 hover:duration-75 data-scrolling:pointer-events-auto data-scrolling:opacity-100 data-scrolling:duration-75 md:w-1.25">
                           <ScrollArea.Thumb className="w-full rounded-[inherit] bg-gray-500 before:absolute before:left-1/2 before:top-1/2 before:h-[calc(100%+1rem)] before:w-[calc(100%+1rem)] before:-translate-x-1/2 before:-translate-y-1/2 before:content-['']" />
                         </ScrollArea.Scrollbar>
                       </ScrollArea.Root>
@@ -387,7 +391,7 @@ export function SearchBar({
                       data-open={dialogOpen}
                       className="search-dialog-popup relative mx-auto my-18 w-[min(40rem,calc(100vw-2rem))] p-0 text-gray-900 transition-[transform,scale,opacity] duration-300 ease-out-fast data-starting-style:scale-90 data-starting-style:opacity-0 data-ending-style:scale-90 data-ending-style:opacity-0 data-ending-style:duration-250 data-ending-style:ease-in-slow motion-reduce:transition-none"
                     >
-                      <ExpandingBox isActive={dialogOpen} className="px-4 py-3 min-h-[80vh]">
+                      <ExpandingBox isActive={dialogOpen} className="px-4 pt-3 min-h-[80vh]">
                         <Autocomplete.Root
                           items={searchResults.results}
                           onValueChange={handleValueChange}
@@ -403,7 +407,7 @@ export function SearchBar({
                             {searchResults.results.length === 0 ? (
                               emptyState
                             ) : (
-                              <Autocomplete.List className="outline-0 overflow-y-auto scroll-pt-9 scroll-pb-2 overscroll-contain max-h-[min(22.5rem,var(--available-height))]">
+                              <Autocomplete.List className="outline-0 overflow-y-auto scroll-pt-9 scroll-pb-2 overscroll-contain max-h-[min(22.5rem,var(--available-height))] rounded-b-[5px]">
                                 {renderResultsList}
                               </Autocomplete.List>
                             )}
