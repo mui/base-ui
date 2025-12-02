@@ -3,7 +3,10 @@ import * as React from 'react';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useRenderElement } from '../../utils/useRenderElement';
 import type { BaseUIComponentProps } from '../../utils/types';
-import { useCompositeListItem } from '../../composite/list/useCompositeListItem';
+import {
+  useCompositeListItem,
+  IndexGuessBehavior,
+} from '../../composite/list/useCompositeListItem';
 import { tabsStateAttributesMapping } from '../root/stateAttributesMapping';
 import { useTabsRootContext } from '../root/TabsRootContext';
 import type { TabsRoot } from '../root/TabsRoot';
@@ -48,6 +51,7 @@ export const TabsPanel = React.forwardRef(function TabPanel(
 
   const { ref: listItemRef, index } = useCompositeListItem<TabsPanel.Metadata>({
     metadata,
+    indexGuessBehavior: IndexGuessBehavior.GuessFromOrder,
   });
 
   const tabPanelValue = valueProp ?? index;

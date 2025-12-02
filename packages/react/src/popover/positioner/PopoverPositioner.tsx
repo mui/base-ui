@@ -52,7 +52,6 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
   const floatingRootContext = store.useState('floatingRootContext');
   const mounted = store.useState('mounted');
   const open = store.useState('open');
-  const openMethod = store.useState('openMethod');
   const openReason = store.useState('openChangeReason');
   const triggerElement = store.useState('activeTriggerElement');
   const modal = store.useState('modal');
@@ -167,16 +166,13 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
 
   return (
     <PopoverPositionerContext.Provider value={positioner}>
-      {mounted &&
-        modal === true &&
-        openReason !== REASONS.triggerHover &&
-        openMethod !== 'touch' && (
-          <InternalBackdrop
-            ref={store.context.internalBackdropRef}
-            inert={inertValue(!open)}
-            cutout={triggerElement}
-          />
-        )}
+      {mounted && modal === true && openReason !== REASONS.triggerHover && (
+        <InternalBackdrop
+          ref={store.context.internalBackdropRef}
+          inert={inertValue(!open)}
+          cutout={triggerElement}
+        />
+      )}
       <FloatingNode id={nodeId}>{element}</FloatingNode>
     </PopoverPositionerContext.Provider>
   );
