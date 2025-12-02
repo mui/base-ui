@@ -6,7 +6,7 @@ import {
   type BaseUIGenericEventDetails,
 } from '../utils/createBaseUIEventDetails';
 import { REASONS } from '../utils/reasons';
-import type { BaseUIComponentProps } from '../utils/types';
+import type { BaseUIComponentProps, BaseUIEvent } from '../utils/types';
 import { FormContext } from './FormContext';
 import { useRenderElement } from '../utils/useRenderElement';
 import { EMPTY_OBJECT } from '../utils/constants';
@@ -166,11 +166,15 @@ export interface FormProps<FormValues extends Record<string, any> = Record<strin
    * and values correspond to error(s) related to that field.
    */
   errors?: FormContext['errors'];
+  onSubmit?: (event: BaseUIEvent<React.FormEvent<HTMLFormElement>>) => void | Promise<void>;
   /**
    * Event handler called when the form is submitted.
    * `preventDefault()` is called on the native submit event when used.
    */
-  onFormSubmit?: (formValues: FormValues, eventDetails: Form.SubmitEventDetails) => void;
+  onFormSubmit?: (
+    formValues: FormValues,
+    eventDetails: Form.SubmitEventDetails,
+  ) => void | Promise<void>;
 }
 
 export type FormValidationMode = 'onSubmit' | 'onBlur' | 'onChange';
