@@ -28,7 +28,7 @@ export function CompositeRoot<Metadata extends {}, State extends Record<string, 
     orientation,
     dense,
     itemSizes,
-    loop,
+    loopFocus,
     onLoop,
     cols,
     enableHomeAndEndKeys,
@@ -50,10 +50,11 @@ export function CompositeRoot<Metadata extends {}, State extends Record<string, 
     onHighlightedIndexChange,
     elementsRef,
     onMapChange: onMapChangeUnwrapped,
+    relayKeyboardEvent,
   } = useCompositeRoot({
     itemSizes,
     cols,
-    loop,
+    loopFocus,
     onLoop,
     dense,
     orientation,
@@ -75,8 +76,13 @@ export function CompositeRoot<Metadata extends {}, State extends Record<string, 
   });
 
   const contextValue: CompositeRootContext = React.useMemo(
-    () => ({ highlightedIndex, onHighlightedIndexChange, highlightItemOnHover }),
-    [highlightedIndex, onHighlightedIndexChange, highlightItemOnHover],
+    () => ({
+      highlightedIndex,
+      onHighlightedIndexChange,
+      highlightItemOnHover,
+      relayKeyboardEvent,
+    }),
+    [highlightedIndex, onHighlightedIndexChange, highlightItemOnHover, relayKeyboardEvent],
   );
 
   return (
@@ -103,7 +109,7 @@ export interface CompositeRootProps<Metadata, State extends Record<string, any>>
   tag?: keyof React.JSX.IntrinsicElements;
   orientation?: 'horizontal' | 'vertical' | 'both';
   cols?: number;
-  loop?: boolean;
+  loopFocus?: boolean;
   onLoop?: (
     event: React.KeyboardEvent,
     prevIndex: number,

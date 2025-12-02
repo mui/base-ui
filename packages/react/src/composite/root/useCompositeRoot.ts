@@ -39,7 +39,7 @@ import { HTMLProps } from '../../utils/types';
 export interface UseCompositeRootParameters {
   orientation?: 'horizontal' | 'vertical' | 'both';
   cols?: number;
-  loop?: boolean;
+  loopFocus?: boolean;
   onLoop?: (
     event: React.KeyboardEvent,
     prevIndex: number,
@@ -83,7 +83,7 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
   const {
     itemSizes,
     cols = 1,
-    loop = true,
+    loopFocus = true,
     onLoop,
     dense = false,
     orientation = 'both',
@@ -236,7 +236,7 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
               {
                 event,
                 orientation,
-                loop,
+                loopFocus,
                 onLoop: wrappedOnLoop,
                 cols,
                 // treat undefined (empty grid spaces) as disabled indices so we
@@ -302,12 +302,12 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
           nextIndex === highlightedIndex &&
           (forwardKeys.includes(event.key) || backwardKeys.includes(event.key))
         ) {
-          if (loop && nextIndex === maxIndex && forwardKeys.includes(event.key)) {
+          if (loopFocus && nextIndex === maxIndex && forwardKeys.includes(event.key)) {
             nextIndex = minIndex;
             if (onLoop) {
               nextIndex = onLoop(event, highlightedIndex, nextIndex, elementsRef);
             }
-          } else if (loop && nextIndex === minIndex && backwardKeys.includes(event.key)) {
+          } else if (loopFocus && nextIndex === minIndex && backwardKeys.includes(event.key)) {
             nextIndex = maxIndex;
             if (onLoop) {
               nextIndex = onLoop(event, highlightedIndex, nextIndex, elementsRef);
@@ -351,7 +351,7 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
       highlightedIndex,
       isGrid,
       itemSizes,
-      loop,
+      loopFocus,
       onLoop,
       wrappedOnLoop,
       mergedRef,
@@ -370,6 +370,7 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
       elementsRef,
       disabledIndices,
       onMapChange,
+      relayKeyboardEvent: props.onKeyDown!,
     }),
     [props, highlightedIndex, onHighlightedIndexChange, elementsRef, disabledIndices, onMapChange],
   );

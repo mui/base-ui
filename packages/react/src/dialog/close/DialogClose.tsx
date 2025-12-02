@@ -1,9 +1,11 @@
 'use client';
 import * as React from 'react';
-import { useDialogClose } from './useDialogClose';
 import { useDialogRootContext } from '../root/DialogRootContext';
 import { useRenderElement } from '../../utils/useRenderElement';
 import type { BaseUIComponentProps, NativeButtonProps } from '../../utils/types';
+import { useButton } from '../../use-button';
+import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
+import { REASONS } from '../../utils/reasons';
 
 /**
  * A button that closes the dialog.
@@ -26,19 +28,23 @@ export const DialogClose = React.forwardRef(function DialogClose(
   const { store } = useDialogRootContext();
   const open = store.useState('open');
 
-  const { getRootProps, ref } = useDialogClose({
+  function handleClick(event: React.MouseEvent) {
+    if (open) {
+      store.setOpen(false, createChangeEventDetails(REASONS.closePress, event.nativeEvent));
+    }
+  }
+
+  const { getButtonProps, buttonRef } = useButton({
     disabled,
-    open,
-    setOpen: store.setOpen,
-    nativeButton,
+    native: nativeButton,
   });
 
   const state: DialogClose.State = React.useMemo(() => ({ disabled }), [disabled]);
 
   return useRenderElement('button', componentProps, {
     state,
-    ref: [forwardedRef, ref],
-    props: [elementProps, getRootProps],
+    ref: [forwardedRef, buttonRef],
+    props: [{ onClick: handleClick }, elementProps, getButtonProps],
   });
 });
 

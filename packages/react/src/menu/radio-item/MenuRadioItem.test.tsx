@@ -232,21 +232,18 @@ describe('<Menu.RadioItem />', () => {
       );
 
       const trigger = screen.getByRole('button', { name: 'Open' });
-      await act(() => {
-        trigger.focus();
-      });
-
-      await user.keyboard('{Enter}');
+      await user.click(trigger);
 
       const item = screen.getByRole('menuitemradio');
       await user.click(item);
 
-      await act(() => {
-        trigger.focus();
+      await user.click(trigger); // close the menu
+
+      await waitFor(() => {
+        expect(screen.queryByRole('menu')).to.equal(null);
       });
 
-      await user.keyboard('{Enter}');
-      await user.keyboard('{Enter}');
+      await user.click(trigger); // reopen the menu
 
       const itemAfterReopen = await screen.findByRole('menuitemradio');
       expect(itemAfterReopen).to.have.attribute('aria-checked', 'true');

@@ -1,3 +1,4 @@
+'use client';
 import * as React from 'react';
 import { Toggle } from '@base-ui-components/react/toggle';
 

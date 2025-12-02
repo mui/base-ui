@@ -10,6 +10,34 @@ import { CompositeRoot } from '../composite/root/CompositeRoot';
 describe('useButton', () => {
   const { render, renderToString } = createRenderer();
 
+  describe('non-native button', () => {
+    describe('keyboard interactions', () => {
+      ['Enter', 'Space'].forEach((key) => {
+        it(`can be activated with ${key} key`, async () => {
+          const clickSpy = spy();
+
+          function Button(props: React.ButtonHTMLAttributes<HTMLButtonElement>) {
+            const { getButtonProps } = useButton({
+              native: false,
+            });
+
+            return <span {...getButtonProps(props)} />;
+          }
+
+          const { user } = await render(<Button onClick={clickSpy} />);
+
+          const button = screen.getByRole('button');
+
+          await user.keyboard('[Tab]');
+          expect(button).toHaveFocus();
+
+          await user.keyboard(`[${key}]`);
+          expect(clickSpy.callCount).to.equal(1);
+        });
+      });
+    });
+  });
+
   describe('param: focusableWhenDisabled', () => {
     it('allows disabled buttons to be focused', async () => {
       function TestButton(props: React.ButtonHTMLAttributes<HTMLButtonElement>) {

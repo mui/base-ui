@@ -15,10 +15,6 @@
       "description": "Function called when the selected value changes.",
       "detailedType": "| ((\n    value: any,\n    eventDetails: Menu.RadioGroup.ChangeEventDetails,\n  ) => void)\n| undefined"
     },
-    "style": {
-      "type": "CSSProperties | ((state: Menu.RadioGroup.State) => CSSProperties | undefined)",
-      "detailedType": "| React.CSSProperties\n| ((\n    state: Menu.RadioGroup.State,\n  ) => CSSProperties | undefined)\n| undefined"
-    },
     "disabled": {
       "type": "boolean",
       "default": "false",
@@ -34,6 +30,10 @@
       "type": "string | ((state: Menu.RadioGroup.State) => string | undefined)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
       "detailedType": "| string\n| ((state: Menu.RadioGroup.State) => string | undefined)"
+    },
+    "style": {
+      "type": "CSSProperties | ((state: Menu.RadioGroup.State) => CSSProperties | undefined)",
+      "detailedType": "| React.CSSProperties\n| ((\n    state: Menu.RadioGroup.State,\n  ) => CSSProperties | undefined)\n| undefined"
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: Menu.RadioGroup.State) => ReactElement)",

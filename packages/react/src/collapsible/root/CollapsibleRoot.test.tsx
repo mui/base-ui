@@ -5,6 +5,7 @@ import { expect } from 'chai';
 import { Collapsible } from '@base-ui-components/react/collapsible';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import { spy } from 'sinon';
+import { REASONS } from '../../utils/reasons';
 
 const PANEL_CONTENT = 'This is panel content';
 
@@ -82,7 +83,7 @@ describe('<Collapsible.Root />', () => {
       const [openArg, details] = handleOpenChange.firstCall.args as [boolean, any];
       expect(openArg).to.equal(true);
       expect(details).to.not.equal(undefined);
-      expect(details.reason).to.equal('trigger-press');
+      expect(details.reason).to.equal(REASONS.triggerPress);
       expect(details.event).to.be.instanceOf(MouseEvent);
       expect(details.isCanceled).to.equal(false);
       expect(typeof details.cancel).to.equal('function');

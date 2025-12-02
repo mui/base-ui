@@ -23,9 +23,9 @@ export const PopoverDescription = React.forwardRef(function PopoverDescription(
   const id = useBaseUiId(elementProps.id);
 
   useIsoLayoutEffect(() => {
-    store.set('descriptionId', id);
+    store.set('descriptionElementId', id);
     return () => {
-      store.set('descriptionId', undefined);
+      store.set('descriptionElementId', undefined);
     };
   }, [store, id]);
 

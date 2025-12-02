@@ -17,7 +17,7 @@ export const NavigationMenuIcon = React.forwardRef(function NavigationMenuIcon(
 ) {
   const { className, render, ...elementProps } = componentProps;
 
-  const itemValue = useNavigationMenuItemContext();
+  const { value: itemValue } = useNavigationMenuItemContext();
   const { open, value } = useNavigationMenuRootContext();
 
   const isActiveItem = open && value === itemValue;

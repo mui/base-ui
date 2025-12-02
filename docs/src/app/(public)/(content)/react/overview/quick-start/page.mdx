@@ -18,7 +18,7 @@ All components are included in a single package. Base UI is tree-shakeable, so 
 ### Portals
 
 Base UI uses portals for components that render popups, such as Dialog and Popover.
-To make portalled components always appear on top of the entire page, add the following style to your application layout root:
+To make portaled components always appear on top of the entire page, add the following style to your application layout root:
 
 ```tsx title="layout.tsx"
 <body>
@@ -40,7 +40,7 @@ This way, popups will always appear above the page contents, and any `z-index` p
 
 ### iOS 26+ Safari
 
-Starting with iOS 26, Safari allows content beneath the UI chrome to be visible. Backdrops such as those used by dialogs must use `position: absolute` instead of `position: fixed` to cover the entire visual viewport. For this to work after the page was scrolled, the following style must be added to your global styles:
+Starting with iOS 26, Safari allows content beneath the UI chrome to be visible. Backdrops such as those used by dialogs must use `position: absolute` instead of `position: fixed` to cover the entire visual viewport. For this to work after the page is scrolled, the following style must be added to your global styles:
 
 ```css title="styles.css"
 body {
@@ -53,7 +53,9 @@ body {
 This demo shows you how to import a [Popover](/react/components/popover) component, assemble its parts, and apply styles.
 There are examples for both Tailwind and CSS Modules below, but since Base UI is unstyled, you can use CSS-in-JS, plain CSS, or any other styling solution you prefer.
 
-<Demo path="../../components/popover/demos/hero" />
+import { DemoPopoverHero } from '../../components/popover/demos/hero';
+
+<DemoPopoverHero />
 
 ## Next steps
 

@@ -106,16 +106,16 @@ export const PopoverViewport = React.forwardRef(function PopoverViewport(
   });
 
   React.useEffect(() => {
-    floatingContext.events.on('measure-layout', handleMeasureLayout);
-    floatingContext.events.on('measure-layout-complete', handleMeasureLayoutComplete);
+    floatingContext.context.events.on('measure-layout', handleMeasureLayout);
+    floatingContext.context.events.on('measure-layout-complete', handleMeasureLayoutComplete);
 
     return () => {
-      floatingContext.events.off('measure-layout', handleMeasureLayout);
-      floatingContext.events.off('measure-layout-complete', handleMeasureLayoutComplete);
+      floatingContext.context.events.off('measure-layout', handleMeasureLayout);
+      floatingContext.context.events.off('measure-layout-complete', handleMeasureLayoutComplete);
     };
   }, [floatingContext, handleMeasureLayout, handleMeasureLayoutComplete]);
 
-  const lastHandledTriggerRef = React.useRef<HTMLElement | null>(null);
+  const lastHandledTriggerRef = React.useRef<Element | null>(null);
 
   useIsoLayoutEffect(() => {
     // When a trigger changes, set the captured children HTML to state,
@@ -278,7 +278,7 @@ function getValueWithTolerance(
 /**
  * Calculates the relative position between centers of two elements.
  */
-function calculateRelativePosition(from: HTMLElement, to: HTMLElement): Offset {
+function calculateRelativePosition(from: Element, to: Element): Offset {
   const fromRect = from.getBoundingClientRect();
   const toRect = to.getBoundingClientRect();
 

@@ -4,7 +4,6 @@ import { UnstableTemporalAdapterLuxon as TemporalAdapterLuxon } from '@base-ui-c
 import { TemporalAdapter } from '@base-ui-components/react/types';
 import { validateDate } from './validateDate';
 
-// @ts-expect-error Luxon errors out while we have it's types excluded from `TemporalSupportedObject`
 const adapters: TemporalAdapter[] = [new TemporalAdapterDateFns(), new TemporalAdapterLuxon()];
 
 adapters.forEach((adapter) => {

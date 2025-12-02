@@ -3,8 +3,8 @@ import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 
 export interface DemoVariantSelectorContext {
-  selectedVariant: string;
-  setSelectedVariant: (variant: string) => void;
+  selectedVariant: string | null;
+  setSelectedVariant: (variant: string | null) => void;
   selectedLanguage: string;
   setSelectedLanguage: (language: string) => void;
 }
@@ -33,12 +33,12 @@ const LANGUAGE_STORAGE_KEY = 'preferredDemoLanguage';
 
 export function DemoVariantSelectorProvider(props: DemoVariantSelectorProviderProps) {
   const { children, defaultVariant, defaultLanguage } = props;
-  const [selectedVariant, setSelectedVariant] = React.useState(defaultVariant);
+  const [selectedVariant, setSelectedVariant] = React.useState<string | null>(defaultVariant);
   const [selectedLanguage, setSelectedLanguage] = React.useState(defaultLanguage);
 
-  const handleSelectedVariantChange = React.useCallback((value: string) => {
+  const handleSelectedVariantChange = React.useCallback((value: string | null) => {
     setSelectedVariant(value);
-    localStorage.setItem(VARIANT_STORAGE_KEY, value);
+    localStorage.setItem(VARIANT_STORAGE_KEY, value || '');
   }, []);
 
   const handleSelectedLanguageChange = React.useCallback((value: string) => {

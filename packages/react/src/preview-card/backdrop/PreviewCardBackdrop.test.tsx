@@ -14,8 +14,10 @@ describe('<PreviewCard.Backdrop />', () => {
 
   it('sets `pointer-events: none` style', async () => {
     const { user } = await render(
-      <PreviewCard.Root delay={0} closeDelay={0}>
-        <PreviewCard.Trigger>Open</PreviewCard.Trigger>
+      <PreviewCard.Root>
+        <PreviewCard.Trigger delay={0} closeDelay={0}>
+          Open
+        </PreviewCard.Trigger>
         <PreviewCard.Portal>
           <PreviewCard.Backdrop data-testid="backdrop" />
           <PreviewCard.Positioner>

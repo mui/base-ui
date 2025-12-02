@@ -467,10 +467,10 @@ describe('<Accordion.Root />', () => {
       expect(input.selectionEnd).to.equal(0);
     });
 
-    describe('prop: loop', () => {
+    describe('prop: loopFocus', () => {
       it('can disable focus looping between triggers', async () => {
         const { user } = await render(
-          <Accordion.Root loop={false}>
+          <Accordion.Root loopFocus={false}>
             <Accordion.Item>
               <Accordion.Header>
                 <Accordion.Trigger>Trigger 1</Accordion.Trigger>
@@ -501,9 +501,9 @@ describe('<Accordion.Root />', () => {
   });
 
   describe.skipIf(isJSDOM)('prop: multiple', () => {
-    it('multiple items can be open by default', async () => {
+    it('multiple items can be open when `multiple = true`', async () => {
       const { user } = await render(
-        <Accordion.Root>
+        <Accordion.Root multiple>
           <Accordion.Item>
             <Accordion.Header>
               <Accordion.Trigger>Trigger 1</Accordion.Trigger>
@@ -657,7 +657,7 @@ describe('<Accordion.Root />', () => {
       const onValueChange = spy();
 
       const { user } = await render(
-        <Accordion.Root onValueChange={onValueChange}>
+        <Accordion.Root onValueChange={onValueChange} multiple>
           <Accordion.Item value={0}>
             <Accordion.Header>
               <Accordion.Trigger>Trigger 1</Accordion.Trigger>
@@ -692,7 +692,7 @@ describe('<Accordion.Root />', () => {
       const onValueChange = spy();
 
       const { user } = await render(
-        <Accordion.Root onValueChange={onValueChange}>
+        <Accordion.Root onValueChange={onValueChange} multiple>
           <Accordion.Item value="one">
             <Accordion.Header>
               <Accordion.Trigger>Trigger 1</Accordion.Trigger>

@@ -89,7 +89,14 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
     ...elementProps
   } = componentProps;
 
-  const swipeDirections = Array.isArray(swipeDirection) ? swipeDirection : [swipeDirection];
+  const isAnchored = toast.positionerProps?.anchor !== undefined;
+
+  let swipeDirections: ('up' | 'down' | 'left' | 'right')[] = [];
+  if (!isAnchored) {
+    swipeDirections = Array.isArray(swipeDirection) ? swipeDirection : [swipeDirection];
+  }
+
+  const swipeEnabled = swipeDirections.length > 0;
 
   const { toasts, focused, close, remove, setToasts, pauseTimers, expanded, setHovering } =
     useToastContext();
@@ -440,6 +447,10 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
   }
 
   React.useEffect(() => {
+    if (!swipeEnabled) {
+      return undefined;
+    }
+
     const element = rootRef.current;
     if (!element) {
       return undefined;
@@ -455,7 +466,7 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
     return () => {
       element.removeEventListener('touchmove', preventDefaultTouchStart);
     };
-  }, []);
+  }, [swipeEnabled]);
 
   function getDragStyles() {
     if (
@@ -494,9 +505,9 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
     'aria-labelledby': titleId,
     'aria-describedby': descriptionId,
     'aria-hidden': isHighPriority && !focused ? true : undefined,
-    onPointerDown: handlePointerDown,
-    onPointerMove: handlePointerMove,
-    onPointerUp: handlePointerUp,
+    onPointerDown: swipeEnabled ? handlePointerDown : undefined,
+    onPointerMove: swipeEnabled ? handlePointerMove : undefined,
+    onPointerUp: swipeEnabled ? handlePointerUp : undefined,
     onKeyDown: handleKeyDown,
     inert: inertValue(toast.limited),
     style: {

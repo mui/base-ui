@@ -2,10 +2,6 @@
   "name": "ToolbarSeparator",
   "description": "A separator element accessible to screen readers.\nRenders a `<div>` element.",
   "props": {
-    "style": {
-      "type": "CSSProperties | ((state: SeparatorState) => CSSProperties | undefined)",
-      "detailedType": "| React.CSSProperties\n| ((state: SeparatorState) => CSSProperties | undefined)\n| undefined"
-    },
     "orientation": {
       "type": "Orientation",
       "default": "'horizontal'",
@@ -16,6 +12,10 @@
       "type": "string | ((state: SeparatorState) => string | undefined)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
       "detailedType": "| string\n| ((state: SeparatorState) => string | undefined)"
+    },
+    "style": {
+      "type": "CSSProperties | ((state: SeparatorState) => CSSProperties | undefined)",
+      "detailedType": "| React.CSSProperties\n| ((state: SeparatorState) => CSSProperties | undefined)\n| undefined"
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: SeparatorState) => ReactElement)",

@@ -4,6 +4,7 @@ export function createTouches(touches: Touches) {
   return {
     changedTouches: touches.map(
       (touch) =>
+        // eslint-disable-next-line compat/compat -- used in test environment only
         new Touch({
           target: document.body,
           ...touch,

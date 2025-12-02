@@ -2,10 +2,6 @@
   "name": "FieldItem",
   "description": "Groups individual items in a checkbox group or radio group with a label and description.\nRenders a `<div>` element.",
   "props": {
-    "style": {
-      "type": "CSSProperties | ((state: Field.Root.State) => CSSProperties | undefined)",
-      "detailedType": "| React.CSSProperties\n| ((state: Field.Root.State) => CSSProperties | undefined)\n| undefined"
-    },
     "disabled": {
       "type": "boolean",
       "default": "false",
@@ -16,6 +12,10 @@
       "type": "string | ((state: Field.Root.State) => string | undefined)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
       "detailedType": "| string\n| ((state: Field.Root.State) => string | undefined)"
+    },
+    "style": {
+      "type": "CSSProperties | ((state: Field.Root.State) => CSSProperties | undefined)",
+      "detailedType": "| React.CSSProperties\n| ((state: Field.Root.State) => CSSProperties | undefined)\n| undefined"
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: Field.Root.State) => ReactElement)",

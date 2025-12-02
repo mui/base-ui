@@ -322,8 +322,8 @@ describe('<PreviewCard.Root />', () => {
 
     it('should open after delay with rest type by default', async () => {
       await render(
-        <Root delay={100}>
-          <Trigger />
+        <Root>
+          <Trigger delay={100} />
           <PreviewCard.Portal>
             <PreviewCard.Positioner>
               <PreviewCard.Popup>Content</PreviewCard.Popup>
@@ -354,8 +354,8 @@ describe('<PreviewCard.Root />', () => {
 
     it('should close after delay', async () => {
       await render(
-        <Root closeDelay={100}>
-          <Trigger />
+        <Root>
+          <Trigger closeDelay={100} />
           <PreviewCard.Portal>
             <PreviewCard.Positioner>
               <PreviewCard.Popup>Content</PreviewCard.Popup>
@@ -423,8 +423,10 @@ describe('<PreviewCard.Root />', () => {
       };
 
       const { user } = await render(
-        <Root actionsRef={actionsRef} delay={0} closeDelay={0}>
-          <Trigger>Open</Trigger>
+        <Root actionsRef={actionsRef}>
+          <Trigger delay={0} closeDelay={0}>
+            Open
+          </Trigger>
           <PreviewCard.Portal>
             <PreviewCard.Positioner data-testid="positioner">
               <PreviewCard.Popup>Content</PreviewCard.Popup>

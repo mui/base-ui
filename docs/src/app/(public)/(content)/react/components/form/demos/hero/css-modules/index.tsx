@@ -1,6 +1,8 @@
+'use client';
 import * as React from 'react';
 import { Field } from '@base-ui-components/react/field';
 import { Form } from '@base-ui-components/react/form';
+import { Button } from '@base-ui-components/react/button';
 import styles from './index.module.css';
 
 export default function ExampleForm() {
@@ -11,7 +13,6 @@ export default function ExampleForm() {
     <Form
       className={styles.Form}
       errors={errors}
-      onClearErrors={setErrors}
       onSubmit={async (event) => {
         event.preventDefault();
         const formData = new FormData(event.currentTarget);
@@ -39,9 +40,9 @@ export default function ExampleForm() {
         />
         <Field.Error className={styles.Error} />
       </Field.Root>
-      <button disabled={loading} type="submit" className={styles.Button}>
+      <Button type="submit" disabled={loading} focusableWhenDisabled className={styles.Button}>
         Submit
-      </button>
+      </Button>
     </Form>
   );
 }

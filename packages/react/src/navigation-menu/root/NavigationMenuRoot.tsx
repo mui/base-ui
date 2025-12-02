@@ -21,9 +21,14 @@ import type { BaseUIComponentProps } from '../../utils/types';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useTransitionStatus } from '../../utils/useTransitionStatus';
 import { setFixedSize } from '../utils/setFixedSize';
-import { BaseUIChangeEventDetails } from '../../utils/createBaseUIEventDetails';
+import { type BaseUIChangeEventDetails } from '../../utils/createBaseUIEventDetails';
+import { REASONS } from '../../utils/reasons';
 
-const blockedReturnFocusReasons = new Set<string>(['trigger-hover', 'outside-press', 'focus-out']);
+const blockedReturnFocusReasons = new Set<string>([
+  REASONS.triggerHover,
+  REASONS.outsidePress,
+  REASONS.focusOut,
+]);
 
 /**
  * Groups all parts of the navigation menu.
@@ -337,14 +342,14 @@ export interface NavigationMenuRootActions {
 }
 
 export type NavigationMenuRootChangeEventReason =
-  | 'trigger-press'
-  | 'trigger-hover'
-  | 'outside-press'
-  | 'list-navigation'
-  | 'focus-out'
-  | 'escape-key'
-  | 'link-press'
-  | 'none';
+  | typeof REASONS.triggerPress
+  | typeof REASONS.triggerHover
+  | typeof REASONS.outsidePress
+  | typeof REASONS.listNavigation
+  | typeof REASONS.focusOut
+  | typeof REASONS.escapeKey
+  | typeof REASONS.linkPress
+  | typeof REASONS.none;
 
 export type NavigationMenuRootChangeEventDetails =
   BaseUIChangeEventDetails<NavigationMenuRoot.ChangeEventReason>;

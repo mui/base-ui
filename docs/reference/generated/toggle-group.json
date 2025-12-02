@@ -17,26 +17,22 @@
       "description": "Callback fired when the pressed states of the toggle group changes.",
       "detailedType": "| ((\n    groupValue: any[],\n    eventDetails: Toggle.Group.ChangeEventDetails,\n  ) => void)\n| undefined"
     },
+    "loopFocus": {
+      "type": "boolean",
+      "default": "true",
+      "description": "Whether to loop keyboard focus back to the first item\nwhen the end of the list is reached while using the arrow keys.",
+      "detailedType": "boolean | undefined"
+    },
     "multiple": {
       "type": "boolean",
       "default": "false",
       "description": "When `false` only one item in the group can be pressed. If any item in\nthe group becomes pressed, the others will become unpressed.\nWhen `true` multiple items can be pressed.",
       "detailedType": "boolean | undefined"
     },
-    "style": {
-      "type": "CSSProperties | ((state: ToggleGroup.State) => CSSProperties | undefined)",
-      "detailedType": "| React.CSSProperties\n| ((state: ToggleGroup.State) => CSSProperties | undefined)\n| undefined"
-    },
     "disabled": {
       "type": "boolean",
       "default": "false",
       "description": "Whether the toggle group should ignore user interaction.",
-      "detailedType": "boolean | undefined"
-    },
-    "loop": {
-      "type": "boolean",
-      "default": "true",
-      "description": "Whether to loop keyboard focus back to the first item\nwhen the end of the list is reached while using the arrow keys.",
       "detailedType": "boolean | undefined"
     },
     "orientation": {
@@ -48,6 +44,10 @@
       "type": "string | ((state: ToggleGroup.State) => string | undefined)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
       "detailedType": "| string\n| ((state: ToggleGroup.State) => string | undefined)"
+    },
+    "style": {
+      "type": "CSSProperties | ((state: ToggleGroup.State) => CSSProperties | undefined)",
+      "detailedType": "| React.CSSProperties\n| ((state: ToggleGroup.State) => CSSProperties | undefined)\n| undefined"
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: ToggleGroup.State) => ReactElement)",

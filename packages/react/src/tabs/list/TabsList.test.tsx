@@ -13,7 +13,7 @@ describe('<Tabs.List />', () => {
   }));
 
   describe('accessibility attributes', () => {
-    it('sets the aria-selected attribute on the selected tab', async () => {
+    it('sets the aria-selected attribute on the active tab', async () => {
       await render(
         <Tabs.Root defaultValue={1}>
           <Tabs.List>

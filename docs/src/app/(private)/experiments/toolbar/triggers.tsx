@@ -8,14 +8,24 @@ import { Tooltip } from '@base-ui-components/react/tooltip';
 import { Popover } from '@base-ui-components/react/popover';
 import { Dialog } from '@base-ui-components/react/dialog';
 import { AlertDialog } from '@base-ui-components/react/alert-dialog';
+import { Menu } from '@base-ui-components/react/menu';
 import toolbarClasses from './toolbar.module.css';
 import triggerToolbarClasses from './triggers.module.css';
+import menuClasses from '../../../(public)/(content)/react/components/menu/demos/submenu/css-modules/index.module.css';
 import tooltipClasses from '../../../(public)/(content)/react/components/tooltip/demos/hero/css-modules/index.module.css';
 import switchClasses from '../../../(public)/(content)/react/components/switch/demos/hero/css-modules/index.module.css';
 import dialogClasses from '../../../(public)/(content)/react/components/alert-dialog/demos/hero/css-modules/index.module.css';
-import popoverClasses from '../../../(public)/(content)/react/components/popover/demos/index.module.css';
+import popoverClasses from '../../../(public)/(content)/react/components/popover/demos/_index.module.css';
 import comboSliderClasses from './slider.module.css';
-import { SlidersIcon, TrashIcon, MessageCircleIcon, ArrowSvg, BellIcon } from './_icons';
+import {
+  SlidersIcon,
+  TrashIcon,
+  MessageCircleIcon,
+  ArrowSvg,
+  BellIcon,
+  MoreHorizontalIcon,
+  ChevronRightIcon,
+} from './_icons';
 import {
   SettingsMetadata,
   useExperimentSettings,
@@ -65,6 +75,7 @@ const styles = {
   popover: popoverClasses,
   slider: comboSliderClasses,
   tooltip: tooltipClasses,
+  menu: menuClasses,
 };
 
 const TEXT = `Shows toolbar buttons as various triggers:
@@ -120,6 +131,7 @@ export default function App() {
   const POPOVER_DISABLED = settings.popoverDisabled || settings.toolbarDisabled;
   const INT_POPOVER_DISABLED = settings.interactivePopoverDisabled || settings.toolbarDisabled;
   const SWITCH_DISABLED = settings.switchDisabled || settings.toolbarDisabled;
+  const MENU_DISABLED = settings.menuDisabled || settings.toolbarDisabled;
   return (
     <React.Fragment>
       <a
@@ -135,6 +147,47 @@ export default function App() {
           className={classNames(styles.toolbar.Root, styles.demo.Root)}
           orientation={settings.verticalOrientation ? 'vertical' : 'horizontal'}
         >
+          <Menu.Root>
+            {renderTriggerWithTooltip({
+              render: (
+                <Menu.Trigger>
+                  <MoreHorizontalIcon className={styles.toolbar.Icon} />
+                </Menu.Trigger>
+              ),
+              key: 'menu',
+              label: 'More actions',
+              disabled: MENU_DISABLED,
+            })}
+
+            <Menu.Portal keepMounted>
+              <Menu.Positioner className={styles.menu.Positioner}>
+                <Menu.Popup className={styles.menu.Popup}>
+                  <Menu.Item className={styles.menu.Item}>Save</Menu.Item>
+                  <Menu.Item className={styles.menu.Item}>Save as...</Menu.Item>
+                  <Menu.Separator className={styles.menu.Separator} />
+                  <Menu.SubmenuRoot>
+                    <Menu.SubmenuTrigger className={styles.menu.SubmenuTrigger}>
+                      Recent
+                      <ChevronRightIcon />
+                    </Menu.SubmenuTrigger>
+                    <Menu.Portal keepMounted>
+                      <Menu.Positioner className={styles.menu.Positioner}>
+                        <Menu.Popup className={styles.menu.Popup}>
+                          <Menu.Item className={styles.menu.Item}>index.tsx</Menu.Item>
+                          <Menu.Item className={styles.menu.Item}>index.module.css</Menu.Item>
+                        </Menu.Popup>
+                      </Menu.Positioner>
+                    </Menu.Portal>
+                  </Menu.SubmenuRoot>
+                  <Menu.Separator className={styles.menu.Separator} />
+                  <Menu.Item className={styles.menu.Item}>Close</Menu.Item>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+
+          <Toolbar.Separator className={styles.demo.Separator} />
+
           <Dialog.Root>
             {renderTriggerWithTooltip({
               render: (

@@ -6,9 +6,9 @@ import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 
 const Trigger = React.forwardRef(function Trigger(
   props: Select.Trigger.Props,
-  ref: React.ForwardedRef<HTMLDivElement>,
+  ref: React.ForwardedRef<HTMLButtonElement>,
 ) {
-  return <Select.Trigger {...props} ref={ref} render={<div />} />;
+  return <Select.Trigger {...props} ref={ref} />;
 });
 
 describe('<Select.Positioner />', () => {

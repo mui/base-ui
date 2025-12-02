@@ -10,10 +10,12 @@ import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 import { popupStateMapping } from '../../utils/popupStateMapping';
 import { usePopoverPortalContext } from '../portal/PopoverPortalContext';
 import { InternalBackdrop } from '../../utils/InternalBackdrop';
+import { REASONS } from '../../utils/reasons';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { POPUP_COLLISION_AVOIDANCE } from '../../utils/constants';
 import { useAnimationsFinished } from '../../utils/useAnimationsFinished';
 import { adaptiveOrigin } from '../../utils/adaptiveOriginMiddleware';
+import { getDisabledMountTransitionStyles } from '../../utils/getDisabledMountTransitionStyles';
 
 /**
  * Positions the popover against the trigger.
@@ -38,7 +40,7 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
     collisionPadding = 5,
     arrowPadding = 5,
     sticky = false,
-    trackAnchor = true,
+    disableAnchorTracking = false,
     collisionAvoidance = POPUP_COLLISION_AVOIDANCE,
     ...elementProps
   } = componentProps;
@@ -51,11 +53,12 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
   const mounted = store.useState('mounted');
   const open = store.useState('open');
   const openMethod = store.useState('openMethod');
-  const openReason = store.useState('openReason');
+  const openReason = store.useState('openChangeReason');
   const triggerElement = store.useState('activeTriggerElement');
   const modal = store.useState('modal');
   const positionerElement = store.useState('positionerElement');
   const instantType = store.useState('instantType');
+  const transitionStatus = store.useState('transitionStatus');
 
   const prevTriggerElementRef = React.useRef<Element | null>(null);
 
@@ -74,7 +77,7 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
     collisionBoundary,
     collisionPadding,
     sticky,
-    trackAnchor,
+    disableAnchorTracking,
     keepMounted,
     nodeId,
     collisionAvoidance,
@@ -106,10 +109,12 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
     [defaultProps, positioning],
   );
 
+  const domReference = floatingRootContext?.select('domReferenceElement');
+
   // When the current trigger element changes, enable transitions on the
   // positioner temporarily
   useIsoLayoutEffect(() => {
-    const currentTriggerElement = floatingRootContext?.elements.domReference;
+    const currentTriggerElement = domReference;
     const prevTriggerElement = prevTriggerElementRef.current;
 
     if (currentTriggerElement) {
@@ -133,7 +138,7 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
     }
 
     return undefined;
-  }, [floatingRootContext?.elements.domReference, runOnceAnimationsFinish, store]);
+  }, [domReference, runOnceAnimationsFinish, store]);
 
   const state: PopoverPositioner.State = React.useMemo(
     () => ({
@@ -155,20 +160,23 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
 
   const element = useRenderElement('div', componentProps, {
     state,
-    props: [positioner.props, elementProps],
+    props: [positioner.props, getDisabledMountTransitionStyles(transitionStatus), elementProps],
     ref: [forwardedRef, setPositionerElement],
     stateAttributesMapping: popupStateMapping,
   });
 
   return (
     <PopoverPositionerContext.Provider value={positioner}>
-      {mounted && modal === true && openReason !== 'trigger-hover' && openMethod !== 'touch' && (
-        <InternalBackdrop
-          ref={store.context.internalBackdropRef}
-          inert={inertValue(!open)}
-          cutout={triggerElement}
-        />
-      )}
+      {mounted &&
+        modal === true &&
+        openReason !== REASONS.triggerHover &&
+        openMethod !== 'touch' && (
+          <InternalBackdrop
+            ref={store.context.internalBackdropRef}
+            inert={inertValue(!open)}
+            cutout={triggerElement}
+          />
+        )}
       <FloatingNode id={nodeId}>{element}</FloatingNode>
     </PopoverPositionerContext.Provider>
   );

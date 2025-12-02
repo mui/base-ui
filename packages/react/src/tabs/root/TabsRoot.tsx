@@ -11,7 +11,8 @@ import { TabsRootContext } from './TabsRootContext';
 import { tabsStateAttributesMapping } from './stateAttributesMapping';
 import type { TabsTab } from '../tab/TabsTab';
 import type { TabsPanel } from '../panel/TabsPanel';
-import type { BaseUIChangeEventDetails } from '../../utils/createBaseUIEventDetails';
+import { type BaseUIChangeEventDetails } from '../../utils/createBaseUIEventDetails';
+import { REASONS } from '../../utils/reasons';
 
 /**
  * Groups the tabs and the corresponding panels.
@@ -200,13 +201,13 @@ export interface TabsRootState {
 
 export interface TabsRootProps extends BaseUIComponentProps<'div', TabsRoot.State> {
   /**
-   * The value of the currently selected `Tab`. Use when the component is controlled.
-   * When the value is `null`, no Tab will be selected.
+   * The value of the currently active `Tab`. Use when the component is controlled.
+   * When the value is `null`, no Tab will be active.
    */
   value?: TabsTab.Value;
   /**
    * The default value. Use when the component is not controlled.
-   * When the value is `null`, no Tab will be selected.
+   * When the value is `null`, no Tab will be active.
    * @default 0
    */
   defaultValue?: TabsTab.Value;
@@ -221,7 +222,7 @@ export interface TabsRootProps extends BaseUIComponentProps<'div', TabsRoot.Stat
   onValueChange?: (value: TabsTab.Value, eventDetails: TabsRoot.ChangeEventDetails) => void;
 }
 
-export type TabsRootChangeEventReason = 'none';
+export type TabsRootChangeEventReason = typeof REASONS.none;
 export type TabsRootChangeEventDetails = BaseUIChangeEventDetails<
   TabsRoot.ChangeEventReason,
   { activationDirection: TabsTab.ActivationDirection }

@@ -2,10 +2,6 @@
   "name": "SelectItemIndicator",
   "description": "Indicates whether the select item is selected.\nRenders a `<span>` element.",
   "props": {
-    "style": {
-      "type": "CSSProperties | ((state: Select.ItemIndicator.State) => CSSProperties | undefined)",
-      "detailedType": "| React.CSSProperties\n| ((\n    state: Select.ItemIndicator.State,\n  ) => CSSProperties | undefined)\n| undefined"
-    },
     "children": {
       "type": "ReactNode",
       "detailedType": "React.ReactNode"
@@ -14,6 +10,10 @@
       "type": "string | ((state: Select.ItemIndicator.State) => string | undefined)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
       "detailedType": "| string\n| ((\n    state: Select.ItemIndicator.State,\n  ) => string | undefined)"
+    },
+    "style": {
+      "type": "CSSProperties | ((state: Select.ItemIndicator.State) => CSSProperties | undefined)",
+      "detailedType": "| React.CSSProperties\n| ((\n    state: Select.ItemIndicator.State,\n  ) => CSSProperties | undefined)\n| undefined"
     },
     "keepMounted": {
       "type": "boolean",

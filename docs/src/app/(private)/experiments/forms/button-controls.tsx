@@ -90,17 +90,23 @@ function StickersRadioGroup() {
       </Field.Item>
 
       <Field.Item className={styles.FieldItem}>
-        <Field.Label className={styles.Label}>
+        <Field.Label
+          className={styles.Label}
+          style={{ display: 'grid', gridRowGap: 0, gridTemplateColumns: 'min-content 1fr' }}
+        >
           <Radio.Root value="interaction" className={styles.Radio}>
             <Radio.Indicator className={styles.Indicator} />
           </Radio.Root>
-          <div>
-            Animate on interaction
-            <Field.Description className={styles.Description}>
-              On the desktop client, stickers will animate on hover or focus. On mobile clients,
-              stickers will animate on long-press.
-            </Field.Description>
-          </div>
+          Animate on interaction
+          <Field.Description
+            aria-hidden // don't re-read
+            className={styles.Description}
+            render={<span />}
+            style={{ gridColumn: '2/3' }}
+          >
+            On the desktop client, stickers will animate on hover or focus. On mobile clients,
+            stickers will animate on long-press.
+          </Field.Description>
         </Field.Label>
       </Field.Item>
 
