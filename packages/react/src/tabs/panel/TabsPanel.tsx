@@ -21,17 +21,11 @@ export const TabsPanel = React.forwardRef(function TabPanel(
   componentProps: TabsPanel.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const {
-    className,
-    value: valueProp,
-    render,
-    keepMounted = false,
-    ...elementProps
-  } = componentProps;
+  const { className, value, render, keepMounted = false, ...elementProps } = componentProps;
 
   const {
     value: selectedValue,
-    getTabIdByPanelValueOrIndex,
+    getTabIdByPanelValue,
     orientation,
     tabActivationDirection,
     registerMountedTabPanel,
@@ -43,27 +37,18 @@ export const TabsPanel = React.forwardRef(function TabPanel(
   const metadata = React.useMemo(
     () => ({
       id,
-      value: valueProp,
+      value,
     }),
-    [id, valueProp],
+    [id, value],
   );
 
   const { ref: listItemRef, index } = useCompositeListItem<TabsPanel.Metadata>({
     metadata,
   });
 
-  const tabPanelValue = valueProp ?? index;
+  const hidden = value !== selectedValue;
 
-  // If using index as value (valueProp is undefined), don't hide until
-  // the index has been determined (index !== -1).
-  let hidden = tabPanelValue !== selectedValue;
-  if (valueProp === undefined && index === -1) {
-    hidden = false;
-  }
-
-  const correspondingTabId = React.useMemo(() => {
-    return getTabIdByPanelValueOrIndex(valueProp, index);
-  }, [getTabIdByPanelValueOrIndex, index, valueProp]);
+  const correspondingTabId = getTabIdByPanelValue(value);
 
   const state: TabsPanel.State = React.useMemo(
     () => ({
@@ -96,15 +81,15 @@ export const TabsPanel = React.forwardRef(function TabPanel(
       return undefined;
     }
 
-    if (tabPanelValue == null || id == null) {
+    if (value == null || id == null) {
       return undefined;
     }
 
-    registerMountedTabPanel(tabPanelValue, id);
+    registerMountedTabPanel(value, id);
     return () => {
-      unregisterMountedTabPanel(tabPanelValue, id);
+      unregisterMountedTabPanel(value, id);
     };
-  }, [hidden, keepMounted, tabPanelValue, id, registerMountedTabPanel, unregisterMountedTabPanel]);
+  }, [hidden, keepMounted, value, id, registerMountedTabPanel, unregisterMountedTabPanel]);
 
   const shouldRender = !hidden || keepMounted;
   if (!shouldRender) {
@@ -116,7 +101,7 @@ export const TabsPanel = React.forwardRef(function TabPanel(
 
 export interface TabsPanelMetadata {
   id?: string;
-  value: TabsTab.Value;
+  value: TabsTab.Value | undefined;
 }
 
 export interface TabsPanelState extends TabsRoot.State {
@@ -125,11 +110,9 @@ export interface TabsPanelState extends TabsRoot.State {
 
 export interface TabsPanelProps extends BaseUIComponentProps<'div', TabsPanel.State> {
   /**
-   * The value of the TabPanel. It will be shown when the Tab with the corresponding value is selected.
-   * If not provided, it will fall back to the index of the panel.
-   * It is recommended to explicitly provide it, as it's required for the tab panel to be rendered on the server.
+   * The value of the TabPanel. It will be shown when the Tab with the corresponding value is active.
    */
-  value?: TabsTab.Value;
+  value: TabsTab.Value;
   /**
    * Whether to keep the HTML element in the DOM while the panel is hidden.
    * @default false

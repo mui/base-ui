@@ -48,9 +48,6 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
     state: 'value',
   });
 
-  const [tabPanelMap, setTabPanelMap] = React.useState(
-    () => new Map<Node, CompositeMetadata<TabsPanel.Metadata> | null>(),
-  );
   const [tabMap, setTabMap] = React.useState(
     () => new Map<Node, CompositeMetadata<TabsTab.Metadata> | null>(),
   );
@@ -100,78 +97,21 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
   );
 
   // get the `id` attribute of <Tabs.Panel> to set as the value of `aria-controls` on <Tabs.Tab>
-  const getTabPanelIdByTabValueOrIndex = React.useCallback(
-    (tabValue: TabsTab.Value | undefined, index: number) => {
-      if (tabValue === undefined && index < 0) {
-        return undefined;
-      }
-
-      if (tabValue !== undefined) {
-        const mountedPanelId = mountedTabPanels.get(tabValue);
-        if (mountedPanelId) {
-          return mountedPanelId;
-        }
-      }
-
-      if (tabValue === undefined && index > -1) {
-        const mountedPanelId = mountedTabPanels.get(index);
-        if (mountedPanelId) {
-          return mountedPanelId;
-        }
-      }
-
-      for (const [tabPanelNode, tabPanelMetadata] of tabPanelMap.entries()) {
-        if (!tabPanelNode.isConnected) {
-          continue;
-        }
-
-        // find by tabValue
-        if (tabValue !== undefined && tabPanelMetadata && tabValue === tabPanelMetadata?.value) {
-          return tabPanelMetadata.id;
-        }
-
-        // find by index
-        if (
-          tabValue === undefined &&
-          tabPanelMetadata?.index != null &&
-          tabPanelMetadata?.index === index
-        ) {
-          return tabPanelMetadata.id;
-        }
-      }
-
-      return undefined;
+  const getTabPanelIdByValue = React.useCallback(
+    (tabValue: TabsTab.Value) => {
+      return mountedTabPanels.get(tabValue);
     },
-    [mountedTabPanels, tabPanelMap],
+    [mountedTabPanels],
   );
 
   // get the `id` attribute of <Tabs.Tab> to set as the value of `aria-labelledby` on <Tabs.Panel>
-  const getTabIdByPanelValueOrIndex = React.useCallback(
-    (tabPanelValue: TabsTab.Value | undefined, index: number) => {
-      if (tabPanelValue === undefined && index < 0) {
-        return undefined;
-      }
-
+  const getTabIdByPanelValue = React.useCallback(
+    (tabPanelValue: TabsTab.Value) => {
       for (const tabMetadata of tabMap.values()) {
-        // find by tabPanelValue
-        if (
-          tabPanelValue !== undefined &&
-          index > -1 &&
-          tabPanelValue === (tabMetadata?.value ?? tabMetadata?.index ?? undefined)
-        ) {
-          return tabMetadata?.id;
-        }
-
-        // find by index
-        if (
-          tabPanelValue === undefined &&
-          index > -1 &&
-          index === (tabMetadata?.value ?? tabMetadata?.index ?? undefined)
-        ) {
+        if (tabPanelValue === tabMetadata?.value) {
           return tabMetadata?.id;
         }
       }
-
       return undefined;
     },
     [tabMap],
@@ -199,8 +139,8 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
     () => ({
       direction,
       getTabElementBySelectedValue,
-      getTabIdByPanelValueOrIndex,
-      getTabPanelIdByTabValueOrIndex,
+      getTabIdByPanelValue,
+      getTabPanelIdByValue,
       onValueChange,
       orientation,
       registerMountedTabPanel,
@@ -212,8 +152,8 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
     [
       direction,
       getTabElementBySelectedValue,
-      getTabIdByPanelValueOrIndex,
-      getTabPanelIdByTabValueOrIndex,
+      getTabIdByPanelValue,
+      getTabPanelIdByValue,
       onValueChange,
       orientation,
       registerMountedTabPanel,
@@ -238,9 +178,7 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
 
   return (
     <TabsRootContext.Provider value={tabsContextValue}>
-      <CompositeList<TabsPanel.Metadata> elementsRef={tabPanelRefs} onMapChange={setTabPanelMap}>
-        {element}
-      </CompositeList>
+      <CompositeList<TabsPanel.Metadata> elementsRef={tabPanelRefs}>{element}</CompositeList>
     </TabsRootContext.Provider>
   );
 });
