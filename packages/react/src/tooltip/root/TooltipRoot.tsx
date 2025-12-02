@@ -2,13 +2,7 @@
 import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { TooltipRootContext } from './TooltipRootContext';
-import {
-  useClientPoint,
-  useDismiss,
-  useFocus,
-  useInteractions,
-  useSyncedFloatingRootContext,
-} from '../../floating-ui-react';
+import { useClientPoint, useDismiss, useFocus, useInteractions } from '../../floating-ui-react';
 import {
   type BaseUIChangeEventDetails,
   createChangeEventDetails,
@@ -123,10 +117,7 @@ export function TooltipRoot<Payload>(props: TooltipRoot.Props<Payload>) {
     [forceUnmount, handleImperativeClose],
   );
 
-  const floatingRootContext = useSyncedFloatingRootContext({
-    popupStore: store,
-    onOpenChange: store.setOpen,
-  });
+  const floatingRootContext = store.useState('floatingRootContext');
 
   const focus = useFocus(floatingRootContext, { enabled: !disabled });
   const dismiss = useDismiss(floatingRootContext, { enabled: !disabled, referencePress: true });
