@@ -183,8 +183,6 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
         return;
       }
 
-      blockRevalidationRef.current = true;
-
       // If an explicit precision is requested, round the committed numeric value.
       const hasExplicitPrecision =
         formatOptions?.maximumFractionDigits != null ||
@@ -204,6 +202,7 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
         validation.commit(committed);
       }
       if (shouldUpdateValue) {
+        blockRevalidationRef.current = true;
         setValue(committed, createChangeEventDetails(REASONS.inputBlur, event.nativeEvent));
       }
       if (shouldCommit) {
@@ -419,9 +418,9 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
   };
 
   const element = useRenderElement('input', componentProps, {
-    ref: [forwardedRef, inputRef, validation.inputRef],
+    ref: [forwardedRef, inputRef],
     state,
-    props: [inputProps, validation.getInputValidationProps(), elementProps],
+    props: [inputProps, validation.getValidationProps(), elementProps],
     stateAttributesMapping,
   });
 
