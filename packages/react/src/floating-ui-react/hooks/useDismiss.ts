@@ -200,11 +200,11 @@ export class DismissInteractionController {
 
   private currentPointerTypeRef: PointerEvent['pointerType'] = '';
 
-  private trackPointerType = (event: PointerEvent) => {
+  private trackPointerType(event: PointerEvent) {
     this.currentPointerTypeRef = event.pointerType;
-  };
+  }
 
-  private getOutsidePressEvent = () => {
+  private getOutsidePressEvent() {
     const type = this.currentPointerTypeRef as 'pen' | 'mouse' | 'touch' | '';
     const computedType = type === 'pen' || !type ? 'mouse' : type;
 
@@ -218,9 +218,9 @@ export class DismissInteractionController {
     }
 
     return resolved[computedType];
-  };
+  }
 
-  private closeOnEscapeKeyDown = (event: React.KeyboardEvent<Element> | KeyboardEvent) => {
+  private closeOnEscapeKeyDown(event: React.KeyboardEvent<Element> | KeyboardEvent) {
     if (
       !this.rootStore.select('open') ||
       !this.settings.enabled ||
@@ -266,30 +266,30 @@ export class DismissInteractionController {
     if (!this.settings.escapeKeyBubbles && !eventDetails.isPropagationAllowed) {
       event.stopPropagation();
     }
-  };
+  }
 
-  private shouldIgnoreEvent = (event: Event) => {
+  private shouldIgnoreEvent(event: Event) {
     const computedOutsidePressEvent = this.getOutsidePressEvent();
     return (
       (computedOutsidePressEvent === 'intentional' && event.type !== 'click') ||
       (computedOutsidePressEvent === 'sloppy' && event.type === 'click')
     );
-  };
+  }
 
-  private markInsideReactTree = () => {
+  private markInsideReactTree() {
     this.rootStore.context.dataRef.current.insideReactTree = true;
     this.clearInsideReactTreeTimeout.start(0, this.clearInsideReactTree);
-  };
+  }
 
-  private clearInsideReactTree = () => {
+  private clearInsideReactTree() {
     this.clearInsideReactTreeTimeout.clear();
     this.rootStore.context.dataRef.current.insideReactTree = false;
-  };
+  }
 
-  private closeOnPressOutside = (
+  private closeOnPressOutside(
     event: MouseEvent | PointerEvent | TouchEvent,
     endedOrStartedInside = false,
-  ) => {
+  ) {
     if (this.shouldIgnoreEvent(event)) {
       this.clearInsideReactTree();
       return;
@@ -419,9 +419,9 @@ export class DismissInteractionController {
 
     this.rootStore.setOpen(false, createChangeEventDetails(REASONS.outsidePress, event));
     this.clearInsideReactTree();
-  };
+  }
 
-  private handlePointerDown = (event: PointerEvent) => {
+  private handlePointerDown(event: PointerEvent) {
     if (
       this.getOutsidePressEvent() !== 'sloppy' ||
       event.pointerType === 'touch' ||
@@ -434,9 +434,9 @@ export class DismissInteractionController {
     }
 
     this.closeOnPressOutside(event);
-  };
+  }
 
-  private handleTouchStart = (event: TouchEvent) => {
+  private handleTouchStart(event: TouchEvent) {
     if (
       this.getOutsidePressEvent() !== 'sloppy' ||
       !this.rootStore.select('open') ||
@@ -464,9 +464,9 @@ export class DismissInteractionController {
         }
       });
     }
-  };
+  }
 
-  private handleTouchStartCapture = (event: TouchEvent) => {
+  private handleTouchStartCapture(event: TouchEvent) {
     const target = getTarget(event);
     const callback = () => {
       this.handleTouchStart(event);
@@ -474,9 +474,9 @@ export class DismissInteractionController {
     };
 
     target?.addEventListener(event.type, callback);
-  };
+  }
 
-  private closeOnPressOutsideCapture = (event: PointerEvent | MouseEvent) => {
+  private closeOnPressOutsideCapture(event: PointerEvent | MouseEvent) {
     // When click outside is lazy (`up` event), handle dragging.
     // Don't close if:
     // - The click started inside the floating element.
@@ -505,9 +505,9 @@ export class DismissInteractionController {
       target?.removeEventListener(event.type, callback);
     };
     target?.addEventListener(event.type, callback);
-  };
+  }
 
-  private handleTouchMove = (event: TouchEvent) => {
+  private handleTouchMove(event: TouchEvent) {
     if (
       this.getOutsidePressEvent() !== 'sloppy' ||
       !this.touchStateRef ||
@@ -535,18 +535,18 @@ export class DismissInteractionController {
       this.cancelDismissOnEndTimeout.clear();
       this.touchStateRef = null;
     }
-  };
+  }
 
-  private handleTouchMoveCapture = (event: TouchEvent) => {
+  private handleTouchMoveCapture(event: TouchEvent) {
     const target = getTarget(event);
     const callback = () => {
       this.handleTouchMove(event);
       target?.removeEventListener(event.type, callback);
     };
     target?.addEventListener(event.type, callback);
-  };
+  }
 
-  private handleTouchEnd = (event: TouchEvent) => {
+  private handleTouchEnd(event: TouchEvent) {
     if (
       this.getOutsidePressEvent() !== 'sloppy' ||
       !this.touchStateRef ||
@@ -562,28 +562,28 @@ export class DismissInteractionController {
 
     this.cancelDismissOnEndTimeout.clear();
     this.touchStateRef = null;
-  };
+  }
 
-  private handleTouchEndCapture = (event: TouchEvent) => {
+  private handleTouchEndCapture(event: TouchEvent) {
     const target = getTarget(event);
     const callback = () => {
       this.handleTouchEnd(event);
       target?.removeEventListener(event.type, callback);
     };
     target?.addEventListener(event.type, callback);
-  };
+  }
 
-  private handleAncestorScroll = (event: Event) => {
+  private handleAncestorScroll(event: Event) {
     this.rootStore.setOpen(false, createChangeEventDetails(REASONS.none, event));
-  };
+  }
 
-  private handlePressedInside = (event: React.MouseEvent) => {
+  private handlePressedInside(event: React.MouseEvent) {
     const target = getTarget(event.nativeEvent) as Element | null;
     if (!contains(this.rootStore.select('floatingElement'), target) || event.button !== 0) {
       return;
     }
     this.endedOrStartedInsideRef = true;
-  };
+  }
 
   public useSetup() {
     const open = this.rootStore.useState('open');
@@ -700,7 +700,7 @@ export class DismissInteractionController {
     ]);
   }
 
-  public getReferenceProps: () => HTMLProps = () => {
+  public getReferenceProps(): HTMLProps {
     if (!this.settings.enabled) {
       return EMPTY_OBJECT;
     }
@@ -724,9 +724,9 @@ export class DismissInteractionController {
         }),
       }),
     };
-  };
+  }
 
-  public getFloatingProps: () => HTMLProps = () => {
+  public getFloatingProps(): HTMLProps {
     if (!this.settings.enabled) {
       return EMPTY_OBJECT;
     }
@@ -742,7 +742,7 @@ export class DismissInteractionController {
       onTouchEndCapture: this.markInsideReactTree,
       onTouchMoveCapture: this.markInsideReactTree,
     };
-  };
+  }
 
   public dispose() {
     this.cancelDismissOnEndTimeout.clear();
