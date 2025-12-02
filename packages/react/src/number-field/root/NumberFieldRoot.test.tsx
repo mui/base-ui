@@ -316,6 +316,24 @@ describe('<NumberField />', () => {
       expect(onValueCommitted.firstCall.args[0]).to.equal(-1.5);
     });
 
+    it('allows typing a decimal while replacing a selection', async () => {
+      await render(<NumberField defaultValue={12.3} locale="en-US" />);
+      const input = screen.getByRole<HTMLInputElement>('textbox');
+
+      await act(async () => {
+        input.focus();
+      });
+
+      const decimalIndex = input.value.indexOf('.');
+      expect(decimalIndex).to.be.greaterThan(-1);
+      await act(async () => {
+        input.setSelectionRange(1, decimalIndex + 2);
+      });
+
+      const keydownResult = fireEvent.keyDown(input, { key: '.' });
+      expect(keydownResult).to.equal(true);
+    });
+
     it('accepts grouping while typing and parses progressively', async () => {
       const onValueChange = spy();
       const onValueCommitted = spy();
