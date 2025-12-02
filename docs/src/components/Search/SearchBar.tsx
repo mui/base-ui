@@ -202,7 +202,7 @@ export function SearchBar({
             key={result.id || i}
             value={result}
             onClick={() => handleItemClick(result)}
-            className="flex h-8 cursor-default select-none items-center rounded-lg px-3 text-[0.9375rem] tracking-[0.016em] font-normal leading-none outline-none data-highlighted:bg-gray-100"
+            className="flex h-8 cursor-default select-none items-center rounded-lg px-9 text-[0.9375rem] tracking-[0.016em] font-normal leading-none outline-none data-highlighted:bg-gray-100"
           >
             <SearchItem result={result} />
           </Autocomplete.Item>
