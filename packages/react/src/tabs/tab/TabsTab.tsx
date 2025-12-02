@@ -8,7 +8,6 @@ import type { BaseUIComponentProps, NativeButtonProps } from '../../utils/types'
 import { useButton } from '../../use-button';
 import { ACTIVE_COMPOSITE_ITEM } from '../../composite/constants';
 import { useCompositeItem } from '../../composite/item/useCompositeItem';
-import { IndexGuessBehavior } from '../../composite/list/useCompositeListItem';
 import type { TabsRoot } from '../root/TabsRoot';
 import { useTabsRootContext } from '../root/TabsRootContext';
 import { useTabsListContext } from '../list/TabsListContext';
@@ -65,7 +64,6 @@ export const TabsTab = React.forwardRef(function TabsTab(
     // because the index is needed for Tab internals
   } = useCompositeItem<TabsTab.Metadata>({
     metadata: tabMetadata,
-    indexGuessBehavior: IndexGuessBehavior.GuessFromOrder,
   });
 
   const tabValue = valueProp ?? index;
