@@ -3,24 +3,21 @@
   "description": "Groups all parts of the calendar.\nRenders a `<div>` element.",
   "props": {
     "defaultValue": {
-      "type": "TemporalValue",
-      "description": "The uncontrolled value that should be initially selected.\nTo render a controlled (Range)Calendar, use the `value` prop instead.",
-      "detailedType": "Date | null | undefined"
+      "type": "any",
+      "description": "The uncontrolled value that should be initially selected.\nTo render a controlled (Range)Calendar, use the `value` prop instead."
     },
     "value": {
-      "type": "TemporalValue",
-      "description": "The controlled value that should be selected.\nTo render an uncontrolled (Range)Calendar, use the `defaultValue` prop instead.",
-      "detailedType": "Date | null | undefined"
+      "type": "any",
+      "description": "The controlled value that should be selected.\nTo render an uncontrolled (Range)Calendar, use the `defaultValue` prop instead."
     },
     "onValueChange": {
-      "type": "((value: TemporalValue, eventDetails: Calendar.Root.ChangeEventDetails) => void)",
+      "type": "((value: any, eventDetails: Calendar.Root.ChangeEventDetails) => void)",
       "description": "Event handler called when the selected value changes.\nProvides the new value as an argument.\nHas `getValidationError()` in the `eventDetails` to retrieve the validation error associated to the new value.",
-      "detailedType": "| ((\n    value: TemporalValue,\n    eventDetails: Calendar.Root.ChangeEventDetails,\n  ) => void)\n| undefined"
+      "detailedType": "| ((\n    value: any,\n    eventDetails: Calendar.Root.ChangeEventDetails,\n  ) => void)\n| undefined"
     },
     "defaultVisibleDate": {
       "type": "Date",
-      "description": "The date used to decide which month should be initially displayed in the Day Grid.\nTo render a controlled Calendar, use the `visibleDate` prop instead.",
-      "detailedType": "Date | undefined"
+      "description": "The date used to decide which month should be initially displayed in the Day Grid.\nTo render a controlled Calendar, use the `visibleDate` prop instead."
     },
     "isDateUnavailable": {
       "type": "((day: Date) => boolean)",
@@ -29,13 +26,11 @@
     },
     "maxDate": {
       "type": "Date",
-      "description": "Maximal selectable date.",
-      "detailedType": "Date | undefined"
+      "description": "Maximal selectable date."
     },
     "minDate": {
       "type": "Date",
-      "description": "Minimal selectable date.",
-      "detailedType": "Date | undefined"
+      "description": "Minimal selectable date."
     },
     "monthPageSize": {
       "type": "number",
@@ -51,12 +46,7 @@
     "referenceDate": {
       "type": "Date",
       "default": "'The closest valid date using the validation props.'",
-      "description": "The date used to generate the new value when both `value` and `defaultValue` are empty.",
-      "detailedType": "Date | undefined"
-    },
-    "style": {
-      "type": "CSSProperties | ((state: Calendar.Root.State) => CSSProperties | undefined)",
-      "detailedType": "| React.CSSProperties\n| ((\n    state: Calendar.Root.State,\n  ) => CSSProperties | undefined)\n| undefined"
+      "description": "The date used to generate the new value when both `value` and `defaultValue` are empty."
     },
     "timezone": {
       "type": "string",
@@ -66,8 +56,7 @@
     },
     "visibleDate": {
       "type": "Date",
-      "description": "The date used to decide which month should be displayed in the Day Grid.\nTo render an uncontrolled Calendar, use the `defaultVisibleDate` prop instead.",
-      "detailedType": "Date | undefined"
+      "description": "The date used to decide which month should be displayed in the Day Grid.\nTo render an uncontrolled Calendar, use the `defaultVisibleDate` prop instead."
     },
     "disabled": {
       "type": "boolean",
@@ -95,6 +84,10 @@
       "type": "string | ((state: Calendar.Root.State) => string | undefined)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
       "detailedType": "| string\n| ((state: Calendar.Root.State) => string | undefined)"
+    },
+    "style": {
+      "type": "CSSProperties | ((state: Calendar.Root.State) => CSSProperties | undefined)",
+      "detailedType": "| React.CSSProperties\n| ((\n    state: Calendar.Root.State,\n  ) => CSSProperties | undefined)\n| undefined"
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: Calendar.Root.State) => ReactElement)",
