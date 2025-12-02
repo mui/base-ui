@@ -126,8 +126,8 @@ describe('<Tabs.Root />', () => {
             <Tabs.Tab />
             <Tabs.Tab />
           </Tabs.List>
-          <Tabs.Panel />
-          <Tabs.Panel />
+          <Tabs.Panel keepMounted />
+          <Tabs.Panel keepMounted />
         </Tabs.Root>,
       );
 
