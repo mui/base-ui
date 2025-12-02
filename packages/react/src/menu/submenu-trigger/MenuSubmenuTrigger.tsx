@@ -68,17 +68,21 @@ export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerCompon
     [baseRegisterTrigger, closeDelay, store, thisTriggerId],
   );
 
-  const [triggerElement, setTriggerElement] = React.useState<HTMLElement | null>(null);
+  const triggerElementRef = React.useRef<HTMLElement | null>(null);
+  const handleTriggerElementRef = React.useCallback(
+    (el: HTMLElement | null) => {
+      triggerElementRef.current = el;
+      store.set('activeTriggerElement', el);
+    },
+    [store],
+  );
 
   const submenuRootContext = useMenuSubmenuRootContext();
   if (!submenuRootContext?.parentMenu) {
     throw new Error('Base UI: <Menu.SubmenuTrigger> must be placed in <Menu.SubmenuRoot>.');
   }
 
-  store.useSyncedValues({
-    closeDelay,
-    activeTriggerElement: triggerElement,
-  });
+  store.useSyncedValue('closeDelay', closeDelay);
 
   const parentMenuStore = submenuRootContext.parentMenu;
 
@@ -117,7 +121,7 @@ export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerCompon
     move: true,
     restMs: allowMouseEnter ? delay : undefined,
     delay: { open: allowMouseEnter ? delay : 10 ** 10, close: closeDelay },
-    triggerElement,
+    triggerElementRef,
     externalTree: floatingTreeRoot,
   });
 
@@ -158,7 +162,7 @@ export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerCompon
       elementProps,
       getItemProps,
     ],
-    ref: [forwardedRef, listItem.ref, itemRef, registerTrigger, setTriggerElement],
+    ref: [forwardedRef, listItem.ref, itemRef, registerTrigger, handleTriggerElementRef],
   });
 
   return element;
