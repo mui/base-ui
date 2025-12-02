@@ -69,6 +69,12 @@ export function usePopupAutoResize(parameters: UsePopupAutoResizeParameters) {
       return undefined;
     }
 
+    const popupStyles = getComputedStyle(popupElement);
+    if (popupStyles.transitionDuration === '0s' && popupStyles.animationDuration === '0s') {
+      // If there are no transitions or animations, we can skip the auto-resize logic.
+      return undefined;
+    }
+
     Object.entries(anchoringStyles).forEach(([key, value]) => {
       popupElement.style.setProperty(key, value as string);
     });
