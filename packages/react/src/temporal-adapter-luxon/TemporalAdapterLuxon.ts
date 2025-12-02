@@ -330,6 +330,30 @@ export class TemporalAdapterLuxon implements TemporalAdapter {
     return value.set({ millisecond: milliseconds });
   };
 
+  public differenceInYears = (value: DateTime, comparing: DateTime): number => {
+    return Math.floor(value.diff(comparing, 'years').as('years'));
+  };
+
+  public differenceInMonths = (value: DateTime, comparing: DateTime): number => {
+    return Math.floor(value.diff(comparing, 'months').as('months'));
+  };
+
+  public differenceInWeeks = (value: DateTime, comparing: DateTime): number => {
+    return Math.floor(value.diff(comparing, 'weeks').as('weeks'));
+  };
+
+  public differenceInDays = (value: DateTime, comparing: DateTime): number => {
+    return Math.floor(value.diff(comparing, 'days').as('days'));
+  };
+
+  public differenceInHours = (value: DateTime, comparing: DateTime): number => {
+    return Math.floor(value.diff(comparing, 'hours').as('hours'));
+  };
+
+  public differenceInMinutes = (value: DateTime, comparing: DateTime): number => {
+    return Math.floor(value.diff(comparing, 'minutes').as('minutes'));
+  };
+
   public getDaysInMonth = (value: DateTime) => {
     return value.daysInMonth!;
   };

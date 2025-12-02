@@ -690,6 +690,159 @@ export const testComputations: DescribeGregorianAdapterTestSuite = ({
     expect(adapter.setMilliseconds(testDateIso, 11)).toEqualDateTime('2018-10-30T11:44:25.011Z');
   });
 
+  describe('Method: differenceInYears', () => {
+    it('should handle basic use-cases', () => {
+      expect(
+        adapter.differenceInYears(
+          adapter.date('2020-04-01', 'default'),
+          adapter.date('2018-10-30', 'default'),
+        ),
+      ).to.equal(1);
+
+      expect(
+        adapter.differenceInYears(
+          adapter.date('2020-04-01', 'default'),
+          adapter.date('2018-04-01', 'default'),
+        ),
+      ).to.equal(2);
+    });
+
+    test.skipIf(!adapter.isTimezoneCompatible)('should work with timezones', () => {
+      expect(
+        adapter.differenceInYears(
+          adapter.date('2020-04-01T12:00', 'Europe/Paris'),
+          adapter.date('2018-04-01T12:00', 'America/New_York'),
+        ),
+      ).to.equal(1);
+    });
+  });
+
+  describe('Method: differenceInMonths', () => {
+    it('should handle basic use-cases', () => {
+      expect(
+        adapter.differenceInMonths(
+          adapter.date('2019-01-30', 'default'),
+          adapter.date('2018-10-30', 'default'),
+        ),
+      ).to.equal(3);
+
+      expect(
+        adapter.differenceInMonths(
+          adapter.date('2019-01-15', 'default'),
+          adapter.date('2018-10-30', 'default'),
+        ),
+      ).to.equal(2);
+    });
+
+    test.skipIf(!adapter.isTimezoneCompatible)('should work with timezones', () => {
+      expect(
+        adapter.differenceInMonths(
+          adapter.date('2018-06-30T12:00', 'Europe/Paris'),
+          adapter.date('2018-04-30T12:00', 'America/New_York'),
+        ),
+      ).to.equal(1);
+    });
+  });
+
+  describe('Method: differenceInDays', () => {
+    it('should handle basic use-cases', () => {
+      expect(
+        adapter.differenceInDays(
+          adapter.date('2018-11-05', 'default'),
+          adapter.date('2018-10-30', 'default'),
+        ),
+      ).to.equal(6);
+
+      expect(
+        adapter.differenceInDays(
+          adapter.date('2018-11-05', 'default'),
+          adapter.date('2018-11-01', 'default'),
+        ),
+      ).to.equal(4);
+    });
+
+    test.skipIf(!adapter.isTimezoneCompatible)('should work with timezones', () => {
+      expect(
+        adapter.differenceInDays(
+          adapter.date('2018-10-07T12:00', 'Europe/Paris'),
+          adapter.date('2018-10-05T12:00', 'America/New_York'),
+        ),
+      ).to.equal(1);
+    });
+  });
+
+  describe('Method: differenceInHours', () => {
+    it('should handle basic use-cases', () => {
+      expect(
+        adapter.differenceInHours(
+          adapter.date('2018-10-31T15:00', 'default'),
+          adapter.date('2018-10-30T11:00', 'default'),
+        ),
+      ).to.equal(28);
+
+      expect(
+        adapter.differenceInHours(
+          adapter.date('2018-10-31T15:00', 'default'),
+          adapter.date('2018-10-31T11:00', 'default'),
+        ),
+      ).to.equal(4);
+    });
+
+    test.skipIf(!adapter.isTimezoneCompatible)('should work with timezones', () => {
+      expect(
+        adapter.differenceInHours(
+          adapter.date('2018-10-30T12:00', 'Europe/Paris'),
+          adapter.date('2018-10-30T12:00', 'America/New_York'),
+        ),
+      ).to.equal(-5);
+    });
+
+    test.skipIf(!adapter.isTimezoneCompatible)('should work accross DST', () => {
+      expect(
+        adapter.differenceInHours(
+          adapter.date('2022-03-28', 'Europe/Paris'),
+          adapter.date('2022-03-27', 'Europe/Paris'),
+        ),
+      ).to.equal(23);
+    });
+  });
+
+  describe('Method: differenceInMinutes', () => {
+    it('should handle basic use-cases', () => {
+      expect(
+        adapter.differenceInMinutes(
+          adapter.date('2018-10-30T12:30', 'default'),
+          adapter.date('2018-10-30T11:00', 'default'),
+        ),
+      ).to.equal(90);
+
+      expect(
+        adapter.differenceInMinutes(
+          adapter.date('2018-10-30T11:30', 'default'),
+          adapter.date('2018-10-30T11:00', 'default'),
+        ),
+      ).to.equal(30);
+    });
+
+    test.skipIf(!adapter.isTimezoneCompatible)('should work with timezones', () => {
+      expect(
+        adapter.differenceInMinutes(
+          adapter.date('2018-10-30T12:00', 'Europe/Paris'),
+          adapter.date('2018-10-30T12:00', 'America/New_York'),
+        ),
+      ).to.equal(-300);
+    });
+
+    test.skipIf(!adapter.isTimezoneCompatible)('should work accross DST', () => {
+      expect(
+        adapter.differenceInMinutes(
+          adapter.date('2022-03-28', 'Europe/Paris'),
+          adapter.date('2022-03-27', 'Europe/Paris'),
+        ),
+      ).to.equal(23 * 60);
+    });
+  });
+
   it('Method: getDaysInMonth', () => {
     expect(adapter.getDaysInMonth(testDateIso)).to.equal(31);
     expect(adapter.getDaysInMonth(testDateLocale)).to.equal(31);

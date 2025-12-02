@@ -337,6 +337,36 @@ export interface TemporalAdapter {
    */
   setMilliseconds(value: TemporalSupportedObject, milliseconds: number): TemporalSupportedObject;
   /**
+   * Gets the number of full years between the given dates.
+   */
+  differenceInYears: (value: TemporalSupportedObject, comparing: TemporalSupportedObject) => number;
+  /**
+   * Gets the number of full months between the given dates.
+   */
+  differenceInMonths: (
+    value: TemporalSupportedObject,
+    comparing: TemporalSupportedObject,
+  ) => number;
+  /**
+   * Gets the number of full weeks between the given dates.
+   */
+  differenceInWeeks: (value: TemporalSupportedObject, comparing: TemporalSupportedObject) => number;
+  /**
+   * Gets the number of full days between the given dates.
+   */
+  differenceInDays: (value: TemporalSupportedObject, comparing: TemporalSupportedObject) => number;
+  /**
+   * Gets the number of full hours between the given dates.
+   */
+  differenceInHours: (value: TemporalSupportedObject, comparing: TemporalSupportedObject) => number;
+  /**
+   * Gets the number of full minutes between the given dates.
+   */
+  differenceInMinutes: (
+    value: TemporalSupportedObject,
+    comparing: TemporalSupportedObject,
+  ) => number;
+  /**
    * Gets the number of days in a month of the given date.
    */
   getDaysInMonth(value: TemporalSupportedObject): number;
