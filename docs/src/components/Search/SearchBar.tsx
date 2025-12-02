@@ -20,9 +20,9 @@ function normalizeGroup(group: string) {
 
 function SearchItem({ result }: { result: SearchResult }) {
   return (
-    <div className="flex items-baseline justify-between gap-2">
-      <div className="flex items-baseline gap-2">
-        <strong className="font-semibold">{result.title}</strong>
+    <div className="flex items-center justify-between gap-2">
+      <div className="flex items-center gap-2">
+        <span className="text-[0.9375rem] tracking-[0.016em] font-normal">{result.title}</span>
       </div>
       {process.env.NODE_ENV === 'development' && result.score && (
         <span className="text-xs opacity-70">{result.score.toFixed(2)}</span>
@@ -168,13 +168,13 @@ export function SearchBar({
 
   // Reusable search input component
   const searchInput = (
-    <div className="flex items-center gap-2">
-      <Search className="search-icon h-4 w-4 text-gray-500" />
+    <div className="flex items-center gap-2 h-8 rounded-lg bg-gray-100 px-3">
+      <Search className="search-icon h-4 w-4 shrink-0 text-gray-500" />
       <Autocomplete.Input
         id="search-input"
         ref={inputRef}
         placeholder="Search"
-        className="w-full border-0 text-base text-gray-900 placeholder:text-gray-500 focus:outline-none"
+        className="w-full border-0 bg-transparent text-[0.9375rem] tracking-[0.016em] font-normal text-gray-900 placeholder:text-gray-500 focus:outline-none"
       />
       <Button
         onClick={handleEscapeButtonClick}
@@ -191,7 +191,7 @@ export function SearchBar({
       {group.group !== 'Default' && (
         <Autocomplete.GroupLabel
           id={`search-group-${group.group}`}
-          className="search-results sticky top-0 z-40 m-0 w-100% bg-gray-75 px-4 pb-1 pt-2 text-xs font-semibold uppercase tracking-wider"
+          className="search-results m-0 flex h-8 items-center text-[0.9375rem] tracking-[0.00625em] font-medium text-gray-600 select-none"
         >
           {normalizeGroup(group.group)}
         </Autocomplete.GroupLabel>
@@ -202,7 +202,7 @@ export function SearchBar({
             key={result.id || i}
             value={result}
             onClick={() => handleItemClick(result)}
-            className="flex cursor-default select-none flex-col gap-1 px-4 py-3 text-base leading-4 outline-none data-highlighted:bg-gray-100"
+            className="flex h-8 cursor-default select-none items-center rounded-lg px-3 text-[0.9375rem] tracking-[0.016em] font-normal leading-none outline-none data-highlighted:bg-gray-100"
           >
             <SearchItem result={result} />
           </Autocomplete.Item>
@@ -213,7 +213,7 @@ export function SearchBar({
 
   // Reusable empty state
   const emptyState = (
-    <div className="search-no-results px-4 py-6 text-center text-sm text-gray-600">
+    <div className="search-no-results px-3 py-6 text-center text-[0.9375rem] tracking-[0.016em] font-normal text-gray-600">
       No results found.
     </div>
   );
@@ -237,14 +237,14 @@ export function SearchBar({
       </Button>
       <Dialog.Root open={dialogOpen} onOpenChange={handleCloseDialog}>
         <Dialog.Portal>
-          <Dialog.Backdrop className="fixed inset-0 bg-[linear-gradient(to_bottom,rgb(0_0_0/5%)_0,rgb(0_0_0/10%)_50%)] backdrop-blur-[1.5px] dark:opacity-70 supports-[-webkit-touch-callout:none]:absolute" />
+          <Dialog.Backdrop className="fixed inset-0 bg-[linear-gradient(to_bottom,rgb(0_0_0/5%)_0,rgb(0_0_0/10%)_50%)] dark:opacity-70 supports-[-webkit-touch-callout:none]:absolute" />
           {containedScroll ? (
             <Dialog.Viewport className="group/dialog fixed inset-0 flex items-start justify-center overflow-hidden py-6">
               <Dialog.Popup
                 ref={popupRef}
                 initialFocus={inputRef}
                 data-open={dialogOpen}
-                className="search-dialog-popup relative flex rounded-2xl min-h-0 max-h-full w-[min(40rem,calc(100vw-2rem))] flex-col overflow-hidden p-0 bg-(--color-popup) text-gray-900 px-4 py-3"
+                className="search-dialog-popup relative flex rounded-2xl min-h-0 max-h-[min(29rem,calc(100vh-6rem))] w-[min(40rem,calc(100vw-2rem))] flex-col overflow-hidden bg-(--color-popup) text-gray-900 p-2 outline-1 outline-black/4 shadow-[0_.5px_1px_hsl(0_0%_0%/12%),0_1px_3px_-1px_hsl(0_0%_0%/4%),0_2px_4px_-1px_hsl(0_0%_0%/4%),0_4px_8px_-2px_hsl(0_0%_0%/4%),0_12px_14px_-4px_hsl(0_0%_0%/4%),0_24px_64px_-8px_hsl(0_0%_0%/4%),0_40px_48px_-32px_hsl(0_0%_0%/4%)]"
               >
                 <Autocomplete.Root
                   items={searchResults.results}
@@ -257,7 +257,7 @@ export function SearchBar({
                   autoHighlight
                 >
                   <div className="shrink-0">{searchInput}</div>
-                  <div className="border-t border-gray-200 mt-3 -ml-4 -mr-4 flex min-h-0 flex-1">
+                  <div className="flex min-h-0 flex-1 mt-2">
                     <ScrollArea.Root className="search-results-scroll relative flex min-h-0 flex-1 overflow-hidden">
                       <ScrollArea.Viewport className="search-results-scroll-viewport flex-1 min-h-0 overflow-y-auto overscroll-contain scroll-pt-9 scroll-pb-2">
                         <ScrollArea.Content>
@@ -275,9 +275,9 @@ export function SearchBar({
                       </ScrollArea.Scrollbar>
                     </ScrollArea.Root>
                   </div>
-                  <div className="search-results-stats border-t border-gray-200 pt-1 -mb-3 -ml-4 -mr-4 flex justify-end p-1 pl-4 pr-4 text-gray-500 text-xs">
+                  <div className="search-results-stats border-t border-gray-200 pt-1 -mb-3 -ml-4 -mr-4 flex justify-end p-2 pl-4 pr-4 text-gray-500 text-xs">
                     <div className={searchResults.elapsed.raw <= 0 ? 'opacity-0' : ''}>
-                      Found {searchResults.count} in {searchResults.elapsed.formatted}
+                      Found {searchResults.count} items in {searchResults.elapsed.formatted}
                     </div>
                   </div>
                 </Autocomplete.Root>
@@ -295,7 +295,7 @@ export function SearchBar({
                       ref={popupRef}
                       initialFocus={inputRef}
                       data-open={dialogOpen}
-                      className="search-dialog-popup relative mx-auto rounded-2xl my-18 w-[min(40rem,calc(100vw-2rem))] p-0 bg-(--color-popup) text-gray-900 px-4 pt-3 min-h-[80vh]"
+                      className="search-dialog-popup relative mx-auto rounded-2xl my-18 w-[min(40rem,calc(100vw-2rem))] bg-(--color-popup) text-gray-900 p-2 outline-1 outline-black/4 shadow-[0_.5px_1px_hsl(0_0%_0%/12%),0_1px_3px_-1px_hsl(0_0%_0%/4%),0_2px_4px_-1px_hsl(0_0%_0%/4%),0_4px_8px_-2px_hsl(0_0%_0%/4%),0_12px_14px_-4px_hsl(0_0%_0%/4%),0_24px_64px_-8px_hsl(0_0%_0%/4%),0_40px_48px_-32px_hsl(0_0%_0%/4%)]"
                     >
                       <Autocomplete.Root
                         items={searchResults.results}
@@ -308,7 +308,7 @@ export function SearchBar({
                         autoHighlight
                       >
                         <div>{searchInput}</div>
-                        <div className="border-t border-gray-200 mt-3 -ml-4 -mr-4">
+                        <div className="mt-2">
                           {searchResults.results.length === 0 ? (
                             emptyState
                           ) : (
