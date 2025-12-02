@@ -24,7 +24,7 @@ export interface UseHoverReferenceInteractionProps extends Omit<UseHoverProps, '
    * @default true
    */
   isActiveTrigger?: boolean;
-  triggerElementRef?: React.RefObject<Element | null>;
+  triggerElementRef?: Readonly<React.RefObject<Element | null>>;
 }
 
 function getRestMs(value: number | (() => number)) {
@@ -34,7 +34,7 @@ function getRestMs(value: number | (() => number)) {
   return value;
 }
 
-const EMPTY_REF = { current: null };
+const EMPTY_REF: Readonly<React.RefObject<Element | null>> = { current: null };
 
 /**
  * Provides hover interactions that should be attached to reference or trigger
