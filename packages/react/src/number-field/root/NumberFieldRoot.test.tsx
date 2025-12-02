@@ -1412,6 +1412,9 @@ describe('<NumberField />', () => {
             <NumberFieldBase.Root defaultValue={0} min={0} step={0.1}>
               <NumberFieldBase.Input data-testid="input" />
             </NumberFieldBase.Root>
+            <Field.Error match="stepMismatch" data-testid="error">
+              step mismatch
+            </Field.Error>
           </Field.Root>
           <button type="submit">submit</button>
         </Form>,
@@ -1423,10 +1426,13 @@ describe('<NumberField />', () => {
         input.focus();
       });
 
+      expect(screen.queryByTestId('error')).to.equal(null);
+
       fireEvent.change(input, { target: { value: '0.11' } });
       fireEvent.click(screen.getByText('submit'));
 
       expect(handleSubmit.callCount).to.equal(0);
+      expect(screen.getByTestId('error')).to.have.text('step mismatch');
 
       fireEvent.change(input, { target: { value: '0.1' } });
       fireEvent.click(screen.getByText('submit'));
