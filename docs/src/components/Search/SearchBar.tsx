@@ -191,7 +191,7 @@ export function SearchBar({
       {group.group !== 'Default' && (
         <Autocomplete.GroupLabel
           id={`search-group-${group.group}`}
-          className="search-results m-0 flex h-8 items-center text-[0.9375rem] tracking-[0.00625em] font-medium text-gray-600 select-none"
+          className="search-results m-0 flex h-8 items-center text-[0.9375rem] tracking-[0.00625em] font-medium leading-none text-gray-600 select-none"
         >
           {normalizeGroup(group.group)}
         </Autocomplete.GroupLabel>
