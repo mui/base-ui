@@ -16,7 +16,7 @@ import {
 } from './useHoverInteractionSharedState';
 import { FloatingUIOpenChangeDetails, HTMLProps } from '../../utils/types';
 
-export interface UseHoverReferenceInteractionProps extends UseHoverProps {
+export interface UseHoverReferenceInteractionProps extends Omit<UseHoverProps, 'triggerElement'> {
   /**
    * Whether the hook controls the active trigger. When false, the props are
    * returned under the `trigger` key so they can be applied to inactive
@@ -24,6 +24,7 @@ export interface UseHoverReferenceInteractionProps extends UseHoverProps {
    * @default true
    */
   isActiveTrigger?: boolean;
+  triggerElementRef?: Readonly<React.RefObject<Element | null>>;
 }
 
 function getRestMs(value: number | (() => number)) {
@@ -32,6 +33,8 @@ function getRestMs(value: number | (() => number)) {
   }
   return value;
 }
+
+const EMPTY_REF: Readonly<React.RefObject<Element | null>> = { current: null };
 
 /**
  * Provides hover interactions that should be attached to reference or trigger
@@ -51,7 +54,7 @@ export function useHoverReferenceInteraction(
     mouseOnly = false,
     restMs = 0,
     move = true,
-    triggerElement = null,
+    triggerElementRef = EMPTY_REF,
     externalTree,
     isActiveTrigger = true,
   } = props;
@@ -175,7 +178,7 @@ export function useHoverReferenceInteraction(
     }
 
     const trigger =
-      (triggerElement as HTMLElement | null) ??
+      (triggerElementRef.current as HTMLElement | null) ??
       (isActiveTrigger ? (store.select('domReferenceElement') as HTMLElement | null) : null);
 
     if (!isElement(trigger)) {
@@ -324,7 +327,7 @@ export function useHoverReferenceInteraction(
     restTimeout,
     restTimeoutPendingRef,
     openChangeTimeout,
-    triggerElement,
+    triggerElementRef,
     tree,
     unbindMouseMoveRef,
     closeHandlerRef,

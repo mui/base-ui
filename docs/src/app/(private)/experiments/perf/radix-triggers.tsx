@@ -1,9 +1,6 @@
 'use client';
 import * as React from 'react';
-import { Menu } from '@base-ui-components/react/menu';
-import { Tooltip } from '@base-ui-components/react/tooltip';
-import { Popover } from '@base-ui-components/react/popover';
-import { Dialog } from '@base-ui-components/react/dialog';
+import { DropdownMenu, Tooltip, Popover, Dialog } from 'radix-ui';
 import {
   SettingsMetadata,
   useExperimentSettings,
@@ -47,9 +44,11 @@ const menuItems = Array.from({ length: menuItemCount }).map((_, i) => ({
 export default function PerfExperiment() {
   return (
     <div className={styles.container}>
-      <h1>Component performance - contained triggers</h1>
+      <h1>Component performance - Radix</h1>
       <PerformanceBenchmark>
-        <TestComponent />
+        <Tooltip.Provider>
+          <TestComponent />
+        </Tooltip.Provider>
       </PerformanceBenchmark>
     </div>
   );
@@ -77,29 +76,27 @@ function TestComponent() {
 
 function RowMenu({ rowData }: RowProps) {
   return (
-    <Menu.Root>
-      <Menu.Trigger className={styles.button} data-id={rowData.index}>
+    <DropdownMenu.Root>
+      <DropdownMenu.Trigger className={styles.button} data-id={rowData.index}>
         Menu
-      </Menu.Trigger>
-      <Menu.Portal>
-        <Menu.Positioner sideOffset={8} className={menuDemoStyles.Positioner}>
-          <Menu.Popup className={menuDemoStyles.Popup}>
-            <Menu.Arrow className={menuDemoStyles.Arrow}>
-              <ArrowSvg />
-            </Menu.Arrow>
-            {menuItems.map((item) => (
-              <Menu.Item
-                key={item.index}
-                onClick={() => console.log(`Clicked ${item.label} for ${rowData.label}`)}
-                className={menuDemoStyles.Item}
-              >
-                {item.label} for {rowData.label}
-              </Menu.Item>
-            ))}
-          </Menu.Popup>
-        </Menu.Positioner>
-      </Menu.Portal>
-    </Menu.Root>
+      </DropdownMenu.Trigger>
+      <DropdownMenu.Portal>
+        <DropdownMenu.Content sideOffset={8} className={menuDemoStyles.Popup}>
+          <DropdownMenu.Arrow asChild className={menuDemoStyles.Arrow}>
+            <ArrowSvg />
+          </DropdownMenu.Arrow>
+          {menuItems.map((item) => (
+            <DropdownMenu.Item
+              key={item.index}
+              onSelect={() => console.log(`Clicked ${item.label} for ${rowData.label}`)}
+              className={menuDemoStyles.Item}
+            >
+              {item.label} for {rowData.label}
+            </DropdownMenu.Item>
+          ))}
+        </DropdownMenu.Content>
+      </DropdownMenu.Portal>
+    </DropdownMenu.Root>
   );
 }
 
@@ -110,14 +107,12 @@ function RowPopover({ rowData }: RowProps) {
         Popover
       </Popover.Trigger>
       <Popover.Portal>
-        <Popover.Positioner sideOffset={8} className={popoverDemoStyles.Positioner}>
-          <Popover.Popup className={popoverDemoStyles.Popup}>
-            <Popover.Arrow className={popoverDemoStyles.Arrow}>
-              <ArrowSvg />
-            </Popover.Arrow>
-            {rowData && <div>Popover for {rowData.label}</div>}
-          </Popover.Popup>
-        </Popover.Positioner>
+        <Popover.Content sideOffset={8} className={popoverDemoStyles.Popup}>
+          <Popover.Arrow asChild className={popoverDemoStyles.Arrow}>
+            <ArrowSvg />
+          </Popover.Arrow>
+          {rowData && <div>Details for {rowData.label}</div>}
+        </Popover.Content>
       </Popover.Portal>
     </Popover.Root>
   );
@@ -130,14 +125,12 @@ function RowTooltip({ rowData }: RowProps) {
         Tooltip
       </Tooltip.Trigger>
       <Tooltip.Portal>
-        <Tooltip.Positioner sideOffset={10}>
-          <Tooltip.Popup className={tooltipDemoStyles.Popup}>
-            <Tooltip.Arrow className={tooltipDemoStyles.Arrow}>
-              <ArrowSvg />
-            </Tooltip.Arrow>
-            Tooltip for {rowData.label}
-          </Tooltip.Popup>
-        </Tooltip.Positioner>
+        <Tooltip.Content sideOffset={10} className={tooltipDemoStyles.Popup}>
+          <Tooltip.Arrow asChild className={tooltipDemoStyles.Arrow}>
+            <ArrowSvg />
+          </Tooltip.Arrow>
+          Tooltip for {rowData.label}
+        </Tooltip.Content>
       </Tooltip.Portal>
     </Tooltip.Root>
   );
@@ -150,8 +143,8 @@ function RowDialog({ rowData }: RowProps) {
         Dialog
       </Dialog.Trigger>
       <Dialog.Portal>
-        <Dialog.Backdrop className={dialogDemoStyles.Backdrop} />
-        <Dialog.Popup className={dialogDemoStyles.Popup}>
+        <Dialog.Overlay className={dialogDemoStyles.Backdrop} />
+        <Dialog.Content className={dialogDemoStyles.Popup}>
           <Dialog.Title className={dialogDemoStyles.Title}>Dialog</Dialog.Title>
           <Dialog.Description className={dialogDemoStyles.Description}>
             Dialog content for {rowData.label}
@@ -159,7 +152,7 @@ function RowDialog({ rowData }: RowProps) {
           <div className={dialogDemoStyles.Actions}>
             <Dialog.Close className={dialogDemoStyles.Button}>Close</Dialog.Close>
           </div>
-        </Dialog.Popup>
+        </Dialog.Content>
       </Dialog.Portal>
     </Dialog.Root>
   );
