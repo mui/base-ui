@@ -3,6 +3,7 @@ import * as ReactDOM from 'react-dom';
 import { createSelector, ReactStore } from '@base-ui-components/utils/store';
 import { useRefWithInit } from '@base-ui-components/utils/useRefWithInit';
 import { type TooltipRoot } from '../root/TooltipRoot';
+import { useSyncedFloatingRootContext } from '../../floating-ui-react';
 import { REASONS } from '../../utils/reasons';
 import {
   createInitialPopupStoreState,
@@ -42,16 +43,6 @@ export class TooltipStore<Payload> extends ReactStore<
   Context,
   typeof selectors
 > {
-  static useStore<Payload>(
-    externalStore: TooltipStore<Payload> | undefined,
-    initialState?: Partial<State<Payload>>,
-  ) {
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    return useRefWithInit(() => {
-      return externalStore ?? new TooltipStore<Payload>(initialState);
-    }).current;
-  }
-
   constructor(initialState?: Partial<State<Payload>>) {
     super(
       { ...createInitialState(), ...initialState },
@@ -116,6 +107,29 @@ export class TooltipStore<Payload> extends ReactStore<
       changeState();
     }
   };
+
+  static useStore<Payload>(
+    externalStore: TooltipStore<Payload> | undefined,
+    initialState?: Partial<State<Payload>>,
+  ) {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const store = useRefWithInit(() => {
+      return externalStore ?? new TooltipStore<Payload>(initialState);
+    }).current;
+
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const floatingRootContext = useSyncedFloatingRootContext({
+      popupStore: store,
+      onOpenChange: store.setOpen,
+    });
+
+    // It's safe to set this here because when this code runs for the first time,
+    // nothing has had a chance to subscribe to the `store` yet.
+    // For subsequent renders, the `floatingRootContext` reference remains the same,
+    // so it's basically a no-op.
+    (store.state as State<any>).floatingRootContext = floatingRootContext;
+    return store;
+  }
 }
 
 function createInitialState<Payload>(): State<Payload> {
@@ -123,7 +137,7 @@ function createInitialState<Payload>(): State<Payload> {
     ...createInitialPopupStoreState(),
     disabled: false,
     instantType: undefined,
-    isInstantPhase: true,
+    isInstantPhase: false,
     trackCursorAxis: 'none',
     disableHoverablePopup: false,
     openChangeReason: null,

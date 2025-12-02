@@ -84,7 +84,7 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
         // find by index
         if (
           tabValue === undefined &&
-          tabPanelMetadata?.index &&
+          tabPanelMetadata?.index != null &&
           tabPanelMetadata?.index === index
         ) {
           return tabPanelMetadata.id;
