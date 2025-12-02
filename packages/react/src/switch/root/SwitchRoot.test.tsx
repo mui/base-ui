@@ -270,7 +270,7 @@ describe('<Switch.Root />', () => {
       });
 
       const { user } = await render(
-        <Form onSubmit={submitSpy}>
+        <Form onSubmit={submitSpy as unknown as Form.Props['onSubmit']}>
           <Field.Root name="test-switch">
             <Switch.Root />
           </Field.Root>

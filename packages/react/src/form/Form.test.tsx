@@ -201,7 +201,7 @@ describe('<Form />', () => {
 
       function App() {
         return (
-          <Form onFormSubmit={submitSpy}>
+          <Form onFormSubmit={submitSpy as unknown as Form.Props['onFormSubmit']}>
             <Field.Root name="username">
               <Field.Control defaultValue="alice132" />
             </Field.Root>

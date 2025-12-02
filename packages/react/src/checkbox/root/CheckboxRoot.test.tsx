@@ -358,7 +358,7 @@ describe('<Checkbox.Root />', () => {
       });
 
       await render(
-        <Form onSubmit={submitSpy}>
+        <Form onSubmit={submitSpy as unknown as Form.Props['onSubmit']}>
           <Field.Root name="test-checkbox">
             <Checkbox.Root />
           </Field.Root>
@@ -392,7 +392,7 @@ describe('<Checkbox.Root />', () => {
       });
 
       await render(
-        <Form onSubmit={submitSpy}>
+        <Form onSubmit={submitSpy as unknown as Form.Props['onSubmit']}>
           <Field.Root name="test-checkbox">
             <Checkbox.Root value="test-value" />
           </Field.Root>
