@@ -689,13 +689,17 @@ export function useDismiss(
   const floating: ElementProps['floating'] = React.useMemo(
     () => ({
       onKeyDown: closeOnEscapeKeyDown,
+
+      // `onMouseDown` may be blocked if `event.preventDefault()` is called in
+      // `onPointerDown`, such as with <NumberField.ScrubArea>.
+      // See https://github.com/mui/base-ui/pull/3379
+      onPointerDown: handlePressedInside,
       onMouseDown: handlePressedInside,
       onMouseUp: handlePressedInside,
-      onPointerDownCapture(event) {
-        markInsideReactTree();
-        handlePressedInside(event);
-      },
+
       onClickCapture: markInsideReactTree,
+      onMouseDownCapture: markInsideReactTree,
+      onPointerDownCapture: markInsideReactTree,
       onMouseUpCapture: markInsideReactTree,
       onTouchEndCapture: markInsideReactTree,
       onTouchMoveCapture: markInsideReactTree,
