@@ -75,7 +75,7 @@ describe('<Calendar.SetPreviousMonth />', () => {
       expect(button).to.have.attribute('data-disabled');
     });
 
-    it('should be not disabled when the target month is equal to the minDate month', () => {
+    it('should not be disabled when the target month is equal to the minDate month', () => {
       render(
         <Calendar.Root
           minDate={adapter.date('2025-01-10', 'default')}
