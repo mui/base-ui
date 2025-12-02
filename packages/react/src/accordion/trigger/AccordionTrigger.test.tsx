@@ -1,4 +1,3 @@
-import * as React from 'react';
 import { Accordion } from '@base-ui-components/react/accordion';
 import { describeConformance, createRenderer } from '#test-utils';
 

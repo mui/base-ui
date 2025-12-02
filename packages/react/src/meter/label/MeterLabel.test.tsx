@@ -1,4 +1,3 @@
-import * as React from 'react';
 import { Meter } from '@base-ui-components/react/meter';
 import { createRenderer, describeConformance } from '#test-utils';
 

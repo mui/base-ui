@@ -17,7 +17,7 @@ const stateAttributesMapping: StateAttributesMapping<SelectArrow.State> = {
 };
 
 /**
- * Displays an element positioned against the select menu anchor.
+ * Displays an element positioned against the select popup anchor.
  * Renders a `<div>` element.
  *
  * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
@@ -58,16 +58,19 @@ export const SelectArrow = React.forwardRef(function SelectArrow(
   return element;
 });
 
-export namespace SelectArrow {
-  export interface State {
-    /**
-     * Whether the select menu is currently open.
-     */
-    open: boolean;
-    side: Side | 'none';
-    align: Align;
-    uncentered: boolean;
-  }
+export interface SelectArrowState {
+  /**
+   * Whether the select popup is currently open.
+   */
+  open: boolean;
+  side: Side | 'none';
+  align: Align;
+  uncentered: boolean;
+}
 
-  export interface Props extends BaseUIComponentProps<'div', State> {}
+export interface SelectArrowProps extends BaseUIComponentProps<'div', SelectArrow.State> {}
+
+export namespace SelectArrow {
+  export type State = SelectArrowState;
+  export type Props = SelectArrowProps;
 }

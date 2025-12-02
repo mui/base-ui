@@ -1,4 +1,3 @@
-import * as React from 'react';
 import { AlertDialog } from '@base-ui-components/react/alert-dialog';
 import styles from './index.module.css';
 

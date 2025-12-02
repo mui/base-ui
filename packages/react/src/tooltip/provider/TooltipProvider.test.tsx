@@ -1,4 +1,3 @@
-import * as React from 'react';
 import { Tooltip } from '@base-ui-components/react/tooltip';
 import { screen, fireEvent, flushMicrotasks } from '@mui/internal-test-utils';
 import { expect } from 'chai';
@@ -67,11 +66,11 @@ describe('<Tooltip.Provider />', () => {
       expect(screen.queryByText('Content')).not.to.equal(null);
     });
 
-    it('respects root delay prop over provider delay prop', async () => {
+    it('respects trigger delay prop over provider delay prop', async () => {
       await render(
         <Tooltip.Provider delay={10}>
-          <Tooltip.Root delay={100}>
-            <Tooltip.Trigger />
+          <Tooltip.Root>
+            <Tooltip.Trigger delay={100} />
             <Tooltip.Portal>
               <Tooltip.Positioner>
                 <Tooltip.Popup>Content</Tooltip.Popup>

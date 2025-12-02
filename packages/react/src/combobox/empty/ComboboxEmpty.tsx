@@ -2,7 +2,10 @@
 import * as React from 'react';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
-import { useComboboxDerivedItemsContext } from '../root/ComboboxRootContext';
+import {
+  useComboboxDerivedItemsContext,
+  useComboboxRootContext,
+} from '../root/ComboboxRootContext';
 
 /**
  * Renders its children only when the list is empty.
@@ -17,11 +20,12 @@ export const ComboboxEmpty = React.forwardRef(function ComboboxEmpty(
   const { render, className, children: childrenProp, ...elementProps } = componentProps;
 
   const { filteredItems } = useComboboxDerivedItemsContext();
+  const store = useComboboxRootContext();
 
   const children = filteredItems.length === 0 ? childrenProp : null;
 
   return useRenderElement('div', componentProps, {
-    ref: forwardedRef,
+    ref: [forwardedRef, store.state.emptyRef],
     props: [
       {
         children,
@@ -34,8 +38,11 @@ export const ComboboxEmpty = React.forwardRef(function ComboboxEmpty(
   });
 });
 
-export namespace ComboboxEmpty {
-  export interface State {}
+export interface ComboboxEmptyState {}
 
-  export interface Props extends BaseUIComponentProps<'div', State> {}
+export interface ComboboxEmptyProps extends BaseUIComponentProps<'div', ComboboxEmpty.State> {}
+
+export namespace ComboboxEmpty {
+  export type State = ComboboxEmptyState;
+  export type Props = ComboboxEmptyProps;
 }

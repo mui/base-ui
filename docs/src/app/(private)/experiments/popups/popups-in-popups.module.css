@@ -114,10 +114,8 @@
     transform 100ms ease-in;
 
   @starting-style {
-    & {
-      opacity: 0;
-      transform: scale(0.8);
-    }
+    opacity: 0;
+    transform: scale(0.8);
   }
 
   &[data-exiting] {

@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { useStore } from '@base-ui-components/utils/store';
 import { useComboboxRootContext } from '../root/ComboboxRootContext';
-import { isGroupedItems, stringifyItem } from '../root/utils';
+import { resolveSelectedLabel } from '../../utils/resolveValueLabel';
 import { selectors } from '../store';
 
 /**
@@ -11,7 +11,7 @@ import { selectors } from '../store';
  *
  * Documentation: [Base UI Combobox](https://base-ui.com/react/components/combobox)
  */
-export function ComboboxValue(props: ComboboxValue.Props) {
+export function ComboboxValue(props: ComboboxValue.Props): React.ReactElement {
   const { children: childrenProp } = props;
 
   const store = useComboboxRootContext();
@@ -20,94 +20,25 @@ export function ComboboxValue(props: ComboboxValue.Props) {
   const selectedValue = useStore(store, selectors.selectedValue);
   const items = useStore(store, selectors.items);
 
-  const isChildrenPropDefined = childrenProp !== undefined;
-
-  const memoizedItemDerivatives = React.useMemo(() => {
-    if (isChildrenPropDefined || !Array.isArray(items)) {
-      return {
-        flatItems: undefined,
-        valueToLabel: undefined,
-        nullItemLabel: undefined,
-      };
-    }
-
-    const flatItems = isGroupedItems(items) ? items.flatMap((g) => g.items) : items;
-
-    let valueToLabel: Map<any, React.ReactNode> | undefined;
-    let nullItemLabel: React.ReactNode | undefined;
-
-    for (let i = 0; i < flatItems.length; i += 1) {
-      const item = flatItems[i];
-
-      if (item == null) {
-        if (nullItemLabel === undefined) {
-          nullItemLabel = stringifyItem(item, itemToStringLabel);
-        }
-        continue;
-      }
-
-      if (typeof item === 'object') {
-        const hasValueKey = 'value' in item;
-        const hasLabelKey = 'label' in item;
-
-        if (hasValueKey) {
-          if (item.value == null && nullItemLabel === undefined) {
-            nullItemLabel = hasLabelKey ? item.label : stringifyItem(item, itemToStringLabel);
-          }
-
-          if (hasLabelKey) {
-            valueToLabel ??= new Map();
-            if (!valueToLabel.has(item.value)) {
-              valueToLabel.set(item.value, item.label);
-            }
-          }
-        }
-      }
-    }
-
-    return {
-      flatItems,
-      valueToLabel,
-      nullItemLabel,
-    };
-  }, [items, itemToStringLabel, isChildrenPropDefined]);
-
+  let returnValue = null;
   if (typeof childrenProp === 'function') {
-    return childrenProp(selectedValue);
+    returnValue = childrenProp(selectedValue);
+  } else if (childrenProp != null) {
+    returnValue = childrenProp;
+  } else {
+    returnValue = resolveSelectedLabel(selectedValue, items, itemToStringLabel);
   }
 
-  if (childrenProp != null) {
-    return childrenProp;
-  }
+  return <React.Fragment>{returnValue}</React.Fragment>;
+}
 
-  if (
-    selectedValue &&
-    typeof selectedValue === 'object' &&
-    'label' in selectedValue &&
-    selectedValue.label != null
-  ) {
-    return selectedValue.label;
-  }
+export interface ComboboxValueState {}
 
-  if (Array.isArray(items)) {
-    if (selectedValue == null && memoizedItemDerivatives.nullItemLabel !== undefined) {
-      return memoizedItemDerivatives.nullItemLabel;
-    }
-
-    // When a value is selected and items are value/label pairs, render label.
-    // e.g. items: [{ value: 'uk', label: 'United Kingdom' }], selectedValue: 'uk' → 'United Kingdom'
-    if (selectedValue != null && memoizedItemDerivatives.valueToLabel?.has(selectedValue)) {
-      return memoizedItemDerivatives.valueToLabel.get(selectedValue);
-    }
-  }
-
-  return stringifyItem(selectedValue, itemToStringLabel);
+export interface ComboboxValueProps {
+  children?: React.ReactNode | ((selectedValue: any) => React.ReactNode);
 }
 
 export namespace ComboboxValue {
-  export interface State {}
-
-  export interface Props {
-    children?: React.ReactNode | ((selectedValue: any) => React.ReactNode);
-  }
+  export type State = ComboboxValueState;
+  export type Props = ComboboxValueProps;
 }

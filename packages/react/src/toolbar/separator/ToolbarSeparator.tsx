@@ -26,6 +26,10 @@ export const ToolbarSeparator = React.forwardRef(function ToolbarSeparator(
   return <Separator orientation={orientation} {...props} ref={forwardedRef} />;
 });
 
+export interface ToolbarSeparatorProps
+  extends BaseUIComponentProps<'div', Separator.State>,
+    Separator.Props {}
+
 export namespace ToolbarSeparator {
-  export interface Props extends BaseUIComponentProps<'div', Separator.State>, Separator.Props {}
+  export type Props = ToolbarSeparatorProps;
 }

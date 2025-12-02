@@ -5,6 +5,29 @@ export default function Layout({ children }: React.PropsWithChildren) {
   return (
     // Use suppressHydrationWarning to avoid https://github.com/facebook/react/issues/24430
     <html lang="en" suppressHydrationWarning>
+      <head>
+        <link
+          rel="preload"
+          href={new URL('../fonts/regular.woff2', import.meta.url).toString()}
+          as="font"
+          type="font/woff2"
+          crossOrigin="anonymous"
+        />
+        <link
+          rel="preload"
+          href={new URL('../fonts/medium.woff2', import.meta.url).toString()}
+          as="font"
+          type="font/woff2"
+          crossOrigin="anonymous"
+        />
+        <link
+          rel="preload"
+          href={new URL('../fonts/bold.woff2', import.meta.url).toString()}
+          as="font"
+          type="font/woff2"
+          crossOrigin="anonymous"
+        />
+      </head>
       <body>{children}</body>
     </html>
   );

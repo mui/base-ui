@@ -35,63 +35,63 @@ describe('<Checkbox.Indicator />', () => {
   }));
 
   it('should not render indicator by default', async () => {
-    const { container } = await render(
+    await render(
       <Checkbox.Root>
-        <Checkbox.Indicator />
+        <Checkbox.Indicator data-testid="indicator" />
       </Checkbox.Root>,
     );
-    const indicator = container.querySelector('span');
+    const indicator = screen.queryByTestId('indicator');
     expect(indicator).to.equal(null);
   });
 
   it('should render indicator when checked', async () => {
-    const { container } = await render(
+    await render(
       <Checkbox.Root checked>
-        <Checkbox.Indicator />
+        <Checkbox.Indicator data-testid="indicator" />
       </Checkbox.Root>,
     );
-    const indicator = container.querySelector('span');
+    const indicator = screen.getByTestId('indicator');
     expect(indicator).not.to.equal(null);
   });
 
   it('should spread extra props', async () => {
-    const { container } = await render(
+    await render(
       <Checkbox.Root defaultChecked>
-        <Checkbox.Indicator data-extra-prop="Lorem ipsum" />
+        <Checkbox.Indicator data-testid="indicator" data-extra-prop="Lorem ipsum" />
       </Checkbox.Root>,
     );
-    const indicator = container.querySelector('span');
+    const indicator = screen.getByTestId('indicator');
     expect(indicator).to.have.attribute('data-extra-prop', 'Lorem ipsum');
   });
 
   describe('keepMounted prop', () => {
     it('should keep indicator mounted when unchecked', async () => {
-      const { container } = await render(
+      await render(
         <Checkbox.Root>
-          <Checkbox.Indicator keepMounted />
+          <Checkbox.Indicator data-testid="indicator" keepMounted />
         </Checkbox.Root>,
       );
-      const indicator = container.querySelector('span');
+      const indicator = screen.getByTestId('indicator');
       expect(indicator).not.to.equal(null);
     });
 
     it('should keep indicator mounted when checked', async () => {
-      const { container } = await render(
+      await render(
         <Checkbox.Root checked>
-          <Checkbox.Indicator keepMounted />
+          <Checkbox.Indicator data-testid="indicator" keepMounted />
         </Checkbox.Root>,
       );
-      const indicator = container.querySelector('span');
+      const indicator = screen.getByTestId('indicator');
       expect(indicator).not.to.equal(null);
     });
 
     it('should keep indicator mounted when indeterminate', async () => {
-      const { container } = await render(
+      await render(
         <Checkbox.Root indeterminate>
-          <Checkbox.Indicator keepMounted />
+          <Checkbox.Indicator data-testid="indicator" keepMounted />
         </Checkbox.Root>,
       );
-      const indicator = container.querySelector('span');
+      const indicator = screen.getByTestId('indicator');
       expect(indicator).not.to.equal(null);
     });
   });

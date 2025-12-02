@@ -8,7 +8,7 @@ import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
 import { selectors } from '../store';
 
 /**
- * An icon that indicates that the trigger button opens a select menu.
+ * An icon that indicates that the trigger button opens a select popup.
  * Renders a `<span>` element.
  *
  * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
@@ -39,8 +39,16 @@ export const SelectIcon = React.forwardRef(function SelectIcon(
   return element;
 });
 
-export namespace SelectIcon {
-  export interface State {}
+export interface SelectIconState {
+  /**
+   * Whether the select popup is currently open.
+   */
+  open: boolean;
+}
 
-  export interface Props extends BaseUIComponentProps<'span', State> {}
+export interface SelectIconProps extends BaseUIComponentProps<'span', SelectIcon.State> {}
+
+export namespace SelectIcon {
+  export type State = SelectIconState;
+  export type Props = SelectIconProps;
 }

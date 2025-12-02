@@ -1,4 +1,3 @@
-import * as React from 'react';
 import { Input } from '@base-ui-components/react/input';
 import { createRenderer } from '@mui/internal-test-utils';
 import { describeConformance } from '../../test/describeConformance';

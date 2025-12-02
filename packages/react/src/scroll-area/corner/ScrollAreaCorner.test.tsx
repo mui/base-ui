@@ -1,4 +1,3 @@
-import * as React from 'react';
 import { ScrollArea } from '@base-ui-components/react/scroll-area';
 import { expect } from 'chai';
 import { screen } from '@mui/internal-test-utils';

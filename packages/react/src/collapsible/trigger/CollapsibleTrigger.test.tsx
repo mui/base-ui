@@ -1,4 +1,3 @@
-import * as React from 'react';
 import { createRenderer } from '@mui/internal-test-utils';
 import { Collapsible } from '@base-ui-components/react/collapsible';
 import { describeConformance } from '../../../test/describeConformance';

@@ -1,5 +1,4 @@
 import { Tooltip } from '@base-ui-components/react/tooltip';
-import * as React from 'react';
 import { Popup as BasePopup } from '../Popup';
 
 export function Trigger(props: Tooltip.Trigger.Props) {

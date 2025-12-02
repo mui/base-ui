@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { expect } from 'chai';
 import { spy } from 'sinon';
-import { fireEvent, act, waitFor } from '@mui/internal-test-utils';
+import { fireEvent, act, waitFor, screen } from '@mui/internal-test-utils';
 import { Menu } from '@base-ui-components/react/menu';
 import { describeConformance, createRenderer, isJSDOM } from '#test-utils';
 
@@ -40,7 +40,7 @@ describe('<Menu.CheckboxItem />', () => {
       return <li {...other} ref={ref} />;
     });
 
-    const { getAllByRole } = await render(
+    await render(
       <Menu.Root open>
         <Menu.Portal>
           <Menu.Positioner>
@@ -63,7 +63,7 @@ describe('<Menu.CheckboxItem />', () => {
       </Menu.Root>,
     );
 
-    const menuItems = getAllByRole('menuitemcheckbox');
+    const menuItems = screen.getAllByRole('menuitemcheckbox');
     await act(async () => {
       menuItems[0].focus();
     });
@@ -107,7 +107,7 @@ describe('<Menu.CheckboxItem />', () => {
       ] as const
     ).forEach(([checked, ariaChecked, dataState]) =>
       it('adds the state and ARIA attributes when checked', async () => {
-        const { getByRole, user } = await render(
+        const { user } = await render(
           <Menu.Root>
             <Menu.Trigger>Open</Menu.Trigger>
             <Menu.Portal>
@@ -120,17 +120,17 @@ describe('<Menu.CheckboxItem />', () => {
           </Menu.Root>,
         );
 
-        const trigger = getByRole('button', { name: 'Open' });
+        const trigger = screen.getByRole('button', { name: 'Open' });
         await user.click(trigger);
 
-        const item = getByRole('menuitemcheckbox');
+        const item = screen.getByRole('menuitemcheckbox');
         expect(item).to.have.attribute('aria-checked', ariaChecked);
         expect(item).to.have.attribute(`data-${dataState}`, '');
       }),
     );
 
     it('toggles the checked state when clicked', async () => {
-      const { getByRole, user } = await render(
+      const { user } = await render(
         <Menu.Root>
           <Menu.Trigger>Open</Menu.Trigger>
           <Menu.Portal>
@@ -143,10 +143,10 @@ describe('<Menu.CheckboxItem />', () => {
         </Menu.Root>,
       );
 
-      const trigger = getByRole('button', { name: 'Open' });
+      const trigger = screen.getByRole('button', { name: 'Open' });
       await user.click(trigger);
 
-      const item = getByRole('menuitemcheckbox');
+      const item = screen.getByRole('menuitemcheckbox');
       await user.click(item);
 
       expect(item).to.have.attribute('aria-checked', 'true');
@@ -159,7 +159,7 @@ describe('<Menu.CheckboxItem />', () => {
     });
 
     it(`toggles the checked state when Space is pressed`, async () => {
-      const { getByRole, user } = await render(
+      const { user } = await render(
         <Menu.Root>
           <Menu.Trigger>Open</Menu.Trigger>
           <Menu.Portal>
@@ -172,12 +172,12 @@ describe('<Menu.CheckboxItem />', () => {
         </Menu.Root>,
       );
 
-      const trigger = getByRole('button', { name: 'Open' });
+      const trigger = screen.getByRole('button', { name: 'Open' });
       await act(async () => {
         trigger.focus();
       });
       await user.keyboard('[ArrowDown]');
-      const item = getByRole('menuitemcheckbox');
+      const item = screen.getByRole('menuitemcheckbox');
 
       await waitFor(() => {
         expect(item).toHaveFocus();
@@ -195,7 +195,7 @@ describe('<Menu.CheckboxItem />', () => {
         skip();
       }
 
-      const { getByRole, user } = await render(
+      const { user } = await render(
         <Menu.Root>
           <Menu.Trigger>Open</Menu.Trigger>
           <Menu.Portal>
@@ -208,13 +208,13 @@ describe('<Menu.CheckboxItem />', () => {
         </Menu.Root>,
       );
 
-      const trigger = getByRole('button', { name: 'Open' });
+      const trigger = screen.getByRole('button', { name: 'Open' });
       await act(async () => {
         trigger.focus();
       });
 
       await user.keyboard('[ArrowDown]');
-      const item = getByRole('menuitemcheckbox');
+      const item = screen.getByRole('menuitemcheckbox');
 
       await waitFor(() => {
         expect(item).toHaveFocus();
@@ -226,7 +226,7 @@ describe('<Menu.CheckboxItem />', () => {
 
     it('calls `onCheckedChange` when the item is clicked', async () => {
       const onCheckedChange = spy();
-      const { getByRole, user } = await render(
+      const { user } = await render(
         <Menu.Root>
           <Menu.Trigger>Open</Menu.Trigger>
           <Menu.Portal>
@@ -239,10 +239,10 @@ describe('<Menu.CheckboxItem />', () => {
         </Menu.Root>,
       );
 
-      const trigger = getByRole('button', { name: 'Open' });
+      const trigger = screen.getByRole('button', { name: 'Open' });
       await user.click(trigger);
 
-      const item = getByRole('menuitemcheckbox');
+      const item = screen.getByRole('menuitemcheckbox');
       await user.click(item);
 
       expect(onCheckedChange.callCount).to.equal(1);
@@ -255,7 +255,7 @@ describe('<Menu.CheckboxItem />', () => {
     });
 
     it('keeps the state when closed and reopened', async () => {
-      const { getByRole, user } = await render(
+      const { user } = await render(
         <Menu.Root modal={false}>
           <Menu.Trigger>Open</Menu.Trigger>
           <Menu.Portal keepMounted>
@@ -268,20 +268,20 @@ describe('<Menu.CheckboxItem />', () => {
         </Menu.Root>,
       );
 
-      const trigger = getByRole('button', { name: 'Open' });
+      const trigger = screen.getByRole('button', { name: 'Open' });
       await act(() => {
         trigger.focus();
       });
 
       await user.keyboard('{Enter}');
 
-      const item = getByRole('menuitemcheckbox');
+      const item = screen.getByRole('menuitemcheckbox');
       await user.click(item);
 
       await user.keyboard('{Enter}');
       await user.keyboard('{Enter}');
 
-      const itemAfterReopen = getByRole('menuitemcheckbox');
+      const itemAfterReopen = screen.getByRole('menuitemcheckbox');
       expect(itemAfterReopen).to.have.attribute('aria-checked', 'true');
       expect(itemAfterReopen).to.have.attribute('data-checked');
     });
@@ -289,7 +289,7 @@ describe('<Menu.CheckboxItem />', () => {
 
   describe('prop: closeOnClick', () => {
     it('when `closeOnClick=true`, closes the menu when the item is clicked', async () => {
-      const { getByRole, queryByRole, user } = await render(
+      const { user } = await render(
         <Menu.Root>
           <Menu.Trigger>Open</Menu.Trigger>
           <Menu.Portal>
@@ -302,17 +302,17 @@ describe('<Menu.CheckboxItem />', () => {
         </Menu.Root>,
       );
 
-      const trigger = getByRole('button', { name: 'Open' });
+      const trigger = screen.getByRole('button', { name: 'Open' });
       await user.click(trigger);
 
-      const item = getByRole('menuitemcheckbox');
+      const item = screen.getByRole('menuitemcheckbox');
       await user.click(item);
 
-      expect(queryByRole('menu')).to.equal(null);
+      expect(screen.queryByRole('menu')).to.equal(null);
     });
 
     it('does not close the menu when the item is clicked by default', async () => {
-      const { getByRole, queryByRole, user } = await render(
+      const { user } = await render(
         <Menu.Root>
           <Menu.Trigger>Open</Menu.Trigger>
           <Menu.Portal>
@@ -325,13 +325,13 @@ describe('<Menu.CheckboxItem />', () => {
         </Menu.Root>,
       );
 
-      const trigger = getByRole('button', { name: 'Open' });
+      const trigger = screen.getByRole('button', { name: 'Open' });
       await user.click(trigger);
 
-      const item = getByRole('menuitemcheckbox');
+      const item = screen.getByRole('menuitemcheckbox');
       await user.click(item);
 
-      expect(queryByRole('menu')).not.to.equal(null);
+      expect(screen.queryByRole('menu')).not.to.equal(null);
     });
   });
 
@@ -342,7 +342,7 @@ describe('<Menu.CheckboxItem />', () => {
       const handleKeyDown = spy();
       const handleKeyUp = spy();
 
-      const { getByRole } = await render(
+      await render(
         <Menu.Root open>
           <Menu.Portal>
             <Menu.Positioner>
@@ -362,7 +362,7 @@ describe('<Menu.CheckboxItem />', () => {
         </Menu.Root>,
       );
 
-      const item = getByRole('menuitemcheckbox');
+      const item = screen.getByRole('menuitemcheckbox');
       await act(() => item.focus());
       expect(item).toHaveFocus();
 

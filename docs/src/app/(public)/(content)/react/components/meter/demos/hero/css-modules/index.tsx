@@ -1,4 +1,3 @@
-import * as React from 'react';
 import { Meter } from '@base-ui-components/react/meter';
 import styles from './index.module.css';
 

@@ -1,4 +1,3 @@
-import * as React from 'react';
 import { Tabs } from '@base-ui-components/react/tabs';
 import { createRenderer, describeConformance } from '#test-utils';
 

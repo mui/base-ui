@@ -1,5 +1,4 @@
 'use client';
-import * as React from 'react';
 import { useRender } from '@base-ui-components/react/use-render';
 import { mergeProps } from '@base-ui-components/react/merge-props';
 import styles from './index.module.css';

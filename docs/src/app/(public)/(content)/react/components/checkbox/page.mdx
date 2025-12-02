@@ -6,7 +6,13 @@
   content="A high-quality, unstyled React checkbox component that is easy to customize."
 />
 
-<Demo path="./demos/hero" />
+import { DemoCheckboxBasic } from './demos/hero';
+
+<DemoCheckboxBasic />
+
+## Usage guidelines
+
+- **Form controls must have an accessible name**: The checkbox must have a meaningful label. Prefer using [`<Field>`](/react/components/field) to provide a visible text label and description, or use the `aria-label` attribute as an alternative. See the [forms guide](/react/handbook/forms) for more on building form controls.
 
 ## Anatomy
 
@@ -20,15 +26,11 @@ import { Checkbox } from '@base-ui-components/react/checkbox';
 </Checkbox.Root>;
 ```
 
-## API reference
-
-<Reference component="Checkbox" parts="Root, Indicator" />
-
 ## Examples
 
 ### Form integration
 
-To use a single checkbox in a form, pass the checkbox's `name` to `Field` and use `Field.Label` to label the control.
+To use a single checkbox in a form, pass the checkbox's `name` to `<Field>` and use `<Field.Label>` to label the control.
 
 ```tsx title="Using Checkbox in a form"
 <Form>
@@ -40,3 +42,7 @@ To use a single checkbox in a form, pass the checkbox's `name` to `Field` and us
   </Field.Root>
 </Form>
 ```
+
+## API reference
+
+<Reference component="Checkbox" parts="Root, Indicator" />

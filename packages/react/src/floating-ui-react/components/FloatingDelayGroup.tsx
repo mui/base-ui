@@ -3,8 +3,12 @@ import { useTimeout, Timeout } from '@base-ui-components/utils/useTimeout';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 
 import { getDelay } from '../hooks/useHover';
-import type { FloatingRootContext, Delay } from '../types';
-import { BaseUIEventDetails, createBaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
+import type { FloatingRootContext, Delay, FloatingContext } from '../types';
+import {
+  BaseUIChangeEventDetails,
+  createChangeEventDetails,
+} from '../../utils/createBaseUIEventDetails';
+import { REASONS } from '../../utils/reasons';
 
 interface ContextValue {
   hasProvider: boolean;
@@ -14,7 +18,7 @@ interface ContextValue {
   timeout: Timeout;
   currentIdRef: React.MutableRefObject<any>;
   currentContextRef: React.MutableRefObject<{
-    onOpenChange: (open: boolean, eventDetails: BaseUIEventDetails<any>) => void;
+    onOpenChange: (open: boolean, eventDetails: BaseUIChangeEventDetails<any>) => void;
     setIsInstantPhase: (value: boolean) => void;
   } | null>;
 }
@@ -89,6 +93,10 @@ interface UseDelayGroupOptions {
    * @default true
    */
   enabled?: boolean;
+  /**
+   * Whether the trigger this hook is used in has opened the tooltip.
+   */
+  open: boolean;
 }
 
 interface UseDelayGroupReturn {
@@ -113,11 +121,12 @@ interface UseDelayGroupReturn {
  * @internal
  */
 export function useDelayGroup(
-  context: FloatingRootContext,
-  options: UseDelayGroupOptions = {},
+  context: FloatingRootContext | FloatingContext,
+  options: UseDelayGroupOptions = { open: false },
 ): UseDelayGroupReturn {
-  const { open, onOpenChange, floatingId } = context;
-  const { enabled = true } = options;
+  const store = 'rootStore' in context ? context.rootStore : context;
+  const floatingId = store.useState('floatingId');
+  const { enabled = true, open } = options;
 
   const groupContext = React.useContext(FloatingDelayGroupContext);
   const {
@@ -184,7 +193,7 @@ export function useDelayGroup(
     const prevContext = currentContextRef.current;
     const prevId = currentIdRef.current;
 
-    currentContextRef.current = { onOpenChange, setIsInstantPhase };
+    currentContextRef.current = { onOpenChange: store.setOpen, setIsInstantPhase };
     currentIdRef.current = floatingId;
     delayRef.current = {
       open: 0,
@@ -195,7 +204,7 @@ export function useDelayGroup(
       timeout.clear();
       setIsInstantPhase(true);
       prevContext?.setIsInstantPhase(true);
-      prevContext?.onOpenChange(false, createBaseUIEventDetails('none'));
+      prevContext?.onOpenChange(false, createChangeEventDetails(REASONS.none));
     } else {
       setIsInstantPhase(false);
       prevContext?.setIsInstantPhase(false);
@@ -204,7 +213,7 @@ export function useDelayGroup(
     enabled,
     open,
     floatingId,
-    onOpenChange,
+    store,
     currentIdRef,
     delayRef,
     timeoutMs,

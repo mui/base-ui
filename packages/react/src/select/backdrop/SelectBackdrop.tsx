@@ -61,14 +61,14 @@ export const SelectBackdrop = React.forwardRef(function SelectBackdrop(
   return element;
 });
 
-export namespace SelectBackdrop {
-  export interface Props extends BaseUIComponentProps<'div', State> {}
+export interface SelectBackdropState {
+  open: boolean;
+  transitionStatus: TransitionStatus;
+}
 
-  export interface State {
-    /**
-     * Whether the select menu is currently open.
-     */
-    open: boolean;
-    transitionStatus: TransitionStatus;
-  }
+export interface SelectBackdropProps extends BaseUIComponentProps<'div', SelectBackdrop.State> {}
+
+export namespace SelectBackdrop {
+  export type State = SelectBackdropState;
+  export type Props = SelectBackdropProps;
 }

@@ -23,8 +23,11 @@ export const ComboboxRow = React.forwardRef(function ComboboxRow(
   return <ComboboxRowContext.Provider value>{element}</ComboboxRowContext.Provider>;
 });
 
-export namespace ComboboxRow {
-  export interface State {}
+export interface ComboboxRowState {}
 
-  export interface Props extends BaseUIComponentProps<'div', State> {}
+export interface ComboboxRowProps extends BaseUIComponentProps<'div', ComboboxRow.State> {}
+
+export namespace ComboboxRow {
+  export type State = ComboboxRowState;
+  export type Props = ComboboxRowProps;
 }

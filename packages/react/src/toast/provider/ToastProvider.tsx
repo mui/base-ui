@@ -1,16 +1,20 @@
 'use client';
 import * as React from 'react';
-import { useLatestRef } from '@base-ui-components/utils/useLatestRef';
 import { ownerDocument } from '@base-ui-components/utils/owner';
-import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { generateId } from '@base-ui-components/utils/generateId';
 import { Timeout } from '@base-ui-components/utils/useTimeout';
 import { activeElement, contains } from '../../floating-ui-react/utils';
 import { ToastContext } from './ToastProviderContext';
-import { ToastObject, useToastManager } from '../useToastManager';
 import { isFocusVisible } from '../utils/focusVisible';
 import { resolvePromiseOptions } from '../utils/resolvePromiseOptions';
-import { createToastManager } from '../createToastManager';
+import type {
+  ToastObject,
+  ToastManagerAddOptions,
+  ToastManagerPromiseOptions,
+  ToastManagerUpdateOptions,
+} from '../useToastManager';
+import type { ToastManager } from '../createToastManager';
 
 interface TimerInfo {
   timeout?: Timeout;
@@ -50,10 +54,7 @@ export const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvid
   const windowFocusedRef = React.useRef(true);
   const isPausedRef = React.useRef(false);
 
-  const hoveringRef = useLatestRef(hovering);
-  const focusedRef = useLatestRef(focused);
-
-  const handleFocusManagement = useEventCallback((toastId: string) => {
+  function handleFocusManagement(toastId: string) {
     const activeEl = activeElement(ownerDocument(viewportRef.current));
     if (
       !viewportRef.current ||
@@ -93,9 +94,9 @@ export const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvid
     } else {
       prevFocusElement?.focus({ preventScroll: true });
     }
-  });
+  }
 
-  const pauseTimers = useEventCallback(() => {
+  const pauseTimers = useStableCallback(() => {
     if (isPausedRef.current) {
       return;
     }
@@ -110,7 +111,7 @@ export const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvid
     });
   });
 
-  const resumeTimers = useEventCallback(() => {
+  const resumeTimers = useStableCallback(() => {
     if (!isPausedRef.current) {
       return;
     }
@@ -126,7 +127,7 @@ export const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvid
     });
   });
 
-  const close = useEventCallback((toastId: string) => {
+  const close = useStableCallback((toastId: string) => {
     setToasts((prevToasts) => {
       const toastsWithEnding = prevToasts.map((toast) =>
         toast.id === toastId ? { ...toast, transitionStatus: 'ending' as const, height: 0 } : toast,
@@ -155,22 +156,21 @@ export const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvid
     handleFocusManagement(toastId);
 
     if (toasts.length === 1) {
-      hoveringRef.current = false;
-      focusedRef.current = false;
+      setHovering(false);
+      setFocused(false);
     }
   });
 
-  const remove = useEventCallback((toastId: string) => {
+  const remove = useStableCallback((toastId: string) => {
     setToasts((prev) => prev.filter((toast) => toast.id !== toastId));
     const toast = toasts.find((t) => t.id === toastId);
     toast?.onRemove?.();
   });
 
-  const scheduleTimer = useEventCallback((id: string, delay: number, callback: () => void) => {
+  const scheduleTimer = useStableCallback((id: string, delay: number, callback: () => void) => {
     const start = Date.now();
 
-    const shouldStartActive =
-      windowFocusedRef.current && !hoveringRef.current && !focusedRef.current;
+    const shouldStartActive = windowFocusedRef.current && !hovering && !focused;
 
     const currentTimeout = shouldStartActive ? Timeout.create() : undefined;
 
@@ -188,8 +188,8 @@ export const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvid
     });
   });
 
-  const add = useEventCallback(
-    <Data extends object>(toast: useToastManager.AddOptions<Data>): string => {
+  const add = useStableCallback(
+    <Data extends object>(toast: ToastManagerAddOptions<Data>): string => {
       const id = toast.id || generateId('toast');
       const toastToAdd: ToastObject<Data> = {
         ...toast,
@@ -221,7 +221,7 @@ export const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvid
         scheduleTimer(id, duration, () => close(id));
       }
 
-      if (hoveringRef.current || focusedRef.current || !windowFocusedRef.current) {
+      if (hovering || focused || !windowFocusedRef.current) {
         pauseTimers();
       }
 
@@ -229,18 +229,18 @@ export const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvid
     },
   );
 
-  const update = useEventCallback(
-    <Data extends object>(id: string, updates: useToastManager.UpdateOptions<Data>) => {
+  const update = useStableCallback(
+    <Data extends object>(id: string, updates: ToastManagerUpdateOptions<Data>) => {
       setToasts((prev) =>
         prev.map((toast) => (toast.id === id ? { ...toast, ...updates } : toast)),
       );
     },
   );
 
-  const promise = useEventCallback(
+  const promise = useStableCallback(
     <Value, Data extends object>(
       promiseValue: Promise<Value>,
-      options: useToastManager.PromiseOptions<Value, Data>,
+      options: ToastManagerPromiseOptions<Value, Data>,
     ): Promise<Value> => {
       // Create a loading toast (which does not auto-dismiss).
       const loadingOptions = resolvePromiseOptions(options.loading);
@@ -262,7 +262,7 @@ export const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvid
             scheduleTimer(id, successTimeout, () => close(id));
           }
 
-          if (hoveringRef.current || focusedRef.current || !windowFocusedRef.current) {
+          if (hovering || focused || !windowFocusedRef.current) {
             pauseTimers();
           }
 
@@ -280,7 +280,7 @@ export const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvid
             scheduleTimer(id, errorTimeout, () => close(id));
           }
 
-          if (hoveringRef.current || focusedRef.current || !windowFocusedRef.current) {
+          if (hovering || focused || !windowFocusedRef.current) {
             pauseTimers();
           }
 
@@ -364,24 +364,26 @@ export const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvid
   return <ToastContext.Provider value={contextValue}>{children}</ToastContext.Provider>;
 };
 
+export interface ToastProviderProps {
+  children?: React.ReactNode;
+  /**
+   * The default amount of time (in ms) before a toast is auto dismissed.
+   * A value of `0` will prevent the toast from being dismissed automatically.
+   * @default 5000
+   */
+  timeout?: number;
+  /**
+   * The maximum number of toasts that can be displayed at once.
+   * When the limit is reached, the oldest toast will be removed to make room for the new one.
+   * @default 3
+   */
+  limit?: number;
+  /**
+   * A global manager for toasts to use outside of a React component.
+   */
+  toastManager?: ToastManager;
+}
+
 export namespace ToastProvider {
-  export interface Props {
-    children?: React.ReactNode;
-    /**
-     * The default amount of time (in ms) before a toast is auto dismissed.
-     * A value of `0` will prevent the toast from being dismissed automatically.
-     * @default 5000
-     */
-    timeout?: number;
-    /**
-     * The maximum number of toasts that can be displayed at once.
-     * When the limit is reached, the oldest toast will be removed to make room for the new one.
-     * @default 3
-     */
-    limit?: number;
-    /**
-     * A global manager for toasts to use outside of a React component.
-     */
-    toastManager?: createToastManager.ToastManager;
-  }
+  export type Props = ToastProviderProps;
 }

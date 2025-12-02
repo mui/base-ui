@@ -1,8 +1,7 @@
-import * as React from 'react';
 import { Slider } from '@base-ui-components/react/slider';
 import styles from './index.module.css';
 
-export default function ExampleSlider() {
+export default function RangeSlider() {
   return (
     <Slider.Root defaultValue={[25, 45]}>
       <Slider.Control className={styles.Control}>

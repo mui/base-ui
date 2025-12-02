@@ -33,7 +33,7 @@
   padding-block: 0;
   height: 2rem;
 
-  &[data-selected] {
+  &[data-active] {
     color: var(--color-gray-900);
   }
 

@@ -45,13 +45,16 @@ export const FieldsetLegend = React.forwardRef(function FieldsetLegend(
   return element;
 });
 
-export namespace FieldsetLegend {
-  export interface State {
-    /**
-     * Whether the component should ignore user interaction.
-     */
-    disabled: boolean;
-  }
+export interface FieldsetLegendState {
+  /**
+   * Whether the component should ignore user interaction.
+   */
+  disabled: boolean;
+}
 
-  export interface Props extends BaseUIComponentProps<'div', State> {}
+export interface FieldsetLegendProps extends BaseUIComponentProps<'div', FieldsetLegend.State> {}
+
+export namespace FieldsetLegend {
+  export type State = FieldsetLegendState;
+  export type Props = FieldsetLegendProps;
 }

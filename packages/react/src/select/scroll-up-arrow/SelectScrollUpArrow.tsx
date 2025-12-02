@@ -4,7 +4,7 @@ import { SelectScrollArrow } from '../scroll-arrow/SelectScrollArrow';
 import type { BaseUIComponentProps } from '../../utils/types';
 
 /**
- * An element that scrolls the select menu up when hovered.
+ * An element that scrolls the select popup up when hovered. Does not render when using touch input.
  * Renders a `<div>` element.
  *
  * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
@@ -16,14 +16,18 @@ export const SelectScrollUpArrow = React.forwardRef(function SelectScrollUpArrow
   return <SelectScrollArrow {...props} ref={forwardedRef} direction="up" />;
 });
 
-export namespace SelectScrollUpArrow {
-  export interface State {}
+export interface SelectScrollUpArrowState {}
 
-  export interface Props extends BaseUIComponentProps<'div', State> {
-    /**
-     * Whether to keep the HTML element in the DOM while the select menu is not scrollable.
-     * @default false
-     */
-    keepMounted?: boolean;
-  }
+export interface SelectScrollUpArrowProps
+  extends BaseUIComponentProps<'div', SelectScrollUpArrow.State> {
+  /**
+   * Whether to keep the HTML element in the DOM while the select popup is not scrollable.
+   * @default false
+   */
+  keepMounted?: boolean;
+}
+
+export namespace SelectScrollUpArrow {
+  export type State = SelectScrollUpArrowState;
+  export type Props = SelectScrollUpArrowProps;
 }

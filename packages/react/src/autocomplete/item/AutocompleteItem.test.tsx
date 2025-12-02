@@ -1,4 +1,3 @@
-import * as React from 'react';
 import { expect } from 'chai';
 import { spy } from 'sinon';
 import { screen, waitFor } from '@mui/internal-test-utils';
@@ -39,7 +38,7 @@ describe('<Autocomplete.Item />', () => {
       expect(handleClick.callCount).to.equal(1);
     });
 
-    it('does not call onClick when selected with Enter key', async () => {
+    it('calls onClick when selected with Enter key (via root interaction)', async () => {
       const handleClick = spy();
       const { user } = await render(
         <Autocomplete.Root items={['one', 'two']} openOnInputClick>
@@ -69,7 +68,7 @@ describe('<Autocomplete.Item />', () => {
       await user.keyboard('{ArrowDown}');
       await user.keyboard('{Enter}');
 
-      expect(handleClick.callCount).to.equal(0);
+      expect(handleClick.callCount).to.equal(1);
     });
   });
 });

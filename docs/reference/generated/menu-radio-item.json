@@ -10,7 +10,7 @@
     "value": {
       "type": "any",
       "required": true,
-      "description": "Value of the radio item.\nThis is the value that will be set in the MenuRadioGroup when the item is selected."
+      "description": "Value of the radio item.\nThis is the value that will be set in the Menu.RadioGroup when the item is selected."
     },
     "onClick": {
       "type": "MouseEventHandler<HTMLElement>",
@@ -39,13 +39,14 @@
       "type": "string",
       "detailedType": "string | undefined"
     },
-    "children": {
-      "type": "ReactNode",
-      "detailedType": "React.ReactNode"
-    },
     "className": {
-      "type": "string | ((state: Menu.RadioItem.State) => string)",
-      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
+      "type": "string | ((state: Menu.RadioItem.State) => string | undefined)",
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
+      "detailedType": "| string\n| ((state: Menu.RadioItem.State) => string | undefined)"
+    },
+    "style": {
+      "type": "CSSProperties | ((state: Menu.RadioItem.State) => CSSProperties | undefined)",
+      "detailedType": "| React.CSSProperties\n| ((\n    state: Menu.RadioItem.State,\n  ) => CSSProperties | undefined)\n| undefined"
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: Menu.RadioItem.State) => ReactElement)",

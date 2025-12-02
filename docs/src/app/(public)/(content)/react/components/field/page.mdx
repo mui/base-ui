@@ -1,13 +1,15 @@
 # Field
 
-<Subtitle>A component that provides labelling and validation for form controls.</Subtitle>
+<Subtitle>A component that provides labeling and validation for form controls.</Subtitle>
 
 <Meta
   name="description"
-  content="A high-quality, unstyled React field component that provides labelling and validation for form controls."
+  content="A high-quality, unstyled React field component that provides labeling and validation for form controls."
 />
 
-<Demo path="./demos/hero" />
+import { DemoFieldHero } from './demos/hero';
+
+<DemoFieldHero />
 
 ## Anatomy
 
@@ -20,6 +22,7 @@ import { Field } from '@base-ui-components/react/field';
   <Field.Label />
   <Field.Control />
   <Field.Description />
+  <Field.Item />
   <Field.Error />
   <Field.Validity />
 </Field.Root>;
@@ -27,4 +30,4 @@ import { Field } from '@base-ui-components/react/field';
 
 ## API reference
 
-<Reference component="Field" parts="Root, Label, Control, Description, Error, Validity" />
+<Reference component="Field" parts="Root, Label, Control, Description, Item, Error, Validity" />

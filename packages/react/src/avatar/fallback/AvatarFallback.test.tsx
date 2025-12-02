@@ -1,7 +1,6 @@
-import * as React from 'react';
 import { Mock } from 'vitest';
 import { Avatar } from '@base-ui-components/react/avatar';
-import { waitFor } from '@mui/internal-test-utils';
+import { waitFor, screen } from '@mui/internal-test-utils';
 import { describeConformance, createRenderer, isJSDOM } from '#test-utils';
 import { useImageLoadingStatus } from '../image/useImageLoadingStatus';
 
@@ -24,7 +23,7 @@ describe('<Avatar.Fallback />', () => {
   it.skipIf(!isJSDOM)('should not render the children if the image loaded', async () => {
     (useImageLoadingStatus as Mock).mockReturnValue('loaded');
 
-    const { queryByTestId } = await render(
+    await render(
       <Avatar.Root>
         <Avatar.Image />
         <Avatar.Fallback data-testid="fallback" />
@@ -32,14 +31,14 @@ describe('<Avatar.Fallback />', () => {
     );
 
     await waitFor(() => {
-      expect(queryByTestId('fallback')).to.equal(null);
+      expect(screen.queryByTestId('fallback')).to.equal(null);
     });
   });
 
   it.skipIf(!isJSDOM)('should render the fallback if the image fails to load', async () => {
     (useImageLoadingStatus as Mock).mockReturnValue('error');
 
-    const { queryByText } = await render(
+    await render(
       <Avatar.Root>
         <Avatar.Image />
         <Avatar.Fallback>AC</Avatar.Fallback>
@@ -47,7 +46,7 @@ describe('<Avatar.Fallback />', () => {
     );
 
     await waitFor(() => {
-      expect(queryByText('AC')).not.to.equal(null);
+      expect(screen.queryByText('AC')).not.to.equal(null);
     });
   });
 
@@ -57,18 +56,18 @@ describe('<Avatar.Fallback />', () => {
     clock.withFakeTimers();
 
     it('shows the fallback when the delay has elapsed', async () => {
-      const { queryByText } = await renderFakeTimers(
+      await renderFakeTimers(
         <Avatar.Root>
           <Avatar.Image />
           <Avatar.Fallback delay={100}>AC</Avatar.Fallback>
         </Avatar.Root>,
       );
 
-      expect(queryByText('AC')).to.equal(null);
+      expect(screen.queryByText('AC')).to.equal(null);
 
       clock.tick(100);
 
-      expect(queryByText('AC')).not.to.equal(null);
+      expect(screen.queryByText('AC')).not.to.equal(null);
     });
   });
 });

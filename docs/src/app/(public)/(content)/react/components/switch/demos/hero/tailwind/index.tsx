@@ -1,4 +1,3 @@
-import * as React from 'react';
 import { Switch } from '@base-ui-components/react/switch';
 
 export default function ExampleSwitch() {

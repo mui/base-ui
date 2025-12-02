@@ -17,7 +17,7 @@ export const ToastContent = React.forwardRef(function ToastContent(
 ) {
   const { render, className, ...elementProps } = componentProps;
 
-  const { index, expanded, recalculateHeight } = useToastRootContext();
+  const { visibleIndex, expanded, recalculateHeight } = useToastRootContext();
 
   const contentRef = React.useRef<HTMLDivElement | null>(null);
 
@@ -40,7 +40,7 @@ export const ToastContent = React.forwardRef(function ToastContent(
     };
   }, [recalculateHeight]);
 
-  const behind = index > 0;
+  const behind = visibleIndex > 0;
 
   const state: ToastContent.State = React.useMemo(
     () => ({
@@ -59,17 +59,20 @@ export const ToastContent = React.forwardRef(function ToastContent(
   return element;
 });
 
-export namespace ToastContent {
-  export interface State {
-    /**
-     * Whether the toast viewport is expanded.
-     */
-    expanded: boolean;
-    /**
-     * Whether the toast is behind the frontmost toast in the stack.
-     */
-    behind: boolean;
-  }
+export interface ToastContentState {
+  /**
+   * Whether the toast viewport is expanded.
+   */
+  expanded: boolean;
+  /**
+   * Whether the toast is behind the frontmost toast in the stack.
+   */
+  behind: boolean;
+}
 
-  export interface Props extends BaseUIComponentProps<'div', State> {}
+export interface ToastContentProps extends BaseUIComponentProps<'div', ToastContent.State> {}
+
+export namespace ToastContent {
+  export type State = ToastContentState;
+  export type Props = ToastContentProps;
 }

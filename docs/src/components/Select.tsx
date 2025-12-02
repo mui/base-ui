@@ -1,4 +1,3 @@
-import * as React from 'react';
 import { Select } from '@base-ui-components/react/select';
 import clsx from 'clsx';
 import { ChevronDownIcon } from '../icons/ChevronDownIcon';
@@ -13,7 +12,7 @@ interface TriggerProps extends Omit<Select.Trigger.Props, 'children'> {
 export function Trigger({ className, children, ...props }: TriggerProps) {
   return (
     // Implicitly relying on <GhostButton>, keep it in sync
-    <Select.Trigger data-layout="text" className="GhostButton" {...props}>
+    <Select.Trigger data-layout="text" className="GhostButton" type={undefined} {...props}>
       <Select.Value>{children}</Select.Value>
       <Select.Icon render={<ChevronDownIcon className="-ml-0.5" />} />
     </Select.Trigger>

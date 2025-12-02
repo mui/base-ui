@@ -129,7 +129,7 @@ export namespace GoogleAnalytics {
   export interface Props {
     productId: string;
     productCategoryId: string;
-    codeStylingVariant: string;
+    codeStylingVariant: string | null;
     codeLanguage: string;
     currentRoute: string;
     packageManager: string;

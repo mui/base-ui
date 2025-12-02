@@ -1,32 +1,79 @@
 'use client';
 import * as React from 'react';
-import type { BaseUIComponentProps, Orientation } from '../../utils/types';
+import { useOnMount } from '@base-ui-components/utils/useOnMount';
+import type { BaseUIComponentProps } from '../../utils/types';
+import { valueToPercent } from '../../utils/valueToPercent';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useSliderRootContext } from '../root/SliderRootContext';
 import { sliderStateAttributesMapping } from '../root/stateAttributesMapping';
 import type { SliderRoot } from '../root/SliderRoot';
-import { valueArrayToPercentages } from '../utils/valueArrayToPercentages';
 
-function getRangeStyles(
-  orientation: Orientation,
-  offset: number,
-  leap: number,
-): React.CSSProperties {
-  if (orientation === 'vertical') {
-    return {
-      position: 'absolute',
-      bottom: `${offset}%`,
-      height: `${leap}%`,
-      width: 'inherit',
-    };
+function getInsetStyles(
+  vertical: boolean,
+  range: boolean,
+  start: number | undefined,
+  end: number | undefined,
+  renderBeforeHydration: boolean,
+  mounted: boolean,
+): React.CSSProperties & Record<string, unknown> {
+  const visibility =
+    start === undefined || (range && end === undefined) ? ('hidden' as const) : undefined;
+
+  const startEdge = vertical ? 'bottom' : 'insetInlineStart';
+  const mainSide = vertical ? 'height' : 'width';
+  const crossSide = vertical ? 'width' : 'height';
+
+  const styles: React.CSSProperties & Record<string, unknown> = {
+    visibility: renderBeforeHydration && !mounted ? 'hidden' : visibility,
+    position: vertical ? 'absolute' : 'relative',
+    [crossSide]: 'inherit',
+  };
+
+  styles['--start-position'] = `${start ?? 0}%`;
+
+  if (!range) {
+    styles[startEdge] = 0;
+    styles[mainSide] = 'var(--start-position)';
+
+    return styles;
   }
 
-  return {
-    position: 'relative',
-    insetInlineStart: `${offset}%`,
-    width: `${leap}%`,
-    height: 'inherit',
+  styles['--relative-size'] = `${(end ?? 0) - (start ?? 0)}%`;
+
+  styles[startEdge] = 'var(--start-position)';
+  styles[mainSide] = 'var(--relative-size)';
+
+  return styles;
+}
+
+function getCenteredStyles(
+  vertical: boolean,
+  range: boolean,
+  start: number,
+  end: number,
+): React.CSSProperties {
+  const startEdge = vertical ? 'bottom' : 'insetInlineStart';
+  const mainSide = vertical ? 'height' : 'width';
+  const crossSide = vertical ? 'width' : 'height';
+
+  const styles: React.CSSProperties = {
+    position: vertical ? 'absolute' : 'relative',
+    [crossSide]: 'inherit',
   };
+
+  if (!range) {
+    styles[startEdge] = 0;
+    styles[mainSide] = `${start}%`;
+
+    return styles;
+  }
+
+  const size = end - start;
+
+  styles[startEdge] = `${start}%`;
+  styles[mainSide] = `${size}%`;
+
+  return styles;
 }
 
 /**
@@ -41,43 +88,50 @@ export const SliderIndicator = React.forwardRef(function SliderIndicator(
 ) {
   const { render, className, ...elementProps } = componentProps;
 
-  const { max, min, orientation, state, values } = useSliderRootContext();
+  const { indicatorPosition, inset, max, min, orientation, renderBeforeHydration, state, values } =
+    useSliderRootContext();
 
-  const percentageValues = valueArrayToPercentages(values.slice(), min, max);
+  const [isMounted, setIsMounted] = React.useState(false);
+  useOnMount(() => setIsMounted(true));
 
-  let style: React.CSSProperties;
+  const vertical = orientation === 'vertical';
+  const range = values.length > 1;
 
-  if (percentageValues.length > 1) {
-    const trackOffset = percentageValues[0];
-    const trackLeap = percentageValues[percentageValues.length - 1] - trackOffset;
-
-    style = getRangeStyles(orientation, trackOffset, trackLeap);
-  } else if (orientation === 'vertical') {
-    style = {
-      position: 'absolute',
-      bottom: 0,
-      height: `${percentageValues[0]}%`,
-      width: 'inherit',
-    };
-  } else {
-    style = {
-      position: 'relative',
-      insetInlineStart: 0,
-      width: `${percentageValues[0]}%`,
-      height: 'inherit',
-    };
-  }
+  const style = inset
+    ? getInsetStyles(
+        vertical,
+        range,
+        indicatorPosition[0],
+        indicatorPosition[1],
+        renderBeforeHydration,
+        isMounted,
+      )
+    : getCenteredStyles(
+        vertical,
+        range,
+        valueToPercent(values[0], min, max),
+        valueToPercent(values[values.length - 1], min, max),
+      );
 
   const element = useRenderElement('div', componentProps, {
     state,
     ref: forwardedRef,
-    props: [{ style }, elementProps],
+    props: [
+      {
+        ['data-base-ui-slider-indicator' as string]: renderBeforeHydration ? '' : undefined,
+        style,
+        suppressHydrationWarning: renderBeforeHydration || undefined,
+      },
+      elementProps,
+    ],
     stateAttributesMapping: sliderStateAttributesMapping,
   });
 
   return element;
 });
 
+export interface SliderIndicatorProps extends BaseUIComponentProps<'div', SliderRoot.State> {}
+
 export namespace SliderIndicator {
-  export interface Props extends BaseUIComponentProps<'div', SliderRoot.State> {}
+  export type Props = SliderIndicatorProps;
 }

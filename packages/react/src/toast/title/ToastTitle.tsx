@@ -64,13 +64,16 @@ export const ToastTitle = React.forwardRef(function ToastTitle(
   return element;
 });
 
-export namespace ToastTitle {
-  export interface State {
-    /**
-     * The type of the toast.
-     */
-    type: string | undefined;
-  }
+export interface ToastTitleState {
+  /**
+   * The type of the toast.
+   */
+  type: string | undefined;
+}
 
-  export interface Props extends BaseUIComponentProps<'h2', State> {}
+export interface ToastTitleProps extends BaseUIComponentProps<'h2', ToastTitle.State> {}
+
+export namespace ToastTitle {
+  export type State = ToastTitleState;
+  export type Props = ToastTitleProps;
 }

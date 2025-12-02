@@ -1,4 +1,3 @@
-import * as React from 'react';
 import { Field } from '@base-ui-components/react/field';
 import styles from './index.module.css';
 

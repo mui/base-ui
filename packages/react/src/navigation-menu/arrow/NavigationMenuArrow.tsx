@@ -43,16 +43,20 @@ export const NavigationMenuArrow = React.forwardRef(function NavigationMenuArrow
   return element;
 });
 
-export namespace NavigationMenuArrow {
-  export interface State {
-    /**
-     * Whether the popup is currently open.
-     */
-    open: boolean;
-    side: Side;
-    align: Align;
-    uncentered: boolean;
-  }
+export interface NavigationMenuArrowState {
+  /**
+   * Whether the popup is currently open.
+   */
+  open: boolean;
+  side: Side;
+  align: Align;
+  uncentered: boolean;
+}
 
-  export interface Props extends BaseUIComponentProps<'div', State> {}
+export interface NavigationMenuArrowProps
+  extends BaseUIComponentProps<'div', NavigationMenuArrow.State> {}
+
+export namespace NavigationMenuArrow {
+  export type State = NavigationMenuArrowState;
+  export type Props = NavigationMenuArrowProps;
 }

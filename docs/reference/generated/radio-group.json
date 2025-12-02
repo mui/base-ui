@@ -44,13 +44,18 @@
       "detailedType": "React.Ref<HTMLInputElement> | undefined"
     },
     "className": {
-      "type": "string | ((state: Radio.Group.State) => string)",
-      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
+      "type": "string | ((state: RadioGroup.State) => string | undefined)",
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
+      "detailedType": "| string\n| ((state: RadioGroup.State) => string | undefined)"
+    },
+    "style": {
+      "type": "CSSProperties | ((state: RadioGroup.State) => CSSProperties | undefined)",
+      "detailedType": "| React.CSSProperties\n| ((state: RadioGroup.State) => CSSProperties | undefined)\n| undefined"
     },
     "render": {
-      "type": "ReactElement | ((props: HTMLProps, state: Radio.Group.State) => ReactElement)",
+      "type": "ReactElement | ((props: HTMLProps, state: RadioGroup.State) => ReactElement)",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render.",
-      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Radio.Group.State,\n  ) => ReactElement)"
+      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: RadioGroup.State,\n  ) => ReactElement)"
     }
   },
   "dataAttributes": {

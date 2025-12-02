@@ -1,4 +1,3 @@
-import * as React from 'react';
 import { expect } from 'chai';
 import { fireEvent, waitFor, screen } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance } from '#test-utils';
@@ -27,6 +26,7 @@ describe('<Menu.SubmenuTrigger />', () => {
     return (
       <DirectionProvider direction={direction}>
         <Menu.Root open>
+          <Menu.Trigger>Open menu</Menu.Trigger>
           <Menu.Portal>
             <Menu.Positioner>
               <Menu.Popup>

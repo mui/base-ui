@@ -18,7 +18,7 @@ The `eventDetails` property is passed as a second argument to Base UI event hand
 This enables the event to be customized, and also allows you to conditionally run side effects based on the reason or DOM event that caused the change.
 
 ```tsx title="eventDetails object"
-interface BaseUIEventDetails {
+interface BaseUIChangeEventDetails {
   reason: string;
   event: Event;
   cancel: () => void;

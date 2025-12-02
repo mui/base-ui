@@ -7,7 +7,7 @@ export interface ComboboxGroupContext {
    * Optional list of items that belong to this group. Used by nested
    * collections to render group-specific items.
    */
-  items?: any[];
+  items?: readonly any[];
 }
 
 export const ComboboxGroupContext = React.createContext<ComboboxGroupContext | undefined>(

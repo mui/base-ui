@@ -1,4 +1,3 @@
-import * as React from 'react';
 import { ScrollArea } from '@base-ui-components/react/scroll-area';
 import { createRenderer, isJSDOM, describeConformance } from '#test-utils';
 import { screen } from '@mui/internal-test-utils';

@@ -27,8 +27,11 @@ export const ComboboxIcon = React.forwardRef(function ComboboxIcon(
   return element;
 });
 
-export namespace ComboboxIcon {
-  export interface State {}
+export interface ComboboxIconState {}
 
-  export interface Props extends BaseUIComponentProps<'span', State> {}
+export interface ComboboxIconProps extends BaseUIComponentProps<'span', ComboboxIcon.State> {}
+
+export namespace ComboboxIcon {
+  export type State = ComboboxIconState;
+  export type Props = ComboboxIconProps;
 }

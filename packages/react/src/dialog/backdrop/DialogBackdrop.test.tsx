@@ -19,13 +19,13 @@ describe('<Dialog.Backdrop />', () => {
   }));
 
   it('has role="presentation"', async () => {
-    const { getByTestId } = await render(
+    await render(
       <Dialog.Root open>
         <Dialog.Backdrop data-testid="backdrop" />
       </Dialog.Root>,
     );
 
-    expect(getByTestId('backdrop')).to.have.attribute('role', 'presentation');
+    expect(screen.getByTestId('backdrop')).to.have.attribute('role', 'presentation');
   });
 
   describe('prop: forceRender', () => {

@@ -91,7 +91,7 @@ for (const path in globbedDemos) {
     .reverse()
     .join('-')}`;
 
-  if (!excludeDemoFixture(suite, name, path)) {
+  if (!excludeDemoFixture(suite, name, path) && globbedDemos[path].default) {
     demoFixtures.push({
       path,
       suite,

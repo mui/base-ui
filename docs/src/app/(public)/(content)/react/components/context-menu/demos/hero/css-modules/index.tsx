@@ -1,4 +1,3 @@
-import * as React from 'react';
 import { ContextMenu } from '@base-ui-components/react/context-menu';
 import styles from './index.module.css';
 

@@ -1,9 +1,8 @@
 /* eslint-disable no-await-in-loop */
-import sortBy from 'es-toolkit/compat/sortBy';
 import * as tae from 'typescript-api-extractor';
 import fs from 'fs';
 import path from 'path';
-import uniq from 'es-toolkit/compat/uniq';
+import { uniq, sortBy } from 'es-toolkit/array';
 import * as prettier from 'prettier';
 
 export async function formatProperties(
@@ -13,6 +12,11 @@ export async function formatProperties(
   const result: Record<string, any> = {};
 
   for (const prop of props) {
+    // skip `ref` for components
+    if (prop.name === 'ref' && (allExports?.length ?? -1) > 0) {
+      continue;
+    }
+
     const exampleTag = prop.documentation?.tags
       ?.filter((tag) => tag.name === 'example')
       .map((tag) => tag.value)
@@ -142,7 +146,7 @@ export function formatDetailedType(
 
 export function formatEnum(enumNode: tae.EnumNode) {
   const result: Record<string, any> = {};
-  for (const member of sortBy(enumNode.members, 'value')) {
+  for (const member of sortBy(enumNode.members, ['value'])) {
     result[member.value] = {
       description: member.documentation?.description,
       type: member.documentation?.tags?.find((tag) => tag.name === 'type')?.value,

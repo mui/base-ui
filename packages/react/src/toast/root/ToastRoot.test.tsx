@@ -1,8 +1,8 @@
-import * as React from 'react';
 import { Toast } from '@base-ui-components/react/toast';
 import { act, screen, fireEvent, waitFor } from '@mui/internal-test-utils';
 import { expect } from 'chai';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
+import type { ToastManagerAddOptions } from '../useToastManager';
 import { List, Button } from '../utils/test-utils';
 
 const toast: Toast.Root.ToastObject = {
@@ -48,7 +48,11 @@ describe('<Toast.Root />', () => {
   });
 
   describe.skipIf(isJSDOM)('swipe behavior', () => {
-    function SwipeTestButton() {
+    function SwipeTestButton({
+      toastOptions,
+    }: {
+      toastOptions?: Partial<ToastManagerAddOptions<any>>;
+    } = {}) {
       const { add } = Toast.useToastManager();
       return (
         <button
@@ -58,6 +62,7 @@ describe('<Toast.Root />', () => {
               id: 'swipe-test-toast',
               title: 'Swipe Me',
               description: 'Swipe to dismiss',
+              ...(toastOptions ?? {}),
             });
           }}
         >
@@ -382,6 +387,38 @@ describe('<Toast.Root />', () => {
       simulateSwipe(toastElement, 100, 100, 100, 95);
 
       expect(screen.queryByTestId('toast-root')).not.to.equal(null);
+    });
+
+    it('ignores swipe gestures when toast is anchored', async () => {
+      const anchor = document.createElement('div');
+      document.body.appendChild(anchor);
+
+      try {
+        await render(
+          <Toast.Provider>
+            <Toast.Viewport>
+              <SwipeTestToast swipeDirection="up" />
+            </Toast.Viewport>
+            <SwipeTestButton
+              toastOptions={{
+                positionerProps: {
+                  anchor,
+                },
+              }}
+            />
+          </Toast.Provider>,
+        );
+
+        fireEvent.click(screen.getByRole('button', { name: 'add toast' }));
+
+        const toastElement = screen.getByTestId('toast-root');
+
+        simulateSwipe(toastElement, 100, 100, 100, 55);
+
+        expect(screen.queryByTestId('toast-root')).not.to.equal(null);
+      } finally {
+        document.body.removeChild(anchor);
+      }
     });
   });
 });

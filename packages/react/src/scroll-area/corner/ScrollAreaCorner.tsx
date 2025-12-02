@@ -41,8 +41,12 @@ export const ScrollAreaCorner = React.forwardRef(function ScrollAreaCorner(
   return element;
 });
 
-export namespace ScrollAreaCorner {
-  export interface State {}
+export interface ScrollAreaCornerState {}
 
-  export interface Props extends BaseUIComponentProps<'div', State> {}
+export interface ScrollAreaCornerProps
+  extends BaseUIComponentProps<'div', ScrollAreaCorner.State> {}
+
+export namespace ScrollAreaCorner {
+  export type State = ScrollAreaCornerState;
+  export type Props = ScrollAreaCornerProps;
 }

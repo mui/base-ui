@@ -1,6 +1,6 @@
 {
   "name": "SwitchRoot",
-  "description": "Represents the switch itself.\nRenders a `<button>` element and a hidden `<input>` beside.",
+  "description": "Represents the switch itself.\nRenders a `<span>` element and a hidden `<input>` beside.",
   "props": {
     "name": {
       "type": "string",
@@ -25,8 +25,8 @@
     },
     "nativeButton": {
       "type": "boolean",
-      "default": "true",
-      "description": "Whether the component renders a native `<button>` element when replacing it\nvia the `render` prop.\nSet to `false` if the rendered element is not a button (e.g. `<div>`).",
+      "default": "false",
+      "description": "Whether the component renders a native `<button>` element when replacing it\nvia the `render` prop.\nSet to `true` if the rendered element is a native button.",
       "detailedType": "boolean | undefined"
     },
     "disabled": {
@@ -58,8 +58,13 @@
       "detailedType": "string | undefined"
     },
     "className": {
-      "type": "string | ((state: Switch.Root.State) => string)",
-      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
+      "type": "string | ((state: Switch.Root.State) => string | undefined)",
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
+      "detailedType": "| string\n| ((state: Switch.Root.State) => string | undefined)"
+    },
+    "style": {
+      "type": "CSSProperties | ((state: Switch.Root.State) => CSSProperties | undefined)",
+      "detailedType": "| React.CSSProperties\n| ((state: Switch.Root.State) => CSSProperties | undefined)\n| undefined"
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: Switch.Root.State) => ReactElement)",

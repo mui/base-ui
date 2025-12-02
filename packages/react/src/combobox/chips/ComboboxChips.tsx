@@ -20,7 +20,6 @@ export const ComboboxChips = React.forwardRef(function ComboboxChips(
 
   const store = useComboboxRootContext();
 
-  const chipsContainerRef = useStore(store, selectors.chipsContainerRef);
   const open = useStore(store, selectors.open);
 
   const [highlightedChipIndex, setHighlightedChipIndex] = React.useState<number | undefined>(
@@ -34,7 +33,7 @@ export const ComboboxChips = React.forwardRef(function ComboboxChips(
   const chipsRef = React.useRef<Array<HTMLButtonElement | null>>([]);
 
   const element = useRenderElement('div', componentProps, {
-    ref: [forwardedRef, chipsContainerRef],
+    ref: [forwardedRef, store.state.chipsContainerRef],
     props: elementProps,
   });
 
@@ -54,8 +53,11 @@ export const ComboboxChips = React.forwardRef(function ComboboxChips(
   );
 });
 
-export namespace ComboboxChips {
-  export interface State {}
+export interface ComboboxChipsState {}
 
-  export interface Props extends BaseUIComponentProps<'div', State> {}
+export interface ComboboxChipsProps extends BaseUIComponentProps<'div', ComboboxChips.State> {}
+
+export namespace ComboboxChips {
+  export type State = ComboboxChipsState;
+  export type Props = ComboboxChipsProps;
 }
