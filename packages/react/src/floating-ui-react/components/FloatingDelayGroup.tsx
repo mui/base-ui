@@ -1,6 +1,8 @@
 import * as React from 'react';
 import { useTimeout, Timeout } from '@base-ui-components/utils/useTimeout';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
+import { useRef } from '@base-ui-components/utils/useRef';
+import { useState } from '@base-ui-components/utils/useState';
 
 import { getDelay } from '../hooks/useHover';
 import type { FloatingRootContext, Delay, FloatingContext } from '../types';
@@ -61,10 +63,10 @@ export interface FloatingDelayGroupProps {
 export function FloatingDelayGroup(props: FloatingDelayGroupProps): React.JSX.Element {
   const { children, delay, timeoutMs = 0 } = props;
 
-  const delayRef = React.useRef(delay);
-  const initialDelayRef = React.useRef(delay);
-  const currentIdRef = React.useRef<string | null>(null);
-  const currentContextRef = React.useRef(null);
+  const delayRef = useRef(delay);
+  const initialDelayRef = useRef(delay);
+  const currentIdRef = useRef<string | null>(null);
+  const currentContextRef = useRef(null);
   const timeout = useTimeout();
 
   return (
@@ -139,7 +141,7 @@ export function useDelayGroup(
     timeout,
   } = groupContext;
 
-  const [isInstantPhase, setIsInstantPhase] = React.useState(false);
+  const [isInstantPhase, setIsInstantPhase] = useState(false);
 
   useIsoLayoutEffect(() => {
     function unset() {

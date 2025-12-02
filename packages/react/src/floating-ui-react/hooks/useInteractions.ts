@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { useCallback } from '@base-ui-components/utils/useCallback';
 
 import type { ElementProps } from '../types';
 import { ACTIVE_KEY, FOCUSABLE_ATTRIBUTE, SELECTED_KEY } from '../utils/constants';
@@ -29,26 +30,26 @@ export function useInteractions(propsList: Array<ElementProps | void> = []): Use
   const itemDeps = propsList.map((key) => key?.item);
   const triggerDeps = propsList.map((key) => key?.trigger);
 
-  const getReferenceProps = React.useCallback(
+  const getReferenceProps = useCallback(
     (userProps?: React.HTMLProps<Element>) => mergeProps(userProps, propsList, 'reference'),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     referenceDeps,
   );
 
-  const getFloatingProps = React.useCallback(
+  const getFloatingProps = useCallback(
     (userProps?: React.HTMLProps<HTMLElement>) => mergeProps(userProps, propsList, 'floating'),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     floatingDeps,
   );
 
-  const getItemProps = React.useCallback(
+  const getItemProps = useCallback(
     (userProps?: Omit<React.HTMLProps<HTMLElement>, 'selected' | 'active'> & ExtendedUserProps) =>
       mergeProps(userProps, propsList, 'item'),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     itemDeps,
   );
 
-  const getTriggerProps = React.useCallback(
+  const getTriggerProps = useCallback(
     (userProps?: React.HTMLProps<Element>) => mergeProps(userProps, propsList, 'trigger'),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     triggerDeps,

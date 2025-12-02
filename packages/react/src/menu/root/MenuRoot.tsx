@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
+import * as fastHooks from '@base-ui-components/utils/fastHooks';
 import { useTimeout } from '@base-ui-components/utils/useTimeout';
 import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { useId } from '@base-ui-components/utils/useId';
@@ -8,6 +9,9 @@ import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect
 import { useAnimationFrame } from '@base-ui-components/utils/useAnimationFrame';
 import { useScrollLock } from '@base-ui-components/utils/useScrollLock';
 import { EMPTY_ARRAY } from '@base-ui-components/utils/empty';
+import { useEffect } from '@base-ui-components/utils/useEffect';
+import { useRef } from '@base-ui-components/utils/useRef';
+import { useCallback } from '@base-ui-components/utils/useCallback';
 import {
   FloatingEvents,
   FloatingTree,
@@ -51,7 +55,9 @@ import { useMenuSubmenuRootContext } from '../submenu-root/MenuSubmenuRootContex
  *
  * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
  */
-export function MenuRoot<Payload>(props: MenuRoot.Props<Payload>) {
+export const MenuRoot = fastHooks.createComponent(function MenuRoot<Payload>(
+  props: MenuRoot.Props<Payload>,
+) {
   const {
     children,
     open: openProp,
@@ -156,7 +162,7 @@ export function MenuRoot<Payload>(props: MenuRoot.Props<Payload>) {
   const payload = store.useState('payload') as Payload | undefined;
   const floatingParentNodeId = store.useState('floatingParentNodeId');
 
-  const openEventRef = React.useRef<Event | null>(null);
+  const openEventRef = useRef<Event | null>(null);
 
   const nested = floatingParentNodeId != null;
 
@@ -188,10 +194,10 @@ export function MenuRoot<Payload>(props: MenuRoot.Props<Payload>) {
     resetOpenInteractionType();
   });
 
-  const allowOutsidePressDismissalRef = React.useRef(parent.type !== 'context-menu');
+  const allowOutsidePressDismissalRef = useRef(parent.type !== 'context-menu');
   const allowOutsidePressDismissalTimeout = useTimeout();
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!open) {
       openEventRef.current = null;
     }
@@ -225,7 +231,7 @@ export function MenuRoot<Payload>(props: MenuRoot.Props<Payload>) {
     }
   }, [open, hoverEnabled, store]);
 
-  const allowTouchToCloseRef = React.useRef(true);
+  const allowTouchToCloseRef = useRef(true);
   const allowTouchToCloseTimeout = useTimeout();
 
   const setOpen = useStableCallback(
@@ -344,7 +350,7 @@ export function MenuRoot<Payload>(props: MenuRoot.Props<Payload>) {
     },
   );
 
-  const createMenuEventDetails = React.useCallback(
+  const createMenuEventDetails = useCallback(
     (reason: MenuRoot.ChangeEventReason) => {
       const details: MenuRoot.ChangeEventDetails =
         createChangeEventDetails<MenuRoot.ChangeEventReason>(reason) as MenuRoot.ChangeEventDetails;
@@ -357,7 +363,7 @@ export function MenuRoot<Payload>(props: MenuRoot.Props<Payload>) {
     [store],
   );
 
-  const handleImperativeClose = React.useCallback(() => {
+  const handleImperativeClose = useCallback(() => {
     store.setOpen(false, createMenuEventDetails(REASONS.imperativeAction));
   }, [store, createMenuEventDetails]);
 
@@ -387,7 +393,7 @@ export function MenuRoot<Payload>(props: MenuRoot.Props<Payload>) {
 
   floatingEvents = floatingRootContext.context.events;
 
-  React.useEffect(() => {
+  useEffect(() => {
     const handleSetOpenEvent = ({
       open: nextOpen,
       eventDetails,
@@ -422,7 +428,7 @@ export function MenuRoot<Payload>(props: MenuRoot.Props<Payload>) {
 
   const direction = useDirection();
 
-  const setActiveIndex = React.useCallback(
+  const setActiveIndex = useCallback(
     (index: number | null) => {
       if (store.select('activeIndex') === index) {
         return;
@@ -447,7 +453,7 @@ export function MenuRoot<Payload>(props: MenuRoot.Props<Payload>) {
     externalTree: nested ? floatingTreeRoot : undefined,
   });
 
-  const onTypingChange = React.useCallback(
+  const onTypingChange = useCallback(
     (nextTyping: boolean) => {
       store.context.typingRef.current = nextTyping;
     },
@@ -560,7 +566,7 @@ export function MenuRoot<Payload>(props: MenuRoot.Props<Payload>) {
   }
 
   return content;
-}
+});
 
 export interface MenuRootProps<Payload = unknown> {
   /**

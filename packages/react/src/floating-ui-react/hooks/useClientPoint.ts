@@ -2,6 +2,10 @@ import * as React from 'react';
 import { getWindow } from '@floating-ui/utils/dom';
 import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
+import { useEffect } from '@base-ui-components/utils/useEffect';
+import { useRef } from '@base-ui-components/utils/useRef';
+import { useCallback } from '@base-ui-components/utils/useCallback';
+import { useState } from '@base-ui-components/utils/useState';
 import { contains, getTarget, isMouseLikePointerType } from '../utils';
 
 import type { ContextData, ElementProps, FloatingContext, FloatingRootContext } from '../types';
@@ -128,11 +132,11 @@ export function useClientPoint(
 
   const { enabled = true, axis = 'both', x = null, y = null } = props;
 
-  const initialRef = React.useRef(false);
-  const cleanupListenerRef = React.useRef<null | (() => void)>(null);
+  const initialRef = useRef(false);
+  const cleanupListenerRef = useRef<null | (() => void)>(null);
 
-  const [pointerType, setPointerType] = React.useState<string | undefined>();
-  const [reactive, setReactive] = React.useState([]);
+  const [pointerType, setPointerType] = useState<string | undefined>();
+  const [reactive, setReactive] = useState([]);
 
   const setReference = useStableCallback((newX: number | null, newY: number | null) => {
     if (initialRef.current) {
@@ -179,7 +183,7 @@ export function useClientPoint(
   // the dismissal touch point.
   const openCheck = isMouseLikePointerType(pointerType) ? floating : open;
 
-  const addListener = React.useCallback(() => {
+  const addListener = useCallback(() => {
     // Explicitly specified `x`/`y` coordinates shouldn't add a listener.
     if (!openCheck || !enabled || x != null || y != null) {
       return undefined;
@@ -212,17 +216,17 @@ export function useClientPoint(
     return undefined;
   }, [openCheck, enabled, x, y, floating, dataRef, domReference, store, setReference]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     return addListener();
   }, [addListener, reactive]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (enabled && !floating) {
       initialRef.current = false;
     }
   }, [enabled, floating]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!enabled && open) {
       initialRef.current = true;
     }

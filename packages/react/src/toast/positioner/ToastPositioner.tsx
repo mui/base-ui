@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { useState } from '@base-ui-components/utils/useState';
 import { isElement } from '@floating-ui/utils/dom';
 import { useAnchorPositioning, type Side, type Align } from '../../utils/useAnchorPositioning';
 import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
@@ -49,7 +50,7 @@ export const ToastPositioner = React.forwardRef(function ToastPositioner(
     ...elementProps
   } = props;
 
-  const [positionerElement, setPositionerElement] = React.useState<HTMLDivElement | null>(null);
+  const [positionerElement, setPositionerElement] = useState<HTMLDivElement | null>(null);
 
   const domIndex = React.useMemo(() => toasts.indexOf(toast), [toast, toasts]);
   const visibleIndex = React.useMemo(

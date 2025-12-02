@@ -2,6 +2,8 @@ import * as React from 'react';
 import { ReactStore } from '@base-ui-components/utils/store';
 import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
+import { useRef } from '@base-ui-components/utils/useRef';
+import { useCallback } from '@base-ui-components/utils/useCallback';
 import { useTransitionStatus } from '../useTransitionStatus';
 import { useOpenChangeComplete } from '../useOpenChangeComplete';
 import {
@@ -21,9 +23,9 @@ export function useTriggerRegistration<State extends PopupStoreState<any>>(
   store: ReactStore<State, PopupStoreContext<any>, PopupStoreSelectors>,
 ) {
   // Keep track of the currently registered element to unregister it on unmount or id change.
-  const registeredElementId = React.useRef<string | null>(null);
+  const registeredElementId = useRef<string | null>(null);
 
-  return React.useCallback(
+  return useCallback(
     (element: Element | null) => {
       if (id === undefined) {
         return undefined;

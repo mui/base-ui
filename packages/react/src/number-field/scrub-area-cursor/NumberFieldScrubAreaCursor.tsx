@@ -3,6 +3,7 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { isWebKit } from '@base-ui-components/utils/detectBrowser';
 import { ownerDocument } from '@base-ui-components/utils/owner';
+import { useState } from '@base-ui-components/utils/useState';
 import { useNumberFieldRootContext } from '../root/NumberFieldRootContext';
 import type { BaseUIComponentProps } from '../../utils/types';
 import type { NumberFieldRoot } from '../root/NumberFieldRoot';
@@ -29,7 +30,7 @@ export const NumberFieldScrubAreaCursor = React.forwardRef(function NumberFieldS
   const { isScrubbing, isTouchInput, isPointerLockDenied, scrubAreaCursorRef } =
     useNumberFieldScrubAreaContext();
 
-  const [domElement, setDomElement] = React.useState<Element | null>(null);
+  const [domElement, setDomElement] = useState<Element | null>(null);
 
   const shouldRender = isScrubbing && !isWebKit && !isTouchInput && !isPointerLockDenied;
 

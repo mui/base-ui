@@ -2,6 +2,8 @@ import * as React from 'react';
 import { isElement } from '@floating-ui/utils/dom';
 import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
+import { useEffect } from '@base-ui-components/utils/useEffect';
+import { useCallback } from '@base-ui-components/utils/useCallback';
 
 import type { FloatingContext, FloatingRootContext } from '../types';
 import { getDocument, getTarget, isMouseLikePointerType } from '../utils';
@@ -79,7 +81,7 @@ export function useHoverFloatingInteraction(
     return type?.includes('mouse') && type !== 'mousedown';
   });
 
-  const closeWithDelay = React.useCallback(
+  const closeWithDelay = useCallback(
     (event: MouseEvent, runElseBranch = true) => {
       const closeDelay = getDelay(closeDelayProp, pointerTypeRef.current);
       if (closeDelay && !handlerRef.current) {
@@ -135,13 +137,13 @@ export function useHoverFloatingInteraction(
     clearPointerEvents,
   ]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     return () => {
       cleanupMouseMoveHandler();
     };
   }, [cleanupMouseMoveHandler]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     return clearPointerEvents;
   }, [clearPointerEvents]);
 
@@ -195,7 +197,7 @@ export function useHoverFloatingInteraction(
     performedPointerEventsMutationRef,
   ]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!enabled) {
       return undefined;
     }

@@ -3,6 +3,7 @@ import * as React from 'react';
 import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { visuallyHidden } from '@base-ui-components/utils/visuallyHidden';
+import { useRef } from '@base-ui-components/utils/useRef';
 import type { BaseUIComponentProps, NonNativeButtonProps } from '../../utils/types';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
@@ -74,8 +75,8 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
 
   const checked = checkedValue === value;
 
-  const radioRef = React.useRef<HTMLElement>(null);
-  const inputRef = React.useRef<HTMLInputElement>(null);
+  const radioRef = useRef<HTMLElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
   const mergedInputRef = useMergedRefs(inputRefProp, inputRef);
 
   useIsoLayoutEffect(() => {

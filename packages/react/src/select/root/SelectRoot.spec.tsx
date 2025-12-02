@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { useState } from '@base-ui-components/utils/useState';
 import { expectType } from '#test-utils';
 import { Select } from '@base-ui-components/react/select';
 import { mergeProps } from '../../merge-props';
@@ -159,7 +160,7 @@ const objectValueItems: Array<{ value: Obj; label: string }> = [
 />;
 
 function App() {
-  const [multiple, setMultiple] = React.useState(false);
+  const [multiple, setMultiple] = useState(false);
   return (
     <Select.Root
       multiple={multiple}
@@ -189,7 +190,7 @@ function App() {
 />;
 
 function App2() {
-  const [value, setValue] = React.useState('a');
+  const [value, setValue] = useState('a');
   return (
     <Select.Root
       value={value}
@@ -205,7 +206,7 @@ function App2() {
 }
 
 function App3() {
-  const [value, setValue] = React.useState<string | null>('a');
+  const [value, setValue] = useState<string | null>('a');
   return (
     <Select.Root
       value={value}

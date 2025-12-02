@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { ownerDocument } from '@base-ui-components/utils/owner';
+import { useRef } from '@base-ui-components/utils/useRef';
 import { BaseUIEvent } from './types';
 import { EMPTY_OBJECT } from './constants';
 
@@ -10,7 +11,7 @@ import { EMPTY_OBJECT } from './constants';
  */
 export function useMixedToggleClickHandler(params: useMixedToggleClickHandler.Parameters) {
   const { enabled = true, mouseDownAction, open } = params;
-  const ignoreClickRef = React.useRef(false);
+  const ignoreClickRef = useRef(false);
 
   return React.useMemo(() => {
     if (!enabled) {

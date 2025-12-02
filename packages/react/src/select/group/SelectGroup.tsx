@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { useState } from '@base-ui-components/utils/useState';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { SelectGroupContext } from './SelectGroupContext';
 import { useRenderElement } from '../../utils/useRenderElement';
@@ -16,7 +17,7 @@ export const SelectGroup = React.forwardRef(function SelectGroup(
 ) {
   const { className, render, ...elementProps } = componentProps;
 
-  const [labelId, setLabelId] = React.useState<string | undefined>();
+  const [labelId, setLabelId] = useState<string | undefined>();
 
   const contextValue: SelectGroupContext = React.useMemo(
     () => ({

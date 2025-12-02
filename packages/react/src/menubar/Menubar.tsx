@@ -1,6 +1,9 @@
 'use client';
 import * as React from 'react';
 import { useScrollLock } from '@base-ui-components/utils/useScrollLock';
+import { useEffect } from '@base-ui-components/utils/useEffect';
+import { useRef } from '@base-ui-components/utils/useRef';
+import { useState } from '@base-ui-components/utils/useState';
 import {
   FloatingNode,
   FloatingTree,
@@ -44,8 +47,8 @@ export const Menubar = React.forwardRef(function Menubar(
     ...elementProps
   } = props;
 
-  const [contentElement, setContentElement] = React.useState<HTMLElement | null>(null);
-  const [hasSubmenuOpen, setHasSubmenuOpen] = React.useState(false);
+  const [contentElement, setContentElement] = useState<HTMLElement | null>(null);
+  const [hasSubmenuOpen, setHasSubmenuOpen] = useState(false);
 
   const {
     openMethod,
@@ -53,7 +56,7 @@ export const Menubar = React.forwardRef(function Menubar(
     reset: resetOpenInteractionType,
   } = useOpenInteractionType(hasSubmenuOpen);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!hasSubmenuOpen) {
       resetOpenInteractionType();
     }
@@ -72,8 +75,8 @@ export const Menubar = React.forwardRef(function Menubar(
     [orientation, modal, hasSubmenuOpen],
   );
 
-  const contentRef = React.useRef<HTMLDivElement>(null);
-  const allowMouseUpTriggerRef = React.useRef(false);
+  const contentRef = useRef<HTMLDivElement>(null);
+  const allowMouseUpTriggerRef = useRef(false);
 
   const context: MenubarContext = React.useMemo(
     () => ({
@@ -116,7 +119,7 @@ function MenubarContent(props: React.PropsWithChildren<{}>) {
   const { events: menuEvents } = useFloatingTree()!;
   const rootContext = useMenubarContext();
 
-  React.useEffect(() => {
+  useEffect(() => {
     function onSubmenuOpenChange(details: MenuOpenEventDetails) {
       if (!details.nodeId || details.parentNodeId !== nodeId) {
         return;

@@ -5,6 +5,7 @@ import { useValueAsRef } from '@base-ui-components/utils/useValueAsRef';
 import { isMouseWithinBounds } from '@base-ui-components/utils/isMouseWithinBounds';
 import { useTimeout } from '@base-ui-components/utils/useTimeout';
 import { useStore } from '@base-ui-components/utils/store';
+import { useRef } from '@base-ui-components/utils/useRef';
 import { useSelectRootContext } from '../root/SelectRootContext';
 import {
   useCompositeListItem,
@@ -40,7 +41,7 @@ export const SelectItem = React.memo(
       ...elementProps
     } = componentProps;
 
-    const textRef = React.useRef<HTMLElement | null>(null);
+    const textRef = useRef<HTMLElement | null>(null);
     const listItem = useCompositeListItem({
       label,
       textRef,
@@ -69,7 +70,7 @@ export const SelectItem = React.memo(
     const index = listItem.index;
     const hasRegistered = index !== -1;
 
-    const itemRef = React.useRef<HTMLDivElement | null>(null);
+    const itemRef = useRef<HTMLDivElement | null>(null);
     const indexRef = useValueAsRef(index);
 
     useIsoLayoutEffect(() => {
@@ -118,9 +119,9 @@ export const SelectItem = React.memo(
     rootProps.onFocus = undefined;
     rootProps.id = undefined;
 
-    const lastKeyRef = React.useRef<string | null>(null);
-    const pointerTypeRef = React.useRef<'mouse' | 'touch' | 'pen'>('mouse');
-    const didPointerDownRef = React.useRef(false);
+    const lastKeyRef = useRef<string | null>(null);
+    const pointerTypeRef = useRef<'mouse' | 'touch' | 'pen'>('mouse');
+    const didPointerDownRef = useRef(false);
 
     const { getButtonProps, buttonRef } = useButton({
       disabled,

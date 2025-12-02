@@ -2,6 +2,9 @@
 import * as React from 'react';
 import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { useScrollLock } from '@base-ui-components/utils/useScrollLock';
+import { useEffect } from '@base-ui-components/utils/useEffect';
+import { useCallback } from '@base-ui-components/utils/useCallback';
+import { useState } from '@base-ui-components/utils/useState';
 import {
   useDismiss,
   useInteractions,
@@ -47,7 +50,7 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
     return details;
   });
 
-  const handleImperativeClose = React.useCallback(() => {
+  const handleImperativeClose = useCallback(() => {
     store.setOpen(false, createDialogEventDetails(REASONS.imperativeAction));
   }, [store, createDialogEventDetails]);
 
@@ -64,7 +67,7 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
     noEmit: true,
   });
 
-  const [ownNestedOpenDialogs, setOwnNestedOpenDialogs] = React.useState(0);
+  const [ownNestedOpenDialogs, setOwnNestedOpenDialogs] = useState(0);
   const isTopmost = ownNestedOpenDialogs === 0;
 
   const role = useRole(floatingRootContext);
@@ -124,7 +127,7 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
   });
 
   // Notify parent of our open/close state using parent callbacks, if any
-  React.useEffect(() => {
+  useEffect(() => {
     if (parentContext?.onNestedDialogOpen && open) {
       parentContext.onNestedDialogOpen(ownNestedOpenDialogs);
     }

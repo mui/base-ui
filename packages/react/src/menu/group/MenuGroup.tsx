@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { useState } from '@base-ui-components/utils/useState';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { MenuGroupContext } from './MenuGroupContext';
@@ -16,7 +17,7 @@ export const MenuGroup = React.forwardRef(function MenuGroup(
 ) {
   const { render, className, ...elementProps } = componentProps;
 
-  const [labelId, setLabelId] = React.useState<string | undefined>(undefined);
+  const [labelId, setLabelId] = useState<string | undefined>(undefined);
 
   const context = React.useMemo(() => ({ setLabelId }), [setLabelId]);
 

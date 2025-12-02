@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { useEffect } from '@base-ui-components/utils/useEffect';
 import type { InteractionType } from '@base-ui-components/utils/useEnhancedClickHandler';
 import { FloatingFocusManager, useHoverFloatingInteraction } from '../../floating-ui-react';
 import { useMenuRootContext } from '../root/MenuRootContext';
@@ -64,7 +65,7 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
     },
   });
 
-  React.useEffect(() => {
+  useEffect(() => {
     function handleClose(event: {
       domEvent: Event | undefined;
       reason: MenuRoot.ChangeEventReason;

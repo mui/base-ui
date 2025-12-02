@@ -3,6 +3,7 @@
 import * as React from 'react';
 import { Store } from './Store';
 import { useStore } from './useStore';
+import { useRef } from '../useRef';
 import { useStableCallback } from '../useStableCallback';
 import { useIsoLayoutEffect } from '../useIsoLayoutEffect';
 import { NOOP } from '../empty';
@@ -90,7 +91,7 @@ export class ReactStore<
     if (process.env.NODE_ENV !== 'production') {
       // Check that an object with the same shape is passed on every render
       React.useDebugValue(statePart, (p) => Object.keys(p));
-      const keys = React.useRef<Array<keyof State>>(
+      const keys = useRef<Array<keyof State>>(
         Object.keys(statePart) as Array<keyof State>,
       ).current;
 
@@ -262,7 +263,7 @@ export class ReactStore<
    * @param key Key of the state to set.
    */
   public useStateSetter<const Key extends keyof State, Value extends State[Key]>(key: keyof State) {
-    const ref = React.useRef<(v: Value) => void>(undefined as any);
+    const ref = useRef<(v: Value) => void>(undefined as any);
     if (ref.current === undefined) {
       ref.current = (value: Value) => {
         this.set(key, value);

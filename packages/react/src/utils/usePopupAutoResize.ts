@@ -2,6 +2,7 @@ import * as React from 'react';
 import { useAnimationFrame } from '@base-ui-components/utils/useAnimationFrame';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
+import { useRef } from '@base-ui-components/utils/useRef';
 import { useAnimationsFinished } from './useAnimationsFinished';
 import { getCssDimensions } from './getCssDimensions';
 import { Dimensions } from '../floating-ui-react/types';
@@ -24,10 +25,10 @@ export function usePopupAutoResize(parameters: UsePopupAutoResizeParameters) {
     onMeasureLayoutComplete: onMeasureLayoutCompleteParam,
   } = parameters;
 
-  const isInitialRender = React.useRef(true);
+  const isInitialRender = useRef(true);
   const runOnceAnimationsFinish = useAnimationsFinished(popupElement, true, false);
   const animationFrame = useAnimationFrame();
-  const previousDimensionsRef = React.useRef<Dimensions | null>(null);
+  const previousDimensionsRef = useRef<Dimensions | null>(null);
 
   const onMeasureLayout = useStableCallback(onMeasureLayoutParam);
   const onMeasureLayoutComplete = useStableCallback(onMeasureLayoutCompleteParam);

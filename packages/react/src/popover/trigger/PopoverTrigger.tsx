@@ -3,6 +3,8 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { type FocusableElement } from 'tabbable';
 import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
+import { useRef } from '@base-ui-components/utils/useRef';
+import { useState } from '@base-ui-components/utils/useState';
 import { usePopoverRootContext } from '../root/PopoverRootContext';
 import { useButton } from '../../use-button/useButton';
 import type { BaseUIComponentProps, NativeButtonProps } from '../../utils/types';
@@ -71,7 +73,7 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
   const floatingContext = store.useState('floatingRootContext');
   const isOpenedByThisTrigger = store.useState('isOpenedByTrigger', thisTriggerId);
 
-  const [triggerElement, setTriggerElement] = React.useState<HTMLElement | null>(null);
+  const [triggerElement, setTriggerElement] = useState<HTMLElement | null>(null);
 
   const { registerTrigger, isMountedByThisTrigger } = useTriggerDataForwarding(
     thisTriggerId,
@@ -151,7 +153,7 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
     stateAttributesMapping,
   });
 
-  const preFocusGuardRef = React.useRef<HTMLElement>(null);
+  const preFocusGuardRef = useRef<HTMLElement>(null);
 
   const handlePreFocusGuardFocus = useStableCallback((event: React.FocusEvent) => {
     ReactDOM.flushSync(() => {

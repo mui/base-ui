@@ -5,6 +5,9 @@ import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect
 import { useOnMount } from '@base-ui-components/utils/useOnMount';
 import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
 import { visuallyHidden } from '@base-ui-components/utils/visuallyHidden';
+import { useRef } from '@base-ui-components/utils/useRef';
+import { useCallback } from '@base-ui-components/utils/useCallback';
+import { useState } from '@base-ui-components/utils/useState';
 import { BaseUIComponentProps } from '../../utils/types';
 import { formatNumber } from '../../utils/formatNumber';
 import { mergeProps } from '../../merge-props';
@@ -148,8 +151,8 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
 
   const { setTouched, setFocused, validationMode } = useFieldRootContext();
 
-  const thumbRef = React.useRef<HTMLElement>(null);
-  const inputRef = React.useRef<HTMLInputElement>(null);
+  const thumbRef = useRef<HTMLElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const defaultInputId = useBaseUiId();
   const labelableId = useLabelableId();
@@ -171,8 +174,8 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
   const thumbValue = sliderValues[index];
   const thumbValuePercent = valueToPercent(thumbValue, min, max);
 
-  const [isMounted, setIsMounted] = React.useState(false);
-  const [positionPercent, setPositionPercent] = React.useState<number | undefined>();
+  const [isMounted, setIsMounted] = useState(false);
+  const [positionPercent, setPositionPercent] = useState<number | undefined>();
 
   useOnMount(() => setIsMounted(true));
 
@@ -215,7 +218,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
     }
   }, [getInsetPosition, inset, thumbValuePercent]);
 
-  const getThumbStyle = React.useCallback(() => {
+  const getThumbStyle = useCallback(() => {
     const startEdge = vertical ? 'bottom' : 'insetInlineStart';
     const crossOffsetProperty = vertical ? 'left' : 'top';
 

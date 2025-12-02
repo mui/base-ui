@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { useState } from './useState';
 
 /**
  * Returns a previous value of its argument.
@@ -7,7 +8,7 @@ import * as React from 'react';
  * @returns Previous value, or null if there is no previous value.
  */
 export function usePreviousValue<T>(value: T): T | null {
-  const [state, setState] = React.useState<{ current: T; previous: T | null }>({
+  const [state, setState] = useState<{ current: T; previous: T | null }>({
     current: value,
     previous: null,
   });

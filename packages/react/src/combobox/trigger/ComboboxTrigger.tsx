@@ -4,6 +4,8 @@ import { useStore } from '@base-ui-components/utils/store';
 import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { useTimeout } from '@base-ui-components/utils/useTimeout';
 import { ownerDocument } from '@base-ui-components/utils/owner';
+import { useEffect } from '@base-ui-components/utils/useEffect';
+import { useRef } from '@base-ui-components/utils/useRef';
 import { BaseUIComponentProps, NativeButtonProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useButton } from '../../use-button';
@@ -78,7 +80,7 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
 
   const disabled = fieldDisabled || comboboxDisabled || disabledProp;
 
-  const currentPointerTypeRef = React.useRef<PointerEvent['pointerType']>('');
+  const currentPointerTypeRef = useRef<PointerEvent['pointerType']>('');
 
   function trackPointerType(event: React.PointerEvent) {
     currentPointerTypeRef.current = event.pointerType;
@@ -88,7 +90,7 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
 
   // Update the floating root context to use the trigger element when it differs from the current reference.
   // This ensures useClick and useTypeahead attach handlers to the correct element.
-  React.useEffect(() => {
+  useEffect(() => {
     if (!inputInsidePopup) {
       return;
     }

@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { useRef } from '@base-ui-components/utils/useRef';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useSelectItemContext } from '../item/SelectItemContext';
 import { type TransitionStatus, useTransitionStatus } from '../../utils/useTransitionStatus';
@@ -42,7 +43,7 @@ const Inner = React.memo(
 
       const { selected } = useSelectItemContext();
 
-      const indicatorRef = React.useRef<HTMLSpanElement | null>(null);
+      const indicatorRef = useRef<HTMLSpanElement | null>(null);
 
       const { transitionStatus, setMounted } = useTransitionStatus(selected);
 

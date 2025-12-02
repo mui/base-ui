@@ -3,6 +3,8 @@ import * as ReactDOM from 'react-dom';
 import { isElement } from '@floating-ui/utils/dom';
 import { useValueAsRef } from '@base-ui-components/utils/useValueAsRef';
 import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
+import { useEffect } from '@base-ui-components/utils/useEffect';
+import { useCallback } from '@base-ui-components/utils/useCallback';
 import type { FloatingContext, FloatingRootContext } from '../types';
 import { contains, getDocument, isMouseLikePointerType } from '../utils';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
@@ -90,7 +92,7 @@ export function useHoverReferenceInteraction(
       : false;
   });
 
-  const closeWithDelay = React.useCallback(
+  const closeWithDelay = useCallback(
     (event: MouseEvent, runElseBranch = true) => {
       const closeDelay = getDelay(delayRef.current, 'close', pointerTypeRef.current);
       if (closeDelay && !closeHandlerRef.current) {
@@ -121,7 +123,7 @@ export function useHoverReferenceInteraction(
 
   // When closing before opening, clear the delay timeouts to cancel it
   // from showing.
-  React.useEffect(() => {
+  useEffect(() => {
     if (!enabled) {
       return undefined;
     }
@@ -169,7 +171,7 @@ export function useHoverReferenceInteraction(
     })(event);
   });
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!enabled) {
       return undefined;
     }

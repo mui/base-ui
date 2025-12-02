@@ -1,6 +1,9 @@
 'use client';
 import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
+import { useRef } from '@base-ui-components/utils/useRef';
+import { useCallback } from '@base-ui-components/utils/useCallback';
+import { useState } from '@base-ui-components/utils/useState';
 import { useCompositeListContext } from './CompositeListContext';
 
 export interface UseCompositeListItemParameters<Metadata> {
@@ -35,8 +38,8 @@ export function useCompositeListItem<Metadata>(
   const { register, unregister, subscribeMapChange, elementsRef, labelsRef, nextIndexRef } =
     useCompositeListContext();
 
-  const indexRef = React.useRef(-1);
-  const [index, setIndex] = React.useState<number>(
+  const indexRef = useRef(-1);
+  const [index, setIndex] = useState<number>(
     externalIndex ??
       (indexGuessBehavior === IndexGuessBehavior.GuessFromOrder
         ? () => {
@@ -50,9 +53,9 @@ export function useCompositeListItem<Metadata>(
         : -1),
   );
 
-  const componentRef = React.useRef<Element | null>(null);
+  const componentRef = useRef<Element | null>(null);
 
-  const ref = React.useCallback(
+  const ref = useCallback(
     (node: HTMLElement | null) => {
       componentRef.current = node;
 

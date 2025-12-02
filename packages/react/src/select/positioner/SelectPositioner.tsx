@@ -5,6 +5,8 @@ import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect
 import { useScrollLock } from '@base-ui-components/utils/useScrollLock';
 import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { useStore } from '@base-ui-components/utils/store';
+import { useRef } from '@base-ui-components/utils/useRef';
+import { useState } from '@base-ui-components/utils/useState';
 import { useSelectRootContext, useSelectFloatingContext } from '../root/SelectRootContext';
 import { CompositeList } from '../../composite/list/CompositeList';
 import type { BaseUIComponentProps } from '../../utils/types';
@@ -73,11 +75,11 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
   const triggerElement = useStore(store, selectors.triggerElement);
   const isItemEqualToValue = useStore(store, selectors.isItemEqualToValue);
 
-  const scrollUpArrowRef = React.useRef<HTMLDivElement | null>(null);
-  const scrollDownArrowRef = React.useRef<HTMLDivElement | null>(null);
+  const scrollUpArrowRef = useRef<HTMLDivElement | null>(null);
+  const scrollDownArrowRef = useRef<HTMLDivElement | null>(null);
 
   const [controlledAlignItemWithTrigger, setControlledAlignItemWithTrigger] =
-    React.useState(alignItemWithTrigger);
+    useState(alignItemWithTrigger);
   const alignItemWithTriggerActive = mounted && controlledAlignItemWithTrigger && !touchModality;
 
   if (!mounted && controlledAlignItemWithTrigger !== alignItemWithTrigger) {
@@ -158,7 +160,7 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
     props: [defaultProps, elementProps],
   });
 
-  const prevMapSizeRef = React.useRef(0);
+  const prevMapSizeRef = useRef(0);
 
   const onMapChange = useStableCallback((map: Map<Element, { index?: number | null } | null>) => {
     if (map.size === 0 && prevMapSizeRef.current === 0) {

@@ -2,6 +2,8 @@
 import * as React from 'react';
 import { ownerDocument } from '@base-ui-components/utils/owner';
 import { useTimeout } from '@base-ui-components/utils/useTimeout';
+import { useEffect } from '@base-ui-components/utils/useEffect';
+import { useRef } from '@base-ui-components/utils/useRef';
 import { contains, getTarget, stopEvent } from '../../floating-ui-react/utils';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useContextMenuRootContext } from '../root/ContextMenuRootContext';
@@ -40,11 +42,11 @@ export const ContextMenuTrigger = React.forwardRef(function ContextMenuTrigger(
   const { store } = useMenuRootContext(false);
   const open = store.useState('open');
 
-  const triggerRef = React.useRef<HTMLDivElement | null>(null);
-  const touchPositionRef = React.useRef<{ x: number; y: number } | null>(null);
+  const triggerRef = useRef<HTMLDivElement | null>(null);
+  const touchPositionRef = useRef<{ x: number; y: number } | null>(null);
   const longPressTimeout = useTimeout();
   const allowMouseUpTimeout = useTimeout();
-  const allowMouseUpRef = React.useRef(false);
+  const allowMouseUpRef = useRef(false);
 
   function handleLongPress(x: number, y: number, event: MouseEvent | TouchEvent) {
     const isTouchEvent = event.type.startsWith('touch');
@@ -144,7 +146,7 @@ export const ContextMenuTrigger = React.forwardRef(function ContextMenuTrigger(
     touchPositionRef.current = null;
   }
 
-  React.useEffect(() => {
+  useEffect(() => {
     function handleDocumentContextMenu(event: MouseEvent) {
       const target = getTarget(event);
       const targetElement = target as HTMLElement | null;

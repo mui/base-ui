@@ -1,6 +1,9 @@
 'use client';
 import * as React from 'react';
+import * as fastHooks from '@base-ui-components/utils/fastHooks';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
+import { useRef } from '@base-ui-components/utils/useRef';
+import { useCallback } from '@base-ui-components/utils/useCallback';
 import { TooltipRootContext } from './TooltipRootContext';
 import {
   useClientPoint,
@@ -28,7 +31,9 @@ import { REASONS } from '../../utils/reasons';
  *
  * Documentation: [Base UI Tooltip](https://base-ui.com/react/components/tooltip)
  */
-export function TooltipRoot<Payload>(props: TooltipRoot.Props<Payload>) {
+export const TooltipRoot = fastHooks.createComponent(function TooltipRoot<Payload>(
+  props: TooltipRoot.Props<Payload>,
+) {
   const {
     disabled = false,
     defaultOpen = false,
@@ -86,7 +91,7 @@ export function TooltipRoot<Payload>(props: TooltipRoot.Props<Payload>) {
   // 2) Closing because another tooltip opened (reason === 'none')
   // Otherwise, allow the animation to play. In particular, do not disable animations
   // during the 'ending' phase unless it's due to a sibling opening.
-  const previousInstantTypeRef = React.useRef<string | undefined | null>(null);
+  const previousInstantTypeRef = useRef<string | undefined | null>(null);
   useIsoLayoutEffect(() => {
     if (
       (transitionStatus === 'ending' && lastOpenChangeReason === REASONS.none) ||
@@ -113,7 +118,7 @@ export function TooltipRoot<Payload>(props: TooltipRoot.Props<Payload>) {
     }
   }, [store, activeTriggerId, open]);
 
-  const handleImperativeClose = React.useCallback(() => {
+  const handleImperativeClose = useCallback(() => {
     store.setOpen(false, createTooltipEventDetails(store, REASONS.imperativeAction));
   }, [store]);
 
@@ -157,7 +162,7 @@ export function TooltipRoot<Payload>(props: TooltipRoot.Props<Payload>) {
       {typeof children === 'function' ? children({ payload }) : children}
     </TooltipRootContext.Provider>
   );
-}
+});
 
 function createTooltipEventDetails<P>(
   store: TooltipStore<P>,

@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
+import { useRef } from '@base-ui-components/utils/useRef';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useToastRootContext } from '../root/ToastRootContext';
 import { useRenderElement } from '../../utils/useRenderElement';
@@ -19,7 +20,7 @@ export const ToastContent = React.forwardRef(function ToastContent(
 
   const { visibleIndex, expanded, recalculateHeight } = useToastRootContext();
 
-  const contentRef = React.useRef<HTMLDivElement | null>(null);
+  const contentRef = useRef<HTMLDivElement | null>(null);
 
   useIsoLayoutEffect(() => {
     const node = contentRef.current;

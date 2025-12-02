@@ -3,6 +3,8 @@ import * as React from 'react';
 import { useControlled } from '@base-ui-components/utils/useControlled';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
+import { useRef } from '@base-ui-components/utils/useRef';
+import { useState } from '@base-ui-components/utils/useState';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
@@ -32,23 +34,23 @@ export function useCollapsibleRoot(
   });
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open, true, true);
-  const [visible, setVisible] = React.useState(open);
-  const [{ height, width }, setDimensions] = React.useState<Dimensions>({
+  const [visible, setVisible] = useState(open);
+  const [{ height, width }, setDimensions] = useState<Dimensions>({
     height: undefined,
     width: undefined,
   });
 
   const defaultPanelId = useBaseUiId();
-  const [panelIdState, setPanelIdState] = React.useState<string | undefined>();
+  const [panelIdState, setPanelIdState] = useState<string | undefined>();
   const panelId = panelIdState ?? defaultPanelId;
 
-  const [hiddenUntilFound, setHiddenUntilFound] = React.useState(false);
-  const [keepMounted, setKeepMounted] = React.useState(false);
+  const [hiddenUntilFound, setHiddenUntilFound] = useState(false);
+  const [keepMounted, setKeepMounted] = useState(false);
 
-  const abortControllerRef = React.useRef<AbortController | null>(null);
-  const animationTypeRef = React.useRef<AnimationType>(null);
-  const transitionDimensionRef = React.useRef<'width' | 'height' | null>(null);
-  const panelRef: React.RefObject<HTMLElement | null> = React.useRef(null);
+  const abortControllerRef = useRef<AbortController | null>(null);
+  const animationTypeRef = useRef<AnimationType>(null);
+  const transitionDimensionRef = useRef<'width' | 'height' | null>(null);
+  const panelRef: React.RefObject<HTMLElement | null> = useRef(null);
 
   const runOnceAnimationsFinish = useAnimationsFinished(panelRef, false);
 

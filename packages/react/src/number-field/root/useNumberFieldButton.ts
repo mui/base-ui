@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { useRef } from '@base-ui-components/utils/useRef';
 import type { Timeout } from '@base-ui-components/utils/useTimeout';
 import {
   DEFAULT_STEP,
@@ -47,10 +48,10 @@ export function useNumberFieldButton(params: useNumberFieldButton.Parameters) {
     onValueCommitted,
   } = params;
 
-  const incrementDownCoordsRef = React.useRef({ x: 0, y: 0 });
-  const isTouchingButtonRef = React.useRef(false);
-  const ignoreClickRef = React.useRef(false);
-  const pointerTypeRef = React.useRef<'mouse' | 'touch' | 'pen' | ''>('');
+  const incrementDownCoordsRef = useRef({ x: 0, y: 0 });
+  const isTouchingButtonRef = useRef(false);
+  const ignoreClickRef = useRef(false);
+  const pointerTypeRef = useRef<'mouse' | 'touch' | 'pen' | ''>('');
 
   const isMin = value != null && value <= minWithDefault;
   const isMax = value != null && value >= maxWithDefault;

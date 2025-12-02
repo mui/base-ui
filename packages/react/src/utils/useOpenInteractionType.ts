@@ -1,6 +1,8 @@
 'use client';
 import * as React from 'react';
 import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
+import { useCallback } from '@base-ui-components/utils/useCallback';
+import { useState } from '@base-ui-components/utils/useState';
 import {
   InteractionType,
   useEnhancedClickHandler,
@@ -12,7 +14,7 @@ import {
  * @param open The open state of the component.
  */
 export function useOpenInteractionType(open: boolean) {
-  const [openMethod, setOpenMethod] = React.useState<InteractionType | null>(null);
+  const [openMethod, setOpenMethod] = useState<InteractionType | null>(null);
 
   const handleTriggerClick = useStableCallback(
     (_: React.MouseEvent, interactionType: InteractionType) => {
@@ -22,7 +24,7 @@ export function useOpenInteractionType(open: boolean) {
     },
   );
 
-  const reset = React.useCallback(() => {
+  const reset = useCallback(() => {
     setOpenMethod(null);
   }, []);
 

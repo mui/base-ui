@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { useRef } from '@base-ui-components/utils/useRef';
 import { useCheckboxRootContext } from '../root/CheckboxRootContext';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useStateAttributesMapping } from '../utils/useStateAttributesMapping';
@@ -29,7 +30,7 @@ export const CheckboxIndicator = React.forwardRef(function CheckboxIndicator(
 
   const { transitionStatus, setMounted } = useTransitionStatus(rendered);
 
-  const indicatorRef = React.useRef<HTMLSpanElement | null>(null);
+  const indicatorRef = useRef<HTMLSpanElement | null>(null);
 
   const state: CheckboxIndicator.State = React.useMemo(
     () => ({

@@ -10,6 +10,8 @@ import { useTimeout } from '@base-ui-components/utils/useTimeout';
 import type { InteractionType } from '@base-ui-components/utils/useEnhancedClickHandler';
 import { useAnimationFrame } from '@base-ui-components/utils/useAnimationFrame';
 import { ownerWindow } from '@base-ui-components/utils/owner';
+import { useEffect } from '@base-ui-components/utils/useEffect';
+import { useRef } from '@base-ui-components/utils/useRef';
 import { FocusGuard } from '../../utils/FocusGuard';
 import {
   activeElement,
@@ -299,13 +301,13 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
   const tree = useFloatingTree(externalTree);
   const portalContext = usePortalContext();
 
-  const startDismissButtonRef = React.useRef<HTMLButtonElement>(null);
-  const endDismissButtonRef = React.useRef<HTMLButtonElement>(null);
-  const preventReturnFocusRef = React.useRef(false);
-  const isPointerDownRef = React.useRef(false);
-  const tabbableIndexRef = React.useRef(-1);
-  const closeTypeRef = React.useRef<InteractionType>('');
-  const lastInteractionTypeRef = React.useRef<InteractionType>('');
+  const startDismissButtonRef = useRef<HTMLButtonElement>(null);
+  const endDismissButtonRef = useRef<HTMLButtonElement>(null);
+  const preventReturnFocusRef = useRef(false);
+  const isPointerDownRef = useRef(false);
+  const tabbableIndexRef = useRef(-1);
+  const closeTypeRef = useRef<InteractionType>('');
+  const lastInteractionTypeRef = useRef<InteractionType>('');
 
   const blurTimeout = useTimeout();
   const pointerDownTimeout = useTimeout();
@@ -329,7 +331,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
       .flat() as Array<FocusableElement>;
   });
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (disabled) {
       return undefined;
     }
@@ -366,7 +368,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     getTabbableElements,
   ]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (disabled) {
       return undefined;
     }
@@ -391,7 +393,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
   }, [disabled, floating, getTabbableContent]);
 
   // Track the last interaction type at the document level to disambiguate focus events
-  React.useEffect(() => {
+  useEffect(() => {
     if (disabled || !open) {
       return undefined;
     }
@@ -415,7 +417,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     };
   }, [disabled, floating, domReference, floatingFocusElement, open]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (disabled) {
       return undefined;
     }
@@ -597,8 +599,8 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     restoreFocusFrame,
   ]);
 
-  const beforeGuardRef = React.useRef<HTMLSpanElement | null>(null);
-  const afterGuardRef = React.useRef<HTMLSpanElement | null>(null);
+  const beforeGuardRef = useRef<HTMLSpanElement | null>(null);
+  const afterGuardRef = useRef<HTMLSpanElement | null>(null);
 
   const mergedBeforeGuardRef = useMergedRefs(
     beforeGuardRef,
@@ -607,7 +609,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
   );
   const mergedAfterGuardRef = useMergedRefs(afterGuardRef, portalContext?.afterInsideRef);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (disabled || !floating || !open) {
       return undefined;
     }
@@ -844,7 +846,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     getNodeId,
   ]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     // The `returnFocus` cleanup behavior is inside a microtask; ensure we
     // wait for it to complete before resetting the flag.
     queueMicrotask(() => {
@@ -852,7 +854,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     });
   }, [disabled]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (disabled || !open) {
       return undefined;
     }

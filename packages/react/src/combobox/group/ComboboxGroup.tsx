@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { useState } from '@base-ui-components/utils/useState';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { ComboboxGroupContext } from './ComboboxGroupContext';
@@ -15,7 +16,7 @@ export const ComboboxGroup = React.forwardRef(function ComboboxGroup(
 ) {
   const { render, className, items, ...elementProps } = componentProps;
 
-  const [labelId, setLabelId] = React.useState<string | undefined>();
+  const [labelId, setLabelId] = useState<string | undefined>();
 
   const contextValue = React.useMemo(
     () => ({

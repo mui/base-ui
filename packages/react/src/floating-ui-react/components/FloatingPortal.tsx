@@ -3,6 +3,9 @@ import * as ReactDOM from 'react-dom';
 import { isNode } from '@floating-ui/utils/dom';
 import { useId } from '@base-ui-components/utils/useId';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
+import { useEffect } from '@base-ui-components/utils/useEffect';
+import { useRef } from '@base-ui-components/utils/useRef';
+import { useState } from '@base-ui-components/utils/useState';
 import { FocusGuard } from '../../utils/FocusGuard';
 import {
   enableFocusInside,
@@ -67,12 +70,12 @@ export function useFloatingPortalNode(
   const portalContext = usePortalContext();
   const parentPortalNode = portalContext?.portalNode;
 
-  const [containerElement, setContainerElement] = React.useState<HTMLElement | ShadowRoot | null>(
+  const [containerElement, setContainerElement] = useState<HTMLElement | ShadowRoot | null>(
     null,
   );
-  const [portalNode, setPortalNode] = React.useState<HTMLElement | null>(null);
+  const [portalNode, setPortalNode] = useState<HTMLElement | null>(null);
 
-  const containerRef = React.useRef<HTMLElement | ShadowRoot | null>(null);
+  const containerRef = useRef<HTMLElement | ShadowRoot | null>(null);
 
   useIsoLayoutEffect(() => {
     // Wait for the container to be resolved if explicitly `null`.
@@ -158,12 +161,12 @@ export const FloatingPortal = React.forwardRef(function FloatingPortal(
     elementProps,
   });
 
-  const beforeOutsideRef = React.useRef<HTMLSpanElement>(null);
-  const afterOutsideRef = React.useRef<HTMLSpanElement>(null);
-  const beforeInsideRef = React.useRef<HTMLSpanElement>(null);
-  const afterInsideRef = React.useRef<HTMLSpanElement>(null);
+  const beforeOutsideRef = useRef<HTMLSpanElement>(null);
+  const afterOutsideRef = useRef<HTMLSpanElement>(null);
+  const beforeInsideRef = useRef<HTMLSpanElement>(null);
+  const afterInsideRef = useRef<HTMLSpanElement>(null);
 
-  const [focusManagerState, setFocusManagerState] = React.useState<FocusManagerState>(null);
+  const [focusManagerState, setFocusManagerState] = useState<FocusManagerState>(null);
 
   const modal = focusManagerState?.modal;
   const open = focusManagerState?.open;
@@ -174,7 +177,7 @@ export const FloatingPortal = React.forwardRef(function FloatingPortal(
       : !!focusManagerState && !focusManagerState.modal && focusManagerState.open && !!portalNode;
 
   // https://codesandbox.io/s/tabbable-portal-f4tng?file=/src/TabbablePortal.tsx
-  React.useEffect(() => {
+  useEffect(() => {
     if (!portalNode || modal) {
       return undefined;
     }
@@ -200,7 +203,7 @@ export const FloatingPortal = React.forwardRef(function FloatingPortal(
     };
   }, [portalNode, modal]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!portalNode || open) {
       return;
     }

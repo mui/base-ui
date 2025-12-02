@@ -9,6 +9,7 @@ import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect
 import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { useValueAsRef } from '@base-ui-components/utils/useValueAsRef';
 import { useStore, Store } from '@base-ui-components/utils/store';
+import { useRef } from '@base-ui-components/utils/useRef';
 import {
   useClick,
   useDismiss,
@@ -100,21 +101,21 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     state: 'open',
   });
 
-  const listRef = React.useRef<Array<HTMLElement | null>>([]);
-  const labelsRef = React.useRef<Array<string | null>>([]);
-  const popupRef = React.useRef<HTMLDivElement | null>(null);
-  const scrollHandlerRef = React.useRef<((el: HTMLDivElement) => void) | null>(null);
-  const scrollArrowsMountedCountRef = React.useRef(0);
-  const valueRef = React.useRef<HTMLSpanElement | null>(null);
-  const valuesRef = React.useRef<Array<any>>([]);
-  const typingRef = React.useRef(false);
-  const keyboardActiveRef = React.useRef(false);
-  const selectedItemTextRef = React.useRef<HTMLSpanElement | null>(null);
-  const selectionRef = React.useRef({
+  const listRef = useRef<Array<HTMLElement | null>>([]);
+  const labelsRef = useRef<Array<string | null>>([]);
+  const popupRef = useRef<HTMLDivElement | null>(null);
+  const scrollHandlerRef = useRef<((el: HTMLDivElement) => void) | null>(null);
+  const scrollArrowsMountedCountRef = useRef(0);
+  const valueRef = useRef<HTMLSpanElement | null>(null);
+  const valuesRef = useRef<Array<any>>([]);
+  const typingRef = useRef(false);
+  const keyboardActiveRef = useRef(false);
+  const selectedItemTextRef = useRef<HTMLSpanElement | null>(null);
+  const selectionRef = useRef({
     allowSelectedMouseUp: false,
     allowUnselectedMouseUp: false,
   });
-  const alignItemWithTriggerActiveRef = React.useRef(false);
+  const alignItemWithTriggerActiveRef = useRef(false);
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
 
@@ -170,7 +171,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     getValue: () => value,
   });
 
-  const initialValueRef = React.useRef(value);
+  const initialValueRef = useRef(value);
   useIsoLayoutEffect(() => {
     // Ensure the values and labels are registered for programmatic value changes.
     if (value !== initialValueRef.current) {

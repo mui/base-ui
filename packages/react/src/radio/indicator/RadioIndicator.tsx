@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { useRef } from '@base-ui-components/utils/useRef';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useRadioRootContext } from '../root/RadioRootContext';
@@ -33,7 +34,7 @@ export const RadioIndicator = React.forwardRef(function RadioIndicator(
     [rootState, transitionStatus],
   );
 
-  const indicatorRef = React.useRef<HTMLSpanElement | null>(null);
+  const indicatorRef = useRef<HTMLSpanElement | null>(null);
 
   const shouldRender = keepMounted || rendered;
 

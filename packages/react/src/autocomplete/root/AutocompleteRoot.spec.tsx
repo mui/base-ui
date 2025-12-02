@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { useState } from '@base-ui-components/utils/useState';
 import { Autocomplete } from '@base-ui-components/react/autocomplete';
 
 const objectItems = [
@@ -105,7 +106,7 @@ const groupItemsReadonly = [
 />;
 
 function App2() {
-  const [value, setValue] = React.useState('a');
+  const [value, setValue] = useState('a');
   return (
     <Autocomplete.Root
       value={value}

@@ -4,6 +4,9 @@ import { ownerDocument } from '@base-ui-components/utils/owner';
 import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { generateId } from '@base-ui-components/utils/generateId';
 import { Timeout } from '@base-ui-components/utils/useTimeout';
+import { useEffect } from '@base-ui-components/utils/useEffect';
+import { useRef } from '@base-ui-components/utils/useRef';
+import { useState } from '@base-ui-components/utils/useState';
 import { activeElement, contains } from '../../floating-ui-react/utils';
 import { ToastContext } from './ToastProviderContext';
 import { isFocusVisible } from '../utils/focusVisible';
@@ -32,10 +35,10 @@ interface TimerInfo {
 export const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvider(props) {
   const { children, timeout = 5000, limit = 3, toastManager } = props;
 
-  const [toasts, setToasts] = React.useState<ToastObject<any>[]>([]);
-  const [hovering, setHovering] = React.useState(false);
-  const [focused, setFocused] = React.useState(false);
-  const [prevFocusElement, setPrevFocusElement] = React.useState<HTMLElement | null>(null);
+  const [toasts, setToasts] = useState<ToastObject<any>[]>([]);
+  const [hovering, setHovering] = useState(false);
+  const [focused, setFocused] = useState(false);
+  const [prevFocusElement, setPrevFocusElement] = useState<HTMLElement | null>(null);
 
   if (toasts.length === 0) {
     if (hovering) {
@@ -49,10 +52,10 @@ export const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvid
 
   const expanded = hovering || focused;
 
-  const timersRef = React.useRef(new Map<string, TimerInfo>());
-  const viewportRef = React.useRef<HTMLElement | null>(null);
-  const windowFocusedRef = React.useRef(true);
-  const isPausedRef = React.useRef(false);
+  const timersRef = useRef(new Map<string, TimerInfo>());
+  const viewportRef = useRef<HTMLElement | null>(null);
+  const windowFocusedRef = useRef(true);
+  const isPausedRef = useRef(false);
 
   function handleFocusManagement(toastId: string) {
     const activeEl = activeElement(ownerDocument(viewportRef.current));
@@ -297,7 +300,7 @@ export const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvid
     },
   );
 
-  React.useEffect(
+  useEffect(
     function subscribeToToastManager() {
       if (!toastManager) {
         return undefined;

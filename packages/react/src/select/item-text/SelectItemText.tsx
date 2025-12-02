@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { useCallback } from '@base-ui-components/utils/useCallback';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useSelectRootContext } from '../root/SelectRootContext';
 import { useSelectItemContext } from '../item/SelectItemContext';
@@ -21,7 +22,7 @@ export const SelectItemText = React.memo(
 
     const { className, render, ...elementProps } = componentProps;
 
-    const localRef = React.useCallback(
+    const localRef = useCallback(
       (node: HTMLElement | null) => {
         if (!node || !hasRegistered) {
           return;

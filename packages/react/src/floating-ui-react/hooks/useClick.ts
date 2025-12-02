@@ -2,6 +2,7 @@
 import * as React from 'react';
 import { useAnimationFrame } from '@base-ui-components/utils/useAnimationFrame';
 import { useTimeout } from '@base-ui-components/utils/useTimeout';
+import { useRef } from '@base-ui-components/utils/useRef';
 import { EMPTY_OBJECT } from '../../utils/constants';
 import type { ElementProps, FloatingContext, FloatingRootContext } from '../types';
 import { isMouseLikePointerType, isTypeableElement } from '../utils';
@@ -66,7 +67,7 @@ export function useClick(
     touchOpenDelay = 0,
   } = props;
 
-  const pointerTypeRef = React.useRef<'mouse' | 'pen' | 'touch'>(undefined);
+  const pointerTypeRef = useRef<'mouse' | 'pen' | 'touch'>(undefined);
   const frame = useAnimationFrame();
   const touchOpenTimeout = useTimeout();
 

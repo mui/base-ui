@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { useState } from '@base-ui-components/utils/useState';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { AvatarRootContext } from './AvatarRootContext';
@@ -17,7 +18,7 @@ export const AvatarRoot = React.forwardRef(function AvatarRoot(
 ) {
   const { className, render, ...elementProps } = componentProps;
 
-  const [imageLoadingStatus, setImageLoadingStatus] = React.useState<ImageLoadingStatus>('idle');
+  const [imageLoadingStatus, setImageLoadingStatus] = useState<ImageLoadingStatus>('idle');
 
   const state: AvatarRoot.State = React.useMemo(
     () => ({

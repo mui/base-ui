@@ -3,6 +3,7 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { AnimationFrame } from '@base-ui-components/utils/useAnimationFrame';
+import { useState } from '@base-ui-components/utils/useState';
 
 export type TransitionStatus = 'starting' | 'ending' | 'idle' | undefined;
 
@@ -16,10 +17,10 @@ export function useTransitionStatus(
   enableIdleState: boolean = false,
   deferEndingState: boolean = false,
 ) {
-  const [transitionStatus, setTransitionStatus] = React.useState<TransitionStatus>(
+  const [transitionStatus, setTransitionStatus] = useState<TransitionStatus>(
     open && enableIdleState ? 'idle' : undefined,
   );
-  const [mounted, setMounted] = React.useState(open);
+  const [mounted, setMounted] = useState(open);
 
   if (open && !mounted) {
     setMounted(true);

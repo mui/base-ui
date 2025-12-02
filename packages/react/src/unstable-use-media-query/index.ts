@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { useCallback } from '@base-ui-components/utils/useCallback';
 import { useSyncExternalStore } from 'use-sync-external-store/shim';
 
 export function useMediaQuery(query: string, options: useMediaQuery.Options): boolean {
@@ -18,7 +19,7 @@ export function useMediaQuery(query: string, options: useMediaQuery.Options): bo
     noSsr = false,
   } = options;
 
-  const getDefaultSnapshot = React.useCallback(() => defaultMatches, [defaultMatches]);
+  const getDefaultSnapshot = useCallback(() => defaultMatches, [defaultMatches]);
 
   const getServerSnapshot = React.useMemo(() => {
     if (noSsr && matchMedia) {

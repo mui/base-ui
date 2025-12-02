@@ -1,6 +1,9 @@
 'use client';
 import * as React from 'react';
 import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
+import { useEffect } from '@base-ui-components/utils/useEffect';
+import { useRef } from '@base-ui-components/utils/useRef';
+import { useState } from '@base-ui-components/utils/useState';
 import {
   createGenericEventDetails,
   type BaseUIGenericEventDetails,
@@ -31,11 +34,11 @@ export const Form = React.forwardRef(function Form<
     ...elementProps
   } = componentProps;
 
-  const formRef = React.useRef<FormContext['formRef']['current']>({
+  const formRef = useRef<FormContext['formRef']['current']>({
     fields: new Map(),
   });
-  const submittedRef = React.useRef(false);
-  const submitAttemptedRef = React.useRef(false);
+  const submittedRef = useRef(false);
+  const submitAttemptedRef = useRef(false);
 
   const focusControl = useStableCallback((control: HTMLElement | null) => {
     if (!control) {
@@ -47,13 +50,13 @@ export const Form = React.forwardRef(function Form<
     }
   });
 
-  const [errors, setErrors] = React.useState(externalErrors);
+  const [errors, setErrors] = useState(externalErrors);
 
   useValueChanged(externalErrors, () => {
     setErrors(externalErrors);
   });
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!submittedRef.current) {
       return;
     }

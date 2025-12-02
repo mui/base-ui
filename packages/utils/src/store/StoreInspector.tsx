@@ -1,6 +1,8 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { Store } from './Store';
+import { useState } from '../useState';
+import { useRef } from '../useRef';
 import { useForcedRerendering } from '../useForcedRerendering';
 import { useStableCallback } from '../useStableCallback';
 import { useAnimationFrame } from '../useAnimationFrame';
@@ -136,7 +138,7 @@ export interface StoreInspectorProps {
  */
 export function StoreInspector(props: StoreInspectorProps) {
   const { store, title, additionalData, defaultOpen = false } = props;
-  const [open, setOpen] = React.useState(defaultOpen);
+  const [open, setOpen] = useState(defaultOpen);
 
   return (
     <React.Fragment>
@@ -289,16 +291,16 @@ interface WindowProps {
  * Handles all the pointer events for dragging and resizing internally.
  */
 function Window({ title, onClose, children, headerActions }: WindowProps) {
-  const rootRef = React.useRef<HTMLDivElement | null>(null);
-  const headerRef = React.useRef<HTMLDivElement | null>(null);
-  const resizeHandleRef = React.useRef<HTMLDivElement | null>(null);
+  const rootRef = useRef<HTMLDivElement | null>(null);
+  const headerRef = useRef<HTMLDivElement | null>(null);
+  const resizeHandleRef = useRef<HTMLDivElement | null>(null);
   const raf = useAnimationFrame();
   const minWidth = 160;
   const minHeight = 52;
 
   // Track position when user drags the window
-  const [position, setPosition] = React.useState<{ left: number; top: number } | null>(null);
-  const dragStateRef = React.useRef<{
+  const [position, setPosition] = useState<{ left: number; top: number } | null>(null);
+  const dragStateRef = useRef<{
     dragging: boolean;
     startX: number;
     startY: number;
@@ -307,8 +309,8 @@ function Window({ title, onClose, children, headerActions }: WindowProps) {
   } | null>(null);
 
   // Track size when user resizes the window
-  const [size, setSize] = React.useState<{ width: number; height: number } | null>(null);
-  const resizeStateRef = React.useRef<{
+  const [size, setSize] = useState<{ width: number; height: number } | null>(null);
+  const resizeStateRef = useRef<{
     resizing: boolean;
     startX: number;
     startY: number;

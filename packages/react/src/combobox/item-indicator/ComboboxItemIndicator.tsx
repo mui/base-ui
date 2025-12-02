@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { useRef } from '@base-ui-components/utils/useRef';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useComboboxItemContext } from '../item/ComboboxItemContext';
 import { type TransitionStatus, useTransitionStatus } from '../../utils/useTransitionStatus';
@@ -40,7 +41,7 @@ const Inner = React.memo(
 
       const { selected } = useComboboxItemContext();
 
-      const indicatorRef = React.useRef<HTMLSpanElement | null>(null);
+      const indicatorRef = useRef<HTMLSpanElement | null>(null);
 
       const { transitionStatus, setMounted } = useTransitionStatus(selected);
 

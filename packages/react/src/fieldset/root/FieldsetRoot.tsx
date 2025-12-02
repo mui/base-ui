@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { useState } from '@base-ui-components/utils/useState';
 import { FieldsetRootContext } from './FieldsetRootContext';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
@@ -16,7 +17,7 @@ export const FieldsetRoot = React.forwardRef(function FieldsetRoot(
 ) {
   const { render, className, disabled = false, ...elementProps } = componentProps;
 
-  const [legendId, setLegendId] = React.useState<string | undefined>(undefined);
+  const [legendId, setLegendId] = useState<string | undefined>(undefined);
 
   const state: FieldsetRoot.State = React.useMemo(
     () => ({

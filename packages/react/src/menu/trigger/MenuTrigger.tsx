@@ -2,11 +2,15 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { FocusableElement } from 'tabbable';
+import * as fastHooks from '@base-ui-components/utils/fastHooks';
 import { useTimeout } from '@base-ui-components/utils/useTimeout';
 import { ownerDocument } from '@base-ui-components/utils/owner';
 import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { EMPTY_OBJECT } from '@base-ui-components/utils/empty';
+import { useEffect } from '@base-ui-components/utils/useEffect';
+import { useRef } from '@base-ui-components/utils/useRef';
+import { useState } from '@base-ui-components/utils/useState';
 import {
   safePolygon,
   useClick,
@@ -54,7 +58,7 @@ const BOUNDARY_OFFSET = 2;
  *
  * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
  */
-export const MenuTrigger = React.forwardRef(function MenuTrigger(
+export const MenuTrigger = fastHooks.createComponent(function MenuTrigger(
   componentProps: MenuTrigger.Props,
   forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
@@ -85,7 +89,7 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
   const floatingRootContext = store.useState('floatingRootContext');
   const isOpenedByThisTrigger = store.useState('isOpenedByTrigger', thisTriggerId);
 
-  const [triggerElement, setTriggerElement] = React.useState<HTMLElement | null>(null);
+  const [triggerElement, setTriggerElement] = useState<HTMLElement | null>(null);
 
   const parent = useMenuParent();
   const compositeRootContext = useCompositeRootContext(true);
@@ -121,13 +125,13 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
     native: nativeButton,
   });
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!isOpenedByThisTrigger && parent.type === undefined) {
       store.context.allowMouseUpTriggerRef.current = false;
     }
   }, [store, isOpenedByThisTrigger, parent.type]);
 
-  const triggerRef = React.useRef<HTMLElement | null>(null);
+  const triggerRef = useRef<HTMLElement | null>(null);
   const allowMouseUpTriggerTimeout = useTimeout();
 
   const handleDocumentMouseUp = useStableCallback((mouseEvent: MouseEvent) => {
@@ -166,7 +170,7 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
     floatingTreeRoot.events.emit('close', { domEvent: mouseEvent, reason: REASONS.cancelOpen });
   });
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (isOpenedByThisTrigger && store.select('lastOpenChangeReason') === REASONS.triggerHover) {
       const doc = ownerDocument(triggerRef.current);
       doc.addEventListener('mouseup', handleDocumentMouseUp, { once: true });
@@ -259,7 +263,7 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
     getButtonProps,
   ];
 
-  const preFocusGuardRef = React.useRef<HTMLElement>(null);
+  const preFocusGuardRef = useRef<HTMLElement>(null);
 
   const handlePreFocusGuardFocus = useStableCallback((event: React.FocusEvent) => {
     ReactDOM.flushSync(() => {
@@ -419,7 +423,7 @@ export namespace MenuTrigger {
  */
 function useStickIfOpen(open: boolean, openReason: string | null) {
   const stickIfOpenTimeout = useTimeout();
-  const [stickIfOpen, setStickIfOpen] = React.useState(false);
+  const [stickIfOpen, setStickIfOpen] = useState(false);
   useIsoLayoutEffect(() => {
     if (open && openReason === 'trigger-hover') {
       // Only allow "patient" clicks to close the menu if it's open.

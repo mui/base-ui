@@ -2,6 +2,7 @@
 import * as React from 'react';
 import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
+import { useState } from '@base-ui-components/utils/useState';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useCollapsibleRoot } from '../../collapsible/root/useCollapsibleRoot';
@@ -112,7 +113,7 @@ export const AccordionItem = React.forwardRef(function AccordionItem(
     [disabled, index, isOpen, rootState],
   );
 
-  const [triggerId, setTriggerId] = React.useState<string | undefined>(useBaseUiId());
+  const [triggerId, setTriggerId] = useState<string | undefined>(useBaseUiId());
 
   const accordionItemContext: AccordionItemContext = React.useMemo(
     () => ({

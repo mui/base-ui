@@ -1,6 +1,8 @@
 'use client';
 import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
+import { useEffect } from '@base-ui-components/utils/useEffect';
+import { useState } from '@base-ui-components/utils/useState';
 import { NoSsrProps } from './NoSsr.types';
 
 /**
@@ -17,7 +19,7 @@ import { NoSsrProps } from './NoSsr.types';
  */
 export function NoSsr(props: NoSsrProps): React.JSX.Element {
   const { children, defer = false, fallback = null } = props;
-  const [mountedState, setMountedState] = React.useState(false);
+  const [mountedState, setMountedState] = useState(false);
 
   useIsoLayoutEffect(() => {
     if (!defer) {
@@ -25,7 +27,7 @@ export function NoSsr(props: NoSsrProps): React.JSX.Element {
     }
   }, [defer]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (defer) {
       setMountedState(true);
     }

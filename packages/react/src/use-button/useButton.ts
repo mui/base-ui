@@ -4,6 +4,9 @@ import { isHTMLElement } from '@floating-ui/utils/dom';
 import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { error } from '@base-ui-components/utils/error';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
+import { useEffect } from '@base-ui-components/utils/useEffect';
+import { useRef } from '@base-ui-components/utils/useRef';
+import { useCallback } from '@base-ui-components/utils/useCallback';
 import { makeEventPreventable, mergeProps } from '../merge-props';
 import { useCompositeRootContext } from '../composite/root/CompositeRootContext';
 import { BaseUIEvent, HTMLProps } from '../utils/types';
@@ -17,7 +20,7 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
     native: isNativeButton = true,
   } = parameters;
 
-  const elementRef = React.useRef<HTMLElement | null>(null);
+  const elementRef = useRef<HTMLElement | null>(null);
 
   const isCompositeItem = useCompositeRootContext(true) !== undefined;
 
@@ -36,7 +39,7 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
 
   if (process.env.NODE_ENV !== 'production') {
     // eslint-disable-next-line react-hooks/rules-of-hooks
-    React.useEffect(() => {
+    useEffect(() => {
       if (!elementRef.current) {
         return;
       }
@@ -61,7 +64,7 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
   // <Toolbar.Button disabled render={<Menu.Trigger />} />
   // the `disabled` prop needs to pass through 2 `useButton`s then finally
   // delete the `disabled` attribute from DOM
-  const updateDisabled = React.useCallback(() => {
+  const updateDisabled = useCallback(() => {
     const element = elementRef.current;
 
     if (!isButtonElement(element)) {
@@ -80,7 +83,7 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
 
   useIsoLayoutEffect(updateDisabled, [updateDisabled]);
 
-  const getButtonProps = React.useCallback(
+  const getButtonProps = useCallback(
     (externalProps: GenericButtonProps = {}) => {
       const {
         onClick: externalOnClick,

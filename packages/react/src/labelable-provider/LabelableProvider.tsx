@@ -1,5 +1,7 @@
 'use client';
 import * as React from 'react';
+import { useCallback } from '@base-ui-components/utils/useCallback';
+import { useState } from '@base-ui-components/utils/useState';
 import { mergeProps } from '../merge-props';
 import { HTMLProps } from '../utils/types';
 import { useBaseUiId } from '../utils/useBaseUiId';
@@ -13,15 +15,15 @@ export const LabelableProvider: React.FC<LabelableProvider.Props> = function Lab
 ) {
   const defaultId = useBaseUiId();
 
-  const [controlId, setControlId] = React.useState<string | null | undefined>(
+  const [controlId, setControlId] = useState<string | null | undefined>(
     props.initialControlId === undefined ? defaultId : props.initialControlId,
   );
-  const [labelId, setLabelId] = React.useState<string | undefined>(undefined);
-  const [messageIds, setMessageIds] = React.useState<string[]>([]);
+  const [labelId, setLabelId] = useState<string | undefined>(undefined);
+  const [messageIds, setMessageIds] = useState<string[]>([]);
 
   const { messageIds: parentMessageIds } = useLabelableContext();
 
-  const getDescriptionProps = React.useCallback(
+  const getDescriptionProps = useCallback(
     (externalProps: HTMLProps) => {
       return mergeProps(
         { 'aria-describedby': parentMessageIds.concat(messageIds).join(' ') || undefined },

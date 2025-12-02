@@ -4,6 +4,9 @@ import { useAnimationFrame } from '@base-ui-components/utils/useAnimationFrame';
 import { usePreviousValue } from '@base-ui-components/utils/usePreviousValue';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
+import { useEffect } from '@base-ui-components/utils/useEffect';
+import { useRef } from '@base-ui-components/utils/useRef';
+import { useState } from '@base-ui-components/utils/useState';
 import { useTooltipRootContext } from '../root/TooltipRootContext';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useAnimationsFinished } from '../../utils/useAnimationsFinished';
@@ -43,23 +46,23 @@ export const TooltipViewport = React.forwardRef(function TooltipViewport(
 
   const previousActiveTrigger = usePreviousValue(open ? activeTrigger : null);
 
-  const capturedNodeRef = React.useRef<HTMLElement | null>(null);
-  const [previousContentNode, setPreviousContentNode] = React.useState<HTMLElement | null>(null);
+  const capturedNodeRef = useRef<HTMLElement | null>(null);
+  const [previousContentNode, setPreviousContentNode] = useState<HTMLElement | null>(null);
 
-  const [newTriggerOffset, setNewTriggerOffset] = React.useState<Offset | null>(null);
+  const [newTriggerOffset, setNewTriggerOffset] = useState<Offset | null>(null);
 
-  const currentContainerRef = React.useRef<HTMLDivElement>(null);
-  const previousContainerRef = React.useRef<HTMLDivElement>(null);
+  const currentContainerRef = useRef<HTMLDivElement>(null);
+  const previousContainerRef = useRef<HTMLDivElement>(null);
 
   const onAnimationsFinished = useAnimationsFinished(currentContainerRef, true, false);
   const cleanupTimeout = useAnimationFrame();
 
-  const [previousContentDimensions, setPreviousContentDimensions] = React.useState<{
+  const [previousContentDimensions, setPreviousContentDimensions] = useState<{
     width: number;
     height: number;
   } | null>(null);
 
-  const [showStartingStyleAttribute, setShowStartingStyleAttribute] = React.useState(false);
+  const [showStartingStyleAttribute, setShowStartingStyleAttribute] = useState(false);
 
   const handleMeasureLayout = useStableCallback(() => {
     currentContainerRef.current?.style.setProperty('animation', 'none');
@@ -84,7 +87,7 @@ export const TooltipViewport = React.forwardRef(function TooltipViewport(
     }
   });
 
-  React.useEffect(() => {
+  useEffect(() => {
     floatingContext.context.events.on('measure-layout', handleMeasureLayout);
     floatingContext.context.events.on('measure-layout-complete', handleMeasureLayoutComplete);
 
@@ -94,7 +97,7 @@ export const TooltipViewport = React.forwardRef(function TooltipViewport(
     };
   }, [floatingContext, handleMeasureLayout, handleMeasureLayoutComplete]);
 
-  const lastHandledTriggerRef = React.useRef<Element | null>(null);
+  const lastHandledTriggerRef = useRef<Element | null>(null);
 
   useIsoLayoutEffect(() => {
     // When a trigger changes, set the captured children HTML to state,

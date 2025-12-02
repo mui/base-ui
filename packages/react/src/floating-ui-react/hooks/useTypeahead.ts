@@ -2,6 +2,7 @@ import * as React from 'react';
 import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { useTimeout } from '@base-ui-components/utils/useTimeout';
+import { useRef } from '@base-ui-components/utils/useRef';
 import { stopEvent } from '../utils';
 
 import type { ElementProps, FloatingContext, FloatingRootContext } from '../types';
@@ -82,9 +83,9 @@ export function useTypeahead(
   } = props;
 
   const timeout = useTimeout();
-  const stringRef = React.useRef('');
-  const prevIndexRef = React.useRef<number | null>(selectedIndex ?? activeIndex ?? -1);
-  const matchIndexRef = React.useRef<number | null>(null);
+  const stringRef = useRef('');
+  const prevIndexRef = useRef<number | null>(selectedIndex ?? activeIndex ?? -1);
+  const matchIndexRef = useRef<number | null>(null);
 
   useIsoLayoutEffect(() => {
     if (open) {
