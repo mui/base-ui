@@ -41,7 +41,7 @@
     "highlightItemOnHover": {
       "type": "boolean",
       "default": "true",
-      "description": "Whether moving the pointer over items should highlight them.\nDisabling this prop allows CSS `:hover`  to be differentiated from the `:focus` (`data-highlighted`) state.",
+      "description": "Whether moving the pointer over items should highlight them.\nDisabling this prop allows CSS `:hover` to be differentiated from the `:focus` (`data-highlighted`) state.",
       "detailedType": "boolean | undefined"
     },
     "actionsRef": {

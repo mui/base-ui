@@ -580,7 +580,7 @@ export interface SelectRootProps<Value, Multiple extends boolean | undefined = f
   multiple?: Multiple;
   /**
    * Whether moving the pointer over items should highlight them.
-   * Disabling this prop allows CSS `:hover`  to be differentiated from the `:focus` (`data-highlighted`) state.
+   * Disabling this prop allows CSS `:hover` to be differentiated from the `:focus` (`data-highlighted`) state.
    * @default true
    */
   highlightItemOnHover?: boolean;
