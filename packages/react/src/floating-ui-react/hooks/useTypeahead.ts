@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { useTimeout } from '@base-ui-components/utils/useTimeout';
-import { stopEvent } from '../utils';
+import { contains, stopEvent } from '../utils';
 import type { ElementProps, FloatingContext, FloatingRootContext } from '../types';
 import { EMPTY_ARRAY } from '../../utils/constants';
 
@@ -197,8 +197,16 @@ export function useTypeahead(
   });
 
   const reference: ElementProps['reference'] = React.useMemo(
-    () => ({ onKeyDown, onBlur: clear }),
-    [onKeyDown, clear],
+    () => ({
+      onKeyDown,
+      onBlur(event) {
+        if (contains(store.select('floatingElement'), event.relatedTarget as Element | null)) {
+          return;
+        }
+        clear();
+      },
+    }),
+    [onKeyDown, store, clear],
   );
 
   const floating: ElementProps['floating'] = React.useMemo(() => {
