@@ -2583,4 +2583,58 @@ describe('<Select.Root />', () => {
       });
     });
   });
+
+  describe('prop: highlightItemOnHover', () => {
+    it('highlights an item on mouse move by default', async () => {
+      await render(
+        <Select.Root defaultOpen>
+          <Select.Trigger data-testid="trigger">
+            <Select.Value />
+          </Select.Trigger>
+          <Select.Portal>
+            <Select.Positioner>
+              <Select.Popup>
+                <Select.Item value="a">a</Select.Item>
+                <Select.Item value="b">b</Select.Item>
+                <Select.Item value="c">c</Select.Item>
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
+        </Select.Root>,
+      );
+
+      const optionB = screen.getByRole('option', { name: 'b' });
+      fireEvent.mouseMove(optionB);
+
+      await waitFor(() => {
+        expect(optionB).to.have.attribute('data-highlighted');
+      });
+    });
+
+    it('does not highlight items from mouse movement when disabled', async () => {
+      await render(
+        <Select.Root defaultOpen highlightItemOnHover={false}>
+          <Select.Trigger data-testid="trigger">
+            <Select.Value />
+          </Select.Trigger>
+          <Select.Portal>
+            <Select.Positioner>
+              <Select.Popup>
+                <Select.Item value="a">a</Select.Item>
+                <Select.Item value="b">b</Select.Item>
+                <Select.Item value="c">c</Select.Item>
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
+        </Select.Root>,
+      );
+
+      const optionB = screen.getByRole('option', { name: 'b' });
+      fireEvent.mouseMove(optionB);
+
+      await flushMicrotasks();
+
+      expect(optionB).not.to.have.attribute('data-highlighted');
+    });
+  });
 });
