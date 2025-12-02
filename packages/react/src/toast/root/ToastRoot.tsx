@@ -336,8 +336,9 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
         cancelledSwipeRef.current = false;
         setCurrentSwipeDirection(direction);
       } else if (
-        maxSwipeDisplacementRef.current - currentDisplacement >=
-        REVERSE_CANCEL_THRESHOLD
+        !(swipeDirections.includes('left') && swipeDirections.includes('right')) &&
+        !(swipeDirections.includes('up') && swipeDirections.includes('down')) &&
+        maxSwipeDisplacementRef.current - currentDisplacement >= REVERSE_CANCEL_THRESHOLD
       ) {
         // Mark that a change-of-mind has occurred
         cancelledSwipeRef.current = true;

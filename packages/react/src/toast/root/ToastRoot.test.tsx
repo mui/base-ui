@@ -197,25 +197,98 @@ describe('<Toast.Root />', () => {
       expect(screen.queryByTestId('toast-root')).not.to.equal(null);
     });
 
-    it('supports multiple swipe directions', async () => {
-      await render(
-        <Toast.Provider>
-          <Toast.Viewport>
-            <SwipeTestToast swipeDirection={['up', 'right']} />
-          </Toast.Viewport>
-          <SwipeTestButton />
-        </Toast.Provider>,
-      );
+    describe('supports multiple swipe directions', () => {
+      it('up + right', async () => {
+        await render(
+          <Toast.Provider>
+            <Toast.Viewport>
+              <SwipeTestToast swipeDirection={['up', 'right']} />
+            </Toast.Viewport>
+            <SwipeTestButton />
+          </Toast.Provider>,
+        );
 
-      fireEvent.click(screen.getByRole('button', { name: 'add toast' }));
+        const addToast = screen.getByRole('button', { name: 'add toast' });
 
-      const toastElement = screen.getByTestId('toast-root');
+        fireEvent.click(addToast);
 
-      // Swipe right
-      simulateSwipe(toastElement, 100, 100, 150, 100);
+        // Swipe right
+        simulateSwipe(screen.getByTestId('toast-root'), 100, 100, 150, 100);
 
-      await waitFor(() => {
-        expect(screen.queryByTestId('toast-root')).to.equal(null);
+        await waitFor(() => {
+          expect(screen.queryByTestId('toast-root')).to.equal(null);
+        });
+
+        fireEvent.click(addToast);
+
+        // Swipe up
+        simulateSwipe(screen.getByTestId('toast-root'), 100, 100, 100, 50);
+
+        await waitFor(() => {
+          expect(screen.queryByTestId('toast-root')).to.equal(null);
+        });
+      });
+
+      it('right + left', async () => {
+        await render(
+          <Toast.Provider>
+            <Toast.Viewport>
+              <SwipeTestToast swipeDirection={['right', 'left']} />
+            </Toast.Viewport>
+            <SwipeTestButton />
+          </Toast.Provider>,
+        );
+
+        const addToast = screen.getByRole('button', { name: 'add toast' });
+
+        fireEvent.click(addToast);
+
+        // Swipe right
+        simulateSwipe(screen.getByTestId('toast-root'), 100, 100, 150, 100);
+
+        await waitFor(() => {
+          expect(screen.queryByTestId('toast-root')).to.equal(null);
+        });
+
+        fireEvent.click(addToast);
+
+        // Swipe left
+        simulateSwipe(screen.getByTestId('toast-root'), 100, 100, 50, 100);
+
+        await waitFor(() => {
+          expect(screen.queryByTestId('toast-root')).to.equal(null);
+        });
+      });
+
+      it('up + down', async () => {
+        await render(
+          <Toast.Provider>
+            <Toast.Viewport>
+              <SwipeTestToast swipeDirection={['up', 'down']} />
+            </Toast.Viewport>
+            <SwipeTestButton />
+          </Toast.Provider>,
+        );
+
+        const addToast = screen.getByRole('button', { name: 'add toast' });
+
+        fireEvent.click(addToast);
+
+        // Swipe up
+        simulateSwipe(screen.getByTestId('toast-root'), 100, 100, 100, 50);
+
+        await waitFor(() => {
+          expect(screen.queryByTestId('toast-root')).to.equal(null);
+        });
+
+        fireEvent.click(addToast);
+
+        // Swipe down
+        simulateSwipe(screen.getByTestId('toast-root'), 100, 100, 100, 150);
+
+        await waitFor(() => {
+          expect(screen.queryByTestId('toast-root')).to.equal(null);
+        });
       });
     });
 
