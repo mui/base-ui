@@ -62,7 +62,7 @@ export function useTriggerRegistration<State extends PopupStoreState<any>>(
  */
 export function useTriggerDataForwarding<State extends PopupStoreState<any>>(
   triggerId: string | undefined,
-  triggerElement: Element | null,
+  triggerElementRef: React.RefObject<Element | null>,
   store: ReactStore<State, PopupStoreContext<any>, typeof popupStoreSelectors>,
   stateUpdates: Omit<Partial<State>, 'activeTriggerId' | 'activeTriggerElement'>,
 ) {
@@ -90,10 +90,13 @@ export function useTriggerDataForwarding<State extends PopupStoreState<any>>(
 
   useIsoLayoutEffect(() => {
     if (isMountedByThisTrigger) {
-      store.update({ activeTriggerElement: triggerElement, ...stateUpdates } as Partial<State>);
+      store.update({
+        activeTriggerElement: triggerElementRef.current,
+        ...stateUpdates,
+      } as Partial<State>);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isMountedByThisTrigger, store, triggerElement, ...Object.values(stateUpdates)]);
+  }, [isMountedByThisTrigger, store, triggerElementRef, ...Object.values(stateUpdates)]);
 
   return { registerTrigger, isMountedByThisTrigger };
 }
