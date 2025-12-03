@@ -67,6 +67,7 @@ export function MenuRoot<Payload>(props: MenuRoot.Props<Payload>) {
     handle,
     triggerId: triggerIdProp,
     defaultTriggerId: defaultTriggerIdProp = null,
+    highlightItemOnHover = true,
   } = props;
 
   const contextMenuContext = useContextMenuRootContext(true);
@@ -445,6 +446,7 @@ export function MenuRoot<Payload>(props: MenuRoot.Props<Payload>) {
     onNavigate: setActiveIndex,
     openOnArrowKeyDown: parent.type !== 'context-menu',
     externalTree: nested ? floatingTreeRoot : undefined,
+    focusItemOnHover: highlightItemOnHover,
   });
 
   const onTypingChange = React.useCallback(
@@ -576,6 +578,12 @@ export interface MenuRootProps<Payload = unknown> {
    * @default true
    */
   loopFocus?: boolean;
+  /**
+   * Whether moving the pointer over items should highlight them.
+   * Disabling this prop allows CSS `:hover` to be differentiated from the `:focus` (`data-highlighted`) state.
+   * @default true
+   */
+  highlightItemOnHover?: boolean;
   /**
    * Determines if the menu enters a modal state when open.
    * - `true`: user interaction is limited to the menu: document page scroll is locked and and pointer interactions on outside elements are disabled.
