@@ -81,7 +81,7 @@ export const TabsPanel = React.forwardRef(function TabPanel(
       return undefined;
     }
 
-    if (value == null || id == null) {
+    if (id == null) {
       return undefined;
     }
 
@@ -101,7 +101,7 @@ export const TabsPanel = React.forwardRef(function TabPanel(
 
 export interface TabsPanelMetadata {
   id?: string;
-  value: TabsTab.Value | undefined;
+  value: TabsTab.Value;
 }
 
 export interface TabsPanelState extends TabsRoot.State {
