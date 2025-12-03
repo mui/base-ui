@@ -21,11 +21,6 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
 
   const isCompositeItem = useCompositeRootContext(true) !== undefined;
 
-  const isValidLink = useStableCallback(() => {
-    const element = elementRef.current;
-    return Boolean(element?.tagName === 'A' && (element as HTMLAnchorElement)?.href);
-  });
-
   const { props: focusableWhenDisabledProps } = useFocusableWhenDisabled({
     focusableWhenDisabled,
     disabled,
@@ -42,6 +37,7 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
       }
 
       const isButtonTag = elementRef.current.tagName === 'BUTTON';
+      const isAnchorTag = elementRef.current.tagName === 'A';
 
       if (isNativeButton) {
         if (!isButtonTag) {
@@ -53,6 +49,8 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
         error(
           'A component that acts as a button was rendered as a native <button>, which does not match the default. Ensure that the element passed to the `render` prop of the component is not a real <button>, or set the `nativeButton` prop on the component to `true`.',
         );
+      } else if (isAnchorTag) {
+        error('A component that acts as a button was rendered as an <a>, which is unsupported.');
       }
     }, [isNativeButton]);
   }
@@ -119,10 +117,7 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
             }
 
             const shouldClick =
-              event.target === event.currentTarget &&
-              !isNativeButton &&
-              !isValidLink() &&
-              !disabled;
+              event.target === event.currentTarget && !isNativeButton && !disabled;
             const isEnterKey = event.key === 'Enter';
             const isSpaceKey = event.key === ' ';
 
@@ -172,7 +167,7 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
         otherExternalProps,
       );
     },
-    [disabled, focusableWhenDisabledProps, isNativeButton, isValidLink],
+    [disabled, focusableWhenDisabledProps, isNativeButton],
   );
 
   const buttonRef = useStableCallback((element: HTMLElement | null) => {
