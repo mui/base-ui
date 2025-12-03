@@ -13,6 +13,7 @@ import { useRenderElement } from '../../utils/useRenderElement';
 import { usePopupAutoResize } from '../../utils/usePopupAutoResize';
 import { getDisabledMountTransitionStyles } from '../../utils/getDisabledMountTransitionStyles';
 import { useHoverFloatingInteraction } from '../../floating-ui-react';
+import { useDirection } from '../../direction-provider';
 
 const stateAttributesMapping: StateAttributesMapping<TooltipPopup.State> = {
   ...baseMapping,
@@ -43,6 +44,7 @@ export const TooltipPopup = React.forwardRef(function TooltipPopup(
   const popupElement = store.useState('popupElement');
   const positionerElement = store.useState('positionerElement');
   const floatingContext = store.useState('floatingRootContext');
+  const direction = useDirection();
 
   useOpenChangeComplete({
     open,
@@ -69,7 +71,7 @@ export const TooltipPopup = React.forwardRef(function TooltipPopup(
   }
 
   // If there's just one trigger, we can skip the auto-resize logic as
-  // the popover will always be anchored to the same position.
+  // the tooltip will always be anchored to the same position.
   const autoresizeEnabled = () => store.context.triggerElements.size > 1;
 
   usePopupAutoResize({
@@ -80,6 +82,8 @@ export const TooltipPopup = React.forwardRef(function TooltipPopup(
     enabled: autoresizeEnabled,
     onMeasureLayout: handleMeasureLayout,
     onMeasureLayoutComplete: handleMeasureLayoutComplete,
+    side,
+    direction,
   });
 
   const disabled = store.useState('disabled');
