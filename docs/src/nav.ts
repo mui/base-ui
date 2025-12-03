@@ -54,7 +54,6 @@ export const nav: NavGroup[] = [
       {
         label: 'Forms',
         href: '/react/handbook/forms',
-        isNew: true,
       },
       {
         label: 'TypeScript',
@@ -89,7 +88,6 @@ export const nav: NavGroup[] = [
       {
         label: 'Button',
         href: '/react/components/button',
-        isNew: true,
       },
       {
         label: 'Checkbox',
