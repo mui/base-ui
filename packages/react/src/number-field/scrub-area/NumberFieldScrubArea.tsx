@@ -2,8 +2,7 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { ownerWindow, ownerDocument } from '@base-ui-components/utils/owner';
-import { isWebKit } from '@base-ui-components/utils/detectBrowser';
-import { useValueAsRef } from '@base-ui-components/utils/useValueAsRef';
+import { isFirefox, isWebKit } from '@base-ui-components/utils/detectBrowser';
 import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { useTimeout } from '@base-ui-components/utils/useTimeout';
 import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
@@ -44,7 +43,6 @@ export const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubAr
     setIsScrubbing,
     disabled,
     readOnly,
-    value,
     inputRef,
     incrementValue,
     getStepAmount,
@@ -52,8 +50,6 @@ export const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubAr
     lastChangedValueRef,
     valueRef,
   } = useNumberFieldRootContext();
-
-  const latestValueRef = useValueAsRef(value);
 
   const scrubAreaRef = React.useRef<HTMLSpanElement>(null);
 
@@ -149,20 +145,27 @@ export const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubAr
       let cumulativeDelta = 0;
 
       function handleScrubPointerUp(event: PointerEvent) {
-        try {
-          // Avoid errors in testing environments.
+        function handler() {
+          try {
+            ownerDocument(scrubAreaRef.current).exitPointerLock();
+          } catch {
+            // Ignore errors.
+          } finally {
+            isScrubbingRef.current = false;
+            onScrubbingChange(false, event);
+            onValueCommitted(
+              lastChangedValueRef.current ?? valueRef.current,
+              createGenericEventDetails(REASONS.scrub, event),
+            );
+          }
+        }
+
+        if (isFirefox) {
           // Firefox needs a small delay here when soft-clicking as the pointer
           // lock will not release otherwise.
-          exitPointerLockTimeout.start(20, () => {
-            ownerDocument(scrubAreaRef.current).exitPointerLock();
-          });
-        } finally {
-          isScrubbingRef.current = false;
-          onScrubbingChange(false, event);
-          onValueCommitted(
-            lastChangedValueRef.current ?? valueRef.current,
-            createGenericEventDetails(REASONS.scrub, event),
-          );
+          exitPointerLockTimeout.start(20, handler);
+        } else {
+          handler();
         }
       }
 
@@ -210,9 +213,8 @@ export const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubAr
     [
       disabled,
       readOnly,
-      isScrubbing,
       incrementValue,
-      latestValueRef,
+      isScrubbing,
       getStepAmount,
       inputRef,
       onScrubbingChange,
