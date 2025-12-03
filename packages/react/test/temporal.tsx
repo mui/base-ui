@@ -1,6 +1,6 @@
 import * as React from 'react';
-import { UnstableTemporalAdapterProvider as TemporalAdapterProvider } from '@base-ui-components/react/temporal-adapter-provider';
-import { UnstableTemporalAdapterDateFns as TemporalAdapterDateFns } from '@base-ui-components/react/temporal-adapter-date-fns';
+import { Locale } from 'date-fns/locale';
+import { UnstableTemporalLocaleProvider as TemporalLocaleProvider } from '@base-ui-components/react/temporal-locale-provider';
 import { TemporalAdapter } from '@base-ui-components/react/types';
 import {
   createRenderer,
@@ -8,6 +8,7 @@ import {
   MuiRenderResult,
   RenderOptions,
 } from '@mui/internal-test-utils/createRenderer';
+import { TemporalAdapterDateFns } from '../../react/src/temporal-adapter-date-fns/TemporalAdapterDateFns';
 
 /**
  * Returns a function to render a temporal component, wrapped with TemporalAdapterProvider.
@@ -15,11 +16,7 @@ import {
 export function createTemporalRenderer(
   parameters: createTemporalRenderer.Parameters = {},
 ): createTemporalRenderer.ReturnValue {
-  const {
-    adapter = new TemporalAdapterDateFns(),
-    clockConfig,
-    ...createRendererOptions
-  } = parameters;
+  const { locale, clockConfig, ...createRendererOptions } = parameters;
 
   const { render: clientRender } = createRenderer({
     ...createRendererOptions,
@@ -36,24 +33,24 @@ export function createTemporalRenderer(
   });
 
   function Wrapper({ children }: { children?: React.ReactNode }) {
-    return <TemporalAdapterProvider adapter={adapter}>{children}</TemporalAdapterProvider>;
+    return <TemporalLocaleProvider locale={locale}>{children}</TemporalLocaleProvider>;
   }
 
   return {
     render(element, options) {
       return clientRender(element, { ...options, wrapper: Wrapper });
     },
-    adapter,
+    adapter: new TemporalAdapterDateFns({ locale }),
   };
 }
 
 export namespace createTemporalRenderer {
   export interface Parameters extends Omit<CreateRendererOptions, 'clock' | 'clockOptions'> {
     /**
-     * Adapter to use for the tests.
-     * @default new TemporalAdapterDateFns()
+     * The locale to use for the tests.
+     * @default en-US
      */
-    adapter?: TemporalAdapter;
+    locale?: Locale;
   }
 
   export interface ReturnValue {
