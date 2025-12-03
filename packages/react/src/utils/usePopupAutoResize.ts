@@ -10,8 +10,6 @@ import { EMPTY_OBJECT } from './constants';
 
 const supportsResizeObserver = typeof ResizeObserver !== 'undefined';
 
-const DEFAULT_ENABLED = () => true;
-
 /**
  * Allows the element to automatically resize based on its content while supporting animations.
  */
@@ -21,7 +19,6 @@ export function usePopupAutoResize(parameters: UsePopupAutoResizeParameters) {
     positionerElement,
     content,
     mounted,
-    enabled = DEFAULT_ENABLED,
     onMeasureLayout: onMeasureLayoutParam,
     onMeasureLayoutComplete: onMeasureLayoutCompleteParam,
     side,
@@ -59,7 +56,7 @@ export function usePopupAutoResize(parameters: UsePopupAutoResizeParameters) {
 
   useIsoLayoutEffect(() => {
     // Reset the state when the popup is closed.
-    if (!mounted || !enabled() || !supportsResizeObserver) {
+    if (!mounted || !supportsResizeObserver) {
       isInitialRender.current = true;
       previousDimensionsRef.current = null;
       return undefined;
@@ -179,7 +176,6 @@ export function usePopupAutoResize(parameters: UsePopupAutoResizeParameters) {
     positionerElement,
     runOnceAnimationsFinish,
     animationFrame,
-    enabled,
     mounted,
     onMeasureLayout,
     onMeasureLayoutComplete,
@@ -190,10 +186,8 @@ export function usePopupAutoResize(parameters: UsePopupAutoResizeParameters) {
 function hasTransitionsOrAnimations(element: HTMLElement) {
   const styles = getComputedStyle(element);
   return (
-    styles.transitionDuration !== '0s' &&
-    styles.transitionDuration !== '' &&
-    styles.animationDuration !== '0s' &&
-    styles.animationDuration !== ''
+    (styles.transitionDuration !== '0s' && styles.transitionDuration !== '') ||
+    (styles.animationDuration !== '0s' && styles.animationDuration !== '')
   );
 }
 
@@ -215,10 +209,6 @@ interface UsePopupAutoResizeParameters {
    * This doesn't have to be the actual content of the popup, but a value that triggers a resize.
    */
   content: unknown;
-  /**
-   * Whether the auto-resize is enabled. This function runs in an effect and can safely access refs.
-   */
-  enabled?: () => boolean;
   /**
    * Callback fired immediately before measuring the dimensions of the new content.
    */
