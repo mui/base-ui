@@ -422,6 +422,44 @@ describe('<Autocomplete.Root />', () => {
       await waitFor(() => expect(apple).to.have.attribute('data-highlighted'));
       outside.remove();
     });
+
+    it('continues keyboard navigation from the kept highlight after pointer leave', async () => {
+      const { user } = await render(
+        <Autocomplete.Root items={['apple', 'banana', 'carrot']} autoHighlight keepHighlight>
+          <Autocomplete.Input />
+          <Autocomplete.Portal>
+            <Autocomplete.Positioner>
+              <Autocomplete.Popup>
+                <Autocomplete.List>
+                  {(item: string) => (
+                    <Autocomplete.Item key={item} value={item}>
+                      {item}
+                    </Autocomplete.Item>
+                  )}
+                </Autocomplete.List>
+              </Autocomplete.Popup>
+            </Autocomplete.Positioner>
+          </Autocomplete.Portal>
+        </Autocomplete.Root>,
+      );
+
+      const input = screen.getByRole<HTMLInputElement>('combobox');
+      await user.click(input);
+      await user.type(input, 'a');
+
+      const apple = await screen.findByRole('option', { name: 'apple' });
+      await waitFor(() => expect(apple).to.have.attribute('data-highlighted'));
+
+      const outside = document.createElement('div');
+      document.body.appendChild(outside);
+      fireEvent.pointerLeave(apple, { pointerType: 'mouse', relatedTarget: outside });
+
+      await user.keyboard('{ArrowDown}');
+
+      const banana = screen.getByRole('option', { name: 'banana' });
+      await waitFor(() => expect(banana).to.have.attribute('data-highlighted'));
+      outside.remove();
+    });
   });
 
   describe('prop: mode', () => {
