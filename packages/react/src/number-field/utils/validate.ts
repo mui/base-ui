@@ -27,7 +27,12 @@ export function removeFloatingPointErrors(value: number, format?: Intl.NumberFor
   return roundToFractionDigits(value, maximumFractionDigits);
 }
 
-function snapToStep(clampedValue: number, base: number, step: number) {
+function snapToStep(
+  clampedValue: number,
+  base: number,
+  step: number,
+  mode: 'directional' | 'nearest' = 'directional',
+) {
   if (step === 0) {
     return clampedValue;
   }
@@ -35,10 +40,21 @@ function snapToStep(clampedValue: number, base: number, step: number) {
   const stepSize = Math.abs(step);
   const direction = Math.sign(step);
   const tolerance = stepSize * STEP_EPSILON_FACTOR * direction;
-  const rawSteps = (clampedValue - base + tolerance) / stepSize;
-  const snappedSteps = direction > 0 ? Math.floor(rawSteps) : Math.ceil(rawSteps);
+  const divisor = mode === 'nearest' ? step : stepSize;
+  const rawSteps = (clampedValue - base + tolerance) / divisor;
 
-  return base + snappedSteps * stepSize;
+  let snappedSteps: number;
+  if (mode === 'nearest') {
+    snappedSteps = Math.round(rawSteps);
+  } else if (direction > 0) {
+    snappedSteps = Math.floor(rawSteps);
+  } else {
+    snappedSteps = Math.ceil(rawSteps);
+  }
+
+  const stepForResult = mode === 'nearest' ? step : stepSize;
+
+  return base + snappedSteps * stepForResult;
 }
 
 export function toValidatedNumber(
@@ -72,18 +88,13 @@ export function toValidatedNumber(
       return removeFloatingPointErrors(clampedValue, format);
     }
 
-    if (small) {
-      const tolerance = Math.abs(step) * STEP_EPSILON_FACTOR * Math.sign(step);
-      const stepsFromMin = (clampedValue - minWithZeroDefault + tolerance) / step;
-      const roundedSteps = Math.round(stepsFromMin);
-      const snappedValue = minWithZeroDefault + roundedSteps * step;
-      return removeFloatingPointErrors(snappedValue, format);
+    // If a real minimum is provided, use it
+    let base = minWithZeroDefault;
+    if (!small && minWithDefault !== Number.MIN_SAFE_INTEGER) {
+      base = minWithDefault;
     }
 
-    // If a real minimum is provided, use it
-    const base = minWithDefault !== Number.MIN_SAFE_INTEGER ? minWithDefault : minWithZeroDefault;
-
-    const snappedValue = snapToStep(clampedValue, base, step);
+    const snappedValue = snapToStep(clampedValue, base, step, small ? 'nearest' : 'directional');
     return removeFloatingPointErrors(snappedValue, format);
   }
 

@@ -216,5 +216,27 @@ describe('NumberField validate', () => {
         }),
       ).to.equal(3.4);
     });
+
+    it('rounds to the nearest value when using small step', () => {
+      expect(
+        toValidatedNumber(0.15, {
+          ...defaultOptions,
+          step: 0.1,
+          snapOnStep: true,
+          small: true,
+        }),
+      ).to.equal(0.2);
+    });
+
+    it('rounds negative small steps to the nearest value', () => {
+      expect(
+        toValidatedNumber(-0.15, {
+          ...defaultOptions,
+          step: -0.1,
+          snapOnStep: true,
+          small: true,
+        }),
+      ).to.equal(-0.2);
+    });
   });
 });
