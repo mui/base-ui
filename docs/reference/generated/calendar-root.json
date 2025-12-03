@@ -3,21 +3,24 @@
   "description": "Groups all parts of the calendar.\nRenders a `<div>` element.",
   "props": {
     "defaultValue": {
-      "type": "any",
-      "description": "The uncontrolled value that should be initially selected.\nTo render a controlled (Range)Calendar, use the `value` prop instead."
+      "type": "TemporalValue",
+      "description": "The uncontrolled value that should be initially selected.\nTo render a controlled (Range)Calendar, use the `value` prop instead.",
+      "detailedType": "Date | null | undefined"
     },
     "value": {
-      "type": "any",
-      "description": "The controlled value that should be selected.\nTo render an uncontrolled (Range)Calendar, use the `defaultValue` prop instead."
+      "type": "TemporalValue",
+      "description": "The controlled value that should be selected.\nTo render an uncontrolled (Range)Calendar, use the `defaultValue` prop instead.",
+      "detailedType": "Date | null | undefined"
     },
     "onValueChange": {
-      "type": "((value: any, eventDetails: Calendar.Root.ChangeEventDetails) => void)",
+      "type": "((value: TemporalValue, eventDetails: Calendar.Root.ChangeEventDetails) => void)",
       "description": "Event handler called when the selected value changes.\nProvides the new value as an argument.\nHas `getValidationError()` in the `eventDetails` to retrieve the validation error associated to the new value.",
-      "detailedType": "| ((\n    value: any,\n    eventDetails: Calendar.Root.ChangeEventDetails,\n  ) => void)\n| undefined"
+      "detailedType": "| ((\n    value: TemporalValue,\n    eventDetails: Calendar.Root.ChangeEventDetails,\n  ) => void)\n| undefined"
     },
     "defaultVisibleDate": {
       "type": "Date",
-      "description": "The date used to decide which month should be initially displayed in the Day Grid.\nTo render a controlled Calendar, use the `visibleDate` prop instead."
+      "description": "The date used to decide which month should be initially displayed in the Day Grid.\nTo render a controlled Calendar, use the `visibleDate` prop instead.",
+      "detailedType": "Date | undefined"
     },
     "isDateUnavailable": {
       "type": "((day: Date) => boolean)",
@@ -26,11 +29,13 @@
     },
     "maxDate": {
       "type": "Date",
-      "description": "Maximal selectable date."
+      "description": "Maximal selectable date.",
+      "detailedType": "Date | undefined"
     },
     "minDate": {
       "type": "Date",
-      "description": "Minimal selectable date."
+      "description": "Minimal selectable date.",
+      "detailedType": "Date | undefined"
     },
     "monthPageSize": {
       "type": "number",
@@ -46,7 +51,8 @@
     "referenceDate": {
       "type": "Date",
       "default": "'The closest valid date using the validation props.'",
-      "description": "The date used to generate the new value when both `value` and `defaultValue` are empty."
+      "description": "The date used to generate the new value when both `value` and `defaultValue` are empty.",
+      "detailedType": "Date | undefined"
     },
     "timezone": {
       "type": "string",
@@ -56,7 +62,8 @@
     },
     "visibleDate": {
       "type": "Date",
-      "description": "The date used to decide which month should be displayed in the Day Grid.\nTo render an uncontrolled Calendar, use the `defaultVisibleDate` prop instead."
+      "description": "The date used to decide which month should be displayed in the Day Grid.\nTo render an uncontrolled Calendar, use the `defaultVisibleDate` prop instead.",
+      "detailedType": "Date | undefined"
     },
     "disabled": {
       "type": "boolean",
