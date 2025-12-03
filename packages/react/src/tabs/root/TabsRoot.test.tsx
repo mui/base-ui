@@ -75,13 +75,13 @@ describe('<Tabs.Root />', () => {
           <Tabs.List>
             <Tabs.Tab value="tab-0" />
             <Tabs.Tab value="tab-1" id="explicit-tab-id-1" />
-            <Tabs.Tab />
-            <Tabs.Tab id="explicit-tab-id-3" />
+            <Tabs.Tab value="tab-2" />
+            <Tabs.Tab value="tab-3" id="explicit-tab-id-3" />
           </Tabs.List>
-          <Tabs.Panel value="tab-1" />
-          <Tabs.Panel value="tab-0" />
-          <Tabs.Panel />
-          <Tabs.Panel />
+          <Tabs.Panel value="tab-1" keepMounted />
+          <Tabs.Panel value="tab-0" keepMounted />
+          <Tabs.Panel value="tab-2" keepMounted />
+          <Tabs.Panel value="tab-3" keepMounted />
         </Tabs.Root>,
       );
 
@@ -100,13 +100,13 @@ describe('<Tabs.Root />', () => {
           <Tabs.List>
             <Tabs.Tab value="tab-0" />
             <Tabs.Tab value="tab-1" id="explicit-tab-id-1" />
-            <Tabs.Tab />
-            <Tabs.Tab id="explicit-tab-id-3" />
+            <Tabs.Tab value="tab-2" />
+            <Tabs.Tab value="tab-3" id="explicit-tab-id-3" />
           </Tabs.List>
-          <Tabs.Panel value="tab-1" />
-          <Tabs.Panel value="tab-0" />
-          <Tabs.Panel />
-          <Tabs.Panel />
+          <Tabs.Panel value="tab-1" keepMounted />
+          <Tabs.Panel value="tab-0" keepMounted />
+          <Tabs.Panel value="tab-2" keepMounted />
+          <Tabs.Panel value="tab-3" keepMounted />
         </Tabs.Root>,
       );
 
@@ -123,11 +123,11 @@ describe('<Tabs.Root />', () => {
       await render(
         <Tabs.Root>
           <Tabs.List>
-            <Tabs.Tab />
-            <Tabs.Tab />
+            <Tabs.Tab value={0} />
+            <Tabs.Tab value={1} />
           </Tabs.List>
-          <Tabs.Panel />
-          <Tabs.Panel />
+          <Tabs.Panel value={0} keepMounted />
+          <Tabs.Panel value={1} keepMounted />
         </Tabs.Root>,
       );
 
@@ -138,6 +138,35 @@ describe('<Tabs.Root />', () => {
       expect(tabs[1]).to.have.attribute('aria-controls', tabPanels[1].id);
       expect(tabPanels[0]).to.have.attribute('aria-labelledby', tabs[0].id);
       expect(tabPanels[1]).to.have.attribute('aria-labelledby', tabs[1].id);
+    });
+
+    it('syncs aria-controls to the mounted tab panel when keepMounted is false', async () => {
+      const { user } = await render(
+        <Tabs.Root defaultValue="tab-0">
+          <Tabs.List>
+            <Tabs.Tab value="tab-0">Tab 0</Tabs.Tab>
+            <Tabs.Tab value="tab-1">Tab 1</Tabs.Tab>
+          </Tabs.List>
+          <Tabs.Panel value="tab-0">Panel 0</Tabs.Panel>
+          <Tabs.Panel value="tab-1">Panel 1</Tabs.Panel>
+        </Tabs.Root>,
+      );
+
+      const tabs = screen.getAllByRole('tab');
+      const [firstTabPanel] = screen.getAllByRole('tabpanel');
+
+      expect(tabs[0]).to.have.attribute('aria-controls', firstTabPanel.id);
+      expect(tabs[1]).not.to.have.attribute('aria-controls');
+
+      await user.click(tabs[1]);
+
+      await waitFor(() => {
+        const [secondTabPanel] = screen.getAllByRole('tabpanel');
+
+        expect(secondTabPanel).to.have.text('Panel 1');
+        expect(tabs[0]).not.to.have.attribute('aria-controls');
+        expect(tabs[1]).to.have.attribute('aria-controls', secondTabPanel.id);
+      });
     });
   });
 
@@ -169,7 +198,7 @@ describe('<Tabs.Root />', () => {
             ))}
           </Tabs.List>
           {tabValues.map((value, index) => (
-            <Tabs.Panel key={index} value={value} />
+            <Tabs.Panel key={index} value={value} keepMounted />
           ))}
         </Tabs.Root>,
       );
@@ -344,9 +373,15 @@ describe('<Tabs.Root />', () => {
             <Tabs.Tab value={1}>Tab 2</Tabs.Tab>
             <Tabs.Tab value={2}>Tab 3</Tabs.Tab>
           </Tabs.List>
-          <Tabs.Panel>Panel 1</Tabs.Panel>
-          <Tabs.Panel>Panel 2</Tabs.Panel>
-          <Tabs.Panel>Panel 3</Tabs.Panel>
+          <Tabs.Panel value={0} keepMounted>
+            Panel 1
+          </Tabs.Panel>
+          <Tabs.Panel value={1} keepMounted>
+            Panel 2
+          </Tabs.Panel>
+          <Tabs.Panel value={2} keepMounted>
+            Panel 3
+          </Tabs.Panel>
         </Tabs.Root>,
       );
 
@@ -370,9 +405,15 @@ describe('<Tabs.Root />', () => {
             </Tabs.Tab>
             <Tabs.Tab value={2}>Tab 3</Tabs.Tab>
           </Tabs.List>
-          <Tabs.Panel>Panel 1</Tabs.Panel>
-          <Tabs.Panel>Panel 2</Tabs.Panel>
-          <Tabs.Panel>Panel 3</Tabs.Panel>
+          <Tabs.Panel value={0} keepMounted>
+            Panel 1
+          </Tabs.Panel>
+          <Tabs.Panel value={1} keepMounted>
+            Panel 2
+          </Tabs.Panel>
+          <Tabs.Panel value={2} keepMounted>
+            Panel 3
+          </Tabs.Panel>
         </Tabs.Root>,
       );
 
@@ -1065,8 +1106,8 @@ describe('<Tabs.Root />', () => {
       await render(
         <Tabs.Root data-testid="root">
           <Tabs.List>
-            <Tabs.Tab />
-            <Tabs.Tab />
+            <Tabs.Tab value={0} />
+            <Tabs.Tab value={1} />
           </Tabs.List>
         </Tabs.Root>,
       );
@@ -1092,8 +1133,8 @@ describe('<Tabs.Root />', () => {
       await render(
         <Tabs.Root data-testid="root" orientation="vertical">
           <Tabs.List>
-            <Tabs.Tab style={{ display: 'block' }} />
-            <Tabs.Tab style={{ display: 'block' }} />
+            <Tabs.Tab value={0} style={{ display: 'block' }} />
+            <Tabs.Tab value={1} style={{ display: 'block' }} />
           </Tabs.List>
         </Tabs.Root>,
       );
