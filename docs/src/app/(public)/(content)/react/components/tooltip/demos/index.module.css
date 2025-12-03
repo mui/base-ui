@@ -65,6 +65,12 @@
   height: 1.25rem;
 }
 
+.Positioner {
+  height: var(--positioner-height);
+  width: var(--positioner-width);
+  max-width: var(--available-width);
+}
+
 .Popup {
   box-sizing: border-box;
   font-size: 0.875rem;

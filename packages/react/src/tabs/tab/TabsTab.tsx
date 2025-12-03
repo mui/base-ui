@@ -8,7 +8,6 @@ import type { BaseUIComponentProps, NativeButtonProps } from '../../utils/types'
 import { useButton } from '../../use-button';
 import { ACTIVE_COMPOSITE_ITEM } from '../../composite/constants';
 import { useCompositeItem } from '../../composite/item/useCompositeItem';
-import { IndexGuessBehavior } from '../../composite/list/useCompositeListItem';
 import type { TabsRoot } from '../root/TabsRoot';
 import { useTabsRootContext } from '../root/TabsRootContext';
 import { useTabsListContext } from '../list/TabsListContext';
@@ -30,17 +29,13 @@ export const TabsTab = React.forwardRef(function TabsTab(
     className,
     disabled = false,
     render,
-    value: valueProp,
+    value,
     id: idProp,
     nativeButton = true,
     ...elementProps
   } = componentProps;
 
-  const {
-    value: activeTabValue,
-    getTabPanelIdByTabValueOrIndex,
-    orientation,
-  } = useTabsRootContext();
+  const { value: activeTabValue, getTabPanelIdByValue, orientation } = useTabsRootContext();
 
   const {
     activateOnFocus,
@@ -52,10 +47,7 @@ export const TabsTab = React.forwardRef(function TabsTab(
 
   const id = useBaseUiId(idProp);
 
-  const tabMetadata = React.useMemo(
-    () => ({ disabled, id, value: valueProp }),
-    [disabled, id, valueProp],
-  );
+  const tabMetadata = React.useMemo(() => ({ disabled, id, value }), [disabled, id, value]);
 
   const {
     compositeProps,
@@ -65,20 +57,9 @@ export const TabsTab = React.forwardRef(function TabsTab(
     // because the index is needed for Tab internals
   } = useCompositeItem<TabsTab.Metadata>({
     metadata: tabMetadata,
-    indexGuessBehavior: IndexGuessBehavior.GuessFromOrder,
   });
 
-  const tabValue = valueProp ?? index;
-
-  // the `active` state isn't set on the server (it relies on effects to be calculated),
-  // so we fall back to checking the `value` param with the activeTabValue from the TabsContext
-  const active = React.useMemo(() => {
-    if (valueProp === undefined) {
-      return index < 0 ? false : index === activeTabValue;
-    }
-
-    return valueProp === activeTabValue;
-  }, [index, activeTabValue, valueProp]);
+  const active = value === activeTabValue;
 
   const isNavigatingRef = React.useRef(false);
 
@@ -114,7 +95,7 @@ export const TabsTab = React.forwardRef(function TabsTab(
     focusableWhenDisabled: true,
   });
 
-  const tabPanelId = index > -1 ? getTabPanelIdByTabValueOrIndex(valueProp, index) : undefined;
+  const tabPanelId = getTabPanelIdByValue(value);
 
   const isPressingRef = React.useRef(false);
   const isMainButtonRef = React.useRef(false);
@@ -125,7 +106,7 @@ export const TabsTab = React.forwardRef(function TabsTab(
     }
 
     onTabActivation(
-      tabValue,
+      value,
       createChangeEventDetails(REASONS.none, event.nativeEvent, undefined, {
         activationDirection: 'none',
       }),
@@ -151,7 +132,7 @@ export const TabsTab = React.forwardRef(function TabsTab(
         (isPressingRef.current && isMainButtonRef.current)) // mouse focus
     ) {
       onTabActivation(
-        tabValue,
+        value,
         createChangeEventDetails(REASONS.none, event.nativeEvent, undefined, {
           activationDirection: 'none',
         }),
@@ -233,7 +214,7 @@ export interface TabsTabSize {
 export interface TabsTabMetadata {
   disabled: boolean;
   id: string | undefined;
-  value: any | undefined;
+  value: TabsTab.Value | undefined;
 }
 
 export interface TabsTabState {
@@ -250,9 +231,8 @@ export interface TabsTabProps
     BaseUIComponentProps<'button', TabsTab.State> {
   /**
    * The value of the Tab.
-   * When not specified, the value is the child position index.
    */
-  value?: TabsTab.Value;
+  value: TabsTab.Value;
 }
 
 export namespace TabsTab {

@@ -24,7 +24,7 @@
     "eslint:ci": "pnpm -r lint && eslint . --report-unused-disable-directives --max-warnings 0",
     "stylelint": "stylelint --reportInvalidScopeDisables --reportNeedlessDisables \"docs/**/*.{js,ts,tsx}\" \"**/*.css\" --ignore-path .lintignore",
     "markdownlint": "markdownlint-cli2 \"**/*.{md,mdx}\"",
-    "valelint": "pnpm vale sync && git ls-files | grep -h \".md$\" | xargs pnpm vale --filter='.Level==\"error\"'",
+    "valelint": "pnpm vale sync && git ls-files | grep -E \"\\.(md|mdx)$\" | xargs pnpm vale --filter='.Level==\"error\"'",
     "prettier": "pretty-quick --ignore-path .lintignore --branch master",
     "prettier:all": "prettier --write . --ignore-path .lintignore",
     "size:snapshot": "pnpm -F ./test/bundle-size check",
