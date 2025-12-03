@@ -3,6 +3,57 @@
 <Subtitle>Changelogs for each Base UI release.</Subtitle>
 <Meta name="description" content="Changelogs for each Base UI release." />
 
+## v1.0.0-rc.0
+
+_Dec 4, 2025_
+
+### Autocomplete
+
+- Fix `keepHighlight` focus sync ([#3399](https://github.com/mui/base-ui/pull/3399))
+
+### Combobox
+
+- **Breaking change:** Sync highlight props.
+  Removed the `keepHighlight` prop, given the common use cases for it are often command palette related rather than Select related.
+  ([#3377](https://github.com/mui/base-ui/pull/3377))
+
+### Menu
+
+- Sync highlight props ([#3377](https://github.com/mui/base-ui/pull/3377))
+
+### Number Field
+
+- Ensure hidden input participates in form validation ([#3374](https://github.com/mui/base-ui/pull/3374))
+- Improve symbol replacement logic ([#3376](https://github.com/mui/base-ui/pull/3376))
+- Fix fractional step snapping ([#3375](https://github.com/mui/base-ui/pull/3375))
+- Fix closing after pointer lock exit in Firefox ([#3379](https://github.com/mui/base-ui/pull/3379))
+- Fix parsing numbers with Swiss locale ([#3361](https://github.com/mui/base-ui/pull/3361))
+
+### Popover
+
+- Fix modal backdrop on touch ([#3383](https://github.com/mui/base-ui/pull/3383))
+- Fix popover glitching when flipped ([#3364](https://github.com/mui/base-ui/pull/3364))
+
+### Select
+
+- Sync highlight props ([#3377](https://github.com/mui/base-ui/pull/3377))
+
+### Tabs
+
+- **Breaking change:** Fix Panel `keepMounted` behavior.
+  The `value` prop is now required on Tab and TabPanel parts.
+  ([#3372](https://github.com/mui/base-ui/pull/3372))
+- Fix omitted `value` behavior ([#3373](https://github.com/mui/base-ui/pull/3373))
+
+### Toast
+
+- Recalculate content height when layout size is fixed ([#3359](https://github.com/mui/base-ui/pull/3359))
+
+### Tooltip
+
+- Improve contained triggers performance ([#3385](https://github.com/mui/base-ui/pull/3385))
+- Fix multiple swipe directions on same axis ([#3392](https://github.com/mui/base-ui/pull/3392))
+
 ## v1.0.0-beta.7
 
 **Nov 27, 2025**
