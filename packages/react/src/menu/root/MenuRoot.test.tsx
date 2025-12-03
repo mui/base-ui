@@ -1353,6 +1353,54 @@ describe('<Menu.Root />', () => {
     });
   });
 
+  describe('prop: highlightItemOnHover', () => {
+    it('highlights an item on mouse move by default', async () => {
+      await render(
+        <Menu.Root open>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.Item data-testid="item-1">Item 1</Menu.Item>
+                <Menu.Item data-testid="item-2">Item 2</Menu.Item>
+                <Menu.Item data-testid="item-3">Item 3</Menu.Item>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>,
+      );
+
+      const item2 = screen.getByTestId('item-2');
+      fireEvent.mouseMove(item2);
+
+      await waitFor(() => {
+        expect(item2).toHaveFocus();
+      });
+    });
+
+    it('does not highlight items from mouse movement when disabled', async () => {
+      await render(
+        <Menu.Root open highlightItemOnHover={false}>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.Item data-testid="item-1">Item 1</Menu.Item>
+                <Menu.Item data-testid="item-2">Item 2</Menu.Item>
+                <Menu.Item data-testid="item-3">Item 3</Menu.Item>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>,
+      );
+
+      const item2 = screen.getByTestId('item-2');
+      fireEvent.mouseMove(item2);
+
+      await flushMicrotasks();
+
+      expect(item2).not.toHaveFocus();
+    });
+  });
+
   describe('dynamic items', () => {
     const { render: renderFakeTimers, clock } = createRenderer({
       clockOptions: {
