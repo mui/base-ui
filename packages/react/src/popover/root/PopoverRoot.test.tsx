@@ -190,7 +190,9 @@ describe('<Popover.Root />', () => {
                       <Menu.Trigger>Open nested</Menu.Trigger>
                       <Menu.Portal container={dialogNode ?? undefined}>
                         <Menu.Positioner>
-                          <Menu.Popup data-testid="menu-popup">Nested Menu</Menu.Popup>
+                          <Menu.Popup data-testid="menu-popup">
+                            <Menu.Item closeOnClick={false}>Item</Menu.Item>
+                          </Menu.Popup>
                         </Menu.Positioner>
                       </Menu.Portal>
                     </Menu.Root>
@@ -212,7 +214,12 @@ describe('<Popover.Root />', () => {
       await user.click(nestedTrigger);
       await screen.findByTestId('menu-popup');
 
-      expect(screen.getByTestId('popover-popup')).not.to.equal(null);
+      const item = await screen.findByText('Item');
+      await user.click(item);
+
+      await waitFor(() => {
+        expect(screen.getByTestId('popover-popup')).not.to.equal(null);
+      });
     });
   });
 

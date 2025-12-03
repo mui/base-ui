@@ -533,6 +533,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
           (isUntrappedTypeableCombobox ? true : !modal) &&
           relatedTarget &&
           movedToUnrelatedNode &&
+          !isPointerDownRef.current &&
           // Fix React 18 Strict Mode returnFocus due to double rendering.
           // For an "untrapped" typeable combobox (input role=combobox with
           // initialFocus=false), re-opening the popup and tabbing out should still close it even
