@@ -66,11 +66,6 @@ export function usePopupAutoResize(parameters: UsePopupAutoResizeParameters) {
       return undefined;
     }
 
-    if (!hasTransitionsOrAnimations(popupElement)) {
-      // If there are no transitions or animations, we can skip the auto-resize logic.
-      return undefined;
-    }
-
     Object.entries(anchoringStyles).forEach(([key, value]) => {
       popupElement.style.setProperty(key, value as string);
     });
@@ -181,14 +176,6 @@ export function usePopupAutoResize(parameters: UsePopupAutoResizeParameters) {
     onMeasureLayoutComplete,
     anchoringStyles,
   ]);
-}
-
-function hasTransitionsOrAnimations(element: HTMLElement) {
-  const styles = getComputedStyle(element);
-  return (
-    (styles.transitionDuration !== '0s' && styles.transitionDuration !== '') ||
-    (styles.animationDuration !== '0s' && styles.animationDuration !== '')
-  );
 }
 
 interface UsePopupAutoResizeParameters {

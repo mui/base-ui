@@ -14,6 +14,10 @@ export default function Experiment() {
         <BellIcon aria-label="Notifications" className={styles.Icon} />
       </Popover.Trigger>
 
+      <Popover.Trigger className={styles.IconButton} handle={demoPopover} payload={5}>
+        <BellIcon aria-label="Notifications" className={styles.Icon} />
+      </Popover.Trigger>
+
       <Popover.Root handle={demoPopover}>
         {({ payload: paragraphCount }) => (
           <Popover.Portal>
