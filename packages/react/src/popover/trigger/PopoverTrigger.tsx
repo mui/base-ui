@@ -71,11 +71,11 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
   const floatingContext = store.useState('floatingRootContext');
   const isOpenedByThisTrigger = store.useState('isOpenedByTrigger', thisTriggerId);
 
-  const [triggerElement, setTriggerElement] = React.useState<HTMLElement | null>(null);
+  const triggerElementRef = React.useRef<HTMLElement | null>(null);
 
   const { registerTrigger, isMountedByThisTrigger } = useTriggerDataForwarding(
     thisTriggerId,
-    triggerElement,
+    triggerElementRef,
     store,
     {
       payload,
@@ -101,7 +101,7 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
     delay: {
       close: closeDelay,
     },
-    triggerElement,
+    triggerElementRef,
     isActiveTrigger: isTriggerActive,
   });
 
@@ -139,7 +139,7 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
 
   const element = useRenderElement('button', componentProps, {
     state,
-    ref: [buttonRef, forwardedRef, registerTrigger, setTriggerElement],
+    ref: [buttonRef, forwardedRef, registerTrigger, triggerElementRef],
     props: [
       localProps.getReferenceProps(),
       hoverProps,
@@ -187,7 +187,7 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
         );
       });
 
-      let nextTabbable = getTabbableAfterElement(triggerElement);
+      let nextTabbable = getTabbableAfterElement(triggerElementRef.current);
 
       while (
         (nextTabbable !== null && contains(positionerElement, nextTabbable)) ||

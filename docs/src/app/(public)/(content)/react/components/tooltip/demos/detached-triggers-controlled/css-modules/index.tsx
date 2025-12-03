@@ -50,7 +50,7 @@ export default function TooltipDetachedTriggersControlledDemo() {
         triggerId={triggerId}
       >
         <Tooltip.Portal>
-          <Tooltip.Positioner sideOffset={10}>
+          <Tooltip.Positioner sideOffset={10} className={styles.Positioner}>
             <Tooltip.Popup className={styles.Popup}>
               <Tooltip.Arrow className={styles.Arrow}>
                 <ArrowSvg />

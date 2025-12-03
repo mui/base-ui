@@ -47,14 +47,14 @@ export const TooltipTrigger = React.forwardRef(function TooltipTrigger(
   const floatingRootContext = store.useState('floatingRootContext');
   const isOpenedByThisTrigger = store.useState('isOpenedByTrigger', thisTriggerId);
 
-  const [triggerElement, setTriggerElement] = React.useState<HTMLElement | null>(null);
+  const triggerElementRef = React.useRef<Element | null>(null);
 
   const delayWithDefault = delay ?? OPEN_DELAY;
   const closeDelayWithDefault = closeDelay ?? 0;
 
   const { registerTrigger, isMountedByThisTrigger } = useTriggerDataForwarding(
     thisTriggerId,
-    triggerElement,
+    triggerElementRef,
     store,
     {
       payload,
@@ -107,7 +107,7 @@ export const TooltipTrigger = React.forwardRef(function TooltipTrigger(
         close: computedCloseDelay,
       };
     },
-    triggerElement,
+    triggerElementRef,
     isActiveTrigger: isTriggerActive,
   });
 
@@ -120,7 +120,7 @@ export const TooltipTrigger = React.forwardRef(function TooltipTrigger(
 
   const element = useRenderElement('button', componentProps, {
     state,
-    ref: [forwardedRef, registerTrigger, setTriggerElement],
+    ref: [forwardedRef, registerTrigger, triggerElementRef],
     props: [hoverProps, rootTriggerProps, { id: thisTriggerId }, elementProps],
     stateAttributesMapping: triggerOpenStateMapping,
   });
