@@ -5,6 +5,7 @@ import { type BaseUIChangeEventDetails } from '../../utils/createBaseUIEventDeta
 import { createEventEmitter } from '../utils/createEventEmitter';
 import { type FloatingUIOpenChangeDetails } from '../../utils/types';
 import { type PopupTriggerMap } from '../../utils/popups';
+import { isClickLikeEvent } from '../utils';
 
 export interface FloatingRootState {
   open: boolean;
@@ -85,7 +86,10 @@ export class FloatingRootStore extends ReactStore<
    * @param eventDetails Details about the event that triggered the open state change.
    */
   setOpen = (newOpen: boolean, eventDetails: BaseUIChangeEventDetails<string>) => {
-    this.context.dataRef.current.openEvent = newOpen ? eventDetails.event : undefined;
+    const click = isClickLikeEvent(eventDetails.event);
+    if (!newOpen || !this.state.open || click) {
+      this.context.dataRef.current.openEvent = newOpen ? eventDetails.event : undefined;
+    }
     if (!this.context.noEmit) {
       const details: FloatingUIOpenChangeDetails = {
         open: newOpen,

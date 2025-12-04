@@ -258,6 +258,37 @@ describe('<Menu.Trigger />', () => {
       expect(trigger).not.to.have.attribute('data-popup-open');
     });
 
+    it('sticks when clicked before the hover delay completes', async () => {
+      await renderFakeTimers(
+        <Menu.Root>
+          <Menu.Trigger openOnHover delay={300}>
+            Open
+          </Menu.Trigger>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>Content</Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>,
+      );
+
+      const trigger = screen.getByRole('button');
+
+      fireEvent.mouseEnter(trigger);
+      fireEvent.mouseMove(trigger);
+
+      clock.tick(100);
+
+      // User clicks impatiently to open
+      fireEvent.click(trigger);
+
+      expect(trigger).to.have.attribute('data-popup-open');
+
+      fireEvent.mouseLeave(trigger);
+
+      expect(trigger).to.have.attribute('data-popup-open');
+    });
+
     it('should keep the menu open when re-hovered and clicked within the patient threshold', async () => {
       await render(
         <Menu.Root>
