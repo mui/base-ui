@@ -103,11 +103,8 @@ export class ReactStore<
   }
 
   /**
-   * Registers a controllable prop pair (`controlled`, `defaultValue`) for a specific key.
-   * - If `controlled` is non-undefined, the key is marked as controlled and the store's
-   *   state at `key` is updated to match `controlled`. Local writes to that key are ignored.
-   * - If `controlled` is undefined, the key is marked as uncontrolled. The store's state
-   *   is initialized to `defaultValue` on first render and can be updated with local writes.
+   * Registers a controllable prop pair (`controlled`, `defaultValue`) for a specific key. If `controlled`
+   * is non-undefined, the store's state at `key` is updated to match `controlled`.
    */
   useControlledProp<Key extends keyof State, Value extends State[Key]>(
     key: keyof State,
