@@ -1,6 +1,6 @@
 # Package rules
 
-The utils package is shared across multiple projects, which may cause issues with reference equality
+The utils package is shared across multiple codebases, which may cause issues with reference equality
 if different versions of the package are used in the same project. To avoid this, we should follow
 these rules:
 
