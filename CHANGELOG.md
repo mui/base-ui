@@ -14,7 +14,7 @@ _Dec 4, 2025_
 
 ### Checkbox
 
-- **Breaking change:** Match native unchecked state in form submission.
+- **Breaking change:** Match native unchecked state in form submission.<br />
   The Checkbox will not submit the `"off"` value with a form when unchecked anymore, unless the new `uncheckedValue` prop is set.
   (#3406) by @atomiks
 
@@ -56,13 +56,13 @@ _Dec 4, 2025_
 
 ### Switch
 
-- **Breaking change:** Match native off state in form submission.
+- **Breaking change:** Match native off state in form submission.<br />
   The Switch will not submit the `"off"` value with a form when unchecked anymore, unless the new `uncheckedValue` prop is set.
   (#3406) by @atomiks
 
 ### Tabs
 
-- **Breaking change:** Fix Panel `keepMounted` behavior.
+- **Breaking change:** Fix Panel `keepMounted` behavior.<br />
   The `value` prop is now required on `<Tabs.Tab>` and `<Tabs.Panel>` parts.
   (#3372) by @atomiks
 
