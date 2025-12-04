@@ -66,7 +66,6 @@
   },
   "devDependencies": {
     "@mdx-js/mdx": "^3.1.1",
-    "@mui/internal-test-utils": "^2.0.16",
     "@tailwindcss/postcss": "4.1.17",
     "@types/chai": "^5.2.3",
     "@types/gtag.js": "^0.0.20",

@@ -6,7 +6,6 @@
   },
   "devDependencies": {
     "@base-ui-components/react": "workspace:*",
-    "@mui/internal-test-utils": "^2.0.16",
     "@playwright/test": "1.57.0",
     "@testing-library/dom": "^10.4.1",
     "@testing-library/jest-dom": "^6.9.1",
