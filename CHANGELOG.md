@@ -6,7 +6,7 @@ _Dec 4, 2025_
 
 ### General changes
 
-- Fix missing 'use client' directives (#3408) by @atomiks
+- Fix missing `'use client'` directives (#3408) by @atomiks
 
 ### Autocomplete
 
@@ -14,7 +14,9 @@ _Dec 4, 2025_
 
 ### Checkbox
 
-- Match native off state in form submission (#3406) by @atomiks
+- **Breaking change:** Match native unchecked state in form submission.
+  The Checkbox will not submit the `"off"` value with a form when unchecked anymore, unless the new `uncheckedValue` prop is set.
+  (#3406) by @atomiks
 
 ### Collapsible
 
@@ -53,14 +55,15 @@ _Dec 4, 2025_
 
 ### Switch
 
-- Match native off state in form submission (#3406) by @atomiks
+- **Breaking change:** Match native off state in form submission.
+  The Switch will not submit the `"off"` value with a form when unchecked anymore, unless the new `uncheckedValue` prop is set.
+  (#3406) by @atomiks
 
 ### Tabs
 
 - **Breaking change:** Fix Panel `keepMounted` behavior.
   The `value` prop is now required on `<Tabs.Tab>` and `<Tabs.Panel>` parts.
   (#3372) by @atomiks
-- Fix omitted `value` behavior (#3373) by @atomiks
 
 ### Toast
 
