@@ -86,8 +86,13 @@ export class FloatingRootStore extends ReactStore<
    * @param eventDetails Details about the event that triggered the open state change.
    */
   setOpen = (newOpen: boolean, eventDetails: BaseUIChangeEventDetails<string>) => {
-    const click = isClickLikeEvent(eventDetails.event);
-    if (!newOpen || !this.state.open || click) {
+    if (
+      !newOpen ||
+      !this.state.open ||
+      // Prevent a pending hover-open from overwriting a click-open event, while allowing
+      // click events to upgrade a hover-open.
+      isClickLikeEvent(eventDetails.event)
+    ) {
       this.context.dataRef.current.openEvent = newOpen ? eventDetails.event : undefined;
     }
     if (!this.context.noEmit) {
