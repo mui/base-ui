@@ -187,8 +187,8 @@ importers:
         specifier: ^3.1.1
         version: 3.1.1(@types/react@19.2.7)(react@19.2.0)
       '@mui/internal-docs-infra':
-        specifier: https://pkg.pr.new/mui/mui-public/@mui/internal-docs-infra@463f7bd
-        version: https://pkg.pr.new/mui/mui-public/@mui/internal-docs-infra@463f7bd(@types/react@19.2.7)(next@16.0.4(@babel/core@7.28.5)(@playwright/test@1.57.0)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(react@19.2.0)
+        specifier: https://pkg.pr.new/mui/mui-public/@mui/internal-docs-infra@6fc3e59
+        version: https://pkg.pr.new/mui/mui-public/@mui/internal-docs-infra@6fc3e59(@types/react@19.2.7)(next@16.0.4(@babel/core@7.28.5)(@playwright/test@1.57.0)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(react@19.2.0)
       '@next/mdx':
         specifier: ^16.0.4
         version: 16.0.5(@mdx-js/loader@3.1.1(webpack@5.103.0))(@mdx-js/react@3.1.1(@types/react@19.2.7)(react@19.2.0))
@@ -584,7 +584,7 @@ importers:
     dependencies:
       '@mui/internal-docs-infra':
         specifier: https://pkg.pr.new/mui/mui-public/@mui/internal-docs-infra@463f7bd
-        version: https://pkg.pr.new/mui/mui-public/@mui/internal-docs-infra@463f7bd(@types/react@19.2.7)(next@16.0.4(@babel/core@7.28.5)(@playwright/test@1.57.0)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(react@19.2.0)
+        version: https://pkg.pr.new/mui/mui-public/@mui/internal-docs-infra@463f7bd(@types/react@19.2.7)(react@19.2.0)
       '@types/yargs':
         specifier: ^17.0.35
         version: 17.0.35
@@ -2300,6 +2300,20 @@ packages:
     version: 0.3.0
     engines: {node: '>=22.12.0'}
     hasBin: true
+    peerDependencies:
+      '@types/react': ^19.2.7
+      next: ^13.5.1 || ^14 || ^15.0.0
+      react: ^17.0.0 || ^18.0.0 || ^19.0.0
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+      next:
+        optional: true
+
+  '@mui/internal-docs-infra@https://pkg.pr.new/mui/mui-public/@mui/internal-docs-infra@6fc3e59':
+    resolution: {tarball: https://pkg.pr.new/mui/mui-public/@mui/internal-docs-infra@6fc3e59}
+    version: 0.2.2
+    engines: {node: '>=22.12.0'}
     peerDependencies:
       '@types/react': ^19.2.7
       next: ^13.5.1 || ^14 || ^15.0.0
@@ -12082,7 +12096,7 @@ snapshots:
       - supports-color
       - vitest
 
-  '@mui/internal-docs-infra@https://pkg.pr.new/mui/mui-public/@mui/internal-docs-infra@463f7bd(@types/react@19.2.7)(next@16.0.4(@babel/core@7.28.5)(@playwright/test@1.57.0)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(react@19.2.0)':
+  '@mui/internal-docs-infra@https://pkg.pr.new/mui/mui-public/@mui/internal-docs-infra@463f7bd(@types/react@19.2.7)(react@19.2.0)':
     dependencies:
       '@babel/runtime': 7.28.4
       '@babel/standalone': 7.28.5
@@ -12107,6 +12121,29 @@ snapshots:
       unist-util-visit: 5.0.0
       vscode-oniguruma: 2.0.1
       yargs: 18.0.0
+    optionalDependencies:
+      '@types/react': 19.2.7
+    transitivePeerDependencies:
+      - supports-color
+
+  '@mui/internal-docs-infra@https://pkg.pr.new/mui/mui-public/@mui/internal-docs-infra@6fc3e59(@types/react@19.2.7)(next@16.0.4(@babel/core@7.28.5)(@playwright/test@1.57.0)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(react@19.2.0)':
+    dependencies:
+      '@babel/runtime': 7.28.4
+      '@babel/standalone': 7.28.5
+      '@wooorm/starry-night': 3.8.0
+      clipboard-copy: 4.0.1
+      fflate: 0.8.2
+      hast-util-to-jsx-runtime: 2.3.6
+      hast-util-to-text: 4.0.2
+      jsondiffpatch: 0.7.3
+      kebab-case: 2.0.2
+      lz-string: 1.5.0
+      path-module: 0.1.2
+      prettier: 3.6.2
+      react: 19.2.0
+      uint8-to-base64: 0.2.1
+      unist-util-visit: 5.0.0
+      vscode-oniguruma: 2.0.1
     optionalDependencies:
       '@types/react': 19.2.7
       next: 16.0.4(@babel/core@7.28.5)(@playwright/test@1.57.0)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
