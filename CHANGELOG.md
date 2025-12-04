@@ -1,5 +1,82 @@
 # Versions
 
+## v1.0.0-rc.0
+
+_Dec 4, 2025_
+
+### General changes
+
+- Fix missing `'use client'` directives (#3408) by @atomiks
+
+### Autocomplete
+
+- Fix `keepHighlight` focus sync (#3399) by @atomiks
+
+### Checkbox
+
+- **Breaking change:** Match native unchecked state in form submission.<br />
+  The Checkbox will not submit the `"off"` value with a form when unchecked anymore, unless the new `uncheckedValue` prop is set.
+  (#3406) by @atomiks
+
+### Collapsible
+
+- Remove `render={null}` (#3407) by @mj12albert
+
+### Combobox
+
+- **Breaking change:** Removed the `keepHighlight` prop (#3377) by @atomiks
+
+### Dialog
+
+- Close when pressing focusable element outside (#3380) by @atomiks
+- Fix closing after pointer lock exit in Firefox (#3379) by @atomiks
+
+### Menu
+
+- Add `highlightItemOnHover` prop (#3377) by @atomiks
+- Do not import client components from MenuStore (#3409) by @michaldudak
+
+### Number Field
+
+- Ensure hidden input participates in form validation (#3374) by @atomiks
+- Improve symbol replacement logic (#3376) by @atomiks
+- Fix fractional step snapping (#3375) by @atomiks
+- Fix parsing numbers with Swiss locale (#3361) by @michaldudak
+- Fix pointer lock release when soft clicking in Firefox (#3378) by @atomiks
+
+### Popover
+
+- Close when pressing focusable element outside (#3380) by @atomiks
+- Fix modal backdrop on touch (#3383) by @atomiks
+- Fix popover glitching when flipped (#3364) by @michaldudak
+
+### Select
+
+- Add `highlightItemOnHover` prop (#3377) by @atomiks
+
+### Switch
+
+- **Breaking change:** Match native off state in form submission.<br />
+  The Switch will not submit the `"off"` value with a form when unchecked anymore, unless the new `uncheckedValue` prop is set.
+  (#3406) by @atomiks
+
+### Tabs
+
+- **Breaking change:** Fix Panel `keepMounted` behavior.<br />
+  The `value` prop is now required on `<Tabs.Tab>` and `<Tabs.Panel>` parts.
+  (#3372) by @atomiks
+
+### Toast
+
+- Recalculate content height when layout size is fixed (#3359) by @atomiks
+- Fix multiple swipe directions on same axis (#3392) by @mj12albert
+
+### Tooltip
+
+- Improve contained triggers performance (#3385) by @michaldudak
+
+All contributors of this release in alphabetical order: @atomiks, @michaldudak, @mj12albert, @oliviertassinari, @pondorasti, @romgrk
+
 ## v1.0.0-beta.7
 
 _Nov 27, 2025_
