@@ -19,6 +19,7 @@ _Dec 4, 2025_
 ### Menu
 
 - Add `highlightItemOnHover` prop (#3377) by @atomiks
+- Do not import client components from MenuStore (#3409) by @michaldudak
 
 ### Number Field
 
