@@ -354,6 +354,77 @@ describe('<Switch.Root />', () => {
       expect(customSubmitSpy.lastCall.returnValue.get).to.equal('on');
     });
 
+    it.skipIf(isJSDOM)(
+      'should submit uncheckedValue when switch is off and uncheckedValue is specified',
+      async () => {
+        const submitSpy = spy((event) => {
+          event.preventDefault();
+          const formData = new FormData(event.currentTarget);
+          return formData.get('test-switch');
+        });
+
+        const { user } = await render(
+          <Form onSubmit={submitSpy}>
+            <Field.Root name="test-switch">
+              <Switch.Root uncheckedValue="off" />
+            </Field.Root>
+            <button type="submit">Submit</button>
+          </Form>,
+        );
+
+        const switchElement = screen.getByRole('switch');
+        const submitButton = screen.getByRole('button')!;
+
+        await user.click(submitButton);
+
+        expect(submitSpy.callCount).to.equal(1);
+        expect(submitSpy.lastCall.returnValue).to.equal('off');
+
+        await user.click(switchElement);
+        await user.click(submitButton);
+
+        expect(submitSpy.callCount).to.equal(2);
+        expect(submitSpy.lastCall.returnValue).to.equal('on');
+
+        await user.click(switchElement);
+        await user.click(submitButton);
+
+        expect(submitSpy.callCount).to.equal(3);
+        expect(submitSpy.lastCall.returnValue).to.equal('off');
+      },
+    );
+
+    it.skipIf(isJSDOM)('should submit custom uncheckedValue when switch is off', async () => {
+      const submitSpy = spy((event) => {
+        event.preventDefault();
+        const formData = new FormData(event.currentTarget);
+        return formData.get('test-switch');
+      });
+
+      const { user } = await render(
+        <Form onSubmit={submitSpy}>
+          <Field.Root name="test-switch">
+            <Switch.Root uncheckedValue="false" />
+          </Field.Root>
+          <button type="submit">Submit</button>
+        </Form>,
+      );
+
+      const switchElement = screen.getByRole('switch');
+      const submitButton = screen.getByRole('button')!;
+
+      await user.click(submitButton);
+
+      expect(submitSpy.callCount).to.equal(1);
+      expect(submitSpy.lastCall.returnValue).to.equal('false');
+
+      await user.click(switchElement);
+      await user.click(submitButton);
+
+      expect(submitSpy.callCount).to.equal(2);
+      expect(submitSpy.lastCall.returnValue).to.equal('on');
+    });
+
     it('triggers native HTML validation on submit', async () => {
       const { user } = await render(
         <Form>

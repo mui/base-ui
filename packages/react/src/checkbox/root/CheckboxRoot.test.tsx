@@ -481,6 +481,89 @@ describe('<Checkbox.Root />', () => {
       await customUser.click(customSubmitButton);
       expect(customSubmitSpy.lastCall.returnValue.get).to.equal('on');
     });
+
+    it.skipIf(isJSDOM)(
+      'should submit uncheckedValue when checkbox is unchecked and uncheckedValue is specified',
+      async () => {
+        const submitSpy = spy((event) => {
+          event.preventDefault();
+          const formData = new FormData(event.currentTarget);
+          return formData.get('test-checkbox');
+        });
+
+        await render(
+          <Form onSubmit={submitSpy}>
+            <Field.Root name="test-checkbox">
+              <Checkbox.Root uncheckedValue="off" />
+            </Field.Root>
+            <button type="submit">Submit</button>
+          </Form>,
+        );
+
+        const checkbox = screen.getByRole('checkbox');
+        const submitButton = screen.getByRole('button')!;
+
+        submitButton.click();
+
+        expect(submitSpy.callCount).to.equal(1);
+        expect(submitSpy.lastCall.returnValue).to.equal('off');
+
+        await act(async () => {
+          checkbox.click();
+        });
+
+        submitButton.click();
+
+        expect(submitSpy.callCount).to.equal(2);
+        expect(submitSpy.lastCall.returnValue).to.equal('on');
+
+        await act(async () => {
+          checkbox.click();
+        });
+
+        submitButton.click();
+
+        expect(submitSpy.callCount).to.equal(3);
+        expect(submitSpy.lastCall.returnValue).to.equal('off');
+      },
+    );
+
+    it.skipIf(isJSDOM)(
+      'should submit custom uncheckedValue when checkbox is unchecked',
+      async () => {
+        const submitSpy = spy((event) => {
+          event.preventDefault();
+          const formData = new FormData(event.currentTarget);
+          return formData.get('test-checkbox');
+        });
+
+        await render(
+          <Form onSubmit={submitSpy}>
+            <Field.Root name="test-checkbox">
+              <Checkbox.Root uncheckedValue="false" value="true" />
+            </Field.Root>
+            <button type="submit">Submit</button>
+          </Form>,
+        );
+
+        const checkbox = screen.getByRole('checkbox');
+        const submitButton = screen.getByRole('button')!;
+
+        submitButton.click();
+
+        expect(submitSpy.callCount).to.equal(1);
+        expect(submitSpy.lastCall.returnValue).to.equal('false');
+
+        await act(async () => {
+          checkbox.click();
+        });
+
+        submitButton.click();
+
+        expect(submitSpy.callCount).to.equal(2);
+        expect(submitSpy.lastCall.returnValue).to.equal('true');
+      },
+    );
   });
 
   describe('Field', () => {
