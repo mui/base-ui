@@ -37,8 +37,8 @@ importers:
         specifier: ^0.0.2-canary.1
         version: 0.0.2-canary.1
       '@mui/internal-test-utils':
-        specifier: ^2.0.16
-        version: 2.0.16(@playwright/test@1.57.0)(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(chai@6.2.1)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+        specifier: https://pkg.pr.new/mui/mui-public/@mui/internal-test-utils@80b4edd
+        version: https://pkg.pr.new/mui/mui-public/@mui/internal-test-utils@80b4edd(@emotion/cache@11.14.0)(@emotion/react@11.14.0(@types/react@19.2.7)(react@19.2.0))(@playwright/test@1.57.0)(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(@vitest/utils@3.2.4)(chai@6.2.1)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(vite@7.2.4(@types/node@22.18.13)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.44.1)(tsx@4.20.6)(yaml@2.8.1))(vitest@3.2.4)
       '@next/eslint-plugin-next':
         specifier: 15.5.6
         version: 15.5.6
@@ -393,7 +393,7 @@ importers:
     dependencies:
       '@base-ui-components/react':
         specifier: latest
-        version: 1.0.0-beta.7(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+        version: 1.0.0-rc.0(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
@@ -1498,8 +1498,8 @@ packages:
     resolution: {integrity: sha512-qQ5m48eI/MFLQ5PxQj4PFaprjyCTLI37ElWMmNs0K8Lk3dVeOdNpB3ks8jc7yM5CDmVC73eMVk/trk3fgmrUpA==}
     engines: {node: '>=6.9.0'}
 
-  '@base-ui-components/react@1.0.0-beta.7':
-    resolution: {integrity: sha512-jZoU6ZzPPDhiP62ToFpIZVkLDzYleL8NJhiw4Dm9Q+N7Q+/rOW+N6YN0URuQ9zMdcl8jvIks/8iY1cyD/VC87A==}
+  '@base-ui-components/react@1.0.0-rc.0':
+    resolution: {integrity: sha512-9lhUFbJcbXvc9KulLev1WTFxS/alJRBWDH/ibKSQaNvmDwMFS2gKp1sTeeldYSfKuS/KC1w2MZutc0wHu2hRHQ==}
     engines: {node: '>=14.0.0'}
     peerDependencies:
       '@types/react': ^19.2.7
@@ -1509,8 +1509,8 @@ packages:
       '@types/react':
         optional: true
 
-  '@base-ui-components/utils@0.2.1':
-    resolution: {integrity: sha512-6D3PNibMXWPxiXCW/aMTclTypNG/QPCUc5vwGS6yKIcoYGDmjLiG3VyJ7hlGAnXiMGJMWH2TVl335N+zkRAKZQ==}
+  '@base-ui-components/utils@0.2.2':
+    resolution: {integrity: sha512-rNJCD6TFy3OSRDKVHJDzLpxO3esTV1/drRtWNUpe7rCpPN9HZVHUCuP+6rdDYDGWfXnQHbqi05xOyRP2iZAlkw==}
     peerDependencies:
       '@types/react': ^19.2.7
       react: ^17 || ^18 || ^19
@@ -2305,6 +2305,17 @@ packages:
   '@mui/internal-test-utils@2.0.16':
     resolution: {integrity: sha512-ihRnALFg3qroIsGdwdMmFO/v/ibjyTnBcQ6mwNtFnT8wuRQnnEhm/qiw+6TO8hwMCyXjCXTD/vqXwd81Of97JQ==}
     peerDependencies:
+      '@playwright/test': ^1.53.1
+      chai: ^4.5.0 || ^5.0.0 || ^6.0.0
+      react: ^18.0.0 || ^19.0.0
+      react-dom: ^18.0.0 || ^19.0.0
+
+  '@mui/internal-test-utils@https://pkg.pr.new/mui/mui-public/@mui/internal-test-utils@80b4edd':
+    resolution: {tarball: https://pkg.pr.new/mui/mui-public/@mui/internal-test-utils@80b4edd}
+    version: 2.0.17
+    peerDependencies:
+      '@emotion/cache': '11'
+      '@emotion/react': '11'
       '@playwright/test': ^1.53.1
       chai: ^4.5.0 || ^5.0.0 || ^6.0.0
       react: ^18.0.0 || ^19.0.0
@@ -7562,6 +7573,7 @@ packages:
   next@16.0.4:
     resolution: {integrity: sha512-vICcxKusY8qW7QFOzTvnRL1ejz2ClTqDKtm1AcUjm2mPv/lVAdgpGNsftsPRIDJOXOjRQO68i1dM8Lp8GZnqoA==}
     engines: {node: '>=20.9.0'}
+    deprecated: This version has a security vulnerability. Please upgrade to a patched version. See https://nextjs.org/blog/CVE-2025-66478 for more details.
     hasBin: true
     peerDependencies:
       '@opentelemetry/api': ^1.1.0
@@ -9419,6 +9431,13 @@ packages:
       '@types/react-dom':
         optional: true
 
+  vitest-fail-on-console@0.10.1:
+    resolution: {integrity: sha512-Xjy2SpgND547qSy0s0zYVnh1G/WyGtdjAbi4PFV8mkYRmTq+6NzRUJYdc08BHrw7HJLpO2kMxHFB8PWn7FOVsg==}
+    peerDependencies:
+      '@vitest/utils': '>=0.26.2'
+      vite: '>=4.5.2'
+      vitest: '>=0.26.2'
+
   vitest@3.2.4:
     resolution: {integrity: sha512-LUCP5ev3GURDysTWiP47wRRUpLKMOfPh+yKTx3kVIEiu5KOMeqzpnYNsKyOoVrULivR8tLcks4+lga33Whn90A==}
     engines: {node: ^18.0.0 || ^20.0.0 || >=22.0.0}
@@ -11080,10 +11099,10 @@ snapshots:
       '@babel/helper-string-parser': 7.27.1
       '@babel/helper-validator-identifier': 7.28.5
 
-  '@base-ui-components/react@1.0.0-beta.7(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)':
+  '@base-ui-components/react@1.0.0-rc.0(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)':
     dependencies:
       '@babel/runtime': 7.28.4
-      '@base-ui-components/utils': 0.2.1(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      '@base-ui-components/utils': 0.2.2(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       '@floating-ui/react-dom': 2.1.6(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       '@floating-ui/utils': 0.2.10
       react: 19.2.0
@@ -11094,7 +11113,7 @@ snapshots:
     optionalDependencies:
       '@types/react': 19.2.7
 
-  '@base-ui-components/utils@0.2.1(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)':
+  '@base-ui-components/utils@0.2.2(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)':
     dependencies:
       '@babel/runtime': 7.28.4
       '@floating-ui/utils': 0.2.10
@@ -11931,7 +11950,7 @@ snapshots:
       eslint-import-resolver-typescript: 4.4.4(eslint-plugin-import@2.32.0(eslint@9.39.1(jiti@2.6.1)))(eslint@9.39.1(jiti@2.6.1))
       eslint-module-utils: 2.12.1(eslint-import-resolver-node@0.3.9)(eslint-import-resolver-typescript@4.4.4(eslint-plugin-import@2.32.0(eslint@9.39.1(jiti@2.6.1)))(eslint@9.39.1(jiti@2.6.1)))(eslint@9.39.1(jiti@2.6.1))
       eslint-plugin-compat: 6.0.2(eslint@9.39.1(jiti@2.6.1))
-      eslint-plugin-import: 2.32.0(eslint-import-resolver-typescript@4.4.4(eslint-plugin-import@2.32.0(eslint@9.39.1(jiti@2.6.1)))(eslint@9.39.1(jiti@2.6.1)))(eslint@9.39.1(jiti@2.6.1))
+      eslint-plugin-import: 2.32.0(eslint-import-resolver-typescript@4.4.4)(eslint@9.39.1(jiti@2.6.1))
       eslint-plugin-jsx-a11y: 6.10.2(eslint@9.39.1(jiti@2.6.1))
       eslint-plugin-mocha: 11.2.0(eslint@9.39.1(jiti@2.6.1))
       eslint-plugin-react: 7.37.5(eslint@9.39.1(jiti@2.6.1))
@@ -12019,6 +12038,39 @@ snapshots:
       - canvas
       - supports-color
       - utf-8-validate
+
+  '@mui/internal-test-utils@https://pkg.pr.new/mui/mui-public/@mui/internal-test-utils@80b4edd(@emotion/cache@11.14.0)(@emotion/react@11.14.0(@types/react@19.2.7)(react@19.2.0))(@playwright/test@1.57.0)(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(@vitest/utils@3.2.4)(chai@6.2.1)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(vite@7.2.4(@types/node@22.18.13)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.44.1)(tsx@4.20.6)(yaml@2.8.1))(vitest@3.2.4)':
+    dependencies:
+      '@babel/runtime': 7.28.4
+      '@emotion/cache': 11.14.0
+      '@emotion/react': 11.14.0(@types/react@19.2.7)(react@19.2.0)
+      '@playwright/test': 1.57.0
+      '@testing-library/dom': 10.4.1
+      '@testing-library/react': 16.3.0(@testing-library/dom@10.4.1)(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      '@testing-library/user-event': 14.6.1(@testing-library/dom@10.4.1)
+      assertion-error: 2.0.1
+      chai: 6.2.1
+      chai-dom: 1.12.1(chai@6.2.1)
+      dom-accessibility-api: 0.7.0
+      es-toolkit: 1.42.0
+      format-util: 1.0.5
+      jsdom: 26.1.0
+      lodash.kebabcase: 4.1.1
+      prop-types: 15.8.1
+      react: 19.2.0
+      react-dom: 19.2.0(react@19.2.0)
+      sinon: 21.0.0
+      vitest-fail-on-console: 0.10.1(@vitest/utils@3.2.4)(vite@7.2.4(@types/node@22.18.13)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.44.1)(tsx@4.20.6)(yaml@2.8.1))(vitest@3.2.4)
+    transitivePeerDependencies:
+      - '@types/react'
+      - '@types/react-dom'
+      - '@vitest/utils'
+      - bufferutil
+      - canvas
+      - supports-color
+      - utf-8-validate
+      - vite
+      - vitest
 
   '@napi-rs/keyring-darwin-arm64@1.2.0':
     optional: true
@@ -15696,7 +15748,7 @@ snapshots:
       tinyglobby: 0.2.15
       unrs-resolver: 1.11.1
     optionalDependencies:
-      eslint-plugin-import: 2.32.0(eslint-import-resolver-typescript@4.4.4(eslint-plugin-import@2.32.0(eslint@9.39.1(jiti@2.6.1)))(eslint@9.39.1(jiti@2.6.1)))(eslint@9.39.1(jiti@2.6.1))
+      eslint-plugin-import: 2.32.0(eslint-import-resolver-typescript@4.4.4)(eslint@9.39.1(jiti@2.6.1))
     transitivePeerDependencies:
       - supports-color
 
@@ -15722,7 +15774,7 @@ snapshots:
       lodash.memoize: 4.1.2
       semver: 7.7.3
 
-  eslint-plugin-import@2.32.0(eslint-import-resolver-typescript@4.4.4(eslint-plugin-import@2.32.0(eslint@9.39.1(jiti@2.6.1)))(eslint@9.39.1(jiti@2.6.1)))(eslint@9.39.1(jiti@2.6.1)):
+  eslint-plugin-import@2.32.0(eslint-import-resolver-typescript@4.4.4)(eslint@9.39.1(jiti@2.6.1)):
     dependencies:
       '@rtsao/scc': 1.1.0
       array-includes: 3.1.9
@@ -20380,6 +20432,13 @@ snapshots:
     optionalDependencies:
       '@types/react': 19.2.7
       '@types/react-dom': 19.2.3(@types/react@19.2.7)
+
+  vitest-fail-on-console@0.10.1(@vitest/utils@3.2.4)(vite@7.2.4(@types/node@22.18.13)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.44.1)(tsx@4.20.6)(yaml@2.8.1))(vitest@3.2.4):
+    dependencies:
+      '@vitest/utils': 3.2.4
+      chalk: 5.6.2
+      vite: 7.2.4(@types/node@22.18.13)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.44.1)(tsx@4.20.6)(yaml@2.8.1)
+      vitest: 3.2.4(@types/debug@4.1.12)(@types/node@22.18.13)(@vitest/browser@3.2.4)(@vitest/ui@3.2.4)(jiti@2.6.1)(jsdom@26.1.0)(lightningcss@1.30.2)(terser@5.44.1)(tsx@4.20.6)(yaml@2.8.1)
 
   vitest@3.2.4(@types/debug@4.1.12)(@types/node@22.18.13)(@vitest/browser@3.2.4)(@vitest/ui@3.2.4)(jiti@2.6.1)(jsdom@26.1.0)(lightningcss@1.30.2)(terser@5.44.1)(tsx@4.20.6)(yaml@2.8.1):
     dependencies:
