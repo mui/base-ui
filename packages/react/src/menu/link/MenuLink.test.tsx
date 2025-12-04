@@ -6,13 +6,7 @@ import { Menu } from '@base-ui-components/react/menu';
 import { describeConformance, createRenderer } from '#test-utils';
 
 describe('<Menu.Link />', () => {
-  const { render, clock } = createRenderer({
-    clockOptions: {
-      shouldAdvanceTime: true,
-    },
-  });
-
-  clock.withFakeTimers();
+  const { render } = createRenderer();
 
   describeConformance(<Menu.Link />, () => ({
     refInstanceof: window.HTMLAnchorElement,
@@ -56,7 +50,7 @@ describe('<Menu.Link />', () => {
         </MemoryRouter>,
       );
 
-      const [link1, link2] = screen.getAllByRole('link');
+      const [link1, link2] = screen.getAllByRole('menuitem');
 
       const locationDisplay = screen.getByTestId('location');
 
