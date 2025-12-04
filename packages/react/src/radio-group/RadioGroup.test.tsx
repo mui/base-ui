@@ -159,23 +159,6 @@ describe('<RadioGroup />', () => {
     expect(indicator).to.have.attribute('data-required', '');
   });
 
-  it('should set the name attribute on the input only when a value is selected', async () => {
-    await render(
-      <RadioGroup name="radio-group">
-        <Radio.Root value="a" data-testid="radio" />
-      </RadioGroup>,
-    );
-    const group = screen.getByRole('radiogroup');
-    const radio = screen.getByTestId('radio');
-
-    expect(group.nextElementSibling).to.not.have.attribute('name');
-
-    act(() => {
-      radio.click();
-    });
-    expect(group.nextElementSibling).to.have.attribute('name', 'radio-group');
-  });
-
   it.skipIf(isJSDOM)(
     'should return null when no radio is selected (matching native behavior)',
     async () => {
@@ -511,31 +494,6 @@ describe('<RadioGroup />', () => {
   });
 
   describe('Field', () => {
-    it('passes the `name` prop to the hidden input only when a value is selected', async () => {
-      await render(
-        <Field.Root name="test" data-testid="field">
-          <RadioGroup name="group">
-            <Field.Item>
-              <Radio.Root value="a" data-testid="item" />
-            </Field.Item>
-          </RadioGroup>
-        </Field.Root>,
-      );
-
-      // Initially, no name attribute when no value is selected
-      let input = screen.getByTestId('field').querySelector('input[name="test"]');
-      expect(input).to.equal(null);
-
-      // After selecting, should have name attribute
-      const radio = screen.getByTestId('item');
-      act(() => {
-        radio.click();
-      });
-
-      input = screen.getByTestId('field').querySelector('input[name="test"]');
-      expect(input).not.to.equal(null);
-    });
-
     describe('Field.Root', () => {
       it('should receive disabled prop from Field.Root', () => {
         render(
@@ -803,11 +761,36 @@ describe('<RadioGroup />', () => {
 
     clock.withFakeTimers();
 
+    it('returns null value when no radio is checked', async () => {
+      const submitSpy = spy((event) => {
+        event.preventDefault();
+        const formData = new FormData(event.currentTarget);
+        return formData.get('test');
+      });
+
+      const { user } = await renderFakeTimers(
+        <Form onSubmit={submitSpy}>
+          <Field.Root name="test">
+            <RadioGroup>
+              <Field.Item>
+                <Radio.Root value="a" />
+              </Field.Item>
+            </RadioGroup>
+          </Field.Root>
+          <button type="submit">Submit</button>
+        </Form>,
+      );
+
+      await user.click(screen.getByText('Submit'));
+
+      expect(submitSpy.lastCall.returnValue).to.equal(null);
+    });
+
     it('triggers native HTML validation on submit', async () => {
       const { user } = await renderFakeTimers(
         <Form>
           <Field.Root name="test" data-testid="field">
-            <RadioGroup name="group" required>
+            <RadioGroup required>
               <Field.Item>
                 <Radio.Root value="a" data-testid="item" />
               </Field.Item>
