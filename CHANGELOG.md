@@ -10,20 +10,21 @@ _Dec 4, 2025_
 
 ### Combobox
 
-- **Breaking change:** Sync highlight props.
-  Removed the `keepHighlight` prop, given the common use cases for it are often command palette related rather than Select related.
-  (#3377) by @atomiks
+- **Breaking change:** Removed the `keepHighlight` prop (#3377) by @atomiks
+
+### Dialog
+
+- Fix closing after pointer lock exit in Firefox (#3379) by @atomiks
 
 ### Menu
 
-- Sync highlight props (#3377) by @atomiks
+- Add `highlightItemOnHover` prop (#3377) by @atomiks
 
 ### Number Field
 
 - Ensure hidden input participates in form validation (#3374) by @atomiks
 - Improve symbol replacement logic (#3376) by @atomiks
 - Fix fractional step snapping (#3375) by @atomiks
-- Fix closing after pointer lock exit in Firefox (#3379) by @atomiks
 - Fix parsing numbers with Swiss locale (#3361) by @michaldudak
 
 ### Popover
@@ -33,23 +34,23 @@ _Dec 4, 2025_
 
 ### Select
 
-- Sync highlight props (#3377) by @atomiks
+- Add `highlightItemOnHover` prop (#3377) by @atomiks
 
 ### Tabs
 
 - **Breaking change:** Fix Panel `keepMounted` behavior.
-  The `value` prop is now required on Tab and TabPanel parts.
+  The `value` prop is now required on `<Tabs.Tab>` and `<Tabs.Panel>` parts.
   (#3372) by @atomiks
 - Fix omitted `value` behavior (#3373) by @atomiks
 
 ### Toast
 
 - Recalculate content height when layout size is fixed (#3359) by @atomiks
+- Fix multiple swipe directions on same axis (#3392) by @mj12albert
 
 ### Tooltip
 
 - Improve contained triggers performance (#3385) by @michaldudak
-- Fix multiple swipe directions on same axis (#3392) by @mj12albert
 
 All contributors of this release in alphabetical order: @atomiks, @michaldudak, @mj12albert, @oliviertassinari, @pondorasti, @romgrk
 
