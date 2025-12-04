@@ -16,8 +16,8 @@ import {
   useInteractions,
   useFloatingNodeId,
   useFloatingParentNodeId,
-  FloatingTreeStore,
 } from '../../floating-ui-react';
+import { FloatingTreeStore } from '../../floating-ui-react/components/FloatingTreeStore';
 import {
   contains,
   getNextTabbable,
