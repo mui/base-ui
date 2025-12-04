@@ -52,6 +52,7 @@ export const MenuLink = React.forwardRef(function MenuLink(
       elementProps,
       {
         id,
+        role: 'menuitem',
         tabIndex: highlighted ? 0 : -1,
         onMouseMove(event) {
           if (!nodeId) {
