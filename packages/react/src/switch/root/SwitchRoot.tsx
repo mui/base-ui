@@ -228,7 +228,6 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
   return (
     <SwitchRootContext.Provider value={state}>
       {element}
-      {!checked && name && <input type="hidden" name={name} value="off" />}
       <input {...inputProps} />
     </SwitchRootContext.Provider>
   );
