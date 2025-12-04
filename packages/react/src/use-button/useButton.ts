@@ -3,6 +3,7 @@ import * as React from 'react';
 import { isHTMLElement } from '@floating-ui/utils/dom';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { error } from '@base-ui/utils/error';
+import { warn } from '@base-ui/utils/warn';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { makeEventPreventable, mergeProps } from '../merge-props';
 import { useCompositeRootContext } from '../composite/root/CompositeRootContext';
@@ -52,6 +53,10 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
       } else if (isButtonTag) {
         error(
           'A component that acts as a button was rendered as a native <button>, which does not match the default. Ensure that the element passed to the `render` prop of the component is not a real <button>, or set the `nativeButton` prop on the component to `true`.',
+        );
+      } else if (elementRef.current.tagName === 'A') {
+        warn(
+          'A component that acts as a button was rendered as an <a> tag, which could cause usability issues for keyboard and assistive tech users. Prefer using `<a>` directly.',
         );
       }
     }, [isNativeButton]);
