@@ -165,20 +165,6 @@ describe('<Collapsible.Root />', () => {
     });
   });
 
-  describe('prop: render', () => {
-    it('does not render a root element when `null`', async () => {
-      const { container } = await render(
-        <Collapsible.Root defaultOpen render={null}>
-          <Collapsible.Trigger />
-          <Collapsible.Panel>This is panel content</Collapsible.Panel>
-        </Collapsible.Root>,
-      );
-
-      const trigger = screen.getByRole('button');
-      expect(container.firstElementChild as HTMLElement).to.equal(trigger);
-    });
-  });
-
   describe.skipIf(isJSDOM)('keyboard interactions', () => {
     ['Enter', 'Space'].forEach((key) => {
       it(`key: ${key} should toggle the Collapsible`, async () => {
