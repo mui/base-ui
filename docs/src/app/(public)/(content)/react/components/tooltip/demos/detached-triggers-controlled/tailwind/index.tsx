@@ -98,7 +98,14 @@ export default function TooltipDetachedTriggersControlledDemo() {
         triggerId={triggerId}
       >
         <Tooltip.Portal>
-          <Tooltip.Positioner sideOffset={10}>
+          <Tooltip.Positioner
+            className="
+              h-(--positioner-height)
+              w-(--positioner-width)
+              max-w-(--available-width)
+            "
+            sideOffset={10}
+          >
             <Tooltip.Popup
               className="
                 px-2 py-1

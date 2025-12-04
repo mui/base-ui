@@ -1052,6 +1052,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     focusItemOnOpen:
       queryChangedAfterOpen || (selectionMode === 'none' && !autoHighlightMode) ? false : 'auto',
     focusItemOnHover: highlightItemOnHover,
+    resetOnPointerLeave: !keepHighlight,
     // `cols` > 1 enables grid navigation.
     // Since <Combobox.Row> infers column sizes (and is required when building a grid),
     // it works correctly even with a value of `2`.
@@ -1062,10 +1063,6 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     onNavigate(nextActiveIndex, event) {
       // Retain the highlight only while actually transitioning out or closed.
       if ((!event && !open) || transitionStatus === 'ending') {
-        return;
-      }
-
-      if (keepHighlight && nextActiveIndex === null && event && event.type === 'pointerleave') {
         return;
       }
 
@@ -1375,6 +1372,7 @@ interface ComboboxRootProps<ItemValue> {
   keepHighlight?: boolean;
   /**
    * Whether moving the pointer over items should highlight them.
+   * Disabling this prop allows CSS `:hover` to be differentiated from the `:focus` (`data-highlighted`) state.
    * @default true
    */
   highlightItemOnHover?: boolean;
