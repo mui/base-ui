@@ -4,9 +4,21 @@
 
 _Dec 4, 2025_
 
+### General changes
+
+- Fix missing 'use client' directives (#3408) by @atomiks
+
 ### Autocomplete
 
 - Fix `keepHighlight` focus sync (#3399) by @atomiks
+
+### Checkbox
+
+- Match native off state in form submission (#3406) by @atomiks
+
+### Collapsible
+
+- Remove `render={null}` (#3407) by @mj12albert
 
 ### Combobox
 
@@ -14,6 +26,7 @@ _Dec 4, 2025_
 
 ### Dialog
 
+- Close when pressing focusable element outside (#3380) by @atomiks
 - Fix closing after pointer lock exit in Firefox (#3379) by @atomiks
 
 ### Menu
@@ -30,12 +43,17 @@ _Dec 4, 2025_
 
 ### Popover
 
+- Close when pressing focusable element outside (#3380) by @atomiks
 - Fix modal backdrop on touch (#3383) by @atomiks
 - Fix popover glitching when flipped (#3364) by @michaldudak
 
 ### Select
 
 - Add `highlightItemOnHover` prop (#3377) by @atomiks
+
+### Switch
+
+- Match native off state in form submission (#3406) by @atomiks
 
 ### Tabs
 
