@@ -4,7 +4,7 @@ import { CompositeList, type CompositeMetadata } from '../list/CompositeList';
 import { useCompositeRoot } from './useCompositeRoot';
 import { CompositeRootContext } from './CompositeRootContext';
 import { useRenderElement } from '../../utils/useRenderElement';
-import type { BaseUIComponentProps } from '../../utils/types';
+import type { BaseUIComponentProps, BaseUIEvent } from '../../utils/types';
 import type { Dimensions, ModifierKey } from '../composite';
 import { useDirection } from '../../direction-provider/DirectionContext';
 import { EMPTY_ARRAY, EMPTY_OBJECT } from '../../utils/constants';
@@ -29,6 +29,7 @@ export function CompositeRoot<Metadata extends {}, State extends Record<string, 
     dense,
     itemSizes,
     loopFocus,
+    onLoop,
     cols,
     enableHomeAndEndKeys,
     onMapChange: onMapChangeProp,
@@ -54,6 +55,7 @@ export function CompositeRoot<Metadata extends {}, State extends Record<string, 
     itemSizes,
     cols,
     loopFocus,
+    onLoop,
     dense,
     orientation,
     highlightedIndex: highlightedIndexProp,
@@ -108,12 +110,19 @@ export interface CompositeRootProps<Metadata, State extends Record<string, any>>
   orientation?: 'horizontal' | 'vertical' | 'both';
   cols?: number;
   loopFocus?: boolean;
+  onLoop?: (
+    event: React.KeyboardEvent,
+    prevIndex: number,
+    nextIndex: number,
+    elementsRef: React.RefObject<(HTMLDivElement | null)[]>,
+  ) => number;
   highlightedIndex?: number;
   onHighlightedIndexChange?: (index: number) => void;
   itemSizes?: Dimensions[];
   dense?: boolean;
   enableHomeAndEndKeys?: boolean;
   onMapChange?: (newMap: Map<Node, CompositeMetadata<Metadata> | null>) => void;
+  onKeyDown?: (event: BaseUIEvent<React.KeyboardEvent>) => void;
   stopEventPropagation?: boolean;
   rootRef?: React.RefObject<HTMLElement | null>;
   disabledIndices?: number[];
