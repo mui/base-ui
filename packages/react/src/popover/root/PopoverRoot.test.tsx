@@ -35,6 +35,7 @@ describe('<Popover.Root />', () => {
   describe.for([
     { name: 'contained triggers', Component: ContainedTriggerPopover },
     { name: 'detached triggers', Component: DetachedTriggerPopover },
+    { name: 'multiple detached triggers', Component: MultipleDetachedTriggersPopover },
   ])('when using $name', ({ Component: TestPopover }) => {
     it('should render the children', async () => {
       await render(<TestPopover />);
@@ -46,7 +47,7 @@ describe('<Popover.Root />', () => {
       it('should close when the anchor is clicked twice', async () => {
         await render(<TestPopover />);
 
-        const anchor = screen.getByRole('button');
+        const anchor = screen.getByRole('button', { name: 'Toggle' });
 
         fireEvent.click(anchor);
 
@@ -84,7 +85,7 @@ describe('<Popover.Root />', () => {
 
         expect(screen.queryByText('Content')).to.equal(null);
 
-        const anchor = screen.getByRole('button');
+        const anchor = screen.getByRole('button', { name: 'Toggle' });
 
         fireEvent.click(anchor);
 
@@ -1232,6 +1233,49 @@ function DetachedTriggerPopover(props: TestPopoverProps) {
           {betweenTriggerAndPortal}
           <Popover.Trigger data-testid="trigger" handle={popoverHandle} {...triggerProps}>
             {triggerProps?.children ?? 'Toggle'}
+          </Popover.Trigger>
+        </React.Fragment>
+      )}
+    </React.Fragment>
+  );
+}
+
+function MultipleDetachedTriggersPopover(props: TestPopoverProps) {
+  const {
+    triggerProps,
+    triggerPlacement = 'before-content',
+    betweenTriggerAndPortal,
+    ...rest
+  } = props;
+  const popoverHandle = useRefWithInit(() => Popover.createHandle()).current;
+
+  return (
+    <React.Fragment>
+      {triggerPlacement === 'before-content' && (
+        <React.Fragment>
+          <Popover.Trigger data-testid="trigger" handle={popoverHandle} {...triggerProps}>
+            {triggerProps?.children ?? 'Toggle'}
+          </Popover.Trigger>
+          <Popover.Trigger data-testid="trigger-2" handle={popoverHandle}>
+            Toggle another
+          </Popover.Trigger>
+
+          {betweenTriggerAndPortal}
+        </React.Fragment>
+      )}
+      <ContainedTriggerPopover
+        {...rest}
+        rootProps={{ ...rest.rootProps, handle: popoverHandle }}
+        includeTrigger={false}
+      />
+      {triggerPlacement === 'after-content' && (
+        <React.Fragment>
+          {betweenTriggerAndPortal}
+          <Popover.Trigger data-testid="trigger" handle={popoverHandle} {...triggerProps}>
+            {triggerProps?.children ?? 'Toggle'}
+          </Popover.Trigger>
+          <Popover.Trigger data-testid="trigger-2" handle={popoverHandle}>
+            Toggle another
           </Popover.Trigger>
         </React.Fragment>
       )}
