@@ -16,8 +16,8 @@ import {
   useInteractions,
   useFloatingNodeId,
   useFloatingParentNodeId,
-  FloatingTreeStore,
 } from '../../floating-ui-react';
+import { FloatingTreeStore } from '../../floating-ui-react/components/FloatingTreeStore';
 import {
   contains,
   getNextTabbable,
@@ -85,7 +85,7 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
   const floatingRootContext = store.useState('floatingRootContext');
   const isOpenedByThisTrigger = store.useState('isOpenedByTrigger', thisTriggerId);
 
-  const [triggerElement, setTriggerElement] = React.useState<HTMLElement | null>(null);
+  const triggerElementRef = React.useRef<HTMLElement | null>(null);
 
   const parent = useMenuParent();
   const compositeRootContext = useCompositeRootContext(true);
@@ -99,7 +99,7 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
 
   const { registerTrigger, isMountedByThisTrigger } = useTriggerDataForwarding(
     thisTriggerId,
-    triggerElement,
+    triggerElementRef,
     store,
     {
       payload,
@@ -187,7 +187,7 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
     move: false,
     restMs: parent.type === undefined ? delay : undefined,
     delay: { close: closeDelay },
-    triggerElement,
+    triggerElementRef,
     externalTree: floatingTreeRoot,
     isActiveTrigger: isTriggerActive,
   });
@@ -231,7 +231,7 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
 
   const rootTriggerProps = store.useState('triggerProps', isMountedByThisTrigger);
 
-  const ref = [triggerRef, forwardedRef, buttonRef, registerTrigger, setTriggerElement];
+  const ref = [triggerRef, forwardedRef, buttonRef, registerTrigger, triggerElementRef];
   const props = [
     localInteractionProps.getReferenceProps(),
     hoverProps ?? EMPTY_OBJECT,
@@ -295,7 +295,7 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
         );
       });
 
-      let nextTabbable = getTabbableAfterElement(triggerElement);
+      let nextTabbable = getTabbableAfterElement(triggerElementRef.current);
 
       while (
         (nextTabbable !== null && contains(currentPositionerElement, nextTabbable)) ||
