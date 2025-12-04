@@ -21,11 +21,7 @@ function ExpandedCode(props: React.ComponentProps<'code'>) {
 }
 
 function ExpandedPre(props: React.ComponentProps<'pre'>) {
-  return (
-    <Accordion.Scrollable tag="div" gradientColor="var(--color-gray-50)">
-      <pre {...props} className="text-xs p-0 m-0" style={{ backgroundColor: undefined }} />
-    </Accordion.Scrollable>
-  );
+  return <pre {...props} className="text-xs p-0 m-0" style={{ backgroundColor: undefined }} />;
 }
 
 interface PropDef extends BasePropDef {
@@ -167,12 +163,7 @@ export async function PropsReferenceAccordion({
         const ExampleSnippet = prop.example
           ? await createMdxComponent(prop.example, {
               rehypePlugins: rehypeSyntaxHighlighting,
-              useMDXComponents: () => ({
-                ...inlineMdxComponents,
-                figure: 'figure',
-                pre: ExpandedPre,
-                code: ExpandedCode,
-              }),
+              useMDXComponents: () => inlineMdxComponents,
             })
           : null;
 
