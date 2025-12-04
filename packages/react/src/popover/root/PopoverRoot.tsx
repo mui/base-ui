@@ -29,7 +29,7 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
   const {
     children,
     open: openProp,
-    defaultOpen: defaultOpen = false,
+    defaultOpen = false,
     onOpenChange,
     onOpenChangeComplete,
     modal = false,
