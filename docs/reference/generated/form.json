@@ -9,7 +9,8 @@
     },
     "actionsRef": {
       "type": "RefObject<Form.Actions | null>",
-      "description": "A ref to imperative actions.\n- `validate`: Validates all fields when called.",
+      "description": "A ref to imperative actions.\n- `validate`: Validates all fields when called. Optionally pass a field name to validate a single field.",
+      "example": "```tsx\n// validate all fields\nactionsRef.current.validate();\n\n// validate one field\nactionsRef.current.validate('email');\n```",
       "detailedType": "React.RefObject<Form.Actions | null> | undefined"
     },
     "onFormSubmit": {
