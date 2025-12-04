@@ -54,3 +54,8 @@ export function isMouseLikePointerType(pointerType: string | undefined, strict?:
   }
   return values.includes(pointerType);
 }
+
+export function isClickLikeEvent(event: Event | React.SyntheticEvent) {
+  const type = event.type;
+  return type === 'click' || type === 'mousedown' || type === 'keydown' || type === 'keyup';
+}

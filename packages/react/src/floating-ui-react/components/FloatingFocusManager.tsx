@@ -1,3 +1,4 @@
+'use client';
 import * as React from 'react';
 import { tabbable, isTabbable, focusable, type FocusableElement } from 'tabbable';
 import { getComputedStyle, getNodeName, isHTMLElement } from '@floating-ui/utils/dom';
@@ -303,6 +304,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
   const endDismissButtonRef = React.useRef<HTMLButtonElement>(null);
   const preventReturnFocusRef = React.useRef(false);
   const isPointerDownRef = React.useRef(false);
+  const pointerDownOutsideRef = React.useRef(false);
   const tabbableIndexRef = React.useRef(-1);
   const closeTypeRef = React.useRef<InteractionType>('');
   const lastInteractionTypeRef = React.useRef<InteractionType>('');
@@ -398,7 +400,17 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
 
     const doc = getDocument(floatingFocusElement);
 
+    function clearPointerDownOutside() {
+      pointerDownOutsideRef.current = false;
+    }
+
     function onPointerDown(event: PointerEvent) {
+      const target = getTarget(event) as Element | null;
+      const pointerTargetInside =
+        contains(floating, target) ||
+        contains(domReference, target) ||
+        contains(portalContext?.portalNode, target);
+      pointerDownOutsideRef.current = !pointerTargetInside;
       lastInteractionTypeRef.current =
         (event.pointerType as React.PointerEvent['pointerType']) || 'keyboard';
     }
@@ -408,12 +420,16 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     }
 
     doc.addEventListener('pointerdown', onPointerDown, true);
+    doc.addEventListener('pointerup', clearPointerDownOutside, true);
+    doc.addEventListener('pointercancel', clearPointerDownOutside, true);
     doc.addEventListener('keydown', onKeyDown, true);
     return () => {
       doc.removeEventListener('pointerdown', onPointerDown, true);
+      doc.removeEventListener('pointerup', clearPointerDownOutside, true);
+      doc.removeEventListener('pointercancel', clearPointerDownOutside, true);
       doc.removeEventListener('keydown', onKeyDown, true);
     };
-  }, [disabled, floating, domReference, floatingFocusElement, open]);
+  }, [disabled, floating, domReference, floatingFocusElement, open, portalContext]);
 
   React.useEffect(() => {
     if (disabled) {
@@ -518,6 +534,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
           (isUntrappedTypeableCombobox ? true : !modal) &&
           relatedTarget &&
           movedToUnrelatedNode &&
+          !isPointerDownRef.current &&
           // Fix React 18 Strict Mode returnFocus due to double rendering.
           // For an "untrapped" typeable combobox (input role=combobox with
           // initialFocus=false), re-opening the popup and tabbing out should still close it even
@@ -534,6 +551,9 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     }
 
     function markInsideReactTree() {
+      if (pointerDownOutsideRef.current) {
+        return;
+      }
       dataRef.current.insideReactTree = true;
       blurTimeout.start(0, () => {
         dataRef.current.insideReactTree = false;
