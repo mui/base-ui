@@ -70,12 +70,19 @@ export const Form = React.forwardRef(function Form<
     }
   }, [errors, focusControl]);
 
-  const imperativeValidate = React.useCallback(() => {
+  const imperativeValidate = React.useCallback((fieldName?: string | undefined) => {
     const values = Array.from(formRef.current.fields.values());
 
-    values.forEach((field) => {
-      field.validate(true);
-    });
+    if (fieldName) {
+      const namedField = values.find((field) => field.name === fieldName);
+      if (namedField) {
+        namedField.validate(true);
+      }
+    } else {
+      values.forEach((field) => {
+        field.validate(true);
+      });
+    }
   }, []);
 
   React.useImperativeHandle(actionsRef, () => ({ validate: imperativeValidate }), [
@@ -161,7 +168,7 @@ export type FormSubmitEventDetails = BaseUIGenericEventDetails<Form.SubmitEventR
 export type FormValidationMode = 'onSubmit' | 'onBlur' | 'onChange';
 
 export interface FormActions {
-  validate: () => void;
+  validate: (fieldName?: string | undefined) => void;
 }
 
 export interface FormState {}
@@ -193,7 +200,15 @@ export interface FormProps<
   onFormSubmit?: (formValues: FormValues, eventDetails: Form.SubmitEventDetails) => void;
   /**
    * A ref to imperative actions.
-   * - `validate`: Validates all fields when called.
+   * - `validate`: Validates all fields when called. Optionally pass a field name to validate a single field.
+   * @example
+   * ```tsx
+   * // validate all fields
+   * actionsRef.current.validate();
+   *
+   * // validate one field
+   * actionsRef.current.validate('email');
+   * ```
    */
   actionsRef?: React.RefObject<Form.Actions | null>;
 }
