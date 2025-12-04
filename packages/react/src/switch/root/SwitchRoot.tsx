@@ -46,6 +46,7 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
     required = false,
     disabled: disabledProp = false,
     render,
+    uncheckedValue,
     ...elementProps
   } = componentProps;
 
@@ -228,7 +229,9 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
   return (
     <SwitchRootContext.Provider value={state}>
       {element}
-      {!checked && name && <input type="hidden" name={name} value="off" />}
+      {!checked && name && uncheckedValue !== undefined && (
+        <input type="hidden" name={name} value={uncheckedValue} />
+      )}
       <input {...inputProps} />
     </SwitchRootContext.Provider>
   );
@@ -252,6 +255,7 @@ export interface SwitchRootState extends FieldRoot.State {
    */
   required: boolean;
 }
+
 export interface SwitchRootProps
   extends NonNativeButtonProps,
     Omit<BaseUIComponentProps<'span', SwitchRoot.State>, 'onChange'> {
@@ -299,7 +303,13 @@ export interface SwitchRootProps
    * @default false
    */
   required?: boolean;
+  /**
+   * The value submitted with the form when the switch is off.
+   * By default, unchecked switches do not submit any value, matching native checkbox behavior.
+   */
+  uncheckedValue?: string;
 }
+
 export type SwitchRootChangeEventReason = typeof REASONS.none;
 export type SwitchRootChangeEventDetails = BaseUIChangeEventDetails<SwitchRoot.ChangeEventReason>;
 

@@ -54,6 +54,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     readOnly = false,
     render,
     required = false,
+    uncheckedValue,
     value: valueProp,
     nativeButton = false,
     ...elementProps
@@ -313,8 +314,8 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
   return (
     <CheckboxRootContext.Provider value={state}>
       {element}
-      {!checked && !groupContext && name && !parent && (
-        <input type="hidden" name={name} value="off" />
+      {!checked && !groupContext && name && !parent && uncheckedValue !== undefined && (
+        <input type="hidden" name={name} value={uncheckedValue} />
       )}
       <input {...inputProps} />
     </CheckboxRootContext.Provider>
@@ -405,6 +406,11 @@ export interface CheckboxRootProps
    * @default false
    */
   parent?: boolean;
+  /**
+   * The value submitted with the form when the checkbox is unchecked.
+   * By default, unchecked checkboxes do not submit any value, matching native checkbox behavior.
+   */
+  uncheckedValue?: string;
   /**
    * The value of the selected checkbox.
    */
