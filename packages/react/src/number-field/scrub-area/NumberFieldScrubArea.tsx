@@ -2,9 +2,9 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { ownerWindow, ownerDocument } from '@base-ui-components/utils/owner';
-import { isWebKit } from '@base-ui-components/utils/detectBrowser';
-import { useValueAsRef } from '@base-ui-components/utils/useValueAsRef';
+import { isFirefox, isWebKit } from '@base-ui-components/utils/detectBrowser';
 import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
+import { useTimeout } from '@base-ui-components/utils/useTimeout';
 import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 import { useNumberFieldRootContext } from '../root/NumberFieldRootContext';
 import type { NumberFieldRoot } from '../root/NumberFieldRoot';
@@ -43,7 +43,6 @@ export const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubAr
     setIsScrubbing,
     disabled,
     readOnly,
-    value,
     inputRef,
     incrementValue,
     getStepAmount,
@@ -52,14 +51,14 @@ export const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubAr
     valueRef,
   } = useNumberFieldRootContext();
 
-  const latestValueRef = useValueAsRef(value);
-
   const scrubAreaRef = React.useRef<HTMLSpanElement>(null);
 
   const isScrubbingRef = React.useRef(false);
   const scrubAreaCursorRef = React.useRef<HTMLSpanElement>(null);
   const virtualCursorCoords = React.useRef({ x: 0, y: 0 });
   const visualScaleRef = React.useRef(1);
+
+  const exitPointerLockTimeout = useTimeout();
 
   const [isTouchInput, setIsTouchInput] = React.useState(false);
   const [isPointerLockDenied, setIsPointerLockDenied] = React.useState(false);
@@ -146,18 +145,27 @@ export const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubAr
       let cumulativeDelta = 0;
 
       function handleScrubPointerUp(event: PointerEvent) {
-        try {
-          // Avoid errors in testing environments.
-          ownerDocument(scrubAreaRef.current).exitPointerLock();
-        } catch {
-          //
-        } finally {
-          isScrubbingRef.current = false;
-          onScrubbingChange(false, event);
-          onValueCommitted(
-            lastChangedValueRef.current ?? valueRef.current,
-            createGenericEventDetails(REASONS.scrub, event),
-          );
+        function handler() {
+          try {
+            ownerDocument(scrubAreaRef.current).exitPointerLock();
+          } catch {
+            // Ignore errors.
+          } finally {
+            isScrubbingRef.current = false;
+            onScrubbingChange(false, event);
+            onValueCommitted(
+              lastChangedValueRef.current ?? valueRef.current,
+              createGenericEventDetails(REASONS.scrub, event),
+            );
+          }
+        }
+
+        if (isFirefox) {
+          // Firefox needs a small delay here when soft-clicking as the pointer
+          // lock will not release otherwise.
+          exitPointerLockTimeout.start(20, handler);
+        } else {
+          handler();
         }
       }
 
@@ -197,6 +205,7 @@ export const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubAr
       win.addEventListener('pointermove', handleScrubPointerMove, true);
 
       return () => {
+        exitPointerLockTimeout.clear();
         win.removeEventListener('pointerup', handleScrubPointerUp, true);
         win.removeEventListener('pointermove', handleScrubPointerMove, true);
       };
@@ -204,9 +213,8 @@ export const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubAr
     [
       disabled,
       readOnly,
-      isScrubbing,
       incrementValue,
-      latestValueRef,
+      isScrubbing,
       getStepAmount,
       inputRef,
       onScrubbingChange,
@@ -216,6 +224,7 @@ export const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubAr
       lastChangedValueRef,
       onValueCommitted,
       valueRef,
+      exitPointerLockTimeout,
     ],
   );
 

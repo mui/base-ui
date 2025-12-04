@@ -126,6 +126,34 @@ describe('<Combobox.Root />', () => {
     });
   });
 
+  it('does not cause infinite re-renders when items becomes undefined', async () => {
+    const { rerender } = await render(
+      <Combobox.Root items={[]} defaultOpen>
+        <Combobox.Input />
+        <Combobox.Portal>
+          <Combobox.Positioner>
+            <Combobox.Popup>
+              <Combobox.List />
+            </Combobox.Popup>
+          </Combobox.Positioner>
+        </Combobox.Portal>
+      </Combobox.Root>,
+    );
+
+    rerender(
+      <Combobox.Root items={undefined} defaultOpen>
+        <Combobox.Input />
+        <Combobox.Portal>
+          <Combobox.Positioner>
+            <Combobox.Popup>
+              <Combobox.List />
+            </Combobox.Popup>
+          </Combobox.Positioner>
+        </Combobox.Portal>
+      </Combobox.Root>,
+    );
+  });
+
   describe('selection behavior', () => {
     describe('single', () => {
       it('fires onOpenChange once with reason item-press on mouse click', async () => {
@@ -4482,43 +4510,6 @@ describe('<Combobox.Root />', () => {
       compare.getCalls().forEach((call) => {
         expect(call.args[1]).not.to.equal(null);
       });
-    });
-  });
-
-  describe('prop: keepHighlight', () => {
-    it('keeps the current highlight when the pointer leaves the list', async () => {
-      const { user } = await render(
-        <Combobox.Root items={['apple', 'banana']} autoHighlight keepHighlight>
-          <Combobox.Input data-testid="input" />
-          <Combobox.Portal>
-            <Combobox.Positioner>
-              <Combobox.Popup>
-                <Combobox.List>
-                  {(item: string) => (
-                    <Combobox.Item key={item} value={item}>
-                      {item}
-                    </Combobox.Item>
-                  )}
-                </Combobox.List>
-              </Combobox.Popup>
-            </Combobox.Positioner>
-          </Combobox.Portal>
-        </Combobox.Root>,
-      );
-
-      const input = screen.getByRole<HTMLInputElement>('combobox');
-      await user.click(input);
-      await user.type(input, 'ap');
-
-      const apple = await screen.findByRole('option', { name: 'apple' });
-      await waitFor(() => expect(apple).to.have.attribute('data-highlighted'));
-
-      const outside = document.createElement('div');
-      document.body.appendChild(outside);
-      fireEvent.pointerLeave(apple, { pointerType: 'mouse', relatedTarget: outside });
-
-      await waitFor(() => expect(apple).to.have.attribute('data-highlighted'));
-      outside.remove();
     });
   });
 

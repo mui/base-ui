@@ -1,5 +1,159 @@
 # Versions
 
+## v1.0.0-rc.0
+
+_Dec 4, 2025_
+
+### General changes
+
+- Fix missing `'use client'` directives (#3408) by @atomiks
+
+### Autocomplete
+
+- Fix `keepHighlight` focus sync (#3399) by @atomiks
+
+### Checkbox
+
+- **Breaking change:** Match native unchecked state in form submission.<br />
+  The Checkbox will not submit the `"off"` value with a form when unchecked anymore, unless the new `uncheckedValue` prop is set.
+  (#3406) by @atomiks
+
+### Collapsible
+
+- Remove `render={null}` (#3407) by @mj12albert
+
+### Combobox
+
+- **Breaking change:** Removed the `keepHighlight` prop (#3377) by @atomiks
+
+### Dialog
+
+- Close when pressing focusable element outside (#3380) by @atomiks
+- Fix closing after pointer lock exit in Firefox (#3379) by @atomiks
+
+### Menu
+
+- Add `highlightItemOnHover` prop (#3377) by @atomiks
+- Do not import client components from MenuStore (#3409) by @michaldudak
+
+### Number Field
+
+- Ensure hidden input participates in form validation (#3374) by @atomiks
+- Improve symbol replacement logic (#3376) by @atomiks
+- Fix fractional step snapping (#3375) by @atomiks
+- Fix parsing numbers with Swiss locale (#3361) by @michaldudak
+- Fix pointer lock release when soft clicking in Firefox (#3378) by @atomiks
+
+### Popover
+
+- Close when pressing focusable element outside (#3380) by @atomiks
+- Fix modal backdrop on touch (#3383) by @atomiks
+- Fix popover glitching when flipped (#3364) by @michaldudak
+
+### Select
+
+- Add `highlightItemOnHover` prop (#3377) by @atomiks
+
+### Switch
+
+- **Breaking change:** Match native off state in form submission.<br />
+  The Switch will not submit the `"off"` value with a form when unchecked anymore, unless the new `uncheckedValue` prop is set.
+  (#3406) by @atomiks
+
+### Tabs
+
+- **Breaking change:** Fix Panel `keepMounted` behavior.<br />
+  The `value` prop is now required on `<Tabs.Tab>` and `<Tabs.Panel>` parts.
+  (#3372) by @atomiks
+
+### Toast
+
+- Recalculate content height when layout size is fixed (#3359) by @atomiks
+- Fix multiple swipe directions on same axis (#3392) by @mj12albert
+
+### Tooltip
+
+- Improve contained triggers performance (#3385) by @michaldudak
+
+All contributors of this release in alphabetical order: @atomiks, @michaldudak, @mj12albert, @oliviertassinari, @pondorasti, @romgrk
+
+## v1.0.0-beta.7
+
+_Nov 27, 2025_
+
+### General changes
+
+- Fix error about `props.ref` access in React &lt;=18 (#3257) by @atomiks
+- Prefer non-adaptive anchoring position in `<Positioner>` components and fix `autoFocus` scroll jumps (#3250) by @atomiks
+- Make popups' `data-anchor-hidden` state attribute check for anchor presence in layout (#3267) by @atomiks
+- Prevent popups from sticking after hover when pressing `&lt;a&gt;` tags inside them (#3318) by @atomiks
+- Improve performance when detached triggers are used (#3277)
+- Fix iOS VoiceOver voice control accessibility in non-modal popups (#3340)
+
+### Alert Dialog
+
+- Fix trigger registration loop (#3249) by @atomiks
+- Fix focus restoration when focused element is hidden with CSS (#3313)
+
+### Checkbox Group
+
+- Fix `aria-describedby` on checkbox group (#3269) by @mj12albert
+
+### Combobox
+
+- Revert overload types to ensure typed wrappers work correctly (#3254) by @atomiks
+- Fix ignored `filteredItems` instances (#3272) by @atomiks
+- Fix loop when passing `undefined` to `items` prop (#3348)
+
+### Context Menu
+
+- Block mouseup at initial cursor point (#3274) by @atomiks
+
+### Dialog
+
+- Fix trigger registration loop (#3249) by @atomiks
+- Fix focus restoration when focused element is hidden with CSS (#3313)
+
+### Form
+
+- Fix cast `ref` type (#3324) by @mj12albert
+
+### Menu
+
+- Fix trigger registration loop (#3249) by @atomiks
+- Do not pass `key` to the rendered element (#3255) by @michaldudak
+- Fix nested dialog from closing on <kbd>Shift+Tab</kbd> (#3346)
+
+### Navigation Menu
+
+- Fix Safari 18 issue where `<Positioner>` width may be set to 0 on hover (#3309) by @EmilNordling
+- Ensure submenu triggers participate in composite list (#3344) by @atomiks
+
+### Number Field
+
+- Fix literal space handling with symbols (#3334) by @atomiks
+
+### Popover
+
+- Fix trigger registration loop (#3249) by @atomiks
+- Do not pass `key` to the rendered element (#3255) by @michaldudak
+- Fix focus restoration when focused element is hidden with CSS (#3313)
+
+### Select
+
+- Revert overload types to ensure typed wrappers work correctly (#3254) by @atomiks
+
+### Slider
+
+- Fix extra `onValueCommitted` calls (#3312) by @mj12albert
+- Fix cast `ref` type (#3324) by @mj12albert
+
+### Tooltip
+
+- Fix trigger registration loop (#3249) by @atomiks
+
+All contributors of this release in alphabetical order: @atomiks, @brijeshb42, @Copilot, @EmilNordling, @michaldudak, @mj12albert, @oliviertassinari, @ZeeshanTamboli
+
 ## v1.0.0-beta.6
 
 _Nov 17, 2025_

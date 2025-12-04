@@ -143,6 +143,82 @@ function TestInlineNestedNavigationMenu() {
   );
 }
 
+function TestDeeplyNestedNavigationMenu() {
+  return (
+    <NavigationMenu.Root>
+      <NavigationMenu.List>
+        <NavigationMenu.Item value="item-1">
+          <NavigationMenu.Trigger data-testid="trigger-1">Item 1</NavigationMenu.Trigger>
+
+          <NavigationMenu.Content data-testid="content-1">
+            <NavigationMenu.Link href="#link-1" data-testid="link-1">
+              Link 1
+            </NavigationMenu.Link>
+            {/* Level 2 */}
+            <NavigationMenu.Root defaultValue="level2-item-1">
+              <NavigationMenu.List>
+                <NavigationMenu.Item value="level2-item-1">
+                  <NavigationMenu.Trigger data-testid="level2-trigger-1">
+                    Level 2 Item 1
+                  </NavigationMenu.Trigger>
+                  <NavigationMenu.Content data-testid="level2-content-1">
+                    <NavigationMenu.Link href="#level2-link-1" data-testid="level2-link-1">
+                      Level 2 Link 1
+                    </NavigationMenu.Link>
+                    {/* Level 3 */}
+                    <NavigationMenu.Root defaultValue="level3-item-1">
+                      <NavigationMenu.List>
+                        <NavigationMenu.Item value="level3-item-1">
+                          <NavigationMenu.Trigger data-testid="level3-trigger-1">
+                            Level 3 Item 1
+                          </NavigationMenu.Trigger>
+                          <NavigationMenu.Content data-testid="level3-content-1">
+                            <NavigationMenu.Link href="#level3-link-1">
+                              Level 3 Link 1
+                            </NavigationMenu.Link>
+                          </NavigationMenu.Content>
+                        </NavigationMenu.Item>
+                        <NavigationMenu.Item value="level3-item-2">
+                          <NavigationMenu.Trigger data-testid="level3-trigger-2">
+                            Level 3 Item 2
+                          </NavigationMenu.Trigger>
+                          <NavigationMenu.Content data-testid="level3-content-2">
+                            <NavigationMenu.Link href="#level3-link-2">
+                              Level 3 Link 2
+                            </NavigationMenu.Link>
+                          </NavigationMenu.Content>
+                        </NavigationMenu.Item>
+                      </NavigationMenu.List>
+                      <NavigationMenu.Viewport />
+                    </NavigationMenu.Root>
+                  </NavigationMenu.Content>
+                </NavigationMenu.Item>
+                <NavigationMenu.Item value="level2-item-2">
+                  <NavigationMenu.Trigger data-testid="level2-trigger-2">
+                    Level 2 Item 2
+                  </NavigationMenu.Trigger>
+                  <NavigationMenu.Content data-testid="level2-content-2">
+                    <NavigationMenu.Link href="#level2-link-2">Level 2 Link 2</NavigationMenu.Link>
+                  </NavigationMenu.Content>
+                </NavigationMenu.Item>
+              </NavigationMenu.List>
+              <NavigationMenu.Viewport />
+            </NavigationMenu.Root>
+          </NavigationMenu.Content>
+        </NavigationMenu.Item>
+      </NavigationMenu.List>
+
+      <NavigationMenu.Portal>
+        <NavigationMenu.Positioner>
+          <NavigationMenu.Popup>
+            <NavigationMenu.Viewport />
+          </NavigationMenu.Popup>
+        </NavigationMenu.Positioner>
+      </NavigationMenu.Portal>
+    </NavigationMenu.Root>
+  );
+}
+
 function TestNavigationMenuWithDialog() {
   return (
     <NavigationMenu.Root>
@@ -927,6 +1003,90 @@ describe('<NavigationMenu.Root />', () => {
         expect(nestedTrigger1).to.have.attribute('aria-expanded', 'false');
         expect(screen.queryByTestId('nested-popup-2')).not.to.equal(null);
         expect(screen.queryByTestId('nested-popup-1')).to.equal(null);
+      });
+
+      it('allows arrow key navigation to submenu triggers', async () => {
+        const { user } = await render(<TestInlineNestedNavigationMenu />);
+        const trigger1 = screen.getByTestId('trigger-1');
+
+        fireEvent.click(trigger1);
+        await flushMicrotasks();
+
+        const popup1 = screen.getByTestId('popup-1');
+        expect(popup1).not.to.equal(null);
+
+        const link1 = screen.getByText('Link 1');
+        await act(async () => link1.focus());
+
+        // Arrow down should move to nested-trigger-1
+        await user.keyboard('{ArrowDown}');
+
+        const nestedTrigger1 = within(popup1).getByTestId('nested-trigger-1');
+        expect(nestedTrigger1).toHaveFocus();
+
+        // Arrow down should move to nested-trigger-2
+        await user.keyboard('{ArrowDown}');
+
+        const nestedTrigger2 = within(popup1).getByTestId('nested-trigger-2');
+        expect(nestedTrigger2).toHaveFocus();
+
+        // Arrow up should move back to nested-trigger-1
+        await user.keyboard('{ArrowUp}');
+        expect(nestedTrigger1).toHaveFocus();
+
+        // Arrow up should move back to Link 1
+        await user.keyboard('{ArrowUp}');
+        expect(link1).toHaveFocus();
+      });
+
+      it('allows arrow key navigation with 3+ levels of nesting', async () => {
+        const { user } = await render(<TestDeeplyNestedNavigationMenu />);
+        const trigger1 = screen.getByTestId('trigger-1');
+
+        fireEvent.click(trigger1);
+        await flushMicrotasks();
+
+        const content1 = screen.getByTestId('content-1');
+        expect(content1).not.to.equal(null);
+
+        // Level 1 content contains: Link 1, Level2-trigger-1, Level2-trigger-2
+        const link1 = screen.getByTestId('link-1');
+        await act(async () => link1.focus());
+
+        // Navigate through Level 1 content items
+        await user.keyboard('{ArrowDown}');
+        const level2Trigger1 = screen.getByTestId('level2-trigger-1');
+        expect(level2Trigger1).toHaveFocus();
+
+        await user.keyboard('{ArrowDown}');
+        const level2Trigger2 = screen.getByTestId('level2-trigger-2');
+        expect(level2Trigger2).toHaveFocus();
+
+        await user.keyboard('{ArrowUp}');
+        expect(level2Trigger1).toHaveFocus();
+
+        await user.keyboard('{ArrowUp}');
+        expect(link1).toHaveFocus();
+
+        // Now navigate into Level 2 content (which contains Level 3 triggers)
+        const level2Content1 = screen.getByTestId('level2-content-1');
+        const level2Link1 = within(level2Content1).getByTestId('level2-link-1');
+        await act(async () => level2Link1.focus());
+
+        // Navigate through Level 2 content items (includes Level 3 triggers)
+        await user.keyboard('{ArrowDown}');
+        const level3Trigger1 = screen.getByTestId('level3-trigger-1');
+        expect(level3Trigger1).toHaveFocus();
+
+        await user.keyboard('{ArrowDown}');
+        const level3Trigger2 = screen.getByTestId('level3-trigger-2');
+        expect(level3Trigger2).toHaveFocus();
+
+        await user.keyboard('{ArrowUp}');
+        expect(level3Trigger1).toHaveFocus();
+
+        await user.keyboard('{ArrowUp}');
+        expect(level2Link1).toHaveFocus();
       });
     });
   });

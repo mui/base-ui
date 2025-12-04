@@ -18,6 +18,12 @@
       "description": "Event handler called when the menu is opened or closed.",
       "detailedType": "| ((\n    open: boolean,\n    eventDetails: Menu.SubmenuRoot.ChangeEventDetails,\n  ) => void)\n| undefined"
     },
+    "highlightItemOnHover": {
+      "type": "boolean",
+      "default": "true",
+      "description": "Whether moving the pointer over items should highlight them.\nDisabling this prop allows CSS `:hover` to be differentiated from the `:focus` (`data-highlighted`) state.",
+      "detailedType": "boolean | undefined"
+    },
     "actionsRef": {
       "type": "RefObject<Menu.Root.Actions>",
       "description": "A ref to imperative actions.\n- `unmount`: When specified, the menu will not be unmounted when closed.\n   Instead, the `unmount` function must be called to unmount the menu manually.\n  Useful when the menu's animation is controlled by an external library.\n- `close`: When specified, the menu can be closed imperatively.",

@@ -182,7 +182,7 @@ describe('useListNavigation', () => {
 
       const listRef = React.useRef<Array<HTMLElement | null>>([]);
 
-      const { x, y, strategy, context, refs } = useFloating<HTMLInputElement>({
+      const { x, y, strategy, context, refs } = useFloating({
         open,
         onOpenChange: setOpen,
       });
@@ -250,7 +250,7 @@ describe('useListNavigation', () => {
                       onClick() {
                         setInputValue(item);
                         setOpen(false);
-                        refs.domReference.current?.focus();
+                        (refs.domReference.current as HTMLElement | null)?.focus();
                       },
                     })}
                   >
@@ -1063,9 +1063,10 @@ describe('useListNavigation', () => {
     render(<ListboxFocus />);
 
     await userEvent.click(screen.getByTestId('reference'));
-    await act(async () => {});
 
-    expect(screen.getByTestId('reference')).toHaveFocus();
+    await waitFor(() => {
+      expect(screen.getByTestId('reference')).toHaveFocus();
+    });
   });
 
   // In JSDOM it will not focus the first item, but will in the browser

@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import * as ReactDOM from 'react-dom';
 import { Collapsible } from '@base-ui-components/react/collapsible';
 import type { ContentProps } from '@mui/internal-docs-infra/CodeHighlighter/types';
 import { useDemo } from '@mui/internal-docs-infra/useDemo';
@@ -9,6 +10,7 @@ import { CheckIcon } from 'docs/src/icons/CheckIcon';
 import { ExternalLinkIcon } from 'docs/src/icons/ExternalLinkIcon';
 import { exportCodeSandbox, exportOpts } from 'docs/src/utils/demoExportOptions';
 import { isSafari, isEdge } from '@base-ui-components/utils/detectBrowser';
+import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { DemoVariantSelector } from './DemoVariantSelector';
 import { DemoFileSelector } from './DemoFileSelector';
 import { DemoCodeBlock } from './DemoCodeBlock';
@@ -29,7 +31,9 @@ export function Demo({
   className,
   ...demoProps
 }: DemoProps) {
+  const collapsibleTriggerRef = React.useRef<HTMLButtonElement>(null);
   const [copyTimeout, setCopyTimeout] = React.useState<number>(0);
+
   const onCopied = React.useCallback(() => {
     /* eslint-disable no-restricted-syntax */
     const newTimeout = window.setTimeout(() => {
@@ -40,6 +44,28 @@ export function Demo({
     setCopyTimeout(newTimeout);
     /* eslint-enable no-restricted-syntax */
   }, [copyTimeout]);
+
+  const onOpenChange = useStableCallback((nextOpen) => {
+    if (!nextOpen && collapsibleTriggerRef.current != null) {
+      const triggerEl = collapsibleTriggerRef.current;
+      const rectTopBeforeClose = triggerEl.getBoundingClientRect().top;
+
+      ReactDOM.flushSync(() => demo.setExpanded(nextOpen));
+
+      const rectTopAfterClose = triggerEl.getBoundingClientRect().top;
+      const delta = rectTopAfterClose - rectTopBeforeClose;
+      // don't scroll if the trigger is still in the viewport after closing
+      if (rectTopAfterClose < 0) {
+        window.scrollBy({
+          top: delta,
+          behavior: 'instant',
+        });
+      }
+      return;
+    }
+
+    demo.setExpanded(nextOpen);
+  });
 
   const demo = useDemo(demoProps, {
     copy: { onCopied },
@@ -77,7 +103,7 @@ export function Demo({
           <span className="absolute top-3 right-4.5">{externalPlaygroundLink}</span>
         )}
       </DemoPlayground>
-      <Collapsible.Root open={demo.expanded} onOpenChange={demo.setExpanded}>
+      <Collapsible.Root open={demo.expanded} onOpenChange={onOpenChange}>
         <div role="figure" aria-label="Component demo code">
           {(compact ? demo.expanded : true) && (
             <div className="DemoToolbar">
@@ -115,6 +141,7 @@ export function Demo({
             selectedFileName={demo.selectedFileName}
             selectedFileLines={demo.selectedFileLines}
             collapsibleOpen={demo.expanded}
+            collapsibleTriggerRef={collapsibleTriggerRef}
             compact={compact}
           />
         </div>

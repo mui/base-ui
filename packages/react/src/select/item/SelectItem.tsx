@@ -57,6 +57,7 @@ export const SelectItem = React.memo(
       valuesRef,
       keyboardActiveRef,
       multiple,
+      highlightItemOnHover,
     } = useSelectRootContext();
 
     const highlightTimeout = useTimeout();
@@ -156,10 +157,12 @@ export const SelectItem = React.memo(
         }
       },
       onMouseMove() {
-        store.set('activeIndex', index);
+        if (highlightItemOnHover) {
+          store.set('activeIndex', index);
+        }
       },
       onMouseLeave(event) {
-        if (keyboardActiveRef.current || isMouseWithinBounds(event)) {
+        if (!highlightItemOnHover || keyboardActiveRef.current || isMouseWithinBounds(event)) {
           return;
         }
 

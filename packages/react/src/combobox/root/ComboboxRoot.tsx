@@ -65,12 +65,8 @@ export type ComboboxRootProps<Value, Multiple extends boolean | undefined = fals
    */
   autoHighlight?: boolean;
   /**
-   * Whether the highlighted item should be preserved when the pointer leaves the list.
-   * @default false
-   */
-  keepHighlight?: boolean;
-  /**
    * Whether moving the pointer over items should highlight them.
+   * Disabling this prop allows CSS `:hover` to be differentiated from the `:focus` (`data-highlighted`) state.
    * @default true
    */
   highlightItemOnHover?: boolean;

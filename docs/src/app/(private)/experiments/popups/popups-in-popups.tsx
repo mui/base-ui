@@ -197,7 +197,7 @@ function MenuDemo({ modal }: Props) {
                     >
                       Paragraph
                     </Menu.Item>
-                    <Menu.Root disabled>
+                    <Menu.SubmenuRoot disabled>
                       <Menu.SubmenuTrigger className={styles.SubmenuTrigger}>
                         List
                       </Menu.SubmenuTrigger>
@@ -224,7 +224,7 @@ function MenuDemo({ modal }: Props) {
                           </Menu.Popup>
                         </Menu.Positioner>
                       </Menu.Portal>
-                    </Menu.Root>
+                    </Menu.SubmenuRoot>
                   </Menu.Popup>
                 </Menu.Positioner>
               </Menu.Portal>

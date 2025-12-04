@@ -255,7 +255,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
   if (parent.type === 'menubar') {
     backdropCutout = parent.context.contentElement;
   } else if (parent.type === undefined) {
-    backdropCutout = triggerElement;
+    backdropCutout = triggerElement as HTMLElement | null;
   }
 
   return (

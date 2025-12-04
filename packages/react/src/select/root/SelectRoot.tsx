@@ -66,6 +66,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     itemToStringLabel,
     itemToStringValue,
     isItemEqualToValue = defaultItemEquality,
+    highlightItemOnHover = true,
     children,
   } = props;
 
@@ -409,6 +410,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
       multiple,
       itemToStringLabel,
       itemToStringValue,
+      highlightItemOnHover,
       setValue,
       setOpen,
       listRef,
@@ -417,7 +419,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
       handleScrollArrowVisibility,
       scrollArrowsMountedCountRef,
       getItemProps,
-      events: floatingContext.events,
+      events: floatingContext.context.events,
       valueRef,
       valuesRef,
       labelsRef,
@@ -439,10 +441,11 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
       multiple,
       itemToStringLabel,
       itemToStringValue,
+      highlightItemOnHover,
       setValue,
       setOpen,
       getItemProps,
-      floatingContext.events,
+      floatingContext.context.events,
       validation,
       onOpenChangeComplete,
       handleScrollArrowVisibility,
@@ -575,6 +578,12 @@ export interface SelectRootProps<Value, Multiple extends boolean | undefined = f
    * @default false
    */
   multiple?: Multiple;
+  /**
+   * Whether moving the pointer over items should highlight them.
+   * Disabling this prop allows CSS `:hover` to be differentiated from the `:focus` (`data-highlighted`) state.
+   * @default true
+   */
+  highlightItemOnHover?: boolean;
   /**
    * Whether the select popup is initially open.
    *

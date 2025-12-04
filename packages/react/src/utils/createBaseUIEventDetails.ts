@@ -76,7 +76,7 @@ type BaseUIChangeEventDetail<Reason extends string, CustomProperties extends obj
   /**
    * The element that triggered the event, if applicable.
    */
-  trigger: HTMLElement | undefined;
+  trigger: Element | undefined;
 } & CustomProperties;
 
 /**

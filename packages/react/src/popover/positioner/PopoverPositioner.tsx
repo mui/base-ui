@@ -52,8 +52,7 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
   const floatingRootContext = store.useState('floatingRootContext');
   const mounted = store.useState('mounted');
   const open = store.useState('open');
-  const openMethod = store.useState('openMethod');
-  const openReason = store.useState('openReason');
+  const openReason = store.useState('openChangeReason');
   const triggerElement = store.useState('activeTriggerElement');
   const modal = store.useState('modal');
   const positionerElement = store.useState('positionerElement');
@@ -109,10 +108,12 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
     [defaultProps, positioning],
   );
 
+  const domReference = floatingRootContext?.select('domReferenceElement');
+
   // When the current trigger element changes, enable transitions on the
   // positioner temporarily
   useIsoLayoutEffect(() => {
-    const currentTriggerElement = floatingRootContext?.elements.domReference;
+    const currentTriggerElement = domReference;
     const prevTriggerElement = prevTriggerElementRef.current;
 
     if (currentTriggerElement) {
@@ -136,7 +137,7 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
     }
 
     return undefined;
-  }, [floatingRootContext?.elements.domReference, runOnceAnimationsFinish, store]);
+  }, [domReference, runOnceAnimationsFinish, store]);
 
   const state: PopoverPositioner.State = React.useMemo(
     () => ({
@@ -165,16 +166,13 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
 
   return (
     <PopoverPositionerContext.Provider value={positioner}>
-      {mounted &&
-        modal === true &&
-        openReason !== REASONS.triggerHover &&
-        openMethod !== 'touch' && (
-          <InternalBackdrop
-            ref={store.context.internalBackdropRef}
-            inert={inertValue(!open)}
-            cutout={triggerElement}
-          />
-        )}
+      {mounted && modal === true && openReason !== REASONS.triggerHover && (
+        <InternalBackdrop
+          ref={store.context.internalBackdropRef}
+          inert={inertValue(!open)}
+          cutout={triggerElement}
+        />
+      )}
       <FloatingNode id={nodeId}>{element}</FloatingNode>
     </PopoverPositionerContext.Provider>
   );

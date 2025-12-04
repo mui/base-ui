@@ -36,6 +36,7 @@ interface DemoCodeBlockProps {
   collapsibleOpen: boolean;
   /** How many lines should the code block have to get collapsed instead of rendering fully */
   collapsibleLinesThreshold?: number;
+  collapsibleTriggerRef: React.Ref<HTMLButtonElement>;
   /** When compact, we don't show a preview of the collapse code */
   compact: boolean;
 }
@@ -68,6 +69,7 @@ export function DemoCodeBlock({
   compact,
   collapsibleOpen,
   collapsibleLinesThreshold = 12,
+  collapsibleTriggerRef,
 }: DemoCodeBlockProps) {
   if (selectedFileLines < collapsibleLinesThreshold) {
     return (
@@ -114,7 +116,7 @@ export function DemoCodeBlock({
         )}
       </Root>
 
-      <Collapsible.Trigger className="DemoCollapseButton">
+      <Collapsible.Trigger ref={collapsibleTriggerRef} className="DemoCollapseButton">
         {collapsibleOpen ? 'Hide' : 'Show'} code
       </Collapsible.Trigger>
     </React.Fragment>
