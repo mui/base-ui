@@ -42,6 +42,7 @@ _Dec 4, 2025_
 - Improve symbol replacement logic (#3376) by @atomiks
 - Fix fractional step snapping (#3375) by @atomiks
 - Fix parsing numbers with Swiss locale (#3361) by @michaldudak
+- Fix pointer lock release when soft clicking in Firefox (#3378) by @atomiks
 
 ### Popover
 
