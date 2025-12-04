@@ -19,7 +19,6 @@ import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { REASONS } from '../../utils/reasons';
 import { usePopupAutoResize } from '../../utils/usePopupAutoResize';
-import { EMPTY_OBJECT } from '../../utils/constants';
 import { useDirection } from '../../direction-provider/DirectionContext';
 import { COMPOSITE_KEYS } from '../../composite/composite';
 import { useToolbarRootContext } from '../../toolbar/root/ToolbarRootContext';
@@ -126,7 +125,10 @@ export const PopoverPopup = React.forwardRef(function PopoverPopup(
 
   // If there's just one trigger, we can skip the auto-resize logic as
   // the popover will always be anchored to the same position.
-  const autoresizeEnabled = () => store.context.triggerElements.size > 1;
+  const autoresizeEnabled = React.useCallback(
+    () => store.context.triggerElements.size > 1,
+    [store],
+  );
 
   usePopupAutoResize({
     popupElement,
@@ -136,28 +138,9 @@ export const PopoverPopup = React.forwardRef(function PopoverPopup(
     enabled: autoresizeEnabled,
     onMeasureLayout: handleMeasureLayout,
     onMeasureLayoutComplete: handleMeasureLayoutComplete,
+    side: positioner.side,
+    direction,
   });
-
-  const anchoringStyles: React.CSSProperties = React.useMemo(() => {
-    // Ensure popup size transitions correctly when anchored to `bottom` (side=top) or `right` (side=left).
-    let isOriginSide = positioner.side === 'top';
-    let isPhysicalLeft = positioner.side === 'left';
-    if (direction === 'rtl') {
-      isOriginSide = isOriginSide || positioner.side === 'inline-end';
-      isPhysicalLeft = isPhysicalLeft || positioner.side === 'inline-end';
-    } else {
-      isOriginSide = isOriginSide || positioner.side === 'inline-start';
-      isPhysicalLeft = isPhysicalLeft || positioner.side === 'inline-start';
-    }
-
-    return isOriginSide
-      ? {
-          position: 'absolute',
-          [positioner.side === 'top' ? 'bottom' : 'top']: '0',
-          [isPhysicalLeft ? 'right' : 'left']: '0',
-        }
-      : EMPTY_OBJECT;
-  }, [positioner.side, direction]);
 
   const element = useRenderElement('div', componentProps, {
     state,
@@ -167,7 +150,6 @@ export const PopoverPopup = React.forwardRef(function PopoverPopup(
       {
         'aria-labelledby': titleId,
         'aria-describedby': descriptionId,
-        style: anchoringStyles,
         onKeyDown(event) {
           if (insideToolbar && COMPOSITE_KEYS.has(event.key)) {
             event.stopPropagation();
