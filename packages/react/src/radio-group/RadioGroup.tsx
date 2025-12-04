@@ -154,8 +154,6 @@ export const RadioGroup = React.forwardRef(function RadioGroup(
 
   const mergedInputRef = useMergedRefs(validation.inputRef, inputRefProp);
 
-  const form = React.useId();
-
   const inputProps = mergeProps<'input'>(
     {
       value: serializedCheckedValue,
@@ -164,7 +162,7 @@ export const RadioGroup = React.forwardRef(function RadioGroup(
       name,
       // When there's no value, detach from it's enclosing `<form />` to avoid
       // submitting an empty string
-      form: serializedCheckedValue ? undefined : form,
+      form: serializedCheckedValue ? undefined : '',
       disabled,
       readOnly,
       required,
