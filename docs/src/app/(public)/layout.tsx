@@ -21,6 +21,9 @@ export default function Layout({ children }: React.PropsWithChildren) {
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://base-ui.com'),
+  alternates: {
+    canonical: './',
+  },
 };
 
 export const viewport: Viewport = {
