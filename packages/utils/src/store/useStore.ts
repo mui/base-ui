@@ -67,6 +67,7 @@ type StoreInstance = Instance & {
     a2: unknown;
     a3: unknown;
     value: unknown;
+    didChange: boolean;
   }[];
   getSnapshot: () => unknown;
 };
@@ -96,9 +97,10 @@ function useStoreFast(
         for (let i = 0; i < instance.hooks.length; i++) {
           const hook = instance.hooks[i];
           const value = hook.selector(state, hook.a1, hook.a2, hook.a3);
-          if (!Object.is(hook.value, value)) {
+          if (hook.didChange || !Object.is(hook.value, value)) {
             didChange = true;
             hook.value = value;
+            hook.didChange = false;
           }
         }
         if (didChange) {
@@ -118,14 +120,23 @@ function useStoreFast(
       a2,
       a3,
       value: selector(store.getSnapshot(), a1, a2, a3),
+      didChange: false,
     };
     instance.hooks.push(hook);
   } else {
     hook = instance.hooks[index];
-    hook.selector = selector;
-    hook.a1 = a1;
-    hook.a2 = a2;
-    hook.a3 = a3;
+    if (
+      hook.selector !== selector ||
+      !Object.is(hook.a1, a1) ||
+      !Object.is(hook.a2, a2) ||
+      !Object.is(hook.a3, a3)
+    ) {
+      hook.selector = selector;
+      hook.a1 = a1;
+      hook.a2 = a2;
+      hook.a3 = a3;
+      hook.didChange = true;
+    }
   }
 
   return hook.value;
