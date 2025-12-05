@@ -80,19 +80,26 @@ export const TabsIndicator = React.forwardRef(function TabIndicator(
       const tabsListRect = tabsListElement.getBoundingClientRect();
       const scaleX = tabListWidth > 0 ? tabsListRect.width / tabListWidth : 1;
       const scaleY = tabListHeight > 0 ? tabsListRect.height / tabListHeight : 1;
+      const hasNonZeroScale =
+        Math.abs(scaleX) > Number.EPSILON && Math.abs(scaleY) > Number.EPSILON;
 
-      left =
-        (tabRect.left -
-          tabsListRect.left +
-          tabsListElement.scrollLeft -
-          tabsListElement.clientLeft) /
-        scaleX;
-      top =
-        (tabRect.top - tabsListRect.top + tabsListElement.scrollTop - tabsListElement.clientTop) /
-        scaleY;
+      if (hasNonZeroScale) {
+        left =
+          (tabRect.left -
+            tabsListRect.left +
+            tabsListElement.scrollLeft -
+            tabsListElement.clientLeft) /
+          scaleX;
+        top =
+          (tabRect.top - tabsListRect.top + tabsListElement.scrollTop - tabsListElement.clientTop) /
+          scaleY;
+      } else {
+        left = activeTab.offsetLeft;
+        top = activeTab.offsetTop;
+      }
+
       width = computedWidth;
       height = computedHeight;
-
       right =
         direction === 'ltr'
           ? tabsListElement.scrollWidth - left - width - tabsListElement.clientLeft

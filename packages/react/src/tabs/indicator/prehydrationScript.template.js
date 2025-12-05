@@ -52,12 +52,19 @@
     const tabsListRect = tabsList.getBoundingClientRect();
     const scaleX = tabsListWidth > 0 ? tabsListRect.width / tabsListWidth : 1;
     const scaleY = tabsListHeight > 0 ? tabsListRect.height / tabsListHeight : 1;
+    const hasNonZeroScale = Math.abs(scaleX) > Number.EPSILON && Math.abs(scaleY) > Number.EPSILON;
 
-    left = (tabRect.left - tabsListRect.left + tabsList.scrollLeft - tabsList.clientLeft) / scaleX;
-    top = (tabRect.top - tabsListRect.top + tabsList.scrollTop - tabsList.clientTop) / scaleY;
+    if (hasNonZeroScale) {
+      left =
+        (tabRect.left - tabsListRect.left + tabsList.scrollLeft - tabsList.clientLeft) / scaleX;
+      top = (tabRect.top - tabsListRect.top + tabsList.scrollTop - tabsList.clientTop) / scaleY;
+    } else {
+      left = activeTab.offsetLeft;
+      top = activeTab.offsetTop;
+    }
+
     width = computedWidth;
     height = computedHeight;
-
     right =
       direction === 'ltr'
         ? tabsList.scrollWidth - left - width - tabsList.clientLeft
