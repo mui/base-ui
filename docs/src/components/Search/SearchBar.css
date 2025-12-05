@@ -1,0 +1,25 @@
+.SearchScrollbar {
+  display: flex;
+  padding-top: calc(var(--spacing) * 2);
+  padding-bottom: calc(var(--spacing) * 2);
+
+  /* Click target width */
+  width: 1.5rem;
+  margin-right: -0.25rem;
+}
+
+.SearchScrollbarThumb {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+
+  &::before {
+    content: '';
+    display: block;
+    height: 100%;
+    /* Visible thumb width */
+    width: 0.25rem;
+    border-radius: var(--radius-sm);
+    background-color: var(--color-gray-400);
+  }
+}
