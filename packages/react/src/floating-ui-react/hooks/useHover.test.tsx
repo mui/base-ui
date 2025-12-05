@@ -9,8 +9,6 @@ import type { UseHoverProps } from './useHover';
 import { Popover } from '../../../test/floating-ui-tests/Popover';
 import { REASONS } from '../../utils/reasons';
 
-vi.useFakeTimers();
-
 function App({ showReference = true, ...props }: UseHoverProps & { showReference?: boolean }) {
   const [open, setOpen] = React.useState(false);
   const { refs, context } = useFloating({
@@ -28,6 +26,10 @@ function App({ showReference = true, ...props }: UseHoverProps & { showReference
 }
 
 describe.skipIf(!isJSDOM)('useHover', () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+  });
+
   test('opens on mouseenter', () => {
     render(<App />);
 
