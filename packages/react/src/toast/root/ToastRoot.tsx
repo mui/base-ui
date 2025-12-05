@@ -146,7 +146,12 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
     },
   });
 
-  const recalculateHeight = useStableCallback(() => {
+  /**
+   * Recalculates the natural height of the toast and updates it in the toast manager.
+   * @param flushSync Whether to flush the update synchronously. Use in observer
+   * callbacks to avoid visual flickers.
+   */
+  const recalculateHeight = useStableCallback((flushSync: boolean = false) => {
     const element = rootRef.current;
     if (!element) {
       return;
@@ -157,7 +162,7 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
     const height = element.offsetHeight;
     element.style.height = previousHeight;
 
-    ReactDOM.flushSync(() => {
+    function update() {
       setToasts((prev) =>
         prev.map((t) =>
           t.id === toast.id
@@ -170,7 +175,13 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
             : t,
         ),
       );
-    });
+    }
+
+    if (flushSync) {
+      ReactDOM.flushSync(update);
+    } else {
+      update();
+    }
   });
 
   useIsoLayoutEffect(recalculateHeight, [recalculateHeight]);
