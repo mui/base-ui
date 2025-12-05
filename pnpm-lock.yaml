@@ -37,8 +37,8 @@ importers:
         specifier: ^0.0.2-canary.1
         version: 0.0.2-canary.1
       '@mui/internal-test-utils':
-        specifier: https://pkg.pr.new/mui/mui-public/@mui/internal-test-utils@9d8b68f
-        version: https://pkg.pr.new/mui/mui-public/@mui/internal-test-utils@9d8b68f(@emotion/cache@11.14.0)(@emotion/react@11.14.0(@types/react@19.2.7)(react@19.2.0))(@playwright/test@1.57.0)(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(@vitest/utils@3.2.4)(chai@6.2.1)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(vite@7.2.4(@types/node@22.18.13)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.44.1)(tsx@4.20.6)(yaml@2.8.1))(vitest@3.2.4)
+        specifier: https://pkg.pr.new/mui/mui-public/@mui/internal-test-utils@586ed26
+        version: https://pkg.pr.new/mui/mui-public/@mui/internal-test-utils@586ed26(@emotion/cache@11.14.0)(@emotion/react@11.14.0(@types/react@19.2.7)(react@19.2.0))(@playwright/test@1.57.0)(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(@vitest/utils@3.2.4)(chai@6.2.1)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(vite@7.2.4(@types/node@22.18.13)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.44.1)(tsx@4.20.6)(yaml@2.8.1))(vitest@3.2.4)
       '@next/eslint-plugin-next':
         specifier: 15.5.6
         version: 15.5.6
@@ -2260,8 +2260,8 @@ packages:
   '@mui/internal-netlify-cache@0.0.2-canary.1':
     resolution: {integrity: sha512-d161tpMN7WJF2qxIoXt4hqNWVNAFjOJKj5xQNKOfap93YYtGXiDgHWcH76CJaSPK2PCzKDbsq7pkz5DyMo2IdQ==}
 
-  '@mui/internal-test-utils@https://pkg.pr.new/mui/mui-public/@mui/internal-test-utils@9d8b68f':
-    resolution: {tarball: https://pkg.pr.new/mui/mui-public/@mui/internal-test-utils@9d8b68f}
+  '@mui/internal-test-utils@https://pkg.pr.new/mui/mui-public/@mui/internal-test-utils@586ed26':
+    resolution: {tarball: https://pkg.pr.new/mui/mui-public/@mui/internal-test-utils@586ed26}
     version: 2.0.17
     peerDependencies:
       '@emotion/cache': '11'
@@ -11926,7 +11926,7 @@ snapshots:
 
   '@mui/internal-netlify-cache@0.0.2-canary.1': {}
 
-  '@mui/internal-test-utils@https://pkg.pr.new/mui/mui-public/@mui/internal-test-utils@9d8b68f(@emotion/cache@11.14.0)(@emotion/react@11.14.0(@types/react@19.2.7)(react@19.2.0))(@playwright/test@1.57.0)(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(@vitest/utils@3.2.4)(chai@6.2.1)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(vite@7.2.4(@types/node@22.18.13)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.44.1)(tsx@4.20.6)(yaml@2.8.1))(vitest@3.2.4)':
+  '@mui/internal-test-utils@https://pkg.pr.new/mui/mui-public/@mui/internal-test-utils@586ed26(@emotion/cache@11.14.0)(@emotion/react@11.14.0(@types/react@19.2.7)(react@19.2.0))(@playwright/test@1.57.0)(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(@vitest/utils@3.2.4)(chai@6.2.1)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(vite@7.2.4(@types/node@22.18.13)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.44.1)(tsx@4.20.6)(yaml@2.8.1))(vitest@3.2.4)':
     dependencies:
       '@babel/runtime': 7.28.4
       '@playwright/test': 1.57.0
