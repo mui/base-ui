@@ -1316,7 +1316,7 @@ describe('<Tabs.Root />', () => {
 
   describe('disabled tab handling', () => {
     it('should select the first non-disabled tab by default when defaultValue is not provided', async () => {
-      const { getAllByRole } = await render(
+      await render(
         <Tabs.Root>
           <Tabs.List>
             <Tabs.Tab value={0} disabled data-testid="tab-0">
@@ -1339,7 +1339,7 @@ describe('<Tabs.Root />', () => {
         </Tabs.Root>,
       );
 
-      const tabs = getAllByRole('tab');
+      const tabs = screen.getAllByRole('tab');
 
       // The first non-disabled tab (tab 1) should be selected
       expect(tabs[0]).to.have.attribute('aria-selected', 'false');
@@ -1349,7 +1349,7 @@ describe('<Tabs.Root />', () => {
     });
 
     it('should select the third tab when first two tabs are disabled', async () => {
-      const { getAllByRole } = await render(
+      await render(
         <Tabs.Root>
           <Tabs.List>
             <Tabs.Tab value={0} disabled data-testid="tab-0">
@@ -1372,7 +1372,7 @@ describe('<Tabs.Root />', () => {
         </Tabs.Root>,
       );
 
-      const tabs = getAllByRole('tab');
+      const tabs = screen.getAllByRole('tab');
 
       // The first non-disabled tab (tab 2) should be selected
       expect(tabs[2]).to.have.attribute('aria-selected', 'true');
@@ -1382,7 +1382,7 @@ describe('<Tabs.Root />', () => {
     });
 
     it('should still honor explicit defaultValue even if it points to a disabled tab', async () => {
-      const { getAllByRole } = await render(
+      await render(
         <Tabs.Root defaultValue={0}>
           <Tabs.List>
             <Tabs.Tab value={0} disabled data-testid="tab-0">
@@ -1401,7 +1401,7 @@ describe('<Tabs.Root />', () => {
         </Tabs.Root>,
       );
 
-      const tabs = getAllByRole('tab');
+      const tabs = screen.getAllByRole('tab');
 
       // The explicitly set disabled tab should be selected
       expect(tabs[0]).to.have.attribute('aria-selected', 'true');
@@ -1410,7 +1410,7 @@ describe('<Tabs.Root />', () => {
     });
 
     it('should still honor explicit value prop even if it points to a disabled tab', async () => {
-      const { getAllByRole } = await render(
+      await render(
         <Tabs.Root value={0}>
           <Tabs.List>
             <Tabs.Tab value={0} disabled data-testid="tab-0">
@@ -1429,7 +1429,7 @@ describe('<Tabs.Root />', () => {
         </Tabs.Root>,
       );
 
-      const tabs = getAllByRole('tab');
+      const tabs = screen.getAllByRole('tab');
 
       // The explicitly set disabled tab should be selected
       expect(tabs[0]).to.have.attribute('aria-selected', 'true');
@@ -1442,7 +1442,7 @@ describe('<Tabs.Root />', () => {
       const warnings: any[] = [];
       console.warn = (...args: any[]) => warnings.push(args);
 
-      const { getAllByRole } = await render(
+      await render(
         <Tabs.Root>
           <Tabs.List>
             <Tabs.Tab value={0} disabled data-testid="tab-0">
@@ -1461,7 +1461,7 @@ describe('<Tabs.Root />', () => {
         </Tabs.Root>,
       );
 
-      const tabs = getAllByRole('tab');
+      const tabs = screen.getAllByRole('tab');
 
       // When all tabs are disabled, the warning should be logged
       await waitFor(() => {
