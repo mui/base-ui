@@ -45,9 +45,17 @@ describe('<Tabs.Indicator />', () => {
       tabList: HTMLElement,
       activeTab: HTMLElement,
     ) {
+      const tabRect = activeTab.getBoundingClientRect();
+      const tabListRect = tabList.getBoundingClientRect();
       const { width: tabWidth, height: tabHeight } = getCssDimensions(activeTab);
-      const relativeLeft = activeTab.offsetLeft;
-      const relativeTop = activeTab.offsetTop;
+      const { width: tabListWidth, height: tabListHeight } = getCssDimensions(tabList);
+      const scaleX = tabListWidth > 0 ? tabListRect.width / tabListWidth : 1;
+      const scaleY = tabListHeight > 0 ? tabListRect.height / tabListHeight : 1;
+
+      const relativeLeft =
+        (tabRect.left - tabListRect.left + tabList.scrollLeft - tabList.clientLeft) / scaleX;
+      const relativeTop =
+        (tabRect.top - tabListRect.top + tabList.scrollTop - tabList.clientTop) / scaleY;
       const relativeRight = tabList.scrollWidth - relativeLeft - tabWidth - tabList.clientLeft;
       const relativeBottom = tabList.scrollHeight - relativeTop - tabHeight - tabList.clientTop;
 

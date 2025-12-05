@@ -46,9 +46,15 @@
 
   if (activeTab != null && tabsList != null) {
     const { width: computedWidth, height: computedHeight } = getCssDimensions(activeTab);
+    const { width: tabsListWidth, height: tabsListHeight } = getCssDimensions(tabsList);
+    const tabRect = activeTab.getBoundingClientRect();
+    const tabsListRect = tabsList.getBoundingClientRect();
+    const scaleX = tabsListWidth > 0 ? tabsListRect.width / tabsListWidth : 1;
+    const scaleY = tabsListHeight > 0 ? tabsListRect.height / tabsListHeight : 1;
 
-    left = activeTab.offsetLeft;
-    top = activeTab.offsetTop;
+    left =
+      (tabRect.left - tabsListRect.left + tabsList.scrollLeft - tabsList.clientLeft) / scaleX;
+    top = (tabRect.top - tabsListRect.top + tabsList.scrollTop - tabsList.clientTop) / scaleY;
     width = computedWidth;
     height = computedHeight;
 
