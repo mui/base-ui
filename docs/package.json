@@ -15,10 +15,6 @@
   "dependencies": {
     "@base-ui-components/react": "workspace:*",
     "@base-ui-components/utils": "workspace:*",
-    "@emotion/cache": "^11.14.0",
-    "@emotion/react": "^11.14.0",
-    "@emotion/server": "^11.11.0",
-    "@emotion/styled": "^11.14.1",
     "@mdx-js/loader": "^3.1.1",
     "@mdx-js/react": "^3.1.1",
     "@mui/internal-docs-infra": "^0.2.3-canary.15",

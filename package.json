@@ -62,7 +62,7 @@
     "@base-ui-components/monorepo-tests": "workspace:*",
     "@mui/internal-netlify-cache": "^0.0.2-canary.1",
     "@mui/internal-code-infra": "^0.0.3-canary.53",
-    "@mui/internal-test-utils": "https://pkg.pr.new/mui/mui-public/@mui/internal-test-utils@a7a400a",
+    "@mui/internal-test-utils": "https://pkg.pr.new/mui/mui-public/@mui/internal-test-utils@9d8b68f",
     "@next/eslint-plugin-next": "15.5.6",
     "@octokit/rest": "^22.0.1",
     "@playwright/test": "1.57.0",
