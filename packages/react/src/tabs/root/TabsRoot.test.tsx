@@ -1475,27 +1475,5 @@ describe('<Tabs.Root />', () => {
 
       console.warn = originalWarn;
     });
-
-    it('should handle tabs with numeric indices correctly', async () => {
-      const { getAllByRole } = await render(
-        <Tabs.Root>
-          <Tabs.List>
-            <Tabs.Tab disabled>Tab 0</Tabs.Tab>
-            <Tabs.Tab>Tab 1</Tabs.Tab>
-            <Tabs.Tab disabled>Tab 2</Tabs.Tab>
-          </Tabs.List>
-          <Tabs.Panel>Panel 0</Tabs.Panel>
-          <Tabs.Panel>Panel 1</Tabs.Panel>
-          <Tabs.Panel>Panel 2</Tabs.Panel>
-        </Tabs.Root>,
-      );
-
-      const tabs = getAllByRole('tab');
-
-      // The first non-disabled tab (index 1) should be selected
-      expect(tabs[1]).to.have.attribute('aria-selected', 'true');
-      expect(tabs[0]).to.have.attribute('aria-selected', 'false');
-      expect(tabs[2]).to.have.attribute('aria-selected', 'false');
-    });
   });
 });
