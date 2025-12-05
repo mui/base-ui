@@ -11,7 +11,8 @@ import { TabsRootContext } from './TabsRootContext';
 import { tabsStateAttributesMapping } from './stateAttributesMapping';
 import type { TabsTab } from '../tab/TabsTab';
 import type { TabsPanel } from '../panel/TabsPanel';
-import type { BaseUIChangeEventDetails } from '../../utils/createBaseUIEventDetails';
+import { type BaseUIChangeEventDetails } from '../../utils/createBaseUIEventDetails';
+import { REASONS } from '../../utils/reasons';
 
 /**
  * Groups the tabs and the corresponding panels.
@@ -36,6 +37,9 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
   const direction = useDirection();
 
   const tabPanelRefs = React.useRef<(HTMLElement | null)[]>([]);
+  const [mountedTabPanels, setMountedTabPanels] = React.useState(
+    () => new Map<TabsTab.Value | number, string>(),
+  );
 
   const [value, setValue] = useControlled({
     controlled: valueProp,
@@ -44,9 +48,6 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
     state: 'value',
   });
 
-  const [tabPanelMap, setTabPanelMap] = React.useState(
-    () => new Map<Node, CompositeMetadata<TabsPanel.Metadata> | null>(),
-  );
   const [tabMap, setTabMap] = React.useState(
     () => new Map<Node, CompositeMetadata<TabsTab.Metadata> | null>(),
   );
@@ -67,61 +68,50 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
     },
   );
 
-  // get the `id` attribute of <Tabs.Panel> to set as the value of `aria-controls` on <Tabs.Tab>
-  const getTabPanelIdByTabValueOrIndex = React.useCallback(
-    (tabValue: TabsTab.Value | undefined, index: number) => {
-      if (tabValue === undefined && index < 0) {
-        return undefined;
-      }
-
-      for (const tabPanelMetadata of tabPanelMap.values()) {
-        // find by tabValue
-        if (tabValue !== undefined && tabPanelMetadata && tabValue === tabPanelMetadata?.value) {
-          return tabPanelMetadata.id;
+  const registerMountedTabPanel = useStableCallback(
+    (panelValue: TabsTab.Value | number, panelId: string) => {
+      setMountedTabPanels((prev) => {
+        if (prev.get(panelValue) === panelId) {
+          return prev;
         }
 
-        // find by index
-        if (
-          tabValue === undefined &&
-          tabPanelMetadata?.index &&
-          tabPanelMetadata?.index === index
-        ) {
-          return tabPanelMetadata.id;
-        }
-      }
-
-      return undefined;
+        const next = new Map(prev);
+        next.set(panelValue, panelId);
+        return next;
+      });
     },
-    [tabPanelMap],
+  );
+
+  const unregisterMountedTabPanel = useStableCallback(
+    (panelValue: TabsTab.Value | number, panelId: string) => {
+      setMountedTabPanels((prev) => {
+        if (!prev.has(panelValue) || prev.get(panelValue) !== panelId) {
+          return prev;
+        }
+
+        const next = new Map(prev);
+        next.delete(panelValue);
+        return next;
+      });
+    },
+  );
+
+  // get the `id` attribute of <Tabs.Panel> to set as the value of `aria-controls` on <Tabs.Tab>
+  const getTabPanelIdByValue = React.useCallback(
+    (tabValue: TabsTab.Value) => {
+      return mountedTabPanels.get(tabValue);
+    },
+    [mountedTabPanels],
   );
 
   // get the `id` attribute of <Tabs.Tab> to set as the value of `aria-labelledby` on <Tabs.Panel>
-  const getTabIdByPanelValueOrIndex = React.useCallback(
-    (tabPanelValue: TabsTab.Value | undefined, index: number) => {
-      if (tabPanelValue === undefined && index < 0) {
-        return undefined;
-      }
-
+  const getTabIdByPanelValue = React.useCallback(
+    (tabPanelValue: TabsTab.Value) => {
       for (const tabMetadata of tabMap.values()) {
-        // find by tabPanelValue
-        if (
-          tabPanelValue !== undefined &&
-          index > -1 &&
-          tabPanelValue === (tabMetadata?.value ?? tabMetadata?.index ?? undefined)
-        ) {
-          return tabMetadata?.id;
-        }
-
-        // find by index
-        if (
-          tabPanelValue === undefined &&
-          index > -1 &&
-          index === (tabMetadata?.value ?? tabMetadata?.index ?? undefined)
-        ) {
+        if (tabPanelValue === tabMetadata?.value) {
           return tabMetadata?.id;
         }
       }
-
       return undefined;
     },
     [tabMap],
@@ -149,22 +139,26 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
     () => ({
       direction,
       getTabElementBySelectedValue,
-      getTabIdByPanelValueOrIndex,
-      getTabPanelIdByTabValueOrIndex,
+      getTabIdByPanelValue,
+      getTabPanelIdByValue,
       onValueChange,
       orientation,
+      registerMountedTabPanel,
       setTabMap,
+      unregisterMountedTabPanel,
       tabActivationDirection,
       value,
     }),
     [
       direction,
       getTabElementBySelectedValue,
-      getTabIdByPanelValueOrIndex,
-      getTabPanelIdByTabValueOrIndex,
+      getTabIdByPanelValue,
+      getTabPanelIdByValue,
       onValueChange,
       orientation,
+      registerMountedTabPanel,
       setTabMap,
+      unregisterMountedTabPanel,
       tabActivationDirection,
       value,
     ],
@@ -184,9 +178,7 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
 
   return (
     <TabsRootContext.Provider value={tabsContextValue}>
-      <CompositeList<TabsPanel.Metadata> elementsRef={tabPanelRefs} onMapChange={setTabPanelMap}>
-        {element}
-      </CompositeList>
+      <CompositeList<TabsPanel.Metadata> elementsRef={tabPanelRefs}>{element}</CompositeList>
     </TabsRootContext.Provider>
   );
 });
@@ -200,13 +192,13 @@ export interface TabsRootState {
 
 export interface TabsRootProps extends BaseUIComponentProps<'div', TabsRoot.State> {
   /**
-   * The value of the currently selected `Tab`. Use when the component is controlled.
-   * When the value is `null`, no Tab will be selected.
+   * The value of the currently active `Tab`. Use when the component is controlled.
+   * When the value is `null`, no Tab will be active.
    */
   value?: TabsTab.Value;
   /**
    * The default value. Use when the component is not controlled.
-   * When the value is `null`, no Tab will be selected.
+   * When the value is `null`, no Tab will be active.
    * @default 0
    */
   defaultValue?: TabsTab.Value;
@@ -221,7 +213,7 @@ export interface TabsRootProps extends BaseUIComponentProps<'div', TabsRoot.Stat
   onValueChange?: (value: TabsTab.Value, eventDetails: TabsRoot.ChangeEventDetails) => void;
 }
 
-export type TabsRootChangeEventReason = 'none';
+export type TabsRootChangeEventReason = typeof REASONS.none;
 export type TabsRootChangeEventDetails = BaseUIChangeEventDetails<
   TabsRoot.ChangeEventReason,
   { activationDirection: TabsTab.ActivationDirection }

@@ -4,7 +4,7 @@ import { spy } from 'sinon';
 import { Dialog } from '@base-ui-components/react/dialog';
 import { AlertDialog } from '@base-ui-components/react/alert-dialog';
 import { act, waitFor, screen } from '@mui/internal-test-utils';
-import { describeConformance, createRenderer, isJSDOM } from '#test-utils';
+import { describeConformance, createRenderer, isJSDOM, waitSingleFrame } from '#test-utils';
 
 describe('<Dialog.Popup />', () => {
   const { render } = createRenderer();
@@ -495,6 +495,7 @@ describe('<Dialog.Popup />', () => {
 
       // Close via keyboard: should move focus to final-input
       await user.click(trigger);
+      await waitSingleFrame();
       await user.keyboard('{Escape}');
       await waitFor(() => {
         expect(screen.getByTestId('final-input')).toHaveFocus();

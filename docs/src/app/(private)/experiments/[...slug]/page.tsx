@@ -52,11 +52,13 @@ export async function generateStaticParams() {
     cwd: experimentsRootDirectory,
   });
 
-  return files.map((file) => {
-    return {
-      slug: file.replace(/\.tsx$/, '').split('/'),
-    };
-  });
+  return files
+    .filter((file) => file.split('/').length <= 2)
+    .map((file) => {
+      return {
+        slug: file.replace(/\.tsx$/, '').split('/'),
+      };
+    });
 }
 
 export async function generateMetadata(props: Props): Promise<Metadata> {

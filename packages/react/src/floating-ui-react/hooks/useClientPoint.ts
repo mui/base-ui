@@ -4,7 +4,7 @@ import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { contains, getTarget, isMouseLikePointerType } from '../utils';
 
-import type { ContextData, ElementProps, FloatingRootContext } from '../types';
+import type { ContextData, ElementProps, FloatingContext, FloatingRootContext } from '../types';
 
 function createVirtualElement(
   domElement: Element | null | undefined,
@@ -116,15 +116,16 @@ export interface UseClientPointProps {
  * @see https://floating-ui.com/docs/useClientPoint
  */
 export function useClientPoint(
-  context: FloatingRootContext,
+  context: FloatingRootContext | FloatingContext,
   props: UseClientPointProps = {},
 ): ElementProps {
-  const {
-    open,
-    dataRef,
-    elements: { floating, domReference },
-    refs,
-  } = context;
+  const store = 'rootStore' in context ? context.rootStore : context;
+
+  const open = store.useState('open');
+  const floating = store.useState('floatingElement');
+  const domReference = store.useState('domReferenceElement');
+  const dataRef = store.context.dataRef;
+
   const { enabled = true, axis = 'both', x = null, y = null } = props;
 
   const initialRef = React.useRef(false);
@@ -145,7 +146,8 @@ export function useClientPoint(
       return;
     }
 
-    refs.setPositionReference(
+    store.set(
+      'positionReference',
       createVirtualElement(domReference, {
         x: newX,
         y: newY,
@@ -206,9 +208,9 @@ export function useClientPoint(
       return cleanup;
     }
 
-    refs.setPositionReference(domReference);
+    store.set('positionReference', domReference);
     return undefined;
-  }, [openCheck, enabled, x, y, floating, dataRef, refs, domReference, setReference]);
+  }, [openCheck, enabled, x, y, floating, dataRef, domReference, store, setReference]);
 
   React.useEffect(() => {
     return addListener();

@@ -29,12 +29,14 @@ export const SelectValue = React.forwardRef(function SelectValue(
   const value = useStore(store, selectors.value);
   const items = useStore(store, selectors.items);
   const itemToStringLabel = useStore(store, selectors.itemToStringLabel);
+  const serializedValue = useStore(store, selectors.serializedValue);
 
   const state: SelectValue.State = React.useMemo(
     () => ({
       value,
+      placeholder: !serializedValue,
     }),
-    [value],
+    [value, serializedValue],
   );
 
   const children =

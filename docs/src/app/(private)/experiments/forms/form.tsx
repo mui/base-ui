@@ -42,12 +42,25 @@ const schema = z.object({
   autocomplete: z.string().min(1, 'Please input a framework'),
 });
 
-interface Settings extends Record<string, boolean> {}
+interface Settings {
+  native: boolean;
+  validationMode: Form.Props['validationMode'];
+}
 
 const frameworks = ['React', 'Vue', 'Angular', 'Svelte', 'Next.js', 'Nuxt.js', 'Gatsby', 'Remix'];
 
-interface Values {
-  numberField: number | null;
+interface MyFormValues {
+  input: string;
+  'required-checkbox': boolean;
+  switch: boolean;
+  slider: number;
+  'range-slider': number[];
+  'number-field': number;
+  select: string[];
+  'radio-group': string[];
+  'multi-select': string[];
+  combobox: string;
+  autocomplete: string;
 }
 
 export const settingsMetadata: SettingsMetadata<Settings> = {
@@ -56,31 +69,22 @@ export const settingsMetadata: SettingsMetadata<Settings> = {
     label: 'Native validation',
     default: true,
   },
+  validationMode: {
+    type: 'string',
+    label: 'Validation mode',
+    options: ['onSubmit', 'onBlur', 'onChange'],
+    default: 'onSubmit',
+  },
 };
 
-async function submitForm(
-  event: React.FormEvent<HTMLFormElement>,
-  values: Values,
-  native: boolean,
-) {
-  event.preventDefault();
-
-  const formData = new FormData(event.currentTarget);
-
-  const entries = Object.fromEntries(formData as any);
-
-  entries['number-field'] = values.numberField;
-  entries.slider = parseFloat(formData.get('slider') as string);
-  entries['range-slider'] = formData.getAll('range-slider').map((v) => parseFloat(v as string));
-  entries['multi-select'] = formData.getAll('multi-select');
-
+async function submitForm(values: MyFormValues, native: boolean) {
   if (native) {
     return {
       errors: {},
     };
   }
 
-  const result = schema.safeParse(entries);
+  const result = schema.safeParse(values);
 
   if (!result.success) {
     return {
@@ -107,20 +111,14 @@ export default function Page() {
 
       <hr style={{ margin: '1rem 0' }} />
 
-      <Form
+      <Form<MyFormValues>
         className={styles.Form}
         errors={errors}
-        onClearErrors={setErrors}
-        onSubmit={async (event) => {
-          const response = await submitForm(
-            event,
-            {
-              numberField: numberFieldValueRef.current,
-            },
-            native,
-          );
+        onFormSubmit={async (values) => {
+          const response = await submitForm(values, native);
           setErrors(response.errors);
         }}
+        validationMode={settings.validationMode}
       >
         <Field.Root name="input" className={styles.Field}>
           <Field.Label className={styles.Label}>Local hostname</Field.Label>
@@ -146,7 +144,7 @@ export default function Page() {
           </Field.Label>
         </Field.Root>
 
-        <Field.Root name="required-checkbox" validationMode="onChange" className={styles.Field}>
+        <Field.Root name="required-checkbox" className={styles.Field}>
           <Field.Label className={styles.Label}>
             <Checkbox.Root required={native} className={styles.Checkbox}>
               <Checkbox.Indicator className={styles.CheckboxIndicator}>

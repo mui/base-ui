@@ -7,6 +7,7 @@ import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping'
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
 import { useRenderElement } from '../../utils/useRenderElement';
+import { REASONS } from '../../utils/reasons';
 
 const stateAttributesMapping: StateAttributesMapping<PopoverBackdrop.State> = {
   ...baseMapping,
@@ -30,7 +31,7 @@ export const PopoverBackdrop = React.forwardRef(function PopoverBackdrop(
   const open = store.useState('open');
   const mounted = store.useState('mounted');
   const transitionStatus = store.useState('transitionStatus');
-  const openReason = store.useState('openReason');
+  const openReason = store.useState('openChangeReason');
 
   const state: PopoverBackdrop.State = React.useMemo(
     () => ({
@@ -48,7 +49,7 @@ export const PopoverBackdrop = React.forwardRef(function PopoverBackdrop(
         role: 'presentation',
         hidden: !mounted,
         style: {
-          pointerEvents: openReason === 'trigger-hover' ? 'none' : undefined,
+          pointerEvents: openReason === REASONS.triggerHover ? 'none' : undefined,
           userSelect: 'none',
           WebkitUserSelect: 'none',
         },

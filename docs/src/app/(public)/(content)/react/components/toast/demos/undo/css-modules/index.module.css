@@ -161,12 +161,6 @@
   margin: 0;
 }
 
-.Actions {
-  display: flex;
-  gap: 0.5rem;
-  margin-top: 0.75rem;
-}
-
 .UndoButton {
   display: inline-flex;
   align-items: center;

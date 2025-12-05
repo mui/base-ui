@@ -7,6 +7,7 @@ import { useCollapsibleRoot } from './useCollapsibleRoot';
 import { CollapsibleRootContext } from './CollapsibleRootContext';
 import { collapsibleStateAttributesMapping } from './stateAttributesMapping';
 import type { BaseUIChangeEventDetails } from '../../utils/createBaseUIEventDetails';
+import { REASONS } from '../../utils/reasons';
 
 /**
  * Groups all parts of the collapsible.
@@ -55,7 +56,6 @@ export const CollapsibleRoot = React.forwardRef(function CollapsibleRoot(
     [collapsible, onOpenChange, state],
   );
 
-  // @ts-expect-error Collapsible accepts `render={null}`
   const element = useRenderElement('div', componentProps, {
     state,
     ref: forwardedRef,
@@ -63,17 +63,9 @@ export const CollapsibleRoot = React.forwardRef(function CollapsibleRoot(
     stateAttributesMapping: collapsibleStateAttributesMapping,
   });
 
-  if (componentProps.render !== null) {
-    return (
-      <CollapsibleRootContext.Provider value={contextValue}>
-        {element}
-      </CollapsibleRootContext.Provider>
-    );
-  }
-
   return (
     <CollapsibleRootContext.Provider value={contextValue}>
-      {elementProps.children}
+      {element}
     </CollapsibleRootContext.Provider>
   );
 });
@@ -81,8 +73,7 @@ export const CollapsibleRoot = React.forwardRef(function CollapsibleRoot(
 export interface CollapsibleRootState
   extends Pick<useCollapsibleRoot.ReturnValue, 'open' | 'disabled'> {}
 
-export interface CollapsibleRootProps
-  extends Omit<BaseUIComponentProps<'div', CollapsibleRoot.State>, 'render'> {
+export interface CollapsibleRootProps extends BaseUIComponentProps<'div', CollapsibleRoot.State> {
   /**
    * Whether the collapsible panel is currently open.
    *
@@ -105,10 +96,9 @@ export interface CollapsibleRootProps
    * @default false
    */
   disabled?: boolean;
-  render?: BaseUIComponentProps<'div', CollapsibleRootState>['render'] | null;
 }
 
-export type CollapsibleRootChangeEventReason = 'trigger-press' | 'none';
+export type CollapsibleRootChangeEventReason = typeof REASONS.triggerPress | typeof REASONS.none;
 export type CollapsibleRootChangeEventDetails =
   BaseUIChangeEventDetails<CollapsibleRootChangeEventReason>;
 

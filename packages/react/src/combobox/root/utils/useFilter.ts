@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import { createCollatorItemFilter, createSingleSelectionCollatorFilter } from './index';
+import { stringifyAsLabel } from '../../../utils/resolveValueLabel';
 
 export interface UseFilterOptions extends Intl.CollatorOptions {
   /**
@@ -11,12 +12,22 @@ export interface UseFilterOptions extends Intl.CollatorOptions {
 }
 
 export interface Filter {
-  contains: (item: any, query: string) => boolean;
-  startsWith: (item: any, query: string) => boolean;
-  endsWith: (item: any, query: string) => boolean;
+  contains: <Item>(item: Item, query: string, itemToString?: (item: Item) => string) => boolean;
+  startsWith: <Item>(item: Item, query: string, itemToString?: (item: Item) => string) => boolean;
+  endsWith: <Item>(item: Item, query: string, itemToString?: (item: Item) => string) => boolean;
 }
 
 const filterCache = new Map<string, Filter>();
+
+function stringifyLocale(locale?: Intl.LocalesArgument): string {
+  if (Array.isArray(locale)) {
+    return locale.map((value) => stringifyLocale(value)).join(',');
+  }
+  if (locale == null) {
+    return '';
+  }
+  return String(locale);
+}
 
 function getFilter(options: UseFilterOptions = {}): Filter {
   const mergedOptions: Intl.CollatorOptions = {
@@ -26,8 +37,8 @@ function getFilter(options: UseFilterOptions = {}): Filter {
     ...options,
   };
 
-  const optionsString = JSON.stringify(mergedOptions);
-  const cachedFilter = filterCache.get(optionsString);
+  const cacheKey = `${stringifyLocale(options.locale)}|${JSON.stringify(mergedOptions)}`;
+  const cachedFilter = filterCache.get(cacheKey);
 
   if (cachedFilter) {
     return cachedFilter;
@@ -36,40 +47,46 @@ function getFilter(options: UseFilterOptions = {}): Filter {
   const collator = new Intl.Collator(options.locale, mergedOptions);
 
   const filter: Filter = {
-    contains(item: string, query: string) {
+    contains<Item>(item: Item, query: string, itemToString?: (item: Item) => string) {
       if (!query) {
         return true;
       }
 
-      for (let i = 0; i <= item.length - query.length; i += 1) {
-        if (collator.compare(item.slice(i, i + query.length), query) === 0) {
+      const itemString = stringifyAsLabel(item, itemToString);
+
+      for (let i = 0; i <= itemString.length - query.length; i += 1) {
+        if (collator.compare(itemString.slice(i, i + query.length), query) === 0) {
           return true;
         }
       }
 
       return false;
     },
-    startsWith(item: string, query: string) {
-      if (!query) {
-        return true;
-      }
-      return collator.compare(item.slice(0, query.length), query) === 0;
-    },
-    endsWith(item: string, query: string) {
+    startsWith<Item>(item: Item, query: string, itemToString?: (item: Item) => string) {
       if (!query) {
         return true;
       }
 
+      const itemString = stringifyAsLabel(item, itemToString);
+
+      return collator.compare(itemString.slice(0, query.length), query) === 0;
+    },
+    endsWith<Item>(item: Item, query: string, itemToString?: (item: Item) => string) {
+      if (!query) {
+        return true;
+      }
+
+      const itemString = stringifyAsLabel(item, itemToString);
       const queryLength = query.length;
 
       return (
-        item.length >= queryLength &&
-        collator.compare(item.slice(item.length - queryLength), query) === 0
+        itemString.length >= queryLength &&
+        collator.compare(itemString.slice(itemString.length - queryLength), query) === 0
       );
     },
   };
 
-  filterCache.set(optionsString, filter);
+  filterCache.set(cacheKey, filter);
   return filter;
 }
 
@@ -99,11 +116,11 @@ export function useComboboxFilter(options: UseComboboxFilterOptions = {}): Filte
   const coreFilter = getFilter(collatorOptions);
 
   const contains: Filter['contains'] = React.useCallback(
-    (item: any, query: string, itemToStringLabel?: (item: any) => string) => {
+    (item: any, query: string, itemToString?: (item: any) => string) => {
       if (multiple) {
-        return createCollatorItemFilter(coreFilter, itemToStringLabel)(item, query);
+        return createCollatorItemFilter(coreFilter, itemToString)(item, query);
       }
-      return createSingleSelectionCollatorFilter(coreFilter, itemToStringLabel, value)(item, query);
+      return createSingleSelectionCollatorFilter(coreFilter, itemToString, value)(item, query);
     },
     [coreFilter, value, multiple],
   );

@@ -6,9 +6,11 @@
   content="A high-quality, unstyled React toolbar component that groups a set of buttons and controls."
 />
 
-<Demo path="./demos/hero" />
+import { DemoToolbarHero } from './demos/hero';
 
-## Accessibility guidelines
+<DemoToolbarHero />
+
+## Usage guidelines
 
 To ensure that toolbars are accessible and helpful, follow these guidelines:
 
@@ -33,15 +35,11 @@ import { Toolbar } from '@base-ui-components/react/toolbar';
 </Toolbar.Root>;
 ```
 
-## API reference
-
-<Reference component="Toolbar" parts="Root, Button, Link, Input, Group, Separator" />
-
 ## Examples
 
 ### Using with Menu
 
-All Base UI popup components that provide a `Trigger` component can be integrated with a toolbar by passing the trigger to `<Toolbar.Button>` with the `render` prop:
+All Base UI popup components that provide a `Trigger` component can be integrated with a toolbar by passing the trigger to `<Toolbar.Button>` with the `render` prop:
 
 ```tsx {4,12} title="Using popups with toolbar"
 return (
@@ -94,3 +92,7 @@ return (
   </Toolbar.Root>;
 )
 ```
+
+## API reference
+
+<Reference component="Toolbar" parts="Root, Button, Link, Input, Group, Separator" />

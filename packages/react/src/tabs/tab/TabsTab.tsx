@@ -12,6 +12,7 @@ import type { TabsRoot } from '../root/TabsRoot';
 import { useTabsRootContext } from '../root/TabsRootContext';
 import { useTabsListContext } from '../list/TabsListContext';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
+import { REASONS } from '../../utils/reasons';
 import { activeElement, contains } from '../../floating-ui-react/utils';
 
 /**
@@ -28,32 +29,25 @@ export const TabsTab = React.forwardRef(function TabsTab(
     className,
     disabled = false,
     render,
-    value: valueProp,
+    value,
     id: idProp,
     nativeButton = true,
     ...elementProps
   } = componentProps;
 
-  const {
-    value: selectedTabValue,
-    getTabPanelIdByTabValueOrIndex,
-    orientation,
-  } = useTabsRootContext();
+  const { value: activeTabValue, getTabPanelIdByValue, orientation } = useTabsRootContext();
 
   const {
     activateOnFocus,
     highlightedTabIndex,
     onTabActivation,
     setHighlightedTabIndex,
-    tabsListRef,
+    tabsListElement,
   } = useTabsListContext();
 
   const id = useBaseUiId(idProp);
 
-  const tabMetadata = React.useMemo(
-    () => ({ disabled, id, value: valueProp }),
-    [disabled, id, valueProp],
-  );
+  const tabMetadata = React.useMemo(() => ({ disabled, id, value }), [disabled, id, value]);
 
   const {
     compositeProps,
@@ -61,23 +55,15 @@ export const TabsTab = React.forwardRef(function TabsTab(
     index,
     // hook is used instead of the CompositeItem component
     // because the index is needed for Tab internals
-  } = useCompositeItem<TabsTab.Metadata>({ metadata: tabMetadata });
+  } = useCompositeItem<TabsTab.Metadata>({
+    metadata: tabMetadata,
+  });
 
-  const tabValue = valueProp ?? index;
-
-  // the `selected` state isn't set on the server (it relies on effects to be calculated),
-  // so we fall back to checking the `value` param with the selectedTabValue from the TabsContext
-  const selected = React.useMemo(() => {
-    if (valueProp === undefined) {
-      return index < 0 ? false : index === selectedTabValue;
-    }
-
-    return valueProp === selectedTabValue;
-  }, [index, selectedTabValue, valueProp]);
+  const active = value === activeTabValue;
 
   const isNavigatingRef = React.useRef(false);
 
-  // Keep the highlighted item in sync with the currently selected tab
+  // Keep the highlighted item in sync with the currently active tab
   // when the value prop changes externally (controlled mode)
   useIsoLayoutEffect(() => {
     if (isNavigatingRef.current) {
@@ -85,23 +71,25 @@ export const TabsTab = React.forwardRef(function TabsTab(
       return;
     }
 
-    if (!(selected && index > -1 && highlightedTabIndex !== index)) {
+    if (!(active && index > -1 && highlightedTabIndex !== index)) {
       return;
     }
 
     // If focus is currently within the tabs list, don't override the roving
     // focus highlight. This keeps keyboard navigation relative to the focused
     // item after an external/asynchronous selection change.
-    const listElement = tabsListRef.current;
-    const activeEl = activeElement(ownerDocument(listElement));
-    if (listElement && activeEl && contains(listElement, activeEl)) {
-      return;
+    const listElement = tabsListElement;
+    if (listElement != null) {
+      const activeEl = activeElement(ownerDocument(listElement));
+      if (activeEl && contains(listElement, activeEl)) {
+        return;
+      }
     }
 
     if (!disabled) {
       setHighlightedTabIndex(index);
     }
-  }, [selected, index, highlightedTabIndex, setHighlightedTabIndex, disabled, tabsListRef]);
+  }, [active, index, highlightedTabIndex, setHighlightedTabIndex, disabled, tabsListElement]);
 
   const { getButtonProps, buttonRef } = useButton({
     disabled,
@@ -109,26 +97,26 @@ export const TabsTab = React.forwardRef(function TabsTab(
     focusableWhenDisabled: true,
   });
 
-  const tabPanelId = index > -1 ? getTabPanelIdByTabValueOrIndex(valueProp, index) : undefined;
+  const tabPanelId = getTabPanelIdByValue(value);
 
   const isPressingRef = React.useRef(false);
   const isMainButtonRef = React.useRef(false);
 
   function onClick(event: React.MouseEvent<HTMLButtonElement>) {
-    if (selected || disabled) {
+    if (active || disabled) {
       return;
     }
 
     onTabActivation(
-      tabValue,
-      createChangeEventDetails('none', event.nativeEvent, undefined, {
+      value,
+      createChangeEventDetails(REASONS.none, event.nativeEvent, undefined, {
         activationDirection: 'none',
       }),
     );
   }
 
   function onFocus(event: React.FocusEvent<HTMLButtonElement>) {
-    if (selected) {
+    if (active) {
       return;
     }
 
@@ -141,12 +129,13 @@ export const TabsTab = React.forwardRef(function TabsTab(
     }
 
     if (
-      (activateOnFocus && !isPressingRef.current) || // keyboard or touch focus
-      (isPressingRef.current && isMainButtonRef.current) // mouse focus
+      activateOnFocus &&
+      (!isPressingRef.current || // keyboard or touch focus
+        (isPressingRef.current && isMainButtonRef.current)) // mouse focus
     ) {
       onTabActivation(
-        tabValue,
-        createChangeEventDetails('none', event.nativeEvent, undefined, {
+        value,
+        createChangeEventDetails(REASONS.none, event.nativeEvent, undefined, {
           activationDirection: 'none',
         }),
       );
@@ -154,7 +143,7 @@ export const TabsTab = React.forwardRef(function TabsTab(
   }
 
   function onPointerDown(event: React.PointerEvent<HTMLButtonElement>) {
-    if (selected || disabled) {
+    if (active || disabled) {
       return;
     }
 
@@ -176,10 +165,10 @@ export const TabsTab = React.forwardRef(function TabsTab(
   const state: TabsTab.State = React.useMemo(
     () => ({
       disabled,
-      selected,
+      active,
       orientation,
     }),
-    [disabled, selected, orientation],
+    [disabled, active, orientation],
   );
 
   const element = useRenderElement('button', componentProps, {
@@ -190,12 +179,12 @@ export const TabsTab = React.forwardRef(function TabsTab(
       {
         role: 'tab',
         'aria-controls': tabPanelId,
-        'aria-selected': selected,
+        'aria-selected': active,
         id,
         onClick,
         onFocus,
         onPointerDown,
-        [ACTIVE_COMPOSITE_ITEM as string]: selected ? '' : undefined,
+        [ACTIVE_COMPOSITE_ITEM as string]: active ? '' : undefined,
         onKeyDownCapture() {
           isNavigatingRef.current = true;
         },
@@ -227,7 +216,7 @@ export interface TabsTabSize {
 export interface TabsTabMetadata {
   disabled: boolean;
   id: string | undefined;
-  value: any | undefined;
+  value: TabsTab.Value | undefined;
 }
 
 export interface TabsTabState {
@@ -235,7 +224,7 @@ export interface TabsTabState {
    * Whether the component should ignore user interaction.
    */
   disabled: boolean;
-  selected: boolean;
+  active: boolean;
   orientation: TabsRoot.Orientation;
 }
 
@@ -244,9 +233,8 @@ export interface TabsTabProps
     BaseUIComponentProps<'button', TabsTab.State> {
   /**
    * The value of the Tab.
-   * When not specified, the value is the child position index.
    */
-  value?: TabsTab.Value;
+  value: TabsTab.Value;
 }
 
 export namespace TabsTab {

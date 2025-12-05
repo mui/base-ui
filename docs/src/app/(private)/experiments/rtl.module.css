@@ -44,12 +44,6 @@
   }
 }
 
-.positioner {
-  &:focus-visible {
-    outline: 0;
-  }
-}
-
 .item {
   list-style: none;
   padding: 8px;

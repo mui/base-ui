@@ -8,8 +8,12 @@
       "detailedType": "| HTMLElement\n| ShadowRoot\n| React.RefObject<HTMLElement | ShadowRoot | null>\n| null\n| undefined"
     },
     "className": {
-      "type": "string | ((state: any) => string)",
+      "type": "string | ((state: any) => string | undefined)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
+    },
+    "style": {
+      "type": "CSSProperties | ((state: any) => CSSProperties | undefined)",
+      "detailedType": "| React.CSSProperties\n| ((state: any) => CSSProperties | undefined)\n| undefined"
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: any) => ReactElement)",

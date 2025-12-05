@@ -1,3 +1,4 @@
+'use client';
 import * as React from 'react';
 import { Popover } from '@base-ui-components/react/popover';
 import { Avatar } from '@base-ui-components/react/avatar';

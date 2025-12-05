@@ -10,7 +10,7 @@ import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useRenderElement } from '../../utils/useRenderElement';
-import { DISABLED_TRANSITIONS_STYLE, EMPTY_OBJECT } from '../../utils/constants';
+import { getDisabledMountTransitionStyles } from '../../utils/getDisabledMountTransitionStyles';
 
 const stateAttributesMapping: StateAttributesMapping<PreviewCardPopup.State> = {
   ...baseMapping,
@@ -56,11 +56,7 @@ export const PreviewCardPopup = React.forwardRef(function PreviewCardPopup(
   const element = useRenderElement('div', componentProps, {
     ref: [popupRef, forwardedRef],
     state,
-    props: [
-      popupProps,
-      transitionStatus === 'starting' ? DISABLED_TRANSITIONS_STYLE : EMPTY_OBJECT,
-      elementProps,
-    ],
+    props: [popupProps, getDisabledMountTransitionStyles(transitionStatus), elementProps],
     stateAttributesMapping,
   });
 

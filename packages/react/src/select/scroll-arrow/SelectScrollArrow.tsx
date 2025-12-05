@@ -38,7 +38,7 @@ export const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
 
   const scrollArrowRef = direction === 'up' ? scrollUpArrowRef : scrollDownArrowRef;
 
-  const { mounted, transitionStatus, setMounted } = useTransitionStatus(visible);
+  const { transitionStatus, setMounted } = useTransitionStatus(visible);
 
   useIsoLayoutEffect(() => {
     scrollArrowsMountedCountRef.current += 1;
@@ -75,7 +75,6 @@ export const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
   );
 
   const defaultProps: React.ComponentProps<'div'> = {
-    hidden: !mounted,
     'aria-hidden': true,
     children: direction === 'up' ? '▲' : '▼',
     style: {

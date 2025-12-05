@@ -5,6 +5,7 @@ import { expect } from 'chai';
 import { Collapsible } from '@base-ui-components/react/collapsible';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import { spy } from 'sinon';
+import { REASONS } from '../../utils/reasons';
 
 const PANEL_CONTENT = 'This is panel content';
 
@@ -82,7 +83,7 @@ describe('<Collapsible.Root />', () => {
       const [openArg, details] = handleOpenChange.firstCall.args as [boolean, any];
       expect(openArg).to.equal(true);
       expect(details).to.not.equal(undefined);
-      expect(details.reason).to.equal('trigger-press');
+      expect(details.reason).to.equal(REASONS.triggerPress);
       expect(details.event).to.be.instanceOf(MouseEvent);
       expect(details.isCanceled).to.equal(false);
       expect(typeof details.cancel).to.equal('function');
@@ -161,20 +162,6 @@ describe('<Collapsible.Root />', () => {
       expect(trigger).to.not.have.attribute('aria-controls');
       expect(trigger).to.not.have.attribute('data-panel-open');
       expect(screen.queryByText(PANEL_CONTENT)).to.equal(null);
-    });
-  });
-
-  describe('prop: render', () => {
-    it('does not render a root element when `null`', async () => {
-      const { container } = await render(
-        <Collapsible.Root defaultOpen render={null}>
-          <Collapsible.Trigger />
-          <Collapsible.Panel>This is panel content</Collapsible.Panel>
-        </Collapsible.Root>,
-      );
-
-      const trigger = screen.getByRole('button');
-      expect(container.firstElementChild as HTMLElement).to.equal(trigger);
     });
   });
 

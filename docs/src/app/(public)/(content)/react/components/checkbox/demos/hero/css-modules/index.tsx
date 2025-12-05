@@ -5,7 +5,7 @@ import styles from './index.module.css';
 export default function ExampleCheckbox() {
   return (
     <label className={styles.Label}>
-      <Checkbox.Root defaultChecked className={styles.Checkbox}>
+      <Checkbox.Root defaultChecked aria-label="Enable notifications" className={styles.Checkbox}>
         <Checkbox.Indicator className={styles.Indicator}>
           <CheckIcon className={styles.Icon} />
         </Checkbox.Indicator>

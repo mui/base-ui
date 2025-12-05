@@ -113,9 +113,10 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
 
   const {
     active: activeIndex,
+    lastUsedThumbIndex,
     controlRef,
     disabled: contextDisabled,
-    fieldControlValidation,
+    validation,
     formatOptionsRef,
     handleInputChange,
     inset,
@@ -175,6 +176,9 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
 
   useOnMount(() => setIsMounted(true));
 
+  const safeLastUsedThumbIndex =
+    lastUsedThumbIndex >= 0 && lastUsedThumbIndex < sliderValues.length ? lastUsedThumbIndex : -1;
+
   const getInsetPosition = useStableCallback(() => {
     const control = controlRef.current;
     const thumb = thumbRef.current;
@@ -215,6 +219,17 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
     const startEdge = vertical ? 'bottom' : 'insetInlineStart';
     const crossOffsetProperty = vertical ? 'left' : 'top';
 
+    let zIndex: number | undefined;
+    if (range) {
+      if (activeIndex === index) {
+        zIndex = 2;
+      } else if (safeLastUsedThumbIndex === index) {
+        zIndex = 1;
+      }
+    } else if (activeIndex === index) {
+      zIndex = 1;
+    }
+
     if (!inset) {
       if (!Number.isFinite(thumbValuePercent)) {
         return visuallyHidden;
@@ -225,7 +240,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
         [startEdge]: `${thumbValuePercent}%`,
         [crossOffsetProperty]: '50%',
         translate: `${(vertical || !rtl ? -1 : 1) * 50}% ${(vertical ? 1 : -1) * 50}%`,
-        zIndex: activeIndex === index ? 1 : undefined,
+        zIndex,
       } satisfies React.CSSProperties;
     }
 
@@ -239,7 +254,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
       [startEdge]: 'var(--position)',
       [crossOffsetProperty]: '50%',
       translate: `${(vertical || !rtl ? -1 : 1) * 50}% ${(vertical ? 1 : -1) * 50}%`,
-      zIndex: activeIndex === index ? 1 : undefined,
+      zIndex,
     } satisfies React.CSSProperties;
   }, [
     activeIndex,
@@ -247,8 +262,10 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
     inset,
     isMounted,
     positionPercent,
+    range,
     renderBeforeHydration,
     rtl,
+    safeLastUsedThumbIndex,
     thumbValuePercent,
     vertical,
   ]);
@@ -301,9 +318,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
         setFocused(false);
 
         if (validationMode === 'onBlur') {
-          fieldControlValidation.commitValidation(
-            getSliderValue(thumbValue, index, min, max, range, sliderValues),
-          );
+          validation.commit(getSliderValue(thumbValue, index, min, max, range, sliderValues));
         }
       },
       onKeyDown(event: React.KeyboardEvent) {
@@ -386,10 +401,10 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
       type: 'range',
       value: thumbValue ?? '',
     },
-    fieldControlValidation.getInputValidationProps,
+    validation.getInputValidationProps,
   );
 
-  const mergedInputRef = useMergedRefs(inputRef, fieldControlValidation.inputRef, inputRefProp);
+  const mergedInputRef = useMergedRefs(inputRef, validation.inputRef, inputRefProp);
 
   const element = useRenderElement('div', componentProps, {
     state,

@@ -200,12 +200,6 @@
   color: var(--color-gray-600);
 }
 
-.Actions {
-  display: flex;
-  justify-content: end;
-  gap: 1rem;
-}
-
 .Container {
   display: flex;
   gap: 8px;

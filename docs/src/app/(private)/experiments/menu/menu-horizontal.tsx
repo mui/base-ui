@@ -19,8 +19,8 @@ export default function NestedMenu() {
         <Menu.Portal>
           <Menu.Positioner side="bottom" align="start" sideOffset={6} anchor={containerRef}>
             <Menu.Popup className={styles.MenuRootPopup}>
-              <Menu.SubmenuRoot openOnHover={false}>
-                <Menu.SubmenuTrigger className={styles.SubmenuTrigger}>
+              <Menu.SubmenuRoot>
+                <Menu.SubmenuTrigger openOnHover={false} className={styles.SubmenuTrigger}>
                   Text color
                 </Menu.SubmenuTrigger>
                 <Menu.Portal>
@@ -49,8 +49,10 @@ export default function NestedMenu() {
                 </Menu.Portal>
               </Menu.SubmenuRoot>
 
-              <Menu.SubmenuRoot openOnHover={false}>
-                <Menu.SubmenuTrigger className={styles.SubmenuTrigger}>Style</Menu.SubmenuTrigger>
+              <Menu.SubmenuRoot>
+                <Menu.SubmenuTrigger openOnHover={false} className={styles.SubmenuTrigger}>
+                  Style
+                </Menu.SubmenuTrigger>
                 <Menu.Portal>
                   <Menu.Positioner align="start" side="bottom" sideOffset={12}>
                     <Menu.Popup className={styles.MenuPopup}>

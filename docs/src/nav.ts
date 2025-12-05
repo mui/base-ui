@@ -50,12 +50,14 @@ export const nav: NavGroup[] = [
       {
         label: 'Customization',
         href: '/react/handbook/customization',
-        isNew: true,
+      },
+      {
+        label: 'Forms',
+        href: '/react/handbook/forms',
       },
       {
         label: 'TypeScript',
         href: '/react/handbook/typescript',
-        isNew: true,
       },
       {
         label: 'llms.txt',
@@ -82,6 +84,10 @@ export const nav: NavGroup[] = [
       {
         label: 'Avatar',
         href: '/react/components/avatar',
+      },
+      {
+        label: 'Button',
+        href: '/react/components/button',
       },
       {
         label: 'Checkbox',

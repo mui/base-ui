@@ -3,7 +3,6 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { type FocusableElement } from 'tabbable';
 import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
-import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { usePopoverRootContext } from '../root/PopoverRootContext';
 import { useButton } from '../../use-button/useButton';
 import type { BaseUIComponentProps, NativeButtonProps } from '../../utils/types';
@@ -14,10 +13,14 @@ import {
 import { StateAttributesMapping } from '../../utils/getStateAttributesProps';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { CLICK_TRIGGER_IDENTIFIER } from '../../utils/constants';
-import { safePolygon, useClick, useHover, useInteractions } from '../../floating-ui-react';
+import {
+  safePolygon,
+  useClick,
+  useHoverReferenceInteraction,
+  useInteractions,
+} from '../../floating-ui-react';
 import { OPEN_DELAY } from '../utils/constants';
-import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
-import { PopoverStore } from '../store';
+import { PopoverHandle } from '../store/PopoverHandle';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { FocusGuard } from '../../utils/FocusGuard';
 import {
@@ -28,6 +31,8 @@ import {
   isOutsideEvent,
 } from '../../floating-ui-react/utils';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
+import { REASONS } from '../../utils/reasons';
+import { useTriggerDataForwarding } from '../../utils/popups';
 
 /**
  * A button that opens the popover.
@@ -54,56 +59,41 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
   } = componentProps;
 
   const rootContext = usePopoverRootContext(true);
-
-  let store: PopoverStore<unknown>;
-
-  if (handle) {
-    store = handle;
-  } else if (rootContext) {
-    store = rootContext.store;
-  } else {
+  const store = handle?.store ?? rootContext?.store;
+  if (!store) {
     throw new Error(
-      'Base UI: PopoverTrigger must be either used within a PopoverRoot component or have the `handle` prop set.',
+      'Base UI: <Popover.Trigger> must be either used within a <Popover.Root> component or provided with a handle.',
     );
   }
 
-  const id = useBaseUiId(idProp);
-
+  const thisTriggerId = useBaseUiId(idProp);
+  const isTriggerActive = store.useState('isTriggerActive', thisTriggerId);
   const floatingContext = store.useState('floatingRootContext');
-  const open = store.useState('open');
-  const openReason = store.useState('openReason');
-  const rootActiveTriggerProps = store.useState('activeTriggerProps');
-  const rootInactiveTriggerProps = store.useState('inactiveTriggerProps');
+  const isOpenedByThisTrigger = store.useState('isOpenedByTrigger', thisTriggerId);
+
+  const triggerElementRef = React.useRef<HTMLElement | null>(null);
+
+  const { registerTrigger, isMountedByThisTrigger } = useTriggerDataForwarding(
+    thisTriggerId,
+    triggerElementRef,
+    store,
+    {
+      payload,
+      disabled,
+      openOnHover,
+      closeDelay,
+    },
+  );
+
+  const openReason = store.useState('openChangeReason');
   const stickIfOpen = store.useState('stickIfOpen');
-  const mounted = store.useState('mounted');
-  const activeTrigger = store.useState('activeTriggerElement');
-  const positionerElement = store.useState('positionerElement');
+  const openMethod = store.useState('openMethod');
 
-  const [triggerElement, setTriggerElement] = React.useState<HTMLElement | null>(null);
-
-  const isTriggerActive = activeTrigger === triggerElement;
-
-  const {
-    openMethod,
-    triggerProps: interactionTypeTriggerProps,
-    reset: resetOpenInteractionType,
-  } = useOpenInteractionType(open);
-
-  useIsoLayoutEffect(() => {
-    store.set('openMethod', openMethod);
-  }, [store, openMethod]);
-
-  React.useEffect(() => {
-    if (!mounted) {
-      resetOpenInteractionType();
-    }
-  }, [mounted, resetOpenInteractionType]);
-
-  const hover = useHover(floatingContext, {
+  const hoverProps = useHoverReferenceInteraction(floatingContext, {
     enabled:
       floatingContext != null &&
       openOnHover &&
-      (openMethod !== 'touch' || openReason !== 'trigger-press'),
+      (openMethod !== 'touch' || openReason !== REASONS.triggerPress),
     mouseOnly: true,
     move: false,
     handleClose: safePolygon(),
@@ -111,47 +101,22 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
     delay: {
       close: closeDelay,
     },
-    triggerElement,
+    triggerElementRef,
+    isActiveTrigger: isTriggerActive,
   });
 
   const click = useClick(floatingContext, { enabled: floatingContext != null, stickIfOpen });
 
-  const localProps = useInteractions([click, hover]);
+  const localProps = useInteractions([click]);
 
-  const getPayload = useStableCallback(() => {
-    return payload;
-  });
-
-  const registeredId = React.useRef<string>(null);
-  const registerTrigger = React.useCallback(
-    (element: HTMLElement | null) => {
-      if (id == null) {
-        throw new Error('Base UI: PopoverTrigger must have an `id` prop specified.');
-      }
-
-      if (element != null) {
-        store.registerTrigger(id, element, getPayload);
-        setTriggerElement(element);
-        // Keeping track of the registered id in case it changes.
-        registeredId.current = id;
-      } else {
-        if (registeredId.current != null) {
-          store.unregisterTrigger(registeredId.current);
-          registeredId.current = null;
-        }
-
-        setTriggerElement(null);
-      }
-    },
-    [getPayload, store, id],
-  );
+  const rootTriggerProps = store.useState('triggerProps', isMountedByThisTrigger);
 
   const state: PopoverTrigger.State = React.useMemo(
     () => ({
       disabled,
-      open: isTriggerActive && open,
+      open: isOpenedByThisTrigger,
     }),
-    [disabled, open, isTriggerActive],
+    [disabled, isOpenedByThisTrigger],
   );
 
   const { getButtonProps, buttonRef } = useButton({
@@ -162,7 +127,7 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
   const stateAttributesMapping: StateAttributesMapping<{ open: boolean }> = React.useMemo(
     () => ({
       open(value) {
-        if (value && openReason === 'trigger-press') {
+        if (value && openReason === REASONS.triggerPress) {
           return pressableTriggerOpenStateMapping.open(value);
         }
 
@@ -174,12 +139,12 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
 
   const element = useRenderElement('button', componentProps, {
     state,
-    ref: [buttonRef, forwardedRef, registerTrigger],
+    ref: [buttonRef, forwardedRef, registerTrigger, triggerElementRef],
     props: [
       localProps.getReferenceProps(),
-      isTriggerActive ? rootActiveTriggerProps : rootInactiveTriggerProps,
-      interactionTypeTriggerProps,
-      { [CLICK_TRIGGER_IDENTIFIER as string]: '', id, key: id },
+      hoverProps,
+      rootTriggerProps,
+      { [CLICK_TRIGGER_IDENTIFIER as string]: '', id: thisTriggerId },
       elementProps,
       getButtonProps,
     ],
@@ -193,7 +158,7 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
       store.setOpen(
         false,
         createChangeEventDetails(
-          'focus-out',
+          REASONS.focusOut,
           event.nativeEvent,
           event.currentTarget as HTMLElement,
         ),
@@ -207,6 +172,7 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
   });
 
   const handleFocusTargetFocus = useStableCallback((event: React.FocusEvent) => {
+    const positionerElement = store.select('positionerElement');
     if (positionerElement && isOutsideEvent(event, positionerElement)) {
       store.context.beforeContentFocusGuardRef.current?.focus();
     } else {
@@ -214,40 +180,47 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
         store.setOpen(
           false,
           createChangeEventDetails(
-            'focus-out',
+            REASONS.focusOut,
             event.nativeEvent,
             event.currentTarget as HTMLElement,
           ),
         );
       });
 
-      let nextTabbable = getTabbableAfterElement(triggerElement);
+      let nextTabbable = getTabbableAfterElement(triggerElementRef.current);
 
       while (
         (nextTabbable !== null && contains(positionerElement, nextTabbable)) ||
         nextTabbable?.hasAttribute('aria-hidden')
       ) {
+        const prevTabbable = nextTabbable;
         nextTabbable = getNextTabbable(nextTabbable);
+        if (nextTabbable === prevTabbable) {
+          break;
+        }
       }
 
       nextTabbable?.focus();
     }
   });
 
+  // A fragment with key is required to ensure that the `element` is mounted to the same DOM node
+  // regardless of whether the focus guards are rendered or not.
+
   if (isTriggerActive) {
     return (
       <React.Fragment>
         <FocusGuard ref={preFocusGuardRef} onFocus={handlePreFocusGuardFocus} />
-        {element}
+        <React.Fragment key={thisTriggerId}>{element}</React.Fragment>
         <FocusGuard ref={store.context.triggerFocusTargetRef} onFocus={handleFocusTargetFocus} />
       </React.Fragment>
     );
   }
 
-  return element;
-}) as ComponentType;
+  return <React.Fragment key={thisTriggerId}>{element}</React.Fragment>;
+}) as PopoverTrigger;
 
-interface ComponentType {
+export interface PopoverTrigger {
   <Payload>(
     componentProps: PopoverTriggerProps<Payload> & React.RefAttributes<HTMLElement>,
   ): React.JSX.Element;
@@ -276,7 +249,7 @@ export type PopoverTriggerProps<Payload = unknown> = NativeButtonProps &
     /**
      * A handle to associate the trigger with a popover.
      */
-    handle?: PopoverStore<Payload>;
+    handle?: PopoverHandle<Payload>;
     /**
      * A payload to pass to the popover when it is opened.
      */
