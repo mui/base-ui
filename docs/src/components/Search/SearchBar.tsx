@@ -29,7 +29,7 @@ function SearchItem({ result }: { result: SearchResult }) {
               {part}
               {i !== arr.length - 1 && (
                 <svg
-                  className="text-gray-200"
+                  className="text-gray-300"
                   xmlns="http://www.w3.org/2000/svg"
                   width="16"
                   height="16"
@@ -217,7 +217,7 @@ export function SearchBar({
             value={result}
             onClick={() => handleItemClick(result)}
             render={<Link href={buildResultUrl(result)} />}
-            className="flex h-8 cursor-default select-none items-center rounded-lg px-9 text-[0.9375rem] tracking-[0.016em] font-normal leading-none outline-none data-highlighted:bg-gray-100"
+            className="flex h-8 cursor-default select-none items-center rounded-lg pl-9 pr-2 text-[0.9375rem] tracking-[0.016em] font-normal leading-none outline-none data-highlighted:bg-gray-100"
           >
             <SearchItem result={result} />
           </Autocomplete.Item>
@@ -235,13 +235,9 @@ export function SearchBar({
 
   return (
     <React.Fragment>
-      <Button
-        onClick={handleOpenDialog}
-        aria-label="Search"
-        className="flex items-center justify-center gap-2 h-8 px-3.5 m-0 outline-0 border border-gray-200 rounded-md bg-gray-50 font-inherit text-base font-medium leading-6 text-gray-900 select-none hover:data-[disabled]:bg-gray-50 hover:bg-gray-100 active:data-[disabled]:bg-gray-50 active:bg-gray-200 active:shadow-[inset_0_1px_3px_rgba(0,0,0,0.1)] active:border-t-gray-300 active:data-[disabled]:shadow-none active:data-[disabled]:border-t-gray-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-800 focus-visible:-outline-offset-1 data-[disabled]:text-gray-500"
-      >
+      <Button onClick={handleOpenDialog} aria-label="Search" className="SearchTrigger">
         <Search className="h-4 w-4 text-gray-500" />
-        <div className="expanding-box-content-right pointer-events-none gap-1 rounded border border-gray-300 bg-gray-50 px-1.5 lg:flex">
+        <div className="SearchTriggerKbd hidden lg:flex lg:-mr-2">
           <kbd className="text-xs text-gray-600">⌘</kbd>
           <kbd className="text-xs text-gray-600">K</kbd>
         </div>
@@ -255,7 +251,7 @@ export function SearchBar({
                 ref={popupRef}
                 initialFocus={inputRef}
                 data-open={dialogOpen}
-                className="relative flex rounded-2xl min-h-0 max-h-[min(29.5rem,calc(100vh-6rem))] w-[min(40rem,calc(100vw-2rem))] flex-col overflow-hidden bg-(--color-popup) text-gray-900 outline-1 outline-black/4 shadow-[0_.5px_1px_hsl(0_0%_0%/12%),0_1px_3px_-1px_hsl(0_0%_0%/4%),0_2px_4px_-1px_hsl(0_0%_0%/4%),0_4px_8px_-2px_hsl(0_0%_0%/4%),0_12px_14px_-4px_hsl(0_0%_0%/4%),0_24px_64px_-8px_hsl(0_0%_0%/4%),0_40px_48px_-32px_hsl(0_0%_0%/4%)]"
+                className="relative flex rounded-2xl min-h-0 max-h-[min(29.5rem,calc(100vh-6rem))] w-[min(34rem,calc(100vw-2rem))] flex-col overflow-hidden bg-(--color-popup) text-gray-900 outline-1 outline-black/4 shadow-[0_.5px_1px_hsl(0_0%_0%/12%),0_1px_3px_-1px_hsl(0_0%_0%/4%),0_2px_4px_-1px_hsl(0_0%_0%/4%),0_4px_8px_-2px_hsl(0_0%_0%/4%),0_12px_14px_-4px_hsl(0_0%_0%/4%),0_24px_64px_-8px_hsl(0_0%_0%/4%),0_40px_48px_-32px_hsl(0_0%_0%/4%)]"
               >
                 <Autocomplete.Root
                   items={searchResults.results}

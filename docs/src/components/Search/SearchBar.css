@@ -23,3 +23,80 @@
     background-color: var(--color-gray-400);
   }
 }
+
+.SearchTrigger {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: calc(var(--spacing) * 2);
+  height: calc(var(--spacing) * 8);
+  padding-inline: calc(var(--spacing) * 3.5);
+  margin: 0;
+  border: none;
+  border-radius: 9999px;
+  background-color: hsl(0 0% 0% / 5%);
+  box-shadow: 0 1px 2px hsl(0 0% 0% / 5%);
+  font: inherit;
+  font-size: 1rem;
+  font-weight: 500;
+  line-height: 1.5;
+  color: var(--color-gray-900);
+  cursor: pointer;
+  user-select: none;
+  outline: none;
+}
+
+.SearchTrigger::before {
+  content: '';
+  position: absolute;
+  inset: 1px;
+  border-radius: 9999px;
+  background-color: var(--color-popup);
+  z-index: 0;
+}
+
+.SearchTrigger > * {
+  position: relative;
+  z-index: 1;
+}
+
+.SearchTrigger:hover {
+  background-color: hsl(0 0% 0% / 8%);
+}
+
+.SearchTrigger:hover::before {
+  background-color: var(--color-gray-50);
+}
+
+.SearchTrigger:active {
+  background-color: hsl(0 0% 0% / 12%);
+}
+
+.SearchTrigger:active::before {
+  background-color: var(--color-gray-75);
+}
+
+.SearchTrigger:focus-visible {
+  outline: 2px solid var(--color-blue-800);
+  outline-offset: -1px;
+}
+
+.SearchTrigger[data-disabled] {
+  color: var(--color-gray-500);
+  cursor: default;
+}
+
+.SearchTrigger[data-disabled]:hover,
+.SearchTrigger[data-disabled]:active {
+  background-color: hsl(0 0% 0% / 5%);
+}
+
+.SearchTriggerKbd {
+  gap: 0.25rem;
+  padding-inline: 0.375rem;
+  border-radius: 9999px;
+  border: 1px solid var(--color-gray-300);
+  background-color: var(--color-gray-50);
+  pointer-events: none;
+}
