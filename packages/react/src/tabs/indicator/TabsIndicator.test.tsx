@@ -2,6 +2,7 @@ import { expect } from 'chai';
 import { Tabs } from '@base-ui-components/react/tabs';
 import { waitFor, screen } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
+import { getCssDimensions } from '../../utils/getCssDimensions';
 
 describe('<Tabs.Indicator />', () => {
   const { render } = createRenderer();
@@ -44,15 +45,11 @@ describe('<Tabs.Indicator />', () => {
       tabList: HTMLElement,
       activeTab: HTMLElement,
     ) {
-      const tabRect = activeTab.getBoundingClientRect();
-      const tabListRect = tabList.getBoundingClientRect();
-
-      const relativeLeft =
-        tabRect.left - tabListRect.left + tabList.scrollLeft - tabList.clientLeft;
-      const relativeTop = tabRect.top - tabListRect.top + tabList.scrollTop - tabList.clientTop;
-      const { width: rectWidth, height: rectHeight } = tabRect;
-      const relativeRight = tabList.scrollWidth - relativeLeft - rectWidth - tabList.clientLeft;
-      const relativeBottom = tabList.scrollHeight - relativeTop - rectHeight - tabList.clientTop;
+      const { width: tabWidth, height: tabHeight } = getCssDimensions(activeTab);
+      const relativeLeft = activeTab.offsetLeft;
+      const relativeTop = activeTab.offsetTop;
+      const relativeRight = tabList.scrollWidth - relativeLeft - tabWidth - tabList.clientLeft;
+      const relativeBottom = tabList.scrollHeight - relativeTop - tabHeight - tabList.clientTop;
 
       const bubbleComputedStyle = window.getComputedStyle(bubble);
       const actualLeft = bubbleComputedStyle.getPropertyValue('--active-tab-left');
@@ -66,8 +63,8 @@ describe('<Tabs.Indicator />', () => {
       assertSize(actualRight, relativeRight);
       assertSize(actualTop, relativeTop);
       assertSize(actualBottom, relativeBottom);
-      assertSize(actualWidth, rectWidth);
-      assertSize(actualHeight, rectHeight);
+      assertSize(actualWidth, tabWidth);
+      assertSize(actualHeight, tabHeight);
     }
 
     it('should set CSS variables corresponding to the active tab', async () => {
