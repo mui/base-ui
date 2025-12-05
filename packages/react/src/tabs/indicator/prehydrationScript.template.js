@@ -31,7 +31,8 @@
     let cssWidth = parseFloat(css.width) || 0;
     let cssHeight = parseFloat(css.height) || 0;
     const shouldFallback =
-      Math.round(cssWidth) !== element.offsetWidth || Math.round(cssHeight) !== element.offsetHeight;
+      Math.round(cssWidth) !== element.offsetWidth ||
+      Math.round(cssHeight) !== element.offsetHeight;
 
     if (shouldFallback) {
       cssWidth = element.offsetWidth;
@@ -52,8 +53,7 @@
     const scaleX = tabsListWidth > 0 ? tabsListRect.width / tabsListWidth : 1;
     const scaleY = tabsListHeight > 0 ? tabsListRect.height / tabsListHeight : 1;
 
-    left =
-      (tabRect.left - tabsListRect.left + tabsList.scrollLeft - tabsList.clientLeft) / scaleX;
+    left = (tabRect.left - tabsListRect.left + tabsList.scrollLeft - tabsList.clientLeft) / scaleX;
     top = (tabRect.top - tabsListRect.top + tabsList.scrollTop - tabsList.clientTop) / scaleY;
     width = computedWidth;
     height = computedHeight;
