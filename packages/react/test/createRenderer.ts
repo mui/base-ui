@@ -3,7 +3,6 @@ import {
   CreateRendererOptions,
   RenderOptions,
   createRenderer as sharedCreateRenderer,
-  flushMicrotasks,
   Renderer,
   MuiRenderResult,
   act,
