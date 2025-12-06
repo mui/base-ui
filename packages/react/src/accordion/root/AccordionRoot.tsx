@@ -216,7 +216,7 @@ export interface AccordionRootProps extends BaseUIComponentProps<'div', Accordio
   onValueChange?: (value: AccordionValue, eventDetails: AccordionRootChangeEventDetails) => void;
   /**
    * Whether multiple items can be open at the same time.
-   * @default true
+   * @default false
    */
   multiple?: boolean;
   /**
