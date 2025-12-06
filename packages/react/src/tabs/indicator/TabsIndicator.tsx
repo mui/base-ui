@@ -3,6 +3,7 @@ import * as React from 'react';
 import { useForcedRerendering } from '@base-ui-components/utils/useForcedRerendering';
 import { useOnMount } from '@base-ui-components/utils/useOnMount';
 import { useRenderElement } from '../../utils/useRenderElement';
+import { getCssDimensions } from '../../utils/getCssDimensions';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useDirection } from '../../direction-provider/DirectionContext';
 import type { TabsRoot } from '../root/TabsRoot';
@@ -73,19 +74,32 @@ export const TabsIndicator = React.forwardRef(function TabIndicator(
     isTabSelected = true;
 
     if (activeTab != null) {
+      const { width: computedWidth, height: computedHeight } = getCssDimensions(activeTab);
+      const { width: tabListWidth, height: tabListHeight } = getCssDimensions(tabsListElement);
+      const tabRect = activeTab.getBoundingClientRect();
       const tabsListRect = tabsListElement.getBoundingClientRect();
-      const {
-        left: tabLeft,
-        top: tabTop,
-        width: computedWidth,
-        height: computedHeight,
-      } = activeTab.getBoundingClientRect();
+      const scaleX = tabListWidth > 0 ? tabsListRect.width / tabListWidth : 1;
+      const scaleY = tabListHeight > 0 ? tabsListRect.height / tabListHeight : 1;
+      const hasNonZeroScale =
+        Math.abs(scaleX) > Number.EPSILON && Math.abs(scaleY) > Number.EPSILON;
 
-      left = tabLeft - tabsListRect.left + tabsListElement.scrollLeft - tabsListElement.clientLeft;
-      top = tabTop - tabsListRect.top + tabsListElement.scrollTop - tabsListElement.clientTop;
+      if (hasNonZeroScale) {
+        left =
+          (tabRect.left -
+            tabsListRect.left +
+            tabsListElement.scrollLeft -
+            tabsListElement.clientLeft) /
+          scaleX;
+        top =
+          (tabRect.top - tabsListRect.top + tabsListElement.scrollTop - tabsListElement.clientTop) /
+          scaleY;
+      } else {
+        left = activeTab.offsetLeft;
+        top = activeTab.offsetTop;
+      }
+
       width = computedWidth;
       height = computedHeight;
-
       right =
         direction === 'ltr'
           ? tabsListElement.scrollWidth - left - width - tabsListElement.clientLeft
