@@ -793,6 +793,59 @@ describe('<Tooltip.Root />', () => {
       });
     });
   });
+
+  it('keeps the tooltip open when moving across spaced triggers without a closeDelay', async () => {
+    const testTooltip = Tooltip.createHandle();
+    const { user } = await render(
+      <Tooltip.Provider timeout={400}>
+        <div style={{ display: 'flex', gap: 32 }}>
+          <Tooltip.Trigger handle={testTooltip} delay={0}>
+            Trigger 1
+          </Tooltip.Trigger>
+          <Tooltip.Trigger handle={testTooltip} delay={0}>
+            Trigger 2
+          </Tooltip.Trigger>
+          <Tooltip.Trigger handle={testTooltip} delay={0}>
+            Trigger 3
+          </Tooltip.Trigger>
+        </div>
+
+        <Tooltip.Root handle={testTooltip}>
+          <Tooltip.Portal>
+            <Tooltip.Positioner>
+              <Tooltip.Popup data-testid="popup">Tooltip Content</Tooltip.Popup>
+            </Tooltip.Positioner>
+          </Tooltip.Portal>
+        </Tooltip.Root>
+      </Tooltip.Provider>,
+    );
+
+    const [trigger1, trigger2, trigger3] = screen.getAllByRole('button');
+
+    await user.hover(trigger1);
+    await waitFor(() => {
+      expect(screen.getByTestId('popup')).toBeVisible();
+    });
+
+    await user.unhover(trigger1);
+    await user.hover(trigger2);
+    await waitFor(() => {
+      expect(screen.getByTestId('popup')).toBeVisible();
+    });
+
+    fireEvent.mouseLeave(trigger2, { relatedTarget: document.body, clientX: 120, clientY: 0 });
+    await user.hover(trigger3);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('popup')).toBeVisible();
+    });
+
+    fireEvent.mouseMove(document.body, { clientX: 300, clientY: 0 });
+
+    await waitFor(() => {
+      expect(screen.getByTestId('popup')).toBeVisible();
+    });
+  });
 });
 
 type TestTooltipProps = {
