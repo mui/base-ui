@@ -45,8 +45,6 @@ export function create<P extends object, E extends HTMLElement>(fn: (props: P) =
       }
 
       instance.didInitialize = true;
-    } catch (error) {
-      throw error;
     } finally {
       currentInstance = undefined;
     }
