@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import * as fastHook from '@base-ui-components/utils/fastHooks';
+import * as fastHooks from '@base-ui-components/utils/fastHooks';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { TooltipRootContext } from './TooltipRootContext';
 import { useClientPoint, useDismiss, useFocus, useInteractions } from '../../floating-ui-react';
@@ -23,7 +23,7 @@ import { REASONS } from '../../utils/reasons';
  *
  * Documentation: [Base UI Tooltip](https://base-ui.com/react/components/tooltip)
  */
-export const TooltipRoot = fastHook.create(function TooltipRoot<Payload>(
+export const TooltipRoot = fastHooks.create(function TooltipRoot<Payload>(
   props: TooltipRoot.Props<Payload>,
 ) {
   const {
