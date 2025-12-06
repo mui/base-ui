@@ -103,8 +103,8 @@ importers:
         specifier: ^16.0.0
         version: 16.0.0
       lerna:
-        specifier: ^9.0.1
-        version: 9.0.1(@types/node@22.18.13)(babel-plugin-macros@3.1.0)
+        specifier: ^9.0.3
+        version: 9.0.3(@types/node@22.18.13)(babel-plugin-macros@3.1.0)
       markdownlint-cli2:
         specifier: ^0.19.1
         version: 0.19.1
@@ -2235,8 +2235,8 @@ packages:
   '@keyv/serialize@1.1.1':
     resolution: {integrity: sha512-dXn3FZhPv0US+7dtJsIi2R+c7qWYiReoEh5zUntWCf4oSpMNib8FDhSoed6m3QyZdx5hK7iLFkYk3rNxwt8vTA==}
 
-  '@lerna/create@9.0.1':
-    resolution: {integrity: sha512-xkZhQ+d7IsLzL5+1G+rKtH3b9aKRyBQ9yaz1VwPTfkD2nUAyaco97BRN9YRJgJrSHY/SI265RaD1D2rt00Jjkg==}
+  '@lerna/create@9.0.3':
+    resolution: {integrity: sha512-hUTEWrR8zH+/Z3bp/R1aLm6DW8vB/BB7KH7Yeg4fMfrvSwxegiLVW9uJFAzWkK4mzEagmj/Dti85Yg9MN13t0g==}
     engines: {node: ^20.19.0 || ^22.12.0 || >=24.0.0}
 
   '@loaderkit/resolve@1.0.4':
@@ -6835,10 +6835,6 @@ packages:
     resolution: {integrity: sha512-okMH7OXXJ7YrN9Ok3/SXrnu4iX9yOk+25nqX4imS2npuvTYDmo/QEZoqwZkYaIDk3jVvBOTOIEgEhaLOynBS9g==}
     hasBin: true
 
-  js-yaml@4.1.0:
-    resolution: {integrity: sha512-wpxZs9NoxZaJESJGIZTyDEaYpl0FKSA+FB9aJiyemKhMwkxQg63h4T1KJgUGHpTqPDNRcmmYLugrRjJlBtWvRA==}
-    hasBin: true
-
   js-yaml@4.1.1:
     resolution: {integrity: sha512-qQKT4zQxXl8lLwBtHMWwaTcGfFOZviOJet3Oy/xmGk2gZH677CJM9EvtfdSkgWcATZhj/55JZ0rmy3myCT5lsA==}
     hasBin: true
@@ -6958,8 +6954,8 @@ packages:
     resolution: {integrity: sha512-MbjN408fEndfiQXbFQ1vnd+1NoLDsnQW41410oQBXiyXDMYH5z505juWa4KUE1LqxRC7DgOgZDbKLxHIwm27hA==}
     engines: {node: '>=0.10'}
 
-  lerna@9.0.1:
-    resolution: {integrity: sha512-sPfufYbSLisgi3mghbfOPxNL0Jhs4p6yCexXEdwgXITV5oKq6mdj2w5NQ32i6wMfSlEZFzIIV17ozdYsHavNhg==}
+  lerna@9.0.3:
+    resolution: {integrity: sha512-wCsJWKX8FaGJoWX2K5gL5q7ReqQNxNsS92AW5glBe/JzWEtoM/jgXXGrEzQzORMb8rTXYFjUjpn60et+i8XugA==}
     engines: {node: ^20.19.0 || ^22.12.0 || >=24.0.0}
     hasBin: true
 
@@ -11807,7 +11803,7 @@ snapshots:
 
   '@keyv/serialize@1.1.1': {}
 
-  '@lerna/create@9.0.1(@types/node@22.18.13)(babel-plugin-macros@3.1.0)(typescript@5.9.3)':
+  '@lerna/create@9.0.3(@types/node@22.18.13)(babel-plugin-macros@3.1.0)(typescript@5.9.3)':
     dependencies:
       '@npmcli/arborist': 9.1.6
       '@npmcli/package-json': 7.0.2
@@ -11837,7 +11833,7 @@ snapshots:
       inquirer: 12.9.6(@types/node@22.18.13)
       is-ci: 3.0.1
       is-stream: 2.0.0
-      js-yaml: 4.1.0
+      js-yaml: 4.1.1
       libnpmpublish: 11.1.2
       load-json-file: 6.2.0
       make-dir: 4.0.0
@@ -17134,10 +17130,6 @@ snapshots:
       argparse: 1.0.10
       esprima: 4.0.1
 
-  js-yaml@4.1.0:
-    dependencies:
-      argparse: 2.0.1
-
   js-yaml@4.1.1:
     dependencies:
       argparse: 2.0.1
@@ -17250,9 +17242,9 @@ snapshots:
     dependencies:
       language-subtag-registry: 0.3.23
 
-  lerna@9.0.1(@types/node@22.18.13)(babel-plugin-macros@3.1.0):
+  lerna@9.0.3(@types/node@22.18.13)(babel-plugin-macros@3.1.0):
     dependencies:
-      '@lerna/create': 9.0.1(@types/node@22.18.13)(babel-plugin-macros@3.1.0)(typescript@5.9.3)
+      '@lerna/create': 9.0.3(@types/node@22.18.13)(babel-plugin-macros@3.1.0)(typescript@5.9.3)
       '@npmcli/arborist': 9.1.6
       '@npmcli/package-json': 7.0.2
       '@npmcli/run-script': 10.0.2
@@ -17286,7 +17278,7 @@ snapshots:
       is-ci: 3.0.1
       is-stream: 2.0.0
       jest-diff: 30.1.2
-      js-yaml: 4.1.0
+      js-yaml: 4.1.1
       libnpmaccess: 10.0.3
       libnpmpublish: 11.1.2
       load-json-file: 6.2.0
