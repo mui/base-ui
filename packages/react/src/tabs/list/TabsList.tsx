@@ -3,7 +3,9 @@ import * as React from 'react';
 import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { BaseUIComponentProps, HTMLProps } from '../../utils/types';
+import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import type { TabsRoot } from '../root/TabsRoot';
+import type { CompositeMetadata } from '../../composite/list/CompositeList';
 import { CompositeRoot } from '../../composite/root/CompositeRoot';
 import { tabsStateAttributesMapping } from '../root/stateAttributesMapping';
 import { useTabsRootContext } from '../root/TabsRootContext';
@@ -38,7 +40,11 @@ export const TabsList = React.forwardRef(function TabsList(
     tabActivationDirection,
   } = useTabsRootContext();
 
+  const hasSetDefaultIndexRef = React.useRef(false);
   const [highlightedTabIndex, setHighlightedTabIndex] = React.useState(0);
+  const [tabMap, setTabMapInternal] = React.useState(
+    () => new Map<Node, CompositeMetadata<TabsTab.Metadata> | null>(),
+  );
 
   const [tabsListElement, setTabsListElement] = React.useState<HTMLElement | null>(null);
 
@@ -57,6 +63,15 @@ export const TabsList = React.forwardRef(function TabsList(
         onValueChange(newValue, eventDetails);
       }
     },
+  );
+
+  // Combine the tab map updates to send to both local state and parent
+  const handleTabMapChange = React.useCallback(
+    (newMap: Map<Node, CompositeMetadata<TabsTab.Metadata> | null>) => {
+      setTabMapInternal(newMap);
+      setTabMap(newMap);
+    },
+    [setTabMap],
   );
 
   const state: TabsList.State = React.useMemo(
@@ -91,6 +106,27 @@ export const TabsList = React.forwardRef(function TabsList(
     ],
   );
 
+  useIsoLayoutEffect(() => {
+    if (
+      value == null &&
+      !hasSetDefaultIndexRef.current &&
+      highlightedTabIndex !== -1 &&
+      tabMap.size > 0
+    ) {
+      hasSetDefaultIndexRef.current = true;
+      let newVal = null;
+
+      for (const tabMetadata of tabMap.values()) {
+        if (tabMetadata && tabMetadata.index === highlightedTabIndex) {
+          newVal = tabMetadata.value ?? tabMetadata.index;
+          break;
+        }
+      }
+
+      onValueChange(newVal, createChangeEventDetails('none'));
+    }
+  }, [value, highlightedTabIndex, tabMap, onValueChange]);
+
   return (
     <TabsListContext.Provider value={tabsListContextValue}>
       <CompositeRoot
@@ -105,7 +141,7 @@ export const TabsList = React.forwardRef(function TabsList(
         loopFocus={loopFocus}
         orientation={orientation}
         onHighlightedIndexChange={setHighlightedTabIndex}
-        onMapChange={setTabMap}
+        onMapChange={handleTabMapChange}
         disabledIndices={EMPTY_ARRAY as number[]}
       />
     </TabsListContext.Provider>

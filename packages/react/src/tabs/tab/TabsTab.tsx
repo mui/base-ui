@@ -86,7 +86,9 @@ export const TabsTab = React.forwardRef(function TabsTab(
       }
     }
 
-    setHighlightedTabIndex(index);
+    if (!disabled) {
+      setHighlightedTabIndex(index);
+    }
   }, [active, index, highlightedTabIndex, setHighlightedTabIndex, disabled, tabsListElement]);
 
   const { getButtonProps, buttonRef } = useButton({
