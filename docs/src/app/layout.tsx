@@ -39,6 +39,7 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://base-ui.com'),
   title: {
     template: '%s · Base UI',
     default: 'Base UI',
@@ -47,7 +48,11 @@ export const metadata: Metadata = {
     site: '@base_ui',
     card: 'summary_large_image',
   },
+  alternates: {
+    canonical: './',
+  },
   openGraph: {
+    url: './',
     type: 'website',
     locale: 'en_US',
     title: {
