@@ -160,6 +160,13 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     return stringifyAsValue(value, itemToStringValue);
   }, [multiple, value, itemToStringValue]);
 
+  const fieldStringValue = React.useMemo(() => {
+    if (multiple && Array.isArray(value)) {
+      return value.map((currentValue) => stringifyAsValue(currentValue, itemToStringValue));
+    }
+    return stringifyAsValue(value, itemToStringValue);
+  }, [multiple, value, itemToStringValue]);
+
   const controlRef = useValueAsRef(store.state.triggerElement);
 
   useField({
@@ -168,7 +175,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     value,
     controlRef,
     name,
-    getValue: () => value,
+    getValue: () => fieldStringValue,
   });
 
   const initialValueRef = React.useRef(value);
