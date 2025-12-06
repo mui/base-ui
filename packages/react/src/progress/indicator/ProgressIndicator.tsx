@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useRenderElement } from '../../utils/useRenderElement';
-import { valueToPercent } from '../../utils/valueToPercent';
+import { linearScale } from '../../utils/linearScale';
 import type { ProgressRoot } from '../root/ProgressRoot';
 import { useProgressRootContext } from '../root/ProgressRootContext';
 import { progressStateAttributesMapping } from '../root/stateAttributesMapping';
@@ -22,7 +22,7 @@ export const ProgressIndicator = React.forwardRef(function ProgressIndicator(
   const { max, min, value, state } = useProgressRootContext();
 
   const percentageValue =
-    Number.isFinite(value) && value !== null ? valueToPercent(value, min, max) : null;
+    Number.isFinite(value) && value !== null ? linearScale(value, max, min, 100) : null;
 
   const getStyles = React.useCallback(() => {
     if (percentageValue == null) {

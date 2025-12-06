@@ -18,6 +18,7 @@ import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { clamp } from '../../utils/clamp';
 import { areArraysEqual } from '../../utils/areArraysEqual';
+import { linearScale } from '../../utils/linearScale';
 import { activeElement } from '../../floating-ui-react/utils';
 import { CompositeList, type CompositeMetadata } from '../../composite/list/CompositeList';
 import type { FieldRoot } from '../../field/root/FieldRoot';
@@ -78,6 +79,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
     onValueChange: onValueChangeProp,
     onValueCommitted: onValueCommittedProp,
     orientation = 'horizontal',
+    scale,
     step = 1,
     thumbCollisionBehavior = 'push',
     thumbAlignment = 'center',
@@ -271,6 +273,26 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
     }
   }
 
+  const mapPositionToValue = React.useCallback(
+    (position: number): number => {
+      // console.log('mapPositionToValue', position);
+      return typeof scale?.positionToValue === 'function'
+        ? scale.positionToValue(position)
+        : (max - min) * position + min;
+    },
+    [min, max, scale],
+  );
+
+  const mapValueToPosition = React.useCallback(
+    (value: number): number => {
+      // console.log('mapValueToPosition', value);
+      return typeof scale?.valueToPosition === 'function'
+        ? scale.valueToPosition(value)
+        : linearScale(value, max, min);
+    },
+    [min, max, scale],
+  );
+
   useIsoLayoutEffect(() => {
     const activeEl = activeElement(ownerDocument(sliderRef.current));
     if (disabled && activeEl && sliderRef.current?.contains(activeEl)) {
@@ -329,6 +351,8 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
       lastChangedValueRef,
       lastChangeReasonRef,
       locale,
+      mapPositionToValue,
+      mapValueToPosition,
       max,
       min,
       minStepsBetweenValues,
@@ -367,6 +391,8 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
       lastChangedValueRef,
       lastChangeReasonRef,
       locale,
+      mapPositionToValue,
+      mapValueToPosition,
       max,
       min,
       minStepsBetweenValues,
@@ -577,6 +603,18 @@ export interface SliderRootProps<
         value: Value extends number ? number : Value,
         eventDetails: SliderRoot.CommitEventDetails,
       ) => void)
+    | undefined;
+  /**
+   * An object containing two functions for configuring a non-linear scale.
+   *
+   * - `positionToValue`: Receives the relative position as a number between 0–1 and returns the value at that position.
+   * - `valueToPosition`: Receives a value and returns the relative position as a number between 0–1.
+   */
+  scale?:
+    | {
+        positionToValue: (position: number) => number;
+        valueToPosition: (value: number) => number;
+      }
     | undefined;
 }
 

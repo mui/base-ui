@@ -94,6 +94,7 @@ export const SliderControl = React.forwardRef(function SliderControl(
     inset,
     lastChangedValueRef,
     lastChangeReasonRef,
+    mapPositionToValue,
     max,
     min,
     minStepsBetweenValues,
@@ -174,10 +175,10 @@ export const SliderControl = React.forwardRef(function SliderControl(
     const valueSize = vertical
       ? bottom - fingerY - controlOffset.end
       : (direction === 'rtl' ? right - fingerX : fingerX - left) - controlOffset.start;
-    // the value at the finger origin scaled down to fit the range [0, 1]
-    const valueRescaled = clamp((valueSize - insetThumbOffset) / controlSize, 0, 1);
+    // the relative position of the value within the slider's bounds represented by a number in [0, 1] range
+    const relativePosition = clamp((valueSize - insetThumbOffset) / controlSize, 0, 1);
 
-    let newValue = (max - min) * valueRescaled + min;
+    let newValue = mapPositionToValue(relativePosition);
     newValue = roundValueToStep(newValue, step, min);
     newValue = clamp(newValue, min, max);
 
