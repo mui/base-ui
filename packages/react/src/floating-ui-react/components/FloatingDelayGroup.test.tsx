@@ -13,8 +13,6 @@ import {
   useInteractions,
 } from '../index';
 
-vi.useFakeTimers();
-
 interface Props {
   label: string;
   children: React.JSX.Element;
@@ -86,6 +84,10 @@ function App() {
 }
 
 describe.skipIf(!isJSDOM)('FloatingDelayGroup', () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+  });
+
   test('groups delays correctly', async () => {
     render(<App />);
 

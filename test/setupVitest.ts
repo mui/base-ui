@@ -60,10 +60,3 @@ if (isVitestJsdom) {
     return 0;
   };
 }
-
-if (typeof window !== 'undefined') {
-  afterEach(async () => {
-    const { cleanup } = await import('@mui/internal-test-utils');
-    cleanup();
-  });
-}

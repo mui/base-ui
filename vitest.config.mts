@@ -7,6 +7,9 @@ const WORKSPACE_ROOT = resolve(CURRENT_DIR, './');
 
 export default defineConfig({
   test: {
+    sequence: {
+      hooks: 'list',
+    },
     projects: [
       'packages/*/vitest.config.mts',
       'docs/vitest.config.mts',
