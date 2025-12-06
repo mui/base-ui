@@ -4,7 +4,7 @@ import * as React from 'react';
 import { useSyncExternalStore } from 'use-sync-external-store/shim';
 import { useSyncExternalStoreWithSelector } from 'use-sync-external-store/shim/with-selector';
 import { isReactVersionAtLeast } from '../reactVersion';
-import { getInstance, Instance } from '../fastHooks';
+import { register, getInstance, Instance } from '../fastHooks';
 import type { ReadonlyStore } from './Store';
 
 /* Some tests fail in R18 with the raw useSyncExternalStore. It may be possible to make it work
@@ -59,9 +59,11 @@ function useStoreR19(
   return useSyncExternalStore(store.subscribe, getSelection, getSelection);
 }
 
-type StoreInstance = Instance & {
-  tick: number;
-  hooks: {
+export type StoreInstance = Instance & {
+  syncIndex: number;
+  syncTick: number;
+  syncHooks: {
+    store: any;
     selector: Function;
     a1: unknown;
     a2: unknown;
@@ -69,8 +71,61 @@ type StoreInstance = Instance & {
     value: unknown;
     didChange: boolean;
   }[];
+  didChangeStore: boolean;
+  subscribe: (onStoreChange: any) => () => void;
   getSnapshot: () => unknown;
 };
+
+register({
+  before(instance: StoreInstance) {
+    instance.syncIndex = 0;
+
+    if (!instance.didInitialize) {
+      instance.syncTick = 1;
+      instance.syncHooks = [];
+      instance.didChangeStore = true;
+      instance.getSnapshot = () => {
+        let didChange = false;
+        for (let i = 0; i < instance.syncHooks.length; i++) {
+          const hook = instance.syncHooks[i];
+          const value = hook.selector(hook.store.getSnapshot(), hook.a1, hook.a2, hook.a3);
+          if (hook.didChange || !Object.is(hook.value, value)) {
+            didChange = true;
+            hook.value = value;
+            hook.didChange = false;
+          }
+        }
+        if (didChange) {
+          instance.syncTick += 1;
+        }
+        return instance.syncTick;
+      };
+    }
+  },
+  after(instance: StoreInstance) {
+    if (instance.syncHooks.length > 0) {
+      if (instance.didChangeStore) {
+        instance.didChangeStore = false;
+        instance.subscribe = (onStoreChange) => {
+          const stores = new Set<ReadonlyStore<unknown>>();
+          for (const hook of instance.syncHooks) {
+            stores.add(hook.store);
+          }
+          const unsubscribes: Array<() => void> = [];
+          for (const store of stores) {
+            unsubscribes.push(store.subscribe(onStoreChange));
+          }
+          return () => {
+            for (const unsubscribe of unsubscribes) {
+              unsubscribe();
+            }
+          };
+        };
+      }
+      useSyncExternalStore(instance.subscribe, instance.getSnapshot, instance.getSnapshot);
+    }
+  },
+});
 
 function useStoreFast(
   store: ReadonlyStore<unknown>,
@@ -84,37 +139,13 @@ function useStoreFast(
     return useStoreR19(store, selector, a1, a2, a3);
   }
 
-  const index = instance.index;
-  instance.index += 1;
-
-  if (index === 0) {
-    if (!instance.didInitialize) {
-      instance.tick = 1;
-      instance.hooks = [];
-      instance.getSnapshot = () => {
-        const state = store.getSnapshot();
-        let didChange = false;
-        for (let i = 0; i < instance.hooks.length; i++) {
-          const hook = instance.hooks[i];
-          const value = hook.selector(state, hook.a1, hook.a2, hook.a3);
-          if (hook.didChange || !Object.is(hook.value, value)) {
-            didChange = true;
-            hook.value = value;
-            hook.didChange = false;
-          }
-        }
-        if (didChange) {
-          instance.tick += 1;
-        }
-        return instance.tick;
-      };
-    }
-    useSyncExternalStore(store.subscribe, instance.getSnapshot, instance.getSnapshot);
-  }
+  const index = instance.syncIndex;
+  instance.syncIndex += 1;
 
   let hook;
   if (!instance.didInitialize) {
     hook = {
+      store,
       selector,
       a1,
       a2,
@@ -122,15 +153,20 @@ function useStoreFast(
       value: selector(store.getSnapshot(), a1, a2, a3),
       didChange: false,
     };
-    instance.hooks.push(hook);
+    instance.syncHooks.push(hook);
   } else {
-    hook = instance.hooks[index];
+    hook = instance.syncHooks[index];
     if (
+      hook.store !== store ||
       hook.selector !== selector ||
       !Object.is(hook.a1, a1) ||
       !Object.is(hook.a2, a2) ||
       !Object.is(hook.a3, a3)
     ) {
+      if (hook.store !== store) {
+        instance.didChangeStore = true;
+      }
+      hook.store = store;
       hook.selector = selector;
       hook.a1 = a1;
       hook.a2 = a2;
