@@ -68,6 +68,14 @@ jobs:
           command: pnpm test:jsdom:coverage
       - code-infra/upload-coverage:
           key: << parameters.react-version >>-jsdom
+  docs_validate:
+    <<: *default-job
+    steps:
+      - checkout
+      - code-infra/install-deps
+      - run:
+          name: Validate the documentation files
+          command: pnpm docs:validate
   test_lint:
     <<: *default-job
     steps:
@@ -266,6 +274,9 @@ workflows:
       - test_package:
           <<: *default-context
           name: 'Package verification'
+      - docs_validate:
+          <<: *default-context
+          name: 'Validating Docs'
       - test_unit_compiler:
           <<: *default-context
           name: 'JSDOM tests (React Compiler)'
