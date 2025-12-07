@@ -10,7 +10,6 @@ import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 import { popupStateMapping } from '../../utils/popupStateMapping';
 import { usePopoverPortalContext } from '../portal/PopoverPortalContext';
 import { InternalBackdrop } from '../../utils/InternalBackdrop';
-import { REASONS } from '../../utils/reasons';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { POPUP_COLLISION_AVOIDANCE } from '../../utils/constants';
 import { useAnimationsFinished } from '../../utils/useAnimationsFinished';
@@ -52,7 +51,6 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
   const floatingRootContext = store.useState('floatingRootContext');
   const mounted = store.useState('mounted');
   const open = store.useState('open');
-  const openReason = store.useState('openChangeReason');
   const triggerElement = store.useState('activeTriggerElement');
   const modal = store.useState('modal');
   const positionerElement = store.useState('positionerElement');
@@ -166,7 +164,7 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
 
   return (
     <PopoverPositionerContext.Provider value={positioner}>
-      {mounted && modal === true && openReason !== REASONS.triggerHover && (
+      {mounted && modal === true && (
         <InternalBackdrop
           ref={store.context.internalBackdropRef}
           inert={inertValue(!open)}
