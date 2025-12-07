@@ -35,8 +35,8 @@
   margin: 0;
   border: none;
   border-radius: 9999px;
-  background-color: hsl(0 0% 0% / 5%);
-  box-shadow: 0 1px 2px hsl(0 0% 0% / 5%);
+  background-color: hsl(0deg 0% 0% / 5%);
+  box-shadow: 0 1px 2px hsl(0deg 0% 0% / 5%);
   font: inherit;
   font-size: 1rem;
   font-weight: 500;
@@ -62,7 +62,7 @@
 }
 
 .SearchTrigger:hover {
-  background-color: hsl(0 0% 0% / 8%);
+  background-color: hsl(0deg 0% 0% / 8%);
 }
 
 .SearchTrigger:hover::before {
@@ -70,7 +70,7 @@
 }
 
 .SearchTrigger:active {
-  background-color: hsl(0 0% 0% / 12%);
+  background-color: hsl(0deg 0% 0% / 12%);
 }
 
 .SearchTrigger:active::before {
@@ -89,7 +89,7 @@
 
 .SearchTrigger[data-disabled]:hover,
 .SearchTrigger[data-disabled]:active {
-  background-color: hsl(0 0% 0% / 5%);
+  background-color: hsl(0deg 0% 0% / 5%);
 }
 
 .SearchTriggerKbd {
