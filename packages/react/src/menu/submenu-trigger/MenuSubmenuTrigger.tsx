@@ -115,12 +115,12 @@ export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerCompon
   const allowMouseEnter = store.useState('allowMouseEnter');
 
   const hoverProps = useHoverReferenceInteraction(floatingRootContext, {
-    enabled: hoverEnabled && openOnHover && !disabled,
+    enabled: hoverEnabled && openOnHover && !disabled && allowMouseEnter,
     handleClose: safePolygon({ blockPointerEvents: true }),
     mouseOnly: true,
     move: true,
-    restMs: allowMouseEnter ? delay : undefined,
-    delay: { open: allowMouseEnter ? delay : 10 ** 10, close: closeDelay },
+    restMs: delay,
+    delay: { open: delay, close: closeDelay },
     triggerElementRef,
     externalTree: floatingTreeRoot,
   });
