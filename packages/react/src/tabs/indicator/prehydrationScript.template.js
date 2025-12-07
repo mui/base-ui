@@ -55,9 +55,11 @@
     const hasNonZeroScale = Math.abs(scaleX) > Number.EPSILON && Math.abs(scaleY) > Number.EPSILON;
 
     if (hasNonZeroScale) {
-      left =
-        (tabRect.left - tabsListRect.left + tabsList.scrollLeft - tabsList.clientLeft) / scaleX;
-      top = (tabRect.top - tabsListRect.top + tabsList.scrollTop - tabsList.clientTop) / scaleY;
+      const tabLeftDelta = tabRect.left - tabsListRect.left;
+      const tabTopDelta = tabRect.top - tabsListRect.top;
+
+      left = tabLeftDelta / scaleX + tabsList.scrollLeft - tabsList.clientLeft;
+      top = tabTopDelta / scaleY + tabsList.scrollTop - tabsList.clientTop;
     } else {
       left = activeTab.offsetLeft;
       top = activeTab.offsetTop;
