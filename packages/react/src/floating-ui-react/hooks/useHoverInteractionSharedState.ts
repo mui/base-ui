@@ -1,5 +1,6 @@
 import * as React from 'react';
-import { useTimeout } from '@base-ui-components/utils/useTimeout';
+import { useRefWithInit } from '@base-ui-components/utils/useRefWithInit';
+import { useTimeout, Timeout } from '@base-ui-components/utils/useTimeout';
 
 import type { ContextData, FloatingRootContext, SafePolygonOptions } from '../types';
 import { createAttribute } from '../utils/createAttribute';
@@ -26,53 +27,46 @@ export interface HoverInteractionSharedState {
 }
 
 type HoverContextData = ContextData & {
-  hoverInteractionState?: HoverInteractionSharedState;
+  hoverInteractionState?: HoverInteraction;
 };
 
-export function useHoverInteractionSharedState(
-  store: FloatingRootContext,
-): HoverInteractionSharedState {
-  const pointerTypeRef = React.useRef<string | undefined>(undefined);
-  const interactedInsideRef = React.useRef(false);
-  const handlerRef = React.useRef<((event: MouseEvent) => void) | undefined>(undefined);
-  const blockMouseMoveRef = React.useRef(true);
-  const performedPointerEventsMutationRef = React.useRef(false);
-  const unbindMouseMoveRef = React.useRef<() => void>(() => {});
-  const restTimeoutPendingRef = React.useRef(false);
-  const openChangeTimeout = useTimeout();
-  const restTimeout = useTimeout();
-  const handleCloseOptionsRef = React.useRef<SafePolygonOptions | undefined>(undefined);
+class HoverInteraction {
+  pointerTypeRef: string | undefined;
+  interactedInsideRef: boolean;
+  handlerRef: ((event: MouseEvent) => void) | undefined;
+  blockMouseMoveRef: boolean;
+  performedPointerEventsMutationRef: boolean;
+  unbindMouseMoveRef: () => void;
+  restTimeoutPendingRef: boolean;
+  openChangeTimeout: Timeout;
+  restTimeout: Timeout;
+  handleCloseOptionsRef: SafePolygonOptions | undefined;
 
-  return React.useMemo(() => {
-    const data = store.context.dataRef.current as HoverContextData;
+  constructor() {
+    this.pointerTypeRef = undefined;
+    this.interactedInsideRef = false;
+    this.handlerRef = undefined;
+    this.blockMouseMoveRef = true;
+    this.performedPointerEventsMutationRef = false;
+    this.unbindMouseMoveRef = () => {};
+    this.restTimeoutPendingRef = false;
+    this.openChangeTimeout = new Timeout();
+    this.restTimeout = new Timeout();
+    this.handleCloseOptionsRef = undefined;
+  }
 
-    if (!data.hoverInteractionState) {
-      data.hoverInteractionState = {
-        pointerTypeRef,
-        interactedInsideRef,
-        handlerRef,
-        blockMouseMoveRef,
-        performedPointerEventsMutationRef,
-        unbindMouseMoveRef,
-        restTimeoutPendingRef,
-        openChangeTimeout,
-        restTimeout,
-        handleCloseOptionsRef,
-      };
-    }
+  static create(): HoverInteraction {
+    return new HoverInteraction();
+  }
+}
 
-    return data.hoverInteractionState;
-  }, [
-    store,
-    pointerTypeRef,
-    interactedInsideRef,
-    handlerRef,
-    blockMouseMoveRef,
-    performedPointerEventsMutationRef,
-    unbindMouseMoveRef,
-    restTimeoutPendingRef,
-    openChangeTimeout,
-    restTimeout,
-    handleCloseOptionsRef,
-  ]);
+export function useHoverInteractionSharedState(store: FloatingRootContext): HoverInteraction {
+  const instance = useRefWithInit(HoverInteraction.create).current;
+
+  const data = store.context.dataRef.current as HoverContextData;
+  if (!data.hoverInteractionState) {
+    data.hoverInteractionState = instance;
+  }
+
+  return instance;
 }
