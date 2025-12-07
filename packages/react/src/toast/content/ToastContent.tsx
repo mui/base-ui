@@ -33,8 +33,8 @@ export const ToastContent = React.forwardRef(function ToastContent(
       return undefined;
     }
 
-    const resizeObserver = new ResizeObserver(recalculateHeight);
-    const mutationObserver = new MutationObserver(recalculateHeight);
+    const resizeObserver = new ResizeObserver(() => recalculateHeight(true));
+    const mutationObserver = new MutationObserver(() => recalculateHeight(true));
 
     resizeObserver.observe(node);
     mutationObserver.observe(node, { childList: true, subtree: true, characterData: true });
