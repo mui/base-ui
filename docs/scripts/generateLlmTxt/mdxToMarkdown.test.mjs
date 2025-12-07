@@ -57,9 +57,9 @@ describe('mdxToMarkdown', () => {
 
     // Verify extracted metadata
     expect(result.title).to.equal('Direction Provider');
-    expect(result.subtitle).to.equal('Enables RTL behavior for Base UI components.');
+    expect(result.subtitle).to.equal('Enables RTL behavior for Base UI components.');
     expect(result.description).to.equal(
-      'A direction provider component that enables RTL behavior for Base UI components.',
+      'A direction provider component that enables RTL behavior for Base UI components.',
     );
 
     // Snapshot test the complete result
