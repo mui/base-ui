@@ -150,7 +150,6 @@ export function MenuRoot<Payload>(props: MenuRoot.Props<Payload>) {
   const hoverEnabled = store.useState('hoverEnabled');
   const modal = store.useState('modal');
   const disabled = store.useState('disabled');
-  const lastOpenChangeReason = store.useState('lastOpenChangeReason');
   const parent = store.useState('parent');
 
   const activeIndex = store.useState('activeIndex');
@@ -215,10 +214,7 @@ export function MenuRoot<Payload>(props: MenuRoot.Props<Payload>) {
     });
   }, [allowOutsidePressDismissalTimeout, open, parent.type]);
 
-  useScrollLock(
-    open && modal && lastOpenChangeReason !== REASONS.triggerHover && openMethod !== 'touch',
-    positionerElement,
-  );
+  useScrollLock(open && modal && openMethod !== 'touch', positionerElement);
 
   useIsoLayoutEffect(() => {
     if (!open && !hoverEnabled) {
