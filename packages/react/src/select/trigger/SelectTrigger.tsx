@@ -169,12 +169,8 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
           validation.commit(value);
         }
       },
-      onPointerMove({ pointerType }) {
+      onPointerMove() {
         keyboardActiveRef.current = false;
-        store.set('touchModality', pointerType === 'touch');
-      },
-      onPointerDown({ pointerType }) {
-        store.set('touchModality', pointerType === 'touch');
       },
       onKeyDown() {
         keyboardActiveRef.current = true;

@@ -68,7 +68,7 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
   const mounted = useStore(store, selectors.mounted);
   const modal = useStore(store, selectors.modal);
   const value = useStore(store, selectors.value);
-  const touchModality = useStore(store, selectors.touchModality);
+  const openMethod = useStore(store, selectors.openMethod);
   const positionerElement = useStore(store, selectors.positionerElement);
   const triggerElement = useStore(store, selectors.triggerElement);
   const isItemEqualToValue = useStore(store, selectors.isItemEqualToValue);
@@ -78,7 +78,8 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
 
   const [controlledAlignItemWithTrigger, setControlledAlignItemWithTrigger] =
     React.useState(alignItemWithTrigger);
-  const alignItemWithTriggerActive = mounted && controlledAlignItemWithTrigger && !touchModality;
+  const alignItemWithTriggerActive =
+    mounted && controlledAlignItemWithTrigger && openMethod !== 'touch';
 
   if (!mounted && controlledAlignItemWithTrigger !== alignItemWithTrigger) {
     setControlledAlignItemWithTrigger(alignItemWithTrigger);
@@ -97,7 +98,10 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
 
   React.useImperativeHandle(alignItemWithTriggerActiveRef, () => alignItemWithTriggerActive);
 
-  useScrollLock((alignItemWithTriggerActive || modal) && open && !touchModality, triggerElement);
+  useScrollLock(
+    (alignItemWithTriggerActive || modal) && open && openMethod !== 'touch',
+    triggerElement,
+  );
 
   const positioning = useAnchorPositioning({
     anchor,
