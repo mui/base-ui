@@ -222,6 +222,12 @@ async function run(options: RunOptions) {
       'docs/src/app/(public)/(content)/react/components/page.mdx',
     );
 
+    // Base directory for docs (matches baseDir in next.config.mjs transformMarkdownMetadata)
+    const docsPath = path.resolve(
+      path.dirname(path.dirname(path.dirname(options.configPath))),
+      'docs',
+    );
+
     const docsBasePath = path.dirname(componentsPagePath);
 
     // Build metadata for all components, but only include those with existing pages
@@ -252,6 +258,7 @@ async function run(options: RunOptions) {
     await syncPageIndex({
       pagePath: componentsPagePath,
       metadataList: allComponentsMetadata,
+      baseDir: docsPath,
     });
 
     console.log(
