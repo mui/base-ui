@@ -12,7 +12,7 @@ import { popupStateMapping } from '../../utils/popupStateMapping';
 import { CompositeList } from '../../composite/list/CompositeList';
 import { InternalBackdrop } from '../../utils/InternalBackdrop';
 import { useMenuPortalContext } from '../portal/MenuPortalContext';
-import { DROPDOWN_COLLISION_AVOIDANCE } from '../../utils/constants';
+import { DROPDOWN_COLLISION_AVOIDANCE, POPUP_COLLISION_AVOIDANCE } from '../../utils/constants';
 import { useContextMenuRootContext } from '../../context-menu/root/ContextMenuRootContext';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
@@ -42,7 +42,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
     arrowPadding = 5,
     sticky = false,
     disableAnchorTracking = false,
-    collisionAvoidance = DROPDOWN_COLLISION_AVOIDANCE,
+    collisionAvoidance: collisionAvoidanceProp = DROPDOWN_COLLISION_AVOIDANCE,
     ...elementProps
   } = componentProps;
 
@@ -66,6 +66,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
   let sideOffset = sideOffsetProp;
   let alignOffset = alignOffsetProp;
   let align = alignProp;
+  let collisionAvoidance = collisionAvoidanceProp;
   if (parent.type === 'context-menu') {
     anchor = anchorProp ?? parent.context?.anchor;
     align = align ?? 'start';
@@ -80,6 +81,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
   if (parent.type === 'menu') {
     computedSide = computedSide ?? 'inline-end';
     computedAlign = computedAlign ?? 'start';
+    collisionAvoidance = POPUP_COLLISION_AVOIDANCE;
   } else if (parent.type === 'menubar') {
     computedSide = computedSide ?? 'bottom';
     computedAlign = computedAlign ?? 'start';
