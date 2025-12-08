@@ -37,9 +37,7 @@ export type UseRenderComponentProps<
    *
    * Accepts a `ReactElement` or a function that returns the element to render.
    */
-  render?:
-    | ComponentRenderFn<RenderFunctionProps, State>
-    | React.ReactElement;
+  render?: ComponentRenderFn<RenderFunctionProps, State> | React.ReactElement;
 };
 
 export interface UseRenderParameters<
