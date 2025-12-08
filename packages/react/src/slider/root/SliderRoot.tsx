@@ -275,7 +275,6 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
 
   const mapPositionToValue = React.useCallback(
     (position: number): number => {
-      // console.log('mapPositionToValue', position);
       return typeof scale?.positionToValue === 'function'
         ? scale.positionToValue(position)
         : (max - min) * position + min;
@@ -285,7 +284,6 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
 
   const mapValueToPosition = React.useCallback(
     (value: number): number => {
-      // console.log('mapValueToPosition', value);
       return typeof scale?.valueToPosition === 'function'
         ? scale.valueToPosition(value)
         : linearScale(value, max, min);

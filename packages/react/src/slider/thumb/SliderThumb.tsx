@@ -101,6 +101,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
     getAriaValueText: getAriaValueTextProp,
     id: idProp,
     index: indexProp,
+    initialPosition,
     inputRef: inputRefProp,
     onBlur: onBlurProp,
     onFocus: onFocusProp,
@@ -278,6 +279,8 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
 
   const inputProps = mergeProps<'input'>(
     {
+      ['data-initial-position' as string]:
+        !isMounted && renderBeforeHydration ? initialPosition : undefined,
       'aria-label':
         typeof getAriaLabelProp === 'function' ? getAriaLabelProp(index) : ariaLabelProp,
       'aria-labelledby': ariaLabelledByProp ?? labelId,
@@ -518,6 +521,14 @@ export interface SliderThumbProps extends Omit<
    * Optional tab index attribute forwarded to the `input`.
    */
   tabIndex?: number | undefined;
+  /**
+   * The relative initial position of the thumb along the control represented
+   * by a number between 0–1.
+   * This is required to support server-side rendering when using a non-linear
+   * scale and `thumbAlignment="edge"`. The value is typically the return value
+   * from calling your `scale.valueToPosition` function with the initial value.
+   */
+  initialPosition?: number | undefined;
 }
 
 export namespace SliderThumb {
