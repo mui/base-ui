@@ -9,13 +9,12 @@ import { selectors } from './store';
  * Returns the array of toasts and methods to manage them.
  */
 export function useToastManager(): UseToastManagerReturnValue {
-  const context = React.useContext(ToastContext);
+  const store = React.useContext(ToastContext);
 
-  if (!context) {
+  if (!store) {
     throw new Error('Base UI: useToastManager must be used within <Toast.Provider>.');
   }
 
-  const { store } = context;
   const toasts = useStore(store, selectors.toasts);
 
   return React.useMemo(
@@ -99,10 +98,8 @@ export interface ToastObject<Data extends object> {
   data?: Data;
 }
 
-export interface ToastManagerPositionerProps extends Omit<
-  ToastPositionerProps,
-  'anchor' | 'toast'
-> {
+export interface ToastManagerPositionerProps
+  extends Omit<ToastPositionerProps, 'anchor' | 'toast'> {
   /**
    * An element to position the toast against.
    */
@@ -120,16 +117,13 @@ export interface UseToastManagerReturnValue {
   ) => Promise<Value>;
 }
 
-export interface ToastManagerAddOptions<Data extends object> extends Omit<
-  ToastObject<Data>,
-  'id' | 'animation' | 'height' | 'ref' | 'limited'
-> {
+export interface ToastManagerAddOptions<Data extends object>
+  extends Omit<ToastObject<Data>, 'id' | 'animation' | 'height' | 'ref' | 'limited'> {
   id?: string;
 }
 
-export interface ToastManagerUpdateOptions<Data extends object> extends Partial<
-  Omit<ToastObject<Data>, 'id'>
-> {}
+export interface ToastManagerUpdateOptions<Data extends object>
+  extends Partial<Omit<ToastObject<Data>, 'id'>> {}
 
 export interface ToastManagerPromiseOptions<Value, Data extends object> {
   loading: string | ToastManagerUpdateOptions<Data>;

@@ -20,7 +20,7 @@ export const ToastClose = React.forwardRef(function ToastClose(
 ) {
   const { render, className, disabled, nativeButton = true, ...elementProps } = componentProps;
 
-  const { store } = useToastContext();
+  const store = useToastContext();
   const { toast } = useToastRootContext();
   const expanded = useStore(store, selectors.expanded);
 
@@ -62,7 +62,8 @@ export interface ToastCloseState {
 }
 
 export interface ToastCloseProps
-  extends NativeButtonProps, BaseUIComponentProps<'button', ToastClose.State> {}
+  extends NativeButtonProps,
+    BaseUIComponentProps<'button', ToastClose.State> {}
 
 export namespace ToastClose {
   export type State = ToastCloseState;

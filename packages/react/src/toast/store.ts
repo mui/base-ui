@@ -19,7 +19,7 @@ export type State = {
   timeout: number;
   limit: number;
   isWindowFocused: boolean;
-  viewportRef: React.RefObject<HTMLElement | null>;
+  viewport: HTMLElement | null;
   prevFocusElement: HTMLElement | null;
 };
 
@@ -95,6 +95,10 @@ export class ToastStore extends Store<State> {
 
   setPrevFocusElement(prevFocusElement: HTMLElement | null) {
     this.set('prevFocusElement', prevFocusElement);
+  }
+
+  setViewport(viewport: HTMLElement | null) {
+    this.set('viewport', viewport);
   }
 
   removeToast(toastId: string) {
@@ -317,11 +321,10 @@ export class ToastStore extends Store<State> {
   }
 
   private handleFocusManagement(toastId: string) {
-    const { viewportRef } = this.state;
-    const activeEl = activeElement(ownerDocument(viewportRef.current));
+    const activeEl = activeElement(ownerDocument(this.state.viewport));
     if (
-      !viewportRef.current ||
-      !contains(viewportRef.current, activeEl) ||
+      !this.state.viewport ||
+      !contains(this.state.viewport, activeEl) ||
       !isFocusVisible(activeEl)
     ) {
       return;

@@ -27,7 +27,7 @@ export const ToastPositioner = React.forwardRef(function ToastPositioner(
 ) {
   const { toast, ...props } = componentProps;
 
-  const { store } = useToastContext();
+  const store = useToastContext();
 
   const positionerProps = (toast.positionerProps ?? EMPTY_OBJECT) as NonNullable<
     typeof toast.positionerProps
@@ -139,8 +139,7 @@ export interface ToastPositionerState {
 }
 
 export interface ToastPositionerProps
-  extends
-    BaseUIComponentProps<'div', ToastPositioner.State>,
+  extends BaseUIComponentProps<'div', ToastPositioner.State>,
     Omit<useAnchorPositioning.SharedParameters, 'side' | 'anchor'> {
   /**
    * An element to position the toast against.

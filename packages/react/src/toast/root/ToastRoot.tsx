@@ -101,7 +101,7 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
 
   const swipeEnabled = swipeDirections.length > 0;
 
-  const { store } = useToastContext();
+  const store = useToastContext();
 
   const [currentSwipeDirection, setCurrentSwipeDirection] = React.useState<
     'up' | 'down' | 'left' | 'right' | undefined

@@ -2,10 +2,7 @@ import * as React from 'react';
 import type {} from '../useToastManager';
 import { ToastStore } from '../store';
 
-export interface ToastContext {
-  store: ToastStore;
-  viewportRef: React.RefObject<HTMLElement | null>;
-}
+export type ToastContext = ToastStore;
 
 export const ToastContext = React.createContext<ToastContext | undefined>(undefined);
 

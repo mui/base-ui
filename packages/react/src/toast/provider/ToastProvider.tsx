@@ -14,13 +14,12 @@ import { ToastStore } from '../store';
 export const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvider(props) {
   const { children, timeout = 5000, limit = 3, toastManager } = props;
 
-  const viewportRef = React.useRef<HTMLElement | null>(null);
   const store = useRefWithInit(
     () =>
       new ToastStore({
         timeout,
         limit,
-        viewportRef,
+        viewport: null,
         toasts: [],
         hovering: false,
         focused: false,
@@ -58,9 +57,7 @@ export const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvid
     store.update({ timeout, limit });
   }, [store, timeout, limit]);
 
-  const contextValue = React.useMemo(() => ({ store, viewportRef }), [store]);
-
-  return <ToastContext.Provider value={contextValue}>{children}</ToastContext.Provider>;
+  return <ToastContext.Provider value={store}>{children}</ToastContext.Provider>;
 };
 
 export interface ToastProviderProps {
