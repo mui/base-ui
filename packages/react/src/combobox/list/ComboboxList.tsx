@@ -136,8 +136,10 @@ export interface ComboboxListState {
   empty: boolean;
 }
 
-export interface ComboboxListProps
-  extends Omit<BaseUIComponentProps<'div', ComboboxList.State>, 'children'> {
+export interface ComboboxListProps extends Omit<
+  BaseUIComponentProps<'div', ComboboxList.State>,
+  'children'
+> {
   children?: React.ReactNode | ((item: any, index: number) => React.ReactNode);
 }
 

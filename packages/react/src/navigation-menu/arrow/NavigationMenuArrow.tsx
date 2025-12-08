@@ -53,8 +53,10 @@ export interface NavigationMenuArrowState {
   uncentered: boolean;
 }
 
-export interface NavigationMenuArrowProps
-  extends BaseUIComponentProps<'div', NavigationMenuArrow.State> {}
+export interface NavigationMenuArrowProps extends BaseUIComponentProps<
+  'div',
+  NavigationMenuArrow.State
+> {}
 
 export namespace NavigationMenuArrow {
   export type State = NavigationMenuArrowState;
