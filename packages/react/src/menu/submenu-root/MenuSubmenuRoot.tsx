@@ -24,8 +24,10 @@ export function MenuSubmenuRoot(props: MenuSubmenuRoot.Props) {
   );
 }
 
-export interface MenuSubmenuRootProps
-  extends Omit<MenuRoot.Props, 'modal' | 'openOnHover' | 'onOpenChange'> {
+export interface MenuSubmenuRootProps extends Omit<
+  MenuRoot.Props,
+  'modal' | 'openOnHover' | 'onOpenChange'
+> {
   /**
    * Event handler called when the menu is opened or closed.
    */

@@ -64,8 +64,10 @@ export interface SelectValueState {
   value: any;
 }
 
-export interface SelectValueProps
-  extends Omit<BaseUIComponentProps<'span', SelectValue.State>, 'children'> {
+export interface SelectValueProps extends Omit<
+  BaseUIComponentProps<'span', SelectValue.State>,
+  'children'
+> {
   /**
    * Accepts a function that returns a `ReactNode` to format the selected value.
    * @example
