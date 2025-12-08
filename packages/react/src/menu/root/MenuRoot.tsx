@@ -63,7 +63,7 @@ export function MenuRoot<Payload>(props: MenuRoot.Props<Payload>) {
     loopFocus = true,
     orientation = 'vertical',
     actionsRef,
-    closeParentOnEsc = true,
+    closeParentOnEsc = false,
     handle,
     triggerId: triggerIdProp,
     defaultTriggerId: defaultTriggerIdProp = null,
@@ -617,7 +617,7 @@ export interface MenuRootProps<Payload = unknown> {
   /**
    * When in a submenu, determines whether pressing the Escape key
    * closes the entire menu, or only the current child menu.
-   * @default true
+   * @default false
    */
   closeParentOnEsc?: boolean;
   /**

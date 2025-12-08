@@ -22,7 +22,7 @@
     "@mdx-js/loader": "^3.1.1",
     "@mdx-js/react": "^3.1.1",
     "@mui/internal-docs-infra": "^0.2.3-canary.15",
-    "@next/mdx": "^16.0.4",
+    "@next/mdx": "^16.0.7",
     "@react-spring/web": "^10.0.3",
     "@stefanprobst/rehype-extract-toc": "^3.0.0",
     "@tanstack/react-form": "^1.27.0",
@@ -59,7 +59,7 @@
     "remark-typography": "0.7.0",
     "scroll-into-view-if-needed": "3.1.0",
     "server-only": "^0.0.1",
-    "shiki": "^3.15.0",
+    "shiki": "^3.19.0",
     "to-vfile": "^8.0.0",
     "unist-util-visit-parents": "^6.0.2",
     "vfile-matter": "^5.0.1"
