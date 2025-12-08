@@ -366,8 +366,7 @@ export interface MenuTrigger {
 }
 
 export interface MenuTriggerProps<Payload = unknown>
-  extends NativeButtonProps,
-    BaseUIComponentProps<'button', MenuTrigger.State> {
+  extends NativeButtonProps, BaseUIComponentProps<'button', MenuTrigger.State> {
   children?: React.ReactNode;
   /**
    * Whether the component should ignore user interaction.
