@@ -31,7 +31,7 @@
     },
     "closeParentOnEsc": {
       "type": "boolean",
-      "default": "true",
+      "default": "false",
       "description": "When in a submenu, determines whether pressing the Escape key\ncloses the entire menu, or only the current child menu.",
       "detailedType": "boolean | undefined"
     },

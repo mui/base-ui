@@ -295,7 +295,8 @@ export interface MenuPositionerState {
 }
 
 export interface MenuPositionerProps
-  extends useAnchorPositioning.SharedParameters,
+  extends
+    useAnchorPositioning.SharedParameters,
     BaseUIComponentProps<'div', MenuPositioner.State> {}
 
 export namespace MenuPositioner {

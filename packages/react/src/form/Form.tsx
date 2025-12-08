@@ -147,8 +147,9 @@ export type FormSubmitEventDetails = BaseUIGenericEventDetails<Form.SubmitEventR
 
 export interface FormState {}
 
-export interface FormProps<FormValues extends Record<string, any> = Record<string, any>>
-  extends BaseUIComponentProps<'form', Form.State> {
+export interface FormProps<
+  FormValues extends Record<string, any> = Record<string, any>,
+> extends BaseUIComponentProps<'form', Form.State> {
   /**
    * Determines when the form should be validated.
    * The `validationMode` prop on `<Field.Root>` takes precedence over this.
