@@ -553,8 +553,10 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
   );
 });
 
-export interface NumberFieldRootProps
-  extends Omit<BaseUIComponentProps<'div', NumberFieldRootState>, 'onChange'> {
+export interface NumberFieldRootProps extends Omit<
+  BaseUIComponentProps<'div', NumberFieldRootState>,
+  'onChange'
+> {
   /**
    * The id of the input element.
    */

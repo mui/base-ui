@@ -168,7 +168,8 @@ export interface ComboboxPositionerState {
 }
 
 export interface ComboboxPositionerProps
-  extends useAnchorPositioning.SharedParameters,
+  extends
+    useAnchorPositioning.SharedParameters,
     BaseUIComponentProps<'div', ComboboxPositioner.State> {}
 
 export namespace ComboboxPositioner {

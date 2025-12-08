@@ -253,8 +253,10 @@ export interface RadioGroupState extends FieldRoot.State {
   readOnly: boolean | undefined;
 }
 
-export interface RadioGroupProps
-  extends Omit<BaseUIComponentProps<'div', RadioGroup.State>, 'value'> {
+export interface RadioGroupProps extends Omit<
+  BaseUIComponentProps<'div', RadioGroup.State>,
+  'value'
+> {
   /**
    * Whether the component should ignore user interaction.
    * @default false

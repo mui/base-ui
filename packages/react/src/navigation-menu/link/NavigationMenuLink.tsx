@@ -84,8 +84,10 @@ export interface NavigationMenuLinkState {
   active: boolean;
 }
 
-export interface NavigationMenuLinkProps
-  extends BaseUIComponentProps<'a', NavigationMenuLink.State> {
+export interface NavigationMenuLinkProps extends BaseUIComponentProps<
+  'a',
+  NavigationMenuLink.State
+> {
   /**
    * Whether the link is the currently active page.
    * @default false

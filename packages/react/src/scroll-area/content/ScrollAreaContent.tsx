@@ -61,8 +61,10 @@ export const ScrollAreaContent = React.forwardRef(function ScrollAreaContent(
 
 export interface ScrollAreaContentState extends ScrollAreaRoot.State {}
 
-export interface ScrollAreaContentProps
-  extends BaseUIComponentProps<'div', ScrollAreaContent.State> {}
+export interface ScrollAreaContentProps extends BaseUIComponentProps<
+  'div',
+  ScrollAreaContent.State
+> {}
 
 export namespace ScrollAreaContent {
   export type State = ScrollAreaContentState;

@@ -196,13 +196,12 @@ interface GenericButtonProps extends Omit<HTMLProps, 'onClick'>, AdditionalButto
   onClick?: (event: React.SyntheticEvent) => void;
 }
 
-interface AdditionalButtonProps
-  extends Partial<{
-    'aria-disabled': React.AriaAttributes['aria-disabled'];
-    disabled: boolean;
-    role: React.AriaRole;
-    tabIndex?: number;
-  }> {}
+interface AdditionalButtonProps extends Partial<{
+  'aria-disabled': React.AriaAttributes['aria-disabled'];
+  disabled: boolean;
+  role: React.AriaRole;
+  tabIndex?: number;
+}> {}
 
 export interface UseButtonParameters {
   /**

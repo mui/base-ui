@@ -69,11 +69,10 @@ export function AlertDialogRoot<Payload>(props: AlertDialogRoot.Props<Payload>) 
   );
 }
 
-export interface AlertDialogRootProps<Payload = unknown>
-  extends Omit<
-    DialogRoot.Props<Payload>,
-    'modal' | 'disablePointerDismissal' | 'onOpenChange' | 'actionsRef' | 'handle'
-  > {
+export interface AlertDialogRootProps<Payload = unknown> extends Omit<
+  DialogRoot.Props<Payload>,
+  'modal' | 'disablePointerDismissal' | 'onOpenChange' | 'actionsRef' | 'handle'
+> {
   /**
    * Event handler called when the dialog is opened or closed.
    */

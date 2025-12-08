@@ -150,29 +150,28 @@ export type AutocompleteRootChangeEventDetails = AriaCombobox.ChangeEventDetails
 export type AutocompleteRootHighlightEventReason = AriaCombobox.HighlightEventReason;
 export type AutocompleteRootHighlightEventDetails = AriaCombobox.HighlightEventDetails;
 
-export interface AutocompleteRootProps<ItemValue>
-  extends Omit<
-    AriaCombobox.Props<ItemValue, 'none'>,
-    | 'selectionMode'
-    | 'selectedValue'
-    | 'defaultSelectedValue'
-    | 'onSelectedValueChange'
-    | 'fillInputOnItemPress'
-    | 'itemToStringValue'
-    | 'isItemEqualToValue'
-    // Different names
-    | 'inputValue' // value
-    | 'defaultInputValue' // defaultValue
-    | 'onInputValueChange' // onValueChange
-    | 'autoComplete' // mode
-    | 'itemToStringLabel' // itemToStringValue
-    // Custom JSDoc
-    | 'autoHighlight'
-    | 'keepHighlight'
-    | 'highlightItemOnHover'
-    | 'actionsRef'
-    | 'onOpenChange'
-  > {
+export interface AutocompleteRootProps<ItemValue> extends Omit<
+  AriaCombobox.Props<ItemValue, 'none'>,
+  | 'selectionMode'
+  | 'selectedValue'
+  | 'defaultSelectedValue'
+  | 'onSelectedValueChange'
+  | 'fillInputOnItemPress'
+  | 'itemToStringValue'
+  | 'isItemEqualToValue'
+  // Different names
+  | 'inputValue' // value
+  | 'defaultInputValue' // defaultValue
+  | 'onInputValueChange' // onValueChange
+  | 'autoComplete' // mode
+  | 'itemToStringLabel' // itemToStringValue
+  // Custom JSDoc
+  | 'autoHighlight'
+  | 'keepHighlight'
+  | 'highlightItemOnHover'
+  | 'actionsRef'
+  | 'onOpenChange'
+> {
   /**
    * Controls how the autocomplete behaves with respect to list filtering and inline autocompletion.
    * - `list` (default): items are dynamically filtered based on the input value. The input value does not change based on the active item.

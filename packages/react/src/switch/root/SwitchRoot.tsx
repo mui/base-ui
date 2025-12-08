@@ -257,8 +257,7 @@ export interface SwitchRootState extends FieldRoot.State {
 }
 
 export interface SwitchRootProps
-  extends NonNativeButtonProps,
-    Omit<BaseUIComponentProps<'span', SwitchRoot.State>, 'onChange'> {
+  extends NonNativeButtonProps, Omit<BaseUIComponentProps<'span', SwitchRoot.State>, 'onChange'> {
   /**
    * The id of the switch element.
    */

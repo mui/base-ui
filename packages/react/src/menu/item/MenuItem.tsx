@@ -75,8 +75,7 @@ export interface MenuItemState {
 }
 
 export interface MenuItemProps
-  extends NonNativeButtonProps,
-    BaseUIComponentProps<'div', MenuItem.State> {
+  extends NonNativeButtonProps, BaseUIComponentProps<'div', MenuItem.State> {
   /**
    * The click handler for the menu item.
    */

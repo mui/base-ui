@@ -146,7 +146,8 @@ export interface AccordionItemState extends AccordionRoot.State {
 }
 
 export interface AccordionItemProps
-  extends BaseUIComponentProps<'div', AccordionItem.State>,
+  extends
+    BaseUIComponentProps<'div', AccordionItem.State>,
     Partial<Pick<useCollapsibleRoot.Parameters, 'disabled'>> {
   /**
    * A unique value that identifies this accordion item.

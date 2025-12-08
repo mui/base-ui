@@ -43,8 +43,10 @@ export interface PreviewCardTriggerState {
   open: boolean;
 }
 
-export interface PreviewCardTriggerProps
-  extends BaseUIComponentProps<'a', PreviewCardTrigger.State> {
+export interface PreviewCardTriggerProps extends BaseUIComponentProps<
+  'a',
+  PreviewCardTrigger.State
+> {
   /**
    * How long to wait before the preview card opens. Specified in milliseconds.
    * @default 600

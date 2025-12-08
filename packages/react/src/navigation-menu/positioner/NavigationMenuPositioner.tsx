@@ -203,7 +203,8 @@ export interface NavigationMenuPositionerState {
 }
 
 export interface NavigationMenuPositionerProps
-  extends useAnchorPositioning.SharedParameters,
+  extends
+    useAnchorPositioning.SharedParameters,
     BaseUIComponentProps<'div', NavigationMenuPositioner.State> {}
 
 export namespace NavigationMenuPositioner {

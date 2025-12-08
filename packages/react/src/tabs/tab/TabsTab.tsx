@@ -227,8 +227,7 @@ export interface TabsTabState {
 }
 
 export interface TabsTabProps
-  extends NativeButtonProps,
-    BaseUIComponentProps<'button', TabsTab.State> {
+  extends NativeButtonProps, BaseUIComponentProps<'button', TabsTab.State> {
   /**
    * The value of the Tab.
    */
