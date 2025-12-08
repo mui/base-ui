@@ -16,6 +16,8 @@ import { StateAttributesMapping } from '../../utils/getStateAttributesProps';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { ToastRootCssVars } from './ToastRootCssVars';
+import { useStore } from '@base-ui-components/utils/store';
+import { selectors } from '../store';
 
 const stateAttributesMapping: StateAttributesMapping<ToastRoot.State> = {
   ...transitionStatusMapping,
@@ -99,8 +101,7 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
 
   const swipeEnabled = swipeDirections.length > 0;
 
-  const { toasts, focused, close, remove, setToasts, pauseTimers, expanded, setHovering } =
-    useToastContext();
+  const { store, focused, close, remove, pauseTimers, expanded, setHovering } = useToastContext();
 
   const [currentSwipeDirection, setCurrentSwipeDirection] = React.useState<
     'up' | 'down' | 'left' | 'right' | undefined
@@ -127,14 +128,9 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
   const swipeCancelBaselineRef = React.useRef({ x: 0, y: 0 });
   const isFirstPointerMoveRef = React.useRef(false);
 
-  const domIndex = React.useMemo(() => toasts.indexOf(toast), [toast, toasts]);
-  const visibleIndex = React.useMemo(
-    () => toasts.filter((t) => t.transitionStatus !== 'ending').indexOf(toast),
-    [toast, toasts],
-  );
-  const offsetY = React.useMemo(() => {
-    return toasts.slice(0, toasts.indexOf(toast)).reduce((acc, t) => acc + (t.height || 0), 0);
-  }, [toasts, toast]);
+  const domIndex = useStore(store, selectors.toastDOMIndex, toast.id);
+  const visibleIndex = useStore(store, selectors.toastVisibleIndex, toast.id);
+  const offsetY = useStore(store, selectors.toastOffsetY, toast.id);
 
   useOpenChangeComplete({
     open: toast.transitionStatus !== 'ending',
@@ -163,8 +159,9 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
     element.style.height = previousHeight;
 
     function update() {
-      setToasts((prev) =>
-        prev.map((t) =>
+      store.set(
+        'toasts',
+        selectors.toasts(store.state).map((t) =>
           t.id === toast.id
             ? {
                 ...t,

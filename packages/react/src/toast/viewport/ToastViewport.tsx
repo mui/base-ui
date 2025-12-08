@@ -2,6 +2,7 @@
 import * as React from 'react';
 import { ownerDocument, ownerWindow } from '@base-ui-components/utils/owner';
 import { visuallyHidden } from '@base-ui-components/utils/visuallyHidden';
+import { useStore } from '@base-ui-components/utils/store';
 import { activeElement, contains, getTarget } from '../../floating-ui-react/utils';
 import { FocusGuard } from '../../utils/FocusGuard';
 import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
@@ -10,6 +11,7 @@ import { useToastContext } from '../provider/ToastProviderContext';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { isFocusVisible } from '../utils/focusVisible';
 import { ToastViewportCssVars } from './ToastViewportCssVars';
+import { selectors } from '../store';
 
 /**
  * A container viewport for toasts.
@@ -24,7 +26,7 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
   const { render, className, children, ...elementProps } = componentProps;
 
   const {
-    toasts,
+    store,
     pauseTimers,
     resumeTimers,
     setHovering,
@@ -40,7 +42,8 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
   const handlingFocusGuardRef = React.useRef(false);
   const markedReadyForMouseLeaveRef = React.useRef(false);
 
-  const numToasts = toasts.length;
+  const isEmpty = useStore(store, selectors.isEmpty);
+  const toasts = useStore(store, selectors.toasts);
   const frontmostHeight = toasts[0]?.height ?? 0;
 
   const hasTransitioningToasts = React.useMemo(
@@ -55,7 +58,7 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
     }
 
     function handleGlobalKeyDown(event: KeyboardEvent) {
-      if (numToasts === 0) {
+      if (isEmpty) {
         return;
       }
 
@@ -77,10 +80,10 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
     return () => {
       win.removeEventListener('keydown', handleGlobalKeyDown);
     };
-  }, [pauseTimers, setFocused, setPrevFocusElement, numToasts, viewportRef]);
+  }, [pauseTimers, setFocused, setPrevFocusElement, isEmpty, viewportRef]);
 
   React.useEffect(() => {
-    if (!viewportRef.current || !numToasts) {
+    if (!viewportRef.current || isEmpty) {
       return undefined;
     }
 
@@ -132,12 +135,12 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
     // since the portal node hasn't yet been created.
     // By adding this dependency, we ensure the window listeners
     // are added when toasts have been created, once the ref is available.
-    numToasts,
+    isEmpty,
   ]);
 
   React.useEffect(() => {
     const viewportNode = viewportRef.current;
-    if (!viewportNode || numToasts === 0) {
+    if (!viewportNode || isEmpty) {
       return undefined;
     }
 
@@ -163,7 +166,7 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
     return () => {
       doc.removeEventListener('pointerdown', handlePointerDown, true);
     };
-  }, [numToasts, resumeTimers, setFocused, setHovering, viewportRef]);
+  }, [isEmpty, resumeTimers, setFocused, setHovering, viewportRef]);
 
   function handleFocusGuard(event: React.FocusEvent) {
     if (!viewportRef.current) {
@@ -289,9 +292,9 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
       {
         children: (
           <React.Fragment>
-            {numToasts > 0 && prevFocusElement && <FocusGuard onFocus={handleFocusGuard} />}
+            {!isEmpty && prevFocusElement && <FocusGuard onFocus={handleFocusGuard} />}
             {children}
-            {numToasts > 0 && prevFocusElement && <FocusGuard onFocus={handleFocusGuard} />}
+            {!isEmpty && prevFocusElement && <FocusGuard onFocus={handleFocusGuard} />}
           </React.Fragment>
         ),
       },
@@ -307,7 +310,7 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
 
   return (
     <ToastViewportContext.Provider value={contextValue}>
-      {numToasts > 0 && prevFocusElement && <FocusGuard onFocus={handleFocusGuard} />}
+      {!isEmpty && prevFocusElement && <FocusGuard onFocus={handleFocusGuard} />}
       {element}
       {!focused && highPriorityToasts.length > 0 && (
         <div style={visuallyHidden}>

@@ -1,14 +1,14 @@
 import * as React from 'react';
+import { Store } from '@base-ui-components/utils/store';
 import type {
-  ToastObject,
   ToastManagerAddOptions,
   ToastManagerPromiseOptions,
   ToastManagerUpdateOptions,
 } from '../useToastManager';
+import { State } from '../store';
 
 export interface ToastContextValue<Data extends object> {
-  toasts: ToastObject<Data>[];
-  setToasts: React.Dispatch<React.SetStateAction<ToastObject<Data>[]>>;
+  store: Store<State>;
   hovering: boolean;
   setHovering: React.Dispatch<React.SetStateAction<boolean>>;
   focused: boolean;

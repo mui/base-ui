@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import { isElement } from '@floating-ui/utils/dom';
+import { useStore } from '@base-ui-components/utils/store';
 import { useAnchorPositioning, type Side, type Align } from '../../utils/useAnchorPositioning';
 import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 import { popupStateMapping } from '../../utils/popupStateMapping';
@@ -12,6 +13,7 @@ import { NOOP } from '../../utils/noop';
 import type { ToastObject } from '../useToastManager';
 import { ToastRootCssVars } from '../root/ToastRootCssVars';
 import { useToastContext } from '../provider/ToastProviderContext';
+import { selectors } from '../store';
 
 /**
  * Positions the toast against the anchor.
@@ -25,7 +27,7 @@ export const ToastPositioner = React.forwardRef(function ToastPositioner(
 ) {
   const { toast, ...props } = componentProps;
 
-  const { toasts } = useToastContext();
+  const { store } = useToastContext();
 
   const positionerProps = (toast.positionerProps ?? EMPTY_OBJECT) as NonNullable<
     typeof toast.positionerProps
@@ -51,11 +53,8 @@ export const ToastPositioner = React.forwardRef(function ToastPositioner(
 
   const [positionerElement, setPositionerElement] = React.useState<HTMLDivElement | null>(null);
 
-  const domIndex = React.useMemo(() => toasts.indexOf(toast), [toast, toasts]);
-  const visibleIndex = React.useMemo(
-    () => toasts.filter((t) => t.transitionStatus !== 'ending').indexOf(toast),
-    [toast, toasts],
-  );
+  const domIndex = useStore(store, selectors.toastDOMIndex, toast.id);
+  const visibleIndex = useStore(store, selectors.toastVisibleIndex, toast.id);
 
   const anchor = isElement(anchorProp) ? anchorProp : null;
 

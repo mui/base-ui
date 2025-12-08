@@ -1,7 +1,9 @@
 'use client';
 import * as React from 'react';
+import { useStore } from '@base-ui-components/utils/store';
 import { ToastContext } from './provider/ToastProviderContext';
 import type { ToastPositionerProps } from './positioner/ToastPositioner';
+import { selectors } from './store';
 
 /**
  * Returns the array of toasts and methods to manage them.
@@ -13,7 +15,8 @@ export function useToastManager(): UseToastManagerReturnValue {
     throw new Error('Base UI: useToastManager must be used within <Toast.Provider>.');
   }
 
-  const { toasts, add, close, update, promise } = context;
+  const { store, add, close, update, promise } = context;
+  const toasts = useStore(store, selectors.toasts);
 
   return React.useMemo(
     () => ({
@@ -105,7 +108,7 @@ export interface ToastManagerPositionerProps
 }
 
 export interface UseToastManagerReturnValue {
-  toasts: ToastContext<any>['toasts'];
+  toasts: ToastObject<any>[];
   add: <Data extends object>(options: ToastManagerAddOptions<Data>) => string;
   close: (toastId: string) => void;
   update: <Data extends object>(toastId: string, options: ToastManagerUpdateOptions<Data>) => void;

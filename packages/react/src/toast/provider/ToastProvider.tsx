@@ -4,6 +4,8 @@ import { ownerDocument } from '@base-ui-components/utils/owner';
 import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { generateId } from '@base-ui-components/utils/generateId';
 import { Timeout } from '@base-ui-components/utils/useTimeout';
+import { useRefWithInit } from '@base-ui-components/utils/useRefWithInit';
+import { Store, useStore } from '@base-ui-components/utils/store';
 import { activeElement, contains } from '../../floating-ui-react/utils';
 import { ToastContext } from './ToastProviderContext';
 import { isFocusVisible } from '../utils/focusVisible';
@@ -15,6 +17,7 @@ import type {
   ToastManagerUpdateOptions,
 } from '../useToastManager';
 import type { ToastManager } from '../createToastManager';
+import { selectors, type State as StoreState } from '../store';
 
 interface TimerInfo {
   timeout?: Timeout;
@@ -32,12 +35,13 @@ interface TimerInfo {
 export const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvider(props) {
   const { children, timeout = 5000, limit = 3, toastManager } = props;
 
-  const [toasts, setToasts] = React.useState<ToastObject<any>[]>([]);
+  const store = useRefWithInit(() => new Store<StoreState>({ toasts: [] })).current;
   const [hovering, setHovering] = React.useState(false);
   const [focused, setFocused] = React.useState(false);
   const [prevFocusElement, setPrevFocusElement] = React.useState<HTMLElement | null>(null);
+  const isEmpty = useStore(store, selectors.isEmpty);
 
-  if (toasts.length === 0) {
+  if (isEmpty) {
     if (hovering) {
       setHovering(false);
     }
@@ -64,7 +68,8 @@ export const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvid
       return;
     }
 
-    const currentIndex = toasts.findIndex((toast) => toast.id === toastId);
+    const toasts = selectors.toasts(store.state);
+    const currentIndex = selectors.toastDOMIndex(store.state, toastId);
     let nextToast: ToastObject<any> | null = null;
 
     // Try to find the next toast that isn't animating out
@@ -128,20 +133,23 @@ export const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvid
   });
 
   const close = useStableCallback((toastId: string) => {
-    setToasts((prevToasts) => {
-      const toastsWithEnding = prevToasts.map((toast) =>
-        toast.id === toastId ? { ...toast, transitionStatus: 'ending' as const, height: 0 } : toast,
+    const toast = selectors.toast(store.state, toastId);
+    toast?.onClose?.();
+
+    const toastsWithEnding = selectors
+      .toasts(store.state)
+      .map((item) =>
+        item.id === toastId ? { ...item, transitionStatus: 'ending' as const, height: 0 } : item,
       );
 
-      const activeToasts = toastsWithEnding.filter((t) => t.transitionStatus !== 'ending');
+    const activeToasts = toastsWithEnding.filter((t) => t.transitionStatus !== 'ending');
 
-      return toastsWithEnding.map((toast) => {
-        if (toast.transitionStatus === 'ending') {
-          return toast;
-        }
-        const isActiveToastLimited = activeToasts.indexOf(toast) >= limit;
-        return { ...toast, limited: isActiveToastLimited };
-      });
+    const newToasts = toastsWithEnding.map((item) => {
+      if (item.transitionStatus === 'ending') {
+        return item;
+      }
+      const isActiveToastLimited = activeToasts.indexOf(item) >= limit;
+      return { ...item, limited: isActiveToastLimited };
     });
 
     const timer = timersRef.current.get(toastId);
@@ -150,21 +158,24 @@ export const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvid
       timersRef.current.delete(toastId);
     }
 
-    const toast = toasts.find((t) => t.id === toastId);
-    toast?.onClose?.();
-
     handleFocusManagement(toastId);
 
-    if (toasts.length === 1) {
+    store.set('toasts', newToasts);
+
+    if (selectors.isEmpty(store.state)) {
       setHovering(false);
       setFocused(false);
     }
   });
 
   const remove = useStableCallback((toastId: string) => {
-    setToasts((prev) => prev.filter((toast) => toast.id !== toastId));
-    const toast = toasts.find((t) => t.id === toastId);
+    const toast = selectors.toast(store.state, toastId);
     toast?.onRemove?.();
+
+    store.set(
+      'toasts',
+      selectors.toasts(store.state).filter((item) => item.id !== toastId),
+    );
   });
 
   const scheduleTimer = useStableCallback((id: string, delay: number, callback: () => void) => {
@@ -197,24 +208,30 @@ export const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvid
         transitionStatus: 'starting',
       };
 
-      setToasts((prev) => {
-        const updatedToasts = [toastToAdd, ...prev];
-        const activeToasts = updatedToasts.filter((t) => t.transitionStatus !== 'ending');
+      const updatedToasts = [toastToAdd, ...selectors.toasts(store.state)];
+      const activeToasts = updatedToasts.filter((t) => t.transitionStatus !== 'ending');
 
-        // Mark oldest toasts for removal when over limit
-        if (activeToasts.length > limit) {
-          const excessCount = activeToasts.length - limit;
-          const oldestActiveToasts = activeToasts.slice(-excessCount);
+      // Mark oldest toasts for removal when over limit
+      if (activeToasts.length > limit) {
+        const excessCount = activeToasts.length - limit;
+        const oldestActiveToasts = activeToasts.slice(-excessCount);
 
-          return updatedToasts.map((t) =>
-            oldestActiveToasts.some((old) => old.id === t.id)
-              ? { ...t, limited: true }
-              : { ...t, limited: false },
-          );
-        }
-
-        return updatedToasts.map((t) => ({ ...t, limited: false }));
-      });
+        store.set(
+          'toasts',
+          updatedToasts.map((t) => {
+            const limited = oldestActiveToasts.some((old) => old.id === t.id);
+            if (t.limited !== limited) {
+              return { ...t, limited };
+            }
+            return t;
+          }),
+        );
+      } else {
+        store.set(
+          'toasts',
+          updatedToasts.map((t) => ({ ...t, limited: false })),
+        );
+      }
 
       const duration = toastToAdd.timeout ?? timeout;
       if (toastToAdd.type !== 'loading' && duration > 0) {
@@ -231,9 +248,10 @@ export const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvid
 
   const update = useStableCallback(
     <Data extends object>(id: string, updates: ToastManagerUpdateOptions<Data>) => {
-      setToasts((prev) =>
-        prev.map((toast) => (toast.id === id ? { ...toast, ...updates } : toast)),
-      );
+      const newToasts = selectors
+        .toasts(store.state)
+        .map((toast) => (toast.id === id ? { ...toast, ...updates } : toast));
+      store.set('toasts', newToasts);
     },
   );
 
@@ -324,8 +342,7 @@ export const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvid
 
   const contextValue = React.useMemo(
     () => ({
-      toasts,
-      setToasts,
+      store,
       hovering,
       setHovering,
       focused,
@@ -356,7 +373,7 @@ export const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvid
       remove,
       resumeTimers,
       scheduleTimer,
-      toasts,
+      store,
       update,
     ],
   ) as ToastContext<any>;
