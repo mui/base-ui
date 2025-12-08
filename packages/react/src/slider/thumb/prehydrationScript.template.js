@@ -39,10 +39,14 @@
 
     const thumbRect = thumb?.getBoundingClientRect();
 
+    const initialPosition = parseFloat(input.getAttribute('data-initial-position'));
+    const relativePosition = Number.isNaN(initialPosition)
+      ? ((value - min) * 100) / (max - min)
+      : initialPosition * 100;
+
     const controlSize = controlRect[side] - thumbRect[side];
-    const thumbValuePercent = ((value - min) * 100) / (max - min);
-    const thumbOffsetFromControlEdge =
-      thumbRect[side] / 2 + (controlSize * thumbValuePercent) / 100;
+    const thumbOffsetFromControlEdge = thumbRect[side] / 2 + (controlSize * relativePosition) / 100;
+
     const percent = (thumbOffsetFromControlEdge / controlRect[side]) * 100;
 
     thumb.style.setProperty(`--position`, `${percent}%`);
