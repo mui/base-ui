@@ -70,7 +70,7 @@ export const Form = React.forwardRef(function Form<
     }
   }, [errors, focusControl]);
 
-  const imperativeValidate = React.useCallback((fieldName?: string | undefined) => {
+  const handleImperativeValidate = React.useCallback((fieldName?: string | undefined) => {
     const values = Array.from(formRef.current.fields.values());
 
     if (fieldName) {
@@ -85,8 +85,8 @@ export const Form = React.forwardRef(function Form<
     }
   }, []);
 
-  React.useImperativeHandle(actionsRef, () => ({ validate: imperativeValidate }), [
-    imperativeValidate,
+  React.useImperativeHandle(actionsRef, () => ({ validate: handleImperativeValidate }), [
+    handleImperativeValidate,
   ]);
 
   const element = useRenderElement('form', componentProps, {
