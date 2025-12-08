@@ -95,8 +95,7 @@ export interface DialogTrigger {
 }
 
 export interface DialogTriggerProps<Payload = unknown>
-  extends NativeButtonProps,
-    BaseUIComponentProps<'button', DialogTrigger.State> {
+  extends NativeButtonProps, BaseUIComponentProps<'button', DialogTrigger.State> {
   /**
    * A handle to associate the trigger with a dialog.
    * Can be created with the Dialog.createHandle() method.

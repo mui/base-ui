@@ -142,8 +142,10 @@ export interface TooltipTriggerState {
   open: boolean;
 }
 
-export interface TooltipTriggerProps<Payload = unknown>
-  extends BaseUIComponentProps<'button', TooltipTrigger.State> {
+export interface TooltipTriggerProps<Payload = unknown> extends BaseUIComponentProps<
+  'button',
+  TooltipTrigger.State
+> {
   /**
    * A handle to associate the trigger with a tooltip.
    */

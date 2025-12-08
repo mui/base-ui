@@ -20,8 +20,10 @@ export type ConformantComponentProps = {
   nativeButton?: boolean;
 };
 
-export interface BaseUiConformanceTestsOptions
-  extends Omit<Partial<ConformanceOptions>, 'render' | 'mount' | 'skip' | 'classes'> {
+export interface BaseUiConformanceTestsOptions extends Omit<
+  Partial<ConformanceOptions>,
+  'render' | 'mount' | 'skip' | 'classes'
+> {
   render: (
     element: React.ReactElement<
       ConformantComponentProps,

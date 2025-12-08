@@ -8,8 +8,10 @@ import {
 } from '../list/useCompositeListItem';
 import { HTMLProps } from '../../utils/types';
 
-export interface UseCompositeItemParameters<Metadata>
-  extends Pick<UseCompositeListItemParameters<Metadata>, 'metadata' | 'indexGuessBehavior'> {}
+export interface UseCompositeItemParameters<Metadata> extends Pick<
+  UseCompositeListItemParameters<Metadata>,
+  'metadata' | 'indexGuessBehavior'
+> {}
 
 export function useCompositeItem<Metadata>(params: UseCompositeItemParameters<Metadata> = {}) {
   const { highlightItemOnHover, highlightedIndex, onHighlightedIndexChange } =

@@ -466,8 +466,10 @@ export interface ThumbMetadata {
 
 export interface SliderThumbState extends SliderRoot.State {}
 
-export interface SliderThumbProps
-  extends Omit<BaseUIComponentProps<'div', SliderThumb.State>, 'onBlur' | 'onFocus'> {
+export interface SliderThumbProps extends Omit<
+  BaseUIComponentProps<'div', SliderThumb.State>,
+  'onBlur' | 'onFocus'
+> {
   /**
    * Whether the thumb should ignore user interaction.
    * @default false

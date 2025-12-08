@@ -227,8 +227,7 @@ export interface ComboboxItemState {
 }
 
 export interface ComboboxItemProps
-  extends NonNativeButtonProps,
-    Omit<BaseUIComponentProps<'div', ComboboxItem.State>, 'id'> {
+  extends NonNativeButtonProps, Omit<BaseUIComponentProps<'div', ComboboxItem.State>, 'id'> {
   children?: React.ReactNode;
   /**
    * An optional click handler for the item when selected.
