@@ -63,7 +63,7 @@ export function MenuRoot<Payload>(props: MenuRoot.Props<Payload>) {
     loopFocus = true,
     orientation = 'vertical',
     actionsRef,
-    closeParentOnEsc = true,
+    closeParentOnEsc = false,
     handle,
     triggerId: triggerIdProp,
     defaultTriggerId: defaultTriggerIdProp = null,
