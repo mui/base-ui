@@ -13,16 +13,20 @@ import * as ReferenceTableTooltip from './ReferenceTableTooltip';
 
 function ExpandedCode(props: React.ComponentProps<'code'>) {
   const { className = '', ...other } = props;
-  let cleaned = className
+  const cleaned = className
     .split(' ')
     .filter((c) => c !== 'Code')
     .join(' ');
-  cleaned += ' whitespace-pre-wrap';
+  // cleaned += ' whitespace-pre-wrap';
   return <code {...other} className={cleaned} />;
 }
 
 function ExpandedPre(props: React.ComponentProps<'pre'>) {
-  return <pre {...props} className="text-xs p-0 m-0" style={{ backgroundColor: undefined }} />;
+  return (
+    <Accordion.Scrollable tag="div" gradientColor="var(--color-gray-50)">
+      <pre {...props} className="text-xs p-0 m-0" style={{ backgroundColor: undefined }} />
+    </Accordion.Scrollable>
+  );
 }
 
 interface PropDef extends BasePropDef {
