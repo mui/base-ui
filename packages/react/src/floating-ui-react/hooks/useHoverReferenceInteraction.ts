@@ -2,8 +2,6 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { isElement } from '@floating-ui/utils/dom';
 import { Hook } from '@base-ui-components/utils/Hook';
-import { useValueAsRef } from '@base-ui-components/utils/useValueAsRef';
-import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import type { FloatingContext, FloatingRootContext } from '../types';
 import { contains, getDocument, isMouseLikePointerType } from '../utils';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
@@ -34,7 +32,6 @@ function getRestMs(value: number | (() => number)) {
 
 const EMPTY_REF: Readonly<React.RefObject<Element | null>> = { current: null };
 
-@Hook.setup
 class HoverReferenceInteraction extends HoverInteraction {
   store: FloatingRootContext;
   props: UseHoverReferenceInteractionProps;
@@ -127,17 +124,10 @@ class HoverReferenceInteraction extends HoverInteraction {
     const store = 'rootStore' in context ? context.rootStore : context;
     const { dataRef, events } = store.context;
 
-    React.useEffect(() => {
-      this.store = store;
-      this.props = props;
-    });
-
     const {
       enabled = true,
-      delay = 0,
       handleClose = null,
       mouseOnly = false,
-      restMs = 0,
       move = true,
       triggerElementRef = EMPTY_REF,
       externalTree,
@@ -146,9 +136,11 @@ class HoverReferenceInteraction extends HoverInteraction {
 
     const tree = useFloatingTree(externalTree);
 
-    const handleCloseRef = useValueAsRef(handleClose);
-    const delayRef = useValueAsRef(delay);
-    const restMsRef = useValueAsRef(restMs);
+    React.useEffect(() => {
+      this.store = store;
+      this.props = props;
+      this.tree = tree;
+    });
 
     if (isActiveTrigger) {
       // eslint-disable-next-line no-underscore-dangle
@@ -175,7 +167,7 @@ class HoverReferenceInteraction extends HoverInteraction {
       return () => {
         events.off('openchange', onOpenChangeLocal);
       };
-    }, [enabled, events, this]);
+    }, [enabled, events]);
 
     React.useEffect(() => {
       if (!enabled) {
@@ -200,11 +192,11 @@ class HoverReferenceInteraction extends HoverInteraction {
 
         // Only rest delay is set; there's no fallback delay.
         // This will be handled by `onMouseMove`.
-        if (getRestMs(restMsRef.current) > 0 && !getDelay(delayRef.current, 'open')) {
+        if (getRestMs(this.props.restMs ?? 0) > 0 && !getDelay(this.props.delay, 'open')) {
           return;
         }
 
-        const openDelay = getDelay(delayRef.current, 'open', this.pointerType);
+        const openDelay = getDelay(this.props.delay, 'open', this.pointerType);
         const currentDomReference = store.select('domReferenceElement');
         const allTriggers = store.context.triggerElements;
 
@@ -248,12 +240,12 @@ class HoverReferenceInteraction extends HoverInteraction {
           return;
         }
 
-        if (handleCloseRef.current && dataRef.current.floatingContext) {
+        if (this.props.handleClose && dataRef.current.floatingContext) {
           if (!store.select('open')) {
             this.openChangeTimeout.clear();
           }
 
-          this.handler = handleCloseRef.current({
+          this.handler = this.props.handleClose({
             ...dataRef.current.floatingContext,
             tree,
             x: event.clientX,
@@ -313,19 +305,7 @@ class HoverReferenceInteraction extends HoverInteraction {
         trigger.removeEventListener('mouseenter', onMouseEnter);
         trigger.removeEventListener('mouseleave', onMouseLeave);
       };
-    }, [
-      dataRef,
-      delayRef,
-      store,
-      enabled,
-      handleCloseRef,
-      isActiveTrigger,
-      mouseOnly,
-      move,
-      restMsRef,
-      triggerElementRef,
-      tree,
-    ]);
+    }, [dataRef, store, enabled, isActiveTrigger, mouseOnly, move, triggerElementRef, tree]);
 
     return React.useMemo<HTMLProps>(() => {
       const setPointerRef = (event: React.PointerEvent) => {
@@ -352,7 +332,7 @@ class HoverReferenceInteraction extends HoverInteraction {
             return;
           }
 
-          if ((currentOpen && !isOverInactiveTrigger) || getRestMs(restMsRef.current) === 0) {
+          if ((currentOpen && !isOverInactiveTrigger) || getRestMs(this.props.restMs ?? 0) === 0) {
             return;
           }
 
@@ -383,11 +363,11 @@ class HoverReferenceInteraction extends HoverInteraction {
             handleMouseMove();
           } else {
             this.restTimeoutPending = true;
-            this.restTimeout.start(getRestMs(restMsRef.current), handleMouseMove);
+            this.restTimeout.start(getRestMs(this.props.restMs ?? 0), handleMouseMove);
           }
         },
       };
-    }, [mouseOnly, store, restMsRef]);
+    }, [mouseOnly, store]);
   }
 }
 

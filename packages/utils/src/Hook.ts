@@ -11,7 +11,7 @@ interface HookShape<Args extends any[], Value> {
 type UseValue<T> = T extends HookShape<any, infer V> ? V : never;
 
 export abstract class Hook {
-  static setup<K extends HookShape<any, any>>(klass: K) {
+  static setup(klass: any) {
     (klass as any).use = Hook.use.bind(klass) as any;
     (klass as any).create = create.bind(null, klass) as any;
   }
@@ -22,6 +22,9 @@ export abstract class Hook {
     ...args: Args
   ): UseValue<T>;
   static use(klass: unknown, a1: unknown, a2: unknown, a3: unknown) {
+    if (!(klass as any).create) {
+      Hook.setup(klass);
+    }
     const instance = useRefWithInit((klass as any).create, a1, a2, a3).current as any;
     const result = instance.use(a1, a2, a3);
     return result ?? instance;

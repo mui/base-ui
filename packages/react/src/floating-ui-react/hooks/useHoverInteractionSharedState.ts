@@ -16,7 +16,6 @@ type HoverContextData = ContextData & {
   hoverInteractionState?: HoverInteraction;
 };
 
-@Hook.setup
 export class HoverInteraction extends Hook {
   pointerType: string | undefined;
   interactedInside: boolean;
