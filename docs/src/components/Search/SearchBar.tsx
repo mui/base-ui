@@ -66,6 +66,7 @@ export function SearchBar({
 }) {
   const router = useRouter();
   const [dialogOpen, setDialogOpen] = React.useState(false);
+  const [hasHighlightedItem, setHasHighlightedItem] = React.useState(false);
   const inputRef = React.useRef<HTMLInputElement>(null);
   const popupRef = React.useRef<HTMLDivElement>(null);
   const openingRef = React.useRef(false);
@@ -126,6 +127,7 @@ export function SearchBar({
         setDialogOpen(false);
         queueMicrotask(() => {
           setSearchResults(defaultResults);
+          setHasHighlightedItem(false);
         });
 
         // Reset after a short delay
@@ -244,19 +246,25 @@ export function SearchBar({
       </Button>
       <Dialog.Root open={dialogOpen} onOpenChange={handleCloseDialog}>
         <Dialog.Portal>
-          <Dialog.Backdrop className="fixed inset-0 min-h-dvh bg-black opacity-20 dark:opacity-70 supports-[-webkit-touch-callout:none]:absolute" />
+          <Dialog.Backdrop className="fixed inset-0 min-h-dvh bg-black opacity-20 transition-all duration-150 data-ending-style:opacity-0 data-starting-style:opacity-0 dark:opacity-70 supports-[-webkit-touch-callout:none]:absolute" />
           {containedScroll ? (
-            <Dialog.Viewport className="group/dialog fixed inset-0 flex items-start justify-center overflow-hidden py-6">
+            <Dialog.Viewport className="group/dialog fixed inset-0 flex items-start justify-center overflow-hidden pt-18">
               <Dialog.Popup
                 ref={popupRef}
                 initialFocus={inputRef}
                 data-open={dialogOpen}
-                className="relative flex rounded-2xl min-h-0 max-h-[min(29.5rem,calc(100vh-6rem))] w-[min(34rem,calc(100vw-2rem))] flex-col overflow-hidden bg-(--color-popup) text-gray-900 outline-1 outline-black/4 shadow-[0_.5px_1px_hsl(0_0%_0%/12%),0_1px_3px_-1px_hsl(0_0%_0%/4%),0_2px_4px_-1px_hsl(0_0%_0%/4%),0_4px_8px_-2px_hsl(0_0%_0%/4%),0_12px_14px_-4px_hsl(0_0%_0%/4%),0_24px_64px_-8px_hsl(0_0%_0%/4%),0_40px_48px_-32px_hsl(0_0%_0%/4%)]"
+                className="relative flex rounded-2xl min-h-0 max-h-[min(29.5rem,calc(100vh-6rem))] w-[min(34rem,calc(100vw-2rem))] flex-col overflow-hidden bg-white text-gray-900 outline-1 outline-black/4 shadow-[0_.5px_1px_hsl(0_0%_0%/12%),0_1px_3px_-1px_hsl(0_0%_0%/4%),0_2px_4px_-1px_hsl(0_0%_0%/4%),0_4px_8px_-2px_hsl(0_0%_0%/4%),0_12px_14px_-4px_hsl(0_0%_0%/4%),0_24px_64px_-8px_hsl(0_0%_0%/4%),0_40px_48px_-32px_hsl(0_0%_0%/4%)] transition-all duration-150 data-ending-style:scale-90 data-ending-style:opacity-0 data-ending-style:-translate-y-4 data-starting-style:scale-90 data-starting-style:opacity-0 data-starting-style:-translate-y-4 dark:bg-[oklch(20%_0.5%_264deg)] dark:outline-white/25"
               >
                 <Autocomplete.Root
                   items={searchResults.results}
                   onValueChange={handleValueChange}
                   onOpenChange={handleAutocompleteEscape}
+                  onItemHighlighted={(item) => {
+                    const highlighted = item != null;
+                    if (highlighted !== hasHighlightedItem) {
+                      setHasHighlightedItem(highlighted);
+                    }
+                  }}
                   open
                   inline
                   itemToStringValue={(item) => (item ? item.title || item.slug : '')}
@@ -284,9 +292,14 @@ export function SearchBar({
                       </ScrollArea.Scrollbar>
                     </ScrollArea.Root>
                   </div>
-                  <div className="border-t border-gray-200 pt-1 flex justify-end pb-1 pl-2 pr-2 text-gray-500 text-xs">
-                    <div className={searchResults.elapsed.raw <= 0 ? 'opacity-0' : ''}>
-                      Found {searchResults.count} items in {searchResults.elapsed.formatted}
+                  <div className="border-t border-gray-200 py-1.5 flex pl-3 pr-2 text-gray-500 text-xs">
+                    <div
+                      className={`flex items-center gap-1.5 ${hasHighlightedItem ? '' : 'invisible'}`}
+                    >
+                      <kbd className="flex h-5 w-5 items-center justify-center rounded border border-gray-300 bg-gray-50 text-[10px] text-gray-600">
+                        ↵
+                      </kbd>
+                      <span>Go to page</span>
                     </div>
                   </div>
                 </Autocomplete.Root>
@@ -304,12 +317,18 @@ export function SearchBar({
                       ref={popupRef}
                       initialFocus={inputRef}
                       data-open={dialogOpen}
-                      className="relative mx-auto rounded-2xl my-18 w-[min(40rem,calc(100vw-2rem))] bg-(--color-popup) text-gray-900 outline-1 outline-black/4 shadow-[0_.5px_1px_hsl(0_0%_0%/12%),0_1px_3px_-1px_hsl(0_0%_0%/4%),0_2px_4px_-1px_hsl(0_0%_0%/4%),0_4px_8px_-2px_hsl(0_0%_0%/4%),0_12px_14px_-4px_hsl(0_0%_0%/4%),0_24px_64px_-8px_hsl(0_0%_0%/4%),0_40px_48px_-32px_hsl(0_0%_0%/4%)]"
+                      className="relative mx-auto rounded-2xl mt-18 mb-18 w-[min(40rem,calc(100vw-2rem))] bg-white text-gray-900 outline-1 outline-black/4 shadow-[0_.5px_1px_hsl(0_0%_0%/12%),0_1px_3px_-1px_hsl(0_0%_0%/4%),0_2px_4px_-1px_hsl(0_0%_0%/4%),0_4px_8px_-2px_hsl(0_0%_0%/4%),0_12px_14px_-4px_hsl(0_0%_0%/4%),0_24px_64px_-8px_hsl(0_0%_0%/4%),0_40px_48px_-32px_hsl(0_0%_0%/4%)] transition-all duration-150 data-ending-style:scale-90 data-ending-style:opacity-0 data-ending-style:-translate-y-4 data-starting-style:scale-90 data-starting-style:opacity-0 data-starting-style:-translate-y-4 dark:bg-[oklch(20%_0.5%_264deg)] dark:outline-white/25"
                     >
                       <Autocomplete.Root
                         items={searchResults.results}
                         onValueChange={handleValueChange}
                         onOpenChange={handleAutocompleteEscape}
+                        onItemHighlighted={(item) => {
+                          const highlighted = item != null;
+                          if (highlighted !== hasHighlightedItem) {
+                            setHasHighlightedItem(highlighted);
+                          }
+                        }}
                         open
                         inline
                         itemToStringValue={(item) => (item ? item.title || item.slug : '')}

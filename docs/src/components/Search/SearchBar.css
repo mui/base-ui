@@ -36,7 +36,6 @@
   border: none;
   border-radius: 9999px;
   background-color: hsl(0deg 0% 0% / 5%);
-  box-shadow: 0 1px 2px hsl(0deg 0% 0% / 5%);
   font: inherit;
   font-size: 1rem;
   font-weight: 500;
@@ -45,6 +44,10 @@
   cursor: pointer;
   user-select: none;
   outline: none;
+
+  @media (prefers-color-scheme: dark) {
+    background-color: hsl(0deg 0% 100% / 10%);
+  }
 }
 
 .SearchTrigger::before {
@@ -54,6 +57,16 @@
   border-radius: 9999px;
   background-color: var(--color-popup);
   z-index: 0;
+}
+
+.SearchTrigger::after {
+  content: '';
+  position: absolute;
+  inset: 1px;
+  border-radius: 9999px;
+  box-shadow: 0 1px 2px hsl(0deg 0% 0% / 5%);
+  z-index: 0;
+  pointer-events: none;
 }
 
 .SearchTrigger > * {
