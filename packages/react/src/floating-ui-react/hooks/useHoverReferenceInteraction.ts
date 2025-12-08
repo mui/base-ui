@@ -37,6 +37,8 @@ const EMPTY_REF: Readonly<React.RefObject<Element | null>> = { current: null };
 @Hook.setup
 class HoverReferenceInteraction extends HoverInteraction {
   store: FloatingRootContext;
+  props: UseHoverReferenceInteractionProps;
+  tree: ReturnType<typeof useFloatingTree> | undefined;
 
   constructor(
     context: FloatingRootContext | FloatingContext,
@@ -44,6 +46,8 @@ class HoverReferenceInteraction extends HoverInteraction {
   ) {
     super();
     this.store = 'rootStore' in context ? context.rootStore : context;
+    this.props = props;
+    this.tree = undefined;
   }
 
   isClickLikeOpenEvent = () => {
@@ -72,6 +76,50 @@ class HoverReferenceInteraction extends HoverInteraction {
     }
   };
 
+  closeWithDelay = (event: MouseEvent, runElseBranch = true) => {
+    const closeDelay = getDelay(this.props.delay, 'close', this.pointerType);
+    if (closeDelay && !this.handler) {
+      this.openChangeTimeout.start(closeDelay, () =>
+        this.store.setOpen(false, createChangeEventDetails(REASONS.triggerHover, event)),
+      );
+    } else if (runElseBranch) {
+      this.openChangeTimeout.clear();
+      this.store.setOpen(false, createChangeEventDetails(REASONS.triggerHover, event));
+    }
+  };
+
+  handleScrollMouseLeave = (event: MouseEvent) => {
+    if (this.isClickLikeOpenEvent()) {
+      return;
+    }
+    const dataRef = this.store.context.dataRef;
+    if (!dataRef.current.floatingContext) {
+      return;
+    }
+    const triggerElements = this.store.context.triggerElements;
+    if (event.relatedTarget && triggerElements.hasElement(event.relatedTarget as Element)) {
+      return;
+    }
+    const tree = this.tree;
+    if (tree === undefined) {
+      return;
+    }
+
+    this.props.handleClose?.({
+      ...dataRef.current.floatingContext,
+      tree,
+      x: event.clientX,
+      y: event.clientY,
+      onClose: () => {
+        this.clearPointerEvents();
+        this.cleanupMouseMoveHandler();
+        if (!this.isClickLikeOpenEvent()) {
+          this.closeWithDelay(event);
+        }
+      },
+    })(event);
+  };
+
   use(
     context: FloatingRootContext | FloatingContext,
     props: UseHoverReferenceInteractionProps = {},
@@ -81,6 +129,7 @@ class HoverReferenceInteraction extends HoverInteraction {
 
     React.useEffect(() => {
       this.store = store;
+      this.props = props;
     });
 
     const {
@@ -103,23 +152,8 @@ class HoverReferenceInteraction extends HoverInteraction {
 
     if (isActiveTrigger) {
       // eslint-disable-next-line no-underscore-dangle
-      this.handleCloseOptions = handleCloseRef.current?.__options;
+      this.handleCloseOptions = handleClose?.__options;
     }
-
-    const closeWithDelay = React.useCallback(
-      (event: MouseEvent, runElseBranch = true) => {
-        const closeDelay = getDelay(delayRef.current, 'close', this.pointerType);
-        if (closeDelay && !this.handler) {
-          this.openChangeTimeout.start(closeDelay, () =>
-            store.setOpen(false, createChangeEventDetails(REASONS.triggerHover, event)),
-          );
-        } else if (runElseBranch) {
-          this.openChangeTimeout.clear();
-          store.setOpen(false, createChangeEventDetails(REASONS.triggerHover, event));
-        }
-      },
-      [delayRef, this.handler, store, this.pointerType, this.openChangeTimeout],
-    );
 
     // When closing before opening, clear the delay timeouts to cancel it
     // from showing.
@@ -142,34 +176,6 @@ class HoverReferenceInteraction extends HoverInteraction {
         events.off('openchange', onOpenChangeLocal);
       };
     }, [enabled, events, this]);
-
-    const handleScrollMouseLeave = useStableCallback((event: MouseEvent) => {
-      if (this.isClickLikeOpenEvent()) {
-        return;
-      }
-      if (!dataRef.current.floatingContext) {
-        return;
-      }
-
-      const triggerElements = store.context.triggerElements;
-      if (event.relatedTarget && triggerElements.hasElement(event.relatedTarget as Element)) {
-        return;
-      }
-
-      handleCloseRef.current?.({
-        ...dataRef.current.floatingContext,
-        tree,
-        x: event.clientX,
-        y: event.clientY,
-        onClose: () => {
-          this.clearPointerEvents();
-          this.cleanupMouseMoveHandler();
-          if (!this.isClickLikeOpenEvent()) {
-            closeWithDelay(event);
-          }
-        },
-      })(event);
-    });
 
     React.useEffect(() => {
       if (!enabled) {
@@ -256,7 +262,7 @@ class HoverReferenceInteraction extends HoverInteraction {
               this.clearPointerEvents();
               this.cleanupMouseMoveHandler();
               if (!this.isClickLikeOpenEvent()) {
-                closeWithDelay(event, true);
+                this.closeWithDelay(event, true);
               }
             },
           });
@@ -278,13 +284,11 @@ class HoverReferenceInteraction extends HoverInteraction {
             : true;
 
         if (shouldClose) {
-          closeWithDelay(event);
+          this.closeWithDelay(event);
         }
       };
 
-      const onScrollMouseLeave = (event: MouseEvent) => {
-        handleScrollMouseLeave(event);
-      };
+      const onScrollMouseLeave = this.handleScrollMouseLeave;
 
       if (store.select('open')) {
         trigger.addEventListener('mouseleave', onScrollMouseLeave);
@@ -312,11 +316,9 @@ class HoverReferenceInteraction extends HoverInteraction {
     }, [
       dataRef,
       delayRef,
-      closeWithDelay,
       store,
       enabled,
       handleCloseRef,
-      handleScrollMouseLeave,
       isActiveTrigger,
       mouseOnly,
       move,
@@ -385,7 +387,7 @@ class HoverReferenceInteraction extends HoverInteraction {
           }
         },
       };
-    }, [this, mouseOnly, store, restMsRef]);
+    }, [mouseOnly, store, restMsRef]);
   }
 }
 
