@@ -26,7 +26,7 @@ export function register(hook: HookType): void {
   hooks.push(hook);
 }
 
-export function create<P extends object, E extends HTMLElement, R extends React.ReactNode>(
+export function fastComponent<P extends object, E extends HTMLElement, R extends React.ReactNode>(
   fn: (props: P) => R,
 ): typeof fn {
   const FastComponent = (props: P, forwardedRef: React.Ref<E>): R => {
@@ -57,10 +57,12 @@ export function create<P extends object, E extends HTMLElement, R extends React.
   return FastComponent as unknown as typeof fn;
 }
 
-export function createRef<P extends object, E extends HTMLElement, R extends React.ReactNode>(
-  fn: (props: React.PropsWithoutRef<P>, forwardedRef: React.Ref<E>) => R,
-) {
-  return React.forwardRef<E, P>(create(fn as any) as unknown as typeof fn);
+export function fastComponentRef<
+  P extends object,
+  E extends HTMLElement,
+  R extends React.ReactNode,
+>(fn: (props: React.PropsWithoutRef<P>, forwardedRef: React.Ref<E>) => R) {
+  return React.forwardRef<E, P>(fastComponent(fn as any) as unknown as typeof fn);
 }
 
 function createInstance(): Instance {

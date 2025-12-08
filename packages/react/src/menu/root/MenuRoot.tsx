@@ -8,6 +8,7 @@ import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect
 import { useAnimationFrame } from '@base-ui-components/utils/useAnimationFrame';
 import { useScrollLock } from '@base-ui-components/utils/useScrollLock';
 import { EMPTY_ARRAY } from '@base-ui-components/utils/empty';
+import { fastComponent } from '@base-ui-components/utils/fastHooks';
 import {
   FloatingEvents,
   FloatingTree,
@@ -51,7 +52,7 @@ import { useMenuSubmenuRootContext } from '../submenu-root/MenuSubmenuRootContex
  *
  * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
  */
-export function MenuRoot<Payload>(props: MenuRoot.Props<Payload>) {
+export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot.Props<Payload>) {
   const {
     children,
     open: openProp,
@@ -562,7 +563,7 @@ export function MenuRoot<Payload>(props: MenuRoot.Props<Payload>) {
   }
 
   return content;
-}
+});
 
 export interface MenuRootProps<Payload = unknown> {
   /**

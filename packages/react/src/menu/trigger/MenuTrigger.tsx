@@ -3,6 +3,7 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { FocusableElement } from 'tabbable';
 import { useTimeout } from '@base-ui-components/utils/useTimeout';
+import { fastComponentRef } from '@base-ui-components/utils/fastHooks';
 import { ownerDocument } from '@base-ui-components/utils/owner';
 import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
@@ -54,7 +55,7 @@ const BOUNDARY_OFFSET = 2;
  *
  * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
  */
-export const MenuTrigger = React.forwardRef(function MenuTrigger(
+export const MenuTrigger = fastComponentRef(function MenuTrigger(
   componentProps: MenuTrigger.Props,
   forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
@@ -365,7 +366,8 @@ export interface MenuTrigger {
 }
 
 export interface MenuTriggerProps<Payload = unknown>
-  extends NativeButtonProps, BaseUIComponentProps<'button', MenuTrigger.State> {
+  extends NativeButtonProps,
+    BaseUIComponentProps<'button', MenuTrigger.State> {
   children?: React.ReactNode;
   /**
    * Whether the component should ignore user interaction.

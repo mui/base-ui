@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import * as fastHooks from '@base-ui-components/utils/fastHooks';
+import { fastComponentRef } from '@base-ui-components/utils/fastHooks';
 import { useTooltipRootContext } from '../root/TooltipRootContext';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
@@ -19,7 +19,7 @@ import { OPEN_DELAY } from '../utils/constants';
  *
  * Documentation: [Base UI Tooltip](https://base-ui.com/react/components/tooltip)
  */
-export const TooltipTrigger = fastHooks.createRef(function TooltipTrigger(
+export const TooltipTrigger = fastComponentRef(function TooltipTrigger(
   componentProps: TooltipTrigger.Props,
   forwardedRef: React.ForwardedRef<any>,
 ) {
@@ -142,10 +142,8 @@ export interface TooltipTriggerState {
   open: boolean;
 }
 
-export interface TooltipTriggerProps<Payload = unknown> extends BaseUIComponentProps<
-  'button',
-  TooltipTrigger.State
-> {
+export interface TooltipTriggerProps<Payload = unknown>
+  extends BaseUIComponentProps<'button', TooltipTrigger.State> {
   /**
    * A handle to associate the trigger with a tooltip.
    */

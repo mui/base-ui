@@ -22,12 +22,12 @@ export default function getBabelConfig(api) {
   ];
 
   const displayNamePlugin = baseConfig.plugins.find(
-    (p) => p[2] === 'babel-plugin-react-display-name',
+    (p) => p[2] === '@mui/internal-babel-plugin-display-name',
   );
   displayNamePlugin[1].allowedCallees ??= {};
   displayNamePlugin[1].allowedCallees['@base-ui-components/utils/fastHooks'] = [
-    'create',
-    'createRef',
+    'fastComponent',
+    'fastComponentRef',
   ];
 
   return {
