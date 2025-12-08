@@ -2,10 +2,9 @@
 import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { useRefWithInit } from '@base-ui-components/utils/useRefWithInit';
-import { useStore } from '@base-ui-components/utils/store';
 import { ToastContext } from './ToastProviderContext';
 import type { ToastManager } from '../createToastManager';
-import { selectors, ToastStore } from '../store';
+import { ToastStore } from '../store';
 
 /**
  * Provides a context for creating and managing toasts.
@@ -16,7 +15,6 @@ export const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvid
   const { children, timeout = 5000, limit = 3, toastManager } = props;
 
   const viewportRef = React.useRef<HTMLElement | null>(null);
-
   const store = useRefWithInit(
     () =>
       new ToastStore({
@@ -30,19 +28,6 @@ export const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvid
         prevFocusElement: null,
       }),
   ).current;
-  const isEmpty = useStore(store, selectors.isEmpty);
-  const hovering = useStore(store, selectors.hovering);
-  const focused = useStore(store, selectors.focused);
-
-  if (isEmpty) {
-    if (hovering) {
-      store.setHovering(false);
-    }
-
-    if (focused) {
-      store.setFocused(false);
-    }
-  }
 
   React.useEffect(
     function subscribeToToastManager() {

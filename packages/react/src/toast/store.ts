@@ -108,7 +108,7 @@ export class ToastStore extends Store<State> {
 
     const newToasts = [...this.state.toasts];
     newToasts.splice(index, 1);
-    this.set('toasts', newToasts);
+    this.setToasts(newToasts);
   }
 
   addToast = <Data extends object>(toast: ToastManagerAddOptions<Data>): string => {
@@ -129,8 +129,7 @@ export class ToastStore extends Store<State> {
       const oldestActiveToasts = activeToasts.slice(-excessCount);
       const limitedIds = new Set(oldestActiveToasts.map((t) => t.id));
 
-      this.set(
-        'toasts',
+      this.setToasts(
         updatedToasts.map((t) => {
           const limited = limitedIds.has(t.id);
           if (t.limited !== limited) {
@@ -140,10 +139,7 @@ export class ToastStore extends Store<State> {
         }),
       );
     } else {
-      this.set(
-        'toasts',
-        updatedToasts.map((t) => (t.limited ? { ...t, limited: false } : t)),
-      );
+      this.setToasts(updatedToasts.map((t) => (t.limited ? { ...t, limited: false } : t)));
     }
 
     const duration = toastToAdd.timeout ?? timeout;
@@ -166,7 +162,7 @@ export class ToastStore extends Store<State> {
     const { toasts } = this.state;
     const newToasts = [...toasts];
     newToasts.splice(index, 1, { ...toasts[index], ...updates });
-    this.set('toasts', newToasts);
+    this.setToasts(newToasts);
   };
 
   closeToast = (toastId: string) => {
@@ -196,13 +192,7 @@ export class ToastStore extends Store<State> {
     }
 
     this.handleFocusManagement(toastId);
-
-    const updates: Partial<State> = { toasts: newToasts };
-    if (newToasts.length === 0) {
-      updates.hovering = false;
-      updates.focused = false;
-    }
-    this.update(updates);
+    this.setToasts(newToasts);
   };
 
   promiseToast = <Value, Data extends object>(
@@ -294,6 +284,10 @@ export class ToastStore extends Store<State> {
     });
   }
 
+  restoreFocusToPrevElement() {
+    this.state.prevFocusElement?.focus({ preventScroll: true });
+  }
+
   private scheduleTimer(id: string, delay: number, callback: () => void) {
     const start = Date.now();
     const shouldStartActive = !selectors.expandedOrOutOfFocus(this.state);
@@ -313,8 +307,13 @@ export class ToastStore extends Store<State> {
     });
   }
 
-  restoreFocusToPrevElement() {
-    this.state.prevFocusElement?.focus({ preventScroll: true });
+  private setToasts(newToasts: ToastObject<any>[]) {
+    const updates: Partial<State> = { toasts: newToasts };
+    if (newToasts.length === 0) {
+      updates.hovering = false;
+      updates.focused = false;
+    }
+    this.update(updates);
   }
 
   private handleFocusManagement(toastId: string) {
