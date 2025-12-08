@@ -35,8 +35,7 @@ export namespace NavigationMenuPortal {
   export interface State {}
 }
 
-export interface NavigationMenuPortalProps
-  extends FloatingPortal.Props<NavigationMenuPortal.State> {
+export interface NavigationMenuPortalProps extends FloatingPortal.Props<NavigationMenuPortal.State> {
   /**
    * Whether to keep the portal mounted in the DOM while the popup is hidden.
    * @default false

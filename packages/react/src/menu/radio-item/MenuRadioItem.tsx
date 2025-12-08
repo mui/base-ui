@@ -116,8 +116,7 @@ export type MenuRadioItemState = {
 };
 
 export interface MenuRadioItemProps
-  extends NonNativeButtonProps,
-    BaseUIComponentProps<'div', MenuRadioItem.State> {
+  extends NonNativeButtonProps, BaseUIComponentProps<'div', MenuRadioItem.State> {
   /**
    * Value of the radio item.
    * This is the value that will be set in the MenuRadioGroup when the item is selected.
