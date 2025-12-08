@@ -161,19 +161,11 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
     element.style.height = previousHeight;
 
     function update() {
-      store.set(
-        'toasts',
-        selectors.toasts(store.state).map((t) =>
-          t.id === toast.id
-            ? {
-                ...t,
-                ref: rootRef,
-                height,
-                transitionStatus: undefined,
-              }
-            : t,
-        ),
-      );
+      store.updateToast(toast.id, {
+        ref: rootRef,
+        height,
+        transitionStatus: undefined,
+      });
     }
 
     if (flushSync) {

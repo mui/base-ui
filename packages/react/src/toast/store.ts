@@ -87,6 +87,14 @@ export class ToastStore extends Store<State> {
     this.set('hovering', hovering);
   }
 
+  setIsWindowFocused(isWindowFocused: boolean) {
+    this.set('isWindowFocused', isWindowFocused);
+  }
+
+  setPrevFocusElement(prevFocusElement: HTMLElement | null) {
+    this.set('prevFocusElement', prevFocusElement);
+  }
+
   removeToast(toastId: string) {
     const toast = selectors.toast(this.state, toastId);
     toast?.onRemove?.();
@@ -296,6 +304,10 @@ export class ToastStore extends Store<State> {
     });
   }
 
+  restoreFocusToPrevElement() {
+    this.state.prevFocusElement?.focus({ preventScroll: true });
+  }
+
   private handleFocusManagement(toastId: string) {
     const { viewportRef } = this.state;
     const activeEl = activeElement(ownerDocument(viewportRef.current));
@@ -338,10 +350,6 @@ export class ToastStore extends Store<State> {
     } else {
       this.restoreFocusToPrevElement();
     }
-  }
-
-  restoreFocusToPrevElement() {
-    this.state.prevFocusElement?.focus({ preventScroll: true });
   }
 }
 

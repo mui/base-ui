@@ -55,8 +55,7 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
 
       if (event.key === 'F6' && event.target !== viewportRef.current) {
         event.preventDefault();
-        store.set(
-          'prevFocusElement',
+        store.setPrevFocusElement(
           activeElement(ownerDocument(viewportRef.current)) as HTMLElement | null,
         );
         viewportRef.current?.focus({ preventScroll: true });
@@ -86,7 +85,7 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
         return;
       }
 
-      store.set('isWindowFocused', false);
+      store.setIsWindowFocused(false);
       store.pauseTimers();
     }
 
@@ -105,9 +104,7 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
       }
 
       // Wait for the `handleFocus` event to fire.
-      setTimeout(() => {
-        store.set('isWindowFocused', true);
-      });
+      setTimeout(() => store.setIsWindowFocused(true));
     }
 
     win.addEventListener('blur', handleWindowBlur, true);

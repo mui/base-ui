@@ -124,7 +124,7 @@ export interface ToastManagerAddOptions<Data extends object>
 }
 
 export interface ToastManagerUpdateOptions<Data extends object>
-  extends Partial<ToastManagerAddOptions<Data>> {}
+  extends Partial<Omit<ToastObject<Data>, 'id'>> {}
 
 export interface ToastManagerPromiseOptions<Value, Data extends object> {
   loading: string | ToastManagerUpdateOptions<Data>;
