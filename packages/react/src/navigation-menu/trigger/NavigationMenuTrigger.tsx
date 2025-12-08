@@ -496,8 +496,7 @@ export interface NavigationMenuTriggerState {
 }
 
 export interface NavigationMenuTriggerProps
-  extends NativeButtonProps,
-    BaseUIComponentProps<'button', NavigationMenuTrigger.State> {}
+  extends NativeButtonProps, BaseUIComponentProps<'button', NavigationMenuTrigger.State> {}
 
 export namespace NavigationMenuTrigger {
   export type State = NavigationMenuTriggerState;

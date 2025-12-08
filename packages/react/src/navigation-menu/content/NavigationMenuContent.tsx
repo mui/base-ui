@@ -151,8 +151,10 @@ export interface NavigationMenuContentState {
   activationDirection: 'left' | 'right' | 'up' | 'down' | null;
 }
 
-export interface NavigationMenuContentProps
-  extends BaseUIComponentProps<'div', NavigationMenuContent.State> {}
+export interface NavigationMenuContentProps extends BaseUIComponentProps<
+  'div',
+  NavigationMenuContent.State
+> {}
 
 export namespace NavigationMenuContent {
   export type State = NavigationMenuContentState;

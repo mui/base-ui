@@ -346,7 +346,8 @@ export interface CheckboxRootState extends FieldRoot.State {
 }
 
 export interface CheckboxRootProps
-  extends NonNativeButtonProps,
+  extends
+    NonNativeButtonProps,
     Omit<BaseUIComponentProps<'span', CheckboxRoot.State>, 'onChange' | 'value'> {
   /**
    * The id of the input element.

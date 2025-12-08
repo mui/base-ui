@@ -200,8 +200,10 @@ export type ContextMenuTriggerState = {
   open: boolean;
 };
 
-export interface ContextMenuTriggerProps
-  extends BaseUIComponentProps<'div', ContextMenuTrigger.State> {}
+export interface ContextMenuTriggerProps extends BaseUIComponentProps<
+  'div',
+  ContextMenuTrigger.State
+> {}
 
 export namespace ContextMenuTrigger {
   export type State = ContextMenuTriggerState;
