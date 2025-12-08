@@ -19,10 +19,7 @@ async function getBaseUiExports() {
   const exports = packageJson.exports;
   const entrypoints = Object.keys(exports).map((exportKey) => {
     // Convert from "./accordion" to "@base-ui/react/accordion"
-    const entrypoint =
-      exportKey === '.'
-        ? '@base-ui/react'
-        : `@base-ui/react${exportKey.slice(1)}`;
+    const entrypoint = exportKey === '.' ? '@base-ui/react' : `@base-ui/react${exportKey.slice(1)}`;
     return entrypoint;
   });
 

@@ -4,10 +4,7 @@ import { Radio } from '@base-ui/react/radio';
 import { Field } from '@base-ui/react/field';
 import { Fieldset } from '@base-ui/react/fieldset';
 import { Form } from '@base-ui/react/form';
-import {
-  DirectionProvider,
-  type TextDirection,
-} from '@base-ui/react/direction-provider';
+import { DirectionProvider, type TextDirection } from '@base-ui/react/direction-provider';
 import { expect } from 'chai';
 import { spy } from 'sinon';
 import { isJSDOM, createRenderer as createAsyncRenderer } from '#test-utils';
