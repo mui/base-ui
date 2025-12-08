@@ -8,14 +8,14 @@ const element1 = useRender({
   render: () => <div>Test</div>,
 });
 
-expectType<React.ReactElement<Record<string, unknown>>, typeof element1>(element1);
+expectType<React.ReactElement, typeof element1>(element1);
 
 const element2 = useRender({
   render: () => <div>Test</div>,
   enabled: true,
 });
 
-expectType<React.ReactElement<Record<string, unknown>>, typeof element2>(element2);
+expectType<React.ReactElement, typeof element2>(element2);
 
 const element3 = useRender({
   render: () => <div>Test</div>,
@@ -29,19 +29,19 @@ const element4 = useRender({
   enabled: Math.random() > 0.5,
 });
 
-expectType<React.ReactElement<Record<string, unknown>> | null, typeof element4>(element4);
+expectType<React.ReactElement | null, typeof element4>(element4);
 
 const element5 = useRender({
   render: () => <button type="button">Click</button>,
 });
 
-expectType<React.ReactElement<Record<string, unknown>>, typeof element5>(element5);
+expectType<React.ReactElement, typeof element5>(element5);
 
 const element6 = useRender({
   render: <div />,
 });
 
-expectType<React.ReactElement<Record<string, unknown>>, typeof element6>(element6);
+expectType<React.ReactElement, typeof element6>(element6);
 
 const element7 = useRender({
   render: <button type="button" aria-label="Submit" />,
@@ -51,7 +51,7 @@ const element7 = useRender({
   },
 });
 
-expectType<React.ReactElement<Record<string, unknown>>, typeof element7>(element7);
+expectType<React.ReactElement, typeof element7>(element7);
 
 function MyComponent() {
   const element = useRender({ defaultTagName: 'div' });
