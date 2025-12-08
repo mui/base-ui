@@ -97,9 +97,9 @@ export class ToastStore extends Store<State> {
     this.set('prevFocusElement', prevFocusElement);
   }
 
-  setViewport(viewport: HTMLElement | null) {
+  setViewport = (viewport: HTMLElement | null) => {
     this.set('viewport', viewport);
-  }
+  };
 
   removeToast(toastId: string) {
     const index = selectors.toastIndex(this.state, toastId);

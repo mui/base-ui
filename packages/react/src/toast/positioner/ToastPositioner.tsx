@@ -139,7 +139,8 @@ export interface ToastPositionerState {
 }
 
 export interface ToastPositionerProps
-  extends BaseUIComponentProps<'div', ToastPositioner.State>,
+  extends
+    BaseUIComponentProps<'div', ToastPositioner.State>,
     Omit<useAnchorPositioning.SharedParameters, 'side' | 'anchor'> {
   /**
    * An element to position the toast against.
