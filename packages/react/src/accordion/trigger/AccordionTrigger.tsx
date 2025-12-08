@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
-import { isElementDisabled } from '@base-ui-components/utils/isElementDisabled';
-import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
+import { isElementDisabled } from '@base-ui/utils/isElementDisabled';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { triggerOpenStateMapping } from '../../utils/collapsibleOpenStateMapping';
 import { BaseUIComponentProps, NativeButtonProps } from '../../utils/types';
 import { useButton } from '../../use-button';

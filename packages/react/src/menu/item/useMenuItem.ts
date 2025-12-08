@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
+import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { useButton } from '../../use-button';
 import { mergeProps } from '../../merge-props';
 import { HTMLProps, BaseUIEvent } from '../../utils/types';

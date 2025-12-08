@@ -1,10 +1,10 @@
 'use client';
 import * as React from 'react';
-import { useStore } from '@base-ui-components/utils/store';
-import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
-import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
-import { inertValue } from '@base-ui-components/utils/inertValue';
-import { useScrollLock } from '@base-ui-components/utils/useScrollLock';
+import { useStore } from '@base-ui/utils/store';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { inertValue } from '@base-ui/utils/inertValue';
+import { useScrollLock } from '@base-ui/utils/useScrollLock';
 import {
   useComboboxFloatingContext,
   useComboboxRootContext,

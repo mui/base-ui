@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
-import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
-import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useCollapsibleRoot } from '../../collapsible/root/useCollapsibleRoot';

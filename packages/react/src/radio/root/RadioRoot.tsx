@@ -1,8 +1,8 @@
 'use client';
 import * as React from 'react';
-import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
-import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
-import { visuallyHidden } from '@base-ui-components/utils/visuallyHidden';
+import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { visuallyHidden } from '@base-ui/utils/visuallyHidden';
 import type { BaseUIComponentProps, NonNativeButtonProps } from '../../utils/types';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';

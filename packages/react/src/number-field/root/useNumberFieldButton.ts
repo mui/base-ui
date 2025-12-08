@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import type { Timeout } from '@base-ui-components/utils/useTimeout';
+import type { Timeout } from '@base-ui/utils/useTimeout';
 import {
   DEFAULT_STEP,
   MAX_POINTER_MOVES_AFTER_TOUCH,

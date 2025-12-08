@@ -1,4 +1,4 @@
-import { Popover } from '@base-ui-components/react/popover';
+import { Popover } from '@base-ui/react/popover';
 import { BellIcon, ArrowSvg } from '../../icons-tw';
 
 export default function ExamplePopover() {

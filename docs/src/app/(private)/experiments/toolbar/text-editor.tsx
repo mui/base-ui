@@ -1,12 +1,12 @@
 'use client';
 import * as React from 'react';
-import { Toolbar } from '@base-ui-components/react/toolbar';
-import { Tooltip } from '@base-ui-components/react/tooltip';
-import { Toggle } from '@base-ui-components/react/toggle';
-import { ToggleGroup } from '@base-ui-components/react/toggle-group';
-import { Select } from '@base-ui-components/react/select';
-import { NumberField } from '@base-ui-components/react/number-field';
-import { Menu } from '@base-ui-components/react/menu';
+import { Toolbar } from '@base-ui/react/toolbar';
+import { Tooltip } from '@base-ui/react/tooltip';
+import { Toggle } from '@base-ui/react/toggle';
+import { ToggleGroup } from '@base-ui/react/toggle-group';
+import { Select } from '@base-ui/react/select';
+import { NumberField } from '@base-ui/react/number-field';
+import { Menu } from '@base-ui/react/menu';
 import {
   SettingsMetadata,
   useExperimentSettings,

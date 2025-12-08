@@ -4,9 +4,9 @@ import { act, screen } from '@mui/internal-test-utils';
 import {
   DirectionProvider,
   type TextDirection,
-} from '@base-ui-components/react/direction-provider';
-import { ToggleGroup } from '@base-ui-components/react/toggle-group';
-import { Toggle } from '@base-ui-components/react/toggle';
+} from '@base-ui/react/direction-provider';
+import { ToggleGroup } from '@base-ui/react/toggle-group';
+import { Toggle } from '@base-ui/react/toggle';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 
 describe('<ToggleGroup />', () => {

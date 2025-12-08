@@ -1,10 +1,10 @@
 'use client';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
-import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
-import { isWebKit } from '@base-ui-components/utils/detectBrowser';
-import { useTimeout } from '@base-ui-components/utils/useTimeout';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { isWebKit } from '@base-ui/utils/detectBrowser';
+import { useTimeout } from '@base-ui/utils/useTimeout';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useScrollAreaRootContext } from '../root/ScrollAreaRootContext';
 import { ScrollAreaViewportContext } from './ScrollAreaViewportContext';

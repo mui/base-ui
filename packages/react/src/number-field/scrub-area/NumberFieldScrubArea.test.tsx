@@ -1,9 +1,9 @@
 import { expect } from 'chai';
 import { screen, act } from '@mui/internal-test-utils';
 import { spy } from 'sinon';
-import { NumberField } from '@base-ui-components/react/number-field';
+import { NumberField } from '@base-ui/react/number-field';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
-import { isWebKit } from '@base-ui-components/utils/detectBrowser';
+import { isWebKit } from '@base-ui/utils/detectBrowser';
 
 function createPointerMoveEvent({ movementX = 0, movementY = 0 }) {
   return new PointerEvent('pointermove', {

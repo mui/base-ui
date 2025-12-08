@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import { inertValue } from '@base-ui-components/utils/inertValue';
+import { inertValue } from '@base-ui/utils/inertValue';
 import { FloatingNode } from '../../floating-ui-react';
 import { contains, getTarget } from '../../floating-ui-react/utils';
 import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';

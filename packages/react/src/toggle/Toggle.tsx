@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
-import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
-import { useControlled } from '@base-ui-components/utils/useControlled';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { useControlled } from '@base-ui/utils/useControlled';
 import { useRenderElement } from '../utils/useRenderElement';
 import type { BaseUIComponentProps, NativeButtonProps } from '../utils/types';
 import { useToggleGroupContext } from '../toggle-group/ToggleGroupContext';

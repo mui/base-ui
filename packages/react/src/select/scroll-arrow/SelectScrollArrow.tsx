@@ -1,8 +1,8 @@
 'use client';
 import * as React from 'react';
-import { useTimeout } from '@base-ui-components/utils/useTimeout';
-import { useStore } from '@base-ui-components/utils/store';
-import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
+import { useTimeout } from '@base-ui/utils/useTimeout';
+import { useStore } from '@base-ui/utils/store';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useSelectRootContext } from '../root/SelectRootContext';
 import { useSelectPositionerContext } from '../positioner/SelectPositionerContext';

@@ -1,10 +1,10 @@
 'use client';
 import * as React from 'react';
-import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import {
   InteractionType,
   useEnhancedClickHandler,
-} from '@base-ui-components/utils/useEnhancedClickHandler';
+} from '@base-ui/utils/useEnhancedClickHandler';
 
 /**
  * Determines the interaction type (keyboard, mouse, touch, etc.) that opened the component.

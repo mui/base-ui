@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { usePopoverRootContext } from '../root/PopoverRootContext';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useBaseUiId } from '../../utils/useBaseUiId';

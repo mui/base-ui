@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { expect } from 'chai';
 import { act, screen, waitFor } from '@mui/internal-test-utils';
-import { AlertDialog } from '@base-ui-components/react/alert-dialog';
+import { AlertDialog } from '@base-ui/react/alert-dialog';
 import { createRenderer, isJSDOM, popupConformanceTests } from '#test-utils';
 import { spy } from 'sinon';
 import { REASONS } from '../../utils/reasons';

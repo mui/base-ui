@@ -1,8 +1,8 @@
 'use client';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import { ownerWindow } from '@base-ui-components/utils/owner';
-import { useTimeout } from '@base-ui-components/utils/useTimeout';
+import { ownerWindow } from '@base-ui/utils/owner';
+import { useTimeout } from '@base-ui/utils/useTimeout';
 import {
   disableFocusInside,
   enableFocusInside,

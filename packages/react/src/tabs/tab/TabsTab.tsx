@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
-import { ownerDocument } from '@base-ui-components/utils/owner';
-import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
+import { ownerDocument } from '@base-ui/utils/owner';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useRenderElement } from '../../utils/useRenderElement';
 import type { BaseUIComponentProps, NativeButtonProps } from '../../utils/types';

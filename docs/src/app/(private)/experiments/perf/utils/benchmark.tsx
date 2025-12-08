@@ -1,8 +1,8 @@
 'use client';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
-import { useTimeout } from '@base-ui-components/utils/useTimeout';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { useTimeout } from '@base-ui/utils/useTimeout';
 import styles from '../perf.module.css';
 
 const DOM_SETTLE_QUIET_WINDOW_MS = 32;

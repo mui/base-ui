@@ -1,8 +1,8 @@
 'use client';
 import * as React from 'react';
-import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
-import { useId } from '@base-ui-components/utils/useId';
-import { inertValue } from '@base-ui-components/utils/inertValue';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { useId } from '@base-ui/utils/useId';
+import { inertValue } from '@base-ui/utils/inertValue';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useNavigationMenuRootContext } from '../root/NavigationMenuRootContext';

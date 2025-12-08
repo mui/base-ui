@@ -1,10 +1,10 @@
 import * as React from 'react';
 import { expect } from 'chai';
 import { act, flushMicrotasks, waitFor, screen, fireEvent } from '@mui/internal-test-utils';
-import { DirectionProvider } from '@base-ui-components/react/direction-provider';
-import { useRefWithInit } from '@base-ui-components/utils/useRefWithInit';
-import { Menu } from '@base-ui-components/react/menu';
-import { Dialog } from '@base-ui-components/react/dialog';
+import { DirectionProvider } from '@base-ui/react/direction-provider';
+import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
+import { Menu } from '@base-ui/react/menu';
+import { Dialog } from '@base-ui/react/dialog';
 import userEvent from '@testing-library/user-event';
 import { spy } from 'sinon';
 import { createRenderer, isJSDOM, popupConformanceTests, wait } from '#test-utils';
