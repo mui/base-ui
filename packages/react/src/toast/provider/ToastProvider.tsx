@@ -36,11 +36,11 @@ export const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvid
 
   if (isEmpty) {
     if (hovering) {
-      store.hover(false);
+      store.setHovering(false);
     }
 
     if (focused) {
-      store.focus(false);
+      store.setFocused(false);
     }
   }
 

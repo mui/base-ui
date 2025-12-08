@@ -53,7 +53,7 @@ export const ToastPositioner = React.forwardRef(function ToastPositioner(
 
   const [positionerElement, setPositionerElement] = React.useState<HTMLDivElement | null>(null);
 
-  const domIndex = useStore(store, selectors.toastDOMIndex, toast.id);
+  const domIndex = useStore(store, selectors.toastIndex, toast.id);
   const visibleIndex = useStore(store, selectors.toastVisibleIndex, toast.id);
 
   const anchor = isElement(anchorProp) ? anchorProp : null;

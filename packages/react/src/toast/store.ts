@@ -56,7 +56,7 @@ export const selectors = {
   toastMap: toastMapSelector,
   isEmpty: createSelector((state: State) => state.toasts.length === 0),
   toast: createSelector(toastMapSelector, (toastMap, id: string) => toastMap.get(id)?.value),
-  toastDOMIndex: createSelector(
+  toastIndex: createSelector(
     toastMapSelector,
     (toastMap, id: string) => toastMap.get(id)?.domIndex ?? -1,
   ),
@@ -71,6 +71,9 @@ export const selectors = {
   hovering: createSelector((state: State) => state.hovering),
   focused: createSelector((state: State) => state.focused),
   expanded: createSelector((state: State) => state.hovering || state.focused),
+  expandedOrOutOfFocus: createSelector(
+    (state: State) => state.hovering || state.focused || !state.isWindowFocused,
+  ),
   prevFocusElement: createSelector((state: State) => state.prevFocusElement),
 };
 
@@ -79,11 +82,11 @@ export class ToastStore extends Store<State> {
 
   private areTimersPaused = false;
 
-  focus(focused: boolean) {
+  setFocused(focused: boolean) {
     this.set('focused', focused);
   }
 
-  hover(hovering: boolean) {
+  setHovering(hovering: boolean) {
     this.set('hovering', hovering);
   }
 
@@ -96,13 +99,17 @@ export class ToastStore extends Store<State> {
   }
 
   removeToast(toastId: string) {
-    const toast = selectors.toast(this.state, toastId);
+    const index = selectors.toastIndex(this.state, toastId);
+    if (index === -1) {
+      return;
+    }
+
+    const toast = this.state.toasts[index];
     toast?.onRemove?.();
 
-    this.set(
-      'toasts',
-      selectors.toasts(this.state).filter((item) => item.id !== toastId),
-    );
+    const newToasts = [...this.state.toasts];
+    newToasts.splice(index, 1);
+    this.set('toasts', newToasts);
   }
 
   addToast<Data extends object>(toast: ToastManagerAddOptions<Data>): string {
@@ -121,11 +128,12 @@ export class ToastStore extends Store<State> {
     if (activeToasts.length > limit) {
       const excessCount = activeToasts.length - limit;
       const oldestActiveToasts = activeToasts.slice(-excessCount);
+      const limitedIds = new Set(oldestActiveToasts.map((t) => t.id));
 
       this.set(
         'toasts',
         updatedToasts.map((t) => {
-          const limited = oldestActiveToasts.some((old) => old.id === t.id);
+          const limited = limitedIds.has(t.id);
           if (t.limited !== limited) {
             return { ...t, limited };
           }
@@ -135,7 +143,7 @@ export class ToastStore extends Store<State> {
     } else {
       this.set(
         'toasts',
-        updatedToasts.map((t) => ({ ...t, limited: false })),
+        updatedToasts.map((t) => (t.limited ? { ...t, limited: false } : t)),
       );
     }
 
@@ -144,7 +152,7 @@ export class ToastStore extends Store<State> {
       this.scheduleTimer(id, duration, () => this.closeToast(id));
     }
 
-    if (selectors.expanded(this.state) || !this.state.isWindowFocused) {
+    if (selectors.expandedOrOutOfFocus(this.state)) {
       this.pauseTimers();
     }
 
@@ -152,10 +160,14 @@ export class ToastStore extends Store<State> {
   }
 
   updateToast<Data extends object>(id: string, updates: ToastManagerUpdateOptions<Data>) {
-    this.set(
-      'toasts',
-      this.state.toasts.map((toast) => (toast.id === id ? { ...toast, ...updates } : toast)),
-    );
+    const index = selectors.toastIndex(this.state, id);
+    if (index === -1) {
+      return;
+    }
+    const { toasts } = this.state;
+    const newToasts = [...toasts];
+    newToasts.splice(index, 1, { ...toasts[index], ...updates });
+    this.set('toasts', newToasts);
   }
 
   closeToast(toastId: string) {
@@ -218,7 +230,7 @@ export class ToastStore extends Store<State> {
           this.scheduleTimer(id, successTimeout, () => this.closeToast(id));
         }
 
-        if (selectors.expanded(this.state) || !this.state.isWindowFocused) {
+        if (selectors.expandedOrOutOfFocus(this.state)) {
           this.pauseTimers();
         }
 
@@ -236,7 +248,7 @@ export class ToastStore extends Store<State> {
           this.scheduleTimer(id, errorTimeout, () => this.closeToast(id));
         }
 
-        if (selectors.expanded(this.state) || !this.state.isWindowFocused) {
+        if (selectors.expandedOrOutOfFocus(this.state)) {
           this.pauseTimers();
         }
 
@@ -283,11 +295,9 @@ export class ToastStore extends Store<State> {
     });
   }
 
-  scheduleTimer(id: string, delay: number, callback: () => void) {
+  private scheduleTimer(id: string, delay: number, callback: () => void) {
     const start = Date.now();
-
-    const shouldStartActive = this.state.isWindowFocused && !selectors.expanded(this.state);
-
+    const shouldStartActive = !selectors.expandedOrOutOfFocus(this.state);
     const currentTimeout = shouldStartActive ? Timeout.create() : undefined;
 
     currentTimeout?.start(delay, () => {
@@ -320,7 +330,7 @@ export class ToastStore extends Store<State> {
     }
 
     const toasts = selectors.toasts(this.state);
-    const currentIndex = selectors.toastDOMIndex(this.state, toastId);
+    const currentIndex = selectors.toastIndex(this.state, toastId);
     let nextToast: ToastObject<any> | null = null;
 
     // Try to find the next toast that isn't animating out

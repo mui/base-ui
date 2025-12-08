@@ -128,7 +128,7 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
   const swipeCancelBaselineRef = React.useRef({ x: 0, y: 0 });
   const isFirstPointerMoveRef = React.useRef(false);
 
-  const domIndex = useStore(store, selectors.toastDOMIndex, toast.id);
+  const domIndex = useStore(store, selectors.toastIndex, toast.id);
   const visibleIndex = useStore(store, selectors.toastVisibleIndex, toast.id);
   const offsetY = useStore(store, selectors.toastOffsetY, toast.id);
   const focused = useStore(store, selectors.focused);
@@ -247,7 +247,7 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
       });
     }
 
-    store.hover(true);
+    store.setHovering(true);
     setIsSwiping(true);
     setIsRealSwipe(false);
     setLockedDirection(null);

@@ -60,7 +60,7 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
         );
         viewportRef.current?.focus({ preventScroll: true });
         store.pauseTimers();
-        store.focus(true);
+        store.setFocused(true);
       }
     }
 
@@ -143,8 +143,8 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
       }
 
       store.resumeTimers();
-      store.hover(false);
-      store.focus(false);
+      store.setHovering(false);
+      store.setFocused(false);
     }
 
     doc.addEventListener('pointerdown', handlePointerDown, true);
@@ -190,24 +190,24 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
     // but blocked from taking effect. If so, we can now safely resume timers and
     // collapse the viewport.
     store.resumeTimers();
-    store.hover(false);
+    store.setHovering(false);
     markedReadyForMouseLeaveRef.current = false;
   }, [hasTransitioningToasts, store]);
 
   function handleMouseEnter() {
     store.pauseTimers();
-    store.hover(true);
+    store.setHovering(true);
     markedReadyForMouseLeaveRef.current = false;
   }
 
   function handleMouseLeave() {
-    if (toasts.some((toast) => toast.transitionStatus === 'ending')) {
+    if (hasTransitioningToasts) {
       // When swiping to dismiss, wait until the transitions have settled
       // to avoid the viewport collapsing while the user is interacting.
       markedReadyForMouseLeaveRef.current = true;
     } else {
       store.resumeTimers();
-      store.hover(false);
+      store.setHovering(false);
     }
   }
 
@@ -225,7 +225,7 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
     // This prevents the viewport from staying expanded when clicking inside without
     // keyboard navigation.
     if (isFocusVisible(ownerDocument(viewportRef.current).activeElement)) {
-      store.focus(true);
+      store.setFocused(true);
       store.pauseTimers();
     }
   }
@@ -235,7 +235,7 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
       return;
     }
 
-    store.focus(false);
+    store.setFocused(false);
     store.resumeTimers();
   }
 
