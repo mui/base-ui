@@ -18,13 +18,13 @@ export const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvid
   const store = useRefWithInit(
     () =>
       new ToastStore({
+        timeout,
+        limit,
+        viewportRef,
         toasts: [],
         hovering: false,
         focused: false,
-        timeout,
-        limit,
         isWindowFocused: true,
-        viewportRef,
         prevFocusElement: null,
       }),
   ).current;

@@ -6,7 +6,6 @@ import { useStore } from '@base-ui-components/utils/store';
 import { activeElement, contains, getTarget } from '../../floating-ui-react/utils';
 import { FocusGuard } from '../../utils/FocusGuard';
 import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
-import { ToastViewportContext } from './ToastViewportContext';
 import { useToastContext } from '../provider/ToastProviderContext';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { isFocusVisible } from '../utils/focusVisible';
@@ -287,15 +286,13 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
     ],
   });
 
-  const contextValue = React.useMemo(() => ({ viewportRef }), [viewportRef]);
-
   const highPriorityToasts = React.useMemo(
     () => toasts.filter((toast) => toast.priority === 'high'),
     [toasts],
   );
 
   return (
-    <ToastViewportContext.Provider value={contextValue}>
+    <React.Fragment>
       {!isEmpty && prevFocusElement && <FocusGuard onFocus={handleFocusGuard} />}
       {element}
       {!focused && highPriorityToasts.length > 0 && (
@@ -308,7 +305,7 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
           ))}
         </div>
       )}
-    </ToastViewportContext.Provider>
+    </React.Fragment>
   );
 });
 
