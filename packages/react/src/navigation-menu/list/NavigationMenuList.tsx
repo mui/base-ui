@@ -112,8 +112,10 @@ export interface NavigationMenuListState {
   open: boolean;
 }
 
-export interface NavigationMenuListProps
-  extends BaseUIComponentProps<'ul', NavigationMenuList.State> {}
+export interface NavigationMenuListProps extends BaseUIComponentProps<
+  'ul',
+  NavigationMenuList.State
+> {}
 
 export namespace NavigationMenuList {
   export type State = NavigationMenuListState;

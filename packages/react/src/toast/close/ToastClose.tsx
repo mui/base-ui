@@ -62,8 +62,7 @@ export interface ToastCloseState {
 }
 
 export interface ToastCloseProps
-  extends NativeButtonProps,
-    BaseUIComponentProps<'button', ToastClose.State> {}
+  extends NativeButtonProps, BaseUIComponentProps<'button', ToastClose.State> {}
 
 export namespace ToastClose {
   export type State = ToastCloseState;

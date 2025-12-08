@@ -193,7 +193,8 @@ export interface PopoverPositionerState {
 }
 
 export interface PopoverPositionerProps
-  extends useAnchorPositioning.SharedParameters,
+  extends
+    useAnchorPositioning.SharedParameters,
     BaseUIComponentProps<'div', PopoverPositioner.State> {}
 
 export namespace PopoverPositioner {

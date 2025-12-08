@@ -291,8 +291,10 @@ export interface NavigationMenuRootState {
   nested: boolean;
 }
 
-export interface NavigationMenuRootProps
-  extends BaseUIComponentProps<'nav', NavigationMenuRoot.State> {
+export interface NavigationMenuRootProps extends BaseUIComponentProps<
+  'nav',
+  NavigationMenuRoot.State
+> {
   /**
    * A ref to imperative actions.
    */
