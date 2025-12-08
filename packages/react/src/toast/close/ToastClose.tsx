@@ -1,10 +1,12 @@
 'use client';
 import * as React from 'react';
+import { useStore } from '@base-ui-components/utils/store';
 import type { BaseUIComponentProps, NativeButtonProps } from '../../utils/types';
 import { useToastRootContext } from '../root/ToastRootContext';
 import { useToastContext } from '../provider/ToastProviderContext';
 import { useButton } from '../../use-button/useButton';
 import { useRenderElement } from '../../utils/useRenderElement';
+import { selectors } from '../store';
 
 /**
  * Closes the toast when clicked.
@@ -18,8 +20,9 @@ export const ToastClose = React.forwardRef(function ToastClose(
 ) {
   const { render, className, disabled, nativeButton = true, ...elementProps } = componentProps;
 
-  const { close, expanded } = useToastContext();
+  const { store } = useToastContext();
   const { toast } = useToastRootContext();
+  const expanded = useStore(store, selectors.expanded);
 
   const { getButtonProps, buttonRef } = useButton({
     disabled,
@@ -40,7 +43,7 @@ export const ToastClose = React.forwardRef(function ToastClose(
       {
         'aria-hidden': !expanded,
         onClick() {
-          close(toast.id);
+          store.closeToast(toast.id);
         },
       },
       elementProps,

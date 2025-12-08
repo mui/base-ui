@@ -19,15 +19,13 @@ export const ToastDescription = React.forwardRef(function ToastDescription(
 ) {
   const { render, className, id: idProp, children: childrenProp, ...elementProps } = componentProps;
 
-  const { toast } = useToastRootContext();
+  const { toast, setDescriptionId } = useToastRootContext();
 
   const children = childrenProp ?? toast.description;
 
   const shouldRender = Boolean(children);
 
   const id = useId(idProp);
-
-  const { setDescriptionId } = useToastRootContext();
 
   useIsoLayoutEffect(() => {
     if (!shouldRender) {
