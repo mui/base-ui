@@ -66,8 +66,10 @@ export interface NavigationMenuBackdropState {
   transitionStatus: TransitionStatus;
 }
 
-export interface NavigationMenuBackdropProps
-  extends BaseUIComponentProps<'div', NavigationMenuBackdrop.State> {}
+export interface NavigationMenuBackdropProps extends BaseUIComponentProps<
+  'div',
+  NavigationMenuBackdrop.State
+> {}
 
 export namespace NavigationMenuBackdrop {
   export type State = NavigationMenuBackdropState;

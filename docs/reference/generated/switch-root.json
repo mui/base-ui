@@ -29,6 +29,11 @@
       "description": "Whether the component renders a native `<button>` element when replacing it\nvia the `render` prop.\nSet to `true` if the rendered element is a native button.",
       "detailedType": "boolean | undefined"
     },
+    "uncheckedValue": {
+      "type": "string",
+      "description": "The value submitted with the form when the switch is off.\nBy default, unchecked switches do not submit any value, matching native checkbox behavior.",
+      "detailedType": "string | undefined"
+    },
     "disabled": {
       "type": "boolean",
       "default": "false",

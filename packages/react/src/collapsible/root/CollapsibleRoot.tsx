@@ -56,7 +56,6 @@ export const CollapsibleRoot = React.forwardRef(function CollapsibleRoot(
     [collapsible, onOpenChange, state],
   );
 
-  // @ts-expect-error Collapsible accepts `render={null}`
   const element = useRenderElement('div', componentProps, {
     state,
     ref: forwardedRef,
@@ -64,26 +63,19 @@ export const CollapsibleRoot = React.forwardRef(function CollapsibleRoot(
     stateAttributesMapping: collapsibleStateAttributesMapping,
   });
 
-  if (componentProps.render !== null) {
-    return (
-      <CollapsibleRootContext.Provider value={contextValue}>
-        {element}
-      </CollapsibleRootContext.Provider>
-    );
-  }
-
   return (
     <CollapsibleRootContext.Provider value={contextValue}>
-      {elementProps.children}
+      {element}
     </CollapsibleRootContext.Provider>
   );
 });
 
-export interface CollapsibleRootState
-  extends Pick<useCollapsibleRoot.ReturnValue, 'open' | 'disabled'> {}
+export interface CollapsibleRootState extends Pick<
+  useCollapsibleRoot.ReturnValue,
+  'open' | 'disabled'
+> {}
 
-export interface CollapsibleRootProps
-  extends Omit<BaseUIComponentProps<'div', CollapsibleRoot.State>, 'render'> {
+export interface CollapsibleRootProps extends BaseUIComponentProps<'div', CollapsibleRoot.State> {
   /**
    * Whether the collapsible panel is currently open.
    *
@@ -106,7 +98,6 @@ export interface CollapsibleRootProps
    * @default false
    */
   disabled?: boolean;
-  render?: BaseUIComponentProps<'div', CollapsibleRootState>['render'] | null;
 }
 
 export type CollapsibleRootChangeEventReason = typeof REASONS.triggerPress | typeof REASONS.none;

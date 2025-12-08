@@ -16,8 +16,8 @@ import {
   useInteractions,
   useFloatingNodeId,
   useFloatingParentNodeId,
-  FloatingTreeStore,
 } from '../../floating-ui-react';
+import { FloatingTreeStore } from '../../floating-ui-react/components/FloatingTreeStore';
 import {
   contains,
   getNextTabbable,
@@ -365,8 +365,7 @@ export interface MenuTrigger {
 }
 
 export interface MenuTriggerProps<Payload = unknown>
-  extends NativeButtonProps,
-    BaseUIComponentProps<'button', MenuTrigger.State> {
+  extends NativeButtonProps, BaseUIComponentProps<'button', MenuTrigger.State> {
   children?: React.ReactNode;
   /**
    * Whether the component should ignore user interaction.
