@@ -15,18 +15,18 @@ export function useToastManager(): UseToastManagerReturnValue {
     throw new Error('Base UI: useToastManager must be used within <Toast.Provider>.');
   }
 
-  const { store, add, close, update, promise } = context;
+  const { store } = context;
   const toasts = useStore(store, selectors.toasts);
 
   return React.useMemo(
     () => ({
       toasts,
-      add,
-      close,
-      update,
-      promise,
+      add: store.addToast,
+      close: store.closeToast,
+      update: store.updateToast,
+      promise: store.promiseToast,
     }),
-    [toasts, add, close, update, promise],
+    [toasts, store],
   );
 }
 

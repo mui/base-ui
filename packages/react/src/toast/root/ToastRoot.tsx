@@ -3,6 +3,7 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { ownerDocument } from '@base-ui-components/utils/owner';
 import { inertValue } from '@base-ui-components/utils/inertValue';
+import { useStore } from '@base-ui-components/utils/store';
 import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
 import { activeElement, contains, getTarget } from '../../floating-ui-react/utils';
@@ -16,7 +17,6 @@ import { StateAttributesMapping } from '../../utils/getStateAttributesProps';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { ToastRootCssVars } from './ToastRootCssVars';
-import { useStore } from '@base-ui-components/utils/store';
 import { selectors } from '../store';
 
 const stateAttributesMapping: StateAttributesMapping<ToastRoot.State> = {
@@ -101,7 +101,7 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
 
   const swipeEnabled = swipeDirections.length > 0;
 
-  const { store, focused, close, remove, pauseTimers, expanded, setHovering } = useToastContext();
+  const { store } = useToastContext();
 
   const [currentSwipeDirection, setCurrentSwipeDirection] = React.useState<
     'up' | 'down' | 'left' | 'right' | undefined
@@ -131,13 +131,15 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
   const domIndex = useStore(store, selectors.toastDOMIndex, toast.id);
   const visibleIndex = useStore(store, selectors.toastVisibleIndex, toast.id);
   const offsetY = useStore(store, selectors.toastOffsetY, toast.id);
+  const focused = useStore(store, selectors.focused);
+  const expanded = useStore(store, selectors.expanded);
 
   useOpenChangeComplete({
     open: toast.transitionStatus !== 'ending',
     ref: rootRef,
     onComplete() {
       if (toast.transitionStatus === 'ending') {
-        remove(toast.id);
+        store.removeToast(toast.id);
       }
     },
   });
@@ -224,7 +226,7 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
     }
 
     if (event.pointerType === 'touch') {
-      pauseTimers();
+      store.pauseTimers();
     }
 
     const target = getTarget(event.nativeEvent) as HTMLElement | null;
@@ -253,7 +255,7 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
       });
     }
 
-    setHovering(true);
+    store.hover(true);
     setIsSwiping(true);
     setIsRealSwipe(false);
     setLockedDirection(null);
@@ -439,7 +441,7 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
     if (shouldClose) {
       setCurrentSwipeDirection(dismissDirection);
       setDragDismissed(true);
-      close(toast.id);
+      store.closeToast(toast.id);
     } else {
       setDragOffset({ x: initialTransform.x, y: initialTransform.y });
       setCurrentSwipeDirection(undefined);
@@ -454,7 +456,7 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
       ) {
         return;
       }
-      close(toast.id);
+      store.closeToast(toast.id);
     }
   }
 
