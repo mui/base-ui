@@ -26,8 +26,10 @@ export function register(hook: HookType): void {
   hooks.push(hook);
 }
 
-export function create<P extends object, E extends HTMLElement>(fn: (props: P) => React.ReactNode) {
-  const FastComponent = (props: P, forwardedRef: React.Ref<E>) => {
+export function create<P extends object, E extends HTMLElement, R extends React.ReactNode>(
+  fn: (props: P) => R,
+): typeof fn {
+  const FastComponent = (props: P, forwardedRef: React.Ref<E>): R => {
     const instance = useRefWithInit(createInstance).current;
 
     let result;
@@ -52,13 +54,13 @@ export function create<P extends object, E extends HTMLElement>(fn: (props: P) =
     return result;
   };
   FastComponent.displayName = (fn as any).displayName || fn.name;
-  return FastComponent;
+  return FastComponent as unknown as typeof fn;
 }
 
-export function createRef<P extends object, E extends HTMLElement>(
-  fn: (props: P, forwardedRef: React.Ref<E>) => React.ReactNode,
-): (props: P, forwardedRef: React.Ref<E>) => React.ReactNode {
-  return React.forwardRef<E, P>(create(fn as any)) as any;
+export function createRef<P extends object, E extends HTMLElement, R extends React.ReactNode>(
+  fn: (props: React.PropsWithoutRef<P>, forwardedRef: React.Ref<E>) => R,
+) {
+  return React.forwardRef<E, P>(create(fn as any) as unknown as typeof fn);
 }
 
 function createInstance(): Instance {

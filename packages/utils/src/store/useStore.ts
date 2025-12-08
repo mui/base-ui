@@ -86,7 +86,7 @@ register({
       instance.didChangeStore = true;
       instance.getSnapshot = () => {
         let didChange = false;
-        for (let i = 0; i < instance.syncHooks.length; i++) {
+        for (let i = 0; i < instance.syncHooks.length; i += 1) {
           const hook = instance.syncHooks[i];
           const value = hook.selector(hook.store.getSnapshot(), hook.a1, hook.a2, hook.a3);
           if (hook.didChange || !Object.is(hook.value, value)) {
@@ -122,6 +122,7 @@ register({
           };
         };
       }
+      // eslint-disable-next-line react-hooks/rules-of-hooks
       useSyncExternalStore(instance.subscribe, instance.getSnapshot, instance.getSnapshot);
     }
   },
@@ -136,6 +137,7 @@ function useStoreFast(
 ): unknown {
   const instance = getInstance() as StoreInstance | undefined;
   if (!instance) {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
     return useStoreR19(store, selector, a1, a2, a3);
   }
 
