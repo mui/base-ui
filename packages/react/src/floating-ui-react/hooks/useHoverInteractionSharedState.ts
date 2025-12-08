@@ -1,5 +1,5 @@
-import { useRefWithInit } from '@base-ui-components/utils/useRefWithInit';
 import { Timeout } from '@base-ui-components/utils/useTimeout';
+import { Hook } from '@base-ui-components/utils/Hook';
 
 import type { ContextData, FloatingRootContext, SafePolygonOptions } from '../types';
 import { createAttribute } from '../utils/createAttribute';
@@ -16,7 +16,8 @@ type HoverContextData = ContextData & {
   hoverInteractionState?: HoverInteraction;
 };
 
-class HoverInteraction {
+@Hook.setup
+export class HoverInteraction extends Hook {
   pointerType: string | undefined;
   interactedInside: boolean;
   handler: ((event: MouseEvent) => void) | undefined;
@@ -29,6 +30,7 @@ class HoverInteraction {
   handleCloseOptions: SafePolygonOptions | undefined;
 
   constructor() {
+    super();
     this.pointerType = undefined;
     this.interactedInside = false;
     this.handler = undefined;
@@ -36,20 +38,16 @@ class HoverInteraction {
     this.performedPointerEventsMutation = false;
     this.unbindMouseMove = () => {};
     this.restTimeoutPending = false;
-    this.openChangeTimeout = new Timeout();
-    this.restTimeout = new Timeout();
+    this.openChangeTimeout = this.hook(new Timeout());
+    this.restTimeout = this.hook(new Timeout());
     this.handleCloseOptions = undefined;
   }
 
   // XXX: timeout cleanup
-
-  static create(): HoverInteraction {
-    return new HoverInteraction();
-  }
 }
 
 export function useHoverInteractionSharedState(store: FloatingRootContext): HoverInteraction {
-  const instance = useRefWithInit(HoverInteraction.create).current;
+  const instance = Hook.use(HoverInteraction) as unknown as HoverInteraction;
 
   const data = store.context.dataRef.current as HoverContextData;
   if (!data.hoverInteractionState) {
