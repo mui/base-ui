@@ -88,7 +88,7 @@ export interface UseRenderParameters<
 
 export type UseRenderReturnValue<Enabled extends boolean | undefined> = Enabled extends false
   ? null
-  : React.ReactElement;
+  : React.ReactElement<Record<string, unknown>>;
 
 export namespace useRender {
   export type RenderProp<State = Record<string, unknown>> = UseRenderRenderProp<State>;
