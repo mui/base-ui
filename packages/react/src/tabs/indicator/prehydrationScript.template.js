@@ -18,7 +18,6 @@
     return;
   }
 
-  const direction = getComputedStyle(tabsList).direction;
   let left = 0;
   let right = 0;
   let top = 0;
@@ -67,11 +66,8 @@
 
     width = computedWidth;
     height = computedHeight;
-    right =
-      direction === 'ltr'
-        ? tabsList.scrollWidth - left - width - tabsList.clientLeft
-        : left - tabsList.clientLeft;
-    bottom = tabsList.scrollHeight - top - height - tabsList.clientTop;
+    right = tabsList.scrollWidth - left - width;
+    bottom = tabsList.scrollHeight - top - height;
   }
 
   function setProp(name, value) {

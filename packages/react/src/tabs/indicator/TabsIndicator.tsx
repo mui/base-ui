@@ -5,7 +5,6 @@ import { useOnMount } from '@base-ui-components/utils/useOnMount';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { getCssDimensions } from '../../utils/getCssDimensions';
 import type { BaseUIComponentProps } from '../../utils/types';
-import { useDirection } from '../../direction-provider/DirectionContext';
 import type { TabsRoot } from '../root/TabsRoot';
 import { useTabsRootContext } from '../root/TabsRootContext';
 import { tabsStateAttributesMapping } from '../root/stateAttributesMapping';
@@ -39,8 +38,6 @@ export const TabsIndicator = React.forwardRef(function TabIndicator(
 
   const [isMounted, setIsMounted] = React.useState(false);
   const { value: activeTabValue } = useTabsRootContext();
-
-  const direction = useDirection();
 
   useOnMount(() => setIsMounted(true));
 
@@ -87,14 +84,8 @@ export const TabsIndicator = React.forwardRef(function TabIndicator(
         const tabLeftDelta = tabRect.left - tabsListRect.left;
         const tabTopDelta = tabRect.top - tabsListRect.top;
 
-        left =
-          tabLeftDelta / scaleX +
-          tabsListElement.scrollLeft -
-          tabsListElement.clientLeft;
-        top =
-          tabTopDelta / scaleY +
-          tabsListElement.scrollTop -
-          tabsListElement.clientTop;
+        left = tabLeftDelta / scaleX + tabsListElement.scrollLeft - tabsListElement.clientLeft;
+        top = tabTopDelta / scaleY + tabsListElement.scrollTop - tabsListElement.clientTop;
       } else {
         left = activeTab.offsetLeft;
         top = activeTab.offsetTop;
@@ -102,11 +93,8 @@ export const TabsIndicator = React.forwardRef(function TabIndicator(
 
       width = computedWidth;
       height = computedHeight;
-      right =
-        direction === 'ltr'
-          ? tabsListElement.scrollWidth - left - width - tabsListElement.clientLeft
-          : left - tabsListElement.clientLeft;
-      bottom = tabsListElement.scrollHeight - top - height - tabsListElement.clientTop;
+      right = tabsListElement.scrollWidth - left - width;
+      bottom = tabsListElement.scrollHeight - top - height;
     }
   }
 

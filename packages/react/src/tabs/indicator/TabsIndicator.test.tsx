@@ -53,15 +53,11 @@ describe('<Tabs.Indicator />', () => {
       const scaleY = tabListHeight > 0 ? tabListRect.height / tabListHeight : 1;
 
       const relativeLeft =
-        (tabRect.left - tabListRect.left) / scaleX +
-        tabList.scrollLeft -
-        tabList.clientLeft;
+        (tabRect.left - tabListRect.left) / scaleX + tabList.scrollLeft - tabList.clientLeft;
       const relativeTop =
-        (tabRect.top - tabListRect.top) / scaleY +
-        tabList.scrollTop -
-        tabList.clientTop;
-      const relativeRight = tabList.scrollWidth - relativeLeft - tabWidth - tabList.clientLeft;
-      const relativeBottom = tabList.scrollHeight - relativeTop - tabHeight - tabList.clientTop;
+        (tabRect.top - tabListRect.top) / scaleY + tabList.scrollTop - tabList.clientTop;
+      const relativeRight = tabList.scrollWidth - relativeLeft - tabWidth;
+      const relativeBottom = tabList.scrollHeight - relativeTop - tabHeight;
 
       const bubbleComputedStyle = window.getComputedStyle(bubble);
       const actualLeft = bubbleComputedStyle.getPropertyValue('--active-tab-left');
