@@ -13,10 +13,11 @@ import * as ReferenceTableTooltip from './ReferenceTableTooltip';
 
 function ExpandedCode(props: React.ComponentProps<'code'>) {
   const { className = '', ...other } = props;
-  const cleaned = className
+  let cleaned = className
     .split(' ')
     .filter((c) => c !== 'Code')
     .join(' ');
+  cleaned += ' whitespace-pre-wrap';
   return <code {...other} className={cleaned} />;
 }
 
