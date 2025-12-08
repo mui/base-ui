@@ -53,7 +53,6 @@ const toastMapSelector = createSelectorMemoized(
 
 export const selectors = {
   toasts: createSelector((state: State) => state.toasts),
-  toastMap: toastMapSelector,
   isEmpty: createSelector((state: State) => state.toasts.length === 0),
   toast: createSelector(toastMapSelector, (toastMap, id: string) => toastMap.get(id)?.value),
   toastIndex: createSelector(
@@ -112,7 +111,7 @@ export class ToastStore extends Store<State> {
     this.set('toasts', newToasts);
   }
 
-  addToast<Data extends object>(toast: ToastManagerAddOptions<Data>): string {
+  addToast = <Data extends object>(toast: ToastManagerAddOptions<Data>): string => {
     const { toasts, timeout, limit } = this.state;
     const id = toast.id || generateId('toast');
     const toastToAdd: ToastObject<Data> = {
@@ -157,9 +156,9 @@ export class ToastStore extends Store<State> {
     }
 
     return id;
-  }
+  };
 
-  updateToast<Data extends object>(id: string, updates: ToastManagerUpdateOptions<Data>) {
+  updateToast = <Data extends object>(id: string, updates: ToastManagerUpdateOptions<Data>) => {
     const index = selectors.toastIndex(this.state, id);
     if (index === -1) {
       return;
@@ -168,9 +167,9 @@ export class ToastStore extends Store<State> {
     const newToasts = [...toasts];
     newToasts.splice(index, 1, { ...toasts[index], ...updates });
     this.set('toasts', newToasts);
-  }
+  };
 
-  closeToast(toastId: string) {
+  closeToast = (toastId: string) => {
     const toast = selectors.toast(this.state, toastId);
     toast?.onClose?.();
 
@@ -204,12 +203,12 @@ export class ToastStore extends Store<State> {
       updates.focused = false;
     }
     this.update(updates);
-  }
+  };
 
-  promiseToast<Value, Data extends object>(
+  promiseToast = <Value, Data extends object>(
     promiseValue: Promise<Value>,
     options: ToastManagerPromiseOptions<Value, Data>,
-  ): Promise<Value> {
+  ): Promise<Value> => {
     // Create a loading toast (which does not auto-dismiss).
     const loadingOptions = resolvePromiseOptions(options.loading);
     const id = this.addToast({
@@ -262,7 +261,7 @@ export class ToastStore extends Store<State> {
     }
 
     return handledPromise;
-  }
+  };
 
   pauseTimers() {
     if (this.areTimersPaused) {
