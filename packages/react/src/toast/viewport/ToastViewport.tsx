@@ -126,26 +126,10 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
     }
 
     const doc = ownerDocument(viewport);
-
-    function handlePointerDown(event: PointerEvent) {
-      if (event.pointerType !== 'touch') {
-        return;
-      }
-
-      const target = getTarget(event) as Element | null;
-      if (contains(viewport, target)) {
-        return;
-      }
-
-      store.resumeTimers();
-      store.setHovering(false);
-      store.setFocused(false);
-    }
-
-    doc.addEventListener('pointerdown', handlePointerDown, true);
+    doc.addEventListener('pointerdown', store.handleDocumentPointerDown, true);
 
     return () => {
-      doc.removeEventListener('pointerdown', handlePointerDown, true);
+      doc.removeEventListener('pointerdown', store.handleDocumentPointerDown, true);
     };
   }, [isEmpty, store]);
 

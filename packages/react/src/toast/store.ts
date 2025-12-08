@@ -9,7 +9,7 @@ import {
   ToastObject,
 } from './useToastManager';
 import { resolvePromiseOptions } from './utils/resolvePromiseOptions';
-import { activeElement, contains } from '../floating-ui-react/utils';
+import { activeElement, contains, getTarget } from '../floating-ui-react/utils';
 import { isFocusVisible } from './utils/focusVisible';
 
 export type State = {
@@ -290,6 +290,20 @@ export class ToastStore extends Store<State> {
 
   restoreFocusToPrevElement() {
     this.state.prevFocusElement?.focus({ preventScroll: true });
+  }
+
+  handleDocumentPointerDown(event: PointerEvent) {
+    if (event.pointerType !== 'touch') {
+      return;
+    }
+
+    const target = getTarget(event) as Element | null;
+    if (contains(this.state.viewport, target)) {
+      return;
+    }
+
+    this.resumeTimers();
+    this.update({ hovering: false, focused: false });
   }
 
   private scheduleTimer(id: string, delay: number, callback: () => void) {
