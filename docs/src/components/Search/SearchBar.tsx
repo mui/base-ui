@@ -75,10 +75,11 @@ export function SearchBar({
   // Use the generic search hook with Base UI specific configuration
   const { results, search, defaultResults, buildResultUrl } = useSearch({
     sitemap: sitemapImport,
-    tolerance: 1,
+    tolerance: 0,
     limit: 20,
     enableStemming: true,
     includeCategoryInGroup: true,
+    excludeSections: true,
   });
 
   const [searchResults, setSearchResults] =
@@ -269,7 +270,8 @@ export function SearchBar({
                   inline
                   itemToStringValue={(item) => (item ? item.title || item.slug : '')}
                   filter={null}
-                  autoHighlight
+                  autoHighlight="always"
+                  keepHighlight
                 >
                   <div className="shrink-0 border-b border-gray-200 pt-2 px-2 pb-1.5">
                     {searchInput}
