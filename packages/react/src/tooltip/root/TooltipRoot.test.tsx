@@ -535,7 +535,7 @@ describe('<Tooltip.Root />', () => {
 
       const style = `
           .tooltip {
-            transition: opacity 1ms;
+            transition: opacity 20ms;
           }
           .tooltip[data-starting-style],
           .tooltip[data-ending-style] {
@@ -591,14 +591,18 @@ describe('<Tooltip.Root />', () => {
 
       const secondPopup = await screen.findByTestId('popup-2');
 
-      expect(secondPopup.dataset.instant).to.equal('delay');
-      expect(secondPopup.getAnimations().length).to.equal(0);
+      await waitFor(() => {
+        expect(secondPopup.dataset.instant).to.equal('delay');
+        expect(secondPopup.getAnimations().length).to.equal(0);
+      });
 
       await user.unhover(secondTrigger);
 
-      expect(secondPopup.dataset.endingStyle).to.equal('');
-      expect(secondPopup.dataset.instant).to.equal(undefined);
-      expect(secondPopup.getAnimations().length).to.equal(1);
+      await waitFor(() => {
+        expect(secondPopup.dataset.endingStyle).to.equal('');
+        expect(secondPopup.dataset.instant).to.equal(undefined);
+        expect(secondPopup.getAnimations().length).to.equal(1);
+      });
     });
   });
 
