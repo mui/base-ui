@@ -10,32 +10,34 @@ export default function InsideScrollDialog() {
       <Dialog.Portal>
         <Dialog.Backdrop className={styles.Backdrop} />
         <Dialog.Viewport className={styles.Viewport}>
-          <Dialog.Popup className={styles.Popup}>
-            <div className={styles.PopupHeader}>
-              <Dialog.Title className={styles.Title}>Dialog</Dialog.Title>
-            </div>
-            <Dialog.Description className={styles.Description}>
-              This layout keeps the popup fully on screen while allowing its content to scroll.
-            </Dialog.Description>
-            <ScrollArea.Root className={styles.Body}>
-              <ScrollArea.Viewport className={styles.BodyViewport}>
-                <ScrollArea.Content className={styles.BodyContent}>
-                  {CONTENT_SECTIONS.map((item) => (
-                    <section key={item.title}>
-                      <h3 className={styles.SectionTitle}>{item.title}</h3>
-                      <p className={styles.SectionBody}>{item.body}</p>
-                    </section>
-                  ))}
-                </ScrollArea.Content>
-              </ScrollArea.Viewport>
-              <ScrollArea.Scrollbar className={styles.Scrollbar}>
-                <ScrollArea.Thumb className={styles.ScrollbarThumb} />
-              </ScrollArea.Scrollbar>
-            </ScrollArea.Root>
-            <div className={styles.Actions}>
-              <Dialog.Close className={styles.Button}>Close</Dialog.Close>
-            </div>
-          </Dialog.Popup>
+          <div className={styles.PopupContainer}>
+            <Dialog.Popup className={styles.Popup}>
+              <div className={styles.PopupHeader}>
+                <Dialog.Title className={styles.Title}>Dialog</Dialog.Title>
+              </div>
+              <Dialog.Description className={styles.Description}>
+                This layout keeps the popup fully on screen while allowing its content to scroll.
+              </Dialog.Description>
+              <ScrollArea.Root className={styles.Body}>
+                <ScrollArea.Viewport className={styles.BodyViewport}>
+                  <ScrollArea.Content className={styles.BodyContent}>
+                    {CONTENT_SECTIONS.map((item) => (
+                      <section key={item.title}>
+                        <h3 className={styles.SectionTitle}>{item.title}</h3>
+                        <p className={styles.SectionBody}>{item.body}</p>
+                      </section>
+                    ))}
+                  </ScrollArea.Content>
+                </ScrollArea.Viewport>
+                <ScrollArea.Scrollbar className={styles.Scrollbar}>
+                  <ScrollArea.Thumb className={styles.ScrollbarThumb} />
+                </ScrollArea.Scrollbar>
+              </ScrollArea.Root>
+              <div className={styles.Actions}>
+                <Dialog.Close className={styles.Button}>Close</Dialog.Close>
+              </div>
+            </Dialog.Popup>
+          </div>
         </Dialog.Viewport>
       </Dialog.Portal>
     </Dialog.Root>
