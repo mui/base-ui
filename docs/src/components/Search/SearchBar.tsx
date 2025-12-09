@@ -8,10 +8,10 @@ import type {
   SearchResults,
   Sitemap,
 } from '@mui/internal-docs-infra/useSearch/types';
-import { Autocomplete } from '@base-ui-components/react/autocomplete';
-import { Button } from '@base-ui-components/react/button';
-import { Dialog } from '@base-ui-components/react/dialog';
-import { ScrollArea } from '@base-ui-components/react/scroll-area';
+import { Autocomplete } from '@base-ui/react/autocomplete';
+import { Button } from '@base-ui/react/button';
+import { Dialog } from '@base-ui/react/dialog';
+import { ScrollArea } from '@base-ui/react/scroll-area';
 import { Search } from 'lucide-react';
 import './SearchBar.css';
 
@@ -273,7 +273,7 @@ export function SearchBar({
                   autoHighlight="always"
                   keepHighlight
                 >
-                  <div className="shrink-0 border-b border-gray-200 pt-2 px-2 pb-1.5">
+                  <div className="shrink-0 border-b border-gray-100 pt-2 px-2 pb-1.5">
                     {searchInput}
                   </div>
                   <div className="flex min-h-0 flex-1">
@@ -294,12 +294,29 @@ export function SearchBar({
                       </ScrollArea.Scrollbar>
                     </ScrollArea.Root>
                   </div>
-                  <div className="border-t border-gray-200 py-1.5 flex pl-3 pr-2 text-gray-500 text-xs">
+                  <div className="border-t border-gray-100 py-2 flex pl-3 pr-2 text-gray-500 text-xs">
                     <div
-                      className={`flex items-center gap-1.5 ${hasHighlightedItem ? '' : 'invisible'}`}
+                      className={`flex items-center gap-3 ${hasHighlightedItem ? '' : 'invisible'}`}
                     >
-                      <kbd className="flex h-5 w-5 items-center justify-center rounded border border-gray-300 bg-gray-50 text-[10px] text-gray-600">
-                        ↵
+                      <kbd
+                        aria-label="Enter"
+                        className="flex h-5 w-5 items-center justify-center rounded border border-gray-300 bg-gray-50 text-[10px] text-gray-600"
+                      >
+                        <svg
+                          aria-hidden="true"
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="16"
+                          height="16"
+                          fill="none"
+                          viewBox="0 0 16 16"
+                        >
+                          <path
+                            fill="currentColor"
+                            fillRule="evenodd"
+                            d="M2.47 11.28a.75.75 0 0 1 0-1.06l3-3a.75.75 0 0 1 1.06 1.06L4.81 10H9a3.25 3.25 0 0 0 0-6.5H8A.75.75 0 0 1 8 2h1a4.75 4.75 0 1 1 0 9.5H4.81l1.72 1.72a.75.75 0 1 1-1.06 1.06z"
+                            clipRule="evenodd"
+                          />
+                        </svg>
                       </kbd>
                       <span>Go to page</span>
                     </div>

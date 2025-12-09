@@ -106,10 +106,25 @@
 }
 
 .SearchTriggerKbd {
+  height: 20px;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
   gap: 0.25rem;
   padding-inline: 0.375rem;
   border-radius: 9999px;
   border: 1px solid var(--color-gray-300);
   background-color: var(--color-gray-50);
   pointer-events: none;
+}
+
+.SearchTriggerKbd kbd:first-child {
+  font-size: 18px;
+  line-height: 1;
+  display: inline-flex;
+  margin-top: 1px;
+}
+
+.SearchTriggerKbd kbd:last-child {
+  line-height: 1;
 }
