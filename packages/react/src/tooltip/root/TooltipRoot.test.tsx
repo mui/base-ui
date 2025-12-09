@@ -45,6 +45,7 @@ describe('<Tooltip.Root />', () => {
   describe.for([
     { name: 'contained triggers', Component: ContainedTriggerTooltip },
     { name: 'detached triggers', Component: DetachedTriggerTooltip },
+    { name: 'multiple detached triggers', Component: MultipleDetachedTriggersTooltip },
   ])('when using $name', ({ Component: TestTooltip }) => {
     describe('uncontrolled open', () => {
       clock.withFakeTimers();
@@ -52,7 +53,7 @@ describe('<Tooltip.Root />', () => {
       it('should open when the trigger is hovered', async () => {
         await render(<TestTooltip />);
 
-        const trigger = screen.getByRole('button');
+        const trigger = screen.getByRole('button', { name: 'Toggle' });
 
         fireEvent.pointerDown(trigger, { pointerType: 'mouse' });
         fireEvent.mouseEnter(trigger);
@@ -68,7 +69,7 @@ describe('<Tooltip.Root />', () => {
       it('should close when the trigger is unhovered', async () => {
         await render(<TestTooltip />);
 
-        const trigger = screen.getByRole('button');
+        const trigger = screen.getByRole('button', { name: 'Toggle' });
 
         fireEvent.pointerDown(trigger, { pointerType: 'mouse' });
         fireEvent.mouseEnter(trigger);
@@ -78,10 +79,10 @@ describe('<Tooltip.Root />', () => {
 
         await flushMicrotasks();
 
-      fireEvent.mouseLeave(trigger);
+        fireEvent.mouseLeave(trigger);
 
-      await flushMicrotasks();
-      expect(screen.queryByText('Content')).to.equal(null);
+        await flushMicrotasks();
+        expect(screen.queryByText('Content')).to.equal(null);
       });
 
       it('should open when the trigger is focused', async ({ skip }) => {
@@ -91,7 +92,7 @@ describe('<Tooltip.Root />', () => {
 
         await render(<TestTooltip />);
 
-        const trigger = screen.getByRole('button');
+        const trigger = screen.getByRole('button', { name: 'Toggle' });
 
         await act(async () => trigger.focus());
 
@@ -103,7 +104,7 @@ describe('<Tooltip.Root />', () => {
       it('should close when the trigger is blurred', async () => {
         await render(<TestTooltip />);
 
-        const trigger = screen.getByRole('button');
+        const trigger = screen.getByRole('button', { name: 'Toggle' });
 
         await act(async () => {
           trigger.focus();
@@ -147,7 +148,7 @@ describe('<Tooltip.Root />', () => {
 
         expect(screen.queryByText('Content')).to.equal(null);
 
-        const trigger = screen.getByRole('button');
+        const trigger = screen.getByRole('button', { name: 'Toggle' });
 
         fireEvent.mouseEnter(trigger);
         fireEvent.mouseMove(trigger);
@@ -189,7 +190,7 @@ describe('<Tooltip.Root />', () => {
 
         expect(screen.queryByText('Content')).to.equal(null);
 
-        const trigger = screen.getByRole('button');
+        const trigger = screen.getByRole('button', { name: 'Toggle' });
 
         fireEvent.mouseEnter(trigger);
         fireEvent.mouseMove(trigger);
@@ -236,7 +237,7 @@ describe('<Tooltip.Root />', () => {
 
         expect(screen.getByText('Content')).not.to.equal(null);
 
-        const trigger = screen.getByRole('button');
+        const trigger = screen.getByRole('button', { name: 'Toggle' });
 
         fireEvent.mouseLeave(trigger);
 
@@ -252,7 +253,7 @@ describe('<Tooltip.Root />', () => {
       it('should open after rest delay', async () => {
         await render(<TestTooltip triggerProps={{ delay: 100 }} />);
 
-        const trigger = screen.getByRole('button');
+        const trigger = screen.getByRole('button', { name: 'Toggle' });
 
         fireEvent.mouseEnter(trigger);
         fireEvent.mouseMove(trigger);
@@ -275,7 +276,7 @@ describe('<Tooltip.Root />', () => {
       it('should close after delay', async () => {
         await render(<TestTooltip triggerProps={{ closeDelay: 100 }} />);
 
-        const trigger = screen.getByRole('button');
+        const trigger = screen.getByRole('button', { name: 'Toggle' });
 
         fireEvent.mouseEnter(trigger);
         fireEvent.mouseMove(trigger);
@@ -316,7 +317,7 @@ describe('<Tooltip.Root />', () => {
           />,
         );
 
-        const trigger = screen.getByTestId('trigger');
+        const trigger = screen.getByRole('button', { name: 'Toggle' });
         await user.hover(trigger);
 
         await waitFor(() => {
@@ -608,7 +609,7 @@ describe('<Tooltip.Root />', () => {
       it('should not open when disabled', async () => {
         await render(<TestTooltip rootProps={{ disabled: true }} triggerProps={{ delay: 0 }} />);
 
-        const trigger = screen.getByRole('button');
+        const trigger = screen.getByRole('button', { name: 'Toggle' });
 
         fireEvent.pointerDown(trigger, { pointerType: 'mouse' });
         fireEvent.mouseEnter(trigger);
@@ -665,7 +666,7 @@ describe('<Tooltip.Root />', () => {
           <TestTooltip rootProps={{ disableHoverablePopup: true }} triggerProps={{ delay: 0 }} />,
         );
 
-        const trigger = screen.getByRole('button');
+        const trigger = screen.getByRole('button', { name: 'Toggle' });
 
         fireEvent.pointerDown(trigger, { pointerType: 'mouse' });
         fireEvent.mouseEnter(trigger);
@@ -681,7 +682,7 @@ describe('<Tooltip.Root />', () => {
           <TestTooltip rootProps={{ disableHoverablePopup: false }} triggerProps={{ delay: 0 }} />,
         );
 
-        const trigger = screen.getByRole('button');
+        const trigger = screen.getByRole('button', { name: 'Toggle' });
 
         fireEvent.pointerDown(trigger, { pointerType: 'mouse' });
         fireEvent.mouseEnter(trigger);
@@ -708,7 +709,7 @@ describe('<Tooltip.Root />', () => {
           />,
         );
 
-        const trigger = screen.getByRole('button');
+        const trigger = screen.getByRole('button', { name: 'Toggle' });
         fireEvent.pointerDown(trigger, { pointerType: 'mouse' });
         fireEvent.mouseEnter(trigger);
         fireEvent.mouseMove(trigger);
@@ -754,7 +755,7 @@ describe('<Tooltip.Root />', () => {
       it('should not open when the trigger was clicked before delay duration', async () => {
         await render(<TestTooltip />);
 
-        const trigger = screen.getByRole('button');
+        const trigger = screen.getByRole('button', { name: 'Toggle' });
 
         fireEvent.pointerDown(trigger, { pointerType: 'mouse' });
         fireEvent.mouseEnter(trigger);
@@ -774,7 +775,7 @@ describe('<Tooltip.Root />', () => {
       it('should close when the trigger is clicked after delay duration', async () => {
         await render(<TestTooltip />);
 
-        const trigger = screen.getByRole('button');
+        const trigger = screen.getByRole('button', { name: 'Toggle' });
 
         fireEvent.pointerDown(trigger, { pointerType: 'mouse' });
         fireEvent.mouseEnter(trigger);
@@ -871,6 +872,52 @@ function DetachedTriggerTooltip(props: TestTooltipProps) {
       {beforeTrigger}
       <Tooltip.Trigger data-testid="trigger" handle={tooltipHandle} {...restTriggerProps}>
         {triggerContent}
+      </Tooltip.Trigger>
+      {betweenTriggerAndPortal}
+      <Tooltip.Root handle={tooltipHandle} {...rootProps}>
+        <Tooltip.Portal {...restPortalProps}>
+          {portalChildren}
+          <Tooltip.Positioner data-testid="positioner" {...positionerProps}>
+            <Tooltip.Popup data-testid="popup" {...restPopupProps}>
+              {popupContent}
+            </Tooltip.Popup>
+          </Tooltip.Positioner>
+        </Tooltip.Portal>
+        {afterPortal}
+      </Tooltip.Root>
+    </React.Fragment>
+  );
+}
+
+function MultipleDetachedTriggersTooltip(props: TestTooltipProps) {
+  const {
+    rootProps,
+    triggerProps,
+    portalProps,
+    positionerProps,
+    popupProps,
+    beforeTrigger,
+    betweenTriggerAndPortal,
+    afterPortal,
+  } = props;
+
+  const { children: triggerChildren, ...restTriggerProps } = triggerProps ?? {};
+  const { children: popupChildren, ...restPopupProps } = popupProps ?? {};
+  const { children: portalChildren, ...restPortalProps } = portalProps ?? {};
+
+  const triggerContent = triggerChildren ?? 'Toggle';
+  const popupContent = popupChildren ?? 'Content';
+
+  const tooltipHandle = useRefWithInit(() => Tooltip.createHandle()).current;
+
+  return (
+    <React.Fragment>
+      {beforeTrigger}
+      <Tooltip.Trigger data-testid="trigger" handle={tooltipHandle} {...restTriggerProps}>
+        {triggerContent}
+      </Tooltip.Trigger>
+      <Tooltip.Trigger data-testid="trigger-2" handle={tooltipHandle}>
+        Toggle another
       </Tooltip.Trigger>
       {betweenTriggerAndPortal}
       <Tooltip.Root handle={tooltipHandle} {...rootProps}>
