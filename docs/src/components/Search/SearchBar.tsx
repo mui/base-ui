@@ -240,7 +240,7 @@ export function SearchBar({
     <React.Fragment>
       <Button onClick={handleOpenDialog} aria-label="Search" className="SearchTrigger">
         <Search className="h-4 w-4 text-gray-500" />
-        <div className="SearchTriggerKbd hidden lg:flex lg:-mr-2">
+        <div className="SearchTriggerKbd hidden lg:inline-flex lg:-mr-2">
           <kbd className="text-xs text-gray-600">⌘</kbd>
           <kbd className="text-xs text-gray-600">K</kbd>
         </div>
