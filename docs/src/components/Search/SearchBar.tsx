@@ -304,7 +304,7 @@ export function SearchBar({
                       >
                         <CornerDownLeft />
                       </kbd>
-                      <span>Go to pagSe</span>
+                      <span>Go to page</span>
                     </div>
                   </div>
                 </Autocomplete.Root>
