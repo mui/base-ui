@@ -1,6 +1,6 @@
 import * as React from 'react';
 import clsx from 'clsx';
-import { Slider } from '@base-ui-components/react/slider';
+import { Slider } from '@base-ui/react/slider';
 
 export function Root({ className, ...props }: Slider.Root.Props<any>) {
   return <Slider.Root className={clsx('grid grid-cols-2', className)} {...props} />;

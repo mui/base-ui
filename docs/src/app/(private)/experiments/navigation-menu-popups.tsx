@@ -1,9 +1,9 @@
 'use client';
 import * as React from 'react';
-import { NavigationMenu } from '@base-ui-components/react/navigation-menu';
-import { Dialog } from '@base-ui-components/react/dialog';
-import { Popover } from '@base-ui-components/react/popover';
-import { AlertDialog } from '@base-ui-components/react/alert-dialog';
+import { NavigationMenu } from '@base-ui/react/navigation-menu';
+import { Dialog } from '@base-ui/react/dialog';
+import { Popover } from '@base-ui/react/popover';
+import { AlertDialog } from '@base-ui/react/alert-dialog';
 
 export default function ExampleNavigationMenu() {
   return (

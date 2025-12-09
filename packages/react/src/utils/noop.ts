@@ -1,1 +1,1 @@
-export { NOOP } from '@base-ui-components/utils/empty';
+export { NOOP } from '@base-ui/utils/empty';

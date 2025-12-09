@@ -15,7 +15,7 @@ import { DemoAlertDialogHero } from './demos/hero';
 Import the component and assemble its parts:
 
 ```jsx title="Anatomy"
-import { AlertDialog } from '@base-ui-components/react/alert-dialog';
+import { AlertDialog } from '@base-ui/react/alert-dialog';
 
 <AlertDialog.Root>
   <AlertDialog.Trigger />
@@ -40,8 +40,8 @@ In order to open a dialog using a menu, control the dialog state and open it imp
 
 ```tsx {12-13,17-18,24-25,28-29} title="Connecting a dialog to a menu"
 import * as React from 'react';
-import { AlertDialog } from '@base-ui-components/react/alert-dialog';
-import { Menu } from '@base-ui-components/react/menu';
+import { AlertDialog } from '@base-ui/react/alert-dialog';
+import { Menu } from '@base-ui/react/menu';
 
 function ExampleMenu() {
   const [dialogOpen, setDialogOpen] = React.useState(false);

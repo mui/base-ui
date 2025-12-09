@@ -15,7 +15,7 @@ Base UI uses namespaces to organize types. Every component has two core interfa
 When creating wrapping components, you can use the `Props` type to accept all of the underlying Base UI props for the component.
 
 ```tsx title="Prop types"
-import { Tooltip } from '@base-ui-components/react/tooltip';
+import { Tooltip } from '@base-ui/react/tooltip';
 
 function MyTooltip(props: Tooltip.Root.Props) {
   return <Tooltip.Root {...props} />;

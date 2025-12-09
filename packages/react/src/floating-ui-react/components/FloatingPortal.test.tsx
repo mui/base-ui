@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { fireEvent, flushMicrotasks, render, screen } from '@mui/internal-test-utils';
-import { isJSDOM } from '@base-ui-components/utils/detectBrowser';
+import { isJSDOM } from '@base-ui/utils/detectBrowser';
 import { FloatingPortal, useFloating } from '../index';
 import { FloatingPortalLite } from '../../utils/FloatingPortalLite';
 import type { UseFloatingPortalNodeProps } from './FloatingPortal';

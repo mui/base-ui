@@ -16,7 +16,7 @@ This example shows how to implement the component using Tailwind CSS.
 \`\`\`tsx
 /* index.tsx */
 import * as React from 'react';
-import { Accordion } from '@base-ui-components/react/accordion';
+import { Accordion } from '@base-ui/react/accordion';
 
 export default function ExampleAccordion() {
   return (
@@ -169,7 +169,7 @@ This example shows how to implement the component using CSS Modules.
 \`\`\`tsx
 /* index.tsx */
 import * as React from 'react';
-import { Accordion } from '@base-ui-components/react/accordion';
+import { Accordion } from '@base-ui/react/accordion';
 import styles from './index.module.css';
 
 export default function ExampleAccordion() {
@@ -235,7 +235,7 @@ function PlusIcon(props: React.ComponentProps<'svg'>) {
 Import the component and assemble its parts:
 
 \`\`\`jsx title="Anatomy"
-import { Accordion } from '@base-ui-components/react/accordion';
+import { Accordion } from '@base-ui/react/accordion';
 
 <Accordion.Root>
   <Accordion.Item>
@@ -262,7 +262,7 @@ This example shows how to implement the component using Tailwind CSS.
 \`\`\`tsx
 /* index.tsx */
 import * as React from 'react';
-import { Accordion } from '@base-ui-components/react/accordion';
+import { Accordion } from '@base-ui/react/accordion';
 
 export default function ExampleAccordion() {
   return (
@@ -418,7 +418,7 @@ This example shows how to implement the component using CSS Modules.
 \`\`\`tsx
 /* index.tsx */
 import * as React from 'react';
-import { Accordion } from '@base-ui-components/react/accordion';
+import { Accordion } from '@base-ui/react/accordion';
 import styles from './index.module.css';
 
 export default function ExampleAccordion() {
@@ -634,8 +634,8 @@ This example shows how to implement the component using Tailwind CSS.
 
 \`\`\`tsx
 /* index.tsx */
-import { Slider } from '@base-ui-components/react/slider';
-import { DirectionProvider } from '@base-ui-components/react/direction-provider';
+import { Slider } from '@base-ui/react/slider';
+import { DirectionProvider } from '@base-ui/react/direction-provider';
 
 export default function ExampleDirectionProvider() {
   return (
@@ -700,8 +700,8 @@ This example shows how to implement the component using CSS Modules.
 
 \`\`\`tsx
 /* index.tsx */
-import { DirectionProvider } from '@base-ui-components/react/direction-provider';
-import { Slider } from '@base-ui-components/react/slider';
+import { DirectionProvider } from '@base-ui/react/direction-provider';
+import { Slider } from '@base-ui/react/slider';
 import styles from './index.module.css';
 
 export default function ExampleDirectionProvider() {
@@ -728,7 +728,7 @@ export default function ExampleDirectionProvider() {
 Import the component and wrap it around your app:
 
 \`\`\`jsx title="Anatomy"
-import { DirectionProvider } from '@base-ui-components/react/direction-provider';
+import { DirectionProvider } from '@base-ui/react/direction-provider';
 
 // prettier-ignore
 <DirectionProvider>

@@ -15,9 +15,9 @@
     "skipLibCheck": true,
     "allowImportingTsExtensions": true,
     "paths": {
-      "@base-ui-components/react": ["./packages/react/src"],
-      "@base-ui-components/react/*": ["./packages/react/src/*"],
-      "@base-ui-components/utils/*": ["./packages/utils/src/*"],
+      "@base-ui/react": ["./packages/react/src"],
+      "@base-ui/react/*": ["./packages/react/src/*"],
+      "@base-ui/utils/*": ["./packages/utils/src/*"],
       "docs/*": ["./docs/*"]
     }
   },

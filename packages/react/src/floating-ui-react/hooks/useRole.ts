@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useId } from '@base-ui-components/utils/useId';
+import { useId } from '@base-ui/utils/useId';
 import { getFloatingFocusElement } from '../utils';
 import { useFloatingParentNodeId } from '../components/FloatingTree';
 import type { ElementProps, FloatingContext, FloatingRootContext } from '../types';

@@ -9,7 +9,7 @@ Base UI is a library of unstyled React components. You gain complete control ov
 Install the package in your project directory with:
 
 ```bash
-npm install @base-ui-components/react
+npm install @base-ui/react
 ```
 
 ## Documentation

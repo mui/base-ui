@@ -22,7 +22,7 @@ import { DemoComboboxHero } from './demos/hero';
 Import the components and place them together:
 
 ```jsx title="Anatomy"
-import { Combobox } from '@base-ui-components/react/combobox';
+import { Combobox } from '@base-ui/react/combobox';
 
 <Combobox.Root>
   <Combobox.Input />
@@ -76,7 +76,7 @@ The following example shows a typed wrapper around the Combobox component with c
 
 ```tsx title="Specifying generic type parameters"
 import * as React from 'react';
-import { Combobox } from '@base-ui-components/react/combobox';
+import { Combobox } from '@base-ui/react/combobox';
 
 export function MyCombobox<Value, Multiple extends boolean | undefined = false>(
   props: Combobox.Root.Props<Value, Multiple>,
