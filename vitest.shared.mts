@@ -55,6 +55,11 @@ const config: UserWorkspaceConfig = {
         url: 'http://localhost',
       },
     },
+    server: {
+      deps: {
+        inline: ['@mui/internal-test-utils'],
+      },
+    },
     browser: getBrowserConfig(),
     env: {
       VITEST: 'true',
