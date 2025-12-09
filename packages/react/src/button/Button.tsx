@@ -76,14 +76,16 @@ type NonNativeAttributeKeys =
   | 'value';
 
 interface ButtonNativeProps
-  extends NativeButtonProps,
+  extends
+    NativeButtonProps,
     ButtonCommonProps,
     Omit<BaseUIComponentProps<'button', ButtonState>, 'disabled'> {
   nativeButton?: true;
 }
 
 interface ButtonNonNativeProps
-  extends NonNativeButtonProps,
+  extends
+    NonNativeButtonProps,
     ButtonCommonProps,
     Omit<BaseUIComponentProps<'button', ButtonState>, NonNativeAttributeKeys | 'disabled'> {
   nativeButton: false;

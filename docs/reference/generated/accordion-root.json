@@ -31,7 +31,7 @@
     },
     "multiple": {
       "type": "boolean",
-      "default": "true",
+      "default": "false",
       "description": "Whether multiple items can be open at the same time.",
       "detailedType": "boolean | undefined"
     },

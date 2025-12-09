@@ -169,8 +169,7 @@ export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerCompon
 });
 
 export interface MenuSubmenuTriggerProps
-  extends NonNativeButtonProps,
-    BaseUIComponentProps<'div', MenuSubmenuTrigger.State> {
+  extends NonNativeButtonProps, BaseUIComponentProps<'div', MenuSubmenuTrigger.State> {
   onClick?: React.MouseEventHandler<HTMLElement>;
   /**
    * Overrides the text label to use when the item is matched during keyboard text navigation.

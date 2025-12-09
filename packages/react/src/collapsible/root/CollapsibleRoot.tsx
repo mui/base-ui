@@ -70,8 +70,10 @@ export const CollapsibleRoot = React.forwardRef(function CollapsibleRoot(
   );
 });
 
-export interface CollapsibleRootState
-  extends Pick<useCollapsibleRoot.ReturnValue, 'open' | 'disabled'> {}
+export interface CollapsibleRootState extends Pick<
+  useCollapsibleRoot.ReturnValue,
+  'open' | 'disabled'
+> {}
 
 export interface CollapsibleRootProps extends BaseUIComponentProps<'div', CollapsibleRoot.State> {
   /**

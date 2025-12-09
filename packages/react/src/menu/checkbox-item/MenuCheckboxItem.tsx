@@ -126,8 +126,7 @@ export type MenuCheckboxItemState = {
 };
 
 export interface MenuCheckboxItemProps
-  extends NonNativeButtonProps,
-    BaseUIComponentProps<'div', MenuCheckboxItem.State> {
+  extends NonNativeButtonProps, BaseUIComponentProps<'div', MenuCheckboxItem.State> {
   /**
    * Whether the checkbox item is currently ticked.
    *
