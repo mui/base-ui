@@ -11,12 +11,28 @@ const UNINITIALIZED = {};
  *   const ref = useRefWithInit(sortColumns, columns)
  */
 export function useRefWithInit<T>(init: () => T): React.RefObject<T>;
-export function useRefWithInit<T, U>(init: (arg: U) => T, initArg: U): React.RefObject<T>;
-export function useRefWithInit(init: (arg?: unknown) => unknown, initArg?: unknown) {
+export function useRefWithInit<T, U>(init: (a1: U) => T, a1: U): React.RefObject<T>;
+export function useRefWithInit<T, U, V>(
+  init: (a1: U, a2: V) => T,
+  a1: U,
+  a2: V,
+): React.RefObject<T>;
+export function useRefWithInit<T, U, V, W>(
+  init: (a1: U, a2: V, a3: W) => T,
+  a1: U,
+  a2: V,
+  a3: W,
+): React.RefObject<T>;
+export function useRefWithInit(
+  init: (a1?: unknown, a2?: unknown, a3?: unknown) => unknown,
+  a1?: unknown,
+  a2?: unknown,
+  a3?: unknown,
+) {
   const ref = React.useRef(UNINITIALIZED as any);
 
   if (ref.current === UNINITIALIZED) {
-    ref.current = init(initArg);
+    ref.current = init(a1, a2, a3);
   }
 
   return ref;
