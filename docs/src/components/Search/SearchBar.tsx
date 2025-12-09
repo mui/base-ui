@@ -126,15 +126,13 @@ export function SearchBar({
         closingRef.current = true;
 
         setDialogOpen(false);
-        queueMicrotask(() => {
+
+        // Wait for the closing animation to complete before resetting state
+        setTimeout(() => {
           setSearchResults(defaultResults);
           setHasHighlightedItem(false);
-        });
-
-        // Reset after a short delay
-        setTimeout(() => {
           closingRef.current = false;
-        }, 100);
+        }, 200);
       } else {
         handleOpenDialog();
       }
