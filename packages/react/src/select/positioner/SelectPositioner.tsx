@@ -1,10 +1,10 @@
 'use client';
 import * as React from 'react';
-import { inertValue } from '@base-ui-components/utils/inertValue';
-import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
-import { useScrollLock } from '@base-ui-components/utils/useScrollLock';
-import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
-import { useStore } from '@base-ui-components/utils/store';
+import { inertValue } from '@base-ui/utils/inertValue';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { useScrollLock } from '@base-ui/utils/useScrollLock';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { useStore } from '@base-ui/utils/store';
 import { useSelectRootContext, useSelectFloatingContext } from '../root/SelectRootContext';
 import { CompositeList } from '../../composite/list/CompositeList';
 import type { BaseUIComponentProps } from '../../utils/types';
@@ -251,7 +251,8 @@ export interface SelectPositionerState {
 }
 
 export interface SelectPositionerProps
-  extends useAnchorPositioning.SharedParameters,
+  extends
+    useAnchorPositioning.SharedParameters,
     BaseUIComponentProps<'div', SelectPositioner.State> {
   /**
    * Whether the positioner overlaps the trigger so the selected item's text is aligned with the trigger's value text. This only applies to mouse input and is automatically disabled if there is not enough space.

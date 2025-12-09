@@ -1,6 +1,6 @@
 import c from 'clsx';
 import * as React from 'react';
-import { useMergedRefsN } from '@base-ui-components/utils/useMergedRefs';
+import { useMergedRefsN } from '@base-ui/utils/useMergedRefs';
 import { CompositeList } from '../../src/composite/list/CompositeList';
 import { useCompositeListItem } from '../../src/composite/list/useCompositeListItem';
 import {

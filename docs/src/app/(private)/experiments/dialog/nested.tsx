@@ -1,9 +1,9 @@
 'use client';
 import * as React from 'react';
 import clsx from 'clsx';
-import { Dialog } from '@base-ui-components/react/dialog';
+import { Dialog } from '@base-ui/react/dialog';
 // eslint-disable-next-line no-restricted-imports
-import { useTransitionStatus } from '@base-ui-components/react/utils/useTransitionStatus';
+import { useTransitionStatus } from '@base-ui/react/utils/useTransitionStatus';
 import { animated as springAnimated, useSpring, useSpringRef } from '@react-spring/web';
 import {
   SettingsMetadata,

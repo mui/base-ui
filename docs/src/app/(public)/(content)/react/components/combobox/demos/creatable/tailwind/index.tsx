@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
-import { Combobox } from '@base-ui-components/react/combobox';
-import { Dialog } from '@base-ui-components/react/dialog';
+import { Combobox } from '@base-ui/react/combobox';
+import { Dialog } from '@base-ui/react/dialog';
 
 export default function ExampleCreatableCombobox() {
   const id = React.useId();

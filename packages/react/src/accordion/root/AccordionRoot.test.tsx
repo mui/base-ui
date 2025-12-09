@@ -1,8 +1,8 @@
 import { screen } from '@mui/internal-test-utils';
 import { expect } from 'chai';
 import { spy } from 'sinon';
-import { DirectionProvider } from '@base-ui-components/react/direction-provider';
-import { Accordion } from '@base-ui-components/react/accordion';
+import { DirectionProvider } from '@base-ui/react/direction-provider';
+import { Accordion } from '@base-ui/react/accordion';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 
 const PANEL_CONTENT_1 = 'Panel contents 1';

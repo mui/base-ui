@@ -1,10 +1,10 @@
 import * as React from 'react';
 import { expect } from 'chai';
 import { act, flushMicrotasks, waitFor, screen, fireEvent } from '@mui/internal-test-utils';
-import { DirectionProvider } from '@base-ui-components/react/direction-provider';
-import { useRefWithInit } from '@base-ui-components/utils/useRefWithInit';
-import { Menu } from '@base-ui-components/react/menu';
-import { Dialog } from '@base-ui-components/react/dialog';
+import { DirectionProvider } from '@base-ui/react/direction-provider';
+import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
+import { Menu } from '@base-ui/react/menu';
+import { Dialog } from '@base-ui/react/dialog';
 import userEvent from '@testing-library/user-event';
 import { spy } from 'sinon';
 import { createRenderer, isJSDOM, popupConformanceTests, wait } from '#test-utils';
@@ -1090,6 +1090,22 @@ describe('<Menu.Root />', () => {
         await waitFor(() => {
           expect(screen.queryByRole('menu')).to.equal(null);
         });
+      });
+
+      it('opens the submenu on hover with zero delay', async () => {
+        await render(
+          <ContainedTriggerMenu
+            rootProps={{ defaultOpen: true }}
+            submenuTriggerProps={{ delay: 0 }}
+          />,
+        );
+
+        const submenuTrigger = screen.getByTestId('submenu-trigger');
+
+        fireEvent.mouseEnter(submenuTrigger);
+        fireEvent.mouseMove(submenuTrigger);
+
+        expect(screen.queryByTestId('submenu')).not.to.equal(null);
       });
 
       it('should not close when submenu is hovered after root menu is hovered', async () => {

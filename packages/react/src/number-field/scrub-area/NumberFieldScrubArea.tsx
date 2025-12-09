@@ -1,10 +1,10 @@
 'use client';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import { ownerWindow, ownerDocument } from '@base-ui-components/utils/owner';
-import { isFirefox, isWebKit } from '@base-ui-components/utils/detectBrowser';
-import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
-import { useTimeout } from '@base-ui-components/utils/useTimeout';
+import { ownerWindow, ownerDocument } from '@base-ui/utils/owner';
+import { isFirefox, isWebKit } from '@base-ui/utils/detectBrowser';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { useTimeout } from '@base-ui/utils/useTimeout';
 import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 import { useNumberFieldRootContext } from '../root/NumberFieldRootContext';
 import type { NumberFieldRoot } from '../root/NumberFieldRoot';
@@ -36,11 +36,9 @@ export const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubAr
     ...elementProps
   } = componentProps;
 
-  const { state } = useNumberFieldRootContext();
-
   const {
-    isScrubbing,
-    setIsScrubbing,
+    state,
+    setIsScrubbing: setRootScrubbing,
     disabled,
     readOnly,
     inputRef,
@@ -62,6 +60,7 @@ export const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubAr
 
   const [isTouchInput, setIsTouchInput] = React.useState(false);
   const [isPointerLockDenied, setIsPointerLockDenied] = React.useState(false);
+  const [isScrubbing, setIsScrubbing] = React.useState(false);
 
   React.useEffect(() => {
     if (!isScrubbing || !scrubAreaCursorRef.current) {
@@ -117,6 +116,7 @@ export const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubAr
     (scrubbingValue: boolean, { clientX, clientY }: PointerEvent) => {
       ReactDOM.flushSync(() => {
         setIsScrubbing(scrubbingValue);
+        setRootScrubbing(scrubbingValue);
       });
 
       const virtualCursor = scrubAreaCursorRef.current;
@@ -326,8 +326,10 @@ export const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubAr
 
 export interface NumberFieldScrubAreaState extends NumberFieldRoot.State {}
 
-export interface NumberFieldScrubAreaProps
-  extends BaseUIComponentProps<'span', NumberFieldScrubArea.State> {
+export interface NumberFieldScrubAreaProps extends BaseUIComponentProps<
+  'span',
+  NumberFieldScrubArea.State
+> {
   /**
    * Cursor movement direction in the scrub area.
    * @default 'horizontal'

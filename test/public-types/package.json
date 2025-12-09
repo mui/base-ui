@@ -1,7 +1,7 @@
 {
   "private": true,
   "dependencies": {
-    "@base-ui-components/react": "workspace:*",
+    "@base-ui/react": "workspace:*",
     "react": "19.2.1"
   },
   "scripts": {

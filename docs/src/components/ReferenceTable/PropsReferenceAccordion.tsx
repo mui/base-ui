@@ -1,6 +1,6 @@
 import * as React from 'react';
 import clsx from 'clsx';
-import { visuallyHidden } from '@base-ui-components/utils/visuallyHidden';
+import { visuallyHidden } from '@base-ui/utils/visuallyHidden';
 import { createMdxComponent } from 'docs/src/mdx/createMdxComponent';
 import { inlineMdxComponents, mdxComponents } from 'docs/src/mdx-components';
 import { rehypeSyntaxHighlighting } from 'docs/src/syntax-highlighting';
@@ -167,12 +167,7 @@ export async function PropsReferenceAccordion({
         const ExampleSnippet = prop.example
           ? await createMdxComponent(prop.example, {
               rehypePlugins: rehypeSyntaxHighlighting,
-              useMDXComponents: () => ({
-                ...inlineMdxComponents,
-                figure: 'figure',
-                pre: ExpandedPre,
-                code: ExpandedCode,
-              }),
+              useMDXComponents: () => inlineMdxComponents,
             })
           : null;
 

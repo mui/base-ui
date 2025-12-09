@@ -200,7 +200,7 @@ async function generateLlmsTxt() {
     const preamble = [
       '# Base UI',
       '',
-      'This is the documentation for the `@base-ui-components/react` package.',
+      'This is the documentation for the `@base-ui/react` package.',
       'It contains a collection of components and utilities for building user interfaces in React.',
       'The library is designed to be composable and styling agnostic.',
       '',

@@ -1,11 +1,11 @@
 'use client';
 import * as React from 'react';
-import { ownerDocument } from '@base-ui-components/utils/owner';
-import { useTimeout } from '@base-ui-components/utils/useTimeout';
-import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
-import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
-import { useValueAsRef } from '@base-ui-components/utils/useValueAsRef';
-import { useStore } from '@base-ui-components/utils/store';
+import { ownerDocument } from '@base-ui/utils/owner';
+import { useTimeout } from '@base-ui/utils/useTimeout';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
+import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
+import { useStore } from '@base-ui/utils/store';
 import { useSelectRootContext } from '../root/SelectRootContext';
 import { BaseUIComponentProps, HTMLProps, NativeButtonProps } from '../../utils/types';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
@@ -261,8 +261,7 @@ export interface SelectTriggerState extends FieldRoot.State {
 }
 
 export interface SelectTriggerProps
-  extends NativeButtonProps,
-    BaseUIComponentProps<'button', SelectTrigger.State> {
+  extends NativeButtonProps, BaseUIComponentProps<'button', SelectTrigger.State> {
   children?: React.ReactNode;
   /** Whether the component should ignore user interaction. */
   disabled?: boolean;

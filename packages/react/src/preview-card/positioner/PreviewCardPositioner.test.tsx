@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { PreviewCard } from '@base-ui-components/react/preview-card';
+import { PreviewCard } from '@base-ui/react/preview-card';
 import { screen } from '@mui/internal-test-utils';
 import { expect } from 'chai';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';

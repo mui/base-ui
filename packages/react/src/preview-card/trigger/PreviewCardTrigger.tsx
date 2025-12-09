@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { usePreviewCardRootContext } from '../root/PreviewCardContext';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
@@ -43,8 +43,10 @@ export interface PreviewCardTriggerState {
   open: boolean;
 }
 
-export interface PreviewCardTriggerProps
-  extends BaseUIComponentProps<'a', PreviewCardTrigger.State> {
+export interface PreviewCardTriggerProps extends BaseUIComponentProps<
+  'a',
+  PreviewCardTrigger.State
+> {
   /**
    * How long to wait before the preview card opens. Specified in milliseconds.
    * @default 600

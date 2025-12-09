@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { inertValue } from '@base-ui-components/utils/inertValue';
+import { inertValue } from '@base-ui/utils/inertValue';
 import { FloatingNode } from '../../floating-ui-react';
 import { MenuPositionerContext } from './MenuPositionerContext';
 import { useMenuRootContext } from '../root/MenuRootContext';
@@ -295,7 +295,8 @@ export interface MenuPositionerState {
 }
 
 export interface MenuPositionerProps
-  extends useAnchorPositioning.SharedParameters,
+  extends
+    useAnchorPositioning.SharedParameters,
     BaseUIComponentProps<'div', MenuPositioner.State> {}
 
 export namespace MenuPositioner {

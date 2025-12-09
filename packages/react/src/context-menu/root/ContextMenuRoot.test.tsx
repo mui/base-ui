@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 import { spy } from 'sinon';
-import { ContextMenu } from '@base-ui-components/react/context-menu';
+import { ContextMenu } from '@base-ui/react/context-menu';
 import { createRenderer } from '#test-utils';
 import { REASONS } from '../../utils/reasons';
 

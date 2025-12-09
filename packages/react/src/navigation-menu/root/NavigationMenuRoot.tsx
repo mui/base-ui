@@ -1,9 +1,9 @@
 'use client';
 import * as React from 'react';
 import { isHTMLElement } from '@floating-ui/utils/dom';
-import { useControlled } from '@base-ui-components/utils/useControlled';
-import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
-import { ownerDocument } from '@base-ui-components/utils/owner';
+import { useControlled } from '@base-ui/utils/useControlled';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { ownerDocument } from '@base-ui/utils/owner';
 import {
   FloatingTree,
   useFloatingNodeId,
@@ -291,8 +291,10 @@ export interface NavigationMenuRootState {
   nested: boolean;
 }
 
-export interface NavigationMenuRootProps
-  extends BaseUIComponentProps<'nav', NavigationMenuRoot.State> {
+export interface NavigationMenuRootProps extends BaseUIComponentProps<
+  'nav',
+  NavigationMenuRoot.State
+> {
   /**
    * A ref to imperative actions.
    */

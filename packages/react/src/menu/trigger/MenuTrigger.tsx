@@ -2,11 +2,11 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { FocusableElement } from 'tabbable';
-import { useTimeout } from '@base-ui-components/utils/useTimeout';
-import { ownerDocument } from '@base-ui-components/utils/owner';
-import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
-import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
-import { EMPTY_OBJECT } from '@base-ui-components/utils/empty';
+import { useTimeout } from '@base-ui/utils/useTimeout';
+import { ownerDocument } from '@base-ui/utils/owner';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 import {
   safePolygon,
   useClick,
@@ -365,8 +365,7 @@ export interface MenuTrigger {
 }
 
 export interface MenuTriggerProps<Payload = unknown>
-  extends NativeButtonProps,
-    BaseUIComponentProps<'button', MenuTrigger.State> {
+  extends NativeButtonProps, BaseUIComponentProps<'button', MenuTrigger.State> {
   children?: React.ReactNode;
   /**
    * Whether the component should ignore user interaction.
