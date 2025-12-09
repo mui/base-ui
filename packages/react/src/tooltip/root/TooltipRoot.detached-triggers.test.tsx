@@ -1,7 +1,7 @@
-import * as React from "react";
-import { createRenderer, isJSDOM } from "#test-utils";
-import { Tooltip } from "@base-ui/react/tooltip";
-import { screen, waitFor, randomStringValue, act, flushMicrotasks } from "@mui/internal-test-utils";
+import * as React from 'react';
+import { createRenderer, isJSDOM } from '#test-utils';
+import { Tooltip } from '@base-ui/react/tooltip';
+import { screen, waitFor, randomStringValue, act, flushMicrotasks } from '@mui/internal-test-utils';
 
 describe('<Tooltip.Root />', () => {
   beforeEach(() => {
