@@ -76,6 +76,39 @@ describe.skipIf(isWebKit)('<NumberField.ScrubAreaCursor />', () => {
     }
   });
 
+  it('only renders a cursor for the active scrub area', async () => {
+    const originalRequestPointerLock = Element.prototype.requestPointerLock;
+
+    try {
+      Element.prototype.requestPointerLock = sinon.stub().resolves();
+
+      const { user } = await render(
+        <NumberField.Root>
+          <NumberField.Input />
+          <NumberField.ScrubArea data-testid="scrub-area-1">
+            <NumberField.ScrubAreaCursor data-testid="scrub-area-cursor" />
+          </NumberField.ScrubArea>
+          <NumberField.ScrubArea data-testid="scrub-area-2">
+            <NumberField.ScrubAreaCursor data-testid="scrub-area-cursor" />
+          </NumberField.ScrubArea>
+        </NumberField.Root>,
+      );
+
+      const firstScrubArea = screen.getByTestId('scrub-area-1');
+
+      await act(async () => {
+        await user.pointer({ target: firstScrubArea, keys: '[MouseLeft>]', pointerName: 'mouse' });
+        await new Promise((resolve) => {
+          setTimeout(resolve, 25);
+        });
+      });
+
+      expect(screen.queryAllByTestId('scrub-area-cursor')).to.have.length(1);
+    } finally {
+      Element.prototype.requestPointerLock = originalRequestPointerLock;
+    }
+  });
+
   it('does not render when using touch input', async () => {
     const { user } = await render(
       <NumberField.Root>

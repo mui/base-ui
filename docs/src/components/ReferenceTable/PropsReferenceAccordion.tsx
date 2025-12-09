@@ -167,12 +167,7 @@ export async function PropsReferenceAccordion({
         const ExampleSnippet = prop.example
           ? await createMdxComponent(prop.example, {
               rehypePlugins: rehypeSyntaxHighlighting,
-              useMDXComponents: () => ({
-                ...inlineMdxComponents,
-                figure: 'figure',
-                pre: ExpandedPre,
-                code: ExpandedCode,
-              }),
+              useMDXComponents: () => inlineMdxComponents,
             })
           : null;
 

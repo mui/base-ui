@@ -1092,6 +1092,22 @@ describe('<Menu.Root />', () => {
         });
       });
 
+      it('opens the submenu on hover with zero delay', async () => {
+        await render(
+          <ContainedTriggerMenu
+            rootProps={{ defaultOpen: true }}
+            submenuTriggerProps={{ delay: 0 }}
+          />,
+        );
+
+        const submenuTrigger = screen.getByTestId('submenu-trigger');
+
+        fireEvent.mouseEnter(submenuTrigger);
+        fireEvent.mouseMove(submenuTrigger);
+
+        expect(screen.queryByTestId('submenu')).not.to.equal(null);
+      });
+
       it('should not close when submenu is hovered after root menu is hovered', async () => {
         await render(
           <TestMenu
