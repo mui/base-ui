@@ -12,7 +12,7 @@ import { Autocomplete } from '@base-ui/react/autocomplete';
 import { Button } from '@base-ui/react/button';
 import { Dialog } from '@base-ui/react/dialog';
 import { ScrollArea } from '@base-ui/react/scroll-area';
-import { Search } from 'lucide-react';
+import { CornerDownLeft, Search } from 'lucide-react';
 import './SearchBar.css';
 
 function normalizeGroup(group: string) {
@@ -302,23 +302,9 @@ export function SearchBar({
                         aria-label="Enter"
                         className="flex h-5 w-5 items-center justify-center rounded border border-gray-300 bg-gray-50 text-[10px] text-gray-600"
                       >
-                        <svg
-                          aria-hidden="true"
-                          xmlns="http://www.w3.org/2000/svg"
-                          width="16"
-                          height="16"
-                          fill="none"
-                          viewBox="0 0 16 16"
-                        >
-                          <path
-                            fill="currentColor"
-                            fillRule="evenodd"
-                            d="M2.47 11.28a.75.75 0 0 1 0-1.06l3-3a.75.75 0 0 1 1.06 1.06L4.81 10H9a3.25 3.25 0 0 0 0-6.5H8A.75.75 0 0 1 8 2h1a4.75 4.75 0 1 1 0 9.5H4.81l1.72 1.72a.75.75 0 1 1-1.06 1.06z"
-                            clipRule="evenodd"
-                          />
-                        </svg>
+                        <CornerDownLeft />
                       </kbd>
-                      <span>Go to page</span>
+                      <span>Go to pagSe</span>
                     </div>
                   </div>
                 </Autocomplete.Root>
