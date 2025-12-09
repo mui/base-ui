@@ -17,7 +17,6 @@ function ExpandedCode(props: React.ComponentProps<'code'>) {
     .split(' ')
     .filter((c) => c !== 'Code')
     .join(' ');
-  // cleaned += ' whitespace-pre-wrap';
   return <code {...other} className={cleaned} />;
 }
 
