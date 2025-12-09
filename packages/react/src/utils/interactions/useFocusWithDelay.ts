@@ -2,6 +2,7 @@
 import * as React from 'react';
 import { getWindow, isHTMLElement } from '@floating-ui/utils/dom';
 import { useTimeout } from '@base-ui-components/utils/useTimeout';
+import * as windowListener from '@base-ui-components/utils/windowListener';
 import type { FloatingRootContext, ElementProps } from '../../floating-ui-react';
 import { createChangeEventDetails } from '../createBaseUIEventDetails';
 import { REASONS } from '../reasons';
@@ -42,9 +43,9 @@ export function useFocusWithDelay(
       }
     }
 
-    win.addEventListener('blur', handleBlur);
+    windowListener.add(win, 'blur', handleBlur);
     return () => {
-      win.removeEventListener('blur', handleBlur);
+      windowListener.remove(win, 'blur', handleBlur);
     };
   }, [store, domReference]);
 
