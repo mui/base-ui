@@ -1,8 +1,8 @@
 'use client';
 
 import * as React from 'react';
-import { Menu } from '@base-ui-components/react/menu';
-import { ScrollArea } from '@base-ui-components/react/scroll-area';
+import { Menu } from '@base-ui/react/menu';
+import { ScrollArea } from '@base-ui/react/scroll-area';
 import styles from './inside-menu.module.css';
 
 export default function ExampleMenu() {

@@ -1,14 +1,14 @@
 'use client';
 import * as React from 'react';
-import { visuallyHidden } from '@base-ui-components/utils/visuallyHidden';
-import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
-import { useRefWithInit } from '@base-ui-components/utils/useRefWithInit';
-import { useOnFirstRender } from '@base-ui-components/utils/useOnFirstRender';
-import { useControlled } from '@base-ui-components/utils/useControlled';
-import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
-import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
-import { useValueAsRef } from '@base-ui-components/utils/useValueAsRef';
-import { useStore, Store } from '@base-ui-components/utils/store';
+import { visuallyHidden } from '@base-ui/utils/visuallyHidden';
+import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
+import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
+import { useOnFirstRender } from '@base-ui/utils/useOnFirstRender';
+import { useControlled } from '@base-ui/utils/useControlled';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
+import { useStore, Store } from '@base-ui/utils/store';
 import {
   useClick,
   useDismiss,

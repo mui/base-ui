@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useRender } from '@base-ui-components/react/use-render';
+import { useRender } from '@base-ui/react/use-render';
 
 export type UseRenderRenderProp<State = Record<string, unknown>> = useRender.RenderProp<State>;
 export type UseRenderElementProps<ElementType extends React.ElementType> =

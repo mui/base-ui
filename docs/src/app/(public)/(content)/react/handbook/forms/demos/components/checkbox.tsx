@@ -1,6 +1,6 @@
 import * as React from 'react';
 import clsx from 'clsx';
-import { Checkbox } from '@base-ui-components/react/checkbox';
+import { Checkbox } from '@base-ui/react/checkbox';
 
 export function Root({ className, ...props }: Checkbox.Root.Props) {
   return (

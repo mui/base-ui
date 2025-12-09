@@ -1,8 +1,8 @@
 'use client';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import { useAnimationFrame } from '@base-ui-components/utils/useAnimationFrame';
-import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
+import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { resolveRef } from './resolveRef';
 
 /**

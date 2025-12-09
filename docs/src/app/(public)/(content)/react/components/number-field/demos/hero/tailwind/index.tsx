@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { NumberField } from '@base-ui-components/react/number-field';
+import { NumberField } from '@base-ui/react/number-field';
 
 export default function ExampleNumberField() {
   const id = React.useId();

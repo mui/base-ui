@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { Meter } from '@base-ui-components/react/meter';
+import { Meter } from '@base-ui/react/meter';
 import {
   SettingsMetadata,
   useExperimentSettings,

@@ -1,6 +1,6 @@
 import * as React from 'react';
-import { createSelector, ReactStore } from '@base-ui-components/utils/store';
-import { type InteractionType } from '@base-ui-components/utils/useEnhancedClickHandler';
+import { createSelector, ReactStore } from '@base-ui/utils/store';
+import { type InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import { type DialogRoot } from '../root/DialogRoot';
 import type { FloatingUIOpenChangeDetails } from '../../utils/types';
 import {

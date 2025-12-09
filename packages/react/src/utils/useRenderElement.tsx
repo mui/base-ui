@@ -1,7 +1,7 @@
 import * as React from 'react';
-import { useMergedRefs, useMergedRefsN } from '@base-ui-components/utils/useMergedRefs';
-import { getReactElementRef } from '@base-ui-components/utils/getReactElementRef';
-import { mergeObjects } from '@base-ui-components/utils/mergeObjects';
+import { useMergedRefs, useMergedRefsN } from '@base-ui/utils/useMergedRefs';
+import { getReactElementRef } from '@base-ui/utils/getReactElementRef';
+import { mergeObjects } from '@base-ui/utils/mergeObjects';
 import type { BaseUIComponentProps, ComponentRenderFn, HTMLProps } from './types';
 import { getStateAttributesProps, StateAttributesMapping } from './getStateAttributesProps';
 import { resolveClassName } from './resolveClassName';

@@ -27,7 +27,7 @@ importers:
       '@babel/plugin-transform-react-constant-elements':
         specifier: ^7.27.1
         version: 7.27.1(@babel/core@7.28.5)
-      '@base-ui-components/monorepo-tests':
+      '@base-ui/monorepo-tests':
         specifier: workspace:*
         version: link:test
       '@mui/internal-code-infra':
@@ -162,10 +162,10 @@ importers:
 
   docs:
     dependencies:
-      '@base-ui-components/react':
+      '@base-ui/react':
         specifier: workspace:*
         version: link:../packages/react/build
-      '@base-ui-components/utils':
+      '@base-ui/utils':
         specifier: workspace:*
         version: link:../packages/utils/build
       '@emotion/cache':
@@ -443,7 +443,7 @@ importers:
       '@babel/runtime':
         specifier: ^7.28.4
         version: 7.28.4
-      '@base-ui-components/utils':
+      '@base-ui/utils':
         specifier: workspace:*
         version: link:../utils/build
       '@floating-ui/react-dom':
@@ -603,7 +603,7 @@ importers:
 
   test:
     devDependencies:
-      '@base-ui-components/react':
+      '@base-ui/react':
         specifier: workspace:*
         version: link:../packages/react/build
       '@mui/internal-test-utils':
@@ -669,10 +669,10 @@ importers:
 
   test/bundle-size:
     dependencies:
-      '@base-ui-components/react':
+      '@base-ui/react':
         specifier: workspace:*
         version: link:../../packages/react/build
-      '@base-ui-components/utils':
+      '@base-ui/utils':
         specifier: workspace:*
         version: link:../../packages/utils/build
       '@mui/internal-bundle-size-checker':
@@ -688,16 +688,16 @@ importers:
 
   test/node-resolution:
     dependencies:
-      '@base-ui-components/react':
+      '@base-ui/react':
         specifier: workspace:*
         version: link:../../packages/react/build
-      '@base-ui-components/utils':
+      '@base-ui/utils':
         specifier: workspace:*
         version: link:../../packages/utils/build
 
   test/public-types:
     dependencies:
-      '@base-ui-components/react':
+      '@base-ui/react':
         specifier: workspace:*
         version: link:../../packages/react/build
       react:

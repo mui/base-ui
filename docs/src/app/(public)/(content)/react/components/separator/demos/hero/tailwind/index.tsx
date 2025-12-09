@@ -1,4 +1,4 @@
-import { Separator } from '@base-ui-components/react/separator';
+import { Separator } from '@base-ui/react/separator';
 
 export default function ExampleSeparator() {
   return (
