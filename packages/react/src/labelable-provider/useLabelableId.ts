@@ -1,5 +1,5 @@
 'use client';
-import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { isElement } from '@floating-ui/utils/dom';
 import { NOOP } from '../utils/noop';
 import { useBaseUiId } from '../utils/useBaseUiId';

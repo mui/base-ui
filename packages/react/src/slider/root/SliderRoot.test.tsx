@@ -2,15 +2,12 @@ import { expect } from 'chai';
 import * as React from 'react';
 import { spy, stub } from 'sinon';
 import { act, flushMicrotasks, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
-import {
-  DirectionProvider,
-  type TextDirection,
-} from '@base-ui-components/react/direction-provider';
-import { Field } from '@base-ui-components/react/field';
-import { Slider } from '@base-ui-components/react/slider';
-import { Form } from '@base-ui-components/react/form';
+import { DirectionProvider, type TextDirection } from '@base-ui/react/direction-provider';
+import { Field } from '@base-ui/react/field';
+import { Slider } from '@base-ui/react/slider';
+import { Form } from '@base-ui/react/form';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
-import { isWebKit } from '@base-ui-components/utils/detectBrowser';
+import { isWebKit } from '@base-ui/utils/detectBrowser';
 import { REASONS } from '../../utils/reasons';
 import {
   ARROW_RIGHT,

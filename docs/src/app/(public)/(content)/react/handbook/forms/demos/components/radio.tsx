@@ -1,6 +1,6 @@
 import * as React from 'react';
 import clsx from 'clsx';
-import { Radio } from '@base-ui-components/react/radio';
+import { Radio } from '@base-ui/react/radio';
 
 export function Root({ className, ...props }: Radio.Root.Props) {
   return (

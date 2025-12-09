@@ -4,9 +4,9 @@ import { act, screen, waitFor } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance, isJSDOM, wait } from '#test-utils';
 import { spy } from 'sinon';
 import { afterEach } from 'vitest';
-import { Menubar } from '@base-ui-components/react/menubar';
-import { Menu } from '@base-ui-components/react/menu';
-import { useRefWithInit } from '@base-ui-components/utils/useRefWithInit';
+import { Menubar } from '@base-ui/react/menubar';
+import { Menu } from '@base-ui/react/menu';
+import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 
 describe('<Menubar />', () => {
   beforeEach(() => {

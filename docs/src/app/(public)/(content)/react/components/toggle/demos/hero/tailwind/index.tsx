@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { Toggle } from '@base-ui-components/react/toggle';
+import { Toggle } from '@base-ui/react/toggle';
 
 export default function ExampleToggle() {
   return (
