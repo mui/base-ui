@@ -38,7 +38,7 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
   const direction = useDirection();
 
   // Track whether the user explicitly provided a `defaultValue` prop.
-  // Used to determine if we should honor an initial disabled tab selection.
+  // Used to determine if we should honor a disabled tab selection.
   const hasExplicitDefaultValueProp = Object.hasOwn(componentProps, 'defaultValue');
 
   const tabPanelRefs = React.useRef<(HTMLElement | null)[]>([]);
@@ -54,9 +54,6 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
   });
 
   const isControlled = valueProp !== undefined;
-  // Skip the disabled tab fallback on first render if user explicitly set defaultValue.
-  // This allows selecting a disabled tab intentionally (e.g., for read-only/loading states).
-  const skipInitialDisabledFallbackRef = React.useRef(hasExplicitDefaultValueProp);
 
   const [tabMap, setTabMap] = React.useState(
     () => new Map<Node, CompositeMetadata<TabsTab.Metadata> | null>(),
@@ -206,18 +203,12 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
     const selectionIsDisabled = selectedTabMetadata?.disabled;
     const selectionIsMissing = selectedTabMetadata == null && value !== null;
 
-    // On first render with explicit defaultValue pointing to disabled tab: allow it once.
-    // After first render, treat disabled selections normally (switch to enabled tab).
-    if (
-      skipInitialDisabledFallbackRef.current &&
-      selectionIsDisabled &&
-      Object.is(value, defaultValueProp)
-    ) {
-      skipInitialDisabledFallbackRef.current = false;
+    const shouldHonorExplicitDefaultSelection =
+      hasExplicitDefaultValueProp && selectionIsDisabled && value === defaultValueProp;
+
+    if (shouldHonorExplicitDefaultSelection) {
       return;
     }
-
-    skipInitialDisabledFallbackRef.current = false;
 
     if (!selectionIsDisabled && !selectionIsMissing) {
       return;
@@ -225,7 +216,7 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
 
     const fallbackValue = firstEnabledTabValue ?? null;
 
-    if (Object.is(value, fallbackValue)) {
+    if (value === fallbackValue) {
       return;
     }
 
@@ -234,6 +225,7 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
   }, [
     defaultValueProp,
     firstEnabledTabValue,
+    hasExplicitDefaultValueProp,
     isControlled,
     selectedTabMetadata,
     setTabActivationDirection,
