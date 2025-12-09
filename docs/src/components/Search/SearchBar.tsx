@@ -354,7 +354,7 @@ export function SearchBar({
                         filter={null}
                         autoHighlight
                       >
-                        <div className="border-b border-gray-200 p-2 pb-1.5">{searchInput}</div>
+                        <div className="border-b border-gray-100 p-2 pb-1.5">{searchInput}</div>
                         <div>
                           {searchResults.results.length === 0 ? (
                             emptyState
