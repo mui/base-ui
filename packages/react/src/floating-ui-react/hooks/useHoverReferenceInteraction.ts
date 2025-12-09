@@ -210,13 +210,15 @@ export function useHoverReferenceInteraction(
 
       const triggerNode = (event.currentTarget as HTMLElement) ?? null;
 
+      const shouldOpen = !store.select('open') || isOverInactiveTrigger;
+
       if (openDelay) {
         openChangeTimeout.start(openDelay, () => {
-          if (!store.select('open')) {
+          if (shouldOpen) {
             store.setOpen(true, createChangeEventDetails(REASONS.triggerHover, event, triggerNode));
           }
         });
-      } else if (!store.select('open') || isOverInactiveTrigger) {
+      } else if (shouldOpen) {
         store.setOpen(true, createChangeEventDetails(REASONS.triggerHover, event, triggerNode));
       }
     }
