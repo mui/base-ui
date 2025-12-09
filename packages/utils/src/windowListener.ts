@@ -38,9 +38,6 @@ export function add<K extends Events>(
     listeners = new Set<Function>();
     eventState.set(optionKey, listeners);
   }
-  if (listeners.has(listener)) {
-    return;
-  }
 
   if (listeners.size === 0) {
     win.addEventListener(
