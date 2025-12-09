@@ -302,7 +302,7 @@ export function SearchBar({
                         aria-label="Enter"
                         className="flex h-5 w-5 items-center justify-center rounded border border-gray-300 bg-gray-50 text-[10px] text-gray-600"
                       >
-                        <CornerDownLeft />
+                        <CornerDownLeft size={12} />
                       </kbd>
                       <span>Go to page</span>
                     </div>
