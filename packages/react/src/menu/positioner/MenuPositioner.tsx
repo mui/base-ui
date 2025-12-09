@@ -81,7 +81,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
   if (parent.type === 'menu') {
     computedSide = computedSide ?? 'inline-end';
     computedAlign = computedAlign ?? 'start';
-    collisionAvoidance = POPUP_COLLISION_AVOIDANCE;
+    collisionAvoidance = componentProps.collisionAvoidance ?? POPUP_COLLISION_AVOIDANCE;
   } else if (parent.type === 'menubar') {
     computedSide = computedSide ?? 'bottom';
     computedAlign = computedAlign ?? 'start';
