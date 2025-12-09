@@ -4,6 +4,7 @@ import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-
 import { expect } from 'chai';
 import { spy } from 'sinon';
 import { createRenderer, isJSDOM, popupConformanceTests } from '#test-utils';
+import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { OPEN_DELAY } from '../utils/constants';
 import { REASONS } from '../../utils/reasons';
 
@@ -77,9 +78,10 @@ describe('<Tooltip.Root />', () => {
 
         await flushMicrotasks();
 
-        fireEvent.mouseLeave(trigger);
+      fireEvent.mouseLeave(trigger);
 
-        expect(screen.queryByText('Content')).to.equal(null);
+      await flushMicrotasks();
+      expect(screen.queryByText('Content')).to.equal(null);
       });
 
       it('should open when the trigger is focused', async ({ skip }) => {
@@ -862,7 +864,7 @@ function DetachedTriggerTooltip(props: TestTooltipProps) {
   const triggerContent = triggerChildren ?? 'Toggle';
   const popupContent = popupChildren ?? 'Content';
 
-  const tooltipHandle = Tooltip.createHandle();
+  const tooltipHandle = useRefWithInit(() => Tooltip.createHandle()).current;
 
   return (
     <React.Fragment>
