@@ -13,10 +13,6 @@ import { createRenderer, isJSDOM, popupConformanceTests } from '#test-utils';
 import { OPEN_DELAY } from '../utils/constants';
 import { REASONS } from '../../utils/reasons';
 
-function Root(props: Tooltip.Root.Props) {
-  return <Tooltip.Root {...props} />;
-}
-
 describe('<Tooltip.Root />', () => {
   beforeEach(() => {
     globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
@@ -55,16 +51,7 @@ describe('<Tooltip.Root />', () => {
     clock.withFakeTimers();
 
     it('should open when the trigger is hovered', async () => {
-      await render(
-        <Root>
-          <Tooltip.Trigger />
-          <Tooltip.Portal>
-            <Tooltip.Positioner>
-              <Tooltip.Popup>Content</Tooltip.Popup>
-            </Tooltip.Positioner>
-          </Tooltip.Portal>
-        </Root>,
-      );
+      await render(<ContainedTriggerTooltip />);
 
       const trigger = screen.getByRole('button');
 
@@ -80,16 +67,7 @@ describe('<Tooltip.Root />', () => {
     });
 
     it('should close when the trigger is unhovered', async () => {
-      await render(
-        <Root>
-          <Tooltip.Trigger />
-          <Tooltip.Portal>
-            <Tooltip.Positioner>
-              <Tooltip.Popup>Content</Tooltip.Popup>
-            </Tooltip.Positioner>
-          </Tooltip.Portal>
-        </Root>,
-      );
+      await render(<ContainedTriggerTooltip />);
 
       const trigger = screen.getByRole('button');
 
@@ -111,16 +89,7 @@ describe('<Tooltip.Root />', () => {
         skip();
       }
 
-      await render(
-        <Root>
-          <Tooltip.Trigger />
-          <Tooltip.Portal>
-            <Tooltip.Positioner>
-              <Tooltip.Popup>Content</Tooltip.Popup>
-            </Tooltip.Positioner>
-          </Tooltip.Portal>
-        </Root>,
-      );
+      await render(<ContainedTriggerTooltip />);
 
       const trigger = screen.getByRole('button');
 
@@ -132,16 +101,7 @@ describe('<Tooltip.Root />', () => {
     });
 
     it('should close when the trigger is blurred', async () => {
-      await render(
-        <Root>
-          <Tooltip.Trigger />
-          <Tooltip.Portal>
-            <Tooltip.Positioner>
-              <Tooltip.Popup>Content</Tooltip.Popup>
-            </Tooltip.Positioner>
-          </Tooltip.Portal>
-        </Root>,
-      );
+      await render(<ContainedTriggerTooltip />);
 
       const trigger = screen.getByRole('button');
 
@@ -171,20 +131,15 @@ describe('<Tooltip.Root />', () => {
         const [open, setOpen] = React.useState(false);
 
         return (
-          <Root
-            open={open}
-            onOpenChange={(nextOpen) => {
-              handleChange(open);
-              setOpen(nextOpen);
+          <ContainedTriggerTooltip
+            rootProps={{
+              open,
+              onOpenChange: (nextOpen) => {
+                handleChange(open);
+                setOpen(nextOpen);
+              },
             }}
-          >
-            <Tooltip.Trigger />
-            <Tooltip.Portal>
-              <Tooltip.Positioner>
-                <Tooltip.Popup>Content</Tooltip.Popup>
-              </Tooltip.Positioner>
-            </Tooltip.Portal>
-          </Root>
+          />
         );
       }
 
@@ -218,20 +173,15 @@ describe('<Tooltip.Root />', () => {
         const [open, setOpen] = React.useState(false);
 
         return (
-          <Root
-            open={open}
-            onOpenChange={(nextOpen) => {
-              handleChange(open);
-              setOpen(nextOpen);
+          <ContainedTriggerTooltip
+            rootProps={{
+              open,
+              onOpenChange: (nextOpen) => {
+                handleChange(open);
+                setOpen(nextOpen);
+              },
             }}
-          >
-            <Tooltip.Trigger />
-            <Tooltip.Portal>
-              <Tooltip.Positioner>
-                <Tooltip.Popup>Content</Tooltip.Popup>
-              </Tooltip.Positioner>
-            </Tooltip.Portal>
-          </Root>
+          />
         );
       }
 
@@ -256,16 +206,7 @@ describe('<Tooltip.Root />', () => {
 
   describe('prop: defaultOpen', () => {
     it('should open when the component is rendered', async () => {
-      await render(
-        <Root defaultOpen>
-          <Tooltip.Trigger />
-          <Tooltip.Portal>
-            <Tooltip.Positioner>
-              <Tooltip.Popup>Content</Tooltip.Popup>
-            </Tooltip.Positioner>
-          </Tooltip.Portal>
-        </Root>,
-      );
+      await render(<ContainedTriggerTooltip rootProps={{ defaultOpen: true }} />);
 
       await flushMicrotasks();
 
@@ -274,14 +215,7 @@ describe('<Tooltip.Root />', () => {
 
     it('should not open when the component is rendered and open is controlled', async () => {
       await render(
-        <Root defaultOpen open={false}>
-          <Tooltip.Trigger />
-          <Tooltip.Portal>
-            <Tooltip.Positioner>
-              <Tooltip.Popup>Content</Tooltip.Popup>
-            </Tooltip.Positioner>
-          </Tooltip.Portal>
-        </Root>,
+        <ContainedTriggerTooltip rootProps={{ defaultOpen: true, open: false }} />,
       );
 
       await flushMicrotasks();
@@ -290,16 +224,7 @@ describe('<Tooltip.Root />', () => {
     });
 
     it('should not close when the component is rendered and open is controlled', async () => {
-      await render(
-        <Root defaultOpen open>
-          <Tooltip.Trigger />
-          <Tooltip.Portal>
-            <Tooltip.Positioner>
-              <Tooltip.Popup>Content</Tooltip.Popup>
-            </Tooltip.Positioner>
-          </Tooltip.Portal>
-        </Root>,
-      );
+      await render(<ContainedTriggerTooltip rootProps={{ defaultOpen: true, open: true }} />);
 
       await flushMicrotasks();
 
@@ -307,16 +232,7 @@ describe('<Tooltip.Root />', () => {
     });
 
     it('should remain uncontrolled', async () => {
-      await render(
-        <Root defaultOpen>
-          <Tooltip.Trigger />
-          <Tooltip.Portal>
-            <Tooltip.Positioner>
-              <Tooltip.Popup>Content</Tooltip.Popup>
-            </Tooltip.Positioner>
-          </Tooltip.Portal>
-        </Root>,
-      );
+      await render(<ContainedTriggerTooltip rootProps={{ defaultOpen: true }} />);
 
       await flushMicrotasks();
 
@@ -336,16 +252,7 @@ describe('<Tooltip.Root />', () => {
     clock.withFakeTimers();
 
     it('should open after rest delay', async () => {
-      await render(
-        <Root>
-          <Tooltip.Trigger delay={100} />
-          <Tooltip.Portal>
-            <Tooltip.Positioner>
-              <Tooltip.Popup>Content</Tooltip.Popup>
-            </Tooltip.Positioner>
-          </Tooltip.Portal>
-        </Root>,
-      );
+      await render(<ContainedTriggerTooltip triggerProps={{ delay: 100 }} />);
 
       const trigger = screen.getByRole('button');
 
@@ -368,16 +275,7 @@ describe('<Tooltip.Root />', () => {
     clock.withFakeTimers();
 
     it('should close after delay', async () => {
-      await render(
-        <Root>
-          <Tooltip.Trigger closeDelay={100} />
-          <Tooltip.Portal>
-            <Tooltip.Positioner>
-              <Tooltip.Popup>Content</Tooltip.Popup>
-            </Tooltip.Positioner>
-          </Tooltip.Portal>
-        </Root>,
-      );
+      await render(<ContainedTriggerTooltip triggerProps={{ closeDelay: 100 }} />);
 
       const trigger = screen.getByRole('button');
 
@@ -410,19 +308,14 @@ describe('<Tooltip.Root />', () => {
       };
 
       const { user } = await render(
-        <Root
-          actionsRef={actionsRef}
-          onOpenChange={(open, details) => {
-            details.preventUnmountOnClose();
+        <ContainedTriggerTooltip
+          rootProps={{
+            actionsRef,
+            onOpenChange: (open, details) => {
+              details.preventUnmountOnClose();
+            },
           }}
-        >
-          <Tooltip.Trigger data-testid="trigger" />
-          <Tooltip.Portal>
-            <Tooltip.Positioner data-testid="positioner">
-              <Tooltip.Popup>Content</Tooltip.Popup>
-            </Tooltip.Positioner>
-          </Tooltip.Portal>
-        </Root>,
+        />,
       );
 
       const trigger = screen.getByTestId('trigger');
@@ -626,7 +519,7 @@ describe('<Tooltip.Root />', () => {
         <Tooltip.Root onOpenChangeComplete={onOpenChangeComplete}>
           <Tooltip.Portal>
             <Tooltip.Positioner>
-              <Tooltip.Popup />
+              <Tooltip.Popup data-testid="popup" />
             </Tooltip.Positioner>
           </Tooltip.Portal>
         </Tooltip.Root>,
@@ -712,14 +605,7 @@ describe('<Tooltip.Root />', () => {
   describe('prop: disabled', () => {
     it('should not open when disabled', async () => {
       await render(
-        <Root disabled>
-          <Tooltip.Trigger delay={0} />
-          <Tooltip.Portal>
-            <Tooltip.Positioner>
-              <Tooltip.Popup>Content</Tooltip.Popup>
-            </Tooltip.Positioner>
-          </Tooltip.Portal>
-        </Root>,
+        <ContainedTriggerTooltip rootProps={{ disabled: true }} triggerProps={{ delay: 0 }} />,
       );
 
       const trigger = screen.getByRole('button');
@@ -742,14 +628,10 @@ describe('<Tooltip.Root />', () => {
         const [disabled, setDisabled] = React.useState(false);
         return (
           <div>
-            <Root defaultOpen disabled={disabled}>
-              <Tooltip.Trigger delay={0} />
-              <Tooltip.Portal>
-                <Tooltip.Positioner>
-                  <Tooltip.Popup>Content</Tooltip.Popup>
-                </Tooltip.Positioner>
-              </Tooltip.Portal>
-            </Root>
+            <ContainedTriggerTooltip
+              rootProps={{ defaultOpen: true, disabled }}
+              triggerProps={{ delay: 0 }}
+            />
             <button
               data-testid="disabled"
               onClick={() => {
@@ -771,15 +653,7 @@ describe('<Tooltip.Root />', () => {
     });
 
     it('does not throw error when combined with defaultOpen', async () => {
-      await render(
-        <Root defaultOpen disabled>
-          <Tooltip.Portal>
-            <Tooltip.Positioner>
-              <Tooltip.Popup>Content</Tooltip.Popup>
-            </Tooltip.Positioner>
-          </Tooltip.Portal>
-        </Root>,
-      );
+      await render(<ContainedTriggerTooltip rootProps={{ defaultOpen: true, disabled: true }} />);
 
       expect(screen.queryByText('Content')).to.equal(null);
     });
@@ -788,14 +662,10 @@ describe('<Tooltip.Root />', () => {
   describe('prop: disableHoverablePopup', () => {
     it('applies pointer-events: none to the positioner when `disableHoverablePopup = true`', async () => {
       await render(
-        <Root disableHoverablePopup>
-          <Tooltip.Trigger delay={0} />
-          <Tooltip.Portal>
-            <Tooltip.Positioner data-testid="positioner">
-              <Tooltip.Popup>Content</Tooltip.Popup>
-            </Tooltip.Positioner>
-          </Tooltip.Portal>
-        </Root>,
+        <ContainedTriggerTooltip
+          rootProps={{ disableHoverablePopup: true }}
+          triggerProps={{ delay: 0 }}
+        />,
       );
 
       const trigger = screen.getByRole('button');
@@ -811,14 +681,10 @@ describe('<Tooltip.Root />', () => {
 
     it('does not apply pointer-events: none to the positioner when `disableHoverablePopup = false`', async () => {
       await render(
-        <Root disableHoverablePopup={false}>
-          <Tooltip.Trigger delay={0} />
-          <Tooltip.Portal>
-            <Tooltip.Positioner data-testid="positioner">
-              <Tooltip.Popup>Content</Tooltip.Popup>
-            </Tooltip.Positioner>
-          </Tooltip.Portal>
-        </Root>,
+        <ContainedTriggerTooltip
+          rootProps={{ disableHoverablePopup: false }}
+          triggerProps={{ delay: 0 }}
+        />,
       );
 
       const trigger = screen.getByRole('button');
@@ -836,20 +702,16 @@ describe('<Tooltip.Root />', () => {
   describe('BaseUIChangeEventDetails', () => {
     it('onOpenChange cancel() prevents opening while uncontrolled', async () => {
       await render(
-        <Root
-          onOpenChange={(nextOpen, eventDetails) => {
-            if (nextOpen) {
-              eventDetails.cancel();
-            }
+        <ContainedTriggerTooltip
+          rootProps={{
+            onOpenChange: (nextOpen, eventDetails) => {
+              if (nextOpen) {
+                eventDetails.cancel();
+              }
+            },
           }}
-        >
-          <Tooltip.Trigger delay={0} />
-          <Tooltip.Portal>
-            <Tooltip.Positioner>
-              <Tooltip.Popup>Content</Tooltip.Popup>
-            </Tooltip.Positioner>
-          </Tooltip.Portal>
-        </Root>,
+          triggerProps={{ delay: 0 }}
+        />,
       );
 
       const trigger = screen.getByRole('button');
@@ -866,21 +728,17 @@ describe('<Tooltip.Root />', () => {
       const stopPropagationSpy = spy(Event.prototype as any, 'stopPropagation');
 
       await render(
-        <Root
-          defaultOpen
-          onOpenChange={(nextOpen, eventDetails) => {
-            if (!nextOpen && eventDetails.reason === REASONS.escapeKey) {
-              eventDetails.allowPropagation();
-            }
+        <ContainedTriggerTooltip
+          rootProps={{
+            defaultOpen: true,
+            onOpenChange: (nextOpen, eventDetails) => {
+              if (!nextOpen && eventDetails.reason === REASONS.escapeKey) {
+                eventDetails.allowPropagation();
+              }
+            },
           }}
-        >
-          <Tooltip.Trigger delay={0} />
-          <Tooltip.Portal>
-            <Tooltip.Positioner>
-              <Tooltip.Popup>Content</Tooltip.Popup>
-            </Tooltip.Positioner>
-          </Tooltip.Portal>
-        </Root>,
+          triggerProps={{ delay: 0 }}
+        />,
       );
 
       expect(screen.getByText('Content')).not.to.equal(null);
@@ -896,20 +754,11 @@ describe('<Tooltip.Root />', () => {
     });
   });
 
-  describe('dismissal', () => {
+describe('dismissal', () => {
     clock.withFakeTimers();
 
     it('should not open when the trigger was clicked before delay duration', async () => {
-      await render(
-        <Root>
-          <Tooltip.Trigger />
-          <Tooltip.Portal>
-            <Tooltip.Positioner>
-              <Tooltip.Popup>Content</Tooltip.Popup>
-            </Tooltip.Positioner>
-          </Tooltip.Portal>
-        </Root>,
-      );
+      await render(<ContainedTriggerTooltip />);
 
       const trigger = screen.getByRole('button');
 
@@ -929,16 +778,7 @@ describe('<Tooltip.Root />', () => {
     });
 
     it('should close when the trigger is clicked after delay duration', async () => {
-      await render(
-        <Root>
-          <Tooltip.Trigger />
-          <Tooltip.Portal>
-            <Tooltip.Positioner>
-              <Tooltip.Popup>Content</Tooltip.Popup>
-            </Tooltip.Positioner>
-          </Tooltip.Portal>
-        </Root>,
-      );
+      await render(<ContainedTriggerTooltip />);
 
       const trigger = screen.getByRole('button');
 
@@ -958,3 +798,53 @@ describe('<Tooltip.Root />', () => {
     });
   });
 });
+
+type TestTooltipProps = {
+  rootProps?: Tooltip.Root.Props;
+  triggerProps?: Tooltip.Trigger.Props;
+  portalProps?: Tooltip.Portal.Props;
+  positionerProps?: Tooltip.Positioner.Props;
+  popupProps?: Tooltip.Popup.Props;
+  portalChildren?: React.ReactNode;
+  beforeTrigger?: React.ReactNode;
+  betweenTriggerAndPortal?: React.ReactNode;
+  afterPortal?: React.ReactNode;
+};
+
+function ContainedTriggerTooltip(props: TestTooltipProps) {
+  const {
+    rootProps,
+    triggerProps,
+    portalProps,
+    positionerProps,
+    popupProps,
+    portalChildren,
+    beforeTrigger,
+    betweenTriggerAndPortal,
+    afterPortal,
+  } = props;
+
+  const { children: triggerChildren, ...restTriggerProps } = triggerProps ?? {};
+  const { children: popupChildren, ...restPopupProps } = popupProps ?? {};
+  const triggerContent = triggerChildren ?? 'Toggle';
+  const popupContent = popupChildren ?? 'Content';
+
+  return (
+    <Tooltip.Root {...rootProps}>
+      {beforeTrigger}
+      <Tooltip.Trigger data-testid="trigger" {...restTriggerProps}>
+        {triggerContent}
+      </Tooltip.Trigger>
+      {betweenTriggerAndPortal}
+      <Tooltip.Portal {...portalProps}>
+        {portalChildren}
+        <Tooltip.Positioner data-testid="positioner" {...positionerProps}>
+          <Tooltip.Popup data-testid="popup" {...restPopupProps}>
+            {popupContent}
+          </Tooltip.Popup>
+        </Tooltip.Positioner>
+      </Tooltip.Portal>
+      {afterPortal}
+    </Tooltip.Root>
+  );
+}
