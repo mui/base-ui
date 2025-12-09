@@ -69,7 +69,8 @@ export const TabsIndicator = React.forwardRef(function TabIndicator(
   if (value != null && tabsListElement != null) {
     const activeTab = getTabElementBySelectedValue(value);
     // Don't display indicator for disabled tabs (can happen briefly during initial render).
-    const isDisabled = activeTab?.hasAttribute('disabled') || activeTab?.getAttribute('aria-disabled') === 'true';
+    const isDisabled =
+      activeTab?.hasAttribute('disabled') || activeTab?.getAttribute('aria-disabled') === 'true';
     isTabSelected = !isDisabled;
 
     if (activeTab != null && !isDisabled) {
