@@ -86,7 +86,11 @@ export const TabsTab = React.forwardRef(function TabsTab(
       }
     }
 
-    setHighlightedTabIndex(index);
+    // Don't highlight disabled tabs to prevent them from interfering with keyboard navigation.
+    // Keyboard focus (tabIndex) should remain on an enabled tab even when a disabled tab is selected.
+    if (!disabled) {
+      setHighlightedTabIndex(index);
+    }
   }, [active, index, highlightedTabIndex, setHighlightedTabIndex, disabled, tabsListElement]);
 
   const { getButtonProps, buttonRef } = useButton({
@@ -118,7 +122,8 @@ export const TabsTab = React.forwardRef(function TabsTab(
       return;
     }
 
-    if (index > -1) {
+    // Only highlight enabled tabs when focused (disabled tabs remain focusable via focusableWhenDisabled).
+    if (index > -1 && !disabled) {
       setHighlightedTabIndex(index);
     }
 

@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useControlled } from '@base-ui/utils/useControlled';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import type { BaseUIComponentProps, Orientation as BaseOrientation } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
@@ -26,7 +27,7 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
 ) {
   const {
     className,
-    defaultValue = 0,
+    defaultValue: defaultValueProp = 0,
     onValueChange: onValueChangeProp,
     orientation = 'horizontal',
     render,
@@ -36,6 +37,10 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
 
   const direction = useDirection();
 
+  // Track whether the user explicitly provided a `defaultValue` prop.
+  // Used to determine if we should honor an initial disabled tab selection.
+  const hasExplicitDefaultValueProp = Object.hasOwn(componentProps, 'defaultValue');
+
   const tabPanelRefs = React.useRef<(HTMLElement | null)[]>([]);
   const [mountedTabPanels, setMountedTabPanels] = React.useState(
     () => new Map<TabsTab.Value | number, string>(),
@@ -43,10 +48,15 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
 
   const [value, setValue] = useControlled({
     controlled: valueProp,
-    default: defaultValue,
+    default: defaultValueProp,
     name: 'Tabs',
     state: 'value',
   });
+
+  const isControlled = valueProp !== undefined;
+  // Skip the disabled tab fallback on first render if user explicitly set defaultValue.
+  // This allows selecting a disabled tab intentionally (e.g., for read-only/loading states).
+  const skipInitialDisabledFallbackRef = React.useRef(hasExplicitDefaultValueProp);
 
   const [tabMap, setTabMap] = React.useState(
     () => new Map<Node, CompositeMetadata<TabsTab.Metadata> | null>(),
@@ -163,6 +173,74 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
       value,
     ],
   );
+
+  const selectedTabMetadata = React.useMemo(() => {
+    for (const tabMetadata of tabMap.values()) {
+      if (tabMetadata != null && tabMetadata.value === value) {
+        return tabMetadata;
+      }
+    }
+    return undefined;
+  }, [tabMap, value]);
+
+  // Find the first non-disabled tab value.
+  // Used as a fallback when the current selection is disabled or missing.
+  const firstEnabledTabValue = React.useMemo(() => {
+    for (const tabMetadata of tabMap.values()) {
+      if (tabMetadata != null && !tabMetadata.disabled) {
+        return tabMetadata.value;
+      }
+    }
+    return undefined;
+  }, [tabMap]);
+
+  // Automatically switch to the first enabled tab when:
+  // - The current selection is disabled (and wasn't explicitly set via defaultValue)
+  // - The current selection is missing (tab was removed from DOM)
+  // Falls back to null if all tabs are disabled.
+  useIsoLayoutEffect(() => {
+    if (isControlled || tabMap.size === 0) {
+      return;
+    }
+
+    const selectionIsDisabled = selectedTabMetadata?.disabled;
+    const selectionIsMissing = selectedTabMetadata == null && value !== null;
+
+    // On first render with explicit defaultValue pointing to disabled tab: allow it once.
+    // After first render, treat disabled selections normally (switch to enabled tab).
+    if (
+      skipInitialDisabledFallbackRef.current &&
+      selectionIsDisabled &&
+      Object.is(value, defaultValueProp)
+    ) {
+      skipInitialDisabledFallbackRef.current = false;
+      return;
+    }
+
+    skipInitialDisabledFallbackRef.current = false;
+
+    if (!selectionIsDisabled && !selectionIsMissing) {
+      return;
+    }
+
+    const fallbackValue = firstEnabledTabValue ?? null;
+
+    if (Object.is(value, fallbackValue)) {
+      return;
+    }
+
+    setValue(fallbackValue);
+    setTabActivationDirection('none');
+  }, [
+    defaultValueProp,
+    firstEnabledTabValue,
+    isControlled,
+    selectedTabMetadata,
+    setTabActivationDirection,
+    setValue,
+    tabMap,
+    value,
+  ]);
 
   const state: TabsRoot.State = {
     orientation,
