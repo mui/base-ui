@@ -88,7 +88,7 @@ register({
         let didChange = false;
         for (let i = 0; i < instance.syncHooks.length; i += 1) {
           const hook = instance.syncHooks[i];
-          const value = hook.selector(hook.store.getSnapshot(), hook.a1, hook.a2, hook.a3);
+          const value = hook.selector(hook.store.state, hook.a1, hook.a2, hook.a3);
           if (hook.didChange || !Object.is(hook.value, value)) {
             didChange = true;
             hook.value = value;
