@@ -1,12 +1,6 @@
 import * as React from 'react';
 import { Tooltip } from '@base-ui/react/tooltip';
-import {
-  act,
-  fireEvent,
-  flushMicrotasks,
-  screen,
-  waitFor,
-} from '@mui/internal-test-utils';
+import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
 import { expect } from 'chai';
 import { spy } from 'sinon';
 import { createRenderer, isJSDOM, popupConformanceTests } from '#test-utils';
@@ -47,338 +41,340 @@ describe('<Tooltip.Root />', () => {
     triggerMouseAction: 'hover',
   });
 
-  describe('uncontrolled open', () => {
-    clock.withFakeTimers();
+  describe.for([
+    { name: 'contained triggers', Component: ContainedTriggerTooltip },
+    { name: 'detached triggers', Component: DetachedTriggerTooltip },
+  ])('when using $name', ({ Component: TestTooltip }) => {
+    describe('uncontrolled open', () => {
+      clock.withFakeTimers();
 
-    it('should open when the trigger is hovered', async () => {
-      await render(<ContainedTriggerTooltip />);
+      it('should open when the trigger is hovered', async () => {
+        await render(<TestTooltip />);
 
-      const trigger = screen.getByRole('button');
+        const trigger = screen.getByRole('button');
 
-      fireEvent.pointerDown(trigger, { pointerType: 'mouse' });
-      fireEvent.mouseEnter(trigger);
-      fireEvent.mouseMove(trigger);
+        fireEvent.pointerDown(trigger, { pointerType: 'mouse' });
+        fireEvent.mouseEnter(trigger);
+        fireEvent.mouseMove(trigger);
 
-      clock.tick(OPEN_DELAY);
+        clock.tick(OPEN_DELAY);
 
-      await flushMicrotasks();
+        await flushMicrotasks();
 
-      expect(screen.getByText('Content')).not.to.equal(null);
-    });
-
-    it('should close when the trigger is unhovered', async () => {
-      await render(<ContainedTriggerTooltip />);
-
-      const trigger = screen.getByRole('button');
-
-      fireEvent.pointerDown(trigger, { pointerType: 'mouse' });
-      fireEvent.mouseEnter(trigger);
-      fireEvent.mouseMove(trigger);
-
-      clock.tick(OPEN_DELAY);
-
-      await flushMicrotasks();
-
-      fireEvent.mouseLeave(trigger);
-
-      expect(screen.queryByText('Content')).to.equal(null);
-    });
-
-    it('should open when the trigger is focused', async ({ skip }) => {
-      if (isJSDOM) {
-        skip();
-      }
-
-      await render(<ContainedTriggerTooltip />);
-
-      const trigger = screen.getByRole('button');
-
-      await act(async () => trigger.focus());
-
-      await flushMicrotasks();
-
-      expect(screen.getByText('Content')).not.to.equal(null);
-    });
-
-    it('should close when the trigger is blurred', async () => {
-      await render(<ContainedTriggerTooltip />);
-
-      const trigger = screen.getByRole('button');
-
-      await act(async () => {
-        trigger.focus();
+        expect(screen.getByText('Content')).not.to.equal(null);
       });
 
-      clock.tick(OPEN_DELAY);
-      await flushMicrotasks();
+      it('should close when the trigger is unhovered', async () => {
+        await render(<TestTooltip />);
 
-      await act(async () => {
-        trigger.blur();
+        const trigger = screen.getByRole('button');
+
+        fireEvent.pointerDown(trigger, { pointerType: 'mouse' });
+        fireEvent.mouseEnter(trigger);
+        fireEvent.mouseMove(trigger);
+
+        clock.tick(OPEN_DELAY);
+
+        await flushMicrotasks();
+
+        fireEvent.mouseLeave(trigger);
+
+        expect(screen.queryByText('Content')).to.equal(null);
       });
 
-      clock.tick(OPEN_DELAY);
+      it('should open when the trigger is focused', async ({ skip }) => {
+        if (isJSDOM) {
+          skip();
+        }
 
-      expect(screen.queryByText('Content')).to.equal(null);
+        await render(<TestTooltip />);
+
+        const trigger = screen.getByRole('button');
+
+        await act(async () => trigger.focus());
+
+        await flushMicrotasks();
+
+        expect(screen.getByText('Content')).not.to.equal(null);
+      });
+
+      it('should close when the trigger is blurred', async () => {
+        await render(<TestTooltip />);
+
+        const trigger = screen.getByRole('button');
+
+        await act(async () => {
+          trigger.focus();
+        });
+
+        clock.tick(OPEN_DELAY);
+        await flushMicrotasks();
+
+        await act(async () => {
+          trigger.blur();
+        });
+
+        clock.tick(OPEN_DELAY);
+
+        expect(screen.queryByText('Content')).to.equal(null);
+      });
     });
-  });
 
-  describe('controlled open', () => {
-    clock.withFakeTimers();
-    it('should call onOpenChange when the open state changes', async () => {
-      const handleChange = spy();
+    describe('controlled open', () => {
+      clock.withFakeTimers();
+      it('should call onOpenChange when the open state changes', async () => {
+        const handleChange = spy();
 
-      function App() {
-        const [open, setOpen] = React.useState(false);
+        function App() {
+          const [open, setOpen] = React.useState(false);
 
-        return (
-          <ContainedTriggerTooltip
+          return (
+            <TestTooltip
+              rootProps={{
+                open,
+                onOpenChange: (nextOpen) => {
+                  handleChange(open);
+                  setOpen(nextOpen);
+                },
+              }}
+            />
+          );
+        }
+
+        await render(<App />);
+
+        expect(screen.queryByText('Content')).to.equal(null);
+
+        const trigger = screen.getByRole('button');
+
+        fireEvent.mouseEnter(trigger);
+        fireEvent.mouseMove(trigger);
+
+        clock.tick(OPEN_DELAY);
+
+        await flushMicrotasks();
+
+        expect(screen.getByText('Content')).not.to.equal(null);
+
+        fireEvent.mouseLeave(trigger);
+
+        expect(screen.queryByText('Content')).to.equal(null);
+        expect(handleChange.callCount).to.equal(2);
+        expect(handleChange.firstCall.args[0]).to.equal(false);
+        expect(handleChange.secondCall.args[0]).to.equal(true);
+      });
+
+      it('should not call onChange when the open state does not change', async () => {
+        const handleChange = spy();
+
+        function App() {
+          const [open, setOpen] = React.useState(false);
+
+          return (
+            <TestTooltip
+              rootProps={{
+                open,
+                onOpenChange: (nextOpen) => {
+                  handleChange(open);
+                  setOpen(nextOpen);
+                },
+              }}
+            />
+          );
+        }
+
+        await render(<App />);
+
+        expect(screen.queryByText('Content')).to.equal(null);
+
+        const trigger = screen.getByRole('button');
+
+        fireEvent.mouseEnter(trigger);
+        fireEvent.mouseMove(trigger);
+
+        clock.tick(OPEN_DELAY);
+
+        await flushMicrotasks();
+
+        expect(screen.getByText('Content')).not.to.equal(null);
+        expect(handleChange.callCount).to.equal(1);
+        expect(handleChange.firstCall.args[0]).to.equal(false);
+      });
+    });
+
+    describe('prop: defaultOpen', () => {
+      it('should open when the component is rendered', async () => {
+        await render(<TestTooltip rootProps={{ defaultOpen: true }} />);
+
+        await flushMicrotasks();
+
+        expect(screen.getByText('Content')).not.to.equal(null);
+      });
+
+      it('should not open when the component is rendered and open is controlled', async () => {
+        await render(<TestTooltip rootProps={{ defaultOpen: true, open: false }} />);
+
+        await flushMicrotasks();
+
+        expect(screen.queryByText('Content')).to.equal(null);
+      });
+
+      it('should not close when the component is rendered and open is controlled', async () => {
+        await render(<TestTooltip rootProps={{ defaultOpen: true, open: true }} />);
+
+        await flushMicrotasks();
+
+        expect(screen.getByText('Content')).not.to.equal(null);
+      });
+
+      it('should remain uncontrolled', async () => {
+        await render(<TestTooltip rootProps={{ defaultOpen: true }} />);
+
+        await flushMicrotasks();
+
+        expect(screen.getByText('Content')).not.to.equal(null);
+
+        const trigger = screen.getByRole('button');
+
+        fireEvent.mouseLeave(trigger);
+
+        await flushMicrotasks();
+
+        expect(screen.queryByText('Content')).to.equal(null);
+      });
+    });
+
+    describe('prop: delay', () => {
+      clock.withFakeTimers();
+
+      it('should open after rest delay', async () => {
+        await render(<TestTooltip triggerProps={{ delay: 100 }} />);
+
+        const trigger = screen.getByRole('button');
+
+        fireEvent.mouseEnter(trigger);
+        fireEvent.mouseMove(trigger);
+
+        await flushMicrotasks();
+
+        expect(screen.queryByText('Content')).to.equal(null);
+
+        clock.tick(100);
+
+        await flushMicrotasks();
+
+        expect(screen.getByText('Content')).not.to.equal(null);
+      });
+    });
+
+    describe('prop: closeDelay', () => {
+      clock.withFakeTimers();
+
+      it('should close after delay', async () => {
+        await render(<TestTooltip triggerProps={{ closeDelay: 100 }} />);
+
+        const trigger = screen.getByRole('button');
+
+        fireEvent.mouseEnter(trigger);
+        fireEvent.mouseMove(trigger);
+
+        clock.tick(OPEN_DELAY);
+
+        await flushMicrotasks();
+
+        expect(screen.getByText('Content')).not.to.equal(null);
+
+        fireEvent.mouseLeave(trigger);
+
+        expect(screen.getByText('Content')).not.to.equal(null);
+
+        clock.tick(100);
+
+        expect(screen.queryByText('Content')).to.equal(null);
+      });
+    });
+
+    describe('prop: actionsRef', () => {
+      it('unmounts the tooltip when the `unmount` method is called', async () => {
+        const actionsRef = {
+          current: {
+            unmount: spy(),
+            close: spy(),
+          },
+        };
+
+        const { user } = await render(
+          <TestTooltip
             rootProps={{
-              open,
-              onOpenChange: (nextOpen) => {
-                handleChange(open);
-                setOpen(nextOpen);
+              actionsRef,
+              onOpenChange: (open, details) => {
+                details.preventUnmountOnClose();
               },
             }}
-          />
+          />,
         );
-      }
 
-      await render(<App />);
+        const trigger = screen.getByTestId('trigger');
+        await user.hover(trigger);
 
-      expect(screen.queryByText('Content')).to.equal(null);
+        await waitFor(() => {
+          expect(screen.queryByTestId('positioner')).not.to.equal(null);
+        });
 
-      const trigger = screen.getByRole('button');
+        await user.unhover(trigger);
 
-      fireEvent.mouseEnter(trigger);
-      fireEvent.mouseMove(trigger);
+        await waitFor(() => {
+          expect(screen.queryByTestId('positioner')).not.to.equal(null);
+        });
 
-      clock.tick(OPEN_DELAY);
+        await act(async () => actionsRef.current.unmount());
 
-      await flushMicrotasks();
-
-      expect(screen.getByText('Content')).not.to.equal(null);
-
-      fireEvent.mouseLeave(trigger);
-
-      expect(screen.queryByText('Content')).to.equal(null);
-      expect(handleChange.callCount).to.equal(2);
-      expect(handleChange.firstCall.args[0]).to.equal(false);
-      expect(handleChange.secondCall.args[0]).to.equal(true);
-    });
-
-    it('should not call onChange when the open state does not change', async () => {
-      const handleChange = spy();
-
-      function App() {
-        const [open, setOpen] = React.useState(false);
-
-        return (
-          <ContainedTriggerTooltip
-            rootProps={{
-              open,
-              onOpenChange: (nextOpen) => {
-                handleChange(open);
-                setOpen(nextOpen);
-              },
-            }}
-          />
-        );
-      }
-
-      await render(<App />);
-
-      expect(screen.queryByText('Content')).to.equal(null);
-
-      const trigger = screen.getByRole('button');
-
-      fireEvent.mouseEnter(trigger);
-      fireEvent.mouseMove(trigger);
-
-      clock.tick(OPEN_DELAY);
-
-      await flushMicrotasks();
-
-      expect(screen.getByText('Content')).not.to.equal(null);
-      expect(handleChange.callCount).to.equal(1);
-      expect(handleChange.firstCall.args[0]).to.equal(false);
-    });
-  });
-
-  describe('prop: defaultOpen', () => {
-    it('should open when the component is rendered', async () => {
-      await render(<ContainedTriggerTooltip rootProps={{ defaultOpen: true }} />);
-
-      await flushMicrotasks();
-
-      expect(screen.getByText('Content')).not.to.equal(null);
-    });
-
-    it('should not open when the component is rendered and open is controlled', async () => {
-      await render(
-        <ContainedTriggerTooltip rootProps={{ defaultOpen: true, open: false }} />,
-      );
-
-      await flushMicrotasks();
-
-      expect(screen.queryByText('Content')).to.equal(null);
-    });
-
-    it('should not close when the component is rendered and open is controlled', async () => {
-      await render(<ContainedTriggerTooltip rootProps={{ defaultOpen: true, open: true }} />);
-
-      await flushMicrotasks();
-
-      expect(screen.getByText('Content')).not.to.equal(null);
-    });
-
-    it('should remain uncontrolled', async () => {
-      await render(<ContainedTriggerTooltip rootProps={{ defaultOpen: true }} />);
-
-      await flushMicrotasks();
-
-      expect(screen.getByText('Content')).not.to.equal(null);
-
-      const trigger = screen.getByRole('button');
-
-      fireEvent.mouseLeave(trigger);
-
-      await flushMicrotasks();
-
-      expect(screen.queryByText('Content')).to.equal(null);
-    });
-  });
-
-  describe('prop: delay', () => {
-    clock.withFakeTimers();
-
-    it('should open after rest delay', async () => {
-      await render(<ContainedTriggerTooltip triggerProps={{ delay: 100 }} />);
-
-      const trigger = screen.getByRole('button');
-
-      fireEvent.mouseEnter(trigger);
-      fireEvent.mouseMove(trigger);
-
-      await flushMicrotasks();
-
-      expect(screen.queryByText('Content')).to.equal(null);
-
-      clock.tick(100);
-
-      await flushMicrotasks();
-
-      expect(screen.getByText('Content')).not.to.equal(null);
-    });
-  });
-
-  describe('prop: closeDelay', () => {
-    clock.withFakeTimers();
-
-    it('should close after delay', async () => {
-      await render(<ContainedTriggerTooltip triggerProps={{ closeDelay: 100 }} />);
-
-      const trigger = screen.getByRole('button');
-
-      fireEvent.mouseEnter(trigger);
-      fireEvent.mouseMove(trigger);
-
-      clock.tick(OPEN_DELAY);
-
-      await flushMicrotasks();
-
-      expect(screen.getByText('Content')).not.to.equal(null);
-
-      fireEvent.mouseLeave(trigger);
-
-      expect(screen.getByText('Content')).not.to.equal(null);
-
-      clock.tick(100);
-
-      expect(screen.queryByText('Content')).to.equal(null);
-    });
-  });
-
-  describe('prop: actionsRef', () => {
-    it('unmounts the tooltip when the `unmount` method is called', async () => {
-      const actionsRef = {
-        current: {
-          unmount: spy(),
-          close: spy(),
-        },
-      };
-
-      const { user } = await render(
-        <ContainedTriggerTooltip
-          rootProps={{
-            actionsRef,
-            onOpenChange: (open, details) => {
-              details.preventUnmountOnClose();
-            },
-          }}
-        />,
-      );
-
-      const trigger = screen.getByTestId('trigger');
-      await user.hover(trigger);
-
-      await waitFor(() => {
-        expect(screen.queryByTestId('positioner')).not.to.equal(null);
-      });
-
-      await user.unhover(trigger);
-
-      await waitFor(() => {
-        expect(screen.queryByTestId('positioner')).not.to.equal(null);
-      });
-
-      await act(async () => actionsRef.current.unmount());
-
-      await waitFor(() => {
-        expect(screen.queryByTestId('positioner')).to.equal(null);
+        await waitFor(() => {
+          expect(screen.queryByTestId('positioner')).to.equal(null);
+        });
       });
     });
-  });
 
-  describe.skipIf(isJSDOM)('prop: onOpenChangeComplete', () => {
-    it('is called on close when there is no exit animation defined', async () => {
-      const onOpenChangeComplete = spy();
+    describe.skipIf(isJSDOM)('prop: onOpenChangeComplete', () => {
+      it('is called on close when there is no exit animation defined', async () => {
+        const onOpenChangeComplete = spy();
 
-      function Test() {
-        const [open, setOpen] = React.useState(true);
-        return (
-          <div>
-            <button onClick={() => setOpen(false)}>Close</button>
-            <Tooltip.Root open={open} onOpenChangeComplete={onOpenChangeComplete}>
-              <Tooltip.Portal>
-                <Tooltip.Positioner>
-                  <Tooltip.Popup data-testid="popup" />
-                </Tooltip.Positioner>
-              </Tooltip.Portal>
-            </Tooltip.Root>
-          </div>
-        );
-      }
+        function Test() {
+          const [open, setOpen] = React.useState(true);
+          return (
+            <div>
+              <button onClick={() => setOpen(false)}>Close</button>
+              <Tooltip.Root open={open} onOpenChangeComplete={onOpenChangeComplete}>
+                <Tooltip.Portal>
+                  <Tooltip.Positioner>
+                    <Tooltip.Popup data-testid="popup" />
+                  </Tooltip.Positioner>
+                </Tooltip.Portal>
+              </Tooltip.Root>
+            </div>
+          );
+        }
 
-      const { user } = await render(<Test />);
+        const { user } = await render(<Test />);
 
-      const closeButton = screen.getByText('Close');
-      await user.click(closeButton);
+        const closeButton = screen.getByText('Close');
+        await user.click(closeButton);
 
-      await waitFor(() => {
-        expect(screen.queryByTestId('popup')).to.equal(null);
+        await waitFor(() => {
+          expect(screen.queryByTestId('popup')).to.equal(null);
+        });
+
+        expect(onOpenChangeComplete.firstCall.args[0]).to.equal(true);
+        expect(onOpenChangeComplete.lastCall.args[0]).to.equal(false);
       });
 
-      expect(onOpenChangeComplete.firstCall.args[0]).to.equal(true);
-      expect(onOpenChangeComplete.lastCall.args[0]).to.equal(false);
-    });
+      it('is called on close when the exit animation finishes', async () => {
+        globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
 
-    it('is called on close when the exit animation finishes', async () => {
-      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+        const onOpenChangeComplete = spy();
 
-      const onOpenChangeComplete = spy();
-
-      function Test() {
-        const style = `
+        function Test() {
+          const style = `
           @keyframes test-anim {
             to {
               opacity: 0;
@@ -390,82 +386,82 @@ describe('<Tooltip.Root />', () => {
           }
         `;
 
-        const [open, setOpen] = React.useState(true);
+          const [open, setOpen] = React.useState(true);
 
-        return (
-          <div>
-            {/* eslint-disable-next-line react/no-danger */}
-            <style dangerouslySetInnerHTML={{ __html: style }} />
-            <button onClick={() => setOpen(false)}>Close</button>
-            <Tooltip.Root open={open} onOpenChangeComplete={onOpenChangeComplete}>
-              <Tooltip.Portal>
-                <Tooltip.Positioner>
-                  <Tooltip.Popup className="animation-test-indicator" data-testid="popup" />
-                </Tooltip.Positioner>
-              </Tooltip.Portal>
-            </Tooltip.Root>
-          </div>
-        );
-      }
+          return (
+            <div>
+              {/* eslint-disable-next-line react/no-danger */}
+              <style dangerouslySetInnerHTML={{ __html: style }} />
+              <button onClick={() => setOpen(false)}>Close</button>
+              <Tooltip.Root open={open} onOpenChangeComplete={onOpenChangeComplete}>
+                <Tooltip.Portal>
+                  <Tooltip.Positioner>
+                    <Tooltip.Popup className="animation-test-indicator" data-testid="popup" />
+                  </Tooltip.Positioner>
+                </Tooltip.Portal>
+              </Tooltip.Root>
+            </div>
+          );
+        }
 
-      const { user } = await render(<Test />);
+        const { user } = await render(<Test />);
 
-      expect(screen.getByTestId('popup')).not.to.equal(null);
+        expect(screen.getByTestId('popup')).not.to.equal(null);
 
-      // Wait for open animation to finish
-      await waitFor(() => {
+        // Wait for open animation to finish
+        await waitFor(() => {
+          expect(onOpenChangeComplete.firstCall.args[0]).to.equal(true);
+        });
+
+        const closeButton = screen.getByText('Close');
+        await user.click(closeButton);
+
+        await waitFor(() => {
+          expect(screen.queryByTestId('popup')).to.equal(null);
+        });
+
+        expect(onOpenChangeComplete.lastCall.args[0]).to.equal(false);
+      });
+
+      it('is called on open when there is no enter animation defined', async () => {
+        const onOpenChangeComplete = spy();
+
+        function Test() {
+          const [open, setOpen] = React.useState(false);
+          return (
+            <div>
+              <button onClick={() => setOpen(true)}>Open</button>
+              <Tooltip.Root open={open} onOpenChangeComplete={onOpenChangeComplete}>
+                <Tooltip.Portal>
+                  <Tooltip.Positioner>
+                    <Tooltip.Popup data-testid="popup" />
+                  </Tooltip.Positioner>
+                </Tooltip.Portal>
+              </Tooltip.Root>
+            </div>
+          );
+        }
+
+        const { user } = await render(<Test />);
+
+        const openButton = screen.getByText('Open');
+        await user.click(openButton);
+
+        await waitFor(() => {
+          expect(screen.queryByTestId('popup')).not.to.equal(null);
+        });
+
+        expect(onOpenChangeComplete.callCount).to.equal(2);
         expect(onOpenChangeComplete.firstCall.args[0]).to.equal(true);
       });
 
-      const closeButton = screen.getByText('Close');
-      await user.click(closeButton);
+      it('is called on open when the enter animation finishes', async () => {
+        globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
 
-      await waitFor(() => {
-        expect(screen.queryByTestId('popup')).to.equal(null);
-      });
+        const onOpenChangeComplete = spy();
 
-      expect(onOpenChangeComplete.lastCall.args[0]).to.equal(false);
-    });
-
-    it('is called on open when there is no enter animation defined', async () => {
-      const onOpenChangeComplete = spy();
-
-      function Test() {
-        const [open, setOpen] = React.useState(false);
-        return (
-          <div>
-            <button onClick={() => setOpen(true)}>Open</button>
-            <Tooltip.Root open={open} onOpenChangeComplete={onOpenChangeComplete}>
-              <Tooltip.Portal>
-                <Tooltip.Positioner>
-                  <Tooltip.Popup data-testid="popup" />
-                </Tooltip.Positioner>
-              </Tooltip.Portal>
-            </Tooltip.Root>
-          </div>
-        );
-      }
-
-      const { user } = await render(<Test />);
-
-      const openButton = screen.getByText('Open');
-      await user.click(openButton);
-
-      await waitFor(() => {
-        expect(screen.queryByTestId('popup')).not.to.equal(null);
-      });
-
-      expect(onOpenChangeComplete.callCount).to.equal(2);
-      expect(onOpenChangeComplete.firstCall.args[0]).to.equal(true);
-    });
-
-    it('is called on open when the enter animation finishes', async () => {
-      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
-
-      const onOpenChangeComplete = spy();
-
-      function Test() {
-        const style = `
+        function Test() {
+          const style = `
           @keyframes test-anim {
             from {
               opacity: 0;
@@ -477,63 +473,63 @@ describe('<Tooltip.Root />', () => {
           }
         `;
 
-        const [open, setOpen] = React.useState(false);
+          const [open, setOpen] = React.useState(false);
 
-        return (
-          <div>
-            {/* eslint-disable-next-line react/no-danger */}
-            <style dangerouslySetInnerHTML={{ __html: style }} />
-            <button onClick={() => setOpen(true)}>Open</button>
-            <Tooltip.Root
-              open={open}
-              onOpenChange={setOpen}
-              onOpenChangeComplete={onOpenChangeComplete}
-            >
-              <Tooltip.Portal>
-                <Tooltip.Positioner>
-                  <Tooltip.Popup className="animation-test-indicator" data-testid="popup" />
-                </Tooltip.Positioner>
-              </Tooltip.Portal>
-            </Tooltip.Root>
-          </div>
-        );
-      }
+          return (
+            <div>
+              {/* eslint-disable-next-line react/no-danger */}
+              <style dangerouslySetInnerHTML={{ __html: style }} />
+              <button onClick={() => setOpen(true)}>Open</button>
+              <Tooltip.Root
+                open={open}
+                onOpenChange={setOpen}
+                onOpenChangeComplete={onOpenChangeComplete}
+              >
+                <Tooltip.Portal>
+                  <Tooltip.Positioner>
+                    <Tooltip.Popup className="animation-test-indicator" data-testid="popup" />
+                  </Tooltip.Positioner>
+                </Tooltip.Portal>
+              </Tooltip.Root>
+            </div>
+          );
+        }
 
-      const { user } = await render(<Test />);
+        const { user } = await render(<Test />);
 
-      const openButton = screen.getByText('Open');
-      await user.click(openButton);
+        const openButton = screen.getByText('Open');
+        await user.click(openButton);
 
-      // Wait for open animation to finish
-      await waitFor(() => {
-        expect(onOpenChangeComplete.firstCall.args[0]).to.equal(true);
+        // Wait for open animation to finish
+        await waitFor(() => {
+          expect(onOpenChangeComplete.firstCall.args[0]).to.equal(true);
+        });
+
+        expect(screen.queryByTestId('popup')).not.to.equal(null);
       });
 
-      expect(screen.queryByTestId('popup')).not.to.equal(null);
+      it('does not get called on mount when not open', async () => {
+        const onOpenChangeComplete = spy();
+
+        await render(
+          <Tooltip.Root onOpenChangeComplete={onOpenChangeComplete}>
+            <Tooltip.Portal>
+              <Tooltip.Positioner>
+                <Tooltip.Popup data-testid="popup" />
+              </Tooltip.Positioner>
+            </Tooltip.Portal>
+          </Tooltip.Root>,
+        );
+
+        expect(onOpenChangeComplete.callCount).to.equal(0);
+      });
     });
 
-    it('does not get called on mount when not open', async () => {
-      const onOpenChangeComplete = spy();
+    describe.skipIf(isJSDOM)('animations', () => {
+      it('toggles instant animations for adjacent tooltips only while opening', async () => {
+        globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
 
-      await render(
-        <Tooltip.Root onOpenChangeComplete={onOpenChangeComplete}>
-          <Tooltip.Portal>
-            <Tooltip.Positioner>
-              <Tooltip.Popup data-testid="popup" />
-            </Tooltip.Positioner>
-          </Tooltip.Portal>
-        </Tooltip.Root>,
-      );
-
-      expect(onOpenChangeComplete.callCount).to.equal(0);
-    });
-  });
-
-  describe.skipIf(isJSDOM)('animations', () => {
-    it('toggles instant animations for adjacent tooltips only while opening', async () => {
-      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
-
-      const style = `
+        const style = `
           .tooltip {
             transition: opacity 20ms;
           }
@@ -547,258 +543,251 @@ describe('<Tooltip.Root />', () => {
           }
         `;
 
-      const { user } = await render(
-        <Tooltip.Provider>
-          {/* eslint-disable-next-line react/no-danger */}
-          <style dangerouslySetInnerHTML={{ __html: style }} />
-          <Tooltip.Root>
-            <Tooltip.Trigger data-testid="trigger-1" delay={0}>
-              First
-            </Tooltip.Trigger>
-            <Tooltip.Portal>
-              <Tooltip.Positioner>
-                <Tooltip.Popup className="tooltip" data-testid="popup-1">
-                  First tooltip
-                </Tooltip.Popup>
-              </Tooltip.Positioner>
-            </Tooltip.Portal>
-          </Tooltip.Root>
-          <Tooltip.Root>
-            <Tooltip.Trigger data-testid="trigger-2" delay={0}>
-              Second
-            </Tooltip.Trigger>
-            <Tooltip.Portal>
-              <Tooltip.Positioner>
-                <Tooltip.Popup className="tooltip" data-testid="popup-2">
-                  Second tooltip
-                </Tooltip.Popup>
-              </Tooltip.Positioner>
-            </Tooltip.Portal>
-          </Tooltip.Root>
-        </Tooltip.Provider>,
-      );
-
-      const firstTrigger = screen.getByTestId('trigger-1');
-      const secondTrigger = screen.getByTestId('trigger-2');
-
-      await user.hover(firstTrigger);
-
-      const firstPopup = await screen.findByTestId('popup-1');
-      expect(firstPopup.dataset.instant).to.equal(undefined);
-
-      await user.unhover(firstTrigger);
-      await user.hover(secondTrigger);
-
-      const secondPopup = await screen.findByTestId('popup-2');
-
-      await waitFor(() => {
-        expect(secondPopup.dataset.instant).to.equal('delay');
-        expect(secondPopup.getAnimations().length).to.equal(0);
-      });
-
-      await user.unhover(secondTrigger);
-
-      await waitFor(() => {
-        expect(secondPopup.dataset.endingStyle).to.equal('');
-        expect(secondPopup.dataset.instant).to.equal(undefined);
-        expect(secondPopup.getAnimations().length).to.equal(1);
-      });
-    });
-  });
-
-  describe('prop: disabled', () => {
-    it('should not open when disabled', async () => {
-      await render(
-        <ContainedTriggerTooltip rootProps={{ disabled: true }} triggerProps={{ delay: 0 }} />,
-      );
-
-      const trigger = screen.getByRole('button');
-
-      fireEvent.pointerDown(trigger, { pointerType: 'mouse' });
-      fireEvent.mouseEnter(trigger);
-      fireEvent.mouseMove(trigger);
-
-      await flushMicrotasks();
-
-      expect(screen.queryByText('Content')).to.equal(null);
-
-      await act(async () => trigger.focus());
-
-      expect(screen.queryByText('Content')).to.equal(null);
-    });
-
-    it('should close if open when becoming disabled', async () => {
-      function App() {
-        const [disabled, setDisabled] = React.useState(false);
-        return (
-          <div>
-            <ContainedTriggerTooltip
-              rootProps={{ defaultOpen: true, disabled }}
-              triggerProps={{ delay: 0 }}
-            />
-            <button
-              data-testid="disabled"
-              onClick={() => {
-                setDisabled(true);
-              }}
-            />
-          </div>
+        const { user } = await render(
+          <Tooltip.Provider>
+            {/* eslint-disable-next-line react/no-danger */}
+            <style dangerouslySetInnerHTML={{ __html: style }} />
+            <Tooltip.Root>
+              <Tooltip.Trigger data-testid="trigger-1" delay={0}>
+                First
+              </Tooltip.Trigger>
+              <Tooltip.Portal>
+                <Tooltip.Positioner>
+                  <Tooltip.Popup className="tooltip" data-testid="popup-1">
+                    First tooltip
+                  </Tooltip.Popup>
+                </Tooltip.Positioner>
+              </Tooltip.Portal>
+            </Tooltip.Root>
+            <Tooltip.Root>
+              <Tooltip.Trigger data-testid="trigger-2" delay={0}>
+                Second
+              </Tooltip.Trigger>
+              <Tooltip.Portal>
+                <Tooltip.Positioner>
+                  <Tooltip.Popup className="tooltip" data-testid="popup-2">
+                    Second tooltip
+                  </Tooltip.Popup>
+                </Tooltip.Positioner>
+              </Tooltip.Portal>
+            </Tooltip.Root>
+          </Tooltip.Provider>,
         );
-      }
 
-      await render(<App />);
+        const firstTrigger = screen.getByTestId('trigger-1');
+        const secondTrigger = screen.getByTestId('trigger-2');
 
-      expect(screen.queryByText('Content')).not.to.equal(null);
+        await user.hover(firstTrigger);
 
-      const disabledButton = screen.getByTestId('disabled');
-      fireEvent.click(disabledButton);
+        const firstPopup = await screen.findByTestId('popup-1');
+        expect(firstPopup.dataset.instant).to.equal(undefined);
 
-      expect(screen.queryByText('Content')).to.equal(null);
+        await user.unhover(firstTrigger);
+        await user.hover(secondTrigger);
+
+        const secondPopup = await screen.findByTestId('popup-2');
+
+        await waitFor(() => {
+          expect(secondPopup.dataset.instant).to.equal('delay');
+          expect(secondPopup.getAnimations().length).to.equal(0);
+        });
+
+        await user.unhover(secondTrigger);
+
+        await waitFor(() => {
+          expect(secondPopup.dataset.endingStyle).to.equal('');
+          expect(secondPopup.dataset.instant).to.equal(undefined);
+          expect(secondPopup.getAnimations().length).to.equal(1);
+        });
+      });
     });
 
-    it('does not throw error when combined with defaultOpen', async () => {
-      await render(<ContainedTriggerTooltip rootProps={{ defaultOpen: true, disabled: true }} />);
+    describe('prop: disabled', () => {
+      it('should not open when disabled', async () => {
+        await render(<TestTooltip rootProps={{ disabled: true }} triggerProps={{ delay: 0 }} />);
 
-      expect(screen.queryByText('Content')).to.equal(null);
-    });
-  });
+        const trigger = screen.getByRole('button');
 
-  describe('prop: disableHoverablePopup', () => {
-    it('applies pointer-events: none to the positioner when `disableHoverablePopup = true`', async () => {
-      await render(
-        <ContainedTriggerTooltip
-          rootProps={{ disableHoverablePopup: true }}
-          triggerProps={{ delay: 0 }}
-        />,
-      );
+        fireEvent.pointerDown(trigger, { pointerType: 'mouse' });
+        fireEvent.mouseEnter(trigger);
+        fireEvent.mouseMove(trigger);
 
-      const trigger = screen.getByRole('button');
+        await flushMicrotasks();
 
-      fireEvent.pointerDown(trigger, { pointerType: 'mouse' });
-      fireEvent.mouseEnter(trigger);
-      fireEvent.mouseMove(trigger);
+        expect(screen.queryByText('Content')).to.equal(null);
 
-      await flushMicrotasks();
+        await act(async () => trigger.focus());
 
-      expect(screen.getByTestId('positioner').style.pointerEvents).to.equal('none');
-    });
-
-    it('does not apply pointer-events: none to the positioner when `disableHoverablePopup = false`', async () => {
-      await render(
-        <ContainedTriggerTooltip
-          rootProps={{ disableHoverablePopup: false }}
-          triggerProps={{ delay: 0 }}
-        />,
-      );
-
-      const trigger = screen.getByRole('button');
-
-      fireEvent.pointerDown(trigger, { pointerType: 'mouse' });
-      fireEvent.mouseEnter(trigger);
-      fireEvent.mouseMove(trigger);
-
-      await flushMicrotasks();
-
-      expect(screen.getByTestId('positioner').style.pointerEvents).to.equal('');
-    });
-  });
-
-  describe('BaseUIChangeEventDetails', () => {
-    it('onOpenChange cancel() prevents opening while uncontrolled', async () => {
-      await render(
-        <ContainedTriggerTooltip
-          rootProps={{
-            onOpenChange: (nextOpen, eventDetails) => {
-              if (nextOpen) {
-                eventDetails.cancel();
-              }
-            },
-          }}
-          triggerProps={{ delay: 0 }}
-        />,
-      );
-
-      const trigger = screen.getByRole('button');
-      fireEvent.pointerDown(trigger, { pointerType: 'mouse' });
-      fireEvent.mouseEnter(trigger);
-      fireEvent.mouseMove(trigger);
-
-      await flushMicrotasks();
-
-      expect(screen.queryByText('Content')).to.equal(null);
-    });
-
-    it('allowPropagation() prevents stopPropagation on Escape while still closing', async () => {
-      const stopPropagationSpy = spy(Event.prototype as any, 'stopPropagation');
-
-      await render(
-        <ContainedTriggerTooltip
-          rootProps={{
-            defaultOpen: true,
-            onOpenChange: (nextOpen, eventDetails) => {
-              if (!nextOpen && eventDetails.reason === REASONS.escapeKey) {
-                eventDetails.allowPropagation();
-              }
-            },
-          }}
-          triggerProps={{ delay: 0 }}
-        />,
-      );
-
-      expect(screen.getByText('Content')).not.to.equal(null);
-
-      fireEvent.keyDown(document.body, { key: 'Escape' });
-
-      await waitFor(() => {
         expect(screen.queryByText('Content')).to.equal(null);
       });
 
-      expect(stopPropagationSpy.called).to.equal(false);
-      stopPropagationSpy.restore();
+      it('should close if open when becoming disabled', async () => {
+        function App() {
+          const [disabled, setDisabled] = React.useState(false);
+          return (
+            <div>
+              <TestTooltip
+                rootProps={{ defaultOpen: true, disabled }}
+                triggerProps={{ delay: 0 }}
+              />
+              <button
+                data-testid="disabled"
+                onClick={() => {
+                  setDisabled(true);
+                }}
+              />
+            </div>
+          );
+        }
+
+        await render(<App />);
+
+        expect(screen.queryByText('Content')).not.to.equal(null);
+
+        const disabledButton = screen.getByTestId('disabled');
+        fireEvent.click(disabledButton);
+
+        expect(screen.queryByText('Content')).to.equal(null);
+      });
+
+      it('does not throw error when combined with defaultOpen', async () => {
+        await render(<TestTooltip rootProps={{ defaultOpen: true, disabled: true }} />);
+
+        expect(screen.queryByText('Content')).to.equal(null);
+      });
     });
-  });
 
-describe('dismissal', () => {
-    clock.withFakeTimers();
+    describe('prop: disableHoverablePopup', () => {
+      it('applies pointer-events: none to the positioner when `disableHoverablePopup = true`', async () => {
+        await render(
+          <TestTooltip rootProps={{ disableHoverablePopup: true }} triggerProps={{ delay: 0 }} />,
+        );
 
-    it('should not open when the trigger was clicked before delay duration', async () => {
-      await render(<ContainedTriggerTooltip />);
+        const trigger = screen.getByRole('button');
 
-      const trigger = screen.getByRole('button');
+        fireEvent.pointerDown(trigger, { pointerType: 'mouse' });
+        fireEvent.mouseEnter(trigger);
+        fireEvent.mouseMove(trigger);
 
-      fireEvent.pointerDown(trigger, { pointerType: 'mouse' });
-      fireEvent.mouseEnter(trigger);
-      fireEvent.mouseMove(trigger);
+        await flushMicrotasks();
 
-      clock.tick(OPEN_DELAY / 2);
+        expect(screen.getByTestId('positioner').style.pointerEvents).to.equal('none');
+      });
 
-      fireEvent.click(trigger);
+      it('does not apply pointer-events: none to the positioner when `disableHoverablePopup = false`', async () => {
+        await render(
+          <TestTooltip rootProps={{ disableHoverablePopup: false }} triggerProps={{ delay: 0 }} />,
+        );
 
-      clock.tick(OPEN_DELAY / 2);
+        const trigger = screen.getByRole('button');
 
-      await flushMicrotasks();
+        fireEvent.pointerDown(trigger, { pointerType: 'mouse' });
+        fireEvent.mouseEnter(trigger);
+        fireEvent.mouseMove(trigger);
 
-      expect(screen.queryByText('Content')).to.equal(null);
+        await flushMicrotasks();
+
+        expect(screen.getByTestId('positioner').style.pointerEvents).to.equal('');
+      });
     });
 
-    it('should close when the trigger is clicked after delay duration', async () => {
-      await render(<ContainedTriggerTooltip />);
+    describe('BaseUIChangeEventDetails', () => {
+      it('onOpenChange cancel() prevents opening while uncontrolled', async () => {
+        await render(
+          <TestTooltip
+            rootProps={{
+              onOpenChange: (nextOpen, eventDetails) => {
+                if (nextOpen) {
+                  eventDetails.cancel();
+                }
+              },
+            }}
+            triggerProps={{ delay: 0 }}
+          />,
+        );
 
-      const trigger = screen.getByRole('button');
+        const trigger = screen.getByRole('button');
+        fireEvent.pointerDown(trigger, { pointerType: 'mouse' });
+        fireEvent.mouseEnter(trigger);
+        fireEvent.mouseMove(trigger);
 
-      fireEvent.pointerDown(trigger, { pointerType: 'mouse' });
-      fireEvent.mouseEnter(trigger);
-      fireEvent.mouseMove(trigger);
+        await flushMicrotasks();
 
-      clock.tick(OPEN_DELAY);
+        expect(screen.queryByText('Content')).to.equal(null);
+      });
 
-      await flushMicrotasks();
+      it('allowPropagation() prevents stopPropagation on Escape while still closing', async () => {
+        const stopPropagationSpy = spy(Event.prototype as any, 'stopPropagation');
 
-      expect(screen.getByText('Content')).not.to.equal(null);
+        await render(
+          <TestTooltip
+            rootProps={{
+              defaultOpen: true,
+              onOpenChange: (nextOpen, eventDetails) => {
+                if (!nextOpen && eventDetails.reason === REASONS.escapeKey) {
+                  eventDetails.allowPropagation();
+                }
+              },
+            }}
+            triggerProps={{ delay: 0 }}
+          />,
+        );
 
-      fireEvent.click(trigger);
+        expect(screen.getByText('Content')).not.to.equal(null);
 
-      expect(screen.queryByText('Content')).to.equal(null);
+        fireEvent.keyDown(document.body, { key: 'Escape' });
+
+        await waitFor(() => {
+          expect(screen.queryByText('Content')).to.equal(null);
+        });
+
+        expect(stopPropagationSpy.called).to.equal(false);
+        stopPropagationSpy.restore();
+      });
+    });
+
+    describe('dismissal', () => {
+      clock.withFakeTimers();
+
+      it('should not open when the trigger was clicked before delay duration', async () => {
+        await render(<TestTooltip />);
+
+        const trigger = screen.getByRole('button');
+
+        fireEvent.pointerDown(trigger, { pointerType: 'mouse' });
+        fireEvent.mouseEnter(trigger);
+        fireEvent.mouseMove(trigger);
+
+        clock.tick(OPEN_DELAY / 2);
+
+        fireEvent.click(trigger);
+
+        clock.tick(OPEN_DELAY / 2);
+
+        await flushMicrotasks();
+
+        expect(screen.queryByText('Content')).to.equal(null);
+      });
+
+      it('should close when the trigger is clicked after delay duration', async () => {
+        await render(<TestTooltip />);
+
+        const trigger = screen.getByRole('button');
+
+        fireEvent.pointerDown(trigger, { pointerType: 'mouse' });
+        fireEvent.mouseEnter(trigger);
+        fireEvent.mouseMove(trigger);
+
+        clock.tick(OPEN_DELAY);
+
+        await flushMicrotasks();
+
+        expect(screen.getByText('Content')).not.to.equal(null);
+
+        fireEvent.click(trigger);
+
+        expect(screen.queryByText('Content')).to.equal(null);
+      });
     });
   });
 });
@@ -822,7 +811,6 @@ function ContainedTriggerTooltip(props: TestTooltipProps) {
     portalProps,
     positionerProps,
     popupProps,
-    portalChildren,
     beforeTrigger,
     betweenTriggerAndPortal,
     afterPortal,
@@ -830,6 +818,8 @@ function ContainedTriggerTooltip(props: TestTooltipProps) {
 
   const { children: triggerChildren, ...restTriggerProps } = triggerProps ?? {};
   const { children: popupChildren, ...restPopupProps } = popupProps ?? {};
+  const { children: portalChildren, ...restPortalProps } = portalProps ?? {};
+
   const triggerContent = triggerChildren ?? 'Toggle';
   const popupContent = popupChildren ?? 'Content';
 
@@ -840,7 +830,7 @@ function ContainedTriggerTooltip(props: TestTooltipProps) {
         {triggerContent}
       </Tooltip.Trigger>
       {betweenTriggerAndPortal}
-      <Tooltip.Portal {...portalProps}>
+      <Tooltip.Portal {...restPortalProps}>
         {portalChildren}
         <Tooltip.Positioner data-testid="positioner" {...positionerProps}>
           <Tooltip.Popup data-testid="popup" {...restPopupProps}>
@@ -850,5 +840,48 @@ function ContainedTriggerTooltip(props: TestTooltipProps) {
       </Tooltip.Portal>
       {afterPortal}
     </Tooltip.Root>
+  );
+}
+
+function DetachedTriggerTooltip(props: TestTooltipProps) {
+  const {
+    rootProps,
+    triggerProps,
+    portalProps,
+    positionerProps,
+    popupProps,
+    beforeTrigger,
+    betweenTriggerAndPortal,
+    afterPortal,
+  } = props;
+
+  const { children: triggerChildren, ...restTriggerProps } = triggerProps ?? {};
+  const { children: popupChildren, ...restPopupProps } = popupProps ?? {};
+  const { children: portalChildren, ...restPortalProps } = portalProps ?? {};
+
+  const triggerContent = triggerChildren ?? 'Toggle';
+  const popupContent = popupChildren ?? 'Content';
+
+  const tooltipHandle = Tooltip.createHandle();
+
+  return (
+    <React.Fragment>
+      {beforeTrigger}
+      <Tooltip.Trigger data-testid="trigger" handle={tooltipHandle} {...restTriggerProps}>
+        {triggerContent}
+      </Tooltip.Trigger>
+      {betweenTriggerAndPortal}
+      <Tooltip.Root handle={tooltipHandle} {...rootProps}>
+        <Tooltip.Portal {...restPortalProps}>
+          {portalChildren}
+          <Tooltip.Positioner data-testid="positioner" {...positionerProps}>
+            <Tooltip.Popup data-testid="popup" {...restPopupProps}>
+              {popupContent}
+            </Tooltip.Popup>
+          </Tooltip.Positioner>
+        </Tooltip.Portal>
+        {afterPortal}
+      </Tooltip.Root>
+    </React.Fragment>
   );
 }
