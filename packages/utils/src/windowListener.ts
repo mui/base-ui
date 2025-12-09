@@ -43,8 +43,8 @@ export function add<K extends Events>(
     win.addEventListener(
       type,
       (event) => {
-        for (const listener of listeners) {
-          (listener as any).call(win, event);
+        for (const l of listeners) {
+          (l as any).call(win, event);
         }
       },
       options,
