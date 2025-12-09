@@ -53,7 +53,7 @@ const element7 = useRender({
 
 expectType<React.ReactElement, typeof element7>(element7);
 
-function MyComponent() {
+function App() {
   const element = useRender({ defaultTagName: 'div' });
   return <Button render={element} />;
 }
