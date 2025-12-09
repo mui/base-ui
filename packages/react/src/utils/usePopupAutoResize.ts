@@ -1,7 +1,7 @@
 import * as React from 'react';
-import { useAnimationFrame } from '@base-ui-components/utils/useAnimationFrame';
-import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
-import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
+import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useAnimationsFinished } from './useAnimationsFinished';
 import { getCssDimensions } from './getCssDimensions';
 import { Dimensions } from '../floating-ui-react/types';

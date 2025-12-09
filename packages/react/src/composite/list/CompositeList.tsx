@@ -1,9 +1,9 @@
 /* eslint-disable no-bitwise */
 'use client';
 import * as React from 'react';
-import { useRefWithInit } from '@base-ui-components/utils/useRefWithInit';
-import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
-import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
+import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { CompositeListContext } from './CompositeListContext';
 
 export type CompositeMetadata<CustomMetadata> = { index?: number | null } & CustomMetadata;

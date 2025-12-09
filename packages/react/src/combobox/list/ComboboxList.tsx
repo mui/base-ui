@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
-import { useStore } from '@base-ui-components/utils/store';
-import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
+import { useStore } from '@base-ui/utils/store';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import {

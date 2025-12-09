@@ -1,8 +1,8 @@
 import * as React from 'react';
 import { render } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
-import { ReactStore } from '@base-ui-components/utils/store';
-import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
+import { ReactStore } from '@base-ui/utils/store';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import {
   createInitialPopupStoreState,
   PopupStoreContext,

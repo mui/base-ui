@@ -1,4 +1,4 @@
-import { Avatar } from '@base-ui-components/react/avatar';
+import { Avatar } from '@base-ui/react/avatar';
 
 export default function ExampleAvatar() {
   return (

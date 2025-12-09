@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
-import { Menu } from '@base-ui-components/react/menu';
-import { StoreInspector } from '@base-ui-components/utils/store';
+import { Menu } from '@base-ui/react/menu';
+import { StoreInspector } from '@base-ui/utils/store';
 import {
   SettingsMetadata,
   useExperimentSettings,

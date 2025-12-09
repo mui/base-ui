@@ -1,4 +1,4 @@
-import { Meter } from '@base-ui-components/react/meter';
+import { Meter } from '@base-ui/react/meter';
 
 export default function ExampleMeter() {
   return (

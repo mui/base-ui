@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
-import { InteractionType } from '@base-ui-components/utils/useEnhancedClickHandler';
-import { useStore } from '@base-ui-components/utils/store';
+import { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
+import { useStore } from '@base-ui/utils/store';
 import { FloatingFocusManager } from '../../floating-ui-react';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';

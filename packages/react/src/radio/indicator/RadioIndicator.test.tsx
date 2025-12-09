@@ -1,9 +1,9 @@
 import * as React from 'react';
 import { screen, waitFor } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
-import { Radio } from '@base-ui-components/react/radio';
+import { Radio } from '@base-ui/react/radio';
 import { expect } from 'chai';
-import { RadioGroup } from '@base-ui-components/react/radio-group';
+import { RadioGroup } from '@base-ui/react/radio-group';
 
 describe('<Radio.Indicator />', () => {
   beforeEach(() => {

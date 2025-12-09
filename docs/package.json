@@ -13,8 +13,8 @@
     "generate-llms": "node ./scripts/generateLlmTxt/index.mjs"
   },
   "dependencies": {
-    "@base-ui-components/react": "workspace:*",
-    "@base-ui-components/utils": "workspace:*",
+    "@base-ui/react": "workspace:*",
+    "@base-ui/utils": "workspace:*",
     "@emotion/cache": "^11.14.0",
     "@emotion/react": "^11.14.0",
     "@emotion/server": "^11.11.0",

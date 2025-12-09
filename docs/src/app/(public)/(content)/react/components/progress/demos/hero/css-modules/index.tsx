@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { Progress } from '@base-ui-components/react/progress';
+import { Progress } from '@base-ui/react/progress';
 import styles from './index.module.css';
 
 export default function ExampleProgress() {

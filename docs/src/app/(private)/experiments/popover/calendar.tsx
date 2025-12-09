@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { Popover } from '@base-ui-components/react';
+import { Popover } from '@base-ui/react';
 import { Ellipsis, X } from 'lucide-react';
 import { eventPopover, type EventData } from './calendar-shared';
 import styles from './calendar.module.css';

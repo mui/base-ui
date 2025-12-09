@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Collapsible } from '@base-ui-components/react/collapsible';
+import { Collapsible } from '@base-ui/react/collapsible';
 
 export default function ExampleCollapsible() {
   return (

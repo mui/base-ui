@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import demoStyles from 'docs/src/app/(public)/(content)/react/components/menu/demos/submenu/css-modules/index.module.css';
-import { Menu } from '@base-ui-components/react/menu';
+import { Menu } from '@base-ui/react/menu';
 import styles from '../perf/perf.module.css';
 
 type RowData = {
