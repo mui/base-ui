@@ -1,7 +1,7 @@
 import { isElement } from '@floating-ui/utils/dom';
-import { useId } from '@base-ui-components/utils/useId';
-import { useRefWithInit } from '@base-ui-components/utils/useRefWithInit';
-import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
+import { useId } from '@base-ui/utils/useId';
+import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import type { ReferenceType } from '../types';
 import type { BaseUIChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { useFloatingParentNodeId } from '../components/FloatingTree';

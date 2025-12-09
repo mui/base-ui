@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
-import { Popover } from '@base-ui-components/react/popover';
-import { Avatar } from '@base-ui-components/react/avatar';
+import { Popover } from '@base-ui/react/popover';
+import { Avatar } from '@base-ui/react/avatar';
 import { ArrowSvg, BellIcon, ListIcon, UserIcon } from '../../icons-tw';
 
 const demoPopover = Popover.createHandle<React.ComponentType>();

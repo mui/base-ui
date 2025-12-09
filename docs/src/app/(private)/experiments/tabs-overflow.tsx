@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { Tabs } from '@base-ui-components/react/tabs';
+import { Tabs } from '@base-ui/react/tabs';
 import classes from './tabs-overflow.module.css';
 
 const OVERFLOW_LABELS = Array.from({ length: 20 }, (_, index) => `Tab ${index + 1}`);

@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useScrollLock } from '@base-ui-components/utils/useScrollLock';
+import { useScrollLock } from '@base-ui/utils/useScrollLock';
 import {
   useDismiss,
   useInteractions,

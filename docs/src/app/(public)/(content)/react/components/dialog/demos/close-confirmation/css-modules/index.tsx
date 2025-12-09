@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
-import { AlertDialog } from '@base-ui-components/react/alert-dialog';
-import { Dialog } from '@base-ui-components/react/dialog';
+import { AlertDialog } from '@base-ui/react/alert-dialog';
+import { Dialog } from '@base-ui/react/dialog';
 import styles from './index.module.css';
 
 export default function ExampleDialog() {

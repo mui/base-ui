@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useStore } from '@base-ui-components/utils/store';
+import { useStore } from '@base-ui/utils/store';
 import type { BaseUIComponentProps, NativeButtonProps } from '../../utils/types';
 import { useToastRootContext } from '../root/ToastRootContext';
 import { useToastContext } from '../provider/ToastProviderContext';
@@ -24,6 +24,8 @@ export const ToastClose = React.forwardRef(function ToastClose(
   const { toast } = useToastRootContext();
   const expanded = useStore(store, selectors.expanded);
 
+  const [hasFocus, setHasFocus] = React.useState(false);
+
   const { getButtonProps, buttonRef } = useButton({
     disabled,
     native: nativeButton,
@@ -41,9 +43,15 @@ export const ToastClose = React.forwardRef(function ToastClose(
     state,
     props: [
       {
-        'aria-hidden': !expanded,
+        'aria-hidden': !expanded && !hasFocus,
         onClick() {
           store.closeToast(toast.id);
+        },
+        onFocus() {
+          setHasFocus(true);
+        },
+        onBlur() {
+          setHasFocus(false);
         },
       },
       elementProps,

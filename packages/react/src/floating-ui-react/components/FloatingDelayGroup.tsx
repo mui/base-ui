@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
-import { useTimeout, Timeout } from '@base-ui-components/utils/useTimeout';
-import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
+import { useTimeout, Timeout } from '@base-ui/utils/useTimeout';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 
 import { getDelay } from '../hooks/useHover';
 import type { FloatingRootContext, Delay, FloatingContext } from '../types';

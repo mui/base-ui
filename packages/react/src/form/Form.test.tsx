@@ -1,7 +1,7 @@
 import * as React from 'react';
-import { Form } from '@base-ui-components/react/form';
-import { Field } from '@base-ui-components/react/field';
-import { NumberField } from '@base-ui-components/react/number-field';
+import { Form } from '@base-ui/react/form';
+import { Field } from '@base-ui/react/field';
+import { NumberField } from '@base-ui/react/number-field';
 import { expect } from 'chai';
 import { spy } from 'sinon';
 import { createRenderer, fireEvent, screen } from '@mui/internal-test-utils';

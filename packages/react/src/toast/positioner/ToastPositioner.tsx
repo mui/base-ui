@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { isElement } from '@floating-ui/utils/dom';
-import { useStore } from '@base-ui-components/utils/store';
+import { useStore } from '@base-ui/utils/store';
 import { useAnchorPositioning, type Side, type Align } from '../../utils/useAnchorPositioning';
 import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 import { popupStateMapping } from '../../utils/popupStateMapping';

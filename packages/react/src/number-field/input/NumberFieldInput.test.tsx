@@ -2,7 +2,7 @@ import * as React from 'react';
 import { expect } from 'chai';
 import { act, screen, fireEvent } from '@mui/internal-test-utils';
 import { spy } from 'sinon';
-import { NumberField } from '@base-ui-components/react/number-field';
+import { NumberField } from '@base-ui/react/number-field';
 import { createRenderer, describeConformance } from '#test-utils';
 
 describe('<NumberField.Input />', () => {

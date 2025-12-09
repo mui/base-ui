@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { ContextMenu } from '@base-ui-components/react/context-menu';
+import { ContextMenu } from '@base-ui/react/context-menu';
 
 export default function ExampleContextMenu() {
   return (

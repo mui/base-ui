@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { isElement } from '@floating-ui/utils/dom';
-import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
-import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 
 import type { FloatingContext, FloatingRootContext } from '../types';
 import { getDocument, getTarget, isMouseLikePointerType } from '../utils';

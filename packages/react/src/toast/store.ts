@@ -1,7 +1,7 @@
-import { Store, createSelector, createSelectorMemoized } from '@base-ui-components/utils/store';
-import { generateId } from '@base-ui-components/utils/generateId';
-import { ownerDocument } from '@base-ui-components/utils/owner';
-import { Timeout } from '@base-ui-components/utils/useTimeout';
+import { Store, createSelector, createSelectorMemoized } from '@base-ui/utils/store';
+import { generateId } from '@base-ui/utils/generateId';
+import { ownerDocument } from '@base-ui/utils/owner';
+import { Timeout } from '@base-ui/utils/useTimeout';
 import {
   ToastManagerAddOptions,
   ToastManagerPromiseOptions,

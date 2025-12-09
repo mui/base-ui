@@ -1,5 +1,5 @@
-import { Slider } from '@base-ui-components/react/slider';
-import { DirectionProvider } from '@base-ui-components/react/direction-provider';
+import { Slider } from '@base-ui/react/slider';
+import { DirectionProvider } from '@base-ui/react/direction-provider';
 
 export default function ExampleDirectionProvider() {
   return (

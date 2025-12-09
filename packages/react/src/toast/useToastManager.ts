@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useStore } from '@base-ui-components/utils/store';
+import { useStore } from '@base-ui/utils/store';
 import { ToastContext } from './provider/ToastProviderContext';
 import type { ToastPositionerProps } from './positioner/ToastPositioner';
 import { selectors } from './store';
