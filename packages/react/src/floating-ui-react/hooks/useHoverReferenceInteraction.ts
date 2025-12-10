@@ -3,7 +3,6 @@ import * as ReactDOM from 'react-dom';
 import { isElement } from '@floating-ui/utils/dom';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
-import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import type { FloatingContext, FloatingRootContext } from '../types';
 import { contains, getDocument, isMouseLikePointerType } from '../utils';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
@@ -12,9 +11,8 @@ import type { UseHoverProps } from './useHover';
 import { getDelay } from './useHover';
 import { useFloatingTree } from '../components/FloatingTree';
 import {
-  getRestMs,
+  safePolygonIdentifier,
   useHoverInteractionSharedState,
-  useHoverInteractionSharedMethods,
 } from './useHoverInteractionSharedState';
 import { FloatingUIOpenChangeDetails, HTMLProps } from '../../utils/types';
 
@@ -27,6 +25,13 @@ export interface UseHoverReferenceInteractionProps extends Omit<UseHoverProps, '
    */
   isActiveTrigger?: boolean;
   triggerElementRef?: Readonly<React.RefObject<Element | null>>;
+}
+
+function getRestMs(value: number | (() => number)) {
+  if (typeof value === 'function') {
+    return value();
+  }
+  return value;
 }
 
 const EMPTY_REF: Readonly<React.RefObject<Element | null>> = { current: null };
@@ -56,32 +61,64 @@ export function useHoverReferenceInteraction(
 
   const tree = useFloatingTree(externalTree);
 
-  const handleCloseRef = useValueAsRef(handleClose);
-  const delayRef = useValueAsRef(delay);
-  const restMsRef = useValueAsRef(restMs);
-
-  const sharedState = useHoverInteractionSharedState(store);
   const {
     pointerTypeRef,
+    interactedInsideRef,
+    handlerRef: closeHandlerRef,
     blockMouseMoveRef,
+    performedPointerEventsMutationRef,
     unbindMouseMoveRef,
     restTimeoutPendingRef,
     openChangeTimeout,
     restTimeout,
     handleCloseOptionsRef,
-  } = sharedState;
+  } = useHoverInteractionSharedState(store);
 
-  const closeHandlerRef = sharedState.handlerRef;
+  const handleCloseRef = useValueAsRef(handleClose);
+  const delayRef = useValueAsRef(delay);
+  const restMsRef = useValueAsRef(restMs);
 
-  const { isClickLikeOpenEvent, closeWithDelay, cleanupMouseMoveHandler, clearPointerEvents } =
-    useHoverInteractionSharedMethods(store, sharedState, () =>
-      getDelay(delayRef.current, 'close', pointerTypeRef.current),
-    );
+  if (isActiveTrigger) {
+    // eslint-disable-next-line no-underscore-dangle
+    handleCloseOptionsRef.current = handleCloseRef.current?.__options;
+  }
 
-  useIsoLayoutEffect(() => {
-    if (isActiveTrigger) {
-      // eslint-disable-next-line no-underscore-dangle
-      handleCloseOptionsRef.current = handleCloseRef.current?.__options;
+  const isClickLikeOpenEvent = useStableCallback(() => {
+    if (interactedInsideRef.current) {
+      return true;
+    }
+
+    return dataRef.current.openEvent
+      ? ['click', 'mousedown'].includes(dataRef.current.openEvent.type)
+      : false;
+  });
+
+  const closeWithDelay = React.useCallback(
+    (event: MouseEvent, runElseBranch = true) => {
+      const closeDelay = getDelay(delayRef.current, 'close', pointerTypeRef.current);
+      if (closeDelay && !closeHandlerRef.current) {
+        openChangeTimeout.start(closeDelay, () =>
+          store.setOpen(false, createChangeEventDetails(REASONS.triggerHover, event)),
+        );
+      } else if (runElseBranch) {
+        openChangeTimeout.clear();
+        store.setOpen(false, createChangeEventDetails(REASONS.triggerHover, event));
+      }
+    },
+    [delayRef, closeHandlerRef, store, pointerTypeRef, openChangeTimeout],
+  );
+
+  const cleanupMouseMoveHandler = useStableCallback(() => {
+    unbindMouseMoveRef.current();
+    closeHandlerRef.current = undefined;
+  });
+
+  const clearPointerEvents = useStableCallback(() => {
+    if (performedPointerEventsMutationRef.current) {
+      const body = getDocument(store.select('domReferenceElement')).body;
+      body.style.pointerEvents = '';
+      body.removeAttribute(safePolygonIdentifier);
+      performedPointerEventsMutationRef.current = false;
     }
   });
 
@@ -263,10 +300,6 @@ export function useHoverReferenceInteraction(
     trigger.addEventListener('mouseleave', onMouseLeave);
 
     return () => {
-      cleanupMouseMoveHandler();
-      openChangeTimeout.clear();
-      restTimeout.clear();
-
       trigger.removeEventListener('mouseleave', onScrollMouseLeave);
 
       if (move) {
@@ -351,7 +384,9 @@ export function useHoverReferenceInteraction(
         }
 
         if (pointerTypeRef.current === 'touch') {
-          ReactDOM.flushSync(handleMouseMove);
+          ReactDOM.flushSync(() => {
+            handleMouseMove();
+          });
         } else if (isOverInactiveTrigger && currentOpen) {
           handleMouseMove();
         } else {
