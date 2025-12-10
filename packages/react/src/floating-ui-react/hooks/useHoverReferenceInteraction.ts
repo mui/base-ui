@@ -157,6 +157,8 @@ export function useHoverReferenceInteraction(
       return;
     }
 
+    const currentTrigger = triggerElementRef.current;
+
     handleCloseRef.current?.({
       ...dataRef.current.floatingContext,
       tree,
@@ -165,7 +167,7 @@ export function useHoverReferenceInteraction(
       onClose() {
         clearPointerEvents();
         cleanupMouseMoveHandler();
-        if (!isClickLikeOpenEvent()) {
+        if (!isClickLikeOpenEvent() && currentTrigger === store.select('domReferenceElement')) {
           closeWithDelay(event);
         }
       },
@@ -247,6 +249,8 @@ export function useHoverReferenceInteraction(
           openChangeTimeout.clear();
         }
 
+        const currentTrigger = triggerElementRef.current;
+
         closeHandlerRef.current = handleCloseRef.current({
           ...dataRef.current.floatingContext,
           tree,
@@ -255,7 +259,7 @@ export function useHoverReferenceInteraction(
           onClose() {
             clearPointerEvents();
             cleanupMouseMoveHandler();
-            if (!isClickLikeOpenEvent()) {
+            if (!isClickLikeOpenEvent() && currentTrigger === store.select('domReferenceElement')) {
               closeWithDelay(event, true);
             }
           },
