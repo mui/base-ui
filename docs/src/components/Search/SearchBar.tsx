@@ -11,6 +11,7 @@ import { Autocomplete } from '@base-ui/react/autocomplete';
 import { Button } from '@base-ui/react/button';
 import { Dialog } from '@base-ui/react/dialog';
 import { ScrollArea } from '@base-ui/react/scroll-area';
+import { isMac } from '@base-ui/utils/detectBrowser';
 import { CornerDownLeft, Search } from 'lucide-react';
 import { stringToUrl } from '../QuickNav/rehypeSlug.mjs';
 import './SearchBar.css';
@@ -44,37 +45,37 @@ function normalizeGroup(group: string) {
 
 function SearchItem({ result }: { result: SearchResult }) {
   return (
-    <div className="flex items-center justify-between gap-2">
-      <div className="flex items-center gap-2">
-        <span className="text-[0.9375rem] tracking-[0.016em] font-normal flex items-center gap-1 text-gray-900">
-          {result.title?.split(' ‣ ').map((part, i, arr) => (
-            <React.Fragment key={part}>
-              {part}
-              {i !== arr.length - 1 && (
-                <svg
-                  className="text-gray-300"
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="16"
-                  height="16"
-                  fill="none"
-                  viewBox="0 0 16 16"
-                >
-                  <path
-                    fill="currentColor"
-                    fillRule="evenodd"
-                    d="M5.47 13.03a.75.75 0 0 1 0-1.06L9.44 8 5.47 4.03a.75.75 0 0 1 1.06-1.06l4.5 4.5a.75.75 0 0 1 0 1.06l-4.5 4.5a.75.75 0 0 1-1.06 0"
-                    clipRule="evenodd"
-                  />
-                </svg>
-              )}
-            </React.Fragment>
-          ))}
-        </span>
-      </div>
+    <React.Fragment>
+      {result.title?.split(' ‣ ').map((part, i, arr) => (
+        <React.Fragment key={part}>
+          <span className={i === arr.length - 1 ? 'truncate text-ellipsis' : 'whitespace-nowrap'}>
+            {part}
+          </span>
+          {i !== arr.length - 1 && (
+            <svg
+              className="text-gray-300"
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              fill="none"
+              viewBox="0 0 16 16"
+            >
+              <path
+                fill="currentColor"
+                fillRule="evenodd"
+                d="M5.47 13.03a.75.75 0 0 1 0-1.06L9.44 8 5.47 4.03a.75.75 0 0 1 1.06-1.06l4.5 4.5a.75.75 0 0 1 0 1.06l-4.5 4.5a.75.75 0 0 1-1.06 0"
+                clipRule="evenodd"
+              />
+            </svg>
+          )}
+        </React.Fragment>
+      ))}
       {process.env.NODE_ENV === 'development' && result.score && (
-        <span className="text-xs opacity-70">{result.score.toFixed(2)}</span>
+        <span className="text-xs opacity-70 whitespace-nowrap ml-1.5">
+          {result.score.toFixed(2)}
+        </span>
       )}
-    </div>
+    </React.Fragment>
   );
 }
 
@@ -182,6 +183,12 @@ export function SearchBar({
     handleCloseDialog(false);
   }, [handleCloseDialog]);
 
+  const showCmdSymbol = React.useSyncExternalStore(
+    () => () => {},
+    () => enableKeyboardShortcut && isMac,
+    () => null,
+  );
+
   // Reusable search input component
   const searchInput = (
     <div className="flex items-center gap-2 h-8 rounded-lg bg-popover px-3">
@@ -211,8 +218,10 @@ export function SearchBar({
           <Autocomplete.Item
             key={result.id || i}
             value={result}
-            render={<Link href={buildResultUrl(result)} onNavigate={handleItemClick} />}
-            className="flex h-8 cursor-default select-none items-center rounded-lg pl-9 pr-2 text-[0.9375rem] tracking-[0.016em] font-normal leading-none outline-none data-highlighted:bg-gray-100"
+            render={
+              <Link href={buildResultUrl(result)} onNavigate={handleItemClick} tabIndex={-1} />
+            }
+            className="flex h-8 cursor-default select-none items-center rounded-lg pl-9 pr-2 text-[0.9375rem] tracking-[0.016em] font-normal leading-none outline-none data-highlighted:bg-gray-100 gap-1 text-gray-900"
           >
             <SearchItem result={result} />
           </Autocomplete.Item>
@@ -230,10 +239,21 @@ export function SearchBar({
 
   return (
     <React.Fragment>
-      <Button onClick={handleOpenDialog} aria-label="Search" className="SearchTrigger">
+      <Button
+        onClick={handleOpenDialog}
+        aria-label="Search"
+        className={`SearchTrigger ${showCmdSymbol == null ? 'hidden' : 'flex'}`}
+      >
         <Search className="h-4 w-4 text-gray-500" />
         <div className="SearchTriggerKbd hidden lg:inline-flex lg:-mr-2">
-          <kbd className="text-xs text-gray-600">⌘</kbd>
+          {showCmdSymbol ? (
+            <kbd className="text-lg text-gray-600">⌘</kbd>
+          ) : (
+            <React.Fragment>
+              <kbd className="text-xs text-gray-600">Ctrl</kbd>
+              <span className="-mt-1 text-xs text-gray-400">+</span>
+            </React.Fragment>
+          )}
           <kbd className="text-xs text-gray-600">K</kbd>
         </div>
       </Button>
@@ -265,7 +285,7 @@ export function SearchBar({
                   <div className="flex min-h-0 flex-1">
                     <ScrollArea.Root className="relative flex min-h-0 flex-1 overflow-hidden">
                       <ScrollArea.Viewport className="flex-1 min-h-0 overflow-y-auto overscroll-contain scroll-pt-9 scroll-pb-2">
-                        <ScrollArea.Content>
+                        <ScrollArea.Content style={{ minWidth: '100%' }}>
                           {searchResults.results.length === 0 ? (
                             emptyState
                           ) : (

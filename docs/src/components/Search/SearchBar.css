@@ -26,7 +26,6 @@
 
 .SearchTrigger {
   position: relative;
-  display: flex;
   align-items: center;
   justify-content: center;
   gap: calc(var(--spacing) * 2);
@@ -118,7 +117,6 @@
 }
 
 .SearchTriggerKbd kbd:first-child {
-  font-size: 18px;
   line-height: 1;
   display: inline-flex;
   margin-top: 1px;
