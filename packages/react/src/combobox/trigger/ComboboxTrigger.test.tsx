@@ -1,8 +1,8 @@
-import { Combobox } from '@base-ui-components/react/combobox';
+import { Combobox } from '@base-ui/react/combobox';
 import { createRenderer, describeConformance } from '#test-utils';
 import { act, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 import { expect } from 'chai';
-import { Field } from '@base-ui-components/react/field';
+import { Field } from '@base-ui/react/field';
 import { spy } from 'sinon';
 
 describe('<Combobox.Trigger />', () => {

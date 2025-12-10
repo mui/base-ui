@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { createSelector, ReactStore } from '@base-ui-components/utils/store';
+import { createSelector, ReactStore } from '@base-ui/utils/store';
 import type { FloatingEvents, ContextData, ReferenceType } from '../types';
 import { type BaseUIChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { createEventEmitter } from '../utils/createEventEmitter';

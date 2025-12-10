@@ -2,15 +2,15 @@
 import * as React from 'react';
 import { tabbable, isTabbable, focusable, type FocusableElement } from 'tabbable';
 import { getComputedStyle, getNodeName, isHTMLElement } from '@floating-ui/utils/dom';
-import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
-import { useValueAsRef } from '@base-ui-components/utils/useValueAsRef';
-import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
-import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
-import { visuallyHidden } from '@base-ui-components/utils/visuallyHidden';
-import { useTimeout } from '@base-ui-components/utils/useTimeout';
-import type { InteractionType } from '@base-ui-components/utils/useEnhancedClickHandler';
-import { useAnimationFrame } from '@base-ui-components/utils/useAnimationFrame';
-import { ownerWindow } from '@base-ui-components/utils/owner';
+import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
+import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { visuallyHidden } from '@base-ui/utils/visuallyHidden';
+import { useTimeout } from '@base-ui/utils/useTimeout';
+import type { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
+import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
+import { ownerWindow } from '@base-ui/utils/owner';
 import { FocusGuard } from '../../utils/FocusGuard';
 import {
   activeElement,

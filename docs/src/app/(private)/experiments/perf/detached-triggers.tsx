@@ -1,9 +1,9 @@
 'use client';
 import * as React from 'react';
-import { Menu } from '@base-ui-components/react/menu';
-import { Tooltip } from '@base-ui-components/react/tooltip';
-import { Popover } from '@base-ui-components/react/popover';
-import { Dialog } from '@base-ui-components/react/dialog';
+import { Menu } from '@base-ui/react/menu';
+import { Tooltip } from '@base-ui/react/tooltip';
+import { Popover } from '@base-ui/react/popover';
+import { Dialog } from '@base-ui/react/dialog';
 import {
   SettingsMetadata,
   useExperimentSettings,

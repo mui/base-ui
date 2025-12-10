@@ -130,7 +130,7 @@ jobs:
             In the meantime, you can try it out on our Canary release channel:
 
             \`\`\`sh
-            npm i https://pkg.pr.new/@base-ui-components/react@${prNumber}
+            npm i https://pkg.pr.new/@base-ui/react@${prNumber}
             \`\`\``;
 
             await github.rest.issues.createComment({

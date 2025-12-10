@@ -46,8 +46,10 @@ export interface NavigationMenuIconState {
   open: boolean;
 }
 
-export interface NavigationMenuIconProps
-  extends BaseUIComponentProps<'span', NavigationMenuIcon.State> {}
+export interface NavigationMenuIconProps extends BaseUIComponentProps<
+  'span',
+  NavigationMenuIcon.State
+> {}
 
 export namespace NavigationMenuIcon {
   export type State = NavigationMenuIconState;

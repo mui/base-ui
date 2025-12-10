@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
-import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
-import { useControlled } from '@base-ui-components/utils/useControlled';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { useControlled } from '@base-ui/utils/useControlled';
 import { MenuCheckboxItemContext } from './MenuCheckboxItemContext';
 import { REGULAR_ITEM, useMenuItem } from '../item/useMenuItem';
 import { useCompositeListItem } from '../../composite/list/useCompositeListItem';
@@ -126,8 +126,7 @@ export type MenuCheckboxItemState = {
 };
 
 export interface MenuCheckboxItemProps
-  extends NonNativeButtonProps,
-    BaseUIComponentProps<'div', MenuCheckboxItem.State> {
+  extends NonNativeButtonProps, BaseUIComponentProps<'div', MenuCheckboxItem.State> {
   /**
    * Whether the checkbox item is currently ticked.
    *

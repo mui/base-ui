@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
-import { ownerDocument } from '@base-ui-components/utils/owner';
-import { useTimeout } from '@base-ui-components/utils/useTimeout';
+import { ownerDocument } from '@base-ui/utils/owner';
+import { useTimeout } from '@base-ui/utils/useTimeout';
 import { contains, getTarget, stopEvent } from '../../floating-ui-react/utils';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useContextMenuRootContext } from '../root/ContextMenuRootContext';
@@ -200,8 +200,10 @@ export type ContextMenuTriggerState = {
   open: boolean;
 };
 
-export interface ContextMenuTriggerProps
-  extends BaseUIComponentProps<'div', ContextMenuTrigger.State> {}
+export interface ContextMenuTriggerProps extends BaseUIComponentProps<
+  'div',
+  ContextMenuTrigger.State
+> {}
 
 export namespace ContextMenuTrigger {
   export type State = ContextMenuTriggerState;

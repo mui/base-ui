@@ -17,7 +17,7 @@ import { DemoButtonHero } from './demos/hero';
 Import the component:
 
 ```jsx title="Anatomy"
-import { Button } from '@base-ui-components/react/button';
+import { Button } from '@base-ui/react/button';
 
 <Button />;
 ```
@@ -29,7 +29,7 @@ import { Button } from '@base-ui-components/react/button';
 The button can remain keyboard accessible while being rendered as another tag, such as a `<div>`, by specifying `nativeButton={false}`.
 
 ```jsx title="Custom tag button" "nativeButton"
-import { Button } from '@base-ui-components/react/button';
+import { Button } from '@base-ui/react/button';
 
 <Button render={<div />} nativeButton={false}>
   Button that can contain complex children

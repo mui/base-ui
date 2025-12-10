@@ -1,6 +1,6 @@
 import * as React from 'react';
 import clsx from 'clsx';
-import { Fieldset } from '@base-ui-components/react/fieldset';
+import { Fieldset } from '@base-ui/react/fieldset';
 
 export function Root(props: Fieldset.Root.Props) {
   return <Fieldset.Root {...props} />;

@@ -1,6 +1,6 @@
 import * as React from 'react';
-import { Menu } from '@base-ui-components/react/menu';
-import { Toast } from '@base-ui-components/react/toast';
+import { Menu } from '@base-ui/react/menu';
+import { Toast } from '@base-ui/react/toast';
 import type { CheckboxProps } from './checkbox';
 import type { SeparatorProps } from './separator';
 import type { SimpleAutocompleteProps } from './autocomplete';

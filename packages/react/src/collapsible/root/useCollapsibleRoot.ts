@@ -1,8 +1,8 @@
 'use client';
 import * as React from 'react';
-import { useControlled } from '@base-ui-components/utils/useControlled';
-import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
-import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
+import { useControlled } from '@base-ui/utils/useControlled';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';

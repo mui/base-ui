@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Tabs } from '@base-ui-components/react/tabs';
+import { Tabs } from '@base-ui/react/tabs';
 import styles from './index.module.css';
 
 export default function ExampleTabs() {

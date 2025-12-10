@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
+import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import {
   flip,
   FloatingFocusManager,

@@ -1,8 +1,8 @@
 'use client';
 import * as React from 'react';
-import { Toast } from '@base-ui-components/react/toast';
-import { Button } from '@base-ui-components/react/button';
-import { Tooltip } from '@base-ui-components/react/tooltip';
+import { Toast } from '@base-ui/react/toast';
+import { Button } from '@base-ui/react/button';
+import { Tooltip } from '@base-ui/react/tooltip';
 import styles from './index.module.css';
 
 const anchoredToastManager = Toast.createToastManager();

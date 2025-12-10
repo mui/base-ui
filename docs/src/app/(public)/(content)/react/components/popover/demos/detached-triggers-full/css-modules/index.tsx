@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
-import { Popover } from '@base-ui-components/react/popover';
-import { Avatar } from '@base-ui-components/react/avatar';
+import { Popover } from '@base-ui/react/popover';
+import { Avatar } from '@base-ui/react/avatar';
 import styles from './index.module.css';
 
 const demoPopover = Popover.createHandle<React.ComponentType>();

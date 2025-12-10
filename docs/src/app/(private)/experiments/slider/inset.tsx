@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import clsx from 'clsx';
-import { Slider } from '@base-ui-components/react/slider';
+import { Slider } from '@base-ui/react/slider';
 import '../../../../demo-theme.css';
 
 function InsetSlider(props: Slider.Root.Props) {

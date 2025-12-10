@@ -3,9 +3,9 @@ import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-
 import { createRenderer, isJSDOM } from '#test-utils';
 import { expect } from 'chai';
 import { spy } from 'sinon';
-import { Autocomplete } from '@base-ui-components/react/autocomplete';
-import { Field } from '@base-ui-components/react/field';
-import { Form } from '@base-ui-components/react/form';
+import { Autocomplete } from '@base-ui/react/autocomplete';
+import { Field } from '@base-ui/react/field';
+import { Form } from '@base-ui/react/form';
 
 describe('<Autocomplete.Root />', () => {
   beforeEach(() => {

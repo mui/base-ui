@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
-import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
-import { useScrollLock } from '@base-ui-components/utils/useScrollLock';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { useScrollLock } from '@base-ui/utils/useScrollLock';
 import {
   useDismiss,
   useInteractions,

@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
-import { inertValue } from '@base-ui-components/utils/inertValue';
-import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
+import { inertValue } from '@base-ui/utils/inertValue';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { FloatingNode, useFloatingNodeId } from '../../floating-ui-react';
 import { usePopoverRootContext } from '../root/PopoverRootContext';
 import { PopoverPositionerContext } from './PopoverPositionerContext';
@@ -193,7 +193,8 @@ export interface PopoverPositionerState {
 }
 
 export interface PopoverPositionerProps
-  extends useAnchorPositioning.SharedParameters,
+  extends
+    useAnchorPositioning.SharedParameters,
     BaseUIComponentProps<'div', PopoverPositioner.State> {}
 
 export namespace PopoverPositioner {

@@ -1,6 +1,6 @@
 import * as React from 'react';
 import clsx from 'clsx';
-import { Form as BaseForm } from '@base-ui-components/react/form';
+import { Form as BaseForm } from '@base-ui/react/form';
 
 export function Form({ className, ...props }: BaseForm.Props) {
   return (

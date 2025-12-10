@@ -1,9 +1,9 @@
 'use client';
 import * as React from 'react';
-import { useStore } from '@base-ui-components/utils/store';
-import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
-import { useTimeout } from '@base-ui-components/utils/useTimeout';
-import { ownerDocument } from '@base-ui-components/utils/owner';
+import { useStore } from '@base-ui/utils/store';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { useTimeout } from '@base-ui/utils/useTimeout';
+import { ownerDocument } from '@base-ui/utils/owner';
 import { BaseUIComponentProps, NativeButtonProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useButton } from '../../use-button';
@@ -269,8 +269,7 @@ export interface ComboboxTriggerState extends FieldRoot.State {
 }
 
 export interface ComboboxTriggerProps
-  extends NativeButtonProps,
-    BaseUIComponentProps<'button', ComboboxTrigger.State> {
+  extends NativeButtonProps, BaseUIComponentProps<'button', ComboboxTrigger.State> {
   /**
    * Whether the component should ignore user interaction.
    * @default false

@@ -1,16 +1,16 @@
 'use client';
 import * as React from 'react';
-import { useControlled } from '@base-ui-components/utils/useControlled';
-import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
-import { useTimeout } from '@base-ui-components/utils/useTimeout';
-import { useInterval } from '@base-ui-components/utils/useInterval';
-import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
-import { useValueAsRef } from '@base-ui-components/utils/useValueAsRef';
-import { useForcedRerendering } from '@base-ui-components/utils/useForcedRerendering';
-import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
-import { visuallyHidden } from '@base-ui-components/utils/visuallyHidden';
-import { ownerDocument, ownerWindow } from '@base-ui-components/utils/owner';
-import { isIOS } from '@base-ui-components/utils/detectBrowser';
+import { useControlled } from '@base-ui/utils/useControlled';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { useTimeout } from '@base-ui/utils/useTimeout';
+import { useInterval } from '@base-ui/utils/useInterval';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
+import { useForcedRerendering } from '@base-ui/utils/useForcedRerendering';
+import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
+import { visuallyHidden } from '@base-ui/utils/visuallyHidden';
+import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
+import { isIOS } from '@base-ui/utils/detectBrowser';
 import { InputMode, NumberFieldRootContext } from './NumberFieldRootContext';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import type { FieldRoot } from '../../field/root/FieldRoot';
@@ -553,8 +553,10 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
   );
 });
 
-export interface NumberFieldRootProps
-  extends Omit<BaseUIComponentProps<'div', NumberFieldRootState>, 'onChange'> {
+export interface NumberFieldRootProps extends Omit<
+  BaseUIComponentProps<'div', NumberFieldRootState>,
+  'onChange'
+> {
   /**
    * The id of the input element.
    */

@@ -1,6 +1,6 @@
 import * as React from 'react';
 import clsx from 'clsx';
-import { Select as BaseSelect } from '@base-ui-components/react/select';
+import { Select as BaseSelect } from '@base-ui/react/select';
 import classes from './Select.module.css';
 
 export function Select(props: Select.Props) {
@@ -36,8 +36,10 @@ export function Select(props: Select.Props) {
 }
 
 export namespace Select {
-  export interface Props
-    extends Omit<React.HTMLAttributes<HTMLButtonElement>, 'defaultValue' | 'onChange'> {
+  export interface Props extends Omit<
+    React.HTMLAttributes<HTMLButtonElement>,
+    'defaultValue' | 'onChange'
+  > {
     value: string | null;
     onChange: (value: string | null) => void;
     options: string[];

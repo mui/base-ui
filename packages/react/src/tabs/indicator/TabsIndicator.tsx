@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
-import { useForcedRerendering } from '@base-ui-components/utils/useForcedRerendering';
-import { useOnMount } from '@base-ui-components/utils/useOnMount';
+import { useForcedRerendering } from '@base-ui/utils/useForcedRerendering';
+import { useOnMount } from '@base-ui/utils/useOnMount';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { getCssDimensions } from '../../utils/getCssDimensions';
 import type { BaseUIComponentProps } from '../../utils/types';

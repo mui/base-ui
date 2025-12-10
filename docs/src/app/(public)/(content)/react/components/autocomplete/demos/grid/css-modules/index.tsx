@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { Autocomplete } from '@base-ui-components/react/autocomplete';
+import { Autocomplete } from '@base-ui/react/autocomplete';
 import styles from './index.module.css';
 
 export default function ExampleEmojiPicker() {

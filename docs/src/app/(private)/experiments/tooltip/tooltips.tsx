@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
-import { Tooltip } from '@base-ui-components/react/tooltip';
-import { StoreInspector } from '@base-ui-components/utils/store';
+import { Tooltip } from '@base-ui/react/tooltip';
+import { StoreInspector } from '@base-ui/utils/store';
 import {
   SettingsMetadata,
   useExperimentSettings,
