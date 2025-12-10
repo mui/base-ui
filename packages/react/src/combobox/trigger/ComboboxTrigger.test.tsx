@@ -1,5 +1,5 @@
 import { Combobox } from '@base-ui/react/combobox';
-import { createRenderer, describeConformance } from '#test-utils';
+import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import { act, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 import { expect } from 'chai';
 import { Field } from '@base-ui/react/field';
@@ -548,6 +548,64 @@ describe('<Combobox.Trigger />', () => {
 
       expect(trigger).to.have.text('apple');
       expect(screen.queryByRole('listbox')).to.equal(null);
+    });
+  });
+
+  describe('data state attributes', () => {
+    it.skipIf(isJSDOM)('sets data-popup-side to the current popup side', async () => {
+      const { user } = await render(
+        <Combobox.Root items={['apple']}>
+          <Combobox.Trigger data-testid="trigger">Trigger</Combobox.Trigger>
+          <Combobox.Portal>
+            <Combobox.Positioner side="right">
+              <Combobox.Popup>
+                <Combobox.List>
+                  {(item: string) => (
+                    <Combobox.Item key={item} value={item}>
+                      {item}
+                    </Combobox.Item>
+                  )}
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+      expect(trigger).not.to.have.attribute('data-popup-side');
+
+      await user.click(trigger);
+
+      await waitFor(() => expect(screen.queryByRole('listbox')).not.to.equal(null));
+      expect(trigger).to.have.attribute('data-popup-side', 'right');
+
+      await user.click(document.body);
+
+      await waitFor(() => expect(screen.queryByRole('listbox')).to.equal(null));
+      expect(trigger).not.to.have.attribute('data-popup-side');
+    });
+
+    it('toggles data-list-empty when the filtered list is empty', async () => {
+      const { user } = await render(
+        <Combobox.Root items={[]}>
+          <Combobox.Trigger data-testid="trigger">Trigger</Combobox.Trigger>
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List />
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+
+      await user.click(trigger);
+
+      await waitFor(() => expect(screen.getByRole('listbox')).not.to.equal(null));
+      expect(trigger).to.have.attribute('data-list-empty');
     });
   });
 });
