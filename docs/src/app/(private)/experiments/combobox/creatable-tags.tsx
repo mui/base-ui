@@ -116,7 +116,7 @@ function Combobox(props: ComboboxProps) {
     }
 
     const normalized = trimmedValue.toLocaleLowerCase();
-    const existing = items.find((item) => item.trim().toLocaleLowerCase() === normalized);
+    const existing = items.find((candidate) => candidate.trim().toLocaleLowerCase() === normalized);
 
     if (existing) {
       const next = selectedItems.some((i) => i === existing)
