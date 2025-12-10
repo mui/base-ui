@@ -165,7 +165,10 @@ export function useDelayGroup(
         const closingId = floatingId;
         timeout.start(timeoutMs, () => {
           // If another tooltip has taken over the group, skip resetting.
-          if (currentIdRef.current && currentIdRef.current !== closingId) {
+          if (
+            store.select('open') ||
+            (currentIdRef.current && currentIdRef.current !== closingId)
+          ) {
             return;
           }
           unset();
@@ -188,6 +191,7 @@ export function useDelayGroup(
     initialDelayRef,
     currentContextRef,
     timeout,
+    store,
   ]);
 
   useIsoLayoutEffect(() => {
