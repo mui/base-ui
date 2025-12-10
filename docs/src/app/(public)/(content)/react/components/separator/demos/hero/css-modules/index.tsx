@@ -1,5 +1,4 @@
-import * as React from 'react';
-import { Separator } from '@base-ui-components/react/separator';
+import { Separator } from '@base-ui/react/separator';
 import styles from './index.module.css';
 
 export default function ExampleSeparator() {

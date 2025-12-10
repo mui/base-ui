@@ -24,8 +24,10 @@ export function ComboboxCollection(props: ComboboxCollection.Props): React.JSX.E
   return <React.Fragment>{itemsToRender.map(children)}</React.Fragment>;
 }
 
+export interface ComboboxCollectionProps {
+  children: (item: any, index: number) => React.ReactNode;
+}
+
 export namespace ComboboxCollection {
-  export interface Props {
-    children: (item: any, index: number) => React.ReactNode;
-  }
+  export type Props = ComboboxCollectionProps;
 }

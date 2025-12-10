@@ -7,13 +7,16 @@
       "detailedType": "React.ReactNode"
     },
     "className": {
-      "type": "string | ((state: Select.ItemIndicator.State) => string)",
+      "type": "string | ((state: Select.ItemIndicator.State) => string | undefined)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
-      "detailedType": "| string\n| ((state: Select.ItemIndicator.State) => string)"
+      "detailedType": "| string\n| ((\n    state: Select.ItemIndicator.State,\n  ) => string | undefined)"
+    },
+    "style": {
+      "type": "CSSProperties | ((state: Select.ItemIndicator.State) => CSSProperties | undefined)",
+      "detailedType": "| React.CSSProperties\n| ((\n    state: Select.ItemIndicator.State,\n  ) => CSSProperties | undefined)\n| undefined"
     },
     "keepMounted": {
       "type": "boolean",
-      "default": "false",
       "description": "Whether to keep the HTML element in the DOM when the item is not selected.",
       "detailedType": "boolean | undefined"
     },

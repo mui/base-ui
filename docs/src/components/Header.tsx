@@ -1,4 +1,3 @@
-import * as React from 'react';
 import NextLink from 'next/link';
 import { GitHubIcon } from 'docs/src/icons/GitHubIcon';
 import * as MobileNav from './MobileNav';
@@ -20,7 +19,7 @@ export function Header() {
         <div className="flex gap-6 max-show-side-nav:hidden">
           <a
             className="HeaderLink"
-            href="https://www.npmjs.com/package/@base-ui-components/react"
+            href="https://www.npmjs.com/package/@base-ui/react"
             rel="noopener"
           >
             <NpmIcon />
@@ -60,7 +59,7 @@ export function Header() {
                   <MobileNav.Heading>Resources</MobileNav.Heading>
                   <MobileNav.List>
                     <MobileNav.Item
-                      href="https://www.npmjs.com/package/@base-ui-components/react"
+                      href="https://www.npmjs.com/package/@base-ui/react"
                       rel="noopener"
                     >
                       <NpmIcon />

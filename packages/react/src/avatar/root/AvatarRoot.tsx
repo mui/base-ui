@@ -3,7 +3,7 @@ import * as React from 'react';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { AvatarRootContext } from './AvatarRootContext';
-import { avatarStyleHookMapping } from './styleHooks';
+import { avatarStateAttributesMapping } from './stateAttributesMapping';
 
 /**
  * Displays a user's profile picture, initials, or fallback icon.
@@ -38,7 +38,7 @@ export const AvatarRoot = React.forwardRef(function AvatarRoot(
     state,
     ref: forwardedRef,
     props: elementProps,
-    customStyleHookMapping: avatarStyleHookMapping,
+    stateAttributesMapping: avatarStateAttributesMapping,
   });
 
   return <AvatarRootContext.Provider value={contextValue}>{element}</AvatarRootContext.Provider>;
@@ -46,10 +46,13 @@ export const AvatarRoot = React.forwardRef(function AvatarRoot(
 
 export type ImageLoadingStatus = 'idle' | 'loading' | 'loaded' | 'error';
 
-export namespace AvatarRoot {
-  export interface Props extends BaseUIComponentProps<'span', State> {}
+export interface AvatarRootState {
+  imageLoadingStatus: ImageLoadingStatus;
+}
 
-  export interface State {
-    imageLoadingStatus: ImageLoadingStatus;
-  }
+export interface AvatarRootProps extends BaseUIComponentProps<'span', AvatarRoot.State> {}
+
+export namespace AvatarRoot {
+  export type State = AvatarRootState;
+  export type Props = AvatarRootProps;
 }

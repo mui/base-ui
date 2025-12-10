@@ -1,6 +1,7 @@
+'use client';
 import * as React from 'react';
-import { Combobox } from '@base-ui-components/react/combobox';
-import { Dialog } from '@base-ui-components/react/dialog';
+import { Combobox } from '@base-ui/react/combobox';
+import { Dialog } from '@base-ui/react/dialog';
 
 export default function ExampleCreatableCombobox() {
   const id = React.useId();
@@ -14,6 +15,32 @@ export default function ExampleCreatableCombobox() {
   const createInputRef = React.useRef<HTMLInputElement | null>(null);
   const comboboxInputRef = React.useRef<HTMLInputElement | null>(null);
   const pendingQueryRef = React.useRef('');
+  const highlightedItemRef = React.useRef<LabelItem | undefined>(undefined);
+
+  function handleInputKeyDown(event: React.KeyboardEvent<HTMLInputElement>) {
+    if (event.key !== 'Enter' || highlightedItemRef.current) {
+      return;
+    }
+
+    const currentTrimmed = query.trim();
+    if (currentTrimmed === '') {
+      return;
+    }
+
+    const normalized = currentTrimmed.toLocaleLowerCase();
+    const existing = labels.find((label) => label.value.trim().toLocaleLowerCase() === normalized);
+
+    if (existing) {
+      setSelected((prev) =>
+        prev.some((item) => item.id === existing.id) ? prev : [...prev, existing],
+      );
+      setQuery('');
+      return;
+    }
+
+    pendingQueryRef.current = currentTrimmed;
+    setOpenDialog(true);
+  }
 
   function handleCreate() {
     const input = createInputRef.current || comboboxInputRef.current;
@@ -33,6 +60,7 @@ export default function ExampleCreatableCombobox() {
       return;
     }
 
+    // Ensure we don't collide with an existing id (e.g., value "docs" vs. existing id "docs")
     const existingIds = new Set(labels.map((l) => l.id));
     let uniqueId = baseId;
     if (existingIds.has(uniqueId)) {
@@ -62,6 +90,7 @@ export default function ExampleCreatableCombobox() {
   const trimmed = query.trim();
   const lowered = trimmed.toLocaleLowerCase();
   const exactExists = labels.some((l) => l.value.trim().toLocaleLowerCase() === lowered);
+  // Show the creatable item alongside matches if there's no exact match
   const itemsForView: Array<LabelItem> =
     trimmed !== '' && !exactExists
       ? [...labels, { creatable: trimmed, id: `create:${lowered}`, value: `Create "${trimmed}"` }]
@@ -73,9 +102,12 @@ export default function ExampleCreatableCombobox() {
         items={itemsForView}
         multiple
         onValueChange={(next) => {
-          const last = next[next.length - 1];
-          if (last && last.creatable) {
-            pendingQueryRef.current = last.creatable;
+          const creatableSelection = next.find(
+            (item) => item.creatable && !selected.some((current) => current.id === item.id),
+          );
+
+          if (creatableSelection && creatableSelection.creatable) {
+            pendingQueryRef.current = creatableSelection.creatable;
             setOpenDialog(true);
             return;
           }
@@ -86,25 +118,8 @@ export default function ExampleCreatableCombobox() {
         value={selected}
         inputValue={query}
         onInputValueChange={setQuery}
-        onOpenChange={(open, details) => {
-          if ('key' in details.event && details.event.key === 'Enter') {
-            if (trimmed === '') {
-              return;
-            }
-
-            const existing = labels.find((l) => l.value.trim().toLocaleLowerCase() === lowered);
-
-            if (existing) {
-              setSelected((prev) =>
-                prev.some((i) => i.id === existing.id) ? prev : [...prev, existing],
-              );
-              setQuery('');
-              return;
-            }
-
-            pendingQueryRef.current = trimmed;
-            setOpenDialog(true);
-          }
+        onItemHighlighted={(item) => {
+          highlightedItemRef.current = item;
         }}
       >
         <div className="max-w-112 flex flex-col gap-1">
@@ -138,6 +153,7 @@ export default function ExampleCreatableCombobox() {
                     id={id}
                     placeholder={value.length > 0 ? '' : 'e.g. bug'}
                     className="min-w-12 flex-1 h-8 rounded-md border-0 bg-transparent pl-2 text-base text-gray-900 outline-none"
+                    onKeyDown={handleInputKeyDown}
                   />
                 </React.Fragment>
               )}
@@ -157,6 +173,7 @@ export default function ExampleCreatableCombobox() {
                     <Combobox.Item
                       key={item.id}
                       className="grid cursor-default grid-cols-[0.75rem_1fr] items-center gap-2 py-2 pr-8 pl-4 text-base leading-4 outline-none select-none [@media(hover:hover)]:[&[data-highlighted]]:relative [@media(hover:hover)]:[&[data-highlighted]]:z-0 [@media(hover:hover)]:[&[data-highlighted]]:text-gray-50 [@media(hover:hover)]:[&[data-highlighted]]:before:absolute [@media(hover:hover)]:[&[data-highlighted]]:before:inset-x-2 [@media(hover:hover)]:[&[data-highlighted]]:before:inset-y-0 [@media(hover:hover)]:[&[data-highlighted]]:before:z-[-1] [@media(hover:hover)]:[&[data-highlighted]]:before:rounded-sm [@media(hover:hover)]:[&[data-highlighted]]:before:bg-gray-900"
+                      value={item}
                     >
                       <span className="col-start-1">
                         <PlusIcon className="size-3" />
@@ -184,7 +201,7 @@ export default function ExampleCreatableCombobox() {
 
       <Dialog.Root open={openDialog} onOpenChange={setOpenDialog}>
         <Dialog.Portal>
-          <Dialog.Backdrop className="fixed inset-0 bg-black opacity-20 transition-opacity dark:opacity-70 data-[starting-style]:opacity-0 data-[ending-style]:opacity-0" />
+          <Dialog.Backdrop className="fixed inset-0 min-h-dvh bg-black opacity-20 transition-opacity dark:opacity-70 data-[starting-style]:opacity-0 data-[ending-style]:opacity-0 supports-[-webkit-touch-callout:none]:absolute" />
           <Dialog.Popup
             className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 mt-[-2rem] w-[24rem] max-w-[calc(100vw-3rem)] rounded-lg bg-[canvas] p-6 text-gray-900 outline-1 outline-gray-200 transition-all data-[starting-style]:opacity-0 data-[starting-style]:scale-90 data-[ending-style]:opacity-0 data-[ending-style]:scale-90 dark:-outline-offset-1 dark:outline-gray-300"
             initialFocus={createInputRef}
@@ -198,7 +215,7 @@ export default function ExampleCreatableCombobox() {
             <form onSubmit={handleCreateSubmit}>
               <input
                 ref={createInputRef}
-                className="w-full h-10 rounded-md border border-gray-200 bg-[canvas] text-gray-900 px-2.5 outline-none focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800"
+                className="w-full h-10 rounded-md border border-gray-200 bg-[canvas] text-gray-900 px-2.5 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800"
                 placeholder="Label name"
                 defaultValue={pendingQueryRef.current}
               />

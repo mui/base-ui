@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { NavigationMenu } from '@base-ui-components/react/navigation-menu';
+import { NavigationMenu } from '@base-ui/react/navigation-menu';
 import styles from './index.module.css';
 
 export default function ExampleNavigationMenu() {
@@ -25,27 +25,29 @@ export default function ExampleNavigationMenu() {
               ))}
               <li>
                 <NavigationMenu.Root orientation="vertical">
-                  <NavigationMenu.Item>
-                    <NavigationMenu.Trigger className={styles.LinkCard}>
-                      <span className={styles.LinkTitle}>Handbook</span>
-                      <p className={styles.LinkDescription}>How to use Base UI effectively.</p>
-                      <NavigationMenu.Icon className={styles.NestedIcon}>
-                        <ChevronRightIcon />
-                      </NavigationMenu.Icon>
-                    </NavigationMenu.Trigger>
-                    <NavigationMenu.Content className={styles.Content}>
-                      <ul className={styles.FlexLinkList}>
-                        {handbookLinks.map((item) => (
-                          <li key={item.href}>
-                            <Link className={styles.LinkCard} href={item.href}>
-                              <h3 className={styles.LinkTitle}>{item.title}</h3>
-                              <p className={styles.LinkDescription}>{item.description}</p>
-                            </Link>
-                          </li>
-                        ))}
-                      </ul>
-                    </NavigationMenu.Content>
-                  </NavigationMenu.Item>
+                  <NavigationMenu.List>
+                    <NavigationMenu.Item>
+                      <NavigationMenu.Trigger className={styles.LinkCard}>
+                        <span className={styles.LinkTitle}>Handbook</span>
+                        <p className={styles.LinkDescription}>How to use Base UI effectively.</p>
+                        <NavigationMenu.Icon className={styles.NestedIcon}>
+                          <ChevronRightIcon />
+                        </NavigationMenu.Icon>
+                      </NavigationMenu.Trigger>
+                      <NavigationMenu.Content className={styles.Content}>
+                        <ul className={styles.FlexLinkList}>
+                          {handbookLinks.map((item) => (
+                            <li key={item.href}>
+                              <Link className={styles.LinkCard} href={item.href}>
+                                <h3 className={styles.LinkTitle}>{item.title}</h3>
+                                <p className={styles.LinkDescription}>{item.description}</p>
+                              </Link>
+                            </li>
+                          ))}
+                        </ul>
+                      </NavigationMenu.Content>
+                    </NavigationMenu.Item>
+                  </NavigationMenu.List>
 
                   <NavigationMenu.Portal>
                     <NavigationMenu.Positioner

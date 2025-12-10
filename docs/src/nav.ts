@@ -48,6 +48,18 @@ export const nav: NavGroup[] = [
         href: '/react/handbook/composition',
       },
       {
+        label: 'Customization',
+        href: '/react/handbook/customization',
+      },
+      {
+        label: 'Forms',
+        href: '/react/handbook/forms',
+      },
+      {
+        label: 'TypeScript',
+        href: '/react/handbook/typescript',
+      },
+      {
         label: 'llms.txt',
         external: true,
         href: '/llms.txt',
@@ -68,11 +80,14 @@ export const nav: NavGroup[] = [
       {
         label: 'Autocomplete',
         href: '/react/components/autocomplete',
-        isNew: true,
       },
       {
         label: 'Avatar',
         href: '/react/components/avatar',
+      },
+      {
+        label: 'Button',
+        href: '/react/components/button',
       },
       {
         label: 'Checkbox',
@@ -89,7 +104,6 @@ export const nav: NavGroup[] = [
       {
         label: 'Combobox',
         href: '/react/components/combobox',
-        isNew: true,
       },
       {
         label: 'Context Menu',

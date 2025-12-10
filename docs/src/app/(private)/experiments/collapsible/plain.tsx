@@ -1,6 +1,5 @@
 'use client';
-import * as React from 'react';
-import { Collapsible } from '@base-ui-components/react/collapsible';
+import { Collapsible } from '@base-ui/react/collapsible';
 import { ChevronIcon } from './_icons';
 import styles from './collapsible.module.css';
 

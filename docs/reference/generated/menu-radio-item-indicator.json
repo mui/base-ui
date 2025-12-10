@@ -3,9 +3,13 @@
   "description": "Indicates whether the radio item is selected.\nRenders a `<div>` element.",
   "props": {
     "className": {
-      "type": "string | ((state: Menu.RadioItemIndicator.State) => string)",
+      "type": "string | ((state: Menu.RadioItemIndicator.State) => string | undefined)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
-      "detailedType": "| string\n| ((state: Menu.RadioItemIndicator.State) => string)"
+      "detailedType": "| string\n| ((\n    state: Menu.RadioItemIndicator.State,\n  ) => string | undefined)"
+    },
+    "style": {
+      "type": "CSSProperties | ((state: Menu.RadioItemIndicator.State) => CSSProperties | undefined)",
+      "detailedType": "| React.CSSProperties\n| ((\n    state: Menu.RadioItemIndicator.State,\n  ) => CSSProperties | undefined)\n| undefined"
     },
     "keepMounted": {
       "type": "boolean",

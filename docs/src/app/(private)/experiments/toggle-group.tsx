@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
-import { ToggleGroup } from '@base-ui-components/react/toggle-group';
-import { Toggle } from '@base-ui-components/react/toggle';
+import { ToggleGroup } from '@base-ui/react/toggle-group';
+import { Toggle } from '@base-ui/react/toggle';
 import classes from './toggle.module.css';
 
 export default function ToggleGroupDemo() {
@@ -39,7 +39,7 @@ export default function ToggleGroupDemo() {
       <div dir="rtl">
         <div>
           <div>
-            <ToggleGroup toggleMultiple aria-label="Text formatting" className={classes.group}>
+            <ToggleGroup multiple aria-label="Text formatting" className={classes.group}>
               <Toggle value="bold" aria-label="Toggle bold" className={classes.button}>
                 <BoldIcon />
               </Toggle>

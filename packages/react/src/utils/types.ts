@@ -6,22 +6,11 @@ export type HTMLProps<T = any> = React.HTMLAttributes<T> & {
 
 export interface FloatingUIOpenChangeDetails {
   open: boolean;
-  reason: BaseUIChangeEventReason;
+  reason: string;
   nativeEvent: Event;
   nested: boolean;
+  triggerElement?: Element | undefined;
 }
-
-export type BaseUIChangeEventReason =
-  | 'trigger-press'
-  | 'trigger-hover'
-  | 'trigger-focus'
-  | 'focus-out'
-  | 'escape-key'
-  | 'outside-press'
-  | 'list-navigation'
-  | 'item-press'
-  | 'cancel-open'
-  | 'none';
 
 export type BaseUIEvent<E extends React.SyntheticEvent<Element, Event>> = E & {
   preventBaseUIHandler: () => void;
@@ -70,16 +59,19 @@ export type BaseUIComponentProps<
    * CSS class applied to the element, or a function that
    * returns a class based on the component’s state.
    */
-  className?: string | ((state: State) => string);
+  className?: string | ((state: State) => string | undefined);
   /**
    * Allows you to replace the component’s HTML element
    * with a different tag, or compose it with another component.
    *
    * Accepts a `ReactElement` or a function that returns the element to render.
    */
-  render?:
-    | ComponentRenderFn<RenderFunctionProps, State>
-    | React.ReactElement<Record<string, unknown>>;
+  render?: ComponentRenderFn<RenderFunctionProps, State> | React.ReactElement;
+  /**
+   * Style applied to the element, or a function that
+   * returns a style object based on the component’s state.
+   */
+  style?: React.CSSProperties | ((state: State) => React.CSSProperties | undefined);
 };
 
 export interface NativeButtonProps {

@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { Toast } from '@base-ui-components/react/toast';
+import { Toast } from '@base-ui/react/toast';
 import styles from './index.module.css';
 
 export default function ExampleToast() {
@@ -39,11 +39,13 @@ function ToastList() {
   const { toasts } = Toast.useToastManager();
   return toasts.map((toast) => (
     <Toast.Root key={toast.id} toast={toast} swipeDirection="up" className={styles.Toast}>
-      <Toast.Title className={styles.Title} />
-      <Toast.Description className={styles.Description} />
-      <Toast.Close className={styles.Close} aria-label="Close">
-        <XIcon className={styles.Icon} />
-      </Toast.Close>
+      <Toast.Content className={styles.Content}>
+        <Toast.Title className={styles.Title} />
+        <Toast.Description className={styles.Description} />
+        <Toast.Close className={styles.Close} aria-label="Close">
+          <XIcon className={styles.Icon} />
+        </Toast.Close>
+      </Toast.Content>
     </Toast.Root>
   ));
 }

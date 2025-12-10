@@ -1,6 +1,5 @@
-import * as React from 'react';
-import { Field } from '@base-ui-components/react/field';
-import { Fieldset } from '@base-ui-components/react/fieldset';
+import { Field } from '@base-ui/react/field';
+import { Fieldset } from '@base-ui/react/fieldset';
 import styles from './index.module.css';
 
 export default function ExampleField() {

@@ -1,12 +1,12 @@
 'use client';
 import * as React from 'react';
-import { Toolbar } from '@base-ui-components/react/toolbar';
-import { Tooltip } from '@base-ui-components/react/tooltip';
-import { Toggle } from '@base-ui-components/react/toggle';
-import { ToggleGroup } from '@base-ui-components/react/toggle-group';
-import { Select } from '@base-ui-components/react/select';
-import { NumberField } from '@base-ui-components/react/number-field';
-import { Menu } from '@base-ui-components/react/menu';
+import { Toolbar } from '@base-ui/react/toolbar';
+import { Tooltip } from '@base-ui/react/tooltip';
+import { Toggle } from '@base-ui/react/toggle';
+import { ToggleGroup } from '@base-ui/react/toggle-group';
+import { Select } from '@base-ui/react/select';
+import { NumberField } from '@base-ui/react/number-field';
+import { Menu } from '@base-ui/react/menu';
 import {
   SettingsMetadata,
   useExperimentSettings,
@@ -136,6 +136,7 @@ export default function App() {
               <Toolbar.Button
                 disabled={SELECT_DISABLED}
                 render={<Select.Trigger />}
+                nativeButton={false}
                 className={styles.select.Select}
               >
                 <Select.Value />
@@ -244,7 +245,7 @@ export default function App() {
             <Toolbar.Separator className={styles.toolbar.Separator} />
 
             <ToggleGroup
-              toggleMultiple
+              multiple
               defaultValue={[]}
               className={styles.toolbar.ToggleGroup}
               disabled={settings.toolbarDisabled}
@@ -331,7 +332,7 @@ export default function App() {
                     <Menu.Item className={styles.menu.Item}>Keyboard Shortcuts</Menu.Item>
                     <Menu.Item className={styles.menu.Item}>Release Notes</Menu.Item>
                     <Menu.Separator className={styles.menu.Separator} />
-                    <Menu.Root>
+                    <Menu.SubmenuRoot>
                       <Menu.SubmenuTrigger className={styles.menu.SubmenuTrigger}>
                         Debug
                         <ChevronRightIcon />
@@ -352,7 +353,7 @@ export default function App() {
                           </Menu.Popup>
                         </Menu.Positioner>
                       </Menu.Portal>
-                    </Menu.Root>
+                    </Menu.SubmenuRoot>
                     <Menu.Separator className={styles.menu.Separator} />
                     <Menu.Item className={styles.menu.Item}>Log Out</Menu.Item>
                   </Menu.Popup>

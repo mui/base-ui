@@ -1,6 +1,7 @@
+/* eslint-disable testing-library/render-result-naming-convention */
 import * as React from 'react';
 import { expect } from 'chai';
-import { useRender } from '@base-ui-components/react/use-render';
+import { useRender } from '@base-ui/react/use-render';
 import { createRenderer } from '#test-utils';
 
 describe('useRender', () => {
@@ -71,6 +72,15 @@ describe('useRender', () => {
   });
 
   describe('param: defaultTagName', () => {
+    it('renders div by default if no defaultTagName and no render params are provided', async () => {
+      function TestComponent() {
+        return useRender({});
+      }
+
+      const { container } = await render(<TestComponent />);
+      expect(container.firstElementChild).to.have.property('tagName', 'DIV');
+    });
+
     it('renders the element with the default tag with no render prop', async () => {
       function TestComponent({
         defaultTagName,

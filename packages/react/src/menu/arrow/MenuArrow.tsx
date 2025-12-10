@@ -19,8 +19,9 @@ export const MenuArrow = React.forwardRef(function MenuArrow(
 ) {
   const { className, render, ...elementProps } = componentProps;
 
-  const { open } = useMenuRootContext();
+  const { store } = useMenuRootContext();
   const { arrowRef, side, align, arrowUncentered, arrowStyles } = useMenuPositionerContext();
+  const open = store.useState('open');
 
   const state: MenuArrow.State = React.useMemo(
     () => ({
@@ -34,7 +35,7 @@ export const MenuArrow = React.forwardRef(function MenuArrow(
 
   return useRenderElement('div', componentProps, {
     ref: [arrowRef, forwardedRef],
-    customStyleHookMapping: popupStateMapping,
+    stateAttributesMapping: popupStateMapping,
     state,
     props: {
       style: arrowStyles,
@@ -44,16 +45,19 @@ export const MenuArrow = React.forwardRef(function MenuArrow(
   });
 });
 
-export namespace MenuArrow {
-  export interface State {
-    /**
-     * Whether the menu is currently open.
-     */
-    open: boolean;
-    side: Side;
-    align: Align;
-    uncentered: boolean;
-  }
+export interface MenuArrowState {
+  /**
+   * Whether the menu is currently open.
+   */
+  open: boolean;
+  side: Side;
+  align: Align;
+  uncentered: boolean;
+}
 
-  export interface Props extends BaseUIComponentProps<'div', State> {}
+export interface MenuArrowProps extends BaseUIComponentProps<'div', MenuArrow.State> {}
+
+export namespace MenuArrow {
+  export type State = MenuArrowState;
+  export type Props = MenuArrowProps;
 }

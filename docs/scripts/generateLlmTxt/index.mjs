@@ -4,7 +4,7 @@
 
 import fs from 'fs/promises';
 import path from 'path';
-import glob from 'fast-glob';
+import { globby } from 'globby';
 import * as prettier from 'prettier';
 import { unified } from 'unified';
 import remarkParse from 'remark-parse';
@@ -106,7 +106,7 @@ async function generateLlmsTxt() {
     // Counter for total files processed
     let totalFiles = 0;
 
-    const mdxFiles = await glob('**/*/page.mdx', {
+    const mdxFiles = await globby('**/*/page.mdx', {
       cwd: MDX_SOURCE_DIR,
       absolute: true,
     });
@@ -200,7 +200,7 @@ async function generateLlmsTxt() {
     const preamble = [
       '# Base UI',
       '',
-      'This is the documentation for the `@base-ui-components/react` package.',
+      'This is the documentation for the `@base-ui/react` package.',
       'It contains a collection of components and utilities for building user interfaces in React.',
       'The library is designed to be composable and styling agnostic.',
       '',

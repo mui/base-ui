@@ -1,5 +1,4 @@
-import * as React from 'react';
-import { Combobox } from '@base-ui-components/react/combobox';
+import { Combobox } from '@base-ui/react/combobox';
 import { createRenderer } from '#test-utils';
 import { screen } from '@mui/internal-test-utils';
 import { expect } from 'chai';

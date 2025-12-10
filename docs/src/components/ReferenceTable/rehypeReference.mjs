@@ -1,7 +1,7 @@
 // @ts-check
 import { readFileSync, existsSync } from 'node:fs';
 import { visitParents } from 'unist-util-visit-parents';
-import kebabCase from 'lodash/kebabCase.js';
+import { kebabCase } from 'es-toolkit/string';
 import { join } from 'path';
 import { createMdxElement } from 'docs/src/mdx/createMdxElement.mjs';
 import { createHast } from 'docs/src/mdx/createHast.mjs';

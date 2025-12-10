@@ -1,5 +1,4 @@
-import * as React from 'react';
-import { Field } from '@base-ui-components/react/field';
+import { Field } from '@base-ui/react/field';
 
 export default function ExampleField() {
   return (

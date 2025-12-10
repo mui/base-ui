@@ -8,8 +8,15 @@ export function getOffset(
   }
 
   const styles = getComputedStyle(element);
-  const start = axis === 'x' ? 'Left' : 'Top';
-  const end = axis === 'x' ? 'Right' : 'Bottom';
+  const propAxis = axis === 'x' ? 'Inline' : 'Block';
 
-  return parseFloat(styles[`${prop}${start}`]) + parseFloat(styles[`${prop}${end}`]);
+  // Safari misreports `marginInlineEnd` in RTL.
+  // We have to assume the start/end values are symmetrical, which is likely.
+  if (axis === 'x' && prop === 'margin') {
+    return parseFloat(styles[`${prop}InlineStart`]) * 2;
+  }
+
+  return (
+    parseFloat(styles[`${prop}${propAxis}Start`]) + parseFloat(styles[`${prop}${propAxis}End`])
+  );
 }

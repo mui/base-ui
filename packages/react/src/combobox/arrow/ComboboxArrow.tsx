@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useStore } from '@base-ui-components/utils/store';
+import { useStore } from '@base-ui/utils/store';
 import { useComboboxPositionerContext } from '../positioner/ComboboxPositionerContext';
 import { useComboboxRootContext } from '../root/ComboboxRootContext';
 import { selectors } from '../store';
@@ -36,7 +36,7 @@ export const ComboboxArrow = React.forwardRef(function ComboboxArrow(
 
   return useRenderElement('div', componentProps, {
     ref: [arrowRef, forwardedRef],
-    customStyleHookMapping: popupStateMapping,
+    stateAttributesMapping: popupStateMapping,
     state,
     props: {
       style: arrowStyles,
@@ -46,16 +46,19 @@ export const ComboboxArrow = React.forwardRef(function ComboboxArrow(
   });
 });
 
-export namespace ComboboxArrow {
-  export interface State {
-    /**
-     * Whether the popup is currently open.
-     */
-    open: boolean;
-    side: Side;
-    align: Align;
-    uncentered: boolean;
-  }
+export interface ComboboxArrowState {
+  /**
+   * Whether the popup is currently open.
+   */
+  open: boolean;
+  side: Side;
+  align: Align;
+  uncentered: boolean;
+}
 
-  export interface Props extends BaseUIComponentProps<'div', State> {}
+export interface ComboboxArrowProps extends BaseUIComponentProps<'div', ComboboxArrow.State> {}
+
+export namespace ComboboxArrow {
+  export type State = ComboboxArrowState;
+  export type Props = ComboboxArrowProps;
 }

@@ -1,5 +1,4 @@
-import * as React from 'react';
-import { Slider } from '@base-ui-components/react/slider';
+import { Slider } from '@base-ui/react/slider';
 import styles from './index.module.css';
 
 export default function ExampleSlider() {

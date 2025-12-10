@@ -1,6 +1,7 @@
+'use client';
 import * as React from 'react';
-import { Menubar } from '@base-ui-components/react/menubar';
-import { Menu } from '@base-ui-components/react/menu';
+import { Menubar } from '@base-ui/react/menubar';
+import { Menu } from '@base-ui/react/menu';
 
 export default function ExampleMenubar() {
   return (

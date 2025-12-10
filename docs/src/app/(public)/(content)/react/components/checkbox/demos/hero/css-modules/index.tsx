@@ -1,11 +1,11 @@
 import * as React from 'react';
-import { Checkbox } from '@base-ui-components/react/checkbox';
+import { Checkbox } from '@base-ui/react/checkbox';
 import styles from './index.module.css';
 
 export default function ExampleCheckbox() {
   return (
     <label className={styles.Label}>
-      <Checkbox.Root defaultChecked className={styles.Checkbox}>
+      <Checkbox.Root defaultChecked aria-label="Enable notifications" className={styles.Checkbox}>
         <Checkbox.Indicator className={styles.Indicator}>
           <CheckIcon className={styles.Icon} />
         </Checkbox.Indicator>

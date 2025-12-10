@@ -15,6 +15,10 @@ export const ComboboxFloatingContext = React.createContext<FloatingRootContext |
 export const ComboboxDerivedItemsContext = React.createContext<
   ComboboxDerivedItemsContext | undefined
 >(undefined);
+// `inputValue` can't be placed in the store.
+// https://github.com/mui/base-ui/issues/2703
+export const ComboboxInputValueContext =
+  React.createContext<React.ComponentProps<'input'>['value']>('');
 
 export function useComboboxRootContext() {
   const context = React.useContext(ComboboxRootContext) as ComboboxStore | undefined;
@@ -44,4 +48,8 @@ export function useComboboxDerivedItemsContext() {
     );
   }
   return context;
+}
+
+export function useComboboxInputValueContext() {
+  return React.useContext(ComboboxInputValueContext);
 }

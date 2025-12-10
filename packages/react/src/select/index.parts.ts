@@ -6,6 +6,7 @@ export { SelectPortal as Portal } from './portal/SelectPortal';
 export { SelectBackdrop as Backdrop } from './backdrop/SelectBackdrop';
 export { SelectPositioner as Positioner } from './positioner/SelectPositioner';
 export { SelectPopup as Popup } from './popup/SelectPopup';
+export { SelectList as List } from './list/SelectList';
 export { SelectItem as Item } from './item/SelectItem';
 export { SelectItemIndicator as ItemIndicator } from './item-indicator/SelectItemIndicator';
 export { SelectItemText as ItemText } from './item-text/SelectItemText';

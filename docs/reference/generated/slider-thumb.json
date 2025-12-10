@@ -39,9 +39,19 @@
       "description": "Whether the thumb should ignore user interaction.",
       "detailedType": "boolean | undefined"
     },
+    "inputRef": {
+      "type": "Ref<HTMLInputElement>",
+      "description": "A ref to access the nested input element.",
+      "detailedType": "React.Ref<HTMLInputElement> | undefined"
+    },
     "className": {
-      "type": "string | ((state: Slider.Thumb.State) => string)",
-      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
+      "type": "string | ((state: Slider.Thumb.State) => string | undefined)",
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
+      "detailedType": "| string\n| ((state: Slider.Thumb.State) => string | undefined)"
+    },
+    "style": {
+      "type": "CSSProperties | ((state: Slider.Thumb.State) => CSSProperties | undefined)",
+      "detailedType": "| React.CSSProperties\n| ((state: Slider.Thumb.State) => CSSProperties | undefined)\n| undefined"
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: Slider.Thumb.State) => ReactElement)",

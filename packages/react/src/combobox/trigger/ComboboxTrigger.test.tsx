@@ -1,9 +1,8 @@
-import * as React from 'react';
-import { Combobox } from '@base-ui-components/react/combobox';
+import { Combobox } from '@base-ui/react/combobox';
 import { createRenderer, describeConformance } from '#test-utils';
-import { act, screen } from '@mui/internal-test-utils';
+import { act, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 import { expect } from 'chai';
-import { Field } from '@base-ui-components/react/field';
+import { Field } from '@base-ui/react/field';
 import { spy } from 'sinon';
 
 describe('<Combobox.Trigger />', () => {
@@ -167,7 +166,7 @@ describe('<Combobox.Trigger />', () => {
 
       const trigger = screen.getByTestId('trigger');
       await user.click(trigger);
-      expect(screen.getByRole('listbox')).not.to.equal(null);
+      expect(await screen.findByRole('listbox')).not.to.equal(null);
     });
   });
 
@@ -175,6 +174,7 @@ describe('<Combobox.Trigger />', () => {
     it('should toggle popup when enabled', async () => {
       const { user } = await render(
         <Combobox.Root>
+          <Combobox.Input />
           <Combobox.Trigger data-testid="trigger">Open</Combobox.Trigger>
           <Combobox.Portal>
             <Combobox.Positioner>
@@ -192,10 +192,12 @@ describe('<Combobox.Trigger />', () => {
       const trigger = screen.getByTestId('trigger');
 
       await user.click(trigger);
-      expect(screen.getByRole('listbox')).not.to.equal(null);
+      expect(await screen.findByRole('listbox')).not.to.equal(null);
 
       await user.click(trigger);
-      expect(screen.queryByRole('listbox')).to.equal(null);
+      await waitFor(() => {
+        expect(screen.queryByRole('listbox')).to.equal(null);
+      });
     });
 
     it('should call onOpenChange when toggling', async () => {
@@ -219,7 +221,9 @@ describe('<Combobox.Trigger />', () => {
       const trigger = screen.getByTestId('trigger');
       await user.click(trigger);
 
-      expect(handleOpenChange.callCount).to.equal(1);
+      await waitFor(() => {
+        expect(handleOpenChange.callCount).to.equal(1);
+      });
       expect(handleOpenChange.args[0][0]).to.equal(true);
     });
 
@@ -267,12 +271,197 @@ describe('<Combobox.Trigger />', () => {
         </Combobox.Root>,
       );
 
-      const trigger = screen.getByRole('button', { name: 'Open' });
+      const trigger = screen.getByRole('combobox');
       await user.click(trigger);
       await user.keyboard('{ArrowDown}');
       expect(screen.queryByRole('listbox')).to.equal(null);
       await user.keyboard('{ArrowUp}');
       expect(screen.queryByRole('listbox')).to.equal(null);
+    });
+  });
+
+  describe('drag selection', () => {
+    it('commits selection when the input is outside the popup', async () => {
+      const handleValueChange = spy();
+
+      await render(
+        <Combobox.Root onValueChange={handleValueChange}>
+          <Combobox.Input />
+          <Combobox.Trigger data-testid="trigger">Open</Combobox.Trigger>
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  <Combobox.Item value="alpha">Alpha</Combobox.Item>
+                  <Combobox.Item value="beta">Beta</Combobox.Item>
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+      fireEvent.pointerDown(trigger, { pointerType: 'mouse', button: 0 });
+      fireEvent.mouseDown(trigger, { button: 0 });
+
+      await screen.findByRole('listbox');
+      const option = await screen.findByRole('option', { name: 'Beta' });
+
+      fireEvent.mouseMove(option, { pointerType: 'mouse' });
+      await waitFor(() => expect(option).to.have.attribute('data-highlighted'));
+
+      fireEvent.mouseUp(option, { button: 0 });
+
+      await waitFor(() => {
+        expect(handleValueChange.callCount).to.equal(1);
+      });
+      expect(handleValueChange.firstCall.args[0]).to.equal('beta');
+    });
+
+    it('commits selection when the input is inside the popup and the pointer is released over an item', async () => {
+      const handleValueChange = spy();
+
+      await render(
+        <Combobox.Root onValueChange={handleValueChange}>
+          <Combobox.Trigger data-testid="trigger">Open</Combobox.Trigger>
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.Input />
+                <Combobox.List>
+                  <Combobox.Item value="alpha">Alpha</Combobox.Item>
+                  <Combobox.Item value="beta">Beta</Combobox.Item>
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+      fireEvent.pointerDown(trigger, { pointerType: 'mouse', button: 0 });
+      fireEvent.mouseDown(trigger, { button: 0 });
+
+      await screen.findByRole('listbox');
+      const option = await screen.findByRole('option', { name: 'Beta' });
+
+      fireEvent.mouseMove(option, { pointerType: 'mouse' });
+      await waitFor(() => expect(option).to.have.attribute('data-highlighted'));
+
+      fireEvent.mouseUp(option, { button: 0 });
+
+      await waitFor(() => {
+        expect(handleValueChange.callCount).to.equal(1);
+      });
+      expect(handleValueChange.firstCall.args[0]).to.equal('beta');
+    });
+
+    it('does not commit selection if the pointer never hovers the item', async () => {
+      const handleValueChange = spy();
+
+      await render(
+        <Combobox.Root onValueChange={handleValueChange}>
+          <Combobox.Trigger data-testid="trigger">Open</Combobox.Trigger>
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.Input />
+                <Combobox.List>
+                  <Combobox.Item value="alpha">Alpha</Combobox.Item>
+                  <Combobox.Item value="beta">Beta</Combobox.Item>
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+      fireEvent.pointerDown(trigger, { pointerType: 'mouse', button: 0 });
+      fireEvent.mouseDown(trigger, { button: 0 });
+
+      await screen.findByRole('listbox');
+      const option = await screen.findByRole('option', { name: 'Beta' });
+
+      fireEvent.mouseUp(option, { button: 0 });
+
+      await waitFor(() => {
+        expect(handleValueChange.callCount).to.equal(0);
+      });
+    });
+  });
+
+  describe('cancel-open', () => {
+    it('closes the popup when mouseup occurs outside the trigger bounds', async () => {
+      await render(
+        <Combobox.Root>
+          <Combobox.Trigger data-testid="trigger">Open</Combobox.Trigger>
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  <Combobox.Item value="alpha">Alpha</Combobox.Item>
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+      fireEvent.pointerDown(trigger, { pointerType: 'mouse', button: 0 });
+      fireEvent.mouseDown(trigger, { button: 0 });
+
+      await screen.findByRole('listbox');
+
+      fireEvent.mouseUp(document.body, { button: 0, clientX: 999, clientY: 999 });
+
+      await waitFor(() => {
+        expect(screen.queryByRole('listbox')).to.equal(null);
+      });
+    });
+
+    it('keeps the popup open when mouseup remains near the trigger bounds', async () => {
+      await render(
+        <Combobox.Root>
+          <Combobox.Trigger data-testid="trigger">Open</Combobox.Trigger>
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  <Combobox.Item value="alpha">Alpha</Combobox.Item>
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+      trigger.getBoundingClientRect = () =>
+        ({
+          left: 0,
+          top: 0,
+          right: 100,
+          bottom: 40,
+          width: 100,
+          height: 40,
+          x: 0,
+          y: 0,
+          toJSON() {
+            return {};
+          },
+        }) as DOMRect;
+
+      fireEvent.pointerDown(trigger, { pointerType: 'mouse', button: 0 });
+      fireEvent.mouseDown(trigger, { button: 0 });
+
+      const listbox = await screen.findByRole('listbox');
+
+      fireEvent.mouseUp(document.body, { button: 0, clientX: 1, clientY: 1 });
+
+      expect(listbox.isConnected).to.equal(true);
     });
   });
 
@@ -322,6 +511,43 @@ describe('<Combobox.Trigger />', () => {
       expect(trigger).to.have.attribute('aria-expanded', 'true');
       expect(trigger).to.have.attribute('aria-haspopup', 'dialog');
       expect(trigger).to.have.attribute('aria-controls', listbox.id);
+    });
+  });
+
+  describe('typeahead', () => {
+    it('selects item when typing on focused trigger (input inside popup)', async () => {
+      const { user } = await render(
+        <Combobox.Root items={['apple', 'banana', 'cherry']}>
+          <Combobox.Trigger data-testid="trigger">
+            <Combobox.Value data-testid="value" />
+          </Combobox.Trigger>
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  {(item: string) => (
+                    <Combobox.Item key={item} value={item}>
+                      {item}
+                    </Combobox.Item>
+                  )}
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+
+      expect(trigger).not.to.have.text('apple');
+
+      await act(async () => {
+        trigger.focus();
+      });
+      await user.keyboard('a');
+
+      expect(trigger).to.have.text('apple');
+      expect(screen.queryByRole('listbox')).to.equal(null);
     });
   });
 });

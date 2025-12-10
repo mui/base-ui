@@ -1,5 +1,5 @@
 import * as React from 'react';
-import glob from 'fast-glob';
+import { globbySync } from 'globby';
 import Link from 'next/link';
 import clsx from 'clsx';
 import { dirname, resolve } from 'node:path';
@@ -10,7 +10,7 @@ import classes from './ExperimentsList.module.css';
 const currentDirectory = dirname(fileURLToPath(import.meta.url));
 const experimentsRootDirectory = resolve(currentDirectory, '../../app/(private)/experiments');
 
-const allExperimentFiles = glob.globSync(
+const allExperimentFiles = globbySync(
   ['**/*.tsx', '!infra/**/*', '!**/page.tsx', '!**/layout.tsx'],
   { cwd: experimentsRootDirectory },
 );
@@ -19,6 +19,11 @@ const groups: Record<string, { name: string; path: string }[]> = {};
 
 for (const key of allExperimentFiles) {
   const segments = key.split('/');
+
+  // Ignore nested entries like `perf/utils/*` to keep navigation at 1 level deep.
+  if (segments.length > 2) {
+    continue;
+  }
   let group: string;
   let name: string;
 

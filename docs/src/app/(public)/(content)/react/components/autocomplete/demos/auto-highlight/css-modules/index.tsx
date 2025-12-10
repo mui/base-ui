@@ -1,5 +1,5 @@
-import * as React from 'react';
-import { Autocomplete } from '@base-ui-components/react/autocomplete';
+'use client';
+import { Autocomplete } from '@base-ui/react/autocomplete';
 import styles from './index.module.css';
 
 export default function ExampleAutocompleteAutoHighlight() {
@@ -14,7 +14,7 @@ export default function ExampleAutocompleteAutoHighlight() {
         <Autocomplete.Positioner className={styles.Positioner} sideOffset={4}>
           <Autocomplete.Popup className={styles.Popup}>
             <Autocomplete.Empty className={styles.Empty}>No tags found.</Autocomplete.Empty>
-            <Autocomplete.List>
+            <Autocomplete.List className={styles.List}>
               {(tag: Tag) => (
                 <Autocomplete.Item key={tag.id} className={styles.Item} value={tag}>
                   {tag.value}

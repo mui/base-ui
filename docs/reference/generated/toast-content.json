@@ -1,0 +1,31 @@
+{
+  "name": "ToastContent",
+  "description": "A container for the contents of a toast.\nRenders a `<div>` element.",
+  "props": {
+    "className": {
+      "type": "string | ((state: Toast.Content.State) => string | undefined)",
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
+      "detailedType": "| string\n| ((state: Toast.Content.State) => string | undefined)"
+    },
+    "style": {
+      "type": "CSSProperties | ((state: Toast.Content.State) => CSSProperties | undefined)",
+      "detailedType": "| React.CSSProperties\n| ((\n    state: Toast.Content.State,\n  ) => CSSProperties | undefined)\n| undefined"
+    },
+    "render": {
+      "type": "ReactElement | ((props: HTMLProps, state: Toast.Content.State) => ReactElement)",
+      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render.",
+      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Toast.Content.State,\n  ) => ReactElement)"
+    }
+  },
+  "dataAttributes": {
+    "data-behind": {
+      "description": "Present when the toast is behind the frontmost toast in the stack.",
+      "type": "boolean"
+    },
+    "data-expanded": {
+      "description": "Present when the toast viewport is expanded.",
+      "type": "boolean"
+    }
+  },
+  "cssVariables": {}
+}

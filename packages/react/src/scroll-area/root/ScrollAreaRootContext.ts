@@ -1,4 +1,5 @@
 import * as React from 'react';
+import type { ScrollAreaRoot } from './ScrollAreaRoot';
 
 export interface ScrollAreaRootContext {
   cornerSize: { width: number; height: number };
@@ -13,6 +14,7 @@ export interface ScrollAreaRootContext {
   scrollingY: boolean;
   setScrollingY: React.Dispatch<React.SetStateAction<boolean>>;
   viewportRef: React.RefObject<HTMLDivElement | null>;
+  rootRef: React.RefObject<HTMLDivElement | null>;
   scrollbarYRef: React.RefObject<HTMLDivElement | null>;
   thumbYRef: React.RefObject<HTMLDivElement | null>;
   scrollbarXRef: React.RefObject<HTMLDivElement | null>;
@@ -35,6 +37,27 @@ export interface ScrollAreaRootContext {
       cornerHidden: boolean;
     }>
   >;
+  overflowEdges: {
+    xStart: boolean;
+    xEnd: boolean;
+    yStart: boolean;
+    yEnd: boolean;
+  };
+  setOverflowEdges: React.Dispatch<
+    React.SetStateAction<{
+      xStart: boolean;
+      xEnd: boolean;
+      yStart: boolean;
+      yEnd: boolean;
+    }>
+  >;
+  viewportState: ScrollAreaRoot.State;
+  overflowEdgeThreshold: {
+    xStart: number;
+    xEnd: number;
+    yStart: number;
+    yEnd: number;
+  };
 }
 
 export const ScrollAreaRootContext = React.createContext<ScrollAreaRootContext | undefined>(

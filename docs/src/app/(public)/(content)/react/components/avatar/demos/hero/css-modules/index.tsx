@@ -1,5 +1,4 @@
-import * as React from 'react';
-import { Avatar } from '@base-ui-components/react/avatar';
+import { Avatar } from '@base-ui/react/avatar';
 import styles from './index.module.css';
 
 export default function ExampleAvatar() {

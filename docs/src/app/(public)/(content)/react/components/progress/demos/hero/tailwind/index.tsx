@@ -1,5 +1,6 @@
+'use client';
 import * as React from 'react';
-import { Progress } from '@base-ui-components/react/progress';
+import { Progress } from '@base-ui/react/progress';
 
 export default function ExampleProgress() {
   const [value, setValue] = React.useState(20);

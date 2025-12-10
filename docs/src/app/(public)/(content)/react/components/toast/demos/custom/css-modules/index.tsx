@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { Toast } from '@base-ui-components/react/toast';
+import { Toast } from '@base-ui/react/toast';
 import styles from './index.module.css';
 
 interface CustomToastData {
@@ -51,15 +51,19 @@ function ToastList() {
   const { toasts } = Toast.useToastManager();
   return toasts.map((toast) => (
     <Toast.Root key={toast.id} toast={toast} className={styles.Toast}>
-      <Toast.Title className={styles.Title}>{toast.title}</Toast.Title>
-      {isCustomToast(toast) && toast.data ? (
-        <Toast.Description>`data.userId` is {toast.data.userId}</Toast.Description>
-      ) : (
-        <Toast.Description />
-      )}
-      <Toast.Close className={styles.Close} aria-label="Close">
-        <XIcon className={styles.Icon} />
-      </Toast.Close>
+      <Toast.Content className={styles.Content}>
+        <Toast.Title className={styles.Title}>{toast.title}</Toast.Title>
+        {isCustomToast(toast) && toast.data ? (
+          <Toast.Description className={styles.Description}>
+            `data.userId` is {toast.data.userId}
+          </Toast.Description>
+        ) : (
+          <Toast.Description className={styles.Description} />
+        )}
+        <Toast.Close className={styles.Close} aria-label="Close">
+          <XIcon className={styles.Icon} />
+        </Toast.Close>
+      </Toast.Content>
     </Toast.Root>
   ));
 }

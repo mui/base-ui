@@ -1,8 +1,8 @@
 'use client';
 import * as React from 'react';
-import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
-import { isSafari } from '@base-ui-components/utils/detectBrowser';
-import { visuallyHidden } from '@base-ui-components/utils/visuallyHidden';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { isSafari } from '@base-ui/utils/detectBrowser';
+import { visuallyHidden } from '@base-ui/utils/visuallyHidden';
 
 /**
  * @internal
@@ -23,13 +23,19 @@ export const FocusGuard = React.forwardRef(function FocusGuard(
   }, []);
 
   const restProps = {
-    ref,
     tabIndex: 0,
     // Role is only for VoiceOver
     role,
-    'aria-hidden': role ? undefined : true,
-    style: visuallyHidden,
   };
 
-  return <span {...props} {...restProps} data-base-ui-focus-guard="" />;
+  return (
+    <span
+      {...props}
+      ref={ref}
+      style={visuallyHidden}
+      aria-hidden={role ? undefined : true}
+      {...restProps}
+      data-base-ui-focus-guard=""
+    />
+  );
 });

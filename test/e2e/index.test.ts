@@ -1,37 +1,15 @@
-import { expect } from 'chai';
-import { chromium, ElementHandle, Page, Browser } from '@playwright/test';
+import { chromium, expect, Page, Browser } from '@playwright/test';
 import { describe, it, beforeAll } from 'vitest';
-import type {
-  ByRoleMatcher,
-  ByRoleOptions,
-  Matcher,
-  MatcherOptions,
-  SelectorMatcherOptions,
-} from '@testing-library/dom';
-import '@mui/internal-test-utils/initMatchers';
 import '@mui/internal-test-utils/initPlaywrightMatchers';
 
 const BASE_URL = 'http://localhost:5173';
 
-function sleep(duration: number): Promise<void> {
+function delay(duration: number): Promise<void> {
   return new Promise<void>((resolve) => {
     setTimeout(() => {
       resolve();
     }, duration);
   });
-}
-
-interface PlaywrightScreen {
-  getByLabelText: (
-    labelText: Matcher,
-    options?: SelectorMatcherOptions,
-  ) => Promise<ElementHandle<HTMLElement>>;
-  getByRole: (role: ByRoleMatcher, options?: ByRoleOptions) => Promise<ElementHandle<HTMLElement>>;
-  getByTestId: (testId: string, options?: MatcherOptions) => Promise<ElementHandle<HTMLElement>>;
-  getByText: (
-    text: Matcher,
-    options?: SelectorMatcherOptions,
-  ) => Promise<ElementHandle<HTMLElement>>;
 }
 
 /**
@@ -53,7 +31,7 @@ async function attemptGoto(page: Page, url: string): Promise<boolean> {
       didNavigate = true;
     } catch (error) {
       // eslint-disable-next-line no-await-in-loop
-      await sleep(retryTimeoutMS);
+      await delay(retryTimeoutMS);
     }
   }
 
@@ -63,32 +41,6 @@ async function attemptGoto(page: Page, url: string): Promise<boolean> {
 describe('e2e', () => {
   let browser: Browser;
   let page: Page;
-  const screen: PlaywrightScreen = {
-    getByLabelText: (...inputArgs) => {
-      return page.evaluateHandle(
-        (args) => window.DomTestingLibrary.getByLabelText(document.body, ...args),
-        inputArgs,
-      );
-    },
-    getByRole: (...inputArgs) => {
-      return page.evaluateHandle(
-        (args) => window.DomTestingLibrary.getByRole(document.body, ...args),
-        inputArgs,
-      );
-    },
-    getByText: (...inputArgs) => {
-      return page.evaluateHandle(
-        (args) => window.DomTestingLibrary.getByText(document.body, ...args),
-        inputArgs,
-      );
-    },
-    getByTestId: (...inputArgs) => {
-      return page.evaluateHandle(
-        (args) => window.DomTestingLibrary.getByTestId(document.body, ...args),
-        inputArgs,
-      );
-    },
-  };
 
   async function renderFixture(fixturePath: string) {
     await page.goto(`${BASE_URL}/e2e-fixtures/${fixturePath}#no-dev`);
@@ -112,21 +64,155 @@ describe('e2e', () => {
     await browser.close();
   });
 
+  describe('<Field />', () => {
+    describe('validationMode=onChange', () => {
+      it('<Field.Control />', async () => {
+        await renderFixture('field/validate-on-change/Input');
+
+        const error = await page.getByTestId('error');
+        await expect(error).toBeHidden();
+
+        const input = page.getByRole('textbox');
+
+        await input.press('a');
+        await expect(page.getByText('tooShort error')).toBeVisible();
+        expect(error).toHaveCount(1);
+
+        // clear the input
+        await input.press('Backspace');
+        await expect(page.getByText('valueMissing error')).toBeVisible();
+        expect(error).toHaveCount(1);
+
+        await input.pressSequentially('abc');
+        await expect(input).toHaveValue('abc');
+        await expect(error).toBeHidden();
+
+        await input.press('d');
+        await expect(input).toHaveValue('abcd');
+        await expect(page.getByText('custom error')).toBeVisible();
+        expect(error).toHaveCount(1);
+
+        await input.press('Backspace');
+        await expect(input).toHaveValue('abc');
+        await expect(error).toBeHidden();
+
+        await input.press('Backspace');
+        await expect(input).toHaveValue('ab');
+        expect(error).toHaveCount(1);
+        await expect(page.getByText('tooShort error')).toBeVisible();
+
+        await input.press('Backspace');
+        await input.press('Backspace');
+        await expect(input).toHaveValue('');
+        expect(error).toHaveCount(1);
+        await expect(page.getByText('valueMissing error')).toBeVisible();
+      });
+
+      it('<Select />', async () => {
+        // options one & three returns errors
+        // options two and four are valid
+        // the field is required
+        await renderFixture('field/validate-on-change/Select');
+
+        const error = await page.getByTestId('error');
+        await expect(error).toBeHidden();
+
+        const trigger = await page.getByRole('combobox');
+        await expect(trigger).toHaveText('select');
+
+        const options = page.getByRole('option');
+
+        await trigger.click();
+        await options.filter({ hasText: 'one' }).click();
+        await expect(trigger).toHaveText('one');
+        await expect(error).toHaveText('error one');
+
+        await trigger.click();
+        await options.filter({ hasText: 'two' }).click();
+        await expect(trigger).toHaveText('two');
+        await expect(error).toBeHidden();
+
+        await trigger.click();
+        // clear the value
+        await options.filter({ hasText: 'select' }).click();
+        await expect(trigger).toHaveText('select');
+        await expect(error).toHaveText('valueMissing error');
+
+        await trigger.click();
+        await options.filter({ hasText: 'three' }).click();
+        await expect(trigger).toHaveText('three');
+        await expect(error).toHaveText('error three');
+
+        await trigger.click();
+        await options.filter({ hasText: 'four' }).click();
+        await expect(trigger).toHaveText('four');
+        await expect(error).toBeHidden();
+      });
+    });
+  });
+
   describe('<Radio />', () => {
     it('loops focus by default', async () => {
       await renderFixture('Radio');
 
       await page.keyboard.press('Tab');
-      await expect(screen.getByTestId('one')).toHaveFocus();
+      await expect(page.getByTestId('one')).toBeFocused();
 
       await page.keyboard.press('ArrowRight');
-      await expect(screen.getByTestId('two')).toHaveFocus();
+      await expect(page.getByTestId('two')).toBeFocused();
 
       await page.keyboard.press('ArrowLeft');
-      await expect(screen.getByTestId('one')).toHaveFocus();
+      await expect(page.getByTestId('one')).toBeFocused();
 
       await page.keyboard.press('ArrowLeft');
-      await expect(screen.getByTestId('three')).toHaveFocus();
+      await expect(page.getByTestId('three')).toBeFocused();
+    });
+  });
+
+  describe('<Slider />', () => {
+    it('overlapping thumbs', async () => {
+      await renderFixture('slider/Range');
+
+      // mouse down at the center of the lower thumb but the upper thumb
+      // is moved due to overlap
+      await page.mouse.move(25, 10);
+      await page.mouse.down();
+      await page.mouse.move(100, 10);
+      await page.mouse.up();
+
+      await expect(page.getByRole('status')).toHaveText('25 – 100');
+    });
+
+    it('overlapping thumbs at max', async () => {
+      await renderFixture('slider/RangeSliderMax');
+
+      // both thumbs are at max with the upper thumb completely covering the
+      // lower one; the lower one will be moved by the pointer instead so the
+      // slider doesn't get stuck
+      await page.mouse.move(100, 10);
+      await page.mouse.down();
+      await page.mouse.move(50, 10);
+      await page.mouse.up();
+
+      await expect(page.getByRole('status')).toHaveText('50 – 100');
+    });
+
+    it('inset thumbs', async () => {
+      await renderFixture('slider/Inset');
+      await expect(page.getByRole('status')).toHaveText('30');
+
+      // click the left inset offset region
+      await page.mouse.click(10, 10);
+      await expect(page.getByRole('status')).toHaveText('0');
+      // click the right inset offset region
+      await page.mouse.click(110, 10);
+      await expect(page.getByRole('status')).toHaveText('100');
+      // drag from the center of the thumb
+      await page.mouse.move(110, 10);
+      await page.mouse.down();
+      await page.mouse.move(90, 10);
+      await page.mouse.up();
+      await expect(page.getByRole('status')).toHaveText('80');
     });
   });
 });
