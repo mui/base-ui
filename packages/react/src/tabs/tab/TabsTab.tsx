@@ -237,6 +237,16 @@ export interface TabsTabProps
    * The value of the Tab.
    */
   value: TabsTab.Value;
+  /**
+   * Whether the Tab is disabled.
+   *
+   * If a first Tab on a TabList is disabled, it won't initially be selected.
+   * Instead, the next enabled Tab will be selected.
+   * However, this does not work this way during Server-Side Rendering, as it is not known
+   * during pre-rendering which Tabs are disabled.
+   * To work around this, ensure that `defaultValue` or `value` on `Tabs.Root` is set to an enabled Tab's value.
+   */
+  disabled?: boolean;
 }
 
 export namespace TabsTab {
