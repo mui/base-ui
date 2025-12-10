@@ -31,16 +31,18 @@ describe('<Dialog.Root />', () => {
 
   it('ARIA attributes', async () => {
     await render(
-      <Dialog.Root modal={false} open>
-        <Dialog.Trigger />
-        <Dialog.Portal>
-          <Dialog.Backdrop />
-          <Dialog.Popup>
-            <Dialog.Title>title text</Dialog.Title>
-            <Dialog.Description>description text</Dialog.Description>
-          </Dialog.Popup>
-        </Dialog.Portal>
-      </Dialog.Root>,
+      <TestDialog
+        rootProps={{ modal: false, open: true }}
+        popupProps={{
+          children: (
+            <React.Fragment>
+              <Dialog.Title>title text</Dialog.Title>
+              <Dialog.Description>description text</Dialog.Description>
+            </React.Fragment>
+          ),
+        }}
+        includeBackdrop
+      />,
     );
 
     const popup = screen.queryByRole('dialog');
@@ -58,16 +60,7 @@ describe('<Dialog.Root />', () => {
     it('calls onOpenChange with the new open state', async () => {
       const handleOpenChange = spy();
 
-      const { user } = await render(
-        <Dialog.Root onOpenChange={handleOpenChange}>
-          <Dialog.Trigger>Open</Dialog.Trigger>
-          <Dialog.Portal>
-            <Dialog.Popup>
-              <Dialog.Close>Close</Dialog.Close>
-            </Dialog.Popup>
-          </Dialog.Portal>
-        </Dialog.Root>,
-      );
+      const { user } = await render(<TestDialog rootProps={{ onOpenChange: handleOpenChange }} />);
 
       expect(handleOpenChange.callCount).to.equal(0);
 
@@ -87,16 +80,7 @@ describe('<Dialog.Root />', () => {
     it('calls onOpenChange with the reason for change when clicked on trigger and close button', async () => {
       const handleOpenChange = spy();
 
-      const { user } = await render(
-        <Dialog.Root onOpenChange={handleOpenChange}>
-          <Dialog.Trigger>Open</Dialog.Trigger>
-          <Dialog.Portal>
-            <Dialog.Popup>
-              <Dialog.Close>Close</Dialog.Close>
-            </Dialog.Popup>
-          </Dialog.Portal>
-        </Dialog.Root>,
-      );
+      const { user } = await render(<TestDialog rootProps={{ onOpenChange: handleOpenChange }} />);
 
       const openButton = screen.getByText('Open');
       await user.click(openButton);
@@ -115,14 +99,7 @@ describe('<Dialog.Root />', () => {
       const handleOpenChange = spy();
 
       const { user } = await render(
-        <Dialog.Root defaultOpen onOpenChange={handleOpenChange}>
-          <Dialog.Trigger>Open</Dialog.Trigger>
-          <Dialog.Portal>
-            <Dialog.Popup>
-              <Dialog.Close>Close</Dialog.Close>
-            </Dialog.Popup>
-          </Dialog.Portal>
-        </Dialog.Root>,
+        <TestDialog rootProps={{ defaultOpen: true, onOpenChange: handleOpenChange }} />,
       );
 
       await user.keyboard('[Escape]');
@@ -135,14 +112,7 @@ describe('<Dialog.Root />', () => {
       const handleOpenChange = spy();
 
       const { user } = await render(
-        <Dialog.Root defaultOpen onOpenChange={handleOpenChange}>
-          <Dialog.Trigger>Open</Dialog.Trigger>
-          <Dialog.Portal>
-            <Dialog.Popup>
-              <Dialog.Close>Close</Dialog.Close>
-            </Dialog.Popup>
-          </Dialog.Portal>
-        </Dialog.Root>,
+        <TestDialog rootProps={{ defaultOpen: true, onOpenChange: handleOpenChange }} />,
       );
 
       await user.click(screen.getByRole('presentation', { hidden: true }));
@@ -155,14 +125,9 @@ describe('<Dialog.Root />', () => {
       const handleOpenChange = spy();
 
       const { user } = await render(
-        <Dialog.Root defaultOpen onOpenChange={handleOpenChange} modal={false}>
-          <Dialog.Trigger>Open</Dialog.Trigger>
-          <Dialog.Portal>
-            <Dialog.Popup>
-              <Dialog.Close>Close</Dialog.Close>
-            </Dialog.Popup>
-          </Dialog.Portal>
-        </Dialog.Root>,
+        <TestDialog
+          rootProps={{ defaultOpen: true, onOpenChange: handleOpenChange, modal: false }}
+        />,
       );
 
       await user.click(document.body);
@@ -176,18 +141,14 @@ describe('<Dialog.Root />', () => {
         const handleOpenChange = spy();
 
         const { user } = await render(
-          <Dialog.Root defaultOpen onOpenChange={handleOpenChange}>
-            <Dialog.Trigger>Open</Dialog.Trigger>
-            <Dialog.Portal>
-              <Dialog.Backdrop data-backdrop style={{ position: 'fixed', zIndex: 10, inset: 0 }} />
-              <Dialog.Popup style={{ position: 'fixed', zIndex: 10 }}>
-                <Dialog.Close>Close</Dialog.Close>
-              </Dialog.Popup>
-            </Dialog.Portal>
-          </Dialog.Root>,
+          <TestDialog
+            rootProps={{ defaultOpen: true, onOpenChange: handleOpenChange }}
+            popupProps={{ style: { position: 'fixed', zIndex: 10 } }}
+            includeBackdrop
+          />,
         );
 
-        await user.click(document.querySelector('[data-backdrop]') as HTMLElement);
+        await user.click(screen.getByTestId('backdrop'));
 
         expect(handleOpenChange.callCount).to.equal(1);
         expect(handleOpenChange.firstCall.args[1].reason).to.equal(REASONS.outsidePress);
@@ -197,52 +158,49 @@ describe('<Dialog.Root />', () => {
         const handleOpenChange = spy();
 
         const { user } = await render(
-          <Dialog.Root defaultOpen onOpenChange={handleOpenChange}>
-            <Dialog.Trigger>Open</Dialog.Trigger>
-            <Dialog.Portal>
-              <Dialog.Backdrop data-backdrop style={{ position: 'fixed', zIndex: 10, inset: 0 }} />
-              <Dialog.Popup style={{ position: 'fixed', zIndex: 10 }}>
-                <Dialog.Close>Close</Dialog.Close>
-              </Dialog.Popup>
-            </Dialog.Portal>
-          </Dialog.Root>,
+          <TestDialog
+            rootProps={{ defaultOpen: true, onOpenChange: handleOpenChange }}
+            includeBackdrop
+          />,
         );
 
-        const backdrop = document.querySelector('[data-backdrop]') as HTMLElement;
+        const backdrop = screen.getByTestId('backdrop');
         await user.pointer([{ target: backdrop }, { keys: '[MouseRight]', target: backdrop }]);
 
         expect(handleOpenChange.callCount).to.equal(0);
       });
     });
+
+    it('cancel() prevents opening while uncontrolled', async () => {
+      const { user } = await render(
+        <TestDialog
+          rootProps={{
+            onOpenChange: (nextOpen, eventDetails) => {
+              if (nextOpen) {
+                eventDetails.cancel();
+              }
+            },
+          }}
+        />,
+      );
+
+      const openButton = screen.getByText('Open');
+      await user.click(openButton);
+      await flushMicrotasks();
+
+      expect(screen.queryByRole('dialog')).to.equal(null);
+    });
   });
 
-  describe.skipIf(isJSDOM)('prop: modal', () => {
+  describe('prop: modal', () => {
     it('makes other interactive elements on the page inert when a modal dialog is open', async () => {
-      await render(
-        <Dialog.Root defaultOpen modal>
-          <Dialog.Trigger>Open Dialog</Dialog.Trigger>
-          <Dialog.Portal>
-            <Dialog.Popup>
-              <Dialog.Close>Close Dialog</Dialog.Close>
-            </Dialog.Popup>
-          </Dialog.Portal>
-        </Dialog.Root>,
-      );
+      await render(<TestDialog rootProps={{ defaultOpen: true, modal: true }} />);
 
       expect(screen.getByRole('presentation', { hidden: true })).not.to.equal(null);
     });
 
     it('does not make other interactive elements on the page inert when a non-modal dialog is open', async () => {
-      await render(
-        <Dialog.Root defaultOpen modal={false}>
-          <Dialog.Trigger>Open Dialog</Dialog.Trigger>
-          <Dialog.Portal>
-            <Dialog.Popup>
-              <Dialog.Close>Close Dialog</Dialog.Close>
-            </Dialog.Popup>
-          </Dialog.Portal>
-        </Dialog.Root>,
-      );
+      await render(<TestDialog rootProps={{ defaultOpen: true, modal: false }} />);
 
       expect(screen.queryByRole('presentation')).to.equal(null);
     });
@@ -261,16 +219,14 @@ describe('<Dialog.Root />', () => {
 
         await render(
           <div data-testid="outside">
-            <Dialog.Root
-              defaultOpen
-              onOpenChange={handleOpenChange}
-              disablePointerDismissal={disablePointerDismissal}
-              modal={false}
-            >
-              <Dialog.Portal>
-                <Dialog.Popup />
-              </Dialog.Portal>
-            </Dialog.Root>
+            <TestDialog
+              rootProps={{
+                defaultOpen: true,
+                onOpenChange: handleOpenChange,
+                disablePointerDismissal,
+                modal: false,
+              }}
+            />
           </div>,
         );
 
@@ -294,12 +250,10 @@ describe('<Dialog.Root />', () => {
       const handleOpenChange = spy();
 
       await render(
-        <Dialog.Root defaultOpen onOpenChange={handleOpenChange} modal={false}>
-          <Dialog.Portal>
-            <Dialog.Backdrop data-testid="backdrop" />
-            <Dialog.Popup />
-          </Dialog.Portal>
-        </Dialog.Root>,
+        <TestDialog
+          rootProps={{ defaultOpen: true, onOpenChange: handleOpenChange, modal: false }}
+          includeBackdrop
+        />,
       );
 
       const backdrop = screen.getByTestId('backdrop');
@@ -319,11 +273,9 @@ describe('<Dialog.Root />', () => {
       const handleOpenChange = spy();
 
       await render(
-        <Dialog.Root defaultOpen onOpenChange={handleOpenChange} modal>
-          <Dialog.Portal>
-            <Dialog.Popup />
-          </Dialog.Portal>
-        </Dialog.Root>,
+        <TestDialog
+          rootProps={{ defaultOpen: true, onOpenChange: handleOpenChange, modal: true }}
+        />,
       );
 
       const internalBackdrop = screen.getByRole('presentation', { hidden: true });
@@ -340,7 +292,7 @@ describe('<Dialog.Root />', () => {
     });
   });
 
-  it('waits for the exit transition to finish before unmounting', async ({ skip }) => {
+  it.skipIf(isJSDOM)('waits for the exit transition to finish before unmounting', async () => {
     const css = `
     .dialog {
       opacity: 0;
@@ -351,23 +303,29 @@ describe('<Dialog.Root />', () => {
     }
   `;
 
-    if (isJSDOM) {
-      skip();
-    }
-
     globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
 
     const notifyTransitionEnd = spy();
 
-    const { setProps } = await render(
-      <Dialog.Root open modal={false}>
-        {/* eslint-disable-next-line react/no-danger */}
-        <style dangerouslySetInnerHTML={{ __html: css }} />
-        <Dialog.Portal keepMounted>
-          <Dialog.Popup className="dialog" onTransitionEnd={notifyTransitionEnd} />
-        </Dialog.Portal>
-      </Dialog.Root>,
-    );
+    function TransitionTest(props: { open: boolean }) {
+      return (
+        <React.Fragment>
+          {/* eslint-disable-next-line react/no-danger */}
+          <style dangerouslySetInnerHTML={{ __html: css }} />
+          <TestDialog
+            rootProps={{ open: props.open, modal: false }}
+            portalProps={{ keepMounted: true }}
+            popupProps={{
+              className: 'dialog',
+              onTransitionEnd: notifyTransitionEnd,
+              children: null,
+            }}
+          />
+        </React.Fragment>
+      );
+    }
+
+    const { setProps } = await render(<TransitionTest open />);
 
     await setProps({ open: false });
     expect(screen.queryByRole('dialog')).not.to.equal(null);
@@ -383,12 +341,7 @@ describe('<Dialog.Root />', () => {
     it('should render an internal backdrop when `true`', async () => {
       const { user } = await render(
         <div>
-          <Dialog.Root modal>
-            <Dialog.Trigger data-testid="trigger">Open</Dialog.Trigger>
-            <Dialog.Portal>
-              <Dialog.Popup />
-            </Dialog.Portal>
-          </Dialog.Root>
+          <TestDialog rootProps={{ modal: true }} />
           <button>Outside</button>
         </div>,
       );
@@ -413,12 +366,7 @@ describe('<Dialog.Root />', () => {
     it('should not render an internal backdrop when `false`', async () => {
       const { user } = await render(
         <div>
-          <Dialog.Root modal={false}>
-            <Dialog.Trigger data-testid="trigger">Open</Dialog.Trigger>
-            <Dialog.Portal>
-              <Dialog.Popup />
-            </Dialog.Portal>
-          </Dialog.Root>
+          <TestDialog rootProps={{ modal: false }} />
           <button>Outside</button>
         </div>,
       );
@@ -438,31 +386,6 @@ describe('<Dialog.Root />', () => {
     });
   });
 
-  describe('BaseUIChangeEventDetails', () => {
-    it('onOpenChange cancel() prevents opening while uncontrolled', async () => {
-      const { user } = await render(
-        <Dialog.Root
-          onOpenChange={(nextOpen, eventDetails) => {
-            if (nextOpen) {
-              eventDetails.cancel();
-            }
-          }}
-        >
-          <Dialog.Trigger>Open</Dialog.Trigger>
-          <Dialog.Portal>
-            <Dialog.Popup>Dialog</Dialog.Popup>
-          </Dialog.Portal>
-        </Dialog.Root>,
-      );
-
-      const openButton = screen.getByText('Open');
-      await user.click(openButton);
-      await flushMicrotasks();
-
-      expect(screen.queryByRole('dialog')).to.equal(null);
-    });
-  });
-
   it('does not dismiss previous modal dialog when clicking new modal dialog', async () => {
     function App() {
       const [openNested, setOpenNested] = React.useState(false);
@@ -470,36 +393,30 @@ describe('<Dialog.Root />', () => {
 
       return (
         <div>
-          <Dialog.Root>
-            <Dialog.Trigger>Trigger</Dialog.Trigger>
-            <Dialog.Portal>
-              <Dialog.Backdrop />
-              <Dialog.Popup>
-                <button onClick={() => setOpenNested(true)}>Open nested 1</button>
-              </Dialog.Popup>
-            </Dialog.Portal>
-          </Dialog.Root>
-          <Dialog.Root open={openNested} onOpenChange={setOpenNested}>
-            <Dialog.Portal>
-              <Dialog.Backdrop />
-              <Dialog.Popup>
-                <button onClick={() => setOpenNested2(true)}>Open nested 2</button>
-              </Dialog.Popup>
-            </Dialog.Portal>
-          </Dialog.Root>
-          <Dialog.Root open={openNested2} onOpenChange={setOpenNested2}>
-            <Dialog.Portal>
-              <Dialog.Backdrop />
-              <Dialog.Popup>Final nested</Dialog.Popup>
-            </Dialog.Portal>
-          </Dialog.Root>
+          <TestDialog
+            popupProps={{
+              children: <button onClick={() => setOpenNested(true)}>Open nested 1</button>,
+            }}
+          />
+          <TestDialog
+            rootProps={{ open: openNested, onOpenChange: setOpenNested }}
+            omitTrigger
+            popupProps={{
+              children: <button onClick={() => setOpenNested2(true)}>Open nested 2</button>,
+            }}
+          />
+          <TestDialog
+            rootProps={{ open: openNested2, onOpenChange: setOpenNested2 }}
+            omitTrigger
+            popupProps={{ children: 'Final nested' }}
+          />
         </div>
       );
     }
 
     const { user } = await render(<App />);
 
-    const trigger = screen.getByRole('button', { name: 'Trigger' });
+    const trigger = screen.getByRole('button', { name: 'Open' });
     await user.click(trigger);
 
     const nestedButton1 = screen.getByRole('button', { name: 'Open nested 1' });
@@ -520,33 +437,38 @@ describe('<Dialog.Root />', () => {
 
       return (
         <div>
-          <Dialog.Root>
-            <Dialog.Trigger>Trigger</Dialog.Trigger>
-            <Dialog.Portal>
-              <Dialog.Popup data-testid="level-1">
-                <button onClick={() => setOpenNested(true)}>Open nested 1</button>
-              </Dialog.Popup>
-            </Dialog.Portal>
-          </Dialog.Root>
-          <Dialog.Root open={openNested} onOpenChange={setOpenNested}>
-            <Dialog.Portal>
-              <Dialog.Popup data-testid="level-2">
-                <button onClick={() => setOpenNested2(true)}>Open nested 2</button>
-              </Dialog.Popup>
-            </Dialog.Portal>
-          </Dialog.Root>
-          <Dialog.Root open={openNested2} onOpenChange={setOpenNested2}>
-            <Dialog.Portal>
-              <Dialog.Popup data-testid="level-3">Final nested</Dialog.Popup>
-            </Dialog.Portal>
-          </Dialog.Root>
+          <TestDialog
+            popupProps={
+              {
+                'data-testid': 'level-1',
+                children: <button onClick={() => setOpenNested(true)}>Open nested 1</button>,
+              } as Dialog.Popup.Props
+            }
+          />
+          <TestDialog
+            rootProps={{ open: openNested, onOpenChange: setOpenNested }}
+            omitTrigger
+            popupProps={
+              {
+                'data-testid': 'level-2',
+                children: <button onClick={() => setOpenNested2(true)}>Open nested 2</button>,
+              } as Dialog.Popup.Props
+            }
+          />
+          <TestDialog
+            rootProps={{ open: openNested2, onOpenChange: setOpenNested2 }}
+            omitTrigger
+            popupProps={
+              { 'data-testid': 'level-3', children: 'Final nested' } as Dialog.Popup.Props
+            }
+          />
         </div>
       );
     }
 
     await render(<App />);
 
-    const trigger = screen.getByRole('button', { name: 'Trigger' });
+    const trigger = screen.getByRole('button', { name: 'Open' });
     fireEvent.click(trigger);
 
     const nestedButton1 = screen.getByRole('button', { name: 'Open nested 1' });
@@ -578,10 +500,9 @@ describe('<Dialog.Root />', () => {
   describe.skipIf(isJSDOM)('nested popups', () => {
     it('should not dismiss the dialog when dismissing outside a nested modal menu', async () => {
       const { user } = await render(
-        <Dialog.Root>
-          <Dialog.Trigger>Open dialog</Dialog.Trigger>
-          <Dialog.Portal>
-            <Dialog.Popup data-testid="dialog-popup">
+        <TestDialog
+          popupProps={{
+            children: (
               <Menu.Root>
                 <Menu.Trigger>Open menu</Menu.Trigger>
                 <Menu.Portal>
@@ -592,12 +513,12 @@ describe('<Dialog.Root />', () => {
                   </Menu.Positioner>
                 </Menu.Portal>
               </Menu.Root>
-            </Dialog.Popup>
-          </Dialog.Portal>
-        </Dialog.Root>,
+            ),
+          }}
+        />,
       );
 
-      const dialogTrigger = screen.getByRole('button', { name: 'Open dialog' });
+      const dialogTrigger = screen.getByRole('button', { name: 'Open' });
       await user.click(dialogTrigger);
 
       await waitFor(() => {
@@ -637,10 +558,9 @@ describe('<Dialog.Root />', () => {
 
     it('should not dismiss the dialog when dismissing outside a nested select popup', async () => {
       const { user } = await render(
-        <Dialog.Root>
-          <Dialog.Trigger>Open dialog</Dialog.Trigger>
-          <Dialog.Portal>
-            <Dialog.Popup data-testid="dialog-popup">
+        <TestDialog
+          popupProps={{
+            children: (
               <Select.Root>
                 <Select.Trigger data-testid="select-trigger">Open select</Select.Trigger>
                 <Select.Portal>
@@ -651,12 +571,12 @@ describe('<Dialog.Root />', () => {
                   </Select.Positioner>
                 </Select.Portal>
               </Select.Root>
-            </Dialog.Popup>
-          </Dialog.Portal>
-        </Dialog.Root>,
+            ),
+          }}
+        />,
       );
 
-      const dialogTrigger = screen.getByRole('button', { name: 'Open dialog' });
+      const dialogTrigger = screen.getByRole('button', { name: 'Open' });
       await user.click(dialogTrigger);
 
       await waitFor(() => {
@@ -701,14 +621,12 @@ describe('<Dialog.Root />', () => {
           <Menu.Portal>
             <Menu.Positioner>
               <Menu.Popup>
-                <Dialog.Root>
-                  <Menu.Item closeOnClick={false} render={<Dialog.Trigger nativeButton={false} />}>
-                    Open dialog
-                  </Menu.Item>
-                  <Dialog.Portal>
-                    <Dialog.Popup />
-                  </Dialog.Portal>
-                </Dialog.Root>
+                <TestDialog
+                  triggerProps={{ children: 'Open dialog' }}
+                  triggerWrapper={(trigger) => (
+                    <Menu.Item closeOnClick={false} render={trigger} nativeButton />
+                  )}
+                ></TestDialog>
               </Menu.Popup>
             </Menu.Positioner>
           </Menu.Portal>
@@ -750,17 +668,14 @@ describe('<Dialog.Root />', () => {
       };
 
       const { user } = await render(
-        <Dialog.Root
-          actionsRef={actionsRef}
-          onOpenChange={(open, details) => {
-            details.preventUnmountOnClose();
+        <TestDialog
+          rootProps={{
+            actionsRef,
+            onOpenChange: (open, details) => {
+              details.preventUnmountOnClose();
+            },
           }}
-        >
-          <Dialog.Trigger>Open</Dialog.Trigger>
-          <Dialog.Portal>
-            <Dialog.Popup />
-          </Dialog.Portal>
-        </Dialog.Root>,
+        />,
       );
 
       const trigger = screen.getByRole('button', { name: 'Open' });
@@ -789,18 +704,16 @@ describe('<Dialog.Root />', () => {
       function Test() {
         const [showButton, setShowButton] = React.useState(true);
         return (
-          <Dialog.Root defaultOpen modal="trap-focus">
-            <Dialog.Trigger>Open</Dialog.Trigger>
-            <Dialog.Portal>
-              <Dialog.Popup data-testid="popup">
-                {showButton && (
-                  <button data-testid="remove" onPointerDown={() => setShowButton(false)}>
-                    Remove on pointer down
-                  </button>
-                )}
-              </Dialog.Popup>
-            </Dialog.Portal>
-          </Dialog.Root>
+          <TestDialog
+            rootProps={{ defaultOpen: true, modal: 'trap-focus' }}
+            popupProps={{
+              children: showButton && (
+                <button data-testid="remove" onPointerDown={() => setShowButton(false)}>
+                  Remove on pointer down
+                </button>
+              ),
+            }}
+          />
         );
       }
 
@@ -812,7 +725,7 @@ describe('<Dialog.Root />', () => {
       });
       fireEvent.pointerDown(removeButton);
 
-      const popup = screen.getByTestId('popup');
+      const popup = screen.getByTestId('dialog-popup');
       await waitFor(() => {
         expect(popup).toHaveFocus();
       });
@@ -833,23 +746,19 @@ describe('<Dialog.Root />', () => {
         const [open, setOpen] = React.useState(true);
         return (
           <div>
-            <button onClick={() => setOpen(false)}>Close</button>
-            <Dialog.Root open={open} onOpenChangeComplete={onOpenChangeComplete}>
-              <Dialog.Portal>
-                <Dialog.Popup data-testid="popup" />
-              </Dialog.Portal>
-            </Dialog.Root>
+            <button onClick={() => setOpen(false)}>Close externally</button>
+            <TestDialog rootProps={{ open, onOpenChangeComplete }} />
           </div>
         );
       }
 
       const { user } = await render(<Test />);
 
-      const closeButton = screen.getByText('Close');
+      const closeButton = screen.getByText('Close externally');
       await user.click(closeButton);
 
       await waitFor(() => {
-        expect(screen.queryByTestId('popup')).to.equal(null);
+        expect(screen.queryByTestId('dialog-popup')).to.equal(null);
       });
 
       expect(onOpenChangeComplete.firstCall.args[0]).to.equal(true);
@@ -880,30 +789,31 @@ describe('<Dialog.Root />', () => {
           <div>
             {/* eslint-disable-next-line react/no-danger */}
             <style dangerouslySetInnerHTML={{ __html: style }} />
-            <button onClick={() => setOpen(false)}>Close</button>
-            <Dialog.Root open={open} onOpenChangeComplete={onOpenChangeComplete}>
-              <Dialog.Portal>
-                <Dialog.Popup className="animation-test-indicator" data-testid="popup" />
-              </Dialog.Portal>
-            </Dialog.Root>
+            <button onClick={() => setOpen(false)}>Close externally</button>
+            <TestDialog
+              rootProps={{ open, onOpenChangeComplete }}
+              popupProps={{
+                className: 'animation-test-indicator',
+              }}
+            />
           </div>
         );
       }
 
       const { user } = await render(<Test />);
 
-      expect(screen.getByTestId('popup')).not.to.equal(null);
+      expect(screen.getByTestId('dialog-popup')).not.to.equal(null);
 
       // Wait for open animation to finish
       await waitFor(() => {
         expect(onOpenChangeComplete.firstCall.args[0]).to.equal(true);
       });
 
-      const closeButton = screen.getByText('Close');
+      const closeButton = screen.getByText('Close externally');
       await user.click(closeButton);
 
       await waitFor(() => {
-        expect(screen.queryByTestId('popup')).to.equal(null);
+        expect(screen.queryByTestId('dialog-popup')).to.equal(null);
       });
 
       expect(onOpenChangeComplete.lastCall.args[0]).to.equal(false);
@@ -916,23 +826,19 @@ describe('<Dialog.Root />', () => {
         const [open, setOpen] = React.useState(false);
         return (
           <div>
-            <button onClick={() => setOpen(true)}>Open</button>
-            <Dialog.Root open={open} onOpenChangeComplete={onOpenChangeComplete}>
-              <Dialog.Portal>
-                <Dialog.Popup data-testid="popup" />
-              </Dialog.Portal>
-            </Dialog.Root>
+            <button onClick={() => setOpen(true)}>Open externally</button>
+            <TestDialog rootProps={{ open, onOpenChangeComplete }} />
           </div>
         );
       }
 
       const { user } = await render(<Test />);
 
-      const openButton = screen.getByText('Open');
+      const openButton = screen.getByText('Open externally');
       await user.click(openButton);
 
       await waitFor(() => {
-        expect(screen.queryByTestId('popup')).not.to.equal(null);
+        expect(screen.queryByTestId('dialog-popup')).not.to.equal(null);
       });
 
       expect(onOpenChangeComplete.callCount).to.equal(2);
@@ -963,23 +869,20 @@ describe('<Dialog.Root />', () => {
           <div>
             {/* eslint-disable-next-line react/no-danger */}
             <style dangerouslySetInnerHTML={{ __html: style }} />
-            <button onClick={() => setOpen(true)}>Open</button>
-            <Dialog.Root
-              open={open}
-              onOpenChange={setOpen}
-              onOpenChangeComplete={onOpenChangeComplete}
-            >
-              <Dialog.Portal>
-                <Dialog.Popup className="animation-test-indicator" data-testid="popup" />
-              </Dialog.Portal>
-            </Dialog.Root>
+            <button onClick={() => setOpen(true)}>Open externally</button>
+            <TestDialog
+              rootProps={{ open, onOpenChange: setOpen, onOpenChangeComplete }}
+              popupProps={{
+                className: 'animation-test-indicator',
+              }}
+            />
           </div>
         );
       }
 
       const { user } = await render(<Test />);
 
-      const openButton = screen.getByText('Open');
+      const openButton = screen.getByText('Open externally');
       await user.click(openButton);
 
       // Wait for open animation to finish
@@ -987,21 +890,77 @@ describe('<Dialog.Root />', () => {
         expect(onOpenChangeComplete.firstCall.args[0]).to.equal(true);
       });
 
-      expect(screen.queryByTestId('popup')).not.to.equal(null);
+      expect(screen.queryByTestId('dialog-popup')).not.to.equal(null);
     });
 
     it('does not get called on mount when not open', async () => {
       const onOpenChangeComplete = spy();
 
-      await render(
-        <Dialog.Root onOpenChangeComplete={onOpenChangeComplete}>
-          <Dialog.Portal>
-            <Dialog.Popup data-testid="popup" />
-          </Dialog.Portal>
-        </Dialog.Root>,
-      );
+      await render(<TestDialog rootProps={{ onOpenChangeComplete }} />);
 
       expect(onOpenChangeComplete.callCount).to.equal(0);
     });
   });
 });
+
+type TestDialogProps = {
+  rootProps?: Omit<Dialog.Root.Props, 'children'>;
+  triggerProps?: Dialog.Trigger.Props;
+  portalProps?: Dialog.Portal.Props;
+  popupProps?: Dialog.Popup.Props;
+  omitTrigger?: boolean;
+  includeBackdrop?: boolean;
+  triggerWrapper?: (trigger: React.ReactElement) => React.ReactElement;
+};
+
+function TestDialog(props: TestDialogProps) {
+  const {
+    rootProps,
+    triggerProps,
+    portalProps,
+    popupProps,
+    omitTrigger = false,
+    includeBackdrop = false,
+    triggerWrapper = (trigger) => trigger,
+  } = props;
+
+  const { children: triggerChildren, ...restTriggerProps } = triggerProps ?? {};
+  const { children: popupChildren, ...restPopupProps } = popupProps ?? {};
+  const { children: portalChildren, ...restPortalProps } = portalProps ?? {};
+
+  return (
+    <Dialog.Root {...rootProps}>
+      {!omitTrigger
+        ? triggerWrapper(
+            <Dialog.Trigger data-testid="trigger" {...restTriggerProps}>
+              {triggerChildren ?? 'Open'}
+            </Dialog.Trigger>,
+          )
+        : null}
+      <Dialog.Portal {...restPortalProps}>
+        {portalChildren ?? (
+          <React.Fragment>
+            {includeBackdrop ? (
+              <Dialog.Backdrop
+                data-testid="backdrop"
+                style={{ position: 'fixed', zIndex: 10, inset: 0 }}
+              />
+            ) : null}
+            <Dialog.Popup
+              data-testid="dialog-popup"
+              style={{ position: 'fixed', zIndex: 10 }}
+              {...restPopupProps}
+            >
+              {popupChildren ?? (
+                <React.Fragment>
+                  <p>Dialog content</p>
+                  <Dialog.Close>Close</Dialog.Close>
+                </React.Fragment>
+              )}
+            </Dialog.Popup>
+          </React.Fragment>
+        )}
+      </Dialog.Portal>
+    </Dialog.Root>
+  );
+}
