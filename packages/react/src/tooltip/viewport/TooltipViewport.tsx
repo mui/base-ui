@@ -53,7 +53,7 @@ export const TooltipViewport = React.forwardRef(function TooltipViewport(
   const previousContainerRef = React.useRef<HTMLDivElement>(null);
 
   const onAnimationsFinished = useAnimationsFinished(currentContainerRef, true, false);
-  const cleanupTimeout = useAnimationFrame();
+  const cleanupFrame = useAnimationFrame();
 
   const [previousContentDimensions, setPreviousContentDimensions] = React.useState<{
     width: number;
@@ -115,12 +115,14 @@ export const TooltipViewport = React.forwardRef(function TooltipViewport(
       const offset = calculateRelativePosition(previousActiveTrigger, activeTrigger);
       setNewTriggerOffset(offset);
 
-      cleanupTimeout.request(() => {
-        setShowStartingStyleAttribute(false);
-        onAnimationsFinished(() => {
-          setPreviousContentNode(null);
-          setPreviousContentDimensions(null);
-          capturedNodeRef.current = null;
+      cleanupFrame.request(() => {
+        cleanupFrame.request(() => {
+          setShowStartingStyleAttribute(false);
+          onAnimationsFinished(() => {
+            setPreviousContentNode(null);
+            setPreviousContentDimensions(null);
+            capturedNodeRef.current = null;
+          });
         });
       });
 
@@ -131,7 +133,7 @@ export const TooltipViewport = React.forwardRef(function TooltipViewport(
     previousActiveTrigger,
     previousContentNode,
     onAnimationsFinished,
-    cleanupTimeout,
+    cleanupFrame,
   ]);
 
   // Capture a clone of the current content DOM subtree when not transitioning.
