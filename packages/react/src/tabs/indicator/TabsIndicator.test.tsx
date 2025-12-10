@@ -202,23 +202,5 @@ describe('<Tabs.Indicator />', () => {
         assertBubblePositionVariables(bubble, tabList, activeTab);
       });
     });
-
-    it('should not render when the active tab is disabled', async () => {
-      await render(
-        <Tabs.Root value={0}>
-          <Tabs.List>
-            <Tabs.Tab value={0} disabled>
-              Disabled Tab
-            </Tabs.Tab>
-            <Tabs.Tab value={1}>Enabled Tab</Tabs.Tab>
-            <Tabs.Indicator data-testid="bubble" />
-          </Tabs.List>
-        </Tabs.Root>,
-      );
-
-      // Indicator should be hidden when selected tab is disabled
-      const bubble = screen.getByTestId('bubble');
-      expect(bubble).to.have.attribute('hidden');
-    });
   });
 });

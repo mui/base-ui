@@ -68,12 +68,9 @@ export const TabsIndicator = React.forwardRef(function TabIndicator(
 
   if (value != null && tabsListElement != null) {
     const activeTab = getTabElementBySelectedValue(value);
-    // Don't display indicator for disabled tabs (can happen briefly during initial render).
-    const isDisabled =
-      activeTab?.hasAttribute('disabled') || activeTab?.getAttribute('aria-disabled') === 'true';
-    isTabSelected = !isDisabled;
+    isTabSelected = true;
 
-    if (activeTab != null && !isDisabled) {
+    if (activeTab != null) {
       const { width: computedWidth, height: computedHeight } = getCssDimensions(activeTab);
       const { width: tabListWidth, height: tabListHeight } = getCssDimensions(tabsListElement);
       const tabRect = activeTab.getBoundingClientRect();
