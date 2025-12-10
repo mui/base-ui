@@ -58,6 +58,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
   const open = store.useState('open');
   const modal = store.useState('modal');
   const triggerElement = store.useState('activeTriggerElement');
+  const lastOpenChangeReason = store.useState('lastOpenChangeReason');
   const floatingNodeId = store.useState('floatingNodeId');
   const floatingParentNodeId = store.useState('floatingParentNodeId');
 
@@ -248,7 +249,8 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
   const shouldRenderBackdrop =
     mounted &&
     parent.type !== 'menu' &&
-    ((parent.type !== 'menubar' && modal) || (parent.type === 'menubar' && parent.context.modal));
+    ((parent.type !== 'menubar' && modal && lastOpenChangeReason !== REASONS.triggerHover) ||
+      (parent.type === 'menubar' && parent.context.modal));
 
   // cuts a hole in the backdrop to allow pointer interaction with the menubar or dropdown menu trigger element
   let backdropCutout: HTMLElement | null = null;
