@@ -32,6 +32,7 @@ describe('<Dialog.Root />', () => {
   describe.for([
     { name: 'contained triggers', Component: ContainedTriggerDialog },
     { name: 'detached triggers', Component: DetachedTriggerDialog },
+    { name: 'multiple detached triggers', Component: MultipleDetachedTriggersDialog },
   ])('when using $name', ({ Component: TestDialog }) => {
     it('ARIA attributes', async () => {
       await render(
@@ -985,6 +986,31 @@ function DetachedTriggerDialog(props: Omit<TestDialogProps, 'omitTrigger'>) {
           {triggerChildren ?? 'Open'}
         </Dialog.Trigger>,
       )}
+      <ContainedTriggerDialog
+        {...props}
+        rootProps={{ ...props.rootProps, handle: dialogHandle }}
+        omitTrigger
+      />
+    </React.Fragment>
+  );
+}
+
+function MultipleDetachedTriggersDialog(props: Omit<TestDialogProps, 'omitTrigger'>) {
+  const { triggerProps, triggerWrapper = (trigger) => trigger } = props;
+
+  const { children: triggerChildren, ...restTriggerProps } = triggerProps ?? {};
+  const dialogHandle = Dialog.createHandle();
+
+  return (
+    <React.Fragment>
+      {triggerWrapper(
+        <Dialog.Trigger data-testid="trigger" {...restTriggerProps} handle={dialogHandle}>
+          {triggerChildren ?? 'Open'}
+        </Dialog.Trigger>,
+      )}
+      <Dialog.Trigger data-testid="trigger-2" handle={dialogHandle}>
+        Open another
+      </Dialog.Trigger>
       <ContainedTriggerDialog
         {...props}
         rootProps={{ ...props.rootProps, handle: dialogHandle }}
