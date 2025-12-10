@@ -187,8 +187,8 @@ importers:
         specifier: ^3.1.1
         version: 3.1.1(@types/react@19.2.7)(react@19.2.0)
       '@mui/internal-docs-infra':
-        specifier: https://pkg.pr.new/mui/mui-public/@mui/internal-docs-infra@1397e60
-        version: https://pkg.pr.new/mui/mui-public/@mui/internal-docs-infra@1397e60(@types/react@19.2.7)(next@16.0.7(@babel/core@7.28.5)(@playwright/test@1.57.0)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(react@19.2.0)
+        specifier: https://pkg.pr.new/mui/mui-public/@mui/internal-docs-infra@ada2143
+        version: https://pkg.pr.new/mui/mui-public/@mui/internal-docs-infra@ada2143(@types/react@19.2.7)(next@16.0.7(@babel/core@7.28.5)(@playwright/test@1.57.0)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(react@19.2.0)
       '@next/mdx':
         specifier: ^16.0.7
         version: 16.0.7(@mdx-js/loader@3.1.1(webpack@5.103.0))(@mdx-js/react@3.1.1(@types/react@19.2.7)(react@19.2.0))
@@ -583,8 +583,8 @@ importers:
   scripts/api-docs-builder:
     dependencies:
       '@mui/internal-docs-infra':
-        specifier: https://pkg.pr.new/mui/mui-public/@mui/internal-docs-infra@1397e60
-        version: https://pkg.pr.new/mui/mui-public/@mui/internal-docs-infra@1397e60(@types/react@19.2.7)(next@16.0.7(@babel/core@7.28.5)(@playwright/test@1.57.0)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(react@19.2.0)
+        specifier: https://pkg.pr.new/mui/mui-public/@mui/internal-docs-infra@ada2143
+        version: https://pkg.pr.new/mui/mui-public/@mui/internal-docs-infra@ada2143(@types/react@19.2.7)(next@16.0.7(@babel/core@7.28.5)(@playwright/test@1.57.0)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(react@19.2.0)
       '@types/yargs':
         specifier: ^17.0.35
         version: 17.0.35
@@ -2455,8 +2455,8 @@ packages:
       prettier: ^3.5.3
       typescript: ^5.0.0
 
-  '@mui/internal-docs-infra@https://pkg.pr.new/mui/mui-public/@mui/internal-docs-infra@1397e60':
-    resolution: {tarball: https://pkg.pr.new/mui/mui-public/@mui/internal-docs-infra@1397e60}
+  '@mui/internal-docs-infra@https://pkg.pr.new/mui/mui-public/@mui/internal-docs-infra@ada2143':
+    resolution: {tarball: https://pkg.pr.new/mui/mui-public/@mui/internal-docs-infra@ada2143}
     version: 0.3.0
     engines: {node: '>=22.12.0'}
     hasBin: true
@@ -8318,6 +8318,11 @@ packages:
     resolution: {integrity: sha512-vkcDPrRZo1QZLbn5RLGPpg/WmIQ65qoWWhcGKf/b5eplkkarX0m9z8ppCat4mlOqUsWpyNuYgO3VRyrYHSzX5g==}
     engines: {node: '>= 0.8.0'}
 
+  prettier@3.6.2:
+    resolution: {integrity: sha512-I7AIg5boAr5R0FFtJ6rCfD+LFsWHp81dolrFD8S79U9tb8Az2nGrJncnMSnys+bpQJfRUzqs9hnA81OAA3hCuQ==}
+    engines: {node: '>=14'}
+    hasBin: true
+
   prettier@3.7.4:
     resolution: {integrity: sha512-v6UNi1+3hSlVvv8fSaoUbggEM5VErKmmpGA7Pl3HF8V6uKY7rvClBOJlH6yNwQtfTueNkGVpOv/mtWL9L4bgRA==}
     engines: {node: '>=14'}
@@ -12326,7 +12331,7 @@ snapshots:
       - supports-color
       - vitest
 
-  '@mui/internal-docs-infra@https://pkg.pr.new/mui/mui-public/@mui/internal-docs-infra@1397e60(@types/react@19.2.7)(next@16.0.7(@babel/core@7.28.5)(@playwright/test@1.57.0)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(react@19.2.0)':
+  '@mui/internal-docs-infra@https://pkg.pr.new/mui/mui-public/@mui/internal-docs-infra@ada2143(@types/react@19.2.7)(next@16.0.7(@babel/core@7.28.5)(@playwright/test@1.57.0)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(react@19.2.0)':
     dependencies:
       '@babel/runtime': 7.28.4
       '@babel/standalone': 7.28.5
@@ -12344,7 +12349,7 @@ snapshots:
       kebab-case: 2.0.2
       lz-string: 1.5.0
       path-module: 0.1.2
-      prettier: 3.7.4
+      prettier: 3.6.2
       proper-lockfile: 4.1.2
       react: 19.2.0
       uint8-to-base64: 0.2.1
@@ -19233,6 +19238,8 @@ snapshots:
       source-map-js: 1.2.1
 
   prelude-ls@1.2.1: {}
+
+  prettier@3.6.2: {}
 
   prettier@3.7.4: {}
 

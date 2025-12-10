@@ -13,7 +13,31 @@ import { Button } from '@base-ui/react/button';
 import { Dialog } from '@base-ui/react/dialog';
 import { ScrollArea } from '@base-ui/react/scroll-area';
 import { CornerDownLeft, Search } from 'lucide-react';
+import { stringToUrl } from '../QuickNav/rehypeSlug.mjs';
 import './SearchBar.css';
+
+// Semver pattern to detect version headings (e.g., v1.0.0, v1.0.0-rc.0)
+// Used to match the behavior of rehypeConcatHeadings on the Releases page
+const SEMVER_PATTERN =
+  /^v(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$/;
+
+/**
+ * Slugify function that handles parent context concatenation.
+ * Matches the behavior of rehypeConcatHeadings for Releases/Forms pages
+ * where child heading IDs are prefixed with parent heading text.
+ */
+function slugifyWithParentContext(text: string, parentTitles?: string[]): string {
+  const slug = stringToUrl(text);
+
+  // If there's a parent title that looks like a semver version, prepend it
+  // This matches the behavior of rehypeConcatHeadings on the Releases page
+  // which generates IDs like: v1.0.0-rc.0-autocomplete
+  if (parentTitles?.length && SEMVER_PATTERN.test(parentTitles[0])) {
+    return `${parentTitles[0]}-${slug}`;
+  }
+
+  return slug;
+}
 
 function normalizeGroup(group: string) {
   return group.replace(/\s+Pages$/, '').replace(/^React\s+/, '');
@@ -75,6 +99,7 @@ export function SearchBar({
   // Use the generic search hook with Base UI specific configuration
   const { results, search, defaultResults, buildResultUrl } = useSearch({
     sitemap: sitemapImport,
+    generateSlug: slugifyWithParentContext,
     tolerance: 0,
     limit: 20,
     enableStemming: true,
