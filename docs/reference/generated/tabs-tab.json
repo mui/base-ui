@@ -15,7 +15,7 @@
     },
     "disabled": {
       "type": "boolean",
-      "description": "Whether the Tab is disabled.\n\nIf a first Tab on a TabList is disabled, it won't initially be selected.\nInstead, the next enabled Tab will be selected.\nHowever, this does not work this way during Server-Side Rendering, as it is not known\nduring pre-rendering which Tabs are disabled.\nTo work around this, ensure that `defaultValue` or `value` on `Tabs.Root` is set to an enabled Tab's value.",
+      "description": "Whether the Tab is disabled.\n\nIf a first Tab on a `<Tabs.List>` is disabled, it won't initially be selected.\nInstead, the next enabled Tab will be selected.\nHowever, it does not work like this during server-side rendering, as it is not known\nduring pre-rendering which Tabs are disabled.\nTo work around it, ensure that `defaultValue` or `value` on `<Tabs.Root>` is set to an enabled Tab's value.",
       "detailedType": "boolean | undefined"
     },
     "className": {
