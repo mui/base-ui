@@ -1,7 +1,6 @@
 'use client';
 import * as React from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { useSearch } from '@mui/internal-docs-infra/useSearch';
 import type {
   SearchResult,
@@ -88,13 +87,9 @@ export function SearchBar({
   enableKeyboardShortcut?: boolean;
   containedScroll?: boolean;
 }) {
-  const router = useRouter();
   const [dialogOpen, setDialogOpen] = React.useState(false);
-  const [hasHighlightedItem, setHasHighlightedItem] = React.useState(false);
   const inputRef = React.useRef<HTMLInputElement>(null);
   const popupRef = React.useRef<HTMLDivElement>(null);
-  const openingRef = React.useRef(false);
-  const closingRef = React.useRef(false);
 
   // Use the generic search hook with Base UI specific configuration
   const { results, search, defaultResults, buildResultUrl } = useSearch({
@@ -107,10 +102,9 @@ export function SearchBar({
     excludeSections: true,
   });
 
+  // Update search results when hook results change
   const [searchResults, setSearchResults] =
     React.useState<ReturnType<typeof useSearch>['results']>(defaultResults);
-
-  // Update search results when hook results change
   React.useEffect(() => {
     const updateResults = () => {
       setSearchResults(results);
@@ -127,36 +121,17 @@ export function SearchBar({
   }, [results]);
 
   const handleOpenDialog = React.useCallback(() => {
-    // Prevent double-opening across all instances
-    if (openingRef.current) {
-      return;
-    }
-    openingRef.current = true;
-
     setDialogOpen(true);
-
-    // Reset after a short delay
-    setTimeout(() => {
-      openingRef.current = false;
-    }, 100);
   }, []);
 
   const handleCloseDialog = React.useCallback(
     (open: boolean) => {
       if (!open) {
-        // Prevent double-closing across all instances
-        if (closingRef.current) {
-          return;
-        }
-        closingRef.current = true;
-
         setDialogOpen(false);
 
         // Wait for the closing animation to complete before resetting state
         setTimeout(() => {
           setSearchResults(defaultResults);
-          setHasHighlightedItem(false);
-          closingRef.current = false;
         }, 200);
       } else {
         handleOpenDialog();
@@ -186,7 +161,7 @@ export function SearchBar({
         event.stopPropagation();
 
         // Only open if not already open or in the process of opening/closing
-        if (!dialogOpen && !openingRef.current && !closingRef.current) {
+        if (!dialogOpen) {
           handleOpenDialog();
         }
       }
@@ -203,14 +178,9 @@ export function SearchBar({
     [search],
   );
 
-  const handleItemClick = React.useCallback(
-    (result: SearchResult) => {
-      const url = buildResultUrl(result);
-      router.push(url);
-      handleCloseDialog(false);
-    },
-    [router, handleCloseDialog, buildResultUrl],
-  );
+  const handleItemClick = React.useCallback(() => {
+    handleCloseDialog(false);
+  }, [handleCloseDialog]);
 
   // Reusable search input component
   const searchInput = (
@@ -241,8 +211,7 @@ export function SearchBar({
           <Autocomplete.Item
             key={result.id || i}
             value={result}
-            onClick={() => handleItemClick(result)}
-            render={<Link href={buildResultUrl(result)} />}
+            render={<Link href={buildResultUrl(result)} onNavigate={handleItemClick} />}
             className="flex h-8 cursor-default select-none items-center rounded-lg pl-9 pr-2 text-[0.9375rem] tracking-[0.016em] font-normal leading-none outline-none data-highlighted:bg-gray-100"
           >
             <SearchItem result={result} />
@@ -283,12 +252,6 @@ export function SearchBar({
                   items={searchResults.results}
                   onValueChange={handleValueChange}
                   onOpenChange={handleAutocompleteEscape}
-                  onItemHighlighted={(item) => {
-                    const highlighted = item != null;
-                    if (highlighted !== hasHighlightedItem) {
-                      setHasHighlightedItem(highlighted);
-                    }
-                  }}
                   open
                   inline
                   itemToStringValue={(item) => (item ? item.title || item.slug : '')}
@@ -318,9 +281,7 @@ export function SearchBar({
                     </ScrollArea.Root>
                   </div>
                   <div className="border-t border-gray-100 py-2 flex pl-3 pr-2 text-gray-500 text-xs">
-                    <div
-                      className={`flex items-center gap-3 ${hasHighlightedItem ? '' : 'invisible'}`}
-                    >
+                    <div className={`flex items-center gap-3`}>
                       <kbd
                         aria-label="Enter"
                         className="flex h-5 w-5 items-center justify-center rounded border border-gray-300 bg-gray-50 text-[10px] text-gray-600"
@@ -351,12 +312,6 @@ export function SearchBar({
                         items={searchResults.results}
                         onValueChange={handleValueChange}
                         onOpenChange={handleAutocompleteEscape}
-                        onItemHighlighted={(item) => {
-                          const highlighted = item != null;
-                          if (highlighted !== hasHighlightedItem) {
-                            setHasHighlightedItem(highlighted);
-                          }
-                        }}
                         open
                         inline
                         itemToStringValue={(item) => (item ? item.title || item.slug : '')}
