@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
-import { Combobox as BaseCombobox } from '@base-ui-components/react/combobox';
-import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { Combobox as BaseCombobox } from '@base-ui/react/combobox';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
 
 const INITIAL_ITEMS = [
   'Black',
@@ -61,8 +61,9 @@ function Combobox(props: ComboboxProps) {
 
   const containerRef = React.useRef<HTMLDivElement | null>(null);
   const comboboxInputRef = React.useRef<HTMLInputElement | null>(null);
+  const highlightedItemRef = React.useRef<InternalComboboxItem | null>(null);
 
-  async function handleCreate(labelToAdd: string) {
+  const handleCreate = useStableCallback(async (labelToAdd: string) => {
     if (labelToAdd === '') {
       return;
     }
@@ -72,27 +73,50 @@ function Combobox(props: ComboboxProps) {
     onSelectedItemsChange(next);
     setInputValue('');
     return;
-  }
+  });
 
   const trimmedValue = inputValue.trim();
-  const lowercaseValue = trimmedValue.toLocaleLowerCase();
-  const exactMatchExists = items.some((item) => item.trim().toLocaleLowerCase() === lowercaseValue);
-
-  // Show the creatable item alongside matches if there's no exact match
-  const itemsForView: InternalComboboxItem[] = React.useMemo(
-    () =>
-      trimmedValue !== '' && !exactMatchExists
-        ? [...items.map((i) => ({ value: i })), { value: trimmedValue, isNew: true }]
-        : [...items.map((i) => ({ value: i }))],
-    [items, trimmedValue, exactMatchExists],
+  const exactMatchExists = items.some(
+    (item) => item.trim().toLocaleLowerCase() === trimmedValue.toLocaleLowerCase(),
   );
 
-  function handleItemSelection(label: string) {
+  // Show the creatable item alongside matches if there's no exact match, and keep selections on top
+  const itemsForView: InternalComboboxItem[] = React.useMemo(() => {
+    const selectedSet = new Set(selectedItems);
+    const normalizedItems = items.map((value) => ({ value }));
+    const ordered = [
+      ...normalizedItems.filter((item) => selectedSet.has(item.value)),
+      ...normalizedItems.filter((item) => !selectedSet.has(item.value)),
+    ];
+
+    return trimmedValue !== '' && !exactMatchExists
+      ? [...ordered, { value: trimmedValue, isNew: true }]
+      : ordered;
+  }, [items, selectedItems, trimmedValue, exactMatchExists]);
+
+  const handleCommit = useStableCallback((item?: InternalComboboxItem | null) => {
+    if (item) {
+      if (item.isNew) {
+        void handleCreate(item.value);
+        return;
+      }
+
+      if (selectedItems.includes(item.value)) {
+        setInputValue('');
+        return;
+      }
+
+      onSelectedItemsChange([...selectedItems, item.value]);
+      setInputValue('');
+      return;
+    }
+
     if (trimmedValue === '') {
       return;
     }
 
-    const existing = items.find((item) => item.trim().toLocaleLowerCase() === label);
+    const normalized = trimmedValue.toLocaleLowerCase();
+    const existing = items.find((item) => item.trim().toLocaleLowerCase() === normalized);
 
     if (existing) {
       const next = selectedItems.some((i) => i === existing)
@@ -100,42 +124,66 @@ function Combobox(props: ComboboxProps) {
         : [...selectedItems, existing];
       onSelectedItemsChange(next);
       setInputValue('');
-    } else {
-      void handleCreate(trimmedValue);
+      return;
     }
-  }
 
-  const handleInputKeyDown = useEventCallback((event: React.KeyboardEvent<HTMLInputElement>) => {
+    void handleCreate(trimmedValue);
+  });
+
+  const handleInputKeyDown = useStableCallback((event: React.KeyboardEvent<HTMLInputElement>) => {
     // Treat comma as Enter
     if (event.key === ',') {
       event.preventDefault();
-      handleItemSelection(lowercaseValue);
+      if (highlightedItemRef.current) {
+        handleCommit(highlightedItemRef.current);
+        return;
+      }
+      handleCommit();
+      return;
+    }
+
+    if (event.key === 'Enter' && highlightedItemRef.current == null) {
+      event.preventDefault();
+      handleCommit();
     }
   });
+
+  const selectedItemsForView = React.useMemo(() => {
+    const map = new Map(itemsForView.map((item) => [item.value, item] as const));
+    return selectedItems
+      .map((selectedValue) => map.get(selectedValue))
+      .filter((item): item is InternalComboboxItem => Boolean(item));
+  }, [itemsForView, selectedItems]);
 
   return (
     <BaseCombobox.Root
       items={itemsForView}
       multiple
       onValueChange={(nextSelectedItems: InternalComboboxItem[]) => {
-        const lastItem = nextSelectedItems[nextSelectedItems.length - 1];
-        if (lastItem === null) {
+        if (nextSelectedItems.length === 0) {
+          onSelectedItemsChange([]);
           return;
         }
-        const clean = nextSelectedItems.filter((i) => i.value !== null);
+
+        const lastItem = nextSelectedItems[nextSelectedItems.length - 1];
+        if (!lastItem) {
+          return;
+        }
+
+        if (lastItem.isNew) {
+          void handleCreate(lastItem.value);
+          return;
+        }
+
+        const clean = nextSelectedItems.filter((item) => !item.isNew);
         onSelectedItemsChange(clean.map((i) => i.value));
         setInputValue('');
       }}
-      value={itemsForView.filter((item) => selectedItems.includes(item.value))}
+      value={selectedItemsForView}
       inputValue={inputValue}
       onInputValueChange={setInputValue}
-      onOpenChange={(_open, details: BaseCombobox.Root.ChangeEventDetails) => {
-        if (
-          ('key' in details.event && details.event.key === 'Enter') ||
-          details.reason === 'item-press'
-        ) {
-          handleItemSelection(lowercaseValue);
-        }
+      onItemHighlighted={(item) => {
+        highlightedItemRef.current = item ?? null;
       }}
     >
       <div className="flex flex-col gap-1">
