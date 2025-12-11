@@ -4,6 +4,7 @@ import userEvent from '@testing-library/user-event';
 import { vi, it, describe } from 'vitest';
 
 import { isJSDOM } from '@base-ui/utils/detectBrowser';
+import { wait } from '#test-utils';
 import { useClick, useDismiss, useFloating, useInteractions, useListNavigation } from '../index';
 import type { UseListNavigationProps } from '../types';
 import { Main as ComplexGrid } from '../../../test/floating-ui-tests/ComplexGrid';
@@ -1061,6 +1062,8 @@ describe('useListNavigation', () => {
 
   it('selectedIndex changing does not steal focus', async () => {
     render(<ListboxFocus />);
+
+    await wait(50);
 
     await userEvent.click(screen.getByTestId('reference'));
 
