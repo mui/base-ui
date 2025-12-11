@@ -5,7 +5,6 @@
 .AccordionItem {
   box-sizing: border-box;
   border-bottom: 1px solid var(--border);
-  user-select: none;
 }
 
 .AccordionHeader {
@@ -32,7 +31,6 @@
   outline: none;
   text-align: left;
   -webkit-tap-highlight-color: transparent;
-  user-select: none;
 }
 
 .AccordionTrigger:focus-visible {
