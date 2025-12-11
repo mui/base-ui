@@ -51,7 +51,7 @@
     "test:webkit": "cross-env VITEST_ENV=webkit pnpm test:_unit",
     "test:webkit:ui": "pnpm test:webkit --browser.headless=false",
     "test:browsers": "cross-env VITEST_ENV=all-browsers pnpm test:_unit",
-    "test:argos": "code-infra argos-push --folder test/regressions/screenshots/chrome",
+    "test:argos": "cross-env ARGOS_THRESHOLD=0 pnpm --package @argos-ci/cli@latest dlx argos upload --threshold=0 ./test/regressions/screenshots/chrome",
     "typescript": "tsc -b tsconfig.json",
     "inline-scripts": "tsx ./scripts/inlineScripts.mts",
     "use-react-18": "code-infra set-version-overrides --pkg react@18"
