@@ -79,7 +79,7 @@ export const viewport: Viewport = {
     },
     {
       media: '(prefers-color-scheme: dark)',
-      color: '#000',
+      color: 'hsl(0deg 0% 6%)',
     },
   ],
 };
