@@ -3,7 +3,7 @@ import * as React from 'react';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { TemporalSupportedObject } from '../../types/temporal';
-import { unstable_useDayList as useDayList } from '../use-day-list';
+import { useCalendarDayList } from '../use-day-list/useCalendarDayList';
 import { useSharedCalendarRootContext } from '../root/SharedCalendarRootContext';
 
 /**
@@ -18,7 +18,7 @@ export const CalendarDayGridRow = React.forwardRef(function CalendarDayGridRow(
 ) {
   const { className, render, value, children, ...elementProps } = componentProps;
 
-  const getDayList = useDayList();
+  const getDayList = useCalendarDayList();
   const store = useSharedCalendarRootContext();
   const days = React.useMemo(() => getDayList({ date: value, amount: 7 }), [getDayList, value]);
 

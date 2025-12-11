@@ -4,7 +4,7 @@ import { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { TemporalSupportedObject } from '../../types/temporal';
 import { useTemporalAdapter } from '../../temporal-adapter-provider/TemporalAdapterContext';
-import { unstable_useDayList as useDayList } from '../use-day-list';
+import { useCalendarDayList } from '../use-day-list/useCalendarDayList';
 
 /**
  * Groups all cells of the calendar's day grid header row.
@@ -20,7 +20,7 @@ export const CalendarDayGridHeaderRow = React.forwardRef(function CalendarDayGri
 
   const adapter = useTemporalAdapter();
 
-  const getDayList = useDayList();
+  const getDayList = useCalendarDayList();
   const days = React.useMemo(
     () => getDayList({ date: adapter.startOfWeek(adapter.now('default')), amount: 7 }),
     [adapter, getDayList],

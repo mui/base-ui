@@ -13,9 +13,9 @@
       "detailedType": "Date | null | undefined"
     },
     "onValueChange": {
-      "type": "((value: TemporalValue, eventDetails: Calendar.Root.ChangeEventDetails) => void)",
+      "type": "((value: TemporalValue, eventDetails: CalendarValueChangeEventDetails<validateDate.ReturnValue>) => void)",
       "description": "Event handler called when the selected value changes.\nProvides the new value as an argument.\nHas `getValidationError()` in the `eventDetails` to retrieve the validation error associated to the new value.",
-      "detailedType": "| ((\n    value: TemporalValue,\n    eventDetails: Calendar.Root.ChangeEventDetails,\n  ) => void)\n| undefined"
+      "detailedType": "| ((\n    value: TemporalValue,\n    eventDetails: CalendarValueChangeEventDetails<validateDate.ReturnValue>,\n  ) => void)\n| undefined"
     },
     "defaultVisibleDate": {
       "type": "Date",
@@ -44,9 +44,9 @@
       "detailedType": "number | undefined"
     },
     "onVisibleDateChange": {
-      "type": "((visibleDate: Date) => void)",
-      "description": "Event handler called when the visible date changes.\nProvides the new visible date as an argument.",
-      "detailedType": "((visibleDate: Date) => void) | undefined"
+      "type": "((visibleDate: Date, eventDetails: CalendarVisibleDateChangeEventDetails) => void)",
+      "description": "Event handler called when the selected value changes.\nProvides the new value as an argument.\nHas `getValidationError()` in the `eventDetails` to retrieve the validation error associated to the new value.",
+      "detailedType": "| ((\n    visibleDate: Date,\n    eventDetails: CalendarVisibleDateChangeEventDetails,\n  ) => void)\n| undefined"
     },
     "referenceDate": {
       "type": "Date",
