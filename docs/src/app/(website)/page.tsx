@@ -1,6 +1,5 @@
 import * as React from 'react';
 import type { Metadata, Viewport } from 'next';
-import NextLink from 'next/link';
 import { Accordion } from '@base-ui/react/accordion';
 import { Link } from 'docs/src/components/Link';
 import { Logo } from 'docs/src/components/Logo';
