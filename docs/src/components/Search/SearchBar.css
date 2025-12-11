@@ -45,7 +45,7 @@
   outline: none;
 
   @media (prefers-color-scheme: dark) {
-    background-color: hsl(0deg 0% 100% / 10%);
+    background-color: var(--color-gray-200);
   }
 }
 
@@ -56,6 +56,10 @@
   border-radius: 9999px;
   background-color: var(--color-popup);
   z-index: 0;
+
+  @media (prefers-color-scheme: dark) {
+    background-color: var(--color-gray-75);
+  }
 }
 
 .SearchTrigger::after {
@@ -74,11 +78,23 @@
 }
 
 .SearchTrigger:hover {
-  background-color: hsl(0deg 0% 0% / 8%);
+  background-color: hsl(0deg 0% 0% / 15%);
+
+  @media (prefers-color-scheme: dark) {
+    background-color: var(--color-gray-400);
+  }
 }
 
 .SearchTrigger:hover::before {
-  background-color: var(--color-gray-50);
+  @media (prefers-color-scheme: dark) {
+    background-color: var(--color-gray-100);
+  }
+}
+
+.SearchTrigger:hover .SearchTriggerKbd {
+  @media (prefers-color-scheme: dark) {
+    border-color: var(--color-gray-400);
+  }
 }
 
 .SearchTrigger:active {
