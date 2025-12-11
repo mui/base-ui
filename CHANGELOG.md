@@ -18,7 +18,7 @@ _Dec 11, 2025_
 ### Menu
 
 - Fix submenu opens with 0 delay (#3459) by @atomiks
-- Fix focus not returning to trigger on &lt;kbd&gt;Esc&lt;/kbd&gt; while pointer rests on popup (#3482) by @atomiks
+- Fix focus not returning to trigger on <kbd>Esc</kbd> while pointer rests on popup (#3482) by @atomiks
 - Fix always `null` open method (#3486) by @atomiks
 - Allow side axis fallback for submenus by default (#3470) by @atomiks
 
