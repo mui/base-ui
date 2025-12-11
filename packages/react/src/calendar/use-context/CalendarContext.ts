@@ -1,5 +1,8 @@
 import * as React from 'react';
+import { useStore } from '@base-ui/utils/store';
 import { TemporalSupportedObject } from '../../types/temporal';
+import { SharedCalendarRootContext } from '../root/SharedCalendarRootContext';
+import { selectors } from '../store';
 
 export interface CalendarContext {
   /**
@@ -8,17 +11,16 @@ export interface CalendarContext {
   visibleDate: TemporalSupportedObject;
 }
 
-export const CalendarContext = React.createContext<CalendarContext | undefined>(undefined);
-
 export function useCalendarContext() {
-  const context = React.useContext(CalendarContext);
-  if (context === undefined) {
+  const store = React.useContext(SharedCalendarRootContext);
+  if (store === undefined) {
     throw new Error(
       [
-        'Base UI: CalendarContext is missing.',
+        'Base UI: SharedCalendarRootContext is missing.',
         'Calendar parts must be placed within <Calendar.Root />.',
       ].join('\n'),
     );
   }
-  return context;
+
+  return useStore(store, selectors.publicContext);
 }

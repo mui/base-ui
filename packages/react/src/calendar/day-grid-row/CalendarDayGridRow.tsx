@@ -19,13 +19,13 @@ export const CalendarDayGridRow = React.forwardRef(function CalendarDayGridRow(
   const { className, render, value, children, ...elementProps } = componentProps;
 
   const getDayList = useDayList();
-  const { registerCurrentMonthDayGrid } = useSharedCalendarRootContext();
+  const store = useSharedCalendarRootContext();
   const days = React.useMemo(() => getDayList({ date: value, amount: 7 }), [getDayList, value]);
 
   React.useEffect(() => {
-    const unregister = registerCurrentMonthDayGrid(value, days);
+    const unregister = store.registerCurrentMonthDayGrid(value, days);
     return () => unregister();
-  }, [registerCurrentMonthDayGrid, days, value]);
+  }, [store, days, value]);
 
   const resolvedChildren = React.useMemo(() => {
     if (!React.isValidElement(children) && typeof children === 'function') {

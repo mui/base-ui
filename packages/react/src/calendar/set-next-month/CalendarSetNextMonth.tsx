@@ -21,7 +21,7 @@ export const CalendarSetNextMonth = React.forwardRef(function CalendarSetNextMon
 ) {
   const { className, render, nativeButton, disabled, ...elementProps } = componentProps;
 
-  const { store, setVisibleDate } = useSharedCalendarRootContext();
+  const store = useSharedCalendarRootContext();
   const adapter = useTemporalAdapter();
   const monthPageSize = useStore(store, selectors.monthPageSize);
   const visibleDate = useStore(store, selectors.visibleDate);
@@ -37,7 +37,7 @@ export const CalendarSetNextMonth = React.forwardRef(function CalendarSetNextMon
     if (isDisabled) {
       return;
     }
-    setVisibleDate(targetDate, false);
+    store.setVisibleDate(targetDate, false);
   });
 
   const { getButtonProps, buttonRef } = useButton({

@@ -11,7 +11,7 @@ import { selectors } from '../store';
 export function useSharedCalendarDayGridCell(parameters: useSharedCalendarDayGridCell.Parameters) {
   const { value } = parameters;
   const adapter = useTemporalAdapter();
-  const { store } = useSharedCalendarRootContext();
+  const store = useSharedCalendarRootContext();
   const { month } = useSharedCalendarDayGridBodyContext();
 
   const isDisabled = useStore(store, selectors.isDayCellDisabled, value);

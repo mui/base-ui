@@ -1,10 +1,11 @@
 'use client';
 import * as React from 'react';
 import { useStore } from '@base-ui/utils/store';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { BaseUIChangeEventDetails } from '@base-ui/react/types';
 import { TemporalValue } from '../../types/temporal';
 import { SharedCalendarRootContext } from './SharedCalendarRootContext';
-import { useSharedCalendarRoot } from './useSharedCalendarRoot';
 import { useDateManager } from '../../utils/temporal/useDateManager';
 import { CalendarContext } from '../use-context/CalendarContext';
 import { useRenderElement } from '../../utils/useRenderElement';
@@ -12,8 +13,17 @@ import { BaseUIComponentProps } from '../../utils/types';
 import { formatMonthFullLetterAndYear } from '../../utils/temporal/date-helpers';
 import { useTemporalAdapter } from '../../temporal-adapter-provider/TemporalAdapterContext';
 import { StateAttributesMapping } from '../../utils/getStateAttributesProps';
-import { selectors } from '../store';
+import {
+  CalendarNavigationDirection,
+  CalendarValueChangeHandlerContext,
+  selectors,
+  CalendarRootElementState,
+  ValueManager,
+  SharedCalendarStore,
+  SharedCalendarStoreParameters,
+} from '../store';
 import { CalendarRootDataAttributes } from './CalendarRootDataAttributes';
+import { validateDate } from '../../utils/temporal/validateDate';
 
 const stateAttributesMapping: StateAttributesMapping<CalendarRoot.State> = {
   navigationDirection: (direction) => {
@@ -26,7 +36,7 @@ const stateAttributesMapping: StateAttributesMapping<CalendarRoot.State> = {
   },
 };
 
-const calendarValueManager: useSharedCalendarRoot.ValueManager<TemporalValue> = {
+const calendarValueManager: ValueManager<TemporalValue> = {
   getDateToUseForReferenceDate: (value) => value,
   onSelectDate: ({ setValue, selectedDate }) => setValue(selectedDate),
   getActiveDateFromValue: (value) => value,
@@ -77,33 +87,54 @@ export const CalendarRoot = React.forwardRef(function CalendarRoot(
   const manager = useDateManager();
   const adapter = useTemporalAdapter();
 
-  const {
-    store,
-    state,
-    context: sharedContext,
-  } = useSharedCalendarRoot({
-    readOnly,
-    disabled,
-    invalid,
-    monthPageSize,
-    onValueChange,
-    defaultValue,
-    value: valueProp,
-    timezone,
-    referenceDate,
-    onVisibleDateChange,
-    visibleDate: visibleDateProp,
-    defaultVisibleDate,
-    manager,
-    isDateUnavailable,
-    minDate,
-    maxDate,
-    calendarValueManager,
-  });
+  const parameters = React.useMemo(
+    () => ({
+      readOnly,
+      disabled,
+      invalid,
+      monthPageSize,
+      onValueChange,
+      defaultValue,
+      value: valueProp,
+      timezone,
+      referenceDate,
+      onVisibleDateChange,
+      visibleDate: visibleDateProp,
+      defaultVisibleDate,
+      isDateUnavailable,
+      minDate,
+      maxDate,
+    }),
+    [
+      readOnly,
+      disabled,
+      invalid,
+      monthPageSize,
+      onValueChange,
+      defaultValue,
+      valueProp,
+      timezone,
+      referenceDate,
+      onVisibleDateChange,
+      visibleDateProp,
+      defaultVisibleDate,
+      isDateUnavailable,
+      minDate,
+      maxDate,
+    ],
+  );
 
-  const visibleDate = useStore(store, selectors.visibleDate);
+  const store = useRefWithInit(
+    () => new SharedCalendarStore(parameters, adapter, manager, calendarValueManager),
+  ).current;
+
+  useIsoLayoutEffect(() => {
+    store.updateStateFromParameters(parameters, adapter, manager);
+  }, [store, parameters, adapter, manager]);
+
   const visibleMonth = useStore(store, selectors.visibleMonth);
-  const publicContext: CalendarContext = React.useMemo(() => ({ visibleDate }), [visibleDate]);
+  const state: CalendarRoot.State = useStore(store, selectors.rootElementState);
+  const publicContext = useStore(store, selectors.publicContext);
 
   const resolvedChildren = React.useMemo(() => {
     if (!React.isValidElement(children) && typeof children === 'function') {
@@ -129,23 +160,19 @@ export const CalendarRoot = React.forwardRef(function CalendarRoot(
   });
 
   return (
-    <CalendarContext.Provider value={publicContext}>
-      <SharedCalendarRootContext.Provider value={sharedContext}>
-        {element}
-      </SharedCalendarRootContext.Provider>
-    </CalendarContext.Provider>
+    <SharedCalendarRootContext.Provider value={store}>{element}</SharedCalendarRootContext.Provider>
   );
 });
 
 export namespace CalendarRoot {
-  export type NavigationDirection = 'previous' | 'next' | 'none';
+  export type NavigationDirection = CalendarNavigationDirection;
 
-  export interface State extends useSharedCalendarRoot.State {}
+  export interface State extends CalendarRootElementState {}
 
   export interface Props
     extends
       Omit<BaseUIComponentProps<'div', State>, 'children'>,
-      useSharedCalendarRoot.PublicParameters<TemporalValue> {
+      SharedCalendarStoreParameters<TemporalValue> {
     /**
      * The children of the component.
      * If a function is provided, it will be called with the public context as its parameter.
@@ -153,7 +180,7 @@ export namespace CalendarRoot {
     children?: React.ReactNode | ((parameters: CalendarContext) => React.ReactNode);
   }
 
-  export interface ValueChangeHandlerContext extends useSharedCalendarRoot.ValueChangeHandlerContext<any> {}
+  export interface ValueChangeHandlerContext extends CalendarValueChangeHandlerContext<validateDate.ReturnValue> {}
 
   export type ChangeEventReason = 'day-press' | 'none';
   export type ChangeEventDetails = BaseUIChangeEventDetails<

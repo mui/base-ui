@@ -33,8 +33,7 @@ export function useSharedCalendarDayGridBody(
   const { fixedWeekNumber, children, offset = 0 } = parameters;
 
   const adapter = useTemporalAdapter();
-  const { store, registerDayGrid, setVisibleDate, currentMonthDayGridRef } =
-    useSharedCalendarRootContext();
+  const store = useSharedCalendarRootContext();
   const visibleMonth = useStore(store, selectors.visibleMonth);
   const referenceDate = useStore(store, selectors.referenceDate);
   const selectedDates = useStore(store, selectors.selectedDates);
@@ -47,8 +46,8 @@ export function useSharedCalendarDayGridBody(
   }, [adapter, visibleMonth, offset]);
 
   React.useEffect(() => {
-    return registerDayGrid(month);
-  }, [registerDayGrid, month]);
+    return store.registerDayGrid(month);
+  }, [store, month]);
 
   const getWeekList = useWeekList();
   const weeks = React.useMemo(
@@ -179,15 +178,12 @@ export function useSharedCalendarDayGridBody(
       case PAGE_DOWN: {
         event.preventDefault();
         // Without knowing the current day we can not move to next month and focus the same day
-        if (!currentMonthDayGridRef.current) {
-          return;
-        }
         const decrement = eventKey === PAGE_UP;
         let amount = 1;
         if (event.shiftKey) {
           amount = 12;
         }
-        const gridDays = Object.values(currentMonthDayGridRef.current)
+        const gridDays = Object.values(store.currentMonthDayGrid)
           .flat() // Sort the days to ensure they are in the chronological order
           .sort((a, b) => a.getTime() - b.getTime());
         const currentDay = gridDays[highlightedIndex];
@@ -197,15 +193,9 @@ export function useSharedCalendarDayGridBody(
         const dayOfMonth = adapter.getDate(currentDay);
         const currentMonth = adapter.getMonth(currentDay);
         const currentYear = adapter.getYear(currentDay);
-        setVisibleDate(adapter.addMonths(visibleMonth, decrement ? -amount : amount), false);
+        store.setVisibleDate(adapter.addMonths(visibleMonth, decrement ? -amount : amount), false);
         executeAfterItemMapUpdate.current = (newMap: typeof itemMap) => {
-          // Short-circuit if the day grid has not been remounted
-          if (!currentMonthDayGridRef.current) {
-            return;
-          }
-          const newGridDays: TemporalSupportedObject[] = Object.values(
-            currentMonthDayGridRef.current,
-          )
+          const newGridDays: TemporalSupportedObject[] = Object.values(store.currentMonthDayGrid)
             .flat()
             // Sort the days to ensure they are in the chronological order
             .sort((a, b) => a.getTime() - b.getTime());
@@ -287,7 +277,7 @@ export function useSharedCalendarDayGridBody(
         }
       }
       const decrement = BACKWARD_KEYS.has(eventKey);
-      setVisibleDate(adapter.addMonths(visibleMonth, decrement ? -1 : 1), false);
+      store.setVisibleDate(adapter.addMonths(visibleMonth, decrement ? -1 : 1), false);
       // Ensure the `handleItemLooping` uses the latest state/render after the visible date update
       queueMicrotask(() => {
         handleItemLooping(eventKey, prevIndex, elementsRef, decrement);

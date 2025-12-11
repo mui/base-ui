@@ -32,7 +32,7 @@ const getNavigationDirectionAttribute = (navigationDirection: CalendarRoot.Navig
  * Documentation: [Base UI Calendar](https://base-ui.com/react/components/calendar)
  */
 export function CalendarViewport({ children }: CalendarViewport.Props): React.JSX.Element {
-  const { store } = useSharedCalendarRootContext();
+  const store = useSharedCalendarRootContext();
   const adapter = useTemporalAdapter();
 
   const navigationDirection = useStore(store, selectors.navigationDirection);

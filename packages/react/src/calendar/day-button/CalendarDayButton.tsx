@@ -47,7 +47,7 @@ const InnerCalendarDayButton = React.forwardRef(function InnerCalendarDayButton(
     ...elementProps
   } = componentProps;
 
-  const { store, selectDate } = useSharedCalendarRootContext();
+  const store = useSharedCalendarRootContext();
   const { canCellBeTabbed } = useSharedCalendarDayGridBodyContext();
   const {
     isDisabled: isCellDisabled,
@@ -85,7 +85,7 @@ const InnerCalendarDayButton = React.forwardRef(function InnerCalendarDayButton(
     if (isUnavailable) {
       return;
     }
-    selectDate(value, event);
+    store.selectDate(value, event);
   });
 
   const itemMetadata = React.useMemo(
