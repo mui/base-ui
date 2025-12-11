@@ -1,10 +1,10 @@
 'use client';
 import * as React from 'react';
-import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
-import { useValueAsRef } from '@base-ui-components/utils/useValueAsRef';
-import { isMouseWithinBounds } from '@base-ui-components/utils/isMouseWithinBounds';
-import { useTimeout } from '@base-ui-components/utils/useTimeout';
-import { useStore } from '@base-ui-components/utils/store';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
+import { isMouseWithinBounds } from '@base-ui/utils/isMouseWithinBounds';
+import { useTimeout } from '@base-ui/utils/useTimeout';
+import { useStore } from '@base-ui/utils/store';
 import { useSelectRootContext } from '../root/SelectRootContext';
 import {
   useCompositeListItem,
@@ -270,8 +270,7 @@ export interface SelectItemState {
 }
 
 export interface SelectItemProps
-  extends NonNativeButtonProps,
-    Omit<BaseUIComponentProps<'div', SelectItem.State>, 'id'> {
+  extends NonNativeButtonProps, Omit<BaseUIComponentProps<'div', SelectItem.State>, 'id'> {
   children?: React.ReactNode;
   /**
    * A unique value that identifies this select item.

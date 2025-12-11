@@ -1,5 +1,5 @@
 'use client';
-import { Toast } from '@base-ui-components/react/toast';
+import { Toast } from '@base-ui/react/toast';
 import styles from './toast.module.css';
 
 const globalToastManager = Toast.createToastManager();

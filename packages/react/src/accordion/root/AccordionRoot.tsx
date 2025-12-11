@@ -1,9 +1,9 @@
 'use client';
 import * as React from 'react';
-import { useControlled } from '@base-ui-components/utils/useControlled';
-import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
-import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
-import { warn } from '@base-ui-components/utils/warn';
+import { useControlled } from '@base-ui/utils/useControlled';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { warn } from '@base-ui/utils/warn';
 import { BaseUIComponentProps, Orientation } from '../../utils/types';
 import { CompositeList } from '../../composite/list/CompositeList';
 import { useDirection } from '../../direction-provider/DirectionContext';
@@ -216,7 +216,7 @@ export interface AccordionRootProps extends BaseUIComponentProps<'div', Accordio
   onValueChange?: (value: AccordionValue, eventDetails: AccordionRootChangeEventDetails) => void;
   /**
    * Whether multiple items can be open at the same time.
-   * @default true
+   * @default false
    */
   multiple?: boolean;
   /**

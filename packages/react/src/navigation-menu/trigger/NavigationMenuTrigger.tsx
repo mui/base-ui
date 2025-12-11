@@ -2,11 +2,11 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { isTabbable } from 'tabbable';
-import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
-import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
-import { useTimeout } from '@base-ui-components/utils/useTimeout';
-import { useAnimationFrame } from '@base-ui-components/utils/useAnimationFrame';
-import { useValueAsRef } from '@base-ui-components/utils/useValueAsRef';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { useTimeout } from '@base-ui/utils/useTimeout';
+import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
+import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import {
   safePolygon,
   useClick,
@@ -496,8 +496,7 @@ export interface NavigationMenuTriggerState {
 }
 
 export interface NavigationMenuTriggerProps
-  extends NativeButtonProps,
-    BaseUIComponentProps<'button', NavigationMenuTrigger.State> {}
+  extends NativeButtonProps, BaseUIComponentProps<'button', NavigationMenuTrigger.State> {}
 
 export namespace NavigationMenuTrigger {
   export type State = NavigationMenuTriggerState;

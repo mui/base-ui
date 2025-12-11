@@ -1,12 +1,12 @@
 'use client';
 import * as React from 'react';
-import { Menu } from '@base-ui-components/react/menu';
-import { StoreInspector } from '@base-ui-components/utils/store';
+import { Menu } from '@base-ui/react/menu';
+import { StoreInspector } from '@base-ui/utils/store';
 import {
   SettingsMetadata,
   useExperimentSettings,
 } from 'docs/src/components/Experiments/SettingsPanel';
-import demoStyles from 'docs/src/app/(public)/(content)/react/components/menu/demos/submenu/css-modules/index.module.css';
+import demoStyles from 'docs/src/app/(docs)/(content)/react/components/menu/demos/submenu/css-modules/index.module.css';
 import styles from './triggers.module.css';
 
 interface Settings {

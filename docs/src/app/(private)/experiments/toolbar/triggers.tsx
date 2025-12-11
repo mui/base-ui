@@ -1,21 +1,21 @@
 'use client';
 import * as React from 'react';
-import { Toolbar } from '@base-ui-components/react/toolbar';
-import { Switch } from '@base-ui-components/react/switch';
-import { NumberField } from '@base-ui-components/react/number-field';
-import { Slider } from '@base-ui-components/react/slider';
-import { Tooltip } from '@base-ui-components/react/tooltip';
-import { Popover } from '@base-ui-components/react/popover';
-import { Dialog } from '@base-ui-components/react/dialog';
-import { AlertDialog } from '@base-ui-components/react/alert-dialog';
-import { Menu } from '@base-ui-components/react/menu';
+import { Toolbar } from '@base-ui/react/toolbar';
+import { Switch } from '@base-ui/react/switch';
+import { NumberField } from '@base-ui/react/number-field';
+import { Slider } from '@base-ui/react/slider';
+import { Tooltip } from '@base-ui/react/tooltip';
+import { Popover } from '@base-ui/react/popover';
+import { Dialog } from '@base-ui/react/dialog';
+import { AlertDialog } from '@base-ui/react/alert-dialog';
+import { Menu } from '@base-ui/react/menu';
 import toolbarClasses from './toolbar.module.css';
 import triggerToolbarClasses from './triggers.module.css';
-import menuClasses from '../../../(public)/(content)/react/components/menu/demos/submenu/css-modules/index.module.css';
-import tooltipClasses from '../../../(public)/(content)/react/components/tooltip/demos/hero/css-modules/index.module.css';
-import switchClasses from '../../../(public)/(content)/react/components/switch/demos/hero/css-modules/index.module.css';
-import dialogClasses from '../../../(public)/(content)/react/components/alert-dialog/demos/hero/css-modules/index.module.css';
-import popoverClasses from '../../../(public)/(content)/react/components/popover/demos/_index.module.css';
+import menuClasses from '../../../(docs)/(content)/react/components/menu/demos/submenu/css-modules/index.module.css';
+import tooltipClasses from '../../../(docs)/(content)/react/components/tooltip/demos/hero/css-modules/index.module.css';
+import switchClasses from '../../../(docs)/(content)/react/components/switch/demos/hero/css-modules/index.module.css';
+import dialogClasses from '../../../(docs)/(content)/react/components/alert-dialog/demos/hero/css-modules/index.module.css';
+import popoverClasses from '../../../(docs)/(content)/react/components/popover/demos/_index.module.css';
 import comboSliderClasses from './slider.module.css';
 import {
   SlidersIcon,

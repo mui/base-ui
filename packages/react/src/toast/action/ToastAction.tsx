@@ -62,8 +62,7 @@ export interface ToastActionState {
 }
 
 export interface ToastActionProps
-  extends NativeButtonProps,
-    BaseUIComponentProps<'button', ToastAction.State> {}
+  extends NativeButtonProps, BaseUIComponentProps<'button', ToastAction.State> {}
 
 export namespace ToastAction {
   export type State = ToastActionState;

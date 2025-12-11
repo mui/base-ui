@@ -1,11 +1,11 @@
 'use client';
 import * as React from 'react';
-import { Menu } from '@base-ui-components/react/menu';
-import { Menubar } from '@base-ui-components/react/menubar';
-import { Toolbar } from '@base-ui-components/react/toolbar';
-import { useRefWithInit } from '@base-ui-components/utils/useRefWithInit';
-import { StoreInspector } from '@base-ui-components/utils/store';
-import demoStyles from 'docs/src/app/(public)/(content)/react/components/menu/demos/submenu/css-modules/index.module.css';
+import { Menu } from '@base-ui/react/menu';
+import { Menubar } from '@base-ui/react/menubar';
+import { Toolbar } from '@base-ui/react/toolbar';
+import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
+import { StoreInspector } from '@base-ui/utils/store';
+import demoStyles from 'docs/src/app/(docs)/(content)/react/components/menu/demos/submenu/css-modules/index.module.css';
 import styles from './nested-detached-triggers.module.css';
 
 const contents = {

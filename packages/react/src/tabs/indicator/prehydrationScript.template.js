@@ -18,7 +18,6 @@
     return;
   }
 
-  const direction = getComputedStyle(tabsList).direction;
   let left = 0;
   let right = 0;
   let top = 0;
@@ -26,25 +25,49 @@
   let width = 0;
   let height = 0;
 
-  if (activeTab != null && tabsList != null) {
-    const tabsListRect = tabsList.getBoundingClientRect();
-    const {
-      left: tabLeft,
-      top: tabTop,
-      width: computedWidth,
-      height: computedHeight,
-    } = activeTab.getBoundingClientRect();
+  function getCssDimensions(element) {
+    const css = getComputedStyle(element);
+    let cssWidth = parseFloat(css.width) || 0;
+    let cssHeight = parseFloat(css.height) || 0;
+    const shouldFallback =
+      Math.round(cssWidth) !== element.offsetWidth ||
+      Math.round(cssHeight) !== element.offsetHeight;
 
-    left = tabLeft - tabsListRect.left + tabsList.scrollLeft - tabsList.clientLeft;
-    top = tabTop - tabsListRect.top + tabsList.scrollTop - tabsList.clientTop;
+    if (shouldFallback) {
+      cssWidth = element.offsetWidth;
+      cssHeight = element.offsetHeight;
+    }
+
+    return {
+      width: cssWidth,
+      height: cssHeight,
+    };
+  }
+
+  if (activeTab != null && tabsList != null) {
+    const { width: computedWidth, height: computedHeight } = getCssDimensions(activeTab);
+    const { width: tabsListWidth, height: tabsListHeight } = getCssDimensions(tabsList);
+    const tabRect = activeTab.getBoundingClientRect();
+    const tabsListRect = tabsList.getBoundingClientRect();
+    const scaleX = tabsListWidth > 0 ? tabsListRect.width / tabsListWidth : 1;
+    const scaleY = tabsListHeight > 0 ? tabsListRect.height / tabsListHeight : 1;
+    const hasNonZeroScale = Math.abs(scaleX) > Number.EPSILON && Math.abs(scaleY) > Number.EPSILON;
+
+    if (hasNonZeroScale) {
+      const tabLeftDelta = tabRect.left - tabsListRect.left;
+      const tabTopDelta = tabRect.top - tabsListRect.top;
+
+      left = tabLeftDelta / scaleX + tabsList.scrollLeft - tabsList.clientLeft;
+      top = tabTopDelta / scaleY + tabsList.scrollTop - tabsList.clientTop;
+    } else {
+      left = activeTab.offsetLeft;
+      top = activeTab.offsetTop;
+    }
+
     width = computedWidth;
     height = computedHeight;
-
-    right =
-      direction === 'ltr'
-        ? tabsList.scrollWidth - left - width - tabsList.clientLeft
-        : left - tabsList.clientLeft;
-    bottom = tabsList.scrollHeight - top - height - tabsList.clientTop;
+    right = tabsList.scrollWidth - left - width;
+    bottom = tabsList.scrollHeight - top - height;
   }
 
   function setProp(name, value) {

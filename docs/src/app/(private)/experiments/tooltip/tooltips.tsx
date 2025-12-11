@@ -1,12 +1,12 @@
 'use client';
 import * as React from 'react';
-import { Tooltip } from '@base-ui-components/react/tooltip';
-import { StoreInspector } from '@base-ui-components/utils/store';
+import { Tooltip } from '@base-ui/react/tooltip';
+import { StoreInspector } from '@base-ui/utils/store';
 import {
   SettingsMetadata,
   useExperimentSettings,
 } from 'docs/src/components/Experiments/SettingsPanel';
-import demoStyles from 'docs/src/app/(public)/(content)/react/components/tooltip/demos/detached-triggers-full/css-modules/index.module.css';
+import demoStyles from 'docs/src/app/(docs)/(content)/react/components/tooltip/demos/detached-triggers-full/css-modules/index.module.css';
 import styles from './tooltips.module.css';
 
 const tooltip1Handle = Tooltip.createHandle<string>();

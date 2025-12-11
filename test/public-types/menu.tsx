@@ -1,4 +1,4 @@
-import { Menu } from '@base-ui-components/react/menu';
+import { Menu } from '@base-ui/react/menu';
 
 export type MenuRootProps = Menu.Root.Props;
 export type MenuRootActions = Menu.Root.Actions;

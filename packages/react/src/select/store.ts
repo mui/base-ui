@@ -1,4 +1,5 @@
-import { Store, createSelector } from '@base-ui-components/utils/store';
+import { Store, createSelector } from '@base-ui/utils/store';
+import { type InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import type { TransitionStatus } from '../utils/useTransitionStatus';
 import type { HTMLProps } from '../utils/types';
 import { compareItemEquality } from '../utils/itemEquality';
@@ -23,7 +24,7 @@ export type State = {
   mounted: boolean;
   forceMount: boolean;
   transitionStatus: TransitionStatus;
-  touchModality: boolean;
+  openMethod: InteractionType | null;
 
   activeIndex: number | null;
   selectedIndex: number | null;
@@ -57,7 +58,7 @@ export const selectors = {
   mounted: createSelector((state: State) => state.mounted),
   forceMount: createSelector((state: State) => state.forceMount),
   transitionStatus: createSelector((state: State) => state.transitionStatus),
-  touchModality: createSelector((state: State) => state.touchModality),
+  openMethod: createSelector((state: State) => state.openMethod),
 
   activeIndex: createSelector((state: State) => state.activeIndex),
   selectedIndex: createSelector((state: State) => state.selectedIndex),
