@@ -1,5 +1,6 @@
+'use client';
 import * as React from 'react';
-import { Menu } from '@base-ui-components/react/menu';
+import { Menu } from '@base-ui/react/menu';
 import styles from './index.module.css';
 
 export default function ExampleMenu() {
@@ -22,7 +23,11 @@ export default function ExampleMenu() {
                 <ChevronRightIcon />
               </Menu.SubmenuTrigger>
               <Menu.Portal>
-                <Menu.Positioner className={styles.Positioner} alignOffset={-4} sideOffset={-4}>
+                <Menu.Positioner
+                  className={styles.Positioner}
+                  sideOffset={getOffset}
+                  alignOffset={getOffset}
+                >
                   <Menu.Popup className={styles.Popup}>
                     <Menu.Item className={styles.Item}>Get Up!</Menu.Item>
                     <Menu.Item className={styles.Item}>Inside Out</Menu.Item>
@@ -45,6 +50,10 @@ export default function ExampleMenu() {
       </Menu.Portal>
     </Menu.Root>
   );
+}
+
+function getOffset({ side }: { side: Menu.Positioner.Props['side'] }) {
+  return side === 'top' || side === 'bottom' ? 4 : -4;
 }
 
 function ArrowSvg(props: React.ComponentProps<'svg'>) {

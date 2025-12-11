@@ -1,7 +1,7 @@
 import * as React from 'react';
-import { useMergedRefs, useMergedRefsN } from '@base-ui-components/utils/useMergedRefs';
-import { getReactElementRef } from '@base-ui-components/utils/getReactElementRef';
-import { mergeObjects } from '@base-ui-components/utils/mergeObjects';
+import { useMergedRefs, useMergedRefsN } from '@base-ui/utils/useMergedRefs';
+import { getReactElementRef } from '@base-ui/utils/getReactElementRef';
+import { mergeObjects } from '@base-ui/utils/mergeObjects';
 import type { BaseUIComponentProps, ComponentRenderFn, HTMLProps } from './types';
 import { getStateAttributesProps, StateAttributesMapping } from './getStateAttributesProps';
 import { resolveClassName } from './resolveClassName';
@@ -27,17 +27,17 @@ export function useRenderElement<
   element: TagName,
   componentProps: useRenderElement.ComponentProps<State>,
   params: useRenderElement.Parameters<State, RenderedElementType, TagName, Enabled> = {},
-): Enabled extends false ? null : React.ReactElement<Record<string, unknown>> {
+): Enabled extends false ? null : React.ReactElement {
   const renderProp = componentProps.render;
   const outProps = useRenderElementProps(componentProps, params);
   if (params.enabled === false) {
-    return null as Enabled extends false ? null : React.ReactElement<Record<string, unknown>>;
+    return null as Enabled extends false ? null : React.ReactElement;
   }
 
   const state = params.state ?? (EMPTY_OBJECT as State);
   return evaluateRenderProp(element, renderProp, outProps, state) as Enabled extends false
     ? null
-    : React.ReactElement<Record<string, unknown>>;
+    : React.ReactElement;
 }
 
 /**
@@ -109,7 +109,7 @@ function evaluateRenderProp<T extends React.ElementType, S>(
   render: BaseUIComponentProps<T, S>['render'],
   props: React.HTMLAttributes<any> & React.RefAttributes<any>,
   state: S,
-): React.ReactElement<Record<string, unknown>> {
+): React.ReactElement {
   if (render) {
     if (typeof render === 'function') {
       return render(props, state);
@@ -191,10 +191,7 @@ export interface UseRenderElementComponentProps<State> {
   /**
    * The render prop or React element to override the default element.
    */
-  render?:
-    | undefined
-    | ComponentRenderFn<React.HTMLAttributes<any>, State>
-    | React.ReactElement<Record<string, unknown>>;
+  render?: undefined | ComponentRenderFn<React.HTMLAttributes<any>, State> | React.ReactElement;
   /**
    * The style to apply to the rendered element.
    * Can be a style object or a function that accepts the state and returns a style object.

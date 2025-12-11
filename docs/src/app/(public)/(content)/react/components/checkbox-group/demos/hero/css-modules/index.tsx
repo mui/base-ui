@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
-import { Checkbox } from '@base-ui-components/react/checkbox';
-import { CheckboxGroup } from '@base-ui-components/react/checkbox-group';
+import { Checkbox } from '@base-ui/react/checkbox';
+import { CheckboxGroup } from '@base-ui/react/checkbox-group';
 import styles from './index.module.css';
 
 export default function ExampleCheckboxGroup() {

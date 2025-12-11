@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { Combobox } from '@base-ui-components/react/combobox';
+import { Combobox } from '@base-ui/react/combobox';
 
 export default function ExampleMultipleCombobox() {
   const containerRef = React.useRef<HTMLDivElement | null>(null);

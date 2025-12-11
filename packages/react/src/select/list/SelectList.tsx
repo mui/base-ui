@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
-import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
-import { useStore } from '@base-ui-components/utils/store';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { useStore } from '@base-ui/utils/store';
 import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 import { useSelectRootContext } from '../root/SelectRootContext';
 import { useSelectPositionerContext } from '../positioner/SelectPositionerContext';
@@ -26,7 +26,7 @@ export const SelectList = React.forwardRef(function SelectList(
   const { alignItemWithTriggerActive } = useSelectPositionerContext();
 
   const hasScrollArrows = useStore(store, selectors.hasScrollArrows);
-  const touchModality = useStore(store, selectors.touchModality);
+  const openMethod = useStore(store, selectors.openMethod);
   const multiple = useStore(store, selectors.multiple);
   const id = useStore(store, selectors.id);
 
@@ -40,7 +40,8 @@ export const SelectList = React.forwardRef(function SelectList(
     ...(alignItemWithTriggerActive && {
       style: LIST_FUNCTIONAL_STYLES,
     }),
-    className: hasScrollArrows && !touchModality ? styleDisableScrollbar.className : undefined,
+    className:
+      hasScrollArrows && openMethod !== 'touch' ? styleDisableScrollbar.className : undefined,
   };
 
   const setListElement = useStableCallback((element: HTMLElement | null) => {

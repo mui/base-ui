@@ -90,8 +90,10 @@ export interface NavigationMenuPopupState {
   transitionStatus: TransitionStatus;
 }
 
-export interface NavigationMenuPopupProps
-  extends BaseUIComponentProps<'nav', NavigationMenuPopup.State> {}
+export interface NavigationMenuPopupProps extends BaseUIComponentProps<
+  'nav',
+  NavigationMenuPopup.State
+> {}
 
 export namespace NavigationMenuPopup {
   export type State = NavigationMenuPopupState;

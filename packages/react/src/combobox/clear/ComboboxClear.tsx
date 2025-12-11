@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useStore } from '@base-ui-components/utils/store';
+import { useStore } from '@base-ui/utils/store';
 import { useComboboxInputValueContext, useComboboxRootContext } from '../root/ComboboxRootContext';
 import type { BaseUIComponentProps, NativeButtonProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
@@ -157,8 +157,7 @@ export interface ComboboxClearState {
 }
 
 export interface ComboboxClearProps
-  extends NativeButtonProps,
-    BaseUIComponentProps<'button', ComboboxClear.State> {
+  extends NativeButtonProps, BaseUIComponentProps<'button', ComboboxClear.State> {
   /**
    * Whether the component should ignore user interaction.
    * @default false

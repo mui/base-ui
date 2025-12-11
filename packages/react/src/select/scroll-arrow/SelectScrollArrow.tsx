@@ -1,8 +1,8 @@
 'use client';
 import * as React from 'react';
-import { useTimeout } from '@base-ui-components/utils/useTimeout';
-import { useStore } from '@base-ui-components/utils/store';
-import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
+import { useTimeout } from '@base-ui/utils/useTimeout';
+import { useStore } from '@base-ui/utils/store';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useSelectRootContext } from '../root/SelectRootContext';
 import { useSelectPositionerContext } from '../positioner/SelectPositionerContext';
@@ -29,10 +29,10 @@ export const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
     direction === 'up' ? selectors.scrollUpArrowVisible : selectors.scrollDownArrowVisible;
 
   const stateVisible = useStore(store, visibleSelector);
-  const touchModality = useStore(store, selectors.touchModality);
+  const openMethod = useStore(store, selectors.openMethod);
 
   // Scroll arrows are disabled for touch modality as they are a hover-only element.
-  const visible = stateVisible && !touchModality;
+  const visible = stateVisible && openMethod !== 'touch';
 
   const timeout = useTimeout();
 
@@ -215,8 +215,10 @@ export interface SelectScrollArrowState {
   transitionStatus: TransitionStatus;
 }
 
-export interface SelectScrollArrowProps
-  extends BaseUIComponentProps<'div', SelectScrollArrow.State> {
+export interface SelectScrollArrowProps extends BaseUIComponentProps<
+  'div',
+  SelectScrollArrow.State
+> {
   direction: 'up' | 'down';
   /**
    * Whether to keep the HTML element in the DOM while the select popup is not scrollable.

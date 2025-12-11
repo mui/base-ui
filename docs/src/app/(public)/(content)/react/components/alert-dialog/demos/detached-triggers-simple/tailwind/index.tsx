@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { AlertDialog } from '@base-ui-components/react/alert-dialog';
+import { AlertDialog } from '@base-ui/react/alert-dialog';
 
 const demoAlertDialog = AlertDialog.createHandle();
 

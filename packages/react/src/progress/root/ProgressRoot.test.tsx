@@ -1,6 +1,6 @@
 import { screen } from '@mui/internal-test-utils';
 import { expect } from 'chai';
-import { Progress } from '@base-ui-components/react/progress';
+import { Progress } from '@base-ui/react/progress';
 import { createRenderer, describeConformance } from '#test-utils';
 import type { ProgressRoot } from './ProgressRoot';
 

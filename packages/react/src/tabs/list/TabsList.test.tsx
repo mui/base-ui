@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { expect } from 'chai';
 import { act, screen } from '@mui/internal-test-utils';
-import { Tabs } from '@base-ui-components/react/tabs';
+import { Tabs } from '@base-ui/react/tabs';
 import { createRenderer, describeConformance } from '#test-utils';
 
 describe('<Tabs.List />', () => {
