@@ -520,6 +520,8 @@ describe('<Popover.Root />', () => {
             const inputInside = screen.getByTestId('input-inside');
             await act(async () => inputInside.focus());
 
+            await wait(50);
+
             await user.tab({ shift: true });
 
             await waitFor(() => {
