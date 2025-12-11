@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
-import { useStore } from '@base-ui-components/utils/store';
-import { BaseUIChangeEventDetails } from '@base-ui-components/react/types';
+import { useStore } from '@base-ui/utils/store';
+import { BaseUIChangeEventDetails } from '@base-ui/react/types';
 import { TemporalValue } from '../../types/temporal';
 import { SharedCalendarRootContext } from './SharedCalendarRootContext';
 import { useSharedCalendarRoot } from './useSharedCalendarRoot';
@@ -143,7 +143,8 @@ export namespace CalendarRoot {
   export interface State extends useSharedCalendarRoot.State {}
 
   export interface Props
-    extends Omit<BaseUIComponentProps<'div', State>, 'children'>,
+    extends
+      Omit<BaseUIComponentProps<'div', State>, 'children'>,
       useSharedCalendarRoot.PublicParameters<TemporalValue> {
     /**
      * The children of the component.
@@ -152,8 +153,7 @@ export namespace CalendarRoot {
     children?: React.ReactNode | ((parameters: CalendarContext) => React.ReactNode);
   }
 
-  export interface ValueChangeHandlerContext
-    extends useSharedCalendarRoot.ValueChangeHandlerContext<any> {}
+  export interface ValueChangeHandlerContext extends useSharedCalendarRoot.ValueChangeHandlerContext<any> {}
 
   export type ChangeEventReason = 'day-press' | 'none';
   export type ChangeEventDetails = BaseUIChangeEventDetails<

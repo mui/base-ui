@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Locale } from 'date-fns/locale';
-import { UnstableTemporalLocaleProvider as TemporalLocaleProvider } from '@base-ui-components/react/temporal-locale-provider';
-import { TemporalAdapter } from '@base-ui-components/react/types';
+import { UnstableTemporalLocaleProvider as TemporalLocaleProvider } from '@base-ui/react/temporal-locale-provider';
+import { TemporalAdapter } from '@base-ui/react/types';
 import {
   createRenderer,
   CreateRendererOptions,

@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { Popover } from '@base-ui-components/react/popover';
+import { Popover } from '@base-ui/react/popover';
 import {
   SettingsMetadata,
   useExperimentSettings,
@@ -68,15 +68,15 @@ export default function Popovers() {
       <h1>Popovers</h1>
       <h2>Uncontrolled, single trigger</h2>
       <div className={styles.Container}>
-        <Popover.Root>
+        <Popover.Root modal={settings.modal}>
           <StyledTrigger />
           {renderPopoverContent(0, settings)}
         </Popover.Root>
-        <Popover.Root>
+        <Popover.Root modal={settings.modal}>
           <StyledTrigger />
           {renderPopoverContent(1, settings)}
         </Popover.Root>
-        <Popover.Root>
+        <Popover.Root modal={settings.modal}>
           <StyledTrigger />
           {renderPopoverContent(2, settings)}
         </Popover.Root>
@@ -87,6 +87,7 @@ export default function Popovers() {
         <Popover.Root
           open={singleTriggerOpen}
           onOpenChange={(nextOpen) => setSingleTriggerOpen(nextOpen)}
+          modal={settings.modal}
         >
           <StyledTrigger />
           {renderPopoverContent(0, settings)}
@@ -98,7 +99,7 @@ export default function Popovers() {
 
       <h2>Uncontrolled, multiple triggers within Root</h2>
       <div className={styles.Container}>
-        <Popover.Root>
+        <Popover.Root modal={settings.modal}>
           {({ payload }) => (
             <React.Fragment>
               <StyledTrigger payload={0} />
@@ -118,6 +119,7 @@ export default function Popovers() {
             setControlledWithinRootOpen(open);
             setControlledWithinRootTriggerId(eventDetails.trigger?.id ?? null);
           }}
+          modal={settings.modal}
           triggerId={controlledWithinRootTriggerId}
         >
           {({ payload }) => (
@@ -218,7 +220,13 @@ function StyledPopover(props: StyledPopoverProps<number>) {
   const { settings } = useExperimentSettings<Settings>();
 
   return (
-    <Popover.Root handle={handle} open={open} onOpenChange={onOpenChange} triggerId={triggerId}>
+    <Popover.Root
+      handle={handle}
+      open={open}
+      onOpenChange={onOpenChange}
+      triggerId={triggerId}
+      modal={settings.modal}
+    >
       {({ payload }) => renderPopoverContent(payload, settings)}
     </Popover.Root>
   );

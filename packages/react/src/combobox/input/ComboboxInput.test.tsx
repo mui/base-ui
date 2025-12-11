@@ -1,9 +1,9 @@
 import * as React from 'react';
-import { Combobox } from '@base-ui-components/react/combobox';
+import { Combobox } from '@base-ui/react/combobox';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import { screen, waitFor } from '@mui/internal-test-utils';
 import { expect } from 'chai';
-import { Field } from '@base-ui-components/react/field';
+import { Field } from '@base-ui/react/field';
 
 describe('<Combobox.Input />', () => {
   const { render } = createRenderer();

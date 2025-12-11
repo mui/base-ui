@@ -1,7 +1,7 @@
 import * as React from 'react';
 import clsx from 'clsx';
 import { format } from 'date-fns/format';
-import { Calendar } from '@base-ui-components/react/calendar';
+import { Calendar } from '@base-ui/react/calendar';
 import styles from '../../calendar.module.css';
 import indexStyles from './index.module.css';
 

@@ -4,7 +4,7 @@ import {
   type ToastManagerAddOptions as BaseToastManagerAddOptions,
   type ToastManagerPromiseOptions as BaseToastManagerPromiseOptions,
   type ToastManagerUpdateOptions as BaseToastManagerUpdateOptions,
-} from '@base-ui-components/react/toast';
+} from '@base-ui/react/toast';
 
 export type ToastProviderProps = Toast.Provider.Props;
 export type ToastViewportProps = Toast.Viewport.Props;

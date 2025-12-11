@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { TooltipRootContext } from './TooltipRootContext';
 import { useClientPoint, useDismiss, useFocus, useInteractions } from '../../floating-ui-react';
 import {
@@ -201,6 +201,7 @@ export interface TooltipRootProps<Payload = unknown> {
    * - `unmount`: When specified, the tooltip will not be unmounted when closed.
    * Instead, the `unmount` function must be called to unmount the tooltip manually.
    * Useful when the tooltip's animation is controlled by an external library.
+   * - `close`: Closes the dialog imperatively when called.
    */
   actionsRef?: React.RefObject<TooltipRoot.Actions>;
   /**
@@ -234,6 +235,7 @@ export interface TooltipRootProps<Payload = unknown> {
 
 export interface TooltipRootActions {
   unmount: () => void;
+  close: () => void;
 }
 
 export type TooltipRootChangeEventReason =

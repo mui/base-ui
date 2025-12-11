@@ -1,6 +1,6 @@
 'use client';
-import { Menu } from '@base-ui-components/react/menu';
-import { Dialog } from '@base-ui-components/react/dialog';
+import { Menu } from '@base-ui/react/menu';
+import { Dialog } from '@base-ui/react/dialog';
 import styles from './menu.module.css';
 
 export default function MenuComplexNestingExperiment() {

@@ -2,8 +2,8 @@
 import * as React from 'react';
 import { format } from 'date-fns/format';
 import { addMonths } from 'date-fns/addMonths';
-import { Calendar } from '@base-ui-components/react/calendar';
-import { Separator } from '@base-ui-components/react/separator';
+import { Calendar } from '@base-ui/react/calendar';
+import { Separator } from '@base-ui/react/separator';
 import styles from './calendar.module.css';
 
 function Header() {
@@ -12,9 +12,7 @@ function Header() {
   return (
     <header className={styles.Header}>
       <div className={styles.HeaderPanel}>
-        <Calendar.SetPreviousMonth className={styles.SetPreviousMonth}>
-          ◀
-        </Calendar.SetPreviousMonth>
+        <Calendar.SetPreviousMonth className={styles.SetPreviousMonth}>◀</Calendar.SetPreviousMonth>
         <span className={styles.HeaderLabel}>{format(visibleDate, 'MMMM yyyy')}</span>
         <span />
       </div>

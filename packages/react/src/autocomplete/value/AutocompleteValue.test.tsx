@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import { screen } from '@mui/internal-test-utils';
-import { Autocomplete } from '@base-ui-components/react/autocomplete';
+import { Autocomplete } from '@base-ui/react/autocomplete';
 import { createRenderer } from '#test-utils';
 
 describe('<Autocomplete.Value />', () => {

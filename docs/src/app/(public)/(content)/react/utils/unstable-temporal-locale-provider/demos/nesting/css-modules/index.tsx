@@ -4,8 +4,8 @@ import { fr, zhCN } from 'date-fns/locale';
 import {
   UnstableTemporalLocaleProvider as TemporalLocaleProvider,
   unstable_useTemporalLocale as useTemporalLocale,
-} from '@base-ui-components/react/temporal-locale-provider';
-import { Calendar } from '@base-ui-components/react/calendar';
+} from '@base-ui/react/temporal-locale-provider';
+import { Calendar } from '@base-ui/react/calendar';
 import styles from '../../../calendar.module.css';
 import indexStyles from './index.module.css';
 

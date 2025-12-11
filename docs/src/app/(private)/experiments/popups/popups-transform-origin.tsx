@@ -1,4 +1,4 @@
-import { Popover as PopoverPrimitive } from '@base-ui-components/react/popover';
+import { Popover as PopoverPrimitive } from '@base-ui/react/popover';
 import styles from './popups-transform-origin.module.css';
 import type { Side } from '../../../../../../packages/react/src/utils/useAnchorPositioning';
 

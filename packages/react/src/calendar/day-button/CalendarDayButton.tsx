@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
-import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
-import { useStore } from '@base-ui-components/utils/store';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { useStore } from '@base-ui/utils/store';
 import { BaseUIComponentProps, NativeButtonProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { CalendarDayButtonDataAttributes } from './CalendarDayButtonDataAttributes';
@@ -157,8 +157,7 @@ export namespace CalendarDayButton {
   }
 
   export interface Props
-    extends Omit<BaseUIComponentProps<'button', State>, 'value'>,
-      NativeButtonProps {
+    extends Omit<BaseUIComponentProps<'button', State>, 'value'>, NativeButtonProps {
     /**
      * The format used to display the day.
      * @default adapter.formats.dayOfMonth

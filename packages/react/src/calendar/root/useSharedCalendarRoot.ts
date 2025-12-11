@@ -1,8 +1,8 @@
 import * as React from 'react';
-import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
-import { Store, useStore } from '@base-ui-components/utils/store';
-import { useRefWithInit } from '@base-ui-components/utils/useRefWithInit';
-import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { Store, useStore } from '@base-ui/utils/store';
+import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { TemporalSupportedObject, TemporalSupportedValue } from '../../types/temporal';
 import { mergeDateAndTime } from '../../utils/temporal/date-helpers';
 import { validateDate } from '../../utils/temporal/validateDate';
@@ -277,8 +277,7 @@ export function useSharedCalendarRoot<TValue extends TemporalSupportedValue, TEr
 
 export namespace useSharedCalendarRoot {
   export interface PublicParameters<TValue extends TemporalSupportedValue>
-    extends TemporalTimezoneProps,
-      validateDate.ValidationProps {
+    extends TemporalTimezoneProps, validateDate.ValidationProps {
     /**
      * The controlled value that should be selected.
      * To render an uncontrolled (Range)Calendar, use the `defaultValue` prop instead.
@@ -343,8 +342,10 @@ export namespace useSharedCalendarRoot {
     monthPageSize?: number;
   }
 
-  export interface Parameters<TValue extends TemporalSupportedValue, TError>
-    extends PublicParameters<TValue> {
+  export interface Parameters<
+    TValue extends TemporalSupportedValue,
+    TError,
+  > extends PublicParameters<TValue> {
     /**
      * The manager of the calendar (uses `useDateManager` for Calendar and `useDateRangeManager` for RangeCalendar).
      */

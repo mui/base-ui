@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { Tooltip } from '@base-ui-components/react/tooltip';
+import { Tooltip } from '@base-ui/react/tooltip';
 import { ArrowSvg, InfoIcon } from '../../icons-tw';
 
 const demoTooltip = Tooltip.createHandle();
@@ -98,7 +98,14 @@ export default function TooltipDetachedTriggersControlledDemo() {
         triggerId={triggerId}
       >
         <Tooltip.Portal>
-          <Tooltip.Positioner sideOffset={10}>
+          <Tooltip.Positioner
+            className="
+              h-(--positioner-height)
+              w-(--positioner-width)
+              max-w-(--available-width)
+            "
+            sideOffset={10}
+          >
             <Tooltip.Popup
               className="
                 px-2 py-1

@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { isElement } from '@floating-ui/utils/dom';
-import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
-import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 
 import type { FloatingContext, FloatingRootContext } from '../types';
 import { getDocument, getTarget, isMouseLikePointerType } from '../utils';
@@ -204,10 +204,7 @@ export function useHoverFloatingInteraction(
     // did not move.
     // https://github.com/floating-ui/floating-ui/discussions/1692
     function onScrollMouseLeave(event: MouseEvent) {
-      if (isClickLikeOpenEvent()) {
-        return;
-      }
-      if (!dataRef.current.floatingContext) {
+      if (isClickLikeOpenEvent() || !dataRef.current.floatingContext || !store.select('open')) {
         return;
       }
 

@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { Tooltip } from '@base-ui-components/react/tooltip';
+import { Tooltip } from '@base-ui/react/tooltip';
 import styles from '../../index.module.css';
 
 const demoTooltip = Tooltip.createHandle();

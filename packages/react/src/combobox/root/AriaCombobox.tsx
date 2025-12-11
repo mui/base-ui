@@ -1,14 +1,14 @@
 'use client';
 import * as React from 'react';
-import { useControlled } from '@base-ui-components/utils/useControlled';
-import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
-import { useOnFirstRender } from '@base-ui-components/utils/useOnFirstRender';
-import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
-import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
-import { visuallyHidden } from '@base-ui-components/utils/visuallyHidden';
-import { useRefWithInit } from '@base-ui-components/utils/useRefWithInit';
-import { Store, useStore } from '@base-ui-components/utils/store';
-import { useValueAsRef } from '@base-ui-components/utils/useValueAsRef';
+import { useControlled } from '@base-ui/utils/useControlled';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { useOnFirstRender } from '@base-ui/utils/useOnFirstRender';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
+import { visuallyHidden } from '@base-ui/utils/visuallyHidden';
+import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
+import { Store, useStore } from '@base-ui/utils/store';
+import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import {
   ElementProps,
   useDismiss,
@@ -393,7 +393,16 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       }),
   ).current;
 
-  const formValue = selectionMode === 'none' ? inputValue : selectedValue;
+  const fieldRawValue = selectionMode === 'none' ? inputValue : selectedValue;
+  const fieldStringValue = React.useMemo(() => {
+    if (selectionMode === 'none') {
+      return fieldRawValue;
+    }
+    if (Array.isArray(selectedValue)) {
+      return selectedValue.map((value) => stringifyAsValue(value, itemToStringValue));
+    }
+    return stringifyAsValue(selectedValue, itemToStringValue);
+  }, [fieldRawValue, itemToStringValue, selectionMode, selectedValue]);
 
   const onItemHighlighted = useStableCallback(onItemHighlightedProp);
   const onOpenChangeComplete = useStableCallback(onOpenChangeCompleteProp);
@@ -420,9 +429,9 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     id,
     name,
     commit: validation.commit,
-    value: formValue,
+    value: fieldRawValue,
     controlRef: inputInsidePopup ? triggerRef : inputRef,
-    getValue: () => formValue,
+    getValue: () => fieldStringValue,
   });
 
   const forceMount = useStableCallback(() => {
@@ -1052,6 +1061,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     focusItemOnOpen:
       queryChangedAfterOpen || (selectionMode === 'none' && !autoHighlightMode) ? false : 'auto',
     focusItemOnHover: highlightItemOnHover,
+    resetOnPointerLeave: !keepHighlight,
     // `cols` > 1 enables grid navigation.
     // Since <Combobox.Row> infers column sizes (and is required when building a grid),
     // it works correctly even with a value of `2`.
@@ -1062,10 +1072,6 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     onNavigate(nextActiveIndex, event) {
       // Retain the highlight only while actually transitioning out or closed.
       if ((!event && !open) || transitionStatus === 'ending') {
-        return;
-      }
-
-      if (keepHighlight && nextActiveIndex === null && event && event.type === 'pointerleave') {
         return;
       }
 
@@ -1185,11 +1191,11 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
   );
 
   const serializedValue = React.useMemo(() => {
-    if (Array.isArray(formValue)) {
+    if (Array.isArray(fieldRawValue)) {
       return '';
     }
-    return stringifyAsValue(formValue, itemToStringValue);
-  }, [formValue, itemToStringValue]);
+    return stringifyAsValue(fieldRawValue, itemToStringValue);
+  }, [fieldRawValue, itemToStringValue]);
 
   const hasMultipleSelection = multiple && Array.isArray(selectedValue) && selectedValue.length > 0;
 
@@ -1375,6 +1381,7 @@ interface ComboboxRootProps<ItemValue> {
   keepHighlight?: boolean;
   /**
    * Whether moving the pointer over items should highlight them.
+   * Disabling this prop allows CSS `:hover` to be differentiated from the `:focus` (`data-highlighted`) state.
    * @default true
    */
   highlightItemOnHover?: boolean;

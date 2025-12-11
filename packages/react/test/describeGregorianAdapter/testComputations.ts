@@ -1,9 +1,5 @@
 import { expect } from 'chai';
-import {
-  TemporalAdapter,
-  TemporalSupportedObject,
-  TemporalTimezone,
-} from '@base-ui-components/react/types';
+import { TemporalAdapter, TemporalSupportedObject, TemporalTimezone } from '@base-ui/react/types';
 import { DescribeGregorianAdapterTestSuite } from './describeGregorianAdapter.types';
 import { TEST_DATE_ISO_STRING, TEST_DATE_LOCALE_STRING } from './describeGregorianAdapter.utils';
 

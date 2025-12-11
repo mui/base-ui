@@ -15,7 +15,7 @@ import { DemoNavigationMenuHero } from './demos/hero';
 Import the component and assemble its parts:
 
 ```jsx title="Anatomy"
-import { NavigationMenu } from '@base-ui-components/react/navigation-menu';
+import { NavigationMenu } from '@base-ui/react/navigation-menu';
 
 <NavigationMenu.Root>
   <NavigationMenu.List>
@@ -57,7 +57,7 @@ The `<NavigationMenu.Link>` part can be customized to render the link from your 
 
 ```jsx title="Next.js example" {1,7}
 import NextLink from 'next/link';
-import { NavigationMenu } from '@base-ui-components/react/navigation-menu';
+import { NavigationMenu } from '@base-ui/react/navigation-menu';
 
 function Link(props: NavigationMenu.Link.Props) {
   return (
@@ -98,7 +98,7 @@ If your content is flexible, you can use the `max-height` property on `.Popup` t
 }
 ```
 
-Native scrollbars will be visible while transitioning content, so we recommend using our [Scroll Area](/react/components/scroll-area) component instead of native scrollbars to keep them hidden, which will also allow the `Arrow` to be centered correctly.
+Native scrollbars are visible while transitioning content, so we recommend using the [Scroll Area](/react/components/scroll-area) component instead of native scrollbars to keep them hidden, which also allows the `Arrow` to be centered correctly.
 
 ## API reference
 

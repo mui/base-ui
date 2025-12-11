@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { format } from 'date-fns/format';
 import { TZDate } from '@date-fns/tz';
-import { Calendar } from '@base-ui-components/react/calendar';
+import { Calendar } from '@base-ui/react/calendar';
 import styles from './calendar.module.css';
 
 export default function CalendarWithTimezone() {

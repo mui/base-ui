@@ -41,7 +41,7 @@ const FORMATS: TemporalAdapterFormats = {
 };
 
 // Temporarily disabled to avoid docs being built with `| DateTime`
-// declare module '@base-ui-components/react/types' {
+// declare module '@base-ui/react/types' {
 //   interface TemporalSupportedObjectLookup {
 //     luxon: DateTime;
 //   }

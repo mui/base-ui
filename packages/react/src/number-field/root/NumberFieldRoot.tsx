@@ -1,14 +1,16 @@
 'use client';
 import * as React from 'react';
-import { useControlled } from '@base-ui-components/utils/useControlled';
-import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
-import { useTimeout } from '@base-ui-components/utils/useTimeout';
-import { useInterval } from '@base-ui-components/utils/useInterval';
-import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
-import { useValueAsRef } from '@base-ui-components/utils/useValueAsRef';
-import { useForcedRerendering } from '@base-ui-components/utils/useForcedRerendering';
-import { ownerDocument, ownerWindow } from '@base-ui-components/utils/owner';
-import { isIOS } from '@base-ui-components/utils/detectBrowser';
+import { useControlled } from '@base-ui/utils/useControlled';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { useTimeout } from '@base-ui/utils/useTimeout';
+import { useInterval } from '@base-ui/utils/useInterval';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
+import { useForcedRerendering } from '@base-ui/utils/useForcedRerendering';
+import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
+import { visuallyHidden } from '@base-ui/utils/visuallyHidden';
+import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
+import { isIOS } from '@base-ui/utils/detectBrowser';
 import { InputMode, NumberFieldRootContext } from './NumberFieldRootContext';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import type { FieldRoot } from '../../field/root/FieldRoot';
@@ -82,6 +84,8 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
     invalid,
     name: fieldName,
     state: fieldState,
+    validation,
+    shouldValidateOnChange,
   } = useFieldRootContext();
 
   const disabled = fieldDisabled || disabledProp;
@@ -95,6 +99,7 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
   const formatStyle = format?.style;
 
   const inputRef = React.useRef<HTMLInputElement>(null);
+  const hiddenInputRef = useMergedRefs(inputRefProp, validation.inputRef);
 
   const id = useLabelableId({ id: idProp });
 
@@ -482,14 +487,9 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
       setValue,
       incrementValue,
       getStepAmount,
-      allowInputSyncRef,
       formatOptionsRef,
       valueRef,
-      lastChangedValueRef,
-      hasPendingCommitRef,
-      isPressedRef,
       intentionalTouchCheckTimeout,
-      movesAfterTouchRef,
       name,
       required,
       invalid,
@@ -515,22 +515,48 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
   return (
     <NumberFieldRootContext.Provider value={contextValue}>
       {element}
-      {name && (
-        <input
-          type="hidden"
-          name={name}
-          ref={inputRefProp}
-          value={value ?? ''}
-          disabled={disabled}
-          required={required}
-        />
-      )}
+      <input
+        {...validation.getInputValidationProps({
+          onChange(event) {
+            // Workaround for https://github.com/facebook/react/issues/9023
+            if (event.nativeEvent.defaultPrevented) {
+              return;
+            }
+
+            // Handle browser autofill.
+            const nextValue = event.currentTarget.valueAsNumber;
+            const parsedValue = Number.isNaN(nextValue) ? null : nextValue;
+            const details = createChangeEventDetails(REASONS.none, event.nativeEvent);
+
+            setDirty(parsedValue !== validityData.initialValue);
+            setValue(parsedValue, details);
+
+            if (shouldValidateOnChange()) {
+              validation.commit(parsedValue);
+            }
+          },
+        })}
+        ref={hiddenInputRef}
+        type="number"
+        name={name}
+        value={value ?? ''}
+        min={min}
+        max={max}
+        step={step}
+        disabled={disabled}
+        required={required}
+        aria-hidden
+        tabIndex={-1}
+        style={visuallyHidden}
+      />
     </NumberFieldRootContext.Provider>
   );
 });
 
-export interface NumberFieldRootProps
-  extends Omit<BaseUIComponentProps<'div', NumberFieldRootState>, 'onChange'> {
+export interface NumberFieldRootProps extends Omit<
+  BaseUIComponentProps<'div', NumberFieldRootState>,
+  'onChange'
+> {
   /**
    * The id of the input element.
    */

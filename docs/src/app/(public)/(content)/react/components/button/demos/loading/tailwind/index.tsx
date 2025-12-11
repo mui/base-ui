@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { Button } from '@base-ui-components/react/button';
+import { Button } from '@base-ui/react/button';
 
 export default function ExampleButton() {
   const [loading, setLoading] = React.useState(false);

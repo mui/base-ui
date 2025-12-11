@@ -1,9 +1,9 @@
 import * as React from 'react';
-import { inertValue } from '@base-ui-components/utils/inertValue';
-import { useAnimationFrame } from '@base-ui-components/utils/useAnimationFrame';
-import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
-import { useStore } from '@base-ui-components/utils/store';
-import { TemporalSupportedObject } from '@base-ui-components/react/types';
+import { inertValue } from '@base-ui/utils/inertValue';
+import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { useStore } from '@base-ui/utils/store';
+import { TemporalSupportedObject } from '@base-ui/react/types';
 import { useAnimationsFinished } from '../../utils/useAnimationsFinished';
 import { CalendarRoot } from '../root/CalendarRoot';
 import { CalendarViewportDataAttributes } from './CalendarViewportDataAttributes';

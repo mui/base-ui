@@ -1,6 +1,6 @@
 import * as React from 'react';
-import { useStore } from '@base-ui-components/utils/store';
-import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
+import { useStore } from '@base-ui/utils/store';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useSharedCalendarRootContext } from '../root/SharedCalendarRootContext';
 import { SharedCalendarDayGridBodyContext } from './SharedCalendarDayGridBodyContext';
 import { BaseUIEvent, HTMLProps } from '../../utils/types';

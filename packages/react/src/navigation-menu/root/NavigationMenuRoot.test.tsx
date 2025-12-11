@@ -1,9 +1,9 @@
 import { expect } from 'chai';
 import { spy } from 'sinon';
 import { fireEvent, screen, flushMicrotasks, act, within, waitFor } from '@mui/internal-test-utils';
-import { NavigationMenu } from '@base-ui-components/react/navigation-menu';
-import { Dialog } from '@base-ui-components/react/dialog';
-import { Popover } from '@base-ui-components/react/popover';
+import { NavigationMenu } from '@base-ui/react/navigation-menu';
+import { Dialog } from '@base-ui/react/dialog';
+import { Popover } from '@base-ui/react/popover';
 import { createRenderer, describeConformance } from '#test-utils';
 import { PATIENT_CLICK_THRESHOLD } from '../../utils/constants';
 import { OPEN_DELAY } from '../utils/constants';

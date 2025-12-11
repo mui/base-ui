@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
-import { inertValue } from '@base-ui-components/utils/inertValue';
-import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
+import { inertValue } from '@base-ui/utils/inertValue';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { FloatingNode, useFloatingNodeId } from '../../floating-ui-react';
 import { usePopoverRootContext } from '../root/PopoverRootContext';
 import { PopoverPositionerContext } from './PopoverPositionerContext';
@@ -52,7 +52,6 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
   const floatingRootContext = store.useState('floatingRootContext');
   const mounted = store.useState('mounted');
   const open = store.useState('open');
-  const openMethod = store.useState('openMethod');
   const openReason = store.useState('openChangeReason');
   const triggerElement = store.useState('activeTriggerElement');
   const modal = store.useState('modal');
@@ -167,16 +166,13 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
 
   return (
     <PopoverPositionerContext.Provider value={positioner}>
-      {mounted &&
-        modal === true &&
-        openReason !== REASONS.triggerHover &&
-        openMethod !== 'touch' && (
-          <InternalBackdrop
-            ref={store.context.internalBackdropRef}
-            inert={inertValue(!open)}
-            cutout={triggerElement}
-          />
-        )}
+      {mounted && modal === true && openReason !== REASONS.triggerHover && (
+        <InternalBackdrop
+          ref={store.context.internalBackdropRef}
+          inert={inertValue(!open)}
+          cutout={triggerElement}
+        />
+      )}
       <FloatingNode id={nodeId}>{element}</FloatingNode>
     </PopoverPositionerContext.Provider>
   );
@@ -197,7 +193,8 @@ export interface PopoverPositionerState {
 }
 
 export interface PopoverPositionerProps
-  extends useAnchorPositioning.SharedParameters,
+  extends
+    useAnchorPositioning.SharedParameters,
     BaseUIComponentProps<'div', PopoverPositioner.State> {}
 
 export namespace PopoverPositioner {
