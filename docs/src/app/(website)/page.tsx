@@ -1,5 +1,6 @@
 import * as React from 'react';
 import type { Metadata, Viewport } from 'next';
+import { Accordion } from '@base-ui/react/accordion';
 import { Link } from 'docs/src/components/Link';
 import { Logo } from 'docs/src/components/Logo';
 import { Paper } from './logos/Paper';
@@ -8,6 +9,8 @@ import { Unsplash } from './logos/Unsplash';
 import { Operate } from './logos/Operate';
 import { HighlightAI } from './logos/HighlightAI';
 import { Interfere } from './logos/Interfere';
+import { PlusIcon } from './icons/PlusIcon';
+import { MinusIcon } from './icons/MinusIcon';
 
 export default function Homepage() {
   return (
@@ -231,87 +234,146 @@ export default function Homepage() {
               <h2 className="Text size-2">The fine print</h2>
             </div>
             <div className="gcs-1 gce-9 bp2:gcs-3 bp4:gce-7">
-              <details style={{ borderTop: '1px solid currentColor' }}>
-                <summary className="Text size-2">What is Base UI?</summary>
-                <p className="Text size-2">
-                  Base UI is a library of unstyled UI components for building accessible component
-                  libraries, user interfaces, web applications, and websites with React. Base UI
-                  components are highly configurable, composable, and customizable.
-                </p>
-              </details>
-              <details>
-                <summary className="Text size-2">
-                  Does Base UI work with any styling library?
-                </summary>
-                <p className="Text size-2">
-                  Yes. Base UI works with Tailwind, CSS Modules, CSS-in-JS, plain CSS, and any other
-                  styling library you prefer. It also works with JavaScript animation libraries like
-                  Motion, or just plain CSS transitions. Base UI is an unstyled component library.
-                  The package does not bundle any CSS, and does not prescribe any styling solution.
-                </p>
-              </details>
-              <details>
-                <summary className="Text size-2">
-                  Which accessibility standards does Base UI follow?
-                </summary>
-                <p className="Text size-2">
-                  When designing and speccing components, we follow{' '}
-                  <a className="Link" href="https://www.w3.org/WAI/ARIA/apg/patterns/">
-                    ARIA Authoring Practices Guide patterns
-                  </a>
-                  , and comply with the{' '}
-                  <a className="Link" href="https://www.w3.org/TR/WCAG22/#new-features-in-wcag-2-2">
-                    WCAG 2.2 standard
-                  </a>
-                  . Base UI is compliant with all Success Criteria levels relating to component
-                  behaviour. However, in most cases, we go way beyond these guides. Base UI
-                  components are tested across a wide range of browsers, devices, platforms, and
-                  environments, and are designed to be accessible.
-                </p>
-              </details>
-              <details>
-                <summary className="Text size-2">How does Base UI differ from Radix UI?</summary>
-                <div className="d-f fd-c g-4">
-                  <p className="Text size-2">
-                    In terms of API design, both libraries are very similar. We intentionally kept
-                    our APIs close to Radix UI for an easier migration path. Base UI provides more
-                    complex components such as Combobox and Autocomplete. Base UI also provides
-                    deeper feature support such as input scrubbing, nested dialogs, and triggering
-                    menus on hover. Base UI is more robust and more polished in terms of a11y and
-                    edge case handling.
-                  </p>
-                  <p className="Text size-2">
-                    But the most important difference is that Base UI is actively maintained and
-                    developed, with a dedicated team of 7 developers, designers, and managers
-                    working on it full-time.
-                  </p>
-                </div>
-              </details>
-              <details>
-                <summary className="Text size-2">Can I use Base UI without React?</summary>
-                <p className="Text size-2">
-                  Base UI is a React library. It is not designed to be used without React. We may
-                  consider supporting other libraries at some point, but for the forseeable future,
-                  React is our primary focus.
-                </p>
-              </details>
-              <details>
-                <summary className="Text size-2">Is Base UI free for commercial use?</summary>
-                <p className="Text size-2">
-                  Yes. Base UI is licensed under the MIT license, and is free for commercial use.
-                  You are free to use it in your commercial projects, and to modify it to suit your
-                  needs.
-                </p>
-              </details>
-              <details>
-                <summary className="Text size-2">Do you offer enterprise SLAs?</summary>
-                <p className="Text size-2">
-                  Not currently. We do provide dedicated support channels to some very large
-                  enterprise companies who are working with us as design partners. But we do not
-                  currently provide Service Level Agreements, guaranteed response times, issue
-                  escalation, feature prioritization, or any other formal support guarantees.
-                </p>
-              </details>
+              <Accordion.Root style={{ borderTop: '1px solid currentColor' }}>
+                <Accordion.Item className="AccordionItem">
+                  <Accordion.Header className="AccordionHeader">
+                    <Accordion.Trigger className="AccordionTrigger Text size-2">
+                      What is Base UI?
+                      <PlusIcon className="AccordionIcon AccordionIconPlus" />
+                      <MinusIcon className="AccordionIcon AccordionIconMinus" />
+                    </Accordion.Trigger>
+                  </Accordion.Header>
+                  <Accordion.Panel className="AccordionPanel">
+                    <p className="Text size-2">
+                      Base UI is a library of unstyled UI components for building accessible
+                      component libraries, user interfaces, web applications, and websites with
+                      React. Base UI components are highly configurable, composable, and
+                      customizable.
+                    </p>
+                  </Accordion.Panel>
+                </Accordion.Item>
+                <Accordion.Item className="AccordionItem">
+                  <Accordion.Header className="AccordionHeader">
+                    <Accordion.Trigger className="AccordionTrigger Text size-2">
+                      Does Base UI work with any styling library?
+                      <PlusIcon className="AccordionIcon AccordionIconPlus" />
+                      <MinusIcon className="AccordionIcon AccordionIconMinus" />
+                    </Accordion.Trigger>
+                  </Accordion.Header>
+                  <Accordion.Panel className="AccordionPanel">
+                    <p className="Text size-2">
+                      Yes. Base UI works with Tailwind, CSS Modules, CSS-in-JS, plain CSS, and any
+                      other styling library you prefer. It also works with JavaScript animation
+                      libraries like Motion, or just plain CSS transitions. Base UI is an unstyled
+                      component library. The package does not bundle any CSS, and does not prescribe
+                      any styling solution.
+                    </p>
+                  </Accordion.Panel>
+                </Accordion.Item>
+                <Accordion.Item className="AccordionItem">
+                  <Accordion.Header className="AccordionHeader">
+                    <Accordion.Trigger className="AccordionTrigger Text size-2">
+                      Which accessibility standards does Base UI follow?
+                      <PlusIcon className="AccordionIcon AccordionIconPlus" />
+                      <MinusIcon className="AccordionIcon AccordionIconMinus" />
+                    </Accordion.Trigger>
+                  </Accordion.Header>
+                  <Accordion.Panel className="AccordionPanel">
+                    <p className="Text size-2">
+                      When designing and speccing components, we follow{' '}
+                      <a className="Link" href="https://www.w3.org/WAI/ARIA/apg/patterns/">
+                        ARIA Authoring Practices Guide patterns
+                      </a>
+                      , and comply with the{' '}
+                      <a
+                        className="Link"
+                        href="https://www.w3.org/TR/WCAG22/#new-features-in-wcag-2-2"
+                      >
+                        WCAG 2.2 standard
+                      </a>
+                      . Base UI is compliant with all Success Criteria levels relating to component
+                      behaviour. However, in most cases, we go way beyond these guides. Base UI
+                      components are tested across a wide range of browsers, devices, platforms, and
+                      environments, and are designed to be accessible.
+                    </p>
+                  </Accordion.Panel>
+                </Accordion.Item>
+                <Accordion.Item className="AccordionItem">
+                  <Accordion.Header className="AccordionHeader">
+                    <Accordion.Trigger className="AccordionTrigger Text size-2">
+                      How does Base UI differ from Radix UI?
+                      <PlusIcon className="AccordionIcon AccordionIconPlus" />
+                      <MinusIcon className="AccordionIcon AccordionIconMinus" />
+                    </Accordion.Trigger>
+                  </Accordion.Header>
+                  <Accordion.Panel className="AccordionPanel">
+                    <div className="d-f fd-c g-4">
+                      <p className="Text size-2">
+                        In terms of API design, both libraries are very similar. We intentionally
+                        kept our APIs close to Radix UI for an easier migration path. Base UI
+                        provides more complex components such as Combobox and Autocomplete. Base UI
+                        also provides deeper feature support such as input scrubbing, nested
+                        dialogs, and triggering menus on hover. Base UI is more robust and more
+                        polished in terms of a11y and edge case handling.
+                      </p>
+                      <p className="Text size-2">
+                        But the most important difference is that Base UI is actively maintained and
+                        developed, with a dedicated team of 7 developers, designers, and managers
+                        working on it full-time.
+                      </p>
+                    </div>
+                  </Accordion.Panel>
+                </Accordion.Item>
+                <Accordion.Item className="AccordionItem">
+                  <Accordion.Header className="AccordionHeader">
+                    <Accordion.Trigger className="AccordionTrigger Text size-2">
+                      Can I use Base UI without React?
+                      <PlusIcon className="AccordionIcon AccordionIconPlus" />
+                      <MinusIcon className="AccordionIcon AccordionIconMinus" />
+                    </Accordion.Trigger>
+                  </Accordion.Header>
+                  <Accordion.Panel className="AccordionPanel">
+                    <p className="Text size-2">
+                      Base UI is a React library. It is not designed to be used without React. We
+                      may consider supporting other libraries at some point, but for the forseeable
+                      future, React is our primary focus.
+                    </p>
+                  </Accordion.Panel>
+                </Accordion.Item>
+                <Accordion.Item className="AccordionItem">
+                  <Accordion.Header className="AccordionHeader">
+                    <Accordion.Trigger className="AccordionTrigger Text size-2">
+                      Is Base UI free for commercial use?
+                      <PlusIcon className="AccordionIcon AccordionIconPlus" />
+                      <MinusIcon className="AccordionIcon AccordionIconMinus" />
+                    </Accordion.Trigger>
+                  </Accordion.Header>
+                  <Accordion.Panel className="AccordionPanel">
+                    <p className="Text size-2">
+                      Yes. Base UI is licensed under the MIT license, and is free for commercial
+                      use. You are free to use it in your commercial projects, and to modify it to
+                      suit your needs.
+                    </p>
+                  </Accordion.Panel>
+                </Accordion.Item>
+                <Accordion.Item className="AccordionItem">
+                  <Accordion.Header className="AccordionHeader">
+                    <Accordion.Trigger className="AccordionTrigger Text size-2">
+                      Do you offer enterprise SLAs?
+                      <PlusIcon className="AccordionIcon AccordionIconPlus" />
+                      <MinusIcon className="AccordionIcon AccordionIconMinus" />
+                    </Accordion.Trigger>
+                  </Accordion.Header>
+                  <Accordion.Panel className="AccordionPanel">
+                    <p className="Text size-2">
+                      Not currently. We do provide dedicated support channels to some very large
+                      enterprise companies who are working with us as design partners. But we do not
+                      currently provide Service Level Agreements, guaranteed response times, issue
+                      escalation, feature prioritization, or any other formal support guarantees.
+                    </p>
+                  </Accordion.Panel>
+                </Accordion.Item>
+              </Accordion.Root>
             </div>
           </section>
         </main>
