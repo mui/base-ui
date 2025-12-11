@@ -226,6 +226,7 @@ function App() {
   multiple
 />;
 
+// Should accept null value
 <Combobox.Root
   items={[
     { id: 1, name: 'Alice' },

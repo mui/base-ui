@@ -188,6 +188,8 @@ function App() {
   multiple
 />;
 
+<Select.Root items={objectItemsReadonly} value={null} />;
+
 function App2() {
   const [value, setValue] = React.useState('a');
   return (
