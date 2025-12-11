@@ -30,12 +30,7 @@ function getBrowserConfig(): BrowserModeConfig {
   } else if (isSupportedBrowser(environment)) {
     instances = [{ browser: environment }];
   } else {
-    throw new Error(
-      `Unsupported VITEST_ENV value: "${environment}". Supported values are: ${[
-        ...supportedBrowsers,
-        'all-browsers',
-      ].join(', ')}`,
-    );
+    return undefined;
   }
 
   return {
