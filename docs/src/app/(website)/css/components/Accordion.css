@@ -1,0 +1,44 @@
+details {
+  box-sizing: border-box;
+  border-bottom: 1px solid currentColor;
+  user-select: none;
+}
+
+
+summary {
+  list-style: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-block: 12px;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+summary:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+}
+
+/* Remove default triangle */
+summary::-webkit-details-marker {
+  display: none;
+}
+
+/* Indicator */
+summary::after {
+  content: "+";
+  inline-size: 1em;
+  text-align: center;
+}
+
+details[open] > summary::after {
+  content: "–";
+}
+
+/* Content spacing */
+details > *:not(summary) {
+  margin-block-start: 8px;
+}
+
+

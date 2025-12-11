@@ -3,7 +3,7 @@ import * as React from 'react';
 import { Toolbar } from '@base-ui/react/toolbar';
 import { DirectionProvider } from '@base-ui/react/direction-provider';
 import toolbarClasses from './toolbar.module.css';
-import inputClasses from '../../../(public)/(content)/react/components/input/demos/hero/css-modules/index.module.css';
+import inputClasses from '../../../(docs)/(content)/react/components/input/demos/hero/css-modules/index.module.css';
 import '../../../../demo-theme.css';
 
 import {

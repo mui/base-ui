@@ -1,0 +1,8 @@
+.Separator {
+  box-sizing: border-box;
+  height: 1px;
+  width: 32px;
+  background-color: hsl(0 0% 93%);
+}
+
+

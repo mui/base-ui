@@ -5,7 +5,7 @@ import { Menubar } from '@base-ui/react/menubar';
 import { Toolbar } from '@base-ui/react/toolbar';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { StoreInspector } from '@base-ui/utils/store';
-import demoStyles from 'docs/src/app/(public)/(content)/react/components/menu/demos/submenu/css-modules/index.module.css';
+import demoStyles from 'docs/src/app/(docs)/(content)/react/components/menu/demos/submenu/css-modules/index.module.css';
 import styles from './nested-detached-triggers.module.css';
 
 const contents = {

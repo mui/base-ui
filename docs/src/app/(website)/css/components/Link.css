@@ -1,0 +1,38 @@
+.Link {
+  display: inline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 4px;
+  width: fit-content;
+  color: currentColor;
+  align-items: center;
+  gap: 4px;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.Link:active {
+  background-color: black;
+  color: white;
+}
+
+.Link-arrow-line {
+  opacity: 0;
+  transition: opacity 100ms ease;
+}
+
+.Link-arrow-caret {
+  transition: transform 100ms ease;
+}
+
+@media (hover: hover) {
+  .Link:hover {
+    text-decoration: none;
+  }
+
+  .Link:hover .Link-arrow-line {
+    opacity: 1;
+  }
+
+  .Link:hover .Link-arrow-caret {
+    transform: translateX(4px);
+  }
+}
