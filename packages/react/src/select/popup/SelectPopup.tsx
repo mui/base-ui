@@ -57,6 +57,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
     multiple,
     handleScrollArrowVisibility,
     scrollHandlerRef,
+    highlightItemOnHover,
   } = useSelectRootContext();
   const {
     side,
@@ -394,7 +395,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
       keyboardActiveRef.current = false;
     },
     onPointerLeave(event) {
-      if (isMouseWithinBounds(event) || event.pointerType === 'touch') {
+      if (!highlightItemOnHover || isMouseWithinBounds(event) || event.pointerType === 'touch') {
         return;
       }
 
