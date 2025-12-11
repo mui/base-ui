@@ -1,0 +1,15 @@
+/* Theme variables and styles */
+
+:root {
+  --gray-s1: white;
+  --gray-t2: hsl(0deg 0% 18%);
+  --selection: hsl(0deg 0% 92%);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --gray-s1: hsl(0deg 0% 10%);
+    --gray-t2: hsl(0deg 0% 93%);
+    --selection: hsl(0deg 0% 18%);
+  }
+}

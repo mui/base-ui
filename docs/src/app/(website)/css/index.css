@@ -1,3 +1,5 @@
+@import './theme.css';
+
 /* Import components */
 @import './components/Accordion.css';
 @import './components/Body.css';
