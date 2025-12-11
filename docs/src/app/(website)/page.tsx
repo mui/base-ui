@@ -295,7 +295,7 @@ export default function Homepage() {
                         WCAG 2.2 standard
                       </a>
                       . Base UI is compliant with all Success Criteria levels relating to component
-                      behaviour. However, in most cases, we go way beyond these guides. Base UI
+                      behavior. However, in most cases, we go way beyond these guides. Base UI
                       components are tested across a wide range of browsers, devices, platforms, and
                       environments, and are designed to be accessible.
                     </p>
