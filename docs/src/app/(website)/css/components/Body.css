@@ -1,10 +1,10 @@
 .Body {
   box-sizing: border-box;
   margin: 0;
-  color: hsl(0 0% 18%);
+  color: hsl(0deg 0% 18%);
 }
 
 .Body::selection {
   background-color: hsl(85deg 100% 66%);
-  color: hsl(0 0% 0% / 50%);
+  color: hsl(0deg 0% 0% / 50%);
 }

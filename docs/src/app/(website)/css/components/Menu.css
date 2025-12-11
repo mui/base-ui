@@ -2,7 +2,7 @@
   position: relative;
   --keyboardMenuDuration: 5s;
   --keyboardMenuItemBg: #fff;
-  --keyboardMenuItemHighlight: hsl(0 0% 95%);
+  --keyboardMenuItemHighlight: hsl(0deg 0% 95%);
 }
 
 .MenuItem {
@@ -17,7 +17,7 @@
   font-size: 14px;
   line-height: 1;
   font-family:
-    test die grotesk a,
+    "test die grotesk a",
     sans-serif;
   letter-spacing: 0.18px;
   position: relative;

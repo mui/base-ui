@@ -3,7 +3,7 @@
   box-sizing: border-box;
   border-radius: 8px;
   z-index: 0;
-  background: linear-gradient(to bottom, hsl(0 0% 0% / 5%), hsl(0 0% 0% / 12%));
+  background: linear-gradient(to bottom, hsl(0deg 0% 0% / 5%), hsl(0deg 0% 0% / 12%));
 }
 
 .Popup::before,
@@ -15,7 +15,7 @@
 
 .Popup::before {
   border-radius: 7px;
-  background: linear-gradient(to bottom, white, hsl(0 0% 98%));
+  background: linear-gradient(to bottom, white, hsl(0deg 0% 98%));
   box-shadow: inset 0 0 0 1px white;
   z-index: -1;
 }
@@ -24,10 +24,10 @@
   border-radius: 8px;
   z-index: -2;
   box-shadow:
-    0 0.5px 1px hsl(0 0% 0% / 12%),
-    0 1px 3px hsl(0 0% 0% / 5%),
-    0 2px 4px -1px hsl(0 0% 0% / 5%),
-    0 4px 12px -2px hsl(0 0% 0% / 5%),
-    0 8px 24px -4px hsl(0 0% 0% / 5%),
-    0 16px 48px -4px hsl(0 0% 0% / 5%);
+    0 0.5px 1px hsl(0deg 0% 0% / 12%),
+    0 1px 3px hsl(0deg 0% 0% / 5%),
+    0 2px 4px -1px hsl(0deg 0% 0% / 5%),
+    0 4px 12px -2px hsl(0deg 0% 0% / 5%),
+    0 8px 24px -4px hsl(0deg 0% 0% / 5%),
+    0 16px 48px -4px hsl(0deg 0% 0% / 5%);
 }
