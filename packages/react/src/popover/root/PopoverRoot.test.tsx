@@ -517,12 +517,6 @@ describe('<Popover.Root />', () => {
               </div>,
             );
 
-            // QUESTION @michaldudak: the test seems to be less flaky when I replace
-            // the programmatic with a wait for focus, it apparently is already being focused
-            // by floating ui?
-            // const inputInside = screen.getByTestId('input-inside');
-            // await act(async () => inputInside.focus());
-
             await waitFor(() => {
               expect(screen.getByTestId('input-inside')).toHaveFocus();
             });
