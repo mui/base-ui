@@ -840,6 +840,45 @@ describe('<Menu.Root />', () => {
       });
     });
 
+    describe.skipIf(isJSDOM)('interaction type tracking (openMethod)', () => {
+      it('should not apply scroll lock when opened via touch', async () => {
+        await render(<TestMenu rootProps={{ modal: true }} />);
+
+        const trigger = screen.getByRole('button', { name: 'Toggle' });
+
+        fireEvent.pointerDown(trigger, { pointerType: 'touch' });
+        fireEvent.mouseDown(trigger);
+
+        const menu = await screen.findByRole('menu');
+
+        const doc = menu.ownerDocument;
+
+        const isScrollLocked =
+          doc.documentElement.style.overflow === 'hidden' ||
+          doc.documentElement.hasAttribute('data-base-ui-scroll-locked') ||
+          doc.body.style.overflow === 'hidden';
+
+        expect(isScrollLocked).to.equal(false);
+      });
+
+      it('should apply scroll lock when opened via mouse', async () => {
+        const { user } = await render(<TestMenu rootProps={{ modal: true }} />);
+
+        const trigger = screen.getByRole('button', { name: 'Toggle' });
+        const doc = trigger.ownerDocument;
+
+        await user.click(trigger);
+        await screen.findByRole('menu');
+
+        const isScrollLocked =
+          doc.documentElement.style.overflow === 'hidden' ||
+          doc.documentElement.hasAttribute('data-base-ui-scroll-locked') ||
+          doc.body.style.overflow === 'hidden';
+
+        expect(isScrollLocked).to.equal(true);
+      });
+    });
+
     describe('prop: actionsRef', () => {
       it('unmounts the menu when the `unmount` method is called', async () => {
         const actionsRef = {
