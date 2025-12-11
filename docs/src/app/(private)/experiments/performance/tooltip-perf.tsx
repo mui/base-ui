@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
-import { Tooltip as BaseTooltip } from '@base-ui-components/react/tooltip';
-import { Field } from '@base-ui-components/react/field';
+import { Tooltip as BaseTooltip } from '@base-ui/react/tooltip';
+import { Field } from '@base-ui/react/field';
 import { Tooltip as BaseOldTooltip } from '@base-ui-components/react-before-detached/tooltip';
 import { Tooltip as RadixTooltip } from 'radix-ui';
 import styles from './tooltip-perf.module.css';
