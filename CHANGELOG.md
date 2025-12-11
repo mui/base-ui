@@ -48,7 +48,7 @@ _Dec 11, 2025_
 ### Toast
 
 - Fix `flushSync` dev error when toast is added (#3443) by @atomiks
-- Fix `&lt;Toast.Close&gt;` emitting `aria-hidden` warning on click (#3469) by @atomiks
+- Fix `<Toast.Close>;` emitting `aria-hidden` warning on click (#3469) by @atomiks
 
 ### Toggle Group
 
