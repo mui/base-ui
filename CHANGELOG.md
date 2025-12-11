@@ -6,7 +6,7 @@ _Dec 11, 2025_
 
 ### General Changes
 
-- **Breaking change:** Rename packages to use the @base-ui org.<br />
+- **Breaking change:** Rename packages to use the `@base-ui` org.<br />
   The package name has changed from `@base-ui-components/react` to `@base-ui/react`.
   (#3462) by @mnajdova
 
