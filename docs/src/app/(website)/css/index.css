@@ -1,3 +1,17 @@
+/* Import components */
+@import './components/Accordion.css';
+@import './components/Body.css';
+@import './components/Button.css';
+@import './components/Figure.css';
+@import './components/Icon.css';
+@import './components/Key.css';
+@import './components/Link.css';
+@import './components/List.css';
+@import './components/Menu.css';
+@import './components/Popup.css';
+@import './components/Separator.css';
+@import './components/Text.css';
+
 /* Import utilities */
 @import './utilities/align-items.css';
 @import './utilities/box-sizing.css';
@@ -18,17 +32,3 @@
 @import './utilities/text-align.css';
 @import './utilities/top.css';
 @import './utilities/transform.css';
-
-/* Import components */
-@import './components/Accordion.css';
-@import './components/Body.css';
-@import './components/Button.css';
-@import './components/Figure.css';
-@import './components/Icon.css';
-@import './components/Key.css';
-@import './components/Link.css';
-@import './components/List.css';
-@import './components/Menu.css';
-@import './components/Popup.css';
-@import './components/Separator.css';
-@import './components/Text.css';

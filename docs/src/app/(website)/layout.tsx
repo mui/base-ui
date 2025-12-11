@@ -7,7 +7,7 @@ import './css/index.css';
 export default function Layout({ children }: React.PropsWithChildren) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className="Body">{children}</body>
+      <body className="Body p-6 bp2:py-7 bp2:px-9">{children}</body>
       <GoogleAnalytics />
     </html>
   );

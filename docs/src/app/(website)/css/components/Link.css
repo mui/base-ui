@@ -14,12 +14,12 @@
   color: white;
 }
 
-.Link-arrow-line {
+.LinkArrowLine {
   opacity: 0;
   transition: opacity 100ms ease;
 }
 
-.Link-arrow-caret {
+.LinkArrowCaret {
   transition: transform 100ms ease;
 }
 
@@ -28,11 +28,11 @@
     text-decoration: none;
   }
 
-  .Link:hover .Link-arrow-line {
+  .Link:hover .LinkArrowLine {
     opacity: 1;
   }
 
-  .Link:hover .Link-arrow-caret {
+  .Link:hover .LinkArrowCaret {
     transform: translateX(4px);
   }
 }
