@@ -1,7 +1,7 @@
 import { Link } from 'docs/src/components/Link';
 import { ArrowRightIcon } from 'docs/src/icons/ArrowRightIcon';
 import { Logo } from 'docs/src/components/Logo';
-import RootLayout from './(public)/layout';
+import RootLayout from './(docs)/layout';
 import './not-found.css';
 
 export default function NotFound() {
