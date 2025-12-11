@@ -1,7 +1,6 @@
 import type { Metadata } from 'next';
 import { ArrowRightIcon } from 'docs/src/icons/ArrowRightIcon';
 import { Header } from 'docs/src/components/Header';
-import '../../page.css';
 import '../../(content)/layout.css';
 
 export default function Homepage() {
