@@ -5,7 +5,8 @@
     color-scheme: light dark;
   }
 
-  body {
+  /* Scope body styles to only apply when docs layout is present */
+  body:has(.RootLayout) {
     position: relative; /* iOS 26 `position: absolute` backdrops */
     min-width: 320px;
     line-height: 1.5;
@@ -14,7 +15,7 @@
     color: var(--color-foreground);
   }
 
-  ::selection {
+  body:has(.RootLayout) ::selection {
     background-color: var(--color-selection);
   }
 }
