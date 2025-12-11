@@ -1,12 +1,6 @@
 # Versions
 
-## v1.0.0-rc.2
-
-_Dec 11, 2025_
-
-There are no changes in the library code between RC.1 and RC.2.
-
-## v1.0.0-rc.1
+## v1.0.0
 
 _Dec 11, 2025_
 
@@ -68,6 +62,20 @@ _Dec 11, 2025_
 - Fix skipped viewport transitions (#3453) by @atomiks
 
 All contributors of this release in alphabetical order: @atomiks, @LukasTy, @michaldudak, @mj12albert, @mnajdova, @oliviertassinari, @pondorasti, @romgrk, @ZeeshanTamboli
+
+## v1.0.0-rc.2
+
+_Dec 11, 2025_
+
+This release contains the same code as v1.0.0.
+Please refer to that version to see the changes.
+
+## v1.0.0-rc.1
+
+_Dec 11, 2025_
+
+This release contains the same code as v1.0.0.
+Please refer to that version to see the changes.
 
 ## v1.0.0-rc.0
 
