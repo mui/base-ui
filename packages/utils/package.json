@@ -44,8 +44,7 @@
     "react": "^19.2.1",
     "react-dom": "^19.2.1",
     "sinon": "^21.0.0",
-    "typescript": "^5.9.3",
-    "vitest": "^4.0.15"
+    "typescript": "^5.9.3"
   },
   "peerDependencies": {
     "@types/react": "^17 || ^18 || ^19",
