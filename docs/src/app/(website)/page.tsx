@@ -45,7 +45,7 @@ export default function Homepage() {
               X
             </a>
             <a className="Text size-1 Link" href="https://github.com/mui/base-ui">
-              Github
+              GitHub
             </a>
             <a className="Text size-1 Link" href="https://discord.com/invite/g6C3hUtuxz">
               Discord
