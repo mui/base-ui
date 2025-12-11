@@ -117,7 +117,7 @@ export default function Homepage() {
             </div>
             <ul
               className="List gcs-1 gce-9 bp3:gcs-3 d-g gtc-2 bp2:gtc-4 bp3:gtc-6 g-8 bp2:g-9"
-              aria-label="companies using base ui"
+              aria-label="companies using Base UI"
             >
               <li>
                 <div className="d-f fd-c g-2">
