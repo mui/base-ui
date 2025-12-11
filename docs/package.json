@@ -15,6 +15,7 @@
   "dependencies": {
     "@base-ui/react": "workspace:*",
     "@base-ui/utils": "workspace:*",
+    "@base-ui-components/react-before-detached": "npm:@base-ui-components/react@1.0.0-beta.4",
     "@emotion/cache": "^11.14.0",
     "@emotion/react": "^11.14.0",
     "@emotion/server": "^11.11.0",

@@ -1,0 +1,262 @@
+'use client';
+import * as React from 'react';
+import { Tooltip as BaseTooltip } from '@base-ui/react/tooltip';
+import { Field } from '@base-ui/react/field';
+import { Tooltip as BaseOldTooltip } from '@base-ui-components/react-before-detached/tooltip';
+import { Tooltip as RadixTooltip } from 'radix-ui';
+import styles from './tooltip-perf.module.css';
+
+type Mode = 'plain' | 'base' | 'base-detached' | 'base-old' | 'radix';
+
+type ModeRecord = {
+  mode: Mode;
+  label: string;
+};
+
+const modes: ModeRecord[] = [
+  { mode: 'plain', label: 'Plain buttons' },
+  { mode: 'base', label: 'Base UI' },
+  { mode: 'base-detached', label: 'Base UI with detached triggers' },
+  { mode: 'base-old', label: 'Base UI before detached triggers' },
+  { mode: 'radix', label: 'Radix' },
+];
+
+const array = [...new Array(2000).keys()];
+
+const perfTooltip = BaseTooltip.createHandle<number>();
+
+/**
+ * 2,000 plain buttons (baseline)
+ */
+function ExamplePlainButtons() {
+  const result = array.map((i) => (
+    <button key={i} type="button" aria-label="Bold" className={styles.Button}>
+      Button {i}
+    </button>
+  ));
+
+  return <div className={styles.Panel}>{result}</div>;
+}
+
+/**
+ * 2,000 Base UI tooltips
+ */
+function ExampleBaseUITooltip() {
+  const result = array.map((i) => (
+    <BaseTooltip.Root key={i}>
+      <BaseTooltip.Trigger aria-label="Bold" className={styles.Button}>
+        Button {i}
+      </BaseTooltip.Trigger>
+      <BaseTooltip.Portal>
+        <BaseTooltip.Positioner sideOffset={10}>
+          <BaseTooltip.Popup className={styles.Popup}>
+            <BaseTooltip.Arrow className={styles.Arrow} />
+            {`Bold Item ${i + 1}`}
+          </BaseTooltip.Popup>
+        </BaseTooltip.Positioner>
+      </BaseTooltip.Portal>
+    </BaseTooltip.Root>
+  ));
+
+  return (
+    <BaseTooltip.Provider>
+      <div className={styles.Panel}>{result}</div>
+    </BaseTooltip.Provider>
+  );
+}
+
+/**
+ * 2,000 Base UI tooltips on version before detached triggers
+ */
+function ExampleBaseOldUITooltip() {
+  const result = array.map((i) => (
+    <BaseOldTooltip.Root key={i}>
+      <BaseOldTooltip.Trigger aria-label="Bold" className={styles.Button}>
+        Button {i}
+      </BaseOldTooltip.Trigger>
+      <BaseOldTooltip.Portal>
+        <BaseOldTooltip.Positioner sideOffset={10}>
+          <BaseOldTooltip.Popup className={styles.Popup}>
+            <BaseOldTooltip.Arrow className={styles.Arrow} />
+            {`Bold Item ${i + 1}`}
+          </BaseOldTooltip.Popup>
+        </BaseOldTooltip.Positioner>
+      </BaseOldTooltip.Portal>
+    </BaseOldTooltip.Root>
+  ));
+
+  return (
+    <BaseOldTooltip.Provider>
+      <div className={styles.Panel}>{result}</div>
+    </BaseOldTooltip.Provider>
+  );
+}
+
+/**
+ * 2,000 Base UI tooltips with detached triggers
+ */
+function ExampleBaseUIDetachedTooltip() {
+  const result = array.map((i) => (
+    <BaseTooltip.Trigger
+      key={i}
+      handle={perfTooltip}
+      aria-label="Bold"
+      className={styles.Button}
+      payload={i}
+    >
+      Button {i}
+    </BaseTooltip.Trigger>
+  ));
+
+  return (
+    <BaseTooltip.Provider>
+      <div className={styles.Panel}>{result}</div>
+      <BaseTooltip.Root handle={perfTooltip}>
+        {({ payload }) => (
+          <BaseTooltip.Portal>
+            <BaseTooltip.Positioner sideOffset={10}>
+              <BaseTooltip.Popup className={styles.Popup}>
+                <BaseTooltip.Arrow className={styles.Arrow} />
+                <span>{payload !== undefined && `Bold Item ${payload + 1}`}</span>
+              </BaseTooltip.Popup>
+            </BaseTooltip.Positioner>
+          </BaseTooltip.Portal>
+        )}
+      </BaseTooltip.Root>
+    </BaseTooltip.Provider>
+  );
+}
+
+/**
+ * 2,000 Radix tooltips
+ */
+function ExampleRadixTooltip() {
+  const result = array.map((i) => (
+    <RadixTooltip.Root key={i}>
+      <RadixTooltip.Trigger aria-label="Bold" className={styles.Button}>
+        Button {i}
+      </RadixTooltip.Trigger>
+      <RadixTooltip.Portal>
+        <RadixTooltip.Content sideOffset={10} className={styles.Popup}>
+          {`Bold Item ${i + 1}`}
+          <RadixTooltip.Arrow className={styles.Arrow} />
+        </RadixTooltip.Content>
+      </RadixTooltip.Portal>
+    </RadixTooltip.Root>
+  ));
+
+  return (
+    <RadixTooltip.Provider>
+      <div className={styles.Panel}>{result}</div>
+    </RadixTooltip.Provider>
+  );
+}
+
+let mutationObserver: MutationObserver | null = null;
+/**
+ * Harness: select a demo and measure ONLY the time it takes to switch modes.
+ */
+export default function ExampleTooltipPerf() {
+  const [mode, setMode] = React.useState<Mode>('plain');
+  const [forcedUpdate, forceUpdate] = React.useReducer((x) => x + 1, 0);
+  const demoRef = React.useRef<HTMLDivElement | null>(null);
+  const [mutationTimeByMode, setMutationTimeByMode] = React.useState<Record<Mode, number>>({
+    plain: 0,
+    base: 0,
+    'base-detached': 0,
+    'base-old': 0,
+    radix: 0,
+  });
+  const modeChangeStartRef = React.useRef<{ mode: Mode; time: DOMHighResTimeStamp } | null>(null);
+
+  const handleModeChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    const nextMode = event.target.value as Mode;
+    modeChangeStartRef.current = { mode: nextMode, time: performance.now() };
+    setMode(nextMode);
+  };
+
+  const handleReRenderClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    event.preventDefault();
+    modeChangeStartRef.current = { mode, time: performance.now() };
+    forceUpdate();
+  };
+
+  React.useLayoutEffect(() => {
+    mutationObserver = new MutationObserver(() => {
+      if (modeChangeStartRef.current != null) {
+        const end = performance.now();
+        const modeChange = modeChangeStartRef.current;
+        const duration = end - modeChange.time;
+        setMutationTimeByMode((prev) => ({
+          ...prev,
+          [modeChange.mode]: duration,
+        }));
+        modeChangeStartRef.current = null;
+      }
+    });
+    if (demoRef.current && mutationObserver) {
+      mutationObserver.observe(demoRef.current, {
+        subtree: true,
+        childList: true,
+        attributes: true,
+      });
+    }
+    return () => {
+      mutationObserver?.disconnect();
+    };
+  }, []);
+
+  let demo: React.ReactNode = null;
+  if (mode === 'plain') {
+    demo = <ExamplePlainButtons key={forcedUpdate} />;
+  } else if (mode === 'base') {
+    demo = <ExampleBaseUITooltip key={forcedUpdate} />;
+  } else if (mode === 'base-detached') {
+    demo = <ExampleBaseUIDetachedTooltip key={forcedUpdate} />;
+  } else if (mode === 'base-old') {
+    demo = <ExampleBaseOldUITooltip key={forcedUpdate} />;
+  } else {
+    demo = <ExampleRadixTooltip key={forcedUpdate} />;
+  }
+
+  return (
+    <div className={styles.Root}>
+      <h1>Tooltip performance experiment</h1>
+      <h2>Change demo to re-render and measure time until full DOM mutation.</h2>
+      <Field.Root className={styles.Field}>
+        <Field.Label className={styles.Label}>Demo</Field.Label>
+        <select value={mode} onChange={handleModeChange} className={styles.Input}>
+          {modes.map((m) => (
+            <option key={m.mode} value={m.mode}>
+              {m.label}
+            </option>
+          ))}
+        </select>
+        <Field.Description className={styles.Description}>
+          Initial render time is not measured
+        </Field.Description>
+      </Field.Root>
+      <h3>Last mutation time</h3>
+      <table className={styles.Table}>
+        <thead className={styles.TableHeader}>
+          <tr>
+            <th>Mode</th>
+            <th>Time (ms)</th>
+          </tr>
+        </thead>
+        <tbody className={styles.TableBody}>
+          {modes.map((m) => (
+            <tr key={m.mode}>
+              <td>{m.label}</td>
+              <td>{mutationTimeByMode[m.mode].toFixed(0)} ms</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      <button type="button" onClick={handleReRenderClick} className={styles.ReRenderButton}>
+        Re-render
+      </button>
+      <div ref={demoRef}>{demo}</div>
+    </div>
+  );
+}
