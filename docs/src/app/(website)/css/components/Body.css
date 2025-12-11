@@ -5,6 +5,5 @@
 }
 
 .Body::selection {
-  background-color: hsl(85deg 100% 66%);
-  color: hsl(0deg 0% 0% / 50%);
+  background-color: hsl(0deg 0% 92%);
 }
