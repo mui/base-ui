@@ -1,7 +1,6 @@
 import * as React from 'react';
 import type { Metadata, Viewport } from 'next/types';
 import { GoogleAnalytics } from 'docs/src/components/GoogleAnalytics';
-import { BodyClass } from './BodyClass';
 import './fonts/index.css';
 import './css/index.css';
 import './css/components/Accordion.css';
@@ -38,22 +37,62 @@ import './css/utilities/transform.css';
 
 export default function Layout({ children }: React.PropsWithChildren) {
   return (
-    <React.Fragment>
-      <BodyClass />
-      <div className="WebsiteLayout">{children}</div>
+    <html lang="en" suppressHydrationWarning>
+      <body className="Body">{children}</body>
       <GoogleAnalytics />
-    </React.Fragment>
+    </html>
   );
 }
 
 export const metadata: Metadata = {
+  title: {
+    template: '%s · Base UI',
+    default: 'Base UI',
+  },
+  twitter: {
+    site: '@base_ui',
+    card: 'summary_large_image',
+  },
+  openGraph: {
+    type: 'website',
+    locale: 'en_US',
+    title: {
+      template: '%s · Base UI',
+      default: 'Base UI',
+    },
+    ttl: 604800,
+  },
   metadataBase: new URL('https://base-ui.com'),
   alternates: {
     canonical: './',
   },
+  icons: {
+    icon: [
+      {
+        rel: 'icon',
+        url:
+          process.env.NODE_ENV !== 'production' ? '/static/favicon-dev.ico' : '/static/favicon.ico',
+        sizes: '32x32',
+      },
+      {
+        rel: 'icon',
+        type: 'image/svg+xml',
+        url:
+          process.env.NODE_ENV !== 'production' ? '/static/favicon-dev.svg' : '/static/favicon.svg',
+      },
+    ],
+    apple: [
+      {
+        rel: 'apple-touch-icon',
+        url: '/static/apple-touch-icon.png',
+      },
+    ],
+  },
 };
 
 export const viewport: Viewport = {
+  initialScale: 1,
+  width: 'device-width',
   themeColor: [
     // Desktop Safari page background
     {
