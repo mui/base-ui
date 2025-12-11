@@ -88,7 +88,7 @@
     "globby": "^16.0.0",
     "lerna": "^9.0.3",
     "markdownlint-cli2": "^0.19.1",
-    "prettier": "^3.7.4",
+    "prettier": "~3.7.4",
     "pretty-quick": "^4.2.2",
     "publint": "^0.3.15",
     "react": "^19.2.1",

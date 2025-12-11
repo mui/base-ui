@@ -83,7 +83,7 @@
     "cross-env": "^10.1.0",
     "mdast-util-mdx-jsx": "^3.2.0",
     "motion": "^12.23.25",
-    "prettier": "^3.7.4",
+    "prettier": "~3.7.4",
     "react-reconciler": "^0.33.0",
     "remark-parse": "^11.0.0",
     "remark-stringify": "^11.0.0",
