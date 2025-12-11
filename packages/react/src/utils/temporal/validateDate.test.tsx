@@ -1,7 +1,7 @@
 import { expect } from 'chai';
-import { UnstableTemporalAdapterDateFns as TemporalAdapterDateFns } from '@base-ui/react/temporal-adapter-date-fns';
-import { UnstableTemporalAdapterLuxon as TemporalAdapterLuxon } from '@base-ui/react/temporal-adapter-luxon';
 import { TemporalAdapter } from '@base-ui/react/types';
+import { UnstableTemporalAdapterDateFns as TemporalAdapterDateFns } from '../../temporal-adapter-date-fns';
+import { UnstableTemporalAdapterLuxon as TemporalAdapterLuxon } from '../../temporal-adapter-luxon';
 import { validateDate } from './validateDate';
 
 // @ts-expect-error

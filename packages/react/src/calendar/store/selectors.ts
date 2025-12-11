@@ -2,8 +2,7 @@ import { createSelector, createSelectorMemoized } from '@base-ui/utils/store';
 import { TemporalSupportedObject, TemporalSupportedValue } from '../../types/temporal';
 import { validateDate } from '../../utils/temporal/validateDate';
 import { getInitialReferenceDate } from '../../utils/temporal/getInitialReferenceDate';
-import type { CalendarRoot } from '../root/CalendarRoot';
-import { SharedCalendarState as State } from './SharedCalendarState';
+import { CalendarNavigationDirection, SharedCalendarState as State } from './SharedCalendarState';
 
 const timezoneToRenderSelector = createSelectorMemoized(
   (state: State) => state.adapter,
@@ -253,5 +252,5 @@ export interface CalendarRootElementState {
   /**
    * The direction of the navigation (based on the month navigating to).
    */
-  navigationDirection: CalendarRoot.NavigationDirection;
+  navigationDirection: CalendarNavigationDirection;
 }

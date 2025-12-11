@@ -5,13 +5,12 @@ import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStore } from '@base-ui/utils/store';
 import { TemporalSupportedObject } from '@base-ui/react/types';
 import { useAnimationsFinished } from '../../utils/useAnimationsFinished';
-import { CalendarRoot } from '../root/CalendarRoot';
 import { CalendarViewportDataAttributes } from './CalendarViewportDataAttributes';
 import { useSharedCalendarRootContext } from '../root/SharedCalendarRootContext';
-import { selectors } from '../store';
+import { CalendarNavigationDirection, selectors } from '../store';
 import { useTemporalAdapter } from '../../temporal-adapter-provider/TemporalAdapterContext';
 
-const getNavigationDirectionAttribute = (navigationDirection: CalendarRoot.NavigationDirection) => {
+const getNavigationDirectionAttribute = (navigationDirection: CalendarNavigationDirection) => {
   switch (navigationDirection) {
     case 'none':
       return null;
@@ -180,6 +179,6 @@ export namespace CalendarViewport {
     /**
      * Indicates the direction of the navigation (based on the month navigating to).
      */
-    navigationDirection: CalendarRoot.NavigationDirection;
+    navigationDirection: CalendarNavigationDirection;
   }
 }

@@ -5,28 +5,33 @@ import { TemporalAdapter } from '../../types/temporal-adapter';
 import { validateDate } from '../../utils/temporal/validateDate';
 import { getInitialReferenceDate } from '../../utils/temporal/getInitialReferenceDate';
 import { TemporalManager, TemporalTimezoneProps } from '../../utils/temporal/types';
-import type { CalendarRoot } from '../root/CalendarRoot';
-import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
+import {
+  BaseUIChangeEventDetails,
+  createChangeEventDetails,
+} from '../../utils/createBaseUIEventDetails';
 import { mergeDateAndTime } from '../../utils/temporal/date-helpers';
-import { SharedCalendarState as State } from './SharedCalendarState';
+import { CalendarNavigationDirection, SharedCalendarState as State } from './SharedCalendarState';
 import { selectors } from './selectors';
 
+/**
+ * Store managing the state of the Calendar and the Range Calendar components.
+ */
 export class SharedCalendarStore<
   TValue extends TemporalSupportedValue,
   TError,
 > extends Store<State> {
   private valueManager: ValueManager<TValue>;
 
-  private parameters: SharedCalendarStoreParameters<TValue>;
+  private parameters: SharedCalendarStoreParameters<TValue, TError>;
 
-  private initialParameters: SharedCalendarStoreParameters<TValue> | null = null;
+  private initialParameters: SharedCalendarStoreParameters<TValue, TError> | null = null;
 
   private dayGrids: Record<number, TemporalSupportedObject> = {};
 
   public currentMonthDayGrid: Record<number, TemporalSupportedObject[]> = {};
 
   constructor(
-    parameters: SharedCalendarStoreParameters<TValue>,
+    parameters: SharedCalendarStoreParameters<TValue, TError>,
     adapter: TemporalAdapter,
     manager: TemporalManager<TValue, TError, any>,
     valueManager: ValueManager<TValue>,
@@ -67,11 +72,15 @@ export class SharedCalendarStore<
   }
 
   public updateStateFromParameters = (
-    parameters: SharedCalendarStoreParameters<TValue>,
+    parameters: SharedCalendarStoreParameters<TValue, TError>,
     adapter: TemporalAdapter,
     manager: TemporalManager<TValue, TError, any>,
   ) => {
-    const updateModel: ModelUpdater<TValue> = (mutableNewState, controlledProp, defaultProp) => {
+    const updateModel: ModelUpdater<TValue, TError> = (
+      mutableNewState,
+      controlledProp,
+      defaultProp,
+    ) => {
       if (parameters[controlledProp] !== undefined) {
         mutableNewState[controlledProp] = parameters[controlledProp] as any;
       }
@@ -126,43 +135,36 @@ export class SharedCalendarStore<
     this.parameters = parameters;
   };
 
-  public setValue = (newValue: TValue, event: React.MouseEvent<HTMLButtonElement>) => {
-    const inputTimezone = this.state.manager.getTimezone(this.state.value);
-    const newValueWithInputTimezone =
-      inputTimezone == null ? newValue : this.state.manager.setTimezone(newValue, inputTimezone);
-
-    const eventDetails = createChangeEventDetails(
-      'day-press',
-      event.nativeEvent,
-      event.currentTarget,
-      {
-        getValidationError: () =>
-          this.state.manager.getValidationError(
-            newValueWithInputTimezone,
-            selectors.validationProps(this.state),
-          ),
-      },
-    );
-    this.parameters.onValueChange?.(newValueWithInputTimezone, eventDetails);
-    if (eventDetails.isCanceled) {
-      return;
-    }
-    this.set('value', newValueWithInputTimezone);
-  };
-
-  public setVisibleDate = (visibleDate: TemporalSupportedObject, skipIfAlreadyVisible: boolean) => {
+  /**
+   * Sets the visible data.
+   */
+  public setVisibleDate = (
+    visibleDate: TemporalSupportedObject,
+    event: React.SyntheticEvent,
+    skipIfAlreadyVisible: boolean,
+  ) => {
     if (skipIfAlreadyVisible && this.isDateCellVisible(visibleDate)) {
       return;
     }
 
-    this.parameters.onVisibleDateChange?.(visibleDate);
+    const eventDetails = createChangeEventDetails(
+      'day-press',
+      event.nativeEvent,
+      event.currentTarget as HTMLElement,
+    );
 
-    this.update({
-      visibleDate,
-      navigationDirection: this.getNavigationDirectionFromVisibleDateChange(visibleDate),
-    });
+    this.parameters.onVisibleDateChange?.(visibleDate, eventDetails);
+    if (!eventDetails.isCanceled && this.parameters.visibleDate === undefined) {
+      this.update({
+        visibleDate,
+        navigationDirection: this.getNavigationDirectionFromVisibleDateChange(visibleDate),
+      });
+    }
   };
 
+  /**
+   * Selects a date.
+   */
   public selectDate = (
     selectedDate: TemporalSupportedObject,
     event: React.MouseEvent<HTMLButtonElement>,
@@ -183,6 +185,9 @@ export class SharedCalendarStore<
     });
   };
 
+  /**
+   * Registers a day grid.
+   */
   public registerDayGrid = (month: TemporalSupportedObject) => {
     const id = Math.random();
     this.dayGrids[id] = month;
@@ -192,6 +197,9 @@ export class SharedCalendarStore<
     };
   };
 
+  /**
+   * Registers the current month's day grid row/week.
+   */
   public registerCurrentMonthDayGrid = (
     week: TemporalSupportedObject,
     days: TemporalSupportedObject[],
@@ -210,7 +218,7 @@ export class SharedCalendarStore<
    * This do not contain state properties that don't update whenever the parameters update.
    */
   private static deriveStateFromParameters<TValue extends TemporalSupportedValue, TError>(
-    parameters: SharedCalendarStoreParameters<TValue>,
+    parameters: SharedCalendarStoreParameters<TValue, TError>,
     adapter: TemporalAdapter,
     manager: TemporalManager<TValue, TError, any>,
   ) {
@@ -229,6 +237,37 @@ export class SharedCalendarStore<
     };
   }
 
+  /**
+   * Sets the value.
+   * Should only be used internally through `selectDate` method.
+   */
+  private setValue(newValue: TValue, event: React.MouseEvent<HTMLButtonElement>) {
+    const inputTimezone = this.state.manager.getTimezone(this.state.value);
+    const newValueWithInputTimezone =
+      inputTimezone == null ? newValue : this.state.manager.setTimezone(newValue, inputTimezone);
+
+    const eventDetails = createChangeEventDetails(
+      'day-press',
+      event.nativeEvent,
+      event.currentTarget,
+      {
+        getValidationError: () =>
+          this.state.manager.getValidationError(
+            newValueWithInputTimezone,
+            selectors.validationProps(this.state),
+          ),
+      },
+    );
+
+    this.parameters.onValueChange?.(newValueWithInputTimezone, eventDetails);
+    if (!eventDetails.isCanceled && this.parameters.value === undefined) {
+      this.set('value', newValueWithInputTimezone);
+    }
+  }
+
+  /**
+   * Checks whether the given date is visible in any of the registered day grids.
+   */
   private isDateCellVisible(date: TemporalSupportedObject) {
     if (Object.values(this.dayGrids).length > 0) {
       return Object.values(this.dayGrids).every(
@@ -239,11 +278,14 @@ export class SharedCalendarStore<
     return true;
   }
 
+  /**
+   * Determines the navigation direction based on the new and the previous visible date.
+   */
   private getNavigationDirectionFromVisibleDateChange(visibleDate: TemporalSupportedObject) {
     const prevVisibleDateTimestamp = this.state.adapter.getTime(this.state.visibleDate);
     const visibleDateTimestamp = this.state.adapter.getTime(visibleDate);
 
-    let newNavigationDirection: CalendarRoot.NavigationDirection = 'none';
+    let newNavigationDirection: CalendarNavigationDirection = 'none';
     if (visibleDateTimestamp < prevVisibleDateTimestamp) {
       newNavigationDirection = 'previous';
     } else if (visibleDateTimestamp > prevVisibleDateTimestamp) {
@@ -253,7 +295,7 @@ export class SharedCalendarStore<
   }
 }
 
-export interface SharedCalendarStoreParameters<TValue extends TemporalSupportedValue>
+export interface SharedCalendarStoreParameters<TValue extends TemporalSupportedValue, TError>
   extends TemporalTimezoneProps, validateDate.ValidationProps {
   /**
    * The controlled value that should be selected.
@@ -270,7 +312,7 @@ export interface SharedCalendarStoreParameters<TValue extends TemporalSupportedV
    * Provides the new value as an argument.
    * Has `getValidationError()` in the `eventDetails` to retrieve the validation error associated to the new value.
    */
-  onValueChange?: (value: TValue, eventDetails: CalendarRoot.ChangeEventDetails) => void;
+  onValueChange?: (value: TValue, eventDetails: CalendarValueChangeEventDetails<TError>) => void;
   /**
    * Whether the component should ignore user interaction.
    * @default false
@@ -301,11 +343,14 @@ export interface SharedCalendarStoreParameters<TValue extends TemporalSupportedV
    */
   defaultVisibleDate?: TemporalSupportedObject;
   /**
-   * Event handler called when the visible date changes.
-   * Provides the new visible date as an argument.
-   * @param {TemporalSupportedObject} visibleDate The new visible date.
+   * Event handler called when the selected value changes.
+   * Provides the new value as an argument.
+   * Has `getValidationError()` in the `eventDetails` to retrieve the validation error associated to the new value.
    */
-  onVisibleDateChange?: (visibleDate: TemporalSupportedObject) => void;
+  onVisibleDateChange?: (
+    visibleDate: TemporalSupportedObject,
+    eventDetails: CalendarVisibleDateChangeEventDetails,
+  ) => void;
   /**
    * The date used to generate the new value when both `value` and `defaultValue` are empty.
    * @default 'The closest valid date using the validation props.'
@@ -359,8 +404,22 @@ export interface CalendarValueChangeHandlerContext<TError> {
   getValidationError: () => TError;
 }
 
-type ModelUpdater<TValue extends TemporalSupportedValue> = (
+export type CalendarChangeEventReason = 'day-press' | 'none';
+
+export type CalendarValueChangeEventDetails<TError> = BaseUIChangeEventDetails<
+  CalendarChangeEventReason,
+  CalendarValueChangeHandlerContext<TError>
+>;
+
+export type CalendarVisibleDateChangeEventDetails = BaseUIChangeEventDetails<
+  CalendarChangeEventReason,
+  {}
+>;
+
+type ModelUpdater<TValue extends TemporalSupportedValue, TError> = (
   newState: Partial<State<TValue>>,
-  controlledProp: keyof SharedCalendarStoreParameters<TValue> & keyof State<TValue> & string,
-  defaultProp: keyof SharedCalendarStoreParameters<TValue>,
+  controlledProp: keyof SharedCalendarStoreParameters<TValue, TError> &
+    keyof State<TValue> &
+    string,
+  defaultProp: keyof SharedCalendarStoreParameters<TValue, TError>,
 ) => void;

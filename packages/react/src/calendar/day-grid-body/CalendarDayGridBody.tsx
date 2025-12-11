@@ -40,6 +40,7 @@ export namespace CalendarDayGridBody {
   export interface State {}
 
   export interface Props
-    extends Omit<BaseUIComponentProps<'tbody', State>, 'children'>,
+    extends
+      Omit<BaseUIComponentProps<'tbody', State>, 'children'>,
       useSharedCalendarDayGridBody.Parameters {}
 }

@@ -193,7 +193,11 @@ export function useSharedCalendarDayGridBody(
         const dayOfMonth = adapter.getDate(currentDay);
         const currentMonth = adapter.getMonth(currentDay);
         const currentYear = adapter.getYear(currentDay);
-        store.setVisibleDate(adapter.addMonths(visibleMonth, decrement ? -amount : amount), false);
+        store.setVisibleDate(
+          adapter.addMonths(visibleMonth, decrement ? -amount : amount),
+          event,
+          false,
+        );
         executeAfterItemMapUpdate.current = (newMap: typeof itemMap) => {
           const newGridDays: TemporalSupportedObject[] = Object.values(store.currentMonthDayGrid)
             .flat()
@@ -277,7 +281,7 @@ export function useSharedCalendarDayGridBody(
         }
       }
       const decrement = BACKWARD_KEYS.has(eventKey);
-      store.setVisibleDate(adapter.addMonths(visibleMonth, decrement ? -1 : 1), false);
+      store.setVisibleDate(adapter.addMonths(visibleMonth, decrement ? -1 : 1), event, false);
       // Ensure the `handleItemLooping` uses the latest state/render after the visible date update
       queueMicrotask(() => {
         handleItemLooping(eventKey, prevIndex, elementsRef, decrement);

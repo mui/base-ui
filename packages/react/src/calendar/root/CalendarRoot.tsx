@@ -3,7 +3,6 @@ import * as React from 'react';
 import { useStore } from '@base-ui/utils/store';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
-import { BaseUIChangeEventDetails } from '@base-ui/react/types';
 import { TemporalValue } from '../../types/temporal';
 import { SharedCalendarRootContext } from './SharedCalendarRootContext';
 import { useDateManager } from '../../utils/temporal/useDateManager';
@@ -21,6 +20,9 @@ import {
   ValueManager,
   SharedCalendarStore,
   SharedCalendarStoreParameters,
+  CalendarChangeEventReason,
+  CalendarValueChangeEventDetails,
+  CalendarVisibleDateChangeEventDetails,
 } from '../store';
 import { CalendarRootDataAttributes } from './CalendarRootDataAttributes';
 import { validateDate } from '../../utils/temporal/validateDate';
@@ -172,7 +174,7 @@ export namespace CalendarRoot {
   export interface Props
     extends
       Omit<BaseUIComponentProps<'div', State>, 'children'>,
-      SharedCalendarStoreParameters<TemporalValue> {
+      SharedCalendarStoreParameters<TemporalValue, validateDate.ReturnValue> {
     /**
      * The children of the component.
      * If a function is provided, it will be called with the public context as its parameter.
@@ -182,9 +184,9 @@ export namespace CalendarRoot {
 
   export interface ValueChangeHandlerContext extends CalendarValueChangeHandlerContext<validateDate.ReturnValue> {}
 
-  export type ChangeEventReason = 'day-press' | 'none';
-  export type ChangeEventDetails = BaseUIChangeEventDetails<
-    ChangeEventReason,
-    ValueChangeHandlerContext
-  >;
+  export type ChangeEventReason = CalendarChangeEventReason;
+
+  export type ValueChangeEventDetails = CalendarValueChangeEventDetails<validateDate.ReturnValue>;
+
+  export type VisibleDateChangeEventDetails = CalendarVisibleDateChangeEventDetails;
 }

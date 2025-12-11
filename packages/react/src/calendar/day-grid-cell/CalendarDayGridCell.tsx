@@ -36,6 +36,5 @@ export namespace CalendarDayGridCell {
   export interface State {}
 
   export interface Props
-    extends BaseUIComponentProps<'td', State>,
-      useSharedCalendarDayGridCell.Parameters {}
+    extends BaseUIComponentProps<'td', State>, useSharedCalendarDayGridCell.Parameters {}
 }

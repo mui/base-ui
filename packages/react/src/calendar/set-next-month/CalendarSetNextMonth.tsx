@@ -33,11 +33,11 @@ export const CalendarSetNextMonth = React.forwardRef(function CalendarSetNextMon
 
   const isDisabled = useStore(store, selectors.isSetMonthButtonDisabled, disabled, targetDate);
 
-  const setTarget = useStableCallback(() => {
+  const setTarget = useStableCallback((event: React.MouseEvent<HTMLElement>) => {
     if (isDisabled) {
       return;
     }
-    store.setVisibleDate(targetDate, false);
+    store.setVisibleDate(targetDate, event, false);
   });
 
   const { getButtonProps, buttonRef } = useButton({
