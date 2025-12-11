@@ -43,7 +43,7 @@ function normalizeGroup(group: string) {
   return group.replace(/\s+Pages$/, '').replace(/^React\s+/, '');
 }
 
-function SearchItem({ result }: { result: SearchResult }) {
+const SearchItem = React.memo(function SearchItem({ result }: { result: SearchResult }) {
   return (
     <React.Fragment>
       {result.title?.split(' ‣ ').map((part, i, arr) => (
@@ -77,7 +77,15 @@ function SearchItem({ result }: { result: SearchResult }) {
       )}
     </React.Fragment>
   );
-}
+});
+
+const EmptyState = React.memo(function EmptyState() {
+  return (
+    <div className="px-3 py-6 text-center text-[0.9375rem] tracking-[0.016em] font-normal text-gray-600">
+      No results found.
+    </div>
+  );
+});
 
 export function SearchBar({
   sitemap: sitemapImport,
@@ -189,52 +197,57 @@ export function SearchBar({
     () => null,
   );
 
-  // Reusable search input component
-  const searchInput = (
-    <div className="flex items-center gap-2 h-8 rounded-lg bg-popover px-3">
-      <Search className="h-4 w-4 shrink-0 text-gray-500" />
-      <Autocomplete.Input
-        id="search-input"
-        ref={inputRef}
-        placeholder="Search"
-        className="w-full border-0 bg-transparent text-[0.9375rem] tracking-[0.016em] font-normal text-gray-900 placeholder:text-gray-500 focus:outline-none"
-      />
-    </div>
+  // Memoized search input component
+  const searchInput = React.useMemo(
+    () => (
+      <div className="flex items-center gap-2 h-8 rounded-lg bg-popover px-3">
+        <Search className="h-4 w-4 shrink-0 text-gray-500" />
+        <Autocomplete.Input
+          id="search-input"
+          ref={inputRef}
+          placeholder="Search"
+          className="w-full border-0 bg-transparent text-[0.9375rem] tracking-[0.016em] font-normal text-gray-900 placeholder:text-gray-500 focus:outline-none"
+        />
+      </div>
+    ),
+    [],
   );
 
-  // Reusable results list render function
-  const renderResultsList = (group: SearchResults[number]) => (
-    <Autocomplete.Group key={group.group} items={group.items} className="block">
-      {group.group !== 'Default' && (
-        <Autocomplete.GroupLabel
-          id={`search-group-${group.group}`}
-          className="m-0 flex h-8 items-center pl-3.5 text-[0.9375rem] tracking-[0.00625em] font-normal leading-none text-gray-600 select-none"
-        >
-          {normalizeGroup(group.group)}
-        </Autocomplete.GroupLabel>
-      )}
-      <Autocomplete.Collection>
-        {(result: SearchResult, i) => (
-          <Autocomplete.Item
-            key={result.id || i}
-            value={result}
-            render={
-              <Link href={buildResultUrl(result)} onNavigate={handleItemClick} tabIndex={-1} />
-            }
-            className="flex h-8 cursor-default select-none items-center rounded-lg pl-9 pr-2 text-[0.9375rem] tracking-[0.016em] font-normal leading-none outline-none data-highlighted:bg-gray-100 gap-1 text-gray-900"
+  // Memoized callback for itemToStringValue
+  const itemToStringValue = React.useCallback(
+    (item: SearchResult | null) => (item ? item.title || item.slug : ''),
+    [],
+  );
+
+  // Memoized render function for result groups
+  const renderResultsList = React.useCallback(
+    (group: SearchResults[number]) => (
+      <Autocomplete.Group key={group.group} items={group.items} className="block">
+        {group.group !== 'Default' && (
+          <Autocomplete.GroupLabel
+            id={`search-group-${group.group}`}
+            className="m-0 flex h-8 items-center pl-3.5 text-[0.9375rem] tracking-[0.00625em] font-normal leading-none text-gray-600 select-none"
           >
-            <SearchItem result={result} />
-          </Autocomplete.Item>
+            {normalizeGroup(group.group)}
+          </Autocomplete.GroupLabel>
         )}
-      </Autocomplete.Collection>
-    </Autocomplete.Group>
-  );
-
-  // Reusable empty state
-  const emptyState = (
-    <div className="px-3 py-6 text-center text-[0.9375rem] tracking-[0.016em] font-normal text-gray-600">
-      No results found.
-    </div>
+        <Autocomplete.Collection>
+          {(result: SearchResult, i) => (
+            <Autocomplete.Item
+              key={result.id || i}
+              value={result}
+              render={
+                <Link href={buildResultUrl(result)} onNavigate={handleItemClick} tabIndex={-1} />
+              }
+              className="flex h-8 cursor-default select-none items-center rounded-lg pl-9 pr-2 text-[0.9375rem] tracking-[0.016em] font-normal leading-none outline-none data-highlighted:bg-gray-100 gap-1 text-gray-900"
+            >
+              <SearchItem result={result} />
+            </Autocomplete.Item>
+          )}
+        </Autocomplete.Collection>
+      </Autocomplete.Group>
+    ),
+    [buildResultUrl, handleItemClick],
   );
 
   return (
@@ -274,7 +287,7 @@ export function SearchBar({
                   onOpenChange={handleAutocompleteEscape}
                   open
                   inline
-                  itemToStringValue={(item) => (item ? item.title || item.slug : '')}
+                  itemToStringValue={itemToStringValue}
                   filter={null}
                   autoHighlight="always"
                   keepHighlight
@@ -287,7 +300,7 @@ export function SearchBar({
                       <ScrollArea.Viewport className="flex-1 min-h-0 overflow-y-auto overscroll-contain scroll-pt-9 scroll-pb-2">
                         <ScrollArea.Content style={{ minWidth: '100%' }}>
                           {searchResults.results.length === 0 ? (
-                            emptyState
+                            <EmptyState />
                           ) : (
                             <Autocomplete.List className="outline-0 p-2">
                               {renderResultsList}
@@ -334,14 +347,14 @@ export function SearchBar({
                         onOpenChange={handleAutocompleteEscape}
                         open
                         inline
-                        itemToStringValue={(item) => (item ? item.title || item.slug : '')}
+                        itemToStringValue={itemToStringValue}
                         filter={null}
                         autoHighlight
                       >
                         <div className="border-b border-gray-100 p-2 pb-1.5">{searchInput}</div>
                         <div>
                           {searchResults.results.length === 0 ? (
-                            emptyState
+                            <EmptyState />
                           ) : (
                             <Autocomplete.List className="outline-0 overflow-y-auto p-2 scroll-pt-9 scroll-pb-2 overscroll-contain max-h-[min(22.5rem,var(--available-height))] rounded-b-[5px]">
                               {renderResultsList}
