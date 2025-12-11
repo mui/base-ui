@@ -14,6 +14,11 @@
   color: white;
 }
 
+.Link:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+}
+
 .LinkArrowLine {
   opacity: 0;
   transition: opacity 100ms ease;
