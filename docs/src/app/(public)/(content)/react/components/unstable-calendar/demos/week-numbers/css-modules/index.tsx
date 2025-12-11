@@ -4,14 +4,12 @@ import { startOfWeek } from 'date-fns/startOfWeek';
 import { startOfMonth } from 'date-fns/startOfMonth';
 import { getWeek } from 'date-fns/getWeek';
 import { Calendar } from '@base-ui/react/calendar';
-import { unstable_useDayList as useDayList } from '@base-ui/react/use-day-list';
-import { unstable_useWeekList as useWeekList } from '@base-ui/react/use-week-list';
 import styles from '../../calendar.module.css';
 import indexStyles from './index.module.css';
 
 export default function CalendarWithWeekNumbers() {
-  const getWeekList = useWeekList();
-  const getDayList = useDayList();
+  const getWeekList = Calendar.useWeekList();
+  const getDayList = Calendar.useDayList();
 
   return (
     <Calendar.Root className={styles.Root}>

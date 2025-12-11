@@ -68,9 +68,7 @@
     "./tooltip": "./src/tooltip/index.ts",
     "./types": "./src/types/index.ts",
     "./unstable-use-media-query": "./src/unstable-use-media-query/index.ts",
-    "./use-day-list": "./src/use-day-list/index.ts",
-    "./use-render": "./src/use-render/index.ts",
-    "./use-week-list": "./src/use-week-list/index.ts"
+    "./use-render": "./src/use-render/index.ts"
   },
   "imports": {
     "#test-utils": "./test/index.ts",

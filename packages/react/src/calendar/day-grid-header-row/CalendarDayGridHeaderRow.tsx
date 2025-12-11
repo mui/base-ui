@@ -4,7 +4,7 @@ import { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { TemporalSupportedObject } from '../../types/temporal';
 import { useTemporalAdapter } from '../../temporal-adapter-provider/TemporalAdapterContext';
-import { unstable_useDayList as useDayList } from '../../use-day-list';
+import { unstable_useDayList as useDayList } from '../use-day-list';
 
 /**
  * Groups all cells of the calendar's day grid header row.

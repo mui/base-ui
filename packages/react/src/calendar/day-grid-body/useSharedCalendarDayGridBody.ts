@@ -6,7 +6,7 @@ import { SharedCalendarDayGridBodyContext } from './SharedCalendarDayGridBodyCon
 import { BaseUIEvent, HTMLProps } from '../../utils/types';
 import { useTemporalAdapter } from '../../temporal-adapter-provider/TemporalAdapterContext';
 import { TemporalSupportedObject } from '../../types/temporal';
-import { unstable_useWeekList as useWeekList } from '../../use-week-list';
+import { useCalendarWeekList } from '../use-week-list/useCalendarWeekList';
 import { selectors } from '../store';
 import { CompositeMetadata } from '../../composite/list/CompositeList';
 import { CompositeRoot } from '../../composite/root/CompositeRoot';
@@ -49,7 +49,7 @@ export function useSharedCalendarDayGridBody(
     return store.registerDayGrid(month);
   }, [store, month]);
 
-  const getWeekList = useWeekList();
+  const getWeekList = useCalendarWeekList();
   const weeks = React.useMemo(
     () => getWeekList({ date: month, amount: fixedWeekNumber ?? 'end-of-month' }),
     [getWeekList, month, fixedWeekNumber],

@@ -1,8 +1,8 @@
 import * as React from 'react';
-import { useTemporalAdapter } from '../temporal-adapter-provider/TemporalAdapterContext';
-import { TemporalSupportedObject } from '../types/temporal';
+import { useTemporalAdapter } from '../../temporal-adapter-provider/TemporalAdapterContext';
+import { TemporalSupportedObject } from '../../types/temporal';
 
-export function useDayList(): useDayList.ReturnValue {
+export function useCalendarDayList(): UseCalendarDayListReturnValue {
   const adapter = useTemporalAdapter();
 
   return React.useCallback(
@@ -43,17 +43,17 @@ export function useDayList(): useDayList.ReturnValue {
   );
 }
 
-export namespace useDayList {
-  export type ReturnValue = (parameters: ReturnValueParameters) => TemporalSupportedObject[];
+export type UseCalendarDayListReturnValue = (
+  parameters: UseCalendarDayListReturnValueParameters,
+) => TemporalSupportedObject[];
 
-  export interface ReturnValueParameters {
-    /**
-     * The date to get the weeks in month for.
-     */
-    date: TemporalSupportedObject;
-    /**
-     * The amount of days to return.
-     */
-    amount: number;
-  }
+interface UseCalendarDayListReturnValueParameters {
+  /**
+   * The date to get the weeks in month for.
+   */
+  date: TemporalSupportedObject;
+  /**
+   * The amount of days to return.
+   */
+  amount: number;
 }
