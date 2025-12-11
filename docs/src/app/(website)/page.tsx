@@ -404,7 +404,7 @@ export default function Homepage() {
               className="Text size-1 Link"
               href="https://bsky.app/profile/did:plc:nwr6peuxqzdzlbi72qr5kldc"
             >
-              BlueSky
+              Bluesky
             </a>
           </nav>
         </footer>
