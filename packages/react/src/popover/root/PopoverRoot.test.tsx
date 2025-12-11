@@ -517,10 +517,15 @@ describe('<Popover.Root />', () => {
               </div>,
             );
 
-            const inputInside = screen.getByTestId('input-inside');
-            await act(async () => inputInside.focus());
+            // QUESTION @michaldudak: the test seems to be less flaky when I replace
+            // the programmatic with a wait for focus, it apparently is already being focused
+            // by floating ui?
+            // const inputInside = screen.getByTestId('input-inside');
+            // await act(async () => inputInside.focus());
 
-            await wait(50);
+            await waitFor(() => {
+              expect(screen.getByTestId('input-inside')).toHaveFocus();
+            });
 
             await user.tab({ shift: true });
 
@@ -533,7 +538,7 @@ describe('<Popover.Root />', () => {
             });
 
             await wait(50);
-            await user.keyboard('{Tab}');
+            await user.tab();
             await wait(50);
             await waitFor(() => {
               expect(screen.getByTestId('input-inside')).toHaveFocus();
