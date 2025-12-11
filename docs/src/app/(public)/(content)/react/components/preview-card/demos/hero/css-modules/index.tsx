@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { PreviewCard } from '@base-ui-components/react/preview-card';
+import { PreviewCard } from '@base-ui/react/preview-card';
 import styles from './index.module.css';
 
 export default function ExamplePreviewCard() {

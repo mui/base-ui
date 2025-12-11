@@ -1,4 +1,4 @@
-import { Slider } from '@base-ui-components/react/slider';
+import { Slider } from '@base-ui/react/slider';
 
 export default function ExampleSlider() {
   return (

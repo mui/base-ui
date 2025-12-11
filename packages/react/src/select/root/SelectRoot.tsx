@@ -1,14 +1,14 @@
 'use client';
 import * as React from 'react';
-import { visuallyHidden } from '@base-ui-components/utils/visuallyHidden';
-import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
-import { useRefWithInit } from '@base-ui-components/utils/useRefWithInit';
-import { useOnFirstRender } from '@base-ui-components/utils/useOnFirstRender';
-import { useControlled } from '@base-ui-components/utils/useControlled';
-import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
-import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
-import { useValueAsRef } from '@base-ui-components/utils/useValueAsRef';
-import { useStore, Store } from '@base-ui-components/utils/store';
+import { visuallyHidden } from '@base-ui/utils/visuallyHidden';
+import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
+import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
+import { useOnFirstRender } from '@base-ui/utils/useOnFirstRender';
+import { useControlled } from '@base-ui/utils/useControlled';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
+import { useStore, Store } from '@base-ui/utils/store';
 import {
   useClick,
   useDismiss,
@@ -35,6 +35,8 @@ import { stringifyAsValue } from '../../utils/resolveValueLabel';
 import { EMPTY_ARRAY } from '../../utils/constants';
 import { defaultItemEquality, findItemIndex } from '../../utils/itemEquality';
 import { useValueChanged } from '../../utils/useValueChanged';
+import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
+import { mergeProps } from '../../merge-props';
 
 /**
  * Groups all parts of the select.
@@ -118,6 +120,11 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
   const alignItemWithTriggerActiveRef = React.useRef(false);
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
+  const {
+    openMethod,
+    triggerProps: interactionTypeProps,
+    reset: resetOpenInteractionType,
+  } = useOpenInteractionType(open);
 
   const store = useRefWithInit(
     () =>
@@ -134,7 +141,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
         transitionStatus,
         items,
         forceMount: false,
-        touchModality: false,
+        openMethod: null,
         activeIndex: null,
         selectedIndex: null,
         popupProps: {},
@@ -257,6 +264,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
   const handleUnmount = useStableCallback(() => {
     setMounted(false);
     store.set('activeIndex', null);
+    resetOpenInteractionType();
     onOpenChangeComplete?.(false);
   });
 
@@ -367,10 +375,15 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     typeahead,
   ]);
 
+  const mergedTriggerProps = React.useMemo(
+    () => mergeProps(getReferenceProps(), interactionTypeProps),
+    [getReferenceProps, interactionTypeProps],
+  );
+
   useOnFirstRender(() => {
     store.update({
       popupProps: getFloatingProps(),
-      triggerProps: getReferenceProps(),
+      triggerProps: mergedTriggerProps,
     });
   });
 
@@ -384,11 +397,12 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
       mounted,
       transitionStatus,
       popupProps: getFloatingProps(),
-      triggerProps: getReferenceProps(),
+      triggerProps: mergedTriggerProps,
       items,
       itemToStringLabel,
       itemToStringValue,
       isItemEqualToValue,
+      openMethod,
     });
   }, [
     store,
@@ -400,11 +414,12 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     mounted,
     transitionStatus,
     getFloatingProps,
-    getReferenceProps,
+    mergedTriggerProps,
     items,
     itemToStringLabel,
     itemToStringValue,
     isItemEqualToValue,
+    openMethod,
   ]);
 
   const contextValue: SelectRootContext = React.useMemo(

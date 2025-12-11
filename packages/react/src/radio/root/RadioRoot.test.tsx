@@ -1,6 +1,6 @@
 import { expect } from 'chai';
-import { Radio } from '@base-ui-components/react/radio';
-import { RadioGroup } from '@base-ui-components/react/radio-group';
+import { Radio } from '@base-ui/react/radio';
+import { RadioGroup } from '@base-ui/react/radio-group';
 import { fireEvent, screen } from '@mui/internal-test-utils';
 import { describeConformance, createRenderer } from '#test-utils';
 

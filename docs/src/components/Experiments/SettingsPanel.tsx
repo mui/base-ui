@@ -1,8 +1,8 @@
 'use client';
 import * as React from 'react';
 import clsx from 'clsx';
-import { Popover } from '@base-ui-components/react/popover';
-import { Field } from '@base-ui-components/react/field';
+import { Popover } from '@base-ui/react/popover';
+import { Field } from '@base-ui/react/field';
 import { Switch } from './Switch';
 import { Input } from './Input';
 import { Select } from './Select';

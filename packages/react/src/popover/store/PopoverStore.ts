@@ -1,11 +1,11 @@
 /* eslint-disable react-hooks/rules-of-hooks */
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import { ReactStore, createSelector } from '@base-ui-components/utils/store';
-import { Timeout } from '@base-ui-components/utils/useTimeout';
-import { useRefWithInit } from '@base-ui-components/utils/useRefWithInit';
-import { useOnMount } from '@base-ui-components/utils/useOnMount';
-import { type InteractionType } from '@base-ui-components/utils/useEnhancedClickHandler';
+import { ReactStore, createSelector } from '@base-ui/utils/store';
+import { Timeout } from '@base-ui/utils/useTimeout';
+import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
+import { useOnMount } from '@base-ui/utils/useOnMount';
+import { type InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import { FloatingUIOpenChangeDetails } from '../../utils/types';
 import { PopoverRoot } from './../root/PopoverRoot';
 import { REASONS } from '../../utils/reasons';

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Select } from '@base-ui-components/react/select';
+import { Select } from '@base-ui/react/select';
 
 const fonts = [
   { label: 'Select font', value: null },

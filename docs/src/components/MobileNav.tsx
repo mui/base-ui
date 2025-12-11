@@ -2,9 +2,9 @@
 import * as React from 'react';
 import clsx from 'clsx';
 import NextLink from 'next/link';
-import { Dialog } from '@base-ui-components/react/dialog';
+import { Dialog } from '@base-ui/react/dialog';
 import * as ReactDOM from 'react-dom';
-import { useScrollLock } from '@base-ui-components/utils/useScrollLock';
+import { useScrollLock } from '@base-ui/utils/useScrollLock';
 import { HEADER_HEIGHT } from './Header';
 
 const MobileNavStateCallback = React.createContext<(open: boolean) => void>(() => undefined);

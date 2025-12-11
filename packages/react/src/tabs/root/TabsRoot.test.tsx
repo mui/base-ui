@@ -1,13 +1,10 @@
 import { expect } from 'chai';
 import { spy } from 'sinon';
 import { act, flushMicrotasks, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
-import {
-  DirectionProvider,
-  type TextDirection,
-} from '@base-ui-components/react/direction-provider';
-import { Popover } from '@base-ui-components/react/popover';
-import { Dialog } from '@base-ui-components/react/dialog';
-import { Tabs } from '@base-ui-components/react/tabs';
+import { DirectionProvider, type TextDirection } from '@base-ui/react/direction-provider';
+import { Popover } from '@base-ui/react/popover';
+import { Dialog } from '@base-ui/react/dialog';
+import { Tabs } from '@base-ui/react/tabs';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 
 describe('<Tabs.Root />', () => {
@@ -220,6 +217,200 @@ describe('<Tabs.Root />', () => {
           expect(tabPanelElements[index]).not.to.have.attribute('hidden');
         }),
       );
+    });
+  });
+
+  describe('disabled tabs', () => {
+    it('should select the second tab when the first one is disabled', async () => {
+      await render(
+        <Tabs.Root>
+          <Tabs.List>
+            <Tabs.Tab value={0} disabled>
+              Disabled tab
+            </Tabs.Tab>
+            <Tabs.Tab value={1}>Enabled tab</Tabs.Tab>
+          </Tabs.List>
+          <Tabs.Panel value={0} keepMounted>
+            Disabled panel
+          </Tabs.Panel>
+          <Tabs.Panel value={1} keepMounted>
+            Enabled panel
+          </Tabs.Panel>
+        </Tabs.Root>,
+      );
+
+      const [disabledTab, enabledTab] = screen.getAllByRole('tab');
+      const [disabledPanel, enabledPanel] = screen.getAllByRole('tabpanel', { hidden: true });
+
+      expect(disabledTab).to.have.attribute('aria-selected', 'false');
+      expect(enabledTab).to.have.attribute('aria-selected', 'true');
+      expect(disabledPanel).to.have.attribute('hidden');
+      expect(enabledPanel).not.to.have.attribute('hidden');
+      expect(enabledPanel).to.have.text('Enabled panel');
+    });
+
+    it('should select the third tab when first two tabs are disabled', async () => {
+      await render(
+        <Tabs.Root>
+          <Tabs.List>
+            <Tabs.Tab value={0} disabled data-testid="tab-0">
+              Tab 0
+            </Tabs.Tab>
+            <Tabs.Tab value={1} disabled data-testid="tab-1">
+              Tab 1
+            </Tabs.Tab>
+            <Tabs.Tab value={2} data-testid="tab-2">
+              Tab 2
+            </Tabs.Tab>
+            <Tabs.Tab value={3} data-testid="tab-3">
+              Tab 3
+            </Tabs.Tab>
+          </Tabs.List>
+          <Tabs.Panel value={0}>Panel 0</Tabs.Panel>
+          <Tabs.Panel value={1}>Panel 1</Tabs.Panel>
+          <Tabs.Panel value={2}>Panel 2</Tabs.Panel>
+          <Tabs.Panel value={3}>Panel 3</Tabs.Panel>
+        </Tabs.Root>,
+      );
+
+      const tabs = screen.getAllByRole('tab');
+
+      // The first non-disabled tab (tab 2) should be selected
+      expect(tabs[2]).to.have.attribute('aria-selected', 'true');
+      expect(tabs[0]).to.have.attribute('aria-selected', 'false');
+      expect(tabs[1]).to.have.attribute('aria-selected', 'false');
+      expect(tabs[3]).to.have.attribute('aria-selected', 'false');
+    });
+
+    it('should still honor explicit defaultValue even if it points to a disabled tab', async () => {
+      await render(
+        <Tabs.Root defaultValue={0}>
+          <Tabs.List>
+            <Tabs.Tab value={0} disabled data-testid="tab-0">
+              Tab 0
+            </Tabs.Tab>
+            <Tabs.Tab value={1} data-testid="tab-1">
+              Tab 1
+            </Tabs.Tab>
+            <Tabs.Tab value={2} data-testid="tab-2">
+              Tab 2
+            </Tabs.Tab>
+          </Tabs.List>
+          <Tabs.Panel value={0}>Panel 0</Tabs.Panel>
+          <Tabs.Panel value={1}>Panel 1</Tabs.Panel>
+          <Tabs.Panel value={2}>Panel 2</Tabs.Panel>
+        </Tabs.Root>,
+      );
+
+      const tabs = screen.getAllByRole('tab');
+
+      // The explicitly set disabled tab should be selected
+      expect(tabs[0]).to.have.attribute('aria-selected', 'true');
+      expect(tabs[1]).to.have.attribute('aria-selected', 'false');
+      expect(tabs[2]).to.have.attribute('aria-selected', 'false');
+    });
+
+    it('should still honor explicit value prop even if it points to a disabled tab', async () => {
+      await render(
+        <Tabs.Root value={0}>
+          <Tabs.List>
+            <Tabs.Tab value={0} disabled data-testid="tab-0">
+              Tab 0
+            </Tabs.Tab>
+            <Tabs.Tab value={1} data-testid="tab-1">
+              Tab 1
+            </Tabs.Tab>
+            <Tabs.Tab value={2} data-testid="tab-2">
+              Tab 2
+            </Tabs.Tab>
+          </Tabs.List>
+          <Tabs.Panel value={0}>Panel 0</Tabs.Panel>
+          <Tabs.Panel value={1}>Panel 1</Tabs.Panel>
+          <Tabs.Panel value={2}>Panel 2</Tabs.Panel>
+        </Tabs.Root>,
+      );
+
+      const tabs = screen.getAllByRole('tab');
+
+      // The explicitly set disabled tab should be selected
+      expect(tabs[0]).to.have.attribute('aria-selected', 'true');
+      expect(tabs[1]).to.have.attribute('aria-selected', 'false');
+      expect(tabs[2]).to.have.attribute('aria-selected', 'false');
+    });
+
+    it('does not set tabIndex=0 on disabled tabs when they are programmatically selected', async () => {
+      const { setProps } = await render(
+        <Tabs.Root value={1}>
+          <Tabs.List>
+            <Tabs.Tab value={0} disabled>
+              Tab 0
+            </Tabs.Tab>
+            <Tabs.Tab value={1}>Tab 1</Tabs.Tab>
+            <Tabs.Tab value={2}>Tab 2</Tabs.Tab>
+          </Tabs.List>
+          <Tabs.Panel value={0}>Panel 0</Tabs.Panel>
+          <Tabs.Panel value={1}>Panel 1</Tabs.Panel>
+          <Tabs.Panel value={2}>Panel 2</Tabs.Panel>
+        </Tabs.Root>,
+      );
+
+      const tabs = screen.getAllByRole('tab');
+
+      // Initially, tab 1 is selected and should be highlighted (tabIndex=0)
+      expect(tabs[1]).to.have.attribute('tabindex', '0');
+      expect(tabs[0]).to.have.attribute('tabindex', '-1');
+      expect(tabs[2]).to.have.attribute('tabindex', '-1');
+
+      // Programmatically select the disabled tab 0
+      await setProps({ value: 0 });
+      await flushMicrotasks();
+
+      // The disabled tab should be selected but NOT highlighted (tabIndex should remain -1)
+      expect(tabs[0]).to.have.attribute('aria-selected', 'true');
+      expect(tabs[0]).to.have.attribute('tabindex', '-1');
+
+      // The previously highlighted tab should retain the highlight
+      expect(tabs[1]).to.have.attribute('tabindex', '0');
+    });
+
+    it('does not select any tab when all tabs are disabled', async () => {
+      await render(
+        <Tabs.Root>
+          <Tabs.List>
+            <Tabs.Tab value={0} disabled>
+              Tab 0
+            </Tabs.Tab>
+            <Tabs.Tab value={1} disabled>
+              Tab 1
+            </Tabs.Tab>
+            <Tabs.Tab value={2} disabled>
+              Tab 2
+            </Tabs.Tab>
+          </Tabs.List>
+          <Tabs.Panel value={0} keepMounted>
+            Panel 0
+          </Tabs.Panel>
+          <Tabs.Panel value={1} keepMounted>
+            Panel 1
+          </Tabs.Panel>
+          <Tabs.Panel value={2} keepMounted>
+            Panel 2
+          </Tabs.Panel>
+        </Tabs.Root>,
+      );
+
+      const tabs = screen.getAllByRole('tab');
+      const panels = screen.getAllByRole('tabpanel', { hidden: true });
+
+      // No tab should be selected
+      expect(tabs[0]).to.have.attribute('aria-selected', 'false');
+      expect(tabs[1]).to.have.attribute('aria-selected', 'false');
+      expect(tabs[2]).to.have.attribute('aria-selected', 'false');
+
+      // All panels should be hidden
+      expect(panels[0]).to.have.attribute('hidden');
+      expect(panels[1]).to.have.attribute('hidden');
+      expect(panels[2]).to.have.attribute('hidden');
     });
   });
 

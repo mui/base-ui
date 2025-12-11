@@ -1,6 +1,6 @@
 import * as React from 'react';
 import clsx from 'clsx';
-import { Field } from '@base-ui-components/react/field';
+import { Field } from '@base-ui/react/field';
 
 export function Root({ className, ...props }: Field.Root.Props) {
   return <Field.Root className={clsx('flex flex-col items-start gap-1', className)} {...props} />;

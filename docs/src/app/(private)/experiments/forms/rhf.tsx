@@ -1,17 +1,17 @@
 'use client';
 import * as React from 'react';
 import { useForm, Controller, type Mode } from 'react-hook-form';
-import { Form } from '@base-ui-components/react/form';
-import { Fieldset } from '@base-ui-components/react/fieldset';
-import { Field } from '@base-ui-components/react/field';
-import { Checkbox } from '@base-ui-components/react/checkbox';
-import { Switch } from '@base-ui-components/react/switch';
-import { Slider } from '@base-ui-components/react/slider';
-import { NumberField } from '@base-ui-components/react/number-field';
-import { Select } from '@base-ui-components/react/select';
-import { RadioGroup } from '@base-ui-components/react/radio-group';
-import { Radio } from '@base-ui-components/react/radio';
-import { CheckboxGroup } from '@base-ui-components/react/checkbox-group';
+import { Form } from '@base-ui/react/form';
+import { Fieldset } from '@base-ui/react/fieldset';
+import { Field } from '@base-ui/react/field';
+import { Checkbox } from '@base-ui/react/checkbox';
+import { Switch } from '@base-ui/react/switch';
+import { Slider } from '@base-ui/react/slider';
+import { NumberField } from '@base-ui/react/number-field';
+import { Select } from '@base-ui/react/select';
+import { RadioGroup } from '@base-ui/react/radio-group';
+import { Radio } from '@base-ui/react/radio';
+import { CheckboxGroup } from '@base-ui/react/checkbox-group';
 
 import styles from './form.module.css';
 import { CheckIcon, ChevronUpDownIcon, HorizontalRuleIcon } from './_icons';
