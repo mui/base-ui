@@ -1,5 +1,74 @@
 # Versions
 
+## v1.0.0-rc.2
+
+_Dec 11, 2025_
+
+There are no changes in the library code between RC.1 and RC.2.
+
+## v1.0.0-rc.1
+
+_Dec 11, 2025_
+
+### General Changes
+
+- **Breaking change:** Rename packages to use the `@base-ui` org.<br />
+  The package name has changed from `@base-ui-components/react` to `@base-ui/react`.
+  (#3462) by @mnajdova
+
+### Combobox
+
+- Respect `itemToStringValue` for `onFormSubmit` (#3441) by @atomiks
+- Add `null` as an option for the value prop (#3488) by @mnajdova
+
+### Menu
+
+- Fix submenu opens with 0 delay (#3459) by @atomiks
+- Fix focus not returning to trigger on <kbd>Esc</kbd> while pointer rests on popup (#3482) by @atomiks
+- Fix always `null` open method (#3486) by @atomiks
+- Allow side axis fallback for submenus by default (#3470) by @atomiks
+
+### Navigation Menu
+
+- Fix mount transitions on `Positioner` in Firefox (#3424) by @atomiks
+
+### Number Field
+
+- Fix multiple scrub area support (#3471) by @atomiks
+
+### Popover
+
+- Fix mount transitions on `Positioner` in Firefox (#3424) by @atomiks
+- Fix skipped viewport transitions (#3453) by @atomiks
+
+### Select
+
+- Respect `itemToStringValue` for `onFormSubmit` (#3441) by @atomiks
+- Add `null` as an option for the value prop (#3488) by @mnajdova
+
+### Tabs
+
+- Fix indicator positioning in transformed containers (#3439) by @atomiks
+- Do not initially select a disabled tab (#3475) by @michaldudak
+
+### Toast
+
+- Fix `flushSync` dev error when toast is added (#3443) by @atomiks
+- Fix `<Toast.Close>;` emitting `aria-hidden` warning on click (#3469) by @atomiks
+
+### Toggle Group
+
+- More permissive towards falsy toggle values (#3477) by @mj12albert
+
+### Tooltip
+
+- Fix mount transitions on `Positioner` in Firefox (#3424) by @atomiks
+- Fix ignored "modal" setting in Popovers experiment (#3474) by @michaldudak
+- Fix shared tooltip closing with trigger gaps (#3452) by @atomiks
+- Fix skipped viewport transitions (#3453) by @atomiks
+
+All contributors of this release in alphabetical order: @atomiks, @LukasTy, @michaldudak, @mj12albert, @mnajdova, @oliviertassinari, @pondorasti, @romgrk, @ZeeshanTamboli
+
 ## v1.0.0-rc.0
 
 _Dec 4, 2025_

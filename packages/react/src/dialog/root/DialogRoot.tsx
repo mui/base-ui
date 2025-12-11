@@ -109,6 +109,7 @@ export interface DialogRootProps<Payload = unknown> {
    * - `unmount`: When specified, the dialog will not be unmounted when closed.
    * Instead, the `unmount` function must be called to unmount the dialog manually.
    * Useful when the dialog's animation is controlled by an external library.
+   * - `close`: Closes the dialog imperatively when called.
    */
   actionsRef?: React.RefObject<DialogRoot.Actions>;
   /**

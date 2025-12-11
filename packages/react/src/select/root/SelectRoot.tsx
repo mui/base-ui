@@ -678,7 +678,7 @@ export interface SelectRootProps<Value, Multiple extends boolean | undefined = f
   /**
    * The value of the select. Use when controlled.
    */
-  value?: SelectValueType<Value, Multiple>;
+  value?: SelectValueType<Value, Multiple> | null;
   /**
    * Event handler called when the value of the select changes.
    */

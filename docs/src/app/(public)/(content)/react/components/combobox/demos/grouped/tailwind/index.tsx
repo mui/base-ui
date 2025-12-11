@@ -33,7 +33,7 @@ export default function ExampleGroupedCombobox() {
 
       <Combobox.Portal>
         <Combobox.Positioner className="outline-none" sideOffset={4}>
-          <Combobox.Popup className="w-[var(--anchor-width)] max-h-[23rem] max-w-[var(--available-width)] origin-[var(--transform-origin)] overflow-hidden rounded-md bg-[canvas] pt-0 text-gray-900 shadow-lg shadow-gray-200 outline-1 outline-gray-200 transition-[transform,scale,opacity] data-[ending-style]:scale-95 data-[ending-style]:opacity-0 data-[starting-style]:scale-95 data-[starting-style]:opacity-0 dark:shadow-none dark:-outline-offset-1 dark:outline-gray-300 duration-100">
+          <Combobox.Popup className="w-[var(--anchor-width)] max-h-[23rem] max-w-[var(--available-width)] origin-[var(--transform-origin)] overflow-hidden rounded-md bg-[canvas] pt-0 text-gray-900 shadow-lg shadow-gray-200 outline-1 outline-gray-200 transition-[transform,scale,opacity] data-[ending-style]:scale-95 data-[ending-style]:opacity-0 data-[starting-style]:scale-95 data-[starting-style]:opacity-0 dark:shadow-none dark:outline-gray-300 duration-100">
             <Combobox.Empty className="p-4 text-[0.925rem] leading-4 text-gray-600 empty:m-0 empty:p-0">
               No produce found.
             </Combobox.Empty>
