@@ -8,7 +8,7 @@
 
 .Popup::before,
 .Popup::after {
-  content: "";
+  content: '';
   position: absolute;
   inset: 1px;
 }
@@ -24,12 +24,10 @@
   border-radius: 8px;
   z-index: -2;
   box-shadow:
-    0 .5px 1px hsl(0 0% 0% / 12%),
+    0 0.5px 1px hsl(0 0% 0% / 12%),
     0 1px 3px hsl(0 0% 0% / 5%),
     0 2px 4px -1px hsl(0 0% 0% / 5%),
     0 4px 12px -2px hsl(0 0% 0% / 5%),
     0 8px 24px -4px hsl(0 0% 0% / 5%),
     0 16px 48px -4px hsl(0 0% 0% / 5%);
 }
-
-

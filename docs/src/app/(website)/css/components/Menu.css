@@ -16,8 +16,10 @@
   border-radius: 4px;
   font-size: 14px;
   line-height: 1;
-  font-family: test die grotesk a, sans-serif;
-  letter-spacing: .18px;
+  font-family:
+    test die grotesk a,
+    sans-serif;
+  letter-spacing: 0.18px;
   position: relative;
   z-index: 1;
   white-space: nowrap;
@@ -34,7 +36,6 @@
   animation: menuItemHighlighted var(--keyboardMenuDuration) steps(8, end) infinite;
   transform: translateY(0);
 }
-
 
 @keyframes menuItemHighlighted {
   0%,
@@ -56,12 +57,12 @@
   39.9999% {
     transform: translateY(96px);
   }
-  
+
   40%,
   44.9999% {
     transform: translateY(64px);
   }
-  
+
   45%,
   49.9999% {
     transform: translateY(32px);

@@ -20,7 +20,7 @@
 
 .Key::before,
 .Key::after {
-  content: "";
+  content: '';
   position: absolute;
   inset: 1px;
 }
@@ -38,7 +38,7 @@
   z-index: -2;
   opacity: var(--key-shadow-opacity);
   box-shadow:
-    0 1px .5px hsl(0 0% 0% / 12%),
+    0 1px 0.5px hsl(0 0% 0% / 12%),
     0 1px 3px -1px hsl(0 0% 0% / 5%),
     0 2px 4px -1px hsl(0 0% 0% / 5%),
     0 3px 6px -2px hsl(0 0% 0% / 5%);
@@ -62,7 +62,7 @@
   5%,
   5.9999% {
     transform: translateY(1px);
-    --key-shadow-opacity: .8;
+    --key-shadow-opacity: 0.8;
   }
 
   6%,
@@ -74,7 +74,7 @@
   10%,
   10.9999% {
     transform: translateY(1px);
-    --key-shadow-opacity: .8;
+    --key-shadow-opacity: 0.8;
   }
 
   11%,
@@ -86,7 +86,7 @@
   15%,
   15.9999% {
     transform: translateY(1px);
-    --key-shadow-opacity: .8;
+    --key-shadow-opacity: 0.8;
   }
 
   16%,
@@ -106,7 +106,7 @@
   40%,
   40.9999% {
     transform: translateY(1px);
-    --key-shadow-opacity: .8;
+    --key-shadow-opacity: 0.8;
   }
 
   41%,
@@ -118,7 +118,7 @@
   45%,
   45.9999% {
     transform: translateY(1px);
-    --key-shadow-opacity: .8;
+    --key-shadow-opacity: 0.8;
   }
 
   46%,
@@ -130,7 +130,7 @@
   50%,
   50.9999% {
     transform: translateY(1px);
-    --key-shadow-opacity: .8;
+    --key-shadow-opacity: 0.8;
   }
 
   51%,

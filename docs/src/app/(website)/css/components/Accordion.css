@@ -4,7 +4,6 @@ details {
   user-select: none;
 }
 
-
 summary {
   list-style: none;
   display: flex;
@@ -27,18 +26,16 @@ summary::-webkit-details-marker {
 
 /* Indicator */
 summary::after {
-  content: "+";
+  content: '+';
   inline-size: 1em;
   text-align: center;
 }
 
 details[open] > summary::after {
-  content: "–";
+  content: '–';
 }
 
 /* Content spacing */
 details > *:not(summary) {
   margin-block-start: 8px;
 }
-
-
