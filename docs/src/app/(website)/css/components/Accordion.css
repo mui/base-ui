@@ -1,6 +1,10 @@
+.AccordionRoot {
+  border-top: 1px solid var(--border);
+}
+
 .AccordionItem {
   box-sizing: border-box;
-  border-bottom: 1px solid currentColor;
+  border-bottom: 1px solid var(--border);
   user-select: none;
 }
 

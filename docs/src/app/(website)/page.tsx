@@ -192,7 +192,7 @@ export default function Homepage() {
               <ul
                 className="List"
                 aria-label="team members"
-                style={{ borderTop: '1px solid currentColor' }}
+                style={{ borderTop: '1px solid var(--border)' }}
               >
                 <li className="ListItem d-g gtc-2 g-8 bp3:g-9">
                   <span className="Text size-2">Colm Tuite</span>
@@ -237,7 +237,7 @@ export default function Homepage() {
               <h2 className="Text size-2">The fine print</h2>
             </div>
             <div className="gcs-1 gce-9 bp2:gcs-3 bp4:gce-7">
-              <Accordion.Root style={{ borderTop: '1px solid currentColor' }}>
+              <Accordion.Root className="AccordionRoot">
                 <Accordion.Item className="AccordionItem">
                   <Accordion.Header className="AccordionHeader">
                     <Accordion.Trigger className="AccordionTrigger Text size-2">

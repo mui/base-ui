@@ -8,7 +8,7 @@
 .ListItem {
   border-bottom-width: 1px;
   border-bottom-style: solid;
-  border-bottom-color: currentColor;
+  border-bottom-color: var(--border);
   padding-block-start: 12px;
   padding-block-end: 12px;
 }
