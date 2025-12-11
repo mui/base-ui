@@ -71,6 +71,28 @@ describe('<ToggleGroup />', () => {
       expect(button1).to.have.attribute('data-pressed');
       expect(button2).to.have.attribute('aria-pressed', 'false');
     });
+
+    it('when Toggles omit value', async () => {
+      const { user } = await render(
+        <ToggleGroup>
+          <Toggle />
+          <Toggle value="" />
+        </ToggleGroup>,
+      );
+
+      const [button1, button2] = screen.getAllByRole('button');
+
+      expect(button2).to.have.attribute('aria-pressed', 'false');
+      expect(button1).to.have.attribute('aria-pressed', 'false');
+
+      await user.click(button1);
+      expect(button1).to.have.attribute('aria-pressed', 'true');
+      expect(button2).to.have.attribute('aria-pressed', 'false');
+
+      await user.click(button2);
+      expect(button1).to.have.attribute('aria-pressed', 'false');
+      expect(button2).to.have.attribute('aria-pressed', 'true');
+    });
   });
 
   describe('controlled', () => {
@@ -206,6 +228,32 @@ describe('<ToggleGroup />', () => {
 
       await user.pointer({ keys: '[MouseLeft]', target: button2 });
 
+      expect(button1).to.have.attribute('aria-pressed', 'false');
+      expect(button2).to.have.attribute('aria-pressed', 'true');
+    });
+
+    it('when Toggles omit value', async () => {
+      const { user } = await render(
+        <ToggleGroup multiple>
+          <Toggle value="" />
+          <Toggle />
+        </ToggleGroup>,
+      );
+
+      const [button1, button2] = screen.getAllByRole('button');
+
+      expect(button2).to.have.attribute('aria-pressed', 'false');
+      expect(button1).to.have.attribute('aria-pressed', 'false');
+
+      await user.click(button1);
+      expect(button1).to.have.attribute('aria-pressed', 'true');
+      expect(button2).to.have.attribute('aria-pressed', 'false');
+
+      await user.click(button2);
+      expect(button1).to.have.attribute('aria-pressed', 'true');
+      expect(button2).to.have.attribute('aria-pressed', 'true');
+
+      await user.click(button1);
       expect(button1).to.have.attribute('aria-pressed', 'false');
       expect(button2).to.have.attribute('aria-pressed', 'true');
     });

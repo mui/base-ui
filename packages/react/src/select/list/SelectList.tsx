@@ -26,7 +26,7 @@ export const SelectList = React.forwardRef(function SelectList(
   const { alignItemWithTriggerActive } = useSelectPositionerContext();
 
   const hasScrollArrows = useStore(store, selectors.hasScrollArrows);
-  const touchModality = useStore(store, selectors.touchModality);
+  const openMethod = useStore(store, selectors.openMethod);
   const multiple = useStore(store, selectors.multiple);
   const id = useStore(store, selectors.id);
 
@@ -40,7 +40,8 @@ export const SelectList = React.forwardRef(function SelectList(
     ...(alignItemWithTriggerActive && {
       style: LIST_FUNCTIONAL_STYLES,
     }),
-    className: hasScrollArrows && !touchModality ? styleDisableScrollbar.className : undefined,
+    className:
+      hasScrollArrows && openMethod !== 'touch' ? styleDisableScrollbar.className : undefined,
   };
 
   const setListElement = useStableCallback((element: HTMLElement | null) => {
