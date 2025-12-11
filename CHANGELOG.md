@@ -1,5 +1,11 @@
 # Versions
 
+## v1.0.0-rc.2
+
+_Dec 11, 2025_
+
+There are no changes in the library code between RC.1 and RC.2.
+
 ## v1.0.0-rc.1
 
 _Dec 11, 2025_
