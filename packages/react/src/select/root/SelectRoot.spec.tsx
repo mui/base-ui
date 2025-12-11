@@ -188,6 +188,7 @@ function App() {
   multiple
 />;
 
+// Should accept null value
 <Select.Root items={objectItemsReadonly} value={null} />;
 
 function App2() {
