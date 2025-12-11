@@ -20,8 +20,7 @@
 @import './utilities/transform.css';
 
 /* Import components */
-@import './components/Link.css';
-@import './components/Text.css';
+@import './components/Accordion.css';
 @import './components/Body.css';
 @import './components/Button.css';
 @import './components/Figure.css';
