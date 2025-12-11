@@ -42,7 +42,7 @@ function getBrowserConfig(): BrowserModeConfig {
     enabled: true,
     provider: playwright(),
     screenshotFailures: false,
-    headless: environment === 'all-browsers',
+    headless: true,
     instances,
   };
 }
