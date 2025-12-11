@@ -40,7 +40,6 @@
   font-weight: 500;
   line-height: 1.5;
   color: var(--color-gray-900);
-  cursor: pointer;
   user-select: none;
   outline: none;
 
@@ -81,7 +80,7 @@
   background-color: hsl(0deg 0% 0% / 15%);
 
   @media (prefers-color-scheme: dark) {
-    background-color: var(--color-gray-400);
+    background-color: var(--color-gray-200);
   }
 }
 

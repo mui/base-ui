@@ -48,7 +48,9 @@ const SearchItem = React.memo(function SearchItem({ result }: { result: SearchRe
     <React.Fragment>
       {result.title?.split(' ‣ ').map((part, i, arr) => (
         <React.Fragment key={part}>
-          <span className={i === arr.length - 1 ? 'truncate text-ellipsis' : 'whitespace-nowrap'}>
+          <span
+            className={`flex h-full items-center ${i === arr.length - 1 ? 'truncate text-ellipsis' : 'whitespace-nowrap'}`}
+          >
             {part}
           </span>
           {i !== arr.length - 1 && (
