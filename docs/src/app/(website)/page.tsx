@@ -29,7 +29,10 @@ export default function Homepage() {
         }}
       />
 
-      <div className="bs-bb d-g gtc-8 g-8 bp2:g-9">
+      <div
+        className="bs-bb d-g gtc-8 g-8 bp2:g-9"
+        style={{ maxWidth: '1480px', marginInline: 'auto' }}
+      >
         <header className="d-c">
           <div className="gcs-1 gce-4">
             <Logo aria-label="Base UI" />
