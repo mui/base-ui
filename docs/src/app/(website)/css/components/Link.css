@@ -10,8 +10,8 @@
 }
 
 .Link:active {
-  background-color: black;
-  color: white;
+  background-color: var(--gray-t2);
+  color: var(--gray-s1);
 }
 
 .Link:focus-visible {

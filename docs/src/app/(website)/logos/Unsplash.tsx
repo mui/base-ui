@@ -11,7 +11,7 @@ export function Unsplash(props: React.ComponentProps<'svg'>) {
       {...props}
     >
       <g clipPath="url(#clip0_88_3022)">
-        <path d="M10 9V0H22V9H10ZM22 14H32V32H0V14H10V23H22V14Z" fill="#2E2E2E" />
+        <path d="M10 9V0H22V9H10ZM22 14H32V32H0V14H10V23H22V14Z" fill="currentColor" />
       </g>
       <defs>
         <clipPath id="clip0_88_3022">
