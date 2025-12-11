@@ -20,7 +20,7 @@
     },
     "actionsRef": {
       "type": "RefObject<Popover.Root.Actions | null>",
-      "description": "A ref to imperative actions.\n- `unmount`: When specified, the popover will not be unmounted when closed.\nInstead, the `unmount` function must be called to unmount the popover manually.\nUseful when the popover's animation is controlled by an external library.",
+      "description": "A ref to imperative actions.\n- `unmount`: When specified, the popover will not be unmounted when closed.\nInstead, the `unmount` function must be called to unmount the popover manually.\nUseful when the popover's animation is controlled by an external library.\n- `close`: Closes the dialog imperatively when called.",
       "detailedType": "| React.RefObject<Popover.Root.Actions | null>\n| undefined"
     },
     "defaultTriggerId": {
