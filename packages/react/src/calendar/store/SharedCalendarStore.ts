@@ -209,7 +209,7 @@ export class SharedCalendarStore<
       this.currentMonthDayGrid[weekTime] = days;
     }
     return () => {
-      delete this.currentMonthDayGrid?.[weekTime];
+      delete this.currentMonthDayGrid[weekTime];
     };
   };
 
