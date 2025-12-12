@@ -1,5 +1,4 @@
 import * as React from 'react';
-import type { Metadata } from 'next/types';
 import { GoogleAnalytics } from 'docs/src/components/GoogleAnalytics';
 import { Link } from 'docs/src/components/Link';
 import { Logo } from 'docs/src/components/Logo';
