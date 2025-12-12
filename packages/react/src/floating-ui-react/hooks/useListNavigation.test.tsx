@@ -4,6 +4,7 @@ import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event';
 import { flushMicrotasks } from '@mui/internal-test-utils';
 import { isJSDOM } from '@base-ui/utils/detectBrowser';
+import { wait } from '#test-utils';
 import { useClick, useDismiss, useFloating, useInteractions, useListNavigation } from '../index';
 import type { UseListNavigationProps } from '../types';
 import { Main as ComplexGrid } from '../../../test/floating-ui-tests/ComplexGrid';
@@ -12,6 +13,46 @@ import { Main as EmojiPicker } from '../../../test/floating-ui-tests/EmojiPicker
 import { Main as ListboxFocus } from '../../../test/floating-ui-tests/ListboxFocus';
 import { Main as NestedMenu } from '../../../test/floating-ui-tests/Menu';
 import { HorizontalMenu } from '../../../test/floating-ui-tests/MenuOrientation';
+
+function withThrottledRAF({ frameDuration = 100 } = {}) {
+  const originalRAF = window.requestAnimationFrame;
+  const originalCAF = window.cancelAnimationFrame;
+
+  let idCounter = 1;
+  const timers = new Map(); // id → timeoutId
+
+  function throttledRAF(callback: FrameRequestCallback) {
+    const id = idCounter;
+    idCounter += 1;
+
+    // delay the callback artificially
+    const timeoutId = setTimeout(() => {
+      timers.delete(id);
+      // call original rAF so callback gets a real timestamp argument
+      originalRAF(callback);
+    }, frameDuration);
+
+    timers.set(id, timeoutId);
+    return id;
+  }
+
+  function throttledCAF(id: number) {
+    const timeoutId = timers.get(id);
+    if (timeoutId !== undefined) {
+      clearTimeout(timeoutId);
+      timers.delete(id);
+    }
+  }
+
+  // Install the shim
+  window.requestAnimationFrame = throttledRAF;
+  window.cancelAnimationFrame = throttledCAF;
+
+  onTestFinished(() => {
+    window.requestAnimationFrame = originalRAF;
+    window.cancelAnimationFrame = originalCAF;
+  });
+}
 
 /* eslint-disable testing-library/no-unnecessary-act */
 
@@ -1363,6 +1404,8 @@ describe('useListNavigation', () => {
   });
 
   it('selectedIndex changing does not steal focus', async () => {
+    withThrottledRAF({ frameDuration: 50 });
+
     render(<ListboxFocus />);
 
     // TODO: This feels like a bug. It's the animation frame callback from `enqueueFocus` sometimes
@@ -1373,6 +1416,8 @@ describe('useListNavigation', () => {
     });
 
     await userEvent.click(screen.getByTestId('reference'));
+
+    await wait(100);
 
     await waitFor(() => {
       expect(screen.getByTestId('reference')).toHaveFocus();
