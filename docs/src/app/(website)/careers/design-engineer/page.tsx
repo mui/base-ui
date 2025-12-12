@@ -229,15 +229,3 @@ export default function DesignEngineerPage() {
     </React.Fragment>
   );
 }
-
-const description = 'Unstyled UI components for building accessible web apps and design systems.';
-
-export const metadata: Metadata = {
-  description,
-  twitter: {
-    description,
-  },
-  openGraph: {
-    description,
-  },
-};
