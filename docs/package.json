@@ -48,7 +48,7 @@
     "react-dom": "^19.2.1",
     "react-error-boundary": "^6.0.0",
     "react-hook-form": "^7.67.0",
-    "react-is": "^19.2.0",
+    "react-is": "^19.2.1",
     "rehype-pretty-code": "^0.14.1",
     "remark": "^15.0.1",
     "remark-frontmatter": "^5.0.0",
