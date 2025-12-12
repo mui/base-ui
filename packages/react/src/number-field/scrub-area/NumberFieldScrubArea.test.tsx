@@ -5,6 +5,8 @@ import { NumberField } from '@base-ui/react/number-field';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import { isWebKit } from '@base-ui/utils/detectBrowser';
 
+// TODO (@Janpot): Contribute https://github.com/testing-library/user-event/issues/903 and
+// rely on `user.pointer()` instead.
 let currentPos = { clientX: 0, clientY: 0 };
 
 function createPointerDownEvent(elm: HTMLElement) {
