@@ -1,5 +1,4 @@
 import * as React from 'react';
-import type { Metadata } from 'next';
 import { Link } from 'docs/src/components/Link';
 
 export default function DesignEngineerPage() {

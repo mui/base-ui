@@ -49,15 +49,6 @@ export const metadata: Metadata = {
     site: '@base_ui',
     card: 'summary_large_image',
   },
-  openGraph: {
-    type: 'website',
-    locale: 'en_US',
-    title: {
-      template: '%s · Base UI',
-      default: 'Base UI',
-    },
-    ttl: 604800,
-  },
   icons: {
     icon: [
       {

@@ -8,12 +8,12 @@ export default function Layout({ children }: React.PropsWithChildren) {
 const description = 'Unstyled UI components for building accessible web apps and design systems.';
 
 export const metadata: Metadata = {
-  description,
-  metadataBase: new URL('https://base-ui.com'),
   title: {
     template: '%s · Base UI',
     default: 'Base UI',
   },
+  description,
+  metadataBase: new URL('https://base-ui.com'),
   twitter: {
     site: '@base_ui',
     card: 'summary_large_image',

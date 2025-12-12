@@ -1,5 +1,4 @@
 import * as React from 'react';
-import type { Metadata, Viewport } from 'next';
 import { Accordion } from '@base-ui/react/accordion';
 import { Link } from 'docs/src/components/Link';
 import { Paper } from './logos/Paper';
