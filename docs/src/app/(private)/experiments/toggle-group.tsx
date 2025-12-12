@@ -5,7 +5,7 @@ import { Toggle } from '@base-ui/react/toggle';
 import classes from './toggle.module.css';
 
 export default function ToggleGroupDemo() {
-  const [value, setValue] = React.useState('align-center');
+  const [value, setValue] = React.useState(['align-center']);
   return (
     <div className={classes.grid}>
       <h4 style={{ margin: 0 }}>LTR</h4>
