@@ -76,6 +76,7 @@ export default defineConfig(
 
       // This rule doesn't recognise <label> wrapped around custom controls
       'jsx-a11y/label-has-associated-control': 'off',
+
       // Turn off new eslint-plugin-react-hooks rules till we can fix all warnings
       'react-hooks/globals': 'off',
       'react-hooks/immutability': 'off',
