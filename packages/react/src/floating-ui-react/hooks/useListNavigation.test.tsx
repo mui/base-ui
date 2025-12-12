@@ -13,7 +13,7 @@ import { Main as ListboxFocus } from '../../../test/floating-ui-tests/ListboxFoc
 import { Main as NestedMenu } from '../../../test/floating-ui-tests/Menu';
 import { HorizontalMenu } from '../../../test/floating-ui-tests/MenuOrientation';
 
-function withThrottledRAF({ frameDuration = 100 } = {}) {
+function withThrottledRAF(frameDuration = 100) {
   const originalRAF = window.requestAnimationFrame;
   const originalCAF = window.cancelAnimationFrame;
 
@@ -1100,7 +1100,7 @@ describe('useListNavigation', () => {
   });
 
   it('selectedIndex changing does not steal focus', async () => {
-    withThrottledRAF({ frameDuration: 50 });
+    withThrottledRAF(50);
 
     render(<ListboxFocus />);
 
