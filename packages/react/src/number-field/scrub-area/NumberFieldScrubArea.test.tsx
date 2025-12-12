@@ -59,6 +59,8 @@ describe('<NumberField.ScrubArea />', () => {
 
     await act(async () => {
       scrubArea.dispatchEvent(pointerDownEvent);
+    });
+    await act(async () => {
       scrubArea.dispatchEvent(createPointerMoveEvent({ movementX: -10 }));
     });
 
