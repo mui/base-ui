@@ -20,6 +20,7 @@ function withThrottledRAF(frameDuration = 100) {
 
   let idCounter = 1;
   const timers = new Map(); // id → timeoutId
+  const rafs = new Map(); // id → callback
 
   function throttledRAF(callback: FrameRequestCallback) {
     const id = idCounter;
@@ -29,7 +30,8 @@ function withThrottledRAF(frameDuration = 100) {
     const timeoutId = setTimeout(() => {
       timers.delete(id);
       // call original rAF so callback gets a real timestamp argument
-      originalRAF(callback);
+      const raf = originalRAF(callback);
+      rafs.set(id, raf);
     }, frameDuration);
 
     timers.set(id, timeoutId);
@@ -41,6 +43,11 @@ function withThrottledRAF(frameDuration = 100) {
     if (timeoutId !== undefined) {
       clearTimeout(timeoutId);
       timers.delete(id);
+    }
+    const raf = rafs.get(id);
+    if (raf !== undefined) {
+      originalCAF(raf);
+      rafs.delete(id);
     }
   }
 
