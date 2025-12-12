@@ -1,0 +1,67 @@
+# Textarea
+
+<Subtitle>
+  A native textarea element that automatically works with [Field](/react/components/field).
+</Subtitle>
+
+<Meta name="description" content="A high-quality, unstyled React textarea component." />
+
+import { DemoTextareaHero } from './demos/hero';
+
+<DemoTextareaHero />
+
+## Anatomy
+
+Import the component and use it as a single part:
+
+```jsx title="Anatomy"
+import { Textarea } from '@base-ui-components/react/textarea';
+
+<Textarea />;
+```
+
+## API reference
+
+<Reference component="Textarea" />
+
+## Examples
+
+### Infinite resize
+
+Setting only a `minRows` will make the textarea automatically resize to fit its content.
+
+import { DemoInfiniteResize } from './demos/infinite-resize';
+
+<DemoInfiniteResize />
+
+### Max rows
+
+Setting both `minRows` and `maxRows` will make the textarea automatically resize between those limits.
+
+import { DemoMaxRows } from './demos/max-rows';
+
+<DemoMaxRows />
+
+### Form integration
+
+The textarea works seamlessly with the [Form](/react/components/form) component and supports libraries like [Zod](https://zod.dev/) for schema validation.
+
+import { DemoTextareaForm } from './demos/form';
+
+<DemoTextareaForm />
+
+### Field sizing
+
+[MDN: `field-sizing`](https://developer.mozilla.org/docs/Web/CSS/field-sizing) · [Can I Use](https://caniuse.com/?search=field-sizing)
+
+The CSS `field-sizing` property lets form fields size themselves to their content. For example, a `<textarea>` can grow or shrink as you type without JavaScript.
+
+Browser support is about **71 % globally**. Chrome 123+, Edge 123+, and Opera 109+ support it. Safari only recently added it in TP, and many others (Firefox, IE, Opera Mini, UC Browser, KaiOS) don't yet.
+
+Because support is incomplete, the demo may not work in older browsers or Safari `<26`. If the textarea doesn't resize, try a **current Chrome or Edge** build.
+
+> Once support passes ~90 %, we plan to switch the Textarea component to `field-sizing` by default, dropping the JS fallback.
+
+import { DemoFieldSizing } from './demos/field-sizing';
+
+<DemoFieldSizing />
