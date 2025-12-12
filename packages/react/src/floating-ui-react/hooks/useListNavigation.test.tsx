@@ -2,9 +2,7 @@ import * as React from 'react';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { vi, it, describe } from 'vitest';
-
 import { isJSDOM } from '@base-ui/utils/detectBrowser';
-import { wait } from '#test-utils';
 import { useClick, useDismiss, useFloating, useInteractions, useListNavigation } from '../index';
 import type { UseListNavigationProps } from '../types';
 import { Main as ComplexGrid } from '../../../test/floating-ui-tests/ComplexGrid';
@@ -1063,7 +1061,11 @@ describe('useListNavigation', () => {
   it('selectedIndex changing does not steal focus', async () => {
     render(<ListboxFocus />);
 
-    await wait(50);
+    // Initial focus is set in requestAnimationFrame and we need to wait for it
+    // beforeclicking the reference to avoid interferrence.
+    await waitFor(() => {
+      expect(document.activeElement).toHaveRole('option');
+    });
 
     await userEvent.click(screen.getByTestId('reference'));
 
