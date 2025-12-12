@@ -2,7 +2,10 @@
 import * as React from 'react';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
-import { NavigationMenuItemContext } from './NavigationMenuItemContext';
+import {
+  NavigationMenuItemContext,
+  NavigationMenuItemContextValue,
+} from './NavigationMenuItemContext';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 
 /**
@@ -25,15 +28,21 @@ export const NavigationMenuItem = React.forwardRef(function NavigationMenuItem(
     props: elementProps,
   });
 
+  const contextValue: NavigationMenuItemContextValue = React.useMemo(() => ({ value }), [value]);
+
   return (
-    <NavigationMenuItemContext.Provider value={value}>{element}</NavigationMenuItemContext.Provider>
+    <NavigationMenuItemContext.Provider value={contextValue}>
+      {element}
+    </NavigationMenuItemContext.Provider>
   );
 });
 
 export interface NavigationMenuItemState {}
 
-export interface NavigationMenuItemProps
-  extends BaseUIComponentProps<'li', NavigationMenuItem.State> {
+export interface NavigationMenuItemProps extends BaseUIComponentProps<
+  'li',
+  NavigationMenuItem.State
+> {
   /**
    * A unique value that identifies this navigation menu item.
    * If no value is provided, a unique ID will be generated automatically.

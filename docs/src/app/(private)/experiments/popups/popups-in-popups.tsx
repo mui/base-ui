@@ -1,11 +1,11 @@
 'use client';
 
 import * as React from 'react';
-import { Combobox } from '@base-ui-components/react/combobox';
-import { Select } from '@base-ui-components/react/select';
-import { Menu } from '@base-ui-components/react/menu';
-import { Dialog } from '@base-ui-components/react/dialog';
-import { Tooltip } from '@base-ui-components/react/tooltip';
+import { Combobox } from '@base-ui/react/combobox';
+import { Select } from '@base-ui/react/select';
+import { Menu } from '@base-ui/react/menu';
+import { Dialog } from '@base-ui/react/dialog';
+import { Tooltip } from '@base-ui/react/tooltip';
 import styles from './popups-in-popups.module.css';
 
 export default function PopupsInPopups() {
@@ -197,7 +197,7 @@ function MenuDemo({ modal }: Props) {
                     >
                       Paragraph
                     </Menu.Item>
-                    <Menu.Root disabled>
+                    <Menu.SubmenuRoot disabled>
                       <Menu.SubmenuTrigger className={styles.SubmenuTrigger}>
                         List
                       </Menu.SubmenuTrigger>
@@ -224,7 +224,7 @@ function MenuDemo({ modal }: Props) {
                           </Menu.Popup>
                         </Menu.Positioner>
                       </Menu.Portal>
-                    </Menu.Root>
+                    </Menu.SubmenuRoot>
                   </Menu.Popup>
                 </Menu.Positioner>
               </Menu.Portal>

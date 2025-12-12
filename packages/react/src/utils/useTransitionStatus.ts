@@ -1,8 +1,7 @@
 'use client';
 import * as React from 'react';
-import * as ReactDOM from 'react-dom';
-import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
-import { AnimationFrame } from '@base-ui-components/utils/useAnimationFrame';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { AnimationFrame } from '@base-ui/utils/useAnimationFrame';
 
 export type TransitionStatus = 'starting' | 'ending' | 'idle' | undefined;
 
@@ -54,9 +53,9 @@ export function useTransitionStatus(
     }
 
     const frame = AnimationFrame.request(() => {
-      ReactDOM.flushSync(() => {
-        setTransitionStatus(undefined);
-      });
+      // Avoid `flushSync` here due to Firefox.
+      // See https://github.com/mui/base-ui/pull/3424
+      setTransitionStatus(undefined);
     });
 
     return () => {

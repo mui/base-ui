@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useRefWithInit } from '@base-ui-components/utils/useRefWithInit';
+import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { useDialogRoot } from '../../dialog/root/useDialogRoot';
 import { DialogRootContext, useDialogRootContext } from '../../dialog/root/DialogRootContext';
 import { BaseUIChangeEventDetails } from '../../utils/createBaseUIEventDetails';
@@ -30,7 +30,19 @@ export function AlertDialogRoot<Payload>(props: AlertDialogRoot.Props<Payload>) 
   const parentDialogRootContext = useDialogRootContext();
   const nested = Boolean(parentDialogRootContext);
 
-  const store = useRefWithInit(() => handle?.store ?? new DialogStore<Payload>()).current;
+  const store = useRefWithInit(() => {
+    return (
+      handle?.store ??
+      new DialogStore<Payload>({
+        open: openProp ?? defaultOpen,
+        activeTriggerId: triggerIdProp !== undefined ? triggerIdProp : defaultTriggerIdProp,
+        modal: true,
+        disablePointerDismissal: true,
+        nested,
+        role: 'alertdialog',
+      })
+    );
+  }).current;
 
   store.useControlledProp('open', openProp, defaultOpen);
   store.useControlledProp('activeTriggerId', triggerIdProp, defaultTriggerIdProp);
@@ -57,11 +69,10 @@ export function AlertDialogRoot<Payload>(props: AlertDialogRoot.Props<Payload>) 
   );
 }
 
-export interface AlertDialogRootProps<Payload = unknown>
-  extends Omit<
-    DialogRoot.Props<Payload>,
-    'modal' | 'dismissible' | 'onOpenChange' | 'actionsRef' | 'handle'
-  > {
+export interface AlertDialogRootProps<Payload = unknown> extends Omit<
+  DialogRoot.Props<Payload>,
+  'modal' | 'disablePointerDismissal' | 'onOpenChange' | 'actionsRef' | 'handle'
+> {
   /**
    * Event handler called when the dialog is opened or closed.
    */
@@ -71,6 +82,7 @@ export interface AlertDialogRootProps<Payload = unknown>
    * - `unmount`: When specified, the dialog will not be unmounted when closed.
    * Instead, the `unmount` function must be called to unmount the dialog manually.
    * Useful when the dialog's animation is controlled by an external library.
+   * - `close`: Closes the dialog imperatively when called.
    */
   actionsRef?: React.RefObject<AlertDialogRoot.Actions>;
   /**

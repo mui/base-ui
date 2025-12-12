@@ -4,6 +4,9 @@ import { NOOP } from '../../utils/noop';
 import { DEFAULT_VALIDITY_STATE } from '../utils/constants';
 import type { FieldRoot, FieldValidityData } from './FieldRoot';
 import type { Form } from '../../form';
+import type { UseFieldValidationReturnValue } from './useFieldValidation';
+import type { HTMLProps } from '../../utils/types';
+import { EMPTY_OBJECT } from '../../utils/constants';
 
 export interface FieldRootContext {
   invalid: boolean | undefined;
@@ -28,6 +31,7 @@ export interface FieldRootContext {
   shouldValidateOnChange: () => boolean;
   state: FieldRoot.State;
   markedDirtyRef: React.MutableRefObject<boolean>;
+  validation: UseFieldValidationReturnValue;
 }
 
 export const FieldRootContext = React.createContext<FieldRootContext>({
@@ -63,6 +67,12 @@ export const FieldRootContext = React.createContext<FieldRootContext>({
     focused: false,
   },
   markedDirtyRef: { current: false },
+  validation: {
+    getValidationProps: (props: HTMLProps = EMPTY_OBJECT) => props,
+    getInputValidationProps: (props: HTMLProps = EMPTY_OBJECT) => props,
+    inputRef: { current: null },
+    commit: async () => {},
+  },
 });
 
 export function useFieldRootContext(optional = true) {

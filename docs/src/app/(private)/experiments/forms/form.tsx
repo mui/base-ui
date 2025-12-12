@@ -1,18 +1,18 @@
 'use client';
 import * as React from 'react';
-import { Field } from '@base-ui-components/react/field';
-import { Fieldset } from '@base-ui-components/react/fieldset';
-import { Form } from '@base-ui-components/react/form';
-import { Select } from '@base-ui-components/react/select';
-import { Radio } from '@base-ui-components/react/radio';
-import { RadioGroup } from '@base-ui-components/react/radio-group';
-import { Checkbox } from '@base-ui-components/react/checkbox';
-import { CheckboxGroup } from '@base-ui-components/react/checkbox-group';
-import { Switch } from '@base-ui-components/react/switch';
-import { NumberField } from '@base-ui-components/react/number-field';
-import { Slider } from '@base-ui-components/react/slider';
-import { Combobox } from '@base-ui-components/react/combobox';
-import { Autocomplete } from '@base-ui-components/react/autocomplete';
+import { Field } from '@base-ui/react/field';
+import { Fieldset } from '@base-ui/react/fieldset';
+import { Form } from '@base-ui/react/form';
+import { Select } from '@base-ui/react/select';
+import { Radio } from '@base-ui/react/radio';
+import { RadioGroup } from '@base-ui/react/radio-group';
+import { Checkbox } from '@base-ui/react/checkbox';
+import { CheckboxGroup } from '@base-ui/react/checkbox-group';
+import { Switch } from '@base-ui/react/switch';
+import { NumberField } from '@base-ui/react/number-field';
+import { Slider } from '@base-ui/react/slider';
+import { Combobox } from '@base-ui/react/combobox';
+import { Autocomplete } from '@base-ui/react/autocomplete';
 import { z } from 'zod';
 import styles from './form.module.css';
 
@@ -49,8 +49,18 @@ interface Settings {
 
 const frameworks = ['React', 'Vue', 'Angular', 'Svelte', 'Next.js', 'Nuxt.js', 'Gatsby', 'Remix'];
 
-interface Values {
-  numberField: number | null;
+interface MyFormValues {
+  input: string;
+  'required-checkbox': boolean;
+  switch: boolean;
+  slider: number;
+  'range-slider': number[];
+  'number-field': number;
+  select: string[];
+  'radio-group': string[];
+  'multi-select': string[];
+  combobox: string;
+  autocomplete: string;
 }
 
 export const settingsMetadata: SettingsMetadata<Settings> = {
@@ -67,29 +77,14 @@ export const settingsMetadata: SettingsMetadata<Settings> = {
   },
 };
 
-async function submitForm(
-  event: React.FormEvent<HTMLFormElement>,
-  values: Values,
-  native: boolean,
-) {
-  event.preventDefault();
-
-  const formData = new FormData(event.currentTarget);
-
-  const entries = Object.fromEntries(formData as any);
-
-  entries['number-field'] = values.numberField;
-  entries.slider = parseFloat(formData.get('slider') as string);
-  entries['range-slider'] = formData.getAll('range-slider').map((v) => parseFloat(v as string));
-  entries['multi-select'] = formData.getAll('multi-select');
-
+async function submitForm(values: MyFormValues, native: boolean) {
   if (native) {
     return {
       errors: {},
     };
   }
 
-  const result = schema.safeParse(entries);
+  const result = schema.safeParse(values);
 
   if (!result.success) {
     return {
@@ -116,18 +111,11 @@ export default function Page() {
 
       <hr style={{ margin: '1rem 0' }} />
 
-      <Form
+      <Form<MyFormValues>
         className={styles.Form}
         errors={errors}
-        onClearErrors={setErrors}
-        onSubmit={async (event) => {
-          const response = await submitForm(
-            event,
-            {
-              numberField: numberFieldValueRef.current,
-            },
-            native,
-          );
+        onFormSubmit={async (values) => {
+          const response = await submitForm(values, native);
           setErrors(response.errors);
         }}
         validationMode={settings.validationMode}

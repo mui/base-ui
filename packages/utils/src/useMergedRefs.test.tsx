@@ -2,8 +2,8 @@ import * as React from 'react';
 import { expect } from 'chai';
 import { createRenderer, MuiRenderResult, screen } from '@mui/internal-test-utils';
 import { spy } from 'sinon';
-import { useMergedRefs } from './useMergedRefs';
 import { getReactElementRef } from './getReactElementRef';
+import { useMergedRefs } from './useMergedRefs';
 
 describe('useMergedRefs', () => {
   const { render } = createRenderer();

@@ -8,8 +8,8 @@ import {
   isLastTraversableNode,
   isWebKit,
 } from '@floating-ui/utils/dom';
-import { Timeout, useTimeout } from '@base-ui-components/utils/useTimeout';
-import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
+import { Timeout, useTimeout } from '@base-ui/utils/useTimeout';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import {
   contains,
   getDocument,
@@ -23,8 +23,10 @@ import {
 /* eslint-disable no-underscore-dangle */
 
 import { useFloatingTree } from '../components/FloatingTree';
-import type { ElementProps, FloatingRootContext } from '../types';
+import { FloatingTreeStore } from '../components/FloatingTreeStore';
+import type { ElementProps, FloatingContext, FloatingRootContext } from '../types';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
+import { REASONS } from '../../utils/reasons';
 import { createAttribute } from '../utils/createAttribute';
 
 type PressType = 'intentional' | 'sloppy';
@@ -113,6 +115,10 @@ export interface UseDismissProps {
    * floating elements.
    */
   bubbles?: boolean | { escapeKey?: boolean; outsidePress?: boolean };
+  /**
+   * External FlatingTree to use when the one provided by context can't be used.
+   */
+  externalTree?: FloatingTreeStore;
 }
 
 /**
@@ -121,10 +127,17 @@ export interface UseDismissProps {
  * @see https://floating-ui.com/docs/useDismiss
  */
 export function useDismiss(
-  context: FloatingRootContext,
+  context: FloatingRootContext | FloatingContext,
   props: UseDismissProps = {},
 ): ElementProps {
-  const { open, onOpenChange, elements, dataRef } = context;
+  const store = 'rootStore' in context ? context.rootStore : context;
+  const open = store.useState('open');
+  const floatingElement = store.useState('floatingElement');
+  const referenceElement = store.useState('referenceElement');
+  const domReferenceElement = store.useState('domReferenceElement');
+
+  const { onOpenChange, dataRef } = store.context;
+
   const {
     enabled = true,
     escapeKey = true,
@@ -134,9 +147,10 @@ export function useDismiss(
     referencePressEvent = 'sloppy',
     ancestorScroll = false,
     bubbles,
+    externalTree,
   } = props;
 
-  const tree = useFloatingTree();
+  const tree = useFloatingTree(externalTree);
   const outsidePressFn = useStableCallback(
     typeof outsidePressProp === 'function' ? outsidePressProp : () => false,
   );
@@ -215,9 +229,9 @@ export function useDismiss(
       }
 
       const native = isReactEvent(event) ? event.nativeEvent : event;
-      const eventDetails = createChangeEventDetails('escape-key', native);
+      const eventDetails = createChangeEventDetails(REASONS.escapeKey, native);
 
-      onOpenChange(false, eventDetails);
+      store.setOpen(false, eventDetails);
 
       if (!escapeKeyBubbles && !eventDetails.isPropagationAllowed) {
         event.stopPropagation();
@@ -260,10 +274,16 @@ export function useDismiss(
 
       const target = getTarget(event);
       const inertSelector = `[${createAttribute('inert')}]`;
-      const markers = getDocument(elements.floating).querySelectorAll(inertSelector);
+      const markers = getDocument(store.select('floatingElement')).querySelectorAll(inertSelector);
+
+      const triggers = store.context.triggerElements;
 
       // If another trigger is clicked, don't close the floating element.
-      if (target && elements.triggers?.some((trigger) => contains(trigger, target as Element))) {
+      if (
+        target &&
+        (triggers.hasElement(target as Element) ||
+          triggers.hasMatchingElement((trigger) => contains(trigger, target as Element)))
+      ) {
         return;
       }
 
@@ -284,7 +304,7 @@ export function useDismiss(
         isElement(target) &&
         !isRootElement(target) &&
         // Clicked on a direct ancestor (e.g. FloatingOverlay).
-        !contains(target, elements.floating) &&
+        !contains(target, store.select('floatingElement')) &&
         // If the target root element contains none of the markers, then the
         // element was injected after the floating element rendered.
         Array.from(markers).every((marker) => !contains(targetRootAncestor, marker))
@@ -335,8 +355,8 @@ export function useDismiss(
         );
 
       if (
-        isEventTargetWithin(event, elements.floating) ||
-        isEventTargetWithin(event, elements.domReference) ||
+        isEventTargetWithin(event, store.select('floatingElement')) ||
+        isEventTargetWithin(event, store.select('domReferenceElement')) ||
         targetIsInsideChildren
       ) {
         return;
@@ -357,7 +377,7 @@ export function useDismiss(
         }
       }
 
-      onOpenChange(false, createChangeEventDetails('outside-press', event));
+      store.setOpen(false, createChangeEventDetails(REASONS.outsidePress, event));
       clearInsideReactTree();
     },
   );
@@ -366,10 +386,10 @@ export function useDismiss(
     if (
       getOutsidePressEvent() !== 'sloppy' ||
       event.pointerType === 'touch' ||
-      !open ||
+      !store.select('open') ||
       !enabled ||
-      isEventTargetWithin(event, elements.floating) ||
-      isEventTargetWithin(event, elements.domReference)
+      isEventTargetWithin(event, store.select('floatingElement')) ||
+      isEventTargetWithin(event, store.select('domReferenceElement'))
     ) {
       return;
     }
@@ -380,10 +400,10 @@ export function useDismiss(
   const handleTouchStart = useStableCallback((event: TouchEvent) => {
     if (
       getOutsidePressEvent() !== 'sloppy' ||
-      !open ||
+      !store.select('open') ||
       !enabled ||
-      isEventTargetWithin(event, elements.floating) ||
-      isEventTargetWithin(event, elements.domReference)
+      isEventTargetWithin(event, store.select('floatingElement')) ||
+      isEventTargetWithin(event, store.select('domReferenceElement'))
     ) {
       return;
     }
@@ -451,8 +471,8 @@ export function useDismiss(
     if (
       getOutsidePressEvent() !== 'sloppy' ||
       !touchStateRef.current ||
-      isEventTargetWithin(event, elements.floating) ||
-      isEventTargetWithin(event, elements.domReference)
+      isEventTargetWithin(event, store.select('floatingElement')) ||
+      isEventTargetWithin(event, store.select('domReferenceElement'))
     ) {
       return;
     }
@@ -490,8 +510,8 @@ export function useDismiss(
     if (
       getOutsidePressEvent() !== 'sloppy' ||
       !touchStateRef.current ||
-      isEventTargetWithin(event, elements.floating) ||
-      isEventTargetWithin(event, elements.domReference)
+      isEventTargetWithin(event, store.select('floatingElement')) ||
+      isEventTargetWithin(event, store.select('domReferenceElement'))
     ) {
       return;
     }
@@ -524,7 +544,7 @@ export function useDismiss(
     const compositionTimeout = new Timeout();
 
     function onScroll(event: Event) {
-      onOpenChange(false, createChangeEventDetails('none', event));
+      store.setOpen(false, createChangeEventDetails(REASONS.none, event));
     }
 
     function handleCompositionStart() {
@@ -546,7 +566,7 @@ export function useDismiss(
       );
     }
 
-    const doc = getDocument(elements.floating);
+    const doc = getDocument(floatingElement);
 
     doc.addEventListener('pointerdown', trackPointerType, true);
 
@@ -568,20 +588,16 @@ export function useDismiss(
     let ancestors: (Element | Window | VisualViewport)[] = [];
 
     if (ancestorScroll) {
-      if (isElement(elements.domReference)) {
-        ancestors = getOverflowAncestors(elements.domReference);
+      if (isElement(domReferenceElement)) {
+        ancestors = getOverflowAncestors(domReferenceElement);
       }
 
-      if (isElement(elements.floating)) {
-        ancestors = ancestors.concat(getOverflowAncestors(elements.floating));
+      if (isElement(floatingElement)) {
+        ancestors = ancestors.concat(getOverflowAncestors(floatingElement));
       }
 
-      if (
-        !isElement(elements.reference) &&
-        elements.reference &&
-        elements.reference.contextElement
-      ) {
-        ancestors = ancestors.concat(getOverflowAncestors(elements.reference.contextElement));
+      if (!isElement(referenceElement) && referenceElement && referenceElement.contextElement) {
+        ancestors = ancestors.concat(getOverflowAncestors(referenceElement.contextElement));
       }
     }
 
@@ -618,7 +634,9 @@ export function useDismiss(
     };
   }, [
     dataRef,
-    elements,
+    floatingElement,
+    referenceElement,
+    domReferenceElement,
     escapeKey,
     outsidePress,
     open,
@@ -635,6 +653,7 @@ export function useDismiss(
     handleTouchMoveCapture,
     handleTouchEndCapture,
     trackPointerType,
+    store,
   ]);
 
   React.useEffect(clearInsideReactTree, [outsidePress, clearInsideReactTree]);
@@ -644,21 +663,24 @@ export function useDismiss(
       onKeyDown: closeOnEscapeKeyDown,
       ...(referencePress && {
         [bubbleHandlerKeys[referencePressEvent]]: (event: React.SyntheticEvent) => {
-          onOpenChange(false, createChangeEventDetails('trigger-press', event.nativeEvent as any));
+          store.setOpen(
+            false,
+            createChangeEventDetails(REASONS.triggerPress, event.nativeEvent as any),
+          );
         },
         ...(referencePressEvent !== 'intentional' && {
           onClick(event) {
-            onOpenChange(false, createChangeEventDetails('trigger-press', event.nativeEvent));
+            store.setOpen(false, createChangeEventDetails(REASONS.triggerPress, event.nativeEvent));
           },
         }),
       }),
     }),
-    [closeOnEscapeKeyDown, onOpenChange, referencePress, referencePressEvent],
+    [closeOnEscapeKeyDown, store, referencePress, referencePressEvent],
   );
 
   const handlePressedInside = useStableCallback((event: React.MouseEvent) => {
     const target = getTarget(event.nativeEvent) as Element | null;
-    if (!contains(elements.floating, target) || event.button !== 0) {
+    if (!contains(store.select('floatingElement'), target) || event.button !== 0) {
       return;
     }
     endedOrStartedInsideRef.current = true;
@@ -667,11 +689,17 @@ export function useDismiss(
   const floating: ElementProps['floating'] = React.useMemo(
     () => ({
       onKeyDown: closeOnEscapeKeyDown,
+
+      // `onMouseDown` may be blocked if `event.preventDefault()` is called in
+      // `onPointerDown`, such as with <NumberField.ScrubArea>.
+      // See https://github.com/mui/base-ui/pull/3379
+      onPointerDown: handlePressedInside,
       onMouseDown: handlePressedInside,
       onMouseUp: handlePressedInside,
-      onPointerDownCapture: markInsideReactTree,
-      onMouseDownCapture: markInsideReactTree,
+
       onClickCapture: markInsideReactTree,
+      onMouseDownCapture: markInsideReactTree,
+      onPointerDownCapture: markInsideReactTree,
       onMouseUpCapture: markInsideReactTree,
       onTouchEndCapture: markInsideReactTree,
       onTouchMoveCapture: markInsideReactTree,

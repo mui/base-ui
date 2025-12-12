@@ -12,10 +12,6 @@
       "type": "boolean",
       "detailedType": "boolean | undefined"
     },
-    "style": {
-      "type": "CSSProperties | ((state: Button.State) => CSSProperties | undefined)",
-      "detailedType": "| React.CSSProperties\n| ((state: Button.State) => CSSProperties | undefined)\n| undefined"
-    },
     "disabled": {
       "type": "boolean",
       "description": "Whether the button should ignore user interaction.",
@@ -25,6 +21,10 @@
       "type": "string | ((state: Button.State) => string | undefined)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
       "detailedType": "| string\n| ((state: Button.State) => string | undefined)"
+    },
+    "style": {
+      "type": "CSSProperties | ((state: Button.State) => CSSProperties | undefined)",
+      "detailedType": "| React.CSSProperties\n| ((state: Button.State) => CSSProperties | undefined)\n| undefined"
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: Button.State) => ReactElement)",

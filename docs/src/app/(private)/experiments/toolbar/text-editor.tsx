@@ -1,21 +1,21 @@
 'use client';
 import * as React from 'react';
-import { Toolbar } from '@base-ui-components/react/toolbar';
-import { Tooltip } from '@base-ui-components/react/tooltip';
-import { Toggle } from '@base-ui-components/react/toggle';
-import { ToggleGroup } from '@base-ui-components/react/toggle-group';
-import { Select } from '@base-ui-components/react/select';
-import { NumberField } from '@base-ui-components/react/number-field';
-import { Menu } from '@base-ui-components/react/menu';
+import { Toolbar } from '@base-ui/react/toolbar';
+import { Tooltip } from '@base-ui/react/tooltip';
+import { Toggle } from '@base-ui/react/toggle';
+import { ToggleGroup } from '@base-ui/react/toggle-group';
+import { Select } from '@base-ui/react/select';
+import { NumberField } from '@base-ui/react/number-field';
+import { Menu } from '@base-ui/react/menu';
 import {
   SettingsMetadata,
   useExperimentSettings,
 } from '../../../../components/Experiments/SettingsPanel';
 import toolbarClasses from './toolbar.module.css';
-import selectClasses from '../../../(public)/(content)/react/components/select/demos/hero/css-modules/index.module.css';
-import tooltipClasses from '../../../(public)/(content)/react/components/tooltip/demos/hero/css-modules/index.module.css';
-import menuClasses from '../../../(public)/(content)/react/components/menu/demos/submenu/css-modules/index.module.css';
-import numberFieldClasses from '../../../(public)/(content)/react/components/number-field/demos/hero/css-modules/index.module.css';
+import selectClasses from '../../../(docs)/react/components/select/demos/hero/css-modules/index.module.css';
+import tooltipClasses from '../../../(docs)/react/components/tooltip/demos/hero/css-modules/index.module.css';
+import menuClasses from '../../../(docs)/react/components/menu/demos/submenu/css-modules/index.module.css';
+import numberFieldClasses from '../../../(docs)/react/components/number-field/demos/hero/css-modules/index.module.css';
 import '../../../../demo-theme.css';
 import {
   BoldIcon,

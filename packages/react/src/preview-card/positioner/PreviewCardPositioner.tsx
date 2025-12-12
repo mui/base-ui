@@ -32,7 +32,7 @@ export const PreviewCardPositioner = React.forwardRef(function PreviewCardPositi
     collisionPadding = 5,
     arrowPadding = 5,
     sticky = false,
-    trackAnchor = true,
+    disableAnchorTracking = false,
     collisionAvoidance = POPUP_COLLISION_AVOIDANCE,
     ...elementProps
   } = componentProps;
@@ -53,7 +53,7 @@ export const PreviewCardPositioner = React.forwardRef(function PreviewCardPositi
     collisionBoundary,
     collisionPadding,
     sticky,
-    trackAnchor,
+    disableAnchorTracking,
     keepMounted,
     collisionAvoidance,
   });
@@ -127,7 +127,8 @@ export interface PreviewCardPositionerState {
 }
 
 export interface PreviewCardPositionerProps
-  extends useAnchorPositioning.SharedParameters,
+  extends
+    useAnchorPositioning.SharedParameters,
     BaseUIComponentProps<'div', PreviewCardPositioner.State> {}
 
 export namespace PreviewCardPositioner {

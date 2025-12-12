@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { expect } from 'chai';
 import { screen } from '@mui/internal-test-utils';
-import { Combobox } from '@base-ui-components/react/combobox';
+import { Combobox } from '@base-ui/react/combobox';
 import { createRenderer } from '#test-utils';
 
 describe('<Combobox.Value />', () => {
@@ -391,7 +391,7 @@ describe('<Combobox.Value />', () => {
         const bRef = React.useRef({ value: 'b', label: 'b' });
         const cRef = React.useRef<{ value: 'c'; label: string } | null>(null);
 
-        const [value, setValue] = React.useState(aRef.current);
+        const [value, setValue] = React.useState<typeof aRef.current | null>(aRef.current);
         const [items, setItems] = React.useState([aRef.current, bRef.current]);
 
         function updateItems() {

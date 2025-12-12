@@ -1,11 +1,12 @@
 'use client';
 import * as React from 'react';
-import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
-import { FloatingEvents } from '../../floating-ui-react';
+import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { useButton } from '../../use-button';
 import { mergeProps } from '../../merge-props';
 import { HTMLProps, BaseUIEvent } from '../../utils/types';
 import { useContextMenuRootContext } from '../../context-menu/root/ContextMenuRootContext';
+import { MenuStore } from '../store/MenuStore';
+import { REASONS } from '../../utils/reasons';
 
 export const REGULAR_ITEM = {
   type: 'regular-item' as const,
@@ -17,9 +18,7 @@ export function useMenuItem(params: useMenuItem.Parameters): useMenuItem.ReturnV
     disabled = false,
     highlighted,
     id,
-    menuEvents,
-    allowMouseUpTriggerRef,
-    typingRef,
+    store,
     nativeButton,
     itemMetadata,
     nodeId,
@@ -28,6 +27,7 @@ export function useMenuItem(params: useMenuItem.Parameters): useMenuItem.ReturnV
   const itemRef = React.useRef<HTMLElement | null>(null);
   const contextMenuContext = useContextMenuRootContext(true);
   const isContextMenu = contextMenuContext !== undefined;
+  const { events: menuEvents } = store.useState('floatingTreeRoot');
 
   const { getButtonProps, buttonRef } = useButton({
     disabled,
@@ -62,19 +62,32 @@ export function useMenuItem(params: useMenuItem.Parameters): useMenuItem.ReturnV
             itemMetadata.setActive();
           },
           onKeyUp(event: BaseUIEvent<React.KeyboardEvent>) {
-            if (event.key === ' ' && typingRef.current) {
+            if (event.key === ' ' && store.context.typingRef.current) {
               event.preventBaseUIHandler();
             }
           },
           onClick(event) {
             if (closeOnClick) {
-              menuEvents.emit('close', { domEvent: event, reason: 'item-press' });
+              menuEvents.emit('close', { domEvent: event, reason: REASONS.itemPress });
             }
           },
           onMouseUp(event) {
+            if (contextMenuContext) {
+              const initialCursorPoint = contextMenuContext.initialCursorPointRef.current;
+              contextMenuContext.initialCursorPointRef.current = null;
+              if (
+                isContextMenu &&
+                initialCursorPoint &&
+                Math.abs(event.clientX - initialCursorPoint.x) <= 1 &&
+                Math.abs(event.clientY - initialCursorPoint.y) <= 1
+              ) {
+                return;
+              }
+            }
+
             if (
               itemRef.current &&
-              allowMouseUpTriggerRef.current &&
+              store.context.allowMouseUpTriggerRef.current &&
               (!isContextMenu || event.button === 2)
             ) {
               // This fires whenever the user clicks on the trigger, moves the cursor, and releases it over the item.
@@ -93,11 +106,11 @@ export function useMenuItem(params: useMenuItem.Parameters): useMenuItem.ReturnV
       id,
       highlighted,
       getButtonProps,
-      typingRef,
       closeOnClick,
       menuEvents,
-      allowMouseUpTriggerRef,
+      store,
       isContextMenu,
+      contextMenuContext,
       itemMetadata,
       nodeId,
     ],
@@ -132,18 +145,6 @@ export interface UseMenuItemParameters {
    */
   id: string | undefined;
   /**
-   * The FloatingEvents instance of the menu's root.
-   */
-  menuEvents: FloatingEvents;
-  /**
-   * Whether to treat mouseup events as clicks.
-   */
-  allowMouseUpTriggerRef: React.RefObject<boolean>;
-  /**
-   * A ref that is set to `true` when the user is using the typeahead feature.
-   */
-  typingRef: React.RefObject<boolean>;
-  /**
    * Whether the component renders a native `<button>` element when replacing it
    * via the `render` prop.
    * Set to `false` if the rendered element is not a button (e.g. `<div>`).
@@ -158,6 +159,10 @@ export interface UseMenuItemParameters {
    * The node id of the menu positioner.
    */
   nodeId: string | undefined;
+  /**
+   * The menu store.
+   */
+  store: MenuStore<any>;
 }
 
 export type UseMenuItemMetadata =
@@ -165,7 +170,6 @@ export type UseMenuItemMetadata =
   | {
       type: 'submenu-trigger';
       setActive: () => void;
-      allowMouseEnterEnabled: boolean;
     };
 
 export interface UseMenuItemReturnValue {
@@ -178,7 +182,7 @@ export interface UseMenuItemReturnValue {
   /**
    * The ref to the component's root DOM element.
    */
-  itemRef: React.RefCallback<Element> | null;
+  itemRef: React.RefCallback<HTMLElement> | null;
 }
 
 export namespace useMenuItem {

@@ -34,8 +34,10 @@ export const MeterValue = React.forwardRef(function MeterValue(
   });
 });
 
-export interface MeterValueProps
-  extends Omit<BaseUIComponentProps<'span', MeterRoot.State>, 'children'> {
+export interface MeterValueProps extends Omit<
+  BaseUIComponentProps<'span', MeterRoot.State>,
+  'children'
+> {
   children?: null | ((formattedValue: string, value: number) => React.ReactNode);
 }
 

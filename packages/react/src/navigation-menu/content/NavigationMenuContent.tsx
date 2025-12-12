@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import { inertValue } from '@base-ui-components/utils/inertValue';
+import { inertValue } from '@base-ui/utils/inertValue';
 import { FloatingNode } from '../../floating-ui-react';
 import { contains, getTarget } from '../../floating-ui-react/utils';
 import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
@@ -51,7 +51,7 @@ export const NavigationMenuContent = React.forwardRef(function NavigationMenuCon
     currentContentRef,
     viewportTargetElement,
   } = useNavigationMenuRootContext();
-  const itemValue = useNavigationMenuItemContext();
+  const { value: itemValue } = useNavigationMenuItemContext();
   const nodeId = useNavigationMenuTreeContext();
 
   const open = popupMounted && value === itemValue;
@@ -151,8 +151,10 @@ export interface NavigationMenuContentState {
   activationDirection: 'left' | 'right' | 'up' | 'down' | null;
 }
 
-export interface NavigationMenuContentProps
-  extends BaseUIComponentProps<'div', NavigationMenuContent.State> {}
+export interface NavigationMenuContentProps extends BaseUIComponentProps<
+  'div',
+  NavigationMenuContent.State
+> {}
 
 export namespace NavigationMenuContent {
   export type State = NavigationMenuContentState;

@@ -12,10 +12,6 @@
       "description": "When `true` the item remains focuseable when disabled.",
       "detailedType": "boolean | undefined"
     },
-    "style": {
-      "type": "CSSProperties | ((state: Toolbar.Input.State) => CSSProperties | undefined)",
-      "detailedType": "| React.CSSProperties\n| ((\n    state: Toolbar.Input.State,\n  ) => CSSProperties | undefined)\n| undefined"
-    },
     "disabled": {
       "type": "boolean",
       "default": "false",
@@ -27,6 +23,10 @@
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
       "detailedType": "| string\n| ((state: Toolbar.Input.State) => string | undefined)"
     },
+    "style": {
+      "type": "CSSProperties | ((state: Toolbar.Input.State) => CSSProperties | undefined)",
+      "detailedType": "| React.CSSProperties\n| ((\n    state: Toolbar.Input.State,\n  ) => CSSProperties | undefined)\n| undefined"
+    },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: Toolbar.Input.State) => ReactElement)",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render.",
@@ -34,9 +34,6 @@
     }
   },
   "dataAttributes": {
-    "data-highlighted": {
-      "description": "Present when the input is the active item in the toolbar."
-    },
     "data-orientation": {
       "description": "Indicates the orientation of the toolbar.",
       "type": "'horizontal' | 'vertical'"

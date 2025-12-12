@@ -1,5 +1,6 @@
 import { DialogStore } from './DialogStore';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
+import { REASONS } from '../../utils/reasons';
 
 /**
  * A handle to control a Dialog imperatively and to associate detached triggers with it.
@@ -11,30 +12,34 @@ export class DialogHandle<Payload> {
    */
   public readonly store: DialogStore<Payload>;
 
-  constructor() {
-    this.store = new DialogStore<Payload>();
+  constructor(store?: DialogStore<Payload>) {
+    this.store = store ?? new DialogStore<Payload>();
   }
 
   /**
    * Opens the dialog and associates it with the trigger with the given id.
    * The trigger, if provided, must be a Dialog.Trigger component with this handle passed as a prop.
    *
+   * This method should only be called in an event handler or an effect (not during rendering).
+   *
    * @param triggerId ID of the trigger to associate with the dialog. If null, the dialog will open without a trigger association.
    */
   open(triggerId: string | null) {
     const triggerElement = triggerId
-      ? (this.store.state.triggers.get(triggerId) ?? undefined)
+      ? (this.store.context.triggerElements.getById(triggerId) as HTMLElement | undefined)
       : undefined;
 
-    if (process.env.NODE_ENV !== 'production' && triggerId && !triggerElement) {
-      console.warn(
-        `Base UI: DialogHandle.open: No trigger found with id "${triggerId}". The dialog will open, but the trigger will not be associated with the dialog.`,
-      );
+    if (process.env.NODE_ENV !== 'production') {
+      if (triggerId && !triggerElement) {
+        console.warn(
+          `Base UI: DialogHandle.open: No trigger found with id "${triggerId}". The dialog will open, but the trigger will not be associated with the dialog.`,
+        );
+      }
     }
 
     this.store.setOpen(
       true,
-      createChangeEventDetails('imperative-action', undefined, triggerElement),
+      createChangeEventDetails(REASONS.imperativeAction, undefined, triggerElement),
     );
   }
 
@@ -46,14 +51,20 @@ export class DialogHandle<Payload> {
    */
   openWithPayload(payload: Payload) {
     this.store.set('payload', payload);
-    this.store.setOpen(true, createChangeEventDetails('imperative-action', undefined, undefined));
+    this.store.setOpen(
+      true,
+      createChangeEventDetails(REASONS.imperativeAction, undefined, undefined),
+    );
   }
 
   /**
    * Closes the dialog.
    */
   close() {
-    this.store.setOpen(false, createChangeEventDetails('imperative-action', undefined, undefined));
+    this.store.setOpen(
+      false,
+      createChangeEventDetails(REASONS.imperativeAction, undefined, undefined),
+    );
   }
 
   /**

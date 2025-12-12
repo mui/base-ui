@@ -2,8 +2,8 @@ import * as React from 'react';
 import { expect } from 'chai';
 import { screen, act } from '@mui/internal-test-utils';
 import sinon from 'sinon';
-import { NumberField } from '@base-ui-components/react/number-field';
-import { isWebKit } from '@base-ui-components/utils/detectBrowser';
+import { NumberField } from '@base-ui/react/number-field';
+import { isWebKit } from '@base-ui/utils/detectBrowser';
 import { createRenderer, describeConformance } from '#test-utils';
 import { NumberFieldScrubAreaContext } from '../scrub-area/NumberFieldScrubAreaContext';
 
@@ -71,6 +71,39 @@ describe.skipIf(isWebKit)('<NumberField.ScrubAreaCursor />', () => {
       });
 
       expect(screen.queryByTestId('scrub-area-cursor')).not.to.equal(null);
+    } finally {
+      Element.prototype.requestPointerLock = originalRequestPointerLock;
+    }
+  });
+
+  it('only renders a cursor for the active scrub area', async () => {
+    const originalRequestPointerLock = Element.prototype.requestPointerLock;
+
+    try {
+      Element.prototype.requestPointerLock = sinon.stub().resolves();
+
+      const { user } = await render(
+        <NumberField.Root>
+          <NumberField.Input />
+          <NumberField.ScrubArea data-testid="scrub-area-1">
+            <NumberField.ScrubAreaCursor data-testid="scrub-area-cursor" />
+          </NumberField.ScrubArea>
+          <NumberField.ScrubArea data-testid="scrub-area-2">
+            <NumberField.ScrubAreaCursor data-testid="scrub-area-cursor" />
+          </NumberField.ScrubArea>
+        </NumberField.Root>,
+      );
+
+      const firstScrubArea = screen.getByTestId('scrub-area-1');
+
+      await act(async () => {
+        await user.pointer({ target: firstScrubArea, keys: '[MouseLeft>]', pointerName: 'mouse' });
+        await new Promise((resolve) => {
+          setTimeout(resolve, 25);
+        });
+      });
+
+      expect(screen.queryAllByTestId('scrub-area-cursor')).to.have.length(1);
     } finally {
       Element.prototype.requestPointerLock = originalRequestPointerLock;
     }

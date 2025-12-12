@@ -12,8 +12,4 @@ export enum ToolbarInputDataAttributes {
    * Present when the input remains focusable when disabled.
    */
   focusable = 'data-focusable',
-  /**
-   * Present when the input is the active item in the toolbar.
-   */
-  highlighted = 'data-highlighted',
 }

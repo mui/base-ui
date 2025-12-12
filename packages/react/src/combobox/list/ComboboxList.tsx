@@ -1,8 +1,7 @@
 'use client';
 import * as React from 'react';
-import { useStore } from '@base-ui-components/utils/store';
-import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
-import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
+import { useStore } from '@base-ui/utils/store';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import {
@@ -36,7 +35,6 @@ export const ComboboxList = React.forwardRef(function ComboboxList(
   const listRef = useStore(store, selectors.listRef);
   const selectionMode = useStore(store, selectors.selectionMode);
   const grid = useStore(store, selectors.grid);
-  const popupRef = useStore(store, selectors.popupRef);
   const popupProps = useStore(store, selectors.popupProps);
   const disabled = useStore(store, selectors.disabled);
   const readOnly = useStore(store, selectors.readOnly);
@@ -52,18 +50,6 @@ export const ComboboxList = React.forwardRef(function ComboboxList(
   const setListElement = useStableCallback((element) => {
     store.set('listElement', element);
   });
-
-  useIsoLayoutEffect(() => {
-    // Only force inline mode when there is no Positioner AND no Popup present
-    if (hasPositionerContext || popupRef.current) {
-      return undefined;
-    }
-
-    store.set('inline', true);
-    return () => {
-      store.set('inline', false);
-    };
-  }, [hasPositionerContext, store, popupRef]);
 
   // Support "closed template" API: if children is a function, implicitly wrap it
   // with a Combobox.Collection that reads items from context/root.
@@ -83,6 +69,8 @@ export const ComboboxList = React.forwardRef(function ComboboxList(
     [empty],
   );
 
+  const floatingId = floatingRootContext.useState('floatingId');
+
   const element = useRenderElement('div', componentProps, {
     state,
     ref: [forwardedRef, setListElement, hasPositionerContext ? null : setPositionerElement],
@@ -91,7 +79,7 @@ export const ComboboxList = React.forwardRef(function ComboboxList(
       {
         children: resolvedChildren,
         tabIndex: -1,
-        id: floatingRootContext.floatingId,
+        id: floatingId,
         role: grid ? 'grid' : 'listbox',
         'aria-multiselectable': multiple ? 'true' : undefined,
         onKeyDown(event) {
@@ -148,8 +136,10 @@ export interface ComboboxListState {
   empty: boolean;
 }
 
-export interface ComboboxListProps
-  extends Omit<BaseUIComponentProps<'div', ComboboxList.State>, 'children'> {
+export interface ComboboxListProps extends Omit<
+  BaseUIComponentProps<'div', ComboboxList.State>,
+  'children'
+> {
   children?: React.ReactNode | ((item: any, index: number) => React.ReactNode);
 }
 

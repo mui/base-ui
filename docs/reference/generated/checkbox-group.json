@@ -22,10 +22,6 @@
       "description": "Names of all checkboxes in the group. Use this when creating a parent checkbox.",
       "detailedType": "string[] | undefined"
     },
-    "style": {
-      "type": "CSSProperties | ((state: CheckboxGroup.State) => CSSProperties | undefined)",
-      "detailedType": "| React.CSSProperties\n| ((\n    state: CheckboxGroup.State,\n  ) => CSSProperties | undefined)\n| undefined"
-    },
     "disabled": {
       "type": "boolean",
       "default": "false",
@@ -36,6 +32,10 @@
       "type": "string | ((state: CheckboxGroup.State) => string | undefined)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
       "detailedType": "| string\n| ((state: CheckboxGroup.State) => string | undefined)"
+    },
+    "style": {
+      "type": "CSSProperties | ((state: CheckboxGroup.State) => CSSProperties | undefined)",
+      "detailedType": "| React.CSSProperties\n| ((\n    state: CheckboxGroup.State,\n  ) => CSSProperties | undefined)\n| undefined"
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: CheckboxGroup.State) => ReactElement)",

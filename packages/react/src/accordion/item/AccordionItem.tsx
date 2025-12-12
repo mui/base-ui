@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
-import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
-import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useCollapsibleRoot } from '../../collapsible/root/useCollapsibleRoot';
@@ -13,7 +13,8 @@ import { useAccordionRootContext } from '../root/AccordionRootContext';
 import { AccordionItemContext } from './AccordionItemContext';
 import { accordionStateAttributesMapping } from './stateAttributesMapping';
 import { useRenderElement } from '../../utils/useRenderElement';
-import type { BaseUIChangeEventDetails } from '../../utils/createBaseUIEventDetails';
+import { type BaseUIChangeEventDetails } from '../../utils/createBaseUIEventDetails';
+import { REASONS } from '../../utils/reasons';
 
 /**
  * Groups an accordion header with the corresponding panel.
@@ -145,7 +146,8 @@ export interface AccordionItemState extends AccordionRoot.State {
 }
 
 export interface AccordionItemProps
-  extends BaseUIComponentProps<'div', AccordionItem.State>,
+  extends
+    BaseUIComponentProps<'div', AccordionItem.State>,
     Partial<Pick<useCollapsibleRoot.Parameters, 'disabled'>> {
   /**
    * A unique value that identifies this accordion item.
@@ -167,7 +169,7 @@ export interface AccordionItemProps
   onOpenChange?: (open: boolean, eventDetails: AccordionItem.ChangeEventDetails) => void;
 }
 
-export type AccordionItemChangeEventReason = 'trigger-press' | 'none';
+export type AccordionItemChangeEventReason = typeof REASONS.triggerPress | typeof REASONS.none;
 
 export type AccordionItemChangeEventDetails =
   BaseUIChangeEventDetails<AccordionItem.ChangeEventReason>;

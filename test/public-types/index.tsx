@@ -1,6 +1,6 @@
 import * as React from 'react';
-import { Menu } from '@base-ui-components/react/menu';
-import { Toast } from '@base-ui-components/react/toast';
+import { Menu } from '@base-ui/react/menu';
+import { Toast } from '@base-ui/react/toast';
 import type { CheckboxProps } from './checkbox';
 import type { SeparatorProps } from './separator';
 import type { SimpleAutocompleteProps } from './autocomplete';
@@ -15,9 +15,9 @@ import type {
 } from './menu';
 import type {
   ToastCreateManagerReturn,
+  ToastManagerReturnValue,
   ToastManagerAddOptions,
   ToastManagerPromiseOptions,
-  ToastManagerReturn,
   ToastManagerUpdateOptions,
   ToastProviderProps,
 } from './toast';
@@ -73,7 +73,7 @@ export const SimpleMenu = React.forwardRef<HTMLDivElement, SimpleMenuProps>(func
   );
 });
 
-function exerciseToastManager(manager: ToastManagerReturn) {
+function exerciseToastManager(manager: ToastManagerReturnValue) {
   const id = manager.add({ title: 'Toast', description: 'Created' });
   manager.update(id, { description: 'Updated description', timeout: 4000 });
   const promiseOptions: ToastManagerPromiseOptions<string, { info: string }> = {

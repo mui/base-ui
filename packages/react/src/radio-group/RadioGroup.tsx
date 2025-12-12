@@ -1,26 +1,27 @@
 'use client';
 import * as React from 'react';
-import { useControlled } from '@base-ui-components/utils/useControlled';
-import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
-import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
-import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
-import { visuallyHidden } from '@base-ui-components/utils/visuallyHidden';
+import { useControlled } from '@base-ui/utils/useControlled';
+import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { visuallyHidden } from '@base-ui/utils/visuallyHidden';
+import { NOOP } from '../utils/noop';
 import type { BaseUIComponentProps, HTMLProps } from '../utils/types';
 import { useBaseUiId } from '../utils/useBaseUiId';
 import { contains } from '../floating-ui-react/utils';
 import { SHIFT } from '../composite/composite';
 import { CompositeRoot } from '../composite/root/CompositeRoot';
-import { useFormContext } from '../form/FormContext';
 import { useField } from '../field/useField';
 import { useFieldRootContext } from '../field/root/FieldRootContext';
-import { useLabelableContext } from '../labelable-provider/LabelableContext';
-import { useFieldControlValidation } from '../field/control/useFieldControlValidation';
 import { fieldValidityMapping } from '../field/utils/constants';
 import type { FieldRoot } from '../field/root/FieldRoot';
+import { useFieldsetRootContext } from '../fieldset/root/FieldsetRootContext';
+import { useFormContext } from '../form/FormContext';
+import { useLabelableContext } from '../labelable-provider/LabelableContext';
 import { mergeProps } from '../merge-props';
-
+import { useValueChanged } from '../utils/useValueChanged';
 import { RadioGroupContext } from './RadioGroupContext';
-import { type BaseUIChangeEventDetails } from '../utils/createBaseUIEventDetails';
+import type { BaseUIChangeEventDetails } from '../utils/createBaseUIEventDetails';
+import { REASONS } from '../utils/reasons';
 
 const MODIFIER_KEYS = [SHIFT];
 
@@ -57,10 +58,14 @@ export const RadioGroup = React.forwardRef(function RadioGroup(
     name: fieldName,
     disabled: fieldDisabled,
     state: fieldState,
+    validation,
+    setDirty,
+    setFilled,
+    validityData,
   } = useFieldRootContext();
   const { labelId } = useLabelableContext();
-  const fieldControlValidation = useFieldControlValidation();
   const { clearErrors } = useFormContext();
+  const fieldsetContext = useFieldsetRootContext(true);
 
   const disabled = fieldDisabled || disabledProp;
   const name = fieldName ?? nameProp;
@@ -96,39 +101,25 @@ export const RadioGroup = React.forwardRef(function RadioGroup(
 
   useField({
     id,
-    commitValidation: fieldControlValidation.commitValidation,
+    commit: validation.commit,
     value: checkedValue,
     controlRef,
     name,
     getValue: () => checkedValue ?? null,
   });
 
-  const prevValueRef = React.useRef(checkedValue);
-
-  useIsoLayoutEffect(() => {
-    if (prevValueRef.current === checkedValue) {
-      return;
-    }
-
+  useValueChanged(checkedValue, () => {
     clearErrors(name);
 
-    if (shouldValidateOnChange()) {
-      fieldControlValidation.commitValidation(checkedValue);
-    } else {
-      fieldControlValidation.commitValidation(checkedValue, true);
-    }
-  }, [
-    name,
-    clearErrors,
-    shouldValidateOnChange,
-    validationMode,
-    checkedValue,
-    fieldControlValidation,
-  ]);
+    setDirty(checkedValue !== validityData.initialValue);
+    setFilled(checkedValue != null);
 
-  useIsoLayoutEffect(() => {
-    prevValueRef.current = checkedValue;
-  }, [checkedValue]);
+    if (shouldValidateOnChange()) {
+      validation.commit(checkedValue);
+    } else {
+      validation.commit(checkedValue, true);
+    }
+  });
 
   const [touched, setTouched] = React.useState(false);
 
@@ -138,7 +129,7 @@ export const RadioGroup = React.forwardRef(function RadioGroup(
       setFocused(false);
 
       if (validationMode === 'onBlur') {
-        fieldControlValidation.commitValidation(checkedValue);
+        validation.commit(checkedValue);
       }
     }
   });
@@ -161,7 +152,7 @@ export const RadioGroup = React.forwardRef(function RadioGroup(
     return JSON.stringify(checkedValue);
   }, [checkedValue]);
 
-  const mergedInputRef = useMergedRefs(fieldControlValidation.inputRef, inputRefProp);
+  const mergedInputRef = useMergedRefs(validation.inputRef, inputRefProp);
 
   const inputProps = mergeProps<'input'>(
     {
@@ -172,14 +163,16 @@ export const RadioGroup = React.forwardRef(function RadioGroup(
       disabled,
       readOnly,
       required,
+      'aria-labelledby': elementProps['aria-labelledby'] ?? fieldsetContext?.legendId,
       'aria-hidden': true,
       tabIndex: -1,
       style: visuallyHidden,
+      onChange: NOOP, // suppress a Next.js error
       onFocus() {
         controlRef.current?.focus();
       },
     },
-    fieldControlValidation.getInputValidationProps,
+    validation.getInputValidationProps,
   );
 
   const state: RadioGroup.State = React.useMemo(
@@ -197,7 +190,7 @@ export const RadioGroup = React.forwardRef(function RadioGroup(
       ...fieldState,
       checkedValue,
       disabled,
-      fieldControlValidation,
+      validation,
       name,
       onValueChange,
       readOnly,
@@ -210,7 +203,7 @@ export const RadioGroup = React.forwardRef(function RadioGroup(
     [
       checkedValue,
       disabled,
-      fieldControlValidation,
+      validation,
       fieldState,
       name,
       onValueChange,
@@ -242,7 +235,7 @@ export const RadioGroup = React.forwardRef(function RadioGroup(
         render={render}
         className={className}
         state={state}
-        props={[defaultProps, fieldControlValidation.getValidationProps, elementProps]}
+        props={[defaultProps, validation.getValidationProps, elementProps]}
         refs={[forwardedRef]}
         stateAttributesMapping={fieldValidityMapping}
         enableHomeAndEndKeys={false}
@@ -260,8 +253,10 @@ export interface RadioGroupState extends FieldRoot.State {
   readOnly: boolean | undefined;
 }
 
-export interface RadioGroupProps
-  extends Omit<BaseUIComponentProps<'div', RadioGroup.State>, 'value'> {
+export interface RadioGroupProps extends Omit<
+  BaseUIComponentProps<'div', RadioGroup.State>,
+  'value'
+> {
   /**
    * Whether the component should ignore user interaction.
    * @default false
@@ -303,7 +298,7 @@ export interface RadioGroupProps
   inputRef?: React.Ref<HTMLInputElement>;
 }
 
-export type RadioGroupChangeEventReason = 'none';
+export type RadioGroupChangeEventReason = typeof REASONS.none;
 
 export type RadioGroupChangeEventDetails = BaseUIChangeEventDetails<RadioGroup.ChangeEventReason>;
 
