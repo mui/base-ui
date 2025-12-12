@@ -58,7 +58,8 @@ const config: UserWorkspaceConfig = {
     env: {
       VITEST: 'true',
     },
-    retry: 1,
+    // Avoid committing tests that influence their own retry
+    retry: process.env.CI ? 1 : 0,
   },
   resolve: viteConfig.resolve,
 };
