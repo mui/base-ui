@@ -6,7 +6,7 @@ import {
   SettingsMetadata,
   useExperimentSettings,
 } from 'docs/src/components/Experiments/SettingsPanel';
-import demoStyles from 'docs/src/app/(docs)/(content)/react/components/tooltip/demos/detached-triggers-full/css-modules/index.module.css';
+import demoStyles from 'docs/src/app/(docs)/react/components/tooltip/demos/detached-triggers-full/css-modules/index.module.css';
 import styles from './tooltips.module.css';
 
 const tooltip1Handle = Tooltip.createHandle<string>();

@@ -8,7 +8,7 @@ interface LinkProps extends React.ComponentProps<typeof NextLink> {
 }
 
 export function Link(props: LinkProps) {
-  const { href, className, skipExternalIcon } = props;
+  const { href, className, skipExternalIcon, ...rest } = props;
   let pathname = typeof href === 'string' ? href : href.pathname!;
 
   // Sometimes link come from component descriptions; in this case, remove the domain
@@ -21,7 +21,7 @@ export function Link(props: LinkProps) {
       <NextLink
         target="_blank"
         rel="noopener"
-        {...props}
+        {...rest}
         href={href}
         className={clsx('Link mr-[0.125em] inline-flex items-center gap-[0.25em]', className)}
       >
@@ -33,8 +33,8 @@ export function Link(props: LinkProps) {
 
   if (pathname.endsWith('.md') || pathname.endsWith('.txt')) {
     // Relative URL, but outside the Next.js router
-    return <a {...props} href={pathname} className={clsx('Link', className)} />;
+    return <a {...rest} href={pathname} className={clsx('Link', className)} />;
   }
 
-  return <NextLink {...props} className={clsx('Link', className)} />;
+  return <NextLink {...rest} href={href} className={clsx('Link', className)} />;
 }
