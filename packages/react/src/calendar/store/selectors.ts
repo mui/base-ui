@@ -3,6 +3,7 @@ import { TemporalSupportedObject, TemporalSupportedValue } from '../../types/tem
 import { validateDate } from '../../utils/temporal/validateDate';
 import { getInitialReferenceDate } from '../../utils/temporal/getInitialReferenceDate';
 import { CalendarNavigationDirection, SharedCalendarState as State } from './SharedCalendarState';
+import { TemporalAdapter } from '../../types';
 
 const timezoneToRenderSelector = createSelectorMemoized(
   (state: State) => state.adapter,
@@ -170,6 +171,66 @@ const publicContextSelector = createSelectorMemoized(visibleDateSelector, (visib
   visibleDate,
 }));
 
+const getMonthKey = (adapter: TemporalAdapter, date: TemporalSupportedObject) =>
+  adapter.formatByString(date, `${adapter.formats.monthPadded}-${adapter.formats.yearPadded}`);
+
+const getDateKey = (adapter: TemporalAdapter, date: TemporalSupportedObject) =>
+  adapter.format(date, 'localizedNumericDate');
+
+const tabbableCellsPerMonthSelector = createSelectorMemoized(
+  (state: State) => state.adapter,
+  selectedDatesSelector,
+  referenceDateSelector,
+  (adapter, selectedDates, referenceDate) => {
+    const months = new Map<string, Set<string>>();
+
+    // Each month that contains selected dates has these selected dates as tabbable cells.
+    for (const date of selectedDates) {
+      const monthKey = getMonthKey(adapter, date);
+      if (!months.has(monthKey)) {
+        months.set(monthKey, new Set());
+      }
+      months.get(monthKey)!.add(getDateKey(adapter, date));
+    }
+
+    // If the month containing the reference dates has no selected dates, then the reference date will be tabbable in this month.
+    const referenceDateMonthKey = getMonthKey(adapter, referenceDate);
+    if (!months.has(referenceDateMonthKey)) {
+      months.set(referenceDateMonthKey, new Set([getDateKey(adapter, referenceDate)]));
+    }
+
+    return months;
+  },
+);
+
+const isDayButtonTabbableSelector = createSelector(
+  tabbableCellsPerMonthSelector,
+  (state: State) => state.adapter,
+  (
+    tabbableCellsPerMonth,
+    adapter,
+    date: TemporalSupportedObject,
+    month: TemporalSupportedObject,
+  ) => {
+    // If the date is not in the current month, it cannot be tabbable.
+    if (!adapter.isSameMonth(date, month)) {
+      return false;
+    }
+
+    const monthKey = getMonthKey(adapter, date);
+
+    // If the month has registed tabbable cells, we check if the date is one of them.
+    if (tabbableCellsPerMonth.has(monthKey)) {
+      const dateKey = getDateKey(adapter, date);
+      return tabbableCellsPerMonth.get(monthKey)!.has(dateKey);
+    }
+
+    // Otherwise, only the first day of the month is tabbable.
+    const firstDayOfMonth = adapter.startOfMonth(date);
+    return adapter.isSameDay(date, firstDayOfMonth);
+  },
+);
+
 export const selectors = {
   /**
    * Returns the state of the root element.
@@ -230,6 +291,10 @@ export const selectors = {
    * Checks if a month navigation button should be disabled.
    */
   isSetMonthButtonDisabled: isSetMonthButtonDisabledSelector,
+  /**
+   * Checks if a day should be reachable using tab navigation.
+   */
+  isDayButtonTabbable: isDayButtonTabbableSelector,
 };
 
 export interface CalendarRootElementState {

@@ -35,8 +35,6 @@ export function useSharedCalendarDayGridBody(
   const adapter = useTemporalAdapter();
   const store = useSharedCalendarRootContext();
   const visibleMonth = useStore(store, selectors.visibleMonth);
-  const referenceDate = useStore(store, selectors.referenceDate);
-  const selectedDates = useStore(store, selectors.selectedDates);
   const ref = React.useRef<HTMLDivElement>(null);
   const [highlightedIndex, setHighlightedIndex] = React.useState(0);
   const executeAfterItemMapUpdate = React.useRef<(newMap: any) => void>(null);
@@ -45,44 +43,13 @@ export function useSharedCalendarDayGridBody(
     return offset === 0 ? visibleMonth : adapter.addMonths(visibleMonth, offset);
   }, [adapter, visibleMonth, offset]);
 
-  React.useEffect(() => {
-    return store.registerDayGrid(month);
-  }, [store, month]);
+  React.useEffect(() => store.registerDayGrid(month), [store, month]);
 
   const getWeekList = useCalendarWeekList();
   const weeks = React.useMemo(
     () => getWeekList({ date: month, amount: fixedWeekNumber ?? 'end-of-month' }),
     [getWeekList, month, fixedWeekNumber],
   );
-
-  const canCellBeTabbed = React.useMemo(() => {
-    let tabbableCells: TemporalSupportedObject[];
-
-    const selectedAndVisibleDays = selectedDates.filter((selectedDate) =>
-      adapter.isSameMonth(selectedDate, month),
-    );
-
-    // If some selected dates are in the current month, we use them as tabbable cells
-    if (selectedAndVisibleDays.length > 0) {
-      tabbableCells = selectedAndVisibleDays;
-    }
-    // If the current date in this month is selected, we use it as the tabbable cell.
-    else if (adapter.isSameMonth(referenceDate, month)) {
-      tabbableCells = [referenceDate];
-    }
-    // Otherwise, we use the first day of the month as the tabbable cell.
-    else {
-      tabbableCells = [month];
-    }
-
-    const format = `${adapter.formats.yearPadded}/${adapter.formats.monthPadded}/${adapter.formats.dayOfMonth}`;
-    const formattedTabbableCells = new Set(
-      tabbableCells.map((day) => adapter.formatByString(day, format)),
-    );
-
-    return (date: TemporalSupportedObject) =>
-      formattedTabbableCells.has(adapter.formatByString(date, format));
-  }, [adapter, referenceDate, selectedDates, month]);
 
   const resolvedChildren = React.useMemo(() => {
     if (!React.isValidElement(children) && typeof children === 'function') {
@@ -295,10 +262,7 @@ export function useSharedCalendarDayGridBody(
     children: resolvedChildren,
   };
 
-  const context: SharedCalendarDayGridBodyContext = React.useMemo(
-    () => ({ month, canCellBeTabbed }),
-    [month, canCellBeTabbed],
-  );
+  const context: SharedCalendarDayGridBodyContext = React.useMemo(() => ({ month }), [month]);
 
   return { props, compositeRootProps, context, ref };
 }

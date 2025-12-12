@@ -6,12 +6,6 @@ export interface SharedCalendarDayGridBodyContext {
    * The month of this component.
    */
   month: TemporalSupportedObject;
-  /**
-   * Return true if the day should be reachable using tab navigation.
-   * @param {TemporalSupportedObject} day The day to check.
-   * @returns {boolean} Whether the day should be reachable using tab navigation.
-   */
-  canCellBeTabbed: (day: TemporalSupportedObject) => boolean;
 }
 
 export const SharedCalendarDayGridBodyContext = React.createContext<

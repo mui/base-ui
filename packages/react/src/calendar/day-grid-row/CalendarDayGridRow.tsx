@@ -22,10 +22,7 @@ export const CalendarDayGridRow = React.forwardRef(function CalendarDayGridRow(
   const store = useSharedCalendarRootContext();
   const days = React.useMemo(() => getDayList({ date: value, amount: 7 }), [getDayList, value]);
 
-  React.useEffect(() => {
-    const unregister = store.registerCurrentMonthDayGrid(value, days);
-    return () => unregister();
-  }, [store, days, value]);
+  React.useEffect(() => store.registerCurrentMonthDayGrid(value, days), [store, days, value]);
 
   const resolvedChildren = React.useMemo(() => {
     if (!React.isValidElement(children) && typeof children === 'function') {

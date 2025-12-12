@@ -48,7 +48,7 @@ const InnerCalendarDayButton = React.forwardRef(function InnerCalendarDayButton(
   } = componentProps;
 
   const store = useSharedCalendarRootContext();
-  const { canCellBeTabbed } = useSharedCalendarDayGridBodyContext();
+  const { month } = useSharedCalendarDayGridBodyContext();
   const {
     isDisabled: isCellDisabled,
     isUnavailable,
@@ -56,13 +56,12 @@ const InnerCalendarDayButton = React.forwardRef(function InnerCalendarDayButton(
     value,
   } = useCalendarDayGridCellContext();
   const isSelected = useStore(store, selectors.isDayButtonSelected, value);
+  const isTabbable = useStore(store, selectors.isDayButtonTabbable, value, month);
 
   const isCurrent = React.useMemo(
     () => adapter.isSameDay(value, adapter.now(adapter.getTimezone(value))),
     [adapter, value],
   );
-
-  const isTabbable = React.useMemo(() => canCellBeTabbed(value), [canCellBeTabbed, value]);
 
   const formattedDate = React.useMemo(
     () => adapter.format(value, 'localizedDateWithFullMonthAndWeekDay'),
