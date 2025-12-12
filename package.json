@@ -70,7 +70,7 @@
     "@types/node": "~22.18.13",
     "@types/react": "^19.2.7",
     "@types/yargs": "^17.0.35",
-    "@vitejs/plugin-react": "^5.1.1",
+    "@vitejs/plugin-react": "^5.1.2",
     "@vitest/browser-playwright": "^4.0.15",
     "@vitest/coverage-istanbul": "4.0.15",
     "@vitest/ui": "4.0.15",
@@ -84,7 +84,7 @@
     "execa": "^9.6.1",
     "globby": "^16.0.0",
     "lerna": "^9.0.3",
-    "markdownlint-cli2": "^0.19.1",
+    "markdownlint-cli2": "^0.20.0",
     "prettier": "~3.7.4",
     "pretty-quick": "^4.2.2",
     "publint": "^0.3.15",
@@ -99,13 +99,13 @@
     "terser": "^5.44.1",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3",
-    "vite": "^7.2.6",
+    "vite": "^7.2.7",
     "vitest": "^4.0.15",
     "yargs": "^18.0.0"
   },
-  "packageManager": "pnpm@10.24.0",
+  "packageManager": "pnpm@10.25.0",
   "engines": {
-    "pnpm": "10.24.0",
+    "pnpm": "10.25.0",
     "node": ">=22.18.0"
   },
   "resolutions": {
