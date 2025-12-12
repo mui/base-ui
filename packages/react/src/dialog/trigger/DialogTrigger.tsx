@@ -40,14 +40,16 @@ export const DialogTrigger = React.forwardRef(function DialogTrigger(
     );
   }
 
-  const thisTriggerId = useBaseUiId(idProp);
+  const triggerId = useBaseUiId(idProp);
   const floatingContext = store.useState('floatingRootContext');
-  const isOpenedByThisTrigger = store.useState('isOpenedByTrigger', thisTriggerId);
+  const isOpenedByThisTrigger = store.useState('isOpenedByTrigger', triggerId);
 
   const triggerElementRef = React.useRef<HTMLElement | null>(null);
 
-  const { registerTrigger, isMountedByThisTrigger } = useTriggerDataForwarding(
-    thisTriggerId,
+  const isMountedByThisTrigger = store.useState('isMountedByTrigger', triggerId);
+  const registerTrigger = useTriggerDataForwarding(
+    isMountedByThisTrigger,
+    triggerId,
     triggerElementRef,
     store,
     {
@@ -80,7 +82,7 @@ export const DialogTrigger = React.forwardRef(function DialogTrigger(
     props: [
       localInteractionProps.getReferenceProps(),
       rootTriggerProps,
-      { [CLICK_TRIGGER_IDENTIFIER as string]: '', id: thisTriggerId },
+      { [CLICK_TRIGGER_IDENTIFIER as string]: '', id: triggerId },
       elementProps,
       getButtonProps,
     ],

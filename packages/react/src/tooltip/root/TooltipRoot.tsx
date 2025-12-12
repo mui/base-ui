@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
+import { useLazyHandle } from '@base-ui/utils/useLazyHandle';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { TooltipRootContext } from './TooltipRootContext';
 import { useClientPoint, useDismiss, useFocus, useInteractions } from '../../floating-ui-react';
@@ -16,33 +16,6 @@ import {
 import { TooltipStore } from '../store/TooltipStore';
 import { type TooltipHandle } from '../store/TooltipHandle';
 import { REASONS } from '../../utils/reasons';
-
-function useLazyHandle(activate = false) {
-  const [isActivated, setIsActivated] = React.useState(activate);
-
-  const context = useRefWithInit(() => {
-    function PhantomComponent({ effects }: { effects: Array<() => void> }) {
-      effects.forEach((effect) => effect());
-      return null;
-    }
-
-    const context = {
-      activate: () => {
-        setIsActivated(true);
-      },
-      use: (effect: () => void) => {
-        context.effects.push(effect);
-      },
-      render: () => (isActivated ? <PhantomComponent effects={context.effects} /> : null),
-      effects: [] as Array<() => void>,
-    };
-    context.effects = [];
-
-    return context;
-  }).current;
-
-  return context;
-}
 
 /**
  * Groups all parts of the tooltip.
