@@ -1061,8 +1061,9 @@ describe('useListNavigation', () => {
   it('selectedIndex changing does not steal focus', async () => {
     render(<ListboxFocus />);
 
-    // Initial focus is set in requestAnimationFrame and we need to wait for it
-    // beforeclicking the reference to avoid interferrence.
+    // TODO: This feels like a bug. It's the animation frame callback from `enqueueFocus` sometimes
+    // kicking in after the click instead before, which causes flakeyness in this test as the wrong
+    // element will be focused.
     await waitFor(() => {
       expect(document.activeElement).toHaveRole('option');
     });
