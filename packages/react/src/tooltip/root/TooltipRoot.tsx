@@ -143,11 +143,11 @@ export function TooltipRoot<Payload>(props: TooltipRoot.Props<Payload>) {
     [forceUnmount, handleImperativeClose],
   );
 
-  const floatingContext = store.useState('floatingRootContext');
+  const floatingRootContext = store.useState('floatingRootContext');
 
-  const focus = useFocus(floatingContext, { enabled: !disabled });
-  const dismiss = useDismiss(floatingContext, { enabled: !disabled, referencePress: true });
-  const clientPoint = useClientPoint(floatingContext, {
+  const focus = useFocus(floatingRootContext, { enabled: !disabled });
+  const dismiss = useDismiss(floatingRootContext, { enabled: !disabled, referencePress: true });
+  const clientPoint = useClientPoint(floatingRootContext, {
     enabled: !disabled && trackCursorAxis !== 'none',
     axis: trackCursorAxis === 'none' ? undefined : trackCursorAxis,
   });
@@ -172,10 +172,7 @@ export function TooltipRoot<Payload>(props: TooltipRoot.Props<Payload>) {
   });
 
   return (
-    <TooltipRootContext.Provider
-      value={React.useMemo(() => ({ store, lazy }) as TooltipRootContext, [store, lazy])}
-    >
-      {lazy.render()}
+    <TooltipRootContext.Provider value={store as TooltipRootContext}>
       {typeof children === 'function' ? children({ payload }) : children}
     </TooltipRootContext.Provider>
   );

@@ -2,10 +2,7 @@
 import * as React from 'react';
 import { TooltipStore } from '../store/TooltipStore';
 
-export type TooltipRootContext<Payload = unknown> = {
-  store: TooltipStore<Payload>;
-  lazy: any;
-};
+export type TooltipRootContext<Payload = unknown> = TooltipStore<Payload>;
 
 export const TooltipRootContext = React.createContext<TooltipRootContext | undefined>(undefined);
 
