@@ -100,7 +100,7 @@ export const metadata: Metadata = {
   twitter: {
     site: '@base_ui',
     card: 'summary_large_image',
-    images: ['/static/opengraph-image.png'],
+    images: ['https://base-ui.com/static/opengraph-image.png'],
   },
   openGraph: {
     type: 'website',
@@ -111,7 +111,7 @@ export const metadata: Metadata = {
     },
     images: [
       {
-        url: '/static/opengraph-image.png',
+        url: 'https://base-ui.com/static/opengraph-image.png',
         width: 1200,
         height: 630,
         alt: 'Base UI',
