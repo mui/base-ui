@@ -13,6 +13,17 @@ function createPointerMoveEvent({ movementX = 0, movementY = 0 }) {
   });
 }
 
+function createPointerDownEvent(elm: HTMLElement) {
+  const box = elm.getBoundingClientRect();
+  const centerX = box.left + box.width / 2;
+  const centerY = box.top + box.height / 2;
+  return new PointerEvent('pointerdown', {
+    bubbles: true,
+    clientX: centerX,
+    clientY: centerY,
+  });
+}
+
 describe('<NumberField.ScrubArea />', () => {
   const { render } = createRenderer();
 
@@ -36,17 +47,6 @@ describe('<NumberField.ScrubArea />', () => {
   if (isJSDOM || isWebKit) {
     return;
   }
-
-  const createPointerDownEvent = (elm: HTMLElement) => {
-    const box = elm.getBoundingClientRect();
-    const centerX = box.left + box.width / 2;
-    const centerY = box.top + box.height / 2;
-    return new PointerEvent('pointerdown', {
-      bubbles: true,
-      clientX: centerX,
-      clientY: centerY,
-    });
-  };
 
   it('should increment or decrement the value when scrubbing with the pointer', async () => {
     await render(
