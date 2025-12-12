@@ -321,8 +321,10 @@ export function useListNavigation(
   const previousOnNavigateRef = React.useRef(onNavigate);
   const previousMountedRef = React.useRef(!!floatingElement);
   const previousOpenRef = React.useRef(open);
+  const previousSelectedIndexRef = React.useRef(selectedIndex);
   const forceSyncFocusRef = React.useRef(false);
   const forceScrollIntoViewRef = React.useRef(false);
+  const preventFocusRef = React.useRef(false);
 
   const disabledIndicesRef = useValueAsRef(disabledIndices);
   const latestOpenRef = useValueAsRef(open);
@@ -332,6 +334,9 @@ export function useListNavigation(
 
   const focusItem = useStableCallback(() => {
     function runFocus(item: HTMLElement) {
+      if (preventFocusRef.current) {
+        return;
+      }
       if (virtual) {
         tree?.events.emit('virtualfocus', item);
       } else {
@@ -466,7 +471,15 @@ export function useListNavigation(
       }
     } else if (!isIndexOutOfListBounds(listRef, activeIndex)) {
       indexRef.current = activeIndex;
-      focusItem();
+      // Don't focus if selectedIndex just changed (user interaction)
+      const selectedIndexChanged = previousSelectedIndexRef.current !== selectedIndexRef.current;
+      preventFocusRef.current = selectedIndexChanged && selectedIndexRef.current != null;
+      if (!selectedIndexChanged || selectedIndexRef.current == null) {
+        focusItem();
+      } else {
+        // Cancel any pending focus operations when selectedIndex changes
+        enqueueFocus(null, { cancelPrevious: true });
+      }
       forceScrollIntoViewRef.current = false;
     }
   }, [
@@ -507,6 +520,7 @@ export function useListNavigation(
     previousOnNavigateRef.current = onNavigate;
     previousOpenRef.current = open;
     previousMountedRef.current = !!floatingElement;
+    previousSelectedIndexRef.current = selectedIndex;
   });
 
   useIsoLayoutEffect(() => {
