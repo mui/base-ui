@@ -266,7 +266,7 @@ export function SearchBar({
           ) : (
             <React.Fragment>
               <kbd className="text-xs text-gray-600">Ctrl</kbd>
-              <span className="-mt-1 text-xs text-gray-400">+</span>
+              <span className="text-xs text-gray-400">+</span>
             </React.Fragment>
           )}
           <kbd className="text-xs text-gray-600">K</kbd>
