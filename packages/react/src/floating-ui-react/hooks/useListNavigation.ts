@@ -325,6 +325,7 @@ export function useListNavigation(
   const forceSyncFocusRef = React.useRef(false);
   const forceScrollIntoViewRef = React.useRef(false);
   const preventFocusRef = React.useRef(false);
+  const schedulerRafIdRef = React.useRef<number | null>(null);
 
   const disabledIndicesRef = useValueAsRef(disabledIndices);
   const latestOpenRef = useValueAsRef(open);
@@ -356,7 +357,14 @@ export function useListNavigation(
 
     const scheduler = forceSyncFocusRef.current ? (v: () => void) => v() : requestAnimationFrame;
 
-    scheduler(() => {
+    // Cancel any pending scheduler RAF before scheduling a new one
+    if (schedulerRafIdRef.current !== null) {
+      cancelAnimationFrame(schedulerRafIdRef.current);
+      schedulerRafIdRef.current = null;
+    }
+
+    const callback = () => {
+      schedulerRafIdRef.current = null;
       const waitedItem = listRef.current[indexRef.current] || initialItem;
 
       if (!waitedItem) {
@@ -383,7 +391,13 @@ export function useListNavigation(
             : scrollIntoViewOptions,
         );
       }
-    });
+    };
+
+    if (forceSyncFocusRef.current) {
+      callback();
+    } else {
+      schedulerRafIdRef.current = requestAnimationFrame(callback);
+    }
   });
 
   // Sync `selectedIndex` to be the `activeIndex` upon opening the floating
@@ -479,6 +493,11 @@ export function useListNavigation(
       } else {
         // Cancel any pending focus operations when selectedIndex changes
         enqueueFocus(null, { cancelPrevious: true });
+        // Also cancel the scheduler RAF
+        if (schedulerRafIdRef.current !== null) {
+          cancelAnimationFrame(schedulerRafIdRef.current);
+          schedulerRafIdRef.current = null;
+        }
       }
       forceScrollIntoViewRef.current = false;
     }
