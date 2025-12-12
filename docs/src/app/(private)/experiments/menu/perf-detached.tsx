@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import demoStyles from 'docs/src/app/(docs)/(content)/react/components/menu/demos/submenu/css-modules/index.module.css';
+import demoStyles from 'docs/src/app/(docs)/react/components/menu/demos/submenu/css-modules/index.module.css';
 import { Menu } from '@base-ui/react/menu';
 import styles from '../perf/perf.module.css';
 

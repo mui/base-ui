@@ -126,7 +126,7 @@ export default defineConfig(
     },
   },
   {
-    files: [`docs/src/app/(docs)/(content)/react/utils/use-render/demos/**/*${EXTENSION_TS}`],
+    files: [`docs/src/app/(docs)/react/utils/use-render/demos/**/*${EXTENSION_TS}`],
     rules: {
       'jsx-a11y/control-has-associated-label': 'off',
       'react/button-has-type': 'off',
@@ -135,7 +135,7 @@ export default defineConfig(
   {
     name: 'Disable image rule for demos',
     files: [
-      `docs/src/app/(docs)/(content)/**/demos/**/*${EXTENSION_TS}`,
+      `docs/src/app/(docs)/**/demos/**/*${EXTENSION_TS}`,
       `docs/src/app/(private)/experiments/**/*${EXTENSION_TS}`,
     ],
     ignores: ['docs/src/app/(private)/experiments/**/page.tsx'],
