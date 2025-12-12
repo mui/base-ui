@@ -196,7 +196,7 @@ export function SearchBar({
   const showCmdSymbol = React.useSyncExternalStore(
     () => () => {},
     () => enableKeyboardShortcut && isMac,
-    () => null,
+    () => true, // Show Cmd symbol on server-side render
   );
 
   // Memoized search input component
@@ -254,11 +254,7 @@ export function SearchBar({
 
   return (
     <React.Fragment>
-      <Button
-        onClick={handleOpenDialog}
-        aria-label="Search"
-        className={`SearchTrigger ${showCmdSymbol == null ? 'hidden' : 'flex'}`}
-      >
+      <Button onClick={handleOpenDialog} aria-label="Search" className={`SearchTrigger`}>
         <Search className="h-4 w-4 text-gray-500" />
         <div className="SearchTriggerKbd hidden lg:inline-flex lg:-mr-2">
           {showCmdSymbol ? (
