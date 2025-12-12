@@ -624,7 +624,7 @@ exports[`mdxToMarkdown > should transform Direction Provider MDX content to mark
 
 
 
-A direction provider component that enables RTL behavior for Base UI components.
+A direction provider component that enables RTL behavior for Base UI components.
 
 ## Demo
 

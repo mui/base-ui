@@ -579,6 +579,9 @@ importers:
 
   scripts/api-docs-builder:
     dependencies:
+      '@mui/internal-docs-infra':
+        specifier: 0.3.1-canary.1
+        version: 0.3.1-canary.1(@types/react@19.2.7)(next@16.0.9(@babel/core@7.28.5)(@playwright/test@1.57.0)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.1(react@19.2.1))(react@19.2.1))(react@19.2.1)
       '@types/yargs':
         specifier: ^17.0.35
         version: 17.0.35
