@@ -17,7 +17,7 @@ export const TooltipPortal = React.forwardRef(function TooltipPortal(
 ) {
   const { keepMounted = false, ...portalProps } = props;
 
-  const store = useTooltipRootContext();
+  const store = useTooltipRootContext().store;
   const mounted = store.useState('mounted');
 
   const shouldRender = mounted || keepMounted;
