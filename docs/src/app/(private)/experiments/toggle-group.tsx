@@ -14,7 +14,7 @@ export default function ToggleGroupDemo() {
         value={value}
         onValueChange={(newValue) => {
           // one button must always remain pressed
-          if (newValue) {
+          if (newValue.length > 0) {
             setValue(newValue);
           }
         }}

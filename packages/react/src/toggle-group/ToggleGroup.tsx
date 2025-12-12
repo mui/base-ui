@@ -47,11 +47,11 @@ export const ToggleGroup = React.forwardRef(function ToggleGroup<Value extends T
 
   const defaultValue = React.useMemo(() => {
     if (valueProp === undefined) {
-      return defaultValueProp ?? (multiple ? [] : undefined);
+      return defaultValueProp ?? [];
     }
 
     return undefined;
-  }, [valueProp, defaultValueProp, multiple]);
+  }, [valueProp, defaultValueProp]);
 
   const disabled = (toolbarContext?.disabled ?? false) || disabledProp;
 
@@ -70,27 +70,29 @@ export const ToggleGroup = React.forwardRef(function ToggleGroup<Value extends T
     ) => {
       let newGroupValue: Value[];
       if (multiple) {
+        newGroupValue = groupValue.slice();
         if (nextPressed) {
-          newGroupValue = groupValue.concat(newValue);
+          newGroupValue.push(newValue);
         } else {
-          newGroupValue = groupValue.splice(groupValue.indexOf(newValue), 1);
+          newGroupValue.splice(groupValue.indexOf(newValue), 1);
         }
       } else {
         newGroupValue = nextPressed ? [newValue] : [];
       }
+      if (Array.isArray(newGroupValue)) {
+        onValueChange?.(newGroupValue, eventDetails);
 
-      onValueChange?.(newGroupValue, eventDetails);
+        if (eventDetails.isCanceled) {
+          return;
+        }
 
-      if (eventDetails.isCanceled) {
-        return;
+        setValueState(newGroupValue);
       }
-
-      setValueState(newGroupValue);
     },
   );
 
   const state: ToggleGroup.State = React.useMemo(
-    () => ({ disabled, multiple: !!multiple, orientation }),
+    () => ({ disabled, multiple, orientation }),
     [disabled, orientation, multiple],
   );
 

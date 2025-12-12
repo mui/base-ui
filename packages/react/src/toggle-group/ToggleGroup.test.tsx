@@ -363,12 +363,12 @@ describe('<ToggleGroup />', () => {
       await user.pointer({ keys: '[MouseLeft]', target: button1 });
 
       expect(onValueChange.callCount).to.equal(1);
-      expect(onValueChange.args[0][0]).to.equal('one');
+      expect(onValueChange.args[0][0]).to.deep.equal(['one']);
 
       await user.pointer({ keys: '[MouseLeft]', target: button2 });
 
       expect(onValueChange.callCount).to.equal(2);
-      expect(onValueChange.args[1][0]).to.equal('two');
+      expect(onValueChange.args[1][0]).to.deep.equal(['two']);
     });
 
     ['Enter', 'Space'].forEach((key) => {
@@ -397,7 +397,7 @@ describe('<ToggleGroup />', () => {
         await user.keyboard(`[${key}]`);
 
         expect(onValueChange.callCount).to.equal(1);
-        expect(onValueChange.args[0][0]).to.equal('one');
+        expect(onValueChange.args[0][0]).to.deep.equal(['one']);
 
         await act(async () => {
           button2.focus();
@@ -406,7 +406,7 @@ describe('<ToggleGroup />', () => {
         await user.keyboard(`[${key}]`);
 
         expect(onValueChange.callCount).to.equal(2);
-        expect(onValueChange.args[1][0]).to.equal('two');
+        expect(onValueChange.args[1][0]).to.deep.equal(['two']);
       });
     });
   });
