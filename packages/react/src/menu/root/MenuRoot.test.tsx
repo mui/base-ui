@@ -1341,7 +1341,7 @@ describe('<Menu.Root />', () => {
       });
 
       it('closes the menu on click, drag outside, release', async () => {
-        const { userEvent: user } = await import('@vitest/browser/context');
+        const { userEvent: user } = await import('vitest/browser');
         const { render: vbrRender } = await import('vitest-browser-react');
 
         const openChangeSpy = spy();
