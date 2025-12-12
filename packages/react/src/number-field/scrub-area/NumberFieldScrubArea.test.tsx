@@ -37,12 +37,16 @@ describe('<NumberField.ScrubArea />', () => {
     return;
   }
 
-  // `PointerEvent` isn't defined in JSDOM. This needs to be located beneath the return above.
-  const pointerDownEvent = new PointerEvent('pointerdown', {
-    bubbles: true,
-    clientX: 100,
-    clientY: 100,
-  });
+  const createPointerDownEvent = (elm: HTMLElement) => {
+    const box = elm.getBoundingClientRect();
+    const centerX = box.left + box.width / 2;
+    const centerY = box.top + box.height / 2;
+    return new PointerEvent('pointerdown', {
+      bubbles: true,
+      clientX: centerX,
+      clientY: centerY,
+    });
+  };
 
   it('should increment or decrement the value when scrubbing with the pointer', async () => {
     await render(
@@ -58,7 +62,7 @@ describe('<NumberField.ScrubArea />', () => {
     const input = screen.getByRole('textbox');
 
     await act(async () => {
-      scrubArea.dispatchEvent(pointerDownEvent);
+      scrubArea.dispatchEvent(createPointerDownEvent(scrubArea));
       scrubArea.dispatchEvent(createPointerMoveEvent({ movementX: -10 }));
     });
 
@@ -96,7 +100,7 @@ describe('<NumberField.ScrubArea />', () => {
     const scrubArea = screen.getByTestId('scrub-area');
 
     await act(async () => {
-      scrubArea.dispatchEvent(pointerDownEvent);
+      scrubArea.dispatchEvent(createPointerDownEvent(scrubArea));
       scrubArea.dispatchEvent(createPointerMoveEvent({ movementX: 3 }));
     });
 
@@ -129,7 +133,7 @@ describe('<NumberField.ScrubArea />', () => {
       const input = screen.getByRole('textbox');
 
       await act(async () => {
-        scrubArea.dispatchEvent(pointerDownEvent);
+        scrubArea.dispatchEvent(createPointerDownEvent(scrubArea));
         scrubArea.dispatchEvent(createPointerMoveEvent({ movementX: -2 }));
       });
 
@@ -197,7 +201,7 @@ describe('<NumberField.ScrubArea />', () => {
       const input = screen.getByRole('textbox');
 
       await act(async () => {
-        scrubArea.dispatchEvent(pointerDownEvent);
+        scrubArea.dispatchEvent(createPointerDownEvent(scrubArea));
         scrubArea.dispatchEvent(createPointerMoveEvent({ movementX: 10 }));
       });
 
