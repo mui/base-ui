@@ -70,7 +70,7 @@
     "@types/node": "~22.18.13",
     "@types/react": "^19.2.7",
     "@types/yargs": "^17.0.35",
-    "@vitejs/plugin-react": "^5.1.1",
+    "@vitejs/plugin-react": "^5.1.2",
     "@vitest/browser": "^3.2.4",
     "@vitest/coverage-istanbul": "3.2.4",
     "@vitest/ui": "3.2.4",
@@ -99,7 +99,7 @@
     "terser": "^5.44.1",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3",
-    "vite": "^7.2.6",
+    "vite": "^7.2.7",
     "vitest": "^3.2.4",
     "yargs": "^18.0.0"
   },
