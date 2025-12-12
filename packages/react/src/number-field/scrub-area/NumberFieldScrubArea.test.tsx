@@ -67,8 +67,6 @@ describe('<NumberField.ScrubArea />', () => {
       </NumberField.Root>,
     );
 
-    await wait(50);
-
     const scrubArea = screen.getByTestId('scrub-area');
     const input = screen.getByRole('textbox');
 

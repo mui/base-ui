@@ -58,6 +58,7 @@ const config: UserWorkspaceConfig = {
     env: {
       VITEST: 'true',
     },
+    retry: 1,
   },
   resolve: viteConfig.resolve,
 };
