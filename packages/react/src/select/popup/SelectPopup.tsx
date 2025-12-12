@@ -1,17 +1,17 @@
 'use client';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import { useTimeout } from '@base-ui-components/utils/useTimeout';
-import { isWebKit } from '@base-ui-components/utils/detectBrowser';
-import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
-import { ownerDocument, ownerWindow } from '@base-ui-components/utils/owner';
-import { isMouseWithinBounds } from '@base-ui-components/utils/isMouseWithinBounds';
-import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
-import { useStore } from '@base-ui-components/utils/store';
-import { useAnimationFrame } from '@base-ui-components/utils/useAnimationFrame';
+import { useTimeout } from '@base-ui/utils/useTimeout';
+import { isWebKit } from '@base-ui/utils/detectBrowser';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
+import { isMouseWithinBounds } from '@base-ui/utils/isMouseWithinBounds';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { useStore } from '@base-ui/utils/store';
+import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
 import { FloatingFocusManager } from '../../floating-ui-react';
 import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
-import { useSelectRootContext } from '../root/SelectRootContext';
+import { useSelectFloatingContext, useSelectRootContext } from '../root/SelectRootContext';
 import { popupStateMapping } from '../../utils/popupStateMapping';
 import type { Side, Align } from '../../utils/useAnchorPositioning';
 import type { StateAttributesMapping } from '../../utils/getStateAttributesProps';
@@ -61,13 +61,13 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
   const {
     side,
     align,
-    context,
     alignItemWithTriggerActive,
     setControlledAlignItemWithTrigger,
     scrollDownArrowRef,
     scrollUpArrowRef,
   } = useSelectPositionerContext();
   const insideToolbar = useToolbarRootContext(true) != null;
+  const floatingRootContext = useSelectFloatingContext();
 
   const highlightTimeout = useTimeout();
 
@@ -435,7 +435,12 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
   return (
     <React.Fragment>
       {styleDisableScrollbar.element}
-      <FloatingFocusManager context={context} modal={false} disabled={!mounted} restoreFocus>
+      <FloatingFocusManager
+        context={floatingRootContext}
+        modal={false}
+        disabled={!mounted}
+        restoreFocus
+      >
         {element}
       </FloatingFocusManager>
     </React.Fragment>

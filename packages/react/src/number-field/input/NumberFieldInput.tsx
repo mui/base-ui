@@ -183,8 +183,6 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
         return;
       }
 
-      blockRevalidationRef.current = true;
-
       // If an explicit precision is requested, round the committed numeric value.
       const hasExplicitPrecision =
         formatOptions?.maximumFractionDigits != null ||
@@ -204,6 +202,7 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
         validation.commit(committed);
       }
       if (shouldUpdateValue) {
+        blockRevalidationRef.current = true;
         setValue(committed, createChangeEventDetails(REASONS.inputBlur, event.nativeEvent));
       }
       if (shouldCommit) {
@@ -300,8 +299,11 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
       const isAllSelected = selectionStart === 0 && selectionEnd === inputValue.length;
 
       // Normalize handling of plus/minus signs via precomputed regexes
-      const selectionIsExactlyCharAt = (index: number) =>
-        selectionStart === index && selectionEnd === index + 1;
+      const selectionContainsIndex = (index: number) =>
+        selectionStart != null &&
+        selectionEnd != null &&
+        index >= selectionStart &&
+        index < selectionEnd;
 
       if (
         ANY_MINUS_DETECT_RE.test(event.key) &&
@@ -310,7 +312,7 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
         // Only allow one sign unless replacing the existing one or all text is selected
         const existingIndex = inputValue.search(ANY_MINUS_RE);
         const isReplacingExisting =
-          existingIndex != null && existingIndex !== -1 && selectionIsExactlyCharAt(existingIndex);
+          existingIndex != null && existingIndex !== -1 && selectionContainsIndex(existingIndex);
         isAllowedNonNumericKey =
           !(ANY_MINUS_DETECT_RE.test(inputValue) || ANY_PLUS_DETECT_RE.test(inputValue)) ||
           isAllSelected ||
@@ -322,7 +324,7 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
       ) {
         const existingIndex = inputValue.search(ANY_PLUS_RE);
         const isReplacingExisting =
-          existingIndex != null && existingIndex !== -1 && selectionIsExactlyCharAt(existingIndex);
+          existingIndex != null && existingIndex !== -1 && selectionContainsIndex(existingIndex);
         isAllowedNonNumericKey =
           !(ANY_MINUS_DETECT_RE.test(inputValue) || ANY_PLUS_DETECT_RE.test(inputValue)) ||
           isAllSelected ||
@@ -333,8 +335,7 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
       [decimal, currency, percentSign].forEach((symbol) => {
         if (event.key === symbol) {
           const symbolIndex = inputValue.indexOf(symbol);
-          const isSymbolHighlighted =
-            selectionStart === symbolIndex && selectionEnd === symbolIndex + 1;
+          const isSymbolHighlighted = selectionContainsIndex(symbolIndex);
           isAllowedNonNumericKey =
             !inputValue.includes(symbol) || isAllSelected || isSymbolHighlighted;
         }
@@ -419,9 +420,9 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
   };
 
   const element = useRenderElement('input', componentProps, {
-    ref: [forwardedRef, inputRef, validation.inputRef],
+    ref: [forwardedRef, inputRef],
     state,
-    props: [inputProps, validation.getInputValidationProps(), elementProps],
+    props: [inputProps, validation.getValidationProps(), elementProps],
     stateAttributesMapping,
   });
 
@@ -430,8 +431,10 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
 
 export interface NumberFieldInputState extends NumberFieldRoot.State {}
 
-export interface NumberFieldInputProps
-  extends BaseUIComponentProps<'input', NumberFieldInput.State> {
+export interface NumberFieldInputProps extends BaseUIComponentProps<
+  'input',
+  NumberFieldInput.State
+> {
   /**
    * A string value that provides a user-friendly name for the role of the input.
    * @default 'Number field'

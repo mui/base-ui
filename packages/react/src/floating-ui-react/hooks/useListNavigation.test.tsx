@@ -3,7 +3,7 @@ import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event';
 import { vi, it, describe } from 'vitest';
 
-import { isJSDOM } from '@base-ui-components/utils/detectBrowser';
+import { isJSDOM } from '@base-ui/utils/detectBrowser';
 import { useClick, useDismiss, useFloating, useInteractions, useListNavigation } from '../index';
 import type { UseListNavigationProps } from '../types';
 import { Main as ComplexGrid } from '../../../test/floating-ui-tests/ComplexGrid';
@@ -182,7 +182,7 @@ describe('useListNavigation', () => {
 
       const listRef = React.useRef<Array<HTMLElement | null>>([]);
 
-      const { x, y, strategy, context, refs } = useFloating<HTMLInputElement>({
+      const { x, y, strategy, context, refs } = useFloating({
         open,
         onOpenChange: setOpen,
       });
@@ -250,7 +250,7 @@ describe('useListNavigation', () => {
                       onClick() {
                         setInputValue(item);
                         setOpen(false);
-                        refs.domReference.current?.focus();
+                        (refs.domReference.current as HTMLElement | null)?.focus();
                       },
                     })}
                   >
@@ -1063,9 +1063,10 @@ describe('useListNavigation', () => {
     render(<ListboxFocus />);
 
     await userEvent.click(screen.getByTestId('reference'));
-    await act(async () => {});
 
-    expect(screen.getByTestId('reference')).toHaveFocus();
+    await waitFor(() => {
+      expect(screen.getByTestId('reference')).toHaveFocus();
+    });
   });
 
   // In JSDOM it will not focus the first item, but will in the browser

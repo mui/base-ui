@@ -8,6 +8,7 @@ import type { BaseUIChangeEventDetails } from '../utils/createBaseUIEventDetails
 
 import type { ExtendedUserProps } from './hooks/useInteractions';
 import type { FloatingTreeStore } from './components/FloatingTreeStore';
+import type { FloatingRootStore } from './components/FloatingRootStore';
 
 export * from '.';
 export type { FloatingDelayGroupProps } from './components/FloatingDelayGroup';
@@ -93,19 +94,19 @@ export type Delay = number | Partial<{ open: number; close: number }>;
 
 export type NarrowedElement<T> = T extends Element ? T : Element;
 
-export interface ExtendedRefs<RT> {
-  reference: React.MutableRefObject<ReferenceType | null>;
-  floating: React.MutableRefObject<HTMLElement | null>;
-  domReference: React.MutableRefObject<NarrowedElement<RT> | null>;
-  setReference(node: RT | null): void;
+export interface ExtendedRefs {
+  reference: React.RefObject<ReferenceType | null>;
+  floating: React.RefObject<HTMLElement | null>;
+  domReference: React.RefObject<NarrowedElement<ReferenceType> | null>;
+  setReference(node: ReferenceType | null): void;
   setFloating(node: HTMLElement | null): void;
   setPositionReference(node: ReferenceType | null): void;
 }
 
-export interface ExtendedElements<RT> {
+export interface ExtendedElements {
   reference: ReferenceType | null;
   floating: HTMLElement | null;
-  domReference: NarrowedElement<RT> | null;
+  domReference: NarrowedElement<ReferenceType> | null;
 }
 
 export interface FloatingEvents {
@@ -122,44 +123,30 @@ export interface ContextData {
   [key: string]: any;
 }
 
-export interface FloatingRootContext<RT extends ReferenceType = ReferenceType> {
-  dataRef: React.MutableRefObject<ContextData>;
-  open: boolean;
-  onOpenChange: (open: boolean, eventDetails: BaseUIChangeEventDetails<string>) => void;
-  elements: {
-    domReference: Element | null;
-    reference: RT | null;
-    floating: HTMLElement | null;
-    triggers?: Element[];
-  };
-  events: FloatingEvents;
-  floatingId: string | undefined;
-  refs: {
-    setPositionReference(node: ReferenceType | null): void;
-  };
-}
+export type FloatingRootContext = FloatingRootStore;
 
-export type FloatingContext<RT extends ReferenceType = ReferenceType> = Omit<
-  UsePositionFloatingReturn<RT>,
+export type FloatingContext = Omit<
+  UsePositionFloatingReturn<ReferenceType>,
   'refs' | 'elements'
 > & {
   open: boolean;
   onOpenChange(open: boolean, eventDetails: BaseUIChangeEventDetails<string>): void;
   events: FloatingEvents;
-  dataRef: React.MutableRefObject<ContextData>;
+  dataRef: React.RefObject<ContextData>;
   nodeId: string | undefined;
   floatingId: string | undefined;
-  refs: ExtendedRefs<RT>;
-  elements: ExtendedElements<RT>;
+  refs: ExtendedRefs;
+  elements: ExtendedElements;
+  rootStore: FloatingRootContext;
 };
 
-export interface FloatingNodeType<RT extends ReferenceType = ReferenceType> {
+export interface FloatingNodeType {
   id: string | undefined;
   parentId: string | null;
-  context?: FloatingContext<RT>;
+  context?: FloatingContext;
 }
 
-export type FloatingTreeType<RT extends ReferenceType = ReferenceType> = FloatingTreeStore<RT>;
+export type FloatingTreeType = FloatingTreeStore;
 
 export interface ElementProps {
   reference?: React.HTMLProps<Element>;
@@ -174,23 +161,22 @@ export type ReferenceType = Element | VirtualElement;
 
 export type UseFloatingData = Prettify<UseFloatingReturn>;
 
-export type UseFloatingReturn<RT extends ReferenceType = ReferenceType> = Prettify<
+export type UseFloatingReturn = Prettify<
   UsePositionFloatingReturn & {
     /**
      * `FloatingContext`
      */
-    context: Prettify<FloatingContext<RT>>;
+    context: Prettify<FloatingContext>;
     /**
      * Object containing the reference and floating refs and reactive setters.
      */
-    refs: ExtendedRefs<RT>;
-    elements: ExtendedElements<RT>;
+    refs: ExtendedRefs;
+    elements: ExtendedElements;
   }
 >;
 
-export interface UseFloatingOptions<RT extends ReferenceType = ReferenceType>
-  extends Omit<UsePositionOptions<RT>, 'elements'> {
-  rootContext?: FloatingRootContext<RT>;
+export interface UseFloatingOptions extends Omit<UsePositionOptions, 'elements'> {
+  rootContext?: FloatingRootContext;
   /**
    * Object of external elements as an alternative to the `refs` object setters.
    */
@@ -198,7 +184,7 @@ export interface UseFloatingOptions<RT extends ReferenceType = ReferenceType>
     /**
      * Externally passed reference element. Store in state.
      */
-    reference?: Element | null;
+    reference?: ReferenceType | null;
     /**
      * Externally passed floating element. Store in state.
      */
@@ -216,5 +202,5 @@ export interface UseFloatingOptions<RT extends ReferenceType = ReferenceType>
   /**
    * External FlatingTree to use when the one provided by context can't be used.
    */
-  externalTree?: FloatingTreeStore<RT>;
+  externalTree?: FloatingTreeStore;
 }

@@ -1,10 +1,10 @@
 'use client';
 import * as React from 'react';
 import { getSide, getAlignment, type Rect, getSideAxis } from '@floating-ui/utils';
-import { ownerDocument } from '@base-ui-components/utils/owner';
-import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
-import { useValueAsRef } from '@base-ui-components/utils/useValueAsRef';
-import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
+import { ownerDocument } from '@base-ui/utils/owner';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import {
   autoUpdate,
   flip,
@@ -23,10 +23,10 @@ import {
   type MiddlewareState,
   type AutoUpdateOptions,
   type Middleware,
-} from '../floating-ui-react/index';
+  type FloatingTreeStore,
+} from '../floating-ui-react';
 import { useDirection } from '../direction-provider/DirectionContext';
 import { arrow } from '../floating-ui-react/middleware/arrow';
-import { FloatingTreeStore } from '../floating-ui-react/components/FloatingTreeStore';
 import { hide } from './hideMiddleware';
 import { DEFAULT_SIDES } from './adaptiveOriginMiddleware';
 
@@ -373,15 +373,17 @@ export function useAnchorPositioning(
     adaptiveOrigin,
   );
 
-  // Ensure positioning doesn't run initially for `keepMounted` elements that
-  // aren't initially open.
-  let rootContext = floatingRootContext;
-  if (!mounted && floatingRootContext) {
-    rootContext = {
-      ...floatingRootContext,
-      elements: { reference: null, floating: null, domReference: null },
-    };
-  }
+  useIsoLayoutEffect(() => {
+    // Ensure positioning doesn't run initially for `keepMounted` elements that
+    // aren't initially open.
+    if (!mounted && floatingRootContext) {
+      floatingRootContext.update({
+        referenceElement: null,
+        floatingElement: null,
+        domReferenceElement: null,
+      });
+    }
+  }, [mounted, floatingRootContext]);
 
   const autoUpdateOptions: AutoUpdateOptions = React.useMemo(
     () => ({
@@ -403,7 +405,7 @@ export function useAnchorPositioning(
     isPositioned,
     floatingStyles: originalFloatingStyles,
   } = useFloating({
-    rootContext,
+    rootContext: floatingRootContext,
     placement,
     middleware,
     strategy: positionMethod,

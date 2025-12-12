@@ -143,7 +143,8 @@ export interface TooltipPositionerState {
 }
 
 export interface TooltipPositionerProps
-  extends BaseUIComponentProps<'div', TooltipPositioner.State>,
+  extends
+    BaseUIComponentProps<'div', TooltipPositioner.State>,
     Omit<useAnchorPositioning.SharedParameters, 'side'> {
   /**
    * Which side of the anchor element to align the popup against.

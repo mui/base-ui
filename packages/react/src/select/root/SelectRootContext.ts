@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useFloatingRootContext, type FloatingRootContext } from '../../floating-ui-react';
+import { type FloatingEvents, type FloatingRootContext } from '../../floating-ui-react';
 import type { SelectStore } from '../store';
 import type { UseFieldValidationReturnValue } from '../../field/root/useFieldValidation';
 import type { HTMLProps } from '../../utils/types';
@@ -12,6 +12,7 @@ export interface SelectRootContext {
   readOnly: boolean;
   required: boolean;
   multiple: boolean;
+  highlightItemOnHover: boolean;
   setValue: (nextValue: any, eventDetails: SelectRoot.ChangeEventDetails) => void;
   setOpen: (open: boolean, eventDetails: SelectRoot.ChangeEventDetails) => void;
   listRef: React.MutableRefObject<Array<HTMLElement | null>>;
@@ -22,7 +23,7 @@ export interface SelectRootContext {
   getItemProps: (
     props?: HTMLProps & { active?: boolean; selected?: boolean },
   ) => Record<string, unknown>; // PREVENT_COMMIT
-  events: ReturnType<typeof useFloatingRootContext>['events'];
+  events: FloatingEvents;
   valueRef: React.MutableRefObject<HTMLSpanElement | null>;
   valuesRef: React.MutableRefObject<Array<any>>;
   labelsRef: React.MutableRefObject<Array<string | null>>;

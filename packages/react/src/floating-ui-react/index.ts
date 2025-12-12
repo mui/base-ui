@@ -8,11 +8,13 @@ export {
   useFloatingParentNodeId,
   useFloatingTree,
 } from './components/FloatingTree';
+export { FloatingTreeStore } from './components/FloatingTreeStore';
 export { useClick } from './hooks/useClick';
 export { useClientPoint } from './hooks/useClientPoint';
 export { useDismiss } from './hooks/useDismiss';
 export { useFloating } from './hooks/useFloating';
 export { useFloatingRootContext } from './hooks/useFloatingRootContext';
+export { useSyncedFloatingRootContext } from './hooks/useSyncedFloatingRootContext';
 export { useFocus } from './hooks/useFocus';
 export { useHoverFloatingInteraction } from './hooks/useHoverFloatingInteraction';
 export { useHoverReferenceInteraction } from './hooks/useHoverReferenceInteraction';

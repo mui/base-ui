@@ -3,11 +3,11 @@ import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-
 import { createRenderer, isJSDOM, popupConformanceTests } from '#test-utils';
 import { expect } from 'chai';
 import { spy } from 'sinon';
-import { Combobox } from '@base-ui-components/react/combobox';
-import { Dialog } from '@base-ui-components/react/dialog';
-import { Field } from '@base-ui-components/react/field';
-import { Form } from '@base-ui-components/react/form';
-import { useStore } from '@base-ui-components/utils/store';
+import { Combobox } from '@base-ui/react/combobox';
+import { Dialog } from '@base-ui/react/dialog';
+import { Field } from '@base-ui/react/field';
+import { Form } from '@base-ui/react/form';
+import { useStore } from '@base-ui/utils/store';
 import { CompositeRoot } from '../../composite/root/CompositeRoot';
 import { CompositeItem } from '../../composite/item/CompositeItem';
 import { REASONS } from '../../utils/reasons';
@@ -124,6 +124,34 @@ describe('<Combobox.Root />', () => {
     await waitFor(() => {
       expect(trigger).toHaveFocus();
     });
+  });
+
+  it('does not cause infinite re-renders when items becomes undefined', async () => {
+    const { rerender } = await render(
+      <Combobox.Root items={[]} defaultOpen>
+        <Combobox.Input />
+        <Combobox.Portal>
+          <Combobox.Positioner>
+            <Combobox.Popup>
+              <Combobox.List />
+            </Combobox.Popup>
+          </Combobox.Positioner>
+        </Combobox.Portal>
+      </Combobox.Root>,
+    );
+
+    rerender(
+      <Combobox.Root items={undefined} defaultOpen>
+        <Combobox.Input />
+        <Combobox.Portal>
+          <Combobox.Positioner>
+            <Combobox.Popup>
+              <Combobox.List />
+            </Combobox.Popup>
+          </Combobox.Positioner>
+        </Combobox.Portal>
+      </Combobox.Root>,
+    );
   });
 
   describe('selection behavior', () => {
@@ -3510,6 +3538,48 @@ describe('<Combobox.Root />', () => {
 
     clock.withFakeTimers();
 
+    it('submits stringified value to onFormSubmit when itemToStringValue is provided', async () => {
+      const items = [
+        { code: 'US', label: 'United States' },
+        { code: 'CA', label: 'Canada' },
+      ];
+      const handleFormSubmit = spy();
+
+      const { user } = await renderFakeTimers(
+        <Form onFormSubmit={handleFormSubmit}>
+          <Field.Root name="country">
+            <Combobox.Root
+              items={items}
+              itemToStringLabel={(item) => item.label}
+              itemToStringValue={(item) => item.code}
+              defaultValue={items[0]}
+            >
+              <Combobox.Input />
+              <Combobox.Portal>
+                <Combobox.Positioner>
+                  <Combobox.Popup>
+                    <Combobox.List>
+                      {(item: (typeof items)[number]) => (
+                        <Combobox.Item key={item.code} value={item}>
+                          {item.label}
+                        </Combobox.Item>
+                      )}
+                    </Combobox.List>
+                  </Combobox.Popup>
+                </Combobox.Positioner>
+              </Combobox.Portal>
+            </Combobox.Root>
+          </Field.Root>
+          <button type="submit">Submit</button>
+        </Form>,
+      );
+
+      await user.click(screen.getByText('Submit'));
+
+      expect(handleFormSubmit.callCount).to.equal(1);
+      expect(handleFormSubmit.firstCall.args[0]).to.deep.equal({ country: 'US' });
+    });
+
     describe('serialization for object values', () => {
       const items = [
         { value: 'US', label: 'United States' },
@@ -4166,6 +4236,43 @@ describe('<Combobox.Root />', () => {
       expect(input).to.have.attribute('aria-invalid', 'true');
     });
 
+    it('passes raw value to validate when itemToStringValue is provided', async () => {
+      const items = [
+        { code: 'US', label: 'United States' },
+        { code: 'CA', label: 'Canada' },
+      ];
+      const validateSpy = spy((value: unknown) => {
+        expect(value).to.equal(items[0]);
+        return 'error';
+      });
+
+      await render(
+        <Field.Root validationMode="onBlur" validate={validateSpy}>
+          <Combobox.Root
+            items={items}
+            defaultValue={items[0]}
+            itemToStringLabel={(item) => item.label}
+            itemToStringValue={(item) => item.code}
+          >
+            <Combobox.Input data-testid="input" />
+            <Combobox.Portal>
+              <Combobox.Positioner />
+            </Combobox.Portal>
+          </Combobox.Root>
+        </Field.Root>,
+      );
+
+      const input = screen.getByTestId('input');
+
+      fireEvent.focus(input);
+      fireEvent.blur(input);
+
+      await waitFor(() => {
+        expect(validateSpy.callCount).to.equal(1);
+      });
+      expect(input).to.have.attribute('aria-invalid', 'true');
+    });
+
     it('prop: validationMode=onSubmit', async () => {
       const { user } = await render(
         <Form>
@@ -4482,43 +4589,6 @@ describe('<Combobox.Root />', () => {
       compare.getCalls().forEach((call) => {
         expect(call.args[1]).not.to.equal(null);
       });
-    });
-  });
-
-  describe('prop: keepHighlight', () => {
-    it('keeps the current highlight when the pointer leaves the list', async () => {
-      const { user } = await render(
-        <Combobox.Root items={['apple', 'banana']} autoHighlight keepHighlight>
-          <Combobox.Input data-testid="input" />
-          <Combobox.Portal>
-            <Combobox.Positioner>
-              <Combobox.Popup>
-                <Combobox.List>
-                  {(item: string) => (
-                    <Combobox.Item key={item} value={item}>
-                      {item}
-                    </Combobox.Item>
-                  )}
-                </Combobox.List>
-              </Combobox.Popup>
-            </Combobox.Positioner>
-          </Combobox.Portal>
-        </Combobox.Root>,
-      );
-
-      const input = screen.getByRole<HTMLInputElement>('combobox');
-      await user.click(input);
-      await user.type(input, 'ap');
-
-      const apple = await screen.findByRole('option', { name: 'apple' });
-      await waitFor(() => expect(apple).to.have.attribute('data-highlighted'));
-
-      const outside = document.createElement('div');
-      document.body.appendChild(outside);
-      fireEvent.pointerLeave(apple, { pointerType: 'mouse', relatedTarget: outside });
-
-      await waitFor(() => expect(apple).to.have.attribute('data-highlighted'));
-      outside.remove();
     });
   });
 

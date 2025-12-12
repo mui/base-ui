@@ -1,11 +1,11 @@
 import * as React from 'react';
-import { Select } from '@base-ui-components/react/select';
+import { Select } from '@base-ui/react/select';
 import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
 import { createRenderer, isJSDOM, popupConformanceTests } from '#test-utils';
 import { expect } from 'chai';
 import { spy } from 'sinon';
-import { Field } from '@base-ui-components/react/field';
-import { Form } from '@base-ui-components/react/form';
+import { Field } from '@base-ui/react/field';
+import { Form } from '@base-ui/react/form';
 
 describe('<Select.Root />', () => {
   beforeEach(() => {
@@ -1197,6 +1197,44 @@ describe('<Select.Root />', () => {
 
     clock.withFakeTimers();
 
+    it('submits stringified value to onFormSubmit when itemToStringValue is provided', async () => {
+      const items = [
+        { code: 'US', label: 'United States' },
+        { code: 'CA', label: 'Canada' },
+      ];
+      const handleFormSubmit = spy();
+
+      const { user } = await renderFakeTimers(
+        <Form onFormSubmit={handleFormSubmit}>
+          <Field.Root name="country">
+            <Select.Root
+              defaultValue={items[0]}
+              itemToStringLabel={(item) => item.label}
+              itemToStringValue={(item) => item.code}
+            >
+              <Select.Trigger>
+                <Select.Value />
+              </Select.Trigger>
+              <Select.Portal>
+                <Select.Positioner>
+                  <Select.Popup>
+                    <Select.Item value={items[0]}>United States</Select.Item>
+                    <Select.Item value={items[1]}>Canada</Select.Item>
+                  </Select.Popup>
+                </Select.Positioner>
+              </Select.Portal>
+            </Select.Root>
+          </Field.Root>
+          <button type="submit">Submit</button>
+        </Form>,
+      );
+
+      await user.click(screen.getByText('Submit'));
+
+      expect(handleFormSubmit.callCount).to.equal(1);
+      expect(handleFormSubmit.firstCall.args[0]).to.deep.equal({ country: 'US' });
+    });
+
     it('triggers native HTML validation on submit', async () => {
       const { user } = await render(
         <Form>
@@ -1503,6 +1541,44 @@ describe('<Select.Root />', () => {
 
       await flushMicrotasks();
 
+      expect(trigger).to.have.attribute('aria-invalid', 'true');
+    });
+
+    it('passes raw value to validate when itemToStringValue is provided', async () => {
+      const items = [
+        { code: 'US', label: 'United States' },
+        { code: 'CA', label: 'Canada' },
+      ];
+      const validateSpy = spy((value: unknown) => {
+        expect(value).to.equal(items[0]);
+        return 'error';
+      });
+
+      await render(
+        <Field.Root validationMode="onBlur" validate={validateSpy}>
+          <Select.Root
+            defaultValue={items[0]}
+            itemToStringLabel={(item) => item.label}
+            itemToStringValue={(item) => item.code}
+          >
+            <Select.Trigger data-testid="trigger">
+              <Select.Value />
+            </Select.Trigger>
+            <Select.Portal>
+              <Select.Positioner />
+            </Select.Portal>
+          </Select.Root>
+        </Field.Root>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+
+      fireEvent.focus(trigger);
+      fireEvent.blur(trigger);
+
+      await waitFor(() => {
+        expect(validateSpy.callCount).to.equal(1);
+      });
       expect(trigger).to.have.attribute('aria-invalid', 'true');
     });
 
@@ -2581,6 +2657,60 @@ describe('<Select.Root />', () => {
       await waitFor(() => {
         expect(screen.getByRole('option', { name: 'Bob' })).to.have.attribute('data-selected', '');
       });
+    });
+  });
+
+  describe('prop: highlightItemOnHover', () => {
+    it('highlights an item on mouse move by default', async () => {
+      await render(
+        <Select.Root defaultOpen>
+          <Select.Trigger data-testid="trigger">
+            <Select.Value />
+          </Select.Trigger>
+          <Select.Portal>
+            <Select.Positioner>
+              <Select.Popup>
+                <Select.Item value="a">a</Select.Item>
+                <Select.Item value="b">b</Select.Item>
+                <Select.Item value="c">c</Select.Item>
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
+        </Select.Root>,
+      );
+
+      const optionB = screen.getByRole('option', { name: 'b' });
+      fireEvent.mouseMove(optionB);
+
+      await waitFor(() => {
+        expect(optionB).to.have.attribute('data-highlighted');
+      });
+    });
+
+    it('does not highlight items from mouse movement when disabled', async () => {
+      await render(
+        <Select.Root defaultOpen highlightItemOnHover={false}>
+          <Select.Trigger data-testid="trigger">
+            <Select.Value />
+          </Select.Trigger>
+          <Select.Portal>
+            <Select.Positioner>
+              <Select.Popup>
+                <Select.Item value="a">a</Select.Item>
+                <Select.Item value="b">b</Select.Item>
+                <Select.Item value="c">c</Select.Item>
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
+        </Select.Root>,
+      );
+
+      const optionB = screen.getByRole('option', { name: 'b' });
+      fireEvent.mouseMove(optionB);
+
+      await flushMicrotasks();
+
+      expect(optionB).not.to.have.attribute('data-highlighted');
     });
   });
 });

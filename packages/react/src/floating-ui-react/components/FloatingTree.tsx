@@ -1,9 +1,10 @@
+'use client';
 import * as React from 'react';
 
-import { useId } from '@base-ui-components/utils/useId';
-import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
-import { useRefWithInit } from '@base-ui-components/utils/useRefWithInit';
-import type { FloatingNodeType, FloatingTreeType, ReferenceType } from '../types';
+import { useId } from '@base-ui/utils/useId';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
+import type { FloatingNodeType, FloatingTreeType } from '../types';
 import { FloatingTreeStore } from './FloatingTreeStore';
 
 const FloatingNodeContext = React.createContext<FloatingNodeType | null>(null);
@@ -19,10 +20,8 @@ export const useFloatingParentNodeId = (): string | null =>
 /**
  * Returns the nearest floating tree context, if available.
  */
-export const useFloatingTree = <RT extends ReferenceType = ReferenceType>(
-  externalTree?: FloatingTreeStore<RT>,
-): FloatingTreeType<RT> | null => {
-  const contextTree = React.useContext(FloatingTreeContext) as FloatingTreeType<RT> | null;
+export const useFloatingTree = (externalTree?: FloatingTreeStore): FloatingTreeType | null => {
+  const contextTree = React.useContext(FloatingTreeContext) as FloatingTreeType | null;
   return externalTree ?? contextTree;
 };
 

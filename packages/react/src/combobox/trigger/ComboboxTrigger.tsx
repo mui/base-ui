@@ -1,9 +1,9 @@
 'use client';
 import * as React from 'react';
-import { useStore } from '@base-ui-components/utils/store';
-import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
-import { useTimeout } from '@base-ui-components/utils/useTimeout';
-import { ownerDocument } from '@base-ui-components/utils/owner';
+import { useStore } from '@base-ui/utils/store';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { useTimeout } from '@base-ui/utils/useTimeout';
+import { ownerDocument } from '@base-ui/utils/owner';
 import { BaseUIComponentProps, NativeButtonProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useButton } from '../../use-button';
@@ -84,22 +84,20 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
     currentPointerTypeRef.current = event.pointerType;
   }
 
-  const triggerFloatingContext = React.useMemo(() => {
-    if (!triggerElement || triggerElement === floatingRootContext.elements.domReference) {
-      return floatingRootContext;
+  const domReference = floatingRootContext.select('domReferenceElement');
+
+  // Update the floating root context to use the trigger element when it differs from the current reference.
+  // This ensures useClick and useTypeahead attach handlers to the correct element.
+  React.useEffect(() => {
+    if (!inputInsidePopup) {
+      return;
     }
+    if (triggerElement && triggerElement !== domReference) {
+      floatingRootContext.set('domReferenceElement', triggerElement);
+    }
+  }, [triggerElement, domReference, floatingRootContext, inputInsidePopup]);
 
-    return {
-      ...floatingRootContext,
-      elements: {
-        ...floatingRootContext.elements,
-        reference: triggerElement,
-        domReference: triggerElement,
-      },
-    };
-  }, [floatingRootContext, triggerElement]);
-
-  const { reference: triggerTypeaheadProps } = useTypeahead(triggerFloatingContext, {
+  const { reference: triggerTypeaheadProps } = useTypeahead(floatingRootContext, {
     enabled: !open && !readOnly && !comboboxDisabled && selectionMode === 'single',
     listRef: store.state.labelsRef,
     activeIndex,
@@ -112,7 +110,7 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
     },
   });
 
-  const { reference: triggerClickProps } = useClick(triggerFloatingContext, {
+  const { reference: triggerClickProps } = useClick(floatingRootContext, {
     enabled: !readOnly && !comboboxDisabled,
     event: 'mousedown',
   });
@@ -174,6 +172,10 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
         onMouseDown(event) {
           if (disabled || readOnly) {
             return;
+          }
+
+          if (!inputInsidePopup) {
+            floatingRootContext.set('domReferenceElement', event.currentTarget);
           }
 
           // Ensure items are registered for initial selection highlight.
@@ -267,8 +269,7 @@ export interface ComboboxTriggerState extends FieldRoot.State {
 }
 
 export interface ComboboxTriggerProps
-  extends NativeButtonProps,
-    BaseUIComponentProps<'button', ComboboxTrigger.State> {
+  extends NativeButtonProps, BaseUIComponentProps<'button', ComboboxTrigger.State> {
   /**
    * Whether the component should ignore user interaction.
    * @default false

@@ -98,8 +98,10 @@ export function CompositeRoot<Metadata extends {}, State extends Record<string, 
   );
 }
 
-export interface CompositeRootProps<Metadata, State extends Record<string, any>>
-  extends Pick<BaseUIComponentProps<'div', State>, 'render' | 'className' | 'children'> {
+export interface CompositeRootProps<Metadata, State extends Record<string, any>> extends Pick<
+  BaseUIComponentProps<'div', State>,
+  'render' | 'className' | 'children'
+> {
   props?: Array<Record<string, any> | (() => Record<string, any>)>;
   state?: State;
   stateAttributesMapping?: StateAttributesMapping<State>;

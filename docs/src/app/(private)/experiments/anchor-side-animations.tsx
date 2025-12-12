@@ -1,4 +1,4 @@
-import { Popover } from '@base-ui-components/react/popover';
+import { Popover } from '@base-ui/react/popover';
 import classes from './anchor-side-animations.module.css';
 
 export default function AnchorSideAnimations() {

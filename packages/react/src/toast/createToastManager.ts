@@ -1,4 +1,4 @@
-import { generateId } from '@base-ui-components/utils/generateId';
+import { generateId } from '@base-ui/utils/generateId';
 import type {
   ToastObject,
   ToastManagerAddOptions,

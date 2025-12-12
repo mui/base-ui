@@ -1,12 +1,12 @@
 'use client';
 import * as React from 'react';
 import clsx from 'clsx';
-import { Dialog } from '@base-ui-components/react/dialog';
+import { Dialog } from '@base-ui/react/dialog';
 import {
   SettingsMetadata,
   useExperimentSettings,
 } from 'docs/src/components/Experiments/SettingsPanel';
-import demoStyles from 'docs/src/app/(public)/(content)/react/components/dialog/demos/hero/css-modules/index.module.css';
+import demoStyles from 'docs/src/app/(docs)/react/components/dialog/demos/hero/css-modules/index.module.css';
 import styles from './dialog.module.css';
 
 interface Settings {

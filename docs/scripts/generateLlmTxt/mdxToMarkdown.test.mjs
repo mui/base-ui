@@ -10,7 +10,7 @@ describe('mdxToMarkdown', () => {
     // Read the actual Accordion MDX file
     const accordionMdxPath = path.resolve(
       import.meta.dirname,
-      '../../src/app/(public)/(content)/react/components/accordion/page.mdx',
+      '../../src/app/(docs)/react/components/accordion/page.mdx',
     );
     const accordionMdxContent = fs.readFileSync(accordionMdxPath, 'utf-8');
 
@@ -41,7 +41,7 @@ describe('mdxToMarkdown', () => {
     // Read the actual Direcrion Provider MDX file
     const directionProviderMdxPath = path.resolve(
       import.meta.dirname,
-      '../../src/app/(public)/(content)/react/utils/direction-provider/page.mdx',
+      '../../src/app/(docs)/react/utils/direction-provider/page.mdx',
     );
     const directionProviderMdxContent = fs.readFileSync(directionProviderMdxPath, 'utf-8');
 

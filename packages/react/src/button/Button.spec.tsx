@@ -1,4 +1,4 @@
-import { Button } from '@base-ui-components/react/button';
+import { Button } from '@base-ui/react/button';
 
 <Button />;
 <Button type="submit" form="form-id" name="action" />;

@@ -13,9 +13,9 @@
       "detailedType": "Value[] | Value | null | undefined"
     },
     "value": {
-      "type": "Value[] | Value",
+      "type": "Value[] | Value | null",
       "description": "The value of the select. Use when controlled.",
-      "detailedType": "Value[] | Value | undefined"
+      "detailedType": "Value[] | Value | null | undefined"
     },
     "onValueChange": {
       "type": "((value: Value[] | Value | any | null, eventDetails: Select.Root.ChangeEventDetails) => void)",
@@ -37,6 +37,12 @@
       "type": "((open: boolean, eventDetails: Select.Root.ChangeEventDetails) => void)",
       "description": "Event handler called when the select popup is opened or closed.",
       "detailedType": "| ((\n    open: boolean,\n    eventDetails: Select.Root.ChangeEventDetails,\n  ) => void)\n| undefined"
+    },
+    "highlightItemOnHover": {
+      "type": "boolean",
+      "default": "true",
+      "description": "Whether moving the pointer over items should highlight them.\nDisabling this prop allows CSS `:hover` to be differentiated from the `:focus` (`data-highlighted`) state.",
+      "detailedType": "boolean | undefined"
     },
     "actionsRef": {
       "type": "RefObject<Select.Root.Actions>",

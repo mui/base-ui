@@ -1,9 +1,10 @@
+'use client';
 import * as React from 'react';
-import { useTimeout, Timeout } from '@base-ui-components/utils/useTimeout';
-import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
+import { useTimeout, Timeout } from '@base-ui/utils/useTimeout';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 
 import { getDelay } from '../hooks/useHover';
-import type { FloatingRootContext, Delay } from '../types';
+import type { FloatingRootContext, Delay, FloatingContext } from '../types';
 import {
   BaseUIChangeEventDetails,
   createChangeEventDetails,
@@ -93,6 +94,10 @@ interface UseDelayGroupOptions {
    * @default true
    */
   enabled?: boolean;
+  /**
+   * Whether the trigger this hook is used in has opened the tooltip.
+   */
+  open: boolean;
 }
 
 interface UseDelayGroupReturn {
@@ -117,11 +122,12 @@ interface UseDelayGroupReturn {
  * @internal
  */
 export function useDelayGroup(
-  context: FloatingRootContext,
-  options: UseDelayGroupOptions = {},
+  context: FloatingRootContext | FloatingContext,
+  options: UseDelayGroupOptions = { open: false },
 ): UseDelayGroupReturn {
-  const { open, onOpenChange, floatingId } = context;
-  const { enabled = true } = options;
+  const store = 'rootStore' in context ? context.rootStore : context;
+  const floatingId = store.useState('floatingId');
+  const { enabled = true, open } = options;
 
   const groupContext = React.useContext(FloatingDelayGroupContext);
   const {
@@ -156,7 +162,17 @@ export function useDelayGroup(
       setIsInstantPhase(false);
 
       if (timeoutMs) {
-        timeout.start(timeoutMs, unset);
+        const closingId = floatingId;
+        timeout.start(timeoutMs, () => {
+          // If another tooltip has taken over the group, skip resetting.
+          if (
+            store.select('open') ||
+            (currentIdRef.current && currentIdRef.current !== closingId)
+          ) {
+            return;
+          }
+          unset();
+        });
         return () => {
           timeout.clear();
         };
@@ -175,6 +191,7 @@ export function useDelayGroup(
     initialDelayRef,
     currentContextRef,
     timeout,
+    store,
   ]);
 
   useIsoLayoutEffect(() => {
@@ -188,7 +205,10 @@ export function useDelayGroup(
     const prevContext = currentContextRef.current;
     const prevId = currentIdRef.current;
 
-    currentContextRef.current = { onOpenChange, setIsInstantPhase };
+    // A new tooltip is opening, so cancel any pending timeout that would reset
+    // the group's delay back to the initial value.
+    timeout.clear();
+    currentContextRef.current = { onOpenChange: store.setOpen, setIsInstantPhase };
     currentIdRef.current = floatingId;
     delayRef.current = {
       open: 0,
@@ -196,7 +216,6 @@ export function useDelayGroup(
     };
 
     if (prevId !== null && prevId !== floatingId) {
-      timeout.clear();
       setIsInstantPhase(true);
       prevContext?.setIsInstantPhase(true);
       prevContext?.onOpenChange(false, createChangeEventDetails(REASONS.none));
@@ -208,7 +227,7 @@ export function useDelayGroup(
     enabled,
     open,
     floatingId,
-    onOpenChange,
+    store,
     currentIdRef,
     delayRef,
     timeoutMs,

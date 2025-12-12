@@ -1,7 +1,8 @@
 'use client';
 import * as React from 'react';
-import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
-import { useControlled } from '@base-ui-components/utils/useControlled';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { useControlled } from '@base-ui/utils/useControlled';
+import { useBaseUiId } from '../utils/useBaseUiId';
 import { useRenderElement } from '../utils/useRenderElement';
 import type { BaseUIComponentProps, NativeButtonProps } from '../utils/types';
 import { useToggleGroupContext } from '../toggle-group/ToggleGroupContext';
@@ -37,20 +38,17 @@ export const Toggle = React.forwardRef(function Toggle<Value>(
     ...elementProps
   } = componentProps;
 
-  const value = valueProp ?? '';
-
+  // `|| undefined` handles cases, where value is falsy (i.e. "")
+  const value = useBaseUiId(valueProp || undefined);
   const groupContext = useToggleGroupContext();
-
-  const groupValue = groupContext?.value;
-
-  const selected = Array.isArray(groupValue) ? groupValue.includes(value) : groupValue === value;
+  const groupValue = groupContext?.value ?? [];
 
   const defaultPressed = groupContext ? undefined : defaultPressedProp;
 
   const disabled = (disabledProp || groupContext?.disabled) ?? false;
 
   const [pressed, setPressedState] = useControlled({
-    controlled: groupContext && value ? selected : pressedProp,
+    controlled: groupContext ? groupValue?.indexOf(value) > -1 : pressedProp,
     default: defaultPressed,
     name: 'Toggle',
     state: 'pressed',
@@ -58,7 +56,9 @@ export const Toggle = React.forwardRef(function Toggle<Value>(
 
   const onPressedChange = useStableCallback(
     (nextPressed: boolean, eventDetails: Toggle.ChangeEventDetails) => {
-      groupContext?.setGroupValue?.(value, nextPressed, eventDetails);
+      if (value) {
+        groupContext?.setGroupValue?.(value, nextPressed, eventDetails);
+      }
       onPressedChangeProp?.(nextPressed, eventDetails);
     },
   );
@@ -137,9 +137,8 @@ export interface ToggleState {
   disabled: boolean;
 }
 
-export interface ToggleProps<Value>
-  extends NativeButtonProps,
-    Omit<BaseUIComponentProps<'button', Toggle.State>, 'value'> {
+export interface ToggleProps
+  extends NativeButtonProps, BaseUIComponentProps<'button', Toggle.State> {
   /**
    * Whether the toggle button is currently pressed.
    * This is the controlled counterpart of `defaultPressed`.

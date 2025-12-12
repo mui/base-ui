@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import type { InteractionType } from '@base-ui-components/utils/useEnhancedClickHandler';
+import type { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import { FloatingFocusManager, useHoverFloatingInteraction } from '../../floating-ui-react';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import type { MenuRoot } from '../root/MenuRoot';
@@ -136,7 +136,7 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
       initialFocus={parent.type !== 'menu'}
       restoreFocus
       externalTree={parent.type !== 'menubar' ? floatingTreeRoot : undefined}
-      previousFocusableElement={activeTriggerElement}
+      previousFocusableElement={activeTriggerElement as HTMLElement | null}
       nextFocusableElement={
         parent.type === undefined ? store.context.triggerFocusTargetRef : undefined
       }
