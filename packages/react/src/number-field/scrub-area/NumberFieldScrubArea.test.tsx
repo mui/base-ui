@@ -5,22 +5,29 @@ import { NumberField } from '@base-ui/react/number-field';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import { isWebKit } from '@base-ui/utils/detectBrowser';
 
-function createPointerMoveEvent({ movementX = 0, movementY = 0 }) {
-  return new PointerEvent('pointermove', {
-    bubbles: true,
-    movementX,
-    movementY,
-  });
-}
+let currentPos = { clientX: 0, clientY: 0 };
 
 function createPointerDownEvent(elm: HTMLElement) {
   const box = elm.getBoundingClientRect();
   const centerX = box.left + box.width / 2;
   const centerY = box.top + box.height / 2;
+  currentPos = { clientX: centerX, clientY: centerY };
   return new PointerEvent('pointerdown', {
     bubbles: true,
-    clientX: centerX,
-    clientY: centerY,
+    ...currentPos,
+  });
+}
+
+function createPointerMoveEvent({ movementX = 0, movementY = 0 }) {
+  currentPos = {
+    clientX: currentPos.clientX + movementX,
+    clientY: currentPos.clientY + movementY,
+  };
+  return new PointerEvent('pointermove', {
+    bubbles: true,
+    ...currentPos,
+    movementX,
+    movementY,
   });
 }
 
