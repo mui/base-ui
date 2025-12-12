@@ -2,8 +2,15 @@ import * as React from 'react';
 import type { Metadata, Viewport } from 'next/types';
 import { GoogleAnalytics } from 'docs/src/components/GoogleAnalytics';
 import { DocsProviders } from 'docs/src/components/DocsProviders';
+import * as SideNav from 'docs/src/components/SideNav';
+import * as QuickNav from 'docs/src/components/QuickNav/QuickNav';
+import { Header } from 'docs/src/components/Header';
+import { MAIN_CONTENT_ID } from 'docs/src/components/SkipNav';
+import { nav } from 'docs/src/nav';
 import 'docs/src/styles.css';
 import './layout.css';
+
+const isProduction = process.env.DEPLOY_ENV === 'production';
 
 export default function Layout({ children }: React.PropsWithChildren) {
   return (
@@ -36,7 +43,37 @@ export default function Layout({ children }: React.PropsWithChildren) {
         <DocsProviders>
           <div className="RootLayout">
             <div className="RootLayoutContainer">
-              <div className="RootLayoutContent">{children}</div>
+              <div className="RootLayoutContent">
+                <div className="ContentLayoutRoot">
+                  <Header isProduction={isProduction} />
+                  <SideNav.Root>
+                    {nav.map((section) => (
+                      <SideNav.Section key={section.label}>
+                        <SideNav.Heading>{section.label}</SideNav.Heading>
+                        <SideNav.List>
+                          {section.links
+                            .filter((link) => (link.unstable ? !isProduction : true))
+                            .map((link) => (
+                              <SideNav.Item
+                                key={link.href}
+                                href={link.href}
+                                external={link.external}
+                              >
+                                {link.label}
+                                {link.isNew && <SideNav.Badge>New</SideNav.Badge>}
+                                {link.unstable && <SideNav.Badge>Preview</SideNav.Badge>}
+                              </SideNav.Item>
+                            ))}
+                        </SideNav.List>
+                      </SideNav.Section>
+                    ))}
+                  </SideNav.Root>
+
+                  <main className="ContentLayoutMain" id={MAIN_CONTENT_ID}>
+                    <QuickNav.Container>{children}</QuickNav.Container>
+                  </main>
+                </div>
+              </div>
               <span className="RootLayoutFooter" />
             </div>
           </div>
@@ -48,10 +85,9 @@ export default function Layout({ children }: React.PropsWithChildren) {
 }
 
 export const metadata: Metadata = {
-  title: {
-    template: '%s · Base UI',
-    default: 'Base UI',
-  },
+  // Title and description are pulled from <h1> and <Subtitle> in the MDX.
+  title: null,
+  description: null,
   twitter: {
     site: '@base_ui',
     card: 'summary_large_image',
