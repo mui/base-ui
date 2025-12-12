@@ -6,7 +6,7 @@ import { Paper } from './logos/Paper';
 import { Zed } from './logos/Zed';
 import { Unsplash } from './logos/Unsplash';
 import { Operate } from './logos/Operate';
-import { HighlightAI } from './logos/HighlightAI';
+import { GitHub } from './logos/GitHub';
 import { Interfere } from './logos/Interfere';
 import { PlusIcon } from './icons/PlusIcon';
 import { MinusIcon } from './icons/MinusIcon';
@@ -102,6 +102,16 @@ export default function Homepage() {
             <div className="d-f fd-c g-2">
               <div className="Figure" aria-hidden="true">
                 <div className="d-f ai-c jc-c h-100">
+                  <GitHub />
+                </div>
+              </div>
+              <span className="Text size-1">GitHub</span>
+            </div>
+          </li>
+          <li>
+            <div className="d-f fd-c g-2">
+              <div className="Figure" aria-hidden="true">
+                <div className="d-f ai-c jc-c h-100">
                   <Zed />
                 </div>
               </div>
@@ -126,16 +136,6 @@ export default function Homepage() {
                 </div>
               </div>
               <span className="Text size-1">Operate</span>
-            </div>
-          </li>
-          <li>
-            <div className="d-f fd-c g-2">
-              <div className="Figure" aria-hidden="true">
-                <div className="d-f ai-c jc-c h-100">
-                  <HighlightAI />
-                </div>
-              </div>
-              <span className="Text size-1">Highlight AI</span>
             </div>
           </li>
           <li>
