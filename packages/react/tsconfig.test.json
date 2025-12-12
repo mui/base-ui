@@ -12,6 +12,7 @@
     "types": ["vitest/globals", "@types/chai", "@types/chai-dom"]
   },
   "include": [
+    "vitest-env.d.ts",
     "src/**/*.spec.ts*",
     "src/**/*.test.ts*",
     "src/index.test.ts",

@@ -322,7 +322,7 @@ describe('<Popover.Trigger />', () => {
   it.skipIf(isJSDOM)(
     'should toggle closed with Enter or Space when rendering a <div>',
     async () => {
-      const { userEvent: user } = await import('@vitest/browser/context');
+      const { userEvent: user } = await import('vitest/browser');
       const { render: vbrRender, cleanup } = await import('vitest-browser-react');
 
       try {

@@ -17,6 +17,11 @@ export async function formatProperties(
       continue;
     }
 
+    // skip props marked with @ignore
+    if (prop.documentation?.hasTag('ignore')) {
+      continue;
+    }
+
     const exampleTag = prop.documentation?.tags
       ?.filter((tag) => tag.name === 'example')
       .map((tag) => tag.value)
