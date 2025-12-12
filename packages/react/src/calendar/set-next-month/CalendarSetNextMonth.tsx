@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useStore } from '@base-ui/utils/store';
 import { useSharedCalendarRootContext } from '../root/SharedCalendarRootContext';
 import { useRenderElement } from '../../utils/useRenderElement';
@@ -33,13 +32,6 @@ export const CalendarSetNextMonth = React.forwardRef(function CalendarSetNextMon
 
   const isDisabled = useStore(store, selectors.isSetMonthButtonDisabled, disabled, targetDate);
 
-  const setTarget = useStableCallback((event: React.MouseEvent<HTMLElement>) => {
-    if (isDisabled) {
-      return;
-    }
-    store.setVisibleDate(targetDate, event, false);
-  });
-
   const { getButtonProps, buttonRef } = useButton({
     disabled: isDisabled,
     native: nativeButton,
@@ -54,7 +46,16 @@ export const CalendarSetNextMonth = React.forwardRef(function CalendarSetNextMon
     state,
     ref: [buttonRef, forwardedRef],
     props: [
-      { onClick: setTarget, tabIndex: 0, 'aria-label': 'Next' },
+      {
+        tabIndex: 0,
+        'aria-label': 'Next',
+        onClick(event) {
+          if (isDisabled) {
+            return;
+          }
+          store.setVisibleDate(targetDate, event, false);
+        },
+      },
       elementProps,
       getButtonProps,
     ],

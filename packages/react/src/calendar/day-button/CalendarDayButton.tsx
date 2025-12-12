@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useStore } from '@base-ui/utils/store';
 import { BaseUIComponentProps, NativeButtonProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
@@ -80,13 +79,6 @@ const InnerCalendarDayButton = React.forwardRef(function InnerCalendarDayButton(
     [adapter, value, format],
   );
 
-  const onClick = useStableCallback((event: React.MouseEvent<HTMLButtonElement>) => {
-    if (isUnavailable) {
-      return;
-    }
-    store.selectDate(value, event);
-  });
-
   const itemMetadata = React.useMemo(
     () => ({ focusableWhenDisabled: !isDisabled && !isOutsideCurrentMonth }),
     [isDisabled, isOutsideCurrentMonth],
@@ -99,7 +91,12 @@ const InnerCalendarDayButton = React.forwardRef(function InnerCalendarDayButton(
     'aria-disabled': isDisabled || isOutsideCurrentMonth || isUnavailable ? true : undefined,
     children: formattedValue,
     tabIndex: isTabbable ? 0 : -1,
-    onClick,
+    onClick(event) {
+      if (isUnavailable) {
+        return;
+      }
+      store.selectDate(value, event);
+    },
   };
 
   const state: CalendarDayButton.State = React.useMemo(

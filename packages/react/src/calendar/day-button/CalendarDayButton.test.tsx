@@ -218,7 +218,7 @@ describe('<Calendar.DayButton />', () => {
   });
 
   describe('disabled state', () => {
-    it('should be disabled when props.disabled is true', () => {
+    it('should have aria-disabled="true" and data-disabled when props.disabled is true', () => {
       const date = adapter.date('2025-02-04', 'default');
 
       render(
@@ -235,11 +235,12 @@ describe('<Calendar.DayButton />', () => {
         </Calendar.Root>,
       );
 
-      const button = document.querySelector('button');
+      const button = document.querySelector('button')!;
+      expect(button).to.have.attribute('aria-disabled', 'true');
       expect(button).to.have.attribute('data-disabled');
     });
 
-    it('should be disabled when the date is before the minDate', () => {
+    it('should have aria-disabled="true" and data-disabled when the date is before the minDate', () => {
       const date = adapter.date('2025-02-04', 'default');
 
       render(
@@ -259,11 +260,12 @@ describe('<Calendar.DayButton />', () => {
         </Calendar.Root>,
       );
 
-      const button = document.querySelector('button');
+      const button = document.querySelector('button')!;
+      expect(button).to.have.attribute('aria-disabled', 'true');
       expect(button).to.have.attribute('data-disabled');
     });
 
-    it('should be disabled when the date is after the maxDate', () => {
+    it('should have aria-disabled="true" and data-disabled when the date is after the maxDate', () => {
       const date = adapter.date('2025-02-04', 'default');
 
       render(
@@ -283,8 +285,31 @@ describe('<Calendar.DayButton />', () => {
         </Calendar.Root>,
       );
 
-      const button = document.querySelector('button');
+      const button = document.querySelector('button')!;
+      expect(button).to.have.attribute('aria-disabled', 'true');
       expect(button).to.have.attribute('data-disabled');
+    });
+
+    it('should not have aria-disabled or data-disabled when the date is not disabled', () => {
+      const date = adapter.date('2025-02-04', 'default');
+
+      render(
+        <Calendar.Root visibleDate={adapter.startOfMonth(date)}>
+          <Calendar.DayGrid>
+            <Calendar.DayGridBody>
+              <Calendar.DayGridRow value={adapter.startOfWeek(date)}>
+                <Calendar.DayGridCell value={date}>
+                  <Calendar.DayButton />
+                </Calendar.DayGridCell>
+              </Calendar.DayGridRow>
+            </Calendar.DayGridBody>
+          </Calendar.DayGrid>
+        </Calendar.Root>,
+      );
+
+      const button = document.querySelector('button')!;
+      expect(button).not.to.have.attribute('aria-disabled');
+      expect(button).not.to.have.attribute('data-disabled');
     });
   });
 
@@ -310,6 +335,28 @@ describe('<Calendar.DayButton />', () => {
       expect(button).to.have.attribute('aria-current', 'date');
       expect(button).to.have.attribute('data-current');
     });
+
+    it('should not have aria-current or data-current when the date is not today', () => {
+      const date = adapter.date('2025-02-04', 'default');
+
+      render(
+        <Calendar.Root visibleDate={adapter.startOfMonth(date)}>
+          <Calendar.DayGrid>
+            <Calendar.DayGridBody>
+              <Calendar.DayGridRow value={adapter.startOfWeek(date)}>
+                <Calendar.DayGridCell value={date}>
+                  <Calendar.DayButton />
+                </Calendar.DayGridCell>
+              </Calendar.DayGridRow>
+            </Calendar.DayGridBody>
+          </Calendar.DayGrid>
+        </Calendar.Root>,
+      );
+
+      const button = document.querySelector('button')!;
+      expect(button).not.to.have.attribute('aria-current');
+      expect(button).not.to.have.attribute('data-current');
+    });
   });
 
   describe('outside month state', () => {
@@ -334,7 +381,7 @@ describe('<Calendar.DayButton />', () => {
       expect(button).not.to.have.attribute('data-outside-month');
     });
 
-    it('should have data-outside-month attribute when the date is outside the current month', () => {
+    it('should have data-outside-month attribute and aria-disabled when the date is outside the current month', () => {
       const date = adapter.date('2025-01-31', 'default');
 
       render(
@@ -351,13 +398,14 @@ describe('<Calendar.DayButton />', () => {
         </Calendar.Root>,
       );
 
-      const button = document.querySelector('button');
+      const button = document.querySelector('button')!;
       expect(button).to.have.attribute('data-outside-month');
+      expect(button).to.have.attribute('aria-disabled', 'true');
     });
   });
 
   describe('unavailable state', () => {
-    it('should not have data-unavailable attribute when the date is available', () => {
+    it('should not have data-unavailable or aria-disabled when the date is available', () => {
       const date = adapter.date('2025-02-04', 'default');
 
       render(
@@ -376,9 +424,10 @@ describe('<Calendar.DayButton />', () => {
 
       const button = document.querySelector('button')!;
       expect(button).not.to.have.attribute('data-unavailable');
+      expect(button).not.to.have.attribute('aria-disabled');
     });
 
-    it('should have data-unavailable attribute when the date is unavailable', () => {
+    it('should have data-unavailable and aria-disabled when the date is unavailable', () => {
       const date = adapter.date('2025-02-04', 'default');
 
       render(
@@ -397,6 +446,7 @@ describe('<Calendar.DayButton />', () => {
 
       const button = document.querySelector('button')!;
       expect(button).to.have.attribute('data-unavailable');
+      expect(button).to.have.attribute('aria-disabled', 'true');
     });
   });
 
@@ -466,6 +516,160 @@ describe('<Calendar.DayButton />', () => {
       expect(button).toHaveAccessibleName(
         adapter.format(date, 'localizedDateWithFullMonthAndWeekDay'),
       );
+    });
+  });
+
+  describe('tabIndex', () => {
+    it('should have tabIndex={0} when the date is the first day of the month that contains no selected date or reference date', () => {
+      const date = adapter.date('2025-02-01', 'default');
+
+      render(
+        <Calendar.Root visibleDate={adapter.startOfMonth(date)}>
+          <Calendar.DayGrid>
+            <Calendar.DayGridBody>
+              <Calendar.DayGridRow value={adapter.startOfWeek(date)}>
+                <Calendar.DayGridCell value={date}>
+                  <Calendar.DayButton />
+                </Calendar.DayGridCell>
+              </Calendar.DayGridRow>
+            </Calendar.DayGridBody>
+          </Calendar.DayGrid>
+        </Calendar.Root>,
+      );
+
+      const button = document.querySelector('button')!;
+      expect(button).to.have.attribute('tabindex', '0');
+    });
+
+    it('should have tabIndex={-1} when the date is not the first day of the month that contains no selected date or reference date', () => {
+      const date = adapter.date('2025-02-04', 'default');
+
+      render(
+        <Calendar.Root visibleDate={adapter.startOfMonth(date)}>
+          <Calendar.DayGrid>
+            <Calendar.DayGridBody>
+              <Calendar.DayGridRow value={adapter.startOfWeek(date)}>
+                <Calendar.DayGridCell value={date}>
+                  <Calendar.DayButton />
+                </Calendar.DayGridCell>
+              </Calendar.DayGridRow>
+            </Calendar.DayGridBody>
+          </Calendar.DayGrid>
+        </Calendar.Root>,
+      );
+
+      const button = document.querySelector('button')!;
+      expect(button).to.have.attribute('tabindex', '-1');
+    });
+
+    it('should have tabIndex={0} when the date is selected', () => {
+      const date = adapter.date('2025-02-04', 'default');
+
+      render(
+        <Calendar.Root visibleDate={adapter.startOfMonth(date)} value={date}>
+          <Calendar.DayGrid>
+            <Calendar.DayGridBody>
+              <Calendar.DayGridRow value={adapter.startOfWeek(date)}>
+                <Calendar.DayGridCell value={date}>
+                  <Calendar.DayButton />
+                </Calendar.DayGridCell>
+              </Calendar.DayGridRow>
+            </Calendar.DayGridBody>
+          </Calendar.DayGrid>
+        </Calendar.Root>,
+      );
+
+      const button = document.querySelector('button')!;
+      expect(button).to.have.attribute('tabindex', '0');
+    });
+
+    it('should have tabIndex={0} when the date is the reference date and no date is selected', () => {
+      const date = adapter.date('2025-02-04', 'default');
+
+      render(
+        <Calendar.Root visibleDate={adapter.startOfMonth(date)} referenceDate={date}>
+          <Calendar.DayGrid>
+            <Calendar.DayGridBody>
+              <Calendar.DayGridRow value={adapter.startOfWeek(date)}>
+                <Calendar.DayGridCell value={date}>
+                  <Calendar.DayButton />
+                </Calendar.DayGridCell>
+              </Calendar.DayGridRow>
+            </Calendar.DayGridBody>
+          </Calendar.DayGrid>
+        </Calendar.Root>,
+      );
+
+      const button = document.querySelector('button')!;
+      expect(button).to.have.attribute('tabindex', '0');
+    });
+
+    it('should have tabIndex={-1} when the date is the reference date but a date is selected in the same month', () => {
+      const date = adapter.date('2025-02-04', 'default');
+      const selectedDate = adapter.date('2025-02-10', 'default');
+
+      render(
+        <Calendar.Root
+          visibleDate={adapter.startOfMonth(date)}
+          referenceDate={date}
+          value={selectedDate}
+        >
+          <Calendar.DayGrid>
+            <Calendar.DayGridBody>
+              <Calendar.DayGridRow value={adapter.startOfWeek(date)}>
+                <Calendar.DayGridCell value={date}>
+                  <Calendar.DayButton />
+                </Calendar.DayGridCell>
+              </Calendar.DayGridRow>
+            </Calendar.DayGridBody>
+          </Calendar.DayGrid>
+        </Calendar.Root>,
+      );
+
+      const button = document.querySelector('button')!;
+      expect(button).to.have.attribute('tabindex', '-1');
+    });
+
+    it('should have tabIndex={-1} when the date is outside the current month event if its the first day of the month', () => {
+      const date = adapter.date('2025-01-01', 'default');
+
+      render(
+        <Calendar.Root visibleDate={adapter.addMonths(adapter.startOfMonth(date), -1)}>
+          <Calendar.DayGrid>
+            <Calendar.DayGridBody>
+              <Calendar.DayGridRow value={adapter.startOfWeek(date)}>
+                <Calendar.DayGridCell value={date}>
+                  <Calendar.DayButton />
+                </Calendar.DayGridCell>
+              </Calendar.DayGridRow>
+            </Calendar.DayGridBody>
+          </Calendar.DayGrid>
+        </Calendar.Root>,
+      );
+
+      const button = document.querySelector('button')!;
+      expect(button).to.have.attribute('tabindex', '-1');
+    });
+
+    it('should have tabIndex={-1} when the date is outside the current month even if it is the selected value', () => {
+      const date = adapter.date('2025-01-31', 'default');
+
+      render(
+        <Calendar.Root visibleDate={adapter.addMonths(adapter.startOfMonth(date), 1)} value={date}>
+          <Calendar.DayGrid>
+            <Calendar.DayGridBody>
+              <Calendar.DayGridRow value={adapter.startOfWeek(date)}>
+                <Calendar.DayGridCell value={date}>
+                  <Calendar.DayButton />
+                </Calendar.DayGridCell>
+              </Calendar.DayGridRow>
+            </Calendar.DayGridBody>
+          </Calendar.DayGrid>
+        </Calendar.Root>,
+      );
+
+      const button = document.querySelector('button')!;
+      expect(button).to.have.attribute('tabindex', '-1');
     });
   });
 });

@@ -1,6 +1,5 @@
 import * as React from 'react';
 import { useStore } from '@base-ui/utils/store';
-import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useSharedCalendarRootContext } from '../root/SharedCalendarRootContext';
 import { SharedCalendarDayGridBodyContext } from './SharedCalendarDayGridBodyContext';
 import { BaseUIEvent, HTMLProps } from '../../utils/types';
@@ -75,7 +74,7 @@ export function useSharedCalendarDayGridBody(
     return output;
   }, [itemMap]);
 
-  const handleItemMapUpdate = useStableCallback((newMap: typeof itemMap) => {
+  const handleItemMapUpdate = (newMap: typeof itemMap) => {
     setItemMap(newMap);
     if (executeAfterItemMapUpdate.current) {
       queueMicrotask(() => {
@@ -83,7 +82,7 @@ export function useSharedCalendarDayGridBody(
         executeAfterItemMapUpdate.current = null;
       });
     }
-  });
+  };
 
   const focusNextNonDisabledElement = ({
     elements = items,
@@ -193,36 +192,34 @@ export function useSharedCalendarDayGridBody(
     }
   };
 
-  const handleItemLooping = useStableCallback(
-    (
-      eventKey: React.KeyboardEvent['key'],
-      startingIndex: number,
-      elementsRef: React.RefObject<(HTMLDivElement | null)[]>,
-      decrement: boolean,
-    ) => {
-      const isHorizontal = eventKey === ARROW_LEFT || eventKey === ARROW_RIGHT;
-      let newHighlightedIndex = startingIndex;
-      if (eventKey === ARROW_LEFT) {
-        // Guess the last cell in the last week
-        newHighlightedIndex = weeks.length * 7 - 1;
-      } else if (eventKey === ARROW_RIGHT) {
-        newHighlightedIndex = 0;
-      } else if (eventKey === ARROW_DOWN) {
-        // Guess the same weekday in the first week of next month
-        newHighlightedIndex %= 7;
-      } else if (eventKey === ARROW_UP) {
-        // Guess the same weekday in the last week of the previous month
-        newHighlightedIndex = weeks.length * 7 - (7 - (startingIndex % 7));
-      }
+  const handleItemLooping = (
+    eventKey: React.KeyboardEvent['key'],
+    startingIndex: number,
+    elementsRef: React.RefObject<(HTMLDivElement | null)[]>,
+    decrement: boolean,
+  ) => {
+    const isHorizontal = eventKey === ARROW_LEFT || eventKey === ARROW_RIGHT;
+    let newHighlightedIndex = startingIndex;
+    if (eventKey === ARROW_LEFT) {
+      // Guess the last cell in the last week
+      newHighlightedIndex = weeks.length * 7 - 1;
+    } else if (eventKey === ARROW_RIGHT) {
+      newHighlightedIndex = 0;
+    } else if (eventKey === ARROW_DOWN) {
+      // Guess the same weekday in the first week of next month
+      newHighlightedIndex %= 7;
+    } else if (eventKey === ARROW_UP) {
+      // Guess the same weekday in the last week of the previous month
+      newHighlightedIndex = weeks.length * 7 - (7 - (startingIndex % 7));
+    }
 
-      focusNextNonDisabledElement({
-        elements: elementsRef.current,
-        newHighlightedIndex,
-        decrement,
-        amount: isHorizontal ? 1 : 7,
-      });
-    },
-  );
+    focusNextNonDisabledElement({
+      elements: elementsRef.current,
+      newHighlightedIndex,
+      decrement,
+      amount: isHorizontal ? 1 : 7,
+    });
+  };
 
   const compositeRootProps: CompositeRoot.Props<useSharedCalendarDayGridBody.ItemMetadata, any> = {
     cols: 7,
