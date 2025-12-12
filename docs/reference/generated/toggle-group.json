@@ -3,19 +3,19 @@
   "description": "Provides a shared state to a series of toggle buttons.",
   "props": {
     "defaultValue": {
-      "type": "Value[] | Value",
+      "type": "ToggleValue[]",
       "description": "The open state of the toggle group represented by an array of\nthe values of all pressed toggle buttons.\nThis is the uncontrolled counterpart of `value`.",
-      "detailedType": "Value[] | Value | undefined"
+      "detailedType": "ToggleValue[] | undefined"
     },
     "value": {
-      "type": "Value[] | Value",
+      "type": "ToggleValue[]",
       "description": "The open state of the toggle group represented by an array of\nthe values of all pressed toggle buttons.\nThis is the controlled counterpart of `defaultValue`.",
-      "detailedType": "Value[] | Value | undefined"
+      "detailedType": "ToggleValue[] | undefined"
     },
     "onValueChange": {
-      "type": "((groupValue: Value[] | Value | undefined, eventDetails: Toggle.Group.ChangeEventDetails) => void)",
+      "type": "((groupValue: ToggleValue[], eventDetails: Toggle.Group.ChangeEventDetails) => void)",
       "description": "Callback fired when the pressed states of the toggle group changes.",
-      "detailedType": "| ((\n    groupValue: Value[] | Value | undefined,\n    eventDetails: Toggle.Group.ChangeEventDetails,\n  ) => void)\n| undefined"
+      "detailedType": "| ((\n    groupValue: ToggleValue[],\n    eventDetails: Toggle.Group.ChangeEventDetails,\n  ) => void)\n| undefined"
     },
     "loopFocus": {
       "type": "boolean",
@@ -24,14 +24,10 @@
       "detailedType": "boolean | undefined"
     },
     "multiple": {
-      "type": "boolean | undefined",
+      "type": "boolean",
       "default": "false",
       "description": "When `false` only one item in the group can be pressed. If any item in\nthe group becomes pressed, the others will become unpressed.\nWhen `true` multiple items can be pressed.",
       "detailedType": "boolean | undefined"
-    },
-    "ref": {
-      "type": "RefObject<HTMLDivElement>",
-      "detailedType": "React.RefObject<HTMLDivElement> | undefined"
     },
     "disabled": {
       "type": "boolean",
