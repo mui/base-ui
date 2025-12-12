@@ -66,6 +66,8 @@ jobs:
       - run:
           name: Run tests on JSDOM
           command: pnpm test:jsdom:coverage
+      - store_test_results:
+          path: test-results
       - code-infra/upload-coverage:
           key: << parameters.react-version >>-jsdom
   test_lint:
@@ -160,6 +162,8 @@ jobs:
       - run:
           name: Run tests on headless Chromium
           command: pnpm test:chromium --coverage
+      - store_test_results:
+          path: test-results
       - code-infra/upload-coverage:
           key: << parameters.react-version >>-browser
   test_regressions:
@@ -173,6 +177,8 @@ jobs:
       - run:
           name: Run visual regression tests
           command: xvfb-run pnpm test:regressions
+      - store_test_results:
+          path: test-results
       - run:
           name: Upload screenshots to Argos CI
           command: pnpm test:argos
@@ -187,6 +193,8 @@ jobs:
       - run:
           name: pnpm test:e2e
           command: pnpm test:e2e
+      - store_test_results:
+          path: test-results
 
   test_package:
     <<: *default-job
@@ -221,6 +229,8 @@ jobs:
           command: pnpm test:jsdom:coverage
           environment:
             MUI_DISABLE_WORKSPACE_ALIASES: 1
+      - store_test_results:
+          path: test-results
 
   test_browser_compiler:
     <<: *default-job
@@ -236,6 +246,8 @@ jobs:
           command: pnpm test:chromium --coverage
           environment:
             MUI_DISABLE_WORKSPACE_ALIASES: 1
+      - store_test_results:
+          path: test-results
 
 workflows:
   pipeline:
