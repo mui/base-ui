@@ -7,6 +7,47 @@ export default function Layout({ children }: React.PropsWithChildren) {
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://base-ui.com'),
+  title: {
+    template: '%s · Base UI',
+    default: 'Base UI',
+  },
+  twitter: {
+    site: '@base_ui',
+    card: 'summary_large_image',
+  },
+  openGraph: {
+    type: 'website',
+    locale: 'en_US',
+    title: {
+      template: '%s · Base UI',
+      default: 'Base UI',
+    },
+  },
+  alternates: {
+    canonical: './',
+  },
+  icons: {
+    icon: [
+      {
+        rel: 'icon',
+        url:
+          process.env.NODE_ENV !== 'production' ? '/static/favicon-dev.ico' : '/static/favicon.ico',
+        sizes: '32x32',
+      },
+      {
+        rel: 'icon',
+        type: 'image/svg+xml',
+        url:
+          process.env.NODE_ENV !== 'production' ? '/static/favicon-dev.svg' : '/static/favicon.svg',
+      },
+    ],
+    apple: [
+      {
+        rel: 'apple-touch-icon',
+        url: '/static/apple-touch-icon.png',
+      },
+    ],
+  },
 };
 
 export const viewport: Viewport = {

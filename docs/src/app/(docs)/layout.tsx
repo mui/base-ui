@@ -97,42 +97,4 @@ export const metadata: Metadata = {
   // Title and description are pulled from <h1> and <Subtitle> in the MDX.
   title: null,
   description: null,
-  twitter: {
-    site: '@base_ui',
-    card: 'summary_large_image',
-  },
-  openGraph: {
-    type: 'website',
-    locale: 'en_US',
-    title: {
-      template: '%s · Base UI',
-      default: 'Base UI',
-    },
-    ttl: 604800,
-  },
-  alternates: {
-    canonical: './',
-  },
-  icons: {
-    icon: [
-      {
-        rel: 'icon',
-        url:
-          process.env.NODE_ENV !== 'production' ? '/static/favicon-dev.ico' : '/static/favicon.ico',
-        sizes: '32x32',
-      },
-      {
-        rel: 'icon',
-        type: 'image/svg+xml',
-        url:
-          process.env.NODE_ENV !== 'production' ? '/static/favicon-dev.svg' : '/static/favicon.svg',
-      },
-    ],
-    apple: [
-      {
-        rel: 'apple-touch-icon',
-        url: '/static/apple-touch-icon.png',
-      },
-    ],
-  },
 };
