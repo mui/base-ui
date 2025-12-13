@@ -3,7 +3,6 @@ import * as path from 'path';
 import * as url from 'url';
 import * as fs from 'fs';
 import { withDeploymentConfig } from '@mui/internal-docs-infra/withDocsInfra';
-import transformMarkdownMetadata from '@mui/internal-docs-infra/pipeline/transformMarkdownMetadata';
 import transformMarkdownRelativePaths from '@mui/internal-docs-infra/pipeline/transformMarkdownRelativePaths';
 import nextMdx from '@next/mdx';
 import rehypeExtractToc from '@stefanprobst/rehype-extract-toc';
@@ -22,29 +21,7 @@ const workspaceRoot = path.resolve(currentDirectory, '../');
 
 const withMdx = nextMdx({
   options: {
-    remarkPlugins: [
-      remarkGfm,
-      [
-        transformMarkdownMetadata,
-        {
-          titleSuffix: ' · Base UI',
-          extractToIndex: {
-            include: ['src/app/react'],
-            exclude: [
-              'src/app/careers',
-              'src/app/production-error',
-              'src/app/test',
-              'src/app/experiments',
-              'src/app/playground',
-            ],
-            baseDir: path.dirname(url.fileURLToPath(import.meta.url)),
-            useVisibleDescription: true,
-          },
-        },
-      ],
-      remarkTypography,
-      transformMarkdownRelativePaths,
-    ],
+    remarkPlugins: [remarkGfm, remarkTypography, transformMarkdownRelativePaths],
     rehypePlugins: [
       rehypeReference,
       ...rehypeSyntaxHighlighting,

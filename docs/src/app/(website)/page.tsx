@@ -1,5 +1,4 @@
 import * as React from 'react';
-import type { Metadata, Viewport } from 'next';
 import { Accordion } from '@base-ui/react/accordion';
 import { Link } from 'docs/src/components/Link';
 import { Paper } from './logos/Paper';
@@ -346,40 +345,3 @@ export default function Homepage() {
     </React.Fragment>
   );
 }
-
-const description = 'Unstyled UI components for building accessible web apps and design systems.';
-
-export const metadata: Metadata = {
-  description,
-  twitter: {
-    description,
-  },
-  openGraph: {
-    description,
-  },
-};
-
-// Custom viewport for the homepage because on mobile it doesn't have a header
-export const viewport: Viewport = {
-  themeColor: [
-    // Desktop Safari page background
-    {
-      media: '(prefers-color-scheme: light) and (min-width: 1024px)',
-      color: 'oklch(95% 0.25% 264)',
-    },
-    {
-      media: '(prefers-color-scheme: dark) and (min-width: 1024px)',
-      color: 'oklch(25% 1% 264)',
-    },
-
-    // Mobile Safari header background (match the page content)
-    {
-      media: '(prefers-color-scheme: light)',
-      color: '#FFF',
-    },
-    {
-      media: '(prefers-color-scheme: dark)',
-      color: '#000',
-    },
-  ],
-};

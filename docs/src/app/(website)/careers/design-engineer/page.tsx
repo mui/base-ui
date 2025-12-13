@@ -1,5 +1,4 @@
 import * as React from 'react';
-import type { Metadata } from 'next';
 import { Link } from 'docs/src/components/Link';
 
 export default function DesignEngineerPage() {
@@ -229,15 +228,3 @@ export default function DesignEngineerPage() {
     </React.Fragment>
   );
 }
-
-const description = 'Unstyled UI components for building accessible web apps and design systems.';
-
-export const metadata: Metadata = {
-  description,
-  twitter: {
-    description,
-  },
-  openGraph: {
-    description,
-  },
-};
