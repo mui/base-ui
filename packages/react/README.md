@@ -40,8 +40,7 @@ Future plans and high-priority features and enhancements can be found in the [ro
 
 ## License
 
-This project is licensed under the terms of the
-[MIT license](/LICENSE).
+This project is licensed under the terms of the [MIT license](../../LICENSE).
 
 ## Security
 
