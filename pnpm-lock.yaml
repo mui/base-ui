@@ -32,7 +32,7 @@ importers:
         version: link:test
       '@mui/internal-code-infra':
         specifier: 0.0.3-canary.53
-        version: 0.0.3-canary.53(@next/eslint-plugin-next@15.5.7)(@types/node@22.18.13)(eslint@9.39.1(jiti@2.6.1))(postcss@8.5.6)(prettier@3.7.4)(stylelint@16.26.1(typescript@5.9.3))(typescript@5.9.3)(vitest@4.0.15)
+        version: 0.0.3-canary.53(@next/eslint-plugin-next@16.0.8)(@types/node@22.18.13)(eslint@9.39.1(jiti@2.6.1))(postcss@8.5.6)(prettier@3.7.4)(stylelint@16.26.1(typescript@5.9.3))(typescript@5.9.3)(vitest@4.0.15)
       '@mui/internal-netlify-cache':
         specifier: 0.0.2-canary.1
         version: 0.0.2-canary.1
@@ -40,8 +40,8 @@ importers:
         specifier: 2.0.15
         version: 2.0.15(@babel/core@7.28.5)(@playwright/test@1.57.0)(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(chai@6.2.1)(react-dom@19.2.1(react@19.2.1))(react@19.2.1)
       '@next/eslint-plugin-next':
-        specifier: 15.5.7
-        version: 15.5.7
+        specifier: 16.0.8
+        version: 16.0.8
       '@octokit/rest':
         specifier: ^22.0.1
         version: 22.0.1
@@ -2662,8 +2662,8 @@ packages:
   '@next/env@16.0.9':
     resolution: {integrity: sha512-6284pl8c8n9PQidN63qjPVEu1uXXKjnmbmaLebOzIfTrSXdGiAPsIMRi4pk/+v/ezqweE1/B8bFqiAAfC6lMXg==}
 
-  '@next/eslint-plugin-next@15.5.7':
-    resolution: {integrity: sha512-DtRU2N7BkGr8r+pExfuWHwMEPX5SD57FeA6pxdgCHODo+b/UgIgjE+rgWKtJAbEbGhVZ2jtHn4g3wNhWFoNBQQ==}
+  '@next/eslint-plugin-next@16.0.8':
+    resolution: {integrity: sha512-1miV0qXDcLUaOdHridVPCh4i39ElRIAraseVIbb3BEqyZ5ol9sPyjTP/GNTPV5rBxqxjF6/vv5zQTVbhiNaLqA==}
 
   '@next/mdx@16.0.10':
     resolution: {integrity: sha512-i2DXv8Ga+BXvo7XlHhgutnguH9a5Txix3j760RlKctZ22yXHhYhXsie1UCouEff4mxY04nVS+Bz6Jbaq9N+w0g==}
@@ -12164,7 +12164,7 @@ snapshots:
       - tsx
       - yaml
 
-  '@mui/internal-code-infra@0.0.3-canary.53(@next/eslint-plugin-next@15.5.7)(@types/node@22.18.13)(eslint@9.39.1(jiti@2.6.1))(postcss@8.5.6)(prettier@3.7.4)(stylelint@16.26.1(typescript@5.9.3))(typescript@5.9.3)(vitest@4.0.15)':
+  '@mui/internal-code-infra@0.0.3-canary.53(@next/eslint-plugin-next@16.0.8)(@types/node@22.18.13)(eslint@9.39.1(jiti@2.6.1))(postcss@8.5.6)(prettier@3.7.4)(stylelint@16.26.1(typescript@5.9.3))(typescript@5.9.3)(vitest@4.0.15)':
     dependencies:
       '@argos-ci/core': 4.5.0
       '@babel/cli': 7.28.3(@babel/core@7.28.5)
@@ -12184,7 +12184,7 @@ snapshots:
       '@mui/internal-babel-plugin-minify-errors': 2.0.8-canary.12(@babel/core@7.28.5)
       '@mui/internal-babel-plugin-resolve-imports': 2.0.7-canary.28(@babel/core@7.28.5)
       '@napi-rs/keyring': 1.2.0
-      '@next/eslint-plugin-next': 15.5.7
+      '@next/eslint-plugin-next': 16.0.8
       '@octokit/auth-action': 6.0.2
       '@octokit/oauth-methods': 6.0.2
       '@octokit/rest': 22.0.1
@@ -12442,7 +12442,7 @@ snapshots:
 
   '@next/env@16.0.9': {}
 
-  '@next/eslint-plugin-next@15.5.7':
+  '@next/eslint-plugin-next@16.0.8':
     dependencies:
       fast-glob: 3.3.1
 
