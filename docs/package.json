@@ -18,6 +18,7 @@
   "dependencies": {
     "@base-ui/react": "workspace:*",
     "@base-ui/utils": "workspace:*",
+    "@date-fns/tz": "^1.4.1",
     "@emotion/cache": "^11.14.0",
     "@emotion/react": "^11.14.0",
     "@emotion/server": "^11.11.0",
@@ -33,6 +34,7 @@
     "@types/mdx": "^2.0.13",
     "clipboard-copy": "^4.0.1",
     "clsx": "^2.1.1",
+    "date-fns": "^4.1.0",
     "es-toolkit": "^1.42.0",
     "estree-util-value-to-estree": "^3.5.0",
     "globby": "^16.0.0",

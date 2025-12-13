@@ -17,6 +17,7 @@
     "src/**/*.test.ts*",
     "src/index.test.ts",
     "test",
+    "test/addChaiAssertions.ts",
     "src/global.d.ts",
     "package.json"
   ],
