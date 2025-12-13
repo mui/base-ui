@@ -1,12 +1,13 @@
+'use client';
 import * as React from 'react';
-import { inertValue } from '@base-ui-components/utils/inertValue';
-import { useAnimationFrame } from '@base-ui-components/utils/useAnimationFrame';
-import { usePreviousValue } from '@base-ui-components/utils/usePreviousValue';
-import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
-import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
-import { useEffect } from '@base-ui-components/utils/useEffect';
-import { useRef } from '@base-ui-components/utils/useRef';
-import { useState } from '@base-ui-components/utils/useState';
+import { inertValue } from '@base-ui/utils/inertValue';
+import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
+import { usePreviousValue } from '@base-ui/utils/usePreviousValue';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { useEffect } from '@base-ui/utils/useEffect';
+import { useRef } from '@base-ui/utils/useRef';
+import { useState } from '@base-ui/utils/useState';
 import { usePopoverRootContext } from '../root/PopoverRootContext';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useAnimationsFinished } from '../../utils/useAnimationsFinished';
@@ -54,7 +55,7 @@ export const PopoverViewport = React.forwardRef(function PopoverViewport(
   const previousContainerRef = useRef<HTMLDivElement>(null);
 
   const onAnimationsFinished = useAnimationsFinished(currentContainerRef, true, false);
-  const cleanupTimeout = useAnimationFrame();
+  const cleanupFrame = useAnimationFrame();
 
   const [previousContentDimensions, setPreviousContentDimensions] = useState<{
     width: number;
@@ -138,12 +139,14 @@ export const PopoverViewport = React.forwardRef(function PopoverViewport(
       const offset = calculateRelativePosition(previousActiveTrigger, activeTrigger);
       setNewTriggerOffset(offset);
 
-      cleanupTimeout.request(() => {
-        setShowStartingStyleAttribute(false);
-        onAnimationsFinished(() => {
-          setPreviousContentNode(null);
-          setPreviousContentDimensions(null);
-          capturedNodeRef.current = null;
+      cleanupFrame.request(() => {
+        cleanupFrame.request(() => {
+          setShowStartingStyleAttribute(false);
+          onAnimationsFinished(() => {
+            setPreviousContentNode(null);
+            setPreviousContentDimensions(null);
+            capturedNodeRef.current = null;
+          });
         });
       });
 
@@ -154,7 +157,7 @@ export const PopoverViewport = React.forwardRef(function PopoverViewport(
     previousActiveTrigger,
     previousContentNode,
     onAnimationsFinished,
-    cleanupTimeout,
+    cleanupFrame,
   ]);
 
   const isTransitioning = previousContentNode != null;

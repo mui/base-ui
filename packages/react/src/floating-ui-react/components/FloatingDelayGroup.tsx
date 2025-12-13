@@ -1,8 +1,9 @@
+'use client';
 import * as React from 'react';
-import { useTimeout, Timeout } from '@base-ui-components/utils/useTimeout';
-import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
-import { useRef } from '@base-ui-components/utils/useRef';
-import { useState } from '@base-ui-components/utils/useState';
+import { useTimeout, Timeout } from '@base-ui/utils/useTimeout';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { useRef } from '@base-ui/utils/useRef';
+import { useState } from '@base-ui/utils/useState';
 
 import { getDelay } from '../hooks/useHover';
 import type { FloatingRootContext, Delay, FloatingContext } from '../types';
@@ -163,7 +164,17 @@ export function useDelayGroup(
       setIsInstantPhase(false);
 
       if (timeoutMs) {
-        timeout.start(timeoutMs, unset);
+        const closingId = floatingId;
+        timeout.start(timeoutMs, () => {
+          // If another tooltip has taken over the group, skip resetting.
+          if (
+            store.select('open') ||
+            (currentIdRef.current && currentIdRef.current !== closingId)
+          ) {
+            return;
+          }
+          unset();
+        });
         return () => {
           timeout.clear();
         };
@@ -182,6 +193,7 @@ export function useDelayGroup(
     initialDelayRef,
     currentContextRef,
     timeout,
+    store,
   ]);
 
   useIsoLayoutEffect(() => {
@@ -195,6 +207,9 @@ export function useDelayGroup(
     const prevContext = currentContextRef.current;
     const prevId = currentIdRef.current;
 
+    // A new tooltip is opening, so cancel any pending timeout that would reset
+    // the group's delay back to the initial value.
+    timeout.clear();
     currentContextRef.current = { onOpenChange: store.setOpen, setIsInstantPhase };
     currentIdRef.current = floatingId;
     delayRef.current = {
@@ -203,7 +218,6 @@ export function useDelayGroup(
     };
 
     if (prevId !== null && prevId !== floatingId) {
-      timeout.clear();
       setIsInstantPhase(true);
       prevContext?.setIsInstantPhase(true);
       prevContext?.onOpenChange(false, createChangeEventDetails(REASONS.none));

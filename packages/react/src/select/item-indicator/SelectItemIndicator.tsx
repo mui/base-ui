@@ -88,8 +88,10 @@ export interface SelectItemIndicatorState {
   transitionStatus: TransitionStatus;
 }
 
-export interface SelectItemIndicatorProps
-  extends BaseUIComponentProps<'span', SelectItemIndicator.State> {
+export interface SelectItemIndicatorProps extends BaseUIComponentProps<
+  'span',
+  SelectItemIndicator.State
+> {
   children?: React.ReactNode;
   /** Whether to keep the HTML element in the DOM when the item is not selected. */
   keepMounted?: boolean;

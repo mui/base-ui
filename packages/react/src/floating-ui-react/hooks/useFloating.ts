@@ -1,10 +1,10 @@
 import * as React from 'react';
 import { useFloating as usePosition, type VirtualElement } from '@floating-ui/react-dom';
 import { isElement } from '@floating-ui/utils/dom';
-import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
-import { useRef } from '@base-ui-components/utils/useRef';
-import { useCallback } from '@base-ui-components/utils/useCallback';
-import { useState } from '@base-ui-components/utils/useState';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { useRef } from '@base-ui/utils/useRef';
+import { useCallback } from '@base-ui/utils/useCallback';
+import { useState } from '@base-ui/utils/useState';
 
 import { useFloatingTree } from '../components/FloatingTree';
 import type {

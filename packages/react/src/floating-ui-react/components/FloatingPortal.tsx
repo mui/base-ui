@@ -1,11 +1,12 @@
+'use client';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { isNode } from '@floating-ui/utils/dom';
-import { useId } from '@base-ui-components/utils/useId';
-import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
-import { useEffect } from '@base-ui-components/utils/useEffect';
-import { useRef } from '@base-ui-components/utils/useRef';
-import { useState } from '@base-ui-components/utils/useState';
+import { useId } from '@base-ui/utils/useId';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { useEffect } from '@base-ui/utils/useEffect';
+import { useRef } from '@base-ui/utils/useRef';
+import { useState } from '@base-ui/utils/useState';
 import { FocusGuard } from '../../utils/FocusGuard';
 import {
   enableFocusInside,

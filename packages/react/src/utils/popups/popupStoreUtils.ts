@@ -1,9 +1,9 @@
 import * as React from 'react';
-import { ReactStore } from '@base-ui-components/utils/store';
-import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
-import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
-import { useRef } from '@base-ui-components/utils/useRef';
-import { useCallback } from '@base-ui-components/utils/useCallback';
+import { ReactStore } from '@base-ui/utils/store';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { useRef } from '@base-ui/utils/useRef';
+import { useCallback } from '@base-ui/utils/useCallback';
 import { useTransitionStatus } from '../useTransitionStatus';
 import { useOpenChangeComplete } from '../useOpenChangeComplete';
 import {
@@ -28,27 +28,18 @@ export function useTriggerRegistration<State extends PopupStoreState<any>>(
   return useCallback(
     (element: Element | null) => {
       if (id === undefined) {
-        return undefined;
+        return;
       }
 
-      if (registeredElementId.current !== null) {
-        store.context.triggerElements.delete(registeredElementId.current);
-        registeredElementId.current = null;
+      if (registeredElementIdRef.current !== null) {
+        store.context.triggerElements.delete(registeredElementIdRef.current);
+        registeredElementIdRef.current = null;
       }
 
       if (element !== null) {
-        registeredElementId.current = id;
+        registeredElementIdRef.current = id;
         store.context.triggerElements.add(id, element);
-
-        return () => {
-          if (registeredElementId.current !== null) {
-            store.context.triggerElements.delete(registeredElementId.current);
-            registeredElementId.current = null;
-          }
-        };
       }
-
-      return undefined;
     },
     [store, id],
   );
@@ -64,7 +55,7 @@ export function useTriggerRegistration<State extends PopupStoreState<any>>(
  */
 export function useTriggerDataForwarding<State extends PopupStoreState<any>>(
   triggerId: string | undefined,
-  triggerElement: Element | null,
+  triggerElementRef: React.RefObject<Element | null>,
   store: ReactStore<State, PopupStoreContext<any>, typeof popupStoreSelectors>,
   stateUpdates: Omit<Partial<State>, 'activeTriggerId' | 'activeTriggerElement'>,
 ) {
@@ -73,7 +64,7 @@ export function useTriggerDataForwarding<State extends PopupStoreState<any>>(
   const baseRegisterTrigger = useTriggerRegistration(triggerId, store);
 
   const registerTrigger = useStableCallback((element: Element | null) => {
-    const cleanup = baseRegisterTrigger(element);
+    baseRegisterTrigger(element);
 
     if (element !== null && store.select('open') && store.select('activeTriggerId') == null) {
       // This runs when popup is open, but no active trigger is set.
@@ -86,16 +77,17 @@ export function useTriggerDataForwarding<State extends PopupStoreState<any>>(
         ...stateUpdates,
       } as Partial<State>);
     }
-
-    return cleanup;
   });
 
   useIsoLayoutEffect(() => {
     if (isMountedByThisTrigger) {
-      store.update({ activeTriggerElement: triggerElement, ...stateUpdates } as Partial<State>);
+      store.update({
+        activeTriggerElement: triggerElementRef.current,
+        ...stateUpdates,
+      } as Partial<State>);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isMountedByThisTrigger, store, triggerElement, ...Object.values(stateUpdates)]);
+  }, [isMountedByThisTrigger, store, triggerElementRef, ...Object.values(stateUpdates)]);
 
   return { registerTrigger, isMountedByThisTrigger };
 }

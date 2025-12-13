@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
-import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
-import { useRef } from '@base-ui-components/utils/useRef';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { useRef } from '@base-ui/utils/useRef';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useScrollAreaViewportContext } from '../viewport/ScrollAreaViewportContext';
 import { useRenderElement } from '../../utils/useRenderElement';
@@ -62,8 +62,10 @@ export const ScrollAreaContent = React.forwardRef(function ScrollAreaContent(
 
 export interface ScrollAreaContentState extends ScrollAreaRoot.State {}
 
-export interface ScrollAreaContentProps
-  extends BaseUIComponentProps<'div', ScrollAreaContent.State> {}
+export interface ScrollAreaContentProps extends BaseUIComponentProps<
+  'div',
+  ScrollAreaContent.State
+> {}
 
 export namespace ScrollAreaContent {
   export type State = ScrollAreaContentState;

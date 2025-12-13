@@ -1,9 +1,9 @@
 'use client';
 import * as React from 'react';
-import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
-import { useEffect } from '@base-ui-components/utils/useEffect';
-import { useRef } from '@base-ui-components/utils/useRef';
-import { useState } from '@base-ui-components/utils/useState';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { useEffect } from '@base-ui/utils/useEffect';
+import { useRef } from '@base-ui/utils/useRef';
+import { useState } from '@base-ui/utils/useState';
 import {
   createGenericEventDetails,
   type BaseUIGenericEventDetails,
@@ -150,8 +150,9 @@ export type FormSubmitEventDetails = BaseUIGenericEventDetails<Form.SubmitEventR
 
 export interface FormState {}
 
-export interface FormProps<FormValues extends Record<string, any> = Record<string, any>>
-  extends BaseUIComponentProps<'form', Form.State> {
+export interface FormProps<
+  FormValues extends Record<string, any> = Record<string, any>,
+> extends BaseUIComponentProps<'form', Form.State> {
   /**
    * Determines when the form should be validated.
    * The `validationMode` prop on `<Field.Root>` takes precedence over this.

@@ -1,6 +1,6 @@
 import * as React from 'react';
-import { useTimeout } from '@base-ui-components/utils/useTimeout';
-import { useRef } from '@base-ui-components/utils/useRef';
+import { useTimeout } from '@base-ui/utils/useTimeout';
+import { useRef } from '@base-ui/utils/useRef';
 
 import type { ContextData, FloatingRootContext, SafePolygonOptions } from '../types';
 import { createAttribute } from '../utils/createAttribute';

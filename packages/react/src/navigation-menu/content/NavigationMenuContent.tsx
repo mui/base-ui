@@ -1,10 +1,10 @@
 'use client';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import { inertValue } from '@base-ui-components/utils/inertValue';
-import { useRef } from '@base-ui-components/utils/useRef';
-import { useCallback } from '@base-ui-components/utils/useCallback';
-import { useState } from '@base-ui-components/utils/useState';
+import { inertValue } from '@base-ui/utils/inertValue';
+import { useRef } from '@base-ui/utils/useRef';
+import { useCallback } from '@base-ui/utils/useCallback';
+import { useState } from '@base-ui/utils/useState';
 import { FloatingNode } from '../../floating-ui-react';
 import { contains, getTarget } from '../../floating-ui-react/utils';
 import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
@@ -154,8 +154,10 @@ export interface NavigationMenuContentState {
   activationDirection: 'left' | 'right' | 'up' | 'down' | null;
 }
 
-export interface NavigationMenuContentProps
-  extends BaseUIComponentProps<'div', NavigationMenuContent.State> {}
+export interface NavigationMenuContentProps extends BaseUIComponentProps<
+  'div',
+  NavigationMenuContent.State
+> {}
 
 export namespace NavigationMenuContent {
   export type State = NavigationMenuContentState;

@@ -1,11 +1,11 @@
 'use client';
 import * as React from 'react';
-import { useAnimationFrame } from '@base-ui-components/utils/useAnimationFrame';
-import { useTimeout } from '@base-ui-components/utils/useTimeout';
-import { useRef } from '@base-ui-components/utils/useRef';
+import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
+import { useTimeout } from '@base-ui/utils/useTimeout';
+import { useRef } from '@base-ui/utils/useRef';
 import { EMPTY_OBJECT } from '../../utils/constants';
 import type { ElementProps, FloatingContext, FloatingRootContext } from '../types';
-import { isMouseLikePointerType, isTypeableElement } from '../utils';
+import { isClickLikeEvent, isMouseLikePointerType, isTypeableElement } from '../utils';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
 
@@ -162,21 +162,11 @@ export function useClick(
 
         const open = store.select('open');
         const openEvent = dataRef.current.openEvent;
-        const openEventType = openEvent?.type;
         const hasClickedOnInactiveTrigger =
           store.select('domReferenceElement') !== event.currentTarget;
         const nextOpen =
           (open && hasClickedOnInactiveTrigger) ||
-          !(
-            open &&
-            toggle &&
-            (openEvent && stickIfOpen
-              ? openEventType === 'click' ||
-                openEventType === 'mousedown' ||
-                openEventType === 'keydown' ||
-                openEventType === 'keyup'
-              : true)
-          );
+          !(open && toggle && (openEvent && stickIfOpen ? isClickLikeEvent(openEvent) : true));
         const details = createChangeEventDetails(
           REASONS.triggerPress,
           event.nativeEvent,

@@ -1,9 +1,9 @@
 import * as React from 'react';
 import { getWindow, isElement, isHTMLElement } from '@floating-ui/utils/dom';
-import { isMac, isSafari } from '@base-ui-components/utils/detectBrowser';
-import { useTimeout } from '@base-ui-components/utils/useTimeout';
-import { useEffect } from '@base-ui-components/utils/useEffect';
-import { useRef } from '@base-ui-components/utils/useRef';
+import { isMac, isSafari } from '@base-ui/utils/detectBrowser';
+import { useTimeout } from '@base-ui/utils/useTimeout';
+import { useEffect } from '@base-ui/utils/useEffect';
+import { useRef } from '@base-ui/utils/useRef';
 import {
   activeElement,
   contains,

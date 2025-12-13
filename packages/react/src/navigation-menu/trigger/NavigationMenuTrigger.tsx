@@ -2,14 +2,14 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { isTabbable } from 'tabbable';
-import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
-import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
-import { useTimeout } from '@base-ui-components/utils/useTimeout';
-import { useAnimationFrame } from '@base-ui-components/utils/useAnimationFrame';
-import { useValueAsRef } from '@base-ui-components/utils/useValueAsRef';
-import { useEffect } from '@base-ui-components/utils/useEffect';
-import { useRef } from '@base-ui-components/utils/useRef';
-import { useState } from '@base-ui-components/utils/useState';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { useTimeout } from '@base-ui/utils/useTimeout';
+import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
+import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
+import { useEffect } from '@base-ui/utils/useEffect';
+import { useRef } from '@base-ui/utils/useRef';
+import { useState } from '@base-ui/utils/useState';
 import {
   safePolygon,
   useClick,
@@ -499,8 +499,7 @@ export interface NavigationMenuTriggerState {
 }
 
 export interface NavigationMenuTriggerProps
-  extends NativeButtonProps,
-    BaseUIComponentProps<'button', NavigationMenuTrigger.State> {}
+  extends NativeButtonProps, BaseUIComponentProps<'button', NavigationMenuTrigger.State> {}
 
 export namespace NavigationMenuTrigger {
   export type State = NavigationMenuTriggerState;

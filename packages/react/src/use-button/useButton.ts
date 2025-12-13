@@ -1,12 +1,12 @@
 'use client';
 import * as React from 'react';
 import { isHTMLElement } from '@floating-ui/utils/dom';
-import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
-import { error } from '@base-ui-components/utils/error';
-import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
-import { useEffect } from '@base-ui-components/utils/useEffect';
-import { useRef } from '@base-ui-components/utils/useRef';
-import { useCallback } from '@base-ui-components/utils/useCallback';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { error } from '@base-ui/utils/error';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { useEffect } from '@base-ui/utils/useEffect';
+import { useRef } from '@base-ui/utils/useRef';
+import { useCallback } from '@base-ui/utils/useCallback';
 import { makeEventPreventable, mergeProps } from '../merge-props';
 import { useCompositeRootContext } from '../composite/root/CompositeRootContext';
 import { BaseUIEvent, HTMLProps } from '../utils/types';
@@ -199,13 +199,12 @@ interface GenericButtonProps extends Omit<HTMLProps, 'onClick'>, AdditionalButto
   onClick?: (event: React.SyntheticEvent) => void;
 }
 
-interface AdditionalButtonProps
-  extends Partial<{
-    'aria-disabled': React.AriaAttributes['aria-disabled'];
-    disabled: boolean;
-    role: React.AriaRole;
-    tabIndex?: number;
-  }> {}
+interface AdditionalButtonProps extends Partial<{
+  'aria-disabled': React.AriaAttributes['aria-disabled'];
+  disabled: boolean;
+  role: React.AriaRole;
+  tabIndex?: number;
+}> {}
 
 export interface UseButtonParameters {
   /**

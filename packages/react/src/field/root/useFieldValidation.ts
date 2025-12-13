@@ -1,10 +1,10 @@
 'use client';
 import * as React from 'react';
-import { EMPTY_OBJECT } from '@base-ui-components/utils/empty';
-import { useTimeout } from '@base-ui-components/utils/useTimeout';
-import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
-import { useRef } from '@base-ui-components/utils/useRef';
-import { useCallback } from '@base-ui-components/utils/useCallback';
+import { EMPTY_OBJECT } from '@base-ui/utils/empty';
+import { useTimeout } from '@base-ui/utils/useTimeout';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { useRef } from '@base-ui/utils/useRef';
+import { useCallback } from '@base-ui/utils/useCallback';
 import { useLabelableContext } from '../../labelable-provider/LabelableContext';
 import { mergeProps } from '../../merge-props';
 import { DEFAULT_VALIDITY_STATE } from '../utils/constants';

@@ -1,8 +1,8 @@
 import { expect } from 'chai';
 import userEvent from '@testing-library/user-event';
 import { act, fireEvent, flushMicrotasks, screen } from '@mui/internal-test-utils';
-import { Menu } from '@base-ui-components/react/menu';
-import { Popover } from '@base-ui-components/react/popover';
+import { Menu } from '@base-ui/react/menu';
+import { Popover } from '@base-ui/react/popover';
 import { describeConformance, createRenderer } from '#test-utils';
 import { PATIENT_CLICK_THRESHOLD } from '../../utils/constants';
 
@@ -256,6 +256,37 @@ describe('<Menu.Trigger />', () => {
       fireEvent.mouseLeave(trigger);
 
       expect(trigger).not.to.have.attribute('data-popup-open');
+    });
+
+    it('sticks when clicked before the hover delay completes', async () => {
+      await renderFakeTimers(
+        <Menu.Root>
+          <Menu.Trigger openOnHover delay={300}>
+            Open
+          </Menu.Trigger>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>Content</Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>,
+      );
+
+      const trigger = screen.getByRole('button');
+
+      fireEvent.mouseEnter(trigger);
+      fireEvent.mouseMove(trigger);
+
+      clock.tick(100);
+
+      // User clicks impatiently to open
+      fireEvent.click(trigger);
+
+      expect(trigger).to.have.attribute('data-popup-open');
+
+      fireEvent.mouseLeave(trigger);
+
+      expect(trigger).to.have.attribute('data-popup-open');
     });
 
     it('should keep the menu open when re-hovered and clicked within the patient threshold', async () => {

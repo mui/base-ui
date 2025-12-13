@@ -2,9 +2,9 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { type FocusableElement } from 'tabbable';
-import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
-import { useRef } from '@base-ui-components/utils/useRef';
-import { useState } from '@base-ui-components/utils/useState';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { useRef } from '@base-ui/utils/useRef';
+import { useState } from '@base-ui/utils/useState';
 import { usePopoverRootContext } from '../root/PopoverRootContext';
 import { useButton } from '../../use-button/useButton';
 import type { BaseUIComponentProps, NativeButtonProps } from '../../utils/types';
@@ -77,7 +77,7 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
 
   const { registerTrigger, isMountedByThisTrigger } = useTriggerDataForwarding(
     thisTriggerId,
-    triggerElement,
+    triggerElementRef,
     store,
     {
       payload,
@@ -103,7 +103,7 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
     delay: {
       close: closeDelay,
     },
-    triggerElement,
+    triggerElementRef,
     isActiveTrigger: isTriggerActive,
   });
 
@@ -141,7 +141,7 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
 
   const element = useRenderElement('button', componentProps, {
     state,
-    ref: [buttonRef, forwardedRef, registerTrigger, setTriggerElement],
+    ref: [buttonRef, forwardedRef, registerTrigger, triggerElementRef],
     props: [
       localProps.getReferenceProps(),
       hoverProps,
@@ -189,7 +189,7 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
         );
       });
 
-      let nextTabbable = getTabbableAfterElement(triggerElement);
+      let nextTabbable = getTabbableAfterElement(triggerElementRef.current);
 
       while (
         (nextTabbable !== null && contains(positionerElement, nextTabbable)) ||

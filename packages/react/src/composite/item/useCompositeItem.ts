@@ -1,14 +1,18 @@
 'use client';
 import * as React from 'react';
-import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
-import { useRef } from '@base-ui-components/utils/useRef';
+import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
+import { useRef } from '@base-ui/utils/useRef';
 import { useCompositeRootContext } from '../root/CompositeRootContext';
-import { useCompositeListItem } from '../list/useCompositeListItem';
+import {
+  useCompositeListItem,
+  type UseCompositeListItemParameters,
+} from '../list/useCompositeListItem';
 import { HTMLProps } from '../../utils/types';
 
-export interface UseCompositeItemParameters<Metadata> {
-  metadata?: Metadata;
-}
+export interface UseCompositeItemParameters<Metadata> extends Pick<
+  UseCompositeListItemParameters<Metadata>,
+  'metadata' | 'indexGuessBehavior'
+> {}
 
 export function useCompositeItem<Metadata>(params: UseCompositeItemParameters<Metadata> = {}) {
   const { highlightItemOnHover, highlightedIndex, onHighlightedIndexChange } =

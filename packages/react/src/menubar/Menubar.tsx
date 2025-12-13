@@ -1,9 +1,9 @@
 'use client';
 import * as React from 'react';
-import { useScrollLock } from '@base-ui-components/utils/useScrollLock';
-import { useEffect } from '@base-ui-components/utils/useEffect';
-import { useRef } from '@base-ui-components/utils/useRef';
-import { useState } from '@base-ui-components/utils/useState';
+import { useScrollLock } from '@base-ui/utils/useScrollLock';
+import { useEffect } from '@base-ui/utils/useEffect';
+import { useRef } from '@base-ui/utils/useRef';
+import { useState } from '@base-ui/utils/useState';
 import {
   FloatingNode,
   FloatingTree,

@@ -1,9 +1,9 @@
 'use client';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import { isWebKit } from '@base-ui-components/utils/detectBrowser';
-import { ownerDocument } from '@base-ui-components/utils/owner';
-import { useState } from '@base-ui-components/utils/useState';
+import { isWebKit } from '@base-ui/utils/detectBrowser';
+import { ownerDocument } from '@base-ui/utils/owner';
+import { useState } from '@base-ui/utils/useState';
 import { useNumberFieldRootContext } from '../root/NumberFieldRootContext';
 import type { BaseUIComponentProps } from '../../utils/types';
 import type { NumberFieldRoot } from '../root/NumberFieldRoot';
@@ -58,8 +58,10 @@ export const NumberFieldScrubAreaCursor = React.forwardRef(function NumberFieldS
 
 export interface NumberFieldScrubAreaCursorState extends NumberFieldRoot.State {}
 
-export interface NumberFieldScrubAreaCursorProps
-  extends BaseUIComponentProps<'span', NumberFieldScrubAreaCursor.State> {}
+export interface NumberFieldScrubAreaCursorProps extends BaseUIComponentProps<
+  'span',
+  NumberFieldScrubAreaCursor.State
+> {}
 
 export namespace NumberFieldScrubAreaCursor {
   export type State = NumberFieldScrubAreaCursorState;

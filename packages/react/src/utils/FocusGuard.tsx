@@ -1,9 +1,9 @@
 'use client';
 import * as React from 'react';
-import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
-import { isSafari } from '@base-ui-components/utils/detectBrowser';
-import { visuallyHidden } from '@base-ui-components/utils/visuallyHidden';
-import { useState } from '@base-ui-components/utils/useState';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { isSafari } from '@base-ui/utils/detectBrowser';
+import { visuallyHidden } from '@base-ui/utils/visuallyHidden';
+import { useState } from '@base-ui/utils/useState';
 
 /**
  * @internal

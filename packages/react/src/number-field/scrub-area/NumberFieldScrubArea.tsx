@@ -1,13 +1,13 @@
 'use client';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import { ownerWindow, ownerDocument } from '@base-ui-components/utils/owner';
-import { isWebKit } from '@base-ui-components/utils/detectBrowser';
-import { useValueAsRef } from '@base-ui-components/utils/useValueAsRef';
-import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
-import { useEffect } from '@base-ui-components/utils/useEffect';
-import { useRef } from '@base-ui-components/utils/useRef';
-import { useState } from '@base-ui-components/utils/useState';
+import { ownerWindow, ownerDocument } from '@base-ui/utils/owner';
+import { isWebKit } from '@base-ui/utils/detectBrowser';
+import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { useEffect } from '@base-ui/utils/useEffect';
+import { useRef } from '@base-ui/utils/useRef';
+import { useState } from '@base-ui/utils/useState';
 import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 import { useNumberFieldRootContext } from '../root/NumberFieldRootContext';
 import type { NumberFieldRoot } from '../root/NumberFieldRoot';
@@ -39,14 +39,11 @@ export const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubAr
     ...elementProps
   } = componentProps;
 
-  const { state } = useNumberFieldRootContext();
-
   const {
-    isScrubbing,
-    setIsScrubbing,
+    state,
+    setIsScrubbing: setRootScrubbing,
     disabled,
     readOnly,
-    value,
     inputRef,
     incrementValue,
     getStepAmount,
@@ -121,6 +118,7 @@ export const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubAr
     (scrubbingValue: boolean, { clientX, clientY }: PointerEvent) => {
       ReactDOM.flushSync(() => {
         setIsScrubbing(scrubbingValue);
+        setRootScrubbing(scrubbingValue);
       });
 
       const virtualCursor = scrubAreaCursorRef.current;
@@ -149,18 +147,27 @@ export const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubAr
       let cumulativeDelta = 0;
 
       function handleScrubPointerUp(event: PointerEvent) {
-        try {
-          // Avoid errors in testing environments.
-          ownerDocument(scrubAreaRef.current).exitPointerLock();
-        } catch {
-          //
-        } finally {
-          isScrubbingRef.current = false;
-          onScrubbingChange(false, event);
-          onValueCommitted(
-            lastChangedValueRef.current ?? valueRef.current,
-            createGenericEventDetails(REASONS.scrub, event),
-          );
+        function handler() {
+          try {
+            ownerDocument(scrubAreaRef.current).exitPointerLock();
+          } catch {
+            // Ignore errors.
+          } finally {
+            isScrubbingRef.current = false;
+            onScrubbingChange(false, event);
+            onValueCommitted(
+              lastChangedValueRef.current ?? valueRef.current,
+              createGenericEventDetails(REASONS.scrub, event),
+            );
+          }
+        }
+
+        if (isFirefox) {
+          // Firefox needs a small delay here when soft-clicking as the pointer
+          // lock will not release otherwise.
+          exitPointerLockTimeout.start(20, handler);
+        } else {
+          handler();
         }
       }
 
@@ -200,6 +207,7 @@ export const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubAr
       win.addEventListener('pointermove', handleScrubPointerMove, true);
 
       return () => {
+        exitPointerLockTimeout.clear();
         win.removeEventListener('pointerup', handleScrubPointerUp, true);
         win.removeEventListener('pointermove', handleScrubPointerMove, true);
       };
@@ -207,9 +215,8 @@ export const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubAr
     [
       disabled,
       readOnly,
-      isScrubbing,
       incrementValue,
-      latestValueRef,
+      isScrubbing,
       getStepAmount,
       inputRef,
       onScrubbingChange,
@@ -219,6 +226,7 @@ export const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubAr
       lastChangedValueRef,
       onValueCommitted,
       valueRef,
+      exitPointerLockTimeout,
     ],
   );
 
@@ -320,8 +328,10 @@ export const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubAr
 
 export interface NumberFieldScrubAreaState extends NumberFieldRoot.State {}
 
-export interface NumberFieldScrubAreaProps
-  extends BaseUIComponentProps<'span', NumberFieldScrubArea.State> {
+export interface NumberFieldScrubAreaProps extends BaseUIComponentProps<
+  'span',
+  NumberFieldScrubArea.State
+> {
   /**
    * Cursor movement direction in the scrub area.
    * @default 'horizontal'

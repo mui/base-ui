@@ -1,11 +1,11 @@
 /* eslint-disable no-bitwise */
 'use client';
 import * as React from 'react';
-import { useRefWithInit } from '@base-ui-components/utils/useRefWithInit';
-import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
-import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
-import { useRef } from '@base-ui-components/utils/useRef';
-import { useState } from '@base-ui-components/utils/useState';
+import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { useRef } from '@base-ui/utils/useRef';
+import { useState } from '@base-ui/utils/useState';
 import { CompositeListContext } from './CompositeListContext';
 
 export type CompositeMetadata<CustomMetadata> = { index?: number | null } & CustomMetadata;
@@ -52,7 +52,11 @@ export function CompositeList<Metadata>(props: CompositeList.Props<Metadata>) {
     disableEslintWarning(mapTick);
 
     const newMap = new Map<Element, CompositeMetadata<Metadata>>();
-    const sortedNodes = Array.from(map.keys()).sort(sortByDocumentPosition);
+    // Filter out disconnected elements before sorting to avoid inconsistent
+    // compareDocumentPosition results when elements are detached from the DOM.
+    const sortedNodes = Array.from(map.keys())
+      .filter((node) => node.isConnected)
+      .sort(sortByDocumentPosition);
 
     sortedNodes.forEach((node, index) => {
       const metadata = map.get(node) ?? ({} as CompositeMetadata<Metadata>);

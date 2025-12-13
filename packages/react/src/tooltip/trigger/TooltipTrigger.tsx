@@ -56,7 +56,7 @@ export const TooltipTrigger = fastHooks.createComponent(function TooltipTrigger(
 
   const { registerTrigger, isMountedByThisTrigger } = useTriggerDataForwarding(
     thisTriggerId,
-    triggerElement,
+    triggerElementRef,
     store,
     {
       payload,
@@ -109,7 +109,7 @@ export const TooltipTrigger = fastHooks.createComponent(function TooltipTrigger(
         close: computedCloseDelay,
       };
     },
-    triggerElement,
+    triggerElementRef,
     isActiveTrigger: isTriggerActive,
   });
 
@@ -122,7 +122,7 @@ export const TooltipTrigger = fastHooks.createComponent(function TooltipTrigger(
 
   const element = useRenderElement('button', componentProps, {
     state,
-    ref: [forwardedRef, registerTrigger, setTriggerElement],
+    ref: [forwardedRef, registerTrigger, triggerElementRef],
     props: [hoverProps, rootTriggerProps, { id: thisTriggerId }, elementProps],
     stateAttributesMapping: triggerOpenStateMapping,
   });
@@ -143,8 +143,10 @@ export interface TooltipTriggerState {
   open: boolean;
 }
 
-export interface TooltipTriggerProps<Payload = unknown>
-  extends BaseUIComponentProps<'button', TooltipTrigger.State> {
+export interface TooltipTriggerProps<Payload = unknown> extends BaseUIComponentProps<
+  'button',
+  TooltipTrigger.State
+> {
   /**
    * A handle to associate the trigger with a tooltip.
    */

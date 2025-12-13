@@ -1,8 +1,8 @@
 'use client';
 import * as React from 'react';
-import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
-import { useValueAsRef } from '@base-ui-components/utils/useValueAsRef';
-import { useEffect } from '@base-ui-components/utils/useEffect';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
+import { useEffect } from '@base-ui/utils/useEffect';
 import { useAnimationsFinished } from './useAnimationsFinished';
 
 /**

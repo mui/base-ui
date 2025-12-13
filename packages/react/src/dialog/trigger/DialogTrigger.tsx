@@ -49,7 +49,7 @@ export const DialogTrigger = React.forwardRef(function DialogTrigger(
 
   const { registerTrigger, isMountedByThisTrigger } = useTriggerDataForwarding(
     thisTriggerId,
-    triggerElement,
+    triggerElementRef,
     store,
     {
       payload,
@@ -77,7 +77,7 @@ export const DialogTrigger = React.forwardRef(function DialogTrigger(
 
   return useRenderElement('button', componentProps, {
     state,
-    ref: [buttonRef, forwardedRef, registerTrigger, setTriggerElement],
+    ref: [buttonRef, forwardedRef, registerTrigger, triggerElementRef],
     props: [
       localInteractionProps.getReferenceProps(),
       rootTriggerProps,
@@ -96,8 +96,7 @@ export interface DialogTrigger {
 }
 
 export interface DialogTriggerProps<Payload = unknown>
-  extends NativeButtonProps,
-    BaseUIComponentProps<'button', DialogTrigger.State> {
+  extends NativeButtonProps, BaseUIComponentProps<'button', DialogTrigger.State> {
   /**
    * A handle to associate the trigger with a dialog.
    * Can be created with the Dialog.createHandle() method.

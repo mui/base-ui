@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
-import { useValueAsRef } from '@base-ui-components/utils/useValueAsRef';
-import { useState } from '@base-ui-components/utils/useState';
+import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
+import { useState } from '@base-ui/utils/useState';
 import { formatNumber } from '../../utils/formatNumber';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { ProgressRootContext } from './ProgressRootContext';

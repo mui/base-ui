@@ -81,8 +81,10 @@ const Inner = React.memo(
   ),
 );
 
-export interface ComboboxItemIndicatorProps
-  extends BaseUIComponentProps<'span', ComboboxItemIndicator.State> {
+export interface ComboboxItemIndicatorProps extends BaseUIComponentProps<
+  'span',
+  ComboboxItemIndicator.State
+> {
   children?: React.ReactNode;
   /**
    * Whether to keep the HTML element in the DOM when the item is not selected.

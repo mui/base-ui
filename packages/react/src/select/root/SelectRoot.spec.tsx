@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { useState } from '@base-ui-components/utils/useState';
 import { expectType } from '#test-utils';
-import { Select } from '@base-ui-components/react/select';
+import { Select } from '@base-ui/react/select';
 import { mergeProps } from '../../merge-props';
 
 const objectItems = [
@@ -188,6 +188,9 @@ function App() {
   defaultOpen
   multiple
 />;
+
+// Should accept null value
+<Select.Root items={objectItemsReadonly} value={null} />;
 
 function App2() {
   const [value, setValue] = useState('a');

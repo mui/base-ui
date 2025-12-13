@@ -1,8 +1,8 @@
 'use client';
 import * as React from 'react';
-import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
-import { useId } from '@base-ui-components/utils/useId';
-import { inertValue } from '@base-ui-components/utils/inertValue';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { useId } from '@base-ui/utils/useId';
+import { inertValue } from '@base-ui/utils/inertValue';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useNavigationMenuRootContext } from '../root/NavigationMenuRootContext';
@@ -133,8 +133,10 @@ export const NavigationMenuViewport = React.forwardRef(function NavigationMenuVi
 
 export interface NavigationMenuViewportState {}
 
-export interface NavigationMenuViewportProps
-  extends BaseUIComponentProps<'div', NavigationMenuViewport.State> {}
+export interface NavigationMenuViewportProps extends BaseUIComponentProps<
+  'div',
+  NavigationMenuViewport.State
+> {}
 
 export namespace NavigationMenuViewport {
   export type State = NavigationMenuViewportState;

@@ -1,8 +1,8 @@
 'use client';
 import * as React from 'react';
-import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
-import { useEffect } from '@base-ui-components/utils/useEffect';
-import { useState } from '@base-ui-components/utils/useState';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { useEffect } from '@base-ui/utils/useEffect';
+import { useState } from '@base-ui/utils/useState';
 import { AriaCombobox } from '../../combobox/root/AriaCombobox';
 import { useCoreFilter } from '../../combobox/root/utils/useFilter';
 import { stringifyAsLabel } from '../../utils/resolveValueLabel';
@@ -152,29 +152,28 @@ export type AutocompleteRootChangeEventDetails = AriaCombobox.ChangeEventDetails
 export type AutocompleteRootHighlightEventReason = AriaCombobox.HighlightEventReason;
 export type AutocompleteRootHighlightEventDetails = AriaCombobox.HighlightEventDetails;
 
-export interface AutocompleteRootProps<ItemValue>
-  extends Omit<
-    AriaCombobox.Props<ItemValue, 'none'>,
-    | 'selectionMode'
-    | 'selectedValue'
-    | 'defaultSelectedValue'
-    | 'onSelectedValueChange'
-    | 'fillInputOnItemPress'
-    | 'itemToStringValue'
-    | 'isItemEqualToValue'
-    // Different names
-    | 'inputValue' // value
-    | 'defaultInputValue' // defaultValue
-    | 'onInputValueChange' // onValueChange
-    | 'autoComplete' // mode
-    | 'itemToStringLabel' // itemToStringValue
-    // Custom JSDoc
-    | 'autoHighlight'
-    | 'keepHighlight'
-    | 'highlightItemOnHover'
-    | 'actionsRef'
-    | 'onOpenChange'
-  > {
+export interface AutocompleteRootProps<ItemValue> extends Omit<
+  AriaCombobox.Props<ItemValue, 'none'>,
+  | 'selectionMode'
+  | 'selectedValue'
+  | 'defaultSelectedValue'
+  | 'onSelectedValueChange'
+  | 'fillInputOnItemPress'
+  | 'itemToStringValue'
+  | 'isItemEqualToValue'
+  // Different names
+  | 'inputValue' // value
+  | 'defaultInputValue' // defaultValue
+  | 'onInputValueChange' // onValueChange
+  | 'autoComplete' // mode
+  | 'itemToStringLabel' // itemToStringValue
+  // Custom JSDoc
+  | 'autoHighlight'
+  | 'keepHighlight'
+  | 'highlightItemOnHover'
+  | 'actionsRef'
+  | 'onOpenChange'
+> {
   /**
    * Controls how the autocomplete behaves with respect to list filtering and inline autocompletion.
    * - `list` (default): items are dynamically filtered based on the input value. The input value does not change based on the active item.
@@ -198,6 +197,7 @@ export interface AutocompleteRootProps<ItemValue>
   keepHighlight?: boolean;
   /**
    * Whether moving the pointer over items should highlight them.
+   * Disabling this prop allows CSS `:hover` to be differentiated from the `:focus` (`data-highlighted`) state.
    * @default true
    */
   highlightItemOnHover?: boolean;

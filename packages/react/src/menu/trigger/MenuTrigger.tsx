@@ -2,15 +2,15 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { FocusableElement } from 'tabbable';
-import * as fastHooks from '@base-ui-components/utils/fastHooks';
-import { useTimeout } from '@base-ui-components/utils/useTimeout';
-import { ownerDocument } from '@base-ui-components/utils/owner';
-import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
-import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
-import { EMPTY_OBJECT } from '@base-ui-components/utils/empty';
-import { useEffect } from '@base-ui-components/utils/useEffect';
-import { useRef } from '@base-ui-components/utils/useRef';
-import { useState } from '@base-ui-components/utils/useState';
+import * as fastHooks from '@base-ui/utils/fastHooks';
+import { useTimeout } from '@base-ui/utils/useTimeout';
+import { ownerDocument } from '@base-ui/utils/owner';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { EMPTY_OBJECT } from '@base-ui/utils/empty';
+import { useEffect } from '@base-ui/utils/useEffect';
+import { useRef } from '@base-ui/utils/useRef';
+import { useState } from '@base-ui/utils/useState';
 import {
   safePolygon,
   useClick,
@@ -20,8 +20,8 @@ import {
   useInteractions,
   useFloatingNodeId,
   useFloatingParentNodeId,
-  FloatingTreeStore,
 } from '../../floating-ui-react';
+import { FloatingTreeStore } from '../../floating-ui-react/components/FloatingTreeStore';
 import {
   contains,
   getNextTabbable,
@@ -103,7 +103,7 @@ export const MenuTrigger = fastHooks.createComponent(function MenuTrigger(
 
   const { registerTrigger, isMountedByThisTrigger } = useTriggerDataForwarding(
     thisTriggerId,
-    triggerElement,
+    triggerElementRef,
     store,
     {
       payload,
@@ -191,7 +191,7 @@ export const MenuTrigger = fastHooks.createComponent(function MenuTrigger(
     move: false,
     restMs: parent.type === undefined ? delay : undefined,
     delay: { close: closeDelay },
-    triggerElement,
+    triggerElementRef,
     externalTree: floatingTreeRoot,
     isActiveTrigger: isTriggerActive,
   });
@@ -235,7 +235,7 @@ export const MenuTrigger = fastHooks.createComponent(function MenuTrigger(
 
   const rootTriggerProps = store.useState('triggerProps', isMountedByThisTrigger);
 
-  const ref = [triggerRef, forwardedRef, buttonRef, registerTrigger, setTriggerElement];
+  const ref = [triggerRef, forwardedRef, buttonRef, registerTrigger, triggerElementRef];
   const props = [
     localInteractionProps.getReferenceProps(),
     hoverProps ?? EMPTY_OBJECT,
@@ -299,7 +299,7 @@ export const MenuTrigger = fastHooks.createComponent(function MenuTrigger(
         );
       });
 
-      let nextTabbable = getTabbableAfterElement(triggerElement);
+      let nextTabbable = getTabbableAfterElement(triggerElementRef.current);
 
       while (
         (nextTabbable !== null && contains(currentPositionerElement, nextTabbable)) ||
@@ -369,8 +369,7 @@ export interface MenuTrigger {
 }
 
 export interface MenuTriggerProps<Payload = unknown>
-  extends NativeButtonProps,
-    BaseUIComponentProps<'button', MenuTrigger.State> {
+  extends NativeButtonProps, BaseUIComponentProps<'button', MenuTrigger.State> {
   children?: React.ReactNode;
   /**
    * Whether the component should ignore user interaction.

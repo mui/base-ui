@@ -8,10 +8,10 @@ import {
   isLastTraversableNode,
   isWebKit,
 } from '@floating-ui/utils/dom';
-import { Timeout, useTimeout } from '@base-ui-components/utils/useTimeout';
-import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
-import { useEffect } from '@base-ui-components/utils/useEffect';
-import { useRef } from '@base-ui-components/utils/useRef';
+import { Timeout, useTimeout } from '@base-ui/utils/useTimeout';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { useEffect } from '@base-ui/utils/useEffect';
+import { useRef } from '@base-ui/utils/useRef';
 import {
   contains,
   getDocument,
@@ -691,11 +691,17 @@ export function useDismiss(
   const floating: ElementProps['floating'] = React.useMemo(
     () => ({
       onKeyDown: closeOnEscapeKeyDown,
+
+      // `onMouseDown` may be blocked if `event.preventDefault()` is called in
+      // `onPointerDown`, such as with <NumberField.ScrubArea>.
+      // See https://github.com/mui/base-ui/pull/3379
+      onPointerDown: handlePressedInside,
       onMouseDown: handlePressedInside,
       onMouseUp: handlePressedInside,
-      onPointerDownCapture: markInsideReactTree,
-      onMouseDownCapture: markInsideReactTree,
+
       onClickCapture: markInsideReactTree,
+      onMouseDownCapture: markInsideReactTree,
+      onPointerDownCapture: markInsideReactTree,
       onMouseUpCapture: markInsideReactTree,
       onTouchEndCapture: markInsideReactTree,
       onTouchMoveCapture: markInsideReactTree,

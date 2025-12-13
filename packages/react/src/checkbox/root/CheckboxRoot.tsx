@@ -1,13 +1,13 @@
 'use client';
 import * as React from 'react';
-import { EMPTY_OBJECT } from '@base-ui-components/utils/empty';
-import { useControlled } from '@base-ui-components/utils/useControlled';
-import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
-import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
-import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
-import { visuallyHidden } from '@base-ui-components/utils/visuallyHidden';
-import { useEffect } from '@base-ui-components/utils/useEffect';
-import { useRef } from '@base-ui-components/utils/useRef';
+import { EMPTY_OBJECT } from '@base-ui/utils/empty';
+import { useControlled } from '@base-ui/utils/useControlled';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
+import { visuallyHidden } from '@base-ui/utils/visuallyHidden';
+import { useEffect } from '@base-ui/utils/useEffect';
+import { useRef } from '@base-ui/utils/useRef';
 import { NOOP } from '../../utils/noop';
 import { useStateAttributesMapping } from '../utils/useStateAttributesMapping';
 import { useRenderElement } from '../../utils/useRenderElement';
@@ -56,6 +56,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     readOnly = false,
     render,
     required = false,
+    uncheckedValue,
     value: valueProp,
     nativeButton = false,
     ...elementProps
@@ -315,8 +316,8 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
   return (
     <CheckboxRootContext.Provider value={state}>
       {element}
-      {!checked && !groupContext && name && !parent && (
-        <input type="hidden" name={name} value="off" />
+      {!checked && !groupContext && name && !parent && uncheckedValue !== undefined && (
+        <input type="hidden" name={name} value={uncheckedValue} />
       )}
       <input {...inputProps} />
     </CheckboxRootContext.Provider>
@@ -347,7 +348,8 @@ export interface CheckboxRootState extends FieldRoot.State {
 }
 
 export interface CheckboxRootProps
-  extends NonNativeButtonProps,
+  extends
+    NonNativeButtonProps,
     Omit<BaseUIComponentProps<'span', CheckboxRoot.State>, 'onChange' | 'value'> {
   /**
    * The id of the input element.
@@ -407,6 +409,11 @@ export interface CheckboxRootProps
    * @default false
    */
   parent?: boolean;
+  /**
+   * The value submitted with the form when the checkbox is unchecked.
+   * By default, unchecked checkboxes do not submit any value, matching native checkbox behavior.
+   */
+  uncheckedValue?: string;
   /**
    * The value of the selected checkbox.
    */

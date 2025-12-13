@@ -1,11 +1,11 @@
 'use client';
 import * as React from 'react';
-import { useControlled } from '@base-ui-components/utils/useControlled';
-import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
-import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
-import { visuallyHidden } from '@base-ui-components/utils/visuallyHidden';
-import { useRef } from '@base-ui-components/utils/useRef';
-import { useState } from '@base-ui-components/utils/useState';
+import { useControlled } from '@base-ui/utils/useControlled';
+import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { visuallyHidden } from '@base-ui/utils/visuallyHidden';
+import { useRef } from '@base-ui/utils/useRef';
+import { useState } from '@base-ui/utils/useState';
 import { NOOP } from '../utils/noop';
 import type { BaseUIComponentProps, HTMLProps } from '../utils/types';
 import { useBaseUiId } from '../utils/useBaseUiId';
@@ -255,8 +255,10 @@ export interface RadioGroupState extends FieldRoot.State {
   readOnly: boolean | undefined;
 }
 
-export interface RadioGroupProps
-  extends Omit<BaseUIComponentProps<'div', RadioGroup.State>, 'value'> {
+export interface RadioGroupProps extends Omit<
+  BaseUIComponentProps<'div', RadioGroup.State>,
+  'value'
+> {
   /**
    * Whether the component should ignore user interaction.
    * @default false

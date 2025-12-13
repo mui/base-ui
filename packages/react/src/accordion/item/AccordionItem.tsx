@@ -1,8 +1,8 @@
 'use client';
 import * as React from 'react';
-import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
-import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
-import { useState } from '@base-ui-components/utils/useState';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
+import { useState } from '@base-ui/utils/useState';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useCollapsibleRoot } from '../../collapsible/root/useCollapsibleRoot';
@@ -147,7 +147,8 @@ export interface AccordionItemState extends AccordionRoot.State {
 }
 
 export interface AccordionItemProps
-  extends BaseUIComponentProps<'div', AccordionItem.State>,
+  extends
+    BaseUIComponentProps<'div', AccordionItem.State>,
     Partial<Pick<useCollapsibleRoot.Parameters, 'disabled'>> {
   /**
    * A unique value that identifies this accordion item.

@@ -2,6 +2,7 @@
 import * as React from 'react';
 import { expectType } from '#test-utils';
 import { useRender } from './useRender';
+import { Button } from '../button';
 
 const element1 = useRender({
   render: () => <div>Test</div>,
@@ -51,3 +52,8 @@ const element7 = useRender({
 });
 
 expectType<React.ReactElement, typeof element7>(element7);
+
+function App() {
+  const element = useRender({ defaultTagName: 'div' });
+  return <Button render={element} />;
+}

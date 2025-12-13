@@ -1,10 +1,10 @@
 import * as React from 'react';
 import { isHTMLElement } from '@floating-ui/utils/dom';
-import { useValueAsRef } from '@base-ui-components/utils/useValueAsRef';
-import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
-import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
-import { useRef } from '@base-ui-components/utils/useRef';
-import { useCallback } from '@base-ui-components/utils/useCallback';
+import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { useRef } from '@base-ui/utils/useRef';
+import { useCallback } from '@base-ui/utils/useCallback';
 import {
   activeElement,
   contains,
@@ -229,6 +229,11 @@ export interface UseListNavigationProps {
    */
   id?: string | undefined;
   /**
+   * Whether to clear the active index when the pointer leaves an item.
+   * @default true
+   */
+  resetOnPointerLeave?: boolean;
+  /**
    * External FlatingTree to use when the one provided by context can't be used.
    */
   externalTree?: FloatingTreeStore;
@@ -271,6 +276,7 @@ export function useListNavigation(
     itemSizes,
     dense = false,
     id,
+    resetOnPointerLeave = true,
     externalTree,
   } = props;
 
@@ -324,6 +330,7 @@ export function useListNavigation(
   const latestOpenRef = useValueAsRef(open);
   const scrollItemIntoViewRef = useValueAsRef(scrollItemIntoView);
   const selectedIndexRef = useValueAsRef(selectedIndex);
+  const resetOnPointerLeaveRef = useValueAsRef(resetOnPointerLeave);
 
   const focusItem = useStableCallback(() => {
     function runFocus(item: HTMLElement) {
@@ -555,6 +562,10 @@ export function useListNavigation(
           return;
         }
 
+        if (!resetOnPointerLeaveRef.current) {
+          return;
+        }
+
         indexRef.current = -1;
         onNavigate(event);
 
@@ -565,7 +576,15 @@ export function useListNavigation(
     };
 
     return itemProps;
-  }, [latestOpenRef, floatingFocusElementRef, focusItemOnHover, listRef, onNavigate, virtual]);
+  }, [
+    latestOpenRef,
+    floatingFocusElementRef,
+    focusItemOnHover,
+    listRef,
+    onNavigate,
+    resetOnPointerLeaveRef,
+    virtual,
+  ]);
 
   const getParentOrientation = useCallback(() => {
     return (

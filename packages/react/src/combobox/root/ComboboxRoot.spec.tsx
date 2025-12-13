@@ -1,6 +1,6 @@
 import * as React from 'react';
-import { useState } from '@base-ui-components/utils/useState';
-import { Combobox } from '@base-ui-components/react/combobox';
+import { useState } from '@base-ui/utils/useState';
+import { Combobox } from '@base-ui/react/combobox';
 import { mergeProps } from '../../merge-props';
 
 const objectItems = [
@@ -225,6 +225,15 @@ function App() {
   isItemEqualToValue={(item, value) => item.id === value.id}
   defaultOpen
   multiple
+/>;
+
+// Should accept null value
+<Combobox.Root
+  items={[
+    { id: 1, name: 'Alice' },
+    { id: 2, name: 'Bob' },
+  ]}
+  value={null}
 />;
 
 function App2() {

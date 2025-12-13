@@ -1,6 +1,6 @@
 import * as React from 'react';
-import { useState } from '@base-ui-components/utils/useState';
-import { Autocomplete } from '@base-ui-components/react/autocomplete';
+import { useState } from '@base-ui/utils/useState';
+import { Autocomplete } from '@base-ui/react/autocomplete';
 
 const objectItems = [
   { value: 'a', label: 'apple' },

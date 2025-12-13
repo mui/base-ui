@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
-import { useEffect } from '@base-ui-components/utils/useEffect';
-import type { InteractionType } from '@base-ui-components/utils/useEnhancedClickHandler';
+import { useEffect } from '@base-ui/utils/useEffect';
+import type { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import { FloatingFocusManager, useHoverFloatingInteraction } from '../../floating-ui-react';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import type { MenuRoot } from '../root/MenuRoot';

@@ -1,17 +1,18 @@
+'use client';
 import * as React from 'react';
 import { tabbable, isTabbable, focusable, type FocusableElement } from 'tabbable';
 import { getComputedStyle, getNodeName, isHTMLElement } from '@floating-ui/utils/dom';
-import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
-import { useValueAsRef } from '@base-ui-components/utils/useValueAsRef';
-import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
-import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
-import { visuallyHidden } from '@base-ui-components/utils/visuallyHidden';
-import { useTimeout } from '@base-ui-components/utils/useTimeout';
-import type { InteractionType } from '@base-ui-components/utils/useEnhancedClickHandler';
-import { useAnimationFrame } from '@base-ui-components/utils/useAnimationFrame';
-import { ownerWindow } from '@base-ui-components/utils/owner';
-import { useEffect } from '@base-ui-components/utils/useEffect';
-import { useRef } from '@base-ui-components/utils/useRef';
+import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
+import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { visuallyHidden } from '@base-ui/utils/visuallyHidden';
+import { useTimeout } from '@base-ui/utils/useTimeout';
+import type { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
+import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
+import { ownerWindow } from '@base-ui/utils/owner';
+import { useEffect } from '@base-ui/utils/useEffect';
+import { useRef } from '@base-ui/utils/useRef';
 import { FocusGuard } from '../../utils/FocusGuard';
 import {
   activeElement,
@@ -400,7 +401,17 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
 
     const doc = getDocument(floatingFocusElement);
 
+    function clearPointerDownOutside() {
+      pointerDownOutsideRef.current = false;
+    }
+
     function onPointerDown(event: PointerEvent) {
+      const target = getTarget(event) as Element | null;
+      const pointerTargetInside =
+        contains(floating, target) ||
+        contains(domReference, target) ||
+        contains(portalContext?.portalNode, target);
+      pointerDownOutsideRef.current = !pointerTargetInside;
       lastInteractionTypeRef.current =
         (event.pointerType as React.PointerEvent['pointerType']) || 'keyboard';
     }
@@ -410,12 +421,16 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     }
 
     doc.addEventListener('pointerdown', onPointerDown, true);
+    doc.addEventListener('pointerup', clearPointerDownOutside, true);
+    doc.addEventListener('pointercancel', clearPointerDownOutside, true);
     doc.addEventListener('keydown', onKeyDown, true);
     return () => {
       doc.removeEventListener('pointerdown', onPointerDown, true);
+      doc.removeEventListener('pointerup', clearPointerDownOutside, true);
+      doc.removeEventListener('pointercancel', clearPointerDownOutside, true);
       doc.removeEventListener('keydown', onKeyDown, true);
     };
-  }, [disabled, floating, domReference, floatingFocusElement, open]);
+  }, [disabled, floating, domReference, floatingFocusElement, open, portalContext]);
 
   useEffect(() => {
     if (disabled) {
@@ -520,6 +535,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
           (isUntrappedTypeableCombobox ? true : !modal) &&
           relatedTarget &&
           movedToUnrelatedNode &&
+          !isPointerDownRef.current &&
           // Fix React 18 Strict Mode returnFocus due to double rendering.
           // For an "untrapped" typeable combobox (input role=combobox with
           // initialFocus=false), re-opening the popup and tabbing out should still close it even
@@ -536,6 +552,9 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     }
 
     function markInsideReactTree() {
+      if (pointerDownOutsideRef.current) {
+        return;
+      }
       dataRef.current.insideReactTree = true;
       blurTimeout.start(0, () => {
         dataRef.current.insideReactTree = false;

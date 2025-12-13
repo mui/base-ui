@@ -1,9 +1,9 @@
 'use client';
 import * as React from 'react';
 import { getWindow, isHTMLElement } from '@floating-ui/utils/dom';
-import { useTimeout } from '@base-ui-components/utils/useTimeout';
-import { useEffect } from '@base-ui-components/utils/useEffect';
-import { useRef } from '@base-ui-components/utils/useRef';
+import { useTimeout } from '@base-ui/utils/useTimeout';
+import { useEffect } from '@base-ui/utils/useEffect';
+import { useRef } from '@base-ui/utils/useRef';
 import type { FloatingRootContext, ElementProps } from '../../floating-ui-react';
 import { createChangeEventDetails } from '../createBaseUIEventDetails';
 import { REASONS } from '../reasons';

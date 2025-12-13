@@ -1,17 +1,11 @@
 'use client';
 import * as React from 'react';
-import * as fastHooks from '@base-ui-components/utils/fastHooks';
-import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
-import { useRef } from '@base-ui-components/utils/useRef';
-import { useCallback } from '@base-ui-components/utils/useCallback';
+import * as fastHooks from '@base-ui/utils/fastHooks';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { useRef } from '@base-ui/utils/useRef';
+import { useCallback } from '@base-ui/utils/useCallback';
 import { TooltipRootContext } from './TooltipRootContext';
-import {
-  useClientPoint,
-  useDismiss,
-  useFocus,
-  useInteractions,
-  useSyncedFloatingRootContext,
-} from '../../floating-ui-react';
+import { useClientPoint, useDismiss, useFocus, useInteractions } from '../../floating-ui-react';
 import {
   type BaseUIChangeEventDetails,
   createChangeEventDetails,
@@ -128,10 +122,7 @@ export const TooltipRoot = fastHooks.createComponent(function TooltipRoot<Payloa
     [forceUnmount, handleImperativeClose],
   );
 
-  const floatingRootContext = useSyncedFloatingRootContext({
-    popupStore: store,
-    onOpenChange: store.setOpen,
-  });
+  const floatingRootContext = store.useState('floatingRootContext');
 
   const focus = useFocus(floatingRootContext, { enabled: !disabled });
   const dismiss = useDismiss(floatingRootContext, { enabled: !disabled, referencePress: true });
@@ -215,6 +206,7 @@ export interface TooltipRootProps<Payload = unknown> {
    * - `unmount`: When specified, the tooltip will not be unmounted when closed.
    * Instead, the `unmount` function must be called to unmount the tooltip manually.
    * Useful when the tooltip's animation is controlled by an external library.
+   * - `close`: Closes the dialog imperatively when called.
    */
   actionsRef?: React.RefObject<TooltipRoot.Actions>;
   /**
@@ -248,6 +240,7 @@ export interface TooltipRootProps<Payload = unknown> {
 
 export interface TooltipRootActions {
   unmount: () => void;
+  close: () => void;
 }
 
 export type TooltipRootChangeEventReason =

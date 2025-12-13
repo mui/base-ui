@@ -2,8 +2,7 @@ import * as React from 'react';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { vi, it, describe } from 'vitest';
-
-import { isJSDOM } from '@base-ui-components/utils/detectBrowser';
+import { isJSDOM } from '@base-ui/utils/detectBrowser';
 import { useClick, useDismiss, useFloating, useInteractions, useListNavigation } from '../index';
 import type { UseListNavigationProps } from '../types';
 import { Main as ComplexGrid } from '../../../test/floating-ui-tests/ComplexGrid';
@@ -1062,10 +1061,18 @@ describe('useListNavigation', () => {
   it('selectedIndex changing does not steal focus', async () => {
     render(<ListboxFocus />);
 
-    await userEvent.click(screen.getByTestId('reference'));
-    await act(async () => {});
+    // TODO: This feels like a bug. It's the animation frame callback from `enqueueFocus` sometimes
+    // kicking in after the click instead before, which causes flakeyness in this test as the wrong
+    // element will be focused.
+    await waitFor(() => {
+      expect(document.activeElement).toHaveRole('option');
+    });
 
-    expect(screen.getByTestId('reference')).toHaveFocus();
+    await userEvent.click(screen.getByTestId('reference'));
+
+    await waitFor(() => {
+      expect(screen.getByTestId('reference')).toHaveFocus();
+    });
   });
 
   // In JSDOM it will not focus the first item, but will in the browser

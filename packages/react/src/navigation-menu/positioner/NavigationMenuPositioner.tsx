@@ -1,11 +1,11 @@
 'use client';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import { ownerWindow } from '@base-ui-components/utils/owner';
-import { useTimeout } from '@base-ui-components/utils/useTimeout';
-import { useEffect } from '@base-ui-components/utils/useEffect';
-import { useRef } from '@base-ui-components/utils/useRef';
-import { useState } from '@base-ui-components/utils/useState';
+import { ownerWindow } from '@base-ui/utils/owner';
+import { useTimeout } from '@base-ui/utils/useTimeout';
+import { useEffect } from '@base-ui/utils/useEffect';
+import { useRef } from '@base-ui/utils/useRef';
+import { useState } from '@base-ui/utils/useState';
 import {
   disableFocusInside,
   enableFocusInside,
@@ -206,7 +206,8 @@ export interface NavigationMenuPositionerState {
 }
 
 export interface NavigationMenuPositionerProps
-  extends useAnchorPositioning.SharedParameters,
+  extends
+    useAnchorPositioning.SharedParameters,
     BaseUIComponentProps<'div', NavigationMenuPositioner.State> {}
 
 export namespace NavigationMenuPositioner {

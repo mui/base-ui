@@ -10,7 +10,7 @@ pnpm start
 
 If you do not have pnpm installed, select your OS and follow the instructions on the [pnpm website](https://pnpm.io/installation).
 
-Package managers other than pnpm (like npm or Yarn) are not supported and will not work.
+Package managers other than pnpm (like npm or Yarn) are not supported and don't work.
 
 ## How can I add a new demo to the documentation?
 

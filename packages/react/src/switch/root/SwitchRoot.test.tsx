@@ -2,10 +2,10 @@ import * as React from 'react';
 import { expect } from 'chai';
 import { spy } from 'sinon';
 import { act, fireEvent, screen } from '@mui/internal-test-utils';
-import { Switch } from '@base-ui-components/react/switch';
+import { Switch } from '@base-ui/react/switch';
 import { describeConformance, createRenderer, isJSDOM } from '#test-utils';
-import { Field } from '@base-ui-components/react/field';
-import { Form } from '@base-ui-components/react/form';
+import { Field } from '@base-ui/react/field';
+import { Form } from '@base-ui/react/form';
 
 describe('<Switch.Root />', () => {
   const { render } = createRenderer();
@@ -262,7 +262,139 @@ describe('<Switch.Root />', () => {
 
   describe('Form', () => {
     // FormData is not available in JSDOM
-    it.skipIf(isJSDOM)('should include the switch value in form submission', async () => {
+    it.skipIf(isJSDOM)(
+      'should include the switch value in form submission, matching native checkbox behavior',
+      async () => {
+        const submitSpy = spy((event) => {
+          event.preventDefault();
+          const formData = new FormData(event.currentTarget);
+          return formData.get('test-switch');
+        });
+
+        const { user } = await render(
+          <Form onSubmit={submitSpy}>
+            <Field.Root name="test-switch">
+              <Switch.Root />
+            </Field.Root>
+            <button type="submit">Submit</button>
+          </Form>,
+        );
+
+        const switchElement = screen.getByRole('switch');
+        const submitButton = screen.getByRole('button')!;
+
+        await user.click(submitButton);
+
+        expect(submitSpy.callCount).to.equal(1);
+        expect(submitSpy.lastCall.returnValue).to.equal(null);
+
+        await user.click(switchElement);
+        await user.click(submitButton);
+
+        expect(submitSpy.callCount).to.equal(2);
+        expect(submitSpy.lastCall.returnValue).to.equal('on');
+      },
+    );
+
+    it.skipIf(isJSDOM)('matches native checkbox form submission behavior', async () => {
+      const nativeSubmitSpy = spy((event) => {
+        event.preventDefault();
+        const formData = new FormData(event.currentTarget);
+        return {
+          get: formData.get('native'),
+          getAll: formData.getAll('native'),
+        };
+      });
+
+      const customSubmitSpy = spy((event) => {
+        event.preventDefault();
+        const formData = new FormData(event.currentTarget);
+        return {
+          get: formData.get('custom'),
+          getAll: formData.getAll('custom'),
+        };
+      });
+
+      const { user: nativeUser } = await render(
+        <form onSubmit={nativeSubmitSpy}>
+          <input type="checkbox" name="native" />
+          <button type="submit">Submit</button>
+        </form>,
+      );
+
+      const nativeCheckbox = screen.getByRole('checkbox');
+      const nativeSubmitButton = screen.getByRole('button')!;
+
+      await nativeUser.click(nativeSubmitButton);
+      expect(nativeSubmitSpy.lastCall.returnValue.get).to.equal(null);
+      expect(nativeSubmitSpy.lastCall.returnValue.getAll).to.deep.equal([]);
+
+      await nativeUser.click(nativeCheckbox);
+      await nativeUser.click(nativeSubmitButton);
+      expect(nativeSubmitSpy.lastCall.returnValue.get).to.equal('on');
+
+      const { user: customUser } = await render(
+        <Form onSubmit={customSubmitSpy}>
+          <Field.Root name="custom">
+            <Switch.Root />
+          </Field.Root>
+          <button type="submit">Submit</button>
+        </Form>,
+      );
+
+      const customSwitch = screen.getByRole('switch');
+      const customSubmitButton = screen.getAllByRole('button')[1]!;
+
+      await customUser.click(customSubmitButton);
+      expect(customSubmitSpy.lastCall.returnValue.get).to.equal(null);
+      expect(customSubmitSpy.lastCall.returnValue.getAll).to.deep.equal([]);
+
+      await customUser.click(customSwitch);
+      await customUser.click(customSubmitButton);
+      expect(customSubmitSpy.lastCall.returnValue.get).to.equal('on');
+    });
+
+    it.skipIf(isJSDOM)(
+      'should submit uncheckedValue when switch is off and uncheckedValue is specified',
+      async () => {
+        const submitSpy = spy((event) => {
+          event.preventDefault();
+          const formData = new FormData(event.currentTarget);
+          return formData.get('test-switch');
+        });
+
+        const { user } = await render(
+          <Form onSubmit={submitSpy}>
+            <Field.Root name="test-switch">
+              <Switch.Root uncheckedValue="off" />
+            </Field.Root>
+            <button type="submit">Submit</button>
+          </Form>,
+        );
+
+        const switchElement = screen.getByRole('switch');
+        const submitButton = screen.getByRole('button')!;
+
+        await user.click(submitButton);
+
+        expect(submitSpy.callCount).to.equal(1);
+        expect(submitSpy.lastCall.returnValue).to.equal('off');
+
+        await user.click(switchElement);
+        await user.click(submitButton);
+
+        expect(submitSpy.callCount).to.equal(2);
+        expect(submitSpy.lastCall.returnValue).to.equal('on');
+
+        await user.click(switchElement);
+        await user.click(submitButton);
+
+        expect(submitSpy.callCount).to.equal(3);
+        expect(submitSpy.lastCall.returnValue).to.equal('off');
+      },
+    );
+
+    it.skipIf(isJSDOM)('should submit custom uncheckedValue when switch is off', async () => {
       const submitSpy = spy((event) => {
         event.preventDefault();
         const formData = new FormData(event.currentTarget);
@@ -272,7 +404,7 @@ describe('<Switch.Root />', () => {
       const { user } = await render(
         <Form onSubmit={submitSpy}>
           <Field.Root name="test-switch">
-            <Switch.Root />
+            <Switch.Root uncheckedValue="false" />
           </Field.Root>
           <button type="submit">Submit</button>
         </Form>,
@@ -284,7 +416,7 @@ describe('<Switch.Root />', () => {
       await user.click(submitButton);
 
       expect(submitSpy.callCount).to.equal(1);
-      expect(submitSpy.lastCall.returnValue).to.equal('off');
+      expect(submitSpy.lastCall.returnValue).to.equal('false');
 
       await user.click(switchElement);
       await user.click(submitButton);

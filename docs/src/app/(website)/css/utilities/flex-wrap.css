@@ -1,0 +1,7 @@
+.fw-n {
+  flex-wrap: nowrap;
+}
+
+.fw-w {
+  flex-wrap: wrap;
+}

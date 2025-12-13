@@ -1,13 +1,13 @@
 'use client';
 import * as React from 'react';
-import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
-import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
-import { useOnMount } from '@base-ui-components/utils/useOnMount';
-import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
-import { visuallyHidden } from '@base-ui-components/utils/visuallyHidden';
-import { useRef } from '@base-ui-components/utils/useRef';
-import { useCallback } from '@base-ui-components/utils/useCallback';
-import { useState } from '@base-ui-components/utils/useState';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { useOnMount } from '@base-ui/utils/useOnMount';
+import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
+import { visuallyHidden } from '@base-ui/utils/visuallyHidden';
+import { useRef } from '@base-ui/utils/useRef';
+import { useCallback } from '@base-ui/utils/useCallback';
+import { useState } from '@base-ui/utils/useState';
 import { BaseUIComponentProps } from '../../utils/types';
 import { formatNumber } from '../../utils/formatNumber';
 import { mergeProps } from '../../merge-props';
@@ -469,8 +469,10 @@ export interface ThumbMetadata {
 
 export interface SliderThumbState extends SliderRoot.State {}
 
-export interface SliderThumbProps
-  extends Omit<BaseUIComponentProps<'div', SliderThumb.State>, 'onBlur' | 'onFocus'> {
+export interface SliderThumbProps extends Omit<
+  BaseUIComponentProps<'div', SliderThumb.State>,
+  'onBlur' | 'onFocus'
+> {
   /**
    * Whether the thumb should ignore user interaction.
    * @default false

@@ -168,8 +168,9 @@ describe('NumberField parse', () => {
     });
 
     it('handles Swiss grouping apostrophe', () => {
-      // de-CH uses RIGHT SINGLE QUOTATION MARK (U+2019) as group separator
+      // de-CH uses RIGHT SINGLE QUOTATION MARK (U+2019) as group separator on some platforms and straight apostrophe on others
       expect(parseNumber('1’234.56', 'de-CH')).to.equal(1234.56);
+      expect(parseNumber("1'234.56", 'de-CH')).to.equal(1234.56);
     });
 
     it('parses de-DE formatted numbers', () => {

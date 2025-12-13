@@ -1,12 +1,12 @@
 'use client';
 import * as React from 'react';
-import { inertValue } from '@base-ui-components/utils/inertValue';
-import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
-import { useScrollLock } from '@base-ui-components/utils/useScrollLock';
-import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
-import { useStore } from '@base-ui-components/utils/store';
-import { useRef } from '@base-ui-components/utils/useRef';
-import { useState } from '@base-ui-components/utils/useState';
+import { inertValue } from '@base-ui/utils/inertValue';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { useScrollLock } from '@base-ui/utils/useScrollLock';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { useStore } from '@base-ui/utils/store';
+import { useRef } from '@base-ui/utils/useRef';
+import { useState } from '@base-ui/utils/useState';
 import { useSelectRootContext, useSelectFloatingContext } from '../root/SelectRootContext';
 import { CompositeList } from '../../composite/list/CompositeList';
 import type { BaseUIComponentProps } from '../../utils/types';
@@ -70,7 +70,7 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
   const mounted = useStore(store, selectors.mounted);
   const modal = useStore(store, selectors.modal);
   const value = useStore(store, selectors.value);
-  const touchModality = useStore(store, selectors.touchModality);
+  const openMethod = useStore(store, selectors.openMethod);
   const positionerElement = useStore(store, selectors.positionerElement);
   const triggerElement = useStore(store, selectors.triggerElement);
   const isItemEqualToValue = useStore(store, selectors.isItemEqualToValue);
@@ -99,7 +99,10 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
 
   React.useImperativeHandle(alignItemWithTriggerActiveRef, () => alignItemWithTriggerActive);
 
-  useScrollLock((alignItemWithTriggerActive || modal) && open && !touchModality, triggerElement);
+  useScrollLock(
+    (alignItemWithTriggerActive || modal) && open && openMethod !== 'touch',
+    triggerElement,
+  );
 
   const positioning = useAnchorPositioning({
     anchor,
@@ -253,7 +256,8 @@ export interface SelectPositionerState {
 }
 
 export interface SelectPositionerProps
-  extends useAnchorPositioning.SharedParameters,
+  extends
+    useAnchorPositioning.SharedParameters,
     BaseUIComponentProps<'div', SelectPositioner.State> {
   /**
    * Whether the positioner overlaps the trigger so the selected item's text is aligned with the trigger's value text. This only applies to mouse input and is automatically disabled if there is not enough space.

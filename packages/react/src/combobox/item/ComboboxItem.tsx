@@ -1,9 +1,9 @@
 'use client';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import { useStore } from '@base-ui-components/utils/store';
-import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
-import { useRef } from '@base-ui-components/utils/useRef';
+import { useStore } from '@base-ui/utils/store';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { useRef } from '@base-ui/utils/useRef';
 import {
   useComboboxRootContext,
   useComboboxDerivedItemsContext,
@@ -228,8 +228,7 @@ export interface ComboboxItemState {
 }
 
 export interface ComboboxItemProps
-  extends NonNativeButtonProps,
-    Omit<BaseUIComponentProps<'div', ComboboxItem.State>, 'id'> {
+  extends NonNativeButtonProps, Omit<BaseUIComponentProps<'div', ComboboxItem.State>, 'id'> {
   children?: React.ReactNode;
   /**
    * An optional click handler for the item when selected.

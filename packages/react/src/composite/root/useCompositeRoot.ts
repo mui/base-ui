@@ -1,10 +1,10 @@
 'use client';
 import * as React from 'react';
-import { isElementDisabled } from '@base-ui-components/utils/isElementDisabled';
-import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
-import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
-import { useRef } from '@base-ui-components/utils/useRef';
-import { useState } from '@base-ui-components/utils/useState';
+import { isElementDisabled } from '@base-ui/utils/isElementDisabled';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
+import { useRef } from '@base-ui/utils/useRef';
+import { useState } from '@base-ui/utils/useState';
 import type { TextDirection } from '../../direction-provider/DirectionContext';
 import {
   ALL_KEYS,
