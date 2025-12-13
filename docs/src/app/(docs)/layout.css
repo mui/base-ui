@@ -15,7 +15,7 @@
     color: var(--color-foreground);
   }
 
-  body:has(.RootLayout) ::selection {
+  .RootLayout ::selection {
     background-color: var(--color-selection);
   }
 }
