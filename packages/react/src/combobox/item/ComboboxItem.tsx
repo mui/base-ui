@@ -39,6 +39,7 @@ export const ComboboxItem = React.memo(
     } = componentProps;
 
     const didPointerDownRef = React.useRef(false);
+    const didInteractWithItemRef = React.useRef(false);
     const textRef = React.useRef<HTMLElement | null>(null);
     const listItem = useCompositeListItem({
       index: indexProp,
@@ -110,6 +111,7 @@ export const ComboboxItem = React.memo(
     useIsoLayoutEffect(() => {
       if (!open) {
         didPointerDownRef.current = false;
+        didInteractWithItemRef.current = false;
         return;
       }
 
@@ -159,6 +161,10 @@ export const ComboboxItem = React.memo(
       }
     }
 
+    function markInteracted() {
+      didInteractWithItemRef.current = true;
+    }
+
     const defaultProps: HTMLProps = {
       id,
       role: isRow ? 'gridcell' : 'option',
@@ -170,8 +176,11 @@ export const ComboboxItem = React.memo(
       tabIndex: undefined,
       onPointerDownCapture(event) {
         didPointerDownRef.current = true;
+        markInteracted();
         event.preventDefault();
       },
+      onKeyDown: markInteracted,
+      onMouseMove: markInteracted,
       onClick(event) {
         if (disabled || readOnly) {
           return;
@@ -183,7 +192,13 @@ export const ComboboxItem = React.memo(
         const pointerStartedOnItem = didPointerDownRef.current;
         didPointerDownRef.current = false;
 
-        if (disabled || readOnly || event.button !== 0 || pointerStartedOnItem || !highlighted) {
+        if (
+          disabled ||
+          readOnly ||
+          event.button !== 0 ||
+          pointerStartedOnItem ||
+          !didInteractWithItemRef.current
+        ) {
           return;
         }
 

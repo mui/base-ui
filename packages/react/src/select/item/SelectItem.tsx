@@ -62,6 +62,7 @@ export const SelectItem = React.memo(
 
     const highlightTimeout = useTimeout();
 
+    const open = useStore(store, selectors.open);
     const highlighted = useStore(store, selectors.isActive, listItem.index);
     const selected = useStore(store, selectors.isSelected, listItem.index, value);
     const selectedByFocus = useStore(store, selectors.isSelectedByFocus, listItem.index);
@@ -72,6 +73,16 @@ export const SelectItem = React.memo(
 
     const itemRef = React.useRef<HTMLDivElement | null>(null);
     const indexRef = useValueAsRef(index);
+
+    const lastKeyRef = React.useRef<string | null>(null);
+    const didPointerDownRef = React.useRef(false);
+    const didInteractWithItemRef = React.useRef(false);
+
+    React.useEffect(() => {
+      if (!open) {
+        didInteractWithItemRef.current = false;
+      }
+    }, [open]);
 
     useIsoLayoutEffect(() => {
       if (!hasRegistered) {
@@ -119,10 +130,6 @@ export const SelectItem = React.memo(
     rootProps.onFocus = undefined;
     rootProps.id = undefined;
 
-    const lastKeyRef = React.useRef<string | null>(null);
-    const pointerTypeRef = React.useRef<'mouse' | 'touch' | 'pen'>('mouse');
-    const didPointerDownRef = React.useRef(false);
-
     const { getButtonProps, buttonRef } = useButton({
       disabled,
       focusableWhenDisabled: true,
@@ -157,6 +164,7 @@ export const SelectItem = React.memo(
         }
       },
       onMouseMove() {
+        didInteractWithItemRef.current = true;
         if (highlightItemOnHover) {
           store.set('activeIndex', index);
         }
@@ -180,6 +188,7 @@ export const SelectItem = React.memo(
       },
       onKeyDown(event) {
         lastKeyRef.current = event.key;
+        didInteractWithItemRef.current = true;
         store.set('activeIndex', index);
       },
       onClick(event) {
@@ -190,23 +199,26 @@ export const SelectItem = React.memo(
           return;
         }
 
-        if (
-          disabled ||
-          (lastKeyRef.current === ' ' && typingRef.current) ||
-          (pointerTypeRef.current !== 'touch' && !highlighted)
-        ) {
+        const isKeyboardClick = lastKeyRef.current !== null;
+
+        if (!isKeyboardClick) {
+          didInteractWithItemRef.current = true;
+        }
+
+        const prevented =
+          !isKeyboardClick &&
+          (highlightItemOnHover ? !highlighted : !didInteractWithItemRef.current);
+
+        if (disabled || (lastKeyRef.current === ' ' && typingRef.current) || prevented) {
           return;
         }
 
         lastKeyRef.current = null;
         commitSelection(event.nativeEvent);
       },
-      onPointerEnter(event) {
-        pointerTypeRef.current = event.pointerType;
-      },
-      onPointerDown(event) {
-        pointerTypeRef.current = event.pointerType;
+      onPointerDown() {
         didPointerDownRef.current = true;
+        didInteractWithItemRef.current = true;
       },
       onMouseUp(event) {
         if (disabled) {
@@ -224,7 +236,7 @@ export const SelectItem = React.memo(
         if (
           disallowSelectedMouseUp ||
           disallowUnselectedMouseUp ||
-          (pointerTypeRef.current !== 'touch' && !highlighted)
+          !didInteractWithItemRef.current
         ) {
           return;
         }
