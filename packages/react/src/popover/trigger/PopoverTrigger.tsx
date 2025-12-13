@@ -66,15 +66,17 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
     );
   }
 
-  const thisTriggerId = useBaseUiId(idProp);
-  const isTriggerActive = store.useState('isTriggerActive', thisTriggerId);
+  const triggerId = useBaseUiId(idProp);
+  const isTriggerActive = store.useState('isTriggerActive', triggerId);
   const floatingContext = store.useState('floatingRootContext');
-  const isOpenedByThisTrigger = store.useState('isOpenedByTrigger', thisTriggerId);
+  const isOpenedByThisTrigger = store.useState('isOpenedByTrigger', triggerId);
 
   const triggerElementRef = React.useRef<HTMLElement | null>(null);
 
-  const { registerTrigger, isMountedByThisTrigger } = useTriggerDataForwarding(
-    thisTriggerId,
+  const isMountedByThisTrigger = store.useState('isMountedByTrigger', triggerId);
+  const registerTrigger = useTriggerDataForwarding(
+    isMountedByThisTrigger,
+    triggerId,
     triggerElementRef,
     store,
     {
@@ -144,7 +146,7 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
       localProps.getReferenceProps(),
       hoverProps,
       rootTriggerProps,
-      { [CLICK_TRIGGER_IDENTIFIER as string]: '', id: thisTriggerId },
+      { [CLICK_TRIGGER_IDENTIFIER as string]: '', id: triggerId },
       elementProps,
       getButtonProps,
     ],
@@ -211,13 +213,13 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
     return (
       <React.Fragment>
         <FocusGuard ref={preFocusGuardRef} onFocus={handlePreFocusGuardFocus} />
-        <React.Fragment key={thisTriggerId}>{element}</React.Fragment>
+        <React.Fragment key={triggerId}>{element}</React.Fragment>
         <FocusGuard ref={store.context.triggerFocusTargetRef} onFocus={handleFocusTargetFocus} />
       </React.Fragment>
     );
   }
 
-  return <React.Fragment key={thisTriggerId}>{element}</React.Fragment>;
+  return <React.Fragment key={triggerId}>{element}</React.Fragment>;
 }) as PopoverTrigger;
 
 export interface PopoverTrigger {

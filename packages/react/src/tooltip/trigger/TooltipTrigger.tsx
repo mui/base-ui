@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { useLazyHandle } from '@base-ui/utils/useLazyHandle';
 import { useTooltipRootContext } from '../root/TooltipRootContext';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
@@ -11,6 +12,10 @@ import { useTooltipProviderContext } from '../provider/TooltipProviderContext';
 import { safePolygon, useDelayGroup, useHoverReferenceInteraction } from '../../floating-ui-react';
 
 import { OPEN_DELAY } from '../utils/constants';
+
+const defaultHandle = {
+  registerTrigger: (_: Element | null) => {},
+};
 
 /**
  * An element to attach the tooltip to.
@@ -42,25 +47,35 @@ export const TooltipTrigger = React.forwardRef(function TooltipTrigger(
     );
   }
 
-  const thisTriggerId = useBaseUiId(idProp);
-  const isTriggerActive = store.useState('isTriggerActive', thisTriggerId);
+  const triggerId = useBaseUiId(idProp);
+  const open = store.useState('open');
+  const isTriggerActive = store.useState('isTriggerActive', triggerId);
   const floatingRootContext = store.useState('floatingRootContext');
-  const isOpenedByThisTrigger = store.useState('isOpenedByTrigger', thisTriggerId);
+  const isOpenedByThisTrigger = store.useState('isOpenedByTrigger', triggerId);
+  const isMountedByThisTrigger = store.useState('isMountedByTrigger', triggerId);
 
   const triggerElementRef = React.useRef<Element | null>(null);
 
   const delayWithDefault = delay ?? OPEN_DELAY;
   const closeDelayWithDefault = closeDelay ?? 0;
 
-  const { registerTrigger, isMountedByThisTrigger } = useTriggerDataForwarding(
-    thisTriggerId,
-    triggerElementRef,
-    store,
-    {
-      payload,
-      closeDelay: closeDelayWithDefault,
-    },
-  );
+  const lazy = useLazyHandle(open, defaultHandle);
+
+  lazy.use(() => {
+    const registerTrigger = useTriggerDataForwarding(
+      isMountedByThisTrigger,
+      triggerId,
+      triggerElementRef,
+      store,
+      {
+        payload,
+        closeDelay: closeDelayWithDefault,
+      },
+    );
+    lazy.set('registerTrigger', registerTrigger);
+  });
+
+  const { registerTrigger } = lazy.get();
 
   const providerContext = useTooltipProviderContext();
   const { delayRef, isInstantPhase, hasProvider } = useDelayGroup(floatingRootContext, {
@@ -121,7 +136,7 @@ export const TooltipTrigger = React.forwardRef(function TooltipTrigger(
   const element = useRenderElement('button', componentProps, {
     state,
     ref: [forwardedRef, registerTrigger, triggerElementRef],
-    props: [hoverProps, rootTriggerProps, { id: thisTriggerId }, elementProps],
+    props: [hoverProps, rootTriggerProps, { id: triggerId }, elementProps],
     stateAttributesMapping: triggerOpenStateMapping,
   });
 

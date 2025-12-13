@@ -52,13 +52,12 @@ export function useTriggerRegistration<State extends PopupStoreState<any>>(
  * @param stateUpdates An object with state updates to apply when the trigger is active.
  */
 export function useTriggerDataForwarding<State extends PopupStoreState<any>>(
+  isMountedByThisTrigger: boolean,
   triggerId: string | undefined,
   triggerElementRef: React.RefObject<Element | null>,
   store: ReactStore<State, PopupStoreContext<any>, typeof popupStoreSelectors>,
   stateUpdates: Omit<Partial<State>, 'activeTriggerId' | 'activeTriggerElement'>,
 ) {
-  const isMountedByThisTrigger = store.useState('isMountedByTrigger', triggerId);
-
   const baseRegisterTrigger = useTriggerRegistration(triggerId, store);
 
   const registerTrigger = useStableCallback((element: Element | null) => {
@@ -87,7 +86,7 @@ export function useTriggerDataForwarding<State extends PopupStoreState<any>>(
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isMountedByThisTrigger, store, triggerElementRef, ...Object.values(stateUpdates)]);
 
-  return { registerTrigger, isMountedByThisTrigger };
+  return registerTrigger;
 }
 
 export type PayloadChildRenderFunction<Payload> = (arg: {
