@@ -1,5 +1,4 @@
 import { expect } from 'chai';
-import * as React from 'react';
 import { renderHook } from '@testing-library/react';
 import { useLayoutEffect } from './useLayoutEffect';
 
@@ -21,7 +20,7 @@ describe('useLayoutEffect', () => {
 
     const { rerender } = renderHook(({ dep }) => {
       useLayoutEffect(() => {
-        callCount++;
+        callCount += 1;
       }, [dep]);
     }, { initialProps: { dep: 1 } });
 

@@ -1,5 +1,4 @@
 import { expect } from 'chai';
-import * as React from 'react';
 import { renderHook } from '@testing-library/react';
 import { useInsertionEffect } from './useInsertionEffect';
 
@@ -21,7 +20,7 @@ describe('useInsertionEffect', () => {
 
     const { rerender } = renderHook(({ dep }) => {
       useInsertionEffect(() => {
-        callCount++;
+        callCount += 1;
       }, [dep]);
     }, { initialProps: { dep: 1 } });
 

@@ -1,5 +1,4 @@
 import { expect } from 'chai';
-import * as React from 'react';
 import { renderHook } from '@testing-library/react';
 import { useEffect } from './useEffect';
 
@@ -21,7 +20,7 @@ describe('useEffect', () => {
 
     const { rerender } = renderHook(({ dep }) => {
       useEffect(() => {
-        callCount++;
+        callCount += 1;
       }, [dep]);
     }, { initialProps: { dep: 1 } });
 

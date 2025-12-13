@@ -8,5 +8,6 @@ export function useLayoutEffect(
   effect: React.EffectCallback,
   deps?: React.DependencyList,
 ): void {
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- This is a pass-through wrapper
   React.useLayoutEffect(effect, deps);
 }

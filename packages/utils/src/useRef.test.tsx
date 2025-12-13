@@ -1,5 +1,4 @@
 import { expect } from 'chai';
-import * as React from 'react';
 import { renderHook } from '@testing-library/react';
 import { useRef } from './useRef';
 
