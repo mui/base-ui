@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<testsuites name="vitest tests" tests="5" failures="0" errors="0" time="0.124228415">
+    <testsuite name="packages/utils/src/useState.test.tsx" timestamp="2025-12-13T23:38:36.206Z" hostname="runnervm6qbrg" tests="5" failures="0" errors="0" skipped="0" time="0.124228415">
+        <testcase classname="packages/utils/src/useState.test.tsx" name="useState &gt; should return initial state and setter" time="0.113478379">
+        </testcase>
+        <testcase classname="packages/utils/src/useState.test.tsx" name="useState &gt; should update state when setter is called" time="0.003143368">
+        </testcase>
+        <testcase classname="packages/utils/src/useState.test.tsx" name="useState &gt; should work with function initializer" time="0.002098712">
+        </testcase>
+        <testcase classname="packages/utils/src/useState.test.tsx" name="useState &gt; should work with updater function" time="0.002286402">
+        </testcase>
+        <testcase classname="packages/utils/src/useState.test.tsx" name="useState &gt; should work with undefined initial state" time="0.001593329">
+        </testcase>
+    </testsuite>
+</testsuites>
