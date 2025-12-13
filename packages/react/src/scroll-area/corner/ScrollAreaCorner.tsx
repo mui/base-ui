@@ -34,7 +34,7 @@ export const ScrollAreaCorner = React.forwardRef(function ScrollAreaCorner(
     ],
   });
 
-  if (hiddenState.cornerHidden) {
+  if (hiddenState.corner) {
     return null;
   }
 

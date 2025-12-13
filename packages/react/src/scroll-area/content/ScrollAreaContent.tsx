@@ -30,7 +30,16 @@ export const ScrollAreaContent = React.forwardRef(function ScrollAreaContent(
       return undefined;
     }
 
-    const ro = new ResizeObserver(computeThumbPosition);
+    let hasInitialized = false;
+    const ro = new ResizeObserver(() => {
+      // ResizeObserver fires once upon observing, so we skip the initial call
+      // to avoid double-calculating the thumb position on mount.
+      if (!hasInitialized) {
+        hasInitialized = true;
+        return;
+      }
+      computeThumbPosition();
+    });
 
     if (contentWrapperRef.current) {
       ro.observe(contentWrapperRef.current);

@@ -25,18 +25,8 @@ export interface ScrollAreaRootContext {
   handlePointerUp: (event: React.PointerEvent) => void;
   handleScroll: (scrollPosition: { x: number; y: number }) => void;
   rootId: string | undefined;
-  hiddenState: {
-    scrollbarYHidden: boolean;
-    scrollbarXHidden: boolean;
-    cornerHidden: boolean;
-  };
-  setHiddenState: React.Dispatch<
-    React.SetStateAction<{
-      scrollbarYHidden: boolean;
-      scrollbarXHidden: boolean;
-      cornerHidden: boolean;
-    }>
-  >;
+  hiddenState: { y: boolean; x: boolean; corner: boolean };
+  setHiddenState: React.Dispatch<React.SetStateAction<{ y: boolean; x: boolean; corner: boolean }>>;
   overflowEdges: {
     xStart: boolean;
     xEnd: boolean;
