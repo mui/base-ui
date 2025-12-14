@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { fastComponent } from '@base-ui/utils/fastHooks';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { TooltipRootContext } from './TooltipRootContext';
 import { useClientPoint, useDismiss, useFocus, useInteractions } from '../../floating-ui-react';
@@ -23,7 +24,9 @@ import { useCallback } from '@base-ui/utils/useCallback';
  *
  * Documentation: [Base UI Tooltip](https://base-ui.com/react/components/tooltip)
  */
-export function TooltipRoot<Payload>(props: TooltipRoot.Props<Payload>) {
+export const TooltipRoot = fastComponent(function TooltipRoot<Payload>(
+  props: TooltipRoot.Props<Payload>,
+) {
   const {
     disabled = false,
     defaultOpen = false,
@@ -149,7 +152,7 @@ export function TooltipRoot<Payload>(props: TooltipRoot.Props<Payload>) {
       {typeof children === 'function' ? children({ payload }) : children}
     </TooltipRootContext.Provider>
   );
-}
+});
 
 function createTooltipEventDetails<P>(
   store: TooltipStore<P>,
