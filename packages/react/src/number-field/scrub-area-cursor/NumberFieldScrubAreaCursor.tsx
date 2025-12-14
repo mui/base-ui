@@ -1,8 +1,8 @@
 'use client';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import { isWebKit } from '@base-ui-components/utils/detectBrowser';
-import { ownerDocument } from '@base-ui-components/utils/owner';
+import { isWebKit } from '@base-ui/utils/detectBrowser';
+import { ownerDocument } from '@base-ui/utils/owner';
 import { useNumberFieldRootContext } from '../root/NumberFieldRootContext';
 import type { BaseUIComponentProps } from '../../utils/types';
 import type { NumberFieldRoot } from '../root/NumberFieldRoot';
@@ -55,8 +55,14 @@ export const NumberFieldScrubAreaCursor = React.forwardRef(function NumberFieldS
   return element && ReactDOM.createPortal(element, ownerDocument(domElement).body);
 });
 
-export namespace NumberFieldScrubAreaCursor {
-  export interface State extends NumberFieldRoot.State {}
+export interface NumberFieldScrubAreaCursorState extends NumberFieldRoot.State {}
 
-  export interface Props extends BaseUIComponentProps<'span', State> {}
+export interface NumberFieldScrubAreaCursorProps extends BaseUIComponentProps<
+  'span',
+  NumberFieldScrubAreaCursor.State
+> {}
+
+export namespace NumberFieldScrubAreaCursor {
+  export type State = NumberFieldScrubAreaCursorState;
+  export type Props = NumberFieldScrubAreaCursorProps;
 }

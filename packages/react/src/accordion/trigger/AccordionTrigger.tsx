@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
-import { isElementDisabled } from '@base-ui-components/utils/isElementDisabled';
-import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
+import { isElementDisabled } from '@base-ui/utils/isElementDisabled';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { triggerOpenStateMapping } from '../../utils/collapsibleOpenStateMapping';
 import { BaseUIComponentProps, NativeButtonProps } from '../../utils/types';
 import { useButton } from '../../use-button';
@@ -72,7 +72,7 @@ export const AccordionTrigger = React.forwardRef(function AccordionTrigger(
     native: nativeButton,
   });
 
-  const { accordionItemRefs, direction, loop, orientation } = useAccordionRootContext();
+  const { accordionItemRefs, direction, loopFocus, orientation } = useAccordionRootContext();
 
   const isRtl = direction === 'rtl';
   const isHorizontal = orientation === 'horizontal';
@@ -112,7 +112,7 @@ export const AccordionTrigger = React.forwardRef(function AccordionTrigger(
         const thisIndex = triggers.indexOf(event.target as HTMLButtonElement);
 
         function toNext() {
-          if (loop) {
+          if (loopFocus) {
             nextIndex = thisIndex + 1 > lastIndex ? 0 : thisIndex + 1;
           } else {
             nextIndex = Math.min(thisIndex + 1, lastIndex);
@@ -120,7 +120,7 @@ export const AccordionTrigger = React.forwardRef(function AccordionTrigger(
         }
 
         function toPrev() {
-          if (loop) {
+          if (loopFocus) {
             nextIndex = thisIndex === 0 ? lastIndex : thisIndex - 1;
           } else {
             nextIndex = thisIndex - 1;
@@ -171,7 +171,7 @@ export const AccordionTrigger = React.forwardRef(function AccordionTrigger(
         }
       },
     }),
-    [accordionItemRefs, disabled, handleTrigger, id, isHorizontal, isRtl, loop, open, panelId],
+    [accordionItemRefs, disabled, handleTrigger, id, isHorizontal, isRtl, loopFocus, open, panelId],
   );
 
   const element = useRenderElement('button', componentProps, {
@@ -184,8 +184,9 @@ export const AccordionTrigger = React.forwardRef(function AccordionTrigger(
   return element;
 });
 
+export interface AccordionTriggerProps
+  extends NativeButtonProps, BaseUIComponentProps<'button', AccordionItem.State> {}
+
 export namespace AccordionTrigger {
-  export interface Props
-    extends NativeButtonProps,
-      BaseUIComponentProps<'button', AccordionItem.State> {}
+  export type Props = AccordionTriggerProps;
 }

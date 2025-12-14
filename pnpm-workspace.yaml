@@ -8,7 +8,6 @@ packages:
 
 onlyBuiltDependencies:
   - '@mui/internal-babel-plugin-display-name'
-  - '@mui/monorepo'
   - '@vvago/vale'
   - core-js
   - esbuild

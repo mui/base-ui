@@ -1,6 +1,5 @@
 'use client';
-import * as React from 'react';
-import { Toast } from '@base-ui-components/react/toast';
+import { Toast } from '@base-ui/react/toast';
 import styles from './toast.module.css';
 
 const globalToastManager = Toast.createToastManager();
@@ -83,16 +82,18 @@ function Toasts() {
   const { toasts } = Toast.useToastManager();
   return toasts.map((toast) => (
     <Toast.Root key={toast.id} toast={toast} className={styles.root}>
-      <Toast.Title />
-      <Toast.Description />
-      {toast.type === 'undo' && (
-        <button className={styles.button} type="button" onClick={() => alert('Action undone')}>
-          Undo
-        </button>
-      )}
-      <Toast.Close className={styles.close} aria-label="Close">
-        x
-      </Toast.Close>
+      <Toast.Content className={styles.content}>
+        <Toast.Title />
+        <Toast.Description />
+        {toast.type === 'undo' && (
+          <button className={styles.button} type="button" onClick={() => alert('Action undone')}>
+            Undo
+          </button>
+        )}
+        <Toast.Close className={styles.close} aria-label="Close">
+          x
+        </Toast.Close>
+      </Toast.Content>
     </Toast.Root>
   ));
 }

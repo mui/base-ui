@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { expect } from 'chai';
 import { screen } from '@mui/internal-test-utils';
-import { Combobox } from '@base-ui-components/react/combobox';
+import { Combobox } from '@base-ui/react/combobox';
 import { createRenderer } from '#test-utils';
 
 describe('<Combobox.Value />', () => {
@@ -220,6 +220,37 @@ describe('<Combobox.Value />', () => {
       expect(screen.getByTestId('value')).to.have.text('Select item');
     });
 
+    it('renders null item label when input is inside popup and no defaultValue', async () => {
+      const items = [
+        { value: null, label: 'Select country' },
+        { value: 'united-kingdom', label: 'United Kingdom' },
+      ];
+
+      await render(
+        <Combobox.Root items={items}>
+          <Combobox.Trigger data-testid="value">
+            <Combobox.Value />
+          </Combobox.Trigger>
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup aria-label="Select country">
+                <div>
+                  <Combobox.Input placeholder="e.g. United Kingdom" />
+                </div>
+                <Combobox.Empty>No countries found.</Combobox.Empty>
+                <Combobox.List>
+                  <Combobox.Item value={items[0]}>Select country</Combobox.Item>
+                  <Combobox.Item value={items[1]}>United Kingdom</Combobox.Item>
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      expect(screen.getByTestId('value')).to.have.text('Select country');
+    });
+
     it('displays the label from items array when value is selected', async () => {
       const items = [
         { value: 'sans', label: 'Sans-serif' },
@@ -360,7 +391,7 @@ describe('<Combobox.Value />', () => {
         const bRef = React.useRef({ value: 'b', label: 'b' });
         const cRef = React.useRef<{ value: 'c'; label: string } | null>(null);
 
-        const [value, setValue] = React.useState(aRef.current);
+        const [value, setValue] = React.useState<typeof aRef.current | null>(aRef.current);
         const [items, setItems] = React.useState([aRef.current, bRef.current]);
 
         function updateItems() {

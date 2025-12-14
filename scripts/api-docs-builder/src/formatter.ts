@@ -1,9 +1,8 @@
 /* eslint-disable no-await-in-loop */
-import sortBy from 'lodash/sortBy';
 import * as tae from 'typescript-api-extractor';
 import fs from 'fs';
 import path from 'path';
-import _ from 'lodash';
+import { uniq, sortBy } from 'es-toolkit/array';
 import * as prettier from 'prettier';
 
 export async function formatProperties(
@@ -13,6 +12,16 @@ export async function formatProperties(
   const result: Record<string, any> = {};
 
   for (const prop of props) {
+    // skip `ref` for components
+    if (prop.name === 'ref' && (allExports?.length ?? -1) > 0) {
+      continue;
+    }
+
+    // skip props marked with @ignore
+    if (prop.documentation?.hasTag('ignore')) {
+      continue;
+    }
+
     const exampleTag = prop.documentation?.tags
       ?.filter((tag) => tag.name === 'example')
       .map((tag) => tag.value)
@@ -128,12 +137,12 @@ export function formatDetailedType(
 
   if (type instanceof tae.UnionNode) {
     const memberTypes = type.types.map((t) => formatDetailedType(t, allExports, visited));
-    return _.uniq(memberTypes).join(' | ');
+    return uniq(memberTypes).join(' | ');
   }
 
   if (type instanceof tae.IntersectionNode) {
     const memberTypes = type.types.map((t) => formatDetailedType(t, allExports, visited));
-    return _.uniq(memberTypes).join(' & ');
+    return uniq(memberTypes).join(' & ');
   }
 
   // For objects and everything else, reuse existing formatter with object expansion enabled
@@ -142,7 +151,7 @@ export function formatDetailedType(
 
 export function formatEnum(enumNode: tae.EnumNode) {
   const result: Record<string, any> = {};
-  for (const member of sortBy(enumNode.members, 'value')) {
+  for (const member of sortBy(enumNode.members, ['value'])) {
     result[member.value] = {
       description: member.documentation?.description,
       type: member.documentation?.tags?.find((tag) => tag.name === 'type')?.value,
@@ -209,7 +218,7 @@ export function formatType(
       return t;
     });
 
-    const formattedMemeberTypes = _.uniq(
+    const formattedMemeberTypes = uniq(
       orderMembers(flattenedMemberTypes).map((t) => formatType(t, removeUndefined)),
     );
 

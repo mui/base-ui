@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Tooltip } from '@base-ui-components/react/tooltip';
+import { Tooltip } from '@base-ui/react/tooltip';
 import { screen } from '@mui/internal-test-utils';
 import { expect } from 'chai';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
@@ -48,9 +48,8 @@ describe('<Tooltip.Positioner />', () => {
         </Tooltip.Root>,
       );
 
-      expect(screen.getByTestId('positioner').style.transform).to.equal(
-        `translate(${baselineX}px, ${baselineY + sideOffset}px)`,
-      );
+      expect(screen.getByTestId('positioner').style.left).to.equal(`${baselineX}px`);
+      expect(screen.getByTestId('positioner').style.top).to.equal(`${baselineY + sideOffset}px`);
     });
 
     it('offsets the side when a function is specified', async () => {
@@ -68,8 +67,9 @@ describe('<Tooltip.Positioner />', () => {
         </Tooltip.Root>,
       );
 
-      expect(screen.getByTestId('positioner').style.transform).to.equal(
-        `translate(${baselineX}px, ${baselineY + popupWidth + anchorWidth}px)`,
+      expect(screen.getByTestId('positioner').style.left).to.equal(`${baselineX}px`);
+      expect(screen.getByTestId('positioner').style.top).to.equal(
+        `${baselineY + popupWidth + anchorWidth}px`,
       );
     });
 
@@ -161,9 +161,8 @@ describe('<Tooltip.Positioner />', () => {
         </Tooltip.Root>,
       );
 
-      expect(screen.getByTestId('positioner').style.transform).to.equal(
-        `translate(${baselineX + alignOffset}px, ${baselineY}px)`,
-      );
+      expect(screen.getByTestId('positioner').style.left).to.equal(`${baselineX + alignOffset}px`);
+      expect(screen.getByTestId('positioner').style.top).to.equal(`${baselineY}px`);
     });
 
     it('offsets the align when a function is specified', async () => {
@@ -181,9 +180,8 @@ describe('<Tooltip.Positioner />', () => {
         </Tooltip.Root>,
       );
 
-      expect(screen.getByTestId('positioner').style.transform).to.equal(
-        `translate(${baselineX + popupWidth}px, ${baselineY}px)`,
-      );
+      expect(screen.getByTestId('positioner').style.left).to.equal(`${baselineX + popupWidth}px`);
+      expect(screen.getByTestId('positioner').style.top).to.equal(`${baselineY}px`);
     });
 
     it('can read the latest side inside alignOffset', async () => {

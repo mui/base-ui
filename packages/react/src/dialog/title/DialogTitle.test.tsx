@@ -1,5 +1,4 @@
-import * as React from 'react';
-import { Dialog } from '@base-ui-components/react/dialog';
+import { Dialog } from '@base-ui/react/dialog';
 import { createRenderer, describeConformance } from '#test-utils';
 
 describe('<Dialog.Title />', () => {

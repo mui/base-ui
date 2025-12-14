@@ -78,7 +78,7 @@ function excludeDemoFixture(suite: string, name: string, path: string) {
 // Also use all public demos to avoid code duplication.
 const globbedDemos = import.meta.glob<{ default: React.ComponentType<unknown> }>(
   // technically it should be 'docs/src/app/\\(public\\)/\\(content\\)/react/**/*.tsx' but tinyglobby doesn't resolve this on Windows
-  'docs/src/app/?public?/?content?/react/**/*.tsx',
+  'docs/src/app/?docs?/react/**/*.tsx',
   { eager: true },
 );
 
@@ -91,7 +91,7 @@ for (const path in globbedDemos) {
     .reverse()
     .join('-')}`;
 
-  if (!excludeDemoFixture(suite, name, path)) {
+  if (!excludeDemoFixture(suite, name, path) && globbedDemos[path].default) {
     demoFixtures.push({
       path,
       suite,

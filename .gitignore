@@ -5,7 +5,6 @@
 # IntelliJ IDEA module file
 *.iml
 *.log
-*.tsbuildinfo
 /.eslintcache
 /coverage
 /docs/.env.local
@@ -32,3 +31,9 @@ size-snapshot.json
 docs/public/llms.txt
 docs/public/llms-full.txt
 docs/public/react
+.cursor/rules/nx-rules.mdc
+.github/instructions/nx.instructions.md
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts

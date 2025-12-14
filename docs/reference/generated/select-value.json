@@ -9,8 +9,13 @@
       "detailedType": "React.ReactNode | ((value: any) => ReactNode)"
     },
     "className": {
-      "type": "string | ((state: Select.Value.State) => string)",
-      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
+      "type": "string | ((state: Select.Value.State) => string | undefined)",
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
+      "detailedType": "| string\n| ((state: Select.Value.State) => string | undefined)"
+    },
+    "style": {
+      "type": "CSSProperties | ((state: Select.Value.State) => CSSProperties | undefined)",
+      "detailedType": "| React.CSSProperties\n| ((state: Select.Value.State) => CSSProperties | undefined)\n| undefined"
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: Select.Value.State) => ReactElement)",
@@ -18,6 +23,10 @@
       "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Select.Value.State,\n  ) => ReactElement)"
     }
   },
-  "dataAttributes": {},
+  "dataAttributes": {
+    "data-placeholder": {
+      "description": "Present when the select doesn't have a value."
+    }
+  },
   "cssVariables": {}
 }

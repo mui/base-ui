@@ -1,0 +1,28 @@
+{
+  "name": "FieldItem",
+  "description": "Groups individual items in a checkbox group or radio group with a label and description.\nRenders a `<div>` element.",
+  "props": {
+    "disabled": {
+      "type": "boolean",
+      "default": "false",
+      "description": "Whether the wrapped control should ignore user interaction.\nThe `disabled` prop on `<Field.Root>` takes precedence over this.",
+      "detailedType": "boolean | undefined"
+    },
+    "className": {
+      "type": "string | ((state: Field.Root.State) => string | undefined)",
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
+      "detailedType": "| string\n| ((state: Field.Root.State) => string | undefined)"
+    },
+    "style": {
+      "type": "CSSProperties | ((state: Field.Root.State) => CSSProperties | undefined)",
+      "detailedType": "| React.CSSProperties\n| ((state: Field.Root.State) => CSSProperties | undefined)\n| undefined"
+    },
+    "render": {
+      "type": "ReactElement | ((props: HTMLProps, state: Field.Root.State) => ReactElement)",
+      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render.",
+      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Field.Root.State,\n  ) => ReactElement)"
+    }
+  },
+  "dataAttributes": {},
+  "cssVariables": {}
+}

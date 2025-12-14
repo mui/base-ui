@@ -16,9 +16,8 @@ export const ToolbarRoot = React.forwardRef(function ToolbarRoot(
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const {
-    cols = 1,
     disabled = false,
-    loop = true,
+    loopFocus = true,
     orientation = 'horizontal',
     className,
     render,
@@ -63,9 +62,8 @@ export const ToolbarRoot = React.forwardRef(function ToolbarRoot(
         state={state}
         refs={[forwardedRef]}
         props={[defaultProps, elementProps]}
-        cols={cols}
         disabledIndices={disabledIndices}
-        loop={loop}
+        loopFocus={loopFocus}
         onMapChange={setItemMap}
         orientation={orientation}
       />
@@ -73,36 +71,35 @@ export const ToolbarRoot = React.forwardRef(function ToolbarRoot(
   );
 });
 
+export interface ToolbarRootItemMetadata {
+  focusableWhenDisabled: boolean;
+}
+
+export type ToolbarRootOrientation = BaseOrientation;
+
+export interface ToolbarRootState {
+  disabled: boolean;
+  orientation: ToolbarRoot.Orientation;
+}
+
+export interface ToolbarRootProps extends BaseUIComponentProps<'div', ToolbarRoot.State> {
+  disabled?: boolean;
+  /**
+   * The orientation of the toolbar.
+   * @default 'horizontal'
+   */
+  orientation?: ToolbarRoot.Orientation;
+  /**
+   * If `true`, using keyboard navigation will wrap focus to the other end of the toolbar once the end is reached.
+   *
+   * @default true
+   */
+  loopFocus?: boolean;
+}
+
 export namespace ToolbarRoot {
-  export interface ItemMetadata {
-    focusableWhenDisabled: boolean;
-  }
-
-  export type Orientation = BaseOrientation;
-
-  export type State = {
-    disabled: boolean;
-    orientation: Orientation;
-  };
-
-  export interface Props extends BaseUIComponentProps<'div', State> {
-    /**
-     * The number of columns. When greater than 1, the toolbar is arranged into
-     * a grid.
-     * @default 1
-     */
-    cols?: number;
-    disabled?: boolean;
-    /**
-     * The orientation of the toolbar.
-     * @default 'horizontal'
-     */
-    orientation?: Orientation;
-    /**
-     * If `true`, using keyboard navigation will wrap focus to the other end of the toolbar once the end is reached.
-     *
-     * @default true
-     */
-    loop?: boolean;
-  }
+  export type ItemMetadata = ToolbarRootItemMetadata;
+  export type Orientation = ToolbarRootOrientation;
+  export type State = ToolbarRootState;
+  export type Props = ToolbarRootProps;
 }

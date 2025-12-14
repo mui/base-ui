@@ -1,11 +1,12 @@
 'use client';
 import * as React from 'react';
-import { useAnimationFrame } from '@base-ui-components/utils/useAnimationFrame';
-import { useTimeout } from '@base-ui-components/utils/useTimeout';
+import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
+import { useTimeout } from '@base-ui/utils/useTimeout';
 import { EMPTY_OBJECT } from '../../utils/constants';
-import type { ElementProps, FloatingRootContext } from '../types';
-import { isMouseLikePointerType, isTypeableElement } from '../utils';
-import { createBaseUIEventDetails } from '../../utils/createBaseUIEventDetails';
+import type { ElementProps, FloatingContext, FloatingRootContext } from '../types';
+import { isClickLikeEvent, isMouseLikePointerType, isTypeableElement } from '../utils';
+import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
+import { REASONS } from '../../utils/reasons';
 
 export interface UseClickProps {
   /**
@@ -49,8 +50,13 @@ export interface UseClickProps {
  * Opens or closes the floating element when clicking the reference element.
  * @see https://floating-ui.com/docs/useClick
  */
-export function useClick(context: FloatingRootContext, props: UseClickProps = {}): ElementProps {
-  const { open, onOpenChange, dataRef } = context;
+export function useClick(
+  context: FloatingRootContext | FloatingContext,
+  props: UseClickProps = {},
+): ElementProps {
+  const store = 'rootStore' in context ? context.rootStore : context;
+  const dataRef = store.context.dataRef;
+
   const {
     enabled = true,
     event: eventOption = 'click',
@@ -72,6 +78,7 @@ export function useClick(context: FloatingRootContext, props: UseClickProps = {}
       onMouseDown(event) {
         const pointerType = pointerTypeRef.current;
         const nativeEvent = event.nativeEvent;
+        const open = store.select('open');
 
         // Ignore all buttons except for the "main" button.
         // https://developer.mozilla.org/en-US/docs/Web/API/MouseEvent/button
@@ -85,38 +92,54 @@ export function useClick(context: FloatingRootContext, props: UseClickProps = {}
 
         const openEvent = dataRef.current.openEvent;
         const openEventType = openEvent?.type;
-        const nextOpen = !(
-          open &&
-          toggle &&
-          (openEvent && stickIfOpen
-            ? openEventType === 'click' || openEventType === 'mousedown'
-            : true)
-        );
+        const hasClickedOnInactiveTrigger =
+          store.select('domReferenceElement') !== event.currentTarget;
+        const nextOpen =
+          (open && hasClickedOnInactiveTrigger) ||
+          !(
+            open &&
+            toggle &&
+            (openEvent && stickIfOpen
+              ? openEventType === 'click' || openEventType === 'mousedown'
+              : true)
+          );
 
         // Animations sometimes won't run on a typeable element if using a rAF.
         // Focus is always set on these elements. For touch, we may delay opening.
         if (isTypeableElement(nativeEvent.target)) {
-          const details = createBaseUIEventDetails('trigger-press', nativeEvent);
+          const details = createChangeEventDetails(
+            REASONS.triggerPress,
+            nativeEvent,
+            nativeEvent.target as HTMLElement,
+          );
           if (nextOpen && pointerType === 'touch' && touchOpenDelay > 0) {
             touchOpenTimeout.start(touchOpenDelay, () => {
-              onOpenChange(true, details);
+              store.setOpen(true, details);
             });
           } else {
-            onOpenChange(nextOpen, details);
+            store.setOpen(nextOpen, details);
           }
           return;
         }
 
+        // Capture the currentTarget before the rAF.
+        // as React sets it to null after the event handler completes.
+        const eventCurrentTarget = event.currentTarget as HTMLElement;
+
         // Wait until focus is set on the element. This is an alternative to
         // `event.preventDefault()` to avoid :focus-visible from appearing when using a pointer.
         frame.request(() => {
-          const details = createBaseUIEventDetails('trigger-press', nativeEvent);
+          const details = createChangeEventDetails(
+            REASONS.triggerPress,
+            nativeEvent,
+            eventCurrentTarget,
+          );
           if (nextOpen && pointerType === 'touch' && touchOpenDelay > 0) {
             touchOpenTimeout.start(touchOpenDelay, () => {
-              onOpenChange(true, details);
+              store.setOpen(true, details);
             });
           } else {
-            onOpenChange(nextOpen, details);
+            store.setOpen(nextOpen, details);
           }
         });
       },
@@ -136,26 +159,25 @@ export function useClick(context: FloatingRootContext, props: UseClickProps = {}
           return;
         }
 
+        const open = store.select('open');
         const openEvent = dataRef.current.openEvent;
-        const openEventType = openEvent?.type;
-        const nextOpen = !(
-          open &&
-          toggle &&
-          (openEvent && stickIfOpen
-            ? openEventType === 'click' ||
-              openEventType === 'mousedown' ||
-              openEventType === 'keydown' ||
-              openEventType === 'keyup'
-            : true)
+        const hasClickedOnInactiveTrigger =
+          store.select('domReferenceElement') !== event.currentTarget;
+        const nextOpen =
+          (open && hasClickedOnInactiveTrigger) ||
+          !(open && toggle && (openEvent && stickIfOpen ? isClickLikeEvent(openEvent) : true));
+        const details = createChangeEventDetails(
+          REASONS.triggerPress,
+          event.nativeEvent,
+          event.currentTarget as HTMLElement,
         );
-        const details = createBaseUIEventDetails('trigger-press', event.nativeEvent);
 
         if (nextOpen && pointerType === 'touch' && touchOpenDelay > 0) {
           touchOpenTimeout.start(touchOpenDelay, () => {
-            onOpenChange(true, details);
+            store.setOpen(true, details);
           });
         } else {
-          onOpenChange(nextOpen, details);
+          store.setOpen(nextOpen, details);
         }
       },
       onKeyDown() {
@@ -166,8 +188,7 @@ export function useClick(context: FloatingRootContext, props: UseClickProps = {}
       dataRef,
       eventOption,
       ignoreMouse,
-      onOpenChange,
-      open,
+      store,
       stickIfOpen,
       toggle,
       frame,

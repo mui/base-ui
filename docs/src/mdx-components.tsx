@@ -1,6 +1,4 @@
 import * as React from 'react';
-import { NoSsr } from '@base-ui-components/react/unstable-no-ssr';
-import { DemoLoader } from './components/Demo/DemoLoader';
 import * as CodeBlock from './components/CodeBlock';
 import * as Table from './components/Table';
 import * as QuickNav from './components/QuickNav/QuickNav';
@@ -8,7 +6,6 @@ import { Code } from './components/Code';
 import { PropsReferenceAccordion } from './components/ReferenceTable/PropsReferenceAccordion';
 import { AttributesReferenceTable } from './components/ReferenceTable/AttributesReferenceTable';
 import { CssVariablesReferenceTable } from './components/ReferenceTable/CssVariablesReferenceTable';
-import { getChildrenText } from './utils/getChildrenText';
 import { Link } from './components/Link';
 import { HeadingLink } from './components/HeadingLink';
 import { Subtitle } from './components/Subtitle/Subtitle';
@@ -24,10 +21,7 @@ export const mdxComponents: MDXComponents = {
   code: (props) => <Code className="data-[inline]:mx-[0.1em]" {...props} />,
   h1: (props) => (
     // Do not wrap heading tags in divs, that confuses Safari Reader
-    <React.Fragment>
-      <h1 className="mb-4 text-3xl font-bold text-balance" {...props} />
-      <title>{`${getChildrenText(props.children)} · Base UI`}</title>
-    </React.Fragment>
+    <h1 className="mb-4 text-3xl font-bold text-balance" {...props} />
   ),
   h2: ({ children, id, ...otherProps }) => {
     return (
@@ -84,16 +78,7 @@ export const mdxComponents: MDXComponents = {
   th: (props: React.ComponentProps<'th'>) =>
     props.scope === 'row' ? <Table.RowHeader {...props} /> : <Table.ColumnHeader {...props} />,
   td: Table.Cell,
-
   // Custom components
-  Demo:
-    process.env.DISABLE_DEMO_SSR === 'true'
-      ? (props) => (
-          <NoSsr>
-            <DemoLoader className="mt-5 mb-6" {...props} />
-          </NoSsr>
-        )
-      : (props) => <DemoLoader className="mt-5 mb-6" {...props} />,
   QuickNav,
   Meta: (props: React.ComponentProps<'meta'>) => {
     if (props.name === 'description' && String(props.content).length > 170) {
@@ -115,7 +100,7 @@ export const mdxComponents: MDXComponents = {
 
 export const inlineMdxComponents: MDXComponents = {
   ...mdxComponents,
-  p: (props) => <p {...props} />,
+  p: (props) => props.children,
 };
 
 export function useMDXComponents(): MDXComponents {

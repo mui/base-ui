@@ -1,9 +1,8 @@
-import * as React from 'react';
 import { type Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { globbySync } from 'globby';
+import { globby } from 'globby';
 import { Sidebar } from 'docs/src/components/Experiments/Sidebar';
 import { ExperimentRoot } from 'docs/src/components/Experiments/ExperimentRoot';
 import classes from 'docs/src/components/Experiments/ExperimentRoot.module.css';
@@ -49,15 +48,17 @@ export default async function Page(props: Props) {
 }
 
 export async function generateStaticParams() {
-  const files = globbySync(['**/*.tsx', '!infra/**/*', '!**/page.tsx', '!**/layout.tsx'], {
+  const files = await globby(['**/*.tsx', '!infra/**/*', '!**/page.tsx', '!**/layout.tsx'], {
     cwd: experimentsRootDirectory,
   });
 
-  return files.map((file) => {
-    return {
-      slug: file.replace(/\.tsx$/, '').split('/'),
-    };
-  });
+  return files
+    .filter((file) => file.split('/').length <= 2)
+    .map((file) => {
+      return {
+        slug: file.replace(/\.tsx$/, '').split('/'),
+      };
+    });
 }
 
 export async function generateMetadata(props: Props): Promise<Metadata> {

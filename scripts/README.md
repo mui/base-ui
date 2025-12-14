@@ -6,7 +6,7 @@ A typical release goes like this:
 
 ### Prerequisites
 
-1. You must be a member of the `@base-ui-components` org in npm to publish the release.
+1. You must be a member of the `@base-ui` org in npm to publish the release.
 2. Set up your npm authToken by logging into npm (`npm login`) . This will save a token to `~/.npmrc` as a line that looks like this:
    ```text
    //registry.npmjs.org/:_authToken=npm_000000000000000000000000000000000000
@@ -24,7 +24,7 @@ A typical release goes like this:
    The output must be prepended to the top level `CHANGELOG.md`.
    Run `pnpm release:changelog --help` for more information. If your GitHub token is not in your env, pass it as `--githubToken <my-token>` to the above command.
 3. Update the changelog as necessary. In particular, describe all the breaking changes.
-4. Generate the changelog in a format suitable for the docs with `pnpm release:changelog --format docs` and copy it to `docs/src/app/(public)/(content)/react/overview/releases/page.mdx`.
+4. Generate the changelog in a format suitable for the docs with `pnpm release:changelog --format docs` and copy it to `docs/src/app/(docs)/react/overview/releases/page.mdx`.
 5. Copy the changes made in point 3 to the new changelog.
 6. Run `pnpm release:version`. Keep the package versions of stable public packages the same as the root `package.json` version.
 7. Open a PR with changes and wait for review and green CI.
@@ -32,13 +32,16 @@ A typical release goes like this:
 
 ### Release the packages
 
-1. Checkout the last version of the release branch.
-2. `pnpm install && pnpm release:build` (make sure you have the latest dependencies installed, and build the packages).
-3. `pnpm release:publish` (release the versions on npm, you need your 2FA device).
-4. `pnpm release:tag` (push the newly created tag).
+1. Run `pnpm release:publish`. You may be asked to authenticate with GitHub when running the command for the first time or after a very long time.
+2. It'll automatically fetch the latest merged release PR and ask for confirmation before publishing.
+3. If you already know the sha of the commit, you can pass it directly like `pnpm release:publish --sha <your-sha>`.
+4. Other flags for the command:
 
-> Tip: You can use `release:publish:dry-run` to test the release process without actually publishing the packages.
-> Make sure to have [verdaccio](https://verdaccio.org/) (local npm registry) installed before doing it.
+   > - **--dry-run** Used for debugging. Or directly run `pnpm release:publish:dry-run`.
+   > - **--dist-tag** Use to publish legacy or canary versions.
+
+5. This command invokes the [Publish](https://github.com/mui/base-ui/actions/workflows/publish.yml) GitHub action. It'll log the url which can be opened to see the latest workflow run.
+6. The next screen shows "@username requested your review to deploy to npm-publish", click "Review deployments" and authorize your workflow run. **Never approve workflow runs you didn't initiaite.**
 
 ### Publish the documentation
 
@@ -55,6 +58,5 @@ Once deployed, it will be accessible at https://base-ui.netlify.app/ for the `do
 
 ### GitHub release
 
-Create a GitHub release on https://github.com/mui/base-ui/releases/new.
-Its description should be the same as our CHANGELOG file entry.
+After the documentation deployment is done, review, and then publish the release that was created in draft mode during the release step [GitHub releases page](https://github.com/mui/base-ui/releases)
 Make sure to check the **Set as a pre-release** checkbox if publishing an unstable version.

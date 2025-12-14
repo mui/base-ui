@@ -25,11 +25,11 @@ To see the latest updates, check out the [releases](https://base-ui.com/react/ov
 ## Team
 
 - **Colm Tuite** (Radix) [@colmtuite](https://x.com/colmtuite)
-- **Vlad Moroz** (Radix) [@vladyslavmoroz](https://x.com/vladyslavmoroz)
 - **James Nelson** (Floating UI) [@atomiksdev](https://x.com/atomiksdev)
 - **Michał Dudak** (Material UI) [@michaldudak](https://x.com/michaldudak)
 - **Marija Najdova** (Material UI + Fluent UI) [@marijanajdova](https://x.com/marijanajdova)
 - **Albert Yu** (Material UI) [@mj12albert](https://github.com/mj12albert)
+- **Lukas Tyla** (Material UI) [@LukasTy](https://github.com/LukasTy)
 
 ## License
 

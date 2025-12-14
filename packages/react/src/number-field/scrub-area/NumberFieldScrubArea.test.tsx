@@ -1,14 +1,33 @@
-import * as React from 'react';
 import { expect } from 'chai';
 import { screen, act } from '@mui/internal-test-utils';
 import { spy } from 'sinon';
-import { NumberField } from '@base-ui-components/react/number-field';
+import { NumberField } from '@base-ui/react/number-field';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
-import { isWebKit } from '@base-ui-components/utils/detectBrowser';
+import { isWebKit } from '@base-ui/utils/detectBrowser';
+
+// TODO (@Janpot): Contribute https://github.com/testing-library/user-event/issues/903 and
+// rely on `user.pointer()` instead.
+let currentPos = { clientX: 0, clientY: 0 };
+
+function createPointerDownEvent(elm: HTMLElement) {
+  const box = elm.getBoundingClientRect();
+  const centerX = box.left + box.width / 2;
+  const centerY = box.top + box.height / 2;
+  currentPos = { clientX: centerX, clientY: centerY };
+  return new PointerEvent('pointerdown', {
+    bubbles: true,
+    ...currentPos,
+  });
+}
 
 function createPointerMoveEvent({ movementX = 0, movementY = 0 }) {
+  currentPos = {
+    clientX: currentPos.clientX + movementX,
+    clientY: currentPos.clientY + movementY,
+  };
   return new PointerEvent('pointermove', {
     bubbles: true,
+    ...currentPos,
     movementX,
     movementY,
   });
@@ -38,13 +57,6 @@ describe('<NumberField.ScrubArea />', () => {
     return;
   }
 
-  // `PointerEvent` isn't defined in JSDOM. This needs to be located beneath the return above.
-  const pointerDownEvent = new PointerEvent('pointerdown', {
-    bubbles: true,
-    clientX: 100,
-    clientY: 100,
-  });
-
   it('should increment or decrement the value when scrubbing with the pointer', async () => {
     await render(
       <NumberField.Root defaultValue={0}>
@@ -59,7 +71,7 @@ describe('<NumberField.ScrubArea />', () => {
     const input = screen.getByRole('textbox');
 
     await act(async () => {
-      scrubArea.dispatchEvent(pointerDownEvent);
+      scrubArea.dispatchEvent(createPointerDownEvent(scrubArea));
       scrubArea.dispatchEvent(createPointerMoveEvent({ movementX: -10 }));
     });
 
@@ -97,7 +109,7 @@ describe('<NumberField.ScrubArea />', () => {
     const scrubArea = screen.getByTestId('scrub-area');
 
     await act(async () => {
-      scrubArea.dispatchEvent(pointerDownEvent);
+      scrubArea.dispatchEvent(createPointerDownEvent(scrubArea));
       scrubArea.dispatchEvent(createPointerMoveEvent({ movementX: 3 }));
     });
 
@@ -130,7 +142,7 @@ describe('<NumberField.ScrubArea />', () => {
       const input = screen.getByRole('textbox');
 
       await act(async () => {
-        scrubArea.dispatchEvent(pointerDownEvent);
+        scrubArea.dispatchEvent(createPointerDownEvent(scrubArea));
         scrubArea.dispatchEvent(createPointerMoveEvent({ movementX: -2 }));
       });
 
@@ -198,7 +210,7 @@ describe('<NumberField.ScrubArea />', () => {
       const input = screen.getByRole('textbox');
 
       await act(async () => {
-        scrubArea.dispatchEvent(pointerDownEvent);
+        scrubArea.dispatchEvent(createPointerDownEvent(scrubArea));
         scrubArea.dispatchEvent(createPointerMoveEvent({ movementX: 10 }));
       });
 

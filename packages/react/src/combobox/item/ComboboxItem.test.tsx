@@ -1,5 +1,4 @@
-import * as React from 'react';
-import { Combobox } from '@base-ui-components/react/combobox';
+import { Combobox } from '@base-ui/react/combobox';
 import { fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
 import { spy } from 'sinon';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
@@ -71,7 +70,7 @@ describe('<Combobox.Item />', () => {
       expect(handleClick.callCount).to.equal(1);
     });
 
-    it('does not call onClick when selected with Enter key (handled by root)', async () => {
+    it('calls onClick when selected with Enter key (via root interaction)', async () => {
       const handleClick = spy();
       const { user } = await render(
         <Combobox.Root items={['one', 'two']} openOnInputClick>
@@ -99,7 +98,7 @@ describe('<Combobox.Item />', () => {
       await user.keyboard('{ArrowDown}');
       await user.keyboard('{Enter}');
 
-      expect(handleClick.callCount).to.equal(0);
+      expect(handleClick.callCount).to.equal(1);
     });
   });
 

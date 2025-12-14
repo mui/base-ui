@@ -1,1 +1,1 @@
-export const NOOP = () => {};
+export { NOOP } from '@base-ui/utils/empty';

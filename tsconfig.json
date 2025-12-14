@@ -11,6 +11,9 @@
     },
     {
       "path": "packages/utils/tsconfig.json"
+    },
+    {
+      "path": "scripts/tsconfig.json"
     }
   ]
 }

@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { createRenderer, fireEvent, screen } from '@mui/internal-test-utils';
-import { CheckboxGroup } from '@base-ui-components/react/checkbox-group';
-import { Checkbox } from '@base-ui-components/react/checkbox';
+import { CheckboxGroup } from '@base-ui/react/checkbox-group';
+import { Checkbox } from '@base-ui/react/checkbox';
 import { expect } from 'chai';
 import { spy } from 'sinon';
 
@@ -74,7 +74,7 @@ describe('useCheckboxGroupParent', () => {
 
     const checkboxes = screen
       .getAllByRole('checkbox')
-      .filter((v) => v.getAttribute('data-parent') == null && v.tagName === 'BUTTON');
+      .filter((v) => v.getAttribute('data-parent') == null);
 
     checkboxes.forEach((checkbox) => {
       expect(checkbox).to.have.attribute('aria-checked', 'false');
@@ -124,7 +124,7 @@ describe('useCheckboxGroupParent', () => {
 
     const checkboxes = screen
       .getAllByRole('checkbox')
-      .filter((v) => v.getAttribute('data-parent') == null && v.tagName === 'BUTTON');
+      .filter((v) => v.getAttribute('data-parent') == null);
 
     const checkboxA = screen.getByTestId('checkboxA');
     expect(checkboxA).to.have.attribute('aria-checked', 'true');

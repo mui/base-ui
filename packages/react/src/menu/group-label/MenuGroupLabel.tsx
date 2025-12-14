@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useBaseUiId } from '../../utils/useBaseUiId';
@@ -39,8 +39,11 @@ export const MenuGroupLabel = React.forwardRef(function MenuGroupLabelComponent(
   });
 });
 
-export namespace MenuGroupLabel {
-  export interface Props extends BaseUIComponentProps<'div', State> {}
+export interface MenuGroupLabelProps extends BaseUIComponentProps<'div', MenuGroupLabel.State> {}
 
-  export interface State {}
+export interface MenuGroupLabelState {}
+
+export namespace MenuGroupLabel {
+  export type Props = MenuGroupLabelProps;
+  export type State = MenuGroupLabelState;
 }

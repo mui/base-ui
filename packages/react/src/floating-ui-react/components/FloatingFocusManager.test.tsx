@@ -16,7 +16,7 @@ import {
 import { test } from 'vitest';
 import * as React from 'react';
 import * as ReactDOMClient from 'react-dom/client';
-import { isJSDOM } from '@base-ui-components/utils/detectBrowser';
+import { isJSDOM } from '@base-ui/utils/detectBrowser';
 import {
   FloatingFocusManager,
   FloatingNode,
@@ -33,6 +33,31 @@ import {
 } from '../index';
 import type { FloatingFocusManagerProps } from './FloatingFocusManager';
 import { Main as Navigation } from '../../../test/floating-ui-tests/Navigation';
+
+// TODO (@Janpot) It looks like the toHaveFocus assertion from @mui/internal-test-utils
+// is not working correctly with iframes and nested documents. Helper as a workaround
+// until fixed.
+function isFocused(element: Element): boolean {
+  let doc = element.ownerDocument;
+  let current: Element = element;
+
+  while (doc) {
+    if (doc.activeElement !== current) {
+      return false;
+    }
+
+    // Move up to the parent document
+    const frame = doc.defaultView?.frameElement; // the <iframe> hosting this doc
+    if (!frame) {
+      return true;
+    }
+
+    current = frame;
+    doc = frame.ownerDocument;
+  }
+
+  return true;
+}
 
 beforeAll(() => {
   vi.spyOn(window, 'requestAnimationFrame').mockImplementation(
@@ -584,7 +609,7 @@ describe.skipIf(!isJSDOM)('FloatingFocusManager', () => {
         <>
           {React.cloneElement(children, getReferenceProps({ ref: refs.setReference }))}
           {open && (
-            <FloatingPortal root={portalRef}>
+            <FloatingPortal container={portalRef}>
               <FloatingFocusManager context={context} modal={false}>
                 <div ref={refs.setFloating} style={floatingStyles} {...getFloatingProps()}>
                   {render()}
@@ -634,6 +659,7 @@ describe.skipIf(!isJSDOM)('FloatingFocusManager', () => {
       );
     }
 
+    /* eslint-disable testing-library/prefer-screen-queries */
     // "Should not already be working"(?) when trying to click within the iframe
     // https://github.com/facebook/react/pull/32441
     test.skipIf(!isJSDOM)('tabs from the popover to the next element in the iframe', async () => {
@@ -652,7 +678,7 @@ describe.skipIf(!isJSDOM)('FloatingFocusManager', () => {
       await user.tab();
       await user.tab();
 
-      expect(iframeWithin.getByText('next iframe link')).toHaveFocus();
+      expect(isFocused(iframeWithin.getByText('next iframe link'))).toBe(true);
     });
 
     // "Should not already be working"(?) when trying to click within the iframe
@@ -674,10 +700,11 @@ describe.skipIf(!isJSDOM)('FloatingFocusManager', () => {
 
         await user.tab({ shift: true });
 
-        expect(iframeWithin.getByRole('button', { name: 'Open' })).toHaveFocus();
+        expect(isFocused(iframeWithin.getByRole('button', { name: 'Open' }))).toBe(true);
       },
     );
   });
+  /* eslint-enable testing-library/prefer-screen-queries */
 
   describe('modal', () => {
     test('true', async () => {
@@ -1583,6 +1610,63 @@ describe.skipIf(!isJSDOM)('FloatingFocusManager', () => {
     await userEvent.tab();
     await flushMicrotasks();
     expect(screen.getByTestId('after')).toHaveFocus();
+  });
+
+  test('untrapped typeable combobox closes on second tab sequence (click -> tab -> click -> tab)', async () => {
+    function App() {
+      const [isOpen, setIsOpen] = React.useState(false);
+
+      const { refs, context } = useFloating({
+        open: isOpen,
+        onOpenChange: setIsOpen,
+      });
+
+      const click = useClick(context);
+      const { getReferenceProps, getFloatingProps } = useInteractions([click]);
+
+      return (
+        <>
+          <input
+            ref={refs.setReference}
+            {...getReferenceProps()}
+            data-testid="input"
+            role="combobox"
+          />
+          {isOpen && (
+            <FloatingFocusManager context={context} initialFocus={false} modal>
+              <div ref={refs.setFloating} {...getFloatingProps()} data-testid="floating">
+                <button tabIndex={-1}>one</button>
+              </div>
+            </FloatingFocusManager>
+          )}
+          <button data-testid="after" />
+        </>
+      );
+    }
+
+    render(<App />);
+
+    await userEvent.click(screen.getByTestId('input'));
+    await flushMicrotasks();
+
+    expect(screen.getByTestId('input')).toHaveFocus();
+
+    await userEvent.tab();
+    await flushMicrotasks();
+
+    expect(screen.getByTestId('after')).toHaveFocus();
+    expect(screen.queryByTestId('floating')).not.toBeInTheDocument();
+
+    await userEvent.click(screen.getByTestId('input'));
+    await flushMicrotasks();
+
+    expect(screen.getByTestId('input')).toHaveFocus();
+
+    await userEvent.tab();
+    await flushMicrotasks();
+
+    expect(screen.getByTestId('after')).toHaveFocus();
+    expect(screen.queryByTestId('floating')).not.toBeInTheDocument();
   });
 
   test('focus does not return to reference when floating element is triggered by hover', async () => {

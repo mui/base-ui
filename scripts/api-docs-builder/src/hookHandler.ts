@@ -22,7 +22,7 @@ export async function formatHookData(hook: tae.ExportNode) {
   if (signature.returnValueType instanceof tae.ObjectNode) {
     formattedReturnValue = await formatProperties(signature.returnValueType.properties, []);
   } else {
-    formattedReturnValue = formatType(signature.returnValueType, false, true);
+    formattedReturnValue = formatType(signature.returnValueType, false, undefined, true);
   }
 
   return {
