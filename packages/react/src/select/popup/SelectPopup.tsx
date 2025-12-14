@@ -275,12 +275,14 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
 
         const textElement = selectedItemTextRef.current;
         const valueElement = valueRef.current;
+
+        let textRect: DOMRect | undefined;
         let offsetX = 0;
         let offsetY = 0;
 
         if (textElement && valueElement) {
           const valueRect = valueElement.getBoundingClientRect();
-          const textRect = textElement.getBoundingClientRect();
+          textRect = textElement.getBoundingClientRect();
 
           const valueLeftFromTriggerLeft = valueRect.left - triggerX;
           const textLeftFromPositionerLeft = textRect.left - positionerRect.left;
@@ -290,17 +292,6 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
 
           offsetX = valueLeftFromTriggerLeft - textLeftFromPositionerLeft;
           offsetY = textCenterFromTriggerTop - valueCenterFromPositionerTop;
-
-          const popupTop = positionerRect.top;
-          const popupHeight = positionerRect.height;
-          const textCenterY = textRect.top + textRect.height / 2;
-
-          const transformOriginY =
-            popupHeight > 0 ? ((textCenterY - popupTop) / popupHeight) * 100 : 50;
-
-          const clampedY = clamp(transformOriginY, 0, 100);
-
-          popupElement.style.setProperty('--transform-origin', `50% ${clampedY}%`);
         }
 
         const idealHeight = availableSpaceBeneathTrigger + offsetY + marginBottom + borderBottom;
@@ -353,6 +344,19 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
           positionerElement.style.bottom = '0';
           initialHeightRef.current = Math.max(minHeight, height);
           scroller.scrollTop = scrollTop;
+        }
+
+        if (textRect) {
+          const popupTop = positionerRect.top;
+          const popupHeight = positionerRect.height;
+          const textCenterY = textRect.top + textRect.height / 2;
+
+          const transformOriginY =
+            popupHeight > 0 ? ((textCenterY - popupTop) / popupHeight) * 100 : 50;
+
+          const clampedY = clamp(transformOriginY, 0, 100);
+
+          popupElement.style.setProperty('--transform-origin', `50% ${clampedY}%`);
         }
 
         if (initialHeightRef.current === viewportHeight) {
