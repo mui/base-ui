@@ -47,6 +47,7 @@ import { FocusGuard } from '../../utils/FocusGuard';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { useEffect } from '@base-ui/utils/useEffect';
 import { useState } from '@base-ui/utils/useState';
+import { useMemo } from '@base-ui/utils/useMemo';
 
 const BOUNDARY_OFFSET = 2;
 
@@ -92,7 +93,7 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
   const parent = useMenuParent();
   const compositeRootContext = useCompositeRootContext(true);
   const floatingTreeRootFromContext = useFloatingTree();
-  const floatingTreeRoot: FloatingTreeStore = React.useMemo(() => {
+  const floatingTreeRoot: FloatingTreeStore = useMemo(() => {
     return floatingTreeRootFromContext ?? new FloatingTreeStore();
   }, [floatingTreeRootFromContext]);
 
@@ -223,7 +224,7 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
 
   const isInMenubar = parent.type === 'menubar';
 
-  const state: MenuTrigger.State = React.useMemo(
+  const state: MenuTrigger.State = useMemo(
     () => ({
       disabled,
       open: isOpenedByThisTrigger,
@@ -443,7 +444,7 @@ function useMenuParent() {
   const parentContext = useMenuRootContext(true);
   const menubarContext = useMenubarContext(true);
 
-  const parent: MenuParent = React.useMemo(() => {
+  const parent: MenuParent = useMemo(() => {
     if (menubarContext) {
       return {
         type: 'menubar',

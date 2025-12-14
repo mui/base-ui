@@ -3,6 +3,7 @@ import * as React from 'react';
 import { createCollatorItemFilter, createSingleSelectionCollatorFilter } from './index';
 import { stringifyAsLabel } from '../../../utils/resolveValueLabel';
 import { useCallback } from '@base-ui/utils/useCallback';
+import { useMemo } from '@base-ui/utils/useMemo';
 
 export interface UseFilterOptions extends Intl.CollatorOptions {
   /**
@@ -126,7 +127,7 @@ export function useComboboxFilter(options: UseComboboxFilterOptions = {}): Filte
     [coreFilter, value, multiple],
   );
 
-  return React.useMemo(
+  return useMemo(
     () => ({
       contains,
       startsWith: coreFilter.startsWith,

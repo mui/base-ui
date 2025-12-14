@@ -15,6 +15,7 @@ import { AccordionRootDataAttributes } from '../../accordion/root/AccordionRootD
 import type { CollapsibleRoot } from '../root/CollapsibleRoot';
 import { useEffect } from '@base-ui/utils/useEffect';
 import { useRef } from '@base-ui/utils/useRef';
+import { useMemo } from '@base-ui/utils/useMemo';
 
 export function useCollapsiblePanel(
   parameters: useCollapsiblePanel.Parameters,
@@ -52,7 +53,7 @@ export function useCollapsiblePanel(
    * When opening, the `hidden` attribute is removed immediately.
    * When closing, the `hidden` attribute is set after any exit animations runs.
    */
-  const hidden = React.useMemo(() => {
+  const hidden = useMemo(() => {
     if (animationTypeRef.current === 'css-animation') {
       return !visible;
     }
@@ -404,7 +405,7 @@ export function useCollapsiblePanel(
     [onOpenChange, panelRef, setOpen],
   );
 
-  return React.useMemo(
+  return useMemo(
     () => ({
       props: {
         hidden,

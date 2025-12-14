@@ -12,6 +12,7 @@ import { NOOP } from '../../utils/noop';
 import type { ToastObject } from '../useToastManager';
 import { ToastRootCssVars } from '../root/ToastRootCssVars';
 import { useToastContext } from '../provider/ToastProviderContext';
+import { useMemo } from '@base-ui/utils/useMemo';
 
 /**
  * Positions the toast against the anchor.
@@ -51,8 +52,8 @@ export const ToastPositioner = React.forwardRef(function ToastPositioner(
 
   const [positionerElement, setPositionerElement] = React.useState<HTMLDivElement | null>(null);
 
-  const domIndex = React.useMemo(() => toasts.indexOf(toast), [toast, toasts]);
-  const visibleIndex = React.useMemo(
+  const domIndex = useMemo(() => toasts.indexOf(toast), [toast, toasts]);
+  const visibleIndex = useMemo(
     () => toasts.filter((t) => t.transitionStatus !== 'ending').indexOf(toast),
     [toast, toasts],
   );
@@ -86,7 +87,7 @@ export const ToastPositioner = React.forwardRef(function ToastPositioner(
     collisionAvoidance,
   });
 
-  const defaultProps: HTMLProps = React.useMemo(() => {
+  const defaultProps: HTMLProps = useMemo(() => {
     const hiddenStyles: React.CSSProperties = {};
 
     return {
@@ -100,7 +101,7 @@ export const ToastPositioner = React.forwardRef(function ToastPositioner(
     };
   }, [positioning.positionerStyles, toast.transitionStatus, domIndex, visibleIndex]);
 
-  const state: ToastPositioner.State = React.useMemo(
+  const state: ToastPositioner.State = useMemo(
     () => ({
       side: positioning.side,
       align: positioning.align,
@@ -109,7 +110,7 @@ export const ToastPositioner = React.forwardRef(function ToastPositioner(
     [positioning.side, positioning.align, positioning.anchorHidden],
   );
 
-  const contextValue: ToastPositionerContext = React.useMemo(
+  const contextValue: ToastPositionerContext = useMemo(
     () => ({
       ...state,
       arrowRef: positioning.arrowRef,

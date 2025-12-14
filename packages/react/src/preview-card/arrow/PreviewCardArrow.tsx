@@ -6,6 +6,7 @@ import type { BaseUIComponentProps } from '../../utils/types';
 import type { Align, Side } from '../../utils/useAnchorPositioning';
 import { popupStateMapping } from '../../utils/popupStateMapping';
 import { useRenderElement } from '../../utils/useRenderElement';
+import { useMemo } from '@base-ui/utils/useMemo';
 
 /**
  * Displays an element positioned against the preview card anchor.
@@ -22,7 +23,7 @@ export const PreviewCardArrow = React.forwardRef(function PreviewCardArrow(
   const { open } = usePreviewCardRootContext();
   const { arrowRef, side, align, arrowUncentered, arrowStyles } = usePreviewCardPositionerContext();
 
-  const state: PreviewCardArrow.State = React.useMemo(
+  const state: PreviewCardArrow.State = useMemo(
     () => ({
       open,
       side,

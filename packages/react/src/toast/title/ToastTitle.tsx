@@ -5,6 +5,7 @@ import { useId } from '@base-ui/utils/useId';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useToastRootContext } from '../root/ToastRootContext';
 import { useRenderElement } from '../../utils/useRenderElement';
+import { useMemo } from '@base-ui/utils/useMemo';
 
 /**
  * A title that labels the toast.
@@ -40,7 +41,7 @@ export const ToastTitle = React.forwardRef(function ToastTitle(
     };
   }, [shouldRender, id, setTitleId]);
 
-  const state: ToastTitle.State = React.useMemo(
+  const state: ToastTitle.State = useMemo(
     () => ({
       type: toast.type,
     }),

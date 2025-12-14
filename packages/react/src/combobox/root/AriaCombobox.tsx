@@ -61,6 +61,7 @@ import { INITIAL_LAST_HIGHLIGHT, NO_ACTIVE_VALUE } from './utils/constants';
 import { useEffect } from '@base-ui/utils/useEffect';
 import { useRef } from '@base-ui/utils/useRef';
 import { useState } from '@base-ui/utils/useState';
+import { useMemo } from '@base-ui/utils/useMemo';
 
 /**
  * @internal
@@ -178,7 +179,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     state: 'selectedValue',
   });
 
-  const filter = React.useMemo(() => {
+  const filter = useMemo(() => {
     if (filterProp === null) {
       return () => true;
     }
@@ -235,7 +236,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
   const filterQuery = shouldBypassFiltering ? '' : query;
   const shouldIgnoreExternalFiltering = hasItems && hasFilteredItemsProp && shouldBypassFiltering;
 
-  const flatItems: readonly any[] = React.useMemo(() => {
+  const flatItems: readonly any[] = useMemo(() => {
     if (!items) {
       return EMPTY_ARRAY;
     }
@@ -247,7 +248,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     return items;
   }, [items, isGrouped]);
 
-  const filteredItems: Value[] | Group<Value>[] = React.useMemo(() => {
+  const filteredItems: Value[] | Group<Value>[] = useMemo(() => {
     if (filteredItemsProp && !shouldIgnoreExternalFiltering) {
       return filteredItemsProp as Value[] | Group<Value>[];
     }
@@ -323,7 +324,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     flatItems,
   ]);
 
-  const flatFilteredItems: Value[] = React.useMemo(() => {
+  const flatFilteredItems: Value[] = useMemo(() => {
     if (isGrouped) {
       const groups = filteredItems as Group<Value>[];
       return groups.flatMap((g) => g.items);
@@ -397,7 +398,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
   ).current;
 
   const fieldRawValue = selectionMode === 'none' ? inputValue : selectedValue;
-  const fieldStringValue = React.useMemo(() => {
+  const fieldStringValue = useMemo(() => {
     if (selectionMode === 'none') {
       return fieldRawValue;
     }
@@ -711,7 +712,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
   // `[role="dialog"]` is more interoperable than using a context, e.g. it can work
   // with third-party modal libraries, though the limitation is that the closest
   // `role=dialog` part must be the animated element.
-  const resolvedPopupRef: React.RefObject<HTMLElement | null> = React.useMemo(() => {
+  const resolvedPopupRef: React.RefObject<HTMLElement | null> = useMemo(() => {
     if (inline && positionerElement) {
       return { current: positionerElement.closest('[role="dialog"]') };
     }
@@ -995,7 +996,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     ariaExpanded = open ? 'true' : 'false';
   }
 
-  const role: ElementProps = React.useMemo(() => {
+  const role: ElementProps = useMemo(() => {
     const isPlainInput = inputElement?.tagName === 'INPUT';
     const shouldApplyAria = isPlainInput || open;
 
@@ -1184,7 +1185,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
 
   const hiddenInputRef = useMergedRefs(inputRefProp, validation.inputRef);
 
-  const itemsContextValue: ComboboxDerivedItemsContext = React.useMemo(
+  const itemsContextValue: ComboboxDerivedItemsContext = useMemo(
     () => ({
       query,
       filteredItems,
@@ -1193,7 +1194,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     [query, filteredItems, flatFilteredItems],
   );
 
-  const serializedValue = React.useMemo(() => {
+  const serializedValue = useMemo(() => {
     if (Array.isArray(fieldRawValue)) {
       return '';
     }
@@ -1202,7 +1203,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
 
   const hasMultipleSelection = multiple && Array.isArray(selectedValue) && selectedValue.length > 0;
 
-  const hiddenInputs = React.useMemo(() => {
+  const hiddenInputs = useMemo(() => {
     if (!multiple || !Array.isArray(selectedValue) || !name) {
       return null;
     }

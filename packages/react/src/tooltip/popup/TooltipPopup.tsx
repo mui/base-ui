@@ -15,6 +15,7 @@ import { getDisabledMountTransitionStyles } from '../../utils/getDisabledMountTr
 import { useHoverFloatingInteraction } from '../../floating-ui-react';
 import { useDirection } from '../../direction-provider';
 import { useCallback } from '@base-ui/utils/useCallback';
+import { useMemo } from '@base-ui/utils/useMemo';
 
 const stateAttributesMapping: StateAttributesMapping<TooltipPopup.State> = {
   ...baseMapping,
@@ -95,7 +96,7 @@ export const TooltipPopup = React.forwardRef(function TooltipPopup(
     closeDelay,
   });
 
-  const state: TooltipPopup.State = React.useMemo(
+  const state: TooltipPopup.State = useMemo(
     () => ({
       open,
       side,

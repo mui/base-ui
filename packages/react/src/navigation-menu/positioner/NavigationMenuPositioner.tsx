@@ -24,6 +24,7 @@ import { adaptiveOrigin } from '../../utils/adaptiveOriginMiddleware';
 import { getDisabledMountTransitionStyles } from '../../utils/getDisabledMountTransitionStyles';
 import { useEffect } from '@base-ui/utils/useEffect';
 import { useState } from '@base-ui/utils/useState';
+import { useMemo } from '@base-ui/utils/useMemo';
 
 const EMPTY_ROOT_CONTEXT = getEmptyRootContext();
 
@@ -126,7 +127,7 @@ export const NavigationMenuPositioner = React.forwardRef(function NavigationMenu
     adaptiveOrigin,
   });
 
-  const defaultProps: React.ComponentProps<'div'> = React.useMemo(() => {
+  const defaultProps: React.ComponentProps<'div'> = useMemo(() => {
     const hiddenStyles: React.CSSProperties = {};
 
     if (!open) {
@@ -143,7 +144,7 @@ export const NavigationMenuPositioner = React.forwardRef(function NavigationMenu
     };
   }, [open, mounted, positioning.positionerStyles]);
 
-  const state: NavigationMenuPositioner.State = React.useMemo(
+  const state: NavigationMenuPositioner.State = useMemo(
     () => ({
       open,
       side: positioning.side,

@@ -3,6 +3,7 @@ import * as React from 'react';
 import type { ElementProps } from '../types';
 import { ACTIVE_KEY, FOCUSABLE_ATTRIBUTE, SELECTED_KEY } from '../utils/constants';
 import { useCallback } from '@base-ui/utils/useCallback';
+import { useMemo } from '@base-ui/utils/useMemo';
 
 export type ExtendedUserProps = {
   [ACTIVE_KEY]?: boolean;
@@ -55,7 +56,7 @@ export function useInteractions(propsList: Array<ElementProps | void> = []): Use
     triggerDeps,
   );
 
-  return React.useMemo(
+  return useMemo(
     () => ({ getReferenceProps, getFloatingProps, getItemProps, getTriggerProps }),
     [getReferenceProps, getFloatingProps, getItemProps, getTriggerProps],
   );

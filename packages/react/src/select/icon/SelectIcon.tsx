@@ -6,6 +6,7 @@ import { useRenderElement } from '../../utils/useRenderElement';
 import { useSelectRootContext } from '../root/SelectRootContext';
 import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
 import { selectors } from '../store';
+import { useMemo } from '@base-ui/utils/useMemo';
 
 /**
  * An icon that indicates that the trigger button opens a select popup.
@@ -22,7 +23,7 @@ export const SelectIcon = React.forwardRef(function SelectIcon(
   const { store } = useSelectRootContext();
   const open = useStore(store, selectors.open);
 
-  const state: SelectIcon.State = React.useMemo(
+  const state: SelectIcon.State = useMemo(
     () => ({
       open,
     }),

@@ -10,6 +10,7 @@ import { useNavigationMenuPositionerContext } from '../positioner/NavigationMenu
 import { useDirection } from '../../direction-provider/DirectionContext';
 import { StateAttributesMapping } from '../../utils/getStateAttributesProps';
 import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping';
+import { useMemo } from '@base-ui/utils/useMemo';
 
 const stateAttributesMapping: StateAttributesMapping<NavigationMenuPopup.State> = {
   ...baseMapping,
@@ -34,7 +35,7 @@ export const NavigationMenuPopup = React.forwardRef(function NavigationMenuPopup
 
   const id = useBaseUiId(idProp);
 
-  const state: NavigationMenuPopup.State = React.useMemo(
+  const state: NavigationMenuPopup.State = useMemo(
     () => ({
       open,
       transitionStatus,

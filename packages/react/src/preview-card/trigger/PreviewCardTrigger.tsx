@@ -5,6 +5,7 @@ import { usePreviewCardRootContext } from '../root/PreviewCardContext';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
 import { useRenderElement } from '../../utils/useRenderElement';
+import { useMemo } from '@base-ui/utils/useMemo';
 
 /**
  * A link that opens the preview card.
@@ -24,7 +25,7 @@ export const PreviewCardTrigger = React.forwardRef(function PreviewCardTrigger(
     writeDelayRefs({ delay, closeDelay });
   });
 
-  const state: PreviewCardTrigger.State = React.useMemo(() => ({ open }), [open]);
+  const state: PreviewCardTrigger.State = useMemo(() => ({ open }), [open]);
 
   const element = useRenderElement('a', componentProps, {
     ref: [setTriggerElement, forwardedRef],

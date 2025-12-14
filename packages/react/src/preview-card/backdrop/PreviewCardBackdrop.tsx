@@ -7,6 +7,7 @@ import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping'
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
 import { useRenderElement } from '../../utils/useRenderElement';
+import { useMemo } from '@base-ui/utils/useMemo';
 
 const stateAttributesMapping: StateAttributesMapping<PreviewCardBackdrop.State> = {
   ...baseMapping,
@@ -27,7 +28,7 @@ export const PreviewCardBackdrop = React.forwardRef(function PreviewCardBackdrop
 
   const { open, mounted, transitionStatus } = usePreviewCardRootContext();
 
-  const state: PreviewCardBackdrop.State = React.useMemo(
+  const state: PreviewCardBackdrop.State = useMemo(
     () => ({
       open,
       transitionStatus,

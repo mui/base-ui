@@ -7,6 +7,7 @@ import {
   NavigationMenuItemContextValue,
 } from './NavigationMenuItemContext';
 import { useBaseUiId } from '../../utils/useBaseUiId';
+import { useMemo } from '@base-ui/utils/useMemo';
 
 /**
  * An individual navigation menu item.
@@ -28,7 +29,7 @@ export const NavigationMenuItem = React.forwardRef(function NavigationMenuItem(
     props: elementProps,
   });
 
-  const contextValue: NavigationMenuItemContextValue = React.useMemo(() => ({ value }), [value]);
+  const contextValue: NavigationMenuItemContextValue = useMemo(() => ({ value }), [value]);
 
   return (
     <NavigationMenuItemContext.Provider value={contextValue}>

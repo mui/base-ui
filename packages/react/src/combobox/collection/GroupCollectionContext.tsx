@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { useMemo } from '@base-ui/utils/useMemo';
 
 interface GroupCollectionContext {
   items: readonly any[];
@@ -14,7 +15,7 @@ export function useGroupCollectionContext() {
 export function GroupCollectionProvider(props: GroupCollectionProvider.Props) {
   const { children, items } = props;
 
-  const contextValue = React.useMemo(() => ({ items }), [items]);
+  const contextValue = useMemo(() => ({ items }), [items]);
 
   return (
     <GroupCollectionContext.Provider value={contextValue}>

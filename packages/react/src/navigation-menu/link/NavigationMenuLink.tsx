@@ -10,6 +10,7 @@ import { isOutsideMenuEvent } from '../utils/isOutsideMenuEvent';
 import { CompositeItem } from '../../composite/item/CompositeItem';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
+import { useMemo } from '@base-ui/utils/useMemo';
 
 /**
  * A link in the navigation menu that can be used to navigate to a different page or section.
@@ -33,7 +34,7 @@ export const NavigationMenuLink = React.forwardRef(function NavigationMenuLink(
   const nodeId = useNavigationMenuTreeContext();
   const tree = useFloatingTree();
 
-  const state: NavigationMenuLink.State = React.useMemo(
+  const state: NavigationMenuLink.State = useMemo(
     () => ({
       active,
     }),

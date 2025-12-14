@@ -6,6 +6,7 @@ import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import type { FloatingNodeType, FloatingTreeType } from '../types';
 import { FloatingTreeStore } from './FloatingTreeStore';
+import { useMemo } from '@base-ui/utils/useMemo';
 
 const FloatingNodeContext = React.createContext<FloatingNodeType | null>(null);
 const FloatingTreeContext = React.createContext<FloatingTreeType | null>(null);
@@ -64,7 +65,7 @@ export function FloatingNode(props: FloatingNodeProps): React.JSX.Element {
   const parentId = useFloatingParentNodeId();
 
   return (
-    <FloatingNodeContext.Provider value={React.useMemo(() => ({ id, parentId }), [id, parentId])}>
+    <FloatingNodeContext.Provider value={useMemo(() => ({ id, parentId }), [id, parentId])}>
       {children}
     </FloatingNodeContext.Provider>
   );

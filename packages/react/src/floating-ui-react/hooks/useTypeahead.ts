@@ -7,6 +7,7 @@ import { stopEvent } from '../utils';
 import type { ElementProps, FloatingContext, FloatingRootContext } from '../types';
 import { EMPTY_ARRAY } from '../../utils/constants';
 import { useRef } from '@base-ui/utils/useRef';
+import { useMemo } from '@base-ui/utils/useMemo';
 
 export interface UseTypeaheadProps {
   /**
@@ -194,9 +195,9 @@ export function useTypeahead(
     }
   });
 
-  const reference: ElementProps['reference'] = React.useMemo(() => ({ onKeyDown }), [onKeyDown]);
+  const reference: ElementProps['reference'] = useMemo(() => ({ onKeyDown }), [onKeyDown]);
 
-  const floating: ElementProps['floating'] = React.useMemo(() => {
+  const floating: ElementProps['floating'] = useMemo(() => {
     return {
       onKeyDown,
       onKeyUp(event) {
@@ -207,8 +208,5 @@ export function useTypeahead(
     };
   }, [onKeyDown, setTypingChange]);
 
-  return React.useMemo(
-    () => (enabled ? { reference, floating } : {}),
-    [enabled, reference, floating],
-  );
+  return useMemo(() => (enabled ? { reference, floating } : {}), [enabled, reference, floating]);
 }

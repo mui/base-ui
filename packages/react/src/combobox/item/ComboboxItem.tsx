@@ -19,6 +19,7 @@ import { useButton } from '../../use-button';
 import { useComboboxRowContext } from '../row/ComboboxRowContext';
 import { compareItemEquality, findItemIndex } from '../../utils/itemEquality';
 import { useRef } from '@base-ui/utils/useRef';
+import { useMemo } from '@base-ui/utils/useMemo';
 
 /**
  * An individual item in the list.
@@ -128,7 +129,7 @@ export const ComboboxItem = React.memo(
       }
     }, [hasRegistered, items, open, store, index, value, isItemEqualToValue]);
 
-    const state: ComboboxItem.State = React.useMemo(
+    const state: ComboboxItem.State = useMemo(
       () => ({
         disabled,
         selected,
@@ -198,7 +199,7 @@ export const ComboboxItem = React.memo(
       props: [rootProps, defaultProps, elementProps, getButtonProps],
     });
 
-    const contextValue: ComboboxItemContext = React.useMemo(
+    const contextValue: ComboboxItemContext = useMemo(
       () => ({
         selected,
         textRef,

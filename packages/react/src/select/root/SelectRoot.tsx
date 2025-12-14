@@ -38,6 +38,7 @@ import { useValueChanged } from '../../utils/useValueChanged';
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
 import { mergeProps } from '../../merge-props';
 import { useRef } from '@base-ui/utils/useRef';
+import { useMemo } from '@base-ui/utils/useMemo';
 
 /**
  * Groups all parts of the select.
@@ -161,14 +162,14 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
   const triggerElement = useStore(store, selectors.triggerElement);
   const positionerElement = useStore(store, selectors.positionerElement);
 
-  const serializedValue = React.useMemo(() => {
+  const serializedValue = useMemo(() => {
     if (multiple && Array.isArray(value) && value.length === 0) {
       return '';
     }
     return stringifyAsValue(value, itemToStringValue);
   }, [multiple, value, itemToStringValue]);
 
-  const fieldStringValue = React.useMemo(() => {
+  const fieldStringValue = useMemo(() => {
     if (multiple && Array.isArray(value)) {
       return value.map((currentValue) => stringifyAsValue(currentValue, itemToStringValue));
     }
@@ -376,7 +377,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     typeahead,
   ]);
 
-  const mergedTriggerProps = React.useMemo(
+  const mergedTriggerProps = useMemo(
     () => mergeProps(getReferenceProps(), interactionTypeProps),
     [getReferenceProps, interactionTypeProps],
   );
@@ -423,7 +424,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     openMethod,
   ]);
 
-  const contextValue: SelectRootContext = React.useMemo(
+  const contextValue: SelectRootContext = useMemo(
     () => ({
       store,
       name,
@@ -479,7 +480,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
 
   const hasMultipleSelection = multiple && Array.isArray(value) && value.length > 0;
 
-  const hiddenInputs = React.useMemo(() => {
+  const hiddenInputs = useMemo(() => {
     if (!multiple || !Array.isArray(value) || !name) {
       return null;
     }

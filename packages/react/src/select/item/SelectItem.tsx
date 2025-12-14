@@ -19,6 +19,7 @@ import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
 import { compareItemEquality, removeItem } from '../../utils/itemEquality';
 import { useRef } from '@base-ui/utils/useRef';
+import { useMemo } from '@base-ui/utils/useMemo';
 
 /**
  * An individual option in the select popup.
@@ -105,7 +106,7 @@ export const SelectItem = React.memo(
       return undefined;
     }, [hasRegistered, index, multiple, isItemEqualToValue, store, value]);
 
-    const state: SelectItem.State = React.useMemo(
+    const state: SelectItem.State = useMemo(
       () => ({
         disabled,
         selected,
@@ -240,7 +241,7 @@ export const SelectItem = React.memo(
       props: [rootProps, defaultProps, elementProps, getButtonProps],
     });
 
-    const contextValue: SelectItemContext = React.useMemo(
+    const contextValue: SelectItemContext = useMemo(
       () => ({
         selected,
         indexRef,

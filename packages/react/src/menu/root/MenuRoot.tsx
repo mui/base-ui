@@ -47,6 +47,7 @@ import { useMenuSubmenuRootContext } from '../submenu-root/MenuSubmenuRootContex
 import { useEffect } from '@base-ui/utils/useEffect';
 import { useRef } from '@base-ui/utils/useRef';
 import { useCallback } from '@base-ui/utils/useCallback';
+import { useMemo } from '@base-ui/utils/useMemo';
 
 /**
  * Groups all parts of the menu.
@@ -78,7 +79,7 @@ export function MenuRoot<Payload>(props: MenuRoot.Props<Payload>) {
   const menubarContext = useMenubarContext(true);
   const isSubmenu = useMenuSubmenuRootContext();
 
-  const parentFromContext: MenuParent = React.useMemo(() => {
+  const parentFromContext: MenuParent = useMemo(() => {
     if (isSubmenu && parentMenuRootContext) {
       return {
         type: 'menu',
@@ -478,7 +479,7 @@ export function MenuRoot<Payload>(props: MenuRoot.Props<Payload>) {
     typeahead,
   ]);
 
-  const activeTriggerProps = React.useMemo(() => {
+  const activeTriggerProps = useMemo(() => {
     const mergedProps = mergeProps(
       getReferenceProps(),
       {
@@ -496,7 +497,7 @@ export function MenuRoot<Payload>(props: MenuRoot.Props<Payload>) {
     return mergedProps;
   }, [getReferenceProps, store, interactionTypeProps]);
 
-  const inactiveTriggerProps = React.useMemo(() => {
+  const inactiveTriggerProps = useMemo(() => {
     const triggerProps = getTriggerProps();
     if (!triggerProps) {
       return triggerProps;
@@ -509,7 +510,7 @@ export function MenuRoot<Payload>(props: MenuRoot.Props<Payload>) {
   }, [getTriggerProps, interactionTypeProps]);
 
   const disableHoverTimeout = useAnimationFrame();
-  const popupProps = React.useMemo(
+  const popupProps = useMemo(
     () =>
       getFloatingProps({
         onMouseEnter() {
@@ -538,7 +539,7 @@ export function MenuRoot<Payload>(props: MenuRoot.Props<Payload>) {
     [getFloatingProps, parent.type, disableHoverTimeout, store],
   );
 
-  const itemProps = React.useMemo(() => getItemProps(), [getItemProps]);
+  const itemProps = useMemo(() => getItemProps(), [getItemProps]);
 
   store.useSyncedValues({
     floatingRootContext,
@@ -548,7 +549,7 @@ export function MenuRoot<Payload>(props: MenuRoot.Props<Payload>) {
     itemProps,
   });
 
-  const context: MenuRootContext<Payload> = React.useMemo(
+  const context: MenuRootContext<Payload> = useMemo(
     () => ({
       store,
       parent: parentFromContext,

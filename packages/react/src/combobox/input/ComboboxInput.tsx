@@ -26,6 +26,7 @@ import { REASONS } from '../../utils/reasons';
 import type { Side } from '../../utils/useAnchorPositioning';
 import { useDirection } from '../../direction-provider/DirectionContext';
 import { useRef } from '@base-ui/utils/useRef';
+import { useMemo } from '@base-ui/utils/useMemo';
 
 const stateAttributesMapping: StateAttributesMapping<ComboboxInput.State> = {
   ...pressableTriggerOpenStateMapping,
@@ -105,7 +106,7 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
     });
   });
 
-  const state: ComboboxInput.State = React.useMemo(
+  const state: ComboboxInput.State = useMemo(
     () => ({
       ...fieldState,
       open,

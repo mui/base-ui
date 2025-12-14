@@ -11,6 +11,7 @@ import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { getDisabledMountTransitionStyles } from '../../utils/getDisabledMountTransitionStyles';
+import { useMemo } from '@base-ui/utils/useMemo';
 
 const stateAttributesMapping: StateAttributesMapping<PreviewCardPopup.State> = {
   ...baseMapping,
@@ -43,7 +44,7 @@ export const PreviewCardPopup = React.forwardRef(function PreviewCardPopup(
     },
   });
 
-  const state: PreviewCardPopup.State = React.useMemo(
+  const state: PreviewCardPopup.State = useMemo(
     () => ({
       open,
       side,

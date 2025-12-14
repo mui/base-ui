@@ -4,6 +4,7 @@ import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useCompositeListContext } from './CompositeListContext';
 import { useRef } from '@base-ui/utils/useRef';
 import { useCallback } from '@base-ui/utils/useCallback';
+import { useMemo } from '@base-ui/utils/useMemo';
 
 export interface UseCompositeListItemParameters<Metadata> {
   index?: number;
@@ -101,7 +102,7 @@ export function useCompositeListItem<Metadata>(
     });
   }, [externalIndex, subscribeMapChange, setIndex]);
 
-  return React.useMemo(
+  return useMemo(
     () => ({
       ref,
       index,

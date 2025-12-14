@@ -18,6 +18,7 @@ import { useFocusWithDelay } from '../../utils/interactions/useFocusWithDelay';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useTransitionStatus } from '../../utils/useTransitionStatus';
 import { useRef } from '@base-ui/utils/useRef';
+import { useMemo } from '@base-ui/utils/useMemo';
 
 /**
  * Groups all parts of the preview card.
@@ -137,7 +138,7 @@ export function PreviewCardRoot(props: PreviewCardRoot.Props) {
 
   const { getReferenceProps, getFloatingProps } = useInteractions([hover, focus, dismiss]);
 
-  const contextValue = React.useMemo(
+  const contextValue = useMemo(
     () => ({
       open,
       setOpen,

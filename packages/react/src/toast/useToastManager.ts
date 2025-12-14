@@ -2,6 +2,7 @@
 import * as React from 'react';
 import { ToastContext } from './provider/ToastProviderContext';
 import type { ToastPositionerProps } from './positioner/ToastPositioner';
+import { useMemo } from '@base-ui/utils/useMemo';
 
 /**
  * Returns the array of toasts and methods to manage them.
@@ -15,7 +16,7 @@ export function useToastManager(): UseToastManagerReturnValue {
 
   const { toasts, add, close, update, promise } = context;
 
-  return React.useMemo(
+  return useMemo(
     () => ({
       toasts,
       add,

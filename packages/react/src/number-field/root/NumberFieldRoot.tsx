@@ -43,6 +43,7 @@ import { REASONS } from '../../utils/reasons';
 import { useEffect } from '@base-ui/utils/useEffect';
 import { useRef } from '@base-ui/utils/useRef';
 import { useState } from '@base-ui/utils/useState';
+import { useMemo } from '@base-ui/utils/useMemo';
 
 /**
  * Groups all parts of the number field and manages its state.
@@ -426,7 +427,7 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
     [allowWheelScrub, incrementValue, disabled, readOnly, largeStep, step, getStepAmount],
   );
 
-  const state: NumberFieldRoot.State = React.useMemo(
+  const state: NumberFieldRoot.State = useMemo(
     () => ({
       ...fieldState,
       disabled,
@@ -439,7 +440,7 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
     [fieldState, disabled, readOnly, required, value, inputValue, isScrubbing],
   );
 
-  const contextValue: NumberFieldRootContext = React.useMemo(
+  const contextValue: NumberFieldRootContext = useMemo(
     () => ({
       inputRef,
       inputValue,

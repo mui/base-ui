@@ -8,6 +8,7 @@ import { popupStateMapping } from '../../utils/popupStateMapping';
 import { usePreviewCardPortalContext } from '../portal/PreviewCardPortalContext';
 import { POPUP_COLLISION_AVOIDANCE } from '../../utils/constants';
 import { useRenderElement } from '../../utils/useRenderElement';
+import { useMemo } from '@base-ui/utils/useMemo';
 
 /**
  * Positions the popup against the trigger.
@@ -58,7 +59,7 @@ export const PreviewCardPositioner = React.forwardRef(function PreviewCardPositi
     collisionAvoidance,
   });
 
-  const defaultProps: HTMLProps = React.useMemo(() => {
+  const defaultProps: HTMLProps = useMemo(() => {
     const hiddenStyles: React.CSSProperties = {};
 
     if (!open) {
@@ -75,7 +76,7 @@ export const PreviewCardPositioner = React.forwardRef(function PreviewCardPositi
     };
   }, [open, mounted, positioning.positionerStyles]);
 
-  const state: PreviewCardPositioner.State = React.useMemo(
+  const state: PreviewCardPositioner.State = useMemo(
     () => ({
       open,
       side: positioning.side,
@@ -85,7 +86,7 @@ export const PreviewCardPositioner = React.forwardRef(function PreviewCardPositi
     [open, positioning.side, positioning.align, positioning.anchorHidden],
   );
 
-  const contextValue: PreviewCardPositionerContext = React.useMemo(
+  const contextValue: PreviewCardPositionerContext = useMemo(
     () => ({
       side: positioning.side,
       align: positioning.align,

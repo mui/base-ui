@@ -19,6 +19,7 @@ import { REASONS } from '../../utils/reasons';
 import { useEffect } from '@base-ui/utils/useEffect';
 import { useRef } from '@base-ui/utils/useRef';
 import { useState } from '@base-ui/utils/useState';
+import { useMemo } from '@base-ui/utils/useMemo';
 
 /**
  * An interactive area where the user can click and drag to change the field value.
@@ -306,7 +307,7 @@ export const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubAr
     stateAttributesMapping,
   });
 
-  const contextValue: NumberFieldScrubAreaContext = React.useMemo(
+  const contextValue: NumberFieldScrubAreaContext = useMemo(
     () => ({
       isScrubbing,
       isTouchInput,

@@ -7,6 +7,7 @@ import type { ElementProps, FloatingContext, FloatingRootContext } from '../type
 import { isClickLikeEvent, isMouseLikePointerType, isTypeableElement } from '../utils';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
+import { useMemo } from '@base-ui/utils/useMemo';
 
 export interface UseClickProps {
   /**
@@ -70,7 +71,7 @@ export function useClick(
   const frame = useAnimationFrame();
   const touchOpenTimeout = useTimeout();
 
-  const reference: ElementProps['reference'] = React.useMemo(
+  const reference: ElementProps['reference'] = useMemo(
     () => ({
       onPointerDown(event) {
         pointerTypeRef.current = event.pointerType;
@@ -197,5 +198,5 @@ export function useClick(
     ],
   );
 
-  return React.useMemo(() => (enabled ? { reference } : EMPTY_OBJECT), [enabled, reference]);
+  return useMemo(() => (enabled ? { reference } : EMPTY_OBJECT), [enabled, reference]);
 }

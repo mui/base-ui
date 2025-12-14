@@ -25,6 +25,7 @@ import {
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
 import { useEffect } from '@base-ui/utils/useEffect';
 import { useCallback } from '@base-ui/utils/useCallback';
+import { useMemo } from '@base-ui/utils/useMemo';
 
 function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Payload> }) {
   const {
@@ -122,15 +123,15 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
 
   const { getReferenceProps, getFloatingProps, getTriggerProps } = useInteractions([dismiss, role]);
 
-  const activeTriggerProps = React.useMemo(() => {
+  const activeTriggerProps = useMemo(() => {
     return getReferenceProps(interactionTypeTriggerProps);
   }, [getReferenceProps, interactionTypeTriggerProps]);
 
-  const inactiveTriggerProps = React.useMemo(() => {
+  const inactiveTriggerProps = useMemo(() => {
     return getTriggerProps(interactionTypeTriggerProps);
   }, [getTriggerProps, interactionTypeTriggerProps]);
 
-  const popupProps = React.useMemo(() => {
+  const popupProps = useMemo(() => {
     return getFloatingProps();
   }, [getFloatingProps]);
 
@@ -144,7 +145,7 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
     nested: useFloatingParentNodeId() != null,
   });
 
-  const popoverContext: PopoverRootContext<Payload> = React.useMemo(
+  const popoverContext: PopoverRootContext<Payload> = useMemo(
     () => ({
       store,
     }),

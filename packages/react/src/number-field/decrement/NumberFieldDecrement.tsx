@@ -7,6 +7,7 @@ import { useNumberFieldRootContext } from '../root/NumberFieldRootContext';
 import type { NumberFieldRoot } from '../root/NumberFieldRoot';
 import { useNumberFieldButton } from '../root/useNumberFieldButton';
 import { stateAttributesMapping } from '../utils/stateAttributesMapping';
+import { useMemo } from '@base-ui/utils/useMemo';
 
 /**
  * A stepper button that decreases the field value when clicked.
@@ -85,7 +86,7 @@ export const NumberFieldDecrement = React.forwardRef(function NumberFieldDecreme
     native: nativeButton,
   });
 
-  const buttonState = React.useMemo(
+  const buttonState = useMemo(
     () => ({
       ...state,
       disabled,

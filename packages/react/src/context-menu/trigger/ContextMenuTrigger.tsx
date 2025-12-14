@@ -13,6 +13,7 @@ import { REASONS } from '../../utils/reasons';
 import { findRootOwnerId } from '../../menu/utils/findRootOwnerId';
 import { useEffect } from '@base-ui/utils/useEffect';
 import { useRef } from '@base-ui/utils/useRef';
+import { useMemo } from '@base-ui/utils/useMemo';
 
 const LONG_PRESS_DELAY = 500;
 
@@ -166,7 +167,7 @@ export const ContextMenuTrigger = React.forwardRef(function ContextMenuTrigger(
     };
   }, [backdropRef, internalBackdropRef]);
 
-  const state: ContextMenuTrigger.State = React.useMemo(
+  const state: ContextMenuTrigger.State = useMemo(
     () => ({
       open,
     }),

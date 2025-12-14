@@ -7,6 +7,7 @@ import { stringifyAsLabel } from '../../utils/resolveValueLabel';
 import { REASONS } from '../../utils/reasons';
 import { useEffect } from '@base-ui/utils/useEffect';
 import { useState } from '@base-ui/utils/useState';
+import { useMemo } from '@base-ui/utils/useMemo';
 
 /**
  * Groups all parts of the autocomplete.
@@ -82,7 +83,7 @@ export function AutocompleteRoot<ItemValue>(
 
   const collator = useCoreFilter();
 
-  const baseFilter: typeof other.filter = React.useMemo(() => {
+  const baseFilter: typeof other.filter = useMemo(() => {
     if (other.filter) {
       return other.filter;
     }
@@ -94,7 +95,7 @@ export function AutocompleteRoot<ItemValue>(
   const resolvedQuery = String(isControlled ? value : internalValue).trim();
 
   // In "both", wrap filtering to use only the typed value, ignoring the inline value.
-  const resolvedFilter: typeof other.filter = React.useMemo(() => {
+  const resolvedFilter: typeof other.filter = useMemo(() => {
     if (mode !== 'both') {
       return staticItems ? null : other.filter;
     }

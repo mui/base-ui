@@ -19,6 +19,7 @@ import { useRenderElement } from '../../utils/useRenderElement';
 import { EMPTY_OBJECT, ownerVisuallyHidden } from '../../utils/constants';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useEffect } from '@base-ui/utils/useEffect';
+import { useMemo } from '@base-ui/utils/useMemo';
 
 type FocusManagerState = null | {
   modal: boolean;
@@ -209,7 +210,7 @@ export const FloatingPortal = React.forwardRef(function FloatingPortal(
     enableFocusInside(portalNode);
   }, [open, portalNode]);
 
-  const portalContextValue = React.useMemo(
+  const portalContextValue = useMemo(
     () => ({
       beforeOutsideRef,
       afterOutsideRef,

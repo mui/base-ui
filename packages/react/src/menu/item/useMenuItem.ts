@@ -8,6 +8,7 @@ import { useContextMenuRootContext } from '../../context-menu/root/ContextMenuRo
 import { MenuStore } from '../store/MenuStore';
 import { REASONS } from '../../utils/reasons';
 import { useCallback } from '@base-ui/utils/useCallback';
+import { useMemo } from '@base-ui/utils/useMemo';
 
 export const REGULAR_ITEM = {
   type: 'regular-item' as const,
@@ -119,7 +120,7 @@ export function useMenuItem(params: useMenuItem.Parameters): useMenuItem.ReturnV
 
   const mergedRef = useMergedRefs(itemRef, buttonRef);
 
-  return React.useMemo(
+  return useMemo(
     () => ({
       getItemProps,
       itemRef: mergedRef,

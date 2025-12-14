@@ -10,6 +10,7 @@ import { DialogHandle } from '../store/DialogHandle';
 import { useTriggerDataForwarding } from '../../utils/popups';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useClick, useInteractions } from '../../floating-ui-react';
+import { useMemo } from '@base-ui/utils/useMemo';
 
 /**
  * A button that opens the dialog.
@@ -64,7 +65,7 @@ export const DialogTrigger = React.forwardRef(function DialogTrigger(
 
   const localInteractionProps = useInteractions([click]);
 
-  const state: DialogTrigger.State = React.useMemo(
+  const state: DialogTrigger.State = useMemo(
     () => ({
       disabled,
       open: isOpenedByThisTrigger,

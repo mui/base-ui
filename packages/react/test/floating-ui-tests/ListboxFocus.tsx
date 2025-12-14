@@ -9,6 +9,7 @@ import {
   useRole,
 } from '../../src/floating-ui-react';
 import { useCallback } from '@base-ui/utils/useCallback';
+import { useMemo } from '@base-ui/utils/useMemo';
 
 interface SelectContextValue {
   activeIndex: number | null;
@@ -56,7 +57,7 @@ function Listbox({ children }: { children: React.ReactNode }) {
 
   const { getFloatingProps, getItemProps } = useInteractions([listNav, typeahead, role]);
 
-  const selectContext = React.useMemo(
+  const selectContext = useMemo(
     () => ({
       activeIndex,
       selectedIndex,

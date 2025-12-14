@@ -15,6 +15,7 @@ import { scrollAreaStateAttributesMapping } from './stateAttributes';
 import { contains } from '../../floating-ui-react/utils';
 import { useRef } from '@base-ui/utils/useRef';
 import { useState } from '@base-ui/utils/useState';
+import { useMemo } from '@base-ui/utils/useMemo';
 
 interface Size {
   width: number;
@@ -213,7 +214,7 @@ export const ScrollAreaRoot = React.forwardRef(function ScrollAreaRoot(
     }
   }
 
-  const state: ScrollAreaRoot.State = React.useMemo(
+  const state: ScrollAreaRoot.State = useMemo(
     () => ({
       hasOverflowX: !hiddenState.scrollbarXHidden,
       hasOverflowY: !hiddenState.scrollbarYHidden,
@@ -255,7 +256,7 @@ export const ScrollAreaRoot = React.forwardRef(function ScrollAreaRoot(
     stateAttributesMapping: scrollAreaStateAttributesMapping,
   });
 
-  const contextValue = React.useMemo(
+  const contextValue = useMemo(
     () => ({
       handlePointerDown,
       handlePointerMove,

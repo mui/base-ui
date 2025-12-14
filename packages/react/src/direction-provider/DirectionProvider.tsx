@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import { DirectionContext, type TextDirection } from './DirectionContext';
+import { useMemo } from '@base-ui/utils/useMemo';
 
 /**
  * Enables RTL behavior for Base UI components.
@@ -11,7 +12,7 @@ export const DirectionProvider: React.FC<DirectionProvider.Props> = function Dir
   props,
 ) {
   const { direction = 'ltr' } = props;
-  const contextValue = React.useMemo(() => ({ direction }), [direction]);
+  const contextValue = useMemo(() => ({ direction }), [direction]);
   return (
     <DirectionContext.Provider value={contextValue}>{props.children}</DirectionContext.Provider>
   );

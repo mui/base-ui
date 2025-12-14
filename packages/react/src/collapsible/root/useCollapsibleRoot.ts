@@ -11,6 +11,7 @@ import { useTransitionStatus, TransitionStatus } from '../../utils/useTransition
 import type { CollapsibleRoot } from './CollapsibleRoot';
 import { useRef } from '@base-ui/utils/useRef';
 import { useState } from '@base-ui/utils/useState';
+import { useMemo } from '@base-ui/utils/useMemo';
 
 export type AnimationType = 'css-transition' | 'css-animation' | 'none' | null;
 
@@ -104,7 +105,7 @@ export function useCollapsibleRoot(
     }
   }, [isControlled, keepMounted, open, openParam, setMounted]);
 
-  return React.useMemo(
+  return useMemo(
     () => ({
       abortControllerRef,
       animationTypeRef,

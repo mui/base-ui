@@ -18,6 +18,7 @@ import { StateAttributesMapping } from '../utils/getStateAttributesProps';
 import { useEffect } from '@base-ui/utils/useEffect';
 import { useRef } from '@base-ui/utils/useRef';
 import { useState } from '@base-ui/utils/useState';
+import { useMemo } from '@base-ui/utils/useMemo';
 
 const menubarStateAttributesMapping: StateAttributesMapping<Menubar.State> = {
   hasSubmenuOpen(value) {
@@ -66,7 +67,7 @@ export const Menubar = React.forwardRef(function Menubar(
 
   const id = useBaseUiId(idProp);
 
-  const state = React.useMemo(
+  const state = useMemo(
     () => ({
       orientation,
       modal,
@@ -78,7 +79,7 @@ export const Menubar = React.forwardRef(function Menubar(
   const contentRef = React.useRef<HTMLDivElement>(null);
   const allowMouseUpTriggerRef = useRef(false);
 
-  const context: MenubarContext = React.useMemo(
+  const context: MenubarContext = useMemo(
     () => ({
       contentElement,
       setContentElement,

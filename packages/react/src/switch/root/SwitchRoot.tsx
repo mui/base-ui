@@ -22,6 +22,7 @@ import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
 import type { BaseUIChangeEventDetails } from '../../types';
 import { useValueChanged } from '../../utils/useValueChanged';
+import { useMemo } from '@base-ui/utils/useMemo';
 
 /**
  * Represents the switch itself.
@@ -158,7 +159,7 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
     },
   };
 
-  const inputProps: React.ComponentPropsWithRef<'input'> = React.useMemo(
+  const inputProps: React.ComponentPropsWithRef<'input'> = useMemo(
     () =>
       mergeProps<'input'>(
         {
@@ -208,7 +209,7 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
     ],
   );
 
-  const state: SwitchRoot.State = React.useMemo(
+  const state: SwitchRoot.State = useMemo(
     () => ({
       ...fieldState,
       checked,

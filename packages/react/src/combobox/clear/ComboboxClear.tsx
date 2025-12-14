@@ -14,6 +14,7 @@ import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
 import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
+import { useMemo } from '@base-ui/utils/useMemo';
 
 const stateAttributesMapping: StateAttributesMapping<ComboboxClear.State> = {
   ...transitionStatusMapping,
@@ -66,7 +67,7 @@ export const ComboboxClear = React.forwardRef(function ComboboxClear(
 
   const { mounted, transitionStatus, setMounted } = useTransitionStatus(visible);
 
-  const state: ComboboxClear.State = React.useMemo(
+  const state: ComboboxClear.State = useMemo(
     () => ({
       disabled,
       open,

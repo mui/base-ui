@@ -12,6 +12,7 @@ import { getCombinedFieldValidityData } from '../utils/getCombinedFieldValidityD
 import type { HTMLProps } from '../../utils/types';
 import type { FieldValidityData, FieldRootState } from './FieldRoot';
 import { useCallback } from '@base-ui/utils/useCallback';
+import { useMemo } from '@base-ui/utils/useMemo';
 
 const validityKeys = Object.keys(DEFAULT_VALIDITY_STATE) as Array<keyof ValidityState>;
 
@@ -297,7 +298,7 @@ export function useFieldValidation(
     ],
   );
 
-  return React.useMemo(
+  return useMemo(
     () => ({
       getValidationProps,
       getInputValidationProps,

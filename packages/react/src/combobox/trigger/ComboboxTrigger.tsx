@@ -25,6 +25,7 @@ import { fieldValidityMapping } from '../../field/utils/constants';
 import { StateAttributesMapping } from '../../utils/getStateAttributesProps';
 import { useClick, useTypeahead } from '../../floating-ui-react';
 import { useEffect } from '@base-ui/utils/useEffect';
+import { useMemo } from '@base-ui/utils/useMemo';
 
 const BOUNDARY_OFFSET = 2;
 
@@ -121,7 +122,7 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
     disabled,
   });
 
-  const state: ComboboxTrigger.State = React.useMemo(
+  const state: ComboboxTrigger.State = useMemo(
     () => ({
       ...fieldState,
       open,

@@ -14,6 +14,7 @@ import { Dimensions } from '../../floating-ui-react/types';
 import { TooltipViewportCssVars } from './TooltipViewportCssVars';
 import { useEffect } from '@base-ui/utils/useEffect';
 import { useState } from '@base-ui/utils/useState';
+import { useMemo } from '@base-ui/utils/useMemo';
 
 const stateAttributesMapping: StateAttributesMapping<TooltipViewport.State> = {
   activationDirection: (value) =>
@@ -207,7 +208,7 @@ export const TooltipViewport = React.forwardRef(function TooltipViewport(
     container.replaceChildren(...Array.from(previousContentNode.childNodes));
   }, [previousContentNode]);
 
-  const state = React.useMemo(() => {
+  const state = useMemo(() => {
     return {
       activationDirection: getActivationDirection(newTriggerOffset),
       transitioning: isTransitioning,

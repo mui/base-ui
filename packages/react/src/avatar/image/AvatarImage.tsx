@@ -8,6 +8,7 @@ import { useAvatarRootContext } from '../root/AvatarRootContext';
 import type { AvatarRoot } from '../root/AvatarRoot';
 import { avatarStateAttributesMapping } from '../root/stateAttributesMapping';
 import { useImageLoadingStatus, ImageLoadingStatus } from './useImageLoadingStatus';
+import { useMemo } from '@base-ui/utils/useMemo';
 
 /**
  * The image to be displayed in the avatar.
@@ -45,7 +46,7 @@ export const AvatarImage = React.forwardRef(function AvatarImage(
     }
   }, [imageLoadingStatus, handleLoadingStatusChange]);
 
-  const state: AvatarRoot.State = React.useMemo(
+  const state: AvatarRoot.State = useMemo(
     () => ({
       imageLoadingStatus,
     }),

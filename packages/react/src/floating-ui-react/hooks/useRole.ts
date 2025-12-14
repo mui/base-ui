@@ -6,6 +6,7 @@ import type { ElementProps, FloatingContext, FloatingRootContext } from '../type
 import type { ExtendedUserProps } from './useInteractions';
 import { EMPTY_OBJECT } from '../../utils/constants';
 import { useCallback } from '@base-ui/utils/useCallback';
+import { useMemo } from '@base-ui/utils/useMemo';
 
 type AriaRole = 'tooltip' | 'dialog' | 'alertdialog' | 'menu' | 'listbox' | 'grid' | 'tree';
 type ComponentRole = 'select' | 'label' | 'combobox';
@@ -49,7 +50,7 @@ export function useRole(
 
   const defaultReferenceId = useId();
   const referenceId = domReference?.id || defaultReferenceId;
-  const floatingId = React.useMemo(
+  const floatingId = useMemo(
     () => getFloatingFocusElement(floatingElement)?.id || defaultFloatingId,
     [floatingElement, defaultFloatingId],
   );
@@ -59,7 +60,7 @@ export function useRole(
   const parentId = useFloatingParentNodeId();
   const isNested = parentId != null;
 
-  const trigger: ElementProps['trigger'] = React.useMemo(() => {
+  const trigger: ElementProps['trigger'] = useMemo(() => {
     if (ariaRole === 'tooltip' || role === 'label') {
       return EMPTY_OBJECT;
     }
@@ -74,7 +75,7 @@ export function useRole(
     };
   }, [ariaRole, isNested, role]);
 
-  const reference: ElementProps['reference'] = React.useMemo(() => {
+  const reference: ElementProps['reference'] = useMemo(() => {
     if (ariaRole === 'tooltip' || role === 'label') {
       return {
         [`aria-${role === 'label' ? 'labelledby' : 'describedby'}`]: open ? floatingId : undefined,
@@ -90,7 +91,7 @@ export function useRole(
     };
   }, [ariaRole, floatingId, open, referenceId, role, trigger]);
 
-  const floating: ElementProps['floating'] = React.useMemo(() => {
+  const floating: ElementProps['floating'] = useMemo(() => {
     const floatingProps = {
       id: floatingId,
       ...(ariaRole && { role: ariaRole }),
@@ -134,7 +135,7 @@ export function useRole(
     [floatingId, role],
   );
 
-  return React.useMemo(
+  return useMemo(
     () => (enabled ? { reference, floating, item, trigger } : {}),
     [enabled, reference, floating, trigger, item],
   );

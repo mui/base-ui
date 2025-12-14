@@ -6,6 +6,7 @@ import { MenuRadioGroupContext } from './MenuRadioGroupContext';
 import { useRenderElement } from '../../utils/useRenderElement';
 import type { BaseUIComponentProps } from '../../utils/types';
 import type { MenuRoot } from '../root/MenuRoot';
+import { useMemo } from '@base-ui/utils/useMemo';
 
 /**
  * Groups related radio items.
@@ -48,7 +49,7 @@ export const MenuRadioGroup = React.memo(
       },
     );
 
-    const state = React.useMemo(() => ({ disabled }), [disabled]);
+    const state = useMemo(() => ({ disabled }), [disabled]);
 
     const element = useRenderElement('div', componentProps, {
       state,
@@ -60,7 +61,7 @@ export const MenuRadioGroup = React.memo(
       },
     });
 
-    const context: MenuRadioGroupContext = React.useMemo(
+    const context: MenuRadioGroupContext = useMemo(
       () => ({
         value,
         setValue,

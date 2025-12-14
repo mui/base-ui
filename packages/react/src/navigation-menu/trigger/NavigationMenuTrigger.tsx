@@ -46,6 +46,7 @@ import { useNavigationMenuDismissContext } from '../list/NavigationMenuDismissCo
 import { useEffect } from '@base-ui/utils/useEffect';
 import { useRef } from '@base-ui/utils/useRef';
 import { useState } from '@base-ui/utils/useState';
+import { useMemo } from '@base-ui/utils/useMemo';
 
 const DEFAULT_SIZE = { width: 0, height: 0 };
 
@@ -362,7 +363,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
     handleValueChange(width, height);
   });
 
-  const state: NavigationMenuTrigger.State = React.useMemo(
+  const state: NavigationMenuTrigger.State = useMemo(
     () => ({
       open: isActiveItem,
     }),
