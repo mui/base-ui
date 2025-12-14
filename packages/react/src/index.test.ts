@@ -7,7 +7,7 @@ import { describe, it } from 'vitest';
 import { isJSDOM } from '#test-utils';
 import * as BaseUI from './index';
 
-describe('@base-ui-components/react', () => {
+describe('@base-ui/react', () => {
   it('should have exports', () => {
     expect(typeof BaseUI).to.equal('object');
   });
@@ -25,9 +25,11 @@ describe('@base-ui-components/react', () => {
 
     await Promise.all(
       Object.keys(subpathExports)
-        .filter((key) => !['.', './utils'].includes(key) && !key.startsWith('./unstable-'))
+        .filter(
+          (key) => !['.', './utils', './types'].includes(key) && !key.startsWith('./unstable-'),
+        )
         .map(async (subpath) => {
-          const importSpecifier = `@base-ui-components/react/${subpath.replace('./', '')}`;
+          const importSpecifier = `@base-ui/react/${subpath.replace('./', '')}`;
           const module = await import(/* @vite-ignore */ importSpecifier);
 
           Object.keys(module).forEach((exportKey) => {

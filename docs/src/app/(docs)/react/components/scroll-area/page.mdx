@@ -1,0 +1,112 @@
+# Scroll Area
+
+<Subtitle>A native scroll container with custom scrollbars.</Subtitle>
+
+<Meta
+  name="description"
+  content="A high-quality, unstyled React scroll area that provides a native scroll container with custom scrollbars."
+/>
+
+import { DemoScrollAreaHero } from './demos/hero';
+
+<DemoScrollAreaHero />
+
+## Anatomy
+
+Import the component and assemble its parts:
+
+```jsx title="Anatomy"
+import { ScrollArea } from '@base-ui/react/scroll-area';
+
+<ScrollArea.Root>
+  <ScrollArea.Viewport>
+    <ScrollArea.Content />
+  </ScrollArea.Viewport>
+  <ScrollArea.Scrollbar>
+    <ScrollArea.Thumb />
+  </ScrollArea.Scrollbar>
+  <ScrollArea.Corner />
+</ScrollArea.Root>;
+```
+
+## Examples
+
+### Both scrollbars
+
+Use `<ScrollArea.Corner>` to prevent the scrollbars from intersecting.
+
+import { DemoScrollAreaBoth } from './demos/both';
+
+<DemoScrollAreaBoth compact />
+
+### Gradient scroll fade
+
+import { DemoScrollAreaScrollFade } from './demos/scroll-fade';
+
+Use the viewport overflow CSS variables to fade the scroll edges, which gradually increases in strength as the user scrolls away from the edges.
+
+The CSS variables do not inherit by default to improve rendering performance in complex scroll areas with deep subtrees. To use them in child elements (or pseudo-elements on `<ScrollArea.Viewport>`), you must manually set each variable to `inherit`.
+
+```css title="scroll-area.module.css" {15,22}
+.Viewport {
+  &::before,
+  &::after {
+    content: '';
+    display: block;
+    left: 0;
+    width: 100%;
+    position: absolute;
+    pointer-events: none;
+    border-radius: 0.375rem;
+    transition: height 0.1s ease-out;
+  }
+
+  &::before {
+    --scroll-area-overflow-y-start: inherit;
+    top: 0;
+    height: min(40px, var(--scroll-area-overflow-y-start));
+    background: linear-gradient(to bottom, var(--color-gray-50), transparent);
+  }
+
+  &::after {
+    --scroll-area-overflow-y-end: inherit;
+    bottom: 0;
+    height: min(40px, var(--scroll-area-overflow-y-end, 40px));
+    background: linear-gradient(to top, var(--color-gray-50), transparent);
+  }
+}
+```
+
+For SSR, a fallback can be used as part of the `var()` function to provide a default height.
+
+```css title="SSR fallback" ", 40px"
+.Viewport::after {
+  height: min(40px, var(--scroll-area-overflow-y-end, 40px));
+}
+```
+
+<DemoScrollAreaScrollFade compact />
+
+## API reference
+
+<Reference component="ScrollArea" parts="Root, Viewport, Content, Scrollbar, Thumb, Corner" />
+
+export const metadata = {
+  keywords: [
+    'React Scroll Area',
+    'Custom Scrollbars',
+    'Custom Scroll',
+    'Scrollbar',
+    'Styled Scrollbar',
+    'Virtual Scroll',
+    'Scroll Area Component',
+    'Overflow Container',
+    'Scrollable Region',
+    'Scrollable Content',
+    'Overflow Scroll',
+    'Gradient Scroll Fade',
+    'Scrollable Container',
+    'Headless React Components',
+    'Base UI',
+  ],
+};

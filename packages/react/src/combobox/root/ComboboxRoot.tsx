@@ -121,7 +121,7 @@ export type ComboboxRootProps<Value, Multiple extends boolean | undefined = fals
   /**
    * The selected value of the combobox. Use when controlled.
    */
-  value?: ComboboxValueType<Value, Multiple>;
+  value?: ComboboxValueType<Value, Multiple> | null;
   /**
    * Event handler called when the selected value of the combobox changes.
    */

@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
-import { ownerDocument } from '@base-ui-components/utils/owner';
-import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
+import { ownerDocument } from '@base-ui/utils/owner';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useRenderElement } from '../../utils/useRenderElement';
 import type { BaseUIComponentProps, NativeButtonProps } from '../../utils/types';
@@ -86,7 +86,11 @@ export const TabsTab = React.forwardRef(function TabsTab(
       }
     }
 
-    setHighlightedTabIndex(index);
+    // Don't highlight disabled tabs to prevent them from interfering with keyboard navigation.
+    // Keyboard focus (tabIndex) should remain on an enabled tab even when a disabled tab is selected.
+    if (!disabled) {
+      setHighlightedTabIndex(index);
+    }
   }, [active, index, highlightedTabIndex, setHighlightedTabIndex, disabled, tabsListElement]);
 
   const { getButtonProps, buttonRef } = useButton({
@@ -118,7 +122,8 @@ export const TabsTab = React.forwardRef(function TabsTab(
       return;
     }
 
-    if (index > -1) {
+    // Only highlight enabled tabs when focused (disabled tabs remain focusable via focusableWhenDisabled).
+    if (index > -1 && !disabled) {
       setHighlightedTabIndex(index);
     }
 
@@ -232,6 +237,16 @@ export interface TabsTabProps
    * The value of the Tab.
    */
   value: TabsTab.Value;
+  /**
+   * Whether the Tab is disabled.
+   *
+   * If a first Tab on a `<Tabs.List>` is disabled, it won't initially be selected.
+   * Instead, the next enabled Tab will be selected.
+   * However, it does not work like this during server-side rendering, as it is not known
+   * during pre-rendering which Tabs are disabled.
+   * To work around it, ensure that `defaultValue` or `value` on `<Tabs.Root>` is set to an enabled Tab's value.
+   */
+  disabled?: boolean;
 }
 
 export namespace TabsTab {

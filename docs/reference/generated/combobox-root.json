@@ -13,9 +13,9 @@
       "detailedType": "Value[] | Value | null | undefined"
     },
     "value": {
-      "type": "Value[] | Value",
+      "type": "Value[] | Value | null",
       "description": "The selected value of the combobox. Use when controlled.",
-      "detailedType": "Value[] | Value | undefined"
+      "detailedType": "Value[] | Value | null | undefined"
     },
     "onValueChange": {
       "type": "((value: Value[] | Value | any | null, eventDetails: Combobox.Root.ChangeEventDetails) => void)",

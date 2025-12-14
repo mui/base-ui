@@ -1,4 +1,4 @@
-import { Popover } from '@base-ui-components/react/popover';
+import { Popover } from '@base-ui/react/popover';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import { expect } from 'chai';
 import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
@@ -322,7 +322,7 @@ describe('<Popover.Trigger />', () => {
   it.skipIf(isJSDOM)(
     'should toggle closed with Enter or Space when rendering a <div>',
     async () => {
-      const { userEvent: user } = await import('@vitest/browser/context');
+      const { userEvent: user } = await import('vitest/browser');
       const { render: vbrRender, cleanup } = await import('vitest-browser-react');
 
       try {

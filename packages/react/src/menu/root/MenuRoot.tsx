@@ -1,14 +1,14 @@
 'use client';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import { useTimeout } from '@base-ui-components/utils/useTimeout';
-import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
-import { useId } from '@base-ui-components/utils/useId';
-import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
-import { useAnimationFrame } from '@base-ui-components/utils/useAnimationFrame';
-import { useScrollLock } from '@base-ui-components/utils/useScrollLock';
-import { EMPTY_ARRAY } from '@base-ui-components/utils/empty';
-import { fastComponent } from '@base-ui-components/utils/fastHooks';
+import { useTimeout } from '@base-ui/utils/useTimeout';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { useId } from '@base-ui/utils/useId';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
+import { useScrollLock } from '@base-ui/utils/useScrollLock';
+import { EMPTY_ARRAY } from '@base-ui/utils/empty';
+import { fastComponent } from '@base-ui/utils/fastHooks';
 import {
   FloatingEvents,
   FloatingTree,
@@ -477,7 +477,7 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
   ]);
 
   const activeTriggerProps = React.useMemo(() => {
-    const referenceProps = mergeProps(
+    const mergedProps = mergeProps(
       getReferenceProps(),
       {
         onMouseEnter() {
@@ -489,8 +489,9 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
       },
       interactionTypeProps,
     );
-    delete referenceProps.role;
-    return referenceProps;
+
+    delete mergedProps.role;
+    return mergedProps;
   }, [getReferenceProps, store, interactionTypeProps]);
 
   const inactiveTriggerProps = React.useMemo(() => {
@@ -499,9 +500,11 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
       return triggerProps;
     }
 
-    const { role: roleDiscarded, ['aria-controls']: ariaControlsDiscarded, ...rest } = triggerProps;
-    return rest;
-  }, [getTriggerProps]);
+    const mergedProps = mergeProps(triggerProps, interactionTypeProps);
+    delete mergedProps.role;
+    delete mergedProps['aria-controls'];
+    return mergedProps;
+  }, [getTriggerProps, interactionTypeProps]);
 
   const disableHoverTimeout = useAnimationFrame();
   const popupProps = React.useMemo(

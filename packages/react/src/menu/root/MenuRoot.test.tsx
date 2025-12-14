@@ -1,10 +1,10 @@
 import * as React from 'react';
 import { expect } from 'chai';
 import { act, flushMicrotasks, waitFor, screen, fireEvent } from '@mui/internal-test-utils';
-import { DirectionProvider } from '@base-ui-components/react/direction-provider';
-import { useRefWithInit } from '@base-ui-components/utils/useRefWithInit';
-import { Menu } from '@base-ui-components/react/menu';
-import { Dialog } from '@base-ui-components/react/dialog';
+import { DirectionProvider } from '@base-ui/react/direction-provider';
+import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
+import { Menu } from '@base-ui/react/menu';
+import { Dialog } from '@base-ui/react/dialog';
 import userEvent from '@testing-library/user-event';
 import { spy } from 'sinon';
 import { createRenderer, isJSDOM, popupConformanceTests, wait } from '#test-utils';
@@ -840,6 +840,45 @@ describe('<Menu.Root />', () => {
       });
     });
 
+    describe.skipIf(isJSDOM)('interaction type tracking (openMethod)', () => {
+      it('should not apply scroll lock when opened via touch', async () => {
+        await render(<TestMenu rootProps={{ modal: true }} />);
+
+        const trigger = screen.getByRole('button', { name: 'Toggle' });
+
+        fireEvent.pointerDown(trigger, { pointerType: 'touch' });
+        fireEvent.mouseDown(trigger);
+
+        const menu = await screen.findByRole('menu');
+
+        const doc = menu.ownerDocument;
+
+        const isScrollLocked =
+          doc.documentElement.style.overflow === 'hidden' ||
+          doc.documentElement.hasAttribute('data-base-ui-scroll-locked') ||
+          doc.body.style.overflow === 'hidden';
+
+        expect(isScrollLocked).to.equal(false);
+      });
+
+      it('should apply scroll lock when opened via mouse', async () => {
+        const { user } = await render(<TestMenu rootProps={{ modal: true }} />);
+
+        const trigger = screen.getByRole('button', { name: 'Toggle' });
+        const doc = trigger.ownerDocument;
+
+        await user.click(trigger);
+        await screen.findByRole('menu');
+
+        const isScrollLocked =
+          doc.documentElement.style.overflow === 'hidden' ||
+          doc.documentElement.hasAttribute('data-base-ui-scroll-locked') ||
+          doc.body.style.overflow === 'hidden';
+
+        expect(isScrollLocked).to.equal(true);
+      });
+    });
+
     describe('prop: actionsRef', () => {
       it('unmounts the menu when the `unmount` method is called', async () => {
         const actionsRef = {
@@ -1092,6 +1131,22 @@ describe('<Menu.Root />', () => {
         });
       });
 
+      it('opens the submenu on hover with zero delay', async () => {
+        await render(
+          <ContainedTriggerMenu
+            rootProps={{ defaultOpen: true }}
+            submenuTriggerProps={{ delay: 0 }}
+          />,
+        );
+
+        const submenuTrigger = screen.getByTestId('submenu-trigger');
+
+        fireEvent.mouseEnter(submenuTrigger);
+        fireEvent.mouseMove(submenuTrigger);
+
+        expect(screen.queryByTestId('submenu')).not.to.equal(null);
+      });
+
       it('should not close when submenu is hovered after root menu is hovered', async () => {
         await render(
           <TestMenu
@@ -1286,7 +1341,7 @@ describe('<Menu.Root />', () => {
       });
 
       it('closes the menu on click, drag outside, release', async () => {
-        const { userEvent: user } = await import('@vitest/browser/context');
+        const { userEvent: user } = await import('vitest/browser');
         const { render: vbrRender } = await import('vitest-browser-react');
 
         const openChangeSpy = spy();

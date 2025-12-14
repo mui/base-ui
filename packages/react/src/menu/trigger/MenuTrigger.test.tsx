@@ -1,8 +1,8 @@
 import { expect } from 'chai';
 import userEvent from '@testing-library/user-event';
 import { act, fireEvent, flushMicrotasks, screen } from '@mui/internal-test-utils';
-import { Menu } from '@base-ui-components/react/menu';
-import { Popover } from '@base-ui-components/react/popover';
+import { Menu } from '@base-ui/react/menu';
+import { Popover } from '@base-ui/react/popover';
 import { describeConformance, createRenderer } from '#test-utils';
 import { PATIENT_CLICK_THRESHOLD } from '../../utils/constants';
 

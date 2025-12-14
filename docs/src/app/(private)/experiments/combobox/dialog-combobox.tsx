@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { Combobox, Dialog } from '@base-ui-components/react';
+import { Combobox, Dialog } from '@base-ui/react';
 import styles from './dialog-combobox.module.css';
 
 export default function DialogCombobox() {
