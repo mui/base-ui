@@ -5,6 +5,7 @@ import { useSyncExternalStore } from 'use-sync-external-store/shim';
 import { useSyncExternalStoreWithSelector } from 'use-sync-external-store/shim/with-selector';
 import { isReactVersionAtLeast } from '../reactVersion';
 import type { ReadonlyStore } from './Store';
+import { useCallback } from '@base-ui/utils/useCallback';
 
 /* Some tests fail in R18 with the raw useSyncExternalStore. It may be possible to make it work
  * but for now we only enable it for R19+. */
@@ -50,7 +51,7 @@ function useStoreR19(
   a2?: unknown,
   a3?: unknown,
 ): unknown {
-  const getSelection = React.useCallback(
+  const getSelection = useCallback(
     () => selector(store.getSnapshot(), a1, a2, a3),
     [store, selector, a1, a2, a3],
   );

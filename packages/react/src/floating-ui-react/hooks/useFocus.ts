@@ -16,6 +16,8 @@ import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
 import { createAttribute } from '../utils/createAttribute';
 import { FloatingUIOpenChangeDetails } from '../../utils/types';
+import { useEffect } from '@base-ui/utils/useEffect';
+import { useRef } from '@base-ui/utils/useRef';
 
 const isMacSafari = isMac && isSafari;
 
@@ -48,11 +50,11 @@ export function useFocus(
   const { events, dataRef } = store.context;
   const { enabled = true, visibleOnly = true } = props;
 
-  const blockFocusRef = React.useRef(false);
+  const blockFocusRef = useRef(false);
   const timeout = useTimeout();
-  const keyboardModalityRef = React.useRef(true);
+  const keyboardModalityRef = useRef(true);
 
-  React.useEffect(() => {
+  useEffect(() => {
     const domReference = store.select('domReferenceElement');
     if (!enabled) {
       return undefined;
@@ -98,7 +100,7 @@ export function useFocus(
     };
   }, [store, enabled]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!enabled) {
       return undefined;
     }

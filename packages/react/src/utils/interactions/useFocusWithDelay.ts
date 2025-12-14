@@ -6,6 +6,8 @@ import type { FloatingRootContext, ElementProps } from '../../floating-ui-react'
 import { createChangeEventDetails } from '../createBaseUIEventDetails';
 import { REASONS } from '../reasons';
 import { activeElement, contains, getDocument } from '../../floating-ui-react/utils';
+import { useEffect } from '@base-ui/utils/useEffect';
+import { useRef } from '@base-ui/utils/useRef';
 
 interface UseFocusWithDelayProps {
   delay?: number | (() => number | undefined);
@@ -23,9 +25,9 @@ export function useFocusWithDelay(
   const { delay } = props;
 
   const timeout = useTimeout();
-  const blockFocusRef = React.useRef(false);
+  const blockFocusRef = useRef(false);
 
-  React.useEffect(() => {
+  useEffect(() => {
     // TODO: remove domReference from dependencies or split this hook into trigger/popup hooks.
     const win = getWindow(domReference);
 

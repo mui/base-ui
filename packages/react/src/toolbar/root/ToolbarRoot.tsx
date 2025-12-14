@@ -4,6 +4,7 @@ import { BaseUIComponentProps, Orientation as BaseOrientation, HTMLProps } from 
 import { CompositeRoot } from '../../composite/root/CompositeRoot';
 import type { CompositeMetadata } from '../../composite/list/CompositeList';
 import { ToolbarRootContext } from './ToolbarRootContext';
+import { useState } from '@base-ui/utils/useState';
 
 /**
  * A container for grouping a set of controls, such as buttons, toggle groups, or menus.
@@ -24,7 +25,7 @@ export const ToolbarRoot = React.forwardRef(function ToolbarRoot(
     ...elementProps
   } = componentProps;
 
-  const [itemMap, setItemMap] = React.useState(
+  const [itemMap, setItemMap] = useState(
     () => new Map<Node, CompositeMetadata<ToolbarRoot.ItemMetadata> | null>(),
   );
 

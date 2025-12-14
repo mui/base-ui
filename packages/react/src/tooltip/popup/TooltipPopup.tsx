@@ -14,6 +14,7 @@ import { usePopupAutoResize } from '../../utils/usePopupAutoResize';
 import { getDisabledMountTransitionStyles } from '../../utils/getDisabledMountTransitionStyles';
 import { useHoverFloatingInteraction } from '../../floating-ui-react';
 import { useDirection } from '../../direction-provider';
+import { useCallback } from '@base-ui/utils/useCallback';
 
 const stateAttributesMapping: StateAttributesMapping<TooltipPopup.State> = {
   ...baseMapping,
@@ -72,10 +73,7 @@ export const TooltipPopup = React.forwardRef(function TooltipPopup(
 
   // If there's just one trigger, we can skip the auto-resize logic as
   // the tooltip will always be anchored to the same position.
-  const autoresizeEnabled = React.useCallback(
-    () => store.context.triggerElements.size > 1,
-    [store],
-  );
+  const autoresizeEnabled = useCallback(() => store.context.triggerElements.size > 1, [store]);
 
   usePopupAutoResize({
     popupElement,

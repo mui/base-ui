@@ -10,6 +10,8 @@ import { LabelableProvider } from '../../labelable-provider';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useFieldValidation } from './useFieldValidation';
+import { useRef } from '@base-ui/utils/useRef';
+import { useState } from '@base-ui/utils/useState';
 
 /**
  * @internal
@@ -40,15 +42,15 @@ const FieldRootInner = React.forwardRef(function FieldRootInner(
 
   const disabled = disabledFieldset || disabledProp;
 
-  const [touchedState, setTouchedUnwrapped] = React.useState(false);
-  const [dirtyState, setDirtyUnwrapped] = React.useState(false);
-  const [filled, setFilled] = React.useState(false);
-  const [focused, setFocused] = React.useState(false);
+  const [touchedState, setTouchedUnwrapped] = useState(false);
+  const [dirtyState, setDirtyUnwrapped] = useState(false);
+  const [filled, setFilled] = useState(false);
+  const [focused, setFocused] = useState(false);
 
   const dirty = dirtyProp ?? dirtyState;
   const touched = touchedProp ?? touchedState;
 
-  const markedDirtyRef = React.useRef(false);
+  const markedDirtyRef = useRef(false);
 
   const setDirty: typeof setDirtyUnwrapped = useStableCallback((value) => {
     if (dirtyProp !== undefined) {

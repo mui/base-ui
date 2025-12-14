@@ -5,6 +5,7 @@ import { useToastRootContext } from '../root/ToastRootContext';
 import { useToastContext } from '../provider/ToastProviderContext';
 import { useButton } from '../../use-button/useButton';
 import { useRenderElement } from '../../utils/useRenderElement';
+import { useState } from '@base-ui/utils/useState';
 
 /**
  * Closes the toast when clicked.
@@ -21,7 +22,7 @@ export const ToastClose = React.forwardRef(function ToastClose(
   const { close, expanded } = useToastContext();
   const { toast } = useToastRootContext();
 
-  const [hasFocus, setHasFocus] = React.useState(false);
+  const [hasFocus, setHasFocus] = useState(false);
 
   const { getButtonProps, buttonRef } = useButton({
     disabled,

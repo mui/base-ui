@@ -2,6 +2,7 @@
 import * as React from 'react';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { InteractionType, useEnhancedClickHandler } from '@base-ui/utils/useEnhancedClickHandler';
+import { useCallback } from '@base-ui/utils/useCallback';
 
 /**
  * Determines the interaction type (keyboard, mouse, touch, etc.) that opened the component.
@@ -19,7 +20,7 @@ export function useOpenInteractionType(open: boolean) {
     },
   );
 
-  const reset = React.useCallback(() => {
+  const reset = useCallback(() => {
     setOpenMethod(null);
   }, []);
 

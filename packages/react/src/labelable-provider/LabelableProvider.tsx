@@ -4,6 +4,7 @@ import { mergeProps } from '../merge-props';
 import { HTMLProps } from '../utils/types';
 import { useBaseUiId } from '../utils/useBaseUiId';
 import { LabelableContext, useLabelableContext } from './LabelableContext';
+import { useCallback } from '@base-ui/utils/useCallback';
 
 /**
  * @internal
@@ -21,7 +22,7 @@ export const LabelableProvider: React.FC<LabelableProvider.Props> = function Lab
 
   const { messageIds: parentMessageIds } = useLabelableContext();
 
-  const getDescriptionProps = React.useCallback(
+  const getDescriptionProps = useCallback(
     (externalProps: HTMLProps) => {
       return mergeProps(
         { 'aria-describedby': parentMessageIds.concat(messageIds).join(' ') || undefined },

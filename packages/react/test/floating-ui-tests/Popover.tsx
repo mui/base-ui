@@ -20,6 +20,7 @@ import {
   useInteractions,
   useRole,
 } from '../../src/floating-ui-react';
+import { useState } from '@base-ui/utils/useState';
 
 /** @internal */
 export function Main() {
@@ -106,7 +107,7 @@ function PopoverComponent({
   bubbles = true,
   hover = false,
 }: Props) {
-  const [open, setOpen] = React.useState(false);
+  const [open, setOpen] = useState(false);
 
   const nodeId = useFloatingNodeId();
   const { floatingStyles, refs, context } = useFloating({

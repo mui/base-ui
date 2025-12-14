@@ -8,6 +8,7 @@ import {
   useTypeahead,
   useRole,
 } from '../../src/floating-ui-react';
+import { useCallback } from '@base-ui/utils/useCallback';
 
 interface SelectContextValue {
   activeIndex: number | null;
@@ -30,7 +31,7 @@ function Listbox({ children }: { children: React.ReactNode }) {
   const elementsRef = React.useRef<Array<HTMLElement | null>>([]);
   const labelsRef = React.useRef<Array<string | null>>([]);
 
-  const handleSelect = React.useCallback((index: number | null) => {
+  const handleSelect = useCallback((index: number | null) => {
     setSelectedIndex(index);
   }, []);
 

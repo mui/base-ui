@@ -12,6 +12,8 @@ import { useRenderElement } from '../../utils/useRenderElement';
 import { StateAttributesMapping } from '../../utils/getStateAttributesProps';
 import { Dimensions } from '../../floating-ui-react/types';
 import { PopoverViewportCssVars } from './PopoverViewportCssVars';
+import { useEffect } from '@base-ui/utils/useEffect';
+import { useState } from '@base-ui/utils/useState';
 
 const stateAttributesMapping: StateAttributesMapping<PopoverViewport.State> = {
   activationDirection: (value) =>
@@ -59,7 +61,7 @@ export const PopoverViewport = React.forwardRef(function PopoverViewport(
     height: number;
   } | null>(null);
 
-  const [showStartingStyleAttribute, setShowStartingStyleAttribute] = React.useState(false);
+  const [showStartingStyleAttribute, setShowStartingStyleAttribute] = useState(false);
 
   // Capture a clone of the current content DOM subtree when not transitioning.
   // We can't store previous React nodes as they may be stateful; instead we capture DOM clones for visual continuity.
@@ -106,7 +108,7 @@ export const PopoverViewport = React.forwardRef(function PopoverViewport(
     }
   });
 
-  React.useEffect(() => {
+  useEffect(() => {
     floatingContext.context.events.on('measure-layout', handleMeasureLayout);
     floatingContext.context.events.on('measure-layout-complete', handleMeasureLayoutComplete);
 

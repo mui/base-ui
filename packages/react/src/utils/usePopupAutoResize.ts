@@ -7,6 +7,7 @@ import { getCssDimensions } from './getCssDimensions';
 import { Dimensions } from '../floating-ui-react/types';
 import { Side } from './useAnchorPositioning';
 import { EMPTY_OBJECT } from './constants';
+import { useRef } from '@base-ui/utils/useRef';
 
 const supportsResizeObserver = typeof ResizeObserver !== 'undefined';
 
@@ -28,7 +29,7 @@ export function usePopupAutoResize(parameters: UsePopupAutoResizeParameters) {
     direction,
   } = parameters;
 
-  const isInitialRender = React.useRef(true);
+  const isInitialRender = useRef(true);
   const runOnceAnimationsFinish = useAnimationsFinished(popupElement, true, false);
   const animationFrame = useAnimationFrame();
   const previousDimensionsRef = React.useRef<Dimensions | null>(null);

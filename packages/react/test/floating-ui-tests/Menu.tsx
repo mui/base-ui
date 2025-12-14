@@ -26,6 +26,8 @@ import {
   useTypeahead,
   useFocus,
 } from '../../src/floating-ui-react';
+import { useEffect } from '@base-ui/utils/useEffect';
+import { useState } from '@base-ui/utils/useState';
 
 type MenuContextType = {
   getItemProps: ReturnType<typeof useInteractions>['getItemProps'];
@@ -75,10 +77,10 @@ export const MenuComponent = React.forwardRef<
   },
   forwardedRef,
 ) {
-  const [isOpen, setIsOpen] = React.useState(false);
+  const [isOpen, setIsOpen] = useState(false);
   const [activeIndex, setActiveIndex] = React.useState<number | null>(null);
-  const [allowHover, setAllowHover] = React.useState(false);
-  const [hasFocusInside, setHasFocusInside] = React.useState(false);
+  const [allowHover, setAllowHover] = useState(false);
+  const [hasFocusInside, setHasFocusInside] = useState(false);
 
   const elementsRef = React.useRef<Array<HTMLButtonElement | null>>([]);
   const labelsRef = React.useRef<Array<string | null>>([]);
@@ -145,7 +147,7 @@ export const MenuComponent = React.forwardRef<
   // Event emitter allows you to communicate across tree components.
   // This effect closes all menus when an item gets clicked anywhere
   // in the tree.
-  React.useEffect(() => {
+  useEffect(() => {
     if (!tree) {
       return undefined;
     }
@@ -169,7 +171,7 @@ export const MenuComponent = React.forwardRef<
     };
   }, [tree, nodeId, parentId]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (isOpen && tree) {
       tree.events.emit('menuopen', { parentId, nodeId });
     }
@@ -178,7 +180,7 @@ export const MenuComponent = React.forwardRef<
   // Determine if "hover" logic can run based on the modality of input. This
   // prevents unwanted focus synchronization as menus open and close with
   // keyboard navigation and the cursor is resting on the menu.
-  React.useEffect(() => {
+  useEffect(() => {
     function onPointerMove({ pointerType }: PointerEvent) {
       if (pointerType !== 'touch') {
         setAllowHover(true);

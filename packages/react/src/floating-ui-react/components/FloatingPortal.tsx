@@ -18,6 +18,7 @@ import { createAttribute } from '../utils/createAttribute';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { EMPTY_OBJECT, ownerVisuallyHidden } from '../../utils/constants';
 import type { BaseUIComponentProps } from '../../utils/types';
+import { useEffect } from '@base-ui/utils/useEffect';
 
 type FocusManagerState = null | {
   modal: boolean;
@@ -175,7 +176,7 @@ export const FloatingPortal = React.forwardRef(function FloatingPortal(
       : !!focusManagerState && !focusManagerState.modal && focusManagerState.open && !!portalNode;
 
   // https://codesandbox.io/s/tabbable-portal-f4tng?file=/src/TabbablePortal.tsx
-  React.useEffect(() => {
+  useEffect(() => {
     if (!portalNode || modal) {
       return undefined;
     }
@@ -201,7 +202,7 @@ export const FloatingPortal = React.forwardRef(function FloatingPortal(
     };
   }, [portalNode, modal]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!portalNode || open) {
       return;
     }

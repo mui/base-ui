@@ -16,6 +16,9 @@ import { subscribeToVisualViewportResize } from '../utils/subscribeToVisualViewp
 import { DEFAULT_STEP } from '../utils/constants';
 import { createGenericEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
+import { useEffect } from '@base-ui/utils/useEffect';
+import { useRef } from '@base-ui/utils/useRef';
+import { useState } from '@base-ui/utils/useState';
 
 /**
  * An interactive area where the user can click and drag to change the field value.
@@ -51,18 +54,18 @@ export const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubAr
 
   const scrubAreaRef = React.useRef<HTMLSpanElement>(null);
 
-  const isScrubbingRef = React.useRef(false);
+  const isScrubbingRef = useRef(false);
   const scrubAreaCursorRef = React.useRef<HTMLSpanElement>(null);
-  const virtualCursorCoords = React.useRef({ x: 0, y: 0 });
-  const visualScaleRef = React.useRef(1);
+  const virtualCursorCoords = useRef({ x: 0, y: 0 });
+  const visualScaleRef = useRef(1);
 
   const exitPointerLockTimeout = useTimeout();
 
-  const [isTouchInput, setIsTouchInput] = React.useState(false);
-  const [isPointerLockDenied, setIsPointerLockDenied] = React.useState(false);
-  const [isScrubbing, setIsScrubbing] = React.useState(false);
+  const [isTouchInput, setIsTouchInput] = useState(false);
+  const [isPointerLockDenied, setIsPointerLockDenied] = useState(false);
+  const [isScrubbing, setIsScrubbing] = useState(false);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!isScrubbing || !scrubAreaCursorRef.current) {
       return undefined;
     }
@@ -135,7 +138,7 @@ export const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubAr
     },
   );
 
-  React.useEffect(
+  useEffect(
     function registerGlobalScrubbingEventListeners() {
       // Only listen while actively scrubbing; avoids unrelated pointerup events committing.
       if (!inputRef.current || disabled || readOnly || !isScrubbing) {
@@ -229,7 +232,7 @@ export const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubAr
   );
 
   // Prevent scrolling using touch input when scrubbing.
-  React.useEffect(
+  useEffect(
     function registerScrubberTouchPreventListener() {
       const element = scrubAreaRef.current;
       if (!element || disabled || readOnly) {

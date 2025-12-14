@@ -10,6 +10,8 @@ import { useTabsRootContext } from '../root/TabsRootContext';
 import type { TabsTab } from '../tab/TabsTab';
 import { TabsListContext } from './TabsListContext';
 import { EMPTY_ARRAY } from '../../utils/constants';
+import { useCallback } from '@base-ui/utils/useCallback';
+import { useState } from '@base-ui/utils/useState';
 
 /**
  * Groups the individual tab buttons.
@@ -38,7 +40,7 @@ export const TabsList = React.forwardRef(function TabsList(
     tabActivationDirection,
   } = useTabsRootContext();
 
-  const [highlightedTabIndex, setHighlightedTabIndex] = React.useState(0);
+  const [highlightedTabIndex, setHighlightedTabIndex] = useState(0);
 
   const [tabsListElement, setTabsListElement] = React.useState<HTMLElement | null>(null);
 
@@ -148,7 +150,7 @@ function useActivationDirectionDetector(
     setPreviousTabEdge(orientation === 'horizontal' ? left : top);
   }, [orientation, getTabElement, tabsListElement, activeTabValue]);
 
-  return React.useCallback(
+  return useCallback(
     (newValue: any) => {
       if (newValue === activeTabValue) {
         return 'none';

@@ -12,6 +12,8 @@ import { useRenderElement } from '../../utils/useRenderElement';
 import { StateAttributesMapping } from '../../utils/getStateAttributesProps';
 import { Dimensions } from '../../floating-ui-react/types';
 import { TooltipViewportCssVars } from './TooltipViewportCssVars';
+import { useEffect } from '@base-ui/utils/useEffect';
+import { useState } from '@base-ui/utils/useState';
 
 const stateAttributesMapping: StateAttributesMapping<TooltipViewport.State> = {
   activationDirection: (value) =>
@@ -60,7 +62,7 @@ export const TooltipViewport = React.forwardRef(function TooltipViewport(
     height: number;
   } | null>(null);
 
-  const [showStartingStyleAttribute, setShowStartingStyleAttribute] = React.useState(false);
+  const [showStartingStyleAttribute, setShowStartingStyleAttribute] = useState(false);
 
   const handleMeasureLayout = useStableCallback(() => {
     currentContainerRef.current?.style.setProperty('animation', 'none');
@@ -85,7 +87,7 @@ export const TooltipViewport = React.forwardRef(function TooltipViewport(
     }
   });
 
-  React.useEffect(() => {
+  useEffect(() => {
     floatingContext.context.events.on('measure-layout', handleMeasureLayout);
     floatingContext.context.events.on('measure-layout-complete', handleMeasureLayoutComplete);
 

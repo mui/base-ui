@@ -15,6 +15,9 @@ import { CompositeRoot } from '../composite/root/CompositeRoot';
 import { useBaseUiId } from '../utils/useBaseUiId';
 import { MenuOpenEventDetails } from '../menu/utils/types';
 import { StateAttributesMapping } from '../utils/getStateAttributesProps';
+import { useEffect } from '@base-ui/utils/useEffect';
+import { useRef } from '@base-ui/utils/useRef';
+import { useState } from '@base-ui/utils/useState';
 
 const menubarStateAttributesMapping: StateAttributesMapping<Menubar.State> = {
   hasSubmenuOpen(value) {
@@ -45,7 +48,7 @@ export const Menubar = React.forwardRef(function Menubar(
   } = props;
 
   const [contentElement, setContentElement] = React.useState<HTMLElement | null>(null);
-  const [hasSubmenuOpen, setHasSubmenuOpen] = React.useState(false);
+  const [hasSubmenuOpen, setHasSubmenuOpen] = useState(false);
 
   const {
     openMethod,
@@ -53,7 +56,7 @@ export const Menubar = React.forwardRef(function Menubar(
     reset: resetOpenInteractionType,
   } = useOpenInteractionType(hasSubmenuOpen);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!hasSubmenuOpen) {
       resetOpenInteractionType();
     }
@@ -73,7 +76,7 @@ export const Menubar = React.forwardRef(function Menubar(
   );
 
   const contentRef = React.useRef<HTMLDivElement>(null);
-  const allowMouseUpTriggerRef = React.useRef(false);
+  const allowMouseUpTriggerRef = useRef(false);
 
   const context: MenubarContext = React.useMemo(
     () => ({
@@ -116,7 +119,7 @@ function MenubarContent(props: React.PropsWithChildren<{}>) {
   const { events: menuEvents } = useFloatingTree()!;
   const rootContext = useMenubarContext();
 
-  React.useEffect(() => {
+  useEffect(() => {
     function onSubmenuOpenChange(details: MenuOpenEventDetails) {
       if (!details.nodeId || details.parentNodeId !== nodeId) {
         return;

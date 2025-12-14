@@ -11,6 +11,8 @@ import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { pressableTriggerOpenStateMapping } from '../../utils/popupStateMapping';
 import { REASONS } from '../../utils/reasons';
 import { findRootOwnerId } from '../../menu/utils/findRootOwnerId';
+import { useEffect } from '@base-ui/utils/useEffect';
+import { useRef } from '@base-ui/utils/useRef';
 
 const LONG_PRESS_DELAY = 500;
 
@@ -44,7 +46,7 @@ export const ContextMenuTrigger = React.forwardRef(function ContextMenuTrigger(
   const touchPositionRef = React.useRef<{ x: number; y: number } | null>(null);
   const longPressTimeout = useTimeout();
   const allowMouseUpTimeout = useTimeout();
-  const allowMouseUpRef = React.useRef(false);
+  const allowMouseUpRef = useRef(false);
 
   function handleLongPress(x: number, y: number, event: MouseEvent | TouchEvent) {
     const isTouchEvent = event.type.startsWith('touch');
@@ -144,7 +146,7 @@ export const ContextMenuTrigger = React.forwardRef(function ContextMenuTrigger(
     touchPositionRef.current = null;
   }
 
-  React.useEffect(() => {
+  useEffect(() => {
     function handleDocumentContextMenu(event: MouseEvent) {
       const target = getTarget(event);
       const targetElement = target as HTMLElement | null;

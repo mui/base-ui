@@ -10,6 +10,7 @@ import {
   popupStoreSelectors,
   PopupStoreSelectors,
 } from './store';
+import { useCallback } from '@base-ui/utils/useCallback';
 
 /**
  * Returns a callback ref that registers/unregisters the trigger element in the store.
@@ -23,7 +24,7 @@ export function useTriggerRegistration<State extends PopupStoreState<any>>(
   // Keep track of the currently registered element to unregister it on unmount or id change.
   const registeredElementIdRef = React.useRef<string | null>(null);
 
-  return React.useCallback(
+  return useCallback(
     (element: Element | null) => {
       if (id === undefined) {
         return;

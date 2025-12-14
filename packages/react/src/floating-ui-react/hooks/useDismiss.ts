@@ -28,6 +28,8 @@ import type { ElementProps, FloatingContext, FloatingRootContext } from '../type
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
 import { createAttribute } from '../utils/createAttribute';
+import { useEffect } from '@base-ui/utils/useEffect';
+import { useRef } from '@base-ui/utils/useRef';
 
 type PressType = 'intentional' | 'sloppy';
 
@@ -156,7 +158,7 @@ export function useDismiss(
   );
   const outsidePress = typeof outsidePressProp === 'function' ? outsidePressFn : outsidePressProp;
 
-  const endedOrStartedInsideRef = React.useRef(false);
+  const endedOrStartedInsideRef = useRef(false);
   const { escapeKey: escapeKeyBubbles, outsidePress: outsidePressBubbles } = normalizeProp(bubbles);
 
   const touchStateRef = React.useRef<{
@@ -175,7 +177,7 @@ export function useDismiss(
     dataRef.current.insideReactTree = false;
   });
 
-  const isComposingRef = React.useRef(false);
+  const isComposingRef = useRef(false);
   const currentPointerTypeRef = React.useRef<PointerEvent['pointerType']>('');
 
   const trackPointerType = useStableCallback((event: PointerEvent) => {
@@ -533,7 +535,7 @@ export function useDismiss(
     target?.addEventListener(event.type, callback);
   });
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!open || !enabled) {
       return undefined;
     }
@@ -656,7 +658,7 @@ export function useDismiss(
     store,
   ]);
 
-  React.useEffect(clearInsideReactTree, [outsidePress, clearInsideReactTree]);
+  useEffect(clearInsideReactTree, [outsidePress, clearInsideReactTree]);
 
   const reference: ElementProps['reference'] = React.useMemo(
     () => ({

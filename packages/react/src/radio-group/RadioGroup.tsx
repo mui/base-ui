@@ -22,6 +22,7 @@ import { useValueChanged } from '../utils/useValueChanged';
 import { RadioGroupContext } from './RadioGroupContext';
 import type { BaseUIChangeEventDetails } from '../utils/createBaseUIEventDetails';
 import { REASONS } from '../utils/reasons';
+import { useState } from '@base-ui/utils/useState';
 
 const MODIFIER_KEYS = [SHIFT];
 
@@ -121,7 +122,7 @@ export const RadioGroup = React.forwardRef(function RadioGroup(
     }
   });
 
-  const [touched, setTouched] = React.useState(false);
+  const [touched, setTouched] = useState(false);
 
   const onBlur = useStableCallback((event) => {
     if (!contains(event.currentTarget, event.relatedTarget)) {

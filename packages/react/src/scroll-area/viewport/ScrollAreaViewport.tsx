@@ -18,6 +18,8 @@ import { onVisible } from '../utils/onVisible';
 import { scrollAreaStateAttributesMapping } from '../root/stateAttributes';
 import type { ScrollAreaRoot } from '../root/ScrollAreaRoot';
 import { ScrollAreaViewportCssVars } from './ScrollAreaViewportCssVars';
+import { useEffect } from '@base-ui/utils/useEffect';
+import { useRef } from '@base-ui/utils/useRef';
 
 // Module-level flag to ensure we only register the CSS properties once,
 // regardless of how many Scroll Area components are mounted.
@@ -97,7 +99,7 @@ export const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
 
   const direction = useDirection();
 
-  const programmaticScrollRef = React.useRef(true);
+  const programmaticScrollRef = useRef(true);
   const scrollEndTimeout = useTimeout();
   const waitForAnimationsTimeout = useTimeout();
 
@@ -299,7 +301,7 @@ export const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
     }
   }, [viewportRef, setHovering]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     const viewport = viewportRef.current;
     if (typeof ResizeObserver === 'undefined' || !viewport) {
       return undefined;

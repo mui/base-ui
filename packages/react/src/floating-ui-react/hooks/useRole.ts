@@ -5,6 +5,7 @@ import { useFloatingParentNodeId } from '../components/FloatingTree';
 import type { ElementProps, FloatingContext, FloatingRootContext } from '../types';
 import type { ExtendedUserProps } from './useInteractions';
 import { EMPTY_OBJECT } from '../../utils/constants';
+import { useCallback } from '@base-ui/utils/useCallback';
 
 type AriaRole = 'tooltip' | 'dialog' | 'alertdialog' | 'menu' | 'listbox' | 'grid' | 'tree';
 type ComponentRole = 'select' | 'label' | 'combobox';
@@ -107,7 +108,7 @@ export function useRole(
     };
   }, [ariaRole, floatingId, referenceId, role]);
 
-  const item: ElementProps['item'] = React.useCallback(
+  const item: ElementProps['item'] = useCallback(
     ({ active, selected }: ExtendedUserProps) => {
       const commonProps = {
         role: 'option',

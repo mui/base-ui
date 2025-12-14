@@ -7,6 +7,7 @@ import { HTMLProps, BaseUIEvent } from '../../utils/types';
 import { useContextMenuRootContext } from '../../context-menu/root/ContextMenuRootContext';
 import { MenuStore } from '../store/MenuStore';
 import { REASONS } from '../../utils/reasons';
+import { useCallback } from '@base-ui/utils/useCallback';
 
 export const REGULAR_ITEM = {
   type: 'regular-item' as const,
@@ -35,7 +36,7 @@ export function useMenuItem(params: useMenuItem.Parameters): useMenuItem.ReturnV
     native: nativeButton,
   });
 
-  const getItemProps = React.useCallback(
+  const getItemProps = useCallback(
     (externalProps?: HTMLProps): HTMLProps => {
       return mergeProps<'div'>(
         {

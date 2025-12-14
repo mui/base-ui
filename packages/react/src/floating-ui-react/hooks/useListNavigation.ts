@@ -30,6 +30,8 @@ import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
 import { enqueueFocus } from '../utils/enqueueFocus';
 import { ARROW_UP, ARROW_DOWN, ARROW_RIGHT, ARROW_LEFT } from '../utils/constants';
+import { useRef } from '@base-ui/utils/useRef';
+import { useCallback } from '@base-ui/utils/useCallback';
 
 export const ESCAPE = 'Escape';
 
@@ -309,20 +311,20 @@ export function useListNavigation(
 
   const typeableComboboxReference = isTypeableCombobox(domReferenceElement);
 
-  const focusItemOnOpenRef = React.useRef(focusItemOnOpen);
-  const indexRef = React.useRef(selectedIndex ?? -1);
+  const focusItemOnOpenRef = useRef(focusItemOnOpen);
+  const indexRef = useRef(selectedIndex ?? -1);
   const keyRef = React.useRef<null | string>(null);
-  const isPointerModalityRef = React.useRef(true);
+  const isPointerModalityRef = useRef(true);
 
   const onNavigate = useStableCallback((event?: React.SyntheticEvent) => {
     onNavigateProp(indexRef.current === -1 ? null : indexRef.current, event);
   });
 
-  const previousOnNavigateRef = React.useRef(onNavigate);
-  const previousMountedRef = React.useRef(!!floatingElement);
-  const previousOpenRef = React.useRef(open);
-  const forceSyncFocusRef = React.useRef(false);
-  const forceScrollIntoViewRef = React.useRef(false);
+  const previousOnNavigateRef = useRef(onNavigate);
+  const previousMountedRef = useRef(!!floatingElement);
+  const previousOpenRef = useRef(open);
+  const forceSyncFocusRef = useRef(false);
+  const forceScrollIntoViewRef = useRef(false);
 
   const disabledIndicesRef = useValueAsRef(disabledIndices);
   const latestOpenRef = useValueAsRef(open);
@@ -584,7 +586,7 @@ export function useListNavigation(
     virtual,
   ]);
 
-  const getParentOrientation = React.useCallback(() => {
+  const getParentOrientation = useCallback(() => {
     return (
       parentOrientation ??
       (tree?.nodesRef.current.find((node) => node.id === parentId)?.context?.dataRef?.current

@@ -10,6 +10,7 @@ import { ScrollAreaScrollbarCssVars } from './ScrollAreaScrollbarCssVars';
 import { useDirection } from '../../direction-provider/DirectionContext';
 import { scrollAreaStateAttributesMapping } from '../root/stateAttributes';
 import type { ScrollAreaRoot } from '../root/ScrollAreaRoot';
+import { useEffect } from '@base-ui/utils/useEffect';
 
 /**
  * A vertical or horizontal scrollbar for the scroll area.
@@ -67,7 +68,7 @@ export const ScrollAreaScrollbar = React.forwardRef(function ScrollAreaScrollbar
 
   const direction = useDirection();
 
-  React.useEffect(() => {
+  useEffect(() => {
     const viewportEl = viewportRef.current;
     const scrollbarEl = orientation === 'vertical' ? scrollbarYRef.current : scrollbarXRef.current;
 

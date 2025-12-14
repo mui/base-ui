@@ -15,6 +15,7 @@ import {
 import { TooltipStore } from '../store/TooltipStore';
 import { type TooltipHandle } from '../store/TooltipHandle';
 import { REASONS } from '../../utils/reasons';
+import { useCallback } from '@base-ui/utils/useCallback';
 
 /**
  * Groups all parts of the tooltip.
@@ -107,7 +108,7 @@ export function TooltipRoot<Payload>(props: TooltipRoot.Props<Payload>) {
     }
   }, [store, activeTriggerId, open]);
 
-  const handleImperativeClose = React.useCallback(() => {
+  const handleImperativeClose = useCallback(() => {
     store.setOpen(false, createTooltipEventDetails(store, REASONS.imperativeAction));
   }, [store]);
 

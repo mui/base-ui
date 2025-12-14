@@ -23,6 +23,7 @@ import { useDirection } from '../../direction-provider/DirectionContext';
 import { COMPOSITE_KEYS } from '../../composite/composite';
 import { useToolbarRootContext } from '../../toolbar/root/ToolbarRootContext';
 import { getDisabledMountTransitionStyles } from '../../utils/getDisabledMountTransitionStyles';
+import { useCallback } from '@base-ui/utils/useCallback';
 
 const stateAttributesMapping: StateAttributesMapping<PopoverPopup.State> = {
   ...baseMapping,
@@ -102,7 +103,7 @@ export const PopoverPopup = React.forwardRef(function PopoverPopup(
     [open, positioner.side, positioner.align, instantType, transitionStatus],
   );
 
-  const setPopupElement = React.useCallback(
+  const setPopupElement = useCallback(
     (element: HTMLElement | null) => {
       store.set('popupElement', element);
     },
@@ -125,10 +126,7 @@ export const PopoverPopup = React.forwardRef(function PopoverPopup(
 
   // If there's just one trigger, we can skip the auto-resize logic as
   // the popover will always be anchored to the same position.
-  const autoresizeEnabled = React.useCallback(
-    () => store.context.triggerElements.size > 1,
-    [store],
-  );
+  const autoresizeEnabled = useCallback(() => store.context.triggerElements.size > 1, [store]);
 
   usePopupAutoResize({
     popupElement,

@@ -6,6 +6,7 @@ import { useStableCallback } from '../useStableCallback';
 import { useAnimationFrame } from '../useAnimationFrame';
 import { useIsoLayoutEffect } from '../useIsoLayoutEffect';
 import { useTimeout } from '../useTimeout';
+import { useState } from '@base-ui/utils/useState';
 
 const STYLES = `
 .baseui-store-inspector-trigger {
@@ -136,7 +137,7 @@ export interface StoreInspectorProps {
  */
 export function StoreInspector(props: StoreInspectorProps) {
   const { store, title, additionalData, defaultOpen = false } = props;
-  const [open, setOpen] = React.useState(defaultOpen);
+  const [open, setOpen] = useState(defaultOpen);
 
   return (
     <React.Fragment>

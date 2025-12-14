@@ -5,6 +5,8 @@ import { AriaCombobox } from '../../combobox/root/AriaCombobox';
 import { useCoreFilter } from '../../combobox/root/utils/useFilter';
 import { stringifyAsLabel } from '../../utils/resolveValueLabel';
 import { REASONS } from '../../utils/reasons';
+import { useEffect } from '@base-ui/utils/useEffect';
+import { useState } from '@base-ui/utils/useState';
 
 /**
  * Groups all parts of the autocomplete.
@@ -49,10 +51,10 @@ export function AutocompleteRoot<ItemValue>(
   // Mirror the typed value for uncontrolled usage so we can compose the temporary
   // inline input value.
   const isControlled = value !== undefined;
-  const [internalValue, setInternalValue] = React.useState(defaultValue ?? '');
-  const [inlineInputValue, setInlineInputValue] = React.useState('');
+  const [internalValue, setInternalValue] = useState(defaultValue ?? '');
+  const [inlineInputValue, setInlineInputValue] = useState('');
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (isControlled) {
       setInlineInputValue('');
     }

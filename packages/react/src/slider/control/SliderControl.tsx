@@ -23,6 +23,8 @@ import { getMidpoint } from '../utils/getMidpoint';
 import { roundValueToStep } from '../utils/roundValueToStep';
 import { validateMinimumDistance } from '../utils/validateMinimumDistance';
 import { resolveThumbCollision } from '../utils/resolveThumbCollision';
+import { useEffect } from '@base-ui/utils/useEffect';
+import { useRef } from '@base-ui/utils/useRef';
 
 const INTENTIONAL_DRAG_COUNT_THRESHOLD = 2;
 
@@ -132,10 +134,10 @@ export const SliderControl = React.forwardRef(function SliderControl(
   // A number that uniquely identifies the current finger in the touch session.
   const touchIdRef = React.useRef<number>(null);
   // The number of touch/pointermove events that have fired.
-  const moveCountRef = React.useRef(0);
+  const moveCountRef = useRef(0);
   // The offset amount to each side of the control for inset sliders.
   // This value should be equal to the radius or half the width/height of the thumb.
-  const insetThumbOffsetRef = React.useRef(0);
+  const insetThumbOffsetRef = useRef(0);
   const latestValuesRef = useValueAsRef(values);
 
   const updatePressedThumb = useStableCallback((nextIndex: number) => {
@@ -403,7 +405,7 @@ export const SliderControl = React.forwardRef(function SliderControl(
 
   const focusFrame = useAnimationFrame();
 
-  React.useEffect(() => {
+  useEffect(() => {
     const control = controlRef.current;
     if (!control) {
       return () => stopListening();
@@ -421,7 +423,7 @@ export const SliderControl = React.forwardRef(function SliderControl(
     };
   }, [stopListening, handleTouchStart, controlRef, focusFrame]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (disabled) {
       stopListening();
     }

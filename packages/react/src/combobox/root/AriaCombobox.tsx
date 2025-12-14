@@ -58,6 +58,9 @@ import {
   removeItem,
 } from '../../utils/itemEquality';
 import { INITIAL_LAST_HIGHLIGHT, NO_ACTIVE_VALUE } from './utils/constants';
+import { useEffect } from '@base-ui/utils/useEffect';
+import { useRef } from '@base-ui/utils/useRef';
+import { useState } from '@base-ui/utils/useState';
 
 /**
  * @internal
@@ -125,7 +128,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
   const id = useLabelableId({ id: idProp });
   const collatorFilter = useCoreFilter({ locale });
 
-  const [queryChangedAfterOpen, setQueryChangedAfterOpen] = React.useState(false);
+  const [queryChangedAfterOpen, setQueryChangedAfterOpen] = useState(false);
   const [closeQuery, setCloseQuery] = React.useState<string | null>(null);
 
   const listRef = React.useRef<Array<HTMLElement | null>>([]);
@@ -133,12 +136,12 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
   const popupRef = React.useRef<HTMLDivElement | null>(null);
   const inputRef = React.useRef<HTMLInputElement | null>(null);
   const emptyRef = React.useRef<HTMLDivElement | null>(null);
-  const keyboardActiveRef = React.useRef(true);
-  const hadInputClearRef = React.useRef(false);
+  const keyboardActiveRef = useRef(true);
+  const hadInputClearRef = useRef(false);
   const chipsContainerRef = React.useRef<HTMLDivElement | null>(null);
   const clearRef = React.useRef<HTMLButtonElement | null>(null);
   const selectionEventRef = React.useRef<MouseEvent | PointerEvent | KeyboardEvent | null>(null);
-  const lastHighlightRef = React.useRef(INITIAL_LAST_HIGHLIGHT);
+  const lastHighlightRef = useRef(INITIAL_LAST_HIGHLIGHT);
   const pendingQueryHighlightRef = React.useRef<null | { hasQuery: boolean }>(null);
 
   /**
@@ -445,7 +448,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     }
   });
 
-  const initialSelectedValueRef = React.useRef(selectedValue);
+  const initialSelectedValueRef = useRef(selectedValue);
   useIsoLayoutEffect(() => {
     // Ensure the values and labels are registered for programmatic value changes.
     if (selectedValue !== initialSelectedValueRef.current) {
@@ -905,7 +908,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
 
   // Ensures that the active index is not set to 0 when the list is empty.
   // This avoids needing to press ArrowDown twice under certain conditions.
-  React.useEffect(() => {
+  useEffect(() => {
     if (hasItems && autoHighlightMode && flatFilteredItems.length === 0) {
       setIndices({ activeIndex: null });
     }

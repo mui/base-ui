@@ -23,6 +23,8 @@ import {
   type PayloadChildRenderFunction,
 } from '../../utils/popups';
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
+import { useEffect } from '@base-ui/utils/useEffect';
+import { useCallback } from '@base-ui/utils/useCallback';
 
 function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Payload> }) {
   const {
@@ -71,13 +73,13 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
     positionerElement,
   );
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!open) {
       store.context.stickIfOpenTimeout.clear();
     }
   }, [store, open]);
 
-  const createPopoverEventDetails = React.useCallback(
+  const createPopoverEventDetails = useCallback(
     (reason: PopoverRoot.ChangeEventReason) => {
       const details: PopoverRoot.ChangeEventDetails =
         createChangeEventDetails<PopoverRoot.ChangeEventReason>(
@@ -92,7 +94,7 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
     [store],
   );
 
-  const handleImperativeClose = React.useCallback(() => {
+  const handleImperativeClose = useCallback(() => {
     store.setOpen(false, createPopoverEventDetails(REASONS.imperativeAction));
   }, [store, createPopoverEventDetails]);
 

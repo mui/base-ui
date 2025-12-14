@@ -23,6 +23,8 @@ import { useTransitionStatus } from '../../utils/useTransitionStatus';
 import { setFixedSize } from '../utils/setFixedSize';
 import { type BaseUIChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
+import { useEffect } from '@base-ui/utils/useEffect';
+import { useState } from '@base-ui/utils/useState';
 
 const blockedReturnFocusReasons = new Set<string>([
   REASONS.triggerHover,
@@ -77,7 +79,7 @@ export const NavigationMenuRoot = React.forwardRef(function NavigationMenuRoot(
   const [floatingRootContext, setFloatingRootContext] = React.useState<
     FloatingRootContext | undefined
   >(undefined);
-  const [viewportInert, setViewportInert] = React.useState(false);
+  const [viewportInert, setViewportInert] = useState(false);
 
   const prevTriggerElementRef = React.useRef<Element | null | undefined>(null);
   const currentContentRef = React.useRef<HTMLDivElement | null>(null);
@@ -88,7 +90,7 @@ export const NavigationMenuRoot = React.forwardRef(function NavigationMenuRoot(
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
 
-  React.useEffect(() => {
+  useEffect(() => {
     setViewportInert(false);
   }, [value]);
 

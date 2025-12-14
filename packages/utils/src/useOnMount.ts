@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { useEffect } from '@base-ui/utils/useEffect';
 
 const EMPTY = [] as unknown[];
 
@@ -9,6 +10,6 @@ const EMPTY = [] as unknown[];
 export function useOnMount(fn: React.EffectCallback) {
   // TODO: uncomment once we enable eslint-plugin-react-compiler // eslint-disable-next-line react-compiler/react-compiler -- no need to put `fn` in the dependency array
   /* eslint-disable react-hooks/exhaustive-deps */
-  React.useEffect(fn, EMPTY);
+  useEffect(fn, EMPTY);
   /* eslint-enable react-hooks/exhaustive-deps */
 }

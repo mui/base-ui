@@ -32,6 +32,8 @@ import type { ThumbMetadata } from '../thumb/SliderThumb';
 import { sliderStateAttributesMapping } from './stateAttributesMapping';
 import { SliderRootContext } from './SliderRootContext';
 import { REASONS } from '../../utils/reasons';
+import { useRef } from '@base-ui/utils/useRef';
+import { useState } from '@base-ui/utils/useState';
 
 function getSliderChangeEventReason(
   event: React.KeyboardEvent | React.ChangeEvent,
@@ -134,7 +136,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
   // The index of the pressed thumb, or the closest thumb if the `Control` was pressed.
   // This is updated on pointerdown, which is sooner than the `active/activeIndex`
   // state which is updated later when the nested `input` receives focus.
-  const pressedThumbIndexRef = React.useRef(-1);
+  const pressedThumbIndexRef = useRef(-1);
   // The values when the current drag interaction started.
   const pressedValuesRef = React.useRef<readonly number[] | null>(null);
   const lastChangedValueRef = React.useRef<number | readonly number[] | null>(null);
@@ -145,10 +147,10 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
   // We can't use the :active browser pseudo-classes.
   // - The active state isn't triggered when clicking on the rail.
   // - The active state isn't transferred when inversing a range slider.
-  const [active, setActiveState] = React.useState(-1);
-  const [lastUsedThumbIndex, setLastUsedThumbIndex] = React.useState(-1);
-  const [dragging, setDragging] = React.useState(false);
-  const [thumbMap, setThumbMap] = React.useState(
+  const [active, setActiveState] = useState(-1);
+  const [lastUsedThumbIndex, setLastUsedThumbIndex] = useState(-1);
+  const [dragging, setDragging] = useState(false);
+  const [thumbMap, setThumbMap] = useState(
     () => new Map<Node, CompositeMetadata<ThumbMetadata> | null>(),
   );
   const [indicatorPosition, setIndicatorPosition] = React.useState<(number | undefined)[]>([

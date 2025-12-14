@@ -45,6 +45,8 @@ import { MenuParent } from '../root/MenuRoot';
 import { PATIENT_CLICK_THRESHOLD } from '../../utils/constants';
 import { FocusGuard } from '../../utils/FocusGuard';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
+import { useEffect } from '@base-ui/utils/useEffect';
+import { useState } from '@base-ui/utils/useState';
 
 const BOUNDARY_OFFSET = 2;
 
@@ -121,7 +123,7 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
     native: nativeButton,
   });
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!isOpenedByThisTrigger && parent.type === undefined) {
       store.context.allowMouseUpTriggerRef.current = false;
     }
@@ -166,7 +168,7 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
     floatingTreeRoot.events.emit('close', { domEvent: mouseEvent, reason: REASONS.cancelOpen });
   });
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (isOpenedByThisTrigger && store.select('lastOpenChangeReason') === REASONS.triggerHover) {
       const doc = ownerDocument(triggerRef.current);
       doc.addEventListener('mouseup', handleDocumentMouseUp, { once: true });
@@ -418,7 +420,7 @@ export namespace MenuTrigger {
  */
 function useStickIfOpen(open: boolean, openReason: string | null) {
   const stickIfOpenTimeout = useTimeout();
-  const [stickIfOpen, setStickIfOpen] = React.useState(false);
+  const [stickIfOpen, setStickIfOpen] = useState(false);
   useIsoLayoutEffect(() => {
     if (open && openReason === 'trigger-hover') {
       // Only allow "patient" clicks to close the menu if it's open.

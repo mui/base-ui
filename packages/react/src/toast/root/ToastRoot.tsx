@@ -16,6 +16,9 @@ import { StateAttributesMapping } from '../../utils/getStateAttributesProps';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { ToastRootCssVars } from './ToastRootCssVars';
+import { useEffect } from '@base-ui/utils/useEffect';
+import { useRef } from '@base-ui/utils/useRef';
+import { useState } from '@base-ui/utils/useState';
 
 const stateAttributesMapping: StateAttributesMapping<ToastRoot.State> = {
   ...transitionStatusMapping,
@@ -105,11 +108,11 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
   const [currentSwipeDirection, setCurrentSwipeDirection] = React.useState<
     'up' | 'down' | 'left' | 'right' | undefined
   >(undefined);
-  const [isSwiping, setIsSwiping] = React.useState(false);
-  const [isRealSwipe, setIsRealSwipe] = React.useState(false);
-  const [dragDismissed, setDragDismissed] = React.useState(false);
-  const [dragOffset, setDragOffset] = React.useState({ x: 0, y: 0 });
-  const [initialTransform, setInitialTransform] = React.useState({ x: 0, y: 0, scale: 1 });
+  const [isSwiping, setIsSwiping] = useState(false);
+  const [isRealSwipe, setIsRealSwipe] = useState(false);
+  const [dragDismissed, setDragDismissed] = useState(false);
+  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
+  const [initialTransform, setInitialTransform] = useState({ x: 0, y: 0, scale: 1 });
   const [titleId, setTitleId] = React.useState<string | undefined>();
   const [descriptionId, setDescriptionId] = React.useState<string | undefined>();
   const [lockedDirection, setLockedDirection] = React.useState<'horizontal' | 'vertical' | null>(
@@ -117,15 +120,15 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
   );
 
   const rootRef = React.useRef<HTMLDivElement | null>(null);
-  const dragStartPosRef = React.useRef({ x: 0, y: 0 });
-  const initialTransformRef = React.useRef({ x: 0, y: 0, scale: 1 });
+  const dragStartPosRef = useRef({ x: 0, y: 0 });
+  const initialTransformRef = useRef({ x: 0, y: 0, scale: 1 });
   const intendedSwipeDirectionRef = React.useRef<'up' | 'down' | 'left' | 'right' | undefined>(
     undefined,
   );
-  const maxSwipeDisplacementRef = React.useRef(0);
-  const cancelledSwipeRef = React.useRef(false);
-  const swipeCancelBaselineRef = React.useRef({ x: 0, y: 0 });
-  const isFirstPointerMoveRef = React.useRef(false);
+  const maxSwipeDisplacementRef = useRef(0);
+  const cancelledSwipeRef = useRef(false);
+  const swipeCancelBaselineRef = useRef({ x: 0, y: 0 });
+  const isFirstPointerMoveRef = useRef(false);
 
   const domIndex = React.useMemo(() => toasts.indexOf(toast), [toast, toasts]);
   const visibleIndex = React.useMemo(
@@ -461,7 +464,7 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
     }
   }
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!swipeEnabled) {
       return undefined;
     }

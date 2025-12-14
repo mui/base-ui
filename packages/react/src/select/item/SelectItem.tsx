@@ -18,6 +18,7 @@ import { useButton } from '../../use-button';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
 import { compareItemEquality, removeItem } from '../../utils/itemEquality';
+import { useRef } from '@base-ui/utils/useRef';
 
 /**
  * An individual option in the select popup.
@@ -121,7 +122,7 @@ export const SelectItem = React.memo(
 
     const lastKeyRef = React.useRef<string | null>(null);
     const pointerTypeRef = React.useRef<'mouse' | 'touch' | 'pen'>('mouse');
-    const didPointerDownRef = React.useRef(false);
+    const didPointerDownRef = useRef(false);
 
     const { getButtonProps, buttonRef } = useButton({
       disabled,

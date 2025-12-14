@@ -44,6 +44,9 @@ import {
   useOpenStateTransitions,
 } from '../../utils/popups';
 import { useMenuSubmenuRootContext } from '../submenu-root/MenuSubmenuRootContext';
+import { useEffect } from '@base-ui/utils/useEffect';
+import { useRef } from '@base-ui/utils/useRef';
+import { useCallback } from '@base-ui/utils/useCallback';
 
 /**
  * Groups all parts of the menu.
@@ -189,10 +192,10 @@ export function MenuRoot<Payload>(props: MenuRoot.Props<Payload>) {
     resetOpenInteractionType();
   });
 
-  const allowOutsidePressDismissalRef = React.useRef(parent.type !== 'context-menu');
+  const allowOutsidePressDismissalRef = useRef(parent.type !== 'context-menu');
   const allowOutsidePressDismissalTimeout = useTimeout();
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!open) {
       openEventRef.current = null;
     }
@@ -226,7 +229,7 @@ export function MenuRoot<Payload>(props: MenuRoot.Props<Payload>) {
     }
   }, [open, hoverEnabled, store]);
 
-  const allowTouchToCloseRef = React.useRef(true);
+  const allowTouchToCloseRef = useRef(true);
   const allowTouchToCloseTimeout = useTimeout();
 
   const setOpen = useStableCallback(
@@ -345,7 +348,7 @@ export function MenuRoot<Payload>(props: MenuRoot.Props<Payload>) {
     },
   );
 
-  const createMenuEventDetails = React.useCallback(
+  const createMenuEventDetails = useCallback(
     (reason: MenuRoot.ChangeEventReason) => {
       const details: MenuRoot.ChangeEventDetails =
         createChangeEventDetails<MenuRoot.ChangeEventReason>(reason) as MenuRoot.ChangeEventDetails;
@@ -358,7 +361,7 @@ export function MenuRoot<Payload>(props: MenuRoot.Props<Payload>) {
     [store],
   );
 
-  const handleImperativeClose = React.useCallback(() => {
+  const handleImperativeClose = useCallback(() => {
     store.setOpen(false, createMenuEventDetails(REASONS.imperativeAction));
   }, [store, createMenuEventDetails]);
 
@@ -388,7 +391,7 @@ export function MenuRoot<Payload>(props: MenuRoot.Props<Payload>) {
 
   floatingEvents = floatingRootContext.context.events;
 
-  React.useEffect(() => {
+  useEffect(() => {
     const handleSetOpenEvent = ({
       open: nextOpen,
       eventDetails,
@@ -423,7 +426,7 @@ export function MenuRoot<Payload>(props: MenuRoot.Props<Payload>) {
 
   const direction = useDirection();
 
-  const setActiveIndex = React.useCallback(
+  const setActiveIndex = useCallback(
     (index: number | null) => {
       if (store.select('activeIndex') === index) {
         return;
@@ -449,7 +452,7 @@ export function MenuRoot<Payload>(props: MenuRoot.Props<Payload>) {
     focusItemOnHover: highlightItemOnHover,
   });
 
-  const onTypingChange = React.useCallback(
+  const onTypingChange = useCallback(
     (nextTyping: boolean) => {
       store.context.typingRef.current = nextTyping;
     },
