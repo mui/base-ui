@@ -12,6 +12,8 @@ import { useTabsListContext } from '../list/TabsListContext';
 import type { TabsTab } from '../tab/TabsTab';
 import { script as prehydrationScript } from './prehydrationScript.min';
 import { TabsIndicatorCssVars } from './TabsIndicatorCssVars';
+import { useEffect } from '@base-ui/utils/useEffect';
+import { useState } from '@base-ui/utils/useState';
 
 const stateAttributesMapping = {
   ...tabsStateAttributesMapping,
@@ -36,14 +38,14 @@ export const TabsIndicator = React.forwardRef(function TabIndicator(
 
   const { tabsListElement } = useTabsListContext();
 
-  const [isMounted, setIsMounted] = React.useState(false);
+  const [isMounted, setIsMounted] = useState(false);
   const { value: activeTabValue } = useTabsRootContext();
 
   useOnMount(() => setIsMounted(true));
 
   const rerender = useForcedRerendering();
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (value != null && tabsListElement != null && typeof ResizeObserver !== 'undefined') {
       const resizeObserver = new ResizeObserver(rerender);
 

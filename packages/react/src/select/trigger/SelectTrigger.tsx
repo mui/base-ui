@@ -22,6 +22,7 @@ import { useButton } from '../../use-button';
 import type { FieldRoot } from '../../field/root/FieldRoot';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
+import { useEffect } from '@base-ui/utils/useEffect';
 
 const BOUNDARY_OFFSET = 2;
 
@@ -102,7 +103,7 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
   const timeout1 = useTimeout();
   const timeout2 = useTimeout();
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (open) {
       // mousedown -> move to unselected item -> mouseup should not select within 200ms.
       timeout2.start(200, () => {

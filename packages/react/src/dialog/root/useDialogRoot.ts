@@ -15,6 +15,9 @@ import { REASONS } from '../../utils/reasons';
 import { type DialogRoot } from './DialogRoot';
 import { DialogStore } from '../store/DialogStore';
 import { useImplicitActiveTrigger, useOpenStateTransitions } from '../../utils/popups';
+import { useEffect } from '@base-ui/utils/useEffect';
+import { useCallback } from '@base-ui/utils/useCallback';
+import { useState } from '@base-ui/utils/useState';
 
 export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.ReturnValue {
   const { store, parentContext, actionsRef } = params;
@@ -47,7 +50,7 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
     return details;
   });
 
-  const handleImperativeClose = React.useCallback(() => {
+  const handleImperativeClose = useCallback(() => {
     store.setOpen(false, createDialogEventDetails(REASONS.imperativeAction));
   }, [store, createDialogEventDetails]);
 
@@ -64,7 +67,7 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
     noEmit: true,
   });
 
-  const [ownNestedOpenDialogs, setOwnNestedOpenDialogs] = React.useState(0);
+  const [ownNestedOpenDialogs, setOwnNestedOpenDialogs] = useState(0);
   const isTopmost = ownNestedOpenDialogs === 0;
 
   const role = useRole(floatingRootContext);
@@ -124,7 +127,7 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
   });
 
   // Notify parent of our open/close state using parent callbacks, if any
-  React.useEffect(() => {
+  useEffect(() => {
     if (parentContext?.onNestedDialogOpen && open) {
       parentContext.onNestedDialogOpen(ownNestedOpenDialogs);
     }

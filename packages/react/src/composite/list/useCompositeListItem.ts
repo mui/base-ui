@@ -2,6 +2,8 @@
 import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useCompositeListContext } from './CompositeListContext';
+import { useRef } from '@base-ui/utils/useRef';
+import { useCallback } from '@base-ui/utils/useCallback';
 
 export interface UseCompositeListItemParameters<Metadata> {
   index?: number;
@@ -35,7 +37,7 @@ export function useCompositeListItem<Metadata>(
   const { register, unregister, subscribeMapChange, elementsRef, labelsRef, nextIndexRef } =
     useCompositeListContext();
 
-  const indexRef = React.useRef(-1);
+  const indexRef = useRef(-1);
   const [index, setIndex] = React.useState<number>(
     externalIndex ??
       (indexGuessBehavior === IndexGuessBehavior.GuessFromOrder
@@ -52,7 +54,7 @@ export function useCompositeListItem<Metadata>(
 
   const componentRef = React.useRef<Element | null>(null);
 
-  const ref = React.useCallback(
+  const ref = useCallback(
     (node: HTMLElement | null) => {
       componentRef.current = node;
 

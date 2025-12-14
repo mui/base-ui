@@ -27,6 +27,7 @@ import {
 } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
 import { useValueChanged } from '../../utils/useValueChanged';
+import { useEffect } from '@base-ui/utils/useEffect';
 
 export const PARENT_CHECKBOX = 'data-parent';
 
@@ -244,7 +245,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     ? groupIndeterminate || indeterminate
     : indeterminate;
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (parentContext && value) {
       parentContext.disabledStatesRef.current.set(value, disabled);
     }

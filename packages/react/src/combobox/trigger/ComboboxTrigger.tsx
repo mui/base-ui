@@ -24,6 +24,7 @@ import { REASONS } from '../../utils/reasons';
 import { fieldValidityMapping } from '../../field/utils/constants';
 import { StateAttributesMapping } from '../../utils/getStateAttributesProps';
 import { useClick, useTypeahead } from '../../floating-ui-react';
+import { useEffect } from '@base-ui/utils/useEffect';
 
 const BOUNDARY_OFFSET = 2;
 
@@ -88,7 +89,7 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
 
   // Update the floating root context to use the trigger element when it differs from the current reference.
   // This ensures useClick and useTypeahead attach handlers to the correct element.
-  React.useEffect(() => {
+  useEffect(() => {
     if (!inputInsidePopup) {
       return;
     }

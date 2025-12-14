@@ -43,6 +43,9 @@ import { getCssDimensions } from '../../utils/getCssDimensions';
 import { NavigationMenuRoot } from '../root/NavigationMenuRoot';
 import { NAVIGATION_MENU_TRIGGER_IDENTIFIER } from '../utils/constants';
 import { useNavigationMenuDismissContext } from '../list/NavigationMenuDismissContext';
+import { useEffect } from '@base-ui/utils/useEffect';
+import { useRef } from '@base-ui/utils/useRef';
+import { useState } from '@base-ui/utils/useState';
 
 const DEFAULT_SIZE = { width: 0, height: 0 };
 
@@ -92,11 +95,11 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
   const sizeFrame2 = useAnimationFrame();
 
   const [triggerElement, setTriggerElement] = React.useState<HTMLElement | null>(null);
-  const [stickIfOpen, setStickIfOpen] = React.useState(true);
+  const [stickIfOpen, setStickIfOpen] = useState(true);
   const [pointerType, setPointerType] = React.useState<'mouse' | 'touch' | 'pen' | ''>('');
 
-  const allowFocusRef = React.useRef(false);
-  const prevSizeRef = React.useRef(DEFAULT_SIZE);
+  const allowFocusRef = useRef(false);
+  const prevSizeRef = useRef(DEFAULT_SIZE);
   const animationAbortControllerRef = React.useRef<AbortController | null>(null);
 
   const isActiveItem = open && value === itemValue;
@@ -105,7 +108,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
 
   const runOnceAnimationsFinish = useAnimationsFinished(popupElement);
 
-  React.useEffect(() => {
+  useEffect(() => {
     animationAbortControllerRef.current?.abort();
   }, [isActiveItem]);
 
@@ -159,7 +162,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
     });
   });
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!open) {
       stickIfOpenTimeout.clear();
       sizeFrame1.cancel();
@@ -167,13 +170,13 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
     }
   }, [stickIfOpenTimeout, open, sizeFrame1, sizeFrame2]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!mounted) {
       prevSizeRef.current = DEFAULT_SIZE;
     }
   }, [mounted]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!popupElement || typeof ResizeObserver !== 'function') {
       return undefined;
     }
@@ -193,7 +196,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
     };
   }, [popupElement]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!popupElement || !isActiveItem || typeof MutationObserver !== 'function') {
       return undefined;
     }
@@ -214,7 +217,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
     };
   }, [popupElement, positionerElement, isActiveItem, handleValueChange]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (isActiveItem && open && popupElement && allowFocusRef.current) {
       allowFocusRef.current = false;
       focusFrame.request(() => {

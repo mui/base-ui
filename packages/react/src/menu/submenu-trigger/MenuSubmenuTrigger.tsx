@@ -16,6 +16,7 @@ import { useRenderElement } from '../../utils/useRenderElement';
 import { useMenuPositionerContext } from '../positioner/MenuPositionerContext';
 import { useTriggerRegistration } from '../../utils/popups';
 import { useMenuSubmenuRootContext } from '../submenu-root/MenuSubmenuRootContext';
+import { useCallback } from '@base-ui/utils/useCallback';
 
 /**
  * A menu item that opens a submenu.
@@ -51,7 +52,7 @@ export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerCompon
   const floatingTreeRoot = store.useState('floatingTreeRoot');
 
   const baseRegisterTrigger = useTriggerRegistration(thisTriggerId, store);
-  const registerTrigger = React.useCallback(
+  const registerTrigger = useCallback(
     (element: Element | null) => {
       const cleanup = baseRegisterTrigger(element);
 
@@ -69,7 +70,7 @@ export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerCompon
   );
 
   const triggerElementRef = React.useRef<HTMLElement | null>(null);
-  const handleTriggerElementRef = React.useCallback(
+  const handleTriggerElementRef = useCallback(
     (el: HTMLElement | null) => {
       triggerElementRef.current = el;
       store.set('activeTriggerElement', el);

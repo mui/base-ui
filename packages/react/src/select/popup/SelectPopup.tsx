@@ -28,6 +28,8 @@ import { REASONS } from '../../utils/reasons';
 import { useToolbarRootContext } from '../../toolbar/root/ToolbarRootContext';
 import { COMPOSITE_KEYS } from '../../composite/composite';
 import { getDisabledMountTransitionStyles } from '../../utils/getDisabledMountTransitionStyles';
+import { useEffect } from '@base-ui/utils/useEffect';
+import { useRef } from '@base-ui/utils/useRef';
 
 const stateAttributesMapping: StateAttributesMapping<SelectPopup.State> = {
   ...popupStateMapping,
@@ -80,10 +82,10 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
   const positionerElement = useStore(store, selectors.positionerElement);
   const listElement = useStore(store, selectors.listElement);
 
-  const initialHeightRef = React.useRef(0);
-  const reachedMaxHeightRef = React.useRef(false);
-  const maxHeightRef = React.useRef(0);
-  const initialPlacedRef = React.useRef(false);
+  const initialHeightRef = useRef(0);
+  const reachedMaxHeightRef = useRef(false);
+  const maxHeightRef = useRef(0);
+  const initialPlacedRef = useRef(false);
   const originalPositionerStylesRef = React.useRef<React.CSSProperties>({});
 
   const scrollArrowFrame = useAnimationFrame();
@@ -355,7 +357,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
     listElement,
   ]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!alignItemWithTriggerActive || !positionerElement || !mounted) {
       return undefined;
     }

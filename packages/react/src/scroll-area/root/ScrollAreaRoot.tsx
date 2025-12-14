@@ -13,6 +13,8 @@ import { styleDisableScrollbar } from '../../utils/styles';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { scrollAreaStateAttributesMapping } from './stateAttributes';
 import { contains } from '../../floating-ui-react/utils';
+import { useRef } from '@base-ui/utils/useRef';
+import { useState } from '@base-ui/utils/useState';
 
 interface Size {
   width: number;
@@ -47,13 +49,13 @@ export const ScrollAreaRoot = React.forwardRef(function ScrollAreaRoot(
     ...elementProps
   } = componentProps;
 
-  const [hovering, setHovering] = React.useState(false);
-  const [scrollingX, setScrollingX] = React.useState(false);
-  const [scrollingY, setScrollingY] = React.useState(false);
+  const [hovering, setHovering] = useState(false);
+  const [scrollingX, setScrollingX] = useState(false);
+  const [scrollingY, setScrollingY] = useState(false);
   const [cornerSize, setCornerSize] = React.useState<Size>(DEFAULT_SIZE);
   const [thumbSize, setThumbSize] = React.useState<Size>(DEFAULT_SIZE);
-  const [touchModality, setTouchModality] = React.useState(false);
-  const [overflowEdges, setOverflowEdges] = React.useState(DEFAULT_OVERFLOW_EDGES);
+  const [touchModality, setTouchModality] = useState(false);
+  const [overflowEdges, setOverflowEdges] = useState(DEFAULT_OVERFLOW_EDGES);
 
   const rootId = useBaseUiId();
 
@@ -65,17 +67,17 @@ export const ScrollAreaRoot = React.forwardRef(function ScrollAreaRoot(
   const thumbXRef = React.useRef<HTMLDivElement | null>(null);
   const cornerRef = React.useRef<HTMLDivElement | null>(null);
 
-  const thumbDraggingRef = React.useRef(false);
-  const startYRef = React.useRef(0);
-  const startXRef = React.useRef(0);
-  const startScrollTopRef = React.useRef(0);
-  const startScrollLeftRef = React.useRef(0);
+  const thumbDraggingRef = useRef(false);
+  const startYRef = useRef(0);
+  const startXRef = useRef(0);
+  const startScrollTopRef = useRef(0);
+  const startScrollLeftRef = useRef(0);
   const currentOrientationRef = React.useRef<'vertical' | 'horizontal'>('vertical');
   const scrollYTimeout = useTimeout();
   const scrollXTimeout = useTimeout();
-  const scrollPositionRef = React.useRef({ x: 0, y: 0 });
+  const scrollPositionRef = useRef({ x: 0, y: 0 });
 
-  const [hiddenState, setHiddenState] = React.useState({
+  const [hiddenState, setHiddenState] = useState({
     scrollbarYHidden: false,
     scrollbarXHidden: false,
     cornerHidden: false,

@@ -19,6 +19,7 @@ import type {
 } from '../utils/types';
 import type { NumberFieldRoot } from './NumberFieldRoot';
 import type { HTMLProps } from '../../utils/types';
+import { useRef } from '@base-ui/utils/useRef';
 
 export function useNumberFieldButton(params: useNumberFieldButton.Parameters) {
   const {
@@ -47,9 +48,9 @@ export function useNumberFieldButton(params: useNumberFieldButton.Parameters) {
     onValueCommitted,
   } = params;
 
-  const incrementDownCoordsRef = React.useRef({ x: 0, y: 0 });
-  const isTouchingButtonRef = React.useRef(false);
-  const ignoreClickRef = React.useRef(false);
+  const incrementDownCoordsRef = useRef({ x: 0, y: 0 });
+  const isTouchingButtonRef = useRef(false);
+  const ignoreClickRef = useRef(false);
   const pointerTypeRef = React.useRef<'mouse' | 'touch' | 'pen' | ''>('');
 
   const isMin = value != null && value <= minWithDefault;

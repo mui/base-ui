@@ -10,6 +10,8 @@ import {
   createChangeEventDetails,
 } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
+import { useRef } from '@base-ui/utils/useRef';
+import { useState } from '@base-ui/utils/useState';
 
 interface ContextValue {
   hasProvider: boolean;
@@ -62,10 +64,10 @@ export interface FloatingDelayGroupProps {
 export function FloatingDelayGroup(props: FloatingDelayGroupProps): React.JSX.Element {
   const { children, delay, timeoutMs = 0 } = props;
 
-  const delayRef = React.useRef(delay);
-  const initialDelayRef = React.useRef(delay);
+  const delayRef = useRef(delay);
+  const initialDelayRef = useRef(delay);
   const currentIdRef = React.useRef<string | null>(null);
-  const currentContextRef = React.useRef(null);
+  const currentContextRef = useRef(null);
   const timeout = useTimeout();
 
   return (
@@ -140,7 +142,7 @@ export function useDelayGroup(
     timeout,
   } = groupContext;
 
-  const [isInstantPhase, setIsInstantPhase] = React.useState(false);
+  const [isInstantPhase, setIsInstantPhase] = useState(false);
 
   useIsoLayoutEffect(() => {
     function unset() {

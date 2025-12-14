@@ -37,6 +37,7 @@ import { defaultItemEquality, findItemIndex } from '../../utils/itemEquality';
 import { useValueChanged } from '../../utils/useValueChanged';
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
 import { mergeProps } from '../../merge-props';
+import { useRef } from '@base-ui/utils/useRef';
 
 /**
  * Groups all parts of the select.
@@ -107,17 +108,17 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
   const labelsRef = React.useRef<Array<string | null>>([]);
   const popupRef = React.useRef<HTMLDivElement | null>(null);
   const scrollHandlerRef = React.useRef<((el: HTMLDivElement) => void) | null>(null);
-  const scrollArrowsMountedCountRef = React.useRef(0);
+  const scrollArrowsMountedCountRef = useRef(0);
   const valueRef = React.useRef<HTMLSpanElement | null>(null);
   const valuesRef = React.useRef<Array<any>>([]);
-  const typingRef = React.useRef(false);
-  const keyboardActiveRef = React.useRef(false);
+  const typingRef = useRef(false);
+  const keyboardActiveRef = useRef(false);
   const selectedItemTextRef = React.useRef<HTMLSpanElement | null>(null);
-  const selectionRef = React.useRef({
+  const selectionRef = useRef({
     allowSelectedMouseUp: false,
     allowUnselectedMouseUp: false,
   });
-  const alignItemWithTriggerActiveRef = React.useRef(false);
+  const alignItemWithTriggerActiveRef = useRef(false);
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
   const {
@@ -185,7 +186,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     getValue: () => fieldStringValue,
   });
 
-  const initialValueRef = React.useRef(value);
+  const initialValueRef = useRef(value);
   useIsoLayoutEffect(() => {
     // Ensure the values and labels are registered for programmatic value changes.
     if (value !== initialValueRef.current) {

@@ -11,6 +11,7 @@ import type { Form } from '../../form';
 import { getCombinedFieldValidityData } from '../utils/getCombinedFieldValidityData';
 import type { HTMLProps } from '../../utils/types';
 import type { FieldValidityData, FieldRootState } from './FieldRoot';
+import { useCallback } from '@base-ui/utils/useCallback';
 
 const validityKeys = Object.keys(DEFAULT_VALIDITY_STATE) as Array<keyof ValidityState>;
 
@@ -232,7 +233,7 @@ export function useFieldValidation(
     setValidityData(nextValidityData);
   });
 
-  const getValidationProps = React.useCallback(
+  const getValidationProps = useCallback(
     (externalProps = {}) =>
       mergeProps<any>(
         getDescriptionProps,
@@ -242,7 +243,7 @@ export function useFieldValidation(
     [getDescriptionProps, state.valid],
   );
 
-  const getInputValidationProps = React.useCallback(
+  const getInputValidationProps = useCallback(
     (externalProps = {}) =>
       mergeProps<'input'>(
         {

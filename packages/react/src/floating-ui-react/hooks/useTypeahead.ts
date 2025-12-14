@@ -6,6 +6,7 @@ import { stopEvent } from '../utils';
 
 import type { ElementProps, FloatingContext, FloatingRootContext } from '../types';
 import { EMPTY_ARRAY } from '../../utils/constants';
+import { useRef } from '@base-ui/utils/useRef';
 
 export interface UseTypeaheadProps {
   /**
@@ -82,7 +83,7 @@ export function useTypeahead(
   } = props;
 
   const timeout = useTimeout();
-  const stringRef = React.useRef('');
+  const stringRef = useRef('');
   const prevIndexRef = React.useRef<number | null>(selectedIndex ?? activeIndex ?? -1);
   const matchIndexRef = React.useRef<number | null>(null);
 

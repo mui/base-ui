@@ -25,6 +25,7 @@ import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
 import type { Side } from '../../utils/useAnchorPositioning';
 import { useDirection } from '../../direction-provider/DirectionContext';
+import { useRef } from '@base-ui/utils/useRef';
 
 const stateAttributesMapping: StateAttributesMapping<ComboboxInput.State> = {
   ...pressableTriggerOpenStateMapping,
@@ -89,7 +90,7 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
   const listEmpty = filteredItems.length === 0;
 
   const [composingValue, setComposingValue] = React.useState<string | null>(null);
-  const isComposingRef = React.useRef(false);
+  const isComposingRef = useRef(false);
 
   const setInputElement = useStableCallback((element: HTMLInputElement | null) => {
     const isInsidePopup = hasPositionerParent || store.state.inline;

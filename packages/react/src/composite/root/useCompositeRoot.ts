@@ -35,6 +35,8 @@ import {
 import { ACTIVE_COMPOSITE_ITEM } from '../constants';
 import { CompositeMetadata } from '../list/CompositeList';
 import { HTMLProps } from '../../utils/types';
+import { useRef } from '@base-ui/utils/useRef';
+import { useState } from '@base-ui/utils/useState';
 
 export interface UseCompositeRootParameters {
   orientation?: 'horizontal' | 'vertical' | 'both';
@@ -90,7 +92,7 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
     modifierKeys = EMPTY_ARRAY,
   } = params;
 
-  const [internalHighlightedIndex, internalSetHighlightedIndex] = React.useState(0);
+  const [internalHighlightedIndex, internalSetHighlightedIndex] = useState(0);
 
   const isGrid = cols > 1;
 
@@ -98,7 +100,7 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
   const mergedRef = useMergedRefs(rootRef, externalRef);
 
   const elementsRef = React.useRef<Array<HTMLDivElement | null>>([]);
-  const hasSetDefaultIndexRef = React.useRef(false);
+  const hasSetDefaultIndexRef = useRef(false);
 
   const highlightedIndex = externalHighlightedIndex ?? internalHighlightedIndex;
   const onHighlightedIndexChange = useStableCallback((index, shouldScrollIntoView = false) => {

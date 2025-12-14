@@ -13,6 +13,7 @@ import type {
 } from '../types';
 import { useFloatingRootContext } from './useFloatingRootContext';
 import { FloatingRootStore } from '../components/FloatingRootStore';
+import { useCallback } from '@base-ui/utils/useCallback';
 
 /**
  * Provides data to position a floating element and context to add interactions.
@@ -51,7 +52,7 @@ export function useFloating(options: UseFloatingOptions = {}): UseFloatingReturn
     },
   });
 
-  const setPositionReference = React.useCallback(
+  const setPositionReference = useCallback(
     (node: ReferenceType | null) => {
       const computedPositionReference = isElement(node)
         ? ({
@@ -78,7 +79,7 @@ export function useFloating(options: UseFloatingOptions = {}): UseFloatingReturn
   );
   rootContext.useSyncedValue('floatingElement', localFloatingElement);
 
-  const setReference = React.useCallback(
+  const setReference = useCallback(
     (node: ReferenceType | null) => {
       if (isElement(node) || node === null) {
         (domReferenceRef as React.MutableRefObject<Element | null>).current = node;
@@ -101,7 +102,7 @@ export function useFloating(options: UseFloatingOptions = {}): UseFloatingReturn
     [position.refs, setLocalDomReference],
   );
 
-  const setFloating = React.useCallback(
+  const setFloating = useCallback(
     (node: HTMLElement | null) => {
       setLocalFloatingElement(node);
       position.refs.setFloating(node);

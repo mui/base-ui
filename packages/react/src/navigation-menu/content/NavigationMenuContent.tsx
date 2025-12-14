@@ -16,6 +16,8 @@ import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
 import { StateAttributesMapping } from '../../utils/getStateAttributesProps';
 import { CompositeRoot } from '../../composite/root/CompositeRoot';
 import { popupStateMapping } from '../../utils/popupStateMapping';
+import { useCallback } from '@base-ui/utils/useCallback';
+import { useState } from '@base-ui/utils/useState';
 
 const stateAttributesMapping: StateAttributesMapping<NavigationMenuContent.State> = {
   ...popupStateMapping,
@@ -58,7 +60,7 @@ export const NavigationMenuContent = React.forwardRef(function NavigationMenuCon
 
   const ref = React.useRef<HTMLDivElement | null>(null);
 
-  const [focusInside, setFocusInside] = React.useState(false);
+  const [focusInside, setFocusInside] = useState(false);
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
 
@@ -81,7 +83,7 @@ export const NavigationMenuContent = React.forwardRef(function NavigationMenuCon
     [open, transitionStatus, activationDirection],
   );
 
-  const handleCurrentContentRef = React.useCallback(
+  const handleCurrentContentRef = useCallback(
     (node: HTMLDivElement | null) => {
       if (node) {
         currentContentRef.current = node;

@@ -10,6 +10,8 @@ import { useToastContext } from '../provider/ToastProviderContext';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { isFocusVisible } from '../utils/focusVisible';
 import { ToastViewportCssVars } from './ToastViewportCssVars';
+import { useEffect } from '@base-ui/utils/useEffect';
+import { useRef } from '@base-ui/utils/useRef';
 
 /**
  * A container viewport for toasts.
@@ -37,8 +39,8 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
     focused,
   } = useToastContext();
 
-  const handlingFocusGuardRef = React.useRef(false);
-  const markedReadyForMouseLeaveRef = React.useRef(false);
+  const handlingFocusGuardRef = useRef(false);
+  const markedReadyForMouseLeaveRef = useRef(false);
 
   const numToasts = toasts.length;
   const frontmostHeight = toasts[0]?.height ?? 0;
@@ -49,7 +51,7 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
   );
 
   // Listen globally for F6 so we can force-focus the viewport.
-  React.useEffect(() => {
+  useEffect(() => {
     if (!viewportRef.current) {
       return undefined;
     }
@@ -79,7 +81,7 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
     };
   }, [pauseTimers, setFocused, setPrevFocusElement, numToasts, viewportRef]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!viewportRef.current || !numToasts) {
       return undefined;
     }
@@ -135,7 +137,7 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
     numToasts,
   ]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     const viewportNode = viewportRef.current;
     if (!viewportNode || numToasts === 0) {
       return undefined;
@@ -188,7 +190,7 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
     }
   }
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (
       !windowFocusedRef.current ||
       hasTransitioningToasts ||

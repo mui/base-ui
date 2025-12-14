@@ -29,6 +29,7 @@ import { useDirection } from '../direction-provider/DirectionContext';
 import { arrow } from '../floating-ui-react/middleware/arrow';
 import { hide } from './hideMiddleware';
 import { DEFAULT_SIDES } from './adaptiveOriginMiddleware';
+import { useEffect } from '@base-ui/utils/useEffect';
 
 function getLogicalSide(sideParam: Side, renderedSide: PhysicalSide, isRtl: boolean): Side {
   const isLogicalSideParam = sideParam === 'inline-start' || sideParam === 'inline-end';
@@ -449,7 +450,7 @@ export function useAnchorPositioning(
     }
   }, [mounted, refs, anchorDep, anchorValueRef]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!mounted) {
       return;
     }
@@ -468,7 +469,7 @@ export function useAnchorPositioning(
     }
   }, [mounted, refs, anchorDep, anchorValueRef]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (keepMounted && mounted && elements.domReference && elements.floating) {
       return autoUpdate(elements.domReference, elements.floating, update, autoUpdateOptions);
     }

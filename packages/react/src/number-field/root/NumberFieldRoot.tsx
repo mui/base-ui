@@ -40,6 +40,9 @@ import {
   type ReasonToEvent,
 } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
+import { useEffect } from '@base-ui/utils/useEffect';
+import { useRef } from '@base-ui/utils/useRef';
+import { useState } from '@base-ui/utils/useState';
 
 /**
  * Groups all parts of the number field and manages its state.
@@ -91,7 +94,7 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
   const disabled = fieldDisabled || disabledProp;
   const name = fieldName ?? nameProp;
 
-  const [isScrubbing, setIsScrubbing] = React.useState(false);
+  const [isScrubbing, setIsScrubbing] = useState(false);
 
   const minWithDefault = min ?? Number.MIN_SAFE_INTEGER;
   const maxWithDefault = max ?? Number.MAX_SAFE_INTEGER;
@@ -121,7 +124,7 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
 
   const formatOptionsRef = useValueAsRef(format);
 
-  const hasPendingCommitRef = React.useRef(false);
+  const hasPendingCommitRef = useRef(false);
 
   const onValueCommitted = useStableCallback(
     (nextValue: number | null, eventDetails: NumberFieldRoot.CommitEventDetails) => {
@@ -134,9 +137,9 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
   const tickInterval = useInterval();
   const intentionalTouchCheckTimeout = useTimeout();
 
-  const isPressedRef = React.useRef(false);
-  const movesAfterTouchRef = React.useRef(0);
-  const allowInputSyncRef = React.useRef(true);
+  const isPressedRef = useRef(false);
+  const movesAfterTouchRef = useRef(0);
+  const allowInputSyncRef = useRef(true);
   const lastChangedValueRef = React.useRef<number | null>(null);
   const unsubscribeFromGlobalContextMenuRef = React.useRef<() => void>(() => {});
 
@@ -144,7 +147,7 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
   // locale. This causes a hydration mismatch, which we manually suppress. This is preferable to
   // rendering an empty input field and then updating it with the formatted value, as the user
   // can still see the value prior to hydration, even if it's not formatted correctly.
-  const [inputValue, setInputValue] = React.useState(() => {
+  const [inputValue, setInputValue] = useState(() => {
     if (valueProp !== undefined) {
       return getControlledInputValue(value, locale, format);
     }
@@ -381,12 +384,12 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
     [minWithDefault, formatStyle],
   );
 
-  React.useEffect(() => {
+  useEffect(() => {
     return () => stopAutoChange();
   }, [stopAutoChange]);
 
   // The `onWheel` prop can't be prevented, so we need to use a global event listener.
-  React.useEffect(
+  useEffect(
     function registerElementWheelListener() {
       const element = inputRef.current;
       if (disabled || readOnly || !allowWheelScrub || !element) {

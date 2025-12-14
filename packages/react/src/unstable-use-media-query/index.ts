@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { useSyncExternalStore } from 'use-sync-external-store/shim';
+import { useCallback } from '@base-ui/utils/useCallback';
 
 export function useMediaQuery(query: string, options: useMediaQuery.Options): boolean {
   // Wait for jsdom to support the match media feature.
@@ -18,7 +19,7 @@ export function useMediaQuery(query: string, options: useMediaQuery.Options): bo
     noSsr = false,
   } = options;
 
-  const getDefaultSnapshot = React.useCallback(() => defaultMatches, [defaultMatches]);
+  const getDefaultSnapshot = useCallback(() => defaultMatches, [defaultMatches]);
 
   const getServerSnapshot = React.useMemo(() => {
     if (noSsr && matchMedia) {

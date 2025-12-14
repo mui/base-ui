@@ -7,6 +7,7 @@ import { useRenderElement } from '../../utils/useRenderElement';
 import { useSliderRootContext } from '../root/SliderRootContext';
 import { sliderStateAttributesMapping } from '../root/stateAttributesMapping';
 import type { SliderRoot } from '../root/SliderRoot';
+import { useState } from '@base-ui/utils/useState';
 
 function getInsetStyles(
   vertical: boolean,
@@ -91,7 +92,7 @@ export const SliderIndicator = React.forwardRef(function SliderIndicator(
   const { indicatorPosition, inset, max, min, orientation, renderBeforeHydration, state, values } =
     useSliderRootContext();
 
-  const [isMounted, setIsMounted] = React.useState(false);
+  const [isMounted, setIsMounted] = useState(false);
   useOnMount(() => setIsMounted(true));
 
   const vertical = orientation === 'vertical';

@@ -16,6 +16,7 @@ import { POPUP_COLLISION_AVOIDANCE } from '../../utils/constants';
 import { useAnimationsFinished } from '../../utils/useAnimationsFinished';
 import { adaptiveOrigin } from '../../utils/adaptiveOriginMiddleware';
 import { getDisabledMountTransitionStyles } from '../../utils/getDisabledMountTransitionStyles';
+import { useCallback } from '@base-ui/utils/useCallback';
 
 /**
  * Positions the popover against the trigger.
@@ -150,7 +151,7 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
     [open, positioner.side, positioner.align, positioner.anchorHidden, instantType],
   );
 
-  const setPositionerElement = React.useCallback(
+  const setPositionerElement = useCallback(
     (element: HTMLElement | null) => {
       store.set('positionerElement', element);
     },

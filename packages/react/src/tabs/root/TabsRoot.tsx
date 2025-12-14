@@ -14,6 +14,8 @@ import type { TabsTab } from '../tab/TabsTab';
 import type { TabsPanel } from '../panel/TabsPanel';
 import { type BaseUIChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
+import { useCallback } from '@base-ui/utils/useCallback';
+import { useState } from '@base-ui/utils/useState';
 
 /**
  * Groups the tabs and the corresponding panels.
@@ -42,7 +44,7 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
   const hasExplicitDefaultValueProp = Object.hasOwn(componentProps, 'defaultValue');
 
   const tabPanelRefs = React.useRef<(HTMLElement | null)[]>([]);
-  const [mountedTabPanels, setMountedTabPanels] = React.useState(
+  const [mountedTabPanels, setMountedTabPanels] = useState(
     () => new Map<TabsTab.Value | number, string>(),
   );
 
@@ -55,7 +57,7 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
 
   const isControlled = valueProp !== undefined;
 
-  const [tabMap, setTabMap] = React.useState(
+  const [tabMap, setTabMap] = useState(
     () => new Map<Node, CompositeMetadata<TabsTab.Metadata> | null>(),
   );
 
@@ -104,7 +106,7 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
   );
 
   // get the `id` attribute of <Tabs.Panel> to set as the value of `aria-controls` on <Tabs.Tab>
-  const getTabPanelIdByValue = React.useCallback(
+  const getTabPanelIdByValue = useCallback(
     (tabValue: TabsTab.Value) => {
       return mountedTabPanels.get(tabValue);
     },
@@ -112,7 +114,7 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
   );
 
   // get the `id` attribute of <Tabs.Tab> to set as the value of `aria-labelledby` on <Tabs.Panel>
-  const getTabIdByPanelValue = React.useCallback(
+  const getTabIdByPanelValue = useCallback(
     (tabPanelValue: TabsTab.Value) => {
       for (const tabMetadata of tabMap.values()) {
         if (tabPanelValue === tabMetadata?.value) {
@@ -125,7 +127,7 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
   );
 
   // used in `useActivationDirectionDetector` for setting data-activation-direction
-  const getTabElementBySelectedValue = React.useCallback(
+  const getTabElementBySelectedValue = useCallback(
     (selectedValue: TabsTab.Value | undefined): HTMLElement | null => {
       if (selectedValue === undefined) {
         return null;

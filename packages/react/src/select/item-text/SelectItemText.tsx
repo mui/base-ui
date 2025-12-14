@@ -4,6 +4,7 @@ import type { BaseUIComponentProps } from '../../utils/types';
 import { useSelectRootContext } from '../root/SelectRootContext';
 import { useSelectItemContext } from '../item/SelectItemContext';
 import { useRenderElement } from '../../utils/useRenderElement';
+import { useCallback } from '@base-ui/utils/useCallback';
 
 /**
  * A text label of the select item.
@@ -21,7 +22,7 @@ export const SelectItemText = React.memo(
 
     const { className, render, ...elementProps } = componentProps;
 
-    const localRef = React.useCallback(
+    const localRef = useCallback(
       (node: HTMLElement | null) => {
         if (!node || !hasRegistered) {
           return;

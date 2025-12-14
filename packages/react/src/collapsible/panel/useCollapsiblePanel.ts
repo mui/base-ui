@@ -13,6 +13,8 @@ import type { AnimationType, Dimensions } from '../root/useCollapsibleRoot';
 import { CollapsiblePanelDataAttributes } from './CollapsiblePanelDataAttributes';
 import { AccordionRootDataAttributes } from '../../accordion/root/AccordionRootDataAttributes';
 import type { CollapsibleRoot } from '../root/CollapsibleRoot';
+import { useEffect } from '@base-ui/utils/useEffect';
+import { useRef } from '@base-ui/utils/useRef';
 
 export function useCollapsiblePanel(
   parameters: useCollapsiblePanel.Parameters,
@@ -39,10 +41,10 @@ export function useCollapsiblePanel(
     width,
   } = parameters;
 
-  const isBeforeMatchRef = React.useRef(false);
+  const isBeforeMatchRef = useRef(false);
   const latestAnimationNameRef = React.useRef<string>(null);
-  const shouldCancelInitialOpenAnimationRef = React.useRef(open);
-  const shouldCancelInitialOpenTransitionRef = React.useRef(open);
+  const shouldCancelInitialOpenAnimationRef = useRef(open);
+  const shouldCancelInitialOpenTransitionRef = useRef(open);
 
   const endingStyleFrame = useAnimationFrame();
 
@@ -380,7 +382,7 @@ export function useCollapsiblePanel(
     }
   }, [hiddenUntilFound, hidden, animationTypeRef, panelRef]);
 
-  React.useEffect(
+  useEffect(
     function registerBeforeMatchListener() {
       const panel = panelRef.current;
       if (!panel) {

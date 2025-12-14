@@ -19,6 +19,8 @@ import { selectors } from '../store';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
 import { findItemIndex, itemIncludes } from '../../utils/itemEquality';
+import { useRef } from '@base-ui/utils/useRef';
+import { useState } from '@base-ui/utils/useState';
 
 const FIXED: React.CSSProperties = { position: 'fixed' };
 
@@ -77,7 +79,7 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
   const scrollDownArrowRef = React.useRef<HTMLDivElement | null>(null);
 
   const [controlledAlignItemWithTrigger, setControlledAlignItemWithTrigger] =
-    React.useState(alignItemWithTrigger);
+    useState(alignItemWithTrigger);
   const alignItemWithTriggerActive =
     mounted && controlledAlignItemWithTrigger && openMethod !== 'touch';
 
@@ -162,7 +164,7 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
     props: [defaultProps, elementProps],
   });
 
-  const prevMapSizeRef = React.useRef(0);
+  const prevMapSizeRef = useRef(0);
 
   const onMapChange = useStableCallback((map: Map<Element, { index?: number | null } | null>) => {
     if (map.size === 0 && prevMapSizeRef.current === 0) {

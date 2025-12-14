@@ -1,14 +1,16 @@
 'use client';
 import * as React from 'react';
 import { SafeReact } from './safeReact';
+import { useEffect } from '@base-ui/utils/useEffect';
+import { useState } from '@base-ui/utils/useState';
 
 let globalId = 0;
 
 // TODO React 17: Remove `useGlobalId` once React 17 support is removed
 function useGlobalId(idOverride?: string, prefix: string = 'mui'): string | undefined {
-  const [defaultId, setDefaultId] = React.useState(idOverride);
+  const [defaultId, setDefaultId] = useState(idOverride);
   const id = idOverride || defaultId;
-  React.useEffect(() => {
+  useEffect(() => {
     if (defaultId == null) {
       // Fallback to this default id when possible.
       // Use the incrementing value for client-side rendering only.

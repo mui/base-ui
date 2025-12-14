@@ -17,6 +17,9 @@ import {
   useRole,
 } from '../../src/floating-ui-react';
 import { Button } from './Button';
+import { useEffect } from '@base-ui/utils/useEffect';
+import { useRef } from '@base-ui/utils/useRef';
+import { useState } from '@base-ui/utils/useState';
 
 const emojis = [
   {
@@ -95,13 +98,13 @@ const Option = React.forwardRef<HTMLButtonElement, OptionProps>(function Option(
 
 /** @internal */
 export function Main() {
-  const [open, setOpen] = React.useState(false);
-  const [search, setSearch] = React.useState('');
+  const [open, setOpen] = useState(false);
+  const [search, setSearch] = useState('');
   const [selectedEmoji, setSelectedEmoji] = React.useState<string | null>(null);
   const [activeIndex, setActiveIndex] = React.useState<number | null>(null);
   const [placement, setPlacement] = React.useState<Placement | null>(null);
 
-  const arrowRef = React.useRef(null);
+  const arrowRef = useRef(null);
 
   const listRef = React.useRef<Array<HTMLElement | null>>([]);
 
@@ -156,7 +159,7 @@ export function Main() {
     }),
   ]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (open) {
       setPlacement(resultantPlacement);
     } else {

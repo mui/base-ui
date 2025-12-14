@@ -17,6 +17,7 @@ import { REASONS } from '../../utils/reasons';
 import { useFocusWithDelay } from '../../utils/interactions/useFocusWithDelay';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useTransitionStatus } from '../../utils/useTransitionStatus';
+import { useRef } from '@base-ui/utils/useRef';
 
 /**
  * Groups all parts of the preview card.
@@ -33,8 +34,8 @@ export function PreviewCardRoot(props: PreviewCardRoot.Props) {
     actionsRef,
   } = props;
 
-  const delayRef = React.useRef(OPEN_DELAY);
-  const closeDelayRef = React.useRef(CLOSE_DELAY);
+  const delayRef = useRef(OPEN_DELAY);
+  const closeDelayRef = useRef(CLOSE_DELAY);
 
   const writeDelayRefs = useStableCallback((config: PreviewCardTriggerDelayConfig) => {
     delayRef.current = config.delay ?? OPEN_DELAY;

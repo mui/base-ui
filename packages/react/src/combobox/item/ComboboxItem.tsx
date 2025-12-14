@@ -18,6 +18,7 @@ import { selectors } from '../store';
 import { useButton } from '../../use-button';
 import { useComboboxRowContext } from '../row/ComboboxRowContext';
 import { compareItemEquality, findItemIndex } from '../../utils/itemEquality';
+import { useRef } from '@base-ui/utils/useRef';
 
 /**
  * An individual item in the list.
@@ -38,7 +39,7 @@ export const ComboboxItem = React.memo(
       ...elementProps
     } = componentProps;
 
-    const didPointerDownRef = React.useRef(false);
+    const didPointerDownRef = useRef(false);
     const textRef = React.useRef<HTMLElement | null>(null);
     const listItem = useCompositeListItem({
       index: indexProp,

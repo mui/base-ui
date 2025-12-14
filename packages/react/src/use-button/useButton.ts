@@ -8,6 +8,8 @@ import { makeEventPreventable, mergeProps } from '../merge-props';
 import { useCompositeRootContext } from '../composite/root/CompositeRootContext';
 import { BaseUIEvent, HTMLProps } from '../utils/types';
 import { useFocusableWhenDisabled } from '../utils/useFocusableWhenDisabled';
+import { useEffect } from '@base-ui/utils/useEffect';
+import { useCallback } from '@base-ui/utils/useCallback';
 
 export function useButton(parameters: useButton.Parameters = {}): useButton.ReturnValue {
   const {
@@ -36,7 +38,7 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
 
   if (process.env.NODE_ENV !== 'production') {
     // eslint-disable-next-line react-hooks/rules-of-hooks
-    React.useEffect(() => {
+    useEffect(() => {
       if (!elementRef.current) {
         return;
       }
@@ -61,7 +63,7 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
   // <Toolbar.Button disabled render={<Menu.Trigger />} />
   // the `disabled` prop needs to pass through 2 `useButton`s then finally
   // delete the `disabled` attribute from DOM
-  const updateDisabled = React.useCallback(() => {
+  const updateDisabled = useCallback(() => {
     const element = elementRef.current;
 
     if (!isButtonElement(element)) {
@@ -80,7 +82,7 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
 
   useIsoLayoutEffect(updateDisabled, [updateDisabled]);
 
-  const getButtonProps = React.useCallback(
+  const getButtonProps = useCallback(
     (externalProps: GenericButtonProps = {}) => {
       const {
         onClick: externalOnClick,
