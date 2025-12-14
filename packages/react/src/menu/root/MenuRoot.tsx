@@ -181,7 +181,7 @@ export function MenuRoot<Payload>(props: MenuRoot.Props<Payload>) {
     openMethod,
     triggerProps: interactionTypeProps,
     reset: resetOpenInteractionType,
-  } = useOpenInteractionType(open);
+  } = useOpenInteractionType(open, activeTriggerElement);
 
   useImplicitActiveTrigger(store);
   const { forceUnmount } = useOpenStateTransitions(open, store, () => {

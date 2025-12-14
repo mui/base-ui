@@ -48,6 +48,7 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
 
   const open = store.useState('open');
   const positionerElement = store.useState('positionerElement');
+  const activeTriggerElement = store.useState('activeTriggerElement');
   const payload = store.useState('payload') as Payload | undefined;
   const openReason = store.useState('openChangeReason');
 
@@ -58,7 +59,7 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
     openMethod,
     triggerProps: interactionTypeTriggerProps,
     reset: resetOpenInteractionType,
-  } = useOpenInteractionType(open);
+  } = useOpenInteractionType(open, activeTriggerElement);
 
   useImplicitActiveTrigger(store);
   const { forceUnmount } = useOpenStateTransitions(open, store, () => {

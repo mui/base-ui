@@ -23,12 +23,13 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
   const disablePointerDismissal = store.useState('disablePointerDismissal');
   const modal = store.useState('modal');
   const popupElement = store.useState('popupElement');
+  const activeTriggerElement = store.useState('activeTriggerElement');
 
   const {
     openMethod,
     triggerProps,
     reset: resetOpenInteractionType,
-  } = useOpenInteractionType(open);
+  } = useOpenInteractionType(open, activeTriggerElement);
 
   useImplicitActiveTrigger(store);
   const { forceUnmount } = useOpenStateTransitions(open, store, () => {
