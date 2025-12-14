@@ -1,29 +1,22 @@
 import * as React from 'react';
 import { useRefWithInit } from './useRefWithInit';
 
-function PhantomComponent({ effects }: { effects: Array<() => void> }) {
-  effects.forEach((effect) => effect());
-  return null;
-}
-
-type State<H extends Record<string, any>> = {
+type State = {
   isActivated: boolean;
-  handle: H;
+  data: unknown[];
 };
 
-const UNINITIALIZED = {};
+const UNINITIALIZED = [] as unknown[];
 const DEFAULT_HANDLE = {};
 
 function createState() {
   return {
     isActivated: false,
-    handle: UNINITIALIZED,
-  } as State<any>;
+    data: UNINITIALIZED,
+  } as State;
 }
 
-function createContext<H extends Record<string, any>>(
-  stateHook: [State<H>, React.Dispatch<React.SetStateAction<State<H>>>],
-) {
+function createContext(stateHook: [State, React.Dispatch<React.SetStateAction<State>>]) {
   let state = stateHook[0];
   const setState = stateHook[1];
 
@@ -32,32 +25,49 @@ function createContext<H extends Record<string, any>>(
       state = { ...state, isActivated: true };
       setState(state);
     },
-    get: () => state.handle,
-    set: <K extends keyof H>(key: K, value: H[K]) => {
-      if ((state.handle as any)[key] !== value) {
-        state = { ...state, handle: { ...state.handle, [key]: value } };
-        setState(state);
-      }
-    },
-    use: (effect: () => void) => {
-      context.effects.push(effect);
-    },
-    render: () => (state.isActivated ? <PhantomComponent effects={context.effects} /> : null),
+    get: () => state.data,
+    use,
+    render: () =>
+      state.isActivated ? <PhantomComponent effects={context.effects} setState={setState} /> : null,
     effects: [] as Array<() => void>,
   };
 
+  function use(effect: () => undefined): undefined;
+  function use<V>(effect: () => V, defaultValue: V): V;
+  function use(effect: () => unknown, defaultValue?: unknown): unknown {
+    context.effects.push(effect);
+    return state.data[context.effects.length - 1] ?? defaultValue!;
+  }
+
   return context;
+}
+
+function PhantomComponent({
+  effects,
+  setState,
+}: {
+  effects: Array<() => void>;
+  setState: React.Dispatch<React.SetStateAction<State>>;
+}) {
+  const data = [] as unknown[];
+  effects.forEach((effect) => {
+    data.push(effect());
+  });
+  React.useEffect(() => {
+    setState((prevState) => ({ ...prevState, data }));
+  }, data);
+  return null;
 }
 
 export function useLazyHandle<H extends Record<string, any>>(
   isActivated: boolean,
   defaultHandle?: H,
 ) {
-  const stateHook = React.useState<State<H>>(createState);
+  const stateHook = React.useState<State>(createState);
 
-  if (stateHook[0].handle === UNINITIALIZED) {
+  if (stateHook[0].data === UNINITIALIZED) {
     stateHook[0].isActivated = isActivated;
-    stateHook[0].handle = defaultHandle ?? (DEFAULT_HANDLE as any);
+    stateHook[0].data = defaultHandle ?? (DEFAULT_HANDLE as any);
   }
   const context = useRefWithInit(createContext, stateHook).current;
 

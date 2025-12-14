@@ -57,9 +57,9 @@ export function TooltipRoot<Payload>(props: TooltipRoot.Props<Payload>) {
 
   const open = !disabled && openState;
 
-  const lazy = useLazyHandle(openState);
+  const onceOpen = useLazyHandle(openState);
 
-  lazy.use(() => {
+  const { forceUnmount, transitionStatus } = onceOpen.use(() => {
     useIsoLayoutEffect(() => {
       if (openState && disabled) {
         store.setOpen(false, createChangeEventDetails(REASONS.disabled));
@@ -75,9 +75,11 @@ export function TooltipRoot<Payload>(props: TooltipRoot.Props<Payload>) {
     }, [store, activeTriggerId, open]);
 
     useImplicitActiveTrigger(store);
-  });
 
-  const { forceUnmount, transitionStatus } = useOpenStateTransitions(open, store);
+    return useOpenStateTransitions(open, store);
+  }, useOpenStateTransitions.defaultValue);
+  console.log(store.state);
+
   const isInstantPhase = store.useState('isInstantPhase');
   const instantType = store.useState('instantType');
   const lastOpenChangeReason = store.useState('lastOpenChangeReason');
@@ -146,6 +148,7 @@ export function TooltipRoot<Payload>(props: TooltipRoot.Props<Payload>) {
 
   return (
     <TooltipRootContext.Provider value={store as TooltipRootContext}>
+      {onceOpen.render()}
       {typeof children === 'function' ? children({ payload }) : children}
     </TooltipRootContext.Provider>
   );

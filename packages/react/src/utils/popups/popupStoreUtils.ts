@@ -165,5 +165,17 @@ export function useOpenStateTransitions<State extends PopupStoreState<any>>(
     },
   });
 
-  return { forceUnmount, transitionStatus };
+  return React.useMemo(
+    () => ({
+      forceUnmount,
+      transitionStatus,
+    }),
+    [forceUnmount, transitionStatus],
+  );
 }
+useOpenStateTransitions.defaultValue = {
+  forceUnmount: () => {
+    throw new Error('forceUnmount function is not initialized yet');
+  },
+  transitionStatus: undefined,
+};
