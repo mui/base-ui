@@ -30,6 +30,7 @@ import { REASONS } from '../../utils/reasons';
 import { createAttribute } from '../utils/createAttribute';
 import { useEffect } from '@base-ui/utils/useEffect';
 import { useRef } from '@base-ui/utils/useRef';
+import { useMemo } from '@base-ui/utils/useMemo';
 
 type PressType = 'intentional' | 'sloppy';
 
@@ -660,7 +661,7 @@ export function useDismiss(
 
   useEffect(clearInsideReactTree, [outsidePress, clearInsideReactTree]);
 
-  const reference: ElementProps['reference'] = React.useMemo(
+  const reference: ElementProps['reference'] = useMemo(
     () => ({
       onKeyDown: closeOnEscapeKeyDown,
       ...(referencePress && {
@@ -688,7 +689,7 @@ export function useDismiss(
     endedOrStartedInsideRef.current = true;
   });
 
-  const floating: ElementProps['floating'] = React.useMemo(
+  const floating: ElementProps['floating'] = useMemo(
     () => ({
       onKeyDown: closeOnEscapeKeyDown,
 
@@ -709,7 +710,7 @@ export function useDismiss(
     [closeOnEscapeKeyDown, handlePressedInside, markInsideReactTree],
   );
 
-  return React.useMemo(
+  return useMemo(
     () => (enabled ? { reference, floating, trigger: reference } : {}),
     [enabled, reference, floating],
   );

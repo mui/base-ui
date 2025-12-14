@@ -6,6 +6,7 @@ import type { ToolbarRoot } from '../root/ToolbarRoot';
 import { useToolbarRootContext } from '../root/ToolbarRootContext';
 import { useToolbarGroupContext } from '../group/ToolbarGroupContext';
 import { CompositeItem } from '../../composite/item/CompositeItem';
+import { useMemo } from '@base-ui/utils/useMemo';
 
 /**
  * A button that can be used as-is or as a trigger for other components.
@@ -26,7 +27,7 @@ export const ToolbarButton = React.forwardRef(function ToolbarButton(
     ...elementProps
   } = componentProps;
 
-  const itemMetadata = React.useMemo(() => ({ focusableWhenDisabled }), [focusableWhenDisabled]);
+  const itemMetadata = useMemo(() => ({ focusableWhenDisabled }), [focusableWhenDisabled]);
 
   const { disabled: toolbarDisabled, orientation } = useToolbarRootContext();
 
@@ -40,7 +41,7 @@ export const ToolbarButton = React.forwardRef(function ToolbarButton(
     native: nativeButton,
   });
 
-  const state: ToolbarButton.State = React.useMemo(
+  const state: ToolbarButton.State = useMemo(
     () => ({
       disabled,
       orientation,

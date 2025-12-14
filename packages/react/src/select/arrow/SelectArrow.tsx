@@ -10,6 +10,7 @@ import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping'
 import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { selectors } from '../store';
+import { useMemo } from '@base-ui/utils/useMemo';
 
 const stateAttributesMapping: StateAttributesMapping<SelectArrow.State> = {
   ...baseMapping,
@@ -34,7 +35,7 @@ export const SelectArrow = React.forwardRef(function SelectArrow(
 
   const open = useStore(store, selectors.open, true);
 
-  const state: SelectArrow.State = React.useMemo(
+  const state: SelectArrow.State = useMemo(
     () => ({
       open,
       side,

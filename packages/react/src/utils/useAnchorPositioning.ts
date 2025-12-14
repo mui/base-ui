@@ -30,6 +30,7 @@ import { arrow } from '../floating-ui-react/middleware/arrow';
 import { hide } from './hideMiddleware';
 import { DEFAULT_SIDES } from './adaptiveOriginMiddleware';
 import { useEffect } from '@base-ui/utils/useEffect';
+import { useMemo } from '@base-ui/utils/useMemo';
 
 function getLogicalSide(sideParam: Side, renderedSide: PhysicalSide, isRtl: boolean): Side {
   const isLogicalSideParam = sideParam === 'inline-start' || sideParam === 'inline-end';
@@ -386,7 +387,7 @@ export function useAnchorPositioning(
     }
   }, [mounted, floatingRootContext]);
 
-  const autoUpdateOptions: AutoUpdateOptions = React.useMemo(
+  const autoUpdateOptions: AutoUpdateOptions = useMemo(
     () => ({
       elementResize: !disableAnchorTracking && typeof ResizeObserver !== 'undefined',
       layoutShift: !disableAnchorTracking && typeof IntersectionObserver !== 'undefined',
@@ -492,7 +493,7 @@ export function useAnchorPositioning(
     }
   }, [lazyFlip, mounted, isPositioned, renderedSide]);
 
-  const arrowStyles = React.useMemo(
+  const arrowStyles = useMemo(
     () => ({
       position: 'absolute' as const,
       top: middlewareData.arrow?.y,
@@ -503,7 +504,7 @@ export function useAnchorPositioning(
 
   const arrowUncentered = middlewareData.arrow?.centerOffset !== 0;
 
-  return React.useMemo(
+  return useMemo(
     () => ({
       positionerStyles: floatingStyles,
       arrowStyles,

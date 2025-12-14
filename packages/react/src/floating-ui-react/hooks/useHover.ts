@@ -24,6 +24,7 @@ import { TYPEABLE_SELECTOR } from '../utils/constants';
 import { useEffect } from '@base-ui/utils/useEffect';
 import { useRef } from '@base-ui/utils/useRef';
 import { useCallback } from '@base-ui/utils/useCallback';
+import { useMemo } from '@base-ui/utils/useMemo';
 
 const safePolygonIdentifier = createAttribute('safe-polygon');
 const interactiveSelector = `button,[role="button"],select,[tabindex]:not([tabindex="-1"]),${TYPEABLE_SELECTOR}`;
@@ -560,7 +561,7 @@ export function useHover(
     return clearPointerEvents;
   }, [clearPointerEvents]);
 
-  const reference: ElementProps['reference'] = React.useMemo(() => {
+  const reference: ElementProps['reference'] = useMemo(() => {
     function setPointerRef(event: React.PointerEvent) {
       pointerTypeRef.current = event.pointerType;
     }
@@ -621,5 +622,5 @@ export function useHover(
     };
   }, [mouseOnly, store, restMsRef, restTimeout]);
 
-  return React.useMemo(() => (enabled ? { reference } : {}), [enabled, reference]);
+  return useMemo(() => (enabled ? { reference } : {}), [enabled, reference]);
 }

@@ -18,6 +18,7 @@ import type { ToastManager } from '../createToastManager';
 import { useEffect } from '@base-ui/utils/useEffect';
 import { useRef } from '@base-ui/utils/useRef';
 import { useState } from '@base-ui/utils/useState';
+import { useMemo } from '@base-ui/utils/useMemo';
 
 interface TimerInfo {
   timeout?: Timeout;
@@ -325,7 +326,7 @@ export const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvid
     [add, update, scheduleTimer, timeout, toastManager, promise, close],
   );
 
-  const contextValue = React.useMemo(
+  const contextValue = useMemo(
     () => ({
       toasts,
       setToasts,

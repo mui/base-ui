@@ -12,6 +12,7 @@ import { isFocusVisible } from '../utils/focusVisible';
 import { ToastViewportCssVars } from './ToastViewportCssVars';
 import { useEffect } from '@base-ui/utils/useEffect';
 import { useRef } from '@base-ui/utils/useRef';
+import { useMemo } from '@base-ui/utils/useMemo';
 
 /**
  * A container viewport for toasts.
@@ -45,7 +46,7 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
   const numToasts = toasts.length;
   const frontmostHeight = toasts[0]?.height ?? 0;
 
-  const hasTransitioningToasts = React.useMemo(
+  const hasTransitioningToasts = useMemo(
     () => toasts.some((toast) => toast.transitionStatus === 'ending'),
     [toasts],
   );
@@ -268,7 +269,7 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
     onClick: handleFocus,
   };
 
-  const state: ToastViewport.State = React.useMemo(
+  const state: ToastViewport.State = useMemo(
     () => ({
       expanded,
     }),
@@ -300,9 +301,9 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
     ],
   });
 
-  const contextValue = React.useMemo(() => ({ viewportRef }), [viewportRef]);
+  const contextValue = useMemo(() => ({ viewportRef }), [viewportRef]);
 
-  const highPriorityToasts = React.useMemo(
+  const highPriorityToasts = useMemo(
     () => toasts.filter((toast) => toast.priority === 'high'),
     [toasts],
   );

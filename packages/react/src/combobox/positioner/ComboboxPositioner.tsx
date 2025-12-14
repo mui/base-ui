@@ -19,6 +19,7 @@ import { DROPDOWN_COLLISION_AVOIDANCE } from '../../utils/constants';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { selectors } from '../store';
 import { InternalBackdrop } from '../../utils/InternalBackdrop';
+import { useMemo } from '@base-ui/utils/useMemo';
 
 /**
  * Positions the popup against the trigger.
@@ -83,7 +84,7 @@ export const ComboboxPositioner = React.forwardRef(function ComboboxPositioner(
 
   useScrollLock(open && modal && openMethod !== 'touch', triggerElement);
 
-  const defaultProps: HTMLProps = React.useMemo(() => {
+  const defaultProps: HTMLProps = useMemo(() => {
     const style: React.CSSProperties = {
       ...positioning.positionerStyles,
     };
@@ -99,7 +100,7 @@ export const ComboboxPositioner = React.forwardRef(function ComboboxPositioner(
     };
   }, [open, mounted, positioning.positionerStyles]);
 
-  const state: ComboboxPositioner.State = React.useMemo(
+  const state: ComboboxPositioner.State = useMemo(
     () => ({
       open,
       side: positioning.side,
@@ -114,7 +115,7 @@ export const ComboboxPositioner = React.forwardRef(function ComboboxPositioner(
     store.set('popupSide', positioning.side);
   }, [store, positioning.side]);
 
-  const contextValue: ComboboxPositionerContext = React.useMemo(
+  const contextValue: ComboboxPositionerContext = useMemo(
     () => ({
       side: positioning.side,
       align: positioning.align,

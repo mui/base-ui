@@ -32,6 +32,7 @@ import { enqueueFocus } from '../utils/enqueueFocus';
 import { ARROW_UP, ARROW_DOWN, ARROW_RIGHT, ARROW_LEFT } from '../utils/constants';
 import { useRef } from '@base-ui/utils/useRef';
 import { useCallback } from '@base-ui/utils/useCallback';
+import { useMemo } from '@base-ui/utils/useMemo';
 
 export const ESCAPE = 'Escape';
 
@@ -520,7 +521,7 @@ export function useListNavigation(
 
   const hasActiveIndex = activeIndex != null;
 
-  const item = React.useMemo(() => {
+  const item = useMemo(() => {
     function syncCurrentTarget(event: React.SyntheticEvent<any>) {
       if (!latestOpenRef.current) {
         return;
@@ -810,7 +811,7 @@ export function useListNavigation(
     }
   });
 
-  const ariaActiveDescendantProp = React.useMemo(() => {
+  const ariaActiveDescendantProp = useMemo(() => {
     return (
       virtual &&
       open &&
@@ -820,7 +821,7 @@ export function useListNavigation(
     );
   }, [virtual, open, hasActiveIndex, id, activeIndex]);
 
-  const floating: ElementProps['floating'] = React.useMemo(() => {
+  const floating: ElementProps['floating'] = useMemo(() => {
     return {
       'aria-orientation': orientation === 'both' ? undefined : orientation,
       ...(!typeableComboboxReference ? ariaActiveDescendantProp : {}),
@@ -863,7 +864,7 @@ export function useListNavigation(
     domReferenceElement,
   ]);
 
-  const trigger: ElementProps['trigger'] = React.useMemo(() => {
+  const trigger: ElementProps['trigger'] = useMemo(() => {
     function checkVirtualMouse(event: React.PointerEvent) {
       if (focusItemOnOpen === 'auto' && isVirtualClick(event.nativeEvent)) {
         focusItemOnOpenRef.current = !virtual;
@@ -987,14 +988,14 @@ export function useListNavigation(
     virtual,
   ]);
 
-  const reference: ElementProps['reference'] = React.useMemo(() => {
+  const reference: ElementProps['reference'] = useMemo(() => {
     return {
       ...ariaActiveDescendantProp,
       ...trigger,
     };
   }, [ariaActiveDescendantProp, trigger]);
 
-  return React.useMemo(
+  return useMemo(
     () => (enabled ? { reference, floating, item, trigger } : {}),
     [enabled, reference, floating, trigger, item],
   );

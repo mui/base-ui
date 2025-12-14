@@ -15,6 +15,7 @@ import { accordionStateAttributesMapping } from './stateAttributesMapping';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { type BaseUIChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
+import { useMemo } from '@base-ui/utils/useMemo';
 
 /**
  * Groups an accordion header with the corresponding panel.
@@ -51,7 +52,7 @@ export const AccordionItem = React.forwardRef(function AccordionItem(
 
   const disabled = disabledProp || contextDisabled;
 
-  const isOpen = React.useMemo(() => {
+  const isOpen = useMemo(() => {
     if (!openValues) {
       return false;
     }
@@ -83,7 +84,7 @@ export const AccordionItem = React.forwardRef(function AccordionItem(
     disabled,
   });
 
-  const collapsibleState: CollapsibleRoot.State = React.useMemo(
+  const collapsibleState: CollapsibleRoot.State = useMemo(
     () => ({
       open: collapsible.open,
       disabled: collapsible.disabled,
@@ -93,7 +94,7 @@ export const AccordionItem = React.forwardRef(function AccordionItem(
     [collapsible.open, collapsible.disabled, collapsible.mounted, collapsible.transitionStatus],
   );
 
-  const collapsibleContext: CollapsibleRootContext = React.useMemo(
+  const collapsibleContext: CollapsibleRootContext = useMemo(
     () => ({
       ...collapsible,
       onOpenChange,
@@ -102,7 +103,7 @@ export const AccordionItem = React.forwardRef(function AccordionItem(
     [collapsible, collapsibleState, onOpenChange],
   );
 
-  const state: AccordionItem.State = React.useMemo(
+  const state: AccordionItem.State = useMemo(
     () => ({
       ...rootState,
       index,
@@ -114,7 +115,7 @@ export const AccordionItem = React.forwardRef(function AccordionItem(
 
   const [triggerId, setTriggerId] = React.useState<string | undefined>(useBaseUiId());
 
-  const accordionItemContext: AccordionItemContext = React.useMemo(
+  const accordionItemContext: AccordionItemContext = useMemo(
     () => ({
       open: isOpen,
       state,

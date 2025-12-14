@@ -8,6 +8,7 @@ import { REASONS } from '../../utils/reasons';
 import { DialogStore } from '../store/DialogStore';
 import { DialogHandle } from '../store/DialogHandle';
 import { type PayloadChildRenderFunction } from '../../utils/popups';
+import { useMemo } from '@base-ui/utils/useMemo';
 
 /**
  * Groups all parts of the dialog.
@@ -62,7 +63,7 @@ export function DialogRoot<Payload>(props: DialogRoot.Props<Payload>) {
     triggerIdProp,
   });
 
-  const contextValue: DialogRootContext<Payload> = React.useMemo(() => ({ store }), [store]);
+  const contextValue: DialogRootContext<Payload> = useMemo(() => ({ store }), [store]);
 
   return (
     <DialogRootContext.Provider value={contextValue as DialogRootContext}>

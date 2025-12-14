@@ -14,6 +14,7 @@ import type {
 import { useFloatingRootContext } from './useFloatingRootContext';
 import { FloatingRootStore } from '../components/FloatingRootStore';
 import { useCallback } from '@base-ui/utils/useCallback';
+import { useMemo } from '@base-ui/utils/useMemo';
 
 /**
  * Provides data to position a floating element and context to add interactions.
@@ -110,7 +111,7 @@ export function useFloating(options: UseFloatingOptions = {}): UseFloatingReturn
     [position.refs],
   );
 
-  const refs = React.useMemo(
+  const refs = useMemo(
     () => ({
       ...position.refs,
       setReference,
@@ -121,7 +122,7 @@ export function useFloating(options: UseFloatingOptions = {}): UseFloatingReturn
     [position.refs, setReference, setFloating, setPositionReference],
   );
 
-  const elements = React.useMemo(
+  const elements = useMemo(
     () => ({
       ...position.elements,
       domReference: rootContextElements.domReference,
@@ -157,7 +158,7 @@ export function useFloating(options: UseFloatingOptions = {}): UseFloatingReturn
     }
   });
 
-  return React.useMemo(
+  return useMemo(
     () => ({
       ...position,
       context,

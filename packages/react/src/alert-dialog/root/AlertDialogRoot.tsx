@@ -7,6 +7,7 @@ import { BaseUIChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { DialogStore } from '../../dialog/store/DialogStore';
 import { DialogHandle } from '../../dialog/store/DialogHandle';
 import type { DialogRoot } from '../../dialog/root/DialogRoot';
+import { useMemo } from '@base-ui/utils/useMemo';
 
 /**
  * Groups all parts of the alert dialog.
@@ -60,7 +61,7 @@ export function AlertDialogRoot<Payload>(props: AlertDialogRoot.Props<Payload>) 
     triggerIdProp,
   });
 
-  const contextValue: DialogRootContext<Payload> = React.useMemo(() => ({ store }), [store]);
+  const contextValue: DialogRootContext<Payload> = useMemo(() => ({ store }), [store]);
 
   return (
     <DialogRootContext.Provider value={contextValue as DialogRootContext}>

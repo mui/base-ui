@@ -18,6 +18,7 @@ import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
 import { MenuOpenEventDetails } from '../utils/types';
 import { useEffect } from '@base-ui/utils/useEffect';
+import { useMemo } from '@base-ui/utils/useMemo';
 
 /**
  * Positions the menu popup against the trigger.
@@ -111,7 +112,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
     externalTree: floatingTreeRoot,
   });
 
-  const positionerProps = React.useMemo(() => {
+  const positionerProps = useMemo(() => {
     const hiddenStyles: React.CSSProperties = {};
 
     if (!open) {
@@ -210,7 +211,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
     floatingTreeRoot.events.emit('menuopenchange', eventDetails);
   }, [floatingTreeRoot.events, open, store, floatingNodeId, floatingParentNodeId]);
 
-  const state: MenuPositioner.State = React.useMemo(
+  const state: MenuPositioner.State = useMemo(
     () => ({
       open,
       side: positioner.side,
@@ -221,7 +222,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
     [open, positioner.side, positioner.align, positioner.anchorHidden, parent.type],
   );
 
-  const contextValue: MenuPositionerContext = React.useMemo(
+  const contextValue: MenuPositionerContext = useMemo(
     () => ({
       side: positioner.side,
       align: positioner.align,

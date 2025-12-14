@@ -33,6 +33,7 @@ import {
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
 import { useTriggerDataForwarding } from '../../utils/popups';
+import { useMemo } from '@base-ui/utils/useMemo';
 
 /**
  * A button that opens the popover.
@@ -111,7 +112,7 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
 
   const rootTriggerProps = store.useState('triggerProps', isMountedByThisTrigger);
 
-  const state: PopoverTrigger.State = React.useMemo(
+  const state: PopoverTrigger.State = useMemo(
     () => ({
       disabled,
       open: isOpenedByThisTrigger,
@@ -124,7 +125,7 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
     native: nativeButton,
   });
 
-  const stateAttributesMapping: StateAttributesMapping<{ open: boolean }> = React.useMemo(
+  const stateAttributesMapping: StateAttributesMapping<{ open: boolean }> = useMemo(
     () => ({
       open(value) {
         if (value && openReason === REASONS.triggerPress) {

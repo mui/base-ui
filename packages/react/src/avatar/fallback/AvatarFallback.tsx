@@ -8,6 +8,7 @@ import type { AvatarRoot } from '../root/AvatarRoot';
 import { avatarStateAttributesMapping } from '../root/stateAttributesMapping';
 import { useEffect } from '@base-ui/utils/useEffect';
 import { useState } from '@base-ui/utils/useState';
+import { useMemo } from '@base-ui/utils/useMemo';
 
 /**
  * Rendered when the image fails to load or when no image is provided.
@@ -32,7 +33,7 @@ export const AvatarFallback = React.forwardRef(function AvatarFallback(
     return timeout.clear;
   }, [timeout, delay]);
 
-  const state: AvatarRoot.State = React.useMemo(
+  const state: AvatarRoot.State = useMemo(
     () => ({
       imageLoadingStatus,
     }),

@@ -14,6 +14,7 @@ import { useValueChanged } from '../utils/useValueChanged';
 import { useEffect } from '@base-ui/utils/useEffect';
 import { useRef } from '@base-ui/utils/useRef';
 import { useState } from '@base-ui/utils/useState';
+import { useMemo } from '@base-ui/utils/useMemo';
 
 /**
  * A native form element with consolidated error handling.
@@ -125,7 +126,7 @@ export const Form = React.forwardRef(function Form<
     }
   });
 
-  const contextValue: FormContext = React.useMemo(
+  const contextValue: FormContext = useMemo(
     () => ({
       formRef,
       validationMode,

@@ -14,6 +14,7 @@ import {
   type BaseUIChangeEventDetails,
 } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
+import { useMemo } from '@base-ui/utils/useMemo';
 
 const rootStateAttributesMapping = {
   value: () => null,
@@ -59,7 +60,7 @@ export const AccordionRoot = React.forwardRef(function AccordionRoot(
 
   // memoized to allow omitting both defaultValue and value
   // which would otherwise trigger a warning in useControlled
-  const defaultValue = React.useMemo(() => {
+  const defaultValue = useMemo(() => {
     if (valueProp === undefined) {
       return defaultValueProp ?? [];
     }
@@ -105,7 +106,7 @@ export const AccordionRoot = React.forwardRef(function AccordionRoot(
     }
   });
 
-  const state: AccordionRoot.State = React.useMemo(
+  const state: AccordionRoot.State = useMemo(
     () => ({
       value,
       disabled,
@@ -114,7 +115,7 @@ export const AccordionRoot = React.forwardRef(function AccordionRoot(
     [value, disabled, orientation],
   );
 
-  const contextValue: AccordionRootContext = React.useMemo(
+  const contextValue: AccordionRootContext = useMemo(
     () => ({
       accordionItemRefs,
       direction,

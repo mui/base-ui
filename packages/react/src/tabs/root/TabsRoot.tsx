@@ -16,6 +16,7 @@ import { type BaseUIChangeEventDetails } from '../../utils/createBaseUIEventDeta
 import { REASONS } from '../../utils/reasons';
 import { useCallback } from '@base-ui/utils/useCallback';
 import { useState } from '@base-ui/utils/useState';
+import { useMemo } from '@base-ui/utils/useMemo';
 
 /**
  * Groups the tabs and the corresponding panels.
@@ -144,7 +145,7 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
     [tabMap],
   );
 
-  const tabsContextValue: TabsRootContext = React.useMemo(
+  const tabsContextValue: TabsRootContext = useMemo(
     () => ({
       direction,
       getTabElementBySelectedValue,
@@ -173,7 +174,7 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
     ],
   );
 
-  const selectedTabMetadata = React.useMemo(() => {
+  const selectedTabMetadata = useMemo(() => {
     for (const tabMetadata of tabMap.values()) {
       if (tabMetadata != null && tabMetadata.value === value) {
         return tabMetadata;
@@ -184,7 +185,7 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
 
   // Find the first non-disabled tab value.
   // Used as a fallback when the current selection is disabled or missing.
-  const firstEnabledTabValue = React.useMemo(() => {
+  const firstEnabledTabValue = useMemo(() => {
     for (const tabMetadata of tabMap.values()) {
       if (tabMetadata != null && !tabMetadata.disabled) {
         return tabMetadata.value;

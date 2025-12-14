@@ -14,6 +14,7 @@ import { selectors } from '../store';
 import { ComboboxCollection } from '../collection/ComboboxCollection';
 import { CompositeList } from '../../composite/list/CompositeList';
 import { stopEvent } from '../../floating-ui-react/utils';
+import { useMemo } from '@base-ui/utils/useMemo';
 
 /**
  * A list container for the items.
@@ -55,14 +56,14 @@ export const ComboboxList = React.forwardRef(function ComboboxList(
   // with a Combobox.Collection that reads items from context/root.
   // Ensures this component's `popupProps` subscription does not cause <Combobox.Item>
   // to re-render on every active index change.
-  const resolvedChildren = React.useMemo(() => {
+  const resolvedChildren = useMemo(() => {
     if (typeof children === 'function') {
       return <ComboboxCollection>{children}</ComboboxCollection>;
     }
     return children;
   }, [children]);
 
-  const state: ComboboxList.State = React.useMemo(
+  const state: ComboboxList.State = useMemo(
     () => ({
       empty,
     }),

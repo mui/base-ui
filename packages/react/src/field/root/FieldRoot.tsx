@@ -12,6 +12,7 @@ import { useRenderElement } from '../../utils/useRenderElement';
 import { useFieldValidation } from './useFieldValidation';
 import { useRef } from '@base-ui/utils/useRef';
 import { useState } from '@base-ui/utils/useState';
+import { useMemo } from '@base-ui/utils/useMemo';
 
 /**
  * @internal
@@ -90,7 +91,7 @@ const FieldRootInner = React.forwardRef(function FieldRootInner(
 
   const valid = !invalid && validityData.state.valid;
 
-  const state: FieldRoot.State = React.useMemo(
+  const state: FieldRoot.State = useMemo(
     () => ({
       disabled,
       touched,
@@ -114,7 +115,7 @@ const FieldRootInner = React.forwardRef(function FieldRootInner(
     shouldValidateOnChange,
   });
 
-  const contextValue: FieldRootContext = React.useMemo(
+  const contextValue: FieldRootContext = useMemo(
     () => ({
       invalid,
       name,

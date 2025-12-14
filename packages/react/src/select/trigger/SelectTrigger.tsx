@@ -23,6 +23,7 @@ import type { FieldRoot } from '../../field/root/FieldRoot';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
 import { useEffect } from '@base-ui/utils/useEffect';
+import { useMemo } from '@base-ui/utils/useMemo';
 
 const BOUNDARY_OFFSET = 2;
 
@@ -131,7 +132,7 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
     return undefined;
   }, [open, selectionRef, timeoutMouseDown, timeout1, timeout2]);
 
-  const ariaControlsId = React.useMemo(() => {
+  const ariaControlsId = useMemo(() => {
     return listElement?.id ?? getFloatingFocusElement(positionerElement)?.id;
   }, [listElement, positionerElement]);
 
@@ -228,7 +229,7 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
   // <Toolbar.Button render={<Select.Trigger />} />
   props.role = 'combobox';
 
-  const state: SelectTrigger.State = React.useMemo(
+  const state: SelectTrigger.State = useMemo(
     () => ({
       ...fieldState,
       open,

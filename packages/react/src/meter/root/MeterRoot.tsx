@@ -4,6 +4,7 @@ import { MeterRootContext } from './MeterRootContext';
 import { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 import { formatNumber } from '../../utils/formatNumber';
 import { useRenderElement } from '../../utils/useRenderElement';
+import { useMemo } from '@base-ui/utils/useMemo';
 
 function formatValue(
   value: number,
@@ -58,7 +59,7 @@ export const MeterRoot = React.forwardRef(function MeterRoot(
     role: 'meter',
   };
 
-  const contextValue: MeterRootContext = React.useMemo(
+  const contextValue: MeterRootContext = useMemo(
     () => ({
       formattedValue,
       max,

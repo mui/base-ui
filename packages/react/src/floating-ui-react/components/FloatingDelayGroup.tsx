@@ -12,6 +12,7 @@ import {
 import { REASONS } from '../../utils/reasons';
 import { useRef } from '@base-ui/utils/useRef';
 import { useState } from '@base-ui/utils/useState';
+import { useMemo } from '@base-ui/utils/useMemo';
 
 interface ContextValue {
   hasProvider: boolean;
@@ -72,7 +73,7 @@ export function FloatingDelayGroup(props: FloatingDelayGroupProps): React.JSX.El
 
   return (
     <FloatingDelayGroupContext.Provider
-      value={React.useMemo(
+      value={useMemo(
         () => ({
           hasProvider: true,
           delayRef,
@@ -244,7 +245,7 @@ export function useDelayGroup(
     };
   }, [currentContextRef]);
 
-  return React.useMemo(
+  return useMemo(
     () => ({
       hasProvider,
       delayRef,

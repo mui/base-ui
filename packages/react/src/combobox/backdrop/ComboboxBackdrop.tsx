@@ -9,6 +9,7 @@ import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { selectors } from '../store';
+import { useMemo } from '@base-ui/utils/useMemo';
 
 const stateAttributesMapping: StateAttributesMapping<ComboboxBackdrop.State> = {
   ...popupStateMapping,
@@ -31,7 +32,7 @@ export const ComboboxBackdrop = React.forwardRef(function ComboboxBackdrop(
   const mounted = useStore(store, selectors.mounted);
   const transitionStatus = useStore(store, selectors.transitionStatus);
 
-  const state: ComboboxBackdrop.State = React.useMemo(
+  const state: ComboboxBackdrop.State = useMemo(
     () => ({
       open,
       transitionStatus,

@@ -9,6 +9,7 @@ import { useEffect } from '@base-ui/utils/useEffect';
 import { useRef } from '@base-ui/utils/useRef';
 import { useCallback } from '@base-ui/utils/useCallback';
 import { useState } from '@base-ui/utils/useState';
+import { useMemo } from '@base-ui/utils/useMemo';
 
 function createVirtualElement(
   domElement: Element | null | undefined,
@@ -239,7 +240,7 @@ export function useClientPoint(
     }
   }, [enabled, x, y, setReference]);
 
-  const reference: ElementProps['reference'] = React.useMemo(() => {
+  const reference: ElementProps['reference'] = useMemo(() => {
     function setPointerTypeRef(event: React.PointerEvent) {
       setPointerType(event.pointerType);
     }
@@ -252,5 +253,5 @@ export function useClientPoint(
     };
   }, [handleReferenceEnterOrMove]);
 
-  return React.useMemo(() => (enabled ? { reference } : {}), [enabled, reference]);
+  return useMemo(() => (enabled ? { reference } : {}), [enabled, reference]);
 }

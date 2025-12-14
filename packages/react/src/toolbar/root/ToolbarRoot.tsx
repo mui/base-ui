@@ -5,6 +5,7 @@ import { CompositeRoot } from '../../composite/root/CompositeRoot';
 import type { CompositeMetadata } from '../../composite/list/CompositeList';
 import { ToolbarRootContext } from './ToolbarRootContext';
 import { useState } from '@base-ui/utils/useState';
+import { useMemo } from '@base-ui/utils/useMemo';
 
 /**
  * A container for grouping a set of controls, such as buttons, toggle groups, or menus.
@@ -29,7 +30,7 @@ export const ToolbarRoot = React.forwardRef(function ToolbarRoot(
     () => new Map<Node, CompositeMetadata<ToolbarRoot.ItemMetadata> | null>(),
   );
 
-  const disabledIndices = React.useMemo(() => {
+  const disabledIndices = useMemo(() => {
     const output: number[] = [];
     for (const itemMetadata of itemMap.values()) {
       if (itemMetadata?.index && !itemMetadata.focusableWhenDisabled) {
@@ -39,7 +40,7 @@ export const ToolbarRoot = React.forwardRef(function ToolbarRoot(
     return output;
   }, [itemMap]);
 
-  const toolbarRootContext: ToolbarRootContext = React.useMemo(
+  const toolbarRootContext: ToolbarRootContext = useMemo(
     () => ({
       disabled,
       orientation,
@@ -48,7 +49,7 @@ export const ToolbarRoot = React.forwardRef(function ToolbarRoot(
     [disabled, orientation, setItemMap],
   );
 
-  const state = React.useMemo(() => ({ disabled, orientation }), [disabled, orientation]);
+  const state = useMemo(() => ({ disabled, orientation }), [disabled, orientation]);
 
   const defaultProps: HTMLProps = {
     'aria-orientation': orientation,

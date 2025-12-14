@@ -14,6 +14,7 @@ import { Dimensions } from '../../floating-ui-react/types';
 import { PopoverViewportCssVars } from './PopoverViewportCssVars';
 import { useEffect } from '@base-ui/utils/useEffect';
 import { useState } from '@base-ui/utils/useState';
+import { useMemo } from '@base-ui/utils/useMemo';
 
 const stateAttributesMapping: StateAttributesMapping<PopoverViewport.State> = {
   activationDirection: (value) =>
@@ -206,7 +207,7 @@ export const PopoverViewport = React.forwardRef(function PopoverViewport(
     container.replaceChildren(...Array.from(previousContentNode.childNodes));
   }, [previousContentNode]);
 
-  const state = React.useMemo(() => {
+  const state = useMemo(() => {
     return {
       activationDirection: getActivationDirection(newTriggerOffset),
       transitioning: isTransitioning,

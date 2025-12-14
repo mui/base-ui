@@ -23,6 +23,7 @@ import { RadioGroupContext } from './RadioGroupContext';
 import type { BaseUIChangeEventDetails } from '../utils/createBaseUIEventDetails';
 import { REASONS } from '../utils/reasons';
 import { useState } from '@base-ui/utils/useState';
+import { useMemo } from '@base-ui/utils/useMemo';
 
 const MODIFIER_KEYS = [SHIFT];
 
@@ -143,7 +144,7 @@ export const RadioGroup = React.forwardRef(function RadioGroup(
     }
   });
 
-  const serializedCheckedValue = React.useMemo(() => {
+  const serializedCheckedValue = useMemo(() => {
     if (checkedValue == null) {
       return ''; // avoid uncontrolled -> controlled error
     }
@@ -176,7 +177,7 @@ export const RadioGroup = React.forwardRef(function RadioGroup(
     validation.getInputValidationProps,
   );
 
-  const state: RadioGroup.State = React.useMemo(
+  const state: RadioGroup.State = useMemo(
     () => ({
       ...fieldState,
       disabled: disabled ?? false,
@@ -186,7 +187,7 @@ export const RadioGroup = React.forwardRef(function RadioGroup(
     [fieldState, disabled, readOnly, required],
   );
 
-  const contextValue: RadioGroupContext = React.useMemo(
+  const contextValue: RadioGroupContext = useMemo(
     () => ({
       ...fieldState,
       checkedValue,

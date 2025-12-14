@@ -21,6 +21,7 @@ import { useLabelableContext } from '../../labelable-provider/LabelableContext';
 import { useLabelableId } from '../../labelable-provider/useLabelableId';
 import { useRadioGroupContext } from '../../radio-group/RadioGroupContext';
 import { RadioRootContext } from './RadioRootContext';
+import { useMemo } from '@base-ui/utils/useMemo';
 
 /**
  * Represents the radio button itself.
@@ -131,7 +132,7 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
     native: nativeButton,
   });
 
-  const inputProps: React.ComponentPropsWithRef<'input'> = React.useMemo(
+  const inputProps: React.ComponentPropsWithRef<'input'> = useMemo(
     () => ({
       type: 'radio',
       ref: mergedInputRef,
@@ -184,7 +185,7 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
     ],
   );
 
-  const state: RadioRoot.State = React.useMemo(
+  const state: RadioRoot.State = useMemo(
     () => ({
       ...fieldState,
       required,
@@ -195,7 +196,7 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
     [fieldState, disabled, readOnly, checked, required],
   );
 
-  const contextValue: RadioRootContext = React.useMemo(() => state, [state]);
+  const contextValue: RadioRootContext = useMemo(() => state, [state]);
 
   const isRadioGroup = setCheckedValue !== NOOP;
 

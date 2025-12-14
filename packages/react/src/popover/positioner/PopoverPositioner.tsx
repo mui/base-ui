@@ -17,6 +17,7 @@ import { useAnimationsFinished } from '../../utils/useAnimationsFinished';
 import { adaptiveOrigin } from '../../utils/adaptiveOriginMiddleware';
 import { getDisabledMountTransitionStyles } from '../../utils/getDisabledMountTransitionStyles';
 import { useCallback } from '@base-ui/utils/useCallback';
+import { useMemo } from '@base-ui/utils/useMemo';
 
 /**
  * Positions the popover against the trigger.
@@ -84,7 +85,7 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
     adaptiveOrigin,
   });
 
-  const defaultProps: HTMLProps = React.useMemo(() => {
+  const defaultProps: HTMLProps = useMemo(() => {
     const hiddenStyles: React.CSSProperties = {};
 
     if (!open) {
@@ -101,7 +102,7 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
     };
   }, [open, mounted, positioning.positionerStyles]);
 
-  const positioner = React.useMemo(
+  const positioner = useMemo(
     () => ({
       props: defaultProps,
       ...positioning,
@@ -140,7 +141,7 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
     return undefined;
   }, [domReference, runOnceAnimationsFinish, store]);
 
-  const state: PopoverPositioner.State = React.useMemo(
+  const state: PopoverPositioner.State = useMemo(
     () => ({
       open,
       side: positioner.side,

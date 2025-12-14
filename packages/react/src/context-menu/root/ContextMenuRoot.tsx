@@ -7,6 +7,7 @@ import { MenuRootContext } from '../../menu/root/MenuRootContext';
 import type { BaseUIChangeEventDetails } from '../../types';
 import type { MenuRoot } from '../../menu/root/MenuRoot';
 import { useRef } from '@base-ui/utils/useRef';
+import { useMemo } from '@base-ui/utils/useMemo';
 
 /**
  * A component that creates a context menu activated by right clicking or long pressing.
@@ -29,7 +30,7 @@ export function ContextMenuRoot(props: ContextMenuRoot.Props) {
   const initialCursorPointRef = React.useRef<{ x: number; y: number } | null>(null);
   const id = useId();
 
-  const contextValue: ContextMenuRootContext = React.useMemo(
+  const contextValue: ContextMenuRootContext = useMemo(
     () => ({
       anchor,
       setAnchor,

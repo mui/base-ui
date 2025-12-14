@@ -6,6 +6,7 @@ import { type TransitionStatus, useTransitionStatus } from '../../utils/useTrans
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
+import { useMemo } from '@base-ui/utils/useMemo';
 
 /**
  * Indicates whether the item is selected.
@@ -44,7 +45,7 @@ const Inner = React.memo(
 
       const { transitionStatus, setMounted } = useTransitionStatus(selected);
 
-      const state: ComboboxItemIndicator.State = React.useMemo(
+      const state: ComboboxItemIndicator.State = useMemo(
         () => ({
           selected,
           transitionStatus,

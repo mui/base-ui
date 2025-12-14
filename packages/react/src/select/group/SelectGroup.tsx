@@ -3,6 +3,7 @@ import * as React from 'react';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { SelectGroupContext } from './SelectGroupContext';
 import { useRenderElement } from '../../utils/useRenderElement';
+import { useMemo } from '@base-ui/utils/useMemo';
 
 /**
  * Groups related select items with the corresponding label.
@@ -18,7 +19,7 @@ export const SelectGroup = React.forwardRef(function SelectGroup(
 
   const [labelId, setLabelId] = React.useState<string | undefined>();
 
-  const contextValue: SelectGroupContext = React.useMemo(
+  const contextValue: SelectGroupContext = useMemo(
     () => ({
       labelId,
       setLabelId,

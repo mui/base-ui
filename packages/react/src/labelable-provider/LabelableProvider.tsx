@@ -5,6 +5,7 @@ import { HTMLProps } from '../utils/types';
 import { useBaseUiId } from '../utils/useBaseUiId';
 import { LabelableContext, useLabelableContext } from './LabelableContext';
 import { useCallback } from '@base-ui/utils/useCallback';
+import { useMemo } from '@base-ui/utils/useMemo';
 
 /**
  * @internal
@@ -32,7 +33,7 @@ export const LabelableProvider: React.FC<LabelableProvider.Props> = function Lab
     [parentMessageIds, messageIds],
   );
 
-  const contextValue: LabelableContext = React.useMemo(
+  const contextValue: LabelableContext = useMemo(
     () => ({
       controlId,
       setControlId,

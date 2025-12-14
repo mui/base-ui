@@ -24,6 +24,7 @@ import { COMPOSITE_KEYS } from '../../composite/composite';
 import { useToolbarRootContext } from '../../toolbar/root/ToolbarRootContext';
 import { getDisabledMountTransitionStyles } from '../../utils/getDisabledMountTransitionStyles';
 import { useCallback } from '@base-ui/utils/useCallback';
+import { useMemo } from '@base-ui/utils/useMemo';
 
 const stateAttributesMapping: StateAttributesMapping<PopoverPopup.State> = {
   ...baseMapping,
@@ -92,7 +93,7 @@ export const PopoverPopup = React.forwardRef(function PopoverPopup(
 
   const resolvedInitialFocus = initialFocus === undefined ? defaultInitialFocus : initialFocus;
 
-  const state: PopoverPopup.State = React.useMemo(
+  const state: PopoverPopup.State = useMemo(
     () => ({
       open,
       side: positioner.side,

@@ -10,6 +10,7 @@ import { useTabsRootContext } from '../root/TabsRootContext';
 import type { TabsRoot } from '../root/TabsRoot';
 import type { TabsTab } from '../tab/TabsTab';
 import { TabsPanelDataAttributes } from './TabsPanelDataAttributes';
+import { useMemo } from '@base-ui/utils/useMemo';
 
 /**
  * A panel displayed when the corresponding tab is active.
@@ -34,7 +35,7 @@ export const TabsPanel = React.forwardRef(function TabPanel(
 
   const id = useBaseUiId();
 
-  const metadata = React.useMemo(
+  const metadata = useMemo(
     () => ({
       id,
       value,
@@ -50,7 +51,7 @@ export const TabsPanel = React.forwardRef(function TabPanel(
 
   const correspondingTabId = getTabIdByPanelValue(value);
 
-  const state: TabsPanel.State = React.useMemo(
+  const state: TabsPanel.State = useMemo(
     () => ({
       hidden,
       orientation,

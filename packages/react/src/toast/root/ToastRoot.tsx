@@ -19,6 +19,7 @@ import { ToastRootCssVars } from './ToastRootCssVars';
 import { useEffect } from '@base-ui/utils/useEffect';
 import { useRef } from '@base-ui/utils/useRef';
 import { useState } from '@base-ui/utils/useState';
+import { useMemo } from '@base-ui/utils/useMemo';
 
 const stateAttributesMapping: StateAttributesMapping<ToastRoot.State> = {
   ...transitionStatusMapping,
@@ -130,12 +131,12 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
   const swipeCancelBaselineRef = useRef({ x: 0, y: 0 });
   const isFirstPointerMoveRef = useRef(false);
 
-  const domIndex = React.useMemo(() => toasts.indexOf(toast), [toast, toasts]);
-  const visibleIndex = React.useMemo(
+  const domIndex = useMemo(() => toasts.indexOf(toast), [toast, toasts]);
+  const visibleIndex = useMemo(
     () => toasts.filter((t) => t.transitionStatus !== 'ending').indexOf(toast),
     [toast, toasts],
   );
-  const offsetY = React.useMemo(() => {
+  const offsetY = useMemo(() => {
     return toasts.slice(0, toasts.indexOf(toast)).reduce((acc, t) => acc + (t.height || 0), 0);
   }, [toasts, toast]);
 
@@ -537,7 +538,7 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
     },
   };
 
-  const toastRoot: ToastRootContext = React.useMemo(
+  const toastRoot: ToastRootContext = useMemo(
     () => ({
       rootRef,
       toast,
@@ -565,7 +566,7 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
     ],
   );
 
-  const state: ToastRoot.State = React.useMemo(
+  const state: ToastRoot.State = useMemo(
     () => ({
       transitionStatus: toast.transitionStatus,
       expanded,

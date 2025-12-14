@@ -35,6 +35,7 @@ import { SliderThumbDataAttributes } from './SliderThumbDataAttributes';
 import { script as prehydrationScript } from './prehydrationScript.min';
 import { useCallback } from '@base-ui/utils/useCallback';
 import { useState } from '@base-ui/utils/useState';
+import { useMemo } from '@base-ui/utils/useMemo';
 
 const PAGE_UP = 'PageUp';
 const PAGE_DOWN = 'PageDown';
@@ -157,7 +158,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
   const labelableId = useLabelableId();
   const inputId = range ? defaultInputId : labelableId;
 
-  const thumbMetadata = React.useMemo(
+  const thumbMetadata = useMemo(
     () => ({
       inputId,
     }),

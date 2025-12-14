@@ -20,6 +20,7 @@ import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
 import { StateAttributesMapping } from '../../utils/getStateAttributesProps';
 import { contains, getTarget } from '../../floating-ui-react/utils';
 import { getDisabledMountTransitionStyles } from '../../utils/getDisabledMountTransitionStyles';
+import { useMemo } from '@base-ui/utils/useMemo';
 
 const stateAttributesMapping: StateAttributesMapping<ComboboxPopup.State> = {
   ...popupStateMapping,
@@ -60,7 +61,7 @@ export const ComboboxPopup = React.forwardRef(function ComboboxPopup(
     },
   });
 
-  const state: ComboboxPopup.State = React.useMemo(
+  const state: ComboboxPopup.State = useMemo(
     () => ({
       open,
       side: positioning.side,

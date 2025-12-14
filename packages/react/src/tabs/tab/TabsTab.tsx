@@ -15,6 +15,7 @@ import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
 import { activeElement, contains } from '../../floating-ui-react/utils';
 import { useRef } from '@base-ui/utils/useRef';
+import { useMemo } from '@base-ui/utils/useMemo';
 
 /**
  * An individual interactive tab button that toggles the corresponding panel.
@@ -48,7 +49,7 @@ export const TabsTab = React.forwardRef(function TabsTab(
 
   const id = useBaseUiId(idProp);
 
-  const tabMetadata = React.useMemo(() => ({ disabled, id, value }), [disabled, id, value]);
+  const tabMetadata = useMemo(() => ({ disabled, id, value }), [disabled, id, value]);
 
   const {
     compositeProps,
@@ -166,7 +167,7 @@ export const TabsTab = React.forwardRef(function TabsTab(
     }
   }
 
-  const state: TabsTab.State = React.useMemo(
+  const state: TabsTab.State = useMemo(
     () => ({
       disabled,
       active,

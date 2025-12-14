@@ -18,6 +18,7 @@ import { useImplicitActiveTrigger, useOpenStateTransitions } from '../../utils/p
 import { useEffect } from '@base-ui/utils/useEffect';
 import { useCallback } from '@base-ui/utils/useCallback';
 import { useState } from '@base-ui/utils/useState';
+import { useMemo } from '@base-ui/utils/useMemo';
 
 export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.ReturnValue {
   const { store, parentContext, actionsRef } = params;
@@ -141,17 +142,17 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
     };
   }, [open, parentContext, ownNestedOpenDialogs]);
 
-  const activeTriggerProps = React.useMemo(
+  const activeTriggerProps = useMemo(
     () => getReferenceProps(triggerProps),
     [getReferenceProps, triggerProps],
   );
 
-  const inactiveTriggerProps = React.useMemo(
+  const inactiveTriggerProps = useMemo(
     () => getTriggerProps(triggerProps),
     [getTriggerProps, triggerProps],
   );
 
-  const popupProps = React.useMemo(() => getFloatingProps(), [getFloatingProps]);
+  const popupProps = useMemo(() => getFloatingProps(), [getFloatingProps]);
 
   store.useSyncedValues({
     openMethod,

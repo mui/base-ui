@@ -3,6 +3,7 @@ import * as React from 'react';
 import { useFieldRootContext } from '../root/FieldRootContext';
 import { getCombinedFieldValidityData } from '../utils/getCombinedFieldValidityData';
 import { FieldValidityData } from '../root/FieldRoot';
+import { useMemo } from '@base-ui/utils/useMemo';
 
 /**
  * Used to display a custom message based on the field’s validity.
@@ -14,7 +15,7 @@ export const FieldValidity: React.FC<FieldValidity.Props> = function FieldValidi
   const { children } = props;
   const { validityData, invalid } = useFieldRootContext(false);
 
-  const fieldValidityState: FieldValidity.State = React.useMemo(() => {
+  const fieldValidityState: FieldValidity.State = useMemo(() => {
     const combinedFieldValidityData = getCombinedFieldValidityData(validityData, invalid);
     return {
       ...combinedFieldValidityData,

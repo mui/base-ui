@@ -20,6 +20,7 @@ import { useValueChanged } from '../utils/useValueChanged';
 import { areArraysEqual } from '../utils/areArraysEqual';
 import { EMPTY_ARRAY } from '../utils/constants';
 import { useCallback } from '@base-ui/utils/useCallback';
+import { useMemo } from '@base-ui/utils/useMemo';
 
 /**
  * Provides a shared state to a series of checkboxes.
@@ -123,7 +124,7 @@ export const CheckboxGroup = React.forwardRef(function CheckboxGroup(
     }
   });
 
-  const state: CheckboxGroup.State = React.useMemo(
+  const state: CheckboxGroup.State = useMemo(
     () => ({
       ...fieldState,
       disabled,
@@ -131,7 +132,7 @@ export const CheckboxGroup = React.forwardRef(function CheckboxGroup(
     [fieldState, disabled],
   );
 
-  const contextValue: CheckboxGroupContext = React.useMemo(
+  const contextValue: CheckboxGroupContext = useMemo(
     () => ({
       allValues,
       value,

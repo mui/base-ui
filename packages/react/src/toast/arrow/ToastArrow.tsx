@@ -4,6 +4,7 @@ import { useToastPositionerContext } from '../positioner/ToastPositionerContext'
 import type { BaseUIComponentProps } from '../../utils/types';
 import type { Side, Align } from '../../utils/useAnchorPositioning';
 import { useRenderElement } from '../../utils/useRenderElement';
+import { useMemo } from '@base-ui/utils/useMemo';
 
 /**
  * Displays an element positioned against the toast anchor.
@@ -19,7 +20,7 @@ export const ToastArrow = React.forwardRef(function ToastArrow(
 
   const { arrowRef, side, align, arrowUncentered, arrowStyles } = useToastPositionerContext();
 
-  const state: ToastArrow.State = React.useMemo(
+  const state: ToastArrow.State = useMemo(
     () => ({
       side,
       align,

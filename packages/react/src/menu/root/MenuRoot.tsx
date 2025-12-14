@@ -48,6 +48,7 @@ import { useMenuSubmenuRootContext } from '../submenu-root/MenuSubmenuRootContex
 import { useEffect } from '@base-ui/utils/useEffect';
 import { useRef } from '@base-ui/utils/useRef';
 import { useCallback } from '@base-ui/utils/useCallback';
+import { useMemo } from '@base-ui/utils/useMemo';
 
 /**
  * Groups all parts of the menu.
@@ -79,7 +80,7 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
   const menubarContext = useMenubarContext(true);
   const isSubmenu = useMenuSubmenuRootContext();
 
-  const parentFromContext: MenuParent = React.useMemo(() => {
+  const parentFromContext: MenuParent = useMemo(() => {
     if (isSubmenu && parentMenuRootContext) {
       return {
         type: 'menu',
@@ -479,7 +480,7 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
     typeahead,
   ]);
 
-  const activeTriggerProps = React.useMemo(() => {
+  const activeTriggerProps = useMemo(() => {
     const mergedProps = mergeProps(
       getReferenceProps(),
       {
@@ -497,7 +498,7 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
     return mergedProps;
   }, [getReferenceProps, store, interactionTypeProps]);
 
-  const inactiveTriggerProps = React.useMemo(() => {
+  const inactiveTriggerProps = useMemo(() => {
     const triggerProps = getTriggerProps();
     if (!triggerProps) {
       return triggerProps;
@@ -510,7 +511,7 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
   }, [getTriggerProps, interactionTypeProps]);
 
   const disableHoverTimeout = useAnimationFrame();
-  const popupProps = React.useMemo(
+  const popupProps = useMemo(
     () =>
       getFloatingProps({
         onMouseEnter() {
@@ -539,7 +540,7 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
     [getFloatingProps, parent.type, disableHoverTimeout, store],
   );
 
-  const itemProps = React.useMemo(() => getItemProps(), [getItemProps]);
+  const itemProps = useMemo(() => getItemProps(), [getItemProps]);
 
   store.useSyncedValues({
     floatingRootContext,
@@ -549,7 +550,7 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
     itemProps,
   });
 
-  const context: MenuRootContext<Payload> = React.useMemo(
+  const context: MenuRootContext<Payload> = useMemo(
     () => ({
       store,
       parent: parentFromContext,

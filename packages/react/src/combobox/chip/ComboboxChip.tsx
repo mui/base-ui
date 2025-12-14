@@ -12,6 +12,7 @@ import { stopEvent } from '../../floating-ui-react/utils';
 import { selectors } from '../store';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
+import { useMemo } from '@base-ui/utils/useMemo';
 
 /**
  * An individual chip that represents a value in a multiselectable input.
@@ -84,7 +85,7 @@ export const ComboboxChip = React.forwardRef(function ComboboxChip(
     return nextIndex;
   }
 
-  const state: ComboboxChip.State = React.useMemo(
+  const state: ComboboxChip.State = useMemo(
     () => ({
       disabled,
     }),
@@ -128,7 +129,7 @@ export const ComboboxChip = React.forwardRef(function ComboboxChip(
     ],
   });
 
-  const contextValue: ComboboxChipContext = React.useMemo(
+  const contextValue: ComboboxChipContext = useMemo(
     () => ({
       index,
     }),

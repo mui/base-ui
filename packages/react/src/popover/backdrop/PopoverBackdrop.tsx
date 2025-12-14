@@ -8,6 +8,7 @@ import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { REASONS } from '../../utils/reasons';
+import { useMemo } from '@base-ui/utils/useMemo';
 
 const stateAttributesMapping: StateAttributesMapping<PopoverBackdrop.State> = {
   ...baseMapping,
@@ -33,7 +34,7 @@ export const PopoverBackdrop = React.forwardRef(function PopoverBackdrop(
   const transitionStatus = store.useState('transitionStatus');
   const openReason = store.useState('openChangeReason');
 
-  const state: PopoverBackdrop.State = React.useMemo(
+  const state: PopoverBackdrop.State = useMemo(
     () => ({
       open,
       transitionStatus,

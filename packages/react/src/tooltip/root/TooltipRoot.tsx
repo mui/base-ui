@@ -17,6 +17,7 @@ import { TooltipStore } from '../store/TooltipStore';
 import { type TooltipHandle } from '../store/TooltipHandle';
 import { REASONS } from '../../utils/reasons';
 import { useCallback } from '@base-ui/utils/useCallback';
+import { useMemo } from '@base-ui/utils/useMemo';
 
 /**
  * Groups all parts of the tooltip.
@@ -136,9 +137,9 @@ export const TooltipRoot = fastComponent(function TooltipRoot<Payload>(
     clientPoint,
   ]);
 
-  const activeTriggerProps = React.useMemo(() => getReferenceProps(), [getReferenceProps]);
-  const inactiveTriggerProps = React.useMemo(() => getTriggerProps(), [getTriggerProps]);
-  const popupProps = React.useMemo(() => getFloatingProps(), [getFloatingProps]);
+  const activeTriggerProps = useMemo(() => getReferenceProps(), [getReferenceProps]);
+  const inactiveTriggerProps = useMemo(() => getTriggerProps(), [getTriggerProps]);
+  const popupProps = useMemo(() => getFloatingProps(), [getFloatingProps]);
 
   store.useSyncedValues({
     floatingRootContext,

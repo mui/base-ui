@@ -6,6 +6,7 @@ import type { BaseUIChangeEventDetails } from '../utils/createBaseUIEventDetails
 import type { BaseUIEventReasons } from '../utils/reasons';
 import { useRef } from '@base-ui/utils/useRef';
 import { useCallback } from '@base-ui/utils/useCallback';
+import { useMemo } from '@base-ui/utils/useMemo';
 
 const EMPTY: string[] = [];
 
@@ -94,7 +95,7 @@ export function useCheckboxGroupParent(
     [onValueChange, value],
   );
 
-  return React.useMemo(
+  return useMemo(
     () => ({
       id,
       indeterminate,

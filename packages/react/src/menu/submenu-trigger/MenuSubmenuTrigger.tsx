@@ -17,6 +17,7 @@ import { useMenuPositionerContext } from '../positioner/MenuPositionerContext';
 import { useTriggerRegistration } from '../../utils/popups';
 import { useMenuSubmenuRootContext } from '../submenu-root/MenuSubmenuRootContext';
 import { useCallback } from '@base-ui/utils/useCallback';
+import { useMemo } from '@base-ui/utils/useMemo';
 
 /**
  * A menu item that opens a submenu.
@@ -90,7 +91,7 @@ export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerCompon
   const itemProps = parentMenuStore.useState('itemProps');
   const highlighted = parentMenuStore.useState('isActive', listItem.index);
 
-  const itemMetadata = React.useMemo(
+  const itemMetadata = useMemo(
     () => ({
       type: 'submenu-trigger' as const,
       setActive: () => parentMenuStore.set('activeIndex', listItem.index),
@@ -139,7 +140,7 @@ export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerCompon
   const rootTriggerProps = store.useState('triggerProps', true);
   delete rootTriggerProps.id;
 
-  const state: MenuSubmenuTrigger.State = React.useMemo(
+  const state: MenuSubmenuTrigger.State = useMemo(
     () => ({ disabled, highlighted, open }),
     [disabled, highlighted, open],
   );

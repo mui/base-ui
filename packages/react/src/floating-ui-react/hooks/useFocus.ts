@@ -18,6 +18,7 @@ import { createAttribute } from '../utils/createAttribute';
 import { FloatingUIOpenChangeDetails } from '../../utils/types';
 import { useEffect } from '@base-ui/utils/useEffect';
 import { useRef } from '@base-ui/utils/useRef';
+import { useMemo } from '@base-ui/utils/useMemo';
 
 const isMacSafari = isMac && isSafari;
 
@@ -117,7 +118,7 @@ export function useFocus(
     };
   }, [events, enabled]);
 
-  const reference: ElementProps['reference'] = React.useMemo(
+  const reference: ElementProps['reference'] = useMemo(
     () => ({
       onMouseLeave() {
         blockFocusRef.current = false;
@@ -201,8 +202,5 @@ export function useFocus(
     [dataRef, store, visibleOnly, timeout],
   );
 
-  return React.useMemo(
-    () => (enabled ? { reference, trigger: reference } : {}),
-    [enabled, reference],
-  );
+  return useMemo(() => (enabled ? { reference, trigger: reference } : {}), [enabled, reference]);
 }

@@ -37,6 +37,7 @@ import { CompositeMetadata } from '../list/CompositeList';
 import { HTMLProps } from '../../utils/types';
 import { useRef } from '@base-ui/utils/useRef';
 import { useState } from '@base-ui/utils/useState';
+import { useMemo } from '@base-ui/utils/useMemo';
 
 export interface UseCompositeRootParameters {
   orientation?: 'horizontal' | 'vertical' | 'both';
@@ -339,7 +340,7 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
     ],
   );
 
-  return React.useMemo(
+  return useMemo(
     () => ({
       props,
       highlightedIndex,

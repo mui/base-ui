@@ -7,6 +7,7 @@ import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { CompositeListContext } from './CompositeListContext';
 import { useRef } from '@base-ui/utils/useRef';
 import { useState } from '@base-ui/utils/useState';
+import { useMemo } from '@base-ui/utils/useMemo';
 
 export type CompositeMetadata<CustomMetadata> = { index?: number | null } & CustomMetadata;
 
@@ -47,7 +48,7 @@ export function CompositeList<Metadata>(props: CompositeList.Props<Metadata>) {
     setMapTick(lastTickRef.current);
   });
 
-  const sortedMap = React.useMemo(() => {
+  const sortedMap = useMemo(() => {
     // `mapTick` is the `useMemo` trigger as `map` is stable.
     disableEslintWarning(mapTick);
 
@@ -135,7 +136,7 @@ export function CompositeList<Metadata>(props: CompositeList.Props<Metadata>) {
     listeners.forEach((l) => l(sortedMap));
   }, [listeners, sortedMap]);
 
-  const contextValue = React.useMemo(
+  const contextValue = useMemo(
     () => ({ register, unregister, subscribeMapChange, elementsRef, labelsRef, nextIndexRef }),
     [register, unregister, subscribeMapChange, elementsRef, labelsRef, nextIndexRef],
   );

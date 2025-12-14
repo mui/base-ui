@@ -10,6 +10,7 @@ import { ToggleGroupContext } from './ToggleGroupContext';
 import { ToggleGroupDataAttributes } from './ToggleGroupDataAttributes';
 import type { BaseUIChangeEventDetails } from '../utils/createBaseUIEventDetails';
 import { REASONS } from '../utils/reasons';
+import { useMemo } from '@base-ui/utils/useMemo';
 
 const stateAttributesMapping = {
   multiple(value: boolean) {
@@ -44,7 +45,7 @@ export const ToggleGroup = React.forwardRef(function ToggleGroup(
 
   const toolbarContext = useToolbarRootContext(true);
 
-  const defaultValue = React.useMemo(() => {
+  const defaultValue = useMemo(() => {
     if (valueProp === undefined) {
       return defaultValueProp ?? [];
     }
@@ -90,12 +91,12 @@ export const ToggleGroup = React.forwardRef(function ToggleGroup(
     },
   );
 
-  const state: ToggleGroup.State = React.useMemo(
+  const state: ToggleGroup.State = useMemo(
     () => ({ disabled, multiple, orientation }),
     [disabled, orientation, multiple],
   );
 
-  const contextValue: ToggleGroupContext = React.useMemo(
+  const contextValue: ToggleGroupContext = useMemo(
     () => ({
       disabled,
       orientation,

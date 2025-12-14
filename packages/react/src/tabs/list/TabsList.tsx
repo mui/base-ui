@@ -12,6 +12,7 @@ import { TabsListContext } from './TabsListContext';
 import { EMPTY_ARRAY } from '../../utils/constants';
 import { useCallback } from '@base-ui/utils/useCallback';
 import { useState } from '@base-ui/utils/useState';
+import { useMemo } from '@base-ui/utils/useMemo';
 
 /**
  * Groups the individual tab buttons.
@@ -61,7 +62,7 @@ export const TabsList = React.forwardRef(function TabsList(
     },
   );
 
-  const state: TabsList.State = React.useMemo(
+  const state: TabsList.State = useMemo(
     () => ({
       orientation,
       tabActivationDirection,
@@ -74,7 +75,7 @@ export const TabsList = React.forwardRef(function TabsList(
     role: 'tablist',
   };
 
-  const tabsListContextValue: TabsListContext = React.useMemo(
+  const tabsListContextValue: TabsListContext = useMemo(
     () => ({
       activateOnFocus,
       highlightedTabIndex,

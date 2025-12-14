@@ -14,6 +14,7 @@ import { script as prehydrationScript } from './prehydrationScript.min';
 import { TabsIndicatorCssVars } from './TabsIndicatorCssVars';
 import { useEffect } from '@base-ui/utils/useEffect';
 import { useState } from '@base-ui/utils/useState';
+import { useMemo } from '@base-ui/utils/useMemo';
 
 const stateAttributesMapping = {
   ...tabsStateAttributesMapping,
@@ -100,7 +101,7 @@ export const TabsIndicator = React.forwardRef(function TabIndicator(
     }
   }
 
-  const activeTabPosition = React.useMemo(
+  const activeTabPosition = useMemo(
     () =>
       isTabSelected
         ? {
@@ -113,7 +114,7 @@ export const TabsIndicator = React.forwardRef(function TabIndicator(
     [left, right, top, bottom, isTabSelected],
   );
 
-  const activeTabSize = React.useMemo(
+  const activeTabSize = useMemo(
     () =>
       isTabSelected
         ? {
@@ -124,7 +125,7 @@ export const TabsIndicator = React.forwardRef(function TabIndicator(
     [width, height, isTabSelected],
   );
 
-  const style = React.useMemo(() => {
+  const style = useMemo(() => {
     if (!isTabSelected) {
       return undefined;
     }
@@ -141,7 +142,7 @@ export const TabsIndicator = React.forwardRef(function TabIndicator(
 
   const displayIndicator = isTabSelected && width > 0 && height > 0;
 
-  const state: TabsIndicator.State = React.useMemo(
+  const state: TabsIndicator.State = useMemo(
     () => ({
       orientation,
       activeTabPosition,

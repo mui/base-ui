@@ -12,6 +12,7 @@ import { useTooltipProviderContext } from '../provider/TooltipProviderContext';
 import { safePolygon, useDelayGroup, useHoverReferenceInteraction } from '../../floating-ui-react';
 
 import { OPEN_DELAY } from '../utils/constants';
+import { useMemo } from '@base-ui/utils/useMemo';
 
 /**
  * An element to attach the tooltip to.
@@ -112,7 +113,7 @@ export const TooltipTrigger = fastComponentRef(function TooltipTrigger(
     isActiveTrigger: isTriggerActive,
   });
 
-  const state: TooltipTrigger.State = React.useMemo(
+  const state: TooltipTrigger.State = useMemo(
     () => ({ open: isOpenedByThisTrigger }),
     [isOpenedByThisTrigger],
   );

@@ -7,6 +7,7 @@ import { useBaseUiId } from '../../utils/useBaseUiId';
 import type { BaseUIComponentProps, NonNativeButtonProps } from '../../utils/types';
 import { useCompositeListItem } from '../../composite/list/useCompositeListItem';
 import { useMenuPositionerContext } from '../positioner/MenuPositionerContext';
+import { useMemo } from '@base-ui/utils/useMemo';
 
 /**
  * An individual interactive item in the menu.
@@ -48,7 +49,7 @@ export const MenuItem = React.forwardRef(function MenuItem(
     itemMetadata: REGULAR_ITEM,
   });
 
-  const state: MenuItem.State = React.useMemo(
+  const state: MenuItem.State = useMemo(
     () => ({
       disabled,
       highlighted,

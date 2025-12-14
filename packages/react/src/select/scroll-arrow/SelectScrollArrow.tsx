@@ -11,6 +11,7 @@ import { type TransitionStatus, useTransitionStatus } from '../../utils/useTrans
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { selectors } from '../store';
+import { useMemo } from '@base-ui/utils/useMemo';
 
 /**
  * @internal
@@ -64,7 +65,7 @@ export const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
     },
   });
 
-  const state: SelectScrollArrow.State = React.useMemo(
+  const state: SelectScrollArrow.State = useMemo(
     () => ({
       direction,
       visible,

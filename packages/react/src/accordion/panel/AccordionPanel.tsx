@@ -14,6 +14,7 @@ import { AccordionPanelCssVars } from './AccordionPanelCssVars';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useRenderElement } from '../../utils/useRenderElement';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
+import { useMemo } from '@base-ui/utils/useMemo';
 
 /**
  * A collapsible panel with the accordion item contents.
@@ -128,7 +129,7 @@ export const AccordionPanel = React.forwardRef(function AccordionPanel(
 
   const { state, triggerId } = useAccordionItemContext();
 
-  const panelState: AccordionPanel.State = React.useMemo(
+  const panelState: AccordionPanel.State = useMemo(
     () => ({
       ...state,
       transitionStatus,

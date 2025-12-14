@@ -25,6 +25,7 @@ import { type BaseUIChangeEventDetails } from '../../utils/createBaseUIEventDeta
 import { REASONS } from '../../utils/reasons';
 import { useEffect } from '@base-ui/utils/useEffect';
 import { useState } from '@base-ui/utils/useState';
+import { useMemo } from '@base-ui/utils/useMemo';
 
 const blockedReturnFocusReasons = new Set<string>([
   REASONS.triggerHover,
@@ -168,7 +169,7 @@ export const NavigationMenuRoot = React.forwardRef(function NavigationMenuRoot(
     },
   });
 
-  const contextValue: NavigationMenuRootContext = React.useMemo(
+  const contextValue: NavigationMenuRootContext = useMemo(
     () => ({
       open,
       value,
@@ -261,7 +262,7 @@ function TreeContext(props: {
 
   const { open } = useNavigationMenuRootContext();
 
-  const state: NavigationMenuRoot.State = React.useMemo(
+  const state: NavigationMenuRoot.State = useMemo(
     () => ({
       open,
       nested,

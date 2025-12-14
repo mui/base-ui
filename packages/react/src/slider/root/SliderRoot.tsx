@@ -34,6 +34,7 @@ import { SliderRootContext } from './SliderRootContext';
 import { REASONS } from '../../utils/reasons';
 import { useRef } from '@base-ui/utils/useRef';
 import { useState } from '@base-ui/utils/useState';
+import { useMemo } from '@base-ui/utils/useMemo';
 
 function getSliderChangeEventReason(
   event: React.KeyboardEvent | React.ChangeEvent,
@@ -202,7 +203,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
 
   const range = Array.isArray(valueUnwrapped);
 
-  const values = React.useMemo(() => {
+  const values = useMemo(() => {
     if (!range) {
       return [clamp(valueUnwrapped as number, min, max)];
     }
@@ -287,7 +288,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
     setActive(-1);
   }
 
-  const state: SliderRoot.State = React.useMemo(
+  const state: SliderRoot.State = useMemo(
     () => ({
       ...fieldState,
       activeThumbIndex: active,
@@ -314,7 +315,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
     ],
   );
 
-  const contextValue: SliderRootContext = React.useMemo(
+  const contextValue: SliderRootContext = useMemo(
     () => ({
       active,
       controlRef,

@@ -6,6 +6,7 @@ import type { Align, Side } from '../../utils/useAnchorPositioning';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { popupStateMapping } from '../../utils/popupStateMapping';
 import { useRenderElement } from '../../utils/useRenderElement';
+import { useMemo } from '@base-ui/utils/useMemo';
 
 /**
  * Displays an element positioned against the popover anchor.
@@ -23,7 +24,7 @@ export const PopoverArrow = React.forwardRef(function PopoverArrow(
   const open = store.useState('open');
   const { arrowRef, side, align, arrowUncentered, arrowStyles } = usePopoverPositionerContext();
 
-  const state: PopoverArrow.State = React.useMemo(
+  const state: PopoverArrow.State = useMemo(
     () => ({
       open,
       side,

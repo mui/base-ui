@@ -5,6 +5,7 @@ import { BaseUIComponentProps } from '../../utils/types';
 import { useToolbarRootContext } from '../root/ToolbarRootContext';
 import type { ToolbarRoot } from '../root/ToolbarRoot';
 import { ToolbarGroupContext } from './ToolbarGroupContext';
+import { useMemo } from '@base-ui/utils/useMemo';
 
 /**
  * Groups several toolbar items or toggles.
@@ -22,14 +23,14 @@ export const ToolbarGroup = React.forwardRef(function ToolbarGroup(
 
   const disabled = toolbarDisabled || disabledProp;
 
-  const contextValue: ToolbarGroupContext = React.useMemo(
+  const contextValue: ToolbarGroupContext = useMemo(
     () => ({
       disabled,
     }),
     [disabled],
   );
 
-  const state: ToolbarRoot.State = React.useMemo(
+  const state: ToolbarRoot.State = useMemo(
     () => ({
       disabled,
       orientation,

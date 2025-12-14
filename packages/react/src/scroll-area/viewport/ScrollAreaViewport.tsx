@@ -20,6 +20,7 @@ import type { ScrollAreaRoot } from '../root/ScrollAreaRoot';
 import { ScrollAreaViewportCssVars } from './ScrollAreaViewportCssVars';
 import { useEffect } from '@base-ui/utils/useEffect';
 import { useRef } from '@base-ui/utils/useRef';
+import { useMemo } from '@base-ui/utils/useMemo';
 
 // Module-level flag to ensure we only register the CSS properties once,
 // regardless of how many Scroll Area components are mounted.
@@ -374,7 +375,7 @@ export const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
     onKeyDown: handleUserInteraction,
   };
 
-  const viewportState: ScrollAreaViewport.State = React.useMemo(
+  const viewportState: ScrollAreaViewport.State = useMemo(
     () => ({
       hasOverflowX: !hiddenState.scrollbarXHidden,
       hasOverflowY: !hiddenState.scrollbarYHidden,
@@ -399,7 +400,7 @@ export const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
     stateAttributesMapping: scrollAreaStateAttributesMapping,
   });
 
-  const contextValue: ScrollAreaViewportContext = React.useMemo(
+  const contextValue: ScrollAreaViewportContext = useMemo(
     () => ({
       computeThumbPosition,
     }),

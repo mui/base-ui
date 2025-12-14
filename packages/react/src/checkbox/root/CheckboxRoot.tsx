@@ -28,6 +28,7 @@ import {
 import { REASONS } from '../../utils/reasons';
 import { useValueChanged } from '../../utils/useValueChanged';
 import { useEffect } from '@base-ui/utils/useEffect';
+import { useMemo } from '@base-ui/utils/useMemo';
 
 export const PARENT_CHECKBOX = 'data-parent';
 
@@ -251,7 +252,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     }
   }, [parentContext, disabled, value]);
 
-  const state: CheckboxRoot.State = React.useMemo(
+  const state: CheckboxRoot.State = useMemo(
     () => ({
       ...fieldState,
       checked: computedChecked,

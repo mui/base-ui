@@ -21,6 +21,7 @@ import { REASONS } from '../../utils/reasons';
 import { findItemIndex, itemIncludes } from '../../utils/itemEquality';
 import { useRef } from '@base-ui/utils/useRef';
 import { useState } from '@base-ui/utils/useState';
+import { useMemo } from '@base-ui/utils/useMemo';
 
 const FIXED: React.CSSProperties = { position: 'fixed' };
 
@@ -126,7 +127,7 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
   const renderedSide = alignItemWithTriggerActive ? 'none' : positioning.side;
   const positionerStyles = alignItemWithTriggerActive ? FIXED : positioning.positionerStyles;
 
-  const defaultProps: React.ComponentProps<'div'> = React.useMemo(() => {
+  const defaultProps: React.ComponentProps<'div'> = useMemo(() => {
     const hiddenStyles: React.CSSProperties = {};
 
     if (!open) {
@@ -143,7 +144,7 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
     };
   }, [open, mounted, positionerStyles]);
 
-  const state: SelectPositioner.State = React.useMemo(
+  const state: SelectPositioner.State = useMemo(
     () => ({
       open,
       side: renderedSide,
@@ -227,7 +228,7 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
     }
   });
 
-  const contextValue: SelectPositionerContext = React.useMemo(
+  const contextValue: SelectPositionerContext = useMemo(
     () => ({
       ...positioning,
       side: renderedSide,

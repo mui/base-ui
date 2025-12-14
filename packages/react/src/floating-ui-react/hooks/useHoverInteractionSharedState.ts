@@ -5,6 +5,7 @@ import type { ContextData, FloatingRootContext, SafePolygonOptions } from '../ty
 import { createAttribute } from '../utils/createAttribute';
 import { TYPEABLE_SELECTOR } from '../utils/constants';
 import { useRef } from '@base-ui/utils/useRef';
+import { useMemo } from '@base-ui/utils/useMemo';
 
 export const safePolygonIdentifier = createAttribute('safe-polygon');
 const interactiveSelector = `button,a,[role="button"],select,[tabindex]:not([tabindex="-1"]),${TYPEABLE_SELECTOR}`;
@@ -44,7 +45,7 @@ export function useHoverInteractionSharedState(
   const restTimeout = useTimeout();
   const handleCloseOptionsRef = React.useRef<SafePolygonOptions | undefined>(undefined);
 
-  return React.useMemo(() => {
+  return useMemo(() => {
     const data = store.context.dataRef.current as HoverContextData;
 
     if (!data.hoverInteractionState) {
