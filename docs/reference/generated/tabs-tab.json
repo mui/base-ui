@@ -3,7 +3,7 @@
   "description": "An individual interactive tab button that toggles the corresponding panel.\nRenders a `<button>` element.",
   "props": {
     "value": {
-      "type": "Tabs.Tab.Value",
+      "type": "any",
       "required": true,
       "description": "The value of the Tab."
     },
