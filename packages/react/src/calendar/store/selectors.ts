@@ -45,7 +45,6 @@ const referenceDateSelector = createSelectorMemoized(
       adapter,
       timezone,
       validationProps,
-      precision: 'day',
       externalReferenceDate: referenceDateProp,
       externalDate: initialReferenceDateFromValue,
     }),

@@ -7,38 +7,34 @@ describe('getInitialReferenceDate', () => {
 
   describe('when externalDate is provided and valid', () => {
     it('should return externalDate', () => {
-      const externalDate = adapter.date('2025-03-15', 'default');
       const result = getInitialReferenceDate({
         adapter,
         timezone: 'default',
-        externalDate,
+        externalDate: adapter.date('2025-03-15', 'default'),
         externalReferenceDate: null,
         validationProps: {},
       });
 
-      expect(adapter.isEqual(result, externalDate)).to.equal(true);
+      expect(result).toEqualDateTime('2025-03-15');
     });
 
     it('should return externalDate even if externalReferenceDate is also provided', () => {
-      const externalDate = adapter.date('2025-03-15', 'default');
-      const externalReferenceDate = adapter.date('2025-04-20', 'default');
       const result = getInitialReferenceDate({
         adapter,
         timezone: 'default',
-        externalDate,
-        externalReferenceDate,
+        externalDate: adapter.date('2025-03-15', 'default'),
+        externalReferenceDate: adapter.date('2025-04-20', 'default'),
         validationProps: {},
       });
 
-      expect(adapter.isEqual(result, externalDate)).to.equal(true);
+      expect(result).toEqualDateTime('2025-03-15');
     });
 
     it('should return externalDate even if it is outside minDate/maxDate bounds', () => {
-      const externalDate = adapter.date('2025-01-15', 'default');
       const result = getInitialReferenceDate({
         adapter,
         timezone: 'default',
-        externalDate,
+        externalDate: adapter.date('2025-01-15', 'default'),
         externalReferenceDate: null,
         validationProps: {
           minDate: adapter.date('2025-02-01', 'default'),
@@ -47,31 +43,29 @@ describe('getInitialReferenceDate', () => {
       });
 
       // externalDate is returned as-is, validation bounds don't apply
-      expect(adapter.isEqual(result, externalDate)).to.equal(true);
+      expect(result).toEqualDateTime('2025-01-15');
     });
   });
 
   describe('when externalReferenceDate is provided and valid (no externalDate)', () => {
     it('should return externalReferenceDate', () => {
-      const externalReferenceDate = adapter.date('2025-04-20', 'default');
       const result = getInitialReferenceDate({
         adapter,
         timezone: 'default',
         externalDate: null,
-        externalReferenceDate,
+        externalReferenceDate: adapter.date('2025-04-20', 'default'),
         validationProps: {},
       });
 
-      expect(adapter.isEqual(result, externalReferenceDate)).to.equal(true);
+      expect(result).toEqualDateTime('2025-04-20');
     });
 
     it('should return externalReferenceDate even if it is outside minDate/maxDate bounds', () => {
-      const externalReferenceDate = adapter.date('2025-01-15', 'default');
       const result = getInitialReferenceDate({
         adapter,
         timezone: 'default',
         externalDate: null,
-        externalReferenceDate,
+        externalReferenceDate: adapter.date('2025-01-15', 'default'),
         validationProps: {
           minDate: adapter.date('2025-02-01', 'default'),
           maxDate: adapter.date('2025-12-31', 'default'),
@@ -79,7 +73,7 @@ describe('getInitialReferenceDate', () => {
       });
 
       // externalReferenceDate is returned as-is, validation bounds don't apply
-      expect(adapter.isEqual(result, externalReferenceDate)).to.equal(true);
+      expect(result).toEqualDateTime('2025-01-15');
     });
   });
 
@@ -96,73 +90,65 @@ describe('getInitialReferenceDate', () => {
         validationProps: {},
       });
 
-      const expectedDate = adapter.startOfDay(adapter.date('2025-06-15', 'default'));
-      expect(adapter.isEqual(result, expectedDate)).to.equal(true);
-
+      expect(result).toEqualDateTime('2025-06-15');
       vi.useRealTimers();
     });
 
     it('should clamp to minDate if current date is before minDate', () => {
       vi.setSystemTime(new Date('2025-01-15T14:30:00.000Z'));
 
-      const minDate = adapter.date('2025-02-01', 'default');
       const result = getInitialReferenceDate({
         adapter,
         timezone: 'default',
         externalDate: null,
         externalReferenceDate: null,
-        validationProps: { minDate },
+        validationProps: { minDate: adapter.date('2025-02-01', 'default') },
       });
 
-      expect(adapter.isEqual(result, minDate)).to.equal(true);
-
+      expect(result).toEqualDateTime('2025-02-01');
       vi.useRealTimers();
     });
 
     it('should clamp to maxDate if current date is after maxDate', () => {
       vi.setSystemTime(new Date('2025-12-15T14:30:00.000Z'));
 
-      const maxDate = adapter.date('2025-06-30', 'default');
       const result = getInitialReferenceDate({
         adapter,
         timezone: 'default',
         externalDate: null,
         externalReferenceDate: null,
-        validationProps: { maxDate },
+        validationProps: { maxDate: adapter.date('2025-06-30', 'default') },
       });
 
-      expect(adapter.isEqual(result, maxDate)).to.equal(true);
-
+      expect(result).toEqualDateTime('2025-06-30');
       vi.useRealTimers();
     });
 
     it('should return current date if it is within minDate/maxDate bounds', () => {
       vi.setSystemTime(new Date('2025-06-15T14:30:00.000Z'));
 
-      const minDate = adapter.date('2025-01-01', 'default');
-      const maxDate = adapter.date('2025-12-31', 'default');
       const result = getInitialReferenceDate({
         adapter,
         timezone: 'default',
         externalDate: null,
         externalReferenceDate: null,
-        validationProps: { minDate, maxDate },
+        validationProps: {
+          minDate: adapter.date('2025-01-01', 'default'),
+          maxDate: adapter.date('2025-12-31', 'default'),
+        },
       });
 
-      const expectedDate = adapter.startOfDay(adapter.date('2025-06-15', 'default'));
-      expect(adapter.isEqual(result, expectedDate)).to.equal(true);
-
+      expect(result).toEqualDateTime('2025-06-15');
       vi.useRealTimers();
     });
   });
 
   describe('timezone handling', () => {
     it('should set the timezone on the returned date', () => {
-      const externalDate = adapter.date('2025-03-15', 'default');
       const result = getInitialReferenceDate({
         adapter,
         timezone: 'UTC',
-        externalDate,
+        externalDate: adapter.date('2025-03-15', 'default'),
         externalReferenceDate: null,
         validationProps: {},
       });
@@ -171,12 +157,11 @@ describe('getInitialReferenceDate', () => {
     });
 
     it('should set the timezone when using externalReferenceDate', () => {
-      const externalReferenceDate = adapter.date('2025-04-20', 'default');
       const result = getInitialReferenceDate({
         adapter,
         timezone: 'UTC',
         externalDate: null,
-        externalReferenceDate,
+        externalReferenceDate: adapter.date('2025-04-20', 'default'),
         validationProps: {},
       });
 
@@ -195,23 +180,21 @@ describe('getInitialReferenceDate', () => {
       });
 
       expect(adapter.getTimezone(result)).to.equal('UTC');
-
       vi.useRealTimers();
     });
   });
 
   describe('invalid dates handling', () => {
     it('should fall back to externalReferenceDate if externalDate is invalid', () => {
-      const externalReferenceDate = adapter.date('2025-04-20', 'default');
       const result = getInitialReferenceDate({
         adapter,
         timezone: 'default',
         externalDate: new Date('invalid'),
-        externalReferenceDate,
+        externalReferenceDate: adapter.date('2025-04-20', 'default'),
         validationProps: {},
       });
 
-      expect(adapter.isEqual(result, externalReferenceDate)).to.equal(true);
+      expect(result).toEqualDateTime('2025-04-20');
     });
 
     it('should fall back to current date if both externalDate and externalReferenceDate are invalid', () => {
@@ -225,9 +208,7 @@ describe('getInitialReferenceDate', () => {
         validationProps: {},
       });
 
-      const expectedDate = adapter.startOfDay(adapter.date('2025-06-15', 'default'));
-      expect(adapter.isEqual(result, expectedDate)).to.equal(true);
-
+      expect(result).toEqualDateTime('2025-06-15');
       vi.useRealTimers();
     });
   });

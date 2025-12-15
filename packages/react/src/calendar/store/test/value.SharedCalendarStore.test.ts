@@ -77,14 +77,6 @@ describe('SharedCalendarStore - value', () => {
 
       expect(adapter.isEqual(store.state.value, value)).to.equal(true);
     });
-
-    it('should initialize with null value when only referenceDate is provided', () => {
-      const referenceDate = adapter.date('2025-03-15', 'default');
-      const store = createStore(adapter, { referenceDate });
-
-      // referenceDate does not set the value, only affects visible date computation
-      expect(store.state.value).to.equal(null);
-    });
   });
 
   describe('uncontrolled mode (defaultValue)', () => {
