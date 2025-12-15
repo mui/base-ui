@@ -68,7 +68,7 @@ export function Header({ isProduction }: { isProduction: boolean }) {
                               }
                               external={page.tags?.includes('External')}
                             >
-                              {page.title !== undefined && titleMap[page.title] || page.title}
+                              {(page.title !== undefined && titleMap[page.title]) || page.title}
                               {page.tags?.includes('New') && <MobileNav.Badge>New</MobileNav.Badge>}
                               {page.tags?.includes('Preview') && (
                                 <MobileNav.Badge>Preview</MobileNav.Badge>
