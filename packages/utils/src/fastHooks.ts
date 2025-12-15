@@ -260,9 +260,8 @@ export type Scope = {
 let currentRoot: Root | undefined = undefined;
 let currentScope: Scope | undefined = undefined;
 
-function createScope(root: Root, name = 'default'): Scope {
+function createScope(root: Root): Scope {
   return {
-    name,
     didInitialize: false,
     useEffect: {
       index: 0,
@@ -352,7 +351,7 @@ export function useLazyScope(shouldMount: boolean): LazyScope {
 function runWithScope<T>(scopeName: string, fn: () => T): T {
   let scope = currentRoot!.scopes.next[scopeName];
   if (!scope) {
-    scope = currentRoot!.scopes.previous?.[scopeName] ?? createScope(currentRoot!, scopeName);
+    scope = currentRoot!.scopes.previous?.[scopeName] ?? createScope(currentRoot!);
     currentRoot!.scopes.next[scopeName] = scope;
   }
 
