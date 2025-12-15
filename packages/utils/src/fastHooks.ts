@@ -5,8 +5,8 @@ import type { ReadonlyStore } from './store/Store';
 type Effect = {
   cleanup: (() => void) | undefined;
   create: () => (() => void) | void;
-  deps: unknown[] | undefined;
-  renderedDeps: unknown[] | undefined;
+  nextDeps: unknown[] | undefined;
+  previousDeps: unknown[] | undefined;
   didChange: boolean;
 };
 
@@ -149,7 +149,8 @@ class Root {
           if (effect.didChange) {
             effect.didChange = false;
             effect.cleanup = effect.create() as any;
-            effect.renderedDeps = effect.deps;
+            effect.previousDeps = effect.nextDeps;
+            effect.nextDeps = undefined;
           }
         }
       }
@@ -159,14 +160,14 @@ class Root {
           const scope = this.scopes.next[scopeName];
           const context = scope[type];
           for (const effect of context.data) {
-            const previousDeps = effect.renderedDeps;
-            const currentDeps = effect.deps;
+            const previousDeps = effect.previousDeps;
+            const nextDeps = effect.nextDeps;
 
             effect.didChange =
               effect.didChange ||
-              currentDeps === undefined ||
+              nextDeps === undefined ||
               previousDeps === undefined ||
-              areDepsEqual(previousDeps, currentDeps) === false;
+              areDepsEqual(previousDeps, nextDeps) === false;
 
             if (effect.didChange) {
               effect.cleanup?.();
@@ -431,15 +432,15 @@ export const createUseEffect = (name: 'useEffect' | 'useLayoutEffect' | 'useInse
       context.data.push({
         create,
         cleanup: undefined,
-        deps,
-        renderedDeps: undefined,
+        nextDeps: deps,
+        previousDeps: undefined,
         didChange: true,
       });
     } else {
       const effect = context.data[context.index];
 
       effect.create = create;
-      effect.deps = deps;
+      effect.nextDeps = deps;
     }
 
     context.index += 1;

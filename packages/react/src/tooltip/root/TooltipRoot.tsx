@@ -83,7 +83,12 @@ export const TooltipRoot = fastComponent(function TooltipRoot<Payload>(
     useImplicitActiveTrigger(store);
   });
 
-  const { forceUnmount, transitionStatus } = useOpenStateTransitions(openScope, open, store);
+  const { forceUnmount, transitionStatus } = useOpenStateTransitions(
+    open,
+    store,
+    undefined,
+    openScope,
+  );
 
   const isInstantPhase = store.useState('isInstantPhase');
   const instantType = store.useState('instantType');

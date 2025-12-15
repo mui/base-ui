@@ -137,16 +137,18 @@ export function useImplicitActiveTrigger<State extends PopupStoreState<any>>(
  * @returns A function to forcibly unmount the popup.
  */
 export function useOpenStateTransitions<State extends PopupStoreState<any>>(
-  openScope: LazyScope,
   open: boolean,
   store: ReactStore<State, PopupStoreContext<any>, typeof popupStoreSelectors>,
   onUnmount?: () => void,
+  openScope: LazyScope = {
+    use: (cb: any) => cb(),
+  } as any,
 ) {
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
 
   store.useSyncedValues({ mounted, transitionStatus } as Partial<State>);
 
-  const result = openScope.use(() => {
+  return openScope.use(() => {
     const forceUnmount = useStableCallback(() => {
       setMounted(false);
       store.update({
@@ -173,7 +175,6 @@ export function useOpenStateTransitions<State extends PopupStoreState<any>>(
 
     return { forceUnmount, transitionStatus };
   }, defaultValue);
-  return result;
 }
 
 const uninitialized = () => {
