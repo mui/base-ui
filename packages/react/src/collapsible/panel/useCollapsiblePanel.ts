@@ -43,7 +43,7 @@ export function useCollapsiblePanel(
   } = parameters;
 
   const isBeforeMatchRef = useRef(false);
-  const latestAnimationNameRef = React.useRef<string>(null);
+  const latestAnimationNameRef = useRef<string>(null);
   const shouldCancelInitialOpenAnimationRef = useRef(open);
   const shouldCancelInitialOpenTransitionRef = useRef(open);
 

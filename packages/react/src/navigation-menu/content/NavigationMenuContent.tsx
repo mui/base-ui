@@ -19,6 +19,7 @@ import { popupStateMapping } from '../../utils/popupStateMapping';
 import { useCallback } from '@base-ui/utils/useCallback';
 import { useState } from '@base-ui/utils/useState';
 import { useMemo } from '@base-ui/utils/useMemo';
+import { useRef } from '@base-ui/utils/useRef';
 
 const stateAttributesMapping: StateAttributesMapping<NavigationMenuContent.State> = {
   ...popupStateMapping,
@@ -59,7 +60,7 @@ export const NavigationMenuContent = React.forwardRef(function NavigationMenuCon
 
   const open = popupMounted && value === itemValue;
 
-  const ref = React.useRef<HTMLDivElement | null>(null);
+  const ref = useRef<HTMLDivElement | null>(null);
 
   const [focusInside, setFocusInside] = useState(false);
 

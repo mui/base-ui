@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { useContext } from '@base-ui/utils/useContext';
 
 export interface SelectItemContext {
   selected: boolean;
@@ -11,7 +12,7 @@ export interface SelectItemContext {
 export const SelectItemContext = React.createContext<SelectItemContext | undefined>(undefined);
 
 export function useSelectItemContext() {
-  const context = React.useContext(SelectItemContext);
+  const context = useContext(SelectItemContext);
   if (!context) {
     throw new Error(
       'Base UI: SelectItemContext is missing. SelectItem parts must be placed within <Select.Item>.',

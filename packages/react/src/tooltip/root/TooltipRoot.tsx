@@ -18,6 +18,8 @@ import { type TooltipHandle } from '../store/TooltipHandle';
 import { REASONS } from '../../utils/reasons';
 import { useCallback } from '@base-ui/utils/useCallback';
 import { useMemo } from '@base-ui/utils/useMemo';
+import { useRef } from '@base-ui/utils/useRef';
+import { useImperativeHandle } from '@base-ui/utils/useImperativeHandle';
 
 /**
  * Groups all parts of the tooltip.
@@ -92,7 +94,7 @@ export const TooltipRoot = fastComponent(function TooltipRoot<Payload>(
   // 2) Closing because another tooltip opened (reason === 'none')
   // Otherwise, allow the animation to play. In particular, do not disable animations
   // during the 'ending' phase unless it's due to a sibling opening.
-  const previousInstantTypeRef = React.useRef<string | undefined | null>(null);
+  const previousInstantTypeRef = useRef<string | undefined | null>(null);
   useIsoLayoutEffect(() => {
     if (
       (transitionStatus === 'ending' && lastOpenChangeReason === REASONS.none) ||
@@ -115,11 +117,10 @@ export const TooltipRoot = fastComponent(function TooltipRoot<Payload>(
     store.setOpen(false, createTooltipEventDetails(store, REASONS.imperativeAction));
   }, [store]);
 
-  React.useImperativeHandle(
-    actionsRef,
-    () => ({ unmount: forceUnmount, close: handleImperativeClose }),
-    [forceUnmount, handleImperativeClose],
-  );
+  useImperativeHandle(actionsRef, () => ({ unmount: forceUnmount, close: handleImperativeClose }), [
+    forceUnmount,
+    handleImperativeClose,
+  ]);
 
   const floatingRootContext = store.useState('floatingRootContext');
 

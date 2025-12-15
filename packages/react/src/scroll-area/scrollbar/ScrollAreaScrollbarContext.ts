@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { useContext } from '@base-ui/utils/useContext';
 
 export interface ScrollAreaScrollbarContext {
   orientation: 'horizontal' | 'vertical';
@@ -9,7 +10,7 @@ export const ScrollAreaScrollbarContext = React.createContext<
 >(undefined);
 
 export function useScrollAreaScrollbarContext() {
-  const context = React.useContext(ScrollAreaScrollbarContext);
+  const context = useContext(ScrollAreaScrollbarContext);
   if (context === undefined) {
     throw new Error(
       'Base UI: ScrollAreaScrollbarContext is missing. ScrollAreaScrollbar parts must be placed within <ScrollArea.Scrollbar>.',

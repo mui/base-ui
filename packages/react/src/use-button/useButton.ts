@@ -10,6 +10,7 @@ import { BaseUIEvent, HTMLProps } from '../utils/types';
 import { useFocusableWhenDisabled } from '../utils/useFocusableWhenDisabled';
 import { useEffect } from '@base-ui/utils/useEffect';
 import { useCallback } from '@base-ui/utils/useCallback';
+import { useRef } from '@base-ui/utils/useRef';
 
 export function useButton(parameters: useButton.Parameters = {}): useButton.ReturnValue {
   const {
@@ -19,7 +20,7 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
     native: isNativeButton = true,
   } = parameters;
 
-  const elementRef = React.useRef<HTMLElement | null>(null);
+  const elementRef = useRef<HTMLElement | null>(null);
 
   const isCompositeItem = useCompositeRootContext(true) !== undefined;
 

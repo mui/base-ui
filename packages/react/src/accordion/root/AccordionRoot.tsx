@@ -15,6 +15,7 @@ import {
 } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
 import { useMemo } from '@base-ui/utils/useMemo';
+import { useRef } from '@base-ui/utils/useRef';
 
 const rootStateAttributesMapping = {
   value: () => null,
@@ -70,7 +71,7 @@ export const AccordionRoot = React.forwardRef(function AccordionRoot(
 
   const onValueChange = useStableCallback(onValueChangeProp);
 
-  const accordionItemRefs = React.useRef<(HTMLElement | null)[]>([]);
+  const accordionItemRefs = useRef<(HTMLElement | null)[]>([]);
 
   const [value, setValue] = useControlled({
     controlled: valueProp,

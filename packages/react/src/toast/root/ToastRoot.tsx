@@ -106,7 +106,7 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
   const { toasts, focused, close, remove, setToasts, pauseTimers, expanded, setHovering } =
     useToastContext();
 
-  const [currentSwipeDirection, setCurrentSwipeDirection] = React.useState<
+  const [currentSwipeDirection, setCurrentSwipeDirection] = useState<
     'up' | 'down' | 'left' | 'right' | undefined
   >(undefined);
   const [isSwiping, setIsSwiping] = useState(false);
@@ -114,18 +114,14 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
   const [dragDismissed, setDragDismissed] = useState(false);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const [initialTransform, setInitialTransform] = useState({ x: 0, y: 0, scale: 1 });
-  const [titleId, setTitleId] = React.useState<string | undefined>();
-  const [descriptionId, setDescriptionId] = React.useState<string | undefined>();
-  const [lockedDirection, setLockedDirection] = React.useState<'horizontal' | 'vertical' | null>(
-    null,
-  );
+  const [titleId, setTitleId] = useState<string | undefined>();
+  const [descriptionId, setDescriptionId] = useState<string | undefined>();
+  const [lockedDirection, setLockedDirection] = useState<'horizontal' | 'vertical' | null>(null);
 
-  const rootRef = React.useRef<HTMLDivElement | null>(null);
+  const rootRef = useRef<HTMLDivElement | null>(null);
   const dragStartPosRef = useRef({ x: 0, y: 0 });
   const initialTransformRef = useRef({ x: 0, y: 0, scale: 1 });
-  const intendedSwipeDirectionRef = React.useRef<'up' | 'down' | 'left' | 'right' | undefined>(
-    undefined,
-  );
+  const intendedSwipeDirectionRef = useRef<'up' | 'down' | 'left' | 'right' | undefined>(undefined);
   const maxSwipeDisplacementRef = useRef(0);
   const cancelledSwipeRef = useRef(false);
   const swipeCancelBaselineRef = useRef({ x: 0, y: 0 });

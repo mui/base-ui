@@ -4,6 +4,7 @@ import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { InteractionType, useEnhancedClickHandler } from '@base-ui/utils/useEnhancedClickHandler';
 import { useCallback } from '@base-ui/utils/useCallback';
 import { useMemo } from '@base-ui/utils/useMemo';
+import { useState } from '@base-ui/utils/useState';
 
 /**
  * Determines the interaction type (keyboard, mouse, touch, etc.) that opened the component.
@@ -11,7 +12,7 @@ import { useMemo } from '@base-ui/utils/useMemo';
  * @param open The open state of the component.
  */
 export function useOpenInteractionType(open: boolean) {
-  const [openMethod, setOpenMethod] = React.useState<InteractionType | null>(null);
+  const [openMethod, setOpenMethod] = useState<InteractionType | null>(null);
 
   const handleTriggerClick = useStableCallback(
     (_: React.MouseEvent, interactionType: InteractionType) => {

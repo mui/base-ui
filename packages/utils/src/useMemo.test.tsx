@@ -61,7 +61,7 @@ describe('useMemo', () => {
       useMemo(() => {
         computeCount += 1;
         return 42;
-      }),
+      }, []),
     );
 
     expect(result.current).to.equal(42);

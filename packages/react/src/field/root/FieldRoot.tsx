@@ -81,7 +81,7 @@ const FieldRootInner = React.forwardRef(function FieldRootInner(
     invalidProp || (name && {}.hasOwnProperty.call(errors, name) && errors[name] !== undefined),
   );
 
-  const [validityData, setValidityData] = React.useState<FieldValidityData>({
+  const [validityData, setValidityData] = useState<FieldValidityData>({
     state: DEFAULT_VALIDITY_STATE,
     error: '',
     errors: [],

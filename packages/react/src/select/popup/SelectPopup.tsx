@@ -31,6 +31,7 @@ import { getDisabledMountTransitionStyles } from '../../utils/getDisabledMountTr
 import { useEffect } from '@base-ui/utils/useEffect';
 import { useRef } from '@base-ui/utils/useRef';
 import { useMemo } from '@base-ui/utils/useMemo';
+import { useImperativeHandle } from '@base-ui/utils/useImperativeHandle';
 
 const stateAttributesMapping: StateAttributesMapping<SelectPopup.State> = {
   ...popupStateMapping,
@@ -87,7 +88,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
   const reachedMaxHeightRef = useRef(false);
   const maxHeightRef = useRef(0);
   const initialPlacedRef = useRef(false);
-  const originalPositionerStylesRef = React.useRef<React.CSSProperties>({});
+  const originalPositionerStylesRef = useRef<React.CSSProperties>({});
 
   const scrollArrowFrame = useAnimationFrame();
 
@@ -164,7 +165,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
     handleScrollArrowVisibility();
   });
 
-  React.useImperativeHandle(scrollHandlerRef, () => handleScroll, [handleScroll]);
+  useImperativeHandle(scrollHandlerRef, () => handleScroll, [handleScroll]);
 
   useOpenChangeComplete({
     open,

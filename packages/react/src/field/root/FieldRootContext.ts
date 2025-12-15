@@ -7,6 +7,7 @@ import type { Form } from '../../form';
 import type { UseFieldValidationReturnValue } from './useFieldValidation';
 import type { HTMLProps } from '../../utils/types';
 import { EMPTY_OBJECT } from '../../utils/constants';
+import { useContext } from '@base-ui/utils/useContext';
 
 export interface FieldRootContext {
   invalid: boolean | undefined;
@@ -76,7 +77,7 @@ export const FieldRootContext = React.createContext<FieldRootContext>({
 });
 
 export function useFieldRootContext(optional = true) {
-  const context = React.useContext(FieldRootContext);
+  const context = useContext(FieldRootContext);
 
   if (context.setValidityData === NOOP && !optional) {
     throw new Error(

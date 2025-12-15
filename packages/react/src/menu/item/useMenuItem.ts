@@ -9,6 +9,7 @@ import { MenuStore } from '../store/MenuStore';
 import { REASONS } from '../../utils/reasons';
 import { useCallback } from '@base-ui/utils/useCallback';
 import { useMemo } from '@base-ui/utils/useMemo';
+import { useRef } from '@base-ui/utils/useRef';
 
 export const REGULAR_ITEM = {
   type: 'regular-item' as const,
@@ -26,7 +27,7 @@ export function useMenuItem(params: useMenuItem.Parameters): useMenuItem.ReturnV
     nodeId,
   } = params;
 
-  const itemRef = React.useRef<HTMLElement | null>(null);
+  const itemRef = useRef<HTMLElement | null>(null);
   const contextMenuContext = useContextMenuRootContext(true);
   const isContextMenu = contextMenuContext !== undefined;
   const { events: menuEvents } = store.useState('floatingTreeRoot');

@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { useContext } from '@base-ui/utils/useContext';
 
 export interface MenuCheckboxItemContext {
   checked: boolean;
@@ -11,7 +12,7 @@ export const MenuCheckboxItemContext = React.createContext<MenuCheckboxItemConte
 );
 
 export function useMenuCheckboxItemContext() {
-  const context = React.useContext(MenuCheckboxItemContext);
+  const context = useContext(MenuCheckboxItemContext);
   if (context === undefined) {
     throw new Error(
       'Base UI: MenuCheckboxItemContext is missing. MenuCheckboxItem parts must be placed within <Menu.CheckboxItem>.',

@@ -36,21 +36,21 @@ export function useCollapsibleRoot(
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open, true, true);
   const [visible, setVisible] = useState(open);
-  const [{ height, width }, setDimensions] = React.useState<Dimensions>({
+  const [{ height, width }, setDimensions] = useState<Dimensions>({
     height: undefined,
     width: undefined,
   });
 
   const defaultPanelId = useBaseUiId();
-  const [panelIdState, setPanelIdState] = React.useState<string | undefined>();
+  const [panelIdState, setPanelIdState] = useState<string | undefined>();
   const panelId = panelIdState ?? defaultPanelId;
 
   const [hiddenUntilFound, setHiddenUntilFound] = useState(false);
   const [keepMounted, setKeepMounted] = useState(false);
 
-  const abortControllerRef = React.useRef<AbortController | null>(null);
-  const animationTypeRef = React.useRef<AnimationType>(null);
-  const transitionDimensionRef = React.useRef<'width' | 'height' | null>(null);
+  const abortControllerRef = useRef<AbortController | null>(null);
+  const animationTypeRef = useRef<AnimationType>(null);
+  const transitionDimensionRef = useRef<'width' | 'height' | null>(null);
   const panelRef: React.RefObject<HTMLElement | null> = useRef(null);
 
   const runOnceAnimationsFinish = useAnimationsFinished(panelRef, false);

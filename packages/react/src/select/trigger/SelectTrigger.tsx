@@ -24,6 +24,7 @@ import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
 import { useEffect } from '@base-ui/utils/useEffect';
 import { useMemo } from '@base-ui/utils/useMemo';
+import { useRef } from '@base-ui/utils/useRef';
 
 const BOUNDARY_OFFSET = 2;
 
@@ -81,7 +82,7 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
 
   const positionerRef = useValueAsRef(positionerElement);
 
-  const triggerRef = React.useRef<HTMLElement | null>(null);
+  const triggerRef = useRef<HTMLElement | null>(null);
   const timeoutFocus = useTimeout();
   const timeoutMouseDown = useTimeout();
 

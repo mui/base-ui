@@ -53,10 +53,10 @@ export const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubAr
     valueRef,
   } = useNumberFieldRootContext();
 
-  const scrubAreaRef = React.useRef<HTMLSpanElement>(null);
+  const scrubAreaRef = useRef<HTMLSpanElement>(null);
 
   const isScrubbingRef = useRef(false);
-  const scrubAreaCursorRef = React.useRef<HTMLSpanElement>(null);
+  const scrubAreaCursorRef = useRef<HTMLSpanElement>(null);
   const virtualCursorCoords = useRef({ x: 0, y: 0 });
   const visualScaleRef = useRef(1);
 

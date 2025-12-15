@@ -7,6 +7,7 @@ import { stateAttributesMapping } from '../utils/stateAttributesMapping';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { type TransitionStatus, useTransitionStatus } from '../../utils/useTransitionStatus';
 import { useMemo } from '@base-ui/utils/useMemo';
+import { useRef } from '@base-ui/utils/useRef';
 
 /**
  * Indicates whether the radio button is selected.
@@ -34,7 +35,7 @@ export const RadioIndicator = React.forwardRef(function RadioIndicator(
     [rootState, transitionStatus],
   );
 
-  const indicatorRef = React.useRef<HTMLSpanElement | null>(null);
+  const indicatorRef = useRef<HTMLSpanElement | null>(null);
 
   const shouldRender = keepMounted || rendered;
 

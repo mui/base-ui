@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import type { Side, Align } from '../../utils/useAnchorPositioning';
+import { useContext } from '@base-ui/utils/useContext';
 
 export interface PreviewCardPositionerContext {
   side: Side;
@@ -15,7 +16,7 @@ export const PreviewCardPositionerContext = React.createContext<
 >(undefined);
 
 export function usePreviewCardPositionerContext() {
-  const context = React.useContext(PreviewCardPositionerContext);
+  const context = useContext(PreviewCardPositionerContext);
   if (context === undefined) {
     throw new Error(
       'Base UI: <PreviewCard.Popup> and <PreviewCard.Arrow> must be used within the <PreviewCard.Positioner> component',

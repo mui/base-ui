@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { useContext } from '@base-ui/utils/useContext';
 
 export interface CompositeRootContext {
   highlightedIndex: number;
@@ -21,7 +22,7 @@ export const CompositeRootContext = React.createContext<CompositeRootContext | u
 export function useCompositeRootContext(optional: true): CompositeRootContext | undefined;
 export function useCompositeRootContext(optional?: false): CompositeRootContext;
 export function useCompositeRootContext(optional = false) {
-  const context = React.useContext(CompositeRootContext);
+  const context = useContext(CompositeRootContext);
   if (context === undefined && !optional) {
     throw new Error(
       'Base UI: CompositeRootContext is missing. Composite parts must be placed within <Composite.Root>.',

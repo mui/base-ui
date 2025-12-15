@@ -35,7 +35,7 @@ export const Form = React.forwardRef(function Form<
     ...elementProps
   } = componentProps;
 
-  const formRef = React.useRef<FormContext['formRef']['current']>({
+  const formRef = useRef<FormContext['formRef']['current']>({
     fields: new Map(),
   });
   const submittedRef = useRef(false);

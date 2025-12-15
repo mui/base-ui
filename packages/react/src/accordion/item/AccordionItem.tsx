@@ -16,6 +16,7 @@ import { useRenderElement } from '../../utils/useRenderElement';
 import { type BaseUIChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
 import { useMemo } from '@base-ui/utils/useMemo';
+import { useState } from '@base-ui/utils/useState';
 
 /**
  * Groups an accordion header with the corresponding panel.
@@ -113,7 +114,7 @@ export const AccordionItem = React.forwardRef(function AccordionItem(
     [disabled, index, isOpen, rootState],
   );
 
-  const [triggerId, setTriggerId] = React.useState<string | undefined>(useBaseUiId());
+  const [triggerId, setTriggerId] = useState<string | undefined>(useBaseUiId());
 
   const accordionItemContext: AccordionItemContext = useMemo(
     () => ({

@@ -22,6 +22,7 @@ import { findItemIndex, itemIncludes } from '../../utils/itemEquality';
 import { useRef } from '@base-ui/utils/useRef';
 import { useState } from '@base-ui/utils/useState';
 import { useMemo } from '@base-ui/utils/useMemo';
+import { useImperativeHandle } from '@base-ui/utils/useImperativeHandle';
 
 const FIXED: React.CSSProperties = { position: 'fixed' };
 
@@ -76,8 +77,8 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
   const triggerElement = useStore(store, selectors.triggerElement);
   const isItemEqualToValue = useStore(store, selectors.isItemEqualToValue);
 
-  const scrollUpArrowRef = React.useRef<HTMLDivElement | null>(null);
-  const scrollDownArrowRef = React.useRef<HTMLDivElement | null>(null);
+  const scrollUpArrowRef = useRef<HTMLDivElement | null>(null);
+  const scrollDownArrowRef = useRef<HTMLDivElement | null>(null);
 
   const [controlledAlignItemWithTrigger, setControlledAlignItemWithTrigger] =
     useState(alignItemWithTrigger);
@@ -99,7 +100,7 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
     }
   }, [store, mounted]);
 
-  React.useImperativeHandle(alignItemWithTriggerActiveRef, () => alignItemWithTriggerActive);
+  useImperativeHandle(alignItemWithTriggerActiveRef, () => alignItemWithTriggerActive);
 
   useScrollLock(
     (alignItemWithTriggerActive || modal) && open && openMethod !== 'touch',

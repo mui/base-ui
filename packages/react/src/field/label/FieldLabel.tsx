@@ -9,6 +9,7 @@ import { fieldValidityMapping } from '../utils/constants';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
+import { useRef } from '@base-ui/utils/useRef';
 
 /**
  * An accessible label that is automatically associated with the field control.
@@ -28,7 +29,7 @@ export const FieldLabel = React.forwardRef(function FieldLabel(
 
   const id = useBaseUiId(idProp);
 
-  const labelRef = React.useRef<HTMLLabelElement>(null);
+  const labelRef = useRef<HTMLLabelElement>(null);
 
   useIsoLayoutEffect(() => {
     if (id) {

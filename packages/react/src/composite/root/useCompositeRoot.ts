@@ -97,10 +97,10 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
 
   const isGrid = cols > 1;
 
-  const rootRef = React.useRef<HTMLElement | null>(null);
+  const rootRef = useRef<HTMLElement | null>(null);
   const mergedRef = useMergedRefs(rootRef, externalRef);
 
-  const elementsRef = React.useRef<Array<HTMLDivElement | null>>([]);
+  const elementsRef = useRef<Array<HTMLDivElement | null>>([]);
   const hasSetDefaultIndexRef = useRef(false);
 
   const highlightedIndex = externalHighlightedIndex ?? internalHighlightedIndex;
@@ -131,7 +131,7 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
     scrollIntoViewIfNeeded(rootRef.current, activeItem, direction, orientation);
   });
 
-  const props = React.useMemo<HTMLProps>(
+  const props = useMemo<HTMLProps>(
     () => ({
       'aria-orientation': orientation === 'both' ? undefined : orientation,
       ref: mergedRef,

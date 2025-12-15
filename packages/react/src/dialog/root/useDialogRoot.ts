@@ -19,6 +19,7 @@ import { useEffect } from '@base-ui/utils/useEffect';
 import { useCallback } from '@base-ui/utils/useCallback';
 import { useState } from '@base-ui/utils/useState';
 import { useMemo } from '@base-ui/utils/useMemo';
+import { useImperativeHandle } from '@base-ui/utils/useImperativeHandle';
 
 export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.ReturnValue {
   const { store, parentContext, actionsRef } = params;
@@ -55,11 +56,10 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
     store.setOpen(false, createDialogEventDetails(REASONS.imperativeAction));
   }, [store, createDialogEventDetails]);
 
-  React.useImperativeHandle(
-    actionsRef,
-    () => ({ unmount: forceUnmount, close: handleImperativeClose }),
-    [forceUnmount, handleImperativeClose],
-  );
+  useImperativeHandle(actionsRef, () => ({ unmount: forceUnmount, close: handleImperativeClose }), [
+    forceUnmount,
+    handleImperativeClose,
+  ]);
 
   const floatingRootContext = useSyncedFloatingRootContext({
     popupStore: store,

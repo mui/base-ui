@@ -121,8 +121,8 @@ export const SliderControl = React.forwardRef(function SliderControl(
   const range = values.length > 1;
   const vertical = orientation === 'vertical';
 
-  const controlRef = React.useRef<HTMLElement>(null);
-  const stylesRef = React.useRef<CSSStyleDeclaration>(null);
+  const controlRef = useRef<HTMLElement>(null);
+  const stylesRef = useRef<CSSStyleDeclaration>(null);
   const setStylesRef = useStableCallback((element: HTMLElement | null) => {
     if (element && stylesRef.current == null) {
       if (stylesRef.current == null) {
@@ -132,7 +132,7 @@ export const SliderControl = React.forwardRef(function SliderControl(
   });
 
   // A number that uniquely identifies the current finger in the touch session.
-  const touchIdRef = React.useRef<number>(null);
+  const touchIdRef = useRef<number>(null);
   // The number of touch/pointermove events that have fired.
   const moveCountRef = useRef(0);
   // The offset amount to each side of the control for inset sliders.

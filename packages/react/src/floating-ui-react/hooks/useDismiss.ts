@@ -162,7 +162,7 @@ export function useDismiss(
   const endedOrStartedInsideRef = useRef(false);
   const { escapeKey: escapeKeyBubbles, outsidePress: outsidePressBubbles } = normalizeProp(bubbles);
 
-  const touchStateRef = React.useRef<{
+  const touchStateRef = useRef<{
     startTime: number;
     startX: number;
     startY: number;
@@ -179,7 +179,7 @@ export function useDismiss(
   });
 
   const isComposingRef = useRef(false);
-  const currentPointerTypeRef = React.useRef<PointerEvent['pointerType']>('');
+  const currentPointerTypeRef = useRef<PointerEvent['pointerType']>('');
 
   const trackPointerType = useStableCallback((event: PointerEvent) => {
     currentPointerTypeRef.current = event.pointerType;

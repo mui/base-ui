@@ -26,6 +26,7 @@ import { StateAttributesMapping } from '../../utils/getStateAttributesProps';
 import { useClick, useTypeahead } from '../../floating-ui-react';
 import { useEffect } from '@base-ui/utils/useEffect';
 import { useMemo } from '@base-ui/utils/useMemo';
+import { useRef } from '@base-ui/utils/useRef';
 
 const BOUNDARY_OFFSET = 2;
 
@@ -80,7 +81,7 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
 
   const disabled = fieldDisabled || comboboxDisabled || disabledProp;
 
-  const currentPointerTypeRef = React.useRef<PointerEvent['pointerType']>('');
+  const currentPointerTypeRef = useRef<PointerEvent['pointerType']>('');
 
   function trackPointerType(event: React.PointerEvent) {
     currentPointerTypeRef.current = event.pointerType;

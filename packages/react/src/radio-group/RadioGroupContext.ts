@@ -4,6 +4,7 @@ import { NOOP } from '../utils/noop';
 import type { UseFieldValidationReturnValue } from '../field/root/useFieldValidation';
 import type { BaseUIChangeEventDetails } from '../utils/createBaseUIEventDetails';
 import type { BaseUIEventReasons } from '../utils/reasons';
+import { useContext } from '@base-ui/utils/useContext';
 
 export interface RadioGroupContext {
   disabled: boolean | undefined;
@@ -39,5 +40,5 @@ export const RadioGroupContext = React.createContext<RadioGroupContext>({
 });
 
 export function useRadioGroupContext() {
-  return React.useContext(RadioGroupContext);
+  return useContext(RadioGroupContext);
 }

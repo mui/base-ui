@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { useContext } from '@base-ui/utils/useContext';
 
 export interface ComboboxChipsContext {
   highlightedChipIndex: number | undefined;
@@ -11,5 +12,5 @@ export const ComboboxChipsContext = React.createContext<ComboboxChipsContext | u
 );
 
 export function useComboboxChipsContext() {
-  return React.useContext(ComboboxChipsContext);
+  return useContext(ComboboxChipsContext);
 }

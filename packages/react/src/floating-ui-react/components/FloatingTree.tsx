@@ -7,6 +7,7 @@ import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import type { FloatingNodeType, FloatingTreeType } from '../types';
 import { FloatingTreeStore } from './FloatingTreeStore';
 import { useMemo } from '@base-ui/utils/useMemo';
+import { useContext } from '@base-ui/utils/useContext';
 
 const FloatingNodeContext = React.createContext<FloatingNodeType | null>(null);
 const FloatingTreeContext = React.createContext<FloatingTreeType | null>(null);
@@ -16,13 +17,13 @@ const FloatingTreeContext = React.createContext<FloatingTreeType | null>(null);
  * Returns `null` for top-level floating elements.
  */
 export const useFloatingParentNodeId = (): string | null =>
-  React.useContext(FloatingNodeContext)?.id || null;
+  useContext(FloatingNodeContext)?.id || null;
 
 /**
  * Returns the nearest floating tree context, if available.
  */
 export const useFloatingTree = (externalTree?: FloatingTreeStore): FloatingTreeType | null => {
-  const contextTree = React.useContext(FloatingTreeContext) as FloatingTreeType | null;
+  const contextTree = useContext(FloatingTreeContext) as FloatingTreeType | null;
   return externalTree ?? contextTree;
 };
 

@@ -7,6 +7,7 @@ import { itemMapping } from '../utils/stateAttributesMapping';
 import { TransitionStatus, useTransitionStatus } from '../../utils/useTransitionStatus';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useMemo } from '@base-ui/utils/useMemo';
+import { useRef } from '@base-ui/utils/useRef';
 
 /**
  * Indicates whether the radio item is selected.
@@ -22,7 +23,7 @@ export const MenuRadioItemIndicator = React.forwardRef(function MenuRadioItemInd
 
   const item = useMenuRadioItemContext();
 
-  const indicatorRef = React.useRef<HTMLSpanElement | null>(null);
+  const indicatorRef = useRef<HTMLSpanElement | null>(null);
 
   const { transitionStatus, setMounted } = useTransitionStatus(item.checked);
 

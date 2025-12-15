@@ -15,6 +15,7 @@ import { TooltipViewportCssVars } from './TooltipViewportCssVars';
 import { useEffect } from '@base-ui/utils/useEffect';
 import { useState } from '@base-ui/utils/useState';
 import { useMemo } from '@base-ui/utils/useMemo';
+import { useRef } from '@base-ui/utils/useRef';
 
 const stateAttributesMapping: StateAttributesMapping<TooltipViewport.State> = {
   activationDirection: (value) =>
@@ -47,18 +48,18 @@ export const TooltipViewport = React.forwardRef(function TooltipViewport(
 
   const previousActiveTrigger = usePreviousValue(open ? activeTrigger : null);
 
-  const capturedNodeRef = React.useRef<HTMLElement | null>(null);
-  const [previousContentNode, setPreviousContentNode] = React.useState<HTMLElement | null>(null);
+  const capturedNodeRef = useRef<HTMLElement | null>(null);
+  const [previousContentNode, setPreviousContentNode] = useState<HTMLElement | null>(null);
 
-  const [newTriggerOffset, setNewTriggerOffset] = React.useState<Offset | null>(null);
+  const [newTriggerOffset, setNewTriggerOffset] = useState<Offset | null>(null);
 
-  const currentContainerRef = React.useRef<HTMLDivElement>(null);
-  const previousContainerRef = React.useRef<HTMLDivElement>(null);
+  const currentContainerRef = useRef<HTMLDivElement>(null);
+  const previousContainerRef = useRef<HTMLDivElement>(null);
 
   const onAnimationsFinished = useAnimationsFinished(currentContainerRef, true, false);
   const cleanupFrame = useAnimationFrame();
 
-  const [previousContentDimensions, setPreviousContentDimensions] = React.useState<{
+  const [previousContentDimensions, setPreviousContentDimensions] = useState<{
     width: number;
     height: number;
   } | null>(null);
@@ -98,7 +99,7 @@ export const TooltipViewport = React.forwardRef(function TooltipViewport(
     };
   }, [floatingContext, handleMeasureLayout, handleMeasureLayoutComplete]);
 
-  const lastHandledTriggerRef = React.useRef<Element | null>(null);
+  const lastHandledTriggerRef = useRef<Element | null>(null);
 
   useIsoLayoutEffect(() => {
     // When a trigger changes, set the captured children HTML to state,

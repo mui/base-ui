@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import { DialogStore } from '../store/DialogStore';
+import { useContext } from '@base-ui/utils/useContext';
 
 export interface DialogRootContext<Payload = unknown> {
   store: DialogStore<Payload>;
@@ -11,7 +12,7 @@ export const DialogRootContext = React.createContext<DialogRootContext | undefin
 export function useDialogRootContext(optional?: false): DialogRootContext;
 export function useDialogRootContext(optional: true): DialogRootContext | undefined;
 export function useDialogRootContext(optional?: boolean) {
-  const dialogRootContext = React.useContext(DialogRootContext);
+  const dialogRootContext = useContext(DialogRootContext);
 
   if (optional === false && dialogRootContext === undefined) {
     throw new Error(

@@ -7,6 +7,8 @@ import {
   type UseCompositeListItemParameters,
 } from '../list/useCompositeListItem';
 import { HTMLProps } from '../../utils/types';
+import { useRef } from '@base-ui/utils/useRef';
+import { useMemo } from '@base-ui/utils/useMemo';
 
 export interface UseCompositeItemParameters<Metadata> extends Pick<
   UseCompositeListItemParameters<Metadata>,
@@ -20,10 +22,10 @@ export function useCompositeItem<Metadata>(params: UseCompositeItemParameters<Me
 
   const isHighlighted = highlightedIndex === index;
 
-  const itemRef = React.useRef<HTMLElement | null>(null);
+  const itemRef = useRef<HTMLElement | null>(null);
   const mergedRef = useMergedRefs(ref, itemRef);
 
-  const compositeProps = React.useMemo<HTMLProps>(
+  const compositeProps = useMemo<HTMLProps>(
     () => ({
       tabIndex: isHighlighted ? 0 : -1,
       onFocus() {

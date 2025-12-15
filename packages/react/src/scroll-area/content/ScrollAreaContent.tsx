@@ -7,6 +7,7 @@ import { useRenderElement } from '../../utils/useRenderElement';
 import { useScrollAreaRootContext } from '../root/ScrollAreaRootContext';
 import { scrollAreaStateAttributesMapping } from '../root/stateAttributes';
 import type { ScrollAreaRoot } from '../root/ScrollAreaRoot';
+import { useRef } from '@base-ui/utils/useRef';
 
 /**
  * A container for the content of the scroll area.
@@ -20,7 +21,7 @@ export const ScrollAreaContent = React.forwardRef(function ScrollAreaContent(
 ) {
   const { render, className, ...elementProps } = componentProps;
 
-  const contentWrapperRef = React.useRef<HTMLDivElement | null>(null);
+  const contentWrapperRef = useRef<HTMLDivElement | null>(null);
 
   const { computeThumbPosition } = useScrollAreaViewportContext();
   const { viewportState } = useScrollAreaRootContext();

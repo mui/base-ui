@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import type { Side, Align } from '../../utils/useAnchorPositioning';
+import { useContext } from '@base-ui/utils/useContext';
 
 export interface ComboboxPositionerContext {
   side: Side;
@@ -19,7 +20,7 @@ export const ComboboxPositionerContext = React.createContext<ComboboxPositionerC
 export function useComboboxPositionerContext(optional?: false): ComboboxPositionerContext;
 export function useComboboxPositionerContext(optional: true): ComboboxPositionerContext | undefined;
 export function useComboboxPositionerContext(optional?: boolean) {
-  const context = React.useContext(ComboboxPositionerContext);
+  const context = useContext(ComboboxPositionerContext);
   if (context === undefined && !optional) {
     throw new Error(
       'Base UI: <Combobox.Popup> and <Combobox.Arrow> must be used within the <Combobox.Positioner> component',

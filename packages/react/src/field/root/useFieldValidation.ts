@@ -13,6 +13,7 @@ import type { HTMLProps } from '../../utils/types';
 import type { FieldValidityData, FieldRootState } from './FieldRoot';
 import { useCallback } from '@base-ui/utils/useCallback';
 import { useMemo } from '@base-ui/utils/useMemo';
+import { useRef } from '@base-ui/utils/useRef';
 
 const validityKeys = Object.keys(DEFAULT_VALIDITY_STATE) as Array<keyof ValidityState>;
 
@@ -58,7 +59,7 @@ export function useFieldValidation(
   const { controlId, getDescriptionProps } = useLabelableContext();
 
   const timeout = useTimeout();
-  const inputRef = React.useRef<HTMLInputElement | null>(null);
+  const inputRef = useRef<HTMLInputElement | null>(null);
 
   const commit = useStableCallback(async (value: unknown, revalidate = false) => {
     const element = inputRef.current;

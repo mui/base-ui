@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { useContext } from '@base-ui/utils/useContext';
 
 export interface ComboboxGroupContext {
   labelId: string | undefined;
@@ -15,7 +16,7 @@ export const ComboboxGroupContext = React.createContext<ComboboxGroupContext | u
 );
 
 export function useComboboxGroupContext() {
-  const context = React.useContext(ComboboxGroupContext);
+  const context = useContext(ComboboxGroupContext);
   if (context === undefined) {
     throw new Error(
       'Base UI: ComboboxGroupContext is missing. ComboboxGroup parts must be placed within <Combobox.Group>.',

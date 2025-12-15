@@ -302,14 +302,14 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
   const tree = useFloatingTree(externalTree);
   const portalContext = usePortalContext();
 
-  const startDismissButtonRef = React.useRef<HTMLButtonElement>(null);
-  const endDismissButtonRef = React.useRef<HTMLButtonElement>(null);
+  const startDismissButtonRef = useRef<HTMLButtonElement>(null);
+  const endDismissButtonRef = useRef<HTMLButtonElement>(null);
   const preventReturnFocusRef = useRef(false);
   const isPointerDownRef = useRef(false);
   const pointerDownOutsideRef = useRef(false);
   const tabbableIndexRef = useRef(-1);
-  const closeTypeRef = React.useRef<InteractionType>('');
-  const lastInteractionTypeRef = React.useRef<InteractionType>('');
+  const closeTypeRef = useRef<InteractionType>('');
+  const lastInteractionTypeRef = useRef<InteractionType>('');
 
   const blurTimeout = useTimeout();
   const pointerDownTimeout = useTimeout();
@@ -619,8 +619,8 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     restoreFocusFrame,
   ]);
 
-  const beforeGuardRef = React.useRef<HTMLSpanElement | null>(null);
-  const afterGuardRef = React.useRef<HTMLSpanElement | null>(null);
+  const beforeGuardRef = useRef<HTMLSpanElement | null>(null);
+  const afterGuardRef = useRef<HTMLSpanElement | null>(null);
 
   const mergedBeforeGuardRef = useMergedRefs(
     beforeGuardRef,

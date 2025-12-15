@@ -43,8 +43,8 @@ export const ContextMenuTrigger = React.forwardRef(function ContextMenuTrigger(
   const { store } = useMenuRootContext(false);
   const open = store.useState('open');
 
-  const triggerRef = React.useRef<HTMLDivElement | null>(null);
-  const touchPositionRef = React.useRef<{ x: number; y: number } | null>(null);
+  const triggerRef = useRef<HTMLDivElement | null>(null);
+  const touchPositionRef = useRef<{ x: number; y: number } | null>(null);
   const longPressTimeout = useTimeout();
   const allowMouseUpTimeout = useTimeout();
   const allowMouseUpRef = useRef(false);

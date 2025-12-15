@@ -100,13 +100,13 @@ const Option = React.forwardRef<HTMLButtonElement, OptionProps>(function Option(
 export function Main() {
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState('');
-  const [selectedEmoji, setSelectedEmoji] = React.useState<string | null>(null);
-  const [activeIndex, setActiveIndex] = React.useState<number | null>(null);
-  const [placement, setPlacement] = React.useState<Placement | null>(null);
+  const [selectedEmoji, setSelectedEmoji] = useState<string | null>(null);
+  const [activeIndex, setActiveIndex] = useState<number | null>(null);
+  const [placement, setPlacement] = useState<Placement | null>(null);
 
   const arrowRef = useRef(null);
 
-  const listRef = React.useRef<Array<HTMLElement | null>>([]);
+  const listRef = useRef<Array<HTMLElement | null>>([]);
 
   const noResultsId = useId();
 

@@ -17,7 +17,7 @@ export function useTransitionStatus(
   enableIdleState: boolean = false,
   deferEndingState: boolean = false,
 ) {
-  const [transitionStatus, setTransitionStatus] = React.useState<TransitionStatus>(
+  const [transitionStatus, setTransitionStatus] = useState<TransitionStatus>(
     open && enableIdleState ? 'idle' : undefined,
   );
   const [mounted, setMounted] = useState(open);

@@ -3,6 +3,7 @@ import * as React from 'react';
 import type { Orientation } from '../../utils/types';
 import type { CompositeMetadata } from '../../composite/list/CompositeList';
 import type { ToolbarRoot } from './ToolbarRoot';
+import { useContext } from '@base-ui/utils/useContext';
 
 export interface ToolbarRootContext {
   disabled: boolean;
@@ -17,7 +18,7 @@ export const ToolbarRootContext = React.createContext<ToolbarRootContext | undef
 export function useToolbarRootContext(optional?: false): ToolbarRootContext;
 export function useToolbarRootContext(optional: true): ToolbarRootContext | undefined;
 export function useToolbarRootContext(optional?: boolean) {
-  const context = React.useContext(ToolbarRootContext);
+  const context = useContext(ToolbarRootContext);
   if (context === undefined && !optional) {
     throw new Error(
       'Base UI: ToolbarRootContext is missing. Toolbar parts must be placed within <Toolbar.Root>.',

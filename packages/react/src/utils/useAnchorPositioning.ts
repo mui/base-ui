@@ -31,6 +31,8 @@ import { hide } from './hideMiddleware';
 import { DEFAULT_SIDES } from './adaptiveOriginMiddleware';
 import { useEffect } from '@base-ui/utils/useEffect';
 import { useMemo } from '@base-ui/utils/useMemo';
+import { useRef } from '@base-ui/utils/useRef';
+import { useState } from '@base-ui/utils/useState';
 
 function getLogicalSide(sideParam: Side, renderedSide: PhysicalSide, isRtl: boolean): Side {
   const isLogicalSideParam = sideParam === 'inline-start' || sideParam === 'inline-end';
@@ -133,7 +135,7 @@ export function useAnchorPositioning(
     externalTree,
   } = params;
 
-  const [mountSide, setMountSide] = React.useState<PhysicalSide | null>(null);
+  const [mountSide, setMountSide] = useState<PhysicalSide | null>(null);
 
   if (!mounted && mountSide !== null) {
     setMountSide(null);
@@ -206,7 +208,7 @@ export function useAnchorPositioning(
   // Using a ref assumes that the arrow element is always present in the DOM for the lifetime of the
   // popup. If this assumption ends up being false, we can switch to state to manage the arrow's
   // presence.
-  const arrowRef = React.useRef<Element | null>(null);
+  const arrowRef = useRef<Element | null>(null);
 
   // Keep these reactive if they're not functions
   const sideOffsetRef = useValueAsRef(sideOffset);
@@ -424,7 +426,7 @@ export function useAnchorPositioning(
   // This ensures the popup is inside the viewport initially before it gets positioned.
   const resolvedPosition: 'absolute' | 'fixed' = isPositioned ? positionMethod : 'fixed';
 
-  const floatingStyles = React.useMemo<React.CSSProperties>(
+  const floatingStyles = useMemo<React.CSSProperties>(
     () =>
       adaptiveOrigin
         ? { position: resolvedPosition, [sideX]: x, [sideY]: y }
@@ -432,7 +434,7 @@ export function useAnchorPositioning(
     [adaptiveOrigin, resolvedPosition, sideX, x, sideY, y, originalFloatingStyles],
   );
 
-  const registeredPositionReferenceRef = React.useRef<Element | VirtualElement | null>(null);
+  const registeredPositionReferenceRef = useRef<Element | VirtualElement | null>(null);
 
   useIsoLayoutEffect(() => {
     if (!mounted) {

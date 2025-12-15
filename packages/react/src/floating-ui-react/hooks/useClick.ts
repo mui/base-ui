@@ -8,6 +8,7 @@ import { isClickLikeEvent, isMouseLikePointerType, isTypeableElement } from '../
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
 import { useMemo } from '@base-ui/utils/useMemo';
+import { useRef } from '@base-ui/utils/useRef';
 
 export interface UseClickProps {
   /**
@@ -67,7 +68,7 @@ export function useClick(
     touchOpenDelay = 0,
   } = props;
 
-  const pointerTypeRef = React.useRef<'mouse' | 'pen' | 'touch'>(undefined);
+  const pointerTypeRef = useRef<'mouse' | 'pen' | 'touch'>(undefined);
   const frame = useAnimationFrame();
   const touchOpenTimeout = useTimeout();
 

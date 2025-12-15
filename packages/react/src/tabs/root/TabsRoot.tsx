@@ -17,6 +17,7 @@ import { REASONS } from '../../utils/reasons';
 import { useCallback } from '@base-ui/utils/useCallback';
 import { useState } from '@base-ui/utils/useState';
 import { useMemo } from '@base-ui/utils/useMemo';
+import { useRef } from '@base-ui/utils/useRef';
 
 /**
  * Groups the tabs and the corresponding panels.
@@ -44,7 +45,7 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
   // Used to determine if we should honor a disabled tab selection.
   const hasExplicitDefaultValueProp = Object.hasOwn(componentProps, 'defaultValue');
 
-  const tabPanelRefs = React.useRef<(HTMLElement | null)[]>([]);
+  const tabPanelRefs = useRef<(HTMLElement | null)[]>([]);
   const [mountedTabPanels, setMountedTabPanels] = useState(
     () => new Map<TabsTab.Value | number, string>(),
   );
@@ -63,7 +64,7 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
   );
 
   const [tabActivationDirection, setTabActivationDirection] =
-    React.useState<TabsTab.ActivationDirection>('none');
+    useState<TabsTab.ActivationDirection>('none');
 
   const onValueChange = useStableCallback(
     (newValue: TabsTab.Value, eventDetails: TabsRoot.ChangeEventDetails) => {

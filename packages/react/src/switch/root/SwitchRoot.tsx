@@ -23,6 +23,7 @@ import { REASONS } from '../../utils/reasons';
 import type { BaseUIChangeEventDetails } from '../../types';
 import { useValueChanged } from '../../utils/useValueChanged';
 import { useMemo } from '@base-ui/utils/useMemo';
+import { useRef } from '@base-ui/utils/useRef';
 
 /**
  * Represents the switch itself.
@@ -72,10 +73,10 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
 
   const onCheckedChange = useStableCallback(onCheckedChangeProp);
 
-  const inputRef = React.useRef<HTMLInputElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
   const handleInputRef = useMergedRefs(inputRef, externalInputRef, validation.inputRef);
 
-  const switchRef = React.useRef<HTMLButtonElement | null>(null);
+  const switchRef = useRef<HTMLButtonElement | null>(null);
 
   const id = useBaseUiId();
 

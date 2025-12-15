@@ -2,6 +2,7 @@ import * as React from 'react';
 import type { FloatingRootContext } from '../../floating-ui-react';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import type { NavigationMenuRoot } from './NavigationMenuRoot';
+import { useContext } from '@base-ui/utils/useContext';
 
 export interface NavigationMenuRootContext {
   open: boolean;
@@ -49,7 +50,7 @@ if (process.env.NODE_ENV !== 'production') {
 function useNavigationMenuRootContext(optional?: false): NavigationMenuRootContext;
 function useNavigationMenuRootContext(optional: true): NavigationMenuRootContext | undefined;
 function useNavigationMenuRootContext(optional?: boolean) {
-  const context = React.useContext(NavigationMenuRootContext);
+  const context = useContext(NavigationMenuRootContext);
   if (context === undefined && !optional) {
     throw new Error(
       'Base UI: NavigationMenuRootContext is missing. Navigation Menu parts must be placed within <NavigationMenu.Root>.',
@@ -61,7 +62,7 @@ function useNavigationMenuRootContext(optional?: boolean) {
 export const NavigationMenuTreeContext = React.createContext<string | undefined>(undefined);
 
 function useNavigationMenuTreeContext() {
-  return React.useContext(NavigationMenuTreeContext);
+  return useContext(NavigationMenuTreeContext);
 }
 
 export { useNavigationMenuRootContext, useNavigationMenuTreeContext };

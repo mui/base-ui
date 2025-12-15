@@ -48,7 +48,7 @@ export const Menubar = React.forwardRef(function Menubar(
     ...elementProps
   } = props;
 
-  const [contentElement, setContentElement] = React.useState<HTMLElement | null>(null);
+  const [contentElement, setContentElement] = useState<HTMLElement | null>(null);
   const [hasSubmenuOpen, setHasSubmenuOpen] = useState(false);
 
   const {
@@ -76,7 +76,7 @@ export const Menubar = React.forwardRef(function Menubar(
     [orientation, modal, hasSubmenuOpen],
   );
 
-  const contentRef = React.useRef<HTMLDivElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
   const allowMouseUpTriggerRef = useRef(false);
 
   const context: MenubarContext = useMemo(

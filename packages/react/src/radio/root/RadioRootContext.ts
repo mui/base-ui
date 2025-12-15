@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { useContext } from '@base-ui/utils/useContext';
 
 export interface RadioRootContext {
   disabled: boolean;
@@ -11,7 +12,7 @@ export interface RadioRootContext {
 export const RadioRootContext = React.createContext<RadioRootContext | undefined>(undefined);
 
 export function useRadioRootContext() {
-  const value = React.useContext(RadioRootContext);
+  const value = useContext(RadioRootContext);
   if (value === undefined) {
     throw new Error(
       'Base UI: RadioRootContext is missing. Radio parts must be placed within <Radio.Root>.',

@@ -29,6 +29,7 @@ import { REASONS } from '../../utils/reasons';
 import { useValueChanged } from '../../utils/useValueChanged';
 import { useEffect } from '@base-ui/utils/useEffect';
 import { useMemo } from '@base-ui/utils/useMemo';
+import { useRef } from '@base-ui/utils/useRef';
 
 export const PARENT_CHECKBOX = 'data-parent';
 
@@ -120,7 +121,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
   const setGroupValue = groupContext?.setValue;
   const defaultGroupValue = groupContext?.defaultValue;
 
-  const controlRef = React.useRef<HTMLButtonElement>(null);
+  const controlRef = useRef<HTMLButtonElement>(null);
 
   const { getButtonProps, buttonRef } = useButton({
     disabled,
@@ -160,7 +161,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     getValue: () => checked,
   });
 
-  const inputRef = React.useRef<HTMLInputElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
   const mergedInputRef = useMergedRefs(inputRefProp, inputRef, validation.inputRef);
 
   useIsoLayoutEffect(() => {

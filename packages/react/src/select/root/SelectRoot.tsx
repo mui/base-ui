@@ -39,6 +39,7 @@ import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
 import { mergeProps } from '../../merge-props';
 import { useRef } from '@base-ui/utils/useRef';
 import { useMemo } from '@base-ui/utils/useMemo';
+import { useImperativeHandle } from '@base-ui/utils/useImperativeHandle';
 
 /**
  * Groups all parts of the select.
@@ -105,16 +106,16 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     state: 'open',
   });
 
-  const listRef = React.useRef<Array<HTMLElement | null>>([]);
-  const labelsRef = React.useRef<Array<string | null>>([]);
-  const popupRef = React.useRef<HTMLDivElement | null>(null);
-  const scrollHandlerRef = React.useRef<((el: HTMLDivElement) => void) | null>(null);
+  const listRef = useRef<Array<HTMLElement | null>>([]);
+  const labelsRef = useRef<Array<string | null>>([]);
+  const popupRef = useRef<HTMLDivElement | null>(null);
+  const scrollHandlerRef = useRef<((el: HTMLDivElement) => void) | null>(null);
   const scrollArrowsMountedCountRef = useRef(0);
-  const valueRef = React.useRef<HTMLSpanElement | null>(null);
-  const valuesRef = React.useRef<Array<any>>([]);
+  const valueRef = useRef<HTMLSpanElement | null>(null);
+  const valuesRef = useRef<Array<any>>([]);
   const typingRef = useRef(false);
   const keyboardActiveRef = useRef(false);
-  const selectedItemTextRef = React.useRef<HTMLSpanElement | null>(null);
+  const selectedItemTextRef = useRef<HTMLSpanElement | null>(null);
   const selectionRef = useRef({
     allowSelectedMouseUp: false,
     allowUnselectedMouseUp: false,
@@ -281,7 +282,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     },
   });
 
-  React.useImperativeHandle(actionsRef, () => ({ unmount: handleUnmount }), [handleUnmount]);
+  useImperativeHandle(actionsRef, () => ({ unmount: handleUnmount }), [handleUnmount]);
 
   const setValue = useStableCallback(
     (nextValue: any, eventDetails: SelectRoot.ChangeEventDetails) => {

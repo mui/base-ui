@@ -13,6 +13,7 @@ import { safePolygon, useDelayGroup, useHoverReferenceInteraction } from '../../
 
 import { OPEN_DELAY } from '../utils/constants';
 import { useMemo } from '@base-ui/utils/useMemo';
+import { useRef } from '@base-ui/utils/useRef';
 
 /**
  * An element to attach the tooltip to.
@@ -49,7 +50,7 @@ export const TooltipTrigger = fastComponentRef(function TooltipTrigger(
   const floatingRootContext = store.useState('floatingRootContext');
   const isOpenedByThisTrigger = store.useState('isOpenedByTrigger', thisTriggerId);
 
-  const triggerElementRef = React.useRef<Element | null>(null);
+  const triggerElementRef = useRef<Element | null>(null);
 
   const delayWithDefault = delay ?? OPEN_DELAY;
   const closeDelayWithDefault = closeDelay ?? 0;

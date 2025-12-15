@@ -51,7 +51,7 @@ export function useNumberFieldButton(params: useNumberFieldButton.Parameters) {
   const incrementDownCoordsRef = useRef({ x: 0, y: 0 });
   const isTouchingButtonRef = useRef(false);
   const ignoreClickRef = useRef(false);
-  const pointerTypeRef = React.useRef<'mouse' | 'touch' | 'pen' | ''>('');
+  const pointerTypeRef = useRef<'mouse' | 'touch' | 'pen' | ''>('');
 
   const isMin = value != null && value <= minWithDefault;
   const isMax = value != null && value >= maxWithDefault;

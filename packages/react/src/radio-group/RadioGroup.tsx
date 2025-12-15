@@ -24,6 +24,7 @@ import type { BaseUIChangeEventDetails } from '../utils/createBaseUIEventDetails
 import { REASONS } from '../utils/reasons';
 import { useState } from '@base-ui/utils/useState';
 import { useMemo } from '@base-ui/utils/useMemo';
+import { useRef } from '@base-ui/utils/useRef';
 
 const MODIFIER_KEYS = [SHIFT];
 
@@ -94,7 +95,7 @@ export const RadioGroup = React.forwardRef(function RadioGroup(
     },
   );
 
-  const controlRef = React.useRef<HTMLElement>(null);
+  const controlRef = useRef<HTMLElement>(null);
   const registerControlRef = useStableCallback((element: HTMLElement | null) => {
     if (controlRef.current == null && element != null) {
       controlRef.current = element;

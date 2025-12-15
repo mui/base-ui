@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import type { ProgressRoot, ProgressStatus } from './ProgressRoot';
+import { useContext } from '@base-ui/utils/useContext';
 
 export type ProgressRootContext = {
   /**
@@ -30,7 +31,7 @@ export type ProgressRootContext = {
 export const ProgressRootContext = React.createContext<ProgressRootContext | undefined>(undefined);
 
 export function useProgressRootContext() {
-  const context = React.useContext(ProgressRootContext);
+  const context = useContext(ProgressRootContext);
   if (context === undefined) {
     throw new Error(
       'Base UI: ProgressRootContext is missing. Progress parts must be placed within <Progress.Root>.',

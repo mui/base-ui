@@ -41,7 +41,7 @@ export const ComboboxItem = React.memo(
     } = componentProps;
 
     const didPointerDownRef = useRef(false);
-    const textRef = React.useRef<HTMLElement | null>(null);
+    const textRef = useRef<HTMLElement | null>(null);
     const listItem = useCompositeListItem({
       index: indexProp,
       textRef,
@@ -70,7 +70,7 @@ export const ComboboxItem = React.memo(
     const items = useStore(store, selectors.items);
     const getItemProps = useStore(store, selectors.getItemProps);
 
-    const itemRef = React.useRef<HTMLDivElement | null>(null);
+    const itemRef = useRef<HTMLDivElement | null>(null);
 
     const id = rootId != null && hasRegistered ? `${rootId}-${index}` : undefined;
     const selected = matchesSelectedValue && selectable;

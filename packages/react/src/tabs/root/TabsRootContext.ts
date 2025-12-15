@@ -2,6 +2,7 @@
 import * as React from 'react';
 import type { TabsTab } from '../tab/TabsTab';
 import type { TabsRoot } from './TabsRoot';
+import { useContext } from '@base-ui/utils/useContext';
 
 export interface TabsRootContext {
   /**
@@ -45,7 +46,7 @@ export interface TabsRootContext {
 export const TabsRootContext = React.createContext<TabsRootContext | undefined>(undefined);
 
 export function useTabsRootContext() {
-  const context = React.useContext(TabsRootContext);
+  const context = useContext(TabsRootContext);
   if (context === undefined) {
     throw new Error(
       'Base UI: TabsRootContext is missing. Tabs parts must be placed within <Tabs.Root>.',

@@ -95,13 +95,13 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
   const sizeFrame1 = useAnimationFrame();
   const sizeFrame2 = useAnimationFrame();
 
-  const [triggerElement, setTriggerElement] = React.useState<HTMLElement | null>(null);
+  const [triggerElement, setTriggerElement] = useState<HTMLElement | null>(null);
   const [stickIfOpen, setStickIfOpen] = useState(true);
-  const [pointerType, setPointerType] = React.useState<'mouse' | 'touch' | 'pen' | ''>('');
+  const [pointerType, setPointerType] = useState<'mouse' | 'touch' | 'pen' | ''>('');
 
   const allowFocusRef = useRef(false);
   const prevSizeRef = useRef(DEFAULT_SIZE);
-  const animationAbortControllerRef = React.useRef<AbortController | null>(null);
+  const animationAbortControllerRef = useRef<AbortController | null>(null);
 
   const isActiveItem = open && value === itemValue;
   const isActiveItemRef = useValueAsRef(isActiveItem);

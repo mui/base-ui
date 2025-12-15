@@ -33,7 +33,7 @@ export function usePopupAutoResize(parameters: UsePopupAutoResizeParameters) {
   const isInitialRender = useRef(true);
   const runOnceAnimationsFinish = useAnimationsFinished(popupElement, true, false);
   const animationFrame = useAnimationFrame();
-  const previousDimensionsRef = React.useRef<Dimensions | null>(null);
+  const previousDimensionsRef = useRef<Dimensions | null>(null);
 
   const onMeasureLayout = useStableCallback(onMeasureLayoutParam);
   const onMeasureLayoutComplete = useStableCallback(onMeasureLayoutCompleteParam);

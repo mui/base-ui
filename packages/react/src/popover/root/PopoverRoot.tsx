@@ -26,6 +26,7 @@ import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
 import { useEffect } from '@base-ui/utils/useEffect';
 import { useCallback } from '@base-ui/utils/useCallback';
 import { useMemo } from '@base-ui/utils/useMemo';
+import { useImperativeHandle } from '@base-ui/utils/useImperativeHandle';
 
 function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Payload> }) {
   const {
@@ -99,7 +100,7 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
     store.setOpen(false, createPopoverEventDetails(REASONS.imperativeAction));
   }, [store, createPopoverEventDetails]);
 
-  React.useImperativeHandle(
+  useImperativeHandle(
     props.actionsRef,
     () => ({ unmount: forceUnmount, close: handleImperativeClose }),
     [forceUnmount, handleImperativeClose],

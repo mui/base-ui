@@ -43,7 +43,7 @@ export const TabsList = React.forwardRef(function TabsList(
 
   const [highlightedTabIndex, setHighlightedTabIndex] = useState(0);
 
-  const [tabsListElement, setTabsListElement] = React.useState<HTMLElement | null>(null);
+  const [tabsListElement, setTabsListElement] = useState<HTMLElement | null>(null);
 
   const detectActivationDirection = useActivationDirectionDetector(
     value, // the old value
@@ -132,7 +132,7 @@ function useActivationDirectionDetector(
   tabsListElement: HTMLElement | null,
   getTabElement: (selectedValue: any) => HTMLElement | null,
 ): (newValue: any) => TabsTab.ActivationDirection {
-  const [previousTabEdge, setPreviousTabEdge] = React.useState<number | null>(null);
+  const [previousTabEdge, setPreviousTabEdge] = useState<number | null>(null);
 
   useIsoLayoutEffect(() => {
     // Whenever orientation changes, reset the state.

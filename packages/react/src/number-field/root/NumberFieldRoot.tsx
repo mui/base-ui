@@ -102,7 +102,7 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
   const minWithZeroDefault = min ?? 0;
   const formatStyle = format?.style;
 
-  const inputRef = React.useRef<HTMLInputElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
   const hiddenInputRef = useMergedRefs(inputRefProp, validation.inputRef);
 
   const id = useLabelableId({ id: idProp });
@@ -141,8 +141,8 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
   const isPressedRef = useRef(false);
   const movesAfterTouchRef = useRef(0);
   const allowInputSyncRef = useRef(true);
-  const lastChangedValueRef = React.useRef<number | null>(null);
-  const unsubscribeFromGlobalContextMenuRef = React.useRef<() => void>(() => {});
+  const lastChangedValueRef = useRef<number | null>(null);
+  const unsubscribeFromGlobalContextMenuRef = useRef<() => void>(() => {});
 
   // During SSR, the value is formatted on the server, whose locale may differ from the client's
   // locale. This causes a hydration mismatch, which we manually suppress. This is preferable to
@@ -154,7 +154,7 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
     }
     return formatNumber(value, locale, format);
   });
-  const [inputMode, setInputMode] = React.useState<InputMode>('numeric');
+  const [inputMode, setInputMode] = useState<InputMode>('numeric');
 
   const getAllowedNonNumericKeys = useStableCallback(() => {
     const { decimal, group, currency, literal } = getNumberLocaleDetails(locale, format);

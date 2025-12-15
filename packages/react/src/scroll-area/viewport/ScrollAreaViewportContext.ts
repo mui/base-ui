@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { useContext } from '@base-ui/utils/useContext';
 
 export interface ScrollAreaViewportContext {
   computeThumbPosition: () => void;
@@ -9,7 +10,7 @@ export const ScrollAreaViewportContext = React.createContext<ScrollAreaViewportC
 );
 
 export function useScrollAreaViewportContext() {
-  const context = React.useContext(ScrollAreaViewportContext);
+  const context = useContext(ScrollAreaViewportContext);
   if (context === undefined) {
     throw new Error(
       'Base UI: ScrollAreaViewportContext missing. ScrollAreaViewport parts must be placed within <ScrollArea.Viewport>.',

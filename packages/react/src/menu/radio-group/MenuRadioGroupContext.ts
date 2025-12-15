@@ -1,5 +1,6 @@
 import * as React from 'react';
 import type { MenuRoot } from '../root/MenuRoot';
+import { useContext } from '@base-ui/utils/useContext';
 
 export interface MenuRadioGroupContext {
   value: any;
@@ -12,7 +13,7 @@ export const MenuRadioGroupContext = React.createContext<MenuRadioGroupContext |
 );
 
 export function useMenuRadioGroupContext() {
-  const context = React.useContext(MenuRadioGroupContext);
+  const context = useContext(MenuRadioGroupContext);
   if (context === undefined) {
     throw new Error(
       'Base UI: MenuRadioGroupContext is missing. MenuRadioGroup parts must be placed within <Menu.RadioGroup>.',

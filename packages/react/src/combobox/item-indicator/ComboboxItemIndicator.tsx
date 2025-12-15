@@ -7,6 +7,7 @@ import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
 import { useMemo } from '@base-ui/utils/useMemo';
+import { useRef } from '@base-ui/utils/useRef';
 
 /**
  * Indicates whether the item is selected.
@@ -41,7 +42,7 @@ const Inner = React.memo(
 
       const { selected } = useComboboxItemContext();
 
-      const indicatorRef = React.useRef<HTMLSpanElement | null>(null);
+      const indicatorRef = useRef<HTMLSpanElement | null>(null);
 
       const { transitionStatus, setMounted } = useTransitionStatus(selected);
 

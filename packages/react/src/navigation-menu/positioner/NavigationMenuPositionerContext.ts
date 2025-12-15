@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useAnchorPositioning } from '../../utils/useAnchorPositioning';
+import { useContext } from '@base-ui/utils/useContext';
 
 export type NavigationMenuPositionerContext = ReturnType<typeof useAnchorPositioning>;
 
@@ -15,7 +16,7 @@ export function useNavigationMenuPositionerContext(
   optional?: false,
 ): NavigationMenuPositionerContext;
 export function useNavigationMenuPositionerContext(optional = false) {
-  const context = React.useContext(NavigationMenuPositionerContext);
+  const context = useContext(NavigationMenuPositionerContext);
   if (!context && !optional) {
     throw new Error(
       'Base UI: NavigationMenuPositionerContext is missing. NavigationMenuPositioner parts must be placed within <NavigationMenu.Positioner>.',

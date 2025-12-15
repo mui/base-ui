@@ -4,6 +4,7 @@ import type { SelectStore } from '../store';
 import type { UseFieldValidationReturnValue } from '../../field/root/useFieldValidation';
 import type { HTMLProps } from '../../utils/types';
 import type { SelectRoot } from './SelectRoot';
+import { useContext } from '@base-ui/utils/useContext';
 
 export interface SelectRootContext {
   store: SelectStore;
@@ -44,7 +45,7 @@ export const SelectRootContext = React.createContext<SelectRootContext | null>(n
 export const SelectFloatingContext = React.createContext<FloatingRootContext | null>(null);
 
 export function useSelectRootContext() {
-  const context = React.useContext(SelectRootContext);
+  const context = useContext(SelectRootContext);
   if (context === null) {
     throw new Error(
       'Base UI: SelectRootContext is missing. Select parts must be placed within <Select.Root>.',
@@ -54,7 +55,7 @@ export function useSelectRootContext() {
 }
 
 export function useSelectFloatingContext() {
-  const context = React.useContext(SelectFloatingContext);
+  const context = useContext(SelectFloatingContext);
   if (context === null) {
     throw new Error(
       'Base UI: SelectFloatingContext is missing. Select parts must be placed within <Select.Root>.',

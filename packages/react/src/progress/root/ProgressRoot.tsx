@@ -7,6 +7,7 @@ import { ProgressRootContext } from './ProgressRootContext';
 import { progressStateAttributesMapping } from './stateAttributesMapping';
 import { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 import { useMemo } from '@base-ui/utils/useMemo';
+import { useState } from '@base-ui/utils/useState';
 
 function formatValue(
   value: number | null,
@@ -54,7 +55,7 @@ export const ProgressRoot = React.forwardRef(function ProgressRoot(
     ...elementProps
   } = componentProps;
 
-  const [labelId, setLabelId] = React.useState<string | undefined>();
+  const [labelId, setLabelId] = useState<string | undefined>();
 
   const formatOptionsRef = useValueAsRef(format);
 

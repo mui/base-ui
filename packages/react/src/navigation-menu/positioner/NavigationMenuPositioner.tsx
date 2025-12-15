@@ -25,6 +25,7 @@ import { getDisabledMountTransitionStyles } from '../../utils/getDisabledMountTr
 import { useEffect } from '@base-ui/utils/useEffect';
 import { useState } from '@base-ui/utils/useState';
 import { useMemo } from '@base-ui/utils/useMemo';
+import { useRef } from '@base-ui/utils/useRef';
 
 const EMPTY_ROOT_CONTEXT = getEmptyRootContext();
 
@@ -73,8 +74,8 @@ export const NavigationMenuPositioner = React.forwardRef(function NavigationMenu
 
   const [instant, setInstant] = useState(false);
 
-  const positionerRef = React.useRef<HTMLDivElement | null>(null);
-  const prevTriggerElementRef = React.useRef<Element | null>(null);
+  const positionerRef = useRef<HTMLDivElement | null>(null);
+  const prevTriggerElementRef = useRef<Element | null>(null);
 
   // https://codesandbox.io/s/tabbable-portal-f4tng?file=/src/TabbablePortal.tsx
   useEffect(() => {

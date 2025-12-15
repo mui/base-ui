@@ -18,6 +18,7 @@ import { adaptiveOrigin } from '../../utils/adaptiveOriginMiddleware';
 import { getDisabledMountTransitionStyles } from '../../utils/getDisabledMountTransitionStyles';
 import { useCallback } from '@base-ui/utils/useCallback';
 import { useMemo } from '@base-ui/utils/useMemo';
+import { useRef } from '@base-ui/utils/useRef';
 
 /**
  * Positions the popover against the trigger.
@@ -61,7 +62,7 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
   const instantType = store.useState('instantType');
   const transitionStatus = store.useState('transitionStatus');
 
-  const prevTriggerElementRef = React.useRef<Element | null>(null);
+  const prevTriggerElementRef = useRef<Element | null>(null);
 
   const runOnceAnimationsFinish = useAnimationsFinished(positionerElement, false, false);
 

@@ -26,6 +26,7 @@ import { REASONS } from '../../utils/reasons';
 import { useEffect } from '@base-ui/utils/useEffect';
 import { useState } from '@base-ui/utils/useState';
 import { useMemo } from '@base-ui/utils/useMemo';
+import { useRef } from '@base-ui/utils/useRef';
 
 const blockedReturnFocusReasons = new Set<string>([
   REASONS.triggerHover,
@@ -66,28 +67,26 @@ export const NavigationMenuRoot = React.forwardRef(function NavigationMenuRoot(
   // Derive open state from value being non-nullish
   const open = value != null;
 
-  const closeReasonRef = React.useRef<NavigationMenuRoot.ChangeEventReason | undefined>(undefined);
-  const rootRef = React.useRef<HTMLDivElement | null>(null);
+  const closeReasonRef = useRef<NavigationMenuRoot.ChangeEventReason | undefined>(undefined);
+  const rootRef = useRef<HTMLDivElement | null>(null);
 
-  const [positionerElement, setPositionerElement] = React.useState<HTMLElement | null>(null);
-  const [popupElement, setPopupElement] = React.useState<HTMLElement | null>(null);
-  const [viewportElement, setViewportElement] = React.useState<HTMLElement | null>(null);
-  const [viewportTargetElement, setViewportTargetElement] = React.useState<HTMLElement | null>(
-    null,
-  );
+  const [positionerElement, setPositionerElement] = useState<HTMLElement | null>(null);
+  const [popupElement, setPopupElement] = useState<HTMLElement | null>(null);
+  const [viewportElement, setViewportElement] = useState<HTMLElement | null>(null);
+  const [viewportTargetElement, setViewportTargetElement] = useState<HTMLElement | null>(null);
   const [activationDirection, setActivationDirection] =
-    React.useState<NavigationMenuRootContext['activationDirection']>(null);
-  const [floatingRootContext, setFloatingRootContext] = React.useState<
-    FloatingRootContext | undefined
-  >(undefined);
+    useState<NavigationMenuRootContext['activationDirection']>(null);
+  const [floatingRootContext, setFloatingRootContext] = useState<FloatingRootContext | undefined>(
+    undefined,
+  );
   const [viewportInert, setViewportInert] = useState(false);
 
-  const prevTriggerElementRef = React.useRef<Element | null | undefined>(null);
-  const currentContentRef = React.useRef<HTMLDivElement | null>(null);
-  const beforeInsideRef = React.useRef<HTMLSpanElement | null>(null);
-  const afterInsideRef = React.useRef<HTMLSpanElement | null>(null);
-  const beforeOutsideRef = React.useRef<HTMLSpanElement | null>(null);
-  const afterOutsideRef = React.useRef<HTMLSpanElement | null>(null);
+  const prevTriggerElementRef = useRef<Element | null | undefined>(null);
+  const currentContentRef = useRef<HTMLDivElement | null>(null);
+  const beforeInsideRef = useRef<HTMLSpanElement | null>(null);
+  const afterInsideRef = useRef<HTMLSpanElement | null>(null);
+  const beforeOutsideRef = useRef<HTMLSpanElement | null>(null);
+  const afterOutsideRef = useRef<HTMLSpanElement | null>(null);
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
 

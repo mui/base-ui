@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { useContext } from '@base-ui/utils/useContext';
 
 export type MeterRootContext = {
   formattedValue: string;
@@ -12,7 +13,7 @@ export type MeterRootContext = {
 export const MeterRootContext = React.createContext<MeterRootContext | undefined>(undefined);
 
 export function useMeterRootContext() {
-  const context = React.useContext(MeterRootContext);
+  const context = useContext(MeterRootContext);
   if (context === undefined) {
     throw new Error(
       'Base UI: MeterRootContext is missing. Meter parts must be placed within <Meter.Root>.',

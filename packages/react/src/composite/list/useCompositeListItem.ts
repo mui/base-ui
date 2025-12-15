@@ -5,6 +5,7 @@ import { useCompositeListContext } from './CompositeListContext';
 import { useRef } from '@base-ui/utils/useRef';
 import { useCallback } from '@base-ui/utils/useCallback';
 import { useMemo } from '@base-ui/utils/useMemo';
+import { useState } from '@base-ui/utils/useState';
 
 export interface UseCompositeListItemParameters<Metadata> {
   index?: number;
@@ -39,7 +40,7 @@ export function useCompositeListItem<Metadata>(
     useCompositeListContext();
 
   const indexRef = useRef(-1);
-  const [index, setIndex] = React.useState<number>(
+  const [index, setIndex] = useState<number>(
     externalIndex ??
       (indexGuessBehavior === IndexGuessBehavior.GuessFromOrder
         ? () => {
@@ -53,7 +54,7 @@ export function useCompositeListItem<Metadata>(
         : -1),
   );
 
-  const componentRef = React.useRef<Element | null>(null);
+  const componentRef = useRef<Element | null>(null);
 
   const ref = useCallback(
     (node: HTMLElement | null) => {

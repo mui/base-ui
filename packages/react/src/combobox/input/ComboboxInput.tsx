@@ -27,6 +27,7 @@ import type { Side } from '../../utils/useAnchorPositioning';
 import { useDirection } from '../../direction-provider/DirectionContext';
 import { useRef } from '@base-ui/utils/useRef';
 import { useMemo } from '@base-ui/utils/useMemo';
+import { useState } from '@base-ui/utils/useState';
 
 const stateAttributesMapping: StateAttributesMapping<ComboboxInput.State> = {
   ...pressableTriggerOpenStateMapping,
@@ -90,7 +91,7 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
   const disabled = fieldDisabled || comboboxDisabled || disabledProp;
   const listEmpty = filteredItems.length === 0;
 
-  const [composingValue, setComposingValue] = React.useState<string | null>(null);
+  const [composingValue, setComposingValue] = useState<string | null>(null);
   const isComposingRef = useRef(false);
 
   const setInputElement = useStableCallback((element: HTMLInputElement | null) => {

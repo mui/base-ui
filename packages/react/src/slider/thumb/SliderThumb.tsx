@@ -36,6 +36,7 @@ import { script as prehydrationScript } from './prehydrationScript.min';
 import { useCallback } from '@base-ui/utils/useCallback';
 import { useState } from '@base-ui/utils/useState';
 import { useMemo } from '@base-ui/utils/useMemo';
+import { useRef } from '@base-ui/utils/useRef';
 
 const PAGE_UP = 'PageUp';
 const PAGE_DOWN = 'PageDown';
@@ -151,8 +152,8 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
 
   const { setTouched, setFocused, validationMode } = useFieldRootContext();
 
-  const thumbRef = React.useRef<HTMLElement>(null);
-  const inputRef = React.useRef<HTMLInputElement>(null);
+  const thumbRef = useRef<HTMLElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const defaultInputId = useBaseUiId();
   const labelableId = useLabelableId();
@@ -175,7 +176,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
   const thumbValuePercent = valueToPercent(thumbValue, min, max);
 
   const [isMounted, setIsMounted] = useState(false);
-  const [positionPercent, setPositionPercent] = React.useState<number | undefined>();
+  const [positionPercent, setPositionPercent] = useState<number | undefined>();
 
   useOnMount(() => setIsMounted(true));
 

@@ -8,6 +8,7 @@ import type { BaseUIChangeEventDetails } from '../../types';
 import type { MenuRoot } from '../../menu/root/MenuRoot';
 import { useRef } from '@base-ui/utils/useRef';
 import { useMemo } from '@base-ui/utils/useMemo';
+import { useState } from '@base-ui/utils/useState';
 
 /**
  * A component that creates a context menu activated by right clicking or long pressing.
@@ -16,18 +17,18 @@ import { useMemo } from '@base-ui/utils/useMemo';
  * Documentation: [Base UI Context Menu](https://base-ui.com/react/components/context-menu)
  */
 export function ContextMenuRoot(props: ContextMenuRoot.Props) {
-  const [anchor, setAnchor] = React.useState<ContextMenuRootContext['anchor']>({
+  const [anchor, setAnchor] = useState<ContextMenuRootContext['anchor']>({
     getBoundingClientRect() {
       return DOMRect.fromRect({ width: 0, height: 0, x: 0, y: 0 });
     },
   });
 
-  const backdropRef = React.useRef<HTMLDivElement | null>(null);
-  const internalBackdropRef = React.useRef<HTMLDivElement | null>(null);
+  const backdropRef = useRef<HTMLDivElement | null>(null);
+  const internalBackdropRef = useRef<HTMLDivElement | null>(null);
   const actionsRef: ContextMenuRootContext['actionsRef'] = useRef(null);
-  const positionerRef = React.useRef<HTMLElement | null>(null);
+  const positionerRef = useRef<HTMLElement | null>(null);
   const allowMouseUpTriggerRef = useRef(true);
-  const initialCursorPointRef = React.useRef<{ x: number; y: number } | null>(null);
+  const initialCursorPointRef = useRef<{ x: number; y: number } | null>(null);
   const id = useId();
 
   const contextValue: ContextMenuRootContext = useMemo(

@@ -49,6 +49,7 @@ import { useEffect } from '@base-ui/utils/useEffect';
 import { useRef } from '@base-ui/utils/useRef';
 import { useCallback } from '@base-ui/utils/useCallback';
 import { useMemo } from '@base-ui/utils/useMemo';
+import { useImperativeHandle } from '@base-ui/utils/useImperativeHandle';
 
 /**
  * Groups all parts of the menu.
@@ -162,7 +163,7 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
   const payload = store.useState('payload') as Payload | undefined;
   const floatingParentNodeId = store.useState('floatingParentNodeId');
 
-  const openEventRef = React.useRef<Event | null>(null);
+  const openEventRef = useRef<Event | null>(null);
 
   const nested = floatingParentNodeId != null;
 
@@ -367,24 +368,23 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
     store.setOpen(false, createMenuEventDetails(REASONS.imperativeAction));
   }, [store, createMenuEventDetails]);
 
-  React.useImperativeHandle(
-    actionsRef,
-    () => ({ unmount: forceUnmount, close: handleImperativeClose }),
-    [forceUnmount, handleImperativeClose],
-  );
+  useImperativeHandle(actionsRef, () => ({ unmount: forceUnmount, close: handleImperativeClose }), [
+    forceUnmount,
+    handleImperativeClose,
+  ]);
 
   let ctx: ContextMenuRootContext | undefined;
   if (parent.type === 'context-menu') {
     ctx = parent.context;
   }
 
-  React.useImperativeHandle<HTMLElement | null, HTMLElement | null>(
+  useImperativeHandle<HTMLElement | null, HTMLElement | null>(
     ctx?.positionerRef,
     () => positionerElement,
     [positionerElement],
   );
 
-  React.useImperativeHandle(ctx?.actionsRef, () => ({ setOpen }), [setOpen]);
+  useImperativeHandle(ctx?.actionsRef, () => ({ setOpen }), [setOpen]);
 
   const floatingRootContext = useSyncedFloatingRootContext({
     popupStore: store,

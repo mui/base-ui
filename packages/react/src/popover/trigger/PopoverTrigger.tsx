@@ -34,6 +34,7 @@ import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
 import { useTriggerDataForwarding } from '../../utils/popups';
 import { useMemo } from '@base-ui/utils/useMemo';
+import { useRef } from '@base-ui/utils/useRef';
 
 /**
  * A button that opens the popover.
@@ -72,7 +73,7 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
   const floatingContext = store.useState('floatingRootContext');
   const isOpenedByThisTrigger = store.useState('isOpenedByTrigger', thisTriggerId);
 
-  const triggerElementRef = React.useRef<HTMLElement | null>(null);
+  const triggerElementRef = useRef<HTMLElement | null>(null);
 
   const { registerTrigger, isMountedByThisTrigger } = useTriggerDataForwarding(
     thisTriggerId,
@@ -152,7 +153,7 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
     stateAttributesMapping,
   });
 
-  const preFocusGuardRef = React.useRef<HTMLElement>(null);
+  const preFocusGuardRef = useRef<HTMLElement>(null);
 
   const handlePreFocusGuardFocus = useStableCallback((event: React.FocusEvent) => {
     ReactDOM.flushSync(() => {

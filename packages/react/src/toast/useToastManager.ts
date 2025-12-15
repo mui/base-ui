@@ -3,12 +3,13 @@ import * as React from 'react';
 import { ToastContext } from './provider/ToastProviderContext';
 import type { ToastPositionerProps } from './positioner/ToastPositioner';
 import { useMemo } from '@base-ui/utils/useMemo';
+import { useContext } from '@base-ui/utils/useContext';
 
 /**
  * Returns the array of toasts and methods to manage them.
  */
 export function useToastManager(): UseToastManagerReturnValue {
-  const context = React.useContext(ToastContext);
+  const context = useContext(ToastContext);
 
   if (!context) {
     throw new Error('Base UI: useToastManager must be used within <Toast.Provider>.');

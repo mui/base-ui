@@ -3,6 +3,7 @@ import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { isSafari } from '@base-ui/utils/detectBrowser';
 import { visuallyHidden } from '@base-ui/utils/visuallyHidden';
+import { useState } from '@base-ui/utils/useState';
 
 /**
  * @internal
@@ -11,7 +12,7 @@ export const FocusGuard = React.forwardRef(function FocusGuard(
   props: React.ComponentPropsWithoutRef<'span'>,
   ref: React.ForwardedRef<HTMLSpanElement>,
 ) {
-  const [role, setRole] = React.useState<'button' | undefined>();
+  const [role, setRole] = useState<'button' | undefined>();
 
   useIsoLayoutEffect(() => {
     if (isSafari) {

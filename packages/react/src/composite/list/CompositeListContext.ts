@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { useContext } from '@base-ui/utils/useContext';
 
 export interface CompositeListContextValue<Metadata> {
   register: (node: Element, metadata: Metadata) => void;
@@ -21,5 +22,5 @@ export const CompositeListContext = React.createContext<CompositeListContextValu
 });
 
 export function useCompositeListContext() {
-  return React.useContext(CompositeListContext);
+  return useContext(CompositeListContext);
 }

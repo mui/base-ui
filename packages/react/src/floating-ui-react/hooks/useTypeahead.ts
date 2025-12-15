@@ -85,8 +85,8 @@ export function useTypeahead(
 
   const timeout = useTimeout();
   const stringRef = useRef('');
-  const prevIndexRef = React.useRef<number | null>(selectedIndex ?? activeIndex ?? -1);
-  const matchIndexRef = React.useRef<number | null>(null);
+  const prevIndexRef = useRef<number | null>(selectedIndex ?? activeIndex ?? -1);
+  const matchIndexRef = useRef<number | null>(null);
 
   useIsoLayoutEffect(() => {
     if (open) {

@@ -49,6 +49,7 @@ import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { useEffect } from '@base-ui/utils/useEffect';
 import { useState } from '@base-ui/utils/useState';
 import { useMemo } from '@base-ui/utils/useMemo';
+import { useRef } from '@base-ui/utils/useRef';
 
 const BOUNDARY_OFFSET = 2;
 
@@ -89,7 +90,7 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
   const floatingRootContext = store.useState('floatingRootContext');
   const isOpenedByThisTrigger = store.useState('isOpenedByTrigger', thisTriggerId);
 
-  const triggerElementRef = React.useRef<HTMLElement | null>(null);
+  const triggerElementRef = useRef<HTMLElement | null>(null);
 
   const parent = useMenuParent();
   const compositeRootContext = useCompositeRootContext(true);
@@ -131,7 +132,7 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
     }
   }, [store, isOpenedByThisTrigger, parent.type]);
 
-  const triggerRef = React.useRef<HTMLElement | null>(null);
+  const triggerRef = useRef<HTMLElement | null>(null);
   const allowMouseUpTriggerTimeout = useTimeout();
 
   const handleDocumentMouseUp = useStableCallback((mouseEvent: MouseEvent) => {
@@ -263,7 +264,7 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
     getButtonProps,
   ];
 
-  const preFocusGuardRef = React.useRef<HTMLElement>(null);
+  const preFocusGuardRef = useRef<HTMLElement>(null);
 
   const handlePreFocusGuardFocus = useStableCallback((event: React.FocusEvent) => {
     ReactDOM.flushSync(() => {

@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { useContext } from '@base-ui/utils/useContext';
 
 export interface FieldsetRootContext {
   legendId: string | undefined;
@@ -16,7 +17,7 @@ export const FieldsetRootContext = React.createContext<FieldsetRootContext>({
 export function useFieldsetRootContext(optional: true): FieldsetRootContext | undefined;
 export function useFieldsetRootContext(optional?: false): FieldsetRootContext;
 export function useFieldsetRootContext(optional = false) {
-  const context = React.useContext(FieldsetRootContext);
+  const context = useContext(FieldsetRootContext);
   if (!context && !optional) {
     throw new Error(
       'Base UI: FieldsetRootContext is missing. Fieldset parts must be placed within <Fieldset.Root>.',

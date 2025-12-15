@@ -27,6 +27,8 @@ import {
 } from '../../src/floating-ui-react';
 import { useEffect } from '@base-ui/utils/useEffect';
 import { useState } from '@base-ui/utils/useState';
+import { useRef } from '@base-ui/utils/useRef';
+import { useContext } from '@base-ui/utils/useContext';
 
 type MenuContextType = {
   getItemProps: ReturnType<typeof useInteractions>['getItemProps'];
@@ -70,12 +72,12 @@ export const MenuComponent = React.forwardRef<
   forwardedRef,
 ) {
   const [isOpen, setIsOpen] = useState(false);
-  const [activeIndex, setActiveIndex] = React.useState<number | null>(null);
+  const [activeIndex, setActiveIndex] = useState<number | null>(null);
   const [allowHover, setAllowHover] = useState(false);
   const [hasFocusInside, setHasFocusInside] = useState(false);
 
-  const elementsRef = React.useRef<Array<HTMLButtonElement | null>>([]);
-  const labelsRef = React.useRef<Array<string | null>>([]);
+  const elementsRef = useRef<Array<HTMLButtonElement | null>>([]);
+  const labelsRef = useRef<Array<string | null>>([]);
 
   const tree = useFloatingTree();
   const nodeId = useFloatingNodeId();
@@ -83,7 +85,7 @@ export const MenuComponent = React.forwardRef<
   const isNested = parentId != null;
   const orientation = orientationOption ?? (cols ? 'both' : 'vertical');
 
-  const parent = React.useContext(MenuContext);
+  const parent = useContext(MenuContext);
   const item = useCompositeListItem();
 
   const { floatingStyles, refs, context } = useFloating({
@@ -304,7 +306,7 @@ export const MenuItem = React.forwardRef<
   HTMLButtonElement,
   MenuItemProps & React.ButtonHTMLAttributes<HTMLButtonElement>
 >(function MenuItem({ label, disabled, ...props }, forwardedRef) {
-  const menu = React.useContext(MenuContext);
+  const menu = useContext(MenuContext);
   const item = useCompositeListItem({ label: disabled ? null : label });
   const tree = useFloatingTree();
   const isActive = item.index === menu.activeIndex;

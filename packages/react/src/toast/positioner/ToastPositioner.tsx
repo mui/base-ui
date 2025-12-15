@@ -13,6 +13,7 @@ import type { ToastObject } from '../useToastManager';
 import { ToastRootCssVars } from '../root/ToastRootCssVars';
 import { useToastContext } from '../provider/ToastProviderContext';
 import { useMemo } from '@base-ui/utils/useMemo';
+import { useState } from '@base-ui/utils/useState';
 
 /**
  * Positions the toast against the anchor.
@@ -50,7 +51,7 @@ export const ToastPositioner = React.forwardRef(function ToastPositioner(
     ...elementProps
   } = props;
 
-  const [positionerElement, setPositionerElement] = React.useState<HTMLDivElement | null>(null);
+  const [positionerElement, setPositionerElement] = useState<HTMLDivElement | null>(null);
 
   const domIndex = useMemo(() => toasts.indexOf(toast), [toast, toasts]);
   const visibleIndex = useMemo(

@@ -13,6 +13,7 @@ import { REASONS } from '../../utils/reasons';
 import { useRef } from '@base-ui/utils/useRef';
 import { useState } from '@base-ui/utils/useState';
 import { useMemo } from '@base-ui/utils/useMemo';
+import { useContext } from '@base-ui/utils/useContext';
 
 interface ContextValue {
   hasProvider: boolean;
@@ -67,7 +68,7 @@ export function FloatingDelayGroup(props: FloatingDelayGroupProps): React.JSX.El
 
   const delayRef = useRef(delay);
   const initialDelayRef = useRef(delay);
-  const currentIdRef = React.useRef<string | null>(null);
+  const currentIdRef = useRef<string | null>(null);
   const currentContextRef = useRef(null);
   const timeout = useTimeout();
 
@@ -132,7 +133,7 @@ export function useDelayGroup(
   const floatingId = store.useState('floatingId');
   const { enabled = true, open } = options;
 
-  const groupContext = React.useContext(FloatingDelayGroupContext);
+  const groupContext = useContext(FloatingDelayGroupContext);
   const {
     currentIdRef,
     delayRef,

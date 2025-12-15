@@ -2,6 +2,7 @@
 import * as React from 'react';
 import { NOOP } from '../utils/noop';
 import { HTMLProps } from '../utils/types';
+import { useContext } from '@base-ui/utils/useContext';
 
 export interface LabelableContext {
   /**
@@ -38,5 +39,5 @@ export const LabelableContext = React.createContext<LabelableContext>({
 });
 
 export function useLabelableContext() {
-  return React.useContext(LabelableContext);
+  return useContext(LabelableContext);
 }

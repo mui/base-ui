@@ -18,6 +18,7 @@ import { useTriggerRegistration } from '../../utils/popups';
 import { useMenuSubmenuRootContext } from '../submenu-root/MenuSubmenuRootContext';
 import { useCallback } from '@base-ui/utils/useCallback';
 import { useMemo } from '@base-ui/utils/useMemo';
+import { useRef } from '@base-ui/utils/useRef';
 
 /**
  * A menu item that opens a submenu.
@@ -70,7 +71,7 @@ export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerCompon
     [baseRegisterTrigger, closeDelay, store, thisTriggerId],
   );
 
-  const triggerElementRef = React.useRef<HTMLElement | null>(null);
+  const triggerElementRef = useRef<HTMLElement | null>(null);
   const handleTriggerElementRef = useCallback(
     (el: HTMLElement | null) => {
       triggerElementRef.current = el;

@@ -5,6 +5,7 @@ import { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 import { formatNumber } from '../../utils/formatNumber';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useMemo } from '@base-ui/utils/useMemo';
+import { useState } from '@base-ui/utils/useState';
 
 function formatValue(
   value: number,
@@ -40,7 +41,7 @@ export const MeterRoot = React.forwardRef(function MeterRoot(
     ...elementProps
   } = componentProps;
 
-  const [labelId, setLabelId] = React.useState<string | undefined>();
+  const [labelId, setLabelId] = useState<string | undefined>();
   const formattedValue = formatValue(valueProp, locale, format);
 
   let ariaValuetext = `${valueProp}%`;

@@ -34,16 +34,16 @@ type HoverContextData = ContextData & {
 export function useHoverInteractionSharedState(
   store: FloatingRootContext,
 ): HoverInteractionSharedState {
-  const pointerTypeRef = React.useRef<string | undefined>(undefined);
+  const pointerTypeRef = useRef<string | undefined>(undefined);
   const interactedInsideRef = useRef(false);
-  const handlerRef = React.useRef<((event: MouseEvent) => void) | undefined>(undefined);
+  const handlerRef = useRef<((event: MouseEvent) => void) | undefined>(undefined);
   const blockMouseMoveRef = useRef(true);
   const performedPointerEventsMutationRef = useRef(false);
-  const unbindMouseMoveRef = React.useRef<() => void>(() => {});
+  const unbindMouseMoveRef = useRef<() => void>(() => {});
   const restTimeoutPendingRef = useRef(false);
   const openChangeTimeout = useTimeout();
   const restTimeout = useTimeout();
-  const handleCloseOptionsRef = React.useRef<SafePolygonOptions | undefined>(undefined);
+  const handleCloseOptionsRef = useRef<SafePolygonOptions | undefined>(undefined);
 
   return useMemo(() => {
     const data = store.context.dataRef.current as HoverContextData;

@@ -36,10 +36,10 @@ interface TimerInfo {
 export const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvider(props) {
   const { children, timeout = 5000, limit = 3, toastManager } = props;
 
-  const [toasts, setToasts] = React.useState<ToastObject<any>[]>([]);
+  const [toasts, setToasts] = useState<ToastObject<any>[]>([]);
   const [hovering, setHovering] = useState(false);
   const [focused, setFocused] = useState(false);
-  const [prevFocusElement, setPrevFocusElement] = React.useState<HTMLElement | null>(null);
+  const [prevFocusElement, setPrevFocusElement] = useState<HTMLElement | null>(null);
 
   if (toasts.length === 0) {
     if (hovering) {
@@ -54,7 +54,7 @@ export const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvid
   const expanded = hovering || focused;
 
   const timersRef = useRef(new Map<string, TimerInfo>());
-  const viewportRef = React.useRef<HTMLElement | null>(null);
+  const viewportRef = useRef<HTMLElement | null>(null);
   const windowFocusedRef = useRef(true);
   const isPausedRef = useRef(false);
 

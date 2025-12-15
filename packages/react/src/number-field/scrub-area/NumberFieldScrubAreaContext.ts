@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { useContext } from '@base-ui/utils/useContext';
 
 export interface NumberFieldScrubAreaContext {
   isScrubbing: boolean;
@@ -16,7 +17,7 @@ export const NumberFieldScrubAreaContext = React.createContext<
 >(undefined);
 
 export function useNumberFieldScrubAreaContext() {
-  const context = React.useContext(NumberFieldScrubAreaContext);
+  const context = useContext(NumberFieldScrubAreaContext);
   if (context === undefined) {
     throw new Error(
       'Base UI: NumberFieldScrubAreaContext is missing. NumberFieldScrubArea parts must be placed within <NumberField.ScrubArea>.',

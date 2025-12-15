@@ -21,6 +21,7 @@ import { areArraysEqual } from '../utils/areArraysEqual';
 import { EMPTY_ARRAY } from '../utils/constants';
 import { useCallback } from '@base-ui/utils/useCallback';
 import { useMemo } from '@base-ui/utils/useMemo';
+import { useRef } from '@base-ui/utils/useRef';
 
 /**
  * Provides a shared state to a series of checkboxes.
@@ -85,7 +86,7 @@ export const CheckboxGroup = React.forwardRef(function CheckboxGroup(
 
   const id = useBaseUiId(idProp);
 
-  const controlRef = React.useRef<HTMLButtonElement>(null);
+  const controlRef = useRef<HTMLButtonElement>(null);
 
   const registerControlRef = useCallback((element: HTMLButtonElement | null) => {
     if (controlRef.current == null && element != null && !element.hasAttribute(PARENT_CHECKBOX)) {

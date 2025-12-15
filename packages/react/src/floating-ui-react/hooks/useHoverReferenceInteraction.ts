@@ -17,6 +17,7 @@ import {
 import { FloatingUIOpenChangeDetails, HTMLProps } from '../../utils/types';
 import { useEffect } from '@base-ui/utils/useEffect';
 import { useCallback } from '@base-ui/utils/useCallback';
+import { useMemo } from '@base-ui/utils/useMemo';
 
 export interface UseHoverReferenceInteractionProps extends Omit<UseHoverProps, 'triggerElement'> {
   /**
@@ -341,7 +342,7 @@ export function useHoverReferenceInteraction(
     closeHandlerRef,
   ]);
 
-  return React.useMemo<HTMLProps>(() => {
+  return useMemo<HTMLProps>(() => {
     function setPointerRef(event: React.PointerEvent) {
       pointerTypeRef.current = event.pointerType;
     }

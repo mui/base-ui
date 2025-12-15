@@ -7,6 +7,7 @@ import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
 import { useMemo } from '@base-ui/utils/useMemo';
+import { useRef } from '@base-ui/utils/useRef';
 
 /**
  * Indicates whether the select item is selected.
@@ -43,7 +44,7 @@ const Inner = React.memo(
 
       const { selected } = useSelectItemContext();
 
-      const indicatorRef = React.useRef<HTMLSpanElement | null>(null);
+      const indicatorRef = useRef<HTMLSpanElement | null>(null);
 
       const { transitionStatus, setMounted } = useTransitionStatus(selected);
 

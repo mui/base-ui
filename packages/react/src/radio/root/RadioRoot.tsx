@@ -22,6 +22,7 @@ import { useLabelableId } from '../../labelable-provider/useLabelableId';
 import { useRadioGroupContext } from '../../radio-group/RadioGroupContext';
 import { RadioRootContext } from './RadioRootContext';
 import { useMemo } from '@base-ui/utils/useMemo';
+import { useRef } from '@base-ui/utils/useRef';
 
 /**
  * Represents the radio button itself.
@@ -75,8 +76,8 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
 
   const checked = checkedValue === value;
 
-  const radioRef = React.useRef<HTMLElement>(null);
-  const inputRef = React.useRef<HTMLInputElement>(null);
+  const radioRef = useRef<HTMLElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
   const mergedInputRef = useMergedRefs(inputRefProp, inputRef);
 
   useIsoLayoutEffect(() => {

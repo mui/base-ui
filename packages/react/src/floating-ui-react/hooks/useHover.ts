@@ -155,10 +155,10 @@ export function useHover(
   const delayRef = useValueAsRef(delay);
   const restMsRef = useValueAsRef(restMs);
 
-  const pointerTypeRef = React.useRef<string>(undefined);
+  const pointerTypeRef = useRef<string>(undefined);
   const interactedInsideRef = useRef(false);
   const timeout = useTimeout();
-  const handlerRef = React.useRef<(event: MouseEvent) => void>(undefined);
+  const handlerRef = useRef<(event: MouseEvent) => void>(undefined);
   const restTimeout = useTimeout();
   const blockMouseMoveRef = useRef(true);
   const performedPointerEventsMutationRef = useRef(false);

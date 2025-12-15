@@ -2,6 +2,7 @@
 import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { NOOP } from '../../utils/noop';
+import { useState } from '@base-ui/utils/useState';
 
 export type ImageLoadingStatus = 'idle' | 'loading' | 'loaded' | 'error';
 
@@ -14,7 +15,7 @@ export function useImageLoadingStatus(
   src: string | undefined,
   { referrerPolicy, crossOrigin }: UseImageLoadingStatusOptions,
 ): ImageLoadingStatus {
-  const [loadingStatus, setLoadingStatus] = React.useState<ImageLoadingStatus>('idle');
+  const [loadingStatus, setLoadingStatus] = useState<ImageLoadingStatus>('idle');
 
   useIsoLayoutEffect(() => {
     if (!src) {

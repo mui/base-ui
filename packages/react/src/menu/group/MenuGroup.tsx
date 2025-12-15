@@ -4,6 +4,7 @@ import { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { MenuGroupContext } from './MenuGroupContext';
 import { useMemo } from '@base-ui/utils/useMemo';
+import { useState } from '@base-ui/utils/useState';
 
 /**
  * Groups related menu items with the corresponding label.
@@ -17,7 +18,7 @@ export const MenuGroup = React.forwardRef(function MenuGroup(
 ) {
   const { render, className, ...elementProps } = componentProps;
 
-  const [labelId, setLabelId] = React.useState<string | undefined>(undefined);
+  const [labelId, setLabelId] = useState<string | undefined>(undefined);
 
   const context = useMemo(() => ({ setLabelId }), [setLabelId]);
 

@@ -314,7 +314,7 @@ export function useListNavigation(
 
   const focusItemOnOpenRef = useRef(focusItemOnOpen);
   const indexRef = useRef(selectedIndex ?? -1);
-  const keyRef = React.useRef<null | string>(null);
+  const keyRef = useRef<null | string>(null);
   const isPointerModalityRef = useRef(true);
 
   const onNavigate = useStableCallback((event?: React.SyntheticEvent) => {

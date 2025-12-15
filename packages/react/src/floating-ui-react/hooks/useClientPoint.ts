@@ -134,9 +134,9 @@ export function useClientPoint(
   const { enabled = true, axis = 'both', x = null, y = null } = props;
 
   const initialRef = useRef(false);
-  const cleanupListenerRef = React.useRef<null | (() => void)>(null);
+  const cleanupListenerRef = useRef<null | (() => void)>(null);
 
-  const [pointerType, setPointerType] = React.useState<string | undefined>();
+  const [pointerType, setPointerType] = useState<string | undefined>();
   const [reactive, setReactive] = useState([]);
 
   const setReference = useStableCallback((newX: number | null, newY: number | null) => {

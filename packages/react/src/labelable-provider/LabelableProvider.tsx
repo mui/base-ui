@@ -6,6 +6,7 @@ import { useBaseUiId } from '../utils/useBaseUiId';
 import { LabelableContext, useLabelableContext } from './LabelableContext';
 import { useCallback } from '@base-ui/utils/useCallback';
 import { useMemo } from '@base-ui/utils/useMemo';
+import { useState } from '@base-ui/utils/useState';
 
 /**
  * @internal
@@ -15,11 +16,11 @@ export const LabelableProvider: React.FC<LabelableProvider.Props> = function Lab
 ) {
   const defaultId = useBaseUiId();
 
-  const [controlId, setControlId] = React.useState<string | null | undefined>(
+  const [controlId, setControlId] = useState<string | null | undefined>(
     props.initialControlId === undefined ? defaultId : props.initialControlId,
   );
-  const [labelId, setLabelId] = React.useState<string | undefined>(undefined);
-  const [messageIds, setMessageIds] = React.useState<string[]>([]);
+  const [labelId, setLabelId] = useState<string | undefined>(undefined);
+  const [messageIds, setMessageIds] = useState<string[]>([]);
 
   const { messageIds: parentMessageIds } = useLabelableContext();
 

@@ -53,27 +53,27 @@ export const ScrollAreaRoot = React.forwardRef(function ScrollAreaRoot(
   const [hovering, setHovering] = useState(false);
   const [scrollingX, setScrollingX] = useState(false);
   const [scrollingY, setScrollingY] = useState(false);
-  const [cornerSize, setCornerSize] = React.useState<Size>(DEFAULT_SIZE);
-  const [thumbSize, setThumbSize] = React.useState<Size>(DEFAULT_SIZE);
+  const [cornerSize, setCornerSize] = useState<Size>(DEFAULT_SIZE);
+  const [thumbSize, setThumbSize] = useState<Size>(DEFAULT_SIZE);
   const [touchModality, setTouchModality] = useState(false);
   const [overflowEdges, setOverflowEdges] = useState(DEFAULT_OVERFLOW_EDGES);
 
   const rootId = useBaseUiId();
 
-  const rootRef = React.useRef<HTMLDivElement | null>(null);
-  const viewportRef = React.useRef<HTMLDivElement | null>(null);
-  const scrollbarYRef = React.useRef<HTMLDivElement | null>(null);
-  const scrollbarXRef = React.useRef<HTMLDivElement | null>(null);
-  const thumbYRef = React.useRef<HTMLDivElement | null>(null);
-  const thumbXRef = React.useRef<HTMLDivElement | null>(null);
-  const cornerRef = React.useRef<HTMLDivElement | null>(null);
+  const rootRef = useRef<HTMLDivElement | null>(null);
+  const viewportRef = useRef<HTMLDivElement | null>(null);
+  const scrollbarYRef = useRef<HTMLDivElement | null>(null);
+  const scrollbarXRef = useRef<HTMLDivElement | null>(null);
+  const thumbYRef = useRef<HTMLDivElement | null>(null);
+  const thumbXRef = useRef<HTMLDivElement | null>(null);
+  const cornerRef = useRef<HTMLDivElement | null>(null);
 
   const thumbDraggingRef = useRef(false);
   const startYRef = useRef(0);
   const startXRef = useRef(0);
   const startScrollTopRef = useRef(0);
   const startScrollLeftRef = useRef(0);
-  const currentOrientationRef = React.useRef<'vertical' | 'horizontal'>('vertical');
+  const currentOrientationRef = useRef<'vertical' | 'horizontal'>('vertical');
   const scrollYTimeout = useTimeout();
   const scrollXTimeout = useTimeout();
   const scrollPositionRef = useRef({ x: 0, y: 0 });
