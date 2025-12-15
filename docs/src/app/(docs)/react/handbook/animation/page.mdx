@@ -77,12 +77,14 @@ Use the following Base UI attributes for creating CSS animations when a compone
 JavaScript animation libraries such as [Motion](https://motion.dev) require control of the mounting and unmounting lifecycle of components in order for exit animations to play.
 
 Base UI relies on [`element.getAnimations()`](https://developer.mozilla.org/en-US/docs/Web/API/Element/getAnimations) to detect if animations have finished on an element.
-When using Motion, the `opacity` property lets this detection work easily, so always animating `opacity` to a new value for exit animations will work.
-If it shouldn't be animated, you can use a value close to `1`, such as `opacity: 0.9999`.
+
+When using Motion, `opacity` animations are reflected in `element.getAnimations()`, so Base UI automatically waits for the animation finish before unmounting the component. If `opacity` shouldn't be animated (such as in a translating drawer component), you can use a value close to `1`, such as `opacity: 0.9999`.
+
+[StackBlitz: Animating a Popover with Motion](https://stackblitz.com/edit/77tnrb42)
 
 ### Elements removed from the DOM when closed
 
-Most components like Popover are unmounted from the DOM when they are closed. To animate them:
+Most components like Popover are unmounted from the DOM when they are closed. To animate them with Motion, follow these steps:
 
 - Make the component controlled with the `open` prop so `<AnimatePresence>` can see the state as a child
 - Specify `keepMounted` on the `<Portal>` part
