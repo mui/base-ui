@@ -2,6 +2,11 @@
   "name": "ScrollAreaRoot",
   "description": "Groups all parts of the scroll area.\nRenders a `<div>` element.",
   "props": {
+    "nonce": {
+      "type": "string",
+      "description": "A nonce value to allow the inline `<style>` tag required by this component under a strict Content Security Policy.",
+      "detailedType": "string | undefined"
+    },
     "overflowEdgeThreshold": {
       "type": "number | Partial<{ xStart: number, xEnd: number, yStart: number, yEnd: number }>",
       "default": "0",

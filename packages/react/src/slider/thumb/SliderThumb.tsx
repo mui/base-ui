@@ -102,6 +102,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
     id: idProp,
     index: indexProp,
     inputRef: inputRefProp,
+    nonce,
     onBlur: onBlurProp,
     onFocus: onFocusProp,
     onKeyDown: onKeyDownProp,
@@ -423,6 +424,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
               // preceding thumbs are already rendered in the DOM
               last && (
                 <script
+                  nonce={nonce}
                   // eslint-disable-next-line react/no-danger
                   dangerouslySetInnerHTML={{ __html: prehydrationScript }}
                   suppressHydrationWarning
@@ -514,6 +516,10 @@ export interface SliderThumbProps extends Omit<
    * Optional tab index attribute forwarded to the `input`.
    */
   tabIndex?: number;
+  /**
+   * A nonce value to allow the inline `<script>` tag required by this component under a strict Content Security Policy.
+   */
+  nonce?: string;
 }
 
 export namespace SliderThumb {
