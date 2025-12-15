@@ -1,6 +1,6 @@
 {
   "name": "@base-ui/utils",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "A collection of React utility functions for Base UI.",
   "repository": {
     "type": "git",
@@ -43,8 +43,7 @@
     "react": "^19.2.1",
     "react-dom": "^19.2.1",
     "sinon": "^21.0.0",
-    "typescript": "^5.9.3",
-    "vitest": "^3.2.4"
+    "typescript": "^5.9.3"
   },
   "peerDependencies": {
     "@types/react": "^17 || ^18 || ^19",
