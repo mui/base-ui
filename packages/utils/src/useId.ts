@@ -1,5 +1,4 @@
 'use client';
-import * as React from 'react';
 import { SafeReact } from './safeReact';
 import { useEffect } from './useEffect';
 import { useState } from './useState';

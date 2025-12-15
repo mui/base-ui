@@ -108,6 +108,9 @@ class Root {
   }
 
   use() {
+    if (this.flags & Flags.HasState) {
+      this.setupState();
+    }
     if (this.flags & Flags.HasEffect) {
       this.setupEffect('useEffect');
     }
@@ -117,64 +120,13 @@ class Root {
     if (this.flags & Flags.HasInsertionEffect) {
       this.setupEffect('useInsertionEffect');
     }
-    if (this.flags & Flags.HasState) {
-      this.setupState();
-    }
     if (this.flags & Flags.HasStore) {
       this.setupStore();
     }
-  }
-
-  setupStore() {
-    if (!this.getSnapshot) {
-      this.getSnapshot = () => {
-        let didChange = false;
-        for (const scopeName in this.scopes.next) {
-          const scope = this.scopes.next[scopeName];
-          const context = scope['useStore'];
-
-          for (let i = 0; i < context.hooks.length; i += 1) {
-            const hook = context.hooks[i];
-            const value = hook.selector(hook.store.state, hook.a1, hook.a2, hook.a3);
-            if (hook.didChange || !Object.is(hook.value, value)) {
-              didChange = true;
-              hook.value = value;
-              hook.didChange = false;
-            }
-          }
-        }
-        if (didChange) {
-          this.syncTick += 1;
-        }
-        return this.syncTick;
-      };
+    for (const scopeName in this.scopes.next) {
+      const scope = this.scopes.next[scopeName];
+      scope.didInitialize = true;
     }
-    if (this.didChangeStore || !this.subscribe) {
-      this.didChangeStore = false;
-      this.subscribe = (onStoreChange) => {
-        const stores = new Set<ReadonlyStore<unknown>>();
-
-        for (const scopeName in this.scopes.next) {
-          const scope = this.scopes.next[scopeName];
-          const context = scope['useStore'];
-          for (const hook of context.hooks) {
-            stores.add(hook.store);
-          }
-        }
-        const unsubscribes: Array<() => void> = [];
-        for (const store of stores) {
-          unsubscribes.push(store.subscribe(onStoreChange));
-        }
-        return () => {
-          for (const unsubscribe of unsubscribes) {
-            unsubscribe();
-          }
-        };
-      };
-    }
-
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    useSyncExternalStore(this.subscribe, this.getSnapshot, this.getSnapshot);
   }
 
   setupState() {
@@ -238,6 +190,58 @@ class Root {
       };
     });
   }
+
+  setupStore() {
+    if (!this.getSnapshot) {
+      this.getSnapshot = () => {
+        let didChange = false;
+        for (const scopeName in this.scopes.next) {
+          const scope = this.scopes.next[scopeName];
+          const context = scope['useStore'];
+
+          for (let i = 0; i < context.hooks.length; i += 1) {
+            const hook = context.hooks[i];
+            const value = hook.selector(hook.store.state, hook.a1, hook.a2, hook.a3);
+            if (hook.didChange || !Object.is(hook.value, value)) {
+              didChange = true;
+              hook.value = value;
+              hook.didChange = false;
+            }
+          }
+        }
+        if (didChange) {
+          this.syncTick += 1;
+        }
+        return this.syncTick;
+      };
+    }
+    if (this.didChangeStore || !this.subscribe) {
+      this.didChangeStore = false;
+      this.subscribe = (onStoreChange) => {
+        const stores = new Set<ReadonlyStore<unknown>>();
+
+        for (const scopeName in this.scopes.next) {
+          const scope = this.scopes.next[scopeName];
+          const context = scope['useStore'];
+          for (const hook of context.hooks) {
+            stores.add(hook.store);
+          }
+        }
+        const unsubscribes: Array<() => void> = [];
+        for (const store of stores) {
+          unsubscribes.push(store.subscribe(onStoreChange));
+        }
+        return () => {
+          for (const unsubscribe of unsubscribes) {
+            unsubscribe();
+          }
+        };
+      };
+    }
+
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    useSyncExternalStore(this.subscribe, this.getSnapshot, this.getSnapshot);
+  }
 }
 
 export type Scope = {
@@ -256,8 +260,9 @@ export type Scope = {
 let currentRoot: Root | undefined = undefined;
 let currentScope: Scope | undefined = undefined;
 
-function createScope(root: Root): Scope {
+function createScope(root: Root, name = 'default'): Scope {
   return {
+    name,
     didInitialize: false,
     useEffect: {
       index: 0,
@@ -313,7 +318,7 @@ function enterScope(scope: Scope) {
 
 let nextScopeId = 0;
 
-class LazyScope {
+export class LazyScope {
   name: string;
   isMounted: boolean;
   constructor() {
@@ -347,7 +352,7 @@ export function useLazyScope(shouldMount: boolean): LazyScope {
 function runWithScope<T>(scopeName: string, fn: () => T): T {
   let scope = currentRoot!.scopes.next[scopeName];
   if (!scope) {
-    scope = currentRoot!.scopes.previous?.[scopeName] ?? createScope(currentRoot!);
+    scope = currentRoot!.scopes.previous?.[scopeName] ?? createScope(currentRoot!, scopeName);
     currentRoot!.scopes.next[scopeName] = scope;
   }
 
@@ -359,8 +364,6 @@ function runWithScope<T>(scopeName: string, fn: () => T): T {
     enterScope(currentScope);
 
     result = fn();
-
-    currentScope.didInitialize = true;
   } finally {
     currentScope = previousScope;
   }
@@ -375,6 +378,9 @@ export function fastComponent<P extends object, E extends HTMLElement, R extends
     currentRoot = useRefWithInit(Root.create).current as Root;
     try {
       return runWithScope('default', () => (fn as any)(props, forwardedRef));
+    } catch (error) {
+      console.error('fastComponent error:', error);
+      throw error;
     } finally {
       currentRoot.use();
       currentRoot = undefined;
@@ -533,7 +539,7 @@ export const createUseState = () => {
 
     root.flags |= Flags.HasState;
 
-    if (currentScope!.didInitialize === false) {
+    if (currentScope.didInitialize === false) {
       const index = context.index;
 
       const value = typeof initialState === 'function' ? (initialState as () => S)() : initialState;
@@ -577,12 +583,12 @@ export const createUseState = () => {
 
 export const createUseMemo = () => {
   function useMemo<T>(factory: () => T, deps: React.DependencyList): T {
-    const context = currentScope?.useMemo;
-
-    if (!context) {
+    if (!currentScope) {
       // eslint-disable-next-line react-hooks/rules-of-hooks
       return React.useMemo(factory, deps);
     }
+
+    const context = currentScope.useMemo;
 
     if (currentScope!.didInitialize === false) {
       const value = factory();

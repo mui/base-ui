@@ -1,8 +1,8 @@
 /* False positives - ESLint thinks we're calling a hook from a class component. */
 /* eslint-disable react-hooks/rules-of-hooks */
-import * as React from 'react';
 import { Store } from './Store';
 import { useStore } from './useStore';
+import { useRef } from '../useRef';
 import { useStableCallback } from '../useStableCallback';
 import { useIsoLayoutEffect } from '../useIsoLayoutEffect';
 import { NOOP } from '../empty';
@@ -88,9 +88,7 @@ export class ReactStore<
   public useSyncedValues(statePart: Partial<State>) {
     if (process.env.NODE_ENV !== 'production') {
       // Check that an object with the same shape is passed on every render
-      const keys = React.useRef<Array<keyof State>>(
-        Object.keys(statePart) as Array<keyof State>,
-      ).current;
+      const keys = useRef<Array<keyof State>>(Object.keys(statePart) as Array<keyof State>).current;
 
       const nextKeys = Object.keys(statePart);
       if (keys.length !== nextKeys.length || keys.some((key, index) => key !== nextKeys[index])) {
@@ -257,7 +255,7 @@ export class ReactStore<
    * @param key Key of the state to set.
    */
   public useStateSetter<const Key extends keyof State, Value extends State[Key]>(key: keyof State) {
-    const ref = React.useRef<(v: Value) => void>(undefined as any);
+    const ref = useRef<(v: Value) => void>(undefined as any);
     if (ref.current === undefined) {
       ref.current = (value: Value) => {
         this.set(key, value);

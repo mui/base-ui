@@ -1,18 +1,6 @@
 'use client';
-import * as React from 'react';
 import { useRefWithInit } from './useRefWithInit';
-
-// https://github.com/mui/material-ui/issues/41190#issuecomment-2040873379
-const useInsertionEffect = (React as any)[
-  `useInsertionEffect${Math.random().toFixed(1)}`.slice(0, -3)
-];
-const useSafeInsertionEffect =
-  // React 17 doesn't have useInsertionEffect.
-  useInsertionEffect &&
-  // Preact replaces useInsertionEffect with useLayoutEffect and fires too late.
-  useInsertionEffect !== React.useLayoutEffect
-    ? useInsertionEffect
-    : (fn: any) => fn();
+import { useInsertionEffect } from './useInsertionEffect';
 
 type Callback = (...args: any[]) => any;
 
@@ -38,7 +26,7 @@ type Stable<T extends Callback> = {
 export function useStableCallback<T extends Callback>(callback: T | undefined): T {
   const stable = useRefWithInit(createStableCallback).current;
   stable.next = callback;
-  useSafeInsertionEffect(stable.effect);
+  useInsertionEffect(stable.effect);
   return stable.trampoline;
 }
 

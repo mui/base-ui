@@ -2,6 +2,7 @@ import * as React from 'react';
 import { ReactStore } from '@base-ui/utils/store';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { LazyScope } from '@base-ui/utils/fastHooks';
 import { useTransitionStatus } from '../useTransitionStatus';
 import { useOpenChangeComplete } from '../useOpenChangeComplete';
 import {
@@ -136,6 +137,7 @@ export function useImplicitActiveTrigger<State extends PopupStoreState<any>>(
  * @returns A function to forcibly unmount the popup.
  */
 export function useOpenStateTransitions<State extends PopupStoreState<any>>(
+  openScope: LazyScope,
   open: boolean,
   store: ReactStore<State, PopupStoreContext<any>, typeof popupStoreSelectors>,
   onUnmount?: () => void,
@@ -144,35 +146,37 @@ export function useOpenStateTransitions<State extends PopupStoreState<any>>(
 
   store.useSyncedValues({ mounted, transitionStatus } as Partial<State>);
 
-  const forceUnmount = useStableCallback(() => {
-    setMounted(false);
-    store.update({
-      activeTriggerId: null,
-      activeTriggerElement: null,
-      mounted: false,
-    } as Partial<State>);
-    onUnmount?.();
-    store.context.onOpenChangeComplete?.(false);
-  });
+  const result = openScope.use(() => {
+    const forceUnmount = useStableCallback(() => {
+      setMounted(false);
+      store.update({
+        activeTriggerId: null,
+        activeTriggerElement: null,
+        mounted: false,
+      } as Partial<State>);
+      onUnmount?.();
+      store.context.onOpenChangeComplete?.(false);
+    });
 
-  const preventUnmountingOnClose = store.useState('preventUnmountingOnClose');
+    const preventUnmountingOnClose = store.useState('preventUnmountingOnClose');
 
-  useOpenChangeComplete({
-    enabled: !preventUnmountingOnClose,
-    open,
-    ref: store.context.popupRef,
-    onComplete() {
-      if (!open) {
-        forceUnmount();
-      }
-    },
-  });
+    useOpenChangeComplete({
+      enabled: !preventUnmountingOnClose,
+      open,
+      ref: store.context.popupRef,
+      onComplete() {
+        if (!open) {
+          forceUnmount();
+        }
+      },
+    });
 
-  return { forceUnmount, transitionStatus };
+    return { forceUnmount, transitionStatus };
+  }, defaultValue);
+  return result;
 }
-useOpenStateTransitions.defaultValue = {
-  forceUnmount: () => {
-    throw new Error('forceUnmount called without initialization');
-  },
-  transitionStatus: undefined,
+
+const uninitialized = () => {
+  throw new Error('useOpenStateTransitions not initialized');
 };
+const defaultValue = { forceUnmount: uninitialized, transitionStatus: undefined };

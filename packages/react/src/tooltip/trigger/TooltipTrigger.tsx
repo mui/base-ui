@@ -21,7 +21,7 @@ import { useRef } from '@base-ui/utils/useRef';
  *
  * Documentation: [Base UI Tooltip](https://base-ui.com/react/components/tooltip)
  */
-export const TooltipTrigger = fastComponentRef(function TooltipTrigger(
+export const TooltipTrigger = React.forwardRef(function TooltipTrigger(
   componentProps: TooltipTrigger.Props,
   forwardedRef: React.ForwardedRef<any>,
 ) {

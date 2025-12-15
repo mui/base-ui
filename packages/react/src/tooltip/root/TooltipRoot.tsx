@@ -65,7 +65,7 @@ export const TooltipRoot = fastComponent(function TooltipRoot<Payload>(
 
   const openScope = useLazyScope(openState);
 
-  const { forceUnmount, transitionStatus } = openScope.use(() => {
+  openScope.use(() => {
     useIsoLayoutEffect(() => {
       if (openState && disabled) {
         store.setOpen(false, createChangeEventDetails(REASONS.disabled));
@@ -81,9 +81,9 @@ export const TooltipRoot = fastComponent(function TooltipRoot<Payload>(
     }, [store, activeTriggerId, open]);
 
     useImplicitActiveTrigger(store);
+  });
 
-    return useOpenStateTransitions(open, store);
-  }, useOpenStateTransitions.defaultValue);
+  const { forceUnmount, transitionStatus } = useOpenStateTransitions(openScope, open, store);
 
   const isInstantPhase = store.useState('isInstantPhase');
   const instantType = store.useState('instantType');

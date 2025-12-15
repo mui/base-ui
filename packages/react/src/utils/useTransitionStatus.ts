@@ -1,5 +1,4 @@
 'use client';
-import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { AnimationFrame } from '@base-ui/utils/useAnimationFrame';
 import { useState } from '@base-ui/utils/useState';
@@ -35,53 +34,55 @@ export function useTransitionStatus(
     setTransitionStatus(undefined);
   }
 
-  useIsoLayoutEffect(() => {
-    if (!open && mounted && transitionStatus !== 'ending' && deferEndingState) {
+  if (deferEndingState) {
+    useIsoLayoutEffect(() => {
+      if (!open && mounted && transitionStatus !== 'ending') {
+        const frame = AnimationFrame.request(() => {
+          setTransitionStatus('ending');
+        });
+
+        return () => {
+          AnimationFrame.cancel(frame);
+        };
+      }
+    }, [open, mounted, transitionStatus, deferEndingState]);
+  }
+
+  if (enableIdleState) {
+    useIsoLayoutEffect(() => {
+      if (!open) {
+        return undefined;
+      }
+
+      if (open && mounted && transitionStatus !== 'idle') {
+        setTransitionStatus('starting');
+      }
+
       const frame = AnimationFrame.request(() => {
-        setTransitionStatus('ending');
+        setTransitionStatus('idle');
       });
 
       return () => {
         AnimationFrame.cancel(frame);
       };
-    }
+    }, [enableIdleState, open, mounted, setTransitionStatus, transitionStatus]);
+  } else {
+    useIsoLayoutEffect(() => {
+      if (!open) {
+        return undefined;
+      }
 
-    return undefined;
-  }, [open, mounted, transitionStatus, deferEndingState]);
+      const frame = AnimationFrame.request(() => {
+        // Avoid `flushSync` here due to Firefox.
+        // See https://github.com/mui/base-ui/pull/3424
+        setTransitionStatus(undefined);
+      });
 
-  useIsoLayoutEffect(() => {
-    if (!open || enableIdleState) {
-      return undefined;
-    }
-
-    const frame = AnimationFrame.request(() => {
-      // Avoid `flushSync` here due to Firefox.
-      // See https://github.com/mui/base-ui/pull/3424
-      setTransitionStatus(undefined);
-    });
-
-    return () => {
-      AnimationFrame.cancel(frame);
-    };
-  }, [enableIdleState, open]);
-
-  useIsoLayoutEffect(() => {
-    if (!open || !enableIdleState) {
-      return undefined;
-    }
-
-    if (open && mounted && transitionStatus !== 'idle') {
-      setTransitionStatus('starting');
-    }
-
-    const frame = AnimationFrame.request(() => {
-      setTransitionStatus('idle');
-    });
-
-    return () => {
-      AnimationFrame.cancel(frame);
-    };
-  }, [enableIdleState, open, mounted, setTransitionStatus, transitionStatus]);
+      return () => {
+        AnimationFrame.cancel(frame);
+      };
+    }, [enableIdleState, open]);
+  }
 
   return useMemo(
     () => ({

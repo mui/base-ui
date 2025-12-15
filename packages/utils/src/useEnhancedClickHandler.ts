@@ -1,5 +1,6 @@
 import * as React from 'react';
-import { useCallback } from '@base-ui/utils/useCallback';
+import { useRef } from './useRef';
+import { useCallback } from './useCallback';
 
 export type InteractionType = 'mouse' | 'touch' | 'pen' | 'keyboard' | '';
 
@@ -13,7 +14,7 @@ export type InteractionType = 'mouse' | 'touch' | 'pen' | 'keyboard' | '';
 export function useEnhancedClickHandler(
   handler: (event: React.MouseEvent | React.PointerEvent, interactionType: InteractionType) => void,
 ) {
-  const lastClickInteractionTypeRef = React.useRef<InteractionType>('');
+  const lastClickInteractionTypeRef = useRef<InteractionType>('');
 
   const handlePointerDown = useCallback(
     (event: React.PointerEvent) => {
