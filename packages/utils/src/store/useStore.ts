@@ -1,10 +1,9 @@
-import * as React from 'react';
 /* We need to import the shim because React 17 does not support the `useSyncExternalStore` API.
  * More info: https://github.com/mui/mui-x/issues/18303#issuecomment-2958392341 */
 import { useSyncExternalStore } from 'use-sync-external-store/shim';
 import { useSyncExternalStoreWithSelector } from 'use-sync-external-store/shim/with-selector';
 import { isReactVersionAtLeast } from '../reactVersion';
-import { register, getInstance, Instance } from '../fastHooks';
+import { register, getScope, Scope } from '../fastHooks';
 import type { ReadonlyStore } from './Store';
 import { useCallback } from '@base-ui/utils/useCallback';
 
@@ -60,7 +59,7 @@ function useStoreR19(
   return useSyncExternalStore(store.subscribe, getSelection, getSelection);
 }
 
-export type StoreInstance = Instance & {
+export type StoreInstance = Scope & {
   syncIndex: number;
   syncTick: number;
   syncHooks: {
@@ -136,7 +135,7 @@ function useStoreFast(
   a2?: unknown,
   a3?: unknown,
 ): unknown {
-  const instance = getInstance() as StoreInstance | undefined;
+  const instance = getScope() as StoreInstance | undefined;
   if (!instance) {
     // eslint-disable-next-line react-hooks/rules-of-hooks
     return useStoreR19(store, selector, a1, a2, a3);

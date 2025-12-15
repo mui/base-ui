@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { fastComponentRef } from '@base-ui-components/utils/fastHooks';
+import { fastComponentRef } from '@base-ui/utils/fastHooks';
 import { useTooltipRootContext } from '../root/TooltipRootContext';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
