@@ -1,4 +1,3 @@
-import { isJSDOM } from '@base-ui/utils/detectBrowser';
 import setupVitest from '@mui/internal-test-utils/setupVitest';
 import '@testing-library/jest-dom/vitest';
 
@@ -11,7 +10,7 @@ setupVitest({ failOnConsoleEnabed: false });
 
 globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
 
-if (isJSDOM) {
+if (typeof window !== 'undefined' && window?.navigator?.userAgent?.includes('jsdom')) {
   globalThis.requestAnimationFrame = (cb) => {
     setTimeout(() => cb(0), 0);
     return 0;
