@@ -52,16 +52,7 @@ export function Header({ isProduction }: { isProduction: boolean }) {
               <MobileNav.Portal>
                 <MobileNav.Backdrop />
                 <MobileNav.Popup>
-                  {Object.entries(
-                    sitemap.data as Record<
-                      string,
-                      {
-                        title?: string;
-                        prefix?: string;
-                        pages: { title: string; tags?: string[]; path: string }[];
-                      }
-                    >,
-                  ).map(([name, section]) => (
+                  {Object.entries(sitemap.data).map(([name, section]) => (
                     <MobileNav.Section key={name}>
                       <MobileNav.Heading>{name}</MobileNav.Heading>
                       <MobileNav.List>
@@ -77,7 +68,7 @@ export function Header({ isProduction }: { isProduction: boolean }) {
                               }
                               external={page.tags?.includes('External')}
                             >
-                              {titleMap[page.title] || page.title}
+                              {page.title !== undefined && titleMap[page.title] || page.title}
                               {page.tags?.includes('New') && <MobileNav.Badge>New</MobileNav.Badge>}
                               {page.tags?.includes('Preview') && (
                                 <MobileNav.Badge>Preview</MobileNav.Badge>
