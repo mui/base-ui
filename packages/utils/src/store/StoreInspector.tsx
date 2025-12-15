@@ -6,7 +6,7 @@ import { useStableCallback } from '../useStableCallback';
 import { useAnimationFrame } from '../useAnimationFrame';
 import { useIsoLayoutEffect } from '../useIsoLayoutEffect';
 import { useTimeout } from '../useTimeout';
-import { useState } from '@base-ui/utils/useState';
+import { useState } from '../useState';
 
 const STYLES = `
 .baseui-store-inspector-trigger {

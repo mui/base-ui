@@ -1,6 +1,5 @@
 import * as React from 'react';
 import { useSyncExternalStore } from 'use-sync-external-store/shim';
-import { useRefWithInit } from './useRefWithInit';
 import type { ReadonlyStore } from './store/Store';
 
 type Effect = {
@@ -373,7 +372,7 @@ export function fastComponent<P extends object, E extends HTMLElement, R extends
   fn: (props: P) => R,
 ): typeof fn {
   const FastComponent = (props: P, forwardedRef: React.Ref<E>): R => {
-    currentRoot = useRefWithInitLocal(Root.create).current as Root;
+    currentRoot = useRefWithInit(Root.create).current as Root;
     try {
       return runWithScope('default', () => (fn as any)(props, forwardedRef));
     } finally {
@@ -673,7 +672,7 @@ export const createUseStore = (defaultUseStore: any) => {
 const UNINITIALIZED = {};
 
 /* We need to re-implement it here to avoid circular dependencies */
-function useRefWithInitLocal(init: (arg?: unknown) => unknown, initArg?: unknown) {
+function useRefWithInit(init: (arg?: unknown) => unknown, initArg?: unknown) {
   const ref = React.useRef(UNINITIALIZED as any);
   if (ref.current === UNINITIALIZED) {
     ref.current = init(initArg);

@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
-import { useCallback } from '@base-ui/utils/useCallback';
-import { useState } from '@base-ui/utils/useState';
+import { useCallback } from './useCallback';
+import { useState } from './useState';
 
 /**
  * Returns a function that forces a rerender.

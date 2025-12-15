@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useEffect } from '@base-ui/utils/useEffect';
+import { useEffect } from './useEffect';
 
 const EMPTY = [] as unknown[];
 

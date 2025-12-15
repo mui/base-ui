@@ -1,8 +1,8 @@
 'use client';
 import * as React from 'react';
 import { SafeReact } from './safeReact';
-import { useEffect } from '@base-ui/utils/useEffect';
-import { useState } from '@base-ui/utils/useState';
+import { useEffect } from './useEffect';
+import { useState } from './useState';
 
 let globalId = 0;
 

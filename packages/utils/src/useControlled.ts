@@ -2,10 +2,10 @@
 // TODO: uncomment once we enable eslint-plugin-react-compiler // eslint-disable-next-line react-compiler/react-compiler -- process.env never changes, dependency arrays are intentionally ignored
 /* eslint-disable react-hooks/rules-of-hooks, react-hooks/exhaustive-deps */
 import * as React from 'react';
-import { useEffect } from '@base-ui/utils/useEffect';
-import { useRef } from '@base-ui/utils/useRef';
-import { useCallback } from '@base-ui/utils/useCallback';
-import { useState } from '@base-ui/utils/useState';
+import { useEffect } from './useEffect';
+import { useRef } from './useRef';
+import { useCallback } from './useCallback';
+import { useState } from './useState';
 
 export interface UseControlledProps<T = unknown> {
   /**

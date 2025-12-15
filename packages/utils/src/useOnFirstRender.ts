@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useRef } from '@base-ui/utils/useRef';
+import { useRef } from './useRef';
 
 export function useOnFirstRender(fn: Function) {
   const ref = useRef(true);

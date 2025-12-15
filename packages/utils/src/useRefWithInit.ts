@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useRef } from '@base-ui/utils/useRef';
+import { useRef } from './useRef';
 
 const UNINITIALIZED = {};
 
