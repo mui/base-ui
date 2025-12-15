@@ -343,7 +343,5 @@ describe.skipIf(!isJSDOM)('useHover', () => {
     await user.click(screen.getByText('Parent title'));
     // screen.debug();
     expect(screen.getByText('Parent title')).toBeInTheDocument();
-
-    vi.useFakeTimers();
   });
 });
