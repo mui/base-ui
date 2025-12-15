@@ -38,6 +38,7 @@ export const ScrollAreaRoot = React.forwardRef(function ScrollAreaRoot(
     render,
     className,
     overflowEdgeThreshold: overflowEdgeThresholdProp,
+    nonce,
     ...elementProps
   } = componentProps;
 
@@ -294,7 +295,7 @@ export const ScrollAreaRoot = React.forwardRef(function ScrollAreaRoot(
 
   return (
     <ScrollAreaRootContext.Provider value={contextValue}>
-      {styleDisableScrollbar.element}
+      {styleDisableScrollbar.getElement(nonce)}
       {element}
     </ScrollAreaRootContext.Provider>
   );
@@ -318,6 +319,10 @@ export interface ScrollAreaRootState {
 }
 
 export interface ScrollAreaRootProps extends BaseUIComponentProps<'div', ScrollAreaRoot.State> {
+  /**
+   * A nonce value to allow the inline `<style>` tag required by this component under a strict Content Security Policy.
+   */
+  nonce?: string;
   /**
    * The threshold in pixels that must be passed before the overflow edge attributes are applied.
    * Accepts a single number for all edges or an object to configure them individually.

@@ -2,6 +2,11 @@
   "name": "SelectPopup",
   "description": "A container for the select list.\nRenders a `<div>` element.",
   "props": {
+    "nonce": {
+      "type": "string",
+      "description": "A nonce value to allow the inline `<style>` tag required by this component under a strict Content Security Policy.",
+      "detailedType": "string | undefined"
+    },
     "children": {
       "type": "ReactNode",
       "detailedType": "React.ReactNode"
