@@ -1,34 +1,6 @@
-import {
-  mergeDateAndTime,
-  getCurrentDate,
-  isTimePartAfter,
-  isAfterDay,
-  isBeforeDay,
-} from './date-helpers';
 import { TemporalAdapter, TemporalTimezone, TemporalSupportedObject } from '../../types';
-
-function roundDate(
-  adapter: TemporalAdapter,
-  precision: getInitialReferenceDate.Precision,
-  date: TemporalSupportedObject,
-): TemporalSupportedObject {
-  switch (precision) {
-    case 'year':
-      return adapter.startOfYear(date);
-    case 'month':
-      return adapter.startOfMonth(date);
-    case 'day':
-      return adapter.startOfDay(date);
-    case 'hour':
-      return adapter.startOfHour(date);
-    case 'minute':
-      return adapter.startOfMinute(date);
-    case 'second':
-      return adapter.startOfSecond(date);
-    default:
-      return date;
-  }
-}
+import { isAfterDay, isBeforeDay } from './date-helpers';
+import { validateDate } from './validateDate';
 
 export function getInitialReferenceDate(
   parameters: getInitialReferenceDate.Parameters,
@@ -36,51 +8,27 @@ export function getInitialReferenceDate(
   const {
     adapter,
     timezone,
-    precision,
     externalDate,
     externalReferenceDate,
-    validationProps: { minDate, maxDate, minTime, maxTime },
+    validationProps: { minDate, maxDate },
   } = parameters;
   let referenceDate: TemporalSupportedObject | null = null;
 
   if (adapter.isValid(externalDate)) {
     referenceDate = externalDate;
-  }
-
-  if (adapter.isValid(externalReferenceDate)) {
+  } else if (adapter.isValid(externalReferenceDate)) {
     referenceDate = externalReferenceDate;
-  }
-  if (!referenceDate) {
-    referenceDate = roundDate(adapter, precision, getCurrentDate(adapter, timezone, false));
-    if (minDate != null && isAfterDay(adapter, minDate, referenceDate)) {
-      referenceDate = roundDate(adapter, precision, minDate);
+  } else {
+    referenceDate = adapter.startOfDay(adapter.now(timezone));
+    if (minDate != null && isBeforeDay(adapter, referenceDate, minDate)) {
+      referenceDate = minDate;
     }
-    if (maxDate != null && isBeforeDay(adapter, maxDate, referenceDate)) {
-      referenceDate = roundDate(adapter, precision, maxDate);
-    }
-
-    if (minTime != null && isTimePartAfter(adapter, minTime, referenceDate)) {
-      referenceDate = roundDate(
-        adapter,
-        precision,
-        mergeDateAndTime(adapter, referenceDate, minTime),
-      );
-    }
-
-    if (maxTime != null && isTimePartAfter(adapter, referenceDate, maxTime)) {
-      referenceDate = roundDate(
-        adapter,
-        precision,
-        mergeDateAndTime(adapter, referenceDate, maxTime),
-      );
+    if (maxDate != null && isAfterDay(adapter, referenceDate, maxDate)) {
+      referenceDate = maxDate;
     }
   }
 
-  if (timezone && timezone !== adapter.getTimezone(referenceDate)) {
-    referenceDate = adapter.setTimezone(referenceDate, timezone);
-  }
-
-  return referenceDate;
+  return adapter.setTimezone(referenceDate, timezone);
 }
 
 export namespace getInitialReferenceDate {
@@ -99,11 +47,6 @@ export namespace getInitialReferenceDate {
      */
     externalReferenceDate: TemporalSupportedObject | null;
     /**
-     * The precision of the reference date to create.
-     * For example, a Calendar will use "day" but a Time Field with the format "hh:mm" will use "minute".
-     */
-    precision: Precision;
-    /**
      * The timezone the reference date should be in.
      */
     timezone: TemporalTimezone;
@@ -113,12 +56,5 @@ export namespace getInitialReferenceDate {
     validationProps: ValidationProps;
   }
 
-  export interface ValidationProps {
-    maxDate?: TemporalSupportedObject | null;
-    minDate?: TemporalSupportedObject | null;
-    minTime?: TemporalSupportedObject | null;
-    maxTime?: TemporalSupportedObject | null;
-  }
-
-  export type Precision = 'year' | 'month' | 'day' | 'hour' | 'minute' | 'second' | 'millisecond';
+  export interface ValidationProps extends validateDate.ValidationProps {}
 }

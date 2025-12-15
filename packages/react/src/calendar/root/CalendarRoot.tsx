@@ -5,7 +5,7 @@ import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { TemporalValue } from '../../types/temporal';
 import { SharedCalendarRootContext } from './SharedCalendarRootContext';
-import { useDateManager } from '../../utils/temporal/useDateManager';
+import { getDateManager } from '../../utils/temporal/getDateManager';
 import { CalendarContext } from '../use-context/CalendarContext';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { BaseUIComponentProps } from '../../utils/types';
@@ -38,7 +38,7 @@ const stateAttributesMapping: StateAttributesMapping<CalendarRoot.State> = {
   },
 };
 
-const calendarValueManager: ValueManager<TemporalValue> = {
+export const calendarValueManager: ValueManager<TemporalValue> = {
   getDateToUseForReferenceDate: (value) => value,
   onSelectDate: ({ setValue, selectedDate }) => setValue(selectedDate),
   getActiveDateFromValue: (value) => value,
@@ -86,8 +86,8 @@ export const CalendarRoot = React.forwardRef(function CalendarRoot(
     ...elementProps
   } = componentProps;
 
-  const manager = useDateManager();
   const adapter = useTemporalAdapter();
+  const manager = React.useMemo(() => getDateManager(adapter), [adapter]);
 
   const parameters = React.useMemo(
     () => ({

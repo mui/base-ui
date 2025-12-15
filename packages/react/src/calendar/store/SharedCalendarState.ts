@@ -63,7 +63,7 @@ export interface SharedCalendarState<TValue extends TemporalSupportedValue = any
    */
   monthPageSize: number;
   /**
-   * The manager of the calendar (uses `useDateManager` for Calendar and `useDateRangeManager` for RangeCalendar).
+   * The manager of the calendar (uses `getDateManager` for Calendar and `getDateRangeManager` for RangeCalendar).
    * Not publicly exposed, is only set in state to avoid passing it to the selectors.
    */
   manager: TemporalManager<TValue, any, any>;
