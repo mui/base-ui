@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { fastComponent } from '@base-ui/utils/fastHooks';
+import { fastComponent, useLazyScope } from '@base-ui/utils/fastHooks';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { TooltipRootContext } from './TooltipRootContext';
 import { useClientPoint, useDismiss, useFocus, useInteractions } from '../../floating-ui-react';
@@ -59,23 +59,30 @@ export const TooltipRoot = fastComponent(function TooltipRoot<Payload>(
   const activeTriggerId = store.useState('activeTriggerId');
   const payload = store.useState('payload') as Payload | undefined;
 
-  store.useSyncedValues({
-    trackCursorAxis,
-    disableHoverablePopup,
-  });
-
   const open = !disabled && openState;
 
-  useIsoLayoutEffect(() => {
-    if (openState && disabled) {
-      store.setOpen(false, createChangeEventDetails(REASONS.disabled));
-    }
-  }, [openState, disabled, store]);
+  const openScope = useLazyScope(openState);
 
-  store.useSyncedValue('disabled', disabled);
+  const { forceUnmount, transitionStatus } = openScope.use(() => {
+    useIsoLayoutEffect(() => {
+      if (openState && disabled) {
+        store.setOpen(false, createChangeEventDetails(REASONS.disabled));
+      }
+    }, [openState, disabled, store]);
 
-  useImplicitActiveTrigger(store);
-  const { forceUnmount, transitionStatus } = useOpenStateTransitions(open, store);
+    useIsoLayoutEffect(() => {
+      if (open) {
+        if (activeTriggerId == null) {
+          store.set('payload', undefined);
+        }
+      }
+    }, [store, activeTriggerId, open]);
+
+    useImplicitActiveTrigger(store);
+
+    return useOpenStateTransitions(open, store);
+  }, useOpenStateTransitions.defaultValue);
+
   const isInstantPhase = store.useState('isInstantPhase');
   const instantType = store.useState('instantType');
   const lastOpenChangeReason = store.useState('lastOpenChangeReason');
@@ -103,14 +110,6 @@ export const TooltipRoot = fastComponent(function TooltipRoot<Payload>(
       previousInstantTypeRef.current = null;
     }
   }, [transitionStatus, isInstantPhase, lastOpenChangeReason, instantType, store]);
-
-  useIsoLayoutEffect(() => {
-    if (open) {
-      if (activeTriggerId == null) {
-        store.set('payload', undefined);
-      }
-    }
-  }, [store, activeTriggerId, open]);
 
   const handleImperativeClose = useCallback(() => {
     store.setOpen(false, createTooltipEventDetails(store, REASONS.imperativeAction));
@@ -142,7 +141,9 @@ export const TooltipRoot = fastComponent(function TooltipRoot<Payload>(
   const popupProps = useMemo(() => getFloatingProps(), [getFloatingProps]);
 
   store.useSyncedValues({
-    floatingRootContext,
+    disabled,
+    disableHoverablePopup,
+    trackCursorAxis,
     activeTriggerProps,
     inactiveTriggerProps,
     popupProps,

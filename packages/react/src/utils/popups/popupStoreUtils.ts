@@ -169,3 +169,9 @@ export function useOpenStateTransitions<State extends PopupStoreState<any>>(
 
   return { forceUnmount, transitionStatus };
 }
+useOpenStateTransitions.defaultValue = {
+  forceUnmount: () => {
+    throw new Error('forceUnmount called without initialization');
+  },
+  transitionStatus: undefined,
+};
