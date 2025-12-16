@@ -26,7 +26,14 @@ describe('@base-ui/react', () => {
     await Promise.all(
       Object.keys(subpathExports)
         .filter(
-          (key) => !['.', './utils', './types'].includes(key) && !key.startsWith('./unstable-'),
+          (key) =>
+            ![
+              '.',
+              './utils',
+              './temporal-adapter-luxon',
+              './temporal-adapter-date-fns',
+              './types',
+            ].includes(key) && !key.startsWith('./unstable-'),
         )
         .map(async (subpath) => {
           const importSpecifier = `@base-ui/react/${subpath.replace('./', '')}`;

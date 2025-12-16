@@ -3,6 +3,8 @@ import { beforeAll, afterAll } from 'vitest';
 import * as chai from 'chai';
 import chaiDom from 'chai-dom';
 import chaiPlugin from '@mui/internal-test-utils/chaiPlugin';
+// eslint-disable-next-line import/no-relative-packages
+import '../packages/react/test/addChaiAssertions';
 
 import '@testing-library/jest-dom/vitest';
 

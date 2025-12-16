@@ -235,13 +235,19 @@ async function run(options: RunOptions) {
     const allComponentsMetadata = (
       await Promise.all(
         Array.from(componentsMetadata.entries()).map(async ([componentName, metadata]) => {
-          const slug = kebabCase(componentName);
-          const componentPagePath = path.join(docsBasePath, slug, 'page.mdx');
+          let slug = kebabCase(componentName);
+          let componentPagePath = path.join(docsBasePath, slug, 'page.mdx');
 
           // Check if the page exists
           if (!fs.existsSync(componentPagePath)) {
-            skippedComponents.push(componentName);
-            return null;
+            const unstablePagePath = path.join(docsBasePath, `unstable-${slug}`, 'page.mdx');
+            if (fs.existsSync(unstablePagePath)) {
+              slug = `unstable-${slug}`;
+              componentPagePath = unstablePagePath;
+            } else {
+              skippedComponents.push(componentName);
+              return null;
+            }
           }
 
           return {
