@@ -48,16 +48,7 @@ export default function Layout({ children }: React.PropsWithChildren) {
                   <Header isProduction={isProduction} />
                   <SideNav.Root>
                     {sitemap &&
-                      Object.entries(
-                        sitemap.data as Record<
-                          string,
-                          {
-                            title?: string;
-                            prefix?: string;
-                            pages: { title: string; tags?: string[]; path: string }[];
-                          }
-                        >,
-                      ).map(([name, section]) => (
+                      Object.entries(sitemap.data).map(([name, section]) => (
                         <SideNav.Section key={name}>
                           <SideNav.Heading>{name}</SideNav.Heading>
                           <SideNav.List>
@@ -75,7 +66,7 @@ export default function Layout({ children }: React.PropsWithChildren) {
                                   }
                                   external={page.tags?.includes('External')}
                                 >
-                                  {titleMap[page.title] || page.title}
+                                  {(page.title !== undefined && titleMap[page.title]) || page.title}
                                   {page.tags?.includes('New') && <SideNav.Badge>New</SideNav.Badge>}
                                   {page.tags?.includes('Preview') && (
                                     <SideNav.Badge>Preview</SideNav.Badge>
