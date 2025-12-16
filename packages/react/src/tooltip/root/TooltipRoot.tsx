@@ -137,7 +137,6 @@ export function TooltipRoot<Payload>(props: TooltipRoot.Props<Payload>) {
   const popupProps = React.useMemo(() => getFloatingProps(), [getFloatingProps]);
 
   store.useSyncedValues({
-    floatingRootContext,
     activeTriggerProps,
     inactiveTriggerProps,
     popupProps,
@@ -201,7 +200,7 @@ export interface TooltipRootProps<Payload = unknown> {
    * - `unmount`: When specified, the tooltip will not be unmounted when closed.
    * Instead, the `unmount` function must be called to unmount the tooltip manually.
    * Useful when the tooltip's animation is controlled by an external library.
-   * - `close`: Closes the dialog imperatively when called.
+   * - `close`: Closes the tooltip imperatively when called.
    */
   actionsRef?: React.RefObject<TooltipRoot.Actions>;
   /**

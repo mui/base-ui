@@ -5,3 +5,7 @@ export { PreviewCardPositioner as Positioner } from './positioner/PreviewCardPos
 export { PreviewCardPopup as Popup } from './popup/PreviewCardPopup';
 export { PreviewCardArrow as Arrow } from './arrow/PreviewCardArrow';
 export { PreviewCardBackdrop as Backdrop } from './backdrop/PreviewCardBackdrop';
+export {
+  createPreviewCardHandle as createHandle,
+  PreviewCardHandle as Handle,
+} from './store/PreviewCardHandle';
