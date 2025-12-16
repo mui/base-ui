@@ -302,7 +302,7 @@ export default function Homepage() {
               <Accordion.Panel className="AccordionPanel">
                 <p className="Text size-2">
                   Base UI is a React library. It is not designed to be used without React. We may
-                  consider supporting other libraries at some point, but for the forseeable future,
+                  consider supporting other libraries at some point, but for the foreseeable future,
                   React is our primary focus.
                 </p>
               </Accordion.Panel>
