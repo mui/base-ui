@@ -13,6 +13,7 @@ import {
   isOutsideEvent,
   contains,
 } from '../../floating-ui-react/utils';
+import { useHoverFloatingInteraction } from '../../floating-ui-react';
 import { getEmptyRootContext } from '../../floating-ui-react/utils/getEmptyRootContext';
 import { useNavigationMenuPositionerContext } from '../positioner/NavigationMenuPositionerContext';
 
@@ -85,10 +86,16 @@ export const NavigationMenuViewport = React.forwardRef(function NavigationMenuVi
     prevTriggerElementRef,
     viewportInert,
     setViewportInert,
+    closeDelay,
   } = useNavigationMenuRootContext();
 
   const hasPositioner = Boolean(useNavigationMenuPositionerContext(true));
   const domReference = (floatingRootContext || EMPTY_ROOT_CONTEXT).useState('domReferenceElement');
+
+  useHoverFloatingInteraction(floatingRootContext ?? EMPTY_ROOT_CONTEXT, {
+    enabled: floatingRootContext != null,
+    closeDelay,
+  });
 
   useIsoLayoutEffect(() => {
     if (domReference) {

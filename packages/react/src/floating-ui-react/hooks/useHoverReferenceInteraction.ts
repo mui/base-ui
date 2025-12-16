@@ -38,7 +38,7 @@ const EMPTY_REF: Readonly<React.RefObject<Element | null>> = { current: null };
 export function useHoverReferenceInteraction(
   context: FloatingRootContext | FloatingContext,
   props: UseHoverReferenceInteractionProps = {},
-): HTMLProps | undefined {
+) {
   const store = 'rootStore' in context ? context.rootStore : context;
   const { dataRef, events } = store.context;
 

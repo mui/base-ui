@@ -12,8 +12,7 @@ import {
   useClick,
   useFloatingRootContext,
   useFloatingTree,
-  useHover,
-  useInteractions,
+  useHoverReferenceInteraction,
 } from '../../floating-ui-react';
 import {
   contains,
@@ -43,6 +42,7 @@ import { getCssDimensions } from '../../utils/getCssDimensions';
 import { NavigationMenuRoot } from '../root/NavigationMenuRoot';
 import { NAVIGATION_MENU_TRIGGER_IDENTIFIER } from '../utils/constants';
 import { useNavigationMenuDismissContext } from '../list/NavigationMenuDismissContext';
+import { mergeProps } from '../../merge-props';
 
 const DEFAULT_SIZE = { width: 0, height: 0 };
 
@@ -286,17 +286,24 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
     },
   });
 
-  const hover = useHover(context, {
+  const triggerElementRef = React.useMemo<React.RefObject<Element | null>>(
+    () => ({ current: triggerElement }),
+    [triggerElement],
+  );
+
+  const hoverProps = useHoverReferenceInteraction(context, {
     move: false,
     handleClose: safePolygon({ blockPointerEvents: pointerType !== 'touch' }),
     restMs: mounted && positionerElement ? 0 : delay,
     delay: { close: closeDelay },
+    triggerElementRef,
   });
   const click = useClick(context, {
     enabled: interactionsEnabled,
     stickIfOpen,
     toggle: isActiveItem,
   });
+
   useIsoLayoutEffect(() => {
     if (isActiveItem) {
       setFloatingRootContext(context);
@@ -304,7 +311,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
     }
   }, [isActiveItem, context, setFloatingRootContext, prevTriggerElementRef, triggerElement]);
 
-  const { getReferenceProps } = useInteractions([hover, click]);
+  const triggerProps = mergeProps(click.reference, hoverProps);
 
   function handleActivation(event: React.MouseEvent | React.KeyboardEvent) {
     ReactDOM.flushSync(() => {
@@ -442,7 +449,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
         stateAttributesMapping={pressableTriggerOpenStateMapping}
         refs={[forwardedRef, setTriggerElement, buttonRef]}
         props={[
-          getReferenceProps,
+          triggerProps,
           dismissProps?.reference || EMPTY_ARRAY,
           defaultProps,
           elementProps,

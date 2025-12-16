@@ -6,7 +6,8 @@ import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import {
   safePolygon,
   useDismiss,
-  useHover,
+  useHoverFloatingInteraction,
+  useHoverReferenceInteraction,
   useInteractions,
   useFloatingRootContext,
 } from '../../floating-ui-react';
@@ -124,17 +125,25 @@ export function PreviewCardRoot(props: PreviewCardRoot.Props) {
   const getDelayValue = () => delayRef.current;
   const getCloseDelayValue = () => closeDelayRef.current;
 
-  const hover = useHover(context, {
+  useHoverFloatingInteraction(context, { closeDelay: getCloseDelayValue });
+
+  const triggerElementRef = React.useMemo<React.RefObject<Element | null>>(
+    () => ({ current: triggerElement }),
+    [triggerElement],
+  );
+
+  const hoverProps = useHoverReferenceInteraction(context, {
     mouseOnly: true,
     move: false,
     handleClose: safePolygon(),
     restMs: getDelayValue,
     delay: () => ({ close: getCloseDelayValue() }),
+    triggerElementRef,
   });
   const focus = useFocusWithDelay(context, { delay: getDelayValue });
   const dismiss = useDismiss(context);
 
-  const { getReferenceProps, getFloatingProps } = useInteractions([hover, focus, dismiss]);
+  const { getReferenceProps, getFloatingProps } = useInteractions([focus, dismiss]);
 
   const contextValue = React.useMemo(
     () => ({
@@ -146,7 +155,7 @@ export function PreviewCardRoot(props: PreviewCardRoot.Props) {
       positionerElement,
       setPositionerElement,
       popupRef,
-      triggerProps: getReferenceProps(),
+      triggerProps: getReferenceProps(hoverProps),
       popupProps: getFloatingProps(),
       floatingRootContext: context,
       instantType,
@@ -161,6 +170,7 @@ export function PreviewCardRoot(props: PreviewCardRoot.Props) {
       setMounted,
       positionerElement,
       getReferenceProps,
+      hoverProps,
       getFloatingProps,
       context,
       instantType,
