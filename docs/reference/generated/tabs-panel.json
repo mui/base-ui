@@ -3,7 +3,7 @@
   "description": "A panel displayed when the corresponding tab is active.\nRenders a `<div>` element.",
   "props": {
     "value": {
-      "type": "any",
+      "type": "Tabs.Tab.Value",
       "required": true,
       "description": "The value of the TabPanel. It will be shown when the Tab with the corresponding value is active."
     },
