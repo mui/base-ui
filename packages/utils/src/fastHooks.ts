@@ -72,7 +72,7 @@ enum Flags {
   HasLayoutEffect      = 1 << 1,
   HasInsertionEffect   = 1 << 2,
   HasState             = 1 << 3,
-  HasStore = 1 << 4,
+  HasStore             = 1 << 4,
   All                  = (1 << 5) - 1,
 }
 
@@ -669,6 +669,8 @@ export const createUseStore = (defaultUseStore: any) => {
         hook.didChange = true;
       }
     }
+
+    root.flags |= Flags.HasStore;
 
     return hook.value;
   }
