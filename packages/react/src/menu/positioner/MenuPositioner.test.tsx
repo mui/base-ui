@@ -305,7 +305,7 @@ describe('<Menu.Positioner />', () => {
     });
 
     it('when keepMounted=true, should keep the content mounted when closed', async () => {
-      const { userEvent: user } = await import('@vitest/browser/context');
+      const { userEvent: user } = await import('vitest/browser');
       const { render: vbrRender } = await import('vitest-browser-react');
 
       vbrRender(
@@ -343,7 +343,7 @@ describe('<Menu.Positioner />', () => {
     });
 
     it('when keepMounted=false, should unmount the content when closed', async () => {
-      const { userEvent: user } = await import('@vitest/browser/context');
+      const { userEvent: user } = await import('vitest/browser');
       const { render: vbrRender } = await import('vitest-browser-react');
 
       vbrRender(

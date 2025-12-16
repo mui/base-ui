@@ -226,6 +226,15 @@ function App() {
   multiple
 />;
 
+// Should accept null value
+<Combobox.Root
+  items={[
+    { id: 1, name: 'Alice' },
+    { id: 2, name: 'Bob' },
+  ]}
+  value={null}
+/>;
+
 function App2() {
   const [value, setValue] = React.useState('a');
   return (
