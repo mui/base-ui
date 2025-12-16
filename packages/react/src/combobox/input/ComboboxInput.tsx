@@ -1,8 +1,8 @@
 'use client';
 import * as React from 'react';
-import { useStore } from '@base-ui-components/utils/store';
-import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
-import { isAndroid, isFirefox } from '@base-ui-components/utils/detectBrowser';
+import { useStore } from '@base-ui/utils/store';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { isAndroid, isFirefox } from '@base-ui/utils/detectBrowser';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useRenderElement } from '../../utils/useRenderElement';
@@ -11,13 +11,11 @@ import {
   useComboboxInputValueContext,
   useComboboxRootContext,
 } from '../root/ComboboxRootContext';
+import { triggerStateAttributesMapping } from '../utils/stateAttributesMapping';
 import { selectors } from '../store';
-import { pressableTriggerOpenStateMapping } from '../../utils/popupStateMapping';
 import type { FieldRoot } from '../../field/root/FieldRoot';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
-import { fieldValidityMapping } from '../../field/utils/constants';
 import { useLabelableContext } from '../../labelable-provider/LabelableContext';
-import { StateAttributesMapping } from '../../utils/getStateAttributesProps';
 import { useComboboxChipsContext } from '../chips/ComboboxChipsContext';
 import { stopEvent } from '../../floating-ui-react/utils';
 import { useComboboxPositionerContext } from '../positioner/ComboboxPositionerContext';
@@ -25,13 +23,6 @@ import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
 import type { Side } from '../../utils/useAnchorPositioning';
 import { useDirection } from '../../direction-provider/DirectionContext';
-
-const stateAttributesMapping: StateAttributesMapping<ComboboxInput.State> = {
-  ...pressableTriggerOpenStateMapping,
-  ...fieldValidityMapping,
-  popupSide: (side) => (side ? { 'data-popup-side': side } : null),
-  listEmpty: (empty) => (empty ? { 'data-list-empty': '' } : null),
-};
 
 /**
  * A text input to search for items in the list.
@@ -429,7 +420,7 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
       },
       validation ? validation.getValidationProps(elementProps) : elementProps,
     ],
-    stateAttributesMapping,
+    stateAttributesMapping: triggerStateAttributesMapping,
   });
 
   return element;

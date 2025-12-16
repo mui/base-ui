@@ -73,8 +73,10 @@ export const SliderValue = React.forwardRef(function SliderValue(
   return element;
 });
 
-export interface SliderValueProps
-  extends Omit<BaseUIComponentProps<'output', SliderRoot.State>, 'children'> {
+export interface SliderValueProps extends Omit<
+  BaseUIComponentProps<'output', SliderRoot.State>,
+  'children'
+> {
   children?:
     | null
     | ((formattedValues: readonly string[], values: readonly number[]) => React.ReactNode);

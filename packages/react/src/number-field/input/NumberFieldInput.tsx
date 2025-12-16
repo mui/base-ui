@@ -431,8 +431,10 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
 
 export interface NumberFieldInputState extends NumberFieldRoot.State {}
 
-export interface NumberFieldInputProps
-  extends BaseUIComponentProps<'input', NumberFieldInput.State> {
+export interface NumberFieldInputProps extends BaseUIComponentProps<
+  'input',
+  NumberFieldInput.State
+> {
   /**
    * A string value that provides a user-friendly name for the role of the input.
    * @default 'Number field'

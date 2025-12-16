@@ -21,7 +21,7 @@
     box-shadow: inset 0 -1px var(--color-gridline);
     /* It's also the iOS header overscroll background */
     background-color: var(--color-gray-50);
-    z-index: 1;
+    z-index: 2;
 
     @media (--show-side-nav) {
       position: static;
@@ -71,6 +71,8 @@
   }
 
   .HeaderLink {
+    flex-shrink: 0;
+
     @media (hover: hover) {
       &:hover {
         text-decoration: underline;

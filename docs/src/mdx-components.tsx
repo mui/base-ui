@@ -6,7 +6,6 @@ import { Code } from './components/Code';
 import { PropsReferenceAccordion } from './components/ReferenceTable/PropsReferenceAccordion';
 import { AttributesReferenceTable } from './components/ReferenceTable/AttributesReferenceTable';
 import { CssVariablesReferenceTable } from './components/ReferenceTable/CssVariablesReferenceTable';
-import { getChildrenText } from './utils/getChildrenText';
 import { Link } from './components/Link';
 import { HeadingLink } from './components/HeadingLink';
 import { Subtitle } from './components/Subtitle/Subtitle';
@@ -22,10 +21,7 @@ export const mdxComponents: MDXComponents = {
   code: (props) => <Code className="data-[inline]:mx-[0.1em]" {...props} />,
   h1: (props) => (
     // Do not wrap heading tags in divs, that confuses Safari Reader
-    <React.Fragment>
-      <h1 className="mb-4 text-3xl font-bold text-balance" {...props} />
-      <title>{`${getChildrenText(props.children)} · Base UI`}</title>
-    </React.Fragment>
+    <h1 className="mb-4 text-3xl font-bold text-balance" {...props} />
   ),
   h2: ({ children, id, ...otherProps }) => {
     return (

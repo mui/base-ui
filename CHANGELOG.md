@@ -1,5 +1,159 @@
 # Versions
 
+## v1.0.0
+
+_Dec 11, 2025_
+
+### General Changes
+
+- **Breaking change:** Rename packages to use the `@base-ui` org.<br />
+  The package name has changed from `@base-ui-components/react` to `@base-ui/react`.
+  (#3462) by @mnajdova
+
+### Combobox
+
+- Respect `itemToStringValue` for `onFormSubmit` (#3441) by @atomiks
+- Add `null` as an option for the value prop (#3488) by @mnajdova
+
+### Menu
+
+- Fix submenu opens with 0 delay (#3459) by @atomiks
+- Fix focus not returning to trigger on <kbd>Esc</kbd> while pointer rests on popup (#3482) by @atomiks
+- Fix always `null` open method (#3486) by @atomiks
+- Allow side axis fallback for submenus by default (#3470) by @atomiks
+
+### Navigation Menu
+
+- Fix mount transitions on `Positioner` in Firefox (#3424) by @atomiks
+
+### Number Field
+
+- Fix multiple scrub area support (#3471) by @atomiks
+
+### Popover
+
+- Fix mount transitions on `Positioner` in Firefox (#3424) by @atomiks
+- Fix skipped viewport transitions (#3453) by @atomiks
+
+### Select
+
+- Respect `itemToStringValue` for `onFormSubmit` (#3441) by @atomiks
+- Add `null` as an option for the value prop (#3488) by @mnajdova
+
+### Tabs
+
+- Fix indicator positioning in transformed containers (#3439) by @atomiks
+- Do not initially select a disabled tab (#3475) by @michaldudak
+
+### Toast
+
+- Fix `flushSync` dev error when toast is added (#3443) by @atomiks
+- Fix `<Toast.Close>;` emitting `aria-hidden` warning on click (#3469) by @atomiks
+
+### Toggle Group
+
+- More permissive towards falsy toggle values (#3477) by @mj12albert
+
+### Tooltip
+
+- Fix mount transitions on `Positioner` in Firefox (#3424) by @atomiks
+- Fix ignored "modal" setting in Popovers experiment (#3474) by @michaldudak
+- Fix shared tooltip closing with trigger gaps (#3452) by @atomiks
+- Fix skipped viewport transitions (#3453) by @atomiks
+
+All contributors of this release in alphabetical order: @atomiks, @LukasTy, @michaldudak, @mj12albert, @mnajdova, @oliviertassinari, @pondorasti, @romgrk, @ZeeshanTamboli
+
+## v1.0.0-rc.2
+
+_Dec 11, 2025_
+
+This release contains the same code as v1.0.0.
+Please refer to that version to see the changes.
+
+## v1.0.0-rc.1
+
+_Dec 11, 2025_
+
+This release contains the same code as v1.0.0.
+Please refer to that version to see the changes.
+
+## v1.0.0-rc.0
+
+_Dec 4, 2025_
+
+### General changes
+
+- Fix missing `'use client'` directives (#3408) by @atomiks
+
+### Autocomplete
+
+- Fix `keepHighlight` focus sync (#3399) by @atomiks
+
+### Checkbox
+
+- **Breaking change:** Match native unchecked state in form submission.<br />
+  The Checkbox will not submit the `"off"` value with a form when unchecked anymore, unless the new `uncheckedValue` prop is set.
+  (#3406) by @atomiks
+
+### Collapsible
+
+- Remove `render={null}` (#3407) by @mj12albert
+
+### Combobox
+
+- **Breaking change:** Removed the `keepHighlight` prop (#3377) by @atomiks
+
+### Dialog
+
+- Close when pressing focusable element outside (#3380) by @atomiks
+- Fix closing after pointer lock exit in Firefox (#3379) by @atomiks
+
+### Menu
+
+- Add `highlightItemOnHover` prop (#3377) by @atomiks
+- Do not import client components from MenuStore (#3409) by @michaldudak
+
+### Number Field
+
+- Ensure hidden input participates in form validation (#3374) by @atomiks
+- Improve symbol replacement logic (#3376) by @atomiks
+- Fix fractional step snapping (#3375) by @atomiks
+- Fix parsing numbers with Swiss locale (#3361) by @michaldudak
+- Fix pointer lock release when soft clicking in Firefox (#3378) by @atomiks
+
+### Popover
+
+- Close when pressing focusable element outside (#3380) by @atomiks
+- Fix modal backdrop on touch (#3383) by @atomiks
+- Fix popover glitching when flipped (#3364) by @michaldudak
+
+### Select
+
+- Add `highlightItemOnHover` prop (#3377) by @atomiks
+
+### Switch
+
+- **Breaking change:** Match native off state in form submission.<br />
+  The Switch will not submit the `"off"` value with a form when unchecked anymore, unless the new `uncheckedValue` prop is set.
+  (#3406) by @atomiks
+
+### Tabs
+
+- **Breaking change:** Fix Panel `keepMounted` behavior.<br />
+  The `value` prop is now required on `<Tabs.Tab>` and `<Tabs.Panel>` parts.
+  (#3372) by @atomiks
+
+### Toast
+
+- Recalculate content height when layout size is fixed (#3359) by @atomiks
+- Fix multiple swipe directions on same axis (#3392) by @mj12albert
+
+### Tooltip
+
+- Improve contained triggers performance (#3385) by @michaldudak
+
+All contributors of this release in alphabetical order: @atomiks, @michaldudak, @mj12albert, @oliviertassinari, @pondorasti, @romgrk
+
 ## v1.0.0-beta.7
 
 _Nov 27, 2025_

@@ -1,14 +1,14 @@
 'use client';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import { useTimeout } from '@base-ui-components/utils/useTimeout';
-import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
-import { useId } from '@base-ui-components/utils/useId';
-import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
-import { useOnFirstRender } from '@base-ui-components/utils/useOnFirstRender';
-import { useAnimationFrame } from '@base-ui-components/utils/useAnimationFrame';
-import { useScrollLock } from '@base-ui-components/utils/useScrollLock';
-import { EMPTY_ARRAY } from '@base-ui-components/utils/empty';
+import { useTimeout } from '@base-ui/utils/useTimeout';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { useId } from '@base-ui/utils/useId';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { useOnFirstRender } from '@base-ui/utils/useOnFirstRender';
+import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
+import { useScrollLock } from '@base-ui/utils/useScrollLock';
+import { EMPTY_ARRAY } from '@base-ui/utils/empty';
 import {
   FloatingEvents,
   FloatingTree,
@@ -64,10 +64,11 @@ export function MenuRoot<Payload>(props: MenuRoot.Props<Payload>) {
     loopFocus = true,
     orientation = 'vertical',
     actionsRef,
-    closeParentOnEsc = true,
+    closeParentOnEsc = false,
     handle,
     triggerId: triggerIdProp,
     defaultTriggerId: defaultTriggerIdProp = null,
+    highlightItemOnHover = true,
   } = props;
 
   const contextMenuContext = useContextMenuRootContext(true);
@@ -465,6 +466,7 @@ export function MenuRoot<Payload>(props: MenuRoot.Props<Payload>) {
     onNavigate: setActiveIndex,
     openOnArrowKeyDown: parent.type !== 'context-menu',
     externalTree: nested ? floatingTreeRoot : undefined,
+    focusItemOnHover: highlightItemOnHover,
   });
 
   const onTypingChange = React.useCallback(
@@ -494,7 +496,7 @@ export function MenuRoot<Payload>(props: MenuRoot.Props<Payload>) {
   ]);
 
   const activeTriggerProps = React.useMemo(() => {
-    const referenceProps = mergeProps(
+    const mergedProps = mergeProps(
       getReferenceProps(),
       {
         onMouseEnter() {
@@ -506,8 +508,9 @@ export function MenuRoot<Payload>(props: MenuRoot.Props<Payload>) {
       },
       interactionTypeProps,
     );
-    delete referenceProps.role;
-    return referenceProps;
+
+    delete mergedProps.role;
+    return mergedProps;
   }, [getReferenceProps, store, interactionTypeProps]);
 
   const inactiveTriggerProps = React.useMemo(() => {
@@ -516,9 +519,11 @@ export function MenuRoot<Payload>(props: MenuRoot.Props<Payload>) {
       return triggerProps;
     }
 
-    const { role: roleDiscarded, ['aria-controls']: ariaControlsDiscarded, ...rest } = triggerProps;
-    return rest;
-  }, [getTriggerProps]);
+    const mergedProps = mergeProps(triggerProps, interactionTypeProps);
+    delete mergedProps.role;
+    delete mergedProps['aria-controls'];
+    return mergedProps;
+  }, [getTriggerProps, interactionTypeProps]);
 
   const disableHoverTimeout = useAnimationFrame();
   const popupProps = React.useMemo(
@@ -597,6 +602,12 @@ export interface MenuRootProps<Payload = unknown> {
    */
   loopFocus?: boolean;
   /**
+   * Whether moving the pointer over items should highlight them.
+   * Disabling this prop allows CSS `:hover` to be differentiated from the `:focus` (`data-highlighted`) state.
+   * @default true
+   */
+  highlightItemOnHover?: boolean;
+  /**
    * Determines if the menu enters a modal state when open.
    * - `true`: user interaction is limited to the menu: document page scroll is locked and and pointer interactions on outside elements are disabled.
    * - `false`: user interaction with the rest of the document is allowed.
@@ -629,7 +640,7 @@ export interface MenuRootProps<Payload = unknown> {
   /**
    * When in a submenu, determines whether pressing the Escape key
    * closes the entire menu, or only the current child menu.
-   * @default true
+   * @default false
    */
   closeParentOnEsc?: boolean;
   /**

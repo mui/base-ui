@@ -60,7 +60,7 @@ describe('e2e', () => {
     }
   }, 20000);
 
-  after(async () => {
+  afterAll(async () => {
     await browser.close();
   });
 

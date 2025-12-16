@@ -1,4 +1,4 @@
-import { createSelector } from '@base-ui-components/utils/store';
+import { createSelector } from '@base-ui/utils/store';
 import { FloatingRootContext } from '../../floating-ui-react';
 import { getEmptyRootContext } from '../../floating-ui-react/utils/getEmptyRootContext';
 import { EMPTY_OBJECT } from '../constants';

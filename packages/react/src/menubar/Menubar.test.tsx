@@ -4,9 +4,9 @@ import { act, screen, waitFor } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance, isJSDOM, wait } from '#test-utils';
 import { spy } from 'sinon';
 import { afterEach } from 'vitest';
-import { Menubar } from '@base-ui-components/react/menubar';
-import { Menu } from '@base-ui-components/react/menu';
-import { useRefWithInit } from '@base-ui-components/utils/useRefWithInit';
+import { Menubar } from '@base-ui/react/menubar';
+import { Menu } from '@base-ui/react/menu';
+import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 
 describe('<Menubar />', () => {
   beforeEach(() => {
@@ -36,7 +36,7 @@ describe('<Menubar />', () => {
       });
 
       it('should open the menu after clicking on its trigger and close it when clicking again', async () => {
-        const { userEvent: user } = await import('@vitest/browser/context');
+        const { userEvent: user } = await import('vitest/browser');
         const { render: vbrRender } = await import('vitest-browser-react');
 
         vbrRender(<TestMenubar />);
@@ -61,7 +61,7 @@ describe('<Menubar />', () => {
       });
 
       it('should not open submenus on hover when no submenu is already open', async () => {
-        const { userEvent: user } = await import('@vitest/browser/context');
+        const { userEvent: user } = await import('vitest/browser');
         const { render: vbrRender } = await import('vitest-browser-react');
 
         vbrRender(<TestMenubar />);
@@ -75,7 +75,7 @@ describe('<Menubar />', () => {
       });
 
       it('should open submenus on hover when another submenu is already open', async () => {
-        const { userEvent: user } = await import('@vitest/browser/context');
+        const { userEvent: user } = await import('vitest/browser');
         const { render: vbrRender } = await import('vitest-browser-react');
 
         vbrRender(<TestMenubar />);
@@ -115,7 +115,7 @@ describe('<Menubar />', () => {
       });
 
       it('should open nested submenus on hover when parent menu is open', async () => {
-        const { userEvent: user } = await import('@vitest/browser/context');
+        const { userEvent: user } = await import('vitest/browser');
         const { render: vbrRender } = await import('vitest-browser-react');
 
         vbrRender(<TestMenubar />);
@@ -144,7 +144,7 @@ describe('<Menubar />', () => {
       });
 
       it('should open another menu on hover when a nested submenu is open', async () => {
-        const { userEvent: user } = await import('@vitest/browser/context');
+        const { userEvent: user } = await import('vitest/browser');
         const { render: vbrRender } = await import('vitest-browser-react');
 
         vbrRender(<TestMenubar />);
@@ -213,7 +213,7 @@ describe('<Menubar />', () => {
       });
 
       it('should respect closeOnClick on nested items when the menu was opened on click', async () => {
-        const { userEvent: user } = await import('@vitest/browser/context');
+        const { userEvent: user } = await import('vitest/browser');
         const { render: vbrRender } = await import('vitest-browser-react');
 
         vbrRender(<TestMenubar />);
@@ -239,7 +239,7 @@ describe('<Menubar />', () => {
 
       // https://github.com/mui/base-ui/issues/2092
       it('should respect closeOnClick on nested items when the menu was opened on hover', async () => {
-        const { userEvent: user } = await import('@vitest/browser/context');
+        const { userEvent: user } = await import('vitest/browser');
         const { render: vbrRender } = await import('vitest-browser-react');
 
         vbrRender(<TestMenubar />);

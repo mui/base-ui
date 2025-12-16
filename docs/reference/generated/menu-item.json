@@ -30,10 +30,6 @@
       "description": "Whether the component should ignore user interaction.",
       "detailedType": "boolean | undefined"
     },
-    "id": {
-      "type": "string",
-      "detailedType": "string | undefined"
-    },
     "className": {
       "type": "string | ((state: Menu.Item.State) => string | undefined)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",

@@ -1,8 +1,8 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { isElement } from '@floating-ui/utils/dom';
-import { useValueAsRef } from '@base-ui-components/utils/useValueAsRef';
-import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
+import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import type { FloatingContext, FloatingRootContext } from '../types';
 import { contains, getDocument, isMouseLikePointerType } from '../utils';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
@@ -157,6 +157,8 @@ export function useHoverReferenceInteraction(
       return;
     }
 
+    const currentTrigger = triggerElementRef.current;
+
     handleCloseRef.current?.({
       ...dataRef.current.floatingContext,
       tree,
@@ -165,7 +167,7 @@ export function useHoverReferenceInteraction(
       onClose() {
         clearPointerEvents();
         cleanupMouseMoveHandler();
-        if (!isClickLikeOpenEvent()) {
+        if (!isClickLikeOpenEvent() && currentTrigger === store.select('domReferenceElement')) {
           closeWithDelay(event);
         }
       },
@@ -210,13 +212,15 @@ export function useHoverReferenceInteraction(
 
       const triggerNode = (event.currentTarget as HTMLElement) ?? null;
 
+      const shouldOpen = !store.select('open') || isOverInactiveTrigger;
+
       if (openDelay) {
         openChangeTimeout.start(openDelay, () => {
-          if (!store.select('open')) {
+          if (shouldOpen) {
             store.setOpen(true, createChangeEventDetails(REASONS.triggerHover, event, triggerNode));
           }
         });
-      } else if (!store.select('open') || isOverInactiveTrigger) {
+      } else if (shouldOpen) {
         store.setOpen(true, createChangeEventDetails(REASONS.triggerHover, event, triggerNode));
       }
     }
@@ -245,6 +249,8 @@ export function useHoverReferenceInteraction(
           openChangeTimeout.clear();
         }
 
+        const currentTrigger = triggerElementRef.current;
+
         closeHandlerRef.current = handleCloseRef.current({
           ...dataRef.current.floatingContext,
           tree,
@@ -253,7 +259,7 @@ export function useHoverReferenceInteraction(
           onClose() {
             clearPointerEvents();
             cleanupMouseMoveHandler();
-            if (!isClickLikeOpenEvent()) {
+            if (!isClickLikeOpenEvent() && currentTrigger === store.select('domReferenceElement')) {
               closeWithDelay(event, true);
             }
           },

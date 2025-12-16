@@ -1,8 +1,8 @@
 'use client';
 import * as React from 'react';
-import { useRefWithInit } from '@base-ui-components/utils/useRefWithInit';
-import { ReactStore } from '@base-ui-components/utils/store';
-import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
+import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
+import { ReactStore } from '@base-ui/utils/store';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
 
 export default function Playground() {
   const [open, setOpen] = React.useState(false);

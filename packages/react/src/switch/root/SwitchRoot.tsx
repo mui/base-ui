@@ -1,10 +1,10 @@
 'use client';
 import * as React from 'react';
-import { useControlled } from '@base-ui-components/utils/useControlled';
-import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
-import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
-import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
-import { visuallyHidden } from '@base-ui-components/utils/visuallyHidden';
+import { useControlled } from '@base-ui/utils/useControlled';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { visuallyHidden } from '@base-ui/utils/visuallyHidden';
 import { useRenderElement } from '../../utils/useRenderElement';
 import type { BaseUIComponentProps, NonNativeButtonProps } from '../../utils/types';
 import { mergeProps } from '../../merge-props';
@@ -46,6 +46,7 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
     required = false,
     disabled: disabledProp = false,
     render,
+    uncheckedValue,
     ...elementProps
   } = componentProps;
 
@@ -228,7 +229,9 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
   return (
     <SwitchRootContext.Provider value={state}>
       {element}
-      {!checked && name && <input type="hidden" name={name} value="off" />}
+      {!checked && name && uncheckedValue !== undefined && (
+        <input type="hidden" name={name} value={uncheckedValue} />
+      )}
       <input {...inputProps} />
     </SwitchRootContext.Provider>
   );
@@ -252,9 +255,9 @@ export interface SwitchRootState extends FieldRoot.State {
    */
   required: boolean;
 }
+
 export interface SwitchRootProps
-  extends NonNativeButtonProps,
-    Omit<BaseUIComponentProps<'span', SwitchRoot.State>, 'onChange'> {
+  extends NonNativeButtonProps, Omit<BaseUIComponentProps<'span', SwitchRoot.State>, 'onChange'> {
   /**
    * The id of the switch element.
    */
@@ -299,7 +302,13 @@ export interface SwitchRootProps
    * @default false
    */
   required?: boolean;
+  /**
+   * The value submitted with the form when the switch is off.
+   * By default, unchecked switches do not submit any value, matching native checkbox behavior.
+   */
+  uncheckedValue?: string;
 }
+
 export type SwitchRootChangeEventReason = typeof REASONS.none;
 export type SwitchRootChangeEventDetails = BaseUIChangeEventDetails<SwitchRoot.ChangeEventReason>;
 

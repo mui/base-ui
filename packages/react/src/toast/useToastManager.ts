@@ -96,8 +96,10 @@ export interface ToastObject<Data extends object> {
   data?: Data;
 }
 
-export interface ToastManagerPositionerProps
-  extends Omit<ToastPositionerProps, 'anchor' | 'toast'> {
+export interface ToastManagerPositionerProps extends Omit<
+  ToastPositionerProps,
+  'anchor' | 'toast'
+> {
   /**
    * An element to position the toast against.
    */
@@ -115,13 +117,16 @@ export interface UseToastManagerReturnValue {
   ) => Promise<Value>;
 }
 
-export interface ToastManagerAddOptions<Data extends object>
-  extends Omit<ToastObject<Data>, 'id' | 'animation' | 'height' | 'ref' | 'limited'> {
+export interface ToastManagerAddOptions<Data extends object> extends Omit<
+  ToastObject<Data>,
+  'id' | 'animation' | 'height' | 'ref' | 'limited'
+> {
   id?: string;
 }
 
-export interface ToastManagerUpdateOptions<Data extends object>
-  extends Partial<ToastManagerAddOptions<Data>> {}
+export interface ToastManagerUpdateOptions<Data extends object> extends Partial<
+  ToastManagerAddOptions<Data>
+> {}
 
 export interface ToastManagerPromiseOptions<Value, Data extends object> {
   loading: string | ToastManagerUpdateOptions<Data>;
