@@ -130,10 +130,12 @@ async function generateLlmsTxt() {
           continue;
         }
 
-        if (urlPath.includes('/unstable-')) {
-          // Skip unstable pages/components
-          continue;
-        }
+        // TODO: Decide what we are doing with preview/unstable pages
+        // If we want it hidden, we'll need changes in the docs processing to omit it from search as well
+        // if (urlPath.includes('/unstable-')) {
+        //   // Skip unstable pages/components
+        //   continue;
+        // }
 
         const mdxContent = await fs.readFile(mdxFile, 'utf-8');
 
