@@ -76,11 +76,11 @@ export const Form = React.forwardRef(function Form<
     if (fieldName) {
       const namedField = values.find((field) => field.name === fieldName);
       if (namedField) {
-        namedField.validate(true);
+        namedField.validate(false);
       }
     } else {
       values.forEach((field) => {
-        field.validate(true);
+        field.validate(false);
       });
     }
   }, []);

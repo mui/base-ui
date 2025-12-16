@@ -38,7 +38,7 @@ export function useField(params: UseFieldParameters) {
       name,
       controlRef,
       validityData: getCombinedFieldValidityData(validityData, invalid),
-      validate(imperative = false) {
+      validate(flushSync = true) {
         let nextValue = value;
         if (nextValue === undefined) {
           nextValue = getValue();
@@ -46,7 +46,7 @@ export function useField(params: UseFieldParameters) {
 
         markedDirtyRef.current = true;
 
-        if (imperative) {
+        if (!flushSync) {
           commit(nextValue);
         } else {
           // Synchronously update the validity state so the submit event can be prevented.
