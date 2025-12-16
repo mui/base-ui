@@ -6,7 +6,7 @@ declare global {
   var BASE_UI_ANIMATIONS_DISABLED: boolean;
 }
 
-setupVitest({ failOnConsoleEnabed: false });
+setupVitest({ failOnConsoleEnabled: false });
 
 globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
 
