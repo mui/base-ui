@@ -78,9 +78,9 @@ JavaScript animation libraries such as [Motion](https://motion.dev) require cont
 
 Base UI relies on [`element.getAnimations()`](https://developer.mozilla.org/en-US/docs/Web/API/Element/getAnimations) to detect if animations have finished on an element. When using Motion, `opacity` animations are reflected in `element.getAnimations()`, so Base UI automatically waits for the animation finish before unmounting the component. If `opacity` isn't part of your animation (such as in a translating drawer component), you should still animate it using a value close to `1` (such as `opacity: 0.9999`), so that Base UI can detect the animation.
 
-### Elements removed from the DOM when closed
+### Animating components unmounted from DOM when closed with Motion
 
-Most components like Popover are unmounted from the DOM when they are closed. To animate them with Motion, follow these steps:
+Most popup components like Popover, Dialog, Tooltip, and Menu are unmounted from the DOM when they are closed by default. To animate them with Motion:
 
 - Make the component controlled with the `open` prop so `<AnimatePresence>` can see the state as a child
 - Specify `keepMounted` on the `<Portal>` part
@@ -121,9 +121,9 @@ function App() {
 }
 ```
 
-### Elements kept in the DOM when closed
+### Animating components kept in DOM when closed with Motion
 
-Components that specify `keepMounted` need a different approach to animate with Motion.
+Components that specify `keepMounted` remain rendered in the DOM when they are closed. These elements need a different approach to be animated with Motion:
 
 - Use the `render` prop to compose the `<Popup>` with `motion.div`
 - Animate the properties based on the `open` state, avoiding `<AnimatePresence>`
@@ -160,9 +160,9 @@ function App() {
 }
 ```
 
-### Select
+### Animating Select component with Motion
 
-The Select component is initially unmounted before staying mounted after being interacted with. To animate it with Motion, a mix of the two previous approaches is needed.
+The Select component is initially unmounted but remains mounted after interaction. To animate it with Motion, a mix of the two previous approaches is needed.
 
 import { DemoAnimatedSelectMotion } from './demos/animated-select-motion';
 
