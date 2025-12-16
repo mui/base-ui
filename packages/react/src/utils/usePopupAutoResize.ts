@@ -7,8 +7,6 @@ import { getCssDimensions } from './getCssDimensions';
 import { Dimensions } from '../floating-ui-react/types';
 import { Side } from './useAnchorPositioning';
 import { EMPTY_OBJECT } from './constants';
-import { useRef } from '@base-ui/utils/useRef';
-import { useMemo } from '@base-ui/utils/useMemo';
 
 const supportsResizeObserver = typeof ResizeObserver !== 'undefined';
 
@@ -30,15 +28,15 @@ export function usePopupAutoResize(parameters: UsePopupAutoResizeParameters) {
     direction,
   } = parameters;
 
-  const isInitialRender = useRef(true);
+  const isInitialRender = React.useRef(true);
   const runOnceAnimationsFinish = useAnimationsFinished(popupElement, true, false);
   const animationFrame = useAnimationFrame();
-  const previousDimensionsRef = useRef<Dimensions | null>(null);
+  const previousDimensionsRef = React.useRef<Dimensions | null>(null);
 
   const onMeasureLayout = useStableCallback(onMeasureLayoutParam);
   const onMeasureLayoutComplete = useStableCallback(onMeasureLayoutCompleteParam);
 
-  const anchoringStyles: React.CSSProperties = useMemo(() => {
+  const anchoringStyles: React.CSSProperties = React.useMemo(() => {
     // Ensure popup size transitions correctly when anchored to `bottom` (side=top) or `right` (side=left).
     let isOriginSide = side === 'top';
     let isPhysicalLeft = side === 'left';

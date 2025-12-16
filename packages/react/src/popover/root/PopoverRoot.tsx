@@ -23,10 +23,6 @@ import {
   type PayloadChildRenderFunction,
 } from '../../utils/popups';
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
-import { useEffect } from '@base-ui/utils/useEffect';
-import { useCallback } from '@base-ui/utils/useCallback';
-import { useMemo } from '@base-ui/utils/useMemo';
-import { useImperativeHandle } from '@base-ui/utils/useImperativeHandle';
 
 function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Payload> }) {
   const {
@@ -75,13 +71,13 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
     positionerElement,
   );
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (!open) {
       store.context.stickIfOpenTimeout.clear();
     }
   }, [store, open]);
 
-  const createPopoverEventDetails = useCallback(
+  const createPopoverEventDetails = React.useCallback(
     (reason: PopoverRoot.ChangeEventReason) => {
       const details: PopoverRoot.ChangeEventDetails =
         createChangeEventDetails<PopoverRoot.ChangeEventReason>(
@@ -96,11 +92,11 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
     [store],
   );
 
-  const handleImperativeClose = useCallback(() => {
+  const handleImperativeClose = React.useCallback(() => {
     store.setOpen(false, createPopoverEventDetails(REASONS.imperativeAction));
   }, [store, createPopoverEventDetails]);
 
-  useImperativeHandle(
+  React.useImperativeHandle(
     props.actionsRef,
     () => ({ unmount: forceUnmount, close: handleImperativeClose }),
     [forceUnmount, handleImperativeClose],
@@ -124,15 +120,15 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
 
   const { getReferenceProps, getFloatingProps, getTriggerProps } = useInteractions([dismiss, role]);
 
-  const activeTriggerProps = useMemo(() => {
+  const activeTriggerProps = React.useMemo(() => {
     return getReferenceProps(interactionTypeTriggerProps);
   }, [getReferenceProps, interactionTypeTriggerProps]);
 
-  const inactiveTriggerProps = useMemo(() => {
+  const inactiveTriggerProps = React.useMemo(() => {
     return getTriggerProps(interactionTypeTriggerProps);
   }, [getTriggerProps, interactionTypeTriggerProps]);
 
-  const popupProps = useMemo(() => {
+  const popupProps = React.useMemo(() => {
     return getFloatingProps();
   }, [getFloatingProps]);
 
@@ -146,7 +142,7 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
     nested: useFloatingParentNodeId() != null,
   });
 
-  const popoverContext: PopoverRootContext<Payload> = useMemo(
+  const popoverContext: PopoverRootContext<Payload> = React.useMemo(
     () => ({
       store,
     }),

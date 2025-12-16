@@ -6,7 +6,6 @@ import type { ProgressRoot } from '../root/ProgressRoot';
 import { useProgressRootContext } from '../root/ProgressRootContext';
 import { progressStateAttributesMapping } from '../root/stateAttributesMapping';
 import type { BaseUIComponentProps } from '../../utils/types';
-import { useCallback } from '@base-ui/utils/useCallback';
 
 /**
  * Visualizes the completion status of the task.
@@ -25,7 +24,7 @@ export const ProgressIndicator = React.forwardRef(function ProgressIndicator(
   const percentageValue =
     Number.isFinite(value) && value !== null ? valueToPercent(value, min, max) : null;
 
-  const getStyles = useCallback(() => {
+  const getStyles = React.useCallback(() => {
     if (percentageValue == null) {
       return {};
     }

@@ -7,7 +7,6 @@ import { useSelectRootContext } from '../root/SelectRootContext';
 import { resolveSelectedLabel, resolveMultipleLabels } from '../../utils/resolveValueLabel';
 import { selectors } from '../store';
 import { StateAttributesMapping } from '../../utils/getStateAttributesProps';
-import { useMemo } from '@base-ui/utils/useMemo';
 
 const stateAttributesMapping: StateAttributesMapping<SelectValue.State> = {
   value: () => null,
@@ -32,7 +31,7 @@ export const SelectValue = React.forwardRef(function SelectValue(
   const itemToStringLabel = useStore(store, selectors.itemToStringLabel);
   const serializedValue = useStore(store, selectors.serializedValue);
 
-  const state: SelectValue.State = useMemo(
+  const state: SelectValue.State = React.useMemo(
     () => ({
       value,
       placeholder: !serializedValue,

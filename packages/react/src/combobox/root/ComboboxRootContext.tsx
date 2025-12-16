@@ -1,7 +1,6 @@
 import * as React from 'react';
 import { ComboboxStore } from '../store';
 import type { FloatingRootContext } from '../../floating-ui-react';
-import { useContext } from '@base-ui/utils/useContext';
 
 export interface ComboboxDerivedItemsContext {
   query: string;
@@ -22,7 +21,7 @@ export const ComboboxInputValueContext =
   React.createContext<React.ComponentProps<'input'>['value']>('');
 
 export function useComboboxRootContext() {
-  const context = useContext(ComboboxRootContext) as ComboboxStore | undefined;
+  const context = React.useContext(ComboboxRootContext) as ComboboxStore | undefined;
   if (!context) {
     throw new Error(
       'Base UI: ComboboxRootContext is missing. Combobox parts must be placed within <Combobox.Root>.',
@@ -32,7 +31,7 @@ export function useComboboxRootContext() {
 }
 
 export function useComboboxFloatingContext() {
-  const context = useContext(ComboboxFloatingContext);
+  const context = React.useContext(ComboboxFloatingContext);
   if (!context) {
     throw new Error(
       'Base UI: ComboboxFloatingContext is missing. Combobox parts must be placed within <Combobox.Root>.',
@@ -42,7 +41,7 @@ export function useComboboxFloatingContext() {
 }
 
 export function useComboboxDerivedItemsContext() {
-  const context = useContext(ComboboxDerivedItemsContext);
+  const context = React.useContext(ComboboxDerivedItemsContext);
   if (!context) {
     throw new Error(
       'Base UI: ComboboxItemsContext is missing. Combobox parts must be placed within <Combobox.Root>.',
@@ -52,5 +51,5 @@ export function useComboboxDerivedItemsContext() {
 }
 
 export function useComboboxInputValueContext() {
-  return useContext(ComboboxInputValueContext);
+  return React.useContext(ComboboxInputValueContext);
 }

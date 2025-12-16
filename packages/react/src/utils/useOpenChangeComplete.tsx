@@ -3,7 +3,6 @@ import * as React from 'react';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import { useAnimationsFinished } from './useAnimationsFinished';
-import { useEffect } from '@base-ui/utils/useEffect';
 
 /**
  * Calls the provided function when the CSS open/close animation or transition completes.
@@ -15,7 +14,7 @@ export function useOpenChangeComplete(parameters: useOpenChangeComplete.Paramete
   const onComplete = useStableCallback(onCompleteParam);
   const runOnceAnimationsFinish = useAnimationsFinished(ref, open);
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (!enabled) {
       return;
     }

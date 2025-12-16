@@ -8,7 +8,6 @@ import { CollapsibleRootContext } from './CollapsibleRootContext';
 import { collapsibleStateAttributesMapping } from './stateAttributesMapping';
 import type { BaseUIChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
-import { useMemo } from '@base-ui/utils/useMemo';
 
 /**
  * Groups all parts of the collapsible.
@@ -39,7 +38,7 @@ export const CollapsibleRoot = React.forwardRef(function CollapsibleRoot(
     disabled,
   });
 
-  const state: CollapsibleRoot.State = useMemo(
+  const state: CollapsibleRoot.State = React.useMemo(
     () => ({
       open: collapsible.open,
       disabled: collapsible.disabled,
@@ -48,7 +47,7 @@ export const CollapsibleRoot = React.forwardRef(function CollapsibleRoot(
     [collapsible.open, collapsible.disabled, collapsible.transitionStatus],
   );
 
-  const contextValue: CollapsibleRootContext = useMemo(
+  const contextValue: CollapsibleRootContext = React.useMemo(
     () => ({
       ...collapsible,
       onOpenChange,

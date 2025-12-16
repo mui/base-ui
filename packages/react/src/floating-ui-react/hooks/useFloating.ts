@@ -13,10 +13,6 @@ import type {
 } from '../types';
 import { useFloatingRootContext } from './useFloatingRootContext';
 import { FloatingRootStore } from '../components/FloatingRootStore';
-import { useCallback } from '@base-ui/utils/useCallback';
-import { useMemo } from '@base-ui/utils/useMemo';
-import { useRef } from '@base-ui/utils/useRef';
-import { useState } from '@base-ui/utils/useState';
 
 /**
  * Provides data to position a floating element and context to add interactions.
@@ -34,9 +30,9 @@ export function useFloating(options: UseFloatingOptions = {}): UseFloatingReturn
     domReference: rootContext.useState('domReferenceElement'),
   };
 
-  const [positionReference, setPositionReferenceRaw] = useState<ReferenceType | null>(null);
+  const [positionReference, setPositionReferenceRaw] = React.useState<ReferenceType | null>(null);
 
-  const domReferenceRef = useRef<NarrowedElement<ReferenceType> | null>(null);
+  const domReferenceRef = React.useRef<NarrowedElement<ReferenceType> | null>(null);
 
   const tree = useFloatingTree(externalTree);
 
@@ -55,7 +51,7 @@ export function useFloating(options: UseFloatingOptions = {}): UseFloatingReturn
     },
   });
 
-  const setPositionReference = useCallback(
+  const setPositionReference = React.useCallback(
     (node: ReferenceType | null) => {
       const computedPositionReference = isElement(node)
         ? ({
@@ -72,10 +68,9 @@ export function useFloating(options: UseFloatingOptions = {}): UseFloatingReturn
     [position.refs],
   );
 
-  const [localDomReference, setLocalDomReference] = useState<NarrowedElement<ReferenceType> | null>(
-    null,
-  );
-  const [localFloatingElement, setLocalFloatingElement] = useState<HTMLElement | null>(null);
+  const [localDomReference, setLocalDomReference] =
+    React.useState<NarrowedElement<ReferenceType> | null>(null);
+  const [localFloatingElement, setLocalFloatingElement] = React.useState<HTMLElement | null>(null);
   rootContext.useSyncedValue('referenceElement', localDomReference);
   rootContext.useSyncedValue(
     'domReferenceElement',
@@ -83,7 +78,7 @@ export function useFloating(options: UseFloatingOptions = {}): UseFloatingReturn
   );
   rootContext.useSyncedValue('floatingElement', localFloatingElement);
 
-  const setReference = useCallback(
+  const setReference = React.useCallback(
     (node: ReferenceType | null) => {
       if (isElement(node) || node === null) {
         (domReferenceRef as React.MutableRefObject<Element | null>).current = node;
@@ -106,7 +101,7 @@ export function useFloating(options: UseFloatingOptions = {}): UseFloatingReturn
     [position.refs, setLocalDomReference],
   );
 
-  const setFloating = useCallback(
+  const setFloating = React.useCallback(
     (node: HTMLElement | null) => {
       setLocalFloatingElement(node);
       position.refs.setFloating(node);
@@ -114,7 +109,7 @@ export function useFloating(options: UseFloatingOptions = {}): UseFloatingReturn
     [position.refs],
   );
 
-  const refs = useMemo(
+  const refs = React.useMemo(
     () => ({
       ...position.refs,
       setReference,
@@ -125,7 +120,7 @@ export function useFloating(options: UseFloatingOptions = {}): UseFloatingReturn
     [position.refs, setReference, setFloating, setPositionReference],
   );
 
-  const elements = useMemo(
+  const elements = React.useMemo(
     () => ({
       ...position.elements,
       domReference: rootContextElements.domReference,
@@ -136,7 +131,7 @@ export function useFloating(options: UseFloatingOptions = {}): UseFloatingReturn
   const open = rootContext.useState('open');
   const floatingId = rootContext.useState('floatingId');
 
-  const context = useMemo<FloatingContext>(
+  const context = React.useMemo<FloatingContext>(
     () => ({
       ...position,
       dataRef: rootContext.context.dataRef,
@@ -161,7 +156,7 @@ export function useFloating(options: UseFloatingOptions = {}): UseFloatingReturn
     }
   });
 
-  return useMemo(
+  return React.useMemo(
     () => ({
       ...position,
       context,

@@ -8,7 +8,6 @@ import { BaseUIComponentProps, NativeButtonProps } from '../../utils/types';
 import { useButton } from '../../use-button';
 import { useCollapsibleRootContext } from '../root/CollapsibleRootContext';
 import { CollapsibleRoot } from '../root/CollapsibleRoot';
-import { useMemo } from '@base-ui/utils/useMemo';
 
 const stateAttributesMapping: StateAttributesMapping<CollapsibleRoot.State> = {
   ...triggerOpenStateMapping,
@@ -48,7 +47,7 @@ export const CollapsibleTrigger = React.forwardRef(function CollapsibleTrigger(
     native: nativeButton,
   });
 
-  const props = useMemo(
+  const props = React.useMemo(
     () => ({
       'aria-controls': open ? panelId : undefined,
       'aria-expanded': open,

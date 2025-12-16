@@ -2,7 +2,6 @@
 import * as React from 'react';
 import type { Side, Align } from '../../utils/useAnchorPositioning';
 import type { FloatingContext } from '../../floating-ui-react';
-import { useContext } from '@base-ui/utils/useContext';
 
 export interface PopoverPositionerContext {
   side: Side;
@@ -18,7 +17,7 @@ export const PopoverPositionerContext = React.createContext<PopoverPositionerCon
 );
 
 export function usePopoverPositionerContext() {
-  const context = useContext(PopoverPositionerContext);
+  const context = React.useContext(PopoverPositionerContext);
   if (!context) {
     throw new Error(
       'Base UI: PopoverPositionerContext is missing. PopoverPositioner parts must be placed within <Popover.Positioner>.',

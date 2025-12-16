@@ -4,7 +4,6 @@ import type { FloatingRootContext } from '../../floating-ui-react';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import type { HTMLProps } from '../../utils/types';
 import type { PreviewCardRoot } from './PreviewCardRoot';
-import { useContext } from '@base-ui/utils/useContext';
 
 export interface PreviewCardTriggerDelayConfig {
   delay?: number;
@@ -33,7 +32,7 @@ export const PreviewCardRootContext = React.createContext<PreviewCardRootContext
 );
 
 export function usePreviewCardRootContext() {
-  const context = useContext(PreviewCardRootContext);
+  const context = React.useContext(PreviewCardRootContext);
   if (context === undefined) {
     throw new Error(
       'Base UI: PreviewCardRootContext is missing. PreviewCard parts must be placed within <PreviewCard.Root>.',

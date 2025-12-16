@@ -16,9 +16,6 @@ import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
 import { createAttribute } from '../utils/createAttribute';
 import { FloatingUIOpenChangeDetails } from '../../utils/types';
-import { useEffect } from '@base-ui/utils/useEffect';
-import { useRef } from '@base-ui/utils/useRef';
-import { useMemo } from '@base-ui/utils/useMemo';
 
 const isMacSafari = isMac && isSafari;
 
@@ -51,11 +48,11 @@ export function useFocus(
   const { events, dataRef } = store.context;
   const { enabled = true, visibleOnly = true } = props;
 
-  const blockFocusRef = useRef(false);
+  const blockFocusRef = React.useRef(false);
   const timeout = useTimeout();
-  const keyboardModalityRef = useRef(true);
+  const keyboardModalityRef = React.useRef(true);
 
-  useEffect(() => {
+  React.useEffect(() => {
     const domReference = store.select('domReferenceElement');
     if (!enabled) {
       return undefined;
@@ -101,7 +98,7 @@ export function useFocus(
     };
   }, [store, enabled]);
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (!enabled) {
       return undefined;
     }
@@ -118,7 +115,7 @@ export function useFocus(
     };
   }, [events, enabled]);
 
-  const reference: ElementProps['reference'] = useMemo(
+  const reference: ElementProps['reference'] = React.useMemo(
     () => ({
       onMouseLeave() {
         blockFocusRef.current = false;
@@ -202,5 +199,8 @@ export function useFocus(
     [dataRef, store, visibleOnly, timeout],
   );
 
-  return useMemo(() => (enabled ? { reference, trigger: reference } : {}), [enabled, reference]);
+  return React.useMemo(
+    () => (enabled ? { reference, trigger: reference } : {}),
+    [enabled, reference],
+  );
 }

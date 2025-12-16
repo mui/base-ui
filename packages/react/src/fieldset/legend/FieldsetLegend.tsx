@@ -5,7 +5,6 @@ import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useFieldsetRootContext } from '../root/FieldsetRootContext';
 import type { BaseUIComponentProps } from '../../utils/types';
-import { useMemo } from '@base-ui/utils/useMemo';
 
 /**
  * An accessible label that is automatically associated with the fieldset.
@@ -30,7 +29,7 @@ export const FieldsetLegend = React.forwardRef(function FieldsetLegend(
     };
   }, [setLegendId, id]);
 
-  const state: FieldsetLegend.State = useMemo(
+  const state: FieldsetLegend.State = React.useMemo(
     () => ({
       disabled: disabled ?? false,
     }),

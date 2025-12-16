@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import { useMemo } from '@base-ui/utils/useMemo';
 
 export function useFocusableWhenDisabled(
   parameters: useFocusableWhenDisabled.Parameters,
@@ -18,7 +17,7 @@ export function useFocusableWhenDisabled(
 
   // we can't explicitly assign `undefined` to any of these props because it
   // would otherwise prevent subsequently merged props from setting them
-  const props = useMemo(() => {
+  const props = React.useMemo(() => {
     const additionalProps = {
       // allow Tabbing away from focusableWhenDisabled elements
       onKeyDown(event: React.KeyboardEvent) {

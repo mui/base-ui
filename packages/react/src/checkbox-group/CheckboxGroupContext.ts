@@ -4,7 +4,6 @@ import type { UseFieldValidationReturnValue } from '../field/root/useFieldValida
 import { useCheckboxGroupParent } from './useCheckboxGroupParent';
 import type { BaseUIChangeEventDetails } from '../utils/createBaseUIEventDetails';
 import type { BaseUIEventReasons } from '../utils/reasons';
-import { useContext } from '@base-ui/utils/useContext';
 
 export interface CheckboxGroupContext {
   value: string[] | undefined;
@@ -27,7 +26,7 @@ export const CheckboxGroupContext = React.createContext<CheckboxGroupContext | u
 export function useCheckboxGroupContext(optional: false): CheckboxGroupContext;
 export function useCheckboxGroupContext(optional?: true): CheckboxGroupContext | undefined;
 export function useCheckboxGroupContext(optional = true) {
-  const context = useContext(CheckboxGroupContext);
+  const context = React.useContext(CheckboxGroupContext);
   if (context === undefined && !optional) {
     throw new Error(
       'Base UI: CheckboxGroupContext is missing. CheckboxGroup parts must be placed within <CheckboxGroup>.',

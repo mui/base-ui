@@ -1,6 +1,5 @@
 import * as React from 'react';
 import { type Side, useAnchorPositioning } from '../../utils/useAnchorPositioning';
-import { useContext } from '@base-ui/utils/useContext';
 
 export interface SelectPositionerContext extends Omit<useAnchorPositioning.ReturnValue, 'side'> {
   side: 'none' | Side;
@@ -15,7 +14,7 @@ export const SelectPositionerContext = React.createContext<SelectPositionerConte
 );
 
 export function useSelectPositionerContext() {
-  const context = useContext(SelectPositionerContext);
+  const context = React.useContext(SelectPositionerContext);
   if (!context) {
     throw new Error(
       'Base UI: SelectPositionerContext is missing. SelectPositioner parts must be placed within <Select.Positioner>.',

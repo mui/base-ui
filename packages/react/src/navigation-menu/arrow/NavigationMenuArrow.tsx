@@ -6,7 +6,6 @@ import type { Align, Side } from '../../utils/useAnchorPositioning';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { popupStateMapping } from '../../utils/popupStateMapping';
 import { useRenderElement } from '../../utils/useRenderElement';
-import { useMemo } from '@base-ui/utils/useMemo';
 
 /**
  * Displays an element pointing toward the navigation menu's current anchor.
@@ -24,7 +23,7 @@ export const NavigationMenuArrow = React.forwardRef(function NavigationMenuArrow
   const { arrowRef, side, align, arrowUncentered, arrowStyles } =
     useNavigationMenuPositionerContext();
 
-  const state: NavigationMenuArrow.State = useMemo(
+  const state: NavigationMenuArrow.State = React.useMemo(
     () => ({
       open,
       side,

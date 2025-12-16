@@ -6,8 +6,6 @@ import { BaseUIComponentProps } from '../../utils/types';
 import { itemMapping } from '../utils/stateAttributesMapping';
 import { TransitionStatus, useTransitionStatus } from '../../utils/useTransitionStatus';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
-import { useMemo } from '@base-ui/utils/useMemo';
-import { useRef } from '@base-ui/utils/useRef';
 
 /**
  * Indicates whether the checkbox item is ticked.
@@ -23,7 +21,7 @@ export const MenuCheckboxItemIndicator = React.forwardRef(function MenuCheckboxI
 
   const item = useMenuCheckboxItemContext();
 
-  const indicatorRef = useRef<HTMLSpanElement | null>(null);
+  const indicatorRef = React.useRef<HTMLSpanElement | null>(null);
 
   const { transitionStatus, setMounted } = useTransitionStatus(item.checked);
 
@@ -37,7 +35,7 @@ export const MenuCheckboxItemIndicator = React.forwardRef(function MenuCheckboxI
     },
   });
 
-  const state: MenuCheckboxItemIndicator.State = useMemo(
+  const state: MenuCheckboxItemIndicator.State = React.useMemo(
     () => ({
       checked: item.checked,
       disabled: item.disabled,

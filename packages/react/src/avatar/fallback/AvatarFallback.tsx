@@ -6,9 +6,6 @@ import { useRenderElement } from '../../utils/useRenderElement';
 import { useAvatarRootContext } from '../root/AvatarRootContext';
 import type { AvatarRoot } from '../root/AvatarRoot';
 import { avatarStateAttributesMapping } from '../root/stateAttributesMapping';
-import { useEffect } from '@base-ui/utils/useEffect';
-import { useState } from '@base-ui/utils/useState';
-import { useMemo } from '@base-ui/utils/useMemo';
 
 /**
  * Rendered when the image fails to load or when no image is provided.
@@ -23,17 +20,17 @@ export const AvatarFallback = React.forwardRef(function AvatarFallback(
   const { className, render, delay, ...elementProps } = componentProps;
 
   const { imageLoadingStatus } = useAvatarRootContext();
-  const [delayPassed, setDelayPassed] = useState(delay === undefined);
+  const [delayPassed, setDelayPassed] = React.useState(delay === undefined);
   const timeout = useTimeout();
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (delay !== undefined) {
       timeout.start(delay, () => setDelayPassed(true));
     }
     return timeout.clear;
   }, [timeout, delay]);
 
-  const state: AvatarRoot.State = useMemo(
+  const state: AvatarRoot.State = React.useMemo(
     () => ({
       imageLoadingStatus,
     }),

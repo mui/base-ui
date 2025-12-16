@@ -6,7 +6,6 @@ import { useRenderElement } from '../../utils/useRenderElement';
 import type { Side, Align } from '../../utils/useAnchorPositioning';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { popupStateMapping } from '../../utils/popupStateMapping';
-import { useMemo } from '@base-ui/utils/useMemo';
 
 /**
  * Displays an element positioned against the menu anchor.
@@ -24,7 +23,7 @@ export const MenuArrow = React.forwardRef(function MenuArrow(
   const { arrowRef, side, align, arrowUncentered, arrowStyles } = useMenuPositionerContext();
   const open = store.useState('open');
 
-  const state: MenuArrow.State = useMemo(
+  const state: MenuArrow.State = React.useMemo(
     () => ({
       open,
       side,

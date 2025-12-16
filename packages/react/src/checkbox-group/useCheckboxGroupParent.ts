@@ -4,10 +4,6 @@ import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useBaseUiId } from '../utils/useBaseUiId';
 import type { BaseUIChangeEventDetails } from '../utils/createBaseUIEventDetails';
 import type { BaseUIEventReasons } from '../utils/reasons';
-import { useRef } from '@base-ui/utils/useRef';
-import { useCallback } from '@base-ui/utils/useCallback';
-import { useMemo } from '@base-ui/utils/useMemo';
-import { useState } from '@base-ui/utils/useState';
 
 const EMPTY: string[] = [];
 
@@ -16,10 +12,10 @@ export function useCheckboxGroupParent(
 ): useCheckboxGroupParent.ReturnValue {
   const { allValues = EMPTY, value = EMPTY, onValueChange: onValueChangeProp } = params;
 
-  const uncontrolledStateRef = useRef(value);
-  const disabledStatesRef = useRef(new Map<string, boolean>());
+  const uncontrolledStateRef = React.useRef(value);
+  const disabledStatesRef = React.useRef(new Map<string, boolean>());
 
-  const [status, setStatus] = useState<'on' | 'off' | 'mixed'>('mixed');
+  const [status, setStatus] = React.useState<'on' | 'off' | 'mixed'>('mixed');
 
   const id = useBaseUiId();
   const checked = value.length === allValues.length;
@@ -27,7 +23,7 @@ export function useCheckboxGroupParent(
 
   const onValueChange = useStableCallback(onValueChangeProp);
 
-  const getParentProps: useCheckboxGroupParent.ReturnValue['getParentProps'] = useCallback(
+  const getParentProps: useCheckboxGroupParent.ReturnValue['getParentProps'] = React.useCallback(
     () => ({
       id,
       indeterminate,
@@ -78,7 +74,7 @@ export function useCheckboxGroupParent(
     [allValues, checked, id, indeterminate, onValueChange, status, value.length],
   );
 
-  const getChildProps: useCheckboxGroupParent.ReturnValue['getChildProps'] = useCallback(
+  const getChildProps: useCheckboxGroupParent.ReturnValue['getChildProps'] = React.useCallback(
     (childValue: string) => ({
       checked: value.includes(childValue),
       onCheckedChange(nextChecked, eventDetails) {
@@ -96,7 +92,7 @@ export function useCheckboxGroupParent(
     [onValueChange, value],
   );
 
-  return useMemo(
+  return React.useMemo(
     () => ({
       id,
       indeterminate,

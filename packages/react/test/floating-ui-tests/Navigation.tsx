@@ -15,7 +15,6 @@ import {
   useHover,
   useInteractions,
 } from '../../src/floating-ui-react';
-import { useState } from '@base-ui/utils/useState';
 
 interface SubItemProps {
   label: string;
@@ -45,7 +44,7 @@ export const NavigationItem = React.forwardRef<
   HTMLAnchorElement,
   ItemProps & React.HTMLProps<HTMLAnchorElement>
 >(function NavigationItem({ children, label, href, ...props }, ref) {
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = React.useState(false);
   const hasChildren = !!children;
 
   const nodeId = useFloatingNodeId();

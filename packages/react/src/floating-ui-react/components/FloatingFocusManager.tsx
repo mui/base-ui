@@ -41,8 +41,6 @@ import { FloatingTreeStore } from '../components/FloatingTreeStore';
 import { CLICK_TRIGGER_IDENTIFIER } from '../../utils/constants';
 import { FloatingUIOpenChangeDetails } from '../../utils/types';
 import { resolveRef } from '../../utils/resolveRef';
-import { useEffect } from '@base-ui/utils/useEffect';
-import { useRef } from '@base-ui/utils/useRef';
 
 function getEventType(event: Event, lastInteractionType?: InteractionType): InteractionType {
   const win = ownerWindow(event.target);
@@ -302,14 +300,14 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
   const tree = useFloatingTree(externalTree);
   const portalContext = usePortalContext();
 
-  const startDismissButtonRef = useRef<HTMLButtonElement>(null);
-  const endDismissButtonRef = useRef<HTMLButtonElement>(null);
-  const preventReturnFocusRef = useRef(false);
-  const isPointerDownRef = useRef(false);
-  const pointerDownOutsideRef = useRef(false);
-  const tabbableIndexRef = useRef(-1);
-  const closeTypeRef = useRef<InteractionType>('');
-  const lastInteractionTypeRef = useRef<InteractionType>('');
+  const startDismissButtonRef = React.useRef<HTMLButtonElement>(null);
+  const endDismissButtonRef = React.useRef<HTMLButtonElement>(null);
+  const preventReturnFocusRef = React.useRef(false);
+  const isPointerDownRef = React.useRef(false);
+  const pointerDownOutsideRef = React.useRef(false);
+  const tabbableIndexRef = React.useRef(-1);
+  const closeTypeRef = React.useRef<InteractionType>('');
+  const lastInteractionTypeRef = React.useRef<InteractionType>('');
 
   const blurTimeout = useTimeout();
   const pointerDownTimeout = useTimeout();
@@ -333,7 +331,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
       .flat() as Array<FocusableElement>;
   });
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (disabled) {
       return undefined;
     }
@@ -370,7 +368,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     getTabbableElements,
   ]);
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (disabled) {
       return undefined;
     }
@@ -395,7 +393,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
   }, [disabled, floating, getTabbableContent]);
 
   // Track the last interaction type at the document level to disambiguate focus events
-  useEffect(() => {
+  React.useEffect(() => {
     if (disabled || !open) {
       return undefined;
     }
@@ -433,7 +431,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     };
   }, [disabled, floating, domReference, floatingFocusElement, open, portalContext]);
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (disabled) {
       return undefined;
     }
@@ -619,8 +617,8 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     restoreFocusFrame,
   ]);
 
-  const beforeGuardRef = useRef<HTMLSpanElement | null>(null);
-  const afterGuardRef = useRef<HTMLSpanElement | null>(null);
+  const beforeGuardRef = React.useRef<HTMLSpanElement | null>(null);
+  const afterGuardRef = React.useRef<HTMLSpanElement | null>(null);
 
   const mergedBeforeGuardRef = useMergedRefs(
     beforeGuardRef,
@@ -629,7 +627,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
   );
   const mergedAfterGuardRef = useMergedRefs(afterGuardRef, portalContext?.afterInsideRef);
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (disabled || !floating || !open) {
       return undefined;
     }
@@ -866,7 +864,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     getNodeId,
   ]);
 
-  useEffect(() => {
+  React.useEffect(() => {
     // The `returnFocus` cleanup behavior is inside a microtask; ensure we
     // wait for it to complete before resetting the flag.
     queueMicrotask(() => {
@@ -874,7 +872,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     });
   }, [disabled]);
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (disabled || !open) {
       return undefined;
     }

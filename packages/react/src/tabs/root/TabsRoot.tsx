@@ -14,10 +14,6 @@ import type { TabsTab } from '../tab/TabsTab';
 import type { TabsPanel } from '../panel/TabsPanel';
 import { type BaseUIChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
-import { useCallback } from '@base-ui/utils/useCallback';
-import { useState } from '@base-ui/utils/useState';
-import { useMemo } from '@base-ui/utils/useMemo';
-import { useRef } from '@base-ui/utils/useRef';
 
 /**
  * Groups the tabs and the corresponding panels.
@@ -45,8 +41,8 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
   // Used to determine if we should honor a disabled tab selection.
   const hasExplicitDefaultValueProp = Object.hasOwn(componentProps, 'defaultValue');
 
-  const tabPanelRefs = useRef<(HTMLElement | null)[]>([]);
-  const [mountedTabPanels, setMountedTabPanels] = useState(
+  const tabPanelRefs = React.useRef<(HTMLElement | null)[]>([]);
+  const [mountedTabPanels, setMountedTabPanels] = React.useState(
     () => new Map<TabsTab.Value | number, string>(),
   );
 
@@ -59,12 +55,12 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
 
   const isControlled = valueProp !== undefined;
 
-  const [tabMap, setTabMap] = useState(
+  const [tabMap, setTabMap] = React.useState(
     () => new Map<Node, CompositeMetadata<TabsTab.Metadata> | null>(),
   );
 
   const [tabActivationDirection, setTabActivationDirection] =
-    useState<TabsTab.ActivationDirection>('none');
+    React.useState<TabsTab.ActivationDirection>('none');
 
   const onValueChange = useStableCallback(
     (newValue: TabsTab.Value, eventDetails: TabsRoot.ChangeEventDetails) => {
@@ -108,7 +104,7 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
   );
 
   // get the `id` attribute of <Tabs.Panel> to set as the value of `aria-controls` on <Tabs.Tab>
-  const getTabPanelIdByValue = useCallback(
+  const getTabPanelIdByValue = React.useCallback(
     (tabValue: TabsTab.Value) => {
       return mountedTabPanels.get(tabValue);
     },
@@ -116,7 +112,7 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
   );
 
   // get the `id` attribute of <Tabs.Tab> to set as the value of `aria-labelledby` on <Tabs.Panel>
-  const getTabIdByPanelValue = useCallback(
+  const getTabIdByPanelValue = React.useCallback(
     (tabPanelValue: TabsTab.Value) => {
       for (const tabMetadata of tabMap.values()) {
         if (tabPanelValue === tabMetadata?.value) {
@@ -129,7 +125,7 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
   );
 
   // used in `useActivationDirectionDetector` for setting data-activation-direction
-  const getTabElementBySelectedValue = useCallback(
+  const getTabElementBySelectedValue = React.useCallback(
     (selectedValue: TabsTab.Value | undefined): HTMLElement | null => {
       if (selectedValue === undefined) {
         return null;
@@ -146,7 +142,7 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
     [tabMap],
   );
 
-  const tabsContextValue: TabsRootContext = useMemo(
+  const tabsContextValue: TabsRootContext = React.useMemo(
     () => ({
       direction,
       getTabElementBySelectedValue,
@@ -175,7 +171,7 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
     ],
   );
 
-  const selectedTabMetadata = useMemo(() => {
+  const selectedTabMetadata = React.useMemo(() => {
     for (const tabMetadata of tabMap.values()) {
       if (tabMetadata != null && tabMetadata.value === value) {
         return tabMetadata;
@@ -186,7 +182,7 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
 
   // Find the first non-disabled tab value.
   // Used as a fallback when the current selection is disabled or missing.
-  const firstEnabledTabValue = useMemo(() => {
+  const firstEnabledTabValue = React.useMemo(() => {
     for (const tabMetadata of tabMap.values()) {
       if (tabMetadata != null && !tabMetadata.disabled) {
         return tabMetadata.value;

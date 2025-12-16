@@ -16,9 +16,6 @@ import { useRenderElement } from '../../utils/useRenderElement';
 import { useMenuPositionerContext } from '../positioner/MenuPositionerContext';
 import { useTriggerRegistration } from '../../utils/popups';
 import { useMenuSubmenuRootContext } from '../submenu-root/MenuSubmenuRootContext';
-import { useCallback } from '@base-ui/utils/useCallback';
-import { useMemo } from '@base-ui/utils/useMemo';
-import { useRef } from '@base-ui/utils/useRef';
 
 /**
  * A menu item that opens a submenu.
@@ -54,7 +51,7 @@ export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerCompon
   const floatingTreeRoot = store.useState('floatingTreeRoot');
 
   const baseRegisterTrigger = useTriggerRegistration(thisTriggerId, store);
-  const registerTrigger = useCallback(
+  const registerTrigger = React.useCallback(
     (element: Element | null) => {
       const cleanup = baseRegisterTrigger(element);
 
@@ -71,8 +68,8 @@ export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerCompon
     [baseRegisterTrigger, closeDelay, store, thisTriggerId],
   );
 
-  const triggerElementRef = useRef<HTMLElement | null>(null);
-  const handleTriggerElementRef = useCallback(
+  const triggerElementRef = React.useRef<HTMLElement | null>(null);
+  const handleTriggerElementRef = React.useCallback(
     (el: HTMLElement | null) => {
       triggerElementRef.current = el;
       store.set('activeTriggerElement', el);
@@ -92,7 +89,7 @@ export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerCompon
   const itemProps = parentMenuStore.useState('itemProps');
   const highlighted = parentMenuStore.useState('isActive', listItem.index);
 
-  const itemMetadata = useMemo(
+  const itemMetadata = React.useMemo(
     () => ({
       type: 'submenu-trigger' as const,
       setActive: () => parentMenuStore.set('activeIndex', listItem.index),
@@ -141,7 +138,7 @@ export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerCompon
   const rootTriggerProps = store.useState('triggerProps', true);
   delete rootTriggerProps.id;
 
-  const state: MenuSubmenuTrigger.State = useMemo(
+  const state: MenuSubmenuTrigger.State = React.useMemo(
     () => ({ disabled, highlighted, open }),
     [disabled, highlighted, open],
   );

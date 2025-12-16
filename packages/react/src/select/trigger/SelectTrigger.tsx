@@ -22,9 +22,6 @@ import { useButton } from '../../use-button';
 import type { FieldRoot } from '../../field/root/FieldRoot';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
-import { useEffect } from '@base-ui/utils/useEffect';
-import { useMemo } from '@base-ui/utils/useMemo';
-import { useRef } from '@base-ui/utils/useRef';
 
 const BOUNDARY_OFFSET = 2;
 
@@ -82,7 +79,7 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
 
   const positionerRef = useValueAsRef(positionerElement);
 
-  const triggerRef = useRef<HTMLElement | null>(null);
+  const triggerRef = React.useRef<HTMLElement | null>(null);
   const timeoutFocus = useTimeout();
   const timeoutMouseDown = useTimeout();
 
@@ -105,7 +102,7 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
   const timeout1 = useTimeout();
   const timeout2 = useTimeout();
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (open) {
       // mousedown -> move to unselected item -> mouseup should not select within 200ms.
       timeout2.start(200, () => {
@@ -133,7 +130,7 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
     return undefined;
   }, [open, selectionRef, timeoutMouseDown, timeout1, timeout2]);
 
-  const ariaControlsId = useMemo(() => {
+  const ariaControlsId = React.useMemo(() => {
     return listElement?.id ?? getFloatingFocusElement(positionerElement)?.id;
   }, [listElement, positionerElement]);
 
@@ -230,7 +227,7 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
   // <Toolbar.Button render={<Select.Trigger />} />
   props.role = 'combobox';
 
-  const state: SelectTrigger.State = useMemo(
+  const state: SelectTrigger.State = React.useMemo(
     () => ({
       ...fieldState,
       open,

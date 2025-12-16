@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import { fastComponentRef } from '@base-ui/utils/fastHooks';
 import { useTooltipRootContext } from '../root/TooltipRootContext';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
@@ -12,8 +11,6 @@ import { useTooltipProviderContext } from '../provider/TooltipProviderContext';
 import { safePolygon, useDelayGroup, useHoverReferenceInteraction } from '../../floating-ui-react';
 
 import { OPEN_DELAY } from '../utils/constants';
-import { useMemo } from '@base-ui/utils/useMemo';
-import { useRef } from '@base-ui/utils/useRef';
 
 /**
  * An element to attach the tooltip to.
@@ -50,7 +47,7 @@ export const TooltipTrigger = React.forwardRef(function TooltipTrigger(
   const floatingRootContext = store.useState('floatingRootContext');
   const isOpenedByThisTrigger = store.useState('isOpenedByTrigger', thisTriggerId);
 
-  const triggerElementRef = useRef<Element | null>(null);
+  const triggerElementRef = React.useRef<Element | null>(null);
 
   const delayWithDefault = delay ?? OPEN_DELAY;
   const closeDelayWithDefault = closeDelay ?? 0;
@@ -114,7 +111,7 @@ export const TooltipTrigger = React.forwardRef(function TooltipTrigger(
     isActiveTrigger: isTriggerActive,
   });
 
-  const state: TooltipTrigger.State = useMemo(
+  const state: TooltipTrigger.State = React.useMemo(
     () => ({ open: isOpenedByThisTrigger }),
     [isOpenedByThisTrigger],
   );

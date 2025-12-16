@@ -5,9 +5,6 @@ import { AriaCombobox } from '../../combobox/root/AriaCombobox';
 import { useCoreFilter } from '../../combobox/root/utils/useFilter';
 import { stringifyAsLabel } from '../../utils/resolveValueLabel';
 import { REASONS } from '../../utils/reasons';
-import { useEffect } from '@base-ui/utils/useEffect';
-import { useState } from '@base-ui/utils/useState';
-import { useMemo } from '@base-ui/utils/useMemo';
 
 /**
  * Groups all parts of the autocomplete.
@@ -52,10 +49,10 @@ export function AutocompleteRoot<ItemValue>(
   // Mirror the typed value for uncontrolled usage so we can compose the temporary
   // inline input value.
   const isControlled = value !== undefined;
-  const [internalValue, setInternalValue] = useState(defaultValue ?? '');
-  const [inlineInputValue, setInlineInputValue] = useState('');
+  const [internalValue, setInternalValue] = React.useState(defaultValue ?? '');
+  const [inlineInputValue, setInlineInputValue] = React.useState('');
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (isControlled) {
       setInlineInputValue('');
     }
@@ -83,7 +80,7 @@ export function AutocompleteRoot<ItemValue>(
 
   const collator = useCoreFilter();
 
-  const baseFilter: typeof other.filter = useMemo(() => {
+  const baseFilter: typeof other.filter = React.useMemo(() => {
     if (other.filter) {
       return other.filter;
     }
@@ -95,7 +92,7 @@ export function AutocompleteRoot<ItemValue>(
   const resolvedQuery = String(isControlled ? value : internalValue).trim();
 
   // In "both", wrap filtering to use only the typed value, ignoring the inline value.
-  const resolvedFilter: typeof other.filter = useMemo(() => {
+  const resolvedFilter: typeof other.filter = React.useMemo(() => {
     if (mode !== 'both') {
       return staticItems ? null : other.filter;
     }

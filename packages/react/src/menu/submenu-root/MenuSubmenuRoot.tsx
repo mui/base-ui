@@ -3,7 +3,6 @@ import * as React from 'react';
 import { MenuRoot } from '../root/MenuRoot';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { MenuSubmenuRootContext } from './MenuSubmenuRootContext';
-import { useMemo } from '@base-ui/utils/useMemo';
 
 export { useMenuSubmenuRootContext } from './MenuSubmenuRootContext';
 
@@ -16,7 +15,7 @@ export { useMenuSubmenuRootContext } from './MenuSubmenuRootContext';
 export function MenuSubmenuRoot(props: MenuSubmenuRoot.Props) {
   const parentMenu = useMenuRootContext().store;
 
-  const contextValue = useMemo(() => ({ parentMenu }), [parentMenu]);
+  const contextValue = React.useMemo(() => ({ parentMenu }), [parentMenu]);
 
   return (
     <MenuSubmenuRootContext.Provider value={contextValue}>

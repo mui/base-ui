@@ -16,9 +16,6 @@ import { POPUP_COLLISION_AVOIDANCE } from '../../utils/constants';
 import { useAnimationsFinished } from '../../utils/useAnimationsFinished';
 import { adaptiveOrigin } from '../../utils/adaptiveOriginMiddleware';
 import { getDisabledMountTransitionStyles } from '../../utils/getDisabledMountTransitionStyles';
-import { useCallback } from '@base-ui/utils/useCallback';
-import { useMemo } from '@base-ui/utils/useMemo';
-import { useRef } from '@base-ui/utils/useRef';
 
 /**
  * Positions the popover against the trigger.
@@ -62,7 +59,7 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
   const instantType = store.useState('instantType');
   const transitionStatus = store.useState('transitionStatus');
 
-  const prevTriggerElementRef = useRef<Element | null>(null);
+  const prevTriggerElementRef = React.useRef<Element | null>(null);
 
   const runOnceAnimationsFinish = useAnimationsFinished(positionerElement, false, false);
 
@@ -86,7 +83,7 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
     adaptiveOrigin,
   });
 
-  const defaultProps: HTMLProps = useMemo(() => {
+  const defaultProps: HTMLProps = React.useMemo(() => {
     const hiddenStyles: React.CSSProperties = {};
 
     if (!open) {
@@ -103,7 +100,7 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
     };
   }, [open, mounted, positioning.positionerStyles]);
 
-  const positioner = useMemo(
+  const positioner = React.useMemo(
     () => ({
       props: defaultProps,
       ...positioning,
@@ -142,7 +139,7 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
     return undefined;
   }, [domReference, runOnceAnimationsFinish, store]);
 
-  const state: PopoverPositioner.State = useMemo(
+  const state: PopoverPositioner.State = React.useMemo(
     () => ({
       open,
       side: positioner.side,
@@ -153,7 +150,7 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
     [open, positioner.side, positioner.align, positioner.anchorHidden, instantType],
   );
 
-  const setPositionerElement = useCallback(
+  const setPositionerElement = React.useCallback(
     (element: HTMLElement | null) => {
       store.set('positionerElement', element);
     },

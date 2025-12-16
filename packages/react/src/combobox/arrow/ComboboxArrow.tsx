@@ -8,7 +8,6 @@ import { useRenderElement } from '../../utils/useRenderElement';
 import type { Side, Align } from '../../utils/useAnchorPositioning';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { popupStateMapping } from '../../utils/popupStateMapping';
-import { useMemo } from '@base-ui/utils/useMemo';
 
 /**
  * Displays an element positioned against the anchor.
@@ -25,7 +24,7 @@ export const ComboboxArrow = React.forwardRef(function ComboboxArrow(
 
   const open = useStore(store, selectors.open);
 
-  const state: ComboboxArrow.State = useMemo(
+  const state: ComboboxArrow.State = React.useMemo(
     () => ({
       open,
       side,

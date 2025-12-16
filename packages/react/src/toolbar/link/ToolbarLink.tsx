@@ -4,7 +4,6 @@ import { BaseUIComponentProps } from '../../utils/types';
 import type { ToolbarRoot } from '../root/ToolbarRoot';
 import { useToolbarRootContext } from '../root/ToolbarRootContext';
 import { CompositeItem } from '../../composite/item/CompositeItem';
-import { useMemo } from '@base-ui/utils/useMemo';
 
 const TOOLBAR_LINK_METADATA = {
   // links cannot be disabled, this metadata is only used for deriving `disabledIndices``
@@ -26,7 +25,7 @@ export const ToolbarLink = React.forwardRef(function ToolbarLink(
 
   const { orientation } = useToolbarRootContext();
 
-  const state: ToolbarLink.State = useMemo(
+  const state: ToolbarLink.State = React.useMemo(
     () => ({
       orientation,
     }),

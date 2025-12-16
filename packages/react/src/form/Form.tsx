@@ -11,10 +11,6 @@ import { FormContext } from './FormContext';
 import { useRenderElement } from '../utils/useRenderElement';
 import { EMPTY_OBJECT } from '../utils/constants';
 import { useValueChanged } from '../utils/useValueChanged';
-import { useEffect } from '@base-ui/utils/useEffect';
-import { useRef } from '@base-ui/utils/useRef';
-import { useState } from '@base-ui/utils/useState';
-import { useMemo } from '@base-ui/utils/useMemo';
 
 /**
  * A native form element with consolidated error handling.
@@ -35,11 +31,11 @@ export const Form = React.forwardRef(function Form<
     ...elementProps
   } = componentProps;
 
-  const formRef = useRef<FormContext['formRef']['current']>({
+  const formRef = React.useRef<FormContext['formRef']['current']>({
     fields: new Map(),
   });
-  const submittedRef = useRef(false);
-  const submitAttemptedRef = useRef(false);
+  const submittedRef = React.useRef(false);
+  const submitAttemptedRef = React.useRef(false);
 
   const focusControl = useStableCallback((control: HTMLElement | null) => {
     if (!control) {
@@ -51,13 +47,13 @@ export const Form = React.forwardRef(function Form<
     }
   });
 
-  const [errors, setErrors] = useState(externalErrors);
+  const [errors, setErrors] = React.useState(externalErrors);
 
   useValueChanged(externalErrors, () => {
     setErrors(externalErrors);
   });
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (!submittedRef.current) {
       return;
     }
@@ -126,7 +122,7 @@ export const Form = React.forwardRef(function Form<
     }
   });
 
-  const contextValue: FormContext = useMemo(
+  const contextValue: FormContext = React.useMemo(
     () => ({
       formRef,
       validationMode,

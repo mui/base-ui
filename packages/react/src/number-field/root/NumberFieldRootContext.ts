@@ -4,7 +4,6 @@ import { Timeout } from '@base-ui/utils/useTimeout';
 import type { NumberFieldRoot } from './NumberFieldRoot';
 import { EventWithOptionalKeyState } from '../utils/types';
 import type { IncrementValueParameters } from '../utils/types';
-import { useContext } from '@base-ui/utils/useContext';
 
 export type InputMode = 'numeric' | 'decimal' | 'text';
 
@@ -53,7 +52,7 @@ export const NumberFieldRootContext = React.createContext<NumberFieldRootContext
 );
 
 export function useNumberFieldRootContext() {
-  const context = useContext(NumberFieldRootContext);
+  const context = React.useContext(NumberFieldRootContext);
   if (context === undefined) {
     throw new Error(
       'Base UI: NumberFieldRootContext is missing. NumberField parts must be placed within <NumberField.Root>.',

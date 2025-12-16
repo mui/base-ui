@@ -11,13 +11,11 @@ import {
   useComboboxInputValueContext,
   useComboboxRootContext,
 } from '../root/ComboboxRootContext';
+import { triggerStateAttributesMapping } from '../utils/stateAttributesMapping';
 import { selectors } from '../store';
-import { pressableTriggerOpenStateMapping } from '../../utils/popupStateMapping';
 import type { FieldRoot } from '../../field/root/FieldRoot';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
-import { fieldValidityMapping } from '../../field/utils/constants';
 import { useLabelableContext } from '../../labelable-provider/LabelableContext';
-import { StateAttributesMapping } from '../../utils/getStateAttributesProps';
 import { useComboboxChipsContext } from '../chips/ComboboxChipsContext';
 import { stopEvent } from '../../floating-ui-react/utils';
 import { useComboboxPositionerContext } from '../positioner/ComboboxPositionerContext';
@@ -25,16 +23,6 @@ import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
 import type { Side } from '../../utils/useAnchorPositioning';
 import { useDirection } from '../../direction-provider/DirectionContext';
-import { useRef } from '@base-ui/utils/useRef';
-import { useMemo } from '@base-ui/utils/useMemo';
-import { useState } from '@base-ui/utils/useState';
-
-const stateAttributesMapping: StateAttributesMapping<ComboboxInput.State> = {
-  ...pressableTriggerOpenStateMapping,
-  ...fieldValidityMapping,
-  popupSide: (side) => (side ? { 'data-popup-side': side } : null),
-  listEmpty: (empty) => (empty ? { 'data-list-empty': '' } : null),
-};
 
 /**
  * A text input to search for items in the list.
@@ -91,8 +79,8 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
   const disabled = fieldDisabled || comboboxDisabled || disabledProp;
   const listEmpty = filteredItems.length === 0;
 
-  const [composingValue, setComposingValue] = useState<string | null>(null);
-  const isComposingRef = useRef(false);
+  const [composingValue, setComposingValue] = React.useState<string | null>(null);
+  const isComposingRef = React.useRef(false);
 
   const setInputElement = useStableCallback((element: HTMLInputElement | null) => {
     const isInsidePopup = hasPositionerParent || store.state.inline;
@@ -107,7 +95,7 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
     });
   });
 
-  const state: ComboboxInput.State = useMemo(
+  const state: ComboboxInput.State = React.useMemo(
     () => ({
       ...fieldState,
       open,
@@ -432,7 +420,7 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
       },
       validation ? validation.getValidationProps(elementProps) : elementProps,
     ],
-    stateAttributesMapping,
+    stateAttributesMapping: triggerStateAttributesMapping,
   });
 
   return element;

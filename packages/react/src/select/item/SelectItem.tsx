@@ -18,8 +18,6 @@ import { useButton } from '../../use-button';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
 import { compareItemEquality, removeItem } from '../../utils/itemEquality';
-import { useRef } from '@base-ui/utils/useRef';
-import { useMemo } from '@base-ui/utils/useMemo';
 
 /**
  * An individual option in the select popup.
@@ -42,7 +40,7 @@ export const SelectItem = React.memo(
       ...elementProps
     } = componentProps;
 
-    const textRef = useRef<HTMLElement | null>(null);
+    const textRef = React.useRef<HTMLElement | null>(null);
     const listItem = useCompositeListItem({
       label,
       textRef,
@@ -72,7 +70,7 @@ export const SelectItem = React.memo(
     const index = listItem.index;
     const hasRegistered = index !== -1;
 
-    const itemRef = useRef<HTMLDivElement | null>(null);
+    const itemRef = React.useRef<HTMLDivElement | null>(null);
     const indexRef = useValueAsRef(index);
 
     useIsoLayoutEffect(() => {
@@ -106,7 +104,7 @@ export const SelectItem = React.memo(
       return undefined;
     }, [hasRegistered, index, multiple, isItemEqualToValue, store, value]);
 
-    const state: SelectItem.State = useMemo(
+    const state: SelectItem.State = React.useMemo(
       () => ({
         disabled,
         selected,
@@ -121,9 +119,9 @@ export const SelectItem = React.memo(
     rootProps.onFocus = undefined;
     rootProps.id = undefined;
 
-    const lastKeyRef = useRef<string | null>(null);
-    const pointerTypeRef = useRef<'mouse' | 'touch' | 'pen'>('mouse');
-    const didPointerDownRef = useRef(false);
+    const lastKeyRef = React.useRef<string | null>(null);
+    const pointerTypeRef = React.useRef<'mouse' | 'touch' | 'pen'>('mouse');
+    const didPointerDownRef = React.useRef(false);
 
     const { getButtonProps, buttonRef } = useButton({
       disabled,
@@ -241,7 +239,7 @@ export const SelectItem = React.memo(
       props: [rootProps, defaultProps, elementProps, getButtonProps],
     });
 
-    const contextValue: SelectItemContext = useMemo(
+    const contextValue: SelectItemContext = React.useMemo(
       () => ({
         selected,
         indexRef,

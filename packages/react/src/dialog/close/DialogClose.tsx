@@ -6,7 +6,6 @@ import type { BaseUIComponentProps, NativeButtonProps } from '../../utils/types'
 import { useButton } from '../../use-button';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
-import { useMemo } from '@base-ui/utils/useMemo';
 
 /**
  * A button that closes the dialog.
@@ -40,7 +39,7 @@ export const DialogClose = React.forwardRef(function DialogClose(
     native: nativeButton,
   });
 
-  const state: DialogClose.State = useMemo(() => ({ disabled }), [disabled]);
+  const state: DialogClose.State = React.useMemo(() => ({ disabled }), [disabled]);
 
   return useRenderElement('button', componentProps, {
     state,

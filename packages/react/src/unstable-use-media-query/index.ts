@@ -1,8 +1,5 @@
 import * as React from 'react';
 import { useSyncExternalStore } from 'use-sync-external-store/shim';
-import { useCallback } from '@base-ui/utils/useCallback';
-import { useMemo } from '@base-ui/utils/useMemo';
-import { useDebugValue } from '@base-ui/utils/useDebugValue';
 
 export function useMediaQuery(query: string, options: useMediaQuery.Options): boolean {
   // Wait for jsdom to support the match media feature.
@@ -21,9 +18,9 @@ export function useMediaQuery(query: string, options: useMediaQuery.Options): bo
     noSsr = false,
   } = options;
 
-  const getDefaultSnapshot = useCallback(() => defaultMatches, [defaultMatches]);
+  const getDefaultSnapshot = React.useCallback(() => defaultMatches, [defaultMatches]);
 
-  const getServerSnapshot = useMemo(() => {
+  const getServerSnapshot = React.useMemo(() => {
     if (noSsr && matchMedia) {
       return () => matchMedia(query).matches;
     }
@@ -35,7 +32,7 @@ export function useMediaQuery(query: string, options: useMediaQuery.Options): bo
     return getDefaultSnapshot;
   }, [getDefaultSnapshot, query, ssrMatchMedia, noSsr, matchMedia]);
 
-  const [getSnapshot, subscribe] = useMemo(() => {
+  const [getSnapshot, subscribe] = React.useMemo(() => {
     if (matchMedia === null) {
       return [getDefaultSnapshot, () => () => {}];
     }
@@ -57,7 +54,7 @@ export function useMediaQuery(query: string, options: useMediaQuery.Options): bo
 
   if (process.env.NODE_ENV !== 'production') {
     // eslint-disable-next-line react-hooks/rules-of-hooks
-    useDebugValue({ query, match });
+    React.useDebugValue({ query, match });
   }
 
   return match;

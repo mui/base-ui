@@ -1,7 +1,6 @@
 'use client';
 import * as React from 'react';
 import type { Side, Align } from '../../utils/useAnchorPositioning';
-import { useContext } from '@base-ui/utils/useContext';
 
 export interface MenuPositionerContext {
   /**
@@ -25,7 +24,7 @@ export const MenuPositionerContext = React.createContext<MenuPositionerContext |
 export function useMenuPositionerContext(optional?: false): MenuPositionerContext;
 export function useMenuPositionerContext(optional: true): MenuPositionerContext | undefined;
 export function useMenuPositionerContext(optional?: boolean) {
-  const context = useContext(MenuPositionerContext);
+  const context = React.useContext(MenuPositionerContext);
   if (context === undefined && !optional) {
     throw new Error(
       'Base UI: MenuPositionerContext is missing. MenuPositioner parts must be placed within <Menu.Positioner>.',

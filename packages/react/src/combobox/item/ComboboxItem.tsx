@@ -18,8 +18,6 @@ import { selectors } from '../store';
 import { useButton } from '../../use-button';
 import { useComboboxRowContext } from '../row/ComboboxRowContext';
 import { compareItemEquality, findItemIndex } from '../../utils/itemEquality';
-import { useRef } from '@base-ui/utils/useRef';
-import { useMemo } from '@base-ui/utils/useMemo';
 
 /**
  * An individual item in the list.
@@ -40,8 +38,8 @@ export const ComboboxItem = React.memo(
       ...elementProps
     } = componentProps;
 
-    const didPointerDownRef = useRef(false);
-    const textRef = useRef<HTMLElement | null>(null);
+    const didPointerDownRef = React.useRef(false);
+    const textRef = React.useRef<HTMLElement | null>(null);
     const listItem = useCompositeListItem({
       index: indexProp,
       textRef,
@@ -70,7 +68,7 @@ export const ComboboxItem = React.memo(
     const items = useStore(store, selectors.items);
     const getItemProps = useStore(store, selectors.getItemProps);
 
-    const itemRef = useRef<HTMLDivElement | null>(null);
+    const itemRef = React.useRef<HTMLDivElement | null>(null);
 
     const id = rootId != null && hasRegistered ? `${rootId}-${index}` : undefined;
     const selected = matchesSelectedValue && selectable;
@@ -129,7 +127,7 @@ export const ComboboxItem = React.memo(
       }
     }, [hasRegistered, items, open, store, index, value, isItemEqualToValue]);
 
-    const state: ComboboxItem.State = useMemo(
+    const state: ComboboxItem.State = React.useMemo(
       () => ({
         disabled,
         selected,
@@ -199,7 +197,7 @@ export const ComboboxItem = React.memo(
       props: [rootProps, defaultProps, elementProps, getButtonProps],
     });
 
-    const contextValue: ComboboxItemContext = useMemo(
+    const contextValue: ComboboxItemContext = React.useMemo(
       () => ({
         selected,
         textRef,

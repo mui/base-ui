@@ -15,11 +15,6 @@ import { REASONS } from '../../utils/reasons';
 import { type DialogRoot } from './DialogRoot';
 import { DialogStore } from '../store/DialogStore';
 import { useImplicitActiveTrigger, useOpenStateTransitions } from '../../utils/popups';
-import { useEffect } from '@base-ui/utils/useEffect';
-import { useCallback } from '@base-ui/utils/useCallback';
-import { useState } from '@base-ui/utils/useState';
-import { useMemo } from '@base-ui/utils/useMemo';
-import { useImperativeHandle } from '@base-ui/utils/useImperativeHandle';
 
 export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.ReturnValue {
   const { store, parentContext, actionsRef } = params;
@@ -52,14 +47,15 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
     return details;
   });
 
-  const handleImperativeClose = useCallback(() => {
+  const handleImperativeClose = React.useCallback(() => {
     store.setOpen(false, createDialogEventDetails(REASONS.imperativeAction));
   }, [store, createDialogEventDetails]);
 
-  useImperativeHandle(actionsRef, () => ({ unmount: forceUnmount, close: handleImperativeClose }), [
-    forceUnmount,
-    handleImperativeClose,
-  ]);
+  React.useImperativeHandle(
+    actionsRef,
+    () => ({ unmount: forceUnmount, close: handleImperativeClose }),
+    [forceUnmount, handleImperativeClose],
+  );
 
   const floatingRootContext = useSyncedFloatingRootContext({
     popupStore: store,
@@ -68,7 +64,7 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
     noEmit: true,
   });
 
-  const [ownNestedOpenDialogs, setOwnNestedOpenDialogs] = useState(0);
+  const [ownNestedOpenDialogs, setOwnNestedOpenDialogs] = React.useState(0);
   const isTopmost = ownNestedOpenDialogs === 0;
 
   const role = useRole(floatingRootContext);
@@ -128,7 +124,7 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
   });
 
   // Notify parent of our open/close state using parent callbacks, if any
-  useEffect(() => {
+  React.useEffect(() => {
     if (parentContext?.onNestedDialogOpen && open) {
       parentContext.onNestedDialogOpen(ownNestedOpenDialogs);
     }
@@ -142,17 +138,17 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
     };
   }, [open, parentContext, ownNestedOpenDialogs]);
 
-  const activeTriggerProps = useMemo(
+  const activeTriggerProps = React.useMemo(
     () => getReferenceProps(triggerProps),
     [getReferenceProps, triggerProps],
   );
 
-  const inactiveTriggerProps = useMemo(
+  const inactiveTriggerProps = React.useMemo(
     () => getTriggerProps(triggerProps),
     [getTriggerProps, triggerProps],
   );
 
-  const popupProps = useMemo(() => getFloatingProps(), [getFloatingProps]);
+  const popupProps = React.useMemo(() => getFloatingProps(), [getFloatingProps]);
 
   store.useSyncedValues({
     openMethod,

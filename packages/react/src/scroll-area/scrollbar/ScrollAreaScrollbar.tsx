@@ -10,8 +10,6 @@ import { ScrollAreaScrollbarCssVars } from './ScrollAreaScrollbarCssVars';
 import { useDirection } from '../../direction-provider/DirectionContext';
 import { scrollAreaStateAttributesMapping } from '../root/stateAttributes';
 import type { ScrollAreaRoot } from '../root/ScrollAreaRoot';
-import { useEffect } from '@base-ui/utils/useEffect';
-import { useMemo } from '@base-ui/utils/useMemo';
 
 /**
  * A vertical or horizontal scrollbar for the scroll area.
@@ -48,7 +46,7 @@ export const ScrollAreaScrollbar = React.forwardRef(function ScrollAreaScrollbar
     thumbSize,
   } = useScrollAreaRootContext();
 
-  const state: ScrollAreaScrollbar.State = useMemo(
+  const state: ScrollAreaScrollbar.State = React.useMemo(
     () => ({
       hovering,
       scrolling: {
@@ -69,7 +67,7 @@ export const ScrollAreaScrollbar = React.forwardRef(function ScrollAreaScrollbar
 
   const direction = useDirection();
 
-  useEffect(() => {
+  React.useEffect(() => {
     const viewportEl = viewportRef.current;
     const scrollbarEl = orientation === 'vertical' ? scrollbarYRef.current : scrollbarXRef.current;
 
@@ -217,7 +215,7 @@ export const ScrollAreaScrollbar = React.forwardRef(function ScrollAreaScrollbar
     stateAttributesMapping: scrollAreaStateAttributesMapping,
   });
 
-  const contextValue = useMemo(() => ({ orientation }), [orientation]);
+  const contextValue = React.useMemo(() => ({ orientation }), [orientation]);
 
   const isHidden =
     orientation === 'vertical' ? hiddenState.scrollbarYHidden : hiddenState.scrollbarXHidden;

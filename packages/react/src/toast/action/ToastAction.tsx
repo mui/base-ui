@@ -4,7 +4,6 @@ import type { BaseUIComponentProps, NativeButtonProps } from '../../utils/types'
 import { useToastRootContext } from '../root/ToastRootContext';
 import { useButton } from '../../use-button/useButton';
 import { useRenderElement } from '../../utils/useRenderElement';
-import { useMemo } from '@base-ui/utils/useMemo';
 
 /**
  * Performs an action when clicked.
@@ -28,7 +27,7 @@ export const ToastAction = React.forwardRef(function ToastAction(
     native: nativeButton,
   });
 
-  const state: ToastAction.State = useMemo(
+  const state: ToastAction.State = React.useMemo(
     () => ({
       type: toast.type,
     }),

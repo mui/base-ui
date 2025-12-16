@@ -9,7 +9,6 @@ import type { Dimensions, ModifierKey } from '../composite';
 import { useDirection } from '../../direction-provider/DirectionContext';
 import { EMPTY_ARRAY, EMPTY_OBJECT } from '../../utils/constants';
 import { StateAttributesMapping } from '../../utils/getStateAttributesProps';
-import { useMemo } from '@base-ui/utils/useMemo';
 
 /**
  * @internal
@@ -74,7 +73,7 @@ export function CompositeRoot<Metadata extends {}, State extends Record<string, 
     stateAttributesMapping,
   });
 
-  const contextValue: CompositeRootContext = useMemo(
+  const contextValue: CompositeRootContext = React.useMemo(
     () => ({
       highlightedIndex,
       onHighlightedIndexChange,

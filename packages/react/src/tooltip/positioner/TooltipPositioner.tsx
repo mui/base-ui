@@ -10,7 +10,6 @@ import { useRenderElement } from '../../utils/useRenderElement';
 import { POPUP_COLLISION_AVOIDANCE } from '../../utils/constants';
 import { adaptiveOrigin } from '../../utils/adaptiveOriginMiddleware';
 import { getDisabledMountTransitionStyles } from '../../utils/getDisabledMountTransitionStyles';
-import { useMemo } from '@base-ui/utils/useMemo';
 
 /**
  * Positions the tooltip against the trigger.
@@ -70,7 +69,7 @@ export const TooltipPositioner = React.forwardRef(function TooltipPositioner(
     adaptiveOrigin,
   });
 
-  const defaultProps: HTMLProps = useMemo(() => {
+  const defaultProps: HTMLProps = React.useMemo(() => {
     const hiddenStyles: React.CSSProperties = {};
 
     if (!open || trackCursorAxis === 'both' || disableHoverablePopup) {
@@ -87,7 +86,7 @@ export const TooltipPositioner = React.forwardRef(function TooltipPositioner(
     };
   }, [open, trackCursorAxis, disableHoverablePopup, mounted, positioning.positionerStyles]);
 
-  const state: TooltipPositioner.State = useMemo(
+  const state: TooltipPositioner.State = React.useMemo(
     () => ({
       open,
       side: positioning.side,
@@ -105,7 +104,7 @@ export const TooltipPositioner = React.forwardRef(function TooltipPositioner(
     ],
   );
 
-  const contextValue: TooltipPositionerContext = useMemo(
+  const contextValue: TooltipPositionerContext = React.useMemo(
     () => ({
       ...state,
       arrowRef: positioning.arrowRef,

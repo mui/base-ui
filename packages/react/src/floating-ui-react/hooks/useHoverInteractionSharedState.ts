@@ -4,8 +4,6 @@ import { useTimeout } from '@base-ui/utils/useTimeout';
 import type { ContextData, FloatingRootContext, SafePolygonOptions } from '../types';
 import { createAttribute } from '../utils/createAttribute';
 import { TYPEABLE_SELECTOR } from '../utils/constants';
-import { useRef } from '@base-ui/utils/useRef';
-import { useMemo } from '@base-ui/utils/useMemo';
 
 export const safePolygonIdentifier = createAttribute('safe-polygon');
 const interactiveSelector = `button,a,[role="button"],select,[tabindex]:not([tabindex="-1"]),${TYPEABLE_SELECTOR}`;
@@ -34,18 +32,18 @@ type HoverContextData = ContextData & {
 export function useHoverInteractionSharedState(
   store: FloatingRootContext,
 ): HoverInteractionSharedState {
-  const pointerTypeRef = useRef<string | undefined>(undefined);
-  const interactedInsideRef = useRef(false);
-  const handlerRef = useRef<((event: MouseEvent) => void) | undefined>(undefined);
-  const blockMouseMoveRef = useRef(true);
-  const performedPointerEventsMutationRef = useRef(false);
-  const unbindMouseMoveRef = useRef<() => void>(() => {});
-  const restTimeoutPendingRef = useRef(false);
+  const pointerTypeRef = React.useRef<string | undefined>(undefined);
+  const interactedInsideRef = React.useRef(false);
+  const handlerRef = React.useRef<((event: MouseEvent) => void) | undefined>(undefined);
+  const blockMouseMoveRef = React.useRef(true);
+  const performedPointerEventsMutationRef = React.useRef(false);
+  const unbindMouseMoveRef = React.useRef<() => void>(() => {});
+  const restTimeoutPendingRef = React.useRef(false);
   const openChangeTimeout = useTimeout();
   const restTimeout = useTimeout();
-  const handleCloseOptionsRef = useRef<SafePolygonOptions | undefined>(undefined);
+  const handleCloseOptionsRef = React.useRef<SafePolygonOptions | undefined>(undefined);
 
-  return useMemo(() => {
+  return React.useMemo(() => {
     const data = store.context.dataRef.current as HoverContextData;
 
     if (!data.hoverInteractionState) {

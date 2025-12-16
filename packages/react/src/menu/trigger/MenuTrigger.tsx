@@ -4,7 +4,6 @@ import * as ReactDOM from 'react-dom';
 import { FocusableElement } from 'tabbable';
 import { useTimeout } from '@base-ui/utils/useTimeout';
 import { ownerDocument } from '@base-ui/utils/owner';
-import { fastComponentRef } from '@base-ui/utils/fastHooks';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
@@ -46,10 +45,6 @@ import { MenuParent } from '../root/MenuRoot';
 import { PATIENT_CLICK_THRESHOLD } from '../../utils/constants';
 import { FocusGuard } from '../../utils/FocusGuard';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
-import { useEffect } from '@base-ui/utils/useEffect';
-import { useState } from '@base-ui/utils/useState';
-import { useMemo } from '@base-ui/utils/useMemo';
-import { useRef } from '@base-ui/utils/useRef';
 
 const BOUNDARY_OFFSET = 2;
 
@@ -59,7 +54,7 @@ const BOUNDARY_OFFSET = 2;
  *
  * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
  */
-export const MenuTrigger = fastComponentRef(function MenuTrigger(
+export const MenuTrigger = React.forwardRef(function MenuTrigger(
   componentProps: MenuTrigger.Props,
   forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
@@ -90,12 +85,12 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
   const floatingRootContext = store.useState('floatingRootContext');
   const isOpenedByThisTrigger = store.useState('isOpenedByTrigger', thisTriggerId);
 
-  const triggerElementRef = useRef<HTMLElement | null>(null);
+  const triggerElementRef = React.useRef<HTMLElement | null>(null);
 
   const parent = useMenuParent();
   const compositeRootContext = useCompositeRootContext(true);
   const floatingTreeRootFromContext = useFloatingTree();
-  const floatingTreeRoot: FloatingTreeStore = useMemo(() => {
+  const floatingTreeRoot: FloatingTreeStore = React.useMemo(() => {
     return floatingTreeRootFromContext ?? new FloatingTreeStore();
   }, [floatingTreeRootFromContext]);
 
@@ -126,13 +121,13 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
     native: nativeButton,
   });
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (!isOpenedByThisTrigger && parent.type === undefined) {
       store.context.allowMouseUpTriggerRef.current = false;
     }
   }, [store, isOpenedByThisTrigger, parent.type]);
 
-  const triggerRef = useRef<HTMLElement | null>(null);
+  const triggerRef = React.useRef<HTMLElement | null>(null);
   const allowMouseUpTriggerTimeout = useTimeout();
 
   const handleDocumentMouseUp = useStableCallback((mouseEvent: MouseEvent) => {
@@ -171,7 +166,7 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
     floatingTreeRoot.events.emit('close', { domEvent: mouseEvent, reason: REASONS.cancelOpen });
   });
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (isOpenedByThisTrigger && store.select('lastOpenChangeReason') === REASONS.triggerHover) {
       const doc = ownerDocument(triggerRef.current);
       doc.addEventListener('mouseup', handleDocumentMouseUp, { once: true });
@@ -226,7 +221,7 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
 
   const isInMenubar = parent.type === 'menubar';
 
-  const state: MenuTrigger.State = useMemo(
+  const state: MenuTrigger.State = React.useMemo(
     () => ({
       disabled,
       open: isOpenedByThisTrigger,
@@ -264,7 +259,7 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
     getButtonProps,
   ];
 
-  const preFocusGuardRef = useRef<HTMLElement>(null);
+  const preFocusGuardRef = React.useRef<HTMLElement>(null);
 
   const handlePreFocusGuardFocus = useStableCallback((event: React.FocusEvent) => {
     ReactDOM.flushSync(() => {
@@ -423,7 +418,7 @@ export namespace MenuTrigger {
  */
 function useStickIfOpen(open: boolean, openReason: string | null) {
   const stickIfOpenTimeout = useTimeout();
-  const [stickIfOpen, setStickIfOpen] = useState(false);
+  const [stickIfOpen, setStickIfOpen] = React.useState(false);
   useIsoLayoutEffect(() => {
     if (open && openReason === 'trigger-hover') {
       // Only allow "patient" clicks to close the menu if it's open.
@@ -446,7 +441,7 @@ function useMenuParent() {
   const parentContext = useMenuRootContext(true);
   const menubarContext = useMenubarContext(true);
 
-  const parent: MenuParent = useMemo(() => {
+  const parent: MenuParent = React.useMemo(() => {
     if (menubarContext) {
       return {
         type: 'menubar',

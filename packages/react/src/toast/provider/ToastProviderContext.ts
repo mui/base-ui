@@ -5,7 +5,6 @@ import type {
   ToastManagerPromiseOptions,
   ToastManagerUpdateOptions,
 } from '../useToastManager';
-import { useContext } from '@base-ui/utils/useContext';
 
 export interface ToastContextValue<Data extends object> {
   toasts: ToastObject<Data>[];
@@ -37,7 +36,7 @@ export type ToastContext<Data extends object> = ToastContextValue<Data>;
 export const ToastContext = React.createContext<ToastContext<any> | undefined>(undefined);
 
 export function useToastContext() {
-  const context = useContext(ToastContext);
+  const context = React.useContext(ToastContext);
   if (!context) {
     throw new Error('Base UI: useToastManager must be used within <Toast.Provider>.');
   }

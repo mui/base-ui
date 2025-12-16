@@ -7,7 +7,6 @@ import type { ToolbarRoot } from '../root/ToolbarRoot';
 import { useToolbarRootContext } from '../root/ToolbarRootContext';
 import { useToolbarGroupContext } from '../group/ToolbarGroupContext';
 import { CompositeItem } from '../../composite/item/CompositeItem';
-import { useMemo } from '@base-ui/utils/useMemo';
 
 /**
  * A native input element that integrates with Toolbar keyboard navigation.
@@ -27,7 +26,7 @@ export const ToolbarInput = React.forwardRef(function ToolbarInput(
     ...elementProps
   } = componentProps;
 
-  const itemMetadata = useMemo(() => ({ focusableWhenDisabled }), [focusableWhenDisabled]);
+  const itemMetadata = React.useMemo(() => ({ focusableWhenDisabled }), [focusableWhenDisabled]);
 
   const { disabled: toolbarDisabled, orientation } = useToolbarRootContext();
 
@@ -42,7 +41,7 @@ export const ToolbarInput = React.forwardRef(function ToolbarInput(
     isNativeButton: false,
   });
 
-  const state: ToolbarInput.State = useMemo(
+  const state: ToolbarInput.State = React.useMemo(
     () => ({
       disabled,
       orientation,

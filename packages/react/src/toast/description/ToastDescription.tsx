@@ -5,7 +5,6 @@ import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useToastRootContext } from '../root/ToastRootContext';
 import { useRenderElement } from '../../utils/useRenderElement';
-import { useMemo } from '@base-ui/utils/useMemo';
 
 /**
  * A description that describes the toast.
@@ -42,7 +41,7 @@ export const ToastDescription = React.forwardRef(function ToastDescription(
     };
   }, [shouldRender, id, setDescriptionId]);
 
-  const state: ToastDescription.State = useMemo(
+  const state: ToastDescription.State = React.useMemo(
     () => ({
       type: toast.type,
     }),

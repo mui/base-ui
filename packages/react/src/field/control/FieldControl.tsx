@@ -14,7 +14,6 @@ import { useField } from '../useField';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
 import type { BaseUIChangeEventDetails } from '../../utils/createBaseUIEventDetails';
-import { useMemo } from '@base-ui/utils/useMemo';
 
 /**
  * The form control to label and validate.
@@ -47,7 +46,7 @@ export const FieldControl = React.forwardRef(function FieldControl(
   const disabled = fieldDisabled || disabledProp;
   const name = fieldName ?? nameProp;
 
-  const state: FieldControl.State = useMemo(
+  const state: FieldControl.State = React.useMemo(
     () => ({
       ...fieldState,
       disabled,

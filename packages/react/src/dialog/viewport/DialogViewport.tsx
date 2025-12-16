@@ -9,7 +9,6 @@ import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
 import { useDialogRootContext } from '../root/DialogRootContext';
 import { useDialogPortalContext } from '../portal/DialogPortalContext';
 import { DialogViewportDataAttributes } from './DialogViewportDataAttributes';
-import { useMemo } from '@base-ui/utils/useMemo';
 
 const stateAttributesMapping: StateAttributesMapping<DialogViewport.State> = {
   ...baseMapping,
@@ -45,7 +44,7 @@ export const DialogViewport = React.forwardRef(function DialogViewport(
 
   const nestedDialogOpen = nestedOpenDialogCount > 0;
 
-  const state: DialogViewport.State = useMemo(
+  const state: DialogViewport.State = React.useMemo(
     () => ({
       open,
       nested,

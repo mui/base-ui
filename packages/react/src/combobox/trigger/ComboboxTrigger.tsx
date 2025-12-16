@@ -9,31 +9,23 @@ import { useRenderElement } from '../../utils/useRenderElement';
 import { useButton } from '../../use-button';
 import {
   useComboboxFloatingContext,
+  useComboboxDerivedItemsContext,
   useComboboxInputValueContext,
   useComboboxRootContext,
 } from '../root/ComboboxRootContext';
+import { triggerStateAttributesMapping } from '../utils/stateAttributesMapping';
 import { selectors } from '../store';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { useLabelableContext } from '../../labelable-provider/LabelableContext';
-import { pressableTriggerOpenStateMapping } from '../../utils/popupStateMapping';
 import { stopEvent, contains, getTarget } from '../../floating-ui-react/utils';
 import { getPseudoElementBounds } from '../../utils/getPseudoElementBounds';
 import type { FieldRoot } from '../../field/root/FieldRoot';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
-import { fieldValidityMapping } from '../../field/utils/constants';
-import { StateAttributesMapping } from '../../utils/getStateAttributesProps';
 import { useClick, useTypeahead } from '../../floating-ui-react';
-import { useEffect } from '@base-ui/utils/useEffect';
-import { useMemo } from '@base-ui/utils/useMemo';
-import { useRef } from '@base-ui/utils/useRef';
+import type { Side } from '../../utils/useAnchorPositioning';
 
 const BOUNDARY_OFFSET = 2;
-
-const stateAttributesMapping: StateAttributesMapping<ComboboxTrigger.State> = {
-  ...pressableTriggerOpenStateMapping,
-  ...fieldValidityMapping,
-};
 
 /**
  * A button that opens the popup.
@@ -61,10 +53,14 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
   } = useFieldRootContext();
   const { labelId } = useLabelableContext();
   const store = useComboboxRootContext();
+  const { filteredItems } = useComboboxDerivedItemsContext();
 
   const selectionMode = useStore(store, selectors.selectionMode);
   const comboboxDisabled = useStore(store, selectors.disabled);
   const readOnly = useStore(store, selectors.readOnly);
+  const mounted = useStore(store, selectors.mounted);
+  const popupSideValue = useStore(store, selectors.popupSide);
+  const positionerElement = useStore(store, selectors.positionerElement);
   const listElement = useStore(store, selectors.listElement);
   const triggerProps = useStore(store, selectors.triggerProps);
   const triggerElement = useStore(store, selectors.triggerElement);
@@ -80,8 +76,10 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
   const focusTimeout = useTimeout();
 
   const disabled = fieldDisabled || comboboxDisabled || disabledProp;
+  const listEmpty = filteredItems.length === 0;
+  const popupSide = mounted && positionerElement ? popupSideValue : null;
 
-  const currentPointerTypeRef = useRef<PointerEvent['pointerType']>('');
+  const currentPointerTypeRef = React.useRef<PointerEvent['pointerType']>('');
 
   function trackPointerType(event: React.PointerEvent) {
     currentPointerTypeRef.current = event.pointerType;
@@ -91,7 +89,7 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
 
   // Update the floating root context to use the trigger element when it differs from the current reference.
   // This ensures useClick and useTypeahead attach handlers to the correct element.
-  useEffect(() => {
+  React.useEffect(() => {
     if (!inputInsidePopup) {
       return;
     }
@@ -123,13 +121,15 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
     disabled,
   });
 
-  const state: ComboboxTrigger.State = useMemo(
+  const state: ComboboxTrigger.State = React.useMemo(
     () => ({
       ...fieldState,
       open,
       disabled,
+      popupSide,
+      listEmpty,
     }),
-    [fieldState, open, disabled],
+    [fieldState, open, disabled, popupSide, listEmpty],
   );
 
   const setTriggerElement = useStableCallback((element) => {
@@ -254,7 +254,7 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
       validation ? validation.getValidationProps(elementProps) : elementProps,
       getButtonProps,
     ],
-    stateAttributesMapping,
+    stateAttributesMapping: triggerStateAttributesMapping,
   });
 
   return element;
@@ -269,6 +269,14 @@ export interface ComboboxTriggerState extends FieldRoot.State {
    * Whether the component should ignore user interaction.
    */
   disabled: boolean;
+  /**
+   * Indicates which side the corresponding popup is positioned relative to its anchor.
+   */
+  popupSide: Side | null;
+  /**
+   * Present when the corresponding items list is empty.
+   */
+  listEmpty: boolean;
 }
 
 export interface ComboboxTriggerProps

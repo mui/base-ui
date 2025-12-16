@@ -17,10 +17,6 @@ import { REASONS } from '../../utils/reasons';
 import { useFocusWithDelay } from '../../utils/interactions/useFocusWithDelay';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useTransitionStatus } from '../../utils/useTransitionStatus';
-import { useRef } from '@base-ui/utils/useRef';
-import { useMemo } from '@base-ui/utils/useMemo';
-import { useState } from '@base-ui/utils/useState';
-import { useImperativeHandle } from '@base-ui/utils/useImperativeHandle';
 
 /**
  * Groups all parts of the preview card.
@@ -37,19 +33,19 @@ export function PreviewCardRoot(props: PreviewCardRoot.Props) {
     actionsRef,
   } = props;
 
-  const delayRef = useRef(OPEN_DELAY);
-  const closeDelayRef = useRef(CLOSE_DELAY);
+  const delayRef = React.useRef(OPEN_DELAY);
+  const closeDelayRef = React.useRef(CLOSE_DELAY);
 
   const writeDelayRefs = useStableCallback((config: PreviewCardTriggerDelayConfig) => {
     delayRef.current = config.delay ?? OPEN_DELAY;
     closeDelayRef.current = config.closeDelay ?? CLOSE_DELAY;
   });
 
-  const [triggerElement, setTriggerElement] = useState<Element | null>(null);
-  const [positionerElement, setPositionerElement] = useState<HTMLElement | null>(null);
-  const [instantTypeState, setInstantTypeState] = useState<'dismiss' | 'focus'>();
+  const [triggerElement, setTriggerElement] = React.useState<Element | null>(null);
+  const [positionerElement, setPositionerElement] = React.useState<HTMLElement | null>(null);
+  const [instantTypeState, setInstantTypeState] = React.useState<'dismiss' | 'focus'>();
 
-  const popupRef = useRef<HTMLDivElement | null>(null);
+  const popupRef = React.useRef<HTMLDivElement | null>(null);
 
   const [open, setOpenUnwrapped] = useControlled({
     controlled: externalOpen,
@@ -78,7 +74,7 @@ export function PreviewCardRoot(props: PreviewCardRoot.Props) {
     },
   });
 
-  useImperativeHandle(actionsRef, () => ({ unmount: handleUnmount }), [handleUnmount]);
+  React.useImperativeHandle(actionsRef, () => ({ unmount: handleUnmount }), [handleUnmount]);
 
   const setOpen = useStableCallback(
     (nextOpen: boolean, eventDetails: PreviewCardRoot.ChangeEventDetails) => {
@@ -140,7 +136,7 @@ export function PreviewCardRoot(props: PreviewCardRoot.Props) {
 
   const { getReferenceProps, getFloatingProps } = useInteractions([hover, focus, dismiss]);
 
-  const contextValue = useMemo(
+  const contextValue = React.useMemo(
     () => ({
       open,
       setOpen,

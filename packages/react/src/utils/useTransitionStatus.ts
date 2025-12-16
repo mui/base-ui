@@ -1,8 +1,7 @@
 'use client';
+import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { AnimationFrame } from '@base-ui/utils/useAnimationFrame';
-import { useState } from '@base-ui/utils/useState';
-import { useMemo } from '@base-ui/utils/useMemo';
 
 export type TransitionStatus = 'starting' | 'ending' | 'idle' | undefined;
 
@@ -16,10 +15,10 @@ export function useTransitionStatus(
   enableIdleState: boolean = false,
   deferEndingState: boolean = false,
 ) {
-  const [transitionStatus, setTransitionStatus] = useState<TransitionStatus>(
+  const [transitionStatus, setTransitionStatus] = React.useState<TransitionStatus>(
     open && enableIdleState ? 'idle' : undefined,
   );
-  const [mounted, setMounted] = useState(open);
+  const [mounted, setMounted] = React.useState(open);
 
   if (open && !mounted) {
     setMounted(true);
@@ -82,7 +81,7 @@ export function useTransitionStatus(
     };
   }, [enableIdleState, open, mounted, setTransitionStatus, transitionStatus]);
 
-  return useMemo(
+  return React.useMemo(
     () => ({
       mounted,
       setMounted,

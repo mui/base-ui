@@ -30,9 +30,6 @@ import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
 import { enqueueFocus } from '../utils/enqueueFocus';
 import { ARROW_UP, ARROW_DOWN, ARROW_RIGHT, ARROW_LEFT } from '../utils/constants';
-import { useRef } from '@base-ui/utils/useRef';
-import { useCallback } from '@base-ui/utils/useCallback';
-import { useMemo } from '@base-ui/utils/useMemo';
 
 export const ESCAPE = 'Escape';
 
@@ -312,20 +309,20 @@ export function useListNavigation(
 
   const typeableComboboxReference = isTypeableCombobox(domReferenceElement);
 
-  const focusItemOnOpenRef = useRef(focusItemOnOpen);
-  const indexRef = useRef(selectedIndex ?? -1);
-  const keyRef = useRef<null | string>(null);
-  const isPointerModalityRef = useRef(true);
+  const focusItemOnOpenRef = React.useRef(focusItemOnOpen);
+  const indexRef = React.useRef(selectedIndex ?? -1);
+  const keyRef = React.useRef<null | string>(null);
+  const isPointerModalityRef = React.useRef(true);
 
   const onNavigate = useStableCallback((event?: React.SyntheticEvent) => {
     onNavigateProp(indexRef.current === -1 ? null : indexRef.current, event);
   });
 
-  const previousOnNavigateRef = useRef(onNavigate);
-  const previousMountedRef = useRef(!!floatingElement);
-  const previousOpenRef = useRef(open);
-  const forceSyncFocusRef = useRef(false);
-  const forceScrollIntoViewRef = useRef(false);
+  const previousOnNavigateRef = React.useRef(onNavigate);
+  const previousMountedRef = React.useRef(!!floatingElement);
+  const previousOpenRef = React.useRef(open);
+  const forceSyncFocusRef = React.useRef(false);
+  const forceScrollIntoViewRef = React.useRef(false);
 
   const disabledIndicesRef = useValueAsRef(disabledIndices);
   const latestOpenRef = useValueAsRef(open);
@@ -521,7 +518,7 @@ export function useListNavigation(
 
   const hasActiveIndex = activeIndex != null;
 
-  const item = useMemo(() => {
+  const item = React.useMemo(() => {
     function syncCurrentTarget(event: React.SyntheticEvent<any>) {
       if (!latestOpenRef.current) {
         return;
@@ -587,7 +584,7 @@ export function useListNavigation(
     virtual,
   ]);
 
-  const getParentOrientation = useCallback(() => {
+  const getParentOrientation = React.useCallback(() => {
     return (
       parentOrientation ??
       (tree?.nodesRef.current.find((node) => node.id === parentId)?.context?.dataRef?.current
@@ -811,7 +808,7 @@ export function useListNavigation(
     }
   });
 
-  const ariaActiveDescendantProp = useMemo(() => {
+  const ariaActiveDescendantProp = React.useMemo(() => {
     return (
       virtual &&
       open &&
@@ -821,7 +818,7 @@ export function useListNavigation(
     );
   }, [virtual, open, hasActiveIndex, id, activeIndex]);
 
-  const floating: ElementProps['floating'] = useMemo(() => {
+  const floating: ElementProps['floating'] = React.useMemo(() => {
     return {
       'aria-orientation': orientation === 'both' ? undefined : orientation,
       ...(!typeableComboboxReference ? ariaActiveDescendantProp : {}),
@@ -864,7 +861,7 @@ export function useListNavigation(
     domReferenceElement,
   ]);
 
-  const trigger: ElementProps['trigger'] = useMemo(() => {
+  const trigger: ElementProps['trigger'] = React.useMemo(() => {
     function checkVirtualMouse(event: React.PointerEvent) {
       if (focusItemOnOpen === 'auto' && isVirtualClick(event.nativeEvent)) {
         focusItemOnOpenRef.current = !virtual;
@@ -988,14 +985,14 @@ export function useListNavigation(
     virtual,
   ]);
 
-  const reference: ElementProps['reference'] = useMemo(() => {
+  const reference: ElementProps['reference'] = React.useMemo(() => {
     return {
       ...ariaActiveDescendantProp,
       ...trigger,
     };
   }, [ariaActiveDescendantProp, trigger]);
 
-  return useMemo(
+  return React.useMemo(
     () => (enabled ? { reference, floating, item, trigger } : {}),
     [enabled, reference, floating, trigger, item],
   );

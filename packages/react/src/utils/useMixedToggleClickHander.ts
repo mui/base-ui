@@ -2,8 +2,6 @@ import * as React from 'react';
 import { ownerDocument } from '@base-ui/utils/owner';
 import { BaseUIEvent } from './types';
 import { EMPTY_OBJECT } from './constants';
-import { useRef } from '@base-ui/utils/useRef';
-import { useMemo } from '@base-ui/utils/useMemo';
 
 /**
  * Returns `click` and `mousedown` handlers that fix the behavior of triggers of popups that are toggled by different events.
@@ -12,9 +10,9 @@ import { useMemo } from '@base-ui/utils/useMemo';
  */
 export function useMixedToggleClickHandler(params: useMixedToggleClickHandler.Parameters) {
   const { enabled = true, mouseDownAction, open } = params;
-  const ignoreClickRef = useRef(false);
+  const ignoreClickRef = React.useRef(false);
 
-  return useMemo(() => {
+  return React.useMemo(() => {
     if (!enabled) {
       return EMPTY_OBJECT;
     }

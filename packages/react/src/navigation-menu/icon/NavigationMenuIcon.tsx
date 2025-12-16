@@ -5,7 +5,6 @@ import { useRenderElement } from '../../utils/useRenderElement';
 import { useNavigationMenuRootContext } from '../root/NavigationMenuRootContext';
 import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
 import { useNavigationMenuItemContext } from '../item/NavigationMenuItemContext';
-import { useMemo } from '@base-ui/utils/useMemo';
 
 /**
  * An icon that indicates that the trigger button opens a menu.
@@ -23,7 +22,7 @@ export const NavigationMenuIcon = React.forwardRef(function NavigationMenuIcon(
 
   const isActiveItem = open && value === itemValue;
 
-  const state: NavigationMenuIcon.State = useMemo(
+  const state: NavigationMenuIcon.State = React.useMemo(
     () => ({
       open: isActiveItem,
     }),

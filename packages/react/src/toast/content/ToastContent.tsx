@@ -4,8 +4,6 @@ import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useToastRootContext } from '../root/ToastRootContext';
 import { useRenderElement } from '../../utils/useRenderElement';
-import { useMemo } from '@base-ui/utils/useMemo';
-import { useRef } from '@base-ui/utils/useRef';
 
 /**
  * A container for the contents of a toast.
@@ -21,7 +19,7 @@ export const ToastContent = React.forwardRef(function ToastContent(
 
   const { visibleIndex, expanded, recalculateHeight } = useToastRootContext();
 
-  const contentRef = useRef<HTMLDivElement | null>(null);
+  const contentRef = React.useRef<HTMLDivElement | null>(null);
 
   useIsoLayoutEffect(() => {
     const node = contentRef.current;
@@ -49,7 +47,7 @@ export const ToastContent = React.forwardRef(function ToastContent(
 
   const behind = visibleIndex > 0;
 
-  const state: ToastContent.State = useMemo(
+  const state: ToastContent.State = React.useMemo(
     () => ({
       expanded,
       behind,

@@ -18,8 +18,6 @@ import { REASONS } from '../../utils/reasons';
 import { useToolbarRootContext } from '../../toolbar/root/ToolbarRootContext';
 import { COMPOSITE_KEYS } from '../../composite/composite';
 import { getDisabledMountTransitionStyles } from '../../utils/getDisabledMountTransitionStyles';
-import { useEffect } from '@base-ui/utils/useEffect';
-import { useMemo } from '@base-ui/utils/useMemo';
 
 const stateAttributesMapping: StateAttributesMapping<MenuPopup.State> = {
   ...baseMapping,
@@ -66,7 +64,7 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
     },
   });
 
-  useEffect(() => {
+  React.useEffect(() => {
     function handleClose(event: {
       domEvent: Event | undefined;
       reason: MenuRoot.ChangeEventReason;
@@ -90,7 +88,7 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
     closeDelay,
   });
 
-  const state: MenuPopup.State = useMemo(
+  const state: MenuPopup.State = React.useMemo(
     () => ({
       transitionStatus,
       side,

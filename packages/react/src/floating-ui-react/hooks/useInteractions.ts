@@ -2,8 +2,6 @@ import * as React from 'react';
 
 import type { ElementProps } from '../types';
 import { ACTIVE_KEY, FOCUSABLE_ATTRIBUTE, SELECTED_KEY } from '../utils/constants';
-import { useCallback } from '@base-ui/utils/useCallback';
-import { useMemo } from '@base-ui/utils/useMemo';
 
 export type ExtendedUserProps = {
   [ACTIVE_KEY]?: boolean;
@@ -31,32 +29,32 @@ export function useInteractions(propsList: Array<ElementProps | void> = []): Use
   const itemDeps = propsList.map((key) => key?.item);
   const triggerDeps = propsList.map((key) => key?.trigger);
 
-  const getReferenceProps = useCallback(
+  const getReferenceProps = React.useCallback(
     (userProps?: React.HTMLProps<Element>) => mergeProps(userProps, propsList, 'reference'),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     referenceDeps,
   );
 
-  const getFloatingProps = useCallback(
+  const getFloatingProps = React.useCallback(
     (userProps?: React.HTMLProps<HTMLElement>) => mergeProps(userProps, propsList, 'floating'),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     floatingDeps,
   );
 
-  const getItemProps = useCallback(
+  const getItemProps = React.useCallback(
     (userProps?: Omit<React.HTMLProps<HTMLElement>, 'selected' | 'active'> & ExtendedUserProps) =>
       mergeProps(userProps, propsList, 'item'),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     itemDeps,
   );
 
-  const getTriggerProps = useCallback(
+  const getTriggerProps = React.useCallback(
     (userProps?: React.HTMLProps<Element>) => mergeProps(userProps, propsList, 'trigger'),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     triggerDeps,
   );
 
-  return useMemo(
+  return React.useMemo(
     () => ({ getReferenceProps, getFloatingProps, getItemProps, getTriggerProps }),
     [getReferenceProps, getFloatingProps, getItemProps, getTriggerProps],
   );

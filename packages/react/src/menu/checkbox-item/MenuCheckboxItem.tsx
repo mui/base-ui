@@ -14,7 +14,6 @@ import { useMenuPositionerContext } from '../positioner/MenuPositionerContext';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
 import type { MenuRoot } from '../root/MenuRoot';
-import { useMemo } from '@base-ui/utils/useMemo';
 
 /**
  * A menu item that toggles a setting on or off.
@@ -66,7 +65,7 @@ export const MenuCheckboxItem = React.forwardRef(function MenuCheckboxItem(
     itemMetadata: REGULAR_ITEM,
   });
 
-  const state: MenuCheckboxItem.State = useMemo(
+  const state: MenuCheckboxItem.State = React.useMemo(
     () => ({
       disabled,
       highlighted,

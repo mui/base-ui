@@ -1,6 +1,5 @@
 import * as React from 'react';
 import type { ContextMenuRoot } from './ContextMenuRoot';
-import { useContext } from '@base-ui/utils/useContext';
 
 export interface ContextMenuRootContext {
   anchor: { getBoundingClientRect: () => DOMRect };
@@ -23,7 +22,7 @@ export const ContextMenuRootContext = React.createContext<ContextMenuRootContext
 export function useContextMenuRootContext(optional: false): ContextMenuRootContext;
 export function useContextMenuRootContext(optional?: true): ContextMenuRootContext | undefined;
 export function useContextMenuRootContext(optional = true) {
-  const context = useContext(ContextMenuRootContext);
+  const context = React.useContext(ContextMenuRootContext);
   if (context === undefined && !optional) {
     throw new Error(
       'Base UI: ContextMenuRootContext is missing. ContextMenu parts must be placed within <ContextMenu.Root>.',

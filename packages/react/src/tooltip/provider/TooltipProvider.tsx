@@ -2,7 +2,6 @@
 import * as React from 'react';
 import { FloatingDelayGroup } from '../../floating-ui-react';
 import { TooltipProviderContext } from './TooltipProviderContext';
-import { useMemo } from '@base-ui/utils/useMemo';
 
 /**
  * Provides a shared delay for multiple tooltips. The grouping logic ensures that
@@ -13,7 +12,7 @@ import { useMemo } from '@base-ui/utils/useMemo';
 export const TooltipProvider: React.FC<TooltipProvider.Props> = function TooltipProvider(props) {
   const { delay, closeDelay, timeout = 400 } = props;
 
-  const contextValue: TooltipProviderContext = useMemo(
+  const contextValue: TooltipProviderContext = React.useMemo(
     () => ({
       delay,
       closeDelay,
@@ -21,7 +20,7 @@ export const TooltipProvider: React.FC<TooltipProvider.Props> = function Tooltip
     [delay, closeDelay],
   );
 
-  const delayValue = useMemo(() => ({ open: delay, close: closeDelay }), [delay, closeDelay]);
+  const delayValue = React.useMemo(() => ({ open: delay, close: closeDelay }), [delay, closeDelay]);
 
   return (
     <TooltipProviderContext.Provider value={contextValue}>

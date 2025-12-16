@@ -1,5 +1,4 @@
 import * as React from 'react';
-import { useContext } from '@base-ui/utils/useContext';
 
 export interface MenuRadioItemContext {
   checked: boolean;
@@ -12,7 +11,7 @@ export const MenuRadioItemContext = React.createContext<MenuRadioItemContext | u
 );
 
 export function useMenuRadioItemContext() {
-  const context = useContext(MenuRadioItemContext);
+  const context = React.useContext(MenuRadioItemContext);
   if (context === undefined) {
     throw new Error(
       'Base UI: MenuRadioItemContext is missing. MenuRadioItem parts must be placed within <Menu.RadioItem>.',

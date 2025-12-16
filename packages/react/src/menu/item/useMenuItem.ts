@@ -7,9 +7,6 @@ import { HTMLProps, BaseUIEvent } from '../../utils/types';
 import { useContextMenuRootContext } from '../../context-menu/root/ContextMenuRootContext';
 import { MenuStore } from '../store/MenuStore';
 import { REASONS } from '../../utils/reasons';
-import { useCallback } from '@base-ui/utils/useCallback';
-import { useMemo } from '@base-ui/utils/useMemo';
-import { useRef } from '@base-ui/utils/useRef';
 
 export const REGULAR_ITEM = {
   type: 'regular-item' as const,
@@ -27,7 +24,7 @@ export function useMenuItem(params: useMenuItem.Parameters): useMenuItem.ReturnV
     nodeId,
   } = params;
 
-  const itemRef = useRef<HTMLElement | null>(null);
+  const itemRef = React.useRef<HTMLElement | null>(null);
   const contextMenuContext = useContextMenuRootContext(true);
   const isContextMenu = contextMenuContext !== undefined;
   const { events: menuEvents } = store.useState('floatingTreeRoot');
@@ -38,7 +35,7 @@ export function useMenuItem(params: useMenuItem.Parameters): useMenuItem.ReturnV
     native: nativeButton,
   });
 
-  const getItemProps = useCallback(
+  const getItemProps = React.useCallback(
     (externalProps?: HTMLProps): HTMLProps => {
       return mergeProps<'div'>(
         {
@@ -121,7 +118,7 @@ export function useMenuItem(params: useMenuItem.Parameters): useMenuItem.ReturnV
 
   const mergedRef = useMergedRefs(itemRef, buttonRef);
 
-  return useMemo(
+  return React.useMemo(
     () => ({
       getItemProps,
       itemRef: mergedRef,

@@ -9,7 +9,6 @@ import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
 import { useContextMenuRootContext } from '../../context-menu/root/ContextMenuRootContext';
 import { REASONS } from '../../utils/reasons';
-import { useMemo } from '@base-ui/utils/useMemo';
 
 const stateAttributesMapping: StateAttributesMapping<MenuBackdrop.State> = {
   ...baseMapping,
@@ -36,7 +35,7 @@ export const MenuBackdrop = React.forwardRef(function MenuBackdrop(
 
   const contextMenuContext = useContextMenuRootContext();
 
-  const state: MenuBackdrop.State = useMemo(
+  const state: MenuBackdrop.State = React.useMemo(
     () => ({
       open,
       transitionStatus,

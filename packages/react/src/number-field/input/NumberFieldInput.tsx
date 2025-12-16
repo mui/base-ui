@@ -31,7 +31,6 @@ import {
 import { formatNumber, formatNumberMaxPrecision } from '../../utils/formatNumber';
 import { useValueChanged } from '../../utils/useValueChanged';
 import { REASONS } from '../../utils/reasons';
-import { useRef } from '@base-ui/utils/useRef';
 
 const stateAttributesMapping = {
   ...fieldValidityMapping,
@@ -92,8 +91,8 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
     useFieldRootContext();
   const { labelId } = useLabelableContext();
 
-  const hasTouchedInputRef = useRef(false);
-  const blockRevalidationRef = useRef(false);
+  const hasTouchedInputRef = React.useRef(false);
+  const blockRevalidationRef = React.useRef(false);
 
   useField({
     id,

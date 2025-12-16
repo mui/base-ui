@@ -8,7 +8,6 @@ import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
 import { useScrollLock } from '@base-ui/utils/useScrollLock';
 import { EMPTY_ARRAY } from '@base-ui/utils/empty';
-import { fastComponent } from '@base-ui/utils/fastHooks';
 import {
   FloatingEvents,
   FloatingTree,
@@ -45,11 +44,6 @@ import {
   useOpenStateTransitions,
 } from '../../utils/popups';
 import { useMenuSubmenuRootContext } from '../submenu-root/MenuSubmenuRootContext';
-import { useEffect } from '@base-ui/utils/useEffect';
-import { useRef } from '@base-ui/utils/useRef';
-import { useCallback } from '@base-ui/utils/useCallback';
-import { useMemo } from '@base-ui/utils/useMemo';
-import { useImperativeHandle } from '@base-ui/utils/useImperativeHandle';
 
 /**
  * Groups all parts of the menu.
@@ -57,7 +51,7 @@ import { useImperativeHandle } from '@base-ui/utils/useImperativeHandle';
  *
  * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
  */
-export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot.Props<Payload>) {
+export function MenuRoot<Payload>(props: MenuRoot.Props<Payload>) {
   const {
     children,
     open: openProp,
@@ -81,7 +75,7 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
   const menubarContext = useMenubarContext(true);
   const isSubmenu = useMenuSubmenuRootContext();
 
-  const parentFromContext: MenuParent = useMemo(() => {
+  const parentFromContext: MenuParent = React.useMemo(() => {
     if (isSubmenu && parentMenuRootContext) {
       return {
         type: 'menu',
@@ -163,7 +157,7 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
   const payload = store.useState('payload') as Payload | undefined;
   const floatingParentNodeId = store.useState('floatingParentNodeId');
 
-  const openEventRef = useRef<Event | null>(null);
+  const openEventRef = React.useRef<Event | null>(null);
 
   const nested = floatingParentNodeId != null;
 
@@ -195,10 +189,10 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
     resetOpenInteractionType();
   });
 
-  const allowOutsidePressDismissalRef = useRef(parent.type !== 'context-menu');
+  const allowOutsidePressDismissalRef = React.useRef(parent.type !== 'context-menu');
   const allowOutsidePressDismissalTimeout = useTimeout();
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (!open) {
       openEventRef.current = null;
     }
@@ -232,7 +226,7 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
     }
   }, [open, hoverEnabled, store]);
 
-  const allowTouchToCloseRef = useRef(true);
+  const allowTouchToCloseRef = React.useRef(true);
   const allowTouchToCloseTimeout = useTimeout();
 
   const setOpen = useStableCallback(
@@ -351,7 +345,7 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
     },
   );
 
-  const createMenuEventDetails = useCallback(
+  const createMenuEventDetails = React.useCallback(
     (reason: MenuRoot.ChangeEventReason) => {
       const details: MenuRoot.ChangeEventDetails =
         createChangeEventDetails<MenuRoot.ChangeEventReason>(reason) as MenuRoot.ChangeEventDetails;
@@ -364,27 +358,28 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
     [store],
   );
 
-  const handleImperativeClose = useCallback(() => {
+  const handleImperativeClose = React.useCallback(() => {
     store.setOpen(false, createMenuEventDetails(REASONS.imperativeAction));
   }, [store, createMenuEventDetails]);
 
-  useImperativeHandle(actionsRef, () => ({ unmount: forceUnmount, close: handleImperativeClose }), [
-    forceUnmount,
-    handleImperativeClose,
-  ]);
+  React.useImperativeHandle(
+    actionsRef,
+    () => ({ unmount: forceUnmount, close: handleImperativeClose }),
+    [forceUnmount, handleImperativeClose],
+  );
 
   let ctx: ContextMenuRootContext | undefined;
   if (parent.type === 'context-menu') {
     ctx = parent.context;
   }
 
-  useImperativeHandle<HTMLElement | null, HTMLElement | null>(
+  React.useImperativeHandle<HTMLElement | null, HTMLElement | null>(
     ctx?.positionerRef,
     () => positionerElement,
     [positionerElement],
   );
 
-  useImperativeHandle(ctx?.actionsRef, () => ({ setOpen }), [setOpen]);
+  React.useImperativeHandle(ctx?.actionsRef, () => ({ setOpen }), [setOpen]);
 
   const floatingRootContext = useSyncedFloatingRootContext({
     popupStore: store,
@@ -393,7 +388,7 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
 
   floatingEvents = floatingRootContext.context.events;
 
-  useEffect(() => {
+  React.useEffect(() => {
     const handleSetOpenEvent = ({
       open: nextOpen,
       eventDetails,
@@ -428,7 +423,7 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
 
   const direction = useDirection();
 
-  const setActiveIndex = useCallback(
+  const setActiveIndex = React.useCallback(
     (index: number | null) => {
       if (store.select('activeIndex') === index) {
         return;
@@ -454,7 +449,7 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
     focusItemOnHover: highlightItemOnHover,
   });
 
-  const onTypingChange = useCallback(
+  const onTypingChange = React.useCallback(
     (nextTyping: boolean) => {
       store.context.typingRef.current = nextTyping;
     },
@@ -480,7 +475,7 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
     typeahead,
   ]);
 
-  const activeTriggerProps = useMemo(() => {
+  const activeTriggerProps = React.useMemo(() => {
     const mergedProps = mergeProps(
       getReferenceProps(),
       {
@@ -498,7 +493,7 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
     return mergedProps;
   }, [getReferenceProps, store, interactionTypeProps]);
 
-  const inactiveTriggerProps = useMemo(() => {
+  const inactiveTriggerProps = React.useMemo(() => {
     const triggerProps = getTriggerProps();
     if (!triggerProps) {
       return triggerProps;
@@ -511,7 +506,7 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
   }, [getTriggerProps, interactionTypeProps]);
 
   const disableHoverTimeout = useAnimationFrame();
-  const popupProps = useMemo(
+  const popupProps = React.useMemo(
     () =>
       getFloatingProps({
         onMouseEnter() {
@@ -540,7 +535,7 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
     [getFloatingProps, parent.type, disableHoverTimeout, store],
   );
 
-  const itemProps = useMemo(() => getItemProps(), [getItemProps]);
+  const itemProps = React.useMemo(() => getItemProps(), [getItemProps]);
 
   store.useSyncedValues({
     floatingRootContext,
@@ -550,7 +545,7 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
     itemProps,
   });
 
-  const context: MenuRootContext<Payload> = useMemo(
+  const context: MenuRootContext<Payload> = React.useMemo(
     () => ({
       store,
       parent: parentFromContext,
@@ -570,7 +565,7 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
   }
 
   return content;
-});
+}
 
 export interface MenuRootProps<Payload = unknown> {
   /**

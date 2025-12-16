@@ -6,8 +6,6 @@ import { stopEvent } from '../utils';
 
 import type { ElementProps, FloatingContext, FloatingRootContext } from '../types';
 import { EMPTY_ARRAY } from '../../utils/constants';
-import { useRef } from '@base-ui/utils/useRef';
-import { useMemo } from '@base-ui/utils/useMemo';
 
 export interface UseTypeaheadProps {
   /**
@@ -84,9 +82,9 @@ export function useTypeahead(
   } = props;
 
   const timeout = useTimeout();
-  const stringRef = useRef('');
-  const prevIndexRef = useRef<number | null>(selectedIndex ?? activeIndex ?? -1);
-  const matchIndexRef = useRef<number | null>(null);
+  const stringRef = React.useRef('');
+  const prevIndexRef = React.useRef<number | null>(selectedIndex ?? activeIndex ?? -1);
+  const matchIndexRef = React.useRef<number | null>(null);
 
   useIsoLayoutEffect(() => {
     if (open) {
@@ -195,9 +193,9 @@ export function useTypeahead(
     }
   });
 
-  const reference: ElementProps['reference'] = useMemo(() => ({ onKeyDown }), [onKeyDown]);
+  const reference: ElementProps['reference'] = React.useMemo(() => ({ onKeyDown }), [onKeyDown]);
 
-  const floating: ElementProps['floating'] = useMemo(() => {
+  const floating: ElementProps['floating'] = React.useMemo(() => {
     return {
       onKeyDown,
       onKeyUp(event) {
@@ -208,5 +206,8 @@ export function useTypeahead(
     };
   }, [onKeyDown, setTypingChange]);
 
-  return useMemo(() => (enabled ? { reference, floating } : {}), [enabled, reference, floating]);
+  return React.useMemo(
+    () => (enabled ? { reference, floating } : {}),
+    [enabled, reference, floating],
+  );
 }

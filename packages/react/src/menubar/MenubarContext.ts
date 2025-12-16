@@ -1,7 +1,6 @@
 'use client';
 import * as React from 'react';
 import { type MenuRoot } from '../menu/root/MenuRoot';
-import { useContext } from '@base-ui/utils/useContext';
 
 export interface MenubarContext {
   modal: boolean;
@@ -20,7 +19,7 @@ export const MenubarContext = React.createContext<MenubarContext | null>(null);
 export function useMenubarContext(optional?: false): MenubarContext;
 export function useMenubarContext(optional: true): MenubarContext | null;
 export function useMenubarContext(optional?: boolean) {
-  const context = useContext(MenubarContext);
+  const context = React.useContext(MenubarContext);
   if (context === null && !optional) {
     throw new Error(
       'Base UI: MenubarContext is missing. Menubar parts must be placed within <Menubar>.',

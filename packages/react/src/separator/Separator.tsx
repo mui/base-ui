@@ -2,7 +2,6 @@
 import * as React from 'react';
 import type { BaseUIComponentProps, Orientation } from '../utils/types';
 import { useRenderElement } from '../utils/useRenderElement';
-import { useMemo } from '@base-ui/utils/useMemo';
 
 /**
  * A separator element accessible to screen readers.
@@ -16,7 +15,7 @@ export const Separator = React.forwardRef(function SeparatorComponent(
 ) {
   const { className, render, orientation = 'horizontal', ...elementProps } = componentProps;
 
-  const state: Separator.State = useMemo(() => ({ orientation }), [orientation]);
+  const state: Separator.State = React.useMemo(() => ({ orientation }), [orientation]);
 
   const element = useRenderElement('div', componentProps, {
     state,

@@ -58,11 +58,6 @@ import {
   removeItem,
 } from '../../utils/itemEquality';
 import { INITIAL_LAST_HIGHLIGHT, NO_ACTIVE_VALUE } from './utils/constants';
-import { useEffect } from '@base-ui/utils/useEffect';
-import { useRef } from '@base-ui/utils/useRef';
-import { useState } from '@base-ui/utils/useState';
-import { useMemo } from '@base-ui/utils/useMemo';
-import { useImperativeHandle } from '@base-ui/utils/useImperativeHandle';
 
 /**
  * @internal
@@ -130,33 +125,33 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
   const id = useLabelableId({ id: idProp });
   const collatorFilter = useCoreFilter({ locale });
 
-  const [queryChangedAfterOpen, setQueryChangedAfterOpen] = useState(false);
-  const [closeQuery, setCloseQuery] = useState<string | null>(null);
+  const [queryChangedAfterOpen, setQueryChangedAfterOpen] = React.useState(false);
+  const [closeQuery, setCloseQuery] = React.useState<string | null>(null);
 
-  const listRef = useRef<Array<HTMLElement | null>>([]);
-  const labelsRef = useRef<Array<string | null>>([]);
-  const popupRef = useRef<HTMLDivElement | null>(null);
-  const inputRef = useRef<HTMLInputElement | null>(null);
-  const emptyRef = useRef<HTMLDivElement | null>(null);
-  const keyboardActiveRef = useRef(true);
-  const hadInputClearRef = useRef(false);
-  const chipsContainerRef = useRef<HTMLDivElement | null>(null);
-  const clearRef = useRef<HTMLButtonElement | null>(null);
-  const selectionEventRef = useRef<MouseEvent | PointerEvent | KeyboardEvent | null>(null);
-  const lastHighlightRef = useRef(INITIAL_LAST_HIGHLIGHT);
-  const pendingQueryHighlightRef = useRef<null | { hasQuery: boolean }>(null);
+  const listRef = React.useRef<Array<HTMLElement | null>>([]);
+  const labelsRef = React.useRef<Array<string | null>>([]);
+  const popupRef = React.useRef<HTMLDivElement | null>(null);
+  const inputRef = React.useRef<HTMLInputElement | null>(null);
+  const emptyRef = React.useRef<HTMLDivElement | null>(null);
+  const keyboardActiveRef = React.useRef(true);
+  const hadInputClearRef = React.useRef(false);
+  const chipsContainerRef = React.useRef<HTMLDivElement | null>(null);
+  const clearRef = React.useRef<HTMLButtonElement | null>(null);
+  const selectionEventRef = React.useRef<MouseEvent | PointerEvent | KeyboardEvent | null>(null);
+  const lastHighlightRef = React.useRef(INITIAL_LAST_HIGHLIGHT);
+  const pendingQueryHighlightRef = React.useRef<null | { hasQuery: boolean }>(null);
 
   /**
    * Contains the currently visible list of item values post-filtering.
    */
-  const valuesRef = useRef<any[]>([]);
+  const valuesRef = React.useRef<any[]>([]);
   /**
    * Contains all item values in a stable, unfiltered order.
    * This is only used when `items` prop is not provided.
    * It accumulates values on first mount and does not remove them on unmount due to
    * filtering, providing a stable index for selected value tracking.
    */
-  const allValuesRef = useRef<any[]>([]);
+  const allValuesRef = React.useRef<any[]>([]);
 
   const disabled = fieldDisabled || disabledProp;
   const name = fieldName ?? nameProp;
@@ -180,7 +175,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     state: 'selectedValue',
   });
 
-  const filter = useMemo(() => {
+  const filter = React.useMemo(() => {
     if (filterProp === null) {
       return () => true;
     }
@@ -237,7 +232,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
   const filterQuery = shouldBypassFiltering ? '' : query;
   const shouldIgnoreExternalFiltering = hasItems && hasFilteredItemsProp && shouldBypassFiltering;
 
-  const flatItems: readonly any[] = useMemo(() => {
+  const flatItems: readonly any[] = React.useMemo(() => {
     if (!items) {
       return EMPTY_ARRAY;
     }
@@ -249,7 +244,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     return items;
   }, [items, isGrouped]);
 
-  const filteredItems: Value[] | Group<Value>[] = useMemo(() => {
+  const filteredItems: Value[] | Group<Value>[] = React.useMemo(() => {
     if (filteredItemsProp && !shouldIgnoreExternalFiltering) {
       return filteredItemsProp as Value[] | Group<Value>[];
     }
@@ -325,7 +320,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     flatItems,
   ]);
 
-  const flatFilteredItems: Value[] = useMemo(() => {
+  const flatFilteredItems: Value[] = React.useMemo(() => {
     if (isGrouped) {
       const groups = filteredItems as Group<Value>[];
       return groups.flatMap((g) => g.items);
@@ -399,7 +394,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
   ).current;
 
   const fieldRawValue = selectionMode === 'none' ? inputValue : selectedValue;
-  const fieldStringValue = useMemo(() => {
+  const fieldStringValue = React.useMemo(() => {
     if (selectionMode === 'none') {
       return fieldRawValue;
     }
@@ -450,7 +445,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     }
   });
 
-  const initialSelectedValueRef = useRef(selectedValue);
+  const initialSelectedValueRef = React.useRef(selectedValue);
   useIsoLayoutEffect(() => {
     // Ensure the values and labels are registered for programmatic value changes.
     if (selectedValue !== initialSelectedValueRef.current) {
@@ -713,7 +708,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
   // `[role="dialog"]` is more interoperable than using a context, e.g. it can work
   // with third-party modal libraries, though the limitation is that the closest
   // `role=dialog` part must be the animated element.
-  const resolvedPopupRef: React.RefObject<HTMLElement | null> = useMemo(() => {
+  const resolvedPopupRef: React.RefObject<HTMLElement | null> = React.useMemo(() => {
     if (inline && positionerElement) {
       return { current: positionerElement.closest('[role="dialog"]') };
     }
@@ -731,7 +726,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     },
   });
 
-  useImperativeHandle(props.actionsRef, () => ({ unmount: handleUnmount }), [handleUnmount]);
+  React.useImperativeHandle(props.actionsRef, () => ({ unmount: handleUnmount }), [handleUnmount]);
 
   useIsoLayoutEffect(
     function syncSelectedIndex() {
@@ -910,7 +905,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
 
   // Ensures that the active index is not set to 0 when the list is empty.
   // This avoids needing to press ArrowDown twice under certain conditions.
-  useEffect(() => {
+  React.useEffect(() => {
     if (hasItems && autoHighlightMode && flatFilteredItems.length === 0) {
       setIndices({ activeIndex: null });
     }
@@ -997,7 +992,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     ariaExpanded = open ? 'true' : 'false';
   }
 
-  const role: ElementProps = useMemo(() => {
+  const role: ElementProps = React.useMemo(() => {
     const isPlainInput = inputElement?.tagName === 'INPUT';
     const shouldApplyAria = isPlainInput || open;
 
@@ -1186,7 +1181,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
 
   const hiddenInputRef = useMergedRefs(inputRefProp, validation.inputRef);
 
-  const itemsContextValue: ComboboxDerivedItemsContext = useMemo(
+  const itemsContextValue: ComboboxDerivedItemsContext = React.useMemo(
     () => ({
       query,
       filteredItems,
@@ -1195,7 +1190,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     [query, filteredItems, flatFilteredItems],
   );
 
-  const serializedValue = useMemo(() => {
+  const serializedValue = React.useMemo(() => {
     if (Array.isArray(fieldRawValue)) {
       return '';
     }
@@ -1204,7 +1199,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
 
   const hasMultipleSelection = multiple && Array.isArray(selectedValue) && selectedValue.length > 0;
 
-  const hiddenInputs = useMemo(() => {
+  const hiddenInputs = React.useMemo(() => {
     if (!multiple || !Array.isArray(selectedValue) || !name) {
       return null;
     }

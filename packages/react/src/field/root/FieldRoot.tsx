@@ -10,9 +10,6 @@ import { LabelableProvider } from '../../labelable-provider';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useFieldValidation } from './useFieldValidation';
-import { useRef } from '@base-ui/utils/useRef';
-import { useState } from '@base-ui/utils/useState';
-import { useMemo } from '@base-ui/utils/useMemo';
 
 /**
  * @internal
@@ -43,15 +40,15 @@ const FieldRootInner = React.forwardRef(function FieldRootInner(
 
   const disabled = disabledFieldset || disabledProp;
 
-  const [touchedState, setTouchedUnwrapped] = useState(false);
-  const [dirtyState, setDirtyUnwrapped] = useState(false);
-  const [filled, setFilled] = useState(false);
-  const [focused, setFocused] = useState(false);
+  const [touchedState, setTouchedUnwrapped] = React.useState(false);
+  const [dirtyState, setDirtyUnwrapped] = React.useState(false);
+  const [filled, setFilled] = React.useState(false);
+  const [focused, setFocused] = React.useState(false);
 
   const dirty = dirtyProp ?? dirtyState;
   const touched = touchedProp ?? touchedState;
 
-  const markedDirtyRef = useRef(false);
+  const markedDirtyRef = React.useRef(false);
 
   const setDirty: typeof setDirtyUnwrapped = useStableCallback((value) => {
     if (dirtyProp !== undefined) {
@@ -81,7 +78,7 @@ const FieldRootInner = React.forwardRef(function FieldRootInner(
     invalidProp || (name && {}.hasOwnProperty.call(errors, name) && errors[name] !== undefined),
   );
 
-  const [validityData, setValidityData] = useState<FieldValidityData>({
+  const [validityData, setValidityData] = React.useState<FieldValidityData>({
     state: DEFAULT_VALIDITY_STATE,
     error: '',
     errors: [],
@@ -91,7 +88,7 @@ const FieldRootInner = React.forwardRef(function FieldRootInner(
 
   const valid = !invalid && validityData.state.valid;
 
-  const state: FieldRoot.State = useMemo(
+  const state: FieldRoot.State = React.useMemo(
     () => ({
       disabled,
       touched,
@@ -115,7 +112,7 @@ const FieldRootInner = React.forwardRef(function FieldRootInner(
     shouldValidateOnChange,
   });
 
-  const contextValue: FieldRootContext = useMemo(
+  const contextValue: FieldRootContext = React.useMemo(
     () => ({
       invalid,
       name,

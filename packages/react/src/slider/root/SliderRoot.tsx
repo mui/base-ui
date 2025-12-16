@@ -32,9 +32,6 @@ import type { ThumbMetadata } from '../thumb/SliderThumb';
 import { sliderStateAttributesMapping } from './stateAttributesMapping';
 import { SliderRootContext } from './SliderRootContext';
 import { REASONS } from '../../utils/reasons';
-import { useRef } from '@base-ui/utils/useRef';
-import { useState } from '@base-ui/utils/useState';
-import { useMemo } from '@base-ui/utils/useMemo';
 
 function getSliderChangeEventReason(
   event: React.KeyboardEvent | React.ChangeEvent,
@@ -127,34 +124,34 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
     name: 'Slider',
   });
 
-  const sliderRef = useRef<HTMLElement>(null);
-  const controlRef = useRef<HTMLElement>(null);
-  const thumbRefs = useRef<(HTMLElement | null)[]>([]);
+  const sliderRef = React.useRef<HTMLElement>(null);
+  const controlRef = React.useRef<HTMLElement>(null);
+  const thumbRefs = React.useRef<(HTMLElement | null)[]>([]);
   // The input element nested in the pressed thumb.
-  const pressedInputRef = useRef<HTMLInputElement>(null);
+  const pressedInputRef = React.useRef<HTMLInputElement>(null);
   // The px distance between the pointer and the center of a pressed thumb.
-  const pressedThumbCenterOffsetRef = useRef<number | null>(null);
+  const pressedThumbCenterOffsetRef = React.useRef<number | null>(null);
   // The index of the pressed thumb, or the closest thumb if the `Control` was pressed.
   // This is updated on pointerdown, which is sooner than the `active/activeIndex`
   // state which is updated later when the nested `input` receives focus.
-  const pressedThumbIndexRef = useRef(-1);
+  const pressedThumbIndexRef = React.useRef(-1);
   // The values when the current drag interaction started.
-  const pressedValuesRef = useRef<readonly number[] | null>(null);
-  const lastChangedValueRef = useRef<number | readonly number[] | null>(null);
-  const lastChangeReasonRef = useRef<SliderRoot.ChangeEventReason>('none');
+  const pressedValuesRef = React.useRef<readonly number[] | null>(null);
+  const lastChangedValueRef = React.useRef<number | readonly number[] | null>(null);
+  const lastChangeReasonRef = React.useRef<SliderRoot.ChangeEventReason>('none');
 
   const formatOptionsRef = useValueAsRef(format);
 
   // We can't use the :active browser pseudo-classes.
   // - The active state isn't triggered when clicking on the rail.
   // - The active state isn't transferred when inversing a range slider.
-  const [active, setActiveState] = useState(-1);
-  const [lastUsedThumbIndex, setLastUsedThumbIndex] = useState(-1);
-  const [dragging, setDragging] = useState(false);
-  const [thumbMap, setThumbMap] = useState(
+  const [active, setActiveState] = React.useState(-1);
+  const [lastUsedThumbIndex, setLastUsedThumbIndex] = React.useState(-1);
+  const [dragging, setDragging] = React.useState(false);
+  const [thumbMap, setThumbMap] = React.useState(
     () => new Map<Node, CompositeMetadata<ThumbMetadata> | null>(),
   );
-  const [indicatorPosition, setIndicatorPosition] = useState<(number | undefined)[]>([
+  const [indicatorPosition, setIndicatorPosition] = React.useState<(number | undefined)[]>([
     undefined,
     undefined,
   ]);
@@ -203,7 +200,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
 
   const range = Array.isArray(valueUnwrapped);
 
-  const values = useMemo(() => {
+  const values = React.useMemo(() => {
     if (!range) {
       return [clamp(valueUnwrapped as number, min, max)];
     }
@@ -288,7 +285,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
     setActive(-1);
   }
 
-  const state: SliderRoot.State = useMemo(
+  const state: SliderRoot.State = React.useMemo(
     () => ({
       ...fieldState,
       activeThumbIndex: active,
@@ -315,7 +312,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
     ],
   );
 
-  const contextValue: SliderRootContext = useMemo(
+  const contextValue: SliderRootContext = React.useMemo(
     () => ({
       active,
       controlRef,

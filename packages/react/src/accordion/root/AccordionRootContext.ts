@@ -3,7 +3,6 @@ import * as React from 'react';
 import type { Orientation } from '../../utils/types';
 import type { TextDirection } from '../../direction-provider';
 import type { AccordionRoot, AccordionValue } from './AccordionRoot';
-import { useContext } from '@base-ui/utils/useContext';
 
 export interface AccordionRootContext {
   accordionItemRefs: React.RefObject<(HTMLElement | null)[]>;
@@ -23,7 +22,7 @@ export const AccordionRootContext = React.createContext<AccordionRootContext | u
 );
 
 export function useAccordionRootContext() {
-  const context = useContext(AccordionRootContext);
+  const context = React.useContext(AccordionRootContext);
   if (context === undefined) {
     throw new Error(
       'Base UI: AccordionRootContext is missing. Accordion parts must be placed within <Accordion.Root>.',

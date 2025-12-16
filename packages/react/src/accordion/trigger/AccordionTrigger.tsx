@@ -19,7 +19,6 @@ import { useAccordionRootContext } from '../root/AccordionRootContext';
 import type { AccordionItem } from '../item/AccordionItem';
 import { useAccordionItemContext } from '../item/AccordionItemContext';
 import { useRenderElement } from '../../utils/useRenderElement';
-import { useMemo } from '@base-ui/utils/useMemo';
 
 const SUPPORTED_KEYS = new Set([ARROW_DOWN, ARROW_UP, ARROW_RIGHT, ARROW_LEFT, HOME, END]);
 
@@ -89,7 +88,7 @@ export const AccordionTrigger = React.forwardRef(function AccordionTrigger(
     };
   }, [idProp, setTriggerId]);
 
-  const props = useMemo(
+  const props = React.useMemo(
     () => ({
       'aria-controls': open ? panelId : undefined,
       'aria-expanded': open,

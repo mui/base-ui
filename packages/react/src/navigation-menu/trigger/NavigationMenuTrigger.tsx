@@ -43,10 +43,6 @@ import { getCssDimensions } from '../../utils/getCssDimensions';
 import { NavigationMenuRoot } from '../root/NavigationMenuRoot';
 import { NAVIGATION_MENU_TRIGGER_IDENTIFIER } from '../utils/constants';
 import { useNavigationMenuDismissContext } from '../list/NavigationMenuDismissContext';
-import { useEffect } from '@base-ui/utils/useEffect';
-import { useRef } from '@base-ui/utils/useRef';
-import { useState } from '@base-ui/utils/useState';
-import { useMemo } from '@base-ui/utils/useMemo';
 
 const DEFAULT_SIZE = { width: 0, height: 0 };
 
@@ -95,13 +91,13 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
   const sizeFrame1 = useAnimationFrame();
   const sizeFrame2 = useAnimationFrame();
 
-  const [triggerElement, setTriggerElement] = useState<HTMLElement | null>(null);
-  const [stickIfOpen, setStickIfOpen] = useState(true);
-  const [pointerType, setPointerType] = useState<'mouse' | 'touch' | 'pen' | ''>('');
+  const [triggerElement, setTriggerElement] = React.useState<HTMLElement | null>(null);
+  const [stickIfOpen, setStickIfOpen] = React.useState(true);
+  const [pointerType, setPointerType] = React.useState<'mouse' | 'touch' | 'pen' | ''>('');
 
-  const allowFocusRef = useRef(false);
-  const prevSizeRef = useRef(DEFAULT_SIZE);
-  const animationAbortControllerRef = useRef<AbortController | null>(null);
+  const allowFocusRef = React.useRef(false);
+  const prevSizeRef = React.useRef(DEFAULT_SIZE);
+  const animationAbortControllerRef = React.useRef<AbortController | null>(null);
 
   const isActiveItem = open && value === itemValue;
   const isActiveItemRef = useValueAsRef(isActiveItem);
@@ -109,7 +105,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
 
   const runOnceAnimationsFinish = useAnimationsFinished(popupElement);
 
-  useEffect(() => {
+  React.useEffect(() => {
     animationAbortControllerRef.current?.abort();
   }, [isActiveItem]);
 
@@ -163,7 +159,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
     });
   });
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (!open) {
       stickIfOpenTimeout.clear();
       sizeFrame1.cancel();
@@ -171,13 +167,13 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
     }
   }, [stickIfOpenTimeout, open, sizeFrame1, sizeFrame2]);
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (!mounted) {
       prevSizeRef.current = DEFAULT_SIZE;
     }
   }, [mounted]);
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (!popupElement || typeof ResizeObserver !== 'function') {
       return undefined;
     }
@@ -197,7 +193,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
     };
   }, [popupElement]);
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (!popupElement || !isActiveItem || typeof MutationObserver !== 'function') {
       return undefined;
     }
@@ -218,7 +214,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
     };
   }, [popupElement, positionerElement, isActiveItem, handleValueChange]);
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (isActiveItem && open && popupElement && allowFocusRef.current) {
       allowFocusRef.current = false;
       focusFrame.request(() => {
@@ -363,7 +359,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
     handleValueChange(width, height);
   });
 
-  const state: NavigationMenuTrigger.State = useMemo(
+  const state: NavigationMenuTrigger.State = React.useMemo(
     () => ({
       open: isActiveItem,
     }),

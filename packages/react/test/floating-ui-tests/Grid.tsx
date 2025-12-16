@@ -7,8 +7,6 @@ import {
   useInteractions,
   useListNavigation,
 } from '../../src/floating-ui-react';
-import { useState } from '@base-ui/utils/useState';
-import { useRef } from '@base-ui/utils/useRef';
 
 interface Props {
   orientation?: 'horizontal' | 'both';
@@ -17,10 +15,10 @@ interface Props {
 
 /** @internal */
 export function Main({ orientation = 'horizontal', loopFocus = false }: Props) {
-  const [open, setOpen] = useState(false);
-  const [activeIndex, setActiveIndex] = useState<number | null>(null);
+  const [open, setOpen] = React.useState(false);
+  const [activeIndex, setActiveIndex] = React.useState<number | null>(null);
 
-  const listRef = useRef<Array<HTMLElement | null>>([]);
+  const listRef = React.useRef<Array<HTMLElement | null>>([]);
 
   const { floatingStyles, refs, context } = useFloating({
     open,

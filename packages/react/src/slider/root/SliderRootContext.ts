@@ -5,7 +5,6 @@ import type { CompositeMetadata } from '../../composite/list/CompositeList';
 import type { UseFieldValidationReturnValue } from '../../field/root/useFieldValidation';
 import type { ThumbMetadata } from '../thumb/SliderThumb';
 import type { SliderRoot } from './SliderRoot';
-import { useContext } from '@base-ui/utils/useContext';
 
 export interface SliderRootContext {
   /**
@@ -99,7 +98,7 @@ export interface SliderRootContext {
 export const SliderRootContext = React.createContext<SliderRootContext | undefined>(undefined);
 
 export function useSliderRootContext() {
-  const context = useContext(SliderRootContext);
+  const context = React.useContext(SliderRootContext);
   if (context === undefined) {
     throw new Error(
       'Base UI: SliderRootContext is missing. Slider parts must be placed within <Slider.Root>.',

@@ -11,7 +11,6 @@ import { useCollapsiblePanel } from './useCollapsiblePanel';
 import { CollapsiblePanelCssVars } from './CollapsiblePanelCssVars';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
-import { useMemo } from '@base-ui/utils/useMemo';
 
 /**
  * A panel with the collapsible contents.
@@ -122,7 +121,7 @@ export const CollapsiblePanel = React.forwardRef(function CollapsiblePanel(
     },
   });
 
-  const panelState: CollapsiblePanel.State = useMemo(
+  const panelState: CollapsiblePanel.State = React.useMemo(
     () => ({
       ...state,
       transitionStatus,

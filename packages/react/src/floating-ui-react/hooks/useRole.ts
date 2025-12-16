@@ -5,8 +5,6 @@ import { useFloatingParentNodeId } from '../components/FloatingTree';
 import type { ElementProps, FloatingContext, FloatingRootContext } from '../types';
 import type { ExtendedUserProps } from './useInteractions';
 import { EMPTY_OBJECT } from '../../utils/constants';
-import { useCallback } from '@base-ui/utils/useCallback';
-import { useMemo } from '@base-ui/utils/useMemo';
 
 type AriaRole = 'tooltip' | 'dialog' | 'alertdialog' | 'menu' | 'listbox' | 'grid' | 'tree';
 type ComponentRole = 'select' | 'label' | 'combobox';
@@ -50,7 +48,7 @@ export function useRole(
 
   const defaultReferenceId = useId();
   const referenceId = domReference?.id || defaultReferenceId;
-  const floatingId = useMemo(
+  const floatingId = React.useMemo(
     () => getFloatingFocusElement(floatingElement)?.id || defaultFloatingId,
     [floatingElement, defaultFloatingId],
   );
@@ -60,7 +58,7 @@ export function useRole(
   const parentId = useFloatingParentNodeId();
   const isNested = parentId != null;
 
-  const trigger: ElementProps['trigger'] = useMemo(() => {
+  const trigger: ElementProps['trigger'] = React.useMemo(() => {
     if (ariaRole === 'tooltip' || role === 'label') {
       return EMPTY_OBJECT;
     }
@@ -75,7 +73,7 @@ export function useRole(
     };
   }, [ariaRole, isNested, role]);
 
-  const reference: ElementProps['reference'] = useMemo(() => {
+  const reference: ElementProps['reference'] = React.useMemo(() => {
     if (ariaRole === 'tooltip' || role === 'label') {
       return {
         [`aria-${role === 'label' ? 'labelledby' : 'describedby'}`]: open ? floatingId : undefined,
@@ -91,7 +89,7 @@ export function useRole(
     };
   }, [ariaRole, floatingId, open, referenceId, role, trigger]);
 
-  const floating: ElementProps['floating'] = useMemo(() => {
+  const floating: ElementProps['floating'] = React.useMemo(() => {
     const floatingProps = {
       id: floatingId,
       ...(ariaRole && { role: ariaRole }),
@@ -109,7 +107,7 @@ export function useRole(
     };
   }, [ariaRole, floatingId, referenceId, role]);
 
-  const item: ElementProps['item'] = useCallback(
+  const item: ElementProps['item'] = React.useCallback(
     ({ active, selected }: ExtendedUserProps) => {
       const commonProps = {
         role: 'option',
@@ -135,7 +133,7 @@ export function useRole(
     [floatingId, role],
   );
 
-  return useMemo(
+  return React.useMemo(
     () => (enabled ? { reference, floating, item, trigger } : {}),
     [enabled, reference, floating, trigger, item],
   );

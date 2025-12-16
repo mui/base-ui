@@ -10,8 +10,6 @@ import { type TransitionStatus, useTransitionStatus } from '../../utils/useTrans
 import type { StateAttributesMapping } from '../../utils/getStateAttributesProps';
 import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
 import { fieldValidityMapping } from '../../field/utils/constants';
-import { useMemo } from '@base-ui/utils/useMemo';
-import { useRef } from '@base-ui/utils/useRef';
 
 /**
  * Indicates whether the checkbox is ticked.
@@ -31,9 +29,9 @@ export const CheckboxIndicator = React.forwardRef(function CheckboxIndicator(
 
   const { transitionStatus, setMounted } = useTransitionStatus(rendered);
 
-  const indicatorRef = useRef<HTMLSpanElement | null>(null);
+  const indicatorRef = React.useRef<HTMLSpanElement | null>(null);
 
-  const state: CheckboxIndicator.State = useMemo(
+  const state: CheckboxIndicator.State = React.useMemo(
     () => ({
       ...rootState,
       transitionStatus,
@@ -53,7 +51,7 @@ export const CheckboxIndicator = React.forwardRef(function CheckboxIndicator(
 
   const baseStateAttributesMapping = useStateAttributesMapping(rootState);
 
-  const stateAttributesMapping: StateAttributesMapping<CheckboxIndicator.State> = useMemo(
+  const stateAttributesMapping: StateAttributesMapping<CheckboxIndicator.State> = React.useMemo(
     () => ({
       ...baseStateAttributesMapping,
       ...transitionStatusMapping,

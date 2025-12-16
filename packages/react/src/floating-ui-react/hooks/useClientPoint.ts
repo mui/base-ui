@@ -5,11 +5,6 @@ import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { contains, getTarget, isMouseLikePointerType } from '../utils';
 
 import type { ContextData, ElementProps, FloatingContext, FloatingRootContext } from '../types';
-import { useEffect } from '@base-ui/utils/useEffect';
-import { useRef } from '@base-ui/utils/useRef';
-import { useCallback } from '@base-ui/utils/useCallback';
-import { useState } from '@base-ui/utils/useState';
-import { useMemo } from '@base-ui/utils/useMemo';
 
 function createVirtualElement(
   domElement: Element | null | undefined,
@@ -133,11 +128,11 @@ export function useClientPoint(
 
   const { enabled = true, axis = 'both', x = null, y = null } = props;
 
-  const initialRef = useRef(false);
-  const cleanupListenerRef = useRef<null | (() => void)>(null);
+  const initialRef = React.useRef(false);
+  const cleanupListenerRef = React.useRef<null | (() => void)>(null);
 
-  const [pointerType, setPointerType] = useState<string | undefined>();
-  const [reactive, setReactive] = useState([]);
+  const [pointerType, setPointerType] = React.useState<string | undefined>();
+  const [reactive, setReactive] = React.useState([]);
 
   const setReference = useStableCallback((newX: number | null, newY: number | null) => {
     if (initialRef.current) {
@@ -184,7 +179,7 @@ export function useClientPoint(
   // the dismissal touch point.
   const openCheck = isMouseLikePointerType(pointerType) ? floating : open;
 
-  const addListener = useCallback(() => {
+  const addListener = React.useCallback(() => {
     // Explicitly specified `x`/`y` coordinates shouldn't add a listener.
     if (!openCheck || !enabled || x != null || y != null) {
       return undefined;
@@ -217,17 +212,17 @@ export function useClientPoint(
     return undefined;
   }, [openCheck, enabled, x, y, floating, dataRef, domReference, store, setReference]);
 
-  useEffect(() => {
+  React.useEffect(() => {
     return addListener();
   }, [addListener, reactive]);
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (enabled && !floating) {
       initialRef.current = false;
     }
   }, [enabled, floating]);
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (!enabled && open) {
       initialRef.current = true;
     }
@@ -240,7 +235,7 @@ export function useClientPoint(
     }
   }, [enabled, x, y, setReference]);
 
-  const reference: ElementProps['reference'] = useMemo(() => {
+  const reference: ElementProps['reference'] = React.useMemo(() => {
     function setPointerTypeRef(event: React.PointerEvent) {
       setPointerType(event.pointerType);
     }
@@ -253,5 +248,5 @@ export function useClientPoint(
     };
   }, [handleReferenceEnterOrMove]);
 
-  return useMemo(() => (enabled ? { reference } : {}), [enabled, reference]);
+  return React.useMemo(() => (enabled ? { reference } : {}), [enabled, reference]);
 }

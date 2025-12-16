@@ -9,7 +9,6 @@ import type { NumberFieldRoot } from '../root/NumberFieldRoot';
 import { stateAttributesMapping } from '../utils/stateAttributesMapping';
 import { useNumberFieldScrubAreaContext } from '../scrub-area/NumberFieldScrubAreaContext';
 import { useRenderElement } from '../../utils/useRenderElement';
-import { useState } from '@base-ui/utils/useState';
 
 /**
  * A custom element to display instead of the native cursor while using the scrub area.
@@ -30,7 +29,7 @@ export const NumberFieldScrubAreaCursor = React.forwardRef(function NumberFieldS
   const { isScrubbing, isTouchInput, isPointerLockDenied, scrubAreaCursorRef } =
     useNumberFieldScrubAreaContext();
 
-  const [domElement, setDomElement] = useState<Element | null>(null);
+  const [domElement, setDomElement] = React.useState<Element | null>(null);
 
   const shouldRender = isScrubbing && !isWebKit && !isTouchInput && !isPointerLockDenied;
 

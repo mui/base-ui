@@ -5,7 +5,6 @@ import { useScrollAreaRootContext } from '../root/ScrollAreaRootContext';
 import { useScrollAreaScrollbarContext } from '../scrollbar/ScrollAreaScrollbarContext';
 import { ScrollAreaScrollbarCssVars } from '../scrollbar/ScrollAreaScrollbarCssVars';
 import { useRenderElement } from '../../utils/useRenderElement';
-import { useMemo } from '@base-ui/utils/useMemo';
 
 /**
  * The draggable part of the the scrollbar that indicates the current scroll position.
@@ -31,7 +30,7 @@ export const ScrollAreaThumb = React.forwardRef(function ScrollAreaThumb(
 
   const { orientation } = useScrollAreaScrollbarContext();
 
-  const state: ScrollAreaThumb.State = useMemo(() => ({ orientation }), [orientation]);
+  const state: ScrollAreaThumb.State = React.useMemo(() => ({ orientation }), [orientation]);
 
   const element = useRenderElement('div', componentProps, {
     ref: [forwardedRef, orientation === 'vertical' ? thumbYRef : thumbXRef],

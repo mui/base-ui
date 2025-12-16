@@ -12,10 +12,6 @@ import { useRenderElement } from '../../utils/useRenderElement';
 import { StateAttributesMapping } from '../../utils/getStateAttributesProps';
 import { Dimensions } from '../../floating-ui-react/types';
 import { PopoverViewportCssVars } from './PopoverViewportCssVars';
-import { useEffect } from '@base-ui/utils/useEffect';
-import { useState } from '@base-ui/utils/useState';
-import { useMemo } from '@base-ui/utils/useMemo';
-import { useRef } from '@base-ui/utils/useRef';
 
 const stateAttributesMapping: StateAttributesMapping<PopoverViewport.State> = {
   activationDirection: (value) =>
@@ -47,23 +43,23 @@ export const PopoverViewport = React.forwardRef(function PopoverViewport(
 
   const previousActiveTrigger = usePreviousValue(open ? activeTrigger : null);
 
-  const capturedNodeRef = useRef<HTMLElement | null>(null);
-  const [previousContentNode, setPreviousContentNode] = useState<HTMLElement | null>(null);
+  const capturedNodeRef = React.useRef<HTMLElement | null>(null);
+  const [previousContentNode, setPreviousContentNode] = React.useState<HTMLElement | null>(null);
 
-  const [newTriggerOffset, setNewTriggerOffset] = useState<Offset | null>(null);
+  const [newTriggerOffset, setNewTriggerOffset] = React.useState<Offset | null>(null);
 
-  const currentContainerRef = useRef<HTMLDivElement>(null);
-  const previousContainerRef = useRef<HTMLDivElement>(null);
+  const currentContainerRef = React.useRef<HTMLDivElement>(null);
+  const previousContainerRef = React.useRef<HTMLDivElement>(null);
 
   const onAnimationsFinished = useAnimationsFinished(currentContainerRef, true, false);
   const cleanupFrame = useAnimationFrame();
 
-  const [previousContentDimensions, setPreviousContentDimensions] = useState<{
+  const [previousContentDimensions, setPreviousContentDimensions] = React.useState<{
     width: number;
     height: number;
   } | null>(null);
 
-  const [showStartingStyleAttribute, setShowStartingStyleAttribute] = useState(false);
+  const [showStartingStyleAttribute, setShowStartingStyleAttribute] = React.useState(false);
 
   // Capture a clone of the current content DOM subtree when not transitioning.
   // We can't store previous React nodes as they may be stateful; instead we capture DOM clones for visual continuity.
@@ -110,7 +106,7 @@ export const PopoverViewport = React.forwardRef(function PopoverViewport(
     }
   });
 
-  useEffect(() => {
+  React.useEffect(() => {
     floatingContext.context.events.on('measure-layout', handleMeasureLayout);
     floatingContext.context.events.on('measure-layout-complete', handleMeasureLayoutComplete);
 
@@ -120,7 +116,7 @@ export const PopoverViewport = React.forwardRef(function PopoverViewport(
     };
   }, [floatingContext, handleMeasureLayout, handleMeasureLayoutComplete]);
 
-  const lastHandledTriggerRef = useRef<Element | null>(null);
+  const lastHandledTriggerRef = React.useRef<Element | null>(null);
 
   useIsoLayoutEffect(() => {
     // When a trigger changes, set the captured children HTML to state,
@@ -208,7 +204,7 @@ export const PopoverViewport = React.forwardRef(function PopoverViewport(
     container.replaceChildren(...Array.from(previousContentNode.childNodes));
   }, [previousContentNode]);
 
-  const state = useMemo(() => {
+  const state = React.useMemo(() => {
     return {
       activationDirection: getActivationDirection(newTriggerOffset),
       transitioning: isTransitioning,

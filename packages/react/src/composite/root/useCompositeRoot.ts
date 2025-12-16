@@ -35,9 +35,6 @@ import {
 import { ACTIVE_COMPOSITE_ITEM } from '../constants';
 import { CompositeMetadata } from '../list/CompositeList';
 import { HTMLProps } from '../../utils/types';
-import { useRef } from '@base-ui/utils/useRef';
-import { useState } from '@base-ui/utils/useState';
-import { useMemo } from '@base-ui/utils/useMemo';
 
 export interface UseCompositeRootParameters {
   orientation?: 'horizontal' | 'vertical' | 'both';
@@ -93,15 +90,15 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
     modifierKeys = EMPTY_ARRAY,
   } = params;
 
-  const [internalHighlightedIndex, internalSetHighlightedIndex] = useState(0);
+  const [internalHighlightedIndex, internalSetHighlightedIndex] = React.useState(0);
 
   const isGrid = cols > 1;
 
-  const rootRef = useRef<HTMLElement | null>(null);
+  const rootRef = React.useRef<HTMLElement | null>(null);
   const mergedRef = useMergedRefs(rootRef, externalRef);
 
-  const elementsRef = useRef<Array<HTMLDivElement | null>>([]);
-  const hasSetDefaultIndexRef = useRef(false);
+  const elementsRef = React.useRef<Array<HTMLDivElement | null>>([]);
+  const hasSetDefaultIndexRef = React.useRef(false);
 
   const highlightedIndex = externalHighlightedIndex ?? internalHighlightedIndex;
   const onHighlightedIndexChange = useStableCallback((index, shouldScrollIntoView = false) => {
@@ -131,7 +128,7 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
     scrollIntoViewIfNeeded(rootRef.current, activeItem, direction, orientation);
   });
 
-  const props = useMemo<HTMLProps>(
+  const props = React.useMemo<HTMLProps>(
     () => ({
       'aria-orientation': orientation === 'both' ? undefined : orientation,
       ref: mergedRef,
@@ -340,7 +337,7 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
     ],
   );
 
-  return useMemo(
+  return React.useMemo(
     () => ({
       props,
       highlightedIndex,

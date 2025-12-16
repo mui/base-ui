@@ -15,9 +15,6 @@ import {
   useHoverInteractionSharedState,
 } from './useHoverInteractionSharedState';
 import { FloatingUIOpenChangeDetails, HTMLProps } from '../../utils/types';
-import { useEffect } from '@base-ui/utils/useEffect';
-import { useCallback } from '@base-ui/utils/useCallback';
-import { useMemo } from '@base-ui/utils/useMemo';
 
 export interface UseHoverReferenceInteractionProps extends Omit<UseHoverProps, 'triggerElement'> {
   /**
@@ -96,7 +93,7 @@ export function useHoverReferenceInteraction(
       : false;
   });
 
-  const closeWithDelay = useCallback(
+  const closeWithDelay = React.useCallback(
     (event: MouseEvent, runElseBranch = true) => {
       const closeDelay = getDelay(delayRef.current, 'close', pointerTypeRef.current);
       if (closeDelay && !closeHandlerRef.current) {
@@ -127,7 +124,7 @@ export function useHoverReferenceInteraction(
 
   // When closing before opening, clear the delay timeouts to cancel it
   // from showing.
-  useEffect(() => {
+  React.useEffect(() => {
     if (!enabled) {
       return undefined;
     }
@@ -177,7 +174,7 @@ export function useHoverReferenceInteraction(
     })(event);
   });
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (!enabled) {
       return undefined;
     }
@@ -342,7 +339,7 @@ export function useHoverReferenceInteraction(
     closeHandlerRef,
   ]);
 
-  return useMemo<HTMLProps>(() => {
+  return React.useMemo<HTMLProps>(() => {
     function setPointerRef(event: React.PointerEvent) {
       pointerTypeRef.current = event.pointerType;
     }

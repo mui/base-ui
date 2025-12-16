@@ -21,10 +21,6 @@ import { REASONS } from '../../utils/reasons';
 import { createAttribute } from '../utils/createAttribute';
 import { FloatingUIOpenChangeDetails } from '../../utils/types';
 import { TYPEABLE_SELECTOR } from '../utils/constants';
-import { useEffect } from '@base-ui/utils/useEffect';
-import { useRef } from '@base-ui/utils/useRef';
-import { useCallback } from '@base-ui/utils/useCallback';
-import { useMemo } from '@base-ui/utils/useMemo';
 
 const safePolygonIdentifier = createAttribute('safe-polygon');
 const interactiveSelector = `button,[role="button"],select,[tabindex]:not([tabindex="-1"]),${TYPEABLE_SELECTOR}`;
@@ -155,15 +151,15 @@ export function useHover(
   const delayRef = useValueAsRef(delay);
   const restMsRef = useValueAsRef(restMs);
 
-  const pointerTypeRef = useRef<string>(undefined);
-  const interactedInsideRef = useRef(false);
+  const pointerTypeRef = React.useRef<string>(undefined);
+  const interactedInsideRef = React.useRef(false);
   const timeout = useTimeout();
-  const handlerRef = useRef<(event: MouseEvent) => void>(undefined);
+  const handlerRef = React.useRef<(event: MouseEvent) => void>(undefined);
   const restTimeout = useTimeout();
-  const blockMouseMoveRef = useRef(true);
-  const performedPointerEventsMutationRef = useRef(false);
-  const unbindMouseMoveRef = useRef(() => {});
-  const restTimeoutPendingRef = useRef(false);
+  const blockMouseMoveRef = React.useRef(true);
+  const performedPointerEventsMutationRef = React.useRef(false);
+  const unbindMouseMoveRef = React.useRef(() => {});
+  const restTimeoutPendingRef = React.useRef(false);
 
   const isHoverOpen = useStableCallback(() => {
     const type = dataRef.current.openEvent?.type;
@@ -182,7 +178,7 @@ export function useHover(
 
   // When closing before opening, clear the delay timeouts to cancel it
   // from showing.
-  useEffect(() => {
+  React.useEffect(() => {
     if (!enabled) {
       return undefined;
     }
@@ -202,7 +198,7 @@ export function useHover(
     };
   }, [enabled, events, timeout, restTimeout]);
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (!enabled) {
       return undefined;
     }
@@ -237,7 +233,7 @@ export function useHover(
     };
   }, [floatingElement, open, store, enabled, handleCloseRef, isHoverOpen, isClickLikeOpenEvent]);
 
-  const closeWithDelay = useCallback(
+  const closeWithDelay = React.useCallback(
     (event: MouseEvent, runElseBranch = true) => {
       const closeDelay = getDelay(delayRef.current, 'close', pointerTypeRef.current);
       if (closeDelay && !handlerRef.current) {
@@ -279,7 +275,7 @@ export function useHover(
   // Registering the mouse events on the reference directly to bypass React's
   // delegation system. If the cursor was on a disabled element and then entered
   // the reference (no gap), `mouseenter` doesn't fire in the delegation system.
-  useEffect(() => {
+  React.useEffect(() => {
     if (!enabled) {
       return undefined;
     }
@@ -548,7 +544,7 @@ export function useHover(
     }
   }, [open, cleanupMouseMoveHandler, clearPointerEvents]);
 
-  useEffect(() => {
+  React.useEffect(() => {
     return () => {
       cleanupMouseMoveHandler();
       timeout.clear();
@@ -557,11 +553,11 @@ export function useHover(
     };
   }, [enabled, domReferenceElement, cleanupMouseMoveHandler, timeout, restTimeout]);
 
-  useEffect(() => {
+  React.useEffect(() => {
     return clearPointerEvents;
   }, [clearPointerEvents]);
 
-  const reference: ElementProps['reference'] = useMemo(() => {
+  const reference: ElementProps['reference'] = React.useMemo(() => {
     function setPointerRef(event: React.PointerEvent) {
       pointerTypeRef.current = event.pointerType;
     }
@@ -622,5 +618,5 @@ export function useHover(
     };
   }, [mouseOnly, store, restMsRef, restTimeout]);
 
-  return useMemo(() => (enabled ? { reference } : {}), [enabled, reference]);
+  return React.useMemo(() => (enabled ? { reference } : {}), [enabled, reference]);
 }

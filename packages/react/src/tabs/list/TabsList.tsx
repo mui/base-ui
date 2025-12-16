@@ -10,9 +10,6 @@ import { useTabsRootContext } from '../root/TabsRootContext';
 import type { TabsTab } from '../tab/TabsTab';
 import { TabsListContext } from './TabsListContext';
 import { EMPTY_ARRAY } from '../../utils/constants';
-import { useCallback } from '@base-ui/utils/useCallback';
-import { useState } from '@base-ui/utils/useState';
-import { useMemo } from '@base-ui/utils/useMemo';
 
 /**
  * Groups the individual tab buttons.
@@ -41,9 +38,9 @@ export const TabsList = React.forwardRef(function TabsList(
     tabActivationDirection,
   } = useTabsRootContext();
 
-  const [highlightedTabIndex, setHighlightedTabIndex] = useState(0);
+  const [highlightedTabIndex, setHighlightedTabIndex] = React.useState(0);
 
-  const [tabsListElement, setTabsListElement] = useState<HTMLElement | null>(null);
+  const [tabsListElement, setTabsListElement] = React.useState<HTMLElement | null>(null);
 
   const detectActivationDirection = useActivationDirectionDetector(
     value, // the old value
@@ -62,7 +59,7 @@ export const TabsList = React.forwardRef(function TabsList(
     },
   );
 
-  const state: TabsList.State = useMemo(
+  const state: TabsList.State = React.useMemo(
     () => ({
       orientation,
       tabActivationDirection,
@@ -75,7 +72,7 @@ export const TabsList = React.forwardRef(function TabsList(
     role: 'tablist',
   };
 
-  const tabsListContextValue: TabsListContext = useMemo(
+  const tabsListContextValue: TabsListContext = React.useMemo(
     () => ({
       activateOnFocus,
       highlightedTabIndex,
@@ -132,7 +129,7 @@ function useActivationDirectionDetector(
   tabsListElement: HTMLElement | null,
   getTabElement: (selectedValue: any) => HTMLElement | null,
 ): (newValue: any) => TabsTab.ActivationDirection {
-  const [previousTabEdge, setPreviousTabEdge] = useState<number | null>(null);
+  const [previousTabEdge, setPreviousTabEdge] = React.useState<number | null>(null);
 
   useIsoLayoutEffect(() => {
     // Whenever orientation changes, reset the state.
@@ -151,7 +148,7 @@ function useActivationDirectionDetector(
     setPreviousTabEdge(orientation === 'horizontal' ? left : top);
   }, [orientation, getTabElement, tabsListElement, activeTabValue]);
 
-  return useCallback(
+  return React.useCallback(
     (newValue: any) => {
       if (newValue === activeTabValue) {
         return 'none';

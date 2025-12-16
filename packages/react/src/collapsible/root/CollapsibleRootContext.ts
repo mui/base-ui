@@ -3,7 +3,6 @@ import * as React from 'react';
 import type { useCollapsibleRoot } from './useCollapsibleRoot';
 import type { CollapsibleRoot } from './CollapsibleRoot';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
-import { useContext } from '@base-ui/utils/useContext';
 
 export interface CollapsibleRootContext extends useCollapsibleRoot.ReturnValue {
   onOpenChange: (open: boolean, eventDetails: CollapsibleRoot.ChangeEventDetails) => void;
@@ -16,7 +15,7 @@ export const CollapsibleRootContext = React.createContext<CollapsibleRootContext
 );
 
 export function useCollapsibleRootContext() {
-  const context = useContext(CollapsibleRootContext);
+  const context = React.useContext(CollapsibleRootContext);
   if (context === undefined) {
     throw new Error(
       'Base UI: CollapsibleRootContext is missing. Collapsible parts must be placed within <Collapsible.Root>.',

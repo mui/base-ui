@@ -3,7 +3,6 @@ import * as React from 'react';
 import { useButton } from '../use-button/useButton';
 import { useRenderElement } from '../utils/useRenderElement';
 import type { BaseUIComponentProps, NativeButtonProps, NonNativeButtonProps } from '../utils/types';
-import { useMemo } from '@base-ui/utils/useMemo';
 
 /**
  * A button component that can be used to trigger actions.
@@ -32,7 +31,7 @@ export const Button = React.forwardRef(function Button(
     native: nativeButton,
   });
 
-  const state: Button.State = useMemo(
+  const state: Button.State = React.useMemo(
     () => ({
       disabled,
     }),

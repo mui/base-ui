@@ -37,9 +37,6 @@ import { defaultItemEquality, findItemIndex } from '../../utils/itemEquality';
 import { useValueChanged } from '../../utils/useValueChanged';
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
 import { mergeProps } from '../../merge-props';
-import { useRef } from '@base-ui/utils/useRef';
-import { useMemo } from '@base-ui/utils/useMemo';
-import { useImperativeHandle } from '@base-ui/utils/useImperativeHandle';
 
 /**
  * Groups all parts of the select.
@@ -106,21 +103,21 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     state: 'open',
   });
 
-  const listRef = useRef<Array<HTMLElement | null>>([]);
-  const labelsRef = useRef<Array<string | null>>([]);
-  const popupRef = useRef<HTMLDivElement | null>(null);
-  const scrollHandlerRef = useRef<((el: HTMLDivElement) => void) | null>(null);
-  const scrollArrowsMountedCountRef = useRef(0);
-  const valueRef = useRef<HTMLSpanElement | null>(null);
-  const valuesRef = useRef<Array<any>>([]);
-  const typingRef = useRef(false);
-  const keyboardActiveRef = useRef(false);
-  const selectedItemTextRef = useRef<HTMLSpanElement | null>(null);
-  const selectionRef = useRef({
+  const listRef = React.useRef<Array<HTMLElement | null>>([]);
+  const labelsRef = React.useRef<Array<string | null>>([]);
+  const popupRef = React.useRef<HTMLDivElement | null>(null);
+  const scrollHandlerRef = React.useRef<((el: HTMLDivElement) => void) | null>(null);
+  const scrollArrowsMountedCountRef = React.useRef(0);
+  const valueRef = React.useRef<HTMLSpanElement | null>(null);
+  const valuesRef = React.useRef<Array<any>>([]);
+  const typingRef = React.useRef(false);
+  const keyboardActiveRef = React.useRef(false);
+  const selectedItemTextRef = React.useRef<HTMLSpanElement | null>(null);
+  const selectionRef = React.useRef({
     allowSelectedMouseUp: false,
     allowUnselectedMouseUp: false,
   });
-  const alignItemWithTriggerActiveRef = useRef(false);
+  const alignItemWithTriggerActiveRef = React.useRef(false);
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
   const {
@@ -163,14 +160,14 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
   const triggerElement = useStore(store, selectors.triggerElement);
   const positionerElement = useStore(store, selectors.positionerElement);
 
-  const serializedValue = useMemo(() => {
+  const serializedValue = React.useMemo(() => {
     if (multiple && Array.isArray(value) && value.length === 0) {
       return '';
     }
     return stringifyAsValue(value, itemToStringValue);
   }, [multiple, value, itemToStringValue]);
 
-  const fieldStringValue = useMemo(() => {
+  const fieldStringValue = React.useMemo(() => {
     if (multiple && Array.isArray(value)) {
       return value.map((currentValue) => stringifyAsValue(currentValue, itemToStringValue));
     }
@@ -188,7 +185,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     getValue: () => fieldStringValue,
   });
 
-  const initialValueRef = useRef(value);
+  const initialValueRef = React.useRef(value);
   useIsoLayoutEffect(() => {
     // Ensure the values and labels are registered for programmatic value changes.
     if (value !== initialValueRef.current) {
@@ -282,7 +279,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     },
   });
 
-  useImperativeHandle(actionsRef, () => ({ unmount: handleUnmount }), [handleUnmount]);
+  React.useImperativeHandle(actionsRef, () => ({ unmount: handleUnmount }), [handleUnmount]);
 
   const setValue = useStableCallback(
     (nextValue: any, eventDetails: SelectRoot.ChangeEventDetails) => {
@@ -378,7 +375,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     typeahead,
   ]);
 
-  const mergedTriggerProps = useMemo(
+  const mergedTriggerProps = React.useMemo(
     () => mergeProps(getReferenceProps(), interactionTypeProps),
     [getReferenceProps, interactionTypeProps],
   );
@@ -425,7 +422,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     openMethod,
   ]);
 
-  const contextValue: SelectRootContext = useMemo(
+  const contextValue: SelectRootContext = React.useMemo(
     () => ({
       store,
       name,
@@ -481,7 +478,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
 
   const hasMultipleSelection = multiple && Array.isArray(value) && value.length > 0;
 
-  const hiddenInputs = useMemo(() => {
+  const hiddenInputs = React.useMemo(() => {
     if (!multiple || !Array.isArray(value) || !name) {
       return null;
     }

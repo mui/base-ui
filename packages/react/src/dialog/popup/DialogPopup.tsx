@@ -14,7 +14,6 @@ import { DialogPopupDataAttributes } from './DialogPopupDataAttributes';
 import { useDialogPortalContext } from '../portal/DialogPortalContext';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { COMPOSITE_KEYS } from '../../composite/composite';
-import { useMemo } from '@base-ui/utils/useMemo';
 
 const stateAttributesMapping: StateAttributesMapping<DialogPopup.State> = {
   ...baseMapping,
@@ -78,7 +77,7 @@ export const DialogPopup = React.forwardRef(function DialogPopup(
 
   const nestedDialogOpen = nestedOpenDialogCount > 0;
 
-  const state: DialogPopup.State = useMemo(
+  const state: DialogPopup.State = React.useMemo(
     () => ({
       open,
       nested,

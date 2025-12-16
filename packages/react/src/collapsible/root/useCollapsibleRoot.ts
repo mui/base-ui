@@ -9,9 +9,6 @@ import { REASONS } from '../../utils/reasons';
 import { useAnimationsFinished } from '../../utils/useAnimationsFinished';
 import { useTransitionStatus, TransitionStatus } from '../../utils/useTransitionStatus';
 import type { CollapsibleRoot } from './CollapsibleRoot';
-import { useRef } from '@base-ui/utils/useRef';
-import { useState } from '@base-ui/utils/useState';
-import { useMemo } from '@base-ui/utils/useMemo';
 
 export type AnimationType = 'css-transition' | 'css-animation' | 'none' | null;
 
@@ -35,23 +32,23 @@ export function useCollapsibleRoot(
   });
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open, true, true);
-  const [visible, setVisible] = useState(open);
-  const [{ height, width }, setDimensions] = useState<Dimensions>({
+  const [visible, setVisible] = React.useState(open);
+  const [{ height, width }, setDimensions] = React.useState<Dimensions>({
     height: undefined,
     width: undefined,
   });
 
   const defaultPanelId = useBaseUiId();
-  const [panelIdState, setPanelIdState] = useState<string | undefined>();
+  const [panelIdState, setPanelIdState] = React.useState<string | undefined>();
   const panelId = panelIdState ?? defaultPanelId;
 
-  const [hiddenUntilFound, setHiddenUntilFound] = useState(false);
-  const [keepMounted, setKeepMounted] = useState(false);
+  const [hiddenUntilFound, setHiddenUntilFound] = React.useState(false);
+  const [keepMounted, setKeepMounted] = React.useState(false);
 
-  const abortControllerRef = useRef<AbortController | null>(null);
-  const animationTypeRef = useRef<AnimationType>(null);
-  const transitionDimensionRef = useRef<'width' | 'height' | null>(null);
-  const panelRef: React.RefObject<HTMLElement | null> = useRef(null);
+  const abortControllerRef = React.useRef<AbortController | null>(null);
+  const animationTypeRef = React.useRef<AnimationType>(null);
+  const transitionDimensionRef = React.useRef<'width' | 'height' | null>(null);
+  const panelRef: React.RefObject<HTMLElement | null> = React.useRef(null);
 
   const runOnceAnimationsFinish = useAnimationsFinished(panelRef, false);
 
@@ -105,7 +102,7 @@ export function useCollapsibleRoot(
     }
   }, [isControlled, keepMounted, open, openParam, setMounted]);
 
-  return useMemo(
+  return React.useMemo(
     () => ({
       abortControllerRef,
       animationTypeRef,

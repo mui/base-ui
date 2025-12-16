@@ -1,6 +1,5 @@
 import * as React from 'react';
 import type { ScrollAreaRoot } from './ScrollAreaRoot';
-import { useContext } from '@base-ui/utils/useContext';
 
 export interface ScrollAreaRootContext {
   cornerSize: { width: number; height: number };
@@ -66,7 +65,7 @@ export const ScrollAreaRootContext = React.createContext<ScrollAreaRootContext |
 );
 
 export function useScrollAreaRootContext() {
-  const context = useContext(ScrollAreaRootContext);
+  const context = React.useContext(ScrollAreaRootContext);
   if (context === undefined) {
     throw new Error(
       'Base UI: ScrollAreaRootContext is missing. ScrollArea parts must be placed within <ScrollArea.Root>.',

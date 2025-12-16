@@ -4,8 +4,6 @@ import { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { AvatarRootContext } from './AvatarRootContext';
 import { avatarStateAttributesMapping } from './stateAttributesMapping';
-import { useMemo } from '@base-ui/utils/useMemo';
-import { useState } from '@base-ui/utils/useState';
 
 /**
  * Displays a user's profile picture, initials, or fallback icon.
@@ -19,16 +17,16 @@ export const AvatarRoot = React.forwardRef(function AvatarRoot(
 ) {
   const { className, render, ...elementProps } = componentProps;
 
-  const [imageLoadingStatus, setImageLoadingStatus] = useState<ImageLoadingStatus>('idle');
+  const [imageLoadingStatus, setImageLoadingStatus] = React.useState<ImageLoadingStatus>('idle');
 
-  const state: AvatarRoot.State = useMemo(
+  const state: AvatarRoot.State = React.useMemo(
     () => ({
       imageLoadingStatus,
     }),
     [imageLoadingStatus],
   );
 
-  const contextValue = useMemo(
+  const contextValue = React.useMemo(
     () => ({
       imageLoadingStatus,
       setImageLoadingStatus,

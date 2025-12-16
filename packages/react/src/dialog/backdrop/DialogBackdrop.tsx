@@ -7,7 +7,6 @@ import { type BaseUIComponentProps } from '../../utils/types';
 import { type StateAttributesMapping } from '../../utils/getStateAttributesProps';
 import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping';
 import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
-import { useMemo } from '@base-ui/utils/useMemo';
 
 const stateAttributesMapping: StateAttributesMapping<DialogBackdrop.State> = {
   ...baseMapping,
@@ -32,7 +31,7 @@ export const DialogBackdrop = React.forwardRef(function DialogBackdrop(
   const mounted = store.useState('mounted');
   const transitionStatus = store.useState('transitionStatus');
 
-  const state: DialogBackdrop.State = useMemo(
+  const state: DialogBackdrop.State = React.useMemo(
     () => ({
       open,
       transitionStatus,

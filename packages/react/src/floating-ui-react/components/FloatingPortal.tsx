@@ -18,11 +18,6 @@ import { createAttribute } from '../utils/createAttribute';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { EMPTY_OBJECT, ownerVisuallyHidden } from '../../utils/constants';
 import type { BaseUIComponentProps } from '../../utils/types';
-import { useEffect } from '@base-ui/utils/useEffect';
-import { useMemo } from '@base-ui/utils/useMemo';
-import { useRef } from '@base-ui/utils/useRef';
-import { useState } from '@base-ui/utils/useState';
-import { useContext } from '@base-ui/utils/useContext';
 
 type FocusManagerState = null | {
   modal: boolean;
@@ -41,7 +36,7 @@ const PortalContext = React.createContext<null | {
   afterOutsideRef: React.RefObject<HTMLSpanElement | null>;
 }>(null);
 
-export const usePortalContext = () => useContext(PortalContext);
+export const usePortalContext = () => React.useContext(PortalContext);
 
 const attr = createAttribute('portal');
 
@@ -73,10 +68,12 @@ export function useFloatingPortalNode(
   const portalContext = usePortalContext();
   const parentPortalNode = portalContext?.portalNode;
 
-  const [containerElement, setContainerElement] = useState<HTMLElement | ShadowRoot | null>(null);
-  const [portalNode, setPortalNode] = useState<HTMLElement | null>(null);
+  const [containerElement, setContainerElement] = React.useState<HTMLElement | ShadowRoot | null>(
+    null,
+  );
+  const [portalNode, setPortalNode] = React.useState<HTMLElement | null>(null);
 
-  const containerRef = useRef<HTMLElement | ShadowRoot | null>(null);
+  const containerRef = React.useRef<HTMLElement | ShadowRoot | null>(null);
 
   useIsoLayoutEffect(() => {
     // Wait for the container to be resolved if explicitly `null`.
@@ -162,12 +159,12 @@ export const FloatingPortal = React.forwardRef(function FloatingPortal(
     elementProps,
   });
 
-  const beforeOutsideRef = useRef<HTMLSpanElement>(null);
-  const afterOutsideRef = useRef<HTMLSpanElement>(null);
-  const beforeInsideRef = useRef<HTMLSpanElement>(null);
-  const afterInsideRef = useRef<HTMLSpanElement>(null);
+  const beforeOutsideRef = React.useRef<HTMLSpanElement>(null);
+  const afterOutsideRef = React.useRef<HTMLSpanElement>(null);
+  const beforeInsideRef = React.useRef<HTMLSpanElement>(null);
+  const afterInsideRef = React.useRef<HTMLSpanElement>(null);
 
-  const [focusManagerState, setFocusManagerState] = useState<FocusManagerState>(null);
+  const [focusManagerState, setFocusManagerState] = React.useState<FocusManagerState>(null);
 
   const modal = focusManagerState?.modal;
   const open = focusManagerState?.open;
@@ -178,7 +175,7 @@ export const FloatingPortal = React.forwardRef(function FloatingPortal(
       : !!focusManagerState && !focusManagerState.modal && focusManagerState.open && !!portalNode;
 
   // https://codesandbox.io/s/tabbable-portal-f4tng?file=/src/TabbablePortal.tsx
-  useEffect(() => {
+  React.useEffect(() => {
     if (!portalNode || modal) {
       return undefined;
     }
@@ -204,14 +201,14 @@ export const FloatingPortal = React.forwardRef(function FloatingPortal(
     };
   }, [portalNode, modal]);
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (!portalNode || open) {
       return;
     }
     enableFocusInside(portalNode);
   }, [open, portalNode]);
 
-  const portalContextValue = useMemo(
+  const portalContextValue = React.useMemo(
     () => ({
       beforeOutsideRef,
       afterOutsideRef,

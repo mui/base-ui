@@ -4,8 +4,6 @@ import { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { ComboboxGroupContext } from './ComboboxGroupContext';
 import { GroupCollectionProvider } from '../collection/GroupCollectionContext';
-import { useMemo } from '@base-ui/utils/useMemo';
-import { useState } from '@base-ui/utils/useState';
 
 /**
  * Groups related items with the corresponding label.
@@ -17,9 +15,9 @@ export const ComboboxGroup = React.forwardRef(function ComboboxGroup(
 ) {
   const { render, className, items, ...elementProps } = componentProps;
 
-  const [labelId, setLabelId] = useState<string | undefined>();
+  const [labelId, setLabelId] = React.useState<string | undefined>();
 
-  const contextValue = useMemo(
+  const contextValue = React.useMemo(
     () => ({
       labelId,
       setLabelId,

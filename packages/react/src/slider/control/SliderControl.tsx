@@ -23,8 +23,6 @@ import { getMidpoint } from '../utils/getMidpoint';
 import { roundValueToStep } from '../utils/roundValueToStep';
 import { validateMinimumDistance } from '../utils/validateMinimumDistance';
 import { resolveThumbCollision } from '../utils/resolveThumbCollision';
-import { useEffect } from '@base-ui/utils/useEffect';
-import { useRef } from '@base-ui/utils/useRef';
 
 const INTENTIONAL_DRAG_COUNT_THRESHOLD = 2;
 
@@ -121,8 +119,8 @@ export const SliderControl = React.forwardRef(function SliderControl(
   const range = values.length > 1;
   const vertical = orientation === 'vertical';
 
-  const controlRef = useRef<HTMLElement>(null);
-  const stylesRef = useRef<CSSStyleDeclaration>(null);
+  const controlRef = React.useRef<HTMLElement>(null);
+  const stylesRef = React.useRef<CSSStyleDeclaration>(null);
   const setStylesRef = useStableCallback((element: HTMLElement | null) => {
     if (element && stylesRef.current == null) {
       if (stylesRef.current == null) {
@@ -132,12 +130,12 @@ export const SliderControl = React.forwardRef(function SliderControl(
   });
 
   // A number that uniquely identifies the current finger in the touch session.
-  const touchIdRef = useRef<number>(null);
+  const touchIdRef = React.useRef<number>(null);
   // The number of touch/pointermove events that have fired.
-  const moveCountRef = useRef(0);
+  const moveCountRef = React.useRef(0);
   // The offset amount to each side of the control for inset sliders.
   // This value should be equal to the radius or half the width/height of the thumb.
-  const insetThumbOffsetRef = useRef(0);
+  const insetThumbOffsetRef = React.useRef(0);
   const latestValuesRef = useValueAsRef(values);
 
   const updatePressedThumb = useStableCallback((nextIndex: number) => {
@@ -405,7 +403,7 @@ export const SliderControl = React.forwardRef(function SliderControl(
 
   const focusFrame = useAnimationFrame();
 
-  useEffect(() => {
+  React.useEffect(() => {
     const control = controlRef.current;
     if (!control) {
       return () => stopListening();
@@ -423,7 +421,7 @@ export const SliderControl = React.forwardRef(function SliderControl(
     };
   }, [stopListening, handleTouchStart, controlRef, focusFrame]);
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (disabled) {
       stopListening();
     }

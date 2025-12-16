@@ -6,7 +6,6 @@ import { useRenderElement } from '../../utils/useRenderElement';
 import { useSliderRootContext } from '../root/SliderRootContext';
 import { sliderStateAttributesMapping } from '../root/stateAttributesMapping';
 import type { SliderRoot } from '../root/SliderRoot';
-import { useMemo } from '@base-ui/utils/useMemo';
 
 /**
  * Displays the current value of the slider as text.
@@ -28,7 +27,7 @@ export const SliderValue = React.forwardRef(function SliderValue(
 
   const { thumbMap, state, values, formatOptionsRef, locale } = useSliderRootContext();
 
-  const outputFor = useMemo(() => {
+  const outputFor = React.useMemo(() => {
     let htmlFor = '';
     for (const thumbMetadata of thumbMap.values()) {
       if (thumbMetadata?.inputId) {
@@ -38,7 +37,7 @@ export const SliderValue = React.forwardRef(function SliderValue(
     return htmlFor.trim() === '' ? undefined : htmlFor.trim();
   }, [thumbMap]);
 
-  const formattedValues = useMemo(() => {
+  const formattedValues = React.useMemo(() => {
     const arr = [];
     for (let i = 0; i < values.length; i += 1) {
       arr.push(formatNumber(values[i], locale, formatOptionsRef.current ?? undefined));
@@ -46,7 +45,7 @@ export const SliderValue = React.forwardRef(function SliderValue(
     return arr;
   }, [formatOptionsRef, locale, values]);
 
-  const defaultDisplayValue = useMemo(() => {
+  const defaultDisplayValue = React.useMemo(() => {
     const arr = [];
     for (let i = 0; i < values.length; i += 1) {
       arr.push(formattedValues[i] || values[i]);

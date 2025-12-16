@@ -11,7 +11,6 @@ import { selectors } from '../store';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
 import { findItemIndex } from '../../utils/itemEquality';
-import { useMemo } from '@base-ui/utils/useMemo';
 
 /**
  * A button to remove a chip.
@@ -37,7 +36,7 @@ export const ComboboxChipRemove = React.forwardRef(function ComboboxChipRemove(
     focusableWhenDisabled: true,
   });
 
-  const state: ComboboxChipRemove.State = useMemo(
+  const state: ComboboxChipRemove.State = React.useMemo(
     () => ({
       disabled,
     }),

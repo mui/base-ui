@@ -2,7 +2,6 @@ import * as React from 'react';
 import { ReactStore } from '@base-ui/utils/store';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import { LazyScope } from '@base-ui/utils/fastHooks';
 import { useTransitionStatus } from '../useTransitionStatus';
 import { useOpenChangeComplete } from '../useOpenChangeComplete';
 import {
@@ -11,8 +10,6 @@ import {
   popupStoreSelectors,
   PopupStoreSelectors,
 } from './store';
-import { useCallback } from '@base-ui/utils/useCallback';
-import { useRef } from '@base-ui/utils/useRef';
 
 /**
  * Returns a callback ref that registers/unregisters the trigger element in the store.
@@ -24,9 +21,9 @@ export function useTriggerRegistration<State extends PopupStoreState<any>>(
   store: ReactStore<State, PopupStoreContext<any>, PopupStoreSelectors>,
 ) {
   // Keep track of the currently registered element to unregister it on unmount or id change.
-  const registeredElementIdRef = useRef<string | null>(null);
+  const registeredElementIdRef = React.useRef<string | null>(null);
 
-  return useCallback(
+  return React.useCallback(
     (element: Element | null) => {
       if (id === undefined) {
         return;
@@ -140,44 +137,34 @@ export function useOpenStateTransitions<State extends PopupStoreState<any>>(
   open: boolean,
   store: ReactStore<State, PopupStoreContext<any>, typeof popupStoreSelectors>,
   onUnmount?: () => void,
-  openScope: LazyScope = {
-    use: (cb: any) => cb(),
-  } as any,
 ) {
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
 
   store.useSyncedValues({ mounted, transitionStatus } as Partial<State>);
 
-  return openScope.use(() => {
-    const forceUnmount = useStableCallback(() => {
-      setMounted(false);
-      store.update({
-        activeTriggerId: null,
-        activeTriggerElement: null,
-        mounted: false,
-      } as Partial<State>);
-      onUnmount?.();
-      store.context.onOpenChangeComplete?.(false);
-    });
+  const forceUnmount = useStableCallback(() => {
+    setMounted(false);
+    store.update({
+      activeTriggerId: null,
+      activeTriggerElement: null,
+      mounted: false,
+    } as Partial<State>);
+    onUnmount?.();
+    store.context.onOpenChangeComplete?.(false);
+  });
 
-    const preventUnmountingOnClose = store.useState('preventUnmountingOnClose');
+  const preventUnmountingOnClose = store.useState('preventUnmountingOnClose');
 
-    useOpenChangeComplete({
-      enabled: !preventUnmountingOnClose,
-      open,
-      ref: store.context.popupRef,
-      onComplete() {
-        if (!open) {
-          forceUnmount();
-        }
-      },
-    });
+  useOpenChangeComplete({
+    enabled: !preventUnmountingOnClose,
+    open,
+    ref: store.context.popupRef,
+    onComplete() {
+      if (!open) {
+        forceUnmount();
+      }
+    },
+  });
 
-    return { forceUnmount, transitionStatus };
-  }, defaultValue);
+  return { forceUnmount, transitionStatus };
 }
-
-const uninitialized = () => {
-  throw new Error('useOpenStateTransitions not initialized');
-};
-const defaultValue = { forceUnmount: uninitialized, transitionStatus: undefined };

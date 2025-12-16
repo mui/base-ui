@@ -1,7 +1,6 @@
 'use client';
 import * as React from 'react';
 import type { Side, Align } from '../../utils/useAnchorPositioning';
-import { useContext } from '@base-ui/utils/useContext';
 
 export interface TooltipPositionerContext {
   open: boolean;
@@ -17,7 +16,7 @@ export const TooltipPositionerContext = React.createContext<TooltipPositionerCon
 );
 
 export function useTooltipPositionerContext() {
-  const context = useContext(TooltipPositionerContext);
+  const context = React.useContext(TooltipPositionerContext);
   if (context === undefined) {
     throw new Error(
       'Base UI: TooltipPositionerContext is missing. TooltipPositioner parts must be placed within <Tooltip.Positioner>.',

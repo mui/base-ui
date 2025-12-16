@@ -3,8 +3,6 @@ import * as React from 'react';
 import { FieldsetRootContext } from './FieldsetRootContext';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
-import { useMemo } from '@base-ui/utils/useMemo';
-import { useState } from '@base-ui/utils/useState';
 
 /**
  * Groups the fieldset legend and the associated fields.
@@ -18,9 +16,9 @@ export const FieldsetRoot = React.forwardRef(function FieldsetRoot(
 ) {
   const { render, className, disabled = false, ...elementProps } = componentProps;
 
-  const [legendId, setLegendId] = useState<string | undefined>(undefined);
+  const [legendId, setLegendId] = React.useState<string | undefined>(undefined);
 
-  const state: FieldsetRoot.State = useMemo(
+  const state: FieldsetRoot.State = React.useMemo(
     () => ({
       disabled,
     }),
@@ -38,7 +36,7 @@ export const FieldsetRoot = React.forwardRef(function FieldsetRoot(
     ],
   });
 
-  const contextValue: FieldsetRootContext = useMemo(
+  const contextValue: FieldsetRootContext = React.useMemo(
     () => ({
       legendId,
       setLegendId,

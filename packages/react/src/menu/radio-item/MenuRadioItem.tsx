@@ -13,7 +13,6 @@ import { REGULAR_ITEM, useMenuItem } from '../item/useMenuItem';
 import { useMenuPositionerContext } from '../positioner/MenuPositionerContext';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
-import { useMemo } from '@base-ui/utils/useMemo';
 
 /**
  * A menu item that works like a radio button in a given group.
@@ -65,7 +64,7 @@ export const MenuRadioItem = React.forwardRef(function MenuRadioItem(
     itemMetadata: REGULAR_ITEM,
   });
 
-  const state: MenuRadioItem.State = useMemo(
+  const state: MenuRadioItem.State = React.useMemo(
     () => ({
       disabled,
       highlighted,

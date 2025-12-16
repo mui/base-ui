@@ -10,7 +10,6 @@ import { NAVIGATION_MENU_TRIGGER_IDENTIFIER } from '../utils/constants';
 import { NavigationMenuDismissContext } from './NavigationMenuDismissContext';
 import { getEmptyRootContext } from '../../floating-ui-react/utils/getEmptyRootContext';
 import { useRenderElement } from '../../utils/useRenderElement';
-import { useMemo } from '@base-ui/utils/useMemo';
 
 /**
  * Contains a list of navigation menu items.
@@ -27,7 +26,7 @@ export const NavigationMenuList = React.forwardRef(function NavigationMenuList(
   const { orientation, open, floatingRootContext, positionerElement, value, nested } =
     useNavigationMenuRootContext();
 
-  const fallbackContext = useMemo(() => getEmptyRootContext(), []);
+  const fallbackContext = React.useMemo(() => getEmptyRootContext(), []);
   const context = floatingRootContext || fallbackContext;
   const interactionsEnabled = positionerElement ? true : !value;
 
@@ -45,7 +44,7 @@ export const NavigationMenuList = React.forwardRef(function NavigationMenuList(
 
   const dismissProps = floatingRootContext ? dismiss : undefined;
 
-  const state: NavigationMenuList.State = useMemo(
+  const state: NavigationMenuList.State = React.useMemo(
     () => ({
       open,
     }),

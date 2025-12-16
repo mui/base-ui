@@ -3,7 +3,6 @@ import * as React from 'react';
 import type { Orientation } from '../utils/types';
 import type { BaseUIChangeEventDetails } from '../utils/createBaseUIEventDetails';
 import type { BaseUIEventReasons } from '../utils/reasons';
-import { useContext } from '@base-ui/utils/useContext';
 
 export interface ToggleGroupContext {
   value: readonly any[];
@@ -19,7 +18,7 @@ export interface ToggleGroupContext {
 export const ToggleGroupContext = React.createContext<ToggleGroupContext | undefined>(undefined);
 
 export function useToggleGroupContext(optional = true) {
-  const context = useContext(ToggleGroupContext);
+  const context = React.useContext(ToggleGroupContext);
   if (context === undefined && !optional) {
     throw new Error(
       'Base UI: ToggleGroupContext is missing. ToggleGroup parts must be placed within <ToggleGroup>.',

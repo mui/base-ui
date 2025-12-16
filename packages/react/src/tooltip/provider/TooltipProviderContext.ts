@@ -1,5 +1,4 @@
 import * as React from 'react';
-import { useContext } from '@base-ui/utils/useContext';
 
 export interface TooltipProviderContext {
   delay: number | undefined;
@@ -11,5 +10,5 @@ export const TooltipProviderContext = React.createContext<TooltipProviderContext
 );
 
 export function useTooltipProviderContext(): TooltipProviderContext | undefined {
-  return useContext(TooltipProviderContext);
+  return React.useContext(TooltipProviderContext);
 }

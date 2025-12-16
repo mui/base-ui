@@ -33,8 +33,6 @@ import {
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
 import { useTriggerDataForwarding } from '../../utils/popups';
-import { useMemo } from '@base-ui/utils/useMemo';
-import { useRef } from '@base-ui/utils/useRef';
 
 /**
  * A button that opens the popover.
@@ -73,7 +71,7 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
   const floatingContext = store.useState('floatingRootContext');
   const isOpenedByThisTrigger = store.useState('isOpenedByTrigger', thisTriggerId);
 
-  const triggerElementRef = useRef<HTMLElement | null>(null);
+  const triggerElementRef = React.useRef<HTMLElement | null>(null);
 
   const { registerTrigger, isMountedByThisTrigger } = useTriggerDataForwarding(
     thisTriggerId,
@@ -113,7 +111,7 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
 
   const rootTriggerProps = store.useState('triggerProps', isMountedByThisTrigger);
 
-  const state: PopoverTrigger.State = useMemo(
+  const state: PopoverTrigger.State = React.useMemo(
     () => ({
       disabled,
       open: isOpenedByThisTrigger,
@@ -126,7 +124,7 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
     native: nativeButton,
   });
 
-  const stateAttributesMapping: StateAttributesMapping<{ open: boolean }> = useMemo(
+  const stateAttributesMapping: StateAttributesMapping<{ open: boolean }> = React.useMemo(
     () => ({
       open(value) {
         if (value && openReason === REASONS.triggerPress) {
@@ -153,7 +151,7 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
     stateAttributesMapping,
   });
 
-  const preFocusGuardRef = useRef<HTMLElement>(null);
+  const preFocusGuardRef = React.useRef<HTMLElement>(null);
 
   const handlePreFocusGuardFocus = useStableCallback((event: React.FocusEvent) => {
     ReactDOM.flushSync(() => {

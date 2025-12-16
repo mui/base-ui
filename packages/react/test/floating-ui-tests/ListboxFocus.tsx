@@ -8,11 +8,6 @@ import {
   useTypeahead,
   useRole,
 } from '../../src/floating-ui-react';
-import { useCallback } from '@base-ui/utils/useCallback';
-import { useMemo } from '@base-ui/utils/useMemo';
-import { useRef } from '@base-ui/utils/useRef';
-import { useState } from '@base-ui/utils/useState';
-import { useContext } from '@base-ui/utils/useContext';
 
 interface SelectContextValue {
   activeIndex: number | null;
@@ -25,17 +20,17 @@ const SelectContext = React.createContext<SelectContextValue>({} as SelectContex
 
 /** @internal */
 function Listbox({ children }: { children: React.ReactNode }) {
-  const [activeIndex, setActiveIndex] = useState<number | null>(1);
-  const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
+  const [activeIndex, setActiveIndex] = React.useState<number | null>(1);
+  const [selectedIndex, setSelectedIndex] = React.useState<number | null>(null);
 
   const { refs, context } = useFloating({
     open: true,
   });
 
-  const elementsRef = useRef<Array<HTMLElement | null>>([]);
-  const labelsRef = useRef<Array<string | null>>([]);
+  const elementsRef = React.useRef<Array<HTMLElement | null>>([]);
+  const labelsRef = React.useRef<Array<string | null>>([]);
 
-  const handleSelect = useCallback((index: number | null) => {
+  const handleSelect = React.useCallback((index: number | null) => {
     setSelectedIndex(index);
   }, []);
 
@@ -60,7 +55,7 @@ function Listbox({ children }: { children: React.ReactNode }) {
 
   const { getFloatingProps, getItemProps } = useInteractions([listNav, typeahead, role]);
 
-  const selectContext = useMemo(
+  const selectContext = React.useMemo(
     () => ({
       activeIndex,
       selectedIndex,
@@ -86,7 +81,8 @@ function Listbox({ children }: { children: React.ReactNode }) {
 
 /** @internal */
 function Option({ label }: { label: string }) {
-  const { activeIndex, selectedIndex, getItemProps, handleSelect } = useContext(SelectContext);
+  const { activeIndex, selectedIndex, getItemProps, handleSelect } =
+    React.useContext(SelectContext);
 
   const { ref, index } = useCompositeListItem({ label });
 

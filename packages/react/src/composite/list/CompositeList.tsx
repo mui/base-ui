@@ -5,9 +5,6 @@ import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { CompositeListContext } from './CompositeListContext';
-import { useRef } from '@base-ui/utils/useRef';
-import { useState } from '@base-ui/utils/useState';
-import { useMemo } from '@base-ui/utils/useMemo';
 
 export type CompositeMetadata<CustomMetadata> = { index?: number | null } & CustomMetadata;
 
@@ -20,7 +17,7 @@ export function CompositeList<Metadata>(props: CompositeList.Props<Metadata>) {
 
   const onMapChange = useStableCallback(onMapChangeProp);
 
-  const nextIndexRef = useRef(0);
+  const nextIndexRef = React.useRef(0);
   const listeners = useRefWithInit(createListeners).current;
 
   // We use a stable `map` to avoid O(n^2) re-allocation costs for large lists.
@@ -33,8 +30,8 @@ export function CompositeList<Metadata>(props: CompositeList.Props<Metadata>) {
 
   const map = useRefWithInit(createMap<Metadata>).current;
   // `mapTick` uses a counter rather than objects for low precision-loss risk and better memory efficiency
-  const [mapTick, setMapTick] = useState(0);
-  const lastTickRef = useRef(mapTick);
+  const [mapTick, setMapTick] = React.useState(0);
+  const lastTickRef = React.useRef(mapTick);
 
   const register = useStableCallback((node: Element, metadata: Metadata) => {
     map.set(node, metadata ?? null);
@@ -48,7 +45,7 @@ export function CompositeList<Metadata>(props: CompositeList.Props<Metadata>) {
     setMapTick(lastTickRef.current);
   });
 
-  const sortedMap = useMemo(() => {
+  const sortedMap = React.useMemo(() => {
     // `mapTick` is the `useMemo` trigger as `map` is stable.
     disableEslintWarning(mapTick);
 
@@ -136,7 +133,7 @@ export function CompositeList<Metadata>(props: CompositeList.Props<Metadata>) {
     listeners.forEach((l) => l(sortedMap));
   }, [listeners, sortedMap]);
 
-  const contextValue = useMemo(
+  const contextValue = React.useMemo(
     () => ({ register, unregister, subscribeMapChange, elementsRef, labelsRef, nextIndexRef }),
     [register, unregister, subscribeMapChange, elementsRef, labelsRef, nextIndexRef],
   );

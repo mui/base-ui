@@ -13,7 +13,6 @@ import {
   createChangeEventDetails,
 } from '../utils/createBaseUIEventDetails';
 import { REASONS } from '../utils/reasons';
-import { useMemo } from '@base-ui/utils/useMemo';
 
 /**
  * A two-state button that can be on or off.
@@ -69,7 +68,7 @@ export const Toggle = React.forwardRef(function Toggle(
     native: nativeButton,
   });
 
-  const state: Toggle.State = useMemo(
+  const state: Toggle.State = React.useMemo(
     () => ({
       disabled,
       pressed,

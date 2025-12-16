@@ -15,8 +15,6 @@ import {
   safePolygonIdentifier,
   useHoverInteractionSharedState,
 } from './useHoverInteractionSharedState';
-import { useEffect } from '@base-ui/utils/useEffect';
-import { useCallback } from '@base-ui/utils/useCallback';
 
 export type UseHoverFloatingInteractionProps = {
   /**
@@ -81,7 +79,7 @@ export function useHoverFloatingInteraction(
     return type?.includes('mouse') && type !== 'mousedown';
   });
 
-  const closeWithDelay = useCallback(
+  const closeWithDelay = React.useCallback(
     (event: MouseEvent, runElseBranch = true) => {
       const closeDelay = getDelay(closeDelayProp, pointerTypeRef.current);
       if (closeDelay && !handlerRef.current) {
@@ -137,13 +135,13 @@ export function useHoverFloatingInteraction(
     clearPointerEvents,
   ]);
 
-  useEffect(() => {
+  React.useEffect(() => {
     return () => {
       cleanupMouseMoveHandler();
     };
   }, [cleanupMouseMoveHandler]);
 
-  useEffect(() => {
+  React.useEffect(() => {
     return clearPointerEvents;
   }, [clearPointerEvents]);
 
@@ -197,7 +195,7 @@ export function useHoverFloatingInteraction(
     performedPointerEventsMutationRef,
   ]);
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (!enabled) {
       return undefined;
     }

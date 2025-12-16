@@ -6,8 +6,6 @@ import { useRenderElement } from '../../utils/useRenderElement';
 import { ProgressRootContext } from './ProgressRootContext';
 import { progressStateAttributesMapping } from './stateAttributesMapping';
 import { BaseUIComponentProps, HTMLProps } from '../../utils/types';
-import { useMemo } from '@base-ui/utils/useMemo';
-import { useState } from '@base-ui/utils/useState';
 
 function formatValue(
   value: number | null,
@@ -55,7 +53,7 @@ export const ProgressRoot = React.forwardRef(function ProgressRoot(
     ...elementProps
   } = componentProps;
 
-  const [labelId, setLabelId] = useState<string | undefined>();
+  const [labelId, setLabelId] = React.useState<string | undefined>();
 
   const formatOptionsRef = useValueAsRef(format);
 
@@ -65,7 +63,7 @@ export const ProgressRoot = React.forwardRef(function ProgressRoot(
   }
   const formattedValue = formatValue(value, locale, formatOptionsRef.current);
 
-  const state: ProgressRoot.State = useMemo(
+  const state: ProgressRoot.State = React.useMemo(
     () => ({
       status,
     }),
@@ -81,7 +79,7 @@ export const ProgressRoot = React.forwardRef(function ProgressRoot(
     role: 'progressbar',
   };
 
-  const contextValue: ProgressRootContext = useMemo(
+  const contextValue: ProgressRootContext = React.useMemo(
     () => ({
       formattedValue,
       max,

@@ -33,10 +33,6 @@ import { useSliderRootContext } from '../root/SliderRootContext';
 import { sliderStateAttributesMapping } from '../root/stateAttributesMapping';
 import { SliderThumbDataAttributes } from './SliderThumbDataAttributes';
 import { script as prehydrationScript } from './prehydrationScript.min';
-import { useCallback } from '@base-ui/utils/useCallback';
-import { useState } from '@base-ui/utils/useState';
-import { useMemo } from '@base-ui/utils/useMemo';
-import { useRef } from '@base-ui/utils/useRef';
 
 const PAGE_UP = 'PageUp';
 const PAGE_DOWN = 'PageDown';
@@ -152,14 +148,14 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
 
   const { setTouched, setFocused, validationMode } = useFieldRootContext();
 
-  const thumbRef = useRef<HTMLElement>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
+  const thumbRef = React.useRef<HTMLElement>(null);
+  const inputRef = React.useRef<HTMLInputElement>(null);
 
   const defaultInputId = useBaseUiId();
   const labelableId = useLabelableId();
   const inputId = range ? defaultInputId : labelableId;
 
-  const thumbMetadata = useMemo(
+  const thumbMetadata = React.useMemo(
     () => ({
       inputId,
     }),
@@ -175,8 +171,8 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
   const thumbValue = sliderValues[index];
   const thumbValuePercent = valueToPercent(thumbValue, min, max);
 
-  const [isMounted, setIsMounted] = useState(false);
-  const [positionPercent, setPositionPercent] = useState<number | undefined>();
+  const [isMounted, setIsMounted] = React.useState(false);
+  const [positionPercent, setPositionPercent] = React.useState<number | undefined>();
 
   useOnMount(() => setIsMounted(true));
 
@@ -219,7 +215,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
     }
   }, [getInsetPosition, inset, thumbValuePercent]);
 
-  const getThumbStyle = useCallback(() => {
+  const getThumbStyle = React.useCallback(() => {
     const startEdge = vertical ? 'bottom' : 'insetInlineStart';
     const crossOffsetProperty = vertical ? 'left' : 'top';
 

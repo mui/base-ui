@@ -28,9 +28,6 @@ import type { ElementProps, FloatingContext, FloatingRootContext } from '../type
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
 import { createAttribute } from '../utils/createAttribute';
-import { useEffect } from '@base-ui/utils/useEffect';
-import { useRef } from '@base-ui/utils/useRef';
-import { useMemo } from '@base-ui/utils/useMemo';
 
 type PressType = 'intentional' | 'sloppy';
 
@@ -159,10 +156,10 @@ export function useDismiss(
   );
   const outsidePress = typeof outsidePressProp === 'function' ? outsidePressFn : outsidePressProp;
 
-  const endedOrStartedInsideRef = useRef(false);
+  const endedOrStartedInsideRef = React.useRef(false);
   const { escapeKey: escapeKeyBubbles, outsidePress: outsidePressBubbles } = normalizeProp(bubbles);
 
-  const touchStateRef = useRef<{
+  const touchStateRef = React.useRef<{
     startTime: number;
     startX: number;
     startY: number;
@@ -178,8 +175,8 @@ export function useDismiss(
     dataRef.current.insideReactTree = false;
   });
 
-  const isComposingRef = useRef(false);
-  const currentPointerTypeRef = useRef<PointerEvent['pointerType']>('');
+  const isComposingRef = React.useRef(false);
+  const currentPointerTypeRef = React.useRef<PointerEvent['pointerType']>('');
 
   const trackPointerType = useStableCallback((event: PointerEvent) => {
     currentPointerTypeRef.current = event.pointerType;
@@ -536,7 +533,7 @@ export function useDismiss(
     target?.addEventListener(event.type, callback);
   });
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (!open || !enabled) {
       return undefined;
     }
@@ -659,9 +656,9 @@ export function useDismiss(
     store,
   ]);
 
-  useEffect(clearInsideReactTree, [outsidePress, clearInsideReactTree]);
+  React.useEffect(clearInsideReactTree, [outsidePress, clearInsideReactTree]);
 
-  const reference: ElementProps['reference'] = useMemo(
+  const reference: ElementProps['reference'] = React.useMemo(
     () => ({
       onKeyDown: closeOnEscapeKeyDown,
       ...(referencePress && {
@@ -689,7 +686,7 @@ export function useDismiss(
     endedOrStartedInsideRef.current = true;
   });
 
-  const floating: ElementProps['floating'] = useMemo(
+  const floating: ElementProps['floating'] = React.useMemo(
     () => ({
       onKeyDown: closeOnEscapeKeyDown,
 
@@ -710,7 +707,7 @@ export function useDismiss(
     [closeOnEscapeKeyDown, handlePressedInside, markInsideReactTree],
   );
 
-  return useMemo(
+  return React.useMemo(
     () => (enabled ? { reference, floating, trigger: reference } : {}),
     [enabled, reference, floating],
   );

@@ -3,7 +3,6 @@ import * as React from 'react';
 import type { FieldValidityData } from '../field/root/FieldRoot';
 import { NOOP } from '../utils/noop';
 import type { Form } from './Form';
-import { useContext } from '@base-ui/utils/useContext';
 
 export type Errors = Record<string, string | string[]>;
 
@@ -41,5 +40,5 @@ export const FormContext = React.createContext<FormContext>({
 });
 
 export function useFormContext() {
-  return useContext(FormContext);
+  return React.useContext(FormContext);
 }

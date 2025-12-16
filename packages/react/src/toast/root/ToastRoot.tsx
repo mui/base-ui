@@ -16,10 +16,6 @@ import { StateAttributesMapping } from '../../utils/getStateAttributesProps';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { ToastRootCssVars } from './ToastRootCssVars';
-import { useEffect } from '@base-ui/utils/useEffect';
-import { useRef } from '@base-ui/utils/useRef';
-import { useState } from '@base-ui/utils/useState';
-import { useMemo } from '@base-ui/utils/useMemo';
 
 const stateAttributesMapping: StateAttributesMapping<ToastRoot.State> = {
   ...transitionStatusMapping,
@@ -106,33 +102,37 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
   const { toasts, focused, close, remove, setToasts, pauseTimers, expanded, setHovering } =
     useToastContext();
 
-  const [currentSwipeDirection, setCurrentSwipeDirection] = useState<
+  const [currentSwipeDirection, setCurrentSwipeDirection] = React.useState<
     'up' | 'down' | 'left' | 'right' | undefined
   >(undefined);
-  const [isSwiping, setIsSwiping] = useState(false);
-  const [isRealSwipe, setIsRealSwipe] = useState(false);
-  const [dragDismissed, setDragDismissed] = useState(false);
-  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
-  const [initialTransform, setInitialTransform] = useState({ x: 0, y: 0, scale: 1 });
-  const [titleId, setTitleId] = useState<string | undefined>();
-  const [descriptionId, setDescriptionId] = useState<string | undefined>();
-  const [lockedDirection, setLockedDirection] = useState<'horizontal' | 'vertical' | null>(null);
+  const [isSwiping, setIsSwiping] = React.useState(false);
+  const [isRealSwipe, setIsRealSwipe] = React.useState(false);
+  const [dragDismissed, setDragDismissed] = React.useState(false);
+  const [dragOffset, setDragOffset] = React.useState({ x: 0, y: 0 });
+  const [initialTransform, setInitialTransform] = React.useState({ x: 0, y: 0, scale: 1 });
+  const [titleId, setTitleId] = React.useState<string | undefined>();
+  const [descriptionId, setDescriptionId] = React.useState<string | undefined>();
+  const [lockedDirection, setLockedDirection] = React.useState<'horizontal' | 'vertical' | null>(
+    null,
+  );
 
-  const rootRef = useRef<HTMLDivElement | null>(null);
-  const dragStartPosRef = useRef({ x: 0, y: 0 });
-  const initialTransformRef = useRef({ x: 0, y: 0, scale: 1 });
-  const intendedSwipeDirectionRef = useRef<'up' | 'down' | 'left' | 'right' | undefined>(undefined);
-  const maxSwipeDisplacementRef = useRef(0);
-  const cancelledSwipeRef = useRef(false);
-  const swipeCancelBaselineRef = useRef({ x: 0, y: 0 });
-  const isFirstPointerMoveRef = useRef(false);
+  const rootRef = React.useRef<HTMLDivElement | null>(null);
+  const dragStartPosRef = React.useRef({ x: 0, y: 0 });
+  const initialTransformRef = React.useRef({ x: 0, y: 0, scale: 1 });
+  const intendedSwipeDirectionRef = React.useRef<'up' | 'down' | 'left' | 'right' | undefined>(
+    undefined,
+  );
+  const maxSwipeDisplacementRef = React.useRef(0);
+  const cancelledSwipeRef = React.useRef(false);
+  const swipeCancelBaselineRef = React.useRef({ x: 0, y: 0 });
+  const isFirstPointerMoveRef = React.useRef(false);
 
-  const domIndex = useMemo(() => toasts.indexOf(toast), [toast, toasts]);
-  const visibleIndex = useMemo(
+  const domIndex = React.useMemo(() => toasts.indexOf(toast), [toast, toasts]);
+  const visibleIndex = React.useMemo(
     () => toasts.filter((t) => t.transitionStatus !== 'ending').indexOf(toast),
     [toast, toasts],
   );
-  const offsetY = useMemo(() => {
+  const offsetY = React.useMemo(() => {
     return toasts.slice(0, toasts.indexOf(toast)).reduce((acc, t) => acc + (t.height || 0), 0);
   }, [toasts, toast]);
 
@@ -461,7 +461,7 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
     }
   }
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (!swipeEnabled) {
       return undefined;
     }
@@ -534,7 +534,7 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
     },
   };
 
-  const toastRoot: ToastRootContext = useMemo(
+  const toastRoot: ToastRootContext = React.useMemo(
     () => ({
       rootRef,
       toast,
@@ -562,7 +562,7 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
     ],
   );
 
-  const state: ToastRoot.State = useMemo(
+  const state: ToastRoot.State = React.useMemo(
     () => ({
       transitionStatus: toast.transitionStatus,
       expanded,

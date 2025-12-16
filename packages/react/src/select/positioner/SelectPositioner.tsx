@@ -19,10 +19,6 @@ import { selectors } from '../store';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
 import { findItemIndex, itemIncludes } from '../../utils/itemEquality';
-import { useRef } from '@base-ui/utils/useRef';
-import { useState } from '@base-ui/utils/useState';
-import { useMemo } from '@base-ui/utils/useMemo';
-import { useImperativeHandle } from '@base-ui/utils/useImperativeHandle';
 
 const FIXED: React.CSSProperties = { position: 'fixed' };
 
@@ -77,11 +73,11 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
   const triggerElement = useStore(store, selectors.triggerElement);
   const isItemEqualToValue = useStore(store, selectors.isItemEqualToValue);
 
-  const scrollUpArrowRef = useRef<HTMLDivElement | null>(null);
-  const scrollDownArrowRef = useRef<HTMLDivElement | null>(null);
+  const scrollUpArrowRef = React.useRef<HTMLDivElement | null>(null);
+  const scrollDownArrowRef = React.useRef<HTMLDivElement | null>(null);
 
   const [controlledAlignItemWithTrigger, setControlledAlignItemWithTrigger] =
-    useState(alignItemWithTrigger);
+    React.useState(alignItemWithTrigger);
   const alignItemWithTriggerActive =
     mounted && controlledAlignItemWithTrigger && openMethod !== 'touch';
 
@@ -100,7 +96,7 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
     }
   }, [store, mounted]);
 
-  useImperativeHandle(alignItemWithTriggerActiveRef, () => alignItemWithTriggerActive);
+  React.useImperativeHandle(alignItemWithTriggerActiveRef, () => alignItemWithTriggerActive);
 
   useScrollLock(
     (alignItemWithTriggerActive || modal) && open && openMethod !== 'touch',
@@ -128,7 +124,7 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
   const renderedSide = alignItemWithTriggerActive ? 'none' : positioning.side;
   const positionerStyles = alignItemWithTriggerActive ? FIXED : positioning.positionerStyles;
 
-  const defaultProps: React.ComponentProps<'div'> = useMemo(() => {
+  const defaultProps: React.ComponentProps<'div'> = React.useMemo(() => {
     const hiddenStyles: React.CSSProperties = {};
 
     if (!open) {
@@ -145,7 +141,7 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
     };
   }, [open, mounted, positionerStyles]);
 
-  const state: SelectPositioner.State = useMemo(
+  const state: SelectPositioner.State = React.useMemo(
     () => ({
       open,
       side: renderedSide,
@@ -166,7 +162,7 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
     props: [defaultProps, elementProps],
   });
 
-  const prevMapSizeRef = useRef(0);
+  const prevMapSizeRef = React.useRef(0);
 
   const onMapChange = useStableCallback((map: Map<Element, { index?: number | null } | null>) => {
     if (map.size === 0 && prevMapSizeRef.current === 0) {
@@ -229,7 +225,7 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
     }
   });
 
-  const contextValue: SelectPositionerContext = useMemo(
+  const contextValue: SelectPositionerContext = React.useMemo(
     () => ({
       ...positioning,
       side: renderedSide,

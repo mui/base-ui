@@ -10,10 +10,6 @@ import {
   createChangeEventDetails,
 } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
-import { useRef } from '@base-ui/utils/useRef';
-import { useState } from '@base-ui/utils/useState';
-import { useMemo } from '@base-ui/utils/useMemo';
-import { useContext } from '@base-ui/utils/useContext';
 
 interface ContextValue {
   hasProvider: boolean;
@@ -66,15 +62,15 @@ export interface FloatingDelayGroupProps {
 export function FloatingDelayGroup(props: FloatingDelayGroupProps): React.JSX.Element {
   const { children, delay, timeoutMs = 0 } = props;
 
-  const delayRef = useRef(delay);
-  const initialDelayRef = useRef(delay);
-  const currentIdRef = useRef<string | null>(null);
-  const currentContextRef = useRef(null);
+  const delayRef = React.useRef(delay);
+  const initialDelayRef = React.useRef(delay);
+  const currentIdRef = React.useRef<string | null>(null);
+  const currentContextRef = React.useRef(null);
   const timeout = useTimeout();
 
   return (
     <FloatingDelayGroupContext.Provider
-      value={useMemo(
+      value={React.useMemo(
         () => ({
           hasProvider: true,
           delayRef,
@@ -133,7 +129,7 @@ export function useDelayGroup(
   const floatingId = store.useState('floatingId');
   const { enabled = true, open } = options;
 
-  const groupContext = useContext(FloatingDelayGroupContext);
+  const groupContext = React.useContext(FloatingDelayGroupContext);
   const {
     currentIdRef,
     delayRef,
@@ -144,7 +140,7 @@ export function useDelayGroup(
     timeout,
   } = groupContext;
 
-  const [isInstantPhase, setIsInstantPhase] = useState(false);
+  const [isInstantPhase, setIsInstantPhase] = React.useState(false);
 
   useIsoLayoutEffect(() => {
     function unset() {
@@ -246,7 +242,7 @@ export function useDelayGroup(
     };
   }, [currentContextRef]);
 
-  return useMemo(
+  return React.useMemo(
     () => ({
       hasProvider,
       delayRef,

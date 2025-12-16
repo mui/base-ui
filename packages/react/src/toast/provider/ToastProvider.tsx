@@ -15,10 +15,6 @@ import type {
   ToastManagerUpdateOptions,
 } from '../useToastManager';
 import type { ToastManager } from '../createToastManager';
-import { useEffect } from '@base-ui/utils/useEffect';
-import { useRef } from '@base-ui/utils/useRef';
-import { useState } from '@base-ui/utils/useState';
-import { useMemo } from '@base-ui/utils/useMemo';
 
 interface TimerInfo {
   timeout?: Timeout;
@@ -36,10 +32,10 @@ interface TimerInfo {
 export const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvider(props) {
   const { children, timeout = 5000, limit = 3, toastManager } = props;
 
-  const [toasts, setToasts] = useState<ToastObject<any>[]>([]);
-  const [hovering, setHovering] = useState(false);
-  const [focused, setFocused] = useState(false);
-  const [prevFocusElement, setPrevFocusElement] = useState<HTMLElement | null>(null);
+  const [toasts, setToasts] = React.useState<ToastObject<any>[]>([]);
+  const [hovering, setHovering] = React.useState(false);
+  const [focused, setFocused] = React.useState(false);
+  const [prevFocusElement, setPrevFocusElement] = React.useState<HTMLElement | null>(null);
 
   if (toasts.length === 0) {
     if (hovering) {
@@ -53,10 +49,10 @@ export const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvid
 
   const expanded = hovering || focused;
 
-  const timersRef = useRef(new Map<string, TimerInfo>());
-  const viewportRef = useRef<HTMLElement | null>(null);
-  const windowFocusedRef = useRef(true);
-  const isPausedRef = useRef(false);
+  const timersRef = React.useRef(new Map<string, TimerInfo>());
+  const viewportRef = React.useRef<HTMLElement | null>(null);
+  const windowFocusedRef = React.useRef(true);
+  const isPausedRef = React.useRef(false);
 
   function handleFocusManagement(toastId: string) {
     const activeEl = activeElement(ownerDocument(viewportRef.current));
@@ -301,7 +297,7 @@ export const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvid
     },
   );
 
-  useEffect(
+  React.useEffect(
     function subscribeToToastManager() {
       if (!toastManager) {
         return undefined;
@@ -326,7 +322,7 @@ export const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvid
     [add, update, scheduleTimer, timeout, toastManager, promise, close],
   );
 
-  const contextValue = useMemo(
+  const contextValue = React.useMemo(
     () => ({
       toasts,
       setToasts,

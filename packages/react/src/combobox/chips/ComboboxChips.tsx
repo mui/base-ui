@@ -7,9 +7,6 @@ import { ComboboxChipsContext } from './ComboboxChipsContext';
 import { CompositeList } from '../../composite/list/CompositeList';
 import { useComboboxRootContext } from '../root/ComboboxRootContext';
 import { selectors } from '../store';
-import { useMemo } from '@base-ui/utils/useMemo';
-import { useRef } from '@base-ui/utils/useRef';
-import { useState } from '@base-ui/utils/useState';
 
 /**
  * A container for the chips in a multiselectable input.
@@ -25,20 +22,22 @@ export const ComboboxChips = React.forwardRef(function ComboboxChips(
 
   const open = useStore(store, selectors.open);
 
-  const [highlightedChipIndex, setHighlightedChipIndex] = useState<number | undefined>(undefined);
+  const [highlightedChipIndex, setHighlightedChipIndex] = React.useState<number | undefined>(
+    undefined,
+  );
 
   if (open && highlightedChipIndex !== undefined) {
     setHighlightedChipIndex(undefined);
   }
 
-  const chipsRef = useRef<Array<HTMLButtonElement | null>>([]);
+  const chipsRef = React.useRef<Array<HTMLButtonElement | null>>([]);
 
   const element = useRenderElement('div', componentProps, {
     ref: [forwardedRef, store.state.chipsContainerRef],
     props: elementProps,
   });
 
-  const contextValue: ComboboxChipsContext = useMemo(
+  const contextValue: ComboboxChipsContext = React.useMemo(
     () => ({
       highlightedChipIndex,
       setHighlightedChipIndex,

@@ -28,10 +28,6 @@ import { REASONS } from '../../utils/reasons';
 import { useToolbarRootContext } from '../../toolbar/root/ToolbarRootContext';
 import { COMPOSITE_KEYS } from '../../composite/composite';
 import { getDisabledMountTransitionStyles } from '../../utils/getDisabledMountTransitionStyles';
-import { useEffect } from '@base-ui/utils/useEffect';
-import { useRef } from '@base-ui/utils/useRef';
-import { useMemo } from '@base-ui/utils/useMemo';
-import { useImperativeHandle } from '@base-ui/utils/useImperativeHandle';
 
 const stateAttributesMapping: StateAttributesMapping<SelectPopup.State> = {
   ...popupStateMapping,
@@ -84,11 +80,11 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
   const positionerElement = useStore(store, selectors.positionerElement);
   const listElement = useStore(store, selectors.listElement);
 
-  const initialHeightRef = useRef(0);
-  const reachedMaxHeightRef = useRef(false);
-  const maxHeightRef = useRef(0);
-  const initialPlacedRef = useRef(false);
-  const originalPositionerStylesRef = useRef<React.CSSProperties>({});
+  const initialHeightRef = React.useRef(0);
+  const reachedMaxHeightRef = React.useRef(false);
+  const maxHeightRef = React.useRef(0);
+  const initialPlacedRef = React.useRef(false);
+  const originalPositionerStylesRef = React.useRef<React.CSSProperties>({});
 
   const scrollArrowFrame = useAnimationFrame();
 
@@ -165,7 +161,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
     handleScrollArrowVisibility();
   });
 
-  useImperativeHandle(scrollHandlerRef, () => handleScroll, [handleScroll]);
+  React.useImperativeHandle(scrollHandlerRef, () => handleScroll, [handleScroll]);
 
   useOpenChangeComplete({
     open,
@@ -177,7 +173,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
     },
   });
 
-  const state: SelectPopup.State = useMemo(
+  const state: SelectPopup.State = React.useMemo(
     () => ({
       open,
       transitionStatus,
@@ -359,7 +355,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
     listElement,
   ]);
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (!alignItemWithTriggerActive || !positionerElement || !mounted) {
       return undefined;
     }

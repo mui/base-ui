@@ -2,8 +2,6 @@
 import * as React from 'react';
 import { createCollatorItemFilter, createSingleSelectionCollatorFilter } from './index';
 import { stringifyAsLabel } from '../../../utils/resolveValueLabel';
-import { useCallback } from '@base-ui/utils/useCallback';
-import { useMemo } from '@base-ui/utils/useMemo';
 
 export interface UseFilterOptions extends Intl.CollatorOptions {
   /**
@@ -117,7 +115,7 @@ export function useComboboxFilter(options: UseComboboxFilterOptions = {}): Filte
 
   const coreFilter = getFilter(collatorOptions);
 
-  const contains: Filter['contains'] = useCallback(
+  const contains: Filter['contains'] = React.useCallback(
     (item: any, query: string, itemToString?: (item: any) => string) => {
       if (multiple) {
         return createCollatorItemFilter(coreFilter, itemToString)(item, query);
@@ -127,7 +125,7 @@ export function useComboboxFilter(options: UseComboboxFilterOptions = {}): Filte
     [coreFilter, value, multiple],
   );
 
-  return useMemo(
+  return React.useMemo(
     () => ({
       contains,
       startsWith: coreFilter.startsWith,
