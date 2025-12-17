@@ -1,13 +1,15 @@
 import { ScrollArea } from '@base-ui/react/scroll-area';
-import { screen, fireEvent, flushMicrotasks } from '@mui/internal-test-utils';
+import { screen, fireEvent, flushMicrotasks, act } from '@mui/internal-test-utils';
 import { createRenderer, isJSDOM, describeConformance } from '#test-utils';
 import { expect } from 'chai';
 import { SCROLL_TIMEOUT } from '../constants';
 
 describe('<ScrollArea.Scrollbar />', () => {
-  const { render, clock } = createRenderer();
+  const { render } = createRenderer();
 
-  clock.withFakeTimers();
+  beforeEach(() => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+  });
 
   describeConformance(<ScrollArea.Scrollbar keepMounted />, () => ({
     refInstanceof: window.HTMLDivElement,
@@ -45,7 +47,9 @@ describe('<ScrollArea.Scrollbar />', () => {
     expect(verticalScrollbar).to.have.attribute('data-scrolling', '');
     expect(horizontalScrollbar).not.to.have.attribute('data-scrolling', '');
 
-    clock.tick(SCROLL_TIMEOUT - 1);
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(SCROLL_TIMEOUT - 1);
+    });
 
     expect(verticalScrollbar).to.have.attribute('data-scrolling', '');
     expect(horizontalScrollbar).not.to.have.attribute('data-scrolling', '');
@@ -57,17 +61,22 @@ describe('<ScrollArea.Scrollbar />', () => {
       },
     });
 
-    clock.tick(1); // vertical just finished
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(1); // vertical just finished
+    });
 
     expect(verticalScrollbar).not.to.have.attribute('data-scrolling');
     expect(horizontalScrollbar).to.have.attribute('data-scrolling');
 
-    clock.tick(SCROLL_TIMEOUT - 2); // already ticked 1ms above
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(SCROLL_TIMEOUT - 2); // already ticked 1ms above
+    });
 
     expect(verticalScrollbar).not.to.have.attribute('data-scrolling');
     expect(horizontalScrollbar).to.have.attribute('data-scrolling');
-
-    clock.tick(1);
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(1);
+    });
 
     expect(verticalScrollbar).not.to.have.attribute('data-scrolling');
     expect(horizontalScrollbar).not.to.have.attribute('data-scrolling');

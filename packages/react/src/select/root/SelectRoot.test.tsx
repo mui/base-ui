@@ -1601,6 +1601,8 @@ describe('<Select.Root />', () => {
     });
 
     it('prop: validateMode=onSubmit', async () => {
+      ignoreActWarnings();
+
       const { user } = await render(
         <Form>
           <Field.Root validate={(val) => (val === '2' ? 'error' : null)}>

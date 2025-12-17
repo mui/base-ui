@@ -8,7 +8,9 @@ declare global {
   var BASE_UI_ANIMATIONS_DISABLED: boolean;
 }
 
-setupVitest();
+setupVitest({
+  // failOnConsoleEnabled: false,
+});
 
 afterEach(() => {
   vi.resetAllMocks();

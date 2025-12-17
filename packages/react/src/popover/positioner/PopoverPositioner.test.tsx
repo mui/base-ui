@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Popover } from '@base-ui/react/popover';
-import { screen, waitFor } from '@mui/internal-test-utils';
+import { act, screen, waitFor } from '@mui/internal-test-utils';
 import { expect } from 'chai';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 
@@ -8,7 +8,7 @@ const Trigger = React.forwardRef(function Trigger(
   props: Popover.Trigger.Props,
   ref: React.ForwardedRef<any>,
 ) {
-  return <Popover.Trigger {...props} ref={ref} render={<div />} />;
+  return <Popover.Trigger {...props} ref={ref} render={<div />} nativeButton={false} />;
 });
 
 describe('<Popover.Positioner />', () => {
@@ -287,7 +287,9 @@ describe('<Popover.Positioner />', () => {
 
     expect(positioner.getBoundingClientRect()).to.include(initial);
 
-    setProps({ top: 100 });
+    await act(async () => {
+      setProps({ top: 100 });
+    });
 
     await waitFor(() => {
       expect(positioner.getBoundingClientRect()).not.to.include(initial);
@@ -318,7 +320,9 @@ describe('<Popover.Positioner />', () => {
 
     expect(positioner.getBoundingClientRect()).to.include(initial);
 
-    setProps({ top: 100 });
+    await act(async () => {
+      setProps({ top: 100 });
+    });
 
     await waitFor(() => {
       expect(positioner.getBoundingClientRect()).not.to.include(initial);
