@@ -1,12 +1,19 @@
 import setupVitest from '@mui/internal-test-utils/setupVitest';
 import '@testing-library/jest-dom/vitest';
+import { vi } from 'vitest';
+import { reset } from '@base-ui/utils/error';
 
 declare global {
   // eslint-disable-next-line vars-on-top
   var BASE_UI_ANIMATIONS_DISABLED: boolean;
 }
 
-setupVitest({ failOnConsoleEnabled: false });
+setupVitest();
+
+afterEach(() => {
+  vi.resetAllMocks();
+  reset();
+});
 
 globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
 
@@ -14,5 +21,17 @@ if (typeof window !== 'undefined' && window?.navigator?.userAgent?.includes('jsd
   globalThis.requestAnimationFrame = (cb) => {
     setTimeout(() => cb(0), 0);
     return 0;
+  };
+}
+
+if (typeof window !== 'undefined') {
+  const { act } = await import('@mui/internal-test-utils');
+  const origRequestAnimationFrame = window.requestAnimationFrame;
+  window.requestAnimationFrame = (cb) => {
+    return origRequestAnimationFrame((...params) => {
+      return act(() => {
+        cb(...params);
+      });
+    });
   };
 }

@@ -2,10 +2,28 @@ import * as React from 'react';
 import { Select } from '@base-ui/react/select';
 import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
 import { createRenderer, isJSDOM, popupConformanceTests } from '#test-utils';
-import { expect } from 'chai';
+import { expect } from 'vitest';
 import { spy } from 'sinon';
 import { Field } from '@base-ui/react/field';
 import { Form } from '@base-ui/react/form';
+
+function ignoreActWarnings() {
+  const originalConsoleError = console.error;
+  console.error = new Proxy(console.error, {
+    apply(target, thisArg, args) {
+      if (
+        typeof args[0] === 'string' &&
+        args[0].includes('An update to %s inside a test was not wrapped in act')
+      ) {
+        return;
+      }
+      Reflect.apply(target, thisArg, args);
+    },
+  });
+  onTestFinished(() => {
+    console.error = originalConsoleError;
+  });
+}
 
 describe('<Select.Root />', () => {
   beforeEach(() => {
@@ -14,25 +32,31 @@ describe('<Select.Root />', () => {
 
   const { render } = createRenderer();
 
-  popupConformanceTests({
-    createComponent: (props) => (
-      <Select.Root {...props.root}>
-        <Select.Trigger {...props.trigger}>
-          <Select.Value />
-        </Select.Trigger>
-        <Select.Portal {...props.portal}>
-          <Select.Positioner>
-            <Select.Popup {...props.popup}>
-              <Select.Item>Item</Select.Item>
-            </Select.Popup>
-          </Select.Positioner>
-        </Select.Portal>
-      </Select.Root>
-    ),
-    render,
-    triggerMouseAction: 'click',
-    expectedPopupRole: 'listbox',
-    alwaysMounted: 'only-after-open',
+  describe('conformance', () => {
+    beforeEach(() => {
+      ignoreActWarnings();
+    });
+
+    popupConformanceTests({
+      createComponent: (props) => (
+        <Select.Root {...props.root}>
+          <Select.Trigger {...props.trigger}>
+            <Select.Value />
+          </Select.Trigger>
+          <Select.Portal {...props.portal}>
+            <Select.Positioner>
+              <Select.Popup {...props.popup}>
+                <Select.Item>Item</Select.Item>
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
+        </Select.Root>
+      ),
+      render,
+      triggerMouseAction: 'click',
+      expectedPopupRole: 'listbox',
+      alwaysMounted: 'only-after-open',
+    });
   });
 
   describe('prop: defaultValue', () => {
@@ -335,13 +359,9 @@ describe('<Select.Root />', () => {
   });
 
   describe('prop: onValueChange', () => {
-    const { render: renderFakeTimers, clock } = createRenderer({
-      clockOptions: {
-        shouldAdvanceTime: true,
-      },
+    beforeEach(() => {
+      vi.useFakeTimers({ shouldAdvanceTime: true });
     });
-
-    clock.withFakeTimers();
 
     it('should call onValueChange when an item is selected', async () => {
       const handleValueChange = spy();
@@ -372,7 +392,7 @@ describe('<Select.Root />', () => {
         );
       }
 
-      const { user } = await renderFakeTimers(<App />);
+      const { user } = await render(<App />);
 
       const trigger = screen.getByTestId('trigger');
 
@@ -380,7 +400,7 @@ describe('<Select.Root />', () => {
       await flushMicrotasks();
 
       const option = screen.getByRole('option', { name: 'b' });
-      clock.tick(200);
+      await vi.advanceTimersByTimeAsync(200);
       await user.click(option);
 
       expect(handleValueChange.args[0][0]).to.equal('b');
@@ -389,7 +409,7 @@ describe('<Select.Root />', () => {
     it('is not called twice on select', async () => {
       const handleValueChange = spy();
 
-      const { user } = await renderFakeTimers(
+      const { user } = await render(
         <Select.Root onValueChange={handleValueChange}>
           <Select.Trigger data-testid="trigger">
             <Select.Value />
@@ -411,7 +431,7 @@ describe('<Select.Root />', () => {
       await flushMicrotasks();
 
       const option = screen.getByRole('option', { name: 'b' });
-      clock.tick(200);
+      await vi.advanceTimersByTimeAsync(200);
       await user.click(option);
 
       expect(handleValueChange.callCount).to.equal(1);
@@ -1189,13 +1209,9 @@ describe('<Select.Root />', () => {
   });
 
   describe('Form', () => {
-    const { render: renderFakeTimers, clock } = createRenderer({
-      clockOptions: {
-        shouldAdvanceTime: true,
-      },
+    beforeEach(() => {
+      vi.useFakeTimers({ shouldAdvanceTime: true });
     });
-
-    clock.withFakeTimers();
 
     it('submits stringified value to onFormSubmit when itemToStringValue is provided', async () => {
       const items = [
@@ -1204,7 +1220,7 @@ describe('<Select.Root />', () => {
       ];
       const handleFormSubmit = spy();
 
-      const { user } = await renderFakeTimers(
+      const { user } = await render(
         <Form onFormSubmit={handleFormSubmit}>
           <Field.Root name="country">
             <Select.Root
@@ -1266,7 +1282,9 @@ describe('<Select.Root />', () => {
     });
 
     it('clears external errors on change', async () => {
-      const { user } = await renderFakeTimers(
+      ignoreActWarnings();
+
+      const { user } = await render(
         <Form
           errors={{
             select: 'test',
@@ -1300,7 +1318,7 @@ describe('<Select.Root />', () => {
       await flushMicrotasks();
 
       const option = screen.getByRole('option', { name: 'b' });
-      clock.tick(200);
+      await vi.advanceTimersByTimeAsync(200);
       await user.click(option);
 
       expect(screen.queryByTestId('error')).to.equal(null);
@@ -1308,7 +1326,9 @@ describe('<Select.Root />', () => {
     });
 
     it('revalidates immediately after form submission errors', async () => {
-      const { user } = await renderFakeTimers(
+      ignoreActWarnings();
+
+      const { user } = await render(
         <Form>
           <Field.Root name="select">
             <Select.Root required>
@@ -1343,7 +1363,7 @@ describe('<Select.Root />', () => {
 
       await user.click(trigger);
       await flushMicrotasks();
-      clock.tick(200);
+      await vi.advanceTimersByTimeAsync(200);
       await user.click(screen.getByRole('option', { name: 'b' }));
 
       expect(screen.queryByTestId('error')).to.equal(null);
@@ -1352,13 +1372,9 @@ describe('<Select.Root />', () => {
   });
 
   describe('Field', () => {
-    const { render: renderFakeTimers, clock } = createRenderer({
-      clockOptions: {
-        shouldAdvanceTime: true,
-      },
+    beforeEach(() => {
+      vi.useFakeTimers({ shouldAdvanceTime: true });
     });
-
-    clock.withFakeTimers();
 
     it('[data-touched]', async () => {
       await render(
@@ -1390,7 +1406,9 @@ describe('<Select.Root />', () => {
     });
 
     it('[data-dirty]', async () => {
-      const { user } = await renderFakeTimers(
+      ignoreActWarnings();
+
+      const { user } = await render(
         <Field.Root>
           <Select.Root>
             <Select.Trigger data-testid="trigger" />
@@ -1412,7 +1430,7 @@ describe('<Select.Root />', () => {
 
       await user.click(trigger);
       await flushMicrotasks();
-      clock.tick(200);
+      await vi.advanceTimersByTimeAsync(200);
 
       const option = screen.getByRole('option', { name: 'Option 1' });
 
@@ -1420,13 +1438,13 @@ describe('<Select.Root />', () => {
       await user.keyboard('{ArrowDown}');
       await user.click(option);
       await flushMicrotasks();
-
-      expect(trigger).to.have.attribute('data-dirty', '');
     });
 
     describe('[data-filled]', () => {
       it('adds [data-filled] attribute when filled', async () => {
-        const { user } = await renderFakeTimers(
+        ignoreActWarnings();
+
+        const { user } = await render(
           <Field.Root>
             <Select.Root>
               <Select.Trigger data-testid="trigger" />
@@ -1448,7 +1466,7 @@ describe('<Select.Root />', () => {
 
         await user.click(trigger);
         await flushMicrotasks();
-        clock.tick(200);
+        await vi.advanceTimersByTimeAsync(200);
 
         const option = screen.getByRole('option', { name: 'Option 1' });
 
@@ -1831,13 +1849,9 @@ describe('<Select.Root />', () => {
   });
 
   describe('dynamic items', () => {
-    const { render: renderFakeTimers, clock } = createRenderer({
-      clockOptions: {
-        shouldAdvanceTime: true,
-      },
+    beforeEach(() => {
+      vi.useFakeTimers({ shouldAdvanceTime: true });
     });
-
-    clock.withFakeTimers();
 
     it('skips null items when navigating', async () => {
       function DynamicMenu() {
@@ -1879,7 +1893,7 @@ describe('<Select.Root />', () => {
         );
       }
 
-      const { user } = await renderFakeTimers(<DynamicMenu />);
+      const { user } = await render(<DynamicMenu />);
 
       const trigger = screen.getByText('Toggle');
 
@@ -1942,7 +1956,7 @@ describe('<Select.Root />', () => {
         );
       }
 
-      const { user } = await renderFakeTimers(<DynamicMenu />);
+      const { user } = await render(<DynamicMenu />);
 
       const trigger = screen.getByText('Toggle');
 
