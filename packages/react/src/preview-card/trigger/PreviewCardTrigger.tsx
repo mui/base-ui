@@ -50,15 +50,14 @@ export const PreviewCardTrigger = React.forwardRef(function PreviewCardTrigger(
     },
   );
 
-  const getDelayValue = () => store.context.delayRef.current;
-  const getCloseDelayValue = () => store.context.closeDelayRef.current;
+  const delayValue = delay ?? OPEN_DELAY;
+  const closeDelayValue = closeDelay ?? CLOSE_DELAY;
 
   const hoverProps = useHoverReferenceInteraction(floatingRootContext, {
     mouseOnly: true,
     move: false,
     handleClose: safePolygon(),
-    restMs: getDelayValue,
-    delay: () => ({ close: getCloseDelayValue() }),
+    delay: () => ({ open: delayValue, close: closeDelayValue }),
     triggerElementRef,
     isActiveTrigger: isTriggerActive,
   });
@@ -67,10 +66,10 @@ export const PreviewCardTrigger = React.forwardRef(function PreviewCardTrigger(
 
   useIsoLayoutEffect(() => {
     if (isTriggerActive) {
-      store.context.delayRef.current = delay ?? OPEN_DELAY;
-      store.context.closeDelayRef.current = closeDelay ?? CLOSE_DELAY;
+      store.context.delayRef.current = delayValue;
+      store.context.closeDelayRef.current = closeDelayValue;
     }
-  }, [delay, closeDelay, isTriggerActive, store]);
+  }, [delayValue, closeDelayValue, isTriggerActive, store]);
 
   const state: PreviewCardTrigger.State = React.useMemo(() => ({ open }), [open]);
 
