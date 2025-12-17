@@ -28,7 +28,11 @@ import { REASONS } from '../../utils/reasons';
 import { useToolbarRootContext } from '../../toolbar/root/ToolbarRootContext';
 import { COMPOSITE_KEYS } from '../../composite/composite';
 import { getDisabledMountTransitionStyles } from '../../utils/getDisabledMountTransitionStyles';
+<<<<<<< HEAD
 import { clamp } from '../../utils/clamp';
+=======
+import { useNonce } from '../../nonce-provider';
+>>>>>>> cba40ce9f (Refactor to nonce-provider)
 
 const stateAttributesMapping: StateAttributesMapping<SelectPopup.State> = {
   ...popupStateMapping,
@@ -45,7 +49,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
   componentProps: SelectPopup.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, nonce, ...elementProps } = componentProps;
+  const { render, className, ...elementProps } = componentProps;
 
   const {
     store,
@@ -70,6 +74,8 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
   } = useSelectPositionerContext();
   const insideToolbar = useToolbarRootContext(true) != null;
   const floatingRootContext = useSelectFloatingContext();
+
+  const nonce = useNonce();
 
   const highlightTimeout = useTimeout();
 
@@ -484,10 +490,6 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
 
 export interface SelectPopupProps extends BaseUIComponentProps<'div', SelectPopup.State> {
   children?: React.ReactNode;
-  /**
-   * A nonce value to allow the inline `<style>` tag required by this component under a strict Content Security Policy.
-   */
-  nonce?: string;
 }
 
 export interface SelectPopupState {

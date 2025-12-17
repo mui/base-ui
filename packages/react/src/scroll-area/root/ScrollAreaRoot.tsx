@@ -13,6 +13,7 @@ import { styleDisableScrollbar } from '../../utils/styles';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { scrollAreaStateAttributesMapping } from './stateAttributes';
 import { contains } from '../../floating-ui-react/utils';
+import { useNonce } from '../../nonce-provider';
 
 const DEFAULT_COORDS = { x: 0, y: 0 };
 const DEFAULT_SIZE = { width: 0, height: 0 };
@@ -38,16 +39,19 @@ export const ScrollAreaRoot = React.forwardRef(function ScrollAreaRoot(
     render,
     className,
     overflowEdgeThreshold: overflowEdgeThresholdProp,
-    nonce,
     ...elementProps
   } = componentProps;
 
+<<<<<<< HEAD
   const overflowEdgeThreshold = normalizeOverflowEdgeThreshold(overflowEdgeThresholdProp);
 
   const rootId = useBaseUiId();
 
   const scrollYTimeout = useTimeout();
   const scrollXTimeout = useTimeout();
+=======
+  const nonce = useNonce();
+>>>>>>> cba40ce9f (Refactor to nonce-provider)
 
   const [hovering, setHovering] = React.useState(false);
   const [scrollingX, setScrollingX] = React.useState(false);
@@ -319,10 +323,6 @@ export interface ScrollAreaRootState {
 }
 
 export interface ScrollAreaRootProps extends BaseUIComponentProps<'div', ScrollAreaRoot.State> {
-  /**
-   * A nonce value to allow the inline `<style>` tag required by this component under a strict Content Security Policy.
-   */
-  nonce?: string;
   /**
    * The threshold in pixels that must be passed before the overflow edge attributes are applied.
    * Accepts a single number for all edges or an object to configure them individually.

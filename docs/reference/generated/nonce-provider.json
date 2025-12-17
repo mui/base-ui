@@ -1,0 +1,17 @@
+{
+  "name": "NonceProvider",
+  "description": "Provides a default nonce value for Base UI components that require inline `<style>` or `<script>` tags.",
+  "props": {
+    "nonce": {
+      "type": "string",
+      "description": "The nonce value to apply to inline `<style>` and `<script>` tags.",
+      "detailedType": "string | undefined"
+    },
+    "children": {
+      "type": "ReactNode",
+      "detailedType": "React.ReactNode"
+    }
+  },
+  "dataAttributes": {},
+  "cssVariables": {}
+}

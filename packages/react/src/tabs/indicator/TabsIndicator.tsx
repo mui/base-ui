@@ -12,6 +12,7 @@ import { useTabsListContext } from '../list/TabsListContext';
 import type { TabsTab } from '../tab/TabsTab';
 import { script as prehydrationScript } from './prehydrationScript.min';
 import { TabsIndicatorCssVars } from './TabsIndicatorCssVars';
+import { useNonce } from '../../nonce-provider';
 
 const stateAttributesMapping = {
   ...tabsStateAttributesMapping,
@@ -29,13 +30,9 @@ export const TabsIndicator = React.forwardRef(function TabIndicator(
   componentProps: TabsIndicator.Props,
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
-  const {
-    className,
-    render,
-    renderBeforeHydration = false,
-    nonce,
-    ...elementProps
-  } = componentProps;
+  const { className, render, renderBeforeHydration = false, ...elementProps } = componentProps;
+
+  const nonce = useNonce();
 
   const { getTabElementBySelectedValue, orientation, tabActivationDirection, value } =
     useTabsRootContext();
@@ -204,10 +201,6 @@ export interface TabsIndicatorProps extends BaseUIComponentProps<'span', TabsInd
    * @default false
    */
   renderBeforeHydration?: boolean;
-  /**
-   * A nonce value to allow the inline `<script>` tag required by this component under a strict Content Security Policy.
-   */
-  nonce?: string;
 }
 
 export namespace TabsIndicator {

@@ -955,7 +955,7 @@ A native scroll container with custom scrollbars.
   - API reference
 - Exports:
   - Scroll Area - Root
-    - Props: className, nonce, overflowEdgeThreshold, render, style
+    - Props: className, overflowEdgeThreshold, render, style
     - Data Attributes: data-has-overflow-x, data-has-overflow-y, data-overflow-x-end, data-overflow-x-start, data-overflow-y-end, data-overflow-y-start
     - CSS Variables: --scroll-area-corner-height, --scroll-area-corner-width
   - Scroll Area - Viewport
@@ -1021,7 +1021,7 @@ A common form component for choosing a predefined value in a dropdown menu.
     - Data Attributes: data-align, data-anchor-hidden, data-closed, data-open, data-side
     - CSS Variables: --anchor-height, --anchor-width, --available-height, --available-width, --transform-origin
   - Select - Popup
-    - Props: children, className, nonce, render, style
+    - Props: children, className, render, style
     - Data Attributes: data-align, data-closed, data-ending-style, data-open, data-side, data-starting-style
   - Select - List
     - Props: className, render, style
@@ -1102,8 +1102,9 @@ An easily stylable range input.
     - Props: className, render, style
     - Data Attributes: data-dirty, data-disabled, data-dragging, data-focused, data-invalid, data-orientation, data-touched, data-valid
   - Slider - Thumb
-    - Props: className, disabled, getAriaLabel, getAriaValueText, index, inputRef, nonce, onBlur, onFocus, render, style, tabIndex
-    - Data Attributes: data-dirty, data-disabled, data-dragging, data-focused, data-index, data-invalid, data-orientation, data-readonly, data-required, data-touched, data-valid - Slider - Indicator
+    - Props: className, disabled, getAriaLabel, getAriaValueText, index, inputRef, onBlur, onFocus, render, style, tabIndex
+    - Data Attributes: data-dirty, data-disabled, data-dragging, data-focused, data-index, data-invalid, data-orientation, data-readonly, data-required, data-touched, data-valid
+  - Slider - Indicator
     - Props: className, render, style
     - Data Attributes: data-dirty, data-disabled, data-dragging, data-focused, data-invalid, data-orientation, data-touched, data-valid
 
@@ -1156,7 +1157,7 @@ A component for toggling between related panels on the same page.
     - Props: className, defaultValue, onValueChange, orientation, render, style, value
     - Data Attributes: data-activation-direction, data-orientation
   - Tabs - Indicator
-    - Props: className, nonce, render, renderBeforeHydration, style
+    - Props: className, render, renderBeforeHydration, style
     - Data Attributes: data-activation-direction, data-orientation
     - CSS Variables: --active-tab-bottom, --active-tab-height, --active-tab-left, --active-tab-right, --active-tab-top, --active-tab-width
   - Tabs - Tab

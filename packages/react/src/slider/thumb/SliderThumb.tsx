@@ -22,6 +22,7 @@ import {
 } from '../../composite/composite';
 import { useCompositeListItem } from '../../composite/list/useCompositeListItem';
 import { useDirection } from '../../direction-provider/DirectionContext';
+import { useNonce } from '../../nonce-provider';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { type LabelableContext } from '../../labelable-provider/LabelableContext';
 import { useLabelableId } from '../../labelable-provider/useLabelableId';
@@ -102,7 +103,6 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
     id: idProp,
     index: indexProp,
     inputRef: inputRefProp,
-    nonce,
     onBlur: onBlurProp,
     onFocus: onFocusProp,
     onKeyDown: onKeyDownProp,
@@ -110,6 +110,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
     ...elementProps
   } = componentProps;
 
+  const nonce = useNonce();
   const id = useBaseUiId(idProp);
 
   const {
@@ -516,10 +517,6 @@ export interface SliderThumbProps extends Omit<
    * Optional tab index attribute forwarded to the `input`.
    */
   tabIndex?: number;
-  /**
-   * A nonce value to allow the inline `<script>` tag required by this component under a strict Content Security Policy.
-   */
-  nonce?: string;
 }
 
 export namespace SliderThumb {
