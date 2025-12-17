@@ -10,22 +10,23 @@ Groups all parts of the menu. Doesn’t render its own HTML element.
 
 **Root Props:**
 
-| Prop                  | Type                                                                     | Default          | Description                                                                                                                                                                                                                                                                    |
-| :-------------------- | :----------------------------------------------------------------------- | :--------------- | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| defaultOpen           | `boolean`                                                                | `false`          | Whether the menu is initially open.To render a controlled menu, use the `open` prop instead.                                                                                                                                                                                   |
-| open                  | `boolean`                                                                | -                | Whether the menu is currently open.                                                                                                                                                                                                                                            |
-| onOpenChange          | `((open: boolean, eventDetails: Menu.Root.ChangeEventDetails) => void)`  | -                | Event handler called when the menu is opened or closed.                                                                                                                                                                                                                        |
-| actionsRef            | `RefObject<Menu.Root.Actions>`                                           | -                | A ref to imperative actions.`unmount`: When specified, the menu will not be unmounted when closed. Instead, the `unmount` function must be called to unmount the menu manually. Useful when the menu's animation is controlled by an external library.                         |
-| closeParentOnEsc      | `boolean`                                                                | `true`           | When in a submenu, determines whether pressing the Escape key closes the entire menu, or only the current child menu.                                                                                                                                                          |
-| modal                 | `boolean`                                                                | `true`           | Determines if the menu enters a modal state when open.`true`: user interaction is limited to the menu: document page scroll is locked and and pointer interactions on outside elements are disabled., `false`: user interaction with the rest of the document is allowed.      |
-| onOpenChangeComplete  | `((open: boolean) => void)`                                              | -                | Event handler called after any animations complete when the menu is closed.                                                                                                                                                                                                    |
-| disabled              | `boolean`                                                                | `false`          | Whether the component should ignore user interaction.                                                                                                                                                                                                                          |
-| openOnHover           | `boolean`                                                                | -                | Whether the menu should also open when the trigger is hovered.                                                                                                                                                                                                                 |
-| delay                 | `number`                                                                 | `100`            | How long to wait before the menu may be opened on hover. Specified in milliseconds.Requires the `openOnHover` prop.                                                                                                                                                            |
-| closeDelay            | `number`                                                                 | `0`              | How long to wait before closing the menu that was opened on hover. Specified in milliseconds.Requires the `openOnHover` prop.                                                                                                                                                  |
-| loop                  | `boolean`                                                                | `true`           | Whether to loop keyboard focus back to the first item when the end of the list is reached while using the arrow keys.                                                                                                                                                          |
-| orientation           | `Menu.Root.Orientation`                                                  | `'vertical'`     | The visual orientation of the menu. Controls whether roving focus uses up/down or left/right arrow keys.                                                                                                                                                                       |
-| children              | `ReactNode`                                                              | -                | -                                                                                                                                                                                                                                                                              |
+| Prop                  | Type                                                                     | Default          | Description                                                                                                                                                                                                                                                                                                                |
+| :-------------------- | :----------------------------------------------------------------------- | :--------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| defaultOpen           | `boolean`                                                                | `false`          | Whether the menu is initially open.To render a controlled menu, use the `open` prop instead.                                                                                                                                                                                                                               |
+| open                  | `boolean`                                                                | -                | Whether the menu is currently open.                                                                                                                                                                                                                                                                                        |
+| onOpenChange          | `((open: boolean, eventDetails: Menu.Root.ChangeEventDetails) => void)`  | -                | Event handler called when the menu is opened or closed.                                                                                                                                                                                                                                                                    |
+| highlightItemOnHover  | `boolean`                                                                | `true`           | Whether moving the pointer over items should highlight them. Disabling this prop allows CSS `:hover` to be differentiated from the `:focus` (`data-highlighted`) state.                                                                                                                                                    |
+| actionsRef            | `RefObject<Menu.Root.Actions>`                                           | -                | A ref to imperative actions.`unmount`: When specified, the menu will not be unmounted when closed. Instead, the `unmount` function must be called to unmount the menu manually. Useful when the menu's animation is controlled by an external library., `close`: When specified, the menu can be closed imperatively.      |
+| closeParentOnEsc      | `boolean`                                                                | `false`          | When in a submenu, determines whether pressing the Escape key closes the entire menu, or only the current child menu.                                                                                                                                                                                                      |
+| defaultTriggerId      | `string \| null`                                                         | -                | ID of the trigger that the popover is associated with. This is useful in conjuntion with the `defaultOpen` prop to create an initially open popover.                                                                                                                                                                       |
+| handle                | `MenuHandle<Payload>`                                                    | -                | A handle to associate the popover with a trigger. If specified, allows external triggers to control the popover's open state.                                                                                                                                                                                              |
+| loopFocus             | `boolean`                                                                | `true`           | Whether to loop keyboard focus back to the first item when the end of the list is reached while using the arrow keys.                                                                                                                                                                                                      |
+| modal                 | `boolean`                                                                | `true`           | Determines if the menu enters a modal state when open.`true`: user interaction is limited to the menu: document page scroll is locked and and pointer interactions on outside elements are disabled., `false`: user interaction with the rest of the document is allowed.                                                  |
+| onOpenChangeComplete  | `((open: boolean) => void)`                                              | -                | Event handler called after any animations complete when the menu is closed.                                                                                                                                                                                                                                                |
+| triggerId             | `string \| null`                                                         | -                | ID of the trigger that the popover is associated with. This is useful in conjuntion with the `open` prop to create a controlled popover. There's no need to specify this prop when the popover is uncontrolled (i.e. when the `open` prop is not set).                                                                     |
+| disabled              | `boolean`                                                                | `false`          | Whether the component should ignore user interaction.                                                                                                                                                                                                                                                                      |
+| orientation           | `Menu.Root.Orientation`                                                  | `'vertical'`     | The visual orientation of the menu. Controls whether roving focus uses up/down or left/right arrow keys.                                                                                                                                                                                                                   |
+| children              | `ReactNode \| PayloadChildRenderFunction<Payload>`                       | -                | The content of the popover. This can be a regular React node or a render function that receives the `payload` of the active trigger.                                                                                                                                                                                       |
 
 ### Root.Props
 
@@ -52,7 +53,8 @@ type MenuRootChangeEventReason =
   | 'item-press'
   | 'close-press'
   | 'sibling-open'
-  | 'cancel-open';
+  | 'cancel-open'
+  | 'imperative-action';
 ```
 
 ### Root.ChangeEventDetails
@@ -66,7 +68,8 @@ type MenuRootChangeEventDetails =
       allowPropagation: () => void;
       isCanceled: boolean;
       isPropagationAllowed: boolean;
-      trigger: HTMLElement | undefined;
+      trigger: Element | undefined;
+      preventUnmountOnClose(): void;
     }
   | {
       reason: 'trigger-hover';
@@ -75,7 +78,8 @@ type MenuRootChangeEventDetails =
       allowPropagation: () => void;
       isCanceled: boolean;
       isPropagationAllowed: boolean;
-      trigger: HTMLElement | undefined;
+      trigger: Element | undefined;
+      preventUnmountOnClose(): void;
     }
   | {
       reason: 'trigger-focus';
@@ -84,7 +88,8 @@ type MenuRootChangeEventDetails =
       allowPropagation: () => void;
       isCanceled: boolean;
       isPropagationAllowed: boolean;
-      trigger: HTMLElement | undefined;
+      trigger: Element | undefined;
+      preventUnmountOnClose(): void;
     }
   | {
       reason: 'trigger-press';
@@ -93,7 +98,8 @@ type MenuRootChangeEventDetails =
       allowPropagation: () => void;
       isCanceled: boolean;
       isPropagationAllowed: boolean;
-      trigger: HTMLElement | undefined;
+      trigger: Element | undefined;
+      preventUnmountOnClose(): void;
     }
   | {
       reason: 'outside-press';
@@ -102,16 +108,18 @@ type MenuRootChangeEventDetails =
       allowPropagation: () => void;
       isCanceled: boolean;
       isPropagationAllowed: boolean;
-      trigger: HTMLElement | undefined;
+      trigger: Element | undefined;
+      preventUnmountOnClose(): void;
     }
   | {
       reason: 'focus-out';
-      event: FocusEvent;
+      event: FocusEvent | KeyboardEvent;
       cancel: () => void;
       allowPropagation: () => void;
       isCanceled: boolean;
       isPropagationAllowed: boolean;
-      trigger: HTMLElement | undefined;
+      trigger: Element | undefined;
+      preventUnmountOnClose(): void;
     }
   | {
       reason: 'list-navigation';
@@ -120,7 +128,8 @@ type MenuRootChangeEventDetails =
       allowPropagation: () => void;
       isCanceled: boolean;
       isPropagationAllowed: boolean;
-      trigger: HTMLElement | undefined;
+      trigger: Element | undefined;
+      preventUnmountOnClose(): void;
     }
   | {
       reason: 'escape-key';
@@ -129,7 +138,8 @@ type MenuRootChangeEventDetails =
       allowPropagation: () => void;
       isCanceled: boolean;
       isPropagationAllowed: boolean;
-      trigger: HTMLElement | undefined;
+      trigger: Element | undefined;
+      preventUnmountOnClose(): void;
     }
   | {
       reason: 'item-press';
@@ -138,7 +148,8 @@ type MenuRootChangeEventDetails =
       allowPropagation: () => void;
       isCanceled: boolean;
       isPropagationAllowed: boolean;
-      trigger: HTMLElement | undefined;
+      trigger: Element | undefined;
+      preventUnmountOnClose(): void;
     }
   | {
       reason: 'close-press';
@@ -147,7 +158,8 @@ type MenuRootChangeEventDetails =
       allowPropagation: () => void;
       isCanceled: boolean;
       isPropagationAllowed: boolean;
-      trigger: HTMLElement | undefined;
+      trigger: Element | undefined;
+      preventUnmountOnClose(): void;
     }
   | {
       reason: 'sibling-open';
@@ -156,7 +168,8 @@ type MenuRootChangeEventDetails =
       allowPropagation: () => void;
       isCanceled: boolean;
       isPropagationAllowed: boolean;
-      trigger: HTMLElement | undefined;
+      trigger: Element | undefined;
+      preventUnmountOnClose(): void;
     }
   | {
       reason: 'cancel-open';
@@ -165,7 +178,18 @@ type MenuRootChangeEventDetails =
       allowPropagation: () => void;
       isCanceled: boolean;
       isPropagationAllowed: boolean;
-      trigger: HTMLElement | undefined;
+      trigger: Element | undefined;
+      preventUnmountOnClose(): void;
+    }
+  | {
+      reason: 'imperative-action';
+      event: Event;
+      cancel: () => void;
+      allowPropagation: () => void;
+      isCanceled: boolean;
+      isPropagationAllowed: boolean;
+      trigger: Element | undefined;
+      preventUnmountOnClose(): void;
     };
 ```
 
@@ -183,11 +207,16 @@ A button that opens the menu. Renders a `<button>` element.
 
 | Prop           | Type                                                                                    | Default   | Description                                                                                                                                                                              |
 | :------------- | :-------------------------------------------------------------------------------------- | :-------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| handle         | `MenuHandle<Payload>`                                                                   | -         | A handle to associate the trigger with a menu.                                                                                                                                           |
 | nativeButton   | `boolean`                                                                               | `true`    | Whether the component renders a native `<button>` element when replacing it via the `render` prop. Set to `false` if the rendered element is not a button (e.g. `<div>`).                |
-| style          | `CSSProperties \| ((state: Menu.Trigger.State) => CSSProperties \| undefined)`          | -         | -                                                                                                                                                                                        |
+| payload        | `Payload`                                                                               | -         | A payload to pass to the menu when it is opened.                                                                                                                                         |
 | disabled       | `boolean`                                                                               | `false`   | Whether the component should ignore user interaction.                                                                                                                                    |
+| openOnHover    | `boolean`                                                                               | -         | Whether the menu should also open when the trigger is hovered.                                                                                                                           |
+| delay          | `number`                                                                                | `100`     | How long to wait before the menu may be opened on hover. Specified in milliseconds.Requires the `openOnHover` prop.                                                                      |
+| closeDelay     | `number`                                                                                | `0`       | How long to wait before closing the menu that was opened on hover. Specified in milliseconds.Requires the `openOnHover` prop.                                                            |
 | children       | `ReactNode`                                                                             | -         | -                                                                                                                                                                                        |
 | className      | `string \| ((state: Menu.Trigger.State) => string \| undefined)`                        | -         | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
+| style          | `CSSProperties \| ((state: Menu.Trigger.State) => CSSProperties \| undefined)`          | -         | -                                                                                                                                                                                        |
 | render         | `ReactElement \| ((props: HTMLProps, state: Menu.Trigger.State) => ReactElement)`       | -         | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
 
 **Trigger Data Attributes:**
@@ -215,9 +244,9 @@ A portal element that moves the popup to a different part of the DOM. By default
 
 | Prop           | Type                                                                                 | Default   | Description                                                                                                                                                                              |
 | :------------- | :----------------------------------------------------------------------------------- | :-------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| style          | `CSSProperties \| ((state: Menu.Portal.State) => CSSProperties \| undefined)`        | -         | -                                                                                                                                                                                        |
 | container      | `HTMLElement \| ShadowRoot \| RefObject<HTMLElement \| ShadowRoot \| null> \| null`  | -         | A parent element to render the portal element into.                                                                                                                                      |
 | className      | `string \| ((state: Menu.Portal.State) => string \| undefined)`                      | -         | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
+| style          | `CSSProperties \| ((state: Menu.Portal.State) => CSSProperties \| undefined)`        | -         | -                                                                                                                                                                                        |
 | keepMounted    | `boolean`                                                                            | `false`   | Whether to keep the portal mounted in the DOM while the popup is hidden.                                                                                                                 |
 | render         | `ReactElement \| ((props: HTMLProps, state: Menu.Portal.State) => ReactElement)`     | -         | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
 
@@ -233,8 +262,8 @@ An overlay displayed beneath the menu popup. Renders a `<div>` element.
 
 | Prop           | Type                                                                                    | Default | Description                                                                                                                                                                              |
 | :------------- | :-------------------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| style          | `CSSProperties \| ((state: Menu.Backdrop.State) => CSSProperties \| undefined)`         | -       | -                                                                                                                                                                                        |
 | className      | `string \| ((state: Menu.Backdrop.State) => string \| undefined)`                       | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
+| style          | `CSSProperties \| ((state: Menu.Backdrop.State) => CSSProperties \| undefined)`         | -       | -                                                                                                                                                                                        |
 | render         | `ReactElement \| ((props: HTMLProps, state: Menu.Backdrop.State) => ReactElement)`      | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
 
 **Backdrop Data Attributes:**
@@ -264,20 +293,20 @@ Positions the menu popup against the trigger. Renders a `<div>` element.
 
 | Prop                  | Type                                                                                                               | Default                 | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
 | :-------------------- | :----------------------------------------------------------------------------------------------------------------- | :---------------------- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| collisionAvoidance    | `CollisionAvoidance`                                                                                               | -                       | Determines how to handle collisions when positioning the popup.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
-| style                 | `CSSProperties \| ((state: Menu.Positioner.State) => CSSProperties \| undefined)`                                  | -                       | -                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| disableAnchorTracking | `boolean`                                                                                                          | `false`                 | Whether to disable the popup from tracking any layout shift of its positioning anchor.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
 | align                 | `Align`                                                                                                            | `'center'`              | How to align the popup relative to the specified side.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
 | alignOffset           | `number \| OffsetFunction`                                                                                         | `0`                     | Additional offset along the alignment axis in pixels. Also accepts a function that returns the offset to read the dimensions of the anchor and positioner elements, along with its side and alignment.The function takes a `data` object parameter with the following properties:`data.anchor`: the dimensions of the anchor element with properties `width` and `height`., `data.positioner`: the dimensions of the positioner element with properties `width` and `height`., `data.side`: which side of the anchor element the positioner is aligned against., `data.align`: how the positioner is aligned relative to the specified side.        |
 | side                  | `Side`                                                                                                             | `'bottom'`              | Which side of the anchor element to align the popup against. May automatically change to avoid collisions.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
 | sideOffset            | `number \| OffsetFunction`                                                                                         | `0`                     | Distance between the anchor and the popup in pixels. Also accepts a function that returns the distance to read the dimensions of the anchor and positioner elements, along with its side and alignment.The function takes a `data` object parameter with the following properties:`data.anchor`: the dimensions of the anchor element with properties `width` and `height`., `data.positioner`: the dimensions of the positioner element with properties `width` and `height`., `data.side`: which side of the anchor element the positioner is aligned against., `data.align`: how the positioner is aligned relative to the specified side.       |
 | arrowPadding          | `number`                                                                                                           | `5`                     | Minimum distance to maintain between the arrow and the edges of the popup.Use it to prevent the arrow element from hanging out of the rounded corners of a popup.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
 | anchor                | `Element \| RefObject<Element \| null> \| VirtualElement \| (() => Element \| VirtualElement \| null) \| null`     | -                       | An element to position the popup against. By default, the popup will be positioned against the trigger.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
+| collisionAvoidance    | `CollisionAvoidance`                                                                                               | -                       | Determines how to handle collisions when positioning the popup.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
 | collisionBoundary     | `Boundary`                                                                                                         | `'clipping-ancestors'`  | An element or a rectangle that delimits the area that the popup is confined to.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
 | collisionPadding      | `Padding`                                                                                                          | `5`                     | Additional space to maintain from the edge of the collision boundary.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
 | sticky                | `boolean`                                                                                                          | `false`                 | Whether to maintain the popup in the viewport after the anchor element was scrolled out of view.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
 | positionMethod        | `'fixed' \| 'absolute'`                                                                                            | `'absolute'`            | Determines which CSS `position` property to use.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
-| trackAnchor           | `boolean`                                                                                                          | `true`                  | Whether the popup tracks any layout shift of its positioning anchor.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
 | className             | `string \| ((state: Menu.Positioner.State) => string \| undefined)`                                                | -                       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
+| style                 | `CSSProperties \| ((state: Menu.Positioner.State) => CSSProperties \| undefined)`                                  | -                       | -                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
 | render                | `ReactElement \| ((props: HTMLProps, state: Menu.Positioner.State) => ReactElement)`                               | -                       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render.                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
 
 **Positioner Data Attributes:**
@@ -324,11 +353,10 @@ A container for the menu items. Renders a `<div>` element.
 
 | Prop           | Type                                                                                                                     | Default | Description                                                                                                                                                                                                                                                                                                                                                                                                                    |
 | :------------- | :----------------------------------------------------------------------------------------------------------------------- | :------ | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| style          | `CSSProperties \| ((state: Menu.Popup.State) => CSSProperties \| undefined)`                                             | -       | -                                                                                                                                                                                                                                                                                                                                                                                                                              |
 | finalFocus     | `boolean \| RefObject<HTMLElement \| null> \| ((closeType: InteractionType) => boolean \| void \| HTMLElement \| null)`  | -       | Determines the element to focus when the menu is closed.`false`: Do not move focus., `true`: Move focus based on the default behavior (trigger or previously focused element)., `RefObject`: Move focus to the ref element., `function`: Called with the interaction type (`mouse`, `touch`, `pen`, or `keyboard`). Return an element to focus, `true` to use the default behavior, or `false`/`undefined` to do nothing.      |
-| id             | `string`                                                                                                                 | -       | -                                                                                                                                                                                                                                                                                                                                                                                                                              |
 | children       | `ReactNode`                                                                                                              | -       | -                                                                                                                                                                                                                                                                                                                                                                                                                              |
 | className      | `string \| ((state: Menu.Popup.State) => string \| undefined)`                                                           | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                                                                                                                                                                                                                                                           |
+| style          | `CSSProperties \| ((state: Menu.Popup.State) => CSSProperties \| undefined)`                                             | -       | -                                                                                                                                                                                                                                                                                                                                                                                                                              |
 | render         | `ReactElement \| ((props: HTMLProps, state: Menu.Popup.State) => ReactElement)`                                          | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render.                                                                                                                                                                                                                                       |
 
 **Popup Data Attributes:**
@@ -367,8 +395,8 @@ Displays an element positioned against the menu anchor. Renders a `<div>` elemen
 
 | Prop           | Type                                                                              | Default | Description                                                                                                                                                                              |
 | :------------- | :-------------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| style          | `CSSProperties \| ((state: Menu.Arrow.State) => CSSProperties \| undefined)`      | -       | -                                                                                                                                                                                        |
 | className      | `string \| ((state: Menu.Arrow.State) => string \| undefined)`                    | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
+| style          | `CSSProperties \| ((state: Menu.Arrow.State) => CSSProperties \| undefined)`      | -       | -                                                                                                                                                                                        |
 | render         | `ReactElement \| ((props: HTMLProps, state: Menu.Arrow.State) => ReactElement)`   | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
 
 **Arrow Data Attributes:**
@@ -378,7 +406,6 @@ Displays an element positioned against the menu anchor. Renders a `<div>` elemen
 | data-open             | -                                                                             | Present when the menu popup is open.                                   |
 | data-closed           | -                                                                             | Present when the menu popup is closed.                                 |
 | data-uncentered       | -                                                                             | Present when the menu arrow is uncentered.                             |
-| data-anchor-hidden    | -                                                                             | Present when the anchor is hidden.                                     |
 | data-align            | `'start' \| 'center' \| 'end'`                                                | Indicates how the popup is aligned relative to specified side.         |
 | data-side             | `'top' \| 'bottom' \| 'left' \| 'right' \| 'inline-end' \| 'inline-start'`    | Indicates which side the popup is positioned relative to the trigger.  |
 
@@ -409,10 +436,9 @@ An individual interactive item in the menu. Renders a `<div>` element.
 | onClick        | `MouseEventHandler<HTMLElement>`                                                  | -         | The click handler for the menu item.                                                                                                                                                     |
 | closeOnClick   | `boolean`                                                                         | `true`    | Whether to close the menu when the item is clicked.                                                                                                                                      |
 | nativeButton   | `boolean`                                                                         | `false`   | Whether the component renders a native `<button>` element when replacing it via the `render` prop. Set to `true` if the rendered element is a native button.                             |
-| style          | `CSSProperties \| ((state: Menu.Item.State) => CSSProperties \| undefined)`       | -         | -                                                                                                                                                                                        |
 | disabled       | `boolean`                                                                         | `false`   | Whether the component should ignore user interaction.                                                                                                                                    |
-| id             | `string`                                                                          | -         | -                                                                                                                                                                                        |
 | className      | `string \| ((state: Menu.Item.State) => string \| undefined)`                     | -         | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
+| style          | `CSSProperties \| ((state: Menu.Item.State) => CSSProperties \| undefined)`       | -         | -                                                                                                                                                                                        |
 | render         | `ReactElement \| ((props: HTMLProps, state: Menu.Item.State) => ReactElement)`    | -         | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
 
 **Item Data Attributes:**
@@ -440,9 +466,9 @@ Groups related menu items with the corresponding label. Renders a `<div>` elemen
 
 | Prop           | Type                                                                              | Default | Description                                                                                                                                                                              |
 | :------------- | :-------------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| style          | `CSSProperties \| ((state: Menu.Group.State) => CSSProperties \| undefined)`      | -       | -                                                                                                                                                                                        |
 | children       | `ReactNode`                                                                       | -       | The content of the component.                                                                                                                                                            |
 | className      | `string \| ((state: Menu.Group.State) => string \| undefined)`                    | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
+| style          | `CSSProperties \| ((state: Menu.Group.State) => CSSProperties \| undefined)`      | -       | -                                                                                                                                                                                        |
 | render         | `ReactElement \| ((props: HTMLProps, state: Menu.Group.State) => ReactElement)`   | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
 
 ### Group.Props
@@ -463,8 +489,8 @@ An accessible label that is automatically associated with its parent group. Rend
 
 | Prop           | Type                                                                                    | Default | Description                                                                                                                                                                              |
 | :------------- | :-------------------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| style          | `CSSProperties \| ((state: Menu.GroupLabel.State) => CSSProperties \| undefined)`       | -       | -                                                                                                                                                                                        |
 | className      | `string \| ((state: Menu.GroupLabel.State) => string \| undefined)`                     | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
+| style          | `CSSProperties \| ((state: Menu.GroupLabel.State) => CSSProperties \| undefined)`       | -       | -                                                                                                                                                                                        |
 | render         | `ReactElement \| ((props: HTMLProps, state: Menu.GroupLabel.State) => ReactElement)`    | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
 
 ### GroupLabel.Props
@@ -485,9 +511,9 @@ A separator element accessible to screen readers. Renders a `<div>` element.
 
 | Prop           | Type                                                                                    | Default          | Description                                                                                                                                                                              |
 | :------------- | :-------------------------------------------------------------------------------------- | :--------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| style          | `CSSProperties \| ((state: Menu.Separator.State) => CSSProperties \| undefined)`        | -                | -                                                                                                                                                                                        |
-| orientation    | `Menu.Separator.Orientation`                                                            | `'horizontal'`   | The orientation of the separator.                                                                                                                                                        |
+| orientation    | `Orientation`                                                                           | `'horizontal'`   | The orientation of the separator.                                                                                                                                                        |
 | className      | `string \| ((state: Menu.Separator.State) => string \| undefined)`                      | -                | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
+| style          | `CSSProperties \| ((state: Menu.Separator.State) => CSSProperties \| undefined)`        | -                | -                                                                                                                                                                                        |
 | render         | `ReactElement \| ((props: HTMLProps, state: Menu.Separator.State) => ReactElement)`     | -                | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
 
 ### Separator.Props
@@ -509,7 +535,7 @@ type MenuSeparatorOrientation = 'horizontal' | 'vertical';
 ### SubmenuRoot.Context
 
 ```typescript
-Context<boolean>;
+Context<MenuSubmenuRootContext | undefined>;
 ```
 
 ### SubmenuTrigger
@@ -523,9 +549,12 @@ A menu item that opens a submenu. Renders a `<div>` element.
 | label          | `string`                                                                                       | -         | Overrides the text label to use when the item is matched during keyboard text navigation.                                                                                                |
 | onClick        | `MouseEventHandler<HTMLElement>`                                                               | -         | -                                                                                                                                                                                        |
 | nativeButton   | `boolean`                                                                                      | `false`   | Whether the component renders a native `<button>` element when replacing it via the `render` prop. Set to `true` if the rendered element is a native button.                             |
-| style          | `CSSProperties \| ((state: Menu.SubmenuTrigger.State) => CSSProperties \| undefined)`          | -         | -                                                                                                                                                                                        |
-| id             | `string`                                                                                       | -         | -                                                                                                                                                                                        |
+| disabled       | `boolean`                                                                                      | `false`   | Whether the component should ignore user interaction.                                                                                                                                    |
+| openOnHover    | `boolean`                                                                                      | -         | Whether the menu should also open when the trigger is hovered.                                                                                                                           |
+| delay          | `number`                                                                                       | `100`     | How long to wait before the menu may be opened on hover. Specified in milliseconds.Requires the `openOnHover` prop.                                                                      |
+| closeDelay     | `number`                                                                                       | `0`       | How long to wait before closing the menu that was opened on hover. Specified in milliseconds.Requires the `openOnHover` prop.                                                            |
 | className      | `string \| ((state: Menu.SubmenuTrigger.State) => string \| undefined)`                        | -         | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
+| style          | `CSSProperties \| ((state: Menu.SubmenuTrigger.State) => CSSProperties \| undefined)`          | -         | -                                                                                                                                                                                        |
 | render         | `ReactElement \| ((props: HTMLProps, state: Menu.SubmenuTrigger.State) => ReactElement)`       | -         | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
 
 **SubmenuTrigger Data Attributes:**
@@ -533,6 +562,8 @@ A menu item that opens a submenu. Renders a `<div>` element.
 | Attribute             | Type    | Description                                       |
 | :-------------------- | :------ | :------------------------------------------------ |
 | data-popup-open       | -       | Present when the corresponding submenu is open.   |
+| data-highlighted      | -       | Present when the submenu trigger is highlighted.  |
+| data-disabled         | -       | Present when the submenu trigger is disabled.     |
 
 ### SubmenuTrigger.Props
 
@@ -559,10 +590,10 @@ Groups related radio items. Renders a `<div>` element.
 | defaultValue   | `any`                                                                                   | -         | The uncontrolled value of the radio item that should be initially selected.To render a controlled radio group, use the `value` prop instead.                                             |
 | value          | `any`                                                                                   | -         | The controlled value of the radio item that should be currently selected.To render an uncontrolled radio group, use the `defaultValue` prop instead.                                     |
 | onValueChange  | `((value: any, eventDetails: Menu.RadioGroup.ChangeEventDetails) => void)`              | -         | Function called when the selected value changes.                                                                                                                                         |
-| style          | `CSSProperties \| ((state: Menu.RadioGroup.State) => CSSProperties \| undefined)`       | -         | -                                                                                                                                                                                        |
 | disabled       | `boolean`                                                                               | `false`   | Whether the component should ignore user interaction.                                                                                                                                    |
 | children       | `ReactNode`                                                                             | -         | The content of the component.                                                                                                                                                            |
 | className      | `string \| ((state: Menu.RadioGroup.State) => string \| undefined)`                     | -         | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
+| style          | `CSSProperties \| ((state: Menu.RadioGroup.State) => CSSProperties \| undefined)`       | -         | -                                                                                                                                                                                        |
 | render         | `ReactElement \| ((props: HTMLProps, state: Menu.RadioGroup.State) => ReactElement)`    | -         | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
 
 ### RadioGroup.Props
@@ -590,7 +621,8 @@ type MenuRadioGroupChangeEventReason =
   | 'item-press'
   | 'close-press'
   | 'sibling-open'
-  | 'cancel-open';
+  | 'cancel-open'
+  | 'imperative-action';
 ```
 
 ### RadioGroup.ChangeEventDetails
@@ -604,7 +636,8 @@ type MenuRadioGroupChangeEventDetails =
       allowPropagation: () => void;
       isCanceled: boolean;
       isPropagationAllowed: boolean;
-      trigger: HTMLElement | undefined;
+      trigger: Element | undefined;
+      preventUnmountOnClose(): void;
     }
   | {
       reason: 'trigger-hover';
@@ -613,7 +646,8 @@ type MenuRadioGroupChangeEventDetails =
       allowPropagation: () => void;
       isCanceled: boolean;
       isPropagationAllowed: boolean;
-      trigger: HTMLElement | undefined;
+      trigger: Element | undefined;
+      preventUnmountOnClose(): void;
     }
   | {
       reason: 'trigger-focus';
@@ -622,7 +656,8 @@ type MenuRadioGroupChangeEventDetails =
       allowPropagation: () => void;
       isCanceled: boolean;
       isPropagationAllowed: boolean;
-      trigger: HTMLElement | undefined;
+      trigger: Element | undefined;
+      preventUnmountOnClose(): void;
     }
   | {
       reason: 'trigger-press';
@@ -631,7 +666,8 @@ type MenuRadioGroupChangeEventDetails =
       allowPropagation: () => void;
       isCanceled: boolean;
       isPropagationAllowed: boolean;
-      trigger: HTMLElement | undefined;
+      trigger: Element | undefined;
+      preventUnmountOnClose(): void;
     }
   | {
       reason: 'outside-press';
@@ -640,16 +676,18 @@ type MenuRadioGroupChangeEventDetails =
       allowPropagation: () => void;
       isCanceled: boolean;
       isPropagationAllowed: boolean;
-      trigger: HTMLElement | undefined;
+      trigger: Element | undefined;
+      preventUnmountOnClose(): void;
     }
   | {
       reason: 'focus-out';
-      event: FocusEvent;
+      event: FocusEvent | KeyboardEvent;
       cancel: () => void;
       allowPropagation: () => void;
       isCanceled: boolean;
       isPropagationAllowed: boolean;
-      trigger: HTMLElement | undefined;
+      trigger: Element | undefined;
+      preventUnmountOnClose(): void;
     }
   | {
       reason: 'list-navigation';
@@ -658,7 +696,8 @@ type MenuRadioGroupChangeEventDetails =
       allowPropagation: () => void;
       isCanceled: boolean;
       isPropagationAllowed: boolean;
-      trigger: HTMLElement | undefined;
+      trigger: Element | undefined;
+      preventUnmountOnClose(): void;
     }
   | {
       reason: 'escape-key';
@@ -667,7 +706,8 @@ type MenuRadioGroupChangeEventDetails =
       allowPropagation: () => void;
       isCanceled: boolean;
       isPropagationAllowed: boolean;
-      trigger: HTMLElement | undefined;
+      trigger: Element | undefined;
+      preventUnmountOnClose(): void;
     }
   | {
       reason: 'item-press';
@@ -676,7 +716,8 @@ type MenuRadioGroupChangeEventDetails =
       allowPropagation: () => void;
       isCanceled: boolean;
       isPropagationAllowed: boolean;
-      trigger: HTMLElement | undefined;
+      trigger: Element | undefined;
+      preventUnmountOnClose(): void;
     }
   | {
       reason: 'close-press';
@@ -685,7 +726,8 @@ type MenuRadioGroupChangeEventDetails =
       allowPropagation: () => void;
       isCanceled: boolean;
       isPropagationAllowed: boolean;
-      trigger: HTMLElement | undefined;
+      trigger: Element | undefined;
+      preventUnmountOnClose(): void;
     }
   | {
       reason: 'sibling-open';
@@ -694,7 +736,8 @@ type MenuRadioGroupChangeEventDetails =
       allowPropagation: () => void;
       isCanceled: boolean;
       isPropagationAllowed: boolean;
-      trigger: HTMLElement | undefined;
+      trigger: Element | undefined;
+      preventUnmountOnClose(): void;
     }
   | {
       reason: 'cancel-open';
@@ -703,7 +746,18 @@ type MenuRadioGroupChangeEventDetails =
       allowPropagation: () => void;
       isCanceled: boolean;
       isPropagationAllowed: boolean;
-      trigger: HTMLElement | undefined;
+      trigger: Element | undefined;
+      preventUnmountOnClose(): void;
+    }
+  | {
+      reason: 'imperative-action';
+      event: Event;
+      cancel: () => void;
+      allowPropagation: () => void;
+      isCanceled: boolean;
+      isPropagationAllowed: boolean;
+      trigger: Element | undefined;
+      preventUnmountOnClose(): void;
     };
 ```
 
@@ -720,10 +774,9 @@ A menu item that works like a radio button in a given group. Renders a `<div>` e
 | onClick        | `MouseEventHandler<HTMLElement>`                                                        | -         | The click handler for the menu item.                                                                                                                                                     |
 | closeOnClick   | `boolean`                                                                               | `false`   | Whether to close the menu when the item is clicked.                                                                                                                                      |
 | nativeButton   | `boolean`                                                                               | `false`   | Whether the component renders a native `<button>` element when replacing it via the `render` prop. Set to `true` if the rendered element is a native button.                             |
-| style          | `CSSProperties \| ((state: Menu.RadioItem.State) => CSSProperties \| undefined)`        | -         | -                                                                                                                                                                                        |
 | disabled       | `boolean`                                                                               | `false`   | Whether the component should ignore user interaction.                                                                                                                                    |
-| id             | `string`                                                                                | -         | -                                                                                                                                                                                        |
 | className      | `string \| ((state: Menu.RadioItem.State) => string \| undefined)`                      | -         | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
+| style          | `CSSProperties \| ((state: Menu.RadioItem.State) => CSSProperties \| undefined)`        | -         | -                                                                                                                                                                                        |
 | render         | `ReactElement \| ((props: HTMLProps, state: Menu.RadioItem.State) => ReactElement)`     | -         | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
 
 **RadioItem Data Attributes:**
@@ -757,8 +810,8 @@ Indicates whether the radio item is selected. Renders a `<div>` element.
 
 | Prop           | Type                                                                                            | Default   | Description                                                                                                                                                                              |
 | :------------- | :---------------------------------------------------------------------------------------------- | :-------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| style          | `CSSProperties \| ((state: Menu.RadioItemIndicator.State) => CSSProperties \| undefined)`       | -         | -                                                                                                                                                                                        |
 | className      | `string \| ((state: Menu.RadioItemIndicator.State) => string \| undefined)`                     | -         | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
+| style          | `CSSProperties \| ((state: Menu.RadioItemIndicator.State) => CSSProperties \| undefined)`       | -         | -                                                                                                                                                                                        |
 | keepMounted    | `boolean`                                                                                       | `false`   | Whether to keep the HTML element in the DOM when the radio item is inactive.                                                                                                             |
 | render         | `ReactElement \| ((props: HTMLProps, state: Menu.RadioItemIndicator.State) => ReactElement)`    | -         | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
 
@@ -802,10 +855,9 @@ A menu item that toggles a setting on or off. Renders a `<div>` element.
 | onClick               | `MouseEventHandler<HTMLElement>`                                                         | -         | The click handler for the menu item.                                                                                                                                                     |
 | closeOnClick          | `boolean`                                                                                | `false`   | Whether to close the menu when the item is clicked.                                                                                                                                      |
 | nativeButton          | `boolean`                                                                                | `false`   | Whether the component renders a native `<button>` element when replacing it via the `render` prop. Set to `true` if the rendered element is a native button.                             |
-| style                 | `CSSProperties \| ((state: Menu.CheckboxItem.State) => CSSProperties \| undefined)`      | -         | -                                                                                                                                                                                        |
 | disabled              | `boolean`                                                                                | `false`   | Whether the component should ignore user interaction.                                                                                                                                    |
-| id                    | `string`                                                                                 | -         | -                                                                                                                                                                                        |
 | className             | `string \| ((state: Menu.CheckboxItem.State) => string \| undefined)`                    | -         | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
+| style                 | `CSSProperties \| ((state: Menu.CheckboxItem.State) => CSSProperties \| undefined)`      | -         | -                                                                                                                                                                                        |
 | render                | `ReactElement \| ((props: HTMLProps, state: Menu.CheckboxItem.State) => ReactElement)`   | -         | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
 
 **CheckboxItem Data Attributes:**
@@ -846,7 +898,8 @@ type MenuCheckboxItemChangeEventReason =
   | 'item-press'
   | 'close-press'
   | 'sibling-open'
-  | 'cancel-open';
+  | 'cancel-open'
+  | 'imperative-action';
 ```
 
 ### CheckboxItem.ChangeEventDetails
@@ -860,7 +913,8 @@ type MenuCheckboxItemChangeEventDetails =
       allowPropagation: () => void;
       isCanceled: boolean;
       isPropagationAllowed: boolean;
-      trigger: HTMLElement | undefined;
+      trigger: Element | undefined;
+      preventUnmountOnClose(): void;
     }
   | {
       reason: 'trigger-hover';
@@ -869,7 +923,8 @@ type MenuCheckboxItemChangeEventDetails =
       allowPropagation: () => void;
       isCanceled: boolean;
       isPropagationAllowed: boolean;
-      trigger: HTMLElement | undefined;
+      trigger: Element | undefined;
+      preventUnmountOnClose(): void;
     }
   | {
       reason: 'trigger-focus';
@@ -878,7 +933,8 @@ type MenuCheckboxItemChangeEventDetails =
       allowPropagation: () => void;
       isCanceled: boolean;
       isPropagationAllowed: boolean;
-      trigger: HTMLElement | undefined;
+      trigger: Element | undefined;
+      preventUnmountOnClose(): void;
     }
   | {
       reason: 'trigger-press';
@@ -887,7 +943,8 @@ type MenuCheckboxItemChangeEventDetails =
       allowPropagation: () => void;
       isCanceled: boolean;
       isPropagationAllowed: boolean;
-      trigger: HTMLElement | undefined;
+      trigger: Element | undefined;
+      preventUnmountOnClose(): void;
     }
   | {
       reason: 'outside-press';
@@ -896,16 +953,18 @@ type MenuCheckboxItemChangeEventDetails =
       allowPropagation: () => void;
       isCanceled: boolean;
       isPropagationAllowed: boolean;
-      trigger: HTMLElement | undefined;
+      trigger: Element | undefined;
+      preventUnmountOnClose(): void;
     }
   | {
       reason: 'focus-out';
-      event: FocusEvent;
+      event: FocusEvent | KeyboardEvent;
       cancel: () => void;
       allowPropagation: () => void;
       isCanceled: boolean;
       isPropagationAllowed: boolean;
-      trigger: HTMLElement | undefined;
+      trigger: Element | undefined;
+      preventUnmountOnClose(): void;
     }
   | {
       reason: 'list-navigation';
@@ -914,7 +973,8 @@ type MenuCheckboxItemChangeEventDetails =
       allowPropagation: () => void;
       isCanceled: boolean;
       isPropagationAllowed: boolean;
-      trigger: HTMLElement | undefined;
+      trigger: Element | undefined;
+      preventUnmountOnClose(): void;
     }
   | {
       reason: 'escape-key';
@@ -923,7 +983,8 @@ type MenuCheckboxItemChangeEventDetails =
       allowPropagation: () => void;
       isCanceled: boolean;
       isPropagationAllowed: boolean;
-      trigger: HTMLElement | undefined;
+      trigger: Element | undefined;
+      preventUnmountOnClose(): void;
     }
   | {
       reason: 'item-press';
@@ -932,7 +993,8 @@ type MenuCheckboxItemChangeEventDetails =
       allowPropagation: () => void;
       isCanceled: boolean;
       isPropagationAllowed: boolean;
-      trigger: HTMLElement | undefined;
+      trigger: Element | undefined;
+      preventUnmountOnClose(): void;
     }
   | {
       reason: 'close-press';
@@ -941,7 +1003,8 @@ type MenuCheckboxItemChangeEventDetails =
       allowPropagation: () => void;
       isCanceled: boolean;
       isPropagationAllowed: boolean;
-      trigger: HTMLElement | undefined;
+      trigger: Element | undefined;
+      preventUnmountOnClose(): void;
     }
   | {
       reason: 'sibling-open';
@@ -950,7 +1013,8 @@ type MenuCheckboxItemChangeEventDetails =
       allowPropagation: () => void;
       isCanceled: boolean;
       isPropagationAllowed: boolean;
-      trigger: HTMLElement | undefined;
+      trigger: Element | undefined;
+      preventUnmountOnClose(): void;
     }
   | {
       reason: 'cancel-open';
@@ -959,7 +1023,18 @@ type MenuCheckboxItemChangeEventDetails =
       allowPropagation: () => void;
       isCanceled: boolean;
       isPropagationAllowed: boolean;
-      trigger: HTMLElement | undefined;
+      trigger: Element | undefined;
+      preventUnmountOnClose(): void;
+    }
+  | {
+      reason: 'imperative-action';
+      event: Event;
+      cancel: () => void;
+      allowPropagation: () => void;
+      isCanceled: boolean;
+      isPropagationAllowed: boolean;
+      trigger: Element | undefined;
+      preventUnmountOnClose(): void;
     };
 ```
 
@@ -971,8 +1046,8 @@ Indicates whether the checkbox item is ticked. Renders a `<div>` element.
 
 | Prop           | Type                                                                                                  | Default   | Description                                                                                                                                                                              |
 | :------------- | :---------------------------------------------------------------------------------------------------- | :-------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| style          | `CSSProperties \| ((state: Menu.CheckboxItemIndicator.State) => CSSProperties \| undefined)`          | -         | -                                                                                                                                                                                        |
 | className      | `string \| ((state: Menu.CheckboxItemIndicator.State) => string \| undefined)`                        | -         | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
+| style          | `CSSProperties \| ((state: Menu.CheckboxItemIndicator.State) => CSSProperties \| undefined)`          | -         | -                                                                                                                                                                                        |
 | keepMounted    | `boolean`                                                                                             | `false`   | Whether to keep the HTML element in the DOM when the checkbox item is not checked.                                                                                                       |
 | render         | `ReactElement \| ((props: HTMLProps, state: Menu.CheckboxItemIndicator.State) => ReactElement)`       | -         | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
 
@@ -1001,11 +1076,19 @@ type MenuCheckboxItemIndicatorState = {
 };
 ```
 
+### createHandle
+
+Creates a new handle to connect a Menu.Root with detached Menu.Trigger components.
+
+```typescript
+() => {};
+```
+
 ### Parent
 
 ```typescript
 type MenuParent =
-  | { type: 'menu'; store: MenuStore }
+  | { type: 'menu'; store: MenuStore<unknown> }
   | { type: 'menubar'; context: MenubarContext }
   | { type: 'context-menu'; context: ContextMenuRootContext }
   | {
@@ -1019,5 +1102,5 @@ type MenuParent =
 ### useMenuSubmenuRootContext
 
 ```typescript
-() => boolean;
+() => { parentMenu: {} } | undefined;
 ```

@@ -17,9 +17,9 @@ A two-state button that can be on or off. Renders a `<button>` element.
 | pressed               | `boolean`                                                                        | -         | Whether the toggle button is currently pressed. This is the controlled counterpart of `defaultPressed`.                                                                                  |
 | onPressedChange       | `((pressed: boolean, eventDetails: Toggle.ChangeEventDetails) => void)`          | -         | Callback fired when the pressed state is changed.                                                                                                                                        |
 | nativeButton          | `boolean`                                                                        | `true`    | Whether the component renders a native `<button>` element when replacing it via the `render` prop. Set to `false` if the rendered element is not a button (e.g. `<div>`).                |
-| style                 | `CSSProperties \| ((state: Toggle.State) => CSSProperties \| undefined)`         | -         | -                                                                                                                                                                                        |
 | disabled              | `boolean`                                                                        | `false`   | Whether the component should ignore user interaction.                                                                                                                                    |
 | className             | `string \| ((state: Toggle.State) => string \| undefined)`                       | -         | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
+| style                 | `CSSProperties \| ((state: Toggle.State) => CSSProperties \| undefined)`         | -         | -                                                                                                                                                                                        |
 | render                | `ReactElement \| ((props: HTMLProps, state: Toggle.State) => ReactElement)`      | -         | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
 
 **Toggle Data Attributes:**
@@ -54,6 +54,6 @@ type ToggleChangeEventDetails = {
   allowPropagation: () => void;
   isCanceled: boolean;
   isPropagationAllowed: boolean;
-  trigger: HTMLElement | undefined;
+  trigger: Element | undefined;
 };
 ```
