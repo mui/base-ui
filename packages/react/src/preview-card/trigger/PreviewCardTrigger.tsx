@@ -32,11 +32,18 @@ export const PreviewCardTrigger = React.forwardRef(function PreviewCardTrigger(
     ...elementProps
   } = componentProps;
 
-  const store = usePreviewCardRootContext();
+  const rootContext = usePreviewCardRootContext(true);
+  const store = handle?.store ?? rootContext;
+  if (!store) {
+    throw new Error(
+      'Base UI: <Tooltip.Trigger> must be either used within a <Tooltip.Root> component or provided with a handle.',
+    );
+  }
+
   const thisTriggerId = useBaseUiId(idProp);
 
-  const open = store.useState('open');
   const isTriggerActive = store.useState('isTriggerActive', thisTriggerId);
+  const isOpenedByThisTrigger = store.useState('isOpenedByTrigger', thisTriggerId);
   const floatingRootContext = store.useState('floatingRootContext');
 
   const triggerElementRef = React.useRef<Element | null>(null);
@@ -71,7 +78,10 @@ export const PreviewCardTrigger = React.forwardRef(function PreviewCardTrigger(
     }
   }, [delayValue, closeDelayValue, isTriggerActive, store]);
 
-  const state: PreviewCardTrigger.State = React.useMemo(() => ({ open }), [open]);
+  const state: PreviewCardTrigger.State = React.useMemo(
+    () => ({ open: isOpenedByThisTrigger }),
+    [isOpenedByThisTrigger],
+  );
 
   const element = useRenderElement('a', componentProps, {
     ref: [forwardedRef, registerTrigger, triggerElementRef],
