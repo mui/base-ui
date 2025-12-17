@@ -1084,7 +1084,13 @@ Creates a new handle to connect a Menu.Root with detached Menu.Trigger component
 () => {};
 ```
 
-### Parent
+### useMenuSubmenuRootContext
+
+```typescript
+() => { parentMenu: {} } | undefined;
+```
+
+### MenuParent
 
 ```typescript
 type MenuParent =
@@ -1097,10 +1103,4 @@ type MenuParent =
       menuContext: MenuRootContext;
     }
   | { type: undefined };
-```
-
-### useMenuSubmenuRootContext
-
-```typescript
-() => { parentMenu: {} } | undefined;
 ```

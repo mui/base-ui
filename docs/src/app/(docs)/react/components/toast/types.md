@@ -12,10 +12,10 @@ Groups all parts of an individual toast. Renders a `<div>` element.
 
 | Prop           | Type                                                                                   | Default                 | Description                                                                                                                                                                              |
 | :------------- | :------------------------------------------------------------------------------------- | :---------------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| style          | `CSSProperties \| ((state: Toast.Root.State) => CSSProperties \| undefined)`           | -                       | -                                                                                                                                                                                        |
-| swipeDirection | `'up' \| 'down' \| 'left' \| 'right' \| ('up' \| 'down' \| 'left' \| 'right')[]`       | `['down', 'right']`     | Direction(s) in which the toast can be swiped to dismiss.                                                                                                                                |
+| swipeDirection | `'left' \| 'right' \| 'up' \| 'down' \| ('left' \| 'right' \| 'up' \| 'down')[]`       | `['down', 'right']`     | Direction(s) in which the toast can be swiped to dismiss.                                                                                                                                |
 | toast          | `Toast.Root.ToastObject<any>`                                                          | -                       | The toast to render.                                                                                                                                                                     |
 | className      | `string \| ((state: Toast.Root.State) => string \| undefined)`                         | -                       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
+| style          | `CSSProperties \| ((state: Toast.Root.State) => CSSProperties \| undefined)`           | -                       | -                                                                                                                                                                                        |
 | render         | `ReactElement \| ((props: HTMLProps, state: Toast.Root.State) => ReactElement)`        | -                       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
 
 **Root Data Attributes:**
@@ -53,7 +53,7 @@ type ToastRootState = {
   limited: boolean;
   type: string | undefined;
   swiping: boolean;
-  swipeDirection: 'up' | 'down' | 'left' | 'right' | undefined;
+  swipeDirection: 'left' | 'right' | 'up' | 'down' | undefined;
 };
 ```
 
@@ -82,6 +82,7 @@ type ToastRootToastObject<Data extends object = any> = {
         'ref'
       >
     | undefined;
+  positionerProps?: ToastManagerPositionerProps | undefined;
   data?: Data | undefined;
 };
 ```
@@ -92,12 +93,12 @@ Provides a context for creating and managing toasts.
 
 **Provider Props:**
 
-| Prop           | Type                                         | Default   | Description                                                                                                                                                |
-| :------------- | :------------------------------------------- | :-------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| limit          | `number`                                     | `3`       | The maximum number of toasts that can be displayed at once. When the limit is reached, the oldest toast will be removed to make room for the new one.      |
-| toastManager   | `Toast.createToastManager.ToastManager`      | -         | A global manager for toasts to use outside of a React component.                                                                                           |
-| timeout        | `number`                                     | `5000`    | The default amount of time (in ms) before a toast is auto dismissed. A value of `0` will prevent the toast from being dismissed automatically.             |
-| children       | `ReactNode`                                  | -         | -                                                                                                                                                          |
+| Prop           | Type             | Default   | Description                                                                                                                                                |
+| :------------- | :--------------- | :-------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| limit          | `number`         | `3`       | The maximum number of toasts that can be displayed at once. When the limit is reached, the oldest toast will be removed to make room for the new one.      |
+| toastManager   | `ToastManager`   | -         | A global manager for toasts to use outside of a React component.                                                                                           |
+| timeout        | `number`         | `5000`    | The default amount of time (in ms) before a toast is auto dismissed. A value of `0` will prevent the toast from being dismissed automatically.             |
+| children       | `ReactNode`      | -         | -                                                                                                                                                          |
 
 ### Provider.Props
 
@@ -111,14 +112,97 @@ A portal element that moves the viewport to a different part of the DOM. By defa
 
 | Prop           | Type                                                                                 | Default | Description                                                                                                                                                                              |
 | :------------- | :----------------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| style          | `CSSProperties \| ((state: any) => CSSProperties \| undefined)`                      | -       | -                                                                                                                                                                                        |
 | container      | `HTMLElement \| ShadowRoot \| RefObject<HTMLElement \| ShadowRoot \| null> \| null`  | -       | A parent element to render the portal element into.                                                                                                                                      |
 | className      | `string \| ((state: any) => string \| undefined)`                                    | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
+| style          | `CSSProperties \| ((state: any) => CSSProperties \| undefined)`                      | -       | -                                                                                                                                                                                        |
 | render         | `ReactElement \| ((props: HTMLProps, state: any) => ReactElement)`                   | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
 
 ### Portal.Props
 
 Re-export of [Portal](#portal) props.
+
+### Positioner
+
+Positions the toast against the anchor. Renders a `<div>` element.
+
+**Positioner Props:**
+
+| Prop                  | Type                                                                                     | Default                 | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| :-------------------- | :--------------------------------------------------------------------------------------- | :---------------------- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| disableAnchorTracking | `boolean`                                                                                | `false`                 | Whether to disable the popup from tracking any layout shift of its positioning anchor.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| toast                 | `ToastObject<any>`                                                                       | -                       | The toast object associated with the positioner.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| align                 | `Align`                                                                                  | `'center'`              | How to align the popup relative to the specified side.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| alignOffset           | `number \| OffsetFunction`                                                               | `0`                     | Additional offset along the alignment axis in pixels. Also accepts a function that returns the offset to read the dimensions of the anchor and positioner elements, along with its side and alignment.The function takes a `data` object parameter with the following properties:`data.anchor`: the dimensions of the anchor element with properties `width` and `height`., `data.positioner`: the dimensions of the positioner element with properties `width` and `height`., `data.side`: which side of the anchor element the positioner is aligned against., `data.align`: how the positioner is aligned relative to the specified side.        |
+| side                  | `Side`                                                                                   | `'top'`                 | Which side of the anchor element to align the toast against. May automatically change to avoid collisions.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| sideOffset            | `number \| OffsetFunction`                                                               | `0`                     | Distance between the anchor and the popup in pixels. Also accepts a function that returns the distance to read the dimensions of the anchor and positioner elements, along with its side and alignment.The function takes a `data` object parameter with the following properties:`data.anchor`: the dimensions of the anchor element with properties `width` and `height`., `data.positioner`: the dimensions of the positioner element with properties `width` and `height`., `data.side`: which side of the anchor element the positioner is aligned against., `data.align`: how the positioner is aligned relative to the specified side.       |
+| arrowPadding          | `number`                                                                                 | `5`                     | Minimum distance to maintain between the arrow and the edges of the popup.Use it to prevent the arrow element from hanging out of the rounded corners of a popup.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| anchor                | `Element \| null`                                                                        | -                       | An element to position the toast against.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
+| collisionAvoidance    | `CollisionAvoidance`                                                                     | -                       | Determines how to handle collisions when positioning the popup.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| collisionBoundary     | `Boundary`                                                                               | `'clipping-ancestors'`  | An element or a rectangle that delimits the area that the popup is confined to.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| collisionPadding      | `Padding`                                                                                | `5`                     | Additional space to maintain from the edge of the collision boundary.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
+| sticky                | `boolean`                                                                                | `false`                 | Whether to maintain the popup in the viewport after the anchor element was scrolled out of view.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| positionMethod        | `'absolute' \| 'fixed'`                                                                  | `'absolute'`            | Determines which CSS `position` property to use.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| className             | `string \| ((state: Toast.Positioner.State) => string \| undefined)`                     | -                       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
+| style                 | `CSSProperties \| ((state: Toast.Positioner.State) => CSSProperties \| undefined)`       | -                       | -                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| render                | `ReactElement \| ((props: HTMLProps, state: Toast.Positioner.State) => ReactElement)`    | -                       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render.                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
+
+**Positioner Data Attributes:**
+
+| Attribute             | Type                                                                          | Description                                                            |
+| :-------------------- | :---------------------------------------------------------------------------- | :--------------------------------------------------------------------- |
+| data-anchor-hidden    | -                                                                             | Present when the anchor is hidden.                                     |
+| data-align            | `'start' \| 'center' \| 'end'`                                                | Indicates how the toast is aligned relative to specified side.         |
+| data-side             | `'top' \| 'bottom' \| 'left' \| 'right' \| 'inline-end' \| 'inline-start'`    | Indicates which side the toast is positioned relative to the trigger.  |
+
+**Positioner CSS Variables:**
+
+| Variable                | Type      | Description                                                                                 |
+| :---------------------- | :-------- | :------------------------------------------------------------------------------------------ |
+| `--anchor-height`       | `number`  | The anchor's height.                                                                        |
+| `--anchor-width`        | `number`  | The anchor's width.                                                                         |
+| `--available-height`    | `number`  | The available height between the anchor and the edge of the viewport.                       |
+| `--available-width`     | `number`  | The available width between the anchor and the edge of the viewport.                        |
+| `--transform-origin`    | `string`  | The coordinates that this element is anchored to. Used for animations and transitions.      |
+
+### Positioner.Props
+
+Re-export of [Positioner](#positioner) props.
+
+### Positioner.State
+
+```typescript
+type ToastPositionerState = { side: Side; align: Align; anchorHidden: boolean };
+```
+
+### Arrow
+
+Displays an element positioned against the toast anchor. Renders a `<div>` element.
+
+**Arrow Props:**
+
+| Prop           | Type                                                                              | Default | Description                                                                                                                                                                              |
+| :------------- | :-------------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| className      | `string \| ((state: Toast.Arrow.State) => string \| undefined)`                   | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
+| style          | `CSSProperties \| ((state: Toast.Arrow.State) => CSSProperties \| undefined)`     | -       | -                                                                                                                                                                                        |
+| render         | `ReactElement \| ((props: HTMLProps, state: Toast.Arrow.State) => ReactElement)`  | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
+
+**Arrow Data Attributes:**
+
+| Attribute             | Type                                                                          | Description                                                            |
+| :-------------------- | :---------------------------------------------------------------------------- | :--------------------------------------------------------------------- |
+| data-uncentered       | -                                                                             | Present when the toast arrow is uncentered.                            |
+| data-align            | `'start' \| 'center' \| 'end'`                                                | Indicates how the toast is aligned relative to specified side.         |
+| data-side             | `'top' \| 'bottom' \| 'left' \| 'right' \| 'inline-end' \| 'inline-start'`    | Indicates which side the toast is positioned relative to the anchor.   |
+
+### Arrow\.Props
+
+Re-export of [Arrow](#arrow) props.
+
+### Arrow\.State
+
+```typescript
+type ToastArrowState = { side: Side; align: Align; uncentered: boolean };
+```
 
 ### Content
 
@@ -128,8 +212,8 @@ A container for the contents of a toast. Renders a `<div>` element.
 
 | Prop           | Type                                                                                    | Default | Description                                                                                                                                                                              |
 | :------------- | :-------------------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| style          | `CSSProperties \| ((state: Toast.Content.State) => CSSProperties \| undefined)`         | -       | -                                                                                                                                                                                        |
 | className      | `string \| ((state: Toast.Content.State) => string \| undefined)`                       | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
+| style          | `CSSProperties \| ((state: Toast.Content.State) => CSSProperties \| undefined)`         | -       | -                                                                                                                                                                                        |
 | render         | `ReactElement \| ((props: HTMLProps, state: Toast.Content.State) => ReactElement)`      | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
 
 **Content Data Attributes:**
@@ -157,8 +241,8 @@ A title that labels the toast. Renders an `<h2>` element.
 
 | Prop           | Type                                                                              | Default | Description                                                                                                                                                                              |
 | :------------- | :-------------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| style          | `CSSProperties \| ((state: Toast.Title.State) => CSSProperties \| undefined)`     | -       | -                                                                                                                                                                                        |
 | className      | `string \| ((state: Toast.Title.State) => string \| undefined)`                   | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
+| style          | `CSSProperties \| ((state: Toast.Title.State) => CSSProperties \| undefined)`     | -       | -                                                                                                                                                                                        |
 | render         | `ReactElement \| ((props: HTMLProps, state: Toast.Title.State) => ReactElement)`  | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
 
 **Title Data Attributes:**
@@ -185,8 +269,8 @@ A description that describes the toast. Can be used as the default message for t
 
 | Prop           | Type                                                                                     | Default | Description                                                                                                                                                                              |
 | :------------- | :--------------------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| style          | `CSSProperties \| ((state: Toast.Description.State) => CSSProperties \| undefined)`      | -       | -                                                                                                                                                                                        |
 | className      | `string \| ((state: Toast.Description.State) => string \| undefined)`                    | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
+| style          | `CSSProperties \| ((state: Toast.Description.State) => CSSProperties \| undefined)`      | -       | -                                                                                                                                                                                        |
 | render         | `ReactElement \| ((props: HTMLProps, state: Toast.Description.State) => ReactElement)`   | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
 
 **Description Data Attributes:**
@@ -214,8 +298,8 @@ Closes the toast when clicked. Renders a `<button>` element.
 | Prop           | Type                                                                              | Default   | Description                                                                                                                                                                              |
 | :------------- | :-------------------------------------------------------------------------------- | :-------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | nativeButton   | `boolean`                                                                         | `true`    | Whether the component renders a native `<button>` element when replacing it via the `render` prop. Set to `false` if the rendered element is not a button (e.g. `<div>`).                |
-| style          | `CSSProperties \| ((state: Toast.Close.State) => CSSProperties \| undefined)`     | -         | -                                                                                                                                                                                        |
 | className      | `string \| ((state: Toast.Close.State) => string \| undefined)`                   | -         | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
+| style          | `CSSProperties \| ((state: Toast.Close.State) => CSSProperties \| undefined)`     | -         | -                                                                                                                                                                                        |
 | render         | `ReactElement \| ((props: HTMLProps, state: Toast.Close.State) => ReactElement)`  | -         | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
 
 **Close Data Attributes:**
@@ -243,8 +327,8 @@ Performs an action when clicked. Renders a `<button>` element.
 | Prop           | Type                                                                                    | Default   | Description                                                                                                                                                                              |
 | :------------- | :-------------------------------------------------------------------------------------- | :-------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | nativeButton   | `boolean`                                                                               | `true`    | Whether the component renders a native `<button>` element when replacing it via the `render` prop. Set to `false` if the rendered element is not a button (e.g. `<div>`).                |
-| style          | `CSSProperties \| ((state: Toast.Action.State) => CSSProperties \| undefined)`          | -         | -                                                                                                                                                                                        |
 | className      | `string \| ((state: Toast.Action.State) => string \| undefined)`                        | -         | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
+| style          | `CSSProperties \| ((state: Toast.Action.State) => CSSProperties \| undefined)`          | -         | -                                                                                                                                                                                        |
 | render         | `ReactElement \| ((props: HTMLProps, state: Toast.Action.State) => ReactElement)`       | -         | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
 
 **Action Data Attributes:**
@@ -271,8 +355,8 @@ A container viewport for toasts. Renders a `<div>` element.
 
 | Prop           | Type                                                                                    | Default | Description                                                                                                                                                                              |
 | :------------- | :-------------------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| style          | `CSSProperties \| ((state: Toast.Viewport.State) => CSSProperties \| undefined)`        | -       | -                                                                                                                                                                                        |
 | className      | `string \| ((state: Toast.Viewport.State) => string \| undefined)`                      | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
+| style          | `CSSProperties \| ((state: Toast.Viewport.State) => CSSProperties \| undefined)`        | -       | -                                                                                                                                                                                        |
 | render         | `ReactElement \| ((props: HTMLProps, state: Toast.Viewport.State) => ReactElement)`     | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
 
 **Viewport Data Attributes:**
@@ -309,7 +393,7 @@ Creates a new toast manager.
       options: any;
     }) => void,
   ) => () => void;
-  add: (options: {
+  add: (options?: {
     id?: string;
     title?: ReactNode;
     type?: string;
@@ -320,12 +404,60 @@ Creates a new toast manager.
     onClose?: () => void;
     onRemove?: () => void;
     actionProps?: {};
+    positionerProps?: {
+      anchor?: Element | null;
+      style?:
+        | CSSProperties
+        | ((state: {
+            side: Side;
+            align: Align;
+            anchorHidden: boolean;
+          }) => CSSProperties | undefined);
+      className?:
+        | string
+        | ((state: {
+            side: Side;
+            align: Align;
+            anchorHidden: boolean;
+          }) => string | undefined);
+      side?: Side;
+      positionMethod?: 'absolute' | 'fixed';
+      sideOffset?:
+        | number
+        | ((data: {
+            side: Side;
+            align: Align;
+            anchor: {};
+            positioner: {};
+          }) => number);
+      align?: Align;
+      alignOffset?:
+        | number
+        | ((data: {
+            side: Side;
+            align: Align;
+            anchor: {};
+            positioner: {};
+          }) => number);
+      collisionBoundary?: Boundary;
+      collisionPadding?: Padding;
+      sticky?: boolean;
+      arrowPadding?: number;
+      disableAnchorTracking?: boolean;
+      collisionAvoidance?: CollisionAvoidance;
+      render?:
+        | ReactElement
+        | ((
+            props: HTMLProps,
+            state: { side: Side; align: Align; anchorHidden: boolean },
+          ) => ReactElement);
+    };
     data?: {};
   }) => string;
   close: (id: string) => void;
   update: (
     id: string,
-    updates: {
+    updates?: {
       id?: string;
       title?: ReactNode;
       type?: string;
@@ -336,12 +468,60 @@ Creates a new toast manager.
       onClose?: () => void;
       onRemove?: () => void;
       actionProps?: {};
+      positionerProps?: {
+        anchor?: Element | null;
+        style?:
+          | CSSProperties
+          | ((state: {
+              side: Side;
+              align: Align;
+              anchorHidden: boolean;
+            }) => CSSProperties | undefined);
+        className?:
+          | string
+          | ((state: {
+              side: Side;
+              align: Align;
+              anchorHidden: boolean;
+            }) => string | undefined);
+        side?: Side;
+        positionMethod?: 'absolute' | 'fixed';
+        sideOffset?:
+          | number
+          | ((data: {
+              side: Side;
+              align: Align;
+              anchor: {};
+              positioner: {};
+            }) => number);
+        align?: Align;
+        alignOffset?:
+          | number
+          | ((data: {
+              side: Side;
+              align: Align;
+              anchor: {};
+              positioner: {};
+            }) => number);
+        collisionBoundary?: Boundary;
+        collisionPadding?: Padding;
+        sticky?: boolean;
+        arrowPadding?: number;
+        disableAnchorTracking?: boolean;
+        collisionAvoidance?: CollisionAvoidance;
+        render?:
+          | ReactElement
+          | ((
+              props: HTMLProps,
+              state: { side: Side; align: Align; anchorHidden: boolean },
+            ) => ReactElement);
+      };
       data?: {};
     },
   ) => void;
   promise: (
     promiseValue: Promise<Value>,
-    options: {
+    options?: {
       loading:
         | string
         | {
@@ -355,6 +535,25 @@ Creates a new toast manager.
             onClose?: () => void;
             onRemove?: () => void;
             actionProps?: {};
+            positionerProps?: {
+              anchor?: Element | null;
+              style?: CSSProperties | ((state: {}) => CSSProperties | undefined);
+              className?: string | ((state: {}) => string | undefined);
+              side?: Side;
+              positionMethod?: 'absolute' | 'fixed';
+              sideOffset?: number | ((data: {}) => number);
+              align?: Align;
+              alignOffset?: number | ((data: {}) => number);
+              collisionBoundary?: Boundary;
+              collisionPadding?: Padding;
+              sticky?: boolean;
+              arrowPadding?: number;
+              disableAnchorTracking?: boolean;
+              collisionAvoidance?: CollisionAvoidance;
+              render?:
+                | ReactElement
+                | ((props: HTMLProps, state: {}) => ReactElement);
+            };
             data?: {};
           };
       success:
@@ -370,6 +569,25 @@ Creates a new toast manager.
             onClose?: () => void;
             onRemove?: () => void;
             actionProps?: {};
+            positionerProps?: {
+              anchor?: Element | null;
+              style?: CSSProperties | ((state: {}) => CSSProperties | undefined);
+              className?: string | ((state: {}) => string | undefined);
+              side?: Side;
+              positionMethod?: 'absolute' | 'fixed';
+              sideOffset?: number | ((data: {}) => number);
+              align?: Align;
+              alignOffset?: number | ((data: {}) => number);
+              collisionBoundary?: Boundary;
+              collisionPadding?: Padding;
+              sticky?: boolean;
+              arrowPadding?: number;
+              disableAnchorTracking?: boolean;
+              collisionAvoidance?: CollisionAvoidance;
+              render?:
+                | ReactElement
+                | ((props: HTMLProps, state: {}) => ReactElement);
+            };
             data?: {};
           }
         | ((
@@ -387,6 +605,7 @@ Creates a new toast manager.
                 onClose?: () => void;
                 onRemove?: () => void;
                 actionProps?: {};
+                positionerProps?: {};
                 data?: {};
               });
       error:
@@ -402,6 +621,25 @@ Creates a new toast manager.
             onClose?: () => void;
             onRemove?: () => void;
             actionProps?: {};
+            positionerProps?: {
+              anchor?: Element | null;
+              style?: CSSProperties | ((state: {}) => CSSProperties | undefined);
+              className?: string | ((state: {}) => string | undefined);
+              side?: Side;
+              positionMethod?: 'absolute' | 'fixed';
+              sideOffset?: number | ((data: {}) => number);
+              align?: Align;
+              alignOffset?: number | ((data: {}) => number);
+              collisionBoundary?: Boundary;
+              collisionPadding?: Padding;
+              sticky?: boolean;
+              arrowPadding?: number;
+              disableAnchorTracking?: boolean;
+              collisionAvoidance?: CollisionAvoidance;
+              render?:
+                | ReactElement
+                | ((props: HTMLProps, state: {}) => ReactElement);
+            };
             data?: {};
           }
         | ((
@@ -419,167 +657,11 @@ Creates a new toast manager.
                 onClose?: () => void;
                 onRemove?: () => void;
                 actionProps?: {};
+                positionerProps?: {};
                 data?: {};
               });
     },
   ) => Promise<Value>;
-};
-```
-
-### createToastManager.ToastManager
-
-```typescript
-type CreateToastManager = {
-  ' subscribe': (
-    listener: (data: {
-      action: 'add' | 'close' | 'update' | 'promise';
-      options: any;
-    }) => void,
-  ) => () => void;
-  add: (options: {
-    id?: string;
-    title?: ReactNode;
-    type?: string;
-    description?: ReactNode;
-    timeout?: number;
-    priority?: 'low' | 'high';
-    transitionStatus?: 'starting' | 'ending';
-    onClose?: () => void;
-    onRemove?: () => void;
-    actionProps?: {};
-    data?: {};
-  }) => string;
-  close: (id: string) => void;
-  update: (
-    id: string,
-    updates: {
-      id?: string;
-      title?: ReactNode;
-      type?: string;
-      description?: ReactNode;
-      timeout?: number;
-      priority?: 'low' | 'high';
-      transitionStatus?: 'starting' | 'ending';
-      onClose?: () => void;
-      onRemove?: () => void;
-      actionProps?: {};
-      data?: {};
-    },
-  ) => void;
-  promise: (
-    promiseValue: Promise<Value>,
-    options: {
-      loading:
-        | string
-        | {
-            id?: string;
-            title?: ReactNode;
-            type?: string;
-            description?: ReactNode;
-            timeout?: number;
-            priority?: 'low' | 'high';
-            transitionStatus?: 'starting' | 'ending';
-            onClose?: () => void;
-            onRemove?: () => void;
-            actionProps?: {};
-            data?: {};
-          };
-      success:
-        | string
-        | {
-            id?: string;
-            title?: ReactNode;
-            type?: string;
-            description?: ReactNode;
-            timeout?: number;
-            priority?: 'low' | 'high';
-            transitionStatus?: 'starting' | 'ending';
-            onClose?: () => void;
-            onRemove?: () => void;
-            actionProps?: {};
-            data?: {};
-          }
-        | ((
-            result: Value,
-          ) =>
-            | string
-            | {
-                id?: string;
-                title?: ReactNode;
-                type?: string;
-                description?: ReactNode;
-                timeout?: number;
-                priority?: 'low' | 'high';
-                transitionStatus?: 'starting' | 'ending';
-                onClose?: () => void;
-                onRemove?: () => void;
-                actionProps?: {};
-                data?: {};
-              });
-      error:
-        | string
-        | {
-            id?: string;
-            title?: ReactNode;
-            type?: string;
-            description?: ReactNode;
-            timeout?: number;
-            priority?: 'low' | 'high';
-            transitionStatus?: 'starting' | 'ending';
-            onClose?: () => void;
-            onRemove?: () => void;
-            actionProps?: {};
-            data?: {};
-          }
-        | ((
-            error: any,
-          ) =>
-            | string
-            | {
-                id?: string;
-                title?: ReactNode;
-                type?: string;
-                description?: ReactNode;
-                timeout?: number;
-                priority?: 'low' | 'high';
-                transitionStatus?: 'starting' | 'ending';
-                onClose?: () => void;
-                onRemove?: () => void;
-                actionProps?: {};
-                data?: {};
-              });
-    },
-  ) => Promise<Value>;
-};
-```
-
-### ManagerEvent
-
-```typescript
-type ToastManagerEvent = {
-  action: 'add' | 'close' | 'update' | 'promise';
-  options: any;
-};
-```
-
-### Object
-
-```typescript
-type ToastObject = {
-  id: string;
-  ref?: RefObject<HTMLElement | null>;
-  title?: ReactNode;
-  type?: string;
-  description?: ReactNode;
-  timeout?: number;
-  priority?: 'low' | 'high';
-  transitionStatus?: 'starting' | 'ending';
-  limited?: boolean;
-  height?: number;
-  onClose?: () => void;
-  onRemove?: () => void;
-  actionProps?: {};
-  data?: {};
 };
 ```
 
@@ -603,9 +685,57 @@ Returns the array of toasts and methods to manage them.
     onClose?: () => void;
     onRemove?: () => void;
     actionProps?: {};
+    positionerProps?: {
+      anchor?: Element | null;
+      style?:
+        | CSSProperties
+        | ((state: {
+            side: Side;
+            align: Align;
+            anchorHidden: boolean;
+          }) => CSSProperties | undefined);
+      className?:
+        | string
+        | ((state: {
+            side: Side;
+            align: Align;
+            anchorHidden: boolean;
+          }) => string | undefined);
+      side?: Side;
+      positionMethod?: 'absolute' | 'fixed';
+      sideOffset?:
+        | number
+        | ((data: {
+            side: Side;
+            align: Align;
+            anchor: {};
+            positioner: {};
+          }) => number);
+      align?: Align;
+      alignOffset?:
+        | number
+        | ((data: {
+            side: Side;
+            align: Align;
+            anchor: {};
+            positioner: {};
+          }) => number);
+      collisionBoundary?: Boundary;
+      collisionPadding?: Padding;
+      sticky?: boolean;
+      arrowPadding?: number;
+      disableAnchorTracking?: boolean;
+      collisionAvoidance?: CollisionAvoidance;
+      render?:
+        | ReactElement
+        | ((
+            props: HTMLProps,
+            state: { side: Side; align: Align; anchorHidden: boolean },
+          ) => ReactElement);
+    };
     data?: any;
   }[];
-  add: (options: {
+  add: (options?: {
     id?: string;
     title?: ReactNode;
     type?: string;
@@ -616,12 +746,60 @@ Returns the array of toasts and methods to manage them.
     onClose?: () => void;
     onRemove?: () => void;
     actionProps?: {};
+    positionerProps?: {
+      anchor?: Element | null;
+      style?:
+        | CSSProperties
+        | ((state: {
+            side: Side;
+            align: Align;
+            anchorHidden: boolean;
+          }) => CSSProperties | undefined);
+      className?:
+        | string
+        | ((state: {
+            side: Side;
+            align: Align;
+            anchorHidden: boolean;
+          }) => string | undefined);
+      side?: Side;
+      positionMethod?: 'absolute' | 'fixed';
+      sideOffset?:
+        | number
+        | ((data: {
+            side: Side;
+            align: Align;
+            anchor: {};
+            positioner: {};
+          }) => number);
+      align?: Align;
+      alignOffset?:
+        | number
+        | ((data: {
+            side: Side;
+            align: Align;
+            anchor: {};
+            positioner: {};
+          }) => number);
+      collisionBoundary?: Boundary;
+      collisionPadding?: Padding;
+      sticky?: boolean;
+      arrowPadding?: number;
+      disableAnchorTracking?: boolean;
+      collisionAvoidance?: CollisionAvoidance;
+      render?:
+        | ReactElement
+        | ((
+            props: HTMLProps,
+            state: { side: Side; align: Align; anchorHidden: boolean },
+          ) => ReactElement);
+    };
     data?: {};
   }) => string;
   close: (toastId: string) => void;
   update: (
     toastId: string,
-    options: {
+    options?: {
       id?: string;
       title?: ReactNode;
       type?: string;
@@ -632,12 +810,60 @@ Returns the array of toasts and methods to manage them.
       onClose?: () => void;
       onRemove?: () => void;
       actionProps?: {};
+      positionerProps?: {
+        anchor?: Element | null;
+        style?:
+          | CSSProperties
+          | ((state: {
+              side: Side;
+              align: Align;
+              anchorHidden: boolean;
+            }) => CSSProperties | undefined);
+        className?:
+          | string
+          | ((state: {
+              side: Side;
+              align: Align;
+              anchorHidden: boolean;
+            }) => string | undefined);
+        side?: Side;
+        positionMethod?: 'absolute' | 'fixed';
+        sideOffset?:
+          | number
+          | ((data: {
+              side: Side;
+              align: Align;
+              anchor: {};
+              positioner: {};
+            }) => number);
+        align?: Align;
+        alignOffset?:
+          | number
+          | ((data: {
+              side: Side;
+              align: Align;
+              anchor: {};
+              positioner: {};
+            }) => number);
+        collisionBoundary?: Boundary;
+        collisionPadding?: Padding;
+        sticky?: boolean;
+        arrowPadding?: number;
+        disableAnchorTracking?: boolean;
+        collisionAvoidance?: CollisionAvoidance;
+        render?:
+          | ReactElement
+          | ((
+              props: HTMLProps,
+              state: { side: Side; align: Align; anchorHidden: boolean },
+            ) => ReactElement);
+      };
       data?: {};
     },
   ) => void;
   promise: (
     promise: Promise<Value>,
-    options: {
+    options?: {
       loading:
         | string
         | {
@@ -651,6 +877,25 @@ Returns the array of toasts and methods to manage them.
             onClose?: () => void;
             onRemove?: () => void;
             actionProps?: {};
+            positionerProps?: {
+              anchor?: Element | null;
+              style?: CSSProperties | ((state: {}) => CSSProperties | undefined);
+              className?: string | ((state: {}) => string | undefined);
+              side?: Side;
+              positionMethod?: 'absolute' | 'fixed';
+              sideOffset?: number | ((data: {}) => number);
+              align?: Align;
+              alignOffset?: number | ((data: {}) => number);
+              collisionBoundary?: Boundary;
+              collisionPadding?: Padding;
+              sticky?: boolean;
+              arrowPadding?: number;
+              disableAnchorTracking?: boolean;
+              collisionAvoidance?: CollisionAvoidance;
+              render?:
+                | ReactElement
+                | ((props: HTMLProps, state: {}) => ReactElement);
+            };
             data?: {};
           };
       success:
@@ -666,6 +911,25 @@ Returns the array of toasts and methods to manage them.
             onClose?: () => void;
             onRemove?: () => void;
             actionProps?: {};
+            positionerProps?: {
+              anchor?: Element | null;
+              style?: CSSProperties | ((state: {}) => CSSProperties | undefined);
+              className?: string | ((state: {}) => string | undefined);
+              side?: Side;
+              positionMethod?: 'absolute' | 'fixed';
+              sideOffset?: number | ((data: {}) => number);
+              align?: Align;
+              alignOffset?: number | ((data: {}) => number);
+              collisionBoundary?: Boundary;
+              collisionPadding?: Padding;
+              sticky?: boolean;
+              arrowPadding?: number;
+              disableAnchorTracking?: boolean;
+              collisionAvoidance?: CollisionAvoidance;
+              render?:
+                | ReactElement
+                | ((props: HTMLProps, state: {}) => ReactElement);
+            };
             data?: {};
           }
         | ((
@@ -683,6 +947,7 @@ Returns the array of toasts and methods to manage them.
                 onClose?: () => void;
                 onRemove?: () => void;
                 actionProps?: {};
+                positionerProps?: {};
                 data?: {};
               });
       error:
@@ -698,6 +963,25 @@ Returns the array of toasts and methods to manage them.
             onClose?: () => void;
             onRemove?: () => void;
             actionProps?: {};
+            positionerProps?: {
+              anchor?: Element | null;
+              style?: CSSProperties | ((state: {}) => CSSProperties | undefined);
+              className?: string | ((state: {}) => string | undefined);
+              side?: Side;
+              positionMethod?: 'absolute' | 'fixed';
+              sideOffset?: number | ((data: {}) => number);
+              align?: Align;
+              alignOffset?: number | ((data: {}) => number);
+              collisionBoundary?: Boundary;
+              collisionPadding?: Padding;
+              sticky?: boolean;
+              arrowPadding?: number;
+              disableAnchorTracking?: boolean;
+              collisionAvoidance?: CollisionAvoidance;
+              render?:
+                | ReactElement
+                | ((props: HTMLProps, state: {}) => ReactElement);
+            };
             data?: {};
           }
         | ((
@@ -715,6 +999,7 @@ Returns the array of toasts and methods to manage them.
                 onClose?: () => void;
                 onRemove?: () => void;
                 actionProps?: {};
+                positionerProps?: {};
                 data?: {};
               });
     },
@@ -722,7 +1007,7 @@ Returns the array of toasts and methods to manage them.
 };
 ```
 
-### useToastManager.ReturnValue
+### UseToastManagerReturnValue
 
 ```typescript
 type UseToastManagerReturnValue = {
@@ -740,9 +1025,57 @@ type UseToastManagerReturnValue = {
     onClose?: () => void;
     onRemove?: () => void;
     actionProps?: {};
+    positionerProps?: {
+      anchor?: Element | null;
+      style?:
+        | CSSProperties
+        | ((state: {
+            side: Side;
+            align: Align;
+            anchorHidden: boolean;
+          }) => CSSProperties | undefined);
+      className?:
+        | string
+        | ((state: {
+            side: Side;
+            align: Align;
+            anchorHidden: boolean;
+          }) => string | undefined);
+      side?: Side;
+      positionMethod?: 'absolute' | 'fixed';
+      sideOffset?:
+        | number
+        | ((data: {
+            side: Side;
+            align: Align;
+            anchor: { width: number; height: number };
+            positioner: { width: number; height: number };
+          }) => number);
+      align?: Align;
+      alignOffset?:
+        | number
+        | ((data: {
+            side: Side;
+            align: Align;
+            anchor: { width: number; height: number };
+            positioner: { width: number; height: number };
+          }) => number);
+      collisionBoundary?: Boundary;
+      collisionPadding?: Padding;
+      sticky?: boolean;
+      arrowPadding?: number;
+      disableAnchorTracking?: boolean;
+      collisionAvoidance?: CollisionAvoidance;
+      render?:
+        | ReactElement
+        | ((
+            props: HTMLProps,
+            state: { side: Side; align: Align; anchorHidden: boolean },
+          ) => ReactElement);
+    };
     data?: any;
   }[];
-  add: (options: {
+  add: (options?: {
     id?: string;
     title?: ReactNode;
     type?: string;
@@ -753,12 +1086,60 @@ type UseToastManagerReturnValue = {
     onClose?: () => void;
     onRemove?: () => void;
     actionProps?: {};
+    positionerProps?: {
+      anchor?: Element | null;
+      style?:
+        | CSSProperties
+        | ((state: {
+            side: Side;
+            align: Align;
+            anchorHidden: boolean;
+          }) => CSSProperties | undefined);
+      className?:
+        | string
+        | ((state: {
+            side: Side;
+            align: Align;
+            anchorHidden: boolean;
+          }) => string | undefined);
+      side?: Side;
+      positionMethod?: 'absolute' | 'fixed';
+      sideOffset?:
+        | number
+        | ((data: {
+            side: Side;
+            align: Align;
+            anchor: { width: number; height: number };
+            positioner: { width: number; height: number };
+          }) => number);
+      align?: Align;
+      alignOffset?:
+        | number
+        | ((data: {
+            side: Side;
+            align: Align;
+            anchor: { width: number; height: number };
+            positioner: { width: number; height: number };
+          }) => number);
+      collisionBoundary?: Boundary;
+      collisionPadding?: Padding;
+      sticky?: boolean;
+      arrowPadding?: number;
+      disableAnchorTracking?: boolean;
+      collisionAvoidance?: CollisionAvoidance;
+      render?:
+        | ReactElement
+        | ((
+            props: HTMLProps,
+            state: { side: Side; align: Align; anchorHidden: boolean },
+          ) => ReactElement);
+    };
     data?: {};
   }) => string;
   close: (toastId: string) => void;
   update: (
     toastId: string,
-    options: {
+    options?: {
       id?: string;
       title?: ReactNode;
       type?: string;
@@ -769,12 +1150,60 @@ type UseToastManagerReturnValue = {
       onClose?: () => void;
       onRemove?: () => void;
       actionProps?: {};
+      positionerProps?: {
+        anchor?: Element | null;
+        style?:
+          | CSSProperties
+          | ((state: {
+              side: Side;
+              align: Align;
+              anchorHidden: boolean;
+            }) => CSSProperties | undefined);
+        className?:
+          | string
+          | ((state: {
+              side: Side;
+              align: Align;
+              anchorHidden: boolean;
+            }) => string | undefined);
+        side?: Side;
+        positionMethod?: 'absolute' | 'fixed';
+        sideOffset?:
+          | number
+          | ((data: {
+              side: Side;
+              align: Align;
+              anchor: { width: number; height: number };
+              positioner: { width: number; height: number };
+            }) => number);
+        align?: Align;
+        alignOffset?:
+          | number
+          | ((data: {
+              side: Side;
+              align: Align;
+              anchor: { width: number; height: number };
+              positioner: { width: number; height: number };
+            }) => number);
+        collisionBoundary?: Boundary;
+        collisionPadding?: Padding;
+        sticky?: boolean;
+        arrowPadding?: number;
+        disableAnchorTracking?: boolean;
+        collisionAvoidance?: CollisionAvoidance;
+        render?:
+          | ReactElement
+          | ((
+              props: HTMLProps,
+              state: { side: Side; align: Align; anchorHidden: boolean },
+            ) => ReactElement);
+      };
       data?: {};
     },
   ) => void;
   promise: (
     promise: Promise<Value>,
-    options: {
+    options?: {
       loading:
         | string
         | {
@@ -788,6 +1217,25 @@ type UseToastManagerReturnValue = {
             onClose?: () => void;
             onRemove?: () => void;
             actionProps?: {};
+            positionerProps?: {
+              anchor?: Element | null;
+              style?: CSSProperties | ((state: {}) => CSSProperties | undefined);
+              className?: string | ((state: {}) => string | undefined);
+              side?: Side;
+              positionMethod?: 'absolute' | 'fixed';
+              sideOffset?: number | ((data: {}) => number);
+              align?: Align;
+              alignOffset?: number | ((data: {}) => number);
+              collisionBoundary?: Boundary;
+              collisionPadding?: Padding;
+              sticky?: boolean;
+              arrowPadding?: number;
+              disableAnchorTracking?: boolean;
+              collisionAvoidance?: CollisionAvoidance;
+              render?:
+                | ReactElement
+                | ((props: HTMLProps, state: {}) => ReactElement);
+            };
             data?: {};
           };
       success:
@@ -803,6 +1251,25 @@ type UseToastManagerReturnValue = {
             onClose?: () => void;
             onRemove?: () => void;
             actionProps?: {};
+            positionerProps?: {
+              anchor?: Element | null;
+              style?: CSSProperties | ((state: {}) => CSSProperties | undefined);
+              className?: string | ((state: {}) => string | undefined);
+              side?: Side;
+              positionMethod?: 'absolute' | 'fixed';
+              sideOffset?: number | ((data: {}) => number);
+              align?: Align;
+              alignOffset?: number | ((data: {}) => number);
+              collisionBoundary?: Boundary;
+              collisionPadding?: Padding;
+              sticky?: boolean;
+              arrowPadding?: number;
+              disableAnchorTracking?: boolean;
+              collisionAvoidance?: CollisionAvoidance;
+              render?:
+                | ReactElement
+                | ((props: HTMLProps, state: {}) => ReactElement);
+            };
             data?: {};
           }
         | ((
@@ -820,6 +1287,25 @@ type UseToastManagerReturnValue = {
                 onClose?: () => void;
                 onRemove?: () => void;
                 actionProps?: {};
+                positionerProps?: {
+                  anchor?: Element | null;
+                  style?: CSSProperties | ((state: {}) => CSSProperties | undefined);
+                  className?: string | ((state: {}) => string | undefined);
+                  side?: Side;
+                  positionMethod?: 'absolute' | 'fixed';
+                  sideOffset?: number | ((data: {}) => number);
+                  align?: Align;
+                  alignOffset?: number | ((data: {}) => number);
+                  collisionBoundary?: Boundary;
+                  collisionPadding?: Padding;
+                  sticky?: boolean;
+                  arrowPadding?: number;
+                  disableAnchorTracking?: boolean;
+                  collisionAvoidance?: CollisionAvoidance;
+                  render?:
+                    | ReactElement
+                    | ((props: HTMLProps, state: {}) => ReactElement);
+                };
                 data?: {};
               });
       error:
@@ -835,6 +1321,25 @@ type UseToastManagerReturnValue = {
             onClose?: () => void;
             onRemove?: () => void;
             actionProps?: {};
+            positionerProps?: {
+              anchor?: Element | null;
+              style?: CSSProperties | ((state: {}) => CSSProperties | undefined);
+              className?: string | ((state: {}) => string | undefined);
+              side?: Side;
+              positionMethod?: 'absolute' | 'fixed';
+              sideOffset?: number | ((data: {}) => number);
+              align?: Align;
+              alignOffset?: number | ((data: {}) => number);
+              collisionBoundary?: Boundary;
+              collisionPadding?: Padding;
+              sticky?: boolean;
+              arrowPadding?: number;
+              disableAnchorTracking?: boolean;
+              collisionAvoidance?: CollisionAvoidance;
+              render?:
+                | ReactElement
+                | ((props: HTMLProps, state: {}) => ReactElement);
+            };
             data?: {};
           }
         | ((
@@ -852,6 +1357,25 @@ type UseToastManagerReturnValue = {
                 onClose?: () => void;
                 onRemove?: () => void;
                 actionProps?: {};
+                positionerProps?: {
+                  anchor?: Element | null;
+                  style?: CSSProperties | ((state: {}) => CSSProperties | undefined);
+                  className?: string | ((state: {}) => string | undefined);
+                  side?: Side;
+                  positionMethod?: 'absolute' | 'fixed';
+                  sideOffset?: number | ((data: {}) => number);
+                  align?: Align;
+                  alignOffset?: number | ((data: {}) => number);
+                  collisionBoundary?: Boundary;
+                  collisionPadding?: Padding;
+                  sticky?: boolean;
+                  arrowPadding?: number;
+                  disableAnchorTracking?: boolean;
+                  collisionAvoidance?: CollisionAvoidance;
+                  render?:
+                    | ReactElement
+                    | ((props: HTMLProps, state: {}) => ReactElement);
+                };
                 data?: {};
               });
     },
@@ -859,10 +1383,328 @@ type UseToastManagerReturnValue = {
 };
 ```
 
-### useToastManager.AddOptions
+### ToastManager
 
 ```typescript
-type UseToastManagerAddOptions = {
+type ToastManager = {
+  ' subscribe': (
+    listener: (data: {
+      action: 'add' | 'close' | 'update' | 'promise';
+      options: any;
+    }) => void,
+  ) => () => void;
+  add: (options?: {
+    id?: string;
+    title?: ReactNode;
+    type?: string;
+    description?: ReactNode;
+    timeout?: number;
+    priority?: 'low' | 'high';
+    transitionStatus?: 'starting' | 'ending';
+    onClose?: () => void;
+    onRemove?: () => void;
+    actionProps?: {};
+    positionerProps?: {
+      anchor?: Element | null;
+      style?:
+        | CSSProperties
+        | ((state: {
+            side: Side;
+            align: Align;
+            anchorHidden: boolean;
+          }) => CSSProperties | undefined);
+      className?:
+        | string
+        | ((state: {
+            side: Side;
+            align: Align;
+            anchorHidden: boolean;
+          }) => string | undefined);
+      side?: Side;
+      positionMethod?: 'absolute' | 'fixed';
+      sideOffset?:
+        | number
+        | ((data: {
+            side: Side;
+            align: Align;
+            anchor: { width: number; height: number };
+            positioner: { width: number; height: number };
+          }) => number);
+      align?: Align;
+      alignOffset?:
+        | number
+        | ((data: {
+            side: Side;
+            align: Align;
+            anchor: { width: number; height: number };
+            positioner: { width: number; height: number };
+          }) => number);
+      collisionBoundary?: Boundary;
+      collisionPadding?: Padding;
+      sticky?: boolean;
+      arrowPadding?: number;
+      disableAnchorTracking?: boolean;
+      collisionAvoidance?: CollisionAvoidance;
+      render?:
+        | ReactElement
+        | ((
+            props: HTMLProps,
+            state: { side: Side; align: Align; anchorHidden: boolean },
+          ) => ReactElement);
+    };
+    data?: {};
+  }) => string;
+  close: (id: string) => void;
+  update: (
+    id: string,
+    updates?: {
+      id?: string;
+      title?: ReactNode;
+      type?: string;
+      description?: ReactNode;
+      timeout?: number;
+      priority?: 'low' | 'high';
+      transitionStatus?: 'starting' | 'ending';
+      onClose?: () => void;
+      onRemove?: () => void;
+      actionProps?: {};
+      positionerProps?: {
+        anchor?: Element | null;
+        style?:
+          | CSSProperties
+          | ((state: {
+              side: Side;
+              align: Align;
+              anchorHidden: boolean;
+            }) => CSSProperties | undefined);
+        className?:
+          | string
+          | ((state: {
+              side: Side;
+              align: Align;
+              anchorHidden: boolean;
+            }) => string | undefined);
+        side?: Side;
+        positionMethod?: 'absolute' | 'fixed';
+        sideOffset?:
+          | number
+          | ((data: {
+              side: Side;
+              align: Align;
+              anchor: { width: number; height: number };
+              positioner: { width: number; height: number };
+            }) => number);
+        align?: Align;
+        alignOffset?:
+          | number
+          | ((data: {
+              side: Side;
+              align: Align;
+              anchor: { width: number; height: number };
+              positioner: { width: number; height: number };
+            }) => number);
+        collisionBoundary?: Boundary;
+        collisionPadding?: Padding;
+        sticky?: boolean;
+        arrowPadding?: number;
+        disableAnchorTracking?: boolean;
+        collisionAvoidance?: CollisionAvoidance;
+        render?:
+          | ReactElement
+          | ((
+              props: HTMLProps,
+              state: { side: Side; align: Align; anchorHidden: boolean },
+            ) => ReactElement);
+      };
+      data?: {};
+    },
+  ) => void;
+  promise: (
+    promiseValue: Promise<Value>,
+    options?: {
+      loading:
+        | string
+        | {
+            id?: string;
+            title?: ReactNode;
+            type?: string;
+            description?: ReactNode;
+            timeout?: number;
+            priority?: 'low' | 'high';
+            transitionStatus?: 'starting' | 'ending';
+            onClose?: () => void;
+            onRemove?: () => void;
+            actionProps?: {};
+            positionerProps?: {
+              anchor?: Element | null;
+              style?: CSSProperties | ((state: {}) => CSSProperties | undefined);
+              className?: string | ((state: {}) => string | undefined);
+              side?: Side;
+              positionMethod?: 'absolute' | 'fixed';
+              sideOffset?: number | ((data: {}) => number);
+              align?: Align;
+              alignOffset?: number | ((data: {}) => number);
+              collisionBoundary?: Boundary;
+              collisionPadding?: Padding;
+              sticky?: boolean;
+              arrowPadding?: number;
+              disableAnchorTracking?: boolean;
+              collisionAvoidance?: CollisionAvoidance;
+              render?:
+                | ReactElement
+                | ((props: HTMLProps, state: {}) => ReactElement);
+            };
+            data?: {};
+          };
+      success:
+        | string
+        | {
+            id?: string;
+            title?: ReactNode;
+            type?: string;
+            description?: ReactNode;
+            timeout?: number;
+            priority?: 'low' | 'high';
+            transitionStatus?: 'starting' | 'ending';
+            onClose?: () => void;
+            onRemove?: () => void;
+            actionProps?: {};
+            positionerProps?: {
+              anchor?: Element | null;
+              style?: CSSProperties | ((state: {}) => CSSProperties | undefined);
+              className?: string | ((state: {}) => string | undefined);
+              side?: Side;
+              positionMethod?: 'absolute' | 'fixed';
+              sideOffset?: number | ((data: {}) => number);
+              align?: Align;
+              alignOffset?: number | ((data: {}) => number);
+              collisionBoundary?: Boundary;
+              collisionPadding?: Padding;
+              sticky?: boolean;
+              arrowPadding?: number;
+              disableAnchorTracking?: boolean;
+              collisionAvoidance?: CollisionAvoidance;
+              render?:
+                | ReactElement
+                | ((props: HTMLProps, state: {}) => ReactElement);
+            };
+            data?: {};
+          }
+        | ((
+            result: Value,
+          ) =>
+            | string
+            | {
+                id?: string;
+                title?: ReactNode;
+                type?: string;
+                description?: ReactNode;
+                timeout?: number;
+                priority?: 'low' | 'high';
+                transitionStatus?: 'starting' | 'ending';
+                onClose?: () => void;
+                onRemove?: () => void;
+                actionProps?: {};
+                positionerProps?: {
+                  anchor?: Element | null;
+                  style?: CSSProperties | ((state: {}) => CSSProperties | undefined);
+                  className?: string | ((state: {}) => string | undefined);
+                  side?: Side;
+                  positionMethod?: 'absolute' | 'fixed';
+                  sideOffset?: number | ((data: {}) => number);
+                  align?: Align;
+                  alignOffset?: number | ((data: {}) => number);
+                  collisionBoundary?: Boundary;
+                  collisionPadding?: Padding;
+                  sticky?: boolean;
+                  arrowPadding?: number;
+                  disableAnchorTracking?: boolean;
+                  collisionAvoidance?: CollisionAvoidance;
+                  render?:
+                    | ReactElement
+                    | ((props: HTMLProps, state: {}) => ReactElement);
+                };
+                data?: {};
+              });
+      error:
+        | string
+        | {
+            id?: string;
+            title?: ReactNode;
+            type?: string;
+            description?: ReactNode;
+            timeout?: number;
+            priority?: 'low' | 'high';
+            transitionStatus?: 'starting' | 'ending';
+            onClose?: () => void;
+            onRemove?: () => void;
+            actionProps?: {};
+            positionerProps?: {
+              anchor?: Element | null;
+              style?: CSSProperties | ((state: {}) => CSSProperties | undefined);
+              className?: string | ((state: {}) => string | undefined);
+              side?: Side;
+              positionMethod?: 'absolute' | 'fixed';
+              sideOffset?: number | ((data: {}) => number);
+              align?: Align;
+              alignOffset?: number | ((data: {}) => number);
+              collisionBoundary?: Boundary;
+              collisionPadding?: Padding;
+              sticky?: boolean;
+              arrowPadding?: number;
+              disableAnchorTracking?: boolean;
+              collisionAvoidance?: CollisionAvoidance;
+              render?:
+                | ReactElement
+                | ((props: HTMLProps, state: {}) => ReactElement);
+            };
+            data?: {};
+          }
+        | ((
+            error: any,
+          ) =>
+            | string
+            | {
+                id?: string;
+                title?: ReactNode;
+                type?: string;
+                description?: ReactNode;
+                timeout?: number;
+                priority?: 'low' | 'high';
+                transitionStatus?: 'starting' | 'ending';
+                onClose?: () => void;
+                onRemove?: () => void;
+                actionProps?: {};
+                positionerProps?: {
+                  anchor?: Element | null;
+                  style?: CSSProperties | ((state: {}) => CSSProperties | undefined);
+                  className?: string | ((state: {}) => string | undefined);
+                  side?: Side;
+                  positionMethod?: 'absolute' | 'fixed';
+                  sideOffset?: number | ((data: {}) => number);
+                  align?: Align;
+                  alignOffset?: number | ((data: {}) => number);
+                  collisionBoundary?: Boundary;
+                  collisionPadding?: Padding;
+                  sticky?: boolean;
+                  arrowPadding?: number;
+                  disableAnchorTracking?: boolean;
+                  collisionAvoidance?: CollisionAvoidance;
+                  render?:
+                    | ReactElement
+                    | ((props: HTMLProps, state: {}) => ReactElement);
+                };
+                data?: {};
+              });
+    },
+  ) => Promise<Value>;
+};
+```
+
+### ToastManagerAddOptions
+
+```typescript
+type ToastManagerAddOptions = {
   id?: string;
   title?: ReactNode;
   type?: string;
@@ -873,32 +1715,124 @@ type UseToastManagerAddOptions = {
   onClose?: () => void;
   onRemove?: () => void;
   actionProps?: {};
+  positionerProps?: {
+    anchor?: Element | null;
+    style?:
+      | CSSProperties
+      | ((state: {
+          side: Side;
+          align: Align;
+          anchorHidden: boolean;
+        }) => CSSProperties | undefined);
+    className?:
+      | string
+      | ((state: {
+          side: Side;
+          align: Align;
+          anchorHidden: boolean;
+        }) => string | undefined);
+    side?: Side;
+    positionMethod?: 'absolute' | 'fixed';
+    sideOffset?:
+      | number
+      | ((data: {
+          side: Side;
+          align: Align;
+          anchor: { width: number; height: number };
+          positioner: { width: number; height: number };
+        }) => number);
+    align?: Align;
+    alignOffset?:
+      | number
+      | ((data: {
+          side: Side;
+          align: Align;
+          anchor: { width: number; height: number };
+          positioner: { width: number; height: number };
+        }) => number);
+    collisionBoundary?: Boundary;
+    collisionPadding?: Padding;
+    sticky?: boolean;
+    arrowPadding?: number;
+    disableAnchorTracking?: boolean;
+    collisionAvoidance?: CollisionAvoidance;
+    render?:
+      | ReactElement
+      | ((
+          props: HTMLProps,
+          state: { side: Side; align: Align; anchorHidden: boolean },
+        ) => ReactElement);
+  };
   data?: {};
 };
 ```
 
-### useToastManager.UpdateOptions
+### ToastManagerEvent
 
 ```typescript
-type UseToastManagerUpdateOptions = {
-  id?: string;
-  title?: ReactNode;
-  type?: string;
-  description?: ReactNode;
-  timeout?: number;
-  priority?: 'low' | 'high';
-  transitionStatus?: 'starting' | 'ending';
-  onClose?: () => void;
-  onRemove?: () => void;
-  actionProps?: {};
-  data?: {};
+type ToastManagerEvent = {
+  action: 'add' | 'close' | 'update' | 'promise';
+  options: any;
 };
 ```
 
-### useToastManager.PromiseOptions
+### ToastManagerPositionerProps
 
 ```typescript
-type UseToastManagerPromiseOptions = {
+type ToastManagerPositionerProps = {
+  anchor?: Element | null;
+  style?:
+    | CSSProperties
+    | ((state: {
+        side: Side;
+        align: Align;
+        anchorHidden: boolean;
+      }) => CSSProperties | undefined);
+  className?:
+    | string
+    | ((state: {
+        side: Side;
+        align: Align;
+        anchorHidden: boolean;
+      }) => string | undefined);
+  side?: Side;
+  positionMethod?: 'absolute' | 'fixed';
+  sideOffset?:
+    | number
+    | ((data: {
+        side: Side;
+        align: Align;
+        anchor: { width: number; height: number };
+        positioner: { width: number; height: number };
+      }) => number);
+  align?: Align;
+  alignOffset?:
+    | number
+    | ((data: {
+        side: Side;
+        align: Align;
+        anchor: { width: number; height: number };
+        positioner: { width: number; height: number };
+      }) => number);
+  collisionBoundary?: Boundary;
+  collisionPadding?: Padding;
+  sticky?: boolean;
+  arrowPadding?: number;
+  disableAnchorTracking?: boolean;
+  collisionAvoidance?: CollisionAvoidance;
+  render?:
+    | ReactElement
+    | ((
+        props: HTMLProps,
+        state: { side: Side; align: Align; anchorHidden: boolean },
+      ) => ReactElement);
+};
+```
+
+### ToastManagerPromiseOptions
+
+```typescript
+type ToastManagerPromiseOptions = {
   loading:
     | string
     | {
@@ -912,6 +1846,54 @@ type UseToastManagerPromiseOptions = {
         onClose?: () => void;
         onRemove?: () => void;
         actionProps?: {};
+        positionerProps?: {
+          anchor?: Element | null;
+          style?:
+            | CSSProperties
+            | ((state: {
+                side: Side;
+                align: Align;
+                anchorHidden: boolean;
+              }) => CSSProperties | undefined);
+          className?:
+            | string
+            | ((state: {
+                side: Side;
+                align: Align;
+                anchorHidden: boolean;
+              }) => string | undefined);
+          side?: Side;
+          positionMethod?: 'absolute' | 'fixed';
+          sideOffset?:
+            | number
+            | ((data: {
+                side: Side;
+                align: Align;
+                anchor: { width: number; height: number };
+                positioner: { width: number; height: number };
+              }) => number);
+          align?: Align;
+          alignOffset?:
+            | number
+            | ((data: {
+                side: Side;
+                align: Align;
+                anchor: { width: number; height: number };
+                positioner: { width: number; height: number };
+              }) => number);
+          collisionBoundary?: Boundary;
+          collisionPadding?: Padding;
+          sticky?: boolean;
+          arrowPadding?: number;
+          disableAnchorTracking?: boolean;
+          collisionAvoidance?: CollisionAvoidance;
+          render?:
+            | ReactElement
+            | ((
+                props: HTMLProps,
+                state: { side: Side; align: Align; anchorHidden: boolean },
+              ) => ReactElement);
+        };
         data?: {};
       };
   success:
@@ -927,6 +1909,54 @@ type UseToastManagerPromiseOptions = {
         onClose?: () => void;
         onRemove?: () => void;
         actionProps?: {};
+        positionerProps?: {
+          anchor?: Element | null;
+          style?:
+            | CSSProperties
+            | ((state: {
+                side: Side;
+                align: Align;
+                anchorHidden: boolean;
+              }) => CSSProperties | undefined);
+          className?:
+            | string
+            | ((state: {
+                side: Side;
+                align: Align;
+                anchorHidden: boolean;
+              }) => string | undefined);
+          side?: Side;
+          positionMethod?: 'absolute' | 'fixed';
+          sideOffset?:
+            | number
+            | ((data: {
+                side: Side;
+                align: Align;
+                anchor: { width: number; height: number };
+                positioner: { width: number; height: number };
+              }) => number);
+          align?: Align;
+          alignOffset?:
+            | number
+            | ((data: {
+                side: Side;
+                align: Align;
+                anchor: { width: number; height: number };
+                positioner: { width: number; height: number };
+              }) => number);
+          collisionBoundary?: Boundary;
+          collisionPadding?: Padding;
+          sticky?: boolean;
+          arrowPadding?: number;
+          disableAnchorTracking?: boolean;
+          collisionAvoidance?: CollisionAvoidance;
+          render?:
+            | ReactElement
+            | ((
+                props: HTMLProps,
+                state: { side: Side; align: Align; anchorHidden: boolean },
+              ) => ReactElement);
+        };
         data?: {};
       }
     | ((
@@ -944,6 +1974,25 @@ type UseToastManagerPromiseOptions = {
             onClose?: () => void;
             onRemove?: () => void;
             actionProps?: {};
+            positionerProps?: {
+              anchor?: Element | null;
+              style?: CSSProperties | ((state: {}) => CSSProperties | undefined);
+              className?: string | ((state: {}) => string | undefined);
+              side?: Side;
+              positionMethod?: 'absolute' | 'fixed';
+              sideOffset?: number | ((data: {}) => number);
+              align?: Align;
+              alignOffset?: number | ((data: {}) => number);
+              collisionBoundary?: Boundary;
+              collisionPadding?: Padding;
+              sticky?: boolean;
+              arrowPadding?: number;
+              disableAnchorTracking?: boolean;
+              collisionAvoidance?: CollisionAvoidance;
+              render?:
+                | ReactElement
+                | ((props: HTMLProps, state: {}) => ReactElement);
+            };
             data?: {};
           });
   error:
@@ -959,6 +2008,54 @@ type UseToastManagerPromiseOptions = {
         onClose?: () => void;
         onRemove?: () => void;
         actionProps?: {};
+        positionerProps?: {
+          anchor?: Element | null;
+          style?:
+            | CSSProperties
+            | ((state: {
+                side: Side;
+                align: Align;
+                anchorHidden: boolean;
+              }) => CSSProperties | undefined);
+          className?:
+            | string
+            | ((state: {
+                side: Side;
+                align: Align;
+                anchorHidden: boolean;
+              }) => string | undefined);
+          side?: Side;
+          positionMethod?: 'absolute' | 'fixed';
+          sideOffset?:
+            | number
+            | ((data: {
+                side: Side;
+                align: Align;
+                anchor: { width: number; height: number };
+                positioner: { width: number; height: number };
+              }) => number);
+          align?: Align;
+          alignOffset?:
+            | number
+            | ((data: {
+                side: Side;
+                align: Align;
+                anchor: { width: number; height: number };
+                positioner: { width: number; height: number };
+              }) => number);
+          collisionBoundary?: Boundary;
+          collisionPadding?: Padding;
+          sticky?: boolean;
+          arrowPadding?: number;
+          disableAnchorTracking?: boolean;
+          collisionAvoidance?: CollisionAvoidance;
+          render?:
+            | ReactElement
+            | ((
+                props: HTMLProps,
+                state: { side: Side; align: Align; anchorHidden: boolean },
+              ) => ReactElement);
+        };
         data?: {};
       }
     | ((
@@ -976,7 +2073,161 @@ type UseToastManagerPromiseOptions = {
             onClose?: () => void;
             onRemove?: () => void;
             actionProps?: {};
+            positionerProps?: {
+              anchor?: Element | null;
+              style?: CSSProperties | ((state: {}) => CSSProperties | undefined);
+              className?: string | ((state: {}) => string | undefined);
+              side?: Side;
+              positionMethod?: 'absolute' | 'fixed';
+              sideOffset?: number | ((data: {}) => number);
+              align?: Align;
+              alignOffset?: number | ((data: {}) => number);
+              collisionBoundary?: Boundary;
+              collisionPadding?: Padding;
+              sticky?: boolean;
+              arrowPadding?: number;
+              disableAnchorTracking?: boolean;
+              collisionAvoidance?: CollisionAvoidance;
+              render?:
+                | ReactElement
+                | ((props: HTMLProps, state: {}) => ReactElement);
+            };
             data?: {};
           });
+};
+```
+
+### ToastManagerUpdateOptions
+
+```typescript
+type ToastManagerUpdateOptions = {
+  id?: string;
+  title?: ReactNode;
+  type?: string;
+  description?: ReactNode;
+  timeout?: number;
+  priority?: 'low' | 'high';
+  transitionStatus?: 'starting' | 'ending';
+  onClose?: () => void;
+  onRemove?: () => void;
+  actionProps?: {};
+  positionerProps?: {
+    anchor?: Element | null;
+    style?:
+      | CSSProperties
+      | ((state: {
+          side: Side;
+          align: Align;
+          anchorHidden: boolean;
+        }) => CSSProperties | undefined);
+    className?:
+      | string
+      | ((state: {
+          side: Side;
+          align: Align;
+          anchorHidden: boolean;
+        }) => string | undefined);
+    side?: Side;
+    positionMethod?: 'absolute' | 'fixed';
+    sideOffset?:
+      | number
+      | ((data: {
+          side: Side;
+          align: Align;
+          anchor: { width: number; height: number };
+          positioner: { width: number; height: number };
+        }) => number);
+    align?: Align;
+    alignOffset?:
+      | number
+      | ((data: {
+          side: Side;
+          align: Align;
+          anchor: { width: number; height: number };
+          positioner: { width: number; height: number };
+        }) => number);
+    collisionBoundary?: Boundary;
+    collisionPadding?: Padding;
+    sticky?: boolean;
+    arrowPadding?: number;
+    disableAnchorTracking?: boolean;
+    collisionAvoidance?: CollisionAvoidance;
+    render?:
+      | ReactElement
+      | ((
+          props: HTMLProps,
+          state: { side: Side; align: Align; anchorHidden: boolean },
+        ) => ReactElement);
+  };
+  data?: {};
+};
+```
+
+### ToastObject
+
+```typescript
+type ToastObject = {
+  id: string;
+  ref?: RefObject<HTMLElement | null>;
+  title?: ReactNode;
+  type?: string;
+  description?: ReactNode;
+  timeout?: number;
+  priority?: 'low' | 'high';
+  transitionStatus?: 'starting' | 'ending';
+  limited?: boolean;
+  height?: number;
+  onClose?: () => void;
+  onRemove?: () => void;
+  actionProps?: {};
+  positionerProps?: {
+    anchor?: Element | null;
+    style?:
+      | CSSProperties
+      | ((state: {
+          side: Side;
+          align: Align;
+          anchorHidden: boolean;
+        }) => CSSProperties | undefined);
+    className?:
+      | string
+      | ((state: {
+          side: Side;
+          align: Align;
+          anchorHidden: boolean;
+        }) => string | undefined);
+    side?: Side;
+    positionMethod?: 'absolute' | 'fixed';
+    sideOffset?:
+      | number
+      | ((data: {
+          side: Side;
+          align: Align;
+          anchor: { width: number; height: number };
+          positioner: { width: number; height: number };
+        }) => number);
+    align?: Align;
+    alignOffset?:
+      | number
+      | ((data: {
+          side: Side;
+          align: Align;
+          anchor: { width: number; height: number };
+          positioner: { width: number; height: number };
+        }) => number);
+    collisionBoundary?: Boundary;
+    collisionPadding?: Padding;
+    sticky?: boolean;
+    arrowPadding?: number;
+    disableAnchorTracking?: boolean;
+    collisionAvoidance?: CollisionAvoidance;
+    render?:
+      | ReactElement
+      | ((
+          props: HTMLProps,
+          state: { side: Side; align: Align; anchorHidden: boolean },
+        ) => ReactElement);
+  };
+  data?: {};
 };
 ```

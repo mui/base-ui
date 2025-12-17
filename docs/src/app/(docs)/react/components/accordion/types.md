@@ -242,7 +242,7 @@ type AccordionPanelState = {
 };
 ```
 
-### Value
+### AccordionValue
 
 ```typescript
 type AccordionValue = any[];
