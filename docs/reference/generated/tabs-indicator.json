@@ -2,11 +2,6 @@
   "name": "TabsIndicator",
   "description": "A visual indicator that can be styled to match the position of the currently active tab.\nRenders a `<span>` element.",
   "props": {
-    "nonce": {
-      "type": "string",
-      "description": "A nonce value to allow the inline `<script>` tag required by this component under a strict Content Security Policy.",
-      "detailedType": "string | undefined"
-    },
     "renderBeforeHydration": {
       "type": "boolean",
       "default": "false",

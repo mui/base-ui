@@ -1,0 +1,89 @@
+# Nonce Provider
+
+<Subtitle>Applies a CSP nonce to inline tags rendered by Base UI components.</Subtitle>
+<Meta
+  name="description"
+  content="A nonce provider component that applies a CSP nonce to inline <style> and <script> tags rendered by Base UI components."
+/>
+
+## Anatomy
+
+Import the component and wrap it around your app:
+
+```jsx title="Anatomy"
+import { NonceProvider } from '@base-ui/react/nonce-provider';
+
+// prettier-ignore
+<NonceProvider nonce="...">
+  {/* Your app or a group of components */}
+</NonceProvider>
+```
+
+Some Base UI components render inline `<style>` or `<script>` tags for functionality such as removing scrollbars or pre-hydration behavior. Under a strict Content Security Policy (CSP), these tags may be blocked unless they include a matching [nonce](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Global_attributes/nonce) attribute.
+
+`NonceProvider` supplies that `nonce` value to all supported components automatically.
+
+## Content Security Policy (CSP)
+
+If you enforce a CSP that blocks inline tags by default, configure your server to:
+
+1. Generate a random nonce per request
+2. Include it in your CSP header (via `style-src-elem`/`script-src`)
+3. Pass the same nonce into `NonceProvider` during rendering
+
+```ts title="Example"
+const nonce = crypto.randomUUID();
+
+// Example CSP header
+const csp = [
+  `default-src 'self'`,
+  `script-src 'self' 'nonce-${nonce}'`,
+  `style-src-elem 'self' 'nonce-${nonce}'`,
+].join('; ');
+```
+
+Then:
+
+```jsx title="Providing the nonce"
+import { NonceProvider } from '@base-ui/react/nonce-provider';
+
+function App({ nonce }) {
+  return <NonceProvider nonce={nonce}>{/* ... */}</NonceProvider>;
+}
+```
+
+## Inline style attributes
+
+The nonce only applies to `<style>` and `<script>` tags. If your CSP also blocks inline style attributes (for example `<div style="...">`), you must relax your CSP by adding `'unsafe-inline'` to the `style-src-attr` directive. Style attributes are separate from style elements and pose a less severe security risk.
+
+## API reference
+
+<Reference component="NonceProvider" />
+
+## useNonce
+
+Use this hook to read the current nonce value (for example, to apply it to your own inline tags).
+
+### Return value
+
+<PropsReferenceTable
+  type="return"
+  data={{
+    nonce: {
+      type: 'string',
+      detailedType: 'string | undefined',
+      description: 'The current nonce value.',
+    },
+  }}
+/>
+
+export const metadata = {
+  keywords: [
+    'Base UI Nonce Provider',
+    'Content Security Policy',
+    'CSP nonce',
+    'React CSP',
+    'Inline script nonce',
+    'Inline style nonce',
+  ],
+};
