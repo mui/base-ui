@@ -14,11 +14,11 @@ Groups all parts of the collapsible. Renders a `<div>` element.
 | :------------- | :---------------------------------------------------------------------------------------------- | :-------- | :------------------------------------------------------------------------------------------------------------------------------- |
 | defaultOpen    | `boolean`                                                                                       | `false`   | Whether the collapsible panel is initially open.To render a controlled collapsible, use the `open` prop instead.                 |
 | open           | `boolean`                                                                                       | -         | Whether the collapsible panel is currently open.To render an uncontrolled collapsible, use the `defaultOpen` prop instead.       |
-| onOpenChange   | `((open: boolean, eventDetails: Collapsible.Root.ChangeEventDetails) => void)`                  | -         | Event handler called when the panel is opened or closed.                                                                         |
-| style          | `CSSProperties \| ((state: Collapsible.Root.State) => CSSProperties \| undefined)`              | -         | -                                                                                                                                |
+| onOpenChange   | `((open: boolean, eventDetails: CollapsibleRootChangeEventDetails) => void)`                    | -         | Event handler called when the panel is opened or closed.                                                                         |
 | disabled       | `boolean`                                                                                       | `false`   | Whether the component should ignore user interaction.                                                                            |
-| className      | `string \| ((state: Collapsible.Root.State) => string \| undefined)`                            | -         | CSS class applied to the element, or a function that returns a class based on the component’s state.                             |
-| render         | `ReactElement \| ((props: HTMLProps, state: Collapsible.Root.State) => ReactElement) \| null`   | -         | -                                                                                                                                |
+| className      | `string \| ((state: CollapsibleRootState) => string \| undefined)`                              | -         | CSS class applied to the element, or a function that returns a class based on the component’s state.                             |
+| style          | `CSSProperties \| ((state: CollapsibleRootState) => CSSProperties \| undefined)`                | -         | -                                                                                                                                |
+| render         | `ReactElement \| ((props: HTMLProps, state: CollapsibleRootState) => ReactElement) \| null`     | -         | -                                                                                                                                |
 
 ### Root.Props
 
@@ -27,7 +27,7 @@ Re-export of [Root](#root) props.
 ### Root.State
 
 ```typescript
-type CollapsibleRootState = { open: boolean; disabled: boolean };
+type CollapsibleRootState = { disabled: boolean; open: boolean };
 ```
 
 ### Root.ChangeEventReason
@@ -47,7 +47,7 @@ type CollapsibleRootChangeEventDetails =
       allowPropagation: () => void;
       isCanceled: boolean;
       isPropagationAllowed: boolean;
-      trigger: HTMLElement | undefined;
+      trigger: Element | undefined;
     }
   | {
       reason: 'none';
@@ -56,7 +56,7 @@ type CollapsibleRootChangeEventDetails =
       allowPropagation: () => void;
       isCanceled: boolean;
       isPropagationAllowed: boolean;
-      trigger: HTMLElement | undefined;
+      trigger: Element | undefined;
     };
 ```
 
@@ -66,12 +66,12 @@ A button that opens and closes the collapsible panel. Renders a `<button>` eleme
 
 **Trigger Props:**
 
-| Prop           | Type                                                                                     | Default   | Description                                                                                                                                                                              |
-| :------------- | :--------------------------------------------------------------------------------------- | :-------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| nativeButton   | `boolean`                                                                                | `true`    | Whether the component renders a native `<button>` element when replacing it via the `render` prop. Set to `false` if the rendered element is not a button (e.g. `<div>`).                |
-| style          | `CSSProperties \| ((state: Collapsible.Root.State) => CSSProperties \| undefined)`       | -         | -                                                                                                                                                                                        |
-| className      | `string \| ((state: Collapsible.Root.State) => string \| undefined)`                     | -         | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
-| render         | `ReactElement \| ((props: HTMLProps, state: Collapsible.Root.State) => ReactElement)`    | -         | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop           | Type                                                                                    | Default   | Description                                                                                                                                                                              |
+| :------------- | :-------------------------------------------------------------------------------------- | :-------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| nativeButton   | `boolean`                                                                               | `true`    | Whether the component renders a native `<button>` element when replacing it via the `render` prop. Set to `false` if the rendered element is not a button (e.g. `<div>`).                |
+| className      | `string \| ((state: CollapsibleRootState) => string \| undefined)`                      | -         | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
+| style          | `CSSProperties \| ((state: CollapsibleRootState) => CSSProperties \| undefined)`        | -         | -                                                                                                                                                                                        |
+| render         | `ReactElement \| ((props: HTMLProps, state: CollapsibleRootState) => ReactElement)`     | -         | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
 
 **Trigger Data Attributes:**
 
@@ -89,13 +89,13 @@ A panel with the collapsible contents. Renders a `<div>` element.
 
 **Panel Props:**
 
-| Prop                  | Type                                                                                     | Default   | Description                                                                                                                                                                                              |
-| :-------------------- | :--------------------------------------------------------------------------------------- | :-------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| hiddenUntilFound      | `boolean`                                                                                | `false`   | Allows the browser’s built-in page search to find and expand the panel contents.Overrides the `keepMounted` prop and uses `hidden="until-found"` to hide the element without removing it from the DOM.   |
-| style                 | `CSSProperties \| ((state: Collapsible.Panel.State) => CSSProperties \| undefined)`      | -         | -                                                                                                                                                                                                        |
-| className             | `string \| ((state: Collapsible.Panel.State) => string \| undefined)`                    | -         | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                                     |
-| keepMounted           | `boolean`                                                                                | `false`   | Whether to keep the element in the DOM while the panel is hidden. This prop is ignored when `hiddenUntilFound` is used.                                                                                  |
-| render                | `ReactElement \| ((props: HTMLProps, state: Collapsible.Panel.State) => ReactElement)`   | -         | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render.                 |
+| Prop                  | Type                                                                                    | Default   | Description                                                                                                                                                                                              |
+| :-------------------- | :-------------------------------------------------------------------------------------- | :-------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| hiddenUntilFound      | `boolean`                                                                               | `false`   | Allows the browser’s built-in page search to find and expand the panel contents.Overrides the `keepMounted` prop and uses `hidden="until-found"` to hide the element without removing it from the DOM.   |
+| className             | `string \| ((state: CollapsiblePanelState) => string \| undefined)`                     | -         | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                                     |
+| style                 | `CSSProperties \| ((state: CollapsiblePanelState) => CSSProperties \| undefined)`       | -         | -                                                                                                                                                                                                        |
+| keepMounted           | `boolean`                                                                               | `false`   | Whether to keep the element in the DOM while the panel is hidden. This prop is ignored when `hiddenUntilFound` is used.                                                                                  |
+| render                | `ReactElement \| ((props: HTMLProps, state: CollapsiblePanelState) => ReactElement)`    | -         | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render.                 |
 
 **Panel Data Attributes:**
 
@@ -122,7 +122,7 @@ Re-export of [Panel](#panel) props.
 ```typescript
 type CollapsiblePanelState = {
   transitionStatus: TransitionStatus;
-  open: boolean;
   disabled: boolean;
+  open: boolean;
 };
 ```

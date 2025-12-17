@@ -6,7 +6,7 @@
 
 ### Root
 
-Represents the switch itself. Renders a `<button>` element and a hidden `<input>` beside.
+Represents the switch itself. Renders a `<span>` element and a hidden `<input>` beside.
 
 **Root Props:**
 
@@ -15,16 +15,16 @@ Represents the switch itself. Renders a `<button>` element and a hidden `<input>
 | name                  | `string`                                                                          | -         | Identifies the field when a form is submitted.                                                                                                                                           |
 | defaultChecked        | `boolean`                                                                         | `false`   | Whether the switch is initially active.To render a controlled switch, use the `checked` prop instead.                                                                                    |
 | checked               | `boolean`                                                                         | -         | Whether the switch is currently active.To render an uncontrolled switch, use the `defaultChecked` prop instead.                                                                          |
-| onCheckedChange       | `((checked: boolean, eventDetails: Switch.Root.ChangeEventDetails) => void)`      | -         | Event handler called when the switch is activated or deactivated.                                                                                                                        |
-| nativeButton          | `boolean`                                                                         | `true`    | Whether the component renders a native `<button>` element when replacing it via the `render` prop. Set to `false` if the rendered element is not a button (e.g. `<div>`).                |
-| style                 | `CSSProperties \| ((state: Switch.Root.State) => CSSProperties \| undefined)`     | -         | -                                                                                                                                                                                        |
+| onCheckedChange       | `((checked: boolean, eventDetails: SwitchRootChangeEventDetails) => void)`        | -         | Event handler called when the switch is activated or deactivated.                                                                                                                        |
+| nativeButton          | `boolean`                                                                         | `false`   | Whether the component renders a native `<button>` element when replacing it via the `render` prop. Set to `true` if the rendered element is a native button.                             |
 | disabled              | `boolean`                                                                         | `false`   | Whether the component should ignore user interaction.                                                                                                                                    |
 | readOnly              | `boolean`                                                                         | `false`   | Whether the user should be unable to activate or deactivate the switch.                                                                                                                  |
 | required              | `boolean`                                                                         | `false`   | Whether the user must activate the switch before submitting a form.                                                                                                                      |
 | inputRef              | `Ref<HTMLInputElement>`                                                           | -         | A ref to access the hidden `<input>` element.                                                                                                                                            |
 | id                    | `string`                                                                          | -         | The id of the switch element.                                                                                                                                                            |
-| className             | `string \| ((state: Switch.Root.State) => string \| undefined)`                   | -         | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
-| render                | `ReactElement \| ((props: HTMLProps, state: Switch.Root.State) => ReactElement)`  | -         | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
+| className             | `string \| ((state: SwitchRootState) => string \| undefined)`                     | -         | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
+| style                 | `CSSProperties \| ((state: SwitchRootState) => CSSProperties \| undefined)`       | -         | -                                                                                                                                                                                        |
+| render                | `ReactElement \| ((props: HTMLProps, state: SwitchRootState) => ReactElement)`    | -         | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
 
 **Root Data Attributes:**
 
@@ -78,7 +78,7 @@ type SwitchRootChangeEventDetails = {
   allowPropagation: () => void;
   isCanceled: boolean;
   isPropagationAllowed: boolean;
-  trigger: HTMLElement | undefined;
+  trigger: Element | undefined;
 };
 ```
 
@@ -88,11 +88,11 @@ The movable part of the switch that indicates whether the switch is on or off. R
 
 **Thumb Props:**
 
-| Prop           | Type                                                                                    | Default | Description                                                                                                                                                                              |
-| :------------- | :-------------------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| style          | `CSSProperties \| ((state: Switch.Thumb.State) => CSSProperties \| undefined)`          | -       | -                                                                                                                                                                                        |
-| className      | `string \| ((state: Switch.Thumb.State) => string \| undefined)`                        | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
-| render         | `ReactElement \| ((props: HTMLProps, state: Switch.Thumb.State) => ReactElement)`       | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop           | Type                                                                              | Default | Description                                                                                                                                                                              |
+| :------------- | :-------------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| className      | `string \| ((state: SwitchThumbState) => string \| undefined)`                    | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
+| style          | `CSSProperties \| ((state: SwitchThumbState) => CSSProperties \| undefined)`      | -       | -                                                                                                                                                                                        |
+| render         | `ReactElement \| ((props: HTMLProps, state: SwitchThumbState) => ReactElement)`   | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
 
 **Thumb Data Attributes:**
 
