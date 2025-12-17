@@ -1,4 +1,4 @@
-import { ScrollArea } from '@base-ui-components/react/scroll-area';
+import { ScrollArea } from '@base-ui/react/scroll-area';
 import { expect } from 'chai';
 import { screen } from '@mui/internal-test-utils';
 import { createRenderer, isJSDOM } from '#test-utils';

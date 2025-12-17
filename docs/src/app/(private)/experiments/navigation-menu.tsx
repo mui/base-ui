@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
-import { NavigationMenu } from '@base-ui-components/react/navigation-menu';
-import { Collapsible } from '@base-ui-components/react/collapsible';
+import { NavigationMenu } from '@base-ui/react/navigation-menu';
+import { Collapsible } from '@base-ui/react/collapsible';
 import styles from './navigation-menu.module.css';
 
 export default function ExampleNavigationMenu() {

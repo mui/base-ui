@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Collapsible } from '@base-ui-components/react/collapsible';
+import { Collapsible } from '@base-ui/react/collapsible';
 import * as ScrollArea from '../ScrollArea';
 
 import './CodeHighlighting.css';
@@ -36,6 +36,7 @@ interface DemoCodeBlockProps {
   collapsibleOpen: boolean;
   /** How many lines should the code block have to get collapsed instead of rendering fully */
   collapsibleLinesThreshold?: number;
+  collapsibleTriggerRef: React.Ref<HTMLButtonElement>;
   /** When compact, we don't show a preview of the collapse code */
   compact: boolean;
 }
@@ -48,8 +49,8 @@ function Root(props: React.ComponentProps<typeof ScrollArea.Root>) {
       tabIndex={-1}
       onKeyDown={(event: React.KeyboardEvent) => {
         if (
-          event.key === 'a' &&
-          (event.metaKey || event.ctrlKey) &&
+          (event.ctrlKey || event.metaKey) &&
+          String.fromCharCode(event.keyCode) === 'A' &&
           !event.shiftKey &&
           !event.altKey
         ) {
@@ -68,14 +69,15 @@ export function DemoCodeBlock({
   compact,
   collapsibleOpen,
   collapsibleLinesThreshold = 12,
+  collapsibleTriggerRef,
 }: DemoCodeBlockProps) {
   if (selectedFileLines < collapsibleLinesThreshold) {
     return (
       <Root>
         <ScrollArea.Viewport>
-          <pre className="DemoSourceBrowser" data-language={fileNameToLanguage(selectedFileName)}>
+          <div className="DemoSourceBrowser" data-language={fileNameToLanguage(selectedFileName)}>
             {selectedFile}
-          </pre>
+          </div>
         </ScrollArea.Viewport>
         <ScrollArea.Corner />
         <ScrollArea.Scrollbar orientation="vertical" />
@@ -100,9 +102,9 @@ export function DemoCodeBlock({
           className="DemoCodeBlockViewport"
           {...(!collapsibleOpen && { tabIndex: undefined, style: { overflow: undefined } })}
         >
-          <pre className="DemoSourceBrowser" data-language={fileNameToLanguage(selectedFileName)}>
+          <div className="DemoSourceBrowser" data-language={fileNameToLanguage(selectedFileName)}>
             {selectedFile}
-          </pre>
+          </div>
         </ScrollArea.Viewport>
 
         {collapsibleOpen && (
@@ -114,7 +116,7 @@ export function DemoCodeBlock({
         )}
       </Root>
 
-      <Collapsible.Trigger className="DemoCollapseButton">
+      <Collapsible.Trigger ref={collapsibleTriggerRef} className="DemoCollapseButton">
         {collapsibleOpen ? 'Hide' : 'Show'} code
       </Collapsible.Trigger>
     </React.Fragment>

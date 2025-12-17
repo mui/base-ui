@@ -2,10 +2,11 @@ import * as React from 'react';
 import { expect } from 'chai';
 import { spy } from 'sinon';
 import { act, screen, fireEvent } from '@mui/internal-test-utils';
-import { NumberField as NumberFieldBase } from '@base-ui-components/react/number-field';
-import { Field } from '@base-ui-components/react/field';
-import { Form } from '@base-ui-components/react/form';
+import { NumberField as NumberFieldBase } from '@base-ui/react/number-field';
+import { Field } from '@base-ui/react/field';
+import { Form } from '@base-ui/react/form';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
+import { REASONS } from '../../utils/reasons';
 
 describe('<NumberField />', () => {
   const { render } = createRenderer();
@@ -135,6 +136,102 @@ describe('<NumberField />', () => {
       expect(onValueChange.callCount).to.equal(1);
       expect(onValueChange.firstCall.args[0]).to.equal(null);
     });
+
+    it('includes the reason for parseable typing', async () => {
+      const onValueChange = spy();
+      await render(<NumberField onValueChange={onValueChange} />);
+      const input = screen.getByRole('textbox');
+
+      fireEvent.change(input, { target: { value: '12' } });
+
+      expect(onValueChange).to.have.property('callCount', 1);
+      const [, details] = onValueChange.firstCall.args as [
+        number | null,
+        NumberFieldBase.Root.ChangeEventDetails,
+      ];
+      expect(details.reason).to.equal(REASONS.inputChange);
+    });
+
+    it('includes the reason when clearing the value', async () => {
+      const onValueChange = spy();
+      await render(<NumberField defaultValue={5} onValueChange={onValueChange} />);
+      const input = screen.getByRole('textbox');
+
+      fireEvent.change(input, { target: { value: '' } });
+
+      expect(onValueChange).to.have.property('callCount', 1);
+      const [, details] = onValueChange.firstCall.args as [
+        number | null,
+        NumberFieldBase.Root.ChangeEventDetails,
+      ];
+      expect(details.reason).to.equal(REASONS.inputClear);
+    });
+
+    it('includes the reason for keyboard increments', async () => {
+      const onValueChange = spy();
+      await render(<NumberField defaultValue={1} onValueChange={onValueChange} />);
+      const input = screen.getByRole('textbox');
+
+      await act(async () => {
+        input.focus();
+      });
+      fireEvent.keyDown(input, { key: 'ArrowUp' });
+
+      expect(onValueChange).to.have.property('callCount', 1);
+      const [, details] = onValueChange.firstCall.args as [
+        number | null,
+        NumberFieldBase.Root.ChangeEventDetails,
+      ];
+      expect(details.reason).to.equal('keyboard');
+    });
+
+    it('includes the reason for increment button presses', async () => {
+      const onValueChange = spy();
+      await render(<NumberField defaultValue={1} onValueChange={onValueChange} />);
+      const incrementButton = screen.getByRole('button', { name: 'Increase' });
+
+      fireEvent.click(incrementButton);
+
+      expect(onValueChange.callCount).to.equal(1);
+      const [, details] = onValueChange.firstCall.args as [
+        number | null,
+        NumberFieldBase.Root.ChangeEventDetails,
+      ];
+      expect(details.reason).to.equal('increment-press');
+    });
+
+    it('includes the reason for decrement button presses', async () => {
+      const onValueChange = spy();
+      await render(<NumberField defaultValue={1} onValueChange={onValueChange} />);
+      const decrementButton = screen.getByRole('button', { name: 'Decrease' });
+
+      fireEvent.click(decrementButton);
+
+      expect(onValueChange.callCount).to.equal(1);
+      const [, details] = onValueChange.firstCall.args as [
+        number | null,
+        NumberFieldBase.Root.ChangeEventDetails,
+      ];
+      expect(details.reason).to.equal('decrement-press');
+    });
+
+    it('includes the reason for wheel scrubbing', async () => {
+      const onValueChange = spy();
+      await render(<NumberField allowWheelScrub defaultValue={4} onValueChange={onValueChange} />);
+      const input = screen.getByRole('textbox');
+
+      await act(async () => {
+        input.focus();
+      });
+      fireEvent.wheel(input, { deltaY: -100 });
+
+      expect(onValueChange.callCount).to.equal(1);
+      const [, details] = onValueChange.firstCall.args as [
+        number | null,
+        NumberFieldBase.Root.ChangeEventDetails,
+      ];
+      expect(details.reason).to.equal('wheel');
+    });
   });
 
   describe('typing behavior (parseable changes)', () => {
@@ -217,6 +314,24 @@ describe('<NumberField />', () => {
       fireEvent.blur(input);
       expect(onValueCommitted.callCount).to.equal(1);
       expect(onValueCommitted.firstCall.args[0]).to.equal(-1.5);
+    });
+
+    it('allows typing a decimal while replacing a selection', async () => {
+      await render(<NumberField defaultValue={12.3} locale="en-US" />);
+      const input = screen.getByRole<HTMLInputElement>('textbox');
+
+      await act(async () => {
+        input.focus();
+      });
+
+      const decimalIndex = input.value.indexOf('.');
+      expect(decimalIndex).to.be.greaterThan(-1);
+      await act(async () => {
+        input.setSelectionRange(1, decimalIndex + 2);
+      });
+
+      const keydownResult = fireEvent.keyDown(input, { key: '.' });
+      expect(keydownResult).to.equal(true);
     });
 
     it('accepts grouping while typing and parses progressively', async () => {
@@ -315,6 +430,72 @@ describe('<NumberField />', () => {
       expect(onValueChange.callCount).to.equal(2);
       expect(onValueChange.getCall(0).args[0]).to.equal(1);
       expect(onValueChange.getCall(1).args[0]).to.equal(12);
+    });
+
+    it('allows deleting trailing currency symbols with locale literals', async () => {
+      const onValueChange = spy();
+      const format: Intl.NumberFormatOptions = {
+        style: 'currency',
+        currency: 'EUR',
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      };
+      const formatter = new Intl.NumberFormat('de-DE', format);
+
+      await render(
+        <NumberField
+          defaultValue={12.34}
+          locale="de-DE"
+          format={format}
+          onValueChange={onValueChange}
+        />,
+      );
+      const input = screen.getByRole('textbox');
+      const formatted = formatter.format(12.34);
+      const withoutCurrency = formatted.replace('€', '');
+
+      fireEvent.change(input, { target: { value: withoutCurrency } });
+
+      expect(input).to.have.value(withoutCurrency);
+      expect(onValueChange.callCount).to.equal(1);
+      expect(onValueChange.firstCall.args[0]).to.equal(12.34);
+    });
+
+    it('allows backspace to remove trailing currency symbol that follows a locale literal', async () => {
+      const onValueChange = spy();
+      const format: Intl.NumberFormatOptions = {
+        style: 'currency',
+        currency: 'EUR',
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      };
+      const formatter = new Intl.NumberFormat('de-DE', format);
+
+      await render(
+        <NumberField
+          defaultValue={12.34}
+          locale="de-DE"
+          format={format}
+          onValueChange={onValueChange}
+        />,
+      );
+
+      const input = screen.getByRole('textbox');
+      const formatted = formatter.format(12.34);
+      const afterBackspace = formatted.slice(0, -1);
+
+      await act(async () => {
+        input.focus();
+      });
+
+      const keydownResult = fireEvent.keyDown(input, { key: 'Backspace' });
+      expect(keydownResult).to.equal(true);
+
+      fireEvent.change(input, { target: { value: afterBackspace } });
+
+      expect(input).to.have.value(afterBackspace);
+      expect(onValueChange.callCount).to.equal(1);
+      expect(onValueChange.firstCall.args[0]).to.equal(12.34);
     });
 
     // In JSDOM, change events are not trusted; input text state is not updated for invalid
@@ -433,7 +614,7 @@ describe('<NumberField />', () => {
     it('should set the name attribute on the hidden input', async () => {
       await render(<NumberField name="test" />);
       const hiddenInput = screen.getByText('', {
-        selector: 'input[type=hidden]',
+        selector: 'input[aria-hidden][type=number]',
       });
       expect(hiddenInput).to.have.attribute('name', 'test');
     });
@@ -846,7 +1027,6 @@ describe('<NumberField />', () => {
         return (
           <Form
             errors={errors}
-            onClearErrors={setErrors}
             onSubmit={(event) => {
               event.preventDefault();
               setErrors({ quantity: 'server error' });
@@ -872,22 +1052,19 @@ describe('<NumberField />', () => {
       expect(screen.queryByTestId('error')).to.have.text('server error');
     });
 
-    it('clears errors on change', async () => {
-      function App() {
-        const [errors, setErrors] = React.useState<Form.Props['errors']>({
-          test: 'test',
-        });
-        return (
-          <Form errors={errors} onClearErrors={setErrors}>
-            <Field.Root name="test" data-testid="field">
-              <NumberField defaultValue={1} />
-              <Field.Error data-testid="error" />
-            </Field.Root>
-          </Form>
-        );
-      }
-
-      await render(<App />);
+    it('clears external errors on change', async () => {
+      await render(
+        <Form
+          errors={{
+            test: 'test',
+          }}
+        >
+          <Field.Root name="test" data-testid="field">
+            <NumberField defaultValue={1} />
+            <Field.Error data-testid="error" />
+          </Field.Root>
+        </Form>,
+      );
 
       const input = screen.getByRole('textbox');
 
@@ -927,6 +1104,28 @@ describe('<NumberField />', () => {
 
       expect(screen.queryByTestId('error')).to.equal(null);
       expect(input).not.to.have.attribute('aria-invalid');
+    });
+
+    it('should handle browser autofill', async () => {
+      const onValueChange = spy();
+
+      await render(
+        <Field.Root name="quantity">
+          <NumberFieldBase.Root onValueChange={onValueChange}>
+            <NumberFieldBase.Input />
+          </NumberFieldBase.Root>
+        </Field.Root>,
+      );
+
+      const input = screen.getByRole('textbox');
+      const hiddenInput = document.querySelector('input[type="number"][name="quantity"]');
+
+      expect(hiddenInput).not.to.equal(null);
+      fireEvent.change(hiddenInput!, { target: { value: '42' } });
+
+      expect(onValueChange.callCount).to.equal(1);
+      expect(onValueChange.firstCall.args[0]).to.equal(42);
+      expect(input).to.have.value('42');
     });
   });
 
@@ -1030,6 +1229,27 @@ describe('<NumberField />', () => {
       expect(input).not.to.have.attribute('data-focused');
     });
 
+    it('adds [data-focused] attribute on every focus', async () => {
+      await render(
+        <Field.Root>
+          <NumberFieldBase.Root>
+            <NumberFieldBase.Input data-testid="input" />
+          </NumberFieldBase.Root>
+        </Field.Root>,
+      );
+
+      const input = screen.getByTestId('input');
+
+      fireEvent.focus(input);
+      expect(input).to.have.attribute('data-focused', '');
+
+      fireEvent.blur(input);
+      expect(input).not.to.have.attribute('data-focused');
+
+      fireEvent.focus(input);
+      expect(input).to.have.attribute('data-focused', '');
+    });
+
     it('prop: validate', async () => {
       await render(
         <Field.Root validationMode="onBlur" validate={() => 'error'}>
@@ -1124,6 +1344,43 @@ describe('<NumberField />', () => {
         expect(input).to.have.attribute('aria-invalid', 'true');
       });
 
+      it('revalidates when the controlled value changes externally', async () => {
+        const validateSpy = spy((value: unknown) =>
+          (value as number | null) === 5 ? 'error' : null,
+        );
+
+        function App() {
+          const [value, setValue] = React.useState<number | null>(null);
+
+          return (
+            <React.Fragment>
+              <Field.Root validationMode="onChange" validate={validateSpy} name="quantity">
+                <NumberFieldBase.Root value={value} onValueChange={(next) => setValue(next)}>
+                  <NumberFieldBase.Input data-testid="input" />
+                </NumberFieldBase.Root>
+              </Field.Root>
+              <button type="button" onClick={() => setValue(5)}>
+                Set externally
+              </button>
+            </React.Fragment>
+          );
+        }
+
+        await render(<App />);
+
+        const input = screen.getByTestId('input');
+        const toggle = screen.getByText('Set externally');
+
+        expect(input).not.to.have.attribute('aria-invalid');
+        const initialCallCount = validateSpy.callCount;
+
+        fireEvent.click(toggle);
+
+        expect(validateSpy.callCount).to.equal(initialCallCount + 1);
+        expect(validateSpy.lastCall.args[0]).to.equal(5);
+        expect(input).to.have.attribute('aria-invalid', 'true');
+      });
+
       it('onBlur', async () => {
         await render(
           <Field.Root
@@ -1151,6 +1408,76 @@ describe('<NumberField />', () => {
         expect(input).not.to.have.attribute('aria-invalid');
         expect(screen.queryByTestId('error')).to.equal(null);
       });
+    });
+
+    // Chromium shows a native validation popup when stepMismatch occurs that blocks the test
+    it.skipIf(!isJSDOM)(
+      'prevents form submission when the value does not match the step',
+      async () => {
+        const handleSubmit = spy();
+        await render(
+          <form onSubmit={handleSubmit}>
+            <NumberFieldBase.Root name="quantity" defaultValue={0} min={0} step={0.1}>
+              <NumberFieldBase.Input data-testid="input" />
+            </NumberFieldBase.Root>
+            <button type="submit">submit</button>
+          </form>,
+        );
+
+        const input = screen.getByTestId('input');
+
+        await act(async () => {
+          input.focus();
+        });
+
+        fireEvent.change(input, { target: { value: '0.11' } });
+        fireEvent.click(screen.getByText('submit'));
+
+        expect(handleSubmit.callCount).to.equal(0);
+
+        fireEvent.change(input, { target: { value: '0.1' } });
+        fireEvent.click(screen.getByText('submit'));
+
+        expect(handleSubmit.callCount).to.equal(1);
+        expect(new FormData(handleSubmit.firstCall.args[0].target).get('quantity')).to.equal('0.1');
+      },
+    );
+
+    it('prevents Form/Field submission when the value does not match the step', async () => {
+      const handleSubmit = spy();
+      await render(
+        <Form onFormSubmit={handleSubmit}>
+          <Field.Root name="quantity">
+            <NumberFieldBase.Root defaultValue={0} min={0} step={0.1}>
+              <NumberFieldBase.Input data-testid="input" />
+            </NumberFieldBase.Root>
+            <Field.Error match="stepMismatch" data-testid="error">
+              step mismatch
+            </Field.Error>
+          </Field.Root>
+          <button type="submit">submit</button>
+        </Form>,
+      );
+
+      const input = screen.getByTestId('input');
+
+      await act(async () => {
+        input.focus();
+      });
+
+      expect(screen.queryByTestId('error')).to.equal(null);
+
+      fireEvent.change(input, { target: { value: '0.11' } });
+      fireEvent.click(screen.getByText('submit'));
+
+      expect(handleSubmit.callCount).to.equal(0);
+      expect(screen.getByTestId('error')).to.have.text('step mismatch');
+
+      fireEvent.change(input, { target: { value: '0.1' } });
+      fireEvent.click(screen.getByText('submit'));
+
+      expect(handleSubmit.callCount).to.equal(1);
+      expect(handleSubmit.firstCall.args[0].quantity).to.equal(0.1);
     });
 
     it('disables the input when disabled=true', async () => {

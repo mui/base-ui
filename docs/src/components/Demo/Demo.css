@@ -3,9 +3,12 @@
     background-color: var(--color-content);
     border: 1px solid var(--color-gray-200);
     border-radius: var(--radius-md);
+    margin-bottom: calc(var(--spacing) * 6);
   }
 
   .DemoPlayground {
+    position: relative;
+
     background-color: var(--color-content);
     border-top-left-radius: var(--radius-md);
     border-top-right-radius: var(--radius-md);
@@ -17,7 +20,6 @@
 
     /* Scroll containers may be focusable */
     &:focus-visible {
-      position: relative;
       outline: 2px solid var(--color-blue);
       outline-offset: -1px;
       z-index: 1;
@@ -222,6 +224,10 @@
     margin-bottom: -1px;
     user-select: none;
 
+    position: sticky;
+    bottom: -1px;
+    z-index: 1;
+
     @media (hover: hover) {
       &:hover {
         background-color: var(--color-gray-75);
@@ -229,14 +235,13 @@
     }
 
     &:active {
-      background-color: var(--color-gray-100);
+      background-color: color-mix(in oklch, var(--color-gray-75), var(--color-gray-600) 5%);
     }
 
     &:focus-visible {
       outline: 2px solid var(--color-blue);
       outline-offset: -1px;
       z-index: 1;
-      position: relative;
     }
   }
 }

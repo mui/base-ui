@@ -1,24 +1,20 @@
 'use client';
 import * as React from 'react';
-import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
-import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { TooltipRootContext } from './TooltipRootContext';
-import {
-  useClientPoint,
-  useDismiss,
-  useFloatingRootContext,
-  useFocus,
-  useInteractions,
-} from '../../floating-ui-react';
-import { useTransitionStatus } from '../../utils/useTransitionStatus';
-import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
+import { useClientPoint, useDismiss, useFocus, useInteractions } from '../../floating-ui-react';
 import {
   type BaseUIChangeEventDetails,
   createChangeEventDetails,
 } from '../../utils/createBaseUIEventDetails';
-import { type PayloadChildRenderFunction } from '../../utils/popupStoreUtils';
+import {
+  useImplicitActiveTrigger,
+  useOpenStateTransitions,
+  type PayloadChildRenderFunction,
+} from '../../utils/popups';
 import { TooltipStore } from '../store/TooltipStore';
 import { type TooltipHandle } from '../store/TooltipHandle';
+import { REASONS } from '../../utils/reasons';
 
 /**
  * Groups all parts of the tooltip.
@@ -31,7 +27,7 @@ export function TooltipRoot<Payload>(props: TooltipRoot.Props<Payload>) {
     disabled = false,
     defaultOpen = false,
     open: openProp,
-    hoverable = true,
+    disableHoverablePopup = false,
     trackCursorAxis = 'none',
     actionsRef,
     onOpenChange,
@@ -54,95 +50,30 @@ export function TooltipRoot<Payload>(props: TooltipRoot.Props<Payload>) {
   store.useContextCallback('onOpenChangeComplete', onOpenChangeComplete);
 
   const openState = store.useState('open');
-  const activeTriggerElement = store.useState('activeTriggerElement');
-  const positionerElement = store.useState('positionerElement');
-  const instantType = store.useState('instantType');
-  const lastOpenChangeReason = store.useState('lastOpenChangeReason');
-  const triggerElements = store.useState('triggers');
+
   const activeTriggerId = store.useState('activeTriggerId');
   const payload = store.useState('payload') as Payload | undefined;
-  const isInstantPhase = store.useState('isInstantPhase');
-  const preventUnmountingOnClose = store.useState('preventUnmountingOnClose');
+
+  store.useSyncedValues({
+    trackCursorAxis,
+    disableHoverablePopup,
+  });
 
   const open = !disabled && openState;
 
   useIsoLayoutEffect(() => {
     if (openState && disabled) {
-      store.setOpen(false, createChangeEventDetails('disabled'));
+      store.setOpen(false, createChangeEventDetails(REASONS.disabled));
     }
   }, [openState, disabled, store]);
 
-  const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
+  store.useSyncedValue('disabled', disabled);
 
-  store.useSyncedValues({ mounted, transitionStatus, disabled });
-
-  let resolvedTriggerId: string | null = null;
-  if (mounted === true && triggerIdProp === undefined && triggerElements.size === 1) {
-    resolvedTriggerId = triggerElements.keys().next().value || null;
-  } else {
-    resolvedTriggerId = triggerIdProp ?? activeTriggerId ?? null;
-  }
-
-  useIsoLayoutEffect(() => {
-    if (open) {
-      store.set('activeTriggerId', resolvedTriggerId);
-      if (resolvedTriggerId == null) {
-        store.set('payload', undefined);
-      }
-    }
-  }, [store, resolvedTriggerId, open]);
-
-  const handleUnmount = useStableCallback(() => {
-    setMounted(false);
-    store.update({ activeTriggerId: null, mounted: false });
-    store.context.onOpenChangeComplete?.(false);
-  });
-
-  const createTooltipEventDetails = React.useCallback(
-    (reason: TooltipRoot.ChangeEventReason) => {
-      const details: TooltipRoot.ChangeEventDetails =
-        createChangeEventDetails<TooltipRoot.ChangeEventReason>(
-          reason,
-        ) as TooltipRoot.ChangeEventDetails;
-      details.preventUnmountOnClose = () => {
-        store.set('preventUnmountingOnClose', true);
-      };
-
-      return details;
-    },
-    [store],
-  );
-
-  const handleImperativeClose = React.useCallback(() => {
-    store.setOpen(false, createTooltipEventDetails('imperative-action'));
-  }, [store, createTooltipEventDetails]);
-
-  useOpenChangeComplete({
-    enabled: !preventUnmountingOnClose,
-    open,
-    ref: store.context.popupRef,
-    onComplete() {
-      if (!open) {
-        handleUnmount();
-      }
-    },
-  });
-
-  React.useImperativeHandle(
-    actionsRef,
-    () => ({ unmount: handleUnmount, close: handleImperativeClose }),
-    [handleUnmount, handleImperativeClose],
-  );
-
-  const floatingRootContext = useFloatingRootContext({
-    elements: {
-      reference: activeTriggerElement,
-      floating: positionerElement,
-      triggers: Array.from(triggerElements.values()),
-    },
-    open,
-    onOpenChange: store.setOpen,
-  });
+  useImplicitActiveTrigger(store);
+  const { forceUnmount, transitionStatus } = useOpenStateTransitions(open, store);
+  const isInstantPhase = store.useState('isInstantPhase');
+  const instantType = store.useState('instantType');
+  const lastOpenChangeReason = store.useState('lastOpenChangeReason');
 
   // Animations should be instant in two cases:
   // 1) Opening during the provider's instant phase (adjacent tooltip opens instantly)
@@ -152,7 +83,7 @@ export function TooltipRoot<Payload>(props: TooltipRoot.Props<Payload>) {
   const previousInstantTypeRef = React.useRef<string | undefined | null>(null);
   useIsoLayoutEffect(() => {
     if (
-      (transitionStatus === 'ending' && lastOpenChangeReason === 'none') ||
+      (transitionStatus === 'ending' && lastOpenChangeReason === REASONS.none) ||
       (transitionStatus !== 'ending' && isInstantPhase)
     ) {
       // Capture the current instant type so we can restore it later
@@ -168,6 +99,26 @@ export function TooltipRoot<Payload>(props: TooltipRoot.Props<Payload>) {
     }
   }, [transitionStatus, isInstantPhase, lastOpenChangeReason, instantType, store]);
 
+  useIsoLayoutEffect(() => {
+    if (open) {
+      if (activeTriggerId == null) {
+        store.set('payload', undefined);
+      }
+    }
+  }, [store, activeTriggerId, open]);
+
+  const handleImperativeClose = React.useCallback(() => {
+    store.setOpen(false, createTooltipEventDetails(store, REASONS.imperativeAction));
+  }, [store]);
+
+  React.useImperativeHandle(
+    actionsRef,
+    () => ({ unmount: forceUnmount, close: handleImperativeClose }),
+    [forceUnmount, handleImperativeClose],
+  );
+
+  const floatingRootContext = store.useState('floatingRootContext');
+
   const focus = useFocus(floatingRootContext, { enabled: !disabled });
   const dismiss = useDismiss(floatingRootContext, { enabled: !disabled, referencePress: true });
   const clientPoint = useClientPoint(floatingRootContext, {
@@ -181,27 +132,36 @@ export function TooltipRoot<Payload>(props: TooltipRoot.Props<Payload>) {
     clientPoint,
   ]);
 
+  const activeTriggerProps = React.useMemo(() => getReferenceProps(), [getReferenceProps]);
+  const inactiveTriggerProps = React.useMemo(() => getTriggerProps(), [getTriggerProps]);
+  const popupProps = React.useMemo(() => getFloatingProps(), [getFloatingProps]);
+
   store.useSyncedValues({
-    trackCursorAxis,
-    hoverable,
     floatingRootContext,
-    activeTriggerProps: getReferenceProps(),
-    inactiveTriggerProps: getTriggerProps(),
-    popupProps: getFloatingProps(),
+    activeTriggerProps,
+    inactiveTriggerProps,
+    popupProps,
   });
 
-  const contextValue: TooltipRootContext<Payload> = React.useMemo(
-    () => ({
-      store,
-    }),
-    [store],
-  );
-
   return (
-    <TooltipRootContext.Provider value={contextValue as TooltipRootContext}>
+    <TooltipRootContext.Provider value={store as TooltipRootContext}>
       {typeof children === 'function' ? children({ payload }) : children}
     </TooltipRootContext.Provider>
   );
+}
+
+function createTooltipEventDetails<P>(
+  store: TooltipStore<P>,
+  reason: TooltipRoot.ChangeEventReason,
+) {
+  const details: TooltipRoot.ChangeEventDetails =
+    createChangeEventDetails<TooltipRoot.ChangeEventReason>(
+      reason,
+    ) as TooltipRoot.ChangeEventDetails;
+  details.preventUnmountOnClose = () => {
+    store.set('preventUnmountingOnClose', true);
+  };
+  return details;
 }
 
 export interface TooltipRootState {}
@@ -228,20 +188,20 @@ export interface TooltipRootProps<Payload = unknown> {
   onOpenChangeComplete?: (open: boolean) => void;
   /**
    * Whether the tooltip contents can be hovered without closing the tooltip.
-   * @default true
+   * @default false
    */
-  hoverable?: boolean;
+  disableHoverablePopup?: boolean;
   /**
    * Determines which axis the tooltip should track the cursor on.
    * @default 'none'
    */
   trackCursorAxis?: 'none' | 'x' | 'y' | 'both';
-
   /**
    * A ref to imperative actions.
    * - `unmount`: When specified, the tooltip will not be unmounted when closed.
    * Instead, the `unmount` function must be called to unmount the tooltip manually.
    * Useful when the tooltip's animation is controlled by an external library.
+   * - `close`: Closes the dialog imperatively when called.
    */
   actionsRef?: React.RefObject<TooltipRoot.Actions>;
   /**
@@ -275,17 +235,18 @@ export interface TooltipRootProps<Payload = unknown> {
 
 export interface TooltipRootActions {
   unmount: () => void;
+  close: () => void;
 }
 
 export type TooltipRootChangeEventReason =
-  | 'trigger-hover'
-  | 'trigger-focus'
-  | 'trigger-press'
-  | 'outside-press'
-  | 'escape-key'
-  | 'disabled'
-  | 'imperative-action'
-  | 'none';
+  | typeof REASONS.triggerHover
+  | typeof REASONS.triggerFocus
+  | typeof REASONS.triggerPress
+  | typeof REASONS.outsidePress
+  | typeof REASONS.escapeKey
+  | typeof REASONS.disabled
+  | typeof REASONS.imperativeAction
+  | typeof REASONS.none;
 
 export type TooltipRootChangeEventDetails =
   BaseUIChangeEventDetails<TooltipRoot.ChangeEventReason> & {

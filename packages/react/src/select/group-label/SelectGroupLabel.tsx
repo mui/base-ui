@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useSelectGroupContext } from '../group/SelectGroupContext';
@@ -36,8 +36,10 @@ export const SelectGroupLabel = React.forwardRef(function SelectGroupLabel(
 
 export interface SelectGroupLabelState {}
 
-export interface SelectGroupLabelProps
-  extends BaseUIComponentProps<'div', SelectGroupLabel.State> {}
+export interface SelectGroupLabelProps extends BaseUIComponentProps<
+  'div',
+  SelectGroupLabel.State
+> {}
 
 export namespace SelectGroupLabel {
   export type State = SelectGroupLabelState;

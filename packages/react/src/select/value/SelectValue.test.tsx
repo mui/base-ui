@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Select } from '@base-ui-components/react/select';
+import { Select } from '@base-ui/react/select';
 import { spy } from 'sinon';
 import { expect } from 'chai';
 import { fireEvent, flushMicrotasks, screen } from '@mui/internal-test-utils';
@@ -209,7 +209,7 @@ describe('<Select.Value />', () => {
       ];
 
       function App() {
-        const [value, setValue] = React.useState('sans');
+        const [value, setValue] = React.useState<string | null>('sans');
         return (
           <div>
             <button onClick={() => setValue('serif')}>serif</button>
@@ -275,7 +275,7 @@ describe('<Select.Value />', () => {
 
     it('is not stale after being updated', async () => {
       function App() {
-        const [value, setValue] = React.useState('a');
+        const [value, setValue] = React.useState<string | null>('a');
         const [items, setItems] = React.useState([
           { value: 'a', label: 'a' },
           { value: 'b', label: 'b' },

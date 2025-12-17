@@ -7,6 +7,9 @@ const htmlHeadWithDefaultStyles: ExportConfig['headTemplate'] = () => defaultSty
 const demoCss = `body {
   font-family: system-ui;
   margin: 0;
+
+  /* iOS 26+ Safari: https://base-ui.com/react/overview/quick-start#ios-26-safari */
+  position: relative;
 }
 
 #root {
@@ -179,8 +182,8 @@ const SOURCE_CODE_REPO = process.env.SOURCE_CODE_REPO;
 
 export function resolveDependencies(packageName: string): Record<string, string> {
   switch (packageName) {
-    case '@base-ui-components/react':
-    case '@base-ui-components/utils': {
+    case '@base-ui/react':
+    case '@base-ui/utils': {
       const version =
         COMMIT_REF === undefined || SOURCE_CODE_REPO !== 'https://github.com/mui/base-ui'
           ? 'latest' // #npm-tag-reference

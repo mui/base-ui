@@ -1,9 +1,10 @@
+'use client';
 import * as React from 'react';
-import { inertValue } from '@base-ui-components/utils/inertValue';
-import { useAnimationFrame } from '@base-ui-components/utils/useAnimationFrame';
-import { usePreviousValue } from '@base-ui-components/utils/usePreviousValue';
-import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
-import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
+import { inertValue } from '@base-ui/utils/inertValue';
+import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
+import { usePreviousValue } from '@base-ui/utils/usePreviousValue';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { usePopoverRootContext } from '../root/PopoverRootContext';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useAnimationsFinished } from '../../utils/useAnimationsFinished';
@@ -51,7 +52,7 @@ export const PopoverViewport = React.forwardRef(function PopoverViewport(
   const previousContainerRef = React.useRef<HTMLDivElement>(null);
 
   const onAnimationsFinished = useAnimationsFinished(currentContainerRef, true, false);
-  const cleanupTimeout = useAnimationFrame();
+  const cleanupFrame = useAnimationFrame();
 
   const [previousContentDimensions, setPreviousContentDimensions] = React.useState<{
     width: number;
@@ -106,16 +107,16 @@ export const PopoverViewport = React.forwardRef(function PopoverViewport(
   });
 
   React.useEffect(() => {
-    floatingContext.events.on('measure-layout', handleMeasureLayout);
-    floatingContext.events.on('measure-layout-complete', handleMeasureLayoutComplete);
+    floatingContext.context.events.on('measure-layout', handleMeasureLayout);
+    floatingContext.context.events.on('measure-layout-complete', handleMeasureLayoutComplete);
 
     return () => {
-      floatingContext.events.off('measure-layout', handleMeasureLayout);
-      floatingContext.events.off('measure-layout-complete', handleMeasureLayoutComplete);
+      floatingContext.context.events.off('measure-layout', handleMeasureLayout);
+      floatingContext.context.events.off('measure-layout-complete', handleMeasureLayoutComplete);
     };
   }, [floatingContext, handleMeasureLayout, handleMeasureLayoutComplete]);
 
-  const lastHandledTriggerRef = React.useRef<HTMLElement | null>(null);
+  const lastHandledTriggerRef = React.useRef<Element | null>(null);
 
   useIsoLayoutEffect(() => {
     // When a trigger changes, set the captured children HTML to state,
@@ -135,12 +136,14 @@ export const PopoverViewport = React.forwardRef(function PopoverViewport(
       const offset = calculateRelativePosition(previousActiveTrigger, activeTrigger);
       setNewTriggerOffset(offset);
 
-      cleanupTimeout.request(() => {
-        setShowStartingStyleAttribute(false);
-        onAnimationsFinished(() => {
-          setPreviousContentNode(null);
-          setPreviousContentDimensions(null);
-          capturedNodeRef.current = null;
+      cleanupFrame.request(() => {
+        cleanupFrame.request(() => {
+          setShowStartingStyleAttribute(false);
+          onAnimationsFinished(() => {
+            setPreviousContentNode(null);
+            setPreviousContentDimensions(null);
+            capturedNodeRef.current = null;
+          });
         });
       });
 
@@ -151,7 +154,7 @@ export const PopoverViewport = React.forwardRef(function PopoverViewport(
     previousActiveTrigger,
     previousContentNode,
     onAnimationsFinished,
-    cleanupTimeout,
+    cleanupFrame,
   ]);
 
   const isTransitioning = previousContentNode != null;
@@ -278,7 +281,7 @@ function getValueWithTolerance(
 /**
  * Calculates the relative position between centers of two elements.
  */
-function calculateRelativePosition(from: HTMLElement, to: HTMLElement): Offset {
+function calculateRelativePosition(from: Element, to: Element): Offset {
   const fromRect = from.getBoundingClientRect();
   const toRect = to.getBoundingClientRect();
 

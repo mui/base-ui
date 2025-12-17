@@ -1,8 +1,7 @@
 'use client';
 import * as React from 'react';
-import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
-import { useControlled } from '@base-ui-components/utils/useControlled';
-import { useFloatingTree } from '../../floating-ui-react';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { useControlled } from '@base-ui/utils/useControlled';
 import { MenuCheckboxItemContext } from './MenuCheckboxItemContext';
 import { REGULAR_ITEM, useMenuItem } from '../item/useMenuItem';
 import { useCompositeListItem } from '../../composite/list/useCompositeListItem';
@@ -13,6 +12,7 @@ import type { BaseUIComponentProps, NonNativeButtonProps } from '../../utils/typ
 import { itemMapping } from '../utils/stateAttributesMapping';
 import { useMenuPositionerContext } from '../positioner/MenuPositionerContext';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
+import { REASONS } from '../../utils/reasons';
 import type { MenuRoot } from '../root/MenuRoot';
 
 /**
@@ -42,7 +42,6 @@ export const MenuCheckboxItem = React.forwardRef(function MenuCheckboxItem(
   const listItem = useCompositeListItem({ label });
   const menuPositionerContext = useMenuPositionerContext(true);
   const id = useBaseUiId(idProp);
-  const { events: menuEvents } = useFloatingTree()!;
 
   const { store } = useMenuRootContext();
   const highlighted = store.useState('isActive', listItem.index);
@@ -60,10 +59,9 @@ export const MenuCheckboxItem = React.forwardRef(function MenuCheckboxItem(
     disabled,
     highlighted,
     id,
-    menuEvents,
     store,
     nativeButton,
-    nodeId: menuPositionerContext?.floatingContext.nodeId,
+    nodeId: menuPositionerContext?.nodeId,
     itemMetadata: REGULAR_ITEM,
   });
 
@@ -77,7 +75,10 @@ export const MenuCheckboxItem = React.forwardRef(function MenuCheckboxItem(
   );
 
   const handleClick = useStableCallback((event: React.MouseEvent) => {
-    const details = createChangeEventDetails('item-press', event.nativeEvent);
+    const details = {
+      ...createChangeEventDetails(REASONS.itemPress, event.nativeEvent),
+      preventUnmountOnClose: () => {},
+    };
 
     onCheckedChange?.(!checked, details);
 
@@ -125,8 +126,7 @@ export type MenuCheckboxItemState = {
 };
 
 export interface MenuCheckboxItemProps
-  extends NonNativeButtonProps,
-    BaseUIComponentProps<'div', MenuCheckboxItem.State> {
+  extends NonNativeButtonProps, BaseUIComponentProps<'div', MenuCheckboxItem.State> {
   /**
    * Whether the checkbox item is currently ticked.
    *

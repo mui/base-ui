@@ -1,6 +1,6 @@
 import * as React from 'react';
 import c from 'clsx';
-import { useId } from '@base-ui-components/utils/useId';
+import { useId } from '@base-ui/utils/useId';
 import type { Placement } from '../../src/floating-ui-react/types';
 import {
   arrow,
@@ -149,7 +149,7 @@ export function Main() {
       activeIndex,
       cols: 3,
       orientation: 'horizontal',
-      loop: true,
+      loopFocus: true,
       focusItemOnOpen: false,
       virtual: true,
       allowEscape: true,

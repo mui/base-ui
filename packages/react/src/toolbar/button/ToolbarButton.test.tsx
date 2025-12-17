@@ -1,14 +1,14 @@
 import { expect } from 'chai';
 import { spy } from 'sinon';
-import { Toolbar } from '@base-ui-components/react/toolbar';
-import { Switch } from '@base-ui-components/react/switch';
-import { Menu } from '@base-ui-components/react/menu';
-import { Select } from '@base-ui-components/react/select';
-import { Dialog } from '@base-ui-components/react/dialog';
-import { AlertDialog } from '@base-ui-components/react/alert-dialog';
-import { Popover } from '@base-ui-components/react/popover';
-import { Toggle } from '@base-ui-components/react/toggle';
-import { ToggleGroup } from '@base-ui-components/react/toggle-group';
+import { Toolbar } from '@base-ui/react/toolbar';
+import { Switch } from '@base-ui/react/switch';
+import { Menu } from '@base-ui/react/menu';
+import { Select } from '@base-ui/react/select';
+import { Dialog } from '@base-ui/react/dialog';
+import { AlertDialog } from '@base-ui/react/alert-dialog';
+import { Popover } from '@base-ui/react/popover';
+import { Toggle } from '@base-ui/react/toggle';
+import { ToggleGroup } from '@base-ui/react/toggle-group';
 import { screen, waitFor } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import { NOOP } from '../../utils/noop';
@@ -19,6 +19,7 @@ const testCompositeContext: CompositeRootContext = {
   highlightedIndex: 0,
   onHighlightedIndexChange: NOOP,
   highlightItemOnHover: false,
+  relayKeyboardEvent: NOOP,
 };
 
 const testToolbarContext: ToolbarRootContext = {
@@ -390,7 +391,7 @@ describe('<Toolbar.Button />', () => {
         const { user } = await render(
           <Toolbar.Root>
             <Select.Root defaultValue="a" onValueChange={onValueChange} onOpenChange={onOpenChange}>
-              <Toolbar.Button disabled render={<Select.Trigger />} />
+              <Toolbar.Button disabled render={<Select.Trigger nativeButton={false} />} />
               <Select.Portal>
                 <Select.Positioner>
                   <Select.Popup>

@@ -1,0 +1,69 @@
+# Radio
+
+<Subtitle>An easily stylable radio button component.</Subtitle>
+<Meta
+  name="description"
+  content="A high-quality, unstyled React radio button component that is easy to style."
+/>
+
+import { DemoRadioHero } from './demos/hero';
+
+<DemoRadioHero />
+
+## Usage guidelines
+
+- **Form controls must have an accessible name**: Radio group and individual Radio elements must have a meaningful label. Prefer using [`<Fieldset>`](/react/components/fieldset) and [`<Field>`](/react/components/field) to provide visible text labels and descriptions, or use the `aria-label` attribute as an alternative. See the [forms guide](/react/handbook/forms) for more on building form controls.
+
+## Anatomy
+
+Radio is always placed within Radio Group. Import the components and place them together:
+
+```jsx title="Anatomy"
+import { Radio } from '@base-ui/react/radio';
+import { RadioGroup } from '@base-ui/react/radio-group';
+
+<RadioGroup>
+  <Radio.Root>
+    <Radio.Indicator />
+  </Radio.Root>
+</RadioGroup>;
+```
+
+## API reference
+
+### RadioGroup
+
+import { TypesRadioGroup } from '../radio-group/types';
+
+Provides a shared state to a series of radio buttons. Renders a `<div>` element.
+
+<TypesRadioGroup />
+
+import { TypesRadioRoot, TypesRadioIndicator } from './types';
+
+### Root
+
+<TypesRadioRoot />
+
+### Indicator
+
+<TypesRadioIndicator />
+
+export const metadata = {
+  keywords: [
+    'React Radio Button',
+    'Radio Group Component',
+    'Radio Button',
+    'Radio Input',
+    'Single Choice',
+    'Exclusive Choice',
+    'Mutually Exclusive',
+    'Option Selector',
+    'Option Button',
+    'Form Radio Control',
+    'Accessible Radio Group',
+    'Customizable Radio',
+    'Headless React Components',
+    'Base UI',
+  ],
+};

@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
-import { ownerDocument, ownerWindow } from '@base-ui-components/utils/owner';
-import { visuallyHidden } from '@base-ui-components/utils/visuallyHidden';
+import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
+import { visuallyHidden } from '@base-ui/utils/visuallyHidden';
 import { activeElement, contains, getTarget } from '../../floating-ui-react/utils';
 import { FocusGuard } from '../../utils/FocusGuard';
 import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
@@ -64,7 +64,7 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
         setPrevFocusElement(
           activeElement(ownerDocument(viewportRef.current)) as HTMLElement | null,
         );
-        viewportRef.current?.focus();
+        viewportRef.current?.focus({ preventScroll: true });
         pauseTimers();
         setFocused(true);
       }

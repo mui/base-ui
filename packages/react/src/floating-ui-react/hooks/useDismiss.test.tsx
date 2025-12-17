@@ -1,18 +1,10 @@
 /* eslint-disable @typescript-eslint/no-shadow */
-import {
-  act,
-  cleanup,
-  fireEvent,
-  flushMicrotasks,
-  render,
-  screen,
-  waitFor,
-} from '@mui/internal-test-utils';
+import { act, fireEvent, flushMicrotasks, render, screen, waitFor } from '@mui/internal-test-utils';
 import userEvent from '@testing-library/user-event';
 import * as React from 'react';
 import { vi } from 'vitest';
 
-import { isJSDOM } from '@base-ui-components/utils/detectBrowser';
+import { isJSDOM } from '@base-ui/utils/detectBrowser';
 import {
   FloatingFocusManager,
   FloatingNode,
@@ -26,6 +18,7 @@ import {
   useInteractions,
   useClick,
 } from '../index';
+import { REASONS } from '../../utils/reasons';
 import type { UseDismissProps } from './useDismiss';
 import { normalizeProp } from './useDismiss';
 
@@ -50,16 +43,16 @@ function App(
       setOpen(openArg);
       const reason = data?.reason;
       if (props.outsidePress) {
-        expect(reason).toBe('outside-press');
+        expect(reason).toBe(REASONS.outsidePress);
       } else if (props.escapeKey) {
-        expect(reason).toBe('escape-key');
+        expect(reason).toBe(REASONS.escapeKey);
         if (!openArg) {
           props.onClose?.();
         }
       } else if (props.referencePress) {
-        expect(reason).toBe('trigger-press');
+        expect(reason).toBe(REASONS.triggerPress);
       } else if (props.ancestorScroll) {
-        expect(reason).toBe('none');
+        expect(reason).toBe(REASONS.none);
       }
     },
   });
@@ -83,7 +76,6 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
       render(<App />);
       fireEvent.keyDown(document.body, { key: 'Escape' });
       expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
-      cleanup();
     });
 
     test('does not dismiss with escape key if IME is active', async () => {
@@ -122,35 +114,30 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
       render(<App />);
       await userEvent.click(document.body);
       expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
-      cleanup();
     });
 
     test('dismisses with reference press', async () => {
       render(<App referencePress />);
       await userEvent.click(screen.getByRole('button'));
       expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
-      cleanup();
     });
 
     test('dismisses with native click', async () => {
       render(<App referencePress />);
       fireEvent.click(screen.getByRole('button'));
       expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
-      cleanup();
     });
 
     test('dismisses with ancestor scroll', async () => {
       render(<App ancestorScroll />);
       fireEvent.scroll(window);
       expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
-      cleanup();
     });
 
     test('outsidePress function guard', async () => {
       render(<App outsidePress={() => false} />);
       await userEvent.click(document.body);
       expect(screen.getByRole('tooltip')).toBeInTheDocument();
-      cleanup();
     });
 
     test('outsidePress ignored for third party elements', async () => {
@@ -302,28 +289,24 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
       render(<App escapeKey={false} />);
       fireEvent.keyDown(document.body, { key: 'Escape' });
       expect(screen.getByRole('tooltip')).toBeInTheDocument();
-      cleanup();
     });
 
     test('dismisses with outside press', async () => {
       render(<App outsidePress={false} />);
       await userEvent.click(document.body);
       expect(screen.getByRole('tooltip')).toBeInTheDocument();
-      cleanup();
     });
 
     test('dismisses with reference pointer down', async () => {
       render(<App referencePress={false} />);
       await userEvent.click(screen.getByRole('button'));
       expect(screen.getByRole('tooltip')).toBeInTheDocument();
-      cleanup();
     });
 
     test('dismisses with ancestor scroll', async () => {
       render(<App ancestorScroll={false} />);
       fireEvent.scroll(window);
       expect(screen.getByRole('tooltip')).toBeInTheDocument();
-      cleanup();
     });
 
     test('does not dismiss when clicking portaled children', async () => {
@@ -357,15 +340,12 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
       });
 
       expect(screen.getByTestId('portaled-button')).toBeInTheDocument();
-
-      cleanup();
     });
 
     test('outsidePress function guard', async () => {
       render(<App outsidePress={() => true} />);
       await userEvent.click(document.body);
       expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
-      cleanup();
     });
   });
 
@@ -475,7 +455,6 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
 
         expect(screen.queryByTestId('outer')).not.toBeInTheDocument();
         expect(screen.queryByTestId('inner')).not.toBeInTheDocument();
-        cleanup();
       });
 
       test('false', async () => {
@@ -499,7 +478,6 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
 
         expect(screen.queryByTestId('outer')).not.toBeInTheDocument();
         expect(screen.queryByTestId('inner')).not.toBeInTheDocument();
-        cleanup();
       });
 
       test('mixed', async () => {
@@ -523,7 +501,6 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
 
         expect(screen.queryByTestId('outer')).not.toBeInTheDocument();
         expect(screen.queryByTestId('inner')).not.toBeInTheDocument();
-        cleanup();
       });
     });
 
@@ -613,7 +590,6 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
 
         expect(screen.queryByTestId('outer')).not.toBeInTheDocument();
         expect(screen.queryByTestId('inner')).not.toBeInTheDocument();
-        cleanup();
       });
       test('false', async () => {
         render(
@@ -636,7 +612,6 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
 
         expect(screen.queryByTestId('outer')).not.toBeInTheDocument();
         expect(screen.queryByTestId('inner')).not.toBeInTheDocument();
-        cleanup();
       });
 
       test('mixed', async () => {
@@ -660,7 +635,6 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
 
         expect(screen.queryByTestId('outer')).not.toBeInTheDocument();
         expect(screen.queryByTestId('inner')).not.toBeInTheDocument();
-        cleanup();
       });
     });
   });
@@ -806,7 +780,6 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
 
         expect(screen.queryByText('outer')).not.toBeInTheDocument();
         expect(screen.queryByText('inner')).not.toBeInTheDocument();
-        cleanup();
       });
     });
 
@@ -834,7 +807,6 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
 
         expect(screen.queryByText('outer')).not.toBeInTheDocument();
         expect(screen.queryByText('inner')).not.toBeInTheDocument();
-        cleanup();
       });
     });
   });
@@ -846,7 +818,6 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
       fireEvent.mouseDown(floatingEl);
       fireEvent.mouseUp(document.body);
       expect(screen.getByRole('tooltip')).toBeInTheDocument();
-      cleanup();
     });
 
     test('dragging inside the floating element does not close', () => {
@@ -855,7 +826,6 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
       fireEvent.mouseDown(document.body);
       fireEvent.mouseUp(floatingEl);
       expect(screen.getByRole('tooltip')).toBeInTheDocument();
-      cleanup();
     });
 
     test('dragging outside the floating element then clicking outside closes', async () => {
@@ -867,7 +837,6 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
       fireEvent.click(document.body);
       fireEvent.click(document.body);
       expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
-      cleanup();
     });
   });
 

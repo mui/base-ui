@@ -1,13 +1,14 @@
 'use client';
 import * as React from 'react';
-import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
-import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
-import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
-import { useOnMount } from '@base-ui-components/utils/useOnMount';
-import { AnimationFrame, useAnimationFrame } from '@base-ui-components/utils/useAnimationFrame';
-import { warn } from '@base-ui-components/utils/warn';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
+import { useOnMount } from '@base-ui/utils/useOnMount';
+import { AnimationFrame, useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
+import { warn } from '@base-ui/utils/warn';
 import { HTMLProps } from '../../utils/types';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
+import { REASONS } from '../../utils/reasons';
 import type { AnimationType, Dimensions } from '../root/useCollapsibleRoot';
 import { CollapsiblePanelDataAttributes } from './CollapsiblePanelDataAttributes';
 import { AccordionRootDataAttributes } from '../../accordion/root/AccordionRootDataAttributes';
@@ -389,7 +390,7 @@ export function useCollapsiblePanel(
       function handleBeforeMatch(event: Event) {
         isBeforeMatchRef.current = true;
         setOpen(true);
-        onOpenChange(true, createChangeEventDetails('none', event));
+        onOpenChange(true, createChangeEventDetails(REASONS.none, event));
       }
 
       panel.addEventListener('beforematch', handleBeforeMatch);

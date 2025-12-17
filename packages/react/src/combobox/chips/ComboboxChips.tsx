@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useStore } from '@base-ui-components/utils/store';
+import { useStore } from '@base-ui/utils/store';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { BaseUIComponentProps } from '../../utils/types';
 import { ComboboxChipsContext } from './ComboboxChipsContext';
@@ -20,7 +20,6 @@ export const ComboboxChips = React.forwardRef(function ComboboxChips(
 
   const store = useComboboxRootContext();
 
-  const chipsContainerRef = useStore(store, selectors.chipsContainerRef);
   const open = useStore(store, selectors.open);
 
   const [highlightedChipIndex, setHighlightedChipIndex] = React.useState<number | undefined>(
@@ -34,7 +33,7 @@ export const ComboboxChips = React.forwardRef(function ComboboxChips(
   const chipsRef = React.useRef<Array<HTMLButtonElement | null>>([]);
 
   const element = useRenderElement('div', componentProps, {
-    ref: [forwardedRef, chipsContainerRef],
+    ref: [forwardedRef, store.state.chipsContainerRef],
     props: elementProps,
   });
 

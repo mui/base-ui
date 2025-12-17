@@ -4,7 +4,7 @@ import { DemoFile } from 'docs/src/blocks/Demo';
 import { packDemo } from './packDemo';
 
 describe('packDemo', () => {
-  it('transforms the files into an object an extracts dependencies', () => {
+  it('transforms the files into an object and extracts dependencies', () => {
     const files: DemoFile[] = [
       {
         name: 'file.js',

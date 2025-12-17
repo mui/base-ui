@@ -64,8 +64,10 @@ function extractMetadata() {
  * Plugin to transform JSX elements to markdown or remove them from the tree
  */
 function transformJsx() {
-  return (tree, file) => {
-    // Handle JSX flow elements (block-level JSX)
+  return async (tree, file) => {
+    // First pass: collect all demos to process and handle other components
+    const demosToProcess = [];
+
     visit(
       tree,
       [
@@ -81,7 +83,7 @@ function transformJsx() {
           if (node.data.estree.type === 'Program') {
             const estree = node.data.estree;
             if (estree.body[0].type === 'ImportDeclaration') {
-              // Handle import declarations in MDX
+              // Collect demo for processing
               const importPath = estree.body[0].source.value;
 
               // Determine if this is a types import or demo import
@@ -90,7 +92,6 @@ function transformJsx() {
                 spec.imported?.name?.startsWith('Type'),
               );
 
-              let processedContent;
               if (isTypesImport) {
                 // Mark subsequent h3+ headings for removal until we hit an h2 or lower
                 for (let i = index + 1; i < parent.children.length; i += 1) {
@@ -106,14 +107,31 @@ function transformJsx() {
                   }
                 }
 
-                processedContent = processTypedoc(node, file.path || '', importPath);
+                const processedContent = processTypedoc(node, file.path || '', importPath);
+                // Replace the import with the generated content
+                parent.children.splice(index, 1, ...processedContent);
               } else {
-                processedContent = processDemo(node, file.path || '', importPath);
+                // Collect demos for parallel processing later
+                demosToProcess.push({
+                  index,
+                  parent,
+                  importPath,
+                });
               }
 
-              // Replace the import with the generated content
-              parent.children.splice(index, 1, ...processedContent);
               return visit.CONTINUE;
+            }
+            if (estree.body[0].type === 'ExportNamedDeclaration') {
+              // Check if this is a metadata export
+              const declaration = estree.body[0].declaration;
+              if (
+                declaration?.type === 'VariableDeclaration' &&
+                declaration.declarations?.[0]?.id?.name === 'metadata'
+              ) {
+                // Remove metadata export statements
+                parent.children.splice(index, 1);
+                return [visit.SKIP, index];
+              }
             }
           }
         }
@@ -126,13 +144,13 @@ function transformJsx() {
           return visit.CONTINUE;
         }
 
-        if (node.name.startsWith('Type')) {
+        if (node.name?.startsWith('Type')) {
           // Remove Type components - they are handled by the import statement
           parent.children.splice(index, 1);
           return [visit.SKIP, index];
         }
 
-        if (node.name.startsWith('Demo')) {
+        if (node.name?.startsWith('Demo')) {
           // Remove Demo components - they are handled by the import statement
           parent.children.splice(index, 1);
           return [visit.SKIP, index];
@@ -211,11 +229,25 @@ function transformJsx() {
           }
 
           default: {
-            throw new Error(`Unknown component: ${node.name}`);
+            if (node.name) {
+              throw new Error(`Unknown component: ${node.name}`);
+            }
+            return visit.CONTINUE;
           }
         }
       },
     );
+
+    // Process all demos in parallel
+    const demoResults = await Promise.all(
+      demosToProcess.map(async ({ importPath }) => processDemo(file.path || '', importPath)),
+    );
+
+    // Replace demo imports with their processed content (in reverse order to avoid index shifting)
+    for (let i = demosToProcess.length - 1; i >= 0; i -= 1) {
+      const { index, parent } = demosToProcess[i];
+      parent.children.splice(index, 1, ...demoResults[i]);
+    }
 
     return tree;
   };

@@ -1,12 +1,12 @@
 import * as React from 'react';
-import { Tooltip } from '@base-ui-components/react/tooltip';
+import { Tooltip } from '@base-ui/react/tooltip';
 import { screen } from '@mui/internal-test-utils';
 import { expect } from 'chai';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 
 const Trigger = React.forwardRef(function Trigger(
   props: Tooltip.Trigger.Props,
-  ref: React.ForwardedRef<HTMLDivElement>,
+  ref: React.ForwardedRef<any>,
 ) {
   return <Tooltip.Trigger {...props} ref={ref} render={<div />} />;
 });

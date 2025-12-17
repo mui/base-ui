@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useStore } from '@base-ui-components/utils/store';
+import { useStore } from '@base-ui/utils/store';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useSelectRootContext } from '../root/SelectRootContext';
@@ -29,12 +29,14 @@ export const SelectValue = React.forwardRef(function SelectValue(
   const value = useStore(store, selectors.value);
   const items = useStore(store, selectors.items);
   const itemToStringLabel = useStore(store, selectors.itemToStringLabel);
+  const serializedValue = useStore(store, selectors.serializedValue);
 
   const state: SelectValue.State = React.useMemo(
     () => ({
       value,
+      placeholder: !serializedValue,
     }),
-    [value],
+    [value, serializedValue],
   );
 
   const children =
@@ -62,8 +64,10 @@ export interface SelectValueState {
   value: any;
 }
 
-export interface SelectValueProps
-  extends Omit<BaseUIComponentProps<'span', SelectValue.State>, 'children'> {
+export interface SelectValueProps extends Omit<
+  BaseUIComponentProps<'span', SelectValue.State>,
+  'children'
+> {
   /**
    * Accepts a function that returns a `ReactNode` to format the selected value.
    * @example

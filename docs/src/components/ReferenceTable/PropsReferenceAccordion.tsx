@@ -69,7 +69,7 @@ export function PropsReferenceAccordion({
               {prop.type && (
                 <Accordion.Scrollable className="px-3 flex items-baseline text-sm leading-none break-keep whitespace-nowrap max-xs:hidden">
                   {hasExpandedType ? (
-                    <ReferenceTableTooltip.Root hoverable={false}>
+                    <ReferenceTableTooltip.Root disableHoverablePopup>
                       <ReferenceTableTooltip.Trigger
                         delay={300}
                         render={<span>{displayShortType}</span>}
@@ -90,7 +90,7 @@ export function PropsReferenceAccordion({
                   prop.default
                 )}
               </Accordion.Scrollable>
-              <div className="flex justify-center max-xs:ml-auto max-xs:mr-3">
+              <span className="flex justify-center max-xs:ml-auto max-xs:mr-3">
                 <svg
                   className="AccordionIcon translate-y-px"
                   width="10"
@@ -101,7 +101,7 @@ export function PropsReferenceAccordion({
                 >
                   <path d="M1 3.5L5 7.5L9 3.5" stroke="currentcolor" />
                 </svg>
-              </div>
+              </span>
             </Accordion.Trigger>
             <Accordion.Panel>
               <Accordion.Content>
@@ -120,37 +120,27 @@ export function PropsReferenceAccordion({
 
                   {prop.description && (
                     <DescriptionList.Item>
-                      <DescriptionList.Separator className="max-xs:pt-2">
-                        <DescriptionList.Term>Description</DescriptionList.Term>
-                      </DescriptionList.Separator>
+                      <DescriptionList.Term separator>Description</DescriptionList.Term>
                       {/* one-off override of the default mt/mb on CodeBlock.Root */}
                       <DescriptionList.Details className="[&_[role='figure']]:mt-1 [&_[role='figure']]:mb-1">
                         {prop.description}
                       </DescriptionList.Details>
                     </DescriptionList.Item>
                   )}
-
                   <DescriptionList.Item>
-                    <DescriptionList.Separator className="max-xs:pt-2">
-                      <DescriptionList.Term>Type</DescriptionList.Term>
-                    </DescriptionList.Separator>
+                    <DescriptionList.Term separator>Type</DescriptionList.Term>
                     <DescriptionList.Details>{displayDetailedType}</DescriptionList.Details>
                   </DescriptionList.Item>
-
                   {prop.default !== undefined && (
                     <DescriptionList.Item>
-                      <DescriptionList.Separator className="max-xs:pt-2">
-                        <DescriptionList.Term>Default</DescriptionList.Term>
-                      </DescriptionList.Separator>
+                      <DescriptionList.Term separator>Default</DescriptionList.Term>
                       <DescriptionList.Details>{prop.default}</DescriptionList.Details>
                     </DescriptionList.Item>
                   )}
 
                   {prop.example && (
                     <DescriptionList.Item>
-                      <DescriptionList.Separator className="max-xs:pt-2">
-                        <DescriptionList.Term>Example</DescriptionList.Term>
-                      </DescriptionList.Separator>
+                      <DescriptionList.Term separator>Example</DescriptionList.Term>
                       <DescriptionList.Details className="*:my-0">
                         {prop.example}
                       </DescriptionList.Details>

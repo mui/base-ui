@@ -1,12 +1,12 @@
 import * as React from 'react';
-import { Popover } from '@base-ui-components/react/popover';
+import { Popover } from '@base-ui/react/popover';
 import { screen, waitFor } from '@mui/internal-test-utils';
 import { expect } from 'chai';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 
 const Trigger = React.forwardRef(function Trigger(
   props: Popover.Trigger.Props,
-  ref: React.ForwardedRef<HTMLDivElement>,
+  ref: React.ForwardedRef<any>,
 ) {
   return <Popover.Trigger {...props} ref={ref} render={<div />} />;
 });

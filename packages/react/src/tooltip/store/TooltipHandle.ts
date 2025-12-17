@@ -1,5 +1,6 @@
 import { TooltipStore } from './TooltipStore';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
+import { REASONS } from '../../utils/reasons';
 
 /**
  * A handle to control a tooltip imperatively and to associate detached triggers with it.
@@ -19,11 +20,13 @@ export class TooltipHandle<Payload> {
    * Opens the tooltip and associates it with the trigger with the given ID.
    * The trigger must be a Tooltip.Trigger component with this handle passed as a prop.
    *
+   * This method should only be called in an event handler or an effect (not during rendering).
+   *
    * @param triggerId ID of the trigger to associate with the tooltip.
    */
   open(triggerId: string) {
     const triggerElement = triggerId
-      ? (this.store.state.triggers.get(triggerId) ?? undefined)
+      ? (this.store.context.triggerElements.getById(triggerId) as HTMLElement | undefined)
       : undefined;
 
     if (triggerId && !triggerElement) {
@@ -32,7 +35,7 @@ export class TooltipHandle<Payload> {
 
     this.store.setOpen(
       true,
-      createChangeEventDetails('imperative-action', undefined, triggerElement),
+      createChangeEventDetails(REASONS.imperativeAction, undefined, triggerElement),
     );
   }
 
@@ -40,7 +43,10 @@ export class TooltipHandle<Payload> {
    * Closes the tooltip.
    */
   close() {
-    this.store.setOpen(false, createChangeEventDetails('imperative-action', undefined, undefined));
+    this.store.setOpen(
+      false,
+      createChangeEventDetails(REASONS.imperativeAction, undefined, undefined),
+    );
   }
 
   /**

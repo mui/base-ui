@@ -8,7 +8,8 @@ import { useNavigationMenuRootContext } from '../root/NavigationMenuRootContext'
 import { EMPTY_OBJECT } from '../../utils/constants';
 import { NAVIGATION_MENU_TRIGGER_IDENTIFIER } from '../utils/constants';
 import { NavigationMenuDismissContext } from './NavigationMenuDismissContext';
-import { getEmptyContext } from '../../floating-ui-react/hooks/useFloatingRootContext';
+import { getEmptyRootContext } from '../../floating-ui-react/utils/getEmptyRootContext';
+import { useRenderElement } from '../../utils/useRenderElement';
 
 /**
  * Contains a list of navigation menu items.
@@ -22,10 +23,10 @@ export const NavigationMenuList = React.forwardRef(function NavigationMenuList(
 ) {
   const { className, render, ...elementProps } = componentProps;
 
-  const { orientation, open, floatingRootContext, positionerElement, value } =
+  const { orientation, open, floatingRootContext, positionerElement, value, nested } =
     useNavigationMenuRootContext();
 
-  const fallbackContext = React.useMemo(() => getEmptyContext(), []);
+  const fallbackContext = React.useMemo(() => getEmptyRootContext(), []);
   const context = floatingRootContext || fallbackContext;
   const interactionsEnabled = positionerElement ? true : !value;
 
@@ -50,20 +51,43 @@ export const NavigationMenuList = React.forwardRef(function NavigationMenuList(
     [open],
   );
 
-  const defaultProps: HTMLProps = {
-    // `stopEventPropagation` won't stop the propagation if the end of the list is reached,
-    // but we want to block it in this case.
-    onKeyDown(event: React.KeyboardEvent<HTMLDivElement>) {
-      const shouldStop =
-        (orientation === 'horizontal' &&
-          (event.key === 'ArrowLeft' || event.key === 'ArrowRight')) ||
-        (orientation === 'vertical' && (event.key === 'ArrowUp' || event.key === 'ArrowDown'));
+  // `stopEventPropagation` won't stop the propagation if the end of the list is reached,
+  // but we want to block it in this case.
+  // When nested, skip this handler so arrow keys can reach the parent CompositeRoot.
+  const defaultProps: HTMLProps = nested
+    ? {}
+    : {
+        onKeyDown(event: React.KeyboardEvent<HTMLDivElement>) {
+          const shouldStop =
+            (orientation === 'horizontal' &&
+              (event.key === 'ArrowLeft' || event.key === 'ArrowRight')) ||
+            (orientation === 'vertical' && (event.key === 'ArrowUp' || event.key === 'ArrowDown'));
 
-      if (shouldStop) {
-        event.stopPropagation();
-      }
-    },
-  };
+          if (shouldStop) {
+            event.stopPropagation();
+          }
+        },
+      };
+
+  const props = [dismissProps?.floating || EMPTY_OBJECT, defaultProps, elementProps];
+
+  // When nested, skip the CompositeRoot wrapper so that triggers can participate
+  // in the parent Content's composite navigation context. Also skip the onKeyDown
+  // handler that blocks propagation so arrow keys can reach the parent CompositeRoot.
+  const element = useRenderElement('ul', componentProps, {
+    state,
+    ref: forwardedRef,
+    props,
+    enabled: nested,
+  });
+
+  if (nested) {
+    return (
+      <NavigationMenuDismissContext.Provider value={dismissProps}>
+        {element}
+      </NavigationMenuDismissContext.Provider>
+    );
+  }
 
   return (
     <NavigationMenuDismissContext.Provider value={dismissProps}>
@@ -72,8 +96,8 @@ export const NavigationMenuList = React.forwardRef(function NavigationMenuList(
         className={className}
         state={state}
         refs={[forwardedRef]}
-        props={[dismissProps?.floating || EMPTY_OBJECT, defaultProps, elementProps]}
-        loop={false}
+        props={props}
+        loopFocus={false}
         orientation={orientation}
         tag="ul"
       />
@@ -88,8 +112,10 @@ export interface NavigationMenuListState {
   open: boolean;
 }
 
-export interface NavigationMenuListProps
-  extends BaseUIComponentProps<'ul', NavigationMenuList.State> {}
+export interface NavigationMenuListProps extends BaseUIComponentProps<
+  'ul',
+  NavigationMenuList.State
+> {}
 
 export namespace NavigationMenuList {
   export type State = NavigationMenuListState;
