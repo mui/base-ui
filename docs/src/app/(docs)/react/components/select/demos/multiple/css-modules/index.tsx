@@ -34,7 +34,7 @@ export default function MultiSelectExample() {
   return (
     <Select.Root multiple defaultValue={['javascript', 'typescript']}>
       <Select.Trigger className={styles.Select}>
-        <Select.Value>{renderValue}</Select.Value>
+        <Select.Value className={styles.SelectValue}>{renderValue}</Select.Value>
         <Select.Icon className={styles.SelectIcon}>
           <ChevronUpDownIcon />
         </Select.Icon>

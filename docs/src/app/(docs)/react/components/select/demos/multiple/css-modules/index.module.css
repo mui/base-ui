@@ -35,6 +35,10 @@
   }
 }
 
+.SelectValue[data-placeholder] {
+  color: var(--color-gray-500);
+}
+
 .SelectIcon {
   display: flex;
 }

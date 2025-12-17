@@ -14,7 +14,7 @@ export default function ExampleSelect() {
   return (
     <Select.Root items={fonts}>
       <Select.Trigger className={styles.Select}>
-        <Select.Value />
+        <Select.Value className={styles.SelectValue} />
         <Select.Icon className={styles.SelectIcon}>
           <ChevronUpDownIcon />
         </Select.Icon>
