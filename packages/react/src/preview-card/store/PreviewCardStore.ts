@@ -54,6 +54,10 @@ export class PreviewCardStore<Payload> extends ReactStore<
       !nextOpen &&
       (eventDetails.reason === REASONS.triggerPress || eventDetails.reason === REASONS.escapeKey);
 
+    (eventDetails as PreviewCardRoot.ChangeEventDetails).preventUnmountOnClose = () => {
+      this.set('preventUnmountingOnClose', true);
+    };
+
     this.context.onOpenChange?.(nextOpen, eventDetails);
 
     if (eventDetails.isCanceled) {

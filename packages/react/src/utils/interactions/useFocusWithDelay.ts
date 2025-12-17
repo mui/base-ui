@@ -94,5 +94,5 @@ export function useFocusWithDelay(
     [delay, store, dataRef, timeout],
   );
 
-  return React.useMemo(() => ({ reference }), [reference]);
+  return React.useMemo(() => ({ reference, trigger: reference }), [reference]);
 }

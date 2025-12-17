@@ -424,7 +424,12 @@ describe('<PreviewCard.Root />', () => {
       };
 
       const { user } = await render(
-        <Root actionsRef={actionsRef}>
+        <Root
+          actionsRef={actionsRef}
+          onOpenChange={(open, details) => {
+            details.preventUnmountOnClose();
+          }}
+        >
           <Trigger delay={0} closeDelay={0}>
             Open
           </Trigger>
