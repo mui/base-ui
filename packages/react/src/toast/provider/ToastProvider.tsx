@@ -231,9 +231,48 @@ export const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvid
 
   const update = useStableCallback(
     <Data extends object>(id: string, updates: ToastManagerUpdateOptions<Data>) => {
+      const prevToast = toasts.find((toast) => toast.id === id);
+      const nextToast = prevToast ? { ...prevToast, ...updates } : null;
+
       setToasts((prev) =>
         prev.map((toast) => (toast.id === id ? { ...toast, ...updates } : toast)),
       );
+
+      if (!nextToast) {
+        return;
+      }
+
+      const nextTimeout = nextToast.timeout ?? timeout;
+      const prevTimeout = prevToast?.timeout ?? timeout;
+
+      const shouldHaveTimer =
+        nextToast.transitionStatus !== 'ending' && nextToast.type !== 'loading' && nextTimeout > 0;
+
+      const hasTimer = timersRef.current.has(id);
+      const timeoutChanged = prevTimeout !== nextTimeout;
+      const wasLoading = prevToast?.type === 'loading';
+
+      if (!shouldHaveTimer && hasTimer) {
+        const timer = timersRef.current.get(id);
+        timer?.timeout?.clear();
+        timersRef.current.delete(id);
+        return;
+      }
+
+      // Schedule or reschedule timer if needed
+      if (shouldHaveTimer && (!hasTimer || timeoutChanged || wasLoading)) {
+        const timer = timersRef.current.get(id);
+        if (timer) {
+          timer.timeout?.clear();
+          timersRef.current.delete(id);
+        }
+
+        scheduleTimer(id, nextTimeout, () => close(id));
+
+        if (hovering || focused || !windowFocusedRef.current) {
+          pauseTimers();
+        }
+      }
     },
   );
 
@@ -255,16 +294,8 @@ export const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvid
           update(id, {
             ...successOptions,
             type: 'success',
+            timeout: successOptions.timeout,
           });
-
-          const successTimeout = successOptions.timeout ?? timeout;
-          if (successTimeout > 0) {
-            scheduleTimer(id, successTimeout, () => close(id));
-          }
-
-          if (hovering || focused || !windowFocusedRef.current) {
-            pauseTimers();
-          }
 
           return result;
         })
@@ -273,16 +304,8 @@ export const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvid
           update(id, {
             ...errorOptions,
             type: 'error',
+            timeout: errorOptions.timeout,
           });
-
-          const errorTimeout = errorOptions.timeout ?? timeout;
-          if (errorTimeout > 0) {
-            scheduleTimer(id, errorTimeout, () => close(id));
-          }
-
-          if (hovering || focused || !windowFocusedRef.current) {
-            pauseTimers();
-          }
 
           return Promise.reject(error);
         });
