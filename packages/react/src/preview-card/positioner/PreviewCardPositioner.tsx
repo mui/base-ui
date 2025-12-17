@@ -37,7 +37,11 @@ export const PreviewCardPositioner = React.forwardRef(function PreviewCardPositi
     ...elementProps
   } = componentProps;
 
-  const { open, mounted, floatingRootContext, setPositionerElement } = usePreviewCardRootContext();
+  const store = usePreviewCardRootContext();
+  const open = store.useState('open');
+  const mounted = store.useState('mounted');
+  const floatingRootContext = store.useState('floatingRootContext');
+
   const keepMounted = usePreviewCardPortalContext();
 
   const positioning = useAnchorPositioning({
@@ -104,7 +108,7 @@ export const PreviewCardPositioner = React.forwardRef(function PreviewCardPositi
 
   const element = useRenderElement('div', componentProps, {
     state,
-    ref: [setPositionerElement, forwardedRef],
+    ref: [forwardedRef, store.useStateSetter('positionerElement')],
     props: [defaultProps, elementProps],
     stateAttributesMapping: popupStateMapping,
   });

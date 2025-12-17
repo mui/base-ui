@@ -29,16 +29,19 @@ export const PreviewCardPopup = React.forwardRef(function PreviewCardPopup(
 ) {
   const { className, render, ...elementProps } = componentProps;
 
-  const { open, transitionStatus, popupRef, onOpenChangeComplete, popupProps } =
-    usePreviewCardRootContext();
+  const store = usePreviewCardRootContext();
+  const open = store.useState('open');
+  const transitionStatus = store.useState('transitionStatus');
+  const popupProps = store.useState('popupProps');
+
   const { side, align } = usePreviewCardPositionerContext();
 
   useOpenChangeComplete({
     open,
-    ref: popupRef,
+    ref: store.context.popupRef,
     onComplete() {
       if (open) {
-        onOpenChangeComplete?.(true);
+        store.context.onOpenChangeComplete?.(true);
       }
     },
   });
@@ -54,8 +57,8 @@ export const PreviewCardPopup = React.forwardRef(function PreviewCardPopup(
   );
 
   const element = useRenderElement('div', componentProps, {
-    ref: [popupRef, forwardedRef],
     state,
+    ref: [forwardedRef, store.context.popupRef, store.useStateSetter('popupElement')],
     props: [popupProps, getDisabledMountTransitionStyles(transitionStatus), elementProps],
     stateAttributesMapping,
   });

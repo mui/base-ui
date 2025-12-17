@@ -419,6 +419,7 @@ describe('<PreviewCard.Root />', () => {
       const actionsRef = {
         current: {
           unmount: spy(),
+          close: spy(),
         },
       };
 
