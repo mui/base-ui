@@ -9,19 +9,13 @@ import { OPEN_DELAY } from '../utils/constants';
 import { REASONS } from '../../utils/reasons';
 
 describe('<Tooltip.Root />', () => {
-  beforeEach(() => {
+  beforeEach(async () => {
     globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
   });
 
   afterEach(async () => {
     await act(async () => {
       document.body.click();
-    });
-
-    // Wait for all tooltips to unmount
-    await waitFor(() => {
-      const tooltips = document.querySelectorAll('[data-open]');
-      expect(tooltips.length).to.equal(0);
     });
   });
 

@@ -4,11 +4,9 @@ import { Tooltip } from '@base-ui/react/tooltip';
 import { screen, waitFor, randomStringValue, act, flushMicrotasks } from '@mui/internal-test-utils';
 
 describe('<Tooltip.Root />', () => {
-  beforeEach(() => {
+  beforeEach(async () => {
     globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
-  });
 
-  afterEach(async () => {
     await act(async () => {
       document.body.click();
     });
