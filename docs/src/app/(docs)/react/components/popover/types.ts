@@ -1,6 +1,6 @@
 'use client'; // TODO: it seems that Popover can't even be imported in a server component
 
-import { Popover } from '@base-ui-components/react/popover';
+import { Popover } from '@base-ui/react/popover';
 import { createMultipleTypes } from 'docs/src/utils/createTypes';
 
 const types = createMultipleTypes(import.meta.url, Popover);

@@ -1,4 +1,4 @@
-import { Toast } from '@base-ui-components/react/toast';
+import { Toast } from '@base-ui/react/toast';
 import { createMultipleTypes } from 'docs/src/utils/createTypes';
 
 const types = createMultipleTypes(import.meta.url, Toast);

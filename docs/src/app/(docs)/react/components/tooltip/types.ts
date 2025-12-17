@@ -1,4 +1,4 @@
-import { Tooltip } from '@base-ui-components/react/tooltip';
+import { Tooltip } from '@base-ui/react/tooltip';
 import { createMultipleTypes } from 'docs/src/utils/createTypes';
 
 const types = createMultipleTypes(import.meta.url, Tooltip);

@@ -1,4 +1,4 @@
-import { Field } from '@base-ui-components/react/field';
+import { Field } from '@base-ui/react/field';
 import { createMultipleTypes } from 'docs/src/utils/createTypes';
 
 const types = createMultipleTypes(import.meta.url, Field);

@@ -1,4 +1,4 @@
-import { ContextMenu } from '@base-ui-components/react/context-menu';
+import { ContextMenu } from '@base-ui/react/context-menu';
 import { createMultipleTypes } from 'docs/src/utils/createTypes';
 
 const types = createMultipleTypes(import.meta.url, ContextMenu);

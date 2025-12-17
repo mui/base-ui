@@ -1,4 +1,4 @@
-import { Accordion } from '@base-ui-components/react/accordion';
+import { Accordion } from '@base-ui/react/accordion';
 import { createMultipleTypes } from 'docs/src/utils/createTypes';
 
 const types = createMultipleTypes(import.meta.url, Accordion);

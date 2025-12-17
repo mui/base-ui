@@ -1,6 +1,6 @@
 import * as React from 'react';
 import clsx from 'clsx';
-import { visuallyHidden } from '@base-ui-components/utils/visuallyHidden';
+import { visuallyHidden } from '@base-ui/utils/visuallyHidden';
 import { Link } from 'docs/src/components/Link';
 import * as Accordion from '../Accordion';
 import * as DescriptionList from '../DescriptionList';

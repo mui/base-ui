@@ -1,4 +1,4 @@
-import { Radio } from '@base-ui-components/react/radio';
+import { Radio } from '@base-ui/react/radio';
 import { createMultipleTypes } from 'docs/src/utils/createTypes';
 
 const types = createMultipleTypes(import.meta.url, Radio);

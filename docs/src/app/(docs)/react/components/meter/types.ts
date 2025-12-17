@@ -1,4 +1,4 @@
-import { Meter } from '@base-ui-components/react/meter';
+import { Meter } from '@base-ui/react/meter';
 import { createMultipleTypes } from 'docs/src/utils/createTypes';
 
 const types = createMultipleTypes(import.meta.url, Meter);

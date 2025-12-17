@@ -1,4 +1,4 @@
-import { Progress } from '@base-ui-components/react/progress';
+import { Progress } from '@base-ui/react/progress';
 import { createMultipleTypes } from 'docs/src/utils/createTypes';
 
 const types = createMultipleTypes(import.meta.url, Progress);

@@ -1,4 +1,4 @@
-import { Select } from '@base-ui-components/react/select';
+import { Select } from '@base-ui/react/select';
 import { createMultipleTypes } from 'docs/src/utils/createTypes';
 
 const types = createMultipleTypes(import.meta.url, Select);

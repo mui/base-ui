@@ -1,4 +1,4 @@
-import { Avatar } from '@base-ui-components/react/avatar';
+import { Avatar } from '@base-ui/react/avatar';
 import { createMultipleTypes } from 'docs/src/utils/createTypes';
 
 const types = createMultipleTypes(import.meta.url, Avatar);
