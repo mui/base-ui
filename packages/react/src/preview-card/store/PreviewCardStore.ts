@@ -85,7 +85,7 @@ export class PreviewCardStore<Payload> extends ReactStore<
   ) {
     // eslint-disable-next-line react-hooks/rules-of-hooks
     const store = useRefWithInit(() => {
-      return externalStore ?? new PreviewCardStore(initialState);
+      return externalStore ?? new PreviewCardStore<Payload>(initialState);
     }).current;
 
     // eslint-disable-next-line react-hooks/rules-of-hooks

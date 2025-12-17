@@ -9,6 +9,7 @@ import { useBaseUiId } from '../../utils/useBaseUiId';
 import { PreviewCardHandle } from '../store/PreviewCardHandle';
 import { useTriggerDataForwarding } from '../../utils/popups';
 import { CLOSE_DELAY, OPEN_DELAY } from '../utils/constants';
+import { safePolygon, useHoverReferenceInteraction } from '../../floating-ui-react';
 
 /**
  * A link that opens the preview card.
@@ -34,9 +35,9 @@ export const PreviewCardTrigger = React.forwardRef(function PreviewCardTrigger(
   const store = usePreviewCardRootContext();
   const thisTriggerId = useBaseUiId(idProp);
 
-  // { open, triggerProps, setTriggerElement, writeDelayRefs }
   const open = store.useState('open');
   const isTriggerActive = store.useState('isTriggerActive', thisTriggerId);
+  const floatingRootContext = store.useState('floatingRootContext');
 
   const triggerElementRef = React.useRef<Element | null>(null);
 
@@ -49,7 +50,20 @@ export const PreviewCardTrigger = React.forwardRef(function PreviewCardTrigger(
     },
   );
 
-  const triggerProps = store.useState('triggerProps', isMountedByThisTrigger);
+  const getDelayValue = () => store.context.delayRef.current;
+  const getCloseDelayValue = () => store.context.closeDelayRef.current;
+
+  const hoverProps = useHoverReferenceInteraction(floatingRootContext, {
+    mouseOnly: true,
+    move: false,
+    handleClose: safePolygon(),
+    restMs: getDelayValue,
+    delay: () => ({ close: getCloseDelayValue() }),
+    triggerElementRef,
+    isActiveTrigger: isTriggerActive,
+  });
+
+  const rootTriggerProps = store.useState('triggerProps', isMountedByThisTrigger);
 
   useIsoLayoutEffect(() => {
     if (isTriggerActive) {
@@ -63,7 +77,7 @@ export const PreviewCardTrigger = React.forwardRef(function PreviewCardTrigger(
   const element = useRenderElement('a', componentProps, {
     ref: [forwardedRef, registerTrigger, triggerElementRef],
     state,
-    props: [triggerProps, { id: thisTriggerId }, elementProps],
+    props: [hoverProps, rootTriggerProps, { id: thisTriggerId }, elementProps],
     stateAttributesMapping: triggerOpenStateMapping,
   });
 

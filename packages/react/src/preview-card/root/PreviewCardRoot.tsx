@@ -1,9 +1,8 @@
 'use client';
 import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import { safePolygon, useDismiss, useHover, useInteractions } from '../../floating-ui-react';
+import { useDismiss, useInteractions } from '../../floating-ui-react';
 import { PreviewCardRootContext } from './PreviewCardContext';
-import { CLOSE_DELAY, OPEN_DELAY } from '../utils/constants';
 import {
   createChangeEventDetails,
   type BaseUIChangeEventDetails,
@@ -27,7 +26,7 @@ import { PreviewCardHandle } from '../store/PreviewCardHandle';
 export function PreviewCardRoot<Payload>(props: PreviewCardRoot.Props<Payload>) {
   const {
     open: openProp,
-    defaultOpen,
+    defaultOpen = false,
     onOpenChange,
     onOpenChangeComplete,
     actionsRef,
@@ -42,18 +41,16 @@ export function PreviewCardRoot<Payload>(props: PreviewCardRoot.Props<Payload>) 
     activeTriggerId: triggerIdProp !== undefined ? triggerIdProp : defaultTriggerIdProp,
   });
 
-  const delayRef = React.useRef(OPEN_DELAY);
-  const closeDelayRef = React.useRef(CLOSE_DELAY);
-
   store.useControlledProp('open', openProp, defaultOpen);
   store.useControlledProp('activeTriggerId', triggerIdProp, defaultTriggerIdProp);
 
   store.useContextCallback('onOpenChange', onOpenChange);
   store.useContextCallback('onOpenChangeComplete', onOpenChangeComplete);
 
+  const open = store.useState('open');
+
   const activeTriggerId = store.useState('activeTriggerId');
   const payload = store.useState('payload') as Payload | undefined;
-  const open = store.useState('open');
 
   useImplicitActiveTrigger(store);
   const { forceUnmount } = useOpenStateTransitions(open, store);
@@ -76,23 +73,14 @@ export function PreviewCardRoot<Payload>(props: PreviewCardRoot.Props<Payload>) 
     }
   }, [store, activeTriggerId, open]);
 
-  const getDelayValue = () => delayRef.current;
-  const getCloseDelayValue = () => closeDelayRef.current;
-
   const floatingRootContext = store.useState('floatingRootContext');
 
-  const hover = useHover(floatingRootContext, {
-    mouseOnly: true,
-    move: false,
-    handleClose: safePolygon(),
-    restMs: getDelayValue,
-    delay: () => ({ close: getCloseDelayValue() }),
+  const focus = useFocusWithDelay(floatingRootContext, {
+    delay: () => store.context.delayRef.current,
   });
-  const focus = useFocusWithDelay(floatingRootContext, { delay: getDelayValue });
   const dismiss = useDismiss(floatingRootContext);
 
   const { getReferenceProps, getTriggerProps, getFloatingProps } = useInteractions([
-    hover,
     focus,
     dismiss,
   ]);

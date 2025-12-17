@@ -11,6 +11,7 @@ import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { getDisabledMountTransitionStyles } from '../../utils/getDisabledMountTransitionStyles';
+import { useHoverFloatingInteraction } from '../../floating-ui-react';
 
 const stateAttributesMapping: StateAttributesMapping<PreviewCardPopup.State> = {
   ...baseMapping,
@@ -44,6 +45,12 @@ export const PreviewCardPopup = React.forwardRef(function PreviewCardPopup(
         store.context.onOpenChangeComplete?.(true);
       }
     },
+  });
+
+  const floatingRootContext = store.useState('floatingRootContext');
+
+  useHoverFloatingInteraction(floatingRootContext, {
+    closeDelay: () => store.context.closeDelayRef.current,
   });
 
   const state: PreviewCardPopup.State = React.useMemo(
