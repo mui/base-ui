@@ -1229,6 +1229,27 @@ describe('<NumberField />', () => {
       expect(input).not.to.have.attribute('data-focused');
     });
 
+    it('adds [data-focused] attribute on every focus', async () => {
+      await render(
+        <Field.Root>
+          <NumberFieldBase.Root>
+            <NumberFieldBase.Input data-testid="input" />
+          </NumberFieldBase.Root>
+        </Field.Root>,
+      );
+
+      const input = screen.getByTestId('input');
+
+      fireEvent.focus(input);
+      expect(input).to.have.attribute('data-focused', '');
+
+      fireEvent.blur(input);
+      expect(input).not.to.have.attribute('data-focused');
+
+      fireEvent.focus(input);
+      expect(input).to.have.attribute('data-focused', '');
+    });
+
     it('prop: validate', async () => {
       await render(
         <Field.Root validationMode="onBlur" validate={() => 'error'}>
