@@ -95,11 +95,11 @@ export interface PreviewCardTriggerProps<Payload = unknown> extends BaseUICompon
   PreviewCardTrigger.State
 > {
   /**
-   * A handle to associate the trigger with a tooltip.
+   * A handle to associate the trigger with a preview card.
    */
   handle?: PreviewCardHandle<Payload>;
   /**
-   * A payload to pass to the tooltip when it is opened.
+   * A payload to pass to the preview card when it is opened.
    */
   payload?: Payload;
   /**
