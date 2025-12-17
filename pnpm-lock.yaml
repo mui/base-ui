@@ -172,8 +172,8 @@ importers:
         specifier: ^3.1.1
         version: 3.1.1(@types/react@19.2.7)(react@19.2.1)
       '@mui/internal-docs-infra':
-        specifier: https://pkg.pr.new/mui/mui-public/@mui/internal-docs-infra@e412f8d
-        version: https://pkg.pr.new/mui/mui-public/@mui/internal-docs-infra@e412f8d(@types/react@19.2.7)(next@16.0.10(@babel/core@7.28.5)(@playwright/test@1.57.0)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.1(react@19.2.1))(react@19.2.1))(react@19.2.1)(typescript@5.9.3)
+        specifier: https://pkg.pr.new/mui/mui-public/@mui/internal-docs-infra@9aedb2a
+        version: https://pkg.pr.new/mui/mui-public/@mui/internal-docs-infra@9aedb2a(@types/react@19.2.7)(next@16.0.10(@babel/core@7.28.5)(@playwright/test@1.57.0)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.1(react@19.2.1))(react@19.2.1))(prettier@3.7.4)(react@19.2.1)(typescript@5.9.3)
       '@next/mdx':
         specifier: ^16.0.8
         version: 16.0.10(@mdx-js/loader@3.1.1(webpack@5.103.0))(@mdx-js/react@3.1.1(@types/react@19.2.7)(react@19.2.1))
@@ -2374,17 +2374,23 @@ packages:
       prettier: ^3.5.3
       typescript: ^5.0.0
 
-  '@mui/internal-docs-infra@https://pkg.pr.new/mui/mui-public/@mui/internal-docs-infra@e412f8d':
-    resolution: {tarball: https://pkg.pr.new/mui/mui-public/@mui/internal-docs-infra@e412f8d}
+  '@mui/internal-docs-infra@https://pkg.pr.new/mui/mui-public/@mui/internal-docs-infra@9aedb2a':
+    resolution: {tarball: https://pkg.pr.new/mui/mui-public/@mui/internal-docs-infra@9aedb2a}
     version: 0.3.0
     engines: {node: '>=22.12.0'}
+    hasBin: true
     peerDependencies:
       '@types/react': ^19.2.7
-      next: ^13.5.1 || ^14 || ^15.0.0
+      next: ^15.0.0 || ^16.0.0
+      prettier: ^3.0.0
       react: ^17.0.0 || ^18.0.0 || ^19.0.0
       typescript: ^5.8.0
     peerDependenciesMeta:
       '@types/react':
+        optional: true
+      next:
+        optional: true
+      prettier:
         optional: true
 
   '@mui/internal-netlify-cache@0.0.2-canary.1':
@@ -2929,6 +2935,21 @@ packages:
 
   '@octokit/types@16.0.0':
     resolution: {integrity: sha512-sKq+9r1Mm4efXW1FCk7hFSeJo4QKreL/tTbR0rz/qx/r1Oa2VV83LTA/H/MuCOX7uCIJmQVRKBcbmWoySjAnSg==}
+
+  '@orama/orama@3.1.17':
+    resolution: {integrity: sha512-APwpZ+FTGMryo4QEeD6ti+Ei8suBkvxe8PeWdUcQHVfJDpjpt4c1dKojjNswcBmdeWSiiTYcnkKKH+yuo6727g==}
+    engines: {node: '>= 20.0.0'}
+
+  '@orama/plugin-qps@3.1.17':
+    resolution: {integrity: sha512-50ZbWnhmWq9Y9JNTDGFpDv3HKVBqClFpQDnroykruZE6IHGXc8rL7vCeU8nrGWTt3tt0FaLKWiHc0ZrSzcGHxA==}
+
+  '@orama/stemmers@3.1.17':
+    resolution: {integrity: sha512-bGQxWcaZkXHNvkICnmfovtU/JX2O70/zicNNhStoA79a0Lr8Tz3jiUogox3uRPvoRjxfq+vJ5j/iR5WQ35A51A==}
+    engines: {node: '>= 20.0.0'}
+
+  '@orama/stopwords@3.1.17':
+    resolution: {integrity: sha512-ftvPvLBpio9LxxhrI59Ewt0Acmnou7e3lvz5Zsx8LCzQH5uHZPyQALR/fxbtO/vsSTGAezxEUpkYiiTMsBxoEQ==}
+    engines: {node: '>= 20.0.0'}
 
   '@pkgjs/parseargs@0.11.0':
     resolution: {integrity: sha512-+1VkjdD0QBLPodGrJUeqarH8VAIvQODIbwh9XpP5Syisf7YoQgsJKPNFoqqLQlu+VQ/tVSshMR6loPMn8U+dPg==}
@@ -12060,11 +12081,16 @@ snapshots:
       - supports-color
       - vitest
 
-  '@mui/internal-docs-infra@https://pkg.pr.new/mui/mui-public/@mui/internal-docs-infra@e412f8d(@types/react@19.2.7)(next@16.0.10(@babel/core@7.28.5)(@playwright/test@1.57.0)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.1(react@19.2.1))(react@19.2.1))(react@19.2.1)(typescript@5.9.3)':
+  '@mui/internal-docs-infra@https://pkg.pr.new/mui/mui-public/@mui/internal-docs-infra@9aedb2a(@types/react@19.2.7)(next@16.0.10(@babel/core@7.28.5)(@playwright/test@1.57.0)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.1(react@19.2.1))(react@19.2.1))(prettier@3.7.4)(react@19.2.1)(typescript@5.9.3)':
     dependencies:
       '@babel/runtime': 7.28.4
       '@babel/standalone': 7.28.5
+      '@orama/orama': 3.1.17
+      '@orama/plugin-qps': 3.1.17
+      '@orama/stemmers': 3.1.17
+      '@orama/stopwords': 3.1.17
       '@wooorm/starry-night': 3.8.0
+      chalk: 5.6.2
       clipboard-copy: 4.0.1
       es-toolkit: 1.42.0
       fflate: 0.8.2
@@ -12074,9 +12100,7 @@ snapshots:
       jsondiffpatch: 0.7.3
       kebab-case: 2.0.2
       lz-string: 1.5.0
-      next: 16.0.10(@babel/core@7.28.5)(@playwright/test@1.57.0)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.1(react@19.2.1))(react@19.2.1)
       path-module: 0.1.2
-      prettier: 3.7.4
       proper-lockfile: 4.1.2
       react: 19.2.1
       rehype-remark: 10.0.1
@@ -12087,8 +12111,11 @@ snapshots:
       uint8-to-base64: 0.2.1
       unist-util-visit: 5.0.0
       vscode-oniguruma: 2.0.1
+      yargs: 18.0.0
     optionalDependencies:
       '@types/react': 19.2.7
+      next: 16.0.10(@babel/core@7.28.5)(@playwright/test@1.57.0)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.1(react@19.2.1))(react@19.2.1)
+      prettier: 3.7.4
     transitivePeerDependencies:
       - supports-color
 
@@ -12652,6 +12679,16 @@ snapshots:
   '@octokit/types@16.0.0':
     dependencies:
       '@octokit/openapi-types': 27.0.0
+
+  '@orama/orama@3.1.17': {}
+
+  '@orama/plugin-qps@3.1.17':
+    dependencies:
+      '@orama/orama': 3.1.17
+
+  '@orama/stemmers@3.1.17': {}
+
+  '@orama/stopwords@3.1.17': {}
 
   '@pkgjs/parseargs@0.11.0':
     optional: true
