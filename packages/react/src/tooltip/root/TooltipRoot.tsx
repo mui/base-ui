@@ -50,6 +50,7 @@ export function TooltipRoot<Payload>(props: TooltipRoot.Props<Payload>) {
   store.useContextCallback('onOpenChangeComplete', onOpenChangeComplete);
 
   const openState = store.useState('open');
+  const open = !disabled && openState;
 
   const activeTriggerId = store.useState('activeTriggerId');
   const payload = store.useState('payload') as Payload | undefined;
@@ -58,8 +59,6 @@ export function TooltipRoot<Payload>(props: TooltipRoot.Props<Payload>) {
     trackCursorAxis,
     disableHoverablePopup,
   });
-
-  const open = !disabled && openState;
 
   useIsoLayoutEffect(() => {
     if (openState && disabled) {
@@ -149,8 +148,8 @@ export function TooltipRoot<Payload>(props: TooltipRoot.Props<Payload>) {
   );
 }
 
-function createTooltipEventDetails<P>(
-  store: TooltipStore<P>,
+function createTooltipEventDetails<Payload>(
+  store: TooltipStore<Payload>,
   reason: TooltipRoot.ChangeEventReason,
 ) {
   const details: TooltipRoot.ChangeEventDetails =

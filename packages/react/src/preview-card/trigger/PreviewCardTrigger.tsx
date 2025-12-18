@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { usePreviewCardRootContext } from '../root/PreviewCardContext';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
@@ -41,12 +40,14 @@ export const PreviewCardTrigger = React.forwardRef(function PreviewCardTrigger(
   }
 
   const thisTriggerId = useBaseUiId(idProp);
-
   const isTriggerActive = store.useState('isTriggerActive', thisTriggerId);
   const isOpenedByThisTrigger = store.useState('isOpenedByTrigger', thisTriggerId);
   const floatingRootContext = store.useState('floatingRootContext');
 
   const triggerElementRef = React.useRef<Element | null>(null);
+
+  const delayWithDefault = delay ?? OPEN_DELAY;
+  const closeDelayWithDefault = closeDelay ?? CLOSE_DELAY;
 
   const { registerTrigger, isMountedByThisTrigger } = useTriggerDataForwarding(
     thisTriggerId,
@@ -54,38 +55,29 @@ export const PreviewCardTrigger = React.forwardRef(function PreviewCardTrigger(
     store,
     {
       payload,
+      closeDelay: closeDelayWithDefault,
     },
   );
-
-  const delayValue = delay ?? OPEN_DELAY;
-  const closeDelayValue = closeDelay ?? CLOSE_DELAY;
 
   const hoverProps = useHoverReferenceInteraction(floatingRootContext, {
     mouseOnly: true,
     move: false,
     handleClose: safePolygon(),
-    delay: () => ({ open: delayValue, close: closeDelayValue }),
+    delay: () => ({ open: delayWithDefault, close: closeDelayWithDefault }),
     triggerElementRef,
     isActiveTrigger: isTriggerActive,
   });
-
-  const rootTriggerProps = store.useState('triggerProps', isMountedByThisTrigger);
-
-  useIsoLayoutEffect(() => {
-    if (isTriggerActive) {
-      store.context.delayRef.current = delayValue;
-      store.context.closeDelayRef.current = closeDelayValue;
-    }
-  }, [delayValue, closeDelayValue, isTriggerActive, store]);
 
   const state: PreviewCardTrigger.State = React.useMemo(
     () => ({ open: isOpenedByThisTrigger }),
     [isOpenedByThisTrigger],
   );
 
+  const rootTriggerProps = store.useState('triggerProps', isMountedByThisTrigger);
+
   const element = useRenderElement('a', componentProps, {
-    ref: [forwardedRef, registerTrigger, triggerElementRef],
     state,
+    ref: [forwardedRef, registerTrigger, triggerElementRef],
     props: [hoverProps, rootTriggerProps, { id: thisTriggerId }, elementProps],
     stateAttributesMapping: triggerOpenStateMapping,
   });

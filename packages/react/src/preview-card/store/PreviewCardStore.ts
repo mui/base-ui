@@ -1,6 +1,6 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import { ReactStore } from '@base-ui/utils/store';
+import { createSelector, ReactStore } from '@base-ui/utils/store';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import {
   createInitialPopupStoreState,
@@ -12,19 +12,22 @@ import {
 import { useSyncedFloatingRootContext } from '../../floating-ui-react';
 import { type PreviewCardRoot } from '../root/PreviewCardRoot';
 import { REASONS } from '../../utils/reasons';
-import { CLOSE_DELAY, OPEN_DELAY } from '../utils/constants';
+import { CLOSE_DELAY } from '../utils/constants';
 
 export type State<Payload> = PopupStoreState<Payload> & {
   instantType: 'dismiss' | 'focus' | undefined;
+  closeDelay: number;
 };
 
 export type Context = PopupStoreContext<PreviewCardRoot.ChangeEventDetails> & {
-  delayRef: React.RefObject<number>;
-  closeDelayRef: React.RefObject<number>;
+  // delayRef: React.RefObject<number>;
+  // closeDelayRef: React.RefObject<number>;
 };
 
 const selectors = {
   ...popupStoreSelectors,
+  instantType: createSelector((state: State<unknown>) => state.instantType),
+  closeDelay: createSelector((state: State<unknown>) => state.closeDelay),
 };
 
 export class PreviewCardStore<Payload> extends ReactStore<
@@ -40,15 +43,19 @@ export class PreviewCardStore<Payload> extends ReactStore<
         onOpenChange: undefined,
         onOpenChangeComplete: undefined,
         triggerElements: new PopupTriggerMap(),
-        delayRef: { current: OPEN_DELAY },
-        closeDelayRef: { current: CLOSE_DELAY },
+        // delayRef: { current: OPEN_DELAY },
+        // closeDelayRef: { current: CLOSE_DELAY },
       },
       selectors,
     );
   }
 
-  public setOpen = (nextOpen: boolean, eventDetails: PreviewCardRoot.ChangeEventDetails) => {
+  public setOpen = (
+    nextOpen: boolean,
+    eventDetails: Omit<PreviewCardRoot.ChangeEventDetails, 'preventUnmountOnClose'>,
+  ) => {
     const reason = eventDetails.reason;
+
     const isHover = reason === REASONS.triggerHover;
     const isFocusOpen = nextOpen && reason === REASONS.triggerFocus;
     const isDismissClose =
@@ -58,7 +65,7 @@ export class PreviewCardStore<Payload> extends ReactStore<
       this.set('preventUnmountingOnClose', true);
     };
 
-    this.context.onOpenChange?.(nextOpen, eventDetails);
+    this.context.onOpenChange?.(nextOpen, eventDetails as PreviewCardRoot.ChangeEventDetails);
 
     if (eventDetails.isCanceled) {
       return;
@@ -123,5 +130,6 @@ function createInitialState<Payload>(): State<Payload> {
   return {
     ...createInitialPopupStoreState(),
     instantType: undefined,
+    closeDelay: CLOSE_DELAY,
   };
 }

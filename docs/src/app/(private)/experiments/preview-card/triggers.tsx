@@ -9,8 +9,8 @@ import {
 import demoStyles from 'docs/src/app/(docs)/react/components/preview-card/demos/hero/css-modules/index.module.css';
 import styles from './triggers.module.css';
 
-const previewCard1Handle = PreviewCard.createHandle<string>();
-const previewCard2Handle = PreviewCard.createHandle<string>();
+const previewCard1Handle = PreviewCard.createHandle<React.ReactElement>();
+const previewCard2Handle = PreviewCard.createHandle<React.ReactElement>();
 
 interface Settings {
   delay: number;
@@ -18,6 +18,54 @@ interface Settings {
   side: 'top' | 'bottom' | 'left' | 'right';
   keepMounted: boolean;
 }
+
+const cardContents = {
+  typography: (
+    <React.Fragment>
+      <img
+        width="448"
+        height="300"
+        className={demoStyles.Image}
+        src="https://images.unsplash.com/photo-1619615391095-dfa29e1672ef?q=80&w=448&h=300"
+        alt="Station Hofplein signage in Rotterdam, Netherlands"
+      />
+      <p className={demoStyles.Summary}>
+        <strong>Typography</strong> is the art and science of arranging type.
+      </p>
+    </React.Fragment>
+  ),
+  design: (
+    <React.Fragment>
+      <img
+        width="241"
+        height="240"
+        className={demoStyles.Image}
+        src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b7/Braun_ABW30_%28schwarz%29.jpg/250px-Braun_ABW30_%28schwarz%29.jpg"
+        alt="Braun ABW30"
+      />
+      <p className={demoStyles.Summary}>
+        A <strong>design</strong> is the concept or proposal for an object, process, or system.
+      </p>
+    </React.Fragment>
+  ),
+  art: (
+    <React.Fragment>
+      <img
+        width="206"
+        height="240"
+        className={demoStyles.Image}
+        src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5f/MonaLisa_sfumato.jpeg/250px-MonaLisa_sfumato.jpeg"
+        alt="Mona Lisa"
+      />
+      <p className={demoStyles.Summary}>
+        <strong>Art</strong> is a diverse range of cultural activity centered around works utilizing
+        creative or imaginative talents, which are expected to evoke a worthwhile experience,
+        generally through an expression of emotional power, conceptual ideas, technical proficiency,
+        or beauty.
+      </p>
+    </React.Fragment>
+  ),
+};
 
 export default function PreviewCardExperiment() {
   const { settings } = useExperimentSettings<Settings>();
@@ -46,7 +94,7 @@ export default function PreviewCardExperiment() {
               Typography
             </PreviewCardTrigger>
             <PreviewCardContent side={settings.side} keepMounted={settings.keepMounted}>
-              <strong>Typography</strong> is the art and science of arranging type.
+              {cardContents.typography}
             </PreviewCardContent>
           </PreviewCard.Root>
           ,&nbsp;
@@ -59,7 +107,7 @@ export default function PreviewCardExperiment() {
               Design
             </PreviewCardTrigger>
             <PreviewCardContent side={settings.side} keepMounted={settings.keepMounted}>
-              <strong>Design</strong> is a plan or specification for the construction of an object.
+              {cardContents.design}
             </PreviewCardContent>
           </PreviewCard.Root>
           ,&nbsp;
@@ -72,7 +120,7 @@ export default function PreviewCardExperiment() {
               Art
             </PreviewCardTrigger>
             <PreviewCardContent side={settings.side} keepMounted={settings.keepMounted}>
-              <strong>Art</strong> is a diverse range of human activities.
+              {cardContents.art}
             </PreviewCardContent>
           </PreviewCard.Root>
         </div>
@@ -93,7 +141,7 @@ export default function PreviewCardExperiment() {
               Typography
             </PreviewCardTrigger>
             <PreviewCardContent side={settings.side} keepMounted={settings.keepMounted}>
-              <strong>Typography</strong> is the art and science of arranging type.
+              {cardContents.typography}
             </PreviewCardContent>
           </PreviewCard.Root>
         </div>
@@ -113,7 +161,7 @@ export default function PreviewCardExperiment() {
             {({ payload }) => (
               <React.Fragment>
                 <PreviewCardTrigger
-                  payload="Typography is the art and science of arranging type to make written language clear, visually appealing, and effective in communication."
+                  payload={cardContents.typography}
                   delay={settings.delay}
                   closeDelay={settings.closeDelay}
                   href="https://en.wikipedia.org/wiki/Typography"
@@ -122,7 +170,7 @@ export default function PreviewCardExperiment() {
                 </PreviewCardTrigger>
                 ,&nbsp;
                 <PreviewCardTrigger
-                  payload="Design is a plan or specification for the construction of an object or system or for the implementation of an activity or process."
+                  payload={cardContents.design}
                   delay={settings.delay}
                   closeDelay={settings.closeDelay}
                   href="https://en.wikipedia.org/wiki/Design"
@@ -131,7 +179,7 @@ export default function PreviewCardExperiment() {
                 </PreviewCardTrigger>
                 ,&nbsp;
                 <PreviewCardTrigger
-                  payload="Art is a diverse range of human activities involving the creation of visual, auditory or performing artifacts."
+                  payload={cardContents.art}
                   delay={settings.delay}
                   closeDelay={settings.closeDelay}
                   href="https://en.wikipedia.org/wiki/Art"
@@ -161,31 +209,31 @@ export default function PreviewCardExperiment() {
             {({ payload }) => (
               <React.Fragment>
                 <PreviewCardTrigger
-                  payload="Typography is the art and science of arranging type to make written language clear, visually appealing, and effective in communication."
-                  id="within-root-typography"
+                  payload={cardContents.typography}
                   delay={settings.delay}
                   closeDelay={settings.closeDelay}
                   href="https://en.wikipedia.org/wiki/Typography"
+                  id="within-root-typography"
                 >
                   Typography
                 </PreviewCardTrigger>
                 ,&nbsp;
                 <PreviewCardTrigger
-                  payload="Design is a plan or specification for the construction of an object or system or for the implementation of an activity or process."
-                  id="within-root-design"
+                  payload={cardContents.design}
                   delay={settings.delay}
                   closeDelay={settings.closeDelay}
                   href="https://en.wikipedia.org/wiki/Design"
+                  id="within-root-design"
                 >
                   Design
                 </PreviewCardTrigger>
                 ,&nbsp;
                 <PreviewCardTrigger
-                  payload="Art is a diverse range of human activities involving the creation of visual, auditory or performing artifacts."
-                  id="within-root-art"
+                  payload={cardContents.art}
                   delay={settings.delay}
                   closeDelay={settings.closeDelay}
                   href="https://en.wikipedia.org/wiki/Art"
+                  id="within-root-art"
                 >
                   Art
                 </PreviewCardTrigger>
@@ -209,35 +257,37 @@ export default function PreviewCardExperiment() {
       </div>
 
       <div className={styles.Container}>
-        <h2>Uncontrolled, detached triggers</h2>
-        <StoreInspector store={previewCard1Handle.store} />
+        <h2>
+          Uncontrolled, detached triggers <StoreInspector store={previewCard1Handle.store} />
+        </h2>
+
         <div className={styles.Panel}>
           <PreviewCardTrigger
-            payload="Typography is the art and science of arranging type to make written language clear, visually appealing, and effective in communication."
-            handle={previewCard1Handle}
+            payload={cardContents.typography}
             delay={settings.delay}
             closeDelay={settings.closeDelay}
             href="https://en.wikipedia.org/wiki/Typography"
+            handle={previewCard1Handle}
           >
             Typography
           </PreviewCardTrigger>
           ,&nbsp;
           <PreviewCardTrigger
-            payload="Design is a plan or specification for the construction of an object or system or for the implementation of an activity or process."
-            handle={previewCard1Handle}
+            payload={cardContents.design}
             delay={settings.delay}
             closeDelay={settings.closeDelay}
             href="https://en.wikipedia.org/wiki/Design"
+            handle={previewCard1Handle}
           >
             Design
           </PreviewCardTrigger>
           ,&nbsp;
           <PreviewCardTrigger
-            payload="Art is a diverse range of human activities involving the creation of visual, auditory or performing artifacts."
-            handle={previewCard1Handle}
+            payload={cardContents.art}
             delay={settings.delay}
             closeDelay={settings.closeDelay}
             href="https://en.wikipedia.org/wiki/Art"
+            handle={previewCard1Handle}
           >
             Art
           </PreviewCardTrigger>
@@ -246,7 +296,7 @@ export default function PreviewCardExperiment() {
         <PreviewCard.Root handle={previewCard1Handle}>
           {({ payload }) => (
             <PreviewCardContent side={settings.side} keepMounted={settings.keepMounted}>
-              {payload as string}
+              {payload}
             </PreviewCardContent>
           )}
         </PreviewCard.Root>
@@ -256,34 +306,34 @@ export default function PreviewCardExperiment() {
         <h2>Controlled, detached triggers</h2>
         <div className={styles.Panel}>
           <PreviewCardTrigger
-            payload="Typography is the art and science of arranging type to make written language clear, visually appealing, and effective in communication."
-            handle={previewCard2Handle}
-            id="detached-typography-trigger"
+            payload={cardContents.typography}
             delay={settings.delay}
             closeDelay={settings.closeDelay}
             href="https://en.wikipedia.org/wiki/Typography"
+            handle={previewCard2Handle}
+            id="detached-typography-trigger"
           >
             Typography
           </PreviewCardTrigger>
           ,&nbsp;
           <PreviewCardTrigger
-            payload="Design is a plan or specification for the construction of an object or system or for the implementation of an activity or process."
-            handle={previewCard2Handle}
-            id="detached-design-trigger"
+            payload={cardContents.design}
             delay={settings.delay}
             closeDelay={settings.closeDelay}
             href="https://en.wikipedia.org/wiki/Design"
+            handle={previewCard2Handle}
+            id="detached-design-trigger"
           >
             Design
           </PreviewCardTrigger>
           ,&nbsp;
           <PreviewCardTrigger
-            payload="Art is a diverse range of human activities involving the creation of visual, auditory or performing artifacts."
-            handle={previewCard2Handle}
-            id="detached-art-trigger"
+            payload={cardContents.art}
             delay={settings.delay}
             closeDelay={settings.closeDelay}
             href="https://en.wikipedia.org/wiki/Art"
+            handle={previewCard2Handle}
+            id="detached-art-trigger"
           >
             Art
           </PreviewCardTrigger>
@@ -300,7 +350,7 @@ export default function PreviewCardExperiment() {
         >
           {({ payload }) => (
             <PreviewCardContent side={settings.side} keepMounted={settings.keepMounted}>
-              {payload as string}
+              {payload}
             </PreviewCardContent>
           )}
         </PreviewCard.Root>
@@ -349,14 +399,8 @@ function PreviewCardContent(
           <PreviewCard.Arrow className={demoStyles.Arrow}>
             <ArrowSvg />
           </PreviewCard.Arrow>
-          <img
-            width="448"
-            height="300"
-            className={demoStyles.Image}
-            src="https://images.unsplash.com/photo-1619615391095-dfa29e1672ef?q=80&w=448&h=300"
-            alt="Station Hofplein signage in Rotterdam, Netherlands"
-          />
-          <p className={demoStyles.Summary}>{children}</p>
+
+          {children}
         </PreviewCard.Popup>
       </PreviewCard.Positioner>
     </PreviewCard.Portal>
@@ -391,13 +435,13 @@ export const settingsMetadata: SettingsMetadata<Settings> = {
   closeDelay: {
     type: 'number',
     label: 'Close Delay',
-    default: 0,
+    default: 300,
   },
   side: {
     type: 'string',
     label: 'Side',
     options: ['top', 'bottom', 'left', 'right'],
-    default: 'top',
+    default: 'bottom',
   },
   keepMounted: {
     type: 'boolean',

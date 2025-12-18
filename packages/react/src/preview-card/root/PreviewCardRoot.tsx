@@ -1,14 +1,13 @@
 'use client';
 import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import { useDismiss, useInteractions } from '../../floating-ui-react';
+import { useDismiss, useFocus, useInteractions } from '../../floating-ui-react';
 import { PreviewCardRootContext } from './PreviewCardContext';
 import {
   createChangeEventDetails,
   type BaseUIChangeEventDetails,
 } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
-import { useFocusWithDelay } from '../../utils/interactions/useFocusWithDelay';
 import { PreviewCardStore } from '../store/PreviewCardStore';
 import {
   PayloadChildRenderFunction,
@@ -55,6 +54,14 @@ export function PreviewCardRoot<Payload>(props: PreviewCardRoot.Props<Payload>) 
   useImplicitActiveTrigger(store);
   const { forceUnmount } = useOpenStateTransitions(open, store);
 
+  useIsoLayoutEffect(() => {
+    if (open) {
+      if (activeTriggerId == null) {
+        store.set('payload', undefined);
+      }
+    }
+  }, [store, activeTriggerId, open]);
+
   const handleImperativeClose = React.useCallback(() => {
     store.setOpen(false, createPreviewCardEventDetails(store, REASONS.imperativeAction));
   }, [store]);
@@ -65,19 +72,10 @@ export function PreviewCardRoot<Payload>(props: PreviewCardRoot.Props<Payload>) 
     [forceUnmount, handleImperativeClose],
   );
 
-  useIsoLayoutEffect(() => {
-    if (open) {
-      if (activeTriggerId == null) {
-        store.set('payload', undefined);
-      }
-    }
-  }, [store, activeTriggerId, open]);
-
   const floatingRootContext = store.useState('floatingRootContext');
 
-  const focus = useFocusWithDelay(floatingRootContext, {
-    delay: () => store.context.delayRef.current,
-  });
+  // TODO useFocusWithDelay
+  const focus = useFocus(floatingRootContext);
   const dismiss = useDismiss(floatingRootContext);
 
   const { getReferenceProps, getTriggerProps, getFloatingProps } = useInteractions([
