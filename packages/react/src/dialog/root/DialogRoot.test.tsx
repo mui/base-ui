@@ -900,6 +900,145 @@ describe('<Dialog.Root />', () => {
         expect(screen.queryByTestId('dialog-popup')).not.to.equal(null);
       });
 
+      it('waits for a restarted enter animation to finish', async () => {
+        globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+        const onOpenChangeComplete = spy();
+
+        function Test() {
+          const style = `
+            @keyframes test-enter-a {
+              from {
+                opacity: 0;
+              }
+            }
+
+            @keyframes test-enter-b {
+              from {
+                opacity: 0;
+              }
+            }
+
+            .animation-test-indicator.animation-a[data-open] {
+              animation: test-enter-a 50ms linear;
+            }
+
+            .animation-test-indicator.animation-b[data-open] {
+              animation: test-enter-b 50ms linear;
+            }
+          `;
+
+          const [open, setOpen] = React.useState(false);
+          const [variant, setVariant] = React.useState<'a' | 'b'>('a');
+
+          return (
+            <div>
+              {/* eslint-disable-next-line react/no-danger */}
+              <style dangerouslySetInnerHTML={{ __html: style }} />
+              <button onClick={() => setOpen(true)}>Open externally</button>
+              <button onClick={() => setVariant((v) => (v === 'a' ? 'b' : 'a'))}>
+                Swap animation
+              </button>
+              <TestDialog
+                rootProps={{ open, onOpenChange: setOpen, onOpenChangeComplete }}
+                popupProps={{
+                  className: `animation-test-indicator animation-${variant}`,
+                }}
+              />
+            </div>
+          );
+        }
+
+        const { user } = await render(<Test />);
+
+        const openButton = screen.getByText('Open externally');
+        await user.click(openButton);
+
+        const popup = screen.getByTestId('dialog-popup');
+        await waitFor(() => {
+          expect(popup.getAnimations().length).not.to.equal(0);
+        });
+
+        const swapButton = screen.getByText('Swap animation');
+        await user.click(swapButton);
+
+        await flushMicrotasks();
+        expect(onOpenChangeComplete.callCount).to.equal(0);
+
+        await waitFor(() => {
+          expect(onOpenChangeComplete.callCount).to.equal(1);
+          expect(onOpenChangeComplete.firstCall.args[0]).to.equal(true);
+        });
+      });
+
+      it('does not get called on open when dismissed during the enter animation', async () => {
+        globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+        const onOpenChangeComplete = spy();
+
+        function Test() {
+          const style = `
+            .animation-test-indicator {
+              opacity: 0;
+              transition: opacity 200ms linear;
+            }
+
+            .animation-test-indicator[data-open] {
+              opacity: 1;
+            }
+
+            .animation-test-indicator[data-open][data-starting-style] {
+              opacity: 0;
+            }
+
+            .animation-test-indicator[data-ending-style] {
+              opacity: 0;
+            }
+          `;
+
+          const [open, setOpen] = React.useState(false);
+
+          return (
+            <div>
+              {/* eslint-disable-next-line react/no-danger */}
+              <style dangerouslySetInnerHTML={{ __html: style }} />
+              <button onClick={() => setOpen(true)}>Open externally</button>
+              <TestDialog
+                rootProps={{ open, onOpenChange: setOpen, onOpenChangeComplete }}
+                popupProps={{
+                  className: 'animation-test-indicator',
+                }}
+              />
+            </div>
+          );
+        }
+
+        const { user } = await render(<Test />);
+
+        const openButton = screen.getByText('Open externally');
+        await user.click(openButton);
+
+        await waitFor(() => {
+          expect(screen.queryByTestId('dialog-popup')).not.to.equal(null);
+        });
+
+        const popup = screen.getByTestId('dialog-popup');
+        await waitFor(() => {
+          const animations = popup.getAnimations();
+          expect(animations.length).not.to.equal(0);
+          expect(animations.some((anim) => anim.playState !== 'finished')).to.equal(true);
+        });
+
+        await user.click(document.body);
+
+        await waitFor(() => {
+          expect(screen.queryByTestId('dialog-popup')).to.equal(null);
+        });
+
+        expect(onOpenChangeComplete.callCount).to.equal(1);
+        expect(onOpenChangeComplete.firstCall.args[0]).to.equal(false);
+      });
+
       it('does not get called on mount when not open', async () => {
         const onOpenChangeComplete = spy();
 
