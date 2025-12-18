@@ -6,6 +6,7 @@ export default function ScrollLock() {
   const [enabled, setEnabled] = React.useState(false);
   const [bodyScrollY, setBodyScrollY] = React.useState(false);
   const [longContent, setLongContent] = React.useState(true);
+  const [webkitScrollbars, setWebkitScrollbars] = React.useState(false);
 
   useScrollLock(enabled);
 
@@ -15,6 +16,23 @@ export default function ScrollLock() {
 
   return (
     <div>
+      {webkitScrollbars && (
+        <style>
+          {`
+          ::-webkit-scrollbar {
+            width: 0.75rem;
+            height: 0.75rem;
+          }
+          ::-webkit-scrollbar-track {
+            background: var(--color-gray-200);
+          }
+          ::-webkit-scrollbar-thumb {
+            background: var(--color-gray-500);
+          }
+          `}
+        </style>
+      )}
+
       <h1>useScrollLock</h1>
       <p>On macOS, enable `Show scroll bars: Always` in `Appearance` Settings.</p>
       <div
@@ -69,6 +87,16 @@ export default function ScrollLock() {
               onChange={(event) => setLongContent(event.target.checked)}
             />
             Long content
+          </label>
+        </div>
+        <div>
+          <label>
+            <input
+              type="checkbox"
+              checked={webkitScrollbars}
+              onChange={(event) => setWebkitScrollbars(event.target.checked)}
+            />
+            Webkit scrollbars
           </label>
         </div>
       </div>
