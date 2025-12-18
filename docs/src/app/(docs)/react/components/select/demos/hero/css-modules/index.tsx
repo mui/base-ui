@@ -3,7 +3,6 @@ import { Select } from '@base-ui/react/select';
 import styles from './index.module.css';
 
 const fonts = [
-  { label: 'Select font', value: null },
   { label: 'Sans-serif', value: 'sans' },
   { label: 'Serif', value: 'serif' },
   { label: 'Monospace', value: 'mono' },
@@ -12,7 +11,7 @@ const fonts = [
 
 export default function ExampleSelect() {
   return (
-    <Select.Root items={fonts}>
+    <Select.Root items={fonts} defaultValue="sans">
       <Select.Trigger className={styles.Select}>
         <Select.Value />
         <Select.Icon className={styles.SelectIcon}>

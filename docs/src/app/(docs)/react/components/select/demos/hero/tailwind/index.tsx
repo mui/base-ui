@@ -2,7 +2,6 @@ import * as React from 'react';
 import { Select } from '@base-ui/react/select';
 
 const fonts = [
-  { label: 'Select font', value: null },
   { label: 'Sans-serif', value: 'sans' },
   { label: 'Serif', value: 'serif' },
   { label: 'Monospace', value: 'mono' },
@@ -11,7 +10,7 @@ const fonts = [
 
 export default function ExampleSelect() {
   return (
-    <Select.Root items={fonts}>
+    <Select.Root items={fonts} defaultValue="sans">
       <Select.Trigger className="flex h-10 min-w-36 items-center justify-between gap-3 rounded-md border border-gray-200 pr-3 pl-3.5 text-base bg-[canvas] text-gray-900 select-none hover:bg-gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 data-[popup-open]:bg-gray-100">
         <Select.Value />
         <Select.Icon className="flex">

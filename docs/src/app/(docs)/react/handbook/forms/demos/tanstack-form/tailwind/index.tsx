@@ -506,10 +506,7 @@ const IMAGES: Image[] = ['nginx:1.29-alpine', 'node:22-slim', 'postgres:18', 're
   name,
 }));
 
-const SERVER_TYPES = [
-  { label: 'Select server type', value: null },
-  ...cartesian(['t', 'm'], ['1', '2'], ['small', 'medium', 'large']).map((part) => {
-    const value = part.join('.').replace('.', '');
-    return { label: value, value };
-  }),
-];
+const SERVER_TYPES = cartesian(['t', 'm'], ['1', '2'], ['small', 'medium', 'large']).map((part) => {
+  const value = part.join('.').replace('.', '');
+  return { label: value, value };
+});

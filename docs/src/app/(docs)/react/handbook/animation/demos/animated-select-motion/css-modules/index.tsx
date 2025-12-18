@@ -5,7 +5,6 @@ import { AnimatePresence, motion } from 'motion/react';
 import styles from './index.module.css';
 
 const fonts = [
-  { label: 'Select font', value: null },
   { label: 'Sans-serif', value: 'sans' },
   { label: 'Serif', value: 'serif' },
   { label: 'Monospace', value: 'mono' },
@@ -42,7 +41,7 @@ export default function AnimatedSelectMotionDemo() {
   );
 
   return (
-    <Select.Root items={fonts} open={open} onOpenChange={setOpen}>
+    <Select.Root items={fonts} open={open} onOpenChange={setOpen} defaultValue="sans">
       <Select.Trigger className={styles.Select}>
         <Select.Value />
         <Select.Icon className={styles.SelectIcon}>

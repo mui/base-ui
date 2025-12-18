@@ -21,7 +21,7 @@ const values = Object.keys(languages) as Language[];
 
 function renderValue(value: Language[]) {
   if (value.length === 0) {
-    return 'Select languages...';
+    return '';
   }
 
   const firstLanguage = languages[value[0]];
