@@ -48,11 +48,11 @@ export class PreviewCardStore<Payload> extends ReactStore<
   }
 
   public setOpen = (nextOpen: boolean, eventDetails: PreviewCardRoot.ChangeEventDetails) => {
-    const isHover = eventDetails.reason === REASONS.triggerHover;
-    const isFocusOpen = nextOpen && eventDetails.reason === REASONS.triggerFocus;
+    const reason = eventDetails.reason;
+    const isHover = reason === REASONS.triggerHover;
+    const isFocusOpen = nextOpen && reason === REASONS.triggerFocus;
     const isDismissClose =
-      !nextOpen &&
-      (eventDetails.reason === REASONS.triggerPress || eventDetails.reason === REASONS.escapeKey);
+      !nextOpen && (reason === REASONS.triggerPress || reason === REASONS.escapeKey);
 
     (eventDetails as PreviewCardRoot.ChangeEventDetails).preventUnmountOnClose = () => {
       this.set('preventUnmountingOnClose', true);
@@ -65,7 +65,25 @@ export class PreviewCardStore<Payload> extends ReactStore<
     }
 
     const changeState = () => {
-      this.set('open', nextOpen);
+      const updatedState: Partial<State<Payload>> = { open: nextOpen };
+
+      if (isFocusOpen) {
+        updatedState.instantType = 'focus';
+      } else if (isDismissClose) {
+        updatedState.instantType = 'dismiss';
+      } else if (reason === REASONS.triggerHover) {
+        updatedState.instantType = undefined;
+      }
+
+      // If a popup is closing, the `trigger` may be null.
+      // We want to keep the previous value so that exit animations are played and focus is returned correctly.
+      const newTriggerId = eventDetails.trigger?.id ?? null;
+      if (newTriggerId || nextOpen) {
+        updatedState.activeTriggerId = newTriggerId;
+        updatedState.activeTriggerElement = eventDetails.trigger ?? null;
+      }
+
+      this.update(updatedState);
     };
 
     if (isHover) {
@@ -74,12 +92,6 @@ export class PreviewCardStore<Payload> extends ReactStore<
       ReactDOM.flushSync(changeState);
     } else {
       changeState();
-    }
-
-    if (isFocusOpen || isDismissClose) {
-      this.set('instantType', isFocusOpen ? 'focus' : 'dismiss');
-    } else if (eventDetails.reason === REASONS.triggerHover) {
-      this.set('instantType', undefined);
     }
   };
 
