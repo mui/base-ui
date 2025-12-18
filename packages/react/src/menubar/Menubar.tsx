@@ -51,7 +51,7 @@ export const Menubar = React.forwardRef(function Menubar(
     openMethod,
     triggerProps: interactionTypeProps,
     reset: resetOpenInteractionType,
-  } = useOpenInteractionType(hasSubmenuOpen, contentElement);
+  } = useOpenInteractionType(hasSubmenuOpen);
 
   React.useEffect(() => {
     if (!hasSubmenuOpen) {

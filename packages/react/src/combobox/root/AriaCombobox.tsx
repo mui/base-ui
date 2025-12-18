@@ -423,7 +423,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     openMethod,
     triggerProps,
     reset: resetOpenInteractionType,
-  } = useOpenInteractionType(open, triggerElement);
+  } = useOpenInteractionType(open);
 
   useField({
     id,

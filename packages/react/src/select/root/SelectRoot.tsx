@@ -120,6 +120,11 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
   const alignItemWithTriggerActiveRef = React.useRef(false);
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
+  const {
+    openMethod,
+    triggerProps: interactionTypeProps,
+    reset: resetOpenInteractionType,
+  } = useOpenInteractionType(open);
 
   const store = useRefWithInit(
     () =>
@@ -154,12 +159,6 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
   const selectedIndex = useStore(store, selectors.selectedIndex);
   const triggerElement = useStore(store, selectors.triggerElement);
   const positionerElement = useStore(store, selectors.positionerElement);
-
-  const {
-    openMethod,
-    triggerProps: interactionTypeProps,
-    reset: resetOpenInteractionType,
-  } = useOpenInteractionType(open, triggerElement);
 
   const serializedValue = React.useMemo(() => {
     if (multiple && Array.isArray(value) && value.length === 0) {
