@@ -23,9 +23,13 @@ function hasInsetScrollbars(referenceElement: Element | null) {
 }
 
 function supportsStableScrollbarGutter(referenceElement: Element | null) {
-  if (typeof document === 'undefined') {
+  const supported =
+    typeof CSS !== 'undefined' && CSS.supports && CSS.supports('scrollbar-gutter', 'stable');
+
+  if (!supported || typeof document === 'undefined') {
     return false;
   }
+
   const doc = ownerDocument(referenceElement);
   const html = doc.documentElement;
 
@@ -36,10 +40,9 @@ function supportsStableScrollbarGutter(referenceElement: Element | null) {
 
   html.style.scrollbarGutter = 'stable';
   html.style.overflowY = 'scroll';
-
   const before = html.offsetWidth;
 
-  html.style.overflowY = 'clip';
+  html.style.overflowY = 'hidden';
   const after = html.offsetWidth;
 
   Object.assign(html.style, originalStyles);
