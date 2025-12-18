@@ -107,6 +107,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
     const positionerStyles = getComputedStyle(positionerElement);
     const marginTop = parseFloat(positionerStyles.marginTop);
     const marginBottom = parseFloat(positionerStyles.marginBottom);
+    const maxPopupHeight = getMaxPopupHeight(popupRef.current);
     const viewportHeight = doc.documentElement.clientHeight - marginTop - marginBottom;
 
     const scrollTop = scroller.scrollTop;
@@ -114,7 +115,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
     const clientHeight = scroller.clientHeight;
     const maxScrollTop = scrollHeight - clientHeight;
 
-    let nextPositionerHeight: number | null = null;
+    let nextPositionerHeight = 0;
     let nextScrollTop: number | null = null;
     let setReachedMax = false;
 
@@ -149,13 +150,13 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
       }
     }
 
-    if (nextPositionerHeight != null) {
+    if (nextPositionerHeight !== 0) {
       positionerElement.style.height = `${nextPositionerHeight}px`;
     }
     if (nextScrollTop != null) {
       scroller.scrollTop = nextScrollTop;
     }
-    if (setReachedMax) {
+    if (setReachedMax || nextPositionerHeight >= maxPopupHeight) {
       reachedMaxHeightRef.current = true;
     }
 
@@ -264,6 +265,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
         const marginTop = parseFloat(positionerStyles.marginTop) || 10;
         const marginBottom = parseFloat(positionerStyles.marginBottom) || 10;
         const minHeight = parseFloat(positionerStyles.minHeight) || 100;
+        const maxPopupHeight = getMaxPopupHeight(popupElement);
 
         const paddingLeft = 5;
         const paddingRight = 5;
@@ -359,7 +361,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
           popupElement.style.setProperty('--transform-origin', `50% ${clampedY}%`);
         }
 
-        if (initialHeightRef.current === viewportHeight) {
+        if (initialHeightRef.current === viewportHeight || height >= maxPopupHeight) {
           reachedMaxHeightRef.current = true;
         }
 
@@ -500,4 +502,9 @@ export interface SelectPopupState {
 export namespace SelectPopup {
   export type Props = SelectPopupProps;
   export type State = SelectPopupState;
+}
+
+function getMaxPopupHeight(popupElement: HTMLElement) {
+  const maxHeight = parseFloat(getComputedStyle(popupElement).maxHeight);
+  return maxHeight || Infinity;
 }
