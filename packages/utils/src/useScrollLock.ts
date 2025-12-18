@@ -29,8 +29,10 @@ function supportsStableScrollbarGutter(referenceElement: Element | null) {
   const doc = ownerDocument(referenceElement);
   const html = doc.documentElement;
 
-  const originalScrollbarGutter = html.style.scrollbarGutter;
-  const originalOverflowY = html.style.overflowY;
+  const originalStyles = {
+    scrollbarGutter: html.style.scrollbarGutter,
+    overflowY: html.style.overflowY,
+  };
 
   html.style.scrollbarGutter = 'stable';
   html.style.overflowY = 'scroll';
@@ -40,10 +42,7 @@ function supportsStableScrollbarGutter(referenceElement: Element | null) {
   html.style.overflowY = 'clip';
   const after = html.offsetWidth;
 
-  // Revert styles
-  html.style.overflowY = originalOverflowY;
-  html.style.scrollbarGutter = originalScrollbarGutter;
-
+  Object.assign(html.style, originalStyles);
   return before === after;
 }
 
@@ -139,6 +138,7 @@ function preventScrollInsetScrollbars(referenceElement: Element | null) {
       return;
     }
 
+    updatedGutterOnly = false;
     Object.assign(html.style, {
       scrollbarGutter: scrollbarGutterValue,
       overflowY: 'hidden',
