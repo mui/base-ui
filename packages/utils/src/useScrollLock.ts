@@ -22,6 +22,31 @@ function hasInsetScrollbars(referenceElement: Element | null) {
   return win.innerWidth - doc.documentElement.clientWidth > 0;
 }
 
+function supportsStableScrollbarGutter(referenceElement: Element | null) {
+  if (typeof document === 'undefined') {
+    return false;
+  }
+  const doc = ownerDocument(referenceElement);
+  const html = doc.documentElement;
+
+  const originalScrollbarGutter = html.style.scrollbarGutter;
+  const originalOverflowY = html.style.overflowY;
+
+  html.style.scrollbarGutter = 'stable';
+  html.style.overflowY = 'scroll';
+
+  const before = html.offsetWidth;
+
+  html.style.overflowY = 'clip';
+  const after = html.offsetWidth;
+
+  // Revert styles
+  html.style.overflowY = originalOverflowY;
+  html.style.scrollbarGutter = originalScrollbarGutter;
+
+  return before === after;
+}
+
 function preventScrollOverlayScrollbars(referenceElement: Element | null) {
   const doc = ownerDocument(referenceElement);
   const html = doc.documentElement;
@@ -47,11 +72,8 @@ function preventScrollInsetScrollbars(referenceElement: Element | null) {
 
   let scrollTop = 0;
   let scrollLeft = 0;
+  let updatedGutterOnly = false;
   const resizeFrame = AnimationFrame.create();
-
-  // Handle `scrollbar-gutter` in Chrome when there is no scrollable content.
-  const supportsStableScrollbarGutter =
-    typeof CSS !== 'undefined' && CSS.supports?.('scrollbar-gutter', 'stable');
 
   // Pinch-zoom in Safari causes a shift. Just don't lock scroll if there's any pinch-zoom.
   if (isWebKit && (win.visualViewport?.scale ?? 1) !== 1) {
@@ -109,7 +131,8 @@ function preventScrollInsetScrollbars(referenceElement: Element | null) {
      * Do not read the DOM past this point!
      */
 
-    if (supportsStableScrollbarGutter) {
+    if (supportsStableScrollbarGutter(referenceElement)) {
+      updatedGutterOnly = true;
       html.style.scrollbarGutter = scrollbarGutterValue;
       elementToLock.style.overflowY = 'hidden';
       elementToLock.style.overflowX = 'hidden';
@@ -149,7 +172,7 @@ function preventScrollInsetScrollbars(referenceElement: Element | null) {
     Object.assign(html.style, originalHtmlStyles);
     Object.assign(body.style, originalBodyStyles);
 
-    if (!supportsStableScrollbarGutter) {
+    if (!updatedGutterOnly) {
       html.scrollTop = scrollTop;
       html.scrollLeft = scrollLeft;
       html.removeAttribute('data-base-ui-scroll-locked');
