@@ -83,7 +83,13 @@ export const PreviewCardTrigger = React.forwardRef(function PreviewCardTrigger(
   });
 
   return element;
-});
+}) as PreviewCardTrigger;
+
+export interface PreviewCardTrigger {
+  <Payload>(
+    componentProps: PreviewCardTrigger.Props<Payload> & React.RefAttributes<HTMLElement>,
+  ): React.JSX.Element;
+}
 
 export interface PreviewCardTriggerState {
   /**
