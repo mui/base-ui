@@ -279,7 +279,7 @@ describe('<Popover.Positioner />', () => {
       );
     }
 
-    const { setProps } = await render(<App top={0} />);
+    const { setPropsAsync } = await render(<App top={0} />);
     const positioner = screen.getByTestId('positioner');
 
     const initial = { x: 5, y: 100 };
@@ -287,9 +287,7 @@ describe('<Popover.Positioner />', () => {
 
     expect(positioner.getBoundingClientRect()).to.include(initial);
 
-    await act(async () => {
-      setProps({ top: 100 });
-    });
+    await setPropsAsync({ top: 100 });
 
     await waitFor(() => {
       expect(positioner.getBoundingClientRect()).not.to.include(initial);
@@ -312,7 +310,7 @@ describe('<Popover.Positioner />', () => {
       );
     }
 
-    const { setProps } = await render(<App top={0} />);
+    const { setPropsAsync } = await render(<App top={0} />);
     const positioner = screen.getByTestId('positioner');
 
     const initial = { x: 5, y: 100 };
@@ -320,9 +318,7 @@ describe('<Popover.Positioner />', () => {
 
     expect(positioner.getBoundingClientRect()).to.include(initial);
 
-    await act(async () => {
-      setProps({ top: 100 });
-    });
+    await setPropsAsync({ top: 100 });
 
     await waitFor(() => {
       expect(positioner.getBoundingClientRect()).not.to.include(initial);
