@@ -2,7 +2,7 @@ import * as React from 'react';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { vi, it, describe } from 'vitest';
-import { flushMicrotasks, ignoreActWarnings } from '@mui/internal-test-utils';
+import { flushMicrotasks } from '@mui/internal-test-utils';
 import { isJSDOM } from '@base-ui/utils/detectBrowser';
 import { useClick, useDismiss, useFloating, useInteractions, useListNavigation } from '../index';
 import type { UseListNavigationProps } from '../types';
@@ -267,9 +267,8 @@ describe('useListNavigation', () => {
 
     render(<Autocomplete />);
 
-    act(() => screen.getByTestId('reference').focus());
+    await act(async () => screen.getByTestId('reference').focus());
     await userEvent.keyboard('a');
-    await act(async () => {});
 
     expect(screen.getByTestId('floating')).toBeInTheDocument();
     expect(screen.getByTestId('active-index').textContent).toBe('');
@@ -626,8 +625,7 @@ describe('useListNavigation', () => {
       });
     });
 
-    it('focuses next item using ArrowRight key, skipping disabled items', () => {
-      ignoreActWarnings();
+    it('focuses next item using ArrowRight key, skipping disabled items', async () => {
       render(<Grid />);
       fireEvent.keyDown(screen.getByRole('button'), { key: 'Enter' });
       fireEvent.click(screen.getByRole('button'));
@@ -641,10 +639,10 @@ describe('useListNavigation', () => {
       expect(screen.getAllByRole('option')[14]).toHaveFocus();
       fireEvent.keyDown(screen.getByTestId('floating'), { key: 'ArrowRight' });
       expect(screen.getAllByRole('option')[16]).toHaveFocus();
+      await flushMicrotasks();
     });
 
-    it('focuses previous item using ArrowLeft key, skipping disabled items', () => {
-      ignoreActWarnings();
+    it('focuses previous item using ArrowLeft key, skipping disabled items', async () => {
       render(<Grid />);
       fireEvent.keyDown(screen.getByRole('button'), { key: 'Enter' });
       fireEvent.click(screen.getByRole('button'));
@@ -659,10 +657,10 @@ describe('useListNavigation', () => {
       fireEvent.keyDown(screen.getByTestId('floating'), { key: 'ArrowLeft' });
       fireEvent.keyDown(screen.getByTestId('floating'), { key: 'ArrowLeft' });
       expect(screen.getAllByRole('option')[41]).toHaveFocus();
+      await flushMicrotasks();
     });
 
-    it('skips row and remains on same column when pressing ArrowDown', () => {
-      ignoreActWarnings();
+    it('skips row and remains on same column when pressing ArrowDown', async () => {
       render(<Grid />);
       fireEvent.keyDown(screen.getByRole('button'), { key: 'Enter' });
       fireEvent.click(screen.getByRole('button'));
@@ -674,10 +672,10 @@ describe('useListNavigation', () => {
       expect(screen.getAllByRole('option')[23]).toHaveFocus();
       fireEvent.keyDown(screen.getByTestId('floating'), { key: 'ArrowDown' });
       expect(screen.getAllByRole('option')[28]).toHaveFocus();
+      await flushMicrotasks();
     });
 
-    it('skips row and remains on same column when pressing ArrowUp', () => {
-      ignoreActWarnings();
+    it('skips row and remains on same column when pressing ArrowUp', async () => {
       render(<Grid />);
       fireEvent.keyDown(screen.getByRole('button'), { key: 'Enter' });
       fireEvent.click(screen.getByRole('button'));
@@ -692,10 +690,10 @@ describe('useListNavigation', () => {
       expect(screen.getAllByRole('option')[32]).toHaveFocus();
       fireEvent.keyDown(screen.getByTestId('floating'), { key: 'ArrowUp' });
       expect(screen.getAllByRole('option')[27]).toHaveFocus();
+      await flushMicrotasks();
     });
 
-    it('loops on the same column with ArrowDown', () => {
-      ignoreActWarnings();
+    it('loops on the same column with ArrowDown', async () => {
       render(<Grid loopFocus />);
       fireEvent.keyDown(screen.getByRole('button'), { key: 'Enter' });
       fireEvent.click(screen.getByRole('button'));
@@ -710,10 +708,10 @@ describe('useListNavigation', () => {
       fireEvent.keyDown(screen.getByTestId('floating'), { key: 'ArrowDown' });
 
       expect(screen.getAllByRole('option')[8]).toHaveFocus();
+      await flushMicrotasks();
     });
 
-    it('loops on the same column with ArrowUp', () => {
-      ignoreActWarnings();
+    it('loops on the same column with ArrowUp', async () => {
       render(<Grid loopFocus />);
       fireEvent.keyDown(screen.getByRole('button'), { key: 'Enter' });
       fireEvent.click(screen.getByRole('button'));
@@ -730,10 +728,10 @@ describe('useListNavigation', () => {
       fireEvent.keyDown(screen.getByTestId('floating'), { key: 'ArrowUp' });
 
       expect(screen.getAllByRole('option')[43]).toHaveFocus();
+      await flushMicrotasks();
     });
 
-    it('does not leave row with "both" orientation while looping', () => {
-      ignoreActWarnings();
+    it('does not leave row with "both" orientation while looping', async () => {
       render(<Grid orientation="both" loopFocus />);
       fireEvent.keyDown(screen.getByRole('button'), { key: 'Enter' });
       fireEvent.click(screen.getByRole('button'));
@@ -755,10 +753,10 @@ describe('useListNavigation', () => {
       expect(screen.getAllByRole('option')[11]).toHaveFocus();
       fireEvent.keyDown(screen.getByTestId('floating'), { key: 'ArrowLeft' });
       expect(screen.getAllByRole('option')[14]).toHaveFocus();
+      await flushMicrotasks();
     });
 
-    it('looping works on last row', () => {
-      ignoreActWarnings();
+    it('looping works on last row', async () => {
       render(<Grid orientation="both" loopFocus />);
       fireEvent.keyDown(screen.getByRole('button'), { key: 'Enter' });
       fireEvent.click(screen.getByRole('button'));
@@ -773,6 +771,7 @@ describe('useListNavigation', () => {
       expect(screen.getAllByRole('option')[47]).toHaveFocus();
       fireEvent.keyDown(screen.getByTestId('floating'), { key: 'ArrowLeft' });
       expect(screen.getAllByRole('option')[46]).toHaveFocus();
+      await flushMicrotasks();
     });
   });
 
@@ -790,8 +789,7 @@ describe('useListNavigation', () => {
       { rtl: false, arrowToStart: 'ArrowLeft', arrowToEnd: 'ArrowRight' },
       { rtl: true, arrowToStart: 'ArrowRight', arrowToEnd: 'ArrowLeft' },
     ])('with rtl $rtl', ({ rtl, arrowToStart, arrowToEnd }) => {
-      it(`focuses next item using ${arrowToEnd} key, skipping disabled items`, () => {
-        ignoreActWarnings();
+      it(`focuses next item using ${arrowToEnd} key, skipping disabled items`, async () => {
         render(<ComplexGrid rtl={rtl} />);
         fireEvent.keyDown(screen.getByRole('button'), { key: 'Enter' });
         fireEvent.click(screen.getByRole('button'));
@@ -828,10 +826,10 @@ describe('useListNavigation', () => {
         expect(screen.getAllByRole('option')[34]).toHaveFocus();
         fireEvent.keyDown(screen.getByTestId('floating'), { key: arrowToEnd });
         expect(screen.getAllByRole('option')[36]).toHaveFocus();
+        await flushMicrotasks();
       });
 
       it(`focuses previous item using ${arrowToStart} key, skipping disabled items`, async () => {
-        ignoreActWarnings();
         render(<ComplexGrid rtl={rtl} />);
         fireEvent.keyDown(screen.getByRole('button'), { key: 'Enter' });
         fireEvent.click(screen.getByRole('button'));
@@ -879,12 +877,12 @@ describe('useListNavigation', () => {
 
       it(`moves through rows when pressing ArrowDown, prefers ${
         rtl ? 'right' : 'left'
-      } side of wide items`, () => {
-        ignoreActWarnings();
+      } side of wide items`, async () => {
         render(<ComplexGrid rtl={rtl} />);
         fireEvent.keyDown(screen.getByRole('button'), { key: 'Enter' });
         fireEvent.click(screen.getByRole('button'));
         fireEvent.keyDown(screen.getByTestId('floating'), { key: 'ArrowDown' });
+        await flushMicrotasks();
         expect(screen.getAllByRole('option')[20]).toHaveFocus();
         fireEvent.keyDown(screen.getByTestId('floating'), { key: 'ArrowDown' });
         expect(screen.getAllByRole('option')[25]).toHaveFocus();
@@ -896,13 +894,12 @@ describe('useListNavigation', () => {
 
       it(`moves through rows when pressing ArrowUp, prefers ${
         rtl ? 'right' : 'left'
-      } side of wide items`, () => {
-        ignoreActWarnings();
+      } side of wide items`, async () => {
         render(<ComplexGrid rtl={rtl} />);
         fireEvent.keyDown(screen.getByRole('button'), { key: 'Enter' });
         fireEvent.click(screen.getByRole('button'));
 
-        act(() => screen.getAllByRole('option')[29].focus());
+        await act(async () => screen.getAllByRole('option')[29].focus());
 
         fireEvent.keyDown(screen.getByTestId('floating'), { key: 'ArrowUp' });
         expect(screen.getAllByRole('option')[21]).toHaveFocus();
@@ -914,8 +911,7 @@ describe('useListNavigation', () => {
 
       it(`loops over column with ArrowDown, prefers ${
         rtl ? 'right' : 'left'
-      } side of wide items`, () => {
-        ignoreActWarnings();
+      } side of wide items`, async () => {
         render(<ComplexGrid rtl={rtl} loopFocus />);
         fireEvent.keyDown(screen.getByRole('button'), { key: 'Enter' });
         fireEvent.click(screen.getByRole('button'));
@@ -927,12 +923,13 @@ describe('useListNavigation', () => {
         fireEvent.keyDown(screen.getByTestId('floating'), { key: 'ArrowDown' });
 
         expect(screen.getAllByRole('option')[13]).toHaveFocus();
+
+        await flushMicrotasks();
       });
 
       it(`loops over column with ArrowUp, prefers ${
         rtl ? 'right' : 'left'
-      } side of wide items`, () => {
-        ignoreActWarnings();
+      } side of wide items`, async () => {
         render(<ComplexGrid rtl={rtl} loopFocus />);
         fireEvent.keyDown(screen.getByRole('button'), { key: 'Enter' });
         fireEvent.click(screen.getByRole('button'));
@@ -951,10 +948,10 @@ describe('useListNavigation', () => {
         fireEvent.keyDown(screen.getByTestId('floating'), { key: 'ArrowUp' });
 
         expect(screen.getAllByRole('option')[8]).toHaveFocus();
+        await flushMicrotasks();
       });
 
-      it('loops over row with "both" orientation, prefers top side of tall items', () => {
-        ignoreActWarnings();
+      it('loops over row with "both" orientation, prefers top side of tall items', async () => {
         render(<ComplexGrid rtl={rtl} orientation="both" loopFocus />);
         fireEvent.keyDown(screen.getByRole('button'), { key: 'Enter' });
         fireEvent.click(screen.getByRole('button'));
@@ -979,10 +976,10 @@ describe('useListNavigation', () => {
         expect(screen.getAllByRole('option')[20]).toHaveFocus();
         fireEvent.keyDown(screen.getByTestId('floating'), { key: arrowToEnd });
         expect(screen.getAllByRole('option')[21]).toHaveFocus();
+        await flushMicrotasks();
       });
 
-      it('looping works on last row', () => {
-        ignoreActWarnings();
+      it('looping works on last row', async () => {
         render(<ComplexGrid rtl={rtl} orientation="both" loopFocus />);
         fireEvent.keyDown(screen.getByRole('button'), { key: 'Enter' });
         fireEvent.click(screen.getByRole('button'));
@@ -991,6 +988,7 @@ describe('useListNavigation', () => {
 
         fireEvent.keyDown(screen.getByTestId('floating'), { key: arrowToEnd });
         expect(screen.getAllByRole('option')[36]).toHaveFocus();
+        await flushMicrotasks();
       });
     });
   });
@@ -1000,7 +998,7 @@ describe('useListNavigation', () => {
 
     fireEvent.click(screen.getByRole('button'));
 
-    await act(async () => {});
+    await flushMicrotasks();
 
     const input = screen.getByRole('textbox');
     const activeIndicator = screen.getByTestId('emoji-picker-active-index');
@@ -1030,7 +1028,7 @@ describe('useListNavigation', () => {
 
     fireEvent.click(screen.getByRole('button'));
 
-    await act(async () => {});
+    await flushMicrotasks();
 
     const input = screen.getByRole('textbox');
     const activeIndicator = screen.getByTestId('emoji-picker-active-index');
@@ -1061,7 +1059,7 @@ describe('useListNavigation', () => {
 
     fireEvent.click(screen.getByRole('button'));
 
-    await act(async () => {});
+    await flushMicrotasks();
 
     const nextInput = screen.getByRole('textbox');
     const nextActiveIndicator = screen.getByTestId('emoji-picker-active-index');
@@ -1117,17 +1115,17 @@ describe('useListNavigation', () => {
     render(<NestedMenu />);
 
     await userEvent.click(screen.getByRole('button', { name: 'Edit' }));
-    await act(async () => {});
+    await flushMicrotasks();
     await userEvent.keyboard('{ArrowDown}');
     await userEvent.keyboard('{ArrowDown}');
     await userEvent.keyboard('{ArrowDown}');
     await userEvent.keyboard('{ArrowRight}'); // opens first submenu
-    await act(async () => {});
+    await flushMicrotasks();
 
     await userEvent.keyboard('{ArrowDown}');
     await userEvent.keyboard('{ArrowDown}');
     await userEvent.keyboard('{ArrowRight}'); // opens second submenu
-    await act(async () => {});
+    await flushMicrotasks();
 
     expect(screen.getByText('.png')).toHaveFocus();
 
