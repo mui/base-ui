@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { expect } from 'chai';
 import { spy } from 'sinon';
-import { act, fireEvent, ignoreActWarnings, screen } from '@mui/internal-test-utils';
+import { act, fireEvent, screen } from '@mui/internal-test-utils';
 import { Checkbox } from '@base-ui/react/checkbox';
 import { CheckboxGroup } from '@base-ui/react/checkbox-group';
 import { Field } from '@base-ui/react/field';
@@ -353,7 +353,6 @@ describe('<Checkbox.Root />', () => {
     it.skipIf(isJSDOM)(
       'should include the checkbox value in form submission, matching native checkbox behavior',
       async () => {
-        ignoreActWarnings();
         const submitSpy = spy((event) => {
           event.preventDefault();
           const formData = new FormData(event.currentTarget);
@@ -372,7 +371,9 @@ describe('<Checkbox.Root />', () => {
         const checkbox = screen.getByRole('checkbox');
         const submitButton = screen.getByRole('button')!;
 
-        submitButton.click();
+        await act(async () => {
+          submitButton.click();
+        });
 
         expect(submitSpy.callCount).to.equal(1);
         expect(submitSpy.lastCall.returnValue).to.equal(null);
@@ -381,7 +382,9 @@ describe('<Checkbox.Root />', () => {
           checkbox.click();
         });
 
-        submitButton.click();
+        await act(async () => {
+          submitButton.click();
+        });
 
         expect(submitSpy.callCount).to.equal(2);
         expect(submitSpy.lastCall.returnValue).to.equal('on');
@@ -391,7 +394,6 @@ describe('<Checkbox.Root />', () => {
     it.skipIf(isJSDOM)(
       'should include the custom checkbox value in form submission, matching native checkbox behavior',
       async () => {
-        ignoreActWarnings();
         const submitSpy = spy((event) => {
           event.preventDefault();
           const formData = new FormData(event.currentTarget);
@@ -410,7 +412,9 @@ describe('<Checkbox.Root />', () => {
         const checkbox = screen.getByRole('checkbox');
         const submitButton = screen.getByRole('button')!;
 
-        submitButton.click();
+        await act(async () => {
+          submitButton.click();
+        });
 
         expect(submitSpy.callCount).to.equal(1);
         expect(submitSpy.lastCall.returnValue).to.equal(null);
@@ -419,7 +423,9 @@ describe('<Checkbox.Root />', () => {
           checkbox.click();
         });
 
-        submitButton.click();
+        await act(async () => {
+          submitButton.click();
+        });
 
         expect(submitSpy.callCount).to.equal(2);
         expect(submitSpy.lastCall.returnValue).to.equal('test-value');
@@ -487,7 +493,6 @@ describe('<Checkbox.Root />', () => {
     it.skipIf(isJSDOM)(
       'should submit uncheckedValue when checkbox is unchecked and uncheckedValue is specified',
       async () => {
-        ignoreActWarnings();
         const submitSpy = spy((event) => {
           event.preventDefault();
           const formData = new FormData(event.currentTarget);
@@ -506,7 +511,9 @@ describe('<Checkbox.Root />', () => {
         const checkbox = screen.getByRole('checkbox');
         const submitButton = screen.getByRole('button')!;
 
-        submitButton.click();
+        await act(async () => {
+          submitButton.click();
+        });
 
         expect(submitSpy.callCount).to.equal(1);
         expect(submitSpy.lastCall.returnValue).to.equal('off');
@@ -515,7 +522,9 @@ describe('<Checkbox.Root />', () => {
           checkbox.click();
         });
 
-        submitButton.click();
+        await act(async () => {
+          submitButton.click();
+        });
 
         expect(submitSpy.callCount).to.equal(2);
         expect(submitSpy.lastCall.returnValue).to.equal('on');
@@ -524,7 +533,9 @@ describe('<Checkbox.Root />', () => {
           checkbox.click();
         });
 
-        submitButton.click();
+        await act(async () => {
+          submitButton.click();
+        });
 
         expect(submitSpy.callCount).to.equal(3);
         expect(submitSpy.lastCall.returnValue).to.equal('off');
@@ -534,7 +545,6 @@ describe('<Checkbox.Root />', () => {
     it.skipIf(isJSDOM)(
       'should submit custom uncheckedValue when checkbox is unchecked',
       async () => {
-        ignoreActWarnings();
         const submitSpy = spy((event) => {
           event.preventDefault();
           const formData = new FormData(event.currentTarget);
@@ -553,7 +563,9 @@ describe('<Checkbox.Root />', () => {
         const checkbox = screen.getByRole('checkbox');
         const submitButton = screen.getByRole('button')!;
 
-        submitButton.click();
+        await act(async () => {
+          submitButton.click();
+        });
 
         expect(submitSpy.callCount).to.equal(1);
         expect(submitSpy.lastCall.returnValue).to.equal('false');
@@ -562,7 +574,9 @@ describe('<Checkbox.Root />', () => {
           checkbox.click();
         });
 
-        submitButton.click();
+        await act(async () => {
+          submitButton.click();
+        });
 
         expect(submitSpy.callCount).to.equal(2);
         expect(submitSpy.lastCall.returnValue).to.equal('true');
