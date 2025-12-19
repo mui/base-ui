@@ -6,6 +6,16 @@ import { screen, waitFor, randomStringValue, act, flushMicrotasks } from '@mui/i
 describe('<PreviewCard.Root />', () => {
   beforeEach(async () => {
     globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
+
+    await act(async () => {
+      document.body.click();
+    });
+
+    // Wait for all tooltips to unmount
+    await waitFor(() => {
+      const tooltips = document.querySelectorAll('[data-open]');
+      expect(tooltips.length).to.equal(0);
+    });
   });
 
   const { render } = createRenderer();
