@@ -27,7 +27,7 @@ describe('<PreviewCard.Root />', () => {
       const popupId = randomStringValue();
       const { user } = await render(
         <PreviewCard.Root>
-          <input type="text" aria-label="Initial focus" autoFocus />
+          <button type="button" aria-label="Initial focus" autoFocus />
           <PreviewCard.Trigger href="#" delay={0}>
             Trigger 1
           </PreviewCard.Trigger>
@@ -82,6 +82,7 @@ describe('<PreviewCard.Root />', () => {
         <PreviewCard.Root>
           {({ payload }: NumberPayload) => (
             <React.Fragment>
+              <button type="button" aria-label="Initial focus" autoFocus />
               <PreviewCard.Trigger href="#" delay={0} payload={1}>
                 Trigger 1
               </PreviewCard.Trigger>
@@ -116,6 +117,7 @@ describe('<PreviewCard.Root />', () => {
     it('should open the preview card with any trigger on focus', async () => {
       await render(
         <PreviewCard.Root>
+          <button type="button" aria-label="Initial focus" autoFocus />
           <PreviewCard.Trigger href="#">Trigger 1</PreviewCard.Trigger>
           <PreviewCard.Trigger href="#">Trigger 2</PreviewCard.Trigger>
           <PreviewCard.Trigger href="#">Trigger 3</PreviewCard.Trigger>
@@ -158,6 +160,7 @@ describe('<PreviewCard.Root />', () => {
         <PreviewCard.Root>
           {({ payload }: NumberPayload) => (
             <React.Fragment>
+              <button type="button" aria-label="Initial focus" autoFocus />
               <PreviewCard.Trigger href="#" payload={1} delay={0}>
                 Trigger 1
               </PreviewCard.Trigger>
@@ -193,6 +196,7 @@ describe('<PreviewCard.Root />', () => {
         <PreviewCard.Root>
           {({ payload }: NumberPayload) => (
             <React.Fragment>
+              <button type="button" aria-label="Initial focus" autoFocus />
               <PreviewCard.Trigger href="#" payload={1} delay={0}>
                 Trigger 1
               </PreviewCard.Trigger>
@@ -231,6 +235,7 @@ describe('<PreviewCard.Root />', () => {
 
         return (
           <div>
+            <button type="button" aria-label="Initial focus" autoFocus />
             <PreviewCard.Root
               open={open}
               triggerId={activeTrigger}
@@ -295,6 +300,7 @@ describe('<PreviewCard.Root />', () => {
         <PreviewCard.Root handle={testPreviewCard} defaultOpen defaultTriggerId={triggerId}>
           {({ payload }: NumberPayload) => (
             <React.Fragment>
+              <button type="button" aria-label="Initial focus" autoFocus />
               <PreviewCard.Trigger href="#" handle={testPreviewCard} payload={1}>
                 Trigger 1
               </PreviewCard.Trigger>
@@ -388,6 +394,7 @@ describe('<PreviewCard.Root />', () => {
       const testPreviewCard = PreviewCard.createHandle();
       await render(
         <div>
+          <button type="button" aria-label="Initial focus" autoFocus />
           <PreviewCard.Trigger href="#" handle={testPreviewCard}>
             Trigger 1
           </PreviewCard.Trigger>
@@ -437,6 +444,7 @@ describe('<PreviewCard.Root />', () => {
       const testPreviewCard = PreviewCard.createHandle<number>();
       const { user } = await render(
         <div>
+          <button type="button" aria-label="Initial focus" autoFocus />
           <PreviewCard.Trigger href="#" handle={testPreviewCard} payload={1} delay={0}>
             Trigger 1
           </PreviewCard.Trigger>
@@ -473,6 +481,7 @@ describe('<PreviewCard.Root />', () => {
       const testPreviewCard = PreviewCard.createHandle<number>();
       await render(
         <React.Fragment>
+          <button type="button" aria-label="Initial focus" autoFocus />
           <PreviewCard.Trigger href="#" handle={testPreviewCard} payload={1} delay={0}>
             Trigger 1
           </PreviewCard.Trigger>
@@ -514,6 +523,7 @@ describe('<PreviewCard.Root />', () => {
 
         return (
           <div style={{ margin: 50 }}>
+            <button type="button" aria-label="Initial focus" autoFocus />
             <PreviewCard.Trigger
               href="#"
               handle={testPreviewCard}
@@ -640,6 +650,7 @@ describe('<PreviewCard.Root />', () => {
       const handle = PreviewCard.createHandle();
       await render(
         <div>
+          <button type="button" aria-label="Initial focus" autoFocus />
           <PreviewCard.Trigger href="#" handle={handle} id="trigger">
             Trigger
           </PreviewCard.Trigger>
@@ -676,6 +687,7 @@ describe('<PreviewCard.Root />', () => {
       const handle = PreviewCard.createHandle<number>();
       await render(
         <div>
+          <button type="button" aria-label="Initial focus" autoFocus />
           <PreviewCard.Trigger href="#" handle={handle} id="trigger1" payload={1}>
             Trigger 1
           </PreviewCard.Trigger>
