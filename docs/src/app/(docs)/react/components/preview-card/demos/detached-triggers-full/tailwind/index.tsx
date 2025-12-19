@@ -2,34 +2,52 @@
 import * as React from 'react';
 import { PreviewCard } from '@base-ui/react/preview-card';
 
-type PreviewPayload = {
-  imageSrc: string;
-  imageAlt: string;
-  summary: string;
+const demoPreviewCard = PreviewCard.createHandle<React.ReactElement>();
+
+const cardContents = {
+  typography: (
+    <div className="flex flex-col gap-2">
+      <img
+        width="448"
+        height="300"
+        className="block w-full rounded-sm"
+        src="https://images.unsplash.com/photo-1619615391095-dfa29e1672ef?q=80&w=448&h=300"
+        alt="Station Hofplein signage in Rotterdam, Netherlands"
+      />
+      <p className="text-sm text-pretty text-gray-900">
+        <strong>Typography</strong> is the art and science of arranging type.
+      </p>
+    </div>
+  ),
+  design: (
+    <div className="flex flex-col gap-2">
+      <img
+        width="241"
+        height="240"
+        className="block w-full rounded-sm"
+        src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b7/Braun_ABW30_%28schwarz%29.jpg/250px-Braun_ABW30_%28schwarz%29.jpg"
+        alt="Braun ABW30 clock"
+      />
+      <p className="text-sm text-pretty text-gray-900">
+        A <strong>design</strong> is the concept or proposal for an object, process, or system.
+      </p>
+    </div>
+  ),
+  art: (
+    <div className="flex flex-col gap-2">
+      <img
+        width="206"
+        height="240"
+        className="block w-full rounded-sm"
+        src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5f/MonaLisa_sfumato.jpeg/250px-MonaLisa_sfumato.jpeg"
+        alt="Mona Lisa"
+      />
+      <p className="text-sm text-pretty text-gray-900">
+        <strong>Art</strong> conveys emotion and ideas through imaginative craft.
+      </p>
+    </div>
+  ),
 };
-
-const demoPreviewCard = PreviewCard.createHandle<PreviewPayload>();
-
-const previews: PreviewPayload[] = [
-  {
-    imageSrc: 'https://images.unsplash.com/photo-1619615391095-dfa29e1672ef?q=80&w=448&h=300',
-    imageAlt: 'Station Hofplein signage in Rotterdam, Netherlands',
-    summary:
-      'Typography is the art and science of arranging type to make written language clear, visually appealing, and effective in communication.',
-  },
-  {
-    imageSrc: 'https://images.unsplash.com/photo-1455390582262-044cdead277a?q=80&w=448&h=300',
-    imageAlt: 'A letter and pen on a desk',
-    summary:
-      'Writing tools and thoughtful layout help communicate ideas with clarity and personality.',
-  },
-  {
-    imageSrc: 'https://images.unsplash.com/photo-1455885666463-0f310dff4f53?q=80&w=448&h=300',
-    imageAlt: 'Typeset letters in a printing tray',
-    summary:
-      'Type design balances history and craft with the needs of modern screens and interfaces.',
-  },
-];
 
 export default function PreviewCardDetachedTriggersFullDemo() {
   return (
@@ -40,7 +58,7 @@ export default function PreviewCardDetachedTriggersFullDemo() {
           className="text-blue-800 no-underline decoration-blue-800/60 decoration-1 underline-offset-2 outline-none hover:underline focus-visible:rounded-sm focus-visible:no-underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-800 data-[popup-open]:underline data-[popup-open]:focus-visible:no-underline"
           handle={demoPreviewCard}
           href="https://en.wikipedia.org/wiki/Typography"
-          payload={previews[0]}
+          payload={cardContents.typography}
         >
           typography
         </PreviewCard.Trigger>
@@ -49,16 +67,16 @@ export default function PreviewCardDetachedTriggersFullDemo() {
           className="text-blue-800 no-underline decoration-blue-800/60 decoration-1 underline-offset-2 outline-none hover:underline focus-visible:rounded-sm focus-visible:no-underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-800 data-[popup-open]:underline data-[popup-open]:focus-visible:no-underline"
           handle={demoPreviewCard}
           href="https://en.wikipedia.org/wiki/Industrial_design"
-          payload={previews[1]}
+          payload={cardContents.design}
         >
-          industrial design
+          design
         </PreviewCard.Trigger>
         , or{' '}
         <PreviewCard.Trigger
           className="text-blue-800 no-underline decoration-blue-800/60 decoration-1 underline-offset-2 outline-none hover:underline focus-visible:rounded-sm focus-visible:no-underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-800 data-[popup-open]:underline data-[popup-open]:focus-visible:no-underline"
           handle={demoPreviewCard}
           href="https://en.wikipedia.org/wiki/Art"
-          payload={previews[2]}
+          payload={cardContents.art}
         >
           art
         </PreviewCard.Trigger>
@@ -120,18 +138,7 @@ export default function PreviewCardDetachedTriggersFullDemo() {
                     data-[activation-direction~='right']:[&_[data-previous][data-ending-style]]:-translate-x-[30%]
                     data-[activation-direction~='right']:[&_[data-previous][data-ending-style]]:opacity-0"
                 >
-                  {payload !== undefined && (
-                    <div className="flex flex-col gap-2">
-                      <img
-                        width="448"
-                        height="300"
-                        className="block w-full rounded-sm"
-                        src={payload.imageSrc}
-                        alt={payload.imageAlt}
-                      />
-                      <p className="text-sm text-pretty text-gray-900">{payload.summary}</p>
-                    </div>
-                  )}
+                  {payload}
                 </PreviewCard.Viewport>
               </PreviewCard.Popup>
             </PreviewCard.Positioner>

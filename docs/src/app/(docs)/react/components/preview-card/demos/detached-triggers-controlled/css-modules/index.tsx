@@ -7,10 +7,10 @@ const demoPreviewCard = PreviewCard.createHandle<React.ReactElement>();
 
 const cardContents = {
   typography: (
-    <React.Fragment>
+    <div className={styles.PopupContent}>
       <img
-        width="448"
-        height="300"
+        width="224"
+        height="150"
         className={styles.Image}
         src="https://images.unsplash.com/photo-1619615391095-dfa29e1672ef?q=80&w=448&h=300"
         alt="Station Hofplein signage in Rotterdam, Netherlands"
@@ -18,10 +18,10 @@ const cardContents = {
       <p className={styles.Summary}>
         <strong>Typography</strong> is the art and science of arranging type.
       </p>
-    </React.Fragment>
+    </div>
   ),
   design: (
-    <React.Fragment>
+    <div className={styles.PopupContent}>
       <img
         width="241"
         height="240"
@@ -32,10 +32,10 @@ const cardContents = {
       <p className={styles.Summary}>
         A <strong>design</strong> is the concept or proposal for an object, process, or system.
       </p>
-    </React.Fragment>
+    </div>
   ),
   art: (
-    <React.Fragment>
+    <div className={styles.PopupContent}>
       <img
         width="206"
         height="240"
@@ -49,7 +49,7 @@ const cardContents = {
         generally through an expression of emotional power, conceptual ideas, technical proficiency,
         or beauty.
       </p>
-    </React.Fragment>
+    </div>
   ),
 };
 
