@@ -399,7 +399,6 @@ function PreviewCardContent(
           <PreviewCard.Arrow className={demoStyles.Arrow}>
             <ArrowSvg />
           </PreviewCard.Arrow>
-
           {children}
         </PreviewCard.Popup>
       </PreviewCard.Positioner>
