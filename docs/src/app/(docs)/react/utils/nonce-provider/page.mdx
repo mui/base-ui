@@ -54,7 +54,15 @@ function App({ nonce }) {
 
 ## Inline style attributes
 
-The nonce only applies to `<style>` and `<script>` tags. If your CSP also blocks inline style attributes (for example `<div style="...">`), you must relax your CSP by adding `'unsafe-inline'` to the `style-src-attr` directive. Style attributes are separate from style elements and pose a less severe security risk.
+While Nonce Provider covers inline `<style>` and `<script>` tags, they do not cover inline style attributes (for example, `<div style="...">`).
+
+`style-src` covers both style elements and attributes, but if you want to block only style elements while allowing style attributes, you can replace `style-src` with the `style-src-elem` directive in your CSP.
+
+`style-src-attr` will only trigger a violation while parsing pre-rendered (SSR) components in your HTML. If your CSP blocks inline style attributes, you have a few options:
+
+1. Relax your CSP by adding `'unsafe-inline'` to the `style-src-attr` directive (or using only `style-src-elem` instead of `style-src`). Style attributes specifically pose a less severe security risk than style elements, but this approach may not be acceptable in high-security environments.
+2. Render the affected components only on the client, so that no inline styles are present in the initial HTML.
+3. Manually unset inline styles and specify them in your CSS instead. Any component can have its inline styles unset, such as `<ScrollArea.Viewport style={{ overflow: undefined  }}>`. Note that you'll need to ensure you vet upgrades for any new inline styles added by Base UI components.
 
 ## API reference
 
