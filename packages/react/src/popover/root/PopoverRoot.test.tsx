@@ -104,6 +104,17 @@ describe('<Popover.Root />', () => {
 
     describe('nested menu interactions', () => {
       it('keeps the popover open when a nested menu opens via Enter using a shared container', async () => {
+        vi.spyOn(console, 'error').mockImplementation((...args) => {
+          if (args[0] === 'null') {
+            // a bug in vitest prints specific browser errors as "null"
+            // See https://github.com/vitest-dev/vitest/issues/9285
+            // TODO(@mui/base): debug why this test triggers "ResizeObserver loop completed with undelivered notifications"
+            // It seems related to @testing-library/user-event. Native vitest `userEvent` does not trigger it.
+            return;
+          }
+          console.error(...args);
+        });
+
         function Test() {
           const [dialogNode, setDialogNode] = React.useState<HTMLDialogElement | null>(null);
           const handleDialogRef = React.useCallback((node: HTMLDialogElement | null) => {
@@ -157,6 +168,17 @@ describe('<Popover.Root />', () => {
       });
 
       it('keeps the popover open when a nested menu opens via pointer using a shared container', async () => {
+        vi.spyOn(console, 'error').mockImplementation((...args) => {
+          if (args[0] === 'null') {
+            // a bug in vitest prints specific browser errors as "null"
+            // See https://github.com/vitest-dev/vitest/issues/9285
+            // TODO(@mui/base): debug why this test triggers "ResizeObserver loop completed with undelivered notifications"
+            // It seems related to @testing-library/user-event. Native vitest `userEvent` does not trigger it.
+            return;
+          }
+          console.error(...args);
+        });
+
         function Test() {
           const [dialogNode, setDialogNode] = React.useState<HTMLDialogElement | null>(null);
           const handleDialogRef = React.useCallback((node: HTMLDialogElement | null) => {
