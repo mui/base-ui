@@ -6,18 +6,6 @@ import { spy } from 'sinon';
 import { createRenderer, isJSDOM, popupConformanceTests } from '#test-utils';
 import { CLOSE_DELAY, OPEN_DELAY } from '../utils/constants';
 
-function Root(props: PreviewCard.Root.Props) {
-  return <PreviewCard.Root {...props} />;
-}
-
-function Trigger(props: PreviewCard.Trigger.Props) {
-  return (
-    <PreviewCard.Trigger href="#" {...props}>
-      Link
-    </PreviewCard.Trigger>
-  );
-}
-
 describe('<PreviewCard.Root />', () => {
   beforeEach(() => {
     globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
@@ -28,7 +16,9 @@ describe('<PreviewCard.Root />', () => {
   popupConformanceTests({
     createComponent: (props) => (
       <PreviewCard.Root {...props.root}>
-        <PreviewCard.Trigger {...props.trigger}>Link</PreviewCard.Trigger>
+        <PreviewCard.Trigger href="#" {...props.trigger}>
+          Link
+        </PreviewCard.Trigger>
         <PreviewCard.Portal {...props.portal}>
           <PreviewCard.Positioner>
             <PreviewCard.Popup {...props.popup}>Content</PreviewCard.Popup>
@@ -44,16 +34,7 @@ describe('<PreviewCard.Root />', () => {
     clock.withFakeTimers();
 
     it('should open when the trigger is hovered', async () => {
-      await render(
-        <Root>
-          <Trigger />
-          <PreviewCard.Portal>
-            <PreviewCard.Positioner>
-              <PreviewCard.Popup>Content</PreviewCard.Popup>
-            </PreviewCard.Positioner>
-          </PreviewCard.Portal>
-        </Root>,
-      );
+      await render(<ContainedTriggerPreviewCard />);
 
       const trigger = screen.getByRole('link');
 
@@ -69,16 +50,7 @@ describe('<PreviewCard.Root />', () => {
     });
 
     it('should close when the trigger is unhovered', async () => {
-      await render(
-        <Root>
-          <Trigger />
-          <PreviewCard.Portal>
-            <PreviewCard.Positioner>
-              <PreviewCard.Popup>Content</PreviewCard.Popup>
-            </PreviewCard.Positioner>
-          </PreviewCard.Portal>
-        </Root>,
-      );
+      await render(<ContainedTriggerPreviewCard />);
 
       const trigger = screen.getByRole('link');
 
@@ -103,16 +75,7 @@ describe('<PreviewCard.Root />', () => {
         return;
       }
 
-      await render(
-        <Root>
-          <Trigger />
-          <PreviewCard.Portal>
-            <PreviewCard.Positioner>
-              <PreviewCard.Popup>Content</PreviewCard.Popup>
-            </PreviewCard.Positioner>
-          </PreviewCard.Portal>
-        </Root>,
-      );
+      await render(<ContainedTriggerPreviewCard />);
 
       const trigger = screen.getByRole('link');
 
@@ -126,16 +89,7 @@ describe('<PreviewCard.Root />', () => {
     });
 
     it('should close when the trigger is blurred', async () => {
-      await render(
-        <Root>
-          <Trigger />
-          <PreviewCard.Portal>
-            <PreviewCard.Positioner>
-              <PreviewCard.Popup>Content</PreviewCard.Popup>
-            </PreviewCard.Positioner>
-          </PreviewCard.Portal>
-        </Root>,
-      );
+      await render(<ContainedTriggerPreviewCard />);
 
       const trigger = screen.getByRole('link');
 
@@ -160,20 +114,15 @@ describe('<PreviewCard.Root />', () => {
         const [open, setOpen] = React.useState(false);
 
         return (
-          <Root
-            open={open}
-            onOpenChange={(nextOpen) => {
-              handleChange(open);
-              setOpen(nextOpen);
+          <ContainedTriggerPreviewCard
+            rootProps={{
+              open,
+              onOpenChange: (nextOpen) => {
+                handleChange(open);
+                setOpen(nextOpen);
+              },
             }}
-          >
-            <Trigger />
-            <PreviewCard.Portal>
-              <PreviewCard.Positioner>
-                <PreviewCard.Popup>Content</PreviewCard.Popup>
-              </PreviewCard.Positioner>
-            </PreviewCard.Portal>
-          </Root>
+          />
         );
       }
 
@@ -209,20 +158,15 @@ describe('<PreviewCard.Root />', () => {
         const [open, setOpen] = React.useState(false);
 
         return (
-          <Root
-            open={open}
-            onOpenChange={(nextOpen) => {
-              handleChange(open);
-              setOpen(nextOpen);
+          <ContainedTriggerPreviewCard
+            rootProps={{
+              open,
+              onOpenChange: (nextOpen) => {
+                handleChange(open);
+                setOpen(nextOpen);
+              },
             }}
-          >
-            <Trigger />
-            <PreviewCard.Portal>
-              <PreviewCard.Positioner>
-                <PreviewCard.Popup>Content</PreviewCard.Popup>
-              </PreviewCard.Positioner>
-            </PreviewCard.Portal>
-          </Root>
+          />
         );
       }
 
@@ -250,14 +194,11 @@ describe('<PreviewCard.Root />', () => {
 
     it('should open when the component is rendered', async () => {
       await render(
-        <Root defaultOpen>
-          <Trigger />
-          <PreviewCard.Portal>
-            <PreviewCard.Positioner>
-              <PreviewCard.Popup>Content</PreviewCard.Popup>
-            </PreviewCard.Positioner>
-          </PreviewCard.Portal>
-        </Root>,
+        <ContainedTriggerPreviewCard
+          rootProps={{
+            defaultOpen: true,
+          }}
+        />,
       );
 
       expect(screen.getByText('Content')).not.to.equal(null);
@@ -265,14 +206,12 @@ describe('<PreviewCard.Root />', () => {
 
     it('should not open when the component is rendered and open is controlled', async () => {
       await render(
-        <Root defaultOpen open={false}>
-          <Trigger />
-          <PreviewCard.Portal>
-            <PreviewCard.Positioner>
-              <PreviewCard.Popup>Content</PreviewCard.Popup>
-            </PreviewCard.Positioner>
-          </PreviewCard.Portal>
-        </Root>,
+        <ContainedTriggerPreviewCard
+          rootProps={{
+            defaultOpen: true,
+            open: false,
+          }}
+        />,
       );
 
       expect(screen.queryByText('Content')).to.equal(null);
@@ -280,14 +219,12 @@ describe('<PreviewCard.Root />', () => {
 
     it('should not close when the component is rendered and open is controlled', async () => {
       await render(
-        <Root defaultOpen open>
-          <Trigger />
-          <PreviewCard.Portal>
-            <PreviewCard.Positioner>
-              <PreviewCard.Popup>Content</PreviewCard.Popup>
-            </PreviewCard.Positioner>
-          </PreviewCard.Portal>
-        </Root>,
+        <ContainedTriggerPreviewCard
+          rootProps={{
+            defaultOpen: true,
+            open: true,
+          }}
+        />,
       );
 
       expect(screen.getByText('Content')).not.to.equal(null);
@@ -295,14 +232,11 @@ describe('<PreviewCard.Root />', () => {
 
     it('should remain uncontrolled', async () => {
       await render(
-        <Root defaultOpen>
-          <Trigger />
-          <PreviewCard.Portal>
-            <PreviewCard.Positioner>
-              <PreviewCard.Popup>Content</PreviewCard.Popup>
-            </PreviewCard.Positioner>
-          </PreviewCard.Portal>
-        </Root>,
+        <ContainedTriggerPreviewCard
+          rootProps={{
+            defaultOpen: true,
+          }}
+        />,
       );
 
       expect(screen.getByText('Content')).not.to.equal(null);
@@ -321,16 +255,7 @@ describe('<PreviewCard.Root />', () => {
     clock.withFakeTimers();
 
     it('should open after delay with rest type by default', async () => {
-      await render(
-        <Root>
-          <Trigger delay={100} />
-          <PreviewCard.Portal>
-            <PreviewCard.Positioner>
-              <PreviewCard.Popup>Content</PreviewCard.Popup>
-            </PreviewCard.Positioner>
-          </PreviewCard.Portal>
-        </Root>,
-      );
+      await render(<ContainedTriggerPreviewCard triggerProps={{ delay: 100 }} />);
 
       const trigger = screen.getByRole('link');
 
@@ -353,16 +278,7 @@ describe('<PreviewCard.Root />', () => {
     clock.withFakeTimers();
 
     it('should close after delay', async () => {
-      await render(
-        <Root>
-          <Trigger closeDelay={100} />
-          <PreviewCard.Portal>
-            <PreviewCard.Positioner>
-              <PreviewCard.Popup>Content</PreviewCard.Popup>
-            </PreviewCard.Positioner>
-          </PreviewCard.Portal>
-        </Root>,
-      );
+      await render(<ContainedTriggerPreviewCard triggerProps={{ closeDelay: 100 }} />);
 
       const trigger = screen.getByRole('link');
 
@@ -388,20 +304,15 @@ describe('<PreviewCard.Root />', () => {
   describe('BaseUIChangeEventDetails', () => {
     it('onOpenChange cancel() prevents opening while uncontrolled', async () => {
       await render(
-        <Root
-          onOpenChange={(nextOpen, eventDetails) => {
-            if (nextOpen) {
-              eventDetails.cancel();
-            }
+        <ContainedTriggerPreviewCard
+          rootProps={{
+            onOpenChange: (nextOpen, eventDetails) => {
+              if (nextOpen) {
+                eventDetails.cancel();
+              }
+            },
           }}
-        >
-          <Trigger />
-          <PreviewCard.Portal>
-            <PreviewCard.Positioner>
-              <PreviewCard.Popup>Content</PreviewCard.Popup>
-            </PreviewCard.Positioner>
-          </PreviewCard.Portal>
-        </Root>,
+        />,
       );
 
       const trigger = screen.getByRole('link');
@@ -424,21 +335,18 @@ describe('<PreviewCard.Root />', () => {
       };
 
       const { user } = await render(
-        <Root
-          actionsRef={actionsRef}
-          onOpenChange={(open, details) => {
-            details.preventUnmountOnClose();
+        <ContainedTriggerPreviewCard
+          rootProps={{
+            actionsRef,
+            onOpenChange: (open, details) => {
+              details.preventUnmountOnClose();
+            },
           }}
-        >
-          <Trigger delay={0} closeDelay={0}>
-            Open
-          </Trigger>
-          <PreviewCard.Portal>
-            <PreviewCard.Positioner data-testid="positioner">
-              <PreviewCard.Popup>Content</PreviewCard.Popup>
-            </PreviewCard.Positioner>
-          </PreviewCard.Portal>
-        </Root>,
+          triggerProps={{
+            delay: 0,
+            closeDelay: 0,
+          }}
+        />,
       );
 
       const trigger = screen.getByRole('link');
@@ -471,13 +379,12 @@ describe('<PreviewCard.Root />', () => {
         return (
           <div>
             <button onClick={() => setOpen(false)}>Close</button>
-            <PreviewCard.Root open={open} onOpenChangeComplete={onOpenChangeComplete}>
-              <PreviewCard.Portal>
-                <PreviewCard.Positioner>
-                  <PreviewCard.Popup data-testid="popup" />
-                </PreviewCard.Positioner>
-              </PreviewCard.Portal>
-            </PreviewCard.Root>
+            <ContainedTriggerPreviewCard
+              rootProps={{
+                open,
+                onOpenChangeComplete,
+              }}
+            />
           </div>
         );
       }
@@ -520,13 +427,15 @@ describe('<PreviewCard.Root />', () => {
             {/* eslint-disable-next-line react/no-danger */}
             <style dangerouslySetInnerHTML={{ __html: style }} />
             <button onClick={() => setOpen(false)}>Close</button>
-            <PreviewCard.Root open={open} onOpenChangeComplete={onOpenChangeComplete}>
-              <PreviewCard.Portal>
-                <PreviewCard.Positioner>
-                  <PreviewCard.Popup className="animation-test-indicator" data-testid="popup" />
-                </PreviewCard.Positioner>
-              </PreviewCard.Portal>
-            </PreviewCard.Root>
+            <ContainedTriggerPreviewCard
+              rootProps={{
+                open,
+                onOpenChangeComplete,
+              }}
+              popupProps={{
+                className: 'animation-test-indicator',
+              }}
+            />
           </div>
         );
       }
@@ -555,13 +464,12 @@ describe('<PreviewCard.Root />', () => {
         return (
           <div>
             <button onClick={() => setOpen(false)}>Close</button>
-            <PreviewCard.Root open={open} onOpenChangeComplete={onOpenChangeComplete}>
-              <PreviewCard.Portal>
-                <PreviewCard.Positioner>
-                  <PreviewCard.Popup data-testid="popup" />
-                </PreviewCard.Positioner>
-              </PreviewCard.Portal>
-            </PreviewCard.Root>
+            <ContainedTriggerPreviewCard
+              rootProps={{
+                open,
+                onOpenChangeComplete,
+              }}
+            />
           </div>
         );
       }
@@ -604,13 +512,15 @@ describe('<PreviewCard.Root />', () => {
             {/* eslint-disable-next-line react/no-danger */}
             <style dangerouslySetInnerHTML={{ __html: style }} />
             <button onClick={() => setOpen(false)}>Close</button>
-            <PreviewCard.Root open={open} onOpenChangeComplete={onOpenChangeComplete}>
-              <PreviewCard.Portal>
-                <PreviewCard.Positioner>
-                  <PreviewCard.Popup className="animation-test-indicator" data-testid="popup" />
-                </PreviewCard.Positioner>
-              </PreviewCard.Portal>
-            </PreviewCard.Root>
+            <ContainedTriggerPreviewCard
+              rootProps={{
+                open,
+                onOpenChangeComplete,
+              }}
+              popupProps={{
+                className: 'animation-test-indicator',
+              }}
+            />
           </div>
         );
       }
@@ -642,13 +552,12 @@ describe('<PreviewCard.Root />', () => {
         return (
           <div>
             <button onClick={() => setOpen(true)}>Open</button>
-            <PreviewCard.Root open={open} onOpenChangeComplete={onOpenChangeComplete}>
-              <PreviewCard.Portal>
-                <PreviewCard.Positioner>
-                  <PreviewCard.Popup data-testid="popup" />
-                </PreviewCard.Positioner>
-              </PreviewCard.Portal>
-            </PreviewCard.Root>
+            <ContainedTriggerPreviewCard
+              rootProps={{
+                open,
+                onOpenChangeComplete,
+              }}
+            />
           </div>
         );
       }
@@ -691,17 +600,15 @@ describe('<PreviewCard.Root />', () => {
             {/* eslint-disable-next-line react/no-danger */}
             <style dangerouslySetInnerHTML={{ __html: style }} />
             <button onClick={() => setOpen(true)}>Open</button>
-            <PreviewCard.Root
-              open={open}
-              onOpenChange={setOpen}
-              onOpenChangeComplete={onOpenChangeComplete}
-            >
-              <PreviewCard.Portal>
-                <PreviewCard.Positioner>
-                  <PreviewCard.Popup className="animation-test-indicator" data-testid="popup" />
-                </PreviewCard.Positioner>
-              </PreviewCard.Portal>
-            </PreviewCard.Root>
+            <ContainedTriggerPreviewCard
+              rootProps={{
+                open,
+                onOpenChangeComplete,
+              }}
+              popupProps={{
+                className: 'animation-test-indicator',
+              }}
+            />
           </div>
         );
       }
@@ -723,16 +630,49 @@ describe('<PreviewCard.Root />', () => {
       const onOpenChangeComplete = spy();
 
       await render(
-        <PreviewCard.Root onOpenChangeComplete={onOpenChangeComplete}>
-          <PreviewCard.Portal>
-            <PreviewCard.Positioner>
-              <PreviewCard.Popup />
-            </PreviewCard.Positioner>
-          </PreviewCard.Portal>
-        </PreviewCard.Root>,
+        <ContainedTriggerPreviewCard
+          rootProps={{
+            onOpenChangeComplete,
+          }}
+        />,
       );
 
       expect(onOpenChangeComplete.callCount).to.equal(0);
     });
   });
 });
+
+type TestPreviewCardProps = {
+  rootProps?: PreviewCard.Root.Props;
+  triggerProps?: PreviewCard.Trigger.Props;
+  portalProps?: PreviewCard.Portal.Props;
+  positionerProps?: PreviewCard.Positioner.Props;
+  popupProps?: PreviewCard.Popup.Props;
+};
+
+function ContainedTriggerPreviewCard(props: TestPreviewCardProps) {
+  const { rootProps, triggerProps, portalProps, positionerProps, popupProps } = props;
+
+  const { children: triggerChildren, ...restTriggerProps } = triggerProps ?? {};
+  const { children: popupChildren, ...restPopupProps } = popupProps ?? {};
+  const { children: portalChildren, ...restPortalProps } = portalProps ?? {};
+
+  const triggerContent = triggerChildren ?? 'Link';
+  const popupContent = popupChildren ?? 'Content';
+
+  return (
+    <PreviewCard.Root {...rootProps}>
+      <PreviewCard.Trigger href="#" data-testid="trigger" {...restTriggerProps}>
+        {triggerContent}
+      </PreviewCard.Trigger>
+      <PreviewCard.Portal {...restPortalProps}>
+        {portalChildren}
+        <PreviewCard.Positioner data-testid="positioner" {...positionerProps}>
+          <PreviewCard.Popup data-testid="popup" {...restPopupProps}>
+            {popupContent}
+          </PreviewCard.Popup>
+        </PreviewCard.Positioner>
+      </PreviewCard.Portal>
+    </PreviewCard.Root>
+  );
+}
