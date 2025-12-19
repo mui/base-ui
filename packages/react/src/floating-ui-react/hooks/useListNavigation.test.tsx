@@ -2,7 +2,7 @@ import * as React from 'react';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { vi, it, describe } from 'vitest';
-import { ignoreActWarnings } from '@mui/internal-test-utils';
+import { flushMicrotasks, ignoreActWarnings } from '@mui/internal-test-utils';
 import { isJSDOM } from '@base-ui/utils/detectBrowser';
 import { useClick, useDismiss, useFloating, useInteractions, useListNavigation } from '../index';
 import type { UseListNavigationProps } from '../types';
@@ -476,8 +476,7 @@ describe('useListNavigation', () => {
   });
 
   describe('selectedIndex', () => {
-    it('scrollIntoView on open', ({ onTestFinished }) => {
-      ignoreActWarnings();
+    it('scrollIntoView on open', async ({ onTestFinished }) => {
       const requestAnimationFrame = vi
         .spyOn(window, 'requestAnimationFrame')
         .mockImplementation(() => 0);
@@ -492,6 +491,7 @@ describe('useListNavigation', () => {
 
       render(<App selectedIndex={0} />);
       fireEvent.click(screen.getByRole('button'));
+      await flushMicrotasks();
       expect(requestAnimationFrame).toHaveBeenCalled();
       // Run the timer
       requestAnimationFrame.mock.calls.forEach((call) => call[0](0));
@@ -500,8 +500,7 @@ describe('useListNavigation', () => {
   });
 
   describe('allowEscape + virtual', () => {
-    it('true', () => {
-      ignoreActWarnings();
+    it('true', async () => {
       render(<App allowEscape virtual loopFocus />);
       fireEvent.keyDown(screen.getByRole('button'), { key: 'ArrowDown' });
       expect(screen.getByTestId('item-0').getAttribute('aria-selected')).toBe('true');
@@ -515,41 +514,42 @@ describe('useListNavigation', () => {
       expect(screen.getByTestId('item-2').getAttribute('aria-selected')).toBe('true');
       fireEvent.keyDown(screen.getByRole('button'), { key: 'ArrowDown' });
       expect(screen.getByTestId('item-2').getAttribute('aria-selected')).toBe('false');
+      await flushMicrotasks();
     });
 
-    it('false', () => {
-      ignoreActWarnings();
+    it('false', async () => {
       render(<App allowEscape={false} virtual loopFocus />);
       fireEvent.keyDown(screen.getByRole('button'), { key: 'ArrowDown' });
       expect(screen.getByTestId('item-0').getAttribute('aria-selected')).toBe('true');
       fireEvent.keyDown(screen.getByRole('button'), { key: 'ArrowDown' });
       expect(screen.getByTestId('item-1').getAttribute('aria-selected')).toBe('true');
+      await flushMicrotasks();
     });
 
-    it('true - onNavigate is called with `null` when escaped', () => {
-      ignoreActWarnings();
+    it('true - onNavigate is called with `null` when escaped', async () => {
       const spy = vi.fn();
       render(<App allowEscape virtual loopFocus onNavigate={(index) => spy(index)} />);
       fireEvent.keyDown(screen.getByRole('button'), { key: 'ArrowDown' });
       fireEvent.keyDown(screen.getByRole('button'), { key: 'ArrowUp' });
       expect(spy).toHaveBeenCalledTimes(2);
       expect(spy).toHaveBeenCalledWith(null);
+      await flushMicrotasks();
     });
   });
 
   describe('openOnArrowKeyDown', () => {
-    it('true ArrowDown', () => {
-      ignoreActWarnings();
+    it('true ArrowDown', async () => {
       render(<App openOnArrowKeyDown />);
       fireEvent.keyDown(screen.getByRole('button'), { key: 'ArrowDown' });
       expect(screen.getByRole('menu')).toBeInTheDocument();
+      await flushMicrotasks();
     });
 
-    it('true ArrowUp', () => {
-      ignoreActWarnings();
+    it('true ArrowUp', async () => {
       render(<App openOnArrowKeyDown />);
       fireEvent.keyDown(screen.getByRole('button'), { key: 'ArrowUp' });
       expect(screen.getByRole('menu')).toBeInTheDocument();
+      await flushMicrotasks();
     });
 
     it('false ArrowDown', () => {
@@ -580,8 +580,7 @@ describe('useListNavigation', () => {
   });
 
   describe('focusOnHover', () => {
-    it('true - focuses item on hover and syncs the active index', () => {
-      ignoreActWarnings();
+    it('true - focuses item on hover and syncs the active index', async () => {
       const spy = vi.fn();
       render(<App onNavigate={(index) => spy(index)} />);
       fireEvent.click(screen.getByRole('button'));
@@ -590,10 +589,10 @@ describe('useListNavigation', () => {
       fireEvent.pointerLeave(screen.getByTestId('item-1'));
       expect(screen.getByRole('menu')).toHaveFocus();
       expect(spy).toHaveBeenCalledWith(1);
+      await flushMicrotasks();
     });
 
     it('false - does not focus item on hover and does not sync the active index', async () => {
-      ignoreActWarnings();
       const spy = vi.fn();
       render(
         <App onNavigate={(index) => spy(index)} focusItemOnOpen={false} focusItemOnHover={false} />,
@@ -602,6 +601,7 @@ describe('useListNavigation', () => {
       fireEvent.mouseMove(screen.getByTestId('item-1'));
       expect(screen.getByTestId('item-1')).not.toHaveFocus();
       expect(spy).toHaveBeenCalledTimes(0);
+      await flushMicrotasks();
     });
   });
 

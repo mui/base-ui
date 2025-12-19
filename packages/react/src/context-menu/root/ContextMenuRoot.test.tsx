@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { fireEvent, ignoreActWarnings, screen, waitFor } from '@mui/internal-test-utils';
+import { fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
 import { spy } from 'sinon';
 import { ContextMenu } from '@base-ui/react/context-menu';
 import { createRenderer } from '#test-utils';
@@ -20,7 +20,6 @@ describe('<ContextMenu.Root />', () => {
     clock.withFakeTimers();
 
     it('closes nested submenus when releasing the context menu pointer over an item', async () => {
-      ignoreActWarnings();
       const rootOnOpenChange = spy();
       const submenuOnOpenChange = spy();
 
@@ -53,6 +52,7 @@ describe('<ContextMenu.Root />', () => {
       const trigger = screen.getByTestId('context-trigger');
 
       fireEvent.contextMenu(trigger, { clientX: 10, clientY: 10, button: 2 });
+      await flushMicrotasks();
 
       await screen.findByTestId('context-root-popup');
 
@@ -63,6 +63,7 @@ describe('<ContextMenu.Root />', () => {
 
       const submenuItem = screen.getByTestId('context-submenu-item');
       fireEvent.mouseUp(submenuItem, { button: 2 });
+      await flushMicrotasks();
 
       await waitFor(() => {
         expect(screen.queryByTestId('context-submenu-popup')).to.equal(null);
