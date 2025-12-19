@@ -1,5 +1,12 @@
 import * as React from 'react';
-import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
+import {
+  act,
+  fireEvent,
+  flushMicrotasks,
+  screen,
+  waitFor,
+  ignoreActWarnings,
+} from '@mui/internal-test-utils';
 import { createRenderer, isJSDOM, popupConformanceTests } from '#test-utils';
 import { expect } from 'chai';
 import { spy } from 'sinon';
@@ -3719,6 +3726,8 @@ describe('<Combobox.Root />', () => {
     });
 
     it('focuses trigger and surfaces errors when input is inside popup', async () => {
+      ignoreActWarnings();
+
       let submittedCalls = 0;
 
       const handleSubmit: React.FormEventHandler<HTMLFormElement> = (event) => {

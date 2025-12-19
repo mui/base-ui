@@ -8,9 +8,7 @@ declare global {
   var BASE_UI_ANIMATIONS_DISABLED: boolean;
 }
 
-setupVitest({
-  // failOnConsoleEnabled: false,
-});
+setupVitest();
 
 afterEach(() => {
   vi.resetAllMocks();
@@ -23,17 +21,5 @@ if (typeof window !== 'undefined' && window?.navigator?.userAgent?.includes('jsd
   globalThis.requestAnimationFrame = (cb) => {
     setTimeout(() => cb(0), 0);
     return 0;
-  };
-}
-
-if (typeof window !== 'undefined') {
-  const { act } = await import('@mui/internal-test-utils');
-  const origRequestAnimationFrame = window.requestAnimationFrame;
-  window.requestAnimationFrame = (cb) => {
-    return origRequestAnimationFrame((...params) => {
-      return act(() => {
-        cb(...params);
-      });
-    });
   };
 }

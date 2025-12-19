@@ -1,29 +1,18 @@
 import * as React from 'react';
 import { Select } from '@base-ui/react/select';
-import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
+import {
+  act,
+  fireEvent,
+  flushMicrotasks,
+  screen,
+  waitFor,
+  ignoreActWarnings,
+} from '@mui/internal-test-utils';
 import { createRenderer, isJSDOM, popupConformanceTests } from '#test-utils';
 import { expect } from 'vitest';
 import { spy } from 'sinon';
 import { Field } from '@base-ui/react/field';
 import { Form } from '@base-ui/react/form';
-
-function ignoreActWarnings() {
-  const originalConsoleError = console.error;
-  console.error = new Proxy(console.error, {
-    apply(target, thisArg, args) {
-      if (
-        typeof args[0] === 'string' &&
-        args[0].includes('An update to %s inside a test was not wrapped in act')
-      ) {
-        return;
-      }
-      Reflect.apply(target, thisArg, args);
-    },
-  });
-  onTestFinished(() => {
-    console.error = originalConsoleError;
-  });
-}
 
 describe('<Select.Root />', () => {
   beforeEach(() => {

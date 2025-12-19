@@ -2,6 +2,7 @@ import * as React from 'react';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { vi, it, describe } from 'vitest';
+import { ignoreActWarnings } from '@mui/internal-test-utils';
 import { isJSDOM } from '@base-ui/utils/detectBrowser';
 import { useClick, useDismiss, useFloating, useInteractions, useListNavigation } from '../index';
 import type { UseListNavigationProps } from '../types';
@@ -476,6 +477,7 @@ describe('useListNavigation', () => {
 
   describe('selectedIndex', () => {
     it('scrollIntoView on open', ({ onTestFinished }) => {
+      ignoreActWarnings();
       const requestAnimationFrame = vi
         .spyOn(window, 'requestAnimationFrame')
         .mockImplementation(() => 0);
@@ -499,6 +501,7 @@ describe('useListNavigation', () => {
 
   describe('allowEscape + virtual', () => {
     it('true', () => {
+      ignoreActWarnings();
       render(<App allowEscape virtual loopFocus />);
       fireEvent.keyDown(screen.getByRole('button'), { key: 'ArrowDown' });
       expect(screen.getByTestId('item-0').getAttribute('aria-selected')).toBe('true');
@@ -515,6 +518,7 @@ describe('useListNavigation', () => {
     });
 
     it('false', () => {
+      ignoreActWarnings();
       render(<App allowEscape={false} virtual loopFocus />);
       fireEvent.keyDown(screen.getByRole('button'), { key: 'ArrowDown' });
       expect(screen.getByTestId('item-0').getAttribute('aria-selected')).toBe('true');
@@ -523,6 +527,7 @@ describe('useListNavigation', () => {
     });
 
     it('true - onNavigate is called with `null` when escaped', () => {
+      ignoreActWarnings();
       const spy = vi.fn();
       render(<App allowEscape virtual loopFocus onNavigate={(index) => spy(index)} />);
       fireEvent.keyDown(screen.getByRole('button'), { key: 'ArrowDown' });
@@ -534,12 +539,14 @@ describe('useListNavigation', () => {
 
   describe('openOnArrowKeyDown', () => {
     it('true ArrowDown', () => {
+      ignoreActWarnings();
       render(<App openOnArrowKeyDown />);
       fireEvent.keyDown(screen.getByRole('button'), { key: 'ArrowDown' });
       expect(screen.getByRole('menu')).toBeInTheDocument();
     });
 
     it('true ArrowUp', () => {
+      ignoreActWarnings();
       render(<App openOnArrowKeyDown />);
       fireEvent.keyDown(screen.getByRole('button'), { key: 'ArrowUp' });
       expect(screen.getByRole('menu')).toBeInTheDocument();
@@ -574,6 +581,7 @@ describe('useListNavigation', () => {
 
   describe('focusOnHover', () => {
     it('true - focuses item on hover and syncs the active index', () => {
+      ignoreActWarnings();
       const spy = vi.fn();
       render(<App onNavigate={(index) => spy(index)} />);
       fireEvent.click(screen.getByRole('button'));
@@ -585,6 +593,7 @@ describe('useListNavigation', () => {
     });
 
     it('false - does not focus item on hover and does not sync the active index', async () => {
+      ignoreActWarnings();
       const spy = vi.fn();
       render(
         <App onNavigate={(index) => spy(index)} focusItemOnOpen={false} focusItemOnHover={false} />,
@@ -618,6 +627,7 @@ describe('useListNavigation', () => {
     });
 
     it('focuses next item using ArrowRight key, skipping disabled items', () => {
+      ignoreActWarnings();
       render(<Grid />);
       fireEvent.keyDown(screen.getByRole('button'), { key: 'Enter' });
       fireEvent.click(screen.getByRole('button'));
@@ -634,6 +644,7 @@ describe('useListNavigation', () => {
     });
 
     it('focuses previous item using ArrowLeft key, skipping disabled items', () => {
+      ignoreActWarnings();
       render(<Grid />);
       fireEvent.keyDown(screen.getByRole('button'), { key: 'Enter' });
       fireEvent.click(screen.getByRole('button'));
@@ -651,6 +662,7 @@ describe('useListNavigation', () => {
     });
 
     it('skips row and remains on same column when pressing ArrowDown', () => {
+      ignoreActWarnings();
       render(<Grid />);
       fireEvent.keyDown(screen.getByRole('button'), { key: 'Enter' });
       fireEvent.click(screen.getByRole('button'));
@@ -665,6 +677,7 @@ describe('useListNavigation', () => {
     });
 
     it('skips row and remains on same column when pressing ArrowUp', () => {
+      ignoreActWarnings();
       render(<Grid />);
       fireEvent.keyDown(screen.getByRole('button'), { key: 'Enter' });
       fireEvent.click(screen.getByRole('button'));
@@ -682,6 +695,7 @@ describe('useListNavigation', () => {
     });
 
     it('loops on the same column with ArrowDown', () => {
+      ignoreActWarnings();
       render(<Grid loopFocus />);
       fireEvent.keyDown(screen.getByRole('button'), { key: 'Enter' });
       fireEvent.click(screen.getByRole('button'));
@@ -699,6 +713,7 @@ describe('useListNavigation', () => {
     });
 
     it('loops on the same column with ArrowUp', () => {
+      ignoreActWarnings();
       render(<Grid loopFocus />);
       fireEvent.keyDown(screen.getByRole('button'), { key: 'Enter' });
       fireEvent.click(screen.getByRole('button'));
@@ -718,6 +733,7 @@ describe('useListNavigation', () => {
     });
 
     it('does not leave row with "both" orientation while looping', () => {
+      ignoreActWarnings();
       render(<Grid orientation="both" loopFocus />);
       fireEvent.keyDown(screen.getByRole('button'), { key: 'Enter' });
       fireEvent.click(screen.getByRole('button'));
@@ -742,6 +758,7 @@ describe('useListNavigation', () => {
     });
 
     it('looping works on last row', () => {
+      ignoreActWarnings();
       render(<Grid orientation="both" loopFocus />);
       fireEvent.keyDown(screen.getByRole('button'), { key: 'Enter' });
       fireEvent.click(screen.getByRole('button'));
@@ -774,6 +791,7 @@ describe('useListNavigation', () => {
       { rtl: true, arrowToStart: 'ArrowRight', arrowToEnd: 'ArrowLeft' },
     ])('with rtl $rtl', ({ rtl, arrowToStart, arrowToEnd }) => {
       it(`focuses next item using ${arrowToEnd} key, skipping disabled items`, () => {
+        ignoreActWarnings();
         render(<ComplexGrid rtl={rtl} />);
         fireEvent.keyDown(screen.getByRole('button'), { key: 'Enter' });
         fireEvent.click(screen.getByRole('button'));
@@ -813,6 +831,7 @@ describe('useListNavigation', () => {
       });
 
       it(`focuses previous item using ${arrowToStart} key, skipping disabled items`, async () => {
+        ignoreActWarnings();
         render(<ComplexGrid rtl={rtl} />);
         fireEvent.keyDown(screen.getByRole('button'), { key: 'Enter' });
         fireEvent.click(screen.getByRole('button'));
@@ -861,6 +880,7 @@ describe('useListNavigation', () => {
       it(`moves through rows when pressing ArrowDown, prefers ${
         rtl ? 'right' : 'left'
       } side of wide items`, () => {
+        ignoreActWarnings();
         render(<ComplexGrid rtl={rtl} />);
         fireEvent.keyDown(screen.getByRole('button'), { key: 'Enter' });
         fireEvent.click(screen.getByRole('button'));
@@ -877,6 +897,7 @@ describe('useListNavigation', () => {
       it(`moves through rows when pressing ArrowUp, prefers ${
         rtl ? 'right' : 'left'
       } side of wide items`, () => {
+        ignoreActWarnings();
         render(<ComplexGrid rtl={rtl} />);
         fireEvent.keyDown(screen.getByRole('button'), { key: 'Enter' });
         fireEvent.click(screen.getByRole('button'));
@@ -894,6 +915,7 @@ describe('useListNavigation', () => {
       it(`loops over column with ArrowDown, prefers ${
         rtl ? 'right' : 'left'
       } side of wide items`, () => {
+        ignoreActWarnings();
         render(<ComplexGrid rtl={rtl} loopFocus />);
         fireEvent.keyDown(screen.getByRole('button'), { key: 'Enter' });
         fireEvent.click(screen.getByRole('button'));
@@ -910,6 +932,7 @@ describe('useListNavigation', () => {
       it(`loops over column with ArrowUp, prefers ${
         rtl ? 'right' : 'left'
       } side of wide items`, () => {
+        ignoreActWarnings();
         render(<ComplexGrid rtl={rtl} loopFocus />);
         fireEvent.keyDown(screen.getByRole('button'), { key: 'Enter' });
         fireEvent.click(screen.getByRole('button'));
@@ -931,6 +954,7 @@ describe('useListNavigation', () => {
       });
 
       it('loops over row with "both" orientation, prefers top side of tall items', () => {
+        ignoreActWarnings();
         render(<ComplexGrid rtl={rtl} orientation="both" loopFocus />);
         fireEvent.keyDown(screen.getByRole('button'), { key: 'Enter' });
         fireEvent.click(screen.getByRole('button'));
@@ -958,6 +982,7 @@ describe('useListNavigation', () => {
       });
 
       it('looping works on last row', () => {
+        ignoreActWarnings();
         render(<ComplexGrid rtl={rtl} orientation="both" loopFocus />);
         fireEvent.keyDown(screen.getByRole('button'), { key: 'Enter' });
         fireEvent.click(screen.getByRole('button'));

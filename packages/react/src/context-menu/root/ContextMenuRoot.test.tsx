@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { fireEvent, screen, waitFor } from '@mui/internal-test-utils';
+import { fireEvent, ignoreActWarnings, screen, waitFor } from '@mui/internal-test-utils';
 import { spy } from 'sinon';
 import { ContextMenu } from '@base-ui/react/context-menu';
 import { createRenderer } from '#test-utils';
@@ -20,6 +20,7 @@ describe('<ContextMenu.Root />', () => {
     clock.withFakeTimers();
 
     it('closes nested submenus when releasing the context menu pointer over an item', async () => {
+      ignoreActWarnings();
       const rootOnOpenChange = spy();
       const submenuOnOpenChange = spy();
 
