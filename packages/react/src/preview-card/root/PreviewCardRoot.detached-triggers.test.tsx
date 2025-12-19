@@ -30,7 +30,7 @@ describe('<PreviewCard.Root />', () => {
 
           <PreviewCard.Portal>
             <PreviewCard.Positioner>
-              <PreviewCard.Popup data-testid={popupId}>Tooltip Content</PreviewCard.Popup>
+              <PreviewCard.Popup data-testid={popupId}>Content</PreviewCard.Popup>
             </PreviewCard.Positioner>
           </PreviewCard.Portal>
         </PreviewCard.Root>,
@@ -66,7 +66,44 @@ describe('<PreviewCard.Root />', () => {
       });
     });
 
-    it('should open the tooltip with any trigger on focus', async () => {
+    it('should open the preview card immediately when hovering another trigger', async () => {
+      const popupId = randomStringValue();
+      const { user } = await render(
+        <PreviewCard.Root>
+          {({ payload }: NumberPayload) => (
+            <React.Fragment>
+              <PreviewCard.Trigger href="#" delay={0} payload={1}>
+                Trigger 1
+              </PreviewCard.Trigger>
+
+              {/* delay should be ignored when moving from already active trigger */}
+              <PreviewCard.Trigger href="#" delay={2000} payload={2}>
+                Trigger 2
+              </PreviewCard.Trigger>
+
+              <PreviewCard.Portal>
+                <PreviewCard.Positioner>
+                  <PreviewCard.Popup data-testid={popupId}>Content: {payload}</PreviewCard.Popup>
+                </PreviewCard.Positioner>
+              </PreviewCard.Portal>
+            </React.Fragment>
+          )}
+        </PreviewCard.Root>,
+      );
+
+      const trigger1 = screen.getByRole('link', { name: 'Trigger 1' });
+      const trigger2 = screen.getByRole('link', { name: 'Trigger 2' });
+
+      await user.hover(trigger1);
+      expect(screen.queryByTestId(popupId)).toBeVisible();
+      expect(screen.getByTestId(popupId).textContent).to.equal('Content: 1');
+
+      await user.hover(trigger2);
+      expect(screen.queryByTestId(popupId)).toBeVisible();
+      expect(screen.getByTestId(popupId).textContent).to.equal('Content: 2');
+    });
+
+    it('should open the preview card with any trigger on focus', async () => {
       await render(
         <PreviewCard.Root>
           <PreviewCard.Trigger href="#">Trigger 1</PreviewCard.Trigger>
@@ -75,7 +112,7 @@ describe('<PreviewCard.Root />', () => {
 
           <PreviewCard.Portal>
             <PreviewCard.Positioner>
-              <PreviewCard.Popup>Tooltip Content</PreviewCard.Popup>
+              <PreviewCard.Popup>Content</PreviewCard.Popup>
             </PreviewCard.Positioner>
           </PreviewCard.Portal>
         </PreviewCard.Root>,
@@ -85,25 +122,25 @@ describe('<PreviewCard.Root />', () => {
       const trigger2 = screen.getByRole('link', { name: 'Trigger 2' });
       const trigger3 = screen.getByRole('link', { name: 'Trigger 3' });
 
-      expect(screen.queryByText('Tooltip Content')).to.equal(null);
+      expect(screen.queryByText('Content')).to.equal(null);
 
       await act(async () => trigger1.focus());
       await flushMicrotasks();
-      expect(screen.getByText('Tooltip Content')).toBeVisible();
+      expect(screen.getByText('Content')).toBeVisible();
       await act(async () => trigger1.blur());
-      expect(screen.queryByText('Tooltip Content')).to.equal(null);
+      expect(screen.queryByText('Content')).to.equal(null);
 
       await act(async () => trigger2.focus());
       await flushMicrotasks();
-      expect(screen.getByText('Tooltip Content')).toBeVisible();
+      expect(screen.getByText('Content')).toBeVisible();
       await act(async () => trigger2.blur());
-      expect(screen.queryByText('Tooltip Content')).to.equal(null);
+      expect(screen.queryByText('Content')).to.equal(null);
 
       await act(async () => trigger3.focus());
       await flushMicrotasks();
-      expect(screen.getByText('Tooltip Content')).toBeVisible();
+      expect(screen.getByText('Content')).toBeVisible();
       await act(async () => trigger3.blur());
-      expect(screen.queryByText('Tooltip Content')).to.equal(null);
+      expect(screen.queryByText('Content')).to.equal(null);
     });
 
     it('should set the payload and render content based on its value', async () => {
@@ -177,7 +214,7 @@ describe('<PreviewCard.Root />', () => {
       expect(screen.getByTestId('popup')).to.equal(popupElement);
     });
 
-    it('should allow controlling the tooltip state programmatically', async () => {
+    it('should allow controlling the preview card state programmatically', async () => {
       function Test() {
         const [open, setOpen] = React.useState(false);
         const [activeTrigger, setActiveTrigger] = React.useState<string | null>(null);
@@ -241,7 +278,7 @@ describe('<PreviewCard.Root />', () => {
       expect(screen.queryByTestId('content')).to.equal(null);
     });
 
-    it('allows setting an initially open tooltip', async () => {
+    it('allows setting an initially open preview card', async () => {
       const testPreviewCard = PreviewCard.createHandle<number>();
       const triggerId = randomStringValue();
       await render(
@@ -275,7 +312,7 @@ describe('<PreviewCard.Root />', () => {
   describe.skipIf(isJSDOM)('multiple detached triggers', () => {
     type NumberPayload = { payload: number | undefined };
 
-    it('should open the tooltip with any trigger on hover', async () => {
+    it('should open the preview card with any trigger on hover', async () => {
       const testPreviewCard = PreviewCard.createHandle();
       const popupId = randomStringValue();
       const { user } = await render(
@@ -294,7 +331,7 @@ describe('<PreviewCard.Root />', () => {
           <PreviewCard.Root handle={testPreviewCard}>
             <PreviewCard.Portal>
               <PreviewCard.Positioner>
-                <PreviewCard.Popup data-testid={popupId}>Tooltip Content</PreviewCard.Popup>
+                <PreviewCard.Popup data-testid={popupId}>Content</PreviewCard.Popup>
               </PreviewCard.Positioner>
             </PreviewCard.Portal>
           </PreviewCard.Root>
@@ -337,7 +374,7 @@ describe('<PreviewCard.Root />', () => {
       });
     });
 
-    it('should open the tooltip with any trigger on focus', async () => {
+    it('should open the preview card with any trigger on focus', async () => {
       const testPreviewCard = PreviewCard.createHandle();
       await render(
         <div>
@@ -354,7 +391,7 @@ describe('<PreviewCard.Root />', () => {
           <PreviewCard.Root handle={testPreviewCard}>
             <PreviewCard.Portal>
               <PreviewCard.Positioner>
-                <PreviewCard.Popup>Tooltip Content</PreviewCard.Popup>
+                <PreviewCard.Popup>Content</PreviewCard.Popup>
               </PreviewCard.Positioner>
             </PreviewCard.Portal>
           </PreviewCard.Root>
@@ -365,25 +402,25 @@ describe('<PreviewCard.Root />', () => {
       const trigger2 = screen.getByRole('link', { name: 'Trigger 2' });
       const trigger3 = screen.getByRole('link', { name: 'Trigger 3' });
 
-      expect(screen.queryByText('Tooltip Content')).to.equal(null);
+      expect(screen.queryByText('Content')).to.equal(null);
 
       await act(async () => trigger1.focus());
       await flushMicrotasks();
-      expect(screen.getByText('Tooltip Content')).toBeVisible();
+      expect(screen.getByText('Content')).toBeVisible();
       await act(async () => trigger1.blur());
-      expect(screen.queryByText('Tooltip Content')).to.equal(null);
+      expect(screen.queryByText('Content')).to.equal(null);
 
       await act(async () => trigger2.focus());
       await flushMicrotasks();
-      expect(screen.getByText('Tooltip Content')).toBeVisible();
+      expect(screen.getByText('Content')).toBeVisible();
       await act(async () => trigger2.blur());
-      expect(screen.queryByText('Tooltip Content')).to.equal(null);
+      expect(screen.queryByText('Content')).to.equal(null);
 
       await act(async () => trigger3.focus());
       await flushMicrotasks();
-      expect(screen.getByText('Tooltip Content')).toBeVisible();
+      expect(screen.getByText('Content')).toBeVisible();
       await act(async () => trigger3.blur());
-      expect(screen.queryByText('Tooltip Content')).to.equal(null);
+      expect(screen.queryByText('Content')).to.equal(null);
     });
 
     it('should set the payload and render content based on its value', async () => {
@@ -459,7 +496,7 @@ describe('<PreviewCard.Root />', () => {
       expect(screen.getByTestId('positioner')).to.equal(positionerElement);
     });
 
-    it('should allow controlling the tooltip state programmatically', async () => {
+    it('should allow controlling the preview card state programmatically', async () => {
       const testPreviewCard = PreviewCard.createHandle<number>();
       function Test() {
         const [open, setOpen] = React.useState(false);
@@ -555,7 +592,7 @@ describe('<PreviewCard.Root />', () => {
       expect(screen.queryByTestId('content')).to.equal(null);
     });
 
-    it('allows setting an initially open tooltip', async () => {
+    it('allows setting an initially open preview card', async () => {
       const testPreviewCard = PreviewCard.createHandle<number>();
       const triggerId = randomStringValue();
       await render(
@@ -589,14 +626,14 @@ describe('<PreviewCard.Root />', () => {
   });
 
   describe.skipIf(isJSDOM)('imperative actions on the handle', () => {
-    it('opens and closes the tooltip', async () => {
-      const tooltip = PreviewCard.createHandle();
+    it('opens and closes the preview card', async () => {
+      const handle = PreviewCard.createHandle();
       await render(
         <div>
-          <PreviewCard.Trigger href="#" handle={tooltip} id="trigger">
+          <PreviewCard.Trigger href="#" handle={handle} id="trigger">
             Trigger
           </PreviewCard.Trigger>
-          <PreviewCard.Root handle={tooltip}>
+          <PreviewCard.Root handle={handle}>
             <PreviewCard.Portal>
               <PreviewCard.Positioner>
                 <PreviewCard.Popup data-testid="content">Content</PreviewCard.Popup>
@@ -609,7 +646,7 @@ describe('<PreviewCard.Root />', () => {
       const trigger = screen.getByRole('link', { name: 'Trigger' });
       expect(screen.queryByTestId('content')).to.equal(null);
 
-      await act(() => tooltip.open('trigger'));
+      await act(() => handle.open('trigger'));
       await waitFor(() => {
         expect(screen.queryByTestId('content')).not.to.equal(null);
       });
@@ -617,7 +654,7 @@ describe('<PreviewCard.Root />', () => {
       expect(screen.getByTestId('content').textContent).to.equal('Content');
       expect(trigger).to.have.attribute('data-popup-open');
 
-      await act(() => tooltip.close());
+      await act(() => handle.close());
       await waitFor(() => {
         expect(screen.queryByTestId('content')).to.equal(null);
       });
@@ -626,16 +663,16 @@ describe('<PreviewCard.Root />', () => {
     });
 
     it('sets the payload associated with the trigger', async () => {
-      const tooltip = PreviewCard.createHandle<number>();
+      const handle = PreviewCard.createHandle<number>();
       await render(
         <div>
-          <PreviewCard.Trigger href="#" handle={tooltip} id="trigger1" payload={1}>
+          <PreviewCard.Trigger href="#" handle={handle} id="trigger1" payload={1}>
             Trigger 1
           </PreviewCard.Trigger>
-          <PreviewCard.Trigger href="#" handle={tooltip} id="trigger2" payload={2}>
+          <PreviewCard.Trigger href="#" handle={handle} id="trigger2" payload={2}>
             Trigger 2
           </PreviewCard.Trigger>
-          <PreviewCard.Root handle={tooltip}>
+          <PreviewCard.Root handle={handle}>
             {({ payload }: { payload: number | undefined }) => (
               <PreviewCard.Portal>
                 <PreviewCard.Positioner>
@@ -651,7 +688,7 @@ describe('<PreviewCard.Root />', () => {
       const trigger2 = screen.getByRole('link', { name: 'Trigger 2' });
       expect(screen.queryByTestId('content')).to.equal(null);
 
-      await act(() => tooltip.open('trigger2'));
+      await act(() => handle.open('trigger2'));
       await waitFor(() => {
         expect(screen.queryByTestId('content')).not.to.equal(null);
       });
@@ -660,7 +697,7 @@ describe('<PreviewCard.Root />', () => {
       expect(trigger2).to.have.attribute('data-popup-open');
       expect(trigger1).not.to.have.attribute('data-popup-open');
 
-      await act(() => tooltip.close());
+      await act(() => handle.close());
       await waitFor(() => {
         expect(screen.queryByTestId('content')).to.equal(null);
       });
