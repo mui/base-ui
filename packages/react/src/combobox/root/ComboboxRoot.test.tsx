@@ -6,6 +6,7 @@ import {
   screen,
   waitFor,
   ignoreActWarnings,
+  reactMajor,
 } from '@mui/internal-test-utils';
 import { createRenderer, isJSDOM, popupConformanceTests } from '#test-utils';
 import { expect } from 'chai';
@@ -3489,6 +3490,10 @@ describe('<Combobox.Root />', () => {
 
     describe('single', () => {
       it('closes the dialog after selecting an item and updates the trigger value', async () => {
+        if (reactMajor <= 18) {
+          ignoreActWarnings();
+        }
+
         const { user } = await render(<DialogSingleCombobox defaultOpen={false} />);
 
         const trigger = screen.getByTestId('dialog-trigger');
@@ -3510,6 +3515,10 @@ describe('<Combobox.Root />', () => {
       });
 
       it('clears the filter input when re-opening after a selection', async () => {
+        if (reactMajor <= 18) {
+          ignoreActWarnings();
+        }
+
         const { user } = await render(<DialogSingleCombobox defaultOpen={false} />);
 
         const trigger = screen.getByTestId('dialog-trigger');

@@ -1,5 +1,12 @@
 import { expect } from 'chai';
-import { fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
+import {
+  fireEvent,
+  flushMicrotasks,
+  ignoreActWarnings,
+  reactMajor,
+  screen,
+  waitFor,
+} from '@mui/internal-test-utils';
 import { spy } from 'sinon';
 import { ContextMenu } from '@base-ui/react/context-menu';
 import { createRenderer } from '#test-utils';
@@ -80,6 +87,10 @@ describe('<ContextMenu.Root />', () => {
     });
 
     it('ignores mouseup directly under the cursor when the context menu spawns there', async () => {
+      if (reactMajor <= 18) {
+        ignoreActWarnings();
+      }
+
       const onOpenChange = spy();
 
       await render(
@@ -112,6 +123,10 @@ describe('<ContextMenu.Root />', () => {
     });
 
     it('ignores mouseup directly under the cursor when alignOffset is negative', async () => {
+      if (reactMajor <= 18) {
+        ignoreActWarnings();
+      }
+
       const onOpenChange = spy();
 
       await render(
@@ -144,6 +159,10 @@ describe('<ContextMenu.Root />', () => {
     });
 
     it('allows mouseup after leaving the initial cursor point', async () => {
+      if (reactMajor <= 18) {
+        ignoreActWarnings();
+      }
+
       const onOpenChange = spy();
 
       await render(
