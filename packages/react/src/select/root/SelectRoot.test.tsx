@@ -7,6 +7,7 @@ import {
   screen,
   waitFor,
   ignoreActWarnings,
+  reactMajor,
 } from '@mui/internal-test-utils';
 import { createRenderer, isJSDOM, popupConformanceTests } from '#test-utils';
 import { expect } from 'vitest';
@@ -357,6 +358,10 @@ describe('<Select.Root />', () => {
     clock.withFakeTimers();
 
     it('should call onValueChange when an item is selected', async () => {
+      if (reactMajor <= 18) {
+        ignoreActWarnings();
+      }
+
       const handleValueChange = spy();
 
       function App() {
@@ -400,6 +405,10 @@ describe('<Select.Root />', () => {
     });
 
     it('is not called twice on select', async () => {
+      if (reactMajor <= 18) {
+        ignoreActWarnings();
+      }
+
       const handleValueChange = spy();
 
       const { user } = await renderFakeTimers(
@@ -1989,6 +1998,10 @@ describe('<Select.Root />', () => {
     });
 
     it('resets to default when the selected item is removed from the list', async () => {
+      if (reactMajor <= 18) {
+        ignoreActWarnings();
+      }
+
       function Test() {
         const [items, setItems] = React.useState(['a', 'b', 'c']);
         return (
@@ -2039,6 +2052,10 @@ describe('<Select.Root />', () => {
     });
 
     it('resets via onValueChange and does not break in controlled mode when the selected item is removed', async () => {
+      if (reactMajor <= 18) {
+        ignoreActWarnings();
+      }
+
       function TestControlled() {
         const [items, setItems] = React.useState(['a', 'b', 'c']);
         const [value, setValue] = React.useState<string | null>('c');
@@ -2091,6 +2108,10 @@ describe('<Select.Root />', () => {
     });
 
     it('falls back to null when both selected and initial default are removed (uncontrolled)', async () => {
+      if (reactMajor <= 18) {
+        ignoreActWarnings();
+      }
+
       function Test() {
         const [items, setItems] = React.useState(['a', 'b', 'c']);
         return (
@@ -2151,6 +2172,10 @@ describe('<Select.Root />', () => {
     });
 
     it('falls back to null when both selected and initial default are removed (controlled)', async () => {
+      if (reactMajor <= 18) {
+        ignoreActWarnings();
+      }
+
       function TestControlled() {
         const [items, setItems] = React.useState(['a', 'b', 'c']);
         const [value, setValue] = React.useState<string | null>('c');
