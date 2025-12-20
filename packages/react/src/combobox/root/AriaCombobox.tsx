@@ -149,6 +149,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
   const selectionEventRef = React.useRef<MouseEvent | PointerEvent | KeyboardEvent | null>(null);
   const lastHighlightRef = React.useRef(INITIAL_LAST_HIGHLIGHT);
   const pendingQueryHighlightRef = React.useRef<null | { hasQuery: boolean }>(null);
+  const itemValueMapRef = React.useRef<WeakMap<HTMLElement, any>>(new WeakMap());
 
   /**
    * Contains the currently visible list of item values post-filtering.
@@ -360,6 +361,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
         clearRef,
         valuesRef,
         allValuesRef,
+        itemValueMapRef,
         selectionEventRef,
         name,
         form,
@@ -1100,6 +1102,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       open,
       mounted,
       transitionStatus,
+      filter,
       items,
       inline: inlineProp,
       popupProps: getFloatingProps(),
@@ -1133,6 +1136,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     open,
     mounted,
     transitionStatus,
+    filter,
     items,
     getFloatingProps,
     getReferenceProps,
