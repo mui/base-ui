@@ -680,6 +680,47 @@ describe('<Combobox.Root />', () => {
       });
     });
 
+    it('loops ArrowDown from last to first without requiring multiple keypresses', async () => {
+      const { user } = await render(
+        <Combobox.Root>
+          <Combobox.Input data-testid="input" />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  <Combobox.Item value="apple">apple</Combobox.Item>
+                  <Combobox.Item value="banana">banana</Combobox.Item>
+                  <Combobox.Item value="cherry">cherry</Combobox.Item>
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByTestId('input');
+      await act(async () => input.focus());
+
+      await user.keyboard('{ArrowUp}');
+      await waitFor(() => {
+        expect(screen.getByRole('listbox')).not.to.equal(null);
+      });
+
+      const options = screen.getAllByRole('option');
+      expect(options.length).to.equal(3);
+
+      await waitFor(() => {
+        expect(input).to.have.attribute('aria-activedescendant', options[2].id);
+      });
+      expect(input).toHaveFocus();
+
+      await user.keyboard('{ArrowDown}');
+      await waitFor(() => {
+        expect(input).to.have.attribute('aria-activedescendant', options[0].id);
+      });
+      expect(input).toHaveFocus();
+    });
+
     it('opens, navigates with ArrowDown, and Enter selects', async () => {
       const items = ['apple', 'banana', 'cherry'];
 
