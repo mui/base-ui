@@ -1,7 +1,14 @@
 import { Popover } from '@base-ui/react/popover';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import { expect } from 'chai';
-import { act, fireEvent, flushMicrotasks, ignoreActWarnings, screen, waitFor } from '@mui/internal-test-utils';
+import {
+  act,
+  fireEvent,
+  flushMicrotasks,
+  ignoreActWarnings,
+  screen,
+  waitFor,
+} from '@mui/internal-test-utils';
 import { PATIENT_CLICK_THRESHOLD } from '../../utils/constants';
 
 describe('<Popover.Trigger />', () => {

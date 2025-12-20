@@ -1,5 +1,12 @@
 import { Select } from '@base-ui/react/select';
-import { act, fireEvent, flushMicrotasks, ignoreActWarnings, screen, waitFor } from '@mui/internal-test-utils';
+import {
+  act,
+  fireEvent,
+  flushMicrotasks,
+  ignoreActWarnings,
+  screen,
+  waitFor,
+} from '@mui/internal-test-utils';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import { expect } from 'chai';
 
