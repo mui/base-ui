@@ -579,6 +579,9 @@ importers:
       '@base-ui/react':
         specifier: workspace:*
         version: link:../packages/react/build
+      '@base-ui/utils':
+        specifier: workspace:*
+        version: link:../packages/utils/build
       '@playwright/test':
         specifier: 1.57.0
         version: 1.57.0
