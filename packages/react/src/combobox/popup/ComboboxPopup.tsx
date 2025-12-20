@@ -5,11 +5,7 @@ import { useStore } from '@base-ui/utils/store';
 import { FloatingFocusManager } from '../../floating-ui-react';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
-import {
-  useComboboxFloatingContext,
-  useComboboxRootContext,
-  useComboboxDerivedItemsContext,
-} from '../root/ComboboxRootContext';
+import { useComboboxFloatingContext, useComboboxRootContext } from '../root/ComboboxRootContext';
 import { selectors } from '../store';
 import { popupStateMapping } from '../../utils/popupStateMapping';
 import { useComboboxPositionerContext } from '../positioner/ComboboxPositionerContext';
@@ -40,7 +36,6 @@ export const ComboboxPopup = React.forwardRef(function ComboboxPopup(
   const store = useComboboxRootContext();
   const positioning = useComboboxPositionerContext();
   const floatingRootContext = useComboboxFloatingContext();
-  const { filteredItems } = useComboboxDerivedItemsContext();
 
   const mounted = useStore(store, selectors.mounted);
   const open = useStore(store, selectors.open);
@@ -49,8 +44,9 @@ export const ComboboxPopup = React.forwardRef(function ComboboxPopup(
   const inputInsidePopup = useStore(store, selectors.inputInsidePopup);
   const inputElement = useStore(store, selectors.inputElement);
   const modal = useStore(store, selectors.modal);
+  const visibleItemCount = useStore(store, selectors.visibleItemCount);
 
-  const empty = filteredItems.length === 0;
+  const empty = visibleItemCount === 0;
 
   useOpenChangeComplete({
     open,

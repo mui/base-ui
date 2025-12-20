@@ -5,11 +5,7 @@ import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { inertValue } from '@base-ui/utils/inertValue';
 import { useScrollLock } from '@base-ui/utils/useScrollLock';
-import {
-  useComboboxFloatingContext,
-  useComboboxRootContext,
-  useComboboxDerivedItemsContext,
-} from '../root/ComboboxRootContext';
+import { useComboboxFloatingContext, useComboboxRootContext } from '../root/ComboboxRootContext';
 import { ComboboxPositionerContext } from './ComboboxPositionerContext';
 import {
   type Side,
@@ -53,7 +49,6 @@ export const ComboboxPositioner = React.forwardRef(function ComboboxPositioner(
   } = componentProps;
 
   const store = useComboboxRootContext();
-  const { filteredItems } = useComboboxDerivedItemsContext();
   const floatingRootContext = useComboboxFloatingContext();
   const keepMounted = useComboboxPortalContext();
 
@@ -66,8 +61,9 @@ export const ComboboxPositioner = React.forwardRef(function ComboboxPositioner(
   const inputGroupElement = useStore(store, selectors.inputGroupElement);
   const inputInsidePopup = useStore(store, selectors.inputInsidePopup);
   const transitionStatus = useStore(store, selectors.transitionStatus);
+  const visibleItemCount = useStore(store, selectors.visibleItemCount);
 
-  const empty = filteredItems.length === 0;
+  const empty = visibleItemCount === 0;
   const resolvedAnchor =
     anchor ?? (inputInsidePopup ? triggerElement : (inputGroupElement ?? inputElement));
 

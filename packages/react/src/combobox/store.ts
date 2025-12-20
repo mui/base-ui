@@ -17,6 +17,12 @@ export type State = {
 
   items: readonly any[] | undefined;
 
+  hasFilteredItemsProp: boolean;
+
+  visibleItemCount: number;
+
+  defaultSelectedValue: any;
+
   selectedValue: any;
 
   open: boolean;
@@ -58,7 +64,6 @@ export type State = {
   clearRef: React.RefObject<HTMLButtonElement | null>;
   valuesRef: React.RefObject<Array<any>>;
   allValuesRef: React.RefObject<Array<any>>;
-  itemValueMapRef: React.RefObject<WeakMap<Element, any>>;
   selectionEventRef: React.RefObject<MouseEvent | PointerEvent | KeyboardEvent | null>;
 
   setOpen: (open: boolean, eventDetails: AriaCombobox.ChangeEventDetails) => void;
@@ -105,6 +110,9 @@ export const selectors = {
   filter: createSelector((state: State) => state.filter),
 
   items: createSelector((state: State) => state.items),
+  hasFilteredItemsProp: createSelector((state: State) => state.hasFilteredItemsProp),
+
+  visibleItemCount: createSelector((state: State) => state.visibleItemCount),
 
   selectedValue: createSelector((state: State) => state.selectedValue),
   hasSelectionChips: createSelector((state: State) => {

@@ -6,11 +6,7 @@ import { isAndroid, isFirefox } from '@base-ui/utils/detectBrowser';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useRenderElement } from '../../utils/useRenderElement';
-import {
-  useComboboxDerivedItemsContext,
-  useComboboxInputValueContext,
-  useComboboxRootContext,
-} from '../root/ComboboxRootContext';
+import { useComboboxInputValueContext, useComboboxRootContext } from '../root/ComboboxRootContext';
 import { triggerStateAttributesMapping } from '../utils/stateAttributesMapping';
 import { selectors } from '../store';
 import type { FieldRootState } from '../../field/root/FieldRoot';
@@ -56,7 +52,6 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
   const positioning = useComboboxPositionerContext(true);
   const hasPositionerParent = Boolean(positioning);
   const store = useComboboxRootContext();
-  const { filteredItems } = useComboboxDerivedItemsContext();
   // `inputValue` can't be placed in the store.
   // https://github.com/mui/base-ui/issues/2703
   const inputValue = useComboboxInputValueContext();
@@ -79,11 +74,12 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
   const rootId = useStore(store, selectors.id);
   const inline = useStore(store, selectors.inline);
   const modal = useStore(store, selectors.modal);
+  const visibleItemCount = useStore(store, selectors.visibleItemCount);
 
   const autoHighlightEnabled = Boolean(autoHighlightMode);
   const popupSide = mounted && positionerElement ? popupSideValue : null;
   const disabled = fieldDisabled || comboboxDisabled || disabledProp;
-  const listEmpty = filteredItems.length === 0;
+  const listEmpty = visibleItemCount === 0;
 
   const isInsidePopup = hasPositionerParent || inline;
   const focusManagerModal = !isInsidePopup || modal;
