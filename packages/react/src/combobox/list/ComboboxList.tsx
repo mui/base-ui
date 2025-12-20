@@ -33,6 +33,7 @@ export const ComboboxList = React.forwardRef(function ComboboxList(
   const items = useStore(store, selectors.items);
   const labelsRef = useStore(store, selectors.labelsRef);
   const listRef = useStore(store, selectors.listRef);
+  const valuesRef = useStore(store, selectors.valuesRef);
   const selectionMode = useStore(store, selectors.selectionMode);
   const grid = useStore(store, selectors.grid);
   const popupProps = useStore(store, selectors.popupProps);
@@ -115,12 +116,31 @@ export const ComboboxList = React.forwardRef(function ComboboxList(
     ],
   });
 
+  const handleMapChange = useStableCallback((map: Map<Element, any>) => {
+    if (items || selectionMode !== 'none') {
+      return;
+    }
+
+    const nextValues: any[] = [];
+    const itemValueMap = store.state.itemValueMapRef.current;
+
+    map.forEach((_metadata, node) => {
+      nextValues.push(itemValueMap.get(node));
+    });
+
+    valuesRef.current = nextValues;
+  });
+
   if (virtualized) {
     return element;
   }
 
   return (
-    <CompositeList elementsRef={listRef} labelsRef={items ? undefined : labelsRef}>
+    <CompositeList
+      elementsRef={listRef}
+      labelsRef={items ? undefined : labelsRef}
+      onMapChange={handleMapChange}
+    >
       {element}
     </CompositeList>
   );
