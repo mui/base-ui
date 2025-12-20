@@ -14,6 +14,9 @@ import { selectors } from '../store';
 import { ComboboxCollection } from '../collection/ComboboxCollection';
 import { CompositeList } from '../../composite/list/CompositeList';
 import { stopEvent } from '../../floating-ui-react/utils';
+import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
+import { REASONS } from '../../utils/reasons';
+import { itemIncludes } from '../../utils/itemEquality';
 
 /**
  * A list container for the items.
@@ -26,11 +29,13 @@ export const ComboboxList = React.forwardRef(function ComboboxList(
   const { render, className, children, ...elementProps } = componentProps;
 
   const store = useComboboxRootContext();
+  const { filterQuery } = useComboboxDerivedItemsContext();
   const floatingRootContext = useComboboxFloatingContext();
   const hasPositionerContext = Boolean(useComboboxPositionerContext(true));
-  const { filteredItems } = useComboboxDerivedItemsContext();
 
   const items = useStore(store, selectors.items);
+  const hasFilteredItemsProp = useStore(store, selectors.hasFilteredItemsProp);
+  const visibleItemCount = useStore(store, selectors.visibleItemCount);
   const labelsRef = useStore(store, selectors.labelsRef);
   const listRef = useStore(store, selectors.listRef);
   const valuesRef = useStore(store, selectors.valuesRef);
@@ -42,7 +47,7 @@ export const ComboboxList = React.forwardRef(function ComboboxList(
   const virtualized = useStore(store, selectors.virtualized);
 
   const multiple = selectionMode === 'multiple';
-  const empty = filteredItems.length === 0;
+  const empty = visibleItemCount === 0;
 
   const setPositionerElement = useStableCallback((element) => {
     store.set('positionerElement', element);
@@ -116,19 +121,62 @@ export const ComboboxList = React.forwardRef(function ComboboxList(
     ],
   });
 
+  const prevMapSizeRef = React.useRef(0);
+
   const handleMapChange = useStableCallback((map: Map<Element, any>) => {
-    if (items || selectionMode !== 'none') {
+    if (items || hasFilteredItemsProp) {
       return;
     }
 
     const nextValues: any[] = [];
+    const nextList: Array<HTMLElement | null> = [];
     const itemValueMap = store.state.itemValueMapRef.current;
 
     map.forEach((_metadata, node) => {
       nextValues.push(itemValueMap.get(node));
+      nextList.push(node as HTMLElement);
     });
 
     valuesRef.current = nextValues;
+    listRef.current = nextList;
+    store.set('visibleItemCount', nextValues.length);
+
+    const shouldUpdateAllValues =
+      filterQuery === '' || store.state.allValuesRef.current.length === 0;
+    if (shouldUpdateAllValues) {
+      store.state.allValuesRef.current = nextValues.slice();
+    }
+
+    if (filterQuery !== '' || selectionMode === 'none') {
+      return;
+    }
+
+    const prevSize = prevMapSizeRef.current;
+    prevMapSizeRef.current = map.size;
+
+    if (prevSize === 0 || map.size === prevSize) {
+      return;
+    }
+
+    const eventDetails = createChangeEventDetails(REASONS.none);
+    const comparer = store.state.isItemEqualToValue;
+    const currentSelectedValue = store.state.selectedValue;
+
+    if (selectionMode === 'multiple') {
+      const current = Array.isArray(currentSelectedValue) ? currentSelectedValue : [];
+      const next = current.filter((value) => itemIncludes(nextValues, value, comparer));
+      if (next.length !== current.length) {
+        store.state.setSelectedValue(next, eventDetails);
+      }
+      return;
+    }
+
+    if (currentSelectedValue != null && !itemIncludes(nextValues, currentSelectedValue, comparer)) {
+      const fallback = store.state.defaultSelectedValue;
+      const nextValue =
+        fallback != null && itemIncludes(nextValues, fallback, comparer) ? fallback : null;
+      store.state.setSelectedValue(nextValue, eventDetails);
+    }
   });
 
   if (virtualized) {
