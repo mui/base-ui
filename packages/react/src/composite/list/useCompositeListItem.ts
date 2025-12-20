@@ -51,10 +51,20 @@ export function useCompositeListItem<Metadata>(
   );
 
   const componentRef = React.useRef<Element | null>(null);
+  const registeredNodeRef = React.useRef<Element | null>(null);
 
   const ref = React.useCallback(
     (node: HTMLElement | null) => {
       componentRef.current = node;
+
+      if (externalIndex == null && node && registeredNodeRef.current !== node) {
+        const prevNode = registeredNodeRef.current;
+        if (prevNode) {
+          unregister(prevNode);
+        }
+        register(node, metadata);
+        registeredNodeRef.current = node;
+      }
 
       if (index !== -1 && node !== null) {
         elementsRef.current[index] = node;
@@ -67,22 +77,38 @@ export function useCompositeListItem<Metadata>(
         }
       }
     },
-    [index, elementsRef, labelsRef, label, textRef],
+    [externalIndex, index, elementsRef, labelsRef, label, textRef, register, unregister, metadata],
   );
+
+  useIsoLayoutEffect(() => {
+    if (externalIndex != null) {
+      return;
+    }
+
+    // Some components (e.g. Combobox.Item) render `null` when filtered out.
+    // In that case, the component stays mounted (effects don't clean up), but the DOM node
+    // disappears. Unregister the previously registered node after commit.
+    if (componentRef.current == null && registeredNodeRef.current != null) {
+      unregister(registeredNodeRef.current);
+      registeredNodeRef.current = null;
+      indexRef.current = -1;
+    }
+  });
 
   useIsoLayoutEffect(() => {
     if (externalIndex != null) {
       return undefined;
     }
 
-    const node = componentRef.current;
-    if (node) {
-      register(node, metadata);
-      return () => {
-        unregister(node);
-      };
+    const node = registeredNodeRef.current || componentRef.current;
+    if (!node) {
+      return undefined;
     }
-    return undefined;
+
+    register(node, metadata);
+    return () => {
+      unregister(node);
+    };
   }, [externalIndex, register, unregister, metadata]);
 
   useIsoLayoutEffect(() => {
@@ -91,19 +117,14 @@ export function useCompositeListItem<Metadata>(
     }
 
     return subscribeMapChange((map) => {
-      const i = componentRef.current ? map.get(componentRef.current)?.index : null;
-
-      if (i != null) {
-        setIndex(i);
-      }
+      const lookupNode = registeredNodeRef.current || componentRef.current;
+      const i = lookupNode ? map.get(lookupNode)?.index : null;
+      setIndex(i != null ? i : -1);
     });
   }, [externalIndex, subscribeMapChange, setIndex]);
 
-  return React.useMemo(
-    () => ({
-      ref,
-      index,
-    }),
-    [index, ref],
-  );
+  return {
+    ref,
+    index,
+  };
 }

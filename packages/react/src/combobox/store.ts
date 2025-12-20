@@ -15,6 +15,12 @@ export type State = {
 
   items: readonly any[] | undefined;
 
+  hasFilteredItemsProp: boolean;
+
+  visibleItemCount: number;
+
+  defaultSelectedValue: any;
+
   selectedValue: any;
 
   open: boolean;
@@ -98,6 +104,9 @@ export const selectors = {
   filter: createSelector((state: State) => state.filter),
 
   items: createSelector((state: State) => state.items),
+  hasFilteredItemsProp: createSelector((state: State) => state.hasFilteredItemsProp),
+
+  visibleItemCount: createSelector((state: State) => state.visibleItemCount),
 
   selectedValue: createSelector((state: State) => state.selectedValue),
 
