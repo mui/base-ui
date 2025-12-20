@@ -498,6 +498,85 @@ describe('<Autocomplete.Root />', () => {
       expect(screen.getAllByRole('option')).to.have.length(2);
     });
 
+    it('mode="list": filters when rendering items as children (no `items` prop)', async () => {
+      const tags = [
+        { id: 'apple', value: 'apple' },
+        { id: 'banana', value: 'banana' },
+        { id: 'cherry', value: 'cherry' },
+      ];
+
+      const { user } = await render(
+        <Autocomplete.Root mode="list">
+          <Autocomplete.Input data-testid="input" />
+          <Autocomplete.Portal>
+            <Autocomplete.Positioner>
+              <Autocomplete.Popup>
+                <Autocomplete.List>
+                  {tags.map((tag) => (
+                    <Autocomplete.Item key={tag.id} value={tag}>
+                      {tag.value}
+                    </Autocomplete.Item>
+                  ))}
+                </Autocomplete.List>
+              </Autocomplete.Popup>
+            </Autocomplete.Positioner>
+          </Autocomplete.Portal>
+        </Autocomplete.Root>,
+      );
+
+      const input = screen.getByTestId<HTMLInputElement>('input');
+
+      await user.click(input);
+      await user.type(input, 'ch');
+
+      await waitFor(() => {
+        expect(screen.getAllByRole('option')).to.have.length(1);
+      });
+      expect(screen.getByRole('option', { name: 'cherry' })).not.to.equal(null);
+    });
+
+    it('mode="list": arrow navigation skips filtered-out children (no `items` prop)', async () => {
+      const tags = [
+        { id: 'apple', value: 'apple' },
+        { id: 'banana', value: 'banana' },
+        { id: 'cherry', value: 'cherry' },
+      ];
+
+      const { user } = await render(
+        <Autocomplete.Root mode="list">
+          <Autocomplete.Input data-testid="input" />
+          <Autocomplete.Portal>
+            <Autocomplete.Positioner>
+              <Autocomplete.Popup>
+                <Autocomplete.List>
+                  {tags.map((tag) => (
+                    <Autocomplete.Item key={tag.id} value={tag}>
+                      {tag.value}
+                    </Autocomplete.Item>
+                  ))}
+                </Autocomplete.List>
+              </Autocomplete.Popup>
+            </Autocomplete.Positioner>
+          </Autocomplete.Portal>
+        </Autocomplete.Root>,
+      );
+
+      const input = screen.getByTestId<HTMLInputElement>('input');
+
+      await user.click(input);
+      await user.type(input, 'ch');
+
+      const option = await screen.findByRole('option', { name: 'cherry' });
+      expect(option).not.to.equal(null);
+
+      await user.keyboard('{ArrowDown}');
+
+      await waitFor(() => {
+        expect(option).to.have.attribute('data-highlighted');
+      });
+      expect(input.getAttribute('aria-activedescendant')).to.equal(option.id);
+    });
+
     it('mode="both": inline overlay + autocomplete handles filtering', async () => {
       const items = ['apple', 'banana', 'cherry'];
 
