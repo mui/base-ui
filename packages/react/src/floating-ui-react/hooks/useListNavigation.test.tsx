@@ -647,7 +647,7 @@ describe('useListNavigation', () => {
       fireEvent.keyDown(screen.getByRole('button'), { key: 'Enter' });
       fireEvent.click(screen.getByRole('button'));
 
-      await act(async () => screen.getAllByRole('option')[47].focus());
+      act(() => screen.getAllByRole('option')[47].focus());
 
       fireEvent.keyDown(screen.getByTestId('floating'), { key: 'ArrowLeft' });
       expect(screen.getAllByRole('option')[46]).toHaveFocus();
@@ -657,6 +657,7 @@ describe('useListNavigation', () => {
       fireEvent.keyDown(screen.getByTestId('floating'), { key: 'ArrowLeft' });
       fireEvent.keyDown(screen.getByTestId('floating'), { key: 'ArrowLeft' });
       expect(screen.getAllByRole('option')[41]).toHaveFocus();
+      await flushMicrotasks();
     });
 
     it('skips row and remains on same column when pressing ArrowDown', async () => {
@@ -679,7 +680,7 @@ describe('useListNavigation', () => {
       fireEvent.keyDown(screen.getByRole('button'), { key: 'Enter' });
       fireEvent.click(screen.getByRole('button'));
 
-      await act(async () => screen.getAllByRole('option')[47].focus());
+      act(() => screen.getAllByRole('option')[47].focus());
 
       fireEvent.keyDown(screen.getByTestId('floating'), { key: 'ArrowUp' });
       expect(screen.getAllByRole('option')[42]).toHaveFocus();
@@ -689,6 +690,7 @@ describe('useListNavigation', () => {
       expect(screen.getAllByRole('option')[32]).toHaveFocus();
       fireEvent.keyDown(screen.getByTestId('floating'), { key: 'ArrowUp' });
       expect(screen.getAllByRole('option')[27]).toHaveFocus();
+      await flushMicrotasks();
     });
 
     it('loops on the same column with ArrowDown', async () => {
@@ -714,7 +716,7 @@ describe('useListNavigation', () => {
       fireEvent.keyDown(screen.getByRole('button'), { key: 'Enter' });
       fireEvent.click(screen.getByRole('button'));
 
-      await act(async () => screen.getAllByRole('option')[43].focus());
+      act(() => screen.getAllByRole('option')[43].focus());
 
       fireEvent.keyDown(screen.getByTestId('floating'), { key: 'ArrowUp' });
       fireEvent.keyDown(screen.getByTestId('floating'), { key: 'ArrowUp' });
@@ -726,6 +728,7 @@ describe('useListNavigation', () => {
       fireEvent.keyDown(screen.getByTestId('floating'), { key: 'ArrowUp' });
 
       expect(screen.getAllByRole('option')[43]).toHaveFocus();
+      await flushMicrotasks();
     });
 
     it('does not leave row with "both" orientation while looping', async () => {
@@ -758,7 +761,7 @@ describe('useListNavigation', () => {
       fireEvent.keyDown(screen.getByRole('button'), { key: 'Enter' });
       fireEvent.click(screen.getByRole('button'));
 
-      await act(async () => screen.getAllByRole('option')[46].focus());
+      act(() => screen.getAllByRole('option')[46].focus());
 
       fireEvent.keyDown(screen.getByTestId('floating'), { key: 'ArrowRight' });
       expect(screen.getAllByRole('option')[47]).toHaveFocus();
@@ -768,6 +771,7 @@ describe('useListNavigation', () => {
       expect(screen.getAllByRole('option')[47]).toHaveFocus();
       fireEvent.keyDown(screen.getByTestId('floating'), { key: 'ArrowLeft' });
       expect(screen.getAllByRole('option')[46]).toHaveFocus();
+      await flushMicrotasks();
     });
   });
 
@@ -830,7 +834,7 @@ describe('useListNavigation', () => {
         fireEvent.keyDown(screen.getByRole('button'), { key: 'Enter' });
         fireEvent.click(screen.getByRole('button'));
 
-        await act(async () => screen.getAllByRole('option')[36].focus());
+        act(() => screen.getAllByRole('option')[36].focus());
 
         fireEvent.keyDown(screen.getByTestId('floating'), { key: arrowToStart });
         await waitFor(() => {
@@ -878,7 +882,6 @@ describe('useListNavigation', () => {
         fireEvent.keyDown(screen.getByRole('button'), { key: 'Enter' });
         fireEvent.click(screen.getByRole('button'));
         fireEvent.keyDown(screen.getByTestId('floating'), { key: 'ArrowDown' });
-        await flushMicrotasks();
         expect(screen.getAllByRole('option')[20]).toHaveFocus();
         fireEvent.keyDown(screen.getByTestId('floating'), { key: 'ArrowDown' });
         expect(screen.getAllByRole('option')[25]).toHaveFocus();
@@ -886,6 +889,7 @@ describe('useListNavigation', () => {
         expect(screen.getAllByRole('option')[31]).toHaveFocus();
         fireEvent.keyDown(screen.getByTestId('floating'), { key: 'ArrowDown' });
         expect(screen.getAllByRole('option')[36]).toHaveFocus();
+        await flushMicrotasks();
       });
 
       it(`moves through rows when pressing ArrowUp, prefers ${
@@ -895,7 +899,7 @@ describe('useListNavigation', () => {
         fireEvent.keyDown(screen.getByRole('button'), { key: 'Enter' });
         fireEvent.click(screen.getByRole('button'));
 
-        await act(async () => screen.getAllByRole('option')[29].focus());
+        act(() => screen.getAllByRole('option')[29].focus());
 
         fireEvent.keyDown(screen.getByTestId('floating'), { key: 'ArrowUp' });
         expect(screen.getAllByRole('option')[21]).toHaveFocus();
@@ -903,6 +907,7 @@ describe('useListNavigation', () => {
         expect(screen.getAllByRole('option')[15]).toHaveFocus();
         fireEvent.keyDown(screen.getByTestId('floating'), { key: 'ArrowUp' });
         expect(screen.getAllByRole('option')[8]).toHaveFocus();
+        await flushMicrotasks();
       });
 
       it(`loops over column with ArrowDown, prefers ${
@@ -930,7 +935,7 @@ describe('useListNavigation', () => {
         fireEvent.keyDown(screen.getByRole('button'), { key: 'Enter' });
         fireEvent.click(screen.getByRole('button'));
 
-        await act(async () => screen.getAllByRole('option')[30].focus());
+        act(() => screen.getAllByRole('option')[30].focus());
 
         fireEvent.keyDown(screen.getByTestId('floating'), { key: 'ArrowUp' });
         fireEvent.keyDown(screen.getByTestId('floating'), { key: 'ArrowUp' });
@@ -944,6 +949,7 @@ describe('useListNavigation', () => {
         fireEvent.keyDown(screen.getByTestId('floating'), { key: 'ArrowUp' });
 
         expect(screen.getAllByRole('option')[8]).toHaveFocus();
+        await flushMicrotasks();
       });
 
       it('loops over row with "both" orientation, prefers top side of tall items', async () => {
@@ -951,7 +957,7 @@ describe('useListNavigation', () => {
         fireEvent.keyDown(screen.getByRole('button'), { key: 'Enter' });
         fireEvent.click(screen.getByRole('button'));
 
-        await act(async () => screen.getAllByRole('option')[20].focus());
+        act(() => screen.getAllByRole('option')[20].focus());
 
         fireEvent.keyDown(screen.getByTestId('floating'), { key: arrowToEnd });
         expect(screen.getAllByRole('option')[21]).toHaveFocus();
@@ -971,6 +977,7 @@ describe('useListNavigation', () => {
         expect(screen.getAllByRole('option')[20]).toHaveFocus();
         fireEvent.keyDown(screen.getByTestId('floating'), { key: arrowToEnd });
         expect(screen.getAllByRole('option')[21]).toHaveFocus();
+        await flushMicrotasks();
       });
 
       it('looping works on last row', async () => {
@@ -978,10 +985,11 @@ describe('useListNavigation', () => {
         fireEvent.keyDown(screen.getByRole('button'), { key: 'Enter' });
         fireEvent.click(screen.getByRole('button'));
 
-        await act(async () => screen.getAllByRole('option')[36].focus());
+        act(() => screen.getAllByRole('option')[36].focus());
 
         fireEvent.keyDown(screen.getByTestId('floating'), { key: arrowToEnd });
         expect(screen.getAllByRole('option')[36]).toHaveFocus();
+        await flushMicrotasks();
       });
     });
   });
