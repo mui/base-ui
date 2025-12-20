@@ -59,7 +59,7 @@ function isFocused(element: Element): boolean {
   return true;
 }
 
-beforeAll(() => {
+beforeEach(() => {
   vi.spyOn(window, 'requestAnimationFrame').mockImplementation(
     (callback: FrameRequestCallback): number => {
       callback(0);

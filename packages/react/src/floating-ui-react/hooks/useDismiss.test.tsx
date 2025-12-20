@@ -22,7 +22,7 @@ import { REASONS } from '../../utils/reasons';
 import type { UseDismissProps } from './useDismiss';
 import { normalizeProp } from './useDismiss';
 
-beforeAll(() => {
+beforeEach(() => {
   vi.spyOn(window, 'requestAnimationFrame').mockImplementation(
     (callback: FrameRequestCallback): number => {
       callback(0);
