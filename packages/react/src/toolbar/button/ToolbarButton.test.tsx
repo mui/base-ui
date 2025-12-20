@@ -408,7 +408,7 @@ describe('<Toolbar.Button />', () => {
         });
 
         expect(handleValueChange).toHaveBeenCalledTimes(1);
-        expect(handleValueChange).toHaveBeenCalledWith('b');
+        expect(handleValueChange).toHaveBeenCalledWith('b', expect.anything());
       });
 
       it('disabled state', async () => {

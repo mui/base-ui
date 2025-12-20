@@ -72,10 +72,11 @@ function App(
 
 describe.skipIf(!isJSDOM)('useDismiss', () => {
   describe('true', () => {
-    test('dismisses with escape key', () => {
+    test('dismisses with escape key', async () => {
       render(<App />);
       fireEvent.keyDown(document.body, { key: 'Escape' });
       expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
+      await flushMicrotasks();
     });
 
     test('does not dismiss with escape key if IME is active', async () => {
@@ -132,6 +133,7 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
       render(<App ancestorScroll />);
       fireEvent.scroll(window);
       expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
+      await flushMicrotasks();
     });
 
     test('outsidePress function guard', async () => {
@@ -285,10 +287,11 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
   });
 
   describe('false', () => {
-    test('dismisses with escape key', () => {
+    test('dismisses with escape key', async () => {
       render(<App escapeKey={false} />);
       fireEvent.keyDown(document.body, { key: 'Escape' });
       expect(screen.getByRole('tooltip')).toBeInTheDocument();
+      await flushMicrotasks();
     });
 
     test('dismisses with outside press', async () => {
@@ -307,6 +310,7 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
       render(<App ancestorScroll={false} />);
       fireEvent.scroll(window);
       expect(screen.getByRole('tooltip')).toBeInTheDocument();
+      await flushMicrotasks();
     });
 
     test('does not dismiss when clicking portaled children', async () => {
@@ -338,6 +342,7 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
       fireEvent.pointerDown(screen.getByTestId('portaled-button'), {
         bubbles: true,
       });
+      await flushMicrotasks();
 
       expect(screen.getByTestId('portaled-button')).toBeInTheDocument();
     });
@@ -812,20 +817,22 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
   });
 
   describe('outsidePressEvent: intentional', () => {
-    test('dragging outside the floating element does not close', () => {
+    test('dragging outside the floating element does not close', async () => {
       render(<App outsidePressEvent="intentional" />);
       const floatingEl = screen.getByRole('tooltip');
       fireEvent.mouseDown(floatingEl);
       fireEvent.mouseUp(document.body);
       expect(screen.getByRole('tooltip')).toBeInTheDocument();
+      await flushMicrotasks();
     });
 
-    test('dragging inside the floating element does not close', () => {
+    test('dragging inside the floating element does not close', async () => {
       render(<App outsidePressEvent="intentional" />);
       const floatingEl = screen.getByRole('tooltip');
       fireEvent.mouseDown(document.body);
       fireEvent.mouseUp(floatingEl);
       expect(screen.getByRole('tooltip')).toBeInTheDocument();
+      await flushMicrotasks();
     });
 
     test('dragging outside the floating element then clicking outside closes', async () => {
