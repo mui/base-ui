@@ -1652,6 +1652,7 @@ describe('<Select.Root />', () => {
 
     // flaky in real browser
     it.skipIf(!isJSDOM)('prop: validationMode=onChange', async () => {
+      ignoreActWarnings();
       const { user } = await render(
         <Field.Root
           validationMode="onChange"
@@ -1737,6 +1738,7 @@ describe('<Select.Root />', () => {
 
     // flaky in real browser
     it.skipIf(!isJSDOM)('prop: validationMode=onBlur', async () => {
+      ignoreActWarnings();
       const { user } = await render(
         <Field.Root
           validationMode="onBlur"

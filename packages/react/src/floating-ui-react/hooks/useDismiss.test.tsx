@@ -596,6 +596,7 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
         expect(screen.queryByTestId('outer')).not.toBeInTheDocument();
         expect(screen.queryByTestId('inner')).not.toBeInTheDocument();
       });
+
       test('false', async () => {
         render(
           <NestedDialog testId="outer" bubbles={{ escapeKey: false }}>
