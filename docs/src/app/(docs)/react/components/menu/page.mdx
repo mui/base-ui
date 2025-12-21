@@ -253,7 +253,7 @@ const demoMenu = Menu.createHandle<{ items: string[] }>();
     <Menu.Portal>
       <Menu.Positioner>
         <Menu.Popup>
-          {(payload ?? []).items.map((item) => (
+          {(payload?.items ?? []).map((item) => (
             <Menu.Item key={item}>{item}</Menu.Item>
           ))}
         </Menu.Popup>
