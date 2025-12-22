@@ -18,7 +18,8 @@ export const PreviewCardTrigger = React.forwardRef(function PreviewCardTrigger(
 ) {
   const { render, className, delay, closeDelay, ...elementProps } = componentProps;
 
-  const { open, triggerProps, setTriggerElement, writeDelayRefs, coordsRef } = usePreviewCardRootContext();
+  const { open, triggerProps, setTriggerElement, writeDelayRefs, coordsRef } =
+    usePreviewCardRootContext();
 
   useIsoLayoutEffect(() => {
     writeDelayRefs({ delay, closeDelay });
@@ -66,7 +67,7 @@ export const PreviewCardTrigger = React.forwardRef(function PreviewCardTrigger(
       },
       elementProps,
     ],
-    customStyleHookMapping: triggerOpenStateMapping,
+    stateAttributesMapping: triggerOpenStateMapping,
   });
 
   return element;

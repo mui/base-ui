@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { inline } from '@floating-ui/react';
+import { inline } from '@floating-ui/react-dom';
 import { isHTMLElement } from '@floating-ui/utils/dom';
 import { usePreviewCardRootContext } from '../root/PreviewCardContext';
 import { PreviewCardPositionerContext } from './PreviewCardPositionerContext';
