@@ -234,17 +234,17 @@ Provide a type argument to `createHandle()` to strongly type the payload.
 
 ```jsx title="Detached triggers with payload" {6,8,12,17}
 const menus = {
-  'file': ['New', 'Open', 'Save'],
-  'edit': ['Undo', 'Redo', 'Cut', 'Copy', 'Paste'],
+  file: ['New', 'Open', 'Save'],
+  edit: ['Undo', 'Redo', 'Cut', 'Copy', 'Paste'],
 }
 
 const demoMenu = Menu.createHandle<{ items: string[] }>();
 
-<Menu.Trigger handle={demoMenu} payload={{ items: menus['file'] }}>
+<Menu.Trigger handle={demoMenu} payload={{ items: menus.file }}>
   File
 </Menu.Trigger>
 
-<Menu.Trigger handle={demoMenu} payload={{ items: menus['edit'] }}>
+<Menu.Trigger handle={demoMenu} payload={{ items: menus.edit }}>
   Edit
 </Menu.Trigger>
 
