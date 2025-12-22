@@ -110,6 +110,53 @@ describe('mergeProps', () => {
     expect(mergedProps.style).to.equal(undefined);
   });
 
+  it('merges classNames with rightmost first', () => {
+    const theirProps = {
+      className: 'external-class',
+    };
+    const ourProps = {
+      className: 'internal-class',
+    };
+    const mergedProps = mergeProps<'div'>(ourProps, theirProps);
+
+    expect(mergedProps.className).to.equal('external-class internal-class');
+  });
+
+  it('merges multiple classNames', () => {
+    const mergedProps = mergeProps<'div'>(
+      {
+        className: 'class-1',
+      },
+      {
+        className: 'class-2',
+      },
+      {
+        className: 'class-3',
+      },
+    );
+
+    expect(mergedProps.className).to.equal('class-3 class-2 class-1');
+  });
+
+  it('merges classNames with undefined', () => {
+    const theirProps = {
+      className: 'external-class',
+    };
+    const ourProps = {};
+
+    const mergedProps = mergeProps<'button'>(ourProps, theirProps);
+
+    expect(mergedProps.className).to.equal('external-class');
+  });
+
+  it('does not merge classNames if both are undefined', () => {
+    const theirProps = {};
+    const ourProps = {};
+    const mergedProps = mergeProps<'button'>(ourProps, theirProps);
+
+    expect(mergedProps.className).to.equal(undefined);
+  });
+
   it('does not prevent internal handler if event.preventBaseUIHandler() is not called', () => {
     let ran = false;
 
