@@ -6,44 +6,47 @@ const demoPreviewCard = PreviewCard.createHandle<React.ReactElement>();
 
 const cardContents = {
   typography: (
-    <div className="flex flex-col gap-2">
+    <div className="w-min flex flex-col gap-2">
       <img
-        width="448"
-        height="300"
-        className="block w-full rounded-sm"
+        width="224"
+        height="150"
+        className="block rounded-sm max-w-none"
         src="https://images.unsplash.com/photo-1619615391095-dfa29e1672ef?q=80&w=448&h=300"
         alt="Station Hofplein signage in Rotterdam, Netherlands"
       />
-      <p className="text-sm text-pretty text-gray-900">
+      <p className="m-0 text-sm leading-5 text-gray-900 text-pretty">
         <strong>Typography</strong> is the art and science of arranging type.
       </p>
     </div>
   ),
   design: (
-    <div className="flex flex-col gap-2">
+    <div className="w-min flex flex-col gap-2">
       <img
         width="241"
         height="240"
-        className="block w-full rounded-sm"
+        className="block rounded-sm max-w-none"
         src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b7/Braun_ABW30_%28schwarz%29.jpg/250px-Braun_ABW30_%28schwarz%29.jpg"
-        alt="Braun ABW30 clock"
+        alt="Braun ABW30"
       />
-      <p className="text-sm text-pretty text-gray-900">
+      <p className="m-0 text-sm leading-5 text-gray-900 text-pretty">
         A <strong>design</strong> is the concept or proposal for an object, process, or system.
       </p>
     </div>
   ),
   art: (
-    <div className="flex flex-col gap-2">
+    <div className="w-min flex flex-col gap-2">
       <img
         width="206"
         height="240"
-        className="block w-full rounded-sm"
+        className="block rounded-sm max-w-none"
         src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5f/MonaLisa_sfumato.jpeg/250px-MonaLisa_sfumato.jpeg"
         alt="Mona Lisa"
       />
-      <p className="text-sm text-pretty text-gray-900">
-        <strong>Art</strong> conveys emotion and ideas through imaginative craft.
+      <p className="m-0 text-sm leading-5 text-gray-900 text-pretty">
+        <strong>Art</strong> is a diverse range of cultural activity centered around works utilizing
+        creative or imaginative talents, which are expected to evoke a worthwhile experience,
+        generally through an expression of emotional power, conceptual ideas, technical proficiency,
+        or beauty.
       </p>
     </div>
   ),
@@ -52,10 +55,10 @@ const cardContents = {
 export default function PreviewCardDetachedTriggersFullDemo() {
   return (
     <div>
-      <p className="max-w-64 text-base text-balance text-gray-900">
+      <p className="m-0 text-base leading-6 text-gray-900 text-balance">
         Discover{' '}
         <PreviewCard.Trigger
-          className="text-blue-800 no-underline decoration-blue-800/60 decoration-1 underline-offset-2 outline-none hover:underline focus-visible:rounded-sm focus-visible:no-underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-800 data-[popup-open]:underline data-[popup-open]:focus-visible:no-underline"
+          className="text-blue-800 no-underline decoration-blue-800/60 decoration-1 underline-offset-2 outline-0 hover:underline data-[popup-open]:underline focus-visible:rounded-[2px] focus-visible:no-underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-800"
           handle={demoPreviewCard}
           href="https://en.wikipedia.org/wiki/Typography"
           payload={cardContents.typography}
@@ -64,23 +67,23 @@ export default function PreviewCardDetachedTriggersFullDemo() {
         </PreviewCard.Trigger>
         ,{' '}
         <PreviewCard.Trigger
-          className="text-blue-800 no-underline decoration-blue-800/60 decoration-1 underline-offset-2 outline-none hover:underline focus-visible:rounded-sm focus-visible:no-underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-800 data-[popup-open]:underline data-[popup-open]:focus-visible:no-underline"
+          className="text-blue-800 no-underline decoration-blue-800/60 decoration-1 underline-offset-2 outline-0 hover:underline data-[popup-open]:underline focus-visible:rounded-[2px] focus-visible:no-underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-800"
           handle={demoPreviewCard}
-          href="https://en.wikipedia.org/wiki/Industrial_design"
+          href="https://en.wikipedia.org/wiki/Design"
           payload={cardContents.design}
         >
           design
         </PreviewCard.Trigger>
         , or{' '}
         <PreviewCard.Trigger
-          className="text-blue-800 no-underline decoration-blue-800/60 decoration-1 underline-offset-2 outline-none hover:underline focus-visible:rounded-sm focus-visible:no-underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-800 data-[popup-open]:underline data-[popup-open]:focus-visible:no-underline"
+          className="text-blue-800 no-underline decoration-blue-800/60 decoration-1 underline-offset-2 outline-0 hover:underline data-[popup-open]:underline focus-visible:rounded-[2px] focus-visible:no-underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-800"
           handle={demoPreviewCard}
           href="https://en.wikipedia.org/wiki/Art"
           payload={cardContents.art}
         >
           art
         </PreviewCard.Trigger>
-        without leaving the page.
+        .
       </p>
 
       <PreviewCard.Root handle={demoPreviewCard}>
@@ -88,56 +91,14 @@ export default function PreviewCardDetachedTriggersFullDemo() {
           <PreviewCard.Portal>
             <PreviewCard.Positioner
               sideOffset={8}
-              className="
-                h-(--positioner-height) w-(--positioner-width)
-                max-w-(--available-width)
-                transition-[top,left,right,bottom,transform]
-                duration-[0.35s]
-                ease-[cubic-bezier(0.22,1,0.36,1)]"
+              className="h-[var(--positioner-height)] w-[var(--positioner-width)] max-w-[var(--available-width)] transition-[top,left,right,bottom,transform] duration-[0.35s] ease-[cubic-bezier(0.22,1,0.36,1)]"
             >
-              <PreviewCard.Popup
-                className="
-                  relative
-                  w-(--popup-width,240px)
-                  max-w-[500px]
-                  rounded-lg
-                  bg-[canvas]
-                  text-sm
-                  origin-(--transform-origin)
-                  shadow-lg shadow-gray-200 outline outline-1 outline-gray-200
-                  transition-[width,height,opacity,scale]
-                  duration-[0.35s]
-                  ease-[cubic-bezier(0.22,1,0.36,1)]
-                  data-ending-style:opacity-0 data-ending-style:scale-90
-                  data-starting-style:opacity-0 data-starting-style:scale-90
-                  dark:shadow-none dark:outline-gray-300 dark:-outline-offset-1"
-              >
-                <PreviewCard.Arrow className="data-[side=bottom]:top-[-8px] data-[side=left]:right-[-13px] data-[side=left]:rotate-90 data-[side=right]:left-[-13px] data-[side=right]:-rotate-90 data-[side=top]:bottom-[-8px] data-[side=top]:rotate-180">
+              <PreviewCard.Popup className="box-border relative w-[var(--popup-width,auto)] h-[var(--popup-height,auto)] rounded-lg bg-[canvas] origin-[var(--transform-origin)] transition-[width,height,opacity,scale] duration-[0.35s] ease-[cubic-bezier(0.22,1,0.36,1)] data-[starting-style]:scale-90 data-[starting-style]:opacity-0 data-[ending-style]:scale-90 data-[ending-style]:opacity-0 shadow-lg shadow-gray-200 outline outline-1 outline-gray-200 dark:shadow-none dark:outline-gray-300 dark:-outline-offset-1">
+                <PreviewCard.Arrow className="flex data-[side=bottom]:top-[-8px] data-[side=left]:right-[-13px] data-[side=left]:rotate-90 data-[side=right]:left-[-13px] data-[side=right]:-rotate-90 data-[side=top]:bottom-[-8px] data-[side=top]:rotate-180">
                   <ArrowSvg />
                 </PreviewCard.Arrow>
 
-                <PreviewCard.Viewport
-                  className="
-                    relative overflow-clip p-2
-                    [&_[data-previous]]:translate-x-0
-                    [&_[data-previous]]:opacity-100
-                    [&_[data-previous]]:transition-[translate,opacity]
-                    [&_[data-previous]]:duration-[350ms,175ms]
-                    [&_[data-previous]]:ease-[cubic-bezier(0.22,1,0.36,1)]
-                    [&_[data-current]]:translate-x-0
-                    [&_[data-current]]:opacity-100
-                    [&_[data-current]]:transition-[translate,opacity]
-                    [&_[data-current]]:duration-[350ms,175ms]
-                    [&_[data-current]]:ease-[cubic-bezier(0.22,1,0.36,1)]
-                    data-[activation-direction~='left']:[&_[data-current][data-starting-style]]:-translate-x-[30%]
-                    data-[activation-direction~='left']:[&_[data-current][data-starting-style]]:opacity-0
-                    data-[activation-direction~='right']:[&_[data-current][data-starting-style]]:translate-x-[30%]
-                    data-[activation-direction~='right']:[&_[data-current][data-starting-style]]:opacity-0
-                    data-[activation-direction~='left']:[&_[data-previous][data-ending-style]]:translate-x-[30%]
-                    data-[activation-direction~='left']:[&_[data-previous][data-ending-style]]:opacity-0
-                    data-[activation-direction~='right']:[&_[data-previous][data-ending-style]]:-translate-x-[30%]
-                    data-[activation-direction~='right']:[&_[data-previous][data-ending-style]]:opacity-0"
-                >
+                <PreviewCard.Viewport className="relative overflow-clip p-2 [&_[data-previous]]:translate-x-0 [&_[data-previous]]:opacity-100 [&_[data-previous]]:transition-[translate,opacity] [&_[data-previous]]:duration-[350ms,175ms] [&_[data-previous]]:ease-[cubic-bezier(0.22,1,0.36,1)] [&_[data-current]]:translate-x-0 [&_[data-current]]:opacity-100 [&_[data-current]]:transition-[translate,opacity] [&_[data-current]]:duration-[350ms,175ms] [&_[data-current]]:ease-[cubic-bezier(0.22,1,0.36,1)] data-[activation-direction~='left']:[&_[data-current][data-starting-style]]:-translate-x-[30%] data-[activation-direction~='left']:[&_[data-current][data-starting-style]]:opacity-0 data-[activation-direction~='right']:[&_[data-current][data-starting-style]]:translate-x-[30%] data-[activation-direction~='right']:[&_[data-current][data-starting-style]]:opacity-0 data-[activation-direction~='left']:[&_[data-previous][data-ending-style]]:translate-x-[30%] data-[activation-direction~='left']:[&_[data-previous][data-ending-style]]:opacity-0 data-[activation-direction~='right']:[&_[data-previous][data-ending-style]]:-translate-x-[30%] data-[activation-direction~='right']:[&_[data-previous][data-ending-style]]:opacity-0">
                   {payload}
                 </PreviewCard.Viewport>
               </PreviewCard.Popup>
