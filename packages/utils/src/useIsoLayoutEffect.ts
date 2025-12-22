@@ -1,6 +1,7 @@
 'use client';
-import * as React from 'react';
+import { createUseEffect } from './fastHooks';
 
 const noop = () => {};
 
-export const useIsoLayoutEffect = typeof document !== 'undefined' ? React.useLayoutEffect : noop;
+export const useIsoLayoutEffect =
+  typeof document !== 'undefined' ? createUseEffect('useLayoutEffect') : noop;

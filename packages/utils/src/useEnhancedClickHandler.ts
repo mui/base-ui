@@ -1,4 +1,6 @@
 import * as React from 'react';
+import { useRef } from './useRef';
+import { useCallback } from './useCallback';
 
 export type InteractionType = 'mouse' | 'touch' | 'pen' | 'keyboard' | '';
 
@@ -12,9 +14,9 @@ export type InteractionType = 'mouse' | 'touch' | 'pen' | 'keyboard' | '';
 export function useEnhancedClickHandler(
   handler: (event: React.MouseEvent | React.PointerEvent, interactionType: InteractionType) => void,
 ) {
-  const lastClickInteractionTypeRef = React.useRef<InteractionType>('');
+  const lastClickInteractionTypeRef = useRef<InteractionType>('');
 
-  const handlePointerDown = React.useCallback(
+  const handlePointerDown = useCallback(
     (event: React.PointerEvent) => {
       if (event.defaultPrevented) {
         return;
@@ -26,7 +28,7 @@ export function useEnhancedClickHandler(
     [handler],
   );
 
-  const handleClick = React.useCallback(
+  const handleClick = useCallback(
     (event: React.MouseEvent | React.PointerEvent) => {
       // event.detail has the number of clicks performed on the element. 0 means it was triggered by the keyboard.
       if (event.detail === 0) {
