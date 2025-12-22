@@ -129,6 +129,9 @@
     },
     "data-focused": {
       "description": "Present when the checkbox is focused (when wrapped in Field.Root)."
+    },
+    "data-indeterminate": {
+      "description": "Present when the checkbox is in an indeterminate state."
     }
   },
   "cssVariables": {}

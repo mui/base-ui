@@ -42,7 +42,7 @@ export const SimpleAutocomplete = React.forwardRef<HTMLInputElement, SimpleAutoc
   },
 );
 
-export const SimpleMenu = React.forwardRef<HTMLDivElement, SimpleMenuProps>(function SimpleMenu(
+export const SimpleMenu = React.forwardRef<HTMLButtonElement, SimpleMenuProps>(function SimpleMenu(
   { label = 'Menu', ...rest },
   ref,
 ) {
