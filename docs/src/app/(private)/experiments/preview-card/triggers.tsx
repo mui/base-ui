@@ -6,7 +6,7 @@ import {
   SettingsMetadata,
   useExperimentSettings,
 } from 'docs/src/components/Experiments/SettingsPanel';
-import demoStyles from 'docs/src/app/(docs)/react/components/preview-card/demos/hero/css-modules/index.module.css';
+import demoStyles from 'docs/src/app/(docs)/react/components/preview-card/demos/index.module.css';
 import styles from './triggers.module.css';
 
 const previewCard1Handle = PreviewCard.createHandle<React.ReactElement>();
