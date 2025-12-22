@@ -7,8 +7,6 @@ import { Timeout } from './useTimeout';
 import { AnimationFrame } from './useAnimationFrame';
 import { NOOP } from './empty';
 
-/* eslint-disable lines-between-class-members */
-
 let originalHtmlStyles: Partial<CSSStyleDeclaration> = {};
 let originalBodyStyles: Partial<CSSStyleDeclaration> = {};
 let originalHtmlScrollBehavior = '';

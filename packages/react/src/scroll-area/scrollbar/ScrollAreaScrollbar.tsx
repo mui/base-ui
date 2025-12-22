@@ -54,13 +54,13 @@ export const ScrollAreaScrollbar = React.forwardRef(function ScrollAreaScrollbar
         vertical: scrollingY,
       }[orientation],
       orientation,
-      hasOverflowX: !hiddenState.scrollbarXHidden,
-      hasOverflowY: !hiddenState.scrollbarYHidden,
+      hasOverflowX: !hiddenState.x,
+      hasOverflowY: !hiddenState.y,
       overflowXStart: overflowEdges.xStart,
       overflowXEnd: overflowEdges.xEnd,
       overflowYStart: overflowEdges.yStart,
       overflowYEnd: overflowEdges.yEnd,
-      cornerHidden: hiddenState.cornerHidden,
+      cornerHidden: hiddenState.corner,
     }),
     [hovering, scrollingX, scrollingY, orientation, hiddenState, overflowEdges],
   );
@@ -217,8 +217,7 @@ export const ScrollAreaScrollbar = React.forwardRef(function ScrollAreaScrollbar
 
   const contextValue = React.useMemo(() => ({ orientation }), [orientation]);
 
-  const isHidden =
-    orientation === 'vertical' ? hiddenState.scrollbarYHidden : hiddenState.scrollbarXHidden;
+  const isHidden = orientation === 'vertical' ? hiddenState.y : hiddenState.x;
 
   const shouldRender = keepMounted || !isHidden;
   if (!shouldRender) {
