@@ -3,8 +3,6 @@ import * as React from 'react';
 import { MeterRootContext } from './MeterRootContext';
 import { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 import { formatNumber } from '../../utils/formatNumber';
-import { useLatestRef } from '../../utils/useLatestRef';
-import { valueToPercent } from '../../utils/valueToPercent';
 import { useRenderElement } from '../../utils/useRenderElement';
 
 function formatValue(
@@ -35,22 +33,18 @@ export const MeterRoot = React.forwardRef(function MeterRoot(
     locale,
     max = 100,
     min = 0,
-    value,
+    value: valueProp,
     render,
     className,
     ...elementProps
   } = componentProps;
 
-  const formatOptionsRef = useLatestRef(format);
-
   const [labelId, setLabelId] = React.useState<string | undefined>();
+  const formattedValue = formatValue(valueProp, locale, format);
 
-  const percentageValue = valueToPercent(value, min, max);
-  const formattedValue = formatValue(value, locale, formatOptionsRef.current);
-
-  let ariaValuetext = `${percentageValue}%`;
+  let ariaValuetext = `${valueProp}%`;
   if (getAriaValueText) {
-    ariaValuetext = getAriaValueText(formattedValue, value);
+    ariaValuetext = getAriaValueText(formattedValue, valueProp);
   } else if (format) {
     ariaValuetext = formattedValue;
   }
@@ -59,7 +53,7 @@ export const MeterRoot = React.forwardRef(function MeterRoot(
     'aria-labelledby': labelId,
     'aria-valuemax': max,
     'aria-valuemin': min,
-    'aria-valuenow': percentageValue / 100,
+    'aria-valuenow': valueProp,
     'aria-valuetext': ariaValuetext,
     role: 'meter',
   };
@@ -69,11 +63,10 @@ export const MeterRoot = React.forwardRef(function MeterRoot(
       formattedValue,
       max,
       min,
-      percentageValue,
       setLabelId,
-      value,
+      value: valueProp,
     }),
-    [formattedValue, max, min, percentageValue, setLabelId, value],
+    [formattedValue, max, min, setLabelId, valueProp],
   );
 
   const element = useRenderElement('div', componentProps, {
@@ -83,40 +76,42 @@ export const MeterRoot = React.forwardRef(function MeterRoot(
 
   return <MeterRootContext.Provider value={contextValue}>{element}</MeterRootContext.Provider>;
 });
+export interface MeterRootState {}
+export interface MeterRootProps extends BaseUIComponentProps<'div', MeterRoot.State> {
+  /**
+   * A string value that provides a user-friendly name for `aria-valuenow`, the current value of the meter.
+   */
+  'aria-valuetext'?: React.AriaAttributes['aria-valuetext'];
+  /**
+   * Options to format the value.
+   */
+  format?: Intl.NumberFormatOptions;
+  /**
+   * A function that returns a string value that provides a human-readable text alternative for `aria-valuenow`, the current value of the meter.
+   */
+  getAriaValueText?: (formattedValue: string, value: number) => string;
+  /**
+   * The locale used by `Intl.NumberFormat` when formatting the value.
+   * Defaults to the user's runtime locale.
+   */
+  locale?: Intl.LocalesArgument;
+  /**
+   * The maximum value
+   * @default 100
+   */
+  max?: number;
+  /**
+   * The minimum value
+   * @default 0
+   */
+  min?: number;
+  /**
+   * The current value.
+   */
+  value: number;
+}
 
 export namespace MeterRoot {
-  export interface State {}
-
-  export interface Props extends BaseUIComponentProps<'div', State> {
-    /**
-     * Options to format the value.
-     */
-    format?: Intl.NumberFormatOptions;
-    /**
-     * A function that returns a string value that provides a human-readable text alternative for the current value of the meter.
-     * @param {string} formattedValue The formatted value
-     * @param {number} value The raw value
-     * @returns {string}
-     */
-    getAriaValueText?: (formattedValue: string, value: number) => string;
-    /**
-     * The locale used by `Intl.NumberFormat` when formatting the value.
-     * Defaults to the user's runtime locale.
-     */
-    locale?: Intl.LocalesArgument;
-    /**
-     * The maximum value
-     * @default 100
-     */
-    max?: number;
-    /**
-     * The minimum value
-     * @default 0
-     */
-    min?: number;
-    /**
-     * The current value.
-     */
-    value: number;
-  }
+  export type State = MeterRootState;
+  export type Props = MeterRootProps;
 }

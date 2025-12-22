@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { PreviewCard } from '@base-ui-components/react/preview-card';
+import { PreviewCard } from '@base-ui/react/preview-card';
 import { act, fireEvent, screen, flushMicrotasks, waitFor } from '@mui/internal-test-utils';
 import { expect } from 'chai';
 import { spy } from 'sinon';
@@ -322,8 +322,8 @@ describe('<PreviewCard.Root />', () => {
 
     it('should open after delay with rest type by default', async () => {
       await render(
-        <Root delay={100}>
-          <Trigger />
+        <Root>
+          <Trigger delay={100} />
           <PreviewCard.Portal>
             <PreviewCard.Positioner>
               <PreviewCard.Popup>Content</PreviewCard.Popup>
@@ -354,8 +354,8 @@ describe('<PreviewCard.Root />', () => {
 
     it('should close after delay', async () => {
       await render(
-        <Root closeDelay={100}>
-          <Trigger />
+        <Root>
+          <Trigger closeDelay={100} />
           <PreviewCard.Portal>
             <PreviewCard.Positioner>
               <PreviewCard.Popup>Content</PreviewCard.Popup>
@@ -385,6 +385,35 @@ describe('<PreviewCard.Root />', () => {
     });
   });
 
+  describe('BaseUIChangeEventDetails', () => {
+    it('onOpenChange cancel() prevents opening while uncontrolled', async () => {
+      await render(
+        <Root
+          onOpenChange={(nextOpen, eventDetails) => {
+            if (nextOpen) {
+              eventDetails.cancel();
+            }
+          }}
+        >
+          <Trigger />
+          <PreviewCard.Portal>
+            <PreviewCard.Positioner>
+              <PreviewCard.Popup>Content</PreviewCard.Popup>
+            </PreviewCard.Positioner>
+          </PreviewCard.Portal>
+        </Root>,
+      );
+
+      const trigger = screen.getByRole('link');
+      fireEvent.pointerDown(trigger, { pointerType: 'mouse' });
+      fireEvent.mouseEnter(trigger);
+      fireEvent.mouseMove(trigger);
+      await flushMicrotasks();
+
+      expect(screen.queryByText('Content')).to.equal(null);
+    });
+  });
+
   describe.skipIf(!isJSDOM)('prop: actionsRef', () => {
     it('unmounts the preview card when the `unmount` method is called', async () => {
       const actionsRef = {
@@ -394,8 +423,10 @@ describe('<PreviewCard.Root />', () => {
       };
 
       const { user } = await render(
-        <Root actionsRef={actionsRef} delay={0} closeDelay={0}>
-          <Trigger>Open</Trigger>
+        <Root actionsRef={actionsRef}>
+          <Trigger delay={0} closeDelay={0}>
+            Open
+          </Trigger>
           <PreviewCard.Portal>
             <PreviewCard.Positioner data-testid="positioner">
               <PreviewCard.Popup>Content</PreviewCard.Popup>
@@ -554,7 +585,7 @@ describe('<PreviewCard.Root />', () => {
               opacity: 0;
             }
           }
-  
+
           .animation-test-indicator[data-ending-style] {
             animation: test-anim 1ms;
           }
@@ -641,7 +672,7 @@ describe('<PreviewCard.Root />', () => {
               opacity: 0;
             }
           }
-  
+
           .animation-test-indicator[data-starting-style] {
             animation: test-anim 1ms;
           }

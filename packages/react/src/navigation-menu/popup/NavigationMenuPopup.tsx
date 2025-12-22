@@ -1,20 +1,17 @@
 'use client';
 import * as React from 'react';
-import { getNextTabbable, getPreviousTabbable, isOutsideEvent } from '@floating-ui/react/utils';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useNavigationMenuRootContext } from '../root/NavigationMenuRootContext';
-import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
-import { transitionStatusMapping } from '../../utils/styleHookMapping';
+import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
 import { useBaseUiId } from '../../utils/useBaseUiId';
-import { FocusGuard } from '../../toast/viewport/FocusGuard';
 import { useNavigationMenuPositionerContext } from '../positioner/NavigationMenuPositionerContext';
 import { useDirection } from '../../direction-provider/DirectionContext';
-import { CustomStyleHookMapping } from '../../utils/getStyleHookProps';
+import { StateAttributesMapping } from '../../utils/getStateAttributesProps';
 import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping';
 
-const customStyleHookMapping: CustomStyleHookMapping<NavigationMenuPopup.State> = {
+const stateAttributesMapping: StateAttributesMapping<NavigationMenuPopup.State> = {
   ...baseMapping,
   ...transitionStatusMapping,
 };
@@ -31,17 +28,7 @@ export const NavigationMenuPopup = React.forwardRef(function NavigationMenuPopup
 ) {
   const { className, render, id: idProp, ...elementProps } = componentProps;
 
-  const {
-    open,
-    transitionStatus,
-    popupElement,
-    positionerElement,
-    setPopupElement,
-    beforeInsideRef,
-    beforeOutsideRef,
-    afterInsideRef,
-    afterOutsideRef,
-  } = useNavigationMenuRootContext();
+  const { open, transitionStatus, setPopupElement } = useNavigationMenuRootContext();
   const positioning = useNavigationMenuPositionerContext();
   const direction = useDirection();
 
@@ -57,19 +44,6 @@ export const NavigationMenuPopup = React.forwardRef(function NavigationMenuPopup
     }),
     [open, transitionStatus, positioning.side, positioning.align, positioning.anchorHidden],
   );
-
-  // Allow the arrow to transition while the popup's size transitions.
-  useModernLayoutEffect(() => {
-    if (!popupElement || typeof ResizeObserver === 'undefined') {
-      return undefined;
-    }
-
-    const observer = new ResizeObserver(positioning.update);
-    observer.observe(popupElement);
-    return () => {
-      observer.disconnect();
-    };
-  }, [popupElement, positioning.update]);
 
   // Ensure popup size transitions correctly when anchored to `bottom` (side=top) or `right` (side=left).
   let isOriginSide = positioning.side === 'top';
@@ -99,47 +73,29 @@ export const NavigationMenuPopup = React.forwardRef(function NavigationMenuPopup
       },
       elementProps,
     ],
-    customStyleHookMapping,
+    stateAttributesMapping,
   });
 
-  return (
-    <React.Fragment>
-      <FocusGuard
-        ref={beforeInsideRef}
-        onFocus={(event) => {
-          if (positionerElement && isOutsideEvent(event, positionerElement)) {
-            getNextTabbable(positionerElement)?.focus();
-          } else {
-            beforeOutsideRef.current?.focus();
-          }
-        }}
-      />
-      {element}
-      <FocusGuard
-        ref={afterInsideRef}
-        onFocus={(event) => {
-          if (positionerElement && isOutsideEvent(event, positionerElement)) {
-            getPreviousTabbable(positionerElement)?.focus();
-          } else {
-            afterOutsideRef.current?.focus();
-          }
-        }}
-      />
-    </React.Fragment>
-  );
+  return element;
 });
 
-export namespace NavigationMenuPopup {
-  export interface State {
-    /**
-     * If `true`, the popup is open.
-     */
-    open: boolean;
-    /**
-     * The transition status of the popup.
-     */
-    transitionStatus: TransitionStatus;
-  }
+export interface NavigationMenuPopupState {
+  /**
+   * If `true`, the popup is open.
+   */
+  open: boolean;
+  /**
+   * The transition status of the popup.
+   */
+  transitionStatus: TransitionStatus;
+}
 
-  export interface Props extends BaseUIComponentProps<'nav', State> {}
+export interface NavigationMenuPopupProps extends BaseUIComponentProps<
+  'nav',
+  NavigationMenuPopup.State
+> {}
+
+export namespace NavigationMenuPopup {
+  export type State = NavigationMenuPopupState;
+  export type Props = NavigationMenuPopupProps;
 }

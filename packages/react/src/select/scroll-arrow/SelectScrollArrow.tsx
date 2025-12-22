@@ -1,14 +1,16 @@
 'use client';
 import * as React from 'react';
+import { useTimeout } from '@base-ui/utils/useTimeout';
+import { useStore } from '@base-ui/utils/store';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import type { BaseUIComponentProps } from '../../utils/types';
-import { useTimeout } from '../../utils/useTimeout';
 import { useSelectRootContext } from '../root/SelectRootContext';
 import { useSelectPositionerContext } from '../positioner/SelectPositionerContext';
 import { Side } from '../../utils/useAnchorPositioning';
 import { type TransitionStatus, useTransitionStatus } from '../../utils/useTransitionStatus';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
-import { useSelectIndexContext } from '../root/SelectIndexContext';
 import { useRenderElement } from '../../utils/useRenderElement';
+import { selectors } from '../store';
 
 /**
  * @internal
@@ -19,23 +21,38 @@ export const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
 ) {
   const { render, className, direction, keepMounted = false, ...elementProps } = componentProps;
 
-  const { popupRef, listRef } = useSelectRootContext();
-  const {
-    side,
-    alignItemWithTriggerActive,
-    scrollUpArrowVisible,
-    scrollDownArrowVisible,
-    setScrollUpArrowVisible,
-    setScrollDownArrowVisible,
-  } = useSelectPositionerContext();
-  const { setActiveIndex } = useSelectIndexContext();
+  const { store, popupRef, listRef, handleScrollArrowVisibility, scrollArrowsMountedCountRef } =
+    useSelectRootContext();
+  const { side, scrollDownArrowRef, scrollUpArrowRef } = useSelectPositionerContext();
 
-  const visible = direction === 'up' ? scrollUpArrowVisible : scrollDownArrowVisible;
+  const visibleSelector =
+    direction === 'up' ? selectors.scrollUpArrowVisible : selectors.scrollDownArrowVisible;
+
+  const stateVisible = useStore(store, visibleSelector);
+  const openMethod = useStore(store, selectors.openMethod);
+
+  // Scroll arrows are disabled for touch modality as they are a hover-only element.
+  const visible = stateVisible && openMethod !== 'touch';
 
   const timeout = useTimeout();
-  const scrollArrowRef = React.useRef<HTMLDivElement | null>(null);
 
-  const { mounted, transitionStatus, setMounted } = useTransitionStatus(visible);
+  const scrollArrowRef = direction === 'up' ? scrollUpArrowRef : scrollDownArrowRef;
+
+  const { transitionStatus, setMounted } = useTransitionStatus(visible);
+
+  useIsoLayoutEffect(() => {
+    scrollArrowsMountedCountRef.current += 1;
+    if (!store.state.hasScrollArrows) {
+      store.set('hasScrollArrows', true);
+    }
+
+    return () => {
+      scrollArrowsMountedCountRef.current = Math.max(0, scrollArrowsMountedCountRef.current - 1);
+      if (scrollArrowsMountedCountRef.current === 0 && store.state.hasScrollArrows) {
+        store.set('hasScrollArrows', false);
+      }
+    };
+  }, [store, scrollArrowsMountedCountRef]);
 
   useOpenChangeComplete({
     open: visible,
@@ -58,40 +75,40 @@ export const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
   );
 
   const defaultProps: React.ComponentProps<'div'> = {
-    hidden: !mounted,
     'aria-hidden': true,
-    children: direction === 'down' ? '▼' : '▲',
+    children: direction === 'up' ? '▲' : '▼',
     style: {
       position: 'absolute',
     },
     onMouseMove(event) {
-      if (
-        (event.movementX === 0 && event.movementY === 0) ||
-        !alignItemWithTriggerActive ||
-        timeout.isStarted()
-      ) {
+      if ((event.movementX === 0 && event.movementY === 0) || timeout.isStarted()) {
         return;
       }
 
-      setActiveIndex(null);
+      store.set('activeIndex', null);
 
       function scrollNextItem() {
-        const popupElement = popupRef.current;
-        if (!popupElement) {
+        const scroller = store.state.listElement ?? popupRef.current;
+        if (!scroller) {
           return;
         }
 
-        setActiveIndex(null);
+        store.set('activeIndex', null);
+        handleScrollArrowVisibility();
 
-        const isScrolledToTop = popupElement.scrollTop === 0;
+        const isScrolledToTop = scroller.scrollTop === 0;
         const isScrolledToBottom =
-          Math.round(popupElement.scrollTop + popupElement.clientHeight) >=
-          popupElement.scrollHeight;
+          Math.round(scroller.scrollTop + scroller.clientHeight) >= scroller.scrollHeight;
 
-        if (direction === 'up') {
-          setScrollUpArrowVisible(!isScrolledToTop);
-        } else if (direction === 'down') {
-          setScrollDownArrowVisible(!isScrolledToBottom);
+        const list = listRef.current;
+
+        // Fallback when there are no items registered yet.
+        if (list.length === 0) {
+          if (direction === 'up') {
+            store.set('scrollUpArrowVisible', !isScrolledToTop);
+          } else {
+            store.set('scrollDownArrowVisible', !isScrolledToBottom);
+          }
         }
 
         if (
@@ -102,13 +119,17 @@ export const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
           return;
         }
 
-        if (popupRef.current && listRef.current && listRef.current.length > 0) {
+        if (
+          (store.state.listElement || popupRef.current) &&
+          listRef.current &&
+          listRef.current.length > 0
+        ) {
           const items = listRef.current;
           const scrollArrowHeight = scrollArrowRef.current?.offsetHeight || 0;
 
           if (direction === 'up') {
             let firstVisibleIndex = 0;
-            const scrollTop = popupElement.scrollTop + scrollArrowHeight;
+            const scrollTop = scroller.scrollTop + scrollArrowHeight;
 
             for (let i = 0; i < items.length; i += 1) {
               const item = items[i];
@@ -122,14 +143,18 @@ export const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
             }
 
             const targetIndex = Math.max(0, firstVisibleIndex - 1);
-            const targetItem = items[targetIndex];
-            if (targetIndex < firstVisibleIndex && targetItem) {
-              popupElement.scrollTop = targetItem.offsetTop - scrollArrowHeight;
+            if (targetIndex < firstVisibleIndex) {
+              const targetItem = items[targetIndex];
+              if (targetItem) {
+                scroller.scrollTop = Math.max(0, targetItem.offsetTop - scrollArrowHeight);
+              }
+            } else {
+              // Already at the first item; ensure we reach the absolute top to account for group labels.
+              scroller.scrollTop = 0;
             }
           } else {
             let lastVisibleIndex = items.length - 1;
-            const scrollBottom =
-              popupElement.scrollTop + popupElement.clientHeight - scrollArrowHeight;
+            const scrollBottom = scroller.scrollTop + scroller.clientHeight - scrollArrowHeight;
 
             for (let i = 0; i < items.length; i += 1) {
               const item = items[i];
@@ -146,12 +171,15 @@ export const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
             if (targetIndex > lastVisibleIndex) {
               const targetItem = items[targetIndex];
               if (targetItem) {
-                popupElement.scrollTop =
+                scroller.scrollTop =
                   targetItem.offsetTop +
                   targetItem.offsetHeight -
-                  popupElement.clientHeight +
+                  scroller.clientHeight +
                   scrollArrowHeight;
               }
+            } else {
+              // Already at the last item; ensure we reach the true bottom.
+              scroller.scrollTop = scroller.scrollHeight - scroller.clientHeight;
             }
           }
         }
@@ -180,20 +208,26 @@ export const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
   return element;
 });
 
-export namespace SelectScrollArrow {
-  export interface State {
-    direction: 'up' | 'down';
-    visible: boolean;
-    side: Side | 'none';
-    transitionStatus: TransitionStatus;
-  }
+export interface SelectScrollArrowState {
+  direction: 'up' | 'down';
+  visible: boolean;
+  side: Side | 'none';
+  transitionStatus: TransitionStatus;
+}
 
-  export interface Props extends BaseUIComponentProps<'div', State> {
-    direction: 'up' | 'down';
-    /**
-     * Whether to keep the HTML element in the DOM while the select menu is not scrollable.
-     * @default false
-     */
-    keepMounted?: boolean;
-  }
+export interface SelectScrollArrowProps extends BaseUIComponentProps<
+  'div',
+  SelectScrollArrow.State
+> {
+  direction: 'up' | 'down';
+  /**
+   * Whether to keep the HTML element in the DOM while the select popup is not scrollable.
+   * @default false
+   */
+  keepMounted?: boolean;
+}
+
+export namespace SelectScrollArrow {
+  export type State = SelectScrollArrowState;
+  export type Props = SelectScrollArrowProps;
 }

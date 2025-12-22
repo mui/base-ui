@@ -1,8 +1,14 @@
 'use client';
 import * as React from 'react';
-import type { Middleware } from '@floating-ui/react';
-import { getSide } from '@floating-ui/utils';
-import { disableFocusInside, enableFocusInside, isOutsideEvent } from '@floating-ui/react/utils';
+import * as ReactDOM from 'react-dom';
+import { ownerWindow } from '@base-ui/utils/owner';
+import { useTimeout } from '@base-ui/utils/useTimeout';
+import {
+  disableFocusInside,
+  enableFocusInside,
+  isOutsideEvent,
+} from '../../floating-ui-react/utils';
+import { getEmptyRootContext } from '../../floating-ui-react/utils/getEmptyRootContext';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import {
@@ -12,69 +18,12 @@ import {
 import { useNavigationMenuPortalContext } from '../portal/NavigationMenuPortalContext';
 import { useAnchorPositioning, type Align, type Side } from '../../utils/useAnchorPositioning';
 import { NavigationMenuPositionerContext } from './NavigationMenuPositionerContext';
-import { ownerDocument } from '../../utils/owner';
-import { useAnimationsFinished } from '../../utils/useAnimationsFinished';
-import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import { popupStateMapping } from '../../utils/popupStateMapping';
 import { DROPDOWN_COLLISION_AVOIDANCE, POPUP_COLLISION_AVOIDANCE } from '../../utils/constants';
+import { adaptiveOrigin } from '../../utils/adaptiveOriginMiddleware';
+import { getDisabledMountTransitionStyles } from '../../utils/getDisabledMountTransitionStyles';
 
-const adaptiveOrigin: Middleware = {
-  name: 'adaptiveOrigin',
-  async fn(state) {
-    const {
-      x: rawX,
-      y: rawY,
-      rects: { floating: floatRect },
-      elements: { floating },
-      platform,
-      strategy,
-      placement,
-    } = state;
-
-    const win = floating.ownerDocument.defaultView;
-    const offsetParent = await platform.getOffsetParent?.(floating);
-
-    let offsetDimensions = { width: 0, height: 0 };
-
-    // For fixed strategy, prefer visualViewport if available
-    if (strategy === 'fixed' && win?.visualViewport) {
-      offsetDimensions = {
-        width: win.visualViewport.width,
-        height: win.visualViewport.height,
-      };
-    } else if (offsetParent === win) {
-      const doc = ownerDocument(floating);
-      offsetDimensions = {
-        width: doc.documentElement.clientWidth,
-        height: doc.documentElement.clientHeight,
-      };
-    } else if (await platform.isElement?.(offsetParent)) {
-      offsetDimensions = await platform.getDimensions(offsetParent);
-    }
-
-    const currentSide = getSide(placement);
-    let x = rawX;
-    let y = rawY;
-
-    if (currentSide === 'left') {
-      x = offsetDimensions.width - (rawX + floatRect.width);
-    }
-    if (currentSide === 'top') {
-      y = offsetDimensions.height - (rawY + floatRect.height);
-    }
-
-    const sideX = currentSide === 'left' ? 'right' : 'left';
-    const sideY = currentSide === 'top' ? 'bottom' : 'top';
-    return {
-      x,
-      y,
-      data: {
-        sideX,
-        sideY,
-      },
-    };
-  },
-};
+const EMPTY_ROOT_CONTEXT = getEmptyRootContext();
 
 /**
  * Positions the navigation menu against the currently active trigger.
@@ -86,8 +35,15 @@ export const NavigationMenuPositioner = React.forwardRef(function NavigationMenu
   componentProps: NavigationMenuPositioner.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { open, mounted, positionerElement, setPositionerElement, floatingRootContext, nested } =
-    useNavigationMenuRootContext();
+  const {
+    open,
+    mounted,
+    positionerElement,
+    setPositionerElement,
+    floatingRootContext,
+    nested,
+    transitionStatus,
+  } = useNavigationMenuRootContext();
 
   const {
     className,
@@ -103,47 +59,19 @@ export const NavigationMenuPositioner = React.forwardRef(function NavigationMenu
     collisionAvoidance = nested ? POPUP_COLLISION_AVOIDANCE : DROPDOWN_COLLISION_AVOIDANCE,
     arrowPadding = 5,
     sticky = false,
-    trackAnchor = true,
+    disableAnchorTracking = false,
     ...elementProps
   } = componentProps;
 
   const keepMounted = useNavigationMenuPortalContext();
   const nodeId = useNavigationMenuTreeContext();
 
-  const [instant, setInstant] = React.useState(true);
+  const resizeTimeout = useTimeout();
+
+  const [instant, setInstant] = React.useState(false);
 
   const positionerRef = React.useRef<HTMLDivElement | null>(null);
   const prevTriggerElementRef = React.useRef<Element | null>(null);
-
-  const runOnceAnimationsFinish = useAnimationsFinished(positionerRef);
-
-  // When the current trigger element changes, enable transitions on the
-  // positioner temporarily
-  useModernLayoutEffect(() => {
-    const currentTriggerElement = floatingRootContext?.elements.domReference;
-    const prevTriggerElement = prevTriggerElementRef.current;
-
-    if (currentTriggerElement) {
-      prevTriggerElementRef.current = currentTriggerElement;
-    }
-
-    if (
-      prevTriggerElement &&
-      currentTriggerElement &&
-      currentTriggerElement !== prevTriggerElement
-    ) {
-      setInstant(false);
-      const ac = new AbortController();
-      runOnceAnimationsFinish(() => {
-        setInstant(true);
-      }, ac.signal);
-      return () => {
-        ac.abort();
-      };
-    }
-
-    return undefined;
-  }, [floatingRootContext?.elements.domReference, runOnceAnimationsFinish]);
 
   // https://codesandbox.io/s/tabbable-portal-f4tng?file=/src/TabbablePortal.tsx
   React.useEffect(() => {
@@ -172,8 +100,10 @@ export const NavigationMenuPositioner = React.forwardRef(function NavigationMenu
     };
   }, [positionerElement]);
 
+  const domReference = (floatingRootContext || EMPTY_ROOT_CONTEXT).useState('domReferenceElement');
+
   const positioning = useAnchorPositioning({
-    anchor: anchor ?? floatingRootContext?.elements.domReference ?? prevTriggerElementRef,
+    anchor: anchor ?? domReference ?? prevTriggerElementRef,
     positionMethod,
     mounted,
     side,
@@ -184,7 +114,7 @@ export const NavigationMenuPositioner = React.forwardRef(function NavigationMenu
     collisionBoundary,
     collisionPadding,
     sticky,
-    trackAnchor,
+    disableAnchorTracking,
     keepMounted,
     floatingRootContext,
     collisionAvoidance,
@@ -222,11 +152,33 @@ export const NavigationMenuPositioner = React.forwardRef(function NavigationMenu
     [open, positioning.side, positioning.align, positioning.anchorHidden, instant],
   );
 
+  React.useEffect(() => {
+    if (!open) {
+      return undefined;
+    }
+
+    function handleResize() {
+      ReactDOM.flushSync(() => {
+        setInstant(true);
+      });
+
+      resizeTimeout.start(100, () => {
+        setInstant(false);
+      });
+    }
+
+    const win = ownerWindow(positionerElement);
+    win.addEventListener('resize', handleResize);
+    return () => {
+      win.removeEventListener('resize', handleResize);
+    };
+  }, [open, resizeTimeout, positionerElement]);
+
   const element = useRenderElement('div', componentProps, {
     state,
     ref: [forwardedRef, setPositionerElement, positionerRef],
-    props: [defaultProps, elementProps],
-    customStyleHookMapping: popupStateMapping,
+    props: [defaultProps, getDisabledMountTransitionStyles(transitionStatus), elementProps],
+    stateAttributesMapping: popupStateMapping,
   });
 
   return (
@@ -236,22 +188,26 @@ export const NavigationMenuPositioner = React.forwardRef(function NavigationMenu
   );
 });
 
-export namespace NavigationMenuPositioner {
-  export interface State {
-    /**
-     * Whether the navigation menu is currently open.
-     */
-    open: boolean;
-    side: Side;
-    align: Align;
-    anchorHidden: boolean;
-    /**
-     * Whether CSS transitions should be disabled.
-     */
-    instant: boolean;
-  }
+export interface NavigationMenuPositionerState {
+  /**
+   * Whether the navigation menu is currently open.
+   */
+  open: boolean;
+  side: Side;
+  align: Align;
+  anchorHidden: boolean;
+  /**
+   * Whether CSS transitions should be disabled.
+   */
+  instant: boolean;
+}
 
-  export interface Props
-    extends useAnchorPositioning.SharedParameters,
-      BaseUIComponentProps<'div', State> {}
+export interface NavigationMenuPositionerProps
+  extends
+    useAnchorPositioning.SharedParameters,
+    BaseUIComponentProps<'div', NavigationMenuPositioner.State> {}
+
+export namespace NavigationMenuPositioner {
+  export type State = NavigationMenuPositionerState;
+  export type Props = NavigationMenuPositionerProps;
 }

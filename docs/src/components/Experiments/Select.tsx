@@ -1,6 +1,6 @@
 import * as React from 'react';
 import clsx from 'clsx';
-import { Select as BaseSelect } from '@base-ui-components/react/select';
+import { Select as BaseSelect } from '@base-ui/react/select';
 import classes from './Select.module.css';
 
 export function Select(props: Select.Props) {
@@ -9,7 +9,7 @@ export function Select(props: Select.Props) {
   return (
     <BaseSelect.Root value={value} onValueChange={onChange}>
       <BaseSelect.Trigger {...otherProps} className={clsx(classes.Select, otherProps.className)}>
-        <BaseSelect.Value placeholder="Select an option" />
+        <BaseSelect.Value />
         <BaseSelect.Icon className={classes.SelectIcon}>
           <ChevronUpDownIcon />
         </BaseSelect.Icon>
@@ -36,10 +36,12 @@ export function Select(props: Select.Props) {
 }
 
 export namespace Select {
-  export interface Props
-    extends Omit<React.HTMLAttributes<HTMLDivElement>, 'defaultValue' | 'onChange'> {
-    value: string;
-    onChange: (value: string) => void;
+  export interface Props extends Omit<
+    React.HTMLAttributes<HTMLButtonElement>,
+    'defaultValue' | 'onChange'
+  > {
+    value: string | null;
+    onChange: (value: string | null) => void;
     options: string[];
   }
 }

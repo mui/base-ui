@@ -1,9 +1,9 @@
 'use client';
 import * as React from 'react';
+import { isElementDisabled } from '@base-ui/utils/isElementDisabled';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import type { TextDirection } from '../../direction-provider/DirectionContext';
-import { isElementDisabled } from '../../utils/isElementDisabled';
-import { useEventCallback } from '../../utils/useEventCallback';
-import { useForkRef } from '../../utils/useForkRef';
 import {
   ALL_KEYS,
   ARROW_DOWN,
@@ -27,8 +27,8 @@ import {
   getMinListIndex,
   isListIndexDisabled,
   isIndexOutOfListBounds,
-  getTextDirection,
   isNativeInput,
+  scrollIntoViewIfNeeded,
   type Dimensions,
   type ModifierKey,
 } from '../composite';
@@ -39,11 +39,11 @@ import { HTMLProps } from '../../utils/types';
 export interface UseCompositeRootParameters {
   orientation?: 'horizontal' | 'vertical' | 'both';
   cols?: number;
-  loop?: boolean;
+  loopFocus?: boolean;
   highlightedIndex?: number;
   onHighlightedIndexChange?: (index: number) => void;
   dense?: boolean;
-  direction?: TextDirection;
+  direction: TextDirection;
   itemSizes?: Array<Dimensions>;
   rootRef?: React.Ref<Element>;
   /**
@@ -54,7 +54,7 @@ export interface UseCompositeRootParameters {
   enableHomeAndEndKeys?: boolean;
   /**
    * When `true`, keypress events on Composite's navigation keys
-   * be stopped with event.stopPropagation()
+   * be stopped with event.stopPropagation().
    * @default false
    */
   stopEventPropagation?: boolean;
@@ -77,7 +77,7 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
   const {
     itemSizes,
     cols = 1,
-    loop = true,
+    loopFocus = true,
     dense = false,
     orientation = 'both',
     direction,
@@ -94,32 +94,38 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
 
   const isGrid = cols > 1;
 
-  const highlightedIndex = externalHighlightedIndex ?? internalHighlightedIndex;
-  const onHighlightedIndexChange = useEventCallback(
-    externalSetHighlightedIndex ?? internalSetHighlightedIndex,
-  );
-
-  const textDirectionRef = React.useRef<TextDirection | null>(direction ?? null);
-
   const rootRef = React.useRef<HTMLElement | null>(null);
-  const mergedRef = useForkRef(rootRef, externalRef);
+  const mergedRef = useMergedRefs(rootRef, externalRef);
 
   const elementsRef = React.useRef<Array<HTMLDivElement | null>>([]);
   const hasSetDefaultIndexRef = React.useRef(false);
 
-  const onMapChange = useEventCallback((map: Map<Element, CompositeMetadata<any>>) => {
+  const highlightedIndex = externalHighlightedIndex ?? internalHighlightedIndex;
+  const onHighlightedIndexChange = useStableCallback((index, shouldScrollIntoView = false) => {
+    (externalSetHighlightedIndex ?? internalSetHighlightedIndex)(index);
+    if (shouldScrollIntoView) {
+      const newActiveItem = elementsRef.current[index];
+      scrollIntoViewIfNeeded(rootRef.current, newActiveItem, direction, orientation);
+    }
+  });
+
+  const onMapChange = useStableCallback((map: Map<Element, CompositeMetadata<any>>) => {
     if (map.size === 0 || hasSetDefaultIndexRef.current) {
       return;
     }
     hasSetDefaultIndexRef.current = true;
     const sortedElements = Array.from(map.keys());
-    // Set the default highlighted index of an arbitrary composite item.
-    const activeIndex = sortedElements.findIndex((compositeElement) =>
+    const activeItem = (sortedElements.find((compositeElement) =>
       compositeElement?.hasAttribute(ACTIVE_COMPOSITE_ITEM),
-    );
+    ) ?? null) as HTMLElement | null;
+    // Set the default highlighted index of an arbitrary composite item.
+    const activeIndex = activeItem ? sortedElements.indexOf(activeItem) : -1;
+
     if (activeIndex !== -1) {
       onHighlightedIndexChange(activeIndex);
     }
+
+    scrollIntoViewIfNeeded(rootRef.current, activeItem, direction, orientation);
   });
 
   const props = React.useMemo<HTMLProps>(
@@ -147,11 +153,7 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
         if (!element) {
           return;
         }
-
-        if (textDirectionRef?.current == null) {
-          textDirectionRef.current = getTextDirection(element);
-        }
-        const isRtl = textDirectionRef.current === 'rtl';
+        const isRtl = direction === 'rtl';
 
         const horizontalForwardKey = isRtl ? ARROW_LEFT : ARROW_RIGHT;
         const forwardKey = {
@@ -221,7 +223,7 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
               {
                 event,
                 orientation,
-                loop,
+                loopFocus,
                 cols,
                 // treat undefined (empty grid spaces) as disabled indices so we
                 // don't end up in them
@@ -286,9 +288,9 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
           nextIndex === highlightedIndex &&
           (forwardKeys.includes(event.key) || backwardKeys.includes(event.key))
         ) {
-          if (loop && nextIndex === maxIndex && forwardKeys.includes(event.key)) {
+          if (loopFocus && nextIndex === maxIndex && forwardKeys.includes(event.key)) {
             nextIndex = minIndex;
-          } else if (loop && nextIndex === minIndex && backwardKeys.includes(event.key)) {
+          } else if (loopFocus && nextIndex === minIndex && backwardKeys.includes(event.key)) {
             nextIndex = maxIndex;
           } else {
             nextIndex = findNonDisabledListIndex(elementsRef, {
@@ -307,7 +309,7 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
           if (preventedKeys.has(event.key)) {
             event.preventDefault();
           }
-          onHighlightedIndexChange(nextIndex);
+          onHighlightedIndexChange(nextIndex, true);
 
           // Wait for FocusManager `returnFocus` to execute.
           queueMicrotask(() => {
@@ -319,13 +321,14 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
     [
       cols,
       dense,
+      direction,
       disabledIndices,
       elementsRef,
       enableHomeAndEndKeys,
       highlightedIndex,
       isGrid,
       itemSizes,
-      loop,
+      loopFocus,
       mergedRef,
       modifierKeys,
       onHighlightedIndexChange,
@@ -342,17 +345,18 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
       elementsRef,
       disabledIndices,
       onMapChange,
+      relayKeyboardEvent: props.onKeyDown!,
     }),
     [props, highlightedIndex, onHighlightedIndexChange, elementsRef, disabledIndices, onMapChange],
   );
 }
 
-function isModifierKeySet(event: React.KeyboardEvent<any>, ignoredModifierKeys: ModifierKey[]) {
+function isModifierKeySet(event: React.KeyboardEvent, ignoredModifierKeys: ModifierKey[]) {
   for (const key of MODIFIER_KEYS.values()) {
-    if (ignoredModifierKeys.includes(key as any)) {
+    if (ignoredModifierKeys.includes(key)) {
       continue;
     }
-    if (event.getModifierState(key as any)) {
+    if (event.getModifierState(key)) {
       return true;
     }
   }

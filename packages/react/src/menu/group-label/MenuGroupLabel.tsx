@@ -1,10 +1,10 @@
 'use client';
 import * as React from 'react';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useMenuGroupRootContext } from '../group/MenuGroupContext';
-import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 
 /**
  * An accessible label that is automatically associated with its parent group.
@@ -22,7 +22,7 @@ export const MenuGroupLabel = React.forwardRef(function MenuGroupLabelComponent(
 
   const { setLabelId } = useMenuGroupRootContext();
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     setLabelId(id);
     return () => {
       setLabelId(undefined);
@@ -39,8 +39,11 @@ export const MenuGroupLabel = React.forwardRef(function MenuGroupLabelComponent(
   });
 });
 
-export namespace MenuGroupLabel {
-  export interface Props extends BaseUIComponentProps<'div', State> {}
+export interface MenuGroupLabelProps extends BaseUIComponentProps<'div', MenuGroupLabel.State> {}
 
-  export interface State {}
+export interface MenuGroupLabelState {}
+
+export namespace MenuGroupLabel {
+  export type Props = MenuGroupLabelProps;
+  export type State = MenuGroupLabelState;
 }

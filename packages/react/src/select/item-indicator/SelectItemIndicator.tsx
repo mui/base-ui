@@ -5,7 +5,7 @@ import { useSelectItemContext } from '../item/SelectItemContext';
 import { type TransitionStatus, useTransitionStatus } from '../../utils/useTransitionStatus';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useRenderElement } from '../../utils/useRenderElement';
-import { transitionStatusMapping } from '../../utils/styleHookMapping';
+import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
 
 /**
  * Indicates whether the select item is selected.
@@ -17,66 +17,86 @@ export const SelectItemIndicator = React.forwardRef(function SelectItemIndicator
   componentProps: SelectItemIndicator.Props,
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
-  const { render, className, keepMounted = false, ...elementProps } = componentProps;
+  const keepMounted = componentProps.keepMounted ?? false;
 
   const { selected } = useSelectItemContext();
-
-  const indicatorRef = React.useRef<HTMLSpanElement | null>(null);
-
-  const { mounted, transitionStatus, setMounted } = useTransitionStatus(selected);
-
-  const state: SelectItemIndicator.State = React.useMemo(
-    () => ({
-      selected,
-      transitionStatus,
-    }),
-    [selected, transitionStatus],
-  );
-
-  const element = useRenderElement('span', componentProps, {
-    ref: [forwardedRef, indicatorRef],
-    state,
-    props: [
-      {
-        hidden: !mounted,
-        'aria-hidden': true,
-        children: '✔️',
-      },
-      elementProps,
-    ],
-    customStyleHookMapping: transitionStatusMapping,
-  });
-
-  useOpenChangeComplete({
-    open: selected,
-    ref: indicatorRef,
-    onComplete() {
-      if (!selected) {
-        setMounted(false);
-      }
-    },
-  });
 
   const shouldRender = keepMounted || selected;
   if (!shouldRender) {
     return null;
   }
 
-  return element;
+  // eslint-disable-next-line @typescript-eslint/no-use-before-define
+  return <Inner {...componentProps} ref={forwardedRef} />;
 });
 
-export namespace SelectItemIndicator {
-  export interface Props extends BaseUIComponentProps<'span', State> {
-    children?: React.ReactNode;
-    /**
-     * Whether to keep the HTML element in the DOM when the item is not selected.
-     * @default false
-     */
-    keepMounted?: boolean;
-  }
+/** The core implementation of the indicator is split here to avoid paying the hooks
+ * costs unless the element needs to be mounted. */
+const Inner = React.memo(
+  React.forwardRef(
+    (
+      componentProps: SelectItemIndicator.Props,
+      forwardedRef: React.ForwardedRef<HTMLSpanElement>,
+    ) => {
+      const { render, className, keepMounted, ...elementProps } = componentProps;
 
-  export interface State {
-    selected: boolean;
-    transitionStatus: TransitionStatus;
-  }
+      const { selected } = useSelectItemContext();
+
+      const indicatorRef = React.useRef<HTMLSpanElement | null>(null);
+
+      const { transitionStatus, setMounted } = useTransitionStatus(selected);
+
+      const state: SelectItemIndicator.State = React.useMemo(
+        () => ({
+          selected,
+          transitionStatus,
+        }),
+        [selected, transitionStatus],
+      );
+
+      const element = useRenderElement('span', componentProps, {
+        ref: [forwardedRef, indicatorRef],
+        state,
+        props: [
+          {
+            'aria-hidden': true,
+            children: '✔️',
+          },
+          elementProps,
+        ],
+        stateAttributesMapping: transitionStatusMapping,
+      });
+
+      useOpenChangeComplete({
+        open: selected,
+        ref: indicatorRef,
+        onComplete() {
+          if (!selected) {
+            setMounted(false);
+          }
+        },
+      });
+
+      return element;
+    },
+  ),
+);
+
+export interface SelectItemIndicatorState {
+  selected: boolean;
+  transitionStatus: TransitionStatus;
+}
+
+export interface SelectItemIndicatorProps extends BaseUIComponentProps<
+  'span',
+  SelectItemIndicator.State
+> {
+  children?: React.ReactNode;
+  /** Whether to keep the HTML element in the DOM when the item is not selected. */
+  keepMounted?: boolean;
+}
+
+export namespace SelectItemIndicator {
+  export type State = SelectItemIndicatorState;
+  export type Props = SelectItemIndicatorProps;
 }

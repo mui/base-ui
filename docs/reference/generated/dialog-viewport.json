@@ -1,0 +1,41 @@
+{
+  "name": "DialogViewport",
+  "description": "A positioning container for the dialog popup that can be made scrollable.\nRenders a `<div>` element.",
+  "props": {
+    "className": {
+      "type": "string | ((state: Dialog.Viewport.State) => string | undefined)",
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
+      "detailedType": "| string\n| ((state: Dialog.Viewport.State) => string | undefined)"
+    },
+    "style": {
+      "type": "CSSProperties | ((state: Dialog.Viewport.State) => CSSProperties | undefined)",
+      "detailedType": "| React.CSSProperties\n| ((\n    state: Dialog.Viewport.State,\n  ) => CSSProperties | undefined)\n| undefined"
+    },
+    "render": {
+      "type": "ReactElement | ((props: HTMLProps, state: Dialog.Viewport.State) => ReactElement)",
+      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render.",
+      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Dialog.Viewport.State,\n  ) => ReactElement)"
+    }
+  },
+  "dataAttributes": {
+    "data-open": {
+      "description": "Present when the dialog is open."
+    },
+    "data-closed": {
+      "description": "Present when the dialog is closed."
+    },
+    "data-nested": {
+      "description": "Present when the dialog is nested within another dialog."
+    },
+    "data-nested-dialog-open": {
+      "description": "Present when the dialog has other open dialogs nested within it."
+    },
+    "data-starting-style": {
+      "description": "Present when the dialog is animating in."
+    },
+    "data-ending-style": {
+      "description": "Present when the dialog is animating out."
+    }
+  },
+  "cssVariables": {}
+}

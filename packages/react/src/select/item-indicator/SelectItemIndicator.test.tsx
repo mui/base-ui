@@ -1,5 +1,4 @@
-import * as React from 'react';
-import { Select } from '@base-ui-components/react/select';
+import { Select } from '@base-ui/react/select';
 import { createRenderer, describeConformance } from '#test-utils';
 
 describe('<Select.ItemIndicator />', () => {
@@ -11,7 +10,7 @@ describe('<Select.ItemIndicator />', () => {
       return render(
         <Select.Root open>
           <Select.Trigger>
-            <Select.Value placeholder="select" />
+            <Select.Value />
           </Select.Trigger>
           <Select.Positioner>
             <Select.Item>{node}</Select.Item>

@@ -1,18 +1,21 @@
 'use client';
 import * as React from 'react';
-import type { FloatingRootContext } from '@floating-ui/react';
+import type { FloatingRootContext } from '../../floating-ui-react';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import type { HTMLProps } from '../../utils/types';
-import type { BaseOpenChangeReason as OpenChangeReason } from '../../utils/translateOpenChangeReason';
+import type { PreviewCardRoot } from './PreviewCardRoot';
+
+export interface PreviewCardTriggerDelayConfig {
+  delay?: number;
+  closeDelay?: number;
+}
 
 export interface PreviewCardRootContext {
   open: boolean;
-  setOpen: (open: boolean, event: Event | undefined, reason: OpenChangeReason | undefined) => void;
+  setOpen: (open: boolean, eventDetails: PreviewCardRoot.ChangeEventDetails) => void;
   setTriggerElement: (el: Element | null) => void;
   positionerElement: HTMLElement | null;
   setPositionerElement: (el: HTMLElement | null) => void;
-  delay: number;
-  closeDelay: number;
   mounted: boolean;
   setMounted: React.Dispatch<React.SetStateAction<boolean>>;
   triggerProps: HTMLProps;
@@ -22,6 +25,7 @@ export interface PreviewCardRootContext {
   popupRef: React.RefObject<HTMLElement | null>;
   onOpenChangeComplete: ((open: boolean) => void) | undefined;
   coordsRef: React.RefObject<{ x: number; y: number; rectIndex: number } | undefined>;
+  writeDelayRefs: (config: PreviewCardTriggerDelayConfig) => void;
 }
 
 export const PreviewCardRootContext = React.createContext<PreviewCardRootContext | undefined>(

@@ -1,0 +1,63 @@
+# Preview Card
+
+<Subtitle>
+  A popup that appears when a link is hovered, showing a preview for sighted users.
+</Subtitle>
+<Meta
+  name="description"
+  content="A high-quality, unstyled React preview card component that appears when a link is hovered, showing a preview for sighted users."
+/>
+
+import { DemoPreviewCardHero } from './demos/hero';
+
+<DemoPreviewCardHero />
+<link
+  as="image"
+  rel="preload"
+  href="https://images.unsplash.com/photo-1619615391095-dfa29e1672ef?q=80&w=448&h=300"
+/>
+
+## Anatomy
+
+Import the component and assemble its parts:
+
+```jsx title="Anatomy"
+import { PreviewCard } from '@base-ui/react/preview-card';
+
+<PreviewCard.Root>
+  <PreviewCard.Trigger />
+  <PreviewCard.Portal>
+    <PreviewCard.Backdrop />
+    <PreviewCard.Positioner>
+      <PreviewCard.Popup>
+        <PreviewCard.Arrow />
+      </PreviewCard.Popup>
+    </PreviewCard.Positioner>
+  </PreviewCard.Portal>
+</PreviewCard.Root>;
+```
+
+## API reference
+
+<Reference
+  component="PreviewCard"
+  parts="Root, Trigger, Portal, Backdrop, Positioner, Popup, Arrow"
+/>
+
+export const metadata = {
+  keywords: [
+    'React Preview Card',
+    'Preview Card Component',
+    'Link Hover Preview',
+    'Hover Card React',
+    'Hover Card',
+    'Link Tooltip',
+    'URL Preview',
+    'Link Preview Popup',
+    'Content Preview',
+    'Accessible Preview Popup',
+    'Headless React Components',
+    'Link Preview UI',
+    'Base UI',
+  ],
+};

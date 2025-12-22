@@ -1,0 +1,68 @@
+# Checkbox Group
+
+<Subtitle>Provides shared state to a series of checkboxes.</Subtitle>
+<Meta
+  name="description"
+  content="A high-quality, unstyled React checkbox group component that provides a shared state for a series of checkboxes."
+/>
+
+import { DemoCheckboxGroupHero } from './demos/hero';
+
+<DemoCheckboxGroupHero />
+
+## Usage guidelines
+
+- **Form controls must have an accessible name**: Checkbox group and individual checkboxes must have a meaningful label. Prefer using [`<Fieldset>`](/react/components/fieldset) and [`<Field>`](/react/components/field) to provide visible text labels and descriptions, or use the `aria-label` attribute as an alternative. See the [forms guide](/react/handbook/forms) for more on building form controls.
+
+## Anatomy
+
+Checkbox Group is composed together with [Checkbox](/react/components/checkbox). Import the components and place them together:
+
+```jsx title="Anatomy"
+import { Checkbox } from '@base-ui/react/checkbox';
+import { CheckboxGroup } from '@base-ui/react/checkbox-group';
+
+<CheckboxGroup>
+  <Checkbox.Root />
+</CheckboxGroup>;
+```
+
+## Examples
+
+### Parent checkbox
+
+A checkbox that controls other checkboxes within a `<CheckboxGroup>` can be created:
+
+1. Make `<CheckboxGroup>` a controlled component
+2. Pass an array of all the child checkbox values to the `allValues` prop on the `<CheckboxGroup>` component
+3. Add the `parent` boolean prop to the parent `<Checkbox>`
+
+import { DemoCheckboxGroupParent } from './demos/parent';
+
+<DemoCheckboxGroupParent />
+
+### Nested parent checkbox
+
+import { DemoCheckboxGroupNested } from './demos/nested';
+
+<DemoCheckboxGroupNested compact />
+
+## API reference
+
+<Reference component="CheckboxGroup" />
+
+export const metadata = {
+  keywords: [
+    'React Checkbox Group',
+    'Checkbox Group Component',
+    'Grouped Checkboxes',
+    'Multiple Selection',
+    'Checkbox List',
+    'Multi-Select Checkboxes',
+    'Parent Child Checkbox',
+    'Accessible Checkbox Group',
+    'Form Fieldset Control',
+    'Headless React Components',
+    'Base UI',
+  ],
+};

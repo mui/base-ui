@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
-import { Menu } from '@base-ui-components/react/menu';
-import { Menubar } from '@base-ui-components/react/menubar';
+import { Menu } from '@base-ui/react/menu';
+import { Menubar } from '@base-ui/react/menubar';
 import {
   SettingsMetadata,
   useExperimentSettings,
@@ -12,7 +12,7 @@ import classes from './menubar.module.css';
 
 interface Settings {
   modal: boolean;
-  loop: boolean;
+  loopFocus: boolean;
   orientation: 'horizontal' | 'vertical';
 }
 
@@ -32,7 +32,7 @@ export default function MenubarExperiment() {
       <h1>Menubar</h1>
       <Menubar
         className={classes.Root}
-        loop={settings.loop}
+        loopFocus={settings.loopFocus}
         orientation={settings.orientation}
         modal={settings.modal}
       >
@@ -50,29 +50,24 @@ export default function MenubarExperiment() {
                 <Menu.Item className={menuClasses.Item}>Save as...</Menu.Item>
                 <Menu.Separator className={menuClasses.Separator} />
 
-                <Menu.Root>
+                <Menu.SubmenuRoot>
                   <Menu.SubmenuTrigger className={menuClasses.SubmenuTrigger}>
                     Share
                     <ChevronRightIcon />
                   </Menu.SubmenuTrigger>
 
                   <Menu.Portal>
-                    <Menu.Positioner
-                      className={menuClasses.Positioner}
-                      sideOffset={8}
-                    >
+                    <Menu.Positioner className={menuClasses.Positioner} sideOffset={8}>
                       <Menu.Popup className={menuClasses.Popup}>
                         <Menu.Arrow className={menuClasses.Arrow}>
                           <ArrowIcon />
                         </Menu.Arrow>
                         <Menu.Item className={menuClasses.Item}>AirDrop</Menu.Item>
-                        <Menu.Item className={menuClasses.Item}>
-                          Email link
-                        </Menu.Item>
+                        <Menu.Item className={menuClasses.Item}>Email link</Menu.Item>
                       </Menu.Popup>
                     </Menu.Positioner>
                   </Menu.Portal>
-                </Menu.Root>
+                </Menu.SubmenuRoot>
 
                 <Menu.Separator className={menuClasses.Separator} />
                 <Menu.Item className={menuClasses.Item}>Close</Menu.Item>
@@ -96,24 +91,21 @@ export default function MenubarExperiment() {
 
                 <Menu.Separator className={menuClasses.Separator} />
 
-                <Menu.Root>
+                <Menu.SubmenuRoot>
                   <Menu.SubmenuTrigger className={menuClasses.SubmenuTrigger}>
                     Find on page
                     <ChevronRightIcon />
                   </Menu.SubmenuTrigger>
 
                   <Menu.Portal>
-                    <Menu.Positioner
-                      className={menuClasses.Positioner}
-                      sideOffset={8}
-                    >
+                    <Menu.Positioner className={menuClasses.Positioner} sideOffset={8}>
                       <Menu.Popup className={menuClasses.Popup}>
                         <Menu.Item className={menuClasses.Item}>Find...</Menu.Item>
                         <Menu.Item className={menuClasses.Item}>Find next</Menu.Item>
                       </Menu.Popup>
                     </Menu.Positioner>
                   </Menu.Portal>
-                </Menu.Root>
+                </Menu.SubmenuRoot>
               </Menu.Popup>
             </Menu.Positioner>
           </Menu.Portal>
@@ -130,22 +122,46 @@ export default function MenubarExperiment() {
               <Menu.Popup className={menuClasses.Popup}>
                 <Menu.RadioGroup value="light">
                   <Menu.RadioItem className={menuClasses.RadioItem} value="light">
-                    <Menu.RadioItemIndicator
-                      className={menuClasses.RadioItemIndicator}
-                    >
+                    <Menu.RadioItemIndicator className={menuClasses.RadioItemIndicator}>
                       <CheckIcon className={menuClasses.RadioItemIndicatorIcon} />
                     </Menu.RadioItemIndicator>
                     <span className={menuClasses.RadioItemText}>Light mode</span>
                   </Menu.RadioItem>
                   <Menu.RadioItem className={menuClasses.RadioItem} value="dark">
-                    <Menu.RadioItemIndicator
-                      className={menuClasses.RadioItemIndicator}
-                    >
+                    <Menu.RadioItemIndicator className={menuClasses.RadioItemIndicator}>
                       <CheckIcon className={menuClasses.RadioItemIndicatorIcon} />
                     </Menu.RadioItemIndicator>
                     <span className={menuClasses.RadioItemText}>Dark mode</span>
                   </Menu.RadioItem>
                 </Menu.RadioGroup>
+
+                <Menu.SubmenuRoot>
+                  <Menu.SubmenuTrigger className={menuClasses.SubmenuTrigger}>
+                    Layout
+                    <ChevronRightIcon />
+                  </Menu.SubmenuTrigger>
+
+                  <Menu.Portal>
+                    <Menu.Positioner className={menuClasses.Positioner} sideOffset={8}>
+                      <Menu.Popup className={menuClasses.Popup}>
+                        <Menu.RadioGroup defaultValue="light">
+                          <Menu.RadioItem className={menuClasses.RadioItem} value="light">
+                            <Menu.RadioItemIndicator className={menuClasses.RadioItemIndicator}>
+                              <CheckIcon className={menuClasses.RadioItemIndicatorIcon} />
+                            </Menu.RadioItemIndicator>
+                            <span className={menuClasses.RadioItemText}>Single column</span>
+                          </Menu.RadioItem>
+                          <Menu.RadioItem className={menuClasses.RadioItem} value="dark">
+                            <Menu.RadioItemIndicator className={menuClasses.RadioItemIndicator}>
+                              <CheckIcon className={menuClasses.RadioItemIndicatorIcon} />
+                            </Menu.RadioItemIndicator>
+                            <span className={menuClasses.RadioItemText}>Multiple columns</span>
+                          </Menu.RadioItem>
+                        </Menu.RadioGroup>
+                      </Menu.Popup>
+                    </Menu.Positioner>
+                  </Menu.Portal>
+                </Menu.SubmenuRoot>
               </Menu.Popup>
             </Menu.Positioner>
           </Menu.Portal>
@@ -159,9 +175,7 @@ export default function MenubarExperiment() {
               {...getSubmenuPositionProps(settings.orientation)}
             >
               <Menu.Popup className={menuClasses.Popup}>
-                <Menu.Item className={menuClasses.Item}>
-                  This should not appear
-                </Menu.Item>
+                <Menu.Item className={menuClasses.Item}>This should not appear</Menu.Item>
               </Menu.Popup>
             </Menu.Positioner>
           </Menu.Portal>
@@ -174,9 +188,9 @@ export default function MenubarExperiment() {
 }
 
 export const settingsMetadata: SettingsMetadata<Settings> = {
-  loop: {
+  loopFocus: {
     type: 'boolean',
-    label: 'Loop',
+    label: 'Focus loop',
     default: true,
   },
   modal: {

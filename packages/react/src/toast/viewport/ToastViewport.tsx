@@ -1,13 +1,15 @@
 'use client';
 import * as React from 'react';
-import { activeElement, contains, getTarget, useLatestRef } from '@floating-ui/react/utils';
-import type { BaseUIComponentProps } from '../../utils/types';
+import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
+import { visuallyHidden } from '@base-ui/utils/visuallyHidden';
+import { activeElement, contains, getTarget } from '../../floating-ui-react/utils';
+import { FocusGuard } from '../../utils/FocusGuard';
+import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 import { ToastViewportContext } from './ToastViewportContext';
-import { FocusGuard } from './FocusGuard';
 import { useToastContext } from '../provider/ToastProviderContext';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { isFocusVisible } from '../utils/focusVisible';
-import { ownerDocument, ownerWindow } from '../../utils/owner';
+import { ToastViewportCssVars } from './ToastViewportCssVars';
 
 /**
  * A container viewport for toasts.
@@ -31,14 +33,20 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
     windowFocusedRef,
     prevFocusElement,
     setPrevFocusElement,
-    hovering,
+    expanded,
     focused,
-    hasDifferingHeights,
   } = useToastContext();
 
   const handlingFocusGuardRef = React.useRef(false);
-  const focusedRef = useLatestRef(focused);
+  const markedReadyForMouseLeaveRef = React.useRef(false);
+
   const numToasts = toasts.length;
+  const frontmostHeight = toasts[0]?.height ?? 0;
+
+  const hasTransitioningToasts = React.useMemo(
+    () => toasts.some((toast) => toast.transitionStatus === 'ending'),
+    [toasts],
+  );
 
   // Listen globally for F6 so we can force-focus the viewport.
   React.useEffect(() => {
@@ -56,7 +64,7 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
         setPrevFocusElement(
           activeElement(ownerDocument(viewportRef.current)) as HTMLElement | null,
         );
-        viewportRef.current?.focus();
+        viewportRef.current?.focus({ preventScroll: true });
         pauseTimers();
         setFocused(true);
       }
@@ -120,13 +128,42 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
     viewportRef,
     windowFocusedRef,
     setFocused,
-    focusedRef,
     // `viewportRef.current` isn't available on the first render,
     // since the portal node hasn't yet been created.
     // By adding this dependency, we ensure the window listeners
     // are added when toasts have been created, once the ref is available.
     numToasts,
   ]);
+
+  React.useEffect(() => {
+    const viewportNode = viewportRef.current;
+    if (!viewportNode || numToasts === 0) {
+      return undefined;
+    }
+
+    const doc = ownerDocument(viewportNode);
+
+    function handlePointerDown(event: PointerEvent) {
+      if (event.pointerType !== 'touch') {
+        return;
+      }
+
+      const target = getTarget(event) as Element | null;
+      if (contains(viewportNode, target)) {
+        return;
+      }
+
+      resumeTimers();
+      setHovering(false);
+      setFocused(false);
+    }
+
+    doc.addEventListener('pointerdown', handlePointerDown, true);
+
+    return () => {
+      doc.removeEventListener('pointerdown', handlePointerDown, true);
+    };
+  }, [numToasts, resumeTimers, setFocused, setHovering, viewportRef]);
 
   function handleFocusGuard(event: React.FocusEvent) {
     if (!viewportRef.current) {
@@ -151,19 +188,38 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
     }
   }
 
-  function handleMouseEnter() {
-    pauseTimers();
-    setHovering(true);
-  }
-
-  function handleMouseLeave() {
-    const activeEl = activeElement(ownerDocument(viewportRef.current));
-    if (contains(viewportRef.current, activeEl) && isFocusVisible(activeEl)) {
+  React.useEffect(() => {
+    if (
+      !windowFocusedRef.current ||
+      hasTransitioningToasts ||
+      !markedReadyForMouseLeaveRef.current
+    ) {
       return;
     }
 
+    // Once transitions have finished, see if a mouseleave was already triggered
+    // but blocked from taking effect. If so, we can now safely resume timers and
+    // collapse the viewport.
     resumeTimers();
     setHovering(false);
+    markedReadyForMouseLeaveRef.current = false;
+  }, [hasTransitioningToasts, resumeTimers, setHovering, windowFocusedRef]);
+
+  function handleMouseEnter() {
+    pauseTimers();
+    setHovering(true);
+    markedReadyForMouseLeaveRef.current = false;
+  }
+
+  function handleMouseLeave() {
+    if (toasts.some((toast) => toast.transitionStatus === 'ending')) {
+      // When swiping to dismiss, wait until the transitions have settled
+      // to avoid the viewport collapsing while the user is interacting.
+      markedReadyForMouseLeaveRef.current = true;
+    } else {
+      resumeTimers();
+      setHovering(false);
+    }
   }
 
   function handleFocus() {
@@ -176,16 +232,13 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
       return;
     }
 
-    // If the window was previously blurred, the focus must be visible to
-    // pause the timers, since for pointers it's unexpected that focus is
-    // considered inside the viewport at this point.
-    const activeEl = activeElement(ownerDocument(viewportRef.current));
-    if (!windowFocusedRef.current && !isFocusVisible(activeEl)) {
-      return;
+    // Only set focused when the active element is focus-visible.
+    // This prevents the viewport from staying expanded when clicking inside without
+    // keyboard navigation.
+    if (isFocusVisible(ownerDocument(viewportRef.current).activeElement)) {
+      setFocused(true);
+      pauseTimers();
     }
-
-    setFocused(true);
-    pauseTimers();
   }
 
   function handleBlur(event: React.FocusEvent) {
@@ -197,10 +250,13 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
     resumeTimers();
   }
 
-  const props = {
-    role: 'region',
+  const defaultProps: HTMLProps = {
     tabIndex: -1,
-    'aria-label': `${numToasts} notification${numToasts !== 1 ? 's' : ''} (F6)`,
+    role: 'region',
+    'aria-live': 'polite',
+    'aria-atomic': false,
+    'aria-relevant': 'additions text',
+    'aria-label': 'Notifications',
     onMouseEnter: handleMouseEnter,
     onMouseMove: handleMouseEnter,
     onMouseLeave: handleMouseLeave,
@@ -212,18 +268,25 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
 
   const state: ToastViewport.State = React.useMemo(
     () => ({
-      expanded: hovering || focused || hasDifferingHeights,
+      expanded,
     }),
-    [hovering, focused, hasDifferingHeights],
+    [expanded],
   );
 
   const element = useRenderElement('div', componentProps, {
     ref: [forwardedRef, viewportRef],
     state,
     props: [
-      props,
+      defaultProps,
       {
-        ...elementProps,
+        style: {
+          [ToastViewportCssVars.frontmostHeight as string]: frontmostHeight
+            ? `${frontmostHeight}px`
+            : undefined,
+        },
+      },
+      elementProps,
+      {
         children: (
           <React.Fragment>
             {numToasts > 0 && prevFocusElement && <FocusGuard onFocus={handleFocusGuard} />}
@@ -237,21 +300,39 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
 
   const contextValue = React.useMemo(() => ({ viewportRef }), [viewportRef]);
 
+  const highPriorityToasts = React.useMemo(
+    () => toasts.filter((toast) => toast.priority === 'high'),
+    [toasts],
+  );
+
   return (
     <ToastViewportContext.Provider value={contextValue}>
       {numToasts > 0 && prevFocusElement && <FocusGuard onFocus={handleFocusGuard} />}
       {element}
+      {!focused && highPriorityToasts.length > 0 && (
+        <div style={visuallyHidden}>
+          {highPriorityToasts.map((toast) => (
+            <div key={toast.id} role="alert" aria-atomic>
+              <div>{toast.title}</div>
+              <div>{toast.description}</div>
+            </div>
+          ))}
+        </div>
+      )}
     </ToastViewportContext.Provider>
   );
 });
 
-export namespace ToastViewport {
-  export interface State {
-    /**
-     * Whether toasts are expanded in the viewport.
-     */
-    expanded: boolean;
-  }
+export interface ToastViewportState {
+  /**
+   * Whether toasts are expanded in the viewport.
+   */
+  expanded: boolean;
+}
 
-  export interface Props extends BaseUIComponentProps<'div', State> {}
+export interface ToastViewportProps extends BaseUIComponentProps<'div', ToastViewport.State> {}
+
+export namespace ToastViewport {
+  export type State = ToastViewportState;
+  export type Props = ToastViewportProps;
 }

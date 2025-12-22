@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import { spy } from 'sinon';
-import { mergeProps } from '@base-ui-components/react/merge-props';
+import { mergeProps } from '@base-ui/react/merge-props';
 import type { BaseUIEvent } from '../utils/types';
 
 describe('mergeProps', () => {
@@ -49,6 +49,29 @@ describe('mergeProps', () => {
 
     mergedProps.onClick?.({ nativeEvent: new MouseEvent('click') } as any);
     expect(log).to.deep.equal(['1', '2', '3']);
+  });
+
+  it('merges undefined event handlers', () => {
+    const log: string[] = [];
+
+    const mergedProps = mergeProps<'button'>(
+      {
+        onClick() {
+          log.push('3');
+        },
+      },
+      {
+        onClick: undefined,
+      },
+      {
+        onClick() {
+          log.push('1');
+        },
+      },
+    );
+
+    mergedProps.onClick?.({ nativeEvent: new MouseEvent('click') } as any);
+    expect(log).to.deep.equal(['1', '3']);
   });
 
   it('merges styles', () => {

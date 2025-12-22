@@ -1,9 +1,9 @@
 'use client';
 import * as React from 'react';
+import { useId } from '@base-ui/utils/useId';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useToastRootContext } from '../root/ToastRootContext';
-import { useId } from '../../utils/useId';
-import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import { useRenderElement } from '../../utils/useRenderElement';
 
 /**
@@ -29,7 +29,7 @@ export const ToastDescription = React.forwardRef(function ToastDescription(
 
   const { setDescriptionId } = useToastRootContext();
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     if (!shouldRender) {
       return undefined;
     }
@@ -65,13 +65,16 @@ export const ToastDescription = React.forwardRef(function ToastDescription(
   return element;
 });
 
-export namespace ToastDescription {
-  export interface State {
-    /**
-     * The type of the toast.
-     */
-    type: string | undefined;
-  }
+export interface ToastDescriptionState {
+  /**
+   * The type of the toast.
+   */
+  type: string | undefined;
+}
 
-  export interface Props extends BaseUIComponentProps<'p', State> {}
+export interface ToastDescriptionProps extends BaseUIComponentProps<'p', ToastDescription.State> {}
+
+export namespace ToastDescription {
+  export type State = ToastDescriptionState;
+  export type Props = ToastDescriptionProps;
 }

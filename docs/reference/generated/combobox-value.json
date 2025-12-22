@@ -1,0 +1,12 @@
+{
+  "name": "ComboboxValue",
+  "description": "The current value of the combobox.\nDoesn't render its own HTML element.",
+  "props": {
+    "children": {
+      "type": "ReactNode | ((selectedValue: any) => ReactNode)",
+      "detailedType": "| React.ReactNode\n| ((selectedValue: any) => ReactNode)"
+    }
+  },
+  "dataAttributes": {},
+  "cssVariables": {}
+}

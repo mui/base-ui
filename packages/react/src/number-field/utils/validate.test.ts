@@ -33,6 +33,10 @@ describe('NumberField validate', () => {
         1000,
       );
     });
+
+    it('uses resolved maximumFractionDigits when only minimum is provided', () => {
+      expect(removeFloatingPointErrors(1.234567, { minimumFractionDigits: 5 })).to.equal(1.23457);
+    });
   });
 
   describe('toValidatedNumber', () => {
@@ -166,5 +170,73 @@ describe('NumberField validate', () => {
         snapOnStep: false,
       }),
     ).to.equal(0.3);
+  });
+
+  describe('fractional step with snapOnStep', () => {
+    it('handles increment with step 0.1 without getting stuck', () => {
+      // Simulates incrementing 100.1 by 0.1: the raw value becomes 100.19999999999999
+      // which should snap to 100.2, not back to 100.1
+      expect(
+        toValidatedNumber(100.1 + 0.1, {
+          ...defaultOptions,
+          step: 0.1,
+          snapOnStep: true,
+        }),
+      ).to.equal(100.2);
+    });
+
+    it('handles decrement with step -0.1 without getting stuck', () => {
+      // Simulates decrementing 100.1 by 0.1
+      expect(
+        toValidatedNumber(100.1 - 0.1, {
+          ...defaultOptions,
+          step: -0.1,
+          snapOnStep: true,
+        }),
+      ).to.equal(100);
+    });
+
+    it('handles multiple increments with step 0.01', () => {
+      expect(
+        toValidatedNumber(0.01 + 0.01, {
+          ...defaultOptions,
+          step: 0.01,
+          snapOnStep: true,
+        }),
+      ).to.equal(0.02);
+    });
+
+    it('handles fractional step when a minimum is set', () => {
+      expect(
+        toValidatedNumber(3 + 0.2 + 0.2, {
+          ...defaultOptions,
+          step: 0.2,
+          minWithDefault: 3,
+          minWithZeroDefault: 3,
+        }),
+      ).to.equal(3.4);
+    });
+
+    it('rounds to the nearest value when using small step', () => {
+      expect(
+        toValidatedNumber(0.15, {
+          ...defaultOptions,
+          step: 0.1,
+          snapOnStep: true,
+          small: true,
+        }),
+      ).to.equal(0.2);
+    });
+
+    it('rounds negative small steps to the nearest value', () => {
+      expect(
+        toValidatedNumber(-0.15, {
+          ...defaultOptions,
+          step: -0.1,
+          snapOnStep: true,
+          small: true,
+        }),
+      ).to.equal(-0.2);
+    });
   });
 });

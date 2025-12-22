@@ -34,7 +34,7 @@
         var(--side-nav-scrollbar-gap-left) + var(--side-nav-scrollbar-width) / 2 +
           var(--side-nav-scrollbar-thumb-width) / 2
       )
-      3rem 1.5rem;
+      6rem 1.5rem;
 
     /* Scroll containers are focusable */
     outline: 0;

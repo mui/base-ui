@@ -1,10 +1,11 @@
 import * as React from 'react';
+import type { Coords, HiddenState, OverflowEdges, ScrollAreaRoot, Size } from './ScrollAreaRoot';
 
 export interface ScrollAreaRootContext {
-  cornerSize: { width: number; height: number };
-  setCornerSize: React.Dispatch<React.SetStateAction<{ width: number; height: number }>>;
-  thumbSize: { width: number; height: number };
-  setThumbSize: React.Dispatch<React.SetStateAction<{ width: number; height: number }>>;
+  cornerSize: Size;
+  setCornerSize: React.Dispatch<React.SetStateAction<Size>>;
+  thumbSize: Size;
+  setThumbSize: React.Dispatch<React.SetStateAction<Size>>;
   touchModality: boolean;
   hovering: boolean;
   setHovering: React.Dispatch<React.SetStateAction<boolean>>;
@@ -13,6 +14,7 @@ export interface ScrollAreaRootContext {
   scrollingY: boolean;
   setScrollingY: React.Dispatch<React.SetStateAction<boolean>>;
   viewportRef: React.RefObject<HTMLDivElement | null>;
+  rootRef: React.RefObject<HTMLDivElement | null>;
   scrollbarYRef: React.RefObject<HTMLDivElement | null>;
   thumbYRef: React.RefObject<HTMLDivElement | null>;
   scrollbarXRef: React.RefObject<HTMLDivElement | null>;
@@ -21,20 +23,19 @@ export interface ScrollAreaRootContext {
   handlePointerDown: (event: React.PointerEvent) => void;
   handlePointerMove: (event: React.PointerEvent) => void;
   handlePointerUp: (event: React.PointerEvent) => void;
-  handleScroll: (scrollPosition: { x: number; y: number }) => void;
+  handleScroll: (scrollPosition: Coords) => void;
   rootId: string | undefined;
-  hiddenState: {
-    scrollbarYHidden: boolean;
-    scrollbarXHidden: boolean;
-    cornerHidden: boolean;
+  hiddenState: HiddenState;
+  setHiddenState: React.Dispatch<React.SetStateAction<HiddenState>>;
+  overflowEdges: OverflowEdges;
+  setOverflowEdges: React.Dispatch<React.SetStateAction<OverflowEdges>>;
+  viewportState: ScrollAreaRoot.State;
+  overflowEdgeThreshold: {
+    xStart: number;
+    xEnd: number;
+    yStart: number;
+    yEnd: number;
   };
-  setHiddenState: React.Dispatch<
-    React.SetStateAction<{
-      scrollbarYHidden: boolean;
-      scrollbarXHidden: boolean;
-      cornerHidden: boolean;
-    }>
-  >;
 }
 
 export const ScrollAreaRootContext = React.createContext<ScrollAreaRootContext | undefined>(

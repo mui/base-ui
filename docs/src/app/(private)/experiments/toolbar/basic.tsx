@@ -1,9 +1,9 @@
 'use client';
 import * as React from 'react';
-import { Toolbar } from '@base-ui-components/react/toolbar';
-import { DirectionProvider } from '@base-ui-components/react/direction-provider';
+import { Toolbar } from '@base-ui/react/toolbar';
+import { DirectionProvider } from '@base-ui/react/direction-provider';
 import toolbarClasses from './toolbar.module.css';
-import inputClasses from '../../../(public)/(content)/react/components/input/demos/hero/css-modules/index.module.css';
+import inputClasses from '../../../(docs)/react/components/input/demos/hero/css-modules/index.module.css';
 import '../../../../demo-theme.css';
 
 import {
@@ -95,19 +95,10 @@ export default function App() {
               </Toolbar.Button>
             </Toolbar.Group>
 
-            <Toolbar.Input
-              className={styles.input.Input}
-              defaultValue={inputDefaultValue}
-            />
+            <Toolbar.Input className={styles.input.Input} defaultValue={inputDefaultValue} />
           </Toolbar.Root>
         </DirectionProvider>
-        <textarea
-          className={styles.toolbar.Textarea}
-          name=""
-          id=""
-          rows={8}
-          defaultValue={TEXT}
-        />
+        <textarea className={styles.toolbar.Textarea} name="" id="" rows={8} defaultValue={TEXT} />
       </div>
     </React.Fragment>
   );

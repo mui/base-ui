@@ -3,13 +3,13 @@
   "private": true,
   "type": "module",
   "dependencies": {
-    "@types/lodash": "^4.17.17",
-    "@types/yargs": "^17.0.33",
-    "lodash": "^4.17.21",
-    "rimraf": "^6.0.1",
-    "tsx": "^4.19.4",
-    "typescript-api-extractor": "1.0.0-alpha.2",
-    "yargs": "^17.7.2"
+    "@mui/internal-docs-infra": "0.3.1-canary.4",
+    "@types/yargs": "^17.0.35",
+    "es-toolkit": "^1.42.0",
+    "rimraf": "^6.1.2",
+    "tsx": "^4.21.0",
+    "typescript-api-extractor": "1.0.0-alpha.10",
+    "yargs": "^18.0.0"
   },
   "scripts": {
     "start": "tsx src/index.ts -c ../../packages/react/tsconfig.build.json -o ../../docs/reference/generated"

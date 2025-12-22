@@ -1,8 +1,11 @@
 @layer components {
   .CodeBlockRoot {
+    align-self: stretch;
     background-color: var(--color-content);
     border: 1px solid var(--color-gray-200);
     border-radius: var(--radius-md);
+    margin-top: calc(var(--spacing) * 5);
+    margin-bottom: calc(var(--spacing) * 6);
   }
 
   .CodeBlockPanel {

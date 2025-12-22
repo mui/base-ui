@@ -1,5 +1,4 @@
-import * as React from 'react';
-import { Toast } from '@base-ui-components/react/toast';
+import { Toast } from '@base-ui/react/toast';
 import { screen } from '@mui/internal-test-utils';
 import { expect } from 'chai';
 import { createRenderer, describeConformance } from '#test-utils';
@@ -15,6 +14,8 @@ describe('<Toast.Action />', () => {
 
   describeConformance(<Toast.Action>action</Toast.Action>, () => ({
     refInstanceof: window.HTMLButtonElement,
+    testComponentPropWith: 'button',
+    button: true,
     render(node) {
       return render(
         <Toast.Provider>

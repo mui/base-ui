@@ -1,0 +1,246 @@
+.Button {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 2.5rem;
+  padding: 0 0.875rem;
+  margin: 0;
+  outline: 0;
+  border: 1px solid var(--color-gray-200);
+  border-radius: 0.375rem;
+  background-color: var(--color-gray-50);
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: 500;
+  line-height: 1.5rem;
+  color: var(--color-gray-900);
+  user-select: none;
+
+  @media (hover: hover) {
+    &:hover {
+      background-color: var(--color-gray-100);
+    }
+  }
+
+  &:active {
+    background-color: var(--color-gray-100);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-blue);
+    outline-offset: -1px;
+  }
+}
+
+.Backdrop {
+  position: fixed;
+  inset: 0;
+  background-color: black;
+  opacity: 0.2;
+  transition: opacity 250ms cubic-bezier(0.45, 1.005, 0, 1.005);
+
+  @supports (-webkit-touch-callout: none) {
+    position: absolute;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    opacity: 0.7;
+  }
+
+  &[data-starting-style],
+  &[data-ending-style] {
+    opacity: 0;
+  }
+}
+
+.Viewport {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem 0;
+  overflow: hidden;
+
+  @media (min-height: 600px) {
+    padding: 2rem 0 3rem;
+  }
+}
+
+.ScrollViewport {
+  box-sizing: border-box;
+  height: 100%;
+  overscroll-behavior: contain;
+}
+
+.ScrollContent {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100%;
+}
+
+.Scrollbar {
+  position: absolute;
+  display: flex;
+  width: 0.25rem;
+  margin: 0.25rem;
+  justify-content: center;
+  border-radius: 1rem;
+  opacity: 0;
+  transition: opacity 250ms;
+  pointer-events: none;
+
+  &[data-hovering],
+  &[data-scrolling] {
+    opacity: 1;
+    transition-duration: 75ms;
+    transition-delay: 0ms;
+    pointer-events: auto;
+  }
+
+  @media (min-width: 768px) {
+    width: 0.325rem;
+  }
+}
+
+.ScrollbarThumb {
+  width: 100%;
+  border-radius: inherit;
+  background-color: var(--color-gray-500);
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: calc(100% + 1rem);
+    height: calc(100% + 1rem);
+  }
+}
+
+.Popup {
+  box-sizing: border-box;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: min(40rem, calc(100vw - 2rem));
+  max-height: 100%;
+  max-width: 100%;
+  padding: 2rem;
+  border-radius: 0.5rem;
+  background-color: var(--color-gray-50);
+  color: var(--color-gray-900);
+  outline: 1px solid var(--color-gray-200);
+  box-shadow: 0 24px 45px rgb(15 23 42 / 0.18);
+  transition:
+    opacity 300ms cubic-bezier(0.45, 1.005, 0, 1.005),
+    transform 300ms cubic-bezier(0.45, 1.005, 0, 1.005);
+  overflow: hidden;
+  min-height: 0;
+
+  @media (prefers-color-scheme: dark) {
+    outline: 1px solid var(--color-gray-300);
+  }
+
+  &[data-starting-style],
+  &[data-ending-style] {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+}
+
+.PopupHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.Title {
+  margin: 0;
+  font-size: 1.25rem;
+  line-height: 1.875rem;
+  font-weight: 600;
+}
+
+.Description {
+  margin: 0 0 1rem;
+  font-size: 1rem;
+  line-height: 1.6rem;
+  color: var(--color-gray-600);
+}
+
+.Body {
+  position: relative;
+  flex: 1 1 auto;
+  display: flex;
+  min-height: 0;
+  overflow: hidden;
+
+  &::before,
+  &::after {
+    content: '';
+    position: absolute;
+    height: 1px;
+    width: 100%;
+    background: var(--color-gray-200);
+  }
+
+  &::before {
+    top: 0;
+  }
+  &::after {
+    bottom: 0;
+  }
+}
+
+.BodyViewport {
+  box-sizing: border-box;
+  flex: 1 1 auto;
+  min-height: 0;
+  overscroll-behavior: contain;
+  padding: 1.5rem 1.5rem 1.5rem 0.25rem;
+
+  &:focus-visible {
+    outline: 1px solid var(--color-blue);
+    outline-offset: -1px;
+  }
+}
+
+.BodyContent {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.SectionTitle {
+  margin: 0 0 0.4rem;
+  font-size: 1rem;
+  line-height: 1.5rem;
+  font-weight: 600;
+}
+
+.SectionBody {
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.55rem;
+  color: var(--color-gray-700);
+}
+
+.FooterNote {
+  margin: 0 0 1.5rem;
+  font-size: 0.95rem;
+  line-height: 1.5rem;
+  color: var(--color-gray-600);
+}
+
+.Actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}

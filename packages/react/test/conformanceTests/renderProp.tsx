@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { expect } from 'chai';
-import { randomStringValue } from '@mui/internal-test-utils';
+import { randomStringValue, screen } from '@mui/internal-test-utils';
 import type {
   ConformantComponentProps,
   BaseUiConformanceTestsOptions,
@@ -11,17 +11,19 @@ export function testRenderProp(
   element: React.ReactElement<ConformantComponentProps>,
   getOptions: () => BaseUiConformanceTestsOptions,
 ) {
-  const { render, testRenderPropWith: Element = 'div' } = getOptions();
+  const { render, testRenderPropWith: Element = 'div', button = false } = getOptions();
 
   if (!render) {
     throwMissingPropError('render');
   }
 
+  const nativeButton = Element === 'button';
+
   const Wrapper = React.forwardRef<any, { children?: React.ReactNode }>(
     function Wrapper(props, forwardedRef) {
       return (
         <div data-testid="base-ui-wrapper">
-          {/* @ts-ignore */}
+          {/* @ts-expect-error complex type */}
           <Element ref={forwardedRef} {...props} data-testid="wrapped" />
         </div>
       );
@@ -31,34 +33,42 @@ export function testRenderProp(
   describe('prop: render', () => {
     it('renders a customized root element with a function', async () => {
       const testValue = randomStringValue();
-      const { queryByTestId } = await render(
+
+      await render(
         React.cloneElement(element, {
-          render: (props: {}) => <Wrapper {...props} data-test-value={testValue} />,
+          render: (props: any) => {
+            const { key, ...propsWithoutKey } = props;
+            return <Wrapper key={key} {...propsWithoutKey} data-test-value={testValue} />;
+          },
+          ...(button && { nativeButton }),
         }),
       );
 
-      expect(queryByTestId('base-ui-wrapper')).not.to.equal(null);
-      expect(queryByTestId('wrapped')).not.to.equal(null);
-      expect(queryByTestId('wrapped')).to.have.attribute('data-test-value', testValue);
+      expect(screen.queryByTestId('base-ui-wrapper')).not.to.equal(null);
+      expect(screen.queryByTestId('wrapped')).not.to.equal(null);
+      expect(screen.queryByTestId('wrapped')).to.have.attribute('data-test-value', testValue);
     });
 
     it('renders a customized root element with an element', async () => {
       const testValue = randomStringValue();
-      const { queryByTestId } = await render(
+
+      await render(
         React.cloneElement(element, {
           render: <Wrapper data-test-value={testValue} />,
+          ...(button && { nativeButton }),
         }),
       );
 
-      expect(queryByTestId('base-ui-wrapper')).not.to.equal(null);
-      expect(queryByTestId('wrapped')).not.to.equal(null);
-      expect(queryByTestId('wrapped')).to.have.attribute('data-test-value', testValue);
+      expect(screen.queryByTestId('base-ui-wrapper')).not.to.equal(null);
+      expect(screen.queryByTestId('wrapped')).not.to.equal(null);
+      expect(screen.queryByTestId('wrapped')).to.have.attribute('data-test-value', testValue);
     });
 
     it('renders a customized root element with an element', async () => {
       await render(
         React.cloneElement(element, {
           render: <Wrapper />,
+          ...(button && { nativeButton: Element === 'button' }),
         }),
       );
 
@@ -73,8 +83,12 @@ export function testRenderProp(
           ref: (el: HTMLElement | null) => {
             instanceFromRef = el;
           },
-          render: (props: {}) => <Wrapper {...props} />,
+          render: (props: any) => {
+            const { key, ...propsWithoutKey } = props;
+            return <Wrapper key={key} {...propsWithoutKey} />;
+          },
           'data-testid': 'wrapped',
+          ...(button && { nativeButton }),
         });
       }
 
@@ -100,6 +114,7 @@ export function testRenderProp(
             />
           ),
           'data-testid': 'wrapped',
+          ...(button && { nativeButton }),
         });
       }
 
@@ -119,12 +134,13 @@ export function testRenderProp(
           className: 'component-classname',
           render: <Element className="render-prop-classname" />,
           'data-testid': 'test-component',
+          ...(button && { nativeButton }),
         });
       }
 
-      const { getByTestId } = await render(<Test />);
+      await render(<Test />);
 
-      const component = getByTestId('test-component');
+      const component = screen.getByTestId('test-component');
       expect(component.classList.contains('component-classname')).to.equal(true);
       expect(component.classList.contains('render-prop-classname')).to.equal(true);
     });
@@ -135,12 +151,13 @@ export function testRenderProp(
           className: () => 'conditional-component-classname',
           render: <Element className="render-prop-classname" />,
           'data-testid': 'test-component',
+          ...(button && { nativeButton }),
         });
       }
 
-      const { getByTestId } = await render(<Test />);
+      await render(<Test />);
 
-      const component = getByTestId('test-component');
+      const component = screen.getByTestId('test-component');
       expect(component.classList.contains('conditional-component-classname')).to.equal(true);
       expect(component.classList.contains('render-prop-classname')).to.equal(true);
     });

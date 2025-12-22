@@ -3,7 +3,7 @@ import clsx from 'clsx';
 import { Code } from './Code';
 import { getChildrenText } from '../utils/getChildrenText';
 
-interface TableCodeProps extends React.ComponentProps<'code'> {
+export interface TableCodeProps extends React.ComponentProps<'code'> {
   printWidth?: number;
 }
 
@@ -15,54 +15,60 @@ export function TableCode({ children, className, printWidth = 40, ...props }: Ta
     const unionGroups: React.ReactNode[][] = [];
     const parts = React.Children.toArray(children);
 
-    let depth = 0;
+    let parenDepth = 0;
+    let braceDepth = 0;
     let groupIndex = 0;
-    parts.forEach((child, index) => {
-      if (index === 0) {
-        unionGroups.push([]);
-      }
+    unionGroups.push([]);
 
+    parts.forEach((child, index) => {
       const str = getChildrenText(child);
 
-      // Solo function return values shouldn't be broken up, e.g. in:
-      // `(value) => string | string[] | null | Promise`
-      if (str.includes('=>') && depth < 1) {
-        depth += 1;
-      }
+      // Track parentheses depth
+      str.split('(').forEach(() => {
+        parenDepth += 1;
+      });
+      str.split(')').forEach(() => {
+        parenDepth -= 1;
+      });
+      // Track braces depth
+      str.split('{').forEach(() => {
+        braceDepth += 1;
+      });
+      str.split('}').forEach(() => {
+        braceDepth -= 1;
+      });
 
-      if (str.trim() === '|' && depth < 1 && index !== 0) {
+      // Break only on top-level pipes (not inside parens or braces)
+      if (str.trim() === '|' && parenDepth <= 0 && braceDepth <= 0 && index !== 0) {
         unionGroups.push([]);
         groupIndex += 1;
         return;
       }
 
-      str.split('(').forEach(() => {
-        depth += 1;
-      });
-
-      str.split(')').forEach(() => {
-        depth -= 1;
-      });
-
       unionGroups[groupIndex].push(child);
     });
 
+    // Insert pipe fragments before each group
     if (unionGroups.length > 1) {
-      unionGroups.forEach((_, index) => {
-        const pipe = <span style={{ color: 'var(--syntax-keyword)' }}>| </span>;
-        const pipeWithNewline = (
-          <React.Fragment key={`fragment-${index}`}>
-            <br />
-            {pipe}
-          </React.Fragment>
-        );
-
-        const element = index === 0 ? pipe : pipeWithNewline;
-        unionGroups.splice(index * 2, 0, [element]);
+      const enhanced: React.ReactNode[] = [];
+      unionGroups.forEach((group, idx) => {
+        const pipeElem = <span style={{ color: 'var(--syntax-keyword)' }}>| </span>;
+        if (idx === 0) {
+          // Leading pipe for first group
+          enhanced.push(<React.Fragment key={`pipe-${idx}`}>{pipeElem}</React.Fragment>);
+        } else {
+          // Newline plus pipe for subsequent groups
+          enhanced.push(
+            <React.Fragment key={`pipe-${idx}`}>
+              <br />
+              {pipeElem}
+            </React.Fragment>,
+          );
+        }
+        enhanced.push(...group);
       });
+      children = enhanced;
     }
-
-    children = unionGroups.flat();
   }
 
   return (

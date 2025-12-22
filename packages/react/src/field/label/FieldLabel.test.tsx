@@ -1,5 +1,4 @@
-import * as React from 'react';
-import { Field } from '@base-ui-components/react/field';
+import { Field } from '@base-ui/react/field';
 import { createRenderer, screen } from '@mui/internal-test-utils';
 import { expect } from 'chai';
 import { describeConformance } from '../../../test/describeConformance';

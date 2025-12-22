@@ -1,0 +1,63 @@
+{
+  "name": "ComboboxItem",
+  "description": "An individual item in the list.\nRenders a `<div>` element.",
+  "props": {
+    "value": {
+      "type": "any",
+      "default": "null",
+      "description": "A unique value that identifies this item."
+    },
+    "onClick": {
+      "type": "MouseEventHandler<HTMLElement>",
+      "description": "An optional click handler for the item when selected.\nIt fires when clicking the item with the pointer, as well as when pressing `Enter` with the keyboard if the item is highlighted when the `Input` or `List` element has focus.",
+      "detailedType": "React.MouseEventHandler<HTMLElement> | undefined"
+    },
+    "index": {
+      "type": "number",
+      "description": "The index of the item in the list. Improves performance when specified by avoiding the need to calculate the index automatically from the DOM.",
+      "detailedType": "number | undefined"
+    },
+    "nativeButton": {
+      "type": "boolean",
+      "default": "false",
+      "description": "Whether the component renders a native `<button>` element when replacing it\nvia the `render` prop.\nSet to `true` if the rendered element is a native button.",
+      "detailedType": "boolean | undefined"
+    },
+    "disabled": {
+      "type": "boolean",
+      "default": "false",
+      "description": "Whether the component should ignore user interaction.",
+      "detailedType": "boolean | undefined"
+    },
+    "children": {
+      "type": "ReactNode",
+      "detailedType": "React.ReactNode"
+    },
+    "className": {
+      "type": "string | ((state: Combobox.Item.State) => string | undefined)",
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
+      "detailedType": "| string\n| ((state: Combobox.Item.State) => string | undefined)"
+    },
+    "style": {
+      "type": "CSSProperties | ((state: Combobox.Item.State) => CSSProperties | undefined)",
+      "detailedType": "| React.CSSProperties\n| ((\n    state: Combobox.Item.State,\n  ) => CSSProperties | undefined)\n| undefined"
+    },
+    "render": {
+      "type": "ReactElement | ((props: HTMLProps, state: Combobox.Item.State) => ReactElement)",
+      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render.",
+      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Combobox.Item.State,\n  ) => ReactElement)"
+    }
+  },
+  "dataAttributes": {
+    "data-selected": {
+      "description": "Present when the item is selected."
+    },
+    "data-highlighted": {
+      "description": "Present when the item is highlighted."
+    },
+    "data-disabled": {
+      "description": "Present when the item is disabled."
+    }
+  },
+  "cssVariables": {}
+}

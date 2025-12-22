@@ -4,6 +4,14 @@ export type HTMLProps<T = any> = React.HTMLAttributes<T> & {
   ref?: React.Ref<T> | undefined;
 };
 
+export interface FloatingUIOpenChangeDetails {
+  open: boolean;
+  reason: string;
+  nativeEvent: Event;
+  nested: boolean;
+  triggerElement?: Element | undefined;
+}
+
 export type BaseUIEvent<E extends React.SyntheticEvent<Element, Event>> = E & {
   preventBaseUIHandler: () => void;
   readonly baseUIHandlerPrevented?: boolean;
@@ -44,24 +52,47 @@ export type BaseUIComponentProps<
   State,
   RenderFunctionProps = HTMLProps,
 > = Omit<
-  WithBaseUIEvent<React.ComponentPropsWithoutRef<ElementType>>,
+  WithBaseUIEvent<React.ComponentPropsWithRef<ElementType>>,
   'className' | 'color' | 'defaultValue' | 'defaultChecked'
 > & {
   /**
    * CSS class applied to the element, or a function that
    * returns a class based on the component’s state.
    */
-  className?: string | ((state: State) => string);
+  className?: string | ((state: State) => string | undefined);
   /**
    * Allows you to replace the component’s HTML element
    * with a different tag, or compose it with another component.
    *
    * Accepts a `ReactElement` or a function that returns the element to render.
    */
-  render?:
-    | ComponentRenderFn<RenderFunctionProps, State>
-    | React.ReactElement<Record<string, unknown>>;
+  render?: ComponentRenderFn<RenderFunctionProps, State> | React.ReactElement;
+  /**
+   * Style applied to the element, or a function that
+   * returns a style object based on the component’s state.
+   */
+  style?: React.CSSProperties | ((state: State) => React.CSSProperties | undefined);
 };
+
+export interface NativeButtonProps {
+  /**
+   * Whether the component renders a native `<button>` element when replacing it
+   * via the `render` prop.
+   * Set to `false` if the rendered element is not a button (e.g. `<div>`).
+   * @default true
+   */
+  nativeButton?: boolean;
+}
+
+export interface NonNativeButtonProps {
+  /**
+   * Whether the component renders a native `<button>` element when replacing it
+   * via the `render` prop.
+   * Set to `true` if the rendered element is a native button.
+   * @default false
+   */
+  nativeButton?: boolean;
+}
 
 /**
  * Simplifies the display of a type (without modifying it).

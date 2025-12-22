@@ -1,0 +1,143 @@
+.SearchScrollbar {
+  display: flex;
+  padding-top: calc(var(--spacing) * 2);
+  padding-bottom: calc(var(--spacing) * 2);
+
+  /* Click target width */
+  width: 1.5rem;
+  margin-right: -0.25rem;
+}
+
+.SearchScrollbarThumb {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+
+  &::before {
+    content: '';
+    display: block;
+    height: 100%;
+    /* Visible thumb width */
+    width: 0.25rem;
+    border-radius: var(--radius-sm);
+    background-color: var(--color-gray-400);
+  }
+}
+
+.SearchTrigger {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: calc(var(--spacing) * 2);
+  height: calc(var(--spacing) * 8);
+  padding-inline: calc(var(--spacing) * 3.5);
+  margin: 0;
+  border: none;
+  border-radius: 9999px;
+  background-color: hsl(0deg 0% 0% / 5%);
+  font: inherit;
+  font-size: 1rem;
+  font-weight: 500;
+  line-height: 1.5;
+  color: var(--color-gray-900);
+  user-select: none;
+  outline: none;
+
+  @media (prefers-color-scheme: dark) {
+    background-color: var(--color-gray-200);
+  }
+}
+
+.SearchTrigger::before {
+  content: '';
+  position: absolute;
+  inset: 1px;
+  border-radius: 9999px;
+  background-color: var(--color-popup);
+  z-index: 0;
+
+  @media (prefers-color-scheme: dark) {
+    background-color: var(--color-gray-75);
+  }
+}
+
+.SearchTrigger::after {
+  content: '';
+  position: absolute;
+  inset: 1px;
+  border-radius: 9999px;
+  box-shadow: 0 1px 2px hsl(0deg 0% 0% / 5%);
+  z-index: 0;
+  pointer-events: none;
+}
+
+.SearchTrigger > * {
+  position: relative;
+  z-index: 1;
+}
+
+.SearchTrigger:hover {
+  background-color: hsl(0deg 0% 0% / 15%);
+
+  @media (prefers-color-scheme: dark) {
+    background-color: var(--color-gray-300);
+  }
+}
+
+.SearchTrigger:hover::before {
+  @media (prefers-color-scheme: dark) {
+    background-color: oklch(21.5% 0.5% 264deg);
+  }
+}
+
+.SearchTrigger:hover .SearchTriggerKbd {
+  @media (prefers-color-scheme: dark) {
+    border-color: var(--color-gray-300);
+  }
+}
+
+.SearchTrigger:active {
+  background-color: hsl(0deg 0% 0% / 12%);
+}
+
+.SearchTrigger:active::before {
+  background-color: var(--color-gray-200);
+}
+
+.SearchTrigger:focus-visible {
+  outline: 2px solid var(--color-blue-800);
+  outline-offset: -1px;
+}
+
+.SearchTrigger[data-disabled] {
+  color: var(--color-gray-500);
+  cursor: default;
+}
+
+.SearchTrigger[data-disabled]:hover,
+.SearchTrigger[data-disabled]:active {
+  background-color: hsl(0deg 0% 0% / 5%);
+}
+
+.SearchTriggerKbd {
+  height: 20px;
+  line-height: 1;
+  align-items: center;
+  gap: 0.25rem;
+  padding-inline: 0.375rem;
+  border-radius: 9999px;
+  border: 1px solid var(--color-gray-300);
+  background-color: var(--color-gray-50);
+  pointer-events: none;
+}
+
+.SearchTriggerKbd kbd:first-child {
+  line-height: 1;
+  display: inline-flex;
+  margin-top: 1px;
+}
+
+.SearchTriggerKbd kbd:last-child {
+  line-height: 1;
+}

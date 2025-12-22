@@ -1,7 +1,6 @@
 'use client';
-import * as React from 'react';
-import { Slider } from '@base-ui-components/react/slider';
-import { DirectionProvider } from '@base-ui-components/react/direction-provider';
+import { Slider } from '@base-ui/react/slider';
+import { DirectionProvider } from '@base-ui/react/direction-provider';
 import {
   SettingsMetadata,
   useExperimentSettings,
@@ -128,8 +127,8 @@ function PriceRange() {
       <Slider.Control className={styles.Control}>
         <Slider.Track className={styles.Track}>
           <Slider.Indicator className={styles.Indicator} />
-          <Slider.Thumb className={styles.Thumb} />
-          <Slider.Thumb className={styles.Thumb} />
+          <Slider.Thumb index={0} className={styles.Thumb} />
+          <Slider.Thumb index={1} className={styles.Thumb} />
         </Slider.Track>
       </Slider.Control>
     </Slider.Root>
@@ -158,8 +157,8 @@ function TemperatureRange() {
       <Slider.Control className={verticalStyles.Control}>
         <Slider.Track className={verticalStyles.Track}>
           <Slider.Indicator className={verticalStyles.Indicator} />
-          <Slider.Thumb className={verticalStyles.Thumb} />
-          <Slider.Thumb className={verticalStyles.Thumb} />
+          <Slider.Thumb index={0} className={verticalStyles.Thumb} />
+          <Slider.Thumb index={1} className={verticalStyles.Thumb} />
         </Slider.Track>
       </Slider.Control>
       <span className={verticalStyles.Label} id="label-3">

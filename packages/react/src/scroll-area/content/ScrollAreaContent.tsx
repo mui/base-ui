@@ -1,9 +1,12 @@
 'use client';
 import * as React from 'react';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import type { BaseUIComponentProps } from '../../utils/types';
-import { useModernLayoutEffect } from '../../utils';
 import { useScrollAreaViewportContext } from '../viewport/ScrollAreaViewportContext';
 import { useRenderElement } from '../../utils/useRenderElement';
+import { useScrollAreaRootContext } from '../root/ScrollAreaRootContext';
+import { scrollAreaStateAttributesMapping } from '../root/stateAttributes';
+import type { ScrollAreaRoot } from '../root/ScrollAreaRoot';
 
 /**
  * A container for the content of the scroll area.
@@ -20,13 +23,23 @@ export const ScrollAreaContent = React.forwardRef(function ScrollAreaContent(
   const contentWrapperRef = React.useRef<HTMLDivElement | null>(null);
 
   const { computeThumbPosition } = useScrollAreaViewportContext();
+  const { viewportState } = useScrollAreaRootContext();
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     if (typeof ResizeObserver === 'undefined') {
       return undefined;
     }
 
-    const ro = new ResizeObserver(computeThumbPosition);
+    let hasInitialized = false;
+    const ro = new ResizeObserver(() => {
+      // ResizeObserver fires once upon observing, so we skip the initial call
+      // to avoid double-calculating the thumb position on mount.
+      if (!hasInitialized) {
+        hasInitialized = true;
+        return;
+      }
+      computeThumbPosition();
+    });
 
     if (contentWrapperRef.current) {
       ro.observe(contentWrapperRef.current);
@@ -39,6 +52,8 @@ export const ScrollAreaContent = React.forwardRef(function ScrollAreaContent(
 
   const element = useRenderElement('div', componentProps, {
     ref: [forwardedRef, contentWrapperRef],
+    state: viewportState,
+    stateAttributesMapping: scrollAreaStateAttributesMapping,
     props: [
       {
         role: 'presentation',
@@ -53,8 +68,14 @@ export const ScrollAreaContent = React.forwardRef(function ScrollAreaContent(
   return element;
 });
 
-export namespace ScrollAreaContent {
-  export interface State {}
+export interface ScrollAreaContentState extends ScrollAreaRoot.State {}
 
-  export interface Props extends BaseUIComponentProps<'div', State> {}
+export interface ScrollAreaContentProps extends BaseUIComponentProps<
+  'div',
+  ScrollAreaContent.State
+> {}
+
+export namespace ScrollAreaContent {
+  export type State = ScrollAreaContentState;
+  export type Props = ScrollAreaContentProps;
 }

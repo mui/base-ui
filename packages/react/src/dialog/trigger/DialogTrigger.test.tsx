@@ -1,6 +1,5 @@
-import * as React from 'react';
 import { expect } from 'chai';
-import { Dialog } from '@base-ui-components/react/dialog';
+import { Dialog } from '@base-ui/react/dialog';
 import { screen } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance } from '#test-utils';
 
@@ -9,6 +8,8 @@ describe('<Dialog.Trigger />', () => {
 
   describeConformance(<Dialog.Trigger />, () => ({
     refInstanceof: window.HTMLButtonElement,
+    testComponentPropWith: 'button',
+    button: true,
     render: (node) => {
       return render(
         <Dialog.Root open modal={false}>
@@ -40,7 +41,7 @@ describe('<Dialog.Trigger />', () => {
       expect(screen.queryByText('title text')).to.equal(null);
 
       await user.keyboard('[Tab]');
-      expect(document.activeElement).to.not.equal(trigger);
+      expect(document.activeElement).not.to.equal(trigger);
     });
 
     it('custom element', async () => {
@@ -65,7 +66,7 @@ describe('<Dialog.Trigger />', () => {
       expect(screen.queryByText('title text')).to.equal(null);
 
       await user.keyboard('[Tab]');
-      expect(document.activeElement).to.not.equal(trigger);
+      expect(document.activeElement).not.to.equal(trigger);
     });
   });
 });

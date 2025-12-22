@@ -1,12 +1,12 @@
 'use client';
 import * as React from 'react';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
-import { useEventCallback } from '../../utils/useEventCallback';
-import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import { useAvatarRootContext } from '../root/AvatarRootContext';
 import type { AvatarRoot } from '../root/AvatarRoot';
-import { avatarStyleHookMapping } from '../root/styleHooks';
+import { avatarStateAttributesMapping } from '../root/stateAttributesMapping';
 import { useImageLoadingStatus, ImageLoadingStatus } from './useImageLoadingStatus';
 
 /**
@@ -34,12 +34,12 @@ export const AvatarImage = React.forwardRef(function AvatarImage(
     crossOrigin,
   });
 
-  const handleLoadingStatusChange = useEventCallback((status: ImageLoadingStatus) => {
+  const handleLoadingStatusChange = useStableCallback((status: ImageLoadingStatus) => {
     onLoadingStatusChangeProp?.(status);
     context.setImageLoadingStatus(status);
   });
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     if (imageLoadingStatus !== 'idle') {
       handleLoadingStatusChange(imageLoadingStatus);
     }
@@ -56,18 +56,20 @@ export const AvatarImage = React.forwardRef(function AvatarImage(
     state,
     ref: forwardedRef,
     props: elementProps,
-    customStyleHookMapping: avatarStyleHookMapping,
+    stateAttributesMapping: avatarStateAttributesMapping,
     enabled: imageLoadingStatus === 'loaded',
   });
 
   return element;
 });
 
+export interface AvatarImageProps extends BaseUIComponentProps<'img', AvatarRoot.State> {
+  /**
+   * Callback fired when the loading status changes.
+   */
+  onLoadingStatusChange?: (status: ImageLoadingStatus) => void;
+}
+
 export namespace AvatarImage {
-  export interface Props extends BaseUIComponentProps<'img', AvatarRoot.State> {
-    /**
-     * Callback fired when the loading status changes.
-     */
-    onLoadingStatusChange?: (status: ImageLoadingStatus) => void;
-  }
+  export type Props = AvatarImageProps;
 }

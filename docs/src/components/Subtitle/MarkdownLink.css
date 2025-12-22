@@ -1,0 +1,30 @@
+.MarkdownLink {
+  @apply text-sm;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.5em;
+  padding: 0.5em;
+  margin-inline: -0.5em;
+  color: inherit;
+
+  &:focus-visible {
+    color: var(--color-foreground);
+    outline: 2px solid var(--color-blue);
+    outline-offset: -2px;
+    border-radius: var(--radius-sm);
+  }
+
+  @media (hover: hover) {
+    &:hover {
+      text-decoration: underline;
+      text-underline-offset: 2px;
+      text-decoration-thickness: 1px;
+      text-decoration-color: var(--color-gray-500);
+    }
+  }
+}
+
+.MarkdownLink svg {
+  /* visually center the icon so we can baseline align it */
+  transform: translateY(3px);
+}

@@ -1,5 +1,4 @@
-import * as React from 'react';
-import { Select } from '@base-ui-components/react/select';
+import { Select } from '@base-ui/react/select';
 import clsx from 'clsx';
 import { ChevronDownIcon } from '../icons/ChevronDownIcon';
 import { ThickCheckIcon } from '../icons/ThickCheckIcon';
@@ -7,15 +6,14 @@ import { ThickCheckIcon } from '../icons/ThickCheckIcon';
 export const Root = Select.Root;
 
 interface TriggerProps extends Omit<Select.Trigger.Props, 'children'> {
-  placeholder: Select.Value.Props['placeholder'];
   children?: Select.Value.Props['children'];
 }
 
-export function Trigger({ className, children, placeholder, ...props }: TriggerProps) {
+export function Trigger({ className, children, ...props }: TriggerProps) {
   return (
     // Implicitly relying on <GhostButton>, keep it in sync
-    <Select.Trigger data-layout="text" className="GhostButton" {...props}>
-      <Select.Value placeholder={placeholder}>{children}</Select.Value>
+    <Select.Trigger data-layout="text" className="GhostButton" type={undefined} {...props}>
+      <Select.Value>{children}</Select.Value>
       <Select.Icon render={<ChevronDownIcon className="-ml-0.5" />} />
     </Select.Trigger>
   );

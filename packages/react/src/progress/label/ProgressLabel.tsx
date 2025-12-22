@@ -1,10 +1,10 @@
 'use client';
 import * as React from 'react';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useRenderElement } from '../../utils/useRenderElement';
-import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import { useProgressRootContext } from '../root/ProgressRootContext';
-import { progressStyleHookMapping } from '../root/styleHooks';
+import { progressStateAttributesMapping } from '../root/stateAttributesMapping';
 import type { ProgressRoot } from '../root/ProgressRoot';
 import type { BaseUIComponentProps } from '../../utils/types';
 
@@ -24,7 +24,7 @@ export const ProgressLabel = React.forwardRef(function ProgressLabel(
 
   const { setLabelId, state } = useProgressRootContext();
 
-  useModernLayoutEffect(() => {
+  useIsoLayoutEffect(() => {
     setLabelId(id);
     return () => setLabelId(undefined);
   }, [id, setLabelId]);
@@ -38,12 +38,14 @@ export const ProgressLabel = React.forwardRef(function ProgressLabel(
       },
       elementProps,
     ],
-    customStyleHookMapping: progressStyleHookMapping,
+    stateAttributesMapping: progressStateAttributesMapping,
   });
 
   return element;
 });
 
+export interface ProgressLabelProps extends BaseUIComponentProps<'span', ProgressRoot.State> {}
+
 export namespace ProgressLabel {
-  export interface Props extends BaseUIComponentProps<'span', ProgressRoot.State> {}
+  export type Props = ProgressLabelProps;
 }

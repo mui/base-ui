@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { Select } from '@base-ui-components/react/select';
+import { Select } from '@base-ui/react/select';
 import styles from './select-perf.module.css';
 
 const items = Array.from({ length: 1000 }, (_, i) => `Item ${i + 1}`);
@@ -9,7 +9,7 @@ export default function ExampleSelect() {
   return (
     <Select.Root defaultValue="Item 1">
       <Select.Trigger className={styles.Select}>
-        <Select.Value placeholder="Item 1" />
+        <Select.Value />
         <Select.Icon className={styles.SelectIcon}>
           <ChevronUpDownIcon />
         </Select.Icon>

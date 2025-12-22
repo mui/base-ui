@@ -1,0 +1,35 @@
+{
+  "name": "ComboboxBackdrop",
+  "description": "An overlay displayed beneath the popup.\nRenders a `<div>` element.",
+  "props": {
+    "className": {
+      "type": "string | ((state: Combobox.Backdrop.State) => string | undefined)",
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
+      "detailedType": "| string\n| ((state: Combobox.Backdrop.State) => string | undefined)"
+    },
+    "style": {
+      "type": "CSSProperties | ((state: Combobox.Backdrop.State) => CSSProperties | undefined)",
+      "detailedType": "| React.CSSProperties\n| ((\n    state: Combobox.Backdrop.State,\n  ) => CSSProperties | undefined)\n| undefined"
+    },
+    "render": {
+      "type": "ReactElement | ((props: HTMLProps, state: Combobox.Backdrop.State) => ReactElement)",
+      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render.",
+      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Combobox.Backdrop.State,\n  ) => ReactElement)"
+    }
+  },
+  "dataAttributes": {
+    "data-open": {
+      "description": "Present when the popup is open."
+    },
+    "data-closed": {
+      "description": "Present when the popup is closed."
+    },
+    "data-starting-style": {
+      "description": "Present when the popup is animating in."
+    },
+    "data-ending-style": {
+      "description": "Present when the popup is animating out."
+    }
+  },
+  "cssVariables": {}
+}

@@ -32,7 +32,7 @@ export const InternalBackdrop = React.forwardRef(function InternalBackdrop(
       role="presentation"
       // Ensures Floating UI's outside press detection runs, as it considers
       // it an element that existed when the popup rendered.
-      data-floating-ui-inert
+      data-base-ui-inert=""
       {...otherProps}
       style={{
         position: 'fixed',
@@ -45,12 +45,14 @@ export const InternalBackdrop = React.forwardRef(function InternalBackdrop(
   );
 });
 
+export interface InternalBackdropProps extends React.HTMLAttributes<HTMLDivElement> {
+  /**
+   * The element to cut out of the backdrop.
+   * This is useful for allowing certain elements to be interactive while the backdrop is present.
+   */
+  cutout?: Element | null;
+}
+
 export namespace InternalBackdrop {
-  export interface Props extends React.HTMLAttributes<HTMLDivElement> {
-    /**
-     * The element to cut out of the backdrop.
-     * This is useful for allowing certain elements to be interactive while the backdrop is present.
-     */
-    cutout?: HTMLElement | null;
-  }
+  export type Props = InternalBackdropProps;
 }

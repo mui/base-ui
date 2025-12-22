@@ -1,8 +1,8 @@
 import * as React from 'react';
 import { expect } from 'chai';
 import { spy } from 'sinon';
-import { act, fireEvent, flushMicrotasks } from '@mui/internal-test-utils';
-import { Collapsible } from '@base-ui-components/react/collapsible';
+import { act, fireEvent, flushMicrotasks, screen } from '@mui/internal-test-utils';
+import { Collapsible } from '@base-ui/react/collapsible';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 
 const PANEL_CONTENT = 'This is panel content';
@@ -29,36 +29,33 @@ describe('<Collapsible.Panel />', () => {
         );
       }
 
-      const { queryByText, getByRole } = await render(<App />);
+      await render(<App />);
 
-      const trigger = getByRole('button');
+      const trigger = screen.getByRole('button');
 
       expect(trigger).to.have.attribute('aria-expanded', 'false');
-      expect(trigger.getAttribute('aria-controls')).to.equal(
-        queryByText(PANEL_CONTENT)?.getAttribute('id'),
-      );
-      expect(queryByText(PANEL_CONTENT)).to.not.equal(null);
-      expect(queryByText(PANEL_CONTENT)).not.toBeVisible();
-      expect(queryByText(PANEL_CONTENT)).to.have.attribute('data-closed');
+      expect(screen.queryByText(PANEL_CONTENT)).not.to.equal(null);
+      expect(screen.queryByText(PANEL_CONTENT)).not.toBeVisible();
+      expect(screen.queryByText(PANEL_CONTENT)).to.have.attribute('data-closed');
 
       fireEvent.click(trigger);
       await flushMicrotasks();
 
       expect(trigger).to.have.attribute('aria-expanded', 'true');
-
-      expect(queryByText(PANEL_CONTENT)).toBeVisible();
-      expect(queryByText(PANEL_CONTENT)).to.have.attribute('data-open');
+      expect(trigger.getAttribute('aria-controls')).to.equal(
+        screen.queryByText(PANEL_CONTENT)?.getAttribute('id'),
+      );
+      expect(screen.queryByText(PANEL_CONTENT)).toBeVisible();
+      expect(screen.queryByText(PANEL_CONTENT)).to.have.attribute('data-open');
       expect(trigger).to.have.attribute('data-panel-open');
 
       fireEvent.click(trigger);
       await flushMicrotasks();
 
       expect(trigger).to.have.attribute('aria-expanded', 'false');
-      expect(trigger.getAttribute('aria-controls')).to.equal(
-        queryByText(PANEL_CONTENT)?.getAttribute('id'),
-      );
-      expect(queryByText(PANEL_CONTENT)).not.toBeVisible();
-      expect(queryByText(PANEL_CONTENT)).to.have.attribute('data-closed');
+      expect(trigger.getAttribute('aria-controls')).to.equal(null);
+      expect(screen.queryByText(PANEL_CONTENT)).not.toBeVisible();
+      expect(screen.queryByText(PANEL_CONTENT)).to.have.attribute('data-closed');
     });
   });
 
@@ -67,7 +64,7 @@ describe('<Collapsible.Panel />', () => {
     it('uses `hidden="until-found" to hide panel when true', async () => {
       const handleOpenChange = spy();
 
-      const { queryByText } = await render(
+      await render(
         <Collapsible.Root defaultOpen={false} onOpenChange={handleOpenChange}>
           <Collapsible.Trigger />
           <Collapsible.Panel hiddenUntilFound keepMounted>
@@ -76,7 +73,7 @@ describe('<Collapsible.Panel />', () => {
         </Collapsible.Root>,
       );
 
-      const panel = queryByText(PANEL_CONTENT);
+      const panel = screen.queryByText(PANEL_CONTENT);
 
       act(() => {
         const event = new window.Event('beforematch', {

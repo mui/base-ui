@@ -2,7 +2,6 @@
 import * as React from 'react';
 import { useDialogRootContext } from '../root/DialogRootContext';
 import { useRenderElement } from '../../utils/useRenderElement';
-import { useModernLayoutEffect } from '../../utils/useModernLayoutEffect';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import type { BaseUIComponentProps } from '../../utils/types';
 
@@ -17,16 +16,11 @@ export const DialogDescription = React.forwardRef(function DialogDescription(
   forwardedRef: React.ForwardedRef<HTMLParagraphElement>,
 ) {
   const { render, className, id: idProp, ...elementProps } = componentProps;
-  const { setDescriptionElementId } = useDialogRootContext();
+  const { store } = useDialogRootContext();
 
   const id = useBaseUiId(idProp);
 
-  useModernLayoutEffect(() => {
-    setDescriptionElementId(id);
-    return () => {
-      setDescriptionElementId(undefined);
-    };
-  }, [id, setDescriptionElementId]);
+  store.useSyncedValueWithCleanup('descriptionElementId', id);
 
   return useRenderElement('p', componentProps, {
     ref: forwardedRef,
@@ -34,8 +28,14 @@ export const DialogDescription = React.forwardRef(function DialogDescription(
   });
 });
 
-export namespace DialogDescription {
-  export interface Props extends BaseUIComponentProps<'p', State> {}
+export interface DialogDescriptionProps extends BaseUIComponentProps<
+  'p',
+  DialogDescription.State
+> {}
 
-  export interface State {}
+export interface DialogDescriptionState {}
+
+export namespace DialogDescription {
+  export type Props = DialogDescriptionProps;
+  export type State = DialogDescriptionState;
 }

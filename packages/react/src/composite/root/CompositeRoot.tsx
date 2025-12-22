@@ -5,47 +5,55 @@ import { useCompositeRoot } from './useCompositeRoot';
 import { CompositeRootContext } from './CompositeRootContext';
 import { useRenderElement } from '../../utils/useRenderElement';
 import type { BaseUIComponentProps } from '../../utils/types';
-import type { TextDirection } from '../../direction-provider/DirectionContext';
 import type { Dimensions, ModifierKey } from '../composite';
-import { useEventCallback } from '../../utils/useEventCallback';
-
-const COMPOSITE_ROOT_STATE = {};
+import { useDirection } from '../../direction-provider/DirectionContext';
+import { EMPTY_ARRAY, EMPTY_OBJECT } from '../../utils/constants';
+import { StateAttributesMapping } from '../../utils/getStateAttributesProps';
 
 /**
  * @internal
  */
-export function CompositeRoot<Metadata extends {}>(componentProps: CompositeRoot.Props<Metadata>) {
+export function CompositeRoot<Metadata extends {}, State extends Record<string, any>>(
+  componentProps: CompositeRoot.Props<Metadata, State>,
+) {
   const {
     render,
     className,
+    refs = EMPTY_ARRAY as React.Ref<Element>[],
+    props = EMPTY_ARRAY,
+    state = EMPTY_OBJECT as State,
+    stateAttributesMapping,
     highlightedIndex: highlightedIndexProp,
     onHighlightedIndexChange: onHighlightedIndexChangeProp,
     orientation,
     dense,
     itemSizes,
-    loop,
+    loopFocus,
     cols,
-    direction,
     enableHomeAndEndKeys,
     onMapChange: onMapChangeProp,
-    stopEventPropagation,
+    stopEventPropagation = true,
     rootRef,
     disabledIndices,
     modifierKeys,
     highlightItemOnHover = false,
+    tag = 'div',
     ...elementProps
   } = componentProps;
 
+  const direction = useDirection();
+
   const {
-    props,
+    props: defaultProps,
     highlightedIndex,
     onHighlightedIndexChange,
     elementsRef,
     onMapChange: onMapChangeUnwrapped,
+    relayKeyboardEvent,
   } = useCompositeRoot({
     itemSizes,
     cols,
-    loop,
+    loopFocus,
     dense,
     orientation,
     highlightedIndex: highlightedIndexProp,
@@ -58,50 +66,66 @@ export function CompositeRoot<Metadata extends {}>(componentProps: CompositeRoot
     modifierKeys,
   });
 
-  const onMapChange = useEventCallback(
-    (newMap: Map<Element, CompositeMetadata<Metadata> | null>) => {
-      onMapChangeProp?.(newMap);
-      onMapChangeUnwrapped(newMap);
-    },
-  );
-
-  const element = useRenderElement('div', componentProps, {
-    state: COMPOSITE_ROOT_STATE,
-    props: [props, elementProps],
+  const element = useRenderElement(tag, componentProps, {
+    state,
+    ref: refs,
+    props: [defaultProps, ...props, elementProps],
+    stateAttributesMapping,
   });
 
   const contextValue: CompositeRootContext = React.useMemo(
-    () => ({ highlightedIndex, onHighlightedIndexChange, highlightItemOnHover }),
-    [highlightedIndex, onHighlightedIndexChange, highlightItemOnHover],
+    () => ({
+      highlightedIndex,
+      onHighlightedIndexChange,
+      highlightItemOnHover,
+      relayKeyboardEvent,
+    }),
+    [highlightedIndex, onHighlightedIndexChange, highlightItemOnHover, relayKeyboardEvent],
   );
 
   return (
     <CompositeRootContext.Provider value={contextValue}>
-      <CompositeList<Metadata> elementsRef={elementsRef} onMapChange={onMapChange}>
+      <CompositeList<Metadata>
+        elementsRef={elementsRef}
+        onMapChange={(newMap) => {
+          onMapChangeProp?.(newMap);
+          onMapChangeUnwrapped(newMap);
+        }}
+      >
         {element}
       </CompositeList>
     </CompositeRootContext.Provider>
   );
 }
 
-export namespace CompositeRoot {
-  export interface State {}
+export interface CompositeRootProps<Metadata, State extends Record<string, any>> extends Pick<
+  BaseUIComponentProps<'div', State>,
+  'render' | 'className' | 'children'
+> {
+  props?: Array<Record<string, any> | (() => Record<string, any>)>;
+  state?: State;
+  stateAttributesMapping?: StateAttributesMapping<State>;
+  refs?: React.Ref<HTMLElement | null>[];
+  tag?: keyof React.JSX.IntrinsicElements;
+  orientation?: 'horizontal' | 'vertical' | 'both';
+  cols?: number;
+  loopFocus?: boolean;
+  highlightedIndex?: number;
+  onHighlightedIndexChange?: (index: number) => void;
+  itemSizes?: Dimensions[];
+  dense?: boolean;
+  enableHomeAndEndKeys?: boolean;
+  onMapChange?: (newMap: Map<Node, CompositeMetadata<Metadata> | null>) => void;
+  stopEventPropagation?: boolean;
+  rootRef?: React.RefObject<HTMLElement | null>;
+  disabledIndices?: number[];
+  modifierKeys?: ModifierKey[];
+  highlightItemOnHover?: boolean;
+}
 
-  export interface Props<Metadata> extends BaseUIComponentProps<'div', State> {
-    orientation?: 'horizontal' | 'vertical' | 'both';
-    cols?: number;
-    loop?: boolean;
-    highlightedIndex?: number;
-    onHighlightedIndexChange?: (index: number) => void;
-    itemSizes?: Dimensions[];
-    dense?: boolean;
-    direction?: TextDirection;
-    enableHomeAndEndKeys?: boolean;
-    onMapChange?: (newMap: Map<Node, CompositeMetadata<Metadata> | null>) => void;
-    stopEventPropagation?: boolean;
-    rootRef?: React.RefObject<HTMLElement | null>;
-    disabledIndices?: number[];
-    modifierKeys?: ModifierKey[];
-    highlightItemOnHover?: boolean;
-  }
+export namespace CompositeRoot {
+  export type Props<Metadata, State extends Record<string, any>> = CompositeRootProps<
+    Metadata,
+    State
+  >;
 }

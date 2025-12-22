@@ -1,14 +1,14 @@
 import * as React from 'react';
-import { Select } from '@base-ui-components/react/select';
+import { Select } from '@base-ui/react/select';
 import { screen } from '@mui/internal-test-utils';
 import { expect } from 'chai';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 
 const Trigger = React.forwardRef(function Trigger(
   props: Select.Trigger.Props,
-  ref: React.ForwardedRef<HTMLDivElement>,
+  ref: React.ForwardedRef<HTMLButtonElement>,
 ) {
-  return <Select.Trigger {...props} ref={ref} render={<div />} />;
+  return <Select.Trigger {...props} ref={ref} />;
 });
 
 describe('<Select.Positioner />', () => {

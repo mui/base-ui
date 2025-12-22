@@ -3,7 +3,6 @@ import * as React from 'react';
 import { inline } from '@floating-ui/react';
 import { isHTMLElement } from '@floating-ui/utils/dom';
 import { usePreviewCardRootContext } from '../root/PreviewCardContext';
-import { usePreviewCardPositioner } from './usePreviewCardPositioner';
 import { PreviewCardPositionerContext } from './PreviewCardPositionerContext';
 import { type Side, type Align, useAnchorPositioning } from '../../utils/useAnchorPositioning';
 import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
@@ -35,7 +34,7 @@ export const PreviewCardPositioner = React.forwardRef(function PreviewCardPositi
     collisionPadding = 5,
     arrowPadding = 5,
     sticky = false,
-    trackAnchor = true,
+    disableAnchorTracking = false,
     collisionAvoidance = POPUP_COLLISION_AVOIDANCE,
     ...elementProps
   } = componentProps;
@@ -57,7 +56,7 @@ export const PreviewCardPositioner = React.forwardRef(function PreviewCardPositi
     collisionBoundary,
     collisionPadding,
     sticky,
-    trackAnchor,
+    disableAnchorTracking,
     keepMounted,
     collisionAvoidance,
     inline: inline((state) => {
@@ -128,7 +127,7 @@ export const PreviewCardPositioner = React.forwardRef(function PreviewCardPositi
     state,
     ref: [setPositionerElement, forwardedRef],
     props: [defaultProps, elementProps],
-    customStyleHookMapping: popupStateMapping,
+    stateAttributesMapping: popupStateMapping,
   });
 
   return (
@@ -138,18 +137,22 @@ export const PreviewCardPositioner = React.forwardRef(function PreviewCardPositi
   );
 });
 
-export namespace PreviewCardPositioner {
-  export interface State {
-    /**
-     * Whether the preview card is currently open.
-     */
-    open: boolean;
-    side: Side;
-    align: Align;
-    anchorHidden: boolean;
-  }
+export interface PreviewCardPositionerState {
+  /**
+   * Whether the preview card is currently open.
+   */
+  open: boolean;
+  side: Side;
+  align: Align;
+  anchorHidden: boolean;
+}
 
-  export interface Props
-    extends usePreviewCardPositioner.SharedParameters,
-      BaseUIComponentProps<'div', State> {}
+export interface PreviewCardPositionerProps
+  extends
+    useAnchorPositioning.SharedParameters,
+    BaseUIComponentProps<'div', PreviewCardPositioner.State> {}
+
+export namespace PreviewCardPositioner {
+  export type State = PreviewCardPositionerState;
+  export type Props = PreviewCardPositionerProps;
 }

@@ -1,0 +1,12 @@
+{
+  "name": "AutocompleteValue",
+  "description": "The current value of the autocomplete.\nDoesn't render its own HTML element.",
+  "props": {
+    "children": {
+      "type": "ReactNode | ((value: string) => ReactNode)",
+      "detailedType": "React.ReactNode | ((value: string) => ReactNode)"
+    }
+  },
+  "dataAttributes": {},
+  "cssVariables": {}
+}

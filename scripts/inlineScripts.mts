@@ -1,7 +1,8 @@
 import * as path from 'node:path';
+import { watch } from 'node:fs';
 import { readFile, writeFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
-import glob from 'fast-glob';
+import { globby } from 'globby';
 import { minify } from 'terser';
 
 const currentDirectory = fileURLToPath(new URL('.', import.meta.url));
@@ -11,31 +12,45 @@ const preamble = [
   '// To update it, modify the corresponding source file and run `pnpm inline-scripts`.',
 ].join('\n');
 
+async function buildFile(sourceFile: string) {
+  const sourceContent = await readFile(sourceFile, 'utf8');
+  const { code: minifiedCode } = await minify(sourceContent, { ecma: 2020 });
+  const escapedCode = minifiedCode!.replace(/'/g, "\\'");
+  const output = [
+    preamble,
+    '',
+    '// prettier-ignore',
+    `export const script = '${escapedCode}';\n`,
+  ].join('\n');
+  const outputFilename = sourceFile.replace('.template.js', '.min.ts');
+  await writeFile(outputFilename, output);
+}
+
 /**
  * Finds files with the `.template.js` extension in the `react` package, minifies them, and writes
  * the code to a new file with the `.min.ts` extension.
  * The minified code is then exported as a string literal.
  */
 async function run() {
-  const files = await glob('**/*.template.js', {
+  const files = await globby('**/*.template.js', {
     absolute: true,
     cwd: path.resolve(currentDirectory, '../packages/react/src'),
   });
-
-  files.forEach(async (sourceFile) => {
-    const sourceContent = await readFile(sourceFile, 'utf8');
-    const { code: minifiedCode } = await minify(sourceContent, { ecma: 2020 });
-    const escapedCode = minifiedCode!.replace(/'/g, "\\'");
-
-    const output = [
-      preamble,
-      '',
-      '// prettier-ignore',
-      `export const script = '${escapedCode}';\n`,
-    ].join('\n');
-    const outputFilename = sourceFile.replace('.template.js', '.min.ts');
-    await writeFile(outputFilename, output);
-  });
+  await Promise.all(files.map(buildFile));
+  return files;
 }
 
-await run();
+const files = await run();
+
+if (process.argv.includes('--watch') || process.argv.includes('-w')) {
+  // eslint-disable-next-line no-console
+  console.log('Processing *.template.js files in watch mode...');
+
+  files.forEach((file) => {
+    watch(file, (eventType) => {
+      if (eventType === 'change') {
+        buildFile(file);
+      }
+    });
+  });
+}

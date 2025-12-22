@@ -13,6 +13,14 @@ export const FieldsetRootContext = React.createContext<FieldsetRootContext>({
   disabled: undefined,
 });
 
-export function useFieldsetRootContext() {
-  return React.useContext(FieldsetRootContext);
+export function useFieldsetRootContext(optional: true): FieldsetRootContext | undefined;
+export function useFieldsetRootContext(optional?: false): FieldsetRootContext;
+export function useFieldsetRootContext(optional = false) {
+  const context = React.useContext(FieldsetRootContext);
+  if (!context && !optional) {
+    throw new Error(
+      'Base UI: FieldsetRootContext is missing. Fieldset parts must be placed within <Fieldset.Root>.',
+    );
+  }
+  return context;
 }

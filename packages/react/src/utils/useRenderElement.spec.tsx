@@ -5,7 +5,7 @@ import { useRenderElement } from './useRenderElement';
 
 const element1 = useRenderElement('div', {}, {});
 
-expectType<React.ReactElement<Record<string, unknown>>, typeof element1>(element1);
+expectType<React.ReactElement, typeof element1>(element1);
 
 const element2 = useRenderElement(
   'div',
@@ -15,7 +15,7 @@ const element2 = useRenderElement(
   },
 );
 
-expectType<React.ReactElement<Record<string, unknown>>, typeof element2>(element2);
+expectType<React.ReactElement, typeof element2>(element2);
 
 const element3 = useRenderElement(
   'div',
@@ -35,4 +35,4 @@ const element4 = useRenderElement(
   },
 );
 
-expectType<React.ReactElement<Record<string, unknown>> | null, typeof element4>(element4);
+expectType<React.ReactElement | null, typeof element4>(element4);
