@@ -5,6 +5,7 @@ import { usePreviewCardRootContext } from '../root/PreviewCardContext';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
 import { useRenderElement } from '../../utils/useRenderElement';
+import { getInlineRectHoverCoords } from '../../utils/popups';
 
 /**
  * A link that opens the preview card.
@@ -18,7 +19,7 @@ export const PreviewCardTrigger = React.forwardRef(function PreviewCardTrigger(
 ) {
   const { render, className, delay, closeDelay, ...elementProps } = componentProps;
 
-  const { open, triggerProps, setTriggerElement, writeDelayRefs, coordsRef } =
+  const { open, triggerProps, setTriggerElement, writeDelayRefs, inlineRectCoordsRef } =
     usePreviewCardRootContext();
 
   useIsoLayoutEffect(() => {
@@ -34,35 +35,13 @@ export const PreviewCardTrigger = React.forwardRef(function PreviewCardTrigger(
       triggerProps,
       {
         onFocus() {
-          coordsRef.current = undefined;
+          inlineRectCoordsRef.current = undefined;
         },
-        onMouseMove(event) {
+        onMouseMove(event: React.MouseEvent<Element>) {
           if (open) {
             return;
           }
-
-          const rects = Array.from(event.currentTarget.getClientRects());
-
-          if (rects.length < 2) {
-            return;
-          }
-
-          const hovered = rects.reduce(
-            (best, rect, i) => {
-              const d = Math.hypot(
-                event.clientX - (rect.left + rect.width / 2),
-                event.clientY - (rect.top + rect.height / 2),
-              );
-              return d < best.d ? { i, rect, d } : best;
-            },
-            { i: 0, rect: rects[0], d: Number.POSITIVE_INFINITY },
-          );
-
-          coordsRef.current = {
-            rectIndex: hovered.i,
-            x: event.clientX - hovered.rect.left,
-            y: event.clientY - hovered.rect.top,
-          };
+          inlineRectCoordsRef.current = getInlineRectHoverCoords(event);
         },
       },
       elementProps,

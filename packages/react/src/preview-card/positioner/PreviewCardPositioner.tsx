@@ -1,7 +1,5 @@
 'use client';
 import * as React from 'react';
-import { inline } from '@floating-ui/react-dom';
-import { isHTMLElement } from '@floating-ui/utils/dom';
 import { usePreviewCardRootContext } from '../root/PreviewCardContext';
 import { PreviewCardPositionerContext } from './PreviewCardPositionerContext';
 import { type Side, type Align, useAnchorPositioning } from '../../utils/useAnchorPositioning';
@@ -10,6 +8,7 @@ import { popupStateMapping } from '../../utils/popupStateMapping';
 import { usePreviewCardPortalContext } from '../portal/PreviewCardPortalContext';
 import { POPUP_COLLISION_AVOIDANCE } from '../../utils/constants';
 import { useRenderElement } from '../../utils/useRenderElement';
+import { createInlineMiddleware } from '../../utils/popups';
 
 /**
  * Positions the popup against the trigger.
@@ -39,7 +38,7 @@ export const PreviewCardPositioner = React.forwardRef(function PreviewCardPositi
     ...elementProps
   } = componentProps;
 
-  const { open, mounted, floatingRootContext, setPositionerElement, coordsRef } =
+  const { open, mounted, floatingRootContext, setPositionerElement, inlineRectCoordsRef } =
     usePreviewCardRootContext();
   const keepMounted = usePreviewCardPortalContext();
 
@@ -59,24 +58,7 @@ export const PreviewCardPositioner = React.forwardRef(function PreviewCardPositi
     disableAnchorTracking,
     keepMounted,
     collisionAvoidance,
-    inline: inline((state) => {
-      const trigger = state.elements.reference;
-      if (!isHTMLElement(trigger) || !coordsRef.current) {
-        return {};
-      }
-
-      const rects = Array.from(trigger.getClientRects());
-      const rect = rects[coordsRef.current.rectIndex];
-
-      if (!rect) {
-        return {};
-      }
-
-      return {
-        x: rect.left + coordsRef.current.x,
-        y: rect.top + coordsRef.current.y,
-      };
-    }),
+    inline: createInlineMiddleware(inlineRectCoordsRef),
   });
 
   const defaultProps: HTMLProps = React.useMemo(() => {

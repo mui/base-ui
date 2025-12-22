@@ -3,6 +3,7 @@ import * as React from 'react';
 import type { FloatingRootContext } from '../../floating-ui-react';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import type { HTMLProps } from '../../utils/types';
+import type { InlineRectCoords } from '../../utils/popups';
 import type { PreviewCardRoot } from './PreviewCardRoot';
 
 export interface PreviewCardTriggerDelayConfig {
@@ -24,7 +25,7 @@ export interface PreviewCardRootContext {
   transitionStatus: TransitionStatus;
   popupRef: React.RefObject<HTMLElement | null>;
   onOpenChangeComplete: ((open: boolean) => void) | undefined;
-  coordsRef: React.RefObject<{ x: number; y: number; rectIndex: number } | undefined>;
+  inlineRectCoordsRef: React.MutableRefObject<InlineRectCoords | undefined>;
   writeDelayRefs: (config: PreviewCardTriggerDelayConfig) => void;
 }
 
