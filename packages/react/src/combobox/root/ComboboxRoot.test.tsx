@@ -680,17 +680,19 @@ describe('<Combobox.Root />', () => {
       });
     });
 
-    it('loops ArrowDown from last to first without requiring multiple keypresses', async () => {
+    it('loops ArrowDown from last to first by default', async () => {
       const { user } = await render(
-        <Combobox.Root>
+        <Combobox.Root items={['apple', 'banana', 'cherry']}>
           <Combobox.Input data-testid="input" />
           <Combobox.Portal>
             <Combobox.Positioner>
               <Combobox.Popup>
                 <Combobox.List>
-                  <Combobox.Item value="apple">apple</Combobox.Item>
-                  <Combobox.Item value="banana">banana</Combobox.Item>
-                  <Combobox.Item value="cherry">cherry</Combobox.Item>
+                  {(item: string) => (
+                    <Combobox.Item key={item} value={item}>
+                      {item}
+                    </Combobox.Item>
+                  )}
                 </Combobox.List>
               </Combobox.Popup>
             </Combobox.Positioner>
@@ -714,6 +716,14 @@ describe('<Combobox.Root />', () => {
       });
       expect(input).toHaveFocus();
 
+      // Loop cycles through input (no aria-activedescendant)
+      await user.keyboard('{ArrowDown}');
+      await waitFor(() => {
+        expect(input).not.to.have.attribute('aria-activedescendant');
+      });
+      expect(input).toHaveFocus();
+
+      // Then to first item
       await user.keyboard('{ArrowDown}');
       await waitFor(() => {
         expect(input).to.have.attribute('aria-activedescendant', options[0].id);
@@ -4692,6 +4702,190 @@ describe('<Combobox.Root />', () => {
 
       await waitFor(() => expect(input).not.to.have.attribute('aria-activedescendant'));
       expect(banana).not.to.have.attribute('data-highlighted');
+    });
+  });
+
+  describe('prop: loopFocus', () => {
+    it('loops focus from last to first item with ArrowDown by default', async () => {
+      const { user } = await render(
+        <Combobox.Root items={['apple', 'banana', 'cherry']}>
+          <Combobox.Input data-testid="input" />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  {(item: string) => (
+                    <Combobox.Item key={item} value={item}>
+                      {item}
+                    </Combobox.Item>
+                  )}
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByRole<HTMLInputElement>('combobox');
+      await act(async () => input.focus());
+
+      // ArrowUp opens and focuses last item
+      await user.keyboard('{ArrowUp}');
+
+      await waitFor(() => expect(screen.getByRole('listbox')).not.to.equal(null));
+
+      const options = screen.getAllByRole('option');
+
+      await waitFor(() => {
+        expect(input).to.have.attribute('aria-activedescendant', options[2].id);
+      });
+
+      // Loop cycles through input
+      await user.keyboard('{ArrowDown}');
+
+      await waitFor(() => {
+        expect(input).not.to.have.attribute('aria-activedescendant');
+      });
+
+      // Then to first item
+      await user.keyboard('{ArrowDown}');
+
+      await waitFor(() => {
+        expect(input).to.have.attribute('aria-activedescendant', options[0].id);
+      });
+    });
+
+    it('loops focus from first to last item with ArrowUp by default', async () => {
+      const { user } = await render(
+        <Combobox.Root items={['apple', 'banana', 'cherry']}>
+          <Combobox.Input data-testid="input" />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  {(item: string) => (
+                    <Combobox.Item key={item} value={item}>
+                      {item}
+                    </Combobox.Item>
+                  )}
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByRole<HTMLInputElement>('combobox');
+      await act(async () => input.focus());
+
+      // ArrowDown opens and focuses first item
+      await user.keyboard('{ArrowDown}');
+
+      await waitFor(() => expect(screen.getByRole('listbox')).not.to.equal(null));
+
+      const options = screen.getAllByRole('option');
+
+      await waitFor(() => {
+        expect(input).to.have.attribute('aria-activedescendant', options[0].id);
+      });
+
+      // Loop cycles through input
+      await user.keyboard('{ArrowUp}');
+
+      await waitFor(() => {
+        expect(input).not.to.have.attribute('aria-activedescendant');
+      });
+
+      // Then to last item
+      await user.keyboard('{ArrowUp}');
+
+      await waitFor(() => {
+        expect(input).to.have.attribute('aria-activedescendant', options[2].id);
+      });
+    });
+
+    it('does not loop focus when loopFocus={false}', async () => {
+      const { user } = await render(
+        <Combobox.Root items={['apple', 'banana', 'cherry']} loopFocus={false}>
+          <Combobox.Input data-testid="input" />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  {(item: string) => (
+                    <Combobox.Item key={item} value={item}>
+                      {item}
+                    </Combobox.Item>
+                  )}
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByRole<HTMLInputElement>('combobox');
+      await act(async () => input.focus());
+
+      // ArrowUp opens and focuses last item
+      await user.keyboard('{ArrowUp}');
+
+      await waitFor(() => expect(screen.getByRole('listbox')).not.to.equal(null));
+
+      const options = screen.getAllByRole('option');
+
+      await waitFor(() => {
+        expect(input).to.have.attribute('aria-activedescendant', options[2].id);
+      });
+
+      // Should stay at last item (no loop)
+      await user.keyboard('{ArrowDown}');
+
+      await waitFor(() => {
+        expect(input).to.have.attribute('aria-activedescendant', options[2].id);
+      });
+    });
+
+    it('does not loop focus from first to last with ArrowUp when loopFocus={false}', async () => {
+      const { user } = await render(
+        <Combobox.Root items={['apple', 'banana', 'cherry']} loopFocus={false}>
+          <Combobox.Input data-testid="input" />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  {(item: string) => (
+                    <Combobox.Item key={item} value={item}>
+                      {item}
+                    </Combobox.Item>
+                  )}
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByRole<HTMLInputElement>('combobox');
+      await act(async () => input.focus());
+
+      // ArrowDown opens and focuses first item
+      await user.keyboard('{ArrowDown}');
+
+      await waitFor(() => expect(screen.getByRole('listbox')).not.to.equal(null));
+
+      const options = screen.getAllByRole('option');
+
+      await waitFor(() => {
+        expect(input).to.have.attribute('aria-activedescendant', options[0].id);
+      });
+
+      // Should stay at first item (no loop)
+      await user.keyboard('{ArrowUp}');
+
+      await waitFor(() => {
+        expect(input).to.have.attribute('aria-activedescendant', options[0].id);
+      });
     });
   });
 

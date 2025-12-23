@@ -107,6 +107,7 @@ export const selectors = {
 
   activeIndex: createSelector((state: State) => state.activeIndex),
   selectedIndex: createSelector((state: State) => state.selectedIndex),
+  hasActiveIndex: createSelector((state: State) => state.activeIndex !== null),
   isActive: createSelector((state: State, index: number) => state.activeIndex === index),
   isSelected: createSelector((state: State, candidate: any) => {
     const comparer = state.isItemEqualToValue;

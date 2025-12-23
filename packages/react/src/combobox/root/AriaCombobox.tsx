@@ -98,6 +98,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     autoHighlight = false,
     keepHighlight = false,
     highlightItemOnHover = true,
+    loopFocus = true,
     itemToStringLabel,
     itemToStringValue,
     isItemEqualToValue = defaultItemEquality,
@@ -1056,8 +1057,8 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     activeIndex,
     selectedIndex,
     virtual: true,
-    loopFocus: true,
-    allowEscape: selectionMode === 'none' && !autoHighlightMode,
+    loopFocus,
+    allowEscape: loopFocus,
     focusItemOnOpen:
       queryChangedAfterOpen || (selectionMode === 'none' && !autoHighlightMode) ? false : 'auto',
     focusItemOnHover: highlightItemOnHover,
@@ -1385,6 +1386,12 @@ interface ComboboxRootProps<ItemValue> {
    * @default true
    */
   highlightItemOnHover?: boolean;
+  /**
+   * Whether to loop keyboard focus back to the input when the end of the list is reached while using the arrow keys. The first item can then be reached by pressing <kbd>ArrowDown</kbd> again from the input, or the last item can be reached by pressing <kbd>ArrowUp</kbd> from the input.
+   * The input is always included in the focus loop per [ARIA Authoring Practices](https://www.w3.org/WAI/ARIA/apg/patterns/combobox/).
+   * @default true
+   */
+  loopFocus?: boolean;
   /**
    * The input value of the combobox. Use when controlled.
    */
