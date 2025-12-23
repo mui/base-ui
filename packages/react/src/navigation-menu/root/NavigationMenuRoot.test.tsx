@@ -328,24 +328,7 @@ describe('<NavigationMenu.Root />', () => {
     });
 
     it('opens when the trigger is already hovered when it mounts (hydration)', async () => {
-      const originalMatchMedia = window.matchMedia;
       const originalMatches = window.HTMLElement.prototype.matches;
-
-      window.matchMedia = ((query: string) => {
-        const matches = query === '(any-hover: hover)' || query === '(any-pointer: fine)';
-        return {
-          matches,
-          media: query,
-          onchange: null,
-          addListener() {},
-          removeListener() {},
-          addEventListener() {},
-          removeEventListener() {},
-          dispatchEvent() {
-            return false;
-          },
-        };
-      }) as any;
 
       window.HTMLElement.prototype.matches = function matches(selector: string) {
         if (selector === ':hover' && this.getAttribute?.('data-testid') === 'trigger-1') {
@@ -365,7 +348,6 @@ describe('<NavigationMenu.Root />', () => {
           expect(trigger).to.have.attribute('aria-expanded', 'true');
         });
       } finally {
-        window.matchMedia = originalMatchMedia;
         window.HTMLElement.prototype.matches = originalMatches;
       }
     });

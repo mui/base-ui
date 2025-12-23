@@ -7,7 +7,6 @@ import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useTimeout } from '@base-ui/utils/useTimeout';
 import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
-import { ownerWindow } from '@base-ui/utils/owner';
 import {
   safePolygon,
   useClick,
@@ -99,7 +98,6 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
   const allowFocusRef = React.useRef(false);
   const prevSizeRef = React.useRef(DEFAULT_SIZE);
   const animationAbortControllerRef = React.useRef<AbortController | null>(null);
-  const didReplayHoverOnHydrationRef = React.useRef(false);
 
   const isActiveItem = open && value === itemValue;
   const isActiveItemRef = useValueAsRef(isActiveItem);
@@ -288,56 +286,6 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
     },
   });
 
-  const replayHoverOnHydration = useStableCallback(() => {
-    // React does not replay hover events that happen before hydration.
-    // If the pointer is already over the trigger when hydration completes,
-    // open the menu without requiring a second hover.
-    if (didReplayHoverOnHydrationRef.current) {
-      return;
-    }
-
-    if (!triggerElement || disabled || !interactionsEnabled) {
-      return;
-    }
-
-    // Avoid opening on touch-only devices where `:hover` can be emulated/sticky.
-    const win = ownerWindow(triggerElement);
-    const canHover =
-      typeof win.matchMedia === 'function' ? win.matchMedia('(any-hover: hover)').matches : true;
-    const hasFinePointer =
-      typeof win.matchMedia === 'function' ? win.matchMedia('(any-pointer: fine)').matches : true;
-
-    if (!canHover || !hasFinePointer) {
-      didReplayHoverOnHydrationRef.current = true;
-      return;
-    }
-
-    didReplayHoverOnHydrationRef.current = true;
-
-    if (triggerElement.matches(':hover')) {
-      if (pointerType === 'touch') {
-        return;
-      }
-
-      // Avoid `flushSync` during effects (React warns about this during hydration).
-      // This mirrors the `isHover` branch of `handleOpenChange` without forcing sync flushing.
-      setStickIfOpen(true);
-      stickIfOpenTimeout.clear();
-      stickIfOpenTimeout.start(PATIENT_CLICK_THRESHOLD, () => {
-        setStickIfOpen(false);
-      });
-
-      setValue(
-        itemValue,
-        createChangeEventDetails(
-          REASONS.triggerHover,
-          new MouseEvent('mouseenter', { bubbles: true }),
-          triggerElement,
-        ),
-      );
-    }
-  });
-
   const hover = useHover(context, {
     move: false,
     handleClose: safePolygon({ blockPointerEvents: pointerType !== 'touch' }),
@@ -351,14 +299,6 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
   });
 
   useIsoLayoutEffect(() => {
-    // Run once when the trigger element is set after hydration.
-    if (!triggerElement || isActiveItem) {
-      return;
-    }
-    replayHoverOnHydration();
-  }, [triggerElement, isActiveItem, replayHoverOnHydration, interactionsEnabled]);
-
-  useIsoLayoutEffect(() => {
     if (isActiveItem) {
       setFloatingRootContext(context);
       prevTriggerElementRef.current = triggerElement;
@@ -367,7 +307,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
 
   const { getReferenceProps } = useInteractions([hover, click]);
 
-  function handleActivation(event: React.MouseEvent | React.KeyboardEvent) {
+  function handleActivation(event: React.MouseEvent | React.KeyboardEvent | undefined) {
     ReactDOM.flushSync(() => {
       const prevTriggerRect = prevTriggerElementRef.current?.getBoundingClientRect();
 
@@ -386,11 +326,11 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
       // Reset the `openEvent` to `undefined` when the active item changes so that a
       // `click` -> `hover` on new trigger -> `hover` back to old trigger doesn't unexpectedly
       // cause the popup to remain stuck open when leaving the old trigger.
-      if (event.type !== 'click') {
+      if (event?.type !== 'click') {
         context.context.dataRef.current.openEvent = undefined;
       }
 
-      if (pointerType === 'touch' && event.type !== 'click') {
+      if (pointerType === 'touch' && event?.type !== 'click') {
         return;
       }
 
@@ -398,27 +338,36 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
         setValue(
           itemValue,
           createChangeEventDetails(
-            event.type === 'mouseenter' ? REASONS.triggerHover : REASONS.triggerPress,
-            event.nativeEvent,
+            event?.type === 'mouseenter' ? REASONS.triggerHover : REASONS.triggerPress,
+            event?.nativeEvent,
           ),
         );
       }
     });
   }
 
-  const handleOpenEvent = useStableCallback((event: React.MouseEvent | React.KeyboardEvent) => {
-    // For nested scenarios without positioner/popup, we can still open the menu
-    // but we can't do size calculations
-    if (!popupElement || !positionerElement) {
+  const handleOpenEvent = useStableCallback(
+    (event: React.MouseEvent | React.KeyboardEvent | undefined) => {
+      // For nested scenarios without positioner/popup, we can still open the menu
+      // but we can't do size calculations
+      if (!popupElement || !positionerElement) {
+        handleActivation(event);
+        return;
+      }
+
+      const { width, height } = getCssDimensions(popupElement);
+
       handleActivation(event);
-      return;
+      handleValueChange(width, height);
+    },
+  );
+
+  useIsoLayoutEffect(() => {
+    if (triggerElement?.matches(':hover')) {
+      handleOpenEvent(undefined);
     }
-
-    const { width, height } = getCssDimensions(popupElement);
-
-    handleActivation(event);
-    handleValueChange(width, height);
-  });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const state: NavigationMenuTrigger.State = React.useMemo(
     () => ({
