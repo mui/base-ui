@@ -12,6 +12,13 @@ import { expect } from 'chai';
 
 describe('<Select.Item />', () => {
   const { render } = createRenderer();
+  const { render: renderFakeTimers, clock } = createRenderer({
+    clockOptions: {
+      shouldAdvanceTime: true,
+    },
+  });
+
+  clock.withFakeTimers();
 
   describeConformance(<Select.Item value="" />, () => ({
     refInstanceof: window.HTMLDivElement,
@@ -200,6 +207,60 @@ describe('<Select.Item />', () => {
       expect(screen.getByRole('option', { name: 'three' })).toHaveFocus();
     });
   });
+
+  it.skipIf(!isJSDOM)(
+    'should not select an item on quick mouseup when showing a placeholder (no null item)',
+    async () => {
+      const fonts = [
+        { label: 'Sans-serif', value: 'sans' },
+        { label: 'Serif', value: 'serif' },
+        { label: 'Monospace', value: 'mono' },
+        { label: 'Cursive', value: 'cursive' },
+      ];
+
+      await renderFakeTimers(
+        <Select.Root items={fonts}>
+          <Select.Trigger data-testid="trigger">
+            <Select.Value data-testid="value" placeholder="Select font" />
+          </Select.Trigger>
+          <Select.Portal>
+            <Select.Positioner>
+              <Select.Popup>
+                {fonts.map(({ label, value }) => (
+                  <Select.Item key={value} value={value}>
+                    {label}
+                  </Select.Item>
+                ))}
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
+        </Select.Root>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+      const value = screen.getByTestId('value');
+
+      expect(value.textContent).to.equal('Select font');
+
+      // Open on mousedown and keep the mouse button "held" (no mouseup yet).
+      fireEvent.mouseDown(trigger);
+
+      await waitFor(() => {
+        expect(screen.queryByRole('listbox')).not.to.equal(null);
+      });
+
+      const option = screen.getByRole('option', { name: 'Sans-serif' });
+      fireEvent.mouseMove(option);
+
+      // Release quickly over an unselected option.
+      clock.tick(200);
+      fireEvent.mouseUp(option);
+
+      await waitFor(() => {
+        expect(value.textContent).to.equal('Select font');
+      });
+    },
+  );
 
   describe.skipIf(!isJSDOM)('style hooks', () => {
     it('should apply data-highlighted attribute when item is highlighted', async () => {
