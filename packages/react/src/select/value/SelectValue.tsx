@@ -22,35 +22,52 @@ export const SelectValue = React.forwardRef(function SelectValue(
   componentProps: SelectValue.Props,
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
-  const { className, render, children: childrenProp, ...elementProps } = componentProps;
+  const {
+    className,
+    render,
+    children: childrenProp,
+    placeholder,
+    ...elementProps
+  } = componentProps;
 
   const { store, valueRef } = useSelectRootContext();
 
   const value = useStore(store, selectors.value);
   const items = useStore(store, selectors.items);
   const itemToStringLabel = useStore(store, selectors.itemToStringLabel);
-  const serializedValue = useStore(store, selectors.serializedValue);
+  const hasSelectedValue = useStore(store, selectors.hasSelectedValue);
+
+  const shouldCheckNullItemLabel = !hasSelectedValue && placeholder != null && childrenProp == null;
+  const hasNullLabel = useStore(store, selectors.hasNullItemLabel, shouldCheckNullItemLabel);
 
   const state: SelectValue.State = React.useMemo(
     () => ({
       value,
-      placeholder: !serializedValue,
+      placeholder: !hasSelectedValue,
     }),
-    [value, serializedValue],
+    [value, hasSelectedValue],
   );
 
-  const children =
-    typeof childrenProp === 'function'
-      ? childrenProp(value)
-      : (childrenProp ??
-        (Array.isArray(value)
-          ? resolveMultipleLabels(value, itemToStringLabel)
-          : resolveSelectedLabel(value, items, itemToStringLabel)));
+  function getValue() {
+    if (typeof childrenProp === 'function') {
+      return childrenProp(value);
+    }
+    if (childrenProp != null) {
+      return childrenProp;
+    }
+    if (!hasSelectedValue && placeholder != null && !hasNullLabel) {
+      return placeholder;
+    }
+    if (Array.isArray(value)) {
+      return resolveMultipleLabels(value, itemToStringLabel);
+    }
+    return resolveSelectedLabel(value, items, itemToStringLabel);
+  }
 
   const element = useRenderElement('span', componentProps, {
     state,
     ref: [forwardedRef, valueRef],
-    props: [{ children }, elementProps],
+    props: [{ children: getValue() }, elementProps],
     stateAttributesMapping,
   });
 
@@ -78,6 +95,11 @@ export interface SelectValueProps extends Omit<
    * ```
    */
   children?: React.ReactNode | ((value: any) => React.ReactNode);
+  /**
+   * The placeholder value to display when no value is selected.
+   * This is overridden by `children` if specified, or by a null item's label in `items`.
+   */
+  placeholder?: React.ReactNode;
 }
 
 export namespace SelectValue {

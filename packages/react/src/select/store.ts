@@ -3,7 +3,7 @@ import { type InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import type { TransitionStatus } from '../utils/useTransitionStatus';
 import type { HTMLProps } from '../utils/types';
 import { compareItemEquality } from '../utils/itemEquality';
-import { stringifyAsValue } from '../utils/resolveValueLabel';
+import { hasNullItemLabel, stringifyAsValue } from '../utils/resolveValueLabel';
 
 export type State = {
   id: string | undefined;
@@ -54,6 +54,23 @@ export const selectors = {
   isItemEqualToValue: createSelector((state: State) => state.isItemEqualToValue),
 
   value: createSelector((state: State) => state.value),
+
+  hasSelectedValue: createSelector((state: State) => {
+    const { value, multiple, itemToStringValue } = state;
+    if (value == null) {
+      return false;
+    }
+    if (multiple && Array.isArray(value)) {
+      return value.length > 0;
+    }
+
+    return stringifyAsValue(value, itemToStringValue) !== '';
+  }),
+
+  hasNullItemLabel: createSelector((state: State, enabled: boolean) => {
+    return enabled ? hasNullItemLabel(state.items) : false;
+  }),
+
   open: createSelector((state: State) => state.open),
   mounted: createSelector((state: State) => state.mounted),
   forceMount: createSelector((state: State) => state.forceMount),
@@ -97,12 +114,4 @@ export const selectors = {
   scrollDownArrowVisible: createSelector((state: State) => state.scrollDownArrowVisible),
 
   hasScrollArrows: createSelector((state: State) => state.hasScrollArrows),
-
-  serializedValue: createSelector((state: State) => {
-    const { multiple, value, itemToStringValue } = state;
-    if (multiple && Array.isArray(value) && value.length === 0) {
-      return '';
-    }
-    return stringifyAsValue(value, itemToStringValue);
-  }),
 };

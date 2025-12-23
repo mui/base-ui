@@ -1,9 +1,9 @@
 import * as React from 'react';
 import { Select } from '@base-ui/react/select';
+import { Field } from '@base-ui/react/field';
 import styles from './index.module.css';
 
 const fonts = [
-  { label: 'Select font', value: null },
   { label: 'Sans-serif', value: 'sans' },
   { label: 'Serif', value: 'serif' },
   { label: 'Monospace', value: 'mono' },
@@ -12,32 +12,35 @@ const fonts = [
 
 export default function ExampleSelect() {
   return (
-    <Select.Root items={fonts}>
-      <Select.Trigger className={styles.Select}>
-        <Select.Value />
-        <Select.Icon className={styles.SelectIcon}>
-          <ChevronUpDownIcon />
-        </Select.Icon>
-      </Select.Trigger>
-      <Select.Portal>
-        <Select.Positioner className={styles.Positioner} sideOffset={8}>
-          <Select.Popup className={styles.Popup}>
-            <Select.ScrollUpArrow className={styles.ScrollArrow} />
-            <Select.List className={styles.List}>
-              {fonts.map(({ label, value }) => (
-                <Select.Item key={label} value={value} className={styles.Item}>
-                  <Select.ItemIndicator className={styles.ItemIndicator}>
-                    <CheckIcon className={styles.ItemIndicatorIcon} />
-                  </Select.ItemIndicator>
-                  <Select.ItemText className={styles.ItemText}>{label}</Select.ItemText>
-                </Select.Item>
-              ))}
-            </Select.List>
-            <Select.ScrollDownArrow className={styles.ScrollArrow} />
-          </Select.Popup>
-        </Select.Positioner>
-      </Select.Portal>
-    </Select.Root>
+    <Field.Root>
+      <Field.Label className={styles.Label}>Font</Field.Label>
+      <Select.Root items={fonts}>
+        <Select.Trigger className={styles.Select}>
+          <Select.Value className={styles.Value} placeholder="Select font" />
+          <Select.Icon className={styles.SelectIcon}>
+            <ChevronUpDownIcon />
+          </Select.Icon>
+        </Select.Trigger>
+        <Select.Portal>
+          <Select.Positioner className={styles.Positioner} sideOffset={8}>
+            <Select.Popup className={styles.Popup}>
+              <Select.ScrollUpArrow className={styles.ScrollArrow} />
+              <Select.List className={styles.List}>
+                {fonts.map(({ label, value }) => (
+                  <Select.Item key={label} value={value} className={styles.Item}>
+                    <Select.ItemIndicator className={styles.ItemIndicator}>
+                      <CheckIcon className={styles.ItemIndicatorIcon} />
+                    </Select.ItemIndicator>
+                    <Select.ItemText className={styles.ItemText}>{label}</Select.ItemText>
+                  </Select.Item>
+                ))}
+              </Select.List>
+              <Select.ScrollDownArrow className={styles.ScrollArrow} />
+            </Select.Popup>
+          </Select.Positioner>
+        </Select.Portal>
+      </Select.Root>
+    </Field.Root>
   );
 }
 
