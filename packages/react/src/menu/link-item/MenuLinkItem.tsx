@@ -9,8 +9,8 @@ import { useCompositeListItem } from '../../composite/list/useCompositeListItem'
 import { useMenuPositionerContext } from '../positioner/MenuPositionerContext';
 import { REASONS } from '../../utils/reasons';
 
-export const MenuLink = React.forwardRef(function MenuLink(
-  componentProps: MenuLink.Props,
+export const MenuLinkItem = React.forwardRef(function MenuLinkItem(
+  componentProps: MenuLinkItem.Props,
   forwardedRef: React.ForwardedRef<Element>,
 ) {
   const {
@@ -38,7 +38,7 @@ export const MenuLink = React.forwardRef(function MenuLink(
   const highlighted = store.useState('isActive', listItem.index);
   const itemProps = store.useState('itemProps');
 
-  const state: MenuLink.State = React.useMemo(
+  const state: MenuLinkItem.State = React.useMemo(
     () => ({
       highlighted,
     }),
@@ -88,14 +88,14 @@ export const MenuLink = React.forwardRef(function MenuLink(
   });
 });
 
-export interface MenuLinkState {
+export interface MenuLinkItemState {
   /**
    * Whether the item is highlighted.
    */
   highlighted: boolean;
 }
 
-export interface MenuLinkProps extends BaseUIComponentProps<'a', MenuLink.State> {
+export interface MenuLinkItemProps extends BaseUIComponentProps<'a', MenuLinkItem.State> {
   /**
    * Overrides the text label to use when the item is matched during keyboard text navigation.
    */
@@ -111,7 +111,7 @@ export interface MenuLinkProps extends BaseUIComponentProps<'a', MenuLink.State>
   closeOnClick?: boolean;
 }
 
-export namespace MenuLink {
-  export type State = MenuLinkState;
-  export type Props = MenuLinkProps;
+export namespace MenuLinkItem {
+  export type State = MenuLinkItemState;
+  export type Props = MenuLinkItemProps;
 }

@@ -5,10 +5,10 @@ import { act, screen, waitFor } from '@mui/internal-test-utils';
 import { Menu } from '@base-ui-components/react/menu';
 import { describeConformance, createRenderer } from '#test-utils';
 
-describe('<Menu.Link />', () => {
+describe('<Menu.LinkItem />', () => {
   const { render } = createRenderer();
 
-  describeConformance(<Menu.Link />, () => ({
+  describeConformance(<Menu.LinkItem />, () => ({
     refInstanceof: window.HTMLAnchorElement,
     render: (node) => {
       return render(<Menu.Root open>{node}</Menu.Root>);
@@ -41,8 +41,8 @@ describe('<Menu.Link />', () => {
             <Menu.Portal>
               <Menu.Positioner>
                 <Menu.Popup>
-                  <Menu.Link render={<Link to="/" />}>link 1</Menu.Link>
-                  <Menu.Link render={<Link to="/two" />}>link 2</Menu.Link>
+                  <Menu.LinkItem render={<Link to="/" />}>link 1</Menu.LinkItem>
+                  <Menu.LinkItem render={<Link to="/two" />}>link 2</Menu.LinkItem>
                 </Menu.Popup>
               </Menu.Positioner>
             </Menu.Portal>
