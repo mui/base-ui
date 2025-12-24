@@ -59,7 +59,7 @@ function isFocused(element: Element): boolean {
   return true;
 }
 
-beforeAll(() => {
+beforeEach(() => {
   vi.spyOn(window, 'requestAnimationFrame').mockImplementation(
     (callback: FrameRequestCallback): number => {
       callback(0);
@@ -828,7 +828,9 @@ describe.skipIf(!isJSDOM)('FloatingFocusManager', () => {
       render(<App />);
       await flushMicrotasks();
 
-      expect(screen.getByTestId('floating')).toHaveFocus();
+      await waitFor(() => {
+        expect(screen.getByTestId('floating')).toHaveFocus();
+      });
       await userEvent.tab();
       expect(screen.getByTestId('floating')).toHaveFocus();
       await userEvent.tab({ shift: true });
@@ -1069,7 +1071,9 @@ describe.skipIf(!isJSDOM)('FloatingFocusManager', () => {
       expect(screen.getByTestId('floating')).not.toHaveFocus();
       fireEvent.click(screen.getByTestId('toggle'));
       await flushMicrotasks();
-      expect(screen.getByTestId('floating')).toHaveFocus();
+      await waitFor(() => {
+        expect(screen.getByTestId('floating')).toHaveFocus();
+      });
     });
 
     test('false', async () => {
@@ -1143,7 +1147,9 @@ describe.skipIf(!isJSDOM)('FloatingFocusManager', () => {
 
       await flushMicrotasks();
 
-      expect(screen.getByTestId('child')).toHaveFocus();
+      await waitFor(() => {
+        expect(screen.getByTestId('child')).toHaveFocus();
+      });
 
       await userEvent.tab();
 

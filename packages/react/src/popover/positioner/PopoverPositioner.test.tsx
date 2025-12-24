@@ -8,7 +8,7 @@ const Trigger = React.forwardRef(function Trigger(
   props: Popover.Trigger.Props,
   ref: React.ForwardedRef<any>,
 ) {
-  return <Popover.Trigger {...props} ref={ref} render={<div />} />;
+  return <Popover.Trigger {...props} ref={ref} render={<div />} nativeButton={false} />;
 });
 
 describe('<Popover.Positioner />', () => {
@@ -279,7 +279,7 @@ describe('<Popover.Positioner />', () => {
       );
     }
 
-    const { setProps } = await render(<App top={0} />);
+    const { setPropsAsync } = await render(<App top={0} />);
     const positioner = screen.getByTestId('positioner');
 
     const initial = { x: 5, y: 100 };
@@ -287,7 +287,7 @@ describe('<Popover.Positioner />', () => {
 
     expect(positioner.getBoundingClientRect()).to.include(initial);
 
-    setProps({ top: 100 });
+    await setPropsAsync({ top: 100 });
 
     await waitFor(() => {
       expect(positioner.getBoundingClientRect()).not.to.include(initial);
@@ -310,7 +310,7 @@ describe('<Popover.Positioner />', () => {
       );
     }
 
-    const { setProps } = await render(<App top={0} />);
+    const { setPropsAsync } = await render(<App top={0} />);
     const positioner = screen.getByTestId('positioner');
 
     const initial = { x: 5, y: 100 };
@@ -318,7 +318,7 @@ describe('<Popover.Positioner />', () => {
 
     expect(positioner.getBoundingClientRect()).to.include(initial);
 
-    setProps({ top: 100 });
+    await setPropsAsync({ top: 100 });
 
     await waitFor(() => {
       expect(positioner.getBoundingClientRect()).not.to.include(initial);
