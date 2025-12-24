@@ -104,6 +104,12 @@
       "description": "The locale to use for string comparison.\nDefaults to the user's runtime locale.",
       "detailedType": "Intl.LocalesArgument | undefined"
     },
+    "loopFocus": {
+      "type": "boolean",
+      "default": "true",
+      "description": "Whether to loop keyboard focus back to the input when the end of the list is reached while using the arrow keys. The first item can then be reached by pressing <kbd>ArrowDown</kbd> again from the input, or the last item can be reached by pressing <kbd>ArrowUp</kbd> from the input.\nThe input is always included in the focus loop per [ARIA Authoring Practices](https://www.w3.org/WAI/ARIA/apg/patterns/combobox/).\nWhen disabled, focus does not move when on the last element and the user presses <kbd>ArrowDown</kbd>, or when on the first element and the user presses <kbd>ArrowUp</kbd>.",
+      "detailedType": "boolean | undefined"
+    },
     "modal": {
       "type": "boolean",
       "default": "false",
