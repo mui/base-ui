@@ -31,6 +31,7 @@ const FieldRootInner = React.forwardRef(function FieldRootInner(
     invalid: invalidProp,
     dirty: dirtyProp,
     touched: touchedProp,
+    actionsRef,
     ...elementProps
   } = componentProps;
 
@@ -111,6 +112,15 @@ const FieldRootInner = React.forwardRef(function FieldRootInner(
     name,
     shouldValidateOnChange,
   });
+
+  const handleImperativeValidate = React.useCallback(() => {
+    markedDirtyRef.current = true;
+    validation.commit(validityData.value);
+  }, [validation, validityData]);
+
+  React.useImperativeHandle(actionsRef, () => ({ validate: handleImperativeValidate }), [
+    handleImperativeValidate,
+  ]);
 
   const contextValue: FieldRootContext = React.useMemo(
     () => ({
@@ -204,6 +214,10 @@ export interface FieldValidityData {
   initialValue: unknown;
 }
 
+export interface FieldRootActions {
+  validate: () => void;
+}
+
 export interface FieldRootState {
   /** Whether the component should ignore user interaction. */
   disabled: boolean;
@@ -268,9 +282,15 @@ export interface FieldRootProps extends BaseUIComponentProps<'div', FieldRoot.St
    * Useful when the field state is controlled by an external library.
    */
   touched?: boolean;
+  /**
+   * A ref to imperative actions.
+   * - `validate`: Validates the field when called.
+   */
+  actionsRef?: React.RefObject<FieldRoot.Actions | null>;
 }
 
 export namespace FieldRoot {
   export type State = FieldRootState;
   export type Props = FieldRootProps;
+  export type Actions = FieldRootActions;
 }

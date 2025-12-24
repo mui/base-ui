@@ -917,4 +917,31 @@ describe('<Field.Root />', () => {
       });
     });
   });
+
+  describe('actionsRef', () => {
+    it('validates the field when the `validate` method is called', async () => {
+      function App() {
+        const actionsRef = React.useRef<Field.Root.Actions>(null);
+        return (
+          <div>
+            <Field.Root name="username" actionsRef={actionsRef}>
+              <Field.Control defaultValue="" required />
+              <Field.Error data-testid="error" />
+            </Field.Root>
+            <button type="button" onClick={() => actionsRef.current?.validate()}>
+              validate
+            </button>
+          </div>
+        );
+      }
+
+      const { user } = await render(<App />);
+
+      expect(screen.queryByTestId('error')).to.equal(null);
+
+      await user.click(screen.getByText('validate'));
+
+      expect(screen.queryByTestId('error')).to.not.equal(null);
+    });
+  });
 });

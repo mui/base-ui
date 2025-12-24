@@ -260,4 +260,74 @@ describe('<Form />', () => {
       expect(screen.getByTestId('form')).not.to.have.attribute('novalidate');
     });
   });
+
+  describe('actionsRef', () => {
+    it('validates the form when the `validate` method is called', async () => {
+      function App() {
+        const actionsRef = React.useRef<Form.Actions>(null);
+        return (
+          <div>
+            <Form actionsRef={actionsRef}>
+              <Field.Root name="username">
+                <Field.Control defaultValue="" required />
+                <Field.Error data-testid="error" />
+              </Field.Root>
+              <Field.Root name="quantity" validate={() => 'error'}>
+                <NumberField.Root defaultValue={5}>
+                  <NumberField.Input />
+                </NumberField.Root>
+                <Field.Error data-testid="error" />
+              </Field.Root>
+              <button type="submit">submit</button>
+            </Form>
+            <button type="button" onClick={() => actionsRef.current?.validate()}>
+              validate
+            </button>
+          </div>
+        );
+      }
+
+      const { user } = await render(<App />);
+
+      expect(screen.queryByTestId('error')).to.equal(null);
+
+      await user.click(screen.getByText('validate'));
+
+      await expect(screen.queryAllByTestId('error').length).to.equal(2);
+    });
+  });
+
+  it('validates a field when the `validate` method is called with the field name', async () => {
+    function App() {
+      const actionsRef = React.useRef<Form.Actions>(null);
+      return (
+        <div>
+          <Form actionsRef={actionsRef}>
+            <Field.Root name="username">
+              <Field.Control defaultValue="" required />
+              <Field.Error data-testid="error" />
+            </Field.Root>
+            <Field.Root name="quantity" validate={() => 'number field error'}>
+              <NumberField.Root defaultValue={5}>
+                <NumberField.Input />
+              </NumberField.Root>
+              <Field.Error data-testid="error" />
+            </Field.Root>
+            <button type="submit">submit</button>
+          </Form>
+          <button type="button" onClick={() => actionsRef.current?.validate('quantity')}>
+            validate
+          </button>
+        </div>
+      );
+    }
+
+    const { user } = await render(<App />);
+
+    expect(screen.queryByTestId('error')).to.equal(null);
+
+    await user.click(screen.getByText('validate'));
+
+    await expect(screen.queryByTestId('error')).to.have.text('number field error');
+  });
 });
