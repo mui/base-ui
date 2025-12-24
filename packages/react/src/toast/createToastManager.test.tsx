@@ -201,6 +201,110 @@ describe('Manager', () => {
 
       expect(screen.getByTestId('title')).to.have.text('updated');
     });
+
+    it('auto-dismisses when updating timeout from 0 to a positive value', async () => {
+      const toastManager = Toast.createToastManager();
+
+      let toastId: string;
+
+      function add() {
+        toastId = toastManager.add({
+          title: 'title',
+          timeout: 0,
+        });
+      }
+
+      function update() {
+        toastManager.update(toastId, {
+          timeout: 1000,
+        });
+      }
+
+      function Buttons() {
+        return (
+          <React.Fragment>
+            <button type="button" onClick={add}>
+              add
+            </button>
+            <button type="button" onClick={update}>
+              update method
+            </button>
+          </React.Fragment>
+        );
+      }
+
+      await render(
+        <Toast.Provider toastManager={toastManager}>
+          <Toast.Viewport>
+            <List />
+          </Toast.Viewport>
+          <Buttons />
+        </Toast.Provider>,
+      );
+
+      fireEvent.click(screen.getByRole('button', { name: 'add' }));
+      expect(screen.queryByTestId('title')).not.to.equal(null);
+
+      fireEvent.click(screen.getByRole('button', { name: 'update method' }));
+      clock.tick(1000);
+      await flushMicrotasks();
+
+      expect(screen.queryByTestId('title')).to.equal(null);
+    });
+
+    it('schedules a timer when updating a loading toast to a non-loading type', async () => {
+      const toastManager = Toast.createToastManager();
+
+      let toastId: string;
+
+      function add() {
+        toastId = toastManager.add({
+          title: 'loading',
+          type: 'loading',
+        });
+      }
+
+      function update() {
+        toastManager.update(toastId, {
+          title: 'success',
+          type: 'success',
+          timeout: 1000,
+        });
+      }
+
+      function Buttons() {
+        return (
+          <React.Fragment>
+            <button type="button" onClick={add}>
+              add
+            </button>
+            <button type="button" onClick={update}>
+              update method
+            </button>
+          </React.Fragment>
+        );
+      }
+
+      await render(
+        <Toast.Provider toastManager={toastManager}>
+          <Toast.Viewport>
+            <List />
+          </Toast.Viewport>
+          <Buttons />
+        </Toast.Provider>,
+      );
+
+      fireEvent.click(screen.getByRole('button', { name: 'add' }));
+      expect(screen.getByTestId('title')).to.have.text('loading');
+
+      fireEvent.click(screen.getByRole('button', { name: 'update method' }));
+      expect(screen.getByTestId('title')).to.have.text('success');
+
+      clock.tick(1000);
+      await flushMicrotasks();
+
+      expect(screen.queryByTestId('title')).to.equal(null);
+    });
   });
 
   describe('close', () => {
