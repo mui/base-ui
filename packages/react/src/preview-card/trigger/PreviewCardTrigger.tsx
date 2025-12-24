@@ -5,6 +5,7 @@ import { usePreviewCardRootContext } from '../root/PreviewCardContext';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
 import { useRenderElement } from '../../utils/useRenderElement';
+import { getInlineRectHoverCoords } from '../../utils/popups';
 
 /**
  * A link that opens the preview card.
@@ -18,7 +19,8 @@ export const PreviewCardTrigger = React.forwardRef(function PreviewCardTrigger(
 ) {
   const { render, className, delay, closeDelay, ...elementProps } = componentProps;
 
-  const { open, triggerProps, setTriggerElement, writeDelayRefs } = usePreviewCardRootContext();
+  const { open, triggerProps, setTriggerElement, writeDelayRefs, inlineRectCoordsRef } =
+    usePreviewCardRootContext();
 
   useIsoLayoutEffect(() => {
     writeDelayRefs({ delay, closeDelay });
@@ -29,7 +31,21 @@ export const PreviewCardTrigger = React.forwardRef(function PreviewCardTrigger(
   const element = useRenderElement('a', componentProps, {
     ref: [setTriggerElement, forwardedRef],
     state,
-    props: [triggerProps, elementProps],
+    props: [
+      triggerProps,
+      {
+        onFocus() {
+          inlineRectCoordsRef.current = undefined;
+        },
+        onMouseMove(event: React.MouseEvent<Element>) {
+          if (open) {
+            return;
+          }
+          inlineRectCoordsRef.current = getInlineRectHoverCoords(event);
+        },
+      },
+      elementProps,
+    ],
     stateAttributesMapping: triggerOpenStateMapping,
   });
 

@@ -8,6 +8,7 @@ import { popupStateMapping } from '../../utils/popupStateMapping';
 import { usePreviewCardPortalContext } from '../portal/PreviewCardPortalContext';
 import { POPUP_COLLISION_AVOIDANCE } from '../../utils/constants';
 import { useRenderElement } from '../../utils/useRenderElement';
+import { createInlineMiddleware } from '../../utils/popups';
 
 /**
  * Positions the popup against the trigger.
@@ -37,7 +38,8 @@ export const PreviewCardPositioner = React.forwardRef(function PreviewCardPositi
     ...elementProps
   } = componentProps;
 
-  const { open, mounted, floatingRootContext, setPositionerElement } = usePreviewCardRootContext();
+  const { open, mounted, floatingRootContext, setPositionerElement, inlineRectCoordsRef } =
+    usePreviewCardRootContext();
   const keepMounted = usePreviewCardPortalContext();
 
   const positioning = useAnchorPositioning({
@@ -56,6 +58,7 @@ export const PreviewCardPositioner = React.forwardRef(function PreviewCardPositi
     disableAnchorTracking,
     keepMounted,
     collisionAvoidance,
+    inline: createInlineMiddleware(inlineRectCoordsRef),
   });
 
   const defaultProps: HTMLProps = React.useMemo(() => {

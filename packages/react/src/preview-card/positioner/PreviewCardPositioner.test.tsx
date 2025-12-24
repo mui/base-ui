@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { PreviewCard } from '@base-ui/react/preview-card';
-import { screen } from '@mui/internal-test-utils';
+import { screen, waitFor } from '@mui/internal-test-utils';
 import { expect } from 'chai';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 
@@ -257,6 +257,75 @@ describe('<PreviewCard.Positioner />', () => {
 
       // correctly flips the side in the browser
       expect(side).to.equal('inline-end');
+    });
+  });
+
+  describe.skipIf(isJSDOM)('multiline inline trigger', () => {
+    it('positions the popup relative to the hovered line of a multiline trigger', async () => {
+      const { user } = await render(
+        <div>
+          <PreviewCard.Root>
+            <PreviewCard.Trigger
+              delay={0}
+              data-testid="trigger"
+              style={{ display: 'inline', width: 100, lineHeight: 20 }}
+            >
+              This is a long text that will wrap across multiple lines in the trigger element
+            </PreviewCard.Trigger>
+            <PreviewCard.Portal>
+              <PreviewCard.Positioner data-testid="positioner" sideOffset={5}>
+                <PreviewCard.Popup style={{ width: 80, height: 40 }}>
+                  Preview Content
+                </PreviewCard.Popup>
+              </PreviewCard.Positioner>
+            </PreviewCard.Portal>
+          </PreviewCard.Root>
+        </div>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+      const triggerRects = trigger.getClientRects();
+
+      expect(triggerRects.length).to.be.greaterThan(1);
+
+      // Hover over the second line (need to move mouse first to capture the rect)
+      const secondLineRect = triggerRects[1];
+      const secondLineCenterX = secondLineRect.left + secondLineRect.width / 2;
+      const secondLineCenterY = secondLineRect.top + secondLineRect.height / 2;
+
+      // Move mouse to trigger the onMouseMove handler before hovering
+      await user.pointer([
+        { target: document.body },
+        {
+          target: trigger,
+          coords: { clientX: secondLineCenterX, clientY: secondLineCenterY },
+        },
+      ]);
+
+      await user.hover(trigger);
+
+      const positioner = screen.getByTestId('positioner');
+      await waitFor(() => {
+        expect(positioner).toBeVisible();
+      });
+
+      const positionerTransform = positioner.style.transform;
+      const match = positionerTransform.match(/translate\(([\d.]+)px,\s*([\d.]+)px\)/);
+      expect(match).not.to.equal(null);
+
+      const positionerX = parseFloat(match![1]);
+      const positionerY = parseFloat(match![2]);
+
+      // The positioner should be positioned relative to the second line,
+      // not the first line or the bounding client rect.
+      // y-coordinate should be close to the second line's bottom + sideOffset
+      const expectedY = secondLineRect.bottom + 5;
+
+      expect(positionerY).to.be.closeTo(expectedY, 2);
+
+      // x-coordinate should also be relative to where we hovered on the second line
+      expect(positionerX).to.be.greaterThanOrEqual(secondLineRect.left - 10);
+      expect(positionerX).to.be.lessThanOrEqual(secondLineRect.right + 10);
     });
   });
 });
