@@ -12,7 +12,6 @@ import remarkTypography from 'remark-typography';
 import { rehypeQuickNav } from 'docs/src/components/QuickNav/rehypeQuickNav.mjs';
 import { rehypeConcatHeadings } from 'docs/src/components/QuickNav/rehypeConcatHeadings.mjs';
 import { rehypeKbd } from 'docs/src/components/Kbd/rehypeKbd.mjs';
-import { rehypeReference } from 'docs/src/components/ReferenceTable/rehypeReference.mjs';
 import { rehypeSyntaxHighlighting } from 'docs/src/syntax-highlighting/index.mjs';
 import { rehypeSlug } from 'docs/src/components/QuickNav/rehypeSlug.mjs';
 import { rehypeSubtitle } from 'docs/src/components/Subtitle/rehypeSubtitle.mjs';
@@ -46,7 +45,6 @@ const withMdx = nextMdx({
       transformMarkdownRelativePaths,
     ],
     rehypePlugins: [
-      rehypeReference,
       ...rehypeSyntaxHighlighting,
       rehypeSlug,
       rehypeConcatHeadings,
