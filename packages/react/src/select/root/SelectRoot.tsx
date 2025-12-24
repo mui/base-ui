@@ -194,8 +194,8 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
   }, [store, value]);
 
   useIsoLayoutEffect(() => {
-    setFilled(value !== null);
-  }, [value, setFilled]);
+    setFilled(multiple && Array.isArray(value) ? value.length > 0 : value !== null);
+  }, [value, multiple, setFilled]);
 
   useIsoLayoutEffect(
     function syncSelectedIndex() {
