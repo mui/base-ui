@@ -8,6 +8,7 @@ import { expect } from 'chai';
 import { spy } from 'sinon';
 import { createRenderer, isJSDOM, popupConformanceTests, wait } from '#test-utils';
 import { OPEN_DELAY } from '../utils/constants';
+import { PATIENT_CLICK_THRESHOLD } from '../../utils/constants';
 
 describe('<Popover.Root />', () => {
   beforeEach(() => {
@@ -824,6 +825,37 @@ describe('<Popover.Root />', () => {
         const positioner = screen.getByTestId('positioner');
 
         expect(positioner.previousElementSibling).to.equal(null);
+      });
+
+      describe('with openOnHover', () => {
+        clock.withFakeTimers();
+
+        it('enables modal behavior after a hover-open is clicked', async () => {
+          await render(
+            <TestPopover
+              rootProps={{ modal: true }}
+              triggerProps={{ openOnHover: true, delay: 0 }}
+            />,
+          );
+
+          const trigger = screen.getByRole('button', { name: 'Toggle' });
+
+          fireEvent.mouseEnter(trigger);
+          fireEvent.mouseMove(trigger);
+
+          await flushMicrotasks();
+          expect(screen.queryByRole('dialog')).not.to.equal(null);
+
+          const positioner = screen.getByTestId('positioner');
+          expect(positioner.previousElementSibling).to.equal(null);
+
+          clock.tick(PATIENT_CLICK_THRESHOLD - 1);
+          fireEvent.click(trigger);
+
+          await flushMicrotasks();
+
+          expect(positioner.previousElementSibling).to.have.attribute('role', 'presentation');
+        });
       });
     });
 
