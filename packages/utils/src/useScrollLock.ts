@@ -20,6 +20,33 @@ function hasInsetScrollbars(referenceElement: Element | null) {
   return win.innerWidth - doc.documentElement.clientWidth > 0;
 }
 
+function supportsStableScrollbarGutter(referenceElement: Element | null) {
+  const supported =
+    typeof CSS !== 'undefined' && CSS.supports && CSS.supports('scrollbar-gutter', 'stable');
+
+  if (!supported || typeof document === 'undefined') {
+    return false;
+  }
+
+  const doc = ownerDocument(referenceElement);
+  const html = doc.documentElement;
+
+  const originalStyles = {
+    scrollbarGutter: html.style.scrollbarGutter,
+    overflowY: html.style.overflowY,
+  };
+
+  html.style.scrollbarGutter = 'stable';
+  html.style.overflowY = 'scroll';
+  const before = html.offsetWidth;
+
+  html.style.overflowY = 'hidden';
+  const after = html.offsetWidth;
+
+  Object.assign(html.style, originalStyles);
+  return before === after;
+}
+
 function preventScrollOverlayScrollbars(referenceElement: Element | null) {
   const doc = ownerDocument(referenceElement);
   const html = doc.documentElement;
@@ -45,11 +72,8 @@ function preventScrollInsetScrollbars(referenceElement: Element | null) {
 
   let scrollTop = 0;
   let scrollLeft = 0;
+  let updatedGutterOnly = false;
   const resizeFrame = AnimationFrame.create();
-
-  // Handle `scrollbar-gutter` in Chrome when there is no scrollable content.
-  const supportsStableScrollbarGutter =
-    typeof CSS !== 'undefined' && CSS.supports?.('scrollbar-gutter', 'stable');
 
   // Pinch-zoom in Safari causes a shift. Just don't lock scroll if there's any pinch-zoom.
   if (isWebKit && (win.visualViewport?.scale ?? 1) !== 1) {
@@ -93,8 +117,8 @@ function preventScrollInsetScrollbars(referenceElement: Element | null) {
       htmlStyles.overflowX === 'scroll' || bodyStyles.overflowX === 'scroll';
 
     // Values can be negative in Firefox
-    const scrollbarWidth = Math.max(0, win.innerWidth - html.clientWidth);
-    const scrollbarHeight = Math.max(0, win.innerHeight - html.clientHeight);
+    const scrollbarWidth = Math.max(0, win.innerWidth - body.clientWidth);
+    const scrollbarHeight = Math.max(0, win.innerHeight - body.clientHeight);
 
     // Avoid shift due to the default <body> margin. This does cause elements to be clipped
     // with whitespace. Warn if <body> has margins?
@@ -107,13 +131,15 @@ function preventScrollInsetScrollbars(referenceElement: Element | null) {
      * Do not read the DOM past this point!
      */
 
-    if (supportsStableScrollbarGutter) {
+    if (supportsStableScrollbarGutter(referenceElement)) {
+      updatedGutterOnly = true;
       html.style.scrollbarGutter = scrollbarGutterValue;
       elementToLock.style.overflowY = 'hidden';
       elementToLock.style.overflowX = 'hidden';
       return;
     }
 
+    updatedGutterOnly = false;
     Object.assign(html.style, {
       scrollbarGutter: scrollbarGutterValue,
       overflowY: 'hidden',
@@ -147,7 +173,7 @@ function preventScrollInsetScrollbars(referenceElement: Element | null) {
     Object.assign(html.style, originalHtmlStyles);
     Object.assign(body.style, originalBodyStyles);
 
-    if (!supportsStableScrollbarGutter) {
+    if (!updatedGutterOnly) {
       html.scrollTop = scrollTop;
       html.scrollLeft = scrollLeft;
       html.removeAttribute('data-base-ui-scroll-locked');
