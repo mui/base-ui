@@ -32,19 +32,20 @@ Represents the checkbox itself. Renders a `<span>` element and a hidden `<input>
 
 **Root Data Attributes:**
 
-| Attribute      | Type    | Description                                                                   |
-| :------------- | :------ | :---------------------------------------------------------------------------- |
-| data-checked   | -       | Present when the checkbox is checked.                                         |
-| data-unchecked | -       | Present when the checkbox is not checked.                                     |
-| data-disabled  | -       | Present when the checkbox is disabled.                                        |
-| data-readonly  | -       | Present when the checkbox is readonly.                                        |
-| data-required  | -       | Present when the checkbox is required.                                        |
-| data-valid     | -       | Present when the checkbox is in valid state (when wrapped in Field.Root).     |
-| data-invalid   | -       | Present when the checkbox is in invalid state (when wrapped in Field.Root).   |
-| data-dirty     | -       | Present when the checkbox's value has changed (when wrapped in Field.Root).   |
-| data-touched   | -       | Present when the checkbox has been touched (when wrapped in Field.Root).      |
-| data-filled    | -       | Present when the checkbox is checked (when wrapped in Field.Root).            |
-| data-focused   | -       | Present when the checkbox is focused (when wrapped in Field.Root).            |
+| Attribute             | Type    | Description                                                                   |
+| :-------------------- | :------ | :---------------------------------------------------------------------------- |
+| data-checked          | -       | Present when the checkbox is checked.                                         |
+| data-unchecked        | -       | Present when the checkbox is not checked.                                     |
+| data-disabled         | -       | Present when the checkbox is disabled.                                        |
+| data-readonly         | -       | Present when the checkbox is readonly.                                        |
+| data-required         | -       | Present when the checkbox is required.                                        |
+| data-valid            | -       | Present when the checkbox is in valid state (when wrapped in Field.Root).     |
+| data-invalid          | -       | Present when the checkbox is in invalid state (when wrapped in Field.Root).   |
+| data-dirty            | -       | Present when the checkbox's value has changed (when wrapped in Field.Root).   |
+| data-touched          | -       | Present when the checkbox has been touched (when wrapped in Field.Root).      |
+| data-filled           | -       | Present when the checkbox is checked (when wrapped in Field.Root).            |
+| data-focused          | -       | Present when the checkbox is focused (when wrapped in Field.Root).            |
+| data-indeterminate    | -       | Present when the checkbox is in an indeterminate state.                       |
 
 ### Root.Props
 
@@ -115,6 +116,7 @@ Indicates whether the checkbox is ticked. Renders a `<span>` element.
 | data-touched          | -       | Present when the checkbox has been touched (when wrapped in Field.Root).      |
 | data-filled           | -       | Present when the checkbox is checked (when wrapped in Field.Root).            |
 | data-focused          | -       | Present when the checkbox is focused (when wrapped in Field.Root).            |
+| data-indeterminate    | -       | Present when the checkbox is in an indeterminate state.                       |
 | data-starting-style   | -       | Present when the checkbox indicator is animating in.                          |
 | data-ending-style     | -       | Present when the checkbox indicator is animating out.                         |
 

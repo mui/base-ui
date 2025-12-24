@@ -238,3 +238,32 @@ Re-export of [Corner](#corner) props.
 ```typescript
 type ScrollAreaCornerState = {};
 ```
+
+### Coords
+
+```typescript
+type ScrollAreaCoords = { x: number; y: number };
+```
+
+### HiddenState
+
+```typescript
+type ScrollAreaHiddenState = { x: boolean; y: boolean; corner: boolean };
+```
+
+### OverflowEdges
+
+```typescript
+type ScrollAreaOverflowEdges = {
+  xStart: boolean;
+  xEnd: boolean;
+  yStart: boolean;
+  yEnd: boolean;
+};
+```
+
+### Size
+
+```typescript
+type ScrollAreaSize = { width: number; height: number };
+```

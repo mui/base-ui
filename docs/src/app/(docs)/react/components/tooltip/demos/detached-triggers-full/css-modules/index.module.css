@@ -172,14 +172,18 @@
   overflow: clip;
   padding: 0.25rem var(--viewport-inline-padding);
 
-  & [data-previous],
-  & [data-current] {
+  [data-previous],
+  [data-current] {
     width: calc(var(--popup-width) - 2 * var(--viewport-inline-padding));
     translate: 0;
     opacity: 1;
     transition:
       translate 350ms cubic-bezier(0.22, 1, 0.36, 1),
       opacity 175ms cubic-bezier(0.22, 1, 0.36, 1);
+
+    [data-instant] & {
+      transition: none;
+    }
   }
 
   &[data-activation-direction~='left'] [data-current][data-starting-style] {
@@ -190,11 +194,6 @@
   &[data-activation-direction~='right'] [data-current][data-starting-style] {
     translate: 50% 0;
     opacity: 0;
-  }
-
-  [data-instant] & [data-previous],
-  [data-instant] & [data-current] {
-    transition: none;
   }
 
   &[data-activation-direction~='left'] [data-previous][data-ending-style] {
