@@ -8,6 +8,8 @@ import { popupStateMapping } from '../../utils/popupStateMapping';
 import { usePreviewCardPortalContext } from '../portal/PreviewCardPortalContext';
 import { POPUP_COLLISION_AVOIDANCE } from '../../utils/constants';
 import { useRenderElement } from '../../utils/useRenderElement';
+import { adaptiveOrigin } from '../../utils/adaptiveOriginMiddleware';
+import { getDisabledMountTransitionStyles } from '../../utils/getDisabledMountTransitionStyles';
 
 /**
  * Positions the popup against the trigger.
@@ -37,8 +39,14 @@ export const PreviewCardPositioner = React.forwardRef(function PreviewCardPositi
     ...elementProps
   } = componentProps;
 
-  const { open, mounted, floatingRootContext, setPositionerElement } = usePreviewCardRootContext();
+  const store = usePreviewCardRootContext();
   const keepMounted = usePreviewCardPortalContext();
+
+  const open = store.useState('open');
+  const mounted = store.useState('mounted');
+  const floatingRootContext = store.useState('floatingRootContext');
+  const instantType = store.useState('instantType');
+  const transitionStatus = store.useState('transitionStatus');
 
   const positioning = useAnchorPositioning({
     anchor,
@@ -56,6 +64,7 @@ export const PreviewCardPositioner = React.forwardRef(function PreviewCardPositi
     disableAnchorTracking,
     keepMounted,
     collisionAvoidance,
+    adaptiveOrigin,
   });
 
   const defaultProps: HTMLProps = React.useMemo(() => {
@@ -81,8 +90,9 @@ export const PreviewCardPositioner = React.forwardRef(function PreviewCardPositi
       side: positioning.side,
       align: positioning.align,
       anchorHidden: positioning.anchorHidden,
+      instant: instantType,
     }),
-    [open, positioning.side, positioning.align, positioning.anchorHidden],
+    [open, positioning.side, positioning.align, positioning.anchorHidden, instantType],
   );
 
   const contextValue: PreviewCardPositionerContext = React.useMemo(
@@ -104,8 +114,8 @@ export const PreviewCardPositioner = React.forwardRef(function PreviewCardPositi
 
   const element = useRenderElement('div', componentProps, {
     state,
-    ref: [setPositionerElement, forwardedRef],
-    props: [defaultProps, elementProps],
+    props: [defaultProps, getDisabledMountTransitionStyles(transitionStatus), elementProps],
+    ref: [forwardedRef, store.useStateSetter('positionerElement')],
     stateAttributesMapping: popupStateMapping,
   });
 
@@ -124,6 +134,7 @@ export interface PreviewCardPositionerState {
   side: Side;
   align: Align;
   anchorHidden: boolean;
+  instant: 'dismiss' | 'focus' | undefined;
 }
 
 export interface PreviewCardPositionerProps
