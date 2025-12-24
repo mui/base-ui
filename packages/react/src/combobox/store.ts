@@ -4,6 +4,7 @@ import type { TransitionStatus } from '../utils/useTransitionStatus';
 import type { HTMLProps } from '../utils/types';
 import type { Side } from '../utils/useAnchorPositioning';
 import { compareItemEquality } from '../utils/itemEquality';
+import { hasNullItemLabel } from '../utils/resolveValueLabel';
 import type { AriaCombobox } from './root/AriaCombobox';
 
 export type State = {
@@ -98,6 +99,21 @@ export const selectors = {
   items: createSelector((state: State) => state.items),
 
   selectedValue: createSelector((state: State) => state.selectedValue),
+
+  hasSelectedValue: createSelector((state: State) => {
+    const { selectedValue, selectionMode } = state;
+    if (selectedValue == null) {
+      return false;
+    }
+    if (selectionMode === 'multiple' && Array.isArray(selectedValue)) {
+      return selectedValue.length > 0;
+    }
+    return true;
+  }),
+
+  hasNullItemLabel: createSelector((state: State, enabled: boolean) => {
+    return enabled ? hasNullItemLabel(state.items) : false;
+  }),
 
   open: createSelector((state: State) => state.open),
   mounted: createSelector((state: State) => state.mounted),

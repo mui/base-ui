@@ -69,6 +69,7 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
   const selectedValue = useStore(store, selectors.selectedValue);
   const activeIndex = useStore(store, selectors.activeIndex);
   const selectedIndex = useStore(store, selectors.selectedIndex);
+  const hasSelectedValue = useStore(store, selectors.hasSelectedValue);
 
   const floatingRootContext = useComboboxFloatingContext();
   const inputValue = useComboboxInputValueContext();
@@ -128,8 +129,9 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
       disabled,
       popupSide,
       listEmpty,
+      placeholder: !hasSelectedValue,
     }),
-    [fieldState, open, disabled, popupSide, listEmpty],
+    [fieldState, open, disabled, popupSide, listEmpty, hasSelectedValue],
   );
 
   const setTriggerElement = useStableCallback((element) => {
@@ -277,6 +279,10 @@ export interface ComboboxTriggerState extends FieldRoot.State {
    * Present when the corresponding items list is empty.
    */
   listEmpty: boolean;
+  /**
+   * Whether the combobox doesn't have a value.
+   */
+  placeholder: boolean;
 }
 
 export interface ComboboxTriggerProps
