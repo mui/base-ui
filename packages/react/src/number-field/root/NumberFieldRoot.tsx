@@ -517,6 +517,9 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
       {element}
       <input
         {...validation.getInputValidationProps({
+          onFocus() {
+            inputRef.current?.focus();
+          },
           onChange(event) {
             // Workaround for https://github.com/facebook/react/issues/9023
             if (event.nativeEvent.defaultPrevented) {
@@ -542,7 +545,10 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
         value={value ?? ''}
         min={min}
         max={max}
-        step={step}
+        // stepMismatch validation is broken unless an explicit `min` is added.
+        // See https://github.com/facebook/react/issues/12334.
+        // Use `any` to disable step validation unless the prop is explicitly provided.
+        step={min !== undefined ? (componentProps.step ?? 'any') : undefined}
         disabled={disabled}
         required={required}
         aria-hidden
