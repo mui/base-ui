@@ -125,10 +125,10 @@ import { DemoMenuSubmenu } from './demos/submenu';
 
 ### Navigate to another page
 
-Use the `render` prop to compose a menu item with an anchor element.
+Use the `<Menu.Link>` part to create a link.
 
 ```jsx title="A menu item that opens a link"
-<Menu.Item render={<a href="/projects">Go to Projects</a>} />
+<Menu.Link href="/projects">Go to Projects</<Menu.Link>
 ```
 
 ### Open a dialog

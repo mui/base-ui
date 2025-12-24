@@ -1,6 +1,8 @@
 'use client';
 import * as React from 'react';
 import { Menu } from '@base-ui/react/menu';
+import clsx from 'clsx';
+import NextLink from 'next/link';
 import {
   SettingsMetadata,
   useExperimentSettings,
@@ -62,6 +64,21 @@ export default function MenuFullyFeatured() {
               <Menu.Item className={classes.Item} onClick={handleItemClick}>
                 Item 2
               </Menu.Item>
+              <Menu.Link
+                render={<a href="https://base-ui.com">Link 1 (base-ui.com)</a>}
+                className={clsx(classes.Item, 'hover:cursor-pointer!')}
+              />
+              <Menu.Link
+                render={<a href="https://github.com">Link 2 (github.com)</a>}
+                className={clsx(classes.Item, 'hover:cursor-pointer!')}
+              />
+              <Menu.Link
+                render={<NextLink href="/experiments">Link 3 (/experiments)</NextLink>}
+                className={clsx(classes.Item, 'hover:cursor-pointer!')}
+              />
+              <Menu.Item className={classes.Item} onClick={handleItemClick}>
+                Item 3
+              </Menu.Item>
               <Menu.Separator className={classes.Separator} />
               <Menu.Item className={classes.Item} closeOnClick={false} onClick={handleItemClick}>
                 Item (close on click disabled)
@@ -80,7 +97,9 @@ export default function MenuFullyFeatured() {
                 <Menu.Portal>
                   <Menu.Positioner className={classes.Positioner} sideOffset={8}>
                     <Menu.Popup className={classes.Popup}>
-                      <div>Non-focusable text</div>
+                      <div className="flex items-center py-2 pl-7.5 text-xs">
+                        Non-focusable text
+                      </div>
                       <Menu.Group>
                         <Menu.GroupLabel className={classes.GroupLabel}>
                           Radio items
