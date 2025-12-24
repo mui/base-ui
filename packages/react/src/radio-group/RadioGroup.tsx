@@ -3,7 +3,7 @@ import * as React from 'react';
 import { useControlled } from '@base-ui/utils/useControlled';
 import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
-import { visuallyHidden } from '@base-ui/utils/visuallyHidden';
+import { visuallyHiddenInput } from '@base-ui/utils/visuallyHidden';
 import { NOOP } from '../utils/noop';
 import type { BaseUIComponentProps, HTMLProps } from '../utils/types';
 import { useBaseUiId } from '../utils/useBaseUiId';
@@ -166,7 +166,7 @@ export const RadioGroup = React.forwardRef(function RadioGroup(
       'aria-labelledby': elementProps['aria-labelledby'] ?? fieldsetContext?.legendId,
       'aria-hidden': true,
       tabIndex: -1,
-      style: visuallyHidden,
+      style: visuallyHiddenInput,
       onChange: NOOP, // suppress a Next.js error
       onFocus() {
         controlRef.current?.focus();

@@ -5,7 +5,7 @@ import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useOnFirstRender } from '@base-ui/utils/useOnFirstRender';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
-import { visuallyHidden } from '@base-ui/utils/visuallyHidden';
+import { visuallyHiddenInput } from '@base-ui/utils/visuallyHidden';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { Store, useStore } from '@base-ui/utils/store';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
@@ -1290,7 +1290,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
         readOnly={readOnly}
         value={serializedValue}
         ref={hiddenInputRef}
-        style={visuallyHidden}
+        style={visuallyHiddenInput}
         tabIndex={-1}
         aria-hidden
       />
