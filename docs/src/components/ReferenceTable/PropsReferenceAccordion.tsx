@@ -87,7 +87,7 @@ export function PropsReferenceAccordion({
                 {prop.required || prop.default === undefined ? (
                   <TableCode className="text-(--syntax-nullish)">—</TableCode>
                 ) : (
-                  prop.default
+                  <TableCode>{prop.default}</TableCode>
                 )}
               </Accordion.Scrollable>
               <span className="flex justify-center max-xs:ml-auto max-xs:mr-3">
