@@ -1,12 +1,12 @@
 import * as React from 'react';
 import clsx from 'clsx';
-import type { AttributeDef } from './types';
+import { ProcessedEnumMember } from '@mui/internal-docs-infra/useTypes';
 import * as Table from '../Table';
 import * as Accordion from '../Accordion';
 import { TableCode } from '../TableCode';
 
 interface AttributesReferenceTableProps extends React.ComponentProps<typeof Table.Root> {
-  data: Record<string, AttributeDef>;
+  data: Record<string, ProcessedEnumMember>;
 }
 
 export function AttributesReferenceTable({ data, ...props }: AttributesReferenceTableProps) {

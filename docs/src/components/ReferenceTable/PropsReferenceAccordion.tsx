@@ -1,15 +1,15 @@
 import * as React from 'react';
 import clsx from 'clsx';
 import { visuallyHidden } from '@base-ui/utils/visuallyHidden';
+import { ProcessedProperty } from '@mui/internal-docs-infra/useTypes';
 import { Link } from 'docs/src/components/Link';
 import * as Accordion from '../Accordion';
 import * as DescriptionList from '../DescriptionList';
-import type { PropDef as BasePropDef } from './types';
 import { TableCode } from '../TableCode';
 import * as ReferenceTableTooltip from './ReferenceTableTooltip';
 
 interface Props extends React.ComponentPropsWithoutRef<any> {
-  data: Record<string, BasePropDef>;
+  data: Record<string, ProcessedProperty>;
   type?: 'props' | 'return';
   name: string;
   // When reusing a component's reference for another component,
