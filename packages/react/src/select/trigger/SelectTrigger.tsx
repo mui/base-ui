@@ -161,7 +161,12 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
           store.set('forceMount', true);
         });
       },
-      onBlur() {
+      onBlur(event) {
+        // If focus is moving into the popup, don't count it as a blur.
+        if (contains(positionerElement, event.relatedTarget)) {
+          return;
+        }
+
         setTouched(true);
         setFocused(false);
 
