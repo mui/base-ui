@@ -1,15 +1,13 @@
 'use client';
 import * as React from 'react';
+import { useStore } from '@base-ui/utils/store';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
-import {
-  useComboboxDerivedItemsContext,
-  useComboboxRootContext,
-} from '../root/ComboboxRootContext';
+import { useComboboxRootContext } from '../root/ComboboxRootContext';
+import { selectors } from '../store';
 
 /**
  * Renders its children only when the list is empty.
- * Requires the `items` prop on the root component.
  * Announces changes politely to screen readers.
  * Renders a `<div>` element.
  */
@@ -19,10 +17,10 @@ export const ComboboxEmpty = React.forwardRef(function ComboboxEmpty(
 ) {
   const { render, className, children: childrenProp, ...elementProps } = componentProps;
 
-  const { filteredItems } = useComboboxDerivedItemsContext();
   const store = useComboboxRootContext();
+  const visibleItemCount = useStore(store, selectors.visibleItemCount);
 
-  const children = filteredItems.length === 0 ? childrenProp : null;
+  const children = visibleItemCount === 0 ? childrenProp : null;
 
   return useRenderElement('div', componentProps, {
     ref: [forwardedRef, store.state.emptyRef],
