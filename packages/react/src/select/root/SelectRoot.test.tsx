@@ -1488,6 +1488,73 @@ describe('<Select.Root />', () => {
 
         expect(trigger).to.have.attribute('data-filled');
       });
+
+      describe('on multiple selects', () => {
+        it('adds [data-filled] attribute when at least one item is selected', async () => {
+          const { user } = await renderFakeTimers(
+            <Field.Root>
+              <Select.Root multiple>
+                <Select.Trigger data-testid="trigger" />
+                <Select.Portal>
+                  <Select.Positioner>
+                    <Select.Popup>
+                      <Select.Item value="">Select</Select.Item>
+                      <Select.Item value="1">Option 1</Select.Item>
+                      <Select.Item value="2">Option 2</Select.Item>
+                      <Select.Item value="3">Option 3</Select.Item>
+                    </Select.Popup>
+                  </Select.Positioner>
+                </Select.Portal>
+              </Select.Root>
+            </Field.Root>,
+          );
+
+          const trigger = screen.getByTestId('trigger');
+          expect(trigger).not.to.have.attribute('data-filled');
+
+          await user.click(trigger);
+
+          await flushMicrotasks();
+          clock.tick(200);
+
+          const option = screen.getByRole('option', { name: 'Option 1' });
+
+          // Arrow Down to focus the Option 1
+          await user.keyboard('{ArrowDown}');
+          await user.click(option);
+          await flushMicrotasks();
+
+          expect(trigger).to.have.attribute('data-filled', '');
+          await flushMicrotasks();
+
+          const select = screen.getByRole('listbox');
+          expect(select).not.to.have.attribute('data-filled');
+        });
+
+        it('adds [data-filled] attribute when already filled', async () => {
+          await renderFakeTimers(
+            <Field.Root>
+              <Select.Root multiple defaultValue={['1']}>
+                <Select.Trigger data-testid="trigger" />
+                <Select.Portal>
+                  <Select.Positioner>
+                    <Select.Popup>
+                      <Select.Item value="">Select</Select.Item>
+                      <Select.Item value="1">Option 1</Select.Item>
+                      <Select.Item value="2">Option 2</Select.Item>
+                      <Select.Item value="3">Option 3</Select.Item>
+                    </Select.Popup>
+                  </Select.Positioner>
+                </Select.Portal>
+              </Select.Root>
+            </Field.Root>,
+          );
+
+          const trigger = screen.getByTestId('trigger');
+
+          expect(trigger).to.have.attribute('data-filled');
+        });
+      });
     });
 
     it('[data-focused]', async () => {
