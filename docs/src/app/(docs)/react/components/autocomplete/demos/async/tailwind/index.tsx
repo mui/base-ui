@@ -4,74 +4,76 @@ import { Autocomplete } from '@base-ui/react/autocomplete';
 
 export default function ExampleAsyncAutocomplete() {
   const [searchValue, setSearchValue] = React.useState('');
-  const [isLoading, setIsLoading] = React.useState(false);
   const [searchResults, setSearchResults] = React.useState<Movie[]>([]);
   const [error, setError] = React.useState<string | null>(null);
 
-  const { contains } = Autocomplete.useFilter({ sensitivity: 'base' });
+  const [isPending, startTransition] = React.useTransition();
 
-  React.useEffect(() => {
-    if (!searchValue) {
-      setSearchResults([]);
-      setIsLoading(false);
-      return undefined;
+  const { contains } = Autocomplete.useFilter();
+
+  const abortControllerRef = React.useRef<AbortController | null>(null);
+
+  function getStatus(): React.ReactNode | null {
+    if (isPending) {
+      return (
+        <React.Fragment>
+          <div
+            className="size-4 rounded-full border-2 border-gray-200 border-t-gray-600 animate-spin"
+            aria-hidden
+          />
+          Searching...
+        </React.Fragment>
+      );
     }
 
-    setIsLoading(true);
-    setError(null);
-
-    let ignore = false;
-
-    async function fetchMovies() {
-      try {
-        const results = await searchMovies(searchValue, contains);
-        if (!ignore) {
-          setSearchResults(results);
-        }
-      } catch (err) {
-        if (!ignore) {
-          setError('Failed to fetch movies. Please try again.');
-          setSearchResults([]);
-        }
-      } finally {
-        if (!ignore) {
-          setIsLoading(false);
-        }
-      }
+    if (error) {
+      return error;
     }
 
-    const timeoutId = setTimeout(fetchMovies, 300);
+    if (searchValue === '') {
+      return null;
+    }
 
-    return () => {
-      clearTimeout(timeoutId);
-      ignore = true;
-    };
-  }, [searchValue, contains]);
+    if (searchResults.length === 0) {
+      return `Movie or year "${searchValue}" does not exist in the Top 100 IMDb movies`;
+    }
 
-  let status: React.ReactNode = `${searchResults.length} result${searchResults.length === 1 ? '' : 's'} found`;
-  if (isLoading) {
-    status = (
-      <React.Fragment>
-        <div
-          className="size-4 rounded-full border-2 border-gray-200 border-t-gray-600 animate-spin"
-          aria-hidden
-        />
-        Searching...
-      </React.Fragment>
-    );
-  } else if (error) {
-    status = error;
-  } else if (searchResults.length === 0 && searchValue) {
-    status = `Movie or year "${searchValue}" does not exist in the Top 100 IMDb movies`;
+    return `${searchResults.length} result${searchResults.length === 1 ? '' : 's'} found`;
   }
 
-  const shouldRenderPopup = searchValue !== '';
+  const status = getStatus();
 
   return (
     <Autocomplete.Root
       items={searchResults}
       value={searchValue}
-      onValueChange={setSearchValue}
+      onValueChange={(nextSearchValue) => {
+        setSearchValue(nextSearchValue);
+
+        const controller = new AbortController();
+        abortControllerRef.current?.abort();
+        abortControllerRef.current = controller;
+
+        if (nextSearchValue === '') {
+          setSearchResults([]);
+          setError(null);
+          return;
+        }
+
+        startTransition(async () => {
+          setError(null);
+
+          const result = await searchMovies(nextSearchValue, contains);
+          if (controller.signal.aborted) {
+            return;
+          }
+
+          startTransition(() => {
+            setSearchResults(result.movies);
+            setError(result.error);
+          });
+        });
+      }}
       itemToStringValue={(item) => item.title}
       filter={null}
     >
@@ -83,34 +85,34 @@ export default function ExampleAsyncAutocomplete() {
         />
       </label>
 
-      {shouldRenderPopup && (
-        <Autocomplete.Portal>
-          <Autocomplete.Positioner className="outline-none" sideOffset={4} align="start">
-            <Autocomplete.Popup
-              className="w-[var(--anchor-width)] max-h-[min(var(--available-height),23rem)] max-w-[var(--available-width)] overflow-y-auto scroll-pt-2 scroll-pb-2 overscroll-contain rounded-md bg-[canvas] py-2 text-gray-900 shadow-lg shadow-gray-200 outline-1 outline-gray-200 dark:shadow-none dark:-outline-offset-1 dark:outline-gray-300"
-              aria-busy={isLoading || undefined}
-            >
+      <Autocomplete.Portal>
+        <Autocomplete.Positioner className="outline-none" sideOffset={4} align="start">
+          <Autocomplete.Popup
+            className="w-[var(--anchor-width)] max-h-[min(var(--available-height),23rem)] max-w-[var(--available-width)] overflow-y-auto scroll-pt-2 scroll-pb-2 overscroll-contain rounded-md bg-[canvas] py-2 text-gray-900 shadow-lg shadow-gray-200 outline-1 outline-gray-200 dark:shadow-none dark:-outline-offset-1 dark:outline-gray-300"
+            aria-busy={isPending || undefined}
+          >
+            {status && (
               <Autocomplete.Status className="flex items-center gap-2 py-1 pl-4 pr-8 text-sm text-gray-600">
                 {status}
               </Autocomplete.Status>
-              <Autocomplete.List>
-                {(movie: Movie) => (
-                  <Autocomplete.Item
-                    key={movie.id}
-                    className="flex cursor-default py-2 pr-8 pl-4 text-base leading-4 outline-none select-none data-[highlighted]:relative data-[highlighted]:z-0 data-[highlighted]:text-gray-50 data-[highlighted]:before:absolute data-[highlighted]:before:inset-x-2 data-[highlighted]:before:inset-y-0 data-[highlighted]:before:z-[-1] data-[highlighted]:before:rounded data-[highlighted]:before:bg-gray-900"
-                    value={movie}
-                  >
-                    <div className="flex w-full flex-col gap-1">
-                      <div className="font-medium leading-5">{movie.title}</div>
-                      <div className="text-sm leading-4 opacity-80">{movie.year}</div>
-                    </div>
-                  </Autocomplete.Item>
-                )}
-              </Autocomplete.List>
-            </Autocomplete.Popup>
-          </Autocomplete.Positioner>
-        </Autocomplete.Portal>
-      )}
+            )}
+            <Autocomplete.List>
+              {(movie: Movie) => (
+                <Autocomplete.Item
+                  key={movie.id}
+                  className="flex cursor-default py-2 pr-8 pl-4 text-base leading-4 outline-none select-none data-[highlighted]:relative data-[highlighted]:z-0 data-[highlighted]:text-gray-50 data-[highlighted]:before:absolute data-[highlighted]:before:inset-x-2 data-[highlighted]:before:inset-y-0 data-[highlighted]:before:z-[-1] data-[highlighted]:before:rounded data-[highlighted]:before:bg-gray-900"
+                  value={movie}
+                >
+                  <div className="flex w-full flex-col gap-1">
+                    <div className="font-medium leading-5">{movie.title}</div>
+                    <div className="text-sm leading-4 opacity-80">{movie.year}</div>
+                  </div>
+                </Autocomplete.Item>
+              )}
+            </Autocomplete.List>
+          </Autocomplete.Popup>
+        </Autocomplete.Positioner>
+      </Autocomplete.Portal>
     </Autocomplete.Root>
   );
 }
@@ -118,7 +120,7 @@ export default function ExampleAsyncAutocomplete() {
 async function searchMovies(
   query: string,
   filter: (item: string, query: string) => boolean,
-): Promise<Movie[]> {
+): Promise<{ movies: Movie[]; error: string | null }> {
   // Simulate network delay
   await new Promise((resolve) => {
     setTimeout(resolve, Math.random() * 500 + 100);
@@ -126,12 +128,20 @@ async function searchMovies(
 
   // Simulate occasional network errors (1% chance)
   if (Math.random() < 0.01 || query === 'will_error') {
-    throw new Error('Network error');
+    return {
+      movies: [],
+      error: 'Failed to fetch movies. Please try again.',
+    };
   }
 
-  return top100Movies.filter(
+  const movies = top100Movies.filter(
     (movie) => filter(movie.title, query) || filter(movie.year.toString(), query),
   );
+
+  return {
+    movies,
+    error: null,
+  };
 }
 
 interface Movie {
