@@ -174,7 +174,7 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
   }, [isOpenedByThisTrigger, handleDocumentMouseUp, store]);
 
   const parentMenubarHasSubmenuOpen = parent.type === 'menubar' && parent.context.hasSubmenuOpen;
-  const openOnHover = openOnHoverProp ?? parentMenubarHasSubmenuOpen ?? false;
+  const openOnHover = openOnHoverProp ?? parentMenubarHasSubmenuOpen;
 
   const hoverProps = useHoverReferenceInteraction(floatingRootContext, {
     enabled:
