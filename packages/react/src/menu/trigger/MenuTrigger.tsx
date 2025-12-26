@@ -112,9 +112,10 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
     },
   );
 
+  const isInMenubar = parent.type === 'menubar';
+
   const rootDisabled = store.useState('disabled');
-  const disabled =
-    disabledProp || rootDisabled || (parent.type === 'menubar' && parent.context.disabled);
+  const disabled = disabledProp || rootDisabled || (isInMenubar && parent.context.disabled);
 
   const { getButtonProps, buttonRef } = useButton({
     disabled,
@@ -173,7 +174,7 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
     }
   }, [isOpenedByThisTrigger, handleDocumentMouseUp, store]);
 
-  const parentMenubarHasSubmenuOpen = parent.type === 'menubar' && parent.context.hasSubmenuOpen;
+  const parentMenubarHasSubmenuOpen = isInMenubar && parent.context.hasSubmenuOpen;
   const openOnHover = openOnHoverProp ?? parentMenubarHasSubmenuOpen ?? false;
 
   const hoverProps = useHoverReferenceInteraction(floatingRootContext, {
@@ -181,8 +182,8 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
       openOnHover &&
       !disabled &&
       parent.type !== 'context-menu' &&
-      (parent.type !== 'menubar' || (parentMenubarHasSubmenuOpen && !isMountedByThisTrigger)),
-    handleClose: safePolygon({ blockPointerEvents: parent.type !== 'menubar' }),
+      (!isInMenubar || (parentMenubarHasSubmenuOpen && !isMountedByThisTrigger)),
+    handleClose: safePolygon({ blockPointerEvents: !isInMenubar }),
     mouseOnly: true,
     move: false,
     restMs: parent.type === undefined ? delay : undefined,
@@ -199,27 +200,23 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
 
   const click = useClick(floatingRootContext, {
     enabled: !disabled && parent.type !== 'context-menu',
-    event: isOpenedByThisTrigger && parent.type === 'menubar' ? 'click' : 'mousedown',
+    event: isOpenedByThisTrigger && isInMenubar ? 'click' : 'mousedown',
     toggle: true,
     ignoreMouse: false,
     stickIfOpen: parent.type === undefined ? stickIfOpen : false,
   });
 
   const focus = useFocus(floatingRootContext, {
-    enabled:
-      !disabled &&
-      ((parent.type !== 'menubar' && isOpenedByThisTrigger) || parentMenubarHasSubmenuOpen),
+    enabled: !disabled && ((!isInMenubar && isOpenedByThisTrigger) || parentMenubarHasSubmenuOpen),
   });
 
   const mixedToggleHandlers = useMixedToggleClickHandler({
     open: isOpenedByThisTrigger,
-    enabled: parent.type === 'menubar',
+    enabled: isInMenubar,
     mouseDownAction: 'open',
   });
 
   const localInteractionProps = useInteractions([click, focus]);
-
-  const isInMenubar = parent.type === 'menubar';
 
   const state: MenuTrigger.State = React.useMemo(
     () => ({
