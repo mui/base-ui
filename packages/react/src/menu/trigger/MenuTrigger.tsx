@@ -194,7 +194,7 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
   });
 
   // Whether to ignore clicks to open the menu.
-  // `lastOpenChangeReason` doesnt't need to be reactive here, as we need to run this
+  // `lastOpenChangeReason` doesn't need to be reactive here, as we need to run this
   // only when `isOpenedByThisTrigger` changes.
   const stickIfOpen = useStickIfOpen(isOpenedByThisTrigger, store.select('lastOpenChangeReason'));
 
