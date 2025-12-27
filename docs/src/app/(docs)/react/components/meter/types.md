@@ -6,22 +6,23 @@
 
 ### Root
 
-Groups all parts of the meter and provides the value for screen readers. Renders a `<div>` element.
+Groups all parts of the meter and provides the value for screen readers.
+Renders a `<div>` element.
 
 **Root Props:**
 
-| Prop                  | Type                                                                              | Default   | Description                                                                                                                                                                              |
-| :-------------------- | :-------------------------------------------------------------------------------- | :-------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| value                 | `number`                                                                          | -         | The current value.                                                                                                                                                                       |
-| aria-valuetext        | `string`                                                                          | -         | A string value that provides a user-friendly name for `aria-valuenow`, the current value of the meter.                                                                                   |
-| getAriaValueText      | `((formattedValue: string, value: number) => string)`                             | -         | A function that returns a string value that provides a human-readable text alternative for `aria-valuenow`, the current value of the meter.                                              |
-| locale                | `IntlLocalesArgument`                                                             | -         | The locale used by `Intl.NumberFormat` when formatting the value. Defaults to the user's runtime locale.                                                                                 |
-| min                   | `number`                                                                          | `0`       | The minimum value                                                                                                                                                                        |
-| max                   | `number`                                                                          | `100`     | The maximum value                                                                                                                                                                        |
-| format                | `IntlNumberFormatOptions`                                                         | -         | Options to format the value.                                                                                                                                                             |
-| className             | `string \| ((state: Meter.Root.State) => string \| undefined)`                    | -         | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
-| style                 | `CSSProperties \| ((state: Meter.Root.State) => CSSProperties \| undefined)`      | -         | -                                                                                                                                                                                        |
-| render                | `ReactElement \| ((props: HTMLProps, state: Meter.Root.State) => ReactElement)`   | -         | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop                  | Type                                                                              | Default   | Description                                                                                                                                                                                   |
+| :-------------------- | :-------------------------------------------------------------------------------- | :-------- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| value                 | `number`                                                                          | -         | The current value.                                                                                                                                                                            |
+| aria-valuetext        | `string`                                                                          | -         | A string value that provides a user-friendly name for `aria-valuenow`, the current value of the meter.                                                                                        |
+| getAriaValueText      | `((formattedValue: string, value: number) => string)`                             | -         | A function that returns a string value that provides a human-readable text alternative for `aria-valuenow`, the current value of the meter.                                                   |
+| locale                | `IntlLocalesArgument`                                                             | -         | The locale used by `Intl.NumberFormat` when formatting the value.&#xA;Defaults to the user's runtime locale.                                                                                  |
+| min                   | `number`                                                                          | `0`       | The minimum value                                                                                                                                                                             |
+| max                   | `number`                                                                          | `100`     | The maximum value                                                                                                                                                                             |
+| format                | `IntlNumberFormatOptions`                                                         | -         | Options to format the value.                                                                                                                                                                  |
+| className             | `string \| ((state: Meter.Root.State) => string \| undefined)`                    | -         | CSS class applied to the element, or a function that&#xA;returns a class based on the component’s state.                                                                                      |
+| style                 | `CSSProperties \| ((state: Meter.Root.State) => CSSProperties \| undefined)`      | -         | -                                                                                                                                                                                             |
+| render                | `ReactElement \| ((props: HTMLProps, state: Meter.Root.State) => ReactElement)`   | -         | Allows you to replace the component’s HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
 
 ### Root.Props
 
@@ -35,16 +36,17 @@ type MeterRootState = {};
 
 ### Value
 
-A text element displaying the current value. Renders a `<span>` element.
+A text element displaying the current value.
+Renders a `<span>` element.
 
 **Value Props:**
 
-| Prop           | Type                                                                              | Default | Description                                                                                                                                                                              |
-| :------------- | :-------------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| children       | `((formattedValue: string, value: number) => ReactNode) \| null`                  | -       | -                                                                                                                                                                                        |
-| className      | `string \| ((state: Meter.Root.State) => string \| undefined)`                    | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
-| style          | `CSSProperties \| ((state: Meter.Root.State) => CSSProperties \| undefined)`      | -       | -                                                                                                                                                                                        |
-| render         | `ReactElement \| ((props: HTMLProps, state: Meter.Root.State) => ReactElement)`   | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop           | Type                                                                              | Default | Description                                                                                                                                                                                   |
+| :------------- | :-------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| children       | `((formattedValue: string, value: number) => ReactNode) \| null`                  | -       | -                                                                                                                                                                                             |
+| className      | `string \| ((state: Meter.Root.State) => string \| undefined)`                    | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component’s state.                                                                                      |
+| style          | `CSSProperties \| ((state: Meter.Root.State) => CSSProperties \| undefined)`      | -       | -                                                                                                                                                                                             |
+| render         | `ReactElement \| ((props: HTMLProps, state: Meter.Root.State) => ReactElement)`   | -       | Allows you to replace the component’s HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
 
 ### Value.Props
 
@@ -52,15 +54,16 @@ Re-export of [Value](#value) props.
 
 ### Indicator
 
-Visualizes the position of the value along the range. Renders a `<div>` element.
+Visualizes the position of the value along the range.
+Renders a `<div>` element.
 
 **Indicator Props:**
 
-| Prop           | Type                                                                              | Default | Description                                                                                                                                                                              |
-| :------------- | :-------------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| className      | `string \| ((state: Meter.Root.State) => string \| undefined)`                    | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
-| style          | `CSSProperties \| ((state: Meter.Root.State) => CSSProperties \| undefined)`      | -       | -                                                                                                                                                                                        |
-| render         | `ReactElement \| ((props: HTMLProps, state: Meter.Root.State) => ReactElement)`   | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop           | Type                                                                              | Default | Description                                                                                                                                                                                   |
+| :------------- | :-------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| className      | `string \| ((state: Meter.Root.State) => string \| undefined)`                    | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component’s state.                                                                                      |
+| style          | `CSSProperties \| ((state: Meter.Root.State) => CSSProperties \| undefined)`      | -       | -                                                                                                                                                                                             |
+| render         | `ReactElement \| ((props: HTMLProps, state: Meter.Root.State) => ReactElement)`   | -       | Allows you to replace the component’s HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
 
 ### Indicator.Props
 
@@ -68,15 +71,16 @@ Re-export of [Indicator](#indicator) props.
 
 ### Track
 
-Contains the meter indicator and represents the entire range of the meter. Renders a `<div>` element.
+Contains the meter indicator and represents the entire range of the meter.
+Renders a `<div>` element.
 
 **Track Props:**
 
-| Prop           | Type                                                                              | Default | Description                                                                                                                                                                              |
-| :------------- | :-------------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| className      | `string \| ((state: Meter.Root.State) => string \| undefined)`                    | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
-| style          | `CSSProperties \| ((state: Meter.Root.State) => CSSProperties \| undefined)`      | -       | -                                                                                                                                                                                        |
-| render         | `ReactElement \| ((props: HTMLProps, state: Meter.Root.State) => ReactElement)`   | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop           | Type                                                                              | Default | Description                                                                                                                                                                                   |
+| :------------- | :-------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| className      | `string \| ((state: Meter.Root.State) => string \| undefined)`                    | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component’s state.                                                                                      |
+| style          | `CSSProperties \| ((state: Meter.Root.State) => CSSProperties \| undefined)`      | -       | -                                                                                                                                                                                             |
+| render         | `ReactElement \| ((props: HTMLProps, state: Meter.Root.State) => ReactElement)`   | -       | Allows you to replace the component’s HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
 
 ### Track.Props
 
@@ -84,15 +88,16 @@ Re-export of [Track](#track) props.
 
 ### Label
 
-An accessible label for the meter. Renders a `<span>` element.
+An accessible label for the meter.
+Renders a `<span>` element.
 
 **Label Props:**
 
-| Prop           | Type                                                                              | Default | Description                                                                                                                                                                              |
-| :------------- | :-------------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| className      | `string \| ((state: Meter.Root.State) => string \| undefined)`                    | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
-| style          | `CSSProperties \| ((state: Meter.Root.State) => CSSProperties \| undefined)`      | -       | -                                                                                                                                                                                        |
-| render         | `ReactElement \| ((props: HTMLProps, state: Meter.Root.State) => ReactElement)`   | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop           | Type                                                                              | Default | Description                                                                                                                                                                                   |
+| :------------- | :-------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| className      | `string \| ((state: Meter.Root.State) => string \| undefined)`                    | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component’s state.                                                                                      |
+| style          | `CSSProperties \| ((state: Meter.Root.State) => CSSProperties \| undefined)`      | -       | -                                                                                                                                                                                             |
+| render         | `ReactElement \| ((props: HTMLProps, state: Meter.Root.State) => ReactElement)`   | -       | Allows you to replace the component’s HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
 
 ### Label.Props
 

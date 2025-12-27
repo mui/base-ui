@@ -6,7 +6,8 @@
 
 ### Button
 
-A button component that can be used to trigger actions. Renders a `<button>` element.
+A button component that can be used to trigger actions.
+Renders a `<button>` element.
 
 **Button Data Attributes:**
 

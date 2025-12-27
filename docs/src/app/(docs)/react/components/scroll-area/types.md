@@ -6,16 +6,17 @@
 
 ### Root
 
-Groups all parts of the scroll area. Renders a `<div>` element.
+Groups all parts of the scroll area.
+Renders a `<div>` element.
 
 **Root Props:**
 
-| Prop                  | Type                                                                                    | Default   | Description                                                                                                                                                                              |
-| :-------------------- | :-------------------------------------------------------------------------------------- | :-------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| overflowEdgeThreshold | `number \| Partial<{ xStart: number, xEnd: number, yStart: number, yEnd: number }>`     | `0`       | The threshold in pixels that must be passed before the overflow edge attributes are applied. Accepts a single number for all edges or an object to configure them individually.          |
-| className             | `string \| ((state: ScrollArea.Root.State) => string \| undefined)`                     | -         | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
-| style                 | `CSSProperties \| ((state: ScrollArea.Root.State) => CSSProperties \| undefined)`       | -         | -                                                                                                                                                                                        |
-| render                | `ReactElement \| ((props: HTMLProps, state: ScrollArea.Root.State) => ReactElement)`    | -         | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop                  | Type                                                                                    | Default   | Description                                                                                                                                                                                   |
+| :-------------------- | :-------------------------------------------------------------------------------------- | :-------- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| overflowEdgeThreshold | `number \| Partial<{ xStart: number, xEnd: number, yStart: number, yEnd: number }>`     | `0`       | The threshold in pixels that must be passed before the overflow edge attributes are applied.&#xA;Accepts a single number for all edges or an object to configure them individually.           |
+| className             | `string \| ((state: ScrollArea.Root.State) => string \| undefined)`                     | -         | CSS class applied to the element, or a function that&#xA;returns a class based on the component’s state.                                                                                      |
+| style                 | `CSSProperties \| ((state: ScrollArea.Root.State) => CSSProperties \| undefined)`       | -         | -                                                                                                                                                                                             |
+| render                | `ReactElement \| ((props: HTMLProps, state: ScrollArea.Root.State) => ReactElement)`    | -         | Allows you to replace the component’s HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
 
 **Root Data Attributes:**
 
@@ -55,15 +56,16 @@ type ScrollAreaRootState = {
 
 ### Content
 
-A container for the content of the scroll area. Renders a `<div>` element.
+A container for the content of the scroll area.
+Renders a `<div>` element.
 
 **Content Props:**
 
-| Prop           | Type                                                                                     | Default | Description                                                                                                                                                                              |
-| :------------- | :--------------------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| className      | `string \| ((state: ScrollArea.Content.State) => string \| undefined)`                   | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
-| style          | `CSSProperties \| ((state: ScrollArea.Content.State) => CSSProperties \| undefined)`     | -       | -                                                                                                                                                                                        |
-| render         | `ReactElement \| ((props: HTMLProps, state: ScrollArea.Content.State) => ReactElement)`  | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop           | Type                                                                                     | Default | Description                                                                                                                                                                                   |
+| :------------- | :--------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| className      | `string \| ((state: ScrollArea.Content.State) => string \| undefined)`                   | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component’s state.                                                                                      |
+| style          | `CSSProperties \| ((state: ScrollArea.Content.State) => CSSProperties \| undefined)`     | -       | -                                                                                                                                                                                             |
+| render         | `ReactElement \| ((props: HTMLProps, state: ScrollArea.Content.State) => ReactElement)`  | -       | Allows you to replace the component’s HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
 
 ### Content.Props
 
@@ -85,15 +87,16 @@ type ScrollAreaContentState = {
 
 ### Viewport
 
-The actual scrollable container of the scroll area. Renders a `<div>` element.
+The actual scrollable container of the scroll area.
+Renders a `<div>` element.
 
 **Viewport Props:**
 
-| Prop           | Type                                                                                           | Default | Description                                                                                                                                                                              |
-| :------------- | :--------------------------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| className      | `string \| ((state: ScrollArea.Viewport.State) => string \| undefined)`                        | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
-| style          | `CSSProperties \| ((state: ScrollArea.Viewport.State) => CSSProperties \| undefined)`          | -       | -                                                                                                                                                                                        |
-| render         | `ReactElement \| ((props: HTMLProps, state: ScrollArea.Viewport.State) => ReactElement)`       | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop           | Type                                                                                           | Default | Description                                                                                                                                                                                   |
+| :------------- | :--------------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| className      | `string \| ((state: ScrollArea.Viewport.State) => string \| undefined)`                        | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component’s state.                                                                                      |
+| style          | `CSSProperties \| ((state: ScrollArea.Viewport.State) => CSSProperties \| undefined)`          | -       | -                                                                                                                                                                                             |
+| render         | `ReactElement \| ((props: HTMLProps, state: ScrollArea.Viewport.State) => ReactElement)`       | -       | Allows you to replace the component’s HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
 
 **Viewport Data Attributes:**
 
@@ -135,15 +138,16 @@ type ScrollAreaViewportState = {
 
 ### Thumb
 
-The draggable part of the the scrollbar that indicates the current scroll position. Renders a `<div>` element.
+The draggable part of the the scrollbar that indicates the current scroll position.
+Renders a `<div>` element.
 
 **Thumb Props:**
 
-| Prop           | Type                                                                                     | Default | Description                                                                                                                                                                              |
-| :------------- | :--------------------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| className      | `string \| ((state: ScrollArea.Thumb.State) => string \| undefined)`                     | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
-| style          | `CSSProperties \| ((state: ScrollArea.Thumb.State) => CSSProperties \| undefined)`       | -       | -                                                                                                                                                                                        |
-| render         | `ReactElement \| ((props: HTMLProps, state: ScrollArea.Thumb.State) => ReactElement)`    | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop           | Type                                                                                     | Default | Description                                                                                                                                                                                   |
+| :------------- | :--------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| className      | `string \| ((state: ScrollArea.Thumb.State) => string \| undefined)`                     | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component’s state.                                                                                      |
+| style          | `CSSProperties \| ((state: ScrollArea.Thumb.State) => CSSProperties \| undefined)`       | -       | -                                                                                                                                                                                             |
+| render         | `ReactElement \| ((props: HTMLProps, state: ScrollArea.Thumb.State) => ReactElement)`    | -       | Allows you to replace the component’s HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
 
 **Thumb Data Attributes:**
 
@@ -163,17 +167,18 @@ type ScrollAreaThumbState = { orientation?: 'horizontal' | 'vertical' };
 
 ### Scrollbar
 
-A vertical or horizontal scrollbar for the scroll area. Renders a `<div>` element.
+A vertical or horizontal scrollbar for the scroll area.
+Renders a `<div>` element.
 
 **Scrollbar Props:**
 
-| Prop           | Type                                                                                           | Default          | Description                                                                                                                                                                              |
-| :------------- | :--------------------------------------------------------------------------------------------- | :--------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| orientation    | `'horizontal' \| 'vertical'`                                                                   | `'vertical'`     | Whether the scrollbar controls vertical or horizontal scroll.                                                                                                                            |
-| className      | `string \| ((state: ScrollArea.Scrollbar.State) => string \| undefined)`                       | -                | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
-| style          | `CSSProperties \| ((state: ScrollArea.Scrollbar.State) => CSSProperties \| undefined)`         | -                | -                                                                                                                                                                                        |
-| keepMounted    | `boolean`                                                                                      | `false`          | Whether to keep the HTML element in the DOM when the viewport isn’t scrollable.                                                                                                          |
-| render         | `ReactElement \| ((props: HTMLProps, state: ScrollArea.Scrollbar.State) => ReactElement)`      | -                | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop           | Type                                                                                           | Default          | Description                                                                                                                                                                                   |
+| :------------- | :--------------------------------------------------------------------------------------------- | :--------------- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| orientation    | `'horizontal' \| 'vertical'`                                                                   | `'vertical'`     | Whether the scrollbar controls vertical or horizontal scroll.                                                                                                                                 |
+| className      | `string \| ((state: ScrollArea.Scrollbar.State) => string \| undefined)`                       | -                | CSS class applied to the element, or a function that&#xA;returns a class based on the component’s state.                                                                                      |
+| style          | `CSSProperties \| ((state: ScrollArea.Scrollbar.State) => CSSProperties \| undefined)`         | -                | -                                                                                                                                                                                             |
+| keepMounted    | `boolean`                                                                                      | `false`          | Whether to keep the HTML element in the DOM when the viewport isn’t scrollable.                                                                                                               |
+| render         | `ReactElement \| ((props: HTMLProps, state: ScrollArea.Scrollbar.State) => ReactElement)`      | -                | Allows you to replace the component’s HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
 
 **Scrollbar Data Attributes:**
 
@@ -219,15 +224,16 @@ type ScrollAreaScrollbarState = {
 
 ### Corner
 
-A small rectangular area that appears at the intersection of horizontal and vertical scrollbars. Renders a `<div>` element.
+A small rectangular area that appears at the intersection of horizontal and vertical scrollbars.
+Renders a `<div>` element.
 
 **Corner Props:**
 
-| Prop           | Type                                                                                     | Default | Description                                                                                                                                                                              |
-| :------------- | :--------------------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| className      | `string \| ((state: ScrollArea.Corner.State) => string \| undefined)`                    | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
-| style          | `CSSProperties \| ((state: ScrollArea.Corner.State) => CSSProperties \| undefined)`      | -       | -                                                                                                                                                                                        |
-| render         | `ReactElement \| ((props: HTMLProps, state: ScrollArea.Corner.State) => ReactElement)`   | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop           | Type                                                                                     | Default | Description                                                                                                                                                                                   |
+| :------------- | :--------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| className      | `string \| ((state: ScrollArea.Corner.State) => string \| undefined)`                    | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component’s state.                                                                                      |
+| style          | `CSSProperties \| ((state: ScrollArea.Corner.State) => CSSProperties \| undefined)`      | -       | -                                                                                                                                                                                             |
+| render         | `ReactElement \| ((props: HTMLProps, state: ScrollArea.Corner.State) => ReactElement)`   | -       | Allows you to replace the component’s HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
 
 ### Corner.Props
 

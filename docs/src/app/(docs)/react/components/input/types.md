@@ -6,17 +6,18 @@
 
 ### Input
 
-A native input element that automatically works with [Field](https://base-ui.com/react/components/field). Renders an `<input>` element.
+A native input element that automatically works with [Field](https://base-ui.com/react/components/field).
+Renders an `<input>` element.
 
 **Input Props:**
 
-| Prop           | Type                                                                             | Default | Description                                                                                                                                                                              |
-| :------------- | :------------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| defaultValue   | `string \| number \| string[]`                                                   | -       | -                                                                                                                                                                                        |
-| onValueChange  | `((value: string, eventDetails: Input.ChangeEventDetails) => void)`              | -       | Callback fired when the `value` changes. Use when controlled.                                                                                                                            |
-| className      | `string \| ((state: Input.State) => string \| undefined)`                        | -       | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
-| style          | `CSSProperties \| ((state: Input.State) => CSSProperties \| undefined)`          | -       | -                                                                                                                                                                                        |
-| render         | `ReactElement \| ((props: HTMLProps, state: Input.State) => ReactElement)`       | -       | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop           | Type                                                                             | Default | Description                                                                                                                                                                                   |
+| :------------- | :------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| defaultValue   | `string \| number \| string[]`                                                   | -       | -                                                                                                                                                                                             |
+| onValueChange  | `((value: string, eventDetails: Input.ChangeEventDetails) => void)`              | -       | Callback fired when the `value` changes. Use when controlled.                                                                                                                                 |
+| className      | `string \| ((state: Input.State) => string \| undefined)`                        | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component’s state.                                                                                      |
+| style          | `CSSProperties \| ((state: Input.State) => CSSProperties \| undefined)`          | -       | -                                                                                                                                                                                             |
+| render         | `ReactElement \| ((props: HTMLProps, state: Input.State) => ReactElement)`       | -       | Allows you to replace the component’s HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
 
 **Input Data Attributes:**
 

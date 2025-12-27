@@ -6,16 +6,17 @@
 
 ### Separator
 
-A separator element accessible to screen readers. Renders a `<div>` element.
+A separator element accessible to screen readers.
+Renders a `<div>` element.
 
 **Separator Props:**
 
-| Prop           | Type                                                                              | Default          | Description                                                                                                                                                                              |
-| :------------- | :-------------------------------------------------------------------------------- | :--------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| orientation    | `Orientation`                                                                     | `'horizontal'`   | The orientation of the separator.                                                                                                                                                        |
-| className      | `string \| ((state: Separator.State) => string \| undefined)`                     | -                | CSS class applied to the element, or a function that returns a class based on the component’s state.                                                                                     |
-| style          | `CSSProperties \| ((state: Separator.State) => CSSProperties \| undefined)`       | -                | -                                                                                                                                                                                        |
-| render         | `ReactElement \| ((props: HTMLProps, state: Separator.State) => ReactElement)`    | -                | Allows you to replace the component’s HTML element with a different tag, or compose it with another component.Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop           | Type                                                                              | Default          | Description                                                                                                                                                                                   |
+| :------------- | :-------------------------------------------------------------------------------- | :--------------- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| orientation    | `Orientation`                                                                     | `'horizontal'`   | The orientation of the separator.                                                                                                                                                             |
+| className      | `string \| ((state: Separator.State) => string \| undefined)`                     | -                | CSS class applied to the element, or a function that&#xA;returns a class based on the component’s state.                                                                                      |
+| style          | `CSSProperties \| ((state: Separator.State) => CSSProperties \| undefined)`       | -                | -                                                                                                                                                                                             |
+| render         | `ReactElement \| ((props: HTMLProps, state: Separator.State) => ReactElement)`    | -                | Allows you to replace the component’s HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
 
 ### Separator.Props
 
