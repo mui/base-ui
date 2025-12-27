@@ -51,7 +51,7 @@ export interface UseMixedToggleClickHandlerParameters {
   /**
    * Determines what action is performed on mousedown.
    */
-  mouseDownAction: 'open' | 'close';
+  mouseDownAction: 'open' | 'close' | 'none';
   /**
    * The current open state of the popup.
    */
