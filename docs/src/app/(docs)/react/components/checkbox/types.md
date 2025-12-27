@@ -11,42 +11,42 @@ Renders a `<span>` element and a hidden `<input>` beside.
 
 **Root Props:**
 
-| Prop                  | Type                                                                                    | Default          | Description                                                                                                                                                                                   |
-| :-------------------- | :-------------------------------------------------------------------------------------- | :--------------- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| name                  | `string`                                                                                | `undefined`      | Identifies the field when a form is submitted.                                                                                                                                                |
-| defaultChecked        | `boolean`                                                                               | `false`          | Whether the checkbox is initially ticked. To render a controlled checkbox, use the `checked` prop instead.                                                                                    |
-| checked               | `boolean`                                                                               | `undefined`      | Whether the checkbox is currently ticked. To render an uncontrolled checkbox, use the `defaultChecked` prop instead.                                                                          |
-| onCheckedChange       | `((checked: boolean, eventDetails: Checkbox.Root.ChangeEventDetails) => void)`          | -                | Event handler called when the checkbox is ticked or unticked.                                                                                                                                 |
-| indeterminate         | `boolean`                                                                               | `false`          | Whether the checkbox is in a mixed state: neither ticked, nor unticked.                                                                                                                       |
-| value                 | `string`                                                                                | -                | The value of the selected checkbox.                                                                                                                                                           |
-| nativeButton          | `boolean`                                                                               | `false`          | Whether the component renders a native `<button>` element when replacing it&#xA;via the `render` prop.&#xA;Set to `true` if the rendered element is a native button.                          |
-| parent                | `boolean`                                                                               | `false`          | Whether the checkbox controls a group of child checkboxes. Must be used in a [Checkbox Group](https://base-ui.com/react/components/checkbox-group).                                           |
-| uncheckedValue        | `string`                                                                                | -                | The value submitted with the form when the checkbox is unchecked.&#xA;By default, unchecked checkboxes do not submit any value, matching native checkbox behavior.                            |
-| disabled              | `boolean`                                                                               | `false`          | Whether the component should ignore user interaction.                                                                                                                                         |
-| readOnly              | `boolean`                                                                               | `false`          | Whether the user should be unable to tick or untick the checkbox.                                                                                                                             |
-| required              | `boolean`                                                                               | `false`          | Whether the user must tick the checkbox before submitting a form.                                                                                                                             |
-| inputRef              | `Ref<HTMLInputElement>`                                                                 | -                | A ref to access the hidden `<input>` element.                                                                                                                                                 |
-| id                    | `string`                                                                                | -                | The id of the input element.                                                                                                                                                                  |
-| className             | `string \| ((state: Checkbox.Root.State) => string \| undefined)`                       | -                | CSS class applied to the element, or a function that&#xA;returns a class based on the component’s state.                                                                                      |
-| style                 | `CSSProperties \| ((state: Checkbox.Root.State) => CSSProperties \| undefined)`         | -                | -                                                                                                                                                                                             |
-| render                | `ReactElement \| ((props: HTMLProps, state: Checkbox.Root.State) => ReactElement)`      | -                | Allows you to replace the component’s HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop            | Type                                                                               | Default     | Description                                                                                                                                                                                   |
+| :-------------- | :--------------------------------------------------------------------------------- | :---------- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| name            | `string`                                                                           | `undefined` | Identifies the field when a form is submitted.                                                                                                                                                |
+| defaultChecked  | `boolean`                                                                          | `false`     | Whether the checkbox is initially ticked. To render a controlled checkbox, use the `checked` prop instead.                                                                                    |
+| checked         | `boolean`                                                                          | `undefined` | Whether the checkbox is currently ticked. To render an uncontrolled checkbox, use the `defaultChecked` prop instead.                                                                          |
+| onCheckedChange | `((checked: boolean, eventDetails: Checkbox.Root.ChangeEventDetails) => void)`     | -           | Event handler called when the checkbox is ticked or unticked.                                                                                                                                 |
+| indeterminate   | `boolean`                                                                          | `false`     | Whether the checkbox is in a mixed state: neither ticked, nor unticked.                                                                                                                       |
+| value           | `string`                                                                           | -           | The value of the selected checkbox.                                                                                                                                                           |
+| nativeButton    | `boolean`                                                                          | `false`     | Whether the component renders a native `<button>` element when replacing it&#xA;via the `render` prop.&#xA;Set to `true` if the rendered element is a native button.                          |
+| parent          | `boolean`                                                                          | `false`     | Whether the checkbox controls a group of child checkboxes. Must be used in a [Checkbox Group](https://base-ui.com/react/components/checkbox-group).                                           |
+| uncheckedValue  | `string`                                                                           | -           | The value submitted with the form when the checkbox is unchecked.&#xA;By default, unchecked checkboxes do not submit any value, matching native checkbox behavior.                            |
+| disabled        | `boolean`                                                                          | `false`     | Whether the component should ignore user interaction.                                                                                                                                         |
+| readOnly        | `boolean`                                                                          | `false`     | Whether the user should be unable to tick or untick the checkbox.                                                                                                                             |
+| required        | `boolean`                                                                          | `false`     | Whether the user must tick the checkbox before submitting a form.                                                                                                                             |
+| inputRef        | `Ref<HTMLInputElement>`                                                            | -           | A ref to access the hidden `<input>` element.                                                                                                                                                 |
+| id              | `string`                                                                           | -           | The id of the input element.                                                                                                                                                                  |
+| className       | `string \| ((state: Checkbox.Root.State) => string \| undefined)`                  | -           | CSS class applied to the element, or a function that&#xA;returns a class based on the component’s state.                                                                                      |
+| style           | `CSSProperties \| ((state: Checkbox.Root.State) => CSSProperties \| undefined)`    | -           | -                                                                                                                                                                                             |
+| render          | `ReactElement \| ((props: HTMLProps, state: Checkbox.Root.State) => ReactElement)` | -           | Allows you to replace the component’s HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
 
 **Root Data Attributes:**
 
-| Attribute             | Type    | Description                                                                   |
-| :-------------------- | :------ | :---------------------------------------------------------------------------- |
-| data-checked          | -       | Present when the checkbox is checked.                                         |
-| data-unchecked        | -       | Present when the checkbox is not checked.                                     |
-| data-disabled         | -       | Present when the checkbox is disabled.                                        |
-| data-readonly         | -       | Present when the checkbox is readonly.                                        |
-| data-required         | -       | Present when the checkbox is required.                                        |
-| data-valid            | -       | Present when the checkbox is in valid state (when wrapped in Field.Root).     |
-| data-invalid          | -       | Present when the checkbox is in invalid state (when wrapped in Field.Root).   |
-| data-dirty            | -       | Present when the checkbox's value has changed (when wrapped in Field.Root).   |
-| data-touched          | -       | Present when the checkbox has been touched (when wrapped in Field.Root).      |
-| data-filled           | -       | Present when the checkbox is checked (when wrapped in Field.Root).            |
-| data-focused          | -       | Present when the checkbox is focused (when wrapped in Field.Root).            |
-| data-indeterminate    | -       | Present when the checkbox is in an indeterminate state.                       |
+| Attribute          | Type | Description                                                                 |
+| :----------------- | :--- | :-------------------------------------------------------------------------- |
+| data-checked       | -    | Present when the checkbox is checked.                                       |
+| data-unchecked     | -    | Present when the checkbox is not checked.                                   |
+| data-disabled      | -    | Present when the checkbox is disabled.                                      |
+| data-readonly      | -    | Present when the checkbox is readonly.                                      |
+| data-required      | -    | Present when the checkbox is required.                                      |
+| data-valid         | -    | Present when the checkbox is in valid state (when wrapped in Field.Root).   |
+| data-invalid       | -    | Present when the checkbox is in invalid state (when wrapped in Field.Root). |
+| data-dirty         | -    | Present when the checkbox's value has changed (when wrapped in Field.Root). |
+| data-touched       | -    | Present when the checkbox has been touched (when wrapped in Field.Root).    |
+| data-filled        | -    | Present when the checkbox is checked (when wrapped in Field.Root).          |
+| data-focused       | -    | Present when the checkbox is focused (when wrapped in Field.Root).          |
+| data-indeterminate | -    | Present when the checkbox is in an indeterminate state.                     |
 
 ### Root.Props
 
@@ -96,31 +96,31 @@ Renders a `<span>` element.
 
 **Indicator Props:**
 
-| Prop           | Type                                                                                     | Default   | Description                                                                                                                                                                                   |
-| :------------- | :--------------------------------------------------------------------------------------- | :-------- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| className      | `string \| ((state: Checkbox.Indicator.State) => string \| undefined)`                   | -         | CSS class applied to the element, or a function that&#xA;returns a class based on the component’s state.                                                                                      |
-| style          | `CSSProperties \| ((state: Checkbox.Indicator.State) => CSSProperties \| undefined)`     | -         | -                                                                                                                                                                                             |
-| keepMounted    | `boolean`                                                                                | `false`   | Whether to keep the element in the DOM when the checkbox is not checked.                                                                                                                      |
-| render         | `ReactElement \| ((props: HTMLProps, state: Checkbox.Indicator.State) => ReactElement)`  | -         | Allows you to replace the component’s HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop        | Type                                                                                    | Default | Description                                                                                                                                                                                   |
+| :---------- | :-------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| className   | `string \| ((state: Checkbox.Indicator.State) => string \| undefined)`                  | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component’s state.                                                                                      |
+| style       | `CSSProperties \| ((state: Checkbox.Indicator.State) => CSSProperties \| undefined)`    | -       | -                                                                                                                                                                                             |
+| keepMounted | `boolean`                                                                               | `false` | Whether to keep the element in the DOM when the checkbox is not checked.                                                                                                                      |
+| render      | `ReactElement \| ((props: HTMLProps, state: Checkbox.Indicator.State) => ReactElement)` | -       | Allows you to replace the component’s HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
 
 **Indicator Data Attributes:**
 
-| Attribute             | Type    | Description                                                                   |
-| :-------------------- | :------ | :---------------------------------------------------------------------------- |
-| data-checked          | -       | Present when the checkbox is checked.                                         |
-| data-unchecked        | -       | Present when the checkbox is not checked.                                     |
-| data-disabled         | -       | Present when the checkbox is disabled.                                        |
-| data-readonly         | -       | Present when the checkbox is readonly.                                        |
-| data-required         | -       | Present when the checkbox is required.                                        |
-| data-valid            | -       | Present when the checkbox is in valid state (when wrapped in Field.Root).     |
-| data-invalid          | -       | Present when the checkbox is in invalid state (when wrapped in Field.Root).   |
-| data-dirty            | -       | Present when the checkbox's value has changed (when wrapped in Field.Root).   |
-| data-touched          | -       | Present when the checkbox has been touched (when wrapped in Field.Root).      |
-| data-filled           | -       | Present when the checkbox is checked (when wrapped in Field.Root).            |
-| data-focused          | -       | Present when the checkbox is focused (when wrapped in Field.Root).            |
-| data-indeterminate    | -       | Present when the checkbox is in an indeterminate state.                       |
-| data-starting-style   | -       | Present when the checkbox indicator is animating in.                          |
-| data-ending-style     | -       | Present when the checkbox indicator is animating out.                         |
+| Attribute           | Type | Description                                                                 |
+| :------------------ | :--- | :-------------------------------------------------------------------------- |
+| data-checked        | -    | Present when the checkbox is checked.                                       |
+| data-unchecked      | -    | Present when the checkbox is not checked.                                   |
+| data-disabled       | -    | Present when the checkbox is disabled.                                      |
+| data-readonly       | -    | Present when the checkbox is readonly.                                      |
+| data-required       | -    | Present when the checkbox is required.                                      |
+| data-valid          | -    | Present when the checkbox is in valid state (when wrapped in Field.Root).   |
+| data-invalid        | -    | Present when the checkbox is in invalid state (when wrapped in Field.Root). |
+| data-dirty          | -    | Present when the checkbox's value has changed (when wrapped in Field.Root). |
+| data-touched        | -    | Present when the checkbox has been touched (when wrapped in Field.Root).    |
+| data-filled         | -    | Present when the checkbox is checked (when wrapped in Field.Root).          |
+| data-focused        | -    | Present when the checkbox is focused (when wrapped in Field.Root).          |
+| data-indeterminate  | -    | Present when the checkbox is in an indeterminate state.                     |
+| data-starting-style | -    | Present when the checkbox indicator is animating in.                        |
+| data-ending-style   | -    | Present when the checkbox indicator is animating out.                       |
 
 ### Indicator.Props
 

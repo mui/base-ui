@@ -11,25 +11,25 @@ Renders an `<input>` element.
 
 **Input Props:**
 
-| Prop           | Type                                                                             | Default | Description                                                                                                                                                                                   |
-| :------------- | :------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| defaultValue   | `string \| number \| string[]`                                                   | -       | -                                                                                                                                                                                             |
-| onValueChange  | `((value: string, eventDetails: Input.ChangeEventDetails) => void)`              | -       | Callback fired when the `value` changes. Use when controlled.                                                                                                                                 |
-| className      | `string \| ((state: Input.State) => string \| undefined)`                        | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component’s state.                                                                                      |
-| style          | `CSSProperties \| ((state: Input.State) => CSSProperties \| undefined)`          | -       | -                                                                                                                                                                                             |
-| render         | `ReactElement \| ((props: HTMLProps, state: Input.State) => ReactElement)`       | -       | Allows you to replace the component’s HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop          | Type                                                                       | Default | Description                                                                                                                                                                                   |
+| :------------ | :------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| defaultValue  | `string \| number \| string[]`                                             | -       | -                                                                                                                                                                                             |
+| onValueChange | `((value: string, eventDetails: Input.ChangeEventDetails) => void)`        | -       | Callback fired when the `value` changes. Use when controlled.                                                                                                                                 |
+| className     | `string \| ((state: Input.State) => string \| undefined)`                  | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component’s state.                                                                                      |
+| style         | `CSSProperties \| ((state: Input.State) => CSSProperties \| undefined)`    | -       | -                                                                                                                                                                                             |
+| render        | `ReactElement \| ((props: HTMLProps, state: Input.State) => ReactElement)` | -       | Allows you to replace the component’s HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
 
 **Input Data Attributes:**
 
-| Attribute      | Type    | Description                                                                   |
-| :------------- | :------ | :---------------------------------------------------------------------------- |
-| data-disabled  | -       | Present when the input is disabled.                                           |
-| data-valid     | -       | Present when the input is in valid state (when wrapped in Field.Root).        |
-| data-invalid   | -       | Present when the input is in invalid state (when wrapped in Field.Root).      |
-| data-dirty     | -       | Present when the input's value has changed (when wrapped in Field.Root).      |
-| data-touched   | -       | Present when the input has been touched (when wrapped in Field.Root).         |
-| data-filled    | -       | Present when the input is filled (when wrapped in Field.Root).                |
-| data-focused   | -       | Present when the input is focused (when wrapped in Field.Root).               |
+| Attribute     | Type | Description                                                              |
+| :------------ | :--- | :----------------------------------------------------------------------- |
+| data-disabled | -    | Present when the input is disabled.                                      |
+| data-valid    | -    | Present when the input is in valid state (when wrapped in Field.Root).   |
+| data-invalid  | -    | Present when the input is in invalid state (when wrapped in Field.Root). |
+| data-dirty    | -    | Present when the input's value has changed (when wrapped in Field.Root). |
+| data-touched  | -    | Present when the input has been touched (when wrapped in Field.Root).    |
+| data-filled   | -    | Present when the input is filled (when wrapped in Field.Root).           |
+| data-focused  | -    | Present when the input is focused (when wrapped in Field.Root).          |
 
 ### Input.Props
 

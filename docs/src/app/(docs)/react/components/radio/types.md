@@ -11,33 +11,33 @@ Renders a `<span>` element and a hidden `<input>` beside.
 
 **Root Props:**
 
-| Prop           | Type                                                                              | Default   | Description                                                                                                                                                                                   |
-| :------------- | :-------------------------------------------------------------------------------- | :-------- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| value          | `any`                                                                             | -         | The unique identifying value of the radio in a group.                                                                                                                                         |
-| nativeButton   | `boolean`                                                                         | `false`   | Whether the component renders a native `<button>` element when replacing it&#xA;via the `render` prop.&#xA;Set to `true` if the rendered element is a native button.                          |
-| disabled       | `boolean`                                                                         | -         | Whether the component should ignore user interaction.                                                                                                                                         |
-| readOnly       | `boolean`                                                                         | -         | Whether the user should be unable to select the radio button.                                                                                                                                 |
-| required       | `boolean`                                                                         | -         | Whether the user must choose a value before submitting a form.                                                                                                                                |
-| inputRef       | `Ref<HTMLInputElement>`                                                           | -         | A ref to access the hidden input element.                                                                                                                                                     |
-| className      | `string \| ((state: Radio.Root.State) => string \| undefined)`                    | -         | CSS class applied to the element, or a function that&#xA;returns a class based on the component’s state.                                                                                      |
-| style          | `CSSProperties \| ((state: Radio.Root.State) => CSSProperties \| undefined)`      | -         | -                                                                                                                                                                                             |
-| render         | `ReactElement \| ((props: HTMLProps, state: Radio.Root.State) => ReactElement)`   | -         | Allows you to replace the component’s HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop         | Type                                                                            | Default | Description                                                                                                                                                                                   |
+| :----------- | :------------------------------------------------------------------------------ | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| value        | `any`                                                                           | -       | The unique identifying value of the radio in a group.                                                                                                                                         |
+| nativeButton | `boolean`                                                                       | `false` | Whether the component renders a native `<button>` element when replacing it&#xA;via the `render` prop.&#xA;Set to `true` if the rendered element is a native button.                          |
+| disabled     | `boolean`                                                                       | -       | Whether the component should ignore user interaction.                                                                                                                                         |
+| readOnly     | `boolean`                                                                       | -       | Whether the user should be unable to select the radio button.                                                                                                                                 |
+| required     | `boolean`                                                                       | -       | Whether the user must choose a value before submitting a form.                                                                                                                                |
+| inputRef     | `Ref<HTMLInputElement>`                                                         | -       | A ref to access the hidden input element.                                                                                                                                                     |
+| className    | `string \| ((state: Radio.Root.State) => string \| undefined)`                  | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component’s state.                                                                                      |
+| style        | `CSSProperties \| ((state: Radio.Root.State) => CSSProperties \| undefined)`    | -       | -                                                                                                                                                                                             |
+| render       | `ReactElement \| ((props: HTMLProps, state: Radio.Root.State) => ReactElement)` | -       | Allows you to replace the component’s HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
 
 **Root Data Attributes:**
 
-| Attribute      | Type    | Description                                                                   |
-| :------------- | :------ | :---------------------------------------------------------------------------- |
-| data-checked   | -       | Present when the radio is checked.                                            |
-| data-unchecked | -       | Present when the radio is not checked.                                        |
-| data-disabled  | -       | Present when the radio is disabled.                                           |
-| data-readonly  | -       | Present when the radio is readonly.                                           |
-| data-required  | -       | Present when the radio is required.                                           |
-| data-valid     | -       | Present when the radio is in valid state (when wrapped in Field.Root).        |
-| data-invalid   | -       | Present when the radio is in invalid state (when wrapped in Field.Root).      |
-| data-dirty     | -       | Present when the radio's value has changed (when wrapped in Field.Root).      |
-| data-touched   | -       | Present when the radio has been touched (when wrapped in Field.Root).         |
-| data-filled    | -       | Present when the radio is checked (when wrapped in Field.Root).               |
-| data-focused   | -       | Present when the radio is focused (when wrapped in Field.Root).               |
+| Attribute      | Type | Description                                                              |
+| :------------- | :--- | :----------------------------------------------------------------------- |
+| data-checked   | -    | Present when the radio is checked.                                       |
+| data-unchecked | -    | Present when the radio is not checked.                                   |
+| data-disabled  | -    | Present when the radio is disabled.                                      |
+| data-readonly  | -    | Present when the radio is readonly.                                      |
+| data-required  | -    | Present when the radio is required.                                      |
+| data-valid     | -    | Present when the radio is in valid state (when wrapped in Field.Root).   |
+| data-invalid   | -    | Present when the radio is in invalid state (when wrapped in Field.Root). |
+| data-dirty     | -    | Present when the radio's value has changed (when wrapped in Field.Root). |
+| data-touched   | -    | Present when the radio has been touched (when wrapped in Field.Root).    |
+| data-filled    | -    | Present when the radio is checked (when wrapped in Field.Root).          |
+| data-focused   | -    | Present when the radio is focused (when wrapped in Field.Root).          |
 
 ### Root.Props
 
@@ -66,28 +66,28 @@ Renders a `<span>` element.
 
 **Indicator Props:**
 
-| Prop           | Type                                                                                    | Default   | Description                                                                                                                                                                                   |
-| :------------- | :-------------------------------------------------------------------------------------- | :-------- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| className      | `string \| ((state: Radio.Indicator.State) => string \| undefined)`                     | -         | CSS class applied to the element, or a function that&#xA;returns a class based on the component’s state.                                                                                      |
-| style          | `CSSProperties \| ((state: Radio.Indicator.State) => CSSProperties \| undefined)`       | -         | -                                                                                                                                                                                             |
-| keepMounted    | `boolean`                                                                               | `false`   | Whether to keep the HTML element in the DOM when the radio button is inactive.                                                                                                                |
-| render         | `ReactElement \| ((props: HTMLProps, state: Radio.Indicator.State) => ReactElement)`    | -         | Allows you to replace the component’s HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop        | Type                                                                                 | Default | Description                                                                                                                                                                                   |
+| :---------- | :----------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| className   | `string \| ((state: Radio.Indicator.State) => string \| undefined)`                  | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component’s state.                                                                                      |
+| style       | `CSSProperties \| ((state: Radio.Indicator.State) => CSSProperties \| undefined)`    | -       | -                                                                                                                                                                                             |
+| keepMounted | `boolean`                                                                            | `false` | Whether to keep the HTML element in the DOM when the radio button is inactive.                                                                                                                |
+| render      | `ReactElement \| ((props: HTMLProps, state: Radio.Indicator.State) => ReactElement)` | -       | Allows you to replace the component’s HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
 
 **Indicator Data Attributes:**
 
-| Attribute      | Type    | Description                                                                   |
-| :------------- | :------ | :---------------------------------------------------------------------------- |
-| data-checked   | -       | Present when the radio is checked.                                            |
-| data-unchecked | -       | Present when the radio is not checked.                                        |
-| data-disabled  | -       | Present when the radio is disabled.                                           |
-| data-readonly  | -       | Present when the radio is readonly.                                           |
-| data-required  | -       | Present when the radio is required.                                           |
-| data-valid     | -       | Present when the radio is in valid state (when wrapped in Field.Root).        |
-| data-invalid   | -       | Present when the radio is in invalid state (when wrapped in Field.Root).      |
-| data-dirty     | -       | Present when the radio's value has changed (when wrapped in Field.Root).      |
-| data-touched   | -       | Present when the radio has been touched (when wrapped in Field.Root).         |
-| data-filled    | -       | Present when the radio is checked (when wrapped in Field.Root).               |
-| data-focused   | -       | Present when the radio is focused (when wrapped in Field.Root).               |
+| Attribute      | Type | Description                                                              |
+| :------------- | :--- | :----------------------------------------------------------------------- |
+| data-checked   | -    | Present when the radio is checked.                                       |
+| data-unchecked | -    | Present when the radio is not checked.                                   |
+| data-disabled  | -    | Present when the radio is disabled.                                      |
+| data-readonly  | -    | Present when the radio is readonly.                                      |
+| data-required  | -    | Present when the radio is required.                                      |
+| data-valid     | -    | Present when the radio is in valid state (when wrapped in Field.Root).   |
+| data-invalid   | -    | Present when the radio is in invalid state (when wrapped in Field.Root). |
+| data-dirty     | -    | Present when the radio's value has changed (when wrapped in Field.Root). |
+| data-touched   | -    | Present when the radio has been touched (when wrapped in Field.Root).    |
+| data-filled    | -    | Present when the radio is checked (when wrapped in Field.Root).          |
+| data-focused   | -    | Present when the radio is focused (when wrapped in Field.Root).          |
 
 ### Indicator.Props
 

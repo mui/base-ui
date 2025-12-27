@@ -11,9 +11,9 @@ Renders a `<button>` element.
 
 **Button Data Attributes:**
 
-| Attribute      | Type    | Description                                |
-| :------------- | :------ | :----------------------------------------- |
-| data-disabled  | -       | Present when the button is disabled.       |
+| Attribute     | Type | Description                          |
+| :------------ | :--- | :----------------------------------- |
+| data-disabled | -    | Present when the button is disabled. |
 
 ### Button.Props
 

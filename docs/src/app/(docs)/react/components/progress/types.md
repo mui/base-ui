@@ -11,26 +11,26 @@ Renders a `<div>` element.
 
 **Root Props:**
 
-| Prop                  | Type                                                                                    | Default   | Description                                                                                                                                                                                   |
-| :-------------------- | :-------------------------------------------------------------------------------------- | :-------- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| value                 | `number \| null`                                                                        | `null`    | The current value. The component is indeterminate when value is `null`.                                                                                                                       |
-| aria-valuetext        | `string`                                                                                | -         | A string value that provides a user-friendly name for `aria-valuenow`, the current value of the meter.                                                                                        |
-| getAriaValueText      | `((formattedValue: string \| null, value: number \| null) => string)`                   | -         | Accepts a function which returns a string value that provides a human-readable text alternative for the current value of the progress bar.                                                    |
-| locale                | `IntlLocalesArgument`                                                                   | -         | The locale used by `Intl.NumberFormat` when formatting the value.&#xA;Defaults to the user's runtime locale.                                                                                  |
-| min                   | `number`                                                                                | `0`       | The minimum value.                                                                                                                                                                            |
-| max                   | `number`                                                                                | `100`     | The maximum value.                                                                                                                                                                            |
-| format                | `IntlNumberFormatOptions`                                                               | -         | Options to format the value.                                                                                                                                                                  |
-| className             | `string \| ((state: Progress.Root.State) => string \| undefined)`                       | -         | CSS class applied to the element, or a function that&#xA;returns a class based on the component’s state.                                                                                      |
-| style                 | `CSSProperties \| ((state: Progress.Root.State) => CSSProperties \| undefined)`         | -         | -                                                                                                                                                                                             |
-| render                | `ReactElement \| ((props: HTMLProps, state: Progress.Root.State) => ReactElement)`      | -         | Allows you to replace the component’s HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop             | Type                                                                               | Default | Description                                                                                                                                                                                   |
+| :--------------- | :--------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| value            | `number \| null`                                                                   | `null`  | The current value. The component is indeterminate when value is `null`.                                                                                                                       |
+| aria-valuetext   | `string`                                                                           | -       | A string value that provides a user-friendly name for `aria-valuenow`, the current value of the meter.                                                                                        |
+| getAriaValueText | `((formattedValue: string \| null, value: number \| null) => string)`              | -       | Accepts a function which returns a string value that provides a human-readable text alternative for the current value of the progress bar.                                                    |
+| locale           | `IntlLocalesArgument`                                                              | -       | The locale used by `Intl.NumberFormat` when formatting the value.&#xA;Defaults to the user's runtime locale.                                                                                  |
+| min              | `number`                                                                           | `0`     | The minimum value.                                                                                                                                                                            |
+| max              | `number`                                                                           | `100`   | The maximum value.                                                                                                                                                                            |
+| format           | `IntlNumberFormatOptions`                                                          | -       | Options to format the value.                                                                                                                                                                  |
+| className        | `string \| ((state: Progress.Root.State) => string \| undefined)`                  | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component’s state.                                                                                      |
+| style            | `CSSProperties \| ((state: Progress.Root.State) => CSSProperties \| undefined)`    | -       | -                                                                                                                                                                                             |
+| render           | `ReactElement \| ((props: HTMLProps, state: Progress.Root.State) => ReactElement)` | -       | Allows you to replace the component’s HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
 
 **Root Data Attributes:**
 
-| Attribute             | Type    | Description                                              |
-| :-------------------- | :------ | :------------------------------------------------------- |
-| data-complete         | -       | Present when the progress has completed.                 |
-| data-indeterminate    | -       | Present when the progress is in interminate state.       |
-| data-progressing      | -       | Present while the progress is progressing.               |
+| Attribute          | Type | Description                                        |
+| :----------------- | :--- | :------------------------------------------------- |
+| data-complete      | -    | Present when the progress has completed.           |
+| data-indeterminate | -    | Present when the progress is in interminate state. |
+| data-progressing   | -    | Present while the progress is progressing.         |
 
 ### Root.Props
 
@@ -55,20 +55,20 @@ Renders a `<span>` element.
 
 **Value Props:**
 
-| Prop           | Type                                                                                    | Default | Description                                                                                                                                                                                   |
-| :------------- | :-------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| children       | `((formattedValue: string \| null, value: number \| null) => ReactNode) \| null`        | -       | -                                                                                                                                                                                             |
-| className      | `string \| ((state: Progress.Root.State) => string \| undefined)`                       | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component’s state.                                                                                      |
-| style          | `CSSProperties \| ((state: Progress.Root.State) => CSSProperties \| undefined)`         | -       | -                                                                                                                                                                                             |
-| render         | `ReactElement \| ((props: HTMLProps, state: Progress.Root.State) => ReactElement)`      | -       | Allows you to replace the component’s HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop      | Type                                                                               | Default | Description                                                                                                                                                                                   |
+| :-------- | :--------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| children  | `((formattedValue: string \| null, value: number \| null) => ReactNode) \| null`   | -       | -                                                                                                                                                                                             |
+| className | `string \| ((state: Progress.Root.State) => string \| undefined)`                  | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component’s state.                                                                                      |
+| style     | `CSSProperties \| ((state: Progress.Root.State) => CSSProperties \| undefined)`    | -       | -                                                                                                                                                                                             |
+| render    | `ReactElement \| ((props: HTMLProps, state: Progress.Root.State) => ReactElement)` | -       | Allows you to replace the component’s HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
 
 **Value Data Attributes:**
 
-| Attribute             | Type    | Description                                              |
-| :-------------------- | :------ | :------------------------------------------------------- |
-| data-complete         | -       | Present when the progress has completed.                 |
-| data-indeterminate    | -       | Present when the progress is in interminate state.       |
-| data-progressing      | -       | Present while the progress is progressing.               |
+| Attribute          | Type | Description                                        |
+| :----------------- | :--- | :------------------------------------------------- |
+| data-complete      | -    | Present when the progress has completed.           |
+| data-indeterminate | -    | Present when the progress is in interminate state. |
+| data-progressing   | -    | Present while the progress is progressing.         |
 
 ### Value.Props
 
@@ -81,19 +81,19 @@ Renders a `<div>` element.
 
 **Indicator Props:**
 
-| Prop           | Type                                                                                    | Default | Description                                                                                                                                                                                   |
-| :------------- | :-------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| className      | `string \| ((state: Progress.Root.State) => string \| undefined)`                       | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component’s state.                                                                                      |
-| style          | `CSSProperties \| ((state: Progress.Root.State) => CSSProperties \| undefined)`         | -       | -                                                                                                                                                                                             |
-| render         | `ReactElement \| ((props: HTMLProps, state: Progress.Root.State) => ReactElement)`      | -       | Allows you to replace the component’s HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop      | Type                                                                               | Default | Description                                                                                                                                                                                   |
+| :-------- | :--------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| className | `string \| ((state: Progress.Root.State) => string \| undefined)`                  | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component’s state.                                                                                      |
+| style     | `CSSProperties \| ((state: Progress.Root.State) => CSSProperties \| undefined)`    | -       | -                                                                                                                                                                                             |
+| render    | `ReactElement \| ((props: HTMLProps, state: Progress.Root.State) => ReactElement)` | -       | Allows you to replace the component’s HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
 
 **Indicator Data Attributes:**
 
-| Attribute             | Type    | Description                                              |
-| :-------------------- | :------ | :------------------------------------------------------- |
-| data-complete         | -       | Present when the progress has completed.                 |
-| data-indeterminate    | -       | Present when the progress is in interminate state.       |
-| data-progressing      | -       | Present while the progress is progressing.               |
+| Attribute          | Type | Description                                        |
+| :----------------- | :--- | :------------------------------------------------- |
+| data-complete      | -    | Present when the progress has completed.           |
+| data-indeterminate | -    | Present when the progress is in interminate state. |
+| data-progressing   | -    | Present while the progress is progressing.         |
 
 ### Indicator.Props
 
@@ -106,19 +106,19 @@ Renders a `<div>` element.
 
 **Track Props:**
 
-| Prop           | Type                                                                                    | Default | Description                                                                                                                                                                                   |
-| :------------- | :-------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| className      | `string \| ((state: Progress.Root.State) => string \| undefined)`                       | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component’s state.                                                                                      |
-| style          | `CSSProperties \| ((state: Progress.Root.State) => CSSProperties \| undefined)`         | -       | -                                                                                                                                                                                             |
-| render         | `ReactElement \| ((props: HTMLProps, state: Progress.Root.State) => ReactElement)`      | -       | Allows you to replace the component’s HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop      | Type                                                                               | Default | Description                                                                                                                                                                                   |
+| :-------- | :--------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| className | `string \| ((state: Progress.Root.State) => string \| undefined)`                  | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component’s state.                                                                                      |
+| style     | `CSSProperties \| ((state: Progress.Root.State) => CSSProperties \| undefined)`    | -       | -                                                                                                                                                                                             |
+| render    | `ReactElement \| ((props: HTMLProps, state: Progress.Root.State) => ReactElement)` | -       | Allows you to replace the component’s HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
 
 **Track Data Attributes:**
 
-| Attribute             | Type    | Description                                              |
-| :-------------------- | :------ | :------------------------------------------------------- |
-| data-complete         | -       | Present when the progress has completed.                 |
-| data-indeterminate    | -       | Present when the progress is in interminate state.       |
-| data-progressing      | -       | Present while the progress is progressing.               |
+| Attribute          | Type | Description                                        |
+| :----------------- | :--- | :------------------------------------------------- |
+| data-complete      | -    | Present when the progress has completed.           |
+| data-indeterminate | -    | Present when the progress is in interminate state. |
+| data-progressing   | -    | Present while the progress is progressing.         |
 
 ### Track.Props
 
@@ -131,19 +131,19 @@ Renders a `<span>` element.
 
 **Label Props:**
 
-| Prop           | Type                                                                                    | Default | Description                                                                                                                                                                                   |
-| :------------- | :-------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| className      | `string \| ((state: Progress.Root.State) => string \| undefined)`                       | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component’s state.                                                                                      |
-| style          | `CSSProperties \| ((state: Progress.Root.State) => CSSProperties \| undefined)`         | -       | -                                                                                                                                                                                             |
-| render         | `ReactElement \| ((props: HTMLProps, state: Progress.Root.State) => ReactElement)`      | -       | Allows you to replace the component’s HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop      | Type                                                                               | Default | Description                                                                                                                                                                                   |
+| :-------- | :--------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| className | `string \| ((state: Progress.Root.State) => string \| undefined)`                  | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component’s state.                                                                                      |
+| style     | `CSSProperties \| ((state: Progress.Root.State) => CSSProperties \| undefined)`    | -       | -                                                                                                                                                                                             |
+| render    | `ReactElement \| ((props: HTMLProps, state: Progress.Root.State) => ReactElement)` | -       | Allows you to replace the component’s HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
 
 **Label Data Attributes:**
 
-| Attribute             | Type    | Description                                              |
-| :-------------------- | :------ | :------------------------------------------------------- |
-| data-complete         | -       | Present when the progress has completed.                 |
-| data-indeterminate    | -       | Present when the progress is in interminate state.       |
-| data-progressing      | -       | Present while the progress is progressing.               |
+| Attribute          | Type | Description                                        |
+| :----------------- | :--- | :------------------------------------------------- |
+| data-complete      | -    | Present when the progress has completed.           |
+| data-indeterminate | -    | Present when the progress is in interminate state. |
+| data-progressing   | -    | Present while the progress is progressing.         |
 
 ### Label.Props
 
