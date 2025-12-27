@@ -7,6 +7,7 @@ import * as Accordion from '../Accordion';
 import * as DescriptionList from '../DescriptionList';
 import { TableCode } from '../TableCode';
 import * as ReferenceTableTooltip from './ReferenceTableTooltip';
+import { Code } from '../Code';
 
 interface Props extends React.ComponentPropsWithoutRef<any> {
   data: Record<string, ProcessedProperty>;
@@ -85,9 +86,9 @@ export function PropsReferenceAccordion({
               )}
               <Accordion.Scrollable className="max-md:hidden break-keep whitespace-nowrap px-3">
                 {prop.required || prop.default === undefined ? (
-                  <TableCode className="text-(--syntax-nullish)">—</TableCode>
+                  <Code className="text-xs text-(--syntax-nullish)">—</Code>
                 ) : (
-                  <TableCode>{prop.default}</TableCode>
+                  prop.default
                 )}
               </Accordion.Scrollable>
               <span className="flex justify-center max-xs:ml-auto max-xs:mr-3">

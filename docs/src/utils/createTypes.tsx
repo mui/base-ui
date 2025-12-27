@@ -2,7 +2,26 @@ import {
   createTypesFactory,
   createMultipleTypesFactory,
 } from '@mui/internal-docs-infra/abstractCreateTypes';
+import clsx from 'clsx';
 import { ReferenceTable } from '../components/ReferenceTable/ReferenceTable';
+import { mdxComponents as components, inlineMdxComponents } from '../mdx-components';
+
+interface MDXComponents {
+  [key: string]: React.FC<any> | MDXComponents;
+}
+
+const Code =
+  typeof inlineMdxComponents.code === 'function'
+    ? inlineMdxComponents.code
+    : (props: any) => <code {...props} />;
+
+const inlineComponents: MDXComponents = {
+  ...inlineMdxComponents,
+  code: (props) => (
+    <Code {...props} data-table-code="" className={clsx(props.className, 'text-xs')} />
+  ),
+  pre: (props) => <pre {...props} className={clsx(props.className, 'text-xs p-0 m-0')} />,
+};
 
 /**
  * Creates a type doc component that renders a reference table for the given component.
@@ -12,6 +31,8 @@ import { ReferenceTable } from '../components/ReferenceTable/ReferenceTable';
  */
 export const createTypes = createTypesFactory({
   TypesContent: ReferenceTable,
+  components,
+  inlineComponents,
 });
 
 /**
@@ -23,4 +44,6 @@ export const createTypes = createTypesFactory({
  */
 export const createMultipleTypes = createMultipleTypesFactory({
   TypesContent: ReferenceTable,
+  components,
+  inlineComponents,
 });
