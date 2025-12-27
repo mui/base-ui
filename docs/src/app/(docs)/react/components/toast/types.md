@@ -398,7 +398,7 @@ type ToastViewportState = { expanded: boolean };
 Creates a new toast manager.
 
 ```typescript
-() => {
+type createToastManager = () => {
   ' subscribe': (
     listener: (data: {
       action: 'add' | 'close' | 'update' | 'promise';
@@ -682,7 +682,7 @@ Creates a new toast manager.
 Returns the array of toasts and methods to manage them.
 
 ```typescript
-() => {
+type useToastManager = () => {
   toasts: {
     id: string;
     ref?: RefObject<HTMLElement | null>;

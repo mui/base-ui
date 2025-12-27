@@ -547,7 +547,7 @@ type MenuSeparatorOrientation = 'horizontal' | 'vertical';
 ### SubmenuRoot.Context
 
 ```typescript
-Context<MenuSubmenuRootContext | undefined>;
+type Context = Context<MenuSubmenuRootContext | undefined>;
 ```
 
 ### SubmenuTrigger
@@ -1099,13 +1099,13 @@ type MenuCheckboxItemIndicatorState = {
 Creates a new handle to connect a Menu.Root with detached Menu.Trigger components.
 
 ```typescript
-() => {};
+type createMenuHandle = () => {};
 ```
 
 ### useMenuSubmenuRootContext
 
 ```typescript
-() => { parentMenu: {} } | undefined;
+type useMenuSubmenuRootContext = () => { parentMenu: {} } | undefined;
 ```
 
 ### MenuParent

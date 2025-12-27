@@ -392,5 +392,5 @@ Renders a `<div>` element.
 Creates a new handle to connect a Tooltip.Root with detached Tooltip.Trigger components.
 
 ```typescript
-() => {};
+type createTooltipHandle = () => {};
 ```

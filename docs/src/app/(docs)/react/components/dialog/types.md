@@ -378,5 +378,5 @@ type DialogViewportState = {
 Creates a new handle to connect a Dialog.Root with detached Dialog.Trigger components.
 
 ```typescript
-() => {};
+type createDialogHandle = () => {};
 ```

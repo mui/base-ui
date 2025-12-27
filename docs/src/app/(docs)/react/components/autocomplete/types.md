@@ -692,7 +692,7 @@ type Filter = {
 Matches items against a query using `Intl.Collator` for robust string matching.
 
 ```typescript
-(options?: {
+type useComboboxFilter = (options?: {
   multiple?: boolean;
   value?: any;
   locale?: IntlLocalesArgument;
@@ -730,7 +730,7 @@ type UseComboboxFilterOptions = {
 Matches items against a query using `Intl.Collator` for robust string matching.
 
 ```typescript
-(options?: { locale?: IntlLocalesArgument }) => {
+type getFilter = (options?: { locale?: IntlLocalesArgument }) => {
   contains: (
     item: Item,
     query: string,
