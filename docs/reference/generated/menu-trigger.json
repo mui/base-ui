@@ -18,6 +18,11 @@
       "description": "A payload to pass to the menu when it is opened.",
       "detailedType": "Payload | undefined"
     },
+    "pressMode": {
+      "type": "'click' | 'mousedown'",
+      "description": "Determines how the menu is opened when the trigger is pressed.",
+      "detailedType": "'click' | 'mousedown' | undefined"
+    },
     "disabled": {
       "type": "boolean",
       "default": "false",
