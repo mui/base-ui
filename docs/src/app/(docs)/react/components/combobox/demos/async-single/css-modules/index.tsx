@@ -41,7 +41,7 @@ export default function ExampleAsyncSingleCombobox() {
     }
 
     if (trimmedSearchValue === '') {
-      return selectedValue ? null : 'Start typing to search people...';
+      return selectedValue ? null : 'Start typing to search people…';
     }
 
     if (searchResults.length === 0) {
