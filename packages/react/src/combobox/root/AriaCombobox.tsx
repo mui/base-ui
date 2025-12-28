@@ -5,7 +5,7 @@ import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useOnFirstRender } from '@base-ui/utils/useOnFirstRender';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
-import { visuallyHidden } from '@base-ui/utils/visuallyHidden';
+import { visuallyHiddenInput } from '@base-ui/utils/visuallyHidden';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { Store, useStore } from '@base-ui/utils/store';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
@@ -563,7 +563,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
   );
 
   const setSelectedValue = useStableCallback(
-    (nextValue: Value | Value[], eventDetails: AriaCombobox.ChangeEventDetails) => {
+    (nextValue: Value | Value[] | null, eventDetails: AriaCombobox.ChangeEventDetails) => {
       // Cast to `any` due to conditional value type (single vs. multiple).
       // The runtime implementation already ensures the correct value shape.
       onSelectedValueChange?.(nextValue as any, eventDetails);
@@ -852,15 +852,14 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       const current = Array.isArray(selectedValue) ? selectedValue : EMPTY_ARRAY;
       const next = current.filter((v) => itemIncludes(registry, v, store.state.isItemEqualToValue));
       if (next.length !== current.length) {
-        setSelectedValueUnwrapped(next);
+        setSelectedValue(next, createChangeEventDetails(REASONS.none));
       }
       return;
     }
 
     const isStillPresent =
-      selectedValue == null
-        ? true
-        : itemIncludes(registry, selectedValue, store.state.isItemEqualToValue);
+      selectedValue == null ||
+      itemIncludes(registry, selectedValue, store.state.isItemEqualToValue);
     if (isStillPresent) {
       return;
     }
@@ -872,15 +871,8 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     ) {
       fallback = defaultSelectedValue;
     }
-    setSelectedValueUnwrapped(fallback);
 
-    // Keep the input text in sync when the input is rendered outside the popup.
-    if (!store.state.inputInsidePopup) {
-      const stringVal = stringifyAsLabel(fallback, itemToStringLabel);
-      if (inputRef.current && inputRef.current.value !== stringVal) {
-        setInputValue(stringVal, createChangeEventDetails(REASONS.none));
-      }
-    }
+    setSelectedValue(fallback, createChangeEventDetails(REASONS.none));
   }, [
     items,
     flatItems,
@@ -888,10 +880,8 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     selectionMode,
     selectedValue,
     defaultSelectedValue,
-    setSelectedValueUnwrapped,
-    itemToStringLabel,
     store,
-    setInputValue,
+    setSelectedValue,
   ]);
 
   useIsoLayoutEffect(() => {
@@ -1291,7 +1281,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
         readOnly={readOnly}
         value={serializedValue}
         ref={hiddenInputRef}
-        style={visuallyHidden}
+        style={visuallyHiddenInput}
         tabIndex={-1}
         aria-hidden
       />
