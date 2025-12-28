@@ -98,33 +98,55 @@ describe('<NumberField />', () => {
     expect(form.checkValidity()).to.equal(false);
   });
 
-  it.skipIf(isJSDOM)(
-    'does not block submission when step mismatch occurs with undefined step',
-    async () => {
-      await render(
-        <form data-testid="form">
-          <NumberFieldBase.Root name="quantity" min={0}>
-            <NumberFieldBase.Group>
-              <NumberFieldBase.Input />
-            </NumberFieldBase.Group>
-          </NumberFieldBase.Root>
-          <button type="submit">Submit</button>
-        </form>,
-      );
+  it.skipIf(isJSDOM)('blocks submission when step mismatch occurs with default step', async () => {
+    await render(
+      <form data-testid="form">
+        <NumberFieldBase.Root name="quantity" min={0}>
+          <NumberFieldBase.Group>
+            <NumberFieldBase.Input />
+          </NumberFieldBase.Group>
+        </NumberFieldBase.Root>
+        <button type="submit">Submit</button>
+      </form>,
+    );
 
-      const input = screen.getByRole('textbox');
-      fireEvent.change(input, { target: { value: '0.11' } });
+    const input = screen.getByRole('textbox');
+    fireEvent.change(input, { target: { value: '0.11' } });
 
-      const hiddenInput = document.querySelector(
-        'input[type="number"][name="quantity"]',
-      ) as HTMLInputElement;
-      expect(hiddenInput).not.to.equal(null);
-      expect(hiddenInput.validity.stepMismatch).to.equal(false);
+    const hiddenInput = document.querySelector(
+      'input[type="number"][name="quantity"]',
+    ) as HTMLInputElement;
+    expect(hiddenInput).not.to.equal(null);
+    expect(hiddenInput.validity.stepMismatch).to.equal(true);
 
-      const form = screen.getByTestId<HTMLFormElement>('form');
-      expect(form.checkValidity()).to.equal(true);
-    },
-  );
+    const form = screen.getByTestId<HTMLFormElement>('form');
+    expect(form.checkValidity()).to.equal(false);
+  });
+
+  it('does not block submission when step="any"', async () => {
+    await render(
+      <form data-testid="form">
+        <NumberFieldBase.Root name="quantity" min={0} step="any">
+          <NumberFieldBase.Group>
+            <NumberFieldBase.Input />
+          </NumberFieldBase.Group>
+        </NumberFieldBase.Root>
+        <button type="submit">Submit</button>
+      </form>,
+    );
+
+    const input = screen.getByRole('textbox');
+    fireEvent.change(input, { target: { value: '0.11' } });
+
+    const hiddenInput = document.querySelector(
+      'input[type="number"][name="quantity"]',
+    ) as HTMLInputElement;
+    expect(hiddenInput).not.to.equal(null);
+    expect(hiddenInput.validity.stepMismatch).to.equal(false);
+
+    const form = screen.getByTestId<HTMLFormElement>('form');
+    expect(form.checkValidity()).to.equal(true);
+  });
 
   describe('prop: onValueChange', () => {
     it('should be called when the value changes', async () => {

@@ -56,7 +56,7 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
     min,
     max,
     smallStep = 0.1,
-    step = 1,
+    step: stepProp = 1,
     largeStep = 10,
     required = false,
     disabled: disabledProp = false,
@@ -90,6 +90,7 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
 
   const disabled = fieldDisabled || disabledProp;
   const name = fieldName ?? nameProp;
+  const step = stepProp === 'any' ? 1 : stepProp;
 
   const [isScrubbing, setIsScrubbing] = React.useState(false);
 
@@ -547,7 +548,7 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
         max={max}
         // stepMismatch validation is broken unless an explicit `min` is added.
         // See https://github.com/facebook/react/issues/12334.
-        step={step}
+        step={stepProp}
         disabled={disabled}
         required={required}
         aria-hidden
@@ -582,10 +583,11 @@ export interface NumberFieldRootProps extends Omit<
   smallStep?: number;
   /**
    * Amount to increment and decrement with the buttons and arrow keys, or to scrub with pointer movement in the scrub area.
-   * To enable step validation on form submission, specify the `min` prop explicitly.
+   * To always enable step validation on form submission, specify the `min` prop explicitly in conjunction with this prop.
+   * Specify `step="any"` to always disable step validation.
    * @default 1
    */
-  step?: number;
+  step?: number | 'any';
   /**
    * The large step value of the input element when incrementing while the shift key is held. Snaps
    * to multiples of this value.
