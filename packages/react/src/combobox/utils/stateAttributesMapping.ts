@@ -8,11 +8,9 @@ export const triggerStateAttributesMapping = {
   ...fieldValidityMapping,
   popupSide: (side: Side | null) => (side ? { 'data-popup-side': side } : null),
   listEmpty: (empty: boolean) => (empty ? { 'data-list-empty': '' } : null),
-  itemHighlighted: (highlighted: boolean) => (highlighted ? { 'data-item-highlighted': '' } : null),
 } satisfies StateAttributesMapping<{
   open: boolean;
   valid: boolean | null;
   popupSide: Side | null;
   listEmpty: boolean;
-  itemHighlighted: boolean;
 }>;

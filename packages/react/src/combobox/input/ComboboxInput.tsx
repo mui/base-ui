@@ -73,7 +73,6 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
   const selectedValue = useStore(store, selectors.selectedValue);
   const popupSideValue = useStore(store, selectors.popupSide);
   const positionerElement = useStore(store, selectors.positionerElement);
-  const hasActiveIndex = useStore(store, selectors.hasActiveIndex);
 
   const autoHighlightEnabled = Boolean(autoHighlightMode);
   const popupSide = mounted && positionerElement ? popupSideValue : null;
@@ -104,9 +103,8 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
       readOnly,
       popupSide,
       listEmpty,
-      itemHighlighted: hasActiveIndex,
     }),
-    [fieldState, open, disabled, readOnly, popupSide, listEmpty, hasActiveIndex],
+    [fieldState, open, disabled, readOnly, popupSide, listEmpty],
   );
 
   function handleKeyDown(event: React.KeyboardEvent<HTMLInputElement>) {
@@ -441,10 +439,6 @@ export interface ComboboxInputState extends FieldRoot.State {
    * Present when the corresponding items list is empty.
    */
   listEmpty: boolean;
-  /**
-   * Whether any item in the corresponding items list is highlighted.
-   */
-  itemHighlighted: boolean;
   /**
    * Whether the component should ignore user edits.
    */
