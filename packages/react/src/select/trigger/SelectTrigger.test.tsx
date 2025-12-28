@@ -157,6 +157,22 @@ describe('<Select.Trigger />', () => {
       expect(trigger).not.to.have.attribute('data-placeholder');
       expect(value).not.to.have.attribute('data-placeholder');
     });
+
+    it('should not have the data-placeholder attribute when multiple mode has a default value', async () => {
+      await render(
+        <Select.Root multiple defaultValue={['a']}>
+          <Select.Trigger data-testid="trigger">
+            <Select.Value data-testid="value" />
+          </Select.Trigger>
+        </Select.Root>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+      const value = screen.getByTestId('value');
+
+      expect(trigger).not.to.have.attribute('data-placeholder');
+      expect(value).not.to.have.attribute('data-placeholder');
+    });
   });
 
   describe('style hooks', () => {

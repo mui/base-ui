@@ -696,5 +696,27 @@ describe('<Combobox.Trigger />', () => {
       const trigger = screen.getByTestId('trigger');
       expect(trigger).to.have.attribute('data-placeholder');
     });
+
+    it('does not have data-placeholder when multiple mode has a default value', async () => {
+      await render(
+        <Combobox.Root multiple defaultValue={['a']}>
+          <Combobox.Trigger data-testid="trigger">
+            <Combobox.Value placeholder="Select" />
+          </Combobox.Trigger>
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  <Combobox.Item value="a">a</Combobox.Item>
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+      expect(trigger).not.to.have.attribute('data-placeholder');
+    });
   });
 });

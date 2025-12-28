@@ -275,12 +275,22 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
 });
 
 export interface SelectTriggerState extends FieldRoot.State {
-  /** Whether the select popup is currently open. */
+  /**
+   * Whether the select popup is currently open.
+   */
   open: boolean;
-  /** Whether the select popup is readonly. */
+  /**
+   * Whether the select popup is readonly.
+   */
   readOnly: boolean;
-  /** The value of the currently selected item. */
+  /**
+   * The value of the currently selected item.
+   */
   value: any;
+  /**
+   * Whether the select doesn't have a value.
+   */
+  placeholder: boolean;
 }
 
 export interface SelectTriggerProps
