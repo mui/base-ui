@@ -3,20 +3,21 @@ import { Select } from '@base-ui/react/select';
 import { Field } from '@base-ui/react/field';
 import styles from './index.module.css';
 
-const fonts = [
-  { label: 'Sans-serif', value: 'sans' },
-  { label: 'Serif', value: 'serif' },
-  { label: 'Monospace', value: 'mono' },
-  { label: 'Cursive', value: 'cursive' },
+const apples = [
+  { label: 'Gala', value: 'gala' },
+  { label: 'Fuji', value: 'fuji' },
+  { label: 'Honeycrisp', value: 'honeycrisp' },
+  { label: 'Granny Smith', value: 'granny-smith' },
+  { label: 'Pink Lady', value: 'pink-lady' },
 ];
 
 export default function ExampleSelect() {
   return (
     <Field.Root>
-      <Field.Label className={styles.Label}>Font</Field.Label>
-      <Select.Root items={fonts}>
+      <Field.Label className={styles.Label}>Apple</Field.Label>
+      <Select.Root items={apples}>
         <Select.Trigger className={styles.Select}>
-          <Select.Value className={styles.Value} placeholder="Select font" />
+          <Select.Value className={styles.Value} placeholder="Select apple" />
           <Select.Icon className={styles.SelectIcon}>
             <ChevronUpDownIcon />
           </Select.Icon>
@@ -26,7 +27,7 @@ export default function ExampleSelect() {
             <Select.Popup className={styles.Popup}>
               <Select.ScrollUpArrow className={styles.ScrollArrow} />
               <Select.List className={styles.List}>
-                {fonts.map(({ label, value }) => (
+                {apples.map(({ label, value }) => (
                   <Select.Item key={label} value={value} className={styles.Item}>
                     <Select.ItemIndicator className={styles.ItemIndicator}>
                       <CheckIcon className={styles.ItemIndicatorIcon} />

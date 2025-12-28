@@ -2,20 +2,21 @@ import * as React from 'react';
 import { Select } from '@base-ui/react/select';
 import { Field } from '@base-ui/react/field';
 
-const fonts = [
-  { label: 'Sans-serif', value: 'sans' },
-  { label: 'Serif', value: 'serif' },
-  { label: 'Monospace', value: 'mono' },
-  { label: 'Cursive', value: 'cursive' },
+const apples = [
+  { label: 'Gala', value: 'gala' },
+  { label: 'Fuji', value: 'fuji' },
+  { label: 'Honeycrisp', value: 'honeycrisp' },
+  { label: 'Granny Smith', value: 'granny-smith' },
+  { label: 'Pink Lady', value: 'pink-lady' },
 ];
 
 export default function ExampleSelect() {
   return (
     <Field.Root className="flex flex-col gap-1">
-      <Field.Label className="text-sm leading-5 font-medium text-gray-900">Font</Field.Label>
-      <Select.Root items={fonts}>
+      <Field.Label className="text-sm leading-5 font-medium text-gray-900">Apple</Field.Label>
+      <Select.Root items={apples}>
         <Select.Trigger className="flex h-10 min-w-36 items-center justify-between gap-3 rounded-md border border-gray-200 pr-3 pl-3.5 text-base bg-[canvas] text-gray-900 select-none hover:bg-gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 data-[popup-open]:bg-gray-100">
-          <Select.Value className="data-[placeholder]:opacity-60" placeholder="Select font" />
+          <Select.Value className="data-[placeholder]:opacity-60" placeholder="Select apple" />
           <Select.Icon className="flex">
             <ChevronUpDownIcon />
           </Select.Icon>
@@ -25,7 +26,7 @@ export default function ExampleSelect() {
             <Select.Popup className="group min-w-[var(--anchor-width)] origin-[var(--transform-origin)] bg-clip-padding rounded-md bg-[canvas] text-gray-900 shadow-lg shadow-gray-200 outline outline-1 outline-gray-200 transition-[transform,scale,opacity] data-[ending-style]:scale-90 data-[ending-style]:opacity-0 data-[side=none]:min-w-[calc(var(--anchor-width)+1rem)] data-[side=none]:data-[ending-style]:transition-none data-[starting-style]:scale-90 data-[starting-style]:opacity-0 data-[side=none]:data-[starting-style]:scale-100 data-[side=none]:data-[starting-style]:opacity-100 data-[side=none]:data-[starting-style]:transition-none dark:shadow-none dark:outline-gray-300">
               <Select.ScrollUpArrow className="top-0 z-[1] flex h-4 w-full cursor-default items-center justify-center rounded-md bg-[canvas] text-center text-xs before:absolute data-[side=none]:before:top-[-100%] before:left-0 before:h-full before:w-full before:content-['']" />
               <Select.List className="relative py-1 scroll-py-6 overflow-y-auto max-h-[var(--available-height)]">
-                {fonts.map(({ label, value }) => (
+                {apples.map(({ label, value }) => (
                   <Select.Item
                     key={label}
                     value={value}
