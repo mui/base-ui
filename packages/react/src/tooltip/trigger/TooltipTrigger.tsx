@@ -20,7 +20,7 @@ import { OPEN_DELAY } from '../utils/constants';
  */
 export const TooltipTrigger = React.forwardRef(function TooltipTrigger(
   componentProps: TooltipTrigger.Props,
-  forwardedRef: React.ForwardedRef<any>,
+  forwardedRef: React.ForwardedRef<Element>,
 ) {
   const {
     className,

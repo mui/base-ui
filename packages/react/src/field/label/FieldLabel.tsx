@@ -18,7 +18,7 @@ import { useRenderElement } from '../../utils/useRenderElement';
  */
 export const FieldLabel = React.forwardRef(function FieldLabel(
   componentProps: FieldLabel.Props,
-  forwardedRef: React.ForwardedRef<any>,
+  forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
   const { render, className, id: idProp, ...elementProps } = componentProps;
 

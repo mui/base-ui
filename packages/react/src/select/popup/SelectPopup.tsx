@@ -43,7 +43,7 @@ const stateAttributesMapping: StateAttributesMapping<SelectPopup.State> = {
  */
 export const SelectPopup = React.forwardRef(function SelectPopup(
   componentProps: SelectPopup.Props,
-  forwardedRef: React.ForwardedRef<Element>,
+  forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const { render, className, ...elementProps } = componentProps;
 

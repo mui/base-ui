@@ -12,7 +12,7 @@ import { MenuGroupContext } from './MenuGroupContext';
  */
 export const MenuGroup = React.forwardRef(function MenuGroup(
   componentProps: MenuGroup.Props,
-  forwardedRef: React.ForwardedRef<Element>,
+  forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const { render, className, ...elementProps } = componentProps;
 

@@ -22,7 +22,7 @@ import { REASONS } from '../../utils/reasons';
  */
 export const MenuRadioItem = React.forwardRef(function MenuRadioItem(
   componentProps: MenuRadioItem.Props,
-  forwardedRef: React.ForwardedRef<Element>,
+  forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
   const {
     render,

@@ -23,7 +23,7 @@ import { activeElement, contains } from '../../floating-ui-react/utils';
  */
 export const TabsTab = React.forwardRef(function TabsTab(
   componentProps: TabsTab.Props,
-  forwardedRef: React.ForwardedRef<Element>,
+  forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
   const {
     className,

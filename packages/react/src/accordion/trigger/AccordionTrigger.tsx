@@ -51,7 +51,7 @@ function getActiveTriggers(accordionItemRefs: {
 
 export const AccordionTrigger = React.forwardRef(function AccordionTrigger(
   componentProps: AccordionTrigger.Props,
-  forwardedRef: React.ForwardedRef<Element>,
+  forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
   const {
     disabled: disabledProp,
