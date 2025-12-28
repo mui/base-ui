@@ -281,17 +281,17 @@ export interface RadioGroupProps extends Omit<
    *
    * To render an uncontrolled radio group, use the `defaultValue` prop instead.
    */
-  value?: unknown;
+  value?: any;
   /**
    * The uncontrolled value of the radio button that should be initially selected.
    *
    * To render a controlled radio group, use the `value` prop instead.
    */
-  defaultValue?: unknown;
+  defaultValue?: any;
   /**
    * Callback fired when the value changes.
    */
-  onValueChange?: (value: unknown, eventDetails: RadioGroup.ChangeEventDetails) => void;
+  onValueChange?: (value: any, eventDetails: RadioGroup.ChangeEventDetails) => void;
   /**
    * A ref to access the hidden input element.
    */
