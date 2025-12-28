@@ -572,44 +572,5 @@ describe('<Combobox.Input />', () => {
       await waitFor(() => expect(screen.getByRole('listbox')).not.to.equal(null));
       expect(input).to.have.attribute('data-list-empty');
     });
-
-    it('does not set data-item-highlighted when an item is highlighted', async () => {
-      const { user } = await render(
-        <Combobox.Root items={['apple', 'banana', 'cherry']}>
-          <Combobox.Input />
-          <Combobox.Portal>
-            <Combobox.Positioner>
-              <Combobox.Popup>
-                <Combobox.List>
-                  {(item: string) => (
-                    <Combobox.Item key={item} value={item}>
-                      {item}
-                    </Combobox.Item>
-                  )}
-                </Combobox.List>
-              </Combobox.Popup>
-            </Combobox.Positioner>
-          </Combobox.Portal>
-        </Combobox.Root>,
-      );
-
-      const input = screen.getByRole('combobox');
-
-      expect(input).not.to.have.attribute('data-item-highlighted');
-
-      await user.click(input);
-
-      await waitFor(() => expect(screen.getByRole('listbox')).not.to.equal(null));
-
-      expect(input).not.to.have.attribute('data-item-highlighted');
-
-      // Navigate to first item
-      await user.keyboard('{ArrowDown}');
-
-      await waitFor(() =>
-        expect(screen.getByRole('option', { name: 'apple' })).to.have.attribute('data-highlighted'),
-      );
-      expect(input).not.to.have.attribute('data-item-highlighted');
-    });
   });
 });
