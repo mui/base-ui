@@ -293,6 +293,60 @@ describe('<Combobox.Root />', () => {
         expect(cherryOption).to.have.attribute('data-selected', '');
       });
 
+      it('reconciles a controlled value when the selected item is removed', async () => {
+        const handleValueChange = spy();
+
+        function App() {
+          const [items, setItems] = React.useState(['a', 'b']);
+          const [value, setValue] = React.useState<string | null>('b');
+
+          return (
+            <React.Fragment>
+              <button type="button" onClick={() => setItems(['a'])}>
+                Remove
+              </button>
+              <Combobox.Root
+                items={items}
+                value={value}
+                defaultValue="a"
+                onValueChange={(nextValue, details) => {
+                  handleValueChange(nextValue, details);
+                  setValue(nextValue);
+                }}
+              >
+                <Combobox.Input data-testid="input" />
+                <Combobox.Portal>
+                  <Combobox.Positioner>
+                    <Combobox.Popup>
+                      <Combobox.List>
+                        {(item: string) => (
+                          <Combobox.Item key={item} value={item}>
+                            {item}
+                          </Combobox.Item>
+                        )}
+                      </Combobox.List>
+                    </Combobox.Popup>
+                  </Combobox.Positioner>
+                </Combobox.Portal>
+              </Combobox.Root>
+            </React.Fragment>
+          );
+        }
+
+        const { user } = await render(<App />);
+
+        expect(screen.getByTestId('input')).to.have.value('b');
+
+        await user.click(screen.getByRole('button', { name: 'Remove' }));
+
+        await waitFor(() => {
+          expect(handleValueChange.callCount).to.equal(1);
+          expect(handleValueChange.firstCall.args[0]).to.equal('a');
+          expect(handleValueChange.firstCall.args[1].reason).to.equal(REASONS.none);
+          expect(screen.getByTestId('input')).to.have.value('a');
+        });
+      });
+
       it('should not auto-close popup when open state is controlled', async () => {
         const items = ['apple', 'banana', 'cherry'];
 
@@ -465,6 +519,57 @@ describe('<Combobox.Root />', () => {
     });
 
     describe('multiple', () => {
+      it('reconciles a controlled value when selected items are removed', async () => {
+        const handleValueChange = spy();
+
+        function App() {
+          const [items, setItems] = React.useState(['a', 'b', 'c']);
+          const [value, setValue] = React.useState(['a', 'b']);
+
+          return (
+            <React.Fragment>
+              <button type="button" onClick={() => setItems(['a', 'c'])}>
+                Remove
+              </button>
+              <Combobox.Root
+                items={items}
+                multiple
+                value={value}
+                onValueChange={(nextValue, details) => {
+                  handleValueChange(nextValue, details);
+                  setValue(nextValue);
+                }}
+              >
+                <Combobox.Input />
+                <Combobox.Portal>
+                  <Combobox.Positioner>
+                    <Combobox.Popup>
+                      <Combobox.List>
+                        {(item: string) => (
+                          <Combobox.Item key={item} value={item}>
+                            {item}
+                          </Combobox.Item>
+                        )}
+                      </Combobox.List>
+                    </Combobox.Popup>
+                  </Combobox.Positioner>
+                </Combobox.Portal>
+              </Combobox.Root>
+            </React.Fragment>
+          );
+        }
+
+        const { user } = await render(<App />);
+
+        await user.click(screen.getByRole('button', { name: 'Remove' }));
+
+        await waitFor(() => {
+          expect(handleValueChange.callCount).to.equal(1);
+          expect(handleValueChange.firstCall.args[0]).to.deep.equal(['a']);
+          expect(handleValueChange.firstCall.args[1].reason).to.equal(REASONS.none);
+        });
+      });
+
       it('should handle multiple selection', async () => {
         const handleValueChange = spy();
 
