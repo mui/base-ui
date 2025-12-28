@@ -547,8 +547,7 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
         max={max}
         // stepMismatch validation is broken unless an explicit `min` is added.
         // See https://github.com/facebook/react/issues/12334.
-        // Use `any` to disable step validation unless the prop is explicitly provided.
-        step={min !== undefined ? (componentProps.step ?? 'any') : undefined}
+        step={step}
         disabled={disabled}
         required={required}
         aria-hidden
@@ -582,8 +581,8 @@ export interface NumberFieldRootProps extends Omit<
    */
   smallStep?: number;
   /**
-   * Amount to increment and decrement with the buttons and arrow keys,
-   * or to scrub with pointer movement in the scrub area.
+   * Amount to increment and decrement with the buttons and arrow keys, or to scrub with pointer movement in the scrub area.
+   * To enable step validation on form submission, specify the `min` prop explicitly.
    * @default 1
    */
   step?: number;
