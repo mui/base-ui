@@ -37,3 +37,6 @@ docs/public/react
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Claude
+.claude/settings.local.json

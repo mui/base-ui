@@ -1488,6 +1488,82 @@ describe('<Select.Root />', () => {
 
         expect(trigger).to.have.attribute('data-filled');
       });
+
+      it('does not add [data-filled] attribute when multiple value is empty', async () => {
+        const { user } = await renderFakeTimers(
+          <Field.Root>
+            <Select.Root multiple>
+              <Select.Trigger data-testid="trigger" />
+              <Select.Portal>
+                <Select.Positioner>
+                  <Select.Popup>
+                    <Select.Item value="">Select</Select.Item>
+                    <Select.Item value="1">Option 1</Select.Item>
+                  </Select.Popup>
+                </Select.Positioner>
+              </Select.Portal>
+            </Select.Root>
+          </Field.Root>,
+        );
+
+        const trigger = screen.getByTestId('trigger');
+
+        expect(trigger).not.to.have.attribute('data-filled');
+
+        await user.click(trigger);
+        await flushMicrotasks();
+        clock.tick(200);
+
+        const option = screen.getByRole('option', { name: 'Option 1' });
+
+        await user.click(option);
+        await flushMicrotasks();
+
+        expect(trigger).to.have.attribute('data-filled', '');
+
+        await user.click(option);
+        await flushMicrotasks();
+
+        expect(trigger).not.to.have.attribute('data-filled');
+      });
+
+      it('does not add [data-filled] attribute when multiple defaultValue is empty array', async () => {
+        const { user } = await renderFakeTimers(
+          <Field.Root>
+            <Select.Root multiple defaultValue={[]}>
+              <Select.Trigger data-testid="trigger" />
+              <Select.Portal>
+                <Select.Positioner>
+                  <Select.Popup>
+                    <Select.Item value="">Select</Select.Item>
+                    <Select.Item value="1">Option 1</Select.Item>
+                  </Select.Popup>
+                </Select.Positioner>
+              </Select.Portal>
+            </Select.Root>
+          </Field.Root>,
+        );
+
+        const trigger = screen.getByTestId('trigger');
+
+        expect(trigger).not.to.have.attribute('data-filled');
+
+        await user.click(trigger);
+        await flushMicrotasks();
+        clock.tick(200);
+
+        const option = screen.getByRole('option', { name: 'Option 1' });
+
+        await user.click(option);
+        await flushMicrotasks();
+
+        expect(trigger).to.have.attribute('data-filled', '');
+
+        await user.click(option);
+        await flushMicrotasks();
+
+        expect(trigger).not.to.have.attribute('data-filled');
+      });
     });
 
     it('[data-focused]', async () => {

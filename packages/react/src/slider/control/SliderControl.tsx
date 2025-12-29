@@ -322,7 +322,6 @@ export const SliderControl = React.forwardRef(function SliderControl(
 
     pressedInputRef.current = null;
     pressedThumbCenterOffsetRef.current = null;
-    pressedThumbIndexRef.current = -1;
 
     const fingerCoords = getFingerCoords(nativeEvent, touchIdRef);
     const finger = fingerCoords != null ? getFingerState(fingerCoords) : null;
@@ -343,6 +342,7 @@ export const SliderControl = React.forwardRef(function SliderControl(
       controlRef.current?.releasePointerCapture(nativeEvent.pointerId);
     }
 
+    pressedThumbIndexRef.current = -1;
     touchIdRef.current = null;
     pressedValuesRef.current = null;
     // eslint-disable-next-line @typescript-eslint/no-use-before-define
