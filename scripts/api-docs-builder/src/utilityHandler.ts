@@ -145,9 +145,9 @@ export async function formatUtilityData(utility: tae.ExportNode) {
     return false;
   });
 
-  const documentationOverrides = Array<DocumentationOverride | undefined>(
-    parameters.length,
-  ).fill(undefined);
+  const documentationOverrides = Array<DocumentationOverride | undefined>(parameters.length).fill(
+    undefined,
+  );
 
   for (const signature of functionNode.callSignatures) {
     signature.parameters.forEach((param, index) => {
@@ -170,12 +170,7 @@ export async function formatUtilityData(utility: tae.ExportNode) {
     documentationOverrides,
   );
 
-  const formattedReturnValue = formatType(
-    bestSignature.returnValueType,
-    false,
-    undefined,
-    true,
-  );
+  const formattedReturnValue = formatType(bestSignature.returnValueType, false, undefined, true);
 
   return {
     name: utility.name,

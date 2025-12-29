@@ -29,14 +29,17 @@ Enables RTL behavior for Base UI components.
 
 ## mergeProps
 
-Merges multiple sets of React props. It follows the `Object.assign` pattern where the rightmost object's fields overwrite
-the conflicting ones from others. This doesn't apply to event handlers, `className` and `style` props.
+A utility to merge multiple sets of React props.
 
 <details>
 
 <summary>Outline</summary>
 
 - Sections:
+  - How merging works
+  - Passing a function instead of an object
+  - Example
+  - Notes
   - API reference
     - mergeProps
     - mergePropsN

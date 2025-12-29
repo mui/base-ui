@@ -111,11 +111,12 @@ export function processReference(node) {
         ];
       });
 
-      const tableNode = mdx.table(
-        ['Parameter', 'Type', 'Default', 'Description'],
-        parameterRows,
-        ['left', 'left', 'left', 'left'],
-      );
+      const tableNode = mdx.table(['Parameter', 'Type', 'Default', 'Description'], parameterRows, [
+        'left',
+        'left',
+        'left',
+        'left',
+      ]);
       tables.push(tableNode);
     }
 
@@ -129,17 +130,10 @@ export function processReference(node) {
         const description = def.description || '';
         const namePrefix = includeName ? `${name}${description ? ': ' : ''}` : '';
         const descriptionText = description ? `${namePrefix}${description}` : namePrefix;
-        return [
-          def.type ? mdx.inlineCode(def.type) : '-',
-          parseMarkdown(descriptionText || '-'),
-        ];
+        return [def.type ? mdx.inlineCode(def.type) : '-', parseMarkdown(descriptionText || '-')];
       });
 
-      const tableNode = mdx.table(
-        ['Type', 'Description'],
-        returnRows,
-        ['left', 'left'],
-      );
+      const tableNode = mdx.table(['Type', 'Description'], returnRows, ['left', 'left']);
       tables.push(tableNode);
     }
 

@@ -1,23 +1,43 @@
 # mergeProps
 
-Merges multiple sets of React props. It follows the `Object.assign` pattern where the rightmost object's fields overwrite
-the conflicting ones from others. This doesn't apply to event handlers, `className` and `style` props.
+<Subtitle>A utility to merge multiple sets of React props.</Subtitle>
+<Meta
+  name="description"
+  content="A utility to merge multiple sets of React props, handling event handlers, className, and style props intelligently."
+/>
 
-Event handlers are merged and called in right-to-left order (rightmost handler executes first, leftmost last).
-For React synthetic events, the rightmost handler can prevent prior (left-positioned) handlers from executing
-by calling `event.preventBaseUIHandler()`. For non-synthetic events (custom events with primitive/object values),
-all handlers always execute without prevention capability.
+`mergeProps` helps you combine multiple prop objects (e.g. internal props + user props) into a single set of props you can spread onto an element.
+It behaves like `Object.assign` (rightmost wins) with a few special cases so common React patterns work as expected.
 
-The `className` prop is merged by concatenating classes in right-to-left order (rightmost class appears first in the string).
-The `style` prop is merged with rightmost styles overwriting the prior ones.
+## How merging works
 
-Props can either be provided as objects or as functions that take the previous props as an argument.
-The function will receive the merged props up to that point (going from left to right):
-so in the case of `(obj1, obj2, fn, obj3)`, `fn` will receive the merged props of `obj1` and `obj2`.
-The function is responsible for chaining event handlers if needed (i.e. we don't run the merge logic).
+- For most keys, the value from the rightmost object wins (like `Object.assign`).
+- `className` values are concatenated right-to-left (rightmost first). For example, `mergeProps({ className: 'a' }, { className: 'b' }).className` is `'b a'`.
+- `style` objects are merged, with keys from the rightmost style overwriting earlier ones.
+- Event handlers are merged and executed right-to-left (rightmost first). So in `mergeProps({ onClick: a }, { onClick: b })`, `b` runs before `a`.
+  - For React synthetic events, the rightmost handler can prevent earlier handlers from running by calling `event.preventBaseUIHandler()`.
+  - For non-synthetic events (custom events with primitive/object values), all handlers always execute.
 
-Event handlers returned by the functions are not automatically prevented when `preventBaseUIHandler` is called.
-They must check `event.baseUIHandlerPrevented` themselves and bail out if it's true.
+## Passing a function instead of an object
+
+Each argument can be a props object or a function that receives the merged props up to that point (left to right) and returns a props object.
+This is useful when you need to compute the next props from whatever has already been merged.
+
+When you return event handlers from a function argument, `preventBaseUIHandler()` is not applied automatically to those handlers.
+If you want that behavior, check `event.baseUIHandlerPrevented` yourself and bail out.
+
+## Example
+
+```tsx
+const props = mergeProps(
+  { id: 'internal', className: 'base', onClick: handleInternalClick },
+  userProps,
+);
+```
+
+## Notes
+
+- `ref` is not merged.
 
 ## API reference
 
