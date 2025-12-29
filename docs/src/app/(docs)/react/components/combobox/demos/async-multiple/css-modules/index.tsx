@@ -54,7 +54,7 @@ export default function ExampleAsyncMultipleCombobox() {
     }
 
     if (trimmedSearchValue === '' && !blockStartStatus) {
-      return selectedValues.length > 0 ? null : 'Start typing to search people...';
+      return selectedValues.length > 0 ? null : 'Start typing to search people…';
     }
 
     if (searchResults.length === 0 && !blockStartStatus) {
