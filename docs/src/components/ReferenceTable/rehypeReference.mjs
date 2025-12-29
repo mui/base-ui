@@ -5,6 +5,12 @@ import { kebabCase } from 'es-toolkit/string';
 import { join } from 'path';
 import { createMdxElement } from 'docs/src/mdx/createMdxElement.mjs';
 import { createHast } from 'docs/src/mdx/createHast.mjs';
+import {
+  getAttributeValue,
+  isComponentDef,
+  isFunctionDef,
+  normalizeReturnValue,
+} from './referenceUtils.mjs';
 
 // The "<Reference />" component name as used in MDX
 const REFERENCE = 'Reference';
@@ -14,6 +20,10 @@ const ATTRIBUTES_TABLE = 'AttributesReferenceTable';
 const CSS_VARIABLES_TABLE = 'CssVariablesReferenceTable';
 
 const PROPS_TABLE = 'PropsReferenceTable';
+const PARAMETERS_TABLE = 'ParametersReferenceTable';
+const RETURN_VALUE_TABLE = 'ReturnValueReferenceTable';
+const PARAMETERS_HEADING = 'Parameters';
+const RETURN_VALUE_HEADING = 'Return value';
 
 /**
  * Finds `<Reference />` in the MDX and transforms it into
@@ -29,33 +39,31 @@ export function rehypeReference() {
       }
 
       /** @type {string | undefined} */
-      const component = node.attributes.find(
-        /** @param {{ name: string; }} attr */
-        (attr) => attr.name === 'component',
-      )?.value;
+      const component = getAttributeValue(node, 'component');
 
       /** @type {string | undefined} */
-      const parts = node.attributes.find(
-        /** @param {{ name: string; }} attr */
-        (attr) => attr.name === 'parts',
-      )?.value;
+      const name = getAttributeValue(node, 'name');
 
       /** @type {string | undefined} */
-      const asParam = node.attributes.find(
-        /** @param {{ name: string; }} attr */
-        (attr) => attr.name === 'as',
-      )?.value;
+      const parts = getAttributeValue(node, 'parts');
 
-      if (!component) {
-        throw new Error(`Missing "component" prop on the "<Reference />" component.`);
+      /** @type {string | undefined} */
+      const asParam = getAttributeValue(node, 'as');
+
+      const referenceName = component ?? name;
+
+      if (!referenceName) {
+        throw new Error(`Missing "component" or "name" prop on the "<Reference />" component.`);
       }
 
       /** @type {import('./types').ComponentDef[]} */
       let componentDefs = [];
+      /** @type {import('./types').FunctionDef | null} */
+      let functionDef = null;
 
       if (parts) {
         componentDefs = parts.split(/,\s*/).map((part) => {
-          let filename = `${kebabCase(component)}-${kebabCase(part)}.json`;
+          let filename = `${kebabCase(referenceName)}-${kebabCase(part)}.json`;
           let pathname = join(process.cwd(), 'reference/generated', filename);
 
           if (!existsSync(pathname)) {
@@ -67,14 +75,73 @@ export function rehypeReference() {
           return JSON.parse(jsonContents);
         });
       } else {
-        const filename = `${kebabCase(component)}.json`;
+        const filename = `${kebabCase(referenceName)}.json`;
         const pathname = join(process.cwd(), 'reference/generated', filename);
         const jsonContents = readFileSync(pathname, 'utf-8');
-        componentDefs = [JSON.parse(jsonContents)];
+        const parsedDef = JSON.parse(jsonContents);
+
+        if (isFunctionDef(parsedDef) && !isComponentDef(parsedDef)) {
+          functionDef = parsedDef;
+        } else {
+          componentDefs = [parsedDef];
+        }
       }
 
       const parent = ancestors.slice(-1)[0];
       const index = parent.children.indexOf(node);
+
+      if (functionDef) {
+        const subtree = [];
+        const parameters = functionDef.parameters ?? {};
+        const returnValue = normalizeReturnValue(functionDef.returnValue);
+
+        if (Object.keys(parameters).length) {
+          subtree.push(
+            createMdxElement({
+              name: 'h4',
+              children: [{ type: 'text', value: PARAMETERS_HEADING }],
+              props: {
+                id: `${kebabCase(functionDef.name)}-parameters`,
+              },
+            }),
+          );
+
+          subtree.push(
+            createMdxElement({
+              name: PARAMETERS_TABLE,
+              props: {
+                name: `${functionDef.name}-parameters`,
+                data: parameters,
+              },
+            }),
+          );
+        }
+
+        if (Object.keys(returnValue).length) {
+          subtree.push(
+            createMdxElement({
+              name: 'h4',
+              children: [{ type: 'text', value: RETURN_VALUE_HEADING }],
+              props: {
+                id: `${kebabCase(functionDef.name)}-return-value`,
+              },
+            }),
+          );
+
+          subtree.push(
+            createMdxElement({
+              name: RETURN_VALUE_TABLE,
+              props: {
+                name: `${functionDef.name}-return`,
+                data: returnValue,
+              },
+            }),
+          );
+        }
+
+        parent.children.splice(index, 1, ...subtree);
+        return;
+      }
 
       // Replace "<Reference />" with content
       parent.children.splice(
@@ -82,9 +149,9 @@ export function rehypeReference() {
         1,
         ...componentDefs.flatMap((def) => {
           const subtree = [];
-          const name =
-            parts && def.name.startsWith(component)
-              ? def.name.substring(component.length)
+          const partName =
+            parts && def.name.startsWith(referenceName)
+              ? def.name.substring(referenceName.length)
               : def.name;
 
           // Insert an <h3> with the part name and parse descriptions as markdown.
@@ -94,9 +161,9 @@ export function rehypeReference() {
             subtree.push(
               createMdxElement({
                 name: 'h3',
-                children: [{ type: 'text', value: name }],
+                children: [{ type: 'text', value: partName }],
                 props: {
-                  id: kebabCase(name),
+                  id: kebabCase(partName),
                 },
               }),
             );
@@ -112,11 +179,11 @@ export function rehypeReference() {
                 name: PROPS_TABLE,
                 props: {
                   name:
-                    asParam && def.name.startsWith(component)
-                      ? `${asParam}${def.name.substring(component.length)}`
+                    asParam && def.name.startsWith(referenceName)
+                      ? `${asParam}${def.name.substring(referenceName.length)}`
                       : def.name,
                   data: def.props,
-                  renameFrom: asParam ? component : undefined,
+                  renameFrom: asParam ? referenceName : undefined,
                   renameTo: asParam,
                 },
               }),

@@ -11,6 +11,19 @@ type InputProps<T extends React.ElementType> =
 
 const EMPTY_PROPS = {};
 
+/* eslint-disable id-denylist */
+export function mergeProps<T extends ElementType>(a: InputProps<T>, b: InputProps<T>): PropsOf<T>;
+export function mergeProps<T extends ElementType>(
+  a: InputProps<T>,
+  b: InputProps<T>,
+  c: InputProps<T>,
+): PropsOf<T>;
+export function mergeProps<T extends ElementType>(
+  a: InputProps<T>,
+  b: InputProps<T>,
+  c: InputProps<T>,
+  d: InputProps<T>,
+): PropsOf<T>;
 /**
  * Merges multiple sets of React props. It follows the Object.assign pattern where the rightmost object's fields overwrite
  * the conflicting ones from others. This doesn't apply to event handlers, `className` and `style` props.
@@ -32,23 +45,14 @@ const EMPTY_PROPS = {};
  * They must check `event.baseUIHandlerPrevented` themselves and bail out if it's true.
  *
  * @important **`ref` is not merged.**
- * @param props Props to merge.
+ * @param a Props object to merge.
+ * @param b Props object to merge. The function will overwrite conflicting props from `a`.
+ * @param c Props object to merge. The function will overwrite conflicting props from previous parameters.
+ * @param d Props object to merge. The function will overwrite conflicting props from previous parameters.
+ * @param e Props object to merge. The function will overwrite conflicting props from previous parameters.
  * @returns The merged props.
+ * @public
  */
-/* eslint-disable id-denylist */
-export function mergeProps<T extends ElementType>(a: InputProps<T>, b: InputProps<T>): PropsOf<T>;
-export function mergeProps<T extends ElementType>(a: InputProps<T>, b: InputProps<T>): PropsOf<T>;
-export function mergeProps<T extends ElementType>(
-  a: InputProps<T>,
-  b: InputProps<T>,
-  c: InputProps<T>,
-): PropsOf<T>;
-export function mergeProps<T extends ElementType>(
-  a: InputProps<T>,
-  b: InputProps<T>,
-  c: InputProps<T>,
-  d: InputProps<T>,
-): PropsOf<T>;
 export function mergeProps<T extends ElementType>(
   a: InputProps<T>,
   b: InputProps<T>,
@@ -81,13 +85,14 @@ export function mergeProps(a: any, b: any, c?: any, d?: any, e?: any) {
  * Merges an arbitrary number of React props using the same logic as {@link mergeProps}.
  * This function accepts an array of props instead of individual arguments.
  *
- * @important This has slightly lower performance than {@link mergeProps} due to accepting
- * an array instead of a fixed number of arguments. Prefer {@link mergeProps} when merging
- * 5 or fewer prop sets for better performance.
+ * This has slightly lower performance than {@link mergeProps} due to accepting an array
+ * instead of a fixed number of arguments. Prefer {@link mergeProps} when merging 5 or
+ * fewer prop sets for better performance.
  *
  * @param props Array of props to merge.
  * @returns The merged props.
  * @see mergeProps
+ * @public
  */
 export function mergePropsN<T extends ElementType>(props: InputProps<T>[]): PropsOf<T> {
   if (props.length === 0) {

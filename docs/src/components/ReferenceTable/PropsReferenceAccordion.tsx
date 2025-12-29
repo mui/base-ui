@@ -29,7 +29,7 @@ function ExpandedPre(props: React.ComponentProps<'pre'>) {
 }
 
 interface PropDef extends BasePropDef {
-  detailedType: string;
+  detailedType?: string;
   example?: string;
 }
 
@@ -41,6 +41,9 @@ interface Props extends React.ComponentPropsWithoutRef<any> {
   // replace occurrences of "renameFrom.*" with "renameTo.*" in types
   renameFrom?: string;
   renameTo?: string;
+  nameLabel?: string;
+  itemLabel?: string;
+  caption?: string;
 }
 
 function getShortPropType(name: string, type: string | undefined) {
@@ -96,6 +99,9 @@ export async function PropsReferenceAccordion({
   name: partName,
   renameFrom,
   renameTo,
+  nameLabel = 'Prop',
+  itemLabel = 'prop',
+  caption = 'Component props table',
   ...props
 }: Props) {
   const captionId = `${partName}-caption`;
@@ -103,10 +109,10 @@ export async function PropsReferenceAccordion({
   return (
     <Accordion.Root aria-describedby={captionId} {...props}>
       <span id={captionId} style={visuallyHidden} aria-hidden>
-        Component props table
+        {caption}
       </span>
       <Accordion.HeaderRow className={clsx('grid', TRIGGER_GRID_LAYOUT)}>
-        <Accordion.HeaderCell>Prop</Accordion.HeaderCell>
+        <Accordion.HeaderCell>{nameLabel}</Accordion.HeaderCell>
         <Accordion.HeaderCell className="max-xs:hidden">Type</Accordion.HeaderCell>
         <Accordion.HeaderCell className="max-md:hidden">Default</Accordion.HeaderCell>
         <Accordion.HeaderCell className="max-md:hidden w-10" />
@@ -179,7 +185,7 @@ export async function PropsReferenceAccordion({
             <Accordion.Trigger
               id={id}
               index={index}
-              aria-label={`prop: ${name},${prop.required ? ' required,' : ''} type: ${shortPropTypeName} ${prop.default !== undefined ? `(default: ${prop.default})` : ''}`}
+              aria-label={`${itemLabel}: ${name},${prop.required ? ' required,' : ''} type: ${shortPropTypeName} ${prop.default !== undefined ? `(default: ${prop.default})` : ''}`}
               className={clsx('min-h-min scroll-mt-12 p-0 md:scroll-mt-0', TRIGGER_GRID_LAYOUT)}
             >
               <Accordion.Scrollable className="px-3">

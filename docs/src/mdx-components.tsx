@@ -4,6 +4,8 @@ import * as Table from './components/Table';
 import * as QuickNav from './components/QuickNav/QuickNav';
 import { Code } from './components/Code';
 import { PropsReferenceAccordion } from './components/ReferenceTable/PropsReferenceAccordion';
+import { ParametersReferenceTable } from './components/ReferenceTable/ParametersReferenceTable';
+import { ReturnValueReferenceTable } from './components/ReferenceTable/ReturnValueReferenceTable';
 import { AttributesReferenceTable } from './components/ReferenceTable/AttributesReferenceTable';
 import { CssVariablesReferenceTable } from './components/ReferenceTable/CssVariablesReferenceTable';
 import { Link } from './components/Link';
@@ -96,6 +98,12 @@ export const mdxComponents: MDXComponents = {
     <CssVariablesReferenceTable className="mt-5 mb-6" {...props} />
   ),
   PropsReferenceTable: (props) => <PropsReferenceAccordion className="mt-5 mb-6" {...props} />,
+  ParametersReferenceTable: (props) => (
+    <ParametersReferenceTable className="mt-5 mb-6" {...props} />
+  ),
+  ReturnValueReferenceTable: (props) => (
+    <ReturnValueReferenceTable className="mt-5 mb-6" {...props} />
+  ),
 };
 
 export const inlineMdxComponents: MDXComponents = {
