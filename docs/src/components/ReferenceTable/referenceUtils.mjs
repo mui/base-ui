@@ -75,7 +75,7 @@ export function normalizeReturnValue(returnValue) {
   }
 
   return {
-    returnValue: returnValue,
+    returnValue,
   };
 }
 
