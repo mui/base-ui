@@ -177,4 +177,17 @@ describe('<Select.Trigger />', () => {
       expect(trigger).to.have.attribute('data-pressed');
     });
   });
+
+  describe('prop: required', () => {
+    it('sets aria-required attribute when required', async () => {
+      await render(
+        <Select.Root required>
+          <Select.Trigger data-testid="trigger" />
+        </Select.Root>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+      expect(trigger).to.have.attribute('aria-required', 'true');
+    });
+  });
 });

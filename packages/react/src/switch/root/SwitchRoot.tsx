@@ -78,11 +78,12 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
 
   const id = useBaseUiId();
 
-  const inputId = useLabelableId({
+  const controlId = useLabelableId({
     id: idProp,
     implicit: false,
     controlRef: switchRef,
   });
+  const hiddenInputId = nativeButton ? undefined : controlId;
 
   const [checked, setCheckedState] = useControlled({
     controlled: checkedProp,
@@ -124,10 +125,11 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
   });
 
   const rootProps: React.ComponentPropsWithRef<'span'> = {
-    id,
+    id: nativeButton ? controlId : id,
     role: 'switch',
     'aria-checked': checked,
     'aria-readonly': readOnly || undefined,
+    'aria-required': required || undefined,
     'aria-labelledby': labelId,
     onFocus() {
       if (!disabled) {
@@ -164,7 +166,7 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
         {
           checked,
           disabled,
-          id: inputId,
+          id: hiddenInputId,
           name,
           required,
           style: visuallyHiddenInput,
@@ -199,7 +201,7 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
       checked,
       disabled,
       handleInputRef,
-      inputId,
+      hiddenInputId,
       name,
       onCheckedChange,
       required,

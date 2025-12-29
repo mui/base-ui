@@ -1245,6 +1245,21 @@ describe('<Autocomplete.Root />', () => {
 
     clock.withFakeTimers();
 
+    it('sets `required` on the visible input', async () => {
+      await render(
+        <Field.Root>
+          <Autocomplete.Root required>
+            <Autocomplete.Input data-testid="input" />
+            <Autocomplete.Portal>
+              <Autocomplete.Positioner />
+            </Autocomplete.Portal>
+          </Autocomplete.Root>
+        </Field.Root>,
+      );
+
+      expect(screen.getByTestId('input')).to.have.attribute('required');
+    });
+
     it('[data-touched]', async () => {
       await render(
         <Field.Root>
