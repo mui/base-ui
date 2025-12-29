@@ -37,7 +37,7 @@ import { findRootOwnerId } from '../utils/findRootOwnerId';
 import { useTriggerDataForwarding } from '../../utils/popups';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { REASONS } from '../../utils/reasons';
-import { useMixedToggleClickHandler } from '../../utils/useMixedToggleClickHander';
+import { useMixedToggleClickHandler } from '../../utils/useMixedToggleClickHandler';
 import { MenuHandle } from '../store/MenuHandle';
 import { useContextMenuRootContext } from '../../context-menu/root/ContextMenuRootContext';
 import { useMenubarContext } from '../../menubar/MenubarContext';
@@ -175,7 +175,7 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
   }, [isOpenedByThisTrigger, handleDocumentMouseUp, store]);
 
   const parentMenubarHasSubmenuOpen = isInMenubar && parent.context.hasSubmenuOpen;
-  const openOnHover = openOnHoverProp ?? parentMenubarHasSubmenuOpen ?? false;
+  const openOnHover = openOnHoverProp ?? parentMenubarHasSubmenuOpen;
 
   const hoverProps = useHoverReferenceInteraction(floatingRootContext, {
     enabled:
@@ -194,7 +194,7 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
   });
 
   // Whether to ignore clicks to open the menu.
-  // `lastOpenChangeReason` doesnt't need to be reactive here, as we need to run this
+  // `lastOpenChangeReason` doesn't need to be reactive here, as we need to run this
   // only when `isOpenedByThisTrigger` changes.
   const stickIfOpen = useStickIfOpen(isOpenedByThisTrigger, store.select('lastOpenChangeReason'));
 
