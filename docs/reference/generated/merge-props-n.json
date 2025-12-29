@@ -7,5 +7,8 @@
       "description": "Array of props to merge."
     }
   },
-  "returnValue": "{}"
+  "returnValue": {
+    "type": "{}",
+    "description": "The merged props."
+  }
 }

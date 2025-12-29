@@ -26,5 +26,8 @@
       "description": "Props object to merge. The function will overwrite conflicting props from previous parameters."
     }
   },
-  "returnValue": "{}"
+  "returnValue": {
+    "type": "{}",
+    "description": "The merged props."
+  }
 }

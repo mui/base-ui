@@ -12,18 +12,6 @@ type InputProps<T extends React.ElementType> =
 const EMPTY_PROPS = {};
 
 /* eslint-disable id-denylist */
-export function mergeProps<T extends ElementType>(a: InputProps<T>, b: InputProps<T>): PropsOf<T>;
-export function mergeProps<T extends ElementType>(
-  a: InputProps<T>,
-  b: InputProps<T>,
-  c: InputProps<T>,
-): PropsOf<T>;
-export function mergeProps<T extends ElementType>(
-  a: InputProps<T>,
-  b: InputProps<T>,
-  c: InputProps<T>,
-  d: InputProps<T>,
-): PropsOf<T>;
 /**
  * Merges multiple sets of React props. It follows the Object.assign pattern where the rightmost object's fields overwrite
  * the conflicting ones from others. This doesn't apply to event handlers, `className` and `style` props.
@@ -60,6 +48,18 @@ export function mergeProps<T extends ElementType>(
   d: InputProps<T>,
   e: InputProps<T>,
 ): PropsOf<T>;
+export function mergeProps<T extends ElementType>(
+  a: InputProps<T>,
+  b: InputProps<T>,
+  c: InputProps<T>,
+  d: InputProps<T>,
+): PropsOf<T>;
+export function mergeProps<T extends ElementType>(
+  a: InputProps<T>,
+  b: InputProps<T>,
+  c: InputProps<T>,
+): PropsOf<T>;
+export function mergeProps<T extends ElementType>(a: InputProps<T>, b: InputProps<T>): PropsOf<T>;
 export function mergeProps(a: any, b: any, c?: any, d?: any, e?: any) {
   // We need to mutably own `merged`
   let merged = { ...resolvePropsGetter(a, EMPTY_PROPS) };

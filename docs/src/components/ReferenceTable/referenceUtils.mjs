@@ -70,5 +70,27 @@ export function normalizeReturnValue(returnValue) {
     };
   }
 
-  return returnValue;
+  if (isReturnValueMap(returnValue)) {
+    return returnValue;
+  }
+
+  return {
+    returnValue: returnValue,
+  };
+}
+
+/**
+ * @param {unknown} returnValue
+ * @returns {returnValue is Record<string, import('./types').PropDef>}
+ */
+function isReturnValueMap(returnValue) {
+  if (!returnValue || typeof returnValue !== 'object') {
+    return false;
+  }
+
+  const values = Object.values(returnValue);
+  if (values.length === 0) {
+    return true;
+  }
+  return values.some((value) => value && typeof value === 'object');
 }

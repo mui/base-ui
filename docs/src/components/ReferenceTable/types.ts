@@ -34,5 +34,5 @@ export interface FunctionDef {
   name: string;
   description?: string;
   parameters?: Record<string, FunctionParamDef>;
-  returnValue?: Record<string, PropDef> | string;
+  returnValue?: Record<string, PropDef> | PropDef | string;
 }

@@ -51,6 +51,18 @@ function extractDescription(documentation: tae.Documentation | undefined) {
   return '';
 }
 
+function extractReturnDescription(documentation: tae.Documentation | undefined) {
+  const returnTag = documentation?.tags?.find(
+    (tag) => tag.name === 'returns' || tag.name === 'return',
+  );
+  if (!returnTag?.value) {
+    return undefined;
+  }
+
+  const description = returnTag.value.replace(/^\s*-\s*/, '').trim();
+  return description || undefined;
+}
+
 function applyParamTags(
   tags: tae.DocumentationTag[] | undefined,
   parameters: tae.Parameter[],
@@ -112,6 +124,8 @@ export async function formatUtilityData(utility: tae.ExportNode) {
     description += `\n\n${importantTag.value}`;
   }
 
+  const returnDescription = extractReturnDescription(utility.documentation);
+
   const parameters = bestSignature.parameters;
   const optionalOverrides = parameters.map((param, index) => {
     if (param.optional) {
@@ -167,7 +181,12 @@ export async function formatUtilityData(utility: tae.ExportNode) {
     name: utility.name,
     description,
     parameters: formattedParameters,
-    returnValue: formattedReturnValue,
+    returnValue: returnDescription
+      ? {
+          type: formattedReturnValue,
+          description: returnDescription,
+        }
+      : formattedReturnValue,
   };
 }
 
