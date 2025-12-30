@@ -71,7 +71,7 @@
     "@tailwindcss/postcss": "4.1.18",
     "@types/node": "22.18.13",
     "@types/react": "19.2.7",
-    "@types/yargs": "^17.0.35",
+    "@types/yargs": "17.0.35",
     "@vitejs/plugin-react": "^5.1.2",
     "@vitest/browser-playwright": "^4.0.15",
     "@vitest/coverage-istanbul": "4.0.15",
