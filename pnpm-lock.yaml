@@ -31,8 +31,8 @@ importers:
         specifier: workspace:*
         version: link:test
       '@mui/internal-code-infra':
-        specifier: 0.0.3-canary.61
-        version: 0.0.3-canary.61(@next/eslint-plugin-next@16.0.10)(@types/node@22.18.13)(eslint@9.39.1(jiti@2.6.1))(postcss@8.5.6)(prettier@3.7.4)(stylelint@16.26.1(typescript@5.9.3))(typescript@5.9.3)(vitest@4.0.15)
+        specifier: 0.0.3-canary.64
+        version: 0.0.3-canary.64(@next/eslint-plugin-next@16.0.10)(@types/node@22.18.13)(eslint@9.39.1(jiti@2.6.1))(postcss@8.5.6)(prettier@3.7.4)(stylelint@16.26.1(typescript@5.9.3))(typescript@5.9.3)(vitest@4.0.15)
       '@mui/internal-netlify-cache':
         specifier: 0.0.2-canary.1
         version: 0.0.2-canary.1
@@ -2178,6 +2178,15 @@ packages:
       '@types/node':
         optional: true
 
+  '@inquirer/confirm@6.0.3':
+    resolution: {integrity: sha512-lyEvibDFL+NA5R4xl8FUmNhmu81B+LDL9L/MpKkZlQDJZXzG8InxiqYxiAlQYa9cqLLhYqKLQwZqXmSTqCLjyw==}
+    engines: {node: '>=23.5.0 || ^22.13.0 || ^21.7.0 || ^20.12.0'}
+    peerDependencies:
+      '@types/node': ~22.18.13
+    peerDependenciesMeta:
+      '@types/node':
+        optional: true
+
   '@inquirer/core@10.3.2':
     resolution: {integrity: sha512-43RTuEbfP8MbKzedNqBrlhhNKVwoK//vUFNW3Q3vZ88BLcrs4kYpGg+B2mm5p2K/HfygoCxuKwJJiv8PbGmE0A==}
     engines: {node: '>=18'}
@@ -2432,8 +2441,8 @@ packages:
     resolution: {integrity: sha512-umsBUbcprRqRmsaDgFNR2gN9EpaOqKcNdBkExabzqcCL2P+ftD0c04cj3XHFh/k0DzeCrhI1nPFkfb74tgpZ6Q==}
     hasBin: true
 
-  '@mui/internal-code-infra@0.0.3-canary.61':
-    resolution: {integrity: sha512-msHhZMJipb5Ev0Ka+qtlBNOJOAlV+LSk09nTSGjOrlsWOq9HqgBuTWPzf0s1GbCSvgjbLmz2h+TUwXVWEIFamw==}
+  '@mui/internal-code-infra@0.0.3-canary.64':
+    resolution: {integrity: sha512-Un9oAqYpbczqkpMPld+3sf//lD12ugM9bUo6v5ocJ5VmeXc90KHc6eqyTeOJsuzofMFH0ihfJKHItTkivH/f4g==}
     hasBin: true
     peerDependencies:
       '@next/eslint-plugin-next': '*'
@@ -4632,8 +4641,8 @@ packages:
     peerDependencies:
       vitest: 4.0.15
 
-  '@vitest/eslint-plugin@1.5.2':
-    resolution: {integrity: sha512-2t1F2iecXB/b1Ox4U137lhD3chihEE3dRVtu3qMD35tc6UqUjg1VGRJoS1AkFKwpT8zv8OQInzPQO06hrRkeqw==}
+  '@vitest/eslint-plugin@1.6.4':
+    resolution: {integrity: sha512-+qw32ux8HMVNrJnQOYgdjrMYmCn9vsiKnJUv5MoOg40e18WOvhWurzHdbRB3vXLfUrP7+jYyQbd6TuRhL23AkQ==}
     engines: {node: '>=18'}
     peerDependencies:
       eslint: '>=8.57.0'
@@ -9581,6 +9590,7 @@ packages:
   whatwg-encoding@3.1.1:
     resolution: {integrity: sha512-6qN4hJdMwfYBtE3YBTTHhoeuUrDBPZmbQaxWAqSALV/MeEnR5z1xd8UKud2RAkFoPkmB+hli1TZSnyi84xz1vQ==}
     engines: {node: '>=18'}
+    deprecated: Use @exodus/bytes instead for a more spec-conformant and faster implementation
 
   whatwg-mimetype@4.0.0:
     resolution: {integrity: sha512-QaKxh0eNIi2mE9p2vEdzfagOKHCcj1pJ56EEHGQOVxp8r9/iszLUUV7v89x9O1p/T+NlTM5W7jW6+cz4Fq1YVg==}
@@ -11715,6 +11725,13 @@ snapshots:
     optionalDependencies:
       '@types/node': 22.18.13
 
+  '@inquirer/confirm@6.0.3(@types/node@22.18.13)':
+    dependencies:
+      '@inquirer/core': 11.1.0(@types/node@22.18.13)
+      '@inquirer/type': 4.0.2(@types/node@22.18.13)
+    optionalDependencies:
+      '@types/node': 22.18.13
+
   '@inquirer/core@10.3.2(@types/node@22.18.13)':
     dependencies:
       '@inquirer/ansi': 1.0.2
@@ -12092,7 +12109,7 @@ snapshots:
       - tsx
       - yaml
 
-  '@mui/internal-code-infra@0.0.3-canary.61(@next/eslint-plugin-next@16.0.10)(@types/node@22.18.13)(eslint@9.39.1(jiti@2.6.1))(postcss@8.5.6)(prettier@3.7.4)(stylelint@16.26.1(typescript@5.9.3))(typescript@5.9.3)(vitest@4.0.15)':
+  '@mui/internal-code-infra@0.0.3-canary.64(@next/eslint-plugin-next@16.0.10)(@types/node@22.18.13)(eslint@9.39.1(jiti@2.6.1))(postcss@8.5.6)(prettier@3.7.4)(stylelint@16.26.1(typescript@5.9.3))(typescript@5.9.3)(vitest@4.0.15)':
     dependencies:
       '@argos-ci/core': 4.5.0
       '@babel/cli': 7.28.3(@babel/core@7.28.5)
@@ -12106,7 +12123,7 @@ snapshots:
       '@eslint/compat': 2.0.0(eslint@9.39.1(jiti@2.6.1))
       '@eslint/js': 9.39.1
       '@eslint/json': 0.14.0
-      '@inquirer/confirm': 5.1.21(@types/node@22.18.13)
+      '@inquirer/confirm': 6.0.3(@types/node@22.18.13)
       '@inquirer/select': 5.0.3(@types/node@22.18.13)
       '@mui/internal-babel-plugin-display-name': 1.0.4-canary.8(@babel/core@7.28.5)(@babel/preset-react@7.28.5(@babel/core@7.28.5))
       '@mui/internal-babel-plugin-minify-errors': 2.0.8-canary.13(@babel/core@7.28.5)
@@ -12117,7 +12134,7 @@ snapshots:
       '@octokit/oauth-methods': 6.0.2
       '@octokit/rest': 22.0.1
       '@pnpm/find-workspace-dir': 1000.1.3
-      '@vitest/eslint-plugin': 1.5.2(eslint@9.39.1(jiti@2.6.1))(typescript@5.9.3)(vitest@4.0.15)
+      '@vitest/eslint-plugin': 1.6.4(eslint@9.39.1(jiti@2.6.1))(typescript@5.9.3)(vitest@4.0.15)
       babel-plugin-optimize-clsx: 2.6.2
       babel-plugin-react-compiler: 1.0.0
       babel-plugin-transform-inline-environment-variables: 0.4.4
@@ -14563,7 +14580,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@vitest/eslint-plugin@1.5.2(eslint@9.39.1(jiti@2.6.1))(typescript@5.9.3)(vitest@4.0.15)':
+  '@vitest/eslint-plugin@1.6.4(eslint@9.39.1(jiti@2.6.1))(typescript@5.9.3)(vitest@4.0.15)':
     dependencies:
       '@typescript-eslint/scope-manager': 8.50.0
       '@typescript-eslint/utils': 8.50.0(eslint@9.39.1(jiti@2.6.1))(typescript@5.9.3)
