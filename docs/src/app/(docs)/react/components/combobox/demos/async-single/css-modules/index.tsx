@@ -31,7 +31,7 @@ export default function ExampleAsyncSingleCombobox() {
       return (
         <React.Fragment>
           <span className={styles.Spinner} aria-hidden />
-          Searching...
+          Searching…
         </React.Fragment>
       );
     }

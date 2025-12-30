@@ -19,7 +19,7 @@ export default function ExampleAsyncAutocomplete() {
       return (
         <React.Fragment>
           <div className={styles.Spinner} aria-hidden />
-          Searching...
+          Searching…
         </React.Fragment>
       );
     }

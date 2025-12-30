@@ -21,7 +21,7 @@ export default function ExampleAsyncAutocomplete() {
             className="size-4 rounded-full border-2 border-gray-200 border-t-gray-600 animate-spin"
             aria-hidden
           />
-          Searching...
+          Searching…
         </React.Fragment>
       );
     }
