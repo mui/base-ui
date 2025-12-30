@@ -36,7 +36,7 @@
   color: var(--color-gray-900);
   -webkit-user-select: none;
   user-select: none;
-  min-width: 9rem;
+  min-width: 10rem;
 
   @media (hover: hover) {
     &:hover {
