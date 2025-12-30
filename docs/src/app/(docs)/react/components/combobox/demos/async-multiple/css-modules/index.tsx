@@ -44,7 +44,7 @@ export default function ExampleAsyncMultipleCombobox() {
       return (
         <React.Fragment>
           <span className={styles.Spinner} aria-hidden />
-          Searching...
+          Searching…
         </React.Fragment>
       );
     }
