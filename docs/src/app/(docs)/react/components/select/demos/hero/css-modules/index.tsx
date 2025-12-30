@@ -13,7 +13,7 @@ const apples = [
 
 export default function ExampleSelect() {
   return (
-    <Field.Root>
+    <Field.Root className={styles.Field}>
       <Field.Label className={styles.Label}>Apple</Field.Label>
       <Select.Root items={apples}>
         <Select.Trigger className={styles.Select}>

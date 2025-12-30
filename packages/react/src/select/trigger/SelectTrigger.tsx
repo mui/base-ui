@@ -85,8 +85,6 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
   const positionerRef = useValueAsRef(positionerElement);
 
   const triggerRef = React.useRef<HTMLElement | null>(null);
-  const timeoutFocus = useTimeout();
-  const timeoutMouseDown = useTimeout();
 
   const { getButtonProps, buttonRef } = useButton({
     disabled,
@@ -104,6 +102,8 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
     setTriggerElement,
   );
 
+  const timeoutFocus = useTimeout();
+  const timeoutMouseDown = useTimeout();
   const selectedDelayTimeout = useTimeout();
   const unselectedDelayTimeout = useTimeout();
 
@@ -126,7 +126,7 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
           selectionRef.current.allowUnselectedMouseUp = true;
 
           // mousedown -> mouseup on selected item should not select within 400ms.
-          selectedDelayTimeout.start(SELECTED_DELAY, () => {
+          selectedDelayTimeout.start(UNSELECTED_DELAY, () => {
             selectionRef.current.allowSelectedMouseUp = true;
           });
         });

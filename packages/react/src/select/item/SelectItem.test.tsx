@@ -12,13 +12,6 @@ import { expect } from 'chai';
 
 describe('<Select.Item />', () => {
   const { render } = createRenderer();
-  const { render: renderFakeTimers, clock } = createRenderer({
-    clockOptions: {
-      shouldAdvanceTime: true,
-    },
-  });
-
-  clock.withFakeTimers();
 
   describeConformance(<Select.Item value="" />, () => ({
     refInstanceof: window.HTMLDivElement,
@@ -208,9 +201,17 @@ describe('<Select.Item />', () => {
     });
   });
 
-  it.skipIf(!isJSDOM)(
-    'should not select an item on quick mouseup when showing a placeholder (no null item)',
-    async () => {
+  describe.skipIf(!isJSDOM)('quick selection', () => {
+    const { render: renderFakeTimers, clock } = createRenderer({
+      clockOptions: {
+        shouldAdvanceTime: true,
+      },
+    });
+
+    clock.withFakeTimers();
+
+    it('should not select an item on quick mouseup when showing a placeholder (no null item)', async () => {
+      ignoreActWarnings();
       const fonts = [
         { label: 'Sans-serif', value: 'sans' },
         { label: 'Serif', value: 'serif' },
@@ -253,14 +254,14 @@ describe('<Select.Item />', () => {
       fireEvent.mouseMove(option);
 
       // Release quickly over an unselected option.
-      clock.tick(200);
+      await clock.tickAsync(250);
       fireEvent.mouseUp(option);
 
       await waitFor(() => {
         expect(value.textContent).to.equal('Select font');
       });
-    },
-  );
+    });
+  });
 
   describe.skipIf(!isJSDOM)('style hooks', () => {
     it('should apply data-highlighted attribute when item is highlighted', async () => {
