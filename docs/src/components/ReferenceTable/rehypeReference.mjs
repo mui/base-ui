@@ -90,127 +90,141 @@ export function rehypeReference() {
       const parent = ancestors.slice(-1)[0];
       const index = parent.children.indexOf(node);
 
-      if (functionDef) {
-        const subtree = [];
-        const parameters = functionDef.parameters ?? {};
-        const returnValue = normalizeReturnValue(functionDef.returnValue);
-
-        if (Object.keys(parameters).length) {
-          subtree.push(
-            createMdxElement({
-              name: 'h4',
-              children: [{ type: 'text', value: PARAMETERS_HEADING }],
-              props: {
-                id: `${kebabCase(functionDef.name)}-parameters`,
-              },
-            }),
-          );
-
-          subtree.push(
-            createMdxElement({
-              name: PARAMETERS_TABLE,
-              props: {
-                name: `${functionDef.name}-parameters`,
-                data: parameters,
-              },
-            }),
-          );
-        }
-
-        if (Object.keys(returnValue).length) {
-          subtree.push(
-            createMdxElement({
-              name: 'h4',
-              children: [{ type: 'text', value: RETURN_VALUE_HEADING }],
-              props: {
-                id: `${kebabCase(functionDef.name)}-return-value`,
-              },
-            }),
-          );
-
-          subtree.push(
-            createMdxElement({
-              name: RETURN_VALUE_TABLE,
-              props: {
-                name: `${functionDef.name}-return`,
-                data: returnValue,
-              },
-            }),
-          );
-        }
-
-        parent.children.splice(index, 1, ...subtree);
-        return;
-      }
-
       // Replace "<Reference />" with content
-      parent.children.splice(
-        index,
-        1,
-        ...componentDefs.flatMap((def) => {
-          const subtree = [];
-          const partName =
-            parts && def.name.startsWith(referenceName)
-              ? def.name.substring(referenceName.length)
-              : def.name;
-
-          // Insert an <h3> with the part name and parse descriptions as markdown.
-          // Single-part components headings and descriptions aren't displayed
-          // because they duplicate the page title and subtitle anyway.
-          if (parts) {
-            subtree.push(
-              createMdxElement({
-                name: 'h3',
-                children: [{ type: 'text', value: partName }],
-                props: {
-                  id: kebabCase(partName),
-                },
-              }),
-            );
-
-            if (parts && def.description) {
-              subtree.push(...createHast(def.description).children);
-            }
-          }
-
-          if (Object.keys(def.props).length) {
-            subtree.push(
-              createMdxElement({
-                name: PROPS_TABLE,
-                props: {
-                  name:
-                    asParam && def.name.startsWith(referenceName)
-                      ? `${asParam}${def.name.substring(referenceName.length)}`
-                      : def.name,
-                  data: def.props,
-                  renameFrom: asParam ? referenceName : undefined,
-                  renameTo: asParam,
-                },
-              }),
-            );
-          }
-
-          if (Object.keys(def.dataAttributes).length) {
-            subtree.push(
-              createMdxElement({
-                name: ATTRIBUTES_TABLE,
-                props: { data: def.dataAttributes },
-              }),
-            );
-          }
-
-          if (Object.keys(def.cssVariables).length) {
-            subtree.push(
-              createMdxElement({
-                name: CSS_VARIABLES_TABLE,
-                props: { data: def.cssVariables },
-              }),
-            );
-          }
-
-          return subtree;
-        }),
-      );
+      const subtree = functionDef
+        ? describeFunction(functionDef)
+        : describeComponents(componentDefs, referenceName, parts, asParam);
+      parent.children.splice(index, 1, ...subtree);
     });
   };
+}
+
+/**
+ *
+ * @param {import('./types').ComponentDef[]} componentDefs
+ * @param {string} referenceName
+ * @param {string | undefined} parts
+ * @param {string | undefined} asParam
+ */
+function describeComponents(componentDefs, referenceName, parts, asParam) {
+  return componentDefs.flatMap((def) => {
+    const subtree = [];
+    const partName =
+      parts && def.name.startsWith(referenceName)
+        ? def.name.substring(referenceName.length)
+        : def.name;
+
+    // Insert an <h3> with the part name and parse descriptions as markdown.
+    // Single-part components headings and descriptions aren't displayed
+    // because they duplicate the page title and subtitle anyway.
+    if (parts) {
+      subtree.push(
+        createMdxElement({
+          name: 'h3',
+          children: [{ type: 'text', value: partName }],
+          props: {
+            id: kebabCase(partName),
+          },
+        }),
+      );
+
+      if (parts && def.description) {
+        subtree.push(...createHast(def.description).children);
+      }
+    }
+
+    if (Object.keys(def.props).length) {
+      subtree.push(
+        createMdxElement({
+          name: PROPS_TABLE,
+          props: {
+            name:
+              asParam && def.name.startsWith(referenceName)
+                ? `${asParam}${def.name.substring(referenceName.length)}`
+                : def.name,
+            data: def.props,
+            renameFrom: asParam ? referenceName : undefined,
+            renameTo: asParam,
+          },
+        }),
+      );
+    }
+
+    if (Object.keys(def.dataAttributes).length) {
+      subtree.push(
+        createMdxElement({
+          name: ATTRIBUTES_TABLE,
+          props: { data: def.dataAttributes },
+        }),
+      );
+    }
+
+    if (Object.keys(def.cssVariables).length) {
+      subtree.push(
+        createMdxElement({
+          name: CSS_VARIABLES_TABLE,
+          props: { data: def.cssVariables },
+        }),
+      );
+    }
+
+    return subtree;
+  });
+}
+
+/**
+ * Describes a function definition as an array of MDX nodes.
+ *
+ * @param {import('./types').FunctionDef} functionDef
+ */
+function describeFunction(functionDef) {
+  const subtree = [];
+  const parameters = functionDef.parameters ?? {};
+  const returnValue = normalizeReturnValue(functionDef.returnValue);
+
+  if (Object.keys(parameters).length) {
+    subtree.push(
+      createMdxElement({
+        name: 'h4',
+        children: [{ type: 'text', value: PARAMETERS_HEADING }],
+        props: {
+          id: `${kebabCase(functionDef.name)}-parameters`,
+        },
+      }),
+    );
+
+    subtree.push(
+      createMdxElement({
+        name: PARAMETERS_TABLE,
+        props: {
+          name: `${functionDef.name}-parameters`,
+          data: parameters,
+        },
+      }),
+    );
+  }
+
+  if (Object.keys(returnValue).length) {
+    subtree.push(
+      createMdxElement({
+        name: 'h4',
+        children: [{ type: 'text', value: RETURN_VALUE_HEADING }],
+        props: {
+          id: `${kebabCase(functionDef.name)}-return-value`,
+        },
+      }),
+    );
+
+    subtree.push(
+      createMdxElement({
+        name: RETURN_VALUE_TABLE,
+        props: {
+          name: `${functionDef.name}-return`,
+          data: returnValue,
+        },
+      }),
+    );
+  }
+
+  return subtree;
 }
