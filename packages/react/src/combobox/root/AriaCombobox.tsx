@@ -98,6 +98,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     autoHighlight = false,
     keepHighlight = false,
     highlightItemOnHover = true,
+    loopFocus = true,
     itemToStringLabel,
     itemToStringValue,
     isItemEqualToValue = defaultItemEquality,
@@ -562,7 +563,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
   );
 
   const setSelectedValue = useStableCallback(
-    (nextValue: Value | Value[], eventDetails: AriaCombobox.ChangeEventDetails) => {
+    (nextValue: Value | Value[] | null, eventDetails: AriaCombobox.ChangeEventDetails) => {
       // Cast to `any` due to conditional value type (single vs. multiple).
       // The runtime implementation already ensures the correct value shape.
       onSelectedValueChange?.(nextValue as any, eventDetails);
@@ -851,15 +852,14 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       const current = Array.isArray(selectedValue) ? selectedValue : EMPTY_ARRAY;
       const next = current.filter((v) => itemIncludes(registry, v, store.state.isItemEqualToValue));
       if (next.length !== current.length) {
-        setSelectedValueUnwrapped(next);
+        setSelectedValue(next, createChangeEventDetails(REASONS.none));
       }
       return;
     }
 
     const isStillPresent =
-      selectedValue == null
-        ? true
-        : itemIncludes(registry, selectedValue, store.state.isItemEqualToValue);
+      selectedValue == null ||
+      itemIncludes(registry, selectedValue, store.state.isItemEqualToValue);
     if (isStillPresent) {
       return;
     }
@@ -871,15 +871,8 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     ) {
       fallback = defaultSelectedValue;
     }
-    setSelectedValueUnwrapped(fallback);
 
-    // Keep the input text in sync when the input is rendered outside the popup.
-    if (!store.state.inputInsidePopup) {
-      const stringVal = stringifyAsLabel(fallback, itemToStringLabel);
-      if (inputRef.current && inputRef.current.value !== stringVal) {
-        setInputValue(stringVal, createChangeEventDetails(REASONS.none));
-      }
-    }
+    setSelectedValue(fallback, createChangeEventDetails(REASONS.none));
   }, [
     items,
     flatItems,
@@ -887,10 +880,8 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     selectionMode,
     selectedValue,
     defaultSelectedValue,
-    setSelectedValueUnwrapped,
-    itemToStringLabel,
     store,
-    setInputValue,
+    setSelectedValue,
   ]);
 
   useIsoLayoutEffect(() => {
@@ -1056,8 +1047,8 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     activeIndex,
     selectedIndex,
     virtual: true,
-    loopFocus: true,
-    allowEscape: !autoHighlightMode,
+    loopFocus,
+    allowEscape: loopFocus && !autoHighlightMode,
     focusItemOnOpen:
       queryChangedAfterOpen || (selectionMode === 'none' && !autoHighlightMode) ? false : 'auto',
     focusItemOnHover: highlightItemOnHover,
@@ -1385,6 +1376,13 @@ interface ComboboxRootProps<ItemValue> {
    * @default true
    */
   highlightItemOnHover?: boolean;
+  /**
+   * Whether to loop keyboard focus back to the input when the end of the list is reached while using the arrow keys. The first item can then be reached by pressing <kbd>ArrowDown</kbd> again from the input, or the last item can be reached by pressing <kbd>ArrowUp</kbd> from the input.
+   * The input is always included in the focus loop per [ARIA Authoring Practices](https://www.w3.org/WAI/ARIA/apg/patterns/combobox/).
+   * When disabled, focus does not move when on the last element and the user presses <kbd>ArrowDown</kbd>, or when on the first element and the user presses <kbd>ArrowUp</kbd>.
+   * @default true
+   */
+  loopFocus?: boolean;
   /**
    * The input value of the combobox. Use when controlled.
    */
