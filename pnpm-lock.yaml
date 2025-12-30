@@ -58,7 +58,7 @@ importers:
         specifier: 19.2.7
         version: 19.2.7
       '@types/yargs':
-        specifier: ^17.0.35
+        specifier: 17.0.35
         version: 17.0.35
       '@vitejs/plugin-react':
         specifier: ^5.1.2
@@ -305,13 +305,13 @@ importers:
         specifier: 4.1.18
         version: 4.1.18
       '@types/chai':
-        specifier: ^5.2.3
+        specifier: 5.2.3
         version: 5.2.3
       '@types/gtag.js':
-        specifier: ^0.0.20
+        specifier: 0.0.20
         version: 0.0.20
       '@types/hast':
-        specifier: ^3.0.4
+        specifier: 3.0.4
         version: 3.0.4
       '@types/node':
         specifier: 22.18.13
@@ -323,7 +323,7 @@ importers:
         specifier: ^19.2.3
         version: 19.2.3(@types/react@19.2.7)
       '@types/unist':
-        specifier: ^3.0.3
+        specifier: 3.0.3
         version: 3.0.3
       '@wooorm/starry-night':
         specifier: ^3.8.0
@@ -451,10 +451,10 @@ importers:
         specifier: ^14.6.1
         version: 14.6.1(@testing-library/dom@10.4.1)
       '@types/chai':
-        specifier: ^5.2.3
+        specifier: 5.2.3
         version: 5.2.3
       '@types/chai-dom':
-        specifier: ^1.11.3
+        specifier: 1.11.3
         version: 1.11.3
       '@types/react':
         specifier: 19.2.7
@@ -463,10 +463,10 @@ importers:
         specifier: ^19.2.3
         version: 19.2.3(@types/react@19.2.7)
       '@types/sinon':
-        specifier: ^21.0.0
+        specifier: 21.0.0
         version: 21.0.0
       '@types/use-sync-external-store':
-        specifier: ^1.5.0
+        specifier: 1.5.0
         version: 1.5.0
       chai:
         specifier: ^6.2.1
@@ -516,10 +516,10 @@ importers:
         specifier: ^14.6.1
         version: 14.6.1(@testing-library/dom@10.4.1)
       '@types/chai':
-        specifier: ^5.2.3
+        specifier: 5.2.3
         version: 5.2.3
       '@types/chai-dom':
-        specifier: ^1.11.3
+        specifier: 1.11.3
         version: 1.11.3
       '@types/react':
         specifier: 19.2.7
@@ -528,10 +528,10 @@ importers:
         specifier: ^19.2.3
         version: 19.2.3(@types/react@19.2.7)
       '@types/sinon':
-        specifier: ^21.0.0
+        specifier: 21.0.0
         version: 21.0.0
       '@types/use-sync-external-store':
-        specifier: ^1.5.0
+        specifier: 1.5.0
         version: 1.5.0
       chai:
         specifier: ^6.2.1
@@ -589,10 +589,10 @@ importers:
         specifier: ^6.9.1
         version: 6.9.1
       '@types/chai':
-        specifier: ^5.2.3
+        specifier: 5.2.3
         version: 5.2.3
       '@types/chai-dom':
-        specifier: ^1.11.3
+        specifier: 1.11.3
         version: 1.11.3
       '@types/react':
         specifier: 19.2.7
@@ -601,7 +601,7 @@ importers:
         specifier: ^19.2.3
         version: 19.2.3(@types/react@19.2.7)
       '@types/sinon':
-        specifier: ^21.0.0
+        specifier: 21.0.0
         version: 21.0.0
       chai:
         specifier: ^6.2.1
