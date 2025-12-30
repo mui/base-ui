@@ -57,7 +57,9 @@ function DemoSlider(props: Slider.Root.Props & { wide?: boolean }) {
       style={
         {
           ['--base-color']:
-            props.thumbAlignment !== 'edge-client-only' ? 'var(--color-red)' : 'var(--color-blue)',
+            props.thumbAlignment !== 'edge-client-only'
+              ? 'var(--color-red)'
+              : 'var(--color-blue)',
           ['--track-width']: wide ? '320px' : undefined,
           ...(styleProp ?? {}),
         } as React.CSSProperties
@@ -156,7 +158,8 @@ export default function App() {
       </div>
 
       <p className="mb-4 self-start">
-        Red <code>thumbAlignment="edge"</code>, Blue <code>thumbAlignment="edge-client-only"</code>
+        Red <code>thumbAlignment="edge"</code>, Blue{' '}
+        <code>thumbAlignment="edge-client-only"</code>
       </p>
       <div className="grid grid-cols-[repeat(2,minmax(min-content,auto))] gap-8 self-start">
         <DemoSlider defaultValue={30} thumbAlignment="edge-client-only" />

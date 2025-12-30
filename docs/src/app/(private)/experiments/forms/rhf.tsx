@@ -296,13 +296,17 @@ export default function ExampleForm() {
                   className={styles.Field}
                 >
                   <NumberField.Group className={styles.NumberField}>
-                    <NumberField.Decrement className={styles.Decrement}>-</NumberField.Decrement>
+                    <NumberField.Decrement className={styles.Decrement}>
+                      -
+                    </NumberField.Decrement>
                     <NumberField.Input
                       onBlur={field.onBlur}
                       ref={field.ref}
                       className={styles.Input}
                     />
-                    <NumberField.Increment className={styles.Increment}>+</NumberField.Increment>
+                    <NumberField.Increment className={styles.Increment}>
+                      +
+                    </NumberField.Increment>
                   </NumberField.Group>
                 </NumberField.Root>
                 <Field.Error className={styles.Error} match={!!fieldState.error}>
@@ -398,7 +402,9 @@ export default function ExampleForm() {
                 render={<Fieldset.Root />}
                 className={styles.Field}
               >
-                <Fieldset.Legend className={styles.Legend}>Show scroll bars</Fieldset.Legend>
+                <Fieldset.Legend className={styles.Legend}>
+                  Show scroll bars
+                </Fieldset.Legend>
                 <RadioGroup
                   value={field.value}
                   onValueChange={field.onChange}
@@ -451,7 +457,9 @@ export default function ExampleForm() {
                 render={<Fieldset.Root />}
                 className={styles.Field}
               >
-                <Fieldset.Legend className={styles.Legend}>Content blocking</Fieldset.Legend>
+                <Fieldset.Legend className={styles.Legend}>
+                  Content blocking
+                </Fieldset.Legend>
                 <CheckboxGroup
                   aria-labelledby="parent-label"
                   value={field.value}
@@ -488,7 +496,11 @@ export default function ExampleForm() {
                   </Field.Label>
 
                   <Field.Label className={styles.Label}>
-                    <Checkbox.Root value="ads" onBlur={field.onBlur} className={styles.Checkbox}>
+                    <Checkbox.Root
+                      value="ads"
+                      onBlur={field.onBlur}
+                      className={styles.Checkbox}
+                    >
                       <Checkbox.Indicator className={styles.CheckboxIndicator}>
                         <CheckIcon className={styles.Icon} />
                       </Checkbox.Indicator>

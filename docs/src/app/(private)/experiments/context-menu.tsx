@@ -10,22 +10,30 @@ export default function ContextMenuExperiment() {
 
       {/* Scenario 1: Context menu within a context menu trigger */}
       <section className="space-y-4">
-        <h2 className="text-xl font-semibold">1. Context Menu within Context Menu Trigger</h2>
+        <h2 className="text-xl font-semibold">
+          1. Context Menu within Context Menu Trigger
+        </h2>
         <p className="text-gray-600">
-          Right-click on the outer box, then right-click on the inner box to see nested context
-          menus.
+          Right-click on the outer box, then right-click on the inner box to see
+          nested context menus.
         </p>
 
         <ContextMenu.Root>
           <ContextMenu.Trigger className="border-blue-300 bg-blue-50 rounded-lg border-2 p-8">
             <div className="text-center">
-              <span className="text-blue-700 block font-medium">Outer Context Menu</span>
+              <span className="text-blue-700 block font-medium">
+                Outer Context Menu
+              </span>
               <span className="text-blue-600 block text-sm">Right-click me</span>
 
               <ContextMenu.Root>
                 <ContextMenu.Trigger className="border-red-300 bg-red-50 mt-4 inline-block rounded border-2 p-4">
-                  <span className="text-red-700 block font-medium">Inner Context Menu</span>
-                  <span className="text-red-600 block text-sm">Right-click me too!</span>
+                  <span className="text-red-700 block font-medium">
+                    Inner Context Menu
+                  </span>
+                  <span className="text-red-600 block text-sm">
+                    Right-click me too!
+                  </span>
                 </ContextMenu.Trigger>
                 <ContextMenu.Portal>
                   <ContextMenu.Positioner className="outline-none">
@@ -67,8 +75,12 @@ export default function ContextMenuExperiment() {
 
       {/* Scenario 2: Context menu within context menu trigger, both with submenus */}
       <section className="space-y-4">
-        <h2 className="text-xl font-semibold">2. Nested Context Menus with Submenus</h2>
-        <p className="text-gray-600">Right-click on either box and explore the submenu options.</p>
+        <h2 className="text-xl font-semibold">
+          2. Nested Context Menus with Submenus
+        </h2>
+        <p className="text-gray-600">
+          Right-click on either box and explore the submenu options.
+        </p>
 
         <ContextMenu.Root>
           <ContextMenu.Trigger className="border-green-300 bg-green-50 rounded-lg border-2 p-8">
@@ -83,7 +95,9 @@ export default function ContextMenuExperiment() {
                   <span className="text-purple-700 block font-medium">
                     Inner Context Menu with Submenu
                   </span>
-                  <span className="text-purple-600 block text-sm">Right-click me too!</span>
+                  <span className="text-purple-600 block text-sm">
+                    Right-click me too!
+                  </span>
                 </ContextMenu.Trigger>
                 <ContextMenu.Portal>
                   <ContextMenu.Positioner className="outline-none">
@@ -159,15 +173,20 @@ export default function ContextMenuExperiment() {
 
       {/* Scenario 3: Context menu within context menu popup item, both with submenus */}
       <section className="space-y-4">
-        <h2 className="text-xl font-semibold">3. Context Menu within Context Menu Popup Item</h2>
+        <h2 className="text-xl font-semibold">
+          3. Context Menu within Context Menu Popup Item
+        </h2>
         <p className="text-gray-600">
-          Right-click on the box, then right-click on the "Special Item" in the popup.
+          Right-click on the box, then right-click on the "Special Item" in the
+          popup.
         </p>
 
         <ContextMenu.Root>
           <ContextMenu.Trigger className="border-orange-300 bg-orange-50 rounded-lg border-2 p-8">
             <div className="text-center">
-              <span className="text-orange-700 block font-medium">Complex Context Menu</span>
+              <span className="text-orange-700 block font-medium">
+                Complex Context Menu
+              </span>
               <span className="text-orange-600 block text-sm">
                 Right-click me, then right-click "Special Item"
               </span>
@@ -258,25 +277,32 @@ export default function ContextMenuExperiment() {
       {/* Scenario 4: [FINAL BOSS ⚔️] Nested context menu with a menu inside */}
       <section className="space-y-4">
         <h2 className="text-xl font-semibold">
-          4. [FINAL BOSS ⚔️] Nested context menus, popover with a menu and a context menu inside
+          4. [FINAL BOSS ⚔️] Nested context menus, popover with a menu and a context
+          menu inside
         </h2>
         <p className="text-gray-600">
-          Right-click the outer box, then right-click the inner box. Inside the inner context menu,
-          open the popover, then open the menu inside the popover, then right-click the context menu
-          inside the popover.
+          Right-click the outer box, then right-click the inner box. Inside the inner
+          context menu, open the popover, then open the menu inside the popover, then
+          right-click the context menu inside the popover.
         </p>
 
         <ContextMenu.Root>
           <ContextMenu.Trigger className="border-cyan-300 bg-cyan-50 rounded-lg border-2 p-8">
             <div className="text-center">
-              <span className="text-cyan-700 block font-medium">Outer Context Menu</span>
+              <span className="text-cyan-700 block font-medium">
+                Outer Context Menu
+              </span>
               <span className="text-cyan-600 block text-sm">Right-click me</span>
 
               <ContextMenu.Root>
                 <ContextMenu.Trigger className="border-cyan-300 bg-cyan-50 rounded-lg border-2 p-8 flex flex-col items-center justify-center mt-4">
                   <div className="text-center">
-                    <span className="text-cyan-700 block font-medium">Inner Context Menu</span>
-                    <span className="text-cyan-600 block text-sm">Right-click me</span>
+                    <span className="text-cyan-700 block font-medium">
+                      Inner Context Menu
+                    </span>
+                    <span className="text-cyan-600 block text-sm">
+                      Right-click me
+                    </span>
 
                     <Popover.Root>
                       <Popover.Trigger className="flex p-4 items-center justify-center rounded-md border border-gray-200 bg-gray-50 text-gray-900 select-none hover:bg-gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 active:bg-gray-100 data-[popup-open]:bg-gray-100 mt-2">
@@ -291,7 +317,10 @@ export default function ContextMenuExperiment() {
                                   Open Actions Menu
                                 </Menu.Trigger>
                                 <Menu.Portal>
-                                  <Menu.Positioner className="outline-none" side="top">
+                                  <Menu.Positioner
+                                    className="outline-none"
+                                    side="top"
+                                  >
                                     <Menu.Popup className="min-w-[180px] rounded-md border border-gray-200 bg-white py-2 shadow-lg">
                                       <Menu.Item className="cursor-default px-3 py-2 text-sm hover:bg-gray-100">
                                         Menu Action

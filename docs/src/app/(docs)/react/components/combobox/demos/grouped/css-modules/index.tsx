@@ -10,7 +10,11 @@ export default function ExampleGroupedCombobox() {
       <div className={styles.Label}>
         <label htmlFor={id}>Select produce</label>
         <div className={styles.InputWrapper}>
-          <Combobox.Input placeholder="e.g. Mango" className={styles.Input} id={id} />
+          <Combobox.Input
+            placeholder="e.g. Mango"
+            className={styles.Input}
+            id={id}
+          />
           <div className={styles.ActionButtons}>
             <Combobox.Clear className={styles.Clear} aria-label="Clear selection">
               <ClearIcon className={styles.ClearIcon} />
@@ -25,16 +29,26 @@ export default function ExampleGroupedCombobox() {
       <Combobox.Portal>
         <Combobox.Positioner className={styles.Positioner} sideOffset={4}>
           <Combobox.Popup className={styles.Popup}>
-            <Combobox.Empty className={styles.Empty}>No produce found.</Combobox.Empty>
+            <Combobox.Empty className={styles.Empty}>
+              No produce found.
+            </Combobox.Empty>
             <Combobox.List className={styles.List}>
               {(group: ProduceGroup) => (
-                <Combobox.Group key={group.value} items={group.items} className={styles.Group}>
+                <Combobox.Group
+                  key={group.value}
+                  items={group.items}
+                  className={styles.Group}
+                >
                   <Combobox.GroupLabel className={styles.GroupLabel}>
                     {group.value}
                   </Combobox.GroupLabel>
                   <Combobox.Collection>
                     {(item: Produce) => (
-                      <Combobox.Item key={item.id} className={styles.Item} value={item}>
+                      <Combobox.Item
+                        key={item.id}
+                        className={styles.Item}
+                        value={item}
+                      >
                         <Combobox.ItemIndicator className={styles.ItemIndicator}>
                           <CheckIcon className={styles.ItemIndicatorIcon} />
                         </Combobox.ItemIndicator>

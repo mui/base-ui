@@ -24,10 +24,17 @@ export default function ExampleCombobox() {
         <Combobox.Portal>
           <Combobox.Positioner className={styles.Positioner} sideOffset={4}>
             <Combobox.Popup className={styles.Popup}>
-              <Combobox.Empty className={styles.Empty}>No fruits found.</Combobox.Empty>
+              <Combobox.Empty className={styles.Empty}>
+                No fruits found.
+              </Combobox.Empty>
               <Combobox.List className={styles.List}>
                 {(item: string, index: number) => (
-                  <Combobox.Item key={item} value={item} index={index} className={styles.Item}>
+                  <Combobox.Item
+                    key={item}
+                    value={item}
+                    index={index}
+                    className={styles.Item}
+                  >
                     <Combobox.ItemIndicator className={styles.ItemIndicator}>
                       <CheckIcon className={styles.ItemIndicatorIcon} />
                     </Combobox.ItemIndicator>
@@ -60,7 +67,9 @@ export default function ExampleCombobox() {
         <Combobox.Portal>
           <Combobox.Positioner className={styles.Positioner} sideOffset={4}>
             <Combobox.Popup className={styles.Popup}>
-              <Combobox.Empty className={styles.Empty}>No fruits found.</Combobox.Empty>
+              <Combobox.Empty className={styles.Empty}>
+                No fruits found.
+              </Combobox.Empty>
               <Combobox.List className={styles.List}>
                 {(item: string) => (
                   <Combobox.Item key={item} value={item} className={styles.Item}>

@@ -33,8 +33,8 @@ export default function Experiment() {
     <div className="max-w-md">
       <h1>Creatable tags</h1>
       <p className="mb-4">
-        Select multiple items from the list or create new ones by typing and pressing Enter or
-        comma.
+        Select multiple items from the list or create new ones by typing and pressing
+        Enter or comma.
       </p>
       <Combobox
         items={items}
@@ -116,7 +116,9 @@ function Combobox(props: ComboboxProps) {
     }
 
     const normalized = trimmedValue.toLocaleLowerCase();
-    const existing = items.find((candidate) => candidate.trim().toLocaleLowerCase() === normalized);
+    const existing = items.find(
+      (candidate) => candidate.trim().toLocaleLowerCase() === normalized,
+    );
 
     if (existing) {
       const next = selectedItems.some((i) => i === existing)
@@ -130,23 +132,25 @@ function Combobox(props: ComboboxProps) {
     void handleCreate(trimmedValue);
   });
 
-  const handleInputKeyDown = useStableCallback((event: React.KeyboardEvent<HTMLInputElement>) => {
-    // Treat comma as Enter
-    if (event.key === ',') {
-      event.preventDefault();
-      if (highlightedItemRef.current) {
-        handleCommit(highlightedItemRef.current);
+  const handleInputKeyDown = useStableCallback(
+    (event: React.KeyboardEvent<HTMLInputElement>) => {
+      // Treat comma as Enter
+      if (event.key === ',') {
+        event.preventDefault();
+        if (highlightedItemRef.current) {
+          handleCommit(highlightedItemRef.current);
+          return;
+        }
+        handleCommit();
         return;
       }
-      handleCommit();
-      return;
-    }
 
-    if (event.key === 'Enter' && highlightedItemRef.current == null) {
-      event.preventDefault();
-      handleCommit();
-    }
-  });
+      if (event.key === 'Enter' && highlightedItemRef.current == null) {
+        event.preventDefault();
+        handleCommit();
+      }
+    },
+  );
 
   const selectedItemsForView = React.useMemo(() => {
     const map = new Map(itemsForView.map((item) => [item.value, item] as const));
@@ -222,7 +226,11 @@ function Combobox(props: ComboboxProps) {
       </div>
 
       <BaseCombobox.Portal>
-        <BaseCombobox.Positioner className="z-50 outline-none" sideOffset={4} anchor={containerRef}>
+        <BaseCombobox.Positioner
+          className="z-50 outline-none"
+          sideOffset={4}
+          anchor={containerRef}
+        >
           <BaseCombobox.Popup className="w-[var(--anchor-width)] max-h-[min(var(--available-height),24rem)] max-w-[var(--available-width)] overflow-y-auto scroll-pt-2 scroll-pb-2 overscroll-contain rounded-lg bg-[canvas] py-2 text-gray-900 shadow-lg shadow-gray-200 outline-1 outline-gray-200 dark:shadow-none dark:-outline-offset-1 dark:outline-gray-300">
             <BaseCombobox.List>
               {(item: InternalComboboxItem) =>

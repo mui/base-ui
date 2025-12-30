@@ -72,7 +72,8 @@ interface Props {
 
 function ControllableComponent(props: Props) {
   const store = useRefWithInit(
-    () => new ReactStore({ open: props.defaultOpen ?? false, value: 0 }, {}, selectors),
+    () =>
+      new ReactStore({ open: props.defaultOpen ?? false, value: 0 }, {}, selectors),
   ).current;
 
   store.useControlledProp('open', props.open, props.defaultOpen ?? false);

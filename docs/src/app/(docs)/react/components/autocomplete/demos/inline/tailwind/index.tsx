@@ -13,7 +13,10 @@ export default function ExampleAutocompleteInline() {
       </label>
 
       <Autocomplete.Portal>
-        <Autocomplete.Positioner className="outline-none data-[empty]:hidden" sideOffset={4}>
+        <Autocomplete.Positioner
+          className="outline-none data-[empty]:hidden"
+          sideOffset={4}
+        >
           <Autocomplete.Popup className="w-[var(--anchor-width)] max-h-[23rem] max-w-[var(--available-width)] rounded-md bg-[canvas] text-gray-900 shadow-lg shadow-gray-200 outline-1 outline-gray-200 dark:shadow-none dark:-outline-offset-1 dark:outline-gray-300">
             <Autocomplete.List className="outline-0 overflow-y-auto scroll-py-[0.5rem] py-2 overscroll-contain max-h-[min(23rem,var(--available-height))] data-[empty]:p-0">
               {(tag: Tag) => (

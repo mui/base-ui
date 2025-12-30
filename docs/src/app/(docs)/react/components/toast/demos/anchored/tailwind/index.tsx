@@ -79,7 +79,11 @@ function CopyButton() {
         aria-label="Copy to clipboard"
         render={<Button disabled={copied} focusableWhenDisabled />}
       >
-        {copied ? <CheckIcon className="h-5 w-5" /> : <ClipboardIcon className="h-5 w-5" />}
+        {copied ? (
+          <CheckIcon className="h-5 w-5" />
+        ) : (
+          <ClipboardIcon className="h-5 w-5" />
+        )}
       </Tooltip.Trigger>
       <Tooltip.Portal>
         <Tooltip.Positioner sideOffset={8}>

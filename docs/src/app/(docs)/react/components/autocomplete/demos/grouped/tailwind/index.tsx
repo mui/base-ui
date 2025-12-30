@@ -20,7 +20,11 @@ export default function ExampleGroupAutocomplete() {
             </Autocomplete.Empty>
             <Autocomplete.List className="outline-0 overflow-y-auto scroll-pt-[2.25rem] scroll-pb-[0.5rem] overscroll-contain max-h-[min(22.5rem,var(--available-height))] data-[empty]:p-0">
               {(group: TagGroup) => (
-                <Autocomplete.Group key={group.value} items={group.items} className="block pb-2">
+                <Autocomplete.Group
+                  key={group.value}
+                  items={group.items}
+                  className="block pb-2"
+                >
                   <Autocomplete.GroupLabel className="sticky top-0 z-[1] mb-0 mr-2 mt-0 ml-0 w-[calc(100%-0.5rem)] bg-[canvas] px-4 pb-1 pt-2 text-xs font-semibold uppercase tracking-wider">
                     {group.value}
                   </Autocomplete.GroupLabel>
@@ -75,13 +79,21 @@ const tagsData: Tag[] = [
   { id: 'c-dialog', label: 'component: dialog', group: 'Component' },
   { id: 'c-field', label: 'component: field', group: 'Component' },
   { id: 'c-fieldset', label: 'component: fieldset', group: 'Component' },
-  { id: 'c-filterable-menu', label: 'component: filterable menu', group: 'Component' },
+  {
+    id: 'c-filterable-menu',
+    label: 'component: filterable menu',
+    group: 'Component',
+  },
   { id: 'c-form', label: 'component: form', group: 'Component' },
   { id: 'c-input', label: 'component: input', group: 'Component' },
   { id: 'c-menu', label: 'component: menu', group: 'Component' },
   { id: 'c-menubar', label: 'component: menubar', group: 'Component' },
   { id: 'c-meter', label: 'component: meter', group: 'Component' },
-  { id: 'c-navigation-menu', label: 'component: navigation menu', group: 'Component' },
+  {
+    id: 'c-navigation-menu',
+    label: 'component: navigation menu',
+    group: 'Component',
+  },
   { id: 'c-number-field', label: 'component: number field', group: 'Component' },
   { id: 'c-popover', label: 'component: popover', group: 'Component' },
   { id: 'c-preview-card', label: 'component: preview card', group: 'Component' },

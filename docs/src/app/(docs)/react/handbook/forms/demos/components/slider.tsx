@@ -8,14 +8,20 @@ export function Root({ className, ...props }: Slider.Root.Props<any>) {
 
 export function Value({ className, ...props }: Slider.Value.Props) {
   return (
-    <Slider.Value className={clsx('text-sm font-medium text-gray-900', className)} {...props} />
+    <Slider.Value
+      className={clsx('text-sm font-medium text-gray-900', className)}
+      {...props}
+    />
   );
 }
 
 export function Control({ className, ...props }: Slider.Control.Props) {
   return (
     <Slider.Control
-      className={clsx('flex col-span-2 touch-none items-center py-3 select-none', className)}
+      className={clsx(
+        'flex col-span-2 touch-none items-center py-3 select-none',
+        className,
+      )}
       {...props}
     />
   );
@@ -35,7 +41,10 @@ export function Track({ className, ...props }: Slider.Track.Props) {
 
 export function Indicator({ className, ...props }: Slider.Indicator.Props) {
   return (
-    <Slider.Indicator className={clsx('rounded bg-gray-700 select-none', className)} {...props} />
+    <Slider.Indicator
+      className={clsx('rounded bg-gray-700 select-none', className)}
+      {...props}
+    />
   );
 }
 

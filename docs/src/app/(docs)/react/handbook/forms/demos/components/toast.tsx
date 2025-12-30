@@ -18,7 +18,9 @@ function Toasts() {
           className="text-xs mt-2 p-3 py-2 bg-gray-100 text-gray-900 font-medium rounded-md select-text"
           data-swipe-ignore
         >
-          <pre className="whitespace-pre-wrap">{JSON.stringify(toast.data, null, 2)}</pre>
+          <pre className="whitespace-pre-wrap">
+            {JSON.stringify(toast.data, null, 2)}
+          </pre>
         </div>
         <Toast.Close
           className="absolute top-2 right-2 flex h-5 w-5 items-center justify-center rounded border-none bg-transparent text-gray-500 hover:bg-gray-100 hover:text-gray-700"

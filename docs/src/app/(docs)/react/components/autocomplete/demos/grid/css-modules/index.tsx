@@ -16,8 +16,10 @@ export default function ExampleEmojiPicker() {
     }
 
     const emoji = value;
-    const start = textInputRef.current.selectionStart ?? textInputRef.current.value.length ?? 0;
-    const end = textInputRef.current.selectionEnd ?? textInputRef.current.value.length ?? 0;
+    const start =
+      textInputRef.current.selectionStart ?? textInputRef.current.value.length ?? 0;
+    const end =
+      textInputRef.current.selectionEnd ?? textInputRef.current.value.length ?? 0;
 
     setTextValue((prev) => prev.slice(0, start) + emoji + prev.slice(end));
     setPickerOpen(false);
@@ -55,16 +57,28 @@ export default function ExampleEmojiPicker() {
             }
           }}
         >
-          <Autocomplete.Trigger className={styles.EmojiButton} aria-label="Choose emoji">
+          <Autocomplete.Trigger
+            className={styles.EmojiButton}
+            aria-label="Choose emoji"
+          >
             😀
           </Autocomplete.Trigger>
           <Autocomplete.Portal>
-            <Autocomplete.Positioner className={styles.Positioner} sideOffset={4} align="end">
+            <Autocomplete.Positioner
+              className={styles.Positioner}
+              sideOffset={4}
+              align="end"
+            >
               <Autocomplete.Popup className={styles.Popup} aria-label="Select emoji">
                 <div className={styles.InputContainer}>
-                  <Autocomplete.Input placeholder="Search emojis…" className={styles.Input} />
+                  <Autocomplete.Input
+                    placeholder="Search emojis…"
+                    className={styles.Input}
+                  />
                 </div>
-                <Autocomplete.Empty className={styles.Empty}>No emojis found</Autocomplete.Empty>
+                <Autocomplete.Empty className={styles.Empty}>
+                  No emojis found
+                </Autocomplete.Empty>
                 <Autocomplete.List
                   className={styles.List}
                   style={{ '--cols': COLUMNS } as React.CSSProperties}

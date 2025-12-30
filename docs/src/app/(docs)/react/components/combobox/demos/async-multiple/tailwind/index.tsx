@@ -67,7 +67,12 @@ export default function ExampleAsyncMultipleCombobox() {
   }
 
   function getEmptyMessage() {
-    if (trimmedSearchValue === '' || isPending || searchResults.length > 0 || error) {
+    if (
+      trimmedSearchValue === '' ||
+      isPending ||
+      searchResults.length > 0 ||
+      error
+    ) {
       return null;
     }
 
@@ -171,7 +176,11 @@ export default function ExampleAsyncMultipleCombobox() {
       </div>
 
       <Combobox.Portal>
-        <Combobox.Positioner className="outline-none" anchor={containerRef} sideOffset={4}>
+        <Combobox.Positioner
+          className="outline-none"
+          anchor={containerRef}
+          sideOffset={4}
+        >
           <Combobox.Popup
             className="box-border w-[var(--anchor-width)] max-h-[min(var(--available-height),23rem)] max-w-[var(--available-width)] origin-[var(--transform-origin)] overflow-y-auto scroll-pb-2 scroll-pt-2 overscroll-contain rounded-md bg-[canvas] py-2 text-gray-900 shadow-[0_10px_15px_-3px_var(--color-gray-200),0_4px_6px_-4px_var(--color-gray-200)] outline outline-1 outline-gray-200 transition-[opacity,transform,scale] duration-100 data-[ending-style]:transition-none data-[starting-style]:scale-95 data-[starting-style]:opacity-0 dark:-outline-offset-1 dark:shadow-none dark:outline-gray-300"
             aria-busy={isPending || undefined}

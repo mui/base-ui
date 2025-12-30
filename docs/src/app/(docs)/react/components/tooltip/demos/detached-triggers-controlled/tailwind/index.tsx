@@ -9,7 +9,10 @@ export default function TooltipDetachedTriggersControlledDemo() {
   const [open, setOpen] = React.useState(false);
   const [triggerId, setTriggerId] = React.useState<string | null>(null);
 
-  const handleOpenChange = (isOpen: boolean, eventDetails: Tooltip.Root.ChangeEventDetails) => {
+  const handleOpenChange = (
+    isOpen: boolean,
+    eventDetails: Tooltip.Root.ChangeEventDetails,
+  ) => {
     setOpen(isOpen);
     setTriggerId(eventDetails.trigger?.id ?? null);
   };

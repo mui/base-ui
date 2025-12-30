@@ -63,7 +63,10 @@ export default function Experiment() {
   return (
     <div className={styles.Page}>
       <h1>Nested menus with detached triggers</h1>
-      <p>This experiment shows the same Menu instance used across different components.</p>
+      <p>
+        This experiment shows the same Menu instance used across different
+        components.
+      </p>
       <StoreInspector store={menu1Handle.store} />
 
       <h2>In Menubar</h2>
@@ -86,7 +89,11 @@ export default function Experiment() {
         <Menubar className={styles.Menubar}>
           <ReusableMenu>
             {topLevelContentKeys.map((contentKey) => (
-              <Menu.Trigger className={styles.MenuTrigger} payload={contentKey} key={contentKey}>
+              <Menu.Trigger
+                className={styles.MenuTrigger}
+                payload={contentKey}
+                key={contentKey}
+              >
                 {contentKey}
               </Menu.Trigger>
             ))}
@@ -152,7 +159,10 @@ export default function Experiment() {
   );
 }
 
-function ReusableMenu(props: { handle?: Menu.Handle<ContentKey>; children?: React.ReactNode }) {
+function ReusableMenu(props: {
+  handle?: Menu.Handle<ContentKey>;
+  children?: React.ReactNode;
+}) {
   const { handle, children } = props;
 
   return (
@@ -169,9 +179,13 @@ function ReusableMenu(props: { handle?: Menu.Handle<ContentKey>; children?: Reac
                     <ArrowSvg />
                   </Menu.Arrow>
                   {items ? (
-                    items.map((item, index) => renderMenuContentItem(item, `item-${index}`))
+                    items.map((item, index) =>
+                      renderMenuContentItem(item, `item-${index}`),
+                    )
                   ) : (
-                    <div className={styles.MenuSection}>No content for this trigger.</div>
+                    <div className={styles.MenuSection}>
+                      No content for this trigger.
+                    </div>
                   )}
                 </Menu.Popup>
               </Menu.Positioner>
@@ -199,7 +213,10 @@ type MenuContentSubmenu = {
   menu: MenuContentItem[];
 };
 
-type MenuContentItem = MenuContentRegularItem | MenuContentSeparator | MenuContentSubmenu;
+type MenuContentItem =
+  | MenuContentRegularItem
+  | MenuContentSeparator
+  | MenuContentSubmenu;
 
 type ContentKey = keyof typeof contents;
 
@@ -227,7 +244,11 @@ function renderMenuContentItem(item: MenuContentItem, key: string) {
             <ChevronRightIcon />
           </Menu.SubmenuTrigger>
           <Menu.Portal>
-            <Menu.Positioner className={demoStyles.Positioner} alignOffset={-4} sideOffset={-4}>
+            <Menu.Positioner
+              className={demoStyles.Positioner}
+              alignOffset={-4}
+              sideOffset={-4}
+            >
               <Menu.Popup className={demoStyles.Popup}>
                 {item.menu.map((subItem, subIndex) =>
                   renderMenuContentItem(subItem, `${key}.${subIndex}`),

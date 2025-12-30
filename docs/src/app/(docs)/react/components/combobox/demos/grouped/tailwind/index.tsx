@@ -39,7 +39,11 @@ export default function ExampleGroupedCombobox() {
             </Combobox.Empty>
             <Combobox.List className="outline-0 overflow-y-auto scroll-pt-[2.25rem] scroll-pb-[0.5rem] overscroll-contain max-h-[min(23rem,var(--available-height))]">
               {(group: ProduceGroup) => (
-                <Combobox.Group key={group.value} items={group.items} className="block pb-2">
+                <Combobox.Group
+                  key={group.value}
+                  items={group.items}
+                  className="block pb-2"
+                >
                   <Combobox.GroupLabel className="sticky top-0 z-[1] mb-0 mr-2 mt-0 ml-0 w-[calc(100%-0.5rem)] bg-[canvas] pr-4 pl-[2.25rem] pt-3 pb-1 text-[0.7rem] font-semibold uppercase tracking-wider">
                     {group.value}
                   </Combobox.GroupLabel>

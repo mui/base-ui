@@ -65,7 +65,12 @@ export default function ExampleAsyncMultipleCombobox() {
   }
 
   function getEmptyMessage() {
-    if (trimmedSearchValue === '' || isPending || searchResults.length > 0 || error) {
+    if (
+      trimmedSearchValue === '' ||
+      isPending ||
+      searchResults.length > 0 ||
+      error
+    ) {
       return null;
     }
 
@@ -140,9 +145,16 @@ export default function ExampleAsyncMultipleCombobox() {
             {(value: DirectoryUser[]) => (
               <React.Fragment>
                 {value.map((user) => (
-                  <Combobox.Chip key={user.id} className={styles.Chip} aria-label={user.name}>
+                  <Combobox.Chip
+                    key={user.id}
+                    className={styles.Chip}
+                    aria-label={user.name}
+                  >
                     {user.name}
-                    <Combobox.ChipRemove className={styles.ChipRemove} aria-label="Remove">
+                    <Combobox.ChipRemove
+                      className={styles.ChipRemove}
+                      aria-label="Remove"
+                    >
                       <XIcon />
                     </Combobox.ChipRemove>
                   </Combobox.Chip>
@@ -159,10 +171,21 @@ export default function ExampleAsyncMultipleCombobox() {
       </div>
 
       <Combobox.Portal>
-        <Combobox.Positioner className={styles.Positioner} anchor={containerRef} sideOffset={4}>
-          <Combobox.Popup className={styles.Popup} aria-busy={isPending || undefined}>
-            <Combobox.Status className={styles.Status}>{getStatus()}</Combobox.Status>
-            <Combobox.Empty className={styles.Empty}>{getEmptyMessage()}</Combobox.Empty>
+        <Combobox.Positioner
+          className={styles.Positioner}
+          anchor={containerRef}
+          sideOffset={4}
+        >
+          <Combobox.Popup
+            className={styles.Popup}
+            aria-busy={isPending || undefined}
+          >
+            <Combobox.Status className={styles.Status}>
+              {getStatus()}
+            </Combobox.Status>
+            <Combobox.Empty className={styles.Empty}>
+              {getEmptyMessage()}
+            </Combobox.Empty>
             <Combobox.List>
               {(user: DirectoryUser) => (
                 <Combobox.Item key={user.id} className={styles.Item} value={user}>

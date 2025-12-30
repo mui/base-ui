@@ -53,15 +53,24 @@ function SelectDemo({ modal, withBackdrop }: Props) {
         >
           <Select.Popup className={styles.SelectPopup}>
             <Select.Item value="system" className={styles.SelectItem}>
-              <Select.ItemIndicator render={<CheckIcon />} className={styles.SelectItemIndicator} />
+              <Select.ItemIndicator
+                render={<CheckIcon />}
+                className={styles.SelectItemIndicator}
+              />
               <Select.ItemText>System font</Select.ItemText>
             </Select.Item>
             <Select.Item value="arial" className={styles.SelectItem}>
-              <Select.ItemIndicator render={<CheckIcon />} className={styles.SelectItemIndicator} />
+              <Select.ItemIndicator
+                render={<CheckIcon />}
+                className={styles.SelectItemIndicator}
+              />
               <Select.ItemText>Arial</Select.ItemText>
             </Select.Item>
             <Select.Item value="roboto" className={styles.SelectItem}>
-              <Select.ItemIndicator render={<CheckIcon />} className={styles.SelectItemIndicator} />
+              <Select.ItemIndicator
+                render={<CheckIcon />}
+                className={styles.SelectItemIndicator}
+              />
               <Select.ItemText>Roboto</Select.ItemText>
             </Select.Item>
           </Select.Popup>
@@ -81,7 +90,10 @@ function MenuDemo({ modal, withBackdrop }: Props) {
       <Menu.Portal>
         <Menu.Positioner align="start" sideOffset={8} className={styles.Positioner}>
           <Menu.Popup className={styles.MenuPopup}>
-            <Menu.Item onClick={() => console.log('Log out clicked')} className={styles.MenuItem}>
+            <Menu.Item
+              onClick={() => console.log('Log out clicked')}
+              className={styles.MenuItem}
+            >
               Log out
             </Menu.Item>
           </Menu.Popup>
@@ -105,7 +117,9 @@ function DialogDemo({ modal, withBackdrop }: Props) {
             Enter your email address to subscribe to our newsletter.
           </Dialog.Description>
           <div className={styles.DialogControls}>
-            <Dialog.Close className={styles.DialogCloseButton}>Subscribe</Dialog.Close>
+            <Dialog.Close className={styles.DialogCloseButton}>
+              Subscribe
+            </Dialog.Close>
             <Dialog.Close className={styles.DialogCloseButton}>Cancel</Dialog.Close>
           </div>
         </Dialog.Popup>
@@ -129,7 +143,10 @@ const CheckIcon = function CheckIcon(props: React.SVGProps<SVGSVGElement>) {
       viewBox="0 0 24 24"
       fill="none"
     >
-      <path d="M9 16.17 4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" fill="currentColor" />
+      <path
+        d="M9 16.17 4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"
+        fill="currentColor"
+      />
     </svg>
   );
 };

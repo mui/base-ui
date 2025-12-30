@@ -17,11 +17,19 @@ export default function PopoverDetachedTriggersFullDemo() {
         <BellIcon aria-label="Notifications" className={styles.Icon} />
       </Popover.Trigger>
 
-      <Popover.Trigger className={styles.IconButton} handle={demoPopover} payload={ActivityPanel}>
+      <Popover.Trigger
+        className={styles.IconButton}
+        handle={demoPopover}
+        payload={ActivityPanel}
+      >
         <ListIcon aria-label="Activity" className={styles.Icon} />
       </Popover.Trigger>
 
-      <Popover.Trigger className={styles.IconButton} handle={demoPopover} payload={ProfilePanel}>
+      <Popover.Trigger
+        className={styles.IconButton}
+        handle={demoPopover}
+        payload={ProfilePanel}
+      >
         <UserIcon aria-label="Profile" className={styles.Icon} />
       </Popover.Trigger>
 

@@ -4,7 +4,10 @@ import { NumberField } from '@base-ui/react/number-field';
 
 export function Root({ className, ...props }: NumberField.Root.Props) {
   return (
-    <NumberField.Root className={clsx('flex flex-col items-start gap-1', className)} {...props} />
+    <NumberField.Root
+      className={clsx('flex flex-col items-start gap-1', className)}
+      {...props}
+    />
   );
 }
 
@@ -24,21 +27,23 @@ export function Decrement({ className, ...props }: NumberField.Decrement.Props) 
   );
 }
 
-export const Input = React.forwardRef<HTMLInputElement, NumberField.Input.Props>(function Input(
-  { className, ...props }: NumberField.Input.Props,
-  forwardedRef: React.ForwardedRef<HTMLInputElement>,
-) {
-  return (
-    <NumberField.Input
-      ref={forwardedRef}
-      className={clsx(
-        'h-10 w-24 border-t border-b border-gray-200 text-center text-base text-gray-900 tabular-nums focus:z-1 focus:outline focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800',
-        className,
-      )}
-      {...props}
-    />
-  );
-});
+export const Input = React.forwardRef<HTMLInputElement, NumberField.Input.Props>(
+  function Input(
+    { className, ...props }: NumberField.Input.Props,
+    forwardedRef: React.ForwardedRef<HTMLInputElement>,
+  ) {
+    return (
+      <NumberField.Input
+        ref={forwardedRef}
+        className={clsx(
+          'h-10 w-24 border-t border-b border-gray-200 text-center text-base text-gray-900 tabular-nums focus:z-1 focus:outline focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800',
+          className,
+        )}
+        {...props}
+      />
+    );
+  },
+);
 
 export function Increment({ className, ...props }: NumberField.Increment.Props) {
   return (

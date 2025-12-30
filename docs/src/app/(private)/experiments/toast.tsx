@@ -86,7 +86,11 @@ function Toasts() {
         <Toast.Title />
         <Toast.Description />
         {toast.type === 'undo' && (
-          <button className={styles.button} type="button" onClick={() => alert('Action undone')}>
+          <button
+            className={styles.button}
+            type="button"
+            onClick={() => alert('Action undone')}
+          >
             Undo
           </button>
         )}

@@ -24,14 +24,13 @@ interface Settings {
 export default function TooltipsExperiment() {
   const { settings } = useExperimentSettings<Settings>();
   const [singleTriggerOpen, setSingleTriggerOpen] = React.useState(false);
-  const [controlledWithinRootOpen, setControlledWithinRootOpen] = React.useState(false);
-  const [controlledWithinRootTriggerId, setControlledWithinRootTriggerId] = React.useState<
-    string | null
-  >(null);
+  const [controlledWithinRootOpen, setControlledWithinRootOpen] =
+    React.useState(false);
+  const [controlledWithinRootTriggerId, setControlledWithinRootTriggerId] =
+    React.useState<string | null>(null);
   const [controlledDetachedOpen, setControlledDetachedOpen] = React.useState(false);
-  const [controlledDetachedTriggerId, setControlledDetachedTriggerId] = React.useState<
-    string | null
-  >(null);
+  const [controlledDetachedTriggerId, setControlledDetachedTriggerId] =
+    React.useState<string | null>(null);
 
   return (
     <div>
@@ -44,7 +43,10 @@ export default function TooltipsExperiment() {
               disableHoverablePopup={settings.disableHoverablePopup}
               trackCursorAxis={settings.trackCursorAxis}
             >
-              <TooltipTriggerButton delay={settings.delay} closeDelay={settings.closeDelay}>
+              <TooltipTriggerButton
+                delay={settings.delay}
+                closeDelay={settings.closeDelay}
+              >
                 <BoldIcon />
               </TooltipTriggerButton>
               <TooltipContent>Bold</TooltipContent>
@@ -54,7 +56,10 @@ export default function TooltipsExperiment() {
               disableHoverablePopup={settings.disableHoverablePopup}
               trackCursorAxis={settings.trackCursorAxis}
             >
-              <TooltipTriggerButton delay={settings.delay} closeDelay={settings.closeDelay}>
+              <TooltipTriggerButton
+                delay={settings.delay}
+                closeDelay={settings.closeDelay}
+              >
                 <ItalicIcon />
               </TooltipTriggerButton>
               <TooltipContent>Italic</TooltipContent>
@@ -64,7 +69,10 @@ export default function TooltipsExperiment() {
               disableHoverablePopup={settings.disableHoverablePopup}
               trackCursorAxis={settings.trackCursorAxis}
             >
-              <TooltipTriggerButton delay={settings.delay} closeDelay={settings.closeDelay}>
+              <TooltipTriggerButton
+                delay={settings.delay}
+                closeDelay={settings.closeDelay}
+              >
                 <UnderlineIcon />
               </TooltipTriggerButton>
               <TooltipContent>Underline</TooltipContent>
@@ -83,7 +91,10 @@ export default function TooltipsExperiment() {
               disableHoverablePopup={settings.disableHoverablePopup}
               trackCursorAxis={settings.trackCursorAxis}
             >
-              <TooltipTriggerButton delay={settings.delay} closeDelay={settings.closeDelay}>
+              <TooltipTriggerButton
+                delay={settings.delay}
+                closeDelay={settings.closeDelay}
+              >
                 <BoldIcon />
               </TooltipTriggerButton>
               <TooltipContent>Bold</TooltipContent>
@@ -310,7 +321,12 @@ export default function TooltipsExperiment() {
 }
 
 function TooltipTriggerButton(props: Tooltip.Trigger.Props<string>) {
-  return <Tooltip.Trigger className={`${demoStyles.Button} ${styles.Button}`} {...props} />;
+  return (
+    <Tooltip.Trigger
+      className={`${demoStyles.Button} ${styles.Button}`}
+      {...props}
+    />
+  );
 }
 
 function TooltipContent(props: Tooltip.Popup.Props) {
@@ -318,12 +334,18 @@ function TooltipContent(props: Tooltip.Popup.Props) {
   const { children, ...otherProps } = props;
   return (
     <Tooltip.Portal keepMounted={settings.keepMounted}>
-      <Tooltip.Positioner sideOffset={10} className={demoStyles.Positioner} side={settings.side}>
+      <Tooltip.Positioner
+        sideOffset={10}
+        className={demoStyles.Positioner}
+        side={settings.side}
+      >
         <Tooltip.Popup className={demoStyles.Popup} {...otherProps}>
           <Tooltip.Arrow className={demoStyles.Arrow}>
             <ArrowSvg />
           </Tooltip.Arrow>
-          <Tooltip.Viewport className={demoStyles.Viewport}>{children}</Tooltip.Viewport>
+          <Tooltip.Viewport className={demoStyles.Viewport}>
+            {children}
+          </Tooltip.Viewport>
         </Tooltip.Popup>
       </Tooltip.Positioner>
     </Tooltip.Portal>

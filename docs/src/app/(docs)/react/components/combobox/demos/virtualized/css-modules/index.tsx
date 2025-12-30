@@ -16,10 +16,14 @@ export default function ExampleVirtualizedCombobox() {
   const { contains } = Combobox.useFilter({ value });
 
   const resolvedSearchValue =
-    searchValue === '' || deferredSearchValue === '' ? searchValue : deferredSearchValue;
+    searchValue === '' || deferredSearchValue === ''
+      ? searchValue
+      : deferredSearchValue;
 
   const filteredItems = React.useMemo(() => {
-    return virtualizedItems.filter((item) => contains(item, resolvedSearchValue, getItemLabel));
+    return virtualizedItems.filter((item) =>
+      contains(item, resolvedSearchValue, getItemLabel),
+    );
   }, [contains, resolvedSearchValue]);
 
   const virtualizer = useVirtualizer({
@@ -65,7 +69,8 @@ export default function ExampleVirtualizedCombobox() {
 
         const isStart = index === 0;
         const isEnd = index === filteredItems.length - 1;
-        const shouldScroll = reason === 'none' || (reason === 'keyboard' && (isStart || isEnd));
+        const shouldScroll =
+          reason === 'none' || (reason === 'keyboard' && (isStart || isEnd));
 
         if (shouldScroll) {
           queueMicrotask(() => {
@@ -156,8 +161,11 @@ function getItemLabel(item: VirtualizedItem | null) {
   return item ? item.name : '';
 }
 
-const virtualizedItems: VirtualizedItem[] = Array.from({ length: 10000 }, (_, index) => {
-  const id = String(index + 1);
-  const indexLabel = id.padStart(4, '0');
-  return { id, name: `Item ${indexLabel}` };
-});
+const virtualizedItems: VirtualizedItem[] = Array.from(
+  { length: 10000 },
+  (_, index) => {
+    const id = String(index + 1);
+    const indexLabel = id.padStart(4, '0');
+    return { id, name: `Item ${indexLabel}` };
+  },
+);

@@ -29,7 +29,9 @@ export default function ExampleCreatableCombobox() {
     }
 
     const normalized = currentTrimmed.toLocaleLowerCase();
-    const existing = labels.find((label) => label.value.trim().toLocaleLowerCase() === normalized);
+    const existing = labels.find(
+      (label) => label.value.trim().toLocaleLowerCase() === normalized,
+    );
 
     if (existing) {
       setSelected((prev) =>
@@ -52,10 +54,14 @@ export default function ExampleCreatableCombobox() {
 
     const normalized = value.toLocaleLowerCase();
     const baseId = normalized.replace(/\s+/g, '-');
-    const existing = labels.find((l) => l.value.trim().toLocaleLowerCase() === normalized);
+    const existing = labels.find(
+      (l) => l.value.trim().toLocaleLowerCase() === normalized,
+    );
 
     if (existing) {
-      setSelected((prev) => (prev.some((i) => i.id === existing.id) ? prev : [...prev, existing]));
+      setSelected((prev) =>
+        prev.some((i) => i.id === existing.id) ? prev : [...prev, existing],
+      );
       setOpenDialog(false);
       setQuery('');
       return;
@@ -90,11 +96,20 @@ export default function ExampleCreatableCombobox() {
 
   const trimmed = query.trim();
   const lowered = trimmed.toLocaleLowerCase();
-  const exactExists = labels.some((l) => l.value.trim().toLocaleLowerCase() === lowered);
+  const exactExists = labels.some(
+    (l) => l.value.trim().toLocaleLowerCase() === lowered,
+  );
   // Show the creatable item alongside matches if there's no exact match
   const itemsForView: Array<LabelItem> =
     trimmed !== '' && !exactExists
-      ? [...labels, { creatable: trimmed, id: `create:${lowered}`, value: `Create "${trimmed}"` }]
+      ? [
+          ...labels,
+          {
+            creatable: trimmed,
+            id: `create:${lowered}`,
+            value: `Create "${trimmed}"`,
+          },
+        ]
       : labels;
 
   return (
@@ -104,7 +119,8 @@ export default function ExampleCreatableCombobox() {
         multiple
         onValueChange={(next) => {
           const creatableSelection = next.find(
-            (item) => item.creatable && !selected.some((current) => current.id === item.id),
+            (item) =>
+              item.creatable && !selected.some((current) => current.id === item.id),
           );
 
           if (creatableSelection && creatableSelection.creatable) {
@@ -132,9 +148,16 @@ export default function ExampleCreatableCombobox() {
               {(value: LabelItem[]) => (
                 <React.Fragment>
                   {value.map((label) => (
-                    <Combobox.Chip key={label.id} className={styles.Chip} aria-label={label.value}>
+                    <Combobox.Chip
+                      key={label.id}
+                      className={styles.Chip}
+                      aria-label={label.value}
+                    >
                       {label.value}
-                      <Combobox.ChipRemove className={styles.ChipRemove} aria-label="Remove">
+                      <Combobox.ChipRemove
+                        className={styles.ChipRemove}
+                        aria-label="Remove"
+                      >
                         <XIcon />
                       </Combobox.ChipRemove>
                     </Combobox.Chip>
@@ -153,20 +176,36 @@ export default function ExampleCreatableCombobox() {
         </div>
 
         <Combobox.Portal>
-          <Combobox.Positioner className={styles.Positioner} sideOffset={4} anchor={containerRef}>
+          <Combobox.Positioner
+            className={styles.Positioner}
+            sideOffset={4}
+            anchor={containerRef}
+          >
             <Combobox.Popup className={styles.Popup}>
-              <Combobox.Empty className={styles.Empty}>No labels found.</Combobox.Empty>
+              <Combobox.Empty className={styles.Empty}>
+                No labels found.
+              </Combobox.Empty>
               <Combobox.List>
                 {(item: LabelItem) =>
                   item.creatable ? (
-                    <Combobox.Item key={item.id} className={styles.Item} value={item}>
+                    <Combobox.Item
+                      key={item.id}
+                      className={styles.Item}
+                      value={item}
+                    >
                       <span className={styles.ItemIndicator}>
                         <PlusIcon className={styles.CreateIcon} />
                       </span>
-                      <div className={styles.ItemText}>Create "{item.creatable}"</div>
+                      <div className={styles.ItemText}>
+                        Create "{item.creatable}"
+                      </div>
                     </Combobox.Item>
                   ) : (
-                    <Combobox.Item key={item.id} className={styles.Item} value={item}>
+                    <Combobox.Item
+                      key={item.id}
+                      className={styles.Item}
+                      value={item}
+                    >
                       <Combobox.ItemIndicator className={styles.ItemIndicator}>
                         <CheckIcon className={styles.ItemIndicatorIcon} />
                       </Combobox.ItemIndicator>

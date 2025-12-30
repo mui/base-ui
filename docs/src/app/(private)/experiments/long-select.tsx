@@ -12,7 +12,8 @@ export default function ExampleSelect() {
       <ul>
         <li>Scroll arrows rendered inside Select.Popup (handles animations)</li>
         <li>
-          Scrollbar invisible when in fallback mode as well (alignItemWithTrigger deactivated)
+          Scrollbar invisible when in fallback mode as well (alignItemWithTrigger
+          deactivated)
         </li>
       </ul>
       <Select.Root>
@@ -36,11 +37,17 @@ export default function ExampleSelect() {
                   Start
                 </div>
                 {countries.map((country) => (
-                  <Select.Item key={country.code} className={styles.Item} value={country.code}>
+                  <Select.Item
+                    key={country.code}
+                    className={styles.Item}
+                    value={country.code}
+                  >
                     <Select.ItemIndicator className={styles.ItemIndicator}>
                       <CheckIcon className={styles.ItemIndicatorIcon} />
                     </Select.ItemIndicator>
-                    <Select.ItemText className={styles.ItemText}>{country.name}</Select.ItemText>
+                    <Select.ItemText className={styles.ItemText}>
+                      {country.name}
+                    </Select.ItemText>
                   </Select.Item>
                 ))}
                 <div aria-hidden style={{ height: 75 }}>
@@ -56,7 +63,9 @@ export default function ExampleSelect() {
       <h2>Without Select.List (old)</h2>
       <ul>
         <li>Scroll arrows rendered inside Select.Positioner</li>
-        <li>Scrollbar visible when in fallback mode (alignItemWithTrigger deactivated)</li>
+        <li>
+          Scrollbar visible when in fallback mode (alignItemWithTrigger deactivated)
+        </li>
       </ul>
       <Select.Root>
         <Select.Trigger className={styles.Select}>
@@ -78,11 +87,17 @@ export default function ExampleSelect() {
                 <ArrowSvg />
               </Select.Arrow>
               {countries.map((country) => (
-                <Select.Item key={country.code} className={styles.Item} value={country.code}>
+                <Select.Item
+                  key={country.code}
+                  className={styles.Item}
+                  value={country.code}
+                >
                   <Select.ItemIndicator className={styles.ItemIndicator}>
                     <CheckIcon className={styles.ItemIndicatorIcon} />
                   </Select.ItemIndicator>
-                  <Select.ItemText className={styles.ItemText}>{country.name}</Select.ItemText>
+                  <Select.ItemText className={styles.ItemText}>
+                    {country.name}
+                  </Select.ItemText>
                 </Select.Item>
               ))}
               <div aria-hidden style={{ height: 75 }}>

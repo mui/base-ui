@@ -52,7 +52,11 @@ export default function Layout({ children }: React.PropsWithChildren) {
                           {
                             title?: string;
                             prefix?: string;
-                            pages: { title: string; tags?: string[]; path: string }[];
+                            pages: {
+                              title: string;
+                              tags?: string[];
+                              path: string;
+                            }[];
                           }
                         >,
                       ).map(([name, section]) => (
@@ -70,7 +74,9 @@ export default function Layout({ children }: React.PropsWithChildren) {
                                 external={page.tags?.includes('External')}
                               >
                                 {titleMap[page.title] || page.title}
-                                {page.tags?.includes('New') && <SideNav.Badge>New</SideNav.Badge>}
+                                {page.tags?.includes('New') && (
+                                  <SideNav.Badge>New</SideNav.Badge>
+                                )}
                               </SideNav.Item>
                             ))}
                           </SideNav.List>
@@ -119,14 +125,18 @@ export const metadata: Metadata = {
       {
         rel: 'icon',
         url:
-          process.env.NODE_ENV !== 'production' ? '/static/favicon-dev.ico' : '/static/favicon.ico',
+          process.env.NODE_ENV !== 'production'
+            ? '/static/favicon-dev.ico'
+            : '/static/favicon.ico',
         sizes: '32x32',
       },
       {
         rel: 'icon',
         type: 'image/svg+xml',
         url:
-          process.env.NODE_ENV !== 'production' ? '/static/favicon-dev.svg' : '/static/favicon.svg',
+          process.env.NODE_ENV !== 'production'
+            ? '/static/favicon-dev.svg'
+            : '/static/favicon.svg',
       },
     ],
     apple: [

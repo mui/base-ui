@@ -9,7 +9,10 @@ export default function PopoverDetachedTriggersControlledDemo() {
   const [open, setOpen] = React.useState(false);
   const [triggerId, setTriggerId] = React.useState<string | null>(null);
 
-  const handleOpenChange = (isOpen: boolean, eventDetails: Popover.Root.ChangeEventDetails) => {
+  const handleOpenChange = (
+    isOpen: boolean,
+    eventDetails: Popover.Root.ChangeEventDetails,
+  ) => {
     setOpen(isOpen);
     setTriggerId(eventDetails.trigger?.id ?? null);
   };
@@ -17,15 +20,27 @@ export default function PopoverDetachedTriggersControlledDemo() {
   return (
     <React.Fragment>
       <div className={styles.Container}>
-        <Popover.Trigger className={styles.IconButton} handle={demoPopover} id="trigger-1">
+        <Popover.Trigger
+          className={styles.IconButton}
+          handle={demoPopover}
+          id="trigger-1"
+        >
           <BellIcon aria-label="Notifications" className={styles.Icon} />
         </Popover.Trigger>
 
-        <Popover.Trigger className={styles.IconButton} handle={demoPopover} id="trigger-2">
+        <Popover.Trigger
+          className={styles.IconButton}
+          handle={demoPopover}
+          id="trigger-2"
+        >
           <BellIcon aria-label="Notifications" className={styles.Icon} />
         </Popover.Trigger>
 
-        <Popover.Trigger className={styles.IconButton} handle={demoPopover} id="trigger-3">
+        <Popover.Trigger
+          className={styles.IconButton}
+          handle={demoPopover}
+          id="trigger-3"
+        >
           <BellIcon aria-label="Notifications" className={styles.Icon} />
         </Popover.Trigger>
 

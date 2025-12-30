@@ -39,7 +39,11 @@ export default function DialogComboboxMultiple() {
                     {(value: string[]) => (
                       <React.Fragment>
                         {value.map((fruit) => (
-                          <Combobox.Chip key={fruit} className={styles.Chip} aria-label={fruit}>
+                          <Combobox.Chip
+                            key={fruit}
+                            className={styles.Chip}
+                            aria-label={fruit}
+                          >
                             {fruit}
                             <Combobox.ChipRemove
                               className={styles.ChipRemove}
@@ -60,7 +64,9 @@ export default function DialogComboboxMultiple() {
                 </Combobox.Chips>
               </div>
               <div className={styles.Results}>
-                <Combobox.Empty className={styles.Empty}>No fruits found.</Combobox.Empty>
+                <Combobox.Empty className={styles.Empty}>
+                  No fruits found.
+                </Combobox.Empty>
                 <Combobox.List className={styles.List}>
                   {(item: string) => (
                     <Combobox.Item key={item} value={item} className={styles.Item}>

@@ -48,9 +48,12 @@ export default async function Page(props: Props) {
 }
 
 export async function generateStaticParams() {
-  const files = await globby(['**/*.tsx', '!infra/**/*', '!**/page.tsx', '!**/layout.tsx'], {
-    cwd: experimentsRootDirectory,
-  });
+  const files = await globby(
+    ['**/*.tsx', '!infra/**/*', '!**/page.tsx', '!**/layout.tsx'],
+    {
+      cwd: experimentsRootDirectory,
+    },
+  );
 
   return files
     .filter((file) => file.split('/').length <= 2)

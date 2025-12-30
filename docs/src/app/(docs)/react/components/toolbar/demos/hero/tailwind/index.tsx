@@ -61,7 +61,9 @@ export default function ExampleToolbar() {
                 <Select.ItemIndicator className="col-start-1">
                   <CheckIcon className="size-3" />
                 </Select.ItemIndicator>
-                <Select.ItemText className="col-start-2 text-sm">Helvetica</Select.ItemText>
+                <Select.ItemText className="col-start-2 text-sm">
+                  Helvetica
+                </Select.ItemText>
               </Select.Item>
               <Select.Item
                 value="Arial"
@@ -70,7 +72,9 @@ export default function ExampleToolbar() {
                 <Select.ItemIndicator className="col-start-1">
                   <CheckIcon className="size-3" />
                 </Select.ItemIndicator>
-                <Select.ItemText className="col-start-2 text-sm">Arial</Select.ItemText>
+                <Select.ItemText className="col-start-2 text-sm">
+                  Arial
+                </Select.ItemText>
               </Select.Item>
             </Select.Popup>
           </Select.Positioner>

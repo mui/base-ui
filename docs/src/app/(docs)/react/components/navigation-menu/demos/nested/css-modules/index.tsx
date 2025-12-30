@@ -29,7 +29,9 @@ export default function ExampleNavigationMenu() {
                     <NavigationMenu.Item>
                       <NavigationMenu.Trigger className={styles.LinkCard}>
                         <span className={styles.LinkTitle}>Handbook</span>
-                        <p className={styles.LinkDescription}>How to use Base UI effectively.</p>
+                        <p className={styles.LinkDescription}>
+                          How to use Base UI effectively.
+                        </p>
                         <NavigationMenu.Icon className={styles.NestedIcon}>
                           <ChevronRightIcon />
                         </NavigationMenu.Icon>
@@ -40,7 +42,9 @@ export default function ExampleNavigationMenu() {
                             <li key={item.href}>
                               <Link className={styles.LinkCard} href={item.href}>
                                 <h3 className={styles.LinkTitle}>{item.title}</h3>
-                                <p className={styles.LinkDescription}>{item.description}</p>
+                                <p className={styles.LinkDescription}>
+                                  {item.description}
+                                </p>
                               </Link>
                             </li>
                           ))}

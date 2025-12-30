@@ -47,7 +47,16 @@ interface Settings {
   validationMode: Form.Props['validationMode'];
 }
 
-const frameworks = ['React', 'Vue', 'Angular', 'Svelte', 'Next.js', 'Nuxt.js', 'Gatsby', 'Remix'];
+const frameworks = [
+  'React',
+  'Vue',
+  'Angular',
+  'Svelte',
+  'Next.js',
+  'Nuxt.js',
+  'Gatsby',
+  'Remix',
+];
 
 interface MyFormValues {
   input: string;
@@ -221,9 +230,13 @@ export default function Page() {
             }}
           >
             <NumberField.Group className={styles.NumberField}>
-              <NumberField.Decrement className={styles.Decrement}>-</NumberField.Decrement>
+              <NumberField.Decrement className={styles.Decrement}>
+                -
+              </NumberField.Decrement>
               <NumberField.Input className={styles.Input} />
-              <NumberField.Increment className={styles.Increment}>+</NumberField.Increment>
+              <NumberField.Increment className={styles.Increment}>
+                +
+              </NumberField.Increment>
             </NumberField.Group>
           </NumberField.Root>
           <Field.Error className={styles.Error} />
@@ -247,28 +260,36 @@ export default function Page() {
                       <CheckIcon className={styles.ItemIndicatorIcon} />
                     </Select.ItemIndicator>
 
-                    <Select.ItemText className={styles.ItemText}>Sans-serif</Select.ItemText>
+                    <Select.ItemText className={styles.ItemText}>
+                      Sans-serif
+                    </Select.ItemText>
                   </Select.Item>
                   <Select.Item className={styles.Item} value="serif">
                     <Select.ItemIndicator className={styles.ItemIndicator}>
                       <CheckIcon className={styles.ItemIndicatorIcon} />
                     </Select.ItemIndicator>
 
-                    <Select.ItemText className={styles.ItemText}>Serif</Select.ItemText>
+                    <Select.ItemText className={styles.ItemText}>
+                      Serif
+                    </Select.ItemText>
                   </Select.Item>
                   <Select.Item className={styles.Item} value="mono">
                     <Select.ItemIndicator className={styles.ItemIndicator}>
                       <CheckIcon className={styles.ItemIndicatorIcon} />
                     </Select.ItemIndicator>
 
-                    <Select.ItemText className={styles.ItemText}>Monospace</Select.ItemText>
+                    <Select.ItemText className={styles.ItemText}>
+                      Monospace
+                    </Select.ItemText>
                   </Select.Item>
                   <Select.Item className={styles.Item} value="cursive">
                     <Select.ItemIndicator className={styles.ItemIndicator}>
                       <CheckIcon className={styles.ItemIndicatorIcon} />
                     </Select.ItemIndicator>
 
-                    <Select.ItemText className={styles.ItemText}>Cursive</Select.ItemText>
+                    <Select.ItemText className={styles.ItemText}>
+                      Cursive
+                    </Select.ItemText>
                   </Select.Item>
                 </Select.Popup>
                 <Select.ScrollDownArrow className={styles.ScrollArrow} />
@@ -279,8 +300,12 @@ export default function Page() {
         </Field.Root>
 
         <Field.Root name="radio-group" className={styles.Field}>
-          <Fieldset.Root render={<RadioGroup required={native} className={styles.RadioGroup} />}>
-            <Fieldset.Legend className={styles.Legend}>Show scroll bars</Fieldset.Legend>
+          <Fieldset.Root
+            render={<RadioGroup required={native} className={styles.RadioGroup} />}
+          >
+            <Fieldset.Legend className={styles.Legend}>
+              Show scroll bars
+            </Fieldset.Legend>
 
             <Field.Item className={styles.FieldItem}>
               <Field.Label className={styles.Label}>
@@ -315,14 +340,23 @@ export default function Page() {
         <Field.Root name="combobox" className={styles.Field}>
           <Field.Label className={styles.Label}>Framework (Combobox)</Field.Label>
           <Combobox.Root required={native} items={frameworks}>
-            <Combobox.Input placeholder="Select a framework" className={styles.Input} />
+            <Combobox.Input
+              placeholder="Select a framework"
+              className={styles.Input}
+            />
             <Combobox.Portal>
               <Combobox.Positioner className={styles.Positioner} sideOffset={8}>
                 <Combobox.Popup className={styles.Popup}>
-                  <Combobox.Empty className={styles.Empty}>No frameworks found</Combobox.Empty>
+                  <Combobox.Empty className={styles.Empty}>
+                    No frameworks found
+                  </Combobox.Empty>
                   <Combobox.List>
                     {(framework) => (
-                      <Combobox.Item key={framework} className={styles.Item} value={framework}>
+                      <Combobox.Item
+                        key={framework}
+                        className={styles.Item}
+                        value={framework}
+                      >
                         {framework}
                       </Combobox.Item>
                     )}
@@ -335,9 +369,14 @@ export default function Page() {
         </Field.Root>
 
         <Field.Root name="autocomplete" className={styles.Field}>
-          <Field.Label className={styles.Label}>Framework (Autocomplete)</Field.Label>
+          <Field.Label className={styles.Label}>
+            Framework (Autocomplete)
+          </Field.Label>
           <Autocomplete.Root required={native} items={frameworks}>
-            <Autocomplete.Input placeholder="Input framework" className={styles.Input} />
+            <Autocomplete.Input
+              placeholder="Input framework"
+              className={styles.Input}
+            />
             <Autocomplete.Portal>
               <Autocomplete.Positioner className={styles.Positioner} sideOffset={8}>
                 <Autocomplete.Popup className={styles.Popup}>
@@ -346,7 +385,11 @@ export default function Page() {
                   </Autocomplete.Empty>
                   <Autocomplete.List>
                     {(framework) => (
-                      <Autocomplete.Item key={framework} className={styles.Item} value={framework}>
+                      <Autocomplete.Item
+                        key={framework}
+                        className={styles.Item}
+                        value={framework}
+                      >
                         {framework}
                       </Autocomplete.Item>
                     )}
@@ -369,7 +412,9 @@ export default function Page() {
               />
             }
           >
-            <Fieldset.Legend className={styles.Legend}>Content blocking</Fieldset.Legend>
+            <Fieldset.Legend className={styles.Legend}>
+              Content blocking
+            </Fieldset.Legend>
             <Field.Item className={styles.FieldItem}>
               <Field.Label className={styles.Label}>
                 <Checkbox.Root parent className={styles.Checkbox}>
@@ -446,7 +491,9 @@ export default function Page() {
               <Select.Value>
                 {(value: string[]) =>
                   value.length > 0
-                    ? value.map((v) => fonts.find((f) => f.value === v)?.label).join(', ')
+                    ? value
+                        .map((v) => fonts.find((f) => f.value === v)?.label)
+                        .join(', ')
                     : 'Select fonts…'
                 }
               </Select.Value>
@@ -463,7 +510,9 @@ export default function Page() {
                       <Select.ItemIndicator className={styles.ItemIndicator}>
                         <CheckIcon className={styles.ItemIndicatorIcon} />
                       </Select.ItemIndicator>
-                      <Select.ItemText className={styles.ItemText}>{label}</Select.ItemText>
+                      <Select.ItemText className={styles.ItemText}>
+                        {label}
+                      </Select.ItemText>
                     </Select.Item>
                   ))}
                 </Select.Popup>

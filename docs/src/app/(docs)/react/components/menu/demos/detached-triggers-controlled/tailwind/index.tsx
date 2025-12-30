@@ -35,7 +35,10 @@ export default function MenuDetachedTriggersControlledDemo() {
   const [open, setOpen] = React.useState(false);
   const [activeTrigger, setActiveTrigger] = React.useState<string | null>(null);
 
-  const handleOpenChange = (isOpen: boolean, eventDetails: Menu.Root.ChangeEventDetails) => {
+  const handleOpenChange = (
+    isOpen: boolean,
+    eventDetails: Menu.Root.ChangeEventDetails,
+  ) => {
     setOpen(isOpen);
     if (isOpen) {
       setActiveTrigger(eventDetails.trigger?.id ?? null);
@@ -98,7 +101,11 @@ export default function MenuDetachedTriggersControlledDemo() {
 
                 {payload &&
                   MENUS[payload].map((item, index) => (
-                    <Menu.Item key={index} className={itemClass} onClick={item.onClick}>
+                    <Menu.Item
+                      key={index}
+                      className={itemClass}
+                      onClick={item.onClick}
+                    >
                       {item.label}
                     </Menu.Item>
                   ))}

@@ -6,21 +6,23 @@ export function Root(props: Autocomplete.Root.Props<any>) {
   return <Autocomplete.Root {...props} />;
 }
 
-export const Input = React.forwardRef<HTMLInputElement, Autocomplete.Input.Props>(function Input(
-  { className, ...props }: Autocomplete.Input.Props,
-  forwardedRef: React.ForwardedRef<HTMLInputElement>,
-) {
-  return (
-    <Autocomplete.Input
-      ref={forwardedRef}
-      className={clsx(
-        'bg-[canvas] h-10 w-[16rem] md:w-[20rem] font-normal rounded-md border border-gray-200 pl-3.5 text-base text-gray-900 focus:outline focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800',
-        className,
-      )}
-      {...props}
-    />
-  );
-});
+export const Input = React.forwardRef<HTMLInputElement, Autocomplete.Input.Props>(
+  function Input(
+    { className, ...props }: Autocomplete.Input.Props,
+    forwardedRef: React.ForwardedRef<HTMLInputElement>,
+  ) {
+    return (
+      <Autocomplete.Input
+        ref={forwardedRef}
+        className={clsx(
+          'bg-[canvas] h-10 w-[16rem] md:w-[20rem] font-normal rounded-md border border-gray-200 pl-3.5 text-base text-gray-900 focus:outline focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800',
+          className,
+        )}
+        {...props}
+      />
+    );
+  },
+);
 
 export function Portal(props: Autocomplete.Portal.Props) {
   return <Autocomplete.Portal {...props} />;

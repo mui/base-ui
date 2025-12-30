@@ -24,26 +24,30 @@ const contents = [
   <React.Fragment>
     <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
     <p>
-      Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
-      quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+      Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad
+      minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea
+      commodo consequat.
     </p>
   </React.Fragment>,
   <p>Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>,
   <p>Ut enim ad minim veniam, quis nostrud exercitation.</p>,
   <p>Lorem</p>,
   <React.Fragment>
-    <p>Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat.</p>
     <p>
-      Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim
-      id est laborum.
+      Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu
+      fugiat.
     </p>
     <p>
-      Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
-      pariatur.
+      Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia
+      deserunt mollit anim id est laborum.
     </p>
     <p>
-      Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim
-      id est laborum.
+      Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu
+      fugiat nulla pariatur.
+    </p>
+    <p>
+      Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia
+      deserunt mollit anim id est laborum.
     </p>
   </React.Fragment>,
 ];
@@ -53,15 +57,14 @@ export default function Popovers() {
 
   const [singleTriggerOpen, setSingleTriggerOpen] = React.useState(false);
 
-  const [controlledWithinRootOpen, setControlledWithinRootOpen] = React.useState(false);
-  const [controlledWithinRootTriggerId, setControlledWithinRootTriggerId] = React.useState<
-    string | null
-  >(null);
+  const [controlledWithinRootOpen, setControlledWithinRootOpen] =
+    React.useState(false);
+  const [controlledWithinRootTriggerId, setControlledWithinRootTriggerId] =
+    React.useState<string | null>(null);
 
   const [controlledDetachedOpen, setControlledDetachedOpen] = React.useState(false);
-  const [controlledDetachedTriggerId, setControlledDetachedTriggerId] = React.useState<
-    string | null
-  >(null);
+  const [controlledDetachedTriggerId, setControlledDetachedTriggerId] =
+    React.useState<string | null>(null);
 
   return (
     <div className={styles.Page}>
@@ -92,7 +95,11 @@ export default function Popovers() {
           <StyledTrigger />
           {renderPopoverContent(0, settings)}
         </Popover.Root>
-        <button type="button" className={styles.Button} onClick={() => setSingleTriggerOpen(true)}>
+        <button
+          type="button"
+          className={styles.Button}
+          onClick={() => setSingleTriggerOpen(true)}
+        >
           Open externally
         </button>
       </div>
@@ -235,7 +242,11 @@ function StyledPopover(props: StyledPopoverProps<number>) {
 function renderPopoverContent(contentIndex: number | undefined, settings: Settings) {
   return (
     <Popover.Portal keepMounted={settings.keepMounted}>
-      <Popover.Positioner sideOffset={8} className={demoStyles.Positioner} side={settings.side}>
+      <Popover.Positioner
+        sideOffset={8}
+        className={demoStyles.Positioner}
+        side={settings.side}
+      >
         <Popover.Popup className={demoStyles.Popup}>
           <Popover.Arrow className={demoStyles.Arrow}>
             <ArrowSvg />
@@ -243,9 +254,13 @@ function renderPopoverContent(contentIndex: number | undefined, settings: Settin
           <Popover.Viewport className={demoStyles.Viewport}>
             {contentIndex !== undefined ? (
               <React.Fragment>
-                <Popover.Title className={demoStyles.Title}>Popover {contentIndex}</Popover.Title>
+                <Popover.Title className={demoStyles.Title}>
+                  Popover {contentIndex}
+                </Popover.Title>
                 <div>
-                  <div className={styles.PopoverSection}>{contents[contentIndex]}</div>
+                  <div className={styles.PopoverSection}>
+                    {contents[contentIndex]}
+                  </div>
 
                   <div className={styles.PopoverSection}>
                     <StatefulComponent key={contentIndex} />

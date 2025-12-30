@@ -1,6 +1,11 @@
 'use client';
 import * as React from 'react';
-import { useForm, revalidateLogic, DeepKeys, ValidationError } from '@tanstack/react-form';
+import {
+  useForm,
+  revalidateLogic,
+  DeepKeys,
+  ValidationError,
+} from '@tanstack/react-form';
 import { ChevronDown, ChevronsUpDown, Check, Plus, Minus } from 'lucide-react';
 import { Button } from '../../components/button';
 import { CheckboxGroup } from '../../components/checkbox-group';
@@ -62,7 +67,13 @@ function TanstackForm() {
         const errors: Partial<Record<DeepKeys<FormValues>, ValidationError>> = {};
 
         (
-          ['serverName', 'region', 'containerImage', 'serverType', 'numOfInstances'] as const
+          [
+            'serverName',
+            'region',
+            'containerImage',
+            'serverType',
+            'numOfInstances',
+          ] as const
         ).forEach((requiredField) => {
           if (!formValues[requiredField]) {
             errors[requiredField] = 'This is a required field.';
@@ -106,7 +117,9 @@ function TanstackForm() {
                 onBlur={field.handleBlur}
                 placeholder="e.g. api-server-01"
               />
-              <Field.Description>Must be 3 or more characters long</Field.Description>
+              <Field.Description>
+                Must be 3 or more characters long
+              </Field.Description>
               <Field.Error match={!field.state.meta.isValid}>
                 {field.state.meta.errors.join(',')}
               </Field.Error>
@@ -132,7 +145,10 @@ function TanstackForm() {
               >
                 <div className="relative flex flex-col gap-1 text-sm leading-5 font-medium text-gray-900">
                   <Field.Label>Region</Field.Label>
-                  <Combobox.Input placeholder="e.g. eu-central-1" onBlur={field.handleBlur} />
+                  <Combobox.Input
+                    placeholder="e.g. eu-central-1"
+                    onBlur={field.handleBlur}
+                  />
                   <div className="absolute right-2 bottom-0 flex h-10 items-center justify-center text-gray-600">
                     <Combobox.Clear />
                     <Combobox.Trigger>
@@ -191,7 +207,9 @@ function TanstackForm() {
                   placeholder="e.g. docker.io/library/node:latest"
                   onBlur={field.handleBlur}
                 />
-                <Field.Description>Enter a registry URL with optional tags</Field.Description>
+                <Field.Description>
+                  Enter a registry URL with optional tags
+                </Field.Description>
                 <Autocomplete.Portal>
                   <Autocomplete.Positioner>
                     <Autocomplete.Popup>
@@ -199,7 +217,9 @@ function TanstackForm() {
                         {(image: Image) => {
                           return (
                             <Autocomplete.Item key={image.url} value={image}>
-                              <span className="text-base leading-6">{image.name}</span>
+                              <span className="text-base leading-6">
+                                {image.name}
+                              </span>
                               <span className="font-mono whitespace-nowrap text-xs leading-4 opacity-80">
                                 {image.url}
                               </span>
@@ -433,16 +453,24 @@ function TanstackForm() {
             >
               <Fieldset.Root
                 render={
-                  <CheckboxGroup value={field.state.value} onValueChange={field.handleChange} />
+                  <CheckboxGroup
+                    value={field.state.value}
+                    onValueChange={field.handleChange}
+                  />
                 }
               >
-                <Fieldset.Legend className="mb-2">Allowed network protocols</Fieldset.Legend>
+                <Fieldset.Legend className="mb-2">
+                  Allowed network protocols
+                </Fieldset.Legend>
                 <div className="flex gap-4">
                   {['http', 'https', 'ssh'].map((checkboxValue) => {
                     return (
                       <Field.Item key={checkboxValue}>
                         <Field.Label className="uppercase">
-                          <Checkbox.Root value={checkboxValue} onBlur={field.handleBlur}>
+                          <Checkbox.Root
+                            value={checkboxValue}
+                            onBlur={field.handleBlur}
+                          >
                             <Checkbox.Indicator>
                               <Check className="size-3" />
                             </Checkbox.Indicator>
@@ -492,9 +520,11 @@ function cartesian<T extends string[][]>(...arrays: T): string[][] {
   );
 }
 
-const REGIONS = cartesian(['us', 'eu', 'ap'], ['central', 'east', 'west'], ['1', '2', '3']).map(
-  (part) => part.join('-'),
-);
+const REGIONS = cartesian(
+  ['us', 'eu', 'ap'],
+  ['central', 'east', 'west'],
+  ['1', '2', '3'],
+).map((part) => part.join('-'));
 
 interface Image {
   url: string;

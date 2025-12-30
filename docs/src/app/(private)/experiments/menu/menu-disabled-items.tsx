@@ -24,7 +24,11 @@ export default function ExampleMenu() {
                 <ChevronRightIcon />
               </Menu.SubmenuTrigger>
               <Menu.Portal>
-                <Menu.Positioner className={styles.Positioner} alignOffset={-4} sideOffset={-4}>
+                <Menu.Positioner
+                  className={styles.Positioner}
+                  alignOffset={-4}
+                  sideOffset={-4}
+                >
                   <Menu.Popup className={styles.Popup}>
                     <Menu.Item className={styles.Item} disabled>
                       Get Up!

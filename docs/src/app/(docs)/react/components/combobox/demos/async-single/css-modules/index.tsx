@@ -7,7 +7,9 @@ export default function ExampleAsyncSingleCombobox() {
   const id = React.useId();
 
   const [searchResults, setSearchResults] = React.useState<DirectoryUser[]>([]);
-  const [selectedValue, setSelectedValue] = React.useState<DirectoryUser | null>(null);
+  const [selectedValue, setSelectedValue] = React.useState<DirectoryUser | null>(
+    null,
+  );
   const [searchValue, setSearchValue] = React.useState('');
   const [error, setError] = React.useState<string | null>(null);
   const [isPending, startTransition] = React.useTransition();
@@ -19,7 +21,10 @@ export default function ExampleAsyncSingleCombobox() {
   const trimmedSearchValue = searchValue.trim();
 
   const items = React.useMemo(() => {
-    if (!selectedValue || searchResults.some((user) => user.id === selectedValue.id)) {
+    if (
+      !selectedValue ||
+      searchResults.some((user) => user.id === selectedValue.id)
+    ) {
       return searchResults;
     }
 
@@ -52,7 +57,12 @@ export default function ExampleAsyncSingleCombobox() {
   }
 
   function getEmptyMessage() {
-    if (trimmedSearchValue === '' || isPending || searchResults.length > 0 || error) {
+    if (
+      trimmedSearchValue === '' ||
+      isPending ||
+      searchResults.length > 0 ||
+      error
+    ) {
       return null;
     }
 
@@ -110,7 +120,11 @@ export default function ExampleAsyncSingleCombobox() {
       <div className={styles.Label}>
         <label htmlFor={id}>Assign reviewer</label>
         <div className={styles.InputWrapper}>
-          <Combobox.Input id={id} placeholder="e.g. Michael" className={styles.Input} />
+          <Combobox.Input
+            id={id}
+            placeholder="e.g. Michael"
+            className={styles.Input}
+          />
           <div className={styles.ActionButtons}>
             <Combobox.Clear className={styles.Clear} aria-label="Clear selection">
               <ClearIcon className={styles.ClearIcon} />
@@ -124,9 +138,16 @@ export default function ExampleAsyncSingleCombobox() {
 
       <Combobox.Portal>
         <Combobox.Positioner className={styles.Positioner} sideOffset={4}>
-          <Combobox.Popup className={styles.Popup} aria-busy={isPending || undefined}>
-            <Combobox.Status className={styles.Status}>{getStatus()}</Combobox.Status>
-            <Combobox.Empty className={styles.Empty}>{getEmptyMessage()}</Combobox.Empty>
+          <Combobox.Popup
+            className={styles.Popup}
+            aria-busy={isPending || undefined}
+          >
+            <Combobox.Status className={styles.Status}>
+              {getStatus()}
+            </Combobox.Status>
+            <Combobox.Empty className={styles.Empty}>
+              {getEmptyMessage()}
+            </Combobox.Empty>
             <Combobox.List>
               {(user: DirectoryUser) => (
                 <Combobox.Item key={user.id} className={styles.Item} value={user}>

@@ -8,7 +8,10 @@ export default function DialogDetachedTriggersControlledDemo() {
   const [open, setOpen] = React.useState(false);
   const [triggerId, setTriggerId] = React.useState<string | null>(null);
 
-  const handleOpenChange = (isOpen: boolean, eventDetails: Dialog.Root.ChangeEventDetails) => {
+  const handleOpenChange = (
+    isOpen: boolean,
+    eventDetails: Dialog.Root.ChangeEventDetails,
+  ) => {
     setOpen(isOpen);
     setTriggerId(eventDetails.trigger?.id ?? null);
   };

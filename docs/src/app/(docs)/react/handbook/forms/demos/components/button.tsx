@@ -2,7 +2,10 @@ import * as React from 'react';
 import { Button as BaseButton } from '@base-ui/react/button';
 import clsx from 'clsx';
 
-export function Button({ className, ...props }: React.ComponentPropsWithoutRef<'button'>) {
+export function Button({
+  className,
+  ...props
+}: React.ComponentPropsWithoutRef<'button'>) {
   return (
     <BaseButton
       type="button"

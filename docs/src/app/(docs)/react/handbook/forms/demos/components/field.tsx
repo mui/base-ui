@@ -3,7 +3,12 @@ import clsx from 'clsx';
 import { Field } from '@base-ui/react/field';
 
 export function Root({ className, ...props }: Field.Root.Props) {
-  return <Field.Root className={clsx('flex flex-col items-start gap-1', className)} {...props} />;
+  return (
+    <Field.Root
+      className={clsx('flex flex-col items-start gap-1', className)}
+      {...props}
+    />
+  );
 }
 
 export function Label({ className, ...props }: Field.Label.Props) {
@@ -19,7 +24,12 @@ export function Label({ className, ...props }: Field.Label.Props) {
 }
 
 export function Description({ className, ...props }: Field.Description.Props) {
-  return <Field.Description className={clsx('text-sm text-gray-600', className)} {...props} />;
+  return (
+    <Field.Description
+      className={clsx('text-sm text-gray-600', className)}
+      {...props}
+    />
+  );
 }
 
 export const Control = React.forwardRef<HTMLInputElement, Field.Control.Props>(
@@ -41,7 +51,9 @@ export const Control = React.forwardRef<HTMLInputElement, Field.Control.Props>(
 );
 
 export function Error({ className, ...props }: Field.Error.Props) {
-  return <Field.Error className={clsx('text-sm text-red-800', className)} {...props} />;
+  return (
+    <Field.Error className={clsx('text-sm text-red-800', className)} {...props} />
+  );
 }
 
 export function Item(props: Field.Item.Props) {

@@ -18,8 +18,12 @@ export default function ExampleNavigationMenu() {
               {overviewLinks.map((item) => (
                 <li key={item.href}>
                   <Link href={item.href} className={linkCardClassName}>
-                    <h3 className="m-0 mb-1 text-base leading-5 font-medium">{item.title}</h3>
-                    <p className="m-0 text-sm leading-5 text-gray-500">{item.description}</p>
+                    <h3 className="m-0 mb-1 text-base leading-5 font-medium">
+                      {item.title}
+                    </h3>
+                    <p className="m-0 text-sm leading-5 text-gray-500">
+                      {item.description}
+                    </p>
                   </Link>
                 </li>
               ))}
@@ -40,8 +44,12 @@ export default function ExampleNavigationMenu() {
               {handbookLinks.map((item) => (
                 <li key={item.href}>
                   <Link href={item.href} className={linkCardClassName}>
-                    <h3 className="m-0 mb-1 text-base leading-5 font-medium">{item.title}</h3>
-                    <p className="m-0 text-sm leading-5 text-gray-500">{item.description}</p>
+                    <h3 className="m-0 mb-1 text-base leading-5 font-medium">
+                      {item.title}
+                    </h3>
+                    <p className="m-0 text-sm leading-5 text-gray-500">
+                      {item.description}
+                    </p>
                   </Link>
                 </li>
               ))}

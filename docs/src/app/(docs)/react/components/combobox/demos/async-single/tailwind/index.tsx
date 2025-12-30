@@ -6,7 +6,9 @@ export default function ExampleAsyncSingleCombobox() {
   const id = React.useId();
 
   const [searchResults, setSearchResults] = React.useState<DirectoryUser[]>([]);
-  const [selectedValue, setSelectedValue] = React.useState<DirectoryUser | null>(null);
+  const [selectedValue, setSelectedValue] = React.useState<DirectoryUser | null>(
+    null,
+  );
   const [searchValue, setSearchValue] = React.useState('');
   const [error, setError] = React.useState<string | null>(null);
   const [isPending, startTransition] = React.useTransition();
@@ -18,7 +20,10 @@ export default function ExampleAsyncSingleCombobox() {
   const trimmedSearchValue = searchValue.trim();
 
   const items = React.useMemo(() => {
-    if (!selectedValue || searchResults.some((user) => user.id === selectedValue.id)) {
+    if (
+      !selectedValue ||
+      searchResults.some((user) => user.id === selectedValue.id)
+    ) {
       return searchResults;
     }
 
@@ -54,7 +59,12 @@ export default function ExampleAsyncSingleCombobox() {
   }
 
   function getEmptyMessage() {
-    if (trimmedSearchValue === '' || isPending || searchResults.length > 0 || error) {
+    if (
+      trimmedSearchValue === '' ||
+      isPending ||
+      searchResults.length > 0 ||
+      error
+    ) {
       return null;
     }
     return 'Try a different search term.';

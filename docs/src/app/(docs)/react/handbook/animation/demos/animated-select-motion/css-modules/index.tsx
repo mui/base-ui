@@ -52,7 +52,11 @@ export default function AnimatedSelectMotionDemo() {
       <AnimatePresence>
         {portalMounted && (
           <Select.Portal>
-            <Select.Positioner className={styles.Positioner} sideOffset={8} ref={positionerRef}>
+            <Select.Positioner
+              className={styles.Positioner}
+              sideOffset={8}
+              ref={positionerRef}
+            >
               <Select.Popup className={styles.Popup} render={motionElement}>
                 <Select.ScrollUpArrow className={styles.ScrollArrow} />
                 <Select.List className={styles.List}>
@@ -61,7 +65,9 @@ export default function AnimatedSelectMotionDemo() {
                       <Select.ItemIndicator className={styles.ItemIndicator}>
                         <CheckIcon className={styles.ItemIndicatorIcon} />
                       </Select.ItemIndicator>
-                      <Select.ItemText className={styles.ItemText}>{label}</Select.ItemText>
+                      <Select.ItemText className={styles.ItemText}>
+                        {label}
+                      </Select.ItemText>
                     </Select.Item>
                   ))}
                 </Select.List>

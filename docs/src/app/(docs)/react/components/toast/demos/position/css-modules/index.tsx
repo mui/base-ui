@@ -38,7 +38,12 @@ function ToastButton() {
 function ToastList() {
   const { toasts } = Toast.useToastManager();
   return toasts.map((toast) => (
-    <Toast.Root key={toast.id} toast={toast} swipeDirection="up" className={styles.Toast}>
+    <Toast.Root
+      key={toast.id}
+      toast={toast}
+      swipeDirection="up"
+      className={styles.Toast}
+    >
       <Toast.Content className={styles.Content}>
         <Toast.Title className={styles.Title} />
         <Toast.Description className={styles.Description} />

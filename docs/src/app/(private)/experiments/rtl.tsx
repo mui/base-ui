@@ -24,7 +24,9 @@ export default function RtlNestedMenu() {
             <MenuPositioner side="bottom" align="start">
               <Menu.Popup className={c.popup}>
                 <Menu.SubmenuRoot>
-                  <Menu.SubmenuTrigger className={c.submenutrigger}>Text color</Menu.SubmenuTrigger>
+                  <Menu.SubmenuTrigger className={c.submenutrigger}>
+                    Text color
+                  </Menu.SubmenuTrigger>
                   <Menu.Portal>
                     <MenuPositioner align="start" side="inline-end">
                       <Menu.Popup className={c.popup}>
@@ -52,7 +54,9 @@ export default function RtlNestedMenu() {
                 </Menu.SubmenuRoot>
 
                 <Menu.SubmenuRoot>
-                  <Menu.SubmenuTrigger className={c.submenutrigger}>Style</Menu.SubmenuTrigger>
+                  <Menu.SubmenuTrigger className={c.submenutrigger}>
+                    Style
+                  </Menu.SubmenuTrigger>
                   <Menu.Portal>
                     <MenuPositioner align="start" side="inline-end">
                       <Menu.Popup className={c.popup}>
@@ -65,19 +69,25 @@ export default function RtlNestedMenu() {
                               <Menu.Popup className={c.popup}>
                                 <Menu.Item
                                   className={c.item}
-                                  onClick={createHandleMenuClick('Style/Heading/Level 1')}
+                                  onClick={createHandleMenuClick(
+                                    'Style/Heading/Level 1',
+                                  )}
                                 >
                                   Level 1
                                 </Menu.Item>
                                 <Menu.Item
                                   className={c.item}
-                                  onClick={createHandleMenuClick('Style/Heading/Level 2')}
+                                  onClick={createHandleMenuClick(
+                                    'Style/Heading/Level 2',
+                                  )}
                                 >
                                   Level 2
                                 </Menu.Item>
                                 <Menu.Item
                                   className={c.item}
-                                  onClick={createHandleMenuClick('Style/Heading/Level 3')}
+                                  onClick={createHandleMenuClick(
+                                    'Style/Heading/Level 3',
+                                  )}
                                 >
                                   Level 3
                                 </Menu.Item>
@@ -100,13 +110,17 @@ export default function RtlNestedMenu() {
                               <Menu.Popup className={c.popup}>
                                 <Menu.Item
                                   className={c.item}
-                                  onClick={createHandleMenuClick('Style/List/Ordered')}
+                                  onClick={createHandleMenuClick(
+                                    'Style/List/Ordered',
+                                  )}
                                 >
                                   Ordered
                                 </Menu.Item>
                                 <Menu.Item
                                   className={c.item}
-                                  onClick={createHandleMenuClick('Style/List/Unordered')}
+                                  onClick={createHandleMenuClick(
+                                    'Style/List/Unordered',
+                                  )}
                                 >
                                   Unordered
                                 </Menu.Item>
@@ -119,7 +133,10 @@ export default function RtlNestedMenu() {
                   </Menu.Portal>
                 </Menu.SubmenuRoot>
 
-                <Menu.Item className={c.item} onClick={createHandleMenuClick('Clear formatting')}>
+                <Menu.Item
+                  className={c.item}
+                  onClick={createHandleMenuClick('Clear formatting')}
+                >
                   Clear formatting
                 </Menu.Item>
               </Menu.Popup>
@@ -142,7 +159,9 @@ export default function RtlNestedMenu() {
                   style={{ borderRadius: '50%' }}
                 />
                 <h2 style={{ fontSize: 20, margin: 0 }}>Base UI</h2>
-                <p>Unstyled React components and hooks (@base-ui/react), by @MUI_hq.</p>
+                <p>
+                  Unstyled React components and hooks (@base-ui/react), by @MUI_hq.
+                </p>
                 <div style={{ display: 'flex', gap: 10 }}>
                   <span>
                     <strong>1</strong> Following
@@ -176,10 +195,19 @@ export default function RtlNestedMenu() {
 
 function MenuPositioner({ className, ...props }: Menu.Positioner.Props) {
   const direction = useDirection();
-  return <Menu.Positioner className={clsx('outline-none', className)} dir={direction} {...props} />;
+  return (
+    <Menu.Positioner
+      className={clsx('outline-none', className)}
+      dir={direction}
+      {...props}
+    />
+  );
 }
 
-function PreviewCardPositioner({ className, ...props }: PreviewCard.Positioner.Props) {
+function PreviewCardPositioner({
+  className,
+  ...props
+}: PreviewCard.Positioner.Props) {
   const direction = useDirection();
   return (
     <PreviewCard.Positioner

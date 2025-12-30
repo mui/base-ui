@@ -64,7 +64,10 @@ export function ScrollUpArrow({ className, ...props }: Select.ScrollUpArrow.Prop
   );
 }
 
-export function ScrollDownArrow({ className, ...props }: Select.ScrollDownArrow.Props) {
+export function ScrollDownArrow({
+  className,
+  ...props
+}: Select.ScrollDownArrow.Props) {
   return (
     <Select.ScrollDownArrow
       className={clsx(
@@ -101,7 +104,9 @@ export function Item({ className, ...props }: Select.Item.Props) {
 }
 
 export function ItemIndicator({ className, ...props }: Select.ItemIndicator.Props) {
-  return <Select.ItemIndicator className={clsx('col-start-1', className)} {...props} />;
+  return (
+    <Select.ItemIndicator className={clsx('col-start-1', className)} {...props} />
+  );
 }
 
 export function ItemText({ className, ...props }: Select.ItemText.Props) {

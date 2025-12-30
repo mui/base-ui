@@ -17,11 +17,19 @@ export default function MorphingToolbarDemo() {
         <PropertiesIcon aria-label="Notifications" className={styles.Icon} />
       </Popover.Trigger>
 
-      <Popover.Trigger className={styles.IconButton} handle={demoPopover} payload={HistoryPanel}>
+      <Popover.Trigger
+        className={styles.IconButton}
+        handle={demoPopover}
+        payload={HistoryPanel}
+      >
         <HistoryIcon aria-label="Profile" className={styles.Icon} />
       </Popover.Trigger>
 
-      <Popover.Trigger className={styles.IconButton} handle={demoPopover} payload={DiscussionPanel}>
+      <Popover.Trigger
+        className={styles.IconButton}
+        handle={demoPopover}
+        payload={DiscussionPanel}
+      >
         <DiscussionIcon aria-label="Activity" className={styles.Icon} />
       </Popover.Trigger>
 
@@ -58,7 +66,10 @@ function PropertiesPanel() {
       <div className={styles.Fields}>
         <div>
           <label className={styles.Label}>Title</label>
-          <input className={styles.Input} defaultValue="React Conf 2025 talk outline" />
+          <input
+            className={styles.Input}
+            defaultValue="React Conf 2025 talk outline"
+          />
         </div>
         <div>
           <label className={styles.Label}>Visibility</label>
@@ -87,8 +98,8 @@ function HistoryPanel() {
             />
           </Avatar.Root>
           <p>
-            <span className={styles.UserName}>Jason Eventon</span> created this document{' '}
-            <span className={styles.Time}>2 weeks ago</span>.
+            <span className={styles.UserName}>Jason Eventon</span> created this
+            document <span className={styles.Time}>2 weeks ago</span>.
           </p>
         </li>
         <li>

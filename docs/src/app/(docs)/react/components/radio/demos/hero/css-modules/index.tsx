@@ -7,7 +7,11 @@ import styles from './index.module.css';
 export default function ExampleRadioGroup() {
   const id = React.useId();
   return (
-    <RadioGroup aria-labelledby={id} defaultValue="fuji-apple" className={styles.RadioGroup}>
+    <RadioGroup
+      aria-labelledby={id}
+      defaultValue="fuji-apple"
+      className={styles.RadioGroup}
+    >
       <div className={styles.Caption} id={id}>
         Best apple
       </div>

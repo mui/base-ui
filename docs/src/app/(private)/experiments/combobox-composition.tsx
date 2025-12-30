@@ -7,7 +7,11 @@ export default function ComboboxComposition() {
   const [inputValue, setInputValue] = React.useState('');
   return (
     <div data-demo="tailwind" className="p-6">
-      <Combobox.Root items={fruitsKo} inputValue={inputValue} onInputValueChange={setInputValue}>
+      <Combobox.Root
+        items={fruitsKo}
+        inputValue={inputValue}
+        onInputValueChange={setInputValue}
+      >
         <div className="relative flex flex-col gap-1 text-sm leading-5 font-medium text-gray-900">
           <label htmlFor={id}>과일을 선택하세요</label>
           <Combobox.Input

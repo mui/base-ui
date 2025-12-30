@@ -63,7 +63,9 @@ function RowMenu() {
                   {menuItems.map((item) => (
                     <Menu.Item
                       key={item.index}
-                      onClick={() => console.log(`Clicked ${item.label} for ${rowData.label}`)}
+                      onClick={() =>
+                        console.log(`Clicked ${item.label} for ${rowData.label}`)
+                      }
                       className={demoStyles.Item}
                     >
                       {item.label} for {rowData.label}

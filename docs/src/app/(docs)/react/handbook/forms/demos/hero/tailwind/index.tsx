@@ -87,7 +87,9 @@ function ExampleForm() {
         >
           <Field.Label>Container image</Field.Label>
           <Autocomplete.Input placeholder="e.g. docker.io/library/node:latest" />
-          <Field.Description>Enter a registry URL with optional tags</Field.Description>
+          <Field.Description>
+            Enter a registry URL with optional tags
+          </Field.Description>
           <Autocomplete.Portal>
             <Autocomplete.Positioner>
               <Autocomplete.Popup>
@@ -222,7 +224,9 @@ function ExampleForm() {
 
       <Field.Root name="allowedNetworkProtocols">
         <Fieldset.Root render={<CheckboxGroup defaultValue={[]} />}>
-          <Fieldset.Legend className="mb-2">Allowed network protocols</Fieldset.Legend>
+          <Fieldset.Legend className="mb-2">
+            Allowed network protocols
+          </Fieldset.Legend>
           <div className="flex gap-4">
             {['http', 'https', 'ssh'].map((val) => {
               return (
@@ -264,9 +268,11 @@ function cartesian<T extends string[][]>(...arrays: T): string[][] {
   );
 }
 
-const REGIONS = cartesian(['us', 'eu', 'ap'], ['central', 'east', 'west'], ['1', '2', '3']).map(
-  (part) => part.join('-'),
-);
+const REGIONS = cartesian(
+  ['us', 'eu', 'ap'],
+  ['central', 'east', 'west'],
+  ['1', '2', '3'],
+).map((part) => part.join('-'));
 
 interface Image {
   url: string;

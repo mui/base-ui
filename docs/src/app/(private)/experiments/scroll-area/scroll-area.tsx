@@ -17,7 +17,10 @@ export default function ScrollAreaIntroduction() {
       <ScrollArea.Scrollbar className={styles.ScrollAreaScrollbar}>
         <ScrollArea.Thumb className={styles.ScrollAreaThumb} />
       </ScrollArea.Scrollbar>
-      <ScrollArea.Scrollbar orientation="horizontal" className={styles.ScrollAreaScrollbar}>
+      <ScrollArea.Scrollbar
+        orientation="horizontal"
+        className={styles.ScrollAreaScrollbar}
+      >
         <ScrollArea.Thumb className={styles.ScrollAreaThumb} />
       </ScrollArea.Scrollbar>
     </ScrollArea.Root>

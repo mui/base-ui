@@ -10,11 +10,19 @@ export default function Experiment() {
 
   return (
     <div className={styles.Container}>
-      <Popover.Trigger className={styles.IconButton} handle={demoPopover} payload={payload}>
+      <Popover.Trigger
+        className={styles.IconButton}
+        handle={demoPopover}
+        payload={payload}
+      >
         <BellIcon aria-label="Notifications" className={styles.Icon} />
       </Popover.Trigger>
 
-      <Popover.Trigger className={styles.IconButton} handle={demoPopover} payload={5}>
+      <Popover.Trigger
+        className={styles.IconButton}
+        handle={demoPopover}
+        payload={5}
+      >
         <BellIcon aria-label="Notifications" className={styles.Icon} />
       </Popover.Trigger>
 
@@ -45,9 +53,11 @@ export default function Experiment() {
                       Shrink
                     </button>
                   </div>
-                  {Array.from({ length: paragraphCount ?? 0 }, (_, i) => i + 1).map((num) => (
-                    <p key={num}>Item {num}</p>
-                  ))}
+                  {Array.from({ length: paragraphCount ?? 0 }, (_, i) => i + 1).map(
+                    (num) => (
+                      <p key={num}>Item {num}</p>
+                    ),
+                  )}
                 </Popover.Viewport>
               </Popover.Popup>
             </Popover.Positioner>

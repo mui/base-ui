@@ -44,7 +44,9 @@ export default function PopupsInPopups() {
                 <ExampleCombobox />
               </div>
               <div className={styles.DialogControls}>
-                <Dialog.Close className={styles.DialogCloseButton}>Cancel</Dialog.Close>
+                <Dialog.Close className={styles.DialogCloseButton}>
+                  Cancel
+                </Dialog.Close>
               </div>
             </Dialog.Popup>
           </Dialog.Portal>
@@ -68,7 +70,9 @@ function SelectDemo({ modal }: Props) {
         </Select.Trigger>
         <Tooltip.Portal>
           <Tooltip.Positioner sideOffset={10}>
-            <Tooltip.Popup className={styles.TooltipPopup}>Choose a font</Tooltip.Popup>
+            <Tooltip.Popup className={styles.TooltipPopup}>
+              Choose a font
+            </Tooltip.Popup>
           </Tooltip.Positioner>
         </Tooltip.Portal>
       </Tooltip.Root>
@@ -81,15 +85,24 @@ function SelectDemo({ modal }: Props) {
         >
           <Select.Popup className={styles.SelectPopup}>
             <Select.Item className={styles.SelectItem} value="system">
-              <Select.ItemIndicator className={styles.SelectItemIndicator} render={<CheckIcon />} />
+              <Select.ItemIndicator
+                className={styles.SelectItemIndicator}
+                render={<CheckIcon />}
+              />
               <Select.ItemText>System font</Select.ItemText>
             </Select.Item>
             <Select.Item className={styles.SelectItem} value="arial">
-              <Select.ItemIndicator className={styles.SelectItemIndicator} render={<CheckIcon />} />
+              <Select.ItemIndicator
+                className={styles.SelectItemIndicator}
+                render={<CheckIcon />}
+              />
               <Select.ItemText>Arial</Select.ItemText>
             </Select.Item>
             <Select.Item className={styles.SelectItem} value="roboto">
-              <Select.ItemIndicator className={styles.SelectItemIndicator} render={<CheckIcon />} />
+              <Select.ItemIndicator
+                className={styles.SelectItemIndicator}
+                render={<CheckIcon />}
+              />
               <Select.ItemText>Roboto</Select.ItemText>
             </Select.Item>
           </Select.Popup>
@@ -110,7 +123,12 @@ function MenuDemo({ modal }: Props) {
     <Menu.Root modal={modal}>
       <Menu.Trigger className={styles.Trigger}>Format</Menu.Trigger>
       <Menu.Portal>
-        <Menu.Positioner side="bottom" align="start" sideOffset={6} className={styles.Positioner}>
+        <Menu.Positioner
+          side="bottom"
+          align="start"
+          sideOffset={6}
+          className={styles.Positioner}
+        >
           <Menu.Popup className={styles.MenuPopup}>
             <Menu.SubmenuRoot closeParentOnEsc={false}>
               <Menu.SubmenuTrigger className={styles.SubmenuTrigger}>
@@ -148,7 +166,9 @@ function MenuDemo({ modal }: Props) {
             </Menu.SubmenuRoot>
 
             <Menu.SubmenuRoot>
-              <Menu.SubmenuTrigger className={styles.SubmenuTrigger}>Style</Menu.SubmenuTrigger>
+              <Menu.SubmenuTrigger className={styles.SubmenuTrigger}>
+                Style
+              </Menu.SubmenuTrigger>
               <Menu.Portal>
                 <Menu.Positioner
                   align="start"
@@ -171,19 +191,25 @@ function MenuDemo({ modal }: Props) {
                           <Menu.Popup className={styles.MenuPopup}>
                             <Menu.Item
                               className={styles.MenuItem}
-                              onClick={createHandleMenuClick('Style/Heading/Level 1')}
+                              onClick={createHandleMenuClick(
+                                'Style/Heading/Level 1',
+                              )}
                             >
                               Level 1
                             </Menu.Item>
                             <Menu.Item
                               className={styles.MenuItem}
-                              onClick={createHandleMenuClick('Style/Heading/Level 2')}
+                              onClick={createHandleMenuClick(
+                                'Style/Heading/Level 2',
+                              )}
                             >
                               Level 2
                             </Menu.Item>
                             <Menu.Item
                               className={styles.MenuItem}
-                              onClick={createHandleMenuClick('Style/Heading/Level 3')}
+                              onClick={createHandleMenuClick(
+                                'Style/Heading/Level 3',
+                              )}
                             >
                               Level 3
                             </Menu.Item>

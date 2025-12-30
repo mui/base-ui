@@ -9,7 +9,10 @@ export default function TooltipDetachedTriggersControlledDemo() {
   const [open, setOpen] = React.useState(false);
   const [triggerId, setTriggerId] = React.useState<string | null>(null);
 
-  const handleOpenChange = (isOpen: boolean, eventDetails: Tooltip.Root.ChangeEventDetails) => {
+  const handleOpenChange = (
+    isOpen: boolean,
+    eventDetails: Tooltip.Root.ChangeEventDetails,
+  ) => {
     setOpen(isOpen);
     setTriggerId(eventDetails.trigger?.id ?? null);
   };
@@ -18,15 +21,27 @@ export default function TooltipDetachedTriggersControlledDemo() {
     <Tooltip.Provider>
       <div className={styles.Container}>
         <div className={styles.ButtonGroup}>
-          <Tooltip.Trigger className={styles.IconButton} handle={demoTooltip} id="trigger-1">
+          <Tooltip.Trigger
+            className={styles.IconButton}
+            handle={demoTooltip}
+            id="trigger-1"
+          >
             <InfoIcon aria-label="Information 1" className={styles.Icon} />
           </Tooltip.Trigger>
 
-          <Tooltip.Trigger className={styles.IconButton} handle={demoTooltip} id="trigger-2">
+          <Tooltip.Trigger
+            className={styles.IconButton}
+            handle={demoTooltip}
+            id="trigger-2"
+          >
             <InfoIcon aria-label="Information 2" className={styles.Icon} />
           </Tooltip.Trigger>
 
-          <Tooltip.Trigger className={styles.IconButton} handle={demoTooltip} id="trigger-3">
+          <Tooltip.Trigger
+            className={styles.IconButton}
+            handle={demoTooltip}
+            id="trigger-3"
+          >
             <InfoIcon aria-label="Information 3" className={styles.Icon} />
           </Tooltip.Trigger>
         </div>

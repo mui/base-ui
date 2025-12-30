@@ -10,7 +10,11 @@ export default function ExampleCombobox() {
       <div className={styles.Label}>
         <label htmlFor={id}>Choose a fruit</label>
         <div className={styles.InputWrapper}>
-          <Combobox.Input placeholder="e.g. Apple" id={id} className={styles.Input} />
+          <Combobox.Input
+            placeholder="e.g. Apple"
+            id={id}
+            className={styles.Input}
+          />
           <div className={styles.ActionButtons}>
             <Combobox.Clear className={styles.Clear} aria-label="Clear selection">
               <ClearIcon className={styles.ClearIcon} />
@@ -25,7 +29,9 @@ export default function ExampleCombobox() {
       <Combobox.Portal>
         <Combobox.Positioner className={styles.Positioner} sideOffset={4}>
           <Combobox.Popup className={styles.Popup}>
-            <Combobox.Empty className={styles.Empty}>No fruits found.</Combobox.Empty>
+            <Combobox.Empty className={styles.Empty}>
+              No fruits found.
+            </Combobox.Empty>
             <Combobox.List className={styles.List}>
               {(item: string) => (
                 <Combobox.Item key={item} value={item} className={styles.Item}>

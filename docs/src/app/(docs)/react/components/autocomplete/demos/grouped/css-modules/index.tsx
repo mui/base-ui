@@ -13,16 +13,26 @@ export default function ExampleGroupAutocomplete() {
       <Autocomplete.Portal>
         <Autocomplete.Positioner className={styles.Positioner} sideOffset={4}>
           <Autocomplete.Popup className={styles.Popup}>
-            <Autocomplete.Empty className={styles.Empty}>No tags found.</Autocomplete.Empty>
+            <Autocomplete.Empty className={styles.Empty}>
+              No tags found.
+            </Autocomplete.Empty>
             <Autocomplete.List className={styles.List}>
               {(group: TagGroup) => (
-                <Autocomplete.Group key={group.value} items={group.items} className={styles.Group}>
+                <Autocomplete.Group
+                  key={group.value}
+                  items={group.items}
+                  className={styles.Group}
+                >
                   <Autocomplete.GroupLabel className={styles.GroupLabel}>
                     {group.value}
                   </Autocomplete.GroupLabel>
                   <Autocomplete.Collection>
                     {(tag: Tag) => (
-                      <Autocomplete.Item key={tag.id} className={styles.Item} value={tag}>
+                      <Autocomplete.Item
+                        key={tag.id}
+                        className={styles.Item}
+                        value={tag}
+                      >
                         {tag.label}
                       </Autocomplete.Item>
                     )}
@@ -67,13 +77,21 @@ const tagsData: Tag[] = [
   { id: 'c-dialog', label: 'component: dialog', group: 'Component' },
   { id: 'c-field', label: 'component: field', group: 'Component' },
   { id: 'c-fieldset', label: 'component: fieldset', group: 'Component' },
-  { id: 'c-filterable-menu', label: 'component: filterable menu', group: 'Component' },
+  {
+    id: 'c-filterable-menu',
+    label: 'component: filterable menu',
+    group: 'Component',
+  },
   { id: 'c-form', label: 'component: form', group: 'Component' },
   { id: 'c-input', label: 'component: input', group: 'Component' },
   { id: 'c-menu', label: 'component: menu', group: 'Component' },
   { id: 'c-menubar', label: 'component: menubar', group: 'Component' },
   { id: 'c-meter', label: 'component: meter', group: 'Component' },
-  { id: 'c-navigation-menu', label: 'component: navigation menu', group: 'Component' },
+  {
+    id: 'c-navigation-menu',
+    label: 'component: navigation menu',
+    group: 'Component',
+  },
   { id: 'c-number-field', label: 'component: number field', group: 'Component' },
   { id: 'c-popover', label: 'component: popover', group: 'Component' },
   { id: 'c-preview-card', label: 'component: preview card', group: 'Component' },

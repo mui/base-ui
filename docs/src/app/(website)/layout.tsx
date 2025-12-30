@@ -28,7 +28,10 @@ export default function Layout({ children }: React.PropsWithChildren) {
               <a className="Text size-1 Link" href="https://github.com/mui/base-ui">
                 GitHub
               </a>
-              <a className="Text size-1 Link" href="https://discord.com/invite/g6C3hUtuxz">
+              <a
+                className="Text size-1 Link"
+                href="https://discord.com/invite/g6C3hUtuxz"
+              >
                 Discord
               </a>
             </nav>
@@ -48,17 +51,26 @@ export default function Layout({ children }: React.PropsWithChildren) {
             <div className="gcs-1 gce-9 bp2:gce-3">
               <span className="Text size-1">© Base UI</span>
             </div>
-            <nav className="d-f fd-c g-2 gcs-1 gce-9 bp2:gcs-3 bp4:gce-7" aria-label="social links">
+            <nav
+              className="d-f fd-c g-2 gcs-1 gce-9 bp2:gcs-3 bp4:gce-7"
+              aria-label="social links"
+            >
               <a className="Text size-1 Link" href="https://x.com/base_ui">
                 X
               </a>
               <a className="Text size-1 Link" href="https://github.com/mui/base-ui">
                 GitHub
               </a>
-              <a className="Text size-1 Link" href="https://discord.com/invite/g6C3hUtuxz">
+              <a
+                className="Text size-1 Link"
+                href="https://discord.com/invite/g6C3hUtuxz"
+              >
                 Discord
               </a>
-              <a className="Text size-1 Link" href="https://www.npmjs.com/package/@base-ui/react">
+              <a
+                className="Text size-1 Link"
+                href="https://www.npmjs.com/package/@base-ui/react"
+              >
                 npm
               </a>
               <a
@@ -103,14 +115,18 @@ export const metadata: Metadata = {
       {
         rel: 'icon',
         url:
-          process.env.NODE_ENV !== 'production' ? '/static/favicon-dev.ico' : '/static/favicon.ico',
+          process.env.NODE_ENV !== 'production'
+            ? '/static/favicon-dev.ico'
+            : '/static/favicon.ico',
         sizes: '32x32',
       },
       {
         rel: 'icon',
         type: 'image/svg+xml',
         url:
-          process.env.NODE_ENV !== 'production' ? '/static/favicon-dev.svg' : '/static/favicon.svg',
+          process.env.NODE_ENV !== 'production'
+            ? '/static/favicon-dev.svg'
+            : '/static/favicon.svg',
       },
     ],
     apple: [

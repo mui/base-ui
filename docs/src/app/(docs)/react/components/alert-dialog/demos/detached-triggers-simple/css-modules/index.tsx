@@ -19,13 +19,17 @@ export default function AlertDialogDetachedTriggersSimpleDemo() {
         <AlertDialog.Portal>
           <AlertDialog.Backdrop className={styles.Backdrop} />
           <AlertDialog.Popup className={styles.Popup}>
-            <AlertDialog.Title className={styles.Title}>Discard draft?</AlertDialog.Title>
+            <AlertDialog.Title className={styles.Title}>
+              Discard draft?
+            </AlertDialog.Title>
             <AlertDialog.Description className={styles.Description}>
               This action cannot be undone.
             </AlertDialog.Description>
             <div className={styles.Actions}>
               <AlertDialog.Close className={styles.Button}>Cancel</AlertDialog.Close>
-              <AlertDialog.Close className={`${styles.Button} ${styles.DangerButton}`}>
+              <AlertDialog.Close
+                className={`${styles.Button} ${styles.DangerButton}`}
+              >
                 Discard
               </AlertDialog.Close>
             </div>

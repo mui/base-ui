@@ -32,14 +32,17 @@ const VARIANTS = [
   },
   {
     title: 'Overflow check',
-    description: 'Twenty tabs make the list exceed the container and force scrolling.',
+    description:
+      'Twenty tabs make the list exceed the container and force scrolling.',
     fontSize: '0.85rem',
     labels: OVERFLOW_LABELS,
   },
 ];
 
 export default function TabsOverflowExperiment() {
-  const [activeValues, setActiveValues] = React.useState(() => VARIANTS.map(() => 0));
+  const [activeValues, setActiveValues] = React.useState(() =>
+    VARIANTS.map(() => 0),
+  );
 
   const handleValueChange = (variantIndex: number) => (value: number) => {
     setActiveValues((prev) => {
@@ -70,7 +73,10 @@ export default function TabsOverflowExperiment() {
                     {label}
                   </Tabs.Tab>
                 ))}
-                <Tabs.Indicator className={classes.indicator} renderBeforeHydration />
+                <Tabs.Indicator
+                  className={classes.indicator}
+                  renderBeforeHydration
+                />
               </Tabs.List>
             </Tabs.Root>
           </div>

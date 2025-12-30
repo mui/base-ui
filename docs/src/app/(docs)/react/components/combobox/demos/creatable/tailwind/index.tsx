@@ -28,7 +28,9 @@ export default function ExampleCreatableCombobox() {
     }
 
     const normalized = currentTrimmed.toLocaleLowerCase();
-    const existing = labels.find((label) => label.value.trim().toLocaleLowerCase() === normalized);
+    const existing = labels.find(
+      (label) => label.value.trim().toLocaleLowerCase() === normalized,
+    );
 
     if (existing) {
       setSelected((prev) =>
@@ -51,10 +53,14 @@ export default function ExampleCreatableCombobox() {
 
     const normalized = value.toLocaleLowerCase();
     const baseId = normalized.replace(/\s+/g, '-');
-    const existing = labels.find((l) => l.value.trim().toLocaleLowerCase() === normalized);
+    const existing = labels.find(
+      (l) => l.value.trim().toLocaleLowerCase() === normalized,
+    );
 
     if (existing) {
-      setSelected((prev) => (prev.some((i) => i.id === existing.id) ? prev : [...prev, existing]));
+      setSelected((prev) =>
+        prev.some((i) => i.id === existing.id) ? prev : [...prev, existing],
+      );
       setOpenDialog(false);
       setQuery('');
       return;
@@ -89,11 +95,20 @@ export default function ExampleCreatableCombobox() {
 
   const trimmed = query.trim();
   const lowered = trimmed.toLocaleLowerCase();
-  const exactExists = labels.some((l) => l.value.trim().toLocaleLowerCase() === lowered);
+  const exactExists = labels.some(
+    (l) => l.value.trim().toLocaleLowerCase() === lowered,
+  );
   // Show the creatable item alongside matches if there's no exact match
   const itemsForView: Array<LabelItem> =
     trimmed !== '' && !exactExists
-      ? [...labels, { creatable: trimmed, id: `create:${lowered}`, value: `Create "${trimmed}"` }]
+      ? [
+          ...labels,
+          {
+            creatable: trimmed,
+            id: `create:${lowered}`,
+            value: `Create "${trimmed}"`,
+          },
+        ]
       : labels;
 
   return (
@@ -103,7 +118,8 @@ export default function ExampleCreatableCombobox() {
         multiple
         onValueChange={(next) => {
           const creatableSelection = next.find(
-            (item) => item.creatable && !selected.some((current) => current.id === item.id),
+            (item) =>
+              item.creatable && !selected.some((current) => current.id === item.id),
           );
 
           if (creatableSelection && creatableSelection.creatable) {
@@ -123,7 +139,10 @@ export default function ExampleCreatableCombobox() {
         }}
       >
         <div className="max-w-112 flex flex-col gap-1">
-          <label className="text-sm leading-5 font-medium text-gray-900" htmlFor={id}>
+          <label
+            className="text-sm leading-5 font-medium text-gray-900"
+            htmlFor={id}
+          >
             Labels
           </label>
           <Combobox.Chips
@@ -162,7 +181,11 @@ export default function ExampleCreatableCombobox() {
         </div>
 
         <Combobox.Portal>
-          <Combobox.Positioner className="z-50 outline-none" sideOffset={4} anchor={containerRef}>
+          <Combobox.Positioner
+            className="z-50 outline-none"
+            sideOffset={4}
+            anchor={containerRef}
+          >
             <Combobox.Popup className="w-[var(--anchor-width)] max-h-[min(var(--available-height),24rem)] max-w-[var(--available-width)] overflow-y-auto scroll-pt-2 scroll-pb-2 overscroll-contain rounded-lg bg-[canvas] py-2 text-gray-900 shadow-lg shadow-gray-200 outline-1 outline-gray-200 dark:shadow-none dark:-outline-offset-1 dark:outline-gray-300">
               <Combobox.Empty className="px-4 py-2 text-[0.925rem] leading-4 text-gray-600 empty:m-0 empty:p-0">
                 No labels found.

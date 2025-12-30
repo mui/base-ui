@@ -134,7 +134,9 @@ function RowMenu() {
                   {menuItems.map((item) => (
                     <Menu.Item
                       key={item.index}
-                      onClick={() => console.log(`Clicked ${item.label} for ${rowData.label}`)}
+                      onClick={() =>
+                        console.log(`Clicked ${item.label} for ${rowData.label}`)
+                      }
                       className={menuDemoStyles.Item}
                     >
                       {item.label} for {rowData.label}
@@ -155,7 +157,10 @@ function RowPopover() {
     <Popover.Root handle={rowPopoverHandle}>
       {({ payload: rowData }) => (
         <Popover.Portal>
-          <Popover.Positioner sideOffset={8} className={popoverDemoStyles.Positioner}>
+          <Popover.Positioner
+            sideOffset={8}
+            className={popoverDemoStyles.Positioner}
+          >
             <Popover.Popup className={popoverDemoStyles.Popup}>
               <Popover.Arrow className={popoverDemoStyles.Arrow}>
                 <ArrowSvg />
@@ -203,7 +208,9 @@ function RowDialog() {
                 Dialog content for {rowData.label}
               </Dialog.Description>
               <div className={dialogDemoStyles.Actions}>
-                <Dialog.Close className={dialogDemoStyles.Button}>Close</Dialog.Close>
+                <Dialog.Close className={dialogDemoStyles.Button}>
+                  Close
+                </Dialog.Close>
               </div>
             </Dialog.Popup>
           </Dialog.Portal>

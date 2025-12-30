@@ -11,7 +11,9 @@ export default function DialogCombobox() {
     <Combobox.Root items={fruits} open={open} onOpenChange={setOpen} inline>
       <Dialog.Root open={open} onOpenChange={setOpen}>
         <Dialog.Trigger className={styles.Button}>
-          <Combobox.Value>{(value: string | null) => value || 'Select a fruit'}</Combobox.Value>
+          <Combobox.Value>
+            {(value: string | null) => value || 'Select a fruit'}
+          </Combobox.Value>
         </Dialog.Trigger>
         <Dialog.Portal>
           <Dialog.Backdrop className={styles.Backdrop} />
@@ -24,11 +26,17 @@ export default function DialogCombobox() {
               <div className={styles.Label}>
                 <label htmlFor={inputId}>Fruit</label>
                 <div className={styles.InputWrapper}>
-                  <Combobox.Input id={inputId} placeholder="e.g. Apple" className={styles.Input} />
+                  <Combobox.Input
+                    id={inputId}
+                    placeholder="e.g. Apple"
+                    className={styles.Input}
+                  />
                 </div>
               </div>
               <div className={styles.Results}>
-                <Combobox.Empty className={styles.Empty}>No fruits found.</Combobox.Empty>
+                <Combobox.Empty className={styles.Empty}>
+                  No fruits found.
+                </Combobox.Empty>
                 <Combobox.List className={styles.List}>
                   {(item: string) => (
                     <Combobox.Item key={item} value={item} className={styles.Item}>

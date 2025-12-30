@@ -9,7 +9,10 @@ interface FormState {
 }
 
 export default function ActionStateForm() {
-  const [state, formAction, loading] = React.useActionState<FormState, FormData>(submitForm, {});
+  const [state, formAction, loading] = React.useActionState<FormState, FormData>(
+    submitForm,
+    {},
+  );
 
   return (
     <Form
@@ -18,7 +21,9 @@ export default function ActionStateForm() {
       className="flex w-full max-w-64 flex-col gap-4"
     >
       <Field.Root name="username" className="flex flex-col items-start gap-1">
-        <Field.Label className="text-sm font-medium text-gray-900">Username</Field.Label>
+        <Field.Label className="text-sm font-medium text-gray-900">
+          Username
+        </Field.Label>
         <Field.Control
           type="username"
           required
@@ -51,7 +56,10 @@ async function submitForm(_previousState: FormState, formData: FormData) {
     const username = formData.get('username') as string | null;
 
     if (username === 'admin') {
-      return { success: false, serverErrors: { username: "'admin' is reserved for system use" } };
+      return {
+        success: false,
+        serverErrors: { username: "'admin' is reserved for system use" },
+      };
     }
 
     // 50% chance the username is taken

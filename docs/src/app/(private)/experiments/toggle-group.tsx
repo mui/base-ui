@@ -21,15 +21,27 @@ export default function ToggleGroupDemo() {
         aria-label="Text alignment"
         className={classes.group}
       >
-        <Toggle value="align-left" aria-label="Align left" className={classes.button}>
+        <Toggle
+          value="align-left"
+          aria-label="Align left"
+          className={classes.button}
+        >
           <AlignLeftIcon />
         </Toggle>
 
-        <Toggle value="align-center" aria-label="Align center" className={classes.button}>
+        <Toggle
+          value="align-center"
+          aria-label="Align center"
+          className={classes.button}
+        >
           <AlignCenterIcon />
         </Toggle>
 
-        <Toggle value="align-right" aria-label="Align right" className={classes.button}>
+        <Toggle
+          value="align-right"
+          aria-label="Align right"
+          className={classes.button}
+        >
           <AlignRightIcon />
         </Toggle>
       </ToggleGroup>
@@ -39,16 +51,32 @@ export default function ToggleGroupDemo() {
       <div dir="rtl">
         <div>
           <div>
-            <ToggleGroup multiple aria-label="Text formatting" className={classes.group}>
-              <Toggle value="bold" aria-label="Toggle bold" className={classes.button}>
+            <ToggleGroup
+              multiple
+              aria-label="Text formatting"
+              className={classes.group}
+            >
+              <Toggle
+                value="bold"
+                aria-label="Toggle bold"
+                className={classes.button}
+              >
                 <BoldIcon />
               </Toggle>
 
-              <Toggle value="italics" aria-label="Toggle italics" className={classes.button}>
+              <Toggle
+                value="italics"
+                aria-label="Toggle italics"
+                className={classes.button}
+              >
                 <ItalicsIcon />
               </Toggle>
 
-              <Toggle value="underline" aria-label="Toggle underline" className={classes.button}>
+              <Toggle
+                value="underline"
+                aria-label="Toggle underline"
+                className={classes.button}
+              >
                 <UnderlineIcon />
               </Toggle>
             </ToggleGroup>
@@ -61,7 +89,12 @@ export default function ToggleGroupDemo() {
 
 function AlignLeftIcon() {
   return (
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+    >
       <line x1="17" y1="10" x2="3" y2="10" />
       <line x1="21" y1="6" x2="3" y2="6" />
       <line x1="21" y1="14" x2="3" y2="14" />
@@ -72,7 +105,12 @@ function AlignLeftIcon() {
 
 function AlignCenterIcon() {
   return (
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+    >
       <line x1="18" y1="10" x2="6" y2="10" />
       <line x1="21" y1="6" x2="3" y2="6" />
       <line x1="21" y1="14" x2="3" y2="14" />
@@ -83,7 +121,12 @@ function AlignCenterIcon() {
 
 function AlignRightIcon() {
   return (
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+    >
       <line x1="21" y1="10" x2="7" y2="10" />
       <line x1="21" y1="6" x2="3" y2="6" />
       <line x1="21" y1="14" x2="3" y2="14" />
@@ -94,7 +137,12 @@ function AlignRightIcon() {
 
 function BoldIcon() {
   return (
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+    >
       <path d="M6 4h8a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z" />
       <path d="M6 12h9a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z" />
     </svg>
@@ -103,7 +151,12 @@ function BoldIcon() {
 
 function ItalicsIcon() {
   return (
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+    >
       <line x1="19" y1="4" x2="10" y2="4" />
       <line x1="14" y1="20" x2="5" y2="20" />
       <line x1="15" y1="4" x2="9" y2="20" />
@@ -113,7 +166,12 @@ function ItalicsIcon() {
 
 function UnderlineIcon() {
   return (
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+    >
       <path d="M6 3v7a6 6 0 0 0 6 6 6 6 0 0 0 6-6V3" />
       <line x1="4" y1="21" x2="20" y2="21" />
     </svg>

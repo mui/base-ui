@@ -20,16 +20,27 @@ const dialogContents = {
   Profile: (
     <React.Fragment>
       <p>Manage profile information and preferences from a focused workspace.</p>
-      <p>Changes apply immediately once you save them, so review carefully before closing.</p>
+      <p>
+        Changes apply immediately once you save them, so review carefully before
+        closing.
+      </p>
     </React.Fragment>
   ),
   Invites: (
     <React.Fragment>
       <p>Invite teammates to access the latest project artifacts and timelines.</p>
-      <p>Decide who can edit, comment, or just follow progress from the audience controls.</p>
+      <p>
+        Decide who can edit, comment, or just follow progress from the audience
+        controls.
+      </p>
     </React.Fragment>
   ),
-  Tasks: <p>Review the highest priority tasks assigned to you this week and adjust due dates.</p>,
+  Tasks: (
+    <p>
+      Review the highest priority tasks assigned to you this week and adjust due
+      dates.
+    </p>
+  ),
   Notifications: (
     <React.Fragment>
       <p>Fine tune which notifications should reach your inbox versus stay muted.</p>
@@ -49,15 +60,14 @@ export default function DialogExperiment() {
 
   const [singleTriggerOpen, setSingleTriggerOpen] = React.useState(false);
 
-  const [controlledWithinRootOpen, setControlledWithinRootOpen] = React.useState(false);
-  const [controlledWithinRootTriggerId, setControlledWithinRootTriggerId] = React.useState<
-    string | null
-  >(null);
+  const [controlledWithinRootOpen, setControlledWithinRootOpen] =
+    React.useState(false);
+  const [controlledWithinRootTriggerId, setControlledWithinRootTriggerId] =
+    React.useState<string | null>(null);
 
   const [controlledDetachedOpen, setControlledDetachedOpen] = React.useState(false);
-  const [controlledDetachedTriggerId, setControlledDetachedTriggerId] = React.useState<
-    string | null
-  >(null);
+  const [controlledDetachedTriggerId, setControlledDetachedTriggerId] =
+    React.useState<string | null>(null);
 
   return (
     <div className={styles.Page}>
@@ -102,9 +112,15 @@ export default function DialogExperiment() {
         >
           {({ payload }) => (
             <React.Fragment>
-              <StyledTrigger payload={triggerLabels[0]}>{triggerLabels[0]}</StyledTrigger>
-              <StyledTrigger payload={triggerLabels[1]}>{triggerLabels[1]}</StyledTrigger>
-              <StyledTrigger payload={triggerLabels[2]}>{triggerLabels[2]}</StyledTrigger>
+              <StyledTrigger payload={triggerLabels[0]}>
+                {triggerLabels[0]}
+              </StyledTrigger>
+              <StyledTrigger payload={triggerLabels[1]}>
+                {triggerLabels[1]}
+              </StyledTrigger>
+              <StyledTrigger payload={triggerLabels[2]}>
+                {triggerLabels[2]}
+              </StyledTrigger>
               {renderDialogContent(payload as keyof typeof dialogContents, settings)}
             </React.Fragment>
           )}
@@ -125,11 +141,18 @@ export default function DialogExperiment() {
         >
           {({ payload }) => (
             <React.Fragment>
-              <StyledTrigger payload={triggerLabels[0]}>{triggerLabels[0]}</StyledTrigger>
-              <StyledTrigger payload={triggerLabels[1]} id="within-root-second-trigger">
+              <StyledTrigger payload={triggerLabels[0]}>
+                {triggerLabels[0]}
+              </StyledTrigger>
+              <StyledTrigger
+                payload={triggerLabels[1]}
+                id="within-root-second-trigger"
+              >
                 {triggerLabels[1]}
               </StyledTrigger>
-              <StyledTrigger payload={triggerLabels[2]}>{triggerLabels[2]}</StyledTrigger>
+              <StyledTrigger payload={triggerLabels[2]}>
+                {triggerLabels[2]}
+              </StyledTrigger>
               {renderDialogContent(payload as keyof typeof dialogContents, settings)}
             </React.Fragment>
           )}
@@ -284,17 +307,24 @@ function StyledDialog(props: StyledDialogProps<keyof typeof dialogContents>) {
       modal={settings.modal}
       disablePointerDismissal={settings.disablePointerDismissal}
     >
-      {({ payload }) => renderDialogContent(payload as keyof typeof dialogContents, settings)}
+      {({ payload }) =>
+        renderDialogContent(payload as keyof typeof dialogContents, settings)
+      }
     </Dialog.Root>
   );
 }
 
-function renderDialogContent(contentKey: keyof typeof dialogContents, settings: Settings) {
+function renderDialogContent(
+  contentKey: keyof typeof dialogContents,
+  settings: Settings,
+) {
   const content = dialogContents[contentKey];
 
   return (
     <Dialog.Portal keepMounted={settings.keepMounted}>
-      {settings.renderBackdrop && <Dialog.Backdrop className={demoStyles.Backdrop} />}
+      {settings.renderBackdrop && (
+        <Dialog.Backdrop className={demoStyles.Backdrop} />
+      )}
       <Dialog.Popup className={demoStyles.Popup} key={contentKey}>
         {contentKey == null ? (
           <p>No payload</p>
@@ -309,7 +339,9 @@ function renderDialogContent(contentKey: keyof typeof dialogContents, settings: 
               <StatefulComponent />
             </div>
             <div className={clsx(demoStyles.Actions, styles.Actions)}>
-              <Dialog.Close className={clsx(demoStyles.Button, styles.Button)}>Close</Dialog.Close>
+              <Dialog.Close className={clsx(demoStyles.Button, styles.Button)}>
+                Close
+              </Dialog.Close>
             </div>
           </React.Fragment>
         )}

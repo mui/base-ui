@@ -34,7 +34,10 @@ type MenuContentSubmenu = {
   menu: MenuContentItem[];
 };
 
-type MenuContentItem = MenuContentRegularItem | MenuContentSeparator | MenuContentSubmenu;
+type MenuContentItem =
+  | MenuContentRegularItem
+  | MenuContentSeparator
+  | MenuContentSubmenu;
 
 const contents = {
   Library: [
@@ -93,15 +96,14 @@ export default function MenuTriggers() {
 
   const [singleTriggerOpen, setSingleTriggerOpen] = React.useState(false);
 
-  const [controlledWithinRootOpen, setControlledWithinRootOpen] = React.useState(false);
-  const [controlledWithinRootTriggerId, setControlledWithinRootTriggerId] = React.useState<
-    string | null
-  >(null);
+  const [controlledWithinRootOpen, setControlledWithinRootOpen] =
+    React.useState(false);
+  const [controlledWithinRootTriggerId, setControlledWithinRootTriggerId] =
+    React.useState<string | null>(null);
 
   const [controlledDetachedOpen, setControlledDetachedOpen] = React.useState(false);
-  const [controlledDetachedTriggerId, setControlledDetachedTriggerId] = React.useState<
-    string | null
-  >(null);
+  const [controlledDetachedTriggerId, setControlledDetachedTriggerId] =
+    React.useState<string | null>(null);
 
   return (
     <div className={styles.Page}>
@@ -210,7 +212,11 @@ export default function MenuTriggers() {
           }}
         />
         <StyledTrigger handle={menu2} payload={'Library' as const} />
-        <StyledTrigger handle={menu2} payload={'Playback' as const} id="detached-second-trigger" />
+        <StyledTrigger
+          handle={menu2}
+          payload={'Playback' as const}
+          id="detached-second-trigger"
+        />
         <StyledTrigger handle={menu2} payload={'Sharing' as const} />
         <button
           type="button"
@@ -264,14 +270,17 @@ type MenuTriggerPropsWithFeatures<Payload> = Menu.Trigger.Props<Payload> & {
 };
 
 function StyledTrigger(
-  props: MenuTriggerPropsWithFeatures<ContentKey> & React.RefAttributes<HTMLButtonElement>,
+  props: MenuTriggerPropsWithFeatures<ContentKey> &
+    React.RefAttributes<HTMLButtonElement>,
 ) {
   const { settings } = useExperimentSettings<Settings>();
   const { className, children, payload, ...restProps } = props;
 
   const triggerProps: Menu.Trigger.Props<ContentKey> = {
     ...restProps,
-    className: [demoStyles.Button, styles.Trigger, className].filter(Boolean).join(' '),
+    className: [demoStyles.Button, styles.Trigger, className]
+      .filter(Boolean)
+      .join(' '),
     openOnHover: settings.openOnHover,
     delay: settings.delay,
     closeDelay: settings.closeDelay,
@@ -293,7 +302,11 @@ function renderMenuContent(contentKey: ContentKey | undefined, settings: Setting
 
   return (
     <Menu.Portal keepMounted={settings.keepMounted}>
-      <Menu.Positioner sideOffset={8} className={demoStyles.Positioner} side={settings.side}>
+      <Menu.Positioner
+        sideOffset={8}
+        className={demoStyles.Positioner}
+        side={settings.side}
+      >
         <Menu.Popup className={demoStyles.Popup}>
           <Menu.Arrow className={demoStyles.Arrow}>
             <ArrowSvg />
@@ -333,7 +346,11 @@ function renderMenuContentItem(item: MenuContentItem, key: string) {
             <ChevronRightIcon />
           </Menu.SubmenuTrigger>
           <Menu.Portal>
-            <Menu.Positioner className={demoStyles.Positioner} alignOffset={-4} sideOffset={-4}>
+            <Menu.Positioner
+              className={demoStyles.Positioner}
+              alignOffset={-4}
+              sideOffset={-4}
+            >
               <Menu.Popup className={demoStyles.Popup}>
                 {item.menu.map((subItem, subIndex) =>
                   renderMenuContentItem(subItem, `${key}.${subIndex}`),

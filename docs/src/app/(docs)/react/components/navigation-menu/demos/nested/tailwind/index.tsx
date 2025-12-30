@@ -18,8 +18,12 @@ export default function ExampleNavigationMenu() {
               {overviewLinks.map((item) => (
                 <li key={item.href}>
                   <Link href={item.href} className={linkCardClassName}>
-                    <h3 className="m-0 mb-1 text-base leading-5 font-medium">{item.title}</h3>
-                    <p className="m-0 text-sm leading-5 text-gray-500">{item.description}</p>
+                    <h3 className="m-0 mb-1 text-base leading-5 font-medium">
+                      {item.title}
+                    </h3>
+                    <p className="m-0 text-sm leading-5 text-gray-500">
+                      {item.description}
+                    </p>
                   </Link>
                 </li>
               ))}
@@ -27,7 +31,9 @@ export default function ExampleNavigationMenu() {
                 <NavigationMenu.Root orientation="vertical">
                   <NavigationMenu.Item>
                     <NavigationMenu.Trigger className={linkCardClassName}>
-                      <span className="m-0 mb-1 text-base leading-5 font-medium">Handbook</span>
+                      <span className="m-0 mb-1 text-base leading-5 font-medium">
+                        Handbook
+                      </span>
                       <p className="m-0 text-sm leading-5 text-gray-500">
                         How to use Base UI effectively.
                       </p>

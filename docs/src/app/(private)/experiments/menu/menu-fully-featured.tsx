@@ -28,9 +28,12 @@ export default function MenuFullyFeatured() {
     [settings.customTriggerElement],
   );
 
-  const handleItemClick = React.useCallback((event: React.MouseEvent<HTMLDivElement>) => {
-    console.log(`${event.currentTarget.textContent} clicked`);
-  }, []);
+  const handleItemClick = React.useCallback(
+    (event: React.MouseEvent<HTMLDivElement>) => {
+      console.log(`${event.currentTarget.textContent} clicked`);
+    },
+    [],
+  );
 
   return (
     <div>
@@ -63,7 +66,11 @@ export default function MenuFullyFeatured() {
                 Item 2
               </Menu.Item>
               <Menu.Separator className={classes.Separator} />
-              <Menu.Item className={classes.Item} closeOnClick={false} onClick={handleItemClick}>
+              <Menu.Item
+                className={classes.Item}
+                closeOnClick={false}
+                onClick={handleItemClick}
+              >
                 Item (close on click disabled)
               </Menu.Item>
               <Menu.Item className={classes.Item} disabled onClick={handleItemClick}>
@@ -87,28 +94,56 @@ export default function MenuFullyFeatured() {
                         </Menu.GroupLabel>
                         <Menu.RadioGroup>
                           <Menu.RadioItem className={classes.RadioItem} value="o1">
-                            <Menu.RadioItemIndicator className={classes.RadioItemIndicator}>
-                              <CheckIcon className={classes.RadioItemIndicatorIcon} />
+                            <Menu.RadioItemIndicator
+                              className={classes.RadioItemIndicator}
+                            >
+                              <CheckIcon
+                                className={classes.RadioItemIndicatorIcon}
+                              />
                             </Menu.RadioItemIndicator>
                             <span className={classes.RadioItemText}>Option 1</span>
                           </Menu.RadioItem>
                           <Menu.RadioItem className={classes.RadioItem} value="o2">
-                            <Menu.RadioItemIndicator className={classes.RadioItemIndicator}>
-                              <CheckIcon className={classes.RadioItemIndicatorIcon} />
+                            <Menu.RadioItemIndicator
+                              className={classes.RadioItemIndicator}
+                            >
+                              <CheckIcon
+                                className={classes.RadioItemIndicatorIcon}
+                              />
                             </Menu.RadioItemIndicator>
                             <span className={classes.RadioItemText}>Option 2</span>
                           </Menu.RadioItem>
-                          <Menu.RadioItem className={classes.RadioItem} value="o3" closeOnClick>
-                            <Menu.RadioItemIndicator className={classes.RadioItemIndicator}>
-                              <CheckIcon className={classes.RadioItemIndicatorIcon} />
+                          <Menu.RadioItem
+                            className={classes.RadioItem}
+                            value="o3"
+                            closeOnClick
+                          >
+                            <Menu.RadioItemIndicator
+                              className={classes.RadioItemIndicator}
+                            >
+                              <CheckIcon
+                                className={classes.RadioItemIndicatorIcon}
+                              />
                             </Menu.RadioItemIndicator>
-                            <span className={classes.RadioItemText}>Option 3 (close on click)</span>
+                            <span className={classes.RadioItemText}>
+                              Option 3 (close on click)
+                            </span>
                           </Menu.RadioItem>
-                          <Menu.RadioItem className={classes.RadioItem} value="o4" disabled>
-                            <Menu.RadioItemIndicator className={classes.RadioItemIndicator}>
-                              <CheckIcon className={classes.RadioItemIndicatorIcon} />
+                          <Menu.RadioItem
+                            className={classes.RadioItem}
+                            value="o4"
+                            disabled
+                          >
+                            <Menu.RadioItemIndicator
+                              className={classes.RadioItemIndicator}
+                            >
+                              <CheckIcon
+                                className={classes.RadioItemIndicatorIcon}
+                              />
                             </Menu.RadioItemIndicator>
-                            <span className={classes.RadioItemText}>Disabled option</span>
+                            <span className={classes.RadioItemText}>
+                              Disabled option
+                            </span>
                           </Menu.RadioItem>
                         </Menu.RadioGroup>
                       </Menu.Group>
@@ -120,30 +155,51 @@ export default function MenuFullyFeatured() {
                           Checkbox Items
                         </Menu.GroupLabel>
                         <Menu.CheckboxItem className={classes.CheckboxItem}>
-                          <Menu.CheckboxItemIndicator className={classes.CheckboxItemIndicator}>
-                            <CheckIcon className={classes.CheckboxItemIndicatorIcon} />
+                          <Menu.CheckboxItemIndicator
+                            className={classes.CheckboxItemIndicator}
+                          >
+                            <CheckIcon
+                              className={classes.CheckboxItemIndicatorIcon}
+                            />
                           </Menu.CheckboxItemIndicator>
                           <span className={classes.CheckboxItemText}>Option A</span>
                         </Menu.CheckboxItem>
                         <Menu.CheckboxItem className={classes.CheckboxItem}>
-                          <Menu.CheckboxItemIndicator className={classes.CheckboxItemIndicator}>
-                            <CheckIcon className={classes.CheckboxItemIndicatorIcon} />
+                          <Menu.CheckboxItemIndicator
+                            className={classes.CheckboxItemIndicator}
+                          >
+                            <CheckIcon
+                              className={classes.CheckboxItemIndicatorIcon}
+                            />
                           </Menu.CheckboxItemIndicator>
                           <span className={classes.CheckboxItemText}>Option B</span>
                         </Menu.CheckboxItem>
-                        <Menu.CheckboxItem className={classes.CheckboxItem} closeOnClick>
-                          <Menu.CheckboxItemIndicator className={classes.CheckboxItemIndicator}>
-                            <CheckIcon className={classes.CheckboxItemIndicatorIcon} />
+                        <Menu.CheckboxItem
+                          className={classes.CheckboxItem}
+                          closeOnClick
+                        >
+                          <Menu.CheckboxItemIndicator
+                            className={classes.CheckboxItemIndicator}
+                          >
+                            <CheckIcon
+                              className={classes.CheckboxItemIndicatorIcon}
+                            />
                           </Menu.CheckboxItemIndicator>
                           <span className={classes.CheckboxItemText}>
                             Option C (close on click)
                           </span>
                         </Menu.CheckboxItem>
                         <Menu.CheckboxItem className={classes.CheckboxItem} disabled>
-                          <Menu.CheckboxItemIndicator className={classes.CheckboxItemIndicator}>
-                            <CheckIcon className={classes.CheckboxItemIndicatorIcon} />
+                          <Menu.CheckboxItemIndicator
+                            className={classes.CheckboxItemIndicator}
+                          >
+                            <CheckIcon
+                              className={classes.CheckboxItemIndicatorIcon}
+                            />
                           </Menu.CheckboxItemIndicator>
-                          <span className={classes.CheckboxItemText}>Disabled option</span>
+                          <span className={classes.CheckboxItemText}>
+                            Disabled option
+                          </span>
                         </Menu.CheckboxItem>
                       </Menu.Group>
 
@@ -155,15 +211,27 @@ export default function MenuFullyFeatured() {
                           <ChevronRightIcon />
                         </Menu.SubmenuTrigger>
                         <Menu.Portal>
-                          <Menu.Positioner className={classes.Positioner} sideOffset={8}>
+                          <Menu.Positioner
+                            className={classes.Positioner}
+                            sideOffset={8}
+                          >
                             <Menu.Popup className={classes.Popup}>
-                              <Menu.Item className={classes.Item} onClick={handleItemClick}>
+                              <Menu.Item
+                                className={classes.Item}
+                                onClick={handleItemClick}
+                              >
                                 Submenu item 1
                               </Menu.Item>
-                              <Menu.Item className={classes.Item} onClick={handleItemClick}>
+                              <Menu.Item
+                                className={classes.Item}
+                                onClick={handleItemClick}
+                              >
                                 Submenu item 2
                               </Menu.Item>
-                              <Menu.Item className={classes.Item} onClick={handleItemClick}>
+                              <Menu.Item
+                                className={classes.Item}
+                                onClick={handleItemClick}
+                              >
                                 Submenu item 3
                               </Menu.Item>
                             </Menu.Popup>
@@ -197,7 +265,9 @@ export default function MenuFullyFeatured() {
                 <Menu.Portal>
                   <Menu.Positioner className={classes.Positioner} sideOffset={8}>
                     <Menu.Popup className={classes.Popup}>
-                      <Menu.Item className={classes.Item}>This should not appear</Menu.Item>
+                      <Menu.Item className={classes.Item}>
+                        This should not appear
+                      </Menu.Item>
                     </Menu.Popup>
                   </Menu.Positioner>
                 </Menu.Portal>

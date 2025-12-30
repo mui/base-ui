@@ -88,7 +88,9 @@ function RowMenu({ rowData }: RowProps) {
           {menuItems.map((item) => (
             <DropdownMenu.Item
               key={item.index}
-              onSelect={() => console.log(`Clicked ${item.label} for ${rowData.label}`)}
+              onSelect={() =>
+                console.log(`Clicked ${item.label} for ${rowData.label}`)
+              }
               className={menuDemoStyles.Item}
             >
               {item.label} for {rowData.label}

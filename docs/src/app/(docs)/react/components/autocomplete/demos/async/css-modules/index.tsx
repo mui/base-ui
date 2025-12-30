@@ -77,18 +77,32 @@ export default function ExampleAsyncAutocomplete() {
     >
       <label className={styles.Label}>
         Search movies by name or year
-        <Autocomplete.Input placeholder="e.g. Pulp Fiction or 1994" className={styles.Input} />
+        <Autocomplete.Input
+          placeholder="e.g. Pulp Fiction or 1994"
+          className={styles.Input}
+        />
       </label>
 
       <Autocomplete.Portal hidden={!status}>
-        <Autocomplete.Positioner className={styles.Positioner} sideOffset={4} align="start">
-          <Autocomplete.Popup className={styles.Popup} aria-busy={isPending || undefined}>
+        <Autocomplete.Positioner
+          className={styles.Positioner}
+          sideOffset={4}
+          align="start"
+        >
+          <Autocomplete.Popup
+            className={styles.Popup}
+            aria-busy={isPending || undefined}
+          >
             <Autocomplete.Status>
               {status && <div className={styles.Status}>{status}</div>}
             </Autocomplete.Status>
             <Autocomplete.List>
               {(movie: Movie) => (
-                <Autocomplete.Item key={movie.id} className={styles.Item} value={movie}>
+                <Autocomplete.Item
+                  key={movie.id}
+                  className={styles.Item}
+                  value={movie}
+                >
                   <div className={styles.MovieItem}>
                     <div className={styles.MovieName}>{movie.title}</div>
                     <div className={styles.MovieYear}>{movie.year}</div>
@@ -145,7 +159,11 @@ const top100Movies: Movie[] = [
   { id: '6', title: 'The Lord of the Rings: The Return of the King', year: 2003 },
   { id: '7', title: "Schindler's List", year: 1993 },
   { id: '8', title: 'Pulp Fiction', year: 1994 },
-  { id: '9', title: 'The Lord of the Rings: The Fellowship of the Ring', year: 2001 },
+  {
+    id: '9',
+    title: 'The Lord of the Rings: The Fellowship of the Ring',
+    year: 2001,
+  },
   { id: '10', title: 'The Good, the Bad and the Ugly', year: 1966 },
   { id: '11', title: 'Forrest Gump', year: 1994 },
   { id: '12', title: 'The Lord of the Rings: The Two Towers', year: 2002 },

@@ -146,7 +146,9 @@ export default function PopoverDetachedTriggersFullDemo() {
 function NotificationsPanel() {
   return (
     <React.Fragment>
-      <Popover.Title className="m-0 text-base font-medium">Notifications</Popover.Title>
+      <Popover.Title className="m-0 text-base font-medium">
+        Notifications
+      </Popover.Title>
       <Popover.Description className="m-0 text-base text-gray-600">
         You are all caught up. Good job!
       </Popover.Description>

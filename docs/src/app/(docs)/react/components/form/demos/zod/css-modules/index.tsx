@@ -8,7 +8,9 @@ import styles from './index.module.css';
 
 const schema = z.object({
   name: z.string().min(1, 'Name is required'),
-  age: z.coerce.number('Age must be a number').positive('Age must be a positive number'),
+  age: z.coerce
+    .number('Age must be a number')
+    .positive('Age must be a positive number'),
 });
 
 async function submitForm(formValues: Form.Values) {

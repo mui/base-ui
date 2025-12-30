@@ -7,21 +7,23 @@ export function Root(props: Combobox.Root.Props<any, any>) {
   return <Combobox.Root {...props} />;
 }
 
-export const Input = React.forwardRef<HTMLInputElement, Combobox.Input.Props>(function Input(
-  { className, ...props }: Combobox.Input.Props,
-  forwardedRef: React.ForwardedRef<HTMLInputElement>,
-) {
-  return (
-    <Combobox.Input
-      ref={forwardedRef}
-      className={clsx(
-        'h-10 w-64 rounded-md font-normal border border-gray-200 pl-3.5 text-base text-gray-900 bg-[canvas] focus:outline focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800',
-        className,
-      )}
-      {...props}
-    />
-  );
-});
+export const Input = React.forwardRef<HTMLInputElement, Combobox.Input.Props>(
+  function Input(
+    { className, ...props }: Combobox.Input.Props,
+    forwardedRef: React.ForwardedRef<HTMLInputElement>,
+  ) {
+    return (
+      <Combobox.Input
+        ref={forwardedRef}
+        className={clsx(
+          'h-10 w-64 rounded-md font-normal border border-gray-200 pl-3.5 text-base text-gray-900 bg-[canvas] focus:outline focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800',
+          className,
+        )}
+        {...props}
+      />
+    );
+  },
+);
 
 export function Clear({ className, ...props }: Combobox.Clear.Props) {
   return (
@@ -55,7 +57,11 @@ export function Portal(props: Combobox.Portal.Props) {
 
 export function Positioner({ className, ...props }: Combobox.Positioner.Props) {
   return (
-    <Combobox.Positioner className={clsx('outline-none', className)} sideOffset={4} {...props} />
+    <Combobox.Positioner
+      className={clsx('outline-none', className)}
+      sideOffset={4}
+      {...props}
+    />
   );
 }
 
@@ -74,7 +80,10 @@ export function Popup({ className, ...props }: Combobox.Popup.Props) {
 export function Empty({ className, ...props }: Combobox.Empty.Props) {
   return (
     <Combobox.Empty
-      className={clsx('p-4 text-[0.925rem] leading-4 text-gray-600 empty:m-0 empty:p-0', className)}
+      className={clsx(
+        'p-4 text-[0.925rem] leading-4 text-gray-600 empty:m-0 empty:p-0',
+        className,
+      )}
       {...props}
     />
   );
@@ -104,6 +113,11 @@ export function Item({ className, ...props }: Combobox.Item.Props) {
   );
 }
 
-export function ItemIndicator({ className, ...props }: Combobox.ItemIndicator.Props) {
-  return <Combobox.ItemIndicator className={clsx('col-start-1', className)} {...props} />;
+export function ItemIndicator({
+  className,
+  ...props
+}: Combobox.ItemIndicator.Props) {
+  return (
+    <Combobox.ItemIndicator className={clsx('col-start-1', className)} {...props} />
+  );
 }

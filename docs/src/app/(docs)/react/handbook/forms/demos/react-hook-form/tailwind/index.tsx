@@ -68,7 +68,12 @@ function ReactHookForm() {
           field: { ref, name, value, onBlur, onChange },
           fieldState: { invalid, isTouched, isDirty, error },
         }) => (
-          <Field.Root name={name} invalid={invalid} touched={isTouched} dirty={isDirty}>
+          <Field.Root
+            name={name}
+            invalid={invalid}
+            touched={isTouched}
+            dirty={isDirty}
+          >
             <Field.Label>Server name</Field.Label>
             <Field.Control
               ref={ref}
@@ -93,11 +98,20 @@ function ReactHookForm() {
           field: { ref, name, value, onBlur, onChange },
           fieldState: { invalid, isTouched, isDirty, error },
         }) => (
-          <Field.Root name={name} invalid={invalid} touched={isTouched} dirty={isDirty}>
+          <Field.Root
+            name={name}
+            invalid={invalid}
+            touched={isTouched}
+            dirty={isDirty}
+          >
             <Combobox.Root items={REGIONS} value={value} onValueChange={onChange}>
               <div className="relative flex flex-col gap-1 text-sm leading-5 font-medium text-gray-900">
                 <Field.Label>Region</Field.Label>
-                <Combobox.Input placeholder="e.g. eu-central-1" ref={ref} onBlur={onBlur} />
+                <Combobox.Input
+                  placeholder="e.g. eu-central-1"
+                  ref={ref}
+                  onBlur={onBlur}
+                />
                 <div className="absolute right-2 bottom-0 flex h-10 items-center justify-center text-gray-600">
                   <Combobox.Clear />
                   <Combobox.Trigger>
@@ -140,7 +154,12 @@ function ReactHookForm() {
           field: { ref, name, value, onBlur, onChange },
           fieldState: { invalid, isTouched, isDirty, error },
         }) => (
-          <Field.Root name={name} invalid={invalid} touched={isTouched} dirty={isDirty}>
+          <Field.Root
+            name={name}
+            invalid={invalid}
+            touched={isTouched}
+            dirty={isDirty}
+          >
             <Autocomplete.Root
               items={IMAGES}
               mode="both"
@@ -154,7 +173,9 @@ function ReactHookForm() {
                 ref={ref}
                 onBlur={onBlur}
               />
-              <Field.Description>Enter a registry URL with optional tags</Field.Description>
+              <Field.Description>
+                Enter a registry URL with optional tags
+              </Field.Description>
               <Autocomplete.Portal>
                 <Autocomplete.Positioner>
                   <Autocomplete.Popup>
@@ -189,9 +210,19 @@ function ReactHookForm() {
           field: { ref, name, value, onBlur, onChange },
           fieldState: { invalid, isTouched, isDirty, error },
         }) => (
-          <Field.Root name={name} invalid={invalid} touched={isTouched} dirty={isDirty}>
+          <Field.Root
+            name={name}
+            invalid={invalid}
+            touched={isTouched}
+            dirty={isDirty}
+          >
             <Field.Label>Server type</Field.Label>
-            <Select.Root items={SERVER_TYPES} value={value} onValueChange={onChange} inputRef={ref}>
+            <Select.Root
+              items={SERVER_TYPES}
+              value={value}
+              onValueChange={onChange}
+              inputRef={ref}
+            >
               <Select.Trigger className="w-48" onBlur={onBlur}>
                 <Select.Value />
                 <Select.Icon>
@@ -234,8 +265,18 @@ function ReactHookForm() {
           field: { ref, name, value, onBlur, onChange },
           fieldState: { invalid, isTouched, isDirty, error },
         }) => (
-          <Field.Root name={name} invalid={invalid} touched={isTouched} dirty={isDirty}>
-            <NumberField.Root value={value} min={1} max={64} onValueChange={onChange}>
+          <Field.Root
+            name={name}
+            invalid={invalid}
+            touched={isTouched}
+            dirty={isDirty}
+          >
+            <NumberField.Root
+              value={value}
+              min={1}
+              max={64}
+              onValueChange={onChange}
+            >
               <Field.Label>Number of instances</Field.Label>
               <NumberField.Group>
                 <NumberField.Decrement>
@@ -259,7 +300,12 @@ function ReactHookForm() {
           field: { ref, name, value, onBlur, onChange },
           fieldState: { invalid, isTouched, isDirty },
         }) => (
-          <Field.Root name={name} invalid={invalid} touched={isTouched} dirty={isDirty}>
+          <Field.Root
+            name={name}
+            invalid={invalid}
+            touched={isTouched}
+            dirty={isDirty}
+          >
             <Fieldset.Root
               render={
                 <Slider.Root
@@ -300,7 +346,12 @@ function ReactHookForm() {
           field: { ref, name, value, onBlur, onChange },
           fieldState: { invalid, isTouched, isDirty },
         }) => (
-          <Field.Root name={name} invalid={invalid} touched={isTouched} dirty={isDirty}>
+          <Field.Root
+            name={name}
+            invalid={invalid}
+            touched={isTouched}
+            dirty={isDirty}
+          >
             <Fieldset.Root
               render={
                 <RadioGroup
@@ -340,7 +391,12 @@ function ReactHookForm() {
           field: { ref, name, value, onBlur, onChange },
           fieldState: { invalid, isTouched, isDirty },
         }) => (
-          <Field.Root name={name} invalid={invalid} touched={isTouched} dirty={isDirty}>
+          <Field.Root
+            name={name}
+            invalid={invalid}
+            touched={isTouched}
+            dirty={isDirty}
+          >
             <Field.Label className="gap-4">
               Restart on failure
               <Switch.Root
@@ -363,9 +419,18 @@ function ReactHookForm() {
           field: { ref, name, value, onBlur, onChange },
           fieldState: { invalid, isTouched, isDirty },
         }) => (
-          <Field.Root name={name} invalid={invalid} touched={isTouched} dirty={isDirty}>
-            <Fieldset.Root render={<CheckboxGroup value={value} onValueChange={onChange} />}>
-              <Fieldset.Legend className="mb-2">Allowed network protocols</Fieldset.Legend>
+          <Field.Root
+            name={name}
+            invalid={invalid}
+            touched={isTouched}
+            dirty={isDirty}
+          >
+            <Fieldset.Root
+              render={<CheckboxGroup value={value} onValueChange={onChange} />}
+            >
+              <Fieldset.Legend className="mb-2">
+                Allowed network protocols
+              </Fieldset.Legend>
               <div className="flex gap-4">
                 {['http', 'https', 'ssh'].map((val) => {
                   return (
@@ -413,9 +478,11 @@ function cartesian<T extends string[][]>(...arrays: T): string[][] {
   );
 }
 
-const REGIONS = cartesian(['us', 'eu', 'ap'], ['central', 'east', 'west'], ['1', '2', '3']).map(
-  (part) => part.join('-'),
-);
+const REGIONS = cartesian(
+  ['us', 'eu', 'ap'],
+  ['central', 'east', 'west'],
+  ['1', '2', '3'],
+).map((part) => part.join('-'));
 
 interface Image {
   url: string;

@@ -20,11 +20,15 @@ function PullRequestsCheckboxGroup() {
       }}
       render={
         <Fieldset.Root
-          render={<CheckboxGroup defaultValue={[]} className={styles.CheckboxGroup} />}
+          render={
+            <CheckboxGroup defaultValue={[]} className={styles.CheckboxGroup} />
+          }
         />
       }
     >
-      <Fieldset.Legend className={styles.Legend}>Pull Requests (Required)</Fieldset.Legend>
+      <Fieldset.Legend className={styles.Legend}>
+        Pull Requests (Required)
+      </Fieldset.Legend>
 
       <Field.Item className={styles.FieldItem}>
         <Checkbox.Root value="merge" className={styles.Checkbox}>
@@ -35,7 +39,8 @@ function PullRequestsCheckboxGroup() {
         <div className={styles.FieldItemName}>
           <Field.Label className={styles.Label}>Allow merge commits</Field.Label>
           <Field.Description className={styles.Description}>
-            Add all commits from the head branch to the base branch with a merge commit.
+            Add all commits from the head branch to the base branch with a merge
+            commit.
           </Field.Description>
         </div>
       </Field.Item>
@@ -49,7 +54,8 @@ function PullRequestsCheckboxGroup() {
         <div className={styles.FieldItemName}>
           <Field.Label className={styles.Label}>Allow squash merging</Field.Label>
           <Field.Description className={styles.Description}>
-            Combine all commits from the head branch into a single commit in the base branch.
+            Combine all commits from the head branch into a single commit in the base
+            branch.
           </Field.Description>
         </div>
       </Field.Item>
@@ -77,7 +83,12 @@ function StickersRadioGroup() {
     <Field.Root
       name="stickers"
       className={styles.Field}
-      render={<Fieldset.Root render={<RadioGroup required />} className={styles.RadioGroup} />}
+      render={
+        <Fieldset.Root
+          render={<RadioGroup required />}
+          className={styles.RadioGroup}
+        />
+      }
     >
       <Fieldset.Legend className={styles.Legend}>Stickers</Fieldset.Legend>
       <Field.Item className={styles.FieldItem}>
@@ -92,7 +103,11 @@ function StickersRadioGroup() {
       <Field.Item className={styles.FieldItem}>
         <Field.Label
           className={styles.Label}
-          style={{ display: 'grid', gridRowGap: 0, gridTemplateColumns: 'min-content 1fr' }}
+          style={{
+            display: 'grid',
+            gridRowGap: 0,
+            gridTemplateColumns: 'min-content 1fr',
+          }}
         >
           <Radio.Root value="interaction" className={styles.Radio}>
             <Radio.Indicator className={styles.Indicator} />
@@ -104,8 +119,8 @@ function StickersRadioGroup() {
             render={<span />}
             style={{ gridColumn: '2/3' }}
           >
-            On the desktop client, stickers will animate on hover or focus. On mobile clients,
-            stickers will animate on long-press.
+            On the desktop client, stickers will animate on hover or focus. On mobile
+            clients, stickers will animate on long-press.
           </Field.Description>
         </Field.Label>
       </Field.Item>
@@ -129,9 +144,16 @@ function DmSpamRadioGroup() {
       className={styles.Field}
       name="dmSpam"
       validationMode="onChange"
-      render={<Fieldset.Root render={<RadioGroup required />} className={styles.RadioGroup} />}
+      render={
+        <Fieldset.Root
+          render={<RadioGroup required />}
+          className={styles.RadioGroup}
+        />
+      }
     >
-      <Fieldset.Legend className={styles.Legend}>Direct Message spam</Fieldset.Legend>
+      <Fieldset.Legend className={styles.Legend}>
+        Direct Message spam
+      </Fieldset.Legend>
       <Field.Item className={styles.FieldItem}>
         <Radio.Root value="all" className={styles.Radio}>
           <Radio.Indicator className={styles.Indicator} />

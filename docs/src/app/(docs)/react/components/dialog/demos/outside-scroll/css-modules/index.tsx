@@ -12,10 +12,17 @@ export default function OutsideScrollDialog() {
       <Dialog.Portal>
         <Dialog.Backdrop className={styles.Backdrop} />
         <Dialog.Viewport className={styles.Viewport}>
-          <ScrollArea.Root style={{ position: undefined }} className={styles.ScrollViewport}>
+          <ScrollArea.Root
+            style={{ position: undefined }}
+            className={styles.ScrollViewport}
+          >
             <ScrollArea.Viewport className={styles.ScrollViewport}>
               <ScrollArea.Content className={styles.ScrollContent}>
-                <Dialog.Popup ref={popupRef} className={styles.Popup} initialFocus={popupRef}>
+                <Dialog.Popup
+                  ref={popupRef}
+                  className={styles.Popup}
+                  initialFocus={popupRef}
+                >
                   <div className={styles.PopupHeader}>
                     <Dialog.Title className={styles.Title}>Dialog</Dialog.Title>
                     <Dialog.Close className={styles.Close} aria-label="Close">
@@ -24,8 +31,8 @@ export default function OutsideScrollDialog() {
                   </div>
 
                   <Dialog.Description className={styles.Description}>
-                    This layout keeps an outer container scrollable while the dialog can extend past
-                    the bottom edge.
+                    This layout keeps an outer container scrollable while the dialog
+                    can extend past the bottom edge.
                   </Dialog.Description>
 
                   <div className={styles.Body}>

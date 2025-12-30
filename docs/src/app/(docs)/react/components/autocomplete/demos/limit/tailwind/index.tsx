@@ -20,7 +20,12 @@ export default function ExampleAutocompleteLimit() {
   const moreCount = Math.max(0, totalMatches - limit);
 
   return (
-    <Autocomplete.Root items={tags} value={value} onValueChange={setValue} limit={limit}>
+    <Autocomplete.Root
+      items={tags}
+      value={value}
+      onValueChange={setValue}
+      limit={limit}
+    >
       <label className="flex flex-col gap-1 text-sm leading-5 font-medium text-gray-900">
         Limit results to 8
         <Autocomplete.Input

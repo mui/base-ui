@@ -4,7 +4,10 @@ import { Tooltip } from '@base-ui/react/tooltip';
 import { motion, AnimatePresence } from 'motion/react';
 import styles from './transitions.module.css';
 
-export function TooltipPopup({ children, ...props }: React.ComponentProps<typeof Tooltip.Popup>) {
+export function TooltipPopup({
+  children,
+  ...props
+}: React.ComponentProps<typeof Tooltip.Popup>) {
   return (
     <Tooltip.Popup {...props} className={styles.TooltipPopup}>
       {children}
@@ -12,7 +15,10 @@ export function TooltipPopup({ children, ...props }: React.ComponentProps<typeof
   );
 }
 
-export function AnchorButton({ children, ...props }: React.ComponentProps<typeof Tooltip.Trigger>) {
+export function AnchorButton({
+  children,
+  ...props
+}: React.ComponentProps<typeof Tooltip.Trigger>) {
   return (
     <Tooltip.Trigger {...props} className={styles.AnchorButton}>
       {children}
@@ -108,7 +114,9 @@ export default function TooltipTransitionExperiment() {
         <AnchorButton>Anchor</AnchorButton>
         <Tooltip.Portal>
           <Tooltip.Positioner sideOffset={7}>
-            <TooltipPopup data-type="css-transition-starting-style">Tooltip</TooltipPopup>
+            <TooltipPopup data-type="css-transition-starting-style">
+              Tooltip
+            </TooltipPopup>
           </Tooltip.Positioner>
         </Tooltip.Portal>
       </Tooltip.Root>
@@ -124,7 +132,9 @@ export default function TooltipTransitionExperiment() {
             <AnchorButton>Anchor</AnchorButton>
             <Tooltip.Portal keepMounted>
               <Tooltip.Positioner sideOffset={7}>
-                <TooltipPopup data-type="css-animation-keep-mounted">Tooltip</TooltipPopup>
+                <TooltipPopup data-type="css-animation-keep-mounted">
+                  Tooltip
+                </TooltipPopup>
               </Tooltip.Positioner>
             </Tooltip.Portal>
           </Tooltip.Root>
@@ -132,7 +142,9 @@ export default function TooltipTransitionExperiment() {
             <AnchorButton>Anchor</AnchorButton>
             <Tooltip.Portal keepMounted>
               <Tooltip.Positioner sideOffset={7}>
-                <TooltipPopup data-type="css-animation-keep-mounted">Tooltip</TooltipPopup>
+                <TooltipPopup data-type="css-animation-keep-mounted">
+                  Tooltip
+                </TooltipPopup>
               </Tooltip.Positioner>
             </Tooltip.Portal>
           </Tooltip.Root>
@@ -143,7 +155,9 @@ export default function TooltipTransitionExperiment() {
         <AnchorButton>Anchor</AnchorButton>
         <Tooltip.Portal keepMounted>
           <Tooltip.Positioner sideOffset={7}>
-            <TooltipPopup data-type="css-animation-keep-mounted">Tooltip</TooltipPopup>
+            <TooltipPopup data-type="css-animation-keep-mounted">
+              Tooltip
+            </TooltipPopup>
           </Tooltip.Positioner>
         </Tooltip.Portal>
       </Tooltip.Root>
@@ -155,7 +169,9 @@ export default function TooltipTransitionExperiment() {
             <AnchorButton>Anchor</AnchorButton>
             <Tooltip.Portal keepMounted>
               <Tooltip.Positioner sideOffset={7}>
-                <TooltipPopup data-type="css-transition-keep-mounted">Tooltip</TooltipPopup>
+                <TooltipPopup data-type="css-transition-keep-mounted">
+                  Tooltip
+                </TooltipPopup>
               </Tooltip.Positioner>
             </Tooltip.Portal>
           </Tooltip.Root>
@@ -163,7 +179,9 @@ export default function TooltipTransitionExperiment() {
             <AnchorButton>Anchor</AnchorButton>
             <Tooltip.Portal keepMounted>
               <Tooltip.Positioner sideOffset={7}>
-                <TooltipPopup data-type="css-transition-keep-mounted">Tooltip</TooltipPopup>
+                <TooltipPopup data-type="css-transition-keep-mounted">
+                  Tooltip
+                </TooltipPopup>
               </Tooltip.Positioner>
             </Tooltip.Portal>
           </Tooltip.Root>
@@ -174,7 +192,9 @@ export default function TooltipTransitionExperiment() {
         <AnchorButton>Anchor</AnchorButton>
         <Tooltip.Portal keepMounted>
           <Tooltip.Positioner sideOffset={7}>
-            <TooltipPopup data-type="css-transition-keep-mounted">Tooltip</TooltipPopup>
+            <TooltipPopup data-type="css-transition-keep-mounted">
+              Tooltip
+            </TooltipPopup>
           </Tooltip.Positioner>
         </Tooltip.Portal>
       </Tooltip.Root>

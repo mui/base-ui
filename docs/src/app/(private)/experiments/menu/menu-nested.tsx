@@ -48,7 +48,9 @@ export default function NestedMenu() {
               </Menu.SubmenuRoot>
 
               <Menu.SubmenuRoot>
-                <Menu.SubmenuTrigger className={styles.SubmenuTrigger}>Style</Menu.SubmenuTrigger>
+                <Menu.SubmenuTrigger className={styles.SubmenuTrigger}>
+                  Style
+                </Menu.SubmenuTrigger>
                 <Menu.Portal>
                   <Menu.Positioner align="start" side="right" sideOffset={12}>
                     <Menu.Popup className={styles.MenuPopup}>
@@ -57,22 +59,32 @@ export default function NestedMenu() {
                           Heading
                         </Menu.SubmenuTrigger>
                         <Menu.Portal>
-                          <Menu.Positioner align="start" side="right" sideOffset={12}>
+                          <Menu.Positioner
+                            align="start"
+                            side="right"
+                            sideOffset={12}
+                          >
                             <Menu.Popup className={styles.MenuPopup}>
                               <Menu.Item
-                                onClick={createHandleMenuClick('Style/Heading/Level 1')}
+                                onClick={createHandleMenuClick(
+                                  'Style/Heading/Level 1',
+                                )}
                                 className={styles.MenuItem}
                               >
                                 Level 1
                               </Menu.Item>
                               <Menu.Item
-                                onClick={createHandleMenuClick('Style/Heading/Level 2')}
+                                onClick={createHandleMenuClick(
+                                  'Style/Heading/Level 2',
+                                )}
                                 className={styles.MenuItem}
                               >
                                 Level 2
                               </Menu.Item>
                               <Menu.Item
-                                onClick={createHandleMenuClick('Style/Heading/Level 3')}
+                                onClick={createHandleMenuClick(
+                                  'Style/Heading/Level 3',
+                                )}
                                 className={styles.MenuItem}
                               >
                                 Level 3
@@ -92,7 +104,11 @@ export default function NestedMenu() {
                           List
                         </Menu.SubmenuTrigger>
                         <Menu.Portal>
-                          <Menu.Positioner align="start" side="right" sideOffset={12}>
+                          <Menu.Positioner
+                            align="start"
+                            side="right"
+                            sideOffset={12}
+                          >
                             <Menu.Popup className={styles.MenuPopup}>
                               <Menu.Item
                                 onClick={createHandleMenuClick('Style/List/Ordered')}
@@ -101,7 +117,9 @@ export default function NestedMenu() {
                                 Ordered
                               </Menu.Item>
                               <Menu.Item
-                                onClick={createHandleMenuClick('Style/List/Unordered')}
+                                onClick={createHandleMenuClick(
+                                  'Style/List/Unordered',
+                                )}
                                 className={styles.MenuItem}
                               >
                                 Unordered

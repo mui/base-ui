@@ -34,7 +34,9 @@ export default function ExampleNavigationMenu() {
                           }}
                         >
                           <h3 className={styles.LinkTitle}>{item.title}</h3>
-                          <p className={styles.LinkDescription}>{item.description}</p>
+                          <p className={styles.LinkDescription}>
+                            {item.description}
+                          </p>
                         </Link>
                       </li>
                     ))}
@@ -51,26 +53,32 @@ export default function ExampleNavigationMenu() {
                         padding: 20,
                         borderRadius: 8,
                         minHeight: 200,
-                        width: hoveredLink === '/react/overview/quick-start' ? 200 : 400,
-                        height: hoveredLink === '/react/overview/accessibility' ? 150 : 300,
+                        width:
+                          hoveredLink === '/react/overview/quick-start' ? 200 : 400,
+                        height:
+                          hoveredLink === '/react/overview/accessibility'
+                            ? 150
+                            : 300,
                       }}
                     >
                       {hoveredLink === '/react/overview/quick-start' && (
                         <div>
                           <h4 style={{ marginBottom: 10 }}>Quick Start Guide</h4>
                           <p>
-                            All components are included in a single package. Base UI is
-                            tree-shakeable, so your app bundle will contain only the components that
-                            you actually use.
+                            All components are included in a single package. Base UI
+                            is tree-shakeable, so your app bundle will contain only
+                            the components that you actually use.
                           </p>
                         </div>
                       )}
                       {hoveredLink === '/react/overview/accessibility' && (
                         <div>
-                          <h4 style={{ marginBottom: 10 }}>Accessibility Features</h4>
+                          <h4 style={{ marginBottom: 10 }}>
+                            Accessibility Features
+                          </h4>
                           <p>
-                            ARIA attributes built-in, keyboard navigation, screen reader support,
-                            and focus management.
+                            ARIA attributes built-in, keyboard navigation, screen
+                            reader support, and focus management.
                           </p>
                         </div>
                       )}
@@ -78,8 +86,8 @@ export default function ExampleNavigationMenu() {
                         <div>
                           <h4 style={{ marginBottom: 10 }}>Latest Releases</h4>
                           <p>
-                            v1.0.0 - Major release with new components, performance improvements,
-                            and bug fixes.
+                            v1.0.0 - Major release with new components, performance
+                            improvements, and bug fixes.
                           </p>
                         </div>
                       )}
@@ -87,8 +95,8 @@ export default function ExampleNavigationMenu() {
                         <div>
                           <h4 style={{ marginBottom: 10 }}>About Base UI</h4>
                           <p>
-                            Unstyled components that are fully customizable, and built by the MUI
-                            team.
+                            Unstyled components that are fully customizable, and
+                            built by the MUI team.
                           </p>
                         </div>
                       )}
@@ -120,7 +128,10 @@ export default function ExampleNavigationMenu() {
                 </Collapsible.Panel>
               </Collapsible.Root>
 
-              <button type="button" onClick={() => setRenderExtraItem(!renderExtraItem)}>
+              <button
+                type="button"
+                onClick={() => setRenderExtraItem(!renderExtraItem)}
+              >
                 Render extra item
               </button>
 
@@ -135,7 +146,10 @@ export default function ExampleNavigationMenu() {
                 ))}
                 {renderExtraItem && (
                   <li>
-                    <Link className={styles.LinkCard} href="/react/overview/quick-start">
+                    <Link
+                      className={styles.LinkCard}
+                      href="/react/overview/quick-start"
+                    >
                       <h3 className={styles.LinkTitle}>Quick Start</h3>
                       <p className={styles.LinkDescription}>
                         Install and assemble your first component.
@@ -170,7 +184,9 @@ export default function ExampleNavigationMenu() {
                           <li key={item.href}>
                             <Link className={styles.LinkCard} href={item.href}>
                               <h3 className={styles.LinkTitle}>{item.title}</h3>
-                              <p className={styles.LinkDescription}>{item.description}</p>
+                              <p className={styles.LinkDescription}>
+                                {item.description}
+                              </p>
                             </Link>
                           </li>
                         ))}
@@ -186,7 +202,10 @@ export default function ExampleNavigationMenu() {
                       </NavigationMenu.Icon>
                     </NavigationMenu.Trigger>
                     <NavigationMenu.Content className={styles.Content}>
-                      <button type="button" onClick={() => setRenderExtraItem(!renderExtraItem)}>
+                      <button
+                        type="button"
+                        onClick={() => setRenderExtraItem(!renderExtraItem)}
+                      >
                         Render extra item
                       </button>
 
@@ -195,13 +214,18 @@ export default function ExampleNavigationMenu() {
                           <li key={item.href}>
                             <Link className={styles.LinkCard} href={item.href}>
                               <h3 className={styles.LinkTitle}>{item.title}</h3>
-                              <p className={styles.LinkDescription}>{item.description}</p>
+                              <p className={styles.LinkDescription}>
+                                {item.description}
+                              </p>
                             </Link>
                           </li>
                         ))}
                         {renderExtraItem && (
                           <li>
-                            <Link className={styles.LinkCard} href="/react/overview/quick-start">
+                            <Link
+                              className={styles.LinkCard}
+                              href="/react/overview/quick-start"
+                            >
                               <h3 className={styles.LinkTitle}>Quick Start</h3>
                               <p className={styles.LinkDescription}>
                                 Install and assemble your first component.
@@ -214,7 +238,10 @@ export default function ExampleNavigationMenu() {
                   </NavigationMenu.Item>
 
                   <NavigationMenu.Item>
-                    <Link className={styles.Trigger} href="https://github.com/mui/base-ui">
+                    <Link
+                      className={styles.Trigger}
+                      href="https://github.com/mui/base-ui"
+                    >
                       GitHub
                     </Link>
                   </NavigationMenu.Item>
@@ -239,8 +266,8 @@ export default function ExampleNavigationMenu() {
                     <Link className={styles.LinkCard} href={`/item-${index}`}>
                       <h3 className={styles.LinkTitle}>Item {index + 1}</h3>
                       <p className={styles.LinkDescription}>
-                        This is item number {index + 1} in the long list for testing scrollable
-                        menus.
+                        This is item number {index + 1} in the long list for testing
+                        scrollable menus.
                       </p>
                     </Link>
                   </li>
@@ -274,7 +301,10 @@ export default function ExampleNavigationMenu() {
         </NavigationMenu.Portal>
       </NavigationMenu.Root>
 
-      <NavigationMenu.Root className={styles.Root} style={{ position: 'absolute', bottom: 100 }}>
+      <NavigationMenu.Root
+        className={styles.Root}
+        style={{ position: 'absolute', bottom: 100 }}
+      >
         <NavigationMenu.List className={styles.List}>
           <NavigationMenu.Item>
             <NavigationMenu.Trigger className={styles.Trigger}>
@@ -305,7 +335,10 @@ export default function ExampleNavigationMenu() {
               </NavigationMenu.Icon>
             </NavigationMenu.Trigger>
             <NavigationMenu.Content className={styles.Content}>
-              <button type="button" onClick={() => setRenderExtraItem(!renderExtraItem)}>
+              <button
+                type="button"
+                onClick={() => setRenderExtraItem(!renderExtraItem)}
+              >
                 Render extra item
               </button>
 
@@ -320,7 +353,10 @@ export default function ExampleNavigationMenu() {
                 ))}
                 {renderExtraItem && (
                   <li>
-                    <Link className={styles.LinkCard} href="/react/overview/quick-start">
+                    <Link
+                      className={styles.LinkCard}
+                      href="/react/overview/quick-start"
+                    >
                       <h3 className={styles.LinkTitle}>Quick Start</h3>
                       <p className={styles.LinkDescription}>
                         Install and assemble your first component.

@@ -125,10 +125,16 @@ function EventDetails() {
 
         return (
           <Popover.Portal>
-            <Popover.Positioner side="right" sideOffset={8} className={styles.Positioner}>
+            <Popover.Positioner
+              side="right"
+              sideOffset={8}
+              className={styles.Positioner}
+            >
               <Popover.Popup className={styles.EventDetails}>
                 <div className={styles.Header}>
-                  <Popover.Title className={styles.EventTitle}>{payload.title}</Popover.Title>
+                  <Popover.Title className={styles.EventTitle}>
+                    {payload.title}
+                  </Popover.Title>
                   <div className={styles.EventActions}>
                     <button type="button">
                       <Ellipsis />
@@ -147,7 +153,9 @@ function EventDetails() {
                   <p className={styles.EventDescription}>{payload.description}</p>
                 )}
                 {payload.location && (
-                  <p className={styles.EventLocation}>Location: {payload.location}</p>
+                  <p className={styles.EventLocation}>
+                    Location: {payload.location}
+                  </p>
                 )}
                 {payload.imageUrl && (
                   <div className={styles.EventImageWrapper}>

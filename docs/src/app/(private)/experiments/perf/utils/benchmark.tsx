@@ -60,37 +60,41 @@ const Controls = React.memo(function Controls(props: {
     });
   });
 
-  const runBenchmark = useStableCallback(async (iterations: number, warmupIterations: number) => {
-    if (isRunning) {
-      console.warn('Benchmark is already running.');
-      return;
-    }
-
-    setIsRunning(true);
-    console.log(`Running benchmark: ${iterations} iterations (+${warmupIterations} warmup)...`);
-    try {
-      const results = [] as number[];
-
-      for (let i = 0; i < warmupIterations + iterations; i += 1) {
-        ReactDOM.flushSync(() => {
-          setShowBenchmark(false);
-        });
-
-        // eslint-disable-next-line no-await-in-loop
-        const domSettleDuration = await measureDomSettled();
-
-        if (i < warmupIterations) {
-          continue;
-        }
-
-        results.push(Math.round(domSettleDuration * 10) / 10);
+  const runBenchmark = useStableCallback(
+    async (iterations: number, warmupIterations: number) => {
+      if (isRunning) {
+        console.warn('Benchmark is already running.');
+        return;
       }
 
-      logResults(shouldRemoveOutliers ? removeOutliers(results) : results);
-    } finally {
-      setIsRunning(false);
-    }
-  });
+      setIsRunning(true);
+      console.log(
+        `Running benchmark: ${iterations} iterations (+${warmupIterations} warmup)...`,
+      );
+      try {
+        const results = [] as number[];
+
+        for (let i = 0; i < warmupIterations + iterations; i += 1) {
+          ReactDOM.flushSync(() => {
+            setShowBenchmark(false);
+          });
+
+          // eslint-disable-next-line no-await-in-loop
+          const domSettleDuration = await measureDomSettled();
+
+          if (i < warmupIterations) {
+            continue;
+          }
+
+          results.push(Math.round(domSettleDuration * 10) / 10);
+        }
+
+        logResults(shouldRemoveOutliers ? removeOutliers(results) : results);
+      } finally {
+        setIsRunning(false);
+      }
+    },
+  );
 
   return (
     <div className="flex gap-2 items-baseline">
@@ -145,7 +149,10 @@ export default function PerformanceBenchmark(props: React.PropsWithChildren<{}>)
 
   return (
     <div>
-      <Controls setShowBenchmark={setShowBenchmark} benchmarkRootRef={benchmarkRootRef} />
+      <Controls
+        setShowBenchmark={setShowBenchmark}
+        benchmarkRootRef={benchmarkRootRef}
+      />
       <div ref={benchmarkRootRef}>{showBenchmark && props.children}</div>
     </div>
   );
@@ -165,7 +172,8 @@ function logResults(results: number[]) {
         const diff = value - avg;
         return diff * diff;
       });
-      const avgSquareDiff = squareDiffs.reduce((a, b) => a + b, 0) / squareDiffs.length;
+      const avgSquareDiff =
+        squareDiffs.reduce((a, b) => a + b, 0) / squareDiffs.length;
       return +Math.sqrt(avgSquareDiff).toFixed(2);
     })(),
   );

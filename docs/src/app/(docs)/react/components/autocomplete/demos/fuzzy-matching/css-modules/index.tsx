@@ -25,12 +25,18 @@ export default function ExampleFuzzyMatchingAutocomplete() {
 
             <Autocomplete.List className={styles.List}>
               {(item: FuzzyItem) => (
-                <Autocomplete.Item key={item.title} value={item} className={styles.Item}>
+                <Autocomplete.Item
+                  key={item.title}
+                  value={item}
+                  className={styles.Item}
+                >
                   <Autocomplete.Value>
                     {(value) => (
                       <div className={styles.ItemContent}>
                         <div className={styles.ItemHeader}>
-                          <div className={styles.ItemTitle}>{highlightText(item.title, value)}</div>
+                          <div className={styles.ItemTitle}>
+                            {highlightText(item.title, value)}
+                          </div>
                         </div>
                         <div className={styles.ItemDescription}>
                           {highlightText(item.description, value)}
@@ -90,12 +96,14 @@ interface FuzzyItem {
 const fuzzyItems: FuzzyItem[] = [
   {
     title: 'React Hooks Guide',
-    description: 'Learn how to use React Hooks like useState, useEffect, and custom hooks',
+    description:
+      'Learn how to use React Hooks like useState, useEffect, and custom hooks',
     category: 'React',
   },
   {
     title: 'JavaScript Array Methods',
-    description: 'Master array methods like map, filter, reduce, and forEach in JavaScript',
+    description:
+      'Master array methods like map, filter, reduce, and forEach in JavaScript',
     category: 'JavaScript',
   },
   {

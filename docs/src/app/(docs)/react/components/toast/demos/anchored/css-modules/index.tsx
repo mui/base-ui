@@ -76,7 +76,11 @@ function CopyButton() {
         aria-label="Copy to clipboard"
         render={<Button disabled={copied} focusableWhenDisabled />}
       >
-        {copied ? <CheckIcon className={styles.Icon} /> : <ClipboardIcon className={styles.Icon} />}
+        {copied ? (
+          <CheckIcon className={styles.Icon} />
+        ) : (
+          <ClipboardIcon className={styles.Icon} />
+        )}
       </Tooltip.Trigger>
       <Tooltip.Portal>
         <Tooltip.Positioner sideOffset={8}>
@@ -98,7 +102,11 @@ function AnchoredToasts() {
     <Toast.Portal>
       <Toast.Viewport className={styles.AnchoredViewport}>
         {toasts.map((toast) => (
-          <Toast.Positioner key={toast.id} toast={toast} className={styles.AnchoredPositioner}>
+          <Toast.Positioner
+            key={toast.id}
+            toast={toast}
+            className={styles.AnchoredPositioner}
+          >
             <Toast.Root toast={toast} className={styles.AnchoredToast}>
               <Toast.Arrow className={styles.Arrow}>
                 <ArrowSvg />

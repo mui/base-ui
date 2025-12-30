@@ -18,7 +18,8 @@ export default function InsideScrollDialog() {
               </Dialog.Title>
             </div>
             <Dialog.Description className="m-0 mb-4 text-base leading-[1.6rem] text-[var(--color-gray-600)]">
-              This layout keeps the popup fully on screen while allowing its content to scroll.
+              This layout keeps the popup fully on screen while allowing its content
+              to scroll.
             </Dialog.Description>
             <ScrollArea.Root className="relative flex min-h-0 flex-1 overflow-hidden before:absolute before:top-0 before:h-px before:w-full before:bg-[var(--color-gray-200)] before:content-[''] after:absolute after:bottom-0 after:h-px after:w-full after:bg-[var(--color-gray-200)] after:content-['']">
               <ScrollArea.Viewport className="flex-1 min-h-0 overflow-y-auto overscroll-contain py-6 pr-6 pl-1 focus-visible:outline focus-visible:outline-1 focus-visible:-outline-offset-1 focus-visible:outline-[var(--color-blue)]">

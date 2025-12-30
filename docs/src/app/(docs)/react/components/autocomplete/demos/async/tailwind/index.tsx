@@ -86,7 +86,11 @@ export default function ExampleAsyncAutocomplete() {
       </label>
 
       <Autocomplete.Portal hidden={!status}>
-        <Autocomplete.Positioner className="outline-none" sideOffset={4} align="start">
+        <Autocomplete.Positioner
+          className="outline-none"
+          sideOffset={4}
+          align="start"
+        >
           <Autocomplete.Popup
             className="w-[var(--anchor-width)] max-h-[min(var(--available-height),23rem)] max-w-[var(--available-width)] overflow-y-auto scroll-pt-2 scroll-pb-2 overscroll-contain rounded-md bg-[canvas] py-2 text-gray-900 shadow-lg shadow-gray-200 outline-1 outline-gray-200 dark:shadow-none dark:-outline-offset-1 dark:outline-gray-300"
             aria-busy={isPending || undefined}
@@ -161,7 +165,11 @@ const top100Movies: Movie[] = [
   { id: '6', title: 'The Lord of the Rings: The Return of the King', year: 2003 },
   { id: '7', title: "Schindler's List", year: 1993 },
   { id: '8', title: 'Pulp Fiction', year: 1994 },
-  { id: '9', title: 'The Lord of the Rings: The Fellowship of the Ring', year: 2001 },
+  {
+    id: '9',
+    title: 'The Lord of the Rings: The Fellowship of the Ring',
+    year: 2001,
+  },
   { id: '10', title: 'The Good, the Bad and the Ugly', year: 1966 },
   { id: '11', title: 'Forrest Gump', year: 1994 },
   { id: '12', title: 'The Lord of the Rings: The Two Towers', year: 2002 },

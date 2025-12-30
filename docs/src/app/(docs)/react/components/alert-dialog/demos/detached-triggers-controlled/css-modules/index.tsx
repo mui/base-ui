@@ -11,7 +11,10 @@ export default function AlertDialogDetachedTriggersControlledDemo() {
   const [open, setOpen] = React.useState(false);
   const [triggerId, setTriggerId] = React.useState<string | null>(null);
 
-  const handleOpenChange = (isOpen: boolean, eventDetails: AlertDialog.Root.ChangeEventDetails) => {
+  const handleOpenChange = (
+    isOpen: boolean,
+    eventDetails: AlertDialog.Root.ChangeEventDetails,
+  ) => {
     setOpen(isOpen);
     setTriggerId(eventDetails.trigger?.id ?? null);
   };
@@ -75,8 +78,12 @@ export default function AlertDialogDetachedTriggersControlledDemo() {
                 This action cannot be undone.
               </AlertDialog.Description>
               <div className={styles.Actions}>
-                <AlertDialog.Close className={styles.Button}>Cancel</AlertDialog.Close>
-                <AlertDialog.Close className={`${styles.Button} ${styles.DangerButton}`}>
+                <AlertDialog.Close className={styles.Button}>
+                  Cancel
+                </AlertDialog.Close>
+                <AlertDialog.Close
+                  className={`${styles.Button} ${styles.DangerButton}`}
+                >
                   Confirm
                 </AlertDialog.Close>
               </div>

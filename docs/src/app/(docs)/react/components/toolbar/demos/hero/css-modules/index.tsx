@@ -50,7 +50,9 @@ export default function ExampleToolbar() {
                 <Select.ItemIndicator className={styles.ItemIndicator}>
                   <CheckIcon className={styles.ItemIndicatorIcon} />
                 </Select.ItemIndicator>
-                <Select.ItemText className={styles.ItemText}>Helvetica</Select.ItemText>
+                <Select.ItemText className={styles.ItemText}>
+                  Helvetica
+                </Select.ItemText>
               </Select.Item>
               <Select.Item className={styles.Item} value="Arial">
                 <Select.ItemIndicator className={styles.ItemIndicator}>

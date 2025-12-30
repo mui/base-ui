@@ -16,7 +16,11 @@ function CustomCombobox(props: { items: Priority[] }) {
         </Combobox.Value>
       </Combobox.Trigger>
       <Combobox.Portal>
-        <Combobox.Positioner align="start" sideOffset={4} disableAnchorTracking={true}>
+        <Combobox.Positioner
+          align="start"
+          sideOffset={4}
+          disableAnchorTracking={true}
+        >
           <Combobox.Popup
             className="[--input-container-height:3rem] origin-[var(--transform-origin)] max-w-[15rem] max-h-[min(24rem,var(--available-height))] rounded-lg bg-[canvas] shadow-[0_1px_2px_rgba(0,0,0,.025),_0_1px_3px_rgba(0,0,0,.025)] shadow-gray-200 text-gray-900 outline-1 outline-gray-200 transition-[transform,scale,opacity] data-[ending-style]:scale-90 data-[ending-style]:opacity-0 data-[starting-style]:scale-90 data-[starting-style]:opacity-0 dark:shadow-none dark:-outline-offset-1 dark:outline-gray-300 bg-clip-padding"
             aria-label="Select priority"
@@ -42,7 +46,9 @@ function CustomCombobox(props: { items: Priority[] }) {
                   className="grid min-w-[var(--anchor-width)] cursor-default grid-cols-[1rem_1fr_0.75rem_0.75rem] items-center gap-2 py-2 px-4 text-sm leading-4 outline-none select-none data-[highlighted]:relative data-[highlighted]:z-0 data-[highlighted]:text-gray-800 data-[highlighted]:before:absolute data-[highlighted]:before:inset-x-2 data-[highlighted]:before:inset-y-0 data-[highlighted]:before:z-[-1] data-[highlighted]:before:rounded-sm data-[highlighted]:before:bg-gray-100"
                 >
                   <div className="col-start-1">{priority.icon}</div>
-                  <div className="col-start-2">{priority.label ?? priority.value}</div>
+                  <div className="col-start-2">
+                    {priority.label ?? priority.value}
+                  </div>
                   <Combobox.ItemIndicator className="col-start-3">
                     <CheckIcon className="size-3" />
                   </Combobox.ItemIndicator>

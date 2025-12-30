@@ -8,7 +8,11 @@ const demoMenu = Menu.createHandle();
 export default function MenuDetachedTriggersSimpleDemo() {
   return (
     <React.Fragment>
-      <Menu.Trigger className={styles.IconButton} handle={demoMenu} aria-label="Project actions">
+      <Menu.Trigger
+        className={styles.IconButton}
+        handle={demoMenu}
+        aria-label="Project actions"
+      >
         <DotsIcon className={styles.Icon} />
       </Menu.Trigger>
 

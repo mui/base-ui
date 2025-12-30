@@ -9,7 +9,10 @@ export default function DialogDetachedTriggersControlledDemo() {
   const [open, setOpen] = React.useState(false);
   const [triggerId, setTriggerId] = React.useState<string | null>(null);
 
-  const handleOpenChange = (isOpen: boolean, eventDetails: Dialog.Root.ChangeEventDetails) => {
+  const handleOpenChange = (
+    isOpen: boolean,
+    eventDetails: Dialog.Root.ChangeEventDetails,
+  ) => {
     setOpen(isOpen);
     setTriggerId(eventDetails.trigger?.id ?? null);
   };
@@ -17,15 +20,30 @@ export default function DialogDetachedTriggersControlledDemo() {
   return (
     <React.Fragment>
       <div className={styles.Container}>
-        <Dialog.Trigger className={styles.Button} handle={demoDialog} id="trigger-1" payload={1}>
+        <Dialog.Trigger
+          className={styles.Button}
+          handle={demoDialog}
+          id="trigger-1"
+          payload={1}
+        >
           Open 1
         </Dialog.Trigger>
 
-        <Dialog.Trigger className={styles.Button} handle={demoDialog} id="trigger-2" payload={2}>
+        <Dialog.Trigger
+          className={styles.Button}
+          handle={demoDialog}
+          id="trigger-2"
+          payload={2}
+        >
           Open 2
         </Dialog.Trigger>
 
-        <Dialog.Trigger className={styles.Button} handle={demoDialog} id="trigger-3" payload={3}>
+        <Dialog.Trigger
+          className={styles.Button}
+          handle={demoDialog}
+          id="trigger-3"
+          payload={3}
+        >
           Open 3
         </Dialog.Trigger>
 
@@ -52,7 +70,9 @@ export default function DialogDetachedTriggersControlledDemo() {
             <Dialog.Backdrop className={styles.Backdrop} />
             <Dialog.Popup className={styles.Popup}>
               {payload !== undefined && (
-                <Dialog.Title className={styles.Title}>Dialog {payload}</Dialog.Title>
+                <Dialog.Title className={styles.Title}>
+                  Dialog {payload}
+                </Dialog.Title>
               )}
               <div className={styles.Actions}>
                 <Dialog.Close className={styles.Button}>Close</Dialog.Close>

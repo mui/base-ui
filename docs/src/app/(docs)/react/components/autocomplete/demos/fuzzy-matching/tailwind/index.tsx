@@ -104,12 +104,14 @@ interface FuzzyItem {
 const fuzzyItems: FuzzyItem[] = [
   {
     title: 'React Hooks Guide',
-    description: 'Learn how to use React Hooks like useState, useEffect, and custom hooks',
+    description:
+      'Learn how to use React Hooks like useState, useEffect, and custom hooks',
     category: 'React',
   },
   {
     title: 'JavaScript Array Methods',
-    description: 'Master array methods like map, filter, reduce, and forEach in JavaScript',
+    description:
+      'Master array methods like map, filter, reduce, and forEach in JavaScript',
     category: 'JavaScript',
   },
   {
