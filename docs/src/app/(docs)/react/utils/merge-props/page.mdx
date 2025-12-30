@@ -13,7 +13,7 @@ It behaves like `Object.assign` (rightmost wins) with a few special cases so com
 
 - For most keys (everything except `className`, `style`, and event handlers), the value from the rightmost object wins:
   ```ts
-  mergeProps({ id: 'a', dir: 'ltr' }, { id: 'b' }); // { id: 'b', dir: 'ltr' }
+  mergeProps({ id: 'a', dir: 'ltr' }, { id: 'b' }); // returns { id: 'b', dir: 'ltr' }
   ```
   Note that this includes refs.
 - `className` values are concatenated right-to-left (rightmost first):
@@ -44,8 +44,14 @@ If you want that behavior, check `event.baseUIHandlerPrevented` yourself and bai
 
 ### mergeProps
 
+This function accepts up to 5 arguments, each being either a props object or a function that returns a props object.
+If you need to merge more than 5 sets of props, use `mergePropsN` instead.
+
 <Reference name="mergeProps" />
 
 ### mergePropsN
+
+This function accepts an array of props objects or functions that return props objects.
+It is slightly less efficient than `mergeProps` so only use it when you need to merge more than 5 sets of props.
 
 <Reference name="mergePropsN" />
