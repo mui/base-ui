@@ -6,8 +6,8 @@
   content="A utility to merge multiple sets of React props, handling event handlers, className, and style props intelligently."
 />
 
-`mergeProps` helps you combine multiple prop objects (for example internal props + user props) into a single set of props you can spread onto an element.
-It behaves like `Object.assign` (rightmost wins) with a few special cases so common React patterns work as expected.
+`mergeProps` helps you combine multiple prop objects (for example, internal props + user props) into a single set of props you can spread onto an element.
+It behaves like `Object.assign` (rightmost wins) with a few special cases, so common React patterns work as expected.
 
 ## How merging works
 
@@ -52,6 +52,6 @@ If you need to merge more than 5 sets of props, use `mergePropsN` instead.
 ### mergePropsN
 
 This function accepts an array of props objects or functions that return props objects.
-It is slightly less efficient than `mergeProps` so only use it when you need to merge more than 5 sets of props.
+It is slightly less efficient than `mergeProps`, so only use it when you need to merge more than 5 sets of props.
 
 <Reference name="mergePropsN" />
