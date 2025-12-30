@@ -80,12 +80,12 @@ export default function ExampleAsyncAutocomplete() {
         <Autocomplete.Input placeholder="e.g. Pulp Fiction or 1994" className={styles.Input} />
       </label>
 
-      <Autocomplete.Portal>
+      <Autocomplete.Portal hidden={!status}>
         <Autocomplete.Positioner className={styles.Positioner} sideOffset={4} align="start">
           <Autocomplete.Popup className={styles.Popup} aria-busy={isPending || undefined}>
-            {status && (
-              <Autocomplete.Status className={styles.Status}>{status}</Autocomplete.Status>
-            )}
+            <Autocomplete.Status>
+              {status && <div className={styles.Status}>{status}</div>}
+            </Autocomplete.Status>
             <Autocomplete.List>
               {(movie: Movie) => (
                 <Autocomplete.Item key={movie.id} className={styles.Item} value={movie}>

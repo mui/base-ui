@@ -85,17 +85,19 @@ export default function ExampleAsyncAutocomplete() {
         />
       </label>
 
-      <Autocomplete.Portal>
+      <Autocomplete.Portal hidden={!status}>
         <Autocomplete.Positioner className="outline-none" sideOffset={4} align="start">
           <Autocomplete.Popup
             className="w-[var(--anchor-width)] max-h-[min(var(--available-height),23rem)] max-w-[var(--available-width)] overflow-y-auto scroll-pt-2 scroll-pb-2 overscroll-contain rounded-md bg-[canvas] py-2 text-gray-900 shadow-lg shadow-gray-200 outline-1 outline-gray-200 dark:shadow-none dark:-outline-offset-1 dark:outline-gray-300"
             aria-busy={isPending || undefined}
           >
-            {status && (
-              <Autocomplete.Status className="flex items-center gap-2 py-1 pl-4 pr-8 text-sm text-gray-600">
-                {status}
-              </Autocomplete.Status>
-            )}
+            <Autocomplete.Status>
+              {status && (
+                <div className="flex items-center gap-2 py-1 pl-4 pr-8 text-sm text-gray-600">
+                  {status}
+                </div>
+              )}
+            </Autocomplete.Status>
             <Autocomplete.List>
               {(movie: Movie) => (
                 <Autocomplete.Item
