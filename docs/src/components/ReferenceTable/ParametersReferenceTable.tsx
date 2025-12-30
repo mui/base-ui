@@ -37,7 +37,6 @@ export async function ParametersReferenceTable({
       renameFrom={renameFrom}
       renameTo={renameTo}
       nameLabel="Parameter"
-      itemLabel="parameter"
       caption="Function parameters table"
     />
   );

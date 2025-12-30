@@ -42,7 +42,6 @@ interface Props extends React.ComponentPropsWithoutRef<any> {
   renameFrom?: string;
   renameTo?: string;
   nameLabel?: string;
-  itemLabel?: string;
   caption?: string;
 }
 
@@ -100,7 +99,6 @@ export async function PropsReferenceAccordion({
   renameFrom,
   renameTo,
   nameLabel = 'Prop',
-  itemLabel = 'prop',
   caption = 'Component props table',
   ...props
 }: Props) {
@@ -185,7 +183,7 @@ export async function PropsReferenceAccordion({
             <Accordion.Trigger
               id={id}
               index={index}
-              aria-label={`${itemLabel}: ${name},${prop.required ? ' required,' : ''} type: ${shortPropTypeName} ${prop.default !== undefined ? `(default: ${prop.default})` : ''}`}
+              aria-label={`${nameLabel}: ${name},${prop.required ? ' required,' : ''} type: ${shortPropTypeName} ${prop.default !== undefined ? `(default: ${prop.default})` : ''}`}
               className={clsx('min-h-min scroll-mt-12 p-0 md:scroll-mt-0', TRIGGER_GRID_LAYOUT)}
             >
               <Accordion.Scrollable className="px-3">
