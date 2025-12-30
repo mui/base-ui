@@ -471,12 +471,7 @@ Re-export of [Arrow](#arrow) props.
 ### Arrow\.State
 
 ```typescript
-type SelectArrowState = {
-  open: boolean;
-  side: 'none' | Side;
-  align: Align;
-  uncentered: boolean;
-};
+type SelectArrowState = { open: boolean; side: 'none' | Side; align: Align; uncentered: boolean };
 ```
 
 ### Item
@@ -512,11 +507,7 @@ Re-export of [Item](#item) props.
 ### Item.State
 
 ```typescript
-type SelectItemState = {
-  disabled: boolean;
-  selected: boolean;
-  highlighted: boolean;
-};
+type SelectItemState = { disabled: boolean; selected: boolean; highlighted: boolean };
 ```
 
 ### Group
@@ -640,10 +631,7 @@ Re-export of [ItemIndicator](#itemindicator) props.
 ### ItemIndicator.State
 
 ```typescript
-type SelectItemIndicatorState = {
-  selected: boolean;
-  transitionStatus: TransitionStatus;
-};
+type SelectItemIndicatorState = { selected: boolean; transitionStatus: TransitionStatus };
 ```
 
 ### ScrollUpArrow

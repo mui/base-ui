@@ -346,12 +346,7 @@ Re-export of [Arrow](#arrow) props.
 ### Arrow\.State
 
 ```typescript
-type TooltipArrowState = {
-  open: boolean;
-  side: Side;
-  align: Align;
-  uncentered: boolean;
-};
+type TooltipArrowState = { open: boolean; side: Side; align: Align; uncentered: boolean };
 ```
 
 ### Viewport

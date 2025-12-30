@@ -382,12 +382,7 @@ Re-export of [Arrow](#arrow) props.
 ### Arrow\.State
 
 ```typescript
-type PopoverArrowState = {
-  open: boolean;
-  side: Side;
-  align: Align;
-  uncentered: boolean;
-};
+type PopoverArrowState = { open: boolean; side: Side; align: Align; uncentered: boolean };
 ```
 
 ### Title

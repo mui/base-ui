@@ -259,10 +259,7 @@ Re-export of [Backdrop](#backdrop) props.
 ### Backdrop.State
 
 ```typescript
-type NavigationMenuBackdropState = {
-  open: boolean;
-  transitionStatus: TransitionStatus;
-};
+type NavigationMenuBackdropState = { open: boolean; transitionStatus: TransitionStatus };
 ```
 
 ### Positioner
@@ -367,10 +364,7 @@ Re-export of [Popup](#popup) props.
 ### Popup.State
 
 ```typescript
-type NavigationMenuPopupState = {
-  open: boolean;
-  transitionStatus: TransitionStatus;
-};
+type NavigationMenuPopupState = { open: boolean; transitionStatus: TransitionStatus };
 ```
 
 ### Arrow
@@ -403,12 +397,7 @@ Re-export of [Arrow](#arrow) props.
 ### Arrow\.State
 
 ```typescript
-type NavigationMenuArrowState = {
-  open: boolean;
-  side: Side;
-  align: Align;
-  uncentered: boolean;
-};
+type NavigationMenuArrowState = { open: boolean; side: Side; align: Align; uncentered: boolean };
 ```
 
 ### Item

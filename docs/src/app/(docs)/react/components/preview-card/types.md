@@ -188,10 +188,7 @@ Re-export of [Backdrop](#backdrop) props.
 ### Backdrop.State
 
 ```typescript
-type PreviewCardBackdropState = {
-  open: boolean;
-  transitionStatus: TransitionStatus;
-};
+type PreviewCardBackdropState = { open: boolean; transitionStatus: TransitionStatus };
 ```
 
 ### Positioner
@@ -323,10 +320,5 @@ Re-export of [Arrow](#arrow) props.
 ### Arrow\.State
 
 ```typescript
-type PreviewCardArrowState = {
-  open: boolean;
-  side: Side;
-  align: Align;
-  uncentered: boolean;
-};
+type PreviewCardArrowState = { open: boolean; side: Side; align: Align; uncentered: boolean };
 ```

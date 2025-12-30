@@ -260,12 +260,7 @@ type ScrollAreaHiddenState = { x: boolean; y: boolean; corner: boolean };
 ### OverflowEdges
 
 ```typescript
-type ScrollAreaOverflowEdges = {
-  xStart: boolean;
-  xEnd: boolean;
-  yStart: boolean;
-  yEnd: boolean;
-};
+type ScrollAreaOverflowEdges = { xStart: boolean; xEnd: boolean; yStart: boolean; yEnd: boolean };
 ```
 
 ### Size

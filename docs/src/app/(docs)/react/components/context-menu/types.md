@@ -402,12 +402,7 @@ Re-export of [Arrow](#arrow) props.
 ### Arrow\.State
 
 ```typescript
-type MenuArrowState = {
-  open: boolean;
-  side: Side;
-  align: Align;
-  uncentered: boolean;
-};
+type MenuArrowState = { open: boolean; side: Side; align: Align; uncentered: boolean };
 ```
 
 ### Item
@@ -563,11 +558,7 @@ Re-export of [SubmenuTrigger](#submenutrigger) props.
 ### SubmenuTrigger.State
 
 ```typescript
-type MenuSubmenuTriggerState = {
-  disabled: boolean;
-  highlighted: boolean;
-  open: boolean;
-};
+type MenuSubmenuTriggerState = { disabled: boolean; highlighted: boolean; open: boolean };
 ```
 
 ### RadioGroup
@@ -788,11 +779,7 @@ Re-export of [RadioItem](#radioitem) props.
 ### RadioItem.State
 
 ```typescript
-type ContextMenuRadioItemState = {
-  disabled: boolean;
-  highlighted: boolean;
-  checked: boolean;
-};
+type ContextMenuRadioItemState = { disabled: boolean; highlighted: boolean; checked: boolean };
 ```
 
 ### RadioItemIndicator
@@ -871,11 +858,7 @@ Re-export of [CheckboxItem](#checkboxitem) props.
 ### CheckboxItem.State
 
 ```typescript
-type ContextMenuCheckboxItemState = {
-  disabled: boolean;
-  highlighted: boolean;
-  checked: boolean;
-};
+type ContextMenuCheckboxItemState = { disabled: boolean; highlighted: boolean; checked: boolean };
 ```
 
 ### CheckboxItem.ChangeEventReason

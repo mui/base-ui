@@ -76,10 +76,7 @@ type ToastRootToastObject<Data extends object = any> = {
   onRemove?: (() => void) | undefined;
   actionProps?:
     | Omit<
-        React.DetailedHTMLProps<
-          React.ButtonHTMLAttributes<HTMLButtonElement>,
-          HTMLButtonElement
-        >,
+        React.DetailedHTMLProps<React.ButtonHTMLAttributes<HTMLButtonElement>, HTMLButtonElement>,
         'ref'
       >
     | undefined;
@@ -400,10 +397,7 @@ Creates a new toast manager.
 ```typescript
 type createToastManager = () => {
   ' subscribe': (
-    listener: (data: {
-      action: 'add' | 'close' | 'update' | 'promise';
-      options: any;
-    }) => void,
+    listener: (data: { action: 'add' | 'close' | 'update' | 'promise'; options: any }) => void,
   ) => () => void;
   add: (options?: {
     id?: string;
@@ -427,30 +421,16 @@ type createToastManager = () => {
           }) => CSSProperties | undefined);
       className?:
         | string
-        | ((state: {
-            side: Side;
-            align: Align;
-            anchorHidden: boolean;
-          }) => string | undefined);
+        | ((state: { side: Side; align: Align; anchorHidden: boolean }) => string | undefined);
       side?: Side;
       positionMethod?: 'absolute' | 'fixed';
       sideOffset?:
         | number
-        | ((data: {
-            side: Side;
-            align: Align;
-            anchor: {};
-            positioner: {};
-          }) => number);
+        | ((data: { side: Side; align: Align; anchor: {}; positioner: {} }) => number);
       align?: Align;
       alignOffset?:
         | number
-        | ((data: {
-            side: Side;
-            align: Align;
-            anchor: {};
-            positioner: {};
-          }) => number);
+        | ((data: { side: Side; align: Align; anchor: {}; positioner: {} }) => number);
       collisionBoundary?: Boundary;
       collisionPadding?: Padding;
       sticky?: boolean;
@@ -491,30 +471,16 @@ type createToastManager = () => {
             }) => CSSProperties | undefined);
         className?:
           | string
-          | ((state: {
-              side: Side;
-              align: Align;
-              anchorHidden: boolean;
-            }) => string | undefined);
+          | ((state: { side: Side; align: Align; anchorHidden: boolean }) => string | undefined);
         side?: Side;
         positionMethod?: 'absolute' | 'fixed';
         sideOffset?:
           | number
-          | ((data: {
-              side: Side;
-              align: Align;
-              anchor: {};
-              positioner: {};
-            }) => number);
+          | ((data: { side: Side; align: Align; anchor: {}; positioner: {} }) => number);
         align?: Align;
         alignOffset?:
           | number
-          | ((data: {
-              side: Side;
-              align: Align;
-              anchor: {};
-              positioner: {};
-            }) => number);
+          | ((data: { side: Side; align: Align; anchor: {}; positioner: {} }) => number);
         collisionBoundary?: Boundary;
         collisionPadding?: Padding;
         sticky?: boolean;
@@ -562,9 +528,7 @@ type createToastManager = () => {
               arrowPadding?: number;
               disableAnchorTracking?: boolean;
               collisionAvoidance?: CollisionAvoidance;
-              render?:
-                | ReactElement
-                | ((props: HTMLProps, state: {}) => ReactElement);
+              render?: ReactElement | ((props: HTMLProps, state: {}) => ReactElement);
             };
             data?: {};
           };
@@ -596,13 +560,13 @@ type createToastManager = () => {
               arrowPadding?: number;
               disableAnchorTracking?: boolean;
               collisionAvoidance?: CollisionAvoidance;
-              render?:
-                | ReactElement
-                | ((props: HTMLProps, state: {}) => ReactElement);
+              render?: ReactElement | ((props: HTMLProps, state: {}) => ReactElement);
             };
             data?: {};
           }
-        | ((result: Value) =>
+        | ((
+            result: Value,
+          ) =>
             | string
             | {
                 id?: string;
@@ -646,13 +610,13 @@ type createToastManager = () => {
               arrowPadding?: number;
               disableAnchorTracking?: boolean;
               collisionAvoidance?: CollisionAvoidance;
-              render?:
-                | ReactElement
-                | ((props: HTMLProps, state: {}) => ReactElement);
+              render?: ReactElement | ((props: HTMLProps, state: {}) => ReactElement);
             };
             data?: {};
           }
-        | ((error: any) =>
+        | ((
+            error: any,
+          ) =>
             | string
             | {
                 id?: string;
@@ -704,30 +668,16 @@ type useToastManager = () => {
           }) => CSSProperties | undefined);
       className?:
         | string
-        | ((state: {
-            side: Side;
-            align: Align;
-            anchorHidden: boolean;
-          }) => string | undefined);
+        | ((state: { side: Side; align: Align; anchorHidden: boolean }) => string | undefined);
       side?: Side;
       positionMethod?: 'absolute' | 'fixed';
       sideOffset?:
         | number
-        | ((data: {
-            side: Side;
-            align: Align;
-            anchor: {};
-            positioner: {};
-          }) => number);
+        | ((data: { side: Side; align: Align; anchor: {}; positioner: {} }) => number);
       align?: Align;
       alignOffset?:
         | number
-        | ((data: {
-            side: Side;
-            align: Align;
-            anchor: {};
-            positioner: {};
-          }) => number);
+        | ((data: { side: Side; align: Align; anchor: {}; positioner: {} }) => number);
       collisionBoundary?: Boundary;
       collisionPadding?: Padding;
       sticky?: boolean;
@@ -765,30 +715,16 @@ type useToastManager = () => {
           }) => CSSProperties | undefined);
       className?:
         | string
-        | ((state: {
-            side: Side;
-            align: Align;
-            anchorHidden: boolean;
-          }) => string | undefined);
+        | ((state: { side: Side; align: Align; anchorHidden: boolean }) => string | undefined);
       side?: Side;
       positionMethod?: 'absolute' | 'fixed';
       sideOffset?:
         | number
-        | ((data: {
-            side: Side;
-            align: Align;
-            anchor: {};
-            positioner: {};
-          }) => number);
+        | ((data: { side: Side; align: Align; anchor: {}; positioner: {} }) => number);
       align?: Align;
       alignOffset?:
         | number
-        | ((data: {
-            side: Side;
-            align: Align;
-            anchor: {};
-            positioner: {};
-          }) => number);
+        | ((data: { side: Side; align: Align; anchor: {}; positioner: {} }) => number);
       collisionBoundary?: Boundary;
       collisionPadding?: Padding;
       sticky?: boolean;
@@ -829,30 +765,16 @@ type useToastManager = () => {
             }) => CSSProperties | undefined);
         className?:
           | string
-          | ((state: {
-              side: Side;
-              align: Align;
-              anchorHidden: boolean;
-            }) => string | undefined);
+          | ((state: { side: Side; align: Align; anchorHidden: boolean }) => string | undefined);
         side?: Side;
         positionMethod?: 'absolute' | 'fixed';
         sideOffset?:
           | number
-          | ((data: {
-              side: Side;
-              align: Align;
-              anchor: {};
-              positioner: {};
-            }) => number);
+          | ((data: { side: Side; align: Align; anchor: {}; positioner: {} }) => number);
         align?: Align;
         alignOffset?:
           | number
-          | ((data: {
-              side: Side;
-              align: Align;
-              anchor: {};
-              positioner: {};
-            }) => number);
+          | ((data: { side: Side; align: Align; anchor: {}; positioner: {} }) => number);
         collisionBoundary?: Boundary;
         collisionPadding?: Padding;
         sticky?: boolean;
@@ -900,9 +822,7 @@ type useToastManager = () => {
               arrowPadding?: number;
               disableAnchorTracking?: boolean;
               collisionAvoidance?: CollisionAvoidance;
-              render?:
-                | ReactElement
-                | ((props: HTMLProps, state: {}) => ReactElement);
+              render?: ReactElement | ((props: HTMLProps, state: {}) => ReactElement);
             };
             data?: {};
           };
@@ -934,13 +854,13 @@ type useToastManager = () => {
               arrowPadding?: number;
               disableAnchorTracking?: boolean;
               collisionAvoidance?: CollisionAvoidance;
-              render?:
-                | ReactElement
-                | ((props: HTMLProps, state: {}) => ReactElement);
+              render?: ReactElement | ((props: HTMLProps, state: {}) => ReactElement);
             };
             data?: {};
           }
-        | ((result: Value) =>
+        | ((
+            result: Value,
+          ) =>
             | string
             | {
                 id?: string;
@@ -984,13 +904,13 @@ type useToastManager = () => {
               arrowPadding?: number;
               disableAnchorTracking?: boolean;
               collisionAvoidance?: CollisionAvoidance;
-              render?:
-                | ReactElement
-                | ((props: HTMLProps, state: {}) => ReactElement);
+              render?: ReactElement | ((props: HTMLProps, state: {}) => ReactElement);
             };
             data?: {};
           }
-        | ((error: any) =>
+        | ((
+            error: any,
+          ) =>
             | string
             | {
                 id?: string;
@@ -1040,11 +960,7 @@ type UseToastManagerReturnValue = {
           }) => CSSProperties | undefined);
       className?:
         | string
-        | ((state: {
-            side: Side;
-            align: Align;
-            anchorHidden: boolean;
-          }) => string | undefined);
+        | ((state: { side: Side; align: Align; anchorHidden: boolean }) => string | undefined);
       side?: Side;
       positionMethod?: 'absolute' | 'fixed';
       sideOffset?:
@@ -1101,11 +1017,7 @@ type UseToastManagerReturnValue = {
           }) => CSSProperties | undefined);
       className?:
         | string
-        | ((state: {
-            side: Side;
-            align: Align;
-            anchorHidden: boolean;
-          }) => string | undefined);
+        | ((state: { side: Side; align: Align; anchorHidden: boolean }) => string | undefined);
       side?: Side;
       positionMethod?: 'absolute' | 'fixed';
       sideOffset?:
@@ -1165,11 +1077,7 @@ type UseToastManagerReturnValue = {
             }) => CSSProperties | undefined);
         className?:
           | string
-          | ((state: {
-              side: Side;
-              align: Align;
-              anchorHidden: boolean;
-            }) => string | undefined);
+          | ((state: { side: Side; align: Align; anchorHidden: boolean }) => string | undefined);
         side?: Side;
         positionMethod?: 'absolute' | 'fixed';
         sideOffset?:
@@ -1236,9 +1144,7 @@ type UseToastManagerReturnValue = {
               arrowPadding?: number;
               disableAnchorTracking?: boolean;
               collisionAvoidance?: CollisionAvoidance;
-              render?:
-                | ReactElement
-                | ((props: HTMLProps, state: {}) => ReactElement);
+              render?: ReactElement | ((props: HTMLProps, state: {}) => ReactElement);
             };
             data?: {};
           };
@@ -1270,13 +1176,13 @@ type UseToastManagerReturnValue = {
               arrowPadding?: number;
               disableAnchorTracking?: boolean;
               collisionAvoidance?: CollisionAvoidance;
-              render?:
-                | ReactElement
-                | ((props: HTMLProps, state: {}) => ReactElement);
+              render?: ReactElement | ((props: HTMLProps, state: {}) => ReactElement);
             };
             data?: {};
           }
-        | ((result: Value) =>
+        | ((
+            result: Value,
+          ) =>
             | string
             | {
                 id?: string;
@@ -1304,9 +1210,7 @@ type UseToastManagerReturnValue = {
                   arrowPadding?: number;
                   disableAnchorTracking?: boolean;
                   collisionAvoidance?: CollisionAvoidance;
-                  render?:
-                    | ReactElement
-                    | ((props: HTMLProps, state: {}) => ReactElement);
+                  render?: ReactElement | ((props: HTMLProps, state: {}) => ReactElement);
                 };
                 data?: {};
               });
@@ -1338,13 +1242,13 @@ type UseToastManagerReturnValue = {
               arrowPadding?: number;
               disableAnchorTracking?: boolean;
               collisionAvoidance?: CollisionAvoidance;
-              render?:
-                | ReactElement
-                | ((props: HTMLProps, state: {}) => ReactElement);
+              render?: ReactElement | ((props: HTMLProps, state: {}) => ReactElement);
             };
             data?: {};
           }
-        | ((error: any) =>
+        | ((
+            error: any,
+          ) =>
             | string
             | {
                 id?: string;
@@ -1372,9 +1276,7 @@ type UseToastManagerReturnValue = {
                   arrowPadding?: number;
                   disableAnchorTracking?: boolean;
                   collisionAvoidance?: CollisionAvoidance;
-                  render?:
-                    | ReactElement
-                    | ((props: HTMLProps, state: {}) => ReactElement);
+                  render?: ReactElement | ((props: HTMLProps, state: {}) => ReactElement);
                 };
                 data?: {};
               });
@@ -1388,10 +1290,7 @@ type UseToastManagerReturnValue = {
 ```typescript
 type ToastManager = {
   ' subscribe': (
-    listener: (data: {
-      action: 'add' | 'close' | 'update' | 'promise';
-      options: any;
-    }) => void,
+    listener: (data: { action: 'add' | 'close' | 'update' | 'promise'; options: any }) => void,
   ) => () => void;
   add: (options?: {
     id?: string;
@@ -1415,11 +1314,7 @@ type ToastManager = {
           }) => CSSProperties | undefined);
       className?:
         | string
-        | ((state: {
-            side: Side;
-            align: Align;
-            anchorHidden: boolean;
-          }) => string | undefined);
+        | ((state: { side: Side; align: Align; anchorHidden: boolean }) => string | undefined);
       side?: Side;
       positionMethod?: 'absolute' | 'fixed';
       sideOffset?:
@@ -1479,11 +1374,7 @@ type ToastManager = {
             }) => CSSProperties | undefined);
         className?:
           | string
-          | ((state: {
-              side: Side;
-              align: Align;
-              anchorHidden: boolean;
-            }) => string | undefined);
+          | ((state: { side: Side; align: Align; anchorHidden: boolean }) => string | undefined);
         side?: Side;
         positionMethod?: 'absolute' | 'fixed';
         sideOffset?:
@@ -1550,9 +1441,7 @@ type ToastManager = {
               arrowPadding?: number;
               disableAnchorTracking?: boolean;
               collisionAvoidance?: CollisionAvoidance;
-              render?:
-                | ReactElement
-                | ((props: HTMLProps, state: {}) => ReactElement);
+              render?: ReactElement | ((props: HTMLProps, state: {}) => ReactElement);
             };
             data?: {};
           };
@@ -1584,13 +1473,13 @@ type ToastManager = {
               arrowPadding?: number;
               disableAnchorTracking?: boolean;
               collisionAvoidance?: CollisionAvoidance;
-              render?:
-                | ReactElement
-                | ((props: HTMLProps, state: {}) => ReactElement);
+              render?: ReactElement | ((props: HTMLProps, state: {}) => ReactElement);
             };
             data?: {};
           }
-        | ((result: Value) =>
+        | ((
+            result: Value,
+          ) =>
             | string
             | {
                 id?: string;
@@ -1618,9 +1507,7 @@ type ToastManager = {
                   arrowPadding?: number;
                   disableAnchorTracking?: boolean;
                   collisionAvoidance?: CollisionAvoidance;
-                  render?:
-                    | ReactElement
-                    | ((props: HTMLProps, state: {}) => ReactElement);
+                  render?: ReactElement | ((props: HTMLProps, state: {}) => ReactElement);
                 };
                 data?: {};
               });
@@ -1652,13 +1539,13 @@ type ToastManager = {
               arrowPadding?: number;
               disableAnchorTracking?: boolean;
               collisionAvoidance?: CollisionAvoidance;
-              render?:
-                | ReactElement
-                | ((props: HTMLProps, state: {}) => ReactElement);
+              render?: ReactElement | ((props: HTMLProps, state: {}) => ReactElement);
             };
             data?: {};
           }
-        | ((error: any) =>
+        | ((
+            error: any,
+          ) =>
             | string
             | {
                 id?: string;
@@ -1686,9 +1573,7 @@ type ToastManager = {
                   arrowPadding?: number;
                   disableAnchorTracking?: boolean;
                   collisionAvoidance?: CollisionAvoidance;
-                  render?:
-                    | ReactElement
-                    | ((props: HTMLProps, state: {}) => ReactElement);
+                  render?: ReactElement | ((props: HTMLProps, state: {}) => ReactElement);
                 };
                 data?: {};
               });
@@ -1715,18 +1600,10 @@ type ToastManagerAddOptions = {
     anchor?: Element | null;
     style?:
       | CSSProperties
-      | ((state: {
-          side: Side;
-          align: Align;
-          anchorHidden: boolean;
-        }) => CSSProperties | undefined);
+      | ((state: { side: Side; align: Align; anchorHidden: boolean }) => CSSProperties | undefined);
     className?:
       | string
-      | ((state: {
-          side: Side;
-          align: Align;
-          anchorHidden: boolean;
-        }) => string | undefined);
+      | ((state: { side: Side; align: Align; anchorHidden: boolean }) => string | undefined);
     side?: Side;
     positionMethod?: 'absolute' | 'fixed';
     sideOffset?:
@@ -1766,10 +1643,7 @@ type ToastManagerAddOptions = {
 ### ToastManagerEvent
 
 ```typescript
-type ToastManagerEvent = {
-  action: 'add' | 'close' | 'update' | 'promise';
-  options: any;
-};
+type ToastManagerEvent = { action: 'add' | 'close' | 'update' | 'promise'; options: any };
 ```
 
 ### ToastManagerPositionerProps
@@ -1779,18 +1653,10 @@ type ToastManagerPositionerProps = {
   anchor?: Element | null;
   style?:
     | CSSProperties
-    | ((state: {
-        side: Side;
-        align: Align;
-        anchorHidden: boolean;
-      }) => CSSProperties | undefined);
+    | ((state: { side: Side; align: Align; anchorHidden: boolean }) => CSSProperties | undefined);
   className?:
     | string
-    | ((state: {
-        side: Side;
-        align: Align;
-        anchorHidden: boolean;
-      }) => string | undefined);
+    | ((state: { side: Side; align: Align; anchorHidden: boolean }) => string | undefined);
   side?: Side;
   positionMethod?: 'absolute' | 'fixed';
   sideOffset?:
@@ -1853,11 +1719,7 @@ type ToastManagerPromiseOptions = {
               }) => CSSProperties | undefined);
           className?:
             | string
-            | ((state: {
-                side: Side;
-                align: Align;
-                anchorHidden: boolean;
-              }) => string | undefined);
+            | ((state: { side: Side; align: Align; anchorHidden: boolean }) => string | undefined);
           side?: Side;
           positionMethod?: 'absolute' | 'fixed';
           sideOffset?:
@@ -1916,11 +1778,7 @@ type ToastManagerPromiseOptions = {
               }) => CSSProperties | undefined);
           className?:
             | string
-            | ((state: {
-                side: Side;
-                align: Align;
-                anchorHidden: boolean;
-              }) => string | undefined);
+            | ((state: { side: Side; align: Align; anchorHidden: boolean }) => string | undefined);
           side?: Side;
           positionMethod?: 'absolute' | 'fixed';
           sideOffset?:
@@ -1955,7 +1813,9 @@ type ToastManagerPromiseOptions = {
         };
         data?: {};
       }
-    | ((result: Value) =>
+    | ((
+        result: Value,
+      ) =>
         | string
         | {
             id?: string;
@@ -1983,9 +1843,7 @@ type ToastManagerPromiseOptions = {
               arrowPadding?: number;
               disableAnchorTracking?: boolean;
               collisionAvoidance?: CollisionAvoidance;
-              render?:
-                | ReactElement
-                | ((props: HTMLProps, state: {}) => ReactElement);
+              render?: ReactElement | ((props: HTMLProps, state: {}) => ReactElement);
             };
             data?: {};
           });
@@ -2013,11 +1871,7 @@ type ToastManagerPromiseOptions = {
               }) => CSSProperties | undefined);
           className?:
             | string
-            | ((state: {
-                side: Side;
-                align: Align;
-                anchorHidden: boolean;
-              }) => string | undefined);
+            | ((state: { side: Side; align: Align; anchorHidden: boolean }) => string | undefined);
           side?: Side;
           positionMethod?: 'absolute' | 'fixed';
           sideOffset?:
@@ -2052,7 +1906,9 @@ type ToastManagerPromiseOptions = {
         };
         data?: {};
       }
-    | ((error: any) =>
+    | ((
+        error: any,
+      ) =>
         | string
         | {
             id?: string;
@@ -2080,9 +1936,7 @@ type ToastManagerPromiseOptions = {
               arrowPadding?: number;
               disableAnchorTracking?: boolean;
               collisionAvoidance?: CollisionAvoidance;
-              render?:
-                | ReactElement
-                | ((props: HTMLProps, state: {}) => ReactElement);
+              render?: ReactElement | ((props: HTMLProps, state: {}) => ReactElement);
             };
             data?: {};
           });
@@ -2107,18 +1961,10 @@ type ToastManagerUpdateOptions = {
     anchor?: Element | null;
     style?:
       | CSSProperties
-      | ((state: {
-          side: Side;
-          align: Align;
-          anchorHidden: boolean;
-        }) => CSSProperties | undefined);
+      | ((state: { side: Side; align: Align; anchorHidden: boolean }) => CSSProperties | undefined);
     className?:
       | string
-      | ((state: {
-          side: Side;
-          align: Align;
-          anchorHidden: boolean;
-        }) => string | undefined);
+      | ((state: { side: Side; align: Align; anchorHidden: boolean }) => string | undefined);
     side?: Side;
     positionMethod?: 'absolute' | 'fixed';
     sideOffset?:
@@ -2176,18 +2022,10 @@ type ToastObject = {
     anchor?: Element | null;
     style?:
       | CSSProperties
-      | ((state: {
-          side: Side;
-          align: Align;
-          anchorHidden: boolean;
-        }) => CSSProperties | undefined);
+      | ((state: { side: Side; align: Align; anchorHidden: boolean }) => CSSProperties | undefined);
     className?:
       | string
-      | ((state: {
-          side: Side;
-          align: Align;
-          anchorHidden: boolean;
-        }) => string | undefined);
+      | ((state: { side: Side; align: Align; anchorHidden: boolean }) => string | undefined);
     side?: Side;
     positionMethod?: 'absolute' | 'fixed';
     sideOffset?:

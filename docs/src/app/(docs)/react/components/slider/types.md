@@ -76,12 +76,7 @@ type SliderRootState = {
 ### Root.ChangeEventReason
 
 ```typescript
-type SliderRootChangeEventReason =
-  | 'none'
-  | 'input-change'
-  | 'track-press'
-  | 'drag'
-  | 'keyboard';
+type SliderRootChangeEventReason = 'none' | 'input-change' | 'track-press' | 'drag' | 'keyboard';
 ```
 
 ### Root.ChangeEventDetails
@@ -104,12 +99,7 @@ type SliderRootChangeEventCustomProperties = { activeThumbIndex: number };
 ### Root.CommitEventReason
 
 ```typescript
-type SliderRootCommitEventReason =
-  | 'none'
-  | 'input-change'
-  | 'track-press'
-  | 'drag'
-  | 'keyboard';
+type SliderRootCommitEventReason = 'none' | 'input-change' | 'track-press' | 'drag' | 'keyboard';
 ```
 
 ### Root.CommitEventDetails

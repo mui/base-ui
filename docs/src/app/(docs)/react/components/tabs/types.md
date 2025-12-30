@@ -186,12 +186,7 @@ Re-export of [Indicator](#indicator) props.
 
 ```typescript
 type TabsIndicatorState = {
-  activeTabPosition: {
-    left: number;
-    right: number;
-    top: number;
-    bottom: number;
-  } | null;
+  activeTabPosition: { left: number; right: number; top: number; bottom: number } | null;
   activeTabSize: { width: number; height: number } | null;
   orientation: Tabs.Root.Orientation;
   tabActivationDirection: Tabs.Tab.ActivationDirection;
@@ -230,11 +225,7 @@ Re-export of [Tab](#tab) props.
 ### Tab.State
 
 ```typescript
-type TabsTabState = {
-  disabled: boolean;
-  active: boolean;
-  orientation: Tabs.Root.Orientation;
-};
+type TabsTabState = { disabled: boolean; active: boolean; orientation: Tabs.Root.Orientation };
 ```
 
 ### Tab.Value

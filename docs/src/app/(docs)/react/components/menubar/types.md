@@ -27,9 +27,5 @@ Re-export of [Menubar](#menubar) props.
 ### Menubar.State
 
 ```typescript
-type MenubarState = {
-  orientation: MenuRootOrientation;
-  modal: boolean;
-  hasSubmenuOpen: boolean;
-};
+type MenubarState = { orientation: MenuRootOrientation; modal: boolean; hasSubmenuOpen: boolean };
 ```

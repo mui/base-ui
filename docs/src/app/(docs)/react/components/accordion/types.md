@@ -40,11 +40,7 @@ Re-export of [Root](#root) props.
 ### Root.State
 
 ```typescript
-type AccordionRootState = {
-  value: any[];
-  disabled: boolean;
-  orientation: Orientation;
-};
+type AccordionRootState = { value: any[]; disabled: boolean; orientation: Orientation };
 ```
 
 ### Root.ChangeEventReason

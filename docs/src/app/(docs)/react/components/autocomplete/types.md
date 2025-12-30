@@ -230,11 +230,7 @@ Re-export of [Clear](#clear) props.
 ### Clear.State
 
 ```typescript
-type ComboboxClearState = {
-  open: boolean;
-  disabled: boolean;
-  transitionStatus: TransitionStatus;
-};
+type ComboboxClearState = { open: boolean; disabled: boolean; transitionStatus: TransitionStatus };
 ```
 
 ### List
@@ -450,12 +446,7 @@ Re-export of [Arrow](#arrow) props.
 ### Arrow\.State
 
 ```typescript
-type ComboboxArrowState = {
-  open: boolean;
-  side: Side;
-  align: Align;
-  uncentered: boolean;
-};
+type ComboboxArrowState = { open: boolean; side: Side; align: Align; uncentered: boolean };
 ```
 
 ### Item
@@ -492,11 +483,7 @@ Re-export of [Item](#item) props.
 ### Item.State
 
 ```typescript
-type ComboboxItemState = {
-  disabled: boolean;
-  selected: boolean;
-  highlighted: boolean;
-};
+type ComboboxItemState = { disabled: boolean; selected: boolean; highlighted: boolean };
 ```
 
 ### Group
@@ -670,21 +657,9 @@ type ComboboxRowState = {};
 
 ```typescript
 type Filter = {
-  contains: (
-    item: Item,
-    query: string,
-    itemToString?: (item: Item) => string,
-  ) => boolean;
-  startsWith: (
-    item: Item,
-    query: string,
-    itemToString?: (item: Item) => string,
-  ) => boolean;
-  endsWith: (
-    item: Item,
-    query: string,
-    itemToString?: (item: Item) => string,
-  ) => boolean;
+  contains: (item: Item, query: string, itemToString?: (item: Item) => string) => boolean;
+  startsWith: (item: Item, query: string, itemToString?: (item: Item) => string) => boolean;
+  endsWith: (item: Item, query: string, itemToString?: (item: Item) => string) => boolean;
 };
 ```
 
@@ -698,32 +673,16 @@ type useComboboxFilter = (options?: {
   value?: any;
   locale?: IntlLocalesArgument;
 }) => {
-  contains: (
-    item: Item,
-    query: string,
-    itemToString?: (item: Item) => string,
-  ) => boolean;
-  startsWith: (
-    item: Item,
-    query: string,
-    itemToString?: (item: Item) => string,
-  ) => boolean;
-  endsWith: (
-    item: Item,
-    query: string,
-    itemToString?: (item: Item) => string,
-  ) => boolean;
+  contains: (item: Item, query: string, itemToString?: (item: Item) => string) => boolean;
+  startsWith: (item: Item, query: string, itemToString?: (item: Item) => string) => boolean;
+  endsWith: (item: Item, query: string, itemToString?: (item: Item) => string) => boolean;
 };
 ```
 
 ### UseComboboxFilterOptions
 
 ```typescript
-type UseComboboxFilterOptions = {
-  multiple?: boolean;
-  value?: any;
-  locale?: IntlLocalesArgument;
-};
+type UseComboboxFilterOptions = { multiple?: boolean; value?: any; locale?: IntlLocalesArgument };
 ```
 
 ### useFilter
@@ -732,21 +691,9 @@ Matches items against a query using `Intl.Collator` for robust string matching.
 
 ```typescript
 type getFilter = (options?: { locale?: IntlLocalesArgument }) => {
-  contains: (
-    item: Item,
-    query: string,
-    itemToString?: (item: Item) => string,
-  ) => boolean;
-  startsWith: (
-    item: Item,
-    query: string,
-    itemToString?: (item: Item) => string,
-  ) => boolean;
-  endsWith: (
-    item: Item,
-    query: string,
-    itemToString?: (item: Item) => string,
-  ) => boolean;
+  contains: (item: Item, query: string, itemToString?: (item: Item) => string) => boolean;
+  startsWith: (item: Item, query: string, itemToString?: (item: Item) => string) => boolean;
+  endsWith: (item: Item, query: string, itemToString?: (item: Item) => string) => boolean;
 };
 ```
 

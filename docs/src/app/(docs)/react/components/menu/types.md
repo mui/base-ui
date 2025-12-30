@@ -424,12 +424,7 @@ Re-export of [Arrow](#arrow) props.
 ### Arrow\.State
 
 ```typescript
-type MenuArrowState = {
-  open: boolean;
-  side: Side;
-  align: Align;
-  uncentered: boolean;
-};
+type MenuArrowState = { open: boolean; side: Side; align: Align; uncentered: boolean };
 ```
 
 ### Item
@@ -585,11 +580,7 @@ Re-export of [SubmenuTrigger](#submenutrigger) props.
 ### SubmenuTrigger.State
 
 ```typescript
-type MenuSubmenuTriggerState = {
-  disabled: boolean;
-  highlighted: boolean;
-  open: boolean;
-};
+type MenuSubmenuTriggerState = { disabled: boolean; highlighted: boolean; open: boolean };
 ```
 
 ### RadioGroup
@@ -810,11 +801,7 @@ Re-export of [RadioItem](#radioitem) props.
 ### RadioItem.State
 
 ```typescript
-type MenuRadioItemState = {
-  disabled: boolean;
-  highlighted: boolean;
-  checked: boolean;
-};
+type MenuRadioItemState = { disabled: boolean; highlighted: boolean; checked: boolean };
 ```
 
 ### RadioItemIndicator
@@ -893,11 +880,7 @@ Re-export of [CheckboxItem](#checkboxitem) props.
 ### CheckboxItem.State
 
 ```typescript
-type MenuCheckboxItemState = {
-  disabled: boolean;
-  highlighted: boolean;
-  checked: boolean;
-};
+type MenuCheckboxItemState = { disabled: boolean; highlighted: boolean; checked: boolean };
 ```
 
 ### CheckboxItem.ChangeEventReason
@@ -1115,10 +1098,6 @@ type MenuParent =
   | { type: 'menu'; store: MenuStore<unknown> }
   | { type: 'menubar'; context: MenubarContext }
   | { type: 'context-menu'; context: ContextMenuRootContext }
-  | {
-      type: 'nested-context-menu';
-      context: ContextMenuRootContext;
-      menuContext: MenuRootContext;
-    }
+  | { type: 'nested-context-menu'; context: ContextMenuRootContext; menuContext: MenuRootContext }
   | { type: undefined };
 ```
