@@ -347,7 +347,7 @@ importers:
         specifier: 0.33.0
         version: 0.33.0(react@19.2.3)
       remark-stringify:
-        specifier: ^11.0.0
+        specifier: 11.0.0
         version: 11.0.0
       rimraf:
         specifier: 6.1.2
