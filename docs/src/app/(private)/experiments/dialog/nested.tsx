@@ -142,6 +142,7 @@ function ReactSpringDialogDemo({
   keepMounted,
   modal,
   disablePointerDismissal,
+  // @ts-expect-error To be used later]
 }: DemoProps) {
   const [open, setOpen] = React.useState(false);
 
