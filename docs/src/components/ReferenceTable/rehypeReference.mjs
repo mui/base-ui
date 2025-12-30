@@ -100,6 +100,7 @@ export function rehypeReference() {
 }
 
 /**
+ * Creates tables with components props descriptions.
  *
  * @param {import('./types').ComponentDef[]} componentDefs
  * @param {string} referenceName
@@ -173,7 +174,7 @@ function describeComponents(componentDefs, referenceName, parts, asParam) {
 }
 
 /**
- * Describes a function definition as an array of MDX nodes.
+ * Creates tables with function parameters and return value descriptions.
  *
  * @param {import('./types').FunctionDef} functionDef
  */
