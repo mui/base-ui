@@ -43,7 +43,7 @@ const stateAttributesMapping: StateAttributesMapping<SelectPopup.State> = {
  */
 export const SelectPopup = React.forwardRef(function SelectPopup(
   componentProps: SelectPopup.Props,
-  forwardedRef: React.ForwardedRef<Element>,
+  forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const { render, className, ...elementProps } = componentProps;
 
@@ -58,6 +58,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
     multiple,
     handleScrollArrowVisibility,
     scrollHandlerRef,
+    highlightItemOnHover,
   } = useSelectRootContext();
   const {
     side,
@@ -244,8 +245,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
     queueMicrotask(() => {
       // Ensure we remove any transforms that can affect the location of the popup
       // and therefore the calculations.
-      const originalTransform = popupElement.style.transform;
-      popupElement.style.transform = 'none';
+      const restoreTransformStyles = unsetTransformStyles(popupElement);
       popupElement.style.removeProperty('--transform-origin');
 
       try {
@@ -372,11 +372,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
           initialPlacedRef.current = true;
         });
       } finally {
-        if (originalTransform) {
-          popupElement.style.transform = originalTransform;
-        } else {
-          popupElement.style.removeProperty('transform');
-        }
+        restoreTransformStyles();
       }
     });
   }, [
@@ -435,7 +431,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
       keyboardActiveRef.current = false;
     },
     onPointerLeave(event) {
-      if (isMouseWithinBounds(event) || event.pointerType === 'touch') {
+      if (!highlightItemOnHover || isMouseWithinBounds(event) || event.pointerType === 'touch') {
         return;
       }
 
@@ -507,4 +503,43 @@ export namespace SelectPopup {
 function getMaxPopupHeight(popupElement: HTMLElement) {
   const maxHeight = parseFloat(getComputedStyle(popupElement).maxHeight);
   return maxHeight || Infinity;
+}
+
+const UNSET_TRANSFORM_STYLES = {
+  transform: 'none',
+  scale: '1',
+  translate: '0 0',
+} as const;
+
+type TransformStyleProperty = keyof typeof UNSET_TRANSFORM_STYLES;
+
+function restoreInlineStyleProperty(
+  style: CSSStyleDeclaration,
+  property: TransformStyleProperty,
+  value: string,
+) {
+  if (value) {
+    style.setProperty(property, value);
+  } else {
+    style.removeProperty(property);
+  }
+}
+
+function unsetTransformStyles(popupElement: HTMLElement) {
+  const { style } = popupElement;
+
+  const originalStyles = {} as Record<TransformStyleProperty, string>;
+
+  const props = Object.keys(UNSET_TRANSFORM_STYLES) as TransformStyleProperty[];
+
+  for (const prop of props) {
+    originalStyles[prop] = style.getPropertyValue(prop);
+    style.setProperty(prop, UNSET_TRANSFORM_STYLES[prop]);
+  }
+
+  return () => {
+    for (const prop of props) {
+      restoreInlineStyleProperty(style, prop, originalStyles[prop]);
+    }
+  };
 }
