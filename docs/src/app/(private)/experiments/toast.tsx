@@ -8,7 +8,7 @@ function showGlobalToast() {
   globalToastManager.promise(fetchUserData(), {
     error: 'Failed to fetch user data',
     success: 'User data loaded!',
-    loading: 'Fetching user data...',
+    loading: 'Fetching user data…',
   });
 }
 
@@ -104,7 +104,7 @@ function ToastPromiseExample() {
   const handlePromiseClick = () => {
     toastManager
       .promise(fetchUserData(), {
-        loading: 'Fetching user data...',
+        loading: 'Fetching user data…',
         success: 'User data loaded!',
         error: 'Failed to load user data',
       })
