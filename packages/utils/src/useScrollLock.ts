@@ -74,7 +74,7 @@ function preventScrollInsetScrollbars(referenceElement: Element | null) {
 
   let scrollTop = 0;
   let scrollLeft = 0;
-  let updatedGutterOnly = false;
+  let updateGutterOnly = false;
   const resizeFrame = AnimationFrame.create();
 
   // Pinch-zoom in Safari causes a shift. Just don't lock scroll if there's any pinch-zoom.
@@ -128,20 +128,20 @@ function preventScrollInsetScrollbars(referenceElement: Element | null) {
     const marginX = parseFloat(bodyStyles.marginLeft) + parseFloat(bodyStyles.marginRight);
     const elementToLock = isOverflowElement(html) ? html : body;
 
+    updateGutterOnly = supportsStableScrollbarGutter(referenceElement);
+
     /*
      * DOM writes:
      * Do not read the DOM past this point!
      */
 
-    if (supportsStableScrollbarGutter(referenceElement)) {
-      updatedGutterOnly = true;
+    if (updateGutterOnly) {
       html.style.scrollbarGutter = scrollbarGutterValue;
       elementToLock.style.overflowY = 'hidden';
       elementToLock.style.overflowX = 'hidden';
       return;
     }
 
-    updatedGutterOnly = false;
     Object.assign(html.style, {
       scrollbarGutter: scrollbarGutterValue,
       overflowY: 'hidden',
@@ -175,7 +175,7 @@ function preventScrollInsetScrollbars(referenceElement: Element | null) {
     Object.assign(html.style, originalHtmlStyles);
     Object.assign(body.style, originalBodyStyles);
 
-    if (!updatedGutterOnly) {
+    if (!updateGutterOnly) {
       html.scrollTop = scrollTop;
       html.scrollLeft = scrollLeft;
       html.removeAttribute('data-base-ui-scroll-locked');
