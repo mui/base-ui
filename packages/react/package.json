@@ -106,7 +106,7 @@
     "react-router": "7.10.1",
     "sinon": "21.0.0",
     "typescript": "5.9.3",
-    "vitest-browser-react": "^2.0.2"
+    "vitest-browser-react": "2.0.2"
   },
   "peerDependencies": {
     "@types/react": "^17 || ^18 || ^19",
