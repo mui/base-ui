@@ -96,12 +96,10 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
     role: 'radio',
     'aria-checked': checked,
     'aria-required': required || undefined,
-    'aria-disabled': disabled || undefined,
     'aria-readonly': readOnly || undefined,
     'aria-labelledby': labelId,
     [ACTIVE_COMPOSITE_ITEM as string]: checked ? '' : undefined,
     id,
-    disabled,
     onKeyDown(event) {
       if (event.key === 'Enter') {
         event.preventDefault();
@@ -233,7 +231,8 @@ export interface RadioRootState extends FieldRoot.State {
 }
 
 export interface RadioRootProps
-  extends NonNativeButtonProps, Omit<BaseUIComponentProps<'span', RadioRoot.State>, 'value'> {
+  extends NonNativeButtonProps,
+    Omit<BaseUIComponentProps<'span', RadioRoot.State>, 'value'> {
   /** The unique identifying value of the radio in a group. */
   value: any;
   /** Whether the component should ignore user interaction. */

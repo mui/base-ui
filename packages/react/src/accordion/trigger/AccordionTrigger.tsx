@@ -92,7 +92,6 @@ export const AccordionTrigger = React.forwardRef(function AccordionTrigger(
     () => ({
       'aria-controls': open ? panelId : undefined,
       'aria-expanded': open,
-      disabled,
       id,
       onClick: handleTrigger,
       onKeyDown(event: React.KeyboardEvent) {
@@ -171,7 +170,7 @@ export const AccordionTrigger = React.forwardRef(function AccordionTrigger(
         }
       },
     }),
-    [accordionItemRefs, disabled, handleTrigger, id, isHorizontal, isRtl, loopFocus, open, panelId],
+    [accordionItemRefs, handleTrigger, id, isHorizontal, isRtl, loopFocus, open, panelId],
   );
 
   const element = useRenderElement('button', componentProps, {
@@ -185,7 +184,8 @@ export const AccordionTrigger = React.forwardRef(function AccordionTrigger(
 });
 
 export interface AccordionTriggerProps
-  extends NativeButtonProps, BaseUIComponentProps<'button', AccordionItem.State> {}
+  extends NativeButtonProps,
+    BaseUIComponentProps<'button', AccordionItem.State> {}
 
 export namespace AccordionTrigger {
   export type Props = AccordionTriggerProps;

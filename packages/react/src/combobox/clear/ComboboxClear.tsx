@@ -92,7 +92,6 @@ export const ComboboxClear = React.forwardRef(function ComboboxClear(
       {
         tabIndex: -1,
         children: 'x',
-        disabled,
         'aria-readonly': readOnly || undefined,
         // Avoid stealing focus from the input.
         onMouseDown(event) {
@@ -157,7 +156,8 @@ export interface ComboboxClearState {
 }
 
 export interface ComboboxClearProps
-  extends NativeButtonProps, BaseUIComponentProps<'button', ComboboxClear.State> {
+  extends NativeButtonProps,
+    BaseUIComponentProps<'button', ComboboxClear.State> {
   /**
    * Whether the component should ignore user interaction.
    * @default false

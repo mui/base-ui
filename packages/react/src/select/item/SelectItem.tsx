@@ -146,7 +146,6 @@ export const SelectItem = React.memo(
     const defaultProps: HTMLProps = {
       role: 'option',
       'aria-selected': selected,
-      'aria-disabled': disabled || undefined,
       tabIndex: highlighted ? 0 : -1,
       onFocus() {
         store.set('activeIndex', index);
@@ -270,7 +269,8 @@ export interface SelectItemState {
 }
 
 export interface SelectItemProps
-  extends NonNativeButtonProps, Omit<BaseUIComponentProps<'div', SelectItem.State>, 'id'> {
+  extends NonNativeButtonProps,
+    Omit<BaseUIComponentProps<'div', SelectItem.State>, 'id'> {
   children?: React.ReactNode;
   /**
    * A unique value that identifies this select item.

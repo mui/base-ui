@@ -145,7 +145,6 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
       triggerTypeaheadProps,
       {
         tabIndex: inputInsidePopup ? 0 : -1,
-        disabled,
         role: inputInsidePopup ? 'combobox' : undefined,
         'aria-expanded': open ? 'true' : 'false',
         'aria-haspopup': inputInsidePopup ? 'dialog' : 'listbox',
@@ -280,7 +279,8 @@ export interface ComboboxTriggerState extends FieldRoot.State {
 }
 
 export interface ComboboxTriggerProps
-  extends NativeButtonProps, BaseUIComponentProps<'button', ComboboxTrigger.State> {
+  extends NativeButtonProps,
+    BaseUIComponentProps<'button', ComboboxTrigger.State> {
   /**
    * Whether the component should ignore user interaction.
    * @default false

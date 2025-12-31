@@ -49,7 +49,6 @@ export const ComboboxChipRemove = React.forwardRef(function ComboboxChipRemove(
     props: [
       {
         tabIndex: -1,
-        disabled,
         'aria-readonly': readOnly || undefined,
         onClick(event) {
           if (disabled || readOnly) {
@@ -140,7 +139,8 @@ export interface ComboboxChipRemoveState {
 }
 
 export interface ComboboxChipRemoveProps
-  extends NativeButtonProps, BaseUIComponentProps<'button', ComboboxChipRemove.State> {}
+  extends NativeButtonProps,
+    BaseUIComponentProps<'button', ComboboxChipRemove.State> {}
 
 export namespace ComboboxChipRemove {
   export type State = ComboboxChipRemoveState;
