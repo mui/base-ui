@@ -39,7 +39,6 @@ export const NumberFieldIncrement = React.forwardRef(function NumberFieldIncreme
     isPressedRef,
     locale,
     maxWithDefault,
-    minWithDefault,
     movesAfterTouchRef,
     readOnly,
     setValue,
@@ -52,18 +51,16 @@ export const NumberFieldIncrement = React.forwardRef(function NumberFieldIncreme
     onValueCommitted,
   } = useNumberFieldRootContext();
 
-  const composedDisabled = disabledProp || contextDisabled;
+  const isMax = value != null && value >= maxWithDefault;
+  const disabled = disabledProp || contextDisabled || isMax;
 
-  const { disabled = false, ...props } = useNumberFieldButton({
+  const props = useNumberFieldButton({
     isIncrement: true,
     inputRef,
     startAutoChange,
     stopAutoChange,
-    minWithDefault,
-    maxWithDefault,
-    value,
     inputValue,
-    disabled: composedDisabled,
+    disabled,
     readOnly,
     id,
     setValue,
@@ -83,6 +80,7 @@ export const NumberFieldIncrement = React.forwardRef(function NumberFieldIncreme
   const { getButtonProps, buttonRef } = useButton({
     disabled,
     native: nativeButton,
+    focusableWhenDisabled: true,
   });
 
   const buttonState = React.useMemo(
@@ -106,7 +104,8 @@ export const NumberFieldIncrement = React.forwardRef(function NumberFieldIncreme
 export interface NumberFieldIncrementState extends NumberFieldRoot.State {}
 
 export interface NumberFieldIncrementProps
-  extends NativeButtonProps, BaseUIComponentProps<'button', NumberFieldIncrement.State> {}
+  extends NativeButtonProps,
+    BaseUIComponentProps<'button', NumberFieldIncrement.State> {}
 
 export namespace NumberFieldIncrement {
   export type State = NumberFieldIncrementState;
