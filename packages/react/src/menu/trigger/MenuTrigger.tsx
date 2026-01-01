@@ -207,7 +207,7 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
   });
 
   const focus = useFocus(floatingRootContext, {
-    enabled: !disabled && ((!isInMenubar && isOpenedByThisTrigger) || parentMenubarHasSubmenuOpen),
+    enabled: !disabled && parentMenubarHasSubmenuOpen,
   });
 
   const mixedToggleHandlers = useMixedToggleClickHandler({
@@ -292,12 +292,11 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
         );
       });
 
-      let nextTabbable = getTabbableAfterElement(triggerElementRef.current);
+      let nextTabbable = getTabbableAfterElement(
+        store.context.triggerFocusTargetRef.current || triggerElementRef.current,
+      );
 
-      while (
-        (nextTabbable !== null && contains(currentPositionerElement, nextTabbable)) ||
-        nextTabbable?.hasAttribute('aria-hidden')
-      ) {
+      while (nextTabbable !== null && contains(currentPositionerElement, nextTabbable)) {
         const prevTabbable = nextTabbable;
         nextTabbable = getNextTabbable(nextTabbable);
         if (nextTabbable === prevTabbable) {

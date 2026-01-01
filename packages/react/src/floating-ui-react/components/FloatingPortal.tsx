@@ -193,7 +193,7 @@ export const FloatingPortal = React.forwardRef(function FloatingPortal(
     // portal has already been focused, either by tabbing into a focus trap
     // element outside or using the mouse.
     function onFocus(event: FocusEvent) {
-      if (portalNode && isOutsideEvent(event)) {
+      if (portalNode && event.relatedTarget && isOutsideEvent(event)) {
         const focusing = event.type === 'focusin';
         const manageFocus = focusing ? enableFocusInside : disableFocusInside;
         manageFocus(portalNode);
