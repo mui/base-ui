@@ -187,12 +187,11 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
         );
       });
 
-      let nextTabbable = getTabbableAfterElement(triggerElementRef.current);
+      let nextTabbable = getTabbableAfterElement(
+        store.context.triggerFocusTargetRef.current || triggerElementRef.current,
+      );
 
-      while (
-        (nextTabbable !== null && contains(positionerElement, nextTabbable)) ||
-        nextTabbable?.hasAttribute('aria-hidden')
-      ) {
+      while (nextTabbable !== null && contains(positionerElement, nextTabbable)) {
         const prevTabbable = nextTabbable;
         nextTabbable = getNextTabbable(nextTabbable);
         if (nextTabbable === prevTabbable) {
