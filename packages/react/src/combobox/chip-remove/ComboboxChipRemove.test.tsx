@@ -35,7 +35,7 @@ describe('<Combobox.ChipRemove />', () => {
       );
 
       const remove = screen.getByTestId('remove');
-      expect(remove).to.have.attribute('disabled');
+      expect(remove).to.have.attribute('aria-disabled', 'true');
     });
 
     it('should not remove chip when disabled', async () => {

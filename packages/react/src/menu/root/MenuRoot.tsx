@@ -236,7 +236,11 @@ export function MenuRoot<Payload>(props: MenuRoot.Props<Payload>) {
     ) => {
       const reason = eventDetails.reason;
 
-      if (open === nextOpen && eventDetails.trigger === activeTriggerElement) {
+      if (
+        open === nextOpen &&
+        eventDetails.trigger === activeTriggerElement &&
+        lastOpenChangeReason === reason
+      ) {
         return;
       }
 

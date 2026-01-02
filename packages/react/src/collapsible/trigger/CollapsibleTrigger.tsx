@@ -51,10 +51,9 @@ export const CollapsibleTrigger = React.forwardRef(function CollapsibleTrigger(
     () => ({
       'aria-controls': open ? panelId : undefined,
       'aria-expanded': open,
-      disabled,
       onClick: handleTrigger,
     }),
-    [panelId, disabled, open, handleTrigger],
+    [panelId, open, handleTrigger],
   );
 
   const element = useRenderElement('button', componentProps, {

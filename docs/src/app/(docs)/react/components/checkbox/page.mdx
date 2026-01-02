@@ -12,7 +12,7 @@ import { DemoCheckboxBasic } from './demos/hero';
 
 ## Usage guidelines
 
-- **Form controls must have an accessible name**: The checkbox must have a meaningful label. Prefer using [`<Field>`](/react/components/field) to provide a visible text label and description, or use the `aria-label` attribute as an alternative. See the [forms guide](/react/handbook/forms) for more on building form controls.
+- **Form controls must have an accessible name**: It can be created using a `<label>` element or the `Field` component. See [Labeling a checkbox](#labeling-a-checkbox) and the [forms guide](/react/handbook/forms).
 
 ## Anatomy
 
@@ -28,11 +28,33 @@ import { Checkbox } from '@base-ui/react/checkbox';
 
 ## Examples
 
+### Labeling a checkbox
+
+Label a checkbox using an enclosing `<label>` element that wraps `<Checkbox.Root>`. An enclosing label is announced to screen readers when focus is on the control, and ensures that clicking on any gaps between the label and checkbox still toggles the control.
+
+```tsx title="Using an enclosing label to label a checkbox" {1,4}
+<label>
+  <Checkbox.Root />
+  Accept terms and conditions
+</label>
+```
+
+The [Field](/react/components/field) component eliminates the need to track `id` or `aria-label` associations manually. It supports both enclosing and sibling labeling patterns, along with a UX improvement to prevent double clicks from selecting the label text.
+
+```tsx title="Using the Field component to label a checkbox" {2,5}
+<Field.Root>
+  <Field.Label>
+    <Checkbox.Root />
+    Accept terms and conditions
+  </Field.Label>
+</Field.Root>
+```
+
 ### Form integration
 
-To use a single checkbox in a form, pass the checkbox's `name` to `<Field>` and use `<Field.Label>` to label the control.
+To use a single checkbox in a form, pass the checkbox's `name` to `<Field.Root>`:
 
-```tsx title="Using Checkbox in a form"
+```tsx title="Using Checkbox in a form" {2}
 <Form>
   <Field.Root name="stayLoggedIn">
     <Field.Label>

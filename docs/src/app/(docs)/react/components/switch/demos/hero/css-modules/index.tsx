@@ -3,8 +3,11 @@ import styles from './index.module.css';
 
 export default function ExampleSwitch() {
   return (
-    <Switch.Root defaultChecked className={styles.Switch}>
-      <Switch.Thumb className={styles.Thumb} />
-    </Switch.Root>
+    <label className={styles.Label}>
+      <Switch.Root defaultChecked className={styles.Switch}>
+        <Switch.Thumb className={styles.Thumb} />
+      </Switch.Root>
+      Notifications
+    </label>
   );
 }

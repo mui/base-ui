@@ -34,14 +34,11 @@ export function useNumberFieldButton(params: useNumberFieldButton.Parameters) {
     isIncrement,
     isPressedRef,
     locale,
-    maxWithDefault,
-    minWithDefault,
     movesAfterTouchRef,
     readOnly,
     setValue,
     startAutoChange,
     stopAutoChange,
-    value,
     valueRef,
     lastChangedValueRef,
     onValueCommitted,
@@ -52,8 +49,6 @@ export function useNumberFieldButton(params: useNumberFieldButton.Parameters) {
   const ignoreClickRef = React.useRef(false);
   const pointerTypeRef = React.useRef<'mouse' | 'touch' | 'pen' | ''>('');
 
-  const isMin = value != null && value <= minWithDefault;
-  const isMax = value != null && value >= maxWithDefault;
   const pressReason: NumberFieldRoot.ChangeEventReason = isIncrement
     ? 'increment-press'
     : 'decrement-press';
@@ -83,7 +78,7 @@ export function useNumberFieldButton(params: useNumberFieldButton.Parameters) {
   }
 
   const props: React.ComponentProps<'button'> = {
-    disabled: disabled || (isIncrement ? isMax : isMin),
+    disabled,
     'aria-readonly': readOnly || undefined,
     'aria-label': isIncrement ? 'Increase' : 'Decrease',
     'aria-controls': id,
@@ -102,7 +97,7 @@ export function useNumberFieldButton(params: useNumberFieldButton.Parameters) {
       isTouchingButtonRef.current = false;
     },
     onClick(event) {
-      const isDisabled = disabled || readOnly || (isIncrement ? isMax : isMin);
+      const isDisabled = disabled || readOnly;
       if (
         event.defaultPrevented ||
         isDisabled ||
@@ -131,8 +126,7 @@ export function useNumberFieldButton(params: useNumberFieldButton.Parameters) {
     },
     onPointerDown(event) {
       const isMainButton = !event.button || event.button === 0;
-      const isDisabled = disabled || (isIncrement ? isMax : isMin);
-      if (event.defaultPrevented || readOnly || !isMainButton || isDisabled) {
+      if (event.defaultPrevented || readOnly || !isMainButton || disabled) {
         return;
       }
 
@@ -177,7 +171,7 @@ export function useNumberFieldButton(params: useNumberFieldButton.Parameters) {
       }
     },
     onPointerMove(event) {
-      const isDisabled = disabled || readOnly || (isIncrement ? isMax : isMin);
+      const isDisabled = disabled || readOnly;
       if (isDisabled || event.pointerType !== 'touch' || !isPressedRef.current) {
         return;
       }
@@ -197,7 +191,7 @@ export function useNumberFieldButton(params: useNumberFieldButton.Parameters) {
       }
     },
     onMouseEnter(event) {
-      const isDisabled = disabled || readOnly || (isIncrement ? isMax : isMin);
+      const isDisabled = disabled || readOnly;
       if (
         event.defaultPrevented ||
         isDisabled ||
@@ -242,14 +236,11 @@ export interface UseNumberFieldButtonParameters {
   isIncrement: boolean;
   isPressedRef: React.RefObject<boolean | null>;
   locale?: Intl.LocalesArgument;
-  maxWithDefault: number;
-  minWithDefault: number;
   movesAfterTouchRef: React.RefObject<number | null>;
   readOnly: boolean;
   setValue: (value: number | null, details: NumberFieldRoot.ChangeEventDetails) => void;
   startAutoChange: (isIncrement: boolean, event?: React.MouseEvent | Event) => void;
   stopAutoChange: () => void;
-  value: number | null;
   valueRef: React.RefObject<number | null>;
   lastChangedValueRef: React.RefObject<number | null>;
   onValueCommitted: (

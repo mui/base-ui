@@ -62,6 +62,12 @@ export const NavigationMenuContent = React.forwardRef(function NavigationMenuCon
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
 
+  // If the popup unmounts before the content's exit animation completes, reset the internal
+  // mounted state so the next open can re-enter via `transitionStatus="starting"`.
+  if (mounted && !popupMounted) {
+    setMounted(false);
+  }
+
   useOpenChangeComplete({
     ref,
     open,

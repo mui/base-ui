@@ -631,6 +631,7 @@ export function useDismiss(
       });
 
       compositionTimeout.clear();
+      endedOrStartedInsideRef.current = false;
     };
   }, [
     dataRef,
@@ -686,6 +687,15 @@ export function useDismiss(
     endedOrStartedInsideRef.current = true;
   });
 
+  const markPressStartedInsideReactTree = useStableCallback(
+    (event: React.PointerEvent | React.MouseEvent) => {
+      if (!open || !enabled || event.button !== 0) {
+        return;
+      }
+      endedOrStartedInsideRef.current = true;
+    },
+  );
+
   const floating: ElementProps['floating'] = React.useMemo(
     () => ({
       onKeyDown: closeOnEscapeKeyDown,
@@ -698,13 +708,24 @@ export function useDismiss(
       onMouseUp: handlePressedInside,
 
       onClickCapture: markInsideReactTree,
-      onMouseDownCapture: markInsideReactTree,
-      onPointerDownCapture: markInsideReactTree,
+      onMouseDownCapture(event) {
+        markInsideReactTree();
+        markPressStartedInsideReactTree(event);
+      },
+      onPointerDownCapture(event) {
+        markInsideReactTree();
+        markPressStartedInsideReactTree(event);
+      },
       onMouseUpCapture: markInsideReactTree,
       onTouchEndCapture: markInsideReactTree,
       onTouchMoveCapture: markInsideReactTree,
     }),
-    [closeOnEscapeKeyDown, handlePressedInside, markInsideReactTree],
+    [
+      closeOnEscapeKeyDown,
+      handlePressedInside,
+      markInsideReactTree,
+      markPressStartedInsideReactTree,
+    ],
   );
 
   return React.useMemo(

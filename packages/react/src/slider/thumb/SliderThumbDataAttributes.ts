@@ -17,14 +17,6 @@ export enum SliderThumbDataAttributes {
    */
   disabled = 'data-disabled',
   /**
-   * Present when the slider is readonly.
-   */
-  readonly = 'data-readonly',
-  /**
-   * Present when the slider is required.
-   */
-  required = 'data-required',
-  /**
    * Present when the slider is in valid state (when wrapped in Field.Root).
    */
   valid = 'data-valid',

@@ -162,7 +162,6 @@ export const ComboboxItem = React.memo(
     const defaultProps: HTMLProps = {
       id,
       role: isRow ? 'gridcell' : 'option',
-      'aria-disabled': disabled || undefined,
       'aria-selected': selectable ? selected : undefined,
       // Focusable items steal focus from the input upon mouseup.
       // Warn if the user renders a natively focusable element like `<button>`,

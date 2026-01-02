@@ -33,7 +33,7 @@ function PromiseDemo() {
         }, 2000);
       }),
       {
-        loading: 'Loading data...',
+        loading: 'Loading data…',
         success: (data: string) => `Success: ${data}`,
         error: (err: Error) => `Error: ${err.message}`,
       },

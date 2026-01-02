@@ -31,7 +31,7 @@ export default function ExampleAsyncSingleCombobox() {
       return (
         <React.Fragment>
           <span className={styles.Spinner} aria-hidden />
-          Searching...
+          Searching…
         </React.Fragment>
       );
     }
@@ -41,7 +41,7 @@ export default function ExampleAsyncSingleCombobox() {
     }
 
     if (trimmedSearchValue === '') {
-      return selectedValue ? null : 'Start typing to search people...';
+      return selectedValue ? null : 'Start typing to search people…';
     }
 
     if (searchResults.length === 0) {

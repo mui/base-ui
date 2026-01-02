@@ -44,7 +44,7 @@ export default function ExampleAsyncMultipleCombobox() {
       return (
         <React.Fragment>
           <span className={styles.Spinner} aria-hidden />
-          Searching...
+          Searching…
         </React.Fragment>
       );
     }
@@ -54,7 +54,7 @@ export default function ExampleAsyncMultipleCombobox() {
     }
 
     if (trimmedSearchValue === '' && !blockStartStatus) {
-      return selectedValues.length > 0 ? null : 'Start typing to search people...';
+      return selectedValues.length > 0 ? null : 'Start typing to search people…';
     }
 
     if (searchResults.length === 0 && !blockStartStatus) {

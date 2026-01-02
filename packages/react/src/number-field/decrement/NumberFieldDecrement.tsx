@@ -37,7 +37,6 @@ export const NumberFieldDecrement = React.forwardRef(function NumberFieldDecreme
     inputValue,
     intentionalTouchCheckTimeout,
     isPressedRef,
-    maxWithDefault,
     minWithDefault,
     movesAfterTouchRef,
     readOnly,
@@ -52,16 +51,14 @@ export const NumberFieldDecrement = React.forwardRef(function NumberFieldDecreme
     onValueCommitted,
   } = useNumberFieldRootContext();
 
-  const disabled = disabledProp || contextDisabled;
+  const isMin = value != null && value <= minWithDefault;
+  const disabled = disabledProp || contextDisabled || isMin;
 
   const props = useNumberFieldButton({
     isIncrement: false,
     inputRef,
     startAutoChange,
     stopAutoChange,
-    minWithDefault,
-    maxWithDefault,
-    value,
     inputValue,
     disabled,
     readOnly,
@@ -83,6 +80,7 @@ export const NumberFieldDecrement = React.forwardRef(function NumberFieldDecreme
   const { getButtonProps, buttonRef } = useButton({
     disabled,
     native: nativeButton,
+    focusableWhenDisabled: true,
   });
 
   const buttonState = React.useMemo(
