@@ -30,6 +30,7 @@ export type State<Payload> = PopupStoreState<Payload> & {
   descriptionElementId: string | undefined;
   openOnHover: boolean;
   closeDelay: number;
+  hasViewport: boolean;
 };
 
 type Context = PopupStoreContext<PopoverRoot.ChangeEventDetails> & {
@@ -55,6 +56,7 @@ function createInitialState<Payload>(): State<Payload> {
     nested: false,
     openOnHover: false,
     closeDelay: 0,
+    hasViewport: false,
   };
 }
 
@@ -70,6 +72,7 @@ const selectors = {
   descriptionElementId: createSelector((state: State<unknown>) => state.descriptionElementId),
   openOnHover: createSelector((state: State<unknown>) => state.openOnHover),
   closeDelay: createSelector((state: State<unknown>) => state.closeDelay),
+  hasViewport: createSelector((state: State<unknown>) => state.hasViewport),
 };
 
 export class PopoverStore<Payload> extends ReactStore<

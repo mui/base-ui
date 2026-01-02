@@ -58,6 +58,7 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
   const positionerElement = store.useState('positionerElement');
   const instantType = store.useState('instantType');
   const transitionStatus = store.useState('transitionStatus');
+  const hasViewport = store.useState('hasViewport');
 
   const prevTriggerElementRef = React.useRef<Element | null>(null);
 
@@ -80,7 +81,7 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
     keepMounted,
     nodeId,
     collisionAvoidance,
-    adaptiveOrigin,
+    adaptiveOrigin: hasViewport ? adaptiveOrigin : undefined,
   });
 
   const defaultProps: HTMLProps = React.useMemo(() => {
