@@ -1,0 +1,36 @@
+{
+  "name": "MenuLink",
+  "props": {
+    "label": {
+      "type": "string",
+      "description": "Overrides the text label to use when the item is matched during keyboard text navigation.",
+      "detailedType": "string | undefined"
+    },
+    "closeOnClick": {
+      "type": "boolean",
+      "default": "false",
+      "description": "Whether to close the menu when the item is clicked.",
+      "detailedType": "boolean | undefined"
+    },
+    "id": {
+      "type": "string",
+      "detailedType": "string | undefined"
+    },
+    "className": {
+      "type": "string | ((state: Menu.Link.State) => string | undefined)",
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
+      "detailedType": "| string\n| ((state: Menu.Link.State) => string | undefined)"
+    },
+    "style": {
+      "type": "CSSProperties | ((state: Menu.Link.State) => CSSProperties | undefined)",
+      "detailedType": "| React.CSSProperties\n| ((state: Menu.Link.State) => CSSProperties | undefined)\n| undefined"
+    },
+    "render": {
+      "type": "ReactElement | ((props: HTMLProps, state: Menu.Link.State) => ReactElement)",
+      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render.",
+      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Menu.Link.State,\n  ) => ReactElement)"
+    }
+  },
+  "dataAttributes": {},
+  "cssVariables": {}
+}
