@@ -104,8 +104,7 @@ export const NumberFieldDecrement = React.forwardRef(function NumberFieldDecreme
 export interface NumberFieldDecrementState extends NumberFieldRoot.State {}
 
 export interface NumberFieldDecrementProps
-  extends NativeButtonProps,
-    BaseUIComponentProps<'button', NumberFieldDecrement.State> {}
+  extends NativeButtonProps, BaseUIComponentProps<'button', NumberFieldDecrement.State> {}
 
 export namespace NumberFieldDecrement {
   export type State = NumberFieldDecrementState;
