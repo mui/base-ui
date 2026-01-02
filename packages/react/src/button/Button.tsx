@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { useButton } from '../use-button/useButton';
 import { useRenderElement } from '../utils/useRenderElement';
-import type { BaseUIComponentProps, NativeButtonProps, NonNativeButtonProps } from '../utils/types';
+import type { BaseUIComponentProps, NativeButtonProps } from '../utils/types';
 
 /**
  * A button component that can be used to trigger actions.
@@ -52,46 +52,14 @@ export interface ButtonState {
   disabled: boolean;
 }
 
-interface ButtonCommonProps {
-  /**
-   * Whether the button should ignore user interaction.
-   */
-  disabled?: boolean;
+export interface ButtonProps
+  extends NativeButtonProps, BaseUIComponentProps<'button', ButtonState> {
   /**
    * Whether the button should be focusable when disabled.
    * @default false
    */
   focusableWhenDisabled?: boolean;
 }
-
-type NonNativeAttributeKeys =
-  | 'form'
-  | 'formAction'
-  | 'formEncType'
-  | 'formMethod'
-  | 'formNoValidate'
-  | 'formTarget'
-  | 'name'
-  | 'type'
-  | 'value';
-
-interface ButtonNativeProps
-  extends
-    NativeButtonProps,
-    ButtonCommonProps,
-    Omit<BaseUIComponentProps<'button', ButtonState>, 'disabled'> {
-  nativeButton?: true;
-}
-
-interface ButtonNonNativeProps
-  extends
-    NonNativeButtonProps,
-    ButtonCommonProps,
-    Omit<BaseUIComponentProps<'button', ButtonState>, NonNativeAttributeKeys | 'disabled'> {
-  nativeButton: false;
-}
-
-export type ButtonProps = ButtonNativeProps | ButtonNonNativeProps;
 
 export namespace Button {
   export type State = ButtonState;
