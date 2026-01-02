@@ -236,7 +236,11 @@ export function MenuRoot<Payload>(props: MenuRoot.Props<Payload>) {
     ) => {
       const reason = eventDetails.reason;
 
-      if (open === nextOpen && eventDetails.trigger === activeTriggerElement) {
+      if (
+        open === nextOpen &&
+        eventDetails.trigger === activeTriggerElement &&
+        lastOpenChangeReason === reason
+      ) {
         return;
       }
 
@@ -406,7 +410,7 @@ export function MenuRoot<Payload>(props: MenuRoot.Props<Payload>) {
 
   const dismiss = useDismiss(floatingRootContext, {
     enabled: !disabled,
-    bubbles: closeParentOnEsc && parent.type === 'menu',
+    bubbles: { escapeKey: closeParentOnEsc && parent.type === 'menu' },
     outsidePress() {
       if (parent.type !== 'context-menu' || openEventRef.current?.type === 'contextmenu') {
         return true;

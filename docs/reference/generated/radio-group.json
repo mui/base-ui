@@ -8,17 +8,17 @@
       "detailedType": "string | undefined"
     },
     "defaultValue": {
-      "type": "unknown",
+      "type": "any",
       "description": "The uncontrolled value of the radio button that should be initially selected.\n\nTo render a controlled radio group, use the `value` prop instead."
     },
     "value": {
-      "type": "unknown",
+      "type": "any",
       "description": "The controlled value of the radio item that should be currently selected.\n\nTo render an uncontrolled radio group, use the `defaultValue` prop instead."
     },
     "onValueChange": {
-      "type": "((value: unknown, eventDetails: Radio.Group.ChangeEventDetails) => void)",
+      "type": "((value: any, eventDetails: Radio.Group.ChangeEventDetails) => void)",
       "description": "Callback fired when the value changes.",
-      "detailedType": "| ((\n    value: unknown,\n    eventDetails: Radio.Group.ChangeEventDetails,\n  ) => void)\n| undefined"
+      "detailedType": "| ((\n    value: any,\n    eventDetails: Radio.Group.ChangeEventDetails,\n  ) => void)\n| undefined"
     },
     "disabled": {
       "type": "boolean",
