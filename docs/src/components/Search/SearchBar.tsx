@@ -208,7 +208,7 @@ export function SearchBar({
           id="search-input"
           ref={inputRef}
           placeholder="Search"
-          className="w-full border-0 bg-transparent text-[0.9375rem] tracking-[0.016em] font-normal text-gray-900 placeholder:text-gray-500 focus:outline-none"
+          className="w-full border-0 bg-transparent text-base tracking-[0.016em] font-normal text-gray-900 placeholder:text-gray-500 focus:outline-none"
         />
       </div>
     ),

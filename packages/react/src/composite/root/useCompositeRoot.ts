@@ -60,7 +60,7 @@ export interface UseCompositeRootParameters {
   enableHomeAndEndKeys?: boolean;
   /**
    * When `true`, keypress events on Composite's navigation keys
-   * be stopped with event.stopPropagation()
+   * be stopped with event.stopPropagation().
    * @default false
    */
   stopEventPropagation?: boolean;

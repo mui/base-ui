@@ -73,6 +73,81 @@ describe('<NumberField />', () => {
     });
   });
 
+  it('blocks submission when step mismatch occurs', async () => {
+    await render(
+      <form data-testid="form">
+        <NumberFieldBase.Root name="quantity" min={0} step={0.1}>
+          <NumberFieldBase.Group>
+            <NumberFieldBase.Input />
+          </NumberFieldBase.Group>
+        </NumberFieldBase.Root>
+        <button type="submit">Submit</button>
+      </form>,
+    );
+
+    const input = screen.getByRole('textbox');
+    fireEvent.change(input, { target: { value: '0.11' } });
+
+    const hiddenInput = document.querySelector(
+      'input[type="number"][name="quantity"]',
+    ) as HTMLInputElement;
+    expect(hiddenInput).not.to.equal(null);
+    expect(hiddenInput.validity.stepMismatch).to.equal(true);
+
+    const form = screen.getByTestId<HTMLFormElement>('form');
+    expect(form.checkValidity()).to.equal(false);
+  });
+
+  it.skipIf(isJSDOM)('blocks submission when step mismatch occurs with default step', async () => {
+    await render(
+      <form data-testid="form">
+        <NumberFieldBase.Root name="quantity" min={0}>
+          <NumberFieldBase.Group>
+            <NumberFieldBase.Input />
+          </NumberFieldBase.Group>
+        </NumberFieldBase.Root>
+        <button type="submit">Submit</button>
+      </form>,
+    );
+
+    const input = screen.getByRole('textbox');
+    fireEvent.change(input, { target: { value: '0.11' } });
+
+    const hiddenInput = document.querySelector(
+      'input[type="number"][name="quantity"]',
+    ) as HTMLInputElement;
+    expect(hiddenInput).not.to.equal(null);
+    expect(hiddenInput.validity.stepMismatch).to.equal(true);
+
+    const form = screen.getByTestId<HTMLFormElement>('form');
+    expect(form.checkValidity()).to.equal(false);
+  });
+
+  it('does not block submission when step="any"', async () => {
+    await render(
+      <form data-testid="form">
+        <NumberFieldBase.Root name="quantity" min={0} step="any">
+          <NumberFieldBase.Group>
+            <NumberFieldBase.Input />
+          </NumberFieldBase.Group>
+        </NumberFieldBase.Root>
+        <button type="submit">Submit</button>
+      </form>,
+    );
+
+    const input = screen.getByRole('textbox');
+    fireEvent.change(input, { target: { value: '0.11' } });
+
+    const hiddenInput = document.querySelector(
+      'input[type="number"][name="quantity"]',
+    ) as HTMLInputElement;
+    expect(hiddenInput).not.to.equal(null);
+    expect(hiddenInput.validity.stepMismatch).to.equal(false);
+
+    const form = screen.getByTestId<HTMLFormElement>('form');
+    expect(form.checkValidity()).to.equal(true);
+  });
+
   describe('prop: onValueChange', () => {
     it('should be called when the value changes', async () => {
       const onValueChange = spy();
@@ -1227,6 +1302,27 @@ describe('<NumberField />', () => {
       fireEvent.blur(input);
 
       expect(input).not.to.have.attribute('data-focused');
+    });
+
+    it('adds [data-focused] attribute on every focus', async () => {
+      await render(
+        <Field.Root>
+          <NumberFieldBase.Root>
+            <NumberFieldBase.Input data-testid="input" />
+          </NumberFieldBase.Root>
+        </Field.Root>,
+      );
+
+      const input = screen.getByTestId('input');
+
+      fireEvent.focus(input);
+      expect(input).to.have.attribute('data-focused', '');
+
+      fireEvent.blur(input);
+      expect(input).not.to.have.attribute('data-focused');
+
+      fireEvent.focus(input);
+      expect(input).to.have.attribute('data-focused', '');
     });
 
     it('prop: validate', async () => {
