@@ -72,6 +72,10 @@ import { Combobox } from '@base-ui/react/combobox';
 Combobox infers the item type from the `defaultValue` or `value` props passed to `<Combobox.Root>`.
 The type of items held in the `items` array must also match the `value` prop type passed to `<Combobox.Item>`.
 
+## Examples
+
+### Typed wrapper component
+
 The following example shows a typed wrapper around the Combobox component with correct type inference and type safety:
 
 ```tsx title="Specifying generic type parameters"
@@ -84,8 +88,6 @@ export function MyCombobox<Value, Multiple extends boolean | undefined = false>(
   return <Combobox.Root {...props}>{/* ... */}</Combobox.Root>;
 }
 ```
-
-## Examples
 
 ### Multiple select
 

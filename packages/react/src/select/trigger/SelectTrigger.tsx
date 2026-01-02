@@ -24,6 +24,8 @@ import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
 
 const BOUNDARY_OFFSET = 2;
+const SELECTED_DELAY = 400;
+const UNSELECTED_DELAY = 200;
 
 const stateAttributesMapping: StateAttributesMapping<SelectTrigger.State> = {
   ...pressableTriggerOpenStateMapping,
@@ -75,7 +77,9 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
   const triggerProps = useStore(store, selectors.triggerProps);
   const positionerElement = useStore(store, selectors.positionerElement);
   const listElement = useStore(store, selectors.listElement);
-  const serializedValue = useStore(store, selectors.serializedValue);
+  const hasSelectedValue = useStore(store, selectors.hasSelectedValue);
+  const shouldCheckNullItemLabel = !hasSelectedValue && open;
+  const hasNullItemLabel = useStore(store, selectors.hasNullItemLabel, shouldCheckNullItemLabel);
 
   const positionerRef = useValueAsRef(positionerElement);
 
@@ -99,24 +103,37 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
     setTriggerElement,
   );
 
-  const timeout1 = useTimeout();
-  const timeout2 = useTimeout();
+  const selectedDelayTimeout = useTimeout();
+  const unselectedDelayTimeout = useTimeout();
 
   React.useEffect(() => {
     if (open) {
-      // mousedown -> move to unselected item -> mouseup should not select within 200ms.
-      timeout2.start(200, () => {
-        selectionRef.current.allowUnselectedMouseUp = true;
+      const hasSelectedItemInList = hasSelectedValue || hasNullItemLabel;
+      const shouldDelayUnselectedMouseUpLonger = !hasSelectedItemInList;
 
-        // mousedown -> mouseup on selected item should not select within 400ms.
-        timeout1.start(200, () => {
+      // When there is no selected item in the list (placeholder-only selects), a mousedown
+      // on the trigger followed by a quick mouseup over the first option can accidentally select
+      // within 200ms. Delay unselected mouseup to match the safer 400ms window.
+      if (shouldDelayUnselectedMouseUpLonger) {
+        selectedDelayTimeout.start(SELECTED_DELAY, () => {
+          selectionRef.current.allowUnselectedMouseUp = true;
           selectionRef.current.allowSelectedMouseUp = true;
         });
-      });
+      } else {
+        // mousedown -> move to unselected item -> mouseup should not select within 200ms.
+        unselectedDelayTimeout.start(UNSELECTED_DELAY, () => {
+          selectionRef.current.allowUnselectedMouseUp = true;
+
+          // mousedown -> mouseup on selected item should not select within 400ms.
+          selectedDelayTimeout.start(SELECTED_DELAY, () => {
+            selectionRef.current.allowSelectedMouseUp = true;
+          });
+        });
+      }
 
       return () => {
-        timeout1.clear();
-        timeout2.clear();
+        selectedDelayTimeout.clear();
+        unselectedDelayTimeout.clear();
       };
     }
 
@@ -128,7 +145,15 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
     timeoutMouseDown.clear();
 
     return undefined;
-  }, [open, selectionRef, timeoutMouseDown, timeout1, timeout2]);
+  }, [
+    open,
+    hasSelectedValue,
+    hasNullItemLabel,
+    selectionRef,
+    timeoutMouseDown,
+    selectedDelayTimeout,
+    unselectedDelayTimeout,
+  ]);
 
   const ariaControlsId = React.useMemo(() => {
     return listElement?.id ?? getFloatingFocusElement(positionerElement)?.id;
@@ -234,9 +259,9 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
       disabled,
       value,
       readOnly,
-      placeholder: !serializedValue,
+      placeholder: !hasSelectedValue,
     }),
-    [fieldState, open, disabled, value, readOnly, serializedValue],
+    [fieldState, open, disabled, value, readOnly, hasSelectedValue],
   );
 
   return useRenderElement('button', componentProps, {
@@ -248,12 +273,22 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
 });
 
 export interface SelectTriggerState extends FieldRoot.State {
-  /** Whether the select popup is currently open. */
+  /**
+   * Whether the select popup is currently open.
+   */
   open: boolean;
-  /** Whether the select popup is readonly. */
+  /**
+   * Whether the select popup is readonly.
+   */
   readOnly: boolean;
-  /** The value of the currently selected item. */
+  /**
+   * The value of the currently selected item.
+   */
   value: any;
+  /**
+   * Whether the select doesn't have a value.
+   */
+  placeholder: boolean;
 }
 
 export interface SelectTriggerProps
