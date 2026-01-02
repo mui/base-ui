@@ -42,7 +42,7 @@ import { useTriggerDataForwarding } from '../../utils/popups';
  */
 export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
   componentProps: PopoverTrigger.Props,
-  forwardedRef: React.ForwardedRef<any>,
+  forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
   const {
     render,

@@ -28,7 +28,7 @@ import { compareItemEquality, removeItem } from '../../utils/itemEquality';
 export const SelectItem = React.memo(
   React.forwardRef(function SelectItem(
     componentProps: SelectItem.Props,
-    forwardedRef: React.ForwardedRef<HTMLDivElement>,
+    forwardedRef: React.ForwardedRef<HTMLElement>,
   ) {
     const {
       render,
