@@ -31,7 +31,7 @@
     "use-sync-external-store": "^1.6.0"
   },
   "devDependencies": {
-    "@testing-library/react": "16.3.0",
+    "@testing-library/react": "16.3.1",
     "@testing-library/user-event": "14.6.1",
     "@types/chai": "5.2.3",
     "@types/chai-dom": "1.11.3",
