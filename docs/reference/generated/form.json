@@ -7,6 +7,12 @@
       "description": "Validation errors returned externally, typically after submission by a server or a form action.\nThis should be an object where keys correspond to the `name` attribute on `<Field.Root>`,\nand values correspond to error(s) related to that field.",
       "detailedType": "{} | undefined"
     },
+    "actionsRef": {
+      "type": "RefObject<Form.Actions | null>",
+      "description": "A ref to imperative actions.\n- `validate`: Validates all fields when called. Optionally pass a field name to validate a single field.",
+      "example": "```tsx\n// validate all fields\nactionsRef.current.validate();\n\n// validate one field\nactionsRef.current.validate('email');\n```",
+      "detailedType": "React.RefObject<Form.Actions | null> | undefined"
+    },
     "onFormSubmit": {
       "type": "((formValues: Record<string, any>, eventDetails: Form.SubmitEventDetails) => void)",
       "description": "Event handler called when the form is submitted.\n`preventDefault()` is called on the native submit event when used.",

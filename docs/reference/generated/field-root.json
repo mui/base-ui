@@ -7,6 +7,11 @@
       "description": "Identifies the field when a form is submitted.\nTakes precedence over the `name` prop on the `<Field.Control>` component.",
       "detailedType": "string | undefined"
     },
+    "actionsRef": {
+      "type": "RefObject<Field.Root.Actions | null>",
+      "description": "A ref to imperative actions.\n- `validate`: Validates the field when called.",
+      "detailedType": "| React.RefObject<Field.Root.Actions | null>\n| undefined"
+    },
     "dirty": {
       "type": "boolean",
       "description": "Whether the field's value has been changed from its initial value.\nUseful when the field state is controlled by an external library.",
