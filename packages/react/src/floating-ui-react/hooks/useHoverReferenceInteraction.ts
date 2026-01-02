@@ -212,9 +212,13 @@ export function useHoverReferenceInteraction(
 
       const triggerNode = (event.currentTarget as HTMLElement) ?? null;
 
-      const shouldOpen = !store.select('open') || isOverInactiveTrigger;
+      const isOpen = store.select('open');
+      const shouldOpen = !isOpen || isOverInactiveTrigger;
 
-      if (openDelay) {
+      // When moving between triggers while already open, open immediately without delay
+      if (isOverInactiveTrigger && isOpen) {
+        store.setOpen(true, createChangeEventDetails(REASONS.triggerHover, event, triggerNode));
+      } else if (openDelay) {
         openChangeTimeout.start(openDelay, () => {
           if (shouldOpen) {
             store.setOpen(true, createChangeEventDetails(REASONS.triggerHover, event, triggerNode));

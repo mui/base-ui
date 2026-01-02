@@ -44,8 +44,8 @@ export const TooltipTrigger = React.forwardRef(function TooltipTrigger(
 
   const thisTriggerId = useBaseUiId(idProp);
   const isTriggerActive = store.useState('isTriggerActive', thisTriggerId);
-  const floatingRootContext = store.useState('floatingRootContext');
   const isOpenedByThisTrigger = store.useState('isOpenedByTrigger', thisTriggerId);
+  const floatingRootContext = store.useState('floatingRootContext');
 
   const triggerElementRef = React.useRef<Element | null>(null);
 
