@@ -39,4 +39,44 @@ describe('<Radio.Root />', () => {
     fireEvent.click(radioA);
     expect(radioNull).to.have.attribute('aria-checked', 'false');
   });
+
+  it('associates `id` with the native button when `nativeButton=true`', async () => {
+    await render(
+      <div>
+        <label data-testid="label" htmlFor="myRadio">
+          A
+        </label>
+
+        <RadioGroup defaultValue="b">
+          <Radio.Root value="a" id="myRadio" nativeButton render={<button />} data-testid="a" />
+          <Radio.Root value="b" data-testid="b" />
+        </RadioGroup>
+      </div>,
+    );
+
+    const radioA = screen.getByTestId('a');
+    expect(radioA).to.have.attribute('id', 'myRadio');
+
+    const hiddenInput = radioA.nextElementSibling as HTMLInputElement | null;
+    expect(hiddenInput?.tagName).to.equal('INPUT');
+    expect(hiddenInput).not.to.have.attribute('id', 'myRadio');
+
+    expect(radioA).to.have.attribute('aria-checked', 'false');
+    fireEvent.click(screen.getByTestId('label'));
+    expect(radioA).to.have.attribute('aria-checked', 'true');
+  });
+
+  describe('prop: disabled', () => {
+    it('uses aria-disabled instead of HTML disabled', async () => {
+      await render(
+        <RadioGroup>
+          <Radio.Root value="a" disabled data-testid="radio" />
+        </RadioGroup>,
+      );
+
+      const radio = screen.getByTestId('radio');
+      expect(radio).to.not.have.attribute('disabled');
+      expect(radio).to.have.attribute('aria-disabled', 'true');
+    });
+  });
 });

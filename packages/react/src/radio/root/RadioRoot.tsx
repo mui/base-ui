@@ -91,15 +91,16 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
     implicit: false,
     controlRef: radioRef,
   });
+  const hiddenInputId = nativeButton ? undefined : inputId;
 
-  const rootProps: React.ComponentProps<'button'> = {
+  const rootProps: React.ComponentPropsWithRef<'span'> = {
     role: 'radio',
     'aria-checked': checked,
     'aria-required': required || undefined,
     'aria-readonly': readOnly || undefined,
     'aria-labelledby': labelId,
     [ACTIVE_COMPOSITE_ITEM as string]: checked ? '' : undefined,
-    id,
+    id: nativeButton ? inputId : id,
     onKeyDown(event) {
       if (event.key === 'Enter') {
         event.preventDefault();
@@ -133,7 +134,7 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
   const inputProps: React.ComponentPropsWithRef<'input'> = {
     type: 'radio',
     ref: mergedInputRef,
-    id: inputId,
+    id: hiddenInputId,
     tabIndex: -1,
     style: visuallyHiddenInput,
     'aria-hidden': true,

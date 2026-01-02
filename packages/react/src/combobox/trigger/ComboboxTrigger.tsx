@@ -58,6 +58,7 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
   const selectionMode = useStore(store, selectors.selectionMode);
   const comboboxDisabled = useStore(store, selectors.disabled);
   const readOnly = useStore(store, selectors.readOnly);
+  const required = useStore(store, selectors.required);
   const mounted = useStore(store, selectors.mounted);
   const popupSideValue = useStore(store, selectors.popupSide);
   const positionerElement = useStore(store, selectors.positionerElement);
@@ -150,6 +151,7 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
         'aria-haspopup': inputInsidePopup ? 'dialog' : 'listbox',
         'aria-controls': open ? listElement?.id : undefined,
         'aria-readonly': readOnly || undefined,
+        'aria-required': inputInsidePopup ? required || undefined : undefined,
         'aria-labelledby': labelId,
         onPointerDown: trackPointerType,
         onPointerEnter: trackPointerType,

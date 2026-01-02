@@ -299,6 +299,30 @@ describe('<Checkbox.Root />', () => {
       fireEvent.click(screen.getByTestId('label'));
       expect(checkbox).to.have.attribute('aria-checked', 'true');
     });
+
+    it('should associate `id` with the native button when `nativeButton=true`', async () => {
+      await render(
+        <div>
+          <label data-testid="label" htmlFor="myCheckbox">
+            Toggle
+          </label>
+
+          <Checkbox.Root id="myCheckbox" nativeButton render={<button />} />
+        </div>,
+      );
+
+      const checkbox = screen.getByRole('checkbox');
+      expect(checkbox).to.have.attribute('id', 'myCheckbox');
+
+      const hiddenInputs = screen.getAllByRole<HTMLInputElement>('checkbox', { hidden: true });
+      const hiddenInput = hiddenInputs.find((input) => input !== checkbox);
+      expect(hiddenInput).not.to.equal(undefined);
+      expect(hiddenInput).not.to.have.attribute('id', 'myCheckbox');
+
+      expect(checkbox).to.have.attribute('aria-checked', 'false');
+      fireEvent.click(screen.getByTestId('label'));
+      expect(checkbox).to.have.attribute('aria-checked', 'true');
+    });
   });
 
   describe('Form', () => {
