@@ -27,8 +27,8 @@ const BACKWARD_KEYS = new Set([ARROW_UP, ARROW_LEFT]);
 const CUSTOM_NAVIGATION_KEYS = new Set([HOME, END, PAGE_UP, PAGE_DOWN]);
 
 export function useSharedCalendarDayGridBody(
-  parameters: useSharedCalendarDayGridBody.Parameters,
-): useSharedCalendarDayGridBody.ReturnValue {
+  parameters: UseSharedCalendarDayGridBodyParameters,
+): UseSharedCalendarDayGridBodyReturnValue {
   const { fixedWeekNumber, children, offset = 0 } = parameters;
 
   const adapter = useTemporalAdapter();
@@ -59,7 +59,7 @@ export function useSharedCalendarDayGridBody(
   }, [children, weeks]);
 
   const [itemMap, setItemMap] = React.useState(
-    () => new Map<Node, CompositeMetadata<useSharedCalendarDayGridBody.ItemMetadata> | null>(),
+    () => new Map<Node, CompositeMetadata<UseSharedCalendarDayGridBodyItemMetadata> | null>(),
   );
 
   const items = React.useMemo(() => Array.from(itemMap.keys()) as HTMLElement[], [itemMap]);
@@ -221,7 +221,7 @@ export function useSharedCalendarDayGridBody(
     });
   };
 
-  const compositeRootProps: CompositeRoot.Props<useSharedCalendarDayGridBody.ItemMetadata, any> = {
+  const compositeRootProps: CompositeRoot.Props<UseSharedCalendarDayGridBodyItemMetadata, any> = {
     cols: 7,
     disabledIndices,
     orientation: 'horizontal',
@@ -264,52 +264,50 @@ export function useSharedCalendarDayGridBody(
   return { props, compositeRootProps, context, ref };
 }
 
-export namespace useSharedCalendarDayGridBody {
-  export interface Parameters {
-    /**
-     * The children of the component.
-     * If a function is provided, it will be called for each week to render as its parameter.
-     */
-    children?:
-      | React.ReactNode
-      | ((
-          week: TemporalSupportedObject,
-          index: number,
-          weeks: TemporalSupportedObject[],
-        ) => React.ReactNode);
-    /**
-     * Will render the requested amount of weeks by adding weeks of the next month if needed.
-     * Set it to 6 to create a Gregorian calendar where all months have the same amount of weeks.
-     */
-    fixedWeekNumber?: number;
-    /**
-     * The offset to apply to the rendered month compared to the current month.
-     * This is mostly useful when displaying multiple day grids.
-     * @default 0
-     */
-    offset?: number;
-  }
+export interface UseSharedCalendarDayGridBodyParameters {
+  /**
+   * The children of the component.
+   * If a function is provided, it will be called for each week to render as its parameter.
+   */
+  children?:
+    | React.ReactNode
+    | ((
+        week: TemporalSupportedObject,
+        index: number,
+        weeks: TemporalSupportedObject[],
+      ) => React.ReactNode);
+  /**
+   * Will render the requested amount of weeks by adding weeks of the next month if needed.
+   * Set it to 6 to create a Gregorian calendar where all months have the same amount of weeks.
+   */
+  fixedWeekNumber?: number;
+  /**
+   * The offset to apply to the rendered month compared to the current month.
+   * This is mostly useful when displaying multiple day grids.
+   * @default 0
+   */
+  offset?: number;
+}
 
-  export interface ItemMetadata {
-    focusableWhenDisabled?: boolean;
-  }
+export interface UseSharedCalendarDayGridBodyItemMetadata {
+  focusableWhenDisabled?: boolean;
+}
 
-  export interface ReturnValue {
-    /**
-     * The props to apply to the element.
-     */
-    props: HTMLProps;
-    /**
-     * The props to apply to the composite root.
-     */
-    compositeRootProps: CompositeRoot.Props<ItemMetadata, any>;
-    /**
-     * The context to provide to the children of the component.
-     */
-    context: SharedCalendarDayGridBodyContext;
-    /**
-     * The ref to apply to the element.
-     */
-    ref: React.RefObject<HTMLDivElement | null>;
-  }
+export interface UseSharedCalendarDayGridBodyReturnValue {
+  /**
+   * The props to apply to the element.
+   */
+  props: HTMLProps;
+  /**
+   * The props to apply to the composite root.
+   */
+  compositeRootProps: CompositeRoot.Props<UseSharedCalendarDayGridBodyItemMetadata, any>;
+  /**
+   * The context to provide to the children of the component.
+   */
+  context: SharedCalendarDayGridBodyContext;
+  /**
+   * The ref to apply to the element.
+   */
+  ref: React.RefObject<HTMLDivElement | null>;
 }

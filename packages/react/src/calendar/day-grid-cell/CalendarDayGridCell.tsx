@@ -2,7 +2,10 @@
 import * as React from 'react';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
-import { useSharedCalendarDayGridCell } from './useSharedCalendarDayGridCell';
+import {
+  useSharedCalendarDayGridCell,
+  UseSharedCalendarDayGridCellParameters,
+} from './useSharedCalendarDayGridCell';
 import { SharedCalendarDayGridCellContext } from './SharedCalendarDayGridCellContext';
 
 const InnerCalendarDayGridCell = React.forwardRef(function InnerCalendarDayGridCell(
@@ -32,9 +35,14 @@ const InnerCalendarDayGridCell = React.forwardRef(function InnerCalendarDayGridC
  */
 export const CalendarDayGridCell = React.memo(InnerCalendarDayGridCell);
 
-export namespace CalendarDayGridCell {
-  export interface State {}
+export interface CalendarDayGridCellState {}
 
-  export interface Props
-    extends BaseUIComponentProps<'td', State>, useSharedCalendarDayGridCell.Parameters {}
+export interface CalendarDayGridCellProps
+  extends
+    BaseUIComponentProps<'td', CalendarDayGridCellState>,
+    UseSharedCalendarDayGridCellParameters {}
+
+export namespace CalendarDayGridCell {
+  export type State = CalendarDayGridCellState;
+  export type Props = CalendarDayGridCellProps;
 }

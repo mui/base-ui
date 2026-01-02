@@ -166,27 +166,36 @@ export const CalendarRoot = React.forwardRef(function CalendarRoot(
   );
 });
 
+export type CalendarRootNavigationDirection = CalendarNavigationDirection;
+
+export interface CalendarRootState extends CalendarRootElementState {}
+
+export interface CalendarRootProps
+  extends
+    Omit<BaseUIComponentProps<'div', CalendarRootState>, 'children'>,
+    SharedCalendarStoreParameters<TemporalValue, validateDate.ReturnValue> {
+  /**
+   * The children of the component.
+   * If a function is provided, it will be called with the public context as its parameter.
+   */
+  children?: React.ReactNode | ((parameters: CalendarContext) => React.ReactNode);
+}
+
+export interface CalendarRootValueChangeHandlerContext extends CalendarValueChangeHandlerContext<validateDate.ReturnValue> {}
+
+export type CalendarRootChangeEventReason = CalendarChangeEventReason;
+
+export type CalendarRootValueChangeEventDetails =
+  CalendarValueChangeEventDetails<validateDate.ReturnValue>;
+
+export type CalendarRootVisibleDateChangeEventDetails = CalendarVisibleDateChangeEventDetails;
+
 export namespace CalendarRoot {
-  export type NavigationDirection = CalendarNavigationDirection;
-
-  export interface State extends CalendarRootElementState {}
-
-  export interface Props
-    extends
-      Omit<BaseUIComponentProps<'div', State>, 'children'>,
-      SharedCalendarStoreParameters<TemporalValue, validateDate.ReturnValue> {
-    /**
-     * The children of the component.
-     * If a function is provided, it will be called with the public context as its parameter.
-     */
-    children?: React.ReactNode | ((parameters: CalendarContext) => React.ReactNode);
-  }
-
-  export interface ValueChangeHandlerContext extends CalendarValueChangeHandlerContext<validateDate.ReturnValue> {}
-
-  export type ChangeEventReason = CalendarChangeEventReason;
-
-  export type ValueChangeEventDetails = CalendarValueChangeEventDetails<validateDate.ReturnValue>;
-
-  export type VisibleDateChangeEventDetails = CalendarVisibleDateChangeEventDetails;
+  export type NavigationDirection = CalendarRootNavigationDirection;
+  export type State = CalendarRootState;
+  export type Props = CalendarRootProps;
+  export type ValueChangeHandlerContext = CalendarRootValueChangeHandlerContext;
+  export type ChangeEventReason = CalendarRootChangeEventReason;
+  export type ValueChangeEventDetails = CalendarRootValueChangeEventDetails;
+  export type VisibleDateChangeEventDetails = CalendarRootVisibleDateChangeEventDetails;
 }

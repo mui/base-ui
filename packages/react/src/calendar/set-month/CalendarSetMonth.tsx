@@ -69,18 +69,22 @@ export const CalendarSetMonth = React.forwardRef(function CalendarSetMonth(
   return element;
 });
 
-export namespace CalendarSetMonth {
-  export interface State {
-    /**
-     * Whether the button is disabled.
-     */
-    disabled: boolean;
-  }
+export interface CalendarSetMonthState {
+  /**
+   * Whether the button is disabled.
+   */
+  disabled: boolean;
+}
 
-  export interface Props extends BaseUIComponentProps<'button', State>, NativeButtonProps {
-    /**
-     * The month to navigate to.
-     */
-    target: TemporalSupportedObject;
-  }
+export interface CalendarSetMonthProps
+  extends BaseUIComponentProps<'button', CalendarSetMonthState>, NativeButtonProps {
+  /**
+   * The month to navigate to.
+   */
+  target: TemporalSupportedObject;
+}
+
+export namespace CalendarSetMonth {
+  export type State = CalendarSetMonthState;
+  export type Props = CalendarSetMonthProps;
 }

@@ -36,17 +36,23 @@ const InnerCalendarDayGridHeaderCell = React.forwardRef(function InnerCalendarDa
  */
 export const CalendarDayGridHeaderCell = React.memo(InnerCalendarDayGridHeaderCell);
 
-export namespace CalendarDayGridHeaderCell {
-  export interface State {}
+export interface CalendarDayGridHeaderCellState {}
 
-  export interface Props extends BaseUIComponentProps<'th', State> {
-    value: TemporalSupportedObject;
-    /**
-     * The formatter function used to display the day of the week.
-     * @param {TemporalSupportedObject} date The date to format.
-     * @returns {string} The formatted date.
-     * @default (date) => adapter.format(date, 'weekday3Letters').charAt(0).toUpperCase()
-     */
-    formatter?: (date: TemporalSupportedObject) => string;
-  }
+export interface CalendarDayGridHeaderCellProps extends BaseUIComponentProps<
+  'th',
+  CalendarDayGridHeaderCellState
+> {
+  value: TemporalSupportedObject;
+  /**
+   * The formatter function used to display the day of the week.
+   * @param {TemporalSupportedObject} date The date to format.
+   * @returns {string} The formatted date.
+   * @default (date) => adapter.format(date, 'weekday3Letters').charAt(0).toUpperCase()
+   */
+  formatter?: (date: TemporalSupportedObject) => string;
+}
+
+export namespace CalendarDayGridHeaderCell {
+  export type State = CalendarDayGridHeaderCellState;
+  export type Props = CalendarDayGridHeaderCellProps;
 }
