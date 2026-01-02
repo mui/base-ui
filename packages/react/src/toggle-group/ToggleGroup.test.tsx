@@ -215,7 +215,7 @@ describe('<ToggleGroup />', () => {
 
     it('only one item can be pressed when false', async () => {
       const { user } = await render(
-        <ToggleGroup multiple={false} defaultValue={['one']}>
+        <ToggleGroup defaultValue={['one']}>
           <Toggle value="one" />
           <Toggle value="two" />
         </ToggleGroup>,
