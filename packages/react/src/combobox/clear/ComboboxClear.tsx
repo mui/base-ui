@@ -45,6 +45,7 @@ export const ComboboxClear = React.forwardRef(function ComboboxClear(
   const readOnly = useStore(store, selectors.readOnly);
   const open = useStore(store, selectors.open);
   const selectedValue = useStore(store, selectors.selectedValue);
+  const hasSelectionChips = useStore(store, selectors.hasSelectionChips);
 
   const inputValue = useComboboxInputValueContext();
 
@@ -54,7 +55,7 @@ export const ComboboxClear = React.forwardRef(function ComboboxClear(
   } else if (selectionMode === 'single') {
     visible = selectedValue != null;
   } else {
-    visible = Array.isArray(selectedValue) && selectedValue.length > 0;
+    visible = hasSelectionChips;
   }
 
   const disabled = fieldDisabled || comboboxDisabled || disabledProp;
