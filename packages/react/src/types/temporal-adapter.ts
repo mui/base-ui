@@ -93,13 +93,54 @@ export interface TemporalAdapterFormats {
   localizedNumericDate: string;
 }
 
+export type TemporalFieldSectionType =
+  | 'year'
+  | 'month'
+  | 'day'
+  | 'weekDay'
+  | 'hours'
+  | 'minutes'
+  | 'seconds'
+  | 'meridiem'
+  | 'empty';
+
+export type TemporalFieldSectionContentType = 'digit' | 'digit-with-letter' | 'letter';
+
+export interface TemporalFormatTokenConfig {
+  /**
+   * Type of the section.
+   */
+  sectionType: TemporalFieldSectionType;
+  /**
+   * Type of content of the section.
+   * Will determine if we should apply a digit-based editing or a letter-based editing.
+   */
+  contentType: TemporalFieldSectionContentType;
+  /**
+   * Maximum length of the value, only defined for "digit" sections.
+   * Will be used to determine how many leading zeros should be added to the value.
+   */
+  maxLength?: number;
+}
+
+export interface TemporalFormatTokenConfigMap {
+  [formatToken: string]: TemporalFormatTokenConfig;
+}
+
 export type DateBuilderReturnType<T extends string | null> = [T] extends [null]
   ? null
   : TemporalSupportedObject;
 
 export interface TemporalAdapter {
   isTimezoneCompatible: boolean;
+  /**
+   * Formats supported by the adapter.
+   */
   formats: TemporalAdapterFormats;
+  /**
+   * Mapping of format tokens to their section type and content type.
+   */
+  formatTokenConfigMap: TemporalFormatTokenConfigMap;
   /**
    * Name of the library that is used right now.
    */

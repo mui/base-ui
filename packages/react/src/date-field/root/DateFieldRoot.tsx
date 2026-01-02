@@ -6,7 +6,7 @@ import { getDateManager } from '../../utils/temporal/getDateManager';
 import {
   TemporalFieldStore,
   TemporalFieldStoreParameters,
-} from '../../utils/temporal/TemporalFieldStore';
+} from '../../utils/temporal/field/TemporalFieldStore';
 import { BaseUIComponentProps } from '../../utils/types';
 import { TemporalValue } from '../../types';
 import { validateDate } from '../../utils/temporal/validateDate';

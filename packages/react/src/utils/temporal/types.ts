@@ -45,6 +45,10 @@ export interface TemporalManager<
    */
   emptyValidationError: TError;
   /**
+   * The type of dates handled by the manager (e.g. 'date', 'date-time', 'time').
+   */
+  dateType: TemporalDateType;
+  /**
    * Checks whether two values are equal.
    */
   areValuesEqual: (valueA: TValue, valueB: TValue) => boolean;
@@ -74,3 +78,5 @@ export interface TemporalManager<
    */
   getDatesFromValue: (value: TValue) => TemporalSupportedObject[];
 }
+
+export type TemporalDateType = 'date' | 'time' | 'date-time';

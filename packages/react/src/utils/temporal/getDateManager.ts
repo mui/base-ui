@@ -5,6 +5,7 @@ import { TemporalValue, TemporalAdapter } from '../../types';
 
 export function getDateManager(adapter: TemporalAdapter): GetDateManagerReturnValue {
   return {
+    dateType: 'date',
     emptyValue: null,
     emptyValidationError: null,
     areValuesEqual: (valueA, valueB) => areDatesEqual(adapter, valueA, valueB),
