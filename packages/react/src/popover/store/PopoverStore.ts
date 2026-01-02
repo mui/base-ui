@@ -11,6 +11,7 @@ import { PopoverRoot } from './../root/PopoverRoot';
 import { REASONS } from '../../utils/reasons';
 import {
   createInitialPopupStoreState,
+  InlineRectCoords,
   PopupStoreContext,
   popupStoreSelectors,
   PopupStoreState,
@@ -39,6 +40,7 @@ type Context = PopupStoreContext<PopoverRoot.ChangeEventDetails> & {
   readonly triggerFocusTargetRef: React.RefObject<HTMLElement | null>;
   readonly beforeContentFocusGuardRef: React.RefObject<HTMLElement | null>;
   readonly stickIfOpenTimeout: Timeout;
+  readonly inlineRectCoordsRef: React.MutableRefObject<InlineRectCoords | undefined>;
 };
 
 function createInitialState<Payload>(): State<Payload> {
@@ -96,6 +98,7 @@ export class PopoverStore<Payload> extends ReactStore<
         beforeContentFocusGuardRef: React.createRef<HTMLElement>(),
         stickIfOpenTimeout: new Timeout(),
         triggerElements: new PopupTriggerMap(),
+        inlineRectCoordsRef: { current: undefined },
       },
       selectors,
     );
