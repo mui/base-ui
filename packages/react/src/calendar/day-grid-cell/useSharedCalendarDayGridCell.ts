@@ -8,7 +8,9 @@ import { useSharedCalendarDayGridBodyContext } from '../day-grid-body/SharedCale
 import { useSharedCalendarRootContext } from '../root/SharedCalendarRootContext';
 import { selectors } from '../store';
 
-export function useSharedCalendarDayGridCell(parameters: useSharedCalendarDayGridCell.Parameters) {
+export function useSharedCalendarDayGridCell(
+  parameters: UseSharedCalendarDayGridCellParameters,
+): UseSharedCalendarDayGridCellReturnValue {
   const { value } = parameters;
   const adapter = useTemporalAdapter();
   const store = useSharedCalendarRootContext();
@@ -40,19 +42,17 @@ export function useSharedCalendarDayGridCell(parameters: useSharedCalendarDayGri
   return { props, context };
 }
 
-export namespace useSharedCalendarDayGridCell {
-  export interface Parameters {
-    /**
-     * The value to select when this cell is clicked.
-     */
-    value: TemporalSupportedObject;
-  }
+export interface UseSharedCalendarDayGridCellParameters {
+  /**
+   * The value to select when this cell is clicked.
+   */
+  value: TemporalSupportedObject;
+}
 
-  export interface ReturnValue {
-    props: HTMLProps;
-    /**
-     * The context to expose to the children components.
-     */
-    context: SharedCalendarDayGridCellContext;
-  }
+export interface UseSharedCalendarDayGridCellReturnValue {
+  props: HTMLProps;
+  /**
+   * The context to expose to the children components.
+   */
+  context: SharedCalendarDayGridCellContext;
 }

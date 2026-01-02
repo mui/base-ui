@@ -40,24 +40,30 @@ export const CalendarDayGridRow = React.forwardRef(function CalendarDayGridRow(
   return element;
 });
 
-export namespace CalendarDayGridRow {
-  export interface State {}
+export interface CalendarDayGridRowState {}
 
-  export interface Props extends Omit<BaseUIComponentProps<'tr', State>, 'children'> {
-    /**
-     * The date object representing the week.
-     */
-    value: TemporalSupportedObject;
-    /**
-     * The children of the component.
-     * If a function is provided, it will be called for each day of the week as its parameter.
-     */
-    children?:
-      | React.ReactNode
-      | ((
-          day: TemporalSupportedObject,
-          index: number,
-          days: TemporalSupportedObject[],
-        ) => React.ReactNode);
-  }
+export interface CalendarDayGridRowProps extends Omit<
+  BaseUIComponentProps<'tr', CalendarDayGridRowState>,
+  'children'
+> {
+  /**
+   * The date object representing the week.
+   */
+  value: TemporalSupportedObject;
+  /**
+   * The children of the component.
+   * If a function is provided, it will be called for each day of the week as its parameter.
+   */
+  children?:
+    | React.ReactNode
+    | ((
+        day: TemporalSupportedObject,
+        index: number,
+        days: TemporalSupportedObject[],
+      ) => React.ReactNode);
+}
+
+export namespace CalendarDayGridRow {
+  export type State = CalendarDayGridRowState;
+  export type Props = CalendarDayGridRowProps;
 }

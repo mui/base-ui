@@ -23,8 +23,14 @@ export const CalendarDayGridHeader = React.forwardRef(function CalendarDayGridHe
   return element;
 });
 
-export namespace CalendarDayGridHeader {
-  export interface State {}
+export interface CalendarDayGridHeaderState {}
 
-  export interface Props extends BaseUIComponentProps<'thead', State> {}
+export interface CalendarDayGridHeaderProps extends BaseUIComponentProps<
+  'thead',
+  CalendarDayGridHeaderState
+> {}
+
+export namespace CalendarDayGridHeader {
+  export type State = CalendarDayGridHeaderState;
+  export type Props = CalendarDayGridHeaderProps;
 }

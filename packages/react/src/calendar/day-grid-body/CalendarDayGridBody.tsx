@@ -3,7 +3,10 @@ import * as React from 'react';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { SharedCalendarDayGridBodyContext } from './SharedCalendarDayGridBodyContext';
-import { useSharedCalendarDayGridBody } from './useSharedCalendarDayGridBody';
+import {
+  useSharedCalendarDayGridBody,
+  UseSharedCalendarDayGridBodyParameters,
+} from './useSharedCalendarDayGridBody';
 import { CompositeRoot } from '../../composite/root/CompositeRoot';
 
 /**
@@ -36,11 +39,14 @@ export const CalendarDayGridBody = React.forwardRef(function CalendarDayGridBody
   );
 });
 
-export namespace CalendarDayGridBody {
-  export interface State {}
+export interface CalendarDayGridBodyState {}
 
-  export interface Props
-    extends
-      Omit<BaseUIComponentProps<'tbody', State>, 'children'>,
-      useSharedCalendarDayGridBody.Parameters {}
+export interface CalendarDayGridBodyProps
+  extends
+    Omit<BaseUIComponentProps<'tbody', CalendarDayGridBodyState>, 'children'>,
+    UseSharedCalendarDayGridBodyParameters {}
+
+export namespace CalendarDayGridBody {
+  export type State = CalendarDayGridBodyState;
+  export type Props = CalendarDayGridBodyProps;
 }

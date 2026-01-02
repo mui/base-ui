@@ -167,18 +167,21 @@ export function CalendarViewport({ children }: CalendarViewport.Props): React.JS
   return childrenToRender;
 }
 
-export namespace CalendarViewport {
-  export interface Props {
-    /**
-     * The content to render inside the transition container.
-     */
-    children: React.JSX.Element;
-  }
+export interface CalendarViewportProps {
+  /**
+   * The content to render inside the transition container.
+   */
+  children: React.JSX.Element;
+}
 
-  export interface State {
-    /**
-     * Indicates the direction of the navigation (based on the month navigating to).
-     */
-    navigationDirection: CalendarNavigationDirection;
-  }
+export interface CalendarViewportState {
+  /**
+   * Indicates the direction of the navigation (based on the month navigating to).
+   */
+  navigationDirection: CalendarNavigationDirection;
+}
+
+export namespace CalendarViewport {
+  export type Props = CalendarViewportProps;
+  export type State = CalendarViewportState;
 }

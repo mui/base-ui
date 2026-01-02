@@ -42,20 +42,26 @@ export const CalendarDayGridHeaderRow = React.forwardRef(function CalendarDayGri
   return element;
 });
 
-export namespace CalendarDayGridHeaderRow {
-  export interface State {}
+export interface CalendarDayGridHeaderRowState {}
 
-  export interface Props extends Omit<BaseUIComponentProps<'tr', State>, 'children'> {
-    /**
-     * The children of the component.
-     * If a function is provided, it will be called for each day of the week as its parameter.
-     */
-    children?:
-      | React.ReactNode
-      | ((
-          day: TemporalSupportedObject,
-          index: number,
-          days: TemporalSupportedObject[],
-        ) => React.ReactNode);
-  }
+export interface CalendarDayGridHeaderRowProps extends Omit<
+  BaseUIComponentProps<'tr', CalendarDayGridHeaderRowState>,
+  'children'
+> {
+  /**
+   * The children of the component.
+   * If a function is provided, it will be called for each day of the week as its parameter.
+   */
+  children?:
+    | React.ReactNode
+    | ((
+        day: TemporalSupportedObject,
+        index: number,
+        days: TemporalSupportedObject[],
+      ) => React.ReactNode);
+}
+
+export namespace CalendarDayGridHeaderRow {
+  export type State = CalendarDayGridHeaderRowState;
+  export type Props = CalendarDayGridHeaderRowProps;
 }
