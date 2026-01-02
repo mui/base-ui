@@ -1292,6 +1292,70 @@ describe('<Menu.Root />', () => {
           expect(positioner.previousElementSibling).to.have.attribute('role', 'presentation');
         });
       });
+
+      describe('hover after click-close-delay', () => {
+        const { render: renderFakeTimers, clock } = createRenderer();
+
+        clock.withFakeTimers();
+
+        it('still opens on hover after closing via item click', async () => {
+          const menuHandle = new Menu.Handle();
+
+          await renderFakeTimers(
+            <div>
+              <Menu.Root handle={menuHandle}>
+                <Menu.Portal>
+                  <Menu.Positioner>
+                    <Menu.Popup>
+                      <Menu.Item>Item 1</Menu.Item>
+                    </Menu.Popup>
+                  </Menu.Positioner>
+                </Menu.Portal>
+              </Menu.Root>
+              <Menu.Trigger handle={menuHandle} openOnHover delay={50} closeDelay={200}>
+                Toggle
+              </Menu.Trigger>
+            </div>,
+          );
+
+          const trigger = screen.getByRole('button', { name: 'Toggle' });
+
+          fireEvent.mouseEnter(trigger);
+          fireEvent.mouseMove(trigger);
+
+          clock.tick(50);
+          await flushMicrotasks();
+          expect(screen.queryByRole('menu')).not.to.equal(null);
+
+          // Start close delay, then click before it completes.
+          fireEvent.mouseLeave(trigger);
+          clock.tick(100);
+
+          fireEvent.pointerDown(trigger, { pointerType: 'mouse' });
+          fireEvent.mouseDown(trigger);
+          fireEvent.mouseUp(trigger);
+          fireEvent.click(trigger);
+
+          const item = screen.getByRole('menuitem', { name: 'Item 1' });
+          fireEvent.pointerDown(item, { pointerType: 'mouse' });
+          fireEvent.click(item);
+
+          await flushMicrotasks();
+          expect(screen.queryByRole('menu')).to.equal(null);
+
+          expect(
+            menuHandle.store.select('floatingRootContext').context.dataRef.current.openEvent,
+          ).to.equal(undefined);
+
+          fireEvent.mouseEnter(trigger);
+          fireEvent.mouseMove(trigger);
+
+          clock.tick(50);
+          await flushMicrotasks();
+
+          expect(screen.queryByRole('menu')).not.to.equal(null);
+        });
+      });
     });
 
     describe('prop: closeDelay', () => {
