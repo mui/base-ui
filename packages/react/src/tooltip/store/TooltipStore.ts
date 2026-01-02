@@ -56,7 +56,7 @@ export class TooltipStore<Payload> extends ReactStore<
     );
   }
 
-  public setOpen = (
+  setOpen = (
     nextOpen: boolean,
     eventDetails: Omit<TooltipRoot.ChangeEventDetails, 'preventUnmountOnClose'>,
   ) => {
@@ -108,7 +108,7 @@ export class TooltipStore<Payload> extends ReactStore<
     }
   };
 
-  public static useStore<Payload>(
+  static useStore<Payload>(
     externalStore: TooltipStore<Payload> | undefined,
     initialState?: Partial<State<Payload>>,
   ) {
