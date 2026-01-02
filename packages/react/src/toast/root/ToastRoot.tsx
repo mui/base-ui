@@ -3,6 +3,7 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { ownerDocument } from '@base-ui/utils/owner';
 import { inertValue } from '@base-ui/utils/inertValue';
+import { useStore } from '@base-ui/utils/store';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { activeElement, contains, getTarget } from '../../floating-ui-react/utils';
@@ -16,6 +17,7 @@ import { StateAttributesMapping } from '../../utils/getStateAttributesProps';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { ToastRootCssVars } from './ToastRootCssVars';
+import { selectors } from '../store';
 
 const stateAttributesMapping: StateAttributesMapping<ToastRoot.State> = {
   ...transitionStatusMapping,
@@ -99,8 +101,7 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
 
   const swipeEnabled = swipeDirections.length > 0;
 
-  const { toasts, focused, close, remove, setToasts, pauseTimers, expanded, setHovering } =
-    useToastContext();
+  const store = useToastContext();
 
   const [currentSwipeDirection, setCurrentSwipeDirection] = React.useState<
     'up' | 'down' | 'left' | 'right' | undefined
@@ -127,21 +128,18 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
   const swipeCancelBaselineRef = React.useRef({ x: 0, y: 0 });
   const isFirstPointerMoveRef = React.useRef(false);
 
-  const domIndex = React.useMemo(() => toasts.indexOf(toast), [toast, toasts]);
-  const visibleIndex = React.useMemo(
-    () => toasts.filter((t) => t.transitionStatus !== 'ending').indexOf(toast),
-    [toast, toasts],
-  );
-  const offsetY = React.useMemo(() => {
-    return toasts.slice(0, toasts.indexOf(toast)).reduce((acc, t) => acc + (t.height || 0), 0);
-  }, [toasts, toast]);
+  const domIndex = useStore(store, selectors.toastIndex, toast.id);
+  const visibleIndex = useStore(store, selectors.toastVisibleIndex, toast.id);
+  const offsetY = useStore(store, selectors.toastOffsetY, toast.id);
+  const focused = useStore(store, selectors.focused);
+  const expanded = useStore(store, selectors.expanded);
 
   useOpenChangeComplete({
     open: toast.transitionStatus !== 'ending',
     ref: rootRef,
     onComplete() {
       if (toast.transitionStatus === 'ending') {
-        remove(toast.id);
+        store.removeToast(toast.id);
       }
     },
   });
@@ -163,18 +161,11 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
     element.style.height = previousHeight;
 
     function update() {
-      setToasts((prev) =>
-        prev.map((t) =>
-          t.id === toast.id
-            ? {
-                ...t,
-                ref: rootRef,
-                height,
-                transitionStatus: undefined,
-              }
-            : t,
-        ),
-      );
+      store.updateToast(toast.id, {
+        ref: rootRef,
+        height,
+        transitionStatus: undefined,
+      });
     }
 
     if (flushSync) {
@@ -227,7 +218,7 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
     }
 
     if (event.pointerType === 'touch') {
-      pauseTimers();
+      store.pauseTimers();
     }
 
     const target = getTarget(event.nativeEvent) as HTMLElement | null;
@@ -256,7 +247,7 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
       });
     }
 
-    setHovering(true);
+    store.setHovering(true);
     setIsSwiping(true);
     setIsRealSwipe(false);
     setLockedDirection(null);
@@ -442,7 +433,7 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
     if (shouldClose) {
       setCurrentSwipeDirection(dismissDirection);
       setDragDismissed(true);
-      close(toast.id);
+      store.closeToast(toast.id);
     } else {
       setDragOffset({ x: initialTransform.x, y: initialTransform.y });
       setCurrentSwipeDirection(undefined);
@@ -457,7 +448,7 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
       ) {
         return;
       }
-      close(toast.id);
+      store.closeToast(toast.id);
     }
   }
 
