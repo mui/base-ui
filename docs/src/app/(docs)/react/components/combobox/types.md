@@ -436,11 +436,11 @@ Renders a `<div>` element.
 | data-align      | `'start' \| 'center' \| 'end'`                                             | Indicates how the popup is aligned relative to specified side.        |
 | data-side       | `'top' \| 'bottom' \| 'left' \| 'right' \| 'inline-end' \| 'inline-start'` | Indicates which side the popup is positioned relative to the trigger. |
 
-### Arrow\.Props
+### Arrow.Props
 
 Re-export of [Arrow](#arrow) props.
 
-### Arrow\.State
+### Arrow.State
 
 ```typescript
 type ComboboxArrowState = { open: boolean; side: Side; align: Align; uncentered: boolean };
@@ -640,11 +640,11 @@ Renders a `<div>` element.
 | style     | `CSSProperties \| ((state: Combobox.Row.State) => CSSProperties \| undefined)`    | -       | -                                                                                                                                                                                             |
 | render    | `ReactElement \| ((props: HTMLProps, state: Combobox.Row.State) => ReactElement)` | -       | Allows you to replace the component’s HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
 
-### Row\.Props
+### Row.Props
 
 Re-export of [Row](#row) props.
 
-### Row\.State
+### Row.State
 
 ```typescript
 type ComboboxRowState = {};

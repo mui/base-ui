@@ -464,11 +464,11 @@ Renders a `<div>` element.
 | data-align      | `'start' \| 'center' \| 'end'`                                                       | Indicates how the popup is aligned relative to specified side.        |
 | data-side       | `'none' \| 'top' \| 'bottom' \| 'left' \| 'right' \| 'inline-end' \| 'inline-start'` | Indicates which side the popup is positioned relative to the trigger. |
 
-### Arrow\.Props
+### Arrow.Props
 
 Re-export of [Arrow](#arrow) props.
 
-### Arrow\.State
+### Arrow.State
 
 ```typescript
 type SelectArrowState = { open: boolean; side: 'none' | Side; align: Align; uncentered: boolean };
@@ -658,11 +658,11 @@ Renders a `<div>` element.
 | data-starting-style | -                                                                                    | Present when the scroll arrow is animating in.                        |
 | data-ending-style   | -                                                                                    | Present when the scroll arrow is animating out.                       |
 
-### ScrollUpArrow\.Props
+### ScrollUpArrow.Props
 
 Re-export of [ScrollUpArrow](#scrolluparrow) props.
 
-### ScrollUpArrow\.State
+### ScrollUpArrow.State
 
 ```typescript
 type SelectScrollUpArrowState = {};
@@ -692,11 +692,11 @@ Renders a `<div>` element.
 | data-starting-style | -                                                                                    | Present when the scroll arrow is animating in.                        |
 | data-ending-style   | -                                                                                    | Present when the scroll arrow is animating out.                       |
 
-### ScrollDownArrow\.Props
+### ScrollDownArrow.Props
 
 Re-export of [ScrollDownArrow](#scrolldownarrow) props.
 
-### ScrollDownArrow\.State
+### ScrollDownArrow.State
 
 ```typescript
 type SelectScrollDownArrowState = {};

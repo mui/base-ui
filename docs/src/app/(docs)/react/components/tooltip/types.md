@@ -339,11 +339,11 @@ Renders a `<div>` element.
 | data-instant    | `'delay' \| 'dismiss' \| 'focus'`                                          | Present if animations should be instant.                              |
 | data-side       | `'top' \| 'bottom' \| 'left' \| 'right' \| 'inline-end' \| 'inline-start'` | Indicates which side the popup is positioned relative to the trigger. |
 
-### Arrow\.Props
+### Arrow.Props
 
 Re-export of [Arrow](#arrow) props.
 
-### Arrow\.State
+### Arrow.State
 
 ```typescript
 type TooltipArrowState = { open: boolean; side: Side; align: Align; uncentered: boolean };

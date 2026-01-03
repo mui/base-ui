@@ -144,7 +144,7 @@ type CheckboxIndicatorState = {
 };
 ```
 
-### PARENT\_CHECKBOX
+### PARENT_CHECKBOX
 
 ```typescript
 'data-parent';

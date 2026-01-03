@@ -417,11 +417,11 @@ Renders a `<div>` element.
 | data-align      | `'start' \| 'center' \| 'end'`                                             | Indicates how the popup is aligned relative to specified side.        |
 | data-side       | `'top' \| 'bottom' \| 'left' \| 'right' \| 'inline-end' \| 'inline-start'` | Indicates which side the popup is positioned relative to the trigger. |
 
-### Arrow\.Props
+### Arrow.Props
 
 Re-export of [Arrow](#arrow) props.
 
-### Arrow\.State
+### Arrow.State
 
 ```typescript
 type MenuArrowState = { open: boolean; side: Side; align: Align; uncentered: boolean };

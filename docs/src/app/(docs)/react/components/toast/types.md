@@ -196,11 +196,11 @@ Renders a `<div>` element.
 | data-align      | `'start' \| 'center' \| 'end'`                                             | Indicates how the toast is aligned relative to specified side.       |
 | data-side       | `'top' \| 'bottom' \| 'left' \| 'right' \| 'inline-end' \| 'inline-start'` | Indicates which side the toast is positioned relative to the anchor. |
 
-### Arrow\.Props
+### Arrow.Props
 
 Re-export of [Arrow](#arrow) props.
 
-### Arrow\.State
+### Arrow.State
 
 ```typescript
 type ToastArrowState = { side: Side; align: Align; uncentered: boolean };
