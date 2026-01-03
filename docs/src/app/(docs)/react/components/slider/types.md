@@ -40,8 +40,6 @@ Renders a `<div>` element.
 | data-dragging    | -                            | Present while the user is dragging.                                       |
 | data-orientation | `'horizontal' \| 'vertical'` | Indicates the orientation of the slider.                                  |
 | data-disabled    | -                            | Present when the slider is disabled.                                      |
-| data-readonly    | -                            | Present when the slider is readonly.                                      |
-| data-required    | -                            | Present when the slider is required.                                      |
 | data-valid       | -                            | Present when the slider is in valid state (when wrapped in Field.Root).   |
 | data-invalid     | -                            | Present when the slider is in invalid state (when wrapped in Field.Root). |
 | data-dirty       | -                            | Present when the slider's value has changed (when wrapped in Field.Root). |
@@ -134,8 +132,6 @@ Renders an `<output>` element.
 | data-dragging    | -                            | Present while the user is dragging.                                       |
 | data-orientation | `'horizontal' \| 'vertical'` | Indicates the orientation of the slider.                                  |
 | data-disabled    | -                            | Present when the slider is disabled.                                      |
-| data-readonly    | -                            | Present when the slider is readonly.                                      |
-| data-required    | -                            | Present when the slider is required.                                      |
 | data-valid       | -                            | Present when the slider is in valid state (when wrapped in Field.Root).   |
 | data-invalid     | -                            | Present when the slider is in invalid state (when wrapped in Field.Root). |
 | data-dirty       | -                            | Present when the slider's value has changed (when wrapped in Field.Root). |
@@ -166,8 +162,6 @@ Renders a `<div>` element.
 | data-dragging    | -                            | Present while the user is dragging.                                       |
 | data-orientation | `'horizontal' \| 'vertical'` | Indicates the orientation of the slider.                                  |
 | data-disabled    | -                            | Present when the slider is disabled.                                      |
-| data-readonly    | -                            | Present when the slider is readonly.                                      |
-| data-required    | -                            | Present when the slider is required.                                      |
 | data-valid       | -                            | Present when the slider is in valid state (when wrapped in Field.Root).   |
 | data-invalid     | -                            | Present when the slider is in invalid state (when wrapped in Field.Root). |
 | data-dirty       | -                            | Present when the slider's value has changed (when wrapped in Field.Root). |
@@ -198,8 +192,6 @@ Renders a `<div>` element.
 | data-dragging    | -                            | Present while the user is dragging.                                       |
 | data-orientation | `'horizontal' \| 'vertical'` | Indicates the orientation of the slider.                                  |
 | data-disabled    | -                            | Present when the slider is disabled.                                      |
-| data-readonly    | -                            | Present when the slider is readonly.                                      |
-| data-required    | -                            | Present when the slider is required.                                      |
 | data-valid       | -                            | Present when the slider is in valid state (when wrapped in Field.Root).   |
 | data-invalid     | -                            | Present when the slider is in invalid state (when wrapped in Field.Root). |
 | data-dirty       | -                            | Present when the slider's value has changed (when wrapped in Field.Root). |
@@ -238,8 +230,6 @@ Renders a `<div>` element and a nested `<input type="range">`.
 | data-dragging    | -                            | Present while the user is dragging.                                       |
 | data-orientation | `'horizontal' \| 'vertical'` | Indicates the orientation of the slider.                                  |
 | data-disabled    | -                            | Present when the slider is disabled.                                      |
-| data-readonly    | -                            | Present when the slider is readonly.                                      |
-| data-required    | -                            | Present when the slider is required.                                      |
 | data-valid       | -                            | Present when the slider is in valid state (when wrapped in Field.Root).   |
 | data-invalid     | -                            | Present when the slider is in invalid state (when wrapped in Field.Root). |
 | data-dirty       | -                            | Present when the slider's value has changed (when wrapped in Field.Root). |
@@ -292,8 +282,6 @@ Renders a `<div>` element.
 | data-dragging    | -                            | Present while the user is dragging.                                       |
 | data-orientation | `'horizontal' \| 'vertical'` | Indicates the orientation of the slider.                                  |
 | data-disabled    | -                            | Present when the slider is disabled.                                      |
-| data-readonly    | -                            | Present when the slider is readonly.                                      |
-| data-required    | -                            | Present when the slider is required.                                      |
 | data-valid       | -                            | Present when the slider is in valid state (when wrapped in Field.Root).   |
 | data-invalid     | -                            | Present when the slider is in invalid state (when wrapped in Field.Root). |
 | data-dirty       | -                            | Present when the slider's value has changed (when wrapped in Field.Root). |

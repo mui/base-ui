@@ -263,7 +263,7 @@ describe('<Combobox.Input />', () => {
 
       expect(input).to.have.attribute('disabled');
       expect(chip).to.have.attribute('aria-disabled', 'true');
-      expect(remove).to.have.attribute('disabled');
+      expect(remove).to.have.attribute('aria-disabled', 'true');
 
       await user.type(input, '{backspace}');
       expect(screen.getByTestId('chip')).not.to.equal(null);
