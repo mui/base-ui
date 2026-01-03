@@ -1,7 +1,9 @@
 'use client';
 import * as React from 'react';
-import type { BaseUIComponentProps, Orientation } from '../utils/types';
+import type { BaseUIComponentProps, Orientation as BaseOrientation } from '../utils/types';
 import { useRenderElement } from '../utils/useRenderElement';
+
+export type SeparatorOrientation = BaseOrientation;
 
 /**
  * A separator element accessible to screen readers.
@@ -31,17 +33,18 @@ export interface SeparatorProps extends BaseUIComponentProps<'div', Separator.St
    * The orientation of the separator.
    * @default 'horizontal'
    */
-  orientation?: Orientation;
+  orientation?: Separator.Orientation;
 }
 
 export interface SeparatorState {
   /**
    * The orientation of the separator.
    */
-  orientation: Orientation;
+  orientation: Separator.Orientation;
 }
 
 export namespace Separator {
   export type Props = SeparatorProps;
   export type State = SeparatorState;
+  export type Orientation = SeparatorOrientation;
 }

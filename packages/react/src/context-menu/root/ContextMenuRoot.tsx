@@ -64,6 +64,7 @@ export interface ContextMenuRootProps extends Omit<
   onOpenChange?: (open: boolean, eventDetails: ContextMenuRoot.ChangeEventDetails) => void;
 }
 
+export type ContextMenuRootActions = MenuRoot.Actions;
 export type ContextMenuRootChangeEventReason = MenuRoot.ChangeEventReason;
 export type ContextMenuRootChangeEventDetails =
   BaseUIChangeEventDetails<ContextMenuRoot.ChangeEventReason>;
@@ -71,6 +72,7 @@ export type ContextMenuRootChangeEventDetails =
 export namespace ContextMenuRoot {
   export type State = ContextMenuRootState;
   export type Props = ContextMenuRootProps;
+  export type Actions = ContextMenuRootActions;
   export type ChangeEventReason = ContextMenuRootChangeEventReason;
   export type ChangeEventDetails = ContextMenuRootChangeEventDetails;
 }
