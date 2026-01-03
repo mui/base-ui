@@ -22,6 +22,7 @@ export const DialogPortal = React.forwardRef(function DialogPortal(
   const { store } = useDialogRootContext();
   const mounted = store.useState('mounted');
   const modal = store.useState('modal');
+  const open = store.useState('open');
 
   const shouldRender = mounted || keepMounted;
   if (!shouldRender) {
