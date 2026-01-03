@@ -564,9 +564,7 @@ type createToastManager = () => {
             };
             data?: {};
           }
-        | ((
-            result: Value,
-          ) =>
+        | ((result: Value) =>
             | string
             | {
                 id?: string;
@@ -614,9 +612,7 @@ type createToastManager = () => {
             };
             data?: {};
           }
-        | ((
-            error: any,
-          ) =>
+        | ((error: any) =>
             | string
             | {
                 id?: string;
@@ -858,9 +854,7 @@ type useToastManager = () => {
             };
             data?: {};
           }
-        | ((
-            result: Value,
-          ) =>
+        | ((result: Value) =>
             | string
             | {
                 id?: string;
@@ -908,9 +902,7 @@ type useToastManager = () => {
             };
             data?: {};
           }
-        | ((
-            error: any,
-          ) =>
+        | ((error: any) =>
             | string
             | {
                 id?: string;
@@ -1180,9 +1172,7 @@ type UseToastManagerReturnValue = {
             };
             data?: {};
           }
-        | ((
-            result: Value,
-          ) =>
+        | ((result: Value) =>
             | string
             | {
                 id?: string;
@@ -1246,9 +1236,7 @@ type UseToastManagerReturnValue = {
             };
             data?: {};
           }
-        | ((
-            error: any,
-          ) =>
+        | ((error: any) =>
             | string
             | {
                 id?: string;
@@ -1477,9 +1465,7 @@ type ToastManager = {
             };
             data?: {};
           }
-        | ((
-            result: Value,
-          ) =>
+        | ((result: Value) =>
             | string
             | {
                 id?: string;
@@ -1543,9 +1529,7 @@ type ToastManager = {
             };
             data?: {};
           }
-        | ((
-            error: any,
-          ) =>
+        | ((error: any) =>
             | string
             | {
                 id?: string;
@@ -1813,9 +1797,7 @@ type ToastManagerPromiseOptions = {
         };
         data?: {};
       }
-    | ((
-        result: Value,
-      ) =>
+    | ((result: Value) =>
         | string
         | {
             id?: string;
@@ -1906,9 +1888,7 @@ type ToastManagerPromiseOptions = {
         };
         data?: {};
       }
-    | ((
-        error: any,
-      ) =>
+    | ((error: any) =>
         | string
         | {
             id?: string;
