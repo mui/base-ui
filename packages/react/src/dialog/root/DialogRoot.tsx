@@ -11,7 +11,7 @@ import { type PayloadChildRenderFunction } from '../../utils/popups';
 
 /**
  * Groups all parts of the dialog.
- * Doesn’t render its own HTML element.
+ * Doesn't render its own HTML element.
  *
  * Documentation: [Base UI Dialog](https://base-ui.com/react/components/dialog)
  */

@@ -15,9 +15,9 @@ Renders a `<div>` element.
 | :------------- | :------------------------------------------------------------------------------- | :------------------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | swipeDirection | `'left' \| 'right' \| 'up' \| 'down' \| ('left' \| 'right' \| 'up' \| 'down')[]` | `['down', 'right']` | Direction(s) in which the toast can be swiped to dismiss.                                                                                                                                     |
 | toast          | `Toast.Root.ToastObject<any>`                                                    | -                   | The toast to render.                                                                                                                                                                          |
-| className      | `string \| ((state: Toast.Root.State) => string \| undefined)`                   | -                   | CSS class applied to the element, or a function that&#xA;returns a class based on the component’s state.                                                                                      |
+| className      | `string \| ((state: Toast.Root.State) => string \| undefined)`                   | -                   | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
 | style          | `CSSProperties \| ((state: Toast.Root.State) => CSSProperties \| undefined)`     | -                   | -                                                                                                                                                                                             |
-| render         | `ReactElement \| ((props: HTMLProps, state: Toast.Root.State) => ReactElement)`  | -                   | Allows you to replace the component’s HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
+| render         | `ReactElement \| ((props: HTMLProps, state: Toast.Root.State) => ReactElement)`  | -                   | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
 
 **Root Data Attributes:**
 
@@ -113,9 +113,9 @@ Renders a `<div>` element.
 | Prop      | Type                                                                                | Default | Description                                                                                                                                                                                   |
 | :-------- | :---------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | container | `HTMLElement \| ShadowRoot \| RefObject<HTMLElement \| ShadowRoot \| null> \| null` | -       | A parent element to render the portal element into.                                                                                                                                           |
-| className | `string \| ((state: any) => string \| undefined)`                                   | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component’s state.                                                                                      |
+| className | `string \| ((state: any) => string \| undefined)`                                   | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
 | style     | `CSSProperties \| ((state: any) => CSSProperties \| undefined)`                     | -       | -                                                                                                                                                                                             |
-| render    | `ReactElement \| ((props: HTMLProps, state: any) => ReactElement)`                  | -       | Allows you to replace the component’s HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
+| render    | `ReactElement \| ((props: HTMLProps, state: any) => ReactElement)`                  | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
 
 ### Portal.Props
 
@@ -143,9 +143,9 @@ Renders a `<div>` element.
 | collisionPadding      | `Padding`                                                                             | `5`                    | Additional space to maintain from the edge of the collision boundary.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
 | sticky                | `boolean`                                                                             | `false`                | Whether to maintain the popup in the viewport after&#xA;the anchor element was scrolled out of view.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
 | positionMethod        | `'absolute' \| 'fixed'`                                                               | `'absolute'`           | Determines which CSS `position` property to use.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
-| className             | `string \| ((state: Toast.Positioner.State) => string \| undefined)`                  | -                      | CSS class applied to the element, or a function that&#xA;returns a class based on the component’s state.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| className             | `string \| ((state: Toast.Positioner.State) => string \| undefined)`                  | -                      | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
 | style                 | `CSSProperties \| ((state: Toast.Positioner.State) => CSSProperties \| undefined)`    | -                      | -                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
-| render                | `ReactElement \| ((props: HTMLProps, state: Toast.Positioner.State) => ReactElement)` | -                      | Allows you to replace the component’s HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render.                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| render                | `ReactElement \| ((props: HTMLProps, state: Toast.Positioner.State) => ReactElement)` | -                      | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render.                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
 
 **Positioner Data Attributes:**
 
@@ -184,9 +184,9 @@ Renders a `<div>` element.
 
 | Prop      | Type                                                                             | Default | Description                                                                                                                                                                                   |
 | :-------- | :------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| className | `string \| ((state: Toast.Arrow.State) => string \| undefined)`                  | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component’s state.                                                                                      |
+| className | `string \| ((state: Toast.Arrow.State) => string \| undefined)`                  | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
 | style     | `CSSProperties \| ((state: Toast.Arrow.State) => CSSProperties \| undefined)`    | -       | -                                                                                                                                                                                             |
-| render    | `ReactElement \| ((props: HTMLProps, state: Toast.Arrow.State) => ReactElement)` | -       | Allows you to replace the component’s HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
+| render    | `ReactElement \| ((props: HTMLProps, state: Toast.Arrow.State) => ReactElement)` | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
 
 **Arrow Data Attributes:**
 
@@ -215,9 +215,9 @@ Renders a `<div>` element.
 
 | Prop      | Type                                                                               | Default | Description                                                                                                                                                                                   |
 | :-------- | :--------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| className | `string \| ((state: Toast.Content.State) => string \| undefined)`                  | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component’s state.                                                                                      |
+| className | `string \| ((state: Toast.Content.State) => string \| undefined)`                  | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
 | style     | `CSSProperties \| ((state: Toast.Content.State) => CSSProperties \| undefined)`    | -       | -                                                                                                                                                                                             |
-| render    | `ReactElement \| ((props: HTMLProps, state: Toast.Content.State) => ReactElement)` | -       | Allows you to replace the component’s HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
+| render    | `ReactElement \| ((props: HTMLProps, state: Toast.Content.State) => ReactElement)` | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
 
 **Content Data Attributes:**
 
@@ -245,9 +245,9 @@ Renders an `<h2>` element.
 
 | Prop      | Type                                                                             | Default | Description                                                                                                                                                                                   |
 | :-------- | :------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| className | `string \| ((state: Toast.Title.State) => string \| undefined)`                  | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component’s state.                                                                                      |
+| className | `string \| ((state: Toast.Title.State) => string \| undefined)`                  | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
 | style     | `CSSProperties \| ((state: Toast.Title.State) => CSSProperties \| undefined)`    | -       | -                                                                                                                                                                                             |
-| render    | `ReactElement \| ((props: HTMLProps, state: Toast.Title.State) => ReactElement)` | -       | Allows you to replace the component’s HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
+| render    | `ReactElement \| ((props: HTMLProps, state: Toast.Title.State) => ReactElement)` | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
 
 **Title Data Attributes:**
 
@@ -275,9 +275,9 @@ Renders a `<p>` element.
 
 | Prop      | Type                                                                                   | Default | Description                                                                                                                                                                                   |
 | :-------- | :------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| className | `string \| ((state: Toast.Description.State) => string \| undefined)`                  | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component’s state.                                                                                      |
+| className | `string \| ((state: Toast.Description.State) => string \| undefined)`                  | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
 | style     | `CSSProperties \| ((state: Toast.Description.State) => CSSProperties \| undefined)`    | -       | -                                                                                                                                                                                             |
-| render    | `ReactElement \| ((props: HTMLProps, state: Toast.Description.State) => ReactElement)` | -       | Allows you to replace the component’s HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
+| render    | `ReactElement \| ((props: HTMLProps, state: Toast.Description.State) => ReactElement)` | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
 
 **Description Data Attributes:**
 
@@ -305,9 +305,9 @@ Renders a `<button>` element.
 | Prop         | Type                                                                             | Default | Description                                                                                                                                                                                   |
 | :----------- | :------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | nativeButton | `boolean`                                                                        | `true`  | Whether the component renders a native `<button>` element when replacing it&#xA;via the `render` prop.&#xA;Set to `false` if the rendered element is not a button (e.g. `<div>`).             |
-| className    | `string \| ((state: Toast.Close.State) => string \| undefined)`                  | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component’s state.                                                                                      |
+| className    | `string \| ((state: Toast.Close.State) => string \| undefined)`                  | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
 | style        | `CSSProperties \| ((state: Toast.Close.State) => CSSProperties \| undefined)`    | -       | -                                                                                                                                                                                             |
-| render       | `ReactElement \| ((props: HTMLProps, state: Toast.Close.State) => ReactElement)` | -       | Allows you to replace the component’s HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
+| render       | `ReactElement \| ((props: HTMLProps, state: Toast.Close.State) => ReactElement)` | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
 
 **Close Data Attributes:**
 
@@ -335,9 +335,9 @@ Renders a `<button>` element.
 | Prop         | Type                                                                              | Default | Description                                                                                                                                                                                   |
 | :----------- | :-------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | nativeButton | `boolean`                                                                         | `true`  | Whether the component renders a native `<button>` element when replacing it&#xA;via the `render` prop.&#xA;Set to `false` if the rendered element is not a button (e.g. `<div>`).             |
-| className    | `string \| ((state: Toast.Action.State) => string \| undefined)`                  | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component’s state.                                                                                      |
+| className    | `string \| ((state: Toast.Action.State) => string \| undefined)`                  | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
 | style        | `CSSProperties \| ((state: Toast.Action.State) => CSSProperties \| undefined)`    | -       | -                                                                                                                                                                                             |
-| render       | `ReactElement \| ((props: HTMLProps, state: Toast.Action.State) => ReactElement)` | -       | Allows you to replace the component’s HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
+| render       | `ReactElement \| ((props: HTMLProps, state: Toast.Action.State) => ReactElement)` | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
 
 **Action Data Attributes:**
 
@@ -364,9 +364,9 @@ Renders a `<div>` element.
 
 | Prop      | Type                                                                                | Default | Description                                                                                                                                                                                   |
 | :-------- | :---------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| className | `string \| ((state: Toast.Viewport.State) => string \| undefined)`                  | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component’s state.                                                                                      |
+| className | `string \| ((state: Toast.Viewport.State) => string \| undefined)`                  | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
 | style     | `CSSProperties \| ((state: Toast.Viewport.State) => CSSProperties \| undefined)`    | -       | -                                                                                                                                                                                             |
-| render    | `ReactElement \| ((props: HTMLProps, state: Toast.Viewport.State) => ReactElement)` | -       | Allows you to replace the component’s HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
+| render    | `ReactElement \| ((props: HTMLProps, state: Toast.Viewport.State) => ReactElement)` | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
 
 **Viewport Data Attributes:**
 
@@ -564,7 +564,9 @@ type createToastManager = () => {
             };
             data?: {};
           }
-        | ((result: Value) =>
+        | ((
+            result: Value,
+          ) =>
             | string
             | {
                 id?: string;
@@ -612,7 +614,9 @@ type createToastManager = () => {
             };
             data?: {};
           }
-        | ((error: any) =>
+        | ((
+            error: any,
+          ) =>
             | string
             | {
                 id?: string;
@@ -854,7 +858,9 @@ type useToastManager = () => {
             };
             data?: {};
           }
-        | ((result: Value) =>
+        | ((
+            result: Value,
+          ) =>
             | string
             | {
                 id?: string;
@@ -902,7 +908,9 @@ type useToastManager = () => {
             };
             data?: {};
           }
-        | ((error: any) =>
+        | ((
+            error: any,
+          ) =>
             | string
             | {
                 id?: string;
@@ -1172,7 +1180,9 @@ type UseToastManagerReturnValue = {
             };
             data?: {};
           }
-        | ((result: Value) =>
+        | ((
+            result: Value,
+          ) =>
             | string
             | {
                 id?: string;
@@ -1236,7 +1246,9 @@ type UseToastManagerReturnValue = {
             };
             data?: {};
           }
-        | ((error: any) =>
+        | ((
+            error: any,
+          ) =>
             | string
             | {
                 id?: string;
@@ -1465,7 +1477,9 @@ type ToastManager = {
             };
             data?: {};
           }
-        | ((result: Value) =>
+        | ((
+            result: Value,
+          ) =>
             | string
             | {
                 id?: string;
@@ -1529,7 +1543,9 @@ type ToastManager = {
             };
             data?: {};
           }
-        | ((error: any) =>
+        | ((
+            error: any,
+          ) =>
             | string
             | {
                 id?: string;
@@ -1797,7 +1813,9 @@ type ToastManagerPromiseOptions = {
         };
         data?: {};
       }
-    | ((result: Value) =>
+    | ((
+        result: Value,
+      ) =>
         | string
         | {
             id?: string;
@@ -1888,7 +1906,9 @@ type ToastManagerPromiseOptions = {
         };
         data?: {};
       }
-    | ((error: any) =>
+    | ((
+        error: any,
+      ) =>
         | string
         | {
             id?: string;

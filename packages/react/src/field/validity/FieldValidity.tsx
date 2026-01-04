@@ -5,7 +5,7 @@ import { getCombinedFieldValidityData } from '../utils/getCombinedFieldValidityD
 import { FieldValidityData } from '../root/FieldRoot';
 
 /**
- * Used to display a custom message based on the field’s validity.
+ * Used to display a custom message based on the field's validity.
  * Requires `children` to be a function that accepts field validity state as an argument.
  *
  * Documentation: [Base UI Field](https://base-ui.com/react/components/field)

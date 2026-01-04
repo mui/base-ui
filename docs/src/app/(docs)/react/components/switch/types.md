@@ -24,9 +24,9 @@ Renders a `<span>` element and a hidden `<input>` beside.
 | required        | `boolean`                                                                        | `false` | Whether the user must activate the switch before submitting a form.                                                                                                                           |
 | inputRef        | `Ref<HTMLInputElement>`                                                          | -       | A ref to access the hidden `<input>` element.                                                                                                                                                 |
 | id              | `string`                                                                         | -       | The id of the switch element.                                                                                                                                                                 |
-| className       | `string \| ((state: Switch.Root.State) => string \| undefined)`                  | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component’s state.                                                                                      |
+| className       | `string \| ((state: Switch.Root.State) => string \| undefined)`                  | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
 | style           | `CSSProperties \| ((state: Switch.Root.State) => CSSProperties \| undefined)`    | -       | -                                                                                                                                                                                             |
-| render          | `ReactElement \| ((props: HTMLProps, state: Switch.Root.State) => ReactElement)` | -       | Allows you to replace the component’s HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
+| render          | `ReactElement \| ((props: HTMLProps, state: Switch.Root.State) => ReactElement)` | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
 
 **Root Data Attributes:**
 
@@ -93,9 +93,9 @@ Renders a `<span>`.
 
 | Prop      | Type                                                                              | Default | Description                                                                                                                                                                                   |
 | :-------- | :-------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| className | `string \| ((state: Switch.Thumb.State) => string \| undefined)`                  | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component’s state.                                                                                      |
+| className | `string \| ((state: Switch.Thumb.State) => string \| undefined)`                  | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
 | style     | `CSSProperties \| ((state: Switch.Thumb.State) => CSSProperties \| undefined)`    | -       | -                                                                                                                                                                                             |
-| render    | `ReactElement \| ((props: HTMLProps, state: Switch.Thumb.State) => ReactElement)` | -       | Allows you to replace the component’s HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
+| render    | `ReactElement \| ((props: HTMLProps, state: Switch.Thumb.State) => ReactElement)` | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
 
 **Thumb Data Attributes:**
 

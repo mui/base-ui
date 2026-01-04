@@ -47,7 +47,7 @@ import { useMenuSubmenuRootContext } from '../submenu-root/MenuSubmenuRootContex
 
 /**
  * Groups all parts of the menu.
- * Doesn’t render its own HTML element.
+ * Doesn't render its own HTML element.
  *
  * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
  */

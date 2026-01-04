@@ -20,9 +20,9 @@ Renders a `<div>` element.
 | min              | `number`                                                                           | `0`     | The minimum value.                                                                                                                                                                            |
 | max              | `number`                                                                           | `100`   | The maximum value.                                                                                                                                                                            |
 | format           | `IntlNumberFormatOptions`                                                          | -       | Options to format the value.                                                                                                                                                                  |
-| className        | `string \| ((state: Progress.Root.State) => string \| undefined)`                  | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component’s state.                                                                                      |
+| className        | `string \| ((state: Progress.Root.State) => string \| undefined)`                  | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
 | style            | `CSSProperties \| ((state: Progress.Root.State) => CSSProperties \| undefined)`    | -       | -                                                                                                                                                                                             |
-| render           | `ReactElement \| ((props: HTMLProps, state: Progress.Root.State) => ReactElement)` | -       | Allows you to replace the component’s HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
+| render           | `ReactElement \| ((props: HTMLProps, state: Progress.Root.State) => ReactElement)` | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
 
 **Root Data Attributes:**
 
@@ -58,9 +58,9 @@ Renders a `<span>` element.
 | Prop      | Type                                                                               | Default | Description                                                                                                                                                                                   |
 | :-------- | :--------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | children  | `((formattedValue: string \| null, value: number \| null) => ReactNode) \| null`   | -       | -                                                                                                                                                                                             |
-| className | `string \| ((state: Progress.Root.State) => string \| undefined)`                  | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component’s state.                                                                                      |
+| className | `string \| ((state: Progress.Root.State) => string \| undefined)`                  | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
 | style     | `CSSProperties \| ((state: Progress.Root.State) => CSSProperties \| undefined)`    | -       | -                                                                                                                                                                                             |
-| render    | `ReactElement \| ((props: HTMLProps, state: Progress.Root.State) => ReactElement)` | -       | Allows you to replace the component’s HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
+| render    | `ReactElement \| ((props: HTMLProps, state: Progress.Root.State) => ReactElement)` | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
 
 **Value Data Attributes:**
 
@@ -83,9 +83,9 @@ Renders a `<div>` element.
 
 | Prop      | Type                                                                               | Default | Description                                                                                                                                                                                   |
 | :-------- | :--------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| className | `string \| ((state: Progress.Root.State) => string \| undefined)`                  | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component’s state.                                                                                      |
+| className | `string \| ((state: Progress.Root.State) => string \| undefined)`                  | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
 | style     | `CSSProperties \| ((state: Progress.Root.State) => CSSProperties \| undefined)`    | -       | -                                                                                                                                                                                             |
-| render    | `ReactElement \| ((props: HTMLProps, state: Progress.Root.State) => ReactElement)` | -       | Allows you to replace the component’s HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
+| render    | `ReactElement \| ((props: HTMLProps, state: Progress.Root.State) => ReactElement)` | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
 
 **Indicator Data Attributes:**
 
@@ -108,9 +108,9 @@ Renders a `<div>` element.
 
 | Prop      | Type                                                                               | Default | Description                                                                                                                                                                                   |
 | :-------- | :--------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| className | `string \| ((state: Progress.Root.State) => string \| undefined)`                  | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component’s state.                                                                                      |
+| className | `string \| ((state: Progress.Root.State) => string \| undefined)`                  | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
 | style     | `CSSProperties \| ((state: Progress.Root.State) => CSSProperties \| undefined)`    | -       | -                                                                                                                                                                                             |
-| render    | `ReactElement \| ((props: HTMLProps, state: Progress.Root.State) => ReactElement)` | -       | Allows you to replace the component’s HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
+| render    | `ReactElement \| ((props: HTMLProps, state: Progress.Root.State) => ReactElement)` | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
 
 **Track Data Attributes:**
 
@@ -133,9 +133,9 @@ Renders a `<span>` element.
 
 | Prop      | Type                                                                               | Default | Description                                                                                                                                                                                   |
 | :-------- | :--------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| className | `string \| ((state: Progress.Root.State) => string \| undefined)`                  | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component’s state.                                                                                      |
+| className | `string \| ((state: Progress.Root.State) => string \| undefined)`                  | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
 | style     | `CSSProperties \| ((state: Progress.Root.State) => CSSProperties \| undefined)`    | -       | -                                                                                                                                                                                             |
-| render    | `ReactElement \| ((props: HTMLProps, state: Progress.Root.State) => ReactElement)` | -       | Allows you to replace the component’s HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
+| render    | `ReactElement \| ((props: HTMLProps, state: Progress.Root.State) => ReactElement)` | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
 
 **Label Data Attributes:**
 

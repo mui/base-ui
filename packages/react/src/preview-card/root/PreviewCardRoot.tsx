@@ -20,7 +20,7 @@ import { useTransitionStatus } from '../../utils/useTransitionStatus';
 
 /**
  * Groups all parts of the preview card.
- * Doesn’t render its own HTML element.
+ * Doesn't render its own HTML element.
  *
  * Documentation: [Base UI Preview Card](https://base-ui.com/react/components/preview-card)
  */

@@ -18,7 +18,7 @@ import { REASONS } from '../../utils/reasons';
 
 /**
  * Groups all parts of the tooltip.
- * Doesn’t render its own HTML element.
+ * Doesn't render its own HTML element.
  *
  * Documentation: [Base UI Tooltip](https://base-ui.com/react/components/tooltip)
  */
