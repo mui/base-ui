@@ -10,6 +10,18 @@ import { DemoPopoverHero } from './demos/hero';
 
 <DemoPopoverHero />
 
+## Description
+
+A Popover is a non-modal dialog that floats around a trigger element. It is used to display rich content, such as forms or navigation menus, that relates to the trigger.
+
+Unlike a [Tooltip](/react/components/tooltip), which is used for brief helper text, a Popover can contain interactive elements and is typically triggered by a click rather than a hover.
+
+## Use cases
+
+-   **User Profiles**: Displaying user details and actions in a dropdown.
+-   **Filters**: Showing complex filter options for a data table.
+-   **Feature Tours**: Providing detailed context about a new feature.
+
 ## Anatomy
 
 Import the component and assemble its parts:
@@ -34,6 +46,20 @@ import { Popover } from '@base-ui/react/popover';
   </Popover.Portal>
 </Popover.Root>;
 ```
+
+### Parts description
+
+-   `Popover.Root`: The state provider for the popover.
+-   `Popover.Trigger`: The button that opens the popover.
+-   `Popover.Portal`: Portals the popover content to the `body` to avoid clipping issues.
+-   `Popover.Backdrop`: An overlay behind the popover (optional).
+-   `Popover.Positioner`: Handles the positioning logic relative to the trigger.
+-   `Popover.Popup`: The container for the popover content.
+-   `Popover.Arrow`: A visual arrow pointing to the trigger.
+-   `Popover.Viewport`: Optional wrapper for animating interactions.
+-   `Popover.Title`: An accessible heading for the popover.
+-   `Popover.Description`: An accessible description for the popover.
+-   `Popover.Close`: A button to close the popover.
 
 ## Examples
 
@@ -179,6 +205,25 @@ You can use these attributes to style the enter and exit animations.
 import { DemoPopoverDetachedTriggersFull } from './demos/detached-triggers-full';
 
 <DemoPopoverDetachedTriggersFull />
+
+<DemoPopoverDetachedTriggersFull />
+
+## Accessibility
+
+The Popover component follows the [WAI-ARIA Dialog (Modal) Pattern](https://www.w3.org/WAI/ARIA/apg/patterns/dialog-modal/).
+
+### Keyboard Interaction
+
+-   **Space** or **Enter**: Opens/closes the popover when the trigger is focused.
+-   **Esc**: Closes the open popover and returns focus to the trigger.
+-   **Tab**: Traps focus within the popover content while open (unless configured otherwise).
+
+### ARIA Attributes
+
+-   The trigger has `aria-haspopup="dialog"`.
+-   The trigger has `aria-expanded` set to `true` when open.
+-   The popup container has `role="dialog"`.
+-   The popup is labelled by `Popover.Title` (via `aria-labelledby`) and described by `Popover.Description` (via `aria-describedby`).
 
 ## API reference
 
