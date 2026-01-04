@@ -47,6 +47,7 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
     disabled: disabledProp = false,
     render,
     uncheckedValue,
+    value,
     ...elementProps
   } = componentProps;
 
@@ -167,6 +168,7 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
           id: inputId,
           name,
           required,
+          value,
           style: visuallyHiddenInput,
           tabIndex: -1,
           type: 'checkbox',
@@ -302,6 +304,11 @@ export interface SwitchRootProps
    * @default false
    */
   required?: boolean;
+  /**
+   * The value submitted with the form when the switch is on.
+   * By default, switches submit the value "on", matching native checkbox behavior.
+   */
+  value?: string;
   /**
    * The value submitted with the form when the switch is off.
    * By default, unchecked switches do not submit any value, matching native checkbox behavior.
