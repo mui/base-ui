@@ -9,6 +9,17 @@
 A button component that can be used to trigger actions.
 Renders a `<button>` element.
 
+**Button Props:**
+
+| Prop                  | Type                                                                        | Default | Description                                                                                                                                                                                   |
+| :-------------------- | :-------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| focusableWhenDisabled | `boolean`                                                                   | `false` | Whether the button should be focusable when disabled.                                                                                                                                         |
+| nativeButton          | `boolean`                                                                   | -       | -                                                                                                                                                                                             |
+| disabled              | `boolean`                                                                   | -       | Whether the button should ignore user interaction.                                                                                                                                            |
+| className             | `string \| ((state: Button.State) => string \| undefined)`                  | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
+| style                 | `CSSProperties \| ((state: Button.State) => CSSProperties \| undefined)`    | -       | -                                                                                                                                                                                             |
+| render                | `ReactElement \| ((props: HTMLProps, state: Button.State) => ReactElement)` | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
+
 **Button Data Attributes:**
 
 | Attribute     | Type | Description                          |
@@ -17,9 +28,7 @@ Renders a `<button>` element.
 
 ### Button.Props
 
-```typescript
-type ButtonProps = ButtonNativeProps | ButtonNonNativeProps;
-```
+Re-export of [Button](#button) props.
 
 ### Button.State
 
