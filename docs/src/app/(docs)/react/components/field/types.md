@@ -119,7 +119,7 @@ type FieldRootState = {
 The form control to label and validate.
 Renders an `<input>` element.
 
-You can omit this part and use any Base UI input component instead. For example,
+You can omit this part and use any Base UI input component instead. For example,
 [Input](https://base-ui.com/react/components/input), [Checkbox](https://base-ui.com/react/components/checkbox),
 or [Select](https://base-ui.com/react/components/select), among others, will work with Field out of the box.
 

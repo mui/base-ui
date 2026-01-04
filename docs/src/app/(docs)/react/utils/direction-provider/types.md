@@ -12,7 +12,7 @@ type DirectionContext = { direction: TextDirection };
 
 ### DirectionProvider
 
-Enables RTL behavior for Base UI components.
+Enables RTL behavior for Base UI components.
 
 **DirectionProvider Props:**
 
