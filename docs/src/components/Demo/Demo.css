@@ -224,9 +224,11 @@
     margin-bottom: -1px;
     user-select: none;
 
-    position: sticky;
-    bottom: -1px;
-    z-index: 1;
+    &[data-sticky] {
+      position: sticky;
+      bottom: -1px;
+      z-index: 1;
+    }
 
     @media (hover: hover) {
       &:hover {

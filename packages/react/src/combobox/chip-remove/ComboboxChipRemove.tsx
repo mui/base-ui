@@ -20,15 +20,23 @@ export const ComboboxChipRemove = React.forwardRef(function ComboboxChipRemove(
   componentProps: ComboboxChipRemove.Props,
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
-  const { render, className, nativeButton = true, ...elementProps } = componentProps;
+  const {
+    render,
+    className,
+    disabled: disabledProp = false,
+    nativeButton = true,
+    ...elementProps
+  } = componentProps;
 
   const store = useComboboxRootContext();
   const { index } = useComboboxChipContext();
 
-  const disabled = useStore(store, selectors.disabled);
+  const comboboxDisabled = useStore(store, selectors.disabled);
   const readOnly = useStore(store, selectors.readOnly);
   const selectedValue = useStore(store, selectors.selectedValue);
   const isItemEqualToValue = useStore(store, selectors.isItemEqualToValue);
+
+  const disabled = comboboxDisabled || disabledProp;
 
   const { buttonRef, getButtonProps } = useButton({
     native: nativeButton,
@@ -49,7 +57,6 @@ export const ComboboxChipRemove = React.forwardRef(function ComboboxChipRemove(
     props: [
       {
         tabIndex: -1,
-        disabled,
         'aria-readonly': readOnly || undefined,
         onClick(event) {
           if (disabled || readOnly) {

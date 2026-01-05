@@ -70,12 +70,6 @@
     "data-disabled": {
       "description": "Present when the slider is disabled."
     },
-    "data-readonly": {
-      "description": "Present when the slider is readonly."
-    },
-    "data-required": {
-      "description": "Present when the slider is required."
-    },
     "data-valid": {
       "description": "Present when the slider is in valid state (when wrapped in Field.Root)."
     },

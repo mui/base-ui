@@ -447,7 +447,7 @@ export default function Page() {
                 {(value: string[]) =>
                   value.length > 0
                     ? value.map((v) => fonts.find((f) => f.value === v)?.label).join(', ')
-                    : 'Select fonts...'
+                    : 'Select fonts…'
                 }
               </Select.Value>
               <Select.Icon className={styles.SelectIcon}>

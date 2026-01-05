@@ -1,7 +1,6 @@
 'use client';
 import * as React from 'react';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
-import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import { useAnimationsFinished } from './useAnimationsFinished';
 
 /**
@@ -10,21 +9,22 @@ import { useAnimationsFinished } from './useAnimationsFinished';
 export function useOpenChangeComplete(parameters: useOpenChangeComplete.Parameters) {
   const { enabled = true, open, ref, onComplete: onCompleteParam } = parameters;
 
-  const openRef = useValueAsRef(open);
   const onComplete = useStableCallback(onCompleteParam);
-  const runOnceAnimationsFinish = useAnimationsFinished(ref, open);
+  const runOnceAnimationsFinish = useAnimationsFinished(ref, open, false);
 
   React.useEffect(() => {
     if (!enabled) {
-      return;
+      return undefined;
     }
 
-    runOnceAnimationsFinish(() => {
-      if (open === openRef.current) {
-        onComplete();
-      }
-    });
-  }, [enabled, open, onComplete, runOnceAnimationsFinish, openRef]);
+    const abortController = new AbortController();
+
+    runOnceAnimationsFinish(onComplete, abortController.signal);
+
+    return () => {
+      abortController.abort();
+    };
+  }, [enabled, open, onComplete, runOnceAnimationsFinish]);
 }
 
 export interface UseOpenChangeCompleteParameters {
