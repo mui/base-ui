@@ -316,6 +316,47 @@ describe('<Accordion.Root />', () => {
       expect(trigger1).toHaveFocus();
     });
 
+    it('ArrowUp and ArrowDown moves focus between custom rendered triggers when nativeButton={false} and loops by default', async () => {
+      const { user } = await render(
+        <Accordion.Root>
+          <Accordion.Item>
+            <Accordion.Header>
+              <Accordion.Trigger
+                render={({ children, ...restProps }) => <span {...restProps}>{children}</span>}
+                nativeButton={false}
+              >
+                Trigger 1
+              </Accordion.Trigger>
+            </Accordion.Header>
+            <Accordion.Panel>1</Accordion.Panel>
+          </Accordion.Item>
+          <Accordion.Item>
+            <Accordion.Header>
+              <Accordion.Trigger>Trigger 2</Accordion.Trigger>
+            </Accordion.Header>
+            <Accordion.Panel>2</Accordion.Panel>
+          </Accordion.Item>
+        </Accordion.Root>,
+      );
+
+      const [trigger1, trigger2] = screen.getAllByRole('button');
+
+      await user.keyboard('[Tab]');
+      expect(trigger1).toHaveFocus();
+
+      await user.keyboard('[ArrowDown]');
+      expect(trigger2).toHaveFocus();
+
+      await user.keyboard('[ArrowUp]');
+      expect(trigger1).toHaveFocus();
+
+      await user.keyboard('[ArrowDown]');
+      expect(trigger2).toHaveFocus();
+
+      await user.keyboard('[ArrowDown]');
+      expect(trigger1).toHaveFocus();
+    });
+
     it('Arrow keys should not put focus on disabled accordion items', async () => {
       const { user } = await render(
         <Accordion.Root>
