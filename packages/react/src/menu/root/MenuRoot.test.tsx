@@ -16,6 +16,7 @@ import userEvent from '@testing-library/user-event';
 import { spy } from 'sinon';
 import { createRenderer, isJSDOM, popupConformanceTests, wait } from '#test-utils';
 import { REASONS } from '../../utils/reasons';
+import { PATIENT_CLICK_THRESHOLD } from '../../utils/constants';
 
 describe('<Menu.Root />', () => {
   beforeEach(() => {
@@ -1256,6 +1257,46 @@ describe('<Menu.Root />', () => {
         // Parent submenu should still be open
         await waitFor(() => {
           expect(screen.getByTestId('submenu')).not.to.equal(null);
+        });
+      });
+
+      describe('modal behavior', () => {
+        const { render: renderFakeTimers, clock } = createRenderer();
+
+        clock.withFakeTimers();
+
+        it('treats hover-opened menus as modal after a click', async () => {
+          await renderFakeTimers(
+            <Menu.Root>
+              <Menu.Trigger openOnHover delay={0}>
+                Toggle
+              </Menu.Trigger>
+              <Menu.Portal>
+                <Menu.Positioner data-testid="positioner">
+                  <Menu.Popup>
+                    <Menu.Item>Item 1</Menu.Item>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>,
+          );
+
+          const trigger = screen.getByRole('button', { name: 'Toggle' });
+
+          fireEvent.mouseEnter(trigger);
+          fireEvent.mouseMove(trigger);
+
+          await flushMicrotasks();
+          expect(screen.queryByRole('menu')).not.to.equal(null);
+
+          const positioner = screen.getByTestId('positioner');
+          expect(positioner.previousElementSibling).to.equal(null);
+
+          clock.tick(PATIENT_CLICK_THRESHOLD - 1);
+          fireEvent.click(trigger);
+
+          await flushMicrotasks();
+          expect(positioner.previousElementSibling).to.have.attribute('role', 'presentation');
         });
       });
     });

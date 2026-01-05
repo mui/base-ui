@@ -12,7 +12,7 @@ import { DemoSwitchHero } from './demos/hero';
 
 ## Usage guidelines
 
-- **Form controls must have an accessible name**: The switch must have a meaningful label. Prefer using [`<Field>`](/react/components/field) to provide a visible text label and description, or use the `aria-label` attribute as an alternative. See the [forms guide](/react/handbook/forms) for more on building form controls.
+- **Form controls must have an accessible name**: It can be created using a `<label>` element or the `Field` component. See [Labeling a switch](#labeling-a-switch) and the [forms guide](/react/handbook/forms).
 
 ## Anatomy
 
@@ -24,6 +24,45 @@ import { Switch } from '@base-ui/react/switch';
 <Switch.Root>
   <Switch.Thumb />
 </Switch.Root>;
+```
+
+## Examples
+
+### Labeling a switch
+
+Label a switch using an enclosing `<label>` element that wraps `<Switch.Root>`. An enclosing label is announced to screen readers when focus is on the control, and ensures that clicking on any gaps between the label and switch still toggles the control.
+
+```tsx title="Using an enclosing label to label a switch" {1,4}
+<label>
+  <Switch.Root />
+  Notifications
+</label>
+```
+
+The [Field](/react/components/field) component eliminates the need to track `id` or `aria-label` associations manually. It supports both enclosing and sibling labeling patterns, along with a UX improvement to prevent double clicks from selecting the label text.
+
+```tsx title="Using the Field component to label a switch" {2,5}
+<Field.Root>
+  <Field.Label>
+    <Switch.Root />
+    Notifications
+  </Field.Label>
+</Field.Root>
+```
+
+### Form integration
+
+To use a switch in a form, pass the switch's `name` to `<Field.Root>`:
+
+```tsx title="Using Switch in a form" {2}
+<Form>
+  <Field.Root name="notifications">
+    <Field.Label>
+      <Switch.Root />
+      Notifications
+    </Field.Label>
+  </Field.Root>
+</Form>
 ```
 
 ## API reference

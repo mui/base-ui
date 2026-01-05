@@ -1518,6 +1518,82 @@ describe('<Select.Root />', () => {
 
         expect(trigger).to.have.attribute('data-filled');
       });
+
+      it('does not add [data-filled] attribute when multiple value is empty', async () => {
+        const { user } = await renderFakeTimers(
+          <Field.Root>
+            <Select.Root multiple>
+              <Select.Trigger data-testid="trigger" />
+              <Select.Portal>
+                <Select.Positioner>
+                  <Select.Popup>
+                    <Select.Item value="">Select</Select.Item>
+                    <Select.Item value="1">Option 1</Select.Item>
+                  </Select.Popup>
+                </Select.Positioner>
+              </Select.Portal>
+            </Select.Root>
+          </Field.Root>,
+        );
+
+        const trigger = screen.getByTestId('trigger');
+
+        expect(trigger).not.to.have.attribute('data-filled');
+
+        await user.click(trigger);
+        await flushMicrotasks();
+        clock.tick(200);
+
+        const option = screen.getByRole('option', { name: 'Option 1' });
+
+        await user.click(option);
+        await flushMicrotasks();
+
+        expect(trigger).to.have.attribute('data-filled', '');
+
+        await user.click(option);
+        await flushMicrotasks();
+
+        expect(trigger).not.to.have.attribute('data-filled');
+      });
+
+      it('does not add [data-filled] attribute when multiple defaultValue is empty array', async () => {
+        const { user } = await renderFakeTimers(
+          <Field.Root>
+            <Select.Root multiple defaultValue={[]}>
+              <Select.Trigger data-testid="trigger" />
+              <Select.Portal>
+                <Select.Positioner>
+                  <Select.Popup>
+                    <Select.Item value="">Select</Select.Item>
+                    <Select.Item value="1">Option 1</Select.Item>
+                  </Select.Popup>
+                </Select.Positioner>
+              </Select.Portal>
+            </Select.Root>
+          </Field.Root>,
+        );
+
+        const trigger = screen.getByTestId('trigger');
+
+        expect(trigger).not.to.have.attribute('data-filled');
+
+        await user.click(trigger);
+        await flushMicrotasks();
+        clock.tick(200);
+
+        const option = screen.getByRole('option', { name: 'Option 1' });
+
+        await user.click(option);
+        await flushMicrotasks();
+
+        expect(trigger).to.have.attribute('data-filled', '');
+
+        await user.click(option);
+        await flushMicrotasks();
+
+        expect(trigger).not.to.have.attribute('data-filled');
+      });
     });
 
     it('[data-focused]', async () => {
@@ -2761,6 +2837,41 @@ describe('<Select.Root />', () => {
       await flushMicrotasks();
 
       expect(optionB).not.to.have.attribute('data-highlighted');
+    });
+
+    it('does not remove highlight when mousing out of popup when disabled', async () => {
+      const { user } = await render(
+        <Select.Root defaultOpen highlightItemOnHover={false}>
+          <Select.Trigger data-testid="trigger">
+            <Select.Value />
+          </Select.Trigger>
+          <Select.Portal>
+            <Select.Positioner>
+              <Select.Popup>
+                <Select.Item value="a">a</Select.Item>
+                <Select.Item value="b">b</Select.Item>
+                <Select.Item value="c">c</Select.Item>
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
+        </Select.Root>,
+      );
+
+      const optionA = screen.getByRole('option', { name: 'a' });
+      fireEvent.mouseMove(optionA);
+
+      await user.keyboard('{ArrowDown}');
+
+      await waitFor(() => {
+        expect(optionA).to.have.attribute('data-highlighted');
+      });
+
+      const popup = screen.getByRole('listbox');
+      await user.unhover(popup);
+
+      await waitFor(() => {
+        expect(optionA).to.have.attribute('data-highlighted');
+      });
     });
   });
 });
