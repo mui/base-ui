@@ -83,9 +83,9 @@ const SearchItem = React.memo(function SearchItem({ result }: { result: SearchRe
 
 const EmptyState = React.memo(function EmptyState() {
   return (
-    <div className="px-3 py-6 text-center text-[0.9375rem] tracking-[0.016em] font-normal text-gray-600">
+    <Autocomplete.Status className="px-3 py-6 text-center text-[0.9375rem] tracking-[0.016em] font-normal text-gray-600">
       No results found.
-    </div>
+    </Autocomplete.Status>
   );
 });
 
@@ -270,7 +270,7 @@ export function SearchBar({
       </Button>
       <Dialog.Root open={dialogOpen} onOpenChange={handleCloseDialog}>
         <Dialog.Portal>
-          <Dialog.Backdrop className="fixed inset-0 min-h-dvh bg-black opacity-20 transition-all duration-150 data-ending-style:opacity-0 data-starting-style:opacity-0 dark:opacity-70 supports-[-webkit-touch-callout:none]:absolute" />
+          <Dialog.Backdrop className="fixed inset-0 min-h-full bg-black opacity-20 transition-all duration-150 data-ending-style:opacity-0 data-starting-style:opacity-0 dark:opacity-70 supports-[-webkit-touch-callout:none]:absolute" />
           {containedScroll ? (
             <Dialog.Viewport className="group/dialog fixed inset-0 flex items-start justify-center overflow-hidden pt-18">
               <Dialog.Popup
@@ -323,6 +323,7 @@ export function SearchBar({
                     </div>
                   </div>
                 </Autocomplete.Root>
+                <Dialog.Close className="hidden focus:flex">Close</Dialog.Close>
               </Dialog.Popup>
             </Dialog.Viewport>
           ) : (
@@ -332,7 +333,7 @@ export function SearchBar({
                 className="h-full overscroll-contain group-data-ending-style/dialog:pointer-events-none"
               >
                 <ScrollArea.Viewport className="h-full overscroll-contain group-data-ending-style/dialog:pointer-events-none">
-                  <ScrollArea.Content className="flex min-h-full items-start justify-center">
+                  <ScrollArea.Content className="flex min-h-full items-start justify-center pb-[calc(100vh-100dvh)]">
                     <Dialog.Popup
                       ref={popupRef}
                       initialFocus={inputRef}
@@ -360,6 +361,7 @@ export function SearchBar({
                           )}
                         </div>
                       </Autocomplete.Root>
+                      <Dialog.Close className="hidden">Close</Dialog.Close>
                     </Dialog.Popup>
                   </ScrollArea.Content>
                 </ScrollArea.Viewport>
