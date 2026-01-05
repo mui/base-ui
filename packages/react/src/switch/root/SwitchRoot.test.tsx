@@ -175,6 +175,18 @@ describe('<Switch.Root />', () => {
     });
   });
 
+  describe('prop: required', () => {
+    it('should have the `aria-required` attribute', async () => {
+      await render(<Switch.Root required />);
+      expect(screen.getByRole('switch')).to.have.attribute('aria-required', 'true');
+    });
+
+    it('should not have the aria attribute when `required` is not set', async () => {
+      await render(<Switch.Root />);
+      expect(screen.getByRole('switch')).not.to.have.attribute('aria-required');
+    });
+  });
+
   describe('prop: inputRef', () => {
     it('should be able to access the native input', async () => {
       const inputRef = React.createRef<HTMLInputElement>();
@@ -274,6 +286,28 @@ describe('<Switch.Root />', () => {
       const switchElement = screen.getByRole('switch');
       expect(switchElement).to.have.attribute('aria-checked', 'false');
 
+      await user.click(screen.getByTestId('label'));
+      expect(switchElement).to.have.attribute('aria-checked', 'true');
+    });
+
+    it('should associate `id` with the native button when `nativeButton=true`', async () => {
+      const { user } = await render(
+        <div>
+          <label data-testid="label" htmlFor="mySwitch">
+            Toggle
+          </label>
+
+          <Switch.Root id="mySwitch" nativeButton render={<button />} />
+        </div>,
+      );
+
+      const switchElement = screen.getByRole('switch');
+      expect(switchElement).to.have.attribute('id', 'mySwitch');
+
+      const hiddenInput = screen.getByRole('checkbox', { hidden: true });
+      expect(hiddenInput).not.to.have.attribute('id', 'mySwitch');
+
+      expect(switchElement).to.have.attribute('aria-checked', 'false');
       await user.click(screen.getByTestId('label'));
       expect(switchElement).to.have.attribute('aria-checked', 'true');
     });
