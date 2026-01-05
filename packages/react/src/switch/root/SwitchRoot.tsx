@@ -22,6 +22,7 @@ import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
 import type { BaseUIChangeEventDetails } from '../../types';
 import { useValueChanged } from '../../utils/useValueChanged';
+import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 
 /**
  * Represents the switch itself.
@@ -196,6 +197,11 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
           },
         },
         validation.getInputValidationProps,
+        // React <19 sets an empty value if `undefined` is passed explicitly
+        // To avoid this, we only set the value if it's defined,
+        value !== undefined
+          ? { value: value }
+          : EMPTY_OBJECT,
       ),
     [
       checked,

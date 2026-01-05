@@ -223,6 +223,25 @@ describe('<Switch.Root />', () => {
 
     expect(input).to.have.attribute('name', 'switch-name');
     expect(switchElement).not.to.have.attribute('name');
+  })
+
+  it('should set the value attribute by default', async () => {
+    await render(<Switch.Root />);
+
+    const switchElement = screen.getByRole('switch');
+    const input = screen.getByRole('checkbox', { hidden: true });
+
+    expect(input).not.to.have.attribute('value', '1');
+  });
+
+  it('should set the value attribute only on the input', async () => {
+    await render(<Switch.Root value="1" />);
+
+    const switchElement = screen.getByRole('switch');
+    const input = screen.getByRole('checkbox', { hidden: true });
+
+    expect(input).to.have.attribute('value', '1');
+    expect(switchElement).not.to.have.attribute('value');
   });
 
   describe('with native <label>', () => {
