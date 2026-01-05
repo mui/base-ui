@@ -3,14 +3,38 @@ import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { useTemporalAdapter } from '../../temporal-adapter-provider/TemporalAdapterContext';
 import { getDateManager } from '../../utils/temporal/getDateManager';
-import {
-  TemporalFieldStore,
-  TemporalFieldStoreParameters,
-} from '../../utils/temporal/field/TemporalFieldStore';
+import { TemporalFieldStore } from '../../utils/temporal/field/TemporalFieldStore';
 import { BaseUIComponentProps } from '../../utils/types';
 import { TemporalValue } from '../../types';
 import { validateDate } from '../../utils/temporal/validateDate';
 import { useRenderElement } from '../../utils/useRenderElement';
+import { useDirection } from '../../direction-provider';
+import {
+  TemporalFieldStorePublicParameters,
+  TemporalFieldValueManager,
+} from '../../utils/temporal/field/types';
+import { areDatesEqual } from '../../utils/temporal/date-helpers';
+
+const dateFieldValueManager: TemporalFieldValueManager<TemporalValue> = {
+  emptyValue: null,
+  areValuesEqual: areDatesEqual,
+  getSectionsFromValue: (date, getSectionsFromDate) => getSectionsFromDate(date),
+  getDateFromSection: (value) => value,
+  updateDateInValue: (value, activeSection, activeDate) => activeDate,
+  parseValueStr: (valueStr, referenceValue, parseDate) =>
+    parseDate(valueStr.trim(), referenceValue),
+  getInitialReferenceValue: ({ value, referenceDate, ...params }) => {
+    if (params.adapter.isValid(value)) {
+      return value;
+    }
+
+    if (referenceDate != null) {
+      return referenceDate;
+    }
+
+    return getDefaultReferenceDate(params);
+  },
+};
 
 /**
  * Groups all parts of the date field.
@@ -36,6 +60,7 @@ export const DateFieldRoot = React.forwardRef(function DateFieldRoot(
     value,
     timezone,
     referenceDate,
+    format,
     // Children
     children,
     // Validation props
@@ -58,10 +83,12 @@ export const DateFieldRoot = React.forwardRef(function DateFieldRoot(
       value,
       timezone,
       referenceDate,
+      format: format ?? adapter.formats.localizedNumericDate,
       minDate,
       maxDate,
     }),
     [
+      adapter,
       readOnly,
       disabled,
       invalid,
@@ -70,12 +97,16 @@ export const DateFieldRoot = React.forwardRef(function DateFieldRoot(
       value,
       timezone,
       referenceDate,
+      format,
       minDate,
       maxDate,
     ],
   );
 
-  const store = useRefWithInit(() => new TemporalFieldStore(parameters, adapter, manager)).current;
+  const direction = useDirection();
+  const store = useRefWithInit(
+    () => new TemporalFieldStore(parameters, adapter, manager, dateFieldValueManager, direction),
+  ).current;
 
   const resolvedChildren = React.useMemo(() => {
     if (!React.isValidElement(children) && typeof children === 'function') {
@@ -99,7 +130,7 @@ export interface DateFieldRootProps
   extends
     Omit<BaseUIComponentProps<'div', DateFieldRootState>, 'children'>,
     validateDate.ValidationProps,
-    TemporalFieldStoreParameters<TemporalValue, validateDate.ReturnValue> {
+    TemporalFieldStorePublicParameters<TemporalValue, validateDate.ReturnValue> {
   /**
    * The children of the component.
    * If a function is provided, it will be called with the public context as its parameter.

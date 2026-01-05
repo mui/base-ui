@@ -1,5 +1,4 @@
 import { TemporalAdapter, TemporalSupportedObject } from '../../../types';
-import { PickersLocaleText } from '../../../locales';
 import { TemporalFieldNonRangeSection } from './types';
 import {
   applyLocalizedDigits,
@@ -8,18 +7,7 @@ import {
   getDateSectionConfigFromFormatToken,
   removeLocalizedDigits,
 } from './utils';
-
-interface BuildSectionsFromFormatParameters {
-  adapter: TemporalAdapter;
-  format: string;
-  isRtl: boolean;
-  shouldRespectLeadingZeros: boolean;
-  localeText: PickersLocaleText;
-  localizedDigits: string[];
-  date: TemporalSupportedObject | null;
-}
-
-type FormatEscapedParts = { start: number; end: number }[];
+import { TextDirection } from '../../../direction-provider';
 
 const expandFormat = ({ adapter, format }: BuildSectionsFromFormatParameters) => {
   // Expand the provided format
@@ -57,65 +45,10 @@ const getEscapedPartsFromFormat = ({
   return escapedParts;
 };
 
-const getSectionPlaceholder = (
-  adapter: TemporalAdapter,
-  localeText: PickersLocaleText,
-  sectionConfig: Pick<TemporalFieldNonRangeSection, 'sectionType' | 'contentType'>,
-  sectionFormat: string,
-) => {
-  switch (sectionConfig.sectionType) {
-    case 'year': {
-      return localeText.fieldYearPlaceholder({
-        digitAmount: adapter.formatByString(adapter.now('default'), sectionFormat).length,
-        format: sectionFormat,
-      });
-    }
-
-    case 'month': {
-      return localeText.fieldMonthPlaceholder({
-        contentType: sectionConfig.contentType,
-        format: sectionFormat,
-      });
-    }
-
-    case 'day': {
-      return localeText.fieldDayPlaceholder({ format: sectionFormat });
-    }
-
-    case 'weekDay': {
-      return localeText.fieldWeekDayPlaceholder({
-        contentType: sectionConfig.contentType,
-        format: sectionFormat,
-      });
-    }
-
-    case 'hours': {
-      return localeText.fieldHoursPlaceholder({ format: sectionFormat });
-    }
-
-    case 'minutes': {
-      return localeText.fieldMinutesPlaceholder({ format: sectionFormat });
-    }
-
-    case 'seconds': {
-      return localeText.fieldSecondsPlaceholder({ format: sectionFormat });
-    }
-
-    case 'meridiem': {
-      return localeText.fieldMeridiemPlaceholder({ format: sectionFormat });
-    }
-
-    default: {
-      return sectionFormat;
-    }
-  }
-};
-
 const createSection = ({
   adapter,
   date,
   shouldRespectLeadingZeros,
-  localeText,
   localizedDigits,
   now,
   token,
@@ -173,7 +106,6 @@ const createSection = ({
     format: token,
     maxLength,
     value: sectionValue,
-    placeholder: getSectionPlaceholder(adapter, localeText, sectionConfig, token),
     hasLeadingZerosInFormat,
     hasLeadingZerosInInput,
     startSeparator,
@@ -271,7 +203,7 @@ const buildSections = (
 };
 
 const postProcessSections = ({
-  isRtl,
+  direction,
   sections,
 }: BuildSectionsFromFormatParameters & {
   sections: TemporalFieldNonRangeSection[];
@@ -279,7 +211,7 @@ const postProcessSections = ({
   return sections.map((section) => {
     const cleanSeparator = (separator: string) => {
       let cleanedSeparator = separator;
-      if (isRtl && cleanedSeparator !== null && cleanedSeparator.includes(' ')) {
+      if (direction === 'rtl' && cleanedSeparator !== null && cleanedSeparator.includes(' ')) {
         cleanedSeparator = `\u2069${cleanedSeparator}\u2066`;
       }
 
@@ -295,7 +227,7 @@ const postProcessSections = ({
 
 export const buildSectionsFromFormat = (parameters: BuildSectionsFromFormatParameters) => {
   let expandedFormat = expandFormat(parameters);
-  if (parameters.isRtl) {
+  if (parameters.direction === 'rtl') {
     expandedFormat = expandedFormat.split(' ').reverse().join(' ');
   }
 
@@ -304,3 +236,14 @@ export const buildSectionsFromFormat = (parameters: BuildSectionsFromFormatParam
 
   return postProcessSections({ ...parameters, sections });
 };
+
+interface BuildSectionsFromFormatParameters {
+  adapter: TemporalAdapter;
+  format: string;
+  direction: TextDirection;
+  shouldRespectLeadingZeros: boolean;
+  localizedDigits: string[];
+  date: TemporalSupportedObject | null;
+}
+
+type FormatEscapedParts = { start: number; end: number }[];

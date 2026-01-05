@@ -1,8 +1,10 @@
+import { TextDirection } from '../../../direction-provider';
 import {
   BaseUIChangeEventDetails,
   TemporalAdapter,
   TemporalFieldSectionType,
   TemporalFormatTokenConfig,
+  TemporalNonNullableValue,
   TemporalRangeValue,
   TemporalSupportedObject,
   TemporalSupportedValue,
@@ -39,6 +41,10 @@ export interface TemporalFieldStoreParameters<
    */
   referenceDate?: TemporalSupportedObject;
   /**
+   * Format of the date when rendered in the field.
+   */
+  format: string;
+  /**
    * Whether the component should ignore user interaction.
    * @default false
    */
@@ -68,6 +74,11 @@ export interface TemporalFieldStoreParameters<
   shouldRespectLeadingZeros?: boolean;
 }
 
+export type TemporalFieldStorePublicParameters<
+  TValue extends TemporalSupportedValue,
+  TError,
+> = MakeOptional<TemporalFieldStoreParameters<TValue, TError>, 'format'>;
+
 export interface TemporalFieldState<TValue extends TemporalSupportedValue = any> {
   /**
    * The value of the field, as passed to `props.value` or `props.defaultValue`.
@@ -90,6 +101,11 @@ export interface TemporalFieldState<TValue extends TemporalSupportedValue = any>
    * Not publicly exposed, is only set in state to avoid passing it to the selectors.
    */
   manager: TemporalManager<TValue, any, any>;
+  /**
+   * The value manager of the field.
+   * Not publicly exposed, is only set in state to avoid passing it to the selectors.
+   */
+  valueManager: TemporalFieldValueManager<TValue>;
   /**
    * The adapter of the date library.
    * Not publicly exposed, is only set in state to avoid passing it to the selectors.
@@ -122,6 +138,32 @@ export interface TemporalFieldState<TValue extends TemporalSupportedValue = any>
    * The property below allows us to set the first `onChange` value into state waiting for the second one.
    */
   tempValueStrAndroid: string | null;
+  /**
+   * Format of the date when rendered in the field.
+   */
+  format: string;
+  /**
+   * Text direction of the field.
+   */
+  direction: TextDirection;
+  /**
+   * Localized digits used by the adapter.
+   * This is an array of 10 strings representing the digits 0 to 9 in the localized format.
+   */
+  localizedDigits: string[];
+  /**
+   * The currently selected sections.
+   * This prop accepts four formats:
+   * - If a number is provided, the section at this index will be selected.
+   * - If `"all"` is provided, all the sections will be selected.
+   * - If `null` is provided, no section will be selected.
+   */
+  selectedSections: TemporalFieldSelectedSections;
+  /**
+   * Non-nullable value used to keep trace of the timezone and the date parts not present in the format.
+   * It is updated whenever we have a valid date (for the Range Pickers we update only the portion of the range that is valid).
+   */
+  referenceValue: TemporalNonNullableValue<TValue>;
 }
 
 export interface TemporalFieldCharacterEditingQuery {
@@ -143,10 +185,6 @@ export interface TemporalFieldNonRangeSection extends TemporalFormatTokenConfig 
    * For example, in the format `MMMM D, YYYY`, the format of the month section is "MMMM".
    */
   format: string;
-  /**
-   * Placeholder rendered when the value of this section is empty.
-   */
-  placeholder: string;
   /**
    * If `true`, the value of this section is supposed to have leading zeroes when parsed by the date library.
    * For example, the value `1` should be rendered as "01" instead of "1".
@@ -187,12 +225,22 @@ export interface TemporalFieldNonRangeSection extends TemporalFormatTokenConfig 
 
 export type TemporalFieldRangePosition = 'start' | 'end';
 
+export type TemporalFieldSelectedSections = number | null | 'all';
+
 export interface TemporalFieldRangeSection extends TemporalFieldNonRangeSection {
   dateName: TemporalFieldRangePosition;
 }
 
 // If `PickerValidDate` contains `any`, then `TValue extends PickerRangeValue` will return true, so we have to handle this edge case first.
 type IsAny<T> = boolean extends (T extends never ? true : false) ? true : false;
+
+/**
+ * Makes specified keys in a type optional.
+ *
+ * @template T - The original type.
+ * @template K - The keys to make optional.
+ */
+export type MakeOptional<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
 
 export type TemporalFieldSection<TValue extends TemporalSupportedValue> =
   IsAny<TValue> extends true
@@ -230,4 +278,43 @@ export interface TemporalFieldValueManager<TValue extends TemporalSupportedValue
     value: TValue,
     getSectionsFromDate: (date: TemporalSupportedObject | null) => TemporalFieldNonRangeSection[],
   ) => TemporalFieldSection<TValue>[];
+  /**
+   * Parses a string version (most of the time coming from the input).
+   * This method should only be used when the change does not come from a single section.
+   */
+  parseValueStr: (
+    valueStr: string,
+    referenceValue: TemporalNonNullableValue<TValue>,
+    parseDate: (
+      dateStr: string,
+      referenceDate: TemporalSupportedObject,
+    ) => TemporalSupportedObject | null,
+  ) => TValue;
+  /**
+   * Creates a new value based on the provided date and the current value.
+   */
+  updateDateInValue: (
+    value: TValue,
+    section: TemporalFieldSection<TValue>,
+    date: TemporalSupportedObject | null,
+  ) => TValue;
+  /**
+   * Extract from the given value the date that contains the given section.
+   */
+  getDateFromSection: (
+    value: TValue,
+    section: TemporalFieldSection<TValue>,
+  ) => TemporalSupportedObject | null;
+  /**
+   * Method returning the reference value to use when mounting the component.
+   */
+  getInitialReferenceValue: (params: {
+    referenceDate: TemporalSupportedObject | undefined;
+    value: TValue;
+    // props: GetDefaultReferenceDateProps;
+    adapter: TemporalAdapter;
+    granularity: number;
+    timezone: TemporalTimezone;
+    getTodayDate?: () => TemporalSupportedObject;
+  }) => TemporalNonNullableValue<TValue>;
 }

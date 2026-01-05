@@ -190,6 +190,10 @@ export interface TemporalAdapter {
    */
   formatByString(value: TemporalSupportedObject, formatString: string): string;
   /**
+   * Expands a format to replace the meta-token (for example: `LLL` or `PP`) with their localized expanded form.
+   */
+  expandFormat(format: string): string;
+  /**
    * Checks if the two dates are equal (which means they represent the same timestamp).
    */
   isEqual(value: TemporalSupportedValue, comparing: TemporalSupportedValue): boolean;

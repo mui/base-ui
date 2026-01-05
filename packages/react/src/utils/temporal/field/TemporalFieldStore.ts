@@ -1,5 +1,10 @@
 import { Store } from '@base-ui/utils/store';
-import { TemporalAdapter, TemporalSupportedValue } from '../../../types';
+import {
+  TemporalAdapter,
+  TemporalFieldSectionType,
+  TemporalSupportedObject,
+  TemporalSupportedValue,
+} from '../../../types';
 import { TemporalManager } from '../types';
 import {
   TemporalFieldState,
@@ -8,7 +13,19 @@ import {
   TemporalFieldValueManager,
 } from './types';
 import { buildSectionsFromFormat } from './buildSectionsFromFormat';
-import { validateSections } from './utils';
+import { getLocalizedDigits, getTimezoneToRender, validateSections } from './utils';
+import { TextDirection } from '../../../direction-provider';
+import { selectors } from './selectors';
+import { mergeDateIntoReferenceDate } from './mergeDateIntoReferenceDate';
+
+const SECTION_TYPE_GRANULARITY: { [key in TemporalFieldSectionType]?: number } = {
+  year: 1,
+  month: 2,
+  day: 3,
+  hours: 4,
+  minutes: 5,
+  seconds: 6,
+};
 
 export class TemporalFieldStore<
   TValue extends TemporalSupportedValue,
@@ -25,21 +42,42 @@ export class TemporalFieldStore<
     adapter: TemporalAdapter,
     manager: TemporalManager<TValue, TError, any>,
     valueManager: TemporalFieldValueManager<TValue>,
+    direction: TextDirection,
   ) {
     const value = parameters.value ?? parameters.defaultValue ?? manager.emptyValue;
     const shouldRespectLeadingZeros = parameters.shouldRespectLeadingZeros ?? false;
+    const localizedDigits = getLocalizedDigits(adapter);
 
     const sections = valueManager.getSectionsFromValue(value, (date) =>
       buildSectionsFromFormat({
         adapter,
-        localeText: translations,
         localizedDigits,
-        format,
+        format: parameters.format,
         date,
         shouldRespectLeadingZeros,
-        isRtl,
+        direction,
       }),
     );
+
+    const granularity = Math.max(
+      ...sections.map((section) => SECTION_TYPE_GRANULARITY[section.sectionType] ?? 1),
+    );
+
+    const referenceValue = valueManager.getInitialReferenceValue({
+      referenceDate: parameters.referenceDate,
+      value,
+      adapter,
+      // props: internalPropsWithDefaults as GetDefaultReferenceDateProps,
+      granularity,
+      timezone: getTimezoneToRender(
+        adapter,
+        manager,
+        value,
+        parameters.referenceDate,
+        parameters.timezone,
+      ),
+    });
+
     validateSections(sections, manager.dateType);
 
     super({
@@ -47,11 +85,17 @@ export class TemporalFieldStore<
       sections,
       timezoneProp: parameters.timezone,
       shouldRespectLeadingZeros,
-      referenceDateProp: null, // TODO: Fix
-      characterQuery: null,
-      tempValueStrAndroid: null,
+      referenceDateProp: parameters.referenceDate ?? null,
+      format: parameters.format,
+      direction,
+      localizedDigits,
+      referenceValue,
+      valueManager,
       adapter,
       manager,
+      characterQuery: null,
+      selectedSections: null,
+      tempValueStrAndroid: null,
     });
 
     this.valueManager = valueManager;
@@ -72,22 +116,154 @@ export class TemporalFieldStore<
       });
     } else {
       this.set('characterQuery', null);
-      publishValue(this.valueManager.emptyValue);
+      this.publishValue(this.valueManager.emptyValue);
     }
   }
+
+  public clearActiveSection() {
+    const activeSection = selectors.activeSection<TValue>(this.state);
+    if (activeSection == null || activeSection.section.value === '') {
+      return;
+    }
+
+    setSectionUpdateToApplyOnNextInvalidDate('');
+
+    if (activeSection.date === null) {
+      this.update({
+        sections: activeSection.update(''),
+        tempValueStrAndroid: null,
+        characterQuery: null,
+      });
+    } else {
+      this.set('characterQuery', null);
+      this.publishValue(
+        this.valueManager.updateDateInValue(this.state.value, activeSection.section, null),
+      );
+    }
+  }
+
+  public updateValueFromValueStr(valueStr: string) {
+    const { adapter, format, localizedDigits, direction, shouldRespectLeadingZeros, valueManager } =
+      this.state;
+    const parseDateStr = (dateStr: string, referenceDate: TemporalSupportedObject) => {
+      const date = adapter.parse(dateStr, format, selectors.timezoneToRender(this.state));
+      if (!adapter.isValid(date)) {
+        return null;
+      }
+
+      const sections = buildSectionsFromFormat({
+        adapter,
+        localizedDigits,
+        format,
+        date,
+        shouldRespectLeadingZeros,
+        direction,
+      });
+      return mergeDateIntoReferenceDate(adapter, date, sections, referenceDate, false);
+    };
+
+    const newValue = valueManager.parseValueStr(valueStr, this.state.referenceValue, parseDateStr);
+    this.publishValue(newValue);
+  }
+
+  public updateSectionValue({
+    section,
+    newSectionValue,
+    shouldGoToNextSection,
+  }: UpdateSectionValueParameters<TValue>) {
+    const { valueManager, adapter, referenceValue } = this.state
+
+    updateSectionValueOnNextInvalidDateTimeout.clear();
+    cleanActiveDateSectionsIfValueNullTimeout.clear();
+
+    const activeDate = valueManager.getDateFromSection(value, section);
+
+    /**
+     * Decide which section should be focused
+     */
+    if (shouldGoToNextSection && activeSectionIndex! < state.sections.length - 1) {
+      setSelectedSections(activeSectionIndex! + 1);
+    }
+
+    /**
+     * Try to build a valid date from the new section value
+     */
+    const newSections = setSectionValue(activeSectionIndex!, newSectionValue);
+    const newActiveDateSections = valueManager.getDateSectionsFromValue(newSections, section);
+    const newActiveDate = getDateFromDateSections(adapter, newActiveDateSections, localizedDigits);
+
+    /**
+     * If the new date is valid,
+     * Then we merge the value of the modified sections into the reference date.
+     * This makes sure that we don't lose some information of the initial date (like the time on a date field).
+     */
+    if (adapter.isValid(newActiveDate)) {
+      const mergedDate = mergeDateIntoReferenceDate(
+        adapter,
+        newActiveDate,
+        newActiveDateSections,
+        valueManager.getDateFromSection(referenceValue as any, section)!,
+        true,
+      );
+
+      if (activeDate == null) {
+        cleanActiveDateSectionsIfValueNullTimeout.start(0, () => {
+          if (valueRef.current === value) {
+            setState((prevState) => ({
+              ...prevState,
+              sections: valueManager.clearDateSections(state.sections, section),
+              tempValueStrAndroid: null,
+            }));
+          }
+        });
+      }
+
+      return publishValue(valueManager.updateDateInValue(value, section, mergedDate));
+    }
+
+    /**
+     * If all the sections are filled but the date is invalid and the previous date is valid or null,
+     * Then we publish an invalid date.
+     */
+    if (
+      newActiveDateSections.every((sectionBis) => sectionBis.value !== '') &&
+      (activeDate == null || adapter.isValid(activeDate))
+    ) {
+      setSectionUpdateToApplyOnNextInvalidDate(newSectionValue);
+      return publishValue(fieldValueManager.updateDateInValue(value, section, newActiveDate));
+    }
+
+    /**
+     * If the previous date is not null,
+     * Then we publish the date as `newActiveDate to prevent error state oscillation`.
+     * @link: https://github.com/mui/mui-x/issues/17967
+     */
+    if (activeDate != null) {
+      setSectionUpdateToApplyOnNextInvalidDate(newSectionValue);
+      publishValue(fieldValueManager.updateDateInValue(value, section, newActiveDate));
+    }
+
+    /**
+     * If the previous date is already null,
+     * Then we don't publish the date and we update the sections.
+     */
+    return setState((prevState) => ({
+      ...prevState,
+      sections: newSections,
+      tempValueStrAndroid: null,
+    }));
 
   private getSectionsFromValue(valueToAnalyze: TValue) {
     const { adapter, shouldRespectLeadingZeros } = this.state;
 
     return this.valueManager.getSectionsFromValue(valueToAnalyze, (date) =>
       buildSectionsFromFormat({
-        adapter,
-        localeText: translations,
-        localizedDigits,
-        format,
         date,
+        adapter,
+        localizedDigits: this.state.localizedDigits,
+        format: this.state.format,
         shouldRespectLeadingZeros,
-        isRtl,
+        direction: this.state.direction,
       }),
     );
   }

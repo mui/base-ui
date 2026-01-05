@@ -3,14 +3,17 @@ import {
   TemporalFieldSectionContentType,
   TemporalFieldSectionType,
   TemporalFormatTokenConfig,
+  TemporalSupportedObject,
   TemporalSupportedValue,
+  TemporalTimezone,
 } from '../../../types';
-import { TemporalFieldDateType, TemporalFieldSection } from './types';
+import { TemporalDateType, TemporalManager } from '../types';
+import { TemporalFieldNonRangeSection, TemporalFieldSection } from './types';
 
-export const getDateSectionConfigFromFormatToken = (
+export function getDateSectionConfigFromFormatToken(
   adapter: TemporalAdapter,
   formatToken: string,
-): TemporalFormatTokenConfig => {
+): TemporalFormatTokenConfig {
   const config = adapter.formatTokenConfigMap[formatToken];
 
   if (config == null) {
@@ -23,14 +26,14 @@ export const getDateSectionConfigFromFormatToken = (
   }
 
   return config;
-};
+}
 
-export const doesSectionFormatHaveLeadingZeros = (
+export function doesSectionFormatHaveLeadingZeros(
   adapter: TemporalAdapter,
   contentType: TemporalFieldSectionContentType,
   sectionType: TemporalFieldSectionType,
   format: string,
-) => {
+) {
   if (contentType !== 'digit') {
     return false;
   }
@@ -75,9 +78,9 @@ export const doesSectionFormatHaveLeadingZeros = (
       throw new Error('Invalid section type');
     }
   }
-};
+}
 
-export const applyLocalizedDigits = (valueStr: string, localizedDigits: string[]) => {
+export function applyLocalizedDigits(valueStr: string, localizedDigits: string[]) {
   if (localizedDigits[0] === '0') {
     return valueStr;
   }
@@ -86,19 +89,19 @@ export const applyLocalizedDigits = (valueStr: string, localizedDigits: string[]
     .split('')
     .map((char) => localizedDigits[Number(char)])
     .join('');
-};
+}
 
 /**
  * Make sure the value of a digit section have the right amount of leading zeros.
  * E.g.: `03` => `3`
  * Warning: Should only be called with non-localized digits. Call `removeLocalizedDigits` with your value if needed.
  */
-export const cleanLeadingZeros = (valueStr: string, size: number) => {
+export function cleanLeadingZeros(valueStr: string, size: number) {
   // Remove the leading zeros and then add back as many as needed.
   return Number(valueStr).toString().padStart(size, '0');
-};
+}
 
-export const removeLocalizedDigits = (valueStr: string, localizedDigits: string[]) => {
+export function removeLocalizedDigits(valueStr: string, localizedDigits: string[]) {
   if (localizedDigits[0] === '0') {
     return valueStr;
   }
@@ -115,14 +118,14 @@ export const removeLocalizedDigits = (valueStr: string, localizedDigits: string[
   }
 
   return digits.join('');
-};
+}
 
 let warnedOnceInvalidSection = false;
 
-export const validateSections = <TValue extends TemporalSupportedValue>(
+export function validateSections<TValue extends TemporalSupportedValue>(
   sections: TemporalFieldSection<TValue>[],
-  dateType: TemporalFieldDateType,
-) => {
+  dateType: TemporalDateType,
+) {
   if (process.env.NODE_ENV !== 'production') {
     if (!warnedOnceInvalidSection) {
       const supportedSections: TemporalFieldSectionType[] = ['empty'];
@@ -146,4 +149,117 @@ export const validateSections = <TValue extends TemporalSupportedValue>(
       }
     }
   }
-};
+}
+
+// This format should be the same on all the adapters
+// If some adapter does not respect this convention, then we will need to hardcode the format on each adapter.
+export const FORMAT_SECONDS_NO_LEADING_ZEROS = 's';
+
+const NON_LOCALIZED_DIGITS = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+
+export function getLocalizedDigits(adapter: TemporalAdapter) {
+  const today = adapter.now('default');
+  const formattedZero = adapter.formatByString(
+    adapter.setSeconds(today, 0),
+    FORMAT_SECONDS_NO_LEADING_ZEROS,
+  );
+
+  if (formattedZero === '0') {
+    return NON_LOCALIZED_DIGITS;
+  }
+
+  return Array.from({ length: 10 }).map((_, index) =>
+    adapter.formatByString(adapter.setSeconds(today, index), FORMAT_SECONDS_NO_LEADING_ZEROS),
+  );
+}
+
+export function getSectionPlaceholder(
+  adapter: TemporalAdapter,
+  localeText: PickersLocaleText,
+  section: TemporalFieldNonRangeSection,
+) {
+  switch (section.sectionType) {
+    case 'year': {
+      return localeText.fieldYearPlaceholder({
+        digitAmount: adapter.formatByString(adapter.now('default'), section.format).length,
+        format: section.format,
+      });
+    }
+
+    case 'month': {
+      return localeText.fieldMonthPlaceholder({
+        contentType: section.contentType,
+        format: section.format,
+      });
+    }
+
+    case 'day': {
+      return localeText.fieldDayPlaceholder({ format: section.format });
+    }
+
+    case 'weekDay': {
+      return localeText.fieldWeekDayPlaceholder({
+        contentType: section.contentType,
+        format: section.format,
+      });
+    }
+
+    case 'hours': {
+      return localeText.fieldHoursPlaceholder({ format: section.format });
+    }
+
+    case 'minutes': {
+      return localeText.fieldMinutesPlaceholder({ format: section.format });
+    }
+
+    case 'seconds': {
+      return localeText.fieldSecondsPlaceholder({ format: section.format });
+    }
+
+    case 'meridiem': {
+      return localeText.fieldMeridiemPlaceholder({ format: section.format });
+    }
+
+    default: {
+      return section.format;
+    }
+  }
+}
+
+export function getDaysInWeekStr(adapter: TemporalAdapter, format: string) {
+  const elements: TemporalSupportedObject[] = [];
+
+  const now = adapter.now('default');
+  const startDate = adapter.startOfWeek(now);
+  const endDate = adapter.endOfWeek(now);
+
+  let current = startDate;
+  while (adapter.isBefore(current, endDate)) {
+    elements.push(current);
+    current = adapter.addDays(current, 1);
+  }
+
+  return elements.map((weekDay) => adapter.formatByString(weekDay, format));
+}
+
+export function getTimezoneToRender<TValue extends TemporalSupportedValue>(
+  adapter: TemporalAdapter,
+  manager: TemporalManager<TValue, any, any>,
+  value: TValue,
+  referenceDateProp: TemporalSupportedObject | null | undefined,
+  timezoneProp: TemporalTimezone | null | undefined,
+) {
+  if (timezoneProp != null) {
+    return timezoneProp;
+  }
+
+  const valueTimezone = manager.getTimezone(value);
+  if (valueTimezone) {
+    return valueTimezone;
+  }
+
+  if (referenceDateProp) {
+    return adapter.getTimezone(referenceDateProp);
+  }
+  return 'default';
+}
