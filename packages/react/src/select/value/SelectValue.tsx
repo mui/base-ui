@@ -44,7 +44,7 @@ export const SelectValue = React.forwardRef(function SelectValue(
       ? childrenProp(value)
       : (childrenProp ??
         (Array.isArray(value)
-          ? resolveMultipleLabels(value, itemToStringLabel)
+          ? resolveMultipleLabels(value, items, itemToStringLabel)
           : resolveSelectedLabel(value, items, itemToStringLabel)));
 
   const element = useRenderElement('span', componentProps, {

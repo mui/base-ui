@@ -113,10 +113,11 @@ export function resolveSelectedLabel(
 
 export function resolveMultipleLabels(
   values: any[] | undefined,
+  items: ItemsInput,
   itemToStringLabel?: (item: any) => string,
 ): string {
   if (!Array.isArray(values) || values.length === 0) {
     return '';
   }
-  return values.map((v) => stringifyAsLabel(v, itemToStringLabel)).join(', ');
+  return values.map((value) => resolveSelectedLabel(value, items, itemToStringLabel)).join(', ');
 }

@@ -479,7 +479,7 @@ describe('<Select.Value />', () => {
         </Select.Root>,
       );
 
-      expect(screen.getByTestId('value')).to.have.text('sans, serif');
+      expect(screen.getByTestId('value')).to.have.text('Sans-serif, Serif');
     });
 
     it('displays comma-separated values for multiple values with items array', async () => {
