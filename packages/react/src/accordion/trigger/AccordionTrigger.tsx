@@ -30,9 +30,9 @@ function getActiveTriggers(accordionItemRefs: { current: (HTMLElement | null)[] 
   for (let i = 0; i < accordionItemElements.length; i += 1) {
     const section = accordionItemElements[i];
     if (!isElementDisabled(section)) {
-      const trigger = section?.querySelector('[type="button"], [role="button"]') as HTMLElement;
-      if (!isElementDisabled(trigger)) {
-        output.push(trigger);
+      const trigger = section?.querySelector<HTMLElement>('[type="button"], [role="button"]');
+      if (!isElementDisabled(trigger!)) {
+        output.push(trigger!);
       }
     }
   }
