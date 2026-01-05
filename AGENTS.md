@@ -29,7 +29,7 @@ This repository contains the source code and documentation for Base UI: a headl
 - Run tests in Chromium env with `pnpm test:chromium {name} --no-watch` such as `pnpm test:chromium NumberField --no-watch` or `pnpm test:jsdom parse --no-watch`.
 - If you made changes to the source code, ensure you verify your changes by running tests (see above), and writing new tests where applicable. If tests require the browser because, for example, they require layout measurements, restrict it to the Chromium env by using `it.skipIf(isJSDOM)` or `describe.skipIf(isJSDOM)` (search other tests for example usage if unsure).
 - Follow the established conventions in existing tests. Each file/component is tested with the filename `name.test.tsx`. For example, `PopoverRoot.test.tsx` is next to its source file `PopoverRoot.tsx`.
-- Tests use `chai`'s `expect` and Sinon's `spy()`, do not assume they have methods of other libraries' APIs. Search existing tests for example usage if unsure.
+- Tests use `vitest`'s `expect()` and `fn()`, do not assume they have methods of other libraries' APIs. Search existing tests for example usage if unsure.
 
 ## Commit guidelines
 
