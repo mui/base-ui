@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { visuallyHidden } from '@base-ui/utils/visuallyHidden';
+import { visuallyHiddenInput } from '@base-ui/utils/visuallyHidden';
 import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { useOnFirstRender } from '@base-ui/utils/useOnFirstRender';
@@ -35,6 +35,8 @@ import { stringifyAsValue } from '../../utils/resolveValueLabel';
 import { EMPTY_ARRAY } from '../../utils/constants';
 import { defaultItemEquality, findItemIndex } from '../../utils/itemEquality';
 import { useValueChanged } from '../../utils/useValueChanged';
+import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
+import { mergeProps } from '../../merge-props';
 
 /**
  * Groups all parts of the select.
@@ -118,6 +120,11 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
   const alignItemWithTriggerActiveRef = React.useRef(false);
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
+  const {
+    openMethod,
+    triggerProps: interactionTypeProps,
+    reset: resetOpenInteractionType,
+  } = useOpenInteractionType(open);
 
   const store = useRefWithInit(
     () =>
@@ -134,7 +141,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
         transitionStatus,
         items,
         forceMount: false,
-        touchModality: false,
+        openMethod: null,
         activeIndex: null,
         selectedIndex: null,
         popupProps: {},
@@ -187,8 +194,8 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
   }, [store, value]);
 
   useIsoLayoutEffect(() => {
-    setFilled(value !== null);
-  }, [value, setFilled]);
+    setFilled(multiple ? Array.isArray(value) && value.length > 0 : value != null);
+  }, [multiple, value, setFilled]);
 
   useIsoLayoutEffect(
     function syncSelectedIndex() {
@@ -257,6 +264,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
   const handleUnmount = useStableCallback(() => {
     setMounted(false);
     store.set('activeIndex', null);
+    resetOpenInteractionType();
     onOpenChangeComplete?.(false);
   });
 
@@ -367,10 +375,15 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     typeahead,
   ]);
 
+  const mergedTriggerProps = React.useMemo(
+    () => mergeProps(getReferenceProps(), interactionTypeProps),
+    [getReferenceProps, interactionTypeProps],
+  );
+
   useOnFirstRender(() => {
     store.update({
       popupProps: getFloatingProps(),
-      triggerProps: getReferenceProps(),
+      triggerProps: mergedTriggerProps,
     });
   });
 
@@ -384,11 +397,12 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
       mounted,
       transitionStatus,
       popupProps: getFloatingProps(),
-      triggerProps: getReferenceProps(),
+      triggerProps: mergedTriggerProps,
       items,
       itemToStringLabel,
       itemToStringValue,
       isItemEqualToValue,
+      openMethod,
     });
   }, [
     store,
@@ -400,11 +414,12 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     mounted,
     transitionStatus,
     getFloatingProps,
-    getReferenceProps,
+    mergedTriggerProps,
     items,
     itemToStringLabel,
     itemToStringValue,
     isItemEqualToValue,
+    openMethod,
   ]);
 
   const contextValue: SelectRootContext = React.useMemo(
@@ -537,7 +552,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
           required={required && !hasMultipleSelection}
           readOnly={readOnly}
           ref={ref}
-          style={visuallyHidden}
+          style={visuallyHiddenInput}
           tabIndex={-1}
           aria-hidden
         />
@@ -663,7 +678,7 @@ export interface SelectRootProps<Value, Multiple extends boolean | undefined = f
   /**
    * The value of the select. Use when controlled.
    */
-  value?: SelectValueType<Value, Multiple>;
+  value?: SelectValueType<Value, Multiple> | null;
   /**
    * Event handler called when the value of the select changes.
    */

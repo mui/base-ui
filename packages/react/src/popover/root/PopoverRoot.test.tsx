@@ -8,6 +8,7 @@ import { expect } from 'chai';
 import { spy } from 'sinon';
 import { createRenderer, isJSDOM, popupConformanceTests, wait } from '#test-utils';
 import { OPEN_DELAY } from '../utils/constants';
+import { PATIENT_CLICK_THRESHOLD } from '../../utils/constants';
 
 describe('<Popover.Root />', () => {
   beforeEach(() => {
@@ -114,7 +115,7 @@ describe('<Popover.Root />', () => {
 
           return (
             <dialog open ref={handleDialogRef}>
-              <ContainedTriggerPopover
+              <TestPopover
                 portalProps={{ container: dialogNode ?? undefined }}
                 popupProps={{
                   children: (
@@ -167,7 +168,7 @@ describe('<Popover.Root />', () => {
 
           return (
             <dialog open ref={handleDialogRef}>
-              <ContainedTriggerPopover
+              <TestPopover
                 portalProps={{ container: dialogNode ?? undefined }}
                 popupProps={{
                   children: (
@@ -209,25 +210,25 @@ describe('<Popover.Root />', () => {
 
     describe('prop: defaultOpen', () => {
       it('should open when the component is rendered', async () => {
-        await render(<ContainedTriggerPopover rootProps={{ defaultOpen: true }} />);
+        await render(<TestPopover rootProps={{ defaultOpen: true }} />);
 
         expect(screen.getByText('Content')).not.to.equal(null);
       });
 
       it('should not open when the component is rendered and open is controlled', async () => {
-        await render(<ContainedTriggerPopover rootProps={{ defaultOpen: true, open: false }} />);
+        await render(<TestPopover rootProps={{ defaultOpen: true, open: false }} />);
 
         expect(screen.queryByText('Content')).to.equal(null);
       });
 
       it('should not close when the component is rendered and open is controlled', async () => {
-        await render(<ContainedTriggerPopover rootProps={{ defaultOpen: true, open: true }} />);
+        await render(<TestPopover rootProps={{ defaultOpen: true, open: true }} />);
 
         expect(screen.getByText('Content')).not.to.equal(null);
       });
 
       it('should remain uncontrolled', async () => {
-        await render(<ContainedTriggerPopover rootProps={{ defaultOpen: true }} />);
+        await render(<TestPopover rootProps={{ defaultOpen: true }} />);
 
         expect(screen.getByText('Content')).not.to.equal(null);
 
@@ -243,9 +244,9 @@ describe('<Popover.Root />', () => {
       clock.withFakeTimers();
 
       it('should open after delay with rest type by default', async () => {
-        await render(<ContainedTriggerPopover triggerProps={{ openOnHover: true, delay: 100 }} />);
+        await render(<TestPopover triggerProps={{ openOnHover: true, delay: 100 }} />);
 
-        const anchor = screen.getByRole('button');
+        const anchor = screen.getByRole('button', { name: 'Toggle' });
 
         fireEvent.mouseEnter(anchor);
         fireEvent.mouseMove(anchor);
@@ -266,11 +267,9 @@ describe('<Popover.Root />', () => {
       clock.withFakeTimers();
 
       it('should close after delay', async () => {
-        await render(
-          <ContainedTriggerPopover triggerProps={{ openOnHover: true, closeDelay: 100 }} />,
-        );
+        await render(<TestPopover triggerProps={{ openOnHover: true, closeDelay: 100 }} />);
 
-        const anchor = screen.getByRole('button');
+        const anchor = screen.getByRole('button', { name: 'Toggle' });
 
         fireEvent.mouseEnter(anchor);
         fireEvent.mouseMove(anchor);
@@ -296,7 +295,7 @@ describe('<Popover.Root />', () => {
     describe('BaseUIChangeEventDetails', () => {
       it('onOpenChange cancel() prevents opening while uncontrolled', async () => {
         await render(
-          <ContainedTriggerPopover
+          <TestPopover
             rootProps={{
               onOpenChange: (nextOpen, eventDetails) => {
                 if (nextOpen) {
@@ -307,7 +306,7 @@ describe('<Popover.Root />', () => {
           />,
         );
 
-        const trigger = screen.getByRole('button');
+        const trigger = screen.getByRole('button', { name: 'Toggle' });
         fireEvent.click(trigger);
         await flushMicrotasks();
 
@@ -320,7 +319,7 @@ describe('<Popover.Root />', () => {
         const { user } = await render(
           <div>
             <input type="text" />
-            <ContainedTriggerPopover
+            <TestPopover
               portalProps={{ keepMounted: true }}
               popupProps={{ children: <Popover.Close>Close</Popover.Close> }}
             />
@@ -347,7 +346,7 @@ describe('<Popover.Root />', () => {
 
       it('does not move focus to the popover when opened with hover', async () => {
         const { user } = await render(
-          <ContainedTriggerPopover
+          <TestPopover
             triggerProps={{ openOnHover: true, delay: 0 }}
             popupProps={{ children: <Popover.Close>Close</Popover.Close> }}
           />,
@@ -386,7 +385,7 @@ describe('<Popover.Root />', () => {
             {/* eslint-disable-next-line react/no-danger */}
             <style dangerouslySetInnerHTML={{ __html: style }} />
             <input type="text" data-testid="first-input" />
-            <ContainedTriggerPopover
+            <TestPopover
               triggerProps={{ openOnHover: true, delay: 0, closeDelay: 0 }}
               popupProps={{ className: 'popup', children: null }}
             />
@@ -418,10 +417,10 @@ describe('<Popover.Root />', () => {
           const { user } = await render(
             <div>
               <input />
-              <ContainedTriggerPopover
+              <TestPopover
                 rootProps={{ defaultOpen: true }}
                 popupProps={{ children: <input data-testid="input-inside" /> }}
-                afterPortal={<input data-testid="focus-target" />}
+                afterTrigger={<input data-testid="focus-target" />}
               />
               <input />
             </div>,
@@ -445,7 +444,7 @@ describe('<Popover.Root />', () => {
             const { user } = await render(
               <div>
                 <input />
-                <ContainedTriggerPopover
+                <TestPopover
                   rootProps={{ defaultOpen: true }}
                   popupProps={{ children: <input data-testid="input-inside" /> }}
                 />
@@ -460,7 +459,7 @@ describe('<Popover.Root />', () => {
             await user.tab({ shift: true });
 
             await waitFor(() => {
-              expect(screen.getByRole('button')).toHaveFocus();
+              expect(screen.getByRole('button', { name: 'Toggle' })).toHaveFocus();
             });
 
             await waitFor(() => {
@@ -481,9 +480,9 @@ describe('<Popover.Root />', () => {
           const { user } = await render(
             <div>
               <input />
-              <ContainedTriggerPopover
+              <TestPopover
                 rootProps={{ defaultOpen: true }}
-                betweenTriggerAndPortal={<input data-testid="focus-target" />}
+                afterTrigger={<input data-testid="focus-target" />}
                 popupProps={{ children: <input data-testid="input-inside" /> }}
               />
               <input />
@@ -510,22 +509,23 @@ describe('<Popover.Root />', () => {
             const { user } = await render(
               <div>
                 <input />
-                <ContainedTriggerPopover
+                <TestPopover
                   rootProps={{ defaultOpen: true }}
-                  betweenTriggerAndPortal={<input />}
+                  afterTrigger={<input />}
                   popupProps={{ children: <input data-testid="input-inside" /> }}
                 />
                 <input />
               </div>,
             );
 
-            const inputInside = screen.getByTestId('input-inside');
-            await act(async () => inputInside.focus());
+            await waitFor(() => {
+              expect(screen.getByTestId('input-inside')).toHaveFocus();
+            });
 
             await user.tab({ shift: true });
 
             await waitFor(() => {
-              expect(screen.getByRole('button')).toHaveFocus();
+              expect(screen.getByRole('button', { name: 'Toggle' })).toHaveFocus();
             });
 
             await waitFor(() => {
@@ -533,7 +533,7 @@ describe('<Popover.Root />', () => {
             });
 
             await wait(50);
-            await user.keyboard('{Tab}');
+            await user.tab();
             await wait(50);
             await waitFor(() => {
               expect(screen.getByTestId('input-inside')).toHaveFocus();
@@ -547,11 +547,11 @@ describe('<Popover.Root />', () => {
           const { user } = await render(
             <div>
               <input />
-              <ContainedTriggerPopover
+              <TestPopover
                 rootProps={{ defaultOpen: true }}
                 triggerPlacement="after-content"
                 popupProps={{ children: <input data-testid="input-inside" /> }}
-                afterPortal={<input data-testid="focus-target" />}
+                afterTrigger={<input data-testid="focus-target" />}
               />
               <input />
             </div>,
@@ -575,7 +575,7 @@ describe('<Popover.Root />', () => {
             const { user } = await render(
               <div>
                 <input />
-                <ContainedTriggerPopover
+                <TestPopover
                   rootProps={{ defaultOpen: true }}
                   triggerPlacement="after-content"
                   popupProps={{ children: <input data-testid="input-inside" /> }}
@@ -591,7 +591,7 @@ describe('<Popover.Root />', () => {
             await user.tab({ shift: true });
 
             await waitFor(() => {
-              expect(screen.getByRole('button')).toHaveFocus();
+              expect(screen.getByRole('button', { name: 'Toggle' })).toHaveFocus();
             });
 
             await waitFor(() => {
@@ -614,9 +614,9 @@ describe('<Popover.Root />', () => {
         const handleOpenChange = spy();
 
         await render(
-          <ContainedTriggerPopover
+          <TestPopover
             rootProps={{ defaultOpen: true, onOpenChange: handleOpenChange }}
-            portalChildren={<Popover.Backdrop data-testid="backdrop" />}
+            portalProps={{ children: <Popover.Backdrop data-testid="backdrop" /> }}
           />,
         );
 
@@ -637,7 +637,7 @@ describe('<Popover.Root />', () => {
         const handleOpenChange = spy();
 
         await render(
-          <ContainedTriggerPopover
+          <TestPopover
             rootProps={{ defaultOpen: true, onOpenChange: handleOpenChange, modal: true }}
           />,
         );
@@ -661,7 +661,7 @@ describe('<Popover.Root />', () => {
         function TestCase() {
           return (
             <React.Fragment>
-              <ContainedTriggerPopover
+              <TestPopover
                 rootProps={{ defaultOpen: true }}
                 popupProps={{ children: <button data-testid="inside">Inside</button> }}
               />
@@ -696,7 +696,7 @@ describe('<Popover.Root />', () => {
         function Test() {
           const [showButton, setShowButton] = React.useState(true);
           return (
-            <ContainedTriggerPopover
+            <TestPopover
               rootProps={{ defaultOpen: true, modal: 'trap-focus' }}
               popupProps={{
                 children: showButton && (
@@ -740,7 +740,7 @@ describe('<Popover.Root />', () => {
         };
 
         const { user } = await render(
-          <ContainedTriggerPopover
+          <TestPopover
             rootProps={{
               actionsRef,
               onOpenChange: (open, details) => {
@@ -772,7 +772,7 @@ describe('<Popover.Root />', () => {
 
       it('closes the popover when the `close` method is called', async () => {
         const actionsRef = React.createRef<Popover.Root.Actions>();
-        await render(<ContainedTriggerPopover rootProps={{ defaultOpen: true, actionsRef }} />);
+        await render(<TestPopover rootProps={{ defaultOpen: true, actionsRef }} />);
 
         await act(async () => {
           actionsRef.current!.close();
@@ -788,7 +788,7 @@ describe('<Popover.Root />', () => {
       it('should render an internal backdrop when `true`', async () => {
         const { user } = await render(
           <div>
-            <ContainedTriggerPopover rootProps={{ modal: true }} />
+            <TestPopover rootProps={{ modal: true }} />
             <button>Outside</button>
           </div>,
         );
@@ -809,7 +809,7 @@ describe('<Popover.Root />', () => {
       it('should not render an internal backdrop when `false`', async () => {
         const { user } = await render(
           <div>
-            <ContainedTriggerPopover rootProps={{ modal: false }} />
+            <TestPopover rootProps={{ modal: false }} />
             <button>Outside</button>
           </div>,
         );
@@ -826,6 +826,37 @@ describe('<Popover.Root />', () => {
 
         expect(positioner.previousElementSibling).to.equal(null);
       });
+
+      describe('with openOnHover', () => {
+        clock.withFakeTimers();
+
+        it('enables modal behavior after a hover-open is clicked', async () => {
+          await render(
+            <TestPopover
+              rootProps={{ modal: true }}
+              triggerProps={{ openOnHover: true, delay: 0 }}
+            />,
+          );
+
+          const trigger = screen.getByRole('button', { name: 'Toggle' });
+
+          fireEvent.mouseEnter(trigger);
+          fireEvent.mouseMove(trigger);
+
+          await flushMicrotasks();
+          expect(screen.queryByRole('dialog')).not.to.equal(null);
+
+          const positioner = screen.getByTestId('positioner');
+          expect(positioner.previousElementSibling).to.equal(null);
+
+          clock.tick(PATIENT_CLICK_THRESHOLD - 1);
+          fireEvent.click(trigger);
+
+          await flushMicrotasks();
+
+          expect(positioner.previousElementSibling).to.have.attribute('role', 'presentation');
+        });
+      });
     });
 
     describe.skipIf(isJSDOM)('prop: onOpenChangeComplete', () => {
@@ -837,7 +868,7 @@ describe('<Popover.Root />', () => {
           return (
             <div>
               <button onClick={() => setOpen(false)}>Close</button>
-              <ContainedTriggerPopover
+              <TestPopover
                 rootProps={{ open, onOpenChangeComplete }}
                 popupProps={{ children: null }}
               />
@@ -883,7 +914,7 @@ describe('<Popover.Root />', () => {
               {/* eslint-disable-next-line react/no-danger */}
               <style dangerouslySetInnerHTML={{ __html: style }} />
               <button onClick={() => setOpen(false)}>Close</button>
-              <ContainedTriggerPopover
+              <TestPopover
                 rootProps={{ open, onOpenChangeComplete }}
                 popupProps={{ className: 'animation-test-indicator', children: null }}
               />
@@ -918,7 +949,7 @@ describe('<Popover.Root />', () => {
           return (
             <div>
               <button onClick={() => setOpen(true)}>Open</button>
-              <ContainedTriggerPopover
+              <TestPopover
                 rootProps={{ open, onOpenChangeComplete }}
                 popupProps={{ children: null }}
               />
@@ -964,7 +995,7 @@ describe('<Popover.Root />', () => {
               {/* eslint-disable-next-line react/no-danger */}
               <style dangerouslySetInnerHTML={{ __html: style }} />
               <button onClick={() => setOpen(true)}>Open</button>
-              <ContainedTriggerPopover
+              <TestPopover
                 rootProps={{
                   open,
                   onOpenChange: (nextOpen) => setOpen(nextOpen),
@@ -993,10 +1024,7 @@ describe('<Popover.Root />', () => {
         const onOpenChangeComplete = spy();
 
         await render(
-          <ContainedTriggerPopover
-            rootProps={{ onOpenChangeComplete }}
-            popupProps={{ children: null }}
-          />,
+          <TestPopover rootProps={{ onOpenChangeComplete }} popupProps={{ children: null }} />,
         );
 
         expect(onOpenChangeComplete.callCount).to.equal(0);
@@ -1004,12 +1032,61 @@ describe('<Popover.Root />', () => {
     });
 
     describe('nested popup interactions', () => {
+      it('keeps the parent popover open when press starts in nested popover and ends outside', async () => {
+        function Test() {
+          return (
+            <div>
+              <button type="button" data-testid="outside">
+                Outside
+              </button>
+
+              <Popover.Root defaultOpen>
+                <Popover.Trigger>Parent</Popover.Trigger>
+                <Popover.Portal>
+                  <Popover.Positioner>
+                    <Popover.Popup data-testid="parent-popup">
+                      <Popover.Root>
+                        <Popover.Trigger>Child</Popover.Trigger>
+                        <Popover.Portal>
+                          <Popover.Positioner>
+                            <Popover.Popup data-testid="child-popup">Child content</Popover.Popup>
+                          </Popover.Positioner>
+                        </Popover.Portal>
+                      </Popover.Root>
+                    </Popover.Popup>
+                  </Popover.Positioner>
+                </Popover.Portal>
+              </Popover.Root>
+            </div>
+          );
+        }
+
+        await render(<Test />);
+
+        expect(screen.queryByTestId('parent-popup')).not.to.equal(null);
+
+        const childTrigger = screen.getByRole('button', { name: 'Child' });
+
+        fireEvent.click(childTrigger);
+
+        const childPopup = await screen.findByTestId('child-popup');
+        const outside = screen.getByTestId('outside');
+
+        fireEvent.pointerDown(childPopup, { pointerType: 'mouse', button: 0 });
+        fireEvent.click(outside);
+
+        await waitFor(() => {
+          expect(screen.queryByTestId('parent-popup')).not.to.equal(null);
+        });
+        expect(screen.queryByTestId('child-popup')).not.to.equal(null);
+      });
+
       it.skipIf(isJSDOM)(
         'should not close popover when scrolling nested popup on touch',
         async () => {
           const fruits = Array.from({ length: 50 }, (_, i) => i);
           await render(
-            <ContainedTriggerPopover
+            <TestPopover
               rootProps={{ defaultOpen: true }}
               popupProps={{
                 children: (
@@ -1086,7 +1163,7 @@ describe('<Popover.Root />', () => {
 
       it('should close child popover when clicking parent popover', async () => {
         const { user } = await render(
-          <ContainedTriggerPopover
+          <TestPopover
             triggerProps={{ 'data-testid': 'parent-trigger' } as Popover.Trigger.Props}
             popupProps={
               {
@@ -1139,11 +1216,9 @@ type TestPopoverProps = {
   portalProps?: Popover.Portal.Props;
   positionerProps?: Popover.Positioner.Props;
   popupProps?: Popover.Popup.Props;
-  portalChildren?: React.ReactNode;
   triggerPlacement?: 'before-content' | 'after-content';
-  betweenTriggerAndPortal?: React.ReactNode;
   beforeTrigger?: React.ReactNode;
-  afterPortal?: React.ReactNode;
+  afterTrigger?: React.ReactNode;
   includeTrigger?: boolean;
 };
 
@@ -1154,19 +1229,17 @@ function ContainedTriggerPopover(props: TestPopoverProps) {
     portalProps,
     positionerProps,
     popupProps,
-    portalChildren,
     triggerPlacement = 'before-content',
-    betweenTriggerAndPortal,
-    beforeTrigger,
-    afterPortal,
+    afterTrigger,
     includeTrigger = true,
   } = props;
 
   const { children: triggerChildren, ...restTriggerProps } = triggerProps ?? {};
   const { children: popupChildren, ...restPopupProps } = popupProps ?? {};
+  const { children: portalChildren, ...restPortalProps } = portalProps ?? {};
 
   const renderPortal = () => (
-    <Popover.Portal {...portalProps}>
+    <Popover.Portal {...restPortalProps}>
       {portalChildren}
       <Popover.Positioner data-testid="positioner" {...positionerProps}>
         <Popover.Popup data-testid="popover-popup" {...restPopupProps}>
@@ -1184,56 +1257,60 @@ function ContainedTriggerPopover(props: TestPopoverProps) {
 
   return (
     <Popover.Root {...rootProps}>
-      {beforeTrigger}
       {triggerPlacement === 'before-content' ? (
         <React.Fragment>
           {triggerElement}
-          {betweenTriggerAndPortal}
+          {afterTrigger}
           {renderPortal()}
         </React.Fragment>
       ) : (
         <React.Fragment>
           {renderPortal()}
-          {betweenTriggerAndPortal}
           {triggerElement}
+          {afterTrigger}
         </React.Fragment>
       )}
-      {afterPortal}
     </Popover.Root>
   );
 }
 
 function DetachedTriggerPopover(props: TestPopoverProps) {
   const {
+    rootProps,
     triggerProps,
+    portalProps,
+    positionerProps,
+    popupProps,
     triggerPlacement = 'before-content',
-    betweenTriggerAndPortal,
-    ...rest
+    afterTrigger,
   } = props;
+
+  const { children: triggerChildren, ...restTriggerProps } = triggerProps ?? {};
   const popoverHandle = useRefWithInit(() => Popover.createHandle()).current;
 
   return (
     <React.Fragment>
       {triggerPlacement === 'before-content' && (
         <React.Fragment>
-          <Popover.Trigger data-testid="trigger" handle={popoverHandle} {...triggerProps}>
-            {triggerProps?.children ?? 'Toggle'}
+          <Popover.Trigger data-testid="trigger" handle={popoverHandle} {...restTriggerProps}>
+            {triggerChildren ?? 'Toggle'}
           </Popover.Trigger>
-
-          {betweenTriggerAndPortal}
+          {afterTrigger}
         </React.Fragment>
       )}
       <ContainedTriggerPopover
-        {...rest}
-        rootProps={{ ...rest.rootProps, handle: popoverHandle }}
+        rootProps={{ ...rootProps, handle: popoverHandle }}
+        portalProps={portalProps}
+        positionerProps={positionerProps}
+        popupProps={popupProps}
         includeTrigger={false}
       />
       {triggerPlacement === 'after-content' && (
         <React.Fragment>
-          {betweenTriggerAndPortal}
-          <Popover.Trigger data-testid="trigger" handle={popoverHandle} {...triggerProps}>
-            {triggerProps?.children ?? 'Toggle'}
+          <Popover.Trigger data-testid="trigger" handle={popoverHandle} {...restTriggerProps}>
+            {triggerChildren ?? 'Toggle'}
           </Popover.Trigger>
+          {afterTrigger}
         </React.Fragment>
       )}
     </React.Fragment>
@@ -1242,43 +1319,41 @@ function DetachedTriggerPopover(props: TestPopoverProps) {
 
 function MultipleDetachedTriggersPopover(props: TestPopoverProps) {
   const {
+    rootProps,
     triggerProps,
+    portalProps,
+    positionerProps,
+    popupProps,
+    afterTrigger,
     triggerPlacement = 'before-content',
-    betweenTriggerAndPortal,
-    ...rest
   } = props;
+
+  const { children: triggerChildren, ...restTriggerProps } = triggerProps ?? {};
   const popoverHandle = useRefWithInit(() => Popover.createHandle()).current;
+
+  const renderTriggers = () => (
+    <React.Fragment>
+      <Popover.Trigger data-testid="trigger" handle={popoverHandle} {...restTriggerProps}>
+        {triggerChildren ?? 'Toggle'}
+      </Popover.Trigger>
+      {afterTrigger}
+      <Popover.Trigger data-testid="trigger-2" handle={popoverHandle}>
+        Toggle another
+      </Popover.Trigger>
+    </React.Fragment>
+  );
 
   return (
     <React.Fragment>
-      {triggerPlacement === 'before-content' && (
-        <React.Fragment>
-          <Popover.Trigger data-testid="trigger" handle={popoverHandle} {...triggerProps}>
-            {triggerProps?.children ?? 'Toggle'}
-          </Popover.Trigger>
-          <Popover.Trigger data-testid="trigger-2" handle={popoverHandle}>
-            Toggle another
-          </Popover.Trigger>
-
-          {betweenTriggerAndPortal}
-        </React.Fragment>
-      )}
+      {triggerPlacement === 'before-content' && <React.Fragment>{renderTriggers()}</React.Fragment>}
       <ContainedTriggerPopover
-        {...rest}
-        rootProps={{ ...rest.rootProps, handle: popoverHandle }}
+        rootProps={{ ...rootProps, handle: popoverHandle }}
+        portalProps={portalProps}
+        positionerProps={positionerProps}
+        popupProps={popupProps}
         includeTrigger={false}
       />
-      {triggerPlacement === 'after-content' && (
-        <React.Fragment>
-          {betweenTriggerAndPortal}
-          <Popover.Trigger data-testid="trigger" handle={popoverHandle} {...triggerProps}>
-            {triggerProps?.children ?? 'Toggle'}
-          </Popover.Trigger>
-          <Popover.Trigger data-testid="trigger-2" handle={popoverHandle}>
-            Toggle another
-          </Popover.Trigger>
-        </React.Fragment>
-      )}
+      {triggerPlacement === 'after-content' && <React.Fragment>{renderTriggers()}</React.Fragment>}
     </React.Fragment>
   );
 }

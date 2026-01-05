@@ -236,7 +236,11 @@ export function MenuRoot<Payload>(props: MenuRoot.Props<Payload>) {
     ) => {
       const reason = eventDetails.reason;
 
-      if (open === nextOpen && eventDetails.trigger === activeTriggerElement) {
+      if (
+        open === nextOpen &&
+        eventDetails.trigger === activeTriggerElement &&
+        lastOpenChangeReason === reason
+      ) {
         return;
       }
 
@@ -406,7 +410,7 @@ export function MenuRoot<Payload>(props: MenuRoot.Props<Payload>) {
 
   const dismiss = useDismiss(floatingRootContext, {
     enabled: !disabled,
-    bubbles: closeParentOnEsc && parent.type === 'menu',
+    bubbles: { escapeKey: closeParentOnEsc && parent.type === 'menu' },
     outsidePress() {
       if (parent.type !== 'context-menu' || openEventRef.current?.type === 'contextmenu') {
         return true;
@@ -476,7 +480,7 @@ export function MenuRoot<Payload>(props: MenuRoot.Props<Payload>) {
   ]);
 
   const activeTriggerProps = React.useMemo(() => {
-    const referenceProps = mergeProps(
+    const mergedProps = mergeProps(
       getReferenceProps(),
       {
         onMouseEnter() {
@@ -488,8 +492,9 @@ export function MenuRoot<Payload>(props: MenuRoot.Props<Payload>) {
       },
       interactionTypeProps,
     );
-    delete referenceProps.role;
-    return referenceProps;
+
+    delete mergedProps.role;
+    return mergedProps;
   }, [getReferenceProps, store, interactionTypeProps]);
 
   const inactiveTriggerProps = React.useMemo(() => {
@@ -498,9 +503,11 @@ export function MenuRoot<Payload>(props: MenuRoot.Props<Payload>) {
       return triggerProps;
     }
 
-    const { role: roleDiscarded, ['aria-controls']: ariaControlsDiscarded, ...rest } = triggerProps;
-    return rest;
-  }, [getTriggerProps]);
+    const mergedProps = mergeProps(triggerProps, interactionTypeProps);
+    delete mergedProps.role;
+    delete mergedProps['aria-controls'];
+    return mergedProps;
+  }, [getTriggerProps, interactionTypeProps]);
 
   const disableHoverTimeout = useAnimationFrame();
   const popupProps = React.useMemo(

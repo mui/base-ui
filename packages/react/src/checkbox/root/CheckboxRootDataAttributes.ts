@@ -8,6 +8,10 @@ export enum CheckboxRootDataAttributes {
    */
   unchecked = 'data-unchecked',
   /**
+   * Present when the checkbox is in an indeterminate state.
+   */
+  indeterminate = 'data-indeterminate',
+  /**
    * Present when the checkbox is disabled.
    */
   disabled = 'data-disabled',

@@ -63,6 +63,7 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
     selectionRef,
     validation,
     readOnly,
+    required,
     alignItemWithTriggerActiveRef,
     disabled: selectDisabled,
     keyboardActiveRef,
@@ -143,6 +144,7 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
       'aria-controls': open ? ariaControlsId : undefined,
       'aria-labelledby': labelId,
       'aria-readonly': readOnly || undefined,
+      'aria-required': required || undefined,
       tabIndex: disabled ? -1 : 0,
       ref: mergedRef,
       onFocus(event) {
@@ -169,12 +171,8 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
           validation.commit(value);
         }
       },
-      onPointerMove({ pointerType }) {
+      onPointerMove() {
         keyboardActiveRef.current = false;
-        store.set('touchModality', pointerType === 'touch');
-      },
-      onPointerDown({ pointerType }) {
-        store.set('touchModality', pointerType === 'touch');
       },
       onKeyDown() {
         keyboardActiveRef.current = true;

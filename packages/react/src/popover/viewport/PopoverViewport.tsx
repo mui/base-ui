@@ -52,7 +52,7 @@ export const PopoverViewport = React.forwardRef(function PopoverViewport(
   const previousContainerRef = React.useRef<HTMLDivElement>(null);
 
   const onAnimationsFinished = useAnimationsFinished(currentContainerRef, true, false);
-  const cleanupTimeout = useAnimationFrame();
+  const cleanupFrame = useAnimationFrame();
 
   const [previousContentDimensions, setPreviousContentDimensions] = React.useState<{
     width: number;
@@ -101,7 +101,7 @@ export const PopoverViewport = React.forwardRef(function PopoverViewport(
 
     previousContainerRef.current?.style.removeProperty('display');
 
-    if (!previousContentDimensions) {
+    if (data.previousDimensions) {
       setPreviousContentDimensions(data.previousDimensions);
     }
   });
@@ -136,12 +136,14 @@ export const PopoverViewport = React.forwardRef(function PopoverViewport(
       const offset = calculateRelativePosition(previousActiveTrigger, activeTrigger);
       setNewTriggerOffset(offset);
 
-      cleanupTimeout.request(() => {
-        setShowStartingStyleAttribute(false);
-        onAnimationsFinished(() => {
-          setPreviousContentNode(null);
-          setPreviousContentDimensions(null);
-          capturedNodeRef.current = null;
+      cleanupFrame.request(() => {
+        cleanupFrame.request(() => {
+          setShowStartingStyleAttribute(false);
+          onAnimationsFinished(() => {
+            setPreviousContentNode(null);
+            setPreviousContentDimensions(null);
+            capturedNodeRef.current = null;
+          });
         });
       });
 
@@ -152,7 +154,7 @@ export const PopoverViewport = React.forwardRef(function PopoverViewport(
     previousActiveTrigger,
     previousContentNode,
     onAnimationsFinished,
-    cleanupTimeout,
+    cleanupFrame,
   ]);
 
   const isTransitioning = previousContentNode != null;
