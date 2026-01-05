@@ -22,17 +22,15 @@ import { useRenderElement } from '../../utils/useRenderElement';
 
 const SUPPORTED_KEYS = new Set([ARROW_DOWN, ARROW_UP, ARROW_RIGHT, ARROW_LEFT, HOME, END]);
 
-function getActiveTriggers(accordionItemRefs: {
-  current: (HTMLElement | null)[];
-}): HTMLButtonElement[] {
+function getActiveTriggers(accordionItemRefs: { current: (HTMLElement | null)[] }): HTMLElement[] {
   const { current: accordionItemElements } = accordionItemRefs;
 
-  const output: HTMLButtonElement[] = [];
+  const output: HTMLElement[] = [];
 
   for (let i = 0; i < accordionItemElements.length; i += 1) {
     const section = accordionItemElements[i];
     if (!isElementDisabled(section)) {
-      const trigger = section?.querySelector('[type="button"]') as HTMLButtonElement;
+      const trigger = section?.querySelector('[type="button"], [role="button"]') as HTMLElement;
       if (!isElementDisabled(trigger)) {
         output.push(trigger);
       }
