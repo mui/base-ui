@@ -57,8 +57,7 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
   // `inputValue` can't be placed in the store.
   // https://github.com/mui/base-ui/issues/2703
   const inputValue = useComboboxInputValueContext();
-
-  const id = useBaseUiId(idProp);
+  const required = useStore(store, selectors.required);
   const direction = useDirection();
 
   const comboboxDisabled = useStore(store, selectors.disabled);
@@ -78,6 +77,8 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
   const popupSide = mounted && positionerElement ? popupSideValue : null;
   const disabled = fieldDisabled || comboboxDisabled || disabledProp;
   const listEmpty = filteredItems.length === 0;
+
+  const id = useBaseUiId(idProp);
 
   const [composingValue, setComposingValue] = React.useState<string | null>(null);
   const isComposingRef = React.useRef(false);
@@ -176,9 +177,11 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
         type: 'text',
         value: componentProps.value ?? composingValue ?? inputValue,
         'aria-readonly': readOnly || undefined,
+        'aria-required': required || undefined,
         'aria-labelledby': labelId,
         disabled,
         readOnly,
+        required: selectionMode === 'none' ? required : undefined,
         ...(selectionMode === 'none' && name && { name }),
         id,
         onFocus() {
