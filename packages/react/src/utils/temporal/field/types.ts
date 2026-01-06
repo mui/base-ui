@@ -314,6 +314,13 @@ export interface TemporalFieldValueManager<TValue extends TemporalSupportedValue
     section: TemporalFieldSection<TValue>,
   ) => TemporalSupportedObject | null;
   /**
+   * Get the sections of the date that contains the given section.
+   */
+  getDateSectionsFromValue: (
+    sections: TemporalFieldSection<TValue>[],
+    section: TemporalFieldSection<TValue>,
+  ) => TemporalFieldSection<TValue>[];
+  /**
    * Method returning the reference value to use when mounting the component.
    */
   getInitialReferenceValue: (params: {
@@ -325,4 +332,11 @@ export interface TemporalFieldValueManager<TValue extends TemporalSupportedValue
     timezone: TemporalTimezone;
     getTodayDate?: () => TemporalSupportedObject;
   }) => TemporalNonNullableValue<TValue>;
+  /**
+   * Clear all the sections representing the same date as the given section.
+   */
+  clearDateSections: (
+    sections: TemporalFieldSection<TValue>[],
+    section: TemporalFieldSection<TValue>,
+  ) => TemporalFieldSection<TValue>[];
 }

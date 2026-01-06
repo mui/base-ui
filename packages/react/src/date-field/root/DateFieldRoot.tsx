@@ -1,6 +1,5 @@
 import * as React from 'react';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
-import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { useTemporalAdapter } from '../../temporal-adapter-provider/TemporalAdapterContext';
 import { getDateManager } from '../../utils/temporal/getDateManager';
 import { TemporalFieldStore } from '../../utils/temporal/field/TemporalFieldStore';
@@ -21,6 +20,7 @@ const dateFieldValueManager: TemporalFieldValueManager<TemporalValue> = {
   areValuesEqual: areDatesEqual,
   getSectionsFromValue: (date, getSectionsFromDate) => getSectionsFromDate(date),
   getDateFromSection: (value) => value,
+  getDateSectionsFromValue: (sections) => sections,
   updateDateInValue: (value, activeSection, activeDate) => activeDate,
   parseValueStr: (valueStr, referenceValue, parseDate) =>
     parseDate(valueStr.trim(), referenceValue),
@@ -35,6 +35,7 @@ const dateFieldValueManager: TemporalFieldValueManager<TemporalValue> = {
 
     return getDefaultReferenceDate(params);
   },
+  clearDateSections: (sections) => sections.map((section) => ({ ...section, value: '' })),
 };
 
 /**

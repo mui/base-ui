@@ -173,59 +173,6 @@ export function getLocalizedDigits(adapter: TemporalAdapter) {
   );
 }
 
-export function getSectionPlaceholder(
-  adapter: TemporalAdapter,
-  localeText: PickersLocaleText,
-  section: TemporalFieldNonRangeSection,
-) {
-  switch (section.sectionType) {
-    case 'year': {
-      return localeText.fieldYearPlaceholder({
-        digitAmount: adapter.formatByString(adapter.now('default'), section.format).length,
-        format: section.format,
-      });
-    }
-
-    case 'month': {
-      return localeText.fieldMonthPlaceholder({
-        contentType: section.contentType,
-        format: section.format,
-      });
-    }
-
-    case 'day': {
-      return localeText.fieldDayPlaceholder({ format: section.format });
-    }
-
-    case 'weekDay': {
-      return localeText.fieldWeekDayPlaceholder({
-        contentType: section.contentType,
-        format: section.format,
-      });
-    }
-
-    case 'hours': {
-      return localeText.fieldHoursPlaceholder({ format: section.format });
-    }
-
-    case 'minutes': {
-      return localeText.fieldMinutesPlaceholder({ format: section.format });
-    }
-
-    case 'seconds': {
-      return localeText.fieldSecondsPlaceholder({ format: section.format });
-    }
-
-    case 'meridiem': {
-      return localeText.fieldMeridiemPlaceholder({ format: section.format });
-    }
-
-    default: {
-      return section.format;
-    }
-  }
-}
-
 export function getDaysInWeekStr(adapter: TemporalAdapter, format: string) {
   const elements: TemporalSupportedObject[] = [];
 

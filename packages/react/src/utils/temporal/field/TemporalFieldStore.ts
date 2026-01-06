@@ -1,4 +1,5 @@
 import { Store } from '@base-ui/utils/store';
+import { ownerDocument } from '@base-ui/utils/owner';
 import {
   TemporalAdapter,
   TemporalFieldSectionType,
@@ -7,6 +8,7 @@ import {
 } from '../../../types';
 import { TemporalManager } from '../types';
 import {
+  TemporalFieldSection,
   TemporalFieldSelectedSections,
   TemporalFieldState,
   TemporalFieldStoreParameters,
@@ -18,6 +20,7 @@ import { getLocalizedDigits, getTimezoneToRender, validateSections } from './uti
 import { TextDirection } from '../../../direction-provider';
 import { selectors } from './selectors';
 import { mergeDateIntoReferenceDate } from './mergeDateIntoReferenceDate';
+import { activeElement } from '../../../floating-ui-react/utils';
 
 const SECTION_TYPE_GRANULARITY: { [key in TemporalFieldSectionType]?: number } = {
   year: 1,
@@ -174,7 +177,7 @@ export class TemporalFieldStore<
     newSectionValue,
     shouldGoToNextSection,
   }: UpdateSectionValueParameters<TValue>) {
-    const { valueManager, adapter, referenceValue } = this.state;
+    const { valueManager, adapter, referenceValue, value, sections, localizedDigits } = this.state;
 
     updateSectionValueOnNextInvalidDateTimeout.clear();
     cleanActiveDateSectionsIfValueNullTimeout.clear();
@@ -184,7 +187,7 @@ export class TemporalFieldStore<
     /**
      * Decide which section should be focused
      */
-    if (shouldGoToNextSection && activeSectionIndex! < state.sections.length - 1) {
+    if (shouldGoToNextSection && activeSectionIndex! < sections.length - 1) {
       this.setSelectedSections(activeSectionIndex! + 1);
     }
 
@@ -212,11 +215,10 @@ export class TemporalFieldStore<
       if (activeDate == null) {
         cleanActiveDateSectionsIfValueNullTimeout.start(0, () => {
           if (valueRef.current === value) {
-            setState((prevState) => ({
-              ...prevState,
-              sections: valueManager.clearDateSections(state.sections, section),
+            this.update({
+              sections: valueManager.clearDateSections(sections, section),
               tempValueStrAndroid: null,
-            }));
+            });
           }
         });
       }
@@ -257,7 +259,8 @@ export class TemporalFieldStore<
   }
 
   public handleInputKeyDown = (event: React.KeyboardEvent<HTMLSpanElement>) => {
-    const { value, disabled, readOnly, valueManager, localizedDigits, adapter } = this.state;
+    const { value, disabled, readOnly, valueManager, localizedDigits, adapter, sections } =
+      this.state;
     const selectedSections = selectors.selectedSections(this.state);
     const activeSection = selectors.activeSection<TValue>(this.state);
     const timezone = selectors.timezoneToRender(this.state);
@@ -285,14 +288,11 @@ export class TemporalFieldStore<
         event.preventDefault();
 
         if (selectedSections == null) {
-          this.setSelectedSections(sectionOrder.startIndex);
+          this.setSelectedSections(0);
         } else if (selectedSections === 'all') {
-          this.setSelectedSections(sectionOrder.endIndex);
-        } else {
-          const nextSectionIndex = sectionOrder.neighbors[selectedSections].rightIndex;
-          if (nextSectionIndex !== null) {
-            this.setSelectedSections(nextSectionIndex);
-          }
+          this.setSelectedSections(sections.length - 1);
+        } else if (selectedSections < sections.length - 1) {
+          this.setSelectedSections(selectedSections + 1);
         }
         break;
       }
@@ -302,14 +302,11 @@ export class TemporalFieldStore<
         event.preventDefault();
 
         if (selectedSections == null) {
-          this.setSelectedSections(sectionOrder.endIndex);
+          this.setSelectedSections(sections.length - 1);
         } else if (selectedSections === 'all') {
-          this.setSelectedSections(sectionOrder.startIndex);
-        } else {
-          const nextSectionIndex = sectionOrder.neighbors[selectedSections].leftIndex;
-          if (nextSectionIndex !== null) {
-            this.setSelectedSections(nextSectionIndex);
-          }
+          this.setSelectedSections(0);
+        } else if (selectedSections > 0) {
+          this.setSelectedSections(selectedSections - 1);
         }
         break;
       }
@@ -365,17 +362,18 @@ export class TemporalFieldStore<
   };
 
   public handleInputFocus = () => {
+    const { disabled } = this.state;
     if (focused || disabled || !domGetters.isReady()) {
       return;
     }
 
-    const activeElement = getActiveElement(domGetters.getRoot());
+    const activeEl = this.getActiveElement();
 
     setFocused(true);
 
-    const isFocusInsideASection = domGetters.getSectionIndexFromDOMElement(activeElement) != null;
+    const isFocusInsideASection = domGetters.getSectionIndexFromDOMElement(activeEl) != null;
     if (!isFocusInsideASection) {
-      setSelectedSections(sectionOrder.startIndex);
+      this.setSelectedSections(0);
     }
   };
 
@@ -385,13 +383,107 @@ export class TemporalFieldStore<
         return;
       }
 
-      const activeElement = getActiveElement(domGetters.getRoot());
-      const shouldBlur = !domGetters.getRoot().contains(activeElement);
+      const activeEl = this.getActiveElement();
+      const shouldBlur = !domGetters.getRoot().contains(activeEl);
       if (shouldBlur) {
         setFocused(false);
-        setSelectedSections(null);
+        this.setSelectedSections(null);
       }
     });
+  };
+
+  public handleInputClick = (event: React.MouseEvent) => {
+    const { disabled, sections } = this.state;
+    const selectedSections = selectors.selectedSections(this.state);
+
+    if (disabled || !domGetters.isReady()) {
+      return;
+    }
+
+    setFocused(true);
+
+    if (selectedSections === 'all') {
+      containerClickTimeout.start(0, () => {
+        const cursorPosition = document.getSelection()!.getRangeAt(0).startOffset;
+
+        if (cursorPosition === 0) {
+          this.setSelectedSections(0);
+          return;
+        }
+
+        let sectionIndex = 0;
+        let cursorOnStartOfSection = 0;
+
+        while (cursorOnStartOfSection < cursorPosition && sectionIndex < sections.length) {
+          const section = sections[sectionIndex];
+          sectionIndex += 1;
+          cursorOnStartOfSection += `${section.startSeparator}${
+            section.value || this.getSectionPlaceholder(section)
+          }${section.endSeparator}`.length;
+        }
+
+        this.setSelectedSections(sectionIndex - 1);
+      });
+    } else if (!focused) {
+      setFocused(true);
+      this.setSelectedSections(0);
+    } else {
+      const hasClickedOnASection = domGetters.getRoot().contains(event.target as Node);
+
+      if (!hasClickedOnASection) {
+        this.setSelectedSections(0);
+      }
+    }
+  };
+
+  public handleInputPaste = (event: React.ClipboardEvent<HTMLDivElement>) => {
+    const { readOnly } = this.state;
+    const selectedSections = selectors.selectedSections(this.state);
+
+    if (readOnly || selectedSections !== 'all') {
+      event.preventDefault();
+      return;
+    }
+
+    const pastedValue = event.clipboardData.getData('text');
+    event.preventDefault();
+    setCharacterQuery(null);
+    this.updateValueFromValueStr(pastedValue);
+  };
+
+  public handleInputInput = (event: React.FormEvent<HTMLDivElement>) => {
+    const { sections } = this.state;
+    const selectedSections = selectors.selectedSections(this.state);
+
+    if (!domGetters.isReady() || selectedSections !== 'all') {
+      return;
+    }
+
+    const target = event.target as HTMLSpanElement;
+    const keyPressed = target.textContent ?? '';
+
+    domGetters.getRoot().innerHTML = sections
+      .map(
+        (section) =>
+          `${section.startSeparator}${section.value || this.getSectionPlaceholder(section)}${section.endSeparator}`,
+      )
+      .join('');
+    syncSelectionToDOM({ focused, domGetters, stateResponse });
+
+    if (keyPressed.length === 0 || keyPressed.charCodeAt(0) === 10) {
+      this.clearValue();
+      this.setSelectedSections('all');
+    } else if (keyPressed.length > 1) {
+      this.updateValueFromValueStr(keyPressed);
+    } else {
+      if (selectedSections === 'all') {
+        this.setSelectedSections(0);
+      }
+      applyCharacterEditing({
+        keyPressed,
+        sectionIndex: 0,
+      });
+    }
   };
 
   private getSectionsFromValue(valueToAnalyze: TValue) {
@@ -421,5 +513,60 @@ export class TemporalFieldStore<
 
   private setSelectedSections(selectedSections: TemporalFieldSelectedSections) {
     this.set('selectedSections', selectedSections);
+  }
+
+  private getSectionPlaceholder(section: TemporalFieldSection<TValue>) {
+    const { adapter } = this.state;
+    switch (section.sectionType) {
+      case 'year': {
+        return localeText.fieldYearPlaceholder({
+          digitAmount: adapter.formatByString(adapter.now('default'), section.format).length,
+          format: section.format,
+        });
+      }
+
+      case 'month': {
+        return localeText.fieldMonthPlaceholder({
+          contentType: section.contentType,
+          format: section.format,
+        });
+      }
+
+      case 'day': {
+        return localeText.fieldDayPlaceholder({ format: section.format });
+      }
+
+      case 'weekDay': {
+        return localeText.fieldWeekDayPlaceholder({
+          contentType: section.contentType,
+          format: section.format,
+        });
+      }
+
+      case 'hours': {
+        return localeText.fieldHoursPlaceholder({ format: section.format });
+      }
+
+      case 'minutes': {
+        return localeText.fieldMinutesPlaceholder({ format: section.format });
+      }
+
+      case 'seconds': {
+        return localeText.fieldSecondsPlaceholder({ format: section.format });
+      }
+
+      case 'meridiem': {
+        return localeText.fieldMeridiemPlaceholder({ format: section.format });
+      }
+
+      default: {
+        return section.format;
+      }
+    }
+  }
+
+  private getActiveElement() {
+    const doc = ownerDocument(rootRef.current);
+    return activeElement(doc);
   }
 }
