@@ -23,8 +23,8 @@ const cardContents = {
   design: (
     <div className={styles.PopupContent}>
       <img
-        width="241"
-        height="240"
+        width="250"
+        height="249"
         className={styles.Image}
         src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b7/Braun_ABW30_%28schwarz%29.jpg/250px-Braun_ABW30_%28schwarz%29.jpg"
         alt="Braun ABW30"
@@ -37,8 +37,8 @@ const cardContents = {
   art: (
     <div className={styles.PopupContent}>
       <img
-        width="206"
-        height="240"
+        width="250"
+        height="290"
         className={styles.Image}
         src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5f/MonaLisa_sfumato.jpeg/250px-MonaLisa_sfumato.jpeg"
         alt="Mona Lisa"
