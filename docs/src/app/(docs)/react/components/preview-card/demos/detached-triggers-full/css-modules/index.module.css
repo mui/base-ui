@@ -1,28 +1,31 @@
 .Positioner {
+  --easing: cubic-bezier(0.22, 1, 0.36, 1);
+  --animation-duration: 0.35s;
+
   height: var(--positioner-height);
   width: var(--positioner-width);
   max-width: var(--available-width);
-  transition:
-    top 0.35s cubic-bezier(0.22, 1, 0.36, 1),
-    left 0.35s cubic-bezier(0.22, 1, 0.36, 1),
-    right 0.35s cubic-bezier(0.22, 1, 0.36, 1),
-    bottom 0.35s cubic-bezier(0.22, 1, 0.36, 1),
-    transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+
+  transition-property: top, left, right, bottom, transform;
+  transition-timing-function: var(--easing);
+  transition-duration: var(--animation-duration);
 }
 
 .Popup {
-  box-sizing: border-box;
   position: relative;
+  background-color: canvas;
+  color: var(--color-gray-900);
+  border-radius: 0.5rem;
+  transform-origin: var(--transform-origin);
+
+  /* These are required to make the size animations work */
   width: var(--popup-width, auto);
   height: var(--popup-height, auto);
-  border-radius: 0.5rem;
-  background-color: canvas;
-  transform-origin: var(--transform-origin);
-  transition:
-    width 0.35s cubic-bezier(0.22, 1, 0.36, 1),
-    height 0.35s cubic-bezier(0.22, 1, 0.36, 1),
-    opacity 0.35s cubic-bezier(0.22, 1, 0.36, 1),
-    transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+
+  /* width and height are essential for the resize animation; opacity and transform handle the enter/exit animation */
+  transition-property: width, height, opacity, transform;
+  transition-timing-function: var(--easing);
+  transition-duration: var(--animation-duration);
 
   &[data-starting-style],
   &[data-ending-style] {
@@ -84,16 +87,24 @@
 }
 
 .Viewport {
+  /* Required to clip the overflowing content during the slide in/out animations */
   position: relative;
   overflow: clip;
+  width: 100%;
+  height: 100%;
 
   & [data-previous],
   & [data-current] {
+    /* This freezes the width of the content while transitioning.
+       The 'previous` container receives the width of the previous content, while the `next` container
+       receives the width of the new content.
+    */
+    width: var(--popup-width);
     translate: 0;
     opacity: 1;
     transition:
-      translate 350ms cubic-bezier(0.22, 1, 0.36, 1),
-      opacity 175ms cubic-bezier(0.22, 1, 0.36, 1);
+      translate var(--animation-duration) var(--easing),
+      opacity calc(var(--animation-duration) / 2) var(--easing);
   }
 
   &[data-activation-direction~='left'] [data-current][data-starting-style] {
