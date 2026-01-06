@@ -14,6 +14,7 @@ Renders a `<div>` element.
 | Prop                   | Type                                                                                                                           | Default      | Description                                                                                                                                                                                                                                                                                                                                                   |
 | :--------------------- | :----------------------------------------------------------------------------------------------------------------------------- | :----------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | name                   | `string`                                                                                                                       | -            | Identifies the field when a form is submitted.&#xA;Takes precedence over the `name` prop on the `<Field.Control>` component.                                                                                                                                                                                                                                  |
+| actionsRef             | `RefObject<Field.Root.Actions \| null>`                                                                                        | -            | A ref to imperative actions. `validate`: Validates the field when called.                                                                                                                                                                                                                                                                                     |
 | dirty                  | `boolean`                                                                                                                      | -            | Whether the field's value has been changed from its initial value.&#xA;Useful when the field state is controlled by an external library.                                                                                                                                                                                                                      |
 | touched                | `boolean`                                                                                                                      | -            | Whether the field has been touched.&#xA;Useful when the field state is controlled by an external library.                                                                                                                                                                                                                                                     |
 | disabled               | `boolean`                                                                                                                      | `false`      | Whether the component should ignore user interaction.&#xA;Takes precedence over the `disabled` prop on the `<Field.Control>` component.                                                                                                                                                                                                                       |
@@ -52,6 +53,12 @@ type FieldRootState = {
   filled: boolean;
   focused: boolean;
 };
+```
+
+### Root.Actions
+
+```typescript
+type FieldRootActions = { validate: () => void };
 ```
 
 ### Item
