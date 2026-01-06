@@ -1520,6 +1520,7 @@ describe('<Select.Root />', () => {
       });
 
       it('does not add [data-filled] attribute when multiple value is empty', async () => {
+        ignoreActWarnings();
         const { user } = await renderFakeTimers(
           <Field.Root>
             <Select.Root multiple>
@@ -1542,7 +1543,7 @@ describe('<Select.Root />', () => {
 
         await user.click(trigger);
         await flushMicrotasks();
-        clock.tick(200);
+        await clock.tickAsync(200);
 
         const option = screen.getByRole('option', { name: 'Option 1' });
 
@@ -1558,6 +1559,8 @@ describe('<Select.Root />', () => {
       });
 
       it('does not add [data-filled] attribute when multiple defaultValue is empty array', async () => {
+        ignoreActWarnings();
+
         const { user } = await renderFakeTimers(
           <Field.Root>
             <Select.Root multiple defaultValue={[]}>
@@ -1580,7 +1583,7 @@ describe('<Select.Root />', () => {
 
         await user.click(trigger);
         await flushMicrotasks();
-        clock.tick(200);
+        await clock.tickAsync(200);
 
         const option = screen.getByRole('option', { name: 'Option 1' });
 
