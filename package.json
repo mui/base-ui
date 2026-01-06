@@ -64,7 +64,7 @@
     "@base-ui/monorepo-tests": "workspace:*",
     "@mui/internal-code-infra": "0.0.3-canary.64",
     "@mui/internal-netlify-cache": "0.0.2-canary.1",
-    "@mui/internal-test-utils": "2.0.18-canary.0",
+    "@mui/internal-test-utils": "2.0.18-canary.2",
     "@next/eslint-plugin-next": "16.1.1",
     "@octokit/rest": "22.0.1",
     "@playwright/test": "1.57.0",
@@ -120,14 +120,5 @@
     "@types/node": "22.18.13",
     "@types/react": "19.2.7",
     "@types/react-dom": "^19.2.3"
-  },
-  "pnpm": {
-    "packageExtensions": {
-      "@mui/internal-test-utils": {
-        "dependencies": {
-          "lodash.kebabcase": "^4.1.1"
-        }
-      }
-    }
   }
 }
