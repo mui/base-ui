@@ -7,7 +7,7 @@ const demoPreviewCard = PreviewCard.createHandle<React.ReactElement>();
 
 const cardContents = {
   typography: (
-    <div className={styles.PopupContent}>
+    <div className={styles.PopupContent} key="typography">
       <img
         width="224"
         height="150"
@@ -21,7 +21,7 @@ const cardContents = {
     </div>
   ),
   design: (
-    <div className={styles.PopupContent}>
+    <div className={styles.PopupContent} key="design">
       <img
         width="250"
         height="249"
@@ -35,7 +35,7 @@ const cardContents = {
     </div>
   ),
   art: (
-    <div className={styles.PopupContent}>
+    <div className={styles.PopupContent} key="art">
       <img
         width="250"
         height="290"
