@@ -200,7 +200,7 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
         },
         validation.getInputValidationProps,
         // React <19 sets an empty value if `undefined` is passed explicitly
-        // To avoid this, we only set the value if it's defined,
+        // To avoid this, we only set the value if it's defined
         value !== undefined ? { value } : EMPTY_OBJECT,
       ),
     [
