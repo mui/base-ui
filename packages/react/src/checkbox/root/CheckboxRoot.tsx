@@ -5,7 +5,7 @@ import { useControlled } from '@base-ui/utils/useControlled';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
-import { visuallyHidden } from '@base-ui/utils/visuallyHidden';
+import { visuallyHiddenInput } from '@base-ui/utils/visuallyHidden';
 import { NOOP } from '../../utils/noop';
 import { useStateAttributesMapping } from '../utils/useStateAttributesMapping';
 import { useRenderElement } from '../../utils/useRenderElement';
@@ -192,11 +192,12 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
       disabled,
       // parent checkboxes unset `name` to be excluded from form submission
       name: parent ? undefined : name,
-      // Set `id` to stop Chrome warning about an unassociated input
-      id: inputId ?? undefined,
+      // Set `id` to stop Chrome warning about an unassociated input.
+      // When using a native button, the `id` is applied to the button instead.
+      id: nativeButton ? undefined : (inputId ?? undefined),
       required,
       ref: mergedInputRef,
-      style: visuallyHidden,
+      style: visuallyHiddenInput,
       tabIndex: -1,
       type: 'checkbox',
       'aria-hidden': true,
@@ -269,7 +270,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     ref: [buttonRef, controlRef, forwardedRef, groupContext?.registerControlRef],
     props: [
       {
-        id,
+        id: nativeButton ? (inputId ?? undefined) : id,
         role: 'checkbox',
         'aria-checked': groupIndeterminate ? 'mixed' : checked,
         'aria-readonly': readOnly || undefined,

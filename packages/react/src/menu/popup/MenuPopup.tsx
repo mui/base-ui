@@ -54,6 +54,8 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
   const closeDelay = store.useState('closeDelay');
   const activeTriggerElement = store.useState('activeTriggerElement');
 
+  const isContextMenu = parent.type === 'context-menu';
+
   useOpenChangeComplete({
     open,
     ref: store.context.popupRef,
@@ -83,8 +85,7 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
   const disabled = store.useState('disabled');
 
   useHoverFloatingInteraction(floatingContext, {
-    enabled:
-      hoverEnabled && !disabled && parent.type !== 'context-menu' && parent.type !== 'menubar',
+    enabled: hoverEnabled && !disabled && !isContextMenu && parent.type !== 'menubar',
     closeDelay,
   });
 
@@ -119,7 +120,7 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
     ],
   });
 
-  let returnFocus = parent.type === undefined || parent.type === 'context-menu';
+  let returnFocus = parent.type === undefined || isContextMenu;
   if (
     triggerElement ||
     (parent.type === 'menubar' && lastOpenChangeReason !== REASONS.outsidePress)
@@ -130,7 +131,7 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
   return (
     <FloatingFocusManager
       context={floatingContext}
-      modal={false}
+      modal={isContextMenu}
       disabled={!mounted}
       returnFocus={finalFocus === undefined ? returnFocus : finalFocus}
       initialFocus={parent.type !== 'menu'}
