@@ -13,6 +13,7 @@
     "allowJs": true,
     "skipLibCheck": true,
     "allowImportingTsExtensions": true,
+    "noUncheckedSideEffectImports": true,
     "paths": {
       "@base-ui/react": ["./packages/react/src"],
       "@base-ui/react/*": ["./packages/react/src/*"],
