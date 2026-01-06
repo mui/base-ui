@@ -80,7 +80,7 @@ export const TooltipViewport = React.forwardRef(function TooltipViewport(
 
     previousContainerRef.current?.style.removeProperty('display');
 
-    if (!previousContentDimensions) {
+    if (data.previousDimensions) {
       setPreviousContentDimensions(data.previousDimensions);
     }
   });

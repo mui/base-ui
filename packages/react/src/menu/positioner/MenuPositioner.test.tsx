@@ -8,7 +8,7 @@ import { describeConformance, createRenderer, isJSDOM } from '#test-utils';
 
 const Trigger = React.forwardRef(function Trigger(
   props: Menu.Trigger.Props,
-  ref: React.ForwardedRef<HTMLDivElement>,
+  ref: React.ForwardedRef<any>,
 ) {
   return <Menu.Trigger {...props} ref={ref} render={<div />} />;
 });

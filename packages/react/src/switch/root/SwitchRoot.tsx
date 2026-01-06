@@ -4,7 +4,7 @@ import { useControlled } from '@base-ui/utils/useControlled';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import { visuallyHidden } from '@base-ui/utils/visuallyHidden';
+import { visuallyHiddenInput } from '@base-ui/utils/visuallyHidden';
 import { useRenderElement } from '../../utils/useRenderElement';
 import type { BaseUIComponentProps, NonNativeButtonProps } from '../../utils/types';
 import { mergeProps } from '../../merge-props';
@@ -78,11 +78,12 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
 
   const id = useBaseUiId();
 
-  const inputId = useLabelableId({
+  const controlId = useLabelableId({
     id: idProp,
     implicit: false,
     controlRef: switchRef,
   });
+  const hiddenInputId = nativeButton ? undefined : controlId;
 
   const [checked, setCheckedState] = useControlled({
     controlled: checkedProp,
@@ -124,10 +125,11 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
   });
 
   const rootProps: React.ComponentPropsWithRef<'span'> = {
-    id,
+    id: nativeButton ? controlId : id,
     role: 'switch',
     'aria-checked': checked,
     'aria-readonly': readOnly || undefined,
+    'aria-required': required || undefined,
     'aria-labelledby': labelId,
     onFocus() {
       if (!disabled) {
@@ -164,10 +166,10 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
         {
           checked,
           disabled,
-          id: inputId,
+          id: hiddenInputId,
           name,
           required,
-          style: visuallyHidden,
+          style: visuallyHiddenInput,
           tabIndex: -1,
           type: 'checkbox',
           'aria-hidden': true,
@@ -199,7 +201,7 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
       checked,
       disabled,
       handleInputRef,
-      inputId,
+      hiddenInputId,
       name,
       onCheckedChange,
       required,

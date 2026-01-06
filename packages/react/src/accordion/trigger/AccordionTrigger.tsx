@@ -22,18 +22,16 @@ import { useRenderElement } from '../../utils/useRenderElement';
 
 const SUPPORTED_KEYS = new Set([ARROW_DOWN, ARROW_UP, ARROW_RIGHT, ARROW_LEFT, HOME, END]);
 
-function getActiveTriggers(accordionItemRefs: {
-  current: (HTMLElement | null)[];
-}): HTMLButtonElement[] {
+function getActiveTriggers(accordionItemRefs: { current: (HTMLElement | null)[] }): HTMLElement[] {
   const { current: accordionItemElements } = accordionItemRefs;
 
-  const output: HTMLButtonElement[] = [];
+  const output: HTMLElement[] = [];
 
   for (let i = 0; i < accordionItemElements.length; i += 1) {
     const section = accordionItemElements[i];
     if (!isElementDisabled(section)) {
-      const trigger = section?.querySelector('[type="button"]') as HTMLButtonElement;
-      if (!isElementDisabled(trigger)) {
+      const trigger = section?.querySelector<HTMLElement>('[type="button"], [role="button"]');
+      if (trigger && !isElementDisabled(trigger)) {
         output.push(trigger);
       }
     }
@@ -92,7 +90,6 @@ export const AccordionTrigger = React.forwardRef(function AccordionTrigger(
     () => ({
       'aria-controls': open ? panelId : undefined,
       'aria-expanded': open,
-      disabled,
       id,
       onClick: handleTrigger,
       onKeyDown(event: React.KeyboardEvent) {
@@ -171,7 +168,7 @@ export const AccordionTrigger = React.forwardRef(function AccordionTrigger(
         }
       },
     }),
-    [accordionItemRefs, disabled, handleTrigger, id, isHorizontal, isRtl, loopFocus, open, panelId],
+    [accordionItemRefs, handleTrigger, id, isHorizontal, isRtl, loopFocus, open, panelId],
   );
 
   const element = useRenderElement('button', componentProps, {

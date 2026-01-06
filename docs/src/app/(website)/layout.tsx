@@ -8,8 +8,9 @@ import './css/index.css';
 
 export default function Layout({ children }: React.PropsWithChildren) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body className="Body p-6 bp2:py-7 bp2:px-9">
+    // Use suppressHydrationWarning to avoid https://github.com/facebook/react/issues/24430
+    <html lang="en">
+      <body suppressHydrationWarning className="Body p-6 bp2:py-7 bp2:px-9">
         <div
           className="bs-bb d-g gtc-8 g-8 bp2:g-9"
           style={{ maxWidth: '1480px', marginInline: 'auto' }}
