@@ -5,6 +5,7 @@ import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { visuallyHiddenInput } from '@base-ui/utils/visuallyHidden';
+import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { useRenderElement } from '../../utils/useRenderElement';
 import type { BaseUIComponentProps, NonNativeButtonProps } from '../../utils/types';
 import { mergeProps } from '../../merge-props';
@@ -22,7 +23,6 @@ import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
 import type { BaseUIChangeEventDetails } from '../../types';
 import { useValueChanged } from '../../utils/useValueChanged';
-import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 
 /**
  * Represents the switch itself.
@@ -213,6 +213,7 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
       required,
       setCheckedState,
       validation,
+      value,
     ],
   );
 
@@ -312,7 +313,7 @@ export interface SwitchRootProps
   required?: boolean;
   /**
    * The value submitted with the form when the switch is on.
-   * By default, switches submit the value "on", matching native checkbox behavior.
+   * By default, switch submits the "on" value, matching native checkbox behavior.
    */
   value?: string;
   /**
