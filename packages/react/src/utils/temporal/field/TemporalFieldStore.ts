@@ -7,6 +7,7 @@ import {
 } from '../../../types';
 import { TemporalManager } from '../types';
 import {
+  TemporalFieldSelectedSections,
   TemporalFieldState,
   TemporalFieldStoreParameters,
   TemporalFieldValueChangeHandlerContext,
@@ -87,6 +88,8 @@ export class TemporalFieldStore<
       shouldRespectLeadingZeros,
       referenceDateProp: parameters.referenceDate ?? null,
       format: parameters.format,
+      disabled: parameters.disabled ?? false,
+      readOnly: parameters.readOnly ?? false,
       direction,
       localizedDigits,
       referenceValue,
@@ -171,7 +174,7 @@ export class TemporalFieldStore<
     newSectionValue,
     shouldGoToNextSection,
   }: UpdateSectionValueParameters<TValue>) {
-    const { valueManager, adapter, referenceValue } = this.state
+    const { valueManager, adapter, referenceValue } = this.state;
 
     updateSectionValueOnNextInvalidDateTimeout.clear();
     cleanActiveDateSectionsIfValueNullTimeout.clear();
@@ -182,7 +185,7 @@ export class TemporalFieldStore<
      * Decide which section should be focused
      */
     if (shouldGoToNextSection && activeSectionIndex! < state.sections.length - 1) {
-      setSelectedSections(activeSectionIndex! + 1);
+      this.setSelectedSections(activeSectionIndex! + 1);
     }
 
     /**
@@ -218,7 +221,7 @@ export class TemporalFieldStore<
         });
       }
 
-      return publishValue(valueManager.updateDateInValue(value, section, mergedDate));
+      return this.publishValue(valueManager.updateDateInValue(value, section, mergedDate));
     }
 
     /**
@@ -230,7 +233,7 @@ export class TemporalFieldStore<
       (activeDate == null || adapter.isValid(activeDate))
     ) {
       setSectionUpdateToApplyOnNextInvalidDate(newSectionValue);
-      return publishValue(fieldValueManager.updateDateInValue(value, section, newActiveDate));
+      return this.publishValue(valueManager.updateDateInValue(value, section, newActiveDate));
     }
 
     /**
@@ -240,18 +243,156 @@ export class TemporalFieldStore<
      */
     if (activeDate != null) {
       setSectionUpdateToApplyOnNextInvalidDate(newSectionValue);
-      publishValue(fieldValueManager.updateDateInValue(value, section, newActiveDate));
+      this.publishValue(valueManager.updateDateInValue(value, section, newActiveDate));
     }
 
     /**
      * If the previous date is already null,
      * Then we don't publish the date and we update the sections.
      */
-    return setState((prevState) => ({
-      ...prevState,
+    return this.update({
       sections: newSections,
       tempValueStrAndroid: null,
-    }));
+    });
+  }
+
+  public handleInputKeyDown = (event: React.KeyboardEvent<HTMLSpanElement>) => {
+    const { value, disabled, readOnly, valueManager, localizedDigits, adapter } = this.state;
+    const selectedSections = selectors.selectedSections(this.state);
+    const activeSection = selectors.activeSection<TValue>(this.state);
+    const timezone = selectors.timezoneToRender(this.state);
+
+    if (disabled) {
+      return;
+    }
+
+    // eslint-disable-next-line default-case
+    switch (true) {
+      // Select all
+      case (event.ctrlKey || event.metaKey) &&
+        String.fromCharCode(event.keyCode) === 'A' &&
+        !event.shiftKey &&
+        !event.altKey: {
+        // prevent default to make sure that the next line "select all" while updating
+        // the internal state at the same time.
+        event.preventDefault();
+        this.setSelectedSections('all');
+        break;
+      }
+
+      // Move selection to next section
+      case event.key === 'ArrowRight': {
+        event.preventDefault();
+
+        if (selectedSections == null) {
+          this.setSelectedSections(sectionOrder.startIndex);
+        } else if (selectedSections === 'all') {
+          this.setSelectedSections(sectionOrder.endIndex);
+        } else {
+          const nextSectionIndex = sectionOrder.neighbors[selectedSections].rightIndex;
+          if (nextSectionIndex !== null) {
+            this.setSelectedSections(nextSectionIndex);
+          }
+        }
+        break;
+      }
+
+      // Move selection to previous section
+      case event.key === 'ArrowLeft': {
+        event.preventDefault();
+
+        if (selectedSections == null) {
+          this.setSelectedSections(sectionOrder.endIndex);
+        } else if (selectedSections === 'all') {
+          this.setSelectedSections(sectionOrder.startIndex);
+        } else {
+          const nextSectionIndex = sectionOrder.neighbors[selectedSections].leftIndex;
+          if (nextSectionIndex !== null) {
+            this.setSelectedSections(nextSectionIndex);
+          }
+        }
+        break;
+      }
+
+      // Reset the value of the selected section
+      case event.key === 'Delete': {
+        event.preventDefault();
+
+        if (readOnly) {
+          break;
+        }
+
+        if (selectedSections == null || selectedSections === 'all') {
+          this.clearValue();
+        } else {
+          this.clearActiveSection();
+        }
+        break;
+      }
+
+      // Increment / decrement the selected section value
+      case ['ArrowUp', 'ArrowDown', 'Home', 'End', 'PageUp', 'PageDown'].includes(event.key): {
+        event.preventDefault();
+
+        if (readOnly || activeSection == null) {
+          break;
+        }
+
+        // if all sections are selected, mark the currently editing one as selected
+        if (selectedSections === 'all') {
+          this.setSelectedSections(activeSection.index);
+        }
+
+        const newSectionValue = adjustSectionValue(
+          adapter,
+          timezone,
+          activeSection.section,
+          event.key as AvailableAdjustKeyCode,
+          sectionsValueBoundaries,
+          localizedDigits,
+          valueManager.getDateFromSection(value, activeSection.section),
+          { minutesStep },
+        );
+
+        this.updateSectionValue({
+          section: activeSection,
+          newSectionValue,
+          shouldGoToNextSection: false,
+        });
+        break;
+      }
+    }
+  };
+
+  public handleInputFocus = () => {
+    if (focused || disabled || !domGetters.isReady()) {
+      return;
+    }
+
+    const activeElement = getActiveElement(domGetters.getRoot());
+
+    setFocused(true);
+
+    const isFocusInsideASection = domGetters.getSectionIndexFromDOMElement(activeElement) != null;
+    if (!isFocusInsideASection) {
+      setSelectedSections(sectionOrder.startIndex);
+    }
+  };
+
+  public handleInputBlur = () => {
+    setTimeout(() => {
+      if (!domGetters.isReady()) {
+        return;
+      }
+
+      const activeElement = getActiveElement(domGetters.getRoot());
+      const shouldBlur = !domGetters.getRoot().contains(activeElement);
+      if (shouldBlur) {
+        setFocused(false);
+        setSelectedSections(null);
+      }
+    });
+  };
 
   private getSectionsFromValue(valueToAnalyze: TValue) {
     const { adapter, shouldRespectLeadingZeros } = this.state;
@@ -276,5 +417,9 @@ export class TemporalFieldStore<
     };
 
     // TODO: Fire onValueChange
+  }
+
+  private setSelectedSections(selectedSections: TemporalFieldSelectedSections) {
+    this.set('selectedSections', selectedSections);
   }
 }

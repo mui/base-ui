@@ -15,6 +15,10 @@ const timezoneToRenderSelector = createSelectorMemoized(
 export const selectors = {
   timezoneToRender: timezoneToRenderSelector,
   selectedSections: createSelector((state: State) => state.selectedSections),
+  isSelectingAllSections: createSelector(
+    (state: State) => state.selectedSections,
+    (selectedSections) => selectedSections === 'all',
+  ),
   activeSection: createSelectorMemoized(
     (state: State) => state.valueManager,
     (state: State) => (state.selectedSections === 'all' ? 0 : state.selectedSections),

@@ -164,6 +164,14 @@ export interface TemporalFieldState<TValue extends TemporalSupportedValue = any>
    * It is updated whenever we have a valid date (for the Range Pickers we update only the portion of the range that is valid).
    */
   referenceValue: TemporalNonNullableValue<TValue>;
+  /**
+   * Whether the field is disabled.
+   */
+  disabled: boolean;
+  /**
+   * Whether the field is read-only.
+   */
+  readOnly: boolean;
 }
 
 export interface TemporalFieldCharacterEditingQuery {

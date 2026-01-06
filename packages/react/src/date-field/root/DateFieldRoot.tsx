@@ -14,6 +14,7 @@ import {
   TemporalFieldValueManager,
 } from '../../utils/temporal/field/types';
 import { areDatesEqual } from '../../utils/temporal/date-helpers';
+import { DateFieldRootContext } from './DateFieldRootContext';
 
 const dateFieldValueManager: TemporalFieldValueManager<TemporalValue> = {
   emptyValue: null,
@@ -108,35 +109,23 @@ export const DateFieldRoot = React.forwardRef(function DateFieldRoot(
     () => new TemporalFieldStore(parameters, adapter, manager, dateFieldValueManager, direction),
   ).current;
 
-  const resolvedChildren = React.useMemo(() => {
-    if (!React.isValidElement(children) && typeof children === 'function') {
-      return children(EMPTY_OBJECT);
-    }
-
-    return children;
-  }, [children]);
-
-  return useRenderElement('div', componentProps, {
+  const element = useRenderElement('div', componentProps, {
     // state,
     ref: forwardedRef,
-    props: [{ children: resolvedChildren }, elementProps],
+    props: [elementProps],
     // stateAttributesMapping,
   });
+
+  return <DateFieldRootContext.Provider value={store}>{element}</DateFieldRootContext.Provider>;
 });
 
 export interface DateFieldRootState {}
 
 export interface DateFieldRootProps
   extends
-    Omit<BaseUIComponentProps<'div', DateFieldRootState>, 'children'>,
+    BaseUIComponentProps<'div', DateFieldRootState>,
     validateDate.ValidationProps,
-    TemporalFieldStorePublicParameters<TemporalValue, validateDate.ReturnValue> {
-  /**
-   * The children of the component.
-   * If a function is provided, it will be called with the public context as its parameter.
-   */
-  children?: React.ReactNode | ((parameters: {}) => React.ReactNode);
-}
+    TemporalFieldStorePublicParameters<TemporalValue, validateDate.ReturnValue> {}
 
 export namespace DateFieldRoot {
   export type Props = DateFieldRootProps;
