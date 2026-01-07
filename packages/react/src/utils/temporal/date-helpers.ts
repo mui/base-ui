@@ -86,3 +86,18 @@ export function formatMonthFullLetterAndYear(
 
   return adapter.formatByString(date, dateFormat);
 }
+
+export function getMonthsInYear(
+  adapter: TemporalAdapter,
+  year: TemporalSupportedObject,
+): TemporalSupportedObject[] {
+  const firstMonth = adapter.startOfYear(year);
+  const months = [firstMonth];
+
+  while (months.length < 12) {
+    const prevMonth = months[months.length - 1];
+    months.push(adapter.addMonths(prevMonth, 1));
+  }
+
+  return months;
+}

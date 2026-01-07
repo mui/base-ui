@@ -14,6 +14,11 @@ const timezoneToRenderSelector = createSelectorMemoized(
 
 export const selectors = {
   timezoneToRender: timezoneToRenderSelector,
+  sections: createSelector((state: State) => state.sections) as <
+    TValue extends TemporalSupportedValue,
+  >(
+    state: State<TValue>,
+  ) => TemporalFieldSection<TValue>[],
   selectedSections: createSelector((state: State) => state.selectedSections),
   isSelectingAllSections: createSelector(
     (state: State) => state.selectedSections,

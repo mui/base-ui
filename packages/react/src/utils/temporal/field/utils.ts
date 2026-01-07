@@ -7,8 +7,14 @@ import {
   TemporalSupportedValue,
   TemporalTimezone,
 } from '../../../types';
+import { getMonthsInYear } from '../date-helpers';
 import { TemporalDateType, TemporalManager } from '../types';
-import { TemporalFieldNonRangeSection, TemporalFieldSection } from './types';
+import {
+  TemporalFieldNonRangeSection,
+  TemporalFieldPlaceholderGetters,
+  TemporalFieldSection,
+  TemporalFieldSectionValueBoundaries,
+} from './types';
 
 export function getDateSectionConfigFromFormatToken(
   adapter: TemporalAdapter,
@@ -210,3 +216,88 @@ export function getTimezoneToRender<TValue extends TemporalSupportedValue>(
   }
   return 'default';
 }
+
+export function getLetterEditingOptions(
+  adapter: TemporalAdapter,
+  timezone: TemporalTimezone,
+  sectionType: TemporalFieldSectionType,
+  format: string,
+) {
+  switch (sectionType) {
+    case 'month': {
+      return getMonthsInYear(adapter, adapter.now(timezone)).map((month) =>
+        adapter.formatByString(month, format!),
+      );
+    }
+
+    case 'weekDay': {
+      return getDaysInWeekStr(adapter, format);
+    }
+
+    case 'meridiem': {
+      const now = adapter.now(timezone);
+      return [adapter.startOfDay(now), adapter.endOfDay(now)].map((date) =>
+        adapter.formatByString(date, format),
+      );
+    }
+
+    default: {
+      return [];
+    }
+  }
+}
+
+export function cleanDigitSectionValue(
+  adapter: TemporalAdapter,
+  value: number,
+  sectionBoundaries: TemporalFieldSectionValueBoundaries<any>,
+  localizedDigits: string[],
+  section: Pick<
+    TemporalFieldNonRangeSection,
+    | 'format'
+    | 'sectionType'
+    | 'contentType'
+    | 'hasLeadingZerosInFormat'
+    | 'hasLeadingZerosInInput'
+    | 'maxLength'
+  >,
+) {
+  if (process.env.NODE_ENV !== 'production') {
+    if (section.sectionType !== 'day' && section.contentType === 'digit-with-letter') {
+      throw new Error(
+        [
+          `MUI X: The token "${section.format}" is a digit format with letter in it.'
+             This type of format is only supported for 'day' sections`,
+        ].join('\n'),
+      );
+    }
+  }
+
+  if (section.sectionType === 'day' && section.contentType === 'digit-with-letter') {
+    const date = adapter.setDate(
+      (sectionBoundaries as TemporalFieldSectionValueBoundaries<'day'>).longestMonth,
+      value,
+    );
+    return adapter.formatByString(date, section.format);
+  }
+
+  // queryValue without leading `0` (`01` => `1`)
+  let valueStr = value.toString();
+
+  if (section.hasLeadingZerosInInput) {
+    valueStr = cleanLeadingZeros(valueStr, section.maxLength!);
+  }
+
+  return applyLocalizedDigits(valueStr, localizedDigits);
+}
+
+export const DEFAULT_PLACEHOLDER_GETTERS: TemporalFieldPlaceholderGetters = {
+  year: (params) => 'Y'.repeat(params.digitAmount),
+  month: (params) => (params.contentType === 'letter' ? 'MMMM' : 'MM'),
+  day: () => 'DD',
+  weekDay: (params) => (params.contentType === 'letter' ? 'EEEE' : 'EE'),
+  hours: () => 'hh',
+  minutes: () => 'mm',
+  seconds: () => 'ss',
+  meridiem: () => 'aa',
+};

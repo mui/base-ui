@@ -1,3 +1,4 @@
+import * as React from 'react';
 import { Store } from '@base-ui/utils/store';
 import { ownerDocument } from '@base-ui/utils/owner';
 import {
@@ -16,11 +17,17 @@ import {
   TemporalFieldValueManager,
 } from './types';
 import { buildSectionsFromFormat } from './buildSectionsFromFormat';
-import { getLocalizedDigits, getTimezoneToRender, validateSections } from './utils';
+import {
+  DEFAULT_PLACEHOLDER_GETTERS,
+  getLocalizedDigits,
+  getTimezoneToRender,
+  validateSections,
+} from './utils';
 import { TextDirection } from '../../../direction-provider';
 import { selectors } from './selectors';
 import { mergeDateIntoReferenceDate } from './mergeDateIntoReferenceDate';
 import { activeElement } from '../../../floating-ui-react/utils';
+import { TemporalFieldValueAdjustmentPlugin } from './TemporalFieldValueAdjustmentPlugin';
 
 const SECTION_TYPE_GRANULARITY: { [key in TemporalFieldSectionType]?: number } = {
   year: 1,
@@ -40,6 +47,10 @@ export class TemporalFieldStore<
   private parameters: TemporalFieldStoreParameters<TValue, TError>;
 
   private initialParameters: TemporalFieldStoreParameters<TValue, TError> | null = null;
+
+  public inputRef = React.createRef<HTMLElement>();
+
+  private valueAdjustment = new TemporalFieldValueAdjustmentPlugin<TValue>(this);
 
   constructor(
     parameters: TemporalFieldStoreParameters<TValue, TError>,
@@ -102,6 +113,7 @@ export class TemporalFieldStore<
       characterQuery: null,
       selectedSections: null,
       tempValueStrAndroid: null,
+      placeholderGetters: { ...parameters.placeholderGetters, ...DEFAULT_PLACEHOLDER_GETTERS },
     });
 
     this.valueManager = valueManager;
@@ -114,9 +126,12 @@ export class TemporalFieldStore<
 
   public clearValue() {
     const { adapter, value } = this.state;
+
     if (this.valueManager.areValuesEqual(adapter, value, this.valueManager.emptyValue)) {
       this.update({
-        sections: this.state.sections.map((section) => ({ ...section, value: '' })),
+        sections: selectors
+          .sections<TValue>(this.state)
+          .map((section) => ({ ...section, value: '' })),
         tempValueStrAndroid: null,
         characterQuery: null,
       });
@@ -177,7 +192,8 @@ export class TemporalFieldStore<
     newSectionValue,
     shouldGoToNextSection,
   }: UpdateSectionValueParameters<TValue>) {
-    const { valueManager, adapter, referenceValue, value, sections, localizedDigits } = this.state;
+    const { valueManager, adapter, referenceValue, value, localizedDigits } = this.state;
+    const sections = selectors.sections<TValue>(this.state);
 
     updateSectionValueOnNextInvalidDateTimeout.clear();
     cleanActiveDateSectionsIfValueNullTimeout.clear();
@@ -259,8 +275,8 @@ export class TemporalFieldStore<
   }
 
   public handleInputKeyDown = (event: React.KeyboardEvent<HTMLSpanElement>) => {
-    const { value, disabled, readOnly, valueManager, localizedDigits, adapter, sections } =
-      this.state;
+    const { value, disabled, readOnly, valueManager, localizedDigits, adapter } = this.state;
+    const sections = selectors.sections<TValue>(this.state);
     const selectedSections = selectors.selectedSections(this.state);
     const activeSection = selectors.activeSection<TValue>(this.state);
     const timezone = selectors.timezoneToRender(this.state);
@@ -328,7 +344,7 @@ export class TemporalFieldStore<
       }
 
       // Increment / decrement the selected section value
-      case ['ArrowUp', 'ArrowDown', 'Home', 'End', 'PageUp', 'PageDown'].includes(event.key): {
+      case this.valueAdjustment.isAdjustSectionValueKeyCode(event.key): {
         event.preventDefault();
 
         if (readOnly || activeSection == null) {
@@ -340,20 +356,9 @@ export class TemporalFieldStore<
           this.setSelectedSections(activeSection.index);
         }
 
-        const newSectionValue = adjustSectionValue(
-          adapter,
-          timezone,
-          activeSection.section,
-          event.key as AvailableAdjustKeyCode,
-          sectionsValueBoundaries,
-          localizedDigits,
-          valueManager.getDateFromSection(value, activeSection.section),
-          { minutesStep },
-        );
-
         this.updateSectionValue({
           section: activeSection,
-          newSectionValue,
+          newSectionValue: this.valueAdjustment.adjustActiveSectionValue(event.key),
           shouldGoToNextSection: false,
         });
         break;
@@ -363,7 +368,7 @@ export class TemporalFieldStore<
 
   public handleInputFocus = () => {
     const { disabled } = this.state;
-    if (focused || disabled || !domGetters.isReady()) {
+    if (focused || disabled || !this.inputRef.current) {
       return;
     }
 
@@ -379,12 +384,12 @@ export class TemporalFieldStore<
 
   public handleInputBlur = () => {
     setTimeout(() => {
-      if (!domGetters.isReady()) {
+      if (!this.inputRef.current) {
         return;
       }
 
       const activeEl = this.getActiveElement();
-      const shouldBlur = !domGetters.getRoot().contains(activeEl);
+      const shouldBlur = !this.inputRef.current.contains(activeEl);
       if (shouldBlur) {
         setFocused(false);
         this.setSelectedSections(null);
@@ -393,10 +398,11 @@ export class TemporalFieldStore<
   };
 
   public handleInputClick = (event: React.MouseEvent) => {
-    const { disabled, sections } = this.state;
+    const { disabled } = this.state;
+    const sections = selectors.sections<TValue>(this.state);
     const selectedSections = selectors.selectedSections(this.state);
 
-    if (disabled || !domGetters.isReady()) {
+    if (disabled || !this.inputRef.current) {
       return;
     }
 
@@ -428,7 +434,7 @@ export class TemporalFieldStore<
       setFocused(true);
       this.setSelectedSections(0);
     } else {
-      const hasClickedOnASection = domGetters.getRoot().contains(event.target as Node);
+      const hasClickedOnASection = this.inputRef.current.contains(event.target as Node);
 
       if (!hasClickedOnASection) {
         this.setSelectedSections(0);
@@ -452,17 +458,17 @@ export class TemporalFieldStore<
   };
 
   public handleInputInput = (event: React.FormEvent<HTMLDivElement>) => {
-    const { sections } = this.state;
     const selectedSections = selectors.selectedSections(this.state);
+    const sections = selectors.sections<TValue>(this.state);
 
-    if (!domGetters.isReady() || selectedSections !== 'all') {
+    if (!this.inputRef.current || selectedSections !== 'all') {
       return;
     }
 
     const target = event.target as HTMLSpanElement;
     const keyPressed = target.textContent ?? '';
 
-    domGetters.getRoot().innerHTML = sections
+    this.inputRef.current.innerHTML = sections
       .map(
         (section) =>
           `${section.startSeparator}${section.value || this.getSectionPlaceholder(section)}${section.endSeparator}`,
@@ -516,47 +522,47 @@ export class TemporalFieldStore<
   }
 
   private getSectionPlaceholder(section: TemporalFieldSection<TValue>) {
-    const { adapter } = this.state;
+    const { adapter, placeholderGetters } = this.state;
     switch (section.sectionType) {
       case 'year': {
-        return localeText.fieldYearPlaceholder({
+        return placeholderGetters.year({
           digitAmount: adapter.formatByString(adapter.now('default'), section.format).length,
           format: section.format,
         });
       }
 
       case 'month': {
-        return localeText.fieldMonthPlaceholder({
+        return placeholderGetters.month({
           contentType: section.contentType,
           format: section.format,
         });
       }
 
       case 'day': {
-        return localeText.fieldDayPlaceholder({ format: section.format });
+        return placeholderGetters.day({ format: section.format });
       }
 
       case 'weekDay': {
-        return localeText.fieldWeekDayPlaceholder({
+        return placeholderGetters.weekDay({
           contentType: section.contentType,
           format: section.format,
         });
       }
 
       case 'hours': {
-        return localeText.fieldHoursPlaceholder({ format: section.format });
+        return placeholderGetters.hours({ format: section.format });
       }
 
       case 'minutes': {
-        return localeText.fieldMinutesPlaceholder({ format: section.format });
+        return placeholderGetters.minutes({ format: section.format });
       }
 
       case 'seconds': {
-        return localeText.fieldSecondsPlaceholder({ format: section.format });
+        return placeholderGetters.seconds({ format: section.format });
       }
 
       case 'meridiem': {
-        return localeText.fieldMeridiemPlaceholder({ format: section.format });
+        return placeholderGetters.meridiem({ format: section.format });
       }
 
       default: {
@@ -566,7 +572,7 @@ export class TemporalFieldStore<
   }
 
   private getActiveElement() {
-    const doc = ownerDocument(rootRef.current);
+    const doc = ownerDocument(this.inputRef.current);
     return activeElement(doc);
   }
 }

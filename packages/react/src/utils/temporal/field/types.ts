@@ -2,6 +2,7 @@ import { TextDirection } from '../../../direction-provider';
 import {
   BaseUIChangeEventDetails,
   TemporalAdapter,
+  TemporalFieldSectionContentType,
   TemporalFieldSectionType,
   TemporalFormatTokenConfig,
   TemporalNonNullableValue,
@@ -58,6 +59,13 @@ export interface TemporalFieldStoreParameters<
    * Whether the field is forcefully marked as invalid.
    */
   invalid?: boolean;
+  /**
+   * Methods to generate the placeholders for each section type.
+   * Used when the field is empty or when a section is empty.
+   * If a section type is not specified, a default placeholder will be used.
+   * @default {}
+   */
+  placeholderGetters?: Partial<TemporalFieldPlaceholderGetters>;
   /**
    * Whether the field should respect the leading zeroes of its format.
    * For example, the format "M/d/yyyy" will render "4/7/2022" when `true` and "04/07/2022" when `false`.
@@ -172,6 +180,10 @@ export interface TemporalFieldState<TValue extends TemporalSupportedValue = any>
    * Whether the field is read-only.
    */
   readOnly: boolean;
+  /**
+   * Methods to generate the placeholders for each section type.
+   */
+  placeholderGetters: TemporalFieldPlaceholderGetters;
 }
 
 export interface TemporalFieldCharacterEditingQuery {
@@ -340,3 +352,27 @@ export interface TemporalFieldValueManager<TValue extends TemporalSupportedValue
     section: TemporalFieldSection<TValue>,
   ) => TemporalFieldSection<TValue>[];
 }
+
+export interface TemporalFieldPlaceholderGetters {
+  year: (params: { digitAmount: number; format: string }) => string;
+  month: (params: { contentType: TemporalFieldSectionContentType; format: string }) => string;
+  day: (params: { format: string }) => string;
+  weekDay: (params: { contentType: TemporalFieldSectionContentType; format: string }) => string;
+  hours: (params: { format: string }) => string;
+  minutes: (params: { format: string }) => string;
+  seconds: (params: { format: string }) => string;
+  meridiem: (params: { format: string }) => string;
+}
+
+export type TemporalFieldSectionValueBoundaries<SectionType extends TemporalFieldSectionType> = {
+  minimum: number;
+  maximum: number;
+} & (SectionType extends 'day' ? { longestMonth: TemporalSupportedObject } : {});
+
+export type TemporalFieldSectionValueBoundariesLookup = {
+  [SectionType in TemporalFieldSectionType]: (params: {
+    currentDate: TemporalSupportedObject | null;
+    format: string;
+    contentType: TemporalFieldSectionContentType;
+  }) => TemporalFieldSectionValueBoundaries<SectionType>;
+};
