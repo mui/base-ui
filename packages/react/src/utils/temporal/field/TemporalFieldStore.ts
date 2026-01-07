@@ -28,6 +28,7 @@ import { selectors } from './selectors';
 import { mergeDateIntoReferenceDate } from './mergeDateIntoReferenceDate';
 import { activeElement } from '../../../floating-ui-react/utils';
 import { TemporalFieldValueAdjustmentPlugin } from './TemporalFieldValueAdjustmentPlugin';
+import { TemporalFieldCharacterEditingPlugin } from './TemporalFieldCharacterEditingPlugin';
 
 const SECTION_TYPE_GRANULARITY: { [key in TemporalFieldSectionType]?: number } = {
   year: 1,
@@ -49,6 +50,8 @@ export class TemporalFieldStore<
   private initialParameters: TemporalFieldStoreParameters<TValue, TError> | null = null;
 
   public inputRef = React.createRef<HTMLElement>();
+
+  private characterEditing = new TemporalFieldCharacterEditingPlugin<TValue>(this);
 
   private valueAdjustment = new TemporalFieldValueAdjustmentPlugin<TValue>(this);
 
@@ -450,7 +453,7 @@ export class TemporalFieldStore<
 
     const pastedValue = event.clipboardData.getData('text');
     event.preventDefault();
-    setCharacterQuery(null);
+    this.characterEditing.resetCharacterQuery();
     this.updateValueFromValueStr(pastedValue);
   };
 
@@ -482,7 +485,7 @@ export class TemporalFieldStore<
       if (selectedSections === 'all') {
         this.setSelectedSections(0);
       }
-      applyCharacterEditing({
+      this.characterEditing.editSection({
         keyPressed,
         sectionIndex: 0,
       });

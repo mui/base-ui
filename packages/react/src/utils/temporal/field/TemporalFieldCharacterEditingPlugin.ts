@@ -1,11 +1,7 @@
 import { TemporalSupportedValue } from '../../../types';
 import { selectors } from './selectors';
 import { TemporalFieldStore } from './TemporalFieldStore';
-import {
-  TemporalFieldCharacterEditingQuery,
-  TemporalFieldNonRangeSection,
-  TemporalFieldSection,
-} from './types';
+import { TemporalFieldCharacterEditingQuery, TemporalFieldSection } from './types';
 import {
   applyLocalizedDigits,
   cleanDigitSectionValue,
@@ -20,7 +16,7 @@ import {
 /**
  * Plugin to update the value of a section when pressing a digit or letter key.
  */
-export class TemporalFieldValueAdjustmentPlugin<TValue extends TemporalSupportedValue> {
+export class TemporalFieldCharacterEditingPlugin<TValue extends TemporalSupportedValue> {
   private store: TemporalFieldStore<TValue, any>;
 
   // We can't type `store`, otherwise we get the following TS error:
@@ -37,12 +33,8 @@ export class TemporalFieldValueAdjustmentPlugin<TValue extends TemporalSupported
     const { keyPressed, sectionIndex } = parameters;
     const { localizedDigits } = this.store.state;
     const section = selectors.section<TValue>(this.store.state, sectionIndex);
-    const isNumericEditing = isStringNumber(keyPressed, localizedDigits);
-    const response = isNumericEditing
-      ? applyNumericEditing({
-          ...params,
-          keyPressed: applyLocalizedDigits(keyPressed, localizedDigits),
-        })
+    const response = isStringNumber(keyPressed, localizedDigits)
+      ? this.applyNumericEditing(parameters)
       : this.applyLetterEditing(parameters);
     if (response == null) {
       setTempAndroidValueStr(null);
@@ -168,23 +160,11 @@ export class TemporalFieldValueAdjustmentPlugin<TValue extends TemporalSupported
     }: {
       queryValue: string;
       skipIfBelowMinimum: boolean;
-      section: Pick<
-        TemporalFieldNonRangeSection,
-        | 'format'
-        | 'sectionType'
-        | 'contentType'
-        | 'hasLeadingZerosInFormat'
-        | 'hasLeadingZerosInInput'
-        | 'maxLength'
-      >;
+      section: TemporalFieldSection<TValue>;
     }): ReturnType<QueryApplier<TValue>> => {
       const cleanQueryValue = removeLocalizedDigits(queryValue, localizedDigits);
       const queryValueNumber = Number(cleanQueryValue);
-      const sectionBoundaries = sectionsValueBoundaries[section.sectionType]({
-        currentDate: null,
-        format: section.format,
-        contentType: section.contentType,
-      });
+      const sectionBoundaries = selectors.sectionBoundaries(this.store.state, section);
 
       if (queryValueNumber > sectionBoundaries.maximum) {
         return { saveQuery: false };
@@ -224,20 +204,18 @@ export class TemporalFieldValueAdjustmentPlugin<TValue extends TemporalSupported
       // When editing a letter-format month and the user presses a digit,
       // We can support the numeric editing by using the digit-format month and re-formatting the result.
       if (section.sectionType === 'month') {
-        const hasLeadingZerosInFormat = doesSectionFormatHaveLeadingZeros(
-          adapter,
-          'digit',
-          'month',
-          'MM',
-        );
-
         const response = getNewSectionValue({
           queryValue,
           skipIfBelowMinimum: true,
           section: {
-            sectionType: section.sectionType,
+            ...section,
             format: 'MM',
-            hasLeadingZerosInFormat,
+            hasLeadingZerosInFormat: doesSectionFormatHaveLeadingZeros(
+              adapter,
+              'digit',
+              'month',
+              'MM',
+            ),
             hasLeadingZerosInInput: true,
             contentType: 'digit',
             maxLength: 2,

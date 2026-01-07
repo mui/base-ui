@@ -1,19 +1,7 @@
-import {
-  TemporalAdapter,
-  TemporalSupportedObject,
-  TemporalSupportedValue,
-  TemporalTimezone,
-} from '../../../types';
-import { TemporalFieldSectionValueBoundariesLookup } from './types';
-import {
-  cleanDigitSectionValue,
-  getDaysInWeekStr,
-  getLetterEditingOptions,
-  removeLocalizedDigits,
-} from './utils';
+import { TemporalSupportedValue } from '../../../types';
+import { cleanDigitSectionValue, getLetterEditingOptions, removeLocalizedDigits } from './utils';
 import { TemporalFieldStore } from './TemporalFieldStore';
 import { selectors } from './selectors';
-import { getMonthsInYear } from '../date-helpers';
 
 /**
  * Plugin to adjust the value of the active section when pressing ArrowUp, ArrowDown, PageUp, PageDown, Home or End.
@@ -32,7 +20,7 @@ export class TemporalFieldValueAdjustmentPlugin<TValue extends TemporalSupported
   }
 
   public adjustActiveSectionValue(keyCode: AdjustSectionValueKeyCode) {
-    const { adapter, localizedDigits, valueManager, value } = this.store.state;
+    const { adapter, localizedDigits } = this.store.state;
     const timezone = selectors.timezoneToRender(this.store.state);
     const activeSection = selectors.activeSection<TValue>(this.store.state);
 
@@ -43,8 +31,6 @@ export class TemporalFieldValueAdjustmentPlugin<TValue extends TemporalSupported
     const delta = getDeltaFromKeyCode(keyCode);
     const isStart = keyCode === 'Home';
     const isEnd = keyCode === 'End';
-    const sectionsValueBoundaries = getSectionsBoundaries(adapter, localizedDigits, timezone);
-    const activeDate = valueManager.getDateFromSection(value, activeSection);
     const shouldSetAbsolute = activeSection.value === '' || isStart || isEnd;
 
     // Digit section
@@ -52,11 +38,7 @@ export class TemporalFieldValueAdjustmentPlugin<TValue extends TemporalSupported
       activeSection.contentType === 'digit' ||
       activeSection.contentType === 'digit-with-letter'
     ) {
-      const sectionBoundaries = sectionsValueBoundaries[activeSection.sectionType]({
-        currentDate: activeDate,
-        format: activeSection.format,
-        contentType: activeSection.contentType,
-      });
+      const sectionBoundaries = selectors.sectionBoundaries(this.store.state, activeSection);
 
       const getCleanValue = (newSectionValue: number) =>
         cleanDigitSectionValue(
@@ -163,104 +145,3 @@ function getDeltaFromKeyCode(keyCode: Omit<AdjustSectionValueKeyCode, 'Home' | '
 }
 
 type AdjustSectionValueKeyCode = 'ArrowUp' | 'ArrowDown' | 'PageUp' | 'PageDown' | 'Home' | 'End';
-
-function isFourDigitYearFormat(adapter: TemporalAdapter, format: string) {
-  return adapter.formatByString(adapter.now('system'), format).length === 4;
-}
-
-function getSectionsBoundaries(
-  adapter: TemporalAdapter,
-  localizedDigits: string[],
-  timezone: TemporalTimezone,
-): TemporalFieldSectionValueBoundariesLookup {
-  const today = adapter.now(timezone);
-  const endOfYear = adapter.endOfYear(today);
-  const endOfDay = adapter.endOfDay(today);
-
-  const { maxDaysInMonth, longestMonth } = getMonthsInYear(adapter, today).reduce(
-    (acc, month) => {
-      const daysInMonth = adapter.getDaysInMonth(month);
-
-      if (daysInMonth > acc.maxDaysInMonth) {
-        return { maxDaysInMonth: daysInMonth, longestMonth: month };
-      }
-
-      return acc;
-    },
-    { maxDaysInMonth: 0, longestMonth: null as TemporalSupportedObject | null },
-  );
-
-  return {
-    year: ({ format }) => ({
-      minimum: 0,
-      maximum: isFourDigitYearFormat(adapter, format) ? 9999 : 99,
-    }),
-    month: () => ({
-      minimum: 1,
-      // Assumption: All years have the same amount of months
-      maximum: adapter.getMonth(endOfYear) + 1,
-    }),
-    day: ({ currentDate }) => ({
-      minimum: 1,
-      maximum: adapter.isValid(currentDate) ? adapter.getDaysInMonth(currentDate) : maxDaysInMonth,
-      longestMonth: longestMonth!,
-    }),
-    weekDay: ({ format, contentType }) => {
-      if (contentType === 'digit') {
-        const daysInWeek = getDaysInWeekStr(adapter, format).map(Number);
-        return {
-          minimum: Math.min(...daysInWeek),
-          maximum: Math.max(...daysInWeek),
-        };
-      }
-
-      return {
-        minimum: 1,
-        maximum: 7,
-      };
-    },
-    hours: ({ format }) => {
-      const lastHourInDay = adapter.getHours(endOfDay);
-      const hasMeridiem =
-        removeLocalizedDigits(
-          adapter.formatByString(adapter.endOfDay(today), format),
-          localizedDigits,
-        ) !== lastHourInDay.toString();
-
-      if (hasMeridiem) {
-        return {
-          minimum: 1,
-          maximum: Number(
-            removeLocalizedDigits(
-              adapter.formatByString(adapter.startOfDay(today), format),
-              localizedDigits,
-            ),
-          ),
-        };
-      }
-
-      return {
-        minimum: 0,
-        maximum: lastHourInDay,
-      };
-    },
-    minutes: () => ({
-      minimum: 0,
-      // Assumption: All years have the same amount of minutes
-      maximum: adapter.getMinutes(endOfDay),
-    }),
-    seconds: () => ({
-      minimum: 0,
-      // Assumption: All years have the same amount of seconds
-      maximum: adapter.getSeconds(endOfDay),
-    }),
-    meridiem: () => ({
-      minimum: 0,
-      maximum: 1,
-    }),
-    empty: () => ({
-      minimum: 0,
-      maximum: 0,
-    }),
-  };
-}
