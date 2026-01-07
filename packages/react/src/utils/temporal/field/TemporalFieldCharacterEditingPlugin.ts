@@ -37,7 +37,7 @@ export class TemporalFieldCharacterEditingPlugin<TValue extends TemporalSupporte
       ? this.applyNumericEditing(parameters)
       : this.applyLetterEditing(parameters);
     if (response == null) {
-      setTempAndroidValueStr(null);
+      this.store.set('tempValueStrAndroid', null);
       return;
     }
 
@@ -113,14 +113,14 @@ export class TemporalFieldCharacterEditingPlugin<TValue extends TemporalSupporte
           const formatFallbackValue = (fallbackValue: string) =>
             this.getSectionValueInAnotherFormat(
               fallbackValue,
-              adapter.formats.month,
+              adapter.formats.monthFullLetter,
               section.format,
             );
 
           return testQueryOnFormatAndFallbackFormat(
             queryValue,
             section,
-            adapter.formats.month,
+            adapter.formats.monthFullLetter,
             formatFallbackValue,
           );
         }

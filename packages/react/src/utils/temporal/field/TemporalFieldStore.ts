@@ -195,6 +195,7 @@ export class TemporalFieldStore<
   }: UpdateSectionValueParameters<TValue>) {
     const { valueManager, adapter, referenceValue, value, localizedDigits } = this.state;
     const sections = selectors.sections<TValue>(this.state);
+    // const section = selectors.section<TValue>(this.state, section.index);
 
     updateSectionValueOnNextInvalidDateTimeout.clear();
     cleanActiveDateSectionsIfValueNullTimeout.clear();
@@ -231,7 +232,7 @@ export class TemporalFieldStore<
 
       if (activeDate == null) {
         cleanActiveDateSectionsIfValueNullTimeout.start(0, () => {
-          if (valueRef.current === value) {
+          if (this.state.value === value) {
             this.update({
               sections: valueManager.clearDateSections(sections, section),
               tempValueStrAndroid: null,
@@ -575,4 +576,19 @@ export class TemporalFieldStore<
     const doc = ownerDocument(this.inputRef.current);
     return activeElement(doc);
   }
+}
+
+interface UpdateSectionValueParameters<TValue extends TemporalSupportedValue> {
+  /**
+   * The section on which we want to apply the new value.
+   */
+  section: TemporalFieldSection<TValue>;
+  /**
+   * Value to apply to the active section.
+   */
+  newSectionValue: string;
+  /**
+   * If `true`, the focus will move to the next section.
+   */
+  shouldGoToNextSection: boolean;
 }
