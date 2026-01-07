@@ -38,11 +38,16 @@ export const PreviewCardViewport = React.forwardRef(function PreviewCardViewport
   const store = usePreviewCardRootContext();
 
   const activeTrigger = store.useState('activeTriggerElement');
+  const activeTriggerId = store.useState('activeTriggerId');
+  const payload = store.useState('payload');
   const open = store.useState('open');
   const floatingContext = store.useState('floatingRootContext');
   const instantType = store.useState('instantType');
 
   const previousActiveTrigger = usePreviousValue(open ? activeTrigger : null);
+  // Remount current content on trigger changes (and once more when payload lags) to avoid DOM reuse flashes.
+  // The key bumps immediately on trigger switches, then again if the payload arrives on a later render.
+  const currentContentKey = usePopupContentKey(activeTriggerId, payload);
 
   const capturedNodeRef = React.useRef<HTMLElement | null>(null);
   const [previousContentNode, setPreviousContentNode] = React.useState<HTMLElement | null>(null);
@@ -62,6 +67,7 @@ export const PreviewCardViewport = React.forwardRef(function PreviewCardViewport
 
   const [showStartingStyleAttribute, setShowStartingStyleAttribute] = React.useState(false);
 
+  // Freeze animations and hide the previous container during measurement for stable dimensions.
   const handleMeasureLayout = useStableCallback(() => {
     currentContainerRef.current?.style.setProperty('animation', 'none');
     currentContainerRef.current?.style.setProperty('transition', 'none');
@@ -162,7 +168,7 @@ export const PreviewCardViewport = React.forwardRef(function PreviewCardViewport
   let childrenToRender: React.ReactNode;
   if (!isTransitioning) {
     childrenToRender = (
-      <div data-current ref={currentContainerRef} key={'current'}>
+      <div data-current ref={currentContainerRef} key={currentContentKey}>
         {children}
       </div>
     );
@@ -186,7 +192,7 @@ export const PreviewCardViewport = React.forwardRef(function PreviewCardViewport
         <div
           data-current
           ref={currentContainerRef}
-          key={'current'}
+          key={currentContentKey}
           data-starting-style={showStartingStyleAttribute ? '' : undefined}
         >
           {children}
@@ -300,4 +306,38 @@ function calculateRelativePosition(from: Element, to: Element): Offset {
     horizontal: toCenter.x - fromCenter.x,
     vertical: toCenter.y - fromCenter.y,
   };
+}
+
+/**
+ * Returns a key that forces remounting content when triggers change or a payload is updated.
+ */
+function usePopupContentKey(activeTriggerId: string | null, payload: unknown): string {
+  const [contentKey, setContentKey] = React.useState(0);
+  const previousActiveTriggerIdRef = React.useRef(activeTriggerId);
+  const previousPayloadRef = React.useRef(payload);
+  const pendingPayloadUpdateRef = React.useRef(false);
+
+  useIsoLayoutEffect(() => {
+    // Compare against the last committed values to decide whether we need a new DOM subtree.
+    const previousActiveTriggerId = previousActiveTriggerIdRef.current;
+    const previousPayload = previousPayloadRef.current;
+    const triggerIdChanged = activeTriggerId !== previousActiveTriggerId;
+    const payloadChanged = payload !== previousPayload;
+
+    if (triggerIdChanged) {
+      // Remount immediately on trigger change; remember if payload hasn't caught up yet.
+      setContentKey((value) => value + 1);
+      pendingPayloadUpdateRef.current = !payloadChanged;
+    } else if (pendingPayloadUpdateRef.current && payloadChanged) {
+      // Payload arrived a render later, so remount once more to avoid reusing the old <img>.
+      setContentKey((value) => value + 1);
+      pendingPayloadUpdateRef.current = false;
+    }
+
+    // Persist current values for the next render's comparison.
+    previousActiveTriggerIdRef.current = activeTriggerId;
+    previousPayloadRef.current = payload;
+  }, [activeTriggerId, payload]);
+
+  return `${activeTriggerId ?? 'current'}-${contentKey}`;
 }
