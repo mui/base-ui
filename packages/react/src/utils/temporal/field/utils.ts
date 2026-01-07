@@ -291,6 +291,12 @@ export function cleanDigitSectionValue(
   return applyLocalizedDigits(valueStr, localizedDigits);
 }
 
+export function isStringNumber(valueStr: string, localizedDigits: string[]) {
+  const nonLocalizedValueStr = removeLocalizedDigits(valueStr, localizedDigits);
+  // `Number(' ')` returns `0` even if ' ' is not a valid number.
+  return nonLocalizedValueStr !== ' ' && !Number.isNaN(Number(nonLocalizedValueStr));
+}
+
 export const DEFAULT_PLACEHOLDER_GETTERS: TemporalFieldPlaceholderGetters = {
   year: (params) => 'Y'.repeat(params.digitAmount),
   month: (params) => (params.contentType === 'letter' ? 'MMMM' : 'MM'),

@@ -12,6 +12,34 @@ const timezoneToRenderSelector = createSelectorMemoized(
   getTimezoneToRender,
 );
 
+const sectionManagerSelector = createSelectorMemoized(
+  (state: State) => state.valueManager,
+  (state: State) => state.sections,
+  (state: State) => state.value,
+  (valueManager, sections, value, sectionIndex: number) => {
+    const section = sections[sectionIndex];
+
+    return {
+      ...section,
+      index: sectionIndex,
+      date: valueManager.getDateFromSection(value, section),
+      update: (newSectionValue: string) => {
+        const newSections = [...sections];
+        newSections[sectionIndex] = {
+          ...newSections[sectionIndex],
+          value: newSectionValue,
+          modified: true,
+        };
+
+        return newSections;
+      },
+    };
+  },
+) as <TValue extends TemporalSupportedValue>(
+  state: State<TValue>,
+  sectionIndex: number,
+) => TemporalFieldSectionManager<TValue> | null;
+
 export const selectors = {
   timezoneToRender: timezoneToRenderSelector,
   sections: createSelector((state: State) => state.sections) as <
@@ -24,40 +52,25 @@ export const selectors = {
     (state: State) => state.selectedSections,
     (selectedSections) => selectedSections === 'all',
   ),
+  section: sectionManagerSelector,
   activeSection: createSelectorMemoized(
-    (state: State) => state.valueManager,
+    (state: State) => state,
     (state: State) => (state.selectedSections === 'all' ? 0 : state.selectedSections),
-    (state: State) => state.sections,
-    (state: State) => state.value,
-    (valueManager, index, sections, value) => {
-      if (index == null) {
+    (state, sectionIndex) => {
+      if (sectionIndex == null) {
         return null;
       }
 
-      const section = sections[index];
-
-      return {
-        index,
-        section,
-        date: valueManager.getDateFromSection(value, section),
-        update: (newSectionValue: string) => {
-          const newSections = [...sections];
-          newSections[index] = {
-            ...newSections[index],
-            value: newSectionValue,
-            modified: true,
-          };
-
-          return newSections;
-        },
-      };
+      return sectionManagerSelector(state, sectionIndex);
     },
   ) as <TValue extends TemporalSupportedValue>(
     state: State<TValue>,
-  ) => {
+  ) => TemporalFieldSectionManager<TValue> | null,
+};
+
+type TemporalFieldSectionManager<TValue extends TemporalSupportedValue> =
+  TemporalFieldSection<TValue> & {
     index: number;
-    section: TemporalFieldSection<TValue>;
     date: TemporalSupportedObject | null;
     update: (newSectionValue: string) => TemporalFieldSection<TValue>[];
-  } | null,
-};
+  };

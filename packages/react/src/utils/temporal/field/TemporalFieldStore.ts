@@ -143,7 +143,7 @@ export class TemporalFieldStore<
 
   public clearActiveSection() {
     const activeSection = selectors.activeSection<TValue>(this.state);
-    if (activeSection == null || activeSection.section.value === '') {
+    if (activeSection == null || activeSection.value === '') {
       return;
     }
 
@@ -157,9 +157,7 @@ export class TemporalFieldStore<
       });
     } else {
       this.set('characterQuery', null);
-      this.publishValue(
-        this.valueManager.updateDateInValue(this.state.value, activeSection.section, null),
-      );
+      this.publishValue(this.valueManager.updateDateInValue(this.state.value, activeSection, null));
     }
   }
 
@@ -275,11 +273,10 @@ export class TemporalFieldStore<
   }
 
   public handleInputKeyDown = (event: React.KeyboardEvent<HTMLSpanElement>) => {
-    const { value, disabled, readOnly, valueManager, localizedDigits, adapter } = this.state;
+    const { disabled, readOnly } = this.state;
     const sections = selectors.sections<TValue>(this.state);
     const selectedSections = selectors.selectedSections(this.state);
     const activeSection = selectors.activeSection<TValue>(this.state);
-    const timezone = selectors.timezoneToRender(this.state);
 
     if (disabled) {
       return;

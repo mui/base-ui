@@ -15,6 +15,9 @@ import { TemporalFieldStore } from './TemporalFieldStore';
 import { selectors } from './selectors';
 import { getMonthsInYear } from '../date-helpers';
 
+/**
+ * Plugin to adjust the value of the active section when pressing ArrowUp, ArrowDown, PageUp, PageDown, Home or End.
+ */
 export class TemporalFieldValueAdjustmentPlugin<TValue extends TemporalSupportedValue> {
   private store: TemporalFieldStore<TValue, any>;
 
@@ -41,18 +44,18 @@ export class TemporalFieldValueAdjustmentPlugin<TValue extends TemporalSupported
     const isStart = keyCode === 'Home';
     const isEnd = keyCode === 'End';
     const sectionsValueBoundaries = getSectionsBoundaries(adapter, localizedDigits, timezone);
-    const activeDate = valueManager.getDateFromSection(value, activeSection.section);
-    const shouldSetAbsolute = activeSection.section.value === '' || isStart || isEnd;
+    const activeDate = valueManager.getDateFromSection(value, activeSection);
+    const shouldSetAbsolute = activeSection.value === '' || isStart || isEnd;
 
     // Digit section
     if (
-      activeSection.section.contentType === 'digit' ||
-      activeSection.section.contentType === 'digit-with-letter'
+      activeSection.contentType === 'digit' ||
+      activeSection.contentType === 'digit-with-letter'
     ) {
-      const sectionBoundaries = sectionsValueBoundaries[activeSection.section.sectionType]({
+      const sectionBoundaries = sectionsValueBoundaries[activeSection.sectionType]({
         currentDate: activeDate,
-        format: activeSection.section.format,
-        contentType: activeSection.section.contentType,
+        format: activeSection.format,
+        contentType: activeSection.contentType,
       });
 
       const getCleanValue = (newSectionValue: number) =>
@@ -61,19 +64,19 @@ export class TemporalFieldValueAdjustmentPlugin<TValue extends TemporalSupported
           newSectionValue,
           sectionBoundaries,
           localizedDigits,
-          activeSection.section,
+          activeSection,
         );
 
       const step =
-        activeSection.section.sectionType === 'minutes' && stepsAttributes?.minutesStep
+        activeSection.sectionType === 'minutes' && stepsAttributes?.minutesStep
           ? stepsAttributes.minutesStep
           : 1;
 
       let newSectionValueNumber: number;
 
       if (shouldSetAbsolute) {
-        if (activeSection.section.sectionType === 'year' && !isEnd && !isStart) {
-          return adapter.formatByString(adapter.now(timezone), activeSection.section.format);
+        if (activeSection.sectionType === 'year' && !isEnd && !isStart) {
+          return adapter.formatByString(adapter.now(timezone), activeSection.format);
         }
 
         if (delta > 0 || isStart) {
@@ -83,7 +86,7 @@ export class TemporalFieldValueAdjustmentPlugin<TValue extends TemporalSupported
         }
       } else {
         const currentSectionValue = parseInt(
-          removeLocalizedDigits(activeSection.section.value, localizedDigits),
+          removeLocalizedDigits(activeSection.value, localizedDigits),
           10,
         );
         newSectionValueNumber = currentSectionValue + delta * step;
@@ -121,11 +124,11 @@ export class TemporalFieldValueAdjustmentPlugin<TValue extends TemporalSupported
     const options = getLetterEditingOptions(
       adapter,
       timezone,
-      activeSection.section.sectionType,
-      activeSection.section.format,
+      activeSection.sectionType,
+      activeSection.format,
     );
     if (options.length === 0) {
-      return activeSection.section.value;
+      return activeSection.value;
     }
 
     if (shouldSetAbsolute) {
@@ -136,7 +139,7 @@ export class TemporalFieldValueAdjustmentPlugin<TValue extends TemporalSupported
       return options[options.length - 1];
     }
 
-    const currentOptionIndex = options.indexOf(activeSection.section.value);
+    const currentOptionIndex = options.indexOf(activeSection.value);
     const newOptionIndex = (currentOptionIndex + delta) % options.length;
     const clampedIndex = (newOptionIndex + options.length) % options.length;
 
