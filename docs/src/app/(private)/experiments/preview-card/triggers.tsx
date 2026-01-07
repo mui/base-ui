@@ -6,7 +6,7 @@ import {
   SettingsMetadata,
   useExperimentSettings,
 } from 'docs/src/components/Experiments/SettingsPanel';
-import demoStyles from 'docs/src/app/(docs)/react/components/preview-card/demos/index.module.css';
+import demoStyles from 'docs/src/app/(docs)/react/components/preview-card/demos/detached-triggers-full/css-modules/index.module.css';
 import styles from './triggers.module.css';
 
 const previewCard1Handle = PreviewCard.createHandle<React.ReactElement>();
@@ -18,13 +18,12 @@ interface Settings {
   side: 'top' | 'bottom' | 'left' | 'right';
   keepMounted: boolean;
 }
-
 const cardContents = {
   typography: (
-    <React.Fragment>
+    <div className={demoStyles.PopupContent}>
       <img
-        width="448"
-        height="300"
+        width="224"
+        height="150"
         className={demoStyles.Image}
         src="https://images.unsplash.com/photo-1619615391095-dfa29e1672ef?q=80&w=448&h=300"
         alt="Station Hofplein signage in Rotterdam, Netherlands"
@@ -32,13 +31,13 @@ const cardContents = {
       <p className={demoStyles.Summary}>
         <strong>Typography</strong> is the art and science of arranging type.
       </p>
-    </React.Fragment>
+    </div>
   ),
   design: (
-    <React.Fragment>
+    <div className={demoStyles.PopupContent}>
       <img
-        width="241"
-        height="240"
+        width="250"
+        height="249"
         className={demoStyles.Image}
         src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b7/Braun_ABW30_%28schwarz%29.jpg/250px-Braun_ABW30_%28schwarz%29.jpg"
         alt="Braun ABW30"
@@ -46,13 +45,13 @@ const cardContents = {
       <p className={demoStyles.Summary}>
         A <strong>design</strong> is the concept or proposal for an object, process, or system.
       </p>
-    </React.Fragment>
+    </div>
   ),
   art: (
-    <React.Fragment>
+    <div className={demoStyles.PopupContent}>
       <img
-        width="206"
-        height="240"
+        width="250"
+        height="290"
         className={demoStyles.Image}
         src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5f/MonaLisa_sfumato.jpeg/250px-MonaLisa_sfumato.jpeg"
         alt="Mona Lisa"
@@ -63,7 +62,7 @@ const cardContents = {
         generally through an expression of emotional power, conceptual ideas, technical proficiency,
         or beauty.
       </p>
-    </React.Fragment>
+    </div>
   ),
 };
 
@@ -394,12 +393,12 @@ function PreviewCardContent(
   const { children, side, keepMounted, ...otherProps } = props;
   return (
     <PreviewCard.Portal keepMounted={keepMounted}>
-      <PreviewCard.Positioner sideOffset={8} side={side}>
+      <PreviewCard.Positioner sideOffset={8} side={side} className={demoStyles.Positioner}>
         <PreviewCard.Popup className={demoStyles.Popup} {...otherProps}>
           <PreviewCard.Arrow className={demoStyles.Arrow}>
             <ArrowSvg />
           </PreviewCard.Arrow>
-          {children}
+          <PreviewCard.Viewport className={demoStyles.Viewport}>{children}</PreviewCard.Viewport>
         </PreviewCard.Popup>
       </PreviewCard.Positioner>
     </PreviewCard.Portal>
