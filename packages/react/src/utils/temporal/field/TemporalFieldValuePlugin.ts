@@ -1,0 +1,83 @@
+import { TemporalSupportedObject, TemporalSupportedValue } from '../../../types';
+import { buildSectionsFromFormat } from './buildSectionsFromFormat';
+import { mergeDateIntoReferenceDate } from './mergeDateIntoReferenceDate';
+import { selectors } from './selectors';
+import { TemporalFieldStore } from './TemporalFieldStore';
+import { TemporalFieldValueChangeHandlerContext } from './types';
+
+/**
+ * Plugin to interact with the entire field value.
+ */
+export class TemporalFieldValuePlugin<TValue extends TemporalSupportedValue, TError> {
+  private store: TemporalFieldStore<TValue, TError>;
+
+  // We can't type `store`, otherwise we get the following TS error:
+  // 'value' implicitly has type 'any' because it does not have a type annotation and is referenced directly or indirectly in its own initializer.
+  constructor(store: any) {
+    this.store = store;
+  }
+
+  /**
+   * Publishes the provided field value.
+   */
+  public publish(value: TValue) {
+    const { manager } = this.store.state;
+
+    const context: TemporalFieldValueChangeHandlerContext<TError> = {
+      getValidationError: () => manager.getValidationError(value, this.validationProps),
+    };
+
+    // TODO: Fire onValueChange
+  }
+
+  /**
+   * Updates the field value from a string representation.
+   */
+  public updateFromString(valueStr: string) {
+    const { adapter, format, localizedDigits, direction, shouldRespectLeadingZeros, valueManager } =
+      this.store.state;
+    const parseDateStr = (dateStr: string, referenceDate: TemporalSupportedObject) => {
+      const date = adapter.parse(dateStr, format, selectors.timezoneToRender(this.store.state));
+      if (!adapter.isValid(date)) {
+        return null;
+      }
+
+      const sections = buildSectionsFromFormat({
+        adapter,
+        localizedDigits,
+        format,
+        date,
+        shouldRespectLeadingZeros,
+        direction,
+      });
+      return mergeDateIntoReferenceDate(adapter, date, sections, referenceDate, false);
+    };
+
+    const newValue = valueManager.parseValueStr(
+      valueStr,
+      this.store.state.referenceValue,
+      parseDateStr,
+    );
+    this.publish(newValue);
+  }
+
+  /**
+   * Clears the field value.
+   */
+  public clear() {
+    const { adapter, valueManager, value } = this.store.state;
+
+    if (valueManager.areValuesEqual(adapter, value, valueManager.emptyValue)) {
+      this.store.update({
+        sections: selectors
+          .sections<TValue>(this.store.state)
+          .map((section) => ({ ...section, value: '' })),
+        tempValueStrAndroid: null,
+        characterQuery: null,
+      });
+    } else {
+      this.store.characterEditing.resetCharacterQuery();
+      this.publish(valueManager.emptyValue);
+    }
+  }
+}

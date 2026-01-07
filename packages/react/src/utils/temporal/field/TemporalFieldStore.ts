@@ -1,19 +1,11 @@
 import * as React from 'react';
 import { Store } from '@base-ui/utils/store';
 import { ownerDocument } from '@base-ui/utils/owner';
-import {
-  TemporalAdapter,
-  TemporalFieldSectionType,
-  TemporalSupportedObject,
-  TemporalSupportedValue,
-} from '../../../types';
+import { TemporalAdapter, TemporalFieldSectionType, TemporalSupportedValue } from '../../../types';
 import { TemporalManager } from '../types';
 import {
-  TemporalFieldSection,
-  TemporalFieldSelectedSections,
   TemporalFieldState,
   TemporalFieldStoreParameters,
-  TemporalFieldValueChangeHandlerContext,
   TemporalFieldValueManager,
 } from './types';
 import { buildSectionsFromFormat } from './buildSectionsFromFormat';
@@ -24,11 +16,13 @@ import {
   validateSections,
 } from './utils';
 import { TextDirection } from '../../../direction-provider';
-import { selectors } from './selectors';
-import { mergeDateIntoReferenceDate } from './mergeDateIntoReferenceDate';
 import { activeElement } from '../../../floating-ui-react/utils';
 import { TemporalFieldValueAdjustmentPlugin } from './TemporalFieldValueAdjustmentPlugin';
 import { TemporalFieldCharacterEditingPlugin } from './TemporalFieldCharacterEditingPlugin';
+import { TemporalFieldSectionPlugin } from './TemporalFieldSectionPlugin';
+import { TimeoutManager } from '../../TimeoutManager';
+import { TemporalFieldValuePlugin } from './TemporalFieldValuePlugin';
+import { TemporalFieldInputPropsPlugin } from './TemporalFieldInputPropsPlugin';
 
 const SECTION_TYPE_GRANULARITY: { [key in TemporalFieldSectionType]?: number } = {
   year: 1,
@@ -43,17 +37,23 @@ export class TemporalFieldStore<
   TValue extends TemporalSupportedValue,
   TError,
 > extends Store<TemporalFieldState> {
-  private valueManager: TemporalFieldValueManager<TValue>;
-
   private parameters: TemporalFieldStoreParameters<TValue, TError>;
 
   private initialParameters: TemporalFieldStoreParameters<TValue, TError> | null = null;
 
   public inputRef = React.createRef<HTMLElement>();
 
-  private characterEditing = new TemporalFieldCharacterEditingPlugin<TValue>(this);
+  public timeoutManager = new TimeoutManager();
 
-  private valueAdjustment = new TemporalFieldValueAdjustmentPlugin<TValue>(this);
+  public characterEditing = new TemporalFieldCharacterEditingPlugin<TValue>(this);
+
+  public valueAdjustment = new TemporalFieldValueAdjustmentPlugin<TValue>(this);
+
+  public value = new TemporalFieldValuePlugin<TValue, TError>(this);
+
+  public section = new TemporalFieldSectionPlugin<TValue>(this);
+
+  public inputProps = new TemporalFieldInputPropsPlugin<TValue, TError>(this);
 
   constructor(
     parameters: TemporalFieldStoreParameters<TValue, TError>,
@@ -119,7 +119,6 @@ export class TemporalFieldStore<
       placeholderGetters: { ...parameters.placeholderGetters, ...DEFAULT_PLACEHOLDER_GETTERS },
     });
 
-    this.valueManager = valueManager;
     this.parameters = parameters;
 
     if (process.env.NODE_ENV !== 'production') {
@@ -127,376 +126,14 @@ export class TemporalFieldStore<
     }
   }
 
-  public clearValue() {
-    const { adapter, value } = this.state;
-
-    if (this.valueManager.areValuesEqual(adapter, value, this.valueManager.emptyValue)) {
-      this.update({
-        sections: selectors
-          .sections<TValue>(this.state)
-          .map((section) => ({ ...section, value: '' })),
-        tempValueStrAndroid: null,
-        characterQuery: null,
-      });
-    } else {
-      this.set('characterQuery', null);
-      this.publishValue(this.valueManager.emptyValue);
-    }
-  }
-
-  public clearActiveSection() {
-    const activeSection = selectors.activeSection<TValue>(this.state);
-    if (activeSection == null || activeSection.value === '') {
-      return;
-    }
-
-    setSectionUpdateToApplyOnNextInvalidDate('');
-
-    if (activeSection.date === null) {
-      this.update({
-        sections: activeSection.update(''),
-        tempValueStrAndroid: null,
-        characterQuery: null,
-      });
-    } else {
-      this.set('characterQuery', null);
-      this.publishValue(this.valueManager.updateDateInValue(this.state.value, activeSection, null));
-    }
-  }
-
-  public updateValueFromValueStr(valueStr: string) {
-    const { adapter, format, localizedDigits, direction, shouldRespectLeadingZeros, valueManager } =
-      this.state;
-    const parseDateStr = (dateStr: string, referenceDate: TemporalSupportedObject) => {
-      const date = adapter.parse(dateStr, format, selectors.timezoneToRender(this.state));
-      if (!adapter.isValid(date)) {
-        return null;
-      }
-
-      const sections = buildSectionsFromFormat({
-        adapter,
-        localizedDigits,
-        format,
-        date,
-        shouldRespectLeadingZeros,
-        direction,
-      });
-      return mergeDateIntoReferenceDate(adapter, date, sections, referenceDate, false);
-    };
-
-    const newValue = valueManager.parseValueStr(valueStr, this.state.referenceValue, parseDateStr);
-    this.publishValue(newValue);
-  }
-
-  public updateSectionValue({
-    section,
-    newSectionValue,
-    shouldGoToNextSection,
-  }: UpdateSectionValueParameters<TValue>) {
-    const { valueManager, adapter, referenceValue, value, localizedDigits } = this.state;
-    const sections = selectors.sections<TValue>(this.state);
-    // const section = selectors.section<TValue>(this.state, section.index);
-
-    updateSectionValueOnNextInvalidDateTimeout.clear();
-    cleanActiveDateSectionsIfValueNullTimeout.clear();
-
-    const activeDate = valueManager.getDateFromSection(value, section);
-
-    /**
-     * Decide which section should be focused
-     */
-    if (shouldGoToNextSection && activeSectionIndex! < sections.length - 1) {
-      this.setSelectedSections(activeSectionIndex! + 1);
-    }
-
-    /**
-     * Try to build a valid date from the new section value
-     */
-    const newSections = setSectionValue(activeSectionIndex!, newSectionValue);
-    const newActiveDateSections = valueManager.getDateSectionsFromValue(newSections, section);
-    const newActiveDate = getDateFromDateSections(adapter, newActiveDateSections, localizedDigits);
-
-    /**
-     * If the new date is valid,
-     * Then we merge the value of the modified sections into the reference date.
-     * This makes sure that we don't lose some information of the initial date (like the time on a date field).
-     */
-    if (adapter.isValid(newActiveDate)) {
-      const mergedDate = mergeDateIntoReferenceDate(
-        adapter,
-        newActiveDate,
-        newActiveDateSections,
-        valueManager.getDateFromSection(referenceValue as any, section)!,
-        true,
-      );
-
-      if (activeDate == null) {
-        cleanActiveDateSectionsIfValueNullTimeout.start(0, () => {
-          if (this.state.value === value) {
-            this.update({
-              sections: valueManager.clearDateSections(sections, section),
-              tempValueStrAndroid: null,
-            });
-          }
-        });
-      }
-
-      return this.publishValue(valueManager.updateDateInValue(value, section, mergedDate));
-    }
-
-    /**
-     * If all the sections are filled but the date is invalid and the previous date is valid or null,
-     * Then we publish an invalid date.
-     */
-    if (
-      newActiveDateSections.every((sectionBis) => sectionBis.value !== '') &&
-      (activeDate == null || adapter.isValid(activeDate))
-    ) {
-      setSectionUpdateToApplyOnNextInvalidDate(newSectionValue);
-      return this.publishValue(valueManager.updateDateInValue(value, section, newActiveDate));
-    }
-
-    /**
-     * If the previous date is not null,
-     * Then we publish the date as `newActiveDate to prevent error state oscillation`.
-     * @link: https://github.com/mui/mui-x/issues/17967
-     */
-    if (activeDate != null) {
-      setSectionUpdateToApplyOnNextInvalidDate(newSectionValue);
-      this.publishValue(valueManager.updateDateInValue(value, section, newActiveDate));
-    }
-
-    /**
-     * If the previous date is already null,
-     * Then we don't publish the date and we update the sections.
-     */
-    return this.update({
-      sections: newSections,
-      tempValueStrAndroid: null,
-    });
-  }
-
-  public handleInputKeyDown = (event: React.KeyboardEvent<HTMLSpanElement>) => {
-    const { disabled, readOnly } = this.state;
-    const sections = selectors.sections<TValue>(this.state);
-    const selectedSections = selectors.selectedSections(this.state);
-    const activeSection = selectors.activeSection<TValue>(this.state);
-
-    if (disabled) {
-      return;
-    }
-
-    // eslint-disable-next-line default-case
-    switch (true) {
-      // Select all
-      case (event.ctrlKey || event.metaKey) &&
-        String.fromCharCode(event.keyCode) === 'A' &&
-        !event.shiftKey &&
-        !event.altKey: {
-        // prevent default to make sure that the next line "select all" while updating
-        // the internal state at the same time.
-        event.preventDefault();
-        this.setSelectedSections('all');
-        break;
-      }
-
-      // Move selection to next section
-      case event.key === 'ArrowRight': {
-        event.preventDefault();
-
-        if (selectedSections == null) {
-          this.setSelectedSections(0);
-        } else if (selectedSections === 'all') {
-          this.setSelectedSections(sections.length - 1);
-        } else if (selectedSections < sections.length - 1) {
-          this.setSelectedSections(selectedSections + 1);
-        }
-        break;
-      }
-
-      // Move selection to previous section
-      case event.key === 'ArrowLeft': {
-        event.preventDefault();
-
-        if (selectedSections == null) {
-          this.setSelectedSections(sections.length - 1);
-        } else if (selectedSections === 'all') {
-          this.setSelectedSections(0);
-        } else if (selectedSections > 0) {
-          this.setSelectedSections(selectedSections - 1);
-        }
-        break;
-      }
-
-      // Reset the value of the selected section
-      case event.key === 'Delete': {
-        event.preventDefault();
-
-        if (readOnly) {
-          break;
-        }
-
-        if (selectedSections == null || selectedSections === 'all') {
-          this.clearValue();
-        } else {
-          this.clearActiveSection();
-        }
-        break;
-      }
-
-      // Increment / decrement the selected section value
-      case this.valueAdjustment.isAdjustSectionValueKeyCode(event.key): {
-        event.preventDefault();
-
-        if (readOnly || activeSection == null) {
-          break;
-        }
-
-        // if all sections are selected, mark the currently editing one as selected
-        if (selectedSections === 'all') {
-          this.setSelectedSections(activeSection.index);
-        }
-
-        this.updateSectionValue({
-          section: activeSection,
-          newSectionValue: this.valueAdjustment.adjustActiveSectionValue(event.key),
-          shouldGoToNextSection: false,
-        });
-        break;
-      }
-    }
-  };
-
-  public handleInputFocus = () => {
-    const { disabled } = this.state;
-    if (focused || disabled || !this.inputRef.current) {
-      return;
-    }
-
-    const activeEl = this.getActiveElement();
-
-    setFocused(true);
-
-    const isFocusInsideASection = domGetters.getSectionIndexFromDOMElement(activeEl) != null;
-    if (!isFocusInsideASection) {
-      this.setSelectedSections(0);
-    }
-  };
-
-  public handleInputBlur = () => {
-    setTimeout(() => {
-      if (!this.inputRef.current) {
-        return;
-      }
-
-      const activeEl = this.getActiveElement();
-      const shouldBlur = !this.inputRef.current.contains(activeEl);
-      if (shouldBlur) {
-        setFocused(false);
-        this.setSelectedSections(null);
-      }
-    });
-  };
-
-  public handleInputClick = (event: React.MouseEvent) => {
-    const { disabled } = this.state;
-    const sections = selectors.sections<TValue>(this.state);
-    const selectedSections = selectors.selectedSections(this.state);
-
-    if (disabled || !this.inputRef.current) {
-      return;
-    }
-
-    setFocused(true);
-
-    if (selectedSections === 'all') {
-      containerClickTimeout.start(0, () => {
-        const cursorPosition = document.getSelection()!.getRangeAt(0).startOffset;
-
-        if (cursorPosition === 0) {
-          this.setSelectedSections(0);
-          return;
-        }
-
-        let sectionIndex = 0;
-        let cursorOnStartOfSection = 0;
-
-        while (cursorOnStartOfSection < cursorPosition && sectionIndex < sections.length) {
-          const section = sections[sectionIndex];
-          sectionIndex += 1;
-          cursorOnStartOfSection += `${section.startSeparator}${
-            section.value || this.getSectionPlaceholder(section)
-          }${section.endSeparator}`.length;
-        }
-
-        this.setSelectedSections(sectionIndex - 1);
-      });
-    } else if (!focused) {
-      setFocused(true);
-      this.setSelectedSections(0);
-    } else {
-      const hasClickedOnASection = this.inputRef.current.contains(event.target as Node);
-
-      if (!hasClickedOnASection) {
-        this.setSelectedSections(0);
-      }
-    }
-  };
-
-  public handleInputPaste = (event: React.ClipboardEvent<HTMLDivElement>) => {
-    const { readOnly } = this.state;
-    const selectedSections = selectors.selectedSections(this.state);
-
-    if (readOnly || selectedSections !== 'all') {
-      event.preventDefault();
-      return;
-    }
-
-    const pastedValue = event.clipboardData.getData('text');
-    event.preventDefault();
-    this.characterEditing.resetCharacterQuery();
-    this.updateValueFromValueStr(pastedValue);
-  };
-
-  public handleInputInput = (event: React.FormEvent<HTMLDivElement>) => {
-    const selectedSections = selectors.selectedSections(this.state);
-    const sections = selectors.sections<TValue>(this.state);
-
-    if (!this.inputRef.current || selectedSections !== 'all') {
-      return;
-    }
-
-    const target = event.target as HTMLSpanElement;
-    const keyPressed = target.textContent ?? '';
-
-    this.inputRef.current.innerHTML = sections
-      .map(
-        (section) =>
-          `${section.startSeparator}${section.value || this.getSectionPlaceholder(section)}${section.endSeparator}`,
-      )
-      .join('');
-    syncSelectionToDOM({ focused, domGetters, stateResponse });
-
-    if (keyPressed.length === 0 || keyPressed.charCodeAt(0) === 10) {
-      this.clearValue();
-      this.setSelectedSections('all');
-    } else if (keyPressed.length > 1) {
-      this.updateValueFromValueStr(keyPressed);
-    } else {
-      if (selectedSections === 'all') {
-        this.setSelectedSections(0);
-      }
-      this.characterEditing.editSection({
-        keyPressed,
-        sectionIndex: 0,
-      });
-    }
+  public disposeEffect = () => {
+    return this.timeoutManager.clearAll;
   };
 
   private getSectionsFromValue(valueToAnalyze: TValue) {
-    const { adapter, shouldRespectLeadingZeros } = this.state;
+    const { adapter, shouldRespectLeadingZeros, valueManager } = this.state;
 
-    return this.valueManager.getSectionsFromValue(valueToAnalyze, (date) =>
+    return valueManager.getSectionsFromValue(valueToAnalyze, (date) =>
       buildSectionsFromFormat({
         date,
         adapter,
@@ -508,87 +145,8 @@ export class TemporalFieldStore<
     );
   }
 
-  private publishValue(value: TValue) {
-    const { manager } = this.state;
-
-    const context: TemporalFieldValueChangeHandlerContext<TError> = {
-      getValidationError: () => manager.getValidationError(value, this.validationProps),
-    };
-
-    // TODO: Fire onValueChange
-  }
-
-  private setSelectedSections(selectedSections: TemporalFieldSelectedSections) {
-    this.set('selectedSections', selectedSections);
-  }
-
-  private getSectionPlaceholder(section: TemporalFieldSection<TValue>) {
-    const { adapter, placeholderGetters } = this.state;
-    switch (section.sectionType) {
-      case 'year': {
-        return placeholderGetters.year({
-          digitAmount: adapter.formatByString(adapter.now('default'), section.format).length,
-          format: section.format,
-        });
-      }
-
-      case 'month': {
-        return placeholderGetters.month({
-          contentType: section.contentType,
-          format: section.format,
-        });
-      }
-
-      case 'day': {
-        return placeholderGetters.day({ format: section.format });
-      }
-
-      case 'weekDay': {
-        return placeholderGetters.weekDay({
-          contentType: section.contentType,
-          format: section.format,
-        });
-      }
-
-      case 'hours': {
-        return placeholderGetters.hours({ format: section.format });
-      }
-
-      case 'minutes': {
-        return placeholderGetters.minutes({ format: section.format });
-      }
-
-      case 'seconds': {
-        return placeholderGetters.seconds({ format: section.format });
-      }
-
-      case 'meridiem': {
-        return placeholderGetters.meridiem({ format: section.format });
-      }
-
-      default: {
-        return section.format;
-      }
-    }
-  }
-
   private getActiveElement() {
     const doc = ownerDocument(this.inputRef.current);
     return activeElement(doc);
   }
-}
-
-interface UpdateSectionValueParameters<TValue extends TemporalSupportedValue> {
-  /**
-   * The section on which we want to apply the new value.
-   */
-  section: TemporalFieldSection<TValue>;
-  /**
-   * Value to apply to the active section.
-   */
-  newSectionValue: string;
-  /**
-   * If `true`, the focus will move to the next section.
-   */
-  shouldGoToNextSection: boolean;
 }

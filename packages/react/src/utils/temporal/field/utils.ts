@@ -297,6 +297,78 @@ export function isStringNumber(valueStr: string, localizedDigits: string[]) {
   return nonLocalizedValueStr !== ' ' && !Number.isNaN(Number(nonLocalizedValueStr));
 }
 
+export function getSectionVisibleValue(
+  section: TemporalFieldNonRangeSection,
+  target: 'input-rtl' | 'input-ltr' | 'non-input',
+  localizedDigits: string[],
+) {
+  let value = section.value || section.placeholder;
+
+  const hasLeadingZeros =
+    target === 'non-input' ? section.hasLeadingZerosInFormat : section.hasLeadingZerosInInput;
+
+  if (
+    target === 'non-input' &&
+    section.hasLeadingZerosInInput &&
+    !section.hasLeadingZerosInFormat
+  ) {
+    value = Number(removeLocalizedDigits(value, localizedDigits)).toString();
+  }
+
+  // In the input, we add an empty character at the end of each section without leading zeros.
+  // This makes sure that `onChange` will always be fired.
+  // Otherwise, when your input value equals `1/dd/yyyy` (format `M/DD/YYYY` on DayJs),
+  // If you press `1`, on the first section, the new value is also `1/dd/yyyy`,
+  // So the browser will not fire the input `onChange`.
+  const shouldAddInvisibleSpace =
+    ['input-rtl', 'input-ltr'].includes(target) &&
+    section.contentType === 'digit' &&
+    !hasLeadingZeros &&
+    value.length === 1;
+
+  if (shouldAddInvisibleSpace) {
+    value = `${value}\u200e`;
+  }
+
+  if (target === 'input-rtl') {
+    value = `\u2068${value}\u2069`;
+  }
+
+  return value;
+}
+
+/**
+ * Some date libraries like `dayjs` don't support parsing from date with escaped characters.
+ * To make sure that the parsing works, we are building a format and a date without any separator.
+ */
+export function getDateFromDateSections(
+  adapter: TemporalAdapter,
+  sections: TemporalFieldNonRangeSection[],
+  localizedDigits: string[],
+): TemporalSupportedObject {
+  // If we have both a day and a weekDay section,
+  // Then we skip the weekDay in the parsing because libraries like dayjs can't parse complicated formats containing a weekDay.
+  // dayjs(dayjs().format('dddd MMMM D YYYY'), 'dddd MMMM D YYYY')) // returns `Invalid Date` even if the format is valid.
+  const shouldSkipWeekDays = sections.some((section) => section.sectionType === 'day');
+
+  const sectionFormats: string[] = [];
+  const sectionValues: string[] = [];
+  for (let i = 0; i < sections.length; i += 1) {
+    const section = sections[i];
+
+    const shouldSkip = shouldSkipWeekDays && section.sectionType === 'weekDay';
+    if (!shouldSkip) {
+      sectionFormats.push(section.format);
+      sectionValues.push(getSectionVisibleValue(section, 'non-input', localizedDigits));
+    }
+  }
+
+  const formatWithoutSeparator = sectionFormats.join(' ');
+  const dateWithoutSeparatorStr = sectionValues.join(' ');
+
+  return adapter.parse(dateWithoutSeparatorStr, formatWithoutSeparator)!;
+}
+
 export const DEFAULT_PLACEHOLDER_GETTERS: TemporalFieldPlaceholderGetters = {
   year: (params) => 'Y'.repeat(params.digitAmount),
   month: (params) => (params.contentType === 'letter' ? 'MMMM' : 'MM'),

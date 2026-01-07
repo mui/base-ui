@@ -32,7 +32,6 @@ export class TemporalFieldCharacterEditingPlugin<TValue extends TemporalSupporte
   public editSection(parameters: EditSectionParameters) {
     const { keyPressed, sectionIndex } = parameters;
     const { localizedDigits } = this.store.state;
-    const section = selectors.section<TValue>(this.store.state, sectionIndex);
     const response = isStringNumber(keyPressed, localizedDigits)
       ? this.applyNumericEditing(parameters)
       : this.applyLetterEditing(parameters);
@@ -41,8 +40,8 @@ export class TemporalFieldCharacterEditingPlugin<TValue extends TemporalSupporte
       return;
     }
 
-    this.store.updateSectionValue({
-      section,
+    this.store.section.updateValue({
+      sectionIndex,
       newSectionValue: response.sectionValue,
       shouldGoToNextSection: response.shouldGoToNextSection,
     });

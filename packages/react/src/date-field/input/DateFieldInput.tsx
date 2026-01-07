@@ -41,12 +41,12 @@ export const DateFieldRoot = React.forwardRef(function DateFieldRoot(
     props: [
       {
         children: resolvedChildren, // Event handlers
-        onKeyDown: store.handleInputKeyDown,
-        onFocus: store.handleInputFocus,
-        onBlur: store.handleInputBlur,
-        onClick: handleClick,
-        onPaste: handlePaste,
-        onInput: handleInput,
+        onKeyDown: store.inputProps.handleKeyDown,
+        onFocus: store.inputProps.handleFocus,
+        onBlur: store.inputProps.handleBlur,
+        onClick: store.inputProps.handleClick,
+        onPaste: store.inputProps.handlePaste,
+        onInput: store.inputProps.handleInput,
 
         // Other
         contentEditable: isSelectingAllSections,
