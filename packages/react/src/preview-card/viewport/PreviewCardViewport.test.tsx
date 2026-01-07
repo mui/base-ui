@@ -49,20 +49,10 @@ describe('<PreviewCard.Viewport />', () => {
       <PreviewCard.Root>
         {({ payload }) => (
           <React.Fragment>
-            <PreviewCard.Trigger
-              href="#"
-              payload="first"
-              delay={0}
-              data-testid="trigger1"
-            >
+            <PreviewCard.Trigger href="#" payload="first" delay={0} data-testid="trigger1">
               Trigger 1
             </PreviewCard.Trigger>
-            <PreviewCard.Trigger
-              href="#"
-              payload="second"
-              delay={0}
-              data-testid="trigger2"
-            >
+            <PreviewCard.Trigger href="#" payload="second" delay={0} data-testid="trigger2">
               Trigger 2
             </PreviewCard.Trigger>
             <PreviewCard.Portal>
