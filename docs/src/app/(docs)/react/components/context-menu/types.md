@@ -1055,8 +1055,10 @@ type MenuCheckboxItemIndicatorState = {
 };
 ```
 
-### useMenuSubmenuRootContext
+### ContextMenu.useMenuSubmenuRootContext
 
-```typescript
-type useMenuSubmenuRootContext = () => { parentMenu: {} } | undefined;
+**Return Value:**
+
+```tsx
+type ReturnValue = { parentMenu: {} } | undefined;
 ```

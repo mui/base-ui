@@ -663,16 +663,20 @@ type Filter = {
 };
 ```
 
-### useComboboxFilter
+### Autocomplete.useComboboxFilter
 
 Matches items against a query using `Intl.Collator` for robust string matching.
 
-```typescript
-type useComboboxFilter = (options?: {
-  multiple?: boolean;
-  value?: any;
-  locale?: IntlLocalesArgument;
-}) => {
+**Parameters:**
+
+| Parameter | Type                                                                | Default | Description |
+| :-------- | :------------------------------------------------------------------ | :------ | :---------- |
+| options?  | `{ multiple?: boolean, value?: any, locale?: IntlLocalesArgument }` | -       | -           |
+
+**Return Value:**
+
+```tsx
+type ReturnValue = {
   contains: (item: Item, query: string, itemToString?: (item: Item) => string) => boolean;
   startsWith: (item: Item, query: string, itemToString?: (item: Item) => string) => boolean;
   endsWith: (item: Item, query: string, itemToString?: (item: Item) => string) => boolean;
@@ -685,12 +689,20 @@ type useComboboxFilter = (options?: {
 type UseComboboxFilterOptions = { multiple?: boolean; value?: any; locale?: IntlLocalesArgument };
 ```
 
-### useFilter
+### Autocomplete.useFilter
 
 Matches items against a query using `Intl.Collator` for robust string matching.
 
-```typescript
-type getFilter = (options?: { locale?: IntlLocalesArgument }) => {
+**Parameters:**
+
+| Parameter | Type                               | Default | Description |
+| :-------- | :--------------------------------- | :------ | :---------- |
+| options?  | `{ locale?: IntlLocalesArgument }` | -       | -           |
+
+**Return Value:**
+
+```tsx
+type ReturnValue = {
   contains: (item: Item, query: string, itemToString?: (item: Item) => string) => boolean;
   startsWith: (item: Item, query: string, itemToString?: (item: Item) => string) => boolean;
   endsWith: (item: Item, query: string, itemToString?: (item: Item) => string) => boolean;

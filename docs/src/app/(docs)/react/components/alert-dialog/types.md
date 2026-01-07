@@ -371,16 +371,20 @@ type DialogViewportState = {
 };
 ```
 
-### createDialogHandle
+### AlertDialog.createDialogHandle
 
 Creates a new handle to connect a Dialog.Root with detached Dialog.Trigger components.
 
-```typescript
-type createDialogHandle = () => {};
+**Return Value:**
+
+```tsx
+type ReturnValue = {};
 ```
 
-### createHandle
+### AlertDialog.createHandle
 
-```typescript
-type createAlertDialogHandle = () => {};
+**Return Value:**
+
+```tsx
+type ReturnValue = {};
 ```

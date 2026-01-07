@@ -1077,18 +1077,22 @@ type MenuCheckboxItemIndicatorState = {
 };
 ```
 
-### createHandle
+### Menu.createHandle
 
 Creates a new handle to connect a Menu.Root with detached Menu.Trigger components.
 
-```typescript
-type createMenuHandle = () => {};
+**Return Value:**
+
+```tsx
+type ReturnValue = {};
 ```
 
-### useMenuSubmenuRootContext
+### Menu.useMenuSubmenuRootContext
 
-```typescript
-type useMenuSubmenuRootContext = () => { parentMenu: {} } | undefined;
+**Return Value:**
+
+```tsx
+type ReturnValue = { parentMenu: {} } | undefined;
 ```
 
 ### MenuParent

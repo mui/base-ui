@@ -390,12 +390,14 @@ Re-export of [Viewport](#viewport) props.
 type ToastViewportState = { expanded: boolean };
 ```
 
-### createToastManager
+### Toast.createToastManager
 
 Creates a new toast manager.
 
-```typescript
-type createToastManager = () => {
+**Return Value:**
+
+```tsx
+type ReturnValue = {
   ' subscribe': (
     listener: (data: { action: 'add' | 'close' | 'update' | 'promise'; options: any }) => void,
   ) => () => void;
@@ -564,7 +566,9 @@ type createToastManager = () => {
             };
             data?: {};
           }
-        | ((result: Value) =>
+        | ((
+            result: Value,
+          ) =>
             | string
             | {
                 id?: string;
@@ -612,7 +616,9 @@ type createToastManager = () => {
             };
             data?: {};
           }
-        | ((error: any) =>
+        | ((
+            error: any,
+          ) =>
             | string
             | {
                 id?: string;
@@ -633,12 +639,14 @@ type createToastManager = () => {
 };
 ```
 
-### useToastManager
+### Toast.useToastManager
 
 Returns the array of toasts and methods to manage them.
 
-```typescript
-type useToastManager = () => {
+**Return Value:**
+
+```tsx
+type ReturnValue = {
   toasts: {
     id: string;
     ref?: RefObject<HTMLElement | null>;
@@ -854,7 +862,9 @@ type useToastManager = () => {
             };
             data?: {};
           }
-        | ((result: Value) =>
+        | ((
+            result: Value,
+          ) =>
             | string
             | {
                 id?: string;
@@ -902,7 +912,9 @@ type useToastManager = () => {
             };
             data?: {};
           }
-        | ((error: any) =>
+        | ((
+            error: any,
+          ) =>
             | string
             | {
                 id?: string;
@@ -1172,7 +1184,9 @@ type UseToastManagerReturnValue = {
             };
             data?: {};
           }
-        | ((result: Value) =>
+        | ((
+            result: Value,
+          ) =>
             | string
             | {
                 id?: string;
@@ -1236,7 +1250,9 @@ type UseToastManagerReturnValue = {
             };
             data?: {};
           }
-        | ((error: any) =>
+        | ((
+            error: any,
+          ) =>
             | string
             | {
                 id?: string;
@@ -1465,7 +1481,9 @@ type ToastManager = {
             };
             data?: {};
           }
-        | ((result: Value) =>
+        | ((
+            result: Value,
+          ) =>
             | string
             | {
                 id?: string;
@@ -1529,7 +1547,9 @@ type ToastManager = {
             };
             data?: {};
           }
-        | ((error: any) =>
+        | ((
+            error: any,
+          ) =>
             | string
             | {
                 id?: string;
@@ -1797,7 +1817,9 @@ type ToastManagerPromiseOptions = {
         };
         data?: {};
       }
-    | ((result: Value) =>
+    | ((
+        result: Value,
+      ) =>
         | string
         | {
             id?: string;
@@ -1888,7 +1910,9 @@ type ToastManagerPromiseOptions = {
         };
         data?: {};
       }
-    | ((error: any) =>
+    | ((
+        error: any,
+      ) =>
         | string
         | {
             id?: string;

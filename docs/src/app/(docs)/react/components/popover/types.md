@@ -487,10 +487,12 @@ Renders a `<div>` element.
 | `--popup-height` | ``   | The height of the parent popup.&#xA;This variable is placed on the 'previous' container and stores the height of the popup when the previous content was rendered.&#xA;It can be used to freeze the dimensions of the popup when animating between different content. |
 | `--popup-width`  | ``   | The width of the parent popup.&#xA;This variable is placed on the 'previous' container and stores the width of the popup when the previous content was rendered.&#xA;It can be used to freeze the dimensions of the popup when animating between different content.   |
 
-### createHandle
+### Popover.createHandle
 
 Creates a new handle to connect a Popover.Root with detached Popover.Trigger components.
 
-```typescript
-type createPopoverHandle = () => {};
+**Return Value:**
+
+```tsx
+type ReturnValue = {};
 ```

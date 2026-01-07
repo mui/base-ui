@@ -35,4 +35,6 @@ type TextDirection = 'ltr' | 'rtl';
 
 **useDirection Return Value:**
 
-`TextDirection`
+```tsx
+type ReturnValue = TextDirection;
+```
