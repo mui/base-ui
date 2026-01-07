@@ -44,6 +44,65 @@ describe('<PreviewCard.Viewport />', () => {
     expect(currentContainer!.textContent).to.equal('Content');
   });
 
+  it('should remount the `current` container when the active trigger changes', async () => {
+    await render(
+      <PreviewCard.Root>
+        {({ payload }) => (
+          <React.Fragment>
+            <PreviewCard.Trigger
+              href="#"
+              payload="first"
+              delay={0}
+              data-testid="trigger1"
+            >
+              Trigger 1
+            </PreviewCard.Trigger>
+            <PreviewCard.Trigger
+              href="#"
+              payload="second"
+              delay={0}
+              data-testid="trigger2"
+            >
+              Trigger 2
+            </PreviewCard.Trigger>
+            <PreviewCard.Portal>
+              <PreviewCard.Positioner>
+                <PreviewCard.Popup>
+                  <PreviewCard.Viewport>
+                    {payload === 'first' ? (
+                      <img data-testid="payload-image-1" src="about:blank" alt="Preview 1" />
+                    ) : null}
+                    {payload === 'second' ? (
+                      <img data-testid="payload-image-2" src="about:blank" alt="Preview 2" />
+                    ) : null}
+                  </PreviewCard.Viewport>
+                </PreviewCard.Popup>
+              </PreviewCard.Positioner>
+            </PreviewCard.Portal>
+          </React.Fragment>
+        )}
+      </PreviewCard.Root>,
+    );
+
+    const trigger1 = screen.getByTestId('trigger1');
+    const trigger2 = screen.getByTestId('trigger2');
+
+    await waitSingleFrame();
+    await act(async () => trigger1.focus());
+
+    const firstImage = await screen.findByTestId('payload-image-1');
+    const firstContainer = firstImage.closest('[data-current]');
+    expect(firstContainer).not.to.equal(null);
+
+    await waitSingleFrame();
+    await act(async () => trigger2.focus());
+
+    const secondImage = await screen.findByTestId('payload-image-2');
+    const secondContainer = secondImage.closest('[data-current]');
+    expect(secondContainer).not.to.equal(null);
+    expect(secondContainer).not.to.equal(firstContainer);
+  });
+
   describe.skipIf(isJSDOM)('morphing containers with multiple triggers and payloads', () => {
     beforeEach(() => {
       globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
