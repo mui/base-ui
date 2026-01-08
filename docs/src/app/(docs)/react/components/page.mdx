@@ -7,7 +7,7 @@
 - [Autocomplete](#autocomplete) - [Full Docs](./autocomplete/page.mdx)
 - [Avatar](#avatar) - [Full Docs](./avatar/page.mdx)
 - [Button](#button) - [Full Docs](./button/page.mdx)
-- [Calendar](#calendar) [Preview] - [Full Docs](./unstable-calendar/page.mdx)
+- [Calendar](#unstable-calendar) [Preview] - [Full Docs](./unstable-calendar/page.mdx)
 - [Checkbox](#checkbox) - [Full Docs](./checkbox/page.mdx)
 - [Checkbox Group](#checkbox-group) - [Full Docs](./checkbox-group/page.mdx)
 - [Collapsible](#collapsible) - [Full Docs](./collapsible/page.mdx)
@@ -228,9 +228,9 @@ An easily stylable calendar component.
     - Animating month changes
       - Animating with `motion/react`
 - Exports:
-  - Calendar - DayButton
-    - Props: className, format, nativeButton, render, style
-    - Data Attributes: data-current, data-disabled, data-outside-month, data-selected, data-unavailable
+  - Calendar - Root
+    - Props: children, className, defaultValue, defaultVisibleDate, disabled, invalid, isDateUnavailable, maxDate, minDate, monthPageSize, onValueChange, onVisibleDateChange, readOnly, referenceDate, render, style, timezone, value, visibleDate
+    - Data Attributes: data-disabled, data-empty, data-invalid, data-navigation-direction, data-readonly
   - Calendar - DayGrid
     - Props: className, render, style
   - Calendar - DayGridBody
@@ -245,9 +245,9 @@ An easily stylable calendar component.
     - Props: children, className, render, style
   - Calendar - DayGridRow
     - Props: children, className, render, style, value
-  - Calendar - Root
-    - Props: children, className, defaultValue, defaultVisibleDate, disabled, invalid, isDateUnavailable, maxDate, minDate, monthPageSize, onValueChange, onVisibleDateChange, readOnly, referenceDate, render, style, timezone, value, visibleDate
-    - Data Attributes: data-disabled, data-empty, data-invalid, data-navigation-direction, data-readonly
+  - Calendar - DayButton
+    - Props: className, format, nativeButton, render, style
+    - Data Attributes: data-current, data-disabled, data-outside-month, data-selected, data-unavailable
   - Calendar - SetMonth
     - Props: className, nativeButton, render, style, target
     - Data Attributes: data-disabled

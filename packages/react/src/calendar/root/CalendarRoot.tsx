@@ -25,7 +25,7 @@ import {
   CalendarVisibleDateChangeEventDetails,
 } from '../store';
 import { CalendarRootDataAttributes } from './CalendarRootDataAttributes';
-import { validateDate } from '../../utils/temporal/validateDate';
+import { ValidateDateReturnValue } from '../../utils/temporal/validateDate';
 
 const stateAttributesMapping: StateAttributesMapping<CalendarRoot.State> = {
   navigationDirection: (direction) => {
@@ -173,7 +173,7 @@ export interface CalendarRootState extends CalendarRootElementState {}
 export interface CalendarRootProps
   extends
     Omit<BaseUIComponentProps<'div', CalendarRootState>, 'children'>,
-    SharedCalendarStoreParameters<TemporalValue, validateDate.ReturnValue> {
+    SharedCalendarStoreParameters<TemporalValue, ValidateDateReturnValue> {
   /**
    * The children of the component.
    * If a function is provided, it will be called with the public context as its parameter.
@@ -181,12 +181,12 @@ export interface CalendarRootProps
   children?: React.ReactNode | ((parameters: CalendarContext) => React.ReactNode);
 }
 
-export interface CalendarRootValueChangeHandlerContext extends CalendarValueChangeHandlerContext<validateDate.ReturnValue> {}
+export interface CalendarRootValueChangeHandlerContext extends CalendarValueChangeHandlerContext<ValidateDateReturnValue> {}
 
 export type CalendarRootChangeEventReason = CalendarChangeEventReason;
 
 export type CalendarRootValueChangeEventDetails =
-  CalendarValueChangeEventDetails<validateDate.ReturnValue>;
+  CalendarValueChangeEventDetails<ValidateDateReturnValue>;
 
 export type CalendarRootVisibleDateChangeEventDetails = CalendarVisibleDateChangeEventDetails;
 

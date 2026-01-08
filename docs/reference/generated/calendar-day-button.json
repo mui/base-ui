@@ -17,7 +17,7 @@
     "className": {
       "type": "string | ((state: Calendar.DayButton.State) => string | undefined)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
-      "detailedType": "| string\n| ((\n    state: Calendar.DayButton.State,\n  ) => string | undefined)"
+      "detailedType": "| string\n| ((state: Calendar.DayButton.State) => string | undefined)"
     },
     "style": {
       "type": "CSSProperties | ((state: Calendar.DayButton.State) => CSSProperties | undefined)",
