@@ -1,9 +1,9 @@
 import { TemporalAdapter, TemporalTimezone, TemporalSupportedObject } from '../../types';
 import { isAfterDay, isBeforeDay } from './date-helpers';
-import { validateDate } from './validateDate';
+import { ValidateDateValidationProps } from './validateDate';
 
 export function getInitialReferenceDate(
-  parameters: getInitialReferenceDate.Parameters,
+  parameters: GetInitialReferenceDateParameters,
 ): TemporalSupportedObject {
   const {
     adapter,
@@ -31,30 +31,28 @@ export function getInitialReferenceDate(
   return adapter.setTimezone(referenceDate, timezone);
 }
 
-export namespace getInitialReferenceDate {
-  export interface Parameters {
-    /**
-     * The adapter used to manipulate the date.
-     */
-    adapter: TemporalAdapter;
-    /**
-     * The date provided by the user, if any.
-     * If the component is a range component, this will be the start date if defined or the end date otherwise.
-     */
-    externalDate: TemporalSupportedObject | null;
-    /**
-     * The reference date provided by the user, if any.
-     */
-    externalReferenceDate: TemporalSupportedObject | null;
-    /**
-     * The timezone the reference date should be in.
-     */
-    timezone: TemporalTimezone;
-    /**
-     * The props used to validate the date, time or date-time object.
-     */
-    validationProps: ValidationProps;
-  }
-
-  export interface ValidationProps extends validateDate.ValidationProps {}
+export interface GetInitialReferenceDateParameters {
+  /**
+   * The adapter used to manipulate the date.
+   */
+  adapter: TemporalAdapter;
+  /**
+   * The date provided by the user, if any.
+   * If the component is a range component, this will be the start date if defined or the end date otherwise.
+   */
+  externalDate: TemporalSupportedObject | null;
+  /**
+   * The reference date provided by the user, if any.
+   */
+  externalReferenceDate: TemporalSupportedObject | null;
+  /**
+   * The timezone the reference date should be in.
+   */
+  timezone: TemporalTimezone;
+  /**
+   * The props used to validate the date, time or date-time object.
+   */
+  validationProps: GetInitialReferenceDateValidationProps;
 }
+
+export interface GetInitialReferenceDateValidationProps extends ValidateDateValidationProps {}
