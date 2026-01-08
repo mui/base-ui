@@ -45,7 +45,7 @@
     "radix-ui": "^1.4.3",
     "react": "^19.2.3",
     "react-dom": "^19.2.3",
-    "react-error-boundary": "^6.0.0",
+    "react-error-boundary": "^6.0.2",
     "react-hook-form": "^7.69.0",
     "react-is": "^19.2.3",
     "rehype-pretty-code": "^0.14.1",

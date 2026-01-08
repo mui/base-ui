@@ -245,8 +245,8 @@ importers:
         specifier: ^19.2.3
         version: 19.2.3(react@19.2.3)
       react-error-boundary:
-        specifier: ^6.0.0
-        version: 6.0.0(react@19.2.3)
+        specifier: ^6.0.2
+        version: 6.0.2(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       react-hook-form:
         specifier: ^7.69.0
         version: 7.70.0(react@19.2.3)
@@ -8156,10 +8156,11 @@ packages:
     peerDependencies:
       react: ^19.2.3
 
-  react-error-boundary@6.0.0:
-    resolution: {integrity: sha512-gdlJjD7NWr0IfkPlaREN2d9uUZUlksrfOx7SX62VRerwXbMY6ftGCIZua1VG1aXFNOimhISsTq+Owp725b9SiA==}
+  react-error-boundary@6.0.2:
+    resolution: {integrity: sha512-yvWErn55ag/ywZEFqYpXYX9rxIDPIabXIX25F184KY3F5Szk2x/cVieOflw5R47ltN3KzWOw82Lmlb4vNjyn9A==}
     peerDependencies:
-      react: '>=16.13.1'
+      react: ^18.0.0 || ^19.0.0
+      react-dom: ^18.0.0 || ^19.0.0
 
   react-hook-form@7.70.0:
     resolution: {integrity: sha512-COOMajS4FI3Wuwrs3GPpi/Jeef/5W1DRR84Yl5/ShlT3dKVFUfoGiEZ/QE6Uw8P4T2/CLJdcTVYKvWBMQTEpvw==}
@@ -18877,10 +18878,10 @@ snapshots:
       react: 19.2.3
       scheduler: 0.27.0
 
-  react-error-boundary@6.0.0(react@19.2.3):
+  react-error-boundary@6.0.2(react-dom@19.2.3(react@19.2.3))(react@19.2.3):
     dependencies:
-      '@babel/runtime': 7.28.4
       react: 19.2.3
+      react-dom: 19.2.3(react@19.2.3)
 
   react-hook-form@7.70.0(react@19.2.3):
     dependencies:
