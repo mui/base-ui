@@ -35,8 +35,9 @@ const SECTION_TYPE_GRANULARITY: { [key in TemporalFieldSectionType]?: number } =
 
 export class TemporalFieldStore<
   TValue extends TemporalSupportedValue,
+  TValidationProps extends object,
   TError,
-> extends Store<TemporalFieldState> {
+> extends Store<TemporalFieldState<TValue, TValidationProps>> {
   private parameters: TemporalFieldStoreParameters<TValue, TError>;
 
   private initialParameters: TemporalFieldStoreParameters<TValue, TError> | null = null;
@@ -49,7 +50,7 @@ export class TemporalFieldStore<
 
   public valueAdjustment = new TemporalFieldValueAdjustmentPlugin<TValue>(this);
 
-  public value = new TemporalFieldValuePlugin<TValue, TError>(this);
+  public value = new TemporalFieldValuePlugin<TValue, TValidationProps, TError>(this);
 
   public section = new TemporalFieldSectionPlugin<TValue>(this);
 
@@ -57,6 +58,7 @@ export class TemporalFieldStore<
 
   constructor(
     parameters: TemporalFieldStoreParameters<TValue, TError>,
+    validationProps: TValidationProps,
     adapter: TemporalAdapter,
     manager: TemporalManager<TValue, TError, any>,
     valueManager: TemporalFieldValueManager<TValue>,
@@ -82,10 +84,10 @@ export class TemporalFieldStore<
     );
 
     const referenceValue = valueManager.getInitialReferenceValue({
-      referenceDate: parameters.referenceDate,
+      externalReferenceDate: parameters.referenceDate,
       value,
       adapter,
-      // props: internalPropsWithDefaults as GetDefaultReferenceDateProps,
+      validationProps,
       granularity,
       timezone: getTimezoneToRender(
         adapter,
@@ -101,6 +103,7 @@ export class TemporalFieldStore<
     super({
       value,
       sections,
+      validationProps,
       timezoneProp: parameters.timezone,
       shouldRespectLeadingZeros,
       referenceDateProp: parameters.referenceDate ?? null,

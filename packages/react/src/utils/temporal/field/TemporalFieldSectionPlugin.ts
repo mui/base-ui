@@ -9,7 +9,7 @@ import { getDateFromDateSections } from './utils';
  * Plugin to interact with a single section of the field value.
  */
 export class TemporalFieldSectionPlugin<TValue extends TemporalSupportedValue> {
-  private store: TemporalFieldStore<TValue, any>;
+  private store: TemporalFieldStore<TValue, any, any>;
 
   private sectionToUpdateOnNextInvalidDate: { index: number; value: string } | null = null;
 

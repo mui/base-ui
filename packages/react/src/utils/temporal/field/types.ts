@@ -11,7 +11,6 @@ import {
   TemporalSupportedValue,
   TemporalTimezone,
 } from '../../../types';
-import { getInitialReferenceDate } from '../getInitialReferenceDate';
 import { TemporalManager, TemporalTimezoneProps } from '../types';
 
 export interface TemporalFieldStoreParameters<
@@ -88,7 +87,10 @@ export type TemporalFieldStorePublicParameters<
   TError,
 > = MakeOptional<TemporalFieldStoreParameters<TValue, TError>, 'format'>;
 
-export interface TemporalFieldState<TValue extends TemporalSupportedValue = any> {
+export interface TemporalFieldState<
+  TValue extends TemporalSupportedValue = any,
+  TValidationProps extends object = object,
+> {
   /**
    * The value of the field, as passed to `props.value` or `props.defaultValue`.
    */
@@ -185,6 +187,10 @@ export interface TemporalFieldState<TValue extends TemporalSupportedValue = any>
    * Methods to generate the placeholders for each section type.
    */
   placeholderGetters: TemporalFieldPlaceholderGetters;
+  /**
+   * Props used to check the validity of a date.
+   */
+  validationProps: TValidationProps;
 }
 
 export interface TemporalFieldCharacterEditingQuery {

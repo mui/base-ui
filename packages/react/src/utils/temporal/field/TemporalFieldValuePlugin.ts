@@ -8,8 +8,12 @@ import { TemporalFieldValueChangeHandlerContext } from './types';
 /**
  * Plugin to interact with the entire field value.
  */
-export class TemporalFieldValuePlugin<TValue extends TemporalSupportedValue, TError> {
-  private store: TemporalFieldStore<TValue, TError>;
+export class TemporalFieldValuePlugin<
+  TValue extends TemporalSupportedValue,
+  TValidationProps extends object,
+  TError,
+> {
+  private store: TemporalFieldStore<TValue, TValidationProps, TError>;
 
   // We can't type `store`, otherwise we get the following TS error:
   // 'value' implicitly has type 'any' because it does not have a type annotation and is referenced directly or indirectly in its own initializer.
@@ -24,7 +28,7 @@ export class TemporalFieldValuePlugin<TValue extends TemporalSupportedValue, TEr
     const { manager } = this.store.state;
 
     const context: TemporalFieldValueChangeHandlerContext<TError> = {
-      getValidationError: () => manager.getValidationError(value, this.validationProps),
+      getValidationError: () => manager.getValidationError(value, this.store.state.validationProps),
     };
 
     // TODO: Fire onValueChange

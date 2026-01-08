@@ -81,8 +81,6 @@ export const DateFieldRoot = React.forwardRef(function DateFieldRoot(
       timezone,
       referenceDate,
       format: format ?? adapter.formats.localizedNumericDate,
-      minDate,
-      maxDate,
     }),
     [
       adapter,
@@ -95,14 +93,25 @@ export const DateFieldRoot = React.forwardRef(function DateFieldRoot(
       timezone,
       referenceDate,
       format,
-      minDate,
-      maxDate,
     ],
+  );
+
+  const validationProps: ValidateDateValidationProps = React.useMemo(
+    () => ({ minDate, maxDate }),
+    [minDate, maxDate],
   );
 
   const direction = useDirection();
   const store = useRefWithInit(
-    () => new TemporalFieldStore(parameters, adapter, manager, dateFieldValueManager, direction),
+    () =>
+      new TemporalFieldStore(
+        parameters,
+        validationProps,
+        adapter,
+        manager,
+        dateFieldValueManager,
+        direction,
+      ),
   ).current;
 
   const element = useRenderElement('div', componentProps, {

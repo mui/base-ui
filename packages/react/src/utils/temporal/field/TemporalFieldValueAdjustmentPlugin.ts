@@ -7,7 +7,7 @@ import { selectors } from './selectors';
  * Plugin to adjust the value of the active section when pressing ArrowUp, ArrowDown, PageUp, PageDown, Home or End.
  */
 export class TemporalFieldValueAdjustmentPlugin<TValue extends TemporalSupportedValue> {
-  private store: TemporalFieldStore<TValue, any>;
+  private store: TemporalFieldStore<TValue, any, any>;
 
   // We can't type `store`, otherwise we get the following TS error:
   // 'valueAdjustment' implicitly has type 'any' because it does not have a type annotation and is referenced directly or indirectly in its own initializer.

@@ -17,7 +17,7 @@ import {
  * Plugin to update the value of a section when pressing a digit or letter key.
  */
 export class TemporalFieldCharacterEditingPlugin<TValue extends TemporalSupportedValue> {
-  private store: TemporalFieldStore<TValue, any>;
+  private store: TemporalFieldStore<TValue, any, any>;
 
   // We can't type `store`, otherwise we get the following TS error:
   // 'characterEditing' implicitly has type 'any' because it does not have a type annotation and is referenced directly or indirectly in its own initializer.
