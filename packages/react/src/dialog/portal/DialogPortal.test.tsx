@@ -17,26 +17,40 @@ describe('<Dialog.Portal />', () => {
   describe('Suspense integration', () => {
     // Issue #3695
     it('should not throw "Maximum update depth exceeded" when Suspense boundary is outside Portal', async () => {
-      const promise = Promise.resolve('Greetings');
+      function createLazyComponent() {
+        let resolvePromise: ((value: { default: React.ComponentType }) => void) | null = null;
+        const promise = new Promise<{ default: React.ComponentType }>((resolve) => {
+          resolvePromise = resolve;
+        });
 
-      function Message({ messagePromise }: { messagePromise: Promise<string> }) {
-        const value = React.use(messagePromise);
-        return <p>{value}</p>;
+        return {
+          LazyComponent: React.lazy(() => promise),
+          resolve(value: { default: React.ComponentType }) {
+            if (!resolvePromise) {
+              throw new Error('Lazy message resolver not initialized.');
+            }
+            resolvePromise(value);
+          },
+        };
       }
+
+      const { LazyComponent, resolve } = createLazyComponent();
 
       await render(
         <React.Suspense fallback="Loading...">
           <Dialog.Root open>
             <Dialog.Portal>
               <Dialog.Popup>
-                <Message messagePromise={promise} />
+                <LazyComponent />
               </Dialog.Popup>
             </Dialog.Portal>
           </Dialog.Root>
         </React.Suspense>,
       );
 
-      expect(screen.getByText('Greetings')).not.to.equal(null);
+      expect(await screen.findByText('Loading...')).not.to.equal(null);
+      resolve({ default: () => <p>Greetings</p> });
+      expect(await screen.findByText('Greetings')).not.to.equal(null);
     });
   });
 });
