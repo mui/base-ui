@@ -2,13 +2,20 @@ import setupVitest from '@mui/internal-test-utils/setupVitest';
 // eslint-disable-next-line import/no-relative-packages
 import '../packages/react/test/addChaiAssertions';
 import '@testing-library/jest-dom/vitest';
+import { vi } from 'vitest';
+import { reset } from '@base-ui/utils/error';
 
 declare global {
   // eslint-disable-next-line vars-on-top
   var BASE_UI_ANIMATIONS_DISABLED: boolean;
 }
 
-setupVitest({ failOnConsoleEnabled: false });
+setupVitest();
+
+afterEach(() => {
+  vi.resetAllMocks();
+  reset();
+});
 
 globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
 

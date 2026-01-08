@@ -173,6 +173,19 @@ describe('<Combobox.Input />', () => {
     });
   });
 
+  describe('prop: required', () => {
+    it('sets aria-required attribute when required', async () => {
+      await render(
+        <Combobox.Root required>
+          <Combobox.Input data-testid="input" />
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByTestId('input');
+      expect(input).to.have.attribute('aria-required', 'true');
+    });
+  });
+
   describe('interaction behavior', () => {
     it('clears selected value when input text is cleared (single selection)', async () => {
       const { user } = await render(

@@ -94,7 +94,7 @@
   },
   "devDependencies": {
     "@date-fns/tz": "^1.4.1",
-    "@testing-library/react": "16.3.0",
+    "@testing-library/react": "16.3.1",
     "@testing-library/user-event": "14.6.1",
     "@types/chai": "5.2.3",
     "@types/chai-dom": "1.11.3",
@@ -109,7 +109,7 @@
     "luxon": "^3.7.2",
     "react": "19.2.3",
     "react-dom": "19.2.3",
-    "react-router": "7.10.1",
+    "react-router": "7.11.0",
     "sinon": "21.0.0",
     "typescript": "5.9.3",
     "vitest-browser-react": "2.0.2"

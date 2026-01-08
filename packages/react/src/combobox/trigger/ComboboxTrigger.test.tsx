@@ -466,6 +466,29 @@ describe('<Combobox.Trigger />', () => {
   });
 
   describe('aria attributes', () => {
+    it('sets aria-required attribute when required (input inside popup)', async () => {
+      await render(
+        <Combobox.Root required>
+          <Combobox.Trigger data-testid="trigger" />
+        </Combobox.Root>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+      expect(trigger).to.have.attribute('aria-required', 'true');
+    });
+
+    it('does not set aria-required attribute when the input is outside the popup', async () => {
+      await render(
+        <Combobox.Root required>
+          <Combobox.Input />
+          <Combobox.Trigger data-testid="trigger" />
+        </Combobox.Root>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+      expect(trigger).not.to.have.attribute('aria-required');
+    });
+
     it('sets all aria attributes on the input when closed', async () => {
       await render(
         <Combobox.Root>
