@@ -2,7 +2,7 @@ import { Store } from '@base-ui/utils/store';
 import { warn } from '@base-ui/utils/warn';
 import { TemporalSupportedObject, TemporalSupportedValue } from '../../types/temporal';
 import { TemporalAdapter } from '../../types/temporal-adapter';
-import { validateDate } from '../../utils/temporal/validateDate';
+import { validateDate, ValidateDateValidationProps } from '../../utils/temporal/validateDate';
 import { getInitialReferenceDate } from '../../utils/temporal/getInitialReferenceDate';
 import { TemporalManager, TemporalTimezoneProps } from '../../utils/temporal/types';
 import {
@@ -295,7 +295,7 @@ export class SharedCalendarStore<
 }
 
 export interface SharedCalendarStoreParameters<TValue extends TemporalSupportedValue, TError>
-  extends TemporalTimezoneProps, validateDate.ValidationProps {
+  extends TemporalTimezoneProps, ValidateDateValidationProps {
   /**
    * The controlled value that should be selected.
    * To render an uncontrolled (Range)Calendar, use the `defaultValue` prop instead.

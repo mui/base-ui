@@ -15,7 +15,7 @@ const isProduction = process.env.DEPLOY_ENV === 'production';
 export default function Layout({ children }: React.PropsWithChildren) {
   return (
     // Use suppressHydrationWarning to avoid https://github.com/facebook/react/issues/24430
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en">
       <head>
         <link
           rel="preload"
@@ -39,7 +39,7 @@ export default function Layout({ children }: React.PropsWithChildren) {
           crossOrigin="anonymous"
         />
       </head>
-      <body>
+      <body suppressHydrationWarning>
         <DocsProviders>
           <div className="RootLayout">
             <div className="RootLayoutContainer">

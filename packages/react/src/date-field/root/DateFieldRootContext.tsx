@@ -1,9 +1,9 @@
 import * as React from 'react';
 import { TemporalFieldStore } from '../../utils/temporal/field/TemporalFieldStore';
 import { TemporalValue } from '../../types';
-import { validateDate } from '../../utils/temporal/validateDate';
+import { ValidateDateReturnValue } from '../../utils/temporal/validateDate';
 
-export type DateFieldRootContext = TemporalFieldStore<TemporalValue, validateDate.ReturnValue>;
+export type DateFieldRootContext = TemporalFieldStore<TemporalValue, ValidateDateReturnValue>;
 
 export const DateFieldRootContext = React.createContext<DateFieldRootContext | undefined>(
   undefined,

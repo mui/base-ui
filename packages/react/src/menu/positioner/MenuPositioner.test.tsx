@@ -10,7 +10,7 @@ const Trigger = React.forwardRef(function Trigger(
   props: Menu.Trigger.Props,
   ref: React.ForwardedRef<any>,
 ) {
-  return <Menu.Trigger {...props} ref={ref} render={<div />} />;
+  return <Menu.Trigger {...props} ref={ref} render={<div />} nativeButton={false} />;
 });
 
 describe('<Menu.Positioner />', () => {

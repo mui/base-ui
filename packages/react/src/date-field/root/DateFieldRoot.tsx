@@ -5,7 +5,10 @@ import { getDateManager } from '../../utils/temporal/getDateManager';
 import { TemporalFieldStore } from '../../utils/temporal/field/TemporalFieldStore';
 import { BaseUIComponentProps } from '../../utils/types';
 import { TemporalValue } from '../../types';
-import { validateDate } from '../../utils/temporal/validateDate';
+import {
+  ValidateDateReturnValue,
+  ValidateDateValidationProps,
+} from '../../utils/temporal/validateDate';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useDirection } from '../../direction-provider';
 import {
@@ -117,8 +120,8 @@ export interface DateFieldRootState {}
 export interface DateFieldRootProps
   extends
     BaseUIComponentProps<'div', DateFieldRootState>,
-    validateDate.ValidationProps,
-    TemporalFieldStorePublicParameters<TemporalValue, validateDate.ReturnValue> {}
+    ValidateDateValidationProps,
+    TemporalFieldStorePublicParameters<TemporalValue, ValidateDateReturnValue> {}
 
 export namespace DateFieldRoot {
   export type Props = DateFieldRootProps;

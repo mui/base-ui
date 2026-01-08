@@ -1,5 +1,5 @@
 import { areDatesEqual } from './date-helpers';
-import { validateDate } from './validateDate';
+import { validateDate, ValidateDateReturnValue, ValidateDateValidationProps } from './validateDate';
 import { TemporalManager } from './types';
 import { TemporalValue, TemporalAdapter } from '../../types';
 
@@ -21,6 +21,6 @@ export function getDateManager(adapter: TemporalAdapter): GetDateManagerReturnVa
 
 export type GetDateManagerReturnValue = TemporalManager<
   TemporalValue,
-  validateDate.ReturnValue,
-  validateDate.ValidationProps
+  ValidateDateReturnValue,
+  ValidateDateValidationProps
 >;

@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import { spy } from 'sinon';
 import { TemporalAdapterDateFns } from '../../../temporal-adapter-date-fns/TemporalAdapterDateFns';
 import { TemporalValue } from '../../../types/temporal';
-import { validateDate } from '../../../utils/temporal/validateDate';
+import { ValidateDateReturnValue } from '../../../utils/temporal/validateDate';
 import { getDateManager } from '../../../utils/temporal/getDateManager';
 import {
   SharedCalendarStore,
@@ -32,11 +32,11 @@ function createMockSyntheticEvent(): React.SyntheticEvent {
  */
 function createStore(
   adapter: TemporalAdapterDateFns,
-  parameters: Partial<SharedCalendarStoreParameters<TemporalValue, validateDate.ReturnValue>> = {},
+  parameters: Partial<SharedCalendarStoreParameters<TemporalValue, ValidateDateReturnValue>> = {},
 ) {
   const manager = getDateManager(adapter);
 
-  const fullParameters: SharedCalendarStoreParameters<TemporalValue, validateDate.ReturnValue> = {
+  const fullParameters: SharedCalendarStoreParameters<TemporalValue, ValidateDateReturnValue> = {
     ...parameters,
   };
 

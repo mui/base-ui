@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import { spy } from 'sinon';
 import { TemporalAdapterDateFns } from '../../../temporal-adapter-date-fns/TemporalAdapterDateFns';
 import { TemporalValue } from '../../../types/temporal';
-import { validateDate } from '../../../utils/temporal/validateDate';
+import { ValidateDateReturnValue } from '../../../utils/temporal/validateDate';
 import { getDateManager } from '../../../utils/temporal/getDateManager';
 import {
   SharedCalendarStore,
@@ -32,11 +32,11 @@ function createMockMouseEvent(): React.MouseEvent<HTMLButtonElement> {
  */
 function createStore(
   adapter: TemporalAdapterDateFns,
-  parameters: Partial<SharedCalendarStoreParameters<TemporalValue, validateDate.ReturnValue>> = {},
+  parameters: Partial<SharedCalendarStoreParameters<TemporalValue, ValidateDateReturnValue>> = {},
 ) {
   const manager = getDateManager(adapter);
 
-  const fullParameters: SharedCalendarStoreParameters<TemporalValue, validateDate.ReturnValue> = {
+  const fullParameters: SharedCalendarStoreParameters<TemporalValue, ValidateDateReturnValue> = {
     visibleDate: parameters.visibleDate ?? adapter.date('2025-02-01', 'default'),
     ...parameters,
   };
@@ -180,7 +180,7 @@ describe('SharedCalendarStore - value', () => {
       expect(onValueChange.callCount).to.equal(1);
 
       const eventDetails = onValueChange.firstCall
-        .args[1] as CalendarValueChangeEventDetails<validateDate.ReturnValue>;
+        .args[1] as CalendarValueChangeEventDetails<ValidateDateReturnValue>;
       const validationError = eventDetails.getValidationError();
       expect(validationError).to.equal('before-min-date');
     });
@@ -197,7 +197,7 @@ describe('SharedCalendarStore - value', () => {
       expect(onValueChange.callCount).to.equal(1);
 
       const eventDetails = onValueChange.firstCall
-        .args[1] as CalendarValueChangeEventDetails<validateDate.ReturnValue>;
+        .args[1] as CalendarValueChangeEventDetails<ValidateDateReturnValue>;
       const validationError = eventDetails.getValidationError();
       expect(validationError).to.equal(null);
     });
