@@ -52,7 +52,7 @@ export type BaseUIComponentProps<
   State,
   RenderFunctionProps = HTMLProps,
 > = Omit<
-  WithBaseUIEvent<React.ComponentPropsWithoutRef<ElementType>>,
+  WithBaseUIEvent<React.ComponentPropsWithRef<ElementType>>,
   'className' | 'color' | 'defaultValue' | 'defaultChecked'
 > & {
   /**

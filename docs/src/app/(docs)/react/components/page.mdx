@@ -152,7 +152,7 @@ An input that suggests options as you type.
     - Return value
 - Exports:
   - Autocomplete - Root
-    - Props: actionsRef, autoHighlight, children, defaultOpen, defaultValue, disabled, filter, filteredItems, grid, highlightItemOnHover, id, inline, inputRef, itemToStringValue, items, keepHighlight, limit, locale, modal, mode, name, onItemHighlighted, onOpenChange, onOpenChangeComplete, onValueChange, open, openOnInputClick, readOnly, required, submitOnItemClick, value, virtualized
+    - Props: actionsRef, autoHighlight, children, defaultOpen, defaultValue, disabled, filter, filteredItems, grid, highlightItemOnHover, id, inline, inputRef, itemToStringValue, items, keepHighlight, limit, locale, loopFocus, modal, mode, name, onItemHighlighted, onOpenChange, onOpenChangeComplete, onValueChange, open, openOnInputClick, readOnly, required, submitOnItemClick, value, virtualized
   - Autocomplete - Value
     - Props: children
 
@@ -221,15 +221,16 @@ An easily stylable checkbox component.
   - Usage guidelines
   - Anatomy
   - Examples
+    - Labeling a checkbox
     - Form integration
   - API reference
 - Exports:
   - Checkbox - Root
     - Props: checked, className, defaultChecked, disabled, id, indeterminate, inputRef, name, nativeButton, onCheckedChange, parent, readOnly, render, required, style, uncheckedValue, value
-    - Data Attributes: data-checked, data-dirty, data-disabled, data-filled, data-focused, data-invalid, data-readonly, data-required, data-touched, data-unchecked, data-valid
+    - Data Attributes: data-checked, data-dirty, data-disabled, data-filled, data-focused, data-indeterminate, data-invalid, data-readonly, data-required, data-touched, data-unchecked, data-valid
   - Checkbox - Indicator
     - Props: className, keepMounted, render, style
-    - Data Attributes: data-checked, data-dirty, data-disabled, data-ending-style, data-filled, data-focused, data-invalid, data-readonly, data-required, data-starting-style, data-touched, data-unchecked, data-valid
+    - Data Attributes: data-checked, data-dirty, data-disabled, data-ending-style, data-filled, data-focused, data-indeterminate, data-invalid, data-readonly, data-required, data-starting-style, data-touched, data-unchecked, data-valid
 
 </details>
 
@@ -248,6 +249,8 @@ Provides shared state to a series of checkboxes.
   - Usage guidelines
   - Anatomy
   - Examples
+    - Labeling a checkbox group
+    - Form integration
     - Parent checkbox
     - Nested parent checkbox
   - API reference
@@ -314,10 +317,10 @@ An input combined with a list of predefined items to select.
     - Return value
 - Exports:
   - Combobox - Root
-    - Props: actionsRef, autoHighlight, children, defaultInputValue, defaultOpen, defaultValue, disabled, filter, filteredItems, grid, highlightItemOnHover, id, inline, inputRef, inputValue, isItemEqualToValue, itemToStringLabel, itemToStringValue, items, limit, locale, modal, multiple, name, onInputValueChange, onItemHighlighted, onOpenChange, onOpenChangeComplete, onValueChange, open, openOnInputClick, readOnly, required, value, virtualized
+    - Props: actionsRef, autoHighlight, children, defaultInputValue, defaultOpen, defaultValue, disabled, filter, filteredItems, grid, highlightItemOnHover, id, inline, inputRef, inputValue, isItemEqualToValue, itemToStringLabel, itemToStringValue, items, limit, locale, loopFocus, modal, multiple, name, onInputValueChange, onItemHighlighted, onOpenChange, onOpenChangeComplete, onValueChange, open, openOnInputClick, readOnly, required, value, virtualized
   - Combobox - Trigger
     - Props: className, disabled, nativeButton, render, style
-    - Data Attributes: data-dirty, data-disabled, data-filled, data-focused, data-invalid, data-popup-open, data-pressed, data-readonly, data-required, data-touched, data-valid
+    - Data Attributes: data-dirty, data-disabled, data-filled, data-focused, data-invalid, data-list-empty, data-popup-open, data-popup-side, data-pressed, data-readonly, data-required, data-touched, data-valid
   - Combobox - Input
     - Props: className, disabled, render, style
     - Data Attributes: data-dirty, data-disabled, data-filled, data-focused, data-invalid, data-list-empty, data-popup-open, data-popup-side, data-pressed, data-readonly, data-required, data-touched, data-valid
@@ -465,7 +468,7 @@ A component that provides labeling and validation for form controls.
   - API reference
 - Exports:
   - Field - Root
-    - Props: className, dirty, disabled, invalid, name, render, style, touched, validate, validationDebounceTime, validationMode
+    - Props: actionsRef, className, dirty, disabled, invalid, name, render, style, touched, validate, validationDebounceTime, validationMode
     - Data Attributes: data-dirty, data-disabled, data-filled, data-focused, data-invalid, data-touched, data-valid
   - Field - Label
     - Props: className, render, style
@@ -528,7 +531,7 @@ A native form element with consolidated error handling.
   - API reference
 - Exports:
   - Form
-    - Props: className, errors, onFormSubmit, render, style, validationMode
+    - Props: actionsRef, className, errors, onFormSubmit, render, style, validationMode
 
 </details>
 
@@ -917,6 +920,9 @@ An easily stylable radio button component.
 - Sections:
   - Usage guidelines
   - Anatomy
+  - Examples
+    - Labeling a radio group
+    - Form integration
   - API reference
     - RadioGroup
 - Exports:
@@ -983,10 +989,12 @@ A common form component for choosing a predefined value in a dropdown menu.
 - Sections:
   - Usage guidelines
   - Anatomy
-  - TypeScript
   - Positioning
-  - Formatting the value
   - Examples
+    - Typed wrapper component
+    - Formatting the value
+    - Labeling a select
+    - Placeholder values
     - Multiple selection
     - Object values
   - API reference
@@ -1076,26 +1084,28 @@ An easily stylable range input.
   - Examples
     - Range slider
     - Thumb alignment
+    - Labeling a slider
+    - Form integration
   - API reference
 - Exports:
   - Slider - Root
     - Props: className, defaultValue, disabled, format, largeStep, locale, max, min, minStepsBetweenValues, name, onValueChange, onValueCommitted, orientation, render, step, style, thumbAlignment, thumbCollisionBehavior, value
-    - Data Attributes: data-dirty, data-disabled, data-dragging, data-focused, data-invalid, data-orientation, data-readonly, data-required, data-touched, data-valid
+    - Data Attributes: data-dirty, data-disabled, data-dragging, data-focused, data-invalid, data-orientation, data-touched, data-valid
   - Slider - Value
     - Props: children, className, render, style
-    - Data Attributes: data-dirty, data-disabled, data-dragging, data-focused, data-invalid, data-orientation, data-readonly, data-required, data-touched, data-valid
+    - Data Attributes: data-dirty, data-disabled, data-dragging, data-focused, data-invalid, data-orientation, data-touched, data-valid
   - Slider - Control
     - Props: className, render, style
-    - Data Attributes: data-dirty, data-disabled, data-dragging, data-focused, data-invalid, data-orientation, data-readonly, data-required, data-touched, data-valid
+    - Data Attributes: data-dirty, data-disabled, data-dragging, data-focused, data-invalid, data-orientation, data-touched, data-valid
   - Slider - Track
     - Props: className, render, style
-    - Data Attributes: data-dirty, data-disabled, data-dragging, data-focused, data-invalid, data-orientation, data-readonly, data-required, data-touched, data-valid
+    - Data Attributes: data-dirty, data-disabled, data-dragging, data-focused, data-invalid, data-orientation, data-touched, data-valid
   - Slider - Thumb
     - Props: className, disabled, getAriaLabel, getAriaValueText, index, inputRef, onBlur, onFocus, render, style, tabIndex
-    - Data Attributes: data-dirty, data-disabled, data-dragging, data-focused, data-index, data-invalid, data-orientation, data-readonly, data-required, data-touched, data-valid
+    - Data Attributes: data-dirty, data-disabled, data-dragging, data-focused, data-index, data-invalid, data-orientation, data-touched, data-valid
   - Slider - Indicator
     - Props: className, render, style
-    - Data Attributes: data-dirty, data-disabled, data-dragging, data-focused, data-invalid, data-orientation, data-readonly, data-required, data-touched, data-valid
+    - Data Attributes: data-dirty, data-disabled, data-dragging, data-focused, data-invalid, data-orientation, data-touched, data-valid
 
 </details>
 
@@ -1113,6 +1123,9 @@ A control that indicates whether a setting is on or off.
 - Sections:
   - Usage guidelines
   - Anatomy
+  - Examples
+    - Labeling a switch
+    - Form integration
   - API reference
 - Exports:
   - Switch - Root

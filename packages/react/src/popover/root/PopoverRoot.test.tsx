@@ -8,6 +8,7 @@ import { expect } from 'chai';
 import { spy } from 'sinon';
 import { createRenderer, isJSDOM, popupConformanceTests, wait } from '#test-utils';
 import { OPEN_DELAY } from '../utils/constants';
+import { PATIENT_CLICK_THRESHOLD } from '../../utils/constants';
 
 describe('<Popover.Root />', () => {
   beforeEach(() => {
@@ -104,6 +105,17 @@ describe('<Popover.Root />', () => {
 
     describe('nested menu interactions', () => {
       it('keeps the popover open when a nested menu opens via Enter using a shared container', async () => {
+        vi.spyOn(console, 'error').mockImplementation((...args) => {
+          if (args[0] === 'null') {
+            // a bug in vitest prints specific browser errors as "null"
+            // See https://github.com/vitest-dev/vitest/issues/9285
+            // TODO(@mui/base): debug why this test triggers "ResizeObserver loop completed with undelivered notifications"
+            // It seems related to @testing-library/user-event. Native vitest `userEvent` does not trigger it.
+            return;
+          }
+          console.error(...args);
+        });
+
         function Test() {
           const [dialogNode, setDialogNode] = React.useState<HTMLDialogElement | null>(null);
           const handleDialogRef = React.useCallback((node: HTMLDialogElement | null) => {
@@ -157,6 +169,17 @@ describe('<Popover.Root />', () => {
       });
 
       it('keeps the popover open when a nested menu opens via pointer using a shared container', async () => {
+        vi.spyOn(console, 'error').mockImplementation((...args) => {
+          if (args[0] === 'null') {
+            // a bug in vitest prints specific browser errors as "null"
+            // See https://github.com/vitest-dev/vitest/issues/9285
+            // TODO(@mui/base): debug why this test triggers "ResizeObserver loop completed with undelivered notifications"
+            // It seems related to @testing-library/user-event. Native vitest `userEvent` does not trigger it.
+            return;
+          }
+          console.error(...args);
+        });
+
         function Test() {
           const [dialogNode, setDialogNode] = React.useState<HTMLDialogElement | null>(null);
           const handleDialogRef = React.useCallback((node: HTMLDialogElement | null) => {
@@ -825,6 +848,37 @@ describe('<Popover.Root />', () => {
 
         expect(positioner.previousElementSibling).to.equal(null);
       });
+
+      describe('with openOnHover', () => {
+        clock.withFakeTimers();
+
+        it('enables modal behavior after a hover-open is clicked', async () => {
+          await render(
+            <TestPopover
+              rootProps={{ modal: true }}
+              triggerProps={{ openOnHover: true, delay: 0 }}
+            />,
+          );
+
+          const trigger = screen.getByRole('button', { name: 'Toggle' });
+
+          fireEvent.mouseEnter(trigger);
+          fireEvent.mouseMove(trigger);
+
+          await flushMicrotasks();
+          expect(screen.queryByRole('dialog')).not.to.equal(null);
+
+          const positioner = screen.getByTestId('positioner');
+          expect(positioner.previousElementSibling).to.equal(null);
+
+          clock.tick(PATIENT_CLICK_THRESHOLD - 1);
+          fireEvent.click(trigger);
+
+          await flushMicrotasks();
+
+          expect(positioner.previousElementSibling).to.have.attribute('role', 'presentation');
+        });
+      });
     });
 
     describe.skipIf(isJSDOM)('prop: onOpenChangeComplete', () => {
@@ -1000,6 +1054,55 @@ describe('<Popover.Root />', () => {
     });
 
     describe('nested popup interactions', () => {
+      it('keeps the parent popover open when press starts in nested popover and ends outside', async () => {
+        function Test() {
+          return (
+            <div>
+              <button type="button" data-testid="outside">
+                Outside
+              </button>
+
+              <Popover.Root defaultOpen>
+                <Popover.Trigger>Parent</Popover.Trigger>
+                <Popover.Portal>
+                  <Popover.Positioner>
+                    <Popover.Popup data-testid="parent-popup">
+                      <Popover.Root>
+                        <Popover.Trigger>Child</Popover.Trigger>
+                        <Popover.Portal>
+                          <Popover.Positioner>
+                            <Popover.Popup data-testid="child-popup">Child content</Popover.Popup>
+                          </Popover.Positioner>
+                        </Popover.Portal>
+                      </Popover.Root>
+                    </Popover.Popup>
+                  </Popover.Positioner>
+                </Popover.Portal>
+              </Popover.Root>
+            </div>
+          );
+        }
+
+        await render(<Test />);
+
+        expect(screen.queryByTestId('parent-popup')).not.to.equal(null);
+
+        const childTrigger = screen.getByRole('button', { name: 'Child' });
+
+        fireEvent.click(childTrigger);
+
+        const childPopup = await screen.findByTestId('child-popup');
+        const outside = screen.getByTestId('outside');
+
+        fireEvent.pointerDown(childPopup, { pointerType: 'mouse', button: 0 });
+        fireEvent.click(outside);
+
+        await waitFor(() => {
+          expect(screen.queryByTestId('parent-popup')).not.to.equal(null);
+        });
+        expect(screen.queryByTestId('child-popup')).not.to.equal(null);
+      });
+
       it.skipIf(isJSDOM)(
         'should not close popover when scrolling nested popup on touch',
         async () => {

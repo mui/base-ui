@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { expect } from 'chai';
-import { act, screen, waitFor } from '@mui/internal-test-utils';
+import { act, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance, isJSDOM, wait } from '#test-utils';
 import { spy } from 'sinon';
 import { afterEach } from 'vitest';
@@ -629,6 +629,39 @@ describe('<Menubar />', () => {
         });
         await waitFor(() => {
           expect(screen.queryByTestId('edit-menu')).not.to.equal(null);
+        });
+      });
+    });
+
+    describe.skipIf(!isJSDOM)('touch interactions', () => {
+      it('closes the entire tree on a single outside press after opening a submenu', async () => {
+        await render(
+          <div>
+            <TestMenubar />
+            <button data-testid="outside">Outside</button>
+          </div>,
+        );
+
+        const fileTrigger = screen.getByTestId('file-trigger');
+
+        fireEvent.pointerDown(fileTrigger, { pointerType: 'touch' });
+        fireEvent.mouseDown(fileTrigger);
+
+        await screen.findByTestId('file-menu');
+
+        const shareTrigger = await screen.findByTestId('share-trigger');
+        fireEvent.pointerDown(shareTrigger, { pointerType: 'touch' });
+        fireEvent.mouseDown(shareTrigger);
+
+        await screen.findByTestId('share-menu');
+
+        const outside = screen.getByTestId('outside');
+        fireEvent.pointerDown(outside, { pointerType: 'touch' });
+        fireEvent.mouseDown(outside);
+
+        await waitFor(() => {
+          expect(screen.queryByTestId('share-menu')).to.equal(null);
+          expect(screen.queryByTestId('file-menu')).to.equal(null);
         });
       });
     });

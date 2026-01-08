@@ -7,10 +7,10 @@
   "dependencies": {
     "@base-ui/react": "workspace:*",
     "@base-ui/utils": "workspace:*",
-    "@mui/internal-bundle-size-checker": "1.0.9-canary.55",
+    "@mui/internal-bundle-size-checker": "1.0.9-canary.59",
     "radix-ui": "^1.4.3"
   },
   "devDependencies": {
-    "cross-env": "^10.1.0"
+    "cross-env": "10.1.0"
   }
 }

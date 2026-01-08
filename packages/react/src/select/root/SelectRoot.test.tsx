@@ -1,8 +1,16 @@
 import * as React from 'react';
 import { Select } from '@base-ui/react/select';
-import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
+import {
+  act,
+  fireEvent,
+  flushMicrotasks,
+  screen,
+  waitFor,
+  ignoreActWarnings,
+  reactMajor,
+} from '@mui/internal-test-utils';
 import { createRenderer, isJSDOM, popupConformanceTests } from '#test-utils';
-import { expect } from 'chai';
+import { expect } from 'vitest';
 import { spy } from 'sinon';
 import { Field } from '@base-ui/react/field';
 import { Form } from '@base-ui/react/form';
@@ -14,25 +22,31 @@ describe('<Select.Root />', () => {
 
   const { render } = createRenderer();
 
-  popupConformanceTests({
-    createComponent: (props) => (
-      <Select.Root {...props.root}>
-        <Select.Trigger {...props.trigger}>
-          <Select.Value />
-        </Select.Trigger>
-        <Select.Portal {...props.portal}>
-          <Select.Positioner>
-            <Select.Popup {...props.popup}>
-              <Select.Item>Item</Select.Item>
-            </Select.Popup>
-          </Select.Positioner>
-        </Select.Portal>
-      </Select.Root>
-    ),
-    render,
-    triggerMouseAction: 'click',
-    expectedPopupRole: 'listbox',
-    alwaysMounted: 'only-after-open',
+  describe('conformance', () => {
+    beforeEach(() => {
+      ignoreActWarnings();
+    });
+
+    popupConformanceTests({
+      createComponent: (props) => (
+        <Select.Root {...props.root}>
+          <Select.Trigger {...props.trigger}>
+            <Select.Value />
+          </Select.Trigger>
+          <Select.Portal {...props.portal}>
+            <Select.Positioner>
+              <Select.Popup {...props.popup}>
+                <Select.Item>Item</Select.Item>
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
+        </Select.Root>
+      ),
+      render,
+      triggerMouseAction: 'click',
+      expectedPopupRole: 'listbox',
+      alwaysMounted: 'only-after-open',
+    });
   });
 
   describe('prop: defaultValue', () => {
@@ -344,6 +358,10 @@ describe('<Select.Root />', () => {
     clock.withFakeTimers();
 
     it('should call onValueChange when an item is selected', async () => {
+      if (reactMajor <= 18) {
+        ignoreActWarnings();
+      }
+
       const handleValueChange = spy();
 
       function App() {
@@ -380,13 +398,17 @@ describe('<Select.Root />', () => {
       await flushMicrotasks();
 
       const option = screen.getByRole('option', { name: 'b' });
-      clock.tick(200);
+      await clock.tickAsync(200);
       await user.click(option);
 
       expect(handleValueChange.args[0][0]).to.equal('b');
     });
 
     it('is not called twice on select', async () => {
+      if (reactMajor <= 18) {
+        ignoreActWarnings();
+      }
+
       const handleValueChange = spy();
 
       const { user } = await renderFakeTimers(
@@ -411,7 +433,7 @@ describe('<Select.Root />', () => {
       await flushMicrotasks();
 
       const option = screen.getByRole('option', { name: 'b' });
-      clock.tick(200);
+      await clock.tickAsync(200);
       await user.click(option);
 
       expect(handleValueChange.callCount).to.equal(1);
@@ -1266,6 +1288,8 @@ describe('<Select.Root />', () => {
     });
 
     it('clears external errors on change', async () => {
+      ignoreActWarnings();
+
       const { user } = await renderFakeTimers(
         <Form
           errors={{
@@ -1300,7 +1324,7 @@ describe('<Select.Root />', () => {
       await flushMicrotasks();
 
       const option = screen.getByRole('option', { name: 'b' });
-      clock.tick(200);
+      await clock.tickAsync(200);
       await user.click(option);
 
       expect(screen.queryByTestId('error')).to.equal(null);
@@ -1308,6 +1332,8 @@ describe('<Select.Root />', () => {
     });
 
     it('revalidates immediately after form submission errors', async () => {
+      ignoreActWarnings();
+
       const { user } = await renderFakeTimers(
         <Form>
           <Field.Root name="select">
@@ -1343,7 +1369,7 @@ describe('<Select.Root />', () => {
 
       await user.click(trigger);
       await flushMicrotasks();
-      clock.tick(200);
+      await clock.tickAsync(200);
       await user.click(screen.getByRole('option', { name: 'b' }));
 
       expect(screen.queryByTestId('error')).to.equal(null);
@@ -1390,6 +1416,8 @@ describe('<Select.Root />', () => {
     });
 
     it('[data-dirty]', async () => {
+      ignoreActWarnings();
+
       const { user } = await renderFakeTimers(
         <Field.Root>
           <Select.Root>
@@ -1412,7 +1440,7 @@ describe('<Select.Root />', () => {
 
       await user.click(trigger);
       await flushMicrotasks();
-      clock.tick(200);
+      await clock.tickAsync(200);
 
       const option = screen.getByRole('option', { name: 'Option 1' });
 
@@ -1426,6 +1454,8 @@ describe('<Select.Root />', () => {
 
     describe('[data-filled]', () => {
       it('adds [data-filled] attribute when filled', async () => {
+        ignoreActWarnings();
+
         const { user } = await renderFakeTimers(
           <Field.Root>
             <Select.Root>
@@ -1448,7 +1478,7 @@ describe('<Select.Root />', () => {
 
         await user.click(trigger);
         await flushMicrotasks();
-        clock.tick(200);
+        await clock.tickAsync(200);
 
         const option = screen.getByRole('option', { name: 'Option 1' });
 
@@ -1487,6 +1517,85 @@ describe('<Select.Root />', () => {
         const trigger = screen.getByTestId('trigger');
 
         expect(trigger).to.have.attribute('data-filled');
+      });
+
+      it('does not add [data-filled] attribute when multiple value is empty', async () => {
+        ignoreActWarnings();
+        const { user } = await renderFakeTimers(
+          <Field.Root>
+            <Select.Root multiple>
+              <Select.Trigger data-testid="trigger" />
+              <Select.Portal>
+                <Select.Positioner>
+                  <Select.Popup>
+                    <Select.Item value="">Select</Select.Item>
+                    <Select.Item value="1">Option 1</Select.Item>
+                  </Select.Popup>
+                </Select.Positioner>
+              </Select.Portal>
+            </Select.Root>
+          </Field.Root>,
+        );
+
+        const trigger = screen.getByTestId('trigger');
+
+        expect(trigger).not.to.have.attribute('data-filled');
+
+        await user.click(trigger);
+        await flushMicrotasks();
+        await clock.tickAsync(200);
+
+        const option = screen.getByRole('option', { name: 'Option 1' });
+
+        await user.click(option);
+        await flushMicrotasks();
+
+        expect(trigger).to.have.attribute('data-filled', '');
+
+        await user.click(option);
+        await flushMicrotasks();
+
+        expect(trigger).not.to.have.attribute('data-filled');
+      });
+
+      it('does not add [data-filled] attribute when multiple defaultValue is empty array', async () => {
+        ignoreActWarnings();
+
+        const { user } = await renderFakeTimers(
+          <Field.Root>
+            <Select.Root multiple defaultValue={[]}>
+              <Select.Trigger data-testid="trigger" />
+              <Select.Portal>
+                <Select.Positioner>
+                  <Select.Popup>
+                    <Select.Item value="">Select</Select.Item>
+                    <Select.Item value="1">Option 1</Select.Item>
+                  </Select.Popup>
+                </Select.Positioner>
+              </Select.Portal>
+            </Select.Root>
+          </Field.Root>,
+        );
+
+        const trigger = screen.getByTestId('trigger');
+
+        expect(trigger).not.to.have.attribute('data-filled');
+
+        await user.click(trigger);
+        await flushMicrotasks();
+        await clock.tickAsync(200);
+
+        const option = screen.getByRole('option', { name: 'Option 1' });
+
+        await user.click(option);
+        await flushMicrotasks();
+
+        expect(trigger).to.have.attribute('data-filled', '');
+
+        await user.click(option);
+        await flushMicrotasks();
+
+        expect(trigger).not.to.have.attribute('data-filled');
       });
     });
 
@@ -1583,6 +1692,8 @@ describe('<Select.Root />', () => {
     });
 
     it('prop: validateMode=onSubmit', async () => {
+      ignoreActWarnings();
+
       const { user } = await render(
         <Form>
           <Field.Root validate={(val) => (val === '2' ? 'error' : null)}>
@@ -1629,6 +1740,7 @@ describe('<Select.Root />', () => {
 
     // flaky in real browser
     it.skipIf(!isJSDOM)('prop: validationMode=onChange', async () => {
+      ignoreActWarnings();
       const { user } = await render(
         <Field.Root
           validationMode="onChange"
@@ -1714,6 +1826,7 @@ describe('<Select.Root />', () => {
 
     // flaky in real browser
     it.skipIf(!isJSDOM)('prop: validationMode=onBlur', async () => {
+      ignoreActWarnings();
       const { user } = await render(
         <Field.Root
           validationMode="onBlur"
@@ -1964,6 +2077,10 @@ describe('<Select.Root />', () => {
     });
 
     it('resets to default when the selected item is removed from the list', async () => {
+      if (reactMajor <= 18) {
+        ignoreActWarnings();
+      }
+
       function Test() {
         const [items, setItems] = React.useState(['a', 'b', 'c']);
         return (
@@ -2014,6 +2131,10 @@ describe('<Select.Root />', () => {
     });
 
     it('resets via onValueChange and does not break in controlled mode when the selected item is removed', async () => {
+      if (reactMajor <= 18) {
+        ignoreActWarnings();
+      }
+
       function TestControlled() {
         const [items, setItems] = React.useState(['a', 'b', 'c']);
         const [value, setValue] = React.useState<string | null>('c');
@@ -2066,6 +2187,10 @@ describe('<Select.Root />', () => {
     });
 
     it('falls back to null when both selected and initial default are removed (uncontrolled)', async () => {
+      if (reactMajor <= 18) {
+        ignoreActWarnings();
+      }
+
       function Test() {
         const [items, setItems] = React.useState(['a', 'b', 'c']);
         return (
@@ -2126,6 +2251,10 @@ describe('<Select.Root />', () => {
     });
 
     it('falls back to null when both selected and initial default are removed (controlled)', async () => {
+      if (reactMajor <= 18) {
+        ignoreActWarnings();
+      }
+
       function TestControlled() {
         const [items, setItems] = React.useState(['a', 'b', 'c']);
         const [value, setValue] = React.useState<string | null>('c');
@@ -2711,6 +2840,41 @@ describe('<Select.Root />', () => {
       await flushMicrotasks();
 
       expect(optionB).not.to.have.attribute('data-highlighted');
+    });
+
+    it('does not remove highlight when mousing out of popup when disabled', async () => {
+      const { user } = await render(
+        <Select.Root defaultOpen highlightItemOnHover={false}>
+          <Select.Trigger data-testid="trigger">
+            <Select.Value />
+          </Select.Trigger>
+          <Select.Portal>
+            <Select.Positioner>
+              <Select.Popup>
+                <Select.Item value="a">a</Select.Item>
+                <Select.Item value="b">b</Select.Item>
+                <Select.Item value="c">c</Select.Item>
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
+        </Select.Root>,
+      );
+
+      const optionA = screen.getByRole('option', { name: 'a' });
+      fireEvent.mouseMove(optionA);
+
+      await user.keyboard('{ArrowDown}');
+
+      await waitFor(() => {
+        expect(optionA).to.have.attribute('data-highlighted');
+      });
+
+      const popup = screen.getByRole('listbox');
+      await user.unhover(popup);
+
+      await waitFor(() => {
+        expect(optionA).to.have.attribute('data-highlighted');
+      });
     });
   });
 });

@@ -71,6 +71,8 @@
   }
 
   .HeaderLink {
+    flex-shrink: 0;
+
     @media (hover: hover) {
       &:hover {
         text-decoration: underline;

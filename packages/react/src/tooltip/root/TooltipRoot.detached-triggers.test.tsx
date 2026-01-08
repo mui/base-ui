@@ -4,11 +4,9 @@ import { Tooltip } from '@base-ui/react/tooltip';
 import { screen, waitFor, randomStringValue, act, flushMicrotasks } from '@mui/internal-test-utils';
 
 describe('<Tooltip.Root />', () => {
-  beforeEach(() => {
+  beforeEach(async () => {
     globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
-  });
 
-  afterEach(async () => {
     await act(async () => {
       document.body.click();
     });
@@ -26,6 +24,17 @@ describe('<Tooltip.Root />', () => {
     type NumberPayload = { payload: number | undefined };
 
     it('should open the tooltip with any trigger on hover', async () => {
+      vi.spyOn(console, 'error').mockImplementation((...args) => {
+        if (args[0] === 'null') {
+          // a bug in vitest prints specific browser errors as "null"
+          // See https://github.com/vitest-dev/vitest/issues/9285
+          // TODO(@mui/base): debug why this test triggers "ResizeObserver loop completed with undelivered notifications"
+          // It seems related to @testing-library/user-event. Native vitest `userEvent` does not trigger it.
+          return;
+        }
+        console.error(...args);
+      });
+
       const popupId = randomStringValue();
       const { user } = await render(
         <Tooltip.Root>
