@@ -11,6 +11,7 @@ import {
   TemporalSupportedValue,
   TemporalTimezone,
 } from '../../../types';
+import { getInitialReferenceDate } from '../getInitialReferenceDate';
 import { TemporalManager, TemporalTimezoneProps } from '../types';
 
 export interface TemporalFieldStoreParameters<
@@ -336,9 +337,9 @@ export interface TemporalFieldValueManager<TValue extends TemporalSupportedValue
    * Method returning the reference value to use when mounting the component.
    */
   getInitialReferenceValue: (params: {
-    referenceDate: TemporalSupportedObject | undefined;
+    externalReferenceDate: TemporalSupportedObject | undefined;
     value: TValue;
-    // props: GetDefaultReferenceDateProps;
+    validationProps: getInitialReferenceDate.ValidationProps;
     adapter: TemporalAdapter;
     granularity: number;
     timezone: TemporalTimezone;

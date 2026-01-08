@@ -14,9 +14,9 @@ export function getInitialReferenceDate(
   } = parameters;
   let referenceDate: TemporalSupportedObject | null = null;
 
-  if (adapter.isValid(externalDate)) {
+  if (externalDate != null && adapter.isValid(externalDate)) {
     referenceDate = externalDate;
-  } else if (adapter.isValid(externalReferenceDate)) {
+  } else if (externalReferenceDate != null && adapter.isValid(externalReferenceDate)) {
     referenceDate = externalReferenceDate;
   } else {
     referenceDate = adapter.startOfDay(adapter.now(timezone));
@@ -41,11 +41,11 @@ export namespace getInitialReferenceDate {
      * The date provided by the user, if any.
      * If the component is a range component, this will be the start date if defined or the end date otherwise.
      */
-    externalDate: TemporalSupportedObject | null;
+    externalDate: TemporalSupportedObject | null | undefined;
     /**
      * The reference date provided by the user, if any.
      */
-    externalReferenceDate: TemporalSupportedObject | null;
+    externalReferenceDate: TemporalSupportedObject | null | undefined;
     /**
      * The timezone the reference date should be in.
      */

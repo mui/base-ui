@@ -40,7 +40,7 @@ export const DateFieldRoot = React.forwardRef(function DateFieldRoot(
     ref: forwardedRef,
     props: [
       {
-        children: resolvedChildren, // Event handlers
+        children: resolvedChildren,
         onKeyDown: store.inputProps.handleKeyDown,
         onFocus: store.inputProps.handleFocus,
         onBlur: store.inputProps.handleBlur,

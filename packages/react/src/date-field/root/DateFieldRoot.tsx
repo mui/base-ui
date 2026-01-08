@@ -14,6 +14,7 @@ import {
 } from '../../utils/temporal/field/types';
 import { areDatesEqual } from '../../utils/temporal/date-helpers';
 import { DateFieldRootContext } from './DateFieldRootContext';
+import { getInitialReferenceDate } from '../../utils/temporal/getInitialReferenceDate';
 
 const dateFieldValueManager: TemporalFieldValueManager<TemporalValue> = {
   emptyValue: null,
@@ -24,17 +25,8 @@ const dateFieldValueManager: TemporalFieldValueManager<TemporalValue> = {
   updateDateInValue: (value, activeSection, activeDate) => activeDate,
   parseValueStr: (valueStr, referenceValue, parseDate) =>
     parseDate(valueStr.trim(), referenceValue),
-  getInitialReferenceValue: ({ value, referenceDate, ...params }) => {
-    if (params.adapter.isValid(value)) {
-      return value;
-    }
-
-    if (referenceDate != null) {
-      return referenceDate;
-    }
-
-    return getDefaultReferenceDate(params);
-  },
+  getInitialReferenceValue: ({ value, ...other }) =>
+    getInitialReferenceDate({ ...other, externalDate: value }),
   clearDateSections: (sections) => sections.map((section) => ({ ...section, value: '' })),
 };
 
