@@ -13,9 +13,9 @@
       "detailedType": "Date | null | undefined"
     },
     "onValueChange": {
-      "type": "((value: TemporalValue, eventDetails: CalendarValueChangeEventDetails<validateDate.ReturnValue>) => void)",
+      "type": "((value: TemporalValue, eventDetails: CalendarValueChangeEventDetails<ValidateDateReturnValue>) => void)",
       "description": "Event handler called when the selected value changes.\nProvides the new value as an argument.\nHas `getValidationError()` in the `eventDetails` to retrieve the validation error associated to the new value.",
-      "detailedType": "| ((\n    value: TemporalValue,\n    eventDetails: CalendarValueChangeEventDetails<validateDate.ReturnValue>,\n  ) => void)\n| undefined"
+      "detailedType": "| ((\n    value: TemporalValue,\n    eventDetails: CalendarValueChangeEventDetails<ValidateDateReturnValue>,\n  ) => void)\n| undefined"
     },
     "defaultVisibleDate": {
       "type": "Date",
