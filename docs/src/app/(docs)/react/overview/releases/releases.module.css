@@ -1,0 +1,89 @@
+.releasesPage {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+.title {
+  font-size: 3rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  color: var(--color-gray-900);
+}
+
+.subtitle {
+  font-size: 1.25rem;
+  color: var(--color-gray-600);
+  margin-bottom: 3rem;
+}
+
+.timelineSection {
+  margin-top: 3rem;
+  margin-bottom: 4rem;
+}
+
+.canarySection {
+  margin-top: 4rem;
+  margin-bottom: 4rem;
+  padding: 2rem;
+  background: var(--color-purple-50);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-purple-200);
+}
+
+.canaryContent p {
+  margin-bottom: 1rem;
+  line-height: 1.6;
+}
+
+.sectionTitle {
+  font-size: 1.75rem;
+  font-weight: 600;
+  margin-bottom: 2rem;
+  color: var(--color-gray-900);
+}
+
+.codeBlock {
+  background: var(--color-gray-900);
+  color: var(--color-gray-50);
+  padding: 1rem 1.5rem;
+  border-radius: var(--radius-md);
+  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+  font-size: 0.9rem;
+  overflow-x: auto;
+  margin: 1rem 0;
+}
+
+.codeBlock code {
+  font-family: inherit;
+}
+
+.warning {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  padding: 1rem;
+  background: var(--color-amber-50);
+  border-left: 4px solid var(--color-amber-500);
+  border-radius: var(--radius-md);
+  font-size: 0.9rem;
+  margin-top: 1.5rem;
+}
+
+.fullNotesSection {
+  margin-top: 4rem;
+}
+
+.fullNotesSection p {
+  line-height: 1.6;
+  color: var(--color-gray);
+}
+
+.fullNotesSection a {
+  color: var(--color-purple-600);
+  text-decoration: underline;
+}
+
+.fullNotesSection a:hover {
+  color: var(--color-purple-700);
+}

@@ -48,6 +48,7 @@
 
 @import './components/Accordion.css';
 @import './components/DescriptionList.css';
+@import './components/ReleaseTimeline/ReleaseTimeline.css';
 
 /* Handy link to the default Tailwind theme:
 /* https://github.com/tailwindlabs/tailwindcss/blob/next/packages/tailwindcss/theme.css */
