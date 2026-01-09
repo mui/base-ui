@@ -91,6 +91,43 @@ export default function ExampleMenu() {
 }
 ```
 
+### Tailwind CSS plugin
+
+Base UI provides an official Tailwind CSS plugin that makes styling with state-based variants more convenient. Instead of targeting data attributes directly with selectors like `data-[open]` or `data-[checked]`, you can use intuitive variants like `ui-open:` and `ui-checked:`.
+
+Install the plugin:
+
+```bash
+npm install @base-ui/tailwindcss
+```
+
+Add it to your Tailwind configuration:
+
+```js title="tailwind.config.js"
+module.exports = {
+  content: ['./src/**/*.{js,jsx,ts,tsx}'],
+  plugins: [require('@base-ui/tailwindcss')],
+};
+```
+
+Now you can use state variants in your components:
+
+```tsx title="checkbox.tsx"
+import { Checkbox } from '@base-ui/react/checkbox';
+
+export default function ExampleCheckbox() {
+  return (
+    <Checkbox.Root className="flex items-center justify-center size-5 rounded border border-gray-300 ui-checked:bg-blue-500 ui-checked:border-blue-500 ui-disabled:opacity-50">
+      <Checkbox.Indicator className="text-white ui-unchecked:hidden">✓</Checkbox.Indicator>
+    </Checkbox.Root>
+  );
+}
+```
+
+The plugin provides variants for all component states including `ui-open`, `ui-checked`, `ui-selected`, `ui-disabled`, and many more. Each variant also has an inverse form (e.g., `ui-not-open`, `ui-not-checked`) for styling the opposite state.
+
+For a complete list of available variants and more examples, see the [@base-ui/tailwindcss package documentation](https://github.com/mui/base-ui/tree/master/packages/tailwindcss#readme).
+
 ## CSS Modules
 
 Apply custom CSS classes to each part via the `className` prop.
