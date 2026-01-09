@@ -326,6 +326,9 @@ importers:
       '@wooorm/starry-night':
         specifier: 3.8.0
         version: 3.8.0
+      baseline-browser-mapping:
+        specifier: ^2.9.13
+        version: 2.9.13
       chai:
         specifier: 6.2.1
         version: 6.2.1
@@ -4873,6 +4876,10 @@ packages:
 
   baseline-browser-mapping@2.8.20:
     resolution: {integrity: sha512-JMWsdF+O8Orq3EMukbUN1QfbLK9mX2CkUmQBcW2T0s8OmdAUL5LLM/6wFwSrqXzlXB13yhyK9gTKS1rIizOduQ==}
+    hasBin: true
+
+  baseline-browser-mapping@2.9.13:
+    resolution: {integrity: sha512-WhtvB2NG2wjr04+h77sg3klAIwrgOqnjS49GGudnUPGFFgg7G17y7Qecqp+2Dr5kUDxNRBca0SK7cG8JwzkWDQ==}
     hasBin: true
 
   before-after-hook@2.2.3:
@@ -14805,6 +14812,8 @@ snapshots:
 
   baseline-browser-mapping@2.8.20: {}
 
+  baseline-browser-mapping@2.9.13: {}
+
   before-after-hook@2.2.3: {}
 
   before-after-hook@4.0.0: {}
@@ -18104,7 +18113,7 @@ snapshots:
     dependencies:
       '@next/env': 16.1.1
       '@swc/helpers': 0.5.15
-      baseline-browser-mapping: 2.8.20
+      baseline-browser-mapping: 2.9.13
       caniuse-lite: 1.0.30001751
       postcss: 8.4.31
       react: 19.2.3

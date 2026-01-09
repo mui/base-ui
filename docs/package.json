@@ -74,6 +74,7 @@
     "@types/react-dom": "19.2.3",
     "@types/unist": "3.0.3",
     "@wooorm/starry-night": "3.8.0",
+    "baseline-browser-mapping": "^2.9.13",
     "chai": "6.2.1",
     "cross-env": "10.1.0",
     "mdast-util-mdx-jsx": "3.2.0",
