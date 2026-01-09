@@ -38,16 +38,16 @@ export default function ExampleCombobox() {
               No fruits found.
             </Combobox.Empty>
             <Combobox.List className="outline-0 overflow-y-auto scroll-py-[0.5rem] py-2 overscroll-contain max-h-[min(23rem,var(--available-height))] data-[empty]:p-0">
-              {(item: string) => (
+              {(item: Fruit) => (
                 <Combobox.Item
-                  key={item}
+                  key={item.value}
                   value={item}
                   className="grid cursor-default grid-cols-[0.75rem_1fr] items-center gap-2 py-2 pr-8 pl-4 text-base leading-4 outline-none select-none data-[highlighted]:relative data-[highlighted]:z-0 data-[highlighted]:text-gray-50 data-[highlighted]:before:absolute data-[highlighted]:before:inset-x-2 data-[highlighted]:before:inset-y-0 data-[highlighted]:before:z-[-1] data-[highlighted]:before:rounded-sm data-[highlighted]:before:bg-gray-900"
                 >
                   <Combobox.ItemIndicator className="col-start-1">
                     <CheckIcon className="size-3" />
                   </Combobox.ItemIndicator>
-                  <div className="col-start-2">{item}</div>
+                  <div className="col-start-2">{item.label}</div>
                 </Combobox.Item>
               )}
             </Combobox.List>
@@ -101,30 +101,35 @@ function ChevronDownIcon(props: React.ComponentProps<'svg'>) {
   );
 }
 
-const fruits = [
-  'Apple',
-  'Banana',
-  'Orange',
-  'Pineapple',
-  'Grape',
-  'Mango',
-  'Strawberry',
-  'Blueberry',
-  'Raspberry',
-  'Blackberry',
-  'Cherry',
-  'Peach',
-  'Pear',
-  'Plum',
-  'Kiwi',
-  'Watermelon',
-  'Cantaloupe',
-  'Honeydew',
-  'Papaya',
-  'Guava',
-  'Lychee',
-  'Pomegranate',
-  'Apricot',
-  'Grapefruit',
-  'Passionfruit',
+interface Fruit {
+  label: string;
+  value: string;
+}
+
+const fruits: Fruit[] = [
+  { label: 'Apple', value: 'apple' },
+  { label: 'Banana', value: 'banana' },
+  { label: 'Orange', value: 'orange' },
+  { label: 'Pineapple', value: 'pineapple' },
+  { label: 'Grape', value: 'grape' },
+  { label: 'Mango', value: 'mango' },
+  { label: 'Strawberry', value: 'strawberry' },
+  { label: 'Blueberry', value: 'blueberry' },
+  { label: 'Raspberry', value: 'raspberry' },
+  { label: 'Blackberry', value: 'blackberry' },
+  { label: 'Cherry', value: 'cherry' },
+  { label: 'Peach', value: 'peach' },
+  { label: 'Pear', value: 'pear' },
+  { label: 'Plum', value: 'plum' },
+  { label: 'Kiwi', value: 'kiwi' },
+  { label: 'Watermelon', value: 'watermelon' },
+  { label: 'Cantaloupe', value: 'cantaloupe' },
+  { label: 'Honeydew', value: 'honeydew' },
+  { label: 'Papaya', value: 'papaya' },
+  { label: 'Guava', value: 'guava' },
+  { label: 'Lychee', value: 'lychee' },
+  { label: 'Pomegranate', value: 'pomegranate' },
+  { label: 'Apricot', value: 'apricot' },
+  { label: 'Grapefruit', value: 'grapefruit' },
+  { label: 'Passionfruit', value: 'passionfruit' },
 ];

@@ -12,30 +12,43 @@ import { selectors } from '../store';
  * Documentation: [Base UI Combobox](https://base-ui.com/react/components/combobox)
  */
 export function ComboboxValue(props: ComboboxValue.Props): React.ReactElement {
-  const { children: childrenProp } = props;
+  const { children: childrenProp, placeholder } = props;
 
   const store = useComboboxRootContext();
 
   const itemToStringLabel = useStore(store, selectors.itemToStringLabel);
   const selectedValue = useStore(store, selectors.selectedValue);
   const items = useStore(store, selectors.items);
+  const hasSelectedValue = useStore(store, selectors.hasSelectedValue);
 
-  let returnValue = null;
-  if (typeof childrenProp === 'function') {
-    returnValue = childrenProp(selectedValue);
-  } else if (childrenProp != null) {
-    returnValue = childrenProp;
-  } else {
-    returnValue = resolveSelectedLabel(selectedValue, items, itemToStringLabel);
+  const shouldCheckNullItemLabel = !hasSelectedValue && placeholder != null && childrenProp == null;
+  const hasNullLabel = useStore(store, selectors.hasNullItemLabel, shouldCheckNullItemLabel);
+
+  function getValue() {
+    if (typeof childrenProp === 'function') {
+      return childrenProp(selectedValue);
+    }
+    if (childrenProp != null) {
+      return childrenProp;
+    }
+    if (!hasSelectedValue && placeholder != null && !hasNullLabel) {
+      return placeholder;
+    }
+    return resolveSelectedLabel(selectedValue, items, itemToStringLabel);
   }
 
-  return <React.Fragment>{returnValue}</React.Fragment>;
+  return <React.Fragment>{getValue()}</React.Fragment>;
 }
 
 export interface ComboboxValueState {}
 
 export interface ComboboxValueProps {
   children?: React.ReactNode | ((selectedValue: any) => React.ReactNode);
+  /**
+   * The placeholder value to display when no value is selected.
+   * This is overridden by `children` if specified, or by a null item's label in `items`.
+   */
+  placeholder?: React.ReactNode;
 }
 
 export namespace ComboboxValue {
