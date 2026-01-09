@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { releases } from '@/data/releases';
+import { releases } from 'docs/src/data/releases';
 import './ReleaseTimeline.css';
 
 export function ReleaseTimeline() {
