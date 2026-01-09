@@ -1,0 +1,144 @@
+@layer components {
+  .ReleaseTimeline {
+    position: relative;
+    padding: 2rem 0;
+    max-width: 800px;
+    margin: 0 auto;
+  }
+
+  .TimelineSpine {
+    position: absolute;
+    left: 1.5rem;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: var(--color-gray-200);
+  }
+
+  @media (min-width: 640px) {
+    .TimelineSpine {
+      left: 50%;
+      transform: translateX(-50%);
+    }
+  }
+
+  .TimelineItem {
+    position: relative;
+    margin-bottom: 3rem;
+    padding-left: 4rem;
+  }
+
+  @media (min-width: 640px) {
+    .TimelineItem {
+      padding-left: 0;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+      align-items: start;
+    }
+
+    .TimelineItem:nth-child(even) .TimelineCard {
+      grid-column: 1;
+      grid-row: 1;
+    }
+
+    .TimelineItem:nth-child(even) .TimelineDot {
+      left: 50%;
+    }
+
+    .TimelineItem:nth-child(odd) .TimelineCard {
+      grid-column: 2;
+    }
+
+    .TimelineItem:nth-child(odd) .TimelineDot {
+      left: 50%;
+    }
+  }
+
+  .TimelineDot {
+    position: absolute;
+    left: 1.5rem;
+    top: 0.5rem;
+    width: 1rem;
+    height: 1rem;
+    border-radius: 50%;
+    background: var(--color-purple-500);
+    border: 3px solid var(--color-background);
+    box-shadow: 0 0 0 2px var(--color-purple-500);
+    transform: translateX(-50%);
+    z-index: 2;
+  }
+
+  @media (min-width: 640px) {
+    .TimelineDot {
+      left: 50%;
+      top: 0.75rem;
+    }
+  }
+
+  .TimelineCard {
+    background: var(--color-background);
+    border: 1px solid var(--color-gray-200);
+    border-radius: var(--radius-md);
+    padding: 1.5rem;
+    transition: all 0.2s ease;
+  }
+
+  .TimelineCard:hover {
+    border-color: var(--color-purple-500);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+  }
+
+  .TimelineCardLink {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+  }
+
+  .TimelineCardHeader {
+    margin-bottom: 1rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--color-gray-100);
+  }
+
+  .TimelineVersion {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin: 0;
+    color: var(--color-gray-900);
+  }
+
+  .TimelineDate {
+    font-size: 0.875rem;
+    color: var(--color-gray-600);
+    margin: 0.25rem 0 0 0;
+  }
+
+  .TimelineHighlights {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .TimelineHighlights li {
+    position: relative;
+    padding-left: 1.5rem;
+    margin-bottom: 0.5rem;
+    font-size: 0.9375rem;
+    color: var(--color-gray);
+    line-height: 1.6;
+  }
+
+  .TimelineHighlights li::before {
+    content: '•';
+    position: absolute;
+    left: 0.5rem;
+    color: var(--color-purple-500);
+    font-weight: bold;
+  }
+
+  .TimelineHighlights li:last-child {
+    margin-bottom: 0;
+  }
+}
