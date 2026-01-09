@@ -77,6 +77,15 @@ export class FloatingRootStore extends ReactStore<
       },
       selectors,
     );
+
+    // The open event is used to determine the interaction type that opened the popup.
+    // When the `open` state changes externally (e.g. controlled mode, or a synced store),
+    // `setOpen` isn't called, so we need to ensure it doesn't become stale after close.
+    this.observe('open', (open, oldOpen) => {
+      if (!open && oldOpen) {
+        this.context.dataRef.current.openEvent = undefined;
+      }
+    });
   }
 
   /**
