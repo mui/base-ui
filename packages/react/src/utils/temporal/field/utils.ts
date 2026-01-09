@@ -9,13 +9,12 @@ import {
   TemporalTimezone,
 } from '../../../types';
 import { getMonthsInYear } from '../date-helpers';
-import { TemporalDateType, TemporalManager } from '../types';
+import { TemporalManager } from '../types';
 import {
-  TemporalFieldNonRangeSection,
-  TemporalFieldPlaceholderGetters,
-  TemporalFieldSection,
+  TemporalFieldParsedFormat,
   TemporalFieldSectionValueBoundaries,
   TemporalFieldStoreParameters,
+  TemporalFieldToken,
   TemporalFieldValueManager,
 } from './types';
 
@@ -50,7 +49,7 @@ export function deriveStateFromParameters<
   };
 }
 
-export function getDateSectionConfigFromFormatToken(
+export function getFormatTokenConfig(
   adapter: TemporalAdapter,
   formatToken: string,
 ): TemporalFormatTokenConfig {
@@ -160,37 +159,6 @@ export function removeLocalizedDigits(valueStr: string, localizedDigits: string[
   return digits.join('');
 }
 
-let warnedOnceInvalidSection = false;
-
-export function validateSections<TValue extends TemporalSupportedValue>(
-  sections: TemporalFieldSection<TValue>[],
-  dateType: TemporalDateType,
-) {
-  if (process.env.NODE_ENV !== 'production') {
-    if (!warnedOnceInvalidSection) {
-      const supportedSections: TemporalFieldSectionType[] = ['empty'];
-      if (['date', 'date-time'].includes(dateType)) {
-        supportedSections.push('weekDay', 'day', 'month', 'year');
-      }
-      if (['time', 'date-time'].includes(dateType)) {
-        supportedSections.push('hours', 'minutes', 'seconds', 'meridiem');
-      }
-
-      const invalidSection = sections.find(
-        (section) => !supportedSections.includes(section.sectionType),
-      );
-
-      if (invalidSection) {
-        console.warn(
-          `MUI X: The field component you are using is not compatible with the "${invalidSection.sectionType}" date section.`,
-          `The supported date sections are ["${supportedSections.join('", "')}"]\`.`,
-        );
-        warnedOnceInvalidSection = true;
-      }
-    }
-  }
-}
-
 // This format should be the same on all the adapters
 // If some adapter does not respect this convention, then we will need to hardcode the format on each adapter.
 export const FORMAT_SECONDS_NO_LEADING_ZEROS = 's';
@@ -286,35 +254,32 @@ export function cleanDigitSectionValue(
   value: number,
   sectionBoundaries: TemporalFieldSectionValueBoundaries<any>,
   localizedDigits: string[],
-  section: Pick<
-    TemporalFieldNonRangeSection,
-    'format' | 'sectionType' | 'contentType' | 'hasLeadingZerosInFormat' | 'maxLength'
-  >,
+  token: Pick<TemporalFieldToken, 'tokenValue' | 'config' | 'isPadded'>,
 ) {
   if (process.env.NODE_ENV !== 'production') {
-    if (section.sectionType !== 'day' && section.contentType === 'digit-with-letter') {
+    if (token.config.sectionType !== 'day' && token.config.contentType === 'digit-with-letter') {
       throw new Error(
         [
-          `MUI X: The token "${section.format}" is a digit format with letter in it.'
+          `Base UI: The token "${token.tokenValue}" is a digit format with letter in it.'
              This type of format is only supported for 'day' sections`,
         ].join('\n'),
       );
     }
   }
 
-  if (section.sectionType === 'day' && section.contentType === 'digit-with-letter') {
+  if (token.config.sectionType === 'day' && token.config.contentType === 'digit-with-letter') {
     const date = adapter.setDate(
       (sectionBoundaries as TemporalFieldSectionValueBoundaries<'day'>).longestMonth,
       value,
     );
-    return adapter.formatByString(date, section.format);
+    return adapter.formatByString(date, token.tokenValue);
   }
 
   // queryValue without leading `0` (`01` => `1`)
   let valueStr = value.toString();
 
-  if (section.hasLeadingZerosInFormat) {
-    valueStr = cleanLeadingZeros(valueStr, section.maxLength!);
+  if (token.isPadded) {
+    valueStr = cleanLeadingZeros(valueStr, token.config.maxLength!);
   }
 
   return applyLocalizedDigits(valueStr, localizedDigits);
@@ -326,72 +291,14 @@ export function isStringNumber(valueStr: string, localizedDigits: string[]) {
   return nonLocalizedValueStr !== ' ' && !Number.isNaN(Number(nonLocalizedValueStr));
 }
 
-export function getSectionVisibleValue(
-  section: TemporalFieldNonRangeSection,
-  target: 'input-rtl' | 'input-ltr' | 'non-input',
-) {
-  let value = section.value || section.placeholder;
-
-  // In the input, we add an empty character at the end of each section without leading zeros.
-  // This makes sure that `onChange` will always be fired.
-  // Otherwise, when your input value equals `1/dd/yyyy` (format `M/DD/YYYY` on DayJs),
-  // If you press `1`, on the first section, the new value is also `1/dd/yyyy`,
-  // So the browser will not fire the input `onChange`.
-  const shouldAddInvisibleSpace =
-    ['input-rtl', 'input-ltr'].includes(target) &&
-    section.contentType === 'digit' &&
-    !section.hasLeadingZerosInFormat &&
-    value.length === 1;
-
-  if (shouldAddInvisibleSpace) {
-    value = `${value}\u200e`;
-  }
-
-  if (target === 'input-rtl') {
-    value = `\u2068${value}\u2069`;
-  }
-
-  return value;
-}
-
-/**
- * Some date libraries like `dayjs` don't support parsing from date with escaped characters.
- * To make sure that the parsing works, we are building a format and a date without any separator.
- */
-export function getDateFromDateSections(
+export function buildSections(
   adapter: TemporalAdapter,
-  sections: TemporalFieldNonRangeSection[],
-): TemporalSupportedObject {
-  // If we have both a day and a weekDay section,
-  // Then we skip the weekDay in the parsing because libraries like dayjs can't parse complicated formats containing a weekDay.
-  // dayjs(dayjs().format('dddd MMMM D YYYY'), 'dddd MMMM D YYYY')) // returns `Invalid Date` even if the format is valid.
-  const shouldSkipWeekDays = sections.some((section) => section.sectionType === 'day');
-
-  const sectionFormats: string[] = [];
-  const sectionValues: string[] = [];
-  for (let i = 0; i < sections.length; i += 1) {
-    const section = sections[i];
-
-    const shouldSkip = shouldSkipWeekDays && section.sectionType === 'weekDay';
-    if (!shouldSkip) {
-      sectionFormats.push(section.format);
-      sectionValues.push(getSectionVisibleValue(section, 'non-input'));
-    }
-  }
-
-  const formatWithoutSeparator = sectionFormats.join(' ');
-  const dateWithoutSeparatorStr = sectionValues.join(' ');
-
-  return adapter.parse(dateWithoutSeparatorStr, formatWithoutSeparator)!;
+  parsedFormat: TemporalFieldParsedFormat,
+  date: TemporalSupportedObject | null,
+) {
+  return parsedFormat.tokens.map((token) => ({
+    token,
+    value: adapter.isValid(date) ? adapter.formatByString(date, token.tokenValue) : '',
+    modified: false,
+  }));
 }
-
-export const DEFAULT_PLACEHOLDER_GETTERS: TemporalFieldPlaceholderGetters = {
-  year: (params) => 'Y'.repeat(params.digitAmount),
-  month: (params) => (params.contentType === 'letter' ? 'MMMM' : 'MM'),
-  day: () => 'DD',
-  weekDay: (params) => (params.contentType === 'letter' ? 'EEEE' : 'EE'),
-  hours: () => 'hh',
-  minutes: () => 'mm',
-  seconds: () => 'ss',
-  meridiem: () => 'aa',
-};

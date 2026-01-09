@@ -6,7 +6,6 @@ import {
   TemporalFieldSectionType,
   TemporalFormatTokenConfig,
   TemporalNonNullableValue,
-  TemporalRangeValue,
   TemporalSupportedObject,
   TemporalSupportedValue,
   TemporalTimezone,
@@ -74,10 +73,6 @@ export interface TemporalFieldState<
   TValidationProps extends object = object,
 > {
   /**
-   * The value of the field, as passed to `props.value` or `props.defaultValue`.
-   */
-  value: TValue;
-  /**
    * The timezone as passed to `props.timezone`.
    */
   timezoneProp: TemporalTimezone | undefined;
@@ -107,11 +102,15 @@ export interface TemporalFieldState<
   /**
    * Sections currently displayed in the field.
    */
-  sections: TemporalFieldSection<TValue>[];
+  sections: TemporalFieldSection[];
   /**
    * Format of the date when rendered in the field.
    */
   format: string;
+  /**
+   * The value of the field, as passed to `props.value` or `props.defaultValue`.
+   */
+  value: TValue;
   /**
    * Text direction of the field.
    */
@@ -160,22 +159,51 @@ export interface TemporalFieldCharacterEditingQuery {
 
 export type TemporalFieldChangeReason = 'none';
 
-export interface TemporalFieldNonRangeSection extends TemporalFormatTokenConfig {
+export interface TemporalFieldParsedFormat {
+  prefix: string;
+  suffix: string;
+  tokens: TemporalFieldToken[];
+}
+
+export interface TemporalFieldToken {
+  /**
+   * Format token.
+   */
+  // TODO: Rename "value"
+  tokenValue: string;
+  /**
+   * Config of the format token.
+   */
+  config: TemporalFormatTokenConfig;
+  /**
+   * Whether the value of this section should have leading zeroes when parsed by the date library.
+   * For example, the value `1` should be rendered as "01" instead of "1".
+   */
+  isPadded: boolean;
+  /**
+   * Text to display when the section is empty.
+   */
+  placeholder: string;
+  /**
+   * Separator displayed after the value of the section in the input.
+   * If it contains escaped characters, then it must not have the escaping characters.
+   * For example, on Date Fns, the `month` section of the format `MM/DD/YYYY` has an end separator equal to `year`.
+   *
+   * The separator does not contain the character before the first section and after the last section.
+   * For example, on Date Fns, the separators of the format `[Before] MM/DD/YYYY [After]` are:
+   * - "/" for the month section
+   * - "/" for the day section
+   * - "" for the year section
+   */
+  separator: string;
+}
+
+export interface TemporalFieldSection {
   /**
    * Value of the section, as rendered inside the input.
    * For example, in the date `May 25, 1995`, the value of the month section is "May".
    */
   value: string;
-  /**
-   * Format token used to parse the value of this section from the date object.
-   * For example, in the format `MMMM D, YYYY`, the format of the month section is "MMMM".
-   */
-  format: string;
-  /**
-   * If `true`, the value of this section is supposed to have leading zeroes when parsed by the date library.
-   * For example, the value `1` should be rendered as "01" instead of "1".
-   */
-  hasLeadingZerosInFormat: boolean;
   /**
    * If `true`, the section value has been modified since the last time the sections were generated from a valid date.
    * When we can generate a valid date from the section, we don't directly pass it to `onChange`,
@@ -187,40 +215,14 @@ export interface TemporalFieldNonRangeSection extends TemporalFormatTokenConfig 
    */
   modified: boolean;
   /**
-   * Separator displayed before the value of the section in the input.
-   * If it contains escaped characters, then it must not have the escaping characters.
-   * For example, on Day.js, the `year` section of the format `YYYY [year]` has an end separator equal to `year` not `[year]`
+   * Token represented in this section.
    */
-  startSeparator: string;
-  /**
-   * Separator displayed after the value of the section in the input.
-   * If it contains escaped characters, then it must not have the escaping characters.
-   * For example, on Day.js, the `year` section of the format `[year] YYYY` has a start separator equal to `[year]`
-   */
-  endSeparator: string;
-  /**
-   * If `true`, the `endSeparator` is a format separator (i.e. ":" or "/").
-   */
-  isEndFormatSeparator?: boolean;
+  token: TemporalFieldToken;
 }
 
 export type TemporalFieldRangePosition = 'start' | 'end';
 
 export type TemporalFieldSelectedSections = number | null | 'all';
-
-export interface TemporalFieldRangeSection extends TemporalFieldNonRangeSection {
-  dateName: TemporalFieldRangePosition;
-}
-
-// If `PickerValidDate` contains `any`, then `TValue extends PickerRangeValue` will return true, so we have to handle this edge case first.
-type IsAny<T> = boolean extends (T extends never ? true : false) ? true : false;
-
-export type TemporalFieldSection<TValue extends TemporalSupportedValue> =
-  IsAny<TValue> extends true
-    ? TemporalFieldNonRangeSection
-    : TValue extends TemporalRangeValue
-      ? TemporalFieldRangeSection
-      : TemporalFieldNonRangeSection;
 
 export interface TemporalFieldValueChangeHandlerContext<TError> {
   /**
@@ -249,8 +251,8 @@ export interface TemporalFieldValueManager<TValue extends TemporalSupportedValue
    */
   getSectionsFromValue: (
     value: TValue,
-    getSectionsFromDate: (date: TemporalSupportedObject | null) => TemporalFieldNonRangeSection[],
-  ) => TemporalFieldSection<TValue>[];
+    getSectionsFromDate: (date: TemporalSupportedObject | null) => TemporalFieldSection[],
+  ) => TemporalFieldSection[];
   /**
    * Parses a string version (most of the time coming from the input).
    * This method should only be used when the change does not come from a single section.
@@ -268,7 +270,7 @@ export interface TemporalFieldValueManager<TValue extends TemporalSupportedValue
    */
   updateDateInValue: (
     value: TValue,
-    section: TemporalFieldSection<TValue>,
+    section: TemporalFieldSection,
     date: TemporalSupportedObject | null,
   ) => TValue;
   /**
@@ -276,15 +278,15 @@ export interface TemporalFieldValueManager<TValue extends TemporalSupportedValue
    */
   getDateFromSection: (
     value: TValue,
-    section: TemporalFieldSection<TValue>,
+    section: TemporalFieldSection,
   ) => TemporalSupportedObject | null;
   /**
    * Get the sections of the date that contains the given section.
    */
   getDateSectionsFromValue: (
-    sections: TemporalFieldSection<TValue>[],
-    section: TemporalFieldSection<TValue>,
-  ) => TemporalFieldSection<TValue>[];
+    sections: TemporalFieldSection[],
+    section: TemporalFieldSection,
+  ) => TemporalFieldSection[];
   /**
    * Method returning the reference value to use when mounting the component.
    */
@@ -301,9 +303,9 @@ export interface TemporalFieldValueManager<TValue extends TemporalSupportedValue
    * Clear all the sections representing the same date as the given section.
    */
   clearDateSections: (
-    sections: TemporalFieldSection<TValue>[],
-    section: TemporalFieldSection<TValue>,
-  ) => TemporalFieldSection<TValue>[];
+    sections: TemporalFieldSection[],
+    section: TemporalFieldSection,
+  ) => TemporalFieldSection[];
 }
 
 export interface TemporalFieldPlaceholderGetters {

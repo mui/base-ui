@@ -22,7 +22,7 @@ export class TemporalFieldValueAdjustmentPlugin<TValue extends TemporalSupported
   public adjustActiveSectionValue(keyCode: AdjustSectionValueKeyCode) {
     const { adapter, localizedDigits } = this.store.state;
     const timezone = selectors.timezoneToRender(this.store.state);
-    const activeSection = selectors.activeSection<TValue>(this.store.state);
+    const activeSection = this.store.section.selectors.activeSection(this.store.state);
 
     if (activeSection == null) {
       return '';
@@ -35,10 +35,13 @@ export class TemporalFieldValueAdjustmentPlugin<TValue extends TemporalSupported
 
     // Digit section
     if (
-      activeSection.contentType === 'digit' ||
-      activeSection.contentType === 'digit-with-letter'
+      activeSection.token.config.contentType === 'digit' ||
+      activeSection.token.config.contentType === 'digit-with-letter'
     ) {
-      const sectionBoundaries = selectors.sectionBoundaries(this.store.state, activeSection);
+      const sectionBoundaries = this.store.section.selectors.sectionBoundaries(
+        this.store.state,
+        activeSection,
+      );
 
       const getCleanValue = (newSectionValue: number) =>
         cleanDigitSectionValue(
@@ -46,19 +49,19 @@ export class TemporalFieldValueAdjustmentPlugin<TValue extends TemporalSupported
           newSectionValue,
           sectionBoundaries,
           localizedDigits,
-          activeSection,
+          activeSection.token,
         );
 
       const step =
-        activeSection.sectionType === 'minutes' && stepsAttributes?.minutesStep
+        activeSection.token.config.sectionType === 'minutes' && stepsAttributes?.minutesStep
           ? stepsAttributes.minutesStep
           : 1;
 
       let newSectionValueNumber: number;
 
       if (shouldSetAbsolute) {
-        if (activeSection.sectionType === 'year' && !isEnd && !isStart) {
-          return adapter.formatByString(adapter.now(timezone), activeSection.format);
+        if (activeSection.token.config.sectionType === 'year' && !isEnd && !isStart) {
+          return adapter.formatByString(adapter.now(timezone), activeSection.token.tokenValue);
         }
 
         if (delta > 0 || isStart) {
@@ -106,8 +109,8 @@ export class TemporalFieldValueAdjustmentPlugin<TValue extends TemporalSupported
     const options = getLetterEditingOptions(
       adapter,
       timezone,
-      activeSection.sectionType,
-      activeSection.format,
+      activeSection.token.config.sectionType,
+      activeSection.token.tokenValue,
     );
     if (options.length === 0) {
       return activeSection.value;

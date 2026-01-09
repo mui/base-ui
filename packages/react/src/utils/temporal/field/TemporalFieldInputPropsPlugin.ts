@@ -16,9 +16,8 @@ export class TemporalFieldInputPropsPlugin<TValue extends TemporalSupportedValue
 
   public handleKeyDown = (event: React.KeyboardEvent<HTMLSpanElement>) => {
     const { disabled, readOnly } = this.store.state;
-    const sections = selectors.sections<TValue>(this.store.state);
-    const selectedSections = selectors.selectedSections(this.store.state);
-    const activeSection = selectors.activeSection<TValue>(this.store.state);
+    const lastSectionIndex = this.store.section.selectors.lastSectionIndex(this.store.state);
+    const selectedSections = this.store.section.selectors.selectedSections(this.store.state);
 
     if (disabled) {
       return;
@@ -45,8 +44,8 @@ export class TemporalFieldInputPropsPlugin<TValue extends TemporalSupportedValue
         if (selectedSections == null) {
           this.store.section.setSelectedSections(0);
         } else if (selectedSections === 'all') {
-          this.store.section.setSelectedSections(sections.length - 1);
-        } else if (selectedSections < sections.length - 1) {
+          this.store.section.setSelectedSections(lastSectionIndex);
+        } else if (selectedSections < lastSectionIndex) {
           this.store.section.setSelectedSections(selectedSections + 1);
         }
         break;
@@ -57,7 +56,7 @@ export class TemporalFieldInputPropsPlugin<TValue extends TemporalSupportedValue
         event.preventDefault();
 
         if (selectedSections == null) {
-          this.store.section.setSelectedSections(sections.length - 1);
+          this.store.section.setSelectedSections(lastSectionIndex);
         } else if (selectedSections === 'all') {
           this.store.section.setSelectedSections(0);
         } else if (selectedSections > 0) {
@@ -86,6 +85,7 @@ export class TemporalFieldInputPropsPlugin<TValue extends TemporalSupportedValue
       case this.store.valueAdjustment.isAdjustSectionValueKeyCode(event.key): {
         event.preventDefault();
 
+        const activeSection = this.store.section.selectors.activeSection(this.store.state);
         if (readOnly || activeSection == null) {
           break;
         }
@@ -138,8 +138,9 @@ export class TemporalFieldInputPropsPlugin<TValue extends TemporalSupportedValue
 
   public handleClick = (event: React.MouseEvent) => {
     const { disabled } = this.store.state;
-    const sections = selectors.sections<TValue>(this.store.state);
-    const selectedSections = selectors.selectedSections(this.store.state);
+    const sections = this.store.section.selectors.sections(this.store.state);
+    const lastSectionIndex = this.store.section.selectors.lastSectionIndex(this.store.state);
+    const selectedSections = this.store.section.selectors.selectedSections(this.store.state);
 
     if (disabled || !this.store.inputRef.current) {
       return;
@@ -159,7 +160,7 @@ export class TemporalFieldInputPropsPlugin<TValue extends TemporalSupportedValue
         let sectionIndex = 0;
         let cursorOnStartOfSection = 0;
 
-        while (cursorOnStartOfSection < cursorPosition && sectionIndex < sections.length) {
+        while (cursorOnStartOfSection < cursorPosition && sectionIndex < lastSectionIndex + 1) {
           const section = sections[sectionIndex];
           sectionIndex += 1;
           cursorOnStartOfSection +=
@@ -182,7 +183,7 @@ export class TemporalFieldInputPropsPlugin<TValue extends TemporalSupportedValue
 
   public handlePaste = (event: React.ClipboardEvent<HTMLDivElement>) => {
     const { readOnly } = this.store.state;
-    const selectedSections = selectors.selectedSections(this.store.state);
+    const selectedSections = this.store.section.selectors.selectedSections(this.store.state);
 
     if (readOnly || selectedSections !== 'all') {
       event.preventDefault();
@@ -196,8 +197,8 @@ export class TemporalFieldInputPropsPlugin<TValue extends TemporalSupportedValue
   };
 
   public handleInput = (event: React.FormEvent<HTMLDivElement>) => {
-    const selectedSections = selectors.selectedSections(this.store.state);
-    const sections = selectors.sections<TValue>(this.store.state);
+    const selectedSections = this.store.section.selectors.selectedSections(this.store.state);
+    const sections = this.store.section.selectors.sections(this.store.state);
 
     if (!this.store.inputRef.current || selectedSections !== 'all') {
       return;

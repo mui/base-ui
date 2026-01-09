@@ -8,12 +8,12 @@ import {
   TemporalFieldStoreParameters,
   TemporalFieldValueManager,
 } from './types';
-import { buildSectionsFromFormat } from './buildSectionsFromFormat';
+import { FormatParser } from './parseFormat';
 import {
+  buildSections,
   deriveStateFromParameters,
   getLocalizedDigits,
   getTimezoneToRender,
-  validateSections,
 } from './utils';
 import { TextDirection } from '../../../direction-provider';
 import { activeElement } from '../../../floating-ui-react/utils';
@@ -23,6 +23,8 @@ import { TemporalFieldSectionPlugin } from './TemporalFieldSectionPlugin';
 import { TimeoutManager } from '../../TimeoutManager';
 import { TemporalFieldValuePlugin } from './TemporalFieldValuePlugin';
 import { TemporalFieldInputPropsPlugin } from './TemporalFieldInputPropsPlugin';
+import { TemporalFieldSectionPropsPlugin } from './TemporalFieldSectionPropsPlugin';
+import { TemporalFieldFormatPlugin } from './TemporalFieldFormatPlugin';
 
 const SECTION_TYPE_GRANULARITY: { [key in TemporalFieldSectionType]?: number } = {
   year: 1,
@@ -54,7 +56,11 @@ export class TemporalFieldStore<
 
   public section = new TemporalFieldSectionPlugin<TValue>(this);
 
+  public format = new TemporalFieldFormatPlugin<TValue>(this);
+
   public inputProps = new TemporalFieldInputPropsPlugin<TValue, TError>(this);
+
+  public sectionProps = new TemporalFieldSectionPropsPlugin<TValue>(this);
 
   constructor(
     parameters: TemporalFieldStoreParameters<TValue, TError>,
@@ -67,18 +73,17 @@ export class TemporalFieldStore<
     const value = parameters.value ?? parameters.defaultValue ?? manager.emptyValue;
     const localizedDigits = getLocalizedDigits(adapter);
 
-    const sections = valueManager.getSectionsFromValue(value, (date) =>
-      buildSectionsFromFormat({
-        adapter,
-        localizedDigits,
-        format: parameters.format,
-        date,
-        direction,
-      }),
+    const parsedFormat = FormatParser.build(
+      adapter,
+      parameters.format,
+      direction,
+      parameters.placeholderGetters,
     );
 
     const granularity = Math.max(
-      ...sections.map((section) => SECTION_TYPE_GRANULARITY[section.sectionType] ?? 1),
+      ...parsedFormat.tokens.map(
+        (token) => SECTION_TYPE_GRANULARITY[token.config.sectionType] ?? 1,
+      ),
     );
 
     const referenceValue = valueManager.getInitialReferenceValue({
@@ -96,7 +101,9 @@ export class TemporalFieldStore<
       ),
     });
 
-    validateSections(sections, manager.dateType);
+    const sections = valueManager.getSectionsFromValue(value, (date) =>
+      buildSections(adapter, parsedFormat, date),
+    );
 
     super({
       ...deriveStateFromParameters(

@@ -4,7 +4,6 @@ import { useStore } from '@base-ui/utils/store';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useDateFieldRootContext } from '../root/DateFieldRootContext';
-import { selectors } from '../../utils/temporal/field/selectors';
 
 /**
  * Groups all parts of the date field.
@@ -26,7 +25,7 @@ export const DateFieldRoot = React.forwardRef(function DateFieldRoot(
   } = componentProps;
 
   const store = useDateFieldRootContext();
-  const isSelectingAllSections = useStore(store, selectors.isSelectingAllSections);
+  const isSelectingAllSections = useStore(store, store.section.selectors.isSelectingAllSections);
 
   const resolvedChildren = React.useMemo(() => {
     if (!React.isValidElement(children) && typeof children === 'function') {

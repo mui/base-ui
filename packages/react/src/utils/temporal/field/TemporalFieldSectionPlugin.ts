@@ -1,8 +1,172 @@
-import { TemporalSupportedValue } from '../../../types';
+import { createSelector, createSelectorMemoized } from '@base-ui/utils/store';
+import { TemporalSupportedObject, TemporalSupportedValue } from '../../../types';
 import { mergeDateIntoReferenceDate } from './mergeDateIntoReferenceDate';
 import { selectors } from './selectors';
 import type { TemporalFieldStore } from './TemporalFieldStore';
-import { TemporalFieldSection, TemporalFieldSelectedSections } from './types';
+import {
+  TemporalFieldSection,
+  TemporalFieldSelectedSections,
+  TemporalFieldState as State,
+} from './types';
+import { getDaysInWeekStr, removeLocalizedDigits } from './utils';
+import { getMonthsInYear } from '../date-helpers';
+
+const sectionSelectors = {
+  sections: createSelector((state: State) => state.sections),
+  lastSectionIndex: createSelector((state: State) => state.sections.length - 1),
+  selectedSections: createSelector((state: State) => state.selectedSections),
+  isSelectingAllSections: createSelector((state: State) => state.selectedSections === 'all'),
+  section: createSelectorMemoized(
+    (state: State) => state.sections,
+    (sections, sectionIndex: number) => ({ ...sections[sectionIndex], index: sectionIndex }),
+  ),
+  activeSection: createSelectorMemoized(
+    (state: State) => state.sections,
+    (state: State) => (state.selectedSections === 'all' ? 0 : state.selectedSections),
+    (sections, activeSectionIndex) => {
+      if (activeSectionIndex == null) {
+        return null;
+      }
+
+      return {
+        ...sections[activeSectionIndex],
+        index: activeSectionIndex,
+      };
+    },
+  ),
+  sectionBoundaries: createSelectorMemoized(
+    (state: State) => state.adapter,
+    (state: State) => state.localizedDigits,
+    (state: State) => state.valueManager,
+    (state: State) => state.value,
+    selectors.timezoneToRender,
+    (adapter, localizedDigits, valueManager, value, timezone, section: TemporalFieldSection) => {
+      switch (section.token.config.sectionType) {
+        case 'year': {
+          return {
+            minimum: 0,
+            maximum:
+              adapter.formatByString(adapter.now('system'), section.token.tokenValue).length === 4
+                ? 9999
+                : 99,
+          };
+        }
+
+        case 'month': {
+          const today = adapter.now(timezone);
+          const endOfYear = adapter.endOfYear(today);
+          return {
+            minimum: 1,
+            // Assumption: All years have the same amount of months
+            maximum: adapter.getMonth(endOfYear) + 1,
+          };
+        }
+
+        case 'weekDay': {
+          if (section.token.config.contentType === 'digit') {
+            const daysInWeek = getDaysInWeekStr(adapter, section.token.tokenValue).map(Number);
+            return {
+              minimum: Math.min(...daysInWeek),
+              maximum: Math.max(...daysInWeek),
+            };
+          }
+
+          return {
+            minimum: 1,
+            maximum: 7,
+          };
+        }
+
+        case 'day': {
+          const today = adapter.now(timezone);
+          const activeDate = valueManager.getDateFromSection(value, section);
+          const { maxDaysInMonth, longestMonth } = getMonthsInYear(adapter, today).reduce(
+            (acc, month) => {
+              const daysInMonth = adapter.getDaysInMonth(month);
+
+              if (daysInMonth > acc.maxDaysInMonth) {
+                return { maxDaysInMonth: daysInMonth, longestMonth: month };
+              }
+
+              return acc;
+            },
+            { maxDaysInMonth: 0, longestMonth: null as TemporalSupportedObject | null },
+          );
+
+          return {
+            minimum: 1,
+            maximum: adapter.isValid(activeDate)
+              ? adapter.getDaysInMonth(activeDate)
+              : maxDaysInMonth,
+            longestMonth: longestMonth!,
+          };
+        }
+
+        case 'hours': {
+          const today = adapter.now(timezone);
+          const endOfDay = adapter.endOfDay(today);
+          const lastHourInDay = adapter.getHours(endOfDay);
+          const hasMeridiem =
+            removeLocalizedDigits(
+              adapter.formatByString(adapter.endOfDay(today), section.token.tokenValue),
+              localizedDigits,
+            ) !== lastHourInDay.toString();
+
+          if (hasMeridiem) {
+            return {
+              minimum: 1,
+              maximum: Number(
+                removeLocalizedDigits(
+                  adapter.formatByString(adapter.startOfDay(today), section.token.tokenValue),
+                  localizedDigits,
+                ),
+              ),
+            };
+          }
+
+          return {
+            minimum: 0,
+            maximum: lastHourInDay,
+          };
+        }
+
+        case 'seconds': {
+          const today = adapter.now(timezone);
+          const endOfDay = adapter.endOfDay(today);
+          return {
+            minimum: 0,
+            // Assumption: All years have the same amount of seconds
+            maximum: adapter.getSeconds(endOfDay),
+          };
+        }
+
+        case 'minutes': {
+          const today = adapter.now(timezone);
+          const endOfDay = adapter.endOfDay(today);
+          return {
+            minimum: 0,
+            // Assumption: All years have the same amount of minutes
+            maximum: adapter.getMinutes(endOfDay),
+          };
+        }
+
+        case 'meridiem': {
+          return {
+            minimum: 0,
+            maximum: 1,
+          };
+        }
+
+        default: {
+          return {
+            minimum: 0,
+            maximum: 0,
+          };
+        }
+      }
+    },
+  ),
+};
 
 /**
  * Plugin to interact with a single section of the field value.
@@ -12,32 +176,35 @@ export class TemporalFieldSectionPlugin<TValue extends TemporalSupportedValue> {
 
   private sectionToUpdateOnNextInvalidDate: { index: number; value: string } | null = null;
 
+  public selectors = sectionSelectors;
+
   // We can't type `store`, otherwise we get the following TS error:
   // 'section' implicitly has type 'any' because it does not have a type annotation and is referenced directly or indirectly in its own initializer.
   constructor(store: any) {
     this.store = store;
   }
 
-  public getRenderedValue(section: TemporalFieldSection<TValue>) {
-    return section.value || this.getPlaceholder(section);
+  public getRenderedValue(section: TemporalFieldSection) {
+    return section.value || section.token.placeholder;
   }
 
-  public getRenderedValueWithSeparators(section: TemporalFieldSection<TValue>) {
-    return `${section.startSeparator}${this.getRenderedValue(section)}${section.endSeparator}`;
+  public getRenderedValueWithSeparators(section: TemporalFieldSection) {
+    return `${this.getRenderedValue(section)}${section.token.separator}`;
   }
 
   public clearActive() {
     const { valueManager, value } = this.store.state;
-    const activeSection = selectors.activeSection<TValue>(this.store.state);
+    const activeSection = sectionSelectors.activeSection(this.store.state);
+    const sections = sectionSelectors.sections(this.store.state);
     if (activeSection == null || activeSection.value === '') {
       return;
     }
 
     this.setSectionUpdateToApplyOnNextInvalidDate(activeSection.index, '');
 
-    if (activeSection.date === null) {
+    if (valueManager.getDateFromSection(value, activeSection) === null) {
       this.store.update({
-        sections: activeSection.update(''),
+        sections: replaceSectionValueInSectionList(sections, activeSection.index, ''),
         characterQuery: null,
       });
     } else {
@@ -52,11 +219,9 @@ export class TemporalFieldSectionPlugin<TValue extends TemporalSupportedValue> {
     shouldGoToNextSection,
   }: UpdateValueParameters) {
     const { valueManager, adapter, referenceValue, value } = this.store.state;
-    const sections = selectors.sections<TValue>(this.store.state);
-    const section = selectors.section<TValue>(this.store.state, sectionIndex);
-    if (section == null) {
-      return undefined;
-    }
+    const lastSectionIndex = sectionSelectors.lastSectionIndex(this.store.state);
+    const section = sectionSelectors.section(this.store.state, sectionIndex);
+    const sections = sectionSelectors.sections(this.store.state);
 
     this.store.timeoutManager.clearTimeout('updateSectionValueOnNextInvalidDate');
     this.store.timeoutManager.clearTimeout('cleanActiveDateSectionsIfValueNull');
@@ -66,14 +231,14 @@ export class TemporalFieldSectionPlugin<TValue extends TemporalSupportedValue> {
     /**
      * Decide which section should be focused
      */
-    if (shouldGoToNextSection && section.index! < sections.length - 1) {
-      this.setSelectedSections(section.index! + 1);
+    if (shouldGoToNextSection && sectionIndex < lastSectionIndex) {
+      this.setSelectedSections(sectionIndex + 1);
     }
 
     /**
      * Try to build a valid date from the new section value
      */
-    const newSections = section.update(newSectionValue);
+    const newSections = replaceSectionValueInSectionList(sections, sectionIndex, newSectionValue);
     const newActiveDateSections = valueManager.getDateSectionsFromValue(newSections, section);
     const newActiveDate = this.getDateFromDateSections(newActiveDateSections);
 
@@ -110,7 +275,7 @@ export class TemporalFieldSectionPlugin<TValue extends TemporalSupportedValue> {
       newActiveDateSections.every((sectionBis) => sectionBis.value !== '') &&
       (activeDate == null || adapter.isValid(activeDate))
     ) {
-      this.setSectionUpdateToApplyOnNextInvalidDate(section.index, newSectionValue);
+      this.setSectionUpdateToApplyOnNextInvalidDate(sectionIndex, newSectionValue);
       return this.store.value.publish(
         valueManager.updateDateInValue(value, section, newActiveDate),
       );
@@ -122,7 +287,7 @@ export class TemporalFieldSectionPlugin<TValue extends TemporalSupportedValue> {
      * @link: https://github.com/mui/mui-x/issues/17967
      */
     if (activeDate != null) {
-      this.setSectionUpdateToApplyOnNextInvalidDate(section.index, newSectionValue);
+      this.setSectionUpdateToApplyOnNextInvalidDate(sectionIndex, newSectionValue);
       this.store.value.publish(valueManager.updateDateInValue(value, section, newActiveDate));
     }
 
@@ -141,23 +306,25 @@ export class TemporalFieldSectionPlugin<TValue extends TemporalSupportedValue> {
    * Some date libraries like `dayjs` don't support parsing from date with escaped characters.
    * To make sure that the parsing works, we are building a format and a date without any separator.
    */
-  private getDateFromDateSections(sections: TemporalFieldSection<TValue>[]) {
+  private getDateFromDateSections(sections: TemporalFieldSection[]) {
     const { adapter } = this.store.state;
     const timezone = selectors.timezoneToRender(this.store.state);
 
     // If we have both a day and a weekDay section,
     // Then we skip the weekDay in the parsing because libraries like dayjs can't parse complicated formats containing a weekDay.
     // dayjs(dayjs().format('dddd MMMM D YYYY'), 'dddd MMMM D YYYY')) // returns `Invalid Date` even if the format is valid.
-    const shouldSkipWeekDays = sections.some((section) => section.sectionType === 'day');
+    const shouldSkipWeekDays = sections.some(
+      (section) => section.token.config.sectionType === 'day',
+    );
 
     const sectionFormats: string[] = [];
     const sectionValues: string[] = [];
     for (let i = 0; i < sections.length; i += 1) {
       const section = sections[i];
 
-      const shouldSkip = shouldSkipWeekDays && section.sectionType === 'weekDay';
+      const shouldSkip = shouldSkipWeekDays && section.token.config.sectionType === 'weekDay';
       if (!shouldSkip) {
-        sectionFormats.push(section.format);
+        sectionFormats.push(section.token.tokenValue);
         sectionValues.push(this.getRenderedValue(section));
       }
     }
@@ -166,58 +333,6 @@ export class TemporalFieldSectionPlugin<TValue extends TemporalSupportedValue> {
     const dateWithoutSeparatorStr = sectionValues.join(' ');
 
     return adapter.parse(dateWithoutSeparatorStr, formatWithoutSeparator, timezone);
-  }
-
-  private getPlaceholder(section: TemporalFieldSection<TValue>) {
-    const { adapter } = this.store.state;
-    const placeholderGetters = selectors.placeholderGetters(this.store.state);
-
-    switch (section.sectionType) {
-      case 'year': {
-        return placeholderGetters.year({
-          digitAmount: adapter.formatByString(adapter.now('default'), section.format).length,
-          format: section.format,
-        });
-      }
-
-      case 'month': {
-        return placeholderGetters.month({
-          contentType: section.contentType,
-          format: section.format,
-        });
-      }
-
-      case 'day': {
-        return placeholderGetters.day({ format: section.format });
-      }
-
-      case 'weekDay': {
-        return placeholderGetters.weekDay({
-          contentType: section.contentType,
-          format: section.format,
-        });
-      }
-
-      case 'hours': {
-        return placeholderGetters.hours({ format: section.format });
-      }
-
-      case 'minutes': {
-        return placeholderGetters.minutes({ format: section.format });
-      }
-
-      case 'seconds': {
-        return placeholderGetters.seconds({ format: section.format });
-      }
-
-      case 'meridiem': {
-        return placeholderGetters.meridiem({ format: section.format });
-      }
-
-      default: {
-        return section.format;
-      }
-    }
   }
 
   private setSectionUpdateToApplyOnNextInvalidDate = (
@@ -247,4 +362,19 @@ interface UpdateValueParameters {
    * If `true`, the focus will move to the next section.
    */
   shouldGoToNextSection: boolean;
+}
+
+function replaceSectionValueInSectionList(
+  sections: TemporalFieldSection[],
+  sectionIndex: number,
+  newSectionValue: string,
+) {
+  const newSections = [...sections];
+  newSections[sectionIndex] = {
+    ...newSections[sectionIndex],
+    value: newSectionValue,
+    modified: true,
+  };
+
+  return sections;
 }

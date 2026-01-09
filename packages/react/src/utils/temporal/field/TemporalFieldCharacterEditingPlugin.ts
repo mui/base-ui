@@ -1,12 +1,16 @@
 import { TemporalSupportedValue } from '../../../types';
 import { selectors } from './selectors';
 import { TemporalFieldStore } from './TemporalFieldStore';
-import { TemporalFieldCharacterEditingQuery, TemporalFieldSection } from './types';
+import {
+  TemporalFieldCharacterEditingQuery,
+  TemporalFieldSection,
+  TemporalFieldToken,
+} from './types';
 import {
   applyLocalizedDigits,
   cleanDigitSectionValue,
   doesSectionFormatHaveLeadingZeros,
-  getDateSectionConfigFromFormatToken,
+  getFormatTokenConfig,
   getDaysInWeekStr,
   getLetterEditingOptions,
   isStringNumber,
@@ -54,7 +58,7 @@ export class TemporalFieldCharacterEditingPlugin<TValue extends TemporalSupporte
       format: string,
       options: string[],
       queryValue: string,
-    ): ReturnType<QueryApplier<TValue>> => {
+    ): ReturnType<QueryApplier> => {
       const matchingValues = options.filter((option) =>
         option.toLowerCase().startsWith(queryValue),
       );
@@ -71,15 +75,15 @@ export class TemporalFieldCharacterEditingPlugin<TValue extends TemporalSupporte
 
     const testQueryOnFormatAndFallbackFormat = (
       queryValue: string,
-      section: TemporalFieldSection<TValue>,
+      token: TemporalFieldToken,
       fallbackFormat?: string,
       formatFallbackValue?: (fallbackValue: string, fallbackOptions: string[]) => string,
     ) => {
       const getOptions = (format: string) =>
-        getLetterEditingOptions(adapter, timezone, section.sectionType, format);
+        getLetterEditingOptions(adapter, timezone, token.config.sectionType, format);
 
-      if (section.contentType === 'letter') {
-        return findMatchingOptions(section.format, getOptions(section.format), queryValue);
+      if (token.config.contentType === 'letter') {
+        return findMatchingOptions(token.tokenValue, getOptions(token.tokenValue), queryValue);
       }
 
       // When editing a digit-format month / weekDay and the user presses a letter,
@@ -88,7 +92,7 @@ export class TemporalFieldCharacterEditingPlugin<TValue extends TemporalSupporte
       if (
         fallbackFormat &&
         formatFallbackValue != null &&
-        getDateSectionConfigFromFormatToken(adapter, fallbackFormat).contentType === 'letter'
+        getFormatTokenConfig(adapter, fallbackFormat).contentType === 'letter'
       ) {
         const fallbackOptions = getOptions(fallbackFormat);
         const response = findMatchingOptions(fallbackFormat, fallbackOptions, queryValue);
@@ -105,19 +109,19 @@ export class TemporalFieldCharacterEditingPlugin<TValue extends TemporalSupporte
       return { saveQuery: false };
     };
 
-    const getFirstSectionValueMatchingWithQuery: QueryApplier<TValue> = (queryValue, section) => {
-      switch (section.sectionType) {
+    const getFirstSectionValueMatchingWithQuery: QueryApplier = (queryValue, section) => {
+      switch (section.token.config.sectionType) {
         case 'month': {
           const formatFallbackValue = (fallbackValue: string) =>
             this.getSectionValueInAnotherFormat(
               fallbackValue,
               adapter.formats.monthFullLetter,
-              section.format,
+              section.token.tokenValue,
             );
 
           return testQueryOnFormatAndFallbackFormat(
             queryValue,
-            section,
+            section.token,
             adapter.formats.monthFullLetter,
             formatFallbackValue,
           );
@@ -129,14 +133,14 @@ export class TemporalFieldCharacterEditingPlugin<TValue extends TemporalSupporte
 
           return testQueryOnFormatAndFallbackFormat(
             queryValue,
-            section,
+            section.token,
             adapter.formats.weekday,
             formatFallbackValue,
           );
         }
 
         case 'meridiem': {
-          return testQueryOnFormatAndFallbackFormat(queryValue, section);
+          return testQueryOnFormatAndFallbackFormat(queryValue, section.token);
         }
 
         default: {
@@ -158,11 +162,14 @@ export class TemporalFieldCharacterEditingPlugin<TValue extends TemporalSupporte
     }: {
       queryValue: string;
       skipIfBelowMinimum: boolean;
-      section: TemporalFieldSection<TValue>;
-    }): ReturnType<QueryApplier<TValue>> => {
+      section: TemporalFieldSection;
+    }): ReturnType<QueryApplier> => {
       const cleanQueryValue = removeLocalizedDigits(queryValue, localizedDigits);
       const queryValueNumber = Number(cleanQueryValue);
-      const sectionBoundaries = selectors.sectionBoundaries(this.store.state, section);
+      const sectionBoundaries = this.store.section.selectors.sectionBoundaries(
+        this.store.state,
+        section,
+      );
 
       if (queryValueNumber > sectionBoundaries.maximum) {
         return { saveQuery: false };
@@ -184,14 +191,17 @@ export class TemporalFieldCharacterEditingPlugin<TValue extends TemporalSupporte
         queryValueNumber,
         sectionBoundaries,
         localizedDigits,
-        section,
+        section.token,
       );
 
       return { sectionValue: newSectionValue, shouldGoToNextSection };
     };
 
-    const getFirstSectionValueMatchingWithQuery: QueryApplier<TValue> = (queryValue, section) => {
-      if (section.contentType === 'digit' || section.contentType === 'digit-with-letter') {
+    const getFirstSectionValueMatchingWithQuery: QueryApplier = (queryValue, section) => {
+      if (
+        section.token.config.contentType === 'digit' ||
+        section.token.config.contentType === 'digit-with-letter'
+      ) {
         return getNewSectionValue({
           queryValue,
           skipIfBelowMinimum: false,
@@ -201,21 +211,19 @@ export class TemporalFieldCharacterEditingPlugin<TValue extends TemporalSupporte
 
       // When editing a letter-format month and the user presses a digit,
       // We can support the numeric editing by using the digit-format month and re-formatting the result.
-      if (section.sectionType === 'month') {
+      if (section.token.config.sectionType === 'month') {
         const response = getNewSectionValue({
           queryValue,
           skipIfBelowMinimum: true,
           section: {
             ...section,
-            format: 'MM',
-            hasLeadingZerosInFormat: doesSectionFormatHaveLeadingZeros(
-              adapter,
-              'digit',
-              'month',
-              'MM',
-            ),
-            contentType: 'digit',
-            maxLength: 2,
+            token: {
+              tokenValue: 'MM',
+              config: { contentType: 'digit', sectionType: 'month', maxLength: 2 },
+              isPadded: doesSectionFormatHaveLeadingZeros(adapter, 'digit', 'month', 'MM'),
+              placeholder: 'MM', // This won't be used
+              separator: '', // This won't be used
+            },
           },
         });
 
@@ -226,7 +234,7 @@ export class TemporalFieldCharacterEditingPlugin<TValue extends TemporalSupporte
         const formattedValue = this.getSectionValueInAnotherFormat(
           response.sectionValue,
           'MM',
-          section.format,
+          section.token.tokenValue,
         );
 
         return {
@@ -237,7 +245,7 @@ export class TemporalFieldCharacterEditingPlugin<TValue extends TemporalSupporte
 
       // When editing a letter-format weekDay and the user presses a digit,
       // We can support the numeric editing by returning the nth day in the week day array.
-      if (section.sectionType === 'weekDay') {
+      if (section.token.config.sectionType === 'weekDay') {
         const response = getNewSectionValue({
           queryValue,
           skipIfBelowMinimum: true,
@@ -247,7 +255,7 @@ export class TemporalFieldCharacterEditingPlugin<TValue extends TemporalSupporte
           return response;
         }
 
-        const formattedValue = getDaysInWeekStr(adapter, section.format)[
+        const formattedValue = getDaysInWeekStr(adapter, section.token.tokenValue)[
           Number(response.sectionValue) - 1
         ];
         return {
@@ -268,14 +276,14 @@ export class TemporalFieldCharacterEditingPlugin<TValue extends TemporalSupporte
 
   private applyQuery(
     parameters: EditSectionParameters,
-    getFirstSectionValueMatchingWithQuery: QueryApplier<TValue>,
+    getFirstSectionValueMatchingWithQuery: QueryApplier,
     isValidQueryValue?: (queryValue: string) => boolean,
   ) {
     const { keyPressed, sectionIndex } = parameters;
     const cleanKeyPressed = keyPressed.toLowerCase();
 
     const { characterQuery } = this.store.state;
-    const section = selectors.section<TValue>(this.store.state, sectionIndex);
+    const section = this.store.section.selectors.section(this.store.state, sectionIndex);
 
     if (section == null) {
       return null;
@@ -295,7 +303,7 @@ export class TemporalFieldCharacterEditingPlugin<TValue extends TemporalSupporte
         this.setCharacterQuery({
           sectionIndex,
           value: concatenatedQueryValue,
-          sectionType: section.sectionType,
+          sectionType: section.token.config.sectionType,
         });
         return queryResponse;
       }
@@ -310,7 +318,7 @@ export class TemporalFieldCharacterEditingPlugin<TValue extends TemporalSupporte
     this.setCharacterQuery({
       sectionIndex,
       value: cleanKeyPressed,
-      sectionType: section.sectionType,
+      sectionType: section.token.config.sectionType,
     });
 
     if (isQueryResponseWithoutValue(queryResponse)) {
@@ -333,7 +341,7 @@ export class TemporalFieldCharacterEditingPlugin<TValue extends TemporalSupporte
     const timezone = selectors.timezoneToRender(this.store.state);
 
     if (process.env.NODE_ENV !== 'production') {
-      if (getDateSectionConfigFromFormatToken(adapter, currentFormat).sectionType === 'weekDay') {
+      if (getFormatTokenConfig(adapter, currentFormat).sectionType === 'weekDay') {
         throw new Error("changeSectionValueFormat doesn't support week day formats");
       }
     }
@@ -342,8 +350,8 @@ export class TemporalFieldCharacterEditingPlugin<TValue extends TemporalSupporte
   }
 }
 
-function isQueryResponseWithoutValue<TValue extends TemporalSupportedValue>(
-  response: ReturnType<QueryApplier<TValue>>,
+function isQueryResponseWithoutValue(
+  response: ReturnType<QueryApplier>,
 ): response is { saveQuery: boolean } {
   return (response as { saveQuery: boolean }).saveQuery != null;
 }
@@ -367,7 +375,7 @@ interface EditSectionParameters {
  * If it returns `{ saveQuery: false },
  * Then we do nothing.
  */
-type QueryApplier<TValue extends TemporalSupportedValue> = (
+type QueryApplier = (
   queryValue: string,
-  section: TemporalFieldSection<TValue>,
+  section: TemporalFieldSection,
 ) => { sectionValue: string; shouldGoToNextSection: boolean } | { saveQuery: boolean };

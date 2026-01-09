@@ -1,14 +1,14 @@
 import { TemporalAdapter, TemporalFieldSectionType, TemporalSupportedObject } from '../../../types';
-import { TemporalFieldNonRangeSection } from './types';
+import { TemporalFieldSection } from './types';
 import { cleanLeadingZeros, getDaysInWeekStr } from './utils';
 
 function transferDateSectionValue(
   adapter: TemporalAdapter,
-  section: TemporalFieldNonRangeSection,
+  section: TemporalFieldSection,
   dateToTransferFrom: TemporalSupportedObject,
   dateToTransferTo: TemporalSupportedObject,
 ) {
-  switch (section.sectionType) {
+  switch (section.token.config.sectionType) {
     case 'year': {
       return adapter.setYear(dateToTransferTo, adapter.getYear(dateToTransferFrom));
     }
@@ -18,12 +18,18 @@ function transferDateSectionValue(
     }
 
     case 'weekDay': {
-      let dayInWeekStrOfActiveDate = adapter.formatByString(dateToTransferFrom, section.format);
-      if (section.hasLeadingZerosInFormat) {
-        dayInWeekStrOfActiveDate = cleanLeadingZeros(dayInWeekStrOfActiveDate, section.maxLength!);
+      let dayInWeekStrOfActiveDate = adapter.formatByString(
+        dateToTransferFrom,
+        section.token.tokenValue,
+      );
+      if (section.token.isPadded) {
+        dayInWeekStrOfActiveDate = cleanLeadingZeros(
+          dayInWeekStrOfActiveDate,
+          section.token.config.maxLength!,
+        );
       }
 
-      const formattedDaysInWeek = getDaysInWeekStr(adapter, section.format);
+      const formattedDaysInWeek = getDaysInWeekStr(adapter, section.token.tokenValue);
       const dayInWeekOfActiveDate = formattedDaysInWeek.indexOf(dayInWeekStrOfActiveDate);
       const dayInWeekOfNewSectionValue = formattedDaysInWeek.indexOf(section.value);
       const diff = dayInWeekOfNewSectionValue - dayInWeekOfActiveDate;
@@ -82,7 +88,7 @@ const reliableSectionModificationOrder: Record<TemporalFieldSectionType, number>
 export function mergeDateIntoReferenceDate(
   adapter: TemporalAdapter,
   dateToTransferFrom: TemporalSupportedObject,
-  sections: TemporalFieldNonRangeSection[],
+  sections: TemporalFieldSection[],
   referenceDate: TemporalSupportedObject,
   shouldLimitToEditedSections: boolean,
 ): TemporalSupportedObject {
@@ -90,8 +96,8 @@ export function mergeDateIntoReferenceDate(
   return [...sections]
     .sort(
       (a, b) =>
-        reliableSectionModificationOrder[a.sectionType] -
-        reliableSectionModificationOrder[b.sectionType],
+        reliableSectionModificationOrder[a.token.config.sectionType] -
+        reliableSectionModificationOrder[b.token.config.sectionType],
     )
     .reduce((mergedDate, section) => {
       if (!shouldLimitToEditedSections || section.modified) {

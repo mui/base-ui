@@ -52,6 +52,11 @@ export interface TemporalAdapterFormats {
    */
   hours12h: string;
   /**
+   * The day of the month with letter suffix.
+   * @example "1st", "11th"
+   */
+  dayOfMonthWithLetter: string;
+  /**
    * The abbreviated month name.
    * @example "Aug"
    */

@@ -151,6 +151,9 @@ const FORMATS: TemporalAdapterFormats = {
   hours24h: 'H',
   hours12h: 'h',
 
+  // Digit with letter formats
+  dayOfMonthWithLetter: 'do',
+
   // Letter formats
   month3Letters: 'MMM',
   monthFullLetter: 'MMMM',
