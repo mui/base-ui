@@ -13,6 +13,7 @@ import { styleDisableScrollbar } from '../../utils/styles';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { scrollAreaStateAttributesMapping } from './stateAttributes';
 import { contains } from '../../floating-ui-react/utils';
+import { useNonce } from '../../nonce-provider';
 
 const DEFAULT_COORDS = { x: 0, y: 0 };
 const DEFAULT_SIZE = { width: 0, height: 0 };
@@ -44,6 +45,8 @@ export const ScrollAreaRoot = React.forwardRef(function ScrollAreaRoot(
   const overflowEdgeThreshold = normalizeOverflowEdgeThreshold(overflowEdgeThresholdProp);
 
   const rootId = useBaseUiId();
+
+  const nonce = useNonce();
 
   const scrollYTimeout = useTimeout();
   const scrollXTimeout = useTimeout();
@@ -294,7 +297,7 @@ export const ScrollAreaRoot = React.forwardRef(function ScrollAreaRoot(
 
   return (
     <ScrollAreaRootContext.Provider value={contextValue}>
-      {styleDisableScrollbar.element}
+      {styleDisableScrollbar.getElement(nonce)}
       {element}
     </ScrollAreaRootContext.Provider>
   );
