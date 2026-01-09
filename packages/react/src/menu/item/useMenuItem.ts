@@ -72,6 +72,13 @@ export function useMenuItem(params: useMenuItem.Parameters): useMenuItem.ReturnV
             }
           },
           onMouseUp(event) {
+            // On MacOS right click does not invoke onMouseUp, however on Windows it does
+            // This checks makes sure we are consistent behavior and ignore the logic below
+            // on right click
+            if (event.button === 2) {
+              return;
+            }
+
             if (contextMenuContext) {
               const initialCursorPoint = contextMenuContext.initialCursorPointRef.current;
               contextMenuContext.initialCursorPointRef.current = null;
@@ -85,11 +92,7 @@ export function useMenuItem(params: useMenuItem.Parameters): useMenuItem.ReturnV
               }
             }
 
-            if (
-              itemRef.current &&
-              store.context.allowMouseUpTriggerRef.current &&
-              (!isContextMenu || event.button === 2)
-            ) {
+            if (itemRef.current && store.context.allowMouseUpTriggerRef.current && !isContextMenu) {
               // This fires whenever the user clicks on the trigger, moves the cursor, and releases it over the item.
               // We trigger the click and override the `closeOnClick` preference to always close the menu.
               if (itemMetadata.type === 'regular-item') {
