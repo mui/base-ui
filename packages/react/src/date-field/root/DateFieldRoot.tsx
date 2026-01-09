@@ -1,37 +1,11 @@
 import * as React from 'react';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { useTemporalAdapter } from '../../temporal-adapter-provider/TemporalAdapterContext';
-import { getDateManager } from '../../utils/temporal/getDateManager';
-import { TemporalFieldStore } from '../../utils/temporal/field/TemporalFieldStore';
 import { BaseUIComponentProps } from '../../utils/types';
-import { TemporalValue } from '../../types';
-import {
-  ValidateDateReturnValue,
-  ValidateDateValidationProps,
-} from '../../utils/temporal/validateDate';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useDirection } from '../../direction-provider';
-import {
-  TemporalFieldStorePublicParameters,
-  TemporalFieldValueManager,
-} from '../../utils/temporal/field/types';
-import { areDatesEqual } from '../../utils/temporal/date-helpers';
 import { DateFieldRootContext } from './DateFieldRootContext';
-import { getInitialReferenceDate } from '../../utils/temporal/getInitialReferenceDate';
-
-const dateFieldValueManager: TemporalFieldValueManager<TemporalValue> = {
-  emptyValue: null,
-  areValuesEqual: areDatesEqual,
-  getSectionsFromValue: (date, getSectionsFromDate) => getSectionsFromDate(date),
-  getDateFromSection: (value) => value,
-  getDateSectionsFromValue: (sections) => sections,
-  updateDateInValue: (value, activeSection, activeDate) => activeDate,
-  parseValueStr: (valueStr, referenceValue, parseDate) =>
-    parseDate(valueStr.trim(), referenceValue),
-  getInitialReferenceValue: ({ value, ...other }) =>
-    getInitialReferenceDate({ ...other, externalDate: value }),
-  clearDateSections: (sections) => sections.map((section) => ({ ...section, value: '' })),
-};
+import { DateFieldStore, DateFieldStoreParameters } from './DateFieldStore';
 
 /**
  * Groups all parts of the date field.
@@ -68,7 +42,6 @@ export const DateFieldRoot = React.forwardRef(function DateFieldRoot(
   } = componentProps;
 
   const adapter = useTemporalAdapter();
-  const manager = React.useMemo(() => getDateManager(adapter), [adapter]);
 
   const parameters = React.useMemo(
     () => ({
@@ -80,10 +53,11 @@ export const DateFieldRoot = React.forwardRef(function DateFieldRoot(
       value,
       timezone,
       referenceDate,
-      format: format ?? adapter.formats.localizedNumericDate,
+      minDate,
+      maxDate,
+      format,
     }),
     [
-      adapter,
       readOnly,
       disabled,
       invalid,
@@ -92,27 +66,26 @@ export const DateFieldRoot = React.forwardRef(function DateFieldRoot(
       value,
       timezone,
       referenceDate,
+      minDate,
+      maxDate,
       format,
     ],
   );
 
-  const validationProps: ValidateDateValidationProps = React.useMemo(
-    () => ({ minDate, maxDate }),
-    [minDate, maxDate],
-  );
-
   const direction = useDirection();
-  const store = useRefWithInit(
-    () =>
-      new TemporalFieldStore(
-        parameters,
-        validationProps,
-        adapter,
-        manager,
-        dateFieldValueManager,
-        direction,
-      ),
-  ).current;
+  const store = useRefWithInit(() => new DateFieldStore(parameters, adapter, direction)).current;
+
+  // useIsoLayoutEffect(
+  //   () =>
+  //     store.updateStateFromParameters(
+  //       parameters,
+  //       adapter,
+  //       manager,
+  //       dateFieldValueManager,
+  //       direction,
+  //     ),
+  //   [parameters, adapter, manager, dateFieldValueManager, direction],
+  // );
 
   const element = useRenderElement('div', componentProps, {
     // state,
@@ -127,10 +100,7 @@ export const DateFieldRoot = React.forwardRef(function DateFieldRoot(
 export interface DateFieldRootState {}
 
 export interface DateFieldRootProps
-  extends
-    BaseUIComponentProps<'div', DateFieldRootState>,
-    ValidateDateValidationProps,
-    TemporalFieldStorePublicParameters<TemporalValue, ValidateDateReturnValue> {}
+  extends BaseUIComponentProps<'div', DateFieldRootState>, DateFieldStoreParameters {}
 
 export namespace DateFieldRoot {
   export type Props = DateFieldRootProps;

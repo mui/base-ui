@@ -1,3 +1,4 @@
+import { TextDirection } from '../../../direction-provider';
 import {
   TemporalAdapter,
   TemporalFieldSectionContentType,
@@ -14,7 +15,40 @@ import {
   TemporalFieldPlaceholderGetters,
   TemporalFieldSection,
   TemporalFieldSectionValueBoundaries,
+  TemporalFieldStoreParameters,
+  TemporalFieldValueManager,
 } from './types';
+
+/**
+ * Returns the properties of the state that are derived from the parameters.
+ * This do not contain state properties that don't update whenever the parameters update.
+ */
+export function deriveStateFromParameters<
+  TValue extends TemporalSupportedValue,
+  TValidationProps extends object,
+  TError,
+>(
+  parameters: TemporalFieldStoreParameters<TValue, TError>,
+  validationProps: TValidationProps,
+  adapter: TemporalAdapter,
+  manager: TemporalManager<TValue, TError, any>,
+  valueManager: TemporalFieldValueManager<TValue>,
+  direction: TextDirection,
+) {
+  return {
+    validationProps,
+    direction,
+    valueManager,
+    adapter,
+    manager,
+    referenceDateProp: parameters.referenceDate ?? null,
+    format: parameters.format,
+    disabled: parameters.disabled ?? false,
+    readOnly: parameters.readOnly ?? false,
+    timezoneProp: parameters.timezone,
+    placeholderGetters: parameters.placeholderGetters,
+  };
+}
 
 export function getDateSectionConfigFromFormatToken(
   adapter: TemporalAdapter,
@@ -254,12 +288,7 @@ export function cleanDigitSectionValue(
   localizedDigits: string[],
   section: Pick<
     TemporalFieldNonRangeSection,
-    | 'format'
-    | 'sectionType'
-    | 'contentType'
-    | 'hasLeadingZerosInFormat'
-    | 'hasLeadingZerosInInput'
-    | 'maxLength'
+    'format' | 'sectionType' | 'contentType' | 'hasLeadingZerosInFormat' | 'maxLength'
   >,
 ) {
   if (process.env.NODE_ENV !== 'production') {
@@ -284,7 +313,7 @@ export function cleanDigitSectionValue(
   // queryValue without leading `0` (`01` => `1`)
   let valueStr = value.toString();
 
-  if (section.hasLeadingZerosInInput) {
+  if (section.hasLeadingZerosInFormat) {
     valueStr = cleanLeadingZeros(valueStr, section.maxLength!);
   }
 
@@ -300,20 +329,8 @@ export function isStringNumber(valueStr: string, localizedDigits: string[]) {
 export function getSectionVisibleValue(
   section: TemporalFieldNonRangeSection,
   target: 'input-rtl' | 'input-ltr' | 'non-input',
-  localizedDigits: string[],
 ) {
   let value = section.value || section.placeholder;
-
-  const hasLeadingZeros =
-    target === 'non-input' ? section.hasLeadingZerosInFormat : section.hasLeadingZerosInInput;
-
-  if (
-    target === 'non-input' &&
-    section.hasLeadingZerosInInput &&
-    !section.hasLeadingZerosInFormat
-  ) {
-    value = Number(removeLocalizedDigits(value, localizedDigits)).toString();
-  }
 
   // In the input, we add an empty character at the end of each section without leading zeros.
   // This makes sure that `onChange` will always be fired.
@@ -323,7 +340,7 @@ export function getSectionVisibleValue(
   const shouldAddInvisibleSpace =
     ['input-rtl', 'input-ltr'].includes(target) &&
     section.contentType === 'digit' &&
-    !hasLeadingZeros &&
+    !section.hasLeadingZerosInFormat &&
     value.length === 1;
 
   if (shouldAddInvisibleSpace) {
@@ -344,7 +361,6 @@ export function getSectionVisibleValue(
 export function getDateFromDateSections(
   adapter: TemporalAdapter,
   sections: TemporalFieldNonRangeSection[],
-  localizedDigits: string[],
 ): TemporalSupportedObject {
   // If we have both a day and a weekDay section,
   // Then we skip the weekDay in the parsing because libraries like dayjs can't parse complicated formats containing a weekDay.
@@ -359,7 +375,7 @@ export function getDateFromDateSections(
     const shouldSkip = shouldSkipWeekDays && section.sectionType === 'weekDay';
     if (!shouldSkip) {
       sectionFormats.push(section.format);
-      sectionValues.push(getSectionVisibleValue(section, 'non-input', localizedDigits));
+      sectionValues.push(getSectionVisibleValue(section, 'non-input'));
     }
   }
 

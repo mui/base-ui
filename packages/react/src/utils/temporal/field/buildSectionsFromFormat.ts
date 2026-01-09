@@ -1,12 +1,6 @@
 import { TemporalAdapter, TemporalSupportedObject } from '../../../types';
 import { TemporalFieldNonRangeSection } from './types';
-import {
-  applyLocalizedDigits,
-  cleanLeadingZeros,
-  doesSectionFormatHaveLeadingZeros,
-  getDateSectionConfigFromFormatToken,
-  removeLocalizedDigits,
-} from './utils';
+import { doesSectionFormatHaveLeadingZeros, getDateSectionConfigFromFormatToken } from './utils';
 import { TextDirection } from '../../../direction-provider';
 
 const expandFormat = ({ adapter, format }: BuildSectionsFromFormatParameters) => {
@@ -48,8 +42,6 @@ const getEscapedPartsFromFormat = ({
 const createSection = ({
   adapter,
   date,
-  shouldRespectLeadingZeros,
-  localizedDigits,
   now,
   token,
   startSeparator,
@@ -71,34 +63,15 @@ const createSection = ({
     token,
   );
 
-  const hasLeadingZerosInInput = shouldRespectLeadingZeros
-    ? hasLeadingZerosInFormat
-    : sectionConfig.contentType === 'digit';
-
   const isValidDate = adapter.isValid(date);
-  let sectionValue = isValidDate ? adapter.formatByString(date, token) : '';
-  let maxLength: number | undefined = undefined;
+  const sectionValue = isValidDate ? adapter.formatByString(date, token) : '';
 
-  if (hasLeadingZerosInInput) {
-    if (hasLeadingZerosInFormat) {
-      maxLength =
-        sectionValue === '' ? adapter.formatByString(now, token).length : sectionValue.length;
-    } else {
-      if (sectionConfig.maxLength == null) {
-        throw new Error(
-          `MUI X: The token ${token} should have a 'maxLength' property on it's adapter`,
-        );
-      }
-
-      maxLength = sectionConfig.maxLength;
-
-      if (isValidDate) {
-        sectionValue = applyLocalizedDigits(
-          cleanLeadingZeros(removeLocalizedDigits(sectionValue, localizedDigits), maxLength),
-          localizedDigits,
-        );
-      }
-    }
+  let maxLength: number | undefined;
+  if (hasLeadingZerosInFormat) {
+    maxLength =
+      sectionValue === '' ? adapter.formatByString(now, token).length : sectionValue.length;
+  } else {
+    maxLength = undefined;
   }
 
   return {
@@ -107,7 +80,6 @@ const createSection = ({
     maxLength,
     value: sectionValue,
     hasLeadingZerosInFormat,
-    hasLeadingZerosInInput,
     startSeparator,
     endSeparator: '',
     modified: false,
@@ -190,9 +162,7 @@ const buildSections = (
       maxLength: undefined,
       format: '',
       value: '',
-      placeholder: '',
       hasLeadingZerosInFormat: false,
-      hasLeadingZerosInInput: false,
       startSeparator,
       endSeparator: '',
       modified: false,
@@ -241,7 +211,6 @@ interface BuildSectionsFromFormatParameters {
   adapter: TemporalAdapter;
   format: string;
   direction: TextDirection;
-  shouldRespectLeadingZeros: boolean;
   localizedDigits: string[];
   date: TemporalSupportedObject | null;
 }

@@ -10,7 +10,7 @@ import {
 } from './types';
 import { buildSectionsFromFormat } from './buildSectionsFromFormat';
 import {
-  DEFAULT_PLACEHOLDER_GETTERS,
+  deriveStateFromParameters,
   getLocalizedDigits,
   getTimezoneToRender,
   validateSections,
@@ -65,7 +65,6 @@ export class TemporalFieldStore<
     direction: TextDirection,
   ) {
     const value = parameters.value ?? parameters.defaultValue ?? manager.emptyValue;
-    const shouldRespectLeadingZeros = parameters.shouldRespectLeadingZeros ?? false;
     const localizedDigits = getLocalizedDigits(adapter);
 
     const sections = valueManager.getSectionsFromValue(value, (date) =>
@@ -74,7 +73,6 @@ export class TemporalFieldStore<
         localizedDigits,
         format: parameters.format,
         date,
-        shouldRespectLeadingZeros,
         direction,
       }),
     );
@@ -101,15 +99,17 @@ export class TemporalFieldStore<
     validateSections(sections, manager.dateType);
 
     super({
+      ...deriveStateFromParameters(
+        parameters,
+        validationProps,
+        adapter,
+        manager,
+        valueManager,
+        direction,
+      ),
       value,
       sections,
       validationProps,
-      timezoneProp: parameters.timezone,
-      shouldRespectLeadingZeros,
-      referenceDateProp: parameters.referenceDate ?? null,
-      format: parameters.format,
-      disabled: parameters.disabled ?? false,
-      readOnly: parameters.readOnly ?? false,
       direction,
       localizedDigits,
       referenceValue,
@@ -118,8 +118,6 @@ export class TemporalFieldStore<
       manager,
       characterQuery: null,
       selectedSections: null,
-      tempValueStrAndroid: null,
-      placeholderGetters: { ...parameters.placeholderGetters, ...DEFAULT_PLACEHOLDER_GETTERS },
     });
 
     this.parameters = parameters;
@@ -132,21 +130,6 @@ export class TemporalFieldStore<
   public disposeEffect = () => {
     return this.timeoutManager.clearAll;
   };
-
-  private getSectionsFromValue(valueToAnalyze: TValue) {
-    const { adapter, shouldRespectLeadingZeros, valueManager } = this.state;
-
-    return valueManager.getSectionsFromValue(valueToAnalyze, (date) =>
-      buildSectionsFromFormat({
-        date,
-        adapter,
-        localizedDigits: this.state.localizedDigits,
-        format: this.state.format,
-        shouldRespectLeadingZeros,
-        direction: this.state.direction,
-      }),
-    );
-  }
 
   private getActiveElement() {
     const doc = ownerDocument(this.inputRef.current);

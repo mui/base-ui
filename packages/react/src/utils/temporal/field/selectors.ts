@@ -3,6 +3,7 @@ import {
   TemporalFieldSection,
   TemporalFieldState as State,
   TemporalFieldNonRangeSection,
+  TemporalFieldPlaceholderGetters,
 } from './types';
 import { TemporalSupportedObject, TemporalSupportedValue } from '../../../types';
 import { getDaysInWeekStr, getTimezoneToRender, removeLocalizedDigits } from './utils';
@@ -71,6 +72,20 @@ export const selectors = {
   ) as <TValue extends TemporalSupportedValue>(
     state: State<TValue>,
   ) => TemporalFieldSectionManager<TValue> | null,
+  placeholderGetters: createSelectorMemoized(
+    (state: State) => state.placeholderGetters,
+    (placeholderGetters): Required<TemporalFieldPlaceholderGetters> => ({
+      year: (params) => 'Y'.repeat(params.digitAmount),
+      month: (params) => (params.contentType === 'letter' ? 'MMMM' : 'MM'),
+      day: () => 'DD',
+      weekDay: (params) => (params.contentType === 'letter' ? 'EEEE' : 'EE'),
+      hours: () => 'hh',
+      minutes: () => 'mm',
+      seconds: () => 'ss',
+      meridiem: () => 'aa',
+      ...placeholderGetters,
+    }),
+  ),
   sectionBoundaries: createSelectorMemoized(
     (state: State) => state.adapter,
     (state: State) => state.localizedDigits,

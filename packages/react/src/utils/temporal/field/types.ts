@@ -11,6 +11,7 @@ import {
   TemporalSupportedValue,
   TemporalTimezone,
 } from '../../../types';
+import { GetInitialReferenceDateValidationProps } from '../getInitialReferenceDate';
 import { TemporalManager, TemporalTimezoneProps } from '../types';
 
 export interface TemporalFieldStoreParameters<
@@ -65,27 +66,8 @@ export interface TemporalFieldStoreParameters<
    * If a section type is not specified, a default placeholder will be used.
    * @default {}
    */
-  placeholderGetters?: Partial<TemporalFieldPlaceholderGetters>;
-  /**
-   * Whether the field should respect the leading zeroes of its format.
-   * For example, the format "M/d/yyyy" will render "4/7/2022" when `true` and "04/07/2022" when `false`.
-   *
-   * Warning: When `shouldRespectLeadingZeros={true}`, the field will add an invisible character on the sections containing a single digit to make sure `onChange` is fired.
-   * If you need to get the clean value from the input, you can remove this character using `input.value.replace(/\u200e/g, '')`.
-   *
-   * @default false
-   */
-  // Additional warnings that don't apply to Date Fns
-  // Warning: Luxon is not able to respect the leading zeroes when using macro tokens (for example "DD"), so `shouldRespectLeadingZeros={true}` might lead to inconsistencies when using `TemporalAdapterLuxon`.
-  // Warning: When used in strict mode, dayjs and moment require to respect the leading zeros.
-  // This mean that when using `shouldRespectLeadingZeros={false}`, if you retrieve the value directly from the input (not listening to `onChange`) and your format contains tokens without leading zeros, the value will not be parsed by your library.
-  shouldRespectLeadingZeros?: boolean;
+  placeholderGetters?: TemporalFieldPlaceholderGetters;
 }
-
-export type TemporalFieldStorePublicParameters<
-  TValue extends TemporalSupportedValue,
-  TError,
-> = MakeOptional<TemporalFieldStoreParameters<TValue, TError>, 'format'>;
 
 export interface TemporalFieldState<
   TValue extends TemporalSupportedValue = any,
@@ -103,10 +85,6 @@ export interface TemporalFieldState<
    * The reference date as passed to `props.referenceDate`.
    */
   referenceDateProp: TemporalSupportedObject | null;
-  /**
-   * Whether the field should respect the leading zeroes of its format.
-   */
-  shouldRespectLeadingZeros: boolean;
   /**
    * The manager of the field (uses `getDateManager` for DateField and `getTimeManager` for TimeField).
    * Not publicly exposed, is only set in state to avoid passing it to the selectors.
@@ -130,25 +108,6 @@ export interface TemporalFieldState<
    * Sections currently displayed in the field.
    */
   sections: TemporalFieldSection<TValue>[];
-  /**
-   * Android `onChange` behavior when the input selection is not empty is quite different from a desktop behavior.
-   * There are two `onChange` calls:
-   * 1. A call with the selected content removed.
-   * 2. A call with the key pressed added to the value.
-   **
-   * For instance, if the input value equals `month / day / year` and `day` is selected.
-   * The pressing `1` will have the following behavior:
-   * 1. A call with `month /  / year`.
-   * 2. A call with `month / 1 / year`.
-   *
-   * But if you don't update the input with the value passed on the first `onChange`.
-   * Then the second `onChange` will add the key press at the beginning of the selected value.
-   * 1. A call with `month / / year` that we don't set into state.
-   * 2. A call with `month / 1day / year`.
-   *
-   * The property below allows us to set the first `onChange` value into state waiting for the second one.
-   */
-  tempValueStrAndroid: string | null;
   /**
    * Format of the date when rendered in the field.
    */
@@ -186,7 +145,7 @@ export interface TemporalFieldState<
   /**
    * Methods to generate the placeholders for each section type.
    */
-  placeholderGetters: TemporalFieldPlaceholderGetters;
+  placeholderGetters: TemporalFieldPlaceholderGetters | undefined;
   /**
    * Props used to check the validity of a date.
    */
@@ -217,11 +176,6 @@ export interface TemporalFieldNonRangeSection extends TemporalFormatTokenConfig 
    * For example, the value `1` should be rendered as "01" instead of "1".
    */
   hasLeadingZerosInFormat: boolean;
-  /**
-   * If `true`, the value of this section is supposed to have leading zeroes when rendered in the input.
-   * For example, the value `1` should be rendered as "01" instead of "1".
-   */
-  hasLeadingZerosInInput: boolean;
   /**
    * If `true`, the section value has been modified since the last time the sections were generated from a valid date.
    * When we can generate a valid date from the section, we don't directly pass it to `onChange`,
@@ -260,14 +214,6 @@ export interface TemporalFieldRangeSection extends TemporalFieldNonRangeSection 
 
 // If `PickerValidDate` contains `any`, then `TValue extends PickerRangeValue` will return true, so we have to handle this edge case first.
 type IsAny<T> = boolean extends (T extends never ? true : false) ? true : false;
-
-/**
- * Makes specified keys in a type optional.
- *
- * @template T - The original type.
- * @template K - The keys to make optional.
- */
-export type MakeOptional<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
 
 export type TemporalFieldSection<TValue extends TemporalSupportedValue> =
   IsAny<TValue> extends true
@@ -345,7 +291,7 @@ export interface TemporalFieldValueManager<TValue extends TemporalSupportedValue
   getInitialReferenceValue: (params: {
     externalReferenceDate: TemporalSupportedObject | undefined;
     value: TValue;
-    validationProps: getInitialReferenceDate.ValidationProps;
+    validationProps: GetInitialReferenceDateValidationProps;
     adapter: TemporalAdapter;
     granularity: number;
     timezone: TemporalTimezone;
@@ -361,14 +307,14 @@ export interface TemporalFieldValueManager<TValue extends TemporalSupportedValue
 }
 
 export interface TemporalFieldPlaceholderGetters {
-  year: (params: { digitAmount: number; format: string }) => string;
-  month: (params: { contentType: TemporalFieldSectionContentType; format: string }) => string;
-  day: (params: { format: string }) => string;
-  weekDay: (params: { contentType: TemporalFieldSectionContentType; format: string }) => string;
-  hours: (params: { format: string }) => string;
-  minutes: (params: { format: string }) => string;
-  seconds: (params: { format: string }) => string;
-  meridiem: (params: { format: string }) => string;
+  year?: (params: { digitAmount: number; format: string }) => string;
+  month?: (params: { contentType: TemporalFieldSectionContentType; format: string }) => string;
+  day?: (params: { format: string }) => string;
+  weekDay?: (params: { contentType: TemporalFieldSectionContentType; format: string }) => string;
+  hours?: (params: { format: string }) => string;
+  minutes?: (params: { format: string }) => string;
+  seconds?: (params: { format: string }) => string;
+  meridiem?: (params: { format: string }) => string;
 }
 
 export type TemporalFieldSectionValueBoundaries<SectionType extends TemporalFieldSectionType> = {

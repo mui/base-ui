@@ -36,7 +36,6 @@ export class TemporalFieldCharacterEditingPlugin<TValue extends TemporalSupporte
       ? this.applyNumericEditing(parameters)
       : this.applyLetterEditing(parameters);
     if (response == null) {
-      this.store.set('tempValueStrAndroid', null);
       return;
     }
 
@@ -215,7 +214,6 @@ export class TemporalFieldCharacterEditingPlugin<TValue extends TemporalSupporte
               'month',
               'MM',
             ),
-            hasLeadingZerosInInput: true,
             contentType: 'digit',
             maxLength: 2,
           },

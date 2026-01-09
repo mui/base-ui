@@ -38,8 +38,7 @@ export class TemporalFieldValuePlugin<
    * Updates the field value from a string representation.
    */
   public updateFromString(valueStr: string) {
-    const { adapter, format, localizedDigits, direction, shouldRespectLeadingZeros, valueManager } =
-      this.store.state;
+    const { adapter, format, localizedDigits, direction, valueManager } = this.store.state;
     const parseDateStr = (dateStr: string, referenceDate: TemporalSupportedObject) => {
       const date = adapter.parse(dateStr, format, selectors.timezoneToRender(this.store.state));
       if (!adapter.isValid(date)) {
@@ -51,7 +50,6 @@ export class TemporalFieldValuePlugin<
         localizedDigits,
         format,
         date,
-        shouldRespectLeadingZeros,
         direction,
       });
       return mergeDateIntoReferenceDate(adapter, date, sections, referenceDate, false);
@@ -67,16 +65,18 @@ export class TemporalFieldValuePlugin<
 
   /**
    * Clears the field value.
+   * If the value is already empty, it clears the sections.
    */
   public clear() {
     const { adapter, valueManager, value } = this.store.state;
 
     if (valueManager.areValuesEqual(adapter, value, valueManager.emptyValue)) {
+      const emptySections = selectors
+        .sections<TValue>(this.store.state)
+        .map((section) => ({ ...section, value: '' }));
+
       this.store.update({
-        sections: selectors
-          .sections<TValue>(this.store.state)
-          .map((section) => ({ ...section, value: '' })),
-        tempValueStrAndroid: null,
+        sections: emptySections,
         characterQuery: null,
       });
     } else {

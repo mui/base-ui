@@ -19,7 +19,7 @@ function transferDateSectionValue(
 
     case 'weekDay': {
       let dayInWeekStrOfActiveDate = adapter.formatByString(dateToTransferFrom, section.format);
-      if (section.hasLeadingZerosInInput) {
+      if (section.hasLeadingZerosInFormat) {
         dayInWeekStrOfActiveDate = cleanLeadingZeros(dayInWeekStrOfActiveDate, section.maxLength!);
       }
 
