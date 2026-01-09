@@ -116,16 +116,15 @@ export function resolveMultipleLabels(
   items: ItemsInput,
   itemToStringLabel?: (item: any) => string,
 ): React.ReactNode {
-  const labels = values.map((v) => resolveSelectedLabel(v, items, itemToStringLabel));
-
-  const nodes: React.ReactNode[] = [];
-
-  labels.forEach((label, index) => {
+  return values.reduce((acc, value, index) => {
     if (index > 0) {
-      nodes.push(', ');
+      acc.push(', ');
     }
-    nodes.push(<React.Fragment key={index}>{label}</React.Fragment>);
-  });
-
-  return nodes;
+    acc.push(
+      <React.Fragment key={index}>
+        {resolveSelectedLabel(value, items, itemToStringLabel)}
+      </React.Fragment>,
+    );
+    return acc;
+  }, []);
 }
