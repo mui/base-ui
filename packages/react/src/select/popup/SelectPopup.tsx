@@ -52,6 +52,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
     popupRef,
     onOpenChangeComplete,
     setOpen,
+    highlightItemOnHover,
     valueRef,
     selectedItemTextRef,
     keyboardActiveRef,
