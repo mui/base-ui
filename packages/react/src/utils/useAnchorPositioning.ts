@@ -118,6 +118,7 @@ export function useAnchorPositioning(
     collisionPadding: collisionPaddingParam = 5,
     sticky = false,
     arrowPadding = 5,
+    inline: inlineMiddleware,
     disableAnchorTracking = false,
     // Private parameters
     keepMounted = false,
@@ -212,7 +213,13 @@ export function useAnchorPositioning(
   const sideOffsetDep = typeof sideOffset !== 'function' ? sideOffset : 0;
   const alignOffsetDep = typeof alignOffset !== 'function' ? alignOffset : 0;
 
-  const middleware: UseFloatingOptions['middleware'] = [
+  const middleware: UseFloatingOptions['middleware'] = [];
+
+  if (inlineMiddleware) {
+    middleware.push(inlineMiddleware);
+  }
+
+  middleware.push(
     offset(
       (state) => {
         const data = getOffsetData(state, sideParam, isRtl);
@@ -234,7 +241,7 @@ export function useAnchorPositioning(
       },
       [sideOffsetDep, alignOffsetDep, isRtl, sideParam],
     ),
-  ];
+  );
 
   const shiftDisabled = collisionAvoidanceAlign === 'none' && collisionAvoidanceSide !== 'shift';
   const crossAxisShiftEnabled =
@@ -675,6 +682,7 @@ export interface UseAnchorPositioningParameters extends useAnchorPositioning.Sha
   shiftCrossAxis?: boolean;
   lazyFlip?: boolean;
   externalTree?: FloatingTreeStore;
+  inline?: Middleware;
 }
 
 export interface UseAnchorPositioningReturnValue {
