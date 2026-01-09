@@ -6,7 +6,7 @@ export default function ExampleTooltip() {
   return (
     <Tooltip.Provider>
       <div className={styles.Panel}>
-        <Tooltip.Root>
+        <Tooltip.Root trackCursorAxis="both">
           <Tooltip.Trigger aria-label="Bold" className={styles.Button}>
             <BoldIcon className={styles.Icon} />
           </Tooltip.Trigger>

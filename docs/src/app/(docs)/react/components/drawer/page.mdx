@@ -1,0 +1,168 @@
+# Drawer
+
+<Subtitle>A panel that slides in from the edge of the screen.</Subtitle>
+<Meta
+  name="description"
+  content="A high-quality, unstyled React drawer component with swipe-to-dismiss gestures."
+/>
+
+import { DemoDrawerHero } from './demos/hero';
+
+<DemoDrawerHero />
+
+## Anatomy
+
+Import the component and assemble its parts:
+
+```jsx title="Anatomy"
+import { Drawer } from '@base-ui/react/drawer';
+
+<Drawer.Root>
+  <Drawer.Trigger />
+  <Drawer.Portal>
+    <Drawer.Backdrop />
+    <Drawer.Viewport>
+      <Drawer.Popup>
+        <Drawer.Title />
+        <Drawer.Description />
+        <Drawer.Close />
+      </Drawer.Popup>
+    </Drawer.Viewport>
+  </Drawer.Portal>
+</Drawer.Root>;
+```
+
+## Examples
+
+### Position
+
+Positioning is handled by your styles. Use the `swipeDirection` prop to match the swipe-to-dismiss gesture to how the drawer is presented:
+
+```tsx title="Swipe directions"
+<Drawer.Root swipeDirection="down">
+```
+
+import { DemoDrawerPosition } from './demos/position';
+
+<DemoDrawerPosition />
+
+### Swipe to dismiss
+
+The drawer supports swipe gestures to dismiss. Set `swipeDirection` to control which direction dismisses the drawer.
+
+Use the `data-swipe-ignore` attribute on elements to prevent swipe gestures from triggering on them. Interactive elements like buttons, inputs, and links automatically ignore swipe gestures.
+
+### Software keyboard
+
+Use this demo to test how the drawer behaves when focusing an input or textarea on mobile devices (for example, when the software keyboard changes the visible viewport):
+
+import { DemoDrawerKeyboard } from './demos/keyboard';
+
+<DemoDrawerKeyboard />
+
+### Mobile navigation
+
+You can build a full-screen mobile navigation sheet using Drawer parts, including an iOS-style flick-to-dismiss interaction:
+
+import { DemoDrawerMobileNav } from './demos/mobile-nav';
+
+<DemoDrawerMobileNav />
+
+### Indent effect
+
+Create an iOS-style "indent" effect where the background zooms out when the drawer opens:
+
+import { DemoDrawerIndent } from './demos/indent';
+
+<DemoDrawerIndent />
+
+This effect is achieved by controlling the drawer state and applying a scale transform to the background content based on the open state.
+
+### Nested drawers
+
+Use the `[data-nested-drawer-open]` selector and the `--drawer-nested-dialogs` CSS variable to style drawers when a nested drawer is open. This demo stacks nested drawers using a constant peek so the frontmost drawer stays anchored to the bottom while the ones behind it are scaled down and lifted. It also uses the `--drawer-height` and `--drawer-frontmost-height` CSS variables to handle varying drawer heights.
+
+import { DemoDrawerNested } from './demos/nested';
+
+<DemoDrawerNested compact />
+
+### State
+
+By default, Drawer is an uncontrolled component that manages its own state.
+
+```tsx title="Uncontrolled drawer"
+<Drawer.Root>
+  <Drawer.Trigger>Open</Drawer.Trigger>
+  <Drawer.Portal>
+    <Drawer.Popup>
+      <Drawer.Title>Example drawer</Drawer.Title>
+      <Drawer.Close>Close</Drawer.Close>
+    </Drawer.Popup>
+  </Drawer.Portal>
+</Drawer.Root>
+```
+
+Use `open` and `onOpenChange` props if you need to access or control the state of the drawer.
+
+```tsx title="Controlled drawer"
+const [open, setOpen] = React.useState(false);
+return (
+  <Drawer.Root open={open} onOpenChange={setOpen}>
+    <Drawer.Trigger>Open</Drawer.Trigger>
+    <Drawer.Portal>
+      <Drawer.Popup>
+        <Drawer.Title>Example drawer</Drawer.Title>
+        <Drawer.Close>Close</Drawer.Close>
+      </Drawer.Popup>
+    </Drawer.Portal>
+  </Drawer.Root>
+);
+```
+
+### Animations
+
+Use CSS transitions or animations to animate the drawer opening and closing. The `data-starting-style` attribute is applied when the drawer starts to open, and `data-ending-style` is applied when it starts to close.
+
+The `--drawer-swipe-movement-x` and `--drawer-swipe-movement-y` CSS variables can be used to create smooth drag interactions:
+
+```css title="Animating the drawer"
+.DrawerPopup {
+  /* Apply swipe offset during drag */
+  transform: translateX(var(--drawer-swipe-movement-x, 0px));
+  transition: transform 525ms cubic-bezier(0.45, 1.005, 0, 1.005);
+}
+
+.DrawerPopup[data-starting-style],
+.DrawerPopup[data-ending-style] {
+  transform: translateX(100%);
+}
+
+.DrawerPopup[data-ending-style] {
+  transition-duration: 180ms;
+  transition-timing-function: cubic-bezier(0.375, 0.015, 0.545, 0.455);
+}
+```
+
+## API reference
+
+<Reference
+  component="Drawer"
+  parts="Root, Trigger, Portal, Backdrop, Viewport, Popup, Title, Description, Close"
+/>
+
+export const metadata = {
+  keywords: [
+    'React Drawer',
+    'Drawer Component',
+    'Side Panel',
+    'Bottom Sheet',
+    'Swipe Dismiss Drawer',
+    'Offcanvas',
+    'Sliding Panel',
+    'Modal Drawer',
+    'Controlled Drawer State',
+    'Accessible Drawer',
+    'Headless React Components',
+    'Base UI',
+  ],
+};
