@@ -40,7 +40,10 @@ export const AvatarFallback = React.forwardRef(function AvatarFallback(
   const element = useRenderElement('span', componentProps, {
     state,
     ref: forwardedRef,
-    props: elementProps,
+    props: {
+      'aria-hidden': true,
+      ...elementProps
+    },
     stateAttributesMapping: avatarStateAttributesMapping,
     enabled: imageLoadingStatus !== 'loaded' && delayPassed,
   });
