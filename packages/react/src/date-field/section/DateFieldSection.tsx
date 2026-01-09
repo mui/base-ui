@@ -107,9 +107,9 @@ function getSectionValueNow(
   if (!section.value) {
     return undefined;
   }
-  switch (section.sectionType) {
+  switch (section.token.config.sectionType) {
     case 'weekDay': {
-      if (section.contentType === 'letter') {
+      if (section.token.config.contentType === 'letter') {
         // TODO: improve by resolving the week day number from a letter week day
         return undefined;
       }
@@ -118,7 +118,7 @@ function getSectionValueNow(
     case 'meridiem': {
       const parsedDate = adapter.parse(
         `01:00 ${section.value}`,
-        `${adapter.formats.hours12h}:${adapter.formats.minutesPadded} ${section.format}`,
+        `${adapter.formats.hours12h}:${adapter.formats.minutesPadded} ${section.token.tokenValue}`,
         timezone,
       );
       if (parsedDate) {
@@ -127,18 +127,18 @@ function getSectionValueNow(
       return undefined;
     }
     case 'day':
-      return section.contentType === 'digit-with-letter'
+      return section.token.config.contentType === 'digit-with-letter'
         ? parseInt(section.value, 10)
         : Number(section.value);
     case 'month': {
-      if (section.contentType === 'digit') {
+      if (section.token.config.contentType === 'digit') {
         return Number(section.value);
       }
-      const parsedDate = adapter.parse(section.value, section.format, timezone);
+      const parsedDate = adapter.parse(section.value, section.token.tokenValue, timezone);
       return parsedDate ? adapter.getMonth(parsedDate) + 1 : undefined;
     }
     default:
-      return section.contentType !== 'letter' ? Number(section.value) : undefined;
+      return section.token.config.contentType !== 'letter' ? Number(section.value) : undefined;
   }
 }
 
@@ -150,21 +150,21 @@ function getSectionValueText(
   if (!section.value) {
     return undefined;
   }
-  switch (section.sectionType) {
+  switch (section.token.config.sectionType) {
     case 'month': {
-      if (section.contentType === 'digit') {
+      if (section.token.config.contentType === 'digit') {
         const dateWithMonth = adapter.setMonth(adapter.now(timezone), Number(section.value) - 1);
         return adapter.isValid(dateWithMonth)
           ? adapter.format(dateWithMonth, 'monthFullLetter')
           : '';
       }
-      const parsedDate = adapter.parse(section.value, section.format, timezone);
+      const parsedDate = adapter.parse(section.value, section.token.tokenValue, timezone);
       return parsedDate && adapter.isValid(parsedDate)
         ? adapter.format(parsedDate, 'monthFullLetter')
         : undefined;
     }
     case 'day':
-      if (section.contentType === 'digit') {
+      if (section.token.config.contentType === 'digit') {
         const dateWithDay = adapter.setDate(
           adapter.startOfYear(adapter.now(timezone)),
           Number(section.value),
