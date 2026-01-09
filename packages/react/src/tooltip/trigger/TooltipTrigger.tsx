@@ -46,13 +46,15 @@ export const TooltipTrigger = React.forwardRef(function TooltipTrigger(
   const isTriggerActive = store.useState('isTriggerActive', thisTriggerId);
   const floatingRootContext = store.useState('floatingRootContext');
   const isOpenedByThisTrigger = store.useState('isOpenedByTrigger', thisTriggerId);
+  const isMountedByThisTrigger = store.useState('isMountedByTrigger', thisTriggerId);
 
   const triggerElementRef = React.useRef<Element | null>(null);
 
   const delayWithDefault = delay ?? OPEN_DELAY;
   const closeDelayWithDefault = closeDelay ?? 0;
 
-  const { registerTrigger, isMountedByThisTrigger } = useTriggerDataForwarding(
+  const registerTrigger = useTriggerDataForwarding(
+    isMountedByThisTrigger,
     thisTriggerId,
     triggerElementRef,
     store,
