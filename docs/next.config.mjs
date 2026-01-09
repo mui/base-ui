@@ -121,8 +121,7 @@ const nextConfig = {
 };
 
 const mergedConfig = withMdx(withDeploymentConfig(nextConfig));
-// @ts-expect-error - eslint config is no longer supported in Next.js 16
-delete mergedConfig.eslint;
+
 if (!process.env.CI) {
   delete mergedConfig.experimental?.cpus;
 }
