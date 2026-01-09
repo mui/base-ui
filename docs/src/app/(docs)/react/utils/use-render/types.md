@@ -90,7 +90,7 @@ type Simplify<T> = T extends Function ? T : { [K in keyof T]: T[K] };
 
 ### useRender
 
-Renders a Base UI element.
+Renders a Base UI element.
 
 **useRender Parameters:**
 
