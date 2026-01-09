@@ -91,12 +91,6 @@ jobs:
       - code-infra/install-deps
       - code-infra/check-static-changes
       - run:
-          name: Generate the documentation
-          command: pnpm docs:api
-      - run:
-          name: '`pnpm docs:api` changes committed?'
-          command: git add -A && git diff --exit-code --staged
-      - run:
           name: '`pnpm extract-error-codes` changes committed?'
           command: |
             pnpm extract-error-codes

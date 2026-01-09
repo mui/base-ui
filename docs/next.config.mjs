@@ -12,7 +12,6 @@ import remarkTypography from 'remark-typography';
 import { rehypeQuickNav } from 'docs/src/components/QuickNav/rehypeQuickNav.mjs';
 import { rehypeConcatHeadings } from 'docs/src/components/QuickNav/rehypeConcatHeadings.mjs';
 import { rehypeKbd } from 'docs/src/components/Kbd/rehypeKbd.mjs';
-import { rehypeReference } from 'docs/src/components/ReferenceTable/rehypeReference.mjs';
 import { rehypeSyntaxHighlighting } from 'docs/src/syntax-highlighting/index.mjs';
 import { rehypeSlug } from 'docs/src/components/QuickNav/rehypeSlug.mjs';
 import { rehypeSubtitle } from 'docs/src/components/Subtitle/rehypeSubtitle.mjs';
@@ -46,7 +45,6 @@ const withMdx = nextMdx({
       transformMarkdownRelativePaths,
     ],
     rehypePlugins: [
-      rehypeReference,
       ...rehypeSyntaxHighlighting,
       rehypeSlug,
       rehypeConcatHeadings,
@@ -74,6 +72,10 @@ const nextConfig = {
   pageExtensions: ['mdx', 'tsx'],
   turbopack: {
     rules: {
+      './app/**/types.ts': {
+        as: '*.ts',
+        loaders: ['@mui/internal-docs-infra/pipeline/loadPrecomputedTypesMeta'],
+      },
       './src/app/sitemap/index.ts': {
         as: '*.ts',
         loaders: ['@mui/internal-docs-infra/pipeline/loadPrecomputedSitemap'],
@@ -90,6 +92,16 @@ const nextConfig = {
   },
   webpack: (config, { defaultLoaders }) => {
     // for production builds
+    config.module.rules.push({
+      test: /[/\\\\]types\.ts$/,
+      use: [
+        defaultLoaders.babel,
+        {
+          loader: '@mui/internal-docs-infra/pipeline/loadPrecomputedTypesMeta',
+          options: { performance: { logging: true } },
+        },
+      ],
+    });
     config.module.rules.push({
       test: /[/\\\\]sitemap[/\\\\]index\.ts$/,
       use: [defaultLoaders.babel, '@mui/internal-docs-infra/pipeline/loadPrecomputedSitemap'],

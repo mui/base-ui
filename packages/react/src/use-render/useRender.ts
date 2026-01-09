@@ -1,3 +1,4 @@
+/* eslint-disable no-irregular-whitespace */
 import * as React from 'react';
 import type { ComponentRenderFn } from '../utils/types';
 import { HTMLProps } from '../utils/types';
@@ -5,7 +6,7 @@ import { useRenderElement } from '../utils/useRenderElement';
 import { StateAttributesMapping } from '../utils/getStateAttributesProps';
 
 /**
- * Renders a Base UI element.
+ * Renders a Base UI element.
  *
  * @public
  */
@@ -32,7 +33,7 @@ export type UseRenderComponentProps<
   RenderFunctionProps = HTMLProps,
 > = React.ComponentPropsWithRef<ElementType> & {
   /**
-   * Allows you to replace the component’s HTML element
+   * Allows you to replace the component's HTML element
    * with a different tag, or compose it with another component.
    *
    * Accepts a `ReactElement` or a function that returns the element to render.

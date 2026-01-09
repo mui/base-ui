@@ -250,7 +250,7 @@ export interface ScrollAreaScrollbarProps extends BaseUIComponentProps<
    */
   orientation?: 'vertical' | 'horizontal';
   /**
-   * Whether to keep the HTML element in the DOM when the viewport isn’t scrollable.
+   * Whether to keep the HTML element in the DOM when the viewport isn't scrollable.
    * @default false
    */
   keepMounted?: boolean;
