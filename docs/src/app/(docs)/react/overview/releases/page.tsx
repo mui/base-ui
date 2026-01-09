@@ -1,5 +1,5 @@
 import { Metadata } from 'next';
-import { ReleaseTimeline } from '@/components/ReleaseTimeline';
+import { ReleaseTimeline } from 'docs/src/components/ReleaseTimeline';
 import styles from './releases.module.css';
 
 export const metadata: Metadata = {
