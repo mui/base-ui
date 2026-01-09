@@ -5,6 +5,7 @@ export { MenuCheckboxItemIndicator as CheckboxItemIndicator } from './checkbox-i
 export { MenuGroup as Group } from './group/MenuGroup';
 export { MenuGroupLabel as GroupLabel } from './group-label/MenuGroupLabel';
 export { MenuItem as Item } from './item/MenuItem';
+export { MenuLinkItem as LinkItem } from './link-item/MenuLinkItem';
 export { MenuPopup as Popup } from './popup/MenuPopup';
 export { MenuPortal as Portal } from './portal/MenuPortal';
 export { MenuPositioner as Positioner } from './positioner/MenuPositioner';
