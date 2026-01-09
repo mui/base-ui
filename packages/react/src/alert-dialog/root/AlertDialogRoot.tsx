@@ -84,7 +84,7 @@ export interface AlertDialogRootProps<Payload = unknown> extends Omit<
    * Useful when the dialog's animation is controlled by an external library.
    * - `close`: Closes the dialog imperatively when called.
    */
-  actionsRef?: React.RefObject<AlertDialogRoot.Actions>;
+  actionsRef?: React.RefObject<AlertDialogRoot.Actions | null>;
   /**
    * A handle to associate the popover with a trigger.
    * If specified, allows external triggers to control the popover's open state.

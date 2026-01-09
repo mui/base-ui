@@ -19,9 +19,9 @@
       "detailedType": "| ((\n    open: boolean,\n    eventDetails: Tooltip.Root.ChangeEventDetails,\n  ) => void)\n| undefined"
     },
     "actionsRef": {
-      "type": "RefObject<Tooltip.Root.Actions>",
+      "type": "RefObject<Tooltip.Root.Actions | null>",
       "description": "A ref to imperative actions.\n- `unmount`: When specified, the tooltip will not be unmounted when closed.\nInstead, the `unmount` function must be called to unmount the tooltip manually.\nUseful when the tooltip's animation is controlled by an external library.\n- `close`: Closes the dialog imperatively when called.",
-      "detailedType": "React.RefObject<Tooltip.Root.Actions> | undefined"
+      "detailedType": "| React.RefObject<Tooltip.Root.Actions | null>\n| undefined"
     },
     "defaultTriggerId": {
       "type": "string | null",

@@ -46,9 +46,7 @@ export const SimpleMenu = React.forwardRef<HTMLButtonElement, SimpleMenuProps>(f
   { label = 'Menu', ...rest },
   ref,
 ) {
-  const actionsRef = React.useRef<MenuRootActions>({
-    unmount() {},
-  });
+  const actionsRef = React.useRef<MenuRootActions>(null);
 
   function handleMenuOpenChange(
     open: boolean,

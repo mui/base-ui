@@ -298,7 +298,7 @@ export interface NavigationMenuRootProps extends BaseUIComponentProps<
   /**
    * A ref to imperative actions.
    */
-  actionsRef?: React.RefObject<NavigationMenuRoot.Actions>;
+  actionsRef?: React.RefObject<NavigationMenuRoot.Actions | null>;
   /**
    * Event handler called after any animations complete when the navigation menu is closed.
    */

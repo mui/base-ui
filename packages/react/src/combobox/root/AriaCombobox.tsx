@@ -1403,7 +1403,7 @@ interface ComboboxRootProps<ItemValue> {
    * Instead, the `unmount` function must be called to unmount the combobox manually.
    * Useful when the combobox's animation is controlled by an external library.
    */
-  actionsRef?: React.RefObject<AriaCombobox.Actions>;
+  actionsRef?: React.RefObject<AriaCombobox.Actions | null>;
   /**
    * Callback fired when an item is highlighted or unhighlighted.
    * Receives the highlighted item value (or `undefined` if no item is highlighted) and event details with a `reason` property describing why the highlight changed.
