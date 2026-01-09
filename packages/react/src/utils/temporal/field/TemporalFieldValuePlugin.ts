@@ -45,7 +45,7 @@ export class TemporalFieldValuePlugin<
   }
 
   /**
-   * Updates the field value from a string representation.
+   * Updates the one of the date in the value from its string representation.
    */
   public updateFromString(valueStr: string) {
     const format = this.store.format.selectors.format(this.store.state);

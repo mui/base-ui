@@ -107,9 +107,6 @@ export class TemporalFieldStore<
       value,
       sections,
       referenceValue,
-      valueManager,
-      adapter,
-      manager,
       characterQuery: null,
       selectedSections: null,
     });

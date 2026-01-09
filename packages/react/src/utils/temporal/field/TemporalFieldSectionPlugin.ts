@@ -35,12 +35,12 @@ const sectionSelectors = {
     },
   ),
   sectionBoundaries: createSelectorMemoized(
-    (state: State) => state.adapter,
-    selectors.localizedDigits,
     (state: State) => state.valueManager,
     (state: State) => state.value,
+    selectors.adapter,
+    selectors.localizedDigits,
     selectors.timezoneToRender,
-    (adapter, localizedDigits, valueManager, value, timezone, section: TemporalFieldSection) => {
+    (valueManager, value, adapter, localizedDigits, timezone, section: TemporalFieldSection) => {
       switch (section.token.config.sectionType) {
         case 'year': {
           return {
@@ -192,6 +192,9 @@ export class TemporalFieldSectionPlugin<TValue extends TemporalSupportedValue> {
     return `${this.getRenderedValue(section)}${section.token.separator}`;
   }
 
+  /**
+   * Clears the value of the active section.
+   */
   public clearActive() {
     const value = this.store.value.selectors.value(this.store.state);
     const valueManager = this.store.value.selectors.valueManager(this.store.state);
@@ -214,6 +217,10 @@ export class TemporalFieldSectionPlugin<TValue extends TemporalSupportedValue> {
     }
   }
 
+  /**
+   * Sets the value of the provided section.
+   * If "shouldGoToNextSection" is true, moves the focus to the next section.
+   */
   public updateValue({
     sectionIndex,
     newSectionValue,

@@ -1,5 +1,9 @@
 import { TemporalAdapter, TemporalFormatTokenConfig } from '../../../types';
-import { TemporalFieldPlaceholderGetters, TemporalFieldToken } from './types';
+import {
+  TemporalFieldParsedFormat,
+  TemporalFieldPlaceholderGetters,
+  TemporalFieldToken,
+} from './types';
 import { TextDirection } from '../../../direction-provider';
 
 const DEFAULT_PLACEHOLDER_GETTERS: Required<TemporalFieldPlaceholderGetters> = {
@@ -61,7 +65,7 @@ export class FormatParser {
    * Builds the object representation of the given token.
    * The placeholder property will always be empty.
    */
-  public static buildSingleToken(adapter: TemporalAdapter, tokenValue: string) {
+  public static buildSingleToken(adapter: TemporalAdapter, tokenValue: string): TemporalFieldToken {
     const parser = new FormatParser(adapter, '', 'ltr', undefined);
     return parser.createToken(tokenValue);
   }
@@ -69,7 +73,10 @@ export class FormatParser {
   /**
    * Returns the configuration of a given token.
    */
-  public static getTokenConfig(adapter: TemporalAdapter, tokenValue: string) {
+  public static getTokenConfig(
+    adapter: TemporalAdapter,
+    tokenValue: string,
+  ): TemporalFormatTokenConfig {
     const config = adapter.formatTokenConfigMap[tokenValue];
 
     if (config == null) {
@@ -135,7 +142,7 @@ export class FormatParser {
     return escapedParts;
   }
 
-  private createToken(tokenValue: string) {
+  private createToken(tokenValue: string): TemporalFieldToken {
     if (tokenValue === '') {
       throw new Error('MUI X: Should not call `createToken` with an empty token');
     }
@@ -159,7 +166,7 @@ export class FormatParser {
     };
   }
 
-  private isTokenPadded(token: string, tokenConfig: TemporalFormatTokenConfig) {
+  private isTokenPadded(token: string, tokenConfig: TemporalFormatTokenConfig): boolean {
     if (tokenConfig.contentType !== 'digit') {
       return false;
     }
@@ -206,7 +213,7 @@ export class FormatParser {
     }
   }
 
-  private getTokenPlaceholder(tokenValue: string, config: TemporalFormatTokenConfig) {
+  private getTokenPlaceholder(tokenValue: string, config: TemporalFormatTokenConfig): string {
     switch (config.sectionType) {
       case 'year': {
         return this.placeholderGetters.year({
@@ -255,7 +262,10 @@ export class FormatParser {
     }
   }
 
-  private parse(expandedFormat: string, escapedParts: FormatEscapedParts) {
+  private parse(
+    expandedFormat: string,
+    escapedParts: FormatEscapedParts,
+  ): TemporalFieldParsedFormat {
     const tokens: TemporalFieldToken[] = [];
     let prefix = '';
     let separator: string = '';

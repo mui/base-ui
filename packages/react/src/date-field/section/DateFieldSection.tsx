@@ -49,7 +49,7 @@ const sectionPropsSelector = createSelectorMemoized(
       'aria-valuetext': section.value
         ? getSectionValueText(adapter, section, timezone)
         : translations.empty,
-      'aria-label': translations[section.sectionType],
+      'aria-label': translations[section.token.config.sectionType],
       'aria-disabled': disabled,
 
       // Other
@@ -63,7 +63,7 @@ const sectionPropsSelector = createSelectorMemoized(
       autoCapitalize: isEditable ? 'none' : undefined,
       autoCorrect: isEditable ? 'off' : undefined,
       children: sectionRenderedValue,
-      inputMode: section.contentType === 'letter' ? 'text' : 'numeric',
+      inputMode: section.token.config.contentType === 'letter' ? 'text' : 'numeric',
     };
   },
 );
