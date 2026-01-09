@@ -10,6 +10,7 @@ import { ToggleGroupContext } from './ToggleGroupContext';
 import { ToggleGroupDataAttributes } from './ToggleGroupDataAttributes';
 import type { BaseUIChangeEventDetails } from '../utils/createBaseUIEventDetails';
 import { REASONS } from '../utils/reasons';
+import { ToggleValue } from '../toggle/Toggle';
 
 const stateAttributesMapping = {
   multiple(value: boolean) {
@@ -25,8 +26,8 @@ const stateAttributesMapping = {
  *
  * Documentation: [Base UI Toggle Group](https://base-ui.com/react/components/toggle-group)
  */
-export const ToggleGroup = React.forwardRef(function ToggleGroup(
-  componentProps: ToggleGroup.Props,
+export const ToggleGroup = React.forwardRef(function ToggleGroup<Value extends ToggleValue>(
+  componentProps: ToggleGroup.Props<Value>,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const {
@@ -63,11 +64,11 @@ export const ToggleGroup = React.forwardRef(function ToggleGroup(
 
   const setGroupValue = useStableCallback(
     (
-      newValue: string,
+      newValue: Value,
       nextPressed: boolean,
       eventDetails: BaseUIChangeEventDetails<typeof REASONS.none>,
     ) => {
-      let newGroupValue: any[] | undefined;
+      let newGroupValue: Value[];
       if (multiple) {
         newGroupValue = groupValue.slice();
         if (nextPressed) {
@@ -95,7 +96,7 @@ export const ToggleGroup = React.forwardRef(function ToggleGroup(
     [disabled, orientation, multiple],
   );
 
-  const contextValue: ToggleGroupContext = React.useMemo(
+  const contextValue: ToggleGroupContext<Value> = React.useMemo(
     () => ({
       disabled,
       orientation,
@@ -118,7 +119,7 @@ export const ToggleGroup = React.forwardRef(function ToggleGroup(
   });
 
   return (
-    <ToggleGroupContext.Provider value={contextValue}>
+    <ToggleGroupContext.Provider value={contextValue as ToggleGroupContext<unknown>}>
       {toolbarContext ? (
         element
       ) : (
@@ -134,33 +135,46 @@ export const ToggleGroup = React.forwardRef(function ToggleGroup(
       )}
     </ToggleGroupContext.Provider>
   );
-});
+}) as {
+  <Value extends ToggleValue>(
+    props: ToggleGroup.Props<Value> & { ref?: React.RefObject<HTMLDivElement> },
+  ): React.JSX.Element;
+};
 
 export interface ToggleGroupState {
   /**
    * Whether the component should ignore user interaction.
    */
   disabled: boolean;
+  /**
+   * When `false` only one item in the group can be pressed. If any item in
+   * the group becomes pressed, the others will become unpressed.
+   * When `true` multiple items can be pressed.
+   * @default false
+   */
   multiple: boolean;
 }
 
-export interface ToggleGroupProps extends BaseUIComponentProps<'div', ToggleGroup.State> {
+export interface ToggleGroupProps<Value extends ToggleValue> extends BaseUIComponentProps<
+  'div',
+  ToggleGroup.State
+> {
   /**
    * The open state of the toggle group represented by an array of
    * the values of all pressed toggle buttons.
    * This is the controlled counterpart of `defaultValue`.
    */
-  value?: readonly any[];
+  value?: Value[];
   /**
    * The open state of the toggle group represented by an array of
    * the values of all pressed toggle buttons.
    * This is the uncontrolled counterpart of `value`.
    */
-  defaultValue?: readonly any[];
+  defaultValue?: Value[];
   /**
    * Callback fired when the pressed states of the toggle group changes.
    */
-  onValueChange?: (groupValue: any[], eventDetails: ToggleGroup.ChangeEventDetails) => void;
+  onValueChange?: (groupValue: Value[], eventDetails: ToggleGroup.ChangeEventDetails) => void;
   /**
    * Whether the toggle group should ignore user interaction.
    * @default false
@@ -191,7 +205,7 @@ export type ToggleGroupChangeEventDetails = BaseUIChangeEventDetails<ToggleGroup
 
 export namespace ToggleGroup {
   export type State = ToggleGroupState;
-  export type Props = ToggleGroupProps;
+  export type Props<Value extends ToggleValue> = ToggleGroupProps<Value>;
   export type ChangeEventReason = ToggleGroupChangeEventReason;
   export type ChangeEventDetails = ToggleGroupChangeEventDetails;
 }
