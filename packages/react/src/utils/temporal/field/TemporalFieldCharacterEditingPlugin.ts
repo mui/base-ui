@@ -1,27 +1,34 @@
+import { createSelector } from '@base-ui/utils/store';
 import { TemporalSupportedValue } from '../../../types';
+import { FormatParser } from './formatParser';
 import { selectors } from './selectors';
 import { TemporalFieldStore } from './TemporalFieldStore';
 import {
   TemporalFieldCharacterEditingQuery,
   TemporalFieldSection,
   TemporalFieldToken,
+  TemporalFieldState as State,
 } from './types';
 import {
   applyLocalizedDigits,
   cleanDigitSectionValue,
-  doesSectionFormatHaveLeadingZeros,
-  getFormatTokenConfig,
   getDaysInWeekStr,
   getLetterEditingOptions,
   isStringNumber,
   removeLocalizedDigits,
 } from './utils';
 
+const characterEditingSelectors = {
+  characterQuery: createSelector((state: State) => state.characterQuery),
+};
+
 /**
  * Plugin to update the value of a section when pressing a digit or letter key.
  */
 export class TemporalFieldCharacterEditingPlugin<TValue extends TemporalSupportedValue> {
   private store: TemporalFieldStore<TValue, any, any>;
+
+  public selectors = characterEditingSelectors;
 
   // We can't type `store`, otherwise we get the following TS error:
   // 'characterEditing' implicitly has type 'any' because it does not have a type annotation and is referenced directly or indirectly in its own initializer.
@@ -35,7 +42,7 @@ export class TemporalFieldCharacterEditingPlugin<TValue extends TemporalSupporte
 
   public editSection(parameters: EditSectionParameters) {
     const { keyPressed, sectionIndex } = parameters;
-    const { localizedDigits } = this.store.state;
+    const localizedDigits = selectors.localizedDigits(this.store.state);
     const response = isStringNumber(keyPressed, localizedDigits)
       ? this.applyNumericEditing(parameters)
       : this.applyLetterEditing(parameters);
@@ -51,7 +58,7 @@ export class TemporalFieldCharacterEditingPlugin<TValue extends TemporalSupporte
   }
 
   private applyLetterEditing(parameters: EditSectionParameters) {
-    const { adapter } = this.store.state;
+    const adapter = selectors.adapter(this.store.state);
     const timezone = selectors.timezoneToRender(this.store.state);
 
     const findMatchingOptions = (
@@ -92,7 +99,7 @@ export class TemporalFieldCharacterEditingPlugin<TValue extends TemporalSupporte
       if (
         fallbackFormat &&
         formatFallbackValue != null &&
-        getFormatTokenConfig(adapter, fallbackFormat).contentType === 'letter'
+        FormatParser.getTokenConfig(adapter, fallbackFormat).contentType === 'letter'
       ) {
         const fallbackOptions = getOptions(fallbackFormat);
         const response = findMatchingOptions(fallbackFormat, fallbackOptions, queryValue);
@@ -113,7 +120,7 @@ export class TemporalFieldCharacterEditingPlugin<TValue extends TemporalSupporte
       switch (section.token.config.sectionType) {
         case 'month': {
           const formatFallbackValue = (fallbackValue: string) =>
-            this.getSectionValueInAnotherFormat(
+            this.getSectionValueInForAnotherToken(
               fallbackValue,
               adapter.formats.monthFullLetter,
               section.token.tokenValue,
@@ -153,7 +160,8 @@ export class TemporalFieldCharacterEditingPlugin<TValue extends TemporalSupporte
   }
 
   private applyNumericEditing(parameters: EditSectionParameters) {
-    const { adapter, localizedDigits } = this.store.state;
+    const adapter = selectors.adapter(this.store.state);
+    const localizedDigits = selectors.localizedDigits(this.store.state);
 
     const getNewSectionValue = ({
       queryValue,
@@ -217,13 +225,7 @@ export class TemporalFieldCharacterEditingPlugin<TValue extends TemporalSupporte
           skipIfBelowMinimum: true,
           section: {
             ...section,
-            token: {
-              tokenValue: 'MM',
-              config: { contentType: 'digit', sectionType: 'month', maxLength: 2 },
-              isPadded: doesSectionFormatHaveLeadingZeros(adapter, 'digit', 'month', 'MM'),
-              placeholder: 'MM', // This won't be used
-              separator: '', // This won't be used
-            },
+            token: FormatParser.buildSingleToken(adapter, 'MM'),
           },
         });
 
@@ -231,7 +233,7 @@ export class TemporalFieldCharacterEditingPlugin<TValue extends TemporalSupporte
           return response;
         }
 
-        const formattedValue = this.getSectionValueInAnotherFormat(
+        const formattedValue = this.getSectionValueInForAnotherToken(
           response.sectionValue,
           'MM',
           section.token.tokenValue,
@@ -281,8 +283,7 @@ export class TemporalFieldCharacterEditingPlugin<TValue extends TemporalSupporte
   ) {
     const { keyPressed, sectionIndex } = parameters;
     const cleanKeyPressed = keyPressed.toLowerCase();
-
-    const { characterQuery } = this.store.state;
+    const characterQuery = characterEditingSelectors.characterQuery(this.store.state);
     const section = this.store.section.selectors.section(this.store.state, sectionIndex);
 
     if (section == null) {
@@ -332,17 +333,17 @@ export class TemporalFieldCharacterEditingPlugin<TValue extends TemporalSupporte
     this.store.set('characterQuery', characterQuery);
   }
 
-  private getSectionValueInAnotherFormat(
+  private getSectionValueInForAnotherToken(
     valueStr: string,
     currentFormat: string,
     newFormat: string,
   ) {
-    const { adapter } = this.store.state;
+    const adapter = selectors.adapter(this.store.state);
     const timezone = selectors.timezoneToRender(this.store.state);
 
     if (process.env.NODE_ENV !== 'production') {
-      if (getFormatTokenConfig(adapter, currentFormat).sectionType === 'weekDay') {
-        throw new Error("changeSectionValueFormat doesn't support week day formats");
+      if (FormatParser.getTokenConfig(adapter, currentFormat).sectionType === 'weekDay') {
+        throw new Error("getSectionValueInForAnotherToken doesn't support week day formats");
       }
     }
 

@@ -1,11 +1,12 @@
-import { createSelectorMemoized } from '@base-ui/utils/store';
+import { createSelector, createSelectorMemoized } from '@base-ui/utils/store';
 import { TemporalFieldSectionType, TemporalSupportedValue } from '../../../types';
 import { TemporalFieldStore } from './TemporalFieldStore';
 import { TemporalFieldState as State, TemporalFieldParsedFormat } from './types';
-import { FormatParser } from './parseFormat';
+import { FormatParser } from './formatParser';
 import { TemporalDateType } from '../types';
 
 const formatSelectors = {
+  format: createSelector((state: State) => state.format),
   parsedFormat: createSelectorMemoized(
     (state: State) => state.adapter,
     (state: State) => state.manager,
@@ -13,7 +14,7 @@ const formatSelectors = {
     (state: State) => state.direction,
     (state: State) => state.placeholderGetters,
     (adapter, manager, format, direction, placeholderGetters) => {
-      const parsedFormat = FormatParser.build(adapter, format, direction, placeholderGetters);
+      const parsedFormat = FormatParser.parse(adapter, format, direction, placeholderGetters);
       validateFormat(parsedFormat, manager.dateType);
 
       return parsedFormat;

@@ -116,11 +116,6 @@ export interface TemporalFieldState<
    */
   direction: TextDirection;
   /**
-   * Localized digits used by the adapter.
-   * This is an array of 10 strings representing the digits 0 to 9 in the localized format.
-   */
-  localizedDigits: string[];
-  /**
    * The currently selected sections.
    * This prop accepts four formats:
    * - If a number is provided, the section at this index will be selected.

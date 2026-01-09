@@ -20,7 +20,8 @@ export class TemporalFieldValueAdjustmentPlugin<TValue extends TemporalSupported
   }
 
   public adjustActiveSectionValue(keyCode: AdjustSectionValueKeyCode) {
-    const { adapter, localizedDigits } = this.store.state;
+    const adapter = selectors.adapter(this.store.state);
+    const localizedDigits = selectors.localizedDigits(this.store.state);
     const timezone = selectors.timezoneToRender(this.store.state);
     const activeSection = this.store.section.selectors.activeSection(this.store.state);
 

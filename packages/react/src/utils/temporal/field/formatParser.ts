@@ -1,6 +1,5 @@
 import { TemporalAdapter, TemporalFormatTokenConfig } from '../../../types';
 import { TemporalFieldPlaceholderGetters, TemporalFieldToken } from './types';
-import { doesSectionFormatHaveLeadingZeros, getFormatTokenConfig } from './utils';
 import { TextDirection } from '../../../direction-provider';
 
 const DEFAULT_PLACEHOLDER_GETTERS: Required<TemporalFieldPlaceholderGetters> = {
@@ -15,7 +14,8 @@ const DEFAULT_PLACEHOLDER_GETTERS: Required<TemporalFieldPlaceholderGetters> = {
 };
 
 /**
- * Class used to parse and expand a date format.
+ * Class used to convert a format into a list of tokens, a prefix and a suffix.
+ * If the format contains localized meta tokens (like "P" for Date Fns), it is expanded first.
  */
 export class FormatParser {
   private adapter: TemporalAdapter;
@@ -26,7 +26,10 @@ export class FormatParser {
 
   private direction: TextDirection;
 
-  public static build(
+  /**
+   * Converts a format into a list of tokens, a prefix and a suffix.
+   */
+  public static parse(
     adapter: TemporalAdapter,
     format: string,
     direction: TextDirection,
@@ -52,6 +55,33 @@ export class FormatParser {
     }
 
     return parsedFormat;
+  }
+
+  /**
+   * Builds the object representation of the given token.
+   * The placeholder property will always be empty.
+   */
+  public static buildSingleToken(adapter: TemporalAdapter, tokenValue: string) {
+    const parser = new FormatParser(adapter, '', 'ltr', undefined);
+    return parser.createToken(tokenValue);
+  }
+
+  /**
+   * Returns the configuration of a given token.
+   */
+  public static getTokenConfig(adapter: TemporalAdapter, tokenValue: string) {
+    const config = adapter.formatTokenConfigMap[tokenValue];
+
+    if (config == null) {
+      throw new Error(
+        [
+          `MUI X: The token "${tokenValue}" is not supported by the Base UI components.`,
+          'Please try using another token or open an issue on https://github.com/mui/base-ui/issues/new/choose if you think it should be supported.',
+        ].join('\n'),
+      );
+    }
+
+    return config;
   }
 
   private constructor(
@@ -110,14 +140,7 @@ export class FormatParser {
       throw new Error('MUI X: Should not call `createToken` with an empty token');
     }
 
-    const tokenConfig = getFormatTokenConfig(this.adapter, tokenValue);
-
-    const isPadded = doesSectionFormatHaveLeadingZeros(
-      this.adapter,
-      tokenConfig.contentType,
-      tokenConfig.sectionType,
-      tokenValue,
-    );
+    const tokenConfig = FormatParser.getTokenConfig(this.adapter, tokenValue);
 
     // let maxLength: number | undefined;
     // if (isPadded) {
@@ -130,10 +153,57 @@ export class FormatParser {
     return {
       tokenValue,
       config: tokenConfig,
-      isPadded,
+      isPadded: this.isTokenPadded(tokenValue, tokenConfig),
       placeholder: this.getTokenPlaceholder(tokenValue, tokenConfig),
       separator: '',
     };
+  }
+
+  private isTokenPadded(token: string, tokenConfig: TemporalFormatTokenConfig) {
+    if (tokenConfig.contentType !== 'digit') {
+      return false;
+    }
+
+    const now = this.adapter.now('default');
+
+    switch (tokenConfig.sectionType) {
+      // We can't use `changeSectionValueFormat`, because  `adapter.parse('1', 'YYYY')` returns `1971` instead of `1`.
+      case 'year': {
+        // Remove once https://github.com/iamkun/dayjs/pull/2847 is merged and bump dayjs version
+        if (this.adapter.lib === 'dayjs' && token === 'YY') {
+          return true;
+        }
+        return this.adapter.formatByString(this.adapter.setYear(now, 1), token).startsWith('0');
+      }
+
+      case 'month': {
+        return this.adapter.formatByString(this.adapter.startOfYear(now), token).length > 1;
+      }
+
+      case 'day': {
+        return this.adapter.formatByString(this.adapter.startOfMonth(now), token).length > 1;
+      }
+
+      case 'weekDay': {
+        return this.adapter.formatByString(this.adapter.startOfWeek(now), token).length > 1;
+      }
+
+      case 'hours': {
+        return this.adapter.formatByString(this.adapter.setHours(now, 1), token).length > 1;
+      }
+
+      case 'minutes': {
+        return this.adapter.formatByString(this.adapter.setMinutes(now, 1), token).length > 1;
+      }
+
+      case 'seconds': {
+        return this.adapter.formatByString(this.adapter.setSeconds(now, 1), token).length > 1;
+      }
+
+      default: {
+        throw new Error('Invalid section type');
+      }
+    }
   }
 
   private getTokenPlaceholder(tokenValue: string, config: TemporalFormatTokenConfig) {

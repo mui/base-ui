@@ -1,9 +1,16 @@
+import { createSelector } from '@base-ui/utils/store';
 import { TemporalSupportedObject, TemporalSupportedValue } from '../../../types';
 import { mergeDateIntoReferenceDate } from './mergeDateIntoReferenceDate';
 import { selectors } from './selectors';
 import { TemporalFieldStore } from './TemporalFieldStore';
-import { TemporalFieldValueChangeHandlerContext } from './types';
+import { TemporalFieldValueChangeHandlerContext, TemporalFieldState as State } from './types';
 import { buildSections } from './utils';
+
+const valueSelectors = {
+  value: createSelector((state: State) => state.value),
+  referenceValue: createSelector((state: State) => state.referenceValue),
+  valueManager: createSelector((state: State) => state.valueManager),
+};
 
 /**
  * Plugin to interact with the entire field value.
@@ -15,6 +22,8 @@ export class TemporalFieldValuePlugin<
 > {
   private store: TemporalFieldStore<TValue, TValidationProps, TError>;
 
+  public selectors = valueSelectors;
+
   // We can't type `store`, otherwise we get the following TS error:
   // 'value' implicitly has type 'any' because it does not have a type annotation and is referenced directly or indirectly in its own initializer.
   constructor(store: any) {
@@ -25,7 +34,7 @@ export class TemporalFieldValuePlugin<
    * Publishes the provided field value.
    */
   public publish(value: TValue) {
-    const { manager } = this.store.state;
+    const manager = selectors.manager(this.store.state);
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const context: TemporalFieldValueChangeHandlerContext<TError> = {
@@ -39,7 +48,9 @@ export class TemporalFieldValuePlugin<
    * Updates the field value from a string representation.
    */
   public updateFromString(valueStr: string) {
-    const { adapter, format, valueManager } = this.store.state;
+    const format = this.store.format.selectors.format(this.store.state);
+    const adapter = selectors.adapter(this.store.state);
+    const valueManager = this.store.value.selectors.valueManager(this.store.state);
     const parsedFormat = this.store.format.selectors.parsedFormat(this.store.state);
 
     const parseDateStr = (dateStr: string, referenceDate: TemporalSupportedObject) => {
@@ -65,7 +76,9 @@ export class TemporalFieldValuePlugin<
    * If the value is already empty, it clears the sections.
    */
   public clear() {
-    const { adapter, valueManager, value } = this.store.state;
+    const adapter = selectors.adapter(this.store.state);
+    const valueManager = this.store.value.selectors.valueManager(this.store.state);
+    const value = this.store.value.selectors.value(this.store.state);
 
     if (valueManager.areValuesEqual(adapter, value, valueManager.emptyValue)) {
       const emptySections = this.store.section.selectors

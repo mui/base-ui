@@ -1,9 +1,7 @@
 import { TextDirection } from '../../../direction-provider';
 import {
   TemporalAdapter,
-  TemporalFieldSectionContentType,
   TemporalFieldSectionType,
-  TemporalFormatTokenConfig,
   TemporalSupportedObject,
   TemporalSupportedValue,
   TemporalTimezone,
@@ -49,76 +47,6 @@ export function deriveStateFromParameters<
   };
 }
 
-export function getFormatTokenConfig(
-  adapter: TemporalAdapter,
-  formatToken: string,
-): TemporalFormatTokenConfig {
-  const config = adapter.formatTokenConfigMap[formatToken];
-
-  if (config == null) {
-    throw new Error(
-      [
-        `MUI X: The token "${formatToken}" is not supported by the Base UI components.`,
-        'Please try using another token or open an issue on https://github.com/mui/base-ui/issues/new/choose if you think it should be supported.',
-      ].join('\n'),
-    );
-  }
-
-  return config;
-}
-
-export function doesSectionFormatHaveLeadingZeros(
-  adapter: TemporalAdapter,
-  contentType: TemporalFieldSectionContentType,
-  sectionType: TemporalFieldSectionType,
-  format: string,
-) {
-  if (contentType !== 'digit') {
-    return false;
-  }
-
-  const now = adapter.now('default');
-
-  switch (sectionType) {
-    // We can't use `changeSectionValueFormat`, because  `adapter.parse('1', 'YYYY')` returns `1971` instead of `1`.
-    case 'year': {
-      // Remove once https://github.com/iamkun/dayjs/pull/2847 is merged and bump dayjs version
-      if (adapter.lib === 'dayjs' && format === 'YY') {
-        return true;
-      }
-      return adapter.formatByString(adapter.setYear(now, 1), format).startsWith('0');
-    }
-
-    case 'month': {
-      return adapter.formatByString(adapter.startOfYear(now), format).length > 1;
-    }
-
-    case 'day': {
-      return adapter.formatByString(adapter.startOfMonth(now), format).length > 1;
-    }
-
-    case 'weekDay': {
-      return adapter.formatByString(adapter.startOfWeek(now), format).length > 1;
-    }
-
-    case 'hours': {
-      return adapter.formatByString(adapter.setHours(now, 1), format).length > 1;
-    }
-
-    case 'minutes': {
-      return adapter.formatByString(adapter.setMinutes(now, 1), format).length > 1;
-    }
-
-    case 'seconds': {
-      return adapter.formatByString(adapter.setSeconds(now, 1), format).length > 1;
-    }
-
-    default: {
-      throw new Error('Invalid section type');
-    }
-  }
-}
-
 export function applyLocalizedDigits(valueStr: string, localizedDigits: string[]) {
   if (localizedDigits[0] === '0') {
     return valueStr;
@@ -157,28 +85,6 @@ export function removeLocalizedDigits(valueStr: string, localizedDigits: string[
   }
 
   return digits.join('');
-}
-
-// This format should be the same on all the adapters
-// If some adapter does not respect this convention, then we will need to hardcode the format on each adapter.
-export const FORMAT_SECONDS_NO_LEADING_ZEROS = 's';
-
-const NON_LOCALIZED_DIGITS = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
-
-export function getLocalizedDigits(adapter: TemporalAdapter) {
-  const today = adapter.now('default');
-  const formattedZero = adapter.formatByString(
-    adapter.setSeconds(today, 0),
-    FORMAT_SECONDS_NO_LEADING_ZEROS,
-  );
-
-  if (formattedZero === '0') {
-    return NON_LOCALIZED_DIGITS;
-  }
-
-  return Array.from({ length: 10 }).map((_, index) =>
-    adapter.formatByString(adapter.setSeconds(today, index), FORMAT_SECONDS_NO_LEADING_ZEROS),
-  );
 }
 
 export function getDaysInWeekStr(adapter: TemporalAdapter, format: string) {

@@ -36,7 +36,7 @@ const sectionSelectors = {
   ),
   sectionBoundaries: createSelectorMemoized(
     (state: State) => state.adapter,
-    (state: State) => state.localizedDigits,
+    selectors.localizedDigits,
     (state: State) => state.valueManager,
     (state: State) => state.value,
     selectors.timezoneToRender,
@@ -193,7 +193,8 @@ export class TemporalFieldSectionPlugin<TValue extends TemporalSupportedValue> {
   }
 
   public clearActive() {
-    const { valueManager, value } = this.store.state;
+    const value = this.store.value.selectors.value(this.store.state);
+    const valueManager = this.store.value.selectors.valueManager(this.store.state);
     const activeSection = sectionSelectors.activeSection(this.store.state);
     const sections = sectionSelectors.sections(this.store.state);
     if (activeSection == null || activeSection.value === '') {
@@ -218,7 +219,10 @@ export class TemporalFieldSectionPlugin<TValue extends TemporalSupportedValue> {
     newSectionValue,
     shouldGoToNextSection,
   }: UpdateValueParameters) {
-    const { valueManager, adapter, referenceValue, value } = this.store.state;
+    const value = this.store.value.selectors.value(this.store.state);
+    const valueManager = this.store.value.selectors.valueManager(this.store.state);
+    const referenceValue = this.store.value.selectors.referenceValue(this.store.state);
+    const adapter = selectors.adapter(this.store.state);
     const lastSectionIndex = sectionSelectors.lastSectionIndex(this.store.state);
     const section = sectionSelectors.section(this.store.state, sectionIndex);
     const sections = sectionSelectors.sections(this.store.state);
@@ -307,7 +311,7 @@ export class TemporalFieldSectionPlugin<TValue extends TemporalSupportedValue> {
    * To make sure that the parsing works, we are building a format and a date without any separator.
    */
   private getDateFromDateSections(sections: TemporalFieldSection[]) {
-    const { adapter } = this.store.state;
+    const adapter = selectors.adapter(this.store.state);
     const timezone = selectors.timezoneToRender(this.store.state);
 
     // If we have both a day and a weekDay section,

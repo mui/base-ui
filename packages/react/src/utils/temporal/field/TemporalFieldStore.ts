@@ -1,6 +1,4 @@
-import * as React from 'react';
 import { Store } from '@base-ui/utils/store';
-import { ownerDocument } from '@base-ui/utils/owner';
 import { TemporalAdapter, TemporalFieldSectionType, TemporalSupportedValue } from '../../../types';
 import { TemporalManager } from '../types';
 import {
@@ -8,15 +6,9 @@ import {
   TemporalFieldStoreParameters,
   TemporalFieldValueManager,
 } from './types';
-import { FormatParser } from './parseFormat';
-import {
-  buildSections,
-  deriveStateFromParameters,
-  getLocalizedDigits,
-  getTimezoneToRender,
-} from './utils';
+import { FormatParser } from './formatParser';
+import { buildSections, deriveStateFromParameters, getTimezoneToRender } from './utils';
 import { TextDirection } from '../../../direction-provider';
-import { activeElement } from '../../../floating-ui-react/utils';
 import { TemporalFieldValueAdjustmentPlugin } from './TemporalFieldValueAdjustmentPlugin';
 import { TemporalFieldCharacterEditingPlugin } from './TemporalFieldCharacterEditingPlugin';
 import { TemporalFieldSectionPlugin } from './TemporalFieldSectionPlugin';
@@ -25,6 +17,7 @@ import { TemporalFieldValuePlugin } from './TemporalFieldValuePlugin';
 import { TemporalFieldInputPropsPlugin } from './TemporalFieldInputPropsPlugin';
 import { TemporalFieldSectionPropsPlugin } from './TemporalFieldSectionPropsPlugin';
 import { TemporalFieldFormatPlugin } from './TemporalFieldFormatPlugin';
+import { TemporalFieldDOMPlugin } from './TemporalFieldDOMPlugin';
 
 const SECTION_TYPE_GRANULARITY: { [key in TemporalFieldSectionType]?: number } = {
   year: 1,
@@ -44,8 +37,6 @@ export class TemporalFieldStore<
 
   private initialParameters: TemporalFieldStoreParameters<TValue, TError> | null = null;
 
-  public inputRef = React.createRef<HTMLElement>();
-
   public timeoutManager = new TimeoutManager();
 
   public characterEditing = new TemporalFieldCharacterEditingPlugin<TValue>(this);
@@ -57,6 +48,8 @@ export class TemporalFieldStore<
   public section = new TemporalFieldSectionPlugin<TValue>(this);
 
   public format = new TemporalFieldFormatPlugin<TValue>(this);
+
+  public dom = new TemporalFieldDOMPlugin(this);
 
   public inputProps = new TemporalFieldInputPropsPlugin<TValue, TError>(this);
 
@@ -71,19 +64,12 @@ export class TemporalFieldStore<
     direction: TextDirection,
   ) {
     const value = parameters.value ?? parameters.defaultValue ?? manager.emptyValue;
-    const localizedDigits = getLocalizedDigits(adapter);
 
-    const parsedFormat = FormatParser.build(
+    const parsedFormat = FormatParser.parse(
       adapter,
       parameters.format,
       direction,
       parameters.placeholderGetters,
-    );
-
-    const granularity = Math.max(
-      ...parsedFormat.tokens.map(
-        (token) => SECTION_TYPE_GRANULARITY[token.config.sectionType] ?? 1,
-      ),
     );
 
     const referenceValue = valueManager.getInitialReferenceValue({
@@ -91,7 +77,11 @@ export class TemporalFieldStore<
       value,
       adapter,
       validationProps,
-      granularity,
+      granularity: Math.max(
+        ...parsedFormat.tokens.map(
+          (token) => SECTION_TYPE_GRANULARITY[token.config.sectionType] ?? 1,
+        ),
+      ),
       timezone: getTimezoneToRender(
         adapter,
         manager,
@@ -116,9 +106,6 @@ export class TemporalFieldStore<
       ),
       value,
       sections,
-      validationProps,
-      direction,
-      localizedDigits,
       referenceValue,
       valueManager,
       adapter,
@@ -137,9 +124,4 @@ export class TemporalFieldStore<
   public disposeEffect = () => {
     return this.timeoutManager.clearAll;
   };
-
-  private getActiveElement() {
-    const doc = ownerDocument(this.inputRef.current);
-    return activeElement(doc);
-  }
 }

@@ -1,4 +1,5 @@
 import { TemporalSupportedValue } from '../../../types';
+import { selectors } from './selectors';
 import { TemporalFieldStore } from './TemporalFieldStore';
 
 /**
@@ -13,48 +14,44 @@ export class TemporalFieldSectionPropsPlugin<TValue extends TemporalSupportedVal
     this.store = store;
   }
 
-  public handleClick(event: React.MouseEvent) {
-    const { disabled } = this.store.state;
+  public handleClick(event: React.MouseEvent<HTMLElement>) {
     // The click event on the clear button would propagate to the input, trigger this handler and result in a wrong section selection.
     // We avoid this by checking if the call to this function is actually intended, or a side effect.
-    if (disabled || event.isDefaultPrevented()) {
+    if (selectors.disabled(this.store.state) || event.isDefaultPrevented()) {
       return;
     }
 
-    const sectionIndex = domGetters.getSectionIndexFromDOMElement(event.target)!;
+    const sectionIndex = this.store.dom.getSectionIndexFromDOMElement(event.target as HTMLElement)!;
     this.store.section.setSelectedSections(sectionIndex);
   }
 
   public handleInput(event: React.FormEvent) {
-    if (!domGetters.isReady()) {
+    const target = event.target as HTMLSpanElement;
+    const keyPressed = target.textContent ?? '';
+    const sectionIndex = this.store.dom.getSectionIndexFromDOMElement(target);
+    if (sectionIndex == null) {
       return;
     }
 
-    const target = event.target as HTMLSpanElement;
-    const keyPressed = target.textContent ?? '';
-    const sectionIndex = domGetters.getSectionIndexFromDOMElement(target)!;
-
-    const { readOnly } = this.store.state;
-
-    if (readOnly) {
-      this.revertDOMSectionChange(sectionIndex);
+    if (selectors.readOnly(this.store.state)) {
+      this.store.dom.syncSectionContentToDOM(sectionIndex);
       return;
     }
 
     const section = this.store.section.selectors.section(this.store.state, sectionIndex);
     if (keyPressed.length === 0) {
       if (section.value === '') {
-        this.revertDOMSectionChange(sectionIndex);
+        this.store.dom.syncSectionContentToDOM(sectionIndex);
         return;
       }
 
       const inputType = (event.nativeEvent as InputEvent).inputType;
       if (inputType === 'insertParagraph' || inputType === 'insertLineBreak') {
-        this.revertDOMSectionChange(sectionIndex);
+        this.store.dom.syncSectionContentToDOM(sectionIndex);
         return;
       }
 
-      this.revertDOMSectionChange(sectionIndex);
+      this.store.dom.syncSectionContentToDOM(sectionIndex);
       this.store.section.clearActive();
       return;
     }
@@ -65,16 +62,20 @@ export class TemporalFieldSectionPropsPlugin<TValue extends TemporalSupportedVal
     });
 
     // The DOM value needs to remain the one React is expecting.
-    this.revertDOMSectionChange(sectionIndex);
+    this.store.dom.syncSectionContentToDOM(sectionIndex);
   }
 
   public handlePaste(event: React.ClipboardEvent) {
     // prevent default to avoid the input `onInput` handler being called
     event.preventDefault();
 
-    const { readOnly, disabled } = this.store.state;
     const selectedSections = this.store.section.selectors.selectedSections(this.store.state);
-    if (readOnly || disabled || selectedSections === 'all' || selectedSections == null) {
+    if (
+      selectors.readOnly(this.store.state) ||
+      selectors.disabled(this.store.state) ||
+      selectedSections === 'all' ||
+      selectedSections == null
+    ) {
       return;
     }
 
@@ -114,28 +115,11 @@ export class TemporalFieldSectionPropsPlugin<TValue extends TemporalSupportedVal
   }
 
   public handleFocus(event: React.FocusEvent) {
-    const { disabled } = this.store.state;
-    if (disabled) {
+    if (selectors.disabled(this.store.state)) {
       return;
     }
 
-    const sectionIndex = domGetters.getSectionIndexFromDOMElement(event.target)!;
+    const sectionIndex = this.store.dom.getSectionIndexFromDOMElement(event.target)!;
     this.store.section.setSelectedSections(sectionIndex);
-  }
-
-  /**
-   * If a section content has been updated with a value we don't want to keep,
-   * Then we need to imperatively revert it (we can't let React do it because the value did not change in his internal representation).
-   */
-  private revertDOMSectionChange(sectionIndex: number) {
-    if (!domGetters.isReady()) {
-      return;
-    }
-
-    const section = this.store.section.selectors.section(this.store.state, sectionIndex);
-
-    domGetters.getSectionContent(sectionIndex).innerHTML =
-      this.store.section.getRenderedValue(section);
-    syncSelectionToDOM({ focused, domGetters, stateResponse });
   }
 }

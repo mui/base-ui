@@ -15,13 +15,13 @@ export class TemporalFieldInputPropsPlugin<TValue extends TemporalSupportedValue
   }
 
   public handleKeyDown = (event: React.KeyboardEvent<HTMLSpanElement>) => {
-    const { disabled, readOnly } = this.store.state;
-    const lastSectionIndex = this.store.section.selectors.lastSectionIndex(this.store.state);
-    const selectedSections = this.store.section.selectors.selectedSections(this.store.state);
-
-    if (disabled) {
+    if (selectors.disabled(this.store.state)) {
       return;
     }
+
+    const readOnly = selectors.readOnly(this.store.state);
+    const lastSectionIndex = this.store.section.selectors.lastSectionIndex(this.store.state);
+    const selectedSections = this.store.section.selectors.selectedSections(this.store.state);
 
     // eslint-disable-next-line default-case
     switch (true) {
@@ -106,16 +106,15 @@ export class TemporalFieldInputPropsPlugin<TValue extends TemporalSupportedValue
   };
 
   public handleFocus = () => {
-    const { disabled } = this.store.state;
-    if (focused || disabled || !this.store.inputRef.current) {
+    if (focused || selectors.disabled(this.store.state) || !this.store.dom.inputRef.current) {
       return;
     }
 
-    const activeEl = this.getActiveElement();
+    const activeEl = this.store.dom.getActiveElement();
 
     setFocused(true);
 
-    const isFocusInsideASection = domGetters.getSectionIndexFromDOMElement(activeEl) != null;
+    const isFocusInsideASection = this.store.dom.getSectionIndexFromDOMElement(activeEl) != null;
     if (!isFocusInsideASection) {
       this.store.section.setSelectedSections(0);
     }
@@ -123,12 +122,12 @@ export class TemporalFieldInputPropsPlugin<TValue extends TemporalSupportedValue
 
   public handleBlur = () => {
     setTimeout(() => {
-      if (!this.store.inputRef.current) {
+      if (!this.store.dom.inputRef.current) {
         return;
       }
 
-      const activeEl = this.getActiveElement();
-      const shouldBlur = !this.store.inputRef.current.contains(activeEl);
+      const activeEl = this.store.dom.getActiveElement();
+      const shouldBlur = !this.store.dom.inputRef.current.contains(activeEl);
       if (shouldBlur) {
         setFocused(false);
         this.store.section.setSelectedSections(null);
@@ -137,14 +136,13 @@ export class TemporalFieldInputPropsPlugin<TValue extends TemporalSupportedValue
   };
 
   public handleClick = (event: React.MouseEvent) => {
-    const { disabled } = this.store.state;
+    if (selectors.disabled(this.store.state) || !this.store.dom.inputRef.current) {
+      return;
+    }
+
     const sections = this.store.section.selectors.sections(this.store.state);
     const lastSectionIndex = this.store.section.selectors.lastSectionIndex(this.store.state);
     const selectedSections = this.store.section.selectors.selectedSections(this.store.state);
-
-    if (disabled || !this.store.inputRef.current) {
-      return;
-    }
 
     setFocused(true);
 
@@ -173,7 +171,7 @@ export class TemporalFieldInputPropsPlugin<TValue extends TemporalSupportedValue
       setFocused(true);
       this.store.section.setSelectedSections(0);
     } else {
-      const hasClickedOnASection = this.store.inputRef.current.contains(event.target as Node);
+      const hasClickedOnASection = this.store.dom.inputRef.current.contains(event.target as Node);
 
       if (!hasClickedOnASection) {
         this.store.section.setSelectedSections(0);
@@ -182,10 +180,8 @@ export class TemporalFieldInputPropsPlugin<TValue extends TemporalSupportedValue
   };
 
   public handlePaste = (event: React.ClipboardEvent<HTMLDivElement>) => {
-    const { readOnly } = this.store.state;
     const selectedSections = this.store.section.selectors.selectedSections(this.store.state);
-
-    if (readOnly || selectedSections !== 'all') {
+    if (selectors.readOnly(this.store.state) || selectedSections !== 'all') {
       event.preventDefault();
       return;
     }
@@ -200,17 +196,17 @@ export class TemporalFieldInputPropsPlugin<TValue extends TemporalSupportedValue
     const selectedSections = this.store.section.selectors.selectedSections(this.store.state);
     const sections = this.store.section.selectors.sections(this.store.state);
 
-    if (!this.store.inputRef.current || selectedSections !== 'all') {
+    if (!this.store.dom.inputRef.current || selectedSections !== 'all') {
       return;
     }
 
     const target = event.target as HTMLSpanElement;
     const keyPressed = target.textContent ?? '';
 
-    this.store.inputRef.current.innerHTML = sections
+    this.store.dom.inputRef.current.innerHTML = sections
       .map((section) => this.store.section.getRenderedValueWithSeparators(section))
       .join('');
-    syncSelectionToDOM({ focused, domGetters, stateResponse });
+    this.store.dom.syncSelectionToDOM();
 
     if (keyPressed.length === 0 || keyPressed.charCodeAt(0) === 10) {
       this.store.value.clear();
