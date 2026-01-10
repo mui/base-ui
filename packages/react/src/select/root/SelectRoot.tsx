@@ -627,7 +627,7 @@ export interface SelectRootProps<Value, Multiple extends boolean | undefined = f
   open?: boolean;
   /**
    * Determines if the select enters a modal state when open.
-   * - `true`: user interaction is limited to the select: document page scroll is locked and and pointer interactions on outside elements are disabled.
+   * - `true`: user interaction is limited to the select: document page scroll is locked and pointer interactions on outside elements are disabled.
    * - `false`: user interaction with the rest of the document is allowed.
    * @default true
    */

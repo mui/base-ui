@@ -80,7 +80,7 @@ function getNewValue(
 }
 
 /**
- * The draggable part of the the slider at the tip of the indicator.
+ * The draggable part of the slider at the tip of the indicator.
  * Renders a `<div>` element and a nested `<input type="range">`.
  *
  * Documentation: [Base UI Slider](https://base-ui.com/react/components/slider)
