@@ -1,7 +1,7 @@
 import { Field } from '@base-ui/react/field';
-import { createRenderer, screen } from '@mui/internal-test-utils';
+import { screen } from '@mui/internal-test-utils';
 import { expect } from 'chai';
-import { describeConformance } from '../../../test/describeConformance';
+import { createRenderer, describeConformance } from '#test-utils';
 
 describe('<Field.Label />', () => {
   const { render } = createRenderer();
@@ -13,8 +13,8 @@ describe('<Field.Label />', () => {
     },
   }));
 
-  it('should set htmlFor referencing the control automatically', () => {
-    render(
+  it('should set htmlFor referencing the control automatically', async () => {
+    await render(
       <Field.Root data-testid="field">
         <Field.Control />
         <Field.Label data-testid="label">Label</Field.Label>
@@ -22,5 +22,24 @@ describe('<Field.Label />', () => {
     );
 
     expect(screen.getByTestId('label')).to.have.attribute('for', screen.getByRole('textbox').id);
+  });
+
+  it('when nativeLabel={false}, clicking focuses the associated control', async () => {
+    const { user } = await render(
+      <Field.Root>
+        <Field.Control data-testid="control" />
+        <Field.Label nativeLabel={false} render={<div />} data-testid="label">
+          Label
+        </Field.Label>
+      </Field.Root>,
+    );
+
+    const label = screen.getByTestId('label');
+    const control = screen.getByTestId('control');
+
+    expect(label).to.not.have.attribute('for');
+
+    await user.click(label);
+    expect(control).toHaveFocus();
   });
 });

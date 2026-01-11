@@ -1,6 +1,9 @@
 'use client';
 import * as React from 'react';
+import { isHTMLElement } from '@floating-ui/utils/dom';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { ownerDocument } from '@base-ui/utils/owner';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { getTarget } from '../../floating-ui-react/utils';
 import { FieldRoot } from '../root/FieldRoot';
 import { useFieldRootContext } from '../root/FieldRootContext';
@@ -20,7 +23,7 @@ export const FieldLabel = React.forwardRef(function FieldLabel(
   componentProps: FieldLabel.Props,
   forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
-  const { render, className, id: idProp, ...elementProps } = componentProps;
+  const { render, className, id: idProp, nativeLabel = true, ...elementProps } = componentProps;
 
   const fieldRootContext = useFieldRootContext(false);
 
@@ -28,7 +31,37 @@ export const FieldLabel = React.forwardRef(function FieldLabel(
 
   const id = useBaseUiId(idProp);
 
-  const labelRef = React.useRef<HTMLLabelElement>(null);
+  const labelRef = React.useRef<HTMLElement | null>(null);
+
+  const [userSelect, setUserSelect] = React.useState<'none' | undefined>(undefined);
+
+  const handleInteraction = useStableCallback((event: React.MouseEvent) => {
+    const target = getTarget(event.nativeEvent) as HTMLElement | null;
+    if (target?.closest('button,input,select,textarea')) {
+      return;
+    }
+
+    // Prevent text selection when double clicking label.
+    if (!event.defaultPrevented && event.detail > 1) {
+      event.preventDefault();
+    }
+
+    if (nativeLabel || !controlId) {
+      return;
+    }
+
+    const controlElement = ownerDocument(event.currentTarget).getElementById(controlId);
+    if (isHTMLElement(controlElement)) {
+      controlElement.focus({
+        // Available from Chrome 144+ (January 2026).
+        // Safari and Firefox already support it.
+        // @ts-expect-error not available in types yet
+        focusVisible: true,
+      });
+    }
+
+    setUserSelect(undefined);
+  });
 
   useIsoLayoutEffect(() => {
     if (id) {
@@ -44,21 +77,27 @@ export const FieldLabel = React.forwardRef(function FieldLabel(
     ref: [forwardedRef, labelRef],
     state: fieldRootContext.state,
     props: [
-      {
-        id: labelId,
-        htmlFor: controlId ?? undefined,
-        onMouseDown(event) {
-          const target = getTarget(event.nativeEvent) as HTMLElement | null;
-          if (target?.closest('button,input,select,textarea')) {
-            return;
+      { id: labelId, style: { userSelect } },
+      nativeLabel
+        ? {
+            htmlFor: controlId ?? undefined,
+            onMouseDown: handleInteraction,
           }
+        : {
+            onPointerDown(event) {
+              setUserSelect('none');
 
-          // Prevent text selection when double clicking label.
-          if (!event.defaultPrevented && event.detail > 1) {
-            event.preventDefault();
-          }
-        },
-      },
+              const doc = ownerDocument(labelRef.current);
+
+              if (doc.activeElement === getControl(labelRef.current, controlId)) {
+                event.preventDefault();
+                return;
+              }
+
+              doc.addEventListener('pointerup', () => setUserSelect(undefined), { once: true });
+            },
+            onClick: handleInteraction,
+          },
       elementProps,
     ],
     stateAttributesMapping: fieldValidityMapping,
@@ -69,9 +108,23 @@ export const FieldLabel = React.forwardRef(function FieldLabel(
 
 export type FieldLabelState = FieldRoot.State;
 
-export interface FieldLabelProps extends BaseUIComponentProps<'label', FieldLabel.State> {}
+export interface FieldLabelProps extends BaseUIComponentProps<'label', FieldLabel.State> {
+  /**
+   * Whether the component renders a native `<label>` element when replacing it via the `render` prop.
+   * Set to `false` if the rendered element is not a `<label>`.
+   * @default true
+   */
+  nativeLabel?: boolean;
+}
 
 export namespace FieldLabel {
   export type State = FieldLabelState;
   export type Props = FieldLabelProps;
+}
+
+function getControl(referenceElement: Element | null, controlId: string | null | undefined) {
+  if (!controlId) {
+    return null;
+  }
+  return ownerDocument(referenceElement).getElementById(controlId);
 }
