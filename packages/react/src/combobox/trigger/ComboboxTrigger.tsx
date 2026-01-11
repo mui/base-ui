@@ -66,6 +66,7 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
   const triggerProps = useStore(store, selectors.triggerProps);
   const triggerElement = useStore(store, selectors.triggerElement);
   const inputInsidePopup = useStore(store, selectors.inputInsidePopup);
+  const rootId = useStore(store, selectors.id);
   const open = useStore(store, selectors.open);
   const selectedValue = useStore(store, selectors.selectedValue);
   const activeIndex = useStore(store, selectors.activeIndex);
@@ -147,6 +148,7 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
       triggerClickProps,
       triggerTypeaheadProps,
       {
+        id: inputInsidePopup ? rootId : undefined,
         tabIndex: inputInsidePopup ? 0 : -1,
         role: inputInsidePopup ? 'combobox' : undefined,
         'aria-expanded': open ? 'true' : 'false',

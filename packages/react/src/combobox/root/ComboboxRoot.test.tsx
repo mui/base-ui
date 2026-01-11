@@ -1258,7 +1258,7 @@ describe('<Combobox.Root />', () => {
   });
 
   describe('prop: id', () => {
-    it('sets the id on the hidden input', async () => {
+    it('sets the id on the input when it is outside the popup', async () => {
       await render(
         <Combobox.Root id="test-id">
           <Combobox.Input />
@@ -1275,8 +1275,35 @@ describe('<Combobox.Root />', () => {
         </Combobox.Root>,
       );
 
-      const hiddenInput = screen.getByRole('textbox', { hidden: true });
-      expect(hiddenInput).to.have.attribute('id', 'test-id');
+      const input = screen.getByRole('combobox');
+      await waitFor(() => {
+        expect(input).to.have.attribute('id', 'test-id');
+      });
+    });
+
+    it('sets the id on the trigger when the input is inside the popup', async () => {
+      await render(
+        <Combobox.Root id="test-id" defaultOpen>
+          <Combobox.Trigger data-testid="trigger">Open</Combobox.Trigger>
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.Input data-testid="input" />
+                <Combobox.List>
+                  <Combobox.Item value="a">a</Combobox.Item>
+                  <Combobox.Item value="b">b</Combobox.Item>
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+      const input = screen.getByTestId('input');
+
+      expect(trigger).to.have.attribute('id', 'test-id');
+      expect(input).to.not.have.attribute('id', 'test-id');
     });
   });
 

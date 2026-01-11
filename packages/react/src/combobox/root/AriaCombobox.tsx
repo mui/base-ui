@@ -1274,7 +1274,6 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
             }
           },
         })}
-        id={id}
         name={multiple || selectionMode === 'none' ? undefined : name}
         disabled={disabled}
         required={required && !hasMultipleSelection}

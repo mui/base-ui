@@ -19,7 +19,6 @@ import {
 } from '../../floating-ui-react';
 import { SelectRootContext, SelectFloatingContext } from './SelectRootContext';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
-import { useLabelableContext } from '../../labelable-provider/LabelableContext';
 import { useLabelableId } from '../../labelable-provider/useLabelableId';
 import { useTransitionStatus } from '../../utils/useTransitionStatus';
 import { selectors, type State as StoreState } from '../store';
@@ -32,7 +31,7 @@ import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useFormContext } from '../../form/FormContext';
 import { useField } from '../../field/useField';
 import { stringifyAsValue } from '../../utils/resolveValueLabel';
-import { EMPTY_ARRAY } from '../../utils/constants';
+import { EMPTY_ARRAY, EMPTY_OBJECT } from '../../utils/constants';
 import { defaultItemEquality, findItemIndex } from '../../utils/itemEquality';
 import { useValueChanged } from '../../utils/useValueChanged';
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
@@ -82,7 +81,6 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     disabled: fieldDisabled,
     validation,
   } = useFieldRootContext();
-  const { controlId } = useLabelableContext();
 
   const generatedId = useLabelableId({ id });
 
@@ -375,10 +373,13 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     typeahead,
   ]);
 
-  const mergedTriggerProps = React.useMemo(
-    () => mergeProps(getReferenceProps(), interactionTypeProps),
-    [getReferenceProps, interactionTypeProps],
-  );
+  const mergedTriggerProps = React.useMemo(() => {
+    return mergeProps(
+      getReferenceProps(),
+      interactionTypeProps,
+      generatedId ? { id: generatedId } : EMPTY_OBJECT,
+    );
+  }, [getReferenceProps, interactionTypeProps, generatedId]);
 
   useOnFirstRender(() => {
     store.update({
@@ -549,7 +550,6 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
               queueMicrotask(handleChange);
             },
           })}
-          id={id || controlId || undefined}
           name={multiple ? undefined : name}
           value={serializedValue}
           disabled={disabled}

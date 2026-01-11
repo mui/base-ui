@@ -1093,7 +1093,7 @@ describe('<Select.Root />', () => {
   });
 
   describe('prop: id', () => {
-    it('sets the id on the hidden input', async () => {
+    it('sets the id on the trigger', async () => {
       await render(
         <Select.Root id="test-id">
           <Select.Trigger>
@@ -1110,8 +1110,8 @@ describe('<Select.Root />', () => {
         </Select.Root>,
       );
 
-      const input = screen.getByRole('textbox', { hidden: true });
-      expect(input).to.have.attribute('id', 'test-id');
+      const trigger = screen.getByRole('combobox');
+      expect(trigger).to.have.attribute('id', 'test-id');
     });
   });
 
@@ -1890,8 +1890,8 @@ describe('<Select.Root />', () => {
       );
     });
 
-    it('Field.Label links to hidden input and focuses trigger', async () => {
-      const { container, user } = await render(
+    it('Field.Label links to trigger and focuses it', async () => {
+      const { user } = await render(
         <Field.Root>
           <Field.Label data-testid="label">Font</Field.Label>
           <Select.Root>
@@ -1912,15 +1912,13 @@ describe('<Select.Root />', () => {
 
       const label = screen.getByTestId<HTMLLabelElement>('label');
       const trigger = screen.getByTestId('trigger');
-      // eslint-disable-next-line testing-library/no-container -- No appropriate method on screen since it's a hidden input without any type
-      const hiddenInput = container.querySelector('input[type="text"]');
 
-      expect(label).to.have.attribute('for', hiddenInput?.id);
-      expect(trigger).not.to.have.attribute('id', label?.htmlFor);
+      expect(label).to.have.attribute('for', trigger.id);
+      expect(trigger).to.have.attribute('id', label?.htmlFor);
 
       await user.click(label);
 
-      expect(trigger).toHaveFocus();
+      expect(screen.getByRole('listbox')).toHaveFocus();
     });
 
     it('Field.Description', async () => {
