@@ -134,9 +134,7 @@ describe('<PreviewCard.Root />', () => {
 
       await act(async () => trigger1.focus());
       await flushMicrotasks();
-      await waitFor(() => {
-        expect(screen.getByText('Content')).toBeVisible();
-      });
+      expect(screen.getByText('Content')).toBeVisible();
       await act(async () => trigger1.blur());
       expect(screen.queryByText('Content')).to.equal(null);
 
@@ -257,8 +255,8 @@ describe('<PreviewCard.Root />', () => {
       const trigger2 = screen.getByRole('link', { name: 'Trigger 2' });
 
       await act(async () => trigger1.focus());
-      const popupElement = await screen.findByTestId('popup');
-      const positionerElement = await screen.findByTestId('positioner');
+      const popupElement = screen.getByTestId('popup');
+      const positionerElement = screen.getByTestId('positioner');
 
       await act(async () => trigger2.focus());
       expect(screen.getByTestId('positioner')).to.equal(positionerElement);
@@ -460,9 +458,7 @@ describe('<PreviewCard.Root />', () => {
 
       await act(async () => trigger1.focus());
       await flushMicrotasks();
-      await waitFor(() => {
-        expect(screen.getByText('Content')).toBeVisible();
-      });
+      expect(screen.getByText('Content')).toBeVisible();
       await act(async () => trigger1.blur());
       expect(screen.queryByText('Content')).to.equal(null);
 
@@ -546,8 +542,8 @@ describe('<PreviewCard.Root />', () => {
       const trigger2 = screen.getByRole('link', { name: 'Trigger 2' });
 
       await act(async () => trigger1.focus());
-      const popupElement = await screen.findByTestId('popup');
-      const positionerElement = await screen.findByTestId('positioner');
+      const popupElement = screen.getByTestId('popup');
+      const positionerElement = screen.getByTestId('positioner');
 
       await act(async () => trigger2.focus());
       expect(screen.getByTestId('popup')).to.equal(popupElement);

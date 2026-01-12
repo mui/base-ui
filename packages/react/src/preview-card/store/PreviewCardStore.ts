@@ -12,11 +12,10 @@ import {
 import { useSyncedFloatingRootContext } from '../../floating-ui-react';
 import { type PreviewCardRoot } from '../root/PreviewCardRoot';
 import { REASONS } from '../../utils/reasons';
-import { CLOSE_DELAY, OPEN_DELAY } from '../utils/constants';
+import { CLOSE_DELAY } from '../utils/constants';
 
 export type State<Payload> = PopupStoreState<Payload> & {
   instantType: 'dismiss' | 'focus' | undefined;
-  delay: number;
   closeDelay: number;
 };
 
@@ -25,7 +24,6 @@ export type Context = PopupStoreContext<PreviewCardRoot.ChangeEventDetails>;
 const selectors = {
   ...popupStoreSelectors,
   instantType: createSelector((state: State<unknown>) => state.instantType),
-  delay: createSelector((state: State<unknown>) => state.delay),
   closeDelay: createSelector((state: State<unknown>) => state.closeDelay),
 };
 
@@ -127,7 +125,6 @@ function createInitialState<Payload>(): State<Payload> {
   return {
     ...createInitialPopupStoreState(),
     instantType: undefined,
-    delay: OPEN_DELAY,
     closeDelay: CLOSE_DELAY,
   };
 }

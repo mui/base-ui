@@ -9,6 +9,7 @@ import { PreviewCardHandle } from '../store/PreviewCardHandle';
 import { useTriggerDataForwarding } from '../../utils/popups';
 import { CLOSE_DELAY, OPEN_DELAY } from '../utils/constants';
 import { safePolygon, useHoverReferenceInteraction } from '../../floating-ui-react';
+import { useFocusWithDelay } from '../../utils/interactions/useFocusWithDelay';
 
 /**
  * A link that opens the preview card.
@@ -55,7 +56,6 @@ export const PreviewCardTrigger = React.forwardRef(function PreviewCardTrigger(
     store,
     {
       payload,
-      delay: delayWithDefault,
       closeDelay: closeDelayWithDefault,
     },
   );
@@ -69,6 +69,8 @@ export const PreviewCardTrigger = React.forwardRef(function PreviewCardTrigger(
     isActiveTrigger: isTriggerActive,
   });
 
+  const focusProps = useFocusWithDelay(floatingRootContext, { delay: delayWithDefault });
+
   const state: PreviewCardTrigger.State = React.useMemo(
     () => ({ open: isOpenedByThisTrigger }),
     [isOpenedByThisTrigger],
@@ -79,7 +81,13 @@ export const PreviewCardTrigger = React.forwardRef(function PreviewCardTrigger(
   const element = useRenderElement('a', componentProps, {
     state,
     ref: [forwardedRef, registerTrigger, triggerElementRef],
-    props: [hoverProps, rootTriggerProps, { id: thisTriggerId }, elementProps],
+    props: [
+      hoverProps,
+      focusProps.reference,
+      rootTriggerProps,
+      { id: thisTriggerId },
+      elementProps,
+    ],
     stateAttributesMapping: triggerOpenStateMapping,
   });
 

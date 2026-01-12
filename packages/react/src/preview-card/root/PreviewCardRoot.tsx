@@ -15,7 +15,6 @@ import {
   useOpenStateTransitions,
 } from '../../utils/popups';
 import { PreviewCardHandle } from '../store/PreviewCardHandle';
-import { useFocusWithDelay } from '../../utils/interactions/useFocusWithDelay';
 
 /**
  * Groups all parts of the preview card.
@@ -75,15 +74,9 @@ export function PreviewCardRoot<Payload>(props: PreviewCardRoot.Props<Payload>) 
 
   const floatingRootContext = store.useState('floatingRootContext');
 
-  const focus = useFocusWithDelay(floatingRootContext, {
-    delay: store.useState('delay'),
-  });
   const dismiss = useDismiss(floatingRootContext);
 
-  const { getReferenceProps, getTriggerProps, getFloatingProps } = useInteractions([
-    focus,
-    dismiss,
-  ]);
+  const { getReferenceProps, getTriggerProps, getFloatingProps } = useInteractions([dismiss]);
 
   const activeTriggerProps = React.useMemo(() => getReferenceProps(), [getReferenceProps]);
   const inactiveTriggerProps = React.useMemo(() => getTriggerProps(), [getTriggerProps]);
