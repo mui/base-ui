@@ -55,6 +55,7 @@ export const PreviewCardTrigger = React.forwardRef(function PreviewCardTrigger(
     store,
     {
       payload,
+      delay: delayWithDefault,
       closeDelay: closeDelayWithDefault,
     },
   );

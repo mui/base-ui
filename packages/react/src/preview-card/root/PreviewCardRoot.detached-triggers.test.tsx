@@ -108,9 +108,15 @@ describe('<PreviewCard.Root />', () => {
       await render(
         <PreviewCard.Root>
           <button type="button" aria-label="Initial focus" autoFocus />
-          <PreviewCard.Trigger href="#">Trigger 1</PreviewCard.Trigger>
-          <PreviewCard.Trigger href="#">Trigger 2</PreviewCard.Trigger>
-          <PreviewCard.Trigger href="#">Trigger 3</PreviewCard.Trigger>
+          <PreviewCard.Trigger href="#" delay={0}>
+            Trigger 1
+          </PreviewCard.Trigger>
+          <PreviewCard.Trigger href="#" delay={0}>
+            Trigger 2
+          </PreviewCard.Trigger>
+          <PreviewCard.Trigger href="#" delay={0}>
+            Trigger 3
+          </PreviewCard.Trigger>
 
           <PreviewCard.Portal>
             <PreviewCard.Positioner>
@@ -128,7 +134,9 @@ describe('<PreviewCard.Root />', () => {
 
       await act(async () => trigger1.focus());
       await flushMicrotasks();
-      expect(screen.getByText('Content')).toBeVisible();
+      await waitFor(() => {
+        expect(screen.getByText('Content')).toBeVisible();
+      });
       await act(async () => trigger1.blur());
       expect(screen.queryByText('Content')).to.equal(null);
 
@@ -143,6 +151,45 @@ describe('<PreviewCard.Root />', () => {
       expect(screen.getByText('Content')).toBeVisible();
       await act(async () => trigger3.blur());
       expect(screen.queryByText('Content')).to.equal(null);
+    });
+
+    it('should switch immediately when focusing another trigger while open', async () => {
+      await render(
+        <PreviewCard.Root>
+          {({ payload }: NumberPayload) => (
+            <React.Fragment>
+              <button type="button" aria-label="Initial focus" autoFocus />
+              <PreviewCard.Trigger href="#" payload={1} delay={0}>
+                Trigger 1
+              </PreviewCard.Trigger>
+              <PreviewCard.Trigger href="#" payload={2} delay={2000}>
+                Trigger 2
+              </PreviewCard.Trigger>
+
+              <PreviewCard.Portal>
+                <PreviewCard.Positioner>
+                  <PreviewCard.Popup>
+                    <span data-testid="content">{payload}</span>
+                  </PreviewCard.Popup>
+                </PreviewCard.Positioner>
+              </PreviewCard.Portal>
+            </React.Fragment>
+          )}
+        </PreviewCard.Root>,
+      );
+
+      const trigger1 = screen.getByRole('link', { name: 'Trigger 1' });
+      const trigger2 = screen.getByRole('link', { name: 'Trigger 2' });
+
+      await act(async () => trigger1.focus());
+      await flushMicrotasks();
+      await waitFor(() => {
+        expect(screen.getByTestId('content').textContent).to.equal('1');
+      });
+
+      await act(async () => trigger2.focus());
+      await flushMicrotasks();
+      expect(screen.getByTestId('content').textContent).to.equal('2');
     });
 
     it('should set the payload and render content based on its value', async () => {
@@ -210,8 +257,8 @@ describe('<PreviewCard.Root />', () => {
       const trigger2 = screen.getByRole('link', { name: 'Trigger 2' });
 
       await act(async () => trigger1.focus());
-      const popupElement = screen.getByTestId('popup');
-      const positionerElement = screen.getByTestId('positioner');
+      const popupElement = await screen.findByTestId('popup');
+      const positionerElement = await screen.findByTestId('positioner');
 
       await act(async () => trigger2.focus());
       expect(screen.getByTestId('positioner')).to.equal(positionerElement);
@@ -385,13 +432,13 @@ describe('<PreviewCard.Root />', () => {
       await render(
         <div>
           <button type="button" aria-label="Initial focus" autoFocus />
-          <PreviewCard.Trigger href="#" handle={testPreviewCard}>
+          <PreviewCard.Trigger href="#" handle={testPreviewCard} delay={0}>
             Trigger 1
           </PreviewCard.Trigger>
-          <PreviewCard.Trigger href="#" handle={testPreviewCard}>
+          <PreviewCard.Trigger href="#" handle={testPreviewCard} delay={0}>
             Trigger 2
           </PreviewCard.Trigger>
-          <PreviewCard.Trigger href="#" handle={testPreviewCard}>
+          <PreviewCard.Trigger href="#" handle={testPreviewCard} delay={0}>
             Trigger 3
           </PreviewCard.Trigger>
 
@@ -413,7 +460,9 @@ describe('<PreviewCard.Root />', () => {
 
       await act(async () => trigger1.focus());
       await flushMicrotasks();
-      expect(screen.getByText('Content')).toBeVisible();
+      await waitFor(() => {
+        expect(screen.getByText('Content')).toBeVisible();
+      });
       await act(async () => trigger1.blur());
       expect(screen.queryByText('Content')).to.equal(null);
 
@@ -497,8 +546,8 @@ describe('<PreviewCard.Root />', () => {
       const trigger2 = screen.getByRole('link', { name: 'Trigger 2' });
 
       await act(async () => trigger1.focus());
-      const popupElement = screen.getByTestId('popup');
-      const positionerElement = screen.getByTestId('positioner');
+      const popupElement = await screen.findByTestId('popup');
+      const positionerElement = await screen.findByTestId('positioner');
 
       await act(async () => trigger2.focus());
       expect(screen.getByTestId('popup')).to.equal(popupElement);

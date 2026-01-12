@@ -89,10 +89,8 @@ export const PreviewCardPopup = React.forwardRef(function PreviewCardPopup(
     direction,
   });
 
-  const closeDelay = store.useState('closeDelay');
-
   useHoverFloatingInteraction(floatingContext, {
-    closeDelay,
+    closeDelay: store.useState('closeDelay'),
   });
 
   const state: PreviewCardPopup.State = React.useMemo(

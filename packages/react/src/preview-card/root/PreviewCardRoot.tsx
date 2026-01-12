@@ -75,7 +75,9 @@ export function PreviewCardRoot<Payload>(props: PreviewCardRoot.Props<Payload>) 
 
   const floatingRootContext = store.useState('floatingRootContext');
 
-  const focus = useFocusWithDelay(floatingRootContext);
+  const focus = useFocusWithDelay(floatingRootContext, {
+    delay: store.useState('delay'),
+  });
   const dismiss = useDismiss(floatingRootContext);
 
   const { getReferenceProps, getTriggerProps, getFloatingProps } = useInteractions([

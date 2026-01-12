@@ -1,37 +1,50 @@
 'use client';
 import * as React from 'react';
-import { getWindow, isHTMLElement } from '@floating-ui/utils/dom';
+import { getWindow, isElement, isHTMLElement } from '@floating-ui/utils/dom';
+import { isMac, isSafari } from '@base-ui/utils/detectBrowser';
 import { useTimeout } from '@base-ui/utils/useTimeout';
-import type { FloatingRootContext, ElementProps } from '../../floating-ui-react';
+import type { FloatingContext, FloatingRootContext, ElementProps } from '../../floating-ui-react';
 import { createChangeEventDetails } from '../createBaseUIEventDetails';
 import { REASONS } from '../reasons';
-import { activeElement, contains, getDocument } from '../../floating-ui-react/utils';
+import {
+  activeElement,
+  contains,
+  getDocument,
+  getTarget,
+  isTypeableElement,
+  matchesFocusVisible,
+} from '../../floating-ui-react/utils';
+import { createAttribute } from '../../floating-ui-react/utils/createAttribute';
+import { FloatingUIOpenChangeDetails } from '../types';
 
 interface UseFocusWithDelayProps {
   delay?: number | (() => number | undefined);
 }
 
+const isMacSafari = isMac && isSafari;
+
 /**
  * Adds support for delay, since Floating UI's `useFocus` hook does not support it.
  */
 export function useFocusWithDelay(
-  store: FloatingRootContext,
+  context: FloatingRootContext | FloatingContext,
   props: UseFocusWithDelayProps = {},
 ): ElementProps {
-  const domReference = store.useState('domReferenceElement');
-  const dataRef = store.context.dataRef;
+  const store = 'rootStore' in context ? context.rootStore : context;
+  const { dataRef, events } = store.context;
   const { delay } = props;
 
   const timeout = useTimeout();
   const blockFocusRef = React.useRef(false);
+  const keyboardModalityRef = React.useRef(true);
 
   React.useEffect(() => {
-    // TODO: remove domReference from dependencies or split this hook into trigger/popup hooks.
+    const domReference = store.select('domReferenceElement');
     const win = getWindow(domReference);
 
     // If the reference was focused and the user left the tab/window, and the preview card was not
     // open, the focus should be blocked when they return to the tab/window.
-    function handleBlur() {
+    function onBlur() {
       const currentDomReference = store.select('domReferenceElement');
       if (
         !store.select('open') &&
@@ -42,24 +55,123 @@ export function useFocusWithDelay(
       }
     }
 
-    win.addEventListener('blur', handleBlur);
+    function onKeyDown() {
+      keyboardModalityRef.current = true;
+    }
+
+    function onPointerDown() {
+      keyboardModalityRef.current = false;
+    }
+
+    win.addEventListener('blur', onBlur);
+
+    if (isMacSafari) {
+      win.addEventListener('keydown', onKeyDown, true);
+      win.addEventListener('pointerdown', onPointerDown, true);
+    }
+
     return () => {
-      win.removeEventListener('blur', handleBlur);
+      win.removeEventListener('blur', onBlur);
+
+      if (isMacSafari) {
+        win.removeEventListener('keydown', onKeyDown, true);
+        win.removeEventListener('pointerdown', onPointerDown, true);
+      }
     };
-  }, [store, domReference]);
+  }, [store]);
+
+  React.useEffect(() => {
+    function onOpenChangeLocal(details: FloatingUIOpenChangeDetails) {
+      if (details.reason === REASONS.triggerPress || details.reason === REASONS.escapeKey) {
+        blockFocusRef.current = true;
+      }
+    }
+
+    events.on('openchange', onOpenChangeLocal);
+    return () => {
+      events.off('openchange', onOpenChangeLocal);
+    };
+  }, [events]);
 
   const reference: ElementProps['reference'] = React.useMemo(
     () => ({
+      onMouseLeave() {
+        blockFocusRef.current = false;
+      },
       onFocus(event) {
-        const { nativeEvent } = event;
+        if (blockFocusRef.current) {
+          return;
+        }
+
+        const target = getTarget(event.nativeEvent);
+
+        if (isElement(target)) {
+          // Safari fails to match `:focus-visible` if focus was initially
+          // outside the document.
+          if (isMacSafari && !event.relatedTarget) {
+            if (!keyboardModalityRef.current && !isTypeableElement(target)) {
+              return;
+            }
+          } else if (!matchesFocusVisible(target)) {
+            return;
+          }
+        }
+
+        const movedFromOtherTrigger =
+          event.relatedTarget &&
+          store.context.triggerElements.hasElement(event.relatedTarget as Element);
+
+        const { nativeEvent, currentTarget } = event;
         const delayValue = typeof delay === 'function' ? delay() : delay;
-        timeout.start(delayValue ?? 0, () => {
-          store.setOpen(true, createChangeEventDetails(REASONS.triggerFocus, nativeEvent));
+
+        // If focus moves from another trigger and the popup was open, call setOpen with the current trigger immediately.
+        if (
+          (store.select('open') && movedFromOtherTrigger) ||
+          delayValue === 0 ||
+          delayValue === undefined
+        ) {
+          if (blockFocusRef.current) {
+            return;
+          }
+
+          store.setOpen(
+            true,
+            createChangeEventDetails(
+              REASONS.triggerFocus,
+              nativeEvent,
+              currentTarget as HTMLElement,
+            ),
+          );
+
+          return;
+        }
+
+        timeout.start(delayValue, () => {
+          if (blockFocusRef.current) {
+            return;
+          }
+
+          store.setOpen(
+            true,
+            createChangeEventDetails(
+              REASONS.triggerFocus,
+              nativeEvent,
+              currentTarget as HTMLElement,
+            ),
+          );
         });
       },
       onBlur(event) {
         blockFocusRef.current = false;
-        const { relatedTarget, nativeEvent } = event;
+        const relatedTarget = event.relatedTarget;
+        const nativeEvent = event.nativeEvent;
+
+        // Hit the non-modal focus management portal guard. Focus will be
+        // moved into the floating element immediately after.
+        const movedToFocusGuard =
+          isElement(relatedTarget) &&
+          relatedTarget.hasAttribute(createAttribute('focus-guard')) &&
+          relatedTarget.getAttribute('data-type') === 'outside';
 
         // Wait for the window blur listener to fire.
         timeout.start(0, () => {
@@ -82,8 +194,16 @@ export function useFocusWithDelay(
           // inside a shadow root.
           if (
             contains(dataRef.current.floatingContext?.refs.floating.current, activeEl) ||
-            contains(currentDomReference, activeEl)
+            contains(currentDomReference, activeEl) ||
+            movedToFocusGuard
           ) {
+            return;
+          }
+
+          // If the next focused element is one of the triggers, do not close
+          // the floating element. The focus handler of that trigger will
+          // handle the open state.
+          if (store.context.triggerElements.hasElement(event.relatedTarget as Element)) {
             return;
           }
 
