@@ -138,7 +138,7 @@ type ScrollAreaViewportState = {
 
 ### Thumb
 
-The draggable part of the the scrollbar that indicates the current scroll position.
+The draggable part of the scrollbar that indicates the current scroll position.
 Renders a `<div>` element.
 
 **Thumb Props:**

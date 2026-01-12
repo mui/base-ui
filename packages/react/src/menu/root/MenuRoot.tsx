@@ -593,7 +593,7 @@ export interface MenuRootProps<Payload = unknown> {
   highlightItemOnHover?: boolean;
   /**
    * Determines if the menu enters a modal state when open.
-   * - `true`: user interaction is limited to the menu: document page scroll is locked and and pointer interactions on outside elements are disabled.
+   * - `true`: user interaction is limited to the menu: document page scroll is locked and pointer interactions on outside elements are disabled.
    * - `false`: user interaction with the rest of the document is allowed.
    * @default true
    */

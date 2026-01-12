@@ -112,11 +112,19 @@ export function resolveSelectedLabel(
 }
 
 export function resolveMultipleLabels(
-  values: any[] | undefined,
+  values: any[],
+  items: ItemsInput,
   itemToStringLabel?: (item: any) => string,
-): string {
-  if (!Array.isArray(values) || values.length === 0) {
-    return '';
-  }
-  return values.map((v) => stringifyAsLabel(v, itemToStringLabel)).join(', ');
+): React.ReactNode {
+  return values.reduce((acc, value, index) => {
+    if (index > 0) {
+      acc.push(', ');
+    }
+    acc.push(
+      <React.Fragment key={index}>
+        {resolveSelectedLabel(value, items, itemToStringLabel)}
+      </React.Fragment>,
+    );
+    return acc;
+  }, []);
 }
