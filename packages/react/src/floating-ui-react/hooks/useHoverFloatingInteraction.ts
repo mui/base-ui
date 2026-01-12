@@ -1,15 +1,14 @@
 'use client';
 import * as React from 'react';
 import { isElement } from '@floating-ui/utils/dom';
-import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
-import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 
-import type { FloatingRootContext } from '../types';
+import type { FloatingContext, FloatingRootContext } from '../types';
 import { getDocument, getTarget, isMouseLikePointerType } from '../utils';
 
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
-import { FloatingUIOpenChangeDetails } from '../../utils/types';
 import { useFloatingParentNodeId, useFloatingTree } from '../components/FloatingTree';
 import { FloatingTreeStore } from '../components/FloatingTreeStore';
 import {
@@ -43,24 +42,27 @@ const clickLikeEvents = new Set(['click', 'mousedown']);
  * Provides hover interactions that should be attached to the floating element.
  */
 export function useHoverFloatingInteraction(
-  context: FloatingRootContext,
+  context: FloatingRootContext | FloatingContext,
   parameters: UseHoverFloatingInteractionProps = {},
 ): void {
-  const { open, onOpenChange, dataRef, events, elements } = context;
+  const store = 'rootStore' in context ? context.rootStore : context;
+  const open = store.useState('open');
+  const floatingElement = store.useState('floatingElement');
+  const domReferenceElement = store.useState('domReferenceElement');
+  const { dataRef } = store.context;
+
   const { enabled = true, closeDelay: closeDelayProp = 0, externalTree } = parameters;
 
   const {
     pointerTypeRef,
     interactedInsideRef,
     handlerRef,
-    blockMouseMoveRef,
     performedPointerEventsMutationRef,
     unbindMouseMoveRef,
     restTimeoutPendingRef,
     openChangeTimeout: openChangeTimeout,
-    restTimeout,
     handleCloseOptionsRef,
-  } = useHoverInteractionSharedState(context);
+  } = useHoverInteractionSharedState(store);
 
   const tree = useFloatingTree(externalTree);
   const parentId = useFloatingParentNodeId();
@@ -83,14 +85,14 @@ export function useHoverFloatingInteraction(
       const closeDelay = getDelay(closeDelayProp, pointerTypeRef.current);
       if (closeDelay && !handlerRef.current) {
         openChangeTimeout.start(closeDelay, () =>
-          onOpenChange(false, createChangeEventDetails(REASONS.triggerHover, event)),
+          store.setOpen(false, createChangeEventDetails(REASONS.triggerHover, event)),
         );
       } else if (runElseBranch) {
         openChangeTimeout.clear();
-        onOpenChange(false, createChangeEventDetails(REASONS.triggerHover, event));
+        store.setOpen(false, createChangeEventDetails(REASONS.triggerHover, event));
       }
     },
-    [closeDelayProp, handlerRef, onOpenChange, pointerTypeRef, openChangeTimeout],
+    [closeDelayProp, handlerRef, store, pointerTypeRef, openChangeTimeout],
   );
 
   const cleanupMouseMoveHandler = useStableCallback(() => {
@@ -100,7 +102,7 @@ export function useHoverFloatingInteraction(
 
   const clearPointerEvents = useStableCallback(() => {
     if (performedPointerEventsMutationRef.current) {
-      const body = getDocument(elements.floating).body;
+      const body = getDocument(floatingElement).body;
       body.style.pointerEvents = '';
       body.removeAttribute(safePolygonIdentifier);
       performedPointerEventsMutationRef.current = false;
@@ -116,26 +118,6 @@ export function useHoverFloatingInteraction(
 
     interactedInsideRef.current = true;
   });
-
-  React.useEffect(() => {
-    if (!enabled) {
-      return undefined;
-    }
-
-    function onOpenChangeLocal(details: FloatingUIOpenChangeDetails) {
-      if (!details.open) {
-        openChangeTimeout.clear();
-        restTimeout.clear();
-        blockMouseMoveRef.current = true;
-        restTimeoutPendingRef.current = false;
-      }
-    }
-
-    events.on('openchange', onOpenChangeLocal);
-    return () => {
-      events.off('openchange', onOpenChangeLocal);
-    };
-  }, [enabled, events, openChangeTimeout, restTimeout, blockMouseMoveRef, restTimeoutPendingRef]);
 
   useIsoLayoutEffect(() => {
     if (!open) {
@@ -173,15 +155,15 @@ export function useHoverFloatingInteraction(
       open &&
       handleCloseOptionsRef.current?.blockPointerEvents &&
       isHoverOpen() &&
-      isElement(elements.domReference) &&
-      elements.floating
+      isElement(domReferenceElement) &&
+      floatingElement
     ) {
       performedPointerEventsMutationRef.current = true;
-      const body = getDocument(elements.floating).body;
+      const body = getDocument(floatingElement).body;
       body.setAttribute(safePolygonIdentifier, '');
 
-      const ref = elements.domReference as HTMLElement | SVGSVGElement;
-      const floatingEl = elements.floating;
+      const ref = domReferenceElement as HTMLElement | SVGSVGElement;
+      const floatingEl = floatingElement;
 
       const parentFloating = tree?.nodesRef.current.find((node) => node.id === parentId)?.context
         ?.elements.floating;
@@ -205,8 +187,8 @@ export function useHoverFloatingInteraction(
   }, [
     enabled,
     open,
-    elements.domReference,
-    elements.floating,
+    domReferenceElement,
+    floatingElement,
     handleCloseOptionsRef,
     isHoverOpen,
     tree,
@@ -223,17 +205,12 @@ export function useHoverFloatingInteraction(
     // did not move.
     // https://github.com/floating-ui/floating-ui/discussions/1692
     function onScrollMouseLeave(event: MouseEvent) {
-      if (isClickLikeOpenEvent()) {
+      if (isClickLikeOpenEvent() || !dataRef.current.floatingContext || !store.select('open')) {
         return;
       }
-      if (!dataRef.current.floatingContext) {
-        return;
-      }
-      if (
-        event.relatedTarget &&
-        elements.triggers &&
-        elements.triggers.includes(event.relatedTarget as Element)
-      ) {
+
+      const triggerElements = store.context.triggerElements;
+      if (event.relatedTarget && triggerElements.hasElement(event.relatedTarget as Element)) {
         // If the mouse is leaving the reference element to another trigger, don't explicitly close the popup
         // as it will be moved.
         return;
@@ -259,7 +236,7 @@ export function useHoverFloatingInteraction(
       }
     }
 
-    const floating = elements.floating;
+    const floating = floatingElement;
     if (floating) {
       floating.addEventListener('mouseleave', onScrollMouseLeave);
       floating.addEventListener('mouseenter', onFloatingMouseEnter);

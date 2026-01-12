@@ -1,10 +1,10 @@
 'use client';
 import * as React from 'react';
-import { useControlled } from '@base-ui-components/utils/useControlled';
-import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
-import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
-import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
-import { visuallyHidden } from '@base-ui-components/utils/visuallyHidden';
+import { useControlled } from '@base-ui/utils/useControlled';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { visuallyHiddenInput } from '@base-ui/utils/visuallyHidden';
 import { useRenderElement } from '../../utils/useRenderElement';
 import type { BaseUIComponentProps, NonNativeButtonProps } from '../../utils/types';
 import { mergeProps } from '../../merge-props';
@@ -46,6 +46,7 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
     required = false,
     disabled: disabledProp = false,
     render,
+    uncheckedValue,
     ...elementProps
   } = componentProps;
 
@@ -63,7 +64,7 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
     name: fieldName,
     validation,
   } = useFieldRootContext();
-  const { labelId, registerLabelableControlRef } = useLabelableContext();
+  const { labelId } = useLabelableContext();
 
   const disabled = fieldDisabled || disabledProp;
   const name = fieldName ?? nameProp;
@@ -77,11 +78,12 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
 
   const id = useBaseUiId();
 
-  const inputId = useLabelableId({
+  const controlId = useLabelableId({
     id: idProp,
     implicit: false,
     controlRef: switchRef,
   });
+  const hiddenInputId = nativeButton ? undefined : controlId;
 
   const [checked, setCheckedState] = useControlled({
     controlled: checkedProp,
@@ -123,10 +125,11 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
   });
 
   const rootProps: React.ComponentPropsWithRef<'span'> = {
-    id,
+    id: nativeButton ? controlId : id,
     role: 'switch',
     'aria-checked': checked,
     'aria-readonly': readOnly || undefined,
+    'aria-required': required || undefined,
     'aria-labelledby': labelId,
     onFocus() {
       if (!disabled) {
@@ -163,10 +166,10 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
         {
           checked,
           disabled,
-          id: inputId,
+          id: hiddenInputId,
           name,
           required,
-          style: visuallyHidden,
+          style: visuallyHiddenInput,
           tabIndex: -1,
           type: 'checkbox',
           'aria-hidden': true,
@@ -198,7 +201,7 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
       checked,
       disabled,
       handleInputRef,
-      inputId,
+      hiddenInputId,
       name,
       onCheckedChange,
       required,
@@ -220,7 +223,7 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
 
   const element = useRenderElement('span', componentProps, {
     state,
-    ref: [forwardedRef, registerLabelableControlRef, switchRef, buttonRef],
+    ref: [forwardedRef, switchRef, buttonRef],
     props: [rootProps, validation.getValidationProps, elementProps, getButtonProps],
     stateAttributesMapping,
   });
@@ -228,7 +231,9 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
   return (
     <SwitchRootContext.Provider value={state}>
       {element}
-      {!checked && name && <input type="hidden" name={name} value="off" />}
+      {!checked && name && uncheckedValue !== undefined && (
+        <input type="hidden" name={name} value={uncheckedValue} />
+      )}
       <input {...inputProps} />
     </SwitchRootContext.Provider>
   );
@@ -252,9 +257,9 @@ export interface SwitchRootState extends FieldRoot.State {
    */
   required: boolean;
 }
+
 export interface SwitchRootProps
-  extends NonNativeButtonProps,
-    Omit<BaseUIComponentProps<'span', SwitchRoot.State>, 'onChange'> {
+  extends NonNativeButtonProps, Omit<BaseUIComponentProps<'span', SwitchRoot.State>, 'onChange'> {
   /**
    * The id of the switch element.
    */
@@ -299,7 +304,13 @@ export interface SwitchRootProps
    * @default false
    */
   required?: boolean;
+  /**
+   * The value submitted with the form when the switch is off.
+   * By default, unchecked switches do not submit any value, matching native checkbox behavior.
+   */
+  uncheckedValue?: string;
 }
+
 export type SwitchRootChangeEventReason = typeof REASONS.none;
 export type SwitchRootChangeEventDetails = BaseUIChangeEventDetails<SwitchRoot.ChangeEventReason>;
 

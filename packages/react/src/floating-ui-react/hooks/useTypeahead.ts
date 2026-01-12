@@ -1,11 +1,11 @@
 'use client';
 import * as React from 'react';
-import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
-import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
-import { useTimeout } from '@base-ui-components/utils/useTimeout';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { useTimeout } from '@base-ui/utils/useTimeout';
 import { stopEvent } from '../utils';
 
-import type { ElementProps, FloatingRootContext } from '../types';
+import type { ElementProps, FloatingContext, FloatingRootContext } from '../types';
 import { EMPTY_ARRAY } from '../../utils/constants';
 
 export interface UseTypeaheadProps {
@@ -63,8 +63,13 @@ export interface UseTypeaheadProps {
  * types, often used in tandem with `useListNavigation()`.
  * @see https://floating-ui.com/docs/useTypeahead
  */
-export function useTypeahead(context: FloatingRootContext, props: UseTypeaheadProps): ElementProps {
-  const { open, dataRef } = context;
+export function useTypeahead(
+  context: FloatingRootContext | FloatingContext,
+  props: UseTypeaheadProps,
+): ElementProps {
+  const store = 'rootStore' in context ? context.rootStore : context;
+  const open = store.useState('open');
+  const dataRef = store.context.dataRef;
   const {
     listRef,
     activeIndex,

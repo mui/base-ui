@@ -57,6 +57,9 @@
     "data-focused": {
       "description": "Present when the checkbox is focused (when wrapped in Field.Root)."
     },
+    "data-indeterminate": {
+      "description": "Present when the checkbox is in an indeterminate state."
+    },
     "data-starting-style": {
       "description": "Present when the checkbox indicator is animating in."
     },

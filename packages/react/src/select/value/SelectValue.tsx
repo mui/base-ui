@@ -1,10 +1,10 @@
 'use client';
 import * as React from 'react';
-import { useStore } from '@base-ui-components/utils/store';
+import { useStore } from '@base-ui/utils/store';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useSelectRootContext } from '../root/SelectRootContext';
-import { resolveSelectedLabel, resolveMultipleLabels } from '../../utils/resolveValueLabel';
+import { resolveMultipleLabels, resolveSelectedLabel } from '../../utils/resolveValueLabel';
 import { selectors } from '../store';
 import { StateAttributesMapping } from '../../utils/getStateAttributesProps';
 
@@ -30,6 +30,7 @@ export const SelectValue = React.forwardRef(function SelectValue(
   const items = useStore(store, selectors.items);
   const itemToStringLabel = useStore(store, selectors.itemToStringLabel);
   const serializedValue = useStore(store, selectors.serializedValue);
+  const multiple = useStore(store, selectors.multiple);
 
   const state: SelectValue.State = React.useMemo(
     () => ({
@@ -39,13 +40,16 @@ export const SelectValue = React.forwardRef(function SelectValue(
     [value, serializedValue],
   );
 
-  const children =
-    typeof childrenProp === 'function'
-      ? childrenProp(value)
-      : (childrenProp ??
-        (Array.isArray(value)
-          ? resolveMultipleLabels(value, itemToStringLabel)
-          : resolveSelectedLabel(value, items, itemToStringLabel)));
+  let children = null;
+  if (typeof childrenProp === 'function') {
+    children = childrenProp(value);
+  } else if (childrenProp != null) {
+    children = childrenProp;
+  } else if (multiple && Array.isArray(value)) {
+    children = resolveMultipleLabels(value, items, itemToStringLabel);
+  } else {
+    children = resolveSelectedLabel(value, items, itemToStringLabel);
+  }
 
   const element = useRenderElement('span', componentProps, {
     state,
@@ -64,8 +68,10 @@ export interface SelectValueState {
   value: any;
 }
 
-export interface SelectValueProps
-  extends Omit<BaseUIComponentProps<'span', SelectValue.State>, 'children'> {
+export interface SelectValueProps extends Omit<
+  BaseUIComponentProps<'span', SelectValue.State>,
+  'children'
+> {
   /**
    * Accepts a function that returns a `ReactNode` to format the selected value.
    * @example

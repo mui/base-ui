@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { expectType } from '#test-utils';
-import { Select } from '@base-ui-components/react/select';
+import { Select } from '@base-ui/react/select';
 import { mergeProps } from '../../merge-props';
 
 const objectItems = [
@@ -61,6 +61,7 @@ const objectItemsReadonly = [
     return item;
   }}
   onValueChange={(value) => {
+    // @ts-expect-error - possibly null
     value.startsWith('a');
   }}
 />;
@@ -88,6 +89,7 @@ const objectValueItems: Array<{ value: Obj; label: string }> = [
   itemToStringLabel={(item) => item.code}
   itemToStringValue={(item) => item.code}
   onValueChange={(value) => {
+    // @ts-expect-error - possibly null
     value.code;
   }}
 />;
@@ -177,13 +179,29 @@ function App() {
   }}
 />;
 
+<Select.Root
+  defaultValue={[{ id: 2, name: 'Bob' }]}
+  itemToStringLabel={(item) => item.name}
+  itemToStringValue={(item) => String(item.id)}
+  isItemEqualToValue={(item, value) => item.id === value.id}
+  defaultOpen
+  multiple
+/>;
+
+// Should accept null value
+<Select.Root items={objectItemsReadonly} value={null} />;
+
 function App2() {
   const [value, setValue] = React.useState('a');
   return (
     <Select.Root
       value={value}
       onValueChange={(newValue) => {
+        // @ts-expect-error
         newValue.length;
+        // @ts-expect-error - user is forced to type useState with null
+        // even if they don't want to allow null
+        setValue(newValue);
       }}
     />
   );
@@ -197,6 +215,7 @@ function App3() {
       onValueChange={(newValue) => {
         // @ts-expect-error
         newValue.length;
+        setValue(newValue);
       }}
     />
   );
@@ -208,3 +227,9 @@ mergeProps<typeof Select.Root<any>>(
   },
   {},
 );
+
+export function Wrapper<Value, Multiple extends boolean | undefined = false>(
+  props: Select.Root.Props<Value, Multiple>,
+) {
+  return <Select.Root {...props} />;
+}

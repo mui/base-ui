@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Menu } from '@base-ui-components/react/menu';
+import { Menu } from '@base-ui/react/menu';
 import { expect } from 'chai';
 import { createRenderer, describeConformance } from '#test-utils';
 import { act, waitFor, screen } from '@mui/internal-test-utils';

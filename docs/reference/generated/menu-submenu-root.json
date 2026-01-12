@@ -18,6 +18,12 @@
       "description": "Event handler called when the menu is opened or closed.",
       "detailedType": "| ((\n    open: boolean,\n    eventDetails: Menu.SubmenuRoot.ChangeEventDetails,\n  ) => void)\n| undefined"
     },
+    "highlightItemOnHover": {
+      "type": "boolean",
+      "default": "true",
+      "description": "Whether moving the pointer over items should highlight them.\nDisabling this prop allows CSS `:hover` to be differentiated from the `:focus` (`data-highlighted`) state.",
+      "detailedType": "boolean | undefined"
+    },
     "actionsRef": {
       "type": "RefObject<Menu.Root.Actions>",
       "description": "A ref to imperative actions.\n- `unmount`: When specified, the menu will not be unmounted when closed.\n   Instead, the `unmount` function must be called to unmount the menu manually.\n  Useful when the menu's animation is controlled by an external library.\n- `close`: When specified, the menu can be closed imperatively.",
@@ -25,13 +31,13 @@
     },
     "closeParentOnEsc": {
       "type": "boolean",
-      "default": "true",
+      "default": "false",
       "description": "When in a submenu, determines whether pressing the Escape key\ncloses the entire menu, or only the current child menu.",
       "detailedType": "boolean | undefined"
     },
     "defaultTriggerId": {
       "type": "string | null",
-      "description": "ID of the trigger that the popover is associated with.\nThis is useful in conjuntion with the `defaultOpen` prop to create an initially open popover.",
+      "description": "ID of the trigger that the popover is associated with.\nThis is useful in conjunction with the `defaultOpen` prop to create an initially open popover.",
       "detailedType": "string | null | undefined"
     },
     "handle": {
@@ -52,7 +58,7 @@
     },
     "triggerId": {
       "type": "string | null",
-      "description": "ID of the trigger that the popover is associated with.\nThis is useful in conjuntion with the `open` prop to create a controlled popover.\nThere's no need to specify this prop when the popover is uncontrolled (i.e. when the `open` prop is not set).",
+      "description": "ID of the trigger that the popover is associated with.\nThis is useful in conjunction with the `open` prop to create a controlled popover.\nThere's no need to specify this prop when the popover is uncontrolled (i.e. when the `open` prop is not set).",
       "detailedType": "string | null | undefined"
     },
     "disabled": {

@@ -1,10 +1,10 @@
 'use client';
 import * as React from 'react';
 import { getSide, getAlignment, type Rect, getSideAxis } from '@floating-ui/utils';
-import { ownerDocument } from '@base-ui-components/utils/owner';
-import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
-import { useValueAsRef } from '@base-ui-components/utils/useValueAsRef';
-import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
+import { ownerDocument } from '@base-ui/utils/owner';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import {
   autoUpdate,
   flip,
@@ -13,7 +13,6 @@ import {
   shift,
   useFloating,
   size,
-  hide,
   type UseFloatingOptions,
   type Placement,
   type FloatingRootContext,
@@ -24,10 +23,12 @@ import {
   type MiddlewareState,
   type AutoUpdateOptions,
   type Middleware,
-} from '../floating-ui-react/index';
+  type FloatingTreeStore,
+} from '../floating-ui-react';
 import { useDirection } from '../direction-provider/DirectionContext';
 import { arrow } from '../floating-ui-react/middleware/arrow';
-import { FloatingTreeStore } from '../floating-ui-react/components/FloatingTreeStore';
+import { hide } from './hideMiddleware';
+import { DEFAULT_SIDES } from './adaptiveOriginMiddleware';
 
 function getLogicalSide(sideParam: Side, renderedSide: PhysicalSide, isRtl: boolean): Side {
   const isLogicalSideParam = sideParam === 'inline-start' || sideParam === 'inline-end';
@@ -328,7 +329,6 @@ export function useAnchorPositioning(
       }),
       [arrowPadding],
     ),
-    hide(),
     {
       name: 'transformOrigin',
       fn(state) {
@@ -369,18 +369,21 @@ export function useAnchorPositioning(
         return {};
       },
     },
+    hide,
     adaptiveOrigin,
   );
 
-  // Ensure positioning doesn't run initially for `keepMounted` elements that
-  // aren't initially open.
-  let rootContext = floatingRootContext;
-  if (!mounted && floatingRootContext) {
-    rootContext = {
-      ...floatingRootContext,
-      elements: { reference: null, floating: null, domReference: null },
-    };
-  }
+  useIsoLayoutEffect(() => {
+    // Ensure positioning doesn't run initially for `keepMounted` elements that
+    // aren't initially open.
+    if (!mounted && floatingRootContext) {
+      floatingRootContext.update({
+        referenceElement: null,
+        floatingElement: null,
+        domReferenceElement: null,
+      });
+    }
+  }, [mounted, floatingRootContext]);
 
   const autoUpdateOptions: AutoUpdateOptions = React.useMemo(
     () => ({
@@ -402,7 +405,7 @@ export function useAnchorPositioning(
     isPositioned,
     floatingStyles: originalFloatingStyles,
   } = useFloating({
-    rootContext,
+    rootContext: floatingRootContext,
     placement,
     middleware,
     strategy: positionMethod,
@@ -413,14 +416,18 @@ export function useAnchorPositioning(
     externalTree,
   });
 
-  const { sideX, sideY } = middlewareData.adaptiveOrigin || {};
+  const { sideX, sideY } = middlewareData.adaptiveOrigin || DEFAULT_SIDES;
+
+  // Default to `fixed` when not positioned to prevent `autoFocus` scroll jumps.
+  // This ensures the popup is inside the viewport initially before it gets positioned.
+  const resolvedPosition: 'absolute' | 'fixed' = isPositioned ? positionMethod : 'fixed';
 
   const floatingStyles = React.useMemo<React.CSSProperties>(
     () =>
       adaptiveOrigin
-        ? { position: positionMethod, [sideX]: `${x}px`, [sideY]: `${y}px` }
-        : originalFloatingStyles,
-    [adaptiveOrigin, sideX, sideY, positionMethod, x, y, originalFloatingStyles],
+        ? { position: resolvedPosition, [sideX]: x, [sideY]: y }
+        : { position: resolvedPosition, ...originalFloatingStyles },
+    [adaptiveOrigin, resolvedPosition, sideX, x, sideY, y, originalFloatingStyles],
   );
 
   const registeredPositionReferenceRef = React.useRef<Element | VirtualElement | null>(null);

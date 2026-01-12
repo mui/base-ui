@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { expect } from 'chai';
 import { act, createRenderer, screen } from '@mui/internal-test-utils';
+import { SinonSpy, spy } from 'sinon';
 import { ReactStore } from './ReactStore';
 import { useRefWithInit } from '../useRefWithInit';
 import { createSelector } from './createSelector';
@@ -161,6 +162,58 @@ describe('ReactStore', () => {
     act(() => setProps({ props: { value: 6, label: 'b' } }));
     expect(store.state.value).to.equal(6);
     expect(store.state.label).to.equal('b');
+  });
+
+  it('useSyncedValues depends on entries instead of object identity', () => {
+    let store!: ReactStore<TestState>;
+    let updateSpy!: SinonSpy<[Partial<TestState>], void>;
+
+    function Test({ props }: { props: Partial<TestState> }) {
+      store = useStableStore<TestState>({ value: 0, label: '' });
+
+      if (!updateSpy) {
+        updateSpy = spy(store, 'update');
+      }
+
+      store.useSyncedValues(props);
+      return null;
+    }
+
+    const { setProps } = render(<Test props={{ value: 5, label: 'a' }} />, { strict: false });
+
+    expect(updateSpy.callCount).to.equal(1);
+
+    act(() => {
+      setProps({ props: { value: 5, label: 'a' } });
+    });
+
+    expect(updateSpy.callCount).to.equal(1);
+
+    act(() => {
+      setProps({ props: { value: 6, label: 'a' } });
+    });
+
+    expect(updateSpy.callCount).to.equal(2);
+    expect(store.state.value).to.equal(6);
+  });
+
+  it('warns if useSyncedValues keys change between renders', () => {
+    function Test({ props }: { props: Partial<TestState> }) {
+      const store = useStableStore<TestState>({ value: 0, label: '' });
+      store.useSyncedValues(props);
+      return null;
+    }
+
+    const { setProps } = render(<Test props={{ value: 1 }} />);
+
+    expect(() => {
+      act(() => {
+        setProps({ props: { label: 'x' } });
+      });
+    }).toErrorDev([
+      'ReactStore.useSyncedValues expects the same prop keys on every render. Keys should be stable.',
+      'ReactStore.useSyncedValues expects the same prop keys on every render. Keys should be stable.',
+    ]);
   });
 
   it('useSyncedValueWithCleanup synchronizes value and resets on cleanup', () => {

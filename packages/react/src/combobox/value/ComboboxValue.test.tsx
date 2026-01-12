@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { expect } from 'chai';
 import { screen } from '@mui/internal-test-utils';
-import { Combobox } from '@base-ui-components/react/combobox';
+import { Combobox } from '@base-ui/react/combobox';
 import { createRenderer } from '#test-utils';
 
 describe('<Combobox.Value />', () => {
@@ -391,7 +391,7 @@ describe('<Combobox.Value />', () => {
         const bRef = React.useRef({ value: 'b', label: 'b' });
         const cRef = React.useRef<{ value: 'c'; label: string } | null>(null);
 
-        const [value, setValue] = React.useState(aRef.current);
+        const [value, setValue] = React.useState<typeof aRef.current | null>(aRef.current);
         const [items, setItems] = React.useState([aRef.current, bRef.current]);
 
         function updateItems() {
@@ -518,6 +518,101 @@ describe('<Combobox.Value />', () => {
       );
 
       expect(screen.getByTestId('value')).to.have.text('None selected');
+    });
+  });
+
+  describe('multiple selection', () => {
+    it('displays comma-separated labels from items array', async () => {
+      const items = [
+        { value: 'sans', label: 'Sans-serif' },
+        { value: 'serif', label: 'Serif' },
+        { value: 'mono', label: 'Monospace' },
+      ];
+
+      await render(
+        <Combobox.Root defaultValue={[items[0], items[1]]} items={items} multiple>
+          <Combobox.Trigger>
+            <span data-testid="value">
+              <Combobox.Value />
+            </span>
+          </Combobox.Trigger>
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.Input />
+                <Combobox.List>
+                  {(item: any) => (
+                    <Combobox.Item key={item.value} value={item}>
+                      {item.label}
+                    </Combobox.Item>
+                  )}
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      expect(screen.getByTestId('value')).to.have.text('Sans-serif, Serif');
+    });
+
+    it('supports ReactNode labels for multiple selections', async () => {
+      const items = [
+        { value: 'bold', label: <strong>Bold Text</strong> },
+        { value: 'italic', label: <em>Italic Text</em> },
+      ];
+
+      await render(
+        <Combobox.Root defaultValue={items} items={items} multiple>
+          <Combobox.Trigger>
+            <span data-testid="value">
+              <Combobox.Value />
+            </span>
+          </Combobox.Trigger>
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  {(item: any) => (
+                    <Combobox.Item key={item.value} value={item}>
+                      {item.label}
+                    </Combobox.Item>
+                  )}
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const value = screen.getByTestId('value');
+      expect(value.querySelector('strong')).to.have.text('Bold Text');
+      expect(value.querySelector('em')).to.have.text('Italic Text');
+      expect(value).to.have.text('Bold Text, Italic Text');
+    });
+
+    it('falls back to raw values when items are not provided', async () => {
+      await render(
+        <Combobox.Root defaultValue={['serif', 'mono']} multiple>
+          <Combobox.Trigger>
+            <span data-testid="value">
+              <Combobox.Value />
+            </span>
+          </Combobox.Trigger>
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  <Combobox.Item value="serif">Serif</Combobox.Item>
+                  <Combobox.Item value="mono">Monospace</Combobox.Item>
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      expect(screen.getByTestId('value')).to.have.text('serif, mono');
     });
   });
 

@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { getTarget } from '../../floating-ui-react/utils';
 import { FieldRoot } from '../root/FieldRoot';
 import { useFieldRootContext } from '../root/FieldRootContext';
@@ -18,13 +18,13 @@ import { useRenderElement } from '../../utils/useRenderElement';
  */
 export const FieldLabel = React.forwardRef(function FieldLabel(
   componentProps: FieldLabel.Props,
-  forwardedRef: React.ForwardedRef<any>,
+  forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
   const { render, className, id: idProp, ...elementProps } = componentProps;
 
   const fieldRootContext = useFieldRootContext(false);
 
-  const { controlId, setLabelId, labelId, labelableControlRef } = useLabelableContext();
+  const { controlId, setLabelId, labelId } = useLabelableContext();
 
   const id = useBaseUiId(idProp);
 
@@ -38,7 +38,7 @@ export const FieldLabel = React.forwardRef(function FieldLabel(
     return () => {
       setLabelId(undefined);
     };
-  }, [id, labelableControlRef, setLabelId]);
+  }, [id, setLabelId]);
 
   const element = useRenderElement('label', componentProps, {
     ref: [forwardedRef, labelRef],

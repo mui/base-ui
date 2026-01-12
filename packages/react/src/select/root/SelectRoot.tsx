@@ -1,14 +1,14 @@
 'use client';
 import * as React from 'react';
-import { visuallyHidden } from '@base-ui-components/utils/visuallyHidden';
-import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
-import { useRefWithInit } from '@base-ui-components/utils/useRefWithInit';
-import { useOnFirstRender } from '@base-ui-components/utils/useOnFirstRender';
-import { useControlled } from '@base-ui-components/utils/useControlled';
-import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
-import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
-import { useValueAsRef } from '@base-ui-components/utils/useValueAsRef';
-import { useStore, Store } from '@base-ui-components/utils/store';
+import { visuallyHiddenInput } from '@base-ui/utils/visuallyHidden';
+import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
+import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
+import { useOnFirstRender } from '@base-ui/utils/useOnFirstRender';
+import { useControlled } from '@base-ui/utils/useControlled';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
+import { useStore, Store } from '@base-ui/utils/store';
 import {
   useClick,
   useDismiss,
@@ -35,6 +35,8 @@ import { stringifyAsValue } from '../../utils/resolveValueLabel';
 import { EMPTY_ARRAY } from '../../utils/constants';
 import { defaultItemEquality, findItemIndex } from '../../utils/itemEquality';
 import { useValueChanged } from '../../utils/useValueChanged';
+import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
+import { mergeProps } from '../../merge-props';
 
 /**
  * Groups all parts of the select.
@@ -42,12 +44,6 @@ import { useValueChanged } from '../../utils/useValueChanged';
  *
  * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
  */
-export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
-  props: SelectRootControlledProps<Value, Multiple>,
-): React.JSX.Element;
-export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
-  props: SelectRootUncontrolledProps<Value, Multiple>,
-): React.JSX.Element;
 export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
   props: SelectRoot.Props<Value, Multiple>,
 ): React.JSX.Element {
@@ -72,6 +68,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     itemToStringLabel,
     itemToStringValue,
     isItemEqualToValue = defaultItemEquality,
+    highlightItemOnHover = true,
     children,
   } = props;
 
@@ -123,6 +120,11 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
   const alignItemWithTriggerActiveRef = React.useRef(false);
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
+  const {
+    openMethod,
+    triggerProps: interactionTypeProps,
+    reset: resetOpenInteractionType,
+  } = useOpenInteractionType(open);
 
   const store = useRefWithInit(
     () =>
@@ -139,7 +141,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
         transitionStatus,
         items,
         forceMount: false,
-        touchModality: false,
+        openMethod: null,
         activeIndex: null,
         selectedIndex: null,
         popupProps: {},
@@ -165,6 +167,13 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     return stringifyAsValue(value, itemToStringValue);
   }, [multiple, value, itemToStringValue]);
 
+  const fieldStringValue = React.useMemo(() => {
+    if (multiple && Array.isArray(value)) {
+      return value.map((currentValue) => stringifyAsValue(currentValue, itemToStringValue));
+    }
+    return stringifyAsValue(value, itemToStringValue);
+  }, [multiple, value, itemToStringValue]);
+
   const controlRef = useValueAsRef(store.state.triggerElement);
 
   useField({
@@ -173,7 +182,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     value,
     controlRef,
     name,
-    getValue: () => value,
+    getValue: () => fieldStringValue,
   });
 
   const initialValueRef = React.useRef(value);
@@ -185,8 +194,8 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
   }, [store, value]);
 
   useIsoLayoutEffect(() => {
-    setFilled(value !== null);
-  }, [value, setFilled]);
+    setFilled(multiple ? Array.isArray(value) && value.length > 0 : value != null);
+  }, [multiple, value, setFilled]);
 
   useIsoLayoutEffect(
     function syncSelectedIndex() {
@@ -255,6 +264,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
   const handleUnmount = useStableCallback(() => {
     setMounted(false);
     store.set('activeIndex', null);
+    resetOpenInteractionType();
     onOpenChangeComplete?.(false);
   });
 
@@ -365,10 +375,15 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     typeahead,
   ]);
 
+  const mergedTriggerProps = React.useMemo(
+    () => mergeProps(getReferenceProps(), interactionTypeProps),
+    [getReferenceProps, interactionTypeProps],
+  );
+
   useOnFirstRender(() => {
     store.update({
       popupProps: getFloatingProps(),
-      triggerProps: getReferenceProps(),
+      triggerProps: mergedTriggerProps,
     });
   });
 
@@ -382,11 +397,12 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
       mounted,
       transitionStatus,
       popupProps: getFloatingProps(),
-      triggerProps: getReferenceProps(),
+      triggerProps: mergedTriggerProps,
       items,
       itemToStringLabel,
       itemToStringValue,
       isItemEqualToValue,
+      openMethod,
     });
   }, [
     store,
@@ -398,11 +414,12 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     mounted,
     transitionStatus,
     getFloatingProps,
-    getReferenceProps,
+    mergedTriggerProps,
     items,
     itemToStringLabel,
     itemToStringValue,
     isItemEqualToValue,
+    openMethod,
   ]);
 
   const contextValue: SelectRootContext = React.useMemo(
@@ -415,6 +432,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
       multiple,
       itemToStringLabel,
       itemToStringValue,
+      highlightItemOnHover,
       setValue,
       setOpen,
       listRef,
@@ -423,7 +441,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
       handleScrollArrowVisibility,
       scrollArrowsMountedCountRef,
       getItemProps,
-      events: floatingContext.events,
+      events: floatingContext.context.events,
       valueRef,
       valuesRef,
       labelsRef,
@@ -445,10 +463,11 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
       multiple,
       itemToStringLabel,
       itemToStringValue,
+      highlightItemOnHover,
       setValue,
       setOpen,
       getItemProps,
-      floatingContext.events,
+      floatingContext.context.events,
       validation,
       onOpenChangeComplete,
       handleScrollArrowVisibility,
@@ -533,7 +552,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
           required={required && !hasMultipleSelection}
           readOnly={readOnly}
           ref={ref}
-          style={visuallyHidden}
+          style={visuallyHiddenInput}
           tabIndex={-1}
           aria-hidden
         />
@@ -543,7 +562,11 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
   );
 }
 
-interface SelectRootCommonProps<Value> {
+type SelectValueType<Value, Multiple extends boolean | undefined> = Multiple extends true
+  ? Value[]
+  : Value;
+
+export interface SelectRootProps<Value, Multiple extends boolean | undefined = false> {
   children?: React.ReactNode;
   /**
    * A ref to access the hidden input element.
@@ -576,22 +599,13 @@ interface SelectRootCommonProps<Value> {
    * Whether multiple items can be selected.
    * @default false
    */
-  multiple?: boolean;
+  multiple?: Multiple;
   /**
-   * The value of the select. Use when controlled.
+   * Whether moving the pointer over items should highlight them.
+   * Disabling this prop allows CSS `:hover` to be differentiated from the `:focus` (`data-highlighted`) state.
+   * @default true
    */
-  value?: Value;
-  /**
-   * Event handler called when the value of the select changes.
-   */
-  onValueChange?: (value: Value, eventDetails: SelectRootChangeEventDetails) => void;
-  /**
-   * The uncontrolled value of the select when it’s initially rendered.
-   *
-   * To render a controlled select, use the `value` prop instead.
-   * @default null
-   */
-  defaultValue?: Value | null;
+  highlightItemOnHover?: boolean;
   /**
    * Whether the select popup is initially open.
    *
@@ -613,7 +627,7 @@ interface SelectRootCommonProps<Value> {
   open?: boolean;
   /**
    * Determines if the select enters a modal state when open.
-   * - `true`: user interaction is limited to the select: document page scroll is locked and and pointer interactions on outside elements are disabled.
+   * - `true`: user interaction is limited to the select: document page scroll is locked and pointer interactions on outside elements are disabled.
    * - `false`: user interaction with the rest of the document is allowed.
    * @default true
    */
@@ -639,7 +653,7 @@ interface SelectRootCommonProps<Value> {
    * <Select.Root items={items} />
    * ```
    */
-  items?: Record<string, React.ReactNode> | ReadonlyArray<{ label: React.ReactNode; value: Value }>;
+  items?: Record<string, React.ReactNode> | ReadonlyArray<{ label: React.ReactNode; value: any }>;
   /**
    * When the item values are objects (`<Select.Item value={object}>`), this function converts the object value to a string representation for display in the trigger.
    * If the shape of the object is `{ value, label }`, the label will be used automatically without needing to specify this prop.
@@ -655,55 +669,16 @@ interface SelectRootCommonProps<Value> {
    * Defaults to `Object.is` comparison.
    */
   isItemEqualToValue?: (itemValue: Value, value: Value) => boolean;
-}
-
-type SelectValueType<Value, Multiple extends boolean | undefined> = Multiple extends true
-  ? Value[]
-  : Value;
-
-type SelectRootBaseProps<Value, Multiple extends boolean | undefined> = Omit<
-  SelectRootCommonProps<Value>,
-  'multiple' | 'value' | 'defaultValue' | 'onValueChange'
-> & {
-  /**
-   * Whether multiple items can be selected.
-   * @default false
-   */
-  multiple?: Multiple;
   /**
    * The uncontrolled value of the select when it’s initially rendered.
    *
    * To render a controlled select, use the `value` prop instead.
-   * @default null
    */
   defaultValue?: SelectValueType<Value, Multiple> | null;
-};
-
-type SelectRootControlledProps<Value, Multiple extends boolean | undefined> = SelectRootBaseProps<
-  Value,
-  Multiple
-> & {
   /**
    * The value of the select. Use when controlled.
    */
-  value: SelectValueType<Value, Multiple>;
-  /**
-   * Event handler called when the value of the select changes.
-   */
-  onValueChange?: (
-    value: SelectValueType<Value, Multiple>,
-    eventDetails: SelectRootChangeEventDetails,
-  ) => void;
-};
-
-type SelectRootUncontrolledProps<Value, Multiple extends boolean | undefined> = SelectRootBaseProps<
-  Value,
-  Multiple
-> & {
-  /**
-   * The value of the select. Use when controlled.
-   */
-  value?: any;
+  value?: SelectValueType<Value, Multiple> | null;
   /**
    * Event handler called when the value of the select changes.
    */
@@ -711,16 +686,7 @@ type SelectRootUncontrolledProps<Value, Multiple extends boolean | undefined> = 
     value: SelectValueType<Value, Multiple> | (Multiple extends true ? never : null),
     eventDetails: SelectRootChangeEventDetails,
   ) => void;
-};
-
-export type SelectRootConditionalProps<Value, Multiple extends boolean | undefined = false> =
-  | SelectRootControlledProps<Value, Multiple>
-  | SelectRootUncontrolledProps<Value, Multiple>;
-
-export type SelectRootProps<
-  Value,
-  Multiple extends boolean | undefined = false,
-> = SelectRootConditionalProps<Value, Multiple>;
+}
 
 export interface SelectRootState {}
 

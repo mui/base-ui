@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useBaseUiId } from '../../utils/useBaseUiId';
@@ -22,7 +22,7 @@ import { REASONS } from '../../utils/reasons';
  */
 export const MenuRadioItem = React.forwardRef(function MenuRadioItem(
   componentProps: MenuRadioItem.Props,
-  forwardedRef: React.ForwardedRef<Element>,
+  forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
   const {
     render,
@@ -116,8 +116,7 @@ export type MenuRadioItemState = {
 };
 
 export interface MenuRadioItemProps
-  extends NonNativeButtonProps,
-    BaseUIComponentProps<'div', MenuRadioItem.State> {
+  extends NonNativeButtonProps, BaseUIComponentProps<'div', MenuRadioItem.State> {
   /**
    * Value of the radio item.
    * This is the value that will be set in the MenuRadioGroup when the item is selected.

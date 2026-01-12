@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
-import { useMediaQuery } from '@base-ui-components/react/unstable-use-media-query';
-import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
+import { useMediaQuery } from '@base-ui/react/unstable-use-media-query';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 
 let boundDataGaListener = false;
 
@@ -129,7 +129,7 @@ export namespace GoogleAnalytics {
   export interface Props {
     productId: string;
     productCategoryId: string;
-    codeStylingVariant: string;
+    codeStylingVariant: string | null;
     codeLanguage: string;
     currentRoute: string;
     packageManager: string;

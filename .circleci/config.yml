@@ -1,7 +1,7 @@
 version: 2.1
 
 orbs:
-  code-infra: https://raw.githubusercontent.com/mui/mui-public/e8720c89db86b256b0422d1c77fc292f979b892c/.circleci/orbs/code-infra.yml
+  code-infra: https://raw.githubusercontent.com/mui/mui-public/9510dc2c5c4671a0ac80e8c27d2d29dffecb1f1f/.circleci/orbs/code-infra.yml
 
 parameters:
   browserstack-force:
@@ -43,6 +43,19 @@ default-context: &default-context
 #   restore_cache:
 #     key: v1-repo-{{ .Branch }}-{{ .Revision }}
 
+commands:
+  build-with-compiler:
+    description: 'Build packages with React Compiler'
+    steps:
+      - run:
+          name: Add compiler package
+          command: pnpm -F "./packages/*" add react-compiler-runtime
+      - run:
+          name: Build with compiler
+          command: pnpm -F "./packages/*" build --enableReactCompiler
+          environment:
+            MUI_REACT_COMPILER_MODE: 'infer'
+
 jobs:
   test_unit:
     <<: *default-job
@@ -53,8 +66,18 @@ jobs:
       - run:
           name: Run tests on JSDOM
           command: pnpm test:jsdom:coverage
+      - store_test_results:
+          path: test-results
       - code-infra/upload-coverage:
           key: << parameters.react-version >>-jsdom
+  docs_validate:
+    <<: *default-job
+    steps:
+      - checkout
+      - code-infra/install-deps
+      - run:
+          name: Validate the documentation files
+          command: pnpm docs:validate
   test_lint:
     <<: *default-job
     steps:
@@ -77,11 +100,6 @@ jobs:
           name: '`pnpm extract-error-codes` changes committed?'
           command: |
             pnpm extract-error-codes
-            git add -A && git diff --exit-code --staged
-      - run:
-          name: '`pnpm docs:link-check` changes committed?'
-          command: |
-            pnpm docs:link-check
             git add -A && git diff --exit-code --staged
       - run:
           name: '`pnpm inline-scripts` changes committed?'
@@ -139,7 +157,7 @@ jobs:
     resource_class: 'medium+'
     executor:
       name: code-infra/mui-node-browser
-      playwright-img-version: v1.56.1-noble
+      playwright-img-version: v1.57.0-noble
     steps:
       - checkout
       - code-infra/install-deps:
@@ -147,19 +165,23 @@ jobs:
       - run:
           name: Run tests on headless Chromium
           command: pnpm test:chromium --coverage
+      - store_test_results:
+          path: test-results
       - code-infra/upload-coverage:
           key: << parameters.react-version >>-browser
   test_regressions:
     <<: *default-job
     executor:
       name: code-infra/mui-node-browser
-      playwright-img-version: v1.56.1-noble
+      playwright-img-version: v1.57.0-noble
     steps:
       - checkout
       - code-infra/install-deps
       - run:
           name: Run visual regression tests
           command: xvfb-run pnpm test:regressions
+      - store_test_results:
+          path: test-results
       - run:
           name: Upload screenshots to Argos CI
           command: pnpm test:argos
@@ -167,13 +189,15 @@ jobs:
     <<: *default-job
     executor:
       name: code-infra/mui-node-browser
-      playwright-img-version: v1.56.1-noble
+      playwright-img-version: v1.57.0-noble
     steps:
       - checkout
       - code-infra/install-deps
       - run:
           name: pnpm test:e2e
           command: pnpm test:e2e
+      - store_test_results:
+          path: test-results
 
   test_package:
     <<: *default-job
@@ -196,6 +220,37 @@ jobs:
           name: Verify built packages
           command: pnpm -r test:package
       - code-infra/upload-size-snapshot
+
+  test_unit_compiler:
+    <<: *default-job
+    steps:
+      - checkout
+      - code-infra/install-deps
+      - build-with-compiler
+      - run:
+          name: Run tests on JSDOM
+          command: pnpm test:jsdom:coverage
+          environment:
+            MUI_DISABLE_WORKSPACE_ALIASES: 1
+      - store_test_results:
+          path: test-results
+
+  test_browser_compiler:
+    <<: *default-job
+    executor:
+      name: code-infra/mui-node-browser
+      playwright-img-version: v1.57.0-noble
+    steps:
+      - checkout
+      - code-infra/install-deps
+      - build-with-compiler
+      - run:
+          name: Run tests on headless Chromium
+          command: pnpm test:chromium --coverage
+          environment:
+            MUI_DISABLE_WORKSPACE_ALIASES: 1
+      - store_test_results:
+          path: test-results
 
 workflows:
   pipeline:
@@ -226,6 +281,15 @@ workflows:
       - test_package:
           <<: *default-context
           name: 'Package verification'
+      - docs_validate:
+          <<: *default-context
+          name: 'Validating Docs'
+      - test_unit_compiler:
+          <<: *default-context
+          name: 'JSDOM tests (React Compiler)'
+      - test_browser_compiler:
+          <<: *default-context
+          name: 'Browser tests (React Compiler)'
   react-18:
     when:
       equal: [pipeline, << pipeline.parameters.workflow >>]

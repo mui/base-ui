@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
-import { useControlled } from '@base-ui-components/utils/useControlled';
-import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
+import { useControlled } from '@base-ui/utils/useControlled';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useBaseUiId } from '../utils/useBaseUiId';
 import { useRenderElement } from '../utils/useRenderElement';
 import { CheckboxGroupContext } from './CheckboxGroupContext';
@@ -51,7 +51,7 @@ export const CheckboxGroup = React.forwardRef(function CheckboxGroup(
     shouldValidateOnChange,
     validityData,
   } = useFieldRootContext();
-  const { labelId } = useLabelableContext();
+  const { labelId, getDescriptionProps } = useLabelableContext();
   const { clearErrors } = useFormContext();
 
   const disabled = fieldDisabled || disabledProp;
@@ -152,6 +152,7 @@ export const CheckboxGroup = React.forwardRef(function CheckboxGroup(
         role: 'group',
         'aria-labelledby': labelId,
       },
+      getDescriptionProps,
       elementProps,
     ],
     stateAttributesMapping: fieldValidityMapping,

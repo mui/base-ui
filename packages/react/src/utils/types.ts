@@ -52,7 +52,7 @@ export type BaseUIComponentProps<
   State,
   RenderFunctionProps = HTMLProps,
 > = Omit<
-  WithBaseUIEvent<React.ComponentPropsWithoutRef<ElementType>>,
+  WithBaseUIEvent<React.ComponentPropsWithRef<ElementType>>,
   'className' | 'color' | 'defaultValue' | 'defaultChecked'
 > & {
   /**
@@ -66,9 +66,7 @@ export type BaseUIComponentProps<
    *
    * Accepts a `ReactElement` or a function that returns the element to render.
    */
-  render?:
-    | ComponentRenderFn<RenderFunctionProps, State>
-    | React.ReactElement<Record<string, unknown>>;
+  render?: ComponentRenderFn<RenderFunctionProps, State> | React.ReactElement;
   /**
    * Style applied to the element, or a function that
    * returns a style object based on the component’s state.

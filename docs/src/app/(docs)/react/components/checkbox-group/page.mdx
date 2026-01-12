@@ -1,0 +1,137 @@
+# Checkbox Group
+
+<Subtitle>Provides shared state to a series of checkboxes.</Subtitle>
+<Meta
+  name="description"
+  content="A high-quality, unstyled React checkbox group component that provides a shared state for a series of checkboxes."
+/>
+
+import { DemoCheckboxGroupHero } from './demos/hero';
+
+<DemoCheckboxGroupHero />
+
+## Usage guidelines
+
+- **Form controls must have an accessible name**: It can be created using `<label>` elements, or the `Field` and `Fieldset` components. See [Labeling a checkbox group](#labeling-a-checkbox-group) and the [forms guide](/react/handbook/forms).
+
+## Anatomy
+
+Checkbox Group is composed together with [Checkbox](/react/components/checkbox). Import the components and place them together:
+
+```jsx title="Anatomy"
+import { Checkbox } from '@base-ui/react/checkbox';
+import { CheckboxGroup } from '@base-ui/react/checkbox-group';
+
+<CheckboxGroup>
+  <Checkbox.Root />
+</CheckboxGroup>;
+```
+
+## Examples
+
+### Labeling a checkbox group
+
+A visible label for the group is created by specifying `aria-labelledby` on `<CheckboxGroup>` to reference the `id` of a sibling element that contains the group label text.
+
+```tsx title="Using aria-labelledby to label a checkbox group"
+<div id="protocols-label">Allowed network protocols</div>
+<CheckboxGroup aria-labelledby="protocols-label">{/* ... */}</CheckboxGroup>
+```
+
+For individual checkboxes, use an enclosing `<label>` element that wraps each `<Checkbox.Root>`. An enclosing label is announced to screen readers when focus is on the control, and ensures that clicking on any gaps between the label and checkbox still toggles it.
+
+```tsx title="Using an enclosing label to label a checkbox" {1,4}
+<label>
+  <Checkbox.Root value="http" />
+  HTTP
+</label>
+```
+
+The [Field](/react/components/field) and [Fieldset](/react/components/fieldset) components eliminate the need to track `id` or `aria-labelledby` associations manually. They support both enclosing and sibling labeling patterns, along with a UX improvement to prevent double clicks from selecting the label text.
+
+1. **Group label**: Since the group contains multiple controls, it can be labeled as a fieldset. Use [Fieldset](/react/components/fieldset) by replacing the `<Fieldset.Root>` element with `<CheckboxGroup>` via the `render` prop. `<Fieldset.Legend>` provides the visible label for the group.
+2. **Individual label**: Label an individual checkbox using an enclosing `<Field.Label>`. Enclosing labels ensure that clicking on any gaps between the label and checkbox still toggles it.
+
+```tsx title="Using Field and Fieldset to label a checkbox group"
+<Field.Root>
+  <Fieldset.Root render={<CheckboxGroup />}>
+    <Fieldset.Legend>Allowed network protocols</Fieldset.Legend>
+    <Field.Label>
+      <Checkbox.Root value="http" />
+      HTTP
+    </Field.Label>
+    <Field.Label>
+      <Checkbox.Root value="https" />
+      HTTPS
+    </Field.Label>
+    <Field.Label>
+      <Checkbox.Root value="ssh" />
+      SSH
+    </Field.Label>
+  </Fieldset.Root>
+</Field.Root>
+```
+
+### Form integration
+
+To use a checkbox group in a form, pass the checkbox group's `name` to `<Field.Root>`:
+
+```tsx title="Using Checkbox Group in a form" {2}
+<Form>
+  <Field.Root name="allowedNetworkProtocols">
+    <Fieldset.Root render={<CheckboxGroup />}>
+      <Fieldset.Legend>Allowed network protocols</Fieldset.Legend>
+      <Field.Label>
+        <Checkbox.Root value="http" />
+        HTTP
+      </Field.Label>
+      <Field.Label>
+        <Checkbox.Root value="https" />
+        HTTPS
+      </Field.Label>
+      <Field.Label>
+        <Checkbox.Root value="ssh" />
+        SSH
+      </Field.Label>
+    </Fieldset.Root>
+  </Field.Root>
+</Form>
+```
+
+### Parent checkbox
+
+A checkbox that controls other checkboxes within a `<CheckboxGroup>` can be created:
+
+1. Make `<CheckboxGroup>` a controlled component
+2. Pass an array of all the child checkbox values to the `allValues` prop on the `<CheckboxGroup>` component
+3. Add the `parent` boolean prop to the parent `<Checkbox>`
+
+import { DemoCheckboxGroupParent } from './demos/parent';
+
+<DemoCheckboxGroupParent />
+
+### Nested parent checkbox
+
+import { DemoCheckboxGroupNested } from './demos/nested';
+
+<DemoCheckboxGroupNested compact />
+
+## API reference
+
+<Reference component="CheckboxGroup" />
+
+export const metadata = {
+  keywords: [
+    'React Checkbox Group',
+    'Checkbox Group Component',
+    'Grouped Checkboxes',
+    'Multiple Selection',
+    'Checkbox List',
+    'Multi-Select Checkboxes',
+    'Parent Child Checkbox',
+    'Accessible Checkbox Group',
+    'Form Fieldset Control',
+    'Headless React Components',
+    'Base UI',
+  ],
+};

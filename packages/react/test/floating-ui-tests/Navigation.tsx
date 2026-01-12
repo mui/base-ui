@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
+import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import {
   flip,
   FloatingFocusManager,
@@ -50,7 +50,7 @@ export const NavigationItem = React.forwardRef<
 
   const nodeId = useFloatingNodeId();
 
-  const { floatingStyles, refs, context } = useFloating<HTMLAnchorElement>({
+  const { floatingStyles, refs, context } = useFloating({
     open,
     nodeId,
     onOpenChange: setOpen,

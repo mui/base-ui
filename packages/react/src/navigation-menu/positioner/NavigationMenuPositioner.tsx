@@ -1,13 +1,14 @@
 'use client';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import { ownerWindow } from '@base-ui-components/utils/owner';
-import { useTimeout } from '@base-ui-components/utils/useTimeout';
+import { ownerWindow } from '@base-ui/utils/owner';
+import { useTimeout } from '@base-ui/utils/useTimeout';
 import {
   disableFocusInside,
   enableFocusInside,
   isOutsideEvent,
 } from '../../floating-ui-react/utils';
+import { getEmptyRootContext } from '../../floating-ui-react/utils/getEmptyRootContext';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import {
@@ -20,6 +21,9 @@ import { NavigationMenuPositionerContext } from './NavigationMenuPositionerConte
 import { popupStateMapping } from '../../utils/popupStateMapping';
 import { DROPDOWN_COLLISION_AVOIDANCE, POPUP_COLLISION_AVOIDANCE } from '../../utils/constants';
 import { adaptiveOrigin } from '../../utils/adaptiveOriginMiddleware';
+import { getDisabledMountTransitionStyles } from '../../utils/getDisabledMountTransitionStyles';
+
+const EMPTY_ROOT_CONTEXT = getEmptyRootContext();
 
 /**
  * Positions the navigation menu against the currently active trigger.
@@ -31,8 +35,15 @@ export const NavigationMenuPositioner = React.forwardRef(function NavigationMenu
   componentProps: NavigationMenuPositioner.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { open, mounted, positionerElement, setPositionerElement, floatingRootContext, nested } =
-    useNavigationMenuRootContext();
+  const {
+    open,
+    mounted,
+    positionerElement,
+    setPositionerElement,
+    floatingRootContext,
+    nested,
+    transitionStatus,
+  } = useNavigationMenuRootContext();
 
   const {
     className,
@@ -89,8 +100,10 @@ export const NavigationMenuPositioner = React.forwardRef(function NavigationMenu
     };
   }, [positionerElement]);
 
+  const domReference = (floatingRootContext || EMPTY_ROOT_CONTEXT).useState('domReferenceElement');
+
   const positioning = useAnchorPositioning({
-    anchor: anchor ?? floatingRootContext?.elements.domReference ?? prevTriggerElementRef,
+    anchor: anchor ?? domReference ?? prevTriggerElementRef,
     positionMethod,
     mounted,
     side,
@@ -164,7 +177,7 @@ export const NavigationMenuPositioner = React.forwardRef(function NavigationMenu
   const element = useRenderElement('div', componentProps, {
     state,
     ref: [forwardedRef, setPositionerElement, positionerRef],
-    props: [defaultProps, elementProps],
+    props: [defaultProps, getDisabledMountTransitionStyles(transitionStatus), elementProps],
     stateAttributesMapping: popupStateMapping,
   });
 
@@ -190,7 +203,8 @@ export interface NavigationMenuPositionerState {
 }
 
 export interface NavigationMenuPositionerProps
-  extends useAnchorPositioning.SharedParameters,
+  extends
+    useAnchorPositioning.SharedParameters,
     BaseUIComponentProps<'div', NavigationMenuPositioner.State> {}
 
 export namespace NavigationMenuPositioner {

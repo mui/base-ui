@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Select } from '@base-ui-components/react/select';
+import { Select } from '@base-ui/react/select';
 import { spy } from 'sinon';
 import { expect } from 'chai';
 import { fireEvent, flushMicrotasks, screen } from '@mui/internal-test-utils';
@@ -209,7 +209,7 @@ describe('<Select.Value />', () => {
       ];
 
       function App() {
-        const [value, setValue] = React.useState('sans');
+        const [value, setValue] = React.useState<string | null>('sans');
         return (
           <div>
             <button onClick={() => setValue('serif')}>serif</button>
@@ -275,7 +275,7 @@ describe('<Select.Value />', () => {
 
     it('is not stale after being updated', async () => {
       function App() {
-        const [value, setValue] = React.useState('a');
+        const [value, setValue] = React.useState<string | null>('a');
         const [items, setItems] = React.useState([
           { value: 'a', label: 'a' },
           { value: 'b', label: 'b' },
@@ -475,17 +475,66 @@ describe('<Select.Value />', () => {
 
       await render(
         <Select.Root value={['sans', 'serif']} items={items} multiple>
-          <Select.Value data-testid="value" />
+          <Select.Trigger>
+            <span data-testid="value">
+              <Select.Value />
+            </span>
+          </Select.Trigger>
         </Select.Root>,
       );
 
-      expect(screen.getByTestId('value')).to.have.text('sans, serif');
+      expect(screen.getByTestId('value')).to.have.text('Sans-serif, Serif');
     });
 
-    it('displays comma-separated values for multiple values with items array', async () => {
+    it('displays comma-separated labels for multiple values with items array', async () => {
+      const items = [
+        { value: 'serif', label: 'Serif' },
+        { value: 'mono', label: 'Monospace' },
+      ];
+
+      await render(
+        <Select.Root value={['serif', 'mono']} items={items} multiple>
+          <Select.Trigger>
+            <span data-testid="value">
+              <Select.Value />
+            </span>
+          </Select.Trigger>
+        </Select.Root>,
+      );
+
+      expect(screen.getByTestId('value')).to.have.text('Serif, Monospace');
+    });
+
+    it('supports ReactNode labels for multiple selections', async () => {
+      const items = [
+        { value: 'bold', label: <strong>Bold Text</strong> },
+        { value: 'italic', label: <em>Italic Text</em> },
+      ];
+
+      await render(
+        <Select.Root value={['bold', 'italic']} items={items} multiple>
+          <Select.Trigger>
+            <span data-testid="value">
+              <Select.Value />
+            </span>
+          </Select.Trigger>
+        </Select.Root>,
+      );
+
+      const value = screen.getByTestId('value');
+      expect(value.querySelector('strong')).to.have.text('Bold Text');
+      expect(value.querySelector('em')).to.have.text('Italic Text');
+      expect(value).to.have.text('Bold Text, Italic Text');
+    });
+
+    it('falls back to raw values when no items are provided', async () => {
       await render(
         <Select.Root value={['serif', 'mono']} multiple>
-          <Select.Value data-testid="value" />
+          <Select.Trigger>
+            <span data-testid="value">
+              <Select.Value />
+            </span>
+          </Select.Trigger>
         </Select.Root>,
       );
 

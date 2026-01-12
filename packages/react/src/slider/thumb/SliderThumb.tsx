@@ -1,10 +1,10 @@
 'use client';
 import * as React from 'react';
-import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
-import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
-import { useOnMount } from '@base-ui-components/utils/useOnMount';
-import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
-import { visuallyHidden } from '@base-ui-components/utils/visuallyHidden';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { useOnMount } from '@base-ui/utils/useOnMount';
+import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
+import { visuallyHidden } from '@base-ui/utils/visuallyHidden';
 import { BaseUIComponentProps } from '../../utils/types';
 import { formatNumber } from '../../utils/formatNumber';
 import { mergeProps } from '../../merge-props';
@@ -80,7 +80,7 @@ function getNewValue(
 }
 
 /**
- * The draggable part of the the slider at the tip of the indicator.
+ * The draggable part of the slider at the tip of the indicator.
  * Renders a `<div>` element and a nested `<input type="range">`.
  *
  * Documentation: [Base UI Slider](https://base-ui.com/react/components/slider)
@@ -466,8 +466,10 @@ export interface ThumbMetadata {
 
 export interface SliderThumbState extends SliderRoot.State {}
 
-export interface SliderThumbProps
-  extends Omit<BaseUIComponentProps<'div', SliderThumb.State>, 'onBlur' | 'onFocus'> {
+export interface SliderThumbProps extends Omit<
+  BaseUIComponentProps<'div', SliderThumb.State>,
+  'onBlur' | 'onFocus'
+> {
   /**
    * Whether the thumb should ignore user interaction.
    * @default false

@@ -3,14 +3,14 @@ import { expect } from 'chai';
 import { afterEach } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import { flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
-import { Menu } from '@base-ui-components/react/menu';
+import { Menu } from '@base-ui/react/menu';
 import { describeConformance, createRenderer, isJSDOM } from '#test-utils';
 
 const Trigger = React.forwardRef(function Trigger(
   props: Menu.Trigger.Props,
-  ref: React.ForwardedRef<HTMLDivElement>,
+  ref: React.ForwardedRef<any>,
 ) {
-  return <Menu.Trigger {...props} ref={ref} render={<div />} />;
+  return <Menu.Trigger {...props} ref={ref} render={<div />} nativeButton={false} />;
 });
 
 describe('<Menu.Positioner />', () => {
@@ -305,7 +305,7 @@ describe('<Menu.Positioner />', () => {
     });
 
     it('when keepMounted=true, should keep the content mounted when closed', async () => {
-      const { userEvent: user } = await import('@vitest/browser/context');
+      const { userEvent: user } = await import('vitest/browser');
       const { render: vbrRender } = await import('vitest-browser-react');
 
       vbrRender(
@@ -343,7 +343,7 @@ describe('<Menu.Positioner />', () => {
     });
 
     it('when keepMounted=false, should unmount the content when closed', async () => {
-      const { userEvent: user } = await import('@vitest/browser/context');
+      const { userEvent: user } = await import('vitest/browser');
       const { render: vbrRender } = await import('vitest-browser-react');
 
       vbrRender(

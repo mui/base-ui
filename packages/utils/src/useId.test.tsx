@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { expect } from 'chai';
 import { createRenderer, screen } from '@mui/internal-test-utils';
-import { useId } from '@base-ui-components/utils/useId';
+import { useId } from '@base-ui/utils/useId';
 
 interface TestComponentProps {
   id?: string;

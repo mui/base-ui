@@ -1,13 +1,10 @@
 import * as React from 'react';
-import { RadioGroup } from '@base-ui-components/react/radio-group';
-import { Radio } from '@base-ui-components/react/radio';
-import { Field } from '@base-ui-components/react/field';
-import { Fieldset } from '@base-ui-components/react/fieldset';
-import { Form } from '@base-ui-components/react/form';
-import {
-  DirectionProvider,
-  type TextDirection,
-} from '@base-ui-components/react/direction-provider';
+import { RadioGroup } from '@base-ui/react/radio-group';
+import { Radio } from '@base-ui/react/radio';
+import { Field } from '@base-ui/react/field';
+import { Fieldset } from '@base-ui/react/fieldset';
+import { Form } from '@base-ui/react/form';
+import { DirectionProvider, type TextDirection } from '@base-ui/react/direction-provider';
 import { expect } from 'chai';
 import { spy } from 'sinon';
 import { isJSDOM, createRenderer as createAsyncRenderer } from '#test-utils';
@@ -692,6 +689,36 @@ describe('<RadioGroup />', () => {
 
         fireEvent.click(screen.getByText('Banana'));
         expect(changeSpy.lastCall.returnValue).to.equal('banana');
+      });
+    });
+
+    describe('Field.Description', () => {
+      it('links the group and individual radios', async () => {
+        await render(
+          <Field.Root name="apple">
+            <RadioGroup defaultValue={[]}>
+              <Field.Description data-testid="group-description">
+                Group description
+              </Field.Description>
+              <Field.Item>
+                <Field.Label>
+                  <Radio.Root value="fuji-apple" />
+                  Fuji
+                </Field.Label>
+              </Field.Item>
+            </RadioGroup>
+          </Field.Root>,
+        );
+
+        const groupDescription = screen.getByTestId('group-description');
+        const groupDescriptionId = groupDescription.getAttribute('id');
+        expect(groupDescriptionId).to.not.equal(null);
+        expect(screen.getByRole('radiogroup').getAttribute('aria-describedby')).to.include(
+          groupDescriptionId,
+        );
+        expect(screen.getByRole('radio').getAttribute('aria-describedby')).to.include(
+          groupDescriptionId,
+        );
       });
     });
 

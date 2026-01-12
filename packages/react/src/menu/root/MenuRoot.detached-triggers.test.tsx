@@ -1,8 +1,8 @@
 import * as React from 'react';
 import { expect } from 'chai';
-import { act, waitFor, screen, fireEvent } from '@mui/internal-test-utils';
+import { act, fireEvent, ignoreActWarnings, screen, waitFor } from '@mui/internal-test-utils';
 import { spy } from 'sinon';
-import { Menu } from '@base-ui-components/react/menu';
+import { Menu } from '@base-ui/react/menu';
 import { createRenderer, isJSDOM, wait } from '#test-utils';
 
 describe('<MenuRoot />', () => {
@@ -422,6 +422,7 @@ describe('<MenuRoot />', () => {
       });
 
       it('allows selecting nested items via click, drag, release', async () => {
+        ignoreActWarnings();
         const clickSpy = spy();
         const { user } = await render(
           <Menu.Root>
@@ -916,6 +917,7 @@ describe('<MenuRoot />', () => {
       });
 
       it('selects nested items with click, drag, release', async () => {
+        ignoreActWarnings();
         const testMenu = Menu.createHandle();
         const clickSpy = spy();
         const { user } = await render(

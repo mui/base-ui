@@ -1,13 +1,13 @@
 'use client';
 import * as React from 'react';
-import { useRefWithInit } from '@base-ui-components/utils/useRefWithInit';
+import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { useDialogRoot } from './useDialogRoot';
 import { DialogRootContext, useDialogRootContext } from './DialogRootContext';
 import type { BaseUIChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
 import { DialogStore } from '../store/DialogStore';
 import { DialogHandle } from '../store/DialogHandle';
-import { type PayloadChildRenderFunction } from '../../utils/popupStoreUtils';
+import { type PayloadChildRenderFunction } from '../../utils/popups';
 
 /**
  * Groups all parts of the dialog.
@@ -33,7 +33,18 @@ export function DialogRoot<Payload>(props: DialogRoot.Props<Payload>) {
   const parentDialogRootContext = useDialogRootContext(true);
   const nested = Boolean(parentDialogRootContext);
 
-  const store = useRefWithInit(() => handle?.store ?? new DialogStore<Payload>()).current;
+  const store = useRefWithInit(() => {
+    return (
+      handle?.store ??
+      new DialogStore<Payload>({
+        open: openProp ?? defaultOpen,
+        activeTriggerId: triggerIdProp !== undefined ? triggerIdProp : defaultTriggerIdProp,
+        modal,
+        disablePointerDismissal,
+        nested,
+      })
+    );
+  }).current;
 
   store.useControlledProp('open', openProp, defaultOpen);
   store.useControlledProp('activeTriggerId', triggerIdProp, defaultTriggerIdProp);
@@ -98,6 +109,7 @@ export interface DialogRootProps<Payload = unknown> {
    * - `unmount`: When specified, the dialog will not be unmounted when closed.
    * Instead, the `unmount` function must be called to unmount the dialog manually.
    * Useful when the dialog's animation is controlled by an external library.
+   * - `close`: Closes the dialog imperatively when called.
    */
   actionsRef?: React.RefObject<DialogRoot.Actions>;
   /**
@@ -113,7 +125,7 @@ export interface DialogRootProps<Payload = unknown> {
   children?: React.ReactNode | PayloadChildRenderFunction<Payload>;
   /**
    * ID of the trigger that the dialog is associated with.
-   * This is useful in conjuntion with the `open` prop to create a controlled dialog.
+   * This is useful in conjunction with the `open` prop to create a controlled dialog.
    * There's no need to specify this prop when the popover is uncontrolled (i.e. when the `open` prop is not set).
    */
   triggerId?: string | null;

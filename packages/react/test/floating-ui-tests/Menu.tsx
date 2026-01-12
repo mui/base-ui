@@ -1,7 +1,7 @@
 'use client';
 import c from 'clsx';
 import * as React from 'react';
-import { useMergedRefsN } from '@base-ui-components/utils/useMergedRefs';
+import { useMergedRefsN } from '@base-ui/utils/useMergedRefs';
 import { CompositeList } from '../../src/composite/list/CompositeList';
 import { useCompositeListItem } from '../../src/composite/list/useCompositeListItem';
 import {
@@ -93,7 +93,7 @@ export const MenuComponent = React.forwardRef<
   const parent = React.useContext(MenuContext);
   const item = useCompositeListItem();
 
-  const { floatingStyles, refs, context } = useFloating<HTMLButtonElement>({
+  const { floatingStyles, refs, context } = useFloating({
     nodeId,
     open: isOpen,
     onOpenChange: setIsOpen,

@@ -2,12 +2,11 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { isTabbable } from 'tabbable';
-import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
-import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
-import { visuallyHidden } from '@base-ui-components/utils/visuallyHidden';
-import { useTimeout } from '@base-ui-components/utils/useTimeout';
-import { useAnimationFrame } from '@base-ui-components/utils/useAnimationFrame';
-import { useValueAsRef } from '@base-ui-components/utils/useValueAsRef';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { useTimeout } from '@base-ui/utils/useTimeout';
+import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
+import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import {
   safePolygon,
   useClick,
@@ -31,7 +30,7 @@ import {
 } from '../root/NavigationMenuRootContext';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
-import { EMPTY_ARRAY, PATIENT_CLICK_THRESHOLD } from '../../utils/constants';
+import { EMPTY_ARRAY, ownerVisuallyHidden, PATIENT_CLICK_THRESHOLD } from '../../utils/constants';
 import { FocusGuard } from '../../utils/FocusGuard';
 import { pressableTriggerOpenStateMapping } from '../../utils/popupStateMapping';
 import { isOutsideMenuEvent } from '../utils/isOutsideMenuEvent';
@@ -80,6 +79,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
     closeDelay,
     orientation,
     setViewportInert,
+    nested,
   } = useNavigationMenuRootContext();
   const { value: itemValue } = useNavigationMenuItemContext();
   const nodeId = useNavigationMenuTreeContext();
@@ -129,26 +129,28 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
     positionerElement.style.removeProperty(NavigationMenuPositionerCssVars.positionerHeight);
 
     const { width, height } = getCssDimensions(popupElement);
+    const measuredWidth = width || prevSizeRef.current.width;
+    const measuredHeight = height || prevSizeRef.current.height;
 
     if (currentHeight === 0 || currentWidth === 0) {
-      currentWidth = width;
-      currentHeight = height;
+      currentWidth = measuredWidth;
+      currentHeight = measuredHeight;
     }
 
     popupElement.style.setProperty(NavigationMenuPopupCssVars.popupWidth, `${currentWidth}px`);
     popupElement.style.setProperty(NavigationMenuPopupCssVars.popupHeight, `${currentHeight}px`);
     positionerElement.style.setProperty(
       NavigationMenuPositionerCssVars.positionerWidth,
-      `${width}px`,
+      `${measuredWidth}px`,
     );
     positionerElement.style.setProperty(
       NavigationMenuPositionerCssVars.positionerHeight,
-      `${height}px`,
+      `${measuredHeight}px`,
     );
 
     sizeFrame1.request(() => {
-      popupElement.style.setProperty(NavigationMenuPopupCssVars.popupWidth, `${width}px`);
-      popupElement.style.setProperty(NavigationMenuPopupCssVars.popupHeight, `${height}px`);
+      popupElement.style.setProperty(NavigationMenuPopupCssVars.popupWidth, `${measuredWidth}px`);
+      popupElement.style.setProperty(NavigationMenuPopupCssVars.popupHeight, `${measuredHeight}px`);
 
       sizeFrame2.request(() => {
         animationAbortControllerRef.current = new AbortController();
@@ -162,9 +164,14 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
       stickIfOpenTimeout.clear();
       sizeFrame1.cancel();
       sizeFrame2.cancel();
-      prevSizeRef.current = DEFAULT_SIZE;
     }
   }, [stickIfOpenTimeout, open, sizeFrame1, sizeFrame2]);
+
+  React.useEffect(() => {
+    if (!mounted) {
+      prevSizeRef.current = DEFAULT_SIZE;
+    }
+  }, [mounted]);
 
   React.useEffect(() => {
     if (!popupElement || typeof ResizeObserver !== 'function') {
@@ -319,7 +326,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
       // `click` -> `hover` on new trigger -> `hover` back to old trigger doesn't unexpectedly
       // cause the popup to remain stuck open when leaving the old trigger.
       if (event.type !== 'click') {
-        context.dataRef.current.openEvent = undefined;
+        context.context.dataRef.current.openEvent = undefined;
       }
 
       if (pointerType === 'touch' && event.type !== 'click') {
@@ -383,6 +390,14 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
     },
     onKeyDown(event) {
       allowFocusRef.current = true;
+
+      // For nested (submenu) triggers, don't intercept arrow keys that are used for
+      // navigation in the parent content. The arrow keys should be handled by the
+      // parent's CompositeRoot for navigating between items.
+      if (nested) {
+        return;
+      }
+
       const openHorizontal = orientation === 'horizontal' && event.key === 'ArrowDown';
       const openVertical = orientation === 'vertical' && event.key === 'ArrowRight';
 
@@ -447,7 +462,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
               }
             }}
           />
-          <span aria-owns={viewportElement?.id} style={visuallyHidden} />
+          <span aria-owns={viewportElement?.id} style={ownerVisuallyHidden} />
           <FocusGuard
             ref={afterOutsideRef}
             onFocus={(event) => {
@@ -481,8 +496,7 @@ export interface NavigationMenuTriggerState {
 }
 
 export interface NavigationMenuTriggerProps
-  extends NativeButtonProps,
-    BaseUIComponentProps<'button', NavigationMenuTrigger.State> {}
+  extends NativeButtonProps, BaseUIComponentProps<'button', NavigationMenuTrigger.State> {}
 
 export namespace NavigationMenuTrigger {
   export type State = NavigationMenuTriggerState;

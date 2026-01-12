@@ -1,11 +1,11 @@
 'use client';
 import * as React from 'react';
 import { getWindow } from '@floating-ui/utils/dom';
-import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
-import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { contains, getTarget, isMouseLikePointerType } from '../utils';
 
-import type { ContextData, ElementProps, FloatingRootContext } from '../types';
+import type { ContextData, ElementProps, FloatingContext, FloatingRootContext } from '../types';
 
 function createVirtualElement(
   domElement: Element | null | undefined,
@@ -117,15 +117,16 @@ export interface UseClientPointProps {
  * @see https://floating-ui.com/docs/useClientPoint
  */
 export function useClientPoint(
-  context: FloatingRootContext,
+  context: FloatingRootContext | FloatingContext,
   props: UseClientPointProps = {},
 ): ElementProps {
-  const {
-    open,
-    dataRef,
-    elements: { floating, domReference },
-    refs,
-  } = context;
+  const store = 'rootStore' in context ? context.rootStore : context;
+
+  const open = store.useState('open');
+  const floating = store.useState('floatingElement');
+  const domReference = store.useState('domReferenceElement');
+  const dataRef = store.context.dataRef;
+
   const { enabled = true, axis = 'both', x = null, y = null } = props;
 
   const initialRef = React.useRef(false);
@@ -134,28 +135,31 @@ export function useClientPoint(
   const [pointerType, setPointerType] = React.useState<string | undefined>();
   const [reactive, setReactive] = React.useState([]);
 
-  const setReference = useStableCallback((newX: number | null, newY: number | null) => {
-    if (initialRef.current) {
-      return;
-    }
+  const setReference = useStableCallback(
+    (newX: number | null, newY: number | null, referenceElement?: Element | null) => {
+      if (initialRef.current) {
+        return;
+      }
 
-    // Prevent setting if the open event was not a mouse-like one
-    // (e.g. focus to open, then hover over the reference element).
-    // Only apply if the event exists.
-    if (dataRef.current.openEvent && !isMouseBasedEvent(dataRef.current.openEvent)) {
-      return;
-    }
+      // Prevent setting if the open event was not a mouse-like one
+      // (e.g. focus to open, then hover over the reference element).
+      // Only apply if the event exists.
+      if (dataRef.current.openEvent && !isMouseBasedEvent(dataRef.current.openEvent)) {
+        return;
+      }
 
-    refs.setPositionReference(
-      createVirtualElement(domReference, {
-        x: newX,
-        y: newY,
-        axis,
-        dataRef,
-        pointerType,
-      }),
-    );
-  });
+      store.set(
+        'positionReference',
+        createVirtualElement(referenceElement ?? domReference, {
+          x: newX,
+          y: newY,
+          axis,
+          dataRef,
+          pointerType,
+        }),
+      );
+    },
+  );
 
   const handleReferenceEnterOrMove = useStableCallback((event: React.MouseEvent<Element>) => {
     if (x != null || y != null) {
@@ -163,7 +167,7 @@ export function useClientPoint(
     }
 
     if (!open) {
-      setReference(event.clientX, event.clientY);
+      setReference(event.clientX, event.clientY, event.currentTarget as Element);
     } else if (!cleanupListenerRef.current) {
       // If there's no cleanup, there's no listener, but we want to ensure
       // we add the listener if the cursor landed on the floating element and
@@ -207,9 +211,9 @@ export function useClientPoint(
       return cleanup;
     }
 
-    refs.setPositionReference(domReference);
+    store.set('positionReference', domReference);
     return undefined;
-  }, [openCheck, enabled, x, y, floating, dataRef, refs, domReference, setReference]);
+  }, [openCheck, enabled, x, y, floating, dataRef, domReference, store, setReference]);
 
   React.useEffect(() => {
     return addListener();
@@ -247,5 +251,8 @@ export function useClientPoint(
     };
   }, [handleReferenceEnterOrMove]);
 
-  return React.useMemo(() => (enabled ? { reference } : {}), [enabled, reference]);
+  return React.useMemo(
+    () => (enabled ? { reference, trigger: reference } : {}),
+    [enabled, reference],
+  );
 }

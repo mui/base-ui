@@ -9,19 +9,18 @@
     },
     "defaultValue": {
       "type": "Value[] | Value | null",
-      "default": "null",
       "description": "The uncontrolled value of the select when it’s initially rendered.\n\nTo render a controlled select, use the `value` prop instead.",
       "detailedType": "Value[] | Value | null | undefined"
     },
     "value": {
-      "type": "Value[] | Value | any",
+      "type": "Value[] | Value | null",
       "description": "The value of the select. Use when controlled.",
-      "detailedType": "Value[] | Value | any | undefined"
+      "detailedType": "Value[] | Value | null | undefined"
     },
     "onValueChange": {
-      "type": "((value: Value[] | Value, eventDetails: Select.Root.ChangeEventDetails) => void) | ((value: Value[] | Value | any | null, eventDetails: Select.Root.ChangeEventDetails) => void)",
+      "type": "((value: Value[] | Value | any | null, eventDetails: Select.Root.ChangeEventDetails) => void)",
       "description": "Event handler called when the value of the select changes.",
-      "detailedType": "| ((\n    value: Value[] | Value,\n    eventDetails: Select.Root.ChangeEventDetails,\n  ) => void)\n| ((\n    value: Value[] | Value | any | null,\n    eventDetails: Select.Root.ChangeEventDetails,\n  ) => void)\n| undefined"
+      "detailedType": "| ((\n    value: Value[] | Value | any | null,\n    eventDetails: Select.Root.ChangeEventDetails,\n  ) => void)\n| undefined"
     },
     "defaultOpen": {
       "type": "boolean",
@@ -38,6 +37,12 @@
       "type": "((open: boolean, eventDetails: Select.Root.ChangeEventDetails) => void)",
       "description": "Event handler called when the select popup is opened or closed.",
       "detailedType": "| ((\n    open: boolean,\n    eventDetails: Select.Root.ChangeEventDetails,\n  ) => void)\n| undefined"
+    },
+    "highlightItemOnHover": {
+      "type": "boolean",
+      "default": "true",
+      "description": "Whether moving the pointer over items should highlight them.\nDisabling this prop allows CSS `:hover` to be differentiated from the `:focus` (`data-highlighted`) state.",
+      "detailedType": "boolean | undefined"
     },
     "actionsRef": {
       "type": "RefObject<Select.Root.Actions>",
@@ -60,15 +65,15 @@
       "detailedType": "((itemValue: Value) => string) | undefined"
     },
     "items": {
-      "type": "Record<string, ReactNode> | ({ label: ReactNode, value: Value })[]",
+      "type": "Record<string, ReactNode> | ({ label: ReactNode, value: any })[]",
       "description": "Data structure of the items rendered in the select popup.\nWhen specified, `<Select.Value>` renders the label of the selected item instead of the raw value.",
       "example": "```tsx\nconst items = {\n  sans: 'Sans-serif',\n  serif: 'Serif',\n  mono: 'Monospace',\n  cursive: 'Cursive',\n};\n<Select.Root items={items} />\n```",
-      "detailedType": "| Record<string, ReactNode>\n| { label: ReactNode; value: Value }[]\n| undefined"
+      "detailedType": "| Record<string, ReactNode>\n| { label: ReactNode; value: any }[]\n| undefined"
     },
     "modal": {
       "type": "boolean",
       "default": "true",
-      "description": "Determines if the select enters a modal state when open.\n- `true`: user interaction is limited to the select: document page scroll is locked and and pointer interactions on outside elements are disabled.\n- `false`: user interaction with the rest of the document is allowed.",
+      "description": "Determines if the select enters a modal state when open.\n- `true`: user interaction is limited to the select: document page scroll is locked and pointer interactions on outside elements are disabled.\n- `false`: user interaction with the rest of the document is allowed.",
       "detailedType": "boolean | undefined"
     },
     "multiple": {
@@ -112,7 +117,7 @@
     },
     "children": {
       "type": "ReactNode",
-      "detailedType": "React.ReactNode | undefined"
+      "detailedType": "React.ReactNode"
     }
   },
   "dataAttributes": {},

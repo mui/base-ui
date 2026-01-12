@@ -48,6 +48,11 @@
       "description": "Whether the checkbox controls a group of child checkboxes.\n\nMust be used in a [Checkbox Group](https://base-ui.com/react/components/checkbox-group).",
       "detailedType": "boolean | undefined"
     },
+    "uncheckedValue": {
+      "type": "string",
+      "description": "The value submitted with the form when the checkbox is unchecked.\nBy default, unchecked checkboxes do not submit any value, matching native checkbox behavior.",
+      "detailedType": "string | undefined"
+    },
     "disabled": {
       "type": "boolean",
       "default": "false",
@@ -124,6 +129,9 @@
     },
     "data-focused": {
       "description": "Present when the checkbox is focused (when wrapped in Field.Root)."
+    },
+    "data-indeterminate": {
+      "description": "Present when the checkbox is in an indeterminate state."
     }
   },
   "cssVariables": {}

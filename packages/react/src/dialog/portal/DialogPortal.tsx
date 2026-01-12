@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { inertValue } from '@base-ui-components/utils/inertValue';
+import { inertValue } from '@base-ui/utils/inertValue';
 import { FloatingPortal } from '../../floating-ui-react';
 import { useDialogRootContext } from '../root/DialogRootContext';
 import { DialogPortalContext } from './DialogPortalContext';
@@ -22,6 +22,7 @@ export const DialogPortal = React.forwardRef(function DialogPortal(
   const { store } = useDialogRootContext();
   const mounted = store.useState('mounted');
   const modal = store.useState('modal');
+  const open = store.useState('open');
 
   const shouldRender = mounted || keepMounted;
   if (!shouldRender) {

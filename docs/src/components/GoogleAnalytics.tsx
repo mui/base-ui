@@ -1,8 +1,8 @@
 'use client';
 import * as React from 'react';
 import { usePathname } from 'next/navigation';
-import { useDemoVariantSelectorContext } from './Demo/DemoVariantSelectorProvider';
-import { usePackageManagerSnippetContext } from '../blocks/PackageManagerSnippet/PackageManagerSnippetProvider';
+import { DemoVariantSelectorContext } from './Demo/DemoVariantSelectorProvider';
+import { PackageManagerSnippetContext } from '../blocks/PackageManagerSnippet/PackageManagerSnippetProvider';
 import { GoogleAnalytics as BaseGoogleAnalytics } from '../blocks/GoogleAnalytics';
 import { GoogleTagManager } from '../blocks/GoogleTagManager';
 
@@ -12,8 +12,8 @@ const GOOGLE_ANALYTICS_ID_V4 = PRODUCTION_GA ? 'G-FE5XQBD0BH' : 'G-LSE9X5R2CN';
 
 export function GoogleAnalytics() {
   const currentRoute = usePathname();
-  const demoVariantSelectorContext = useDemoVariantSelectorContext();
-  const packageManagerSnippetContext = usePackageManagerSnippetContext();
+  const demoVariantSelectorContext = React.useContext(DemoVariantSelectorContext);
+  const packageManagerSnippetContext = React.useContext(PackageManagerSnippetContext);
 
   return (
     <React.Fragment>
@@ -22,9 +22,9 @@ export function GoogleAnalytics() {
         productId="base-ui"
         productCategoryId="core"
         currentRoute={currentRoute}
-        codeLanguage={demoVariantSelectorContext.selectedLanguage}
-        codeStylingVariant={demoVariantSelectorContext.selectedVariant}
-        packageManager={packageManagerSnippetContext.packageManager}
+        codeLanguage={demoVariantSelectorContext?.selectedLanguage ?? 'ts'}
+        codeStylingVariant={demoVariantSelectorContext?.selectedVariant ?? null}
+        packageManager={packageManagerSnippetContext?.packageManager ?? 'npm'}
         userLanguage="en"
       />
     </React.Fragment>
