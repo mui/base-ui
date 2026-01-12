@@ -109,6 +109,7 @@ export interface DialogRootProps<Payload = unknown> {
    * - `unmount`: When specified, the dialog will not be unmounted when closed.
    * Instead, the `unmount` function must be called to unmount the dialog manually.
    * Useful when the dialog's animation is controlled by an external library.
+   * - `close`: Closes the dialog imperatively when called.
    */
   actionsRef?: React.RefObject<DialogRoot.Actions>;
   /**
@@ -124,7 +125,7 @@ export interface DialogRootProps<Payload = unknown> {
   children?: React.ReactNode | PayloadChildRenderFunction<Payload>;
   /**
    * ID of the trigger that the dialog is associated with.
-   * This is useful in conjuntion with the `open` prop to create a controlled dialog.
+   * This is useful in conjunction with the `open` prop to create a controlled dialog.
    * There's no need to specify this prop when the popover is uncontrolled (i.e. when the `open` prop is not set).
    */
   triggerId?: string | null;

@@ -3,7 +3,6 @@ import {
   CreateRendererOptions,
   RenderOptions,
   createRenderer as sharedCreateRenderer,
-  flushMicrotasks,
   Renderer,
   MuiRenderResult,
   act,
@@ -29,27 +28,19 @@ export function createRenderer(globalOptions?: CreateRendererOptions): BaseUITes
   const createRendererResult = sharedCreateRenderer(globalOptions);
   const { render: originalRender } = createRendererResult;
 
-  const render = async (element: React.ReactElement<DataAttributes>, options?: RenderOptions) =>
-    act(async () => {
-      const result = await originalRender(element, options);
-      await flushMicrotasks();
+  const render = async (element: React.ReactElement<DataAttributes>, options?: RenderOptions) => {
+    const result = await act(async () => originalRender(element, options));
 
-      async function rerender(newElement: React.ReactElement<DataAttributes>) {
-        await act(async () => result.rerender(newElement));
-        await flushMicrotasks();
-      }
+    async function rerender(newElement: React.ReactElement<DataAttributes>) {
+      await act(async () => result.rerender(newElement));
+    }
 
-      async function setProps(newProps: object) {
-        await rerender(React.cloneElement(element, newProps));
-        await flushMicrotasks();
-      }
+    async function setProps(newProps: object) {
+      await rerender(React.cloneElement(element, newProps));
+    }
 
-      return {
-        ...result,
-        rerender,
-        setProps,
-      };
-    });
+    return { ...result, rerender, setProps };
+  };
 
   return {
     ...createRendererResult,

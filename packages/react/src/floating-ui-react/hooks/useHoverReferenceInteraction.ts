@@ -157,6 +157,8 @@ export function useHoverReferenceInteraction(
       return;
     }
 
+    const currentTrigger = triggerElementRef.current;
+
     handleCloseRef.current?.({
       ...dataRef.current.floatingContext,
       tree,
@@ -165,7 +167,7 @@ export function useHoverReferenceInteraction(
       onClose() {
         clearPointerEvents();
         cleanupMouseMoveHandler();
-        if (!isClickLikeOpenEvent()) {
+        if (!isClickLikeOpenEvent() && currentTrigger === store.select('domReferenceElement')) {
           closeWithDelay(event);
         }
       },
@@ -247,6 +249,8 @@ export function useHoverReferenceInteraction(
           openChangeTimeout.clear();
         }
 
+        const currentTrigger = triggerElementRef.current;
+
         closeHandlerRef.current = handleCloseRef.current({
           ...dataRef.current.floatingContext,
           tree,
@@ -255,7 +259,7 @@ export function useHoverReferenceInteraction(
           onClose() {
             clearPointerEvents();
             cleanupMouseMoveHandler();
-            if (!isClickLikeOpenEvent()) {
+            if (!isClickLikeOpenEvent() && currentTrigger === store.select('domReferenceElement')) {
               closeWithDelay(event, true);
             }
           },
@@ -375,7 +379,17 @@ export function useHoverReferenceInteraction(
         restTimeout.clear();
 
         function handleMouseMove() {
-          if (!blockMouseMoveRef.current && (!currentOpen || isOverInactiveTrigger)) {
+          restTimeoutPendingRef.current = false;
+
+          // A delayed hover open should not override a click-like open that happened
+          // while the hover delay was pending.
+          if (isClickLikeOpenEvent()) {
+            return;
+          }
+
+          const latestOpen = store.select('open');
+
+          if (!blockMouseMoveRef.current && (!latestOpen || isOverInactiveTrigger)) {
             store.setOpen(
               true,
               createChangeEventDetails(REASONS.triggerHover, nativeEvent, trigger),
@@ -397,6 +411,7 @@ export function useHoverReferenceInteraction(
     };
   }, [
     blockMouseMoveRef,
+    isClickLikeOpenEvent,
     mouseOnly,
     store,
     pointerTypeRef,

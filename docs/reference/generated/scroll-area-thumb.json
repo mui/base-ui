@@ -1,6 +1,6 @@
 {
   "name": "ScrollAreaThumb",
-  "description": "The draggable part of the the scrollbar that indicates the current scroll position.\nRenders a `<div>` element.",
+  "description": "The draggable part of the scrollbar that indicates the current scroll position.\nRenders a `<div>` element.",
   "props": {
     "className": {
       "type": "string | ((state: ScrollArea.Thumb.State) => string | undefined)",

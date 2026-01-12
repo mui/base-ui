@@ -1,0 +1,242 @@
+# Combobox
+
+<Subtitle>An input combined with a list of predefined items to select.</Subtitle>
+<Meta
+  name="description"
+  content="A high-quality, unstyled React combobox component that renders an input combined with a list of predefined items to select."
+/>
+
+import { DemoComboboxHero } from './demos/hero';
+
+<DemoComboboxHero />
+
+## Usage guidelines
+
+- **Combobox is a filterable Select**: Use Combobox when the input is restricted to a set of predefined selectable items, similar to [Select](/react/components/select) but whose items are filterable using an input. Prefer using Combobox over Select when the number of items is sufficiently large to warrant filtering.
+- **Avoid for simple search widgets**: Combobox does not allow free-form text input. For search widgets, consider using [Autocomplete](/react/components/autocomplete) instead.
+- **Avoid when not rendering an input**: Use [Select](/react/components/select) instead of Combobox if no input is being rendered, which includes accessibility features specific to a listbox without an input.
+- **Form controls must have an accessible name**: It can be created using a `<label>` element or the `Field` component. See the [forms guide](/react/handbook/forms).
+
+## Anatomy
+
+Import the components and place them together:
+
+```jsx title="Anatomy"
+import { Combobox } from '@base-ui/react/combobox';
+
+<Combobox.Root>
+  <Combobox.Input />
+  <Combobox.Trigger />
+  <Combobox.Icon />
+  <Combobox.Clear />
+  <Combobox.Value />
+
+  <Combobox.Chips>
+    <Combobox.Chip>
+      <Combobox.ChipRemove />
+    </Combobox.Chip>
+  </Combobox.Chips>
+
+  <Combobox.Portal>
+    <Combobox.Backdrop />
+    <Combobox.Positioner>
+      <Combobox.Popup>
+        <Combobox.Arrow />
+
+        <Combobox.Status />
+        <Combobox.Empty />
+
+        <Combobox.List>
+          <Combobox.Row>
+            <Combobox.Item>
+              <Combobox.ItemIndicator />
+            </Combobox.Item>
+          </Combobox.Row>
+
+          <Combobox.Separator />
+
+          <Combobox.Group>
+            <Combobox.GroupLabel />
+          </Combobox.Group>
+
+          <Combobox.Collection />
+        </Combobox.List>
+      </Combobox.Popup>
+    </Combobox.Positioner>
+  </Combobox.Portal>
+</Combobox.Root>;
+```
+
+## TypeScript
+
+Combobox infers the item type from the `defaultValue` or `value` props passed to `<Combobox.Root>`.
+The type of items held in the `items` array must also match the `value` prop type passed to `<Combobox.Item>`.
+
+The following example shows a typed wrapper around the Combobox component with correct type inference and type safety:
+
+```tsx title="Specifying generic type parameters"
+import * as React from 'react';
+import { Combobox } from '@base-ui/react/combobox';
+
+export function MyCombobox<Value, Multiple extends boolean | undefined = false>(
+  props: Combobox.Root.Props<Value, Multiple>,
+): React.JSX.Element {
+  return <Combobox.Root {...props}>{/* ... */}</Combobox.Root>;
+}
+```
+
+## Examples
+
+### Multiple select
+
+The combobox can allow multiple selections by adding the `multiple` prop to `<Combobox.Root>`.
+Selection chips are rendered with `<Combobox.Chip>` inside the input that can be removed.
+
+import { DemoComboboxMultiple } from './demos/multiple';
+
+<DemoComboboxMultiple compact />
+
+### Input inside popup
+
+`<Combobox.Input>` can be rendered inside `<Combobox.Popup>` to create a searchable select popup.
+
+import { DemoComboboxInputInsidePopup } from './demos/input-inside-popup';
+
+<DemoComboboxInputInsidePopup compact />
+
+### Grouped
+
+Organize related options with `<Combobox.Group>` and `<Combobox.GroupLabel>` to add section headings inside the popup.
+
+Groups are represented by an array of objects with an `items` property, which itself is an array of individual items for each group. An extra property, such as `value`, can be provided for the heading text when rendering the group label.
+
+```tsx title="Example" {3,9,13}
+interface ProduceGroupItem {
+  value: string;
+  items: string[];
+}
+
+const groups: ProduceGroupItem[] = [
+  {
+    value: 'Fruits',
+    items: ['Apple', 'Banana', 'Orange'],
+  },
+  {
+    value: 'Vegetables',
+    items: ['Carrot', 'Lettuce', 'Spinach'],
+  },
+];
+```
+
+import { DemoComboboxGrouped } from './demos/grouped';
+
+<DemoComboboxGrouped compact />
+
+### Async search (single)
+
+Load items from a remote source by fetching on input changes. Keep the selected item in the `items` list so it remains available while new results stream in. This pattern avoids needing to load items upfront.
+
+import { DemoComboboxAsyncSingle } from './demos/async-single';
+
+<DemoComboboxAsyncSingle compact />
+
+### Async search (multiple)
+
+Load items from a remote source by fetching on input changes while supporting multiple selections. Selected items remain available in the list while new matches stream in. This pattern avoids needing to load items upfront.
+
+import { DemoComboboxAsyncMultiple } from './demos/async-multiple';
+
+<DemoComboboxAsyncMultiple compact />
+
+### Creatable
+
+Create a new item when the filter matches no items, opening a creation `<Dialog>`.
+
+import { DemoComboboxCreatable } from './demos/creatable';
+
+<DemoComboboxCreatable compact />
+
+### Virtualized
+
+Efficiently handle large datasets using a virtualization library like `@tanstack/react-virtual`.
+
+import { DemoComboboxVirtualized } from './demos/virtualized';
+
+<DemoComboboxVirtualized compact />
+
+## API reference
+
+<Reference
+  component="Combobox"
+  parts="Root, Value, Icon, Input, Clear, Trigger, Chips, Chip, ChipRemove, List, Portal, Backdrop, Positioner, Popup, Arrow, Status, Empty, Collection, Row, Item, ItemIndicator, Group, GroupLabel, Separator"
+/>
+
+## useFilter
+
+Matches items against a query using `Intl.Collator` for robust string matching.
+This hook is used when externally filtering items.
+Pass the result to the `filter` prop of `<Combobox.Root>`.
+
+### Input parameters
+
+Accepts all `Intl.CollatorOptions`, plus the following options:
+
+<PropsReferenceTable
+  data={{
+    locale: {
+      type: 'Intl.LocalesArgument',
+      description: 'The locale to use for string comparison.',
+    },
+    multiple: {
+      type: 'boolean',
+      description: 'Whether the combobox is in multiple selection mode.',
+      default: 'false',
+    },
+    value: {
+      type: 'any',
+      description:
+        'The current value of the combobox. For single selection, pass this so all items are visible when the query is empty or matches the selection.',
+    },
+  }}
+/>
+
+### Return value
+
+<PropsReferenceTable
+  type="return"
+  data={{
+    contains: {
+      type: '(itemValue: any, query: string, itemToString?: (itemValue) => string) => boolean',
+      description: 'Returns whether the item matches the query anywhere.',
+    },
+    startsWith: {
+      type: '(itemValue: any, query: string, itemToString?: (itemValue) => string) => boolean',
+      description: 'Returns whether the item starts with the query.',
+    },
+    endsWith: {
+      type: '(itemValue: any, query: string, itemToString?: (itemValue) => string) => boolean',
+      description: 'Returns whether the item ends with the query.',
+    },
+  }}
+/>
+
+export const metadata = {
+  keywords: [
+    'React Combobox',
+    'Combobox Component',
+    'Combo Box',
+    'Filterable Select',
+    'Searchable Dropdown',
+    'Editable Select',
+    'Typeahead Select',
+    'Autocomplete Dropdown',
+    'Tags Input',
+    'Chip Input',
+    'Token Input',
+    'Multi-Value Input',
+    'Multiple Select Combobox',
+    'Async Combobox',
+    'Accessible Combobox',
+    'Base UI',
+  ],
+};

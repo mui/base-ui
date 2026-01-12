@@ -1,10 +1,8 @@
 import * as React from 'react';
 import type { Coords } from '@floating-ui/react-dom';
-import { act, fireEvent, render, screen } from '@testing-library/react';
+import { flushMicrotasks } from '@mui/internal-test-utils';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { test } from 'vitest';
-
-/* eslint-disable testing-library/no-unnecessary-act */
-
 import { useClientPoint, useFloating, useInteractions } from '../index';
 
 function expectLocation({ x, y }: Coords) {
@@ -18,10 +16,12 @@ function App({
   enabled = true,
   point,
   axis,
+  useTriggerProps = false,
 }: {
   enabled?: boolean;
   point?: Coords;
   axis?: 'both' | 'x' | 'y';
+  useTriggerProps?: boolean;
 }) {
   const [isOpen, setIsOpen] = React.useState(false);
   const { refs, elements, context } = useFloating({
@@ -33,16 +33,17 @@ function App({
     ...point,
     axis,
   });
-  const { getReferenceProps, getFloatingProps } = useInteractions([clientPoint]);
+  const { getReferenceProps, getTriggerProps, getFloatingProps } = useInteractions([clientPoint]);
 
   const rect = elements.reference?.getBoundingClientRect();
+  const referenceProps = useTriggerProps ? getTriggerProps() : getReferenceProps();
 
   return (
     <React.Fragment>
       <div
         data-testid="reference"
         ref={refs.setReference}
-        {...getReferenceProps()}
+        {...referenceProps}
         style={{ width: 0, height: 0 }}
       >
         Reference
@@ -66,20 +67,68 @@ test('renders at explicit client point and can be updated', async () => {
 
   fireEvent.click(screen.getByRole('button'));
 
-  await act(async () => {});
+  await flushMicrotasks();
 
   expectLocation({ x: 0, y: 0 });
 
   rerender(<App point={{ x: 1000, y: 1000 }} />);
-  await act(async () => {});
+
+  await flushMicrotasks();
 
   expectLocation({ x: 1000, y: 1000 });
+});
+
+test('updates position from trigger props', async () => {
+  render(<App useTriggerProps />);
+
+  await flushMicrotasks();
+
+  fireEvent(
+    screen.getByTestId('reference'),
+    new MouseEvent('mousemove', {
+      bubbles: true,
+      clientX: 400,
+      clientY: 200,
+    }),
+  );
+
+  await flushMicrotasks();
+
+  expectLocation({ x: 400, y: 200 });
+});
+
+test('uses trigger element when dom reference is missing', async () => {
+  render(<App axis="x" />);
+
+  const reference = screen.getByTestId('reference');
+  reference.getBoundingClientRect = () => ({
+    x: 10,
+    y: 50,
+    width: 0,
+    height: 0,
+    top: 50,
+    left: 10,
+    right: 10,
+    bottom: 50,
+    toJSON: () => {},
+  });
+
+  await flushMicrotasks();
+
+  fireEvent.mouseMove(reference, {
+    clientX: 200,
+    clientY: 300,
+  });
+
+  await flushMicrotasks();
+
+  expectLocation({ x: 200, y: 50 });
 });
 
 test('renders at mouse event coords', async () => {
   render(<App />);
 
-  await act(async () => {});
+  await flushMicrotasks();
 
   fireEvent(
     screen.getByTestId('reference'),
@@ -89,7 +138,8 @@ test('renders at mouse event coords', async () => {
       clientY: 500,
     }),
   );
-  await act(async () => {});
+
+  await flushMicrotasks();
 
   expectLocation({ x: 500, y: 500 });
 
@@ -101,7 +151,8 @@ test('renders at mouse event coords', async () => {
       clientY: 1000,
     }),
   );
-  await act(async () => {});
+
+  await flushMicrotasks();
 
   expectLocation({ x: 1000, y: 1000 });
 
@@ -114,12 +165,13 @@ test('renders at mouse event coords', async () => {
       clientY: 700,
     }),
   );
-  await act(async () => {});
+
+  await flushMicrotasks();
 
   expectLocation({ x: 1000, y: 1000 });
 
   fireEvent.click(screen.getByRole('button'));
-  await act(async () => {});
+  await flushMicrotasks();
 
   fireEvent(
     screen.getByTestId('reference'),
@@ -129,7 +181,7 @@ test('renders at mouse event coords', async () => {
       clientY: 700,
     }),
   );
-  await act(async () => {});
+  await flushMicrotasks();
 
   expectLocation({ x: 700, y: 700 });
 
@@ -141,7 +193,7 @@ test('renders at mouse event coords', async () => {
       clientY: 0,
     }),
   );
-  await act(async () => {});
+  await flushMicrotasks();
 
   expectLocation({ x: 0, y: 0 });
 });
@@ -157,7 +209,7 @@ test('ignores mouse events when explicit coords are specified', async () => {
       clientY: 500,
     }),
   );
-  await act(async () => {});
+  await flushMicrotasks();
 
   expectLocation({ x: 0, y: 0 });
 });
@@ -175,7 +227,7 @@ test('cleans up window listener when closing or disabling', async () => {
       clientY: 500,
     }),
   );
-  await act(async () => {});
+  await flushMicrotasks();
 
   fireEvent.click(screen.getByRole('button'));
 
@@ -187,7 +239,7 @@ test('cleans up window listener when closing or disabling', async () => {
       clientY: 0,
     }),
   );
-  await act(async () => {});
+  await flushMicrotasks();
 
   expectLocation({ x: 500, y: 500 });
 
@@ -201,7 +253,7 @@ test('cleans up window listener when closing or disabling', async () => {
       clientY: 500,
     }),
   );
-  await act(async () => {});
+  await flushMicrotasks();
 
   expectLocation({ x: 500, y: 500 });
 
@@ -215,7 +267,7 @@ test('cleans up window listener when closing or disabling', async () => {
       clientY: 0,
     }),
   );
-  await act(async () => {});
+  await flushMicrotasks();
 
   expectLocation({ x: 500, y: 500 });
 });
@@ -233,7 +285,7 @@ test('axis x', async () => {
       clientY: 500,
     }),
   );
-  await act(async () => {});
+  await flushMicrotasks();
 
   expectLocation({ x: 500, y: 0 });
 });
@@ -251,7 +303,7 @@ test('axis y', async () => {
       clientY: 500,
     }),
   );
-  await act(async () => {});
+  await flushMicrotasks();
 
   expectLocation({ x: 0, y: 500 });
 });
@@ -287,7 +339,7 @@ test('removes window listener when cursor lands on floating element', async () =
       clientY: 0,
     }),
   );
-  await act(async () => {});
+  await flushMicrotasks();
 
   expectLocation({ x: 500, y: 500 });
 });

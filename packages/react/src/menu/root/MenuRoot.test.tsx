@@ -1,6 +1,13 @@
 import * as React from 'react';
 import { expect } from 'chai';
-import { act, flushMicrotasks, waitFor, screen, fireEvent } from '@mui/internal-test-utils';
+import {
+  act,
+  fireEvent,
+  flushMicrotasks,
+  ignoreActWarnings,
+  screen,
+  waitFor,
+} from '@mui/internal-test-utils';
 import { DirectionProvider } from '@base-ui/react/direction-provider';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { Menu } from '@base-ui/react/menu';
@@ -9,6 +16,7 @@ import userEvent from '@testing-library/user-event';
 import { spy } from 'sinon';
 import { createRenderer, isJSDOM, popupConformanceTests, wait } from '#test-utils';
 import { REASONS } from '../../utils/reasons';
+import { PATIENT_CLICK_THRESHOLD } from '../../utils/constants';
 
 describe('<Menu.Root />', () => {
   beforeEach(() => {
@@ -840,6 +848,45 @@ describe('<Menu.Root />', () => {
       });
     });
 
+    describe.skipIf(isJSDOM)('interaction type tracking (openMethod)', () => {
+      it('should not apply scroll lock when opened via touch', async () => {
+        await render(<TestMenu rootProps={{ modal: true }} />);
+
+        const trigger = screen.getByRole('button', { name: 'Toggle' });
+
+        fireEvent.pointerDown(trigger, { pointerType: 'touch' });
+        fireEvent.mouseDown(trigger);
+
+        const menu = await screen.findByRole('menu');
+
+        const doc = menu.ownerDocument;
+
+        const isScrollLocked =
+          doc.documentElement.style.overflow === 'hidden' ||
+          doc.documentElement.hasAttribute('data-base-ui-scroll-locked') ||
+          doc.body.style.overflow === 'hidden';
+
+        expect(isScrollLocked).to.equal(false);
+      });
+
+      it('should apply scroll lock when opened via mouse', async () => {
+        const { user } = await render(<TestMenu rootProps={{ modal: true }} />);
+
+        const trigger = screen.getByRole('button', { name: 'Toggle' });
+        const doc = trigger.ownerDocument;
+
+        await user.click(trigger);
+        await screen.findByRole('menu');
+
+        const isScrollLocked =
+          doc.documentElement.style.overflow === 'hidden' ||
+          doc.documentElement.hasAttribute('data-base-ui-scroll-locked') ||
+          doc.body.style.overflow === 'hidden';
+
+        expect(isScrollLocked).to.equal(true);
+      });
+    });
+
     describe('prop: actionsRef', () => {
       it('unmounts the menu when the `unmount` method is called', async () => {
         const actionsRef = {
@@ -1212,6 +1259,46 @@ describe('<Menu.Root />', () => {
           expect(screen.getByTestId('submenu')).not.to.equal(null);
         });
       });
+
+      describe('modal behavior', () => {
+        const { render: renderFakeTimers, clock } = createRenderer();
+
+        clock.withFakeTimers();
+
+        it('treats hover-opened menus as modal after a click', async () => {
+          await renderFakeTimers(
+            <Menu.Root>
+              <Menu.Trigger openOnHover delay={0}>
+                Toggle
+              </Menu.Trigger>
+              <Menu.Portal>
+                <Menu.Positioner data-testid="positioner">
+                  <Menu.Popup>
+                    <Menu.Item>Item 1</Menu.Item>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>,
+          );
+
+          const trigger = screen.getByRole('button', { name: 'Toggle' });
+
+          fireEvent.mouseEnter(trigger);
+          fireEvent.mouseMove(trigger);
+
+          await flushMicrotasks();
+          expect(screen.queryByRole('menu')).not.to.equal(null);
+
+          const positioner = screen.getByTestId('positioner');
+          expect(positioner.previousElementSibling).to.equal(null);
+
+          clock.tick(PATIENT_CLICK_THRESHOLD - 1);
+          fireEvent.click(trigger);
+
+          await flushMicrotasks();
+          expect(positioner.previousElementSibling).to.have.attribute('role', 'presentation');
+        });
+      });
     });
 
     describe('prop: closeDelay', () => {
@@ -1252,6 +1339,7 @@ describe('<Menu.Root />', () => {
       });
 
       it('triggers a menu item and closes the menu on click, drag, release', async () => {
+        ignoreActWarnings();
         const openChangeSpy = spy();
         const clickSpy = spy();
 
@@ -1302,7 +1390,7 @@ describe('<Menu.Root />', () => {
       });
 
       it('closes the menu on click, drag outside, release', async () => {
-        const { userEvent: user } = await import('@vitest/browser/context');
+        const { userEvent: user } = await import('vitest/browser');
         const { render: vbrRender } = await import('vitest-browser-react');
 
         const openChangeSpy = spy();

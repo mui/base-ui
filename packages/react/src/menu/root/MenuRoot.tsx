@@ -236,7 +236,11 @@ export function MenuRoot<Payload>(props: MenuRoot.Props<Payload>) {
     ) => {
       const reason = eventDetails.reason;
 
-      if (open === nextOpen && eventDetails.trigger === activeTriggerElement) {
+      if (
+        open === nextOpen &&
+        eventDetails.trigger === activeTriggerElement &&
+        lastOpenChangeReason === reason
+      ) {
         return;
       }
 
@@ -406,7 +410,7 @@ export function MenuRoot<Payload>(props: MenuRoot.Props<Payload>) {
 
   const dismiss = useDismiss(floatingRootContext, {
     enabled: !disabled,
-    bubbles: closeParentOnEsc && parent.type === 'menu',
+    bubbles: { escapeKey: closeParentOnEsc && parent.type === 'menu' },
     outsidePress() {
       if (parent.type !== 'context-menu' || openEventRef.current?.type === 'contextmenu') {
         return true;
@@ -476,7 +480,7 @@ export function MenuRoot<Payload>(props: MenuRoot.Props<Payload>) {
   ]);
 
   const activeTriggerProps = React.useMemo(() => {
-    const referenceProps = mergeProps(
+    const mergedProps = mergeProps(
       getReferenceProps(),
       {
         onMouseEnter() {
@@ -488,8 +492,9 @@ export function MenuRoot<Payload>(props: MenuRoot.Props<Payload>) {
       },
       interactionTypeProps,
     );
-    delete referenceProps.role;
-    return referenceProps;
+
+    delete mergedProps.role;
+    return mergedProps;
   }, [getReferenceProps, store, interactionTypeProps]);
 
   const inactiveTriggerProps = React.useMemo(() => {
@@ -498,9 +503,11 @@ export function MenuRoot<Payload>(props: MenuRoot.Props<Payload>) {
       return triggerProps;
     }
 
-    const { role: roleDiscarded, ['aria-controls']: ariaControlsDiscarded, ...rest } = triggerProps;
-    return rest;
-  }, [getTriggerProps]);
+    const mergedProps = mergeProps(triggerProps, interactionTypeProps);
+    delete mergedProps.role;
+    delete mergedProps['aria-controls'];
+    return mergedProps;
+  }, [getTriggerProps, interactionTypeProps]);
 
   const disableHoverTimeout = useAnimationFrame();
   const popupProps = React.useMemo(
@@ -586,7 +593,7 @@ export interface MenuRootProps<Payload = unknown> {
   highlightItemOnHover?: boolean;
   /**
    * Determines if the menu enters a modal state when open.
-   * - `true`: user interaction is limited to the menu: document page scroll is locked and and pointer interactions on outside elements are disabled.
+   * - `true`: user interaction is limited to the menu: document page scroll is locked and pointer interactions on outside elements are disabled.
    * - `false`: user interaction with the rest of the document is allowed.
    * @default true
    */
@@ -630,13 +637,13 @@ export interface MenuRootProps<Payload = unknown> {
   actionsRef?: React.RefObject<MenuRoot.Actions>;
   /**
    * ID of the trigger that the popover is associated with.
-   * This is useful in conjuntion with the `open` prop to create a controlled popover.
+   * This is useful in conjunction with the `open` prop to create a controlled popover.
    * There's no need to specify this prop when the popover is uncontrolled (i.e. when the `open` prop is not set).
    */
   triggerId?: string | null;
   /**
    * ID of the trigger that the popover is associated with.
-   * This is useful in conjuntion with the `defaultOpen` prop to create an initially open popover.
+   * This is useful in conjunction with the `defaultOpen` prop to create an initially open popover.
    */
   defaultTriggerId?: string | null;
   /**

@@ -7,7 +7,7 @@ This repository contains the source code and documentation for Base UI: a headl
 - Source code for components and private utils is in `packages/react/`.
 - Source code for public shared utils is in `packages/utils/`.
 - Experiments are located at `docs/src/app/(private)/experiments/`. Use for creating demos that require manual testing in the browser.
-- Public documentation is located at `docs/src/app/(public)/(content)/react/`. Alter the docs where necessary when changes must be visible to library users.
+- Public documentation is located at `docs/src/app/(docs)/react/`. Alter the docs where necessary when changes must be visible to library users.
 - When creating public demos on the docs, refer to the `hero` demo for the given component and largely follow its styles (both CSS Modules and Tailwind CSS versions). Other demos may also contain relevant styling. Do not add custom styling beyond the critical layout styles necessary for new demos.
 
 ## Code guidelines
@@ -29,7 +29,7 @@ This repository contains the source code and documentation for Base UI: a headl
 - Run tests in Chromium env with `pnpm test:chromium {name} --no-watch` such as `pnpm test:chromium NumberField --no-watch` or `pnpm test:jsdom parse --no-watch`.
 - If you made changes to the source code, ensure you verify your changes by running tests (see above), and writing new tests where applicable. If tests require the browser because, for example, they require layout measurements, restrict it to the Chromium env by using `it.skipIf(isJSDOM)` or `describe.skipIf(isJSDOM)` (search other tests for example usage if unsure).
 - Follow the established conventions in existing tests. Each file/component is tested with the filename `name.test.tsx`. For example, `PopoverRoot.test.tsx` is next to its source file `PopoverRoot.tsx`.
-- Tests use `chai`'s `expect` and Sinon's `spy()`, do not assume they have methods of other libraries' APIs. Search existing tests for example usage if unsure.
+- Tests use `vitest`'s `expect()` and `fn()`, do not assume they have methods of other libraries' APIs. Search existing tests for example usage if unsure. The repository is transitioning from `chai` and `sinon`, prefer `vitest` native functions for all new code.
 
 ## Commit guidelines
 

@@ -1,5 +1,13 @@
 import * as React from 'react';
-import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
+import {
+  act,
+  fireEvent,
+  flushMicrotasks,
+  screen,
+  waitFor,
+  ignoreActWarnings,
+  reactMajor,
+} from '@mui/internal-test-utils';
 import { createRenderer, isJSDOM, popupConformanceTests } from '#test-utils';
 import { expect } from 'chai';
 import { spy } from 'sinon';
@@ -293,6 +301,60 @@ describe('<Combobox.Root />', () => {
         expect(cherryOption).to.have.attribute('data-selected', '');
       });
 
+      it('reconciles a controlled value when the selected item is removed', async () => {
+        const handleValueChange = spy();
+
+        function App() {
+          const [items, setItems] = React.useState(['a', 'b']);
+          const [value, setValue] = React.useState<string | null>('b');
+
+          return (
+            <React.Fragment>
+              <button type="button" onClick={() => setItems(['a'])}>
+                Remove
+              </button>
+              <Combobox.Root
+                items={items}
+                value={value}
+                defaultValue="a"
+                onValueChange={(nextValue, details) => {
+                  handleValueChange(nextValue, details);
+                  setValue(nextValue);
+                }}
+              >
+                <Combobox.Input data-testid="input" />
+                <Combobox.Portal>
+                  <Combobox.Positioner>
+                    <Combobox.Popup>
+                      <Combobox.List>
+                        {(item: string) => (
+                          <Combobox.Item key={item} value={item}>
+                            {item}
+                          </Combobox.Item>
+                        )}
+                      </Combobox.List>
+                    </Combobox.Popup>
+                  </Combobox.Positioner>
+                </Combobox.Portal>
+              </Combobox.Root>
+            </React.Fragment>
+          );
+        }
+
+        const { user } = await render(<App />);
+
+        expect(screen.getByTestId('input')).to.have.value('b');
+
+        await user.click(screen.getByRole('button', { name: 'Remove' }));
+
+        await waitFor(() => {
+          expect(handleValueChange.callCount).to.equal(1);
+          expect(handleValueChange.firstCall.args[0]).to.equal('a');
+          expect(handleValueChange.firstCall.args[1].reason).to.equal(REASONS.none);
+          expect(screen.getByTestId('input')).to.have.value('a');
+        });
+      });
+
       it('should not auto-close popup when open state is controlled', async () => {
         const items = ['apple', 'banana', 'cherry'];
 
@@ -465,6 +527,57 @@ describe('<Combobox.Root />', () => {
     });
 
     describe('multiple', () => {
+      it('reconciles a controlled value when selected items are removed', async () => {
+        const handleValueChange = spy();
+
+        function App() {
+          const [items, setItems] = React.useState(['a', 'b', 'c']);
+          const [value, setValue] = React.useState(['a', 'b']);
+
+          return (
+            <React.Fragment>
+              <button type="button" onClick={() => setItems(['a', 'c'])}>
+                Remove
+              </button>
+              <Combobox.Root
+                items={items}
+                multiple
+                value={value}
+                onValueChange={(nextValue, details) => {
+                  handleValueChange(nextValue, details);
+                  setValue(nextValue);
+                }}
+              >
+                <Combobox.Input />
+                <Combobox.Portal>
+                  <Combobox.Positioner>
+                    <Combobox.Popup>
+                      <Combobox.List>
+                        {(item: string) => (
+                          <Combobox.Item key={item} value={item}>
+                            {item}
+                          </Combobox.Item>
+                        )}
+                      </Combobox.List>
+                    </Combobox.Popup>
+                  </Combobox.Positioner>
+                </Combobox.Portal>
+              </Combobox.Root>
+            </React.Fragment>
+          );
+        }
+
+        const { user } = await render(<App />);
+
+        await user.click(screen.getByRole('button', { name: 'Remove' }));
+
+        await waitFor(() => {
+          expect(handleValueChange.callCount).to.equal(1);
+          expect(handleValueChange.firstCall.args[0]).to.deep.equal(['a']);
+          expect(handleValueChange.firstCall.args[1].reason).to.equal(REASONS.none);
+        });
+      });
+
       it('should handle multiple selection', async () => {
         const handleValueChange = spy();
 
@@ -3482,6 +3595,10 @@ describe('<Combobox.Root />', () => {
 
     describe('single', () => {
       it('closes the dialog after selecting an item and updates the trigger value', async () => {
+        if (reactMajor <= 18) {
+          ignoreActWarnings();
+        }
+
         const { user } = await render(<DialogSingleCombobox defaultOpen={false} />);
 
         const trigger = screen.getByTestId('dialog-trigger');
@@ -3503,6 +3620,10 @@ describe('<Combobox.Root />', () => {
       });
 
       it('clears the filter input when re-opening after a selection', async () => {
+        if (reactMajor <= 18) {
+          ignoreActWarnings();
+        }
+
         const { user } = await render(<DialogSingleCombobox defaultOpen={false} />);
 
         const trigger = screen.getByTestId('dialog-trigger');
@@ -3719,6 +3840,8 @@ describe('<Combobox.Root />', () => {
     });
 
     it('focuses trigger and surfaces errors when input is inside popup', async () => {
+      ignoreActWarnings();
+
       let submittedCalls = 0;
 
       const handleSubmit: React.FormEventHandler<HTMLFormElement> = (event) => {
@@ -4651,6 +4774,190 @@ describe('<Combobox.Root />', () => {
 
       await waitFor(() => expect(input).not.to.have.attribute('aria-activedescendant'));
       expect(banana).not.to.have.attribute('data-highlighted');
+    });
+  });
+
+  describe('prop: loopFocus', () => {
+    it('loops focus from last to first item with ArrowDown by default', async () => {
+      const { user } = await render(
+        <Combobox.Root items={['apple', 'banana', 'cherry']}>
+          <Combobox.Input data-testid="input" />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  {(item: string) => (
+                    <Combobox.Item key={item} value={item}>
+                      {item}
+                    </Combobox.Item>
+                  )}
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByRole<HTMLInputElement>('combobox');
+      await act(async () => input.focus());
+
+      // ArrowUp opens and focuses last item
+      await user.keyboard('{ArrowUp}');
+
+      await waitFor(() => expect(screen.getByRole('listbox')).not.to.equal(null));
+
+      const options = screen.getAllByRole('option');
+
+      await waitFor(() => {
+        expect(input).to.have.attribute('aria-activedescendant', options[2].id);
+      });
+
+      // Loop cycles through input
+      await user.keyboard('{ArrowDown}');
+
+      await waitFor(() => {
+        expect(input).not.to.have.attribute('aria-activedescendant');
+      });
+
+      // Then to first item
+      await user.keyboard('{ArrowDown}');
+
+      await waitFor(() => {
+        expect(input).to.have.attribute('aria-activedescendant', options[0].id);
+      });
+    });
+
+    it('loops focus from first to last item with ArrowUp by default', async () => {
+      const { user } = await render(
+        <Combobox.Root items={['apple', 'banana', 'cherry']}>
+          <Combobox.Input data-testid="input" />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  {(item: string) => (
+                    <Combobox.Item key={item} value={item}>
+                      {item}
+                    </Combobox.Item>
+                  )}
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByRole<HTMLInputElement>('combobox');
+      await act(async () => input.focus());
+
+      // ArrowDown opens and focuses first item
+      await user.keyboard('{ArrowDown}');
+
+      await waitFor(() => expect(screen.getByRole('listbox')).not.to.equal(null));
+
+      const options = screen.getAllByRole('option');
+
+      await waitFor(() => {
+        expect(input).to.have.attribute('aria-activedescendant', options[0].id);
+      });
+
+      // Loop cycles through input
+      await user.keyboard('{ArrowUp}');
+
+      await waitFor(() => {
+        expect(input).not.to.have.attribute('aria-activedescendant');
+      });
+
+      // Then to last item
+      await user.keyboard('{ArrowUp}');
+
+      await waitFor(() => {
+        expect(input).to.have.attribute('aria-activedescendant', options[2].id);
+      });
+    });
+
+    it('does not loop focus from last to first with ArrowDown when loopFocus={false}', async () => {
+      const { user } = await render(
+        <Combobox.Root items={['apple', 'banana', 'cherry']} loopFocus={false}>
+          <Combobox.Input data-testid="input" />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  {(item: string) => (
+                    <Combobox.Item key={item} value={item}>
+                      {item}
+                    </Combobox.Item>
+                  )}
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByRole<HTMLInputElement>('combobox');
+      await act(async () => input.focus());
+
+      // ArrowUp opens and focuses last item
+      await user.keyboard('{ArrowUp}');
+
+      await waitFor(() => expect(screen.getByRole('listbox')).not.to.equal(null));
+
+      const options = screen.getAllByRole('option');
+
+      await waitFor(() => {
+        expect(input).to.have.attribute('aria-activedescendant', options[2].id);
+      });
+
+      // Should stay at last item (no loop)
+      await user.keyboard('{ArrowDown}');
+
+      await waitFor(() => {
+        expect(input).to.have.attribute('aria-activedescendant', options[2].id);
+      });
+    });
+
+    it('does not loop focus from first to last with ArrowUp when loopFocus={false}', async () => {
+      const { user } = await render(
+        <Combobox.Root items={['apple', 'banana', 'cherry']} loopFocus={false}>
+          <Combobox.Input data-testid="input" />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  {(item: string) => (
+                    <Combobox.Item key={item} value={item}>
+                      {item}
+                    </Combobox.Item>
+                  )}
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByRole<HTMLInputElement>('combobox');
+      await act(async () => input.focus());
+
+      // ArrowDown opens and focuses first item
+      await user.keyboard('{ArrowDown}');
+
+      await waitFor(() => expect(screen.getByRole('listbox')).not.to.equal(null));
+
+      const options = screen.getAllByRole('option');
+
+      await waitFor(() => {
+        expect(input).to.have.attribute('aria-activedescendant', options[0].id);
+      });
+
+      // Should stay at first item (no loop)
+      await user.keyboard('{ArrowUp}');
+
+      await waitFor(() => {
+        expect(input).to.have.attribute('aria-activedescendant', options[0].id);
+      });
     });
   });
 

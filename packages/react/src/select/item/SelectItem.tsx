@@ -28,7 +28,7 @@ import { compareItemEquality, removeItem } from '../../utils/itemEquality';
 export const SelectItem = React.memo(
   React.forwardRef(function SelectItem(
     componentProps: SelectItem.Props,
-    forwardedRef: React.ForwardedRef<HTMLDivElement>,
+    forwardedRef: React.ForwardedRef<HTMLElement>,
   ) {
     const {
       render,
@@ -146,7 +146,6 @@ export const SelectItem = React.memo(
     const defaultProps: HTMLProps = {
       role: 'option',
       'aria-selected': selected,
-      'aria-disabled': disabled || undefined,
       tabIndex: highlighted ? 0 : -1,
       onFocus() {
         store.set('activeIndex', index);

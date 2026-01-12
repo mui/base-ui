@@ -13,9 +13,9 @@
       "detailedType": "Value[] | Value | null | undefined"
     },
     "value": {
-      "type": "Value[] | Value",
+      "type": "Value[] | Value | null",
       "description": "The value of the select. Use when controlled.",
-      "detailedType": "Value[] | Value | undefined"
+      "detailedType": "Value[] | Value | null | undefined"
     },
     "onValueChange": {
       "type": "((value: Value[] | Value | any | null, eventDetails: Select.Root.ChangeEventDetails) => void)",
@@ -73,7 +73,7 @@
     "modal": {
       "type": "boolean",
       "default": "true",
-      "description": "Determines if the select enters a modal state when open.\n- `true`: user interaction is limited to the select: document page scroll is locked and and pointer interactions on outside elements are disabled.\n- `false`: user interaction with the rest of the document is allowed.",
+      "description": "Determines if the select enters a modal state when open.\n- `true`: user interaction is limited to the select: document page scroll is locked and pointer interactions on outside elements are disabled.\n- `false`: user interaction with the rest of the document is allowed.",
       "detailedType": "boolean | undefined"
     },
     "multiple": {

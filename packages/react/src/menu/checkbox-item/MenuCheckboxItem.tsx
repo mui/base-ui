@@ -23,7 +23,7 @@ import type { MenuRoot } from '../root/MenuRoot';
  */
 export const MenuCheckboxItem = React.forwardRef(function MenuCheckboxItem(
   componentProps: MenuCheckboxItem.Props,
-  forwardedRef: React.ForwardedRef<Element>,
+  forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
   const {
     render,

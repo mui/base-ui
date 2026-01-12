@@ -201,6 +201,7 @@ export interface PopoverRootProps<Payload = unknown> {
    * - `unmount`: When specified, the popover will not be unmounted when closed.
    * Instead, the `unmount` function must be called to unmount the popover manually.
    * Useful when the popover's animation is controlled by an external library.
+   * - `close`: Closes the dialog imperatively when called.
    */
   actionsRef?: React.RefObject<PopoverRoot.Actions | null>;
   /**
@@ -213,13 +214,13 @@ export interface PopoverRootProps<Payload = unknown> {
   modal?: boolean | 'trap-focus';
   /**
    * ID of the trigger that the popover is associated with.
-   * This is useful in conjuntion with the `open` prop to create a controlled popover.
+   * This is useful in conjunction with the `open` prop to create a controlled popover.
    * There's no need to specify this prop when the popover is uncontrolled (i.e. when the `open` prop is not set).
    */
   triggerId?: string | null;
   /**
    * ID of the trigger that the popover is associated with.
-   * This is useful in conjuntion with the `defaultOpen` prop to create an initially open popover.
+   * This is useful in conjunction with the `defaultOpen` prop to create an initially open popover.
    */
   defaultTriggerId?: string | null;
   /**

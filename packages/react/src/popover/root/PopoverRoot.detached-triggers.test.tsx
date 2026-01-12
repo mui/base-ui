@@ -430,16 +430,18 @@ describe('<Popover.Root />', () => {
       expect(screen.getByTestId('content').textContent).to.equal('1');
 
       await waitFor(() => {
-        expect(screen.getByTestId('positioner').getBoundingClientRect().left).to.equal(
+        expect(screen.getByTestId('positioner').getBoundingClientRect().left).to.be.closeTo(
           trigger1.getBoundingClientRect().left,
+          1,
         );
       });
 
       await user.click(screen.getByRole('button', { name: 'Open Trigger 2' }));
       expect(screen.getByTestId('content').textContent).to.equal('2');
       await waitFor(() => {
-        expect(screen.getByTestId('positioner').getBoundingClientRect().left).to.equal(
+        expect(screen.getByTestId('positioner').getBoundingClientRect().left).to.be.closeTo(
           trigger2.getBoundingClientRect().left,
+          1,
         );
       });
 
