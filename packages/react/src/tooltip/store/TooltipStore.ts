@@ -21,6 +21,7 @@ export type State<Payload> = PopupStoreState<Payload> & {
   disableHoverablePopup: boolean;
   openChangeReason: TooltipRoot.ChangeEventReason | null;
   closeDelay: number;
+  hasViewport: boolean;
 };
 
 export type Context = PopupStoreContext<TooltipRoot.ChangeEventDetails> & {
@@ -36,6 +37,7 @@ const selectors = {
   disableHoverablePopup: createSelector((state: State<unknown>) => state.disableHoverablePopup),
   lastOpenChangeReason: createSelector((state: State<unknown>) => state.openChangeReason),
   closeDelay: createSelector((state: State<unknown>) => state.closeDelay),
+  hasViewport: createSelector((state: State<unknown>) => state.hasViewport),
 };
 
 export class TooltipStore<Payload> extends ReactStore<
@@ -142,5 +144,6 @@ function createInitialState<Payload>(): State<Payload> {
     disableHoverablePopup: false,
     openChangeReason: null,
     closeDelay: 0,
+    hasViewport: false,
   };
 }

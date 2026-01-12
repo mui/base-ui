@@ -593,7 +593,7 @@ export interface MenuRootProps<Payload = unknown> {
   highlightItemOnHover?: boolean;
   /**
    * Determines if the menu enters a modal state when open.
-   * - `true`: user interaction is limited to the menu: document page scroll is locked and and pointer interactions on outside elements are disabled.
+   * - `true`: user interaction is limited to the menu: document page scroll is locked and pointer interactions on outside elements are disabled.
    * - `false`: user interaction with the rest of the document is allowed.
    * @default true
    */
@@ -637,13 +637,13 @@ export interface MenuRootProps<Payload = unknown> {
   actionsRef?: React.RefObject<MenuRoot.Actions>;
   /**
    * ID of the trigger that the popover is associated with.
-   * This is useful in conjuntion with the `open` prop to create a controlled popover.
+   * This is useful in conjunction with the `open` prop to create a controlled popover.
    * There's no need to specify this prop when the popover is uncontrolled (i.e. when the `open` prop is not set).
    */
   triggerId?: string | null;
   /**
    * ID of the trigger that the popover is associated with.
-   * This is useful in conjuntion with the `defaultOpen` prop to create an initially open popover.
+   * This is useful in conjunction with the `defaultOpen` prop to create an initially open popover.
    */
   defaultTriggerId?: string | null;
   /**
