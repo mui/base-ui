@@ -107,14 +107,16 @@ export function Demo({
         <div role="figure" aria-label="Component demo code">
           {(compact ? demo.expanded : true) && (
             <div className="DemoToolbar">
-              <DemoFileSelector
-                files={demo.files}
-                selectedFileName={demo.selectedFileName}
-                selectFileName={demo.selectFileName}
-                onTabChange={demo.expand}
-              />
+              <div className="DemoFileSelectorScroll">
+                <DemoFileSelector
+                  files={demo.files}
+                  selectedFileName={demo.selectedFileName}
+                  selectFileName={demo.selectFileName}
+                  onTabChange={demo.expand}
+                />
+              </div>
 
-              <div className="ml-auto flex items-center gap-4">
+              <div className="ml-auto flex shrink-0 items-center gap-4">
                 <DemoVariantSelector
                   className="contents"
                   onVariantChange={demo.expand}
