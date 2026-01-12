@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import { usePreviewCardRootContext } from '../root/PreviewCardContext';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
 import { useRenderElement } from '../../utils/useRenderElement';
@@ -56,9 +57,14 @@ export const PreviewCardTrigger = React.forwardRef(function PreviewCardTrigger(
     store,
     {
       payload,
-      closeDelay: closeDelayWithDefault,
     },
   );
+
+  useIsoLayoutEffect(() => {
+    if (isMountedByThisTrigger) {
+      store.context.closeDelayRef.current = closeDelayWithDefault;
+    }
+  }, [store, isMountedByThisTrigger, closeDelayWithDefault]);
 
   const hoverProps = useHoverReferenceInteraction(floatingRootContext, {
     mouseOnly: true,

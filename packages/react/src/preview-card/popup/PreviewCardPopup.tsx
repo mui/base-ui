@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { usePreviewCardRootContext } from '../root/PreviewCardContext';
 import { usePreviewCardPositionerContext } from '../positioner/PreviewCardPositionerContext';
 import { useDirection } from '../../direction-provider';
@@ -89,8 +90,10 @@ export const PreviewCardPopup = React.forwardRef(function PreviewCardPopup(
     direction,
   });
 
+  const getCloseDelay = useStableCallback(() => store.context.closeDelayRef.current);
+
   useHoverFloatingInteraction(floatingContext, {
-    closeDelay: store.useState('closeDelay'),
+    closeDelay: getCloseDelay,
   });
 
   const state: PreviewCardPopup.State = React.useMemo(

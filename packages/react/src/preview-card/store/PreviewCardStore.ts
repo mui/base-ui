@@ -16,15 +16,15 @@ import { CLOSE_DELAY } from '../utils/constants';
 
 export type State<Payload> = PopupStoreState<Payload> & {
   instantType: 'dismiss' | 'focus' | undefined;
-  closeDelay: number;
 };
 
-export type Context = PopupStoreContext<PreviewCardRoot.ChangeEventDetails>;
+export type Context = PopupStoreContext<PreviewCardRoot.ChangeEventDetails> & {
+  closeDelayRef: React.RefObject<number>;
+};
 
 const selectors = {
   ...popupStoreSelectors,
   instantType: createSelector((state: State<unknown>) => state.instantType),
-  closeDelay: createSelector((state: State<unknown>) => state.closeDelay),
 };
 
 export class PreviewCardStore<Payload> extends ReactStore<
@@ -40,6 +40,7 @@ export class PreviewCardStore<Payload> extends ReactStore<
         onOpenChange: undefined,
         onOpenChangeComplete: undefined,
         triggerElements: new PopupTriggerMap(),
+        closeDelayRef: { current: CLOSE_DELAY },
       },
       selectors,
     );
@@ -125,6 +126,5 @@ function createInitialState<Payload>(): State<Payload> {
   return {
     ...createInitialPopupStoreState(),
     instantType: undefined,
-    closeDelay: CLOSE_DELAY,
   };
 }
