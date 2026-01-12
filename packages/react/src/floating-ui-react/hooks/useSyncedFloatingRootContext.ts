@@ -1,3 +1,4 @@
+'use client';
 import { useId } from '@base-ui/utils/useId';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { ReactStore } from '@base-ui/utils/store';
