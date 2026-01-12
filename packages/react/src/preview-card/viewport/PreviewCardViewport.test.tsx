@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { PreviewCard } from '@base-ui/react/preview-card';
-import { act, screen, waitFor } from '@mui/internal-test-utils';
+import { act, ignoreActWarnings, screen, waitFor } from '@mui/internal-test-utils';
 import { expect } from 'chai';
 import { createRenderer, describeConformance, isJSDOM, waitSingleFrame } from '#test-utils';
 
@@ -45,6 +45,7 @@ describe('<PreviewCard.Viewport />', () => {
   });
 
   it('should remount the `current` container when the active trigger changes', async () => {
+    ignoreActWarnings();
     await render(
       <PreviewCard.Root>
         {({ payload }) => (
@@ -103,6 +104,7 @@ describe('<PreviewCard.Viewport />', () => {
     });
 
     it('should create morphing containers during transitions', async () => {
+      ignoreActWarnings();
       await render(
         <div>
           <style>
@@ -319,6 +321,8 @@ describe('<PreviewCard.Viewport />', () => {
         expectedDirection: ['right', 'up'],
       },
     ])('$name', async ({ trigger1, trigger2, expectedDirection }) => {
+      ignoreActWarnings();
+
       await render(
         <div>
           <style>
