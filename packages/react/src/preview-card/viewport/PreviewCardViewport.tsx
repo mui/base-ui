@@ -260,8 +260,8 @@ function getActivationDirection(offset: Offset | null): string | undefined {
 }
 
 /**
- * Returns a label describing the value (positive/negative) trating values
- * within tolarance as zero.
+ * Returns a label describing the value (positive/negative) treating values
+ * within tolerance as zero.
  *
  * @param value Value to check
  * @param tolerance Tolerance to treat the value as zero.

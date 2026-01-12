@@ -35,7 +35,7 @@ export const PreviewCardTrigger = React.forwardRef(function PreviewCardTrigger(
   const store = handle?.store ?? rootContext;
   if (!store) {
     throw new Error(
-      'Base UI: <Tooltip.Trigger> must be either used within a <Tooltip.Root> component or provided with a handle.',
+      'Base UI: <PreviewCard.Trigger> must be either used within a <PreviewCard.Root> component or provided with a handle.',
     );
   }
 
