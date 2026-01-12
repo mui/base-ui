@@ -292,7 +292,7 @@ export class ToastStore extends Store<State> {
     this.state.prevFocusElement?.focus({ preventScroll: true });
   }
 
-  handleDocumentPointerDown(event: PointerEvent) {
+  handleDocumentPointerDown = (event: PointerEvent) => {
     if (event.pointerType !== 'touch') {
       return;
     }
@@ -304,7 +304,7 @@ export class ToastStore extends Store<State> {
 
     this.resumeTimers();
     this.update({ hovering: false, focused: false });
-  }
+  };
 
   private scheduleTimer(id: string, delay: number, callback: () => void) {
     const start = Date.now();

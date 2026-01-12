@@ -1,5 +1,4 @@
 import * as React from 'react';
-import type {} from '../useToastManager';
 import { ToastStore } from '../store';
 
 export type ToastContext = ToastStore;
