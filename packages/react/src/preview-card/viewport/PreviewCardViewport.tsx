@@ -28,7 +28,7 @@ const stateAttributesMapping: StateAttributesMapping<PreviewCardViewport.State> 
  * and switching between them is animated.
  * Renders a `<div>` element.
  *
- * Documentation: [Base UI Tooltip](https://base-ui.com/react/components/tooltip)
+ * Documentation: [Base UI Prview Card](https://base-ui.com/react/components/preview-card)
  */
 export const PreviewCardViewport = React.forwardRef(function PreviewCardViewport(
   componentProps: PreviewCardViewport.Props,

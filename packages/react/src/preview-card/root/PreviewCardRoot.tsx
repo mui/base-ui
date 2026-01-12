@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import { useDismiss, useFocus, useInteractions } from '../../floating-ui-react';
+import { useDismiss, useInteractions } from '../../floating-ui-react';
 import { PreviewCardRootContext } from './PreviewCardContext';
 import {
   createChangeEventDetails,
@@ -15,6 +15,7 @@ import {
   useOpenStateTransitions,
 } from '../../utils/popups';
 import { PreviewCardHandle } from '../store/PreviewCardHandle';
+import { useFocusWithDelay } from '../../utils/interactions/useFocusWithDelay';
 
 /**
  * Groups all parts of the preview card.
@@ -74,8 +75,7 @@ export function PreviewCardRoot<Payload>(props: PreviewCardRoot.Props<Payload>) 
 
   const floatingRootContext = store.useState('floatingRootContext');
 
-  // TODO useFocusWithDelay
-  const focus = useFocus(floatingRootContext);
+  const focus = useFocusWithDelay(floatingRootContext);
   const dismiss = useDismiss(floatingRootContext);
 
   const { getReferenceProps, getTriggerProps, getFloatingProps } = useInteractions([
