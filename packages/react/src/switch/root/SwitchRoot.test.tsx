@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { expect } from 'chai';
 import { spy } from 'sinon';
-import { act, fireEvent, screen } from '@mui/internal-test-utils';
+import { act, fireEvent, reactMajor, screen } from '@mui/internal-test-utils';
 import { Switch } from '@base-ui/react/switch';
 import { describeConformance, createRenderer, isJSDOM } from '#test-utils';
 import { Field } from '@base-ui/react/field';
@@ -242,7 +242,12 @@ describe('<Switch.Root />', () => {
 
     const input = screen.getByRole('checkbox', { hidden: true });
 
-    expect(input).not.to.have.attribute('value');
+    // In tests on React 18, `undefined` value is retried as an empty string.
+    if (reactMajor <= 18) {
+      expect(input.getAttribute('value')).to.equal('');
+    } else {
+      expect(input).not.to.have.attribute('value');
+    }
   });
 
   it('should set the value attribute only on the input', async () => {
