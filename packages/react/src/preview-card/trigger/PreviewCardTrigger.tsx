@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
-import { usePreviewCardRootContext } from '../root/PreviewCardContext';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { usePreviewCardRootContext } from '../root/PreviewCardContext';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
 import { useRenderElement } from '../../utils/useRenderElement';
