@@ -309,6 +309,16 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
   const closeTypeRef = React.useRef<InteractionType>('');
   const lastInteractionTypeRef = React.useRef<InteractionType>('');
 
+  const beforeGuardRef = React.useRef<HTMLSpanElement | null>(null);
+  const afterGuardRef = React.useRef<HTMLSpanElement | null>(null);
+
+  const mergedBeforeGuardRef = useMergedRefs(
+    beforeGuardRef,
+    beforeContentFocusGuardRef,
+    portalContext?.beforeInsideRef,
+  );
+  const mergedAfterGuardRef = useMergedRefs(afterGuardRef, portalContext?.afterInsideRef);
+
   const blurTimeout = useTimeout();
   const pointerDownTimeout = useTimeout();
   const restoreFocusFrame = useAnimationFrame();
@@ -455,6 +465,19 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
       queueMicrotask(() => {
         const nodeId = getNodeId();
         const triggers = store.context.triggerElements;
+        const isRelatedFocusGuard =
+          relatedTarget?.hasAttribute(createAttribute('focus-guard')) &&
+          [
+            beforeGuardRef.current,
+            afterGuardRef.current,
+            portalContext?.beforeInsideRef.current,
+            portalContext?.afterInsideRef.current,
+            portalContext?.beforeOutsideRef.current,
+            portalContext?.afterOutsideRef.current,
+            resolveRef(previousFocusableElement),
+            resolveRef(nextFocusableElement),
+          ].includes(relatedTarget);
+
         const movedToUnrelatedNode = !(
           contains(domReference, relatedTarget) ||
           contains(floating, relatedTarget) ||
@@ -462,7 +485,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
           contains(portalContext?.portalNode, relatedTarget) ||
           (relatedTarget != null && triggers.hasElement(relatedTarget)) ||
           triggers.hasMatchingElement((trigger) => contains(trigger, relatedTarget)) ||
-          relatedTarget?.hasAttribute(createAttribute('focus-guard')) ||
+          isRelatedFocusGuard ||
           (tree &&
             (getNodeChildren(tree.nodesRef.current, nodeId).find(
               (node) =>
@@ -615,17 +638,9 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     blurTimeout,
     pointerDownTimeout,
     restoreFocusFrame,
+    nextFocusableElement,
+    previousFocusableElement,
   ]);
-
-  const beforeGuardRef = React.useRef<HTMLSpanElement | null>(null);
-  const afterGuardRef = React.useRef<HTMLSpanElement | null>(null);
-
-  const mergedBeforeGuardRef = useMergedRefs(
-    beforeGuardRef,
-    beforeContentFocusGuardRef,
-    portalContext?.beforeInsideRef,
-  );
-  const mergedAfterGuardRef = useMergedRefs(afterGuardRef, portalContext?.afterInsideRef);
 
   React.useEffect(() => {
     if (disabled || !floating || !open) {
