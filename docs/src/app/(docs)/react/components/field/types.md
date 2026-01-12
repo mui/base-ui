@@ -281,9 +281,9 @@ Requires `children` to be a function that accepts field validity state as an arg
 
 **Validity Props:**
 
-| Prop     | Type                                           | Default | Description                                                      |
-| :------- | :--------------------------------------------- | :------ | :--------------------------------------------------------------- |
-| children | `((state: Field.Validity.State) => ReactNode)` | -       | A function that accepts the field validity state as an argument. |
+| Prop       | Type                                           | Default | Description                                                      |
+| :--------- | :--------------------------------------------- | :------ | :--------------------------------------------------------------- |
+| children\* | `((state: Field.Validity.State) => ReactNode)` | -       | A function that accepts the field validity state as an argument. |
 
 ### Validity.Props
 

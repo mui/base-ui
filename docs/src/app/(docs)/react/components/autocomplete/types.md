@@ -621,9 +621,9 @@ If rendering a flat list, pass a function child to the `List` component instead,
 
 **Collection Props:**
 
-| Prop     | Type                                        | Default | Description |
-| :------- | :------------------------------------------ | :------ | :---------- |
-| children | `((item: any, index: number) => ReactNode)` | -       | -           |
+| Prop       | Type                                        | Default | Description |
+| :--------- | :------------------------------------------ | :------ | :---------- |
+| children\* | `((item: any, index: number) => ReactNode)` | -       | -           |
 
 ### Collection.Props
 
