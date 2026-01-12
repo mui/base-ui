@@ -203,7 +203,7 @@ export function useFocusWithDelay(
           // If the next focused element is one of the triggers, do not close
           // the floating element. The focus handler of that trigger will
           // handle the open state.
-          if (store.context.triggerElements.hasElement(event.relatedTarget as Element)) {
+          if (store.context.triggerElements.hasElement(relatedTarget as Element)) {
             return;
           }
 
