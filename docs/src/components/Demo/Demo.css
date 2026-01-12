@@ -60,9 +60,12 @@
     user-select: none;
   }
 
-  .DemoFileSelectorScroll {
+  .DemoFileSelectorScrollRoot {
     min-width: 0;
-    overflow: auto hidden;
+    overflow: hidden;
+  }
+
+  .DemoFileSelectorScrollViewport {
     overscroll-behavior-x: contain;
     scrollbar-width: none;
 
@@ -76,6 +79,33 @@
       outline: 2px solid var(--color-blue);
       outline-offset: -1px;
       z-index: 1;
+    }
+
+    /* Horizontal gradient fades */
+    &::before,
+    &::after {
+      content: '';
+      display: block;
+      top: 0;
+      height: 100%;
+      position: absolute;
+      pointer-events: none;
+      transition: width 0.1s ease-out;
+      z-index: 1;
+    }
+
+    &::before {
+      --scroll-area-overflow-x-start: inherit;
+      left: 0;
+      width: min(24px, var(--scroll-area-overflow-x-start));
+      background: linear-gradient(to right, var(--color-gray-50), transparent);
+    }
+
+    &::after {
+      --scroll-area-overflow-x-end: inherit;
+      right: 0;
+      width: min(24px, var(--scroll-area-overflow-x-end, 24px));
+      background: linear-gradient(to left, var(--color-gray-50), transparent);
     }
   }
 
