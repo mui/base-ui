@@ -476,6 +476,73 @@ describe('<Popover.Root />', () => {
 
       expect(screen.getByTestId('popup').textContent).to.equal('2');
     });
+
+    it('keeps positioning correct when conditional triggers unmount and the tree remounts', async () => {
+      const testPopover = Popover.createHandle();
+
+      function Test() {
+        const [key, setKey] = React.useState(1);
+        const [showErrorDemo, setShowErrorDemo] = React.useState(true);
+
+        return (
+          <React.Fragment key={key}>
+            <button
+              onClick={() => {
+                setShowErrorDemo((prev) => !prev);
+                setKey((prev) => prev + 1);
+              }}
+            >
+              Toggle
+            </button>
+            <div
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'flex-start',
+                gap: 48,
+                margin: 50,
+              }}
+            >
+              <Popover.Trigger handle={testPopover} id="trigger-0">
+                Trigger 0
+              </Popover.Trigger>
+              {showErrorDemo && (
+                <Popover.Trigger handle={testPopover} id="trigger-1">
+                  Trigger 1
+                </Popover.Trigger>
+              )}
+            </div>
+
+            <Popover.Root handle={testPopover} triggerId="trigger-0" open>
+              <Popover.Portal>
+                <Popover.Positioner data-testid="positioner" sideOffset={4} align="start">
+                  <Popover.Popup>Content</Popover.Popup>
+                </Popover.Positioner>
+              </Popover.Portal>
+            </Popover.Root>
+          </React.Fragment>
+        );
+      }
+
+      const { user } = await render(<Test />);
+
+      const trigger0 = screen.getByRole('button', { name: 'Trigger 0' });
+      await waitFor(() => {
+        expect(screen.getByTestId('positioner').getBoundingClientRect().left).to.be.closeTo(
+          trigger0.getBoundingClientRect().left,
+          1,
+        );
+      });
+
+      await user.click(screen.getByRole('button', { name: 'Toggle' }));
+      const trigger0After = screen.getByRole('button', { name: 'Trigger 0' });
+      await waitFor(() => {
+        expect(screen.getByTestId('positioner').getBoundingClientRect().left).to.be.closeTo(
+          trigger0After.getBoundingClientRect().left,
+          1,
+        );
+      });
+    });
   });
 
   describe.skipIf(isJSDOM)('imperative actions on the handle', () => {
