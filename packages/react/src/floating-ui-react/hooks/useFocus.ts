@@ -159,7 +159,11 @@ export function useFocus(
         ) {
           store.setOpen(
             true,
-            createChangeEventDetails(REASONS.triggerFocus, nativeEvent, currentTarget as HTMLElement),
+            createChangeEventDetails(
+              REASONS.triggerFocus,
+              nativeEvent,
+              currentTarget as HTMLElement,
+            ),
           );
           return;
         }
@@ -224,9 +228,7 @@ export function useFocus(
             const triggerElements = store.context.triggerElements;
             if (
               triggerElements.hasElement(nextFocusedElement) ||
-              triggerElements.hasMatchingElement((trigger) =>
-                contains(trigger, nextFocusedElement),
-              )
+              triggerElements.hasMatchingElement((trigger) => contains(trigger, nextFocusedElement))
             ) {
               return;
             }

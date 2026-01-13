@@ -3,7 +3,6 @@ import * as React from 'react';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { usePreviewCardRootContext } from '../root/PreviewCardContext';
 import { usePreviewCardPositionerContext } from '../positioner/PreviewCardPositionerContext';
-import { useDirection } from '../../direction-provider';
 import type { StateAttributesMapping } from '../../utils/getStateAttributesProps';
 import type { Align, Side } from '../../utils/useAnchorPositioning';
 import type { BaseUIComponentProps } from '../../utils/types';
@@ -14,7 +13,6 @@ import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { getDisabledMountTransitionStyles } from '../../utils/getDisabledMountTransitionStyles';
 import { useHoverFloatingInteraction } from '../../floating-ui-react';
-import { usePopupAutoResize } from '../../utils/usePopupAutoResize';
 
 const stateAttributesMapping: StateAttributesMapping<PreviewCardPopup.State> = {
   ...baseMapping,
@@ -37,15 +35,10 @@ export const PreviewCardPopup = React.forwardRef(function PreviewCardPopup(
   const { side, align } = usePreviewCardPositionerContext();
 
   const open = store.useState('open');
-  const mounted = store.useState('mounted');
   const instantType = store.useState('instantType');
   const transitionStatus = store.useState('transitionStatus');
   const popupProps = store.useState('popupProps');
-  const payload = store.useState('payload');
-  const popupElement = store.useState('popupElement');
-  const positionerElement = store.useState('positionerElement');
   const floatingContext = store.useState('floatingRootContext');
-  const direction = useDirection();
 
   useOpenChangeComplete({
     open,
@@ -55,39 +48,6 @@ export const PreviewCardPopup = React.forwardRef(function PreviewCardPopup(
         store.context.onOpenChangeComplete?.(true);
       }
     },
-  });
-
-  function handleMeasureLayout() {
-    floatingContext.context.events.emit('measure-layout');
-  }
-
-  function handleMeasureLayoutComplete(
-    previousDimensions: { width: number; height: number } | null,
-    nextDimensions: { width: number; height: number },
-  ) {
-    floatingContext.context.events.emit('measure-layout-complete', {
-      previousDimensions,
-      nextDimensions,
-    });
-  }
-
-  // If there's just one trigger, we can skip the auto-resize logic as
-  // the tooltip will always be anchored to the same position.
-  const autoresizeEnabled = React.useCallback(
-    () => store.context.triggerElements.size > 1,
-    [store],
-  );
-
-  usePopupAutoResize({
-    popupElement,
-    positionerElement,
-    mounted,
-    content: payload,
-    enabled: autoresizeEnabled,
-    onMeasureLayout: handleMeasureLayout,
-    onMeasureLayoutComplete: handleMeasureLayoutComplete,
-    side,
-    direction,
   });
 
   const getCloseDelay = useStableCallback(() => store.context.closeDelayRef.current);

@@ -16,6 +16,7 @@ import { CLOSE_DELAY } from '../utils/constants';
 
 export type State<Payload> = PopupStoreState<Payload> & {
   instantType: 'dismiss' | 'focus' | undefined;
+  hasViewport: boolean;
 };
 
 export type Context = PopupStoreContext<PreviewCardRoot.ChangeEventDetails> & {
@@ -25,6 +26,7 @@ export type Context = PopupStoreContext<PreviewCardRoot.ChangeEventDetails> & {
 const selectors = {
   ...popupStoreSelectors,
   instantType: createSelector((state: State<unknown>) => state.instantType),
+  hasViewport: createSelector((state: State<unknown>) => state.hasViewport),
 };
 
 export class PreviewCardStore<Payload> extends ReactStore<
@@ -126,5 +128,6 @@ function createInitialState<Payload>(): State<Payload> {
   return {
     ...createInitialPopupStoreState(),
     instantType: undefined,
+    hasViewport: false,
   };
 }

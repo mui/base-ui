@@ -6,12 +6,15 @@ import { usePreviousValue } from '@base-ui/utils/usePreviousValue';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { usePreviewCardRootContext } from '../root/PreviewCardContext';
+import { usePreviewCardPositionerContext } from '../positioner/PreviewCardPositionerContext';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useAnimationsFinished } from '../../utils/useAnimationsFinished';
+import { usePopupAutoResize } from '../../utils/usePopupAutoResize';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { StateAttributesMapping } from '../../utils/getStateAttributesProps';
 import { Dimensions } from '../../floating-ui-react/types';
 import { PreviewCardViewportCssVars } from './PreviewCardViewportCssVars';
+import { useDirection } from '../../direction-provider';
 
 const stateAttributesMapping: StateAttributesMapping<PreviewCardViewport.State> = {
   activationDirection: (value) =>
@@ -36,13 +39,17 @@ export const PreviewCardViewport = React.forwardRef(function PreviewCardViewport
 ) {
   const { render, className, children, ...elementProps } = componentProps;
   const store = usePreviewCardRootContext();
+  const positioner = usePreviewCardPositionerContext();
+  const direction = useDirection();
 
   const activeTrigger = store.useState('activeTriggerElement');
   const activeTriggerId = store.useState('activeTriggerId');
   const payload = store.useState('payload');
   const open = store.useState('open');
-  const floatingContext = store.useState('floatingRootContext');
   const instantType = store.useState('instantType');
+  const mounted = store.useState('mounted');
+  const popupElement = store.useState('popupElement');
+  const positionerElement = store.useState('positionerElement');
 
   const previousActiveTrigger = usePreviousValue(open ? activeTrigger : null);
   // Remount current content on trigger changes (and once more when payload lags) to avoid DOM reuse flashes.
@@ -67,6 +74,13 @@ export const PreviewCardViewport = React.forwardRef(function PreviewCardViewport
 
   const [showStartingStyleAttribute, setShowStartingStyleAttribute] = React.useState(false);
 
+  useIsoLayoutEffect(() => {
+    store.set('hasViewport', true);
+    return () => {
+      store.set('hasViewport', false);
+    };
+  }, [store]);
+
   // Freeze animations and hide the previous container during measurement for stable dimensions.
   const handleMeasureLayout = useStableCallback(() => {
     currentContainerRef.current?.style.setProperty('animation', 'none');
@@ -75,31 +89,16 @@ export const PreviewCardViewport = React.forwardRef(function PreviewCardViewport
     previousContainerRef.current?.style.setProperty('display', 'none');
   });
 
-  type MeasureLayoutCompleteData = {
-    previousDimensions: Dimensions | null;
-    nextDimensions: Dimensions;
-  };
-
-  const handleMeasureLayoutComplete = useStableCallback((data: MeasureLayoutCompleteData) => {
+  const handleMeasureLayoutComplete = useStableCallback((previousDimensions: Dimensions | null) => {
     currentContainerRef.current?.style.removeProperty('animation');
     currentContainerRef.current?.style.removeProperty('transition');
 
     previousContainerRef.current?.style.removeProperty('display');
 
-    if (!previousContentDimensions) {
-      setPreviousContentDimensions(data.previousDimensions);
+    if (previousDimensions) {
+      setPreviousContentDimensions(previousDimensions);
     }
   });
-
-  React.useEffect(() => {
-    floatingContext.context.events.on('measure-layout', handleMeasureLayout);
-    floatingContext.context.events.on('measure-layout-complete', handleMeasureLayoutComplete);
-
-    return () => {
-      floatingContext.context.events.off('measure-layout', handleMeasureLayout);
-      floatingContext.context.events.off('measure-layout-complete', handleMeasureLayoutComplete);
-    };
-  }, [floatingContext, handleMeasureLayout, handleMeasureLayoutComplete]);
 
   const lastHandledTriggerRef = React.useRef<Element | null>(null);
 
@@ -210,6 +209,22 @@ export const PreviewCardViewport = React.forwardRef(function PreviewCardViewport
 
     container.replaceChildren(...Array.from(previousContentNode.childNodes));
   }, [previousContentNode]);
+
+  // If there's just one trigger, we can skip the auto-resize logic as
+  // the preview card will always be anchored to the same position.
+  const autoresizeEnabled = useStableCallback(() => store.context.triggerElements.size > 1);
+
+  usePopupAutoResize({
+    popupElement,
+    positionerElement,
+    mounted,
+    content: payload,
+    enabled: autoresizeEnabled,
+    onMeasureLayout: handleMeasureLayout,
+    onMeasureLayoutComplete: handleMeasureLayoutComplete,
+    side: positioner.side,
+    direction,
+  });
 
   const state = React.useMemo(() => {
     return {
