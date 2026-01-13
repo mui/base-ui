@@ -16,7 +16,7 @@ import { useMenuPositionerContext } from '../positioner/MenuPositionerContext';
  */
 export const MenuItem = React.forwardRef(function MenuItem(
   componentProps: MenuItem.Props,
-  forwardedRef: React.ForwardedRef<Element>,
+  forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
   const {
     render,

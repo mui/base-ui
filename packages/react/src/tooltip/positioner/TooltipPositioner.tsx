@@ -49,6 +49,7 @@ export const TooltipPositioner = React.forwardRef(function TooltipPositioner(
   const floatingRootContext = store.useState('floatingRootContext');
   const instantType = store.useState('instantType');
   const transitionStatus = store.useState('transitionStatus');
+  const hasViewport = store.useState('hasViewport');
 
   const positioning = useAnchorPositioning({
     anchor,
@@ -66,7 +67,7 @@ export const TooltipPositioner = React.forwardRef(function TooltipPositioner(
     disableAnchorTracking,
     keepMounted,
     collisionAvoidance,
-    adaptiveOrigin,
+    adaptiveOrigin: hasViewport ? adaptiveOrigin : undefined,
   });
 
   const defaultProps: HTMLProps = React.useMemo(() => {

@@ -16,7 +16,7 @@ import type { MenuRoot } from '../root/MenuRoot';
 export const MenuRadioGroup = React.memo(
   React.forwardRef(function MenuRadioGroup(
     componentProps: MenuRadioGroup.Props,
-    forwardedRef: React.ForwardedRef<Element>,
+    forwardedRef: React.ForwardedRef<HTMLDivElement>,
   ) {
     const {
       render,
