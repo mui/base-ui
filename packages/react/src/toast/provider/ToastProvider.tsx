@@ -245,6 +245,8 @@ export const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvid
       const nextTimeout = nextToast.timeout ?? timeout;
       const prevTimeout = prevToast?.timeout ?? timeout;
 
+      const timeoutUpdated = Object.hasOwn(updates, 'timeout');
+
       const shouldHaveTimer =
         nextToast.transitionStatus !== 'ending' && nextToast.type !== 'loading' && nextTimeout > 0;
 
@@ -260,7 +262,7 @@ export const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvid
       }
 
       // Schedule or reschedule timer if needed
-      if (shouldHaveTimer && (!hasTimer || timeoutChanged || wasLoading)) {
+      if (shouldHaveTimer && (!hasTimer || timeoutChanged || timeoutUpdated || wasLoading)) {
         const timer = timersRef.current.get(id);
         if (timer) {
           timer.timeout?.clear();

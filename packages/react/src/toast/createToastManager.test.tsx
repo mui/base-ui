@@ -258,6 +258,131 @@ describe('Manager', () => {
       expect(screen.getByTestId('title')).to.have.text('updated');
     });
 
+    it('resets the auto-dismiss timer when updating with the same timeout value', async () => {
+      const toastManager = Toast.createToastManager();
+
+      let toastId: string;
+
+      function add() {
+        toastId = toastManager.add({
+          title: 'title',
+          timeout: 1000,
+        });
+      }
+
+      function resetTimeout() {
+        toastManager.update(toastId, {
+          timeout: 1000,
+        });
+      }
+
+      function Buttons() {
+        return (
+          <React.Fragment>
+            <button type="button" onClick={add}>
+              add
+            </button>
+            <button type="button" onClick={resetTimeout}>
+              reset timeout
+            </button>
+          </React.Fragment>
+        );
+      }
+
+      await render(
+        <Toast.Provider toastManager={toastManager}>
+          <Toast.Viewport>
+            <List />
+          </Toast.Viewport>
+          <Buttons />
+        </Toast.Provider>,
+      );
+
+      fireEvent.click(screen.getByRole('button', { name: 'add' }));
+      expect(screen.queryByTestId('title')).not.to.equal(null);
+
+      clock.tick(900);
+      expect(screen.queryByTestId('title')).not.to.equal(null);
+
+      fireEvent.click(screen.getByRole('button', { name: 'reset timeout' }));
+
+      clock.tick(200);
+      await flushMicrotasks();
+      expect(screen.queryByTestId('title')).not.to.equal(null);
+
+      clock.tick(800);
+      await flushMicrotasks();
+      expect(screen.queryByTestId('title')).to.equal(null);
+    });
+
+    it('resets the auto-dismiss timer when updating from 0 to a timeout, then updating with the same timeout again', async () => {
+      const toastManager = Toast.createToastManager();
+
+      let toastId: string;
+
+      function add() {
+        toastId = toastManager.add({
+          title: 'title',
+          timeout: 0,
+        });
+      }
+
+      function setTimeoutTo1000() {
+        toastManager.update(toastId, {
+          timeout: 1000,
+        });
+      }
+
+      function resetTimeoutTo1000() {
+        toastManager.update(toastId, {
+          timeout: 1000,
+        });
+      }
+
+      function Buttons() {
+        return (
+          <React.Fragment>
+            <button type="button" onClick={add}>
+              add
+            </button>
+            <button type="button" onClick={setTimeoutTo1000}>
+              set timeout
+            </button>
+            <button type="button" onClick={resetTimeoutTo1000}>
+              reset timeout
+            </button>
+          </React.Fragment>
+        );
+      }
+
+      await render(
+        <Toast.Provider toastManager={toastManager}>
+          <Toast.Viewport>
+            <List />
+          </Toast.Viewport>
+          <Buttons />
+        </Toast.Provider>,
+      );
+
+      fireEvent.click(screen.getByRole('button', { name: 'add' }));
+      expect(screen.queryByTestId('title')).not.to.equal(null);
+
+      fireEvent.click(screen.getByRole('button', { name: 'set timeout' }));
+
+      clock.tick(900);
+      expect(screen.queryByTestId('title')).not.to.equal(null);
+
+      fireEvent.click(screen.getByRole('button', { name: 'reset timeout' }));
+
+      clock.tick(200);
+      await flushMicrotasks();
+      expect(screen.queryByTestId('title')).not.to.equal(null);
+
+      clock.tick(800);
+      await flushMicrotasks();
+      expect(screen.queryByTestId('title')).to.equal(null);
+    });
+
     it('auto-dismisses when updating timeout from 0 to a positive value', async () => {
       const toastManager = Toast.createToastManager();
 
