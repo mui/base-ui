@@ -32,6 +32,11 @@ export interface UseFocusProps {
    * @default true
    */
   visibleOnly?: boolean;
+  /**
+   * Waits for the specified time before opening.
+   * @default undefined
+   */
+  delay?: number | (() => number | undefined);
 }
 
 /**
@@ -46,7 +51,7 @@ export function useFocus(
   const store = 'rootStore' in context ? context.rootStore : context;
 
   const { events, dataRef } = store.context;
-  const { enabled = true, visibleOnly = true } = props;
+  const { enabled = true, visibleOnly = true, delay } = props;
 
   const blockFocusRef = React.useRef(false);
   const timeout = useTimeout();
@@ -64,10 +69,11 @@ export function useFocus(
     // floating element was not open, the focus should be blocked when they
     // return to the tab/window.
     function onBlur() {
+      const currentDomReference = store.select('domReferenceElement');
       if (
         !store.select('open') &&
-        isHTMLElement(domReference) &&
-        domReference === activeElement(getDocument(domReference))
+        isHTMLElement(currentDomReference) &&
+        currentDomReference === activeElement(getDocument(currentDomReference))
       ) {
         blockFocusRef.current = true;
       }
@@ -139,14 +145,39 @@ export function useFocus(
           }
         }
 
-        store.setOpen(
-          true,
-          createChangeEventDetails(
-            REASONS.triggerFocus,
-            event.nativeEvent,
-            event.currentTarget as HTMLElement,
-          ),
-        );
+        const movedFromOtherTrigger =
+          event.relatedTarget &&
+          store.context.triggerElements.hasElement(event.relatedTarget as Element);
+
+        const { nativeEvent, currentTarget } = event;
+        const delayValue = typeof delay === 'function' ? delay() : delay;
+
+        if (
+          (store.select('open') && movedFromOtherTrigger) ||
+          delayValue === 0 ||
+          delayValue === undefined
+        ) {
+          store.setOpen(
+            true,
+            createChangeEventDetails(REASONS.triggerFocus, nativeEvent, currentTarget as HTMLElement),
+          );
+          return;
+        }
+
+        timeout.start(delayValue, () => {
+          if (blockFocusRef.current) {
+            return;
+          }
+
+          store.setOpen(
+            true,
+            createChangeEventDetails(
+              REASONS.triggerFocus,
+              nativeEvent,
+              currentTarget as HTMLElement,
+            ),
+          );
+        });
       },
       onBlur(event) {
         blockFocusRef.current = false;
@@ -188,15 +219,24 @@ export function useFocus(
           // If the next focused element is one of the triggers, do not close
           // the floating element. The focus handler of that trigger will
           // handle the open state.
-          if (store.context.triggerElements.hasElement(event.relatedTarget as Element)) {
-            return;
+          const nextFocusedElement = relatedTarget ?? activeEl;
+          if (isElement(nextFocusedElement)) {
+            const triggerElements = store.context.triggerElements;
+            if (
+              triggerElements.hasElement(nextFocusedElement) ||
+              triggerElements.hasMatchingElement((trigger) =>
+                contains(trigger, nextFocusedElement),
+              )
+            ) {
+              return;
+            }
           }
 
           store.setOpen(false, createChangeEventDetails(REASONS.triggerFocus, nativeEvent));
         });
       },
     }),
-    [dataRef, store, visibleOnly, timeout],
+    [dataRef, store, visibleOnly, timeout, delay],
   );
 
   return React.useMemo(

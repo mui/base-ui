@@ -9,8 +9,7 @@ import { useBaseUiId } from '../../utils/useBaseUiId';
 import { PreviewCardHandle } from '../store/PreviewCardHandle';
 import { useTriggerDataForwarding } from '../../utils/popups';
 import { CLOSE_DELAY, OPEN_DELAY } from '../utils/constants';
-import { safePolygon, useHoverReferenceInteraction } from '../../floating-ui-react';
-import { useFocusWithDelay } from '../../utils/interactions/useFocusWithDelay';
+import { safePolygon, useFocus, useHoverReferenceInteraction } from '../../floating-ui-react';
 
 /**
  * A link that opens the preview card.
@@ -75,7 +74,7 @@ export const PreviewCardTrigger = React.forwardRef(function PreviewCardTrigger(
     isActiveTrigger: isTriggerActive,
   });
 
-  const focusProps = useFocusWithDelay(floatingRootContext, { delay: delayWithDefault });
+  const focusProps = useFocus(floatingRootContext, { delay: delayWithDefault });
 
   const state: PreviewCardTrigger.State = React.useMemo(
     () => ({ open: isOpenedByThisTrigger }),
