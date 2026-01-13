@@ -2,7 +2,6 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { Collapsible } from '@base-ui/react/collapsible';
-import { ScrollArea } from '@base-ui/react/scroll-area';
 import type { ContentProps } from '@mui/internal-docs-infra/CodeHighlighter/types';
 import { useDemo } from '@mui/internal-docs-infra/useDemo';
 import { CopyIcon } from 'docs/src/icons/CopyIcon';
@@ -108,21 +107,14 @@ export function Demo({
         <div role="figure" aria-label="Component demo code">
           {(compact ? demo.expanded : true) && (
             <div className="DemoToolbar">
-              <ScrollArea.Root className="DemoFileSelectorScrollRoot">
-                <ScrollArea.Viewport
-                  className="DemoFileSelectorScrollViewport"
-                  style={{ overflow: 'auto hidden' }}
-                >
-                  <DemoFileSelector
-                    files={demo.files}
-                    selectedFileName={demo.selectedFileName}
-                    selectFileName={demo.selectFileName}
-                    onTabChange={demo.expand}
-                  />
-                </ScrollArea.Viewport>
-              </ScrollArea.Root>
+              <DemoFileSelector
+                files={demo.files}
+                selectedFileName={demo.selectedFileName}
+                selectFileName={demo.selectFileName}
+                onTabChange={demo.expand}
+              />
 
-              <div className="ml-auto flex shrink-0 items-center gap-4">
+              <div className="DemoToolbarActions">
                 <DemoVariantSelector
                   className="contents"
                   onVariantChange={demo.expand}
