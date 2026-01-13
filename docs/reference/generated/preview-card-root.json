@@ -20,7 +20,7 @@
     },
     "actionsRef": {
       "type": "RefObject<PreviewCard.Root.Actions | null>",
-      "description": "A ref to imperative actions.\n- `unmount`: When specified, the preview card will not be unmounted when closed.\nInstead, the `unmount` function must be called to unmount the preview card manually.\nUseful when the preview card's animation is controlled by an external library.\n- `close`: Closes the preview card imperatively when called",
+      "description": "A ref to imperative actions.\n- `unmount`: Unmounts the preview card popup.\n- `close`: Closes the preview card imperatively when called.",
       "detailedType": "| React.RefObject<PreviewCard.Root.Actions | null>\n| undefined"
     },
     "defaultTriggerId": {
