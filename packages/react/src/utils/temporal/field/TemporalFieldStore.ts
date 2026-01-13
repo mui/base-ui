@@ -19,6 +19,7 @@ import { TemporalFieldInputPropsPlugin } from './TemporalFieldInputPropsPlugin';
 import { TemporalFieldSectionPropsPlugin } from './TemporalFieldSectionPropsPlugin';
 import { TemporalFieldFormatPlugin } from './TemporalFieldFormatPlugin';
 import { TemporalFieldDOMPlugin } from './TemporalFieldDOMPlugin';
+import { TemporalFieldRootPropsPlugin } from './TemporalFieldRootPropsPlugin';
 
 const SECTION_TYPE_GRANULARITY: { [key in TemporalFieldSectionType]?: number } = {
   year: 1,
@@ -42,21 +43,23 @@ export class TemporalFieldStore<
 
   public timeoutManager = new TimeoutManager();
 
-  public characterEditing = new TemporalFieldCharacterEditingPlugin<TValue>(this);
+  public characterEditing: TemporalFieldCharacterEditingPlugin<TValue>;
 
-  public valueAdjustment = new TemporalFieldValueAdjustmentPlugin<TValue>(this);
+  public valueAdjustment: TemporalFieldValueAdjustmentPlugin<TValue>;
 
-  public value = new TemporalFieldValuePlugin<TValue, TError, TValidationProps>(this);
+  public value: TemporalFieldValuePlugin<TValue, TError, TValidationProps>;
 
-  public section = new TemporalFieldSectionPlugin<TValue>(this);
+  public section: TemporalFieldSectionPlugin<TValue>;
 
-  public format = new TemporalFieldFormatPlugin<TValue>(this);
+  public format: TemporalFieldFormatPlugin<TValue>;
 
-  public dom = new TemporalFieldDOMPlugin(this);
+  public dom: TemporalFieldDOMPlugin;
 
-  public inputProps = new TemporalFieldInputPropsPlugin<TValue, TError>(this);
+  public rootProps: TemporalFieldRootPropsPlugin;
 
-  public sectionProps = new TemporalFieldSectionPropsPlugin<TValue>(this);
+  public inputProps: TemporalFieldInputPropsPlugin<TValue, TError>;
+
+  public sectionProps: TemporalFieldSectionPropsPlugin<TValue>;
 
   constructor(
     parameters: TemporalFieldStoreParameters<TValue, TError>,
@@ -115,6 +118,16 @@ export class TemporalFieldStore<
     if (process.env.NODE_ENV !== 'production') {
       this.initialParameters = parameters;
     }
+
+    this.characterEditing = new TemporalFieldCharacterEditingPlugin<TValue>(this);
+    this.valueAdjustment = new TemporalFieldValueAdjustmentPlugin<TValue>(this);
+    this.value = new TemporalFieldValuePlugin<TValue, TError, TValidationProps>(this);
+    this.section = new TemporalFieldSectionPlugin<TValue>(this);
+    this.format = new TemporalFieldFormatPlugin<TValue>(this);
+    this.dom = new TemporalFieldDOMPlugin(this);
+    this.rootProps = new TemporalFieldRootPropsPlugin(this);
+    this.inputProps = new TemporalFieldInputPropsPlugin<TValue, TError>(this);
+    this.sectionProps = new TemporalFieldSectionPropsPlugin<TValue>(this);
   }
 
   /**

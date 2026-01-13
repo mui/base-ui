@@ -190,7 +190,7 @@ export class TemporalFieldSectionPlugin<TValue extends TemporalSupportedValue> {
     this.store = store;
 
     // Whenever props.value changes, we need to sync the state with it.
-    syncStateWithExternalValue(this.store);
+    syncStateWithExternalValue(store);
   }
 
   public getRenderedValue(section: TemporalFieldSection) {
@@ -402,11 +402,7 @@ function replaceSectionValueInSectionList(
 function syncStateWithExternalValue<TValue extends TemporalSupportedValue>(
   store: TemporalFieldStore<TValue, any, any>,
 ) {
-  store.registerStoreEffect(TemporalFieldValuePlugin.selectors.valueProp, (_, valueProp) => {
-    if (valueProp === undefined) {
-      return;
-    }
-
+  store.registerStoreEffect(TemporalFieldValuePlugin.selectors.value, (_, value) => {
     const adapter = selectors.adapter(store.state);
     const config = selectors.config(store.state);
     const parsedFormat = TemporalFieldFormatPlugin.selectors.parsedFormat(store.state);
@@ -418,10 +414,7 @@ function syncStateWithExternalValue<TValue extends TemporalSupportedValue>(
     const isActiveDateInvalid =
       sectionToUpdateOnNextInvalidDate != null &&
       !adapter.isValid(
-        config.getDateFromSection(
-          valueProp,
-          sectionsBefore[sectionToUpdateOnNextInvalidDate.index],
-        ),
+        config.getDateFromSection(value, sectionsBefore[sectionToUpdateOnNextInvalidDate.index]),
       );
     let sections: TemporalFieldSection[];
     if (isActiveDateInvalid) {
@@ -431,7 +424,7 @@ function syncStateWithExternalValue<TValue extends TemporalSupportedValue>(
         sectionToUpdateOnNextInvalidDate.value,
       );
     } else {
-      sections = config.getSectionsFromValue(valueProp, (date) =>
+      sections = config.getSectionsFromValue(value, (date) =>
         buildSections(adapter, parsedFormat, date),
       );
     }
@@ -442,7 +435,7 @@ function syncStateWithExternalValue<TValue extends TemporalSupportedValue>(
         ? referenceValueBefore
         : config.updateReferenceValue(
             adapter,
-            valueProp,
+            value,
             referenceValueBefore,
           )) as TemporalNonNullableValue<TValue>,
     });

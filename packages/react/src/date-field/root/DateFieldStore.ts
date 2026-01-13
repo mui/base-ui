@@ -29,6 +29,7 @@ const config: TemporalFieldConfiguration<
   clearDateSections: (sections) => sections.map((section) => ({ ...section, value: '' })),
   updateReferenceValue: (adapter, value, prevReferenceValue) =>
     adapter.isValid(value) ? value : prevReferenceValue,
+  stringifyValue: (adapter, value) => (value == null ? '' : adapter.toJsDate(value).toISOString()),
 };
 
 export class DateFieldStore extends TemporalFieldStore<

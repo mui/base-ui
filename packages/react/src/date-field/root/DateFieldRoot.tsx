@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
+import { useStore } from '@base-ui/utils/store';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useOnMount } from '@base-ui/utils/useOnMount';
 import { useTemporalAdapter } from '../../temporal-adapter-provider/TemporalAdapterContext';
@@ -9,10 +10,11 @@ import { useRenderElement } from '../../utils/useRenderElement';
 import { useDirection } from '../../direction-provider';
 import { DateFieldRootContext } from './DateFieldRootContext';
 import { DateFieldStore, DateFieldStoreParameters } from './DateFieldStore';
+import { TemporalFieldRootPropsPlugin } from '../../utils/temporal/field/TemporalFieldRootPropsPlugin';
 
 /**
  * Groups all parts of the date field.
- * Renders a `<div>` element.
+ * Renders a `<div>` element and a hidden `<input>` beside.
  *
  * Documentation: [Base UI Date Field](https://base-ui.com/react/components/date-field)
  */
@@ -84,11 +86,10 @@ export const DateFieldRoot = React.forwardRef(function DateFieldRoot(
   useOnMount(store.disposeEffect);
 
   // TODO: Make this logic more reliable
-  useOnMount(() => {
-    store.subscribe(() => {
-      store.dom.syncSelectionToDOM();
-    });
-  });
+  useOnMount(() => store.subscribe(store.dom.syncSelectionToDOM));
+
+  // TODO: Improve memoization
+  const inputProps = useStore(store, TemporalFieldRootPropsPlugin.selectors.hiddenInputProps);
 
   const element = useRenderElement('div', componentProps, {
     // state,
@@ -97,7 +98,12 @@ export const DateFieldRoot = React.forwardRef(function DateFieldRoot(
     // stateAttributesMapping,
   });
 
-  return <DateFieldRootContext.Provider value={store}>{element}</DateFieldRootContext.Provider>;
+  return (
+    <DateFieldRootContext.Provider value={store}>
+      <input {...inputProps} />
+      {element}
+    </DateFieldRootContext.Provider>
+  );
 });
 
 export interface DateFieldRootState {}

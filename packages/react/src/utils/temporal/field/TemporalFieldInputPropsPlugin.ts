@@ -123,7 +123,8 @@ export class TemporalFieldInputPropsPlugin<TValue extends TemporalSupportedValue
 
     // setFocused(true);
 
-    const isFocusInsideASection = this.store.dom.getSectionIndexFromDOMElement(activeEl) != null;
+    const isFocusInsideASection =
+      this.store.dom.isFocused() && this.store.dom.getSectionIndexFromDOMElement(activeEl) != null;
     if (!isFocusInsideASection) {
       this.store.section.setSelectedSections(0);
     }

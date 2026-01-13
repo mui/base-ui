@@ -1,13 +1,78 @@
-import { TemporalSupportedValue } from '../../../types';
+import { createSelectorMemoized } from '@base-ui/utils/store/createSelector';
+import { TemporalAdapter, TemporalSupportedValue, TemporalTimezone } from '../../../types';
 import { selectors } from './selectors';
 import { TemporalFieldSectionPlugin } from './TemporalFieldSectionPlugin';
 import { TemporalFieldStore } from './TemporalFieldStore';
+import { TemporalFieldState as State, TemporalFieldSection } from './types';
+
+const translations = {
+  empty: 'Empty',
+  year: 'Year',
+  month: 'Month',
+  day: 'Day',
+  weekDay: 'Week day',
+  hours: 'Hours',
+  minutes: 'Minutes',
+  seconds: 'Seconds',
+  meridiem: 'Meridiem',
+};
+
+const sectionPropsSelectors = {
+  sectionProps: createSelectorMemoized(
+    (state: State) => state.adapter,
+    selectors.readOnly,
+    selectors.disabled,
+    selectors.timezoneToRender,
+    TemporalFieldSectionPlugin.selectors.isSelectingAllSections,
+    TemporalFieldSectionPlugin.selectors.sectionBoundaries,
+    (
+      adapter,
+      readOnly,
+      disabled,
+      timezone,
+      isSelectingAllSections,
+      sectionBoundaries,
+      section: TemporalFieldSection,
+    ): React.HTMLAttributes<HTMLDivElement> => {
+      const isEditable = !isSelectingAllSections && !disabled && !readOnly;
+
+      return {
+        // Aria attributes
+        'aria-readonly': readOnly,
+        'aria-valuenow': getSectionValueNow(adapter, section, timezone),
+        'aria-valuemin': sectionBoundaries.minimum,
+        'aria-valuemax': sectionBoundaries.maximum,
+        'aria-valuetext': section.value
+          ? getSectionValueText(adapter, section, timezone)
+          : translations.empty,
+        'aria-label': translations[section.token.config.sectionType],
+        'aria-disabled': disabled,
+
+        // Other
+        tabIndex: !isEditable || isSelectingAllSections || section.index > 0 ? -1 : 0,
+        contentEditable: !isSelectingAllSections && !disabled && !readOnly,
+        suppressContentEditableWarning: true,
+        role: 'spinbutton',
+        // 'data-range-position': (section as FieldRangeSection).dateName || undefined,
+        spellCheck: isEditable ? false : undefined,
+        // Firefox hydrates this as `'none`' instead of `'off'`. No problems in chromium with both values.
+        // For reference https://github.com/mui/mui-x/issues/19012
+        autoCapitalize: isEditable ? 'none' : undefined,
+        autoCorrect: isEditable ? 'off' : undefined,
+        children: section.value || section.token.placeholder,
+        inputMode: section.token.config.contentType === 'letter' ? 'text' : 'numeric',
+      };
+    },
+  ),
+};
 
 /**
  * Plugin to build the props to pass to the input element.
  */
 export class TemporalFieldSectionPropsPlugin<TValue extends TemporalSupportedValue> {
   private store: TemporalFieldStore<TValue, any, any>;
+
+  public static selectors = sectionPropsSelectors;
 
   // We can't type `store`, otherwise we get the following TS error:
   // 'sectionProps' implicitly has type 'any' because it does not have a type annotation and is referenced directly or indirectly in its own initializer.
@@ -125,4 +190,87 @@ export class TemporalFieldSectionPropsPlugin<TValue extends TemporalSupportedVal
     const sectionIndex = this.store.dom.getSectionIndexFromDOMElement(event.target)!;
     this.store.section.setSelectedSections(sectionIndex);
   };
+}
+
+function getSectionValueNow(
+  adapter: TemporalAdapter,
+  section: TemporalFieldSection,
+  timezone: TemporalTimezone,
+): number | undefined {
+  if (!section.value) {
+    return undefined;
+  }
+  switch (section.token.config.sectionType) {
+    case 'weekDay': {
+      if (section.token.config.contentType === 'letter') {
+        // TODO: improve by resolving the week day number from a letter week day
+        return undefined;
+      }
+      return Number(section.value);
+    }
+    case 'meridiem': {
+      const parsedDate = adapter.parse(
+        `01:00 ${section.value}`,
+        `${adapter.formats.hours12h}:${adapter.formats.minutesPadded} ${section.token.tokenValue}`,
+        timezone,
+      );
+      if (parsedDate) {
+        return adapter.getHours(parsedDate) >= 12 ? 1 : 0;
+      }
+      return undefined;
+    }
+    case 'day':
+      return section.token.config.contentType === 'digit-with-letter'
+        ? parseInt(section.value, 10)
+        : Number(section.value);
+    case 'month': {
+      if (section.token.config.contentType === 'digit') {
+        return Number(section.value);
+      }
+      const parsedDate = adapter.parse(section.value, section.token.tokenValue, timezone);
+      return parsedDate ? adapter.getMonth(parsedDate) + 1 : undefined;
+    }
+    default:
+      return section.token.config.contentType !== 'letter' ? Number(section.value) : undefined;
+  }
+}
+
+function getSectionValueText(
+  adapter: TemporalAdapter,
+  section: TemporalFieldSection,
+  timezone: TemporalTimezone,
+): string | undefined {
+  if (!section.value) {
+    return undefined;
+  }
+  switch (section.token.config.sectionType) {
+    case 'month': {
+      if (section.token.config.contentType === 'digit') {
+        const dateWithMonth = adapter.setMonth(adapter.now(timezone), Number(section.value) - 1);
+        return adapter.isValid(dateWithMonth)
+          ? adapter.format(dateWithMonth, 'monthFullLetter')
+          : '';
+      }
+      const parsedDate = adapter.parse(section.value, section.token.tokenValue, timezone);
+      return parsedDate && adapter.isValid(parsedDate)
+        ? adapter.format(parsedDate, 'monthFullLetter')
+        : undefined;
+    }
+    case 'day':
+      if (section.token.config.contentType === 'digit') {
+        const dateWithDay = adapter.setDate(
+          adapter.startOfYear(adapter.now(timezone)),
+          Number(section.value),
+        );
+        return adapter.isValid(dateWithDay)
+          ? adapter.format(dateWithDay, 'dayOfMonthWithLetter')
+          : '';
+      }
+      return section.value;
+    case 'weekDay':
+      // TODO: improve by providing the label of the week day
+      return undefined;
+    default:
+      return undefined;
+  }
 }

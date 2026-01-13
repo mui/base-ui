@@ -154,7 +154,7 @@ export interface TemporalFieldState<
 export interface TemporalFieldCharacterEditingQuery {
   value: string;
   sectionIndex: number;
-  tokenType: TemporalFieldSectionType;
+  sectionType: TemporalFieldSectionType;
 }
 
 export type TemporalFieldChangeReason = 'none';
@@ -201,7 +201,7 @@ export interface TemporalFieldToken {
 export interface TemporalFieldSection {
   /**
    * Value of the section, as rendered inside the input.
-   * For example, in the date `May 25, 1995`, the value of the month section is "May".
+   * For example, in the date `05/25/1995`, the value of the month section is "05".
    */
   value: string;
   /**
@@ -250,7 +250,7 @@ export interface TemporalFieldConfiguration<
   TValidationProps extends {},
 > {
   /**
-   * A getter that returns the manager of the field.
+   * Returns the manager of the field.
    */
   getManager: (adapter: TemporalAdapter) => TemporalManager<TValue, TError, TValidationProps>;
   /**
@@ -282,21 +282,21 @@ export interface TemporalFieldConfiguration<
     date: TemporalSupportedObject | null,
   ) => TValue;
   /**
-   * Extract from the given value the date that contains the given section.
+   * Extracts from the given value the date that contains the given section.
    */
   getDateFromSection: (
     value: TValue,
     section: TemporalFieldSection,
   ) => TemporalSupportedObject | null;
   /**
-   * Get the sections of the date that contains the given section.
+   * Gets the sections of the date that contains the given section.
    */
   getDateSectionsFromValue: (
     sections: TemporalFieldSection[],
     section: TemporalFieldSection,
   ) => TemporalFieldSection[];
   /**
-   * Method returning the reference value to use when mounting the component.
+   * Returns the reference value to use when mounting the component.
    */
   getInitialReferenceValue: (params: {
     externalReferenceDate: TemporalSupportedObject | undefined;
@@ -308,14 +308,14 @@ export interface TemporalFieldConfiguration<
     getTodayDate?: () => TemporalSupportedObject;
   }) => TemporalNonNullableValue<TValue>;
   /**
-   * Clear all the sections representing the same date as the given section.
+   * Clears all the sections representing the same date as the given section.
    */
   clearDateSections: (
     sections: TemporalFieldSection[],
     section: TemporalFieldSection,
   ) => TemporalFieldSection[];
   /**
-   * Update the reference value with the new value.
+   * Updates the reference value with the new value.
    * This method must make sure that no date inside the returned `referenceValue` is invalid.
    */
   updateReferenceValue: (
@@ -323,6 +323,10 @@ export interface TemporalFieldConfiguration<
     value: TValue,
     prevReferenceValue: TemporalNonNullableValue<TValue>,
   ) => TemporalNonNullableValue<TValue>;
+  /**
+   * Stringifies the value to be used in form submissions.
+   */
+  stringifyValue: (adapter: TemporalAdapter, value: TValue) => string;
 }
 
 export interface TemporalFieldPlaceholderGetters {

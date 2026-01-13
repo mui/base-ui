@@ -11,7 +11,6 @@ import { createChangeEventDetails } from '../../createBaseUIEventDetails';
 
 const valueSelectors = {
   value: createSelector((state: State) => state.value),
-  valueProp: createSelector((state: State) => state.valueProp),
   referenceValue: createSelector((state: State) => state.referenceValue),
 };
 

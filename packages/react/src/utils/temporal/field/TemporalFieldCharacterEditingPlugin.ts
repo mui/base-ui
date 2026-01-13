@@ -37,7 +37,7 @@ export class TemporalFieldCharacterEditingPlugin<TValue extends TemporalSupporte
     this.store = store;
 
     // Whenever the sections change, we need to clear the character query if the section type at the queried index has changed
-    syncCharacterQueryWithSections(this.store);
+    syncCharacterQueryWithSections(store);
   }
 
   public resetCharacterQuery() {
@@ -308,7 +308,7 @@ export class TemporalFieldCharacterEditingPlugin<TValue extends TemporalSupporte
         this.setCharacterQuery({
           sectionIndex,
           value: concatenatedQueryValue,
-          tokenType: section.token.config.sectionType,
+          sectionType: section.token.config.sectionType,
         });
         return queryResponse;
       }
@@ -323,7 +323,7 @@ export class TemporalFieldCharacterEditingPlugin<TValue extends TemporalSupporte
     this.setCharacterQuery({
       sectionIndex,
       value: cleanKeyPressed,
-      tokenType: section.token.config.sectionType,
+      sectionType: section.token.config.sectionType,
     });
 
     if (isQueryResponseWithoutValue(queryResponse)) {
@@ -376,8 +376,8 @@ function syncCharacterQueryWithSections<TValue extends TemporalSupportedValue>(
       return;
     }
     const shouldReset =
-      sections[characterQuery.sectionIndex]?.token.tokenValue !== characterQuery.tokenType ||
-      activeSection == null; /* && error != null */ // TODO: Support error state
+      sections[characterQuery.sectionIndex]?.token.config.sectionType !==
+        characterQuery.sectionType || activeSection == null; /* && error != null */ // TODO: Support error state
 
     if (shouldReset) {
       store.set('characterQuery', null);

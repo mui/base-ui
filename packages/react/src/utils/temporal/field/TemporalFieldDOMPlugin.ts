@@ -12,7 +12,7 @@ export class TemporalFieldDOMPlugin {
 
   public inputRef = React.createRef<HTMLElement>();
 
-  private sections = new Map<number, HTMLElement>();
+  private sectionElementMap = new Map<number, HTMLElement>();
 
   // We can't type `store`, otherwise we get the following TS error:
   // 'dom' implicitly has type 'any' because it does not have a type annotation and is referenced directly or indirectly in its own initializer.
@@ -26,9 +26,7 @@ export class TemporalFieldDOMPlugin {
   }
 
   public getSectionIndexFromDOMElement(element: Element | null | undefined) {
-    const root = this.inputRef.current;
-
-    if (element == null || !root?.contains(element)) {
+    if (element == null) {
       return null;
     }
 
@@ -50,8 +48,8 @@ export class TemporalFieldDOMPlugin {
       return undefined;
     }
 
-    this.sections.set(index, sectionElement!);
-    return () => this.sections.delete(index);
+    this.sectionElementMap.set(index, sectionElement!);
+    return () => this.sectionElementMap.delete(index);
   };
 
   /**
@@ -69,7 +67,7 @@ export class TemporalFieldDOMPlugin {
     this.store.dom.syncSelectionToDOM();
   }
 
-  public syncSelectionToDOM() {
+  public syncSelectionToDOM = () => {
     if (!this.inputRef.current) {
       return;
     }
@@ -88,7 +86,7 @@ export class TemporalFieldDOMPlugin {
         selection.rangeCount > 0 &&
         // Firefox can return a Restricted object here
         selection.getRangeAt(0).startContainer instanceof Node &&
-        this.inputRef.current!.contains(selection.getRangeAt(0).startContainer)
+        this.inputRef.current.contains(selection.getRangeAt(0).startContainer)
       ) {
         selection.removeAllRanges();
       }
@@ -120,9 +118,9 @@ export class TemporalFieldDOMPlugin {
     target.focus();
     selection.removeAllRanges();
     selection.addRange(range);
-  }
+  };
 
   private getSectionElement(sectionIndex: number) {
-    return this.sections.get(sectionIndex) ?? null;
+    return this.sectionElementMap.get(sectionIndex) ?? null;
   }
 }
