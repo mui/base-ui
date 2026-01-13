@@ -388,5 +388,5 @@ function replaceSectionValueInSectionList(
     modified: true,
   };
 
-  return sections;
+  return newSections;
 }

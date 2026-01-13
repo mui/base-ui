@@ -44,4 +44,5 @@ export const selectors = {
   adapter: createSelector((state: State) => state.adapter),
   manager: createSelector((state: State) => state.manager),
   config: createSelector((state: State) => state.config),
+  validationProps: createSelector((state: State) => state.validationProps),
 };

@@ -34,7 +34,7 @@ export class TemporalFieldStore<
   TError,
   TValidationProps extends object,
 > extends Store<TemporalFieldState<TValue, TError, TValidationProps>> {
-  private parameters: TemporalFieldStoreParameters<TValue, TError>;
+  public parameters: TemporalFieldStoreParameters<TValue, TError>;
 
   private initialParameters: TemporalFieldStoreParameters<TValue, TError> | null = null;
 

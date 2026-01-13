@@ -7,6 +7,7 @@ import { TemporalFieldValueChangeHandlerContext, TemporalFieldState as State } f
 import { buildSections } from './utils';
 import { TemporalFieldFormatPlugin } from './TemporalFieldFormatPlugin';
 import { TemporalFieldSectionPlugin } from './TemporalFieldSectionPlugin';
+import { createChangeEventDetails } from '../../createBaseUIEventDetails';
 
 const valueSelectors = {
   value: createSelector((state: State) => state.value),
@@ -35,14 +36,26 @@ export class TemporalFieldValuePlugin<
    * Publishes the provided field value.
    */
   public publish(value: TValue) {
-    const manager = selectors.manager(this.store.state);
+    const inputTimezone = this.store.state.manager.getTimezone(this.store.state.value);
+    const newValueWithInputTimezone =
+      inputTimezone == null ? value : this.store.state.manager.setTimezone(value, inputTimezone);
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const context: TemporalFieldValueChangeHandlerContext<TError> = {
-      getValidationError: () => manager.getValidationError(value, this.store.state.validationProps),
-    };
+    // Pass event
+    // event.nativeEvent, event.currentTarget
+    const eventDetails = createChangeEventDetails('none', undefined, undefined, {
+      getValidationError: () =>
+        selectors
+          .manager(this.store.state)
+          .getValidationError(
+            newValueWithInputTimezone,
+            selectors.validationProps(this.store.state),
+          ),
+    });
 
-    // TODO: Fire onValueChange
+    this.store.parameters.onValueChange?.(newValueWithInputTimezone, eventDetails);
+    if (!eventDetails.isCanceled && this.store.parameters.value === undefined) {
+      this.store.set('value', newValueWithInputTimezone);
+    }
   }
 
   /**
