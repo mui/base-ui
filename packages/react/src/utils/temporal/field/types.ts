@@ -82,6 +82,10 @@ export interface TemporalFieldState<
    */
   referenceDateProp: TemporalSupportedObject | null;
   /**
+   * The value of the field, as passed to `props.value`.
+   */
+  valueProp: TValue | undefined;
+  /**
    * The manager of the field (uses `getDateManager` for DateField and `getTimeManager` for TimeField).
    * Not publicly exposed, is only set in state to avoid passing it to the selectors.
    */
@@ -310,6 +314,15 @@ export interface TemporalFieldConfiguration<
     sections: TemporalFieldSection[],
     section: TemporalFieldSection,
   ) => TemporalFieldSection[];
+  /**
+   * Update the reference value with the new value.
+   * This method must make sure that no date inside the returned `referenceValue` is invalid.
+   */
+  updateReferenceValue: (
+    adapter: TemporalAdapter,
+    value: TValue,
+    prevReferenceValue: TemporalNonNullableValue<TValue>,
+  ) => TemporalNonNullableValue<TValue>;
 }
 
 export interface TemporalFieldPlaceholderGetters {

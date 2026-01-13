@@ -38,6 +38,7 @@ export function deriveStateFromParameters<
     config,
     adapter,
     referenceDateProp: parameters.referenceDate ?? null,
+    valueProp: parameters.value,
     format: parameters.format,
     disabled: parameters.disabled ?? false,
     readOnly: parameters.readOnly ?? false,

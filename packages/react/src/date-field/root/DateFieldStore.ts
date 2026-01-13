@@ -27,6 +27,8 @@ const config: TemporalFieldConfiguration<
   getInitialReferenceValue: ({ value, ...other }) =>
     getInitialReferenceDate({ ...other, externalDate: value }),
   clearDateSections: (sections) => sections.map((section) => ({ ...section, value: '' })),
+  updateReferenceValue: (adapter, value, prevReferenceValue) =>
+    adapter.isValid(value) ? value : prevReferenceValue,
 };
 
 export class DateFieldStore extends TemporalFieldStore<

@@ -23,30 +23,6 @@ const characterEditingSelectors = {
   characterQuery: createSelector((state: State) => state.characterQuery),
 };
 
-function syncCharacterQueryWithSections<TValue extends TemporalSupportedValue>(
-  store: TemporalFieldStore<TValue, any, any>,
-) {
-  const selector = createSelectorMemoized(
-    characterEditingSelectors.characterQuery,
-    TemporalFieldSectionPlugin.selectors.sections,
-    TemporalFieldSectionPlugin.selectors.activeSection,
-    (characterQuery, sections, activeSection) => ({ characterQuery, sections, activeSection }),
-  );
-
-  store.registerStoreEffect(selector, (_, { characterQuery, sections, activeSection }) => {
-    if (characterQuery == null) {
-      return;
-    }
-    const shouldReset =
-      sections[characterQuery.sectionIndex]?.token.tokenValue !== characterQuery.tokenType ||
-      activeSection == null; /* && error != null */ // TODO: Support error state
-
-    if (shouldReset) {
-      store.set('characterQuery', null);
-    }
-  });
-}
-
 /**
  * Plugin to update the value of a section when pressing a digit or letter key.
  */
@@ -383,6 +359,30 @@ function isQueryResponseWithoutValue(
   response: ReturnType<QueryApplier>,
 ): response is { saveQuery: boolean } {
   return (response as { saveQuery: boolean }).saveQuery != null;
+}
+
+function syncCharacterQueryWithSections<TValue extends TemporalSupportedValue>(
+  store: TemporalFieldStore<TValue, any, any>,
+) {
+  const selector = createSelectorMemoized(
+    characterEditingSelectors.characterQuery,
+    TemporalFieldSectionPlugin.selectors.sections,
+    TemporalFieldSectionPlugin.selectors.activeSection,
+    (characterQuery, sections, activeSection) => ({ characterQuery, sections, activeSection }),
+  );
+
+  store.registerStoreEffect(selector, (_, { characterQuery, sections, activeSection }) => {
+    if (characterQuery == null) {
+      return;
+    }
+    const shouldReset =
+      sections[characterQuery.sectionIndex]?.token.tokenValue !== characterQuery.tokenType ||
+      activeSection == null; /* && error != null */ // TODO: Support error state
+
+    if (shouldReset) {
+      store.set('characterQuery', null);
+    }
+  });
 }
 
 interface EditSectionParameters {
