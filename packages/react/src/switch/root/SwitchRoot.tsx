@@ -171,7 +171,6 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
           id: hiddenInputId,
           name,
           required,
-          value,
           style: visuallyHiddenInput,
           tabIndex: -1,
           type: 'checkbox',
