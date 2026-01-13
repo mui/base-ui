@@ -12,7 +12,7 @@ export class TemporalFieldDOMPlugin {
 
   public inputRef = React.createRef<HTMLElement>();
 
-  private sections: HTMLDivElement[] = [];
+  private sections = new Map<number, HTMLElement>();
 
   // We can't type `store`, otherwise we get the following TS error:
   // 'dom' implicitly has type 'any' because it does not have a type annotation and is referenced directly or indirectly in its own initializer.
@@ -25,24 +25,12 @@ export class TemporalFieldDOMPlugin {
     return activeElement(doc);
   }
 
-  public getSectionContainer(sectionIndex: number) {
+  public getSectionElement(sectionIndex: number) {
     if (!this.inputRef.current) {
       return null;
     }
 
-    return this.inputRef.current.querySelector<HTMLSpanElement>(
-      `.${pickersSectionListClasses.section}[data-sectionindex="${sectionIndex}"]`,
-    );
-  }
-
-  public getSectionContent(sectionIndex: number) {
-    if (!this.inputRef.current) {
-      return null;
-    }
-
-    return this.inputRef.current.querySelector<HTMLSpanElement>(
-      `.${pickersSectionListClasses.section}[data-sectionindex="${sectionIndex}"] .${pickersSectionListClasses.sectionContent}`,
-    );
+    return this.sections.get(sectionIndex) ?? null;
   }
 
   public getSectionIndexFromDOMElement(element: Element | null | undefined) {
@@ -52,34 +40,45 @@ export class TemporalFieldDOMPlugin {
       return null;
     }
 
-    let sectionContainer: HTMLSpanElement | null = null;
-    if (element.classList.contains(pickersSectionListClasses.section)) {
-      sectionContainer = element as HTMLSpanElement;
-    } else if (element.classList.contains(pickersSectionListClasses.sectionContent)) {
-      sectionContainer = element.parentElement as HTMLSpanElement;
-    }
+    return Number((element as HTMLElement).dataset.sectionindex);
 
-    if (sectionContainer == null) {
-      return null;
-    }
+    // let sectionContainer: HTMLSpanElement | null = null;
+    // if (element.classList.contains(pickersSectionListClasses.section)) {
+    //   sectionContainer = element as HTMLSpanElement;
+    // } else if (element.classList.contains(pickersSectionListClasses.sectionContent)) {
+    //   sectionContainer = element.parentElement as HTMLSpanElement;
+    // }
 
-    return Number(sectionContainer.dataset.sectionindex);
+    // if (sectionContainer == null) {
+    //   return null;
+    // }
+
+    // return Number(sectionContainer.dataset.sectionindex);
   }
 
   public isFocused() {
     return !!this.inputRef.current?.contains(this.getActiveElement());
   }
 
-  public registerSection(sectionElement: HTMLDivElement | null) {
-    console.log(sectionElement);
-  }
+  public registerSection = (sectionElement: HTMLDivElement | null) => {
+    const indexStr = sectionElement?.dataset.index;
+    if (indexStr == null) {
+      return undefined;
+    }
+
+    const index = Number(indexStr);
+    this.sections.set(index, sectionElement!);
+    return () => {
+      this.sections.delete(index);
+    };
+  };
 
   /**
    * Updates the content of a section in the DOM to match the store state.
    * This is needed to revert unwanted change made when the section has contentEditable enabled.
    */
   public syncSectionContentToDOM(sectionIndex: number) {
-    const sectionElement = this.getSectionContent(sectionIndex);
+    const sectionElement = this.getSectionElement(sectionIndex);
     if (sectionElement == null) {
       return;
     }
@@ -130,15 +129,7 @@ export class TemporalFieldDOMPlugin {
     if (selectedSections === 'all') {
       target = this.inputRef.current;
     } else {
-      const section = TemporalFieldSectionPlugin.selectors.section(
-        this.store.state,
-        selectedSections,
-      );
-      if (section.token.config.sectionType === 'empty') {
-        target = this.getSectionContainer(selectedSections);
-      } else {
-        target = this.getSectionContent(selectedSections);
-      }
+      target = this.getSectionElement(selectedSections);
     }
 
     if (target == null) {

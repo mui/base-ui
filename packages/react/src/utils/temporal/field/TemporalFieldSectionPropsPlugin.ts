@@ -15,7 +15,7 @@ export class TemporalFieldSectionPropsPlugin<TValue extends TemporalSupportedVal
     this.store = store;
   }
 
-  public handleClick(event: React.MouseEvent<HTMLElement>) {
+  public handleClick = (event: React.MouseEvent<HTMLElement>) => {
     // The click event on the clear button would propagate to the input, trigger this handler and result in a wrong section selection.
     // We avoid this by checking if the call to this function is actually intended, or a side effect.
     if (selectors.disabled(this.store.state) || event.isDefaultPrevented()) {
@@ -24,9 +24,9 @@ export class TemporalFieldSectionPropsPlugin<TValue extends TemporalSupportedVal
 
     const sectionIndex = this.store.dom.getSectionIndexFromDOMElement(event.target as HTMLElement)!;
     this.store.section.setSelectedSections(sectionIndex);
-  }
+  };
 
-  public handleInput(event: React.FormEvent) {
+  public handleInput = (event: React.FormEvent) => {
     const target = event.target as HTMLSpanElement;
     const keyPressed = target.textContent ?? '';
     const sectionIndex = this.store.dom.getSectionIndexFromDOMElement(target);
@@ -64,9 +64,9 @@ export class TemporalFieldSectionPropsPlugin<TValue extends TemporalSupportedVal
 
     // The DOM value needs to remain the one React is expecting.
     this.store.dom.syncSectionContentToDOM(sectionIndex);
-  }
+  };
 
-  public handlePaste(event: React.ClipboardEvent) {
+  public handlePaste = (event: React.ClipboardEvent) => {
     // prevent default to avoid the input `onInput` handler being called
     event.preventDefault();
 
@@ -105,24 +105,24 @@ export class TemporalFieldSectionPropsPlugin<TValue extends TemporalSupportedVal
       this.store.characterEditing.resetCharacterQuery();
       this.store.value.updateFromString(pastedValue);
     }
-  }
+  };
 
-  public handleMouseUp(event: React.MouseEvent) {
+  public handleMouseUp = (event: React.MouseEvent) => {
     // Without this, the browser will remove the selected when clicking inside an already-selected section.
     event.preventDefault();
-  }
+  };
 
-  public handleDragOver(event: React.DragEvent) {
+  public handleDragOver = (event: React.DragEvent) => {
     event.preventDefault();
     event.dataTransfer.dropEffect = 'none';
-  }
+  };
 
-  public handleFocus(event: React.FocusEvent) {
+  public handleFocus = (event: React.FocusEvent) => {
     if (selectors.disabled(this.store.state)) {
       return;
     }
 
     const sectionIndex = this.store.dom.getSectionIndexFromDOMElement(event.target)!;
     this.store.section.setSelectedSections(sectionIndex);
-  }
+  };
 }

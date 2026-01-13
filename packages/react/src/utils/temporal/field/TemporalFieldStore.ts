@@ -188,8 +188,6 @@ export class TemporalFieldStore<
       );
     }
 
-    console.log(newState);
-
     updateModel(newState, 'value', 'defaultValue');
 
     this.update(newState);

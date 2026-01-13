@@ -8,6 +8,7 @@ import { useRenderElement } from '../../utils/useRenderElement';
 import { useDirection } from '../../direction-provider';
 import { DateFieldRootContext } from './DateFieldRootContext';
 import { DateFieldStore, DateFieldStoreParameters } from './DateFieldStore';
+import { useOnMount } from '@base-ui/utils/useOnMount';
 
 /**
  * Groups all parts of the date field.
@@ -79,6 +80,8 @@ export const DateFieldRoot = React.forwardRef(function DateFieldRoot(
     () => store.tempUpdate(parameters, adapter, direction),
     [store, parameters, adapter, direction],
   );
+
+  useOnMount(store.disposeEffect);
 
   const element = useRenderElement('div', componentProps, {
     // state,

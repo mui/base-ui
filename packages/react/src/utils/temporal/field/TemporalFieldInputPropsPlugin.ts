@@ -121,7 +121,7 @@ export class TemporalFieldInputPropsPlugin<TValue extends TemporalSupportedValue
 
     const activeEl = this.store.dom.getActiveElement();
 
-    setFocused(true);
+    // setFocused(true);
 
     const isFocusInsideASection = this.store.dom.getSectionIndexFromDOMElement(activeEl) != null;
     if (!isFocusInsideASection) {
@@ -138,7 +138,7 @@ export class TemporalFieldInputPropsPlugin<TValue extends TemporalSupportedValue
       const activeEl = this.store.dom.getActiveElement();
       const shouldBlur = !this.store.dom.inputRef.current.contains(activeEl);
       if (shouldBlur) {
-        setFocused(false);
+        // setFocused(false);
         this.store.section.setSelectedSections(null);
       }
     });
@@ -157,7 +157,7 @@ export class TemporalFieldInputPropsPlugin<TValue extends TemporalSupportedValue
       this.store.state,
     );
 
-    setFocused(true);
+    // setFocused(true);
 
     if (selectedSections === 'all') {
       this.store.timeoutManager.startInterval('containerClick', 0, () => {
@@ -181,7 +181,7 @@ export class TemporalFieldInputPropsPlugin<TValue extends TemporalSupportedValue
         this.store.section.setSelectedSections(sectionIndex - 1);
       });
     } else if (!this.store.dom.isFocused()) {
-      setFocused(true);
+      // setFocused(true);
       this.store.section.setSelectedSections(0);
     } else {
       const hasClickedOnASection = this.store.dom.inputRef.current.contains(event.target as Node);

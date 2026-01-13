@@ -112,7 +112,18 @@ export const DateFieldSection = React.forwardRef(function DateFieldSection(
   return useRenderElement('div', componentProps, {
     state,
     ref: [forwardedRef, store.dom.registerSection],
-    props: [propsFromState, elementProps],
+    props: [
+      propsFromState,
+      {
+        onClick: store.sectionProps.handleClick,
+        onInput: store.sectionProps.handleInput,
+        onPaste: store.sectionProps.handlePaste,
+        onMouseUp: store.sectionProps.handleMouseUp,
+        onDragOver: store.sectionProps.handleDragOver,
+        onFocus: store.sectionProps.handleFocus,
+      },
+      elementProps,
+    ],
     stateAttributesMapping,
   });
 });
