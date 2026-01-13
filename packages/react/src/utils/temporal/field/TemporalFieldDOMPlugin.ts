@@ -25,10 +25,6 @@ export class TemporalFieldDOMPlugin {
     return activeElement(doc);
   }
 
-  public getSectionElement(sectionIndex: number) {
-    return this.sections.get(sectionIndex) ?? null;
-  }
-
   public getSectionIndexFromDOMElement(element: Element | null | undefined) {
     const root = this.inputRef.current;
 
@@ -36,20 +32,12 @@ export class TemporalFieldDOMPlugin {
       return null;
     }
 
-    return Number((element as HTMLElement).dataset.sectionIndex);
+    const indexStr = (element as HTMLElement).dataset?.sectionIndex;
+    if (indexStr == null) {
+      return null;
+    }
 
-    // let sectionContainer: HTMLSpanElement | null = null;
-    // if (element.classList.contains(pickersSectionListClasses.section)) {
-    //   sectionContainer = element as HTMLSpanElement;
-    // } else if (element.classList.contains(pickersSectionListClasses.sectionContent)) {
-    //   sectionContainer = element.parentElement as HTMLSpanElement;
-    // }
-
-    // if (sectionContainer == null) {
-    //   return null;
-    // }
-
-    // return Number(sectionContainer.dataset.sectionIndex);
+    return Number(indexStr);
   }
 
   public isFocused() {
@@ -57,16 +45,13 @@ export class TemporalFieldDOMPlugin {
   }
 
   public registerSection = (sectionElement: HTMLDivElement | null) => {
-    const indexStr = sectionElement?.dataset.sectionIndex;
-    if (indexStr == null) {
+    const index = this.getSectionIndexFromDOMElement(sectionElement);
+    if (index == null) {
       return undefined;
     }
 
-    const index = Number(indexStr);
     this.sections.set(index, sectionElement!);
-    return () => {
-      this.sections.delete(index);
-    };
+    return () => this.sections.delete(index);
   };
 
   /**
@@ -135,5 +120,9 @@ export class TemporalFieldDOMPlugin {
     target.focus();
     selection.removeAllRanges();
     selection.addRange(range);
+  }
+
+  private getSectionElement(sectionIndex: number) {
+    return this.sections.get(sectionIndex) ?? null;
   }
 }
