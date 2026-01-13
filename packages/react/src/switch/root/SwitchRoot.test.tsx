@@ -243,11 +243,7 @@ describe('<Switch.Root />', () => {
     const input = screen.getByRole('checkbox', { hidden: true });
 
     // In tests on React 18, `undefined` value is retried as an empty string.
-    if (reactMajor <= 18) {
-      expect(input.getAttribute('value')).to.equal('');
-    } else {
-      expect(input).not.to.have.attribute('value');
-    }
+    expect(input).not.to.have.attribute('value');
   });
 
   it('should set the value attribute only on the input', async () => {
