@@ -1,3 +1,5 @@
+/* eslint-disable no-irregular-whitespace */
+/* TODO: Replace `Base UI` with a non-breaking space version in the types.md */
 'use client';
 import * as React from 'react';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
@@ -19,11 +21,11 @@ import type { BaseUIChangeEventDetails } from '../../utils/createBaseUIEventDeta
  * The form control to label and validate.
  * Renders an `<input>` element.
  *
- * You can omit this part and use any Base UI input component instead. For example,
+ * You can omit this part and use any Base UI input component instead. For example,
  * [Input](https://base-ui.com/react/components/input), [Checkbox](https://base-ui.com/react/components/checkbox),
  * or [Select](https://base-ui.com/react/components/select), among others, will work with Field out of the box.
  *
- * Documentation: [Base UI Field](https://base-ui.com/react/components/field)
+ * Documentation: [Base UI Field](https://base-ui.com/react/components/field)
  */
 export const FieldControl = React.forwardRef(function FieldControl(
   componentProps: FieldControl.Props,

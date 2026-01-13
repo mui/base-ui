@@ -57,11 +57,11 @@ export type BaseUIComponentProps<
 > & {
   /**
    * CSS class applied to the element, or a function that
-   * returns a class based on the component’s state.
+   * returns a class based on the component's state.
    */
   className?: string | ((state: State) => string | undefined);
   /**
-   * Allows you to replace the component’s HTML element
+   * Allows you to replace the component's HTML element
    * with a different tag, or compose it with another component.
    *
    * Accepts a `ReactElement` or a function that returns the element to render.
@@ -69,7 +69,7 @@ export type BaseUIComponentProps<
   render?: ComponentRenderFn<RenderFunctionProps, State> | React.ReactElement;
   /**
    * Style applied to the element, or a function that
-   * returns a style object based on the component’s state.
+   * returns a style object based on the component's state.
    */
   style?: React.CSSProperties | ((state: State) => React.CSSProperties | undefined);
 };
@@ -78,7 +78,7 @@ export interface NativeButtonProps {
   /**
    * Whether the component renders a native `<button>` element when replacing it
    * via the `render` prop.
-   * Set to `false` if the rendered element is not a button (e.g. `<div>`).
+   * Set to `false` if the rendered element is not a button (for example, `<div>`).
    * @default true
    */
   nativeButton?: boolean;
