@@ -57,6 +57,7 @@ const sectionPropsSelector = createSelectorMemoized(
       // Other
       tabIndex: !isEditable || isSelectingAllSections || section.index > 0 ? -1 : 0,
       contentEditable: !isSelectingAllSections && !disabled && !readOnly,
+      suppressContentEditableWarning: true,
       role: 'spinbutton',
       // 'data-range-position': (section as FieldRangeSection).dateName || undefined,
       spellCheck: isEditable ? false : undefined,

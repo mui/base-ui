@@ -64,6 +64,10 @@ export class TemporalFieldDOMPlugin {
     return Number(sectionContainer.dataset.sectionindex);
   }
 
+  public isFocused() {
+    return !!this.inputRef.current?.contains(this.getActiveElement());
+  }
+
   /**
    * Updates the content of a section in the DOM to match the store state.
    * This is needed to revert unwanted change made when the section has contentEditable enabled.

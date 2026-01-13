@@ -1,9 +1,13 @@
 .Root {
+  padding: 4px 8px;
   border: 1px solid red;
+  border-radius: 2px;
 }
 
 .Input {
+  display: flex;
 }
 
 .Section {
+  padding: 0 4px;
 }

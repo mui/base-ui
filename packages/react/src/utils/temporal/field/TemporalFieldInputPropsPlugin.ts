@@ -111,7 +111,11 @@ export class TemporalFieldInputPropsPlugin<TValue extends TemporalSupportedValue
   };
 
   public handleFocus = () => {
-    if (focused || selectors.disabled(this.store.state) || !this.store.dom.inputRef.current) {
+    if (
+      this.store.dom.isFocused() ||
+      selectors.disabled(this.store.state) ||
+      !this.store.dom.inputRef.current
+    ) {
       return;
     }
 
@@ -176,7 +180,7 @@ export class TemporalFieldInputPropsPlugin<TValue extends TemporalSupportedValue
 
         this.store.section.setSelectedSections(sectionIndex - 1);
       });
-    } else if (!focused) {
+    } else if (!this.store.dom.isFocused()) {
       setFocused(true);
       this.store.section.setSelectedSections(0);
     } else {
