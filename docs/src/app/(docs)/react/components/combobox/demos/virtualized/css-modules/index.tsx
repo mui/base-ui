@@ -72,7 +72,7 @@ function VirtualizedList({
     [virtualizer],
   );
 
-  itemHighlightedCallbackRef.current = React.useCallback<ItemHighlightedCallback>(
+  const onItemHighlighted = React.useCallback<ItemHighlightedCallback>(
     (item, { reason, index }) => {
       if (!item) {
         return;
@@ -90,6 +90,10 @@ function VirtualizedList({
     },
     [filteredItems, virtualizer],
   );
+
+  React.useEffect(() => {
+    itemHighlightedCallbackRef.current = onItemHighlighted;
+  }, [onItemHighlighted, itemHighlightedCallbackRef]);
 
   const totalSize = virtualizer.getTotalSize();
 
