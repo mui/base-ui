@@ -1,4 +1,5 @@
 import { createSelector, createSelectorMemoized } from '@base-ui/utils/store';
+import { warn } from '@base-ui/utils/warn';
 import { TemporalFieldSectionType, TemporalSupportedValue } from '../../../types';
 import { TemporalFieldStore } from './TemporalFieldStore';
 import { TemporalFieldState as State, TemporalFieldParsedFormat } from './types';
@@ -37,29 +38,25 @@ export class TemporalFieldFormatPlugin<TValue extends TemporalSupportedValue> {
   }
 }
 
-let warnedOnceInvalidSection = false;
 function validateFormat(parsedFormat: TemporalFieldParsedFormat, dateType: TemporalDateType) {
   if (process.env.NODE_ENV !== 'production') {
-    if (!warnedOnceInvalidSection) {
-      const supportedSections: TemporalFieldSectionType[] = ['empty'];
-      if (['date', 'date-time'].includes(dateType)) {
-        supportedSections.push('weekDay', 'day', 'month', 'year');
-      }
-      if (['time', 'date-time'].includes(dateType)) {
-        supportedSections.push('hours', 'minutes', 'seconds', 'meridiem');
-      }
+    const supportedSections: TemporalFieldSectionType[] = ['empty'];
+    if (['date', 'date-time'].includes(dateType)) {
+      supportedSections.push('weekDay', 'day', 'month', 'year');
+    }
+    if (['time', 'date-time'].includes(dateType)) {
+      supportedSections.push('hours', 'minutes', 'seconds', 'meridiem');
+    }
 
-      const invalidSection = parsedFormat.tokens.find(
-        (token) => !supportedSections.includes(token.config.sectionType),
+    const invalidSection = parsedFormat.tokens.find(
+      (token) => !supportedSections.includes(token.config.sectionType),
+    );
+
+    if (invalidSection) {
+      warn(
+        `Base UI: The field component you are using is not compatible with the "${invalidSection.config.sectionType}" date section.`,
+        `The supported date sections are ["${supportedSections.join('", "')}"]\`.`,
       );
-
-      if (invalidSection) {
-        console.warn(
-          `MUI X: The field component you are using is not compatible with the "${invalidSection.config.sectionType}" date section.`,
-          `The supported date sections are ["${supportedSections.join('", "')}"]\`.`,
-        );
-        warnedOnceInvalidSection = true;
-      }
     }
   }
 }

@@ -82,7 +82,7 @@ export class FormatParser {
     if (config == null) {
       throw new Error(
         [
-          `MUI X: The token "${tokenValue}" is not supported by the Base UI components.`,
+          `Base UI: The token "${tokenValue}" is not supported by the Base UI components.`,
           'Please try using another token or open an issue on https://github.com/mui/base-ui/issues/new/choose if you think it should be supported.',
         ].join('\n'),
       );
@@ -144,7 +144,7 @@ export class FormatParser {
 
   private createToken(tokenValue: string): TemporalFieldToken {
     if (tokenValue === '') {
-      throw new Error('MUI X: Should not call `createToken` with an empty token');
+      throw new Error('Base UI: Should not call `createToken` with an empty token');
     }
 
     const tokenConfig = FormatParser.getTokenConfig(this.adapter, tokenValue);
