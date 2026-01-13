@@ -26,10 +26,6 @@ export class TemporalFieldDOMPlugin {
   }
 
   public getSectionElement(sectionIndex: number) {
-    if (!this.inputRef.current) {
-      return null;
-    }
-
     return this.sections.get(sectionIndex) ?? null;
   }
 
@@ -40,7 +36,7 @@ export class TemporalFieldDOMPlugin {
       return null;
     }
 
-    return Number((element as HTMLElement).dataset.sectionindex);
+    return Number((element as HTMLElement).dataset.sectionIndex);
 
     // let sectionContainer: HTMLSpanElement | null = null;
     // if (element.classList.contains(pickersSectionListClasses.section)) {
@@ -53,7 +49,7 @@ export class TemporalFieldDOMPlugin {
     //   return null;
     // }
 
-    // return Number(sectionContainer.dataset.sectionindex);
+    // return Number(sectionContainer.dataset.sectionIndex);
   }
 
   public isFocused() {
@@ -61,7 +57,7 @@ export class TemporalFieldDOMPlugin {
   }
 
   public registerSection = (sectionElement: HTMLDivElement | null) => {
-    const indexStr = sectionElement?.dataset.index;
+    const indexStr = sectionElement?.dataset.sectionIndex;
     if (indexStr == null) {
       return undefined;
     }
@@ -124,7 +120,6 @@ export class TemporalFieldDOMPlugin {
     }
 
     const range = new window.Range();
-
     let target: HTMLElement | null;
     if (selectedSections === 'all') {
       target = this.inputRef.current;

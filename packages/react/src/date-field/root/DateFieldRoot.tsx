@@ -83,6 +83,13 @@ export const DateFieldRoot = React.forwardRef(function DateFieldRoot(
 
   useOnMount(store.disposeEffect);
 
+  // TODO: Make this logic more reliable
+  useOnMount(() => {
+    store.subscribe(() => {
+      store.dom.syncSelectionToDOM();
+    });
+  });
+
   const element = useRenderElement('div', componentProps, {
     // state,
     ref: forwardedRef,
