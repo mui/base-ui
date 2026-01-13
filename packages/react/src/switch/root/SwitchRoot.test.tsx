@@ -175,6 +175,18 @@ describe('<Switch.Root />', () => {
     });
   });
 
+  describe('prop: required', () => {
+    it('should have the `aria-required` attribute', async () => {
+      await render(<Switch.Root required />);
+      expect(screen.getByRole('switch')).to.have.attribute('aria-required', 'true');
+    });
+
+    it('should not have the aria attribute when `required` is not set', async () => {
+      await render(<Switch.Root />);
+      expect(screen.getByRole('switch')).not.to.have.attribute('aria-required');
+    });
+  });
+
   describe('prop: inputRef', () => {
     it('should be able to access the native input', async () => {
       const inputRef = React.createRef<HTMLInputElement>();
@@ -225,6 +237,24 @@ describe('<Switch.Root />', () => {
     expect(switchElement).not.to.have.attribute('name');
   });
 
+  it('should not set the value attribute by default', async () => {
+    await render(<Switch.Root />);
+
+    const input = screen.getByRole('checkbox', { hidden: true });
+
+    expect(input).not.to.have.attribute('value');
+  });
+
+  it('should set the value attribute only on the input', async () => {
+    await render(<Switch.Root value="1" />);
+
+    const switchElement = screen.getByRole('switch');
+    const input = screen.getByRole('checkbox', { hidden: true });
+
+    expect(input).to.have.attribute('value', '1');
+    expect(switchElement).not.to.have.attribute('value');
+  });
+
   describe('with native <label>', () => {
     it('should toggle the switch when a wrapping <label> is clicked', async () => {
       const { user } = await render(
@@ -255,6 +285,28 @@ describe('<Switch.Root />', () => {
       const switchElement = screen.getByRole('switch');
       expect(switchElement).to.have.attribute('aria-checked', 'false');
 
+      await user.click(screen.getByTestId('label'));
+      expect(switchElement).to.have.attribute('aria-checked', 'true');
+    });
+
+    it('should associate `id` with the native button when `nativeButton=true`', async () => {
+      const { user } = await render(
+        <div>
+          <label data-testid="label" htmlFor="mySwitch">
+            Toggle
+          </label>
+
+          <Switch.Root id="mySwitch" nativeButton render={<button />} />
+        </div>,
+      );
+
+      const switchElement = screen.getByRole('switch');
+      expect(switchElement).to.have.attribute('id', 'mySwitch');
+
+      const hiddenInput = screen.getByRole('checkbox', { hidden: true });
+      expect(hiddenInput).not.to.have.attribute('id', 'mySwitch');
+
+      expect(switchElement).to.have.attribute('aria-checked', 'false');
       await user.click(screen.getByTestId('label'));
       expect(switchElement).to.have.attribute('aria-checked', 'true');
     });

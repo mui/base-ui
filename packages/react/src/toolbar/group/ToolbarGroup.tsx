@@ -14,7 +14,7 @@ import { ToolbarGroupContext } from './ToolbarGroupContext';
  */
 export const ToolbarGroup = React.forwardRef(function ToolbarGroup(
   componentProps: ToolbarGroup.Props,
-  forwardedRef: React.ForwardedRef<HTMLElement>,
+  forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const { className, disabled: disabledProp = false, render, ...elementProps } = componentProps;
 

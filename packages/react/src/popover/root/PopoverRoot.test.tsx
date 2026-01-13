@@ -105,6 +105,17 @@ describe('<Popover.Root />', () => {
 
     describe('nested menu interactions', () => {
       it('keeps the popover open when a nested menu opens via Enter using a shared container', async () => {
+        vi.spyOn(console, 'error').mockImplementation((...args) => {
+          if (args[0] === 'null') {
+            // a bug in vitest prints specific browser errors as "null"
+            // See https://github.com/vitest-dev/vitest/issues/9285
+            // TODO(@mui/base): debug why this test triggers "ResizeObserver loop completed with undelivered notifications"
+            // It seems related to @testing-library/user-event. Native vitest `userEvent` does not trigger it.
+            return;
+          }
+          console.error(...args);
+        });
+
         function Test() {
           const [dialogNode, setDialogNode] = React.useState<HTMLDialogElement | null>(null);
           const handleDialogRef = React.useCallback((node: HTMLDialogElement | null) => {
@@ -158,6 +169,17 @@ describe('<Popover.Root />', () => {
       });
 
       it('keeps the popover open when a nested menu opens via pointer using a shared container', async () => {
+        vi.spyOn(console, 'error').mockImplementation((...args) => {
+          if (args[0] === 'null') {
+            // a bug in vitest prints specific browser errors as "null"
+            // See https://github.com/vitest-dev/vitest/issues/9285
+            // TODO(@mui/base): debug why this test triggers "ResizeObserver loop completed with undelivered notifications"
+            // It seems related to @testing-library/user-event. Native vitest `userEvent` does not trigger it.
+            return;
+          }
+          console.error(...args);
+        });
+
         function Test() {
           const [dialogNode, setDialogNode] = React.useState<HTMLDialogElement | null>(null);
           const handleDialogRef = React.useCallback((node: HTMLDialogElement | null) => {
@@ -438,6 +460,98 @@ describe('<Popover.Root />', () => {
           });
         });
 
+        it('closes a nested combobox popup when tabbing out of the popover', async () => {
+          const { user } = await render(
+            <div>
+              <TestPopover
+                rootProps={{ defaultOpen: true }}
+                portalProps={{ keepMounted: true }}
+                popupProps={{
+                  children: (
+                    <Combobox.Root items={['a', 'b']}>
+                      <Combobox.Input data-testid="combobox-input" />
+                      <Combobox.Portal>
+                        <Combobox.Positioner>
+                          <Combobox.Popup>
+                            <Combobox.List>
+                              <Combobox.Item value="a">a</Combobox.Item>
+                              <Combobox.Item value="b">b</Combobox.Item>
+                            </Combobox.List>
+                          </Combobox.Popup>
+                        </Combobox.Positioner>
+                      </Combobox.Portal>
+                    </Combobox.Root>
+                  ),
+                }}
+                afterTrigger={<input data-testid="focus-target" />}
+              />
+            </div>,
+          );
+
+          const comboboxInput = screen.getByTestId('combobox-input');
+          await user.click(comboboxInput);
+          await flushMicrotasks();
+
+          expect(screen.getByRole('listbox')).toBeVisible();
+
+          await user.tab();
+
+          expect(screen.getByTestId('focus-target')).toHaveFocus();
+
+          await waitFor(() => {
+            expect(screen.getByTestId('popover-popup')).to.have.attribute('data-closed');
+          });
+
+          await waitFor(() => {
+            expect(screen.queryByRole('listbox')).to.equal(null);
+          });
+        });
+
+        it('closes a nested combobox popup when tabbing backward to the trigger', async () => {
+          const { user } = await render(
+            <div>
+              <TestPopover
+                rootProps={{ defaultOpen: true }}
+                portalProps={{ keepMounted: true }}
+                popupProps={{
+                  children: (
+                    <Combobox.Root items={['a', 'b']}>
+                      <Combobox.Input data-testid="combobox-input" />
+                      <Combobox.Portal>
+                        <Combobox.Positioner>
+                          <Combobox.Popup>
+                            <Combobox.List>
+                              <Combobox.Item value="a">a</Combobox.Item>
+                              <Combobox.Item value="b">b</Combobox.Item>
+                            </Combobox.List>
+                          </Combobox.Popup>
+                        </Combobox.Positioner>
+                      </Combobox.Portal>
+                    </Combobox.Root>
+                  ),
+                }}
+              />
+            </div>,
+          );
+
+          const comboboxInput = screen.getByTestId('combobox-input');
+          await user.click(comboboxInput);
+          await flushMicrotasks();
+
+          expect(screen.getByRole('listbox')).toBeVisible();
+
+          const trigger = screen.getByTestId('trigger');
+          expect(trigger).not.to.have.attribute('aria-hidden', 'true');
+
+          await user.tab({ shift: true });
+
+          expect(screen.getByRole('button', { name: 'Toggle' })).toHaveFocus();
+
+          await waitFor(() => {
+            expect(screen.queryByRole('listbox')).to.equal(null);
+          });
+        });
+
         it.skipIf(isJSDOM)(
           'moves focus to the trigger when tabbing backward from the open popup then to the popup when tabbing forward',
           async () => {
@@ -689,6 +803,55 @@ describe('<Popover.Root />', () => {
 
         expect(screen.queryByRole('dialog')).to.equal(null);
       });
+
+      it.skipIf(isJSDOM)(
+        'moves focus to the next element when tabbing out of a nested menu inside the popover',
+        async () => {
+          const { user } = await render(
+            <div>
+              <TestPopover
+                rootProps={{ defaultOpen: true }}
+                portalProps={{ keepMounted: true }}
+                popupProps={{
+                  children: (
+                    <React.Fragment>
+                      <button type="button" data-testid="before">
+                        Before
+                      </button>
+                      <Menu.Root>
+                        <Menu.Trigger>Menu</Menu.Trigger>
+                        <Menu.Portal>
+                          <Menu.Positioner>
+                            <Menu.Popup>
+                              <Menu.Item>Item</Menu.Item>
+                            </Menu.Popup>
+                          </Menu.Positioner>
+                        </Menu.Portal>
+                      </Menu.Root>
+                      <button type="button" data-testid="after">
+                        After
+                      </button>
+                    </React.Fragment>
+                  ),
+                }}
+              />
+            </div>,
+          );
+
+          await user.click(screen.getByRole('button', { name: 'Menu' }));
+
+          const menu = await screen.findByRole('menu');
+          await waitFor(() => {
+            expect(menu).toHaveFocus();
+          });
+
+          await user.tab();
+
+          expect(screen.getByTestId('after')).toHaveFocus();
+          expect(screen.queryByRole('menu')).to.equal(null);
+          expect(screen.getByTestId('popover-popup')).toBeVisible();
+        },
+      );
     });
 
     describe.skipIf(isJSDOM)('pointerdown removal', () => {

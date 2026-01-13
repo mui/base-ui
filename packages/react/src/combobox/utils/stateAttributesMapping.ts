@@ -13,4 +13,5 @@ export const triggerStateAttributesMapping = {
   valid: boolean | null;
   popupSide: Side | null;
   listEmpty: boolean;
+  placeholder: boolean;
 }>;
