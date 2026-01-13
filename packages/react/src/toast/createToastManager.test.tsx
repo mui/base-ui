@@ -486,6 +486,63 @@ describe('Manager', () => {
 
       expect(screen.queryByTestId('title')).to.equal(null);
     });
+
+    it('does not clear the auto-dismiss timer when updated twice before a re-render', async () => {
+      const toastManager = Toast.createToastManager();
+
+      let toastId: string;
+
+      function add() {
+        toastId = toastManager.add({
+          title: 'loading',
+          type: 'loading',
+        });
+      }
+
+      function doubleUpdate() {
+        toastManager.update(toastId, {
+          type: 'success',
+          timeout: 1000,
+        });
+
+        toastManager.update(toastId, {
+          title: 'new',
+        });
+      }
+
+      function Buttons() {
+        return (
+          <React.Fragment>
+            <button type="button" onClick={add}>
+              add
+            </button>
+            <button type="button" onClick={doubleUpdate}>
+              double update
+            </button>
+          </React.Fragment>
+        );
+      }
+
+      await render(
+        <Toast.Provider toastManager={toastManager}>
+          <Toast.Viewport>
+            <List />
+          </Toast.Viewport>
+          <Buttons />
+        </Toast.Provider>,
+      );
+
+      fireEvent.click(screen.getByRole('button', { name: 'add' }));
+      expect(screen.getByTestId('title')).to.have.text('loading');
+
+      fireEvent.click(screen.getByRole('button', { name: 'double update' }));
+      expect(screen.getByTestId('title')).to.have.text('new');
+
+      clock.tick(1000);
+      await flushMicrotasks();
+
+      expect(screen.queryByTestId('title')).to.equal(null);
+    });
   });
 
   describe('close', () => {

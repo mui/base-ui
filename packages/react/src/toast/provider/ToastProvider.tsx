@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import * as ReactDOM from 'react-dom';
 import { ownerDocument } from '@base-ui/utils/owner';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { generateId } from '@base-ui/utils/generateId';
@@ -231,12 +232,15 @@ export const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvid
 
   const update = useStableCallback(
     <Data extends object>(id: string, updates: ToastManagerUpdateOptions<Data>) => {
-      const prevToast = toasts.find((toast) => toast.id === id);
+      const prevToast = toasts.find((toast) => toast.id === id) ?? null;
       const nextToast = prevToast ? { ...prevToast, ...updates } : null;
 
-      setToasts((prev) =>
-        prev.map((toast) => (toast.id === id ? { ...toast, ...updates } : toast)),
-      );
+      // Avoid race conditions if `update()` is called multiple times in a row
+      ReactDOM.flushSync(() => {
+        setToasts((prev) =>
+          prev.map((toast) => (toast.id === id ? { ...toast, ...updates } : toast)),
+        );
+      });
 
       if (!nextToast) {
         return;
