@@ -97,7 +97,7 @@ export type ComboboxRootProps<Value, Multiple extends boolean | undefined = fals
    * Instead, the `unmount` function must be called to unmount the combobox manually.
    * Useful when the combobox's animation is controlled by an external library.
    */
-  actionsRef?: React.RefObject<ComboboxRoot.Actions>;
+  actionsRef?: React.RefObject<ComboboxRoot.Actions | null>;
   /**
    * Event handler called when the popup is opened or closed.
    */

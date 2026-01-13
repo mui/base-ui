@@ -201,7 +201,7 @@ export interface TooltipRootProps<Payload = unknown> {
    * Useful when the tooltip's animation is controlled by an external library.
    * - `close`: Closes the tooltip imperatively when called.
    */
-  actionsRef?: React.RefObject<TooltipRoot.Actions>;
+  actionsRef?: React.RefObject<TooltipRoot.Actions | null>;
   /**
    * Whether the tooltip is disabled.
    * @default false

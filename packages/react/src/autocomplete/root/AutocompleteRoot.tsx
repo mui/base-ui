@@ -234,7 +234,7 @@ export interface AutocompleteRootProps<ItemValue> extends Omit<
    * Instead, the `unmount` function must be called to unmount the autocomplete manually.
    * Useful when the autocomplete's animation is controlled by an external library.
    */
-  actionsRef?: React.RefObject<AutocompleteRootActions>;
+  actionsRef?: React.RefObject<AutocompleteRootActions | null>;
   /**
    * Event handler called when the popup is opened or closed.
    */

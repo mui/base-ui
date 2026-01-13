@@ -138,7 +138,7 @@ export interface PreviewCardRootProps<Payload = unknown> {
    * Useful when the preview card's animation is controlled by an external library.
    * - `close`: Closes the preview card imperatively when called
    */
-  actionsRef?: React.RefObject<PreviewCardRoot.Actions>;
+  actionsRef?: React.RefObject<PreviewCardRoot.Actions | null>;
   /**
    * A handle to associate the preview card with a trigger.
    * If specified, allows external triggers to control the card's open state.

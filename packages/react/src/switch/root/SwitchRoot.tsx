@@ -5,6 +5,7 @@ import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { visuallyHiddenInput } from '@base-ui/utils/visuallyHidden';
+import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { useRenderElement } from '../../utils/useRenderElement';
 import type { BaseUIComponentProps, NonNativeButtonProps } from '../../utils/types';
 import { mergeProps } from '../../merge-props';
@@ -47,6 +48,7 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
     disabled: disabledProp = false,
     render,
     uncheckedValue,
+    value,
     ...elementProps
   } = componentProps;
 
@@ -196,6 +198,9 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
           },
         },
         validation.getInputValidationProps,
+        // React <19 sets an empty value if `undefined` is passed explicitly
+        // To avoid this, we only set the value if it's defined
+        value !== undefined ? { value } : EMPTY_OBJECT,
       ),
     [
       checked,
@@ -207,6 +212,7 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
       required,
       setCheckedState,
       validation,
+      value,
     ],
   );
 
@@ -304,6 +310,11 @@ export interface SwitchRootProps
    * @default false
    */
   required?: boolean;
+  /**
+   * The value submitted with the form when the switch is on.
+   * By default, switch submits the "on" value, matching native checkbox behavior.
+   */
+  value?: string;
   /**
    * The value submitted with the form when the switch is off.
    * By default, unchecked switches do not submit any value, matching native checkbox behavior.
