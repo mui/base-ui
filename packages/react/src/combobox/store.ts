@@ -98,6 +98,10 @@ export const selectors = {
   items: createSelector((state: State) => state.items),
 
   selectedValue: createSelector((state: State) => state.selectedValue),
+  hasSelectionChips: createSelector((state: State) => {
+    const selectedValue = state.selectedValue;
+    return Array.isArray(selectedValue) && selectedValue.length > 0;
+  }),
 
   open: createSelector((state: State) => state.open),
   mounted: createSelector((state: State) => state.mounted),
