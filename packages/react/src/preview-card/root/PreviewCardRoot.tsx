@@ -133,10 +133,8 @@ export interface PreviewCardRootProps<Payload = unknown> {
   onOpenChangeComplete?: (open: boolean) => void;
   /**
    * A ref to imperative actions.
-   * - `unmount`: When specified, the preview card will not be unmounted when closed.
-   * Instead, the `unmount` function must be called to unmount the preview card manually.
-   * Useful when the preview card's animation is controlled by an external library.
-   * - `close`: Closes the preview card imperatively when called
+   * - `unmount`: Unmounts the preview card popup.
+   * - `close`: Closes the preview card imperatively when called.
    */
   actionsRef?: React.RefObject<PreviewCardRoot.Actions | null>;
   /**
