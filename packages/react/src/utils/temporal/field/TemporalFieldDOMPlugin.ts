@@ -12,6 +12,8 @@ export class TemporalFieldDOMPlugin {
 
   public inputRef = React.createRef<HTMLElement>();
 
+  private sections: HTMLDivElement[] = [];
+
   // We can't type `store`, otherwise we get the following TS error:
   // 'dom' implicitly has type 'any' because it does not have a type annotation and is referenced directly or indirectly in its own initializer.
   constructor(store: any) {
@@ -66,6 +68,10 @@ export class TemporalFieldDOMPlugin {
 
   public isFocused() {
     return !!this.inputRef.current?.contains(this.getActiveElement());
+  }
+
+  public registerSection(sectionElement: HTMLDivElement | null) {
+    console.log(sectionElement);
   }
 
   /**

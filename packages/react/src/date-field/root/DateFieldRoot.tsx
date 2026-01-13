@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useTemporalAdapter } from '../../temporal-adapter-provider/TemporalAdapterContext';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
@@ -74,17 +75,10 @@ export const DateFieldRoot = React.forwardRef(function DateFieldRoot(
   const direction = useDirection();
   const store = useRefWithInit(() => new DateFieldStore(parameters, adapter, direction)).current;
 
-  // useIsoLayoutEffect(
-  //   () =>
-  //     store.updateStateFromParameters(
-  //       parameters,
-  //       adapter,
-  //       manager,
-  //       dateFieldValueManager,
-  //       direction,
-  //     ),
-  //   [parameters, adapter, manager, dateFieldValueManager, direction],
-  // );
+  useIsoLayoutEffect(
+    () => store.tempUpdate(parameters, adapter, direction),
+    [store, parameters, adapter, direction],
+  );
 
   const element = useRenderElement('div', componentProps, {
     // state,

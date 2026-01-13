@@ -50,6 +50,28 @@ export class DateFieldStore extends TemporalFieldStore<
       manager,
       valueManager,
       direction,
+      'DateField',
+    );
+  }
+
+  public tempUpdate(
+    parameters: DateFieldStoreParameters,
+    adapter: TemporalAdapter,
+    direction: TextDirection,
+  ) {
+    const manager = getDateManager(adapter); // Memoize the manager
+    const { minDate, maxDate, ...sharedParameters } = parameters;
+
+    super.updateStateFromParameters(
+      {
+        ...sharedParameters,
+        format: sharedParameters.format ?? adapter.formats.localizedNumericDate,
+      },
+      { minDate, maxDate },
+      adapter,
+      manager,
+      valueManager,
+      direction,
     );
   }
 }

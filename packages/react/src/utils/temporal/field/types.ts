@@ -330,3 +330,12 @@ export type TemporalFieldSectionValueBoundariesLookup = {
     contentType: TemporalFieldSectionContentType;
   }) => TemporalFieldSectionValueBoundaries<SectionType>;
 };
+
+export type TemporalFieldModelUpdater<
+  State extends TemporalFieldState<any, any>,
+  Parameters extends TemporalFieldStoreParameters<any, any>,
+> = (
+  newState: Partial<State>,
+  controlledProp: keyof Parameters & keyof State & string,
+  defaultProp: keyof Parameters,
+) => void;

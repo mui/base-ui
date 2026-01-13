@@ -11,6 +11,8 @@ import {
 } from '../../utils/temporal/field/types';
 import { TemporalAdapter, TemporalTimezone } from '../../types';
 import { TemporalFieldSectionPlugin } from '../../utils/temporal/field/TemporalFieldSectionPlugin';
+import { StateAttributesMapping } from '../../utils/getStateAttributesProps';
+import { DateFieldSectionDataAttributes } from './DateFieldSectionDataAttributes';
 
 const translations = {
   empty: 'Empty',
@@ -22,6 +24,14 @@ const translations = {
   minutes: 'Minutes',
   seconds: 'Seconds',
   meridiem: 'Meridiem',
+};
+
+const stateAttributesMapping: StateAttributesMapping<DateFieldSectionState> = {
+  sectionIndex: (index) => {
+    return {
+      [DateFieldSectionDataAttributes.sectionIndex]: index.toString(),
+    };
+  },
 };
 
 const sectionPropsSelector = createSelectorMemoized(
@@ -94,11 +104,16 @@ export const DateFieldSection = React.forwardRef(function DateFieldSection(
   const store = useDateFieldRootContext();
   const propsFromState = useStore(store, sectionPropsSelector, section);
 
+  const state: DateFieldSection.State = {
+    sectionIndex: section.index,
+    empty: section.value === '',
+  };
+
   return useRenderElement('div', componentProps, {
-    // state,
-    ref: forwardedRef,
+    state,
+    ref: [forwardedRef, store.dom.registerSection],
     props: [propsFromState, elementProps],
-    // stateAttributesMapping,
+    stateAttributesMapping,
   });
 });
 
@@ -185,7 +200,16 @@ function getSectionValueText(
   }
 }
 
-export interface DateFieldSectionState {}
+export interface DateFieldSectionState {
+  /**
+   * Index of the section in the field.
+   */
+  sectionIndex: number;
+  /**
+   * Whether the section is empty.
+   */
+  empty: boolean;
+}
 
 export interface DateFieldSectionProps extends BaseUIComponentProps<'div', DateFieldSectionState> {
   /**

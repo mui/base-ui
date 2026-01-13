@@ -1,7 +1,9 @@
 import { Store } from '@base-ui/utils/store';
+import { warn } from '@base-ui/utils/warn';
 import { TemporalAdapter, TemporalFieldSectionType, TemporalSupportedValue } from '../../../types';
 import { TemporalManager } from '../types';
 import {
+  TemporalFieldModelUpdater,
   TemporalFieldState,
   TemporalFieldStoreParameters,
   TemporalFieldValueManager,
@@ -37,6 +39,8 @@ export class TemporalFieldStore<
 
   private initialParameters: TemporalFieldStoreParameters<TValue, TError> | null = null;
 
+  public instanceName: string;
+
   public timeoutManager = new TimeoutManager();
 
   public characterEditing = new TemporalFieldCharacterEditingPlugin<TValue>(this);
@@ -62,6 +66,7 @@ export class TemporalFieldStore<
     manager: TemporalManager<TValue, TError, any>,
     valueManager: TemporalFieldValueManager<TValue>,
     direction: TextDirection,
+    instanceName: string,
   ) {
     const value = parameters.value ?? parameters.defaultValue ?? manager.emptyValue;
 
@@ -112,10 +117,83 @@ export class TemporalFieldStore<
     });
 
     this.parameters = parameters;
+    this.instanceName = instanceName;
 
     if (process.env.NODE_ENV !== 'production') {
       this.initialParameters = parameters;
     }
+  }
+
+  /**
+   * Updates the state of the Tree View based on the new parameters provided to the root component.
+   */
+  public updateStateFromParameters(
+    parameters: TemporalFieldStoreParameters<TValue, TError>,
+    validationProps: TValidationProps,
+    adapter: TemporalAdapter,
+    manager: TemporalManager<TValue, TError, any>,
+    valueManager: TemporalFieldValueManager<TValue>,
+    direction: TextDirection,
+  ) {
+    const updateModel: TemporalFieldModelUpdater<
+      TemporalFieldState<TValue, TValidationProps>,
+      TemporalFieldStoreParameters<TValue, TError>
+    > = (mutableNewState, controlledProp, defaultProp) => {
+      if (parameters[controlledProp] !== undefined) {
+        mutableNewState[controlledProp] = parameters[controlledProp] as any;
+      }
+
+      if (process.env.NODE_ENV !== 'production') {
+        const defaultValue = parameters[defaultProp];
+        const isControlled = parameters[controlledProp] !== undefined;
+        const initialDefaultValue = this.initialParameters?.[defaultProp];
+        const initialIsControlled = this.initialParameters?.[controlledProp] !== undefined;
+
+        if (initialIsControlled !== isControlled) {
+          warn(
+            `Base UI: A component is changing the ${
+              initialIsControlled ? '' : 'un'
+            }controlled ${controlledProp} state of ${this.instanceName} to be ${initialIsControlled ? 'un' : ''}controlled.`,
+            'Elements should not switch from uncontrolled to controlled (or vice versa).',
+            `Decide between using a controlled or uncontrolled ${controlledProp} element for the lifetime of the component.`,
+            "The nature of the state is determined during the first render. It's considered controlled if the value is not `undefined`.",
+            'More info: https://fb.me/react-controlled-components',
+          );
+        } else if (JSON.stringify(initialDefaultValue) !== JSON.stringify(defaultValue)) {
+          warn(
+            `Base UI: A component is changing the default ${controlledProp} state of an uncontrolled ${this.instanceName} after being initialized. `,
+            `To suppress this warning opt to use a controlled ${this.instanceName}.`,
+          );
+        }
+      }
+    };
+
+    const newState = deriveStateFromParameters(
+      parameters,
+      validationProps,
+      adapter,
+      manager,
+      valueManager,
+      direction,
+    ) as Partial<TemporalFieldState<TValue, TValidationProps>>;
+
+    // If the format changed, we need to rebuild the sections
+    if (newState.format !== undefined && this.state.format !== newState.format) {
+      newState.sections = valueManager.getSectionsFromValue(this.state.value, (date) =>
+        buildSections(
+          adapter,
+          FormatParser.parse(adapter, parameters.format, direction, parameters.placeholderGetters),
+          date,
+        ),
+      );
+    }
+
+    console.log(newState);
+
+    updateModel(newState, 'value', 'defaultValue');
+
+    this.update(newState);
+    this.parameters = parameters;
   }
 
   public disposeEffect = () => {

@@ -42,7 +42,7 @@ export const DateFieldInput = React.forwardRef(function DateFieldInput(
   }, [children, sections]);
 
   return useRenderElement('div', componentProps, {
-    ref: forwardedRef,
+    ref: [forwardedRef, store.dom.inputRef],
     props: [
       {
         children: resolvedChildren,
