@@ -11,7 +11,6 @@ import { TemporalFieldSectionPlugin } from './TemporalFieldSectionPlugin';
 const valueSelectors = {
   value: createSelector((state: State) => state.value),
   referenceValue: createSelector((state: State) => state.referenceValue),
-  valueManager: createSelector((state: State) => state.valueManager),
 };
 
 /**
@@ -19,10 +18,10 @@ const valueSelectors = {
  */
 export class TemporalFieldValuePlugin<
   TValue extends TemporalSupportedValue,
-  TValidationProps extends object,
   TError,
+  TValidationProps extends object,
 > {
-  private store: TemporalFieldStore<TValue, TValidationProps, TError>;
+  private store: TemporalFieldStore<TValue, TError, TValidationProps>;
 
   public static selectors = valueSelectors;
 
@@ -52,7 +51,7 @@ export class TemporalFieldValuePlugin<
   public updateFromString(valueStr: string) {
     const format = TemporalFieldFormatPlugin.selectors.format(this.store.state);
     const adapter = selectors.adapter(this.store.state);
-    const valueManager = TemporalFieldValuePlugin.selectors.valueManager(this.store.state);
+    const fieldConfig = selectors.config(this.store.state);
     const parsedFormat = TemporalFieldFormatPlugin.selectors.parsedFormat(this.store.state);
 
     const parseDateStr = (dateStr: string, referenceDate: TemporalSupportedObject) => {
@@ -65,7 +64,7 @@ export class TemporalFieldValuePlugin<
       return mergeDateIntoReferenceDate(adapter, date, sections, referenceDate, false);
     };
 
-    const newValue = valueManager.parseValueStr(
+    const newValue = fieldConfig.parseValueStr(
       valueStr,
       this.store.state.referenceValue,
       parseDateStr,
@@ -78,11 +77,10 @@ export class TemporalFieldValuePlugin<
    * If the value is already empty, it clears the sections.
    */
   public clear() {
-    const adapter = selectors.adapter(this.store.state);
-    const valueManager = TemporalFieldValuePlugin.selectors.valueManager(this.store.state);
+    const manager = selectors.manager(this.store.state);
     const value = TemporalFieldValuePlugin.selectors.value(this.store.state);
 
-    if (valueManager.areValuesEqual(adapter, value, valueManager.emptyValue)) {
+    if (manager.areValuesEqual(value, manager.emptyValue)) {
       const emptySections = TemporalFieldSectionPlugin.selectors
         .sections(this.store.state)
         .map((section) => ({ ...section, value: '' }));
@@ -93,7 +91,7 @@ export class TemporalFieldValuePlugin<
       });
     } else {
       this.store.characterEditing.resetCharacterQuery();
-      this.publish(valueManager.emptyValue);
+      this.publish(manager.emptyValue);
     }
   }
 }

@@ -2,13 +2,13 @@
 import * as React from 'react';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { useOnMount } from '@base-ui/utils/useOnMount';
 import { useTemporalAdapter } from '../../temporal-adapter-provider/TemporalAdapterContext';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useDirection } from '../../direction-provider';
 import { DateFieldRootContext } from './DateFieldRootContext';
 import { DateFieldStore, DateFieldStoreParameters } from './DateFieldStore';
-import { useOnMount } from '@base-ui/utils/useOnMount';
 
 /**
  * Groups all parts of the date field.

@@ -8,8 +8,8 @@ import {
 
 export type DateFieldRootContext = TemporalFieldStore<
   TemporalValue,
-  ValidateDateValidationProps,
-  ValidateDateReturnValue
+  ValidateDateReturnValue,
+  ValidateDateValidationProps
 >;
 
 export const DateFieldRootContext = React.createContext<DateFieldRootContext | undefined>(

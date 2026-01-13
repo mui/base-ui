@@ -14,7 +14,7 @@ import {
   TemporalFieldSectionValueBoundaries,
   TemporalFieldStoreParameters,
   TemporalFieldToken,
-  TemporalFieldValueManager,
+  TemporalFieldConfiguration,
 } from './types';
 
 /**
@@ -23,22 +23,20 @@ import {
  */
 export function deriveStateFromParameters<
   TValue extends TemporalSupportedValue,
-  TValidationProps extends object,
   TError,
+  TValidationProps extends object,
 >(
   parameters: TemporalFieldStoreParameters<TValue, TError>,
   validationProps: TValidationProps,
   adapter: TemporalAdapter,
-  manager: TemporalManager<TValue, TError, any>,
-  valueManager: TemporalFieldValueManager<TValue>,
+  config: TemporalFieldConfiguration<TValue, TError, TValidationProps>,
   direction: TextDirection,
 ) {
   return {
     validationProps,
     direction,
-    valueManager,
+    config,
     adapter,
-    manager,
     referenceDateProp: parameters.referenceDate ?? null,
     format: parameters.format,
     disabled: parameters.disabled ?? false,

@@ -4,6 +4,11 @@ import { TemporalFieldStore } from './TemporalFieldStore';
 import { selectors } from './selectors';
 import { TemporalFieldSectionPlugin } from './TemporalFieldSectionPlugin';
 
+// TODO: Implement props to configure steps for different section types
+const stepsAttributes = {
+  minutesStep: 5,
+};
+
 /**
  * Plugin to adjust the value of the active section when pressing ArrowUp, ArrowDown, PageUp, PageDown, Home or End.
  */

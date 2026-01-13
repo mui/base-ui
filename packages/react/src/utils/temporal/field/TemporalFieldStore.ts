@@ -1,12 +1,11 @@
 import { Store } from '@base-ui/utils/store';
 import { warn } from '@base-ui/utils/warn';
 import { TemporalAdapter, TemporalFieldSectionType, TemporalSupportedValue } from '../../../types';
-import { TemporalManager } from '../types';
 import {
   TemporalFieldModelUpdater,
   TemporalFieldState,
   TemporalFieldStoreParameters,
-  TemporalFieldValueManager,
+  TemporalFieldConfiguration,
 } from './types';
 import { FormatParser } from './formatParser';
 import { buildSections, deriveStateFromParameters, getTimezoneToRender } from './utils';
@@ -32,9 +31,9 @@ const SECTION_TYPE_GRANULARITY: { [key in TemporalFieldSectionType]?: number } =
 
 export class TemporalFieldStore<
   TValue extends TemporalSupportedValue,
-  TValidationProps extends object,
   TError,
-> extends Store<TemporalFieldState<TValue, TValidationProps>> {
+  TValidationProps extends object,
+> extends Store<TemporalFieldState<TValue, TError, TValidationProps>> {
   private parameters: TemporalFieldStoreParameters<TValue, TError>;
 
   private initialParameters: TemporalFieldStoreParameters<TValue, TError> | null = null;
@@ -47,7 +46,7 @@ export class TemporalFieldStore<
 
   public valueAdjustment = new TemporalFieldValueAdjustmentPlugin<TValue>(this);
 
-  public value = new TemporalFieldValuePlugin<TValue, TValidationProps, TError>(this);
+  public value = new TemporalFieldValuePlugin<TValue, TError, TValidationProps>(this);
 
   public section = new TemporalFieldSectionPlugin<TValue>(this);
 
@@ -63,11 +62,11 @@ export class TemporalFieldStore<
     parameters: TemporalFieldStoreParameters<TValue, TError>,
     validationProps: TValidationProps,
     adapter: TemporalAdapter,
-    manager: TemporalManager<TValue, TError, any>,
-    valueManager: TemporalFieldValueManager<TValue>,
+    config: TemporalFieldConfiguration<TValue, TError, TValidationProps>,
     direction: TextDirection,
     instanceName: string,
   ) {
+    const manager = config.getManager(adapter);
     const value = parameters.value ?? parameters.defaultValue ?? manager.emptyValue;
 
     const parsedFormat = FormatParser.parse(
@@ -77,7 +76,7 @@ export class TemporalFieldStore<
       parameters.placeholderGetters,
     );
 
-    const referenceValue = valueManager.getInitialReferenceValue({
+    const referenceValue = config.getInitialReferenceValue({
       externalReferenceDate: parameters.referenceDate,
       value,
       adapter,
@@ -96,19 +95,13 @@ export class TemporalFieldStore<
       ),
     });
 
-    const sections = valueManager.getSectionsFromValue(value, (date) =>
+    const sections = config.getSectionsFromValue(value, (date) =>
       buildSections(adapter, parsedFormat, date),
     );
 
     super({
-      ...deriveStateFromParameters(
-        parameters,
-        validationProps,
-        adapter,
-        manager,
-        valueManager,
-        direction,
-      ),
+      ...deriveStateFromParameters(parameters, validationProps, adapter, config, direction),
+      manager,
       value,
       sections,
       referenceValue,
@@ -131,12 +124,11 @@ export class TemporalFieldStore<
     parameters: TemporalFieldStoreParameters<TValue, TError>,
     validationProps: TValidationProps,
     adapter: TemporalAdapter,
-    manager: TemporalManager<TValue, TError, any>,
-    valueManager: TemporalFieldValueManager<TValue>,
+    config: TemporalFieldConfiguration<TValue, TError, TValidationProps>,
     direction: TextDirection,
   ) {
     const updateModel: TemporalFieldModelUpdater<
-      TemporalFieldState<TValue, TValidationProps>,
+      TemporalFieldState<TValue, TError, TValidationProps>,
       TemporalFieldStoreParameters<TValue, TError>
     > = (mutableNewState, controlledProp, defaultProp) => {
       if (parameters[controlledProp] !== undefined) {
@@ -172,20 +164,24 @@ export class TemporalFieldStore<
       parameters,
       validationProps,
       adapter,
-      manager,
-      valueManager,
+      config,
       direction,
-    ) as Partial<TemporalFieldState<TValue, TValidationProps>>;
+    ) as Partial<TemporalFieldState<TValue, TError, TValidationProps>>;
 
     // If the format changed, we need to rebuild the sections
-    if (newState.format !== undefined && this.state.format !== newState.format) {
-      newState.sections = valueManager.getSectionsFromValue(this.state.value, (date) =>
+    if (parameters.format !== this.state.format) {
+      newState.sections = config.getSectionsFromValue(this.state.value, (date) =>
         buildSections(
           adapter,
           FormatParser.parse(adapter, parameters.format, direction, parameters.placeholderGetters),
           date,
         ),
       );
+    }
+
+    // If the adapter changed, we need to rebuild the manager
+    if (adapter !== this.state.adapter) {
+      newState.manager = config.getManager(adapter);
     }
 
     updateModel(newState, 'value', 'defaultValue');

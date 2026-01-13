@@ -36,12 +36,12 @@ const sectionSelectors = {
     },
   ),
   sectionBoundaries: createSelectorMemoized(
-    (state: State) => state.valueManager,
+    (state: State) => state.config,
     (state: State) => state.value,
     selectors.adapter,
     selectors.localizedDigits,
     selectors.timezoneToRender,
-    (valueManager, value, adapter, localizedDigits, timezone, section: TemporalFieldSection) => {
+    (fieldConfig, value, adapter, localizedDigits, timezone, section: TemporalFieldSection) => {
       switch (section.token.config.sectionType) {
         case 'year': {
           return {
@@ -80,7 +80,7 @@ const sectionSelectors = {
 
         case 'day': {
           const today = adapter.now(timezone);
-          const activeDate = valueManager.getDateFromSection(value, section);
+          const activeDate = fieldConfig.getDateFromSection(value, section);
           const { maxDaysInMonth, longestMonth } = getMonthsInYear(adapter, today).reduce(
             (acc, month) => {
               const daysInMonth = adapter.getDaysInMonth(month);
@@ -198,7 +198,7 @@ export class TemporalFieldSectionPlugin<TValue extends TemporalSupportedValue> {
    */
   public clearActive() {
     const value = TemporalFieldValuePlugin.selectors.value(this.store.state);
-    const valueManager = TemporalFieldValuePlugin.selectors.valueManager(this.store.state);
+    const fieldConfig = selectors.config(this.store.state);
     const activeSection = TemporalFieldSectionPlugin.selectors.activeSection(this.store.state);
     const sections = TemporalFieldSectionPlugin.selectors.sections(this.store.state);
     if (activeSection == null || activeSection.value === '') {
@@ -207,14 +207,14 @@ export class TemporalFieldSectionPlugin<TValue extends TemporalSupportedValue> {
 
     this.setSectionUpdateToApplyOnNextInvalidDate(activeSection.index, '');
 
-    if (valueManager.getDateFromSection(value, activeSection) === null) {
+    if (fieldConfig.getDateFromSection(value, activeSection) === null) {
       this.store.update({
         sections: replaceSectionValueInSectionList(sections, activeSection.index, ''),
         characterQuery: null,
       });
     } else {
       this.store.characterEditing.resetCharacterQuery();
-      this.store.value.publish(valueManager.updateDateInValue(value, activeSection, null));
+      this.store.value.publish(fieldConfig.updateDateInValue(value, activeSection, null));
     }
   }
 
@@ -228,7 +228,7 @@ export class TemporalFieldSectionPlugin<TValue extends TemporalSupportedValue> {
     shouldGoToNextSection,
   }: UpdateValueParameters) {
     const value = TemporalFieldValuePlugin.selectors.value(this.store.state);
-    const valueManager = TemporalFieldValuePlugin.selectors.valueManager(this.store.state);
+    const fieldConfig = selectors.config(this.store.state);
     const referenceValue = TemporalFieldValuePlugin.selectors.referenceValue(this.store.state);
     const adapter = selectors.adapter(this.store.state);
     const lastSectionIndex = TemporalFieldSectionPlugin.selectors.lastSectionIndex(
@@ -240,7 +240,7 @@ export class TemporalFieldSectionPlugin<TValue extends TemporalSupportedValue> {
     this.store.timeoutManager.clearTimeout('updateSectionValueOnNextInvalidDate');
     this.store.timeoutManager.clearTimeout('cleanActiveDateSectionsIfValueNull');
 
-    const activeDate = valueManager.getDateFromSection(value, section);
+    const activeDate = fieldConfig.getDateFromSection(value, section);
 
     /**
      * Decide which section should be focused
@@ -253,7 +253,7 @@ export class TemporalFieldSectionPlugin<TValue extends TemporalSupportedValue> {
      * Try to build a valid date from the new section value
      */
     const newSections = replaceSectionValueInSectionList(sections, sectionIndex, newSectionValue);
-    const newActiveDateSections = valueManager.getDateSectionsFromValue(newSections, section);
+    const newActiveDateSections = fieldConfig.getDateSectionsFromValue(newSections, section);
     const newActiveDate = this.getDateFromDateSections(newActiveDateSections);
 
     /**
@@ -266,19 +266,19 @@ export class TemporalFieldSectionPlugin<TValue extends TemporalSupportedValue> {
         adapter,
         newActiveDate,
         newActiveDateSections,
-        valueManager.getDateFromSection(referenceValue as any, section)!,
+        fieldConfig.getDateFromSection(referenceValue as any, section)!,
         true,
       );
 
       if (activeDate == null) {
         this.store.timeoutManager.startTimeout('cleanActiveDateSectionsIfValueNull', 0, () => {
           if (this.store.state.value === value) {
-            this.store.set('sections', valueManager.clearDateSections(sections, section));
+            this.store.set('sections', fieldConfig.clearDateSections(sections, section));
           }
         });
       }
 
-      return this.store.value.publish(valueManager.updateDateInValue(value, section, mergedDate));
+      return this.store.value.publish(fieldConfig.updateDateInValue(value, section, mergedDate));
     }
 
     /**
@@ -290,9 +290,7 @@ export class TemporalFieldSectionPlugin<TValue extends TemporalSupportedValue> {
       (activeDate == null || adapter.isValid(activeDate))
     ) {
       this.setSectionUpdateToApplyOnNextInvalidDate(sectionIndex, newSectionValue);
-      return this.store.value.publish(
-        valueManager.updateDateInValue(value, section, newActiveDate),
-      );
+      return this.store.value.publish(fieldConfig.updateDateInValue(value, section, newActiveDate));
     }
 
     /**
@@ -302,7 +300,7 @@ export class TemporalFieldSectionPlugin<TValue extends TemporalSupportedValue> {
      */
     if (activeDate != null) {
       this.setSectionUpdateToApplyOnNextInvalidDate(sectionIndex, newSectionValue);
-      this.store.value.publish(valueManager.updateDateInValue(value, section, newActiveDate));
+      this.store.value.publish(fieldConfig.updateDateInValue(value, section, newActiveDate));
     }
 
     /**

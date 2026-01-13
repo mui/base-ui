@@ -6,16 +6,18 @@ import {
 } from '../../utils/temporal/validateDate';
 import {
   TemporalFieldStoreParameters,
-  TemporalFieldValueManager,
+  TemporalFieldConfiguration,
 } from '../../utils/temporal/field/types';
-import { areDatesEqual } from '../../utils/temporal/date-helpers';
 import { getInitialReferenceDate } from '../../utils/temporal/getInitialReferenceDate';
 import { getDateManager } from '../../utils/temporal/getDateManager';
 import { TextDirection } from '../../direction-provider';
 
-const valueManager: TemporalFieldValueManager<TemporalValue> = {
-  emptyValue: null,
-  areValuesEqual: areDatesEqual,
+const config: TemporalFieldConfiguration<
+  TemporalValue,
+  ValidateDateReturnValue,
+  ValidateDateValidationProps
+> = {
+  getManager: getDateManager,
   getSectionsFromValue: (date, getSectionsFromDate) => getSectionsFromDate(date),
   getDateFromSection: (value) => value,
   getDateSectionsFromValue: (sections) => sections,
@@ -29,15 +31,14 @@ const valueManager: TemporalFieldValueManager<TemporalValue> = {
 
 export class DateFieldStore extends TemporalFieldStore<
   TemporalValue,
-  ValidateDateValidationProps,
-  ValidateDateReturnValue
+  ValidateDateReturnValue,
+  ValidateDateValidationProps
 > {
   constructor(
     parameters: DateFieldStoreParameters,
     adapter: TemporalAdapter,
     direction: TextDirection,
   ) {
-    const manager = getDateManager(adapter);
     const { minDate, maxDate, ...sharedParameters } = parameters;
 
     super(
@@ -47,8 +48,7 @@ export class DateFieldStore extends TemporalFieldStore<
       },
       { minDate, maxDate },
       adapter,
-      manager,
-      valueManager,
+      config,
       direction,
       'DateField',
     );
@@ -59,7 +59,6 @@ export class DateFieldStore extends TemporalFieldStore<
     adapter: TemporalAdapter,
     direction: TextDirection,
   ) {
-    const manager = getDateManager(adapter); // Memoize the manager
     const { minDate, maxDate, ...sharedParameters } = parameters;
 
     super.updateStateFromParameters(
@@ -69,8 +68,7 @@ export class DateFieldStore extends TemporalFieldStore<
       },
       { minDate, maxDate },
       adapter,
-      manager,
-      valueManager,
+      config,
       direction,
     );
   }

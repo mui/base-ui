@@ -70,7 +70,8 @@ export interface TemporalFieldStoreParameters<
 
 export interface TemporalFieldState<
   TValue extends TemporalSupportedValue = any,
-  TValidationProps extends object = object,
+  TError = any,
+  TValidationProps extends object = any,
 > {
   /**
    * The timezone as passed to `props.timezone`.
@@ -86,10 +87,10 @@ export interface TemporalFieldState<
    */
   manager: TemporalManager<TValue, any, any>;
   /**
-   * The value manager of the field.
+   * The config of the field.
    * Not publicly exposed, is only set in state to avoid passing it to the selectors.
    */
-  valueManager: TemporalFieldValueManager<TValue>;
+  config: TemporalFieldConfiguration<TValue, TError, TValidationProps>;
   /**
    * The adapter of the date library.
    * Not publicly exposed, is only set in state to avoid passing it to the selectors.
@@ -235,15 +236,19 @@ export type TemporalFieldValueChangeEventDetails<TError> = BaseUIChangeEventDeta
   TemporalFieldValueChangeHandlerContext<TError>
 >;
 
-export interface TemporalFieldValueManager<TValue extends TemporalSupportedValue> {
+/**
+ * Configuration of a given field (DateField, TimeField, etc.).
+ * It defines how to manipulate the value of the field.
+ */
+export interface TemporalFieldConfiguration<
+  TValue extends TemporalSupportedValue,
+  TError,
+  TValidationProps extends {},
+> {
   /**
-   * Value to set when clearing the field.
+   * A getter that returns the manager of the field.
    */
-  emptyValue: TValue;
-  /**
-   * Determines if two values are equal.
-   */
-  areValuesEqual: (adapter: TemporalAdapter, valueLeft: TValue, valueRight: TValue) => boolean;
+  getManager: (adapter: TemporalAdapter) => TemporalManager<TValue, TError, TValidationProps>;
   /**
    * Creates the section list from the current value.
    * The `prevSections` are used on the range fields to avoid losing the sections of a partially filled date when editing the other date.
@@ -332,7 +337,7 @@ export type TemporalFieldSectionValueBoundariesLookup = {
 };
 
 export type TemporalFieldModelUpdater<
-  State extends TemporalFieldState<any, any>,
+  State extends TemporalFieldState<any, any, any>,
   Parameters extends TemporalFieldStoreParameters<any, any>,
 > = (
   newState: Partial<State>,
