@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { PropsReferenceAccordion } from './PropsReferenceAccordion';
+import { ReferenceAccordion } from './ReferenceAccordion';
 import type { FunctionParamDef, PropDef } from './types';
 
 interface ParametersReferenceTableProps extends React.ComponentPropsWithoutRef<any> {
@@ -30,7 +30,7 @@ export async function ParametersReferenceTable({
   ...props
 }: ParametersReferenceTableProps) {
   return (
-    <PropsReferenceAccordion
+    <ReferenceAccordion
       {...props}
       name={name}
       data={normalizeParameters(data)}

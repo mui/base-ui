@@ -93,7 +93,7 @@ function replaceComponentPrefix(input: string | undefined, from?: string, to?: s
   return input.replace(pattern, to);
 }
 
-export async function PropsReferenceAccordion({
+export async function ReferenceAccordion({
   data,
   name: partName,
   renameFrom,

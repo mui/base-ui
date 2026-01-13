@@ -3,7 +3,7 @@ import * as CodeBlock from './components/CodeBlock';
 import * as Table from './components/Table';
 import * as QuickNav from './components/QuickNav/QuickNav';
 import { Code } from './components/Code';
-import { PropsReferenceAccordion } from './components/ReferenceTable/PropsReferenceAccordion';
+import { ReferenceAccordion } from './components/ReferenceTable/ReferenceAccordion';
 import { ParametersReferenceTable } from './components/ReferenceTable/ParametersReferenceTable';
 import { ReturnValueReferenceTable } from './components/ReferenceTable/ReturnValueReferenceTable';
 import { AttributesReferenceTable } from './components/ReferenceTable/AttributesReferenceTable';
@@ -97,7 +97,7 @@ export const mdxComponents: MDXComponents = {
   CssVariablesReferenceTable: (props) => (
     <CssVariablesReferenceTable className="mt-5 mb-6" {...props} />
   ),
-  PropsReferenceTable: (props) => <PropsReferenceAccordion className="mt-5 mb-6" {...props} />,
+  PropsReferenceTable: (props) => <ReferenceAccordion className="mt-5 mb-6" {...props} />,
   ParametersReferenceTable: (props) => (
     <ParametersReferenceTable className="mt-5 mb-6" {...props} />
   ),
