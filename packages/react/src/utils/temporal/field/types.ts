@@ -213,6 +213,10 @@ export interface TemporalFieldSection {
    * Token represented in this section.
    */
   token: TemporalFieldToken;
+  /**
+   * Index of the section in the section list.
+   */
+  index: number;
 }
 
 export type TemporalFieldRangePosition = 'start' | 'end';

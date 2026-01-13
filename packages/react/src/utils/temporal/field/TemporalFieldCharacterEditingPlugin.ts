@@ -17,6 +17,7 @@ import {
   isStringNumber,
   removeLocalizedDigits,
 } from './utils';
+import { TemporalFieldSectionPlugin } from './TemporalFieldSectionPlugin';
 
 const characterEditingSelectors = {
   characterQuery: createSelector((state: State) => state.characterQuery),
@@ -28,7 +29,7 @@ const characterEditingSelectors = {
 export class TemporalFieldCharacterEditingPlugin<TValue extends TemporalSupportedValue> {
   private store: TemporalFieldStore<TValue, any, any>;
 
-  public selectors = characterEditingSelectors;
+  public static selectors = characterEditingSelectors;
 
   // We can't type `store`, otherwise we get the following TS error:
   // 'characterEditing' implicitly has type 'any' because it does not have a type annotation and is referenced directly or indirectly in its own initializer.
@@ -174,7 +175,7 @@ export class TemporalFieldCharacterEditingPlugin<TValue extends TemporalSupporte
     }): ReturnType<QueryApplier> => {
       const cleanQueryValue = removeLocalizedDigits(queryValue, localizedDigits);
       const queryValueNumber = Number(cleanQueryValue);
-      const sectionBoundaries = this.store.section.selectors.sectionBoundaries(
+      const sectionBoundaries = TemporalFieldSectionPlugin.selectors.sectionBoundaries(
         this.store.state,
         section,
       );
@@ -284,7 +285,7 @@ export class TemporalFieldCharacterEditingPlugin<TValue extends TemporalSupporte
     const { keyPressed, sectionIndex } = parameters;
     const cleanKeyPressed = keyPressed.toLowerCase();
     const characterQuery = characterEditingSelectors.characterQuery(this.store.state);
-    const section = this.store.section.selectors.section(this.store.state, sectionIndex);
+    const section = TemporalFieldSectionPlugin.selectors.section(this.store.state, sectionIndex);
 
     if (section == null) {
       return null;

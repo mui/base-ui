@@ -41,7 +41,10 @@ export class DateFieldStore extends TemporalFieldStore<
     const { minDate, maxDate, ...sharedParameters } = parameters;
 
     super(
-      { format: adapter.formats.localizedNumericDate, ...sharedParameters },
+      {
+        ...sharedParameters,
+        format: sharedParameters.format ?? adapter.formats.localizedNumericDate,
+      },
       { minDate, maxDate },
       adapter,
       manager,

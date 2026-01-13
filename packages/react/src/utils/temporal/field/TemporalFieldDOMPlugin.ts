@@ -2,6 +2,7 @@ import * as React from 'react';
 import { ownerDocument } from '@base-ui/utils/owner';
 import { TemporalFieldStore } from './TemporalFieldStore';
 import { activeElement } from '../../../floating-ui-react/utils';
+import { TemporalFieldSectionPlugin } from './TemporalFieldSectionPlugin';
 
 /**
  * Plugin to interact with the DOM of the field.
@@ -73,7 +74,7 @@ export class TemporalFieldDOMPlugin {
       return;
     }
 
-    const section = this.store.section.selectors.section(this.store.state, sectionIndex);
+    const section = TemporalFieldSectionPlugin.selectors.section(this.store.state, sectionIndex);
     sectionElement.innerHTML = this.store.section.getRenderedValue(section);
     this.store.dom.syncSelectionToDOM();
   }
@@ -88,7 +89,9 @@ export class TemporalFieldDOMPlugin {
       return;
     }
 
-    const selectedSections = this.store.section.selectors.selectedSections(this.store.state);
+    const selectedSections = TemporalFieldSectionPlugin.selectors.selectedSections(
+      this.store.state,
+    );
     if (selectedSections == null) {
       // If the selection contains an element inside the field, we reset it.
       if (
@@ -117,7 +120,10 @@ export class TemporalFieldDOMPlugin {
     if (selectedSections === 'all') {
       target = this.inputRef.current;
     } else {
-      const section = this.store.section.selectors.section(this.store.state, selectedSections);
+      const section = TemporalFieldSectionPlugin.selectors.section(
+        this.store.state,
+        selectedSections,
+      );
       if (section.token.config.sectionType === 'empty') {
         target = this.getSectionContainer(selectedSections);
       } else {

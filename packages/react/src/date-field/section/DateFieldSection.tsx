@@ -1,3 +1,4 @@
+'use client';
 import * as React from 'react';
 import { createSelectorMemoized, useStore } from '@base-ui/utils/store';
 import { BaseUIComponentProps } from '../../utils/types';
@@ -9,6 +10,7 @@ import {
   TemporalFieldSection,
 } from '../../utils/temporal/field/types';
 import { TemporalAdapter, TemporalTimezone } from '../../types';
+import { TemporalFieldSectionPlugin } from '../../utils/temporal/field/TemporalFieldSectionPlugin';
 
 const translations = {
   empty: 'Empty',
@@ -27,18 +29,18 @@ const sectionPropsSelector = createSelectorMemoized(
   selectors.readOnly,
   selectors.disabled,
   selectors.timezoneToRender,
-  selectors.sectionRenderedValue,
-  selectors.sectionBoundaries,
+  TemporalFieldSectionPlugin.selectors.isSelectingAllSections,
+  TemporalFieldSectionPlugin.selectors.sectionBoundaries,
   (
     adapter,
     readOnly,
     disabled,
     timezone,
-    sectionRenderedValue,
+    isSelectingAllSections,
     sectionBoundaries,
     section: TemporalFieldSection,
-  ) => {
-    const isEditable = !isContainerEditable && !disabled && !readOnly;
+  ): React.HTMLAttributes<HTMLDivElement> => {
+    const isEditable = !isSelectingAllSections && !disabled && !readOnly;
 
     return {
       // Aria attributes
@@ -53,8 +55,8 @@ const sectionPropsSelector = createSelectorMemoized(
       'aria-disabled': disabled,
 
       // Other
-      tabIndex: !isEditable || isContainerEditable || sectionIndex > 0 ? -1 : 0,
-      contentEditable: !isContainerEditable && !disabled && !readOnly,
+      tabIndex: !isEditable || isSelectingAllSections || section.index > 0 ? -1 : 0,
+      contentEditable: !isSelectingAllSections && !disabled && !readOnly,
       role: 'spinbutton',
       // 'data-range-position': (section as FieldRangeSection).dateName || undefined,
       spellCheck: isEditable ? false : undefined,
@@ -62,7 +64,7 @@ const sectionPropsSelector = createSelectorMemoized(
       // For reference https://github.com/mui/mui-x/issues/19012
       autoCapitalize: isEditable ? 'none' : undefined,
       autoCorrect: isEditable ? 'off' : undefined,
-      children: sectionRenderedValue,
+      children: section.value || section.token.placeholder,
       inputMode: section.token.config.contentType === 'letter' ? 'text' : 'numeric',
     };
   },

@@ -10,6 +10,7 @@ import {
 } from './types';
 import { getDaysInWeekStr, removeLocalizedDigits } from './utils';
 import { getMonthsInYear } from '../date-helpers';
+import { TemporalFieldValuePlugin } from './TemporalFieldValuePlugin';
 
 const sectionSelectors = {
   sections: createSelector((state: State) => state.sections),
@@ -176,7 +177,7 @@ export class TemporalFieldSectionPlugin<TValue extends TemporalSupportedValue> {
 
   private sectionToUpdateOnNextInvalidDate: { index: number; value: string } | null = null;
 
-  public selectors = sectionSelectors;
+  public static selectors = sectionSelectors;
 
   // We can't type `store`, otherwise we get the following TS error:
   // 'section' implicitly has type 'any' because it does not have a type annotation and is referenced directly or indirectly in its own initializer.
@@ -196,10 +197,10 @@ export class TemporalFieldSectionPlugin<TValue extends TemporalSupportedValue> {
    * Clears the value of the active section.
    */
   public clearActive() {
-    const value = this.store.value.selectors.value(this.store.state);
-    const valueManager = this.store.value.selectors.valueManager(this.store.state);
-    const activeSection = sectionSelectors.activeSection(this.store.state);
-    const sections = sectionSelectors.sections(this.store.state);
+    const value = TemporalFieldValuePlugin.selectors.value(this.store.state);
+    const valueManager = TemporalFieldValuePlugin.selectors.valueManager(this.store.state);
+    const activeSection = TemporalFieldSectionPlugin.selectors.activeSection(this.store.state);
+    const sections = TemporalFieldSectionPlugin.selectors.sections(this.store.state);
     if (activeSection == null || activeSection.value === '') {
       return;
     }
@@ -226,13 +227,15 @@ export class TemporalFieldSectionPlugin<TValue extends TemporalSupportedValue> {
     newSectionValue,
     shouldGoToNextSection,
   }: UpdateValueParameters) {
-    const value = this.store.value.selectors.value(this.store.state);
-    const valueManager = this.store.value.selectors.valueManager(this.store.state);
-    const referenceValue = this.store.value.selectors.referenceValue(this.store.state);
+    const value = TemporalFieldValuePlugin.selectors.value(this.store.state);
+    const valueManager = TemporalFieldValuePlugin.selectors.valueManager(this.store.state);
+    const referenceValue = TemporalFieldValuePlugin.selectors.referenceValue(this.store.state);
     const adapter = selectors.adapter(this.store.state);
-    const lastSectionIndex = sectionSelectors.lastSectionIndex(this.store.state);
-    const section = sectionSelectors.section(this.store.state, sectionIndex);
-    const sections = sectionSelectors.sections(this.store.state);
+    const lastSectionIndex = TemporalFieldSectionPlugin.selectors.lastSectionIndex(
+      this.store.state,
+    );
+    const section = TemporalFieldSectionPlugin.selectors.section(this.store.state, sectionIndex);
+    const sections = TemporalFieldSectionPlugin.selectors.sections(this.store.state);
 
     this.store.timeoutManager.clearTimeout('updateSectionValueOnNextInvalidDate');
     this.store.timeoutManager.clearTimeout('cleanActiveDateSectionsIfValueNull');

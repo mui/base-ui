@@ -1,5 +1,6 @@
 import { TemporalSupportedValue } from '../../../types';
 import { selectors } from './selectors';
+import { TemporalFieldSectionPlugin } from './TemporalFieldSectionPlugin';
 import { TemporalFieldStore } from './TemporalFieldStore';
 
 /**
@@ -38,7 +39,7 @@ export class TemporalFieldSectionPropsPlugin<TValue extends TemporalSupportedVal
       return;
     }
 
-    const section = this.store.section.selectors.section(this.store.state, sectionIndex);
+    const section = TemporalFieldSectionPlugin.selectors.section(this.store.state, sectionIndex);
     if (keyPressed.length === 0) {
       if (section.value === '') {
         this.store.dom.syncSectionContentToDOM(sectionIndex);
@@ -69,7 +70,9 @@ export class TemporalFieldSectionPropsPlugin<TValue extends TemporalSupportedVal
     // prevent default to avoid the input `onInput` handler being called
     event.preventDefault();
 
-    const selectedSections = this.store.section.selectors.selectedSections(this.store.state);
+    const selectedSections = TemporalFieldSectionPlugin.selectors.selectedSections(
+      this.store.state,
+    );
     if (
       selectors.readOnly(this.store.state) ||
       selectors.disabled(this.store.state) ||
@@ -79,7 +82,7 @@ export class TemporalFieldSectionPropsPlugin<TValue extends TemporalSupportedVal
       return;
     }
 
-    const activeSection = this.store.section.selectors.activeSection(this.store.state)!;
+    const activeSection = TemporalFieldSectionPlugin.selectors.activeSection(this.store.state)!;
     const pastedValue = event.clipboardData.getData('text');
     const lettersOnly = /^[a-zA-Z]+$/.test(pastedValue);
     const digitsOnly = /^[0-9]+$/.test(pastedValue);

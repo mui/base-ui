@@ -1,5 +1,3 @@
-// date-fns@<3 has no exports field defined
-// See https://github.com/date-fns/date-fns/issues/1781
 'use client';
 import { addDays } from 'date-fns/addDays';
 import { addHours } from 'date-fns/addHours';
@@ -42,7 +40,7 @@ import { isSameYear } from 'date-fns/isSameYear';
 import { isSameMonth } from 'date-fns/isSameMonth';
 import { isValid } from 'date-fns/isValid';
 import { isWithinInterval } from 'date-fns/isWithinInterval';
-import { Locale as DateFnsLocale } from 'date-fns/locale';
+import { Locale as DateFnsLocale, FormatLong } from 'date-fns/locale';
 import { enUS } from 'date-fns/locale/en-US';
 import { parse } from 'date-fns/parse';
 import { setDate } from 'date-fns/setDate';
@@ -59,9 +57,9 @@ import { startOfMonth } from 'date-fns/startOfMonth';
 import { startOfSecond } from 'date-fns/startOfSecond';
 import { startOfYear } from 'date-fns/startOfYear';
 import { startOfWeek } from 'date-fns/startOfWeek';
-// @ts-expect-error date-fns@<3 has no exports field defined (see https://github.com/date-fns/date-fns/issues/1781)
+// // @ts-expect-error date-fns@<3 has no exports field defined (see https://github.com/date-fns/date-fns/issues/1781)
 // eslint-disable-next-line import/extensions
-import longFormatters from 'date-fns/_lib/format/longFormatters/index.js';
+// import longFormatters from 'date-fns/_lib/format/longFormatters/index.js';
 import { TZDate } from '@date-fns/tz';
 import {
   TemporalAdapterFormats,
@@ -70,6 +68,72 @@ import {
   TemporalAdapter,
   TemporalFormatTokenConfigMap,
 } from '../types';
+
+// TODO: Try to import from date-fns
+const dateLongFormatter = (pattern: string, formatLong: FormatLong) => {
+  switch (pattern) {
+    case 'P':
+      return formatLong.date({ width: 'short' });
+    case 'PP':
+      return formatLong.date({ width: 'medium' });
+    case 'PPP':
+      return formatLong.date({ width: 'long' });
+    case 'PPPP':
+    default:
+      return formatLong.date({ width: 'full' });
+  }
+};
+
+const timeLongFormatter = (pattern: string, formatLong: FormatLong) => {
+  switch (pattern) {
+    case 'p':
+      return formatLong.time({ width: 'short' });
+    case 'pp':
+      return formatLong.time({ width: 'medium' });
+    case 'ppp':
+      return formatLong.time({ width: 'long' });
+    case 'pppp':
+    default:
+      return formatLong.time({ width: 'full' });
+  }
+};
+
+const dateTimeLongFormatter = (pattern: string, formatLong: FormatLong) => {
+  const matchResult = pattern.match(/(P+)(p+)?/) || [];
+  const datePattern = matchResult[1];
+  const timePattern = matchResult[2];
+
+  if (!timePattern) {
+    return dateLongFormatter(pattern, formatLong);
+  }
+
+  let dateTimeFormat;
+
+  switch (datePattern) {
+    case 'P':
+      dateTimeFormat = formatLong.dateTime({ width: 'short' });
+      break;
+    case 'PP':
+      dateTimeFormat = formatLong.dateTime({ width: 'medium' });
+      break;
+    case 'PPP':
+      dateTimeFormat = formatLong.dateTime({ width: 'long' });
+      break;
+    case 'PPPP':
+    default:
+      dateTimeFormat = formatLong.dateTime({ width: 'full' });
+      break;
+  }
+
+  return dateTimeFormat
+    .replace('{{date}}', dateLongFormatter(datePattern, formatLong))
+    .replace('{{time}}', timeLongFormatter(timePattern, formatLong));
+};
+
+export const longFormatters = {
+  p: timeLongFormatter,
+  P: dateTimeLongFormatter,
+};
 
 const FORMAT_TOKEN_CONFIG_MAP: TemporalFormatTokenConfigMap = {
   // Year

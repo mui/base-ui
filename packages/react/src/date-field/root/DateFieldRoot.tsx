@@ -1,3 +1,4 @@
+'use client';
 import * as React from 'react';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { useTemporalAdapter } from '../../temporal-adapter-provider/TemporalAdapterContext';
@@ -32,8 +33,6 @@ export const DateFieldRoot = React.forwardRef(function DateFieldRoot(
     timezone,
     referenceDate,
     format,
-    // Children
-    children,
     // Validation props
     minDate,
     maxDate,

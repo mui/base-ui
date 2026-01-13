@@ -2,6 +2,7 @@ import { TemporalSupportedValue } from '../../../types';
 import { cleanDigitSectionValue, getLetterEditingOptions, removeLocalizedDigits } from './utils';
 import { TemporalFieldStore } from './TemporalFieldStore';
 import { selectors } from './selectors';
+import { TemporalFieldSectionPlugin } from './TemporalFieldSectionPlugin';
 
 /**
  * Plugin to adjust the value of the active section when pressing ArrowUp, ArrowDown, PageUp, PageDown, Home or End.
@@ -23,7 +24,7 @@ export class TemporalFieldValueAdjustmentPlugin<TValue extends TemporalSupported
     const adapter = selectors.adapter(this.store.state);
     const localizedDigits = selectors.localizedDigits(this.store.state);
     const timezone = selectors.timezoneToRender(this.store.state);
-    const activeSection = this.store.section.selectors.activeSection(this.store.state);
+    const activeSection = TemporalFieldSectionPlugin.selectors.activeSection(this.store.state);
 
     if (activeSection == null) {
       return '';
@@ -39,7 +40,7 @@ export class TemporalFieldValueAdjustmentPlugin<TValue extends TemporalSupported
       activeSection.token.config.contentType === 'digit' ||
       activeSection.token.config.contentType === 'digit-with-letter'
     ) {
-      const sectionBoundaries = this.store.section.selectors.sectionBoundaries(
+      const sectionBoundaries = TemporalFieldSectionPlugin.selectors.sectionBoundaries(
         this.store.state,
         activeSection,
       );

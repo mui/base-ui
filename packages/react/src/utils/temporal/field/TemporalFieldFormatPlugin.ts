@@ -28,7 +28,7 @@ const formatSelectors = {
 export class TemporalFieldFormatPlugin<TValue extends TemporalSupportedValue> {
   private store: TemporalFieldStore<TValue, any, any>;
 
-  public selectors = formatSelectors;
+  public static selectors = formatSelectors;
 
   // We can't type `store`, otherwise we get the following TS error:
   // 'format' implicitly has type 'any' because it does not have a type annotation and is referenced directly or indirectly in its own initializer.

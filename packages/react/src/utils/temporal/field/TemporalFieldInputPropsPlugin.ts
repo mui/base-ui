@@ -1,5 +1,6 @@
 import { TemporalSupportedValue } from '../../../types';
 import { selectors } from './selectors';
+import { TemporalFieldSectionPlugin } from './TemporalFieldSectionPlugin';
 import { TemporalFieldStore } from './TemporalFieldStore';
 
 /**
@@ -20,8 +21,12 @@ export class TemporalFieldInputPropsPlugin<TValue extends TemporalSupportedValue
     }
 
     const readOnly = selectors.readOnly(this.store.state);
-    const lastSectionIndex = this.store.section.selectors.lastSectionIndex(this.store.state);
-    const selectedSections = this.store.section.selectors.selectedSections(this.store.state);
+    const lastSectionIndex = TemporalFieldSectionPlugin.selectors.lastSectionIndex(
+      this.store.state,
+    );
+    const selectedSections = TemporalFieldSectionPlugin.selectors.selectedSections(
+      this.store.state,
+    );
 
     // eslint-disable-next-line default-case
     switch (true) {
@@ -85,7 +90,7 @@ export class TemporalFieldInputPropsPlugin<TValue extends TemporalSupportedValue
       case this.store.valueAdjustment.isAdjustSectionValueKeyCode(event.key): {
         event.preventDefault();
 
-        const activeSection = this.store.section.selectors.activeSection(this.store.state);
+        const activeSection = TemporalFieldSectionPlugin.selectors.activeSection(this.store.state);
         if (readOnly || activeSection == null) {
           break;
         }
@@ -140,9 +145,13 @@ export class TemporalFieldInputPropsPlugin<TValue extends TemporalSupportedValue
       return;
     }
 
-    const sections = this.store.section.selectors.sections(this.store.state);
-    const lastSectionIndex = this.store.section.selectors.lastSectionIndex(this.store.state);
-    const selectedSections = this.store.section.selectors.selectedSections(this.store.state);
+    const sections = TemporalFieldSectionPlugin.selectors.sections(this.store.state);
+    const lastSectionIndex = TemporalFieldSectionPlugin.selectors.lastSectionIndex(
+      this.store.state,
+    );
+    const selectedSections = TemporalFieldSectionPlugin.selectors.selectedSections(
+      this.store.state,
+    );
 
     setFocused(true);
 
@@ -180,7 +189,9 @@ export class TemporalFieldInputPropsPlugin<TValue extends TemporalSupportedValue
   };
 
   public handlePaste = (event: React.ClipboardEvent<HTMLDivElement>) => {
-    const selectedSections = this.store.section.selectors.selectedSections(this.store.state);
+    const selectedSections = TemporalFieldSectionPlugin.selectors.selectedSections(
+      this.store.state,
+    );
     if (selectors.readOnly(this.store.state) || selectedSections !== 'all') {
       event.preventDefault();
       return;
@@ -193,8 +204,10 @@ export class TemporalFieldInputPropsPlugin<TValue extends TemporalSupportedValue
   };
 
   public handleInput = (event: React.FormEvent<HTMLDivElement>) => {
-    const selectedSections = this.store.section.selectors.selectedSections(this.store.state);
-    const sections = this.store.section.selectors.sections(this.store.state);
+    const selectedSections = TemporalFieldSectionPlugin.selectors.selectedSections(
+      this.store.state,
+    );
+    const sections = TemporalFieldSectionPlugin.selectors.sections(this.store.state);
 
     if (!this.store.dom.inputRef.current || selectedSections !== 'all') {
       return;

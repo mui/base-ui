@@ -1,18 +1,20 @@
+'use client';
 import * as React from 'react';
-import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { useStore } from '@base-ui/utils/store';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useDateFieldRootContext } from '../root/DateFieldRootContext';
+import { TemporalFieldSection } from '../../utils/temporal/field/types';
+import { TemporalFieldSectionPlugin } from '../../utils/temporal/field/TemporalFieldSectionPlugin';
 
 /**
- * Groups all parts of the date field.
+ * Groups all sections of the date field input.
  * Renders a `<div>` element.
  *
  * Documentation: [Base UI Date Field](https://base-ui.com/react/components/date-field)
  */
-export const DateFieldRoot = React.forwardRef(function DateFieldRoot(
-  componentProps: DateFieldRoot.Props,
+export const DateFieldInput = React.forwardRef(function DateFieldInput(
+  componentProps: DateFieldInput.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const {
@@ -25,15 +27,19 @@ export const DateFieldRoot = React.forwardRef(function DateFieldRoot(
   } = componentProps;
 
   const store = useDateFieldRootContext();
-  const isSelectingAllSections = useStore(store, store.section.selectors.isSelectingAllSections);
+  const isSelectingAllSections = useStore(
+    store,
+    TemporalFieldSectionPlugin.selectors.isSelectingAllSections,
+  );
+  const sections = useStore(store, TemporalFieldSectionPlugin.selectors.sections);
 
   const resolvedChildren = React.useMemo(() => {
     if (!React.isValidElement(children) && typeof children === 'function') {
-      return children(EMPTY_OBJECT);
+      return sections.map((section) => children(section));
     }
 
     return children;
-  }, [children]);
+  }, [children, sections]);
 
   return useRenderElement('div', componentProps, {
     ref: forwardedRef,
@@ -57,20 +63,20 @@ export const DateFieldRoot = React.forwardRef(function DateFieldRoot(
   });
 });
 
-export interface DateFieldRootState {}
+export interface DateFieldInputState {}
 
-export interface DateFieldRootProps extends Omit<
-  BaseUIComponentProps<'div', DateFieldRootState>,
+export interface DateFieldInputProps extends Omit<
+  BaseUIComponentProps<'div', DateFieldInputState>,
   'children'
 > {
   /**
    * The children of the component.
    * If a function is provided, it will be called with the public context as its parameter.
    */
-  children?: React.ReactNode | ((parameters: {}) => React.ReactNode);
+  children?: React.ReactNode | ((section: TemporalFieldSection) => React.ReactNode);
 }
 
-export namespace DateFieldRoot {
-  export type Props = DateFieldRootProps;
-  export type State = DateFieldRootState;
+export namespace DateFieldInput {
+  export type Props = DateFieldInputProps;
+  export type State = DateFieldInputState;
 }

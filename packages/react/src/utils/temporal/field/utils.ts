@@ -10,6 +10,7 @@ import { getMonthsInYear } from '../date-helpers';
 import { TemporalManager } from '../types';
 import {
   TemporalFieldParsedFormat,
+  TemporalFieldSection,
   TemporalFieldSectionValueBoundaries,
   TemporalFieldStoreParameters,
   TemporalFieldToken,
@@ -201,10 +202,11 @@ export function buildSections(
   adapter: TemporalAdapter,
   parsedFormat: TemporalFieldParsedFormat,
   date: TemporalSupportedObject | null,
-) {
-  return parsedFormat.tokens.map((token) => ({
+): TemporalFieldSection[] {
+  return parsedFormat.tokens.map((token, index) => ({
     token,
     value: adapter.isValid(date) ? adapter.formatByString(date, token.tokenValue) : '',
     modified: false,
+    index,
   }));
 }
