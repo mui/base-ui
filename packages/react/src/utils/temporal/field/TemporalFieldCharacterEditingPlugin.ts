@@ -1,4 +1,4 @@
-import { createSelector } from '@base-ui/utils/store';
+import { createSelector, createSelectorMemoized } from '@base-ui/utils/store';
 import { TemporalSupportedValue } from '../../../types';
 import { FormatParser } from './formatParser';
 import { selectors } from './selectors';
@@ -23,6 +23,30 @@ const characterEditingSelectors = {
   characterQuery: createSelector((state: State) => state.characterQuery),
 };
 
+function syncCharacterQueryWithSections<TValue extends TemporalSupportedValue>(
+  store: TemporalFieldStore<TValue, any, any>,
+) {
+  const selector = createSelectorMemoized(
+    characterEditingSelectors.characterQuery,
+    TemporalFieldSectionPlugin.selectors.sections,
+    TemporalFieldSectionPlugin.selectors.activeSection,
+    (characterQuery, sections, activeSection) => ({ characterQuery, sections, activeSection }),
+  );
+
+  store.registerStoreEffect(selector, (_, { characterQuery, sections, activeSection }) => {
+    if (characterQuery == null) {
+      return;
+    }
+    const shouldReset =
+      sections[characterQuery.sectionIndex]?.token.tokenValue !== characterQuery.tokenType ||
+      activeSection == null; /* && error != null */ // TODO: Support error state
+
+    if (shouldReset) {
+      store.set('characterQuery', null);
+    }
+  });
+}
+
 /**
  * Plugin to update the value of a section when pressing a digit or letter key.
  */
@@ -35,6 +59,9 @@ export class TemporalFieldCharacterEditingPlugin<TValue extends TemporalSupporte
   // 'characterEditing' implicitly has type 'any' because it does not have a type annotation and is referenced directly or indirectly in its own initializer.
   constructor(store: any) {
     this.store = store;
+
+    // Whenever the sections change, we need to clear the character query if the section type at the queried index has changed
+    syncCharacterQueryWithSections(this.store);
   }
 
   public resetCharacterQuery() {
@@ -305,7 +332,7 @@ export class TemporalFieldCharacterEditingPlugin<TValue extends TemporalSupporte
         this.setCharacterQuery({
           sectionIndex,
           value: concatenatedQueryValue,
-          sectionType: section.token.config.sectionType,
+          tokenType: section.token.config.sectionType,
         });
         return queryResponse;
       }
@@ -320,7 +347,7 @@ export class TemporalFieldCharacterEditingPlugin<TValue extends TemporalSupporte
     this.setCharacterQuery({
       sectionIndex,
       value: cleanKeyPressed,
-      sectionType: section.token.config.sectionType,
+      tokenType: section.token.config.sectionType,
     });
 
     if (isQueryResponseWithoutValue(queryResponse)) {

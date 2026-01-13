@@ -190,6 +190,24 @@ export class TemporalFieldStore<
     this.parameters = parameters;
   }
 
+  /**
+   * Registers an effect to be run when the value returned by the selector changes.
+   */
+  public registerStoreEffect = <Value>(
+    selector: (state: TemporalFieldState<TValue, TError, TValidationProps>) => Value,
+    effect: (previous: Value, next: Value) => void,
+  ) => {
+    let previousValue = selector(this.state);
+
+    this.subscribe((state) => {
+      const nextValue = selector(state);
+      if (nextValue !== previousValue) {
+        effect(previousValue, nextValue);
+        previousValue = nextValue;
+      }
+    });
+  };
+
   public disposeEffect = () => {
     return this.timeoutManager.clearAll;
   };

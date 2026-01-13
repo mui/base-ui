@@ -3,7 +3,7 @@ import { TemporalSupportedObject, TemporalSupportedValue } from '../../../types'
 import { mergeDateIntoReferenceDate } from './mergeDateIntoReferenceDate';
 import { selectors } from './selectors';
 import { TemporalFieldStore } from './TemporalFieldStore';
-import { TemporalFieldValueChangeHandlerContext, TemporalFieldState as State } from './types';
+import { TemporalFieldState as State, TemporalFieldValueChangeEventDetails } from './types';
 import { buildSections } from './utils';
 import { TemporalFieldFormatPlugin } from './TemporalFieldFormatPlugin';
 import { TemporalFieldSectionPlugin } from './TemporalFieldSectionPlugin';
@@ -42,15 +42,20 @@ export class TemporalFieldValuePlugin<
 
     // Pass event
     // event.nativeEvent, event.currentTarget
-    const eventDetails = createChangeEventDetails('none', undefined, undefined, {
-      getValidationError: () =>
-        selectors
-          .manager(this.store.state)
-          .getValidationError(
-            newValueWithInputTimezone,
-            selectors.validationProps(this.store.state),
-          ),
-    });
+    const eventDetails: TemporalFieldValueChangeEventDetails<TError> = createChangeEventDetails(
+      'none',
+      undefined,
+      undefined,
+      {
+        getValidationError: () =>
+          selectors
+            .manager(this.store.state)
+            .getValidationError(
+              newValueWithInputTimezone,
+              selectors.validationProps(this.store.state),
+            ),
+      },
+    );
 
     this.store.parameters.onValueChange?.(newValueWithInputTimezone, eventDetails);
     if (!eventDetails.isCanceled && this.store.parameters.value === undefined) {

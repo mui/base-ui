@@ -150,7 +150,7 @@ export interface TemporalFieldState<
 export interface TemporalFieldCharacterEditingQuery {
   value: string;
   sectionIndex: number;
-  sectionType: TemporalFieldSectionType;
+  tokenType: TemporalFieldSectionType;
 }
 
 export type TemporalFieldChangeReason = 'none';
