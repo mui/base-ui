@@ -642,7 +642,7 @@ export interface SelectRootProps<Value, Multiple extends boolean | undefined = f
    * Instead, the `unmount` function must be called to unmount the select manually.
    * Useful when the select's animation is controlled by an external library.
    */
-  actionsRef?: React.RefObject<SelectRootActions>;
+  actionsRef?: React.RefObject<SelectRootActions | null>;
   /**
    * Data structure of the items rendered in the select popup.
    * When specified, `<Select.Value>` renders the label of the selected item instead of the raw value.
