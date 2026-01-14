@@ -54,7 +54,11 @@ export function processReference(node) {
 
   // Load component definitions from JSON files
   const componentDefs = [];
-  const kebabCase = (str) => str.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
+  const kebabCase = (str) =>
+    str
+      .replace(/([a-z0-9])([A-Z])/g, '$1-$2')
+      .replace(/([A-Z])([A-Z][a-z])/g, '$1-$2')
+      .toLowerCase();
   const projectRoot = path.resolve(import.meta.dirname, '../..');
   let functionDef = null;
 

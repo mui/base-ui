@@ -201,7 +201,7 @@ A button component that can be rendered as another tag or focusable when disable
   - API reference
 - Exports:
   - Button
-    - Props: className, disabled, focusableWhenDisabled, nativeButton, render, style
+    - Props: className, focusableWhenDisabled, nativeButton, render, style
     - Data Attributes: data-disabled
 
 </details>
@@ -472,7 +472,7 @@ A component that provides labeling and validation for form controls.
     - Props: actionsRef, className, dirty, disabled, invalid, name, render, style, touched, validate, validationDebounceTime, validationMode
     - Data Attributes: data-dirty, data-disabled, data-filled, data-focused, data-invalid, data-touched, data-valid
   - Field - Label
-    - Props: className, render, style
+    - Props: className, nativeLabel, render, style
     - Data Attributes: data-dirty, data-disabled, data-filled, data-focused, data-invalid, data-touched, data-valid
   - Field - Description
     - Props: className, render, style
@@ -846,15 +846,22 @@ A popup that appears when a link is hovered, showing a preview for sighted users
 
 <summary>Outline</summary>
 
-- Keywords: React Preview Card, Preview Card Component, Link Hover Preview, Hover Card React, Hover Card, Link Tooltip, URL Preview, Link Preview Popup, Content Preview, Accessible Preview Popup, Headless React Components, Link Preview UI, Base UI
+- Keywords: React Preview Card, Preview Card Component, Link Hover Preview, Hover Card React, Hover Card, Link Tooltip, URL Preview, Link Preview Popup, Content Preview, Accessible Preview Popup, Detached Trigger Preview Card, Multiple Preview Card Triggers, Animated Preview Card, Headless React Components, Link Preview UI, Base UI
 - Sections:
   - Anatomy
+  - Examples
+    - Detached triggers
+    - Multiple triggers
+    - Controlled mode with multiple triggers
+    - Animating the Preview Card
+      - Position and Size
+      - Content
   - API reference
 - Exports:
   - Preview Card - Root
-    - Props: actionsRef, children, defaultOpen, onOpenChange, onOpenChangeComplete, open
+    - Props: actionsRef, children, defaultOpen, defaultTriggerId, handle, onOpenChange, onOpenChangeComplete, open, triggerId
   - Preview Card - Trigger
-    - Props: className, closeDelay, delay, render, style
+    - Props: className, closeDelay, delay, handle, payload, render, style
     - Data Attributes: data-popup-open
   - Preview Card - Portal
     - Props: className, container, keepMounted, render, style
@@ -871,6 +878,10 @@ A popup that appears when a link is hovered, showing a preview for sighted users
   - Preview Card - Backdrop
     - Props: className, render, style
     - Data Attributes: data-closed, data-ending-style, data-open, data-starting-style
+  - Preview Card - Viewport
+    - Props: children, className, render, style
+    - Data Attributes: data-activation-direction, data-current, data-instant, data-previous, data-transitioning
+    - CSS Variables: --popup-height, --popup-width
 
 </details>
 
