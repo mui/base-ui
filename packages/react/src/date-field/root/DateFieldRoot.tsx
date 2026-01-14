@@ -86,7 +86,10 @@ export const DateFieldRoot = React.forwardRef(function DateFieldRoot(
   useOnMount(store.disposeEffect);
 
   // TODO: Make this logic more reliable
-  useOnMount(() => store.subscribe(store.dom.syncSelectionToDOM));
+  useOnMount(() => {
+    store.dom.syncSelectionToDOM();
+    store.subscribe(store.dom.syncSelectionToDOM);
+  });
 
   // TODO: Improve memoization
   const inputProps = useStore(store, TemporalFieldRootPropsPlugin.selectors.hiddenInputProps);

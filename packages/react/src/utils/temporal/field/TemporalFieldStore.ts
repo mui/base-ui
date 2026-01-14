@@ -192,6 +192,10 @@ export class TemporalFieldStore<
       );
     }
 
+    if (parameters.value !== undefined && parameters.value !== this.parameters.value) {
+      Object.assign(newState, this.value.deriveStateFromNewValue(parameters.value));
+    }
+
     // If the adapter changed, we need to rebuild the manager
     if (adapter !== this.state.adapter) {
       newState.manager = config.getManager(adapter);

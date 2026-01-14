@@ -1,9 +1,17 @@
 import { createSelector } from '@base-ui/utils/store';
-import { TemporalSupportedObject, TemporalSupportedValue } from '../../../types';
+import {
+  TemporalNonNullableValue,
+  TemporalSupportedObject,
+  TemporalSupportedValue,
+} from '../../../types';
 import { mergeDateIntoReferenceDate } from './mergeDateIntoReferenceDate';
 import { selectors } from './selectors';
 import { TemporalFieldStore } from './TemporalFieldStore';
-import { TemporalFieldState as State, TemporalFieldValueChangeEventDetails } from './types';
+import {
+  TemporalFieldState as State,
+  TemporalFieldSection,
+  TemporalFieldValueChangeEventDetails,
+} from './types';
 import { buildSections } from './utils';
 import { TemporalFieldFormatPlugin } from './TemporalFieldFormatPlugin';
 import { TemporalFieldSectionPlugin } from './TemporalFieldSectionPlugin';
@@ -59,7 +67,10 @@ export class TemporalFieldValuePlugin<
 
     this.store.parameters.onValueChange?.(newValueWithInputTimezone, eventDetails);
     if (!eventDetails.isCanceled && this.store.parameters.value === undefined) {
-      this.store.set('value', newValueWithInputTimezone);
+      this.store.update({
+        value: newValueWithInputTimezone,
+        ...this.deriveStateFromNewValue(value),
+      });
     }
   }
 
@@ -111,5 +122,48 @@ export class TemporalFieldValuePlugin<
       this.store.characterEditing.resetCharacterQuery();
       this.publish(manager.emptyValue);
     }
+  }
+
+  /**
+   * Generates the sections and the reference value from a new value.
+   */
+  public deriveStateFromNewValue(value: TValue) {
+    const adapter = selectors.adapter(this.store.state);
+    const config = selectors.config(this.store.state);
+    const parsedFormat = TemporalFieldFormatPlugin.selectors.parsedFormat(this.store.state);
+    const sectionsBefore = TemporalFieldSectionPlugin.selectors.sections(this.store.state);
+    const referenceValueBefore = TemporalFieldValuePlugin.selectors.referenceValue(
+      this.store.state,
+    );
+    const sectionToUpdateOnNextInvalidDate = this.store.section.sectionToUpdateOnNextInvalidDate;
+
+    const isActiveDateInvalid =
+      sectionToUpdateOnNextInvalidDate != null &&
+      !adapter.isValid(
+        config.getDateFromSection(value, sectionsBefore[sectionToUpdateOnNextInvalidDate.index]),
+      );
+    let sections: TemporalFieldSection[];
+    if (isActiveDateInvalid) {
+      sections = TemporalFieldSectionPlugin.replaceSectionValueInSectionList(
+        sectionsBefore,
+        sectionToUpdateOnNextInvalidDate.index,
+        sectionToUpdateOnNextInvalidDate.value,
+      );
+    } else {
+      sections = config.getSectionsFromValue(value, (date) =>
+        buildSections(adapter, parsedFormat, date),
+      );
+    }
+
+    return {
+      sections,
+      referenceValue: (isActiveDateInvalid
+        ? referenceValueBefore
+        : config.updateReferenceValue(
+            adapter,
+            value,
+            referenceValueBefore,
+          )) as TemporalNonNullableValue<TValue>,
+    };
   }
 }
