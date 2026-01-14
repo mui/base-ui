@@ -363,9 +363,9 @@ export function createGridCellMap(sizes: Dimensions[], cols: number, dense: bool
         (startIndex % cols) + width <= cols &&
         targetCells.every((cell) => cellMap[cell] == null)
       ) {
-        targetCells.forEach((cell) => {
+        for (const cell of targetCells) {
           cellMap[cell] = index;
-        });
+        }
         itemPlaced = true;
       } else {
         startIndex += 1;
