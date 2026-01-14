@@ -250,6 +250,79 @@ describe('<Popover.Root />', () => {
   describe.skipIf(isJSDOM)('multiple detached triggers', () => {
     type NumberPayload = { payload: number | undefined };
 
+    function TriggerWithNesting({
+      handle,
+      nesting,
+    }: {
+      handle: ReturnType<typeof Popover.createHandle>;
+      nesting: 0 | 1 | 2 | 3;
+    }) {
+      const trigger = (
+        <Popover.Trigger handle={handle} id="trigger">
+          Trigger
+        </Popover.Trigger>
+      );
+
+      if (nesting === 0) {
+        return trigger;
+      }
+
+      if (nesting === 1) {
+        return <div>{trigger}</div>;
+      }
+
+      if (nesting === 2) {
+        return (
+          <div>
+            <div>{trigger}</div>
+          </div>
+        );
+      }
+
+      return (
+        <div>
+          <div>
+            <div>{trigger}</div>
+          </div>
+        </div>
+      );
+    }
+
+    function DetachedTriggerReparentingTest({
+      handle,
+      nesting,
+    }: {
+      handle: ReturnType<typeof Popover.createHandle>;
+      nesting: 0 | 1 | 2 | 3;
+    }) {
+      return (
+        <React.Fragment>
+          <TriggerWithNesting handle={handle} nesting={nesting} />
+          <Popover.Root handle={handle}>
+            <Popover.Portal>
+              <Popover.Positioner>
+                <Popover.Popup>
+                  Popover Content
+                  <Popover.Close>Close</Popover.Close>
+                </Popover.Popup>
+              </Popover.Positioner>
+            </Popover.Portal>
+          </Popover.Root>
+        </React.Fragment>
+      );
+    }
+
+    async function openAndClosePopover(user: any) {
+      await user.click(screen.getByRole('button', { name: 'Trigger' }));
+      await waitFor(() => {
+        expect(screen.getByText('Popover Content')).toBeVisible();
+      });
+      await user.click(screen.getByText('Close'));
+      await waitFor(() => {
+        expect(screen.queryByText('Popover Content')).to.equal(null);
+      });
+    }
+
     it('should open the popover with any trigger', async () => {
       const testPopover = Popover.createHandle();
       const { user } = await render(
@@ -326,6 +399,60 @@ describe('<Popover.Root />', () => {
 
       await user.click(trigger2);
       expect(screen.getByTestId('content').textContent).to.equal('2');
+    });
+
+    it('keeps detached triggers clickable when reparented (remove wrappers)', async () => {
+      const testPopover = Popover.createHandle();
+      const { user, setProps } = await render(
+        <DetachedTriggerReparentingTest handle={testPopover} nesting={3} />,
+      );
+
+      await openAndClosePopover(user);
+
+      await setProps({ nesting: 2 });
+      await openAndClosePopover(user);
+
+      await setProps({ nesting: 1 });
+      await openAndClosePopover(user);
+
+      await setProps({ nesting: 0 });
+      await openAndClosePopover(user);
+    });
+
+    it('keeps detached triggers clickable when reparented (add wrappers)', async () => {
+      const testPopover = Popover.createHandle();
+      const { user, setProps } = await render(
+        <DetachedTriggerReparentingTest handle={testPopover} nesting={0} />,
+      );
+
+      await openAndClosePopover(user);
+
+      await setProps({ nesting: 1 });
+      await openAndClosePopover(user);
+
+      await setProps({ nesting: 2 });
+      await openAndClosePopover(user);
+
+      await setProps({ nesting: 3 });
+      await openAndClosePopover(user);
+    });
+
+    it('keeps detached triggers clickable when reparented during Fast Refresh-like handle recreation', async () => {
+      const handleA = Popover.createHandle();
+      const { user, setProps } = await render(
+        <DetachedTriggerReparentingTest handle={handleA} nesting={3} />,
+      );
+
+      await openAndClosePopover(user);
+
+      await setProps({ handle: Popover.createHandle(), nesting: 2 });
+      await openAndClosePopover(user);
+
+      await setProps({ handle: Popover.createHandle(), nesting: 1 });
+      await openAndClosePopover(user);
+
+      await setProps({ handle: Popover.createHandle(), nesting: 0 });
+      await openAndClosePopover(user);
     });
 
     it('should reuse the popup and positioner DOM nodes when switching triggers', async () => {
