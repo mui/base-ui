@@ -74,12 +74,15 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
   const { clearErrors } = useFormContext();
   const {
     setDirty,
+    setTouched,
+    setFocused,
     shouldValidateOnChange,
     validityData,
     setFilled,
     name: fieldName,
     disabled: fieldDisabled,
     validation,
+    validationMode,
   } = useFieldRootContext();
 
   const generatedId = useLabelableId({ id });
@@ -242,6 +245,18 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
       }
 
       setOpenUnwrapped(nextOpen);
+
+      if (
+        !nextOpen &&
+        (eventDetails.reason === REASONS.focusOut || eventDetails.reason === REASONS.outsidePress)
+      ) {
+        setTouched(true);
+        setFocused(false);
+
+        if (validationMode === 'onBlur') {
+          validation.commit(value);
+        }
+      }
 
       // The active index will sync to the last selected index on the next open.
       // Workaround `enableFocusInside` in Floating UI setting `tabindex=0` of a non-highlighted

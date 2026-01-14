@@ -4327,6 +4327,97 @@ describe('<Combobox.Root />', () => {
       expect(trigger).not.to.have.attribute('data-focused');
     });
 
+    it('does not mark as touched when focus moves into the popup', async () => {
+      const validateSpy = spy(() => 'error');
+
+      await render(
+        <React.Fragment>
+          <Field.Root validationMode="onBlur" validate={validateSpy}>
+            <Combobox.Root>
+              <Combobox.Trigger data-testid="trigger" />
+              <Combobox.Portal>
+                <Combobox.Positioner>
+                  <Combobox.Popup>
+                    <Combobox.List>
+                      <Combobox.Item value="1">Option 1</Combobox.Item>
+                    </Combobox.List>
+                  </Combobox.Popup>
+                </Combobox.Positioner>
+              </Combobox.Portal>
+            </Combobox.Root>
+          </Field.Root>
+          <button data-testid="outside">Outside</button>
+        </React.Fragment>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+
+      fireEvent.focus(trigger);
+      fireEvent.click(trigger);
+
+      await flushMicrotasks();
+
+      const popup = screen.getByRole('dialog');
+
+      fireEvent.blur(trigger, { relatedTarget: popup });
+      fireEvent.focus(popup);
+
+      await flushMicrotasks();
+
+      expect(validateSpy.callCount).to.equal(0);
+      expect(trigger).to.have.attribute('data-focused', '');
+      expect(trigger).not.to.have.attribute('data-touched');
+      expect(trigger).not.to.have.attribute('aria-invalid');
+    });
+
+    it('validates when the popup is blurred', async () => {
+      const validateSpy = spy(() => 'error');
+
+      await render(
+        <React.Fragment>
+          <Field.Root validationMode="onBlur" validate={validateSpy}>
+            <Combobox.Root>
+              <Combobox.Trigger data-testid="trigger" />
+              <Combobox.Portal>
+                <Combobox.Positioner>
+                  <Combobox.Popup>
+                    <Combobox.List>
+                      <Combobox.Item value="1">Option 1</Combobox.Item>
+                    </Combobox.List>
+                  </Combobox.Popup>
+                </Combobox.Positioner>
+              </Combobox.Portal>
+            </Combobox.Root>
+          </Field.Root>
+          <button data-testid="outside">Outside</button>
+        </React.Fragment>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+      const outside = screen.getByTestId('outside');
+
+      fireEvent.focus(trigger);
+      fireEvent.click(trigger);
+
+      await flushMicrotasks();
+
+      const popup = screen.getByRole('dialog');
+
+      fireEvent.blur(trigger, { relatedTarget: popup });
+      fireEvent.focus(popup);
+
+      fireEvent.blur(popup, { relatedTarget: outside });
+      fireEvent.focus(outside);
+
+      await waitFor(() => {
+        expect(validateSpy.callCount).to.equal(1);
+      });
+
+      expect(trigger).to.have.attribute('data-touched', '');
+      expect(trigger).not.to.have.attribute('data-focused');
+      expect(trigger).to.have.attribute('aria-invalid', 'true');
+    });
+
     it('[data-invalid]', async () => {
       await render(
         <Field.Root invalid>
