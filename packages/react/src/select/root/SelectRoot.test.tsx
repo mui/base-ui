@@ -1967,7 +1967,7 @@ describe('<Select.Root />', () => {
               <Select.Positioner />
             </Select.Portal>
           </Select.Root>
-          <Field.Label data-testid="label" render={<span />} />
+          <Field.Label data-testid="label" render={<div />} nativeLabel={false} />
         </Field.Root>,
       );
 
