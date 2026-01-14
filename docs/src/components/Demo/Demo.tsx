@@ -114,7 +114,7 @@ export function Demo({
                 onTabChange={demo.expand}
               />
 
-              <div className="ml-auto flex items-center gap-4">
+              <div className="DemoToolbarActions">
                 <DemoVariantSelector
                   className="contents"
                   onVariantChange={demo.expand}
