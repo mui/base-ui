@@ -24,6 +24,7 @@ import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
 import { useClick, useTypeahead } from '../../floating-ui-react';
 import type { Side } from '../../utils/useAnchorPositioning';
+import { useLabelableId } from '../../labelable-provider/useLabelableId';
 
 const BOUNDARY_OFFSET = 2;
 
@@ -40,6 +41,7 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
     className,
     nativeButton = true,
     disabled: disabledProp = false,
+    id: idProp,
     ...elementProps
   } = componentProps;
 
@@ -81,6 +83,9 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
   const disabled = fieldDisabled || comboboxDisabled || disabledProp;
   const listEmpty = filteredItems.length === 0;
   const popupSide = mounted && positionerElement ? popupSideValue : null;
+
+  useLabelableId({ id: inputInsidePopup ? idProp : undefined });
+  const id = inputInsidePopup ? (idProp ?? rootId) : idProp;
 
   const currentPointerTypeRef = React.useRef<PointerEvent['pointerType']>('');
 
@@ -148,7 +153,7 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
       triggerClickProps,
       triggerTypeaheadProps,
       {
-        id: inputInsidePopup ? rootId : undefined,
+        id,
         tabIndex: inputInsidePopup ? 0 : -1,
         role: inputInsidePopup ? 'combobox' : undefined,
         'aria-expanded': open ? 'true' : 'false',
