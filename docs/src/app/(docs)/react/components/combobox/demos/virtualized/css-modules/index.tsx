@@ -6,7 +6,7 @@ import styles from './index.module.css';
 
 export default function ExampleVirtualizedCombobox() {
   const [open, setOpen] = React.useState(false);
-  const itemHighlightedCallbackRef = React.useRef<ItemHighlightedCallback | null>(null);
+  const virtualizerRef = React.useRef<Virtualizer | null>(null);
 
   return (
     <Combobox.Root
@@ -15,7 +15,23 @@ export default function ExampleVirtualizedCombobox() {
       open={open}
       onOpenChange={setOpen}
       itemToStringLabel={getItemLabel}
-      onItemHighlighted={(...args) => itemHighlightedCallbackRef.current?.(...args)}
+      onItemHighlighted={(item, { reason, index }) => {
+        const virtualizer = virtualizerRef.current;
+
+        if (!item || !virtualizer) {
+          return;
+        }
+
+        const isStart = index === 0;
+        const isEnd = index === virtualizer.options.count - 1;
+        const shouldScroll = reason === 'none' || (reason === 'keyboard' && (isStart || isEnd));
+
+        if (shouldScroll) {
+          queueMicrotask(() => {
+            virtualizer.scrollToIndex(index, { align: isEnd ? 'start' : 'end' });
+          });
+        }
+      }}
     >
       <label className={styles.Label}>
         Search 10,000 items
@@ -27,10 +43,7 @@ export default function ExampleVirtualizedCombobox() {
           <Combobox.Popup className={styles.Popup}>
             <Combobox.Empty className={styles.Empty}>No items found.</Combobox.Empty>
             <Combobox.List className={styles.List}>
-              <VirtualizedList
-                open={open}
-                itemHighlightedCallbackRef={itemHighlightedCallbackRef}
-              />
+              <VirtualizedList open={open} virtualizerRef={virtualizerRef} />
             </Combobox.List>
           </Combobox.Popup>
         </Combobox.Positioner>
@@ -41,10 +54,10 @@ export default function ExampleVirtualizedCombobox() {
 
 function VirtualizedList({
   open,
-  itemHighlightedCallbackRef,
+  virtualizerRef,
 }: {
   open: boolean;
-  itemHighlightedCallbackRef: React.RefObject<ItemHighlightedCallback | null>;
+  virtualizerRef: React.RefObject<Virtualizer | null>;
 }) {
   const filteredItems = Combobox.useFilteredItems<VirtualizedItem>();
 
@@ -72,28 +85,7 @@ function VirtualizedList({
     [virtualizer],
   );
 
-  const onItemHighlighted = React.useCallback<ItemHighlightedCallback>(
-    (item, { reason, index }) => {
-      if (!item) {
-        return;
-      }
-
-      const isStart = index === 0;
-      const isEnd = index === filteredItems.length - 1;
-      const shouldScroll = reason === 'none' || (reason === 'keyboard' && (isStart || isEnd));
-
-      if (shouldScroll) {
-        queueMicrotask(() => {
-          virtualizer.scrollToIndex(index, { align: isEnd ? 'start' : 'end' });
-        });
-      }
-    },
-    [filteredItems, virtualizer],
-  );
-
-  React.useEffect(() => {
-    itemHighlightedCallbackRef.current = onItemHighlighted;
-  }, [onItemHighlighted, itemHighlightedCallbackRef]);
+  React.useImperativeHandle(virtualizerRef, () => virtualizer);
 
   const totalSize = virtualizer.getTotalSize();
 
@@ -173,6 +165,4 @@ const virtualizedItems: VirtualizedItem[] = Array.from({ length: 10000 }, (_, in
   return { id, name: `Item ${indexLabel}` };
 });
 
-type ItemHighlightedCallback = NonNullable<
-  React.ComponentProps<typeof Combobox.Root>['onItemHighlighted']
->;
+type Virtualizer = ReturnType<typeof useVirtualizer<HTMLDivElement, Element>>;
