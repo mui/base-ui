@@ -8,7 +8,8 @@
  *   ...
  */
 export default function formatErrorMessage(code: number, ...args: string[]): string {
-  const url = new URL(`https://base-ui.com/production-error/${code}`);
+  const url = new URL('https://base-ui.com/production-error');
+  url.searchParams.set('code', code.toString());
   args.forEach((arg) => url.searchParams.append('args[]', arg));
   return `Base UI error #${code}; visit ${url} for the full message.`;
 }

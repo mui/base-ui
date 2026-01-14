@@ -30,11 +30,12 @@ describe.skipIf(!isJSDOM)('useHover', () => {
     vi.useFakeTimers();
   });
 
-  test('opens on mouseenter', () => {
+  test('opens on mouseenter', async () => {
     render(<App />);
 
     fireEvent.mouseEnter(screen.getByRole('button'));
     expect(screen.getByRole('tooltip')).toBeInTheDocument();
+    await flushMicrotasks();
   });
 
   test('closes on mouseleave', () => {
