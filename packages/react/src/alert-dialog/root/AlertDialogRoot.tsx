@@ -86,8 +86,8 @@ export interface AlertDialogRootProps<Payload = unknown> extends Omit<
    */
   actionsRef?: React.RefObject<AlertDialogRoot.Actions | null>;
   /**
-   * A handle to associate the popover with a trigger.
-   * If specified, allows external triggers to control the popover's open state.
+   * A handle to associate the alert dialog with a trigger.
+   * If specified, allows external triggers to control the alert dialog's open state.
    * Can be created with the AlertDialog.createHandle() method.
    */
   handle?: DialogHandle<Payload>;
