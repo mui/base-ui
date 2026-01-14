@@ -22,7 +22,7 @@ import {
 } from '../../composite/composite';
 import { useCompositeListItem } from '../../composite/list/useCompositeListItem';
 import { useDirection } from '../../direction-provider/DirectionContext';
-import { useNonce } from '../../nonce-provider';
+import { useCSPContext } from '../../csp-provider';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { type LabelableContext } from '../../labelable-provider/LabelableContext';
 import { useLabelableId } from '../../labelable-provider/useLabelableId';
@@ -110,7 +110,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
     ...elementProps
   } = componentProps;
 
-  const nonce = useNonce();
+  const { nonce } = useCSPContext();
   const id = useBaseUiId(idProp);
 
   const {

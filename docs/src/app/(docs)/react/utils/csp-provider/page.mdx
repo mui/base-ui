@@ -1,9 +1,9 @@
-# Nonce Provider
+# CSP Provider
 
-<Subtitle>Applies a CSP nonce to inline tags rendered by Base UI components.</Subtitle>
+<Subtitle>Configures CSP-related behavior for inline tags rendered by Base UI components.</Subtitle>
 <Meta
   name="description"
-  content="A nonce provider component that applies a CSP nonce to inline <style> and <script> tags rendered by Base UI components."
+  content="A CSP provider component that applies a nonce to inline <style> and <script> tags rendered by Base UI components, and can disable inline <style> elements."
 />
 
 ## Anatomy
@@ -11,17 +11,27 @@
 Import the component and wrap it around your app:
 
 ```jsx title="Anatomy"
-import { NonceProvider } from '@base-ui/react/nonce-provider';
+import { CSPProvider } from '@base-ui/react/csp-provider';
 
 // prettier-ignore
-<NonceProvider nonce="...">
+<CSPProvider nonce="...">
   {/* Your app or a group of components */}
-</NonceProvider>
+</CSPProvider>
 ```
 
 Some Base UI components render inline `<style>` or `<script>` tags for functionality such as removing scrollbars or pre-hydration behavior. Under a strict Content Security Policy (CSP), these tags may be blocked unless they include a matching [nonce](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Global_attributes/nonce) attribute.
 
-`NonceProvider` supplies that `nonce` value to all supported components automatically.
+`CSPProvider` supplies that `nonce` value to all supported components automatically.
+
+## Disable inline `<style>` elements
+
+If you want to avoid rendering inline `<style>` elements entirely (for example, to rely on external stylesheets only) without needing to specify `nonce`, specify `disableStyleElements`:
+
+```jsx title="Disabling style elements"
+<CSPProvider disableStyleElements>{/* ... */}</CSPProvider>
+```
+
+`<script>` tags cannot be disabled, as they are required for pre-hydration behavior and require a nonce instead.
 
 ## Content Security Policy (CSP)
 
@@ -29,7 +39,7 @@ If you enforce a CSP that blocks inline tags by default, configure your server t
 
 1. Generate a random nonce per request
 2. Include it in your CSP header (via `style-src-elem`/`script-src`)
-3. Pass the same nonce into `NonceProvider` during rendering
+3. Pass the same nonce into `CSPProvider` during rendering
 
 ```ts title="Example"
 const nonce = crypto.randomUUID();
@@ -45,20 +55,24 @@ const csp = [
 Then:
 
 ```jsx title="Providing the nonce"
-import { NonceProvider } from '@base-ui/react/nonce-provider';
+import { CSPProvider } from '@base-ui/react/csp-provider';
 
 function App({ nonce }) {
-  return <NonceProvider nonce={nonce}>{/* ... */}</NonceProvider>;
+  return <CSPProvider nonce={nonce}>{/* ... */}</CSPProvider>;
 }
 ```
 
 ## Inline style attributes
 
-While Nonce Provider covers inline `<style>` and `<script>` tags, they do not cover inline style attributes (for example, `<div style="...">`).
+`CSPProvider` covers inline `<style>` and `<script>` tags rendered as elements, but it does not cover inline style attributes (for example, `<div style="...">`).
 
-`style-src` covers both style elements and attributes, but if you want to block only style elements while allowing style attributes, you can replace `style-src` with the `style-src-elem` directive in your CSP.
+In CSP:
 
-`style-src-attr` will only trigger a violation while parsing pre-rendered (SSR) components in your HTML. If your CSP blocks inline style attributes, you have a few options:
+- `style-src` applies to both `<style>` elements and `style=""` attributes.
+- If you only want to control `<style>` elements, use `style-src-elem` instead.
+- If you specifically want to control `style=""` attributes, use `style-src-attr`.
+
+If your CSP blocks inline style attributes, you have a few options:
 
 1. Relax your CSP by adding `'unsafe-inline'` to the `style-src-attr` directive (or using only `style-src-elem` instead of `style-src`). Style attributes specifically pose a less severe security risk than style elements, but this approach may not be acceptable in high-security environments.
 2. Render the affected components only on the client, so that no inline styles are present in the initial HTML.
@@ -66,11 +80,11 @@ While Nonce Provider covers inline `<style>` and `<script>` tags, they do not co
 
 ## API reference
 
-<Reference component="NonceProvider" />
+<Reference component="CSPProvider" />
 
-## useNonce
+## useCSPContext
 
-Use this hook to read the current nonce value (for example, to apply it to your own inline tags).
+Use this hook to read the current CSP configuration (for example, to apply a nonce to your own inline tags).
 
 ### Return value
 
@@ -82,12 +96,17 @@ Use this hook to read the current nonce value (for example, to apply it to your 
       detailedType: 'string | undefined',
       description: 'The current nonce value.',
     },
+    disableStyleElements: {
+      type: 'boolean',
+      detailedType: 'boolean',
+      description: 'Whether inline `<style>` elements are disabled.',
+    },
   }}
 />
 
 export const metadata = {
   keywords: [
-    'Base UI Nonce Provider',
+    'Base UI CSP Provider',
     'Content Security Policy',
     'CSP nonce',
     'React CSP',

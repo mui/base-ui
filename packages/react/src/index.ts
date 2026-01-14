@@ -19,7 +19,7 @@ export * from './menubar';
 export * from './merge-props';
 export * from './meter';
 export * from './navigation-menu';
-export * from './nonce-provider';
+export * from './csp-provider';
 export * from './number-field';
 export * from './popover';
 export * from './preview-card';

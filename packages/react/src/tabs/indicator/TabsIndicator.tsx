@@ -12,7 +12,7 @@ import { useTabsListContext } from '../list/TabsListContext';
 import type { TabsTab } from '../tab/TabsTab';
 import { script as prehydrationScript } from './prehydrationScript.min';
 import { TabsIndicatorCssVars } from './TabsIndicatorCssVars';
-import { useNonce } from '../../nonce-provider';
+import { useCSPContext } from '../../csp-provider';
 
 const stateAttributesMapping = {
   ...tabsStateAttributesMapping,
@@ -32,7 +32,7 @@ export const TabsIndicator = React.forwardRef(function TabIndicator(
 ) {
   const { className, render, renderBeforeHydration = false, ...elementProps } = componentProps;
 
-  const nonce = useNonce();
+  const { nonce } = useCSPContext();
 
   const { getTabElementBySelectedValue, orientation, tabActivationDirection, value } =
     useTabsRootContext();

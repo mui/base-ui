@@ -28,11 +28,8 @@ import { REASONS } from '../../utils/reasons';
 import { useToolbarRootContext } from '../../toolbar/root/ToolbarRootContext';
 import { COMPOSITE_KEYS } from '../../composite/composite';
 import { getDisabledMountTransitionStyles } from '../../utils/getDisabledMountTransitionStyles';
-<<<<<<< HEAD
 import { clamp } from '../../utils/clamp';
-=======
-import { useNonce } from '../../nonce-provider';
->>>>>>> cba40ce9f (Refactor to nonce-provider)
+import { useCSPContext } from '../../csp-provider';
 
 const stateAttributesMapping: StateAttributesMapping<SelectPopup.State> = {
   ...popupStateMapping,
@@ -75,7 +72,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
   const insideToolbar = useToolbarRootContext(true) != null;
   const floatingRootContext = useSelectFloatingContext();
 
-  const nonce = useNonce();
+  const { nonce, disableStyleElements } = useCSPContext();
 
   const highlightTimeout = useTimeout();
 
@@ -475,7 +472,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
 
   return (
     <React.Fragment>
-      {styleDisableScrollbar.getElement(nonce)}
+      {!disableStyleElements && styleDisableScrollbar.getElement(nonce)}
       <FloatingFocusManager
         context={floatingRootContext}
         modal={false}
