@@ -22,9 +22,13 @@ export class TemporalFieldValueAdjustmentPlugin<TValue extends TemporalSupported
   }
 
   public isAdjustSectionValueKeyCode(keyCode: string): keyCode is AdjustSectionValueKeyCode {
-    return ['ArrowUp', 'ArrowDown', 'Home', 'End', 'PageUp', 'PageDown'].includes(keyCode);
+    return TemporalFieldValueAdjustmentPlugin.keyCodes.has(keyCode as AdjustSectionValueKeyCode);
   }
 
+  /**
+   * Adjusts the value of the active section based on the provided key code.
+   * For example, pressing ArrowUp will increment the section's value.
+   */
   public adjustActiveSectionValue(keyCode: AdjustSectionValueKeyCode) {
     const adapter = selectors.adapter(this.store.state);
     const localizedDigits = selectors.localizedDigits(this.store.state);
@@ -68,7 +72,7 @@ export class TemporalFieldValueAdjustmentPlugin<TValue extends TemporalSupported
 
       if (shouldSetAbsolute) {
         if (activeSection.token.config.sectionType === 'year' && !isEnd && !isStart) {
-          return adapter.formatByString(adapter.now(timezone), activeSection.token.tokenValue);
+          return adapter.formatByString(adapter.now(timezone), activeSection.token.value);
         }
 
         if (delta > 0 || isStart) {
@@ -117,7 +121,7 @@ export class TemporalFieldValueAdjustmentPlugin<TValue extends TemporalSupported
       adapter,
       timezone,
       activeSection.token.config.sectionType,
-      activeSection.token.tokenValue,
+      activeSection.token.value,
     );
     if (options.length === 0) {
       return activeSection.value;
@@ -137,6 +141,15 @@ export class TemporalFieldValueAdjustmentPlugin<TValue extends TemporalSupported
 
     return options[clampedIndex];
   }
+
+  private static keyCodes: Set<AdjustSectionValueKeyCode> = new Set([
+    'ArrowUp',
+    'ArrowDown',
+    'Home',
+    'End',
+    'PageUp',
+    'PageDown',
+  ]);
 }
 
 function getDeltaFromKeyCode(keyCode: Omit<AdjustSectionValueKeyCode, 'Home' | 'End'>) {

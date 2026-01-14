@@ -11,6 +11,8 @@ import { useDirection } from '../../direction-provider';
 import { DateFieldRootContext } from './DateFieldRootContext';
 import { DateFieldStore, DateFieldStoreParameters } from './DateFieldStore';
 import { TemporalFieldRootPropsPlugin } from '../../utils/temporal/field/TemporalFieldRootPropsPlugin';
+import { FieldRoot } from '../../field';
+import { useFieldRootContext } from '../../field/root/FieldRootContext';
 
 /**
  * Groups all parts of the date field.
@@ -27,9 +29,9 @@ export const DateFieldRoot = React.forwardRef(function DateFieldRoot(
     className,
     render,
     // Form props
+    required,
     readOnly,
     disabled,
-    invalid,
     // Value props
     onValueChange,
     defaultValue,
@@ -50,7 +52,6 @@ export const DateFieldRoot = React.forwardRef(function DateFieldRoot(
     () => ({
       readOnly,
       disabled,
-      invalid,
       onValueChange,
       defaultValue,
       value,
@@ -63,7 +64,6 @@ export const DateFieldRoot = React.forwardRef(function DateFieldRoot(
     [
       readOnly,
       disabled,
-      invalid,
       onValueChange,
       defaultValue,
       value,
@@ -74,6 +74,8 @@ export const DateFieldRoot = React.forwardRef(function DateFieldRoot(
       format,
     ],
   );
+
+  const fieldRootContext = useFieldRootContext();
 
   const direction = useDirection();
   const store = useRefWithInit(() => new DateFieldStore(parameters, adapter, direction)).current;
@@ -91,14 +93,17 @@ export const DateFieldRoot = React.forwardRef(function DateFieldRoot(
     store.subscribe(store.dom.syncSelectionToDOM);
   });
 
-  // TODO: Improve memoization
   const inputProps = useStore(store, TemporalFieldRootPropsPlugin.selectors.hiddenInputProps);
+  const state: DateFieldRootState = useStore(
+    store,
+    TemporalFieldRootPropsPlugin.selectors.rootState,
+    fieldRootContext.state,
+  );
 
   const element = useRenderElement('div', componentProps, {
-    // state,
+    state,
     ref: forwardedRef,
     props: [elementProps],
-    // stateAttributesMapping,
   });
 
   return (
@@ -109,7 +114,20 @@ export const DateFieldRoot = React.forwardRef(function DateFieldRoot(
   );
 });
 
-export interface DateFieldRootState {}
+export interface DateFieldRootState extends FieldRoot.State {
+  /**
+   * Whether the user must enter a value before submitting a form.
+   */
+  required: boolean;
+  /**
+   * Whether the component should ignore user interaction.
+   */
+  disabled: boolean;
+  /**
+   * Whether the user should be unable to change the field value.
+   */
+  readOnly: boolean;
+}
 
 export interface DateFieldRootProps
   extends BaseUIComponentProps<'div', DateFieldRootState>, DateFieldStoreParameters {}

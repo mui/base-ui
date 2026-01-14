@@ -40,6 +40,7 @@ export function deriveStateFromParameters<
     referenceDateProp: parameters.referenceDate ?? null,
     valueProp: parameters.value,
     format: parameters.format,
+    required: parameters.required ?? false,
     disabled: parameters.disabled ?? false,
     readOnly: parameters.readOnly ?? false,
     timezoneProp: parameters.timezone,
@@ -160,13 +161,13 @@ export function cleanDigitSectionValue(
   value: number,
   sectionBoundaries: TemporalFieldSectionValueBoundaries<any>,
   localizedDigits: string[],
-  token: Pick<TemporalFieldToken, 'tokenValue' | 'config' | 'isPadded'>,
+  token: Pick<TemporalFieldToken, 'value' | 'config' | 'isPadded'>,
 ) {
   if (process.env.NODE_ENV !== 'production') {
     if (token.config.sectionType !== 'day' && token.config.contentType === 'digit-with-letter') {
       throw new Error(
         [
-          `Base UI: The token "${token.tokenValue}" is a digit format with letter in it.'
+          `Base UI: The token "${token.value}" is a digit format with letter in it.'
              This type of format is only supported for 'day' sections`,
         ].join('\n'),
       );
@@ -178,7 +179,7 @@ export function cleanDigitSectionValue(
       (sectionBoundaries as TemporalFieldSectionValueBoundaries<'day'>).longestMonth,
       value,
     );
-    return adapter.formatByString(date, token.tokenValue);
+    return adapter.formatByString(date, token.value);
   }
 
   // queryValue without leading `0` (`01` => `1`)
@@ -204,7 +205,7 @@ export function buildSections(
 ): TemporalFieldSection[] {
   return parsedFormat.tokens.map((token, index) => ({
     token,
-    value: adapter.isValid(date) ? adapter.formatByString(date, token.tokenValue) : '',
+    value: adapter.isValid(date) ? adapter.formatByString(date, token.value) : '',
     modified: false,
     index,
   }));

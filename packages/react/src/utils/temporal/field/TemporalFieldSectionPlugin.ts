@@ -47,7 +47,7 @@ const sectionSelectors = {
           return {
             minimum: 0,
             maximum:
-              adapter.formatByString(adapter.now('system'), section.token.tokenValue).length === 4
+              adapter.formatByString(adapter.now('system'), section.token.value).length === 4
                 ? 9999
                 : 99,
           };
@@ -65,7 +65,7 @@ const sectionSelectors = {
 
         case 'weekDay': {
           if (section.token.config.contentType === 'digit') {
-            const daysInWeek = getDaysInWeekStr(adapter, section.token.tokenValue).map(Number);
+            const daysInWeek = getDaysInWeekStr(adapter, section.token.value).map(Number);
             return {
               minimum: Math.min(...daysInWeek),
               maximum: Math.max(...daysInWeek),
@@ -109,7 +109,7 @@ const sectionSelectors = {
           const lastHourInDay = adapter.getHours(endOfDay);
           const hasMeridiem =
             removeLocalizedDigits(
-              adapter.formatByString(adapter.endOfDay(today), section.token.tokenValue),
+              adapter.formatByString(adapter.endOfDay(today), section.token.value),
               localizedDigits,
             ) !== lastHourInDay.toString();
 
@@ -118,7 +118,7 @@ const sectionSelectors = {
               minimum: 1,
               maximum: Number(
                 removeLocalizedDigits(
-                  adapter.formatByString(adapter.startOfDay(today), section.token.tokenValue),
+                  adapter.formatByString(adapter.startOfDay(today), section.token.value),
                   localizedDigits,
                 ),
               ),
@@ -359,7 +359,7 @@ export class TemporalFieldSectionPlugin<TValue extends TemporalSupportedValue> {
 
       const shouldSkip = shouldSkipWeekDays && section.token.config.sectionType === 'weekDay';
       if (!shouldSkip) {
-        sectionFormats.push(section.token.tokenValue);
+        sectionFormats.push(section.token.value);
         sectionValues.push(this.getRenderedValue(section));
       }
     }

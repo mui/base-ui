@@ -46,6 +46,11 @@ export interface TemporalFieldStoreParameters<
    */
   format: string;
   /**
+   * Whether the user must enter a value before submitting a form.
+   * @default false
+   */
+  required?: boolean;
+  /**
    * Whether the component should ignore user interaction.
    * @default false
    */
@@ -55,10 +60,6 @@ export interface TemporalFieldStoreParameters<
    * @default false
    */
   readOnly?: boolean;
-  /**
-   * Whether the field is forcefully marked as invalid.
-   */
-  invalid?: boolean;
   /**
    * Methods to generate the placeholders for each section type.
    * Used when the field is empty or when a section is empty.
@@ -134,11 +135,15 @@ export interface TemporalFieldState<
    */
   referenceValue: TemporalNonNullableValue<TValue>;
   /**
-   * Whether the field is disabled.
+   * Whether the user must enter a value before submitting a form.
+   */
+  required: boolean;
+  /**
+   * Whether the component should ignore user interaction.
    */
   disabled: boolean;
   /**
-   * Whether the field is read-only.
+   * Whether the user should be unable to select a date in the field.
    */
   readOnly: boolean;
   /**
@@ -167,10 +172,10 @@ export interface TemporalFieldParsedFormat {
 
 export interface TemporalFieldToken {
   /**
-   * Format token.
+   * Token value as present in the format string.
+   * For example, on Date Fns, in the format `MM/DD/YYYY`, the token values are `MM`, `DD` and `YYYY`.
    */
-  // TODO: Rename "value"
-  tokenValue: string;
+  value: string;
   /**
    * Config of the format token.
    */

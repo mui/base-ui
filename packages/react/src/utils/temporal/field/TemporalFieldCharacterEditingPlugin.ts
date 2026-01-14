@@ -94,7 +94,7 @@ export class TemporalFieldCharacterEditingPlugin<TValue extends TemporalSupporte
         getLetterEditingOptions(adapter, timezone, token.config.sectionType, format);
 
       if (token.config.contentType === 'letter') {
-        return findMatchingOptions(token.tokenValue, getOptions(token.tokenValue), queryValue);
+        return findMatchingOptions(token.value, getOptions(token.value), queryValue);
       }
 
       // When editing a digit-format month / weekDay and the user presses a letter,
@@ -127,7 +127,7 @@ export class TemporalFieldCharacterEditingPlugin<TValue extends TemporalSupporte
             this.getSectionValueInForAnotherToken(
               fallbackValue,
               adapter.formats.monthFullLetter,
-              section.token.tokenValue,
+              section.token.value,
             );
 
           return testQueryOnFormatAndFallbackFormat(
@@ -240,7 +240,7 @@ export class TemporalFieldCharacterEditingPlugin<TValue extends TemporalSupporte
         const formattedValue = this.getSectionValueInForAnotherToken(
           response.sectionValue,
           'MM',
-          section.token.tokenValue,
+          section.token.value,
         );
 
         return {
@@ -261,7 +261,7 @@ export class TemporalFieldCharacterEditingPlugin<TValue extends TemporalSupporte
           return response;
         }
 
-        const formattedValue = getDaysInWeekStr(adapter, section.token.tokenValue)[
+        const formattedValue = getDaysInWeekStr(adapter, section.token.value)[
           Number(response.sectionValue) - 1
         ];
         return {

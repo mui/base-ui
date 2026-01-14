@@ -39,6 +39,7 @@ export const selectors = {
       );
     },
   ),
+  required: createSelector((state: State) => state.required),
   disabled: createSelector((state: State) => state.disabled),
   readOnly: createSelector((state: State) => state.readOnly),
   adapter: createSelector((state: State) => state.adapter),

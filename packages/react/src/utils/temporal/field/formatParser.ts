@@ -158,7 +158,7 @@ export class FormatParser {
     // }
 
     return {
-      tokenValue,
+      value: tokenValue,
       config: tokenConfig,
       isPadded: this.isTokenPadded(tokenValue, tokenConfig),
       placeholder: this.getTokenPlaceholder(tokenValue, tokenConfig),

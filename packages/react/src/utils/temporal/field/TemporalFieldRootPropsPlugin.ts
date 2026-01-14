@@ -4,8 +4,20 @@ import { TemporalFieldStore } from './TemporalFieldStore';
 import { TemporalFieldValuePlugin } from './TemporalFieldValuePlugin';
 import { selectors } from './selectors';
 import { NOOP } from '../../noop';
+import { FieldRoot } from '../../../field';
 
 const rootPropsSelectors = {
+  rootState: createSelectorMemoized(
+    selectors.required,
+    selectors.readOnly,
+    selectors.disabled,
+    (required, readOnly, disabled, fieldState: FieldRoot.State) => ({
+      ...fieldState,
+      required,
+      readOnly,
+      disabled,
+    }),
+  ),
   hiddenInputProps: createSelectorMemoized(
     TemporalFieldValuePlugin.selectors.value,
     selectors.adapter,

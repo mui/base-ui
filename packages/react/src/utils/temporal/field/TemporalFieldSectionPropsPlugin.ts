@@ -211,7 +211,7 @@ function getSectionValueNow(
     case 'meridiem': {
       const parsedDate = adapter.parse(
         `01:00 ${section.value}`,
-        `${adapter.formats.hours12h}:${adapter.formats.minutesPadded} ${section.token.tokenValue}`,
+        `${adapter.formats.hours12h}:${adapter.formats.minutesPadded} ${section.token.value}`,
         timezone,
       );
       if (parsedDate) {
@@ -227,7 +227,7 @@ function getSectionValueNow(
       if (section.token.config.contentType === 'digit') {
         return Number(section.value);
       }
-      const parsedDate = adapter.parse(section.value, section.token.tokenValue, timezone);
+      const parsedDate = adapter.parse(section.value, section.token.value, timezone);
       return parsedDate ? adapter.getMonth(parsedDate) + 1 : undefined;
     }
     default:
@@ -251,7 +251,7 @@ function getSectionValueText(
           ? adapter.format(dateWithMonth, 'monthFullLetter')
           : '';
       }
-      const parsedDate = adapter.parse(section.value, section.token.tokenValue, timezone);
+      const parsedDate = adapter.parse(section.value, section.token.value, timezone);
       return parsedDate && adapter.isValid(parsedDate)
         ? adapter.format(parsedDate, 'monthFullLetter')
         : undefined;

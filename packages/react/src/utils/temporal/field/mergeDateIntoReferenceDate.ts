@@ -20,7 +20,7 @@ function transferDateSectionValue(
     case 'weekDay': {
       let dayInWeekStrOfActiveDate = adapter.formatByString(
         dateToTransferFrom,
-        section.token.tokenValue,
+        section.token.value,
       );
       if (section.token.isPadded) {
         dayInWeekStrOfActiveDate = cleanLeadingZeros(
@@ -29,7 +29,7 @@ function transferDateSectionValue(
         );
       }
 
-      const formattedDaysInWeek = getDaysInWeekStr(adapter, section.token.tokenValue);
+      const formattedDaysInWeek = getDaysInWeekStr(adapter, section.token.value);
       const dayInWeekOfActiveDate = formattedDaysInWeek.indexOf(dayInWeekStrOfActiveDate);
       const dayInWeekOfNewSectionValue = formattedDaysInWeek.indexOf(section.value);
       const diff = dayInWeekOfNewSectionValue - dayInWeekOfActiveDate;
