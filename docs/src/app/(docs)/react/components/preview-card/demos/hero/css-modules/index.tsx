@@ -13,7 +13,7 @@ export default function ExamplePreviewCard() {
         >
           typography
         </PreviewCard.Trigger>{' '}
-        remain into the digital age.
+        remain in the digital age.
       </p>
 
       <PreviewCard.Portal>

@@ -16,7 +16,7 @@ export default function PreviewCardDetachedTriggersSimpleDemo() {
         >
           typography
         </PreviewCard.Trigger>{' '}
-        remain into the digital age.
+        remain in the digital age.
       </p>
 
       <PreviewCard.Root handle={demoPreviewCard}>
