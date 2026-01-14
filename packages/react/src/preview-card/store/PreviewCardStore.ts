@@ -105,9 +105,11 @@ export class PreviewCardStore<Payload> extends ReactStore<
     initialState?: Partial<State<Payload>>,
   ) {
     // eslint-disable-next-line react-hooks/rules-of-hooks
-    const store = useRefWithInit(() => {
-      return externalStore ?? new PreviewCardStore<Payload>(initialState);
+    const internalStore = useRefWithInit(() => {
+      return new PreviewCardStore<Payload>(initialState);
     }).current;
+
+    const store = externalStore ?? internalStore;
 
     // eslint-disable-next-line react-hooks/rules-of-hooks
     const floatingRootContext = useSyncedFloatingRootContext({
