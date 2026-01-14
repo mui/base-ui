@@ -33,8 +33,6 @@ export const FieldLabel = React.forwardRef(function FieldLabel(
 
   const labelRef = React.useRef<HTMLElement | null>(null);
 
-  const [userSelect, setUserSelect] = React.useState<'none' | undefined>(undefined);
-
   const handleInteraction = useStableCallback((event: React.MouseEvent) => {
     const target = getTarget(event.nativeEvent) as HTMLElement | null;
     if (target?.closest('button,input,select,textarea')) {
@@ -59,8 +57,6 @@ export const FieldLabel = React.forwardRef(function FieldLabel(
         focusVisible: true,
       });
     }
-
-    setUserSelect(undefined);
   });
 
   useIsoLayoutEffect(() => {
@@ -77,26 +73,17 @@ export const FieldLabel = React.forwardRef(function FieldLabel(
     ref: [forwardedRef, labelRef],
     state: fieldRootContext.state,
     props: [
-      { id: labelId, style: { userSelect } },
+      { id: labelId },
       nativeLabel
         ? {
             htmlFor: controlId ?? undefined,
             onMouseDown: handleInteraction,
           }
         : {
-            onPointerDown(event) {
-              setUserSelect('none');
-
-              const doc = ownerDocument(labelRef.current);
-
-              if (doc.activeElement === getControl(labelRef.current, controlId)) {
-                event.preventDefault();
-                return;
-              }
-
-              doc.addEventListener('pointerup', () => setUserSelect(undefined), { once: true });
-            },
             onClick: handleInteraction,
+            onPointerDown(event) {
+              event.preventDefault();
+            },
           },
       elementProps,
     ],
@@ -122,11 +109,4 @@ export interface FieldLabelProps extends BaseUIComponentProps<'label', FieldLabe
 export namespace FieldLabel {
   export type State = FieldLabelState;
   export type Props = FieldLabelProps;
-}
-
-function getControl(referenceElement: Element | null, controlId: string | null | undefined) {
-  if (!controlId) {
-    return null;
-  }
-  return ownerDocument(referenceElement).getElementById(controlId);
 }
