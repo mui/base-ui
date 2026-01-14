@@ -36,6 +36,7 @@
     "./checkbox-group": "./src/checkbox-group/index.ts",
     "./collapsible": "./src/collapsible/index.ts",
     "./combobox": "./src/combobox/index.ts",
+    "./csp-provider": "./src/csp-provider/index.ts",
     "./context-menu": "./src/context-menu/index.ts",
     "./dialog": "./src/dialog/index.ts",
     "./direction-provider": "./src/direction-provider/index.ts",
@@ -89,7 +90,7 @@
     "@floating-ui/react-dom": "^2.1.6",
     "@floating-ui/utils": "^0.2.10",
     "reselect": "^5.1.1",
-    "tabbable": "^6.3.0",
+    "tabbable": "^6.4.0",
     "use-sync-external-store": "^1.6.0"
   },
   "devDependencies": {
@@ -109,7 +110,7 @@
     "luxon": "^3.7.2",
     "react": "19.2.3",
     "react-dom": "19.2.3",
-    "react-router": "7.11.0",
+    "react-router": "7.12.0",
     "sinon": "21.0.0",
     "typescript": "5.9.3",
     "vitest-browser-react": "2.0.2"

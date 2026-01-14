@@ -1629,6 +1629,93 @@ describe('<Select.Root />', () => {
       expect(trigger).not.to.have.attribute('data-focused');
     });
 
+    it('does not mark as touched when focus moves into the popup', async () => {
+      const validateSpy = spy(() => 'error');
+
+      await render(
+        <React.Fragment>
+          <Field.Root validationMode="onBlur" validate={validateSpy}>
+            <Select.Root>
+              <Select.Trigger data-testid="trigger" />
+              <Select.Portal>
+                <Select.Positioner>
+                  <Select.Popup>
+                    <Select.Item value="1">Option 1</Select.Item>
+                  </Select.Popup>
+                </Select.Positioner>
+              </Select.Portal>
+            </Select.Root>
+          </Field.Root>
+          <button data-testid="outside">Outside</button>
+        </React.Fragment>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+
+      fireEvent.focus(trigger);
+      fireEvent.click(trigger);
+
+      await flushMicrotasks();
+
+      const listbox = screen.getByRole('listbox');
+
+      fireEvent.blur(trigger, { relatedTarget: listbox });
+      fireEvent.focus(listbox);
+
+      await flushMicrotasks();
+
+      expect(validateSpy.callCount).to.equal(0);
+      expect(trigger).to.have.attribute('data-focused', '');
+      expect(trigger).not.to.have.attribute('data-touched');
+      expect(trigger).not.to.have.attribute('aria-invalid');
+    });
+
+    it('validates when the popup is blurred', async () => {
+      const validateSpy = spy(() => 'error');
+
+      await render(
+        <React.Fragment>
+          <Field.Root validationMode="onBlur" validate={validateSpy}>
+            <Select.Root>
+              <Select.Trigger data-testid="trigger" />
+              <Select.Portal>
+                <Select.Positioner>
+                  <Select.Popup>
+                    <Select.Item value="1">Option 1</Select.Item>
+                  </Select.Popup>
+                </Select.Positioner>
+              </Select.Portal>
+            </Select.Root>
+          </Field.Root>
+          <button data-testid="outside">Outside</button>
+        </React.Fragment>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+      const outside = screen.getByTestId('outside');
+
+      fireEvent.focus(trigger);
+      fireEvent.click(trigger);
+
+      await flushMicrotasks();
+
+      const listbox = screen.getByRole('listbox');
+
+      fireEvent.blur(trigger, { relatedTarget: listbox });
+      fireEvent.focus(listbox);
+
+      fireEvent.blur(listbox, { relatedTarget: outside });
+      fireEvent.focus(outside);
+
+      await waitFor(() => {
+        expect(validateSpy.callCount).to.equal(1);
+      });
+
+      expect(trigger).to.have.attribute('data-touched', '');
+      expect(trigger).not.to.have.attribute('data-focused');
+      expect(trigger).to.have.attribute('aria-invalid', 'true');
+    });
+
     it('prop: validate', async () => {
       await render(
         <Field.Root validationMode="onBlur" validate={() => 'error'}>
@@ -1880,7 +1967,7 @@ describe('<Select.Root />', () => {
               <Select.Positioner />
             </Select.Portal>
           </Select.Root>
-          <Field.Label data-testid="label" render={<span />} />
+          <Field.Label data-testid="label" render={<div />} nativeLabel={false} />
         </Field.Root>,
       );
 
