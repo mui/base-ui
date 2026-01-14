@@ -31,20 +31,22 @@ export const supportsInert = (): boolean =>
 const unwrapHost = (node: Element | ShadowRoot): Element | null =>
   node && ((node as ShadowRoot).host || unwrapHost(node.parentNode as Element));
 
-const correctElements = (parent: HTMLElement, targets: Element[]): Element[] => {
-  const result: Element[] = [];
-  for (const target of targets) {
-    if (parent.contains(target)) {
-      result.push(target);
-    } else {
-      const correctedTarget = unwrapHost(target);
-      if (parent.contains(correctedTarget) && correctedTarget) {
-        result.push(correctedTarget);
+const correctElements = (parent: HTMLElement, targets: Element[]): Element[] =>
+  targets
+    .map((target) => {
+      if (parent.contains(target)) {
+        return target;
       }
-    }
-  }
-  return result;
-};
+
+      const correctedTarget = unwrapHost(target);
+
+      if (parent.contains(correctedTarget)) {
+        return correctedTarget;
+      }
+
+      return null;
+    })
+    .filter((x): x is Element => x != null);
 
 function applyAttributeToOthers(
   uncorrectedAvoidElements: Element[],

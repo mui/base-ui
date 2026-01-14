@@ -24,36 +24,43 @@ export interface UseInteractionsReturn {
  * @see https://floating-ui.com/docs/useInteractions
  */
 export function useInteractions(propsList: Array<ElementProps | void> = []): UseInteractionsReturn {
-  const [referenceDeps, floatingDeps, itemDeps, triggerDeps] = [
-    'reference',
-    'floating',
-    'item',
-    'trigger',
-  ].map((key) => propsList.map((props) => props?.[key as keyof ElementProps]));
+const deps = {
+    referenceDeps: [] as any[],
+    floatingDeps: [] as any[],
+    itemDeps: [] as any[],
+    triggerDeps: [] as any[]
+  };
+
+  for (const props of propsList) {
+    deps.referenceDeps.push(props?.reference);
+    deps.floatingDeps.push(props?.floating);
+    deps.itemDeps.push(props?.item);
+    deps.triggerDeps.push(props?.trigger);
+  }
 
   const getReferenceProps = React.useCallback(
     (userProps?: React.HTMLProps<Element>) => mergeProps(userProps, propsList, 'reference'),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    referenceDeps,
+    deps.referenceDeps,
   );
 
   const getFloatingProps = React.useCallback(
     (userProps?: React.HTMLProps<HTMLElement>) => mergeProps(userProps, propsList, 'floating'),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    floatingDeps,
+    deps.floatingDeps,
   );
 
   const getItemProps = React.useCallback(
     (userProps?: Omit<React.HTMLProps<HTMLElement>, 'selected' | 'active'> & ExtendedUserProps) =>
       mergeProps(userProps, propsList, 'item'),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    itemDeps,
+    deps.itemDeps,
   );
 
   const getTriggerProps = React.useCallback(
     (userProps?: React.HTMLProps<Element>) => mergeProps(userProps, propsList, 'trigger'),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    triggerDeps,
+    deps.triggerDeps,
   );
 
   return React.useMemo(
