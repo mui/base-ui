@@ -209,7 +209,8 @@ describe('<PreviewCard.Viewport />', () => {
       expect(screen.getByText('Content 1')).toBeVisible();
     });
 
-    it.skipIf(true)('should handle rapid trigger changes', async () => {
+    it('should handle rapid trigger changes', async () => {
+      ignoreActWarnings();
       function TestComponent() {
         return (
           <div>
@@ -234,13 +235,13 @@ describe('<PreviewCard.Viewport />', () => {
             <PreviewCard.Root>
               {({ payload }) => (
                 <React.Fragment>
-                  <PreviewCard.Trigger payload={1} delay={0} data-testid="trigger1">
+                  <PreviewCard.Trigger href="#" payload={1} delay={0} data-testid="trigger1">
                     Trigger 1
                   </PreviewCard.Trigger>
-                  <PreviewCard.Trigger payload={2} delay={0} data-testid="trigger2">
+                  <PreviewCard.Trigger href="#" payload={2} delay={0} data-testid="trigger2">
                     Trigger 2
                   </PreviewCard.Trigger>
-                  <PreviewCard.Trigger payload={3} delay={0} data-testid="trigger3">
+                  <PreviewCard.Trigger href="#" payload={3} delay={0} data-testid="trigger3">
                     Trigger 3
                   </PreviewCard.Trigger>
                   <PreviewCard.Portal>
