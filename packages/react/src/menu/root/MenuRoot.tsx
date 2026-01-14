@@ -116,12 +116,7 @@ export function MenuRoot<Payload>(props: MenuRoot.Props<Payload>) {
 
   // Support initially open state when uncontrolled
   useOnFirstRender(() => {
-    if (
-      openProp === undefined &&
-      store.state.open === false &&
-      defaultOpen === true &&
-      defaultTriggerIdProp != null
-    ) {
+    if (openProp === undefined && store.state.open === false && defaultOpen === true) {
       store.update({
         open: true,
         activeTriggerId: defaultTriggerIdProp,
