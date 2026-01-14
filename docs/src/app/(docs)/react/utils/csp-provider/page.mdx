@@ -21,19 +21,9 @@ import { CSPProvider } from '@base-ui/react/csp-provider';
 
 Some Base UI components render inline `<style>` or `<script>` tags for functionality such as removing scrollbars or pre-hydration behavior. Under a strict Content Security Policy (CSP), these tags may be blocked unless they include a matching [nonce](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Global_attributes/nonce) attribute.
 
-`CSPProvider` supplies that `nonce` value to all supported components automatically.
+`CSPProvider` allows configuring this behavior globally for all Base UI components within its tree.
 
-## Disable inline `<style>` elements
-
-If you want to avoid rendering inline `<style>` elements entirely (for example, to rely on external stylesheets only) without needing to specify `nonce`, specify `disableStyleElements`:
-
-```jsx title="Disabling style elements"
-<CSPProvider disableStyleElements>{/* ... */}</CSPProvider>
-```
-
-`<script>` tags cannot be disabled, as they are required for pre-hydration behavior and require a nonce instead.
-
-## Content Security Policy (CSP)
+## Supplying a `nonce`
 
 If you enforce a CSP that blocks inline tags by default, configure your server to:
 
@@ -62,17 +52,25 @@ function App({ nonce }) {
 }
 ```
 
+This will ensure that all inline `<style>` and `<script>` tags rendered by Base UI components include the correct nonce attribute, allowing them to function under your CSP.
+
+## Disable inline `<style>` elements
+
+You can avoid supplying a `nonce` if you disable inline `<style>` elements entirely and rely on external stylesheets only. Specify `disableStyleElements`:
+
+```jsx title="Disabling style elements"
+<CSPProvider disableStyleElements>{/* ... */}</CSPProvider>
+```
+
+`<script>` tags across all components are opt-in, so they are not affected by this prop and don't have their own disable flag. A `nonce` is required if any component uses inline scripts.
+
 ## Inline style attributes
 
-`CSPProvider` covers inline `<style>` and `<script>` tags rendered as elements, but it does not cover inline style attributes (for example, `<div style="...">`).
+`CSPProvider` covers inline `<style>` and `<script>` tags rendered as elements, but it does not cover inline style attributes (for example, `<div style="...">`). The `style-src-attr` directive in CSP governs inline style attributes encountered when parsing HTML from server pre-rendered components (it does not affect client-side JavaScript that sets styles).
 
-In CSP:
+In CSP, `style-src` applies to both `<style>` elements and `style=""` attributes. If you only want to control `<style>` elements, use `style-src-elem` instead.
 
-- `style-src` applies to both `<style>` elements and `style=""` attributes.
-- If you only want to control `<style>` elements, use `style-src-elem` instead.
-- If you specifically want to control `style=""` attributes, use `style-src-attr`.
-
-If your CSP blocks inline style attributes, you have a few options:
+If your CSP blocks inline style _attributes_ in addition to _elements_, you have a few options:
 
 1. Relax your CSP by adding `'unsafe-inline'` to the `style-src-attr` directive (or using only `style-src-elem` instead of `style-src`). Style attributes specifically pose a less severe security risk than style elements, but this approach may not be acceptable in high-security environments.
 2. Render the affected components only on the client, so that no inline styles are present in the initial HTML.
@@ -81,28 +79,6 @@ If your CSP blocks inline style attributes, you have a few options:
 ## API reference
 
 <Reference component="CSPProvider" />
-
-## useCSPContext
-
-Use this hook to read the current CSP configuration (for example, to apply a nonce to your own inline tags).
-
-### Return value
-
-<PropsReferenceTable
-  type="return"
-  data={{
-    nonce: {
-      type: 'string',
-      detailedType: 'string | undefined',
-      description: 'The current nonce value.',
-    },
-    disableStyleElements: {
-      type: 'boolean',
-      detailedType: 'boolean',
-      description: 'Whether inline `<style>` elements are disabled.',
-    },
-  }}
-/>
 
 export const metadata = {
   keywords: [
