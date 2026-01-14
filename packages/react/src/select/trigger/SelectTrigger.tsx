@@ -174,9 +174,10 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
       ref: mergedRef,
       onFocus(event) {
         setFocused(true);
+
         // The popup element shouldn't obscure the focused trigger.
         if (open && alignItemWithTriggerActiveRef.current) {
-          setOpen(false, createChangeEventDetails(REASONS.focusOut, event.nativeEvent));
+          setOpen(false, createChangeEventDetails(REASONS.none, event.nativeEvent));
         }
 
         // Saves a re-render on initial click: `forceMount === true` mounts
@@ -188,7 +189,12 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
           store.set('forceMount', true);
         });
       },
-      onBlur() {
+      onBlur(event) {
+        // If focus is moving into the popup, don't count it as a blur.
+        if (contains(positionerElement, event.relatedTarget)) {
+          return;
+        }
+
         setTouched(true);
         setFocused(false);
 

@@ -115,9 +115,11 @@ export class TooltipStore<Payload> extends ReactStore<
     initialState?: Partial<State<Payload>>,
   ) {
     // eslint-disable-next-line react-hooks/rules-of-hooks
-    const store = useRefWithInit(() => {
-      return externalStore ?? new TooltipStore<Payload>(initialState);
+    const internalStore = useRefWithInit(() => {
+      return new TooltipStore<Payload>(initialState);
     }).current;
+
+    const store = externalStore ?? internalStore;
 
     // eslint-disable-next-line react-hooks/rules-of-hooks
     const floatingRootContext = useSyncedFloatingRootContext({
