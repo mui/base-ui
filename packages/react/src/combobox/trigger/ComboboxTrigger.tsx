@@ -58,6 +58,7 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
   const selectionMode = useStore(store, selectors.selectionMode);
   const comboboxDisabled = useStore(store, selectors.disabled);
   const readOnly = useStore(store, selectors.readOnly);
+  const required = useStore(store, selectors.required);
   const mounted = useStore(store, selectors.mounted);
   const popupSideValue = useStore(store, selectors.popupSide);
   const positionerElement = useStore(store, selectors.positionerElement);
@@ -69,6 +70,7 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
   const selectedValue = useStore(store, selectors.selectedValue);
   const activeIndex = useStore(store, selectors.activeIndex);
   const selectedIndex = useStore(store, selectors.selectedIndex);
+  const hasSelectedValue = useStore(store, selectors.hasSelectedValue);
 
   const floatingRootContext = useComboboxFloatingContext();
   const inputValue = useComboboxInputValueContext();
@@ -128,8 +130,9 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
       disabled,
       popupSide,
       listEmpty,
+      placeholder: !hasSelectedValue,
     }),
-    [fieldState, open, disabled, popupSide, listEmpty],
+    [fieldState, open, disabled, popupSide, listEmpty, hasSelectedValue],
   );
 
   const setTriggerElement = useStableCallback((element) => {
@@ -145,12 +148,12 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
       triggerTypeaheadProps,
       {
         tabIndex: inputInsidePopup ? 0 : -1,
-        disabled,
         role: inputInsidePopup ? 'combobox' : undefined,
         'aria-expanded': open ? 'true' : 'false',
         'aria-haspopup': inputInsidePopup ? 'dialog' : 'listbox',
         'aria-controls': open ? listElement?.id : undefined,
         'aria-readonly': readOnly || undefined,
+        'aria-required': inputInsidePopup ? required || undefined : undefined,
         'aria-labelledby': labelId,
         onPointerDown: trackPointerType,
         onPointerEnter: trackPointerType,
@@ -277,6 +280,10 @@ export interface ComboboxTriggerState extends FieldRoot.State {
    * Present when the corresponding items list is empty.
    */
   listEmpty: boolean;
+  /**
+   * Whether the combobox doesn't have a value.
+   */
+  placeholder: boolean;
 }
 
 export interface ComboboxTriggerProps
