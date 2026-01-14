@@ -12,10 +12,6 @@
       "description": "Whether to close the menu when the item is clicked.",
       "detailedType": "boolean | undefined"
     },
-    "id": {
-      "type": "string",
-      "detailedType": "string | undefined"
-    },
     "className": {
       "type": "string | ((state: Menu.LinkItem.State) => string | undefined)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
