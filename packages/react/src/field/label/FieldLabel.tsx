@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { error } from '@base-ui/utils/error';
 import { isHTMLElement } from '@floating-ui/utils/dom';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { ownerDocument } from '@base-ui/utils/owner';
@@ -58,6 +59,29 @@ export const FieldLabel = React.forwardRef(function FieldLabel(
       });
     }
   });
+
+  if (process.env.NODE_ENV !== 'production') {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    React.useEffect(() => {
+      if (!labelRef.current) {
+        return;
+      }
+
+      const isLabelTag = labelRef.current.tagName === 'LABEL';
+
+      if (nativeLabel) {
+        if (!isLabelTag) {
+          error(
+            '<Field.Label> was not rendered as a <label> element, which does not match the `nativeLabel` prop on the component. Ensure that the element passed to the `render` prop of <Field.Label> is a real <label>, or set the `nativeLabel` prop on the component to `false`.',
+          );
+        }
+      } else if (isLabelTag) {
+        error(
+          '<Field.Label> was rendered as a <label> element, which does not match the `nativeLabel` prop on the component. Ensure that the element passed to the `render` prop of <Field.Label> is not a real <label>, or set the `nativeLabel` prop on the component to `true`.',
+        );
+      }
+    }, [nativeLabel]);
+  }
 
   useIsoLayoutEffect(() => {
     if (id) {
