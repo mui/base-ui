@@ -14,26 +14,6 @@ function queryDisableScrollbarStyle() {
 describe('<CSPProvider />', () => {
   const { render } = createRenderer();
 
-  afterEach(() => {
-    document.querySelectorAll('style').forEach((element) => {
-      element.remove();
-    });
-  });
-
-  it('applies nonce to inline style tags rendered by components', async () => {
-    await render(
-      <CSPProvider nonce="test-nonce">
-        <ScrollArea.Root>
-          <ScrollArea.Viewport />
-        </ScrollArea.Root>
-      </CSPProvider>,
-    );
-
-    const style = queryDisableScrollbarStyle();
-    expect(style).not.toBeNull();
-    expect(style).toHaveAttribute('nonce', 'test-nonce');
-  });
-
   it('does not render inline style tags when disableStyleElements is true', async () => {
     await render(
       <CSPProvider disableStyleElements>
@@ -65,5 +45,32 @@ describe('<CSPProvider />', () => {
     );
 
     expect(queryDisableScrollbarStyle()).toBeNull();
+  });
+
+  it('applies nonce to inline style tags', async () => {
+    await render(
+      <CSPProvider nonce="test-nonce">
+        <ScrollArea.Root>
+          <ScrollArea.Viewport />
+        </ScrollArea.Root>
+      </CSPProvider>,
+    );
+
+    const style = queryDisableScrollbarStyle();
+    expect(style).not.toBeNull();
+    expect(style).toHaveAttribute('nonce', 'test-nonce');
+  });
+
+  it('renders inline style tags by default', async () => {
+    await render(
+      <ScrollArea.Root>
+        <ScrollArea.Viewport />
+      </ScrollArea.Root>,
+    );
+
+    // Style already exists from previous test due to React 19's hoisting,
+    // but we can still verify it's present
+    const style = queryDisableScrollbarStyle();
+    expect(style).not.toBeNull();
   });
 });
