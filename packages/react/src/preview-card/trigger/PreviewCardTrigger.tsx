@@ -22,7 +22,7 @@ export const PreviewCardTrigger = React.forwardRef(function PreviewCardTrigger(
 
   useIsoLayoutEffect(() => {
     writeDelayRefs({ delay, closeDelay });
-  });
+  }, [writeDelayRefs, delay, closeDelay]);
 
   const state: PreviewCardTrigger.State = React.useMemo(() => ({ open }), [open]);
 
