@@ -56,6 +56,7 @@ export function useFocus(
   const blockFocusRef = React.useRef(false);
   const timeout = useTimeout();
   const keyboardModalityRef = React.useRef(true);
+  const referenceElementRef = React.useRef<Element | null>(null);
 
   React.useEffect(() => {
     const domReference = store.select('domReferenceElement');
@@ -111,7 +112,10 @@ export function useFocus(
 
     function onOpenChangeLocal(details: FloatingUIOpenChangeDetails) {
       if (details.reason === REASONS.triggerPress || details.reason === REASONS.escapeKey) {
-        blockFocusRef.current = true;
+        const referenceElement = referenceElementRef.current;
+        if (referenceElement && store.select('domReferenceElement') === referenceElement) {
+          blockFocusRef.current = true;
+        }
       }
     }
 
@@ -119,7 +123,7 @@ export function useFocus(
     return () => {
       events.off('openchange', onOpenChangeLocal);
     };
-  }, [events, enabled]);
+  }, [events, enabled, store]);
 
   const reference: ElementProps['reference'] = React.useMemo(
     () => ({
@@ -127,6 +131,7 @@ export function useFocus(
         blockFocusRef.current = false;
       },
       onFocus(event) {
+        referenceElementRef.current = event.currentTarget as Element;
         if (blockFocusRef.current) {
           return;
         }

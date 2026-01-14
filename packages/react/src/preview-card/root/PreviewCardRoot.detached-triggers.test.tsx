@@ -151,6 +151,45 @@ describe('<PreviewCard.Root />', () => {
       expect(screen.queryByText('Content')).to.equal(null);
     });
 
+    it('should open again after escape when focusing another trigger', async () => {
+      const popupId = randomStringValue();
+      const { user } = await render(
+        <PreviewCard.Root>
+          <button type="button" aria-label="Initial focus" autoFocus />
+          <PreviewCard.Trigger href="#" delay={0}>
+            Trigger 1
+          </PreviewCard.Trigger>
+          <PreviewCard.Trigger href="#" delay={0}>
+            Trigger 2
+          </PreviewCard.Trigger>
+
+          <PreviewCard.Portal>
+            <PreviewCard.Positioner>
+              <PreviewCard.Popup data-testid={popupId}>Content</PreviewCard.Popup>
+            </PreviewCard.Positioner>
+          </PreviewCard.Portal>
+        </PreviewCard.Root>,
+      );
+
+      const trigger1 = screen.getByRole('link', { name: 'Trigger 1' });
+      const trigger2 = screen.getByRole('link', { name: 'Trigger 2' });
+
+      await act(async () => trigger1.focus());
+      await waitFor(() => {
+        expect(screen.queryByTestId(popupId)).toBeVisible();
+      });
+
+      await user.keyboard('{Escape}');
+      await waitFor(() => {
+        expect(screen.queryByTestId(popupId)).to.equal(null);
+      });
+
+      await act(async () => trigger2.focus());
+      await waitFor(() => {
+        expect(screen.queryByTestId(popupId)).toBeVisible();
+      });
+    });
+
     it('should switch immediately when focusing another trigger while open', async () => {
       await render(
         <PreviewCard.Root>
