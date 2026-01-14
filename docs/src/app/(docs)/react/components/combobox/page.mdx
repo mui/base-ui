@@ -117,6 +117,8 @@ The combobox trigger should have a visible label in this format. Use the [Field]
 </Field.Root>
 ```
 
+Replace the rendered `<label>` element with a `<div>` element and add `nativeLabel={false}` so it does not inherit native label behaviors. This ensures clicking on the label will focus the combobox trigger without opening the associated popup to match native `<select>` behavior, and prevents CSS `:hover` from activating on the trigger when hovering over the label.
+
 ### Grouped
 
 Organize related options with `<Combobox.Group>` and `<Combobox.GroupLabel>` to add section headings inside the popup.

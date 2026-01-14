@@ -137,7 +137,7 @@ A select should have a visible label. Use the [Field](/react/components/field) c
 </Field.Root>
 ```
 
-The Field component ensures clicking on the label will focus the select trigger without opening it (matching native behavior), and hovering over the label will not activate CSS `:hover` on the trigger, unlike a native `<label>`.
+Replace the rendered `<label>` element with a `<div>` element and add `nativeLabel={false}` so it does not inherit native label behaviors. This ensures clicking on the label will focus the select trigger without opening the associated popup to match native `<select>` behavior, and prevents CSS `:hover` from activating on the trigger when hovering over the label.
 
 ### Placeholder values
 
