@@ -15,7 +15,7 @@ import { DemoComboboxHero } from './demos/hero';
 - **Combobox is a filterable Select**: Use Combobox when the input is restricted to a set of predefined selectable items, similar to [Select](/react/components/select) but whose items are filterable using an input. Prefer using Combobox over Select when the number of items is sufficiently large to warrant filtering.
 - **Avoid for simple search widgets**: Combobox does not allow free-form text input. For search widgets, consider using [Autocomplete](/react/components/autocomplete) instead.
 - **Avoid when not rendering an input**: Use [Select](/react/components/select) instead of Combobox if no input is being rendered, which includes accessibility features specific to a listbox without an input.
-- **Form controls must have an accessible name**: The input must have a meaningful label. Prefer using [`<Field>`](/react/components/field) to provide a visible text label and description, or use the `aria-label` attribute as an alternative. See the [forms guide](/react/handbook/forms) for more on building form controls.
+- **Form controls must have an accessible name**: It can be created using a `<label>` element or the `Field` component. See [Labeling a combobox](#labeling-a-combobox) and the [forms guide](/react/handbook/forms).
 
 ## Anatomy
 
@@ -72,6 +72,10 @@ import { Combobox } from '@base-ui/react/combobox';
 Combobox infers the item type from the `defaultValue` or `value` props passed to `<Combobox.Root>`.
 The type of items held in the `items` array must also match the `value` prop type passed to `<Combobox.Item>`.
 
+## Examples
+
+### Typed wrapper component
+
 The following example shows a typed wrapper around the Combobox component with correct type inference and type safety:
 
 ```tsx title="Specifying generic type parameters"
@@ -84,8 +88,6 @@ export function MyCombobox<Value, Multiple extends boolean | undefined = false>(
   return <Combobox.Root {...props}>{/* ... */}</Combobox.Root>;
 }
 ```
-
-## Examples
 
 ### Multiple select
 
@@ -103,6 +105,19 @@ import { DemoComboboxMultiple } from './demos/multiple';
 import { DemoComboboxInputInsidePopup } from './demos/input-inside-popup';
 
 <DemoComboboxInputInsidePopup compact />
+
+The combobox trigger should have a visible label in this format. Use the [Field](/react/components/field) component to provide a label for the combobox trigger:
+
+```tsx title="Using Field to label a combobox" {2,4}
+<Field.Root>
+  <Field.Label nativeLabel={false} render={<div />}>
+    Favorite fruit
+  </Field.Label>
+  <Combobox.Root>{/* ... */}</Combobox.Root>
+</Field.Root>
+```
+
+Replace the rendered `<label>` element with a `<div>` element and add `nativeLabel={false}` so it does not inherit native label behaviors. This ensures clicking on the label will focus the combobox trigger without opening the associated popup to match native `<select>` behavior, and prevents CSS `:hover` from activating on the trigger when hovering over the label.
 
 ### Grouped
 

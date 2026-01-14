@@ -12,3 +12,7 @@ export function error(...messages: string[]) {
     }
   }
 }
+
+export function reset() {
+  set?.clear();
+}

@@ -10,7 +10,6 @@
 .Viewport {
   height: 100%;
   border-radius: 0.375rem;
-  overscroll-behavior: contain;
   background: var(--color-gray-50);
 
   &:focus-visible {
