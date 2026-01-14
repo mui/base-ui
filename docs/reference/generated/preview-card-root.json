@@ -19,9 +19,9 @@
       "detailedType": "| ((\n    open: boolean,\n    eventDetails: PreviewCard.Root.ChangeEventDetails,\n  ) => void)\n| undefined"
     },
     "actionsRef": {
-      "type": "RefObject<PreviewCard.Root.Actions>",
+      "type": "RefObject<PreviewCard.Root.Actions | null>",
       "description": "A ref to imperative actions.\n- `unmount`: When specified, the preview card will not be unmounted when closed.\nInstead, the `unmount` function must be called to unmount the preview card manually.\nUseful when the preview card's animation is controlled by an external library.",
-      "detailedType": "| React.RefObject<PreviewCard.Root.Actions>\n| undefined"
+      "detailedType": "| React.RefObject<PreviewCard.Root.Actions | null>\n| undefined"
     },
     "onOpenChangeComplete": {
       "type": "((open: boolean) => void)",

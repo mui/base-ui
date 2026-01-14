@@ -3,7 +3,7 @@ import { ScrollArea } from '@base-ui/react/scroll-area';
 export default function ExampleScrollAreaBoth() {
   return (
     <ScrollArea.Root className="h-80 w-80 max-w-[calc(100vw-8rem)]">
-      <ScrollArea.Viewport className="h-full overscroll-contain rounded-lg border border-gray-200 focus-visible:outline focus-visible:outline-blue-800 focus-visible:outline-offset-2">
+      <ScrollArea.Viewport className="h-full rounded-lg border border-gray-200 focus-visible:outline focus-visible:outline-blue-800 focus-visible:outline-offset-2">
         <ScrollArea.Content className="p-5">
           <ul className="m-0 grid list-none grid-cols-[repeat(10,6.25rem)] grid-rows-[repeat(10,6.25rem)] gap-3 p-0">
             {Array.from({ length: 100 }, (_, i) => (

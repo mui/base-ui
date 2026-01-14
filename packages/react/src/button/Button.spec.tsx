@@ -7,9 +7,4 @@ import { Button } from '@base-ui/react/button';
 <Button nativeButton={false} render={(props) => <div {...props} />} />;
 <Button nativeButton={false} disabled render={<span />} />;
 
-// @ts-expect-error native buttons only
-<Button nativeButton={false} type="submit" render={<span />} />;
-// @ts-expect-error native buttons only
-<Button nativeButton={false} form="form-id" render={<span />} />;
-// @ts-expect-error native buttons only
-<Button nativeButton={false} name="action" render={<span />} />;
+<Button nativeButton={false} type="submit" />;

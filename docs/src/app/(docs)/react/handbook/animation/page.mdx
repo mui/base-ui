@@ -175,7 +175,7 @@ For full control, you can manually unmount the component when it's closed once a
 ```jsx title="manual-unmount.tsx" "actionsRef"
 function App() {
   const [open, setOpen] = React.useState(false);
-  const actionsRef = React.useRef({ unmount: () => {} });
+  const actionsRef = React.useRef(null);
 
   return (
     <Popover.Root open={open} onOpenChange={setOpen} actionsRef={actionsRef}>

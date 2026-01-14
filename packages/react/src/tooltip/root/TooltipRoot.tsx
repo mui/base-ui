@@ -203,7 +203,7 @@ export interface TooltipRootProps<Payload = unknown> {
    * Useful when the tooltip's animation is controlled by an external library.
    * - `close`: Closes the dialog imperatively when called.
    */
-  actionsRef?: React.RefObject<TooltipRoot.Actions>;
+  actionsRef?: React.RefObject<TooltipRoot.Actions | null>;
   /**
    * Whether the tooltip is disabled.
    * @default false
@@ -222,7 +222,7 @@ export interface TooltipRootProps<Payload = unknown> {
   children?: React.ReactNode | PayloadChildRenderFunction<Payload>;
   /**
    * ID of the trigger that the tooltip is associated with.
-   * This is useful in conjuntion with the `open` prop to create a controlled tooltip.
+   * This is useful in conjunction with the `open` prop to create a controlled tooltip.
    * There's no need to specify this prop when the tooltip is uncontrolled (i.e. when the `open` prop is not set).
    */
   triggerId?: string | null;
