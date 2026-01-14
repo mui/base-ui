@@ -1,4 +1,4 @@
-import { createSelector } from '@base-ui/utils/store';
+import { createSelector, createSelectorMemoized } from '@base-ui/utils/store';
 import {
   TemporalNonNullableValue,
   TemporalSupportedObject,
@@ -19,6 +19,13 @@ import { createChangeEventDetails } from '../../createBaseUIEventDetails';
 
 const valueSelectors = {
   value: createSelector((state: State) => state.value),
+  valueStr: createSelectorMemoized(
+    (state: State) => state.sections,
+    (sections) =>
+      sections
+        .map((section) => `${section.value || section.token.placeholder}${section.token.separator}`)
+        .join(''),
+  ),
   referenceValue: createSelector((state: State) => state.referenceValue),
 };
 
