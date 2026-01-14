@@ -76,6 +76,8 @@ function VirtualizedList({
     scrollPaddingStart: 8,
   });
 
+  React.useImperativeHandle(virtualizerRef, () => virtualizer);
+
   const handleScrollElementRef = React.useCallback(
     (element: HTMLDivElement | null) => {
       scrollElementRef.current = element;
@@ -85,8 +87,6 @@ function VirtualizedList({
     },
     [virtualizer],
   );
-
-  React.useImperativeHandle(virtualizerRef, () => virtualizer);
 
   const totalSize = virtualizer.getTotalSize();
 
