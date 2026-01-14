@@ -46,11 +46,13 @@ export class ReactStore<
     value: Value,
   ) {
     React.useDebugValue(key);
+    // eslint-disable-next-line consistent-this
+    const store = this;
     useIsoLayoutEffect(() => {
-      if (this.state[key] !== value) {
-        this.set(key, value);
+      if (store.state[key] !== value) {
+        store.set(key, value);
       }
-    }, [key, value]);
+    }, [store, key, value]);
   }
 
   /**
@@ -60,16 +62,21 @@ export class ReactStore<
    * Note that the while the value in `state` is updated immediately, the value returned
    * by `useState` is updated before the next render (similarly to React's `useState`).
    */
-  useSyncedValueWithCleanup<Key extends KeysAllowingUndefined<State>>(key: Key, value: State[Key]) {
+  public useSyncedValueWithCleanup<Key extends KeysAllowingUndefined<State>>(
+    key: Key,
+    value: State[Key],
+  ) {
+    // eslint-disable-next-line consistent-this
+    const store = this;
     useIsoLayoutEffect(() => {
-      if (this.state[key] !== value) {
-        this.set(key, value);
+      if (store.state[key] !== value) {
+        store.set(key, value);
       }
 
       return () => {
-        this.set(key, undefined as State[Key]);
+        store.set(key, undefined as State[Key]);
       };
-    }, [key, value]);
+    }, [store, key, value]);
   }
 
   /**
@@ -78,7 +85,9 @@ export class ReactStore<
    * Note that the while the values in `state` are updated immediately, the values returned
    * by `useState` are updated before the next render (similarly to React's `useState`).
    */
-  useSyncedValues(statePart: Partial<State>) {
+  public useSyncedValues(statePart: Partial<State>) {
+    // eslint-disable-next-line consistent-this
+    const store = this;
     if (process.env.NODE_ENV !== 'production') {
       // Check that an object with the same shape is passed on every render
       React.useDebugValue(statePart, (p) => Object.keys(p));
@@ -97,9 +106,9 @@ export class ReactStore<
     const dependencies = Object.values(statePart);
 
     useIsoLayoutEffect(() => {
-      this.update(statePart);
+      store.update(statePart);
       // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, dependencies);
+    }, [store, ...dependencies]);
   }
 
   /**
@@ -111,6 +120,8 @@ export class ReactStore<
     controlled: Value | undefined,
   ): void {
     React.useDebugValue(key);
+    // eslint-disable-next-line consistent-this
+    const store = this;
     const isControlled = controlled !== undefined;
 
     useIsoLayoutEffect(() => {

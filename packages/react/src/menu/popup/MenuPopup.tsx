@@ -32,7 +32,7 @@ const stateAttributesMapping: StateAttributesMapping<MenuPopup.State> = {
  */
 export const MenuPopup = React.forwardRef(function MenuPopup(
   componentProps: MenuPopup.Props,
-  forwardedRef: React.ForwardedRef<Element>,
+  forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const { render, className, finalFocus, ...elementProps } = componentProps;
 

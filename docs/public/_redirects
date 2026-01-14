@@ -9,4 +9,11 @@
 # Legacy redirection
 # Added in chronological order (the last line is the most recent one)
 # To be removed 3+ years after being introduced
-# 2024
+
+# 2025
+
+# Handles error code path redirect to arg based path
+
+# At the time of adding this rule, there was requirement of at max only a single args[] param
+/production-error/:code args\[\]=:args /production-error?code=:code&args[]=:args 301
+/production-error/:code /production-error?code=:code 301
