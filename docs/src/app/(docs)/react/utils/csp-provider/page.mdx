@@ -56,7 +56,20 @@ This will ensure that all inline `<style>` and `<script>` tags rendered by BaseÂ
 
 ## Disable inline `<style>` elements
 
-You can avoid supplying a `nonce` if you disable inline `<style>` elements entirely and rely on external stylesheets only. Specify `disableStyleElements`:
+You can avoid supplying a `nonce` if you disable inline `<style>` elements entirely and rely on external stylesheets only. The relevant components are `<ScrollArea.Viewport>` and `<Select.Popup>` or `<Select.List>` when `alignItemWithTrigger` is enabled, which inject a style tag to disable native scrollbars.
+
+```html
+<style>
+  .base-ui-disable-scrollbar {
+    scrollbar-width: none;
+  }
+  .base-ui-disable-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+</style>
+```
+
+Specify `disableStyleElements` to remove these tags:
 
 ```jsx title="Disabling style elements"
 <CSPProvider disableStyleElements>{/* ... */}</CSPProvider>
