@@ -120,6 +120,9 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     setFilled,
     name: fieldName,
     disabled: fieldDisabled,
+    setTouched,
+    setFocused,
+    validationMode,
     validation,
   } = useFieldRootContext();
 
@@ -559,6 +562,20 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       }
 
       setOpenUnwrapped(nextOpen);
+
+      if (
+        !nextOpen &&
+        inputInsidePopup &&
+        (eventDetails.reason === REASONS.focusOut || eventDetails.reason === REASONS.outsidePress)
+      ) {
+        setTouched(true);
+        setFocused(false);
+
+        if (validationMode === 'onBlur') {
+          const valueToValidate = selectionMode === 'none' ? inputValue : selectedValue;
+          validation.commit(valueToValidate);
+        }
+      }
     },
   );
 
