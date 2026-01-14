@@ -80,10 +80,10 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
     );
   }
 
-  const thisTriggerId = useBaseUiId(idProp);
-  const isTriggerActive = store.useState('isTriggerActive', thisTriggerId);
+  const triggerId = useBaseUiId(idProp);
+  const isTriggerActive = store.useState('isTriggerActive', triggerId);
   const floatingRootContext = store.useState('floatingRootContext');
-  const isOpenedByThisTrigger = store.useState('isOpenedByTrigger', thisTriggerId);
+  const isOpenedByThisTrigger = store.useState('isOpenedByTrigger', triggerId);
 
   const triggerElementRef = React.useRef<HTMLElement | null>(null);
 
@@ -97,8 +97,10 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
   const floatingNodeId = useFloatingNodeId(floatingTreeRoot);
   const floatingParentNodeId = useFloatingParentNodeId();
 
-  const { registerTrigger, isMountedByThisTrigger } = useTriggerDataForwarding(
-    thisTriggerId,
+  const isMountedByThisTrigger = store.useState('isMountedByTrigger', triggerId);
+  const registerTrigger = useTriggerDataForwarding(
+    isMountedByThisTrigger,
+    triggerId,
     triggerElementRef,
     store,
     {
@@ -235,7 +237,7 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
     rootTriggerProps,
     {
       'aria-haspopup': 'menu' as const,
-      id: thisTriggerId,
+      id: triggerId,
       onMouseDown: (event: React.MouseEvent) => {
         if (store.select('open')) {
           return;
@@ -339,19 +341,19 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
         <FocusGuard
           ref={preFocusGuardRef}
           onFocus={handlePreFocusGuardFocus}
-          key={`${thisTriggerId}-pre-focus-guard`}
+          key={`${triggerId}-pre-focus-guard`}
         />
-        <React.Fragment key={thisTriggerId}>{element}</React.Fragment>
+        <React.Fragment key={triggerId}>{element}</React.Fragment>
         <FocusGuard
           ref={store.context.triggerFocusTargetRef}
           onFocus={handleFocusTargetFocus}
-          key={`${thisTriggerId}-post-focus-guard`}
+          key={`${triggerId}-post-focus-guard`}
         />
       </React.Fragment>
     );
   }
 
-  return <React.Fragment key={thisTriggerId}>{element}</React.Fragment>;
+  return <React.Fragment key={triggerId}>{element}</React.Fragment>;
 }) as MenuTrigger;
 
 export interface MenuTrigger {
