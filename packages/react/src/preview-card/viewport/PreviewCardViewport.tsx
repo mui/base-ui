@@ -31,7 +31,7 @@ const stateAttributesMapping: StateAttributesMapping<PreviewCardViewport.State> 
  * and switching between them is animated.
  * Renders a `<div>` element.
  *
- * Documentation: [Base UI Prview Card](https://base-ui.com/react/components/preview-card)
+ * Documentation: [Base UI Preview Card](https://base-ui.com/react/components/preview-card)
  */
 export const PreviewCardViewport = React.forwardRef(function PreviewCardViewport(
   componentProps: PreviewCardViewport.Props,
@@ -81,7 +81,6 @@ export const PreviewCardViewport = React.forwardRef(function PreviewCardViewport
     };
   }, [store]);
 
-  // Freeze animations and hide the previous container during measurement for stable dimensions.
   const handleMeasureLayout = useStableCallback(() => {
     currentContainerRef.current?.style.setProperty('animation', 'none');
     currentContainerRef.current?.style.setProperty('transition', 'none');
@@ -210,16 +209,11 @@ export const PreviewCardViewport = React.forwardRef(function PreviewCardViewport
     container.replaceChildren(...Array.from(previousContentNode.childNodes));
   }, [previousContentNode]);
 
-  // If there's just one trigger, we can skip the auto-resize logic as
-  // the preview card will always be anchored to the same position.
-  const autoresizeEnabled = useStableCallback(() => store.context.triggerElements.size > 1);
-
   usePopupAutoResize({
     popupElement,
     positionerElement,
     mounted,
     content: payload,
-    enabled: autoresizeEnabled,
     onMeasureLayout: handleMeasureLayout,
     onMeasureLayoutComplete: handleMeasureLayoutComplete,
     side: positioner.side,
