@@ -54,9 +54,10 @@ export function useFocus(
   const { enabled = true, visibleOnly = true, delay } = props;
 
   const blockFocusRef = React.useRef(false);
+  // Track which reference should be blocked from re-opening after Escape/press dismissal.
+  const blockedReferenceRef = React.useRef<Element | null>(null);
   const timeout = useTimeout();
   const keyboardModalityRef = React.useRef(true);
-  const referenceElementRef = React.useRef<Element | null>(null);
 
   React.useEffect(() => {
     const domReference = store.select('domReferenceElement');
@@ -112,8 +113,9 @@ export function useFocus(
 
     function onOpenChangeLocal(details: FloatingUIOpenChangeDetails) {
       if (details.reason === REASONS.triggerPress || details.reason === REASONS.escapeKey) {
-        const referenceElement = referenceElementRef.current;
-        if (referenceElement && store.select('domReferenceElement') === referenceElement) {
+        const referenceElement = store.select('domReferenceElement');
+        if (isElement(referenceElement)) {
+          blockedReferenceRef.current = referenceElement;
           blockFocusRef.current = true;
         }
       }
@@ -129,11 +131,17 @@ export function useFocus(
     () => ({
       onMouseLeave() {
         blockFocusRef.current = false;
+        blockedReferenceRef.current = null;
       },
       onFocus(event) {
-        referenceElementRef.current = event.currentTarget as Element;
+        const focusTarget = event.currentTarget as Element;
         if (blockFocusRef.current) {
-          return;
+          if (blockedReferenceRef.current === focusTarget) {
+            return;
+          }
+
+          blockFocusRef.current = false;
+          blockedReferenceRef.current = null;
         }
 
         const target = getTarget(event.nativeEvent);
@@ -190,6 +198,7 @@ export function useFocus(
       },
       onBlur(event) {
         blockFocusRef.current = false;
+        blockedReferenceRef.current = null;
         const relatedTarget = event.relatedTarget;
         const nativeEvent = event.nativeEvent;
 
