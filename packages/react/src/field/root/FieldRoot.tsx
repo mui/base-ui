@@ -10,6 +10,8 @@ import { LabelableProvider } from '../../labelable-provider';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useFieldValidation } from './useFieldValidation';
+import { FieldInteractionStateProvider } from '../FieldInteractionStateProvider';
+import { useFieldInteractionStateContext } from '../FieldInteractionStateContext';
 
 /**
  * @internal
@@ -29,8 +31,6 @@ const FieldRootInner = React.forwardRef(function FieldRootInner(
     name,
     disabled: disabledProp = false,
     invalid: invalidProp,
-    dirty: dirtyProp,
-    touched: touchedProp,
     actionsRef,
     ...elementProps
   } = componentProps;
@@ -41,33 +41,17 @@ const FieldRootInner = React.forwardRef(function FieldRootInner(
 
   const disabled = disabledFieldset || disabledProp;
 
-  const [touchedState, setTouchedUnwrapped] = React.useState(false);
-  const [dirtyState, setDirtyUnwrapped] = React.useState(false);
-  const [filled, setFilled] = React.useState(false);
-  const [focused, setFocused] = React.useState(false);
-
-  const dirty = dirtyProp ?? dirtyState;
-  const touched = touchedProp ?? touchedState;
-
-  const markedDirtyRef = React.useRef(false);
-
-  const setDirty: typeof setDirtyUnwrapped = useStableCallback((value) => {
-    if (dirtyProp !== undefined) {
-      return;
-    }
-
-    if (value) {
-      markedDirtyRef.current = true;
-    }
-    setDirtyUnwrapped(value);
-  });
-
-  const setTouched: typeof setTouchedUnwrapped = useStableCallback((value) => {
-    if (touchedProp !== undefined) {
-      return;
-    }
-    setTouchedUnwrapped(value);
-  });
+  const {
+    touched,
+    setTouched,
+    dirty,
+    setDirty,
+    filled,
+    setFilled,
+    focused,
+    setFocused,
+    markedDirtyRef,
+  } = useFieldInteractionStateContext();
 
   const shouldValidateOnChange = useStableCallback(
     () =>
@@ -116,7 +100,7 @@ const FieldRootInner = React.forwardRef(function FieldRootInner(
   const handleImperativeValidate = React.useCallback(() => {
     markedDirtyRef.current = true;
     validation.commit(validityData.value);
-  }, [validation, validityData]);
+  }, [validation, validityData, markedDirtyRef]);
 
   React.useImperativeHandle(actionsRef, () => ({ validate: handleImperativeValidate }), [
     handleImperativeValidate,
@@ -163,6 +147,7 @@ const FieldRootInner = React.forwardRef(function FieldRootInner(
       validationDebounceTime,
       shouldValidateOnChange,
       state,
+      markedDirtyRef,
       validation,
     ],
   );
@@ -187,9 +172,12 @@ export const FieldRoot = React.forwardRef(function FieldRoot(
   componentProps: FieldRoot.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
+  const { touched, dirty, ...elementProps } = componentProps;
   return (
     <LabelableProvider>
-      <FieldRootInner {...componentProps} ref={forwardedRef} />
+      <FieldInteractionStateProvider touched={touched} dirty={dirty}>
+        <FieldRootInner {...elementProps} ref={forwardedRef} />
+      </FieldInteractionStateProvider>
     </LabelableProvider>
   );
 });
