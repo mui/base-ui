@@ -79,8 +79,8 @@
   }
 
   .DemoToolbarActions {
-    /* Apply sticky only on hover-capable devices to avoid actions taking up most of viewport on touch/small devices */
-    @media (hover: hover) {
+    /* Apply sticky only on wider viewports to avoid actions taking up most of it */
+    @media (min-width: 768px) {
       position: sticky;
       padding-left: 1rem;
     }
