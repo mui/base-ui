@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
+import { useOnFirstRender } from '@base-ui/utils/useOnFirstRender';
 import { useDialogRoot } from './useDialogRoot';
 import { DialogRootContext, useDialogRootContext } from './DialogRootContext';
 import type { BaseUIChangeEventDetails } from '../../utils/createBaseUIEventDetails';
@@ -47,6 +48,16 @@ export function DialogRoot<Payload>(props: DialogRoot.Props<Payload>) {
       })
     );
   }).current;
+
+  // Support initially open state when uncontrolled
+  useOnFirstRender(() => {
+    if (openProp === undefined && store.state.open === false && defaultOpen === true) {
+      store.update({
+        open: true,
+        activeTriggerId: defaultTriggerIdProp,
+      });
+    }
+  });
 
   store.useControlledProp('openProp', openProp);
   store.useControlledProp('triggerIdProp', triggerIdProp);
