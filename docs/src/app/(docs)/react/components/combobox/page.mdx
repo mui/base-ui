@@ -15,7 +15,7 @@ import { DemoComboboxHero } from './demos/hero';
 - **Combobox is a filterable Select**: Use Combobox when the input is restricted to a set of predefined selectable items, similar to [Select](/react/components/select) but whose items are filterable using an input. Prefer using Combobox over Select when the number of items is sufficiently large to warrant filtering.
 - **Avoid for simple search widgets**: Combobox does not allow free-form text input. For search widgets, consider using [Autocomplete](/react/components/autocomplete) instead.
 - **Avoid when not rendering an input**: Use [Select](/react/components/select) instead of Combobox if no input is being rendered, which includes accessibility features specific to a listbox without an input.
-- **Form controls must have an accessible name**: It can be created using a `<label>` element or the `Field` component. See [Labeling a combobox](#labeling-a-combobox) and the [forms guide](/react/handbook/forms).
+- **Form controls must have an accessible name**: It can be created using a `<label>` element or the `Field` component. See [Labeling a combobox](#input-inside-popup) and the [forms guide](/react/handbook/forms).
 
 ## Anatomy
 
@@ -106,7 +106,7 @@ import { DemoComboboxInputInsidePopup } from './demos/input-inside-popup';
 
 <DemoComboboxInputInsidePopup compact />
 
-The combobox trigger should have a visible label in this format. Use the [Field](/react/components/field) component to provide a label for the combobox trigger:
+Use the [Field](/react/components/field) component to provide a visible label for the combobox trigger:
 
 ```tsx title="Using Field to label a combobox" {2,4}
 <Field.Root>
