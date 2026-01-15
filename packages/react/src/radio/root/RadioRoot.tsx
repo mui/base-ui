@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import { visuallyHiddenInput } from '@base-ui/utils/visuallyHidden';
+import { visuallyHidden, visuallyHiddenInput } from '@base-ui/utils/visuallyHidden';
 import type { BaseUIComponentProps, NonNativeButtonProps } from '../../utils/types';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
@@ -55,6 +55,7 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
     setTouched,
     validation,
     registerControlRef,
+    name,
   } = useRadioGroupContext();
 
   const {
@@ -136,7 +137,7 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
     ref: mergedInputRef,
     id: hiddenInputId,
     tabIndex: -1,
-    style: visuallyHiddenInput,
+    style: name ? visuallyHiddenInput : visuallyHidden,
     'aria-hidden': true,
     disabled,
     checked,
