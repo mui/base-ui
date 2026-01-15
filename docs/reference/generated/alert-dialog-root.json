@@ -30,7 +30,7 @@
     },
     "handle": {
       "type": "AlertDialog.Handle<Payload>",
-      "description": "A handle to associate the popover with a trigger.\nIf specified, allows external triggers to control the popover's open state.\nCan be created with the AlertDialog.createHandle() method.",
+      "description": "A handle to associate the alert dialog with a trigger.\nIf specified, allows external triggers to control the alert dialog's open state.\nCan be created with the AlertDialog.createHandle() method.",
       "detailedType": "{} | undefined"
     },
     "onOpenChangeComplete": {
