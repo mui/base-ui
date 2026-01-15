@@ -21,8 +21,30 @@ const stateAttributesMapping: StateAttributesMapping<DialogViewport.State> = {
   },
 };
 
+const scrollerStyles: React.CSSProperties = {
+  position: 'fixed',
+  inset: 0,
+  width: '100%',
+  height: '100%',
+  overflowY: 'auto',
+  overscrollBehavior: 'none',
+  scrollbarWidth: 'none',
+};
+
+const overflowWrapperStyles: React.CSSProperties = {
+  height: 'calc(100% + 1px)',
+};
+
+const stickyWrapperStyles: React.CSSProperties = {
+  position: 'sticky' as const,
+  top: 0,
+  bottom: 0,
+  height: 'calc(100% - 1px)',
+};
+
 /**
  * A positioning container for the dialog popup that can be made scrollable.
+ * This part also robustly locks the scroll on iOS devices.
  * Renders a `<div>` element.
  *
  * Documentation: [Base UI Dialog](https://base-ui.com/react/components/dialog)
@@ -56,7 +78,7 @@ export const DialogViewport = React.forwardRef(function DialogViewport(
 
   const shouldRender = keepMounted || mounted;
 
-  return useRenderElement('div', componentProps, {
+  const element = useRenderElement('div', componentProps, {
     enabled: shouldRender,
     state,
     ref: [forwardedRef, store.useStateSetter('viewportElement')],
@@ -70,6 +92,14 @@ export const DialogViewport = React.forwardRef(function DialogViewport(
       elementProps,
     ],
   });
+
+  return (
+    <div style={{ ...scrollerStyles, pointerEvents: open ? 'auto' : 'none' }}>
+      <div style={overflowWrapperStyles}>
+        <div style={stickyWrapperStyles}>{element}</div>
+      </div>
+    </div>
+  );
 });
 
 export interface DialogViewportState {
