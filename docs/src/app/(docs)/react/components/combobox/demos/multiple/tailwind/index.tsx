@@ -12,37 +12,39 @@ export default function ExampleMultipleCombobox() {
         <label className="text-sm leading-5 font-medium text-gray-900" htmlFor={id}>
           Programming languages
         </label>
-        <Combobox.Chips
-          className="flex flex-wrap items-center gap-0.5 rounded-md border border-gray-200 px-1.5 py-1 w-64 focus-within:outline focus-within:outline-2 focus-within:-outline-offset-1 focus-within:outline-blue-800 min-[500px]:w-[22rem]"
+        <Combobox.InputGroup
+          className="w-64 rounded-md border border-gray-200 bg-[canvas] px-1.5 py-1 focus-within:outline focus-within:outline-2 focus-within:-outline-offset-1 focus-within:outline-blue-800 min-[500px]:w-[22rem]"
           ref={containerRef}
         >
-          <Combobox.Value>
-            {(value: ProgrammingLanguage[]) => (
-              <React.Fragment>
-                {value.map((language) => (
-                  <Combobox.Chip
-                    key={language.id}
-                    className="flex items-center gap-1 rounded-md bg-gray-100 px-1.5 py-[0.2rem] text-sm text-gray-900 outline-none cursor-default [@media(hover:hover)]:[&[data-highlighted]]:bg-blue-800 [@media(hover:hover)]:[&[data-highlighted]]:text-gray-50 focus-within:bg-blue-800 focus-within:text-gray-50"
-                    aria-label={language.value}
-                  >
-                    {language.value}
-                    <Combobox.ChipRemove
-                      className="rounded-md p-1 text-inherit hover:bg-gray-200"
-                      aria-label="Remove"
+          <Combobox.Chips className="flex w-full flex-wrap items-center gap-0.5">
+            <Combobox.Value>
+              {(value: ProgrammingLanguage[]) => (
+                <React.Fragment>
+                  {value.map((language) => (
+                    <Combobox.Chip
+                      key={language.id}
+                      className="flex items-center gap-1 rounded-md bg-gray-100 px-1.5 py-[0.2rem] text-sm text-gray-900 outline-none cursor-default [@media(hover:hover)]:[&[data-highlighted]]:bg-blue-800 [@media(hover:hover)]:[&[data-highlighted]]:text-gray-50 focus-within:bg-blue-800 focus-within:text-gray-50"
+                      aria-label={language.value}
                     >
-                      <XIcon />
-                    </Combobox.ChipRemove>
-                  </Combobox.Chip>
-                ))}
-                <Combobox.Input
-                  id={id}
-                  placeholder={value.length > 0 ? '' : 'e.g. TypeScript'}
-                  className="min-w-12 flex-1 h-8 rounded-md border-0 bg-transparent pl-2 text-base text-gray-900 outline-none"
-                />
-              </React.Fragment>
-            )}
-          </Combobox.Value>
-        </Combobox.Chips>
+                      {language.value}
+                      <Combobox.ChipRemove
+                        className="rounded-md p-1 text-inherit hover:bg-gray-200"
+                        aria-label="Remove"
+                      >
+                        <XIcon />
+                      </Combobox.ChipRemove>
+                    </Combobox.Chip>
+                  ))}
+                  <Combobox.Input
+                    id={id}
+                    placeholder={value.length > 0 ? '' : 'e.g. TypeScript'}
+                    className="min-w-12 flex-1 h-8 rounded-md border-0 bg-transparent pl-2 text-base text-gray-900 outline-none"
+                  />
+                </React.Fragment>
+              )}
+            </Combobox.Value>
+          </Combobox.Chips>
+        </Combobox.InputGroup>
       </div>
 
       <Combobox.Portal>
