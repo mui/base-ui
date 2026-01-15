@@ -123,9 +123,7 @@ export interface TemporalFieldState<
   direction: TextDirection;
   /**
    * The currently selected sections.
-   * This prop accepts four formats:
    * - If a number is provided, the section at this index will be selected.
-   * - If `"all"` is provided, all the sections will be selected.
    * - If `null` is provided, no section will be selected.
    */
   selectedSections: TemporalFieldSelectedSections;
@@ -236,7 +234,7 @@ export interface TemporalFieldSection {
 
 export type TemporalFieldRangePosition = 'start' | 'end';
 
-export type TemporalFieldSelectedSections = number | null | 'all';
+export type TemporalFieldSelectedSections = number | null;
 
 export interface TemporalFieldValueChangeHandlerContext<TError> {
   /**

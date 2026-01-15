@@ -16,14 +16,13 @@ const sectionSelectors = {
   sections: createSelector((state: State) => state.sections),
   lastSectionIndex: createSelector((state: State) => state.sections.length - 1),
   selectedSections: createSelector((state: State) => state.selectedSections),
-  isSelectingAllSections: createSelector((state: State) => state.selectedSections === 'all'),
   section: createSelectorMemoized(
     (state: State) => state.sections,
     (sections, sectionIndex: number) => ({ ...sections[sectionIndex], index: sectionIndex }),
   ),
   activeSection: createSelectorMemoized(
     (state: State) => state.sections,
-    (state: State) => (state.selectedSections === 'all' ? 0 : state.selectedSections),
+    (state: State) => state.selectedSections,
     (sections, activeSectionIndex) => {
       if (activeSectionIndex == null) {
         return null;

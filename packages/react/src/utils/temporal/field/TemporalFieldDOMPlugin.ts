@@ -103,13 +103,7 @@ export class TemporalFieldDOMPlugin {
     }
 
     const range = new window.Range();
-    let target: HTMLElement | null;
-    if (selectedSections === 'all') {
-      target = this.inputRef.current;
-    } else {
-      target = this.getSectionElement(selectedSections);
-    }
-
+    const target = this.getSectionElement(selectedSections);
     if (target == null) {
       return;
     }

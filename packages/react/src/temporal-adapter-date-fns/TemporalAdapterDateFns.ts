@@ -57,9 +57,6 @@ import { startOfMonth } from 'date-fns/startOfMonth';
 import { startOfSecond } from 'date-fns/startOfSecond';
 import { startOfYear } from 'date-fns/startOfYear';
 import { startOfWeek } from 'date-fns/startOfWeek';
-// // @ts-expect-error date-fns@<3 has no exports field defined (see https://github.com/date-fns/date-fns/issues/1781)
-// eslint-disable-next-line import/extensions
-// import longFormatters from 'date-fns/_lib/format/longFormatters/index.js';
 import { TZDate } from '@date-fns/tz';
 import {
   TemporalAdapterFormats,

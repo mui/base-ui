@@ -2,7 +2,7 @@ import { Store } from '@base-ui/utils/store';
 import { warn } from '@base-ui/utils/warn';
 import { TemporalSupportedObject, TemporalSupportedValue } from '../../types/temporal';
 import { TemporalAdapter } from '../../types/temporal-adapter';
-import { validateDate, ValidateDateValidationProps } from '../../utils/temporal/validateDate';
+import { ValidateDateValidationProps } from '../../utils/temporal/validateDate';
 import { getInitialReferenceDate } from '../../utils/temporal/getInitialReferenceDate';
 import { TemporalManager, TemporalTimezoneProps } from '../../utils/temporal/types';
 import {

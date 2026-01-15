@@ -23,18 +23,16 @@ const sectionPropsSelectors = {
     selectors.readOnly,
     selectors.disabled,
     selectors.timezoneToRender,
-    TemporalFieldSectionPlugin.selectors.isSelectingAllSections,
     TemporalFieldSectionPlugin.selectors.sectionBoundaries,
     (
       adapter,
       readOnly,
       disabled,
       timezone,
-      isSelectingAllSections,
       sectionBoundaries,
       section: TemporalFieldSection,
     ): React.HTMLAttributes<HTMLDivElement> => {
-      const isEditable = !isSelectingAllSections && !disabled && !readOnly;
+      const isEditable = !disabled && !readOnly;
 
       return {
         // Aria attributes
@@ -49,8 +47,8 @@ const sectionPropsSelectors = {
         'aria-disabled': disabled,
 
         // Other
-        tabIndex: !isEditable || isSelectingAllSections || section.index > 0 ? -1 : 0,
-        contentEditable: !isSelectingAllSections && !disabled && !readOnly,
+        tabIndex: !isEditable || section.index > 0 ? -1 : 0,
+        contentEditable: isEditable,
         suppressContentEditableWarning: true,
         role: 'spinbutton',
         // 'data-range-position': (section as FieldRangeSection).dateName || undefined,
@@ -141,7 +139,6 @@ export class TemporalFieldSectionPropsPlugin<TValue extends TemporalSupportedVal
     if (
       selectors.readOnly(this.store.state) ||
       selectors.disabled(this.store.state) ||
-      selectedSections === 'all' ||
       selectedSections == null
     ) {
       return;

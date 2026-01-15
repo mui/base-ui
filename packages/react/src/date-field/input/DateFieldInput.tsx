@@ -6,7 +6,6 @@ import { useRenderElement } from '../../utils/useRenderElement';
 import { useDateFieldRootContext } from '../root/DateFieldRootContext';
 import { TemporalFieldSection } from '../../utils/temporal/field/types';
 import { TemporalFieldSectionPlugin } from '../../utils/temporal/field/TemporalFieldSectionPlugin';
-import { TemporalFieldValuePlugin } from '../../utils/temporal/field/TemporalFieldValuePlugin';
 
 /**
  * Groups all sections of the date field input.
@@ -28,23 +27,15 @@ export const DateFieldInput = React.forwardRef(function DateFieldInput(
   } = componentProps;
 
   const store = useDateFieldRootContext();
-  const isSelectingAllSections = useStore(
-    store,
-    TemporalFieldSectionPlugin.selectors.isSelectingAllSections,
-  );
   const sections = useStore(store, TemporalFieldSectionPlugin.selectors.sections);
-  const valueStr = useStore(store, TemporalFieldValuePlugin.selectors.valueStr);
 
   const resolvedChildren = React.useMemo(() => {
-    if (isSelectingAllSections) {
-      return valueStr;
-    }
     if (!React.isValidElement(children) && typeof children === 'function') {
       return sections.map((section) => children(section));
     }
 
     return children;
-  }, [children, sections, valueStr, isSelectingAllSections]);
+  }, [children, sections]);
 
   return useRenderElement('div', componentProps, {
     ref: [forwardedRef, store.dom.inputRef],
@@ -56,12 +47,6 @@ export const DateFieldInput = React.forwardRef(function DateFieldInput(
         onBlur: store.inputProps.handleBlur,
         onClick: store.inputProps.handleClick,
         onPaste: store.inputProps.handlePaste,
-        onInput: store.inputProps.handleInput,
-
-        // Other
-        contentEditable: isSelectingAllSections,
-        suppressContentEditableWarning: true,
-        // tabIndex: internalPropsWithDefaults.disabled || parsedSelectedSections === 0 ? -1 : 0, // TODO: Try to set to undefined when there is a section selected.
       },
       elementProps,
     ],

@@ -20,7 +20,6 @@ export class TemporalFieldInputPropsPlugin<TValue extends TemporalSupportedValue
       return;
     }
 
-    const readOnly = selectors.readOnly(this.store.state);
     const lastSectionIndex = TemporalFieldSectionPlugin.selectors.lastSectionIndex(
       this.store.state,
     );
@@ -30,26 +29,12 @@ export class TemporalFieldInputPropsPlugin<TValue extends TemporalSupportedValue
 
     // eslint-disable-next-line default-case
     switch (true) {
-      // Select all
-      case (event.ctrlKey || event.metaKey) &&
-        String.fromCharCode(event.keyCode) === 'A' &&
-        !event.shiftKey &&
-        !event.altKey: {
-        // prevent default to make sure that the next line "select all" while updating
-        // the internal state at the same time.
-        event.preventDefault();
-        this.store.section.setSelectedSections('all');
-        break;
-      }
-
       // Move selection to next section
       case event.key === 'ArrowRight': {
         event.preventDefault();
 
         if (selectedSections == null) {
           this.store.section.setSelectedSections(0);
-        } else if (selectedSections === 'all') {
-          this.store.section.setSelectedSections(lastSectionIndex);
         } else if (selectedSections < lastSectionIndex) {
           this.store.section.setSelectedSections(selectedSections + 1);
         }
@@ -62,8 +47,6 @@ export class TemporalFieldInputPropsPlugin<TValue extends TemporalSupportedValue
 
         if (selectedSections == null) {
           this.store.section.setSelectedSections(lastSectionIndex);
-        } else if (selectedSections === 'all') {
-          this.store.section.setSelectedSections(0);
         } else if (selectedSections > 0) {
           this.store.section.setSelectedSections(selectedSections - 1);
         }
@@ -74,15 +57,11 @@ export class TemporalFieldInputPropsPlugin<TValue extends TemporalSupportedValue
       case event.key === 'Delete': {
         event.preventDefault();
 
-        if (readOnly) {
+        if (!selectors.editable(this.store.state)) {
           break;
         }
 
-        if (selectedSections == null || selectedSections === 'all') {
-          this.store.value.clear();
-        } else {
-          this.store.section.clearActive();
-        }
+        this.store.section.clearActive();
         break;
       }
 
@@ -91,13 +70,8 @@ export class TemporalFieldInputPropsPlugin<TValue extends TemporalSupportedValue
         event.preventDefault();
 
         const activeSection = TemporalFieldSectionPlugin.selectors.activeSection(this.store.state);
-        if (readOnly || activeSection == null) {
+        if (!selectors.editable(this.store.state) || activeSection == null) {
           break;
-        }
-
-        // if all sections are selected, mark the currently editing one as selected
-        if (selectedSections === 'all') {
-          this.store.section.setSelectedSections(activeSection.index);
         }
 
         this.store.section.updateValue({
@@ -150,43 +124,13 @@ export class TemporalFieldInputPropsPlugin<TValue extends TemporalSupportedValue
       return;
     }
 
-    const sections = TemporalFieldSectionPlugin.selectors.sections(this.store.state);
-    const lastSectionIndex = TemporalFieldSectionPlugin.selectors.lastSectionIndex(
-      this.store.state,
-    );
-    const selectedSections = TemporalFieldSectionPlugin.selectors.selectedSections(
-      this.store.state,
-    );
-
     // setFocused(true);
 
-    if (selectedSections === 'all') {
-      this.store.timeoutManager.startInterval('containerClick', 0, () => {
-        const cursorPosition = document.getSelection()!.getRangeAt(0).startOffset;
-
-        if (cursorPosition === 0) {
-          this.store.section.setSelectedSections(0);
-          return;
-        }
-
-        let sectionIndex = 0;
-        let cursorOnStartOfSection = 0;
-
-        while (cursorOnStartOfSection < cursorPosition && sectionIndex < lastSectionIndex + 1) {
-          const section = sections[sectionIndex];
-          sectionIndex += 1;
-          cursorOnStartOfSection +=
-            this.store.section.getRenderedValueWithSeparators(section).length;
-        }
-
-        this.store.section.setSelectedSections(sectionIndex - 1);
-      });
-    } else if (!this.store.dom.isFocused()) {
+    if (!this.store.dom.isFocused()) {
       // setFocused(true);
       this.store.section.setSelectedSections(0);
     } else {
       const hasClickedOnASection = this.store.dom.inputRef.current.contains(event.target as Node);
-
       if (!hasClickedOnASection) {
         this.store.section.setSelectedSections(0);
       }
@@ -194,10 +138,7 @@ export class TemporalFieldInputPropsPlugin<TValue extends TemporalSupportedValue
   };
 
   public handlePaste = (event: React.ClipboardEvent<HTMLDivElement>) => {
-    const selectedSections = TemporalFieldSectionPlugin.selectors.selectedSections(
-      this.store.state,
-    );
-    if (selectors.readOnly(this.store.state) || selectedSections !== 'all') {
+    if (!selectors.editable(this.store.state)) {
       event.preventDefault();
       return;
     }
@@ -206,39 +147,5 @@ export class TemporalFieldInputPropsPlugin<TValue extends TemporalSupportedValue
     event.preventDefault();
     this.store.characterEditing.resetCharacterQuery();
     this.store.value.updateFromString(pastedValue);
-  };
-
-  public handleInput = (event: React.FormEvent<HTMLDivElement>) => {
-    const selectedSections = TemporalFieldSectionPlugin.selectors.selectedSections(
-      this.store.state,
-    );
-    const sections = TemporalFieldSectionPlugin.selectors.sections(this.store.state);
-
-    if (!this.store.dom.inputRef.current || selectedSections !== 'all') {
-      return;
-    }
-
-    const target = event.target as HTMLSpanElement;
-    const keyPressed = target.textContent ?? '';
-
-    this.store.dom.inputRef.current.innerHTML = sections
-      .map((section) => this.store.section.getRenderedValueWithSeparators(section))
-      .join('');
-    this.store.dom.syncSelectionToDOM();
-
-    if (keyPressed.length === 0 || keyPressed.charCodeAt(0) === 10) {
-      this.store.value.clear();
-      this.store.section.setSelectedSections('all');
-    } else if (keyPressed.length > 1) {
-      this.store.value.updateFromString(keyPressed);
-    } else {
-      if (selectedSections === 'all') {
-        this.store.section.setSelectedSections(0);
-      }
-      this.store.characterEditing.editSection({
-        keyPressed,
-        sectionIndex: 0,
-      });
-    }
   };
 }

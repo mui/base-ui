@@ -42,6 +42,7 @@ export const selectors = {
   required: createSelector((state: State) => state.required),
   disabled: createSelector((state: State) => state.disabled),
   readOnly: createSelector((state: State) => state.readOnly),
+  editable: createSelector((state: State) => !state.disabled && !state.readOnly),
   adapter: createSelector((state: State) => state.adapter),
   manager: createSelector((state: State) => state.manager),
   config: createSelector((state: State) => state.config),
