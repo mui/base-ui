@@ -91,9 +91,6 @@ export class TemporalFieldDOMPlugin {
         selection.removeAllRanges();
       }
 
-      if (this.isFocused()) {
-        this.inputRef.current.blur();
-      }
       return;
     }
 

@@ -97,7 +97,7 @@ export class TemporalFieldSectionPropsPlugin<TValue extends TemporalSupportedVal
       return;
     }
 
-    if (selectors.readOnly(this.store.state)) {
+    if (!selectors.editable(this.store.state)) {
       this.store.dom.syncSectionContentToDOM(sectionIndex);
       return;
     }
@@ -133,31 +133,25 @@ export class TemporalFieldSectionPropsPlugin<TValue extends TemporalSupportedVal
     // prevent default to avoid the input `onInput` handler being called
     event.preventDefault();
 
-    const selectedSections = TemporalFieldSectionPlugin.selectors.selectedSections(
-      this.store.state,
-    );
-    if (
-      selectors.readOnly(this.store.state) ||
-      selectors.disabled(this.store.state) ||
-      selectedSections == null
-    ) {
+    const sectionIndex = this.store.dom.getSectionIndexFromDOMElement(event.target as HTMLElement);
+    if (!selectors.editable(this.store.state) || sectionIndex == null) {
       return;
     }
 
-    const activeSection = TemporalFieldSectionPlugin.selectors.activeSection(this.store.state)!;
+    const section = TemporalFieldSectionPlugin.selectors.section(this.store.state, sectionIndex);
     const pastedValue = event.clipboardData.getData('text');
     const lettersOnly = /^[a-zA-Z]+$/.test(pastedValue);
     const digitsOnly = /^[0-9]+$/.test(pastedValue);
     const digitsAndLetterOnly = /^(([a-zA-Z]+)|)([0-9]+)(([a-zA-Z]+)|)$/.test(pastedValue);
     const isValidPastedValue =
-      (activeSection.token.config.contentType === 'letter' && lettersOnly) ||
-      (activeSection.token.config.contentType === 'digit' && digitsOnly) ||
-      (activeSection.token.config.contentType === 'digit-with-letter' && digitsAndLetterOnly);
+      (section.token.config.contentType === 'letter' && lettersOnly) ||
+      (section.token.config.contentType === 'digit' && digitsOnly) ||
+      (section.token.config.contentType === 'digit-with-letter' && digitsAndLetterOnly);
 
     if (isValidPastedValue) {
       this.store.characterEditing.resetCharacterQuery();
       this.store.section.updateValue({
-        sectionIndex: selectedSections,
+        sectionIndex,
         newSectionValue: pastedValue,
         shouldGoToNextSection: true,
       });
@@ -179,6 +173,76 @@ export class TemporalFieldSectionPropsPlugin<TValue extends TemporalSupportedVal
     event.dataTransfer.dropEffect = 'none';
   };
 
+  public handleKeyDown = (event: React.KeyboardEvent<HTMLSpanElement>) => {
+    if (selectors.disabled(this.store.state)) {
+      return;
+    }
+
+    const sectionIndex = this.store.dom.getSectionIndexFromDOMElement(event.target as HTMLElement);
+    if (sectionIndex == null) {
+      return;
+    }
+
+    const lastSectionIndex = TemporalFieldSectionPlugin.selectors.lastSectionIndex(
+      this.store.state,
+    );
+
+    // eslint-disable-next-line default-case
+    switch (true) {
+      // Move selection to next section
+      case event.key === 'ArrowRight': {
+        event.preventDefault();
+
+        if (sectionIndex < lastSectionIndex) {
+          this.store.section.setSelectedSections(sectionIndex + 1);
+        }
+        break;
+      }
+
+      // Move selection to previous section
+      case event.key === 'ArrowLeft': {
+        event.preventDefault();
+
+        if (sectionIndex > 0) {
+          this.store.section.setSelectedSections(sectionIndex - 1);
+        }
+        break;
+      }
+
+      // Reset the value of the current section
+      case event.key === 'Delete': {
+        event.preventDefault();
+
+        if (!selectors.editable(this.store.state)) {
+          break;
+        }
+
+        this.store.section.updateValue({
+          sectionIndex,
+          newSectionValue: '',
+          shouldGoToNextSection: false,
+        });
+        break;
+      }
+
+      // Increment / decrement the current section value
+      case this.store.valueAdjustment.isAdjustSectionValueKeyCode(event.key): {
+        event.preventDefault();
+
+        if (!selectors.editable(this.store.state)) {
+          break;
+        }
+
+        this.store.section.updateValue({
+          sectionIndex,
+          newSectionValue: this.store.valueAdjustment.adjustActiveSectionValue(event.key),
+          shouldGoToNextSection: false,
+        });
+        break;
+      }
+    }
+  };
+
   public handleFocus = (event: React.FocusEvent) => {
     if (selectors.disabled(this.store.state)) {
       return;
@@ -186,6 +250,19 @@ export class TemporalFieldSectionPropsPlugin<TValue extends TemporalSupportedVal
 
     const sectionIndex = this.store.dom.getSectionIndexFromDOMElement(event.target)!;
     this.store.section.setSelectedSections(sectionIndex);
+  };
+
+  public handleBlur = () => {
+    // Defer to next tick to check if focus moved to another section
+    this.store.timeoutManager.startTimeout('blur-detection', 0, () => {
+      const activeEl = this.store.dom.getActiveElement();
+      const newSectionIndex = this.store.dom.getSectionIndexFromDOMElement(activeEl);
+
+      // If focus didn't move to another section in this field, clear selection
+      if (newSectionIndex == null && !this.store.dom.inputRef.current?.contains(activeEl)) {
+        this.store.section.setSelectedSections(null);
+      }
+    });
   };
 }
 

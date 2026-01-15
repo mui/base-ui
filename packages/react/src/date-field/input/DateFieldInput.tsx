@@ -42,11 +42,7 @@ export const DateFieldInput = React.forwardRef(function DateFieldInput(
     props: [
       {
         children: resolvedChildren,
-        onKeyDown: store.inputProps.handleKeyDown,
-        onFocus: store.inputProps.handleFocus,
-        onBlur: store.inputProps.handleBlur,
         onClick: store.inputProps.handleClick,
-        onPaste: store.inputProps.handlePaste,
       },
       elementProps,
     ],

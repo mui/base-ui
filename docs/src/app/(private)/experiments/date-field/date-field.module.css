@@ -17,6 +17,10 @@
 .Section {
   padding: 0 4px;
   outline: none;
+
+  &[data-empty] {
+    color: var(--color-gray-700);
+  }
 }
 
 .Form {
