@@ -36,6 +36,8 @@ export class FormatParser {
 
   private now: TemporalSupportedObject;
 
+  private nowFormattedMap = new Map<string, string>();
+
   /**
    * Converts a format into a list of tokens, a prefix and a suffix.
    */
@@ -51,17 +53,11 @@ export class FormatParser {
     const parsedFormat = parser.parse(expandedFormat, escapedParts);
 
     if (direction === 'rtl') {
-      parsedFormat.tokens = parsedFormat.tokens.map((token) => {
-        const cleanSeparator = (separator: string) => {
-          if (separator.includes(' ')) {
-            return `\u2069${separator}\u2066`;
-          }
-          return separator;
-        };
-
-        token.separator = cleanSeparator(token.separator);
-        return token;
-      });
+      for (const token of parsedFormat.tokens) {
+        if (token.separator.includes(' ')) {
+          token.separator = `\u2069${token.separator}\u2066`;
+        }
+      }
     }
 
     return parsedFormat;
@@ -108,6 +104,16 @@ export class FormatParser {
     this.direction = direction;
     this.placeholderGetters = { ...DEFAULT_PLACEHOLDER_GETTERS, ...placeholderGetters };
     this.now = adapter.now('default');
+  }
+
+  /**
+   * Formats this.now with the given token, caching the result to avoid duplicate formatting calls.
+   */
+  private formatNowByToken(tokenValue: string): string {
+    if (!this.nowFormattedMap.has(tokenValue)) {
+      this.nowFormattedMap.set(tokenValue, this.adapter.formatByString(this.now, tokenValue));
+    }
+    return this.nowFormattedMap.get(tokenValue)!;
   }
 
   /**
@@ -159,10 +165,10 @@ export class FormatParser {
 
     let maxLength: number | undefined;
     if (isPadded && tokenConfig.contentType === 'digit') {
-      maxLength = this.adapter.formatByString(this.now, tokenValue).length;
+      maxLength = this.formatNowByToken(tokenValue).length;
     } else if (isPadded && tokenConfig.contentType === 'digit-with-letter') {
       // For digit-with-letter formats (e.g., '1st', '2nd'), we need to extract only the digit part
-      const formatted = this.adapter.formatByString(this.now, tokenValue);
+      const formatted = this.formatNowByToken(tokenValue);
       // Remove all non-digit characters to get the length of just the digits
       maxLength = formatted.replace(/\D/g, '').length;
     }
@@ -228,7 +234,7 @@ export class FormatParser {
     switch (config.sectionType) {
       case 'year': {
         return this.placeholderGetters.year({
-          digitAmount: this.adapter.formatByString(this.now, tokenValue).length,
+          digitAmount: this.formatNowByToken(tokenValue).length,
           format: tokenValue,
         });
       }
