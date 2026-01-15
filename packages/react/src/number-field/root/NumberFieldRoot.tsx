@@ -8,7 +8,7 @@ import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import { useForcedRerendering } from '@base-ui/utils/useForcedRerendering';
 import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
-import { visuallyHiddenInput } from '@base-ui/utils/visuallyHidden';
+import { visuallyHidden, visuallyHiddenInput } from '@base-ui/utils/visuallyHidden';
 import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
 import { isIOS } from '@base-ui/utils/detectBrowser';
 import { InputMode, NumberFieldRootContext } from './NumberFieldRootContext';
@@ -553,7 +553,7 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
         required={required}
         aria-hidden
         tabIndex={-1}
-        style={visuallyHiddenInput}
+        style={name ? visuallyHiddenInput : visuallyHidden}
       />
     </NumberFieldRootContext.Provider>
   );
