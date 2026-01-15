@@ -300,9 +300,13 @@ export class FormatParser {
           const firstWord = regExpFirstTokenInWord.exec(word)![1];
           word = word.slice(firstWord.length);
 
+          // Set prefix only when creating the very first token
+          if (tokens.length === 0) {
+            prefix = separator;
+            separator = '';
+          }
+
           tokens.push(this.createToken(firstWord));
-          prefix = separator;
-          separator = '';
         }
 
         i += firstWordInFormat.length;
