@@ -47,9 +47,9 @@
       "detailedType": "number | undefined"
     },
     "anchor": {
-      "type": "Element | RefObject<Element | null> | VirtualElement | (() => Element | VirtualElement | null) | null",
+      "type": "Element | VirtualElement | RefObject<Element | null> | (() => Element | VirtualElement | null) | null",
       "description": "An element to position the popup against.\nBy default, the popup will be positioned against the trigger.",
-      "detailedType": "| Element\n| React.RefObject<Element | null>\n| VirtualElement\n| (() => Element | VirtualElement | null)\n| null\n| undefined"
+      "detailedType": "| Element\n| VirtualElement\n| React.RefObject<Element | null>\n| (() => Element | VirtualElement | null)\n| null\n| undefined"
     },
     "collisionAvoidance": {
       "type": "CollisionAvoidance",

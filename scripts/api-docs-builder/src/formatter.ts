@@ -118,7 +118,15 @@ export function formatDetailedType(
     visited.add(qualifiedName);
 
     const exportNode = allExports.find((node) => node.name === type.typeName.name);
-    if (exportNode) {
+    // Only recurse if the export actually provides more type information
+    // (not just re-exporting the same external type)
+    if (
+      exportNode &&
+      !(
+        exportNode.type instanceof tae.ExternalTypeNode &&
+        exportNode.type.typeName.name === type.typeName.name
+      )
+    ) {
       return formatDetailedType(
         (exportNode.type as unknown as tae.AnyType) ?? type,
         allExports,
@@ -128,7 +136,7 @@ export function formatDetailedType(
 
     // Manually expand known external aliases when declaration is not in local exports
     switch (true) {
-      case qualifiedName.endsWith('Padding'):
+      case qualifiedName.includes('Padding'):
         return '{ top?: number; right?: number; bottom?: number; left?: number } | number';
       default:
         return qualifiedName;
