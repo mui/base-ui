@@ -18,18 +18,20 @@ export default function AlertDialogDetachedTriggersSimpleDemo() {
       <AlertDialog.Root handle={demoAlertDialog}>
         <AlertDialog.Portal>
           <AlertDialog.Backdrop className={styles.Backdrop} />
-          <AlertDialog.Popup className={styles.Popup}>
-            <AlertDialog.Title className={styles.Title}>Discard draft?</AlertDialog.Title>
-            <AlertDialog.Description className={styles.Description}>
-              This action cannot be undone.
-            </AlertDialog.Description>
-            <div className={styles.Actions}>
-              <AlertDialog.Close className={styles.Button}>Cancel</AlertDialog.Close>
-              <AlertDialog.Close className={`${styles.Button} ${styles.DangerButton}`}>
-                Discard
-              </AlertDialog.Close>
-            </div>
-          </AlertDialog.Popup>
+          <AlertDialog.Viewport className={styles.Viewport}>
+            <AlertDialog.Popup className={styles.Popup}>
+              <AlertDialog.Title className={styles.Title}>Discard draft?</AlertDialog.Title>
+              <AlertDialog.Description className={styles.Description}>
+                This action cannot be undone.
+              </AlertDialog.Description>
+              <div className={styles.Actions}>
+                <AlertDialog.Close className={styles.Button}>Cancel</AlertDialog.Close>
+                <AlertDialog.Close className={`${styles.Button} ${styles.DangerButton}`}>
+                  Discard
+                </AlertDialog.Close>
+              </div>
+            </AlertDialog.Popup>
+          </AlertDialog.Viewport>
         </AlertDialog.Portal>
       </AlertDialog.Root>
     </React.Fragment>

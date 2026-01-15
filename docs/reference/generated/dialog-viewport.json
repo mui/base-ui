@@ -1,6 +1,6 @@
 {
   "name": "DialogViewport",
-  "description": "A positioning container for the dialog popup that can be made scrollable.\nRenders a `<div>` element.",
+  "description": "A positioning container for the dialog popup that can be made scrollable.\nThis part also robustly locks the scroll on iOS devices.\nRenders a `<div>` element.",
   "props": {
     "className": {
       "type": "string | ((state: Dialog.Viewport.State) => string | undefined)",

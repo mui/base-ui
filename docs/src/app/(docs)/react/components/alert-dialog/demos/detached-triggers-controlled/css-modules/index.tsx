@@ -67,20 +67,22 @@ export default function AlertDialogDetachedTriggersControlledDemo() {
         {({ payload }) => (
           <AlertDialog.Portal>
             <AlertDialog.Backdrop className={styles.Backdrop} />
-            <AlertDialog.Popup className={styles.Popup}>
-              <AlertDialog.Title className={styles.Title}>
-                {payload?.message ?? 'Are you sure?'}
-              </AlertDialog.Title>
-              <AlertDialog.Description className={styles.Description}>
-                This action cannot be undone.
-              </AlertDialog.Description>
-              <div className={styles.Actions}>
-                <AlertDialog.Close className={styles.Button}>Cancel</AlertDialog.Close>
-                <AlertDialog.Close className={`${styles.Button} ${styles.DangerButton}`}>
-                  Confirm
-                </AlertDialog.Close>
-              </div>
-            </AlertDialog.Popup>
+            <AlertDialog.Viewport className={styles.Viewport}>
+              <AlertDialog.Popup className={styles.Popup}>
+                <AlertDialog.Title className={styles.Title}>
+                  {payload?.message ?? 'Are you sure?'}
+                </AlertDialog.Title>
+                <AlertDialog.Description className={styles.Description}>
+                  This action cannot be undone.
+                </AlertDialog.Description>
+                <div className={styles.Actions}>
+                  <AlertDialog.Close className={styles.Button}>Cancel</AlertDialog.Close>
+                  <AlertDialog.Close className={`${styles.Button} ${styles.DangerButton}`}>
+                    Confirm
+                  </AlertDialog.Close>
+                </div>
+              </AlertDialog.Popup>
+            </AlertDialog.Viewport>
           </AlertDialog.Portal>
         )}
       </AlertDialog.Root>

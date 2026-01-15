@@ -50,14 +50,16 @@ export default function DialogDetachedTriggersControlledDemo() {
         {({ payload }) => (
           <Dialog.Portal>
             <Dialog.Backdrop className={styles.Backdrop} />
-            <Dialog.Popup className={styles.Popup}>
-              {payload !== undefined && (
-                <Dialog.Title className={styles.Title}>Dialog {payload}</Dialog.Title>
-              )}
-              <div className={styles.Actions}>
-                <Dialog.Close className={styles.Button}>Close</Dialog.Close>
-              </div>
-            </Dialog.Popup>
+            <Dialog.Viewport className={styles.Viewport}>
+              <Dialog.Popup className={styles.Popup}>
+                {payload !== undefined && (
+                  <Dialog.Title className={styles.Title}>Dialog {payload}</Dialog.Title>
+                )}
+                <div className={styles.Actions}>
+                  <Dialog.Close className={styles.Button}>Close</Dialog.Close>
+                </div>
+              </Dialog.Popup>
+            </Dialog.Viewport>
           </Dialog.Portal>
         )}
       </Dialog.Root>

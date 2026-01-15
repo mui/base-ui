@@ -62,8 +62,9 @@
 .Viewport {
   position: fixed;
   inset: 0;
-  display: grid;
-  place-items: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   padding: 2.5rem 1rem;
 
   @media (min-width: 80rem) {

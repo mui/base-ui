@@ -56,12 +56,17 @@
   }
 }
 
+.Viewport {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2.5rem 1rem;
+}
+
 .Popup {
   box-sizing: border-box;
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
   width: 24rem;
   max-width: calc(100vw - 3rem);
   margin-top: -2rem;
@@ -79,7 +84,7 @@
   &[data-starting-style],
   &[data-ending-style] {
     opacity: 0;
-    transform: translate(-50%, -50%) scale(0.9);
+    transform: scale(0.9);
   }
 }
 
