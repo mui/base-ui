@@ -121,11 +121,6 @@ export interface TemporalFormatTokenConfig {
    * Will determine if we should apply a digit-based editing or a letter-based editing.
    */
   contentType: TemporalFieldSectionContentType;
-  /**
-   * Maximum length of the value, only defined for "digit" sections.
-   * Will be used to determine how many leading zeros should be added to the value.
-   */
-  maxLength?: number;
 }
 
 export interface TemporalFormatTokenConfigMap {

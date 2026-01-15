@@ -137,23 +137,23 @@ export const longFormatters = {
 
 const FORMAT_TOKEN_CONFIG_MAP: TemporalFormatTokenConfigMap = {
   // Year
-  y: { sectionType: 'year', contentType: 'digit', maxLength: 4 },
+  y: { sectionType: 'year', contentType: 'digit' },
   yy: { sectionType: 'year', contentType: 'digit' },
-  yyy: { sectionType: 'year', contentType: 'digit', maxLength: 4 },
+  yyy: { sectionType: 'year', contentType: 'digit' },
   yyyy: { sectionType: 'year', contentType: 'digit' },
 
   // Month
-  M: { sectionType: 'month', contentType: 'digit', maxLength: 2 },
+  M: { sectionType: 'month', contentType: 'digit' },
   MM: { sectionType: 'month', contentType: 'digit' },
   MMMM: { sectionType: 'month', contentType: 'letter' },
   MMM: { sectionType: 'month', contentType: 'letter' },
-  L: { sectionType: 'month', contentType: 'digit', maxLength: 2 },
+  L: { sectionType: 'month', contentType: 'digit' },
   LL: { sectionType: 'month', contentType: 'digit' },
   LLL: { sectionType: 'month', contentType: 'letter' },
   LLLL: { sectionType: 'month', contentType: 'letter' },
 
   // Day of the month
-  d: { sectionType: 'day', contentType: 'digit', maxLength: 2 },
+  d: { sectionType: 'day', contentType: 'digit' },
   dd: { sectionType: 'day', contentType: 'digit' },
   do: { sectionType: 'day', contentType: 'digit-with-letter' },
 
@@ -163,18 +163,18 @@ const FORMAT_TOKEN_CONFIG_MAP: TemporalFormatTokenConfigMap = {
   EEE: { sectionType: 'weekDay', contentType: 'letter' },
   EEEE: { sectionType: 'weekDay', contentType: 'letter' },
   EEEEE: { sectionType: 'weekDay', contentType: 'letter' },
-  i: { sectionType: 'weekDay', contentType: 'digit', maxLength: 1 },
+  i: { sectionType: 'weekDay', contentType: 'digit' },
   ii: { sectionType: 'weekDay', contentType: 'digit' },
   iii: { sectionType: 'weekDay', contentType: 'letter' },
   iiii: { sectionType: 'weekDay', contentType: 'letter' },
   // eslint-disable-next-line id-denylist
-  e: { sectionType: 'weekDay', contentType: 'digit', maxLength: 1 },
+  e: { sectionType: 'weekDay', contentType: 'digit' },
   ee: { sectionType: 'weekDay', contentType: 'digit' },
   eee: { sectionType: 'weekDay', contentType: 'letter' },
   eeee: { sectionType: 'weekDay', contentType: 'letter' },
   eeeee: { sectionType: 'weekDay', contentType: 'letter' },
   eeeeee: { sectionType: 'weekDay', contentType: 'letter' },
-  c: { sectionType: 'weekDay', contentType: 'digit', maxLength: 1 },
+  c: { sectionType: 'weekDay', contentType: 'digit' },
   cc: { sectionType: 'weekDay', contentType: 'digit' },
   ccc: { sectionType: 'weekDay', contentType: 'letter' },
   cccc: { sectionType: 'weekDay', contentType: 'letter' },
@@ -187,16 +187,16 @@ const FORMAT_TOKEN_CONFIG_MAP: TemporalFormatTokenConfigMap = {
   aaa: { sectionType: 'meridiem', contentType: 'letter' },
 
   // Hours
-  H: { sectionType: 'hours', contentType: 'digit', maxLength: 2 },
+  H: { sectionType: 'hours', contentType: 'digit' },
   HH: { sectionType: 'hours', contentType: 'digit' },
-  h: { sectionType: 'hours', contentType: 'digit', maxLength: 2 },
+  h: { sectionType: 'hours', contentType: 'digit' },
   hh: { sectionType: 'hours', contentType: 'digit' },
   // Minutes
-  m: { sectionType: 'minutes', contentType: 'digit', maxLength: 2 },
+  m: { sectionType: 'minutes', contentType: 'digit' },
   mm: { sectionType: 'minutes', contentType: 'digit' },
 
   // Seconds
-  s: { sectionType: 'seconds', contentType: 'digit', maxLength: 2 },
+  s: { sectionType: 'seconds', contentType: 'digit' },
   ss: { sectionType: 'seconds', contentType: 'digit' },
 };
 

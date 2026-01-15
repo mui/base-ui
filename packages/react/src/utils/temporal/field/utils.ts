@@ -88,6 +88,16 @@ export function removeLocalizedDigits(valueStr: string, localizedDigits: string[
   return digits.join('');
 }
 
+/**
+ * Returns an array of formatted weekday strings for all days in a week.
+ * Uses the adapter's locale to determine the start of the week and format the day names.
+ *
+ * ```ts
+ * getDaysInWeekStr(adapter, 'EEE');
+ * // Returns: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'] (for US locale)
+ * // Returns: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'] (for most European locales)
+ * ```
+ */
 export function getDaysInWeekStr(adapter: TemporalAdapter, format: string) {
   const elements: TemporalSupportedObject[] = [];
 
@@ -126,6 +136,20 @@ export function getTimezoneToRender<TValue extends TemporalSupportedValue>(
   return 'default';
 }
 
+/**
+ * Returns an array of valid letter-based editing options for a given section type.
+ * Used to provide autocomplete options when a user types letters into a field section.
+ * Supports `'month'` (returns 12 months), `'weekDay'` (returns 7 weekdays), and `'meridiem'` (returns AM/PM).
+ * Other section types return an empty array.
+ *
+ * ```ts
+ * getLetterEditingOptions(adapter, 'default', 'month', 'MMM');
+ * // Returns: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+ *
+ * getLetterEditingOptions(adapter, 'default', 'weekDay', 'EEEE');
+ * // Returns: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+ * ```
+ */
 export function getLetterEditingOptions(
   adapter: TemporalAdapter,
   timezone: TemporalTimezone,
@@ -156,12 +180,28 @@ export function getLetterEditingOptions(
   }
 }
 
+/**
+ * Formats a numeric value for display in a digit-based field section.
+ * Handles padding with leading zeros, localization of digits, and special digit-with-letter day formats (e.g., '1st', '2nd').
+ *
+ * ```ts
+ * // Padded month: 5 → '05'
+ * cleanDigitSectionValue(adapter, 5, boundaries, ['0', '1', ...], {
+ *   value: 'MM', config: { sectionType: 'month', contentType: 'digit' }, isPadded: true, maxLength: 2
+ * });
+ *
+ * // Arabic numerals: 5 → '٥'
+ * cleanDigitSectionValue(adapter, 5, boundaries, ['٠', '١', '٢', '٣', '٤', '٥', ...], {
+ *   value: 'M', config: { sectionType: 'month', contentType: 'digit' }, isPadded: false, maxLength: undefined
+ * });
+ * ```
+ */
 export function cleanDigitSectionValue(
   adapter: TemporalAdapter,
   value: number,
   sectionBoundaries: TemporalFieldSectionValueBoundaries<any>,
   localizedDigits: string[],
-  token: Pick<TemporalFieldToken, 'value' | 'config' | 'isPadded'>,
+  token: Pick<TemporalFieldToken, 'value' | 'config' | 'isPadded' | 'maxLength'>,
 ) {
   if (process.env.NODE_ENV !== 'production') {
     if (token.config.sectionType !== 'day' && token.config.contentType === 'digit-with-letter') {
@@ -186,7 +226,7 @@ export function cleanDigitSectionValue(
   let valueStr = value.toString();
 
   if (token.isPadded) {
-    valueStr = cleanLeadingZeros(valueStr, token.config.maxLength!);
+    valueStr = cleanLeadingZeros(valueStr, token.maxLength!);
   }
 
   return applyLocalizedDigits(valueStr, localizedDigits);

@@ -25,7 +25,7 @@ function transferDateSectionValue(
       if (section.token.isPadded) {
         dayInWeekStrOfActiveDate = cleanLeadingZeros(
           dayInWeekStrOfActiveDate,
-          section.token.config.maxLength!,
+          section.token.maxLength!,
         );
       }
 

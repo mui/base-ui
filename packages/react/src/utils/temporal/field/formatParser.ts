@@ -1,4 +1,8 @@
-import { TemporalAdapter, TemporalFormatTokenConfig } from '../../../types';
+import {
+  TemporalAdapter,
+  TemporalFormatTokenConfig,
+  TemporalSupportedObject,
+} from '../../../types';
 import {
   TemporalFieldParsedFormat,
   TemporalFieldPlaceholderGetters,
@@ -29,6 +33,8 @@ export class FormatParser {
   private placeholderGetters: Required<TemporalFieldPlaceholderGetters>;
 
   private direction: TextDirection;
+
+  private now: TemporalSupportedObject;
 
   /**
    * Converts a format into a list of tokens, a prefix and a suffix.
@@ -101,6 +107,7 @@ export class FormatParser {
     this.format = format;
     this.direction = direction;
     this.placeholderGetters = { ...DEFAULT_PLACEHOLDER_GETTERS, ...placeholderGetters };
+    this.now = adapter.now('default');
   }
 
   /**
@@ -148,19 +155,23 @@ export class FormatParser {
     }
 
     const tokenConfig = FormatParser.getTokenConfig(this.adapter, tokenValue);
+    const isPadded = this.isTokenPadded(tokenValue, tokenConfig);
 
-    // let maxLength: number | undefined;
-    // if (isPadded) {
-    //   maxLength =
-    //     sectionValue === '' ? adapter.formatByString(now, token).length : sectionValue.length;
-    // } else {
-    //   maxLength = undefined;
-    // }
+    let maxLength: number | undefined;
+    if (isPadded && tokenConfig.contentType === 'digit') {
+      maxLength = this.adapter.formatByString(this.now, tokenValue).length;
+    } else if (isPadded && tokenConfig.contentType === 'digit-with-letter') {
+      // For digit-with-letter formats (e.g., '1st', '2nd'), we need to extract only the digit part
+      const formatted = this.adapter.formatByString(this.now, tokenValue);
+      // Remove all non-digit characters to get the length of just the digits
+      maxLength = formatted.replace(/\D/g, '').length;
+    }
 
     return {
       value: tokenValue,
       config: tokenConfig,
-      isPadded: this.isTokenPadded(tokenValue, tokenConfig),
+      isPadded,
+      maxLength,
       placeholder: this.getTokenPlaceholder(tokenValue, tokenConfig),
       separator: '',
     };
@@ -171,8 +182,6 @@ export class FormatParser {
       return false;
     }
 
-    const now = this.adapter.now('default');
-
     switch (tokenConfig.sectionType) {
       // We can't use `changeSectionValueFormat`, because  `adapter.parse('1', 'YYYY')` returns `1971` instead of `1`.
       case 'year': {
@@ -180,31 +189,33 @@ export class FormatParser {
         if (this.adapter.lib === 'dayjs' && token === 'YY') {
           return true;
         }
-        return this.adapter.formatByString(this.adapter.setYear(now, 1), token).startsWith('0');
+        return this.adapter
+          .formatByString(this.adapter.setYear(this.now, 1), token)
+          .startsWith('0');
       }
 
       case 'month': {
-        return this.adapter.formatByString(this.adapter.startOfYear(now), token).length > 1;
+        return this.adapter.formatByString(this.adapter.startOfYear(this.now), token).length > 1;
       }
 
       case 'day': {
-        return this.adapter.formatByString(this.adapter.startOfMonth(now), token).length > 1;
+        return this.adapter.formatByString(this.adapter.startOfMonth(this.now), token).length > 1;
       }
 
       case 'weekDay': {
-        return this.adapter.formatByString(this.adapter.startOfWeek(now), token).length > 1;
+        return this.adapter.formatByString(this.adapter.startOfWeek(this.now), token).length > 1;
       }
 
       case 'hours': {
-        return this.adapter.formatByString(this.adapter.setHours(now, 1), token).length > 1;
+        return this.adapter.formatByString(this.adapter.setHours(this.now, 1), token).length > 1;
       }
 
       case 'minutes': {
-        return this.adapter.formatByString(this.adapter.setMinutes(now, 1), token).length > 1;
+        return this.adapter.formatByString(this.adapter.setMinutes(this.now, 1), token).length > 1;
       }
 
       case 'seconds': {
-        return this.adapter.formatByString(this.adapter.setSeconds(now, 1), token).length > 1;
+        return this.adapter.formatByString(this.adapter.setSeconds(this.now, 1), token).length > 1;
       }
 
       default: {
@@ -217,7 +228,7 @@ export class FormatParser {
     switch (config.sectionType) {
       case 'year': {
         return this.placeholderGetters.year({
-          digitAmount: this.adapter.formatByString(this.adapter.now('default'), tokenValue).length,
+          digitAmount: this.adapter.formatByString(this.now, tokenValue).length,
           format: tokenValue,
         });
       }

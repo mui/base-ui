@@ -186,6 +186,11 @@ export interface TemporalFieldToken {
    */
   isPadded: boolean;
   /**
+   * Maximum length of the formatted value for this token.
+   * Only defined for padded digit tokens.
+   */
+  maxLength: number | undefined;
+  /**
    * Text to display when the section is empty.
    */
   placeholder: string;
