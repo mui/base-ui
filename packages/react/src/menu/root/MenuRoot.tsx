@@ -647,8 +647,8 @@ export interface MenuRootProps<Payload = unknown> {
    */
   defaultTriggerId?: string | null;
   /**
-   * A handle to associate the popover with a trigger.
-   * If specified, allows external triggers to control the popover's open state.
+   * A handle to associate the menu with a trigger.
+   * If specified, allows external triggers to control the menu's open state.
    */
   handle?: MenuHandle<Payload>;
   /**

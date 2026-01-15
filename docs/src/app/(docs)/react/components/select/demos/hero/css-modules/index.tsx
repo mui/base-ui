@@ -14,7 +14,9 @@ const apples = [
 export default function ExampleSelect() {
   return (
     <Field.Root className={styles.Field}>
-      <Field.Label className={styles.Label}>Apple</Field.Label>
+      <Field.Label className={styles.Label} nativeLabel={false} render={<div />}>
+        Apple
+      </Field.Label>
       <Select.Root items={apples}>
         <Select.Trigger className={styles.Select}>
           <Select.Value className={styles.Value} placeholder="Select apple" />
