@@ -5,7 +5,7 @@ import { selectors } from './selectors';
 import type { TemporalFieldStore } from './TemporalFieldStore';
 import {
   TemporalFieldSection,
-  TemporalFieldSelectedSections,
+  TemporalFieldSelectedSection,
   TemporalFieldState as State,
 } from './types';
 import { getDaysInWeekStr, removeLocalizedDigits } from './utils';
@@ -15,14 +15,14 @@ import { TemporalFieldValuePlugin } from './TemporalFieldValuePlugin';
 const sectionSelectors = {
   sections: createSelector((state: State) => state.sections),
   lastSectionIndex: createSelector((state: State) => state.sections.length - 1),
-  selectedSections: createSelector((state: State) => state.selectedSections),
+  selectedSection: createSelector((state: State) => state.selectedSection),
   section: createSelectorMemoized(
     (state: State) => state.sections,
     (sections, sectionIndex: number) => ({ ...sections[sectionIndex], index: sectionIndex }),
   ),
   activeSection: createSelectorMemoized(
     (state: State) => state.sections,
-    (state: State) => state.selectedSections,
+    (state: State) => state.selectedSection,
     (sections, activeSectionIndex) => {
       if (activeSectionIndex == null) {
         return null;
@@ -249,7 +249,7 @@ export class TemporalFieldSectionPlugin<TValue extends TemporalSupportedValue> {
      * Decide which section should be focused
      */
     if (shouldGoToNextSection && sectionIndex < lastSectionIndex) {
-      this.setSelectedSections(sectionIndex + 1);
+      this.setSelectedSection(sectionIndex + 1);
     }
 
     /**
@@ -317,8 +317,8 @@ export class TemporalFieldSectionPlugin<TValue extends TemporalSupportedValue> {
     return this.store.set('sections', newSections);
   }
 
-  public setSelectedSections(selectedSections: TemporalFieldSelectedSections) {
-    this.store.set('selectedSections', selectedSections);
+  public setSelectedSection(selectedSection: TemporalFieldSelectedSection) {
+    this.store.set('selectedSection', selectedSection);
   }
 
   public static replaceSectionValueInSectionList(

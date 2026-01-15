@@ -19,7 +19,7 @@ describe('TemporalFieldCharacterEditingPlugin', () => {
     describe('single digit entry', () => {
       it('should update month section with single digit', () => {
         const store = new DateFieldStore({ format: numericDateFormat }, adapter, 'ltr');
-        store.section.setSelectedSections(0); // month section
+        store.section.setSelectedSection(0); // month section
 
         store.characterEditing.editSection({
           keyPressed: '5',
@@ -32,7 +32,7 @@ describe('TemporalFieldCharacterEditingPlugin', () => {
 
       it('should update day section with single digit', () => {
         const store = new DateFieldStore({ format: numericDateFormat }, adapter, 'ltr');
-        store.section.setSelectedSections(1); // day section
+        store.section.setSelectedSection(1); // day section
 
         store.characterEditing.editSection({
           keyPressed: '7',
@@ -45,7 +45,7 @@ describe('TemporalFieldCharacterEditingPlugin', () => {
 
       it('should update year section with single digit', () => {
         const store = new DateFieldStore({ format: numericDateFormat }, adapter, 'ltr');
-        store.section.setSelectedSections(2); // year section
+        store.section.setSelectedSection(2); // year section
 
         store.characterEditing.editSection({
           keyPressed: '2',
@@ -60,7 +60,7 @@ describe('TemporalFieldCharacterEditingPlugin', () => {
     describe('multi-digit entry with concatenation', () => {
       it('should concatenate digits for month (0 then 9)', () => {
         const store = new DateFieldStore({ format: numericDateFormat }, adapter, 'ltr');
-        store.section.setSelectedSections(0); // month section
+        store.section.setSelectedSection(0); // month section
 
         // Type '0'
         store.characterEditing.editSection({
@@ -84,7 +84,7 @@ describe('TemporalFieldCharacterEditingPlugin', () => {
 
       it('should concatenate digits for day (1 then 5)', () => {
         const store = new DateFieldStore({ format: numericDateFormat }, adapter, 'ltr');
-        store.section.setSelectedSections(1); // day section
+        store.section.setSelectedSection(1); // day section
 
         // Type '1'
         store.characterEditing.editSection({
@@ -107,7 +107,7 @@ describe('TemporalFieldCharacterEditingPlugin', () => {
 
       it('should concatenate digits for year (2, 0, 2, 4)', () => {
         const store = new DateFieldStore({ format: numericDateFormat }, adapter, 'ltr');
-        store.section.setSelectedSections(2); // year section
+        store.section.setSelectedSection(2); // year section
 
         const digits = ['2', '0', '2', '4'];
         digits.forEach((digit) => {
@@ -125,7 +125,7 @@ describe('TemporalFieldCharacterEditingPlugin', () => {
     describe('boundary validation', () => {
       it('should reject month value above 12', () => {
         const store = new DateFieldStore({ format: numericDateFormat }, adapter, 'ltr');
-        store.section.setSelectedSections(0); // month section
+        store.section.setSelectedSection(0); // month section
 
         // Type '1' - should work
         store.characterEditing.editSection({
@@ -147,7 +147,7 @@ describe('TemporalFieldCharacterEditingPlugin', () => {
 
       it('should reject day value above 31', () => {
         const store = new DateFieldStore({ format: numericDateFormat }, adapter, 'ltr');
-        store.section.setSelectedSections(1); // day section
+        store.section.setSelectedSection(1); // day section
 
         // Type '3' - should work
         store.characterEditing.editSection({
@@ -171,7 +171,7 @@ describe('TemporalFieldCharacterEditingPlugin', () => {
     describe('automatic navigation', () => {
       it('should move to next section when typing digit that would exceed maximum', () => {
         const store = new DateFieldStore({ format: numericDateFormat }, adapter, 'ltr');
-        store.section.setSelectedSections(0); // month section
+        store.section.setSelectedSection(0); // month section
 
         // Type '9' - should move to next section (9*10 = 90 > 12)
         store.characterEditing.editSection({
@@ -179,13 +179,12 @@ describe('TemporalFieldCharacterEditingPlugin', () => {
           sectionIndex: 0,
         });
 
-        const selectedSections = store.state.selectedSections;
-        expect(selectedSections).to.equal(1); // Should move to day section
+        expect(store.state.selectedSection).to.equal(1); // Should move to day section
       });
 
       it('should move to next section when reaching max length', () => {
         const store = new DateFieldStore({ format: numericDateFormat }, adapter, 'ltr');
-        store.section.setSelectedSections(2); // year section
+        store.section.setSelectedSection(2); // year section
 
         // Type 4 digits
         const digits = ['2', '0', '2', '4'];
@@ -196,8 +195,7 @@ describe('TemporalFieldCharacterEditingPlugin', () => {
           });
         });
 
-        const selectedSections = store.state.selectedSections;
-        expect(selectedSections).to.not.equal(2); // Should have moved away from year section
+        expect(store.state.selectedSection).to.not.equal(2); // Should have moved away from year section
       });
     });
   });
@@ -206,7 +204,7 @@ describe('TemporalFieldCharacterEditingPlugin', () => {
     describe('month name editing', () => {
       it('should update month section with letter (J -> Jan)', () => {
         const store = new DateFieldStore({ format: monthNameDateFormat }, adapter, 'ltr');
-        store.section.setSelectedSections(0); // month section
+        store.section.setSelectedSection(0); // month section
 
         store.characterEditing.editSection({
           keyPressed: 'J',
@@ -219,7 +217,7 @@ describe('TemporalFieldCharacterEditingPlugin', () => {
 
       it('should concatenate letters for month (J then u -> Jun)', () => {
         const store = new DateFieldStore({ format: monthNameDateFormat }, adapter, 'ltr');
-        store.section.setSelectedSections(0); // month section
+        store.section.setSelectedSection(0); // month section
 
         // Type 'J' - could be Jan, Jun, Jul
         store.characterEditing.editSection({
@@ -240,7 +238,7 @@ describe('TemporalFieldCharacterEditingPlugin', () => {
 
       it('should complete and move to next section when only one match (Ju then l -> Jul)', () => {
         const store = new DateFieldStore({ format: monthNameDateFormat }, adapter, 'ltr');
-        store.section.setSelectedSections(0); // month section
+        store.section.setSelectedSection(0); // month section
 
         // Type 'Jul' one by one
         store.characterEditing.editSection({
@@ -258,12 +256,12 @@ describe('TemporalFieldCharacterEditingPlugin', () => {
 
         const section = TemporalFieldSectionPlugin.selectors.section(store.state, 0);
         expect(section.value).to.equal('Jul');
-        expect(store.state.selectedSections).to.equal(1); // Should move to next section
+        expect(store.state.selectedSection).to.equal(1); // Should move to next section
       });
 
       it('should handle case-insensitive input', () => {
         const store = new DateFieldStore({ format: monthNameDateFormat }, adapter, 'ltr');
-        store.section.setSelectedSections(0); // month section
+        store.section.setSelectedSection(0); // month section
 
         // Type lowercase 'j'
         store.characterEditing.editSection({
@@ -279,7 +277,7 @@ describe('TemporalFieldCharacterEditingPlugin', () => {
     describe('meridiem editing', () => {
       it('should update meridiem with A -> AM', () => {
         const store = new TimeFieldStore({ format: time12Format }, adapter, 'ltr');
-        store.section.setSelectedSections(2); // meridiem section
+        store.section.setSelectedSection(2); // meridiem section
 
         store.characterEditing.editSection({
           keyPressed: 'A',
@@ -292,7 +290,7 @@ describe('TemporalFieldCharacterEditingPlugin', () => {
 
       it('should update meridiem with P -> PM', () => {
         const store = new TimeFieldStore({ format: time12Format }, adapter, 'ltr');
-        store.section.setSelectedSections(2); // meridiem section
+        store.section.setSelectedSection(2); // meridiem section
 
         store.characterEditing.editSection({
           keyPressed: 'P',
@@ -305,7 +303,7 @@ describe('TemporalFieldCharacterEditingPlugin', () => {
 
       it('should move to next section after typing unique meridiem letter', () => {
         const store = new TimeFieldStore({ format: time12Format }, adapter, 'ltr');
-        store.section.setSelectedSections(2); // meridiem section
+        store.section.setSelectedSection(2); // meridiem section
 
         store.characterEditing.editSection({
           keyPressed: 'A',
@@ -313,7 +311,7 @@ describe('TemporalFieldCharacterEditingPlugin', () => {
         });
 
         // Should move to next section since 'A' uniquely identifies AM
-        expect(store.state.selectedSections).to.not.equal(2);
+        expect(store.state.selectedSection).to.not.equal(2);
       });
     });
   });
@@ -321,7 +319,7 @@ describe('TemporalFieldCharacterEditingPlugin', () => {
   describe('mixed editing - digit section with letter input', () => {
     it('should support typing digit on letter-format month (5 -> May)', () => {
       const store = new DateFieldStore({ format: monthNameDateFormat }, adapter, 'ltr');
-      store.section.setSelectedSections(0); // month section (letter format)
+      store.section.setSelectedSection(0); // month section (letter format)
 
       // Type '5' for May (5th month)
       store.characterEditing.editSection({
@@ -335,7 +333,7 @@ describe('TemporalFieldCharacterEditingPlugin', () => {
 
     it('should support typing 0 then 7 on letter-format month (07 -> Jul)', () => {
       const store = new DateFieldStore({ format: monthNameDateFormat }, adapter, 'ltr');
-      store.section.setSelectedSections(0); // month section (letter format)
+      store.section.setSelectedSection(0); // month section (letter format)
 
       // Type '0'
       store.characterEditing.editSection({
@@ -359,7 +357,7 @@ describe('TemporalFieldCharacterEditingPlugin', () => {
 
     it('should support typing digit 1 then 2 on letter-format month (12 -> Dec)', () => {
       const store = new DateFieldStore({ format: monthNameDateFormat }, adapter, 'ltr');
-      store.section.setSelectedSections(0); // month section (letter format)
+      store.section.setSelectedSection(0); // month section (letter format)
 
       // Type '1'
       store.characterEditing.editSection({
@@ -384,7 +382,7 @@ describe('TemporalFieldCharacterEditingPlugin', () => {
   describe('query management', () => {
     it('should reset query when typing invalid continuation', () => {
       const store = new DateFieldStore({ format: monthNameDateFormat }, adapter, 'ltr');
-      store.section.setSelectedSections(0); // month section
+      store.section.setSelectedSection(0); // month section
 
       // Type 'D' - should get 'Dec'
       store.characterEditing.editSection({
@@ -410,14 +408,14 @@ describe('TemporalFieldCharacterEditingPlugin', () => {
       const store = new DateFieldStore({ format: numericDateFormat }, adapter, 'ltr');
 
       // Type '0' in month section
-      store.section.setSelectedSections(0);
+      store.section.setSelectedSection(0);
       store.characterEditing.editSection({
         keyPressed: '0',
         sectionIndex: 0,
       });
 
       // Switch to day section
-      store.section.setSelectedSections(1);
+      store.section.setSelectedSection(1);
 
       // Type '9' in day section - should not concatenate with previous '0' from month
       store.characterEditing.editSection({
@@ -431,7 +429,7 @@ describe('TemporalFieldCharacterEditingPlugin', () => {
 
     it('should maintain query when continuing to type in same section', () => {
       const store = new DateFieldStore({ format: monthNameDateFormat }, adapter, 'ltr');
-      store.section.setSelectedSections(0); // month section
+      store.section.setSelectedSection(0); // month section
 
       // Type 'J'
       store.characterEditing.editSection({
@@ -453,7 +451,7 @@ describe('TemporalFieldCharacterEditingPlugin', () => {
   describe('full month name format', () => {
     it('should handle full month name typing (J -> January)', () => {
       const store = new DateFieldStore({ format: fullMonthNameFormat }, adapter, 'ltr');
-      store.section.setSelectedSections(0); // month section
+      store.section.setSelectedSection(0); // month section
 
       store.characterEditing.editSection({
         keyPressed: 'J',
@@ -466,7 +464,7 @@ describe('TemporalFieldCharacterEditingPlugin', () => {
 
     it('should narrow down with more letters (Ja -> January)', () => {
       const store = new DateFieldStore({ format: fullMonthNameFormat }, adapter, 'ltr');
-      store.section.setSelectedSections(0); // month section
+      store.section.setSelectedSection(0); // month section
 
       store.characterEditing.editSection({
         keyPressed: 'J',
@@ -485,7 +483,7 @@ describe('TemporalFieldCharacterEditingPlugin', () => {
   describe('edge cases', () => {
     it('should handle resetCharacterQuery', () => {
       const store = new DateFieldStore({ format: numericDateFormat }, adapter, 'ltr');
-      store.section.setSelectedSections(0); // month section
+      store.section.setSelectedSection(0); // month section
 
       // Type '0'
       store.characterEditing.editSection({
@@ -508,7 +506,7 @@ describe('TemporalFieldCharacterEditingPlugin', () => {
 
     it('should handle empty section', () => {
       const store = new DateFieldStore({ format: numericDateFormat }, adapter, 'ltr');
-      store.section.setSelectedSections(0); // month section (empty)
+      store.section.setSelectedSection(0); // month section (empty)
 
       // Type '3'
       store.characterEditing.editSection({
@@ -522,7 +520,7 @@ describe('TemporalFieldCharacterEditingPlugin', () => {
 
     it('should reject non-numeric input for digit sections', () => {
       const store = new DateFieldStore({ format: numericDateFormat }, adapter, 'ltr');
-      store.section.setSelectedSections(0); // month section
+      store.section.setSelectedSection(0); // month section
 
       // Type letter 'a' on numeric month
       store.characterEditing.editSection({
@@ -536,7 +534,7 @@ describe('TemporalFieldCharacterEditingPlugin', () => {
 
     it('should reject numeric input for meridiem section', () => {
       const store = new TimeFieldStore({ format: time12Format }, adapter, 'ltr');
-      store.section.setSelectedSections(2); // meridiem section
+      store.section.setSelectedSection(2); // meridiem section
 
       // Type digit '1' on meridiem
       store.characterEditing.editSection({

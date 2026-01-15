@@ -18,7 +18,7 @@ const stateAttributesMapping: StateAttributesMapping<DateFieldSectionState> = {
 };
 
 /**
- * Groups all parts of the date field.
+ * Renders a the content of a date field's section.
  * Renders a `<div>` element.
  *
  * Documentation: [Base UI Date Field](https://base-ui.com/react/components/date-field)

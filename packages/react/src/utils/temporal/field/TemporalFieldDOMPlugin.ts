@@ -42,6 +42,15 @@ export class TemporalFieldDOMPlugin {
     return !!this.inputRef.current?.contains(this.getActiveElement());
   }
 
+  public focusSection(sectionIndex: number) {
+    const sectionElement = this.getSectionElement(sectionIndex);
+    if (sectionElement == null) {
+      return;
+    }
+
+    sectionElement.focus();
+  }
+
   public registerSection = (sectionElement: HTMLDivElement | null) => {
     const index = this.getSectionIndexFromDOMElement(sectionElement);
     if (index == null) {
@@ -77,10 +86,8 @@ export class TemporalFieldDOMPlugin {
       return;
     }
 
-    const selectedSections = TemporalFieldSectionPlugin.selectors.selectedSections(
-      this.store.state,
-    );
-    if (selectedSections == null) {
+    const selectedSection = TemporalFieldSectionPlugin.selectors.selectedSection(this.store.state);
+    if (selectedSection == null) {
       // If the selection contains an element inside the field, we reset it.
       if (
         selection.rangeCount > 0 &&
@@ -100,7 +107,7 @@ export class TemporalFieldDOMPlugin {
     }
 
     const range = new window.Range();
-    const target = this.getSectionElement(selectedSections);
+    const target = this.getSectionElement(selectedSection);
     if (target == null) {
       return;
     }

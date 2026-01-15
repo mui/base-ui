@@ -126,7 +126,7 @@ export interface TemporalFieldState<
    * - If a number is provided, the section at this index will be selected.
    * - If `null` is provided, no section will be selected.
    */
-  selectedSections: TemporalFieldSelectedSections;
+  selectedSection: TemporalFieldSelectedSection;
   /**
    * Non-nullable value used to keep trace of the timezone and the date parts not present in the format.
    * It is updated whenever we have a valid date (for the Range Pickers we update only the portion of the range that is valid).
@@ -234,7 +234,7 @@ export interface TemporalFieldSection {
 
 export type TemporalFieldRangePosition = 'start' | 'end';
 
-export type TemporalFieldSelectedSections = number | null;
+export type TemporalFieldSelectedSection = number | null;
 
 export interface TemporalFieldValueChangeHandlerContext<TError> {
   /**

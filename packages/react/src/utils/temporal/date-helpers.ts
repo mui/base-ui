@@ -14,20 +14,20 @@ export function mergeDateAndTime(
   return mergedDate;
 }
 
-// /**
-//  * Check if the time part of the first date is after the time part of the second date.
-//  */
-// export function isTimePartAfter(
-//   adapter: TemporalAdapter,
-//   dateA: TemporalSupportedObject,
-//   dateB: TemporalSupportedObject,
-// ): boolean {
-//   const getSecondsInDay = (date: TemporalSupportedObject) => {
-//     return adapter.getHours(date) * 3600 + adapter.getMinutes(date) * 60 + adapter.getSeconds(date);
-//   };
+/**
+ * Check if the time part of the first date is after the time part of the second date.
+ */
+export function isTimePartAfter(
+  adapter: TemporalAdapter,
+  dateA: TemporalSupportedObject,
+  dateB: TemporalSupportedObject,
+): boolean {
+  const getSecondsInDay = (date: TemporalSupportedObject) => {
+    return adapter.getHours(date) * 3600 + adapter.getMinutes(date) * 60 + adapter.getSeconds(date);
+  };
 
-//   return getSecondsInDay(dateA) > getSecondsInDay(dateB);
-// }
+  return getSecondsInDay(dateA) > getSecondsInDay(dateB);
+}
 
 export function areDatesEqual(
   adapter: TemporalAdapter,

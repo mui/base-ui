@@ -13,7 +13,7 @@ export default function DateFieldBasic() {
           {(section) => (
             <React.Fragment key={section.index}>
               <DateField.Section className={styles.Section} section={section} />
-              {section.token.separator}
+              <DateField.Separator className={styles.Separator} section={section} />
             </React.Fragment>
           )}
         </DateField.Input>

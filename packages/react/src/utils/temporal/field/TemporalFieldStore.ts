@@ -20,6 +20,7 @@ import { TemporalFieldSectionPropsPlugin } from './TemporalFieldSectionPropsPlug
 import { TemporalFieldFormatPlugin } from './TemporalFieldFormatPlugin';
 import { TemporalFieldDOMPlugin } from './TemporalFieldDOMPlugin';
 import { TemporalFieldRootPropsPlugin } from './TemporalFieldRootPropsPlugin';
+import { TemporalFieldSeparatorPropsPlugin } from './TemporalFieldSeparatorPropsPlugin';
 
 const SECTION_TYPE_GRANULARITY: { [key in TemporalFieldSectionType]?: number } = {
   year: 1,
@@ -60,6 +61,8 @@ export class TemporalFieldStore<
   public inputProps: TemporalFieldInputPropsPlugin<TValue, TError>;
 
   public sectionProps: TemporalFieldSectionPropsPlugin<TValue>;
+
+  public separatorProps: TemporalFieldSeparatorPropsPlugin;
 
   constructor(
     parameters: TemporalFieldStoreParameters<TValue, TError>,
@@ -109,7 +112,7 @@ export class TemporalFieldStore<
       sections,
       referenceValue,
       characterQuery: null,
-      selectedSections: null,
+      selectedSection: null,
     });
 
     this.parameters = parameters;
@@ -128,6 +131,7 @@ export class TemporalFieldStore<
     this.rootProps = new TemporalFieldRootPropsPlugin(this);
     this.inputProps = new TemporalFieldInputPropsPlugin<TValue, TError>(this);
     this.sectionProps = new TemporalFieldSectionPropsPlugin<TValue>(this);
+    this.separatorProps = new TemporalFieldSeparatorPropsPlugin(this);
   }
 
   /**

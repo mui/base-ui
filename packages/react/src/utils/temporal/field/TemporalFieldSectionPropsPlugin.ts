@@ -20,52 +20,50 @@ const translations = {
 const sectionPropsSelectors = {
   sectionProps: createSelectorMemoized(
     (state: State) => state.adapter,
-    selectors.readOnly,
+    selectors.editable,
     selectors.disabled,
+    selectors.readOnly,
     selectors.timezoneToRender,
     TemporalFieldSectionPlugin.selectors.sectionBoundaries,
     (
       adapter,
-      readOnly,
+      editable,
       disabled,
+      readOnly,
       timezone,
       sectionBoundaries,
       section: TemporalFieldSection,
-    ): React.HTMLAttributes<HTMLDivElement> => {
-      const isEditable = !disabled && !readOnly;
+    ): React.HTMLAttributes<HTMLDivElement> => ({
+      // Aria attributes
+      'aria-readonly': readOnly,
+      'aria-valuenow': getSectionValueNow(adapter, section, timezone),
+      'aria-valuemin': sectionBoundaries.minimum,
+      'aria-valuemax': sectionBoundaries.maximum,
+      'aria-valuetext': section.value
+        ? getSectionValueText(adapter, section, timezone)
+        : translations.empty,
+      'aria-label': translations[section.token.config.sectionType],
+      'aria-disabled': disabled,
 
-      return {
-        // Aria attributes
-        'aria-readonly': readOnly,
-        'aria-valuenow': getSectionValueNow(adapter, section, timezone),
-        'aria-valuemin': sectionBoundaries.minimum,
-        'aria-valuemax': sectionBoundaries.maximum,
-        'aria-valuetext': section.value
-          ? getSectionValueText(adapter, section, timezone)
-          : translations.empty,
-        'aria-label': translations[section.token.config.sectionType],
-        'aria-disabled': disabled,
-
-        // Other
-        tabIndex: !isEditable || section.index > 0 ? -1 : 0,
-        contentEditable: isEditable,
-        suppressContentEditableWarning: true,
-        role: 'spinbutton',
-        // 'data-range-position': (section as FieldRangeSection).dateName || undefined,
-        spellCheck: isEditable ? false : undefined,
-        // Firefox hydrates this as `'none`' instead of `'off'`. No problems in chromium with both values.
-        // For reference https://github.com/mui/mui-x/issues/19012
-        autoCapitalize: isEditable ? 'none' : undefined,
-        autoCorrect: isEditable ? 'off' : undefined,
-        children: section.value || section.token.placeholder,
-        inputMode: section.token.config.contentType === 'letter' ? 'text' : 'numeric',
-      };
-    },
+      // Other
+      children: section.value || section.token.placeholder,
+      tabIndex: !editable || section.index > 0 ? -1 : 0,
+      contentEditable: editable,
+      suppressContentEditableWarning: true,
+      role: 'spinbutton',
+      // 'data-range-position': (section as FieldRangeSection).dateName || undefined,
+      spellCheck: editable ? false : undefined,
+      // Firefox hydrates this as `'none`' instead of `'off'`. No problems in chromium with both values.
+      // For reference https://github.com/mui/mui-x/issues/19012
+      autoCapitalize: editable ? 'none' : undefined,
+      autoCorrect: editable ? 'off' : undefined,
+      inputMode: section.token.config.contentType === 'letter' ? 'text' : 'numeric',
+    }),
   ),
 };
 
 /**
- * Plugin to build the props to pass to the input element.
+ * Plugin to build the props to pass to the section part.
  */
 export class TemporalFieldSectionPropsPlugin<TValue extends TemporalSupportedValue> {
   private store: TemporalFieldStore<TValue, any, any>;
@@ -86,7 +84,7 @@ export class TemporalFieldSectionPropsPlugin<TValue extends TemporalSupportedVal
     }
 
     const sectionIndex = this.store.dom.getSectionIndexFromDOMElement(event.target as HTMLElement)!;
-    this.store.section.setSelectedSections(sectionIndex);
+    this.store.section.setSelectedSection(sectionIndex);
   };
 
   public handleInput = (event: React.FormEvent) => {
@@ -194,7 +192,7 @@ export class TemporalFieldSectionPropsPlugin<TValue extends TemporalSupportedVal
         event.preventDefault();
 
         if (sectionIndex < lastSectionIndex) {
-          this.store.section.setSelectedSections(sectionIndex + 1);
+          this.store.section.setSelectedSection(sectionIndex + 1);
         }
         break;
       }
@@ -204,7 +202,7 @@ export class TemporalFieldSectionPropsPlugin<TValue extends TemporalSupportedVal
         event.preventDefault();
 
         if (sectionIndex > 0) {
-          this.store.section.setSelectedSections(sectionIndex - 1);
+          this.store.section.setSelectedSection(sectionIndex - 1);
         }
         break;
       }
@@ -249,7 +247,7 @@ export class TemporalFieldSectionPropsPlugin<TValue extends TemporalSupportedVal
     }
 
     const sectionIndex = this.store.dom.getSectionIndexFromDOMElement(event.target)!;
-    this.store.section.setSelectedSections(sectionIndex);
+    this.store.section.setSelectedSection(sectionIndex);
   };
 
   public handleBlur = () => {
@@ -260,7 +258,7 @@ export class TemporalFieldSectionPropsPlugin<TValue extends TemporalSupportedVal
 
       // If focus didn't move to another section in this field, clear selection
       if (newSectionIndex == null && !this.store.dom.inputRef.current?.contains(activeEl)) {
-        this.store.section.setSelectedSections(null);
+        this.store.section.setSelectedSection(null);
       }
     });
   };

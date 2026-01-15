@@ -1,9 +1,10 @@
 import { TemporalSupportedValue } from '../../../types';
 import { selectors } from './selectors';
+import { TemporalFieldSectionPlugin } from './TemporalFieldSectionPlugin';
 import { TemporalFieldStore } from './TemporalFieldStore';
 
 /**
- * Plugin to build the props to pass to the input element.
+ * Plugin to build the props to pass to the input part.
  */
 export class TemporalFieldInputPropsPlugin<TValue extends TemporalSupportedValue, TError> {
   private store: TemporalFieldStore<TValue, TError, any>;
@@ -14,21 +15,25 @@ export class TemporalFieldInputPropsPlugin<TValue extends TemporalSupportedValue
     this.store = store;
   }
 
-  public handleClick = (event: React.MouseEvent) => {
+  public handleClick = () => {
     if (selectors.disabled(this.store.state) || !this.store.dom.inputRef.current) {
       return;
     }
 
     // setFocused(true);
 
-    if (!this.store.dom.isFocused()) {
+    if (
+      !this.store.dom.isFocused() &&
+      TemporalFieldSectionPlugin.selectors.selectedSection(this.store.state) == null
+    ) {
       // setFocused(true);
-      this.store.section.setSelectedSections(0);
-    } else {
-      const hasClickedOnASection = this.store.dom.inputRef.current.contains(event.target as Node);
-      if (!hasClickedOnASection) {
-        this.store.section.setSelectedSections(0);
-      }
+      this.store.section.setSelectedSection(0);
     }
+    // } else {
+    //   const hasClickedOnASection = this.store.dom.inputRef.current.contains(event.target as Node);
+    //   if (!hasClickedOnASection) {
+    //     this.store.section.setSelectedSection(0);
+    //   }
+    // }
   };
 }
