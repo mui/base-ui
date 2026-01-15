@@ -7,7 +7,9 @@ import styles from './index.module.css';
 export default function ObjectValueSelect() {
   return (
     <Field.Root className={styles.Field}>
-      <Field.Label className={styles.Label}>Shipping method</Field.Label>
+      <Field.Label className={styles.Label} nativeLabel={false} render={<div />}>
+        Shipping method
+      </Field.Label>
       <Select.Root defaultValue={shippingMethods[0]} itemToStringValue={(item) => item.id}>
         <Select.Trigger className={styles.Select}>
           <Select.Value>

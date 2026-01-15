@@ -7,7 +7,9 @@ import styles from './index.module.css';
 export default function ExamplePopoverCombobox() {
   return (
     <Field.Root className={styles.Field}>
-      <Field.Label className={styles.Label}>Country</Field.Label>
+      <Field.Label className={styles.Label} nativeLabel={false} render={<div />}>
+        Country
+      </Field.Label>
       <Combobox.Root items={countries}>
         <Combobox.Trigger className={styles.Trigger}>
           <Combobox.Value
