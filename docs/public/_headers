@@ -10,6 +10,10 @@
 /experiments/*
   X-Robots-Tag: noindex
 
+# Avoid indexing any unstable pages (i.e. calendar)
+/unstable-*/*
+  X-Robots-Tag: noindex
+
 /*
   Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
   # Block usage in iframes.
