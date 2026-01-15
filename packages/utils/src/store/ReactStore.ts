@@ -118,8 +118,6 @@ export class ReactStore<
     controlled: Value | undefined,
   ): void {
     React.useDebugValue(key);
-    // eslint-disable-next-line consistent-this
-    const store = this;
     const isControlled = controlled !== undefined;
 
     useIsoLayoutEffect(() => {
