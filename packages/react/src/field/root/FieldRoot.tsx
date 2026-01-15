@@ -10,6 +10,8 @@ import { LabelableProvider } from '../../labelable-provider';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useFieldValidation } from './useFieldValidation';
+import { FieldInteractionStateProvider } from '../FieldInteractionStateProvider';
+import { useFieldInteractionStateContext } from '../FieldInteractionStateContext';
 
 /**
  * @internal
@@ -44,7 +46,8 @@ const FieldRootInner = React.forwardRef(function FieldRootInner(
   const [touchedState, setTouchedUnwrapped] = React.useState(false);
   const [dirtyState, setDirtyUnwrapped] = React.useState(false);
   const [filled, setFilled] = React.useState(false);
-  const [focused, setFocused] = React.useState(false);
+
+  const { focused, setFocused } = useFieldInteractionStateContext();
 
   const dirty = dirtyProp ?? dirtyState;
   const touched = touchedProp ?? touchedState;
@@ -189,7 +192,9 @@ export const FieldRoot = React.forwardRef(function FieldRoot(
 ) {
   return (
     <LabelableProvider>
-      <FieldRootInner {...componentProps} ref={forwardedRef} />
+      <FieldInteractionStateProvider>
+        <FieldRootInner {...componentProps} ref={forwardedRef} />
+      </FieldInteractionStateProvider>
     </LabelableProvider>
   );
 });
