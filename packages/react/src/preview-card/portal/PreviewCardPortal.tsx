@@ -17,7 +17,8 @@ export const PreviewCardPortal = React.forwardRef(function PreviewCardPortal(
 ) {
   const { keepMounted = false, ...portalProps } = props;
 
-  const { mounted } = usePreviewCardRootContext();
+  const store = usePreviewCardRootContext();
+  const mounted = store.useState('mounted');
 
   const shouldRender = mounted || keepMounted;
   if (!shouldRender) {
