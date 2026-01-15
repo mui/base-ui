@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { visuallyHiddenInput } from '@base-ui/utils/visuallyHidden';
+import { visuallyHidden, visuallyHiddenInput } from '@base-ui/utils/visuallyHidden';
 import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { useOnFirstRender } from '@base-ui/utils/useOnFirstRender';
@@ -571,7 +571,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
           required={required && !hasMultipleSelection}
           readOnly={readOnly}
           ref={ref}
-          style={visuallyHiddenInput}
+          style={name ? visuallyHiddenInput : visuallyHidden}
           tabIndex={-1}
           aria-hidden
         />

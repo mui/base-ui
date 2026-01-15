@@ -5,7 +5,7 @@ import { useControlled } from '@base-ui/utils/useControlled';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
-import { visuallyHiddenInput } from '@base-ui/utils/visuallyHidden';
+import { visuallyHidden, visuallyHiddenInput } from '@base-ui/utils/visuallyHidden';
 import { NOOP } from '../../utils/noop';
 import { useStateAttributesMapping } from '../utils/useStateAttributesMapping';
 import { useRenderElement } from '../../utils/useRenderElement';
@@ -197,7 +197,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
       id: nativeButton ? undefined : (inputId ?? undefined),
       required,
       ref: mergedInputRef,
-      style: visuallyHiddenInput,
+      style: name ? visuallyHiddenInput : visuallyHidden,
       tabIndex: -1,
       type: 'checkbox',
       'aria-hidden': true,
