@@ -111,10 +111,10 @@ export interface DialogRootProps<Payload = unknown> {
    * Useful when the dialog's animation is controlled by an external library.
    * - `close`: Closes the dialog imperatively when called.
    */
-  actionsRef?: React.RefObject<DialogRoot.Actions>;
+  actionsRef?: React.RefObject<DialogRoot.Actions | null>;
   /**
-   * A handle to associate the popover with a trigger.
-   * If specified, allows external triggers to control the popover's open state.
+   * A handle to associate the dialog with a trigger.
+   * If specified, allows external triggers to control the dialog's open state.
    * Can be created with the Dialog.createHandle() method.
    */
   handle?: DialogHandle<Payload>;

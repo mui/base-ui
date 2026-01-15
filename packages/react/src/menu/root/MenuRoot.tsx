@@ -634,7 +634,7 @@ export interface MenuRootProps<Payload = unknown> {
    *   Useful when the menu's animation is controlled by an external library.
    * - `close`: When specified, the menu can be closed imperatively.
    */
-  actionsRef?: React.RefObject<MenuRoot.Actions>;
+  actionsRef?: React.RefObject<MenuRoot.Actions | null>;
   /**
    * ID of the trigger that the popover is associated with.
    * This is useful in conjunction with the `open` prop to create a controlled popover.
@@ -647,8 +647,8 @@ export interface MenuRootProps<Payload = unknown> {
    */
   defaultTriggerId?: string | null;
   /**
-   * A handle to associate the popover with a trigger.
-   * If specified, allows external triggers to control the popover's open state.
+   * A handle to associate the menu with a trigger.
+   * If specified, allows external triggers to control the menu's open state.
    */
   handle?: MenuHandle<Payload>;
   /**
@@ -660,6 +660,7 @@ export interface MenuRootProps<Payload = unknown> {
 
 export interface MenuRootActions {
   unmount: () => void;
+  close: () => void;
 }
 
 export type MenuRootChangeEventReason =

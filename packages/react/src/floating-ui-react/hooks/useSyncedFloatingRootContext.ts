@@ -66,6 +66,10 @@ export function useSyncedFloatingRootContext<State extends PopupStoreState<any>>
       valuesToSync.domReferenceElement = referenceElement;
     }
 
+    if (store.state.positionReference === store.state.referenceElement) {
+      valuesToSync.positionReference = referenceElement;
+    }
+
     store.update(valuesToSync);
   }, [open, floatingId, referenceElement, floatingElement, store]);
 
