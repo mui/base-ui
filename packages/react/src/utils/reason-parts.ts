@@ -32,6 +32,8 @@ export const scrub = 'scrub' as const;
 export const cancelOpen = 'cancel-open' as const;
 export const siblingOpen = 'sibling-open' as const;
 export const disabled = 'disabled' as const;
+export const missing = 'missing' as const;
+export const initial = 'initial' as const;
 export const imperativeAction = 'imperative-action' as const;
 
 export const windowResize = 'window-resize' as const;
