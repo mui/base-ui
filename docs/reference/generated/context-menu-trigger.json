@@ -17,6 +17,13 @@
       "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: ContextMenu.Trigger.State,\n  ) => ReactElement)"
     }
   },
-  "dataAttributes": {},
+  "dataAttributes": {
+    "data-popup-open": {
+      "description": "Present when the corresponding context menu is open."
+    },
+    "data-pressed": {
+      "description": "Present when the trigger is pressed."
+    }
+  },
   "cssVariables": {}
 }

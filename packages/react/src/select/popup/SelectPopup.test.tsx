@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { Select } from '@base-ui-components/react/select';
+import { Select } from '@base-ui/react/select';
 import { screen } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance } from '#test-utils';
 
@@ -87,5 +87,40 @@ describe('<Select.Popup />', () => {
     expect(trigger).not.to.have.attribute('aria-controls', popup.id);
     expect(trigger).to.have.attribute('aria-expanded', 'true');
     expect(trigger).to.have.attribute('aria-haspopup', 'listbox');
+  });
+
+  it('restores transform-related inline styles after measurement', async () => {
+    let popupElement: HTMLElement | null = null;
+
+    await render(
+      <Select.Root open>
+        <Select.Trigger>Trigger</Select.Trigger>
+        <Select.Portal>
+          <Select.Positioner>
+            <Select.Popup
+              ref={(node) => {
+                if (node) {
+                  node.style.setProperty('transform', 'translateX(10px)');
+                  node.style.setProperty('scale', '0.8');
+                  node.style.setProperty('translate', '1px 2px');
+                }
+                popupElement = node;
+              }}
+            >
+              <Select.Item value="1">
+                <Select.ItemText>Item 1</Select.ItemText>
+              </Select.Item>
+            </Select.Popup>
+          </Select.Positioner>
+        </Select.Portal>
+      </Select.Root>,
+    );
+
+    await new Promise<void>(queueMicrotask);
+
+    expect(popupElement).not.to.equal(null);
+    expect(popupElement!.style.getPropertyValue('transform')).to.equal('translateX(10px)');
+    expect(popupElement!.style.getPropertyValue('scale')).to.equal('0.8');
+    expect(popupElement!.style.getPropertyValue('translate')).to.equal('1px 2px');
   });
 });

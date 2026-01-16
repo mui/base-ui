@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { FieldRootContext } from './FieldRootContext';
 import { DEFAULT_VALIDITY_STATE, fieldValidityMapping } from '../utils/constants';
 import { useFieldsetRootContext } from '../../fieldset/root/FieldsetRootContext';
@@ -31,6 +31,7 @@ const FieldRootInner = React.forwardRef(function FieldRootInner(
     invalid: invalidProp,
     dirty: dirtyProp,
     touched: touchedProp,
+    actionsRef,
     ...elementProps
   } = componentProps;
 
@@ -111,6 +112,15 @@ const FieldRootInner = React.forwardRef(function FieldRootInner(
     name,
     shouldValidateOnChange,
   });
+
+  const handleImperativeValidate = React.useCallback(() => {
+    markedDirtyRef.current = true;
+    validation.commit(validityData.value);
+  }, [validation, validityData]);
+
+  React.useImperativeHandle(actionsRef, () => ({ validate: handleImperativeValidate }), [
+    handleImperativeValidate,
+  ]);
 
   const contextValue: FieldRootContext = React.useMemo(
     () => ({
@@ -204,6 +214,10 @@ export interface FieldValidityData {
   initialValue: unknown;
 }
 
+export interface FieldRootActions {
+  validate: () => void;
+}
+
 export interface FieldRootState {
   /** Whether the component should ignore user interaction. */
   disabled: boolean;
@@ -220,22 +234,24 @@ export interface FieldRootProps extends BaseUIComponentProps<'div', FieldRoot.St
    * Takes precedence over the `disabled` prop on the `<Field.Control>` component.
    * @default false
    */
-  disabled?: boolean;
+  disabled?: boolean | undefined;
   /**
    * Identifies the field when a form is submitted.
    * Takes precedence over the `name` prop on the `<Field.Control>` component.
    */
-  name?: string;
+  name?: string | undefined;
   /**
    * A function for custom validation. Return a string or an array of strings with
    * the error message(s) if the value is invalid, or `null` if the value is valid.
    * Asynchronous functions are supported, but they do not prevent form submission
    * when using `validationMode="onSubmit"`.
    */
-  validate?: (
-    value: unknown,
-    formValues: Form.Values,
-  ) => string | string[] | null | Promise<string | string[] | null>;
+  validate?:
+    | ((
+        value: unknown,
+        formValues: Form.Values,
+      ) => string | string[] | null | Promise<string | string[] | null>)
+    | undefined;
   /**
    * Determines when the field should be validated.
    * This takes precedence over the `validationMode` prop on `<Form>`.
@@ -246,31 +262,37 @@ export interface FieldRootProps extends BaseUIComponentProps<'div', FieldRoot.St
    *
    * @default 'onSubmit'
    */
-  validationMode?: Form.ValidationMode;
+  validationMode?: Form.ValidationMode | undefined;
   /**
    * How long to wait between `validate` callbacks if
    * `validationMode="onChange"` is used. Specified in milliseconds.
    * @default 0
    */
-  validationDebounceTime?: number;
+  validationDebounceTime?: number | undefined;
   /**
    * Whether the field is invalid.
    * Useful when the field state is controlled by an external library.
    */
-  invalid?: boolean;
+  invalid?: boolean | undefined;
   /**
    * Whether the field's value has been changed from its initial value.
    * Useful when the field state is controlled by an external library.
    */
-  dirty?: boolean;
+  dirty?: boolean | undefined;
   /**
    * Whether the field has been touched.
    * Useful when the field state is controlled by an external library.
    */
-  touched?: boolean;
+  touched?: boolean | undefined;
+  /**
+   * A ref to imperative actions.
+   * - `validate`: Validates the field when called.
+   */
+  actionsRef?: React.RefObject<FieldRoot.Actions | null> | undefined;
 }
 
 export namespace FieldRoot {
   export type State = FieldRootState;
   export type Props = FieldRootProps;
+  export type Actions = FieldRootActions;
 }

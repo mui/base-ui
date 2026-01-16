@@ -15,14 +15,11 @@ async function getBaseUiExports() {
   const packageJsonContent = await fs.readFile(packageJsonPath, 'utf8');
   const packageJson = JSON.parse(packageJsonContent);
 
-  // Get all export paths from @base-ui-components/react package.json
+  // Get all export paths from @base-ui/react package.json
   const exports = packageJson.exports;
   const entrypoints = Object.keys(exports).map((exportKey) => {
-    // Convert from "./accordion" to "@base-ui-components/react/accordion"
-    const entrypoint =
-      exportKey === '.'
-        ? '@base-ui-components/react'
-        : `@base-ui-components/react${exportKey.slice(1)}`;
+    // Convert from "./accordion" to "@base-ui/react/accordion"
+    const entrypoint = exportKey === '.' ? '@base-ui/react' : `@base-ui/react${exportKey.slice(1)}`;
     return entrypoint;
   });
 
@@ -55,7 +52,7 @@ async function getUtilsExports() {
       }
       return true;
     })
-    .map(({ file }) => `@base-ui-components/utils/${file.replace(/\.(js|ts|tsx)$/, '')}`);
+    .map(({ file }) => `@base-ui/utils/${file.replace(/\.(js|ts|tsx)$/, '')}`);
 
   return entrypoints;
 }

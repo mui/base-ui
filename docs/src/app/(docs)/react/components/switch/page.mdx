@@ -1,0 +1,87 @@
+# Switch
+
+<Subtitle>A control that indicates whether a setting is on or off.</Subtitle>
+<Meta
+  name="description"
+  content="A high-quality, unstyled React switch component that indicates whether a setting is on or off."
+/>
+
+import { DemoSwitchHero } from './demos/hero';
+
+<DemoSwitchHero />
+
+## Usage guidelines
+
+- **Form controls must have an accessible name**: It can be created using a `<label>` element or the `Field` component. See [Labeling a switch](#labeling-a-switch) and the [forms guide](/react/handbook/forms).
+
+## Anatomy
+
+Import the component and assemble its parts:
+
+```jsx title="Anatomy"
+import { Switch } from '@base-ui/react/switch';
+
+<Switch.Root>
+  <Switch.Thumb />
+</Switch.Root>;
+```
+
+## Examples
+
+### Labeling a switch
+
+Label a switch using an enclosing `<label>` element that wraps `<Switch.Root>`. An enclosing label is announced to screen readers when focus is on the control, and ensures that clicking on any gaps between the label and switch still toggles the control.
+
+```tsx title="Using an enclosing label to label a switch" {1,4}
+<label>
+  <Switch.Root />
+  Notifications
+</label>
+```
+
+The [Field](/react/components/field) component eliminates the need to track `id` or `aria-label` associations manually. It supports both enclosing and sibling labeling patterns, along with a UX improvement to prevent double clicks from selecting the label text.
+
+```tsx title="Using the Field component to label a switch" {2,5}
+<Field.Root>
+  <Field.Label>
+    <Switch.Root />
+    Notifications
+  </Field.Label>
+</Field.Root>
+```
+
+### Form integration
+
+To use a switch in a form, pass the switch's `name` to `<Field.Root>`:
+
+```tsx title="Using Switch in a form" {2}
+<Form>
+  <Field.Root name="notifications">
+    <Field.Label>
+      <Switch.Root />
+      Notifications
+    </Field.Label>
+  </Field.Root>
+</Form>
+```
+
+## API reference
+
+<Reference component="Switch" parts="Root, Thumb" />
+
+export const metadata = {
+  keywords: [
+    'React Switch',
+    'Toggle Switch Component',
+    'Toggle Switch',
+    'Toggle Button',
+    'On/Off Control',
+    'On Off Switch',
+    'Binary Switch',
+    'Checkbox Alternative',
+    'Form Toggle Control',
+    'Accessible Switch',
+    'Headless React Components',
+    'Base UI',
+  ],
+};

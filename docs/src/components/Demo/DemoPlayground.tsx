@@ -5,9 +5,12 @@ import { DemoErrorFallback } from './DemoErrorFallback';
 export type DemoPlaygroundProps = {
   component: React.ReactNode;
   variant?: string;
+  // Only used for the extra Stackblitz/CSB link at the top of demo, it has to
+  // specifically be placed here for the reading order to make sense for SRs
+  children?: React.ReactNode;
 };
 
-export function DemoPlayground({ component, variant }: DemoPlaygroundProps) {
+export function DemoPlayground({ component, variant, children }: DemoPlaygroundProps) {
   return (
     <ErrorBoundary FallbackComponent={DemoErrorFallback}>
       <div className="DemoPlayground">
@@ -18,6 +21,7 @@ export function DemoPlayground({ component, variant }: DemoPlaygroundProps) {
         >
           {component}
         </div>
+        {children}
       </div>
     </ErrorBoundary>
   );

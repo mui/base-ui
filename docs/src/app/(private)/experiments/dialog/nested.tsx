@@ -1,14 +1,13 @@
 'use client';
 import * as React from 'react';
 import clsx from 'clsx';
-import { Dialog } from '@base-ui-components/react/dialog';
-// eslint-disable-next-line no-restricted-imports
-import { useTransitionStatus } from '@base-ui-components/react/utils/useTransitionStatus';
+import { Dialog } from '@base-ui/react/dialog';
 import { animated as springAnimated, useSpring, useSpringRef } from '@react-spring/web';
 import {
   SettingsMetadata,
   useExperimentSettings,
 } from 'docs/src/components/Experiments/SettingsPanel';
+import { useTransitionStatus } from '../../../../../../packages/react/src/utils/useTransitionStatus';
 import classes from './nested.module.css';
 
 const NESTED_DIALOGS = 8;
@@ -16,7 +15,7 @@ const NESTED_DIALOGS = 8;
 interface Settings {
   keepMounted: boolean;
   modal: boolean;
-  dismissible: boolean;
+  disablePointerDismissal: boolean;
 }
 
 function renderContent(
@@ -24,7 +23,7 @@ function renderContent(
   includeNested: number,
   nestedClassName: string,
   modal: boolean,
-  dismissible: boolean,
+  disablePointerDismissal: boolean,
 ) {
   return (
     <React.Fragment>
@@ -44,7 +43,7 @@ function renderContent(
 
       <div className={classes.controls}>
         {includeNested > 0 ? (
-          <Dialog.Root modal={modal} dismissible={dismissible}>
+          <Dialog.Root modal={modal} disablePointerDismissal={disablePointerDismissal}>
             <Dialog.Trigger className={classes.button}>Open nested</Dialog.Trigger>
             <Dialog.Backdrop className={clsx(classes.backdrop, nestedClassName)} />
             <Dialog.Portal>
@@ -54,7 +53,7 @@ function renderContent(
                   includeNested - 1,
                   nestedClassName,
                   modal,
-                  dismissible,
+                  disablePointerDismissal,
                 )}
               </Dialog.Popup>
             </Dialog.Portal>
@@ -67,10 +66,10 @@ function renderContent(
   );
 }
 
-function CssTransitionDialogDemo({ keepMounted, modal, dismissible }: Settings) {
+function CssTransitionDialogDemo({ keepMounted, modal, disablePointerDismissal }: Settings) {
   return (
     <span className={classes.demo}>
-      <Dialog.Root modal={modal} dismissible={dismissible}>
+      <Dialog.Root modal={modal} disablePointerDismissal={disablePointerDismissal}>
         <Dialog.Trigger className={classes.button}>Open with CSS transition</Dialog.Trigger>
 
         <Dialog.Portal keepMounted={keepMounted}>
@@ -81,7 +80,7 @@ function CssTransitionDialogDemo({ keepMounted, modal, dismissible }: Settings) 
               NESTED_DIALOGS,
               classes.withTransitions,
               modal,
-              dismissible,
+              disablePointerDismissal,
             )}
           </Dialog.Popup>
         </Dialog.Portal>
@@ -90,10 +89,10 @@ function CssTransitionDialogDemo({ keepMounted, modal, dismissible }: Settings) 
   );
 }
 
-function CssAnimationDialogDemo({ keepMounted, modal, dismissible }: Settings) {
+function CssAnimationDialogDemo({ keepMounted, modal, disablePointerDismissal }: Settings) {
   return (
     <span className={classes.demo}>
-      <Dialog.Root modal={modal} dismissible={dismissible}>
+      <Dialog.Root modal={modal} disablePointerDismissal={disablePointerDismissal}>
         <Dialog.Trigger className={classes.button}>Open with CSS animation</Dialog.Trigger>
 
         <Dialog.Portal keepMounted={keepMounted}>
@@ -104,7 +103,7 @@ function CssAnimationDialogDemo({ keepMounted, modal, dismissible }: Settings) {
               NESTED_DIALOGS,
               classes.withAnimations,
               modal,
-              dismissible,
+              disablePointerDismissal,
             )}
           </Dialog.Popup>
         </Dialog.Portal>
@@ -115,12 +114,12 @@ function CssAnimationDialogDemo({ keepMounted, modal, dismissible }: Settings) {
 
 // @ts-expect-error To be used later
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-function ReactSpringDialogDemo({ keepMounted, modal, dismissible }: DemoProps) {
+function ReactSpringDialogDemo({ keepMounted, modal, disablePointerDismissal }: DemoProps) {
   const [open, setOpen] = React.useState(false);
 
   return (
     <span className={classes.demo}>
-      <Dialog.Root dismissible open={open} onOpenChange={setOpen}>
+      <Dialog.Root disablePointerDismissal open={open} onOpenChange={setOpen}>
         <Dialog.Trigger className={classes.button}>
           Open with React Spring transition
         </Dialog.Trigger>
@@ -135,7 +134,7 @@ function ReactSpringDialogDemo({ keepMounted, modal, dismissible }: DemoProps) {
                 3,
                 classes.withReactSpringTransition,
                 modal,
-                dismissible,
+                disablePointerDismissal,
               )}
             </Dialog.Popup>
           </Dialog.Portal>
@@ -189,12 +188,12 @@ export default function DialogExperiment() {
       <CssTransitionDialogDemo
         keepMounted={settings.keepMounted}
         modal={settings.modal}
-        dismissible={settings.dismissible}
+        disablePointerDismissal={settings.disablePointerDismissal}
       />
       <CssAnimationDialogDemo
         keepMounted={settings.keepMounted}
         modal={settings.modal}
-        dismissible={settings.dismissible}
+        disablePointerDismissal={settings.disablePointerDismissal}
       />
     </div>
   );
@@ -206,9 +205,9 @@ export const settingsMetadata: SettingsMetadata<Settings> = {
     label: 'Modal',
     default: true,
   },
-  dismissible: {
+  disablePointerDismissal: {
     type: 'boolean',
-    label: 'Dismissible',
+    label: 'Disable pointer Dismissal',
     default: true,
   },
   keepMounted: {

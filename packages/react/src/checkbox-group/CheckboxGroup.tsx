@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
-import { useControlled } from '@base-ui-components/utils/useControlled';
-import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
+import { useControlled } from '@base-ui/utils/useControlled';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useBaseUiId } from '../utils/useBaseUiId';
 import { useRenderElement } from '../utils/useRenderElement';
 import { CheckboxGroupContext } from './CheckboxGroupContext';
@@ -13,7 +13,8 @@ import { fieldValidityMapping } from '../field/utils/constants';
 import { useField } from '../field/useField';
 import { PARENT_CHECKBOX } from '../checkbox/root/CheckboxRoot';
 import { useCheckboxGroupParent } from './useCheckboxGroupParent';
-import { BaseUIChangeEventDetails } from '../utils/createBaseUIEventDetails';
+import type { BaseUIChangeEventDetails } from '../utils/createBaseUIEventDetails';
+import { REASONS } from '../utils/reasons';
 import { useFormContext } from '../form/FormContext';
 import { useValueChanged } from '../utils/useValueChanged';
 import { areArraysEqual } from '../utils/areArraysEqual';
@@ -50,7 +51,7 @@ export const CheckboxGroup = React.forwardRef(function CheckboxGroup(
     shouldValidateOnChange,
     validityData,
   } = useFieldRootContext();
-  const { labelId } = useLabelableContext();
+  const { labelId, getDescriptionProps } = useLabelableContext();
   const { clearErrors } = useFormContext();
 
   const disabled = fieldDisabled || disabledProp;
@@ -151,6 +152,7 @@ export const CheckboxGroup = React.forwardRef(function CheckboxGroup(
         role: 'group',
         'aria-labelledby': labelId,
       },
+      getDescriptionProps,
       elementProps,
     ],
     stateAttributesMapping: fieldValidityMapping,
@@ -174,30 +176,32 @@ export interface CheckboxGroupProps extends BaseUIComponentProps<'div', Checkbox
    *
    * To render an uncontrolled checkbox group, use the `defaultValue` prop instead.
    */
-  value?: string[];
+  value?: string[] | undefined;
   /**
    * Names of the checkboxes in the group that should be initially ticked.
    *
    * To render a controlled checkbox group, use the `value` prop instead.
    */
-  defaultValue?: string[];
+  defaultValue?: string[] | undefined;
   /**
    * Event handler called when a checkbox in the group is ticked or unticked.
    * Provides the new value as an argument.
    */
-  onValueChange?: (value: string[], eventDetails: CheckboxGroupChangeEventDetails) => void;
+  onValueChange?:
+    | ((value: string[], eventDetails: CheckboxGroupChangeEventDetails) => void)
+    | undefined;
   /**
    * Names of all checkboxes in the group. Use this when creating a parent checkbox.
    */
-  allValues?: string[];
+  allValues?: string[] | undefined;
   /**
    * Whether the component should ignore user interaction.
    * @default false
    */
-  disabled?: boolean;
+  disabled?: boolean | undefined;
 }
 
-export type CheckboxGroupChangeEventReason = 'none';
+export type CheckboxGroupChangeEventReason = typeof REASONS.none;
 export type CheckboxGroupChangeEventDetails =
   BaseUIChangeEventDetails<CheckboxGroup.ChangeEventReason>;
 

@@ -1,12 +1,12 @@
 'use client';
 import * as React from 'react';
-import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
-import { FloatingEvents } from '../../floating-ui-react';
+import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { useButton } from '../../use-button';
 import { mergeProps } from '../../merge-props';
 import { HTMLProps, BaseUIEvent } from '../../utils/types';
 import { useContextMenuRootContext } from '../../context-menu/root/ContextMenuRootContext';
 import { MenuStore } from '../store/MenuStore';
+import { REASONS } from '../../utils/reasons';
 
 export const REGULAR_ITEM = {
   type: 'regular-item' as const,
@@ -19,7 +19,6 @@ export function useMenuItem(params: useMenuItem.Parameters): useMenuItem.ReturnV
     highlighted,
     id,
     store,
-    menuEvents,
     nativeButton,
     itemMetadata,
     nodeId,
@@ -28,6 +27,7 @@ export function useMenuItem(params: useMenuItem.Parameters): useMenuItem.ReturnV
   const itemRef = React.useRef<HTMLElement | null>(null);
   const contextMenuContext = useContextMenuRootContext(true);
   const isContextMenu = contextMenuContext !== undefined;
+  const { events: menuEvents } = store.useState('floatingTreeRoot');
 
   const { getButtonProps, buttonRef } = useButton({
     disabled,
@@ -68,10 +68,23 @@ export function useMenuItem(params: useMenuItem.Parameters): useMenuItem.ReturnV
           },
           onClick(event) {
             if (closeOnClick) {
-              menuEvents.emit('close', { domEvent: event, reason: 'item-press' });
+              menuEvents.emit('close', { domEvent: event, reason: REASONS.itemPress });
             }
           },
           onMouseUp(event) {
+            if (contextMenuContext) {
+              const initialCursorPoint = contextMenuContext.initialCursorPointRef.current;
+              contextMenuContext.initialCursorPointRef.current = null;
+              if (
+                isContextMenu &&
+                initialCursorPoint &&
+                Math.abs(event.clientX - initialCursorPoint.x) <= 1 &&
+                Math.abs(event.clientY - initialCursorPoint.y) <= 1
+              ) {
+                return;
+              }
+            }
+
             if (
               itemRef.current &&
               store.context.allowMouseUpTriggerRef.current &&
@@ -97,6 +110,7 @@ export function useMenuItem(params: useMenuItem.Parameters): useMenuItem.ReturnV
       menuEvents,
       store,
       isContextMenu,
+      contextMenuContext,
       itemMetadata,
       nodeId,
     ],
@@ -131,10 +145,6 @@ export interface UseMenuItemParameters {
    */
   id: string | undefined;
   /**
-   * The FloatingEvents instance of the menu's root.
-   */
-  menuEvents: FloatingEvents;
-  /**
    * Whether the component renders a native `<button>` element when replacing it
    * via the `render` prop.
    * Set to `false` if the rendered element is not a button (e.g. `<div>`).
@@ -149,7 +159,10 @@ export interface UseMenuItemParameters {
    * The node id of the menu positioner.
    */
   nodeId: string | undefined;
-  store: MenuStore;
+  /**
+   * The menu store.
+   */
+  store: MenuStore<any>;
 }
 
 export type UseMenuItemMetadata =
@@ -169,7 +182,7 @@ export interface UseMenuItemReturnValue {
   /**
    * The ref to the component's root DOM element.
    */
-  itemRef: React.RefCallback<Element> | null;
+  itemRef: React.RefCallback<HTMLElement> | null;
 }
 
 export namespace useMenuItem {

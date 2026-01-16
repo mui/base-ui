@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { getWindow, isElement, isHTMLElement } from '@floating-ui/utils/dom';
-import { isMac, isSafari } from '@base-ui-components/utils/detectBrowser';
-import { useTimeout } from '@base-ui-components/utils/useTimeout';
+import { isMac, isSafari } from '@base-ui/utils/detectBrowser';
+import { useTimeout } from '@base-ui/utils/useTimeout';
 import {
   activeElement,
   contains,
@@ -11,8 +11,9 @@ import {
   matchesFocusVisible,
 } from '../utils';
 
-import type { ElementProps, FloatingRootContext } from '../types';
+import type { ElementProps, FloatingContext, FloatingRootContext } from '../types';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
+import { REASONS } from '../../utils/reasons';
 import { createAttribute } from '../utils/createAttribute';
 import { FloatingUIOpenChangeDetails } from '../../utils/types';
 
@@ -24,13 +25,18 @@ export interface UseFocusProps {
    * handlers.
    * @default true
    */
-  enabled?: boolean;
+  enabled?: boolean | undefined;
   /**
    * Whether the open state only changes if the focus event is considered
    * visible (`:focus-visible` CSS selector).
    * @default true
    */
-  visibleOnly?: boolean;
+  visibleOnly?: boolean | undefined;
+  /**
+   * Waits for the specified time before opening.
+   * @default undefined
+   */
+  delay?: (number | (() => number | undefined)) | undefined;
 }
 
 /**
@@ -38,29 +44,38 @@ export interface UseFocusProps {
  * `:focus`.
  * @see https://floating-ui.com/docs/useFocus
  */
-export function useFocus(context: FloatingRootContext, props: UseFocusProps = {}): ElementProps {
-  const { open, onOpenChange, events, dataRef, elements } = context;
-  const { enabled = true, visibleOnly = true } = props;
+export function useFocus(
+  context: FloatingRootContext | FloatingContext,
+  props: UseFocusProps = {},
+): ElementProps {
+  const store = 'rootStore' in context ? context.rootStore : context;
+
+  const { events, dataRef } = store.context;
+  const { enabled = true, visibleOnly = true, delay } = props;
 
   const blockFocusRef = React.useRef(false);
+  // Track which reference should be blocked from re-opening after Escape/press dismissal.
+  const blockedReferenceRef = React.useRef<Element | null>(null);
   const timeout = useTimeout();
   const keyboardModalityRef = React.useRef(true);
 
   React.useEffect(() => {
+    const domReference = store.select('domReferenceElement');
     if (!enabled) {
       return undefined;
     }
 
-    const win = getWindow(elements.domReference);
+    const win = getWindow(domReference);
 
     // If the reference was focused and the user left the tab/window, and the
     // floating element was not open, the focus should be blocked when they
     // return to the tab/window.
     function onBlur() {
+      const currentDomReference = store.select('domReferenceElement');
       if (
-        !open &&
-        isHTMLElement(elements.domReference) &&
-        elements.domReference === activeElement(getDocument(elements.domReference))
+        !store.select('open') &&
+        isHTMLElement(currentDomReference) &&
+        currentDomReference === activeElement(getDocument(currentDomReference))
       ) {
         blockFocusRef.current = true;
       }
@@ -89,7 +104,7 @@ export function useFocus(context: FloatingRootContext, props: UseFocusProps = {}
         win.removeEventListener('pointerdown', onPointerDown, true);
       }
     };
-  }, [elements.domReference, open, enabled]);
+  }, [store, enabled]);
 
   React.useEffect(() => {
     if (!enabled) {
@@ -97,8 +112,12 @@ export function useFocus(context: FloatingRootContext, props: UseFocusProps = {}
     }
 
     function onOpenChangeLocal(details: FloatingUIOpenChangeDetails) {
-      if (details.reason === 'trigger-press' || details.reason === 'escape-key') {
-        blockFocusRef.current = true;
+      if (details.reason === REASONS.triggerPress || details.reason === REASONS.escapeKey) {
+        const referenceElement = store.select('domReferenceElement');
+        if (isElement(referenceElement)) {
+          blockedReferenceRef.current = referenceElement;
+          blockFocusRef.current = true;
+        }
       }
     }
 
@@ -106,16 +125,23 @@ export function useFocus(context: FloatingRootContext, props: UseFocusProps = {}
     return () => {
       events.off('openchange', onOpenChangeLocal);
     };
-  }, [events, enabled]);
+  }, [events, enabled, store]);
 
   const reference: ElementProps['reference'] = React.useMemo(
     () => ({
       onMouseLeave() {
         blockFocusRef.current = false;
+        blockedReferenceRef.current = null;
       },
       onFocus(event) {
+        const focusTarget = event.currentTarget as Element;
         if (blockFocusRef.current) {
-          return;
+          if (blockedReferenceRef.current === focusTarget) {
+            return;
+          }
+
+          blockFocusRef.current = false;
+          blockedReferenceRef.current = null;
         }
 
         const target = getTarget(event.nativeEvent);
@@ -132,17 +158,47 @@ export function useFocus(context: FloatingRootContext, props: UseFocusProps = {}
           }
         }
 
-        onOpenChange(
-          true,
-          createChangeEventDetails(
-            'trigger-focus',
-            event.nativeEvent,
-            event.currentTarget as HTMLElement,
-          ),
-        );
+        const movedFromOtherTrigger =
+          event.relatedTarget &&
+          store.context.triggerElements.hasElement(event.relatedTarget as Element);
+
+        const { nativeEvent, currentTarget } = event;
+        const delayValue = typeof delay === 'function' ? delay() : delay;
+
+        if (
+          (store.select('open') && movedFromOtherTrigger) ||
+          delayValue === 0 ||
+          delayValue === undefined
+        ) {
+          store.setOpen(
+            true,
+            createChangeEventDetails(
+              REASONS.triggerFocus,
+              nativeEvent,
+              currentTarget as HTMLElement,
+            ),
+          );
+          return;
+        }
+
+        timeout.start(delayValue, () => {
+          if (blockFocusRef.current) {
+            return;
+          }
+
+          store.setOpen(
+            true,
+            createChangeEventDetails(
+              REASONS.triggerFocus,
+              nativeEvent,
+              currentTarget as HTMLElement,
+            ),
+          );
+        });
       },
       onBlur(event) {
         blockFocusRef.current = false;
+        blockedReferenceRef.current = null;
         const relatedTarget = event.relatedTarget;
         const nativeEvent = event.nativeEvent;
 
@@ -155,12 +211,11 @@ export function useFocus(context: FloatingRootContext, props: UseFocusProps = {}
 
         // Wait for the window blur listener to fire.
         timeout.start(0, () => {
-          const activeEl = activeElement(
-            elements.domReference ? elements.domReference.ownerDocument : document,
-          );
+          const domReference = store.select('domReferenceElement');
+          const activeEl = activeElement(domReference ? domReference.ownerDocument : document);
 
           // Focus left the page, keep it open.
-          if (!relatedTarget && activeEl === elements.domReference) {
+          if (!relatedTarget && activeEl === domReference) {
             return;
           }
 
@@ -173,7 +228,7 @@ export function useFocus(context: FloatingRootContext, props: UseFocusProps = {}
           // inside a shadow root.
           if (
             contains(dataRef.current.floatingContext?.refs.floating.current, activeEl) ||
-            contains(elements.domReference, activeEl) ||
+            contains(domReference, activeEl) ||
             movedToFocusGuard
           ) {
             return;
@@ -182,16 +237,26 @@ export function useFocus(context: FloatingRootContext, props: UseFocusProps = {}
           // If the next focused element is one of the triggers, do not close
           // the floating element. The focus handler of that trigger will
           // handle the open state.
-          if (elements.triggers?.includes(event.relatedTarget as Element)) {
-            return;
+          const nextFocusedElement = relatedTarget ?? activeEl;
+          if (isElement(nextFocusedElement)) {
+            const triggerElements = store.context.triggerElements;
+            if (
+              triggerElements.hasElement(nextFocusedElement) ||
+              triggerElements.hasMatchingElement((trigger) => contains(trigger, nextFocusedElement))
+            ) {
+              return;
+            }
           }
 
-          onOpenChange(false, createChangeEventDetails('trigger-focus', nativeEvent));
+          store.setOpen(false, createChangeEventDetails(REASONS.triggerFocus, nativeEvent));
         });
       },
     }),
-    [dataRef, elements.domReference, elements.triggers, onOpenChange, visibleOnly, timeout],
+    [dataRef, store, visibleOnly, timeout, delay],
   );
 
-  return React.useMemo(() => (enabled ? { reference } : {}), [enabled, reference]);
+  return React.useMemo(
+    () => (enabled ? { reference, trigger: reference } : {}),
+    [enabled, reference],
+  );
 }

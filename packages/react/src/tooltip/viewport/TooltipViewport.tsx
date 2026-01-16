@@ -1,16 +1,20 @@
+'use client';
 import * as React from 'react';
-import { inertValue } from '@base-ui-components/utils/inertValue';
-import { useAnimationFrame } from '@base-ui-components/utils/useAnimationFrame';
-import { usePreviousValue } from '@base-ui-components/utils/usePreviousValue';
-import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
-import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
+import { inertValue } from '@base-ui/utils/inertValue';
+import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
+import { usePreviousValue } from '@base-ui/utils/usePreviousValue';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useTooltipRootContext } from '../root/TooltipRootContext';
+import { useTooltipPositionerContext } from '../positioner/TooltipPositionerContext';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useAnimationsFinished } from '../../utils/useAnimationsFinished';
+import { usePopupAutoResize } from '../../utils/usePopupAutoResize';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { StateAttributesMapping } from '../../utils/getStateAttributesProps';
 import { Dimensions } from '../../floating-ui-react/types';
 import { TooltipViewportCssVars } from './TooltipViewportCssVars';
+import { useDirection } from '../../direction-provider';
 
 const stateAttributesMapping: StateAttributesMapping<TooltipViewport.State> = {
   activationDirection: (value) =>
@@ -34,12 +38,17 @@ export const TooltipViewport = React.forwardRef(function TooltipViewport(
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const { render, className, children, ...elementProps } = componentProps;
-  const { store } = useTooltipRootContext();
+  const store = useTooltipRootContext();
+  const positioner = useTooltipPositionerContext();
+  const direction = useDirection();
 
   const activeTrigger = store.useState('activeTriggerElement');
   const open = store.useState('open');
-  const floatingContext = store.useState('floatingRootContext');
   const instantType = store.useState('instantType');
+  const mounted = store.useState('mounted');
+  const payload = store.useState('payload');
+  const popupElement = store.useState('popupElement');
+  const positionerElement = store.useState('positionerElement');
 
   const previousActiveTrigger = usePreviousValue(open ? activeTrigger : null);
 
@@ -52,7 +61,7 @@ export const TooltipViewport = React.forwardRef(function TooltipViewport(
   const previousContainerRef = React.useRef<HTMLDivElement>(null);
 
   const onAnimationsFinished = useAnimationsFinished(currentContainerRef, true, false);
-  const cleanupTimeout = useAnimationFrame();
+  const cleanupFrame = useAnimationFrame();
 
   const [previousContentDimensions, setPreviousContentDimensions] = React.useState<{
     width: number;
@@ -60,6 +69,72 @@ export const TooltipViewport = React.forwardRef(function TooltipViewport(
   } | null>(null);
 
   const [showStartingStyleAttribute, setShowStartingStyleAttribute] = React.useState(false);
+
+  useIsoLayoutEffect(() => {
+    store.set('hasViewport', true);
+    return () => {
+      store.set('hasViewport', false);
+    };
+  }, [store]);
+
+  const handleMeasureLayout = useStableCallback(() => {
+    currentContainerRef.current?.style.setProperty('animation', 'none');
+    currentContainerRef.current?.style.setProperty('transition', 'none');
+
+    previousContainerRef.current?.style.setProperty('display', 'none');
+  });
+
+  const handleMeasureLayoutComplete = useStableCallback((previousDimensions: Dimensions | null) => {
+    currentContainerRef.current?.style.removeProperty('animation');
+    currentContainerRef.current?.style.removeProperty('transition');
+
+    previousContainerRef.current?.style.removeProperty('display');
+
+    if (previousDimensions) {
+      setPreviousContentDimensions(previousDimensions);
+    }
+  });
+
+  const lastHandledTriggerRef = React.useRef<Element | null>(null);
+
+  useIsoLayoutEffect(() => {
+    // When a trigger changes, set the captured children HTML to state,
+    // so we can render both new and old content.
+    if (
+      activeTrigger &&
+      previousActiveTrigger &&
+      activeTrigger !== previousActiveTrigger &&
+      lastHandledTriggerRef.current !== activeTrigger &&
+      capturedNodeRef.current
+    ) {
+      setPreviousContentNode(capturedNodeRef.current);
+      setShowStartingStyleAttribute(true);
+
+      // Calculate the relative position between the previous and new trigger,
+      // so we can pass it to the style hook for animation purposes.
+      const offset = calculateRelativePosition(previousActiveTrigger, activeTrigger);
+      setNewTriggerOffset(offset);
+
+      cleanupFrame.request(() => {
+        cleanupFrame.request(() => {
+          setShowStartingStyleAttribute(false);
+          onAnimationsFinished(() => {
+            setPreviousContentNode(null);
+            setPreviousContentDimensions(null);
+            capturedNodeRef.current = null;
+          });
+        });
+      });
+
+      lastHandledTriggerRef.current = activeTrigger;
+    }
+  }, [
+    activeTrigger,
+    previousActiveTrigger,
+    previousContentNode,
+    onAnimationsFinished,
+    cleanupFrame,
+  ]);
 
   // Capture a clone of the current content DOM subtree when not transitioning.
   // We can't store previous React nodes as they may be stateful; instead we capture DOM clones for visual continuity.
@@ -82,78 +157,6 @@ export const TooltipViewport = React.forwardRef(function TooltipViewport(
 
     capturedNodeRef.current = wrapper;
   });
-
-  const handleMeasureLayout = useStableCallback(() => {
-    currentContainerRef.current?.style.setProperty('animation', 'none');
-    currentContainerRef.current?.style.setProperty('transition', 'none');
-
-    previousContainerRef.current?.style.setProperty('display', 'none');
-  });
-
-  type MeasureLayoutCompleteData = {
-    previousDimensions: Dimensions | null;
-    nextDimensions: Dimensions;
-  };
-
-  const handleMeasureLayoutComplete = useStableCallback((data: MeasureLayoutCompleteData) => {
-    currentContainerRef.current?.style.removeProperty('animation');
-    currentContainerRef.current?.style.removeProperty('transition');
-
-    previousContainerRef.current?.style.removeProperty('display');
-
-    if (!previousContentDimensions) {
-      setPreviousContentDimensions(data.previousDimensions);
-    }
-  });
-
-  React.useEffect(() => {
-    floatingContext.events.on('measure-layout', handleMeasureLayout);
-    floatingContext.events.on('measure-layout-complete', handleMeasureLayoutComplete);
-
-    return () => {
-      floatingContext.events.off('measure-layout', handleMeasureLayout);
-      floatingContext.events.off('measure-layout-complete', handleMeasureLayoutComplete);
-    };
-  }, [floatingContext, handleMeasureLayout, handleMeasureLayoutComplete]);
-
-  const lastHandledTriggerRef = React.useRef<HTMLElement | null>(null);
-
-  useIsoLayoutEffect(() => {
-    // When a trigger changes, set the captured children HTML to state,
-    // so we can render both new and old content.
-    if (
-      activeTrigger &&
-      previousActiveTrigger &&
-      activeTrigger !== previousActiveTrigger &&
-      lastHandledTriggerRef.current !== activeTrigger &&
-      capturedNodeRef.current
-    ) {
-      setPreviousContentNode(capturedNodeRef.current);
-      setShowStartingStyleAttribute(true);
-
-      // Calculate the relative position between the previous and new trigger,
-      // so we can pass it to the style hook for animation purposes.
-      const offset = calculateRelativePosition(previousActiveTrigger, activeTrigger);
-      setNewTriggerOffset(offset);
-
-      cleanupTimeout.request(() => {
-        setShowStartingStyleAttribute(false);
-        onAnimationsFinished(() => {
-          setPreviousContentNode(null);
-          setPreviousContentDimensions(null);
-          capturedNodeRef.current = null;
-        });
-      });
-
-      lastHandledTriggerRef.current = activeTrigger;
-    }
-  }, [
-    activeTrigger,
-    previousActiveTrigger,
-    previousContentNode,
-    onAnimationsFinished,
-    cleanupTimeout,
-  ]);
 
   const isTransitioning = previousContentNode != null;
   let childrenToRender: React.ReactNode;
@@ -202,6 +205,17 @@ export const TooltipViewport = React.forwardRef(function TooltipViewport(
     container.replaceChildren(...Array.from(previousContentNode.childNodes));
   }, [previousContentNode]);
 
+  usePopupAutoResize({
+    popupElement,
+    positionerElement,
+    mounted,
+    content: payload,
+    onMeasureLayout: handleMeasureLayout,
+    onMeasureLayoutComplete: handleMeasureLayoutComplete,
+    side: positioner.side,
+    direction,
+  });
+
   const state = React.useMemo(() => {
     return {
       activationDirection: getActivationDirection(newTriggerOffset),
@@ -227,7 +241,7 @@ export namespace TooltipViewport {
   }
 
   export interface State {
-    activationDirection?: string;
+    activationDirection?: string | undefined;
   }
 }
 
@@ -280,7 +294,7 @@ function getValueWithTolerance(
 /**
  * Calculates the relative position between centers of two elements.
  */
-function calculateRelativePosition(from: HTMLElement, to: HTMLElement): Offset {
+function calculateRelativePosition(from: Element, to: Element): Offset {
   const fromRect = from.getBoundingClientRect();
   const toRect = to.getBoundingClientRect();
 

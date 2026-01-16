@@ -2,15 +2,13 @@ import { expect } from 'chai';
 import * as React from 'react';
 import { spy, stub } from 'sinon';
 import { act, flushMicrotasks, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
-import {
-  DirectionProvider,
-  type TextDirection,
-} from '@base-ui-components/react/direction-provider';
-import { Field } from '@base-ui-components/react/field';
-import { Slider } from '@base-ui-components/react/slider';
-import { Form } from '@base-ui-components/react/form';
+import { DirectionProvider, type TextDirection } from '@base-ui/react/direction-provider';
+import { Field } from '@base-ui/react/field';
+import { Slider } from '@base-ui/react/slider';
+import { Form } from '@base-ui/react/form';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
-import { isWebKit } from '@base-ui-components/utils/detectBrowser';
+import { isWebKit } from '@base-ui/utils/detectBrowser';
+import { REASONS } from '../../utils/reasons';
 import {
   ARROW_RIGHT,
   ARROW_LEFT,
@@ -596,6 +594,100 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
     });
   });
 
+  describe('prop: onValueCommitted', () => {
+    it('single value', async () => {
+      const handleValueCommitted = spy((newValue: number, eventDetails) => ({
+        newValue,
+        reason: eventDetails.reason,
+      }));
+
+      await render(
+        <Slider.Root onValueCommitted={handleValueCommitted} defaultValue={0}>
+          <Slider.Control data-testid="control">
+            <Slider.Thumb />
+          </Slider.Control>
+        </Slider.Root>,
+      );
+
+      const sliderControl = screen.getByTestId('control');
+
+      stub(sliderControl, 'getBoundingClientRect').callsFake(getHorizontalSliderRect);
+
+      const slider = screen.getByRole('slider');
+
+      fireEvent.pointerDown(sliderControl, {
+        buttons: 1,
+        clientX: 10,
+      });
+      fireEvent.pointerUp(sliderControl, {
+        buttons: 1,
+        clientX: 10,
+      });
+
+      expect(handleValueCommitted.callCount).to.equal(1);
+      expect(handleValueCommitted.lastCall.returnValue.newValue).to.equal(10);
+      expect(handleValueCommitted.lastCall.returnValue.reason).to.equal(REASONS.trackPress);
+
+      await act(async () => {
+        slider.focus();
+      });
+
+      fireEvent.change(slider, { target: { value: 23 } });
+      expect(handleValueCommitted.callCount).to.equal(2);
+      expect(handleValueCommitted.lastCall.returnValue.reason).to.equal(REASONS.inputChange);
+    });
+
+    it('array value', async () => {
+      const handleValueCommitted = spy((newValue: number[], eventDetails) => ({
+        newValue,
+        reason: eventDetails.reason,
+      }));
+
+      await render(
+        <Slider.Root onValueCommitted={handleValueCommitted} defaultValue={[10, 20]}>
+          <Slider.Control data-testid="control">
+            <Slider.Thumb index={0} />
+            <Slider.Thumb index={1} />
+          </Slider.Control>
+        </Slider.Root>,
+      );
+
+      const sliderControl = screen.getByTestId('control');
+
+      stub(sliderControl, 'getBoundingClientRect').callsFake(getHorizontalSliderRect);
+
+      const [thumb1, thumb2] = screen.getAllByRole('slider');
+
+      fireEvent.pointerDown(thumb2, {
+        buttons: 1,
+        clientX: 20,
+      });
+
+      fireEvent.pointerMove(thumb2, {
+        buttons: 1,
+        clientX: 30,
+      });
+
+      expect(handleValueCommitted.callCount).to.equal(0);
+
+      fireEvent.pointerUp(thumb2, {
+        buttons: 1,
+        clientX: 30,
+      });
+
+      expect(handleValueCommitted.callCount).to.equal(1);
+      expect(handleValueCommitted.lastCall.returnValue.reason).to.equal(REASONS.drag);
+
+      await act(async () => {
+        thumb1.focus();
+      });
+
+      fireEvent.change(thumb1, { target: { value: 23 } });
+      expect(handleValueCommitted.callCount).to.equal(2);
+      expect(handleValueCommitted.lastCall.returnValue.reason).to.equal(REASONS.inputChange);
+    });
+  });
+
   describe('events', () => {
     it.skipIf(isJSDOM)('should call handlers', async () => {
       const handleValueChange = spy();
@@ -629,6 +721,7 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
       expect(handleValueChange.args[0][1].activeThumbIndex).to.equal(0);
       expect(handleValueCommitted.callCount).to.equal(1);
       expect(handleValueCommitted.args[0][0]).to.equal(10);
+      expect(handleValueCommitted.args[0][1].reason).to.equal(REASONS.trackPress);
 
       await act(async () => {
         slider.focus();
@@ -637,6 +730,7 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
       fireEvent.change(slider, { target: { value: 23 } });
       expect(handleValueChange.callCount).to.equal(2);
       expect(handleValueCommitted.callCount).to.equal(2);
+      expect(handleValueCommitted.args[1][1].reason).to.equal(REASONS.inputChange);
     });
 
     it.skipIf(isJSDOM || isWebKit)('should support touch events', async () => {
@@ -755,6 +849,7 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
         );
         expect(handleValueChange.callCount).to.equal(1);
         expect(handleValueCommitted.callCount).to.equal(1);
+        expect(handleValueCommitted.firstCall.args[1].reason).to.equal('drag');
       },
     );
 
@@ -994,6 +1089,66 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
       expect(handleValueChange.callCount).to.equal(0);
     });
 
+    it('provides the change reason for input events', async () => {
+      const handleValueChange = spy();
+      await render(<TestSlider defaultValue={30} onValueChange={handleValueChange} />);
+
+      const slider = screen.getByRole('slider');
+      fireEvent.change(slider, { target: { value: '35' } });
+
+      expect(handleValueChange).to.have.property('callCount', 1);
+      const [, details] = handleValueChange.firstCall.args as [
+        number,
+        SliderRoot.ChangeEventDetails,
+      ];
+      expect(details.reason).to.equal(REASONS.inputChange);
+      expect(details.activeThumbIndex).to.equal(0);
+    });
+
+    it('provides the change reason for keyboard interactions', async () => {
+      const handleValueChange = spy();
+      await render(<TestSlider defaultValue={40} onValueChange={handleValueChange} />);
+
+      const slider = screen.getByRole('slider');
+      await act(async () => {
+        slider.focus();
+      });
+      fireEvent.keyDown(slider, { key: ARROW_RIGHT });
+
+      expect(handleValueChange).to.have.property('callCount', 1);
+      const [, details] = handleValueChange.firstCall.args as [
+        number,
+        SliderRoot.ChangeEventDetails,
+      ];
+      expect(details.reason).to.equal('keyboard');
+    });
+
+    it('provides the change reason for track presses', async () => {
+      const handleValueChange = spy();
+      await render(<TestSlider defaultValue={0} onValueChange={handleValueChange} />);
+
+      const sliderControl = screen.getByTestId('control');
+      stub(sliderControl, 'getBoundingClientRect').callsFake(getHorizontalSliderRect);
+
+      fireEvent.pointerDown(sliderControl, {
+        pointerId: 1,
+        pointerType: 'mouse',
+        button: 0,
+        buttons: 1,
+        clientX: 80,
+        clientY: 0,
+      });
+
+      await waitFor(() => {
+        expect(handleValueChange.callCount).to.equal(1);
+      });
+      const [, details] = handleValueChange.firstCall.args as [
+        number | number[],
+        SliderRoot.ChangeEventDetails,
+      ];
+      expect(details.reason).to.equal(REASONS.trackPress);
+    });
+
     it.skipIf(isJSDOM)('drags the intended thumb when 3 thumbs are present', async () => {
       const handleValueChange = spy();
 
@@ -1174,6 +1329,7 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
         expect(handleValueChange.args[1][0]).to.equal(15);
         expect(handleValueCommitted.callCount).to.equal(1);
         expect(handleValueCommitted.args[0][0]).to.equal(15);
+        expect(handleValueCommitted.args[0][1].reason).to.equal('drag');
       },
     );
   });

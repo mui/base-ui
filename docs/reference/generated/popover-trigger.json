@@ -3,7 +3,7 @@
   "description": "A button that opens the popover.\nRenders a `<button>` element.",
   "props": {
     "handle": {
-      "type": "PopoverHandle<Payload>",
+      "type": "Popover.Handle<Payload>",
       "description": "A handle to associate the trigger with a popover.",
       "detailedType": "{} | undefined"
     },

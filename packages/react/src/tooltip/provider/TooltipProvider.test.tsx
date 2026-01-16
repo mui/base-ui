@@ -1,4 +1,4 @@
-import { Tooltip } from '@base-ui-components/react/tooltip';
+import { Tooltip } from '@base-ui/react/tooltip';
 import { screen, fireEvent, flushMicrotasks } from '@mui/internal-test-utils';
 import { expect } from 'chai';
 import { createRenderer } from '#test-utils';

@@ -1,6 +1,6 @@
 import * as React from 'react';
-import { Menu } from '@base-ui-components/react/menu';
-import { Toast } from '@base-ui-components/react/toast';
+import { Menu } from '@base-ui/react/menu';
+import { Toast } from '@base-ui/react/toast';
 import type { CheckboxProps } from './checkbox';
 import type { SeparatorProps } from './separator';
 import type { SimpleAutocompleteProps } from './autocomplete';
@@ -42,13 +42,11 @@ export const SimpleAutocomplete = React.forwardRef<HTMLInputElement, SimpleAutoc
   },
 );
 
-export const SimpleMenu = React.forwardRef<HTMLDivElement, SimpleMenuProps>(function SimpleMenu(
+export const SimpleMenu = React.forwardRef<HTMLButtonElement, SimpleMenuProps>(function SimpleMenu(
   { label = 'Menu', ...rest },
   ref,
 ) {
-  const actionsRef = React.useRef<MenuRootActions>({
-    unmount() {},
-  });
+  const actionsRef = React.useRef<MenuRootActions>(null);
 
   function handleMenuOpenChange(
     open: boolean,

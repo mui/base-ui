@@ -17,7 +17,7 @@ export const ToolbarRoot = React.forwardRef(function ToolbarRoot(
 ) {
   const {
     disabled = false,
-    loop = true,
+    loopFocus = true,
     orientation = 'horizontal',
     className,
     render,
@@ -63,7 +63,7 @@ export const ToolbarRoot = React.forwardRef(function ToolbarRoot(
         refs={[forwardedRef]}
         props={[defaultProps, elementProps]}
         disabledIndices={disabledIndices}
-        loop={loop}
+        loopFocus={loopFocus}
         onMapChange={setItemMap}
         orientation={orientation}
       />
@@ -83,18 +83,18 @@ export interface ToolbarRootState {
 }
 
 export interface ToolbarRootProps extends BaseUIComponentProps<'div', ToolbarRoot.State> {
-  disabled?: boolean;
+  disabled?: boolean | undefined;
   /**
    * The orientation of the toolbar.
    * @default 'horizontal'
    */
-  orientation?: ToolbarRoot.Orientation;
+  orientation?: ToolbarRoot.Orientation | undefined;
   /**
    * If `true`, using keyboard navigation will wrap focus to the other end of the toolbar once the end is reached.
    *
    * @default true
    */
-  loop?: boolean;
+  loopFocus?: boolean | undefined;
 }
 
 export namespace ToolbarRoot {

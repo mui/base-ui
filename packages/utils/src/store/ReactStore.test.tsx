@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { expect } from 'chai';
 import { act, createRenderer, screen } from '@mui/internal-test-utils';
+import { SinonSpy, spy } from 'sinon';
 import { ReactStore } from './ReactStore';
 import { useRefWithInit } from '../useRefWithInit';
 import { createSelector } from './createSelector';
@@ -14,50 +15,23 @@ function useStableStore<State extends object>(initial: State) {
 describe('ReactStore', () => {
   const { render } = createRenderer();
 
-  it('initializes uncontrolled key with default value', () => {
-    let store!: ReactStore<TestState>;
-
-    function Test() {
-      store = useStableStore<TestState>({ value: 0, label: '' });
-      store.useControlledProp('value', undefined, 5);
-      return null;
-    }
-
-    render(<Test />);
-    expect(store.state.value).to.equal(5);
-  });
-
-  it('syncs internal state from controlled prop and ignores manual mutations for that key', () => {
+  it('syncs internal state from controlled prop', () => {
     let store!: ReactStore<TestState>;
 
     function Test({ controlled }: { controlled: number | undefined }) {
       store = useStableStore<TestState>({ value: 0, label: '' });
-      store.useControlledProp('value', controlled, 1);
+      store.useControlledProp('value', controlled);
       return null;
     }
 
     const { setProps } = render(<Test controlled={1} />);
     expect(store.state.value).to.equal(1);
 
-    // Attempts to change a controlled key are ignored
     act(() => {
-      store.set('value', 2);
+      store.update({ label: 'y' });
     });
-    expect(store.state.value).to.equal(1);
-
-    act(() => {
-      store.update({ value: 3, label: 'y' });
-    });
-    expect(store.state.value).to.equal(1);
     // Non-controlled keys still update
     expect(store.state.label).to.equal('y');
-
-    act(() => {
-      store.setState({ value: 4, label: 'x' });
-    });
-    expect(store.state.value).to.equal(1);
-    // Non-controlled keys still update
-    expect(store.state.label).to.equal('x');
 
     // Changing the controlled prop updates internal state
     act(() => {
@@ -66,39 +40,10 @@ describe('ReactStore', () => {
     expect(store.state.value).to.equal(7);
   });
 
-  it('allows set/apply/update on uncontrolled keys', () => {
-    let store!: ReactStore<TestState>;
-
-    function Test() {
-      store = useStableStore<TestState>({ value: 0, label: '' });
-      store.useControlledProp('value', undefined, 1);
-      return null;
-    }
-
-    render(<Test />);
-    expect(store.state.value).to.equal(1);
-
-    act(() => {
-      store.set('value', 2);
-    });
-    expect(store.state.value).to.equal(2);
-
-    act(() => {
-      store.update({ value: 3 });
-    });
-    expect(store.state.value).to.equal(3);
-
-    act(() => {
-      store.setState({ value: 4, label: 'updated' });
-    });
-    expect(store.state.value).to.equal(4);
-    expect(store.state.label).to.equal('updated');
-  });
-
   it('warns on switching from uncontrolled to controlled', () => {
     function Test({ controlled }: { controlled?: number }) {
       const store = useStableStore<TestState>({ value: 0, label: '' });
-      store.useControlledProp('value', controlled, undefined as any);
+      store.useControlledProp('value', controlled);
       return null;
     }
 
@@ -115,7 +60,7 @@ describe('ReactStore', () => {
   it('warns on switching from controlled to uncontrolled', () => {
     function Test({ controlled }: { controlled?: number }) {
       const store = useStableStore<TestState>({ value: 0, label: '' });
-      store.useControlledProp('value', controlled, undefined as any);
+      store.useControlledProp('value', controlled);
       return null;
     }
 
@@ -161,6 +106,58 @@ describe('ReactStore', () => {
     act(() => setProps({ props: { value: 6, label: 'b' } }));
     expect(store.state.value).to.equal(6);
     expect(store.state.label).to.equal('b');
+  });
+
+  it('useSyncedValues depends on entries instead of object identity', () => {
+    let store!: ReactStore<TestState>;
+    let updateSpy!: SinonSpy<[Partial<TestState>], void>;
+
+    function Test({ props }: { props: Partial<TestState> }) {
+      store = useStableStore<TestState>({ value: 0, label: '' });
+
+      if (!updateSpy) {
+        updateSpy = spy(store, 'update');
+      }
+
+      store.useSyncedValues(props);
+      return null;
+    }
+
+    const { setProps } = render(<Test props={{ value: 5, label: 'a' }} />, { strict: false });
+
+    expect(updateSpy.callCount).to.equal(1);
+
+    act(() => {
+      setProps({ props: { value: 5, label: 'a' } });
+    });
+
+    expect(updateSpy.callCount).to.equal(1);
+
+    act(() => {
+      setProps({ props: { value: 6, label: 'a' } });
+    });
+
+    expect(updateSpy.callCount).to.equal(2);
+    expect(store.state.value).to.equal(6);
+  });
+
+  it('warns if useSyncedValues keys change between renders', () => {
+    function Test({ props }: { props: Partial<TestState> }) {
+      const store = useStableStore<TestState>({ value: 0, label: '' });
+      store.useSyncedValues(props);
+      return null;
+    }
+
+    const { setProps } = render(<Test props={{ value: 1 }} />);
+
+    expect(() => {
+      act(() => {
+        setProps({ props: { label: 'x' } });
+      });
+    }).toErrorDev([
+      'ReactStore.useSyncedValues expects the same prop keys on every render. Keys should be stable.',
+      'ReactStore.useSyncedValues expects the same prop keys on every render. Keys should be stable.',
+    ]);
   });
 
   it('useSyncedValueWithCleanup synchronizes value and resets on cleanup', () => {

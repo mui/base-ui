@@ -19,9 +19,9 @@
       "detailedType": "| ((\n    open: boolean,\n    eventDetails: Tooltip.Root.ChangeEventDetails,\n  ) => void)\n| undefined"
     },
     "actionsRef": {
-      "type": "RefObject<Tooltip.Root.Actions>",
-      "description": "A ref to imperative actions.\n- `unmount`: When specified, the tooltip will not be unmounted when closed.\nInstead, the `unmount` function must be called to unmount the tooltip manually.\nUseful when the tooltip's animation is controlled by an external library.",
-      "detailedType": "React.RefObject<Tooltip.Root.Actions> | undefined"
+      "type": "RefObject<Tooltip.Root.Actions | null>",
+      "description": "A ref to imperative actions.\n- `unmount`: Unmounts the tooltip popup.\n- `close`: Closes the tooltip imperatively when called.",
+      "detailedType": "| React.RefObject<Tooltip.Root.Actions | null>\n| undefined"
     },
     "defaultTriggerId": {
       "type": "string | null",
@@ -29,7 +29,7 @@
       "detailedType": "string | null | undefined"
     },
     "handle": {
-      "type": "TooltipHandle<Payload>",
+      "type": "Tooltip.Handle<Payload>",
       "description": "A handle to associate the tooltip with a trigger.\nIf specified, allows external triggers to control the tooltip's open state.\nCan be created with the Tooltip.createHandle() method.",
       "detailedType": "{} | undefined"
     },
@@ -40,7 +40,7 @@
     },
     "triggerId": {
       "type": "string | null",
-      "description": "ID of the trigger that the tooltip is associated with.\nThis is useful in conjuntion with the `open` prop to create a controlled tooltip.\nThere's no need to specify this prop when the tooltip is uncontrolled (i.e. when the `open` prop is not set).",
+      "description": "ID of the trigger that the tooltip is associated with.\nThis is useful in conjunction with the `open` prop to create a controlled tooltip.\nThere's no need to specify this prop when the tooltip is uncontrolled (i.e. when the `open` prop is not set).",
       "detailedType": "string | null | undefined"
     },
     "trackCursorAxis": {
@@ -55,9 +55,9 @@
       "description": "Whether the tooltip is disabled.",
       "detailedType": "boolean | undefined"
     },
-    "hoverable": {
+    "disableHoverablePopup": {
       "type": "boolean",
-      "default": "true",
+      "default": "false",
       "description": "Whether the tooltip contents can be hovered without closing the tooltip.",
       "detailedType": "boolean | undefined"
     },

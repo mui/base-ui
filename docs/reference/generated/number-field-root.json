@@ -19,7 +19,7 @@
     },
     "onValueChange": {
       "type": "((value: number | null, eventDetails: NumberField.Root.ChangeEventDetails) => void)",
-      "description": "Callback fired when the number value changes.",
+      "description": "Callback fired when the number value changes.\n\nThe `eventDetails.reason` indicates what triggered the change:\n- `'input-change'` for parseable typing or programmatic text updates\n- `'input-clear'` when the field becomes empty\n- `'input-blur'` when formatting or clamping occurs on blur\n- `'input-paste'` for paste interactions\n- `'keyboard'` for keyboard input\n- `'increment-press'` / `'decrement-press'` for button presses on the increment and decrement controls\n- `'wheel'` for wheel-based scrubbing\n- `'scrub'` for scrub area drags",
       "detailedType": "| ((\n    value: number | null,\n    eventDetails: NumberField.Root.ChangeEventDetails,\n  ) => void)\n| undefined"
     },
     "onValueCommitted": {
@@ -38,10 +38,10 @@
       "detailedType": "boolean | undefined"
     },
     "step": {
-      "type": "number",
+      "type": "number | 'any'",
       "default": "1",
-      "description": "Amount to increment and decrement with the buttons and arrow keys,\nor to scrub with pointer movement in the scrub area.",
-      "detailedType": "number | undefined"
+      "description": "Amount to increment and decrement with the buttons and arrow keys, or to scrub with pointer movement in the scrub area.\nTo always enable step validation on form submission, specify the `min` prop explicitly in conjunction with this prop.\nSpecify `step=\"any\"` to always disable step validation.",
+      "detailedType": "number | 'any' | undefined"
     },
     "smallStep": {
       "type": "number",

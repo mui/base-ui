@@ -1,6 +1,6 @@
 import * as ReactDOM from 'react-dom';
-import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
-import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { getCombinedFieldValidityData } from './utils/getCombinedFieldValidityData';
 import { useFormContext } from '../form/FormContext';
 import { useFieldRootContext } from './root/FieldRootContext';
@@ -38,15 +38,20 @@ export function useField(params: UseFieldParameters) {
       name,
       controlRef,
       validityData: getCombinedFieldValidityData(validityData, invalid),
-      validate() {
+      validate(flushSync = true) {
         let nextValue = value;
         if (nextValue === undefined) {
           nextValue = getValue();
         }
 
         markedDirtyRef.current = true;
-        // Synchronously update the validity state so the submit event can be prevented.
-        ReactDOM.flushSync(() => commit(nextValue));
+
+        if (!flushSync) {
+          commit(nextValue);
+        } else {
+          // Synchronously update the validity state so the submit event can be prevented.
+          ReactDOM.flushSync(() => commit(nextValue));
+        }
       },
     });
   }, [
@@ -74,7 +79,7 @@ export function useField(params: UseFieldParameters) {
 }
 
 export interface UseFieldParameters {
-  enabled?: boolean;
+  enabled?: boolean | undefined;
   value: unknown;
   getValue?: (() => unknown) | undefined;
   id: string | undefined;

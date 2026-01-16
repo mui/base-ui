@@ -1,8 +1,9 @@
 'use client';
 import * as React from 'react';
-import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useBaseUiId } from '../utils/useBaseUiId';
 import type { BaseUIChangeEventDetails } from '../utils/createBaseUIEventDetails';
+import type { BaseUIEventReasons } from '../utils/reasons';
 
 const EMPTY: string[] = [];
 
@@ -74,8 +75,7 @@ export function useCheckboxGroupParent(
   );
 
   const getChildProps: useCheckboxGroupParent.ReturnValue['getChildProps'] = React.useCallback(
-    (childValue: string, childId?: string) => ({
-      id: childId ?? `${id}-${childValue}`,
+    (childValue: string) => ({
       checked: value.includes(childValue),
       onCheckedChange(nextChecked, eventDetails) {
         const newValue = value.slice();
@@ -89,7 +89,7 @@ export function useCheckboxGroupParent(
         setStatus('mixed');
       },
     }),
-    [id, onValueChange, value],
+    [onValueChange, value],
   );
 
   return React.useMemo(
@@ -105,9 +105,14 @@ export function useCheckboxGroupParent(
 }
 
 export interface UseCheckboxGroupParentParameters {
-  allValues?: string[];
-  value?: string[];
-  onValueChange?: (value: string[], eventDetails: BaseUIChangeEventDetails<'none'>) => void;
+  allValues?: string[] | undefined;
+  value?: string[] | undefined;
+  onValueChange?:
+    | ((
+        value: string[],
+        eventDetails: BaseUIChangeEventDetails<BaseUIEventReasons['none']>,
+      ) => void)
+    | undefined;
 }
 
 export interface UseCheckboxGroupParentReturnValue {
@@ -119,15 +124,17 @@ export interface UseCheckboxGroupParentReturnValue {
     indeterminate: boolean;
     checked: boolean;
     'aria-controls': string;
-    onCheckedChange: (checked: boolean, eventDetails: BaseUIChangeEventDetails<'none'>) => void;
+    onCheckedChange: (
+      checked: boolean,
+      eventDetails: BaseUIChangeEventDetails<BaseUIEventReasons['none']>,
+    ) => void;
   };
-  getChildProps: (
-    value: string,
-    id?: string,
-  ) => {
-    id: string;
+  getChildProps: (value: string) => {
     checked: boolean;
-    onCheckedChange: (checked: boolean, eventDetails: BaseUIChangeEventDetails<'none'>) => void;
+    onCheckedChange: (
+      checked: boolean,
+      eventDetails: BaseUIChangeEventDetails<BaseUIEventReasons['none']>,
+    ) => void;
   };
 }
 

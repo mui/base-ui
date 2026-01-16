@@ -1,12 +1,12 @@
 'use client';
 import * as React from 'react';
-import { Field } from '@base-ui-components/react/field';
-import { Fieldset } from '@base-ui-components/react/fieldset';
-import { Form } from '@base-ui-components/react/form';
-import { Checkbox } from '@base-ui-components/react/checkbox';
-import { CheckboxGroup } from '@base-ui-components/react/checkbox-group';
-import { Radio } from '@base-ui-components/react/radio';
-import { RadioGroup } from '@base-ui-components/react/radio-group';
+import { Field } from '@base-ui/react/field';
+import { Fieldset } from '@base-ui/react/fieldset';
+import { Form } from '@base-ui/react/form';
+import { Checkbox } from '@base-ui/react/checkbox';
+import { CheckboxGroup } from '@base-ui/react/checkbox-group';
+import { Radio } from '@base-ui/react/radio';
+import { RadioGroup } from '@base-ui/react/radio-group';
 import styles from './form.module.css';
 import { CheckIcon } from './_icons';
 
@@ -90,17 +90,23 @@ function StickersRadioGroup() {
       </Field.Item>
 
       <Field.Item className={styles.FieldItem}>
-        <Field.Label className={styles.Label}>
+        <Field.Label
+          className={styles.Label}
+          style={{ display: 'grid', gridRowGap: 0, gridTemplateColumns: 'min-content 1fr' }}
+        >
           <Radio.Root value="interaction" className={styles.Radio}>
             <Radio.Indicator className={styles.Indicator} />
           </Radio.Root>
-          <div>
-            Animate on interaction
-            <Field.Description className={styles.Description}>
-              On the desktop client, stickers will animate on hover or focus. On mobile clients,
-              stickers will animate on long-press.
-            </Field.Description>
-          </div>
+          Animate on interaction
+          <Field.Description
+            aria-hidden // don't re-read
+            className={styles.Description}
+            render={<span />}
+            style={{ gridColumn: '2/3' }}
+          >
+            On the desktop client, stickers will animate on hover or focus. On mobile clients,
+            stickers will animate on long-press.
+          </Field.Description>
         </Field.Label>
       </Field.Item>
 

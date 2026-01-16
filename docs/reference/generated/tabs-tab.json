@@ -4,12 +4,18 @@
   "props": {
     "value": {
       "type": "Tabs.Tab.Value",
-      "description": "The value of the Tab.\nWhen not specified, the value is the child position index."
+      "required": true,
+      "description": "The value of the Tab."
     },
     "nativeButton": {
       "type": "boolean",
       "default": "true",
       "description": "Whether the component renders a native `<button>` element when replacing it\nvia the `render` prop.\nSet to `false` if the rendered element is not a button (e.g. `<div>`).",
+      "detailedType": "boolean | undefined"
+    },
+    "disabled": {
+      "type": "boolean",
+      "description": "Whether the Tab is disabled.\n\nIf a first Tab on a `<Tabs.List>` is disabled, it won't initially be selected.\nInstead, the next enabled Tab will be selected.\nHowever, it does not work like this during server-side rendering, as it is not known\nduring pre-rendering which Tabs are disabled.\nTo work around it, ensure that `defaultValue` or `value` on `<Tabs.Root>` is set to an enabled Tab's value.",
       "detailedType": "boolean | undefined"
     },
     "className": {

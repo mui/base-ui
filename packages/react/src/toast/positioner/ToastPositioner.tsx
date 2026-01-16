@@ -44,7 +44,7 @@ export const ToastPositioner = React.forwardRef(function ToastPositioner(
     collisionPadding = positionerProps.collisionPadding ?? 5,
     arrowPadding = positionerProps.arrowPadding ?? 5,
     sticky = positionerProps.sticky ?? false,
-    trackAnchor = positionerProps.trackAnchor ?? true,
+    disableAnchorTracking = positionerProps.disableAnchorTracking ?? false,
     collisionAvoidance = positionerProps.collisionAvoidance ?? POPUP_COLLISION_AVOIDANCE,
     ...elementProps
   } = props;
@@ -81,7 +81,7 @@ export const ToastPositioner = React.forwardRef(function ToastPositioner(
     collisionPadding,
     sticky,
     arrowPadding,
-    trackAnchor,
+    disableAnchorTracking,
     keepMounted: true,
     collisionAvoidance,
   });
@@ -140,18 +140,19 @@ export interface ToastPositionerState {
 }
 
 export interface ToastPositionerProps
-  extends BaseUIComponentProps<'div', ToastPositioner.State>,
+  extends
+    BaseUIComponentProps<'div', ToastPositioner.State>,
     Omit<useAnchorPositioning.SharedParameters, 'side' | 'anchor'> {
   /**
    * An element to position the toast against.
    */
-  anchor?: Element | null;
+  anchor?: (Element | null) | undefined;
   /**
    * Which side of the anchor element to align the toast against.
    * May automatically change to avoid collisions.
    * @default 'top'
    */
-  side?: Side;
+  side?: Side | undefined;
   /**
    * The toast object associated with the positioner.
    */

@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { spy } from 'sinon';
-import { Toolbar } from '@base-ui-components/react/toolbar';
-import { NumberField } from '@base-ui-components/react/number-field';
+import { Toolbar } from '@base-ui/react/toolbar';
+import { NumberField } from '@base-ui/react/number-field';
 import { screen } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import { NOOP } from '../../utils/noop';
@@ -14,6 +14,7 @@ const testCompositeContext: CompositeRootContext = {
   highlightedIndex: 0,
   onHighlightedIndexChange: NOOP,
   highlightItemOnHover: false,
+  relayKeyboardEvent: NOOP,
 };
 
 const testToolbarContext: ToolbarRootContext = {

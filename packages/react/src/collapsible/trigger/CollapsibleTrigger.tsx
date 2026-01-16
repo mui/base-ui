@@ -51,10 +51,9 @@ export const CollapsibleTrigger = React.forwardRef(function CollapsibleTrigger(
     () => ({
       'aria-controls': open ? panelId : undefined,
       'aria-expanded': open,
-      disabled,
       onClick: handleTrigger,
     }),
-    [panelId, disabled, open, handleTrigger],
+    [panelId, open, handleTrigger],
   );
 
   const element = useRenderElement('button', componentProps, {
@@ -68,8 +67,7 @@ export const CollapsibleTrigger = React.forwardRef(function CollapsibleTrigger(
 });
 
 export interface CollapsibleTriggerProps
-  extends NativeButtonProps,
-    BaseUIComponentProps<'button', CollapsibleRoot.State> {}
+  extends NativeButtonProps, BaseUIComponentProps<'button', CollapsibleRoot.State> {}
 
 export namespace CollapsibleTrigger {
   export type Props = CollapsibleTriggerProps;

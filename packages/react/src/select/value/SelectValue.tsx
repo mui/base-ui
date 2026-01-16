@@ -1,10 +1,10 @@
 'use client';
 import * as React from 'react';
-import { useStore } from '@base-ui-components/utils/store';
+import { useStore } from '@base-ui/utils/store';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useSelectRootContext } from '../root/SelectRootContext';
-import { resolveSelectedLabel, resolveMultipleLabels } from '../../utils/resolveValueLabel';
+import { resolveMultipleLabels, resolveSelectedLabel } from '../../utils/resolveValueLabel';
 import { selectors } from '../store';
 import { StateAttributesMapping } from '../../utils/getStateAttributesProps';
 
@@ -22,28 +22,44 @@ export const SelectValue = React.forwardRef(function SelectValue(
   componentProps: SelectValue.Props,
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
-  const { className, render, children: childrenProp, ...elementProps } = componentProps;
+  const {
+    className,
+    render,
+    children: childrenProp,
+    placeholder,
+    ...elementProps
+  } = componentProps;
 
   const { store, valueRef } = useSelectRootContext();
 
   const value = useStore(store, selectors.value);
   const items = useStore(store, selectors.items);
   const itemToStringLabel = useStore(store, selectors.itemToStringLabel);
+  const hasSelectedValue = useStore(store, selectors.hasSelectedValue);
+
+  const shouldCheckNullItemLabel = !hasSelectedValue && placeholder != null && childrenProp == null;
+  const hasNullLabel = useStore(store, selectors.hasNullItemLabel, shouldCheckNullItemLabel);
 
   const state: SelectValue.State = React.useMemo(
     () => ({
       value,
+      placeholder: !hasSelectedValue,
     }),
-    [value],
+    [value, hasSelectedValue],
   );
 
-  const children =
-    typeof childrenProp === 'function'
-      ? childrenProp(value)
-      : (childrenProp ??
-        (Array.isArray(value)
-          ? resolveMultipleLabels(value, itemToStringLabel)
-          : resolveSelectedLabel(value, items, itemToStringLabel)));
+  let children = null;
+  if (typeof childrenProp === 'function') {
+    children = childrenProp(value);
+  } else if (childrenProp != null) {
+    children = childrenProp;
+  } else if (!hasSelectedValue && placeholder != null && !hasNullLabel) {
+    children = placeholder;
+  } else if (Array.isArray(value)) {
+    children = resolveMultipleLabels(value, items, itemToStringLabel);
+  } else {
+    children = resolveSelectedLabel(value, items, itemToStringLabel);
+  }
 
   const element = useRenderElement('span', componentProps, {
     state,
@@ -62,8 +78,10 @@ export interface SelectValueState {
   value: any;
 }
 
-export interface SelectValueProps
-  extends Omit<BaseUIComponentProps<'span', SelectValue.State>, 'children'> {
+export interface SelectValueProps extends Omit<
+  BaseUIComponentProps<'span', SelectValue.State>,
+  'children'
+> {
   /**
    * Accepts a function that returns a `ReactNode` to format the selected value.
    * @example
@@ -74,6 +92,11 @@ export interface SelectValueProps
    * ```
    */
   children?: React.ReactNode | ((value: any) => React.ReactNode);
+  /**
+   * The placeholder value to display when no value is selected.
+   * This is overridden by `children` if specified, or by a null item's label in `items`.
+   */
+  placeholder?: React.ReactNode;
 }
 
 export namespace SelectValue {

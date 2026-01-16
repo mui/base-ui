@@ -8,6 +8,7 @@ import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping'
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
 import { useContextMenuRootContext } from '../../context-menu/root/ContextMenuRootContext';
+import { REASONS } from '../../utils/reasons';
 
 const stateAttributesMapping: StateAttributesMapping<MenuBackdrop.State> = {
   ...baseMapping,
@@ -53,7 +54,7 @@ export const MenuBackdrop = React.forwardRef(function MenuBackdrop(
         role: 'presentation',
         hidden: !mounted,
         style: {
-          pointerEvents: lastOpenChangeReason === 'trigger-hover' ? 'none' : undefined,
+          pointerEvents: lastOpenChangeReason === REASONS.triggerHover ? 'none' : undefined,
           userSelect: 'none',
           WebkitUserSelect: 'none',
         },

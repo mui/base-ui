@@ -13,14 +13,14 @@
       "detailedType": "Value[] | Value | null | undefined"
     },
     "value": {
-      "type": "Value[] | Value",
+      "type": "Value[] | Value | null",
       "description": "The selected value of the combobox. Use when controlled.",
-      "detailedType": "Value[] | Value | undefined"
+      "detailedType": "Value[] | Value | null | undefined"
     },
     "onValueChange": {
-      "type": "((value: Value[] | Value, eventDetails: Combobox.Root.ChangeEventDetails) => void) | ((value: Value[] | Value | any | null, eventDetails: Combobox.Root.ChangeEventDetails) => void)",
+      "type": "((value: Value[] | Value | any | null, eventDetails: Combobox.Root.ChangeEventDetails) => void)",
       "description": "Event handler called when the selected value of the combobox changes.",
-      "detailedType": "| ((\n    value: Value[] | Value,\n    eventDetails: Combobox.Root.ChangeEventDetails,\n  ) => void)\n| ((\n    value: Value[] | Value | any | null,\n    eventDetails: Combobox.Root.ChangeEventDetails,\n  ) => void)\n| undefined"
+      "detailedType": "| ((\n    value: Value[] | Value | any | null,\n    eventDetails: Combobox.Root.ChangeEventDetails,\n  ) => void)\n| undefined"
     },
     "defaultInputValue": {
       "type": "string | number | string[]",
@@ -59,22 +59,16 @@
       "description": "Whether the first matching item is highlighted automatically while filtering.",
       "detailedType": "boolean | undefined"
     },
-    "keepHighlight": {
-      "type": "boolean",
-      "default": "false",
-      "description": "Whether the highlighted item should be preserved when the pointer leaves the list.",
-      "detailedType": "boolean | undefined"
-    },
     "highlightItemOnHover": {
       "type": "boolean",
       "default": "true",
-      "description": "Whether moving the pointer over items should highlight them.",
+      "description": "Whether moving the pointer over items should highlight them.\nDisabling this prop allows CSS `:hover` to be differentiated from the `:focus` (`data-highlighted`) state.",
       "detailedType": "boolean | undefined"
     },
     "actionsRef": {
-      "type": "RefObject<Combobox.Root.Actions>",
+      "type": "RefObject<Combobox.Root.Actions | null>",
       "description": "A ref to imperative actions.\n- `unmount`: When specified, the combobox will not be unmounted when closed.\nInstead, the `unmount` function must be called to unmount the combobox manually.\nUseful when the combobox's animation is controlled by an external library.",
-      "detailedType": "React.RefObject<Combobox.Root.Actions> | undefined"
+      "detailedType": "| React.RefObject<Combobox.Root.Actions | null>\n| undefined"
     },
     "filter": {
       "type": "((itemValue: Value, query: string, itemToString: ((itemValue: Value) => string) | undefined) => boolean) | null",
@@ -128,6 +122,12 @@
       "type": "Intl.LocalesArgument",
       "description": "The locale to use for string comparison.\nDefaults to the user's runtime locale.",
       "detailedType": "Intl.LocalesArgument | undefined"
+    },
+    "loopFocus": {
+      "type": "boolean",
+      "default": "true",
+      "description": "Whether to loop keyboard focus back to the input when the end of the list is reached while using the arrow keys. The first item can then be reached by pressing <kbd>ArrowDown</kbd> again from the input, or the last item can be reached by pressing <kbd>ArrowUp</kbd> from the input.\nThe input is always included in the focus loop per [ARIA Authoring Practices](https://www.w3.org/WAI/ARIA/apg/patterns/combobox/).\nWhen disabled, focus does not move when on the last element and the user presses <kbd>ArrowDown</kbd>, or when on the first element and the user presses <kbd>ArrowUp</kbd>.",
+      "detailedType": "boolean | undefined"
     },
     "modal": {
       "type": "boolean",

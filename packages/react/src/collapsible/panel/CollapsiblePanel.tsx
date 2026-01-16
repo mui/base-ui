@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
-import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
-import { warn } from '@base-ui-components/utils/warn';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { warn } from '@base-ui/utils/warn';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useCollapsibleRootContext } from '../root/CollapsibleRootContext';
@@ -169,13 +169,13 @@ export interface CollapsiblePanelProps extends BaseUIComponentProps<'div', Colla
    *
    * @default false
    */
-  hiddenUntilFound?: boolean;
+  hiddenUntilFound?: boolean | undefined;
   /**
    * Whether to keep the element in the DOM while the panel is hidden.
    * This prop is ignored when `hiddenUntilFound` is used.
    * @default false
    */
-  keepMounted?: boolean;
+  keepMounted?: boolean | undefined;
 }
 
 export namespace CollapsiblePanel {

@@ -12,7 +12,7 @@ const STYLES = `
   all: unset;
   width: 32px;
   height: 32px;
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
   color: oklch(0.651 0.078 264);
@@ -59,6 +59,7 @@ const STYLES = `
   display: flex;
   flex-direction: column;
   box-sizing: border-box;
+  max-width: 50vw;
   color-scheme: dark;
   overflow: clip;
   box-shadow:
@@ -121,12 +122,12 @@ export interface StoreInspectorProps {
   /**
    * Title to display in the panel header.
    */
-  title?: string;
+  title?: string | undefined;
   /**
    * Whether the inspector panel should be open by default.
    * @default false
    */
-  defaultOpen?: boolean;
+  defaultOpen?: boolean | undefined;
 }
 
 /**
@@ -145,7 +146,11 @@ export function StoreInspector(props: StoreInspectorProps) {
       <button
         className="baseui-store-inspector-trigger"
         type="button"
-        onClick={() => setOpen((o) => !o)}
+        onClick={(event) => {
+          event.preventDefault();
+          event.stopPropagation();
+          setOpen((o) => !o);
+        }}
         title="Toggle store inspector"
         aria-hidden
       >
@@ -164,10 +169,10 @@ export function StoreInspector(props: StoreInspectorProps) {
 
 interface PanelProps {
   store: Store<any>;
-  title?: string;
+  title?: string | undefined;
   additionalData?: any;
   open: boolean;
-  onClose?: () => void;
+  onClose?: (() => void) | undefined;
 }
 
 export function StoreInspectorPanel({ store, title, additionalData, open, onClose }: PanelProps) {
@@ -273,8 +278,8 @@ function getStringifyReplacer() {
 }
 
 interface WindowProps {
-  title?: string;
-  onClose?: () => void;
+  title?: string | undefined;
+  onClose?: (() => void) | undefined;
   children: React.ReactNode;
   headerActions?: React.ReactNode;
 }

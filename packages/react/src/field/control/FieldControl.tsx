@@ -1,8 +1,8 @@
 'use client';
 import * as React from 'react';
-import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
-import { useControlled } from '@base-ui-components/utils/useControlled';
-import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { useControlled } from '@base-ui/utils/useControlled';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { FieldRoot } from '../root/FieldRoot';
 import { useFieldRootContext } from '../root/FieldRootContext';
 import { useLabelableContext } from '../../labelable-provider/LabelableContext';
@@ -11,10 +11,9 @@ import { fieldValidityMapping } from '../utils/constants';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useField } from '../useField';
-import {
-  BaseUIChangeEventDetails,
-  createChangeEventDetails,
-} from '../../utils/createBaseUIEventDetails';
+import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
+import { REASONS } from '../../utils/reasons';
+import type { BaseUIChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 
 /**
  * The form control to label and validate.
@@ -113,7 +112,7 @@ export const FieldControl = React.forwardRef(function FieldControl(
         ...(isControlled ? { value } : { defaultValue }),
         onChange(event) {
           const inputValue = event.currentTarget.value;
-          setValue(inputValue, createChangeEventDetails('none', event.nativeEvent));
+          setValue(inputValue, createChangeEventDetails(REASONS.none, event.nativeEvent));
           setDirty(inputValue !== validityData.initialValue);
           setFilled(inputValue !== '');
         },
@@ -150,11 +149,13 @@ export interface FieldControlProps extends BaseUIComponentProps<'input', FieldCo
   /**
    * Callback fired when the `value` changes. Use when controlled.
    */
-  onValueChange?: (value: string, eventDetails: FieldControl.ChangeEventDetails) => void;
-  defaultValue?: React.ComponentProps<'input'>['defaultValue'];
+  onValueChange?:
+    | ((value: string, eventDetails: FieldControl.ChangeEventDetails) => void)
+    | undefined;
+  defaultValue?: React.ComponentProps<'input'>['defaultValue'] | undefined;
 }
 
-export type FieldControlChangeEventReason = 'none';
+export type FieldControlChangeEventReason = typeof REASONS.none;
 
 export type FieldControlChangeEventDetails =
   BaseUIChangeEventDetails<FieldControl.ChangeEventReason>;
