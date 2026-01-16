@@ -67,7 +67,7 @@ export const ToggleGroup = React.forwardRef(function ToggleGroup(
       nextPressed: boolean,
       eventDetails: BaseUIChangeEventDetails<typeof REASONS.none>,
     ) => {
-      let newGroupValue: any[] | undefined;
+      let newGroupValue: string[] | undefined;
       if (multiple) {
         newGroupValue = groupValue.slice();
         if (nextPressed) {
@@ -150,17 +150,17 @@ export interface ToggleGroupProps extends BaseUIComponentProps<'div', ToggleGrou
    * the values of all pressed toggle buttons.
    * This is the controlled counterpart of `defaultValue`.
    */
-  value?: readonly any[];
+  value?: readonly string[];
   /**
    * The open state of the toggle group represented by an array of
    * the values of all pressed toggle buttons.
    * This is the uncontrolled counterpart of `value`.
    */
-  defaultValue?: readonly any[];
+  defaultValue?: readonly string[];
   /**
    * Callback fired when the pressed states of the toggle group changes.
    */
-  onValueChange?: (groupValue: any[], eventDetails: ToggleGroup.ChangeEventDetails) => void;
+  onValueChange?: (groupValue: string[], eventDetails: ToggleGroup.ChangeEventDetails) => void;
   /**
    * Whether the toggle group should ignore user interaction.
    * @default false
