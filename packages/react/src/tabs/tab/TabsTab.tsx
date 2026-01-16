@@ -246,7 +246,7 @@ export interface TabsTabProps
    * during pre-rendering which Tabs are disabled.
    * To work around it, ensure that `defaultValue` or `value` on `<Tabs.Root>` is set to an enabled Tab's value.
    */
-  disabled?: boolean;
+  disabled?: boolean | undefined;
 }
 
 export namespace TabsTab {

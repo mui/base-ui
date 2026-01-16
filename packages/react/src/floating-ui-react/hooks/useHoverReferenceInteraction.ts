@@ -23,8 +23,8 @@ export interface UseHoverReferenceInteractionProps extends Omit<UseHoverProps, '
    * triggers via `getTriggerProps`.
    * @default true
    */
-  isActiveTrigger?: boolean;
-  triggerElementRef?: Readonly<React.RefObject<Element | null>>;
+  isActiveTrigger?: boolean | undefined;
+  triggerElementRef?: Readonly<React.RefObject<Element | null>> | undefined;
 }
 
 function getRestMs(value: number | (() => number)) {

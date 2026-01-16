@@ -127,7 +127,7 @@ export interface FieldLabelProps extends BaseUIComponentProps<'label', FieldLabe
    * This is useful to avoid inheriting label behaviors on `<button>` controls (such as `<Select.Trigger>` and `<Combobox.Trigger>`), including avoiding `:hover` on the button when hovering the label, and preventing clicks on the label from firing on the button.
    * @default true
    */
-  nativeLabel?: boolean;
+  nativeLabel?: boolean | undefined;
 }
 
 export namespace FieldLabel {

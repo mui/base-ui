@@ -200,7 +200,7 @@ export interface TabsIndicatorProps extends BaseUIComponentProps<'span', TabsInd
    * This minimizes the time that the indicator isn’t visible after server-side rendering.
    * @default false
    */
-  renderBeforeHydration?: boolean;
+  renderBeforeHydration?: boolean | undefined;
 }
 
 export namespace TabsIndicator {
