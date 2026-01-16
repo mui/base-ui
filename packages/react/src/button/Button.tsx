@@ -23,7 +23,7 @@ export const Button = React.forwardRef(function Button(
     ...elementProps
   } = componentProps;
 
-  const { getButtonProps, buttonRef } = useButton({
+  const { getButtonProps, buttonRef, active } = useButton({
     disabled,
     focusableWhenDisabled,
     native: nativeButton,
@@ -32,8 +32,9 @@ export const Button = React.forwardRef(function Button(
   const state: Button.State = React.useMemo(
     () => ({
       disabled,
+      active,
     }),
-    [disabled],
+    [disabled, active],
   );
 
   return useRenderElement('button', componentProps, {
@@ -48,6 +49,10 @@ export interface ButtonState {
    * Whether the button should ignore user interaction.
    */
   disabled: boolean;
+  /**
+   * Whether the button is currently being activated by the user.
+   */
+  active: boolean;
 }
 
 export interface ButtonProps

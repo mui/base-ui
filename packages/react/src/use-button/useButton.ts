@@ -18,6 +18,7 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
   } = parameters;
 
   const elementRef = React.useRef<HTMLElement | null>(null);
+  const [active, setActive] = React.useState(false);
 
   const isCompositeItem = useCompositeRootContext(true) !== undefined;
 
@@ -88,6 +89,9 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
         onKeyUp: externalOnKeyUp,
         onKeyDown: externalOnKeyDown,
         onPointerDown: externalOnPointerDown,
+        onPointerUp: externalOnPointerUp,
+        onPointerLeave: externalOnPointerLeave,
+        onBlur: externalOnBlur,
         ...otherExternalProps
       } = externalProps;
 
@@ -126,6 +130,10 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
             const isEnterKey = event.key === 'Enter';
             const isSpaceKey = event.key === ' ';
 
+            if (!disabled && (isEnterKey || isSpaceKey)) {
+              setActive(true);
+            }
+
             // Keyboard accessibility for non interactive elements
             if (shouldClick) {
               if (isSpaceKey || isEnterKey) {
@@ -146,6 +154,10 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
               externalOnKeyUp?.(event);
             }
 
+            if (event.key === 'Enter' || event.key === ' ') {
+              setActive(false);
+            }
+
             if (event.baseUIHandlerPrevented) {
               return;
             }
@@ -164,7 +176,20 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
               event.preventDefault();
               return;
             }
+            setActive(true);
             externalOnPointerDown?.(event);
+          },
+          onPointerUp(event: React.PointerEvent) {
+            setActive(false);
+            externalOnPointerUp?.(event);
+          },
+          onPointerLeave(event: React.PointerEvent) {
+            setActive(false);
+            externalOnPointerLeave?.(event);
+          },
+          onBlur(event: React.FocusEvent) {
+            setActive(false);
+            externalOnBlur?.(event);
           },
         },
         !isNativeButton ? { role: 'button' } : undefined,
@@ -172,7 +197,7 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
         otherExternalProps,
       );
     },
-    [disabled, focusableWhenDisabledProps, isNativeButton, isValidLink],
+    [disabled, focusableWhenDisabledProps, isNativeButton, isValidLink, setActive],
   );
 
   const buttonRef = useStableCallback((element: HTMLElement | null) => {
@@ -183,6 +208,7 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
   return {
     getButtonProps,
     buttonRef,
+    active,
   };
 }
 
@@ -236,6 +262,12 @@ export interface UseButtonReturnValue {
    * It is not a part of the props returned by `getButtonProps`.
    */
   buttonRef: React.Ref<HTMLElement>;
+  /**
+   * Whether the button is currently being activated by the user.
+   * This is useful for styling the active state consistently across browsers,
+   * as Firefox does not apply `:active` styles during keyboard activation.
+   */
+  active: boolean;
 }
 
 export namespace useButton {
