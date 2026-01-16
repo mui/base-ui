@@ -9,6 +9,7 @@ import { useOnFirstRender } from '@base-ui/utils/useOnFirstRender';
 import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
 import { useScrollLock } from '@base-ui/utils/useScrollLock';
 import { EMPTY_ARRAY } from '@base-ui/utils/empty';
+import { fastComponent } from '@base-ui/utils/fastHooks';
 import {
   FloatingEvents,
   FloatingTree,
@@ -52,7 +53,7 @@ import { useMenuSubmenuRootContext } from '../submenu-root/MenuSubmenuRootContex
  *
  * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
  */
-export function MenuRoot<Payload>(props: MenuRoot.Props<Payload>) {
+export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot.Props<Payload>) {
   const {
     children,
     open: openProp,
@@ -584,7 +585,7 @@ export function MenuRoot<Payload>(props: MenuRoot.Props<Payload>) {
   }
 
   return content;
-}
+});
 
 export interface MenuRootProps<Payload = unknown> {
   /**
