@@ -65,6 +65,7 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
     nativeButton = true,
     id: idProp,
     openOnHover: openOnHoverProp,
+    pressMode: pressModeProp,
     delay = 100,
     closeDelay = 0,
     handle,
@@ -171,7 +172,13 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
     if (isOpenedByThisTrigger && store.select('lastOpenChangeReason') === REASONS.triggerHover) {
       const doc = ownerDocument(triggerRef.current);
       doc.addEventListener('mouseup', handleDocumentMouseUp, { once: true });
+
+      return () => {
+        doc.removeEventListener('mouseup', handleDocumentMouseUp);
+      };
     }
+
+    return undefined;
   }, [isOpenedByThisTrigger, handleDocumentMouseUp, store]);
 
   const parentMenubarHasSubmenuOpen = isInMenubar && parent.context.hasSubmenuOpen;
@@ -197,10 +204,12 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
   // `lastOpenChangeReason` doesn't need to be reactive here, as we need to run this
   // only when `isOpenedByThisTrigger` changes.
   const stickIfOpen = useStickIfOpen(isOpenedByThisTrigger, store.select('lastOpenChangeReason'));
+  const pressMode =
+    pressModeProp ?? (isOpenedByThisTrigger && parent.type === 'menubar' ? 'click' : 'mousedown');
 
   const click = useClick(floatingRootContext, {
     enabled: !disabled && parent.type !== 'context-menu',
-    event: isOpenedByThisTrigger && isInMenubar ? 'click' : 'mousedown',
+    event: pressMode,
     toggle: true,
     ignoreMouse: false,
     stickIfOpen: parent.type === undefined ? stickIfOpen : false,
@@ -212,8 +221,8 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
 
   const mixedToggleHandlers = useMixedToggleClickHandler({
     open: isOpenedByThisTrigger,
-    enabled: isInMenubar,
-    mouseDownAction: 'open',
+    enabled: parent.type !== 'context-menu',
+    mouseDownAction: getMouseDownAction(pressMode, isOpenedByThisTrigger),
   });
 
   const localInteractionProps = useInteractions([click, focus]);
@@ -395,6 +404,10 @@ export interface MenuTriggerProps<Payload = unknown>
    * Whether the menu should also open when the trigger is hovered.
    */
   openOnHover?: boolean;
+  /**
+   * Determines how the menu is opened when the trigger is pressed.
+   */
+  pressMode?: 'mousedown' | 'click';
 }
 
 export type MenuTriggerState = {
@@ -461,4 +474,11 @@ function useMenuParent() {
   }, [contextMenuContext, parentContext, menubarContext]);
 
   return parent;
+}
+
+function getMouseDownAction(pressMode: MenuTriggerProps['pressMode'], isOpen: boolean) {
+  if (pressMode === 'mousedown') {
+    return isOpen ? 'close' : 'open';
+  }
+  return 'none';
 }
