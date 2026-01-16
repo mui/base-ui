@@ -200,6 +200,7 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
   // - The current selection is missing (tab was removed from DOM)
   // Falls back to null if all tabs are disabled.
   const hasRunOnceRef = React.useRef(false);
+  const initialDisabledStateRef = React.useRef<boolean | undefined>(undefined);
 
   useIsoLayoutEffect(() => {
     if (isControlled || tabMap.size === 0) {
@@ -211,13 +212,19 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
     const hasNoSelection = value == null; // Catches both null and undefined
     const isInitialRun = !hasRunOnceRef.current;
 
-    // Honor explicit defaultValue pointing to a disabled tab ONLY on the first effect run
-    // (when tab starts disabled). After that, always fire the callback when selection becomes invalid.
+    // Track the initial disabled state on first run
+    if (isInitialRun && selectedTabMetadata != null) {
+      initialDisabledStateRef.current = selectedTabMetadata.disabled;
+    }
+
+    // Always honor explicit defaultValue pointing to a disabled tab,
+    // BUT only if it was disabled from the start (not if it became disabled later).
+    // This preserves the user's explicit choice while still firing callbacks for dynamic changes.
     const shouldHonorExplicitDefaultSelection =
       hasExplicitDefaultValueProp &&
       selectionIsDisabled &&
       value === defaultValueProp &&
-      isInitialRun;
+      initialDisabledStateRef.current === true;
 
     if (shouldHonorExplicitDefaultSelection) {
       hasRunOnceRef.current = true;
