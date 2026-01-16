@@ -79,6 +79,7 @@
   }
 
   .DemoToolbarActions {
+    position: relative;
     /* Apply sticky only on wider viewports to avoid actions taking up most of it */
     @media (min-width: 768px) {
       position: sticky;
