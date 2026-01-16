@@ -92,12 +92,12 @@ export interface NavigationMenuLinkProps extends BaseUIComponentProps<
    * Whether the link is the currently active page.
    * @default false
    */
-  active?: boolean;
+  active?: boolean | undefined;
   /**
    * Whether to close the navigation menu when the link is clicked.
    * @default false
    */
-  closeOnClick?: boolean;
+  closeOnClick?: boolean | undefined;
 }
 
 export namespace NavigationMenuLink {

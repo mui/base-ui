@@ -304,7 +304,7 @@ export interface ComboboxTriggerProps
    * Whether the component should ignore user interaction.
    * @default false
    */
-  disabled?: boolean;
+  disabled?: boolean | undefined;
 }
 
 export namespace ComboboxTrigger {

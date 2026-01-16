@@ -91,7 +91,7 @@ export interface FieldErrorProps extends BaseUIComponentProps<'div', FieldError.
    * Specifying `true` will always show the error message, and lets external libraries
    * control the visibility.
    */
-  match?: boolean | keyof ValidityState;
+  match?: (boolean | keyof ValidityState) | undefined;
 }
 
 export namespace FieldError {

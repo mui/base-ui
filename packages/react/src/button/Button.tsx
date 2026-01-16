@@ -56,7 +56,7 @@ export interface ButtonProps
    * Whether the button should be focusable when disabled.
    * @default false
    */
-  focusableWhenDisabled?: boolean;
+  focusableWhenDisabled?: boolean | undefined;
 }
 
 export namespace Button {

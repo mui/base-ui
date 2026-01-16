@@ -14,36 +14,36 @@ export interface UseClickProps {
    * handlers.
    * @default true
    */
-  enabled?: boolean;
+  enabled?: boolean | undefined;
   /**
    * The type of event to use to determine a “click” with mouse input.
    * Keyboard clicks work as normal.
    * @default 'click'
    */
-  event?: 'click' | 'mousedown' | 'mousedown-only';
+  event?: ('click' | 'mousedown' | 'mousedown-only') | undefined;
   /**
    * Whether to toggle the open state with repeated clicks.
    * @default true
    */
-  toggle?: boolean;
+  toggle?: boolean | undefined;
   /**
    * Whether to ignore the logic for mouse input (for example, if `useHover()`
    * is also being used).
    * @default false
    */
-  ignoreMouse?: boolean;
+  ignoreMouse?: boolean | undefined;
   /**
    * If already open from another event such as the `useHover()` Hook,
    * determines whether to keep the floating element open when clicking the
    * reference element for the first time.
    * @default true
    */
-  stickIfOpen?: boolean;
+  stickIfOpen?: boolean | undefined;
   /**
    * Touch-only delay (ms) before opening. Useful to allow mobile viewport/keyboard to settle.
    * @default 0
    */
-  touchOpenDelay?: number;
+  touchOpenDelay?: number | undefined;
 }
 
 /**
