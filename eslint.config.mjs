@@ -85,6 +85,13 @@ export default defineConfig(
     },
   },
   {
+    files: [`packages/**/*${EXTENSION_TS}`],
+    ignores: [`**/*${EXTENSION_TEST_FILE}`, `**/*.spec${EXTENSION_TS}`],
+    rules: {
+      'material-ui/disallow-react-api-in-server-components': ['error'],
+    },
+  },
+  {
     files: [
       // matching the pattern of the test runner
       `**/*${EXTENSION_TEST_FILE}`,

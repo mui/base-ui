@@ -1,3 +1,4 @@
+'use client';
 import * as React from 'react';
 import { useTimeout } from '@base-ui/utils/useTimeout';
 
