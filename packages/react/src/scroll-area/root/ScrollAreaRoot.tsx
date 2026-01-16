@@ -326,13 +326,16 @@ export interface ScrollAreaRootProps extends BaseUIComponentProps<'div', ScrollA
    * @default 0
    */
   overflowEdgeThreshold?:
-    | number
-    | Partial<{
-        xStart: number;
-        xEnd: number;
-        yStart: number;
-        yEnd: number;
-      }>;
+    | (
+        | number
+        | Partial<{
+            xStart: number;
+            xEnd: number;
+            yStart: number;
+            yEnd: number;
+          }>
+      )
+    | undefined;
 }
 
 export namespace ScrollAreaRoot {

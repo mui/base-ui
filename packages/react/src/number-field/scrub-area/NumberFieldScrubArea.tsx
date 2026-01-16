@@ -334,13 +334,13 @@ export interface NumberFieldScrubAreaProps extends BaseUIComponentProps<
    * Cursor movement direction in the scrub area.
    * @default 'horizontal'
    */
-  direction?: 'horizontal' | 'vertical';
+  direction?: ('horizontal' | 'vertical') | undefined;
   /**
    * Determines how many pixels the cursor must move before the value changes.
    * A higher value will make scrubbing less sensitive.
    * @default 2
    */
-  pixelSensitivity?: number;
+  pixelSensitivity?: number | undefined;
   /**
    * If specified, determines the distance that the cursor may move from the center
    * of the scrub area before it will loop back around.
