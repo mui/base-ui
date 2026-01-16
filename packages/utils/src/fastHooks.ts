@@ -57,11 +57,9 @@ export function fastComponent<P extends object, E extends HTMLElement, R extends
   return FastComponent as unknown as typeof fn;
 }
 
-export function fastComponentRef<
-  P extends object,
-  E extends HTMLElement,
-  R extends React.ReactNode,
->(fn: (props: React.PropsWithoutRef<P>, forwardedRef: React.Ref<E>) => R) {
+export function fastComponentRef<P extends object, E extends Element, R extends React.ReactNode>(
+  fn: (props: React.PropsWithoutRef<P>, forwardedRef: React.Ref<E>) => R,
+) {
   return React.forwardRef<E, P>(fastComponent(fn as any) as unknown as typeof fn);
 }
 
