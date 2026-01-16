@@ -67,6 +67,180 @@ describe('<Popover.Popup />', () => {
       });
     });
 
+    it('should select the entire text content of an input when focused', async () => {
+      const { user } = await render(
+        <div>
+          <Popover.Root>
+            <Popover.Trigger>Open</Popover.Trigger>
+            <Popover.Portal>
+              <Popover.Positioner>
+                <Popover.Popup>
+                  <input data-testid="popover-input" defaultValue="Hello World" />
+                  <button>Close</button>
+                </Popover.Popup>
+              </Popover.Positioner>
+            </Popover.Portal>
+          </Popover.Root>
+        </div>,
+      );
+
+      const trigger = screen.getByText('Open');
+      await user.click(trigger);
+
+      await waitFor(() => {
+        const input = screen.getByTestId('popover-input') as HTMLInputElement;
+        expect(input).to.toHaveFocus();
+        expect(input.selectionStart).to.equal(0);
+        expect(input.selectionEnd).to.equal(input.value.length);
+      });
+    });
+
+    it('should select the entire text content of a textarea when focused', async () => {
+      const { user } = await render(
+        <div>
+          <Popover.Root>
+            <Popover.Trigger>Open</Popover.Trigger>
+            <Popover.Portal>
+              <Popover.Positioner>
+                <Popover.Popup>
+                  <textarea
+                    data-testid="popover-textarea"
+                    defaultValue="Line 1&#10;Line 2"
+                  />
+                  <button>Close</button>
+                </Popover.Popup>
+              </Popover.Positioner>
+            </Popover.Portal>
+          </Popover.Root>
+        </div>,
+      );
+
+      const trigger = screen.getByText('Open');
+      await user.click(trigger);
+
+      await waitFor(() => {
+        const textarea = screen.getByTestId('popover-textarea') as HTMLTextAreaElement;
+        expect(textarea).to.toHaveFocus();
+        expect(textarea.selectionStart).to.equal(0);
+        expect(textarea.selectionEnd).to.equal(textarea.value.length);
+      });
+    });
+
+    it('should not affect non-text inputs like checkboxes', async () => {
+      const { user } = await render(
+        <div>
+          <Popover.Root>
+            <Popover.Trigger>Open</Popover.Trigger>
+            <Popover.Portal>
+              <Popover.Positioner>
+                <Popover.Popup>
+                  <input data-testid="popover-checkbox" type="checkbox" />
+                  <button>Close</button>
+                </Popover.Popup>
+              </Popover.Positioner>
+            </Popover.Portal>
+          </Popover.Root>
+        </div>,
+      );
+
+      const trigger = screen.getByText('Open');
+      await user.click(trigger);
+
+      await waitFor(() => {
+        const checkbox = screen.getByTestId('popover-checkbox') as HTMLInputElement;
+        expect(checkbox).to.toHaveFocus();
+      });
+    });
+
+    it('should handle empty input value without error', async () => {
+      const { user } = await render(
+        <div>
+          <Popover.Root>
+            <Popover.Trigger>Open</Popover.Trigger>
+            <Popover.Portal>
+              <Popover.Positioner>
+                <Popover.Popup>
+                  <input data-testid="popover-input" defaultValue="" />
+                  <button>Close</button>
+                </Popover.Popup>
+              </Popover.Positioner>
+            </Popover.Portal>
+          </Popover.Root>
+        </div>,
+      );
+
+      const trigger = screen.getByText('Open');
+      await user.click(trigger);
+
+      await waitFor(() => {
+        const input = screen.getByTestId('popover-input') as HTMLInputElement;
+        expect(input).to.toHaveFocus();
+        expect(input.selectionStart).to.equal(0);
+        expect(input.selectionEnd).to.equal(0);
+      });
+    });
+
+    it('should select text in readonly input', async () => {
+      const { user } = await render(
+        <div>
+          <Popover.Root>
+            <Popover.Trigger>Open</Popover.Trigger>
+            <Popover.Portal>
+              <Popover.Positioner>
+                <Popover.Popup>
+                  <input data-testid="popover-input" defaultValue="Readonly text" readOnly />
+                  <button>Close</button>
+                </Popover.Popup>
+              </Popover.Positioner>
+            </Popover.Portal>
+          </Popover.Root>
+        </div>,
+      );
+
+      const trigger = screen.getByText('Open');
+      await user.click(trigger);
+
+      await waitFor(() => {
+        const input = screen.getByTestId('popover-input') as HTMLInputElement;
+        expect(input).to.toHaveFocus();
+        expect(input.selectionStart).to.equal(0);
+        expect(input.selectionEnd).to.equal(input.value.length);
+      });
+    });
+
+    it('should select text when custom initialFocus points to an input', async () => {
+      function TestComponent() {
+        const inputRef = React.useRef<HTMLInputElement>(null);
+        return (
+          <div>
+            <Popover.Root>
+              <Popover.Trigger>Open</Popover.Trigger>
+              <Popover.Portal>
+                <Popover.Positioner>
+                  <Popover.Popup initialFocus={inputRef}>
+                    <button>First element</button>
+                    <input data-testid="popover-input" ref={inputRef} defaultValue="Custom focus" />
+                  </Popover.Popup>
+                </Popover.Positioner>
+              </Popover.Portal>
+            </Popover.Root>
+          </div>
+        );
+      }
+
+      const { user } = await render(<TestComponent />);
+
+      const trigger = screen.getByText('Open');
+      await user.click(trigger);
+
+      await waitFor(() => {
+        const input = screen.getByTestId('popover-input') as HTMLInputElement;
+        expect(input).to.toHaveFocus();
+        expect(input.selectionStart).to.equal(0);
+        expect(input.selectionEnd).to.equal(input.value.length);
+      });
+    });
+
     it('should focus the element provided to `initialFocus` as a ref when open', async () => {
       function TestComponent() {
         const input2Ref = React.useRef<HTMLInputElement | null>(null);
