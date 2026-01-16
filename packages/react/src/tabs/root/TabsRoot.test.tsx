@@ -695,14 +695,12 @@ describe('<Tabs.Root />', () => {
     });
 
     it('respects cancellation when onValueChange cancels automatic fallback', async () => {
-      const handleChange = spy(
-        (_value: number, eventDetails: Tabs.Root.ChangeEventDetails) => {
-          // Cancel automatic selection
-          if (eventDetails.reason === 'disabled') {
-            eventDetails.cancel();
-          }
-        },
-      );
+      const handleChange = spy((_value: number, eventDetails: Tabs.Root.ChangeEventDetails) => {
+        // Cancel automatic selection
+        if (eventDetails.reason === 'disabled') {
+          eventDetails.cancel();
+        }
+      });
 
       function TestComponent({ disableFirst }: { disableFirst: boolean }) {
         return (
