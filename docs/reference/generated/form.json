@@ -22,21 +22,20 @@
       "type": "FormValidationMode",
       "default": "'onSubmit'",
       "description": "Determines when the form should be validated.\nThe `validationMode` prop on `<Field.Root>` takes precedence over this.\n\n- `onSubmit` (default): validates the field when the form is submitted, afterwards fields will re-validate on change.\n- `onBlur`: validates a field when it loses focus.\n- `onChange`: validates the field on every change to its value.",
-      "detailedType": "'onSubmit' | 'onBlur' | 'onChange' | undefined"
+      "detailedType": "'onBlur' | 'onChange' | 'onSubmit' | undefined"
     },
     "className": {
-      "type": "string | ((state: State) => string | undefined) | ((state: Form.State) => string | undefined)",
-      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
-      "detailedType": "| string\n| ((state: State) => string | undefined)\n| ((state: Form.State) => string | undefined)"
+      "type": "string | ((state: Form.State) => string | undefined)",
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "style": {
-      "type": "CSSProperties | ((state: State) => CSSProperties | undefined) | ((state: Form.State) => CSSProperties | undefined)",
-      "detailedType": "| React.CSSProperties\n| ((state: State) => CSSProperties | undefined)\n| ((state: Form.State) => CSSProperties | undefined)\n| undefined"
+      "type": "CSSProperties | ((state: Form.State) => CSSProperties | undefined)",
+      "detailedType": "| React.CSSProperties\n| ((state: Form.State) => CSSProperties | undefined)\n| undefined"
     },
     "render": {
-      "type": "ReactElement | ((props: RenderFunctionProps, state: State) => ReactElement) | ((props: HTMLProps, state: Form.State) => ReactElement)",
+      "type": "ReactElement | ((props: HTMLProps, state: Form.State) => ReactElement)",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render.",
-      "detailedType": "| ReactElement\n| ((\n    props: RenderFunctionProps,\n    state: State,\n  ) => ReactElement)\n| ((props: HTMLProps, state: Form.State) => ReactElement)"
+      "detailedType": "| ReactElement\n| ((props: HTMLProps, state: Form.State) => ReactElement)"
     }
   },
   "dataAttributes": {},

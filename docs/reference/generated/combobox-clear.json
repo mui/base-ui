@@ -15,9 +15,9 @@
       "detailedType": "boolean | undefined"
     },
     "className": {
-      "type": "string | ((state: State) => string | undefined) | ((state: Combobox.Clear.State) => string | undefined)",
+      "type": "string | ((state: Combobox.Clear.State) => string | undefined)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
-      "detailedType": "| string\n| ((state: State) => string | undefined)\n| ((state: Combobox.Clear.State) => string | undefined)"
+      "detailedType": "| string\n| ((state: Combobox.Clear.State) => string | undefined)"
     },
     "style": {
       "type": "CSSProperties | ((state: Combobox.Clear.State) => CSSProperties | undefined)",
@@ -30,9 +30,9 @@
       "detailedType": "boolean | undefined"
     },
     "render": {
-      "type": "ReactElement | ((props: RenderFunctionProps, state: State) => ReactElement) | ((props: HTMLProps, state: Combobox.Clear.State) => ReactElement)",
+      "type": "ReactElement | ((props: HTMLProps, state: Combobox.Clear.State) => ReactElement)",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render.",
-      "detailedType": "| ReactElement\n| ((\n    props: RenderFunctionProps,\n    state: State,\n  ) => ReactElement)\n| ((\n    props: HTMLProps,\n    state: Combobox.Clear.State,\n  ) => ReactElement)"
+      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Combobox.Clear.State,\n  ) => ReactElement)"
     }
   },
   "dataAttributes": {

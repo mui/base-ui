@@ -29,18 +29,18 @@
       "detailedType": "boolean | undefined"
     },
     "className": {
-      "type": "string | ((state: State) => string | undefined) | ((state: CheckboxGroup.State) => string | undefined)",
+      "type": "string | ((state: CheckboxGroup.State) => string | undefined)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
-      "detailedType": "| string\n| ((state: State) => string | undefined)\n| ((state: CheckboxGroup.State) => string | undefined)"
+      "detailedType": "| string\n| ((state: CheckboxGroup.State) => string | undefined)"
     },
     "style": {
       "type": "CSSProperties | ((state: CheckboxGroup.State) => CSSProperties | undefined)",
       "detailedType": "| React.CSSProperties\n| ((\n    state: CheckboxGroup.State,\n  ) => CSSProperties | undefined)\n| undefined"
     },
     "render": {
-      "type": "ReactElement | ((props: RenderFunctionProps, state: State) => ReactElement) | ((props: HTMLProps, state: CheckboxGroup.State) => ReactElement)",
+      "type": "ReactElement | ((props: HTMLProps, state: CheckboxGroup.State) => ReactElement)",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render.",
-      "detailedType": "| ReactElement\n| ((\n    props: RenderFunctionProps,\n    state: State,\n  ) => ReactElement)\n| ((\n    props: HTMLProps,\n    state: CheckboxGroup.State,\n  ) => ReactElement)"
+      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: CheckboxGroup.State,\n  ) => ReactElement)"
     }
   },
   "dataAttributes": {

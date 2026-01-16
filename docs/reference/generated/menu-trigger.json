@@ -46,18 +46,18 @@
       "detailedType": "React.ReactNode"
     },
     "className": {
-      "type": "string | ((state: State) => string | undefined) | ((state: Menu.Trigger.State) => string | undefined)",
+      "type": "string | ((state: Menu.Trigger.State) => string | undefined)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
-      "detailedType": "| string\n| ((state: State) => string | undefined)\n| ((state: Menu.Trigger.State) => string | undefined)"
+      "detailedType": "| string\n| ((state: Menu.Trigger.State) => string | undefined)"
     },
     "style": {
-      "type": "CSSProperties | ((state: State) => CSSProperties | undefined) | ((state: Menu.Trigger.State) => CSSProperties | undefined)",
-      "detailedType": "| React.CSSProperties\n| ((state: State) => CSSProperties | undefined)\n| ((state: Menu.Trigger.State) => CSSProperties | undefined)\n| undefined"
+      "type": "CSSProperties | ((state: Menu.Trigger.State) => CSSProperties | undefined)",
+      "detailedType": "| React.CSSProperties\n| ((state: Menu.Trigger.State) => CSSProperties | undefined)\n| undefined"
     },
     "render": {
-      "type": "ReactElement | ((props: RenderFunctionProps, state: State) => ReactElement) | ((props: HTMLProps, state: Menu.Trigger.State) => ReactElement)",
+      "type": "ReactElement | ((props: HTMLProps, state: Menu.Trigger.State) => ReactElement)",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render.",
-      "detailedType": "| ReactElement\n| ((\n    props: RenderFunctionProps,\n    state: State,\n  ) => ReactElement)\n| ((\n    props: HTMLProps,\n    state: Menu.Trigger.State,\n  ) => ReactElement)"
+      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Menu.Trigger.State,\n  ) => ReactElement)"
     }
   },
   "dataAttributes": {
