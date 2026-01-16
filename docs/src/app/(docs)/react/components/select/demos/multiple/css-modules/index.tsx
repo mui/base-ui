@@ -34,7 +34,9 @@ function renderValue(value: Language[]) {
 export default function MultiSelectExample() {
   return (
     <Field.Root className={styles.Field}>
-      <Field.Label className={styles.Label}>Languages</Field.Label>
+      <Field.Label className={styles.Label} nativeLabel={false} render={<div />}>
+        Languages
+      </Field.Label>
       <Select.Root multiple defaultValue={['javascript', 'typescript']}>
         <Select.Trigger className={styles.Select}>
           <Select.Value className={styles.Value}>{renderValue}</Select.Value>

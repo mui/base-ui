@@ -22,6 +22,7 @@ import { useButton } from '../../use-button';
 import type { FieldRoot } from '../../field/root/FieldRoot';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
+import { useLabelableId } from '../../labelable-provider/useLabelableId';
 
 const BOUNDARY_OFFSET = 2;
 const SELECTED_DELAY = 400;
@@ -46,6 +47,7 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
   const {
     render,
     className,
+    id: idProp,
     disabled: disabledProp = false,
     nativeButton = true,
     ...elementProps
@@ -78,9 +80,13 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
   const triggerProps = useStore(store, selectors.triggerProps);
   const positionerElement = useStore(store, selectors.positionerElement);
   const listElement = useStore(store, selectors.listElement);
+  const rootId = useStore(store, selectors.id);
   const hasSelectedValue = useStore(store, selectors.hasSelectedValue);
   const shouldCheckNullItemLabel = !hasSelectedValue && open;
   const hasNullItemLabel = useStore(store, selectors.hasNullItemLabel, shouldCheckNullItemLabel);
+
+  const id = idProp ?? rootId;
+  useLabelableId({ id });
 
   const positionerRef = useValueAsRef(positionerElement);
 
@@ -163,6 +169,7 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
   const props: HTMLProps = mergeProps<'button'>(
     triggerProps,
     {
+      id,
       role: 'combobox',
       'aria-expanded': open ? 'true' : 'false',
       'aria-haspopup': 'listbox',
@@ -303,7 +310,7 @@ export interface SelectTriggerProps
   extends NativeButtonProps, BaseUIComponentProps<'button', SelectTrigger.State> {
   children?: React.ReactNode;
   /** Whether the component should ignore user interaction. */
-  disabled?: boolean;
+  disabled?: boolean | undefined;
 }
 
 export namespace SelectTrigger {

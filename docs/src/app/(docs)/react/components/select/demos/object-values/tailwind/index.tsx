@@ -6,7 +6,11 @@ import { Field } from '@base-ui/react/field';
 export default function ObjectValueSelect() {
   return (
     <Field.Root className="flex flex-col gap-1">
-      <Field.Label className="text-sm leading-5 font-medium text-gray-900">
+      <Field.Label
+        className="cursor-default text-sm leading-5 font-medium text-gray-900"
+        nativeLabel={false}
+        render={<div />}
+      >
         Shipping method
       </Field.Label>
       <Select.Root defaultValue={shippingMethods[0]} itemToStringValue={(item) => item.id}>

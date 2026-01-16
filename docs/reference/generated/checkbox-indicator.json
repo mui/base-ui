@@ -3,9 +3,9 @@
   "description": "Indicates whether the checkbox is ticked.\nRenders a `<span>` element.",
   "props": {
     "className": {
-      "type": "string | ((state: Checkbox.Indicator.State) => string | undefined)",
+      "type": "string | ((state: State) => string | undefined) | ((state: Checkbox.Indicator.State) => string | undefined)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
-      "detailedType": "| string\n| ((state: Checkbox.Indicator.State) => string | undefined)"
+      "detailedType": "| string\n| ((state: State) => string | undefined)\n| ((state: Checkbox.Indicator.State) => string | undefined)"
     },
     "style": {
       "type": "CSSProperties | ((state: Checkbox.Indicator.State) => CSSProperties | undefined)",
@@ -18,9 +18,9 @@
       "detailedType": "boolean | undefined"
     },
     "render": {
-      "type": "ReactElement | ((props: HTMLProps, state: Checkbox.Indicator.State) => ReactElement)",
+      "type": "ReactElement | ((props: RenderFunctionProps, state: State) => ReactElement) | ((props: HTMLProps, state: Checkbox.Indicator.State) => ReactElement)",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render.",
-      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Checkbox.Indicator.State,\n  ) => ReactElement)"
+      "detailedType": "| ReactElement\n| ((\n    props: RenderFunctionProps,\n    state: State,\n  ) => ReactElement)\n| ((\n    props: HTMLProps,\n    state: Checkbox.Indicator.State,\n  ) => ReactElement)"
     }
   },
   "dataAttributes": {

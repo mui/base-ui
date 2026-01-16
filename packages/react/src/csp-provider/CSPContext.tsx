@@ -2,8 +2,8 @@
 import * as React from 'react';
 
 export interface CSPContextValue {
-  nonce?: string;
-  disableStyleElements?: boolean;
+  nonce?: string | undefined;
+  disableStyleElements?: boolean | undefined;
 }
 
 /**

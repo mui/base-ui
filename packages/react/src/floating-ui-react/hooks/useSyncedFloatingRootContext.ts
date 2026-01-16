@@ -13,11 +13,11 @@ export interface UseSyncedFloatingRootContextOptions<State extends PopupStoreSta
   /**
    * Whether to prevent the auto-emitted `openchange` event.
    */
-  noEmit?: boolean;
+  noEmit?: boolean | undefined;
   /**
    * Whether the Popup element is passed to Floating UI as the floating element instead of the default Positioner.
    */
-  treatPopupAsFloatingElement?: boolean;
+  treatPopupAsFloatingElement?: boolean | undefined;
   onOpenChange(open: boolean, eventDetails: BaseUIChangeEventDetails<string>): void;
 }
 

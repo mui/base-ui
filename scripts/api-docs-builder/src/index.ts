@@ -13,6 +13,7 @@ import { globby } from 'globby';
 import { syncPageIndex } from '@mui/internal-docs-infra/pipeline/syncPageIndex';
 import { isPublicComponent, formatComponentData, extractComponentGroup } from './componentHandler';
 import { isPublicHook, formatHookData } from './hookHandler';
+import { isPublicUtility, formatUtilityData } from './utilityHandler';
 
 const isDebug = inspector.url() !== undefined;
 
@@ -142,6 +143,11 @@ async function run(options: RunOptions) {
 
   for (const exportNode of exports.filter(isNotReExport).filter(isPublicHook)) {
     const json = JSON.stringify(await formatHookData(exportNode), null, 2) + '\n';
+    fs.writeFileSync(path.join(options.out, `${kebabCase(exportNode.name)}.json`), json);
+  }
+
+  for (const exportNode of exports.filter(isPublicUtility)) {
+    const json = JSON.stringify(await formatUtilityData(exportNode), null, 2) + '\n';
     fs.writeFileSync(path.join(options.out, `${kebabCase(exportNode.name)}.json`), json);
   }
 

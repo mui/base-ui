@@ -8,9 +8,9 @@
       "description": "The value of the TabPanel. It will be shown when the Tab with the corresponding value is active."
     },
     "className": {
-      "type": "string | ((state: Tabs.Panel.State) => string | undefined)",
+      "type": "string | ((state: State) => string | undefined) | ((state: Tabs.Panel.State) => string | undefined)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
-      "detailedType": "| string\n| ((state: Tabs.Panel.State) => string | undefined)"
+      "detailedType": "| string\n| ((state: State) => string | undefined)\n| ((state: Tabs.Panel.State) => string | undefined)"
     },
     "style": {
       "type": "CSSProperties | ((state: Tabs.Panel.State) => CSSProperties | undefined)",
@@ -23,9 +23,9 @@
       "detailedType": "boolean | undefined"
     },
     "render": {
-      "type": "ReactElement | ((props: HTMLProps, state: Tabs.Panel.State) => ReactElement)",
+      "type": "ReactElement | ((props: RenderFunctionProps, state: State) => ReactElement) | ((props: HTMLProps, state: Tabs.Panel.State) => ReactElement)",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render.",
-      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Tabs.Panel.State,\n  ) => ReactElement)"
+      "detailedType": "| ReactElement\n| ((\n    props: RenderFunctionProps,\n    state: State,\n  ) => ReactElement)\n| ((\n    props: HTMLProps,\n    state: Tabs.Panel.State,\n  ) => ReactElement)"
     }
   },
   "dataAttributes": {

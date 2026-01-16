@@ -3,8 +3,9 @@
   "description": "Renders a Base UI element.",
   "parameters": {
     "render": {
-      "type": "UseRenderRenderProp<Record<string, unknown>>",
-      "description": "The React element or a function that returns one to override the default element."
+      "type": "UseRenderRenderProp<State> | UseRenderRenderProp<Record<string, unknown>>",
+      "description": "The React element or a function that returns one to override the default element.",
+      "detailedType": "| UseRenderRenderProp<State>\n| UseRenderRenderProp<Record<string, unknown>>"
     },
     "ref": {
       "type": "Ref<Element> | Ref<Element>[]",
@@ -12,9 +13,9 @@
       "detailedType": "React.Ref<Element> | Ref<Element>[] | undefined"
     },
     "state": {
-      "type": "Record<string, unknown>",
+      "type": "State",
       "description": "The state of the component, passed as the second argument to the `render` callback.\nState properties are automatically converted to data-* attributes.",
-      "detailedType": "Record<string, unknown> | undefined"
+      "detailedType": "State | undefined"
     },
     "stateAttributesMapping": {
       "type": "StateAttributesMapping<Record<string, unknown>>",

@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { useOnFirstRender } from '@base-ui/utils/useOnFirstRender';
 import { useDismiss, useInteractions } from '../../floating-ui-react';
 import { PreviewCardRootContext } from './PreviewCardContext';
 import {
@@ -36,12 +37,24 @@ export function PreviewCardRoot<Payload>(props: PreviewCardRoot.Props<Payload>) 
   } = props;
 
   const store = PreviewCardStore.useStore<Payload>(handle?.store, {
-    open: openProp ?? defaultOpen,
-    activeTriggerId: triggerIdProp !== undefined ? triggerIdProp : defaultTriggerIdProp,
+    open: defaultOpen,
+    openProp,
+    activeTriggerId: defaultTriggerIdProp,
+    triggerIdProp,
   });
 
-  store.useControlledProp('open', openProp, defaultOpen);
-  store.useControlledProp('activeTriggerId', triggerIdProp, defaultTriggerIdProp);
+  // Support initially open state when uncontrolled
+  useOnFirstRender(() => {
+    if (openProp === undefined && store.state.open === false && defaultOpen === true) {
+      store.update({
+        open: true,
+        activeTriggerId: defaultTriggerIdProp,
+      });
+    }
+  });
+
+  store.useControlledProp('openProp', openProp);
+  store.useControlledProp('triggerIdProp', triggerIdProp);
 
   store.useContextCallback('onOpenChange', onOpenChange);
   store.useContextCallback('onOpenChangeComplete', onOpenChangeComplete);
@@ -118,31 +131,33 @@ export interface PreviewCardRootProps<Payload = unknown> {
    * To render a controlled preview card, use the `open` prop instead.
    * @default false
    */
-  defaultOpen?: boolean;
+  defaultOpen?: boolean | undefined;
   /**
    * Whether the preview card is currently open.
    */
-  open?: boolean;
+  open?: boolean | undefined;
   /**
    * Event handler called when the preview card is opened or closed.
    */
-  onOpenChange?: (open: boolean, eventDetails: PreviewCardRoot.ChangeEventDetails) => void;
+  onOpenChange?:
+    | ((open: boolean, eventDetails: PreviewCardRoot.ChangeEventDetails) => void)
+    | undefined;
   /**
    * Event handler called after any animations complete when the preview card is opened or closed.
    */
-  onOpenChangeComplete?: (open: boolean) => void;
+  onOpenChangeComplete?: ((open: boolean) => void) | undefined;
   /**
    * A ref to imperative actions.
    * - `unmount`: Unmounts the preview card popup.
    * - `close`: Closes the preview card imperatively when called.
    */
-  actionsRef?: React.RefObject<PreviewCardRoot.Actions | null>;
+  actionsRef?: React.RefObject<PreviewCardRoot.Actions | null> | undefined;
   /**
    * A handle to associate the preview card with a trigger.
    * If specified, allows external triggers to control the card's open state.
    * Can be created with the PreviewCard.createHandle() method.
    */
-  handle?: PreviewCardHandle<Payload>;
+  handle?: PreviewCardHandle<Payload> | undefined;
   /**
    * The content of the preview card.
    * This can be a regular React node or a render function that receives the `payload` of the active trigger.
@@ -153,12 +168,12 @@ export interface PreviewCardRootProps<Payload = unknown> {
    * This is useful in conjuntion with the `open` prop to create a controlled preview card.
    * There's no need to specify this prop when the preview card is uncontrolled (i.e. when the `open` prop is not set).
    */
-  triggerId?: string | null;
+  triggerId?: (string | null) | undefined;
   /**
    * ID of the trigger that the preview card is associated with.
    * This is useful in conjunction with the `defaultOpen` prop to create an initially open preview card.
    */
-  defaultTriggerId?: string | null;
+  defaultTriggerId?: (string | null) | undefined;
 }
 
 export interface PreviewCardRootActions {

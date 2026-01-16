@@ -23,7 +23,7 @@ Some Base UI components render inline `<style>` or `<script>` tags for function
 
 `CSPProvider` allows configuring this behavior globally for all Base UI components within its tree.
 
-## Supplying a `nonce`
+## Supplying a nonce
 
 If you enforce a CSP that blocks inline tags by default, configure your server to:
 
@@ -54,7 +54,7 @@ function App({ nonce }) {
 
 This will ensure that all inline `<style>` and `<script>` tags rendered by Base UI components include the correct nonce attribute, allowing them to function under your CSP.
 
-## Disable inline `<style>` elements
+## Disable inline style elements
 
 You can avoid supplying a `nonce` if you disable inline `<style>` elements entirely and rely on external stylesheets only. The relevant components are `<ScrollArea.Viewport>` and `<Select.Popup>` or `<Select.List>` when `alignItemWithTrigger` is enabled, which inject a style tag to disable native scrollbars.
 

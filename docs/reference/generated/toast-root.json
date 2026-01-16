@@ -3,30 +3,30 @@
   "description": "Groups all parts of an individual toast.\nRenders a `<div>` element.",
   "props": {
     "swipeDirection": {
-      "type": "'up' | 'down' | 'left' | 'right' | ('left' | 'right' | 'up' | 'down')[]",
+      "type": "'left' | 'right' | 'up' | 'down' | ('left' | 'right' | 'up' | 'down')[]",
       "default": "['down', 'right']",
       "description": "Direction(s) in which the toast can be swiped to dismiss.",
-      "detailedType": "| 'up'\n| 'down'\n| 'left'\n| 'right'\n| ('left' | 'right' | 'up' | 'down')[]\n| undefined"
+      "detailedType": "| 'left'\n| 'right'\n| 'up'\n| 'down'\n| ('left' | 'right' | 'up' | 'down')[]\n| undefined"
     },
     "toast": {
       "type": "Toast.Root.ToastObject<any>",
       "required": true,
       "description": "The toast to render.",
-      "detailedType": "id: string\n  ref?: RefObject<HTMLElement | null>\n  title?: ReactNode\n  type?: string\n  description?: ReactNode\n  timeout?: number\n  priority?: 'low' | 'high'\n  transitionStatus?: 'starting' | 'ending'\n  limited?: boolean\n  height?: number\n  onClose?: () => void\n  onRemove?: () => void\n  actionProps?: Omit<\n    DetailedHTMLProps<\n      ButtonHTMLAttributes<HTMLButtonElement>,\n      HTMLButtonElement\n    >,\n    'ref'\n  >\n  positionerProps?: ToastManagerPositionerProps\n  data?: any\n}"
+      "detailedType": "id: string\n  ref?: RefObject<HTMLElement | null>\n  title?: ReactNode\n  type?: string\n  description?: ReactNode\n  timeout?: number\n  priority?: 'high' | 'low'\n  transitionStatus?: 'starting' | 'ending'\n  limited?: boolean\n  height?: number\n  onClose?: () => void\n  onRemove?: () => void\n  actionProps?: Omit<\n    DetailedHTMLProps<\n      ButtonHTMLAttributes<HTMLButtonElement>,\n      HTMLButtonElement\n    >,\n    'ref'\n  >\n  positionerProps?: ToastManagerPositionerProps\n  data?: {}\n}"
     },
     "className": {
-      "type": "string | ((state: Toast.Root.State) => string | undefined)",
+      "type": "string | ((state: State) => string | undefined) | ((state: Toast.Root.State) => string | undefined)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
-      "detailedType": "| string\n| ((state: Toast.Root.State) => string | undefined)"
+      "detailedType": "| string\n| ((state: State) => string | undefined)\n| ((state: Toast.Root.State) => string | undefined)"
     },
     "style": {
       "type": "CSSProperties | ((state: Toast.Root.State) => CSSProperties | undefined)",
       "detailedType": "| React.CSSProperties\n| ((state: Toast.Root.State) => CSSProperties | undefined)\n| undefined"
     },
     "render": {
-      "type": "ReactElement | ((props: HTMLProps, state: Toast.Root.State) => ReactElement)",
+      "type": "ReactElement | ((props: RenderFunctionProps, state: State) => ReactElement) | ((props: HTMLProps, state: Toast.Root.State) => ReactElement)",
       "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render.",
-      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Toast.Root.State,\n  ) => ReactElement)"
+      "detailedType": "| ReactElement\n| ((\n    props: RenderFunctionProps,\n    state: State,\n  ) => ReactElement)\n| ((\n    props: HTMLProps,\n    state: Toast.Root.State,\n  ) => ReactElement)"
     }
   },
   "dataAttributes": {
