@@ -96,7 +96,7 @@
     "rimraf": "6.1.2",
     "serve": "14.2.5",
     "stylelint": "16.26.1",
-    "stylelint-config-tailwindcss": "1.0.0",
+    "stylelint-config-tailwindcss": "1.0.1",
     "tailwindcss": "4.1.18",
     "terser": "5.44.1",
     "tsx": "4.21.0",
