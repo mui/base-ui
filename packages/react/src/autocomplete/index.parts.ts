@@ -3,6 +3,7 @@ export { AutocompleteValue as Value } from './value/AutocompleteValue';
 
 export { ComboboxTrigger as Trigger } from '../combobox/trigger/ComboboxTrigger';
 export { ComboboxInput as Input } from '../combobox/input/ComboboxInput';
+export { ComboboxInputGroup as InputGroup } from '../combobox/input-group/ComboboxInputGroup';
 export { ComboboxIcon as Icon } from '../combobox/icon/ComboboxIcon';
 export { ComboboxClear as Clear } from '../combobox/clear/ComboboxClear';
 export { ComboboxList as List } from '../combobox/list/ComboboxList';

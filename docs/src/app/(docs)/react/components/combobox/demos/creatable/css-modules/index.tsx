@@ -127,29 +127,35 @@ export default function ExampleCreatableCombobox() {
           <label className={styles.Label} htmlFor={id}>
             Labels
           </label>
-          <Combobox.Chips className={styles.Chips} ref={containerRef}>
-            <Combobox.Value>
-              {(value: LabelItem[]) => (
-                <React.Fragment>
-                  {value.map((label) => (
-                    <Combobox.Chip key={label.id} className={styles.Chip} aria-label={label.value}>
-                      {label.value}
-                      <Combobox.ChipRemove className={styles.ChipRemove} aria-label="Remove">
-                        <XIcon />
-                      </Combobox.ChipRemove>
-                    </Combobox.Chip>
-                  ))}
-                  <Combobox.Input
-                    ref={comboboxInputRef}
-                    id={id}
-                    placeholder={value.length > 0 ? '' : 'e.g. bug'}
-                    className={styles.Input}
-                    onKeyDown={handleInputKeyDown}
-                  />
-                </React.Fragment>
-              )}
-            </Combobox.Value>
-          </Combobox.Chips>
+          <Combobox.InputGroup className={styles.InputGroup} ref={containerRef}>
+            <Combobox.Chips className={styles.Chips}>
+              <Combobox.Value>
+                {(value: LabelItem[]) => (
+                  <React.Fragment>
+                    {value.map((label) => (
+                      <Combobox.Chip
+                        key={label.id}
+                        className={styles.Chip}
+                        aria-label={label.value}
+                      >
+                        {label.value}
+                        <Combobox.ChipRemove className={styles.ChipRemove} aria-label="Remove">
+                          <XIcon />
+                        </Combobox.ChipRemove>
+                      </Combobox.Chip>
+                    ))}
+                    <Combobox.Input
+                      ref={comboboxInputRef}
+                      id={id}
+                      placeholder={value.length > 0 ? '' : 'e.g. bug'}
+                      className={styles.Input}
+                      onKeyDown={handleInputKeyDown}
+                    />
+                  </React.Fragment>
+                )}
+              </Combobox.Value>
+            </Combobox.Chips>
+          </Combobox.InputGroup>
         </div>
 
         <Combobox.Portal>
