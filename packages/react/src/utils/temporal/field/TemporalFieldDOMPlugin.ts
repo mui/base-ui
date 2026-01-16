@@ -65,14 +65,17 @@ export class TemporalFieldDOMPlugin {
    * Updates the content of a section in the DOM to match the store state.
    * This is needed to revert unwanted change made when the section has contentEditable enabled.
    */
-  public syncSectionContentToDOM(sectionIndex: number) {
+  public syncDatePartContentToDOM(sectionIndex: number) {
     const sectionElement = this.getSectionElement(sectionIndex);
     if (sectionElement == null) {
       return;
     }
 
-    const section = TemporalFieldSectionPlugin.selectors.section(this.store.state, sectionIndex);
-    sectionElement.innerHTML = this.store.section.getRenderedValue(section);
+    const datePart = TemporalFieldSectionPlugin.selectors.datePart(this.store.state, sectionIndex);
+    if (datePart == null) {
+      return;
+    }
+    sectionElement.innerHTML = this.store.section.getDatePartRenderedValue(datePart);
     this.store.dom.syncSelectionToDOM();
   }
 
@@ -102,9 +105,9 @@ export class TemporalFieldDOMPlugin {
     }
 
     // On multi input range pickers we want to update selection range only for the active input
-    if (!this.inputRef.current.contains(this.getActiveElement())) {
-      return;
-    }
+    // if (!this.inputRef.current.contains(this.getActiveElement())) {
+    //   return;
+    // }
 
     const range = new window.Range();
     const target = this.getSectionElement(selectedSection);

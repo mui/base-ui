@@ -27,12 +27,12 @@ export class TemporalFieldInputPropsPlugin<TValue extends TemporalSupportedValue
       TemporalFieldSectionPlugin.selectors.selectedSection(this.store.state) == null
     ) {
       // setFocused(true);
-      this.store.section.setSelectedSection(0);
+      this.store.section.selectClosestDatePart(0);
     }
     // } else {
     //   const hasClickedOnASection = this.store.dom.inputRef.current.contains(event.target as Node);
     //   if (!hasClickedOnASection) {
-    //     this.store.section.setSelectedSection(0);
+    //     this.store.section.selectClosestDatePart(0);
     //   }
     // }
   };

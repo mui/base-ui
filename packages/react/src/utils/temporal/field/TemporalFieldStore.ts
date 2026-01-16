@@ -1,6 +1,6 @@
 import { Store } from '@base-ui/utils/store';
 import { warn } from '@base-ui/utils/warn';
-import { TemporalAdapter, TemporalFieldSectionType, TemporalSupportedValue } from '../../../types';
+import { TemporalAdapter, TemporalFieldDatePartType, TemporalSupportedValue } from '../../../types';
 import {
   TemporalFieldModelUpdater,
   TemporalFieldState,
@@ -8,7 +8,7 @@ import {
   TemporalFieldConfiguration,
 } from './types';
 import { FormatParser } from './formatParser';
-import { buildSections, deriveStateFromParameters, getTimezoneToRender } from './utils';
+import { buildSections, deriveStateFromParameters, getTimezoneToRender, isToken } from './utils';
 import { TextDirection } from '../../../direction-provider';
 import { TemporalFieldValueAdjustmentPlugin } from './TemporalFieldValueAdjustmentPlugin';
 import { TemporalFieldCharacterEditingPlugin } from './TemporalFieldCharacterEditingPlugin';
@@ -20,9 +20,8 @@ import { TemporalFieldSectionPropsPlugin } from './TemporalFieldSectionPropsPlug
 import { TemporalFieldFormatPlugin } from './TemporalFieldFormatPlugin';
 import { TemporalFieldDOMPlugin } from './TemporalFieldDOMPlugin';
 import { TemporalFieldRootPropsPlugin } from './TemporalFieldRootPropsPlugin';
-import { TemporalFieldSeparatorPropsPlugin } from './TemporalFieldSeparatorPropsPlugin';
 
-const SECTION_TYPE_GRANULARITY: { [key in TemporalFieldSectionType]?: number } = {
+const SECTION_TYPE_GRANULARITY: { [key in TemporalFieldDatePartType]?: number } = {
   year: 1,
   month: 2,
   day: 3,
@@ -62,8 +61,6 @@ export class TemporalFieldStore<
 
   public sectionProps: TemporalFieldSectionPropsPlugin<TValue>;
 
-  public separatorProps: TemporalFieldSeparatorPropsPlugin;
-
   constructor(
     parameters: TemporalFieldStoreParameters<TValue, TError>,
     validationProps: TValidationProps,
@@ -88,9 +85,9 @@ export class TemporalFieldStore<
       adapter,
       validationProps,
       granularity: Math.max(
-        ...parsedFormat.tokens.map(
-          (token) => SECTION_TYPE_GRANULARITY[token.config.sectionType] ?? 1,
-        ),
+        ...parsedFormat.elements
+          .filter(isToken)
+          .map((token) => SECTION_TYPE_GRANULARITY[token.config.part] ?? 1),
       ),
       timezone: getTimezoneToRender(
         adapter,
@@ -131,7 +128,6 @@ export class TemporalFieldStore<
     this.rootProps = new TemporalFieldRootPropsPlugin(this);
     this.inputProps = new TemporalFieldInputPropsPlugin<TValue, TError>(this);
     this.sectionProps = new TemporalFieldSectionPropsPlugin<TValue>(this);
-    this.separatorProps = new TemporalFieldSeparatorPropsPlugin(this);
   }
 
   /**

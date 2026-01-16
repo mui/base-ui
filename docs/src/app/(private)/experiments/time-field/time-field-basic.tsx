@@ -8,10 +8,7 @@ export default function TimeFieldBasic() {
     <TimeField.Root className={styles.Root} format="HH:mm">
       <TimeField.Input className={styles.Input}>
         {(section) => (
-          <React.Fragment key={section.index}>
-            <TimeField.Section className={styles.Section} section={section} />
-            {section.token.separator}
-          </React.Fragment>
+          <TimeField.Section key={section.index} className={styles.Section} section={section} />
         )}
       </TimeField.Input>
     </TimeField.Root>

@@ -98,7 +98,7 @@ export interface TemporalAdapterFormats {
   localizedNumericDate: string;
 }
 
-export type TemporalFieldSectionType =
+export type TemporalFieldDatePartType =
   | 'year'
   | 'month'
   | 'day'
@@ -106,8 +106,7 @@ export type TemporalFieldSectionType =
   | 'hours'
   | 'minutes'
   | 'seconds'
-  | 'meridiem'
-  | 'empty';
+  | 'meridiem';
 
 export type TemporalFieldSectionContentType = 'digit' | 'digit-with-letter' | 'letter';
 
@@ -115,7 +114,7 @@ export interface TemporalFormatTokenConfig {
   /**
    * Type of the section.
    */
-  sectionType: TemporalFieldSectionType;
+  part: TemporalFieldDatePartType;
   /**
    * Type of content of the section.
    * Will determine if we should apply a digit-based editing or a letter-based editing.

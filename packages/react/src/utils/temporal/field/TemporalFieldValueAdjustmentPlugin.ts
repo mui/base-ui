@@ -1,5 +1,5 @@
 import { TemporalSupportedValue } from '../../../types';
-import { cleanDigitSectionValue, getLetterEditingOptions, removeLocalizedDigits } from './utils';
+import { cleanDigitDatePartValue, getLetterEditingOptions, removeLocalizedDigits } from './utils';
 import { TemporalFieldStore } from './TemporalFieldStore';
 import { selectors } from './selectors';
 import { TemporalFieldSectionPlugin } from './TemporalFieldSectionPlugin';
@@ -21,110 +21,110 @@ export class TemporalFieldValueAdjustmentPlugin<TValue extends TemporalSupported
     this.store = store;
   }
 
-  public isAdjustSectionValueKeyCode(keyCode: string): keyCode is AdjustSectionValueKeyCode {
-    return TemporalFieldValueAdjustmentPlugin.keyCodes.has(keyCode as AdjustSectionValueKeyCode);
+  public isAdjustSectionValueKeyCode(keyCode: string): keyCode is AdjustDatePartValueKeyCode {
+    return TemporalFieldValueAdjustmentPlugin.keyCodes.has(keyCode as AdjustDatePartValueKeyCode);
   }
 
   /**
    * Adjusts the value of the active section based on the provided key code.
    * For example, pressing ArrowUp will increment the section's value.
    */
-  public adjustActiveSectionValue(keyCode: AdjustSectionValueKeyCode) {
+  public adjustActiveDatePartValue(keyCode: AdjustDatePartValueKeyCode) {
     const adapter = selectors.adapter(this.store.state);
     const localizedDigits = selectors.localizedDigits(this.store.state);
     const timezone = selectors.timezoneToRender(this.store.state);
-    const activeSection = TemporalFieldSectionPlugin.selectors.activeSection(this.store.state);
+    const activeDatePart = TemporalFieldSectionPlugin.selectors.activeDatePart(this.store.state);
 
-    if (activeSection == null) {
+    if (activeDatePart == null) {
       return '';
     }
 
     const delta = getDeltaFromKeyCode(keyCode);
     const isStart = keyCode === 'Home';
     const isEnd = keyCode === 'End';
-    const shouldSetAbsolute = activeSection.value === '' || isStart || isEnd;
+    const shouldSetAbsolute = activeDatePart.value === '' || isStart || isEnd;
 
-    // Digit section
+    // Digit part
     if (
-      activeSection.token.config.contentType === 'digit' ||
-      activeSection.token.config.contentType === 'digit-with-letter'
+      activeDatePart.token.config.contentType === 'digit' ||
+      activeDatePart.token.config.contentType === 'digit-with-letter'
     ) {
-      const sectionBoundaries = TemporalFieldSectionPlugin.selectors.sectionBoundaries(
+      const boundaries = TemporalFieldSectionPlugin.selectors.datePartBoundaries(
         this.store.state,
-        activeSection,
+        activeDatePart,
       );
 
-      const getCleanValue = (newSectionValue: number) =>
-        cleanDigitSectionValue(
+      const getCleanValue = (newDatePartValue: number) =>
+        cleanDigitDatePartValue(
           adapter,
-          newSectionValue,
-          sectionBoundaries,
+          newDatePartValue,
+          boundaries,
           localizedDigits,
-          activeSection.token,
+          activeDatePart.token,
         );
 
       const step =
-        activeSection.token.config.sectionType === 'minutes' && stepsAttributes?.minutesStep
+        activeDatePart.token.config.part === 'minutes' && stepsAttributes?.minutesStep
           ? stepsAttributes.minutesStep
           : 1;
 
-      let newSectionValueNumber: number;
+      let newDatePartValueNumber: number;
 
       if (shouldSetAbsolute) {
-        if (activeSection.token.config.sectionType === 'year' && !isEnd && !isStart) {
-          return adapter.formatByString(adapter.now(timezone), activeSection.token.value);
+        if (activeDatePart.token.config.part === 'year' && !isEnd && !isStart) {
+          return adapter.formatByString(adapter.now(timezone), activeDatePart.token.value);
         }
 
         if (delta > 0 || isStart) {
-          newSectionValueNumber = sectionBoundaries.minimum;
+          newDatePartValueNumber = boundaries.minimum;
         } else {
-          newSectionValueNumber = sectionBoundaries.maximum;
+          newDatePartValueNumber = boundaries.maximum;
         }
       } else {
         const currentSectionValue = parseInt(
-          removeLocalizedDigits(activeSection.value, localizedDigits),
+          removeLocalizedDigits(activeDatePart.value, localizedDigits),
           10,
         );
-        newSectionValueNumber = currentSectionValue + delta * step;
+        newDatePartValueNumber = currentSectionValue + delta * step;
       }
 
-      if (newSectionValueNumber % step !== 0) {
+      if (newDatePartValueNumber % step !== 0) {
         if (delta < 0 || isStart) {
-          newSectionValueNumber += step - ((step + newSectionValueNumber) % step); // for JS -3 % 5 = -3 (should be 2)
+          newDatePartValueNumber += step - ((step + newDatePartValueNumber) % step); // for JS -3 % 5 = -3 (should be 2)
         }
         if (delta > 0 || isEnd) {
-          newSectionValueNumber -= newSectionValueNumber % step;
+          newDatePartValueNumber -= newDatePartValueNumber % step;
         }
       }
 
-      if (newSectionValueNumber > sectionBoundaries.maximum) {
+      if (newDatePartValueNumber > boundaries.maximum) {
         return getCleanValue(
-          sectionBoundaries.minimum +
-            ((newSectionValueNumber - sectionBoundaries.maximum - 1) %
-              (sectionBoundaries.maximum - sectionBoundaries.minimum + 1)),
+          boundaries.minimum +
+            ((newDatePartValueNumber - boundaries.maximum - 1) %
+              (boundaries.maximum - boundaries.minimum + 1)),
         );
       }
 
-      if (newSectionValueNumber < sectionBoundaries.minimum) {
+      if (newDatePartValueNumber < boundaries.minimum) {
         return getCleanValue(
-          sectionBoundaries.maximum -
-            ((sectionBoundaries.minimum - newSectionValueNumber - 1) %
-              (sectionBoundaries.maximum - sectionBoundaries.minimum + 1)),
+          boundaries.maximum -
+            ((boundaries.minimum - newDatePartValueNumber - 1) %
+              (boundaries.maximum - boundaries.minimum + 1)),
         );
       }
 
-      return getCleanValue(newSectionValueNumber);
+      return getCleanValue(newDatePartValueNumber);
     }
 
-    /// Letter section
+    /// Letter part
     const options = getLetterEditingOptions(
       adapter,
       timezone,
-      activeSection.token.config.sectionType,
-      activeSection.token.value,
+      activeDatePart.token.config.part,
+      activeDatePart.token.value,
     );
     if (options.length === 0) {
-      return activeSection.value;
+      return activeDatePart.value;
     }
 
     if (shouldSetAbsolute) {
@@ -135,14 +135,14 @@ export class TemporalFieldValueAdjustmentPlugin<TValue extends TemporalSupported
       return options[options.length - 1];
     }
 
-    const currentOptionIndex = options.indexOf(activeSection.value);
+    const currentOptionIndex = options.indexOf(activeDatePart.value);
     const newOptionIndex = (currentOptionIndex + delta) % options.length;
     const clampedIndex = (newOptionIndex + options.length) % options.length;
 
     return options[clampedIndex];
   }
 
-  private static keyCodes: Set<AdjustSectionValueKeyCode> = new Set([
+  private static keyCodes: Set<AdjustDatePartValueKeyCode> = new Set([
     'ArrowUp',
     'ArrowDown',
     'Home',
@@ -152,7 +152,7 @@ export class TemporalFieldValueAdjustmentPlugin<TValue extends TemporalSupported
   ]);
 }
 
-function getDeltaFromKeyCode(keyCode: Omit<AdjustSectionValueKeyCode, 'Home' | 'End'>) {
+function getDeltaFromKeyCode(keyCode: Omit<AdjustDatePartValueKeyCode, 'Home' | 'End'>) {
   switch (keyCode) {
     case 'ArrowUp':
       return 1;
@@ -167,4 +167,4 @@ function getDeltaFromKeyCode(keyCode: Omit<AdjustSectionValueKeyCode, 'Home' | '
   }
 }
 
-type AdjustSectionValueKeyCode = 'ArrowUp' | 'ArrowDown' | 'PageUp' | 'PageDown' | 'Home' | 'End';
+type AdjustDatePartValueKeyCode = 'ArrowUp' | 'ArrowDown' | 'PageUp' | 'PageDown' | 'Home' | 'End';

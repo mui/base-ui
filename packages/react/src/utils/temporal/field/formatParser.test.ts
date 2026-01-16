@@ -12,11 +12,10 @@ describe('FormatParser', () => {
 
       expect(result.prefix).to.equal('Escaped ');
       expect(result.suffix).to.equal('');
-      expect(result.tokens).to.have.lengthOf(1);
-      expect(result.tokens[0]).to.deep.include({
+      expect(result.elements).to.have.lengthOf(1);
+      expect(result.elements[0]).to.deep.include({
         value: adapter.formats.yearPadded,
         placeholder: 'YYYY',
-        separator: '',
       });
     });
 
@@ -27,36 +26,39 @@ describe('FormatParser', () => {
 
       expect(result.prefix).to.equal('');
       expect(result.suffix).to.equal('');
-      expect(result.tokens).to.have.lengthOf(2);
-      expect(result.tokens[0]).to.deep.include({
+      expect(result.elements).to.have.lengthOf(3);
+      expect(result.elements[0]).to.deep.include({
         value: adapter.formats.monthFullLetter,
-        separator: ' Escaped ',
       });
-      expect(result.tokens[1]).to.deep.include({
+      expect(result.elements[1]).to.deep.include({
+        value: ' Escaped ',
+      });
+      expect(result.elements[2]).to.deep.include({
         value: adapter.formats.yearPadded,
-        separator: '',
       });
     });
 
-    it.skipIf(
-      adapter.escapedCharacters.start === adapter.escapedCharacters.end,
-    )('should support nested escaped characters', () => {
-      const { start: startChar, end: endChar } = adapter.escapedCharacters;
-      const format = `${adapter.formats.monthFullLetter} ${startChar}Escaped ${startChar}${endChar} ${adapter.formats.yearPadded}`;
-      const result = FormatParser.parse(adapter, format, 'ltr', undefined);
+    it.skipIf(adapter.escapedCharacters.start === adapter.escapedCharacters.end)(
+      'should support nested escaped characters',
+      () => {
+        const { start: startChar, end: endChar } = adapter.escapedCharacters;
+        const format = `${adapter.formats.monthFullLetter} ${startChar}Escaped ${startChar}${endChar} ${adapter.formats.yearPadded}`;
+        const result = FormatParser.parse(adapter, format, 'ltr', undefined);
 
-      expect(result.prefix).to.equal('');
-      expect(result.suffix).to.equal('');
-      expect(result.tokens).to.have.lengthOf(2);
-      expect(result.tokens[0]).to.deep.include({
-        value: adapter.formats.monthFullLetter,
-        separator: ' Escaped [ ',
-      });
-      expect(result.tokens[1]).to.deep.include({
-        value: adapter.formats.yearPadded,
-        separator: '',
-      });
-    });
+        expect(result.prefix).to.equal('');
+        expect(result.suffix).to.equal('');
+        expect(result.elements).to.have.lengthOf(3);
+        expect(result.elements[0]).to.deep.include({
+          value: adapter.formats.monthFullLetter,
+        });
+        expect(result.elements[1]).to.deep.include({
+          value: ' Escaped [ ',
+        });
+        expect(result.elements[2]).to.deep.include({
+          value: adapter.formats.yearPadded,
+        });
+      },
+    );
 
     it('should support several escaped parts', () => {
       const { start: startChar, end: endChar } = adapter.escapedCharacters;
@@ -65,14 +67,15 @@ describe('FormatParser', () => {
 
       expect(result.prefix).to.equal('Escaped ');
       expect(result.suffix).to.equal('');
-      expect(result.tokens).to.have.lengthOf(2);
-      expect(result.tokens[0]).to.deep.include({
+      expect(result.elements).to.have.lengthOf(3);
+      expect(result.elements[0]).to.deep.include({
         value: adapter.formats.monthFullLetter,
-        separator: ' Escaped ',
       });
-      expect(result.tokens[1]).to.deep.include({
+      expect(result.elements[1]).to.deep.include({
+        value: ' Escaped ',
+      });
+      expect(result.elements[2]).to.deep.include({
         value: adapter.formats.yearPadded,
-        separator: '',
       });
     });
 
@@ -84,7 +87,7 @@ describe('FormatParser', () => {
       // When there are no tokens, escaped parts are absorbed and result in empty format
       expect(result.prefix).to.equal('');
       expect(result.suffix).to.equal('');
-      expect(result.tokens).to.deep.equal([]);
+      expect(result.elements).to.deep.equal([]);
     });
   });
 
@@ -95,14 +98,12 @@ describe('FormatParser', () => {
 
       expect(result.prefix).to.equal('');
       expect(result.suffix).to.equal('');
-      expect(result.tokens).to.have.lengthOf(2);
-      expect(result.tokens[0]).to.deep.include({
+      expect(result.elements).to.have.lengthOf(2);
+      expect(result.elements[0]).to.deep.include({
         value: adapter.formats.dayOfMonth,
-        separator: '',
       });
-      expect(result.tokens[1]).to.deep.include({
+      expect(result.elements[1]).to.deep.include({
         value: adapter.formats.month3Letters,
-        separator: '',
       });
     });
   });
@@ -113,10 +114,9 @@ describe('FormatParser', () => {
 
       expect(token).to.deep.include({
         value: adapter.formats.yearPadded,
-        separator: '',
       });
       expect(token.config).to.deep.include({
-        sectionType: 'year',
+        part: 'year',
       });
       // buildSingleToken generates placeholder, just verify it's not empty
       expect(token.placeholder).to.be.a('string');
@@ -128,10 +128,9 @@ describe('FormatParser', () => {
 
       expect(token).to.deep.include({
         value: adapter.formats.monthFullLetter,
-        separator: '',
       });
       expect(token.config).to.deep.include({
-        sectionType: 'month',
+        part: 'month',
       });
       expect(token.placeholder).to.be.a('string');
       expect(token.placeholder.length).to.be.greaterThan(0);
@@ -142,10 +141,9 @@ describe('FormatParser', () => {
 
       expect(token).to.deep.include({
         value: adapter.formats.dayOfMonth,
-        separator: '',
       });
       expect(token.config).to.deep.include({
-        sectionType: 'day',
+        part: 'day',
       });
       expect(token.placeholder).to.be.a('string');
       expect(token.placeholder.length).to.be.greaterThan(0);
@@ -157,7 +155,7 @@ describe('FormatParser', () => {
       const config = FormatParser.getTokenConfig(adapter, adapter.formats.yearPadded);
 
       expect(config).to.deep.include({
-        sectionType: 'year',
+        part: 'year',
         contentType: 'digit',
       });
     });
@@ -174,9 +172,11 @@ describe('FormatParser', () => {
       const format = adapter.expandFormat(adapter.formats.localizedNumericDate);
       const result = FormatParser.parse(adapter, format, 'ltr', undefined);
 
-      result.tokens.forEach((token) => {
-        expect(token.placeholder).to.be.a('string');
-        expect(token.placeholder.length).to.be.greaterThan(0);
+      result.elements.forEach((element) => {
+        if ('placeholder' in element) {
+          expect(element.placeholder).to.be.a('string');
+          expect(element.placeholder.length).to.be.greaterThan(0);
+        }
       });
     });
 
@@ -186,7 +186,10 @@ describe('FormatParser', () => {
         year: () => 'CustomYear',
       });
 
-      expect(result.tokens[0].placeholder).to.equal('CustomYear');
+      expect('placeholder' in result.elements[0]).to.equal(true);
+      if ('placeholder' in result.elements[0]) {
+        expect(result.elements[0].placeholder).to.equal('CustomYear');
+      }
     });
 
     it('should use custom month placeholder', () => {
@@ -195,7 +198,10 @@ describe('FormatParser', () => {
         month: () => 'CustomMonth',
       });
 
-      expect(result.tokens[0].placeholder).to.equal('CustomMonth');
+      expect('placeholder' in result.elements[0]).to.equal(true);
+      if ('placeholder' in result.elements[0]) {
+        expect(result.elements[0].placeholder).to.equal('CustomMonth');
+      }
     });
 
     it('should use custom day placeholder', () => {
@@ -204,7 +210,10 @@ describe('FormatParser', () => {
         day: () => 'CustomDay',
       });
 
-      expect(result.tokens[0].placeholder).to.equal('CustomDay');
+      expect('placeholder' in result.elements[0]).to.equal(true);
+      if ('placeholder' in result.elements[0]) {
+        expect(result.elements[0].placeholder).to.equal('CustomDay');
+      }
     });
   });
 
@@ -242,10 +251,10 @@ describe('FormatParser', () => {
       const format = adapter.expandFormat(adapter.formats.localizedNumericDate);
       const result = FormatParser.parse(adapter, format, 'ltr', undefined);
 
-      // Find separators between tokens
-      const separators = result.tokens.slice(0, -1).map((token) => token.separator);
+      // Find separators between tokens - they are now inlined as separate elements
+      const separators = result.elements.filter((element) => !('placeholder' in element));
       separators.forEach((separator) => {
-        expect(separator).to.be.a('string');
+        expect(separator.value).to.be.a('string');
       });
     });
 
@@ -253,9 +262,9 @@ describe('FormatParser', () => {
       const format = adapter.expandFormat(adapter.formats.localizedNumericDate).replace(/\//g, '.');
       const result = FormatParser.parse(adapter, format, 'ltr', undefined);
 
-      const separators = result.tokens.slice(0, -1).map((token) => token.separator);
+      const separators = result.elements.filter((element) => !('placeholder' in element));
       separators.forEach((separator) => {
-        expect(separator).to.include('.');
+        expect(separator.value).to.include('.');
       });
     });
 
@@ -263,9 +272,9 @@ describe('FormatParser', () => {
       const format = adapter.expandFormat(adapter.formats.localizedNumericDate).replace(/\//g, '-');
       const result = FormatParser.parse(adapter, format, 'ltr', undefined);
 
-      const separators = result.tokens.slice(0, -1).map((token) => token.separator);
+      const separators = result.elements.filter((element) => !('placeholder' in element));
       separators.forEach((separator) => {
-        expect(separator).to.include('-');
+        expect(separator.value).to.include('-');
       });
     });
 
@@ -273,14 +282,16 @@ describe('FormatParser', () => {
       const format = `${adapter.formats.monthFullLetter} ${adapter.formats.yearPadded}`;
       const result = FormatParser.parse(adapter, format, 'ltr', undefined);
 
-      expect(result.tokens[0].separator).to.equal(' ');
+      expect(result.elements).to.have.lengthOf(3);
+      expect(result.elements[1]).to.deep.include({ value: ' ' });
     });
 
     it('should handle multiple character separators', () => {
       const format = `${adapter.formats.monthFullLetter} / ${adapter.formats.yearPadded}`;
       const result = FormatParser.parse(adapter, format, 'ltr', undefined);
 
-      expect(result.tokens[0].separator).to.equal(' / ');
+      expect(result.elements).to.have.lengthOf(3);
+      expect(result.elements[1]).to.deep.include({ value: ' / ' });
     });
   });
 
@@ -290,9 +301,13 @@ describe('FormatParser', () => {
       const result = FormatParser.parse(adapter, format, 'rtl', undefined);
 
       // RTL should add unicode control characters around space separators
-      expect(result.tokens).to.have.lengthOf(2);
-      expect(result.tokens[0].separator).to.include('\u2069');
-      expect(result.tokens[0].separator).to.include('\u2066');
+      expect(result.elements).to.have.lengthOf(3);
+      const separator = result.elements[1];
+      expect('value' in separator && !('placeholder' in separator)).to.equal(true);
+      if ('value' in separator && !('placeholder' in separator)) {
+        expect(separator.value).to.include('\u2069');
+        expect(separator.value).to.include('\u2066');
+      }
     });
 
     it('should reverse token order in RTL', () => {
@@ -301,10 +316,13 @@ describe('FormatParser', () => {
       const resultRtl = FormatParser.parse(adapter, format, 'rtl', undefined);
 
       // In RTL, the format string itself is reversed
-      expect(resultRtl.tokens).to.have.lengthOf(2);
-      expect(resultRtl.tokens[0].config.sectionType).to.equal(
-        resultLtr.tokens[1].config.sectionType,
-      );
+      expect(resultRtl.elements).to.have.lengthOf(3);
+      const firstTokenRtl = resultRtl.elements[0];
+      const lastTokenLtr = resultLtr.elements[resultLtr.elements.length - 1];
+
+      if ('config' in firstTokenRtl && 'config' in lastTokenLtr) {
+        expect(firstTokenRtl.config.part).to.equal(lastTokenLtr.config.part);
+      }
     });
   });
 
@@ -313,15 +331,15 @@ describe('FormatParser', () => {
       const format = adapter.formats.localizedNumericDate;
       const result = FormatParser.parse(adapter, format, 'ltr', undefined);
 
-      // Should have multiple tokens after expansion
-      expect(result.tokens.length).to.be.greaterThan(0);
+      // Should have multiple elements after expansion
+      expect(result.elements.length).to.be.greaterThan(0);
     });
 
     it('should handle already expanded formats', () => {
       const format = adapter.expandFormat(adapter.formats.localizedNumericDate);
       const result = FormatParser.parse(adapter, format, 'ltr', undefined);
 
-      expect(result.tokens.length).to.be.greaterThan(0);
+      expect(result.elements.length).to.be.greaterThan(0);
     });
   });
 
@@ -330,21 +348,27 @@ describe('FormatParser', () => {
       const format = 'yyyy';
       const result = FormatParser.parse(adapter, format, 'ltr', undefined);
 
-      expect(result.tokens[0].isPadded).to.be.a('boolean');
+      if ('isPadded' in result.elements[0]) {
+        expect(result.elements[0].isPadded).to.be.a('boolean');
+      }
     });
 
     it('should detect padded month tokens', () => {
       const format = 'MM';
       const result = FormatParser.parse(adapter, format, 'ltr', undefined);
 
-      expect(result.tokens[0].isPadded).to.be.a('boolean');
+      if ('isPadded' in result.elements[0]) {
+        expect(result.elements[0].isPadded).to.be.a('boolean');
+      }
     });
 
     it('should detect padded day tokens', () => {
       const format = 'dd';
       const result = FormatParser.parse(adapter, format, 'ltr', undefined);
 
-      expect(result.tokens[0].isPadded).to.be.a('boolean');
+      if ('isPadded' in result.elements[0]) {
+        expect(result.elements[0].isPadded).to.be.a('boolean');
+      }
     });
 
     it('should not pad letter-based tokens', () => {
@@ -352,8 +376,9 @@ describe('FormatParser', () => {
       const result = FormatParser.parse(adapter, format, 'ltr', undefined);
 
       // Letter content types should not be padded
-      if (result.tokens[0].config.contentType === 'letter') {
-        expect(result.tokens[0].isPadded).to.equal(false);
+      const firstToken = result.elements[0];
+      if ('config' in firstToken && firstToken.config.contentType === 'letter') {
+        expect(firstToken.isPadded).to.equal(false);
       }
     });
   });
@@ -363,7 +388,9 @@ describe('FormatParser', () => {
       const format = adapter.expandFormat(adapter.formats.localizedNumericDate);
       const result = FormatParser.parse(adapter, format, 'ltr', undefined);
 
-      expect(result.tokens).to.have.lengthOf.at.least(2);
+      // Count tokens (elements with placeholder property)
+      const tokens = result.elements.filter((el) => 'placeholder' in el);
+      expect(tokens).to.have.lengthOf.at.least(2);
       expect(result.prefix).to.be.a('string');
       expect(result.suffix).to.be.a('string');
     });
@@ -372,7 +399,8 @@ describe('FormatParser', () => {
       const format = `${adapter.formats.weekday3Letters} ${adapter.expandFormat(adapter.formats.localizedNumericDate)}`;
       const result = FormatParser.parse(adapter, format, 'ltr', undefined);
 
-      expect(result.tokens.length).to.be.greaterThan(2);
+      const tokens = result.elements.filter((el) => 'placeholder' in el);
+      expect(tokens.length).to.be.greaterThan(2);
     });
 
     it('should parse time format', () => {
@@ -380,9 +408,10 @@ describe('FormatParser', () => {
       const result = FormatParser.parse(adapter, format, 'ltr', undefined);
 
       // Should contain hours and minutes
-      expect(result.tokens.length).to.be.greaterThan(0);
-      const sectionTypes = result.tokens.map((t) => t.config.sectionType);
-      expect(sectionTypes).to.satisfy((types: string[]) =>
+      const tokens = result.elements.filter((el) => 'config' in el);
+      expect(tokens.length).to.be.greaterThan(0);
+      const parts = tokens.map((t) => ('config' in t ? t.config.part : null)).filter(Boolean);
+      expect(parts).to.satisfy((types: string[]) =>
         types.some((t) => t === 'hours' || t === 'minutes'),
       );
     });
@@ -392,8 +421,9 @@ describe('FormatParser', () => {
       const result = FormatParser.parse(adapter, format, 'ltr', undefined);
 
       // Should have both date and time tokens
-      const sectionTypes = result.tokens.map((t) => t.config.sectionType);
-      expect(sectionTypes).to.include.members(['year', 'month', 'day']);
+      const tokens = result.elements.filter((el) => 'config' in el);
+      const parts = tokens.map((t) => ('config' in t ? t.config.part : null)).filter(Boolean);
+      expect(parts).to.include.members(['year', 'month', 'day']);
     });
   });
 
@@ -402,18 +432,15 @@ describe('FormatParser', () => {
       const format = `${adapter.formats.yearPadded}${adapter.formats.monthPadded}${adapter.formats.dayOfMonth}`;
       const result = FormatParser.parse(adapter, format, 'ltr', undefined);
 
-      expect(result.tokens).to.have.lengthOf(3);
-      expect(result.tokens[0]).to.deep.include({
+      expect(result.elements).to.have.lengthOf(3);
+      expect(result.elements[0]).to.deep.include({
         value: adapter.formats.yearPadded,
-        separator: '',
       });
-      expect(result.tokens[1]).to.deep.include({
+      expect(result.elements[1]).to.deep.include({
         value: adapter.formats.monthPadded,
-        separator: '',
       });
-      expect(result.tokens[2]).to.deep.include({
+      expect(result.elements[2]).to.deep.include({
         value: adapter.formats.dayOfMonth,
-        separator: '',
       });
     });
 
@@ -421,14 +448,15 @@ describe('FormatParser', () => {
       const format = `${adapter.formats.monthFullLetter}   ${adapter.formats.yearPadded}`;
       const result = FormatParser.parse(adapter, format, 'ltr', undefined);
 
-      expect(result.tokens).to.have.lengthOf(2);
-      expect(result.tokens[0]).to.deep.include({
+      expect(result.elements).to.have.lengthOf(3);
+      expect(result.elements[0]).to.deep.include({
         value: adapter.formats.monthFullLetter,
-        separator: '   ',
       });
-      expect(result.tokens[1]).to.deep.include({
+      expect(result.elements[1]).to.deep.include({
+        value: '   ',
+      });
+      expect(result.elements[2]).to.deep.include({
         value: adapter.formats.yearPadded,
-        separator: '',
       });
     });
 
@@ -437,14 +465,12 @@ describe('FormatParser', () => {
       const format = `${adapter.formats.yearPadded}${startChar}${endChar}${adapter.formats.monthFullLetter}`;
       const result = FormatParser.parse(adapter, format, 'ltr', undefined);
 
-      expect(result.tokens).to.have.lengthOf(2);
-      expect(result.tokens[0]).to.deep.include({
+      expect(result.elements).to.have.lengthOf(2);
+      expect(result.elements[0]).to.deep.include({
         value: adapter.formats.yearPadded,
-        separator: '',
       });
-      expect(result.tokens[1]).to.deep.include({
+      expect(result.elements[1]).to.deep.include({
         value: adapter.formats.monthFullLetter,
-        separator: '',
       });
     });
 
@@ -453,14 +479,15 @@ describe('FormatParser', () => {
       const format = `${adapter.formats.yearPadded}${startChar}@#$${endChar}${adapter.formats.monthFullLetter}`;
       const result = FormatParser.parse(adapter, format, 'ltr', undefined);
 
-      expect(result.tokens).to.have.lengthOf(2);
-      expect(result.tokens[0]).to.deep.include({
+      expect(result.elements).to.have.lengthOf(3);
+      expect(result.elements[0]).to.deep.include({
         value: adapter.formats.yearPadded,
-        separator: '@#$',
       });
-      expect(result.tokens[1]).to.deep.include({
+      expect(result.elements[1]).to.deep.include({
+        value: '@#$',
+      });
+      expect(result.elements[2]).to.deep.include({
         value: adapter.formats.monthFullLetter,
-        separator: '',
       });
     });
   });
@@ -470,9 +497,9 @@ describe('FormatParser', () => {
       const format = adapter.expandFormat(adapter.formats.localizedNumericDate);
       const result = FormatParser.parse(adapter, format, 'ltr', undefined);
 
-      result.tokens.forEach((token) => {
-        expect(token.value).to.be.a('string');
-        expect(token.value.length).to.be.greaterThan(0);
+      result.elements.forEach((element) => {
+        expect(element.value).to.be.a('string');
+        expect(element.value.length).to.be.greaterThan(0);
       });
     });
 
@@ -480,29 +507,35 @@ describe('FormatParser', () => {
       const format = adapter.expandFormat(adapter.formats.localizedNumericDate);
       const result = FormatParser.parse(adapter, format, 'ltr', undefined);
 
-      result.tokens.forEach((token) => {
-        expect(token.config).to.be.an('object');
-        expect(token.config.sectionType).to.be.a('string');
-        expect(token.config.contentType).to.be.oneOf(['digit', 'letter', 'digit-with-letter']);
+      result.elements.forEach((element) => {
+        if ('config' in element) {
+          expect(element.config).to.be.an('object');
+          expect(element.config.part).to.be.a('string');
+          expect(element.config.contentType).to.be.oneOf(['digit', 'letter', 'digit-with-letter']);
+        }
       });
     });
 
-    it('should set separator for all tokens except last', () => {
+    it('should have separators between tokens', () => {
       const format = `${adapter.formats.monthPadded}/${adapter.formats.dayOfMonth}/${adapter.formats.yearPadded}`;
       const result = FormatParser.parse(adapter, format, 'ltr', undefined);
 
-      expect(result.tokens).to.have.lengthOf(3);
-      expect(result.tokens[0]).to.deep.include({
+      // Format: token, separator, token, separator, token = 5 elements
+      expect(result.elements).to.have.lengthOf(5);
+      expect(result.elements[0]).to.deep.include({
         value: adapter.formats.monthPadded,
-        separator: '/',
       });
-      expect(result.tokens[1]).to.deep.include({
+      expect(result.elements[1]).to.deep.include({
+        value: '/',
+      });
+      expect(result.elements[2]).to.deep.include({
         value: adapter.formats.dayOfMonth,
-        separator: '/',
       });
-      expect(result.tokens[2]).to.deep.include({
+      expect(result.elements[3]).to.deep.include({
+        value: '/',
+      });
+      expect(result.elements[4]).to.deep.include({
         value: adapter.formats.yearPadded,
-        separator: '',
       });
     });
   });

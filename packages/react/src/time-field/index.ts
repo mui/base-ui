@@ -9,7 +9,3 @@ export {
   DateFieldSectionProps as TimeFieldSectionProps,
   DateFieldSectionState as TimeFieldSectionState,
 } from '../date-field/section/DateFieldSection';
-export {
-  DateFieldSeparatorProps as TimeFieldSeparatorProps,
-  DateFieldSeparatorState as TimeFieldSeparatorState,
-} from '../date-field/separator/DateFieldSeparator';

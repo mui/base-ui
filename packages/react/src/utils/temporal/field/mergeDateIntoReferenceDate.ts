@@ -1,14 +1,18 @@
-import { TemporalAdapter, TemporalFieldSectionType, TemporalSupportedObject } from '../../../types';
-import { TemporalFieldSection } from './types';
-import { cleanLeadingZeros, getDaysInWeekStr } from './utils';
+import {
+  TemporalAdapter,
+  TemporalFieldDatePartType,
+  TemporalSupportedObject,
+} from '../../../types';
+import { TemporalFieldDatePart, TemporalFieldSection } from './types';
+import { cleanLeadingZeros, getDaysInWeekStr, isDatePart } from './utils';
 
-function transferDateSectionValue(
+function transferDatePartValue(
   adapter: TemporalAdapter,
-  section: TemporalFieldSection,
+  section: TemporalFieldDatePart,
   dateToTransferFrom: TemporalSupportedObject,
   dateToTransferTo: TemporalSupportedObject,
 ) {
-  switch (section.token.config.sectionType) {
+  switch (section.token.config.part) {
     case 'year': {
       return adapter.setYear(dateToTransferTo, adapter.getYear(dateToTransferFrom));
     }
@@ -31,8 +35,8 @@ function transferDateSectionValue(
 
       const formattedDaysInWeek = getDaysInWeekStr(adapter, section.token.value);
       const dayInWeekOfActiveDate = formattedDaysInWeek.indexOf(dayInWeekStrOfActiveDate);
-      const dayInWeekOfNewSectionValue = formattedDaysInWeek.indexOf(section.value);
-      const diff = dayInWeekOfNewSectionValue - dayInWeekOfActiveDate;
+      const dayInWeekOfNewDatePartValue = formattedDaysInWeek.indexOf(section.value);
+      const diff = dayInWeekOfNewDatePartValue - dayInWeekOfActiveDate;
       return adapter.addDays(dateToTransferFrom, diff);
     }
 
@@ -73,7 +77,7 @@ function transferDateSectionValue(
   }
 }
 
-const reliableSectionModificationOrder: Record<TemporalFieldSectionType, number> = {
+const reliableSectionModificationOrder: Record<TemporalFieldDatePartType, number> = {
   year: 1,
   month: 2,
   day: 3,
@@ -82,7 +86,6 @@ const reliableSectionModificationOrder: Record<TemporalFieldSectionType, number>
   minutes: 6,
   seconds: 7,
   meridiem: 8,
-  empty: 9,
 };
 
 export function mergeDateIntoReferenceDate(
@@ -92,16 +95,16 @@ export function mergeDateIntoReferenceDate(
   referenceDate: TemporalSupportedObject,
   shouldLimitToEditedSections: boolean,
 ): TemporalSupportedObject {
-  // Cloning sections before sort to avoid mutating it
-  return [...sections]
+  return sections
+    .filter(isDatePart)
     .sort(
       (a, b) =>
-        reliableSectionModificationOrder[a.token.config.sectionType] -
-        reliableSectionModificationOrder[b.token.config.sectionType],
+        reliableSectionModificationOrder[a.token.config.part] -
+        reliableSectionModificationOrder[b.token.config.part],
     )
     .reduce((mergedDate, section) => {
       if (!shouldLimitToEditedSections || section.modified) {
-        return transferDateSectionValue(adapter, section, dateToTransferFrom, mergedDate);
+        return transferDatePartValue(adapter, section, dateToTransferFrom, mergedDate);
       }
 
       return mergedDate;

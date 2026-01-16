@@ -3,12 +3,12 @@ import {
   BaseUIChangeEventDetails,
   TemporalAdapter,
   TemporalFieldSectionContentType,
-  TemporalFieldSectionType,
   TemporalFormatTokenConfig,
   TemporalNonNullableValue,
   TemporalSupportedObject,
   TemporalSupportedValue,
   TemporalTimezone,
+  TemporalFieldDatePartType,
 } from '../../../types';
 import { GetInitialReferenceDateValidationProps } from '../getInitialReferenceDate';
 import { TemporalManager, TemporalTimezoneProps } from '../types';
@@ -107,6 +107,7 @@ export interface TemporalFieldState<
   characterQuery: TemporalFieldCharacterEditingQuery | null;
   /**
    * Sections currently displayed in the field.
+   * A section represents either a part of the date (like year, month, day) or a separator (like `/`, `-`, etc.).
    */
   sections: TemporalFieldSection[];
   /**
@@ -157,7 +158,7 @@ export interface TemporalFieldState<
 export interface TemporalFieldCharacterEditingQuery {
   value: string;
   sectionIndex: number;
-  sectionType: TemporalFieldSectionType;
+  part: TemporalFieldDatePartType;
 }
 
 export type TemporalFieldChangeReason = 'none';
@@ -165,7 +166,7 @@ export type TemporalFieldChangeReason = 'none';
 export interface TemporalFieldParsedFormat {
   prefix: string;
   suffix: string;
-  tokens: TemporalFieldToken[];
+  elements: (TemporalFieldToken | TemporalFieldSeparator)[];
 }
 
 export interface TemporalFieldToken {
@@ -192,21 +193,20 @@ export interface TemporalFieldToken {
    * Text to display when the section is empty.
    */
   placeholder: string;
-  /**
-   * Separator displayed after the value of the section in the input.
-   * If it contains escaped characters, then it must not have the escaping characters.
-   * For example, on Date Fns, the `month` section of the format `MM/DD/YYYY` has an end separator equal to `year`.
-   *
-   * The separator does not contain the character before the first section and after the last section.
-   * For example, on Date Fns, the separators of the format `[Before] MM/DD/YYYY [After]` are:
-   * - "/" for the month section
-   * - "/" for the day section
-   * - "" for the year section
-   */
-  separator: string;
 }
 
-export interface TemporalFieldSection {
+export interface TemporalFieldSeparator {
+  /**
+   * Separator displayed as displayed the input.
+   */
+  value: string;
+  /**
+   * Index of the separator in the section list.
+   */
+  index: number;
+}
+
+export interface TemporalFieldDatePart {
   /**
    * Value of the section, as rendered inside the input.
    * For example, in the date `05/25/1995`, the value of the month section is "05".
@@ -227,10 +227,12 @@ export interface TemporalFieldSection {
    */
   token: TemporalFieldToken;
   /**
-   * Index of the section in the section list.
+   * Index of the date part in the section list.
    */
   index: number;
 }
+
+export type TemporalFieldSection = TemporalFieldDatePart | TemporalFieldSeparator;
 
 export type TemporalFieldRangePosition = 'start' | 'end';
 
@@ -348,18 +350,10 @@ export interface TemporalFieldPlaceholderGetters {
   meridiem?: (params: { format: string }) => string;
 }
 
-export type TemporalFieldSectionValueBoundaries<SectionType extends TemporalFieldSectionType> = {
+export type TemporalFieldDatePartValueBoundaries<Part extends TemporalFieldDatePartType> = {
   minimum: number;
   maximum: number;
-} & (SectionType extends 'day' ? { longestMonth: TemporalSupportedObject } : {});
-
-export type TemporalFieldSectionValueBoundariesLookup = {
-  [SectionType in TemporalFieldSectionType]: (params: {
-    currentDate: TemporalSupportedObject | null;
-    format: string;
-    contentType: TemporalFieldSectionContentType;
-  }) => TemporalFieldSectionValueBoundaries<SectionType>;
-};
+} & (Part extends 'day' ? { longestMonth: TemporalSupportedObject } : {});
 
 export type TemporalFieldModelUpdater<
   State extends TemporalFieldState<any, any, any>,

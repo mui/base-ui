@@ -8,10 +8,7 @@ export default function DateFieldBasic() {
     <DateField.Root className={styles.Root}>
       <DateField.Input className={styles.Input}>
         {(section) => (
-          <React.Fragment key={section.index}>
-            <DateField.Section className={styles.Section} section={section} />
-            <DateField.Separator className={styles.Separator} section={section} />
-          </React.Fragment>
+          <DateField.Section key={section.index} className={styles.Section} section={section} />
         )}
       </DateField.Input>
     </DateField.Root>

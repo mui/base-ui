@@ -3,7 +3,8 @@ import { TemporalAdapter, TemporalSupportedValue, TemporalTimezone } from '../..
 import { selectors } from './selectors';
 import { TemporalFieldSectionPlugin } from './TemporalFieldSectionPlugin';
 import { TemporalFieldStore } from './TemporalFieldStore';
-import { TemporalFieldState as State, TemporalFieldSection } from './types';
+import { TemporalFieldState as State, TemporalFieldDatePart, TemporalFieldSection } from './types';
+import { isDatePart } from './utils';
 
 const translations = {
   empty: 'Empty',
@@ -24,41 +25,53 @@ const sectionPropsSelectors = {
     selectors.disabled,
     selectors.readOnly,
     selectors.timezoneToRender,
-    TemporalFieldSectionPlugin.selectors.sectionBoundaries,
+    TemporalFieldSectionPlugin.selectors.datePartBoundaries,
     (
       adapter,
       editable,
       disabled,
       readOnly,
       timezone,
-      sectionBoundaries,
+      datePartBoundaries,
       section: TemporalFieldSection,
-    ): React.HTMLAttributes<HTMLDivElement> => ({
-      // Aria attributes
-      'aria-readonly': readOnly,
-      'aria-valuenow': getSectionValueNow(adapter, section, timezone),
-      'aria-valuemin': sectionBoundaries.minimum,
-      'aria-valuemax': sectionBoundaries.maximum,
-      'aria-valuetext': section.value
-        ? getSectionValueText(adapter, section, timezone)
-        : translations.empty,
-      'aria-label': translations[section.token.config.sectionType],
-      'aria-disabled': disabled,
+    ): React.HTMLAttributes<HTMLDivElement> => {
+      if (isDatePart(section)) {
+        return {
+          // Aria attributes
+          'aria-readonly': readOnly,
+          'aria-valuenow': getDatePartValueNow(adapter, section, timezone),
+          'aria-valuemin': datePartBoundaries.minimum,
+          'aria-valuemax': datePartBoundaries.maximum,
+          'aria-valuetext': section.value
+            ? getDatePartValueText(adapter, section, timezone)
+            : translations.empty,
+          'aria-label': translations[section.token.config.part],
+          'aria-disabled': disabled,
 
-      // Other
-      children: section.value || section.token.placeholder,
-      tabIndex: !editable || section.index > 0 ? -1 : 0,
-      contentEditable: editable,
-      suppressContentEditableWarning: true,
-      role: 'spinbutton',
-      // 'data-range-position': (section as FieldRangeSection).dateName || undefined,
-      spellCheck: editable ? false : undefined,
-      // Firefox hydrates this as `'none`' instead of `'off'`. No problems in chromium with both values.
-      // For reference https://github.com/mui/mui-x/issues/19012
-      autoCapitalize: editable ? 'none' : undefined,
-      autoCorrect: editable ? 'off' : undefined,
-      inputMode: section.token.config.contentType === 'letter' ? 'text' : 'numeric',
-    }),
+          // Other
+          children: section.value || section.token.placeholder,
+          tabIndex: !editable || section.index > 0 ? -1 : 0,
+          contentEditable: editable,
+          suppressContentEditableWarning: true,
+          role: 'spinbutton',
+          // 'data-range-position': (section as FieldRangeSection).dateName || undefined,
+          spellCheck: editable ? false : undefined,
+          // Firefox hydrates this as `'none`' instead of `'off'`. No problems in chromium with both values.
+          // For reference https://github.com/mui/mui-x/issues/19012
+          autoCapitalize: editable ? 'none' : undefined,
+          autoCorrect: editable ? 'off' : undefined,
+          inputMode: section.token.config.contentType === 'letter' ? 'text' : 'numeric',
+        };
+      }
+
+      return {
+        // Aria attributes
+        'aria-hidden': true,
+
+        // Other
+        children: section.value,
+      };
+    },
   ),
 };
 
@@ -84,7 +97,7 @@ export class TemporalFieldSectionPropsPlugin<TValue extends TemporalSupportedVal
     }
 
     const sectionIndex = this.store.dom.getSectionIndexFromDOMElement(event.target as HTMLElement)!;
-    this.store.section.setSelectedSection(sectionIndex);
+    this.store.section.selectClosestDatePart(sectionIndex);
   };
 
   public handleInput = (event: React.FormEvent) => {
@@ -96,24 +109,28 @@ export class TemporalFieldSectionPropsPlugin<TValue extends TemporalSupportedVal
     }
 
     if (!selectors.editable(this.store.state)) {
-      this.store.dom.syncSectionContentToDOM(sectionIndex);
+      this.store.dom.syncDatePartContentToDOM(sectionIndex);
       return;
     }
 
-    const section = TemporalFieldSectionPlugin.selectors.section(this.store.state, sectionIndex);
+    const section = TemporalFieldSectionPlugin.selectors.datePart(this.store.state, sectionIndex);
+    if (section == null) {
+      return;
+    }
+
     if (keyPressed.length === 0) {
       if (section.value === '') {
-        this.store.dom.syncSectionContentToDOM(sectionIndex);
+        this.store.dom.syncDatePartContentToDOM(sectionIndex);
         return;
       }
 
       const inputType = (event.nativeEvent as InputEvent).inputType;
       if (inputType === 'insertParagraph' || inputType === 'insertLineBreak') {
-        this.store.dom.syncSectionContentToDOM(sectionIndex);
+        this.store.dom.syncDatePartContentToDOM(sectionIndex);
         return;
       }
 
-      this.store.dom.syncSectionContentToDOM(sectionIndex);
+      this.store.dom.syncDatePartContentToDOM(sectionIndex);
       this.store.section.clearActive();
       return;
     }
@@ -124,7 +141,7 @@ export class TemporalFieldSectionPropsPlugin<TValue extends TemporalSupportedVal
     });
 
     // The DOM value needs to remain the one React is expecting.
-    this.store.dom.syncSectionContentToDOM(sectionIndex);
+    this.store.dom.syncDatePartContentToDOM(sectionIndex);
   };
 
   public handlePaste = (event: React.ClipboardEvent) => {
@@ -136,7 +153,11 @@ export class TemporalFieldSectionPropsPlugin<TValue extends TemporalSupportedVal
       return;
     }
 
-    const section = TemporalFieldSectionPlugin.selectors.section(this.store.state, sectionIndex);
+    const section = TemporalFieldSectionPlugin.selectors.datePart(this.store.state, sectionIndex);
+    if (section == null) {
+      return;
+    }
+
     const pastedValue = event.clipboardData.getData('text');
     const lettersOnly = /^[a-zA-Z]+$/.test(pastedValue);
     const digitsOnly = /^[0-9]+$/.test(pastedValue);
@@ -148,9 +169,9 @@ export class TemporalFieldSectionPropsPlugin<TValue extends TemporalSupportedVal
 
     if (isValidPastedValue) {
       this.store.characterEditing.resetCharacterQuery();
-      this.store.section.updateValue({
+      this.store.section.updateDatePart({
         sectionIndex,
-        newSectionValue: pastedValue,
+        newDatePartValue: pastedValue,
         shouldGoToNextSection: true,
       });
     }
@@ -181,29 +202,19 @@ export class TemporalFieldSectionPropsPlugin<TValue extends TemporalSupportedVal
       return;
     }
 
-    const lastSectionIndex = TemporalFieldSectionPlugin.selectors.lastSectionIndex(
-      this.store.state,
-    );
-
     // eslint-disable-next-line default-case
     switch (true) {
       // Move selection to next section
       case event.key === 'ArrowRight': {
         event.preventDefault();
-
-        if (sectionIndex < lastSectionIndex) {
-          this.store.section.setSelectedSection(sectionIndex + 1);
-        }
+        this.store.section.selectNextDatePart();
         break;
       }
 
       // Move selection to previous section
       case event.key === 'ArrowLeft': {
         event.preventDefault();
-
-        if (sectionIndex > 0) {
-          this.store.section.setSelectedSection(sectionIndex - 1);
-        }
+        this.store.section.selectPreviousDatePart();
         break;
       }
 
@@ -215,9 +226,9 @@ export class TemporalFieldSectionPropsPlugin<TValue extends TemporalSupportedVal
           break;
         }
 
-        this.store.section.updateValue({
+        this.store.section.updateDatePart({
           sectionIndex,
-          newSectionValue: '',
+          newDatePartValue: '',
           shouldGoToNextSection: false,
         });
         break;
@@ -231,9 +242,9 @@ export class TemporalFieldSectionPropsPlugin<TValue extends TemporalSupportedVal
           break;
         }
 
-        this.store.section.updateValue({
+        this.store.section.updateDatePart({
           sectionIndex,
-          newSectionValue: this.store.valueAdjustment.adjustActiveSectionValue(event.key),
+          newDatePartValue: this.store.valueAdjustment.adjustActiveDatePartValue(event.key),
           shouldGoToNextSection: false,
         });
         break;
@@ -247,7 +258,7 @@ export class TemporalFieldSectionPropsPlugin<TValue extends TemporalSupportedVal
     }
 
     const sectionIndex = this.store.dom.getSectionIndexFromDOMElement(event.target)!;
-    this.store.section.setSelectedSection(sectionIndex);
+    this.store.section.selectClosestDatePart(sectionIndex);
   };
 
   public handleBlur = () => {
@@ -258,21 +269,21 @@ export class TemporalFieldSectionPropsPlugin<TValue extends TemporalSupportedVal
 
       // If focus didn't move to another section in this field, clear selection
       if (newSectionIndex == null && !this.store.dom.inputRef.current?.contains(activeEl)) {
-        this.store.section.setSelectedSection(null);
+        this.store.section.removeSelectedSection();
       }
     });
   };
 }
 
-function getSectionValueNow(
+function getDatePartValueNow(
   adapter: TemporalAdapter,
-  section: TemporalFieldSection,
+  section: TemporalFieldDatePart,
   timezone: TemporalTimezone,
 ): number | undefined {
   if (!section.value) {
     return undefined;
   }
-  switch (section.token.config.sectionType) {
+  switch (section.token.config.part) {
     case 'weekDay': {
       if (section.token.config.contentType === 'letter') {
         // TODO: improve by resolving the week day number from a letter week day
@@ -307,15 +318,15 @@ function getSectionValueNow(
   }
 }
 
-function getSectionValueText(
+function getDatePartValueText(
   adapter: TemporalAdapter,
-  section: TemporalFieldSection,
+  section: TemporalFieldDatePart,
   timezone: TemporalTimezone,
 ): string | undefined {
   if (!section.value) {
     return undefined;
   }
-  switch (section.token.config.sectionType) {
+  switch (section.token.config.part) {
     case 'month': {
       if (section.token.config.contentType === 'digit') {
         const dateWithMonth = adapter.setMonth(adapter.now(timezone), Number(section.value) - 1);

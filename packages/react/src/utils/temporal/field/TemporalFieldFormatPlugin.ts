@@ -1,10 +1,15 @@
 import { createSelector, createSelectorMemoized } from '@base-ui/utils/store';
 import { warn } from '@base-ui/utils/warn';
-import { TemporalFieldSectionType, TemporalSupportedValue } from '../../../types';
+import { TemporalFieldDatePart, TemporalSupportedValue } from '../../../types';
 import { TemporalFieldStore } from './TemporalFieldStore';
-import { TemporalFieldState as State, TemporalFieldParsedFormat } from './types';
+import {
+  TemporalFieldState as State,
+  TemporalFieldParsedFormat,
+  TemporalFieldToken,
+} from './types';
 import { FormatParser } from './formatParser';
 import { TemporalDateType } from '../types';
+import { isToken } from './utils';
 
 const formatSelectors = {
   format: createSelector((state: State) => state.format),
@@ -40,7 +45,7 @@ export class TemporalFieldFormatPlugin<TValue extends TemporalSupportedValue> {
 
 function validateFormat(parsedFormat: TemporalFieldParsedFormat, dateType: TemporalDateType) {
   if (process.env.NODE_ENV !== 'production') {
-    const supportedSections: TemporalFieldSectionType[] = ['empty'];
+    const supportedSections: TemporalFieldDatePart[] = ['empty'];
     if (['date', 'date-time'].includes(dateType)) {
       supportedSections.push('weekDay', 'day', 'month', 'year');
     }
@@ -48,14 +53,14 @@ function validateFormat(parsedFormat: TemporalFieldParsedFormat, dateType: Tempo
       supportedSections.push('hours', 'minutes', 'seconds', 'meridiem');
     }
 
-    const invalidSection = parsedFormat.tokens.find(
-      (token) => !supportedSections.includes(token.config.sectionType),
-    );
+    const invalidDatePart = parsedFormat.elements.find(
+      (element) => isToken(element) && !supportedSections.includes(element.config.part),
+    ) as TemporalFieldToken | undefined;
 
-    if (invalidSection) {
+    if (invalidDatePart) {
       warn(
-        `Base UI: The field component you are using is not compatible with the "${invalidSection.config.sectionType}" date section.`,
-        `The supported date sections are ["${supportedSections.join('", "')}"]\`.`,
+        `Base UI: The field component you are using is not compatible with the "${invalidDatePart.config.part}" date section.`,
+        `The supported date parts are ["${supportedSections.join('", "')}"]\`.`,
       );
     }
   }

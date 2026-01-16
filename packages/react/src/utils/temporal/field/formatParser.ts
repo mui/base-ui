@@ -6,9 +6,11 @@ import {
 import {
   TemporalFieldParsedFormat,
   TemporalFieldPlaceholderGetters,
+  TemporalFieldSeparator,
   TemporalFieldToken,
 } from './types';
 import { TextDirection } from '../../../direction-provider';
+import { isSeparator, isToken } from './utils';
 
 const DEFAULT_PLACEHOLDER_GETTERS: Required<TemporalFieldPlaceholderGetters> = {
   year: (params) => 'Y'.repeat(params.digitAmount),
@@ -53,9 +55,9 @@ export class FormatParser {
     const parsedFormat = parser.parse(expandedFormat, escapedParts);
 
     if (direction === 'rtl') {
-      for (const token of parsedFormat.tokens) {
-        if (token.separator.includes(' ')) {
-          token.separator = `\u2069${token.separator}\u2066`;
+      for (const element of parsedFormat.elements) {
+        if (isSeparator(element) && element.value.includes(' ')) {
+          element.value = `\u2069${element.value}\u2066`;
         }
       }
     }
@@ -179,7 +181,6 @@ export class FormatParser {
       isPadded,
       maxLength,
       placeholder: this.getTokenPlaceholder(tokenValue, tokenConfig),
-      separator: '',
     };
   }
 
@@ -188,8 +189,7 @@ export class FormatParser {
       return false;
     }
 
-    switch (tokenConfig.sectionType) {
-      // We can't use `changeSectionValueFormat`, because  `adapter.parse('1', 'YYYY')` returns `1971` instead of `1`.
+    switch (tokenConfig.part) {
       case 'year': {
         // Remove once https://github.com/iamkun/dayjs/pull/2847 is merged and bump dayjs version
         if (this.adapter.lib === 'dayjs' && token === 'YY') {
@@ -231,7 +231,7 @@ export class FormatParser {
   }
 
   private getTokenPlaceholder(tokenValue: string, config: TemporalFormatTokenConfig): string {
-    switch (config.sectionType) {
+    switch (config.part) {
       case 'year': {
         return this.placeholderGetters.year({
           digitAmount: this.formatNowByToken(tokenValue).length,
@@ -283,7 +283,7 @@ export class FormatParser {
     expandedFormat: string,
     escapedParts: FormatEscapedParts,
   ): TemporalFieldParsedFormat {
-    const tokens: TemporalFieldToken[] = [];
+    const elements: (TemporalFieldToken | TemporalFieldSeparator)[] = [];
     let prefix = '';
     let separator: string = '';
 
@@ -318,12 +318,12 @@ export class FormatParser {
           word = word.slice(firstWord.length);
 
           // Set prefix only when creating the very first token
-          if (tokens.length === 0) {
+          if (elements.length === 0) {
             prefix = separator;
             separator = '';
           }
 
-          tokens.push(this.createToken(firstWord));
+          elements.push(this.createToken(firstWord));
         }
 
         i += firstWordInFormat.length;
@@ -340,10 +340,15 @@ export class FormatParser {
           escapedPartOfCurrentChar?.end === i;
 
         if (!isEscapeBoundary) {
-          if (tokens.length === 0) {
+          if (elements.length === 0) {
             separator += char;
           } else {
-            tokens[tokens.length - 1].separator += char;
+            // If there is no separator yet, we create it
+            if (isToken(elements[elements.length - 1])) {
+              elements.push({ value: '', index: 0 });
+            }
+
+            (elements[elements.length - 1] as TemporalFieldSeparator).value += char;
           }
         }
 
@@ -352,12 +357,15 @@ export class FormatParser {
     }
 
     let suffix = '';
-    if (tokens.length > 0) {
-      suffix = tokens[tokens.length - 1].separator;
-      tokens[tokens.length - 1].separator = '';
+    if (elements.length > 0) {
+      const lastElement = elements[elements.length - 1];
+      if (isSeparator(lastElement)) {
+        suffix = lastElement.value;
+        elements.pop();
+      }
     }
 
-    return { tokens, suffix, prefix };
+    return { elements, suffix, prefix };
   }
 }
 

@@ -15,7 +15,7 @@
 }
 
 .Section {
-  padding: 0 4px;
+  padding: 0 2px;
   outline: none;
 
   &[data-empty] {

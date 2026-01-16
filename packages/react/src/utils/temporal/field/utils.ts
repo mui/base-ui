@@ -1,7 +1,7 @@
 import { TextDirection } from '../../../direction-provider';
 import {
   TemporalAdapter,
-  TemporalFieldSectionType,
+  TemporalFieldDatePartType,
   TemporalSupportedObject,
   TemporalSupportedValue,
   TemporalTimezone,
@@ -11,10 +11,12 @@ import { TemporalManager } from '../types';
 import {
   TemporalFieldParsedFormat,
   TemporalFieldSection,
-  TemporalFieldSectionValueBoundaries,
+  TemporalFieldDatePartValueBoundaries,
   TemporalFieldStoreParameters,
   TemporalFieldToken,
   TemporalFieldConfiguration,
+  TemporalFieldSeparator,
+  TemporalFieldDatePart,
 } from './types';
 
 /**
@@ -153,10 +155,10 @@ export function getTimezoneToRender<TValue extends TemporalSupportedValue>(
 export function getLetterEditingOptions(
   adapter: TemporalAdapter,
   timezone: TemporalTimezone,
-  sectionType: TemporalFieldSectionType,
+  type: TemporalFieldDatePartType,
   format: string,
 ) {
-  switch (sectionType) {
+  switch (type) {
     case 'month': {
       return getMonthsInYear(adapter, adapter.now(timezone)).map((month) =>
         adapter.formatByString(month, format!),
@@ -186,25 +188,25 @@ export function getLetterEditingOptions(
  *
  * ```ts
  * // Padded month: 5 → '05'
- * cleanDigitSectionValue(adapter, 5, boundaries, ['0', '1', ...], {
- *   value: 'MM', config: { sectionType: 'month', contentType: 'digit' }, isPadded: true, maxLength: 2
+ * cleanDigitDatePartValue(adapter, 5, boundaries, ['0', '1', ...], {
+ *   value: 'MM', config: { part: 'month', contentType: 'digit' }, isPadded: true, maxLength: 2
  * });
  *
  * // Arabic numerals: 5 → '٥'
- * cleanDigitSectionValue(adapter, 5, boundaries, ['٠', '١', '٢', '٣', '٤', '٥', ...], {
- *   value: 'M', config: { sectionType: 'month', contentType: 'digit' }, isPadded: false, maxLength: undefined
+ * cleanDigitDatePartValue(adapter, 5, boundaries, ['٠', '١', '٢', '٣', '٤', '٥', ...], {
+ *   value: 'M', config: { part: 'month', contentType: 'digit' }, isPadded: false, maxLength: undefined
  * });
  * ```
  */
-export function cleanDigitSectionValue(
+export function cleanDigitDatePartValue(
   adapter: TemporalAdapter,
   value: number,
-  sectionBoundaries: TemporalFieldSectionValueBoundaries<any>,
+  boundaries: TemporalFieldDatePartValueBoundaries<any>,
   localizedDigits: string[],
-  token: Pick<TemporalFieldToken, 'value' | 'config' | 'isPadded' | 'maxLength'>,
+  token: TemporalFieldToken,
 ) {
   if (process.env.NODE_ENV !== 'production') {
-    if (token.config.sectionType !== 'day' && token.config.contentType === 'digit-with-letter') {
+    if (token.config.part !== 'day' && token.config.contentType === 'digit-with-letter') {
       throw new Error(
         [
           `Base UI: The token "${token.value}" is a digit format with letter in it.'
@@ -214,9 +216,9 @@ export function cleanDigitSectionValue(
     }
   }
 
-  if (token.config.sectionType === 'day' && token.config.contentType === 'digit-with-letter') {
+  if (token.config.part === 'day' && token.config.contentType === 'digit-with-letter') {
     const date = adapter.setDate(
-      (sectionBoundaries as TemporalFieldSectionValueBoundaries<'day'>).longestMonth,
+      (boundaries as TemporalFieldDatePartValueBoundaries<'day'>).longestMonth,
       value,
     );
     return adapter.formatByString(date, token.value);
@@ -243,10 +245,35 @@ export function buildSections(
   parsedFormat: TemporalFieldParsedFormat,
   date: TemporalSupportedObject | null,
 ): TemporalFieldSection[] {
-  return parsedFormat.tokens.map((token, index) => ({
-    token,
-    value: adapter.isValid(date) ? adapter.formatByString(date, token.value) : '',
-    modified: false,
-    index,
-  }));
+  return parsedFormat.elements.map((element, index) => {
+    if (isToken(element)) {
+      return {
+        token: element,
+        value: adapter.isValid(date) ? adapter.formatByString(date, element.value) : '',
+        modified: false,
+        index,
+      };
+    }
+
+    return {
+      ...element,
+      index,
+    };
+  });
+}
+
+export function isToken(
+  element: TemporalFieldToken | TemporalFieldSeparator,
+): element is TemporalFieldToken {
+  return typeof (element as TemporalFieldToken).isPadded === 'boolean';
+}
+
+export function isDatePart(section: TemporalFieldSection): section is TemporalFieldDatePart {
+  return (section as TemporalFieldDatePart).token !== undefined;
+}
+
+export function isSeparator(
+  element: TemporalFieldSeparator | TemporalFieldToken | TemporalFieldSection,
+) {
+  return !isToken(element) && !isDatePart(element);
 }
