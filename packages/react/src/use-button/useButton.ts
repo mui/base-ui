@@ -197,7 +197,7 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
         otherExternalProps,
       );
     },
-    [disabled, focusableWhenDisabledProps, isNativeButton, isValidLink, setActive],
+    [disabled, focusableWhenDisabledProps, isNativeButton, isValidLink],
   );
 
   const buttonRef = useStableCallback((element: HTMLElement | null) => {
