@@ -150,39 +150,41 @@ export interface ToggleGroupProps extends BaseUIComponentProps<'div', ToggleGrou
    * the values of all pressed toggle buttons.
    * This is the controlled counterpart of `defaultValue`.
    */
-  value?: readonly string[];
+  value?: readonly string[] | undefined;
   /**
    * The open state of the toggle group represented by an array of
    * the values of all pressed toggle buttons.
    * This is the uncontrolled counterpart of `value`.
    */
-  defaultValue?: readonly string[];
+  defaultValue?: readonly string[] | undefined;
   /**
    * Callback fired when the pressed states of the toggle group changes.
    */
-  onValueChange?: (groupValue: string[], eventDetails: ToggleGroup.ChangeEventDetails) => void;
+  onValueChange?:
+    | ((groupValue: string[], eventDetails: ToggleGroup.ChangeEventDetails) => void)
+    | undefined;
   /**
    * Whether the toggle group should ignore user interaction.
    * @default false
    */
-  disabled?: boolean;
+  disabled?: boolean | undefined;
   /**
    * @default 'horizontal'
    */
-  orientation?: Orientation;
+  orientation?: Orientation | undefined;
   /**
    * Whether to loop keyboard focus back to the first item
    * when the end of the list is reached while using the arrow keys.
    * @default true
    */
-  loopFocus?: boolean;
+  loopFocus?: boolean | undefined;
   /**
    * When `false` only one item in the group can be pressed. If any item in
    * the group becomes pressed, the others will become unpressed.
    * When `true` multiple items can be pressed.
    * @default false
    */
-  multiple?: boolean;
+  multiple?: boolean | undefined;
 }
 
 export type ToggleGroupChangeEventReason = typeof REASONS.none;

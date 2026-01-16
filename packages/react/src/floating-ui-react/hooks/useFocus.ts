@@ -25,18 +25,18 @@ export interface UseFocusProps {
    * handlers.
    * @default true
    */
-  enabled?: boolean;
+  enabled?: boolean | undefined;
   /**
    * Whether the open state only changes if the focus event is considered
    * visible (`:focus-visible` CSS selector).
    * @default true
    */
-  visibleOnly?: boolean;
+  visibleOnly?: boolean | undefined;
   /**
    * Waits for the specified time before opening.
    * @default undefined
    */
-  delay?: number | (() => number | undefined);
+  delay?: (number | (() => number | undefined)) | undefined;
 }
 
 /**

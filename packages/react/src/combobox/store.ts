@@ -60,15 +60,15 @@ export type State = {
   setInputValue: (value: string, eventDetails: AriaCombobox.ChangeEventDetails) => void;
   setSelectedValue: (value: any, eventDetails: AriaCombobox.ChangeEventDetails) => void;
   setIndices: (indices: {
-    activeIndex?: number | null;
-    selectedIndex?: number | null;
-    type?: 'keyboard' | 'pointer' | 'none';
+    activeIndex?: (number | null) | undefined;
+    selectedIndex?: (number | null) | undefined;
+    type?: ('keyboard' | 'pointer' | 'none') | undefined;
   }) => void;
   onItemHighlighted: (item: any, eventDetails: AriaCombobox.HighlightEventDetails) => void;
   forceMount: () => void;
   handleSelection: (event: MouseEvent | PointerEvent | KeyboardEvent, passedValue?: any) => void;
   getItemProps: (
-    props?: HTMLProps & { active?: boolean; selected?: boolean },
+    props?: HTMLProps & { active?: boolean | undefined; selected?: boolean | undefined },
   ) => Record<string, unknown>;
   requestSubmit: () => void;
 
@@ -81,7 +81,7 @@ export type State = {
   virtualized: boolean;
   onOpenChangeComplete: (open: boolean) => void;
   openOnInputClick: boolean;
-  itemToStringLabel?: (item: any) => string;
+  itemToStringLabel?: ((item: any) => string) | undefined;
   isItemEqualToValue: (item: any, value: any) => boolean;
   modal: boolean;
   autoHighlight: false | 'always' | 'input-change';

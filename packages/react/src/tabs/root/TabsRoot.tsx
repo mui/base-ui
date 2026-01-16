@@ -265,22 +265,24 @@ export interface TabsRootProps extends BaseUIComponentProps<'div', TabsRoot.Stat
    * The value of the currently active `Tab`. Use when the component is controlled.
    * When the value is `null`, no Tab will be active.
    */
-  value?: TabsTab.Value;
+  value?: TabsTab.Value | undefined;
   /**
    * The default value. Use when the component is not controlled.
    * When the value is `null`, no Tab will be active.
    * @default 0
    */
-  defaultValue?: TabsTab.Value;
+  defaultValue?: TabsTab.Value | undefined;
   /**
    * The component orientation (layout flow direction).
    * @default 'horizontal'
    */
-  orientation?: TabsRoot.Orientation;
+  orientation?: TabsRoot.Orientation | undefined;
   /**
    * Callback invoked when new value is being set.
    */
-  onValueChange?: (value: TabsTab.Value, eventDetails: TabsRoot.ChangeEventDetails) => void;
+  onValueChange?:
+    | ((value: TabsTab.Value, eventDetails: TabsRoot.ChangeEventDetails) => void)
+    | undefined;
 }
 
 export type TabsRootChangeEventReason = typeof REASONS.none;

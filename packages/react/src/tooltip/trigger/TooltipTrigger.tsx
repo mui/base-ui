@@ -149,21 +149,21 @@ export interface TooltipTriggerProps<Payload = unknown> extends BaseUIComponentP
   /**
    * A handle to associate the trigger with a tooltip.
    */
-  handle?: TooltipHandle<Payload>;
+  handle?: TooltipHandle<Payload> | undefined;
   /**
    * A payload to pass to the tooltip when it is opened.
    */
-  payload?: Payload;
+  payload?: Payload | undefined;
   /**
    * How long to wait before opening the tooltip. Specified in milliseconds.
    * @default 600
    */
-  delay?: number;
+  delay?: number | undefined;
   /**
    * How long to wait before closing the tooltip. Specified in milliseconds.
    * @default 0
    */
-  closeDelay?: number;
+  closeDelay?: number | undefined;
 }
 
 export namespace TooltipTrigger {
