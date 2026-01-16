@@ -23,7 +23,7 @@
     }
   }
 
-  &:active:not([data-disabled]) {
+  &[data-active]:not([data-disabled]) {
     background-color: var(--color-gray-200);
     box-shadow: inset 0 1px 3px var(--color-gray-200);
     border-top-color: var(--color-gray-300);
