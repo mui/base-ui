@@ -1,6 +1,6 @@
 {
   "name": "@base-ui/monorepo",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "private": true,
   "scripts": {
     "preinstall": "npx only-allow pnpm",
@@ -70,12 +70,12 @@
     "@playwright/test": "1.57.0",
     "@tailwindcss/postcss": "4.1.18",
     "@types/node": "22.18.13",
-    "@types/react": "19.2.7",
+    "@types/react": "19.2.8",
     "@types/yargs": "17.0.35",
     "@vitejs/plugin-react": "5.1.2",
-    "@vitest/browser-playwright": "4.0.16",
-    "@vitest/coverage-istanbul": "4.0.16",
-    "@vitest/ui": "4.0.16",
+    "@vitest/browser-playwright": "4.0.17",
+    "@vitest/coverage-istanbul": "4.0.17",
+    "@vitest/ui": "4.0.17",
     "chai-dom": "1.12.1",
     "chalk": "5.6.2",
     "concurrently": "9.2.1",
@@ -101,24 +101,24 @@
     "terser": "5.44.1",
     "tsx": "4.21.0",
     "typescript": "5.9.3",
-    "vite": "7.3.0",
-    "vitest": "4.0.16",
+    "vite": "7.3.1",
+    "vitest": "4.0.17",
     "yargs": "18.0.0"
   },
-  "packageManager": "pnpm@10.27.0",
+  "packageManager": "pnpm@10.28.0",
   "engines": {
-    "pnpm": "10.27.0",
+    "pnpm": "10.28.0",
     "node": ">=22.18.0"
   },
   "resolutions": {
-    "@babel/core": "^7.28.5",
+    "@babel/core": "^7.28.6",
     "@babel/plugin-transform-runtime": "^7.28.5",
-    "@babel/preset-env": "^7.28.5",
+    "@babel/preset-env": "^7.28.6",
     "@babel/preset-react": "^7.28.5",
     "@babel/preset-typescript": "^7.28.5",
-    "@babel/types": "^7.28.5",
+    "@babel/types": "^7.28.6",
     "@types/node": "22.18.13",
-    "@types/react": "19.2.7",
+    "@types/react": "19.2.8",
     "@types/react-dom": "^19.2.3"
   }
 }

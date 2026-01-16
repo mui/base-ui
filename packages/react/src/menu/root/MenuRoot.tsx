@@ -5,6 +5,7 @@ import { useTimeout } from '@base-ui/utils/useTimeout';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useId } from '@base-ui/utils/useId';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { useOnFirstRender } from '@base-ui/utils/useOnFirstRender';
 import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
 import { useScrollLock } from '@base-ui/utils/useScrollLock';
 import { EMPTY_ARRAY } from '@base-ui/utils/empty';
@@ -106,8 +107,27 @@ export function MenuRoot<Payload>(props: MenuRoot.Props<Payload>) {
   }, [contextMenuContext, parentMenuRootContext, menubarContext, isSubmenu]);
 
   const store = MenuStore.useStore(handle?.store, {
+    open: defaultOpen,
+    openProp,
+    activeTriggerId: defaultTriggerIdProp,
+    triggerIdProp,
     parent: parentFromContext,
   });
+
+  // Support initially open state when uncontrolled
+  useOnFirstRender(() => {
+    if (openProp === undefined && store.state.open === false && defaultOpen === true) {
+      store.update({
+        open: true,
+        activeTriggerId: defaultTriggerIdProp,
+      });
+    }
+  });
+
+  store.useControlledProp('openProp', openProp);
+  store.useControlledProp('triggerIdProp', triggerIdProp);
+
+  store.useContextCallback('onOpenChangeComplete', onOpenChangeComplete);
 
   const floatingTreeRoot = store.useState('floatingTreeRoot');
   const floatingNodeIdFromContext = useFloatingNodeId(floatingTreeRoot);
@@ -138,11 +158,6 @@ export function MenuRoot<Payload>(props: MenuRoot.Props<Payload>) {
     floatingParentNodeIdFromContext,
     store,
   ]);
-
-  store.useControlledProp('open', openProp, defaultOpen);
-  store.useControlledProp('activeTriggerId', triggerIdProp, defaultTriggerIdProp);
-
-  store.useContextCallback('onOpenChangeComplete', onOpenChangeComplete);
 
   const open = store.useState('open');
   const activeTriggerElement = store.useState('activeTriggerElement');

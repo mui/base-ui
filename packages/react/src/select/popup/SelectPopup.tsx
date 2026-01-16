@@ -111,7 +111,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
     const positionerStyles = getComputedStyle(positionerElement);
     const marginTop = parseFloat(positionerStyles.marginTop);
     const marginBottom = parseFloat(positionerStyles.marginBottom);
-    const maxPopupHeight = getMaxPopupHeight(popupRef.current);
+    const maxPopupHeight = getMaxPopupHeight(getComputedStyle(popupRef.current));
     const viewportHeight = doc.documentElement.clientHeight - marginTop - marginBottom;
 
     const scrollTop = scroller.scrollTop;
@@ -268,7 +268,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
         const marginTop = parseFloat(positionerStyles.marginTop) || 10;
         const marginBottom = parseFloat(positionerStyles.marginBottom) || 10;
         const minHeight = parseFloat(positionerStyles.minHeight) || 100;
-        const maxPopupHeight = getMaxPopupHeight(popupElement);
+        const maxPopupHeight = getMaxPopupHeight(popupStyles);
 
         const paddingLeft = 5;
         const paddingRight = 5;
@@ -503,9 +503,9 @@ export namespace SelectPopup {
   export type State = SelectPopupState;
 }
 
-function getMaxPopupHeight(popupElement: HTMLElement) {
-  const maxHeight = parseFloat(getComputedStyle(popupElement).maxHeight);
-  return maxHeight || Infinity;
+function getMaxPopupHeight(popupStyles: CSSStyleDeclaration) {
+  const maxHeightStyle = popupStyles.maxHeight || '';
+  return maxHeightStyle.endsWith('px') ? parseFloat(maxHeightStyle) || Infinity : Infinity;
 }
 
 const UNSET_TRANSFORM_STYLES = {
