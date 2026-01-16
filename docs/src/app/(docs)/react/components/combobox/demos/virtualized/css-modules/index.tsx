@@ -6,65 +6,24 @@ import styles from './index.module.css';
 
 export default function ExampleVirtualizedCombobox() {
   const [open, setOpen] = React.useState(false);
-  const [searchValue, setSearchValue] = React.useState('');
-  const [value, setValue] = React.useState<VirtualizedItem | null>(null);
-
-  const deferredSearchValue = React.useDeferredValue(searchValue);
-
-  const scrollElementRef = React.useRef<HTMLDivElement | null>(null);
-
-  const { contains } = Combobox.useFilter({ value });
-
-  const resolvedSearchValue =
-    searchValue === '' || deferredSearchValue === '' ? searchValue : deferredSearchValue;
-
-  const filteredItems = React.useMemo(() => {
-    return virtualizedItems.filter((item) => contains(item, resolvedSearchValue, getItemLabel));
-  }, [contains, resolvedSearchValue]);
-
-  const virtualizer = useVirtualizer({
-    enabled: open,
-    count: filteredItems.length,
-    getScrollElement: () => scrollElementRef.current,
-    estimateSize: () => 32,
-    overscan: 20,
-    paddingStart: 8,
-    paddingEnd: 8,
-    scrollPaddingEnd: 8,
-    scrollPaddingStart: 8,
-  });
-
-  const handleScrollElementRef = React.useCallback(
-    (element: HTMLDivElement | null) => {
-      scrollElementRef.current = element;
-      if (element) {
-        virtualizer.measure();
-      }
-    },
-    [virtualizer],
-  );
-
-  const totalSize = virtualizer.getTotalSize();
+  const virtualizerRef = React.useRef<Virtualizer | null>(null);
 
   return (
     <Combobox.Root
       virtualized
       items={virtualizedItems}
-      filteredItems={filteredItems}
       open={open}
       onOpenChange={setOpen}
-      inputValue={searchValue}
-      onInputValueChange={setSearchValue}
-      value={value}
-      onValueChange={setValue}
       itemToStringLabel={getItemLabel}
       onItemHighlighted={(item, { reason, index }) => {
-        if (!item) {
+        const virtualizer = virtualizerRef.current;
+
+        if (!item || !virtualizer) {
           return;
         }
 
         const isStart = index === 0;
-        const isEnd = index === filteredItems.length - 1;
+        const isEnd = index === virtualizer.options.count - 1;
         const shouldScroll = reason === 'none' || (reason === 'keyboard' && (isStart || isEnd));
 
         if (shouldScroll) {
@@ -84,58 +43,102 @@ export default function ExampleVirtualizedCombobox() {
           <Combobox.Popup className={styles.Popup}>
             <Combobox.Empty className={styles.Empty}>No items found.</Combobox.Empty>
             <Combobox.List className={styles.List}>
-              {filteredItems.length > 0 && (
-                <div
-                  role="presentation"
-                  ref={handleScrollElementRef}
-                  className={styles.Scroller}
-                  style={{ '--total-size': `${totalSize}px` } as React.CSSProperties}
-                >
-                  <div
-                    role="presentation"
-                    className={styles.VirtualizedPlaceholder}
-                    style={{ height: totalSize }}
-                  >
-                    {virtualizer.getVirtualItems().map((virtualItem) => {
-                      const item = filteredItems[virtualItem.index];
-                      if (!item) {
-                        return null;
-                      }
-
-                      return (
-                        <Combobox.Item
-                          key={virtualItem.key}
-                          index={virtualItem.index}
-                          data-index={virtualItem.index}
-                          ref={virtualizer.measureElement}
-                          value={item}
-                          className={styles.Item}
-                          aria-setsize={filteredItems.length}
-                          aria-posinset={virtualItem.index + 1}
-                          style={{
-                            position: 'absolute',
-                            top: 0,
-                            left: 0,
-                            width: '100%',
-                            height: virtualItem.size,
-                            transform: `translateY(${virtualItem.start}px)`,
-                          }}
-                        >
-                          <Combobox.ItemIndicator className={styles.ItemIndicator}>
-                            <CheckIcon className={styles.ItemIndicatorIcon} />
-                          </Combobox.ItemIndicator>
-                          <div className={styles.ItemText}>{item.name}</div>
-                        </Combobox.Item>
-                      );
-                    })}
-                  </div>
-                </div>
-              )}
+              <VirtualizedList open={open} virtualizerRef={virtualizerRef} />
             </Combobox.List>
           </Combobox.Popup>
         </Combobox.Positioner>
       </Combobox.Portal>
     </Combobox.Root>
+  );
+}
+
+function VirtualizedList({
+  open,
+  virtualizerRef,
+}: {
+  open: boolean;
+  virtualizerRef: React.RefObject<Virtualizer | null>;
+}) {
+  const filteredItems = Combobox.useFilteredItems<VirtualizedItem>();
+
+  const scrollElementRef = React.useRef<HTMLDivElement | null>(null);
+
+  const virtualizer = useVirtualizer({
+    enabled: open,
+    count: filteredItems.length,
+    getScrollElement: () => scrollElementRef.current,
+    estimateSize: () => 32,
+    overscan: 20,
+    paddingStart: 8,
+    paddingEnd: 8,
+    scrollPaddingEnd: 8,
+    scrollPaddingStart: 8,
+  });
+
+  React.useImperativeHandle(virtualizerRef, () => virtualizer);
+
+  const handleScrollElementRef = React.useCallback(
+    (element: HTMLDivElement | null) => {
+      scrollElementRef.current = element;
+      if (element) {
+        virtualizer.measure();
+      }
+    },
+    [virtualizer],
+  );
+
+  const totalSize = virtualizer.getTotalSize();
+
+  if (!filteredItems.length) {
+    return null;
+  }
+
+  return (
+    <div
+      role="presentation"
+      ref={handleScrollElementRef}
+      className={styles.Scroller}
+      style={{ '--total-size': `${totalSize}px` } as React.CSSProperties}
+    >
+      <div
+        role="presentation"
+        className={styles.VirtualizedPlaceholder}
+        style={{ height: totalSize }}
+      >
+        {virtualizer.getVirtualItems().map((virtualItem) => {
+          const item = filteredItems[virtualItem.index];
+          if (!item) {
+            return null;
+          }
+
+          return (
+            <Combobox.Item
+              key={virtualItem.key}
+              index={virtualItem.index}
+              data-index={virtualItem.index}
+              ref={virtualizer.measureElement}
+              value={item}
+              className={styles.Item}
+              aria-setsize={filteredItems.length}
+              aria-posinset={virtualItem.index + 1}
+              style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                width: '100%',
+                height: virtualItem.size,
+                transform: `translateY(${virtualItem.start}px)`,
+              }}
+            >
+              <Combobox.ItemIndicator className={styles.ItemIndicator}>
+                <CheckIcon className={styles.ItemIndicatorIcon} />
+              </Combobox.ItemIndicator>
+              <div className={styles.ItemText}>{item.name}</div>
+            </Combobox.Item>
+          );
+        })}
+      </div>
+    </div>
   );
 }
 
@@ -161,3 +164,5 @@ const virtualizedItems: VirtualizedItem[] = Array.from({ length: 10000 }, (_, in
   const indexLabel = id.padStart(4, '0');
   return { id, name: `Item ${indexLabel}` };
 });
+
+type Virtualizer = ReturnType<typeof useVirtualizer<HTMLDivElement, Element>>;
