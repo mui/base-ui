@@ -245,7 +245,7 @@ importers:
         specifier: ^19.2.3
         version: 19.2.3(react@19.2.3)
       react-error-boundary:
-        specifier: ^6.0.2
+        specifier: 6.0.3
         version: 6.0.3(react@19.2.3)
       react-hook-form:
         specifier: ^7.71.0
