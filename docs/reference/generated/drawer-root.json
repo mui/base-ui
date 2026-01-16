@@ -1,0 +1,57 @@
+{
+  "name": "DrawerRoot",
+  "description": "Groups all parts of the drawer.\nDoesn't render its own HTML element.",
+  "props": {
+    "defaultOpen": {
+      "type": "boolean",
+      "default": "false",
+      "description": "Whether the drawer is initially open.\n\nTo render a controlled drawer, use the `open` prop instead.",
+      "detailedType": "boolean | undefined"
+    },
+    "open": {
+      "type": "boolean",
+      "description": "Whether the drawer is currently open.",
+      "detailedType": "boolean | undefined"
+    },
+    "onOpenChange": {
+      "type": "((open: boolean, eventDetails: Drawer.Root.ChangeEventDetails) => void)",
+      "description": "Event handler called when the drawer is opened or closed.",
+      "detailedType": "| ((\n    open: boolean,\n    eventDetails: Drawer.Root.ChangeEventDetails,\n  ) => void)\n| undefined"
+    },
+    "actionsRef": {
+      "type": "RefObject<Drawer.Root.Actions>",
+      "description": "A ref to imperative actions.\n- `unmount`: When specified, the drawer will not be unmounted when closed.\nInstead, the `unmount` function must be called to unmount the drawer manually.\nUseful when the drawer's animation is controlled by an external library.\n- `close`: Closes the drawer imperatively when called.",
+      "detailedType": "React.RefObject<Drawer.Root.Actions> | undefined"
+    },
+    "disablePointerDismissal": {
+      "type": "boolean",
+      "default": "false",
+      "description": "Determines whether the drawer should close on outside clicks.",
+      "detailedType": "boolean | undefined"
+    },
+    "modal": {
+      "type": "boolean | 'trap-focus'",
+      "default": "true",
+      "description": "Determines if the drawer enters a modal state when open.\n- `true`: user interaction is limited to just the drawer: focus is trapped, document page scroll is locked, and pointer interactions on outside elements are disabled.\n- `false`: user interaction with the rest of the document is allowed.\n- `'trap-focus'`: focus is trapped inside the drawer, but document page scroll is not locked and pointer interactions outside of it remain enabled.",
+      "detailedType": "boolean | 'trap-focus' | undefined"
+    },
+    "onOpenChangeComplete": {
+      "type": "((open: boolean) => void)",
+      "description": "Event handler called after any animations complete when the drawer is opened or closed.",
+      "detailedType": "((open: boolean) => void) | undefined"
+    },
+    "swipeDirection": {
+      "type": "DrawerSwipeDirection",
+      "default": "'right'",
+      "description": "The swipe direction used to dismiss the drawer.",
+      "detailedType": "'left' | 'right' | 'up' | 'down' | undefined"
+    },
+    "children": {
+      "type": "ReactNode",
+      "description": "The content of the drawer.",
+      "detailedType": "React.ReactNode"
+    }
+  },
+  "dataAttributes": {},
+  "cssVariables": {}
+}

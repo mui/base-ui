@@ -33,5 +33,6 @@ export const cancelOpen = 'cancel-open' as const;
 export const siblingOpen = 'sibling-open' as const;
 export const disabled = 'disabled' as const;
 export const imperativeAction = 'imperative-action' as const;
+export const swipe = 'swipe' as const;
 
 export const windowResize = 'window-resize' as const;
