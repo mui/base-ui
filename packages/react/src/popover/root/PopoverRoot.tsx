@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useScrollLock } from '@base-ui/utils/useScrollLock';
+import { useOnFirstRender } from '@base-ui/utils/useOnFirstRender';
 import {
   useDismiss,
   useInteractions,
@@ -28,7 +29,7 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
   const {
     children,
     open: openProp,
-    defaultOpen: defaultOpenProp = false,
+    defaultOpen = false,
     onOpenChange,
     onOpenChangeComplete,
     modal = false,
@@ -38,13 +39,25 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
   } = props;
 
   const store = PopoverStore.useStore(handle?.store, {
-    open: openProp ?? defaultOpenProp,
     modal,
-    activeTriggerId: triggerIdProp !== undefined ? triggerIdProp : defaultTriggerIdProp,
+    open: defaultOpen,
+    openProp,
+    activeTriggerId: defaultTriggerIdProp,
+    triggerIdProp,
   });
 
-  store.useControlledProp('open', openProp, defaultOpenProp);
-  store.useControlledProp('activeTriggerId', triggerIdProp, defaultTriggerIdProp);
+  // Support initially open state when uncontrolled
+  useOnFirstRender(() => {
+    if (openProp === undefined && store.state.open === false && defaultOpen === true) {
+      store.update({
+        open: true,
+        activeTriggerId: defaultTriggerIdProp,
+      });
+    }
+  });
+
+  store.useControlledProp('openProp', openProp);
+  store.useControlledProp('triggerIdProp', triggerIdProp);
 
   const open = store.useState('open');
   const positionerElement = store.useState('positionerElement');
