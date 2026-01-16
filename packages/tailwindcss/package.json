@@ -1,0 +1,65 @@
+{
+  "name": "@base-ui/tailwindcss",
+  "version": "0.0.1",
+  "private": false,
+  "author": "MUI Team",
+  "description": "A Tailwind CSS plugin for Base UI",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "clean": "rimraf dist",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "keywords": [
+    "base-ui",
+    "tailwindcss",
+    "plugin",
+    "react"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mui/base-ui.git",
+    "directory": "packages/tailwindcss"
+  },
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/mui/base-ui/issues"
+  },
+  "homepage": "https://base-ui.com/",
+  "peerDependencies": {
+    "tailwindcss": ">=3.0.0"
+  },
+  "devDependencies": {
+    "postcss": "^8.4.49",
+    "tailwindcss": "4.1.18",
+    "tsup": "^8.0.0",
+    "typescript": "5.9.3",
+    "vitest": "^3.2.1"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "nx": {
+    "targets": {
+      "build": {
+        "outputs": [
+          "{projectRoot}/dist"
+        ]
+      }
+    }
+  }
+}

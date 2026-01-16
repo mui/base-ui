@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Base UI + Tailwind CSS Example</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style type="text/tailwindcss">
+    /* Simulate the plugin variants */
+    [data-open] .ui-open\:bg-blue-500 { @apply bg-blue-500; }
+    [data-open] .ui-open\:text-white { @apply text-white; }
+    [data-checked] .ui-checked\:bg-green-500 { @apply bg-green-500; }
+    [data-checked] .ui-checked\:border-green-500 { @apply border-green-500; }
+    [data-selected] .ui-selected\:bg-blue-100 { @apply bg-blue-100; }
+    [data-selected] .ui-selected\:text-blue-900 { @apply text-blue-900; }
+    [data-highlighted] .ui-highlighted\:bg-gray-100 { @apply bg-gray-100; }
+    [data-disabled] .ui-disabled\:opacity-50 { @apply opacity-50; }
+    [data-disabled] .ui-disabled\:cursor-not-allowed { @apply cursor-not-allowed; }
+    
+    :not([data-checked]) .ui-unchecked\:hidden { @apply hidden; }
+  </style>
+</head>
+<body class="p-8 bg-gray-50">
+  <h1 class="text-3xl font-bold mb-8">Base UI + Tailwind CSS Plugin Example</h1>
+
+  <div class="space-y-8">
+    <!-- Checkbox Example -->
+    <div>
+      <h2 class="text-xl font-semibold mb-4">Checkbox</h2>
+      <label class="flex items-center gap-2 cursor-pointer">
+        <div 
+          class="flex items-center justify-center size-5 rounded border border-gray-300 ui-checked:bg-green-500 ui-checked:border-green-500"
+          data-checked
+        >
+          <span class="text-white ui-unchecked:hidden">✓</span>
+        </div>
+        <span>Checkbox is checked</span>
+      </label>
+    </div>
+
+    <!-- Select Item Example -->
+    <div>
+      <h2 class="text-xl font-semibold mb-4">Select Item</h2>
+      <div class="border rounded-lg divide-y">
+        <div 
+          class="px-3 py-2 cursor-pointer ui-selected:bg-blue-100 ui-selected:text-blue-900 ui-highlighted:bg-gray-100"
+          data-selected
+        >
+          Apple (selected)
+        </div>
+        <div 
+          class="px-3 py-2 cursor-pointer ui-selected:bg-blue-100 ui-selected:text-blue-900 ui-highlighted:bg-gray-100"
+          data-highlighted
+        >
+          Banana (highlighted)
+        </div>
+        <div 
+          class="px-3 py-2 cursor-pointer ui-selected:bg-blue-100 ui-selected:text-blue-900 ui-highlighted:bg-gray-100 ui-disabled:opacity-50 ui-disabled:cursor-not-allowed"
+          data-disabled
+        >
+          Cherry (disabled)
+        </div>
+      </div>
+    </div>
+
+    <!-- Popover Example -->
+    <div>
+      <h2 class="text-xl font-semibold mb-4">Popover</h2>
+      <div class="relative inline-block">
+        <button class="px-4 py-2 bg-blue-500 text-white rounded">Trigger</button>
+        <div 
+          class="absolute mt-2 rounded-lg shadow-lg bg-white p-4 ui-open:bg-blue-500 ui-open:text-white"
+          data-open
+          style="min-width: 200px"
+        >
+          Popover content (open state)
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="mt-12 p-4 bg-white rounded-lg border">
+    <h3 class="font-semibold mb-2">Installation</h3>
+    <pre class="bg-gray-100 p-3 rounded text-sm overflow-x-auto"><code>npm install @base-ui/tailwindcss</code></pre>
+
+    <h3 class="font-semibold mt-4 mb-2">Configuration</h3>
+    <pre class="bg-gray-100 p-3 rounded text-sm overflow-x-auto"><code>// tailwind.config.js
+module.exports = {
+  plugins: [
+    require('@base-ui/tailwindcss')
+  ],
+}</code></pre>
+
+    <h3 class="font-semibold mt-4 mb-2">Usage</h3>
+    <pre class="bg-gray-100 p-3 rounded text-sm overflow-x-auto"><code>&lt;Checkbox.Root
+  className="
+    ui-checked:bg-green-500
+    ui-disabled:opacity-50
+  "
+/&gt;</code></pre>
+  </div>
+</body>
+</html>
