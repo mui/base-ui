@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import { visuallyHidden } from '@base-ui/utils/visuallyHidden';
+import { visuallyHidden, visuallyHiddenInput } from '@base-ui/utils/visuallyHidden';
 import type { BaseUIComponentProps, NonNativeButtonProps } from '../../utils/types';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
@@ -55,6 +55,7 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
     setTouched,
     validation,
     registerControlRef,
+    name,
   } = useRadioGroupContext();
 
   const {
@@ -76,6 +77,7 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
 
   const radioRef = React.useRef<HTMLElement>(null);
   const inputRef = React.useRef<HTMLInputElement>(null);
+
   const mergedInputRef = useMergedRefs(inputRefProp, inputRef);
 
   useIsoLayoutEffect(() => {
@@ -90,17 +92,16 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
     implicit: false,
     controlRef: radioRef,
   });
+  const hiddenInputId = nativeButton ? undefined : inputId;
 
-  const rootProps: React.ComponentProps<'button'> = {
+  const rootProps: React.ComponentPropsWithRef<'span'> = {
     role: 'radio',
     'aria-checked': checked,
     'aria-required': required || undefined,
-    'aria-disabled': disabled || undefined,
     'aria-readonly': readOnly || undefined,
     'aria-labelledby': labelId,
     [ACTIVE_COMPOSITE_ITEM as string]: checked ? '' : undefined,
-    id,
-    disabled,
+    id: nativeButton ? inputId : id,
     onKeyDown(event) {
       if (event.key === 'Enter') {
         event.preventDefault();
@@ -131,58 +132,42 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
     native: nativeButton,
   });
 
-  const inputProps: React.ComponentPropsWithRef<'input'> = React.useMemo(
-    () => ({
-      type: 'radio',
-      ref: mergedInputRef,
-      id: inputId,
-      tabIndex: -1,
-      style: visuallyHidden,
-      'aria-hidden': true,
-      disabled,
-      checked,
-      required,
-      readOnly,
-      onChange(event) {
-        // Workaround for https://github.com/facebook/react/issues/9023
-        if (event.nativeEvent.defaultPrevented) {
-          return;
-        }
+  const inputProps: React.ComponentPropsWithRef<'input'> = {
+    type: 'radio',
+    ref: mergedInputRef,
+    id: hiddenInputId,
+    tabIndex: -1,
+    style: name ? visuallyHiddenInput : visuallyHidden,
+    'aria-hidden': true,
+    disabled,
+    checked,
+    required,
+    readOnly,
+    onChange(event) {
+      // Workaround for https://github.com/facebook/react/issues/9023
+      if (event.nativeEvent.defaultPrevented) {
+        return;
+      }
 
-        if (disabled || readOnly || value === undefined) {
-          return;
-        }
+      if (disabled || readOnly || value === undefined) {
+        return;
+      }
 
-        const details = createChangeEventDetails(REASONS.none, event.nativeEvent);
+      const details = createChangeEventDetails(REASONS.none, event.nativeEvent);
 
-        if (details.isCanceled) {
-          return;
-        }
+      if (details.isCanceled) {
+        return;
+      }
 
-        setFieldTouched(true);
-        setDirty(value !== validityData.initialValue);
-        setFilled(true);
-        setCheckedValue(value, details);
-      },
-      onFocus() {
-        radioRef.current?.focus();
-      },
-    }),
-    [
-      checked,
-      disabled,
-      inputId,
-      mergedInputRef,
-      readOnly,
-      required,
-      setCheckedValue,
-      setDirty,
-      setFieldTouched,
-      setFilled,
-      validityData.initialValue,
-      value,
-    ],
-  );
+      setFieldTouched(true);
+      setDirty(value !== validityData.initialValue);
+      setFilled(true);
+      setCheckedValue(value, details);
+    },
+    onFocus() {
+      radioRef.current?.focus();
+    },
+  };
 
   const state: RadioRoot.State = React.useMemo(
     () => ({
@@ -246,6 +231,7 @@ export interface RadioRootState extends FieldRoot.State {
   /** Whether the user must choose a value before submitting a form. */
   required: boolean;
 }
+
 export interface RadioRootProps
   extends NonNativeButtonProps, Omit<BaseUIComponentProps<'span', RadioRoot.State>, 'value'> {
   /** The unique identifying value of the radio in a group. */

@@ -5,7 +5,7 @@ import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useOnFirstRender } from '@base-ui/utils/useOnFirstRender';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
-import { visuallyHidden } from '@base-ui/utils/visuallyHidden';
+import { visuallyHidden, visuallyHiddenInput } from '@base-ui/utils/visuallyHidden';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { Store, useStore } from '@base-ui/utils/store';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
@@ -98,6 +98,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     autoHighlight = false,
     keepHighlight = false,
     highlightItemOnHover = true,
+    loopFocus = true,
     itemToStringLabel,
     itemToStringValue,
     isItemEqualToValue = defaultItemEquality,
@@ -119,6 +120,9 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     setFilled,
     name: fieldName,
     disabled: fieldDisabled,
+    setTouched,
+    setFocused,
+    validationMode,
     validation,
   } = useFieldRootContext();
 
@@ -558,11 +562,25 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       }
 
       setOpenUnwrapped(nextOpen);
+
+      if (
+        !nextOpen &&
+        inputInsidePopup &&
+        (eventDetails.reason === REASONS.focusOut || eventDetails.reason === REASONS.outsidePress)
+      ) {
+        setTouched(true);
+        setFocused(false);
+
+        if (validationMode === 'onBlur') {
+          const valueToValidate = selectionMode === 'none' ? inputValue : selectedValue;
+          validation.commit(valueToValidate);
+        }
+      }
     },
   );
 
   const setSelectedValue = useStableCallback(
-    (nextValue: Value | Value[], eventDetails: AriaCombobox.ChangeEventDetails) => {
+    (nextValue: Value | Value[] | null, eventDetails: AriaCombobox.ChangeEventDetails) => {
       // Cast to `any` due to conditional value type (single vs. multiple).
       // The runtime implementation already ensures the correct value shape.
       onSelectedValueChange?.(nextValue as any, eventDetails);
@@ -851,15 +869,14 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       const current = Array.isArray(selectedValue) ? selectedValue : EMPTY_ARRAY;
       const next = current.filter((v) => itemIncludes(registry, v, store.state.isItemEqualToValue));
       if (next.length !== current.length) {
-        setSelectedValueUnwrapped(next);
+        setSelectedValue(next, createChangeEventDetails(REASONS.none));
       }
       return;
     }
 
     const isStillPresent =
-      selectedValue == null
-        ? true
-        : itemIncludes(registry, selectedValue, store.state.isItemEqualToValue);
+      selectedValue == null ||
+      itemIncludes(registry, selectedValue, store.state.isItemEqualToValue);
     if (isStillPresent) {
       return;
     }
@@ -871,15 +888,8 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     ) {
       fallback = defaultSelectedValue;
     }
-    setSelectedValueUnwrapped(fallback);
 
-    // Keep the input text in sync when the input is rendered outside the popup.
-    if (!store.state.inputInsidePopup) {
-      const stringVal = stringifyAsLabel(fallback, itemToStringLabel);
-      if (inputRef.current && inputRef.current.value !== stringVal) {
-        setInputValue(stringVal, createChangeEventDetails(REASONS.none));
-      }
-    }
+    setSelectedValue(fallback, createChangeEventDetails(REASONS.none));
   }, [
     items,
     flatItems,
@@ -887,10 +897,8 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     selectionMode,
     selectedValue,
     defaultSelectedValue,
-    setSelectedValueUnwrapped,
-    itemToStringLabel,
     store,
-    setInputValue,
+    setSelectedValue,
   ]);
 
   useIsoLayoutEffect(() => {
@@ -1056,8 +1064,8 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     activeIndex,
     selectedIndex,
     virtual: true,
-    loopFocus: true,
-    allowEscape: !autoHighlightMode,
+    loopFocus,
+    allowEscape: loopFocus && !autoHighlightMode,
     focusItemOnOpen:
       queryChangedAfterOpen || (selectionMode === 'none' && !autoHighlightMode) ? false : 'auto',
     focusItemOnHover: highlightItemOnHover,
@@ -1283,14 +1291,13 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
             }
           },
         })}
-        id={id}
         name={multiple || selectionMode === 'none' ? undefined : name}
         disabled={disabled}
         required={required && !hasMultipleSelection}
         readOnly={readOnly}
         value={serializedValue}
         ref={hiddenInputRef}
-        style={visuallyHidden}
+        style={name ? visuallyHiddenInput : visuallyHidden}
         tabIndex={-1}
         aria-hidden
       />
@@ -1386,6 +1393,13 @@ interface ComboboxRootProps<ItemValue> {
    */
   highlightItemOnHover?: boolean;
   /**
+   * Whether to loop keyboard focus back to the input when the end of the list is reached while using the arrow keys. The first item can then be reached by pressing <kbd>ArrowDown</kbd> again from the input, or the last item can be reached by pressing <kbd>ArrowUp</kbd> from the input.
+   * The input is always included in the focus loop per [ARIA Authoring Practices](https://www.w3.org/WAI/ARIA/apg/patterns/combobox/).
+   * When disabled, focus does not move when on the last element and the user presses <kbd>ArrowDown</kbd>, or when on the first element and the user presses <kbd>ArrowUp</kbd>.
+   * @default true
+   */
+  loopFocus?: boolean;
+  /**
    * The input value of the combobox. Use when controlled.
    */
   inputValue?: React.ComponentProps<'input'>['value'];
@@ -1405,7 +1419,7 @@ interface ComboboxRootProps<ItemValue> {
    * Instead, the `unmount` function must be called to unmount the combobox manually.
    * Useful when the combobox's animation is controlled by an external library.
    */
-  actionsRef?: React.RefObject<AriaCombobox.Actions>;
+  actionsRef?: React.RefObject<AriaCombobox.Actions | null>;
   /**
    * Callback fired when an item is highlighted or unhighlighted.
    * Receives the highlighted item value (or `undefined` if no item is highlighted) and event details with a `reason` property describing why the highlight changed.

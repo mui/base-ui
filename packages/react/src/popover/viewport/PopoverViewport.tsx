@@ -6,12 +6,15 @@ import { usePreviousValue } from '@base-ui/utils/usePreviousValue';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { usePopoverRootContext } from '../root/PopoverRootContext';
+import { usePopoverPositionerContext } from '../positioner/PopoverPositionerContext';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useAnimationsFinished } from '../../utils/useAnimationsFinished';
+import { usePopupAutoResize } from '../../utils/usePopupAutoResize';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { StateAttributesMapping } from '../../utils/getStateAttributesProps';
 import { Dimensions } from '../../floating-ui-react/types';
 import { PopoverViewportCssVars } from './PopoverViewportCssVars';
+import { useDirection } from '../../direction-provider/DirectionContext';
 
 const stateAttributesMapping: StateAttributesMapping<PopoverViewport.State> = {
   activationDirection: (value) =>
@@ -36,10 +39,15 @@ export const PopoverViewport = React.forwardRef(function PopoverViewport(
 ) {
   const { render, className, children, ...elementProps } = componentProps;
   const { store } = usePopoverRootContext();
+  const positioner = usePopoverPositionerContext();
+  const direction = useDirection();
 
   const activeTrigger = store.useState('activeTriggerElement');
   const open = store.useState('open');
-  const floatingContext = store.useState('floatingRootContext');
+  const mounted = store.useState('mounted');
+  const payload = store.useState('payload');
+  const popupElement = store.useState('popupElement');
+  const positionerElement = store.useState('positionerElement');
 
   const previousActiveTrigger = usePreviousValue(open ? activeTrigger : null);
 
@@ -60,6 +68,13 @@ export const PopoverViewport = React.forwardRef(function PopoverViewport(
   } | null>(null);
 
   const [showStartingStyleAttribute, setShowStartingStyleAttribute] = React.useState(false);
+
+  useIsoLayoutEffect(() => {
+    store.set('hasViewport', true);
+    return () => {
+      store.set('hasViewport', false);
+    };
+  }, [store]);
 
   // Capture a clone of the current content DOM subtree when not transitioning.
   // We can't store previous React nodes as they may be stateful; instead we capture DOM clones for visual continuity.
@@ -90,31 +105,16 @@ export const PopoverViewport = React.forwardRef(function PopoverViewport(
     previousContainerRef.current?.style.setProperty('display', 'none');
   });
 
-  type MeasureLayoutCompleteData = {
-    previousDimensions: Dimensions | null;
-    nextDimensions: Dimensions;
-  };
-
-  const handleMeasureLayoutComplete = useStableCallback((data: MeasureLayoutCompleteData) => {
+  const handleMeasureLayoutComplete = useStableCallback((previousDimensions: Dimensions | null) => {
     currentContainerRef.current?.style.removeProperty('animation');
     currentContainerRef.current?.style.removeProperty('transition');
 
     previousContainerRef.current?.style.removeProperty('display');
 
-    if (!previousContentDimensions) {
-      setPreviousContentDimensions(data.previousDimensions);
+    if (previousDimensions) {
+      setPreviousContentDimensions(previousDimensions);
     }
   });
-
-  React.useEffect(() => {
-    floatingContext.context.events.on('measure-layout', handleMeasureLayout);
-    floatingContext.context.events.on('measure-layout-complete', handleMeasureLayoutComplete);
-
-    return () => {
-      floatingContext.context.events.off('measure-layout', handleMeasureLayout);
-      floatingContext.context.events.off('measure-layout-complete', handleMeasureLayoutComplete);
-    };
-  }, [floatingContext, handleMeasureLayout, handleMeasureLayoutComplete]);
 
   const lastHandledTriggerRef = React.useRef<Element | null>(null);
 
@@ -203,6 +203,17 @@ export const PopoverViewport = React.forwardRef(function PopoverViewport(
 
     container.replaceChildren(...Array.from(previousContentNode.childNodes));
   }, [previousContentNode]);
+
+  usePopupAutoResize({
+    popupElement,
+    positionerElement,
+    mounted,
+    content: payload,
+    onMeasureLayout: handleMeasureLayout,
+    onMeasureLayoutComplete: handleMeasureLayoutComplete,
+    side: positioner.side,
+    direction,
+  });
 
   const state = React.useMemo(() => {
     return {

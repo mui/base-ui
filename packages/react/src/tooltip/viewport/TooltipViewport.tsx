@@ -6,12 +6,15 @@ import { usePreviousValue } from '@base-ui/utils/usePreviousValue';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useTooltipRootContext } from '../root/TooltipRootContext';
+import { useTooltipPositionerContext } from '../positioner/TooltipPositionerContext';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useAnimationsFinished } from '../../utils/useAnimationsFinished';
+import { usePopupAutoResize } from '../../utils/usePopupAutoResize';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { StateAttributesMapping } from '../../utils/getStateAttributesProps';
 import { Dimensions } from '../../floating-ui-react/types';
 import { TooltipViewportCssVars } from './TooltipViewportCssVars';
+import { useDirection } from '../../direction-provider';
 
 const stateAttributesMapping: StateAttributesMapping<TooltipViewport.State> = {
   activationDirection: (value) =>
@@ -36,11 +39,16 @@ export const TooltipViewport = React.forwardRef(function TooltipViewport(
 ) {
   const { render, className, children, ...elementProps } = componentProps;
   const store = useTooltipRootContext();
+  const positioner = useTooltipPositionerContext();
+  const direction = useDirection();
 
   const activeTrigger = store.useState('activeTriggerElement');
   const open = store.useState('open');
-  const floatingContext = store.useState('floatingRootContext');
   const instantType = store.useState('instantType');
+  const mounted = store.useState('mounted');
+  const payload = store.useState('payload');
+  const popupElement = store.useState('popupElement');
+  const positionerElement = store.useState('positionerElement');
 
   const previousActiveTrigger = usePreviousValue(open ? activeTrigger : null);
 
@@ -62,6 +70,13 @@ export const TooltipViewport = React.forwardRef(function TooltipViewport(
 
   const [showStartingStyleAttribute, setShowStartingStyleAttribute] = React.useState(false);
 
+  useIsoLayoutEffect(() => {
+    store.set('hasViewport', true);
+    return () => {
+      store.set('hasViewport', false);
+    };
+  }, [store]);
+
   const handleMeasureLayout = useStableCallback(() => {
     currentContainerRef.current?.style.setProperty('animation', 'none');
     currentContainerRef.current?.style.setProperty('transition', 'none');
@@ -69,31 +84,16 @@ export const TooltipViewport = React.forwardRef(function TooltipViewport(
     previousContainerRef.current?.style.setProperty('display', 'none');
   });
 
-  type MeasureLayoutCompleteData = {
-    previousDimensions: Dimensions | null;
-    nextDimensions: Dimensions;
-  };
-
-  const handleMeasureLayoutComplete = useStableCallback((data: MeasureLayoutCompleteData) => {
+  const handleMeasureLayoutComplete = useStableCallback((previousDimensions: Dimensions | null) => {
     currentContainerRef.current?.style.removeProperty('animation');
     currentContainerRef.current?.style.removeProperty('transition');
 
     previousContainerRef.current?.style.removeProperty('display');
 
-    if (!previousContentDimensions) {
-      setPreviousContentDimensions(data.previousDimensions);
+    if (previousDimensions) {
+      setPreviousContentDimensions(previousDimensions);
     }
   });
-
-  React.useEffect(() => {
-    floatingContext.context.events.on('measure-layout', handleMeasureLayout);
-    floatingContext.context.events.on('measure-layout-complete', handleMeasureLayoutComplete);
-
-    return () => {
-      floatingContext.context.events.off('measure-layout', handleMeasureLayout);
-      floatingContext.context.events.off('measure-layout-complete', handleMeasureLayoutComplete);
-    };
-  }, [floatingContext, handleMeasureLayout, handleMeasureLayoutComplete]);
 
   const lastHandledTriggerRef = React.useRef<Element | null>(null);
 
@@ -204,6 +204,17 @@ export const TooltipViewport = React.forwardRef(function TooltipViewport(
 
     container.replaceChildren(...Array.from(previousContentNode.childNodes));
   }, [previousContentNode]);
+
+  usePopupAutoResize({
+    popupElement,
+    positionerElement,
+    mounted,
+    content: payload,
+    onMeasureLayout: handleMeasureLayout,
+    onMeasureLayoutComplete: handleMeasureLayoutComplete,
+    side: positioner.side,
+    direction,
+  });
 
   const state = React.useMemo(() => {
     return {

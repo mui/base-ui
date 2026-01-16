@@ -22,6 +22,7 @@ import {
 } from '../../composite/composite';
 import { useCompositeListItem } from '../../composite/list/useCompositeListItem';
 import { useDirection } from '../../direction-provider/DirectionContext';
+import { useCSPContext } from '../../csp-provider/CSPContext';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { type LabelableContext } from '../../labelable-provider/LabelableContext';
 import { useLabelableId } from '../../labelable-provider/useLabelableId';
@@ -80,7 +81,7 @@ function getNewValue(
 }
 
 /**
- * The draggable part of the the slider at the tip of the indicator.
+ * The draggable part of the slider at the tip of the indicator.
  * Renders a `<div>` element and a nested `<input type="range">`.
  *
  * Documentation: [Base UI Slider](https://base-ui.com/react/components/slider)
@@ -109,6 +110,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
     ...elementProps
   } = componentProps;
 
+  const { nonce } = useCSPContext();
   const id = useBaseUiId(idProp);
 
   const {
@@ -423,6 +425,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
               // preceding thumbs are already rendered in the DOM
               last && (
                 <script
+                  nonce={nonce}
                   // eslint-disable-next-line react/no-danger
                   dangerouslySetInnerHTML={{ __html: prehydrationScript }}
                   suppressHydrationWarning

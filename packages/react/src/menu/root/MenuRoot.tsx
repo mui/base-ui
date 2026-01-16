@@ -5,6 +5,7 @@ import { useTimeout } from '@base-ui/utils/useTimeout';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useId } from '@base-ui/utils/useId';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { useOnFirstRender } from '@base-ui/utils/useOnFirstRender';
 import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
 import { useScrollLock } from '@base-ui/utils/useScrollLock';
 import { EMPTY_ARRAY } from '@base-ui/utils/empty';
@@ -107,8 +108,27 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
   }, [contextMenuContext, parentMenuRootContext, menubarContext, isSubmenu]);
 
   const store = MenuStore.useStore(handle?.store, {
+    open: defaultOpen,
+    openProp,
+    activeTriggerId: defaultTriggerIdProp,
+    triggerIdProp,
     parent: parentFromContext,
   });
+
+  // Support initially open state when uncontrolled
+  useOnFirstRender(() => {
+    if (openProp === undefined && store.state.open === false && defaultOpen === true) {
+      store.update({
+        open: true,
+        activeTriggerId: defaultTriggerIdProp,
+      });
+    }
+  });
+
+  store.useControlledProp('openProp', openProp);
+  store.useControlledProp('triggerIdProp', triggerIdProp);
+
+  store.useContextCallback('onOpenChangeComplete', onOpenChangeComplete);
 
   const floatingTreeRoot = store.useState('floatingTreeRoot');
   const floatingNodeIdFromContext = useFloatingNodeId(floatingTreeRoot);
@@ -139,11 +159,6 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
     floatingParentNodeIdFromContext,
     store,
   ]);
-
-  store.useControlledProp('open', openProp, defaultOpen);
-  store.useControlledProp('activeTriggerId', triggerIdProp, defaultTriggerIdProp);
-
-  store.useContextCallback('onOpenChangeComplete', onOpenChangeComplete);
 
   const open = store.useState('open');
   const activeTriggerElement = store.useState('activeTriggerElement');
@@ -237,7 +252,11 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
     ) => {
       const reason = eventDetails.reason;
 
-      if (open === nextOpen && eventDetails.trigger === activeTriggerElement) {
+      if (
+        open === nextOpen &&
+        eventDetails.trigger === activeTriggerElement &&
+        lastOpenChangeReason === reason
+      ) {
         return;
       }
 
@@ -407,7 +426,7 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
 
   const dismiss = useDismiss(floatingRootContext, {
     enabled: !disabled,
-    bubbles: closeParentOnEsc && parent.type === 'menu',
+    bubbles: { escapeKey: closeParentOnEsc && parent.type === 'menu' },
     outsidePress() {
       if (parent.type !== 'context-menu' || openEventRef.current?.type === 'contextmenu') {
         return true;
@@ -590,7 +609,7 @@ export interface MenuRootProps<Payload = unknown> {
   highlightItemOnHover?: boolean;
   /**
    * Determines if the menu enters a modal state when open.
-   * - `true`: user interaction is limited to the menu: document page scroll is locked and and pointer interactions on outside elements are disabled.
+   * - `true`: user interaction is limited to the menu: document page scroll is locked and pointer interactions on outside elements are disabled.
    * - `false`: user interaction with the rest of the document is allowed.
    * @default true
    */
@@ -631,21 +650,21 @@ export interface MenuRootProps<Payload = unknown> {
    *   Useful when the menu's animation is controlled by an external library.
    * - `close`: When specified, the menu can be closed imperatively.
    */
-  actionsRef?: React.RefObject<MenuRoot.Actions>;
+  actionsRef?: React.RefObject<MenuRoot.Actions | null>;
   /**
    * ID of the trigger that the popover is associated with.
-   * This is useful in conjuntion with the `open` prop to create a controlled popover.
+   * This is useful in conjunction with the `open` prop to create a controlled popover.
    * There's no need to specify this prop when the popover is uncontrolled (i.e. when the `open` prop is not set).
    */
   triggerId?: string | null;
   /**
    * ID of the trigger that the popover is associated with.
-   * This is useful in conjuntion with the `defaultOpen` prop to create an initially open popover.
+   * This is useful in conjunction with the `defaultOpen` prop to create an initially open popover.
    */
   defaultTriggerId?: string | null;
   /**
-   * A handle to associate the popover with a trigger.
-   * If specified, allows external triggers to control the popover's open state.
+   * A handle to associate the menu with a trigger.
+   * If specified, allows external triggers to control the menu's open state.
    */
   handle?: MenuHandle<Payload>;
   /**
@@ -657,6 +676,7 @@ export interface MenuRootProps<Payload = unknown> {
 
 export interface MenuRootActions {
   unmount: () => void;
+  close: () => void;
 }
 
 export type MenuRootChangeEventReason =

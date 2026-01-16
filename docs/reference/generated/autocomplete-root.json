@@ -57,9 +57,9 @@
       "detailedType": "boolean | undefined"
     },
     "actionsRef": {
-      "type": "RefObject<Autocomplete.Root.Actions>",
+      "type": "RefObject<Autocomplete.Root.Actions | null>",
       "description": "A ref to imperative actions.\n- `unmount`: When specified, the autocomplete will not be unmounted when closed.\nInstead, the `unmount` function must be called to unmount the autocomplete manually.\nUseful when the autocomplete's animation is controlled by an external library.",
-      "detailedType": "| React.RefObject<Autocomplete.Root.Actions>\n| undefined"
+      "detailedType": "| React.RefObject<Autocomplete.Root.Actions | null>\n| undefined"
     },
     "filter": {
       "type": "((itemValue: any, query: string, itemToString: ((itemValue: any) => string) | undefined) => boolean) | ((itemValue: ItemValue, query: string, itemToString: ((itemValue: ItemValue) => string) | undefined) => boolean) | null",
@@ -104,6 +104,12 @@
       "description": "The locale to use for string comparison.\nDefaults to the user's runtime locale.",
       "detailedType": "Intl.LocalesArgument | undefined"
     },
+    "loopFocus": {
+      "type": "boolean",
+      "default": "true",
+      "description": "Whether to loop keyboard focus back to the input when the end of the list is reached while using the arrow keys. The first item can then be reached by pressing <kbd>ArrowDown</kbd> again from the input, or the last item can be reached by pressing <kbd>ArrowUp</kbd> from the input.\nThe input is always included in the focus loop per [ARIA Authoring Practices](https://www.w3.org/WAI/ARIA/apg/patterns/combobox/).\nWhen disabled, focus does not move when on the last element and the user presses <kbd>ArrowDown</kbd>, or when on the first element and the user presses <kbd>ArrowUp</kbd>.",
+      "detailedType": "boolean | undefined"
+    },
     "modal": {
       "type": "boolean",
       "default": "false",
@@ -111,10 +117,10 @@
       "detailedType": "boolean | undefined"
     },
     "mode": {
-      "type": "'none' | 'list' | 'both' | 'inline'",
+      "type": "'none' | 'list' | 'inline' | 'both'",
       "default": "'list'",
       "description": "Controls how the autocomplete behaves with respect to list filtering and inline autocompletion.\n- `list` (default): items are dynamically filtered based on the input value. The input value does not change based on the active item.\n- `both`: items are dynamically filtered based on the input value, which will temporarily change based on the active item (inline autocompletion).\n- `inline`: items are static (not filtered), and the input value will temporarily change based on the active item (inline autocompletion).\n- `none`: items are static (not filtered), and the input value will not change based on the active item.",
-      "detailedType": "'none' | 'list' | 'both' | 'inline' | undefined"
+      "detailedType": "'none' | 'list' | 'inline' | 'both' | undefined"
     },
     "onItemHighlighted": {
       "type": "((highlightedValue: any | undefined, eventDetails: Autocomplete.Root.HighlightEventDetails) => void) | ((highlightedValue: ItemValue | undefined, eventDetails: Autocomplete.Root.HighlightEventDetails) => void)",

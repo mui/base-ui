@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { visuallyHidden } from '@base-ui/utils/visuallyHidden';
+import { visuallyHidden, visuallyHiddenInput } from '@base-ui/utils/visuallyHidden';
 import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { useOnFirstRender } from '@base-ui/utils/useOnFirstRender';
@@ -19,7 +19,6 @@ import {
 } from '../../floating-ui-react';
 import { SelectRootContext, SelectFloatingContext } from './SelectRootContext';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
-import { useLabelableContext } from '../../labelable-provider/LabelableContext';
 import { useLabelableId } from '../../labelable-provider/useLabelableId';
 import { useTransitionStatus } from '../../utils/useTransitionStatus';
 import { selectors, type State as StoreState } from '../store';
@@ -32,7 +31,7 @@ import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useFormContext } from '../../form/FormContext';
 import { useField } from '../../field/useField';
 import { stringifyAsValue } from '../../utils/resolveValueLabel';
-import { EMPTY_ARRAY } from '../../utils/constants';
+import { EMPTY_ARRAY, EMPTY_OBJECT } from '../../utils/constants';
 import { defaultItemEquality, findItemIndex } from '../../utils/itemEquality';
 import { useValueChanged } from '../../utils/useValueChanged';
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
@@ -75,14 +74,16 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
   const { clearErrors } = useFormContext();
   const {
     setDirty,
+    setTouched,
+    setFocused,
     shouldValidateOnChange,
     validityData,
     setFilled,
     name: fieldName,
     disabled: fieldDisabled,
     validation,
+    validationMode,
   } = useFieldRootContext();
-  const { controlId } = useLabelableContext();
 
   const generatedId = useLabelableId({ id });
 
@@ -194,8 +195,8 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
   }, [store, value]);
 
   useIsoLayoutEffect(() => {
-    setFilled(value !== null);
-  }, [value, setFilled]);
+    setFilled(multiple ? Array.isArray(value) && value.length > 0 : value != null);
+  }, [multiple, value, setFilled]);
 
   useIsoLayoutEffect(
     function syncSelectedIndex() {
@@ -244,6 +245,18 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
       }
 
       setOpenUnwrapped(nextOpen);
+
+      if (
+        !nextOpen &&
+        (eventDetails.reason === REASONS.focusOut || eventDetails.reason === REASONS.outsidePress)
+      ) {
+        setTouched(true);
+        setFocused(false);
+
+        if (validationMode === 'onBlur') {
+          validation.commit(value);
+        }
+      }
 
       // The active index will sync to the last selected index on the next open.
       // Workaround `enableFocusInside` in Floating UI setting `tabindex=0` of a non-highlighted
@@ -375,10 +388,13 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     typeahead,
   ]);
 
-  const mergedTriggerProps = React.useMemo(
-    () => mergeProps(getReferenceProps(), interactionTypeProps),
-    [getReferenceProps, interactionTypeProps],
-  );
+  const mergedTriggerProps = React.useMemo(() => {
+    return mergeProps(
+      getReferenceProps(),
+      interactionTypeProps,
+      generatedId ? { id: generatedId } : EMPTY_OBJECT,
+    );
+  }, [getReferenceProps, interactionTypeProps, generatedId]);
 
   useOnFirstRender(() => {
     store.update({
@@ -504,7 +520,11 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
           {...validation.getInputValidationProps({
             onFocus() {
               // Move focus to the trigger element when the hidden input is focused.
-              store.state.triggerElement?.focus();
+              store.state.triggerElement?.focus({
+                // Supported in Chrome from 144 (January 2026)
+                // @ts-expect-error - focusVisible is not yet in the lib.dom.d.ts
+                focusVisible: true,
+              });
             },
             // Handle browser autofill.
             onChange(event: React.ChangeEvent<HTMLInputElement>) {
@@ -545,14 +565,13 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
               queueMicrotask(handleChange);
             },
           })}
-          id={id || controlId || undefined}
           name={multiple ? undefined : name}
           value={serializedValue}
           disabled={disabled}
           required={required && !hasMultipleSelection}
           readOnly={readOnly}
           ref={ref}
-          style={visuallyHidden}
+          style={name ? visuallyHiddenInput : visuallyHidden}
           tabIndex={-1}
           aria-hidden
         />
@@ -627,7 +646,7 @@ export interface SelectRootProps<Value, Multiple extends boolean | undefined = f
   open?: boolean;
   /**
    * Determines if the select enters a modal state when open.
-   * - `true`: user interaction is limited to the select: document page scroll is locked and and pointer interactions on outside elements are disabled.
+   * - `true`: user interaction is limited to the select: document page scroll is locked and pointer interactions on outside elements are disabled.
    * - `false`: user interaction with the rest of the document is allowed.
    * @default true
    */
@@ -638,7 +657,7 @@ export interface SelectRootProps<Value, Multiple extends boolean | undefined = f
    * Instead, the `unmount` function must be called to unmount the select manually.
    * Useful when the select's animation is controlled by an external library.
    */
-  actionsRef?: React.RefObject<SelectRootActions>;
+  actionsRef?: React.RefObject<SelectRootActions | null>;
   /**
    * Data structure of the items rendered in the select popup.
    * When specified, `<Select.Value>` renders the label of the selected item instead of the raw value.

@@ -4,7 +4,8 @@ import { useControlled } from '@base-ui/utils/useControlled';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import { visuallyHidden } from '@base-ui/utils/visuallyHidden';
+import { visuallyHidden, visuallyHiddenInput } from '@base-ui/utils/visuallyHidden';
+import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { useRenderElement } from '../../utils/useRenderElement';
 import type { BaseUIComponentProps, NonNativeButtonProps } from '../../utils/types';
 import { mergeProps } from '../../merge-props';
@@ -47,6 +48,7 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
     disabled: disabledProp = false,
     render,
     uncheckedValue,
+    value,
     ...elementProps
   } = componentProps;
 
@@ -78,11 +80,12 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
 
   const id = useBaseUiId();
 
-  const inputId = useLabelableId({
+  const controlId = useLabelableId({
     id: idProp,
     implicit: false,
     controlRef: switchRef,
   });
+  const hiddenInputId = nativeButton ? undefined : controlId;
 
   const [checked, setCheckedState] = useControlled({
     controlled: checkedProp,
@@ -124,10 +127,11 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
   });
 
   const rootProps: React.ComponentPropsWithRef<'span'> = {
-    id,
+    id: nativeButton ? controlId : id,
     role: 'switch',
     'aria-checked': checked,
     'aria-readonly': readOnly || undefined,
+    'aria-required': required || undefined,
     'aria-labelledby': labelId,
     onFocus() {
       if (!disabled) {
@@ -164,10 +168,10 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
         {
           checked,
           disabled,
-          id: inputId,
+          id: hiddenInputId,
           name,
           required,
-          style: visuallyHidden,
+          style: name ? visuallyHiddenInput : visuallyHidden,
           tabIndex: -1,
           type: 'checkbox',
           'aria-hidden': true,
@@ -194,17 +198,21 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
           },
         },
         validation.getInputValidationProps,
+        // React <19 sets an empty value if `undefined` is passed explicitly
+        // To avoid this, we only set the value if it's defined
+        value !== undefined ? { value } : EMPTY_OBJECT,
       ),
     [
       checked,
       disabled,
       handleInputRef,
-      inputId,
+      hiddenInputId,
       name,
       onCheckedChange,
       required,
       setCheckedState,
       validation,
+      value,
     ],
   );
 
@@ -302,6 +310,11 @@ export interface SwitchRootProps
    * @default false
    */
   required?: boolean;
+  /**
+   * The value submitted with the form when the switch is on.
+   * By default, switch submits the "on" value, matching native checkbox behavior.
+   */
+  value?: string;
   /**
    * The value submitted with the form when the switch is off.
    * By default, unchecked switches do not submit any value, matching native checkbox behavior.

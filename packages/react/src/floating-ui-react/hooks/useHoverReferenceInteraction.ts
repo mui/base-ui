@@ -212,9 +212,13 @@ export function useHoverReferenceInteraction(
 
       const triggerNode = (event.currentTarget as HTMLElement) ?? null;
 
-      const shouldOpen = !store.select('open') || isOverInactiveTrigger;
+      const isOpen = store.select('open');
+      const shouldOpen = !isOpen || isOverInactiveTrigger;
 
-      if (openDelay) {
+      // When moving between triggers while already open, open immediately without delay
+      if (isOverInactiveTrigger && isOpen) {
+        store.setOpen(true, createChangeEventDetails(REASONS.triggerHover, event, triggerNode));
+      } else if (openDelay) {
         openChangeTimeout.start(openDelay, () => {
           if (shouldOpen) {
             store.setOpen(true, createChangeEventDetails(REASONS.triggerHover, event, triggerNode));
@@ -379,7 +383,17 @@ export function useHoverReferenceInteraction(
         restTimeout.clear();
 
         function handleMouseMove() {
-          if (!blockMouseMoveRef.current && (!currentOpen || isOverInactiveTrigger)) {
+          restTimeoutPendingRef.current = false;
+
+          // A delayed hover open should not override a click-like open that happened
+          // while the hover delay was pending.
+          if (isClickLikeOpenEvent()) {
+            return;
+          }
+
+          const latestOpen = store.select('open');
+
+          if (!blockMouseMoveRef.current && (!latestOpen || isOverInactiveTrigger)) {
             store.setOpen(
               true,
               createChangeEventDetails(REASONS.triggerHover, nativeEvent, trigger),
@@ -401,6 +415,7 @@ export function useHoverReferenceInteraction(
     };
   }, [
     blockMouseMoveRef,
+    isClickLikeOpenEvent,
     mouseOnly,
     store,
     pointerTypeRef,

@@ -46,7 +46,7 @@ export default function ExampleAsyncMultipleCombobox() {
             aria-hidden
             className="inline-block size-3 animate-[spin_0.75s_linear_infinite] rounded-full border border-current border-r-transparent rtl:border-r-current rtl:border-l-transparent"
           />
-          Searching...
+          Searching…
         </React.Fragment>
       );
     }
@@ -56,7 +56,7 @@ export default function ExampleAsyncMultipleCombobox() {
     }
 
     if (trimmedSearchValue === '' && !blockStartStatus) {
-      return selectedValues.length > 0 ? null : 'Start typing to search people...';
+      return selectedValues.length > 0 ? null : 'Start typing to search people…';
     }
 
     if (searchResults.length === 0 && !blockStartStatus) {

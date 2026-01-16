@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import { fastComponent } from '@base-ui/utils/fastHooks';
+import { useOnFirstRender } from '@base-ui/utils/useOnFirstRender';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { TooltipRootContext } from './TooltipRootContext';
 import { useClientPoint, useDismiss, useFocus, useInteractions } from '../../floating-ui-react';
@@ -42,17 +43,30 @@ export const TooltipRoot = fastComponent(function TooltipRoot<Payload>(
   } = props;
 
   const store = TooltipStore.useStore<Payload>(handle?.store, {
-    open: openProp ?? defaultOpen,
-    activeTriggerId: triggerIdProp !== undefined ? triggerIdProp : defaultTriggerIdProp,
+    open: defaultOpen,
+    openProp,
+    activeTriggerId: defaultTriggerIdProp,
+    triggerIdProp,
   });
 
-  store.useControlledProp('open', openProp, defaultOpen);
-  store.useControlledProp('activeTriggerId', triggerIdProp, defaultTriggerIdProp);
+  // Support initially open state when uncontrolled
+  useOnFirstRender(() => {
+    if (openProp === undefined && store.state.open === false && defaultOpen === true) {
+      store.update({
+        open: true,
+        activeTriggerId: defaultTriggerIdProp,
+      });
+    }
+  });
+
+  store.useControlledProp('openProp', openProp);
+  store.useControlledProp('triggerIdProp', triggerIdProp);
 
   store.useContextCallback('onOpenChange', onOpenChange);
   store.useContextCallback('onOpenChangeComplete', onOpenChangeComplete);
 
   const openState = store.useState('open');
+  const open = !disabled && openState;
 
   const activeTriggerId = store.useState('activeTriggerId');
   const payload = store.useState('payload') as Payload | undefined;
@@ -61,8 +75,6 @@ export const TooltipRoot = fastComponent(function TooltipRoot<Payload>(
     trackCursorAxis,
     disableHoverablePopup,
   });
-
-  const open = !disabled && openState;
 
   useIsoLayoutEffect(() => {
     if (openState && disabled) {
@@ -140,7 +152,6 @@ export const TooltipRoot = fastComponent(function TooltipRoot<Payload>(
   const popupProps = React.useMemo(() => getFloatingProps(), [getFloatingProps]);
 
   store.useSyncedValues({
-    floatingRootContext,
     activeTriggerProps,
     inactiveTriggerProps,
     popupProps,
@@ -153,8 +164,8 @@ export const TooltipRoot = fastComponent(function TooltipRoot<Payload>(
   );
 });
 
-function createTooltipEventDetails<P>(
-  store: TooltipStore<P>,
+function createTooltipEventDetails<Payload>(
+  store: TooltipStore<Payload>,
   reason: TooltipRoot.ChangeEventReason,
 ) {
   const details: TooltipRoot.ChangeEventDetails =
@@ -201,12 +212,10 @@ export interface TooltipRootProps<Payload = unknown> {
   trackCursorAxis?: 'none' | 'x' | 'y' | 'both';
   /**
    * A ref to imperative actions.
-   * - `unmount`: When specified, the tooltip will not be unmounted when closed.
-   * Instead, the `unmount` function must be called to unmount the tooltip manually.
-   * Useful when the tooltip's animation is controlled by an external library.
-   * - `close`: Closes the dialog imperatively when called.
+   * - `unmount`: Unmounts the tooltip popup.
+   * - `close`: Closes the tooltip imperatively when called.
    */
-  actionsRef?: React.RefObject<TooltipRoot.Actions>;
+  actionsRef?: React.RefObject<TooltipRoot.Actions | null>;
   /**
    * Whether the tooltip is disabled.
    * @default false
@@ -225,7 +234,7 @@ export interface TooltipRootProps<Payload = unknown> {
   children?: React.ReactNode | PayloadChildRenderFunction<Payload>;
   /**
    * ID of the trigger that the tooltip is associated with.
-   * This is useful in conjuntion with the `open` prop to create a controlled tooltip.
+   * This is useful in conjunction with the `open` prop to create a controlled tooltip.
    * There's no need to specify this prop when the tooltip is uncontrolled (i.e. when the `open` prop is not set).
    */
   triggerId?: string | null;

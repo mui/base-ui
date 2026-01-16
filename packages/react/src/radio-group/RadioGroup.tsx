@@ -3,7 +3,7 @@ import * as React from 'react';
 import { useControlled } from '@base-ui/utils/useControlled';
 import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
-import { visuallyHidden } from '@base-ui/utils/visuallyHidden';
+import { visuallyHidden, visuallyHiddenInput } from '@base-ui/utils/visuallyHidden';
 import { NOOP } from '../utils/noop';
 import type { BaseUIComponentProps, HTMLProps } from '../utils/types';
 import { useBaseUiId } from '../utils/useBaseUiId';
@@ -166,7 +166,7 @@ export const RadioGroup = React.forwardRef(function RadioGroup(
       'aria-labelledby': elementProps['aria-labelledby'] ?? fieldsetContext?.legendId,
       'aria-hidden': true,
       tabIndex: -1,
-      style: visuallyHidden,
+      style: name ? visuallyHiddenInput : visuallyHidden,
       onChange: NOOP, // suppress a Next.js error
       onFocus() {
         controlRef.current?.focus();
@@ -281,17 +281,17 @@ export interface RadioGroupProps extends Omit<
    *
    * To render an uncontrolled radio group, use the `defaultValue` prop instead.
    */
-  value?: unknown;
+  value?: any;
   /**
    * The uncontrolled value of the radio button that should be initially selected.
    *
    * To render a controlled radio group, use the `value` prop instead.
    */
-  defaultValue?: unknown;
+  defaultValue?: any;
   /**
    * Callback fired when the value changes.
    */
-  onValueChange?: (value: unknown, eventDetails: RadioGroup.ChangeEventDetails) => void;
+  onValueChange?: (value: any, eventDetails: RadioGroup.ChangeEventDetails) => void;
   /**
    * A ref to access the hidden input element.
    */
