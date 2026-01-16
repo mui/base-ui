@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
+import { useOnFirstRender } from '@base-ui/utils/useOnFirstRender';
 import { useDialogRoot } from './useDialogRoot';
 import { DialogRootContext, useDialogRootContext } from './DialogRootContext';
 import type { BaseUIChangeEventDetails } from '../../utils/createBaseUIEventDetails';
@@ -37,8 +38,10 @@ export function DialogRoot<Payload>(props: DialogRoot.Props<Payload>) {
     return (
       handle?.store ??
       new DialogStore<Payload>({
-        open: openProp ?? defaultOpen,
-        activeTriggerId: triggerIdProp !== undefined ? triggerIdProp : defaultTriggerIdProp,
+        open: defaultOpen,
+        openProp,
+        activeTriggerId: defaultTriggerIdProp,
+        triggerIdProp,
         modal,
         disablePointerDismissal,
         nested,
@@ -46,8 +49,19 @@ export function DialogRoot<Payload>(props: DialogRoot.Props<Payload>) {
     );
   }).current;
 
-  store.useControlledProp('open', openProp, defaultOpen);
-  store.useControlledProp('activeTriggerId', triggerIdProp, defaultTriggerIdProp);
+  // Support initially open state when uncontrolled
+  useOnFirstRender(() => {
+    if (openProp === undefined && store.state.open === false && defaultOpen === true) {
+      store.update({
+        open: true,
+        activeTriggerId: defaultTriggerIdProp,
+      });
+    }
+  });
+
+  store.useControlledProp('openProp', openProp);
+  store.useControlledProp('triggerIdProp', triggerIdProp);
+
   store.useSyncedValues({ disablePointerDismissal, nested, modal });
   store.useContextCallback('onOpenChange', onOpenChange);
   store.useContextCallback('onOpenChangeComplete', onOpenChangeComplete);
