@@ -60,3 +60,7 @@ export type {
   MenuSubmenuTriggerProps as ContextMenuSubmenuTriggerProps,
   MenuSubmenuTriggerState as ContextMenuSubmenuTriggerState,
 } from '../menu/submenu-trigger/MenuSubmenuTrigger';
+export type {
+  MenuLinkItemProps as ContextMenuLinkItemProps,
+  MenuLinkItemState as ContextMenuLinkItemState,
+} from '../menu/link-item/MenuLinkItem';
