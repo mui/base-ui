@@ -154,7 +154,7 @@ describe('<Tooltip.Viewport />', () => {
       });
 
       expect(document.querySelector('[data-current]')).toBeVisible();
-      expect(screen.getByText('Content 1')).toBeVisible();
+      expect(await screen.findByText('Content 1')).toBeVisible();
     });
 
     it.skipIf(true)('should handle rapid trigger changes', async () => {
