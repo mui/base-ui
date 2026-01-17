@@ -71,9 +71,9 @@
       "detailedType": "| React.RefObject<Combobox.Root.Actions | null>\n| undefined"
     },
     "filter": {
-      "type": "((itemValue: Value, query: string, itemToString: ((itemValue: Value) => string) | undefined) => boolean) | null",
+      "type": "((itemValue: ItemValue, query: string, itemToString: ((itemValue: ItemValue) => string) | undefined) => boolean) | null",
       "description": "Filter function used to match items vs input query.",
-      "detailedType": "| ((\n    itemValue: Value,\n    query: string,\n    itemToString:\n      | ((itemValue: Value) => string)\n      | undefined,\n  ) => boolean)\n| null\n| undefined"
+      "detailedType": "| ((\n    itemValue: ItemValue,\n    query: string,\n    itemToString:\n      | ((itemValue: ItemValue) => string)\n      | undefined,\n  ) => boolean)\n| null\n| undefined"
     },
     "filteredItems": {
       "type": "any[] | Group[]",
