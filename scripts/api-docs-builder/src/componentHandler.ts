@@ -52,11 +52,19 @@ export async function formatComponentData(component: tae.ExportNode, allExports:
 }
 
 export function isPublicComponent(exportNode: tae.ExportNode) {
-  return (
-    exportNode.type instanceof tae.ComponentNode &&
-    !exportNode.documentation?.hasTag('ignore') &&
-    exportNode.isPublic()
-  );
+  // Must be a ComponentNode and not marked as ignored
+  if (
+    !(exportNode.type instanceof tae.ComponentNode) ||
+    exportNode.documentation?.hasTag('ignore') ||
+    !exportNode.isPublic()
+  ) {
+    return false;
+  }
+
+  // Must start with a known component group name (e.g., "Tooltip", "Dialog", etc.)
+  // This filters out type aliases like "ComponentRenderFn" that happen to be
+  // callable types returning React elements
+  return componentGroupNames.some((group) => exportNode.name.startsWith(group));
 }
 
 function sortObjectByKeys<T>(obj: Record<string, T>, order: string[]): Record<string, T> {
