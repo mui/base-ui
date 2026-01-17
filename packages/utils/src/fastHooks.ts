@@ -37,11 +37,6 @@ export function register(hook: HookType): void {
  * with `useStore`, where multiple store subscriptions within the same component are batched into
  * a single subscription, significantly reducing re-render overhead.
  *
- * **When to use:**
- * - Use for components that make multiple `useStore` calls
- * - Particularly beneficial for root components of complex UI elements (tooltips, menus, dialogs)
- * - The overhead of the wrapper is minimal, but the benefits are most noticeable with multiple hook calls
- *
  * **Requirements:**
  * - The component function should follow standard React component patterns
  * - Do not rely on the instance context outside of specialized hooks
@@ -98,10 +93,6 @@ export function fastComponent<P extends object, E extends HTMLElement, R extends
  * This is a convenience wrapper that combines `fastComponent` with `React.forwardRef`, enabling
  * both performance optimizations and proper ref forwarding. See `fastComponent` for details on
  * the performance benefits.
- *
- * **When to use:**
- * - Use for components that need to forward a ref AND make multiple `useStore` calls
- * - Common for trigger and interactive elements that need DOM refs
  *
  * @param fn - The component function that accepts props and a forwarded ref
  * @returns A wrapped component with ref forwarding enabled
