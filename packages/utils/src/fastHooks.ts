@@ -31,20 +31,14 @@ export function register(hook: HookType): void {
  *
  * **Performance Optimization:**
  * Components wrapped with `fastComponent` have access to a shared "instance" context that enables
- * specialized hook implementations to batch operations and reduce overhead. The primary benefit is
- * with `useStore` in React 19+, where multiple store subscriptions within the same component are
- * batched into a single subscription, significantly reducing re-render overhead.
- *
- * **How it works:**
- * - Creates a stable instance object that persists across renders
- * - Sets the instance as the current context before rendering
- * - Calls registered "before" hooks to prepare the instance
- * - Renders the component function
- * - Calls registered "after" hooks to finalize instance state
- * - Clears the instance context after rendering
+ * specialized hook implementations to batch operations and reduce overhead. The wrapper creates a
+ * stable instance object that persists across renders, sets it as the current context, calls
+ * registered hooks before and after rendering, then clears the context. The primary benefit is
+ * with `useStore`, where multiple store subscriptions within the same component are batched into
+ * a single subscription, significantly reducing re-render overhead.
  *
  * **When to use:**
- * - Use for components that make multiple `useStore` calls (React 19+)
+ * - Use for components that make multiple `useStore` calls
  * - Particularly beneficial for root components of complex UI elements (tooltips, menus, dialogs)
  * - The overhead of the wrapper is minimal, but the benefits are most noticeable with multiple hook calls
  *
@@ -59,7 +53,7 @@ export function register(hook: HookType): void {
  * ```tsx
  * // Wrapping a component to enable optimized useStore batching
  * export const TooltipRoot = fastComponent(function TooltipRoot(props) {
- *   // These useStore calls share a single subscription in React 19+
+ *   // These useStore calls share a single subscription
  *   const open = useStore(store, (state) => state.open);
  *   const disabled = useStore(store, (state) => state.disabled);
  *   const value = useStore(store, (state) => state.value);
