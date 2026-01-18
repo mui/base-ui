@@ -5,6 +5,15 @@ import { spy } from 'sinon';
 import { Menu } from '@base-ui/react/menu';
 import { createRenderer, isJSDOM, wait } from '#test-utils';
 
+type HoverUser = {
+  hover: (element: Element) => Promise<void>;
+};
+
+async function hoverWithMouseMove(element: Element, user: HoverUser) {
+  fireEvent.mouseMove(element);
+  await user.hover(element);
+}
+
 describe('<MenuRoot />', () => {
   beforeEach(() => {
     globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
@@ -457,7 +466,7 @@ describe('<MenuRoot />', () => {
         await screen.findByTestId('menu');
 
         const submenuTrigger = await screen.findByTestId('submenu-trigger');
-        await user.hover(submenuTrigger);
+        await hoverWithMouseMove(submenuTrigger, user);
         await screen.findByTestId('submenu');
 
         // Wait 200ms to enable mouseup on menu items
@@ -954,7 +963,7 @@ describe('<MenuRoot />', () => {
         await screen.findByTestId('menu');
 
         const submenuTrigger = await screen.findByTestId('submenu-trigger');
-        await user.hover(submenuTrigger);
+        await hoverWithMouseMove(submenuTrigger, user);
         await screen.findByTestId('submenu');
 
         // Wait 200ms to enable mouseup on menu items

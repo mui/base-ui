@@ -18,6 +18,15 @@ import { createRenderer, isJSDOM, popupConformanceTests, wait } from '#test-util
 import { REASONS } from '../../utils/reasons';
 import { PATIENT_CLICK_THRESHOLD } from '../../utils/constants';
 
+type HoverUser = {
+  hover: (element: Element) => Promise<void>;
+};
+
+async function hoverWithMouseMove(element: Element, user: HoverUser = userEvent) {
+  fireEvent.mouseMove(element);
+  await user.hover(element);
+}
+
 describe('<Menu.Root />', () => {
   beforeEach(() => {
     globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
@@ -472,7 +481,7 @@ describe('<Menu.Root />', () => {
         expect(screen.queryByTestId('submenu')).to.equal(null);
 
         const submenuTrigger = await screen.findByTestId('submenu-trigger');
-        await user.hover(submenuTrigger);
+        await hoverWithMouseMove(submenuTrigger, user);
 
         await waitFor(() => {
           expect(screen.queryByTestId('submenu')).not.to.equal(null);
@@ -1108,7 +1117,7 @@ describe('<Menu.Root />', () => {
           trigger.focus();
         });
 
-        await userEvent.hover(trigger);
+        await hoverWithMouseMove(trigger);
 
         await waitFor(() => {
           expect(screen.queryByRole('menu')).not.to.equal(null);
@@ -1126,7 +1135,7 @@ describe('<Menu.Root />', () => {
           trigger.focus();
         });
 
-        await userEvent.hover(trigger);
+        await hoverWithMouseMove(trigger);
 
         await waitFor(() => {
           expect(screen.queryByRole('menu')).not.to.equal(null);
@@ -1149,10 +1158,11 @@ describe('<Menu.Root />', () => {
 
         const submenuTrigger = screen.getByTestId('submenu-trigger');
 
-        fireEvent.mouseEnter(submenuTrigger);
-        fireEvent.mouseMove(submenuTrigger);
+        await hoverWithMouseMove(submenuTrigger);
 
-        expect(screen.queryByTestId('submenu')).not.to.equal(null);
+        await waitFor(() => {
+          expect(screen.queryByTestId('submenu')).not.to.equal(null);
+        });
       });
 
       it('should not close when submenu is hovered after root menu is hovered', async () => {
@@ -1169,7 +1179,7 @@ describe('<Menu.Root />', () => {
           trigger.focus();
         });
 
-        await userEvent.hover(trigger);
+        await hoverWithMouseMove(trigger);
 
         await waitFor(() => {
           expect(screen.getByTestId('menu')).not.to.equal(null);
@@ -1177,11 +1187,11 @@ describe('<Menu.Root />', () => {
 
         const menu = screen.getByTestId('menu');
 
-        await userEvent.hover(menu);
+        await hoverWithMouseMove(menu);
 
         const submenuTrigger = screen.getByRole('menuitem', { name: 'Item 4' });
 
-        await userEvent.hover(submenuTrigger);
+        await hoverWithMouseMove(submenuTrigger);
 
         await waitFor(() => {
           expect(screen.getByTestId('menu')).not.to.equal(null);
@@ -1195,7 +1205,7 @@ describe('<Menu.Root />', () => {
         // Use fireEvent to bypass pointer-events checks during safe-polygon pointer events mutation
         fireEvent.mouseMove(menu);
         fireEvent.mouseLeave(menu);
-        await userEvent.hover(submenu);
+        await hoverWithMouseMove(submenu);
 
         await waitFor(() => {
           expect(screen.getByTestId('menu')).not.to.equal(null);
@@ -1219,7 +1229,7 @@ describe('<Menu.Root />', () => {
           trigger.focus();
         });
 
-        await userEvent.hover(trigger);
+        await hoverWithMouseMove(trigger);
 
         await waitFor(() => {
           expect(screen.getByTestId('menu')).not.to.equal(null);
@@ -1227,7 +1237,7 @@ describe('<Menu.Root />', () => {
 
         // Open first-level submenu
         const level1Trigger = screen.getByRole('menuitem', { name: 'Item 4' });
-        await userEvent.hover(level1Trigger);
+        await hoverWithMouseMove(level1Trigger);
 
         await waitFor(() => {
           expect(screen.getByTestId('submenu')).not.to.equal(null);
@@ -1235,7 +1245,7 @@ describe('<Menu.Root />', () => {
 
         // Open second-level submenu
         const level2Trigger = screen.getByRole('menuitem', { name: 'Item 4.3' });
-        await userEvent.hover(level2Trigger);
+        await hoverWithMouseMove(level2Trigger);
 
         await waitFor(() => {
           expect(screen.getByTestId('nested-submenu')).not.to.equal(null);
