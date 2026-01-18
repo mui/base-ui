@@ -1,9 +1,14 @@
 import { Menu } from '@base-ui/react/menu';
 import { createRenderer, describeConformance } from '#test-utils';
-import { screen, waitFor } from '@mui/internal-test-utils';
+import { fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 
 describe('<Menu.Backdrop />', () => {
   const { render } = createRenderer();
+
+  async function hoverWithMouseMove(element: Element, user: { hover: (node: Element) => Promise<void> }) {
+    fireEvent.mouseMove(element);
+    await user.hover(element);
+  }
 
   describeConformance(<Menu.Backdrop />, () => ({
     refInstanceof: window.HTMLDivElement,
@@ -27,7 +32,7 @@ describe('<Menu.Backdrop />', () => {
       </Menu.Root>,
     );
 
-    await user.hover(screen.getByText('Open'));
+    await hoverWithMouseMove(screen.getByText('Open'), user);
 
     expect(screen.getByTestId('backdrop').style.pointerEvents).to.equal('none');
   });

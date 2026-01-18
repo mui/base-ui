@@ -112,7 +112,7 @@ export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerCompon
   });
 
   const hoverEnabled = store.useState('hoverEnabled');
-  const allowMouseEnter = store.useState('allowMouseEnter');
+  const allowMouseEnter = parentMenuStore.useState('allowMouseEnter');
 
   const hoverProps = useHoverReferenceInteraction(floatingRootContext, {
     enabled: hoverEnabled && openOnHover && !disabled && allowMouseEnter,
