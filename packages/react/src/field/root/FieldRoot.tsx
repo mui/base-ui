@@ -40,10 +40,18 @@ const FieldRootInner = React.forwardRef(function FieldRootInner(
   const validate = useStableCallback(validateProp || (() => null));
 
   const disabled = disabledFieldset || disabledProp;
-  const [filled, setFilled] = React.useState(false);
 
-  const { touched, setTouched, dirty, setDirty, focused, setFocused, markedDirtyRef } =
-    useFieldInteractionStateContext();
+  const {
+    touched,
+    setTouched,
+    dirty,
+    setDirty,
+    filled,
+    setFilled,
+    focused,
+    setFocused,
+    markedDirtyRef,
+  } = useFieldInteractionStateContext();
 
   const shouldValidateOnChange = useStableCallback(
     () =>

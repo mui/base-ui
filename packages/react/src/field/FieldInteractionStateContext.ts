@@ -7,14 +7,14 @@ export interface FieldInteractionStateContext {
   setTouched: React.Dispatch<React.SetStateAction<boolean>>;
   dirty: boolean;
   setDirty: React.Dispatch<React.SetStateAction<boolean>>;
-  // filled: boolean;
-  // setFilled: React.Dispatch<React.SetStateAction<boolean>>;
+  filled: boolean;
+  setFilled: React.Dispatch<React.SetStateAction<boolean>>;
   focused: boolean;
   setFocused: React.Dispatch<React.SetStateAction<boolean>>;
   state: {
     touched: boolean;
     dirty: boolean;
-    // filled: boolean;
+    filled: boolean;
     focused: boolean;
   };
   markedDirtyRef: React.RefObject<boolean>;
@@ -25,14 +25,14 @@ export const FieldInteractionStateContext = React.createContext<FieldInteraction
   setTouched: NOOP,
   dirty: false,
   setDirty: NOOP,
-  // filled: false,
-  // setFilled: NOOP,
+  filled: false,
+  setFilled: NOOP,
   focused: false,
   setFocused: NOOP,
   state: {
     touched: false,
     dirty: false,
-    // filled: boolean;
+    filled: false,
     focused: false,
   },
   markedDirtyRef: { current: false },

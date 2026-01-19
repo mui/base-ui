@@ -37,17 +37,17 @@ export const FieldControlInner = React.forwardRef(function FieldControlInner(
 
   const {
     state: fieldInteractionState,
-    setFocused,
     setTouched,
+    setDirty,
+    setFilled,
+    setFocused,
   } = useFieldInteractionStateContext();
 
   const {
     state: fieldState,
     name: fieldName,
     disabled: fieldDisabled,
-    setDirty,
     validityData,
-    setFilled,
     validationMode,
     validation,
   } = useFieldRootContext();

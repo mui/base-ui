@@ -17,6 +17,7 @@ const FieldInteractionStateProviderInner: React.FC<FieldInteractionStateProvider
 
     const [touchedState, setTouchedUnwrapped] = React.useState(false);
     const [dirtyState, setDirtyUnwrapped] = React.useState(false);
+    const [filled, setFilled] = React.useState(false);
     const [focused, setFocused] = React.useState(false);
 
     const touched = touchedProp ?? touchedState;
@@ -48,16 +49,19 @@ const FieldInteractionStateProviderInner: React.FC<FieldInteractionStateProvider
         setTouched,
         dirty,
         setDirty,
+        filled,
+        setFilled,
         focused,
         setFocused,
         state: {
           touched,
           dirty,
+          filled,
           focused,
         },
         markedDirtyRef,
       }),
-      [touched, setTouched, dirty, setDirty, focused, setFocused],
+      [touched, setTouched, dirty, setDirty, filled, setFilled, focused, setFocused],
     );
 
     return (
