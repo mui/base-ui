@@ -37,38 +37,38 @@ import { CompositeMetadata } from '../list/CompositeList';
 import { HTMLProps } from '../../utils/types';
 
 export interface UseCompositeRootParameters {
-  orientation?: 'horizontal' | 'vertical' | 'both';
-  cols?: number;
-  loopFocus?: boolean;
-  highlightedIndex?: number;
-  onHighlightedIndexChange?: (index: number) => void;
-  dense?: boolean;
+  orientation?: ('horizontal' | 'vertical' | 'both') | undefined;
+  cols?: number | undefined;
+  loopFocus?: boolean | undefined;
+  highlightedIndex?: number | undefined;
+  onHighlightedIndexChange?: ((index: number) => void) | undefined;
+  dense?: boolean | undefined;
   direction: TextDirection;
-  itemSizes?: Array<Dimensions>;
-  rootRef?: React.Ref<Element>;
+  itemSizes?: Array<Dimensions> | undefined;
+  rootRef?: React.Ref<Element> | undefined;
   /**
    * When `true`, pressing the Home key moves focus to the first item,
    * and pressing the End key moves focus to the last item.
    * @default false
    */
-  enableHomeAndEndKeys?: boolean;
+  enableHomeAndEndKeys?: boolean | undefined;
   /**
    * When `true`, keypress events on Composite's navigation keys
    * be stopped with event.stopPropagation().
    * @default false
    */
-  stopEventPropagation?: boolean;
+  stopEventPropagation?: boolean | undefined;
   /**
    * Array of item indices to be considered disabled.
    * Used for composite items that are focusable when disabled.
    */
-  disabledIndices?: number[];
+  disabledIndices?: number[] | undefined;
   /**
    * Array of [modifier key values](https://developer.mozilla.org/en-US/docs/Web/API/UI_Events/Keyboard_event_key_values#modifier_keys) that should allow normal keyboard actions
    * when pressed. By default, all modifier keys prevent normal actions.
    * @default []
    */
-  modifierKeys?: ModifierKey[];
+  modifierKeys?: ModifierKey[] | undefined;
 }
 
 const EMPTY_ARRAY: never[] = [];

@@ -107,7 +107,7 @@ export type PopupStoreContext<ChangeEventDetails> = {
   /**
    * Callback fired when the open state changes.
    */
-  onOpenChange?: (open: boolean, eventDetails: ChangeEventDetails) => void;
+  onOpenChange?: ((open: boolean, eventDetails: ChangeEventDetails) => void) | undefined;
   /**
    * Callback fired when the open state change animation completes.
    */

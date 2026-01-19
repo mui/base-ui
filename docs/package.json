@@ -20,7 +20,7 @@
     "@base-ui/utils": "workspace:*",
     "@mdx-js/loader": "^3.1.1",
     "@mdx-js/react": "^3.1.1",
-    "@mui/internal-docs-infra": "0.3.1-canary.9",
+    "@mui/internal-docs-infra": "0.3.1-canary.12",
     "@next/mdx": "^16.1.1",
     "@react-spring/web": "^10.0.3",
     "@stefanprobst/rehype-extract-toc": "^3.0.0",
@@ -45,7 +45,7 @@
     "radix-ui": "^1.4.3",
     "react": "^19.2.3",
     "react-dom": "^19.2.3",
-    "react-error-boundary": "^6.0.2",
+    "react-error-boundary": "6.0.3",
     "react-hook-form": "^7.71.0",
     "react-is": "^19.2.3",
     "rehype-pretty-code": "^0.14.1",
@@ -74,11 +74,11 @@
     "@types/react-dom": "19.2.3",
     "@types/unist": "3.0.3",
     "@wooorm/starry-night": "3.8.0",
-    "baseline-browser-mapping": "2.9.13",
-    "chai": "6.2.1",
+    "baseline-browser-mapping": "2.9.14",
+    "chai": "6.2.2",
     "cross-env": "10.1.0",
     "mdast-util-mdx-jsx": "3.2.0",
-    "motion": "12.23.25",
+    "motion": "12.26.1",
     "prettier": "3.7.4",
     "react-reconciler": "0.33.0",
     "remark-parse": "11.0.0",
@@ -89,6 +89,6 @@
     "unified": "11.0.5",
     "unist-util-visit": "5.0.0",
     "yargs": "18.0.0",
-    "zod": "4.1.13"
+    "zod": "4.3.5"
   }
 }

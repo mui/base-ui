@@ -78,7 +78,9 @@ export interface AlertDialogRootProps<Payload = unknown> extends Omit<
   /**
    * Event handler called when the dialog is opened or closed.
    */
-  onOpenChange?: (open: boolean, eventDetails: AlertDialogRoot.ChangeEventDetails) => void;
+  onOpenChange?:
+    | ((open: boolean, eventDetails: AlertDialogRoot.ChangeEventDetails) => void)
+    | undefined;
   /**
    * A ref to imperative actions.
    * - `unmount`: When specified, the dialog will not be unmounted when closed.
@@ -86,13 +88,13 @@ export interface AlertDialogRootProps<Payload = unknown> extends Omit<
    * Useful when the dialog's animation is controlled by an external library.
    * - `close`: Closes the dialog imperatively when called.
    */
-  actionsRef?: React.RefObject<AlertDialogRoot.Actions | null>;
+  actionsRef?: React.RefObject<AlertDialogRoot.Actions | null> | undefined;
   /**
    * A handle to associate the alert dialog with a trigger.
    * If specified, allows external triggers to control the alert dialog's open state.
    * Can be created with the AlertDialog.createHandle() method.
    */
-  handle?: DialogHandle<Payload>;
+  handle?: DialogHandle<Payload> | undefined;
 }
 
 export type AlertDialogRootActions = DialogRoot.Actions;

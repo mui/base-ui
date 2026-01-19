@@ -814,7 +814,7 @@ describe('<Switch.Root />', () => {
         it('when rendering a non-native label', async () => {
           await render(
             <Field.Root>
-              <Field.Label data-testid="label" render={<span />}>
+              <Field.Label data-testid="label" render={<span />} nativeLabel={false}>
                 <Switch.Root data-testid="button" />
               </Field.Label>
             </Field.Root>,
@@ -822,14 +822,11 @@ describe('<Switch.Root />', () => {
 
           const label = screen.getByTestId('label');
           const switchEl = screen.getByRole('switch');
-          const input = document.querySelector('input[type="checkbox"]');
 
-          expect(label.getAttribute('for')).not.to.equal(null);
+          expect(label.getAttribute('for')).to.equal(null);
           expect(label.getAttribute('id')).not.to.equal(null);
 
-          expect(label.getAttribute('for')).to.equal(input?.getAttribute('id'));
           expect(switchEl.getAttribute('aria-labelledby')).to.equal(label.getAttribute('id'));
-
           expect(switchEl).to.have.attribute('aria-checked', 'false');
 
           // non-native labels cannot toggle a non-native-button switch

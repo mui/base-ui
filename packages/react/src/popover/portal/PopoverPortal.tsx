@@ -41,7 +41,7 @@ export interface PopoverPortalProps extends FloatingPortal.Props<PopoverPortal.S
    * Whether to keep the portal mounted in the DOM while the popup is hidden.
    * @default false
    */
-  keepMounted?: boolean;
+  keepMounted?: boolean | undefined;
 }
 
 export namespace PopoverPortal {

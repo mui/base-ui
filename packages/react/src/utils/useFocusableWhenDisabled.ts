@@ -61,8 +61,8 @@ export function useFocusableWhenDisabled(
 }
 
 interface FocusableWhenDisabledProps {
-  'aria-disabled'?: boolean;
-  disabled?: boolean;
+  'aria-disabled'?: boolean | undefined;
+  disabled?: boolean | undefined;
   onKeyDown: (event: React.KeyboardEvent) => void;
   tabIndex: number;
 }
@@ -81,11 +81,11 @@ export interface UseFocusableWhenDisabledParameters {
    * Whether this is a composite item or not.
    * @default false
    */
-  composite?: boolean;
+  composite?: boolean | undefined;
   /**
    * @default 0
    */
-  tabIndex?: number;
+  tabIndex?: number | undefined;
   /**
    * @default true
    */

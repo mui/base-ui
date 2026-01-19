@@ -310,7 +310,7 @@ export interface SelectTriggerProps
   extends NativeButtonProps, BaseUIComponentProps<'button', SelectTrigger.State> {
   children?: React.ReactNode;
   /** Whether the component should ignore user interaction. */
-  disabled?: boolean;
+  disabled?: boolean | undefined;
 }
 
 export namespace SelectTrigger {
