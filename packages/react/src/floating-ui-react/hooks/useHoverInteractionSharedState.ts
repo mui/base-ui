@@ -13,28 +13,28 @@ export function isInteractiveElement(element: Element | null) {
 }
 
 export class HoverInteraction {
-  pointerTypeRef: string | undefined;
-  interactedInsideRef: boolean;
-  handlerRef: ((event: MouseEvent) => void) | undefined;
-  blockMouseMoveRef: boolean;
-  performedPointerEventsMutationRef: boolean;
-  unbindMouseMoveRef: () => void;
-  restTimeoutPendingRef: boolean;
+  pointerType: string | undefined;
+  interactedInside: boolean;
+  handler: ((event: MouseEvent) => void) | undefined;
+  blockMouseMove: boolean;
+  performedPointerEventsMutation: boolean;
+  unbindMouseMove: () => void;
+  restTimeoutPending: boolean;
   openChangeTimeout: Timeout;
   restTimeout: Timeout;
-  handleCloseOptionsRef: SafePolygonOptions | undefined;
+  handleCloseOptions: SafePolygonOptions | undefined;
 
   constructor() {
-    this.pointerTypeRef = undefined;
-    this.interactedInsideRef = false;
-    this.handlerRef = undefined;
-    this.blockMouseMoveRef = true;
-    this.performedPointerEventsMutationRef = false;
-    this.unbindMouseMoveRef = () => {};
-    this.restTimeoutPendingRef = false;
+    this.pointerType = undefined;
+    this.interactedInside = false;
+    this.handler = undefined;
+    this.blockMouseMove = true;
+    this.performedPointerEventsMutation = false;
+    this.unbindMouseMove = () => {};
+    this.restTimeoutPending = false;
     this.openChangeTimeout = new Timeout();
     this.restTimeout = new Timeout();
-    this.handleCloseOptionsRef = undefined;
+    this.handleCloseOptions = undefined;
   }
 
   static create(): HoverInteraction {

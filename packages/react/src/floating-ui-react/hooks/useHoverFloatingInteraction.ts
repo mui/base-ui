@@ -58,7 +58,7 @@ export function useHoverFloatingInteraction(
   const parentId = useFloatingParentNodeId();
 
   const isClickLikeOpenEvent = useStableCallback(() => {
-    if (instance.interactedInsideRef) {
+    if (instance.interactedInside) {
       return true;
     }
 
@@ -72,8 +72,8 @@ export function useHoverFloatingInteraction(
 
   const closeWithDelay = React.useCallback(
     (event: MouseEvent, runElseBranch = true) => {
-      const closeDelay = getDelay(closeDelayProp, instance.pointerTypeRef);
-      if (closeDelay && !instance.handlerRef) {
+      const closeDelay = getDelay(closeDelayProp, instance.pointerType);
+      if (closeDelay && !instance.handler) {
         instance.openChangeTimeout.start(closeDelay, () =>
           store.setOpen(false, createChangeEventDetails(REASONS.triggerHover, event)),
         );
@@ -86,34 +86,34 @@ export function useHoverFloatingInteraction(
   );
 
   const cleanupMouseMoveHandler = useStableCallback(() => {
-    instance.unbindMouseMoveRef();
-    instance.handlerRef = undefined;
+    instance.unbindMouseMove();
+    instance.handler = undefined;
   });
 
   const clearPointerEvents = useStableCallback(() => {
-    if (instance.performedPointerEventsMutationRef) {
+    if (instance.performedPointerEventsMutation) {
       const body = getDocument(floatingElement).body;
       body.style.pointerEvents = '';
       body.removeAttribute(safePolygonIdentifier);
-      instance.performedPointerEventsMutationRef = false;
+      instance.performedPointerEventsMutation = false;
     }
   });
 
   const handleInteractInside = useStableCallback((event: PointerEvent) => {
     const target = getTarget(event) as Element | null;
     if (!isInteractiveElement(target)) {
-      instance.interactedInsideRef = false;
+      instance.interactedInside = false;
       return;
     }
 
-    instance.interactedInsideRef = true;
+    instance.interactedInside = true;
   });
 
   useIsoLayoutEffect(() => {
     if (!open) {
-      instance.pointerTypeRef = undefined;
-      instance.restTimeoutPendingRef = false;
-      instance.interactedInsideRef = false;
+      instance.pointerType = undefined;
+      instance.restTimeoutPending = false;
+      instance.interactedInside = false;
       cleanupMouseMoveHandler();
       clearPointerEvents();
     }
@@ -136,12 +136,12 @@ export function useHoverFloatingInteraction(
 
     if (
       open &&
-      instance.handleCloseOptionsRef?.blockPointerEvents &&
+      instance.handleCloseOptions?.blockPointerEvents &&
       isHoverOpen() &&
       isElement(domReferenceElement) &&
       floatingElement
     ) {
-      instance.performedPointerEventsMutationRef = true;
+      instance.performedPointerEventsMutation = true;
       const body = getDocument(floatingElement).body;
       body.setAttribute(safePolygonIdentifier, '');
 
@@ -199,7 +199,7 @@ export function useHoverFloatingInteraction(
     function onFloatingMouseEnter(event: MouseEvent) {
       instance.openChangeTimeout.clear();
       clearPointerEvents();
-      instance.handlerRef?.(event);
+      instance.handler?.(event);
       cleanupMouseMoveHandler();
     }
 
