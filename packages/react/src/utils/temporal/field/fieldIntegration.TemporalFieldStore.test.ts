@@ -537,4 +537,275 @@ describe('TemporalFieldStore - Field Integration', () => {
       expect(adapter.isValid(store.state.value)).to.equal(true);
     });
   });
+
+  describe('E2E editing scenarios', () => {
+    it('should handle complete date entry in MM/DD/YYYY format', () => {
+      const onValueChangeSpy = spy();
+      const store = new DateFieldStore(
+        {
+          format: numericDateFormat,
+          onValueChange: onValueChangeSpy,
+        },
+        adapter,
+        'ltr',
+      );
+
+      // Start with empty field
+      expect(store.state.value).to.equal(null);
+
+      // Fill month
+      store.section.selectClosestDatePart(0);
+      store.section.updateDatePart({
+        sectionIndex: 0,
+        newDatePartValue: '03',
+        shouldGoToNextSection: true,
+      });
+
+      // Fill day
+      store.section.selectClosestDatePart(2);
+      store.section.updateDatePart({
+        sectionIndex: 2,
+        newDatePartValue: '15',
+        shouldGoToNextSection: true,
+      });
+
+      // Fill year
+      store.section.selectClosestDatePart(4);
+      store.section.updateDatePart({
+        sectionIndex: 4,
+        newDatePartValue: '2024',
+        shouldGoToNextSection: false,
+      });
+
+      // Verify final value
+      const value = store.state.value;
+      expect(adapter.isValid(value)).to.equal(true);
+      expect(adapter.getMonth(value!)).to.equal(2); // March (0-indexed)
+      expect(adapter.getDate(value!)).to.equal(15);
+      expect(adapter.getYear(value!)).to.equal(2024);
+
+      // onValueChange should have been called
+      expect(onValueChangeSpy.callCount).to.be.greaterThan(0);
+    });
+
+    it('should handle complete date entry with letter month (MMM DD, YYYY)', () => {
+      const monthNameFormat = `${adapter.formats.month3Letters} ${adapter.formats.dayOfMonthPadded}, ${adapter.formats.yearPadded}`;
+      const onValueChangeSpy = spy();
+      const store = new DateFieldStore(
+        {
+          format: monthNameFormat,
+          onValueChange: onValueChangeSpy,
+        },
+        adapter,
+        'ltr',
+      );
+
+      // Start with empty field
+      expect(store.state.value).to.equal(null);
+
+      // Fill month with letter
+      store.section.selectClosestDatePart(0);
+      store.section.updateDatePart({
+        sectionIndex: 0,
+        newDatePartValue: 'Feb',
+        shouldGoToNextSection: true,
+      });
+
+      // Fill day
+      store.section.selectClosestDatePart(2);
+      store.section.updateDatePart({
+        sectionIndex: 2,
+        newDatePartValue: '14',
+        shouldGoToNextSection: true,
+      });
+
+      // Fill year
+      store.section.selectClosestDatePart(4);
+      store.section.updateDatePart({
+        sectionIndex: 4,
+        newDatePartValue: '2024',
+        shouldGoToNextSection: false,
+      });
+
+      // Verify final value
+      const value = store.state.value;
+      expect(adapter.isValid(value)).to.equal(true);
+      expect(adapter.getMonth(value!)).to.equal(1); // February (0-indexed)
+      expect(adapter.getDate(value!)).to.equal(14);
+      expect(adapter.getYear(value!)).to.equal(2024);
+
+      // onValueChange should have been called
+      expect(onValueChangeSpy.callCount).to.be.greaterThan(0);
+    });
+
+    it('should handle complete time entry in 24-hour format (HH:mm)', () => {
+      const onValueChangeSpy = spy();
+      const store = new TimeFieldStore(
+        {
+          format: time24Format,
+          onValueChange: onValueChangeSpy,
+        },
+        adapter,
+        'ltr',
+      );
+
+      // Start with empty field
+      expect(store.state.value).to.equal(null);
+
+      // Fill hour
+      store.section.selectClosestDatePart(0);
+      store.section.updateDatePart({
+        sectionIndex: 0,
+        newDatePartValue: '14',
+        shouldGoToNextSection: true,
+      });
+
+      // Fill minute
+      store.section.selectClosestDatePart(2);
+      store.section.updateDatePart({
+        sectionIndex: 2,
+        newDatePartValue: '30',
+        shouldGoToNextSection: false,
+      });
+
+      // Verify final value
+      const value = store.state.value;
+      expect(adapter.isValid(value)).to.equal(true);
+      expect(adapter.getHours(value!)).to.equal(14);
+      expect(adapter.getMinutes(value!)).to.equal(30);
+
+      // onValueChange should have been called
+      expect(onValueChangeSpy.callCount).to.be.greaterThan(0);
+    });
+
+    it('should handle complete time entry in 12-hour format with meridiem (hh:mm aa)', () => {
+      const time12Format = `${adapter.formats.hours12hPadded}:${adapter.formats.minutesPadded} ${adapter.formats.meridiem}`;
+      const onValueChangeSpy = spy();
+      const store = new TimeFieldStore(
+        {
+          format: time12Format,
+          onValueChange: onValueChangeSpy,
+        },
+        adapter,
+        'ltr',
+      );
+
+      // Start with empty field
+      expect(store.state.value).to.equal(null);
+
+      // Fill hour
+      store.section.selectClosestDatePart(0);
+      store.section.updateDatePart({
+        sectionIndex: 0,
+        newDatePartValue: '02',
+        shouldGoToNextSection: true,
+      });
+
+      // Fill minute
+      store.section.selectClosestDatePart(2);
+      store.section.updateDatePart({
+        sectionIndex: 2,
+        newDatePartValue: '30',
+        shouldGoToNextSection: true,
+      });
+
+      // Fill meridiem
+      store.section.selectClosestDatePart(4);
+      store.section.updateDatePart({
+        sectionIndex: 4,
+        newDatePartValue: 'PM',
+        shouldGoToNextSection: false,
+      });
+
+      // Verify final value (2:30 PM = 14:30)
+      const value = store.state.value;
+      expect(adapter.isValid(value)).to.equal(true);
+      expect(adapter.getHours(value!)).to.equal(14);
+      expect(adapter.getMinutes(value!)).to.equal(30);
+
+      // onValueChange should have been called
+      expect(onValueChangeSpy.callCount).to.be.greaterThan(0);
+    });
+
+    it('should handle complete date entry in DD/MM/YYYY format', () => {
+      const europeanDateFormat = `${adapter.formats.dayOfMonthPadded}/${adapter.formats.monthPadded}/${adapter.formats.yearPadded}`;
+      const onValueChangeSpy = spy();
+      const store = new DateFieldStore(
+        {
+          format: europeanDateFormat,
+          onValueChange: onValueChangeSpy,
+        },
+        adapter,
+        'ltr',
+      );
+
+      // Start with empty field
+      expect(store.state.value).to.equal(null);
+
+      // Fill day
+      store.section.selectClosestDatePart(0);
+      store.section.updateDatePart({
+        sectionIndex: 0,
+        newDatePartValue: '25',
+        shouldGoToNextSection: true,
+      });
+
+      // Fill month
+      store.section.selectClosestDatePart(2);
+      store.section.updateDatePart({
+        sectionIndex: 2,
+        newDatePartValue: '12',
+        shouldGoToNextSection: true,
+      });
+
+      // Fill year
+      store.section.selectClosestDatePart(4);
+      store.section.updateDatePart({
+        sectionIndex: 4,
+        newDatePartValue: '2024',
+        shouldGoToNextSection: false,
+      });
+
+      // Verify final value
+      const value = store.state.value;
+      expect(adapter.isValid(value)).to.equal(true);
+      expect(adapter.getDate(value!)).to.equal(25);
+      expect(adapter.getMonth(value!)).to.equal(11); // December (0-indexed)
+      expect(adapter.getYear(value!)).to.equal(2024);
+
+      // onValueChange should have been called
+      expect(onValueChangeSpy.callCount).to.be.greaterThan(0);
+    });
+
+    it('should handle pasting complete date string', () => {
+      const onValueChangeSpy = spy();
+      const store = new DateFieldStore(
+        {
+          format: numericDateFormat,
+          onValueChange: onValueChangeSpy,
+        },
+        adapter,
+        'ltr',
+      );
+
+      // Start with empty field
+      expect(store.state.value).to.equal(null);
+
+      // Paste complete date
+      store.value.updateFromString('03/15/2024');
+
+      // Verify final value
+      const value = store.state.value;
+      expect(adapter.isValid(value)).to.equal(true);
+      expect(adapter.getMonth(value!)).to.equal(2); // March (0-indexed)
+      expect(adapter.getDate(value!)).to.equal(15);
+      expect(adapter.getYear(value!)).to.equal(2024);
+
+      // onValueChange should have been called
+      expect(onValueChangeSpy.callCount).to.be.greaterThan(0);
+      if (onValueChangeSpy.lastCall && onValueChangeSpy.lastCall.args.length > 0) {
+        expect(adapter.isValid(onValueChangeSpy.lastCall.args[0])).to.equal(true);
+      }
+    });
+  });
 });

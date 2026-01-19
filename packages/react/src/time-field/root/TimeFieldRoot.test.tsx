@@ -174,4 +174,36 @@ describe('<TimeField /> - Field Integration', () => {
       expect(inputRef.current).to.be.instanceOf(HTMLInputElement);
     });
   });
+
+  describe('Component rendering with various formats', () => {
+    it('should render with 24-hour format (HH:mm)', async () => {
+      await render(<TimeField format={time24Format} />);
+
+      const sections = screen.getAllByRole('spinbutton');
+      expect(sections).to.have.length(2);
+
+      // Verify sections are editable (not disabled/readonly)
+      sections.forEach((section) => {
+        expect(section).not.to.have.attribute('aria-disabled', 'true');
+        expect(section).not.to.have.attribute('aria-readonly', 'true');
+      });
+
+      // Verify format matches HH:mm pattern
+      expect(sections[0]).to.have.attribute('aria-label', 'Hours');
+      expect(sections[1]).to.have.attribute('aria-label', 'Minutes');
+    });
+
+    it('should render with 12-hour format with meridiem (hh:mm aa)', async () => {
+      const time12Format = `${adapter.formats.hours12hPadded}:${adapter.formats.minutesPadded} ${adapter.formats.meridiem}`;
+      await render(<TimeField format={time12Format} />);
+
+      const sections = screen.getAllByRole('spinbutton');
+      expect(sections).to.have.length(3);
+
+      // Verify format matches hh:mm aa pattern
+      expect(sections[0]).to.have.attribute('aria-label', 'Hours');
+      expect(sections[1]).to.have.attribute('aria-label', 'Minutes');
+      expect(sections[2]).to.have.attribute('aria-label', 'Meridiem');
+    });
+  });
 });

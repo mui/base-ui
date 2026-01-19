@@ -2,6 +2,8 @@ import { expect } from 'chai';
 import { createTemporalRenderer } from '#test-utils';
 import { DateFieldStore } from '../../../date-field/root/DateFieldStore';
 import { TimeFieldStore } from '../../../time-field/root/TimeFieldStore';
+import { TemporalFieldValuePlugin } from './TemporalFieldValuePlugin';
+import { TemporalFieldSectionPlugin } from './TemporalFieldSectionPlugin';
 
 describe('TemporalFieldValueAdjustmentPlugin', () => {
   const { adapter } = createTemporalRenderer();
@@ -248,6 +250,82 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
 
         const newValue = store.valueAdjustment.adjustActiveDatePartValue('End');
         expect(newValue).to.equal('12');
+      });
+
+      it('should keep day value when incrementing month to a month with fewer days', () => {
+        const store = new DateFieldStore(
+          {
+            format: numericDateFormat,
+            defaultValue: adapter.date('2024-01-31', 'default'), // January 31st
+          },
+          adapter,
+          'ltr',
+        );
+
+        // Verify initial state
+        let value = TemporalFieldValuePlugin.selectors.value(store.state);
+        expect(adapter.getMonth(value!)).to.equal(0); // January (0-indexed)
+        expect(adapter.getDate(value!)).to.equal(31); // 31st
+
+        store.section.selectClosestDatePart(0); // month section
+
+        const newMonthValue = store.valueAdjustment.adjustActiveDatePartValue('ArrowUp');
+        expect(newMonthValue).to.equal('02'); // February
+
+        // Apply the new month value - day value (31) is preserved in the field
+        store.section.updateDatePart({
+          sectionIndex: 0,
+          newDatePartValue: newMonthValue,
+          shouldGoToNextSection: false,
+        });
+
+        // The field should show "February 31" even though it's invalid
+        const monthPart = TemporalFieldSectionPlugin.selectors.datePart(store.state, 0);
+        const dayPart = TemporalFieldSectionPlugin.selectors.datePart(store.state, 2);
+        expect(monthPart!.value).to.equal('02'); // February
+        expect(dayPart!.value).to.equal('31'); // Day preserved
+
+        // The actual date value becomes invalid (February 31 doesn't exist)
+        value = TemporalFieldValuePlugin.selectors.value(store.state);
+        expect(adapter.isValid(value)).to.equal(false); // Invalid date
+      });
+
+      it('should keep day value when decrementing month to a month with fewer days', () => {
+        const store = new DateFieldStore(
+          {
+            format: numericDateFormat,
+            defaultValue: adapter.date('2024-03-31', 'default'), // March 31st
+          },
+          adapter,
+          'ltr',
+        );
+
+        // Verify initial state
+        let value = TemporalFieldValuePlugin.selectors.value(store.state);
+        expect(adapter.getMonth(value!)).to.equal(2); // March (0-indexed)
+        expect(adapter.getDate(value!)).to.equal(31); // 31st
+
+        store.section.selectClosestDatePart(0); // month section
+
+        const newMonthValue = store.valueAdjustment.adjustActiveDatePartValue('ArrowDown');
+        expect(newMonthValue).to.equal('02'); // February
+
+        // Apply the new month value - day value (31) is preserved in the field
+        store.section.updateDatePart({
+          sectionIndex: 0,
+          newDatePartValue: newMonthValue,
+          shouldGoToNextSection: false,
+        });
+
+        // The field should show "February 31" even though it's invalid
+        const monthPart = TemporalFieldSectionPlugin.selectors.datePart(store.state, 0);
+        const dayPart = TemporalFieldSectionPlugin.selectors.datePart(store.state, 2);
+        expect(monthPart!.value).to.equal('02'); // February
+        expect(dayPart!.value).to.equal('31'); // Day preserved
+
+        // The actual date value becomes invalid (February 31 doesn't exist)
+        value = TemporalFieldValuePlugin.selectors.value(store.state);
+        expect(adapter.isValid(value)).to.equal(false); // Invalid date
       });
     });
 
@@ -609,6 +687,47 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
 
         const newValue = store.valueAdjustment.adjustActiveDatePartValue('ArrowUp');
         expect(newValue).to.equal('AM');
+      });
+    });
+
+    describe('12-hour format hours', () => {
+      it('should wrap hours from 12 to 1 when incrementing', () => {
+        const store = new TimeFieldStore({ format: time12Format }, adapter, 'ltr');
+        store.section.selectClosestDatePart(0); // hours section
+        store.section.updateDatePart({
+          sectionIndex: 0,
+          newDatePartValue: '12',
+          shouldGoToNextSection: false,
+        });
+
+        const newValue = store.valueAdjustment.adjustActiveDatePartValue('ArrowUp');
+        expect(newValue).to.equal('01');
+      });
+
+      it('should wrap hours from 1 to 12 when decrementing', () => {
+        const store = new TimeFieldStore({ format: time12Format }, adapter, 'ltr');
+        store.section.selectClosestDatePart(0); // hours section
+        store.section.updateDatePart({
+          sectionIndex: 0,
+          newDatePartValue: '01',
+          shouldGoToNextSection: false,
+        });
+
+        const newValue = store.valueAdjustment.adjustActiveDatePartValue('ArrowDown');
+        expect(newValue).to.equal('12');
+      });
+
+      it('should increment hours correctly in 12-hour format', () => {
+        const store = new TimeFieldStore({ format: time12Format }, adapter, 'ltr');
+        store.section.selectClosestDatePart(0); // hours section
+        store.section.updateDatePart({
+          sectionIndex: 0,
+          newDatePartValue: '05',
+          shouldGoToNextSection: false,
+        });
+
+        const newValue = store.valueAdjustment.adjustActiveDatePartValue('ArrowUp');
+        expect(newValue).to.equal('06');
       });
     });
   });

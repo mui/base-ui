@@ -175,4 +175,68 @@ describe('<DateField /> - Field Integration', () => {
       expect(inputRef.current).to.be.instanceOf(HTMLInputElement);
     });
   });
+
+  describe('Component rendering with various formats', () => {
+    it('should render with MM/DD/YYYY format', async () => {
+      await render(<DateField format={numericDateFormat} />);
+
+      const sections = screen.getAllByRole('spinbutton');
+      expect(sections).to.have.length(3);
+
+      // Verify sections are editable (not disabled/readonly)
+      sections.forEach((section) => {
+        expect(section).not.to.have.attribute('aria-disabled', 'true');
+        expect(section).not.to.have.attribute('aria-readonly', 'true');
+      });
+
+      // Verify format matches MM/DD/YYYY pattern
+      expect(sections[0]).to.have.attribute('aria-label', 'Month');
+      expect(sections[1]).to.have.attribute('aria-label', 'Day');
+      expect(sections[2]).to.have.attribute('aria-label', 'Year');
+    });
+
+    it('should render with letter month format (MMM DD, YYYY)', async () => {
+      const monthNameFormat = `${adapter.formats.month3Letters} ${adapter.formats.dayOfMonthPadded}, ${adapter.formats.yearPadded}`;
+      await render(<DateField format={monthNameFormat} />);
+
+      const sections = screen.getAllByRole('spinbutton');
+      expect(sections).to.have.length(3);
+
+      // Verify format matches MMM DD, YYYY pattern
+      expect(sections[0]).to.have.attribute('aria-label', 'Month');
+      expect(sections[1]).to.have.attribute('aria-label', 'Day');
+      expect(sections[2]).to.have.attribute('aria-label', 'Year');
+    });
+
+    it('should render with DD/MM/YYYY format', async () => {
+      const europeanDateFormat = `${adapter.formats.dayOfMonthPadded}/${adapter.formats.monthPadded}/${adapter.formats.yearPadded}`;
+      await render(<DateField format={europeanDateFormat} />);
+
+      const sections = screen.getAllByRole('spinbutton');
+      expect(sections).to.have.length(3);
+
+      // Verify format matches DD/MM/YYYY pattern
+      expect(sections[0]).to.have.attribute('aria-label', 'Day');
+      expect(sections[1]).to.have.attribute('aria-label', 'Month');
+      expect(sections[2]).to.have.attribute('aria-label', 'Year');
+    });
+
+    it('should accept value through controlled prop', async () => {
+      const testDate = adapter.date('2024-03-15', 'default');
+      await render(<DateField format={numericDateFormat} value={testDate} />);
+
+      const sections = screen.getAllByRole('spinbutton');
+      expect(sections).to.have.length(3);
+
+      // Verify the value is displayed
+      expect(sections[0]).to.have.attribute('aria-valuenow', '3'); // March
+      expect(sections[1]).to.have.attribute('aria-valuenow', '15'); // Day
+      expect(sections[2]).to.have.attribute('aria-valuenow', '2024'); // Year
+
+      // Verify hidden input has the ISO value
+      const hiddenInput = document.querySelector('input[tabindex="-1"]') as HTMLInputElement;
+      expect(hiddenInput).not.to.equal(null);
+      expect(hiddenInput.value).to.equal('2024-03-15T00:00:00.000Z');
+    });
+  });
 });
