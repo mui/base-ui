@@ -43,7 +43,7 @@ export class HoverInteraction {
 }
 
 type HoverContextData = ContextData & {
-  hoverInteractionState?: HoverInteraction;
+  hoverInteractionState?: HoverInteraction | undefined;
 };
 
 export function useHoverInteractionSharedState(store: FloatingRootContext): HoverInteraction {
