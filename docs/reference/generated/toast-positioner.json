@@ -12,7 +12,7 @@
       "type": "ToastObject<any>",
       "required": true,
       "description": "The toast object associated with the positioner.",
-      "detailedType": "id: string\n  ref?: RefObject<HTMLElement | null>\n  title?: ReactNode\n  type?: string\n  description?: ReactNode\n  timeout?: number\n  priority?: 'high' | 'low'\n  transitionStatus?: 'starting' | 'ending'\n  limited?: boolean\n  height?: number\n  onClose?: () => void\n  onRemove?: () => void\n  actionProps?: Omit<\n    DetailedHTMLProps<\n      ButtonHTMLAttributes<HTMLButtonElement>,\n      HTMLButtonElement\n    >,\n    'ref'\n  >\n  positionerProps?: ToastManagerPositionerProps\n  data?: {}\n}"
+      "detailedType": "id: string\n  ref?: RefObject<HTMLElement | null>\n  title?: ReactNode\n  type?: string\n  description?: ReactNode\n  timeout?: number\n  priority?: 'low' | 'high'\n  transitionStatus?: 'starting' | 'ending'\n  limited?: boolean\n  height?: number\n  onClose?: () => void\n  onRemove?: () => void\n  actionProps?: Omit<\n    DetailedHTMLProps<\n      ButtonHTMLAttributes<HTMLButtonElement>,\n      HTMLButtonElement\n    >,\n    'ref'\n  >\n  positionerProps?: ToastManagerPositionerProps\n  data?: {}\n}"
     },
     "align": {
       "type": "Align",
@@ -55,7 +55,7 @@
       "type": "CollisionAvoidance",
       "description": "Determines how to handle collisions when positioning the popup.",
       "example": "```jsx\n<Positioner\n  collisionAvoidance={{\n    side: 'shift',\n    align: 'shift',\n    fallbackAxisSide: 'none',\n  }}\n/>\n```",
-      "detailedType": "| {\n    side?: 'none' | 'flip'\n    align?: 'none' | 'flip' | 'shift'\n    fallbackAxisSide?: 'none' | 'end' | 'start'\n  }\n| {\n    side?: 'none' | 'shift'\n    align?: 'none' | 'shift'\n    fallbackAxisSide?: 'none' | 'end' | 'start'\n  }\n| undefined"
+      "detailedType": "| {\n    side?: 'flip' | 'none'\n    align?: 'flip' | 'shift' | 'none'\n    fallbackAxisSide?: 'start' | 'end' | 'none'\n  }\n| {\n    side?: 'shift' | 'none'\n    align?: 'shift' | 'none'\n    fallbackAxisSide?: 'start' | 'end' | 'none'\n  }\n| undefined"
     },
     "collisionBoundary": {
       "type": "Boundary",
@@ -76,10 +76,10 @@
       "detailedType": "boolean | undefined"
     },
     "positionMethod": {
-      "type": "'fixed' | 'absolute'",
+      "type": "'absolute' | 'fixed'",
       "default": "'absolute'",
       "description": "Determines which CSS `position` property to use.",
-      "detailedType": "'fixed' | 'absolute' | undefined"
+      "detailedType": "'absolute' | 'fixed' | undefined"
     },
     "className": {
       "type": "string | ((state: Toast.Positioner.State) => string | undefined)",
