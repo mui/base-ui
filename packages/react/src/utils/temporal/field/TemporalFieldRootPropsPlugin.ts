@@ -58,4 +58,17 @@ export class TemporalFieldRootPropsPlugin {
   constructor(store: any) {
     this.store = store;
   }
+
+  public onHiddenInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    // Workaround for https://github.com/facebook/react/issues/9023
+    if (event.nativeEvent.defaultPrevented) {
+      return;
+    }
+
+    this.store.value.updateFromString(event.target.value);
+  };
+
+  public onHiddenInputFocus = () => {
+    this.store.section.selectClosestDatePart(0);
+  };
 }

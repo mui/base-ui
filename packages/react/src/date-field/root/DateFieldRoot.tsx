@@ -32,7 +32,8 @@ export const DateFieldRoot = React.forwardRef(function DateFieldRoot(
     // Form props
     required,
     readOnly,
-    disabled,
+    disabled: disabledProp,
+    name: nameProp,
     // Value props
     onValueChange,
     defaultValue,
@@ -47,12 +48,28 @@ export const DateFieldRoot = React.forwardRef(function DateFieldRoot(
     ...elementProps
   } = componentProps;
 
+  const {
+    // setDirty,
+    // validityData,
+    disabled: fieldDisabled,
+    setFilled,
+    // invalid,
+    name: fieldName,
+    state: fieldState,
+    // validation,
+    // shouldValidateOnChange,
+  } = useFieldRootContext();
+
+  const disabled = fieldDisabled || disabledProp;
+  const name = fieldName ?? nameProp;
+
   const adapter = useTemporalAdapter();
 
   const parameters = React.useMemo(
     () => ({
       readOnly,
       disabled,
+      required,
       onValueChange,
       defaultValue,
       value,
@@ -61,10 +78,12 @@ export const DateFieldRoot = React.forwardRef(function DateFieldRoot(
       minDate,
       maxDate,
       format,
+      name,
     }),
     [
       readOnly,
       disabled,
+      required,
       onValueChange,
       defaultValue,
       value,
@@ -73,10 +92,9 @@ export const DateFieldRoot = React.forwardRef(function DateFieldRoot(
       minDate,
       maxDate,
       format,
+      name,
     ],
   );
-
-  const { state: fieldState, setFilled } = useFieldRootContext();
 
   const direction = useDirection();
   const store = useRefWithInit(() => new DateFieldStore(parameters, adapter, direction)).current;
@@ -100,7 +118,6 @@ export const DateFieldRoot = React.forwardRef(function DateFieldRoot(
     store.subscribe(store.dom.syncSelectionToDOM);
   });
 
-  // TODO: Add onChange?
   const inputProps = useStore(store, TemporalFieldRootPropsPlugin.selectors.hiddenInputProps);
 
   const state: DateFieldRootState = useStore(
@@ -117,7 +134,11 @@ export const DateFieldRoot = React.forwardRef(function DateFieldRoot(
 
   return (
     <DateFieldRootContext.Provider value={store}>
-      <input {...inputProps} />
+      <input
+        {...inputProps}
+        onChange={store.rootProps.onHiddenInputChange}
+        onFocus={store.rootProps.onHiddenInputFocus}
+      />
       {element}
     </DateFieldRootContext.Provider>
   );
