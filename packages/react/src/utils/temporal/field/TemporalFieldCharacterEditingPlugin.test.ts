@@ -26,8 +26,8 @@ describe('TemporalFieldCharacterEditingPlugin', () => {
           sectionIndex: 0,
         });
 
-        const section = TemporalFieldSectionPlugin.selectors.datePart(store.state, 0);
-        expect(section.value).to.equal('05');
+        const datePart = TemporalFieldSectionPlugin.selectors.datePart(store.state, 0);
+        expect(datePart!.value).to.equal('05');
       });
 
       it('should update day section with single digit', () => {
@@ -39,8 +39,8 @@ describe('TemporalFieldCharacterEditingPlugin', () => {
           sectionIndex: 2, // Full section index for day
         });
 
-        const section = TemporalFieldSectionPlugin.selectors.datePart(store.state, 2);
-        expect(section.value).to.equal('07');
+        const datePart = TemporalFieldSectionPlugin.selectors.datePart(store.state, 2);
+        expect(datePart!.value).to.equal('07');
       });
 
       it('should update year section with single digit', () => {
@@ -52,8 +52,8 @@ describe('TemporalFieldCharacterEditingPlugin', () => {
           sectionIndex: 4, // Full section index (not datePart index)
         });
 
-        const section = TemporalFieldSectionPlugin.selectors.datePart(store.state, 4);
-        expect(section.value).to.equal('0002');
+        const datePart = TemporalFieldSectionPlugin.selectors.datePart(store.state, 4);
+        expect(datePart!.value).to.equal('0002');
       });
     });
 
@@ -69,8 +69,8 @@ describe('TemporalFieldCharacterEditingPlugin', () => {
         });
 
         // Value should not be set yet (0 is below minimum)
-        let section = TemporalFieldSectionPlugin.selectors.datePart(store.state, 0);
-        expect(section.value).to.equal('');
+        let datePart = TemporalFieldSectionPlugin.selectors.datePart(store.state, 0);
+        expect(datePart!.value).to.equal('');
 
         // Type '9'
         store.characterEditing.editSection({
@@ -78,8 +78,8 @@ describe('TemporalFieldCharacterEditingPlugin', () => {
           sectionIndex: 0,
         });
 
-        section = TemporalFieldSectionPlugin.selectors.datePart(store.state, 0);
-        expect(section.value).to.equal('09');
+        datePart = TemporalFieldSectionPlugin.selectors.datePart(store.state, 0);
+        expect(datePart!.value).to.equal('09');
       });
 
       it('should concatenate digits for day (1 then 5)', () => {
@@ -92,8 +92,8 @@ describe('TemporalFieldCharacterEditingPlugin', () => {
           sectionIndex: 2, // Day section index
         });
 
-        let section = TemporalFieldSectionPlugin.selectors.datePart(store.state, 2);
-        expect(section.value).to.equal('01');
+        let datePart = TemporalFieldSectionPlugin.selectors.datePart(store.state, 2);
+        expect(datePart!.value).to.equal('01');
 
         // Type '5'
         store.characterEditing.editSection({
@@ -101,8 +101,8 @@ describe('TemporalFieldCharacterEditingPlugin', () => {
           sectionIndex: 2, // Day section index
         });
 
-        section = TemporalFieldSectionPlugin.selectors.datePart(store.state, 2);
-        expect(section.value).to.equal('15');
+        datePart = TemporalFieldSectionPlugin.selectors.datePart(store.state, 2);
+        expect(datePart!.value).to.equal('15');
       });
 
       it('should concatenate digits for year (2, 0, 2, 4)', () => {
@@ -117,8 +117,8 @@ describe('TemporalFieldCharacterEditingPlugin', () => {
           });
         });
 
-        const section = TemporalFieldSectionPlugin.selectors.datePart(store.state, 4);
-        expect(section.value).to.equal('2024');
+        const datePart = TemporalFieldSectionPlugin.selectors.datePart(store.state, 4);
+        expect(datePart!.value).to.equal('2024');
       });
     });
 
@@ -132,8 +132,8 @@ describe('TemporalFieldCharacterEditingPlugin', () => {
           keyPressed: '1',
           sectionIndex: 0,
         });
-        let section = TemporalFieldSectionPlugin.selectors.datePart(store.state, 0);
-        expect(section.value).to.equal('01');
+        let datePart = TemporalFieldSectionPlugin.selectors.datePart(store.state, 0);
+        expect(datePart!.value).to.equal('01');
 
         // Type '5' - should be rejected (15 > 12)
         store.characterEditing.editSection({
@@ -141,8 +141,8 @@ describe('TemporalFieldCharacterEditingPlugin', () => {
           sectionIndex: 0,
         });
 
-        section = TemporalFieldSectionPlugin.selectors.datePart(store.state, 0);
-        expect(section.value).to.equal('01'); // Value should not change
+        datePart = TemporalFieldSectionPlugin.selectors.datePart(store.state, 0);
+        expect(datePart!.value).to.equal('01'); // Value should not change
       });
 
       it('should reject day value above 31', () => {
@@ -154,8 +154,8 @@ describe('TemporalFieldCharacterEditingPlugin', () => {
           keyPressed: '3',
           sectionIndex: 2, // Day section index
         });
-        let section = TemporalFieldSectionPlugin.selectors.datePart(store.state, 2);
-        expect(section.value).to.equal('03');
+        let datePart = TemporalFieldSectionPlugin.selectors.datePart(store.state, 2);
+        expect(datePart!.value).to.equal('03');
 
         // Type '5' - should be rejected (35 > 31)
         store.characterEditing.editSection({
@@ -163,8 +163,8 @@ describe('TemporalFieldCharacterEditingPlugin', () => {
           sectionIndex: 2, // Day section index
         });
 
-        section = TemporalFieldSectionPlugin.selectors.datePart(store.state, 2);
-        expect(section.value).to.equal('03'); // Value should not change
+        datePart = TemporalFieldSectionPlugin.selectors.datePart(store.state, 2);
+        expect(datePart!.value).to.equal('03'); // Value should not change
       });
     });
 
@@ -196,9 +196,9 @@ describe('TemporalFieldCharacterEditingPlugin', () => {
         });
 
         // Year should be fully entered
-        const section = TemporalFieldSectionPlugin.selectors.datePart(store.state, 4);
-        expect(section).to.not.equal(null);
-        expect(section!.value).to.equal('2024');
+        const datePart = TemporalFieldSectionPlugin.selectors.datePart(store.state, 4);
+        expect(datePart).to.not.equal(null);
+        expect(datePart!.value).to.equal('2024');
         // Note: Navigation from last section is not implemented
         // selectedSection remains at 4 since there's no section after it
         expect(store.state.selectedSection).to.equal(4);
@@ -217,8 +217,8 @@ describe('TemporalFieldCharacterEditingPlugin', () => {
           sectionIndex: 0,
         });
 
-        const section = TemporalFieldSectionPlugin.selectors.datePart(store.state, 0);
-        expect(section.value).to.equal('Jan');
+        const datePart = TemporalFieldSectionPlugin.selectors.datePart(store.state, 0);
+        expect(datePart!.value).to.equal('Jan');
       });
 
       it('should concatenate letters for month (J then u -> Jun)', () => {
@@ -230,16 +230,16 @@ describe('TemporalFieldCharacterEditingPlugin', () => {
           keyPressed: 'J',
           sectionIndex: 0,
         });
-        let section = TemporalFieldSectionPlugin.selectors.datePart(store.state, 0);
-        expect(section.value).to.equal('Jan'); // First match
+        let datePart = TemporalFieldSectionPlugin.selectors.datePart(store.state, 0);
+        expect(datePart!.value).to.equal('Jan'); // First match
 
         // Type 'u' - should narrow down to Jun or Jul
         store.characterEditing.editSection({
           keyPressed: 'u',
           sectionIndex: 0,
         });
-        section = TemporalFieldSectionPlugin.selectors.datePart(store.state, 0);
-        expect(section.value).to.equal('Jun'); // First match for 'ju'
+        datePart = TemporalFieldSectionPlugin.selectors.datePart(store.state, 0);
+        expect(datePart!.value).to.equal('Jun'); // First match for 'ju'
       });
 
       it('should complete and move to next section when only one match (Ju then l -> Jul)', () => {
@@ -260,8 +260,8 @@ describe('TemporalFieldCharacterEditingPlugin', () => {
           sectionIndex: 0,
         });
 
-        const section = TemporalFieldSectionPlugin.selectors.datePart(store.state, 0);
-        expect(section.value).to.equal('Jul');
+        const datePart = TemporalFieldSectionPlugin.selectors.datePart(store.state, 0);
+        expect(datePart!.value).to.equal('Jul');
         expect(store.state.selectedSection).to.equal(2); // Should move to next section (day at index 2)
       });
 
@@ -275,8 +275,8 @@ describe('TemporalFieldCharacterEditingPlugin', () => {
           sectionIndex: 0,
         });
 
-        const section = TemporalFieldSectionPlugin.selectors.datePart(store.state, 0);
-        expect(section.value).to.equal('Jan');
+        const datePart = TemporalFieldSectionPlugin.selectors.datePart(store.state, 0);
+        expect(datePart!.value).to.equal('Jan');
       });
     });
 
@@ -290,8 +290,8 @@ describe('TemporalFieldCharacterEditingPlugin', () => {
           sectionIndex: 4,
         });
 
-        const section = TemporalFieldSectionPlugin.selectors.datePart(store.state, 4);
-        expect(section.value).to.equal('AM');
+        const datePart = TemporalFieldSectionPlugin.selectors.datePart(store.state, 4);
+        expect(datePart!.value).to.equal('AM');
       });
 
       it('should update meridiem with P -> PM', () => {
@@ -303,8 +303,8 @@ describe('TemporalFieldCharacterEditingPlugin', () => {
           sectionIndex: 4,
         });
 
-        const section = TemporalFieldSectionPlugin.selectors.datePart(store.state, 4);
-        expect(section.value).to.equal('PM');
+        const datePart = TemporalFieldSectionPlugin.selectors.datePart(store.state, 4);
+        expect(datePart!.value).to.equal('PM');
       });
 
       it('should complete meridiem after typing unique letter', () => {
@@ -317,9 +317,9 @@ describe('TemporalFieldCharacterEditingPlugin', () => {
         });
 
         // 'A' uniquely identifies AM
-        const section = TemporalFieldSectionPlugin.selectors.datePart(store.state, 4);
-        expect(section).to.not.equal(null);
-        expect(section!.value).to.equal('AM');
+        const datePart = TemporalFieldSectionPlugin.selectors.datePart(store.state, 4);
+        expect(datePart).to.not.equal(null);
+        expect(datePart!.value).to.equal('AM');
         // Note: Navigation from last section is not implemented
         // selectedSection remains at 4 since there's no section after it
         expect(store.state.selectedSection).to.equal(4);
@@ -338,8 +338,8 @@ describe('TemporalFieldCharacterEditingPlugin', () => {
         sectionIndex: 0,
       });
 
-      const section = TemporalFieldSectionPlugin.selectors.datePart(store.state, 0);
-      expect(section.value).to.equal('May');
+      const datePart = TemporalFieldSectionPlugin.selectors.datePart(store.state, 0);
+      expect(datePart!.value).to.equal('May');
     });
 
     it('should support typing 0 then 7 on letter-format month (07 -> Jul)', () => {
@@ -353,8 +353,8 @@ describe('TemporalFieldCharacterEditingPlugin', () => {
       });
 
       // Value should not be set yet
-      let section = TemporalFieldSectionPlugin.selectors.datePart(store.state, 0);
-      expect(section.value).to.equal('');
+      let datePart = TemporalFieldSectionPlugin.selectors.datePart(store.state, 0);
+      expect(datePart!.value).to.equal('');
 
       // Type '7' -> July
       store.characterEditing.editSection({
@@ -362,8 +362,8 @@ describe('TemporalFieldCharacterEditingPlugin', () => {
         sectionIndex: 0,
       });
 
-      section = TemporalFieldSectionPlugin.selectors.datePart(store.state, 0);
-      expect(section.value).to.equal('Jul');
+      datePart = TemporalFieldSectionPlugin.selectors.datePart(store.state, 0);
+      expect(datePart!.value).to.equal('Jul');
     });
 
     it('should support typing digit 1 then 2 on letter-format month (12 -> Dec)', () => {
@@ -376,8 +376,8 @@ describe('TemporalFieldCharacterEditingPlugin', () => {
         sectionIndex: 0,
       });
 
-      let section = TemporalFieldSectionPlugin.selectors.datePart(store.state, 0);
-      expect(section.value).to.equal('Jan');
+      let datePart = TemporalFieldSectionPlugin.selectors.datePart(store.state, 0);
+      expect(datePart!.value).to.equal('Jan');
 
       // Type '2' -> December
       store.characterEditing.editSection({
@@ -385,8 +385,8 @@ describe('TemporalFieldCharacterEditingPlugin', () => {
         sectionIndex: 0,
       });
 
-      section = TemporalFieldSectionPlugin.selectors.datePart(store.state, 0);
-      expect(section.value).to.equal('Dec');
+      datePart = TemporalFieldSectionPlugin.selectors.datePart(store.state, 0);
+      expect(datePart!.value).to.equal('Dec');
     });
   });
 
@@ -401,8 +401,8 @@ describe('TemporalFieldCharacterEditingPlugin', () => {
         sectionIndex: 0,
       });
 
-      let section = TemporalFieldSectionPlugin.selectors.datePart(store.state, 0);
-      expect(section.value).to.equal('Dec');
+      let datePart = TemporalFieldSectionPlugin.selectors.datePart(store.state, 0);
+      expect(datePart!.value).to.equal('Dec');
 
       // Type 'a' - 'Da' doesn't match any month, should reset query
       store.characterEditing.editSection({
@@ -410,9 +410,9 @@ describe('TemporalFieldCharacterEditingPlugin', () => {
         sectionIndex: 0,
       });
 
-      section = TemporalFieldSectionPlugin.selectors.datePart(store.state, 0);
+      datePart = TemporalFieldSectionPlugin.selectors.datePart(store.state, 0);
       // Value should still be 'Dec' (query reset, 'a' not valid)
-      expect(section.value).to.equal('Dec');
+      expect(datePart!.value).to.equal('Dec');
     });
 
     it('should reset query when switching sections', () => {
@@ -434,8 +434,8 @@ describe('TemporalFieldCharacterEditingPlugin', () => {
         sectionIndex: 2, // Day section index
       });
 
-      const section = TemporalFieldSectionPlugin.selectors.datePart(store.state, 2);
-      expect(section.value).to.equal('09'); // Should be '09', not affected by previous '0'
+      const datePart = TemporalFieldSectionPlugin.selectors.datePart(store.state, 2);
+      expect(datePart!.value).to.equal('09'); // Should be '09', not affected by previous '0'
     });
 
     it('should maintain query when continuing to type in same section', () => {
@@ -454,8 +454,8 @@ describe('TemporalFieldCharacterEditingPlugin', () => {
         sectionIndex: 0,
       });
 
-      const section = TemporalFieldSectionPlugin.selectors.datePart(store.state, 0);
-      expect(section.value).to.equal('Jan');
+      const datePart = TemporalFieldSectionPlugin.selectors.datePart(store.state, 0);
+      expect(datePart!.value).to.equal('Jan');
     });
   });
 
@@ -469,8 +469,8 @@ describe('TemporalFieldCharacterEditingPlugin', () => {
         sectionIndex: 0,
       });
 
-      const section = TemporalFieldSectionPlugin.selectors.datePart(store.state, 0);
-      expect(section.value).to.equal('January');
+      const datePart = TemporalFieldSectionPlugin.selectors.datePart(store.state, 0);
+      expect(datePart!.value).to.equal('January');
     });
 
     it('should narrow down with more letters (Ja -> January)', () => {
@@ -486,8 +486,8 @@ describe('TemporalFieldCharacterEditingPlugin', () => {
         sectionIndex: 0,
       });
 
-      const section = TemporalFieldSectionPlugin.selectors.datePart(store.state, 0);
-      expect(section.value).to.equal('January');
+      const datePart = TemporalFieldSectionPlugin.selectors.datePart(store.state, 0);
+      expect(datePart!.value).to.equal('January');
     });
   });
 
@@ -511,8 +511,8 @@ describe('TemporalFieldCharacterEditingPlugin', () => {
         sectionIndex: 0,
       });
 
-      const section = TemporalFieldSectionPlugin.selectors.datePart(store.state, 0);
-      expect(section.value).to.equal('05');
+      const datePart = TemporalFieldSectionPlugin.selectors.datePart(store.state, 0);
+      expect(datePart!.value).to.equal('05');
     });
 
     it('should handle empty section', () => {
@@ -525,8 +525,8 @@ describe('TemporalFieldCharacterEditingPlugin', () => {
         sectionIndex: 0,
       });
 
-      const section = TemporalFieldSectionPlugin.selectors.datePart(store.state, 0);
-      expect(section.value).to.equal('03');
+      const datePart = TemporalFieldSectionPlugin.selectors.datePart(store.state, 0);
+      expect(datePart!.value).to.equal('03');
     });
 
     it('should support letter input on digit month sections (a -> April -> 04)', () => {
@@ -539,8 +539,8 @@ describe('TemporalFieldCharacterEditingPlugin', () => {
         sectionIndex: 0,
       });
 
-      const section = TemporalFieldSectionPlugin.selectors.datePart(store.state, 0);
-      expect(section.value).to.equal('04'); // April = month 4
+      const datePart = TemporalFieldSectionPlugin.selectors.datePart(store.state, 0);
+      expect(datePart!.value).to.equal('04'); // April = month 4
     });
 
     it('should reject numeric input for meridiem section', () => {
@@ -553,9 +553,9 @@ describe('TemporalFieldCharacterEditingPlugin', () => {
         sectionIndex: 4,
       });
 
-      const section = TemporalFieldSectionPlugin.selectors.datePart(store.state, 2);
+      const datePart = TemporalFieldSectionPlugin.selectors.datePart(store.state, 2);
       // Meridiem sections should reject numeric input
-      expect(section.value).to.be.oneOf(['', 'AM', 'PM']); // Either empty or a meridiem value
+      expect(datePart!.value).to.be.oneOf(['', 'AM', 'PM']); // Either empty or a meridiem value
     });
   });
 });

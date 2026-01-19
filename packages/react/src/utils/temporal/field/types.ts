@@ -71,6 +71,12 @@ export interface TemporalFieldStoreParameters<
    * @default {}
    */
   placeholderGetters?: TemporalFieldPlaceholderGetters;
+  /**
+   * The field context from Field.Root.
+   * Contains state, callbacks, validation, etc.
+   * Used internally when the temporal field is rendered inside a Field component.
+   */
+  fieldContext?: any | null;
 }
 
 export interface TemporalFieldState<
@@ -142,13 +148,19 @@ export interface TemporalFieldState<
    */
   required: boolean;
   /**
-   * Whether the component should ignore user interaction.
+   * Whether the component should ignore user interaction (from props).
+   * When used inside a Field component, the actual disabled state is computed by combining this with fieldContext.state.disabled.
    */
-  disabled: boolean;
+  disabledProp: boolean;
   /**
    * Whether the user should be unable to select a date in the field.
    */
   readOnly: boolean;
+  /**
+   * The name attribute for the field (from props).
+   * When used inside a Field component, the actual name is computed by combining this with fieldContext.name.
+   */
+  nameProp: string | undefined;
   /**
    * Methods to generate the placeholders for each section type.
    */
@@ -157,6 +169,12 @@ export interface TemporalFieldState<
    * Props used to check the validity of a date.
    */
   validationProps: TValidationProps;
+  /**
+   * The field context from Field.Root.
+   * Contains state (disabled, touched, dirty, valid, filled, focused), callbacks (setDirty, setTouched, etc.), and validation.
+   * Null when the temporal field is not used inside a Field component.
+   */
+  fieldContext: any | null;
 }
 
 export interface TemporalFieldCharacterEditingQuery {

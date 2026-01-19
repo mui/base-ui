@@ -40,11 +40,17 @@ export const selectors = {
     },
   ),
   required: createSelector((state: State) => state.required),
-  disabled: createSelector((state: State) => state.disabled),
+  disabled: createSelector((state: State) => state.fieldContext?.state.disabled || state.disabledProp),
   readOnly: createSelector((state: State) => state.readOnly),
-  editable: createSelector((state: State) => !state.disabled && !state.readOnly),
+  editable: createSelector(
+    (state: State) =>
+      !(state.fieldContext?.state.disabled || state.disabledProp) && !state.readOnly,
+  ),
+  invalid: createSelector((state: State) => state.fieldContext?.invalid ?? false),
+  name: createSelector((state: State) => state.fieldContext?.name ?? state.nameProp),
   adapter: createSelector((state: State) => state.adapter),
   manager: createSelector((state: State) => state.manager),
   config: createSelector((state: State) => state.config),
   validationProps: createSelector((state: State) => state.validationProps),
+  fieldContext: createSelector((state: State) => state.fieldContext),
 };

@@ -72,6 +72,23 @@ export class TemporalFieldValuePlugin<
         ...this.deriveStateFromNewValue(value),
       });
     }
+
+    // Update Field context state (dirty, validation)
+    const fieldContext = this.store.state.fieldContext;
+    if (fieldContext) {
+      // Set dirty state by comparing with initial value
+      fieldContext.setDirty(
+        !this.store.state.manager.areValuesEqual(
+          newValueWithInputTimezone,
+          fieldContext.validityData.initialValue,
+        ),
+      );
+
+      // Validate if needed (call without await - async validation doesn't block)
+      if (fieldContext.shouldValidateOnChange()) {
+        fieldContext.validation.commit(newValueWithInputTimezone);
+      }
+    }
   }
 
   /**
@@ -144,7 +161,7 @@ export class TemporalFieldValuePlugin<
       );
     let sections: TemporalFieldSection[];
     if (isActiveDateInvalid) {
-      sections = TemporalFieldSectionPlugin.replaceSectionValueInSectionList(
+      sections = TemporalFieldSectionPlugin.replaceDatePartValueInSectionList(
         sectionsBefore,
         sectionToUpdateOnNextInvalidDate.index,
         sectionToUpdateOnNextInvalidDate.value,

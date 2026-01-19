@@ -43,10 +43,12 @@ export function deriveStateFromParameters<
     valueProp: parameters.value,
     format: parameters.format,
     required: parameters.required ?? false,
-    disabled: parameters.disabled ?? false,
+    disabledProp: parameters.disabled ?? false,
     readOnly: parameters.readOnly ?? false,
+    nameProp: parameters.name,
     timezoneProp: parameters.timezone,
     placeholderGetters: parameters.placeholderGetters,
+    fieldContext: parameters.fieldContext ?? null,
   };
 }
 

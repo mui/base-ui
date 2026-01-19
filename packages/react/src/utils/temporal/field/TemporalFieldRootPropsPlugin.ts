@@ -4,18 +4,20 @@ import { TemporalFieldStore } from './TemporalFieldStore';
 import { TemporalFieldValuePlugin } from './TemporalFieldValuePlugin';
 import { selectors } from './selectors';
 import { NOOP } from '../../noop';
-import { FieldRoot } from '../../../field';
 
 const rootPropsSelectors = {
   rootState: createSelectorMemoized(
     selectors.required,
     selectors.readOnly,
     selectors.disabled,
-    (required, readOnly, disabled, fieldState: FieldRoot.State) => ({
-      ...fieldState,
+    selectors.invalid,
+    selectors.fieldContext,
+    (required, readOnly, disabled, invalid, fieldContext: any) => ({
+      ...(fieldContext?.state || {}),
       required,
       readOnly,
       disabled,
+      invalid,
     }),
   ),
   hiddenInputProps: createSelectorMemoized(
@@ -25,22 +27,17 @@ const rootPropsSelectors = {
     selectors.required,
     selectors.disabled,
     selectors.readOnly,
-    (value, adapter, config, required, disabled, readOnly) => ({
+    selectors.name,
+    (value, adapter, config, required, disabled, readOnly, name) => ({
       value: config.stringifyValue(adapter, value),
-      // ref: mergedInputRef,
-      // id,
-      // name: serializedCheckedValue ? name : undefined,
+      name,
       disabled,
       readOnly,
       required,
-      // 'aria-labelledby': elementProps['aria-labelledby'] ?? fieldsetContext?.legendId,
       'aria-hidden': true,
       tabIndex: -1,
       style: visuallyHiddenInput,
       onChange: NOOP, // suppress a Next.js error
-      // onFocus() {
-      //   controlRef.current?.focus();
-      // },
     }),
   ),
 };

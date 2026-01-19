@@ -1,6 +1,6 @@
 import { createSelector, createSelectorMemoized } from '@base-ui/utils/store';
 import { warn } from '@base-ui/utils/warn';
-import { TemporalFieldDatePart, TemporalSupportedValue } from '../../../types';
+import { TemporalFieldDatePartType, TemporalSupportedValue } from '../../../types';
 import { TemporalFieldStore } from './TemporalFieldStore';
 import {
   TemporalFieldState as State,
@@ -45,7 +45,7 @@ export class TemporalFieldFormatPlugin<TValue extends TemporalSupportedValue> {
 
 function validateFormat(parsedFormat: TemporalFieldParsedFormat, dateType: TemporalDateType) {
   if (process.env.NODE_ENV !== 'production') {
-    const supportedSections: TemporalFieldDatePart[] = ['empty'];
+    const supportedSections: TemporalFieldDatePartType[] = [];
     if (['date', 'date-time'].includes(dateType)) {
       supportedSections.push('weekDay', 'day', 'month', 'year');
     }

@@ -13,7 +13,6 @@ import { TimeFieldStore, TimeFieldStoreParameters } from './TimeFieldStore';
 import { TemporalFieldRootPropsPlugin } from '../../utils/temporal/field/TemporalFieldRootPropsPlugin';
 import { FieldRoot } from '../../field';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
-import { TemporalFieldValuePlugin } from '../../utils/temporal/field/TemporalFieldValuePlugin';
 
 /**
  * Groups all parts of the time field.
@@ -47,6 +46,8 @@ export const TimeFieldRoot = React.forwardRef(function TimeFieldRoot(
     ...elementProps
   } = componentProps;
 
+  const fieldContext = useFieldRootContext();
+
   const adapter = useTemporalAdapter();
 
   const parameters = React.useMemo(
@@ -61,6 +62,7 @@ export const TimeFieldRoot = React.forwardRef(function TimeFieldRoot(
       minTime,
       maxTime,
       format,
+      fieldContext,
     }),
     [
       readOnly,
@@ -73,19 +75,12 @@ export const TimeFieldRoot = React.forwardRef(function TimeFieldRoot(
       minTime,
       maxTime,
       format,
+      fieldContext,
     ],
   );
 
-  const { state: fieldState, setFilled } = useFieldRootContext();
-
   const direction = useDirection();
   const store = useRefWithInit(() => new TimeFieldStore(parameters, adapter, direction)).current;
-
-  // TODO: Replace with useStoreEffect?
-  const valueInState = useStore(store, TemporalFieldValuePlugin.selectors.value);
-  useIsoLayoutEffect(() => {
-    setFilled(valueInState !== null);
-  }, [setFilled, valueInState]);
 
   useIsoLayoutEffect(
     () => store.tempUpdate(parameters, adapter, direction),
@@ -106,7 +101,6 @@ export const TimeFieldRoot = React.forwardRef(function TimeFieldRoot(
   const state: TimeFieldRootState = useStore(
     store,
     TemporalFieldRootPropsPlugin.selectors.rootState,
-    fieldState,
   );
 
   const element = useRenderElement('div', componentProps, {

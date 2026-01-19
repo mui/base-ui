@@ -128,6 +128,24 @@ export class TemporalFieldStore<
     this.rootProps = new TemporalFieldRootPropsPlugin(this);
     this.inputProps = new TemporalFieldInputPropsPlugin<TValue, TError>(this);
     this.sectionProps = new TemporalFieldSectionPropsPlugin<TValue>(this);
+
+    // Register effect to update Field's filled state when value changes
+    this.registerStoreEffect(
+      (state) => state.value,
+      (_previousValue, nextValue) => {
+        const fieldContext = this.state.fieldContext;
+        if (fieldContext) {
+          fieldContext.setFilled(nextValue !== null);
+        }
+      },
+    );
+  }
+
+  /**
+   * Updates the field context in the store.
+   */
+  public updateFieldContext(fieldContext: any | null) {
+    this.update({ fieldContext });
   }
 
   /**

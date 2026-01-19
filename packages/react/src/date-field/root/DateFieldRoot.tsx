@@ -13,7 +13,6 @@ import { DateFieldStore, DateFieldStoreParameters } from './DateFieldStore';
 import { TemporalFieldRootPropsPlugin } from '../../utils/temporal/field/TemporalFieldRootPropsPlugin';
 import { FieldRoot } from '../../field';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
-import { TemporalFieldValuePlugin } from '../../utils/temporal/field/TemporalFieldValuePlugin';
 
 /**
  * Groups all parts of the date field.
@@ -48,27 +47,14 @@ export const DateFieldRoot = React.forwardRef(function DateFieldRoot(
     ...elementProps
   } = componentProps;
 
-  const {
-    // setDirty,
-    // validityData,
-    disabled: fieldDisabled,
-    setFilled,
-    // invalid,
-    name: fieldName,
-    state: fieldState,
-    // validation,
-    // shouldValidateOnChange,
-  } = useFieldRootContext();
-
-  const disabled = fieldDisabled || disabledProp;
-  const name = fieldName ?? nameProp;
+  const fieldContext = useFieldRootContext();
 
   const adapter = useTemporalAdapter();
 
   const parameters = React.useMemo(
     () => ({
       readOnly,
-      disabled,
+      disabled: disabledProp,
       required,
       onValueChange,
       defaultValue,
@@ -78,11 +64,12 @@ export const DateFieldRoot = React.forwardRef(function DateFieldRoot(
       minDate,
       maxDate,
       format,
-      name,
+      name: nameProp,
+      fieldContext,
     }),
     [
       readOnly,
-      disabled,
+      disabledProp,
       required,
       onValueChange,
       defaultValue,
@@ -92,18 +79,13 @@ export const DateFieldRoot = React.forwardRef(function DateFieldRoot(
       minDate,
       maxDate,
       format,
-      name,
+      nameProp,
+      fieldContext,
     ],
   );
 
   const direction = useDirection();
   const store = useRefWithInit(() => new DateFieldStore(parameters, adapter, direction)).current;
-
-  // TODO: Replace with useStoreEffect?
-  const valueInState = useStore(store, TemporalFieldValuePlugin.selectors.value);
-  useIsoLayoutEffect(() => {
-    setFilled(valueInState !== null);
-  }, [setFilled, valueInState]);
 
   useIsoLayoutEffect(
     () => store.tempUpdate(parameters, adapter, direction),
@@ -123,7 +105,6 @@ export const DateFieldRoot = React.forwardRef(function DateFieldRoot(
   const state: DateFieldRootState = useStore(
     store,
     TemporalFieldRootPropsPlugin.selectors.rootState,
-    fieldState,
   );
 
   const element = useRenderElement('div', componentProps, {
