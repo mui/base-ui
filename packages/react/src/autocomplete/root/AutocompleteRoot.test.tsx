@@ -1604,7 +1604,7 @@ describe('<Autocomplete.Root />', () => {
               <Autocomplete.Positioner />
             </Autocomplete.Portal>
           </Autocomplete.Root>
-          <Field.Label data-testid="label" render={<span />} />
+          <Field.Label data-testid="label" render={<span />} nativeLabel={false} />
         </Field.Root>,
       );
 
