@@ -158,9 +158,8 @@ describe('Manager', () => {
 
       expect(screen.queryByTestId('description')).to.have.text('success');
 
-      clock.tick(5000);
+      clock.runToLast();
       await flushMicrotasks();
-
       expect(screen.queryByTestId('description')).to.equal(null);
     });
 
@@ -310,7 +309,7 @@ describe('Manager', () => {
       await flushMicrotasks();
       expect(screen.queryByTestId('title')).not.to.equal(null);
 
-      clock.tick(900);
+      clock.runToLast();
       await flushMicrotasks();
       expect(screen.queryByTestId('title')).to.equal(null);
     });
@@ -378,7 +377,7 @@ describe('Manager', () => {
       await flushMicrotasks();
       expect(screen.queryByTestId('title')).not.to.equal(null);
 
-      clock.tick(900);
+      clock.runToLast();
       await flushMicrotasks();
       expect(screen.queryByTestId('title')).to.equal(null);
     });
