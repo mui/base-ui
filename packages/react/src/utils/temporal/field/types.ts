@@ -1,3 +1,4 @@
+import { FieldRootContext } from '../../../field/root/FieldRootContext';
 import { TextDirection } from '../../../direction-provider';
 import {
   BaseUIChangeEventDetails,
@@ -186,7 +187,7 @@ export interface TemporalFieldState<
    * Contains state (disabled, touched, dirty, valid, filled, focused), callbacks (setDirty, setTouched, etc.), and validation.
    * Null when the temporal field is not used inside a Field component.
    */
-  fieldContext: any | null;
+  fieldContext: FieldRootContext | null;
 }
 
 export interface TemporalFieldCharacterEditingQuery {
