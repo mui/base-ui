@@ -84,6 +84,8 @@ export const FieldControlInner = React.forwardRef(function FieldControlInner(
   const isControlled = valueProp !== undefined;
   const value = isControlled ? valueUnwrapped : undefined;
 
+  const initialValueRef = React.useRef<string>(String(valueProp ?? defaultValue ?? ''));
+
   useField({
     id,
     name,
@@ -107,7 +109,11 @@ export const FieldControlInner = React.forwardRef(function FieldControlInner(
         onChange(event) {
           const inputValue = event.currentTarget.value;
           onValueChange?.(inputValue, createChangeEventDetails(REASONS.none, event.nativeEvent));
-          setDirty(inputValue !== validityData.initialValue);
+          const initialValue =
+            validityData.initialValue !== null
+              ? validityData.initialValue
+              : initialValueRef.current;
+          setDirty(inputValue !== initialValue);
           setFilled(inputValue !== '');
         },
         onFocus() {

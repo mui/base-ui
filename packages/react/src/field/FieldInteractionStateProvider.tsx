@@ -13,12 +13,16 @@ import type { FieldRoot } from './root/FieldRoot';
 
 const FieldInteractionStateProviderInner: React.FC<FieldInteractionStateProvider.Props> =
   function FieldInteractionStateProviderInner(props) {
-    const { children, touched: touchedProp } = props;
+    const { children, touched: touchedProp, dirty: dirtyProp } = props;
 
-    const [focused, setFocused] = React.useState(false);
     const [touchedState, setTouchedUnwrapped] = React.useState(false);
+    const [dirtyState, setDirtyUnwrapped] = React.useState(false);
+    const [focused, setFocused] = React.useState(false);
 
     const touched = touchedProp ?? touchedState;
+    const dirty = dirtyProp ?? dirtyState;
+
+    const markedDirtyRef = React.useRef(false);
 
     const setTouched: typeof setTouchedUnwrapped = useStableCallback((value) => {
       if (touchedProp !== undefined) {
@@ -27,18 +31,33 @@ const FieldInteractionStateProviderInner: React.FC<FieldInteractionStateProvider
       setTouchedUnwrapped(value);
     });
 
+    const setDirty: typeof setDirtyUnwrapped = useStableCallback((value) => {
+      if (dirtyProp !== undefined) {
+        return;
+      }
+
+      if (value) {
+        markedDirtyRef.current = true;
+      }
+      setDirtyUnwrapped(value);
+    });
+
     const contextValue: FieldInteractionStateContext = React.useMemo(
       () => ({
-        focused,
-        setFocused,
         touched,
         setTouched,
+        dirty,
+        setDirty,
+        focused,
+        setFocused,
         state: {
-          focused,
           touched,
+          dirty,
+          focused,
         },
+        markedDirtyRef,
       }),
-      [focused, setFocused, touched, setTouched],
+      [touched, setTouched, dirty, setDirty, focused, setFocused],
     );
 
     return (
