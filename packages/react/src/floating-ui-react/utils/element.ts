@@ -83,43 +83,11 @@ export function isTypeableCombobox(element: Element | null) {
 }
 
 /**
- * Determines if an element is an input or textarea that supports text selection.
+ * Determines if an element is an HTML input.
  * @param element Element to check
  */
-export function isSelectableInput(
-  element: Element | null,
-): element is HTMLInputElement | HTMLTextAreaElement {
-  if (!element || !isHTMLElement(element)) {
-    return false;
-  }
-
-  // Check if it's an input with a select() method
-  if (element.tagName === 'INPUT') {
-    const input = element as HTMLInputElement;
-    // Exclude types that don't support text selection
-    const type = input.type.toLowerCase();
-    if (
-      type === 'hidden' ||
-      type === 'checkbox' ||
-      type === 'radio' ||
-      type === 'submit' ||
-      type === 'button' ||
-      type === 'reset' ||
-      type === 'image' ||
-      type === 'file'
-    ) {
-      return false;
-    }
-    return !input.disabled && typeof input.select === 'function';
-  }
-
-  // Textareas are always selectable if enabled
-  if (element.tagName === 'TEXTAREA') {
-    const textarea = element as HTMLTextAreaElement;
-    return !textarea.disabled && typeof textarea.select === 'function';
-  }
-
-  return false;
+export function isInputElement(element: Element): element is HTMLInputElement {
+  return element.tagName === 'INPUT';
 }
 
 export function matchesFocusVisible(element: Element | null) {

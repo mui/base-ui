@@ -28,7 +28,7 @@ import {
   isOutsideEvent,
   getNextTabbable,
   getPreviousTabbable,
-  isSelectableInput,
+  isInputElement,
 } from '../utils';
 import type { FloatingContext, FloatingRootContext } from '../types';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
@@ -735,9 +735,9 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
         preventScroll: elToFocus === floatingFocusElement,
         onFocused: (element) => {
           // Select text if it's a text input
-          if (isSelectableInput(element)) {
+          if (isInputElement(element)) {
             try {
-              (element as HTMLInputElement | HTMLTextAreaElement).select();
+              element.select();
             } catch {
               // Fail silently if select() throws
             }
