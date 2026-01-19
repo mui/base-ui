@@ -237,13 +237,13 @@ export interface RadioRootProps
   /** The unique identifying value of the radio in a group. */
   value: any;
   /** Whether the component should ignore user interaction. */
-  disabled?: boolean;
+  disabled?: boolean | undefined;
   /** Whether the user must choose a value before submitting a form. */
-  required?: boolean;
+  required?: boolean | undefined;
   /** Whether the user should be unable to select the radio button. */
-  readOnly?: boolean;
+  readOnly?: boolean | undefined;
   /** A ref to access the hidden input element. */
-  inputRef?: React.Ref<HTMLInputElement>;
+  inputRef?: React.Ref<HTMLInputElement> | undefined;
 }
 
 export namespace RadioRoot {

@@ -196,19 +196,21 @@ export interface PopoverRootProps<Payload = unknown> {
    * To render a controlled popover, use the `open` prop instead.
    * @default false
    */
-  defaultOpen?: boolean;
+  defaultOpen?: boolean | undefined;
   /**
    * Whether the popover is currently open.
    */
-  open?: boolean;
+  open?: boolean | undefined;
   /**
    * Event handler called when the popover is opened or closed.
    */
-  onOpenChange?: (open: boolean, eventDetails: PopoverRoot.ChangeEventDetails) => void;
+  onOpenChange?:
+    | ((open: boolean, eventDetails: PopoverRoot.ChangeEventDetails) => void)
+    | undefined;
   /**
    * Event handler called after any animations complete when the popover is opened or closed.
    */
-  onOpenChangeComplete?: (open: boolean) => void;
+  onOpenChangeComplete?: ((open: boolean) => void) | undefined;
   /**
    * A ref to imperative actions.
    * - `unmount`: When specified, the popover will not be unmounted when closed.
@@ -216,7 +218,7 @@ export interface PopoverRootProps<Payload = unknown> {
    * Useful when the popover's animation is controlled by an external library.
    * - `close`: Closes the dialog imperatively when called.
    */
-  actionsRef?: React.RefObject<PopoverRoot.Actions | null>;
+  actionsRef?: React.RefObject<PopoverRoot.Actions | null> | undefined;
   /**
    * Determines if the popover enters a modal state when open.
    * - `true`: user interaction is limited to the popover: document page scroll is locked, and pointer interactions on outside elements are disabled.
@@ -224,23 +226,23 @@ export interface PopoverRootProps<Payload = unknown> {
    * - `'trap-focus'`: focus is trapped inside the popover, but document page scroll is not locked and pointer interactions outside of it remain enabled.
    * @default false
    */
-  modal?: boolean | 'trap-focus';
+  modal?: (boolean | 'trap-focus') | undefined;
   /**
    * ID of the trigger that the popover is associated with.
    * This is useful in conjunction with the `open` prop to create a controlled popover.
    * There's no need to specify this prop when the popover is uncontrolled (i.e. when the `open` prop is not set).
    */
-  triggerId?: string | null;
+  triggerId?: (string | null) | undefined;
   /**
    * ID of the trigger that the popover is associated with.
    * This is useful in conjunction with the `defaultOpen` prop to create an initially open popover.
    */
-  defaultTriggerId?: string | null;
+  defaultTriggerId?: (string | null) | undefined;
   /**
    * A handle to associate the popover with a trigger.
    * If specified, allows external triggers to control the popover's open state.
    */
-  handle?: PopoverHandle<Payload>;
+  handle?: PopoverHandle<Payload> | undefined;
   /**
    * The content of the popover.
    * This can be a regular React node or a render function that receives the `payload` of the active trigger.

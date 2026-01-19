@@ -18,7 +18,7 @@ import type {
 import type { ToastManager } from '../createToastManager';
 
 interface TimerInfo {
-  timeout?: Timeout;
+  timeout?: Timeout | undefined;
   start: number;
   delay: number;
   remaining: number;
@@ -400,17 +400,17 @@ export interface ToastProviderProps {
    * A value of `0` will prevent the toast from being dismissed automatically.
    * @default 5000
    */
-  timeout?: number;
+  timeout?: number | undefined;
   /**
    * The maximum number of toasts that can be displayed at once.
    * When the limit is reached, the oldest toast will be removed to make room for the new one.
    * @default 3
    */
-  limit?: number;
+  limit?: number | undefined;
   /**
    * A global manager for toasts to use outside of a React component.
    */
-  toastManager?: ToastManager;
+  toastManager?: ToastManager | undefined;
 }
 
 export namespace ToastProvider {

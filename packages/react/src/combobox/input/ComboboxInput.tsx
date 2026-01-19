@@ -456,7 +456,7 @@ export interface ComboboxInputProps extends BaseUIComponentProps<'input', Combob
    * Whether the component should ignore user interaction.
    * @default false
    */
-  disabled?: boolean;
+  disabled?: boolean | undefined;
 }
 
 export namespace ComboboxInput {
