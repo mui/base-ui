@@ -71,6 +71,9 @@ const FieldInteractionStateProviderInner: React.FC<FieldInteractionStateProvider
     );
   };
 
+/**
+ * @internal
+ */
 export const FieldInteractionStateProvider: React.FC<FieldInteractionStateProvider.Props> =
   function FieldInteractionStateProvider(props) {
     const parentContext = useFieldInteractionStateContext();
