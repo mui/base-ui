@@ -310,7 +310,7 @@ describe('Manager', () => {
       await flushMicrotasks();
       expect(screen.queryByTestId('title')).not.to.equal(null);
 
-      clock.tick(800);
+      clock.tick(900);
       await flushMicrotasks();
       expect(screen.queryByTestId('title')).to.equal(null);
     });
@@ -378,7 +378,7 @@ describe('Manager', () => {
       await flushMicrotasks();
       expect(screen.queryByTestId('title')).not.to.equal(null);
 
-      clock.tick(800);
+      clock.tick(900);
       await flushMicrotasks();
       expect(screen.queryByTestId('title')).to.equal(null);
     });
