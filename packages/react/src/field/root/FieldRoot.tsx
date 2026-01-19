@@ -75,9 +75,9 @@ const FieldRootInner = React.forwardRef(function FieldRootInner(
       (validationMode === 'onSubmit' && submitAttemptedRef.current),
   );
 
-  const invalid = Boolean(
-    invalidProp || (name && {}.hasOwnProperty.call(errors, name) && errors[name] !== undefined),
-  );
+  const invalid =
+    invalidProp === true ||
+    Boolean(name && {}.hasOwnProperty.call(errors, name) && errors[name] !== undefined);
 
   const [validityData, setValidityData] = React.useState<FieldValidityData>({
     state: DEFAULT_VALIDITY_STATE,
