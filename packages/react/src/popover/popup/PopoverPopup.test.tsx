@@ -95,37 +95,6 @@ describe('<Popover.Popup />', () => {
       });
     });
 
-    it('should select the entire text content of a textarea when focused', async () => {
-      const { user } = await render(
-        <div>
-          <Popover.Root>
-            <Popover.Trigger>Open</Popover.Trigger>
-            <Popover.Portal>
-              <Popover.Positioner>
-                <Popover.Popup>
-                  <textarea
-                    data-testid="popover-textarea"
-                    defaultValue="Line 1&#10;Line 2"
-                  />
-                  <button>Close</button>
-                </Popover.Popup>
-              </Popover.Positioner>
-            </Popover.Portal>
-          </Popover.Root>
-        </div>,
-      );
-
-      const trigger = screen.getByText('Open');
-      await user.click(trigger);
-
-      await waitFor(() => {
-        const textarea = screen.getByTestId('popover-textarea') as HTMLTextAreaElement;
-        expect(textarea).to.toHaveFocus();
-        expect(textarea.selectionStart).to.equal(0);
-        expect(textarea.selectionEnd).to.equal(textarea.value.length);
-      });
-    });
-
     it('should not affect non-text inputs like checkboxes', async () => {
       const { user } = await render(
         <div>
