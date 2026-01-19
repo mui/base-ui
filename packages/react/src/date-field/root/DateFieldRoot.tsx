@@ -4,6 +4,7 @@ import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { useStore } from '@base-ui/utils/store';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useOnMount } from '@base-ui/utils/useOnMount';
+import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { useTemporalAdapter } from '../../temporal-adapter-provider/TemporalAdapterContext';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
@@ -13,6 +14,7 @@ import { DateFieldStore, DateFieldStoreParameters } from './DateFieldStore';
 import { TemporalFieldRootPropsPlugin } from '../../utils/temporal/field/TemporalFieldRootPropsPlugin';
 import { FieldRoot } from '../../field';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
+import { useLabelableId } from '../../labelable-provider/useLabelableId';
 
 /**
  * Groups all parts of the date field.
@@ -33,6 +35,8 @@ export const DateFieldRoot = React.forwardRef(function DateFieldRoot(
     readOnly,
     disabled: disabledProp,
     name: nameProp,
+    id: idProp,
+    inputRef: inputRefProp,
     // Value props
     onValueChange,
     defaultValue,
@@ -51,6 +55,9 @@ export const DateFieldRoot = React.forwardRef(function DateFieldRoot(
 
   const adapter = useTemporalAdapter();
 
+  const id = useLabelableId({ id: idProp });
+  const hiddenInputRef = useMergedRefs(inputRefProp, fieldContext.validation.inputRef);
+
   const parameters = React.useMemo(
     () => ({
       readOnly,
@@ -65,6 +72,7 @@ export const DateFieldRoot = React.forwardRef(function DateFieldRoot(
       maxDate,
       format,
       name: nameProp,
+      id,
       fieldContext,
     }),
     [
@@ -80,6 +88,7 @@ export const DateFieldRoot = React.forwardRef(function DateFieldRoot(
       maxDate,
       format,
       nameProp,
+      id,
       fieldContext,
     ],
   );
@@ -117,6 +126,7 @@ export const DateFieldRoot = React.forwardRef(function DateFieldRoot(
     <DateFieldRootContext.Provider value={store}>
       <input
         {...inputProps}
+        ref={hiddenInputRef}
         onChange={store.rootProps.onHiddenInputChange}
         onFocus={store.rootProps.onHiddenInputFocus}
       />

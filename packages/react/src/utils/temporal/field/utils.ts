@@ -46,6 +46,7 @@ export function deriveStateFromParameters<
     disabledProp: parameters.disabled ?? false,
     readOnly: parameters.readOnly ?? false,
     nameProp: parameters.name,
+    id: parameters.id,
     timezoneProp: parameters.timezone,
     placeholderGetters: parameters.placeholderGetters,
     fieldContext: parameters.fieldContext ?? null,

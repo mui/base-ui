@@ -48,6 +48,7 @@ export const selectors = {
   ),
   invalid: createSelector((state: State) => state.fieldContext?.invalid ?? false),
   name: createSelector((state: State) => state.fieldContext?.name ?? state.nameProp),
+  id: createSelector((state: State) => state.id),
   adapter: createSelector((state: State) => state.adapter),
   manager: createSelector((state: State) => state.manager),
   config: createSelector((state: State) => state.config),

@@ -3,7 +3,6 @@ import { visuallyHiddenInput } from '@base-ui/utils/visuallyHidden';
 import { TemporalFieldStore } from './TemporalFieldStore';
 import { TemporalFieldValuePlugin } from './TemporalFieldValuePlugin';
 import { selectors } from './selectors';
-import { NOOP } from '../../noop';
 
 const rootPropsSelectors = {
   rootState: createSelectorMemoized(
@@ -28,16 +27,17 @@ const rootPropsSelectors = {
     selectors.disabled,
     selectors.readOnly,
     selectors.name,
-    (value, adapter, config, required, disabled, readOnly, name) => ({
+    selectors.id,
+    (value, adapter, config, required, disabled, readOnly, name, id) => ({
       value: config.stringifyValue(adapter, value),
       name,
+      id,
       disabled,
       readOnly,
       required,
       'aria-hidden': true,
       tabIndex: -1,
       style: visuallyHiddenInput,
-      onChange: NOOP, // suppress a Next.js error
     }),
   ),
 };

@@ -4,6 +4,7 @@ import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { useStore } from '@base-ui/utils/store';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useOnMount } from '@base-ui/utils/useOnMount';
+import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { useTemporalAdapter } from '../../temporal-adapter-provider/TemporalAdapterContext';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
@@ -13,6 +14,8 @@ import { TimeFieldStore, TimeFieldStoreParameters } from './TimeFieldStore';
 import { TemporalFieldRootPropsPlugin } from '../../utils/temporal/field/TemporalFieldRootPropsPlugin';
 import { FieldRoot } from '../../field';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
+import { useLabelableId } from '../../labelable-provider/useLabelableId';
+import { DateFieldRootContext } from '../../date-field/root/DateFieldRootContext';
 
 /**
  * Groups all parts of the time field.
@@ -31,7 +34,10 @@ export const TimeFieldRoot = React.forwardRef(function TimeFieldRoot(
     // Form props
     required,
     readOnly,
-    disabled,
+    disabled: disabledProp,
+    name: nameProp,
+    id: idProp,
+    inputRef: inputRefProp,
     // Value props
     onValueChange,
     defaultValue,
@@ -50,10 +56,14 @@ export const TimeFieldRoot = React.forwardRef(function TimeFieldRoot(
 
   const adapter = useTemporalAdapter();
 
+  const id = useLabelableId({ id: idProp });
+  const hiddenInputRef = useMergedRefs(inputRefProp, fieldContext.validation.inputRef);
+
   const parameters = React.useMemo(
     () => ({
       readOnly,
-      disabled,
+      disabled: disabledProp,
+      required,
       onValueChange,
       defaultValue,
       value,
@@ -62,11 +72,14 @@ export const TimeFieldRoot = React.forwardRef(function TimeFieldRoot(
       minTime,
       maxTime,
       format,
+      name: nameProp,
+      id,
       fieldContext,
     }),
     [
       readOnly,
-      disabled,
+      disabledProp,
+      required,
       onValueChange,
       defaultValue,
       value,
@@ -75,6 +88,8 @@ export const TimeFieldRoot = React.forwardRef(function TimeFieldRoot(
       minTime,
       maxTime,
       format,
+      nameProp,
+      id,
       fieldContext,
     ],
   );
@@ -95,7 +110,6 @@ export const TimeFieldRoot = React.forwardRef(function TimeFieldRoot(
     store.subscribe(store.dom.syncSelectionToDOM);
   });
 
-  // TODO: Add onChange?
   const inputProps = useStore(store, TemporalFieldRootPropsPlugin.selectors.hiddenInputProps);
 
   const state: TimeFieldRootState = useStore(
@@ -111,8 +125,15 @@ export const TimeFieldRoot = React.forwardRef(function TimeFieldRoot(
 
   return (
     <TimeFieldRootContext.Provider value={store}>
-      <input {...inputProps} />
-      {element}
+      <DateFieldRootContext.Provider value={store}>
+        <input
+          {...inputProps}
+          ref={hiddenInputRef}
+          onChange={store.rootProps.onHiddenInputChange}
+          onFocus={store.rootProps.onHiddenInputFocus}
+        />
+        {element}
+      </DateFieldRootContext.Provider>
     </TimeFieldRootContext.Provider>
   );
 });

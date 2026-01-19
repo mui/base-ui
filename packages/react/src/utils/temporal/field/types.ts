@@ -65,6 +65,14 @@ export interface TemporalFieldStoreParameters<
    */
   name?: string;
   /**
+   * The id of the hidden input element.
+   */
+  id?: string;
+  /**
+   * A ref to access the hidden input element.
+   */
+  inputRef?: React.Ref<HTMLInputElement>;
+  /**
    * Methods to generate the placeholders for each section type.
    * Used when the field is empty or when a section is empty.
    * If a section type is not specified, a default placeholder will be used.
@@ -161,6 +169,10 @@ export interface TemporalFieldState<
    * When used inside a Field component, the actual name is computed by combining this with fieldContext.name.
    */
   nameProp: string | undefined;
+  /**
+   * The id of the hidden input element.
+   */
+  id: string | undefined;
   /**
    * Methods to generate the placeholders for each section type.
    */
