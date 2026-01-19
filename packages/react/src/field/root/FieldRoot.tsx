@@ -43,14 +43,12 @@ const FieldRootInner = React.forwardRef(function FieldRootInner(
 
   const disabled = disabledFieldset || disabledProp;
 
-  const [touchedState, setTouchedUnwrapped] = React.useState(false);
   const [dirtyState, setDirtyUnwrapped] = React.useState(false);
   const [filled, setFilled] = React.useState(false);
 
-  const { focused, setFocused } = useFieldInteractionStateContext();
+  const { focused, setFocused, touched, setTouched } = useFieldInteractionStateContext();
 
   const dirty = dirtyProp ?? dirtyState;
-  const touched = touchedProp ?? touchedState;
 
   const markedDirtyRef = React.useRef(false);
 
@@ -63,13 +61,6 @@ const FieldRootInner = React.forwardRef(function FieldRootInner(
       markedDirtyRef.current = true;
     }
     setDirtyUnwrapped(value);
-  });
-
-  const setTouched: typeof setTouchedUnwrapped = useStableCallback((value) => {
-    if (touchedProp !== undefined) {
-      return;
-    }
-    setTouchedUnwrapped(value);
   });
 
   const shouldValidateOnChange = useStableCallback(
@@ -190,10 +181,11 @@ export const FieldRoot = React.forwardRef(function FieldRoot(
   componentProps: FieldRoot.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
+  const { touched, ...elementProps } = componentProps;
   return (
     <LabelableProvider>
-      <FieldInteractionStateProvider>
-        <FieldRootInner {...componentProps} ref={forwardedRef} />
+      <FieldInteractionStateProvider touched={touched}>
+        <FieldRootInner {...elementProps} ref={forwardedRef} />
       </FieldInteractionStateProvider>
     </LabelableProvider>
   );

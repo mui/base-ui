@@ -3,8 +3,8 @@ import * as React from 'react';
 import { NOOP } from '../utils/noop';
 
 export interface FieldInteractionStateContext {
-  // touched: boolean;
-  // setTouched: React.Dispatch<React.SetStateAction<boolean>>;
+  touched: boolean;
+  setTouched: React.Dispatch<React.SetStateAction<boolean>>;
   // dirty: boolean;
   // setDirty: React.Dispatch<React.SetStateAction<boolean>>;
   // filled: boolean;
@@ -12,13 +12,16 @@ export interface FieldInteractionStateContext {
   focused: boolean;
   setFocused: React.Dispatch<React.SetStateAction<boolean>>;
   state: {
+    touched: boolean;
+    // dirty: boolean;
+    // filled: boolean;
     focused: boolean;
   };
 }
 
 export const FieldInteractionStateContext = React.createContext<FieldInteractionStateContext>({
-  // touched: false,
-  // setTouched: NOOP,
+  touched: false,
+  setTouched: NOOP,
   // dirty: false,
   // setDirty: NOOP,
   // filled: false,
@@ -26,6 +29,9 @@ export const FieldInteractionStateContext = React.createContext<FieldInteraction
   focused: false,
   setFocused: NOOP,
   state: {
+    touched: false,
+    // dirty: boolean;
+    // filled: boolean;
     focused: false,
   },
 });
