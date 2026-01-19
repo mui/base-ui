@@ -67,7 +67,7 @@ export interface AvatarImageProps extends BaseUIComponentProps<'img', AvatarRoot
   /**
    * Callback fired when the loading status changes.
    */
-  onLoadingStatusChange?: (status: ImageLoadingStatus) => void;
+  onLoadingStatusChange?: ((status: ImageLoadingStatus) => void) | undefined;
 }
 
 export namespace AvatarImage {

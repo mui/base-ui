@@ -50,7 +50,7 @@ export interface InternalBackdropProps extends React.HTMLAttributes<HTMLDivEleme
    * The element to cut out of the backdrop.
    * This is useful for allowing certain elements to be interactive while the backdrop is present.
    */
-  cutout?: Element | null;
+  cutout?: (Element | null) | undefined;
 }
 
 export namespace InternalBackdrop {

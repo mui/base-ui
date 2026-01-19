@@ -1258,7 +1258,7 @@ describe('<Combobox.Root />', () => {
   });
 
   describe('prop: id', () => {
-    it('sets the id on the hidden input', async () => {
+    it('sets the id on the input when it is outside the popup', async () => {
       await render(
         <Combobox.Root id="test-id">
           <Combobox.Input />
@@ -1275,8 +1275,35 @@ describe('<Combobox.Root />', () => {
         </Combobox.Root>,
       );
 
-      const hiddenInput = screen.getByRole('textbox', { hidden: true });
-      expect(hiddenInput).to.have.attribute('id', 'test-id');
+      const input = screen.getByRole('combobox');
+      await waitFor(() => {
+        expect(input).to.have.attribute('id', 'test-id');
+      });
+    });
+
+    it('sets the id on the trigger when the input is inside the popup', async () => {
+      await render(
+        <Combobox.Root id="test-id" defaultOpen>
+          <Combobox.Trigger data-testid="trigger">Open</Combobox.Trigger>
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.Input data-testid="input" />
+                <Combobox.List>
+                  <Combobox.Item value="a">a</Combobox.Item>
+                  <Combobox.Item value="b">b</Combobox.Item>
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+      const input = screen.getByTestId('input');
+
+      expect(trigger).to.have.attribute('id', 'test-id');
+      expect(input).to.not.have.attribute('id', 'test-id');
     });
   });
 
@@ -4078,6 +4105,38 @@ describe('<Combobox.Root />', () => {
       expect(hiddenInput).to.have.attribute('name', 'field-combobox');
     });
 
+    it('Field.Label links to Combobox.Trigger when input is inside popup and trigger has an explicit id', async () => {
+      await render(
+        <Field.Root>
+          <Field.Label data-testid="label">Search</Field.Label>
+          <Combobox.Root>
+            <Combobox.Trigger data-testid="trigger" id="x-id">
+              Open
+            </Combobox.Trigger>
+            <Combobox.Portal>
+              <Combobox.Positioner>
+                <Combobox.Popup>
+                  <Combobox.Input />
+                  <Combobox.List>
+                    <Combobox.Item value="a">a</Combobox.Item>
+                    <Combobox.Item value="b">b</Combobox.Item>
+                  </Combobox.List>
+                </Combobox.Popup>
+              </Combobox.Positioner>
+            </Combobox.Portal>
+          </Combobox.Root>
+        </Field.Root>,
+      );
+
+      const label = screen.getByTestId<HTMLLabelElement>('label');
+      const trigger = screen.getByTestId('trigger');
+
+      await waitFor(() => {
+        expect(trigger).to.have.attribute('id', 'x-id');
+        expect(label).to.have.attribute('for', 'x-id');
+      });
+    });
+
     it('[data-touched]', async () => {
       await render(
         <Field.Root>
@@ -4627,7 +4686,7 @@ describe('<Combobox.Root />', () => {
               <Combobox.Positioner />
             </Combobox.Portal>
           </Combobox.Root>
-          <Field.Label nativeLabel={false} data-testid="label" render={<span />} />
+          <Field.Label data-testid="label" nativeLabel={false} render={<span />} />
         </Field.Root>,
       );
 

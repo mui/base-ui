@@ -17,13 +17,11 @@ export const Button = React.forwardRef(function Button(
   const {
     render,
     className,
-    disabled: disabledProp = false,
+    disabled = false,
     focusableWhenDisabled = false,
     nativeButton = true,
     ...elementProps
   } = componentProps;
-
-  const disabled = Boolean(disabledProp);
 
   const { getButtonProps, buttonRef } = useButton({
     disabled,
@@ -58,7 +56,7 @@ export interface ButtonProps
    * Whether the button should be focusable when disabled.
    * @default false
    */
-  focusableWhenDisabled?: boolean;
+  focusableWhenDisabled?: boolean | undefined;
 }
 
 export namespace Button {

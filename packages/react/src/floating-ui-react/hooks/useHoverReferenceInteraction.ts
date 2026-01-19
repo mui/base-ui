@@ -23,8 +23,8 @@ export interface UseHoverReferenceInteractionProps extends Omit<UseHoverProps, '
    * triggers via `getTriggerProps`.
    * @default true
    */
-  isActiveTrigger?: boolean;
-  triggerElementRef?: Readonly<React.RefObject<Element | null>>;
+  isActiveTrigger?: boolean | undefined;
+  triggerElementRef?: Readonly<React.RefObject<Element | null>> | undefined;
 }
 
 function getRestMs(value: number | (() => number)) {
@@ -212,9 +212,13 @@ export function useHoverReferenceInteraction(
 
       const triggerNode = (event.currentTarget as HTMLElement) ?? null;
 
-      const shouldOpen = !store.select('open') || isOverInactiveTrigger;
+      const isOpen = store.select('open');
+      const shouldOpen = !isOpen || isOverInactiveTrigger;
 
-      if (openDelay) {
+      // When moving between triggers while already open, open immediately without delay
+      if (isOverInactiveTrigger && isOpen) {
+        store.setOpen(true, createChangeEventDetails(REASONS.triggerHover, event, triggerNode));
+      } else if (openDelay) {
         openChangeTimeout.start(openDelay, () => {
           if (shouldOpen) {
             store.setOpen(true, createChangeEventDetails(REASONS.triggerHover, event, triggerNode));

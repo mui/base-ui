@@ -43,10 +43,10 @@ export function findNonDisabledListIndex(
     disabledIndices,
     amount = 1,
   }: {
-    startingIndex?: number;
-    decrement?: boolean;
-    disabledIndices?: DisabledIndices;
-    amount?: number;
+    startingIndex?: number | undefined;
+    decrement?: boolean | undefined;
+    disabledIndices?: DisabledIndices | undefined;
+    amount?: number | undefined;
   } = {},
 ): number {
   let index = startingIndex;
@@ -84,7 +84,7 @@ export function getGridNavigatedIndex(
     minIndex: number;
     maxIndex: number;
     prevIndex: number;
-    stopEvent?: boolean;
+    stopEvent?: boolean | undefined;
   },
 ) {
   let nextIndex = prevIndex;
