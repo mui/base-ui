@@ -9,13 +9,12 @@ import { useTemporalAdapter } from '../../temporal-adapter-provider/TemporalAdap
 import { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useDirection } from '../../direction-provider';
-import { TimeFieldRootContext } from './TimeFieldRootContext';
 import { TimeFieldStore, TimeFieldStoreParameters } from './TimeFieldStore';
 import { TemporalFieldRootPropsPlugin } from '../../utils/temporal/field/TemporalFieldRootPropsPlugin';
+import { TemporalFieldRootContext } from '../../utils/temporal/field/TemporalFieldRootContext';
 import { FieldRoot } from '../../field';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { useLabelableId } from '../../labelable-provider/useLabelableId';
-import { DateFieldRootContext } from '../../date-field/root/DateFieldRootContext';
 
 /**
  * Groups all parts of the time field.
@@ -124,17 +123,15 @@ export const TimeFieldRoot = React.forwardRef(function TimeFieldRoot(
   });
 
   return (
-    <TimeFieldRootContext.Provider value={store}>
-      <DateFieldRootContext.Provider value={store}>
-        <input
-          {...inputProps}
-          ref={hiddenInputRef}
-          onChange={store.rootProps.onHiddenInputChange}
-          onFocus={store.rootProps.onHiddenInputFocus}
-        />
-        {element}
-      </DateFieldRootContext.Provider>
-    </TimeFieldRootContext.Provider>
+    <TemporalFieldRootContext.Provider value={store}>
+      <input
+        {...inputProps}
+        ref={hiddenInputRef}
+        onChange={store.rootProps.onHiddenInputChange}
+        onFocus={store.rootProps.onHiddenInputFocus}
+      />
+      {element}
+    </TemporalFieldRootContext.Provider>
   );
 });
 

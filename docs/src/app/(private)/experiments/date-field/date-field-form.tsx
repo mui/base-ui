@@ -8,7 +8,7 @@ export default function DateFieldForm() {
   return (
     <Field.Root name="number-field" className={styles.Field}>
       <Field.Label className={styles.Label}>Birth date</Field.Label>
-      <DateField.Root className={styles.Root}>
+      <DateField.Root className={styles.Root} required>
         <DateField.Input className={styles.Input}>
           {(section) => (
             <DateField.Section key={section.index} className={styles.Section} section={section} />

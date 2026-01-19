@@ -9,9 +9,9 @@ import { useTemporalAdapter } from '../../temporal-adapter-provider/TemporalAdap
 import { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useDirection } from '../../direction-provider';
-import { DateFieldRootContext } from './DateFieldRootContext';
 import { DateFieldStore, DateFieldStoreParameters } from './DateFieldStore';
 import { TemporalFieldRootPropsPlugin } from '../../utils/temporal/field/TemporalFieldRootPropsPlugin';
+import { TemporalFieldRootContext } from '../../utils/temporal/field/TemporalFieldRootContext';
 import { FieldRoot } from '../../field';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { useLabelableId } from '../../labelable-provider/useLabelableId';
@@ -123,7 +123,7 @@ export const DateFieldRoot = React.forwardRef(function DateFieldRoot(
   });
 
   return (
-    <DateFieldRootContext.Provider value={store}>
+    <TemporalFieldRootContext.Provider value={store}>
       <input
         {...inputProps}
         ref={hiddenInputRef}
@@ -131,7 +131,7 @@ export const DateFieldRoot = React.forwardRef(function DateFieldRoot(
         onFocus={store.rootProps.onHiddenInputFocus}
       />
       {element}
-    </DateFieldRootContext.Provider>
+    </TemporalFieldRootContext.Provider>
   );
 });
 

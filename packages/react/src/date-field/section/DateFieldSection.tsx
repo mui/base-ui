@@ -3,7 +3,7 @@ import * as React from 'react';
 import { useStore } from '@base-ui/utils/store';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
-import { useDateFieldRootContext } from '../root/DateFieldRootContext';
+import { useTemporalFieldRootContext } from '../../utils/temporal/field/TemporalFieldRootContext';
 import { TemporalFieldSection } from '../../utils/temporal/field/types';
 import { StateAttributesMapping } from '../../utils/getStateAttributesProps';
 import { DateFieldSectionDataAttributes } from './DateFieldSectionDataAttributes';
@@ -18,7 +18,7 @@ const stateAttributesMapping: StateAttributesMapping<DateFieldSectionState> = {
 };
 
 /**
- * Renders a the content of a date field's section.
+ * Renders a the content of a date or time field's section.
  * Renders a `<div>` element.
  *
  * Documentation: [Base UI Date Field](https://base-ui.com/react/components/date-field)
@@ -37,7 +37,7 @@ export const DateFieldSection = React.forwardRef(function DateFieldSection(
     ...elementProps
   } = componentProps;
 
-  const store = useDateFieldRootContext();
+  const store = useTemporalFieldRootContext();
   const propsFromState = useStore(
     store,
     TemporalFieldSectionPropsPlugin.selectors.sectionProps,

@@ -3,12 +3,12 @@ import * as React from 'react';
 import { useStore } from '@base-ui/utils/store';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
-import { useDateFieldRootContext } from '../root/DateFieldRootContext';
+import { useTemporalFieldRootContext } from '../../utils/temporal/field/TemporalFieldRootContext';
 import { TemporalFieldSection } from '../../utils/temporal/field/types';
 import { TemporalFieldSectionPlugin } from '../../utils/temporal/field/TemporalFieldSectionPlugin';
 
 /**
- * Groups all sections of the date field input.
+ * Groups all sections of the date or time field input.
  * Renders a `<div>` element.
  *
  * Documentation: [Base UI Date Field](https://base-ui.com/react/components/date-field)
@@ -26,7 +26,7 @@ export const DateFieldInput = React.forwardRef(function DateFieldInput(
     ...elementProps
   } = componentProps;
 
-  const store = useDateFieldRootContext();
+  const store = useTemporalFieldRootContext();
   const sections = useStore(store, TemporalFieldSectionPlugin.selectors.sections);
 
   const resolvedChildren = React.useMemo(() => {
