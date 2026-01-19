@@ -20,8 +20,8 @@ import { REASONS } from '../utils/reasons';
  *
  * Documentation: [Base UI Toggle](https://base-ui.com/react/components/toggle)
  */
-export const Toggle = React.forwardRef(function Toggle(
-  componentProps: Toggle.Props,
+export const Toggle = React.forwardRef(function Toggle<Value extends string>(
+  componentProps: Toggle.Props<Value>,
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
   const {
@@ -39,8 +39,8 @@ export const Toggle = React.forwardRef(function Toggle(
   } = componentProps;
 
   // `|| undefined` handles cases, where value is falsy (i.e. "")
-  const value = useBaseUiId(valueProp || undefined);
-  const groupContext = useToggleGroupContext();
+  const value = useBaseUiId(valueProp || undefined) as Value | undefined;
+  const groupContext = useToggleGroupContext<Value>();
   const groupValue = groupContext?.value ?? [];
 
   const defaultPressed = groupContext ? undefined : defaultPressedProp;
@@ -118,7 +118,11 @@ export const Toggle = React.forwardRef(function Toggle(
   }
 
   return element;
-});
+}) as Toggle;
+
+export type Toggle = <Value extends string>(
+  props: Toggle.Props<Value> & React.RefAttributes<HTMLButtonElement>,
+) => React.JSX.Element;
 
 export interface ToggleState {
   /**
@@ -131,7 +135,7 @@ export interface ToggleState {
   disabled: boolean;
 }
 
-export interface ToggleProps
+export interface ToggleProps<Value extends string = string>
   extends NativeButtonProps, BaseUIComponentProps<'button', Toggle.State> {
   /**
    * Whether the toggle button is currently pressed.
@@ -159,7 +163,7 @@ export interface ToggleProps
    * A unique string that identifies the toggle when used
    * inside a toggle group.
    */
-  value?: string | undefined;
+  value?: Value | undefined;
 }
 
 export type ToggleChangeEventReason = typeof REASONS.none;
@@ -168,7 +172,7 @@ export type ToggleChangeEventDetails = BaseUIChangeEventDetails<Toggle.ChangeEve
 
 export namespace Toggle {
   export type State = ToggleState;
-  export type Props = ToggleProps;
+  export type Props<Value extends string = string> = ToggleProps<Value>;
   export type ChangeEventReason = ToggleChangeEventReason;
   export type ChangeEventDetails = ToggleChangeEventDetails;
 }

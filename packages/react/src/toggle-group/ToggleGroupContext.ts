@@ -4,10 +4,10 @@ import type { Orientation } from '../utils/types';
 import type { BaseUIChangeEventDetails } from '../utils/createBaseUIEventDetails';
 import type { BaseUIEventReasons } from '../utils/reasons';
 
-export interface ToggleGroupContext {
-  value: readonly string[];
+export interface ToggleGroupContext<Value extends string = string> {
+  value: readonly Value[];
   setGroupValue: (
-    newValue: string,
+    newValue: Value,
     nextPressed: boolean,
     eventDetails: BaseUIChangeEventDetails<BaseUIEventReasons['none']>,
   ) => void;
@@ -15,9 +15,11 @@ export interface ToggleGroupContext {
   orientation: Orientation;
 }
 
-export const ToggleGroupContext = React.createContext<ToggleGroupContext | undefined>(undefined);
+export const ToggleGroupContext = React.createContext<ToggleGroupContext<any> | undefined>(
+  undefined,
+);
 
-export function useToggleGroupContext(optional = true) {
+export function useToggleGroupContext<Value extends string = string>(optional = true) {
   const context = React.useContext(ToggleGroupContext);
   if (context === undefined && !optional) {
     throw new Error(
@@ -25,5 +27,5 @@ export function useToggleGroupContext(optional = true) {
     );
   }
 
-  return context;
+  return context as ToggleGroupContext<Value> | undefined;
 }

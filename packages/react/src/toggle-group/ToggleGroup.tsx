@@ -25,8 +25,8 @@ const stateAttributesMapping = {
  *
  * Documentation: [Base UI Toggle Group](https://base-ui.com/react/components/toggle-group)
  */
-export const ToggleGroup = React.forwardRef(function ToggleGroup(
-  componentProps: ToggleGroup.Props,
+export const ToggleGroup = React.forwardRef(function ToggleGroup<Value extends string>(
+  componentProps: ToggleGroup.Props<Value>,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const {
@@ -54,7 +54,7 @@ export const ToggleGroup = React.forwardRef(function ToggleGroup(
 
   const disabled = (toolbarContext?.disabled ?? false) || disabledProp;
 
-  const [groupValue, setValueState] = useControlled({
+  const [groupValue, setValueState] = useControlled<readonly Value[]>({
     controlled: valueProp,
     default: defaultValue,
     name: 'ToggleGroup',
@@ -63,13 +63,13 @@ export const ToggleGroup = React.forwardRef(function ToggleGroup(
 
   const setGroupValue = useStableCallback(
     (
-      newValue: string,
+      newValue: Value,
       nextPressed: boolean,
       eventDetails: BaseUIChangeEventDetails<typeof REASONS.none>,
     ) => {
-      let newGroupValue: string[] | undefined;
+      let newGroupValue: Value[] | undefined;
       if (multiple) {
-        newGroupValue = groupValue.slice();
+        newGroupValue = groupValue.slice() as Value[];
         if (nextPressed) {
           newGroupValue.push(newValue);
         } else {
@@ -95,7 +95,7 @@ export const ToggleGroup = React.forwardRef(function ToggleGroup(
     [disabled, orientation, multiple],
   );
 
-  const contextValue: ToggleGroupContext = React.useMemo(
+  const contextValue: ToggleGroupContext<Value> = React.useMemo(
     () => ({
       disabled,
       orientation,
@@ -134,7 +134,11 @@ export const ToggleGroup = React.forwardRef(function ToggleGroup(
       )}
     </ToggleGroupContext.Provider>
   );
-});
+}) as ToggleGroup;
+
+export type ToggleGroup = <Value extends string>(
+  props: ToggleGroup.Props<Value> & React.RefAttributes<HTMLDivElement>,
+) => React.JSX.Element;
 
 export interface ToggleGroupState {
   /**
@@ -144,24 +148,27 @@ export interface ToggleGroupState {
   multiple: boolean;
 }
 
-export interface ToggleGroupProps extends BaseUIComponentProps<'div', ToggleGroup.State> {
+export interface ToggleGroupProps<Value extends string = string> extends BaseUIComponentProps<
+  'div',
+  ToggleGroup.State
+> {
   /**
    * The open state of the toggle group represented by an array of
    * the values of all pressed toggle buttons.
    * This is the controlled counterpart of `defaultValue`.
    */
-  value?: readonly string[] | undefined;
+  value?: readonly Value[] | undefined;
   /**
    * The open state of the toggle group represented by an array of
    * the values of all pressed toggle buttons.
    * This is the uncontrolled counterpart of `value`.
    */
-  defaultValue?: readonly string[] | undefined;
+  defaultValue?: readonly Value[] | undefined;
   /**
    * Callback fired when the pressed states of the toggle group changes.
    */
   onValueChange?:
-    | ((groupValue: string[], eventDetails: ToggleGroup.ChangeEventDetails) => void)
+    | ((groupValue: Value[], eventDetails: ToggleGroup.ChangeEventDetails) => void)
     | undefined;
   /**
    * Whether the toggle group should ignore user interaction.
@@ -193,7 +200,7 @@ export type ToggleGroupChangeEventDetails = BaseUIChangeEventDetails<ToggleGroup
 
 export namespace ToggleGroup {
   export type State = ToggleGroupState;
-  export type Props = ToggleGroupProps;
+  export type Props<Value extends string = string> = ToggleGroupProps<Value>;
   export type ChangeEventReason = ToggleGroupChangeEventReason;
   export type ChangeEventDetails = ToggleGroupChangeEventDetails;
 }
