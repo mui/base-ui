@@ -9,7 +9,7 @@ import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 
 /**
  * Indicates whether the radio item is selected.
- * Renders a `<div>` element.
+ * Renders a `<span>` element.
  *
  * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
  */
