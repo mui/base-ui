@@ -146,7 +146,7 @@ export class DismissInteractionController {
   public onPropsChange?: () => void;
 
   constructor(
-    private rootStore: FloatingRootContext,
+    public rootStore: FloatingRootContext,
     settings: DismissInteractionControllerParameters,
   ) {
     this.settings = this.generateSettings(settings);
@@ -797,9 +797,13 @@ export function useDismiss(
     tree,
   };
 
-  const controller = useRefWithInit(
-    () => new DismissInteractionController(store, controllerParameters),
-  ).current;
+  const controllerRef = React.useRef<DismissInteractionController | null>(null);
+
+  if (controllerRef.current === null || controllerRef.current.rootStore !== store) {
+    controllerRef.current = new DismissInteractionController(store, controllerParameters);
+  }
+
+  const controller = controllerRef.current;
 
   const [referenceProps, setReferenceProps] = React.useState<HTMLProps>(
     controller.getReferenceProps(),
