@@ -14,7 +14,6 @@ export default function ReleasesPage() {
       <p className={styles.subtitle}>Changelogs for each Base UI release.</p>
       
       <section className={styles.timelineSection}>
-        <h2 className={styles.sectionTitle}>Release Timeline</h2>
         <ReleaseTimeline />
       </section>
 
