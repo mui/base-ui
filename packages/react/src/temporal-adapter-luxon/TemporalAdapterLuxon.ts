@@ -375,6 +375,6 @@ export namespace TemporalAdapterLuxon {
      * The locale to use for formatting and parsing dates.
      * @default 'en-US'
      */
-    locale?: string;
+    locale?: string | undefined;
   }
 }

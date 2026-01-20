@@ -3,7 +3,7 @@ import * as React from 'react';
 import { Locale } from 'date-fns/locale';
 
 export type TemporalLocaleContext = {
-  locale?: Locale;
+  locale?: Locale | undefined;
 };
 
 /**

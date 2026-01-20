@@ -456,6 +456,6 @@ export namespace TemporalAdapterDateFns {
      * The locale to use for formatting and parsing dates.
      * @default enUS
      */
-    locale?: DateFnsLocale;
+    locale?: DateFnsLocale | undefined;
   }
 }

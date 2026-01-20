@@ -40,12 +40,14 @@ export interface UseCompositeRootParameters {
   orientation?: ('horizontal' | 'vertical' | 'both') | undefined;
   cols?: number | undefined;
   loopFocus?: boolean | undefined;
-  onLoop?: (
-    event: React.KeyboardEvent,
-    prevIndex: number,
-    nextIndex: number,
-    elementsRef: React.RefObject<(HTMLDivElement | null)[]>,
-  ) => number;
+  onLoop?:
+    | ((
+        event: React.KeyboardEvent,
+        prevIndex: number,
+        nextIndex: number,
+        elementsRef: React.RefObject<(HTMLDivElement | null)[]>,
+      ) => number)
+    | undefined;
   highlightedIndex?: number | undefined;
   onHighlightedIndexChange?: ((index: number) => void) | undefined;
   dense?: boolean | undefined;

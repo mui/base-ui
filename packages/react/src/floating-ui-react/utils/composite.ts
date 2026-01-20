@@ -76,7 +76,9 @@ export function getGridNavigatedIndex(
     event: React.KeyboardEvent;
     orientation: 'horizontal' | 'vertical' | 'both';
     loopFocus: boolean;
-    onLoop?: (event: React.KeyboardEvent, prevIndex: number, nextIndex: number) => number;
+    onLoop?:
+      | ((event: React.KeyboardEvent, prevIndex: number, nextIndex: number) => number)
+      | undefined;
     rtl: boolean;
     cols: number;
     disabledIndices: DisabledIndices | undefined;

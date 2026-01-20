@@ -280,17 +280,17 @@ export interface UseSharedCalendarDayGridBodyParameters {
    * Will render the requested amount of weeks by adding weeks of the next month if needed.
    * Set it to 6 to create a Gregorian calendar where all months have the same amount of weeks.
    */
-  fixedWeekNumber?: number;
+  fixedWeekNumber?: number | undefined;
   /**
    * The offset to apply to the rendered month compared to the current month.
    * This is mostly useful when displaying multiple day grids.
    * @default 0
    */
-  offset?: number;
+  offset?: number | undefined;
 }
 
 export interface UseSharedCalendarDayGridBodyItemMetadata {
-  focusableWhenDisabled?: boolean;
+  focusableWhenDisabled?: boolean | undefined;
 }
 
 export interface UseSharedCalendarDayGridBodyReturnValue {
