@@ -2,8 +2,8 @@
 import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useOnFirstRender } from '@base-ui/utils/useOnFirstRender';
-import { useDismiss, useInteractions } from '../../floating-ui-react';
-import { PreviewCardRootContext } from './PreviewCardContext';
+import { useDismiss, useInteractions, FloatingTree } from '../../floating-ui-react';
+import { PreviewCardRootContext, usePreviewCardRootContext } from './PreviewCardContext';
 import {
   createChangeEventDetails,
   type BaseUIChangeEventDetails,
@@ -17,13 +17,7 @@ import {
 } from '../../utils/popups';
 import { PreviewCardHandle } from '../store/PreviewCardHandle';
 
-/**
- * Groups all parts of the preview card.
- * Doesn’t render its own HTML element.
- *
- * Documentation: [Base UI Preview Card](https://base-ui.com/react/components/preview-card)
- */
-export function PreviewCardRoot<Payload>(props: PreviewCardRoot.Props<Payload>) {
+function PreviewCardRootComponent<Payload>(props: PreviewCardRoot.Props<Payload>) {
   const {
     open: openProp,
     defaultOpen = false,
@@ -105,6 +99,24 @@ export function PreviewCardRoot<Payload>(props: PreviewCardRoot.Props<Payload>) 
     <PreviewCardRootContext.Provider value={store as PreviewCardRootContext}>
       {typeof children === 'function' ? children({ payload }) : children}
     </PreviewCardRootContext.Provider>
+  );
+}
+
+/**
+ * Groups all parts of the preview card.
+ * Doesn't render its own HTML element.
+ *
+ * Documentation: [Base UI Preview Card](https://base-ui.com/react/components/preview-card)
+ */
+export function PreviewCardRoot<Payload>(props: PreviewCardRoot.Props<Payload>) {
+  if (usePreviewCardRootContext(true)) {
+    return <PreviewCardRootComponent {...props} />;
+  }
+
+  return (
+    <FloatingTree>
+      <PreviewCardRootComponent {...props} />
+    </FloatingTree>
   );
 }
 

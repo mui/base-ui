@@ -647,6 +647,134 @@ describe('<PreviewCard.Root />', () => {
       });
     });
   });
+
+  describe('nested preview card interactions', () => {
+    it('keeps the parent preview card open when clicking nested trigger', async () => {
+      function Test() {
+        return (
+          <PreviewCard.Root defaultOpen>
+            <PreviewCard.Trigger href="#">Parent</PreviewCard.Trigger>
+            <PreviewCard.Portal>
+              <PreviewCard.Positioner>
+                <PreviewCard.Popup data-testid="parent-popup">
+                  <PreviewCard.Root>
+                    <PreviewCard.Trigger href="#">Child</PreviewCard.Trigger>
+                    <PreviewCard.Portal>
+                      <PreviewCard.Positioner>
+                        <PreviewCard.Popup data-testid="child-popup">Child content</PreviewCard.Popup>
+                      </PreviewCard.Positioner>
+                    </PreviewCard.Portal>
+                  </PreviewCard.Root>
+                </PreviewCard.Popup>
+              </PreviewCard.Positioner>
+            </PreviewCard.Portal>
+          </PreviewCard.Root>
+        );
+      }
+
+      await render(<Test />);
+
+      expect(screen.queryByTestId('parent-popup')).not.to.equal(null);
+
+      const childTrigger = screen.getByRole('link', { name: 'Child' });
+
+      fireEvent.click(childTrigger);
+
+      await flushMicrotasks();
+
+      // Parent popup should still be open after clicking the child trigger
+      expect(screen.queryByTestId('parent-popup')).not.to.equal(null);
+    });
+
+    it('keeps the parent preview card open when press starts in nested popup and ends outside', async () => {
+      function Test() {
+        return (
+          <div>
+            <button type="button" data-testid="outside">
+              Outside
+            </button>
+
+            <PreviewCard.Root defaultOpen>
+              <PreviewCard.Trigger href="#">Parent</PreviewCard.Trigger>
+              <PreviewCard.Portal>
+                <PreviewCard.Positioner>
+                  <PreviewCard.Popup data-testid="parent-popup">
+                    <PreviewCard.Root defaultOpen>
+                      <PreviewCard.Trigger href="#">Child</PreviewCard.Trigger>
+                      <PreviewCard.Portal>
+                        <PreviewCard.Positioner>
+                          <PreviewCard.Popup data-testid="child-popup">Child content</PreviewCard.Popup>
+                        </PreviewCard.Positioner>
+                      </PreviewCard.Portal>
+                    </PreviewCard.Root>
+                  </PreviewCard.Popup>
+                </PreviewCard.Positioner>
+              </PreviewCard.Portal>
+            </PreviewCard.Root>
+          </div>
+        );
+      }
+
+      await render(<Test />);
+
+      expect(screen.queryByTestId('parent-popup')).not.to.equal(null);
+      expect(screen.queryByTestId('child-popup')).not.to.equal(null);
+
+      const childPopup = screen.getByTestId('child-popup');
+      const outside = screen.getByTestId('outside');
+
+      fireEvent.pointerDown(childPopup, { pointerType: 'mouse', button: 0 });
+      fireEvent.click(outside);
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('parent-popup')).not.to.equal(null);
+      });
+      expect(screen.queryByTestId('child-popup')).not.to.equal(null);
+    });
+
+    it('keeps the parent preview card open when hovering nested trigger', async () => {
+      function Test() {
+        return (
+          <PreviewCard.Root defaultOpen>
+            <PreviewCard.Trigger href="#">Parent</PreviewCard.Trigger>
+            <PreviewCard.Portal>
+              <PreviewCard.Positioner data-testid="parent-positioner">
+                <PreviewCard.Popup data-testid="parent-popup">
+                  <div>Parent content</div>
+                  <PreviewCard.Root>
+                    <PreviewCard.Trigger href="#" data-testid="child-trigger">
+                      Child
+                    </PreviewCard.Trigger>
+                    <PreviewCard.Portal>
+                      <PreviewCard.Positioner>
+                        <PreviewCard.Popup data-testid="child-popup">Child content</PreviewCard.Popup>
+                      </PreviewCard.Positioner>
+                    </PreviewCard.Portal>
+                  </PreviewCard.Root>
+                </PreviewCard.Popup>
+              </PreviewCard.Positioner>
+            </PreviewCard.Portal>
+          </PreviewCard.Root>
+        );
+      }
+
+      await render(<Test />);
+
+      expect(screen.queryByTestId('parent-popup')).not.to.equal(null);
+
+      const childTrigger = screen.getByTestId('child-trigger');
+
+      // Simulate hovering from parent content to child trigger
+      fireEvent.pointerDown(childTrigger, { pointerType: 'mouse' });
+      fireEvent.mouseEnter(childTrigger);
+      fireEvent.mouseMove(childTrigger);
+
+      await flushMicrotasks();
+
+      // Parent popup should still be open after hovering the child trigger
+      expect(screen.queryByTestId('parent-popup')).not.to.equal(null);
+    });
+  });
 });
 
 type TestPreviewCardProps = {
