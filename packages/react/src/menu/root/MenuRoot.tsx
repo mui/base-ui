@@ -1,12 +1,10 @@
 'use client';
 import * as React from 'react';
-import * as ReactDOM from 'react-dom';
 import { useTimeout } from '@base-ui/utils/useTimeout';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useId } from '@base-ui/utils/useId';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useOnFirstRender } from '@base-ui/utils/useOnFirstRender';
-import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
 import { useScrollLock } from '@base-ui/utils/useScrollLock';
 import { EMPTY_ARRAY } from '@base-ui/utils/empty';
 import { fastComponent } from '@base-ui/utils/fastHooks';
@@ -327,26 +325,18 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
         nativeEvent?.isTrusted;
       const isDismissClose = !nextOpen && (reason === REASONS.escapeKey || reason == null);
 
-      function changeState() {
-        const updatedState: Partial<State<Payload>> = { open: nextOpen, openChangeReason: reason };
-        openEventRef.current = eventDetails.event ?? null;
+      const updatedState: Partial<State<Payload>> = { open: nextOpen, openChangeReason: reason };
+      openEventRef.current = eventDetails.event ?? null;
 
-        // If a popup is closing, the `trigger` may be null.
-        // We want to keep the previous value so that exit animations are played and focus is returned correctly.
-        const newTriggerId = eventDetails.trigger?.id ?? null;
-        if (newTriggerId || nextOpen) {
-          updatedState.activeTriggerId = newTriggerId;
-          updatedState.activeTriggerElement = eventDetails.trigger ?? null;
-        }
-
-        store.update(updatedState);
+      // If a popup is closing, the `trigger` may be null.
+      // We want to keep the previous value so that exit animations are played and focus is returned correctly.
+      const newTriggerId = eventDetails.trigger?.id ?? null;
+      if (newTriggerId || nextOpen) {
+        updatedState.activeTriggerId = newTriggerId;
+        updatedState.activeTriggerElement = eventDetails.trigger ?? null;
       }
 
-      if (reason === REASONS.triggerHover) {
-        ReactDOM.flushSync(changeState);
-      } else {
-        changeState();
-      }
+      store.update(updatedState);
 
       if (
         parent.type === 'menubar' &&
@@ -499,9 +489,6 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
     const mergedProps = mergeProps(
       getReferenceProps(),
       {
-        onMouseEnter() {
-          store.set('hoverEnabled', true);
-        },
         onMouseMove() {
           store.set('allowMouseEnter', true);
         },
@@ -525,17 +512,14 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
     return mergedProps;
   }, [getTriggerProps, interactionTypeProps]);
 
-  const disableHoverTimeout = useAnimationFrame();
   const popupProps = React.useMemo(
     () =>
       getFloatingProps({
-        onMouseEnter() {
-          if (parent.type === 'menu') {
-            disableHoverTimeout.request(() => store.set('hoverEnabled', false));
-          }
-        },
         onMouseMove() {
           store.set('allowMouseEnter', true);
+          if (parent.type === 'menu') {
+            store.set('hoverEnabled', false);
+          }
         },
         onClick() {
           if (store.select('hoverEnabled')) {
@@ -552,7 +536,7 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
           }
         },
       }),
-    [getFloatingProps, parent.type, disableHoverTimeout, store],
+    [getFloatingProps, parent.type, store],
   );
 
   const itemProps = React.useMemo(() => getItemProps(), [getItemProps]);
