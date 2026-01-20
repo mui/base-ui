@@ -32,6 +32,8 @@ import { getDisabledMountTransitionStyles } from '../../utils/getDisabledMountTr
 import { clamp } from '../../utils/clamp';
 import { useCSPContext } from '../../csp-provider/CSPContext';
 
+const SCROLL_EPS_PX = 1;
+
 const stateAttributesMapping: StateAttributesMapping<SelectPopup.State> = {
   ...popupStateMapping,
   ...transitionStatusMapping,
@@ -118,33 +120,36 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
     const scrollTop = scroller.scrollTop;
     const scrollHeight = scroller.scrollHeight;
     const clientHeight = scroller.clientHeight;
-    const maxScrollTop = scrollHeight - clientHeight;
+    const maxScrollTop = Math.max(0, scrollHeight - clientHeight);
 
     let nextPositionerHeight = 0;
     let nextScrollTop: number | null = null;
     let setReachedMax = false;
+    let scrollToMax = false;
 
     if (isTopPositioned) {
       const diff = maxScrollTop - scrollTop;
+
       const idealHeight = currentHeight + diff;
       const nextHeight = Math.min(idealHeight, viewportHeight);
 
       nextPositionerHeight = nextHeight;
 
-      if (nextHeight !== viewportHeight) {
-        nextScrollTop = maxScrollTop;
+      if (viewportHeight - nextHeight > SCROLL_EPS_PX) {
+        scrollToMax = true;
       } else {
         setReachedMax = true;
       }
     } else if (isBottomPositioned) {
-      const diff = scrollTop - 0;
+      const diff = scrollTop;
+
       const idealHeight = currentHeight + diff;
       const nextHeight = Math.min(idealHeight, viewportHeight);
       const overshoot = idealHeight - viewportHeight;
 
       nextPositionerHeight = nextHeight;
 
-      if (nextHeight !== viewportHeight) {
+      if (viewportHeight - nextHeight > SCROLL_EPS_PX) {
         nextScrollTop = 0;
       } else {
         setReachedMax = true;
@@ -158,10 +163,20 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
     if (nextPositionerHeight !== 0) {
       positionerElement.style.height = `${nextPositionerHeight}px`;
     }
-    if (nextScrollTop != null) {
-      scroller.scrollTop = nextScrollTop;
+
+    if (scrollToMax || nextScrollTop != null) {
+      // Recompute bounds after resizing (clientHeight likely changed)
+      const nextMaxScrollTop = Math.max(0, scroller.scrollHeight - scroller.clientHeight);
+
+      const target = scrollToMax ? nextMaxScrollTop : clamp(nextScrollTop!, 0, nextMaxScrollTop);
+
+      // Avoid adjustments that re-trigger scroll events forever.
+      if (Math.abs(scroller.scrollTop - target) > SCROLL_EPS_PX) {
+        scroller.scrollTop = target;
+      }
     }
-    if (setReachedMax || nextPositionerHeight >= maxPopupHeight) {
+
+    if (setReachedMax || nextPositionerHeight >= maxPopupHeight - SCROLL_EPS_PX) {
       reachedMaxHeightRef.current = true;
     }
 
