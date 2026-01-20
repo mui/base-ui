@@ -191,7 +191,7 @@ export interface UseRenderElementComponentProps<State> {
   /**
    * The render prop or React element to override the default element.
    */
-  render?: undefined | ComponentRenderFn<React.HTMLAttributes<any>, State> | React.ReactElement;
+  render?: undefined | React.ReactElement | ComponentRenderFn<React.HTMLAttributes<any>, State>;
   /**
    * The style to apply to the rendered element.
    * Can be a style object or a function that accepts the state and returns a style object.
