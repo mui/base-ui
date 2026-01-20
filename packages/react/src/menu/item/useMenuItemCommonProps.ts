@@ -42,9 +42,7 @@ export interface UseMenuItemCommonPropsParameters {
  * Returns common props shared by all menu item types.
  * This hook extracts the shared logic for id, role, tabIndex, onMouseMove, onClick, and onMouseUp handlers.
  */
-export function useMenuItemCommonProps(
-  params: UseMenuItemCommonPropsParameters,
-): HTMLProps {
+export function useMenuItemCommonProps(params: UseMenuItemCommonPropsParameters): HTMLProps {
   const { closeOnClick, highlighted, id, nodeId, store, itemRef, itemMetadata } = params;
 
   const { events: menuEvents } = store.useState('floatingTreeRoot');
