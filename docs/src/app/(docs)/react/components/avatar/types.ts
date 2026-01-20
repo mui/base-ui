@@ -1,7 +1,7 @@
 import { Avatar } from '@base-ui/react/avatar';
 import { createMultipleTypes } from 'docs/src/utils/createTypes';
 
-const types = createMultipleTypes(import.meta.url, Avatar);
+const { types } = createMultipleTypes(import.meta.url, Avatar);
 
 export const TypesAvatarRoot = types.Root;
 export const TypesAvatarImage = types.Image;

@@ -1,7 +1,7 @@
 import { Combobox } from '@base-ui/react/combobox';
 import { createMultipleTypes } from 'docs/src/utils/createTypes';
 
-const types = createMultipleTypes(import.meta.url, Combobox);
+const { types } = createMultipleTypes(import.meta.url, Combobox);
 
 export const TypesComboboxRoot = types.Root;
 export const TypesComboboxValue = types.Value;

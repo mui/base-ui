@@ -1,7 +1,7 @@
 import { PreviewCard } from '@base-ui/react/preview-card';
 import { createMultipleTypes } from 'docs/src/utils/createTypes';
 
-const types = createMultipleTypes(import.meta.url, PreviewCard);
+const { types } = createMultipleTypes(import.meta.url, PreviewCard);
 
 export const TypesPreviewCardRoot = types.Root;
 export const TypesPreviewCardTrigger = types.Trigger;

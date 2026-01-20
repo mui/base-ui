@@ -1,7 +1,7 @@
 import { Slider } from '@base-ui/react/slider';
 import { createMultipleTypes } from 'docs/src/utils/createTypes';
 
-const types = createMultipleTypes(import.meta.url, Slider);
+const { types } = createMultipleTypes(import.meta.url, Slider);
 
 export const TypesSliderRoot = types.Root;
 export const TypesSliderValue = types.Value;

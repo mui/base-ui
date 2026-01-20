@@ -1,7 +1,7 @@
 import { Toolbar } from '@base-ui/react/toolbar';
 import { createMultipleTypes } from 'docs/src/utils/createTypes';
 
-const types = createMultipleTypes(import.meta.url, Toolbar);
+const { types } = createMultipleTypes(import.meta.url, Toolbar);
 
 export const TypesToolbarRoot = types.Root;
 export const TypesToolbarButton = types.Button;

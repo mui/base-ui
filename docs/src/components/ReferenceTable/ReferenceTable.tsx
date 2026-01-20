@@ -12,9 +12,8 @@ type ReferenceTableProps = TypesContentProps<{
 }>;
 
 export function ReferenceTable(props: ReferenceTableProps) {
-  const { types, multiple, hideDescription } = useTypes(props);
+  const { type, multiple, hideDescription } = useTypes(props);
 
-  const type = types && types[0];
   if (type?.type !== 'component') {
     return <p>No type information provided.</p>;
   }

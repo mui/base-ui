@@ -1,7 +1,7 @@
 import { Menu } from '@base-ui/react/menu';
 import { createMultipleTypes } from 'docs/src/utils/createTypes';
 
-const types = createMultipleTypes(import.meta.url, Menu);
+const { types } = createMultipleTypes(import.meta.url, Menu);
 
 export const TypesMenuRoot = types.Root;
 export const TypesMenuTrigger = types.Trigger;

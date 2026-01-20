@@ -1,7 +1,7 @@
 import { NumberField } from '@base-ui/react/number-field';
 import { createMultipleTypes } from 'docs/src/utils/createTypes';
 
-const types = createMultipleTypes(import.meta.url, NumberField);
+const { types } = createMultipleTypes(import.meta.url, NumberField);
 
 export const TypesNumberFieldRoot = types.Root;
 export const TypesNumberFieldScrubArea = types.ScrubArea;

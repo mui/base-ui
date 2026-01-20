@@ -1,7 +1,7 @@
 import { NavigationMenu } from '@base-ui/react/navigation-menu';
 import { createMultipleTypes } from 'docs/src/utils/createTypes';
 
-const types = createMultipleTypes(import.meta.url, NavigationMenu);
+const { types } = createMultipleTypes(import.meta.url, NavigationMenu);
 
 export const TypesNavigationMenuRoot = types.Root;
 export const TypesNavigationMenuList = types.List;

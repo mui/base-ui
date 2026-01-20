@@ -1,7 +1,7 @@
 import { Toast } from '@base-ui/react/toast';
 import { createMultipleTypes } from 'docs/src/utils/createTypes';
 
-const types = createMultipleTypes(import.meta.url, Toast);
+const { types } = createMultipleTypes(import.meta.url, Toast);
 
 export const TypesToastProvider = types.Provider;
 export const TypesToastViewport = types.Viewport;

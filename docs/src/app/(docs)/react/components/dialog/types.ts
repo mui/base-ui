@@ -1,7 +1,7 @@
 import { Dialog } from '@base-ui/react/dialog';
 import { createMultipleTypes } from 'docs/src/utils/createTypes';
 
-const types = createMultipleTypes(import.meta.url, Dialog);
+const { types } = createMultipleTypes(import.meta.url, Dialog);
 
 export const TypesDialogRoot = types.Root;
 export const TypesDialogTrigger = types.Trigger;

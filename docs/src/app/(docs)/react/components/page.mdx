@@ -134,7 +134,6 @@ A dialog that requires a user response to proceed.
     - Props: className, render, style
     - Data Attributes: data-closed, data-ending-style, data-nested, data-nested-dialog-open, data-open, data-starting-style
   - AlertDialog.createHandle
-  - AlertDialog.createDialogHandle
 
 </details>
 
@@ -235,8 +234,6 @@ An input that suggests options as you type.
     - Props: children
   - Autocomplete - Row
     - Props: className, render, style
-  - Autocomplete.useComboboxFilter
-    - Parameters: options
   - Autocomplete.useFilter
     - Parameters: options
 
@@ -490,8 +487,6 @@ An input combined with a list of predefined items to select.
     - Props: children, className, keepMounted, render, style
   - Combobox.useFilter
     - Parameters: options
-  - Combobox.useCoreFilter
-    - Parameters: options
 
 </details>
 
@@ -559,6 +554,8 @@ A menu that appears at the pointer on right click or long press.
     - Props: className, render, style
   - Context Menu - Separator
     - Props: className, orientation, render, style
+  - Context Menu - SubmenuRoot
+    - Props: actionsRef, children, closeParentOnEsc, defaultOpen, defaultTriggerId, disabled, handle, highlightItemOnHover, loopFocus, onOpenChange, onOpenChangeComplete, open, orientation, triggerId
   - Context Menu - SubmenuTrigger
     - Props: className, closeDelay, delay, disabled, label, nativeButton, onClick, openOnHover, render, style
     - Data Attributes: data-disabled, data-highlighted, data-popup-open
@@ -831,6 +828,8 @@ A list of actions in a dropdown, enhanced with keyboard navigation.
     - Props: className, render, style
   - Menu - Separator
     - Props: className, orientation, render, style
+  - Menu - SubmenuRoot
+    - Props: actionsRef, children, closeParentOnEsc, defaultOpen, defaultTriggerId, disabled, handle, highlightItemOnHover, loopFocus, onOpenChange, onOpenChangeComplete, open, orientation, triggerId
   - Menu - SubmenuTrigger
     - Props: className, closeDelay, delay, disabled, label, nativeButton, onClick, openOnHover, render, style
     - Data Attributes: data-disabled, data-highlighted, data-popup-open
@@ -848,7 +847,6 @@ A list of actions in a dropdown, enhanced with keyboard navigation.
   - Menu - CheckboxItemIndicator
     - Props: className, keepMounted, render, style
     - Data Attributes: data-checked, data-disabled, data-ending-style, data-starting-style, data-unchecked
-  - Menu.useMenuSubmenuRootContext
   - Menu.createHandle
 
 </details>

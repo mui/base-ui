@@ -3,7 +3,7 @@
 import { Popover } from '@base-ui/react/popover';
 import { createMultipleTypes } from 'docs/src/utils/createTypes';
 
-const types = createMultipleTypes(import.meta.url, Popover);
+const { types } = createMultipleTypes(import.meta.url, Popover);
 
 export const TypesPopoverRoot = types.Root;
 export const TypesPopoverTrigger = types.Trigger;

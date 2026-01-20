@@ -1,7 +1,7 @@
 import { Select } from '@base-ui/react/select';
 import { createMultipleTypes } from 'docs/src/utils/createTypes';
 
-const types = createMultipleTypes(import.meta.url, Select);
+const { types } = createMultipleTypes(import.meta.url, Select);
 
 export const TypesSelectRoot = types.Root;
 export const TypesSelectTrigger = types.Trigger;
