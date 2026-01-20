@@ -1,7 +1,7 @@
 import * as React from 'react';
-import { useMergedRefs, useMergedRefsN } from '@base-ui-components/utils/useMergedRefs';
-import { getReactElementRef } from '@base-ui-components/utils/getReactElementRef';
-import { mergeObjects } from '@base-ui-components/utils/mergeObjects';
+import { useMergedRefs, useMergedRefsN } from '@base-ui/utils/useMergedRefs';
+import { getReactElementRef } from '@base-ui/utils/getReactElementRef';
+import { mergeObjects } from '@base-ui/utils/mergeObjects';
 import type { BaseUIComponentProps, ComponentRenderFn, HTMLProps } from './types';
 import { getStateAttributesProps, StateAttributesMapping } from './getStateAttributesProps';
 import { resolveClassName } from './resolveClassName';
@@ -27,17 +27,17 @@ export function useRenderElement<
   element: TagName,
   componentProps: useRenderElement.ComponentProps<State>,
   params: useRenderElement.Parameters<State, RenderedElementType, TagName, Enabled> = {},
-): Enabled extends false ? null : React.ReactElement<Record<string, unknown>> {
+): Enabled extends false ? null : React.ReactElement {
   const renderProp = componentProps.render;
   const outProps = useRenderElementProps(componentProps, params);
   if (params.enabled === false) {
-    return null as Enabled extends false ? null : React.ReactElement<Record<string, unknown>>;
+    return null as Enabled extends false ? null : React.ReactElement;
   }
 
   const state = params.state ?? (EMPTY_OBJECT as State);
   return evaluateRenderProp(element, renderProp, outProps, state) as Enabled extends false
     ? null
-    : React.ReactElement<Record<string, unknown>>;
+    : React.ReactElement;
 }
 
 /**
@@ -109,7 +109,7 @@ function evaluateRenderProp<T extends React.ElementType, S>(
   render: BaseUIComponentProps<T, S>['render'],
   props: React.HTMLAttributes<any> & React.RefAttributes<any>,
   state: S,
-): React.ReactElement<Record<string, unknown>> {
+): React.ReactElement {
   if (render) {
     if (typeof render === 'function') {
       return render(props, state);
@@ -153,33 +153,38 @@ export type UseRenderElementParameters<
    * This is useful for rendering a component conditionally.
    * @default true
    */
-  enabled?: Enabled;
+  enabled?: Enabled | undefined;
   /**
    * @deprecated
    */
-  propGetter?: (externalProps: HTMLProps) => HTMLProps;
+  propGetter?: ((externalProps: HTMLProps) => HTMLProps) | undefined;
   /**
    * The ref to apply to the rendered element.
    */
-  ref?: React.Ref<RenderedElementType> | (React.Ref<RenderedElementType> | undefined)[];
+  ref?:
+    | (React.Ref<RenderedElementType> | (React.Ref<RenderedElementType> | undefined)[])
+    | undefined;
   /**
    * The state of the component.
    */
-  state?: State;
+  state?: State | undefined;
   /**
    * Intrinsic props to be spread on the rendered element.
    */
   props?:
-    | RenderFunctionProps<TagName>
-    | Array<
+    | (
         | RenderFunctionProps<TagName>
-        | undefined
-        | ((props: RenderFunctionProps<TagName>) => RenderFunctionProps<TagName>)
-      >;
+        | Array<
+            | RenderFunctionProps<TagName>
+            | undefined
+            | ((props: RenderFunctionProps<TagName>) => RenderFunctionProps<TagName>)
+          >
+      )
+    | undefined;
   /**
    * A mapping of state to `data-*` attributes.
    */
-  stateAttributesMapping?: StateAttributesMapping<State>;
+  stateAttributesMapping?: StateAttributesMapping<State> | undefined;
 };
 
 export interface UseRenderElementComponentProps<State> {
@@ -187,19 +192,16 @@ export interface UseRenderElementComponentProps<State> {
    * The class name to apply to the rendered element.
    * Can be a string or a function that accepts the state and returns a string.
    */
-  className?: string | ((state: State) => string | undefined);
+  className?: (string | ((state: State) => string | undefined)) | undefined;
   /**
    * The render prop or React element to override the default element.
    */
-  render?:
-    | undefined
-    | ComponentRenderFn<React.HTMLAttributes<any>, State>
-    | React.ReactElement<Record<string, unknown>>;
+  render?: undefined | ComponentRenderFn<React.HTMLAttributes<any>, State> | React.ReactElement;
   /**
    * The style to apply to the rendered element.
    * Can be a style object or a function that accepts the state and returns a style object.
    */
-  style?: React.CSSProperties | ((state: State) => React.CSSProperties | undefined);
+  style?: (React.CSSProperties | ((state: State) => React.CSSProperties | undefined)) | undefined;
 }
 
 export namespace useRenderElement {

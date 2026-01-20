@@ -1,14 +1,13 @@
 'use client';
 import * as React from 'react';
-import { ownerDocument } from '@base-ui-components/utils/owner';
-import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
+import { ownerDocument } from '@base-ui/utils/owner';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useRenderElement } from '../../utils/useRenderElement';
 import type { BaseUIComponentProps, NativeButtonProps } from '../../utils/types';
 import { useButton } from '../../use-button';
 import { ACTIVE_COMPOSITE_ITEM } from '../../composite/constants';
 import { useCompositeItem } from '../../composite/item/useCompositeItem';
-import { IndexGuessBehavior } from '../../composite/list/useCompositeListItem';
 import type { TabsRoot } from '../root/TabsRoot';
 import { useTabsRootContext } from '../root/TabsRootContext';
 import { useTabsListContext } from '../list/TabsListContext';
@@ -24,23 +23,19 @@ import { activeElement, contains } from '../../floating-ui-react/utils';
  */
 export const TabsTab = React.forwardRef(function TabsTab(
   componentProps: TabsTab.Props,
-  forwardedRef: React.ForwardedRef<Element>,
+  forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
   const {
     className,
     disabled = false,
     render,
-    value: valueProp,
+    value,
     id: idProp,
     nativeButton = true,
     ...elementProps
   } = componentProps;
 
-  const {
-    value: activeTabValue,
-    getTabPanelIdByTabValueOrIndex,
-    orientation,
-  } = useTabsRootContext();
+  const { value: activeTabValue, getTabPanelIdByValue, orientation } = useTabsRootContext();
 
   const {
     activateOnFocus,
@@ -52,10 +47,7 @@ export const TabsTab = React.forwardRef(function TabsTab(
 
   const id = useBaseUiId(idProp);
 
-  const tabMetadata = React.useMemo(
-    () => ({ disabled, id, value: valueProp }),
-    [disabled, id, valueProp],
-  );
+  const tabMetadata = React.useMemo(() => ({ disabled, id, value }), [disabled, id, value]);
 
   const {
     compositeProps,
@@ -65,20 +57,9 @@ export const TabsTab = React.forwardRef(function TabsTab(
     // because the index is needed for Tab internals
   } = useCompositeItem<TabsTab.Metadata>({
     metadata: tabMetadata,
-    indexGuessBehavior: IndexGuessBehavior.GuessFromOrder,
   });
 
-  const tabValue = valueProp ?? index;
-
-  // the `active` state isn't set on the server (it relies on effects to be calculated),
-  // so we fall back to checking the `value` param with the activeTabValue from the TabsContext
-  const active = React.useMemo(() => {
-    if (valueProp === undefined) {
-      return index < 0 ? false : index === activeTabValue;
-    }
-
-    return valueProp === activeTabValue;
-  }, [index, activeTabValue, valueProp]);
+  const active = value === activeTabValue;
 
   const isNavigatingRef = React.useRef(false);
 
@@ -105,7 +86,11 @@ export const TabsTab = React.forwardRef(function TabsTab(
       }
     }
 
-    setHighlightedTabIndex(index);
+    // Don't highlight disabled tabs to prevent them from interfering with keyboard navigation.
+    // Keyboard focus (tabIndex) should remain on an enabled tab even when a disabled tab is selected.
+    if (!disabled) {
+      setHighlightedTabIndex(index);
+    }
   }, [active, index, highlightedTabIndex, setHighlightedTabIndex, disabled, tabsListElement]);
 
   const { getButtonProps, buttonRef } = useButton({
@@ -114,7 +99,7 @@ export const TabsTab = React.forwardRef(function TabsTab(
     focusableWhenDisabled: true,
   });
 
-  const tabPanelId = index > -1 ? getTabPanelIdByTabValueOrIndex(valueProp, index) : undefined;
+  const tabPanelId = getTabPanelIdByValue(value);
 
   const isPressingRef = React.useRef(false);
   const isMainButtonRef = React.useRef(false);
@@ -125,7 +110,7 @@ export const TabsTab = React.forwardRef(function TabsTab(
     }
 
     onTabActivation(
-      tabValue,
+      value,
       createChangeEventDetails(REASONS.none, event.nativeEvent, undefined, {
         activationDirection: 'none',
       }),
@@ -137,7 +122,8 @@ export const TabsTab = React.forwardRef(function TabsTab(
       return;
     }
 
-    if (index > -1) {
+    // Only highlight enabled tabs when focused (disabled tabs remain focusable via focusableWhenDisabled).
+    if (index > -1 && !disabled) {
       setHighlightedTabIndex(index);
     }
 
@@ -151,7 +137,7 @@ export const TabsTab = React.forwardRef(function TabsTab(
         (isPressingRef.current && isMainButtonRef.current)) // mouse focus
     ) {
       onTabActivation(
-        tabValue,
+        value,
         createChangeEventDetails(REASONS.none, event.nativeEvent, undefined, {
           activationDirection: 'none',
         }),
@@ -233,7 +219,7 @@ export interface TabsTabSize {
 export interface TabsTabMetadata {
   disabled: boolean;
   id: string | undefined;
-  value: any | undefined;
+  value: TabsTab.Value | undefined;
 }
 
 export interface TabsTabState {
@@ -246,13 +232,21 @@ export interface TabsTabState {
 }
 
 export interface TabsTabProps
-  extends NativeButtonProps,
-    BaseUIComponentProps<'button', TabsTab.State> {
+  extends NativeButtonProps, BaseUIComponentProps<'button', TabsTab.State> {
   /**
    * The value of the Tab.
-   * When not specified, the value is the child position index.
    */
-  value?: TabsTab.Value;
+  value: TabsTab.Value;
+  /**
+   * Whether the Tab is disabled.
+   *
+   * If a first Tab on a `<Tabs.List>` is disabled, it won't initially be selected.
+   * Instead, the next enabled Tab will be selected.
+   * However, it does not work like this during server-side rendering, as it is not known
+   * during pre-rendering which Tabs are disabled.
+   * To work around it, ensure that `defaultValue` or `value` on `<Tabs.Root>` is set to an enabled Tab's value.
+   */
+  disabled?: boolean | undefined;
 }
 
 export namespace TabsTab {

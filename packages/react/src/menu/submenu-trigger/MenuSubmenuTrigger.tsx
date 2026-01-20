@@ -115,12 +115,12 @@ export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerCompon
   const allowMouseEnter = store.useState('allowMouseEnter');
 
   const hoverProps = useHoverReferenceInteraction(floatingRootContext, {
-    enabled: hoverEnabled && openOnHover && !disabled,
+    enabled: hoverEnabled && openOnHover && !disabled && allowMouseEnter,
     handleClose: safePolygon({ blockPointerEvents: true }),
     mouseOnly: true,
     move: true,
-    restMs: allowMouseEnter ? delay : undefined,
-    delay: { open: allowMouseEnter ? delay : 10 ** 10, close: closeDelay },
+    restMs: delay,
+    delay: { open: delay, close: closeDelay },
     triggerElementRef,
     externalTree: floatingTreeRoot,
   });
@@ -169,29 +169,28 @@ export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerCompon
 });
 
 export interface MenuSubmenuTriggerProps
-  extends NonNativeButtonProps,
-    BaseUIComponentProps<'div', MenuSubmenuTrigger.State> {
-  onClick?: React.MouseEventHandler<HTMLElement>;
+  extends NonNativeButtonProps, BaseUIComponentProps<'div', MenuSubmenuTrigger.State> {
+  onClick?: React.MouseEventHandler<HTMLElement> | undefined;
   /**
    * Overrides the text label to use when the item is matched during keyboard text navigation.
    */
-  label?: string;
+  label?: string | undefined;
   /**
    * @ignore
    */
-  id?: string;
+  id?: string | undefined;
   /**
    * Whether the component should ignore user interaction.
    * @default false
    */
-  disabled?: boolean;
+  disabled?: boolean | undefined;
   /**
    * How long to wait before the menu may be opened on hover. Specified in milliseconds.
    *
    * Requires the `openOnHover` prop.
    * @default 100
    */
-  delay?: number;
+  delay?: number | undefined;
   /**
    * How long to wait before closing the menu that was opened on hover.
    * Specified in milliseconds.
@@ -199,11 +198,11 @@ export interface MenuSubmenuTriggerProps
    * Requires the `openOnHover` prop.
    * @default 0
    */
-  closeDelay?: number;
+  closeDelay?: number | undefined;
   /**
    * Whether the menu should also open when the trigger is hovered.
    */
-  openOnHover?: boolean;
+  openOnHover?: boolean | undefined;
 }
 
 export interface MenuSubmenuTriggerState {

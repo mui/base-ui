@@ -1,14 +1,13 @@
 'use client';
 import * as React from 'react';
 import clsx from 'clsx';
-import { Dialog } from '@base-ui-components/react/dialog';
-// eslint-disable-next-line no-restricted-imports
-import { useTransitionStatus } from '@base-ui-components/react/utils/useTransitionStatus';
+import { Dialog } from '@base-ui/react/dialog';
 import { animated as springAnimated, useSpring, useSpringRef } from '@react-spring/web';
 import {
   SettingsMetadata,
   useExperimentSettings,
 } from 'docs/src/components/Experiments/SettingsPanel';
+import { useTransitionStatus } from '../../../../../../packages/react/src/utils/useTransitionStatus';
 import classes from './nested.module.css';
 
 const NESTED_DIALOGS = 8;

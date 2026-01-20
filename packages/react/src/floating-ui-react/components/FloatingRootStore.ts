@@ -1,10 +1,11 @@
 import * as React from 'react';
-import { createSelector, ReactStore } from '@base-ui-components/utils/store';
+import { createSelector, ReactStore } from '@base-ui/utils/store';
 import type { FloatingEvents, ContextData, ReferenceType } from '../types';
 import { type BaseUIChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { createEventEmitter } from '../utils/createEventEmitter';
 import { type FloatingUIOpenChangeDetails } from '../../utils/types';
 import { type PopupTriggerMap } from '../../utils/popups';
+import { isClickLikeEvent } from '../utils';
 
 export interface FloatingRootState {
   open: boolean;
@@ -85,7 +86,15 @@ export class FloatingRootStore extends ReactStore<
    * @param eventDetails Details about the event that triggered the open state change.
    */
   setOpen = (newOpen: boolean, eventDetails: BaseUIChangeEventDetails<string>) => {
-    this.context.dataRef.current.openEvent = newOpen ? eventDetails.event : undefined;
+    if (
+      !newOpen ||
+      !this.state.open ||
+      // Prevent a pending hover-open from overwriting a click-open event, while allowing
+      // click events to upgrade a hover-open.
+      isClickLikeEvent(eventDetails.event)
+    ) {
+      this.context.dataRef.current.openEvent = newOpen ? eventDetails.event : undefined;
+    }
     if (!this.context.noEmit) {
       const details: FloatingUIOpenChangeDetails = {
         open: newOpen,

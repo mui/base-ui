@@ -142,12 +142,17 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
     // causing a hydration mismatch.
     suppressHydrationWarning: true,
     onFocus(event) {
-      if (event.defaultPrevented || readOnly || disabled || hasTouchedInputRef.current) {
+      if (event.defaultPrevented || readOnly || disabled) {
+        return;
+      }
+
+      setFocused(true);
+
+      if (hasTouchedInputRef.current) {
         return;
       }
 
       hasTouchedInputRef.current = true;
-      setFocused(true);
 
       // Browsers set selection at the start of the input field by default. We want to set it at
       // the end for the first focus.
@@ -431,8 +436,10 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
 
 export interface NumberFieldInputState extends NumberFieldRoot.State {}
 
-export interface NumberFieldInputProps
-  extends BaseUIComponentProps<'input', NumberFieldInput.State> {
+export interface NumberFieldInputProps extends BaseUIComponentProps<
+  'input',
+  NumberFieldInput.State
+> {
   /**
    * A string value that provides a user-friendly name for the role of the input.
    * @default 'Number field'

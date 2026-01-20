@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { Toolbar } from '@base-ui-components/react/toolbar';
+import { Toolbar } from '@base-ui/react/toolbar';
 import { screen } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance } from '#test-utils';
 import { NOOP } from '../../utils/noop';

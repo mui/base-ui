@@ -1,8 +1,8 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { isElement } from '@floating-ui/utils/dom';
-import { useValueAsRef } from '@base-ui-components/utils/useValueAsRef';
-import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
+import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import type { FloatingContext, FloatingRootContext } from '../types';
 import { contains, getDocument, isMouseLikePointerType } from '../utils';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
@@ -23,8 +23,8 @@ export interface UseHoverReferenceInteractionProps extends Omit<UseHoverProps, '
    * triggers via `getTriggerProps`.
    * @default true
    */
-  isActiveTrigger?: boolean;
-  triggerElementRef?: Readonly<React.RefObject<Element | null>>;
+  isActiveTrigger?: boolean | undefined;
+  triggerElementRef?: Readonly<React.RefObject<Element | null>> | undefined;
 }
 
 function getRestMs(value: number | (() => number)) {
@@ -157,6 +157,8 @@ export function useHoverReferenceInteraction(
       return;
     }
 
+    const currentTrigger = triggerElementRef.current;
+
     handleCloseRef.current?.({
       ...dataRef.current.floatingContext,
       tree,
@@ -165,7 +167,7 @@ export function useHoverReferenceInteraction(
       onClose() {
         clearPointerEvents();
         cleanupMouseMoveHandler();
-        if (!isClickLikeOpenEvent()) {
+        if (!isClickLikeOpenEvent() && currentTrigger === store.select('domReferenceElement')) {
           closeWithDelay(event);
         }
       },
@@ -210,13 +212,19 @@ export function useHoverReferenceInteraction(
 
       const triggerNode = (event.currentTarget as HTMLElement) ?? null;
 
-      if (openDelay) {
+      const isOpen = store.select('open');
+      const shouldOpen = !isOpen || isOverInactiveTrigger;
+
+      // When moving between triggers while already open, open immediately without delay
+      if (isOverInactiveTrigger && isOpen) {
+        store.setOpen(true, createChangeEventDetails(REASONS.triggerHover, event, triggerNode));
+      } else if (openDelay) {
         openChangeTimeout.start(openDelay, () => {
-          if (!store.select('open')) {
+          if (shouldOpen) {
             store.setOpen(true, createChangeEventDetails(REASONS.triggerHover, event, triggerNode));
           }
         });
-      } else if (!store.select('open') || isOverInactiveTrigger) {
+      } else if (shouldOpen) {
         store.setOpen(true, createChangeEventDetails(REASONS.triggerHover, event, triggerNode));
       }
     }
@@ -245,6 +253,8 @@ export function useHoverReferenceInteraction(
           openChangeTimeout.clear();
         }
 
+        const currentTrigger = triggerElementRef.current;
+
         closeHandlerRef.current = handleCloseRef.current({
           ...dataRef.current.floatingContext,
           tree,
@@ -253,7 +263,7 @@ export function useHoverReferenceInteraction(
           onClose() {
             clearPointerEvents();
             cleanupMouseMoveHandler();
-            if (!isClickLikeOpenEvent()) {
+            if (!isClickLikeOpenEvent() && currentTrigger === store.select('domReferenceElement')) {
               closeWithDelay(event, true);
             }
           },
@@ -373,7 +383,17 @@ export function useHoverReferenceInteraction(
         restTimeout.clear();
 
         function handleMouseMove() {
-          if (!blockMouseMoveRef.current && (!currentOpen || isOverInactiveTrigger)) {
+          restTimeoutPendingRef.current = false;
+
+          // A delayed hover open should not override a click-like open that happened
+          // while the hover delay was pending.
+          if (isClickLikeOpenEvent()) {
+            return;
+          }
+
+          const latestOpen = store.select('open');
+
+          if (!blockMouseMoveRef.current && (!latestOpen || isOverInactiveTrigger)) {
             store.setOpen(
               true,
               createChangeEventDetails(REASONS.triggerHover, nativeEvent, trigger),
@@ -395,6 +415,7 @@ export function useHoverReferenceInteraction(
     };
   }, [
     blockMouseMoveRef,
+    isClickLikeOpenEvent,
     mouseOnly,
     store,
     pointerTypeRef,

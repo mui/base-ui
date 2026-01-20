@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useTimeout } from '@base-ui-components/utils/useTimeout';
+import { useTimeout } from '@base-ui/utils/useTimeout';
 
 import type { ContextData, FloatingRootContext, SafePolygonOptions } from '../types';
 import { createAttribute } from '../utils/createAttribute';
@@ -26,7 +26,7 @@ export interface HoverInteractionSharedState {
 }
 
 type HoverContextData = ContextData & {
-  hoverInteractionState?: HoverInteractionSharedState;
+  hoverInteractionState?: HoverInteractionSharedState | undefined;
 };
 
 export function useHoverInteractionSharedState(

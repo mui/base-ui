@@ -2,7 +2,7 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { type FocusableElement } from 'tabbable';
-import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { usePopoverRootContext } from '../root/PopoverRootContext';
 import { useButton } from '../../use-button/useButton';
 import type { BaseUIComponentProps, NativeButtonProps } from '../../utils/types';
@@ -42,7 +42,7 @@ import { useTriggerDataForwarding } from '../../utils/popups';
  */
 export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
   componentProps: PopoverTrigger.Props,
-  forwardedRef: React.ForwardedRef<any>,
+  forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
   const {
     render,
@@ -187,12 +187,11 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
         );
       });
 
-      let nextTabbable = getTabbableAfterElement(triggerElementRef.current);
+      let nextTabbable = getTabbableAfterElement(
+        store.context.triggerFocusTargetRef.current || triggerElementRef.current,
+      );
 
-      while (
-        (nextTabbable !== null && contains(positionerElement, nextTabbable)) ||
-        nextTabbable?.hasAttribute('aria-hidden')
-      ) {
+      while (nextTabbable !== null && contains(positionerElement, nextTabbable)) {
         const prevTabbable = nextTabbable;
         nextTabbable = getNextTabbable(nextTabbable);
         if (nextTabbable === prevTabbable) {
@@ -245,32 +244,32 @@ export type PopoverTriggerProps<Payload = unknown> = NativeButtonProps &
      * Set to `false` if the rendered element is not a button (e.g. `<div>`).
      * @default true
      */
-    nativeButton?: boolean;
+    nativeButton?: boolean | undefined;
     /**
      * A handle to associate the trigger with a popover.
      */
-    handle?: PopoverHandle<Payload>;
+    handle?: PopoverHandle<Payload> | undefined;
     /**
      * A payload to pass to the popover when it is opened.
      */
-    payload?: Payload;
+    payload?: Payload | undefined;
     /**
      * ID of the trigger. In addition to being forwarded to the rendered element,
      * it is also used to specify the active trigger for the popover in controlled mode (with the PopoverRoot `triggerId` prop).
      */
-    id?: string;
+    id?: string | undefined;
     /**
      * Whether the popover should also open when the trigger is hovered.
      * @default false
      */
-    openOnHover?: boolean;
+    openOnHover?: boolean | undefined;
     /**
      * How long to wait before the popover may be opened on hover. Specified in milliseconds.
      *
      * Requires the `openOnHover` prop.
      * @default 300
      */
-    delay?: number;
+    delay?: number | undefined;
     /**
      * How long to wait before closing the popover that was opened on hover.
      * Specified in milliseconds.
@@ -278,7 +277,7 @@ export type PopoverTriggerProps<Payload = unknown> = NativeButtonProps &
      * Requires the `openOnHover` prop.
      * @default 0
      */
-    closeDelay?: number;
+    closeDelay?: number | undefined;
   };
 
 export namespace PopoverTrigger {

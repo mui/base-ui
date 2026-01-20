@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
-import { inertValue } from '@base-ui-components/utils/inertValue';
-import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
+import { inertValue } from '@base-ui/utils/inertValue';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { FloatingNode, useFloatingNodeId } from '../../floating-ui-react';
 import { usePopoverRootContext } from '../root/PopoverRootContext';
 import { PopoverPositionerContext } from './PopoverPositionerContext';
@@ -58,6 +58,7 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
   const positionerElement = store.useState('positionerElement');
   const instantType = store.useState('instantType');
   const transitionStatus = store.useState('transitionStatus');
+  const hasViewport = store.useState('hasViewport');
 
   const prevTriggerElementRef = React.useRef<Element | null>(null);
 
@@ -80,7 +81,7 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
     keepMounted,
     nodeId,
     collisionAvoidance,
-    adaptiveOrigin,
+    adaptiveOrigin: hasViewport ? adaptiveOrigin : undefined,
   });
 
   const defaultProps: HTMLProps = React.useMemo(() => {
@@ -193,7 +194,8 @@ export interface PopoverPositionerState {
 }
 
 export interface PopoverPositionerProps
-  extends useAnchorPositioning.SharedParameters,
+  extends
+    useAnchorPositioning.SharedParameters,
     BaseUIComponentProps<'div', PopoverPositioner.State> {}
 
 export namespace PopoverPositioner {

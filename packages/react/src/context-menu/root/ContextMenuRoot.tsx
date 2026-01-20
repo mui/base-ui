@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useId } from '@base-ui-components/utils/useId';
+import { useId } from '@base-ui/utils/useId';
 import { ContextMenuRootContext } from './ContextMenuRootContext';
 import { Menu } from '../../menu';
 import { MenuRootContext } from '../../menu/root/MenuRootContext';
@@ -54,12 +54,16 @@ export function ContextMenuRoot(props: ContextMenuRoot.Props) {
 
 export interface ContextMenuRootState {}
 
-export interface ContextMenuRootProps
-  extends Omit<Menu.Root.Props, 'modal' | 'openOnHover' | 'delay' | 'closeDelay' | 'onOpenChange'> {
+export interface ContextMenuRootProps extends Omit<
+  Menu.Root.Props,
+  'modal' | 'openOnHover' | 'delay' | 'closeDelay' | 'onOpenChange'
+> {
   /**
    * Event handler called when the menu is opened or closed.
    */
-  onOpenChange?: (open: boolean, eventDetails: ContextMenuRoot.ChangeEventDetails) => void;
+  onOpenChange?:
+    | ((open: boolean, eventDetails: ContextMenuRoot.ChangeEventDetails) => void)
+    | undefined;
 }
 
 export type ContextMenuRootChangeEventReason = MenuRoot.ChangeEventReason;

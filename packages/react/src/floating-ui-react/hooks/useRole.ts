@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useId } from '@base-ui-components/utils/useId';
+import { useId } from '@base-ui/utils/useId';
 import { getFloatingFocusElement } from '../utils';
 import { useFloatingParentNodeId } from '../components/FloatingTree';
 import type { ElementProps, FloatingContext, FloatingRootContext } from '../types';
@@ -15,12 +15,12 @@ export interface UseRoleProps {
    * handlers.
    * @default true
    */
-  enabled?: boolean;
+  enabled?: boolean | undefined;
   /**
    * The role of the floating element.
    * @default 'dialog'
    */
-  role?: AriaRole | ComponentRole;
+  role?: (AriaRole | ComponentRole) | undefined;
 }
 
 const componentRoleToAriaRoleMap = new Map<AriaRole | ComponentRole, AriaRole | false>([

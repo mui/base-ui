@@ -8,16 +8,16 @@
     "strict": true,
     "noEmit": true,
     "experimentalDecorators": true,
-    "baseUrl": "./",
     "allowSyntheticDefaultImports": true,
     "noErrorTruncation": false,
     "allowJs": true,
     "skipLibCheck": true,
     "allowImportingTsExtensions": true,
+    "noUncheckedSideEffectImports": true,
     "paths": {
-      "@base-ui-components/react": ["./packages/react/src"],
-      "@base-ui-components/react/*": ["./packages/react/src/*"],
-      "@base-ui-components/utils/*": ["./packages/utils/src/*"],
+      "@base-ui/react": ["./packages/react/src"],
+      "@base-ui/react/*": ["./packages/react/src/*"],
+      "@base-ui/utils/*": ["./packages/utils/src/*"],
       "docs/*": ["./docs/*"]
     }
   },

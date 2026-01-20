@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Collapsible } from '@base-ui-components/react/collapsible';
+import { Collapsible } from '@base-ui/react/collapsible';
 import * as ScrollArea from '../ScrollArea';
 
 import './CodeHighlighting.css';
@@ -116,7 +116,11 @@ export function DemoCodeBlock({
         )}
       </Root>
 
-      <Collapsible.Trigger ref={collapsibleTriggerRef} className="DemoCollapseButton">
+      <Collapsible.Trigger
+        ref={collapsibleTriggerRef}
+        className="DemoCollapseButton"
+        data-sticky={collapsibleOpen ? '' : undefined}
+      >
         {collapsibleOpen ? 'Hide' : 'Show'} code
       </Collapsible.Trigger>
     </React.Fragment>

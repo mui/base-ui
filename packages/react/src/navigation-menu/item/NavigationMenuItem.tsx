@@ -16,7 +16,7 @@ import { useBaseUiId } from '../../utils/useBaseUiId';
  */
 export const NavigationMenuItem = React.forwardRef(function NavigationMenuItem(
   componentProps: NavigationMenuItem.Props,
-  forwardedRef: React.ForwardedRef<HTMLDivElement>,
+  forwardedRef: React.ForwardedRef<HTMLLIElement>,
 ) {
   const { className, render, value: valueProp, ...elementProps } = componentProps;
 
@@ -39,8 +39,10 @@ export const NavigationMenuItem = React.forwardRef(function NavigationMenuItem(
 
 export interface NavigationMenuItemState {}
 
-export interface NavigationMenuItemProps
-  extends BaseUIComponentProps<'li', NavigationMenuItem.State> {
+export interface NavigationMenuItemProps extends BaseUIComponentProps<
+  'li',
+  NavigationMenuItem.State
+> {
   /**
    * A unique value that identifies this navigation menu item.
    * If no value is provided, a unique ID will be generated automatically.

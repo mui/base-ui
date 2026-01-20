@@ -1,4 +1,4 @@
-import { Select } from '@base-ui-components/react/select';
+import { Select } from '@base-ui/react/select';
 import clsx from 'clsx';
 import { ChevronDownIcon } from '../icons/ChevronDownIcon';
 import { ThickCheckIcon } from '../icons/ThickCheckIcon';

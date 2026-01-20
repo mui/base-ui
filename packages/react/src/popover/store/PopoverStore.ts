@@ -1,11 +1,11 @@
 /* eslint-disable react-hooks/rules-of-hooks */
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import { ReactStore, createSelector } from '@base-ui-components/utils/store';
-import { Timeout } from '@base-ui-components/utils/useTimeout';
-import { useRefWithInit } from '@base-ui-components/utils/useRefWithInit';
-import { useOnMount } from '@base-ui-components/utils/useOnMount';
-import { type InteractionType } from '@base-ui-components/utils/useEnhancedClickHandler';
+import { ReactStore, createSelector } from '@base-ui/utils/store';
+import { Timeout } from '@base-ui/utils/useTimeout';
+import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
+import { useOnMount } from '@base-ui/utils/useOnMount';
+import { type InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import { FloatingUIOpenChangeDetails } from '../../utils/types';
 import { PopoverRoot } from './../root/PopoverRoot';
 import { REASONS } from '../../utils/reasons';
@@ -30,6 +30,7 @@ export type State<Payload> = PopupStoreState<Payload> & {
   descriptionElementId: string | undefined;
   openOnHover: boolean;
   closeDelay: number;
+  hasViewport: boolean;
 };
 
 type Context = PopupStoreContext<PopoverRoot.ChangeEventDetails> & {
@@ -55,6 +56,7 @@ function createInitialState<Payload>(): State<Payload> {
     nested: false,
     openOnHover: false,
     closeDelay: 0,
+    hasViewport: false,
   };
 }
 
@@ -70,6 +72,7 @@ const selectors = {
   descriptionElementId: createSelector((state: State<unknown>) => state.descriptionElementId),
   openOnHover: createSelector((state: State<unknown>) => state.openOnHover),
   closeDelay: createSelector((state: State<unknown>) => state.closeDelay),
+  hasViewport: createSelector((state: State<unknown>) => state.hasViewport),
 };
 
 export class PopoverStore<Payload> extends ReactStore<
@@ -176,11 +179,13 @@ export class PopoverStore<Payload> extends ReactStore<
     externalStore: PopoverStore<Payload> | undefined,
     initialState: Partial<State<Payload>>,
   ) {
-    const store = useRefWithInit(() => {
-      return externalStore ?? new PopoverStore<Payload>(initialState);
+    const internalStore = useRefWithInit(() => {
+      return new PopoverStore<Payload>(initialState);
     }).current;
 
-    useOnMount(store.disposeEffect);
+    const store = externalStore ?? internalStore;
+
+    useOnMount(internalStore.disposeEffect);
     return store;
   }
 

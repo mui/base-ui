@@ -1,11 +1,11 @@
 import * as React from 'react';
-import { Popover } from '@base-ui-components/react/popover';
-import { act, screen, waitFor } from '@mui/internal-test-utils';
+import { Popover } from '@base-ui/react/popover';
+import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
 import { expect } from 'chai';
 import { createRenderer, describeConformance, isJSDOM, waitSingleFrame } from '#test-utils';
 
 describe('<Popover.Popup />', () => {
-  const { render } = createRenderer();
+  const { render, clock } = createRenderer();
 
   describeConformance(<Popover.Popup />, () => ({
     refInstanceof: window.HTMLDivElement,
@@ -299,6 +299,47 @@ describe('<Popover.Popup />', () => {
 
     await waitFor(() => {
       expect(screen.getByTestId('popup')).toHaveFocus();
+    });
+  });
+
+  describe('openOnHover: delay + click', () => {
+    clock.withFakeTimers();
+
+    it('returns focus to the trigger if opened by click before the hover delay completes', async () => {
+      await render(
+        <Popover.Root>
+          <Popover.Trigger openOnHover delay={300}>
+            Open
+          </Popover.Trigger>
+          <Popover.Portal>
+            <Popover.Positioner>
+              <Popover.Popup>
+                <Popover.Close>Close</Popover.Close>
+              </Popover.Popup>
+            </Popover.Positioner>
+          </Popover.Portal>
+        </Popover.Root>,
+      );
+
+      const trigger = screen.getByText('Open');
+
+      fireEvent.mouseEnter(trigger);
+      fireEvent.mouseMove(trigger);
+
+      clock.tick(100);
+
+      fireEvent.click(trigger);
+      await flushMicrotasks();
+
+      expect(screen.getByText('Close')).not.to.equal(null);
+
+      clock.tick(1000);
+      await flushMicrotasks();
+
+      fireEvent.click(screen.getByText('Close'));
+      await flushMicrotasks();
+
+      expect(trigger).toHaveFocus();
     });
   });
 

@@ -1,10 +1,10 @@
 'use client';
 import * as React from 'react';
 import { isElement } from '@floating-ui/utils/dom';
-import { ownerDocument } from '@base-ui-components/utils/owner';
-import { useAnimationFrame } from '@base-ui-components/utils/useAnimationFrame';
-import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
-import { useValueAsRef } from '@base-ui-components/utils/useValueAsRef';
+import { ownerDocument } from '@base-ui/utils/owner';
+import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import { activeElement, contains } from '../../floating-ui-react/utils';
 import type { Coords } from '../../floating-ui-react/types';
 import { clamp } from '../../utils/clamp';
@@ -322,7 +322,6 @@ export const SliderControl = React.forwardRef(function SliderControl(
 
     pressedInputRef.current = null;
     pressedThumbCenterOffsetRef.current = null;
-    pressedThumbIndexRef.current = -1;
 
     const fingerCoords = getFingerCoords(nativeEvent, touchIdRef);
     const finger = fingerCoords != null ? getFingerState(fingerCoords) : null;
@@ -343,6 +342,7 @@ export const SliderControl = React.forwardRef(function SliderControl(
       controlRef.current?.releasePointerCapture(nativeEvent.pointerId);
     }
 
+    pressedThumbIndexRef.current = -1;
     touchIdRef.current = null;
     pressedValuesRef.current = null;
     // eslint-disable-next-line @typescript-eslint/no-use-before-define

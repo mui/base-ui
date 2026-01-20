@@ -1,7 +1,7 @@
 version: 2.1
 
 orbs:
-  code-infra: https://raw.githubusercontent.com/mui/mui-public/9cc15ae47e8be0c5f9fe8c09553d5aeb238b9d8a/.circleci/orbs/code-infra.yml
+  code-infra: https://raw.githubusercontent.com/mui/mui-public/f0d7ff12deed259607345eb59c67b9fd02834234/.circleci/orbs/code-infra.yml
 
 parameters:
   browserstack-force:
@@ -66,8 +66,18 @@ jobs:
       - run:
           name: Run tests on JSDOM
           command: pnpm test:jsdom:coverage
+      - store_test_results:
+          path: test-results
       - code-infra/upload-coverage:
           key: << parameters.react-version >>-jsdom
+  docs_validate:
+    <<: *default-job
+    steps:
+      - checkout
+      - code-infra/install-deps
+      - run:
+          name: Validate the documentation files
+          command: pnpm docs:validate
   test_lint:
     <<: *default-job
     steps:
@@ -90,11 +100,6 @@ jobs:
           name: '`pnpm extract-error-codes` changes committed?'
           command: |
             pnpm extract-error-codes
-            git add -A && git diff --exit-code --staged
-      - run:
-          name: '`pnpm docs:link-check` changes committed?'
-          command: |
-            pnpm docs:link-check
             git add -A && git diff --exit-code --staged
       - run:
           name: '`pnpm inline-scripts` changes committed?'
@@ -160,6 +165,8 @@ jobs:
       - run:
           name: Run tests on headless Chromium
           command: pnpm test:chromium --coverage
+      - store_test_results:
+          path: test-results
       - code-infra/upload-coverage:
           key: << parameters.react-version >>-browser
   test_regressions:
@@ -173,6 +180,8 @@ jobs:
       - run:
           name: Run visual regression tests
           command: xvfb-run pnpm test:regressions
+      - store_test_results:
+          path: test-results
       - run:
           name: Upload screenshots to Argos CI
           command: pnpm test:argos
@@ -187,6 +196,8 @@ jobs:
       - run:
           name: pnpm test:e2e
           command: pnpm test:e2e
+      - store_test_results:
+          path: test-results
 
   test_package:
     <<: *default-job
@@ -221,6 +232,8 @@ jobs:
           command: pnpm test:jsdom:coverage
           environment:
             MUI_DISABLE_WORKSPACE_ALIASES: 1
+      - store_test_results:
+          path: test-results
 
   test_browser_compiler:
     <<: *default-job
@@ -236,6 +249,8 @@ jobs:
           command: pnpm test:chromium --coverage
           environment:
             MUI_DISABLE_WORKSPACE_ALIASES: 1
+      - store_test_results:
+          path: test-results
 
 workflows:
   pipeline:
@@ -266,6 +281,9 @@ workflows:
       - test_package:
           <<: *default-context
           name: 'Package verification'
+      - docs_validate:
+          <<: *default-context
+          name: 'Validating Docs'
       - test_unit_compiler:
           <<: *default-context
           name: 'JSDOM tests (React Compiler)'

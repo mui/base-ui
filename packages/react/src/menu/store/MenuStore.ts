@@ -1,9 +1,9 @@
 import * as React from 'react';
-import { createSelector, ReactStore } from '@base-ui-components/utils/store';
-import { EMPTY_OBJECT } from '@base-ui-components/utils/empty';
-import { useRefWithInit } from '@base-ui-components/utils/useRefWithInit';
+import { createSelector, ReactStore } from '@base-ui/utils/store';
+import { EMPTY_OBJECT } from '@base-ui/utils/empty';
+import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { MenuParent, MenuRoot } from '../root/MenuRoot';
-import { FloatingTreeStore } from '../../floating-ui-react';
+import { FloatingTreeStore } from '../../floating-ui-react/components/FloatingTreeStore';
 import { HTMLProps } from '../../utils/types';
 import {
   createInitialPopupStoreState,
@@ -169,11 +169,11 @@ export class MenuStore<Payload> extends ReactStore<
     initialState: Partial<State<Payload>>,
   ) {
     // eslint-disable-next-line react-hooks/rules-of-hooks
-    const store = useRefWithInit(() => {
-      return externalStore ?? new MenuStore<Payload>(initialState);
+    const internalStore = useRefWithInit(() => {
+      return new MenuStore<Payload>(initialState);
     }).current;
 
-    return store;
+    return externalStore ?? internalStore;
   }
 
   private unsubscribeParentListener: (() => void) | null = null;

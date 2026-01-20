@@ -1,13 +1,13 @@
 'use client';
 import * as React from 'react';
-import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { NOOP } from '../../utils/noop';
 
 export type ImageLoadingStatus = 'idle' | 'loading' | 'loaded' | 'error';
 
 interface UseImageLoadingStatusOptions {
-  referrerPolicy?: React.HTMLAttributeReferrerPolicy;
-  crossOrigin?: React.ImgHTMLAttributes<HTMLImageElement>['crossOrigin'];
+  referrerPolicy?: React.HTMLAttributeReferrerPolicy | undefined;
+  crossOrigin?: React.ImgHTMLAttributes<HTMLImageElement>['crossOrigin'] | undefined;
 }
 
 export function useImageLoadingStatus(

@@ -1,14 +1,14 @@
 import * as React from 'react';
-import { Form } from '@base-ui-components/react/form';
-import { NumberField } from '@base-ui-components/react/number-field';
-import { Radio } from '@base-ui-components/react/radio';
-import { RadioGroup } from '@base-ui-components/react/radio-group';
-import { Select } from '@base-ui-components/react/select';
-import { Checkbox } from '@base-ui-components/react/checkbox';
-import { CheckboxGroup } from '@base-ui-components/react/checkbox-group';
-import { Switch } from '@base-ui-components/react/switch';
-import { Slider } from '@base-ui-components/react/slider';
-import { Field } from '@base-ui-components/react/field';
+import { Form } from '@base-ui/react/form';
+import { NumberField } from '@base-ui/react/number-field';
+import { Radio } from '@base-ui/react/radio';
+import { RadioGroup } from '@base-ui/react/radio-group';
+import { Select } from '@base-ui/react/select';
+import { Checkbox } from '@base-ui/react/checkbox';
+import { CheckboxGroup } from '@base-ui/react/checkbox-group';
+import { Switch } from '@base-ui/react/switch';
+import { Slider } from '@base-ui/react/slider';
+import { Field } from '@base-ui/react/field';
 import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
 import { expect } from 'chai';
 import { spy } from 'sinon';
@@ -915,6 +915,33 @@ describe('<Field.Root />', () => {
       ['root', 'control', 'label', 'description'].forEach((part) => {
         expect(screen.getByTestId(part)).to.have.attribute('data-touched');
       });
+    });
+  });
+
+  describe('actionsRef', () => {
+    it('validates the field when the `validate` method is called', async () => {
+      function App() {
+        const actionsRef = React.useRef<Field.Root.Actions>(null);
+        return (
+          <div>
+            <Field.Root name="username" actionsRef={actionsRef}>
+              <Field.Control defaultValue="" required />
+              <Field.Error data-testid="error" />
+            </Field.Root>
+            <button type="button" onClick={() => actionsRef.current?.validate()}>
+              validate
+            </button>
+          </div>
+        );
+      }
+
+      const { user } = await render(<App />);
+
+      expect(screen.queryByTestId('error')).to.equal(null);
+
+      await user.click(screen.getByText('validate'));
+
+      expect(screen.queryByTestId('error')).to.not.equal(null);
     });
   });
 });

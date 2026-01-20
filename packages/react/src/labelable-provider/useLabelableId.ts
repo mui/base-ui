@@ -1,5 +1,5 @@
 'use client';
-import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { isElement } from '@floating-ui/utils/dom';
 import { NOOP } from '../utils/noop';
 import { useBaseUiId } from '../utils/useBaseUiId';
@@ -43,11 +43,11 @@ export interface UseLabelableIdParameters {
    * Whether implicit labelling is supported.
    * @default false
    */
-  implicit?: boolean;
+  implicit?: boolean | undefined;
   /**
    * A ref to an element that can be implicitly labelled.
    */
-  controlRef?: React.RefObject<HTMLElement | null>;
+  controlRef?: React.RefObject<HTMLElement | null> | undefined;
 }
 
 export type UseLabelableIdReturnValue = string;

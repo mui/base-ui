@@ -7,7 +7,9 @@ import { useClick, useFloating, useInteractions, useTypeahead } from '../index';
 import type { UseTypeaheadProps } from './useTypeahead';
 import { Main } from '../../../test/floating-ui-tests/Menu';
 
-vi.useFakeTimers({ shouldAdvanceTime: true });
+beforeEach(() => {
+  vi.useFakeTimers({ shouldAdvanceTime: true });
+});
 
 const useImpl = ({
   addUseClick = false,

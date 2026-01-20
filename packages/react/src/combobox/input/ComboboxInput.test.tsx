@@ -1,9 +1,9 @@
 import * as React from 'react';
-import { Combobox } from '@base-ui-components/react/combobox';
+import { Combobox } from '@base-ui/react/combobox';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import { screen, waitFor } from '@mui/internal-test-utils';
 import { expect } from 'chai';
-import { Field } from '@base-ui-components/react/field';
+import { Field } from '@base-ui/react/field';
 
 describe('<Combobox.Input />', () => {
   const { render } = createRenderer();
@@ -173,6 +173,19 @@ describe('<Combobox.Input />', () => {
     });
   });
 
+  describe('prop: required', () => {
+    it('sets aria-required attribute when required', async () => {
+      await render(
+        <Combobox.Root required>
+          <Combobox.Input data-testid="input" />
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByTestId('input');
+      expect(input).to.have.attribute('aria-required', 'true');
+    });
+  });
+
   describe('interaction behavior', () => {
     it('clears selected value when input text is cleared (single selection)', async () => {
       const { user } = await render(
@@ -263,7 +276,7 @@ describe('<Combobox.Input />', () => {
 
       expect(input).to.have.attribute('disabled');
       expect(chip).to.have.attribute('aria-disabled', 'true');
-      expect(remove).to.have.attribute('disabled');
+      expect(remove).to.have.attribute('aria-disabled', 'true');
 
       await user.type(input, '{backspace}');
       expect(screen.getByTestId('chip')).not.to.equal(null);

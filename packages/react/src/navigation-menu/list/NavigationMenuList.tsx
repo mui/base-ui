@@ -19,7 +19,7 @@ import { useRenderElement } from '../../utils/useRenderElement';
  */
 export const NavigationMenuList = React.forwardRef(function NavigationMenuList(
   componentProps: NavigationMenuList.Props,
-  forwardedRef: React.ForwardedRef<HTMLDivElement>,
+  forwardedRef: React.ForwardedRef<HTMLUListElement>,
 ) {
   const { className, render, ...elementProps } = componentProps;
 
@@ -112,8 +112,10 @@ export interface NavigationMenuListState {
   open: boolean;
 }
 
-export interface NavigationMenuListProps
-  extends BaseUIComponentProps<'ul', NavigationMenuList.State> {}
+export interface NavigationMenuListProps extends BaseUIComponentProps<
+  'ul',
+  NavigationMenuList.State
+> {}
 
 export namespace NavigationMenuList {
   export type State = NavigationMenuListState;

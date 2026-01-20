@@ -87,7 +87,7 @@ function convertExpressionNode(node) {
         return node.quasis[0].value.raw;
       }
       // For complex template literals, return a simplified representation
-      return node.quasis.map((q) => q.value.raw).join('...');
+      return node.quasis.map((q) => q.value.raw).join('…');
 
     case 'Identifier':
       // For identifiers like undefined, null, etc.

@@ -1,6 +1,7 @@
+'use client';
 import * as React from 'react';
-import { useTimeout, Timeout } from '@base-ui-components/utils/useTimeout';
-import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
+import { useTimeout, Timeout } from '@base-ui/utils/useTimeout';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 
 import { getDelay } from '../hooks/useHover';
 import type { FloatingRootContext, Delay, FloatingContext } from '../types';
@@ -45,7 +46,7 @@ export interface FloatingDelayGroupProps {
    * This is useful if you want grouping to “last” longer than the close delay,
    * for example if there is no close delay at all.
    */
-  timeoutMs?: number;
+  timeoutMs?: number | undefined;
 }
 
 /**
@@ -92,7 +93,7 @@ interface UseDelayGroupOptions {
    * Whether delay grouping should be enabled.
    * @default true
    */
-  enabled?: boolean;
+  enabled?: boolean | undefined;
   /**
    * Whether the trigger this hook is used in has opened the tooltip.
    */
@@ -161,7 +162,17 @@ export function useDelayGroup(
       setIsInstantPhase(false);
 
       if (timeoutMs) {
-        timeout.start(timeoutMs, unset);
+        const closingId = floatingId;
+        timeout.start(timeoutMs, () => {
+          // If another tooltip has taken over the group, skip resetting.
+          if (
+            store.select('open') ||
+            (currentIdRef.current && currentIdRef.current !== closingId)
+          ) {
+            return;
+          }
+          unset();
+        });
         return () => {
           timeout.clear();
         };
@@ -180,6 +191,7 @@ export function useDelayGroup(
     initialDelayRef,
     currentContextRef,
     timeout,
+    store,
   ]);
 
   useIsoLayoutEffect(() => {
@@ -193,6 +205,9 @@ export function useDelayGroup(
     const prevContext = currentContextRef.current;
     const prevId = currentIdRef.current;
 
+    // A new tooltip is opening, so cancel any pending timeout that would reset
+    // the group's delay back to the initial value.
+    timeout.clear();
     currentContextRef.current = { onOpenChange: store.setOpen, setIsInstantPhase };
     currentIdRef.current = floatingId;
     delayRef.current = {
@@ -201,7 +216,6 @@ export function useDelayGroup(
     };
 
     if (prevId !== null && prevId !== floatingId) {
-      timeout.clear();
       setIsInstantPhase(true);
       prevContext?.setIsInstantPhase(true);
       prevContext?.onOpenChange(false, createChangeEventDetails(REASONS.none));

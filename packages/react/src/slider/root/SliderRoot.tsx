@@ -1,11 +1,11 @@
 'use client';
 import * as React from 'react';
-import { ownerDocument } from '@base-ui-components/utils/owner';
-import { useControlled } from '@base-ui-components/utils/useControlled';
-import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
-import { useValueAsRef } from '@base-ui-components/utils/useValueAsRef';
-import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
-import { warn } from '@base-ui-components/utils/warn';
+import { ownerDocument } from '@base-ui/utils/owner';
+import { useControlled } from '@base-ui/utils/useControlled';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { warn } from '@base-ui/utils/warn';
 import type { BaseUIComponentProps, Orientation } from '../../utils/types';
 import {
   createChangeEventDetails,
@@ -417,7 +417,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
 }) as {
   <Value extends number | readonly number[]>(
     props: SliderRoot.Props<Value> & {
-      ref?: React.Ref<HTMLDivElement>;
+      ref?: React.Ref<HTMLDivElement> | undefined;
     },
   ): React.JSX.Element;
 };
@@ -466,59 +466,59 @@ export interface SliderRootProps<
    *
    * To render a controlled slider, use the `value` prop instead.
    */
-  defaultValue?: Value;
+  defaultValue?: Value | undefined;
   /**
    * Whether the slider should ignore user interaction.
    * @default false
    */
-  disabled?: boolean;
+  disabled?: boolean | undefined;
   /**
    * Options to format the input value.
    */
-  format?: Intl.NumberFormatOptions;
+  format?: Intl.NumberFormatOptions | undefined;
   /**
    * The locale used by `Intl.NumberFormat` when formatting the value.
    * Defaults to the user's runtime locale.
    */
-  locale?: Intl.LocalesArgument;
+  locale?: Intl.LocalesArgument | undefined;
   /**
    * The maximum allowed value of the slider.
    * Should not be equal to min.
    * @default 100
    */
-  max?: number;
+  max?: number | undefined;
   /**
    * The minimum allowed value of the slider.
    * Should not be equal to max.
    * @default 0
    */
-  min?: number;
+  min?: number | undefined;
   /**
    * The minimum steps between values in a range slider.
    * @default 0
    */
-  minStepsBetweenValues?: number;
+  minStepsBetweenValues?: number | undefined;
   /**
    * Identifies the field when a form is submitted.
    */
-  name?: string;
+  name?: string | undefined;
   /**
    * The component orientation.
    * @default 'horizontal'
    */
-  orientation?: Orientation;
+  orientation?: Orientation | undefined;
   /**
    * The granularity with which the slider can step through values. (A "discrete" slider.)
    * The `min` prop serves as the origin for the valid values.
    * We recommend (max - min) to be evenly divisible by the step.
    * @default 1
    */
-  step?: number;
+  step?: number | undefined;
   /**
    * The granularity with which the slider can step through values when using Page Up/Page Down or Shift + Arrow Up/Arrow Down.
    * @default 10
    */
-  largeStep?: number;
+  largeStep?: number | undefined;
   /**
    * How the thumb(s) are aligned relative to `Slider.Control` when the value is at `min` or `max`:
    * - `center`: The center of the thumb is aligned with the control edge
@@ -526,7 +526,7 @@ export interface SliderRootProps<
    * - `edge-client-only`: Same as `edge` but renders after React hydration on the client, reducing bundle size in return
    * @default 'center'
    */
-  thumbAlignment?: 'center' | 'edge' | 'edge-client-only';
+  thumbAlignment?: ('center' | 'edge' | 'edge-client-only') | undefined;
   /**
    * Controls how thumbs behave when they collide during pointer interactions.
    *
@@ -536,12 +536,12 @@ export interface SliderRootProps<
    *
    * @default 'push'
    */
-  thumbCollisionBehavior?: 'push' | 'swap' | 'none';
+  thumbCollisionBehavior?: ('push' | 'swap' | 'none') | undefined;
   /**
    * The value of the slider.
    * For ranged sliders, provide an array with two values.
    */
-  value?: Value;
+  value?: Value | undefined;
   /**
    * Callback function that is fired when the slider's value changed.
    * You can pull out the new value by accessing `event.target.value` (any).
@@ -554,10 +554,12 @@ export interface SliderRootProps<
    * - `'keyboard'` for keyboard input
    * - `'none'` when the change is triggered without a specific interaction
    */
-  onValueChange?: (
-    value: Value extends number ? number : Value,
-    eventDetails: SliderRoot.ChangeEventDetails,
-  ) => void;
+  onValueChange?:
+    | ((
+        value: Value extends number ? number : Value,
+        eventDetails: SliderRoot.ChangeEventDetails,
+      ) => void)
+    | undefined;
   /**
    * Callback function that is fired when the `pointerup` is triggered.
    * **Warning**: This is a generic event not a change event.
@@ -570,10 +572,12 @@ export interface SliderRootProps<
    * - `'input-change'` when the hidden range input emits a change event (for example, via form integration)
    * - `'none'` when the commit occurs without a specific interaction
    */
-  onValueCommitted?: (
-    value: Value extends number ? number : Value,
-    eventDetails: SliderRoot.CommitEventDetails,
-  ) => void;
+  onValueCommitted?:
+    | ((
+        value: Value extends number ? number : Value,
+        eventDetails: SliderRoot.CommitEventDetails,
+      ) => void)
+    | undefined;
 }
 
 export interface SliderRootChangeEventCustomProperties {

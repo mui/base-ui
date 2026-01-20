@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { isElement } from '@floating-ui/utils/dom';
-import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
-import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 
 import type { FloatingContext, FloatingRootContext } from '../types';
 import { getDocument, getTarget, isMouseLikePointerType } from '../utils';
@@ -22,17 +22,17 @@ export type UseHoverFloatingInteractionProps = {
    * handlers.
    * @default true
    */
-  enabled?: boolean;
+  enabled?: boolean | undefined;
   /**
    * Waits for the specified time when the event listener runs before changing
    * the `open` state.
    * @default 0
    */
-  closeDelay?: number | (() => number);
+  closeDelay?: (number | (() => number)) | undefined;
   /**
    * An optional external floating tree to use instead of the default context.
    */
-  externalTree?: FloatingTreeStore;
+  externalTree?: FloatingTreeStore | undefined;
 };
 
 const clickLikeEvents = new Set(['click', 'mousedown']);
@@ -204,10 +204,7 @@ export function useHoverFloatingInteraction(
     // did not move.
     // https://github.com/floating-ui/floating-ui/discussions/1692
     function onScrollMouseLeave(event: MouseEvent) {
-      if (isClickLikeOpenEvent()) {
-        return;
-      }
-      if (!dataRef.current.floatingContext) {
+      if (isClickLikeOpenEvent() || !dataRef.current.floatingContext || !store.select('open')) {
         return;
       }
 

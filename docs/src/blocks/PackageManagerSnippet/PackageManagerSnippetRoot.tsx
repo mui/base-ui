@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
-import { Tabs } from '@base-ui-components/react/tabs';
-import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
+import { Tabs } from '@base-ui/react/tabs';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { usePackageManagerSnippetContext } from './PackageManagerSnippetProvider';
 
 export function PackageManagerSnippetRoot(props: PackageManagerSnippetRoot.Props) {

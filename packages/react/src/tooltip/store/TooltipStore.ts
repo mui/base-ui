@@ -1,7 +1,7 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import { createSelector, ReactStore } from '@base-ui-components/utils/store';
-import { useRefWithInit } from '@base-ui-components/utils/useRefWithInit';
+import { createSelector, ReactStore } from '@base-ui/utils/store';
+import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { type TooltipRoot } from '../root/TooltipRoot';
 import { useSyncedFloatingRootContext } from '../../floating-ui-react';
 import { REASONS } from '../../utils/reasons';
@@ -21,6 +21,7 @@ export type State<Payload> = PopupStoreState<Payload> & {
   disableHoverablePopup: boolean;
   openChangeReason: TooltipRoot.ChangeEventReason | null;
   closeDelay: number;
+  hasViewport: boolean;
 };
 
 export type Context = PopupStoreContext<TooltipRoot.ChangeEventDetails> & {
@@ -36,6 +37,7 @@ const selectors = {
   disableHoverablePopup: createSelector((state: State<unknown>) => state.disableHoverablePopup),
   lastOpenChangeReason: createSelector((state: State<unknown>) => state.openChangeReason),
   closeDelay: createSelector((state: State<unknown>) => state.closeDelay),
+  hasViewport: createSelector((state: State<unknown>) => state.hasViewport),
 };
 
 export class TooltipStore<Payload> extends ReactStore<
@@ -56,7 +58,7 @@ export class TooltipStore<Payload> extends ReactStore<
     );
   }
 
-  public setOpen = (
+  setOpen = (
     nextOpen: boolean,
     eventDetails: Omit<TooltipRoot.ChangeEventDetails, 'preventUnmountOnClose'>,
   ) => {
@@ -108,14 +110,16 @@ export class TooltipStore<Payload> extends ReactStore<
     }
   };
 
-  public static useStore<Payload>(
+  static useStore<Payload>(
     externalStore: TooltipStore<Payload> | undefined,
     initialState?: Partial<State<Payload>>,
   ) {
     // eslint-disable-next-line react-hooks/rules-of-hooks
-    const store = useRefWithInit(() => {
-      return externalStore ?? new TooltipStore<Payload>(initialState);
+    const internalStore = useRefWithInit(() => {
+      return new TooltipStore<Payload>(initialState);
     }).current;
+
+    const store = externalStore ?? internalStore;
 
     // eslint-disable-next-line react-hooks/rules-of-hooks
     const floatingRootContext = useSyncedFloatingRootContext({
@@ -142,5 +146,6 @@ function createInitialState<Payload>(): State<Payload> {
     disableHoverablePopup: false,
     openChangeReason: null,
     closeDelay: 0,
+    hasViewport: false,
   };
 }

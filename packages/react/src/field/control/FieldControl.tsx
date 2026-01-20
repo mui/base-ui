@@ -1,8 +1,8 @@
 'use client';
 import * as React from 'react';
-import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
-import { useControlled } from '@base-ui-components/utils/useControlled';
-import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { useControlled } from '@base-ui/utils/useControlled';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { FieldRoot } from '../root/FieldRoot';
 import { useFieldRootContext } from '../root/FieldRootContext';
 import { useLabelableContext } from '../../labelable-provider/LabelableContext';
@@ -149,8 +149,10 @@ export interface FieldControlProps extends BaseUIComponentProps<'input', FieldCo
   /**
    * Callback fired when the `value` changes. Use when controlled.
    */
-  onValueChange?: (value: string, eventDetails: FieldControl.ChangeEventDetails) => void;
-  defaultValue?: React.ComponentProps<'input'>['defaultValue'];
+  onValueChange?:
+    | ((value: string, eventDetails: FieldControl.ChangeEventDetails) => void)
+    | undefined;
+  defaultValue?: React.ComponentProps<'input'>['defaultValue'] | undefined;
 }
 
 export type FieldControlChangeEventReason = typeof REASONS.none;

@@ -1,8 +1,9 @@
+'use client';
 import * as React from 'react';
 
-import { useId } from '@base-ui-components/utils/useId';
-import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
-import { useRefWithInit } from '@base-ui-components/utils/useRefWithInit';
+import { useId } from '@base-ui/utils/useId';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import type { FloatingNodeType, FloatingTreeType } from '../types';
 import { FloatingTreeStore } from './FloatingTreeStore';
 
@@ -71,7 +72,7 @@ export function FloatingNode(props: FloatingNodeProps): React.JSX.Element {
 
 export interface FloatingTreeProps {
   children?: React.ReactNode;
-  externalTree?: FloatingTreeStore;
+  externalTree?: FloatingTreeStore | undefined;
 }
 
 /**

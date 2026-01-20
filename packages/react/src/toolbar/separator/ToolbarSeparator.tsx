@@ -27,8 +27,7 @@ export const ToolbarSeparator = React.forwardRef(function ToolbarSeparator(
 });
 
 export interface ToolbarSeparatorProps
-  extends BaseUIComponentProps<'div', Separator.State>,
-    Separator.Props {}
+  extends BaseUIComponentProps<'div', Separator.State>, Separator.Props {}
 
 export namespace ToolbarSeparator {
   export type Props = ToolbarSeparatorProps;

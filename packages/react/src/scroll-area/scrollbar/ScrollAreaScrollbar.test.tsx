@@ -1,4 +1,4 @@
-import { ScrollArea } from '@base-ui-components/react/scroll-area';
+import { ScrollArea } from '@base-ui/react/scroll-area';
 import { screen, fireEvent, flushMicrotasks } from '@mui/internal-test-utils';
 import { createRenderer, isJSDOM, describeConformance } from '#test-utils';
 import { expect } from 'chai';
@@ -45,7 +45,7 @@ describe('<ScrollArea.Scrollbar />', () => {
     expect(verticalScrollbar).to.have.attribute('data-scrolling', '');
     expect(horizontalScrollbar).not.to.have.attribute('data-scrolling', '');
 
-    clock.tick(SCROLL_TIMEOUT - 1);
+    await clock.tickAsync(SCROLL_TIMEOUT - 1);
 
     expect(verticalScrollbar).to.have.attribute('data-scrolling', '');
     expect(horizontalScrollbar).not.to.have.attribute('data-scrolling', '');
@@ -57,17 +57,17 @@ describe('<ScrollArea.Scrollbar />', () => {
       },
     });
 
-    clock.tick(1); // vertical just finished
+    await clock.tickAsync(1); // vertical just finished
 
     expect(verticalScrollbar).not.to.have.attribute('data-scrolling');
     expect(horizontalScrollbar).to.have.attribute('data-scrolling');
 
-    clock.tick(SCROLL_TIMEOUT - 2); // already ticked 1ms above
+    await clock.tickAsync(SCROLL_TIMEOUT - 2); // already ticked 1ms above
 
     expect(verticalScrollbar).not.to.have.attribute('data-scrolling');
     expect(horizontalScrollbar).to.have.attribute('data-scrolling');
 
-    clock.tick(1);
+    await clock.tickAsync(1);
 
     expect(verticalScrollbar).not.to.have.attribute('data-scrolling');
     expect(horizontalScrollbar).not.to.have.attribute('data-scrolling');

@@ -16,7 +16,7 @@ import { useMenuPositionerContext } from '../positioner/MenuPositionerContext';
  */
 export const MenuItem = React.forwardRef(function MenuItem(
   componentProps: MenuItem.Props,
-  forwardedRef: React.ForwardedRef<Element>,
+  forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
   const {
     render,
@@ -75,31 +75,30 @@ export interface MenuItemState {
 }
 
 export interface MenuItemProps
-  extends NonNativeButtonProps,
-    BaseUIComponentProps<'div', MenuItem.State> {
+  extends NonNativeButtonProps, BaseUIComponentProps<'div', MenuItem.State> {
   /**
    * The click handler for the menu item.
    */
-  onClick?: React.MouseEventHandler<HTMLElement>;
+  onClick?: React.MouseEventHandler<HTMLElement> | undefined;
   /**
    * Whether the component should ignore user interaction.
    * @default false
    */
-  disabled?: boolean;
+  disabled?: boolean | undefined;
   /**
    * Overrides the text label to use when the item is matched during keyboard text navigation.
    */
-  label?: string;
+  label?: string | undefined;
   /**
    * @ignore
    */
-  id?: string;
+  id?: string | undefined;
   /**
    * Whether to close the menu when the item is clicked.
    *
    * @default true
    */
-  closeOnClick?: boolean;
+  closeOnClick?: boolean | undefined;
 }
 
 export namespace MenuItem {

@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
-import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
-import { useScrollLock } from '@base-ui-components/utils/useScrollLock';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { useScrollLock } from '@base-ui/utils/useScrollLock';
 import {
   useDismiss,
   useInteractions,
@@ -164,10 +164,10 @@ export interface UseDialogRootSharedParameters {}
 
 export interface UseDialogRootParameters {
   store: DialogStore<any>;
-  actionsRef?: DialogRoot.Props['actionsRef'];
-  parentContext?: DialogStore<unknown>['context'];
+  actionsRef?: DialogRoot.Props['actionsRef'] | undefined;
+  parentContext?: DialogStore<unknown>['context'] | undefined;
   onOpenChange: DialogRoot.Props['onOpenChange'];
-  triggerIdProp?: string | null;
+  triggerIdProp?: (string | null) | undefined;
 }
 
 export type UseDialogRootReturnValue = void;

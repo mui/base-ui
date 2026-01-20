@@ -3,9 +3,9 @@ import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-
 import { createRenderer, isJSDOM } from '#test-utils';
 import { expect } from 'chai';
 import { spy } from 'sinon';
-import { Autocomplete } from '@base-ui-components/react/autocomplete';
-import { Field } from '@base-ui-components/react/field';
-import { Form } from '@base-ui-components/react/form';
+import { Autocomplete } from '@base-ui/react/autocomplete';
+import { Field } from '@base-ui/react/field';
+import { Form } from '@base-ui/react/form';
 
 describe('<Autocomplete.Root />', () => {
   beforeEach(() => {
@@ -384,6 +384,81 @@ describe('<Autocomplete.Root />', () => {
 
       expect(input).to.have.attribute('aria-activedescendant', firstOption.id);
       expect(firstOption).to.have.attribute('data-highlighted');
+    });
+  });
+
+  describe('prop: keepHighlight', () => {
+    it('keeps the current highlight when the pointer leaves the list', async () => {
+      const { user } = await render(
+        <Autocomplete.Root items={['apple', 'banana']} autoHighlight keepHighlight>
+          <Autocomplete.Input data-testid="input" />
+          <Autocomplete.Portal>
+            <Autocomplete.Positioner>
+              <Autocomplete.Popup>
+                <Autocomplete.List>
+                  {(item: string) => (
+                    <Autocomplete.Item key={item} value={item}>
+                      {item}
+                    </Autocomplete.Item>
+                  )}
+                </Autocomplete.List>
+              </Autocomplete.Popup>
+            </Autocomplete.Positioner>
+          </Autocomplete.Portal>
+        </Autocomplete.Root>,
+      );
+
+      const input = screen.getByRole<HTMLInputElement>('combobox');
+      await user.click(input);
+      await user.type(input, 'ap');
+
+      const apple = await screen.findByRole('option', { name: 'apple' });
+      await waitFor(() => expect(apple).to.have.attribute('data-highlighted'));
+
+      const outside = document.createElement('div');
+      document.body.appendChild(outside);
+      fireEvent.pointerLeave(apple, { pointerType: 'mouse', relatedTarget: outside });
+
+      await waitFor(() => expect(apple).to.have.attribute('data-highlighted'));
+      outside.remove();
+    });
+
+    it('continues keyboard navigation from the kept highlight after pointer leave', async () => {
+      const { user } = await render(
+        <Autocomplete.Root items={['apple', 'banana', 'carrot']} autoHighlight keepHighlight>
+          <Autocomplete.Input />
+          <Autocomplete.Portal>
+            <Autocomplete.Positioner>
+              <Autocomplete.Popup>
+                <Autocomplete.List>
+                  {(item: string) => (
+                    <Autocomplete.Item key={item} value={item}>
+                      {item}
+                    </Autocomplete.Item>
+                  )}
+                </Autocomplete.List>
+              </Autocomplete.Popup>
+            </Autocomplete.Positioner>
+          </Autocomplete.Portal>
+        </Autocomplete.Root>,
+      );
+
+      const input = screen.getByRole<HTMLInputElement>('combobox');
+      await user.click(input);
+      await user.type(input, 'a');
+
+      const apple = await screen.findByRole('option', { name: 'apple' });
+      await waitFor(() => expect(apple).to.have.attribute('data-highlighted'));
+
+      const outside = document.createElement('div');
+      document.body.appendChild(outside);
+      fireEvent.pointerLeave(apple, { pointerType: 'mouse', relatedTarget: outside });
+
+      await user.keyboard('{ArrowDown}');
+
+      const banana = screen.getByRole('option', { name: 'banana' });
+      await waitFor(() => expect(banana).to.have.attribute('data-highlighted'));
+      outside.remove();
     });
   });
 
@@ -1170,6 +1245,21 @@ describe('<Autocomplete.Root />', () => {
 
     clock.withFakeTimers();
 
+    it('sets `required` on the visible input', async () => {
+      await render(
+        <Field.Root>
+          <Autocomplete.Root required>
+            <Autocomplete.Input data-testid="input" />
+            <Autocomplete.Portal>
+              <Autocomplete.Positioner />
+            </Autocomplete.Portal>
+          </Autocomplete.Root>
+        </Field.Root>,
+      );
+
+      expect(screen.getByTestId('input')).to.have.attribute('required');
+    });
+
     it('[data-touched]', async () => {
       await render(
         <Field.Root>
@@ -1514,7 +1604,7 @@ describe('<Autocomplete.Root />', () => {
               <Autocomplete.Positioner />
             </Autocomplete.Portal>
           </Autocomplete.Root>
-          <Field.Label data-testid="label" render={<span />} />
+          <Field.Label data-testid="label" render={<span />} nativeLabel={false} />
         </Field.Root>,
       );
 

@@ -1,6 +1,6 @@
 import * as React from 'react';
-import { createSelector, ReactStore } from '@base-ui-components/utils/store';
-import { type InteractionType } from '@base-ui-components/utils/useEnhancedClickHandler';
+import { createSelector, ReactStore } from '@base-ui/utils/store';
+import { type InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import { type DialogRoot } from '../root/DialogRoot';
 import type { FloatingUIOpenChangeDetails } from '../../utils/types';
 import {
@@ -27,8 +27,8 @@ type Context = PopupStoreContext<DialogRoot.ChangeEventDetails> & {
   readonly popupRef: React.RefObject<HTMLElement | null>;
   readonly backdropRef: React.RefObject<HTMLDivElement | null>;
   readonly internalBackdropRef: React.RefObject<HTMLDivElement | null>;
-  readonly onNestedDialogOpen?: (ownChildrenCount: number) => void;
-  readonly onNestedDialogClose?: () => void;
+  readonly onNestedDialogOpen?: ((ownChildrenCount: number) => void) | undefined;
+  readonly onNestedDialogClose?: (() => void) | undefined;
 };
 
 const selectors = {
