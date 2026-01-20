@@ -8,6 +8,7 @@ import {
   isLastTraversableNode,
   isWebKit,
 } from '@floating-ui/utils/dom';
+import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { Timeout, useTimeout } from '@base-ui/utils/useTimeout';
 import { useStableCallbacks } from '@base-ui/utils/useStableCallbacks';
 import {
@@ -28,7 +29,6 @@ import type { ElementProps, FloatingContext, FloatingRootContext } from '../type
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
 import { createAttribute } from '../utils/createAttribute';
-import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 
 type PressType = 'intentional' | 'sloppy';
 
