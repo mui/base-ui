@@ -6,9 +6,6 @@ import { createRenderer } from '#test-utils';
 import { List } from './utils/test-utils';
 
 describe('Manager', () => {
-  beforeEach(() => {
-    globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
-  });
   const { render, clock } = createRenderer();
 
   clock.withFakeTimers();
@@ -47,7 +44,7 @@ describe('Manager', () => {
 
       expect(screen.queryByTestId('title')).not.to.equal(null);
 
-      clock.tick(5000);
+      await clock.tickAsync(5000);
 
       expect(screen.queryByTestId('title')).to.equal(null);
     });
@@ -105,8 +102,7 @@ describe('Manager', () => {
 
       expect(screen.queryByTestId('description')).to.have.text('loading');
 
-      clock.tick(1000);
-      await flushMicrotasks();
+      await clock.tickAsync(1000);
 
       expect(screen.queryByTestId('description')).to.have.text('success');
     });
@@ -156,13 +152,12 @@ describe('Manager', () => {
 
       expect(screen.queryByTestId('description')).to.have.text('loading');
 
-      clock.tick(1000);
-      await flushMicrotasks();
+      await clock.tickAsync(1000);
 
       expect(screen.queryByTestId('description')).to.have.text('success');
 
-      clock.tick(5000);
-      await flushMicrotasks();
+      await clock.tickAsync(5000);
+
       expect(screen.queryByTestId('description')).to.equal(null);
     });
 
@@ -303,17 +298,15 @@ describe('Manager', () => {
       fireEvent.click(screen.getByRole('button', { name: 'add' }));
       expect(screen.queryByTestId('title')).not.to.equal(null);
 
-      clock.tick(900);
+      await clock.tickAsync(900);
       expect(screen.queryByTestId('title')).not.to.equal(null);
 
       fireEvent.click(screen.getByRole('button', { name: 'reset timeout' }));
 
-      clock.tick(200);
-      await flushMicrotasks();
+      await clock.tickAsync(200);
       expect(screen.queryByTestId('title')).not.to.equal(null);
 
-      clock.tick(800);
-      await flushMicrotasks();
+      await clock.tickAsync(800);
       expect(screen.queryByTestId('title')).to.equal(null);
     });
 
@@ -371,17 +364,15 @@ describe('Manager', () => {
 
       fireEvent.click(screen.getByRole('button', { name: 'set timeout' }));
 
-      clock.tick(900);
+      await clock.tickAsync(900);
       expect(screen.queryByTestId('title')).not.to.equal(null);
 
       fireEvent.click(screen.getByRole('button', { name: 'reset timeout' }));
 
-      clock.tick(200);
-      await flushMicrotasks();
+      await clock.tickAsync(200);
       expect(screen.queryByTestId('title')).not.to.equal(null);
 
-      clock.tick(800);
-      await flushMicrotasks();
+      await clock.tickAsync(800);
       expect(screen.queryByTestId('title')).to.equal(null);
     });
 
@@ -429,8 +420,7 @@ describe('Manager', () => {
       expect(screen.queryByTestId('title')).not.to.equal(null);
 
       fireEvent.click(screen.getByRole('button', { name: 'update method' }));
-      clock.tick(1000);
-      await flushMicrotasks();
+      await clock.tickAsync(1000);
 
       expect(screen.queryByTestId('title')).to.equal(null);
     });
@@ -483,8 +473,7 @@ describe('Manager', () => {
       fireEvent.click(screen.getByRole('button', { name: 'update method' }));
       expect(screen.getByTestId('title')).to.have.text('success');
 
-      clock.tick(1000);
-      await flushMicrotasks();
+      await clock.tickAsync(1000);
 
       expect(screen.queryByTestId('title')).to.equal(null);
     });
@@ -540,8 +529,7 @@ describe('Manager', () => {
       fireEvent.click(screen.getByRole('button', { name: 'double update' }));
       expect(screen.getByTestId('title')).to.have.text('new');
 
-      clock.tick(1000);
-      await flushMicrotasks();
+      await clock.tickAsync(1000);
 
       expect(screen.queryByTestId('title')).to.equal(null);
     });
