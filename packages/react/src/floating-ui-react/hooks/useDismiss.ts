@@ -811,6 +811,7 @@ export function useDismiss(
   // Update controller settings on each render
   useIsoLayoutEffect(() => {
     controller.updateSettings(controllerParameters);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, Object.values(controllerParameters));
 
   controller.onPropsChange = () => {
