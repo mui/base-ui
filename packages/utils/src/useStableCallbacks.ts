@@ -36,6 +36,9 @@ type StableState<T extends Record<string, Callback | undefined>> = {
  * This is a batched version of `useStableCallback` that reduces hook overhead
  * when you need multiple stable callbacks.
  *
+ * Note: the set of keys is captured on the first render and must remain stable.
+ * If a key is removed, keep it in the object with an explicit `undefined` value.
+ *
  * @example
  * const callbacks = useStableCallbacks({
  *   onClick: (e) => console.log(e),
