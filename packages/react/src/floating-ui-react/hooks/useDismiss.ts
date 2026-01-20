@@ -153,7 +153,17 @@ export class DismissInteractionController {
   }
 
   public updateSettings(settings: DismissInteractionControllerParameters) {
-    this.settings = this.generateSettings(settings);
+    const nextSettings = this.generateSettings(settings);
+    const shouldUpdateProps =
+      this.settings.enabled !== nextSettings.enabled ||
+      this.settings.referencePress !== nextSettings.referencePress ||
+      this.settings.referencePressEvent !== nextSettings.referencePressEvent;
+
+    this.settings = nextSettings;
+
+    if (shouldUpdateProps) {
+      this.onPropsChange?.();
+    }
   }
 
   private generateSettings(
@@ -205,9 +215,9 @@ export class DismissInteractionController {
 
   private currentPointerTypeRef: PointerEvent['pointerType'] = '';
 
-  private trackPointerType(event: PointerEvent) {
+  private trackPointerType = (event: PointerEvent) => {
     this.currentPointerTypeRef = event.pointerType;
-  }
+  };
 
   private getOutsidePressEvent() {
     const type = this.currentPointerTypeRef as 'pen' | 'mouse' | 'touch' | '';
@@ -225,7 +235,7 @@ export class DismissInteractionController {
     return resolved[computedType];
   }
 
-  private closeOnEscapeKeyDown(event: React.KeyboardEvent<Element> | KeyboardEvent) {
+  private closeOnEscapeKeyDown = (event: React.KeyboardEvent<Element> | KeyboardEvent) => {
     if (
       !this.rootStore.select('open') ||
       !this.settings.enabled ||
@@ -271,7 +281,7 @@ export class DismissInteractionController {
     if (!this.settings.escapeKeyBubbles && !eventDetails.isPropagationAllowed) {
       event.stopPropagation();
     }
-  }
+  };
 
   private shouldIgnoreEvent(event: Event) {
     const computedOutsidePressEvent = this.getOutsidePressEvent();
@@ -281,20 +291,20 @@ export class DismissInteractionController {
     );
   }
 
-  private markInsideReactTree() {
+  private markInsideReactTree = () => {
     this.rootStore.context.dataRef.current.insideReactTree = true;
     this.clearInsideReactTreeTimeout.start(0, this.clearInsideReactTree);
-  }
+  };
 
-  private clearInsideReactTree() {
+  private clearInsideReactTree = () => {
     this.clearInsideReactTreeTimeout.clear();
     this.rootStore.context.dataRef.current.insideReactTree = false;
-  }
+  };
 
-  private closeOnPressOutside(
+  private closeOnPressOutside = (
     event: MouseEvent | PointerEvent | TouchEvent,
     endedOrStartedInside = false,
-  ) {
+  ) => {
     if (this.shouldIgnoreEvent(event)) {
       this.clearInsideReactTree();
       return;
@@ -424,7 +434,7 @@ export class DismissInteractionController {
 
     this.rootStore.setOpen(false, createChangeEventDetails(REASONS.outsidePress, event));
     this.clearInsideReactTree();
-  }
+  };
 
   private handlePointerDown(event: PointerEvent) {
     if (
@@ -471,7 +481,7 @@ export class DismissInteractionController {
     }
   }
 
-  private handleTouchStartCapture(event: TouchEvent) {
+  private handleTouchStartCapture = (event: TouchEvent) => {
     const target = getTarget(event);
     const callback = () => {
       this.handleTouchStart(event);
@@ -479,9 +489,9 @@ export class DismissInteractionController {
     };
 
     target?.addEventListener(event.type, callback);
-  }
+  };
 
-  private closeOnPressOutsideCapture(event: PointerEvent | MouseEvent) {
+  private closeOnPressOutsideCapture = (event: PointerEvent | MouseEvent) => {
     // When click outside is lazy (`up` event), handle dragging.
     // Don't close if:
     // - The click started inside the floating element.
@@ -510,7 +520,7 @@ export class DismissInteractionController {
       target?.removeEventListener(event.type, callback);
     };
     target?.addEventListener(event.type, callback);
-  }
+  };
 
   private handleTouchMove(event: TouchEvent) {
     if (
@@ -542,14 +552,14 @@ export class DismissInteractionController {
     }
   }
 
-  private handleTouchMoveCapture(event: TouchEvent) {
+  private handleTouchMoveCapture = (event: TouchEvent) => {
     const target = getTarget(event);
     const callback = () => {
       this.handleTouchMove(event);
       target?.removeEventListener(event.type, callback);
     };
     target?.addEventListener(event.type, callback);
-  }
+  };
 
   private handleTouchEnd(event: TouchEvent) {
     if (
@@ -569,26 +579,26 @@ export class DismissInteractionController {
     this.touchStateRef = null;
   }
 
-  private handleTouchEndCapture(event: TouchEvent) {
+  private handleTouchEndCapture = (event: TouchEvent) => {
     const target = getTarget(event);
     const callback = () => {
       this.handleTouchEnd(event);
       target?.removeEventListener(event.type, callback);
     };
     target?.addEventListener(event.type, callback);
-  }
+  };
 
-  private handleAncestorScroll(event: Event) {
+  private handleAncestorScroll = (event: Event) => {
     this.rootStore.setOpen(false, createChangeEventDetails(REASONS.none, event));
-  }
+  };
 
-  private handlePressedInside(event: React.MouseEvent) {
+  private handlePressedInside = (event: React.MouseEvent) => {
     const target = getTarget(event.nativeEvent) as Element | null;
     if (!contains(this.rootStore.select('floatingElement'), target) || event.button !== 0) {
       return;
     }
     this.endedOrStartedInsideRef = true;
-  }
+  };
 
   public useSetup() {
     const open = this.rootStore.useState('open');
@@ -733,7 +743,7 @@ export class DismissInteractionController {
   }
 
   markPressStartedInsideReactTree = (event: React.PointerEvent | React.MouseEvent) => {
-    if (!open || !this.settings.enabled || event.button !== 0) {
+    if (!this.rootStore.select('open') || !this.settings.enabled || event.button !== 0) {
       return;
     }
     this.endedOrStartedInsideRef = true;
