@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { isElement } from '@floating-ui/utils/dom';
-import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { useStableCallbacks } from '@base-ui/utils/useStableCallbacks';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 
 import type { FloatingContext, FloatingRootContext } from '../types';
@@ -66,18 +66,52 @@ export function useHoverFloatingInteraction(
   const tree = useFloatingTree(externalTree);
   const parentId = useFloatingParentNodeId();
 
-  const isClickLikeOpenEvent = useStableCallback(() => {
-    if (interactedInsideRef.current) {
-      return true;
-    }
+  const stableCallbacks = useStableCallbacks({
+    isClickLikeOpenEvent: () => {
+      if (interactedInsideRef.current) {
+        return true;
+      }
 
-    return dataRef.current.openEvent ? clickLikeEvents.has(dataRef.current.openEvent.type) : false;
+      return dataRef.current.openEvent ? clickLikeEvents.has(dataRef.current.openEvent.type) : false;
+    },
+
+    isHoverOpen: () => {
+      const type = dataRef.current.openEvent?.type;
+      return type?.includes('mouse') && type !== 'mousedown';
+    },
+
+    cleanupMouseMoveHandler: () => {
+      unbindMouseMoveRef.current();
+      handlerRef.current = undefined;
+    },
+
+    clearPointerEvents: () => {
+      if (performedPointerEventsMutationRef.current) {
+        const body = getDocument(floatingElement).body;
+        body.style.pointerEvents = '';
+        body.removeAttribute(safePolygonIdentifier);
+        performedPointerEventsMutationRef.current = false;
+      }
+    },
+
+    handleInteractInside: (event: PointerEvent) => {
+      const target = getTarget(event) as Element | null;
+      if (!isInteractiveElement(target)) {
+        interactedInsideRef.current = false;
+        return;
+      }
+
+      interactedInsideRef.current = true;
+    },
   });
 
-  const isHoverOpen = useStableCallback(() => {
-    const type = dataRef.current.openEvent?.type;
-    return type?.includes('mouse') && type !== 'mousedown';
-  });
+  const {
+    isClickLikeOpenEvent,
+    isHoverOpen,
+    cleanupMouseMoveHandler,
+    clearPointerEvents,
+    handleInteractInside,
+  } = stableCallbacks;
 
   const closeWithDelay = React.useCallback(
     (event: MouseEvent, runElseBranch = true) => {
@@ -93,30 +127,6 @@ export function useHoverFloatingInteraction(
     },
     [closeDelayProp, handlerRef, store, pointerTypeRef, openChangeTimeout],
   );
-
-  const cleanupMouseMoveHandler = useStableCallback(() => {
-    unbindMouseMoveRef.current();
-    handlerRef.current = undefined;
-  });
-
-  const clearPointerEvents = useStableCallback(() => {
-    if (performedPointerEventsMutationRef.current) {
-      const body = getDocument(floatingElement).body;
-      body.style.pointerEvents = '';
-      body.removeAttribute(safePolygonIdentifier);
-      performedPointerEventsMutationRef.current = false;
-    }
-  });
-
-  const handleInteractInside = useStableCallback((event: PointerEvent) => {
-    const target = getTarget(event) as Element | null;
-    if (!isInteractiveElement(target)) {
-      interactedInsideRef.current = false;
-      return;
-    }
-
-    interactedInsideRef.current = true;
-  });
 
   useIsoLayoutEffect(() => {
     if (!open) {

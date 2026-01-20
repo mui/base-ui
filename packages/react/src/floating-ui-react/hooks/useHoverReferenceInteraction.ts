@@ -2,7 +2,7 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { isElement } from '@floating-ui/utils/dom';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
-import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { useStableCallbacks } from '@base-ui/utils/useStableCallbacks';
 import type { FloatingContext, FloatingRootContext } from '../types';
 import { contains, getDocument, isMouseLikePointerType } from '../utils';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
@@ -83,16 +83,6 @@ export function useHoverReferenceInteraction(
     handleCloseOptionsRef.current = handleCloseRef.current?.__options;
   }
 
-  const isClickLikeOpenEvent = useStableCallback(() => {
-    if (interactedInsideRef.current) {
-      return true;
-    }
-
-    return dataRef.current.openEvent
-      ? ['click', 'mousedown'].includes(dataRef.current.openEvent.type)
-      : false;
-  });
-
   const closeWithDelay = React.useCallback(
     (event: MouseEvent, runElseBranch = true) => {
       const closeDelay = getDelay(delayRef.current, 'close', pointerTypeRef.current);
@@ -108,19 +98,67 @@ export function useHoverReferenceInteraction(
     [delayRef, closeHandlerRef, store, pointerTypeRef, openChangeTimeout],
   );
 
-  const cleanupMouseMoveHandler = useStableCallback(() => {
-    unbindMouseMoveRef.current();
-    closeHandlerRef.current = undefined;
+  const stableCallbacks = useStableCallbacks({
+    isClickLikeOpenEvent: () => {
+      if (interactedInsideRef.current) {
+        return true;
+      }
+
+      return dataRef.current.openEvent
+        ? ['click', 'mousedown'].includes(dataRef.current.openEvent.type)
+        : false;
+    },
+
+    cleanupMouseMoveHandler: () => {
+      unbindMouseMoveRef.current();
+      closeHandlerRef.current = undefined;
+    },
+
+    clearPointerEvents: () => {
+      if (performedPointerEventsMutationRef.current) {
+        const body = getDocument(store.select('domReferenceElement')).body;
+        body.style.pointerEvents = '';
+        body.removeAttribute(safePolygonIdentifier);
+        performedPointerEventsMutationRef.current = false;
+      }
+    },
+
+    handleScrollMouseLeave: (event: MouseEvent) => {
+      if (stableCallbacks.isClickLikeOpenEvent()) {
+        return;
+      }
+      if (!dataRef.current.floatingContext) {
+        return;
+      }
+
+      const triggerElements = store.context.triggerElements;
+      if (event.relatedTarget && triggerElements.hasElement(event.relatedTarget as Element)) {
+        return;
+      }
+
+      const currentTrigger = triggerElementRef.current;
+
+      handleCloseRef.current?.({
+        ...dataRef.current.floatingContext,
+        tree,
+        x: event.clientX,
+        y: event.clientY,
+        onClose() {
+          stableCallbacks.clearPointerEvents();
+          stableCallbacks.cleanupMouseMoveHandler();
+          if (
+            !stableCallbacks.isClickLikeOpenEvent() &&
+            currentTrigger === store.select('domReferenceElement')
+          ) {
+            closeWithDelay(event);
+          }
+        },
+      })(event);
+    },
   });
 
-  const clearPointerEvents = useStableCallback(() => {
-    if (performedPointerEventsMutationRef.current) {
-      const body = getDocument(store.select('domReferenceElement')).body;
-      body.style.pointerEvents = '';
-      body.removeAttribute(safePolygonIdentifier);
-      performedPointerEventsMutationRef.current = false;
-    }
-  });
+  const { isClickLikeOpenEvent, cleanupMouseMoveHandler, clearPointerEvents, handleScrollMouseLeave } =
+    stableCallbacks;
 
   // When closing before opening, clear the delay timeouts to cancel it
   // from showing.
@@ -143,36 +181,6 @@ export function useHoverReferenceInteraction(
       events.off('openchange', onOpenChangeLocal);
     };
   }, [enabled, events, openChangeTimeout, restTimeout, blockMouseMoveRef, restTimeoutPendingRef]);
-
-  const handleScrollMouseLeave = useStableCallback((event: MouseEvent) => {
-    if (isClickLikeOpenEvent()) {
-      return;
-    }
-    if (!dataRef.current.floatingContext) {
-      return;
-    }
-
-    const triggerElements = store.context.triggerElements;
-    if (event.relatedTarget && triggerElements.hasElement(event.relatedTarget as Element)) {
-      return;
-    }
-
-    const currentTrigger = triggerElementRef.current;
-
-    handleCloseRef.current?.({
-      ...dataRef.current.floatingContext,
-      tree,
-      x: event.clientX,
-      y: event.clientY,
-      onClose() {
-        clearPointerEvents();
-        cleanupMouseMoveHandler();
-        if (!isClickLikeOpenEvent() && currentTrigger === store.select('domReferenceElement')) {
-          closeWithDelay(event);
-        }
-      },
-    })(event);
-  });
 
   React.useEffect(() => {
     if (!enabled) {
