@@ -290,6 +290,7 @@ export function useHoverFloatingInteraction(
       }
     };
   }, [
+    tree,
     enabled,
     floatingElement,
     store,

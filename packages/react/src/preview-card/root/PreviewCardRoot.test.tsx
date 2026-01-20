@@ -661,7 +661,9 @@ describe('<PreviewCard.Root />', () => {
                     <PreviewCard.Trigger href="#">Child</PreviewCard.Trigger>
                     <PreviewCard.Portal>
                       <PreviewCard.Positioner>
-                        <PreviewCard.Popup data-testid="child-popup">Child content</PreviewCard.Popup>
+                        <PreviewCard.Popup data-testid="child-popup">
+                          Child content
+                        </PreviewCard.Popup>
                       </PreviewCard.Positioner>
                     </PreviewCard.Portal>
                   </PreviewCard.Root>
@@ -703,7 +705,9 @@ describe('<PreviewCard.Root />', () => {
                       <PreviewCard.Trigger href="#">Child</PreviewCard.Trigger>
                       <PreviewCard.Portal>
                         <PreviewCard.Positioner>
-                          <PreviewCard.Popup data-testid="child-popup">Child content</PreviewCard.Popup>
+                          <PreviewCard.Popup data-testid="child-popup">
+                            Child content
+                          </PreviewCard.Popup>
                         </PreviewCard.Positioner>
                       </PreviewCard.Portal>
                     </PreviewCard.Root>
@@ -747,7 +751,9 @@ describe('<PreviewCard.Root />', () => {
                     </PreviewCard.Trigger>
                     <PreviewCard.Portal>
                       <PreviewCard.Positioner>
-                        <PreviewCard.Popup data-testid="child-popup">Child content</PreviewCard.Popup>
+                        <PreviewCard.Popup data-testid="child-popup">
+                          Child content
+                        </PreviewCard.Popup>
                       </PreviewCard.Positioner>
                     </PreviewCard.Portal>
                   </PreviewCard.Root>
