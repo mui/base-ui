@@ -245,7 +245,7 @@ export namespace PreviewCardViewport {
   }
 
   export interface State {
-    activationDirection?: string;
+    activationDirection?: string | undefined;
   }
 }
 
