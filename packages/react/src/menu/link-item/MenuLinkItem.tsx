@@ -4,10 +4,9 @@ import { useMenuRootContext } from '../root/MenuRootContext';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import type { BaseUIComponentProps } from '../../utils/types';
-import { useContextMenuRootContext } from '../../context-menu/root/ContextMenuRootContext';
 import { useCompositeListItem } from '../../composite/list/useCompositeListItem';
 import { useMenuPositionerContext } from '../positioner/MenuPositionerContext';
-import { REASONS } from '../../utils/reasons';
+import { useMenuItemCommonProps } from '../item/useMenuItemCommonProps';
 
 export const MenuLinkItem = React.forwardRef(function MenuLinkItem(
   componentProps: MenuLinkItem.Props,
@@ -28,15 +27,20 @@ export const MenuLinkItem = React.forwardRef(function MenuLinkItem(
   const menuPositionerContext = useMenuPositionerContext(true);
   const nodeId = menuPositionerContext?.nodeId;
 
-  const contextMenuContext = useContextMenuRootContext(true);
-  const isContextMenu = contextMenuContext !== undefined;
-
   const id = useBaseUiId(idProp);
 
   const { store } = useMenuRootContext();
-  const { events: menuEvents } = store.useState('floatingTreeRoot');
   const highlighted = store.useState('isActive', listItem.index);
   const itemProps = store.useState('itemProps');
+
+  const commonProps = useMenuItemCommonProps({
+    closeOnClick,
+    highlighted,
+    id,
+    nodeId,
+    store,
+    itemRef: linkRef,
+  });
 
   const state: MenuLinkItem.State = React.useMemo(
     () => ({
@@ -47,43 +51,7 @@ export const MenuLinkItem = React.forwardRef(function MenuLinkItem(
 
   return useRenderElement('a', componentProps, {
     state,
-    props: [
-      itemProps,
-      elementProps,
-      {
-        id,
-        role: 'menuitem',
-        tabIndex: highlighted ? 0 : -1,
-        onMouseMove(event) {
-          if (!nodeId) {
-            return;
-          }
-
-          // Inform the floating tree that a menu item within this menu was hovered/moved over
-          // so unrelated descendant submenus can be closed.
-          menuEvents.emit('itemhover', {
-            nodeId,
-            target: event.currentTarget,
-          });
-        },
-        onClick(event) {
-          if (closeOnClick) {
-            menuEvents.emit('close', { domEvent: event, reason: REASONS.itemPress });
-          }
-        },
-        onMouseUp(event) {
-          if (
-            linkRef.current &&
-            store.context.allowMouseUpTriggerRef.current &&
-            (!isContextMenu || event.button === 2)
-          ) {
-            // This fires whenever the user clicks on the trigger, moves the cursor, and releases it over the item.
-            // We trigger the click and override the `closeOnClick` preference to always close the menu.
-            linkRef.current.click();
-          }
-        },
-      },
-    ],
+    props: [itemProps, elementProps, commonProps],
     ref: [linkRef, forwardedRef, listItem.ref],
   });
 });
@@ -99,16 +67,16 @@ export interface MenuLinkItemProps extends BaseUIComponentProps<'a', MenuLinkIte
   /**
    * Overrides the text label to use when the item is matched during keyboard text navigation.
    */
-  label?: string;
+  label?: string | undefined;
   /**
    * @ignore
    */
-  id?: string;
+  id?: string | undefined;
   /**
    * Whether to close the menu when the item is clicked.
    * @default false
    */
-  closeOnClick?: boolean;
+  closeOnClick?: boolean | undefined;
 }
 
 export namespace MenuLinkItem {
