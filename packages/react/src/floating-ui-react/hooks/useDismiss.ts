@@ -9,7 +9,6 @@ import {
   isWebKit,
 } from '@floating-ui/utils/dom';
 import { Timeout } from '@base-ui/utils/useTimeout';
-import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 import {
