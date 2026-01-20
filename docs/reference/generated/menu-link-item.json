@@ -1,5 +1,6 @@
 {
   "name": "MenuLinkItem",
+  "description": "A link in the menu that can be used to navigate to a different page or section.\nRenders an `<a>` element.",
   "props": {
     "label": {
       "type": "string",

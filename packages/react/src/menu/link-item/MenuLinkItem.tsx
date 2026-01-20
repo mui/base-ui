@@ -8,6 +8,12 @@ import { useCompositeListItem } from '../../composite/list/useCompositeListItem'
 import { useMenuPositionerContext } from '../positioner/MenuPositionerContext';
 import { useMenuItemCommonProps } from '../item/useMenuItemCommonProps';
 
+/**
+ * A link in the menu that can be used to navigate to a different page or section.
+ * Renders an `<a>` element.
+ *
+ * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
+ */
 export const MenuLinkItem = React.forwardRef(function MenuLinkItem(
   componentProps: MenuLinkItem.Props,
   forwardedRef: React.ForwardedRef<Element>,
