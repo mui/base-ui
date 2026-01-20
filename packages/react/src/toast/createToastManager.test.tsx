@@ -6,6 +6,9 @@ import { createRenderer } from '#test-utils';
 import { List } from './utils/test-utils';
 
 describe('Manager', () => {
+  beforeEach(() => {
+    globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
+  });
   const { render, clock } = createRenderer();
 
   clock.withFakeTimers();
@@ -158,7 +161,7 @@ describe('Manager', () => {
 
       expect(screen.queryByTestId('description')).to.have.text('success');
 
-      clock.runToLast();
+      clock.tick(5000);
       await flushMicrotasks();
       expect(screen.queryByTestId('description')).to.equal(null);
     });
@@ -309,7 +312,7 @@ describe('Manager', () => {
       await flushMicrotasks();
       expect(screen.queryByTestId('title')).not.to.equal(null);
 
-      clock.runToLast();
+      clock.tick(800);
       await flushMicrotasks();
       expect(screen.queryByTestId('title')).to.equal(null);
     });
@@ -377,7 +380,7 @@ describe('Manager', () => {
       await flushMicrotasks();
       expect(screen.queryByTestId('title')).not.to.equal(null);
 
-      clock.runToLast();
+      clock.tick(800);
       await flushMicrotasks();
       expect(screen.queryByTestId('title')).to.equal(null);
     });
