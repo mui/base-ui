@@ -40,11 +40,11 @@ export interface NavigationMenuPortalProps extends FloatingPortal.Props<Navigati
    * Whether to keep the portal mounted in the DOM while the popup is hidden.
    * @default false
    */
-  keepMounted?: boolean;
+  keepMounted?: boolean | undefined;
   /**
    * A parent element to render the portal element into.
    */
-  container?: FloatingPortal.Props<NavigationMenuPortal.State>['container'];
+  container?: FloatingPortal.Props<NavigationMenuPortal.State>['container'] | undefined;
 }
 
 export namespace NavigationMenuPortal {

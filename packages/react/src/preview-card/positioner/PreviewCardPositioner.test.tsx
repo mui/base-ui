@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { PreviewCard } from '@base-ui/react/preview-card';
-import { screen } from '@mui/internal-test-utils';
+import { screen, waitFor } from '@mui/internal-test-utils';
 import { expect } from 'chai';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 
@@ -48,9 +48,10 @@ describe('<PreviewCard.Positioner />', () => {
         </PreviewCard.Root>,
       );
 
-      expect(screen.getByTestId('positioner').style.transform).to.equal(
-        `translate(${baselineX}px, ${baselineY + sideOffset}px)`,
-      );
+      expect(screen.getByTestId('positioner').getBoundingClientRect()).to.include({
+        x: baselineX,
+        y: baselineY + sideOffset,
+      });
     });
 
     it('offsets the side when a function is specified', async () => {
@@ -68,9 +69,10 @@ describe('<PreviewCard.Positioner />', () => {
         </PreviewCard.Root>,
       );
 
-      expect(screen.getByTestId('positioner').style.transform).to.equal(
-        `translate(${baselineX}px, ${baselineY + popupWidth + anchorWidth}px)`,
-      );
+      expect(screen.getByTestId('positioner').getBoundingClientRect()).to.include({
+        x: baselineX,
+        y: baselineY + popupWidth + anchorWidth,
+      });
     });
 
     it('can read the latest side inside sideOffset', async () => {
@@ -161,9 +163,10 @@ describe('<PreviewCard.Positioner />', () => {
         </PreviewCard.Root>,
       );
 
-      expect(screen.getByTestId('positioner').style.transform).to.equal(
-        `translate(${baselineX + alignOffset}px, ${baselineY}px)`,
-      );
+      expect(screen.getByTestId('positioner').getBoundingClientRect()).to.include({
+        x: baselineX + alignOffset,
+        y: baselineY,
+      });
     });
 
     it('offsets the align when a function is specified', async () => {
@@ -181,9 +184,10 @@ describe('<PreviewCard.Positioner />', () => {
         </PreviewCard.Root>,
       );
 
-      expect(screen.getByTestId('positioner').style.transform).to.equal(
-        `translate(${baselineX + popupWidth}px, ${baselineY}px)`,
-      );
+      expect(screen.getByTestId('positioner').getBoundingClientRect()).to.include({
+        x: baselineX + popupWidth,
+        y: baselineY,
+      });
     });
 
     it('can read the latest side inside alignOffset', async () => {
@@ -257,6 +261,42 @@ describe('<PreviewCard.Positioner />', () => {
 
       // correctly flips the side in the browser
       expect(side).to.equal('inline-end');
+    });
+  });
+
+  it.skipIf(isJSDOM)('uses transform positioning without Viewport', async () => {
+    await render(
+      <PreviewCard.Root open>
+        <Trigger style={triggerStyle}>Trigger</Trigger>
+        <PreviewCard.Portal>
+          <PreviewCard.Positioner data-testid="positioner">
+            <PreviewCard.Popup style={popupStyle}>Popup</PreviewCard.Popup>
+          </PreviewCard.Positioner>
+        </PreviewCard.Portal>
+      </PreviewCard.Root>,
+    );
+
+    const positioner = screen.getByTestId('positioner');
+    expect(positioner.style.transform).not.to.equal('');
+  });
+
+  it.skipIf(isJSDOM)('uses top/left positioning with Viewport', async () => {
+    await render(
+      <PreviewCard.Root open>
+        <Trigger style={triggerStyle}>Trigger</Trigger>
+        <PreviewCard.Portal>
+          <PreviewCard.Positioner data-testid="positioner">
+            <PreviewCard.Popup style={popupStyle}>
+              <PreviewCard.Viewport>Popup</PreviewCard.Viewport>
+            </PreviewCard.Popup>
+          </PreviewCard.Positioner>
+        </PreviewCard.Portal>
+      </PreviewCard.Root>,
+    );
+
+    const positioner = screen.getByTestId('positioner');
+    await waitFor(() => {
+      expect(positioner.style.transform).to.equal('');
     });
   });
 });

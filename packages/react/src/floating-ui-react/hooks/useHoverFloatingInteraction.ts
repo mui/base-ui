@@ -22,17 +22,17 @@ export type UseHoverFloatingInteractionProps = {
    * handlers.
    * @default true
    */
-  enabled?: boolean;
+  enabled?: boolean | undefined;
   /**
    * Waits for the specified time when the event listener runs before changing
    * the `open` state.
    * @default 0
    */
-  closeDelay?: number | (() => number);
+  closeDelay?: (number | (() => number)) | undefined;
   /**
    * An optional external floating tree to use instead of the default context.
    */
-  externalTree?: FloatingTreeStore;
+  externalTree?: FloatingTreeStore | undefined;
 };
 
 const clickLikeEvents = new Set(['click', 'mousedown']);

@@ -14,7 +14,7 @@ import { DemoSelectHero } from './demos/hero';
 
 - **Prefer Combobox for large lists**: Select is not filterable, aside from basic keyboard typeahead functionality to find items by focusing and highlighting them. Prefer [Combobox](/react/components/combobox) instead of Select when the number of items is sufficiently large to warrant filtering.
 - **Special positioning behavior**: The select popup by default overlaps its trigger so the selected item's text is aligned with the trigger's value text. This behavior [can be disabled or customized](/react/components/select#positioning).
-- **Form controls must have an accessible name**: It can be created using the `Field` component. See the [forms guide](/react/handbook/forms).
+- **Form controls must have an accessible name**: It can be created using the `Field` component. See [Labeling a select](#labeling-a-select) and the [forms guide](/react/handbook/forms).
 
 ## Anatomy
 
@@ -126,16 +126,18 @@ To avoid lookup, [object values](#object-values) for each item can also be used.
 
 ### Labeling a select
 
-A select should have a visible label. Use the [Field](/react/components/field) component to provide a label for the select trigger:
+Use the [Field](/react/components/field) component to provide a visible label for the select trigger:
 
-```tsx title="Using Field to label a select" {2}
+```tsx title="Using Field to label a select" {2,4}
 <Field.Root>
-  <Field.Label>Theme</Field.Label>
+  <Field.Label nativeLabel={false} render={<div />}>
+    Theme
+  </Field.Label>
   <Select.Root>{/* ... */}</Select.Root>
 </Field.Root>
 ```
 
-The Field component ensures clicking on the label will focus the select trigger without opening it (matching native behavior), and hovering over the label will not activate CSS `:hover` on the trigger, unlike a native `<label>`.
+Replace the rendered `<label>` element with a `<div>` element and add `nativeLabel={false}` so it does not inherit native label behaviors. This ensures clicking on the label will focus the select trigger without opening the associated popup to match native `<select>` behavior, and prevents CSS `:hover` from activating on the trigger when hovering over the label.
 
 ### Placeholder values
 

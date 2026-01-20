@@ -229,7 +229,9 @@ function TanstackForm() {
               dirty={field.state.meta.isDirty}
               touched={field.state.meta.isTouched}
             >
-              <Field.Label>Server type</Field.Label>
+              <Field.Label className="cursor-default" nativeLabel={false} render={<div />}>
+                Server type
+              </Field.Label>
               <Select.Root
                 items={SERVER_TYPES}
                 value={field.state.value}

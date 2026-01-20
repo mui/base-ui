@@ -1,3 +1,10 @@
+.Field {
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  gap: 0.25rem;
+}
+
 .Trigger {
   box-sizing: border-box;
   display: flex;
@@ -41,6 +48,10 @@
   display: flex;
 }
 
+.Placeholder {
+  opacity: 0.6;
+}
+
 .InputContainer {
   box-sizing: border-box;
   width: 20rem;
@@ -71,13 +82,11 @@
 }
 
 .Label {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
   font-size: 0.875rem;
   line-height: 1.25rem;
   font-weight: 500;
   color: var(--color-gray-900);
+  cursor: default;
 }
 
 .Positioner {

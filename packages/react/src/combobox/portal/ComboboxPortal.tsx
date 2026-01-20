@@ -43,7 +43,7 @@ export interface ComboboxPortalProps extends FloatingPortal.Props<ComboboxPortal
    * Whether to keep the portal mounted in the DOM while the popup is hidden.
    * @default false
    */
-  keepMounted?: boolean;
+  keepMounted?: boolean | undefined;
 }
 
 export namespace ComboboxPortal {

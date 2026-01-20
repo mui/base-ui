@@ -11,6 +11,12 @@ import { unified } from 'unified';
 import remarkParse from 'remark-parse';
 
 import * as mdx from './mdxNodeHelpers.mjs';
+import {
+  getAttributeValue,
+  isComponentDef,
+  isFunctionDef,
+  normalizeReturnValue,
+} from '../../src/components/ReferenceTable/referenceUtils.mjs';
 
 /**
  * Parse a markdown string into an AST
@@ -32,42 +38,110 @@ function parseMarkdown(markdown) {
  */
 export function processReference(node) {
   // Extract component name and parts from attributes
-  const componentAttr = node.attributes?.find((attr) => attr.name === 'component')?.value;
-  const partsAttr = node.attributes?.find((attr) => attr.name === 'parts')?.value;
+  const componentAttr = getAttributeValue(node, 'component');
+  const nameAttr = getAttributeValue(node, 'name');
+  const partsAttr = getAttributeValue(node, 'parts');
+  const referenceName = componentAttr ?? nameAttr;
 
-  if (!componentAttr) {
-    throw new Error('Missing "component" prop on the "<Reference />" component.');
+  if (!referenceName) {
+    throw new Error('Missing "component" or "name" prop on the "<Reference />" component.');
   }
 
   const tables = [];
 
   // Process each component part
-  const parts = partsAttr ? partsAttr.split(/,\s*/).map((p) => p.trim()) : [componentAttr];
+  const parts = partsAttr ? partsAttr.split(/,\s*/).map((p) => p.trim()) : [referenceName];
 
   // Load component definitions from JSON files
   const componentDefs = [];
-  const kebabCase = (str) => str.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
+  const kebabCase = (str) =>
+    str
+      .replace(/([a-z0-9])([A-Z])/g, '$1-$2')
+      .replace(/([A-Z])([A-Z][a-z])/g, '$1-$2')
+      .toLowerCase();
   const projectRoot = path.resolve(import.meta.dirname, '../..');
+  let functionDef = null;
 
-  for (const part of parts) {
-    // Construct file path for this component part
-    let filename = `${kebabCase(componentAttr)}-${kebabCase(part)}.json`;
-    let filepath = path.join(projectRoot, 'reference/generated', filename);
-
-    // If file doesn't exist, try with just the part name
-    if (!fs.existsSync(filepath)) {
-      filename = `${kebabCase(part)}.json`;
-      filepath = path.join(projectRoot, 'reference/generated', filename);
-    }
-
-    // Read and parse JSON file
-    if (!fs.existsSync(filepath)) {
-      throw new Error(`Reference file not found for component ${componentAttr}, part ${part}`);
-    }
-
+  if (!partsAttr) {
+    const filename = `${kebabCase(referenceName)}.json`;
+    const filepath = path.join(projectRoot, 'reference/generated', filename);
     const jsonContent = fs.readFileSync(filepath, 'utf-8');
-    const componentDef = JSON.parse(jsonContent);
-    componentDefs.push(componentDef);
+    const referenceDef = JSON.parse(jsonContent);
+
+    if (isFunctionDef(referenceDef) && !isComponentDef(referenceDef)) {
+      functionDef = referenceDef;
+    } else {
+      componentDefs.push(referenceDef);
+    }
+  } else {
+    for (const part of parts) {
+      // Construct file path for this component part
+      let filename = `${kebabCase(referenceName)}-${kebabCase(part)}.json`;
+      let filepath = path.join(projectRoot, 'reference/generated', filename);
+
+      // If file doesn't exist, try with just the part name
+      if (!fs.existsSync(filepath)) {
+        filename = `${kebabCase(part)}.json`;
+        filepath = path.join(projectRoot, 'reference/generated', filename);
+      }
+
+      // Read and parse JSON file
+      if (!fs.existsSync(filepath)) {
+        throw new Error(`Reference file not found for component ${referenceName}, part ${part}`);
+      }
+
+      const jsonContent = fs.readFileSync(filepath, 'utf-8');
+      const componentDef = JSON.parse(jsonContent);
+      componentDefs.push(componentDef);
+    }
+  }
+
+  if (functionDef) {
+    if (functionDef.description) {
+      const descriptionNode = parseMarkdown(functionDef.description);
+      tables.push(mdx.paragraph(descriptionNode));
+    }
+
+    if (functionDef.parameters && Object.keys(functionDef.parameters).length > 0) {
+      tables.push(mdx.paragraph([mdx.strong('Parameters:')]));
+
+      const parameterRows = Object.entries(functionDef.parameters).map(([paramName, paramDef]) => {
+        const displayName = paramDef.optional ? `${paramName}?` : paramName;
+        return [
+          displayName,
+          paramDef.type ? mdx.inlineCode(paramDef.type) : '-',
+          paramDef.default ? mdx.inlineCode(paramDef.default) : '-',
+          parseMarkdown(paramDef.description || '-'),
+        ];
+      });
+
+      const tableNode = mdx.table(['Parameter', 'Type', 'Default', 'Description'], parameterRows, [
+        'left',
+        'left',
+        'left',
+        'left',
+      ]);
+      tables.push(tableNode);
+    }
+
+    if (functionDef.returnValue) {
+      tables.push(mdx.paragraph([mdx.strong('Return Value:')]));
+
+      const returnData = normalizeReturnValue(functionDef.returnValue);
+
+      const includeName = Object.keys(returnData).length > 1;
+      const returnRows = Object.entries(returnData).map(([name, def]) => {
+        const description = def.description || '';
+        const namePrefix = includeName ? `${name}${description ? ': ' : ''}` : '';
+        const descriptionText = description ? `${namePrefix}${description}` : namePrefix;
+        return [def.type ? mdx.inlineCode(def.type) : '-', parseMarkdown(descriptionText || '-')];
+      });
+
+      const tableNode = mdx.table(['Type', 'Description'], returnRows, ['left', 'left']);
+      tables.push(tableNode);
+    }
+
+    return tables;
   }
 
   // Generate markdown tables for each component

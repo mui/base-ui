@@ -1,49 +1,59 @@
 'use client';
 import * as React from 'react';
 import { Combobox } from '@base-ui/react/combobox';
+import { Field } from '@base-ui/react/field';
 
 export default function ExamplePopoverCombobox() {
   return (
-    <Combobox.Root items={countries} defaultValue={countries[0]}>
-      <Combobox.Trigger className="flex bg-[canvas] h-10 min-w-[12rem] items-center justify-between gap-3 rounded-md border border-gray-200 pr-3 pl-3.5 text-base text-gray-900 select-none hover:bg-gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 data-[popup-open]:bg-gray-100 cursor-default">
-        <Combobox.Value />
-        <Combobox.Icon className="flex">
-          <ChevronUpDownIcon />
-        </Combobox.Icon>
-      </Combobox.Trigger>
-      <Combobox.Portal>
-        <Combobox.Positioner align="start" sideOffset={4}>
-          <Combobox.Popup
-            className="[--input-container-height:3rem] origin-[var(--transform-origin)] max-w-[var(--available-width)] max-h-[24rem] rounded-lg bg-[canvas] shadow-lg shadow-gray-200 text-gray-900 outline-1 outline-gray-200 transition-[transform,scale,opacity] data-[ending-style]:scale-90 data-[ending-style]:opacity-0 data-[starting-style]:scale-90 data-[starting-style]:opacity-0 dark:shadow-none dark:-outline-offset-1 dark:outline-gray-300"
-            aria-label="Select country"
-          >
-            <div className="w-80 h-[var(--input-container-height)] text-center p-2">
-              <Combobox.Input
-                placeholder="e.g. United Kingdom"
-                className="h-10 w-full font-normal rounded-md border border-gray-200 pl-3.5 text-base text-gray-900 focus:outline focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800"
-              />
-            </div>
-            <Combobox.Empty className="p-4 text-[0.925rem] leading-4 text-gray-600 empty:m-0 empty:p-0">
-              No countries found.
-            </Combobox.Empty>
-            <Combobox.List className="overflow-y-auto scroll-py-2 py-2 overscroll-contain max-h-[min(calc(24rem-var(--input-container-height)),calc(var(--available-height)-var(--input-container-height)))] empty:p-0">
-              {(country: Country) => (
-                <Combobox.Item
-                  key={country.code}
-                  value={country}
-                  className="grid min-w-[var(--anchor-width)] cursor-default grid-cols-[0.75rem_1fr] items-center gap-2 py-2 pr-8 pl-4 text-base leading-4 outline-none select-none data-[highlighted]:relative data-[highlighted]:z-0 data-[highlighted]:text-gray-50 data-[highlighted]:before:absolute data-[highlighted]:before:inset-x-2 data-[highlighted]:before:inset-y-0 data-[highlighted]:before:z-[-1] data-[highlighted]:before:rounded-sm data-[highlighted]:before:bg-gray-900"
-                >
-                  <Combobox.ItemIndicator className="col-start-1">
-                    <CheckIcon className="size-3" />
-                  </Combobox.ItemIndicator>
-                  <div className="col-start-2">{country.label ?? country.value}</div>
-                </Combobox.Item>
-              )}
-            </Combobox.List>
-          </Combobox.Popup>
-        </Combobox.Positioner>
-      </Combobox.Portal>
-    </Combobox.Root>
+    <Field.Root className="flex flex-col gap-1">
+      <Field.Label
+        className="cursor-default text-sm leading-5 font-medium text-gray-900"
+        nativeLabel={false}
+        render={<div />}
+      >
+        Country
+      </Field.Label>
+      <Combobox.Root items={countries}>
+        <Combobox.Trigger className="flex bg-[canvas] h-10 min-w-[12rem] items-center justify-between gap-3 rounded-md border border-gray-200 pr-3 pl-3.5 text-base text-gray-900 select-none hover:bg-gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 data-[popup-open]:bg-gray-100 cursor-default">
+          <Combobox.Value placeholder={<span className="opacity-60">Select country</span>} />
+          <Combobox.Icon className="flex">
+            <ChevronUpDownIcon />
+          </Combobox.Icon>
+        </Combobox.Trigger>
+        <Combobox.Portal>
+          <Combobox.Positioner align="start" sideOffset={4}>
+            <Combobox.Popup
+              className="[--input-container-height:3rem] origin-[var(--transform-origin)] max-w-[var(--available-width)] max-h-[24rem] rounded-lg bg-[canvas] shadow-lg shadow-gray-200 text-gray-900 outline-1 outline-gray-200 transition-[transform,scale,opacity] data-[ending-style]:scale-90 data-[ending-style]:opacity-0 data-[starting-style]:scale-90 data-[starting-style]:opacity-0 dark:shadow-none dark:-outline-offset-1 dark:outline-gray-300"
+              aria-label="Select country"
+            >
+              <div className="w-80 h-[var(--input-container-height)] text-center p-2">
+                <Combobox.Input
+                  placeholder="e.g. United Kingdom"
+                  className="h-10 w-full font-normal rounded-md border border-gray-200 pl-3.5 text-base text-gray-900 focus:outline focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800"
+                />
+              </div>
+              <Combobox.Empty className="p-4 text-[0.925rem] leading-4 text-gray-600 empty:m-0 empty:p-0">
+                No countries found.
+              </Combobox.Empty>
+              <Combobox.List className="overflow-y-auto scroll-py-2 py-2 overscroll-contain max-h-[min(calc(24rem-var(--input-container-height)),calc(var(--available-height)-var(--input-container-height)))] empty:p-0">
+                {(country: Country) => (
+                  <Combobox.Item
+                    key={country.code}
+                    value={country}
+                    className="grid min-w-[var(--anchor-width)] cursor-default grid-cols-[0.75rem_1fr] items-center gap-2 py-2 pr-8 pl-4 text-base leading-4 outline-none select-none data-[highlighted]:relative data-[highlighted]:z-0 data-[highlighted]:text-gray-50 data-[highlighted]:before:absolute data-[highlighted]:before:inset-x-2 data-[highlighted]:before:inset-y-0 data-[highlighted]:before:z-[-1] data-[highlighted]:before:rounded-sm data-[highlighted]:before:bg-gray-900"
+                  >
+                    <Combobox.ItemIndicator className="col-start-1">
+                      <CheckIcon className="size-3" />
+                    </Combobox.ItemIndicator>
+                    <div className="col-start-2">{country.label}</div>
+                  </Combobox.Item>
+                )}
+              </Combobox.List>
+            </Combobox.Popup>
+          </Combobox.Positioner>
+        </Combobox.Portal>
+      </Combobox.Root>
+    </Field.Root>
   );
 }
 
@@ -74,13 +84,12 @@ function CheckIcon(props: React.ComponentProps<'svg'>) {
 
 interface Country {
   code: string;
-  value: string | null;
+  value: string;
   continent: string;
   label: string;
 }
 
 const countries: Country[] = [
-  { code: '', value: null, continent: '', label: 'Select country' },
   { code: 'af', value: 'afghanistan', label: 'Afghanistan', continent: 'Asia' },
   { code: 'al', value: 'albania', label: 'Albania', continent: 'Europe' },
   { code: 'dz', value: 'algeria', label: 'Algeria', continent: 'Africa' },

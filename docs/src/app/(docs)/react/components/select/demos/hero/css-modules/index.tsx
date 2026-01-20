@@ -1,43 +1,49 @@
 import * as React from 'react';
 import { Select } from '@base-ui/react/select';
+import { Field } from '@base-ui/react/field';
 import styles from './index.module.css';
 
-const fonts = [
-  { label: 'Select font', value: null },
-  { label: 'Sans-serif', value: 'sans' },
-  { label: 'Serif', value: 'serif' },
-  { label: 'Monospace', value: 'mono' },
-  { label: 'Cursive', value: 'cursive' },
+const apples = [
+  { label: 'Gala', value: 'gala' },
+  { label: 'Fuji', value: 'fuji' },
+  { label: 'Honeycrisp', value: 'honeycrisp' },
+  { label: 'Granny Smith', value: 'granny-smith' },
+  { label: 'Pink Lady', value: 'pink-lady' },
 ];
 
 export default function ExampleSelect() {
   return (
-    <Select.Root items={fonts}>
-      <Select.Trigger className={styles.Select}>
-        <Select.Value />
-        <Select.Icon className={styles.SelectIcon}>
-          <ChevronUpDownIcon />
-        </Select.Icon>
-      </Select.Trigger>
-      <Select.Portal>
-        <Select.Positioner className={styles.Positioner} sideOffset={8}>
-          <Select.Popup className={styles.Popup}>
-            <Select.ScrollUpArrow className={styles.ScrollArrow} />
-            <Select.List className={styles.List}>
-              {fonts.map(({ label, value }) => (
-                <Select.Item key={label} value={value} className={styles.Item}>
-                  <Select.ItemIndicator className={styles.ItemIndicator}>
-                    <CheckIcon className={styles.ItemIndicatorIcon} />
-                  </Select.ItemIndicator>
-                  <Select.ItemText className={styles.ItemText}>{label}</Select.ItemText>
-                </Select.Item>
-              ))}
-            </Select.List>
-            <Select.ScrollDownArrow className={styles.ScrollArrow} />
-          </Select.Popup>
-        </Select.Positioner>
-      </Select.Portal>
-    </Select.Root>
+    <Field.Root className={styles.Field}>
+      <Field.Label className={styles.Label} nativeLabel={false} render={<div />}>
+        Apple
+      </Field.Label>
+      <Select.Root items={apples}>
+        <Select.Trigger className={styles.Select}>
+          <Select.Value className={styles.Value} placeholder="Select apple" />
+          <Select.Icon className={styles.SelectIcon}>
+            <ChevronUpDownIcon />
+          </Select.Icon>
+        </Select.Trigger>
+        <Select.Portal>
+          <Select.Positioner className={styles.Positioner} sideOffset={8}>
+            <Select.Popup className={styles.Popup}>
+              <Select.ScrollUpArrow className={styles.ScrollArrow} />
+              <Select.List className={styles.List}>
+                {apples.map(({ label, value }) => (
+                  <Select.Item key={label} value={value} className={styles.Item}>
+                    <Select.ItemIndicator className={styles.ItemIndicator}>
+                      <CheckIcon className={styles.ItemIndicatorIcon} />
+                    </Select.ItemIndicator>
+                    <Select.ItemText className={styles.ItemText}>{label}</Select.ItemText>
+                  </Select.Item>
+                ))}
+              </Select.List>
+              <Select.ScrollDownArrow className={styles.ScrollArrow} />
+            </Select.Popup>
+          </Select.Positioner>
+        </Select.Portal>
+      </Select.Root>
+    </Field.Root>
   );
 }
 

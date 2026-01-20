@@ -2,6 +2,12 @@
   "name": "FieldLabel",
   "description": "An accessible label that is automatically associated with the field control.\nRenders a `<label>` element.",
   "props": {
+    "nativeLabel": {
+      "type": "boolean",
+      "default": "true",
+      "description": "Whether the component renders a native `<label>` element when replacing it via the `render` prop.\nSet to `false` if the rendered element is not a label (e.g. `<div>`).\n\nThis is useful to avoid inheriting label behaviors on `<button>` controls (such as `<Select.Trigger>` and `<Combobox.Trigger>`), including avoiding `:hover` on the button when hovering the label, and preventing clicks on the label from firing on the button.",
+      "detailedType": "boolean | undefined"
+    },
     "className": {
       "type": "string | ((state: Field.Root.State) => string | undefined)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",

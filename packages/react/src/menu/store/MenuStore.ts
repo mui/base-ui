@@ -169,11 +169,11 @@ export class MenuStore<Payload> extends ReactStore<
     initialState: Partial<State<Payload>>,
   ) {
     // eslint-disable-next-line react-hooks/rules-of-hooks
-    const store = useRefWithInit(() => {
-      return externalStore ?? new MenuStore<Payload>(initialState);
+    const internalStore = useRefWithInit(() => {
+      return new MenuStore<Payload>(initialState);
     }).current;
 
-    return store;
+    return externalStore ?? internalStore;
   }
 
   private unsubscribeParentListener: (() => void) | null = null;

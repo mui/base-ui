@@ -20,6 +20,7 @@
     white-space: nowrap;
     padding: 0 0.75rem;
     height: 2.25rem;
+    gap: 1rem;
     border-top-left-radius: inherit;
     border-top-right-radius: inherit;
     border-bottom: 1px solid var(--color-gray-200);

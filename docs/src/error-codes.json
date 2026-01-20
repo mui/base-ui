@@ -84,5 +84,7 @@
   "84": "Base UI: ToastPositionerContext is missing. ToastPositioner parts must be placed within <Toast.Positioner>.",
   "85": "Base UI: <Menu.Trigger> must be either used within a <Menu.Root> component or provided with a handle.",
   "86": "Base UI: FieldsetRootContext is missing. Fieldset parts must be placed within <Fieldset.Root>.",
-  "87": "Base UI: A trigger element cannot be registered under multiple IDs in PopupTriggerMap."
+  "87": "Base UI: A trigger element cannot be registered under multiple IDs in PopupTriggerMap.",
+  "88": "Base UI: PreviewCardHandle.open: No trigger found with id \"%s\".",
+  "89": "Base UI: <PreviewCard.Trigger> must be either used within a <PreviewCard.Root> component or provided with a handle."
 }

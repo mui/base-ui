@@ -179,11 +179,13 @@ export class PopoverStore<Payload> extends ReactStore<
     externalStore: PopoverStore<Payload> | undefined,
     initialState: Partial<State<Payload>>,
   ) {
-    const store = useRefWithInit(() => {
-      return externalStore ?? new PopoverStore<Payload>(initialState);
+    const internalStore = useRefWithInit(() => {
+      return new PopoverStore<Payload>(initialState);
     }).current;
 
-    useOnMount(store.disposeEffect);
+    const store = externalStore ?? internalStore;
+
+    useOnMount(internalStore.disposeEffect);
     return store;
   }
 

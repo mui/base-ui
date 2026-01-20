@@ -3,19 +3,19 @@
   "description": "Provides a shared state to a series of toggle buttons.",
   "props": {
     "defaultValue": {
-      "type": "any[]",
+      "type": "string[]",
       "description": "The open state of the toggle group represented by an array of\nthe values of all pressed toggle buttons.\nThis is the uncontrolled counterpart of `value`.",
-      "detailedType": "any[] | undefined"
+      "detailedType": "string[] | undefined"
     },
     "value": {
-      "type": "any[]",
+      "type": "string[]",
       "description": "The open state of the toggle group represented by an array of\nthe values of all pressed toggle buttons.\nThis is the controlled counterpart of `defaultValue`.",
-      "detailedType": "any[] | undefined"
+      "detailedType": "string[] | undefined"
     },
     "onValueChange": {
-      "type": "((groupValue: any[], eventDetails: Toggle.Group.ChangeEventDetails) => void)",
+      "type": "((groupValue: string[], eventDetails: Toggle.Group.ChangeEventDetails) => void)",
       "description": "Callback fired when the pressed states of the toggle group changes.",
-      "detailedType": "| ((\n    groupValue: any[],\n    eventDetails: Toggle.Group.ChangeEventDetails,\n  ) => void)\n| undefined"
+      "detailedType": "| ((\n    groupValue: string[],\n    eventDetails: Toggle.Group.ChangeEventDetails,\n  ) => void)\n| undefined"
     },
     "loopFocus": {
       "type": "boolean",

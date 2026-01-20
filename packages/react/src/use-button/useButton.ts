@@ -193,14 +193,14 @@ function isButtonElement(
 }
 
 interface GenericButtonProps extends Omit<HTMLProps, 'onClick'>, AdditionalButtonProps {
-  onClick?: (event: React.SyntheticEvent) => void;
+  onClick?: ((event: React.SyntheticEvent) => void) | undefined;
 }
 
 interface AdditionalButtonProps extends Partial<{
   'aria-disabled': React.AriaAttributes['aria-disabled'];
   disabled: boolean;
   role: React.AriaRole;
-  tabIndex?: number;
+  tabIndex?: number | undefined;
 }> {}
 
 export interface UseButtonParameters {
@@ -208,18 +208,18 @@ export interface UseButtonParameters {
    * Whether the component should ignore user interaction.
    * @default false
    */
-  disabled?: boolean;
+  disabled?: boolean | undefined;
   /**
    * Whether the button may receive focus even if it is disabled.
    * @default false
    */
-  focusableWhenDisabled?: boolean;
-  tabIndex?: NonNullable<React.HTMLAttributes<any>['tabIndex']>;
+  focusableWhenDisabled?: boolean | undefined;
+  tabIndex?: NonNullable<React.HTMLAttributes<any>['tabIndex']> | undefined;
   /**
    * Whether the component is being rendered as a native button.
    * @default true
    */
-  native?: boolean;
+  native?: boolean | undefined;
 }
 
 export interface UseButtonReturnValue {

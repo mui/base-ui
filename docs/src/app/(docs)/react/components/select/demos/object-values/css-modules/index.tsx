@@ -1,50 +1,56 @@
 'use client';
 import * as React from 'react';
 import { Select } from '@base-ui/react/select';
+import { Field } from '@base-ui/react/field';
 import styles from './index.module.css';
 
 export default function ObjectValueSelect() {
   return (
-    <Select.Root defaultValue={shippingMethods[0]} itemToStringValue={(item) => item.id}>
-      <Select.Trigger className={styles.Select}>
-        <Select.Value>
-          {(method: ShippingMethod) => (
-            <span className={styles.ValueText}>
-              <span className={styles.ValuePrimary}>{method.name}</span>
-              <span className={styles.ValueSecondary}>
-                {method.duration} ({method.price})
+    <Field.Root className={styles.Field}>
+      <Field.Label className={styles.Label} nativeLabel={false} render={<div />}>
+        Shipping method
+      </Field.Label>
+      <Select.Root defaultValue={shippingMethods[0]} itemToStringValue={(item) => item.id}>
+        <Select.Trigger className={styles.Select}>
+          <Select.Value>
+            {(method: ShippingMethod) => (
+              <span className={styles.ValueText}>
+                <span className={styles.ValuePrimary}>{method.name}</span>
+                <span className={styles.ValueSecondary}>
+                  {method.duration} ({method.price})
+                </span>
               </span>
-            </span>
-          )}
-        </Select.Value>
-        <Select.Icon className={styles.SelectIcon}>
-          <ChevronUpDownIcon />
-        </Select.Icon>
-      </Select.Trigger>
-      <Select.Portal>
-        <Select.Positioner className={styles.Positioner} sideOffset={8}>
-          <Select.Popup className={styles.Popup}>
-            <Select.ScrollUpArrow className={styles.ScrollArrow} />
-            <Select.List className={styles.List}>
-              {shippingMethods.map((method) => (
-                <Select.Item key={method.id} value={method} className={styles.Item}>
-                  <Select.ItemIndicator className={styles.ItemIndicator}>
-                    <CheckIcon className={styles.ItemIndicatorIcon} />
-                  </Select.ItemIndicator>
-                  <Select.ItemText className={styles.ItemText}>
-                    <span className={styles.ItemLabel}>{method.name}</span>
-                    <span className={styles.ItemDescription}>
-                      {method.duration} ({method.price})
-                    </span>
-                  </Select.ItemText>
-                </Select.Item>
-              ))}
-            </Select.List>
-            <Select.ScrollDownArrow className={styles.ScrollArrow} />
-          </Select.Popup>
-        </Select.Positioner>
-      </Select.Portal>
-    </Select.Root>
+            )}
+          </Select.Value>
+          <Select.Icon className={styles.SelectIcon}>
+            <ChevronUpDownIcon />
+          </Select.Icon>
+        </Select.Trigger>
+        <Select.Portal>
+          <Select.Positioner className={styles.Positioner} sideOffset={8}>
+            <Select.Popup className={styles.Popup}>
+              <Select.ScrollUpArrow className={styles.ScrollArrow} />
+              <Select.List className={styles.List}>
+                {shippingMethods.map((method) => (
+                  <Select.Item key={method.id} value={method} className={styles.Item}>
+                    <Select.ItemIndicator className={styles.ItemIndicator}>
+                      <CheckIcon className={styles.ItemIndicatorIcon} />
+                    </Select.ItemIndicator>
+                    <Select.ItemText className={styles.ItemText}>
+                      <span className={styles.ItemLabel}>{method.name}</span>
+                      <span className={styles.ItemDescription}>
+                        {method.duration} ({method.price})
+                      </span>
+                    </Select.ItemText>
+                  </Select.Item>
+                ))}
+              </Select.List>
+              <Select.ScrollDownArrow className={styles.ScrollArrow} />
+            </Select.Popup>
+          </Select.Positioner>
+        </Select.Portal>
+      </Select.Root>
+    </Field.Root>
   );
 }
 

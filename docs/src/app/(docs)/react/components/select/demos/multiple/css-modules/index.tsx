@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import { Select } from '@base-ui/react/select';
+import { Field } from '@base-ui/react/field';
 import styles from './index.module.css';
 
 const languages = {
@@ -32,32 +33,37 @@ function renderValue(value: Language[]) {
 
 export default function MultiSelectExample() {
   return (
-    <Select.Root multiple defaultValue={['javascript', 'typescript']}>
-      <Select.Trigger className={styles.Select}>
-        <Select.Value>{renderValue}</Select.Value>
-        <Select.Icon className={styles.SelectIcon}>
-          <ChevronUpDownIcon />
-        </Select.Icon>
-      </Select.Trigger>
-      <Select.Portal>
-        <Select.Positioner
-          className={styles.Positioner}
-          sideOffset={8}
-          alignItemWithTrigger={false}
-        >
-          <Select.Popup className={styles.Popup}>
-            {values.map((value) => (
-              <Select.Item key={value} value={value} className={styles.Item}>
-                <Select.ItemIndicator className={styles.ItemIndicator}>
-                  <CheckIcon className={styles.ItemIndicatorIcon} />
-                </Select.ItemIndicator>
-                <Select.ItemText className={styles.ItemText}>{languages[value]}</Select.ItemText>
-              </Select.Item>
-            ))}
-          </Select.Popup>
-        </Select.Positioner>
-      </Select.Portal>
-    </Select.Root>
+    <Field.Root className={styles.Field}>
+      <Field.Label className={styles.Label} nativeLabel={false} render={<div />}>
+        Languages
+      </Field.Label>
+      <Select.Root multiple defaultValue={['javascript', 'typescript']}>
+        <Select.Trigger className={styles.Select}>
+          <Select.Value className={styles.Value}>{renderValue}</Select.Value>
+          <Select.Icon className={styles.SelectIcon}>
+            <ChevronUpDownIcon />
+          </Select.Icon>
+        </Select.Trigger>
+        <Select.Portal>
+          <Select.Positioner
+            className={styles.Positioner}
+            sideOffset={8}
+            alignItemWithTrigger={false}
+          >
+            <Select.Popup className={styles.Popup}>
+              {values.map((value) => (
+                <Select.Item key={value} value={value} className={styles.Item}>
+                  <Select.ItemIndicator className={styles.ItemIndicator}>
+                    <CheckIcon className={styles.ItemIndicatorIcon} />
+                  </Select.ItemIndicator>
+                  <Select.ItemText className={styles.ItemText}>{languages[value]}</Select.ItemText>
+                </Select.Item>
+              ))}
+            </Select.Popup>
+          </Select.Positioner>
+        </Select.Portal>
+      </Select.Root>
+    </Field.Root>
   );
 }
 

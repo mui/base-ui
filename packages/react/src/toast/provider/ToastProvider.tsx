@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import * as ReactDOM from 'react-dom';
 import { ownerDocument } from '@base-ui/utils/owner';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { generateId } from '@base-ui/utils/generateId';
@@ -17,7 +18,7 @@ import type {
 import type { ToastManager } from '../createToastManager';
 
 interface TimerInfo {
-  timeout?: Timeout;
+  timeout?: Timeout | undefined;
   start: number;
   delay: number;
   remaining: number;
@@ -231,9 +232,53 @@ export const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvid
 
   const update = useStableCallback(
     <Data extends object>(id: string, updates: ToastManagerUpdateOptions<Data>) => {
-      setToasts((prev) =>
-        prev.map((toast) => (toast.id === id ? { ...toast, ...updates } : toast)),
-      );
+      const prevToast = toasts.find((toast) => toast.id === id) ?? null;
+      const nextToast = prevToast ? { ...prevToast, ...updates } : null;
+
+      // Avoid race conditions if `update()` is called multiple times in a row
+      ReactDOM.flushSync(() => {
+        setToasts((prev) =>
+          prev.map((toast) => (toast.id === id ? { ...toast, ...updates } : toast)),
+        );
+      });
+
+      if (!nextToast) {
+        return;
+      }
+
+      const nextTimeout = nextToast.timeout ?? timeout;
+      const prevTimeout = prevToast?.timeout ?? timeout;
+
+      const timeoutUpdated = Object.hasOwn(updates, 'timeout');
+
+      const shouldHaveTimer =
+        nextToast.transitionStatus !== 'ending' && nextToast.type !== 'loading' && nextTimeout > 0;
+
+      const hasTimer = timersRef.current.has(id);
+      const timeoutChanged = prevTimeout !== nextTimeout;
+      const wasLoading = prevToast?.type === 'loading';
+
+      if (!shouldHaveTimer && hasTimer) {
+        const timer = timersRef.current.get(id);
+        timer?.timeout?.clear();
+        timersRef.current.delete(id);
+        return;
+      }
+
+      // Schedule or reschedule timer if needed
+      if (shouldHaveTimer && (!hasTimer || timeoutChanged || timeoutUpdated || wasLoading)) {
+        const timer = timersRef.current.get(id);
+        if (timer) {
+          timer.timeout?.clear();
+          timersRef.current.delete(id);
+        }
+
+        scheduleTimer(id, nextTimeout, () => close(id));
+
+        if (hovering || focused || !windowFocusedRef.current) {
+          pauseTimers();
+        }
+      }
     },
   );
 
@@ -255,16 +300,8 @@ export const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvid
           update(id, {
             ...successOptions,
             type: 'success',
+            timeout: successOptions.timeout,
           });
-
-          const successTimeout = successOptions.timeout ?? timeout;
-          if (successTimeout > 0) {
-            scheduleTimer(id, successTimeout, () => close(id));
-          }
-
-          if (hovering || focused || !windowFocusedRef.current) {
-            pauseTimers();
-          }
 
           return result;
         })
@@ -273,16 +310,8 @@ export const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvid
           update(id, {
             ...errorOptions,
             type: 'error',
+            timeout: errorOptions.timeout,
           });
-
-          const errorTimeout = errorOptions.timeout ?? timeout;
-          if (errorTimeout > 0) {
-            scheduleTimer(id, errorTimeout, () => close(id));
-          }
-
-          if (hovering || focused || !windowFocusedRef.current) {
-            pauseTimers();
-          }
 
           return Promise.reject(error);
         });
@@ -371,17 +400,17 @@ export interface ToastProviderProps {
    * A value of `0` will prevent the toast from being dismissed automatically.
    * @default 5000
    */
-  timeout?: number;
+  timeout?: number | undefined;
   /**
    * The maximum number of toasts that can be displayed at once.
    * When the limit is reached, the oldest toast will be removed to make room for the new one.
    * @default 3
    */
-  limit?: number;
+  limit?: number | undefined;
   /**
    * A global manager for toasts to use outside of a React component.
    */
-  toastManager?: ToastManager;
+  toastManager?: ToastManager | undefined;
 }
 
 export namespace ToastProvider {

@@ -1,10 +1,153 @@
 # Versions
 
+## v1.1.0
+
+_Jan 15, 2026_
+
+### General changes
+
+- Fix `onOpenChangeComplete(true)` timing (#3558) by @atomiks
+- Fix touch `openMethod` when tapping outside element bounds on Safari (#3541) by @atomiks
+- Fix visually hidden input styles across form components (#3606) by @atomiks
+- Fix click and drags outside a nested popup component from closing its parents (#3571) by @atomiks
+- Fix forwarded ref types (#3638) by @atomiks
+- Fix detached trigger remounting (#3724) by @atomiks
+- Include `ref` in `BaseUIComponentProps` (#2813) by @atomiks
+- Remove duplicated `disabled` prop (#3650) by @seongminn
+- Allow `actionsRef` to be `null` (#3682) by @mj12albert
+
+### Accordion
+
+- Fix keyboard navigation with non-interactive trigger elements (#3684) by @ZeeshanTamboli
+
+### Autocomplete
+
+- Add `data-popup-side` and `data-list-empty` state attributes to `<Autocomplete.Trigger>` (#3491) by @atomiks
+- Add `loopFocus` prop (#3592) by @atomiks
+- Fix hidden input `id` and `required` props (#3640) by @atomiks
+
+### Button
+
+- Remove discriminated props union (#3643) by @atomiks
+
+### Checkbox
+
+- Fix hidden input `id` and `required` props (#3640) by @atomiks
+
+### Combobox
+
+- Add `data-popup-side` and `data-list-empty` state attributes to `<Combobox.Trigger>` (#3491) by @atomiks
+- Add `loopFocus` prop (#3592) by @atomiks
+- Add `toolbar` role to `<Combobox.Chips>` to prevent NVDA from entering browse mode (#3647) by @atomiks
+- Add `placeholder` prop to `<Combobox.Value>` (#3604) by @atomiks
+- Fix controlled `value` prop when `items` change (#3607) by @atomiks
+- Fix `multiple` values label resolution in `<Combobox.Value>` (#3314) by @atomiks
+- Forward root `id` to visible form element (#3722) by @atomiks
+- Do not trigger Field `onBlur` handlers when opening popup (#3609) by @atomiks
+
+### Context Menu
+
+- Avoid creating sibling elements next to trigger (#3645) by @atomiks
+
+### CSP Provider
+
+- Add `CSPProvider` (#3553) by @atomiks
+
+### Dialog
+
+- Fix `Maximum update depth exceeded` error with Suspense (#3700) by @michaldudak
+- Fix `<Dialog.Title>` forwardedRef type (#3736) by @ZeeshanTamboli
+
+### Field
+
+- Add `actionsRef` prop (#3395) by @mj12albert
+- Add `nativeLabel` prop to `<Field.Label>` (#3723) by @atomiks
+- Add missing type export (#3702) by @DiegoAndai
+
+### Form
+
+- Add `actionsRef` prop (#3395) by @mj12albert
+
+### Menu
+
+- Fix focus guard handling (#3654) by @atomiks
+- Avoid disabling modality on click after hover-open (#3455) by @atomiks
+
+### Menubar
+
+- Fix submenu outside-press dismiss on touch (#3556) by @atomiks
+
+### Number Field
+
+- Fix Field `data-focused` state (#3563) by @atomiks
+- Fix hidden input focus on submit (#3581) by @atomiks
+
+### Popover
+
+- Fix popup auto resize glitches (#3591) by @atomiks
+- Fix focus guard handling (#3654) by @atomiks
+- Prevent disabling focus management when clicking trigger before hover delay completes (#3572) by @atomiks
+- Refactor popup auto resize logic. It is no longer necessary to specify `--positioner-width`/`--positioner-height` CSS variables on `<Popover.Positioner>` when using detached triggers unless the `Viewport` part has been added to the JSX. (#3652) by @atomiks
+
+### Preview Card
+
+- Support detached triggers (#3566) by @michaldudak and @atomiks
+
+### Radio Group
+
+- Fix `value` type (#3582) by @atomiks
+- Fix hidden input `id` and `required` props (#3640) by @atomiks
+
+### Scroll Area
+
+- Perf improvements (#3536) by @atomiks
+
+### Select
+
+- Add `placeholder` prop to `<Select.Value>` (#3604) by @atomiks
+- Fix support for transform animations when `alignItemWithTrigger` is active (#3532) by @atomiks
+- Fix support for `max-height` popup style when `alignItemWithTrigger` is active (#3573) by @atomiks
+- Fix `data-filled` state in `multiple` mode (#3608) by @atomiks
+- Fix highlight being removed on popup mouseout when `highlightItemOnHover` is disabled (#3492) by @atomiks
+- Fix support for individual transform animations when `alignItemWithTrigger` is active (#3637) by @atomiks
+- Fix `multiple` values label resolution in `<Select.Value>` (#3314) by @atomiks
+- Forward root `id` to visible form element (#3722) by @atomiks
+- Do not trigger Field `onBlur` handlers when opening popup (#3609) by @atomiks
+
+### Slider
+
+- Fix `onValueCommitted` not called for range sliders (#3600) by @mj12albert
+
+### Switch
+
+- Add `value` prop (#3676) by @Grafikart
+- Fix hidden input `id` and `required` props (#3640) by @atomiks
+
+### Toast
+
+- Fix timers not being rescheduled when updated (#3564) by @atomiks
+
+### Tooltip
+
+- Fix popup auto resize glitches (#3591) by @atomiks
+- Fix `trackCursorAxis` handling (#3679) by @atomiks
+- Refactor popup auto resize logic. It is no longer necessary to specify `--positioner-width`/`--positioner-height` CSS variables on `<Tooltip.Positioner>` when using detached triggers unless the `Viewport` part has been added to the JSX. (#3652) by @atomiks
+
+### mergeProps
+
+- Make `mergeProps` public (#3642) by @michaldudak and @LukasTy
+
+### useRender
+
+- Export missing types (#3565) by @michaldudak
+
+All contributors of this release in alphabetical order: @albertdugba, @atomiks, @brijeshb42, @chuganzy, @colmtuite, @dav-is, @DiegoAndai, @Grafikart, @Janpot, @LukasTy, @michaldudak, @mj12albert, @oliviertassinari, @seongminn, @updbqn, @ZeeshanTamboli
+
 ## v1.0.0
 
 _Dec 11, 2025_
 
-### General Changes
+### General changes
 
 - **Breaking change:** Rename packages to use the `@base-ui` org.<br />
   The package name has changed from `@base-ui-components/react` to `@base-ui/react`.

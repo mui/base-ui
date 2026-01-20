@@ -610,4 +610,126 @@ describe('<Select.Value />', () => {
       expect(renderValue.firstCall.firstArg).to.deep.equal([]);
     });
   });
+
+  describe('prop: placeholder', () => {
+    it('displays placeholder when no value is selected', async () => {
+      await render(
+        <Select.Root>
+          <Select.Value data-testid="value" placeholder="Select an option" />
+        </Select.Root>,
+      );
+
+      expect(screen.getByTestId('value')).to.have.text('Select an option');
+    });
+
+    it('displays placeholder when value is null', async () => {
+      await render(
+        <Select.Root value={null}>
+          <Select.Value data-testid="value" placeholder="Select an option" />
+        </Select.Root>,
+      );
+
+      expect(screen.getByTestId('value')).to.have.text('Select an option');
+    });
+
+    it('does not display placeholder when value is selected', async () => {
+      await render(
+        <Select.Root value="option1">
+          <Select.Value data-testid="value" placeholder="Select an option" />
+          <Select.Portal>
+            <Select.Positioner>
+              <Select.Popup>
+                <Select.Item value="option1">Option 1</Select.Item>
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
+        </Select.Root>,
+      );
+
+      expect(screen.getByTestId('value')).to.have.text('option1');
+    });
+
+    it('children prop takes precedence over placeholder', async () => {
+      await render(
+        <Select.Root>
+          <Select.Value data-testid="value" placeholder="Select an option">
+            Custom Text
+          </Select.Value>
+        </Select.Root>,
+      );
+
+      expect(screen.getByTestId('value')).to.have.text('Custom Text');
+    });
+
+    it('children function takes precedence over placeholder', async () => {
+      await render(
+        <Select.Root>
+          <Select.Value data-testid="value" placeholder="Select an option">
+            {(value) => value || 'Function fallback'}
+          </Select.Value>
+        </Select.Root>,
+      );
+
+      expect(screen.getByTestId('value')).to.have.text('Function fallback');
+    });
+
+    it('null item label in items takes precedence over placeholder', async () => {
+      const items = [
+        { value: null, label: 'None' },
+        { value: 'option1', label: 'Option 1' },
+      ];
+
+      await render(
+        <Select.Root items={items}>
+          <Select.Value data-testid="value" placeholder="Select an option" />
+          <Select.Portal>
+            <Select.Positioner>
+              <Select.Popup>
+                <Select.Item value={null}>None</Select.Item>
+                <Select.Item value="option1">Option 1</Select.Item>
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
+        </Select.Root>,
+      );
+
+      expect(screen.getByTestId('value')).to.have.text('None');
+    });
+
+    it('uses placeholder when items have null value without label', async () => {
+      const items = [
+        { value: null, label: null },
+        { value: 'option1', label: 'Option 1' },
+      ];
+
+      await render(
+        <Select.Root items={items}>
+          <Select.Value data-testid="value" placeholder="Select an option" />
+          <Select.Portal>
+            <Select.Positioner>
+              <Select.Popup>
+                <Select.Item value={null}>None</Select.Item>
+                <Select.Item value="option1">Option 1</Select.Item>
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
+        </Select.Root>,
+      );
+
+      expect(screen.getByTestId('value')).to.have.text('Select an option');
+    });
+
+    it('supports ReactNode as placeholder', async () => {
+      await render(
+        <Select.Root>
+          <Select.Value
+            data-testid="value"
+            placeholder={<span data-testid="placeholder">Select an option</span>}
+          />
+        </Select.Root>,
+      );
+
+      expect(screen.getByTestId('placeholder')).to.have.text('Select an option');
+    });
+  });
 });

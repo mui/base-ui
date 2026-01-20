@@ -80,12 +80,12 @@ export interface ToolbarButtonProps
    * When `true` the item is disabled.
    * @default false
    */
-  disabled?: boolean;
+  disabled?: boolean | undefined;
   /**
    * When `true` the item remains focuseable when disabled.
    * @default true
    */
-  focusableWhenDisabled?: boolean;
+  focusableWhenDisabled?: boolean | undefined;
 }
 
 export namespace ToolbarButton {

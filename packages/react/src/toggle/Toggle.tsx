@@ -48,7 +48,7 @@ export const Toggle = React.forwardRef(function Toggle(
   const disabled = (disabledProp || groupContext?.disabled) ?? false;
 
   const [pressed, setPressedState] = useControlled({
-    controlled: groupContext ? groupValue?.indexOf(value) > -1 : pressedProp,
+    controlled: groupContext ? value !== undefined && groupValue.indexOf(value) > -1 : pressedProp,
     default: defaultPressed,
     name: 'Toggle',
     state: 'pressed',
@@ -137,27 +137,29 @@ export interface ToggleProps
    * Whether the toggle button is currently pressed.
    * This is the controlled counterpart of `defaultPressed`.
    */
-  pressed?: boolean;
+  pressed?: boolean | undefined;
   /**
    * Whether the toggle button is currently pressed.
    * This is the uncontrolled counterpart of `pressed`.
    * @default false
    */
-  defaultPressed?: boolean;
+  defaultPressed?: boolean | undefined;
   /**
    * Whether the component should ignore user interaction.
    * @default false
    */
-  disabled?: boolean;
+  disabled?: boolean | undefined;
   /**
    * Callback fired when the pressed state is changed.
    */
-  onPressedChange?: (pressed: boolean, eventDetails: Toggle.ChangeEventDetails) => void;
+  onPressedChange?:
+    | ((pressed: boolean, eventDetails: Toggle.ChangeEventDetails) => void)
+    | undefined;
   /**
    * A unique string that identifies the toggle when used
    * inside a toggle group.
    */
-  value?: string;
+  value?: string | undefined;
 }
 
 export type ToggleChangeEventReason = typeof REASONS.none;

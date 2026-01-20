@@ -31,13 +31,15 @@ export interface MenuSubmenuRootProps extends Omit<
   /**
    * Event handler called when the menu is opened or closed.
    */
-  onOpenChange?: (open: boolean, eventDetails: MenuSubmenuRoot.ChangeEventDetails) => void;
+  onOpenChange?:
+    | ((open: boolean, eventDetails: MenuSubmenuRoot.ChangeEventDetails) => void)
+    | undefined;
   /**
    * When in a submenu, determines whether pressing the Escape key
    * closes the entire menu, or only the current child menu.
    * @default false
    */
-  closeParentOnEsc?: boolean;
+  closeParentOnEsc?: boolean | undefined;
 }
 
 export interface MenuSubmenuRootState {}

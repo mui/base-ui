@@ -7,7 +7,7 @@ import { ScrollAreaScrollbarCssVars } from '../scrollbar/ScrollAreaScrollbarCssV
 import { useRenderElement } from '../../utils/useRenderElement';
 
 /**
- * The draggable part of the the scrollbar that indicates the current scroll position.
+ * The draggable part of the scrollbar that indicates the current scroll position.
  * Renders a `<div>` element.
  *
  * Documentation: [Base UI Scroll Area](https://base-ui.com/react/components/scroll-area)
@@ -65,7 +65,7 @@ export const ScrollAreaThumb = React.forwardRef(function ScrollAreaThumb(
 });
 
 export interface ScrollAreaThumbState {
-  orientation?: 'horizontal' | 'vertical';
+  orientation?: ('horizontal' | 'vertical') | undefined;
 }
 
 export interface ScrollAreaThumbProps extends BaseUIComponentProps<'div', ScrollAreaThumb.State> {}

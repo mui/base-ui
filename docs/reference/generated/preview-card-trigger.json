@@ -2,6 +2,16 @@
   "name": "PreviewCardTrigger",
   "description": "A link that opens the preview card.\nRenders an `<a>` element.",
   "props": {
+    "handle": {
+      "type": "PreviewCard.Handle<Payload>",
+      "description": "A handle to associate the trigger with a preview card.",
+      "detailedType": "{} | undefined"
+    },
+    "payload": {
+      "type": "Payload",
+      "description": "A payload to pass to the preview card when it is opened.",
+      "detailedType": "Payload | undefined"
+    },
     "delay": {
       "type": "number",
       "default": "600",

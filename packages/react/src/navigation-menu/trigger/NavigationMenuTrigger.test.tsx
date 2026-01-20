@@ -156,4 +156,55 @@ describe('<NavigationMenu.Trigger />', () => {
       parseInt(getComputedStyle(positioner).getPropertyValue('--positioner-width'), 10),
     ).to.be.approximately(183, 1);
   });
+
+  it.skipIf(isJSDOM)('repositions the positioner when switching triggers via hover', async () => {
+    const user = userEvent.setup({ pointerEventsCheck: 0 });
+
+    await render(
+      <NavigationMenu.Root>
+        <NavigationMenu.List style={{ display: 'flex' }}>
+          <NavigationMenu.Item>
+            <NavigationMenu.Trigger>Overview</NavigationMenu.Trigger>
+            <NavigationMenu.Content>
+              <NavigationMenu.Link href="#">Overview Link</NavigationMenu.Link>
+            </NavigationMenu.Content>
+          </NavigationMenu.Item>
+          <NavigationMenu.Item>
+            <NavigationMenu.Trigger>Handbook</NavigationMenu.Trigger>
+            <NavigationMenu.Content>
+              <NavigationMenu.Link href="#">Handbook Link</NavigationMenu.Link>
+            </NavigationMenu.Content>
+          </NavigationMenu.Item>
+        </NavigationMenu.List>
+        <NavigationMenu.Portal>
+          <NavigationMenu.Positioner data-testid="positioner">
+            <NavigationMenu.Popup>
+              <NavigationMenu.Viewport />
+            </NavigationMenu.Popup>
+          </NavigationMenu.Positioner>
+        </NavigationMenu.Portal>
+      </NavigationMenu.Root>,
+    );
+
+    const overviewButton = screen.getByRole('button', { name: 'Overview' });
+    const handbookButton = screen.getByRole('button', { name: 'Handbook' });
+
+    await user.pointer([{ target: overviewButton }]);
+    await waitFor(() => {
+      expect(screen.getByRole('link', { name: 'Overview Link' })).toBeVisible();
+    });
+
+    const positioner = screen.getByTestId('positioner');
+    const firstLeft = positioner.getBoundingClientRect().left;
+
+    await user.pointer([{ target: handbookButton, releasePrevious: true }]);
+    await waitFor(() => {
+      expect(screen.getByRole('link', { name: 'Handbook Link' })).toBeVisible();
+    });
+
+    await waitFor(() => {
+      const secondLeft = positioner.getBoundingClientRect().left;
+      expect(Math.abs(secondLeft - firstLeft)).to.be.greaterThan(20);
+    });
+  });
 });

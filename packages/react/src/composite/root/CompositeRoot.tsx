@@ -102,25 +102,25 @@ export interface CompositeRootProps<Metadata, State extends Record<string, any>>
   BaseUIComponentProps<'div', State>,
   'render' | 'className' | 'children'
 > {
-  props?: Array<Record<string, any> | (() => Record<string, any>)>;
-  state?: State;
-  stateAttributesMapping?: StateAttributesMapping<State>;
-  refs?: React.Ref<HTMLElement | null>[];
-  tag?: keyof React.JSX.IntrinsicElements;
-  orientation?: 'horizontal' | 'vertical' | 'both';
-  cols?: number;
-  loopFocus?: boolean;
-  highlightedIndex?: number;
-  onHighlightedIndexChange?: (index: number) => void;
-  itemSizes?: Dimensions[];
-  dense?: boolean;
-  enableHomeAndEndKeys?: boolean;
-  onMapChange?: (newMap: Map<Node, CompositeMetadata<Metadata> | null>) => void;
-  stopEventPropagation?: boolean;
-  rootRef?: React.RefObject<HTMLElement | null>;
-  disabledIndices?: number[];
-  modifierKeys?: ModifierKey[];
-  highlightItemOnHover?: boolean;
+  props?: Array<Record<string, any> | (() => Record<string, any>)> | undefined;
+  state?: State | undefined;
+  stateAttributesMapping?: StateAttributesMapping<State> | undefined;
+  refs?: React.Ref<HTMLElement | null>[] | undefined;
+  tag?: keyof React.JSX.IntrinsicElements | undefined;
+  orientation?: ('horizontal' | 'vertical' | 'both') | undefined;
+  cols?: number | undefined;
+  loopFocus?: boolean | undefined;
+  highlightedIndex?: number | undefined;
+  onHighlightedIndexChange?: ((index: number) => void) | undefined;
+  itemSizes?: Dimensions[] | undefined;
+  dense?: boolean | undefined;
+  enableHomeAndEndKeys?: boolean | undefined;
+  onMapChange?: ((newMap: Map<Node, CompositeMetadata<Metadata> | null>) => void) | undefined;
+  stopEventPropagation?: boolean | undefined;
+  rootRef?: React.RefObject<HTMLElement | null> | undefined;
+  disabledIndices?: number[] | undefined;
+  modifierKeys?: ModifierKey[] | undefined;
+  highlightItemOnHover?: boolean | undefined;
 }
 
 export namespace CompositeRoot {

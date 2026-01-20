@@ -157,7 +157,7 @@ export const Form = React.forwardRef(function Form<
 }) as {
   <FormValues extends Record<string, any> = Record<string, any>>(
     props: Form.Props<FormValues> & {
-      ref?: React.Ref<HTMLFormElement>;
+      ref?: React.Ref<HTMLFormElement> | undefined;
     },
   ): React.JSX.Element;
 };
@@ -186,18 +186,20 @@ export interface FormProps<
    *
    * @default 'onSubmit'
    */
-  validationMode?: FormValidationMode;
+  validationMode?: FormValidationMode | undefined;
   /**
    * Validation errors returned externally, typically after submission by a server or a form action.
    * This should be an object where keys correspond to the `name` attribute on `<Field.Root>`,
    * and values correspond to error(s) related to that field.
    */
-  errors?: FormContext['errors'];
+  errors?: FormContext['errors'] | undefined;
   /**
    * Event handler called when the form is submitted.
    * `preventDefault()` is called on the native submit event when used.
    */
-  onFormSubmit?: (formValues: FormValues, eventDetails: Form.SubmitEventDetails) => void;
+  onFormSubmit?:
+    | ((formValues: FormValues, eventDetails: Form.SubmitEventDetails) => void)
+    | undefined;
   /**
    * A ref to imperative actions.
    * - `validate`: Validates all fields when called. Optionally pass a field name to validate a single field.
@@ -210,7 +212,7 @@ export interface FormProps<
    * actionsRef.current.validate('email');
    * ```
    */
-  actionsRef?: React.RefObject<Form.Actions | null>;
+  actionsRef?: React.RefObject<Form.Actions | null> | undefined;
 }
 
 export namespace Form {

@@ -8,17 +8,17 @@ export type DirectionalChangeReason =
   | 'keyboard';
 
 export interface ChangeEventCustomProperties {
-  direction?: Direction;
+  direction?: Direction | undefined;
 }
 
 export interface IncrementValueParameters {
   direction: Direction;
-  event?: Event | React.SyntheticEvent;
+  event?: (Event | React.SyntheticEvent) | undefined;
   reason: DirectionalChangeReason;
-  currentValue?: number | null;
+  currentValue?: (number | null) | undefined;
 }
 
 export interface EventWithOptionalKeyState {
-  altKey?: boolean;
-  shiftKey?: boolean;
+  altKey?: boolean | undefined;
+  shiftKey?: boolean | undefined;
 }

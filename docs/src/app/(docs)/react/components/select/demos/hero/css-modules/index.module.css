@@ -1,3 +1,22 @@
+.Field {
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  gap: 0.25rem;
+}
+
+.Label {
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  font-weight: 500;
+  color: var(--color-gray-900);
+  cursor: default;
+}
+
+.Value[data-placeholder] {
+  opacity: 0.6;
+}
+
 .Select {
   box-sizing: border-box;
   display: flex;
@@ -18,7 +37,7 @@
   color: var(--color-gray-900);
   -webkit-user-select: none;
   user-select: none;
-  min-width: 9rem;
+  min-width: 10rem;
 
   @media (hover: hover) {
     &:hover {

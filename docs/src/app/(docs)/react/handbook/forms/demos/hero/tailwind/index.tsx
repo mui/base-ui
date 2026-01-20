@@ -111,7 +111,9 @@ function ExampleForm() {
       </Field.Root>
 
       <Field.Root name="serverType">
-        <Field.Label>Server type</Field.Label>
+        <Field.Label className="cursor-default" nativeLabel={false} render={<div />}>
+          Server type
+        </Field.Label>
         <Select.Root items={SERVER_TYPES} required>
           <Select.Trigger className="w-48">
             <Select.Value />

@@ -32,11 +32,11 @@ export interface UseOpenChangeCompleteParameters {
    * Whether the hook is enabled.
    * @default true
    */
-  enabled?: boolean;
+  enabled?: boolean | undefined;
   /**
    * Whether the element is open.
    */
-  open?: boolean;
+  open?: boolean | undefined;
   /**
    * Ref to the element being closed.
    */

@@ -13,7 +13,7 @@ import { type BaseUIComponentProps } from '../../utils/types';
  */
 export const DialogTitle = React.forwardRef(function DialogTitle(
   componentProps: DialogTitle.Props,
-  forwardedRef: React.ForwardedRef<HTMLParagraphElement>,
+  forwardedRef: React.ForwardedRef<HTMLHeadingElement>,
 ) {
   const { render, className, id: idProp, ...elementProps } = componentProps;
   const { store } = useDialogRootContext();

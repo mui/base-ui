@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { PreviewCard } from '@base-ui/react/preview-card';
-import styles from './index.module.css';
+import styles from '../../index.module.css';
 
 export default function ExamplePreviewCard() {
   return (
@@ -13,7 +13,7 @@ export default function ExamplePreviewCard() {
         >
           typography
         </PreviewCard.Trigger>{' '}
-        remain into the digital age.
+        remain in the digital age.
       </p>
 
       <PreviewCard.Portal>
@@ -22,17 +22,19 @@ export default function ExamplePreviewCard() {
             <PreviewCard.Arrow className={styles.Arrow}>
               <ArrowSvg />
             </PreviewCard.Arrow>
-            <img
-              width="448"
-              height="300"
-              className={styles.Image}
-              src="https://images.unsplash.com/photo-1619615391095-dfa29e1672ef?q=80&w=448&h=300"
-              alt="Station Hofplein signage in Rotterdam, Netherlands"
-            />
-            <p className={styles.Summary}>
-              <strong>Typography</strong> is the art and science of arranging type to make written
-              language clear, visually appealing, and effective in communication.
-            </p>
+            <div className={styles.PopupContent}>
+              <img
+                width="224"
+                height="150"
+                className={styles.Image}
+                src="https://images.unsplash.com/photo-1619615391095-dfa29e1672ef?q=80&w=448&h=300"
+                alt="Station Hofplein signage in Rotterdam, Netherlands"
+              />
+              <p className={styles.Summary}>
+                <strong>Typography</strong> is the art and science of arranging type to make written
+                language clear, visually appealing, and effective in communication.
+              </p>
+            </div>
           </PreviewCard.Popup>
         </PreviewCard.Positioner>
       </PreviewCard.Portal>

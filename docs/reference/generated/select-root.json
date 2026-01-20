@@ -45,9 +45,9 @@
       "detailedType": "boolean | undefined"
     },
     "actionsRef": {
-      "type": "RefObject<Select.Root.Actions>",
+      "type": "RefObject<Select.Root.Actions | null>",
       "description": "A ref to imperative actions.\n- `unmount`: When specified, the select will not be unmounted when closed.\nInstead, the `unmount` function must be called to unmount the select manually.\nUseful when the select's animation is controlled by an external library.",
-      "detailedType": "React.RefObject<Select.Root.Actions> | undefined"
+      "detailedType": "| React.RefObject<Select.Root.Actions | null>\n| undefined"
     },
     "isItemEqualToValue": {
       "type": "((itemValue: Value, value: Value) => boolean)",
@@ -73,7 +73,7 @@
     "modal": {
       "type": "boolean",
       "default": "true",
-      "description": "Determines if the select enters a modal state when open.\n- `true`: user interaction is limited to the select: document page scroll is locked and and pointer interactions on outside elements are disabled.\n- `false`: user interaction with the rest of the document is allowed.",
+      "description": "Determines if the select enters a modal state when open.\n- `true`: user interaction is limited to the select: document page scroll is locked and pointer interactions on outside elements are disabled.\n- `false`: user interaction with the rest of the document is allowed.",
       "detailedType": "boolean | undefined"
     },
     "multiple": {
