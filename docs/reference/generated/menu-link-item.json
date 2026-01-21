@@ -28,6 +28,10 @@
       "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Menu.LinkItem.State,\n  ) => ReactElement)"
     }
   },
-  "dataAttributes": {},
+  "dataAttributes": {
+    "data-highlighted": {
+      "description": "Present when the link is highlighted."
+    }
+  },
   "cssVariables": {}
 }

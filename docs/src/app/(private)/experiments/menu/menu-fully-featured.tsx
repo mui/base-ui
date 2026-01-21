@@ -65,9 +65,11 @@ export default function MenuFullyFeatured() {
                 Item 2
               </Menu.Item>
               <Menu.LinkItem
-                render={<a href="https://base-ui.com">Link 1 (base-ui.com)</a>}
+                href="https://base-ui.com"
                 className={clsx(classes.Item, 'hover:cursor-pointer!')}
-              />
+              >
+                Link 1 (base-ui.com)
+              </Menu.LinkItem>
               <Menu.LinkItem
                 render={<a href="https://github.com">Link 2 (github.com)</a>}
                 className={clsx(classes.Item, 'hover:cursor-pointer!')}
