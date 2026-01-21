@@ -1,4 +1,5 @@
 import { expect } from 'chai';
+import { expect as expect2, vi } from 'vitest';
 import { fireEvent, flushMicrotasks, screen } from '@mui/internal-test-utils';
 import { spy } from 'sinon';
 import { ContextMenu } from '@base-ui/react/context-menu';
@@ -135,6 +136,30 @@ describe('<ContextMenu.Trigger />', () => {
     expect(onOpenChange.lastCall.args[0]).to.equal(false);
   });
 
+  describe('prop: disabled', () => {
+    it('does not open on right-click when disabled', async () => {
+      const onOpenChange = vi.fn();
+
+      await render(
+        <ContextMenu.Root disabled onOpenChange={onOpenChange}>
+          <ContextMenu.Trigger data-testid="trigger">Right click me</ContextMenu.Trigger>
+          <ContextMenu.Portal>
+            <ContextMenu.Positioner>
+              <ContextMenu.Popup data-testid="popup" />
+            </ContextMenu.Positioner>
+          </ContextMenu.Portal>
+        </ContextMenu.Root>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+      fireEvent.contextMenu(trigger);
+      await flushMicrotasks();
+
+      expect2(screen.queryByTestId('popup')).toBe(null);
+      expect2(onOpenChange).toHaveBeenCalledTimes(0);
+    });
+  });
+
   describe.skipIf(isJSDOM)('long press', () => {
     it('should open menu on long press on touchscreen devices', async () => {
       await render(
@@ -210,6 +235,39 @@ describe('<ContextMenu.Trigger />', () => {
 
       expect(screen.queryByRole('menu')).to.equal(null);
       expect(onOpenChange.callCount).to.equal(0);
+    });
+
+    it('does not open on long press when disabled', async () => {
+      const onOpenChange = vi.fn();
+
+      await render(
+        <ContextMenu.Root disabled onOpenChange={onOpenChange}>
+          <ContextMenu.Trigger data-testid="trigger">Long press me</ContextMenu.Trigger>
+          <ContextMenu.Portal>
+            <ContextMenu.Positioner>
+              <ContextMenu.Popup data-testid="popup" />
+            </ContextMenu.Positioner>
+          </ContextMenu.Portal>
+        </ContextMenu.Root>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+
+      const touchObj = new Touch({
+        identifier: 0,
+        target: trigger,
+        clientX: 100,
+        clientY: 100,
+      });
+
+      fireEvent.touchStart(trigger, {
+        touches: [touchObj],
+      });
+
+      clock.tick(500);
+
+      expect2(screen.queryByTestId('popup')).toBe(null);
+      expect2(onOpenChange).toHaveBeenCalledTimes(0);
     });
   });
 
