@@ -36,7 +36,7 @@ export function formatNumberMaxPrecision(
   });
 }
 
-export function formatValue(
+export function formatNumberValue(
   value: number | null,
   locale?: Intl.LocalesArgument,
   format?: Intl.NumberFormatOptions,

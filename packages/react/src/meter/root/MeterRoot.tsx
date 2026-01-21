@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { MeterRootContext } from './MeterRootContext';
 import { BaseUIComponentProps, HTMLProps } from '../../utils/types';
-import { formatValue } from '../../utils/formatNumber';
+import { formatNumberValue } from '../../utils/formatNumber';
 import { useRenderElement } from '../../utils/useRenderElement';
 
 /**
@@ -28,7 +28,7 @@ export const MeterRoot = React.forwardRef(function MeterRoot(
   } = componentProps;
 
   const [labelId, setLabelId] = React.useState<string | undefined>();
-  const formattedValue = formatValue(valueProp, locale, format);
+  const formattedValue = formatNumberValue(valueProp, locale, format);
 
   let ariaValuetext = `${valueProp}%`;
   if (getAriaValueText) {
