@@ -19,7 +19,7 @@
 .HeaderLabel {
   grid-row: 1;
   grid-column: 1;
-  background-color: white;
+  background-color: var(--color-background);
   min-width: 185px;
   text-align: center;
   /* Apply transition only when `data-ending-style` is present to allow for smooth animations from original translated positions. */
