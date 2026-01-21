@@ -1,5 +1,6 @@
 import * as React from 'react';
 import clsx from 'clsx';
+import { ChevronDown, ChevronUp } from 'lucide-react';
 import { Select } from '@base-ui/react/select';
 
 export function Root(props: Select.Root.Props<any>) {
@@ -10,7 +11,7 @@ export function Trigger({ className, ...props }: Select.Trigger.Props) {
   return (
     <Select.Trigger
       className={clsx(
-        'flex h-10 min-w-36 items-center justify-between gap-3 rounded-md border border-gray-200 pr-3 pl-3.5 text-base text-gray-900 select-none hover:bg-gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 data-[popup-open]:bg-gray-100 cursor-default not-[[data-filled]]:text-gray-500 bg-[canvas]',
+        'flex items-center justify-between h-9 w-full rounded-md text-sm border border-gray-300 px-3 my-1 hover:bg-gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 data-[popup-open]:bg-gray-100 cursor-default data-[invalid]:border-red-500',
         className,
       )}
       {...props}
@@ -56,11 +57,13 @@ export function ScrollUpArrow({ className, ...props }: Select.ScrollUpArrow.Prop
   return (
     <Select.ScrollUpArrow
       className={clsx(
-        "top-0 z-[1] flex h-4 w-full cursor-default items-center justify-center rounded-md bg-[canvas] text-center text-xs before:absolute data-[side=none]:before:top-[-100%] before:left-0 before:h-full before:w-full before:content-['']",
+        "top-0 z-[1] flex h-6 w-full cursor-default items-center justify-center rounded-md bg-[canvas] text-center text-xs before:absolute data-[side=none]:before:top-[-100%] before:left-0 before:h-full before:w-full before:content-['']",
         className,
       )}
       {...props}
-    />
+    >
+      <ChevronUp className="size-4" />
+    </Select.ScrollUpArrow>
   );
 }
 
@@ -68,11 +71,13 @@ export function ScrollDownArrow({ className, ...props }: Select.ScrollDownArrow.
   return (
     <Select.ScrollDownArrow
       className={clsx(
-        "bottom-0 z-[1] flex h-4 w-full cursor-default items-center justify-center rounded-md bg-[canvas] text-center text-xs before:absolute before:left-0 before:h-full before:w-full before:content-[''] data-[side=none]:before:bottom-[-100%]",
+        "bottom-0 z-[1] flex h-6 w-full cursor-default items-center justify-center rounded-md bg-[canvas] text-center text-xs before:absolute before:left-0 before:h-full before:w-full before:content-[''] data-[side=none]:before:bottom-[-100%]",
         className,
       )}
       {...props}
-    />
+    >
+      <ChevronDown className="size-4" />
+    </Select.ScrollDownArrow>
   );
 }
 
@@ -92,7 +97,7 @@ export function Item({ className, ...props }: Select.Item.Props) {
   return (
     <Select.Item
       className={clsx(
-        'grid min-w-[var(--anchor-width)] cursor-default grid-cols-[0.75rem_1fr] items-center gap-3 py-2 pr-4 pl-2.5 text-sm leading-4 outline-none select-none group-data-[side=none]:min-w-[calc(var(--anchor-width)+1rem)] group-data-[side=none]:pr-12 group-data-[side=none]:text-base group-data-[side=none]:leading-4 data-[highlighted]:relative data-[highlighted]:z-0 data-[highlighted]:text-gray-50 data-[highlighted]:before:absolute data-[highlighted]:before:inset-x-1 data-[highlighted]:before:inset-y-0 data-[highlighted]:before:z-[-1] data-[highlighted]:before:rounded-sm data-[highlighted]:before:bg-gray-900 pointer-coarse:py-2.5 pointer-coarse:text-[0.925rem]',
+        'grid min-w-[var(--anchor-width)+4*var(--spacing)] cursor-default grid-cols-[0.75rem_1fr] items-center gap-3 py-2 pr-4 pl-2.5 text-sm leading-4 outline-none select-none group-data-[side=none]:min-w-[calc(var(--anchor-width)+4*var(--spacing)+1rem)] group-data-[side=none]:pr-12 group-data-[side=none]:text-sm group-data-[side=none]:leading-4 data-[highlighted]:relative data-[highlighted]:z-0 data-[highlighted]:text-gray-50 data-[highlighted]:before:absolute data-[highlighted]:before:inset-x-1 data-[highlighted]:before:inset-y-0 data-[highlighted]:before:z-[-1] data-[highlighted]:before:rounded-sm data-[highlighted]:before:bg-gray-900 pointer-coarse:py-2.5 pointer-coarse:text-[0.925rem]',
         className,
       )}
       {...props}

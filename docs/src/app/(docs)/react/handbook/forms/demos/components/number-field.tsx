@@ -9,14 +9,14 @@ export function Root({ className, ...props }: NumberField.Root.Props) {
 }
 
 export function Group({ className, ...props }: NumberField.Group.Props) {
-  return <NumberField.Group className={clsx('flex', className)} {...props} />;
+  return <NumberField.Group className={clsx('relative flex my-1', className)} {...props} />;
 }
 
 export function Decrement({ className, ...props }: NumberField.Decrement.Props) {
   return (
     <NumberField.Decrement
       className={clsx(
-        'flex size-10 items-center justify-center rounded-tl-md rounded-bl-md border border-gray-200 bg-gray-50 bg-clip-padding text-gray-900 select-none hover:bg-gray-100 active:bg-gray-100',
+        'flex items-center justify-center select-none h-1/2 px-2 rounded-br-md hover:bg-gray-100 active:bg-gray-100',
         className,
       )}
       {...props}
@@ -32,7 +32,7 @@ export const Input = React.forwardRef<HTMLInputElement, NumberField.Input.Props>
     <NumberField.Input
       ref={forwardedRef}
       className={clsx(
-        'h-10 w-24 border-t border-b border-gray-200 text-center text-base text-gray-900 tabular-nums focus:z-1 focus:outline focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800',
+        'w-20 p-3 h-9 rounded-md border border-gray-300 focus:outline focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800',
         className,
       )}
       {...props}
@@ -44,7 +44,7 @@ export function Increment({ className, ...props }: NumberField.Increment.Props) 
   return (
     <NumberField.Increment
       className={clsx(
-        'flex size-10 items-center justify-center rounded-tr-md rounded-br-md border border-gray-200 bg-gray-50 bg-clip-padding text-gray-900 select-none hover:bg-gray-100 active:bg-gray-100',
+        'flex items-center justify-center select-none h-1/2 px-2 rounded-tr-md hover:bg-gray-100 active:bg-gray-100',
         className,
       )}
       {...props}

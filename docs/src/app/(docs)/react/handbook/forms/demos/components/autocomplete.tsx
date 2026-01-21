@@ -14,7 +14,7 @@ export const Input = React.forwardRef<HTMLInputElement, Autocomplete.Input.Props
     <Autocomplete.Input
       ref={forwardedRef}
       className={clsx(
-        'bg-[canvas] h-10 w-[16rem] md:w-[20rem] font-normal rounded-md border border-gray-200 pl-3.5 text-base text-gray-900 focus:outline focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800',
+        'h-9 w-full rounded-md text-sm border border-gray-300 pl-3 my-1 focus:outline focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800 data-[invalid]:border-red-500',
         className,
       )}
       {...props}
@@ -56,7 +56,7 @@ export function Item({ className, ...props }: Autocomplete.Item.Props) {
   return (
     <Autocomplete.Item
       className={clsx(
-        'flex flex-col gap-0.25 cursor-default py-2 pr-8 pl-4 text-base leading-4 outline-none select-none data-[highlighted]:relative data-[highlighted]:z-0 data-[highlighted]:text-gray-50 data-[highlighted]:before:absolute data-[highlighted]:before:inset-x-2 data-[highlighted]:before:inset-y-0 data-[highlighted]:before:z-[-1] data-[highlighted]:before:rounded data-[highlighted]:before:bg-gray-900',
+        'flex flex-col gap-0.25 cursor-default py-2 pr-8 pl-4 text-sm leading-4 outline-none select-none data-[highlighted]:relative data-[highlighted]:z-0 data-[highlighted]:text-gray-50 data-[highlighted]:before:absolute data-[highlighted]:before:inset-x-2 data-[highlighted]:before:inset-y-0 data-[highlighted]:before:z-[-1] data-[highlighted]:before:rounded data-[highlighted]:before:bg-gray-900',
         className,
       )}
       {...props}
