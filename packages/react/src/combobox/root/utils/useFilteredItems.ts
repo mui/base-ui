@@ -1,7 +1,7 @@
 import { useComboboxDerivedItemsContext } from '../ComboboxRootContext';
 
 /**
- * Return filtered items from the combobox.
+ * Returns the internally filtered items.
  */
 export function useFilteredItems<T>() {
   const items = useComboboxDerivedItemsContext();
