@@ -4,7 +4,7 @@ import { TemporalAdapter, TemporalFieldDatePartType, TemporalSupportedValue } fr
 import {
   TemporalFieldModelUpdater,
   TemporalFieldState,
-  TemporalFieldStoreParameters,
+  TemporalFieldStoreSharedParameters,
   TemporalFieldConfiguration,
 } from './types';
 import { FormatParser } from './formatParser';
@@ -35,9 +35,9 @@ export class TemporalFieldStore<
   TError,
   TValidationProps extends object,
 > extends Store<TemporalFieldState<TValue, TError, TValidationProps>> {
-  public parameters: TemporalFieldStoreParameters<TValue, TError>;
+  public parameters: TemporalFieldStoreSharedParameters<TValue, TError>;
 
-  private initialParameters: TemporalFieldStoreParameters<TValue, TError> | null = null;
+  private initialParameters: TemporalFieldStoreSharedParameters<TValue, TError> | null = null;
 
   public instanceName: string;
 
@@ -62,7 +62,7 @@ export class TemporalFieldStore<
   public sectionProps: TemporalFieldSectionPropsPlugin<TValue>;
 
   constructor(
-    parameters: TemporalFieldStoreParameters<TValue, TError>,
+    parameters: TemporalFieldStoreSharedParameters<TValue, TError>,
     validationProps: TValidationProps,
     adapter: TemporalAdapter,
     config: TemporalFieldConfiguration<TValue, TError, TValidationProps>,
@@ -151,8 +151,8 @@ export class TemporalFieldStore<
   /**
    * Updates the state of the Tree View based on the new parameters provided to the root component.
    */
-  public updateStateFromParameters(
-    parameters: TemporalFieldStoreParameters<TValue, TError>,
+  protected updateStateFromParameters(
+    parameters: TemporalFieldStoreSharedParameters<TValue, TError>,
     validationProps: TValidationProps,
     adapter: TemporalAdapter,
     config: TemporalFieldConfiguration<TValue, TError, TValidationProps>,
@@ -160,7 +160,7 @@ export class TemporalFieldStore<
   ) {
     const updateModel: TemporalFieldModelUpdater<
       TemporalFieldState<TValue, TError, TValidationProps>,
-      TemporalFieldStoreParameters<TValue, TError>
+      TemporalFieldStoreSharedParameters<TValue, TError>
     > = (mutableNewState, controlledProp, defaultProp) => {
       if (parameters[controlledProp] !== undefined) {
         mutableNewState[controlledProp] = parameters[controlledProp] as any;
@@ -243,7 +243,10 @@ export class TemporalFieldStore<
     });
   };
 
-  public disposeEffect = () => {
+  public mountEffect = () => {
+    // TODO: Make this logic more reliable
+    this.dom.syncSelectionToDOM();
+    this.subscribe(this.dom.syncSelectionToDOM);
     return this.timeoutManager.clearAll;
   };
 }

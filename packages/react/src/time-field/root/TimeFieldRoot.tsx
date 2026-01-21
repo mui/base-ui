@@ -6,15 +6,21 @@ import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useOnMount } from '@base-ui/utils/useOnMount';
 import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { useTemporalAdapter } from '../../temporal-adapter-provider/TemporalAdapterContext';
-import { BaseUIComponentProps } from '../../utils/types';
+import { BaseUIComponentProps, MakeOptional } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useDirection } from '../../direction-provider';
-import { TimeFieldStore, TimeFieldStoreParameters } from './TimeFieldStore';
+import { AmPmParameters, TimeFieldStore } from './TimeFieldStore';
 import { TemporalFieldRootPropsPlugin } from '../../utils/temporal/field/TemporalFieldRootPropsPlugin';
 import { TemporalFieldRootContext } from '../../utils/temporal/field/TemporalFieldRootContext';
 import { FieldRoot } from '../../field';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { useLabelableId } from '../../labelable-provider/useLabelableId';
+import {
+  ValidateTimeReturnValue,
+  ValidateTimeValidationProps,
+} from '../../utils/temporal/validateTime';
+import { TemporalFieldStoreSharedParameters } from '../../utils/temporal/field/types';
+import { TemporalValue } from '../../types';
 
 /**
  * Groups all parts of the time field.
@@ -44,6 +50,7 @@ export const TimeFieldRoot = React.forwardRef(function TimeFieldRoot(
     timezone,
     referenceDate,
     format,
+    ampm,
     // Validation props
     minTime,
     maxTime,
@@ -52,11 +59,16 @@ export const TimeFieldRoot = React.forwardRef(function TimeFieldRoot(
   } = componentProps;
 
   const fieldContext = useFieldRootContext();
-
   const adapter = useTemporalAdapter();
+  const direction = useDirection();
 
   const id = useLabelableId({ id: idProp });
   const hiddenInputRef = useMergedRefs(inputRefProp, fieldContext.validation.inputRef);
+
+  const validationProps: ValidateTimeValidationProps = React.useMemo(
+    () => ({ minTime, maxTime }),
+    [minTime, maxTime],
+  );
 
   const parameters = React.useMemo(
     () => ({
@@ -68,12 +80,14 @@ export const TimeFieldRoot = React.forwardRef(function TimeFieldRoot(
       value,
       timezone,
       referenceDate,
-      minTime,
-      maxTime,
       format,
+      ampm,
       name: nameProp,
       id,
       fieldContext,
+      adapter,
+      direction,
+      validationProps,
     }),
     [
       readOnly,
@@ -84,30 +98,22 @@ export const TimeFieldRoot = React.forwardRef(function TimeFieldRoot(
       value,
       timezone,
       referenceDate,
-      minTime,
-      maxTime,
       format,
+      ampm,
       nameProp,
       id,
       fieldContext,
+      adapter,
+      direction,
+      validationProps,
     ],
   );
 
-  const direction = useDirection();
-  const store = useRefWithInit(() => new TimeFieldStore(parameters, adapter, direction)).current;
+  const store = useRefWithInit(() => new TimeFieldStore(parameters)).current;
 
-  useIsoLayoutEffect(
-    () => store.tempUpdate(parameters, adapter, direction),
-    [store, parameters, adapter, direction],
-  );
+  useIsoLayoutEffect(() => store.syncState(parameters), [store, parameters, adapter, direction]);
 
-  useOnMount(store.disposeEffect);
-
-  // TODO: Make this logic more reliable
-  useOnMount(() => {
-    store.dom.syncSelectionToDOM();
-    store.subscribe(store.dom.syncSelectionToDOM);
-  });
+  useOnMount(store.mountEffect);
 
   const inputProps = useStore(store, TemporalFieldRootPropsPlugin.selectors.hiddenInputProps);
 
@@ -151,7 +157,14 @@ export interface TimeFieldRootState extends FieldRoot.State {
 }
 
 export interface TimeFieldRootProps
-  extends BaseUIComponentProps<'div', TimeFieldRootState>, TimeFieldStoreParameters {}
+  extends
+    BaseUIComponentProps<'div', TimeFieldRootState>,
+    MakeOptional<
+      TemporalFieldStoreSharedParameters<TemporalValue, ValidateTimeReturnValue>,
+      'format'
+    >,
+    ValidateTimeValidationProps,
+    AmPmParameters {}
 
 export namespace TimeFieldRoot {
   export type Props = TimeFieldRootProps;

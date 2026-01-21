@@ -12,7 +12,7 @@ import {
   TemporalFieldParsedFormat,
   TemporalFieldSection,
   TemporalFieldDatePartValueBoundaries,
-  TemporalFieldStoreParameters,
+  TemporalFieldStoreSharedParameters,
   TemporalFieldToken,
   TemporalFieldConfiguration,
   TemporalFieldSeparator,
@@ -28,7 +28,7 @@ export function deriveStateFromParameters<
   TError,
   TValidationProps extends object,
 >(
-  parameters: TemporalFieldStoreParameters<TValue, TError>,
+  parameters: TemporalFieldStoreSharedParameters<TValue, TError>,
   validationProps: TValidationProps,
   adapter: TemporalAdapter,
   config: TemporalFieldConfiguration<TValue, TError, TValidationProps>,

@@ -132,6 +132,55 @@ export class TemporalAdapterLuxon implements TemporalAdapter {
     return value.setLocale(this.locale).toFormat(format);
   };
 
+  /* v8 ignore start */
+  public is12HourCycleInCurrentLocale = () => {
+    if (typeof Intl === 'undefined' || typeof Intl.DateTimeFormat === 'undefined') {
+      return true; // Luxon defaults to en-US if Intl not found
+    }
+
+    return Boolean(
+      new Intl.DateTimeFormat(this.locale, { hour: 'numeric' })?.resolvedOptions()?.hour12,
+    );
+  };
+  /* v8 ignore stop */
+
+  public expandFormat = (format: string) => {
+    // Extract escaped section to avoid extending them
+    const catchEscapedSectionsRegexp = /''|'(''|[^'])+('|$)|[^']*/g;
+
+    // This RegExp tests if a string is only mad of supported tokens
+    const validTokens = [...Object.keys(this.formatTokenMap), 'yyyyy'];
+    const isWordComposedOfTokens = new RegExp(`^(${validTokens.join('|')})+$`);
+
+    // Extract words to test if they are a token or a word to escape.
+    const catchWordsRegexp = /(?:^|[^a-z])([a-z]+)(?:[^a-z]|$)|([a-z]+)/gi;
+    return (
+      format
+        .match(catchEscapedSectionsRegexp)!
+        .map((token: string) => {
+          const firstCharacter = token[0];
+          if (firstCharacter === "'") {
+            return token;
+          }
+          const expandedToken = DateTime.expandFormat(token, { locale: this.locale });
+
+          return expandedToken.replace(catchWordsRegexp, (substring, g1, g2) => {
+            const word = g1 || g2; // words are either in group 1 or group 2
+
+            if (isWordComposedOfTokens.test(word)) {
+              return substring;
+            }
+            return `'${substring}'`;
+          });
+        })
+        .join('')
+        // The returned format can contain `yyyyy` which means year between 4 and 6 digits.
+        // This value is supported by luxon parser but not luxon formatter.
+        // To avoid conflicts, we replace it by 4 digits which is enough for most use-cases.
+        .replace('yyyyy', 'yyyy')
+    );
+  };
+
   public isEqual = (value: DateTime | null, comparing: DateTime | null) => {
     if (value === null && comparing === null) {
       return true;

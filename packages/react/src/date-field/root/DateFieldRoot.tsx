@@ -6,15 +6,21 @@ import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useOnMount } from '@base-ui/utils/useOnMount';
 import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { useTemporalAdapter } from '../../temporal-adapter-provider/TemporalAdapterContext';
-import { BaseUIComponentProps } from '../../utils/types';
+import { BaseUIComponentProps, MakeOptional } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useDirection } from '../../direction-provider';
-import { DateFieldStore, DateFieldStoreParameters } from './DateFieldStore';
+import { DateFieldStore } from './DateFieldStore';
 import { TemporalFieldRootPropsPlugin } from '../../utils/temporal/field/TemporalFieldRootPropsPlugin';
 import { TemporalFieldRootContext } from '../../utils/temporal/field/TemporalFieldRootContext';
 import { FieldRoot } from '../../field';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { useLabelableId } from '../../labelable-provider/useLabelableId';
+import {
+  ValidateDateReturnValue,
+  ValidateDateValidationProps,
+} from '../../utils/temporal/validateDate';
+import { TemporalValue } from '../../types';
+import { TemporalFieldStoreSharedParameters } from '../../utils/temporal/field/types';
 
 /**
  * Groups all parts of the date field.
@@ -52,11 +58,16 @@ export const DateFieldRoot = React.forwardRef(function DateFieldRoot(
   } = componentProps;
 
   const fieldContext = useFieldRootContext();
-
   const adapter = useTemporalAdapter();
+  const direction = useDirection();
 
   const id = useLabelableId({ id: idProp });
   const hiddenInputRef = useMergedRefs(inputRefProp, fieldContext.validation.inputRef);
+
+  const validationProps: ValidateDateValidationProps = React.useMemo(
+    () => ({ minDate, maxDate }),
+    [minDate, maxDate],
+  );
 
   const parameters = React.useMemo(
     () => ({
@@ -68,12 +79,13 @@ export const DateFieldRoot = React.forwardRef(function DateFieldRoot(
       value,
       timezone,
       referenceDate,
-      minDate,
-      maxDate,
       format,
       name: nameProp,
       id,
       fieldContext,
+      adapter,
+      direction,
+      validationProps,
     }),
     [
       readOnly,
@@ -84,30 +96,21 @@ export const DateFieldRoot = React.forwardRef(function DateFieldRoot(
       value,
       timezone,
       referenceDate,
-      minDate,
-      maxDate,
       format,
       nameProp,
       id,
       fieldContext,
+      adapter,
+      direction,
+      validationProps,
     ],
   );
 
-  const direction = useDirection();
-  const store = useRefWithInit(() => new DateFieldStore(parameters, adapter, direction)).current;
+  const store = useRefWithInit(() => new DateFieldStore(parameters)).current;
 
-  useIsoLayoutEffect(
-    () => store.tempUpdate(parameters, adapter, direction),
-    [store, parameters, adapter, direction],
-  );
+  useIsoLayoutEffect(() => store.syncState(parameters), [store, parameters, adapter, direction]);
 
-  useOnMount(store.disposeEffect);
-
-  // TODO: Make this logic more reliable
-  useOnMount(() => {
-    store.dom.syncSelectionToDOM();
-    store.subscribe(store.dom.syncSelectionToDOM);
-  });
+  useOnMount(store.mountEffect);
 
   const inputProps = useStore(store, TemporalFieldRootPropsPlugin.selectors.hiddenInputProps);
 
@@ -151,7 +154,13 @@ export interface DateFieldRootState extends FieldRoot.State {
 }
 
 export interface DateFieldRootProps
-  extends BaseUIComponentProps<'div', DateFieldRootState>, DateFieldStoreParameters {}
+  extends
+    BaseUIComponentProps<'div', DateFieldRootState>,
+    MakeOptional<
+      TemporalFieldStoreSharedParameters<TemporalValue, ValidateDateReturnValue>,
+      'format'
+    >,
+    ValidateDateValidationProps {}
 
 export namespace DateFieldRoot {
   export type Props = DateFieldRootProps;

@@ -189,6 +189,10 @@ export interface TemporalAdapter {
    */
   formatByString(value: TemporalSupportedObject, formatString: string): string;
   /**
+   * Checks if the current locale is using 12 hours cycle (i.e: time with meridiem).
+   */
+  is12HourCycleInCurrentLocale(): boolean;
+  /**
    * Expands a format to replace the meta-token (for example: `LLL` or `PP`) with their localized expanded form.
    */
   expandFormat(format: string): string;

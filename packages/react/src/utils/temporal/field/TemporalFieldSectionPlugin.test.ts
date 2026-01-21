@@ -19,14 +19,13 @@ describe('TemporalFieldSectionPlugin', () => {
 
   describe('clearActive', () => {
     it('should clear the active section when it has a value', () => {
-      const store = new DateFieldStore(
-        {
-          format: numericDateFormat,
-          defaultValue: adapter.date('2024-03-15', 'default'),
-        },
+      const store = new DateFieldStore({
+        format: numericDateFormat,
+        defaultValue: adapter.date('2024-03-15', 'default'),
         adapter,
-        'ltr',
-      );
+        direction: 'ltr',
+        validationProps: {},
+      });
 
       store.section.selectClosestDatePart(0); // month section
 
@@ -40,7 +39,12 @@ describe('TemporalFieldSectionPlugin', () => {
     });
 
     it('should not do anything when active section is already empty', () => {
-      const store = new DateFieldStore({ format: numericDateFormat }, adapter, 'ltr');
+      const store = new DateFieldStore({
+        format: numericDateFormat,
+        adapter,
+        direction: 'ltr',
+        validationProps: {},
+      });
 
       store.section.selectClosestDatePart(0); // month section (empty)
 
@@ -54,14 +58,13 @@ describe('TemporalFieldSectionPlugin', () => {
     });
 
     it('should clear day section and preserve month/year', () => {
-      const store = new DateFieldStore(
-        {
-          format: numericDateFormat,
-          defaultValue: adapter.date('2024-03-15', 'default'),
-        },
+      const store = new DateFieldStore({
+        format: numericDateFormat,
+        defaultValue: adapter.date('2024-03-15', 'default'),
         adapter,
-        'ltr',
-      );
+        direction: 'ltr',
+        validationProps: {},
+      });
 
       store.section.selectClosestDatePart(2); // day section
 
@@ -80,14 +83,13 @@ describe('TemporalFieldSectionPlugin', () => {
     });
 
     it('should clear all sections sequentially', () => {
-      const store = new DateFieldStore(
-        {
-          format: numericDateFormat,
-          defaultValue: adapter.date('2024-03-15', 'default'),
-        },
+      const store = new DateFieldStore({
+        format: numericDateFormat,
+        defaultValue: adapter.date('2024-03-15', 'default'),
         adapter,
-        'ltr',
-      );
+        direction: 'ltr',
+        validationProps: {},
+      });
 
       // Clear month
       store.section.selectClosestDatePart(0);
@@ -113,14 +115,13 @@ describe('TemporalFieldSectionPlugin', () => {
     });
 
     it('should reset character query when clearing section', () => {
-      const store = new DateFieldStore(
-        {
-          format: numericDateFormat,
-          defaultValue: adapter.date('2024-03-15', 'default'),
-        },
+      const store = new DateFieldStore({
+        format: numericDateFormat,
+        defaultValue: adapter.date('2024-03-15', 'default'),
         adapter,
-        'ltr',
-      );
+        direction: 'ltr',
+        validationProps: {},
+      });
 
       store.section.selectClosestDatePart(0); // month section
 
@@ -146,7 +147,12 @@ describe('TemporalFieldSectionPlugin', () => {
 
   describe('updateFromString', () => {
     it('should parse and update value from valid string', () => {
-      const store = new DateFieldStore({ format: numericDateFormat }, adapter, 'ltr');
+      const store = new DateFieldStore({
+        format: numericDateFormat,
+        adapter,
+        direction: 'ltr',
+        validationProps: {},
+      });
 
       store.value.updateFromString('03/15/2024');
 
@@ -158,14 +164,13 @@ describe('TemporalFieldSectionPlugin', () => {
     });
 
     it('should parse and update value from valid string when value already exists', () => {
-      const store = new DateFieldStore(
-        {
-          format: numericDateFormat,
-          defaultValue: adapter.date('2023-01-01', 'default'),
-        },
+      const store = new DateFieldStore({
+        format: numericDateFormat,
+        defaultValue: adapter.date('2023-01-01', 'default'),
         adapter,
-        'ltr',
-      );
+        direction: 'ltr',
+        validationProps: {},
+      });
 
       store.value.updateFromString('12/31/2024');
 
@@ -177,14 +182,13 @@ describe('TemporalFieldSectionPlugin', () => {
     });
 
     it('should handle invalid string by setting value to null', () => {
-      const store = new DateFieldStore(
-        {
-          format: numericDateFormat,
-          defaultValue: adapter.date('2024-03-15', 'default'),
-        },
+      const store = new DateFieldStore({
+        format: numericDateFormat,
+        defaultValue: adapter.date('2024-03-15', 'default'),
         adapter,
-        'ltr',
-      );
+        direction: 'ltr',
+        validationProps: {},
+      });
 
       store.value.updateFromString('invalid date string');
 
@@ -193,14 +197,13 @@ describe('TemporalFieldSectionPlugin', () => {
     });
 
     it('should handle empty string by setting value to null', () => {
-      const store = new DateFieldStore(
-        {
-          format: numericDateFormat,
-          defaultValue: adapter.date('2024-03-15', 'default'),
-        },
+      const store = new DateFieldStore({
+        format: numericDateFormat,
+        defaultValue: adapter.date('2024-03-15', 'default'),
         adapter,
-        'ltr',
-      );
+        direction: 'ltr',
+        validationProps: {},
+      });
 
       store.value.updateFromString('');
 
@@ -209,7 +212,12 @@ describe('TemporalFieldSectionPlugin', () => {
     });
 
     it('should parse time string correctly', () => {
-      const store = new TimeFieldStore({ format: time24Format }, adapter, 'ltr');
+      const store = new TimeFieldStore({
+        format: time24Format,
+        adapter,
+        direction: 'ltr',
+        validationProps: {},
+      });
 
       store.value.updateFromString('14:30');
 
@@ -220,7 +228,12 @@ describe('TemporalFieldSectionPlugin', () => {
     });
 
     it('should reset character query after pasting', () => {
-      const store = new DateFieldStore({ format: numericDateFormat }, adapter, 'ltr');
+      const store = new DateFieldStore({
+        format: numericDateFormat,
+        adapter,
+        direction: 'ltr',
+        validationProps: {},
+      });
 
       // Select month section and start typing
       store.section.selectClosestDatePart(0);
@@ -245,14 +258,13 @@ describe('TemporalFieldSectionPlugin', () => {
 
   describe('preserving non-displayed sections', () => {
     it('should preserve time information when editing date with partial format', () => {
-      const store = new DateFieldStore(
-        {
-          format: numericDateFormat,
-          defaultValue: adapter.date('2024-03-15T14:30:00', 'default'),
-        },
+      const store = new DateFieldStore({
+        format: numericDateFormat,
+        defaultValue: adapter.date('2024-03-15T14:30:00', 'default'),
         adapter,
-        'ltr',
-      );
+        direction: 'ltr',
+        validationProps: {},
+      });
 
       // Edit the day
       store.section.selectClosestDatePart(2); // day section
@@ -274,14 +286,13 @@ describe('TemporalFieldSectionPlugin', () => {
     });
 
     it('should preserve time information when clearing date then refilling', () => {
-      const store = new DateFieldStore(
-        {
-          format: numericDateFormat,
-          defaultValue: adapter.date('2024-03-15T14:30:00', 'default'),
-        },
+      const store = new DateFieldStore({
+        format: numericDateFormat,
+        defaultValue: adapter.date('2024-03-15T14:30:00', 'default'),
         adapter,
-        'ltr',
-      );
+        direction: 'ltr',
+        validationProps: {},
+      });
 
       // Clear day
       store.section.selectClosestDatePart(2);
@@ -303,14 +314,13 @@ describe('TemporalFieldSectionPlugin', () => {
     });
 
     it('should preserve date information when using year-only format', () => {
-      const store = new DateFieldStore(
-        {
-          format: yearOnlyFormat,
-          defaultValue: adapter.date('2024-03-15T14:30:00', 'default'),
-        },
+      const store = new DateFieldStore({
+        format: yearOnlyFormat,
+        defaultValue: adapter.date('2024-03-15T14:30:00', 'default'),
         adapter,
-        'ltr',
-      );
+        direction: 'ltr',
+        validationProps: {},
+      });
 
       // Edit the year
       store.section.selectClosestDatePart(0); // year section
@@ -334,14 +344,13 @@ describe('TemporalFieldSectionPlugin', () => {
     });
 
     it('should preserve date information when using month-only format', () => {
-      const store = new DateFieldStore(
-        {
-          format: monthOnlyFormat,
-          defaultValue: adapter.date('2024-03-15T14:30:00', 'default'),
-        },
+      const store = new DateFieldStore({
+        format: monthOnlyFormat,
+        defaultValue: adapter.date('2024-03-15T14:30:00', 'default'),
         adapter,
-        'ltr',
-      );
+        direction: 'ltr',
+        validationProps: {},
+      });
 
       // Edit the month
       store.section.selectClosestDatePart(0); // month section
@@ -365,14 +374,13 @@ describe('TemporalFieldSectionPlugin', () => {
     });
 
     it('should preserve date information when editing time with partial format', () => {
-      const store = new TimeFieldStore(
-        {
-          format: time24Format,
-          defaultValue: adapter.date('2024-03-15T14:30:00', 'default'),
-        },
+      const store = new TimeFieldStore({
+        format: time24Format,
+        defaultValue: adapter.date('2024-03-15T14:30:00', 'default'),
         adapter,
-        'ltr',
-      );
+        direction: 'ltr',
+        validationProps: {},
+      });
 
       // Edit the hour
       store.section.selectClosestDatePart(0); // hour section
@@ -395,14 +403,13 @@ describe('TemporalFieldSectionPlugin', () => {
     });
 
     it('should preserve date information when clearing time then refilling', () => {
-      const store = new TimeFieldStore(
-        {
-          format: time24Format,
-          defaultValue: adapter.date('2024-03-15T14:30:00', 'default'),
-        },
+      const store = new TimeFieldStore({
+        format: time24Format,
+        defaultValue: adapter.date('2024-03-15T14:30:00', 'default'),
         adapter,
-        'ltr',
-      );
+        direction: 'ltr',
+        validationProps: {},
+      });
 
       // Clear hour
       store.section.selectClosestDatePart(0);
@@ -425,14 +432,13 @@ describe('TemporalFieldSectionPlugin', () => {
     });
 
     it('should preserve time sections when using hour-only format', () => {
-      const store = new TimeFieldStore(
-        {
-          format: hourOnlyFormat,
-          defaultValue: adapter.date('2024-03-15T14:30:45', 'default'),
-        },
+      const store = new TimeFieldStore({
+        format: hourOnlyFormat,
+        defaultValue: adapter.date('2024-03-15T14:30:45', 'default'),
         adapter,
-        'ltr',
-      );
+        direction: 'ltr',
+        validationProps: {},
+      });
 
       // Edit the hour
       store.section.selectClosestDatePart(0); // hour section
@@ -456,7 +462,12 @@ describe('TemporalFieldSectionPlugin', () => {
 
   describe('leap year support', () => {
     it('should allow entering February 29th for leap year', () => {
-      const store = new DateFieldStore({ format: numericDateFormat }, adapter, 'ltr');
+      const store = new DateFieldStore({
+        format: numericDateFormat,
+        adapter,
+        direction: 'ltr',
+        validationProps: {},
+      });
 
       // Enter 02/29/2024 (2024 is a leap year)
       store.section.selectClosestDatePart(0); // month
@@ -488,14 +499,13 @@ describe('TemporalFieldSectionPlugin', () => {
     });
 
     it('should allow updating from non-leap year to leap year February 29th', () => {
-      const store = new DateFieldStore(
-        {
-          format: numericDateFormat,
-          defaultValue: adapter.date('2023-02-28', 'default'), // 2023 is not a leap year
-        },
+      const store = new DateFieldStore({
+        format: numericDateFormat,
+        defaultValue: adapter.date('2023-02-28', 'default'), // 2023 is not a leap year
         adapter,
-        'ltr',
-      );
+        direction: 'ltr',
+        validationProps: {},
+      });
 
       // Update year to 2024 (leap year)
       store.section.selectClosestDatePart(4);
@@ -522,7 +532,12 @@ describe('TemporalFieldSectionPlugin', () => {
 
   describe('year format support', () => {
     it('should support 4-digit year format', () => {
-      const store = new DateFieldStore({ format: numericDateFormat }, adapter, 'ltr');
+      const store = new DateFieldStore({
+        format: numericDateFormat,
+        adapter,
+        direction: 'ltr',
+        validationProps: {},
+      });
 
       store.section.selectClosestDatePart(4); // year (4-digit)
       store.section.updateDatePart({
@@ -537,14 +552,13 @@ describe('TemporalFieldSectionPlugin', () => {
     });
 
     it('should support 4-digit year format when updating existing value', () => {
-      const store = new DateFieldStore(
-        {
-          format: numericDateFormat,
-          defaultValue: adapter.date('2023-03-15', 'default'),
-        },
+      const store = new DateFieldStore({
+        format: numericDateFormat,
+        defaultValue: adapter.date('2023-03-15', 'default'),
         adapter,
-        'ltr',
-      );
+        direction: 'ltr',
+        validationProps: {},
+      });
 
       store.section.selectClosestDatePart(4);
       store.section.updateDatePart({
@@ -561,7 +575,12 @@ describe('TemporalFieldSectionPlugin', () => {
 
   describe('section navigation', () => {
     it('should select the correct section by index', () => {
-      const store = new DateFieldStore({ format: numericDateFormat }, adapter, 'ltr');
+      const store = new DateFieldStore({
+        format: numericDateFormat,
+        adapter,
+        direction: 'ltr',
+        validationProps: {},
+      });
 
       store.section.selectClosestDatePart(0); // month
       expect(store.state.selectedSection).to.equal(0);
@@ -574,7 +593,12 @@ describe('TemporalFieldSectionPlugin', () => {
     });
 
     it('should navigate to next section', () => {
-      const store = new DateFieldStore({ format: numericDateFormat }, adapter, 'ltr');
+      const store = new DateFieldStore({
+        format: numericDateFormat,
+        adapter,
+        direction: 'ltr',
+        validationProps: {},
+      });
 
       store.section.selectClosestDatePart(0); // month
       expect(store.state.selectedSection).to.equal(0);
@@ -587,7 +611,12 @@ describe('TemporalFieldSectionPlugin', () => {
     });
 
     it('should navigate to previous section', () => {
-      const store = new DateFieldStore({ format: numericDateFormat }, adapter, 'ltr');
+      const store = new DateFieldStore({
+        format: numericDateFormat,
+        adapter,
+        direction: 'ltr',
+        validationProps: {},
+      });
 
       store.section.selectClosestDatePart(4); // year
       expect(store.state.selectedSection).to.equal(4);
@@ -600,7 +629,12 @@ describe('TemporalFieldSectionPlugin', () => {
     });
 
     it('should not navigate past last section', () => {
-      const store = new DateFieldStore({ format: numericDateFormat }, adapter, 'ltr');
+      const store = new DateFieldStore({
+        format: numericDateFormat,
+        adapter,
+        direction: 'ltr',
+        validationProps: {},
+      });
 
       store.section.selectClosestDatePart(4); // year (last section)
       expect(store.state.selectedSection).to.equal(4);
@@ -610,7 +644,12 @@ describe('TemporalFieldSectionPlugin', () => {
     });
 
     it('should not navigate before first section', () => {
-      const store = new DateFieldStore({ format: numericDateFormat }, adapter, 'ltr');
+      const store = new DateFieldStore({
+        format: numericDateFormat,
+        adapter,
+        direction: 'ltr',
+        validationProps: {},
+      });
 
       store.section.selectClosestDatePart(0); // month (first section)
       expect(store.state.selectedSection).to.equal(0);
@@ -620,7 +659,12 @@ describe('TemporalFieldSectionPlugin', () => {
     });
 
     it('should remove selected section', () => {
-      const store = new DateFieldStore({ format: numericDateFormat }, adapter, 'ltr');
+      const store = new DateFieldStore({
+        format: numericDateFormat,
+        adapter,
+        direction: 'ltr',
+        validationProps: {},
+      });
 
       store.section.selectClosestDatePart(0);
       expect(store.state.selectedSection).to.equal(0);
@@ -632,14 +676,13 @@ describe('TemporalFieldSectionPlugin', () => {
 
   describe('external value changes', () => {
     it('should update sections when value is set externally via updateFromString', () => {
-      const store = new DateFieldStore(
-        {
-          format: numericDateFormat,
-          defaultValue: adapter.date('2024-03-15', 'default'),
-        },
+      const store = new DateFieldStore({
+        format: numericDateFormat,
+        defaultValue: adapter.date('2024-03-15', 'default'),
         adapter,
-        'ltr',
-      );
+        direction: 'ltr',
+        validationProps: {},
+      });
 
       // Verify initial value
       const initialMonthPart = TemporalFieldSectionPlugin.selectors.datePart(store.state, 0);
@@ -660,14 +703,13 @@ describe('TemporalFieldSectionPlugin', () => {
     });
 
     it('should clear sections when value is reset to null', () => {
-      const store = new DateFieldStore(
-        {
-          format: numericDateFormat,
-          defaultValue: adapter.date('2024-03-15', 'default'),
-        },
+      const store = new DateFieldStore({
+        format: numericDateFormat,
+        defaultValue: adapter.date('2024-03-15', 'default'),
         adapter,
-        'ltr',
-      );
+        direction: 'ltr',
+        validationProps: {},
+      });
 
       // Reset value to null
       store.value.clear();

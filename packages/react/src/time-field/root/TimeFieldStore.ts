@@ -5,12 +5,13 @@ import {
   ValidateTimeValidationProps,
 } from '../../utils/temporal/validateTime';
 import {
-  TemporalFieldStoreParameters,
+  TemporalFieldStoreSharedParameters,
   TemporalFieldConfiguration,
 } from '../../utils/temporal/field/types';
 import { getInitialReferenceDate } from '../../utils/temporal/getInitialReferenceDate';
 import { getTimeManager } from '../../utils/temporal/getTimeManager';
 import { TextDirection } from '../../direction-provider';
+import { MakeOptional } from '../../utils/types';
 
 const config: TemporalFieldConfiguration<
   TemporalValue,
@@ -29,7 +30,8 @@ const config: TemporalFieldConfiguration<
   clearDateSections: (sections) => sections.map((section) => ({ ...section, value: '' })),
   updateReferenceValue: (adapter, value, prevReferenceValue) =>
     adapter.isValid(value) ? value : prevReferenceValue,
-  stringifyValue: (adapter, value) => (value == null ? '' : adapter.toJsDate(value).toISOString()),
+  stringifyValue: (adapter, value) =>
+    adapter.isValid(value) ? adapter.toJsDate(value).toISOString() : '',
 };
 
 export class TimeFieldStore extends TemporalFieldStore<
@@ -37,16 +39,15 @@ export class TimeFieldStore extends TemporalFieldStore<
   ValidateTimeReturnValue,
   ValidateTimeValidationProps
 > {
-  constructor(
-    parameters: TimeFieldStoreParameters,
-    adapter: TemporalAdapter,
-    direction: TextDirection,
-  ) {
-    const { minTime, maxTime, ...sharedParameters } = parameters;
+  constructor(parameters: TimeFieldStoreParameters) {
+    const { validationProps, adapter, direction, ampm, ...sharedParameters } = parameters;
 
     super(
-      sharedParameters,
-      { minTime, maxTime },
+      {
+        ...sharedParameters,
+        format: sharedParameters.format ?? TimeFieldStore.getDefaultFormat(adapter, ampm),
+      },
+      validationProps,
       adapter,
       config,
       direction,
@@ -54,23 +55,46 @@ export class TimeFieldStore extends TemporalFieldStore<
     );
   }
 
-  public tempUpdate(
-    parameters: TimeFieldStoreParameters,
-    adapter: TemporalAdapter,
-    direction: TextDirection,
-  ) {
-    const { minTime, maxTime, ...sharedParameters } = parameters;
+  public syncState(parameters: TimeFieldStoreParameters) {
+    const { validationProps, adapter, direction, ampm, ...sharedParameters } = parameters;
 
     super.updateStateFromParameters(
-      sharedParameters,
-      { minTime, maxTime },
+      {
+        ...sharedParameters,
+        format: sharedParameters.format ?? TimeFieldStore.getDefaultFormat(adapter, ampm),
+      },
+      validationProps,
       adapter,
       config,
       direction,
     );
   }
+
+  private static getDefaultFormat(adapter: TemporalAdapter, ampm: boolean | undefined) {
+    const ampmWithDefault = ampm ?? adapter.is12HourCycleInCurrentLocale();
+    const f = adapter.formats;
+    return ampmWithDefault
+      ? `${f.hours12hPadded}:${f.minutesPadded} ${f.meridiem}`
+      : `${f.hours24hPadded}:${f.minutesPadded}`;
+  }
 }
 
-export interface TimeFieldStoreParameters
-  extends TemporalFieldStoreParameters<TemporalValue, ValidateTimeReturnValue>,
-    ValidateTimeValidationProps {}
+interface TimeFieldStoreParameters
+  extends
+    MakeOptional<
+      TemporalFieldStoreSharedParameters<TemporalValue, ValidateTimeReturnValue>,
+      'format'
+    >,
+    AmPmParameters {
+  validationProps: ValidateTimeValidationProps;
+  adapter: TemporalAdapter;
+  direction: TextDirection;
+}
+
+export interface AmPmParameters {
+  /**
+   * Whether to use 12-hour format with AM/PM or 24-hour format.
+   * @default based on the current locale
+   */
+  ampm?: boolean | undefined;
+}

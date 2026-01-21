@@ -14,7 +14,10 @@ import {
 import { GetInitialReferenceDateValidationProps } from '../getInitialReferenceDate';
 import { TemporalManager, TemporalTimezoneProps } from '../types';
 
-export interface TemporalFieldStoreParameters<
+/**
+ * Parameters shared across all temporal field stores.
+ */
+export interface TemporalFieldStoreSharedParameters<
   TValue extends TemporalSupportedValue,
   TError,
 > extends TemporalTimezoneProps {
@@ -392,7 +395,7 @@ export type TemporalFieldDatePartValueBoundaries<Part extends TemporalFieldDateP
 
 export type TemporalFieldModelUpdater<
   State extends TemporalFieldState<any, any, any>,
-  Parameters extends TemporalFieldStoreParameters<any, any>,
+  Parameters extends TemporalFieldStoreSharedParameters<any, any>,
 > = (
   newState: Partial<State>,
   controlledProp: keyof Parameters & keyof State & string,

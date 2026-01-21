@@ -80,7 +80,7 @@ export class TemporalFieldValuePlugin<
       fieldContext.setDirty(
         !this.store.state.manager.areValuesEqual(
           newValueWithInputTimezone,
-          fieldContext.validityData.initialValue,
+          fieldContext.validityData.initialValue as TValue,
         ),
       );
 

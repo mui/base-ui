@@ -5,12 +5,13 @@ import {
   ValidateDateValidationProps,
 } from '../../utils/temporal/validateDate';
 import {
-  TemporalFieldStoreParameters,
+  TemporalFieldStoreSharedParameters,
   TemporalFieldConfiguration,
 } from '../../utils/temporal/field/types';
 import { getInitialReferenceDate } from '../../utils/temporal/getInitialReferenceDate';
 import { getDateManager } from '../../utils/temporal/getDateManager';
 import { TextDirection } from '../../direction-provider';
+import { MakeOptional } from '../../utils/types';
 
 const config: TemporalFieldConfiguration<
   TemporalValue,
@@ -29,7 +30,8 @@ const config: TemporalFieldConfiguration<
   clearDateSections: (sections) => sections.map((section) => ({ ...section, value: '' })),
   updateReferenceValue: (adapter, value, prevReferenceValue) =>
     adapter.isValid(value) ? value : prevReferenceValue,
-  stringifyValue: (adapter, value) => (value == null ? '' : adapter.toJsDate(value).toISOString()),
+  stringifyValue: (adapter, value) =>
+    adapter.isValid(value) ? adapter.toJsDate(value).toISOString() : '',
 };
 
 export class DateFieldStore extends TemporalFieldStore<
@@ -37,19 +39,15 @@ export class DateFieldStore extends TemporalFieldStore<
   ValidateDateReturnValue,
   ValidateDateValidationProps
 > {
-  constructor(
-    parameters: DateFieldStoreParameters,
-    adapter: TemporalAdapter,
-    direction: TextDirection,
-  ) {
-    const { minDate, maxDate, ...sharedParameters } = parameters;
+  constructor(parameters: DateFieldStoreParameters) {
+    const { validationProps, adapter, direction, ...sharedParameters } = parameters;
 
     super(
       {
         ...sharedParameters,
         format: sharedParameters.format ?? adapter.formats.localizedNumericDate,
       },
-      { minDate, maxDate },
+      validationProps,
       adapter,
       config,
       direction,
@@ -57,19 +55,15 @@ export class DateFieldStore extends TemporalFieldStore<
     );
   }
 
-  public tempUpdate(
-    parameters: DateFieldStoreParameters,
-    adapter: TemporalAdapter,
-    direction: TextDirection,
-  ) {
-    const { minDate, maxDate, ...sharedParameters } = parameters;
+  public syncState(parameters: DateFieldStoreParameters) {
+    const { validationProps, adapter, direction, ...sharedParameters } = parameters;
 
     super.updateStateFromParameters(
       {
         ...sharedParameters,
         format: sharedParameters.format ?? adapter.formats.localizedNumericDate,
       },
-      { minDate, maxDate },
+      validationProps,
       adapter,
       config,
       direction,
@@ -77,15 +71,11 @@ export class DateFieldStore extends TemporalFieldStore<
   }
 }
 
-export interface DateFieldStoreParameters
-  extends
-    MakeOptional<TemporalFieldStoreParameters<TemporalValue, ValidateDateReturnValue>, 'format'>,
-    ValidateDateValidationProps {}
-
-/**
- * Makes specified keys in a type optional.
- *
- * @template T - The original type.
- * @template K - The keys to make optional.
- */
-export type MakeOptional<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
+export interface DateFieldStoreParameters extends MakeOptional<
+  TemporalFieldStoreSharedParameters<TemporalValue, ValidateDateReturnValue>,
+  'format'
+> {
+  validationProps: ValidateDateValidationProps;
+  adapter: TemporalAdapter;
+  direction: TextDirection;
+}

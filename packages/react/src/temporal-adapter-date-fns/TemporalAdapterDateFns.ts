@@ -361,6 +361,10 @@ export class TemporalAdapterDateFns implements TemporalAdapter {
     return dateFnsFormat(value, format, { locale: this.locale });
   };
 
+  public is12HourCycleInCurrentLocale = () => {
+    return /a/.test(this.locale.formatLong!.time({ width: 'short' }));
+  };
+
   public expandFormat = (format: string) => {
     const longFormatRegexp = /P+p+|P+|p+|''|'(''|[^'])+('|$)|./g;
 
