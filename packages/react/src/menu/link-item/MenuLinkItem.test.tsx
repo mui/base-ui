@@ -3,7 +3,7 @@ import { expect } from 'chai';
 import { MemoryRouter, Route, Routes, Link, useLocation } from 'react-router';
 import { act, screen, waitFor } from '@mui/internal-test-utils';
 import { Menu } from '@base-ui/react/menu';
-import { describeConformance, createRenderer } from '#test-utils';
+import { describeConformance, createRenderer, isJSDOM } from '#test-utils';
 
 describe('<Menu.LinkItem />', () => {
   const { render } = createRenderer();
@@ -27,7 +27,7 @@ describe('<Menu.LinkItem />', () => {
       return <div data-testid="location">{location.pathname}</div>;
     }
 
-    it('react-router <Link>', async () => {
+    it.skipIf(isJSDOM)('react-router <Link>', async () => {
       const { user } = await render(
         <MemoryRouter initialEntries={['/']}>
           <Routes>
@@ -58,7 +58,7 @@ describe('<Menu.LinkItem />', () => {
 
       expect(locationDisplay).to.have.text('/');
 
-      await act(async () => {
+      act(() => {
         link2.focus();
       });
 
@@ -72,8 +72,12 @@ describe('<Menu.LinkItem />', () => {
 
       expect(screen.getByText(/page two/i)).not.to.equal(null);
 
-      await act(async () => {
+      act(() => {
         link1.focus();
+      });
+
+      await waitFor(() => {
+        expect(link1).toHaveFocus();
       });
 
       await user.keyboard('[Enter]');
