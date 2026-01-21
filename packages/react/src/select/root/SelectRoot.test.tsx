@@ -1711,7 +1711,10 @@ describe('<Select.Root />', () => {
         expect(validateSpy.callCount).to.equal(1);
       });
 
-      expect(trigger).to.have.attribute('data-touched', '');
+      // The above `waitFor` might not ensure re-render has finished
+      await waitFor(() => {
+        expect(trigger).to.have.attribute('data-touched', '');
+      });
       expect(trigger).not.to.have.attribute('data-focused');
       expect(trigger).to.have.attribute('aria-invalid', 'true');
     });
