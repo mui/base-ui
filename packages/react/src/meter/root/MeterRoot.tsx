@@ -2,20 +2,8 @@
 import * as React from 'react';
 import { MeterRootContext } from './MeterRootContext';
 import { BaseUIComponentProps, HTMLProps } from '../../utils/types';
-import { formatNumber } from '../../utils/formatNumber';
+import { formatNumberValue } from '../../utils/formatNumber';
 import { useRenderElement } from '../../utils/useRenderElement';
-
-function formatValue(
-  value: number,
-  locale?: Intl.LocalesArgument,
-  format?: Intl.NumberFormatOptions,
-): string {
-  if (!format) {
-    return formatNumber(value / 100, locale, { style: 'percent' });
-  }
-
-  return formatNumber(value, locale, format);
-}
 
 /**
  * Groups all parts of the meter and provides the value for screen readers.
@@ -40,7 +28,7 @@ export const MeterRoot = React.forwardRef(function MeterRoot(
   } = componentProps;
 
   const [labelId, setLabelId] = React.useState<string | undefined>();
-  const formattedValue = formatValue(valueProp, locale, format);
+  const formattedValue = formatNumberValue(valueProp, locale, format);
 
   let ariaValuetext = `${valueProp}%`;
   if (getAriaValueText) {

@@ -225,7 +225,18 @@ export function useHoverFloatingInteraction(
         floating.removeEventListener('pointerdown', handleInteractInside, true);
       }
     };
-  });
+  }, [
+    enabled,
+    floatingElement,
+    store,
+    dataRef,
+    isClickLikeOpenEvent,
+    closeWithDelay,
+    clearPointerEvents,
+    cleanupMouseMoveHandler,
+    handleInteractInside,
+    instance,
+  ]);
 }
 
 export function getDelay(

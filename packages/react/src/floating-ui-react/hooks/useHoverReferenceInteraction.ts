@@ -66,6 +66,7 @@ export function useHoverReferenceInteraction(
   const handleCloseRef = useValueAsRef(handleClose);
   const delayRef = useValueAsRef(delay);
   const restMsRef = useValueAsRef(restMs);
+  const enabledRef = useValueAsRef(enabled);
 
   if (isActiveTrigger) {
     // eslint-disable-next-line no-underscore-dangle
@@ -252,7 +253,11 @@ export function useHoverReferenceInteraction(
           onClose() {
             clearPointerEvents();
             cleanupMouseMoveHandler();
-            if (!isClickLikeOpenEvent() && currentTrigger === store.select('domReferenceElement')) {
+            if (
+              enabledRef.current &&
+              !isClickLikeOpenEvent() &&
+              currentTrigger === store.select('domReferenceElement')
+            ) {
               closeWithDelay(event, true);
             }
           },
@@ -324,6 +329,7 @@ export function useHoverReferenceInteraction(
     restMsRef,
     triggerElementRef,
     tree,
+    enabledRef,
   ]);
 
   return React.useMemo<HTMLProps>(() => {
