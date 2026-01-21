@@ -1,4 +1,4 @@
-import { expect, vi } from 'vitest';
+import { expect } from 'chai';
 import {
   fireEvent,
   flushMicrotasks,
@@ -196,7 +196,7 @@ describe('<ContextMenu.Root />', () => {
     });
 
     it('does not open when disabled', async () => {
-      const onOpenChange = vi.fn();
+      const onOpenChange = spy();
 
       await render(
         <ContextMenu.Root disabled onOpenChange={onOpenChange}>
@@ -216,8 +216,8 @@ describe('<ContextMenu.Root />', () => {
       fireEvent.contextMenu(trigger, { clientX: 10, clientY: 10, button: 2 });
       await flushMicrotasks();
 
-      expect(screen.queryByTestId('context-popup')).toBe(null);
-      expect(onOpenChange).toHaveBeenCalledTimes(0);
+      expect(screen.queryByTestId('context-popup')).to.equal(null);
+      expect(onOpenChange.callCount).to.equal(0);
     });
   });
 });

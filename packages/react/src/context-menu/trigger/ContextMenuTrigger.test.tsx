@@ -1,4 +1,4 @@
-import { expect, vi } from 'vitest';
+import { expect } from 'chai';
 import { fireEvent, flushMicrotasks, screen } from '@mui/internal-test-utils';
 import { spy } from 'sinon';
 import { ContextMenu } from '@base-ui/react/context-menu';
@@ -137,7 +137,7 @@ describe('<ContextMenu.Trigger />', () => {
 
   describe('prop: disabled', () => {
     it('does not open on right-click when disabled', async () => {
-      const onOpenChange = vi.fn();
+      const onOpenChange = spy();
 
       await render(
         <ContextMenu.Root disabled onOpenChange={onOpenChange}>
@@ -154,8 +154,8 @@ describe('<ContextMenu.Trigger />', () => {
       fireEvent.contextMenu(trigger);
       await flushMicrotasks();
 
-      expect(screen.queryByTestId('popup')).toBe(null);
-      expect(onOpenChange).toHaveBeenCalledTimes(0);
+      expect(screen.queryByTestId('popup')).to.equal(null);
+      expect(onOpenChange.callCount).to.equal(0);
     });
 
     it('does not block the native context menu when disabled', async () => {
@@ -184,7 +184,7 @@ describe('<ContextMenu.Trigger />', () => {
       fireEvent.contextMenu(trigger);
       await flushMicrotasks();
 
-      expect(defaultPrevented).toBe(false);
+      expect(defaultPrevented).to.equal(false);
     });
   });
 
@@ -266,7 +266,7 @@ describe('<ContextMenu.Trigger />', () => {
     });
 
     it('does not open on long press when disabled', async () => {
-      const onOpenChange = vi.fn();
+      const onOpenChange = spy();
 
       await render(
         <ContextMenu.Root disabled onOpenChange={onOpenChange}>
@@ -294,8 +294,8 @@ describe('<ContextMenu.Trigger />', () => {
 
       clock.tick(500);
 
-      expect(screen.queryByTestId('popup')).toBe(null);
-      expect(onOpenChange).toHaveBeenCalledTimes(0);
+      expect(screen.queryByTestId('popup')).to.equal(null);
+      expect(onOpenChange.callCount).to.equal(0);
     });
   });
 
