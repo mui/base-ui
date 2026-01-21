@@ -46,7 +46,7 @@ export default function MenuFullyFeatured() {
         >
           Menu <ChevronDownIcon className={classes.ButtonIcon} />
         </Menu.Trigger>
-        <Menu.Portal keepMounted>
+        <Menu.Portal>
           <Menu.Positioner
             className={classes.Positioner}
             sideOffset={8}
