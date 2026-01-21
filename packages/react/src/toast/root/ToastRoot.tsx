@@ -562,24 +562,14 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
     ],
   );
 
-  const state: ToastRoot.State = React.useMemo(
-    () => ({
-      transitionStatus: toast.transitionStatus,
-      expanded,
-      limited: toast.limited || false,
-      type: toast.type,
-      swiping: toastRoot.swiping,
-      swipeDirection: toastRoot.swipeDirection,
-    }),
-    [
-      expanded,
-      toast.transitionStatus,
-      toast.limited,
-      toast.type,
-      toastRoot.swiping,
-      toastRoot.swipeDirection,
-    ],
-  );
+  const state: ToastRoot.State = {
+    transitionStatus: toast.transitionStatus,
+    expanded,
+    limited: toast.limited || false,
+    type: toast.type,
+    swiping: toastRoot.swiping,
+    swipeDirection: toastRoot.swipeDirection,
+  };
 
   const element = useRenderElement('div', componentProps, {
     ref: [forwardedRef, toastRoot.rootRef],
