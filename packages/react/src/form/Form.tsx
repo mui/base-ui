@@ -28,6 +28,7 @@ export const Form = React.forwardRef(function Form<
     errors: externalErrors,
     onSubmit,
     onFormSubmit,
+    actionsRef,
     ...elementProps
   } = componentProps;
 
@@ -68,6 +69,25 @@ export const Form = React.forwardRef(function Form<
       focusControl(invalidFields[0].controlRef.current);
     }
   }, [errors, focusControl]);
+
+  const handleImperativeValidate = React.useCallback((fieldName?: string | undefined) => {
+    const values = Array.from(formRef.current.fields.values());
+
+    if (fieldName) {
+      const namedField = values.find((field) => field.name === fieldName);
+      if (namedField) {
+        namedField.validate(false);
+      }
+    } else {
+      values.forEach((field) => {
+        field.validate(false);
+      });
+    }
+  }, []);
+
+  React.useImperativeHandle(actionsRef, () => ({ validate: handleImperativeValidate }), [
+    handleImperativeValidate,
+  ]);
 
   const element = useRenderElement('form', componentProps, {
     ref: forwardedRef,
@@ -137,13 +157,19 @@ export const Form = React.forwardRef(function Form<
 }) as {
   <FormValues extends Record<string, any> = Record<string, any>>(
     props: Form.Props<FormValues> & {
-      ref?: React.Ref<HTMLFormElement>;
+      ref?: React.Ref<HTMLFormElement> | undefined;
     },
   ): React.JSX.Element;
 };
 
 export type FormSubmitEventReason = typeof REASONS.none;
 export type FormSubmitEventDetails = BaseUIGenericEventDetails<Form.SubmitEventReason>;
+
+export type FormValidationMode = 'onSubmit' | 'onBlur' | 'onChange';
+
+export interface FormActions {
+  validate: (fieldName?: string | undefined) => void;
+}
 
 export interface FormState {}
 
@@ -160,26 +186,40 @@ export interface FormProps<
    *
    * @default 'onSubmit'
    */
-  validationMode?: FormValidationMode;
+  validationMode?: FormValidationMode | undefined;
   /**
    * Validation errors returned externally, typically after submission by a server or a form action.
    * This should be an object where keys correspond to the `name` attribute on `<Field.Root>`,
    * and values correspond to error(s) related to that field.
    */
-  errors?: FormContext['errors'];
+  errors?: FormContext['errors'] | undefined;
   /**
    * Event handler called when the form is submitted.
    * `preventDefault()` is called on the native submit event when used.
    */
-  onFormSubmit?: (formValues: FormValues, eventDetails: Form.SubmitEventDetails) => void;
+  onFormSubmit?:
+    | ((formValues: FormValues, eventDetails: Form.SubmitEventDetails) => void)
+    | undefined;
+  /**
+   * A ref to imperative actions.
+   * - `validate`: Validates all fields when called. Optionally pass a field name to validate a single field.
+   * @example
+   * ```tsx
+   * // validate all fields
+   * actionsRef.current.validate();
+   *
+   * // validate one field
+   * actionsRef.current.validate('email');
+   * ```
+   */
+  actionsRef?: React.RefObject<Form.Actions | null> | undefined;
 }
-
-export type FormValidationMode = 'onSubmit' | 'onBlur' | 'onChange';
 
 export namespace Form {
   export type Props<FormValues extends Record<string, any> = Record<string, any>> =
     FormProps<FormValues>;
   export type State = FormState;
+  export type Actions = FormActions;
   export type ValidationMode = FormValidationMode;
   export type SubmitEventReason = FormSubmitEventReason;
   export type SubmitEventDetails = FormSubmitEventDetails;

@@ -4,6 +4,7 @@ import * as ReactDOM from 'react-dom';
 import { FocusableElement } from 'tabbable';
 import { useTimeout } from '@base-ui/utils/useTimeout';
 import { ownerDocument } from '@base-ui/utils/owner';
+import { fastComponentRef } from '@base-ui/utils/fastHooks';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
@@ -54,7 +55,7 @@ const BOUNDARY_OFFSET = 2;
  *
  * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
  */
-export const MenuTrigger = React.forwardRef(function MenuTrigger(
+export const MenuTrigger = fastComponentRef(function MenuTrigger(
   componentProps: MenuTrigger.Props,
   forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
@@ -207,7 +208,7 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
   });
 
   const focus = useFocus(floatingRootContext, {
-    enabled: !disabled && ((!isInMenubar && isOpenedByThisTrigger) || parentMenubarHasSubmenuOpen),
+    enabled: !disabled && parentMenubarHasSubmenuOpen,
   });
 
   const mixedToggleHandlers = useMixedToggleClickHandler({
@@ -292,12 +293,11 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
         );
       });
 
-      let nextTabbable = getTabbableAfterElement(triggerElementRef.current);
+      let nextTabbable = getTabbableAfterElement(
+        store.context.triggerFocusTargetRef.current || triggerElementRef.current,
+      );
 
-      while (
-        (nextTabbable !== null && contains(currentPositionerElement, nextTabbable)) ||
-        nextTabbable?.hasAttribute('aria-hidden')
-      ) {
+      while (nextTabbable !== null && contains(currentPositionerElement, nextTabbable)) {
         const prevTabbable = nextTabbable;
         nextTabbable = getNextTabbable(nextTabbable);
         if (nextTabbable === prevTabbable) {
@@ -368,22 +368,22 @@ export interface MenuTriggerProps<Payload = unknown>
    * Whether the component should ignore user interaction.
    * @default false
    */
-  disabled?: boolean;
+  disabled?: boolean | undefined;
   /**
    * A handle to associate the trigger with a menu.
    */
-  handle?: MenuHandle<Payload>;
+  handle?: MenuHandle<Payload> | undefined;
   /**
    * A payload to pass to the menu when it is opened.
    */
-  payload?: Payload;
+  payload?: Payload | undefined;
   /**
    * How long to wait before the menu may be opened on hover. Specified in milliseconds.
    *
    * Requires the `openOnHover` prop.
    * @default 100
    */
-  delay?: number;
+  delay?: number | undefined;
   /**
    * How long to wait before closing the menu that was opened on hover.
    * Specified in milliseconds.
@@ -391,11 +391,11 @@ export interface MenuTriggerProps<Payload = unknown>
    * Requires the `openOnHover` prop.
    * @default 0
    */
-  closeDelay?: number;
+  closeDelay?: number | undefined;
   /**
    * Whether the menu should also open when the trigger is hovered.
    */
-  openOnHover?: boolean;
+  openOnHover?: boolean | undefined;
 }
 
 export type MenuTriggerState = {

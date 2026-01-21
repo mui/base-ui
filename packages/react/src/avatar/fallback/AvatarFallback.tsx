@@ -52,7 +52,7 @@ export interface AvatarFallbackProps extends BaseUIComponentProps<'span', Avatar
   /**
    * How long to wait before showing the fallback. Specified in milliseconds.
    */
-  delay?: number;
+  delay?: number | undefined;
 }
 
 export namespace AvatarFallback {

@@ -1,6 +1,13 @@
 import * as React from 'react';
 import { expect } from 'chai';
-import { act, flushMicrotasks, waitFor, screen, fireEvent } from '@mui/internal-test-utils';
+import {
+  act,
+  fireEvent,
+  flushMicrotasks,
+  ignoreActWarnings,
+  screen,
+  waitFor,
+} from '@mui/internal-test-utils';
 import { DirectionProvider } from '@base-ui/react/direction-provider';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { Menu } from '@base-ui/react/menu';
@@ -1142,10 +1149,11 @@ describe('<Menu.Root />', () => {
 
         const submenuTrigger = screen.getByTestId('submenu-trigger');
 
-        fireEvent.mouseEnter(submenuTrigger);
-        fireEvent.mouseMove(submenuTrigger);
+        await userEvent.hover(submenuTrigger);
 
-        expect(screen.queryByTestId('submenu')).not.to.equal(null);
+        await waitFor(() => {
+          expect(screen.queryByTestId('submenu')).not.to.equal(null);
+        });
       });
 
       it('should not close when submenu is hovered after root menu is hovered', async () => {
@@ -1332,6 +1340,7 @@ describe('<Menu.Root />', () => {
       });
 
       it('triggers a menu item and closes the menu on click, drag, release', async () => {
+        ignoreActWarnings();
         const openChangeSpy = spy();
         const clickSpy = spy();
 

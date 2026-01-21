@@ -1,6 +1,6 @@
 {
   "name": "@base-ui/monorepo",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "private": true,
   "scripts": {
     "preinstall": "npx only-allow pnpm",
@@ -62,20 +62,20 @@
     "@arethetypeswrong/cli": "0.18.2",
     "@babel/plugin-transform-react-constant-elements": "7.27.1",
     "@base-ui/monorepo-tests": "workspace:*",
-    "@mui/internal-code-infra": "0.0.3-canary.65",
+    "@mui/internal-code-infra": "0.0.3-canary.73",
     "@mui/internal-netlify-cache": "0.0.2-canary.1",
-    "@mui/internal-test-utils": "2.0.18-canary.0",
+    "@mui/internal-test-utils": "2.0.18-canary.2",
     "@next/eslint-plugin-next": "16.1.1",
     "@octokit/rest": "22.0.1",
     "@playwright/test": "1.57.0",
     "@tailwindcss/postcss": "4.1.18",
     "@types/node": "22.18.13",
-    "@types/react": "19.2.7",
+    "@types/react": "19.2.8",
     "@types/yargs": "17.0.35",
     "@vitejs/plugin-react": "5.1.2",
-    "@vitest/browser-playwright": "4.0.16",
-    "@vitest/coverage-istanbul": "4.0.16",
-    "@vitest/ui": "4.0.16",
+    "@vitest/browser-playwright": "4.0.17",
+    "@vitest/coverage-istanbul": "4.0.17",
+    "@vitest/ui": "4.0.17",
     "chai-dom": "1.12.1",
     "chalk": "5.6.2",
     "concurrently": "9.2.1",
@@ -96,38 +96,29 @@
     "rimraf": "6.1.2",
     "serve": "14.2.5",
     "stylelint": "16.26.1",
-    "stylelint-config-tailwindcss": "1.0.0",
+    "stylelint-config-tailwindcss": "1.0.1",
     "tailwindcss": "4.1.18",
     "terser": "5.44.1",
     "tsx": "4.21.0",
     "typescript": "5.9.3",
-    "vite": "7.3.0",
-    "vitest": "4.0.16",
+    "vite": "7.3.1",
+    "vitest": "4.0.17",
     "yargs": "18.0.0"
   },
-  "packageManager": "pnpm@10.26.2",
+  "packageManager": "pnpm@10.28.0",
   "engines": {
-    "pnpm": "10.26.2",
+    "pnpm": "10.28.0",
     "node": ">=22.18.0"
   },
   "resolutions": {
-    "@babel/core": "^7.28.5",
+    "@babel/core": "^7.28.6",
     "@babel/plugin-transform-runtime": "^7.28.5",
-    "@babel/preset-env": "^7.28.5",
+    "@babel/preset-env": "^7.28.6",
     "@babel/preset-react": "^7.28.5",
     "@babel/preset-typescript": "^7.28.5",
-    "@babel/types": "^7.28.5",
+    "@babel/types": "^7.28.6",
     "@types/node": "22.18.13",
-    "@types/react": "19.2.7",
+    "@types/react": "19.2.8",
     "@types/react-dom": "^19.2.3"
-  },
-  "pnpm": {
-    "packageExtensions": {
-      "@mui/internal-test-utils": {
-        "dependencies": {
-          "lodash.kebabcase": "^4.1.1"
-        }
-      }
-    }
   }
 }

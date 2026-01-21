@@ -25,7 +25,7 @@
     },
     "defaultTriggerId": {
       "type": "string | null",
-      "description": "ID of the trigger that the popover is associated with.\nThis is useful in conjuntion with the `defaultOpen` prop to create an initially open popover.",
+      "description": "ID of the trigger that the popover is associated with.\nThis is useful in conjunction with the `defaultOpen` prop to create an initially open popover.",
       "detailedType": "string | null | undefined"
     },
     "handle": {
@@ -46,7 +46,7 @@
     },
     "triggerId": {
       "type": "string | null",
-      "description": "ID of the trigger that the popover is associated with.\nThis is useful in conjuntion with the `open` prop to create a controlled popover.\nThere's no need to specify this prop when the popover is uncontrolled (i.e. when the `open` prop is not set).",
+      "description": "ID of the trigger that the popover is associated with.\nThis is useful in conjunction with the `open` prop to create a controlled popover.\nThere's no need to specify this prop when the popover is uncontrolled (i.e. when the `open` prop is not set).",
       "detailedType": "string | null | undefined"
     },
     "children": {

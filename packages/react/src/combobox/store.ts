@@ -4,6 +4,7 @@ import type { TransitionStatus } from '../utils/useTransitionStatus';
 import type { HTMLProps } from '../utils/types';
 import type { Side } from '../utils/useAnchorPositioning';
 import { compareItemEquality } from '../utils/itemEquality';
+import { hasNullItemLabel } from '../utils/resolveValueLabel';
 import type { AriaCombobox } from './root/AriaCombobox';
 
 export type State = {
@@ -59,15 +60,15 @@ export type State = {
   setInputValue: (value: string, eventDetails: AriaCombobox.ChangeEventDetails) => void;
   setSelectedValue: (value: any, eventDetails: AriaCombobox.ChangeEventDetails) => void;
   setIndices: (indices: {
-    activeIndex?: number | null;
-    selectedIndex?: number | null;
-    type?: 'keyboard' | 'pointer' | 'none';
+    activeIndex?: (number | null) | undefined;
+    selectedIndex?: (number | null) | undefined;
+    type?: ('keyboard' | 'pointer' | 'none') | undefined;
   }) => void;
   onItemHighlighted: (item: any, eventDetails: AriaCombobox.HighlightEventDetails) => void;
   forceMount: () => void;
   handleSelection: (event: MouseEvent | PointerEvent | KeyboardEvent, passedValue?: any) => void;
   getItemProps: (
-    props?: HTMLProps & { active?: boolean; selected?: boolean },
+    props?: HTMLProps & { active?: boolean | undefined; selected?: boolean | undefined },
   ) => Record<string, unknown>;
   requestSubmit: () => void;
 
@@ -80,7 +81,7 @@ export type State = {
   virtualized: boolean;
   onOpenChangeComplete: (open: boolean) => void;
   openOnInputClick: boolean;
-  itemToStringLabel?: (item: any) => string;
+  itemToStringLabel?: ((item: any) => string) | undefined;
   isItemEqualToValue: (item: any, value: any) => boolean;
   modal: boolean;
   autoHighlight: false | 'always' | 'input-change';
@@ -98,6 +99,25 @@ export const selectors = {
   items: createSelector((state: State) => state.items),
 
   selectedValue: createSelector((state: State) => state.selectedValue),
+  hasSelectionChips: createSelector((state: State) => {
+    const selectedValue = state.selectedValue;
+    return Array.isArray(selectedValue) && selectedValue.length > 0;
+  }),
+
+  hasSelectedValue: createSelector((state: State) => {
+    const { selectedValue, selectionMode } = state;
+    if (selectedValue == null) {
+      return false;
+    }
+    if (selectionMode === 'multiple' && Array.isArray(selectedValue)) {
+      return selectedValue.length > 0;
+    }
+    return true;
+  }),
+
+  hasNullItemLabel: createSelector((state: State, enabled: boolean) => {
+    return enabled ? hasNullItemLabel(state.items) : false;
+  }),
 
   open: createSelector((state: State) => state.open),
   mounted: createSelector((state: State) => state.mounted),
