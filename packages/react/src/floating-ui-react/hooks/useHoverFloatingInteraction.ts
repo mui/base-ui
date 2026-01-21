@@ -15,8 +15,6 @@ import {
   safePolygonIdentifier,
   useHoverInteractionSharedState,
 } from './useHoverInteractionSharedState';
-import { getNodeChildren } from '../utils/nodes';
-import { contains } from '../utils/element';
 
 export type UseHoverFloatingInteractionProps = {
   /**
@@ -202,20 +200,6 @@ export function useHoverFloatingInteraction(
     // Ensure the floating element closes after scrolling even if the pointer
     // did not move.
     // https://github.com/floating-ui/floating-ui/discussions/1692
-    // Check if the target is inside any child floating element in the tree
-    // This handles portaled nested popups that aren't DOM children
-    function isTargetInsideChildFloating(target: Element | null): boolean {
-      if (!target || !tree) {
-        return false;
-      }
-      const nodeId = dataRef.current.floatingContext?.nodeId;
-      const children = getNodeChildren(tree.nodesRef.current, nodeId, false);
-      return children.some((child) => {
-        const childFloating = child.context?.elements.floating;
-        return childFloating && contains(childFloating, target);
-      });
-    }
-
     function onScrollMouseLeave(event: MouseEvent) {
       if (isClickLikeOpenEvent() || !dataRef.current.floatingContext || !store.select('open')) {
         return;
@@ -228,17 +212,13 @@ export function useHoverFloatingInteraction(
         return;
       }
 
-      // Don't close if leaving to an element inside the floating element
-      // (e.g., a nested preview card trigger)
-      const target = event.relatedTarget as Element | null;
-      if (target && floatingElement && floatingElement.contains(target)) {
+      // If the safePolygon handler is active, let it handle the close logic.
+      // The handler checks for open children in the floating tree.
+      if (handlerRef.current) {
+        handlerRef.current(event);
         return;
       }
 
-      // Don't close if leaving to a child floating element (handles portaled nested popups)
-      if (isTargetInsideChildFloating(target)) {
-        return;
-      }
       clearPointerEvents();
       cleanupMouseMoveHandler();
       if (!isClickLikeOpenEvent()) {
@@ -249,28 +229,17 @@ export function useHoverFloatingInteraction(
     function onFloatingMouseEnter(event: MouseEvent) {
       openChangeTimeout.clear();
       clearPointerEvents();
+      // Call the safePolygon handler if it exists, but DON'T clear it.
+      // The handler needs to remain active to detect when mouse leaves to
+      // a nested portaled popup. The safePolygon logic checks for open children
+      // in the floating tree and prevents closing when appropriate.
       handlerRef.current?.(event);
-      cleanupMouseMoveHandler();
     }
 
     function onFloatingMouseLeave(event: MouseEvent) {
-      if (isClickLikeOpenEvent()) {
-        return;
+      if (!isClickLikeOpenEvent()) {
+        closeWithDelay(event, false);
       }
-
-      // Don't close if leaving to an element inside the floating element
-      // (e.g., a nested preview card trigger)
-      const target = event.relatedTarget as Element | null;
-      if (target && floatingElement && floatingElement.contains(target)) {
-        return;
-      }
-
-      // Don't close if leaving to a child floating element (handles portaled nested popups)
-      if (isTargetInsideChildFloating(target)) {
-        return;
-      }
-
-      closeWithDelay(event, false);
     }
 
     const floating = floatingElement;
@@ -290,7 +259,6 @@ export function useHoverFloatingInteraction(
       }
     };
   }, [
-    tree,
     enabled,
     floatingElement,
     store,
