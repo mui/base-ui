@@ -1,10 +1,11 @@
 import { Menu } from '@base-ui/react/menu';
+import { Link } from 'react-router';
 
-export default function MenuLinkItemNavigation() {
+export default function ReactRouterLinkItemNavigation() {
   return (
     <div className="p-4">
       <h1 data-testid="page-heading" className="mb-4 text-2xl font-bold">
-        Menu with Link Items
+        Menu with React Router Link Items
       </h1>
 
       <Menu.Root>
@@ -21,6 +22,7 @@ export default function MenuLinkItemNavigation() {
               <Menu.LinkItem
                 data-testid="link-one"
                 href="/e2e-fixtures/menu/PageOne"
+                render={<Link to="/e2e-fixtures/menu/PageOne" />}
                 className="block rounded px-3 py-2 text-gray-900 hover:bg-gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-800 data-[highlighted]:bg-gray-900 data-[highlighted]:text-gray-50"
               >
                 Page one
@@ -29,9 +31,10 @@ export default function MenuLinkItemNavigation() {
               <Menu.LinkItem
                 data-testid="link-two"
                 href="/e2e-fixtures/menu/PageTwo"
+                render={<Link to="/e2e-fixtures/menu/PageTwo" />}
                 className="block rounded px-3 py-2 text-gray-900 hover:bg-gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-800 data-[highlighted]:bg-gray-900 data-[highlighted]:text-gray-50"
               >
-                Page one
+                Page two
               </Menu.LinkItem>
             </Menu.Popup>
           </Menu.Positioner>

@@ -231,7 +231,7 @@ describe('e2e', () => {
         await expect(page.getByTestId('test-page')).toHaveText('Page one');
 
         await page.goBack();
-        await expect(page).toHaveURL(/\/e2e-fixtures\/menu\/LinkItemNavigation/);
+        await expect(page.getByTestId('page-heading')).toHaveText('Menu with Link Items');
 
         await trigger.click();
         const linkTwo = page.getByTestId('link-two');
@@ -249,6 +249,31 @@ describe('e2e', () => {
         // first item (page one) is initially highlighted
         await page.keyboard.press('ArrowDown');
         await page.keyboard.press('Enter');
+
+        await expect(page).toHaveURL(/\/e2e-fixtures\/menu\/PageTwo/);
+        await expect(page.getByTestId('test-page')).toHaveText('Page two');
+      });
+
+      it('navigates when rendering React Router Link component', async () => {
+        await renderFixture('menu/ReactRouterLinkItemNavigation');
+
+        const trigger = page.getByTestId('menu-trigger');
+        await trigger.click();
+
+        const linkOne = page.getByTestId('link-one');
+        await linkOne.click();
+
+        await expect(page).toHaveURL(/\/e2e-fixtures\/menu\/PageOne/);
+        await expect(page.getByTestId('test-page')).toHaveText('Page one');
+
+        await page.goBack();
+        await expect(page.getByTestId('page-heading')).toHaveText(
+          'Menu with React Router Link Items',
+        );
+
+        await trigger.click();
+        const linkTwo = page.getByTestId('link-two');
+        await linkTwo.click();
 
         await expect(page).toHaveURL(/\/e2e-fixtures\/menu\/PageTwo/);
         await expect(page.getByTestId('test-page')).toHaveText('Page two');
