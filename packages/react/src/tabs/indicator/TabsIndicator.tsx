@@ -12,6 +12,7 @@ import { useTabsListContext } from '../list/TabsListContext';
 import type { TabsTab } from '../tab/TabsTab';
 import { script as prehydrationScript } from './prehydrationScript.min';
 import { TabsIndicatorCssVars } from './TabsIndicatorCssVars';
+import { useCSPContext } from '../../csp-provider/CSPContext';
 
 const stateAttributesMapping = {
   ...tabsStateAttributesMapping,
@@ -30,6 +31,8 @@ export const TabsIndicator = React.forwardRef(function TabIndicator(
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
   const { className, render, renderBeforeHydration = false, ...elementProps } = componentProps;
+
+  const { nonce } = useCSPContext();
 
   const { getTabElementBySelectedValue, orientation, tabActivationDirection, value } =
     useTabsRootContext();
@@ -175,6 +178,7 @@ export const TabsIndicator = React.forwardRef(function TabIndicator(
       {element}
       {!isMounted && renderBeforeHydration && (
         <script
+          nonce={nonce}
           // eslint-disable-next-line react/no-danger
           dangerouslySetInnerHTML={{ __html: prehydrationScript }}
           suppressHydrationWarning
@@ -196,7 +200,7 @@ export interface TabsIndicatorProps extends BaseUIComponentProps<'span', TabsInd
    * This minimizes the time that the indicator isn’t visible after server-side rendering.
    * @default false
    */
-  renderBeforeHydration?: boolean;
+  renderBeforeHydration?: boolean | undefined;
 }
 
 export namespace TabsIndicator {

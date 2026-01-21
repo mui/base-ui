@@ -50,11 +50,11 @@ export interface DialogPortalProps extends FloatingPortal.Props<DialogPortal.Sta
    * Whether to keep the portal mounted in the DOM while the popup is hidden.
    * @default false
    */
-  keepMounted?: boolean;
+  keepMounted?: boolean | undefined;
   /**
    * A parent element to render the portal element into.
    */
-  container?: FloatingPortal.Props<DialogPortal.State>['container'];
+  container?: FloatingPortal.Props<DialogPortal.State>['container'] | undefined;
 }
 
 export namespace DialogPortal {

@@ -22,22 +22,30 @@ export const SelectValue = React.forwardRef(function SelectValue(
   componentProps: SelectValue.Props,
   forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
-  const { className, render, children: childrenProp, ...elementProps } = componentProps;
+  const {
+    className,
+    render,
+    children: childrenProp,
+    placeholder,
+    ...elementProps
+  } = componentProps;
 
   const { store, valueRef } = useSelectRootContext();
 
   const value = useStore(store, selectors.value);
   const items = useStore(store, selectors.items);
   const itemToStringLabel = useStore(store, selectors.itemToStringLabel);
-  const serializedValue = useStore(store, selectors.serializedValue);
-  const multiple = useStore(store, selectors.multiple);
+  const hasSelectedValue = useStore(store, selectors.hasSelectedValue);
+
+  const shouldCheckNullItemLabel = !hasSelectedValue && placeholder != null && childrenProp == null;
+  const hasNullLabel = useStore(store, selectors.hasNullItemLabel, shouldCheckNullItemLabel);
 
   const state: SelectValue.State = React.useMemo(
     () => ({
       value,
-      placeholder: !serializedValue,
+      placeholder: !hasSelectedValue,
     }),
-    [value, serializedValue],
+    [value, hasSelectedValue],
   );
 
   let children = null;
@@ -45,7 +53,9 @@ export const SelectValue = React.forwardRef(function SelectValue(
     children = childrenProp(value);
   } else if (childrenProp != null) {
     children = childrenProp;
-  } else if (multiple && Array.isArray(value)) {
+  } else if (!hasSelectedValue && placeholder != null && !hasNullLabel) {
+    children = placeholder;
+  } else if (Array.isArray(value)) {
     children = resolveMultipleLabels(value, items, itemToStringLabel);
   } else {
     children = resolveSelectedLabel(value, items, itemToStringLabel);
@@ -82,6 +92,11 @@ export interface SelectValueProps extends Omit<
    * ```
    */
   children?: React.ReactNode | ((value: any) => React.ReactNode);
+  /**
+   * The placeholder value to display when no value is selected.
+   * This is overridden by `children` if specified, or by a null item's label in `items`.
+   */
+  placeholder?: React.ReactNode;
 }
 
 export namespace SelectValue {

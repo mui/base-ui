@@ -19,7 +19,7 @@ import { useRenderElement } from '../../utils/useRenderElement';
  */
 export const NavigationMenuList = React.forwardRef(function NavigationMenuList(
   componentProps: NavigationMenuList.Props,
-  forwardedRef: React.ForwardedRef<HTMLDivElement>,
+  forwardedRef: React.ForwardedRef<HTMLUListElement>,
 ) {
   const { className, render, ...elementProps } = componentProps;
 

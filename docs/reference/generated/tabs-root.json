@@ -5,11 +5,13 @@
     "defaultValue": {
       "type": "Tabs.Tab.Value",
       "default": "0",
-      "description": "The default value. Use when the component is not controlled.\nWhen the value is `null`, no Tab will be active."
+      "description": "The default value. Use when the component is not controlled.\nWhen the value is `null`, no Tab will be active.",
+      "detailedType": "Tabs.Tab.Value | undefined"
     },
     "value": {
       "type": "Tabs.Tab.Value",
-      "description": "The value of the currently active `Tab`. Use when the component is controlled.\nWhen the value is `null`, no Tab will be active."
+      "description": "The value of the currently active `Tab`. Use when the component is controlled.\nWhen the value is `null`, no Tab will be active.",
+      "detailedType": "Tabs.Tab.Value | undefined"
     },
     "onValueChange": {
       "type": "((value: Tabs.Tab.Value, eventDetails: Tabs.Root.ChangeEventDetails<'none', { activationDirection: Tabs.Tab.ActivationDirection }>) => void)",

@@ -1,0 +1,33 @@
+{
+  "name": "mergeProps",
+  "description": "Merges multiple sets of React props. It follows the Object.assign pattern where the rightmost object's fields overwrite\nthe conflicting ones from others. This doesn't apply to event handlers, `className` and `style` props.\n\nEvent handlers are merged and called in right-to-left order (rightmost handler executes first, leftmost last).\nFor React synthetic events, the rightmost handler can prevent prior (left-positioned) handlers from executing\nby calling `event.preventBaseUIHandler()`. For non-synthetic events (custom events with primitive/object values),\nall handlers always execute without prevention capability.\n\nThe `className` prop is merged by concatenating classes in right-to-left order (rightmost class appears first in the string).\nThe `style` prop is merged with rightmost styles overwriting the prior ones.\n\nProps can either be provided as objects or as functions that take the previous props as an argument.\nThe function will receive the merged props up to that point (going from left to right):\nso in the case of `(obj1, obj2, fn, obj3)`, `fn` will receive the merged props of `obj1` and `obj2`.\nThe function is responsible for chaining event handlers if needed (i.e. we don't run the merge logic).\n\nEvent handlers returned by the functions are not automatically prevented when `preventBaseUIHandler` is called.\nThey must check `event.baseUIHandlerPrevented` themselves and bail out if it's true.\n\n**`ref` is not merged.**",
+  "parameters": {
+    "a": {
+      "type": "InputProps<ElementType>",
+      "description": "Props object to merge."
+    },
+    "b": {
+      "type": "InputProps<ElementType>",
+      "description": "Props object to merge. The function will overwrite conflicting props from `a`."
+    },
+    "c": {
+      "type": "InputProps<ElementType>",
+      "optional": true,
+      "description": "Props object to merge. The function will overwrite conflicting props from previous parameters."
+    },
+    "d": {
+      "type": "InputProps<ElementType>",
+      "optional": true,
+      "description": "Props object to merge. The function will overwrite conflicting props from previous parameters."
+    },
+    "e": {
+      "type": "InputProps<ElementType>",
+      "optional": true,
+      "description": "Props object to merge. The function will overwrite conflicting props from previous parameters."
+    }
+  },
+  "returnValue": {
+    "type": "{}",
+    "description": "The merged props."
+  }
+}
