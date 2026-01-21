@@ -153,6 +153,9 @@ export const ContextMenuTrigger = React.forwardRef(function ContextMenuTrigger(
 
   React.useEffect(() => {
     function handleDocumentContextMenu(event: MouseEvent) {
+      if (disabled) {
+        return;
+      }
       const target = getTarget(event);
       const targetElement = target as HTMLElement | null;
       if (
@@ -169,7 +172,7 @@ export const ContextMenuTrigger = React.forwardRef(function ContextMenuTrigger(
     return () => {
       doc.removeEventListener('contextmenu', handleDocumentContextMenu);
     };
-  }, [backdropRef, internalBackdropRef]);
+  }, [backdropRef, disabled, internalBackdropRef]);
 
   const state: ContextMenuTrigger.State = React.useMemo(
     () => ({

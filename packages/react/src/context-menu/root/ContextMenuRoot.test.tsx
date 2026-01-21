@@ -1,5 +1,4 @@
-import { expect } from 'chai';
-import { expect as expect2, vi } from 'vitest';
+import { expect, vi } from 'vitest';
 import {
   fireEvent,
   flushMicrotasks,
@@ -217,8 +216,8 @@ describe('<ContextMenu.Root />', () => {
       fireEvent.contextMenu(trigger, { clientX: 10, clientY: 10, button: 2 });
       await flushMicrotasks();
 
-      expect2(screen.queryByTestId('context-popup')).toBe(null);
-      expect2(onOpenChange).toHaveBeenCalledTimes(0);
+      expect(screen.queryByTestId('context-popup')).toBe(null);
+      expect(onOpenChange).toHaveBeenCalledTimes(0);
     });
   });
 });

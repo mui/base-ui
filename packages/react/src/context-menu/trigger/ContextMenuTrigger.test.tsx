@@ -1,5 +1,4 @@
-import { expect } from 'chai';
-import { expect as expect2, vi } from 'vitest';
+import { expect, vi } from 'vitest';
 import { fireEvent, flushMicrotasks, screen } from '@mui/internal-test-utils';
 import { spy } from 'sinon';
 import { ContextMenu } from '@base-ui/react/context-menu';
@@ -155,8 +154,37 @@ describe('<ContextMenu.Trigger />', () => {
       fireEvent.contextMenu(trigger);
       await flushMicrotasks();
 
-      expect2(screen.queryByTestId('popup')).toBe(null);
-      expect2(onOpenChange).toHaveBeenCalledTimes(0);
+      expect(screen.queryByTestId('popup')).toBe(null);
+      expect(onOpenChange).toHaveBeenCalledTimes(0);
+    });
+
+    it('does not block the native context menu when disabled', async () => {
+      await render(
+        <ContextMenu.Root disabled>
+          <ContextMenu.Trigger data-testid="trigger">Right click me</ContextMenu.Trigger>
+          <ContextMenu.Portal>
+            <ContextMenu.Positioner>
+              <ContextMenu.Popup data-testid="popup" />
+            </ContextMenu.Positioner>
+          </ContextMenu.Portal>
+        </ContextMenu.Root>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+
+      let defaultPrevented = false;
+      trigger.addEventListener(
+        'contextmenu',
+        (event) => {
+          defaultPrevented = event.defaultPrevented;
+        },
+        { capture: false },
+      );
+
+      fireEvent.contextMenu(trigger);
+      await flushMicrotasks();
+
+      expect(defaultPrevented).toBe(false);
     });
   });
 
@@ -266,8 +294,8 @@ describe('<ContextMenu.Trigger />', () => {
 
       clock.tick(500);
 
-      expect2(screen.queryByTestId('popup')).toBe(null);
-      expect2(onOpenChange).toHaveBeenCalledTimes(0);
+      expect(screen.queryByTestId('popup')).toBe(null);
+      expect(onOpenChange).toHaveBeenCalledTimes(0);
     });
   });
 
