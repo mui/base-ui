@@ -57,6 +57,23 @@ import { DemoSliderEdgeAlignment } from './demos/edge-alignment';
 
 <DemoSliderEdgeAlignment compact />
 
+### Non-linear scaling
+
+Slider values are distributed evenly across `<Slider.Control>` by default. The `scale` prop can be used to control how values map to positions on the slider, allowing non-linear distributions such as logarithmic scales that cover a large range of values while offering more fine-grained control over certains areas of the range.
+
+The `scale` prop is an object containing two functions:
+
+1. `positionToValue` receives the relative position as a number between 0–1 and returns the value at that position.
+2. `valueToPosition` receives a value and returns the relative position as a number between 0–1.
+
+Additionally, `initialPosition` should be specified on each slider thumb. This is typically the result of calling your `valueToPosition` function with the initial value represented by each thumb.
+
+The following example shows a base-10 logarithmic scale:
+
+import { DemoLogSlider } from './demos/non-linear';
+
+<DemoLogSlider compact />
+
 ### Labeling a slider
 
 A single-thumb slider without a visible label (such as a volume control) can be labeled using `aria-label` on `<Slider.Thumb>`:
