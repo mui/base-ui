@@ -11,8 +11,8 @@
     "typescript": "tsc -b tsconfig.json"
   },
   "dependencies": {
-    "@base-ui-components/react": "latest",
-    "@base-ui-components/utils": "latest",
+    "@base-ui/react": "latest",
+    "@base-ui/utils": "latest",
     "@tanstack/react-devtools": "^0.8.1",
     "@tanstack/react-router": "^1.139.0",
     "@tanstack/react-router-devtools": "^1.139.0",
