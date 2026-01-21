@@ -89,7 +89,7 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
   const id = useBaseUiId();
   const inputId = useLabelableId({
     id: idProp,
-    implicit: false,
+    implicit: true,
     controlRef: radioRef,
   });
   const hiddenInputId = nativeButton ? undefined : inputId;

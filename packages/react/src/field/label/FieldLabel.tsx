@@ -84,14 +84,16 @@ export const FieldLabel = React.forwardRef(function FieldLabel(
   }
 
   useIsoLayoutEffect(() => {
-    if (id) {
+    if (controlId == null) {
+      setLabelId(undefined);
+    } else if (id) {
       setLabelId(id);
     }
 
     return () => {
       setLabelId(undefined);
     };
-  }, [id, setLabelId]);
+  }, [id, setLabelId, controlId]);
 
   const element = useRenderElement('label', componentProps, {
     ref: [forwardedRef, labelRef],

@@ -141,7 +141,11 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
       return undefined;
     }
 
-    setControlId(inputId);
+    if (controlRef.current != null && controlRef.current.closest('label')) {
+      setControlId(null);
+    } else {
+      setControlId(inputId);
+    }
 
     return () => {
       setControlId(undefined);

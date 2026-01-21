@@ -10,6 +10,57 @@ import { RadioGroup } from '@base-ui/react/radio-group';
 import styles from './form.module.css';
 import { CheckIcon } from './_icons';
 
+function ToppingsCheckboxGroup() {
+  return (
+    <Field.Root
+      name="toppings"
+      className={styles.Field}
+      validate={(value) => {
+        return (value as string[]).length === 0 ? 'Required' : null;
+      }}
+      render={
+        <Fieldset.Root
+          render={<CheckboxGroup defaultValue={[]} className={styles.CheckboxGroup} />}
+        />
+      }
+    >
+      <Fieldset.Legend className={styles.Legend}>Toppings</Fieldset.Legend>
+
+      <Field.Label className={styles.Label}>
+        <Checkbox.Root value="anchovies" className={styles.Checkbox}>
+          <Checkbox.Indicator className={styles.CheckboxIndicator}>
+            <CheckIcon className={styles.Icon} />
+          </Checkbox.Indicator>
+        </Checkbox.Root>
+        Anchovies
+      </Field.Label>
+
+      <Field.Label className={styles.Label}>
+        <Checkbox.Root value="sausage" className={styles.Checkbox}>
+          <Checkbox.Indicator className={styles.CheckboxIndicator}>
+            <CheckIcon className={styles.Icon} />
+          </Checkbox.Indicator>
+        </Checkbox.Root>
+        Sausage
+        <Field.Description className={styles.Description} style={{ marginLeft: -4 }}>
+          – very spicy, you have been warned
+        </Field.Description>
+      </Field.Label>
+
+      <Field.Label className={styles.Label}>
+        <Checkbox.Root value="broccolini" className={styles.Checkbox}>
+          <Checkbox.Indicator className={styles.CheckboxIndicator}>
+            <CheckIcon className={styles.Icon} />
+          </Checkbox.Indicator>
+        </Checkbox.Root>
+        Broccolini
+      </Field.Label>
+
+      <Field.Error className={styles.Error} />
+    </Field.Root>
+  );
+}
+
 function PullRequestsCheckboxGroup() {
   return (
     <Field.Root
@@ -186,9 +237,10 @@ export default function ButtonControlsForm() {
         fontFamily: 'var(--font-sans)',
       }}
     >
-      <PullRequestsCheckboxGroup />
-      <StickersRadioGroup />
-      <DmSpamRadioGroup />
+      <ToppingsCheckboxGroup />
+      {/*<StickersRadioGroup />*/}
+      {/*<PullRequestsCheckboxGroup />
+      <DmSpamRadioGroup />*/}
 
       <button type="submit" className={styles.Button}>
         Submit
