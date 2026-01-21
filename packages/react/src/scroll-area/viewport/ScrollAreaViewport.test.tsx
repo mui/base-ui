@@ -1,10 +1,13 @@
 import { ScrollArea } from '@base-ui/react/scroll-area';
 import { createRenderer, isJSDOM, describeConformance } from '#test-utils';
-import { screen } from '@mui/internal-test-utils';
+import { fireEvent, screen } from '@mui/internal-test-utils';
 import { expect } from 'chai';
+import { SCROLL_TIMEOUT } from '../constants';
 
 describe('<ScrollArea.Viewport />', () => {
-  const { render } = createRenderer();
+  const { render, clock } = createRenderer();
+
+  clock.withFakeTimers();
 
   describeConformance(<ScrollArea.Viewport />, () => ({
     refInstanceof: window.HTMLDivElement,
@@ -12,6 +15,41 @@ describe('<ScrollArea.Viewport />', () => {
       return render(<ScrollArea.Root>{node}</ScrollArea.Root>);
     },
   }));
+
+  it('adds [data-scrolling] attribute when viewport is scrolled', async () => {
+    await render(
+      <ScrollArea.Root style={{ width: 200, height: 200 }}>
+        <ScrollArea.Viewport data-testid="viewport" style={{ width: '100%', height: '100%' }}>
+          <div style={{ width: 1000, height: 1000 }} />
+        </ScrollArea.Viewport>
+        <ScrollArea.Scrollbar orientation="vertical" keepMounted />
+        <ScrollArea.Scrollbar orientation="horizontal" keepMounted />
+      </ScrollArea.Root>,
+    );
+
+    const viewport = screen.getByTestId('viewport');
+
+    expect(viewport).not.to.have.attribute('data-scrolling');
+
+    fireEvent.pointerEnter(viewport);
+    fireEvent.scroll(viewport, { target: { scrollTop: 1 } });
+
+    expect(viewport).to.have.attribute('data-scrolling', '');
+
+    await clock.tickAsync(SCROLL_TIMEOUT);
+
+    expect(viewport).not.to.have.attribute('data-scrolling');
+
+    // Test horizontal scrolling
+    fireEvent.pointerEnter(viewport);
+    fireEvent.scroll(viewport, { target: { scrollLeft: 1 } });
+
+    expect(viewport).to.have.attribute('data-scrolling', '');
+
+    await clock.tickAsync(SCROLL_TIMEOUT);
+
+    expect(viewport).not.to.have.attribute('data-scrolling');
+  });
 
   describe.skipIf(isJSDOM)('overflow data attributes (viewport)', () => {
     const VIEWPORT_SIZE = 200;
