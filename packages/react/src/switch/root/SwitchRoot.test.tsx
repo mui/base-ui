@@ -237,6 +237,24 @@ describe('<Switch.Root />', () => {
     expect(switchElement).not.to.have.attribute('name');
   });
 
+  it('should not set the value attribute by default', async () => {
+    await render(<Switch.Root />);
+
+    const input = screen.getByRole('checkbox', { hidden: true });
+
+    expect(input).not.to.have.attribute('value');
+  });
+
+  it('should set the value attribute only on the input', async () => {
+    await render(<Switch.Root value="1" />);
+
+    const switchElement = screen.getByRole('switch');
+    const input = screen.getByRole('checkbox', { hidden: true });
+
+    expect(input).to.have.attribute('value', '1');
+    expect(switchElement).not.to.have.attribute('value');
+  });
+
   describe('with native <label>', () => {
     it('should toggle the switch when a wrapping <label> is clicked', async () => {
       const { user } = await render(
@@ -796,7 +814,7 @@ describe('<Switch.Root />', () => {
         it('when rendering a non-native label', async () => {
           await render(
             <Field.Root>
-              <Field.Label data-testid="label" render={<span />}>
+              <Field.Label data-testid="label" render={<span />} nativeLabel={false}>
                 <Switch.Root data-testid="button" />
               </Field.Label>
             </Field.Root>,
@@ -804,14 +822,11 @@ describe('<Switch.Root />', () => {
 
           const label = screen.getByTestId('label');
           const switchEl = screen.getByRole('switch');
-          const input = document.querySelector('input[type="checkbox"]');
 
-          expect(label.getAttribute('for')).not.to.equal(null);
+          expect(label.getAttribute('for')).to.equal(null);
           expect(label.getAttribute('id')).not.to.equal(null);
 
-          expect(label.getAttribute('for')).to.equal(input?.getAttribute('id'));
           expect(switchEl.getAttribute('aria-labelledby')).to.equal(label.getAttribute('id'));
-
           expect(switchEl).to.have.attribute('aria-checked', 'false');
 
           // non-native labels cannot toggle a non-native-button switch

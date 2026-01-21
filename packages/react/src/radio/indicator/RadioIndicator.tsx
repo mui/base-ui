@@ -67,7 +67,7 @@ export interface RadioIndicatorProps extends BaseUIComponentProps<'span', RadioI
    * Whether to keep the HTML element in the DOM when the radio button is inactive.
    * @default false
    */
-  keepMounted?: boolean;
+  keepMounted?: boolean | undefined;
 }
 
 export interface RadioIndicatorState {

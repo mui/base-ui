@@ -19,18 +19,34 @@
       "detailedType": "| ((\n    open: boolean,\n    eventDetails: PreviewCard.Root.ChangeEventDetails,\n  ) => void)\n| undefined"
     },
     "actionsRef": {
-      "type": "RefObject<PreviewCard.Root.Actions>",
-      "description": "A ref to imperative actions.\n- `unmount`: When specified, the preview card will not be unmounted when closed.\nInstead, the `unmount` function must be called to unmount the preview card manually.\nUseful when the preview card's animation is controlled by an external library.",
-      "detailedType": "| React.RefObject<PreviewCard.Root.Actions>\n| undefined"
+      "type": "RefObject<PreviewCard.Root.Actions | null>",
+      "description": "A ref to imperative actions.\n- `unmount`: Unmounts the preview card popup.\n- `close`: Closes the preview card imperatively when called.",
+      "detailedType": "| React.RefObject<PreviewCard.Root.Actions | null>\n| undefined"
+    },
+    "defaultTriggerId": {
+      "type": "string | null",
+      "description": "ID of the trigger that the preview card is associated with.\nThis is useful in conjunction with the `defaultOpen` prop to create an initially open preview card.",
+      "detailedType": "string | null | undefined"
+    },
+    "handle": {
+      "type": "PreviewCard.Handle<Payload>",
+      "description": "A handle to associate the preview card with a trigger.\nIf specified, allows external triggers to control the card's open state.\nCan be created with the PreviewCard.createHandle() method.",
+      "detailedType": "{} | undefined"
     },
     "onOpenChangeComplete": {
       "type": "((open: boolean) => void)",
       "description": "Event handler called after any animations complete when the preview card is opened or closed.",
       "detailedType": "((open: boolean) => void) | undefined"
     },
+    "triggerId": {
+      "type": "string | null",
+      "description": "ID of the trigger that the preview card is associated with.\nThis is useful in conjuntion with the `open` prop to create a controlled preview card.\nThere's no need to specify this prop when the preview card is uncontrolled (i.e. when the `open` prop is not set).",
+      "detailedType": "string | null | undefined"
+    },
     "children": {
-      "type": "ReactNode",
-      "detailedType": "React.ReactNode"
+      "type": "ReactNode | PayloadChildRenderFunction<Payload>",
+      "description": "The content of the preview card.\nThis can be a regular React node or a render function that receives the `payload` of the active trigger.",
+      "detailedType": "| React.ReactNode\n| ((arg: { payload: Payload | undefined }) => ReactNode)"
     }
   },
   "dataAttributes": {},

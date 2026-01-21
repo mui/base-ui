@@ -23,7 +23,7 @@ export interface DirectionProviderProps {
    * The reading direction of the text
    * @default 'ltr'
    */
-  direction?: TextDirection;
+  direction?: TextDirection | undefined;
 }
 
 export namespace DirectionProvider {

@@ -81,23 +81,25 @@ export interface CollapsibleRootProps extends BaseUIComponentProps<'div', Collap
    *
    * To render an uncontrolled collapsible, use the `defaultOpen` prop instead.
    */
-  open?: boolean;
+  open?: boolean | undefined;
   /**
    * Whether the collapsible panel is initially open.
    *
    * To render a controlled collapsible, use the `open` prop instead.
    * @default false
    */
-  defaultOpen?: boolean;
+  defaultOpen?: boolean | undefined;
   /**
    * Event handler called when the panel is opened or closed.
    */
-  onOpenChange?: (open: boolean, eventDetails: CollapsibleRootChangeEventDetails) => void;
+  onOpenChange?:
+    | ((open: boolean, eventDetails: CollapsibleRootChangeEventDetails) => void)
+    | undefined;
   /**
    * Whether the component should ignore user interaction.
    * @default false
    */
-  disabled?: boolean;
+  disabled?: boolean | undefined;
 }
 
 export type CollapsibleRootChangeEventReason = typeof REASONS.triggerPress | typeof REASONS.none;

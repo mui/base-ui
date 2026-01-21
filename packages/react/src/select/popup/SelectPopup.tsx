@@ -29,6 +29,7 @@ import { useToolbarRootContext } from '../../toolbar/root/ToolbarRootContext';
 import { COMPOSITE_KEYS } from '../../composite/composite';
 import { getDisabledMountTransitionStyles } from '../../utils/getDisabledMountTransitionStyles';
 import { clamp } from '../../utils/clamp';
+import { useCSPContext } from '../../csp-provider/CSPContext';
 
 const stateAttributesMapping: StateAttributesMapping<SelectPopup.State> = {
   ...popupStateMapping,
@@ -71,6 +72,8 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
   const insideToolbar = useToolbarRootContext(true) != null;
   const floatingRootContext = useSelectFloatingContext();
 
+  const { nonce, disableStyleElements } = useCSPContext();
+
   const highlightTimeout = useTimeout();
 
   const id = useStore(store, selectors.id);
@@ -108,6 +111,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
     const positionerStyles = getComputedStyle(positionerElement);
     const marginTop = parseFloat(positionerStyles.marginTop);
     const marginBottom = parseFloat(positionerStyles.marginBottom);
+    const maxPopupHeight = getMaxPopupHeight(getComputedStyle(popupRef.current));
     const viewportHeight = doc.documentElement.clientHeight - marginTop - marginBottom;
 
     const scrollTop = scroller.scrollTop;
@@ -115,7 +119,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
     const clientHeight = scroller.clientHeight;
     const maxScrollTop = scrollHeight - clientHeight;
 
-    let nextPositionerHeight: number | null = null;
+    let nextPositionerHeight = 0;
     let nextScrollTop: number | null = null;
     let setReachedMax = false;
 
@@ -150,13 +154,13 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
       }
     }
 
-    if (nextPositionerHeight != null) {
+    if (nextPositionerHeight !== 0) {
       positionerElement.style.height = `${nextPositionerHeight}px`;
     }
     if (nextScrollTop != null) {
       scroller.scrollTop = nextScrollTop;
     }
-    if (setReachedMax) {
+    if (setReachedMax || nextPositionerHeight >= maxPopupHeight) {
       reachedMaxHeightRef.current = true;
     }
 
@@ -264,6 +268,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
         const marginTop = parseFloat(positionerStyles.marginTop) || 10;
         const marginBottom = parseFloat(positionerStyles.marginBottom) || 10;
         const minHeight = parseFloat(positionerStyles.minHeight) || 100;
+        const maxPopupHeight = getMaxPopupHeight(popupStyles);
 
         const paddingLeft = 5;
         const paddingRight = 5;
@@ -359,7 +364,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
           popupElement.style.setProperty('--transform-origin', `50% ${clampedY}%`);
         }
 
-        if (initialHeightRef.current === viewportHeight) {
+        if (initialHeightRef.current === viewportHeight || height >= maxPopupHeight) {
           reachedMaxHeightRef.current = true;
         }
 
@@ -469,7 +474,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
 
   return (
     <React.Fragment>
-      {styleDisableScrollbar.element}
+      {!disableStyleElements && styleDisableScrollbar.getElement(nonce)}
       <FloatingFocusManager
         context={floatingRootContext}
         modal={false}
@@ -496,6 +501,11 @@ export interface SelectPopupState {
 export namespace SelectPopup {
   export type Props = SelectPopupProps;
   export type State = SelectPopupState;
+}
+
+function getMaxPopupHeight(popupStyles: CSSStyleDeclaration) {
+  const maxHeightStyle = popupStyles.maxHeight || '';
+  return maxHeightStyle.endsWith('px') ? parseFloat(maxHeightStyle) || Infinity : Infinity;
 }
 
 const UNSET_TRANSFORM_STYLES = {
