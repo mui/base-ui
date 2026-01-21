@@ -4,6 +4,7 @@ import * as ReactDOM from 'react-dom';
 import { FocusableElement } from 'tabbable';
 import { useTimeout } from '@base-ui/utils/useTimeout';
 import { ownerDocument } from '@base-ui/utils/owner';
+import { fastComponentRef } from '@base-ui/utils/fastHooks';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
@@ -37,7 +38,7 @@ import { findRootOwnerId } from '../utils/findRootOwnerId';
 import { useTriggerDataForwarding } from '../../utils/popups';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { REASONS } from '../../utils/reasons';
-import { useMixedToggleClickHandler } from '../../utils/useMixedToggleClickHander';
+import { useMixedToggleClickHandler } from '../../utils/useMixedToggleClickHandler';
 import { MenuHandle } from '../store/MenuHandle';
 import { useContextMenuRootContext } from '../../context-menu/root/ContextMenuRootContext';
 import { useMenubarContext } from '../../menubar/MenubarContext';
@@ -54,7 +55,7 @@ const BOUNDARY_OFFSET = 2;
  *
  * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
  */
-export const MenuTrigger = React.forwardRef(function MenuTrigger(
+export const MenuTrigger = fastComponentRef(function MenuTrigger(
   componentProps: MenuTrigger.Props,
   forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
@@ -112,9 +113,10 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
     },
   );
 
+  const isInMenubar = parent.type === 'menubar';
+
   const rootDisabled = store.useState('disabled');
-  const disabled =
-    disabledProp || rootDisabled || (parent.type === 'menubar' && parent.context.disabled);
+  const disabled = disabledProp || rootDisabled || (isInMenubar && parent.context.disabled);
 
   const { getButtonProps, buttonRef } = useButton({
     disabled,
@@ -173,16 +175,16 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
     }
   }, [isOpenedByThisTrigger, handleDocumentMouseUp, store]);
 
-  const parentMenubarHasSubmenuOpen = parent.type === 'menubar' && parent.context.hasSubmenuOpen;
-  const openOnHover = openOnHoverProp ?? parentMenubarHasSubmenuOpen ?? false;
+  const parentMenubarHasSubmenuOpen = isInMenubar && parent.context.hasSubmenuOpen;
+  const openOnHover = openOnHoverProp ?? parentMenubarHasSubmenuOpen;
 
   const hoverProps = useHoverReferenceInteraction(floatingRootContext, {
     enabled:
       openOnHover &&
       !disabled &&
       parent.type !== 'context-menu' &&
-      (parent.type !== 'menubar' || (parentMenubarHasSubmenuOpen && !isMountedByThisTrigger)),
-    handleClose: safePolygon({ blockPointerEvents: parent.type !== 'menubar' }),
+      (!isInMenubar || (parentMenubarHasSubmenuOpen && !isMountedByThisTrigger)),
+    handleClose: safePolygon({ blockPointerEvents: !isInMenubar }),
     mouseOnly: true,
     move: false,
     restMs: parent.type === undefined ? delay : undefined,
@@ -193,33 +195,29 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
   });
 
   // Whether to ignore clicks to open the menu.
-  // `lastOpenChangeReason` doesnt't need to be reactive here, as we need to run this
+  // `lastOpenChangeReason` doesn't need to be reactive here, as we need to run this
   // only when `isOpenedByThisTrigger` changes.
   const stickIfOpen = useStickIfOpen(isOpenedByThisTrigger, store.select('lastOpenChangeReason'));
 
   const click = useClick(floatingRootContext, {
     enabled: !disabled && parent.type !== 'context-menu',
-    event: isOpenedByThisTrigger && parent.type === 'menubar' ? 'click' : 'mousedown',
+    event: isOpenedByThisTrigger && isInMenubar ? 'click' : 'mousedown',
     toggle: true,
     ignoreMouse: false,
     stickIfOpen: parent.type === undefined ? stickIfOpen : false,
   });
 
   const focus = useFocus(floatingRootContext, {
-    enabled:
-      !disabled &&
-      ((parent.type !== 'menubar' && isOpenedByThisTrigger) || parentMenubarHasSubmenuOpen),
+    enabled: !disabled && parentMenubarHasSubmenuOpen,
   });
 
   const mixedToggleHandlers = useMixedToggleClickHandler({
     open: isOpenedByThisTrigger,
-    enabled: parent.type === 'menubar',
+    enabled: isInMenubar,
     mouseDownAction: 'open',
   });
 
   const localInteractionProps = useInteractions([click, focus]);
-
-  const isInMenubar = parent.type === 'menubar';
 
   const state: MenuTrigger.State = React.useMemo(
     () => ({
@@ -295,12 +293,11 @@ export const MenuTrigger = React.forwardRef(function MenuTrigger(
         );
       });
 
-      let nextTabbable = getTabbableAfterElement(triggerElementRef.current);
+      let nextTabbable = getTabbableAfterElement(
+        store.context.triggerFocusTargetRef.current || triggerElementRef.current,
+      );
 
-      while (
-        (nextTabbable !== null && contains(currentPositionerElement, nextTabbable)) ||
-        nextTabbable?.hasAttribute('aria-hidden')
-      ) {
+      while (nextTabbable !== null && contains(currentPositionerElement, nextTabbable)) {
         const prevTabbable = nextTabbable;
         nextTabbable = getNextTabbable(nextTabbable);
         if (nextTabbable === prevTabbable) {
@@ -371,22 +368,22 @@ export interface MenuTriggerProps<Payload = unknown>
    * Whether the component should ignore user interaction.
    * @default false
    */
-  disabled?: boolean;
+  disabled?: boolean | undefined;
   /**
    * A handle to associate the trigger with a menu.
    */
-  handle?: MenuHandle<Payload>;
+  handle?: MenuHandle<Payload> | undefined;
   /**
    * A payload to pass to the menu when it is opened.
    */
-  payload?: Payload;
+  payload?: Payload | undefined;
   /**
    * How long to wait before the menu may be opened on hover. Specified in milliseconds.
    *
    * Requires the `openOnHover` prop.
    * @default 100
    */
-  delay?: number;
+  delay?: number | undefined;
   /**
    * How long to wait before closing the menu that was opened on hover.
    * Specified in milliseconds.
@@ -394,11 +391,11 @@ export interface MenuTriggerProps<Payload = unknown>
    * Requires the `openOnHover` prop.
    * @default 0
    */
-  closeDelay?: number;
+  closeDelay?: number | undefined;
   /**
    * Whether the menu should also open when the trigger is hovered.
    */
-  openOnHover?: boolean;
+  openOnHover?: boolean | undefined;
 }
 
 export type MenuTriggerState = {

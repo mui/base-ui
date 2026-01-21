@@ -16,7 +16,7 @@ import type { MenuRoot } from '../root/MenuRoot';
 export const MenuRadioGroup = React.memo(
   React.forwardRef(function MenuRadioGroup(
     componentProps: MenuRadioGroup.Props,
-    forwardedRef: React.ForwardedRef<Element>,
+    forwardedRef: React.ForwardedRef<HTMLDivElement>,
   ) {
     const {
       render,
@@ -95,13 +95,15 @@ export interface MenuRadioGroupProps extends BaseUIComponentProps<'div', MenuRad
   /**
    * Function called when the selected value changes.
    */
-  onValueChange?: (value: any, eventDetails: MenuRadioGroup.ChangeEventDetails) => void;
+  onValueChange?:
+    | ((value: any, eventDetails: MenuRadioGroup.ChangeEventDetails) => void)
+    | undefined;
   /**
    * Whether the component should ignore user interaction.
    *
    * @default false
    */
-  disabled?: boolean;
+  disabled?: boolean | undefined;
 }
 
 export type MenuRadioGroupState = {

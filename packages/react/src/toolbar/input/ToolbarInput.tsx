@@ -91,13 +91,13 @@ export interface ToolbarInputProps extends BaseUIComponentProps<'input', Toolbar
    * When `true` the item is disabled.
    * @default false
    */
-  disabled?: boolean;
+  disabled?: boolean | undefined;
   /**
    * When `true` the item remains focuseable when disabled.
    * @default true
    */
-  focusableWhenDisabled?: boolean;
-  defaultValue?: React.ComponentProps<'input'>['defaultValue'];
+  focusableWhenDisabled?: boolean | undefined;
+  defaultValue?: React.ComponentProps<'input'>['defaultValue'] | undefined;
 }
 
 export namespace ToolbarInput {

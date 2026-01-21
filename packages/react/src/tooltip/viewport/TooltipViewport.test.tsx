@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Tooltip } from '@base-ui/react/tooltip';
-import { act, screen, waitFor } from '@mui/internal-test-utils';
+import { act, ignoreActWarnings, screen, waitFor } from '@mui/internal-test-utils';
 import { expect } from 'chai';
 import { createRenderer, describeConformance, isJSDOM, waitSingleFrame } from '#test-utils';
 
@@ -54,6 +54,7 @@ describe('<Tooltip.Viewport />', () => {
     });
 
     it('should create morphing containers during transitions', async () => {
+      ignoreActWarnings();
       await render(
         <div>
           <style>
@@ -153,7 +154,7 @@ describe('<Tooltip.Viewport />', () => {
       });
 
       expect(document.querySelector('[data-current]')).toBeVisible();
-      expect(screen.getByText('Content 1')).toBeVisible();
+      expect(await screen.findByText('Content 1')).toBeVisible();
     });
 
     it.skipIf(true)('should handle rapid trigger changes', async () => {
@@ -268,6 +269,7 @@ describe('<Tooltip.Viewport />', () => {
         expectedDirection: ['right', 'up'],
       },
     ])('$name', async ({ trigger1, trigger2, expectedDirection }) => {
+      ignoreActWarnings();
       await render(
         <div>
           <style>

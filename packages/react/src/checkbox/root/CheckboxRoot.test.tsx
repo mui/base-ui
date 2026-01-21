@@ -299,6 +299,30 @@ describe('<Checkbox.Root />', () => {
       fireEvent.click(screen.getByTestId('label'));
       expect(checkbox).to.have.attribute('aria-checked', 'true');
     });
+
+    it('should associate `id` with the native button when `nativeButton=true`', async () => {
+      await render(
+        <div>
+          <label data-testid="label" htmlFor="myCheckbox">
+            Toggle
+          </label>
+
+          <Checkbox.Root id="myCheckbox" nativeButton render={<button />} />
+        </div>,
+      );
+
+      const checkbox = screen.getByRole('checkbox');
+      expect(checkbox).to.have.attribute('id', 'myCheckbox');
+
+      const hiddenInputs = screen.getAllByRole<HTMLInputElement>('checkbox', { hidden: true });
+      const hiddenInput = hiddenInputs.find((input) => input !== checkbox);
+      expect(hiddenInput).not.to.equal(undefined);
+      expect(hiddenInput).not.to.have.attribute('id', 'myCheckbox');
+
+      expect(checkbox).to.have.attribute('aria-checked', 'false');
+      fireEvent.click(screen.getByTestId('label'));
+      expect(checkbox).to.have.attribute('aria-checked', 'true');
+    });
   });
 
   describe('Form', () => {
@@ -371,7 +395,9 @@ describe('<Checkbox.Root />', () => {
         const checkbox = screen.getByRole('checkbox');
         const submitButton = screen.getByRole('button')!;
 
-        submitButton.click();
+        await act(async () => {
+          submitButton.click();
+        });
 
         expect(submitSpy.callCount).to.equal(1);
         expect(submitSpy.lastCall.returnValue).to.equal(null);
@@ -380,7 +406,9 @@ describe('<Checkbox.Root />', () => {
           checkbox.click();
         });
 
-        submitButton.click();
+        await act(async () => {
+          submitButton.click();
+        });
 
         expect(submitSpy.callCount).to.equal(2);
         expect(submitSpy.lastCall.returnValue).to.equal('on');
@@ -408,7 +436,9 @@ describe('<Checkbox.Root />', () => {
         const checkbox = screen.getByRole('checkbox');
         const submitButton = screen.getByRole('button')!;
 
-        submitButton.click();
+        await act(async () => {
+          submitButton.click();
+        });
 
         expect(submitSpy.callCount).to.equal(1);
         expect(submitSpy.lastCall.returnValue).to.equal(null);
@@ -417,7 +447,9 @@ describe('<Checkbox.Root />', () => {
           checkbox.click();
         });
 
-        submitButton.click();
+        await act(async () => {
+          submitButton.click();
+        });
 
         expect(submitSpy.callCount).to.equal(2);
         expect(submitSpy.lastCall.returnValue).to.equal('test-value');
@@ -503,7 +535,9 @@ describe('<Checkbox.Root />', () => {
         const checkbox = screen.getByRole('checkbox');
         const submitButton = screen.getByRole('button')!;
 
-        submitButton.click();
+        await act(async () => {
+          submitButton.click();
+        });
 
         expect(submitSpy.callCount).to.equal(1);
         expect(submitSpy.lastCall.returnValue).to.equal('off');
@@ -512,7 +546,9 @@ describe('<Checkbox.Root />', () => {
           checkbox.click();
         });
 
-        submitButton.click();
+        await act(async () => {
+          submitButton.click();
+        });
 
         expect(submitSpy.callCount).to.equal(2);
         expect(submitSpy.lastCall.returnValue).to.equal('on');
@@ -521,7 +557,9 @@ describe('<Checkbox.Root />', () => {
           checkbox.click();
         });
 
-        submitButton.click();
+        await act(async () => {
+          submitButton.click();
+        });
 
         expect(submitSpy.callCount).to.equal(3);
         expect(submitSpy.lastCall.returnValue).to.equal('off');
@@ -549,7 +587,9 @@ describe('<Checkbox.Root />', () => {
         const checkbox = screen.getByRole('checkbox');
         const submitButton = screen.getByRole('button')!;
 
-        submitButton.click();
+        await act(async () => {
+          submitButton.click();
+        });
 
         expect(submitSpy.callCount).to.equal(1);
         expect(submitSpy.lastCall.returnValue).to.equal('false');
@@ -558,7 +598,9 @@ describe('<Checkbox.Root />', () => {
           checkbox.click();
         });
 
-        submitButton.click();
+        await act(async () => {
+          submitButton.click();
+        });
 
         expect(submitSpy.callCount).to.equal(2);
         expect(submitSpy.lastCall.returnValue).to.equal('true');

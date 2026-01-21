@@ -1,6 +1,13 @@
 import * as React from 'react';
 import { expect } from 'chai';
-import { act, flushMicrotasks, waitFor, screen, fireEvent } from '@mui/internal-test-utils';
+import {
+  act,
+  fireEvent,
+  flushMicrotasks,
+  ignoreActWarnings,
+  screen,
+  waitFor,
+} from '@mui/internal-test-utils';
 import { DirectionProvider } from '@base-ui/react/direction-provider';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { Menu } from '@base-ui/react/menu';
@@ -9,6 +16,7 @@ import userEvent from '@testing-library/user-event';
 import { spy } from 'sinon';
 import { createRenderer, isJSDOM, popupConformanceTests, wait } from '#test-utils';
 import { REASONS } from '../../utils/reasons';
+import { PATIENT_CLICK_THRESHOLD } from '../../utils/constants';
 
 describe('<Menu.Root />', () => {
   beforeEach(() => {
@@ -1141,10 +1149,11 @@ describe('<Menu.Root />', () => {
 
         const submenuTrigger = screen.getByTestId('submenu-trigger');
 
-        fireEvent.mouseEnter(submenuTrigger);
-        fireEvent.mouseMove(submenuTrigger);
+        await userEvent.hover(submenuTrigger);
 
-        expect(screen.queryByTestId('submenu')).not.to.equal(null);
+        await waitFor(() => {
+          expect(screen.queryByTestId('submenu')).not.to.equal(null);
+        });
       });
 
       it('should not close when submenu is hovered after root menu is hovered', async () => {
@@ -1251,6 +1260,46 @@ describe('<Menu.Root />', () => {
           expect(screen.getByTestId('submenu')).not.to.equal(null);
         });
       });
+
+      describe('modal behavior', () => {
+        const { render: renderFakeTimers, clock } = createRenderer();
+
+        clock.withFakeTimers();
+
+        it('treats hover-opened menus as modal after a click', async () => {
+          await renderFakeTimers(
+            <Menu.Root>
+              <Menu.Trigger openOnHover delay={0}>
+                Toggle
+              </Menu.Trigger>
+              <Menu.Portal>
+                <Menu.Positioner data-testid="positioner">
+                  <Menu.Popup>
+                    <Menu.Item>Item 1</Menu.Item>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>,
+          );
+
+          const trigger = screen.getByRole('button', { name: 'Toggle' });
+
+          fireEvent.mouseEnter(trigger);
+          fireEvent.mouseMove(trigger);
+
+          await flushMicrotasks();
+          expect(screen.queryByRole('menu')).not.to.equal(null);
+
+          const positioner = screen.getByTestId('positioner');
+          expect(positioner.previousElementSibling).to.equal(null);
+
+          clock.tick(PATIENT_CLICK_THRESHOLD - 1);
+          fireEvent.click(trigger);
+
+          await flushMicrotasks();
+          expect(positioner.previousElementSibling).to.have.attribute('role', 'presentation');
+        });
+      });
     });
 
     describe('prop: closeDelay', () => {
@@ -1291,6 +1340,7 @@ describe('<Menu.Root />', () => {
       });
 
       it('triggers a menu item and closes the menu on click, drag, release', async () => {
+        ignoreActWarnings();
         const openChangeSpy = spy();
         const clickSpy = spy();
 

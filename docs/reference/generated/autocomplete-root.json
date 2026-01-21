@@ -57,9 +57,9 @@
       "detailedType": "boolean | undefined"
     },
     "actionsRef": {
-      "type": "RefObject<Autocomplete.Root.Actions>",
+      "type": "RefObject<Autocomplete.Root.Actions | null>",
       "description": "A ref to imperative actions.\n- `unmount`: When specified, the autocomplete will not be unmounted when closed.\nInstead, the `unmount` function must be called to unmount the autocomplete manually.\nUseful when the autocomplete's animation is controlled by an external library.",
-      "detailedType": "| React.RefObject<Autocomplete.Root.Actions>\n| undefined"
+      "detailedType": "| React.RefObject<Autocomplete.Root.Actions | null>\n| undefined"
     },
     "filter": {
       "type": "((itemValue: any, query: string, itemToString: ((itemValue: any) => string) | undefined) => boolean) | ((itemValue: ItemValue, query: string, itemToString: ((itemValue: ItemValue) => string) | undefined) => boolean) | null",
@@ -103,6 +103,12 @@
       "type": "Intl.LocalesArgument",
       "description": "The locale to use for string comparison.\nDefaults to the user's runtime locale.",
       "detailedType": "Intl.LocalesArgument | undefined"
+    },
+    "loopFocus": {
+      "type": "boolean",
+      "default": "true",
+      "description": "Whether to loop keyboard focus back to the input when the end of the list is reached while using the arrow keys. The first item can then be reached by pressing <kbd>ArrowDown</kbd> again from the input, or the last item can be reached by pressing <kbd>ArrowUp</kbd> from the input.\nThe input is always included in the focus loop per [ARIA Authoring Practices](https://www.w3.org/WAI/ARIA/apg/patterns/combobox/).\nWhen disabled, focus does not move when on the last element and the user presses <kbd>ArrowDown</kbd>, or when on the first element and the user presses <kbd>ArrowUp</kbd>.",
+      "detailedType": "boolean | undefined"
     },
     "modal": {
       "type": "boolean",

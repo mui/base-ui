@@ -157,19 +157,19 @@ export interface FloatingFocusManagerProps {
   /**
    * The interaction type used to open the floating element.
    */
-  openInteractionType?: InteractionType | null;
+  openInteractionType?: (InteractionType | null) | undefined;
   /**
    * Whether or not the focus manager should be disabled. Useful to delay focus
    * management until after a transition completes or some other conditional
    * state.
    * @default false
    */
-  disabled?: boolean;
+  disabled?: boolean | undefined;
   /**
    * The order in which focus cycles.
    * @default ['content']
    */
-  order?: Array<'reference' | 'floating' | 'content'>;
+  order?: Array<'reference' | 'floating' | 'content'> | undefined;
   /**
    * Determines the element to focus when the floating element is opened.
    *
@@ -182,9 +182,12 @@ export interface FloatingFocusManagerProps {
    * @default true
    */
   initialFocus?:
-    | boolean
-    | React.RefObject<HTMLElement | null>
-    | ((openType: InteractionType) => boolean | HTMLElement | null | void);
+    | (
+        | boolean
+        | React.RefObject<HTMLElement | null>
+        | ((openType: InteractionType) => boolean | HTMLElement | null | void)
+      )
+    | undefined;
   /**
    * Determines the element to focus when the floating element is closed.
    *
@@ -197,9 +200,12 @@ export interface FloatingFocusManagerProps {
    * @default true
    */
   returnFocus?:
-    | boolean
-    | React.RefObject<HTMLElement | null>
-    | ((closeType: InteractionType) => boolean | HTMLElement | null | void);
+    | (
+        | boolean
+        | React.RefObject<HTMLElement | null>
+        | ((closeType: InteractionType) => boolean | HTMLElement | null | void)
+      )
+    | undefined;
   /**
    * Determines where focus should be restored if focus inside the floating element is lost
    * (such as due to the removal of the currently focused element from the DOM).
@@ -210,14 +216,14 @@ export interface FloatingFocusManagerProps {
    * - `false`: do not restore focus
    * @default false
    */
-  restoreFocus?: boolean | 'popup';
+  restoreFocus?: (boolean | 'popup') | undefined;
   /**
    * Determines if focus is “modal”, meaning focus is fully trapped inside the
    * floating element and outside content cannot be accessed. This includes
    * screen reader virtual cursors.
    * @default true
    */
-  modal?: boolean;
+  modal?: boolean | undefined;
   /**
    * Determines whether `focusout` event listeners that control whether the
    * floating element should be closed if the focus moves outside of it are
@@ -225,29 +231,29 @@ export interface FloatingFocusManagerProps {
    * focus management.
    * @default true
    */
-  closeOnFocusOut?: boolean;
+  closeOnFocusOut?: boolean | undefined;
   /**
    * Returns a list of elements that should be considered part of the
    * floating element.
    */
-  getInsideElements?: () => Element[];
+  getInsideElements?: (() => Element[]) | undefined;
   /**
    * Overrides the element to focus when tabbing forward out of the floating element.
    */
-  nextFocusableElement?: HTMLElement | React.RefObject<HTMLElement | null> | null;
+  nextFocusableElement?: (HTMLElement | React.RefObject<HTMLElement | null> | null) | undefined;
   /**
    * Overrides the element to focus when tabbing backward out of the floating element.
    */
-  previousFocusableElement?: HTMLElement | React.RefObject<HTMLElement | null> | null;
+  previousFocusableElement?: (HTMLElement | React.RefObject<HTMLElement | null> | null) | undefined;
   /**
    * Ref to the focus guard preceding the floating element content.
    * Can be useful to focus the popup progammatically.
    */
-  beforeContentFocusGuardRef?: React.RefObject<HTMLSpanElement | null>;
+  beforeContentFocusGuardRef?: React.RefObject<HTMLSpanElement | null> | undefined;
   /**
    * External FlatingTree to use when the one provided by context can't be used.
    */
-  externalTree?: FloatingTreeStore;
+  externalTree?: FloatingTreeStore | undefined;
 }
 
 /**
@@ -308,6 +314,16 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
   const tabbableIndexRef = React.useRef(-1);
   const closeTypeRef = React.useRef<InteractionType>('');
   const lastInteractionTypeRef = React.useRef<InteractionType>('');
+
+  const beforeGuardRef = React.useRef<HTMLSpanElement | null>(null);
+  const afterGuardRef = React.useRef<HTMLSpanElement | null>(null);
+
+  const mergedBeforeGuardRef = useMergedRefs(
+    beforeGuardRef,
+    beforeContentFocusGuardRef,
+    portalContext?.beforeInsideRef,
+  );
+  const mergedAfterGuardRef = useMergedRefs(afterGuardRef, portalContext?.afterInsideRef);
 
   const blurTimeout = useTimeout();
   const pointerDownTimeout = useTimeout();
@@ -455,6 +471,19 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
       queueMicrotask(() => {
         const nodeId = getNodeId();
         const triggers = store.context.triggerElements;
+        const isRelatedFocusGuard =
+          relatedTarget?.hasAttribute(createAttribute('focus-guard')) &&
+          [
+            beforeGuardRef.current,
+            afterGuardRef.current,
+            portalContext?.beforeInsideRef.current,
+            portalContext?.afterInsideRef.current,
+            portalContext?.beforeOutsideRef.current,
+            portalContext?.afterOutsideRef.current,
+            resolveRef(previousFocusableElement),
+            resolveRef(nextFocusableElement),
+          ].includes(relatedTarget);
+
         const movedToUnrelatedNode = !(
           contains(domReference, relatedTarget) ||
           contains(floating, relatedTarget) ||
@@ -462,7 +491,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
           contains(portalContext?.portalNode, relatedTarget) ||
           (relatedTarget != null && triggers.hasElement(relatedTarget)) ||
           triggers.hasMatchingElement((trigger) => contains(trigger, relatedTarget)) ||
-          relatedTarget?.hasAttribute(createAttribute('focus-guard')) ||
+          isRelatedFocusGuard ||
           (tree &&
             (getNodeChildren(tree.nodesRef.current, nodeId).find(
               (node) =>
@@ -615,17 +644,9 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     blurTimeout,
     pointerDownTimeout,
     restoreFocusFrame,
+    nextFocusableElement,
+    previousFocusableElement,
   ]);
-
-  const beforeGuardRef = React.useRef<HTMLSpanElement | null>(null);
-  const afterGuardRef = React.useRef<HTMLSpanElement | null>(null);
-
-  const mergedBeforeGuardRef = useMergedRefs(
-    beforeGuardRef,
-    beforeContentFocusGuardRef,
-    portalContext?.beforeInsideRef,
-  );
-  const mergedAfterGuardRef = useMergedRefs(afterGuardRef, portalContext?.afterInsideRef);
 
   React.useEffect(() => {
     if (disabled || !floating || !open) {

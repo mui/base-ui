@@ -4,6 +4,7 @@ import * as ReactDOM from 'react-dom';
 import { isNode } from '@floating-ui/utils/dom';
 import { useId } from '@base-ui/utils/useId';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { FocusGuard } from '../../utils/FocusGuard';
 import {
   enableFocusInside,
@@ -22,7 +23,10 @@ import type { BaseUIComponentProps } from '../../utils/types';
 type FocusManagerState = null | {
   modal: boolean;
   open: boolean;
-  onOpenChange(open: boolean, data?: { reason?: string; event?: Event }): void;
+  onOpenChange(
+    open: boolean,
+    data?: { reason?: string | undefined; event?: Event | undefined },
+  ): void;
   domReference: Element | null;
   closeOnFocusOut: boolean;
 };
@@ -41,11 +45,13 @@ export const usePortalContext = () => React.useContext(PortalContext);
 const attr = createAttribute('portal');
 
 export interface UseFloatingPortalNodeProps {
-  ref?: React.Ref<HTMLDivElement>;
-  container?: HTMLElement | ShadowRoot | null | React.RefObject<HTMLElement | ShadowRoot | null>;
-  componentProps?: useRenderElement.ComponentProps<any>;
-  elementProps?: React.HTMLAttributes<HTMLDivElement>;
-  elementState?: Record<string, unknown>;
+  ref?: React.Ref<HTMLDivElement> | undefined;
+  container?:
+    | (HTMLElement | ShadowRoot | null | React.RefObject<HTMLElement | ShadowRoot | null>)
+    | undefined;
+  componentProps?: useRenderElement.ComponentProps<any> | undefined;
+  elementProps?: React.HTMLAttributes<HTMLDivElement> | undefined;
+  elementState?: Record<string, unknown> | undefined;
 }
 
 export interface UseFloatingPortalNodeResult {
@@ -72,6 +78,14 @@ export function useFloatingPortalNode(
     null,
   );
   const [portalNode, setPortalNode] = React.useState<HTMLElement | null>(null);
+  const setPortalNodeRef = useStableCallback((node: HTMLElement | null) => {
+    if (node !== null) {
+      // the useIsoLayoutEffect below watching containerProp / parentPortalNode
+      // sets setPortalNode(null) when the container becomes null or changes.
+      // So even though the ref callback now ignores null, the portal node still gets cleared.
+      setPortalNode(node);
+    }
+  });
 
   const containerRef = React.useRef<HTMLElement | ShadowRoot | null>(null);
 
@@ -113,7 +127,7 @@ export function useFloatingPortalNode(
   }, [containerProp, parentPortalNode, uniqueId]);
 
   const portalElement = useRenderElement('div', componentProps, {
-    ref: [ref, setPortalNode],
+    ref: [ref, setPortalNodeRef],
     state: elementState,
     props: [
       {
@@ -147,7 +161,7 @@ export function useFloatingPortalNode(
  * @internal
  */
 export const FloatingPortal = React.forwardRef(function FloatingPortal(
-  componentProps: FloatingPortal.Props<any> & { renderGuards?: boolean },
+  componentProps: FloatingPortal.Props<any> & { renderGuards?: boolean | undefined },
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const { children, container, className, render, renderGuards, ...elementProps } = componentProps;
@@ -184,7 +198,7 @@ export const FloatingPortal = React.forwardRef(function FloatingPortal(
     // portal has already been focused, either by tabbing into a focus trap
     // element outside or using the mouse.
     function onFocus(event: FocusEvent) {
-      if (portalNode && isOutsideEvent(event)) {
+      if (portalNode && event.relatedTarget && isOutsideEvent(event)) {
         const focusing = event.type === 'focusin';
         const manageFocus = focusing ? enableFocusInside : disableFocusInside;
         manageFocus(portalNode);
@@ -275,6 +289,6 @@ export namespace FloatingPortal {
     /**
      * A parent element to render the portal element into.
      */
-    container?: UseFloatingPortalNodeProps['container'];
+    container?: UseFloatingPortalNodeProps['container'] | undefined;
   }
 }

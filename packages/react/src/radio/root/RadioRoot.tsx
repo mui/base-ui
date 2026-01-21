@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import { visuallyHiddenInput } from '@base-ui/utils/visuallyHidden';
+import { visuallyHidden, visuallyHiddenInput } from '@base-ui/utils/visuallyHidden';
 import type { BaseUIComponentProps, NonNativeButtonProps } from '../../utils/types';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
@@ -55,6 +55,7 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
     setTouched,
     validation,
     registerControlRef,
+    name,
   } = useRadioGroupContext();
 
   const {
@@ -91,17 +92,16 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
     implicit: false,
     controlRef: radioRef,
   });
+  const hiddenInputId = nativeButton ? undefined : inputId;
 
-  const rootProps: React.ComponentProps<'button'> = {
+  const rootProps: React.ComponentPropsWithRef<'span'> = {
     role: 'radio',
     'aria-checked': checked,
     'aria-required': required || undefined,
-    'aria-disabled': disabled || undefined,
     'aria-readonly': readOnly || undefined,
     'aria-labelledby': labelId,
     [ACTIVE_COMPOSITE_ITEM as string]: checked ? '' : undefined,
-    id,
-    disabled,
+    id: nativeButton ? inputId : id,
     onKeyDown(event) {
       if (event.key === 'Enter') {
         event.preventDefault();
@@ -135,9 +135,9 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
   const inputProps: React.ComponentPropsWithRef<'input'> = {
     type: 'radio',
     ref: mergedInputRef,
-    id: inputId,
+    id: hiddenInputId,
     tabIndex: -1,
-    style: visuallyHiddenInput,
+    style: name ? visuallyHiddenInput : visuallyHidden,
     'aria-hidden': true,
     disabled,
     checked,
@@ -237,13 +237,13 @@ export interface RadioRootProps
   /** The unique identifying value of the radio in a group. */
   value: any;
   /** Whether the component should ignore user interaction. */
-  disabled?: boolean;
+  disabled?: boolean | undefined;
   /** Whether the user must choose a value before submitting a form. */
-  required?: boolean;
+  required?: boolean | undefined;
   /** Whether the user should be unable to select the radio button. */
-  readOnly?: boolean;
+  readOnly?: boolean | undefined;
   /** A ref to access the hidden input element. */
-  inputRef?: React.Ref<HTMLInputElement>;
+  inputRef?: React.Ref<HTMLInputElement> | undefined;
 }
 
 export namespace RadioRoot {
