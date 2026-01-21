@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
-import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
-import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 import type { TabsRoot } from '../root/TabsRoot';
 import { CompositeRoot } from '../../composite/root/CompositeRoot';
@@ -203,13 +203,13 @@ export interface TabsListProps extends BaseUIComponentProps<'div', TabsList.Stat
    * Otherwise, tabs will be activated using <kbd>Enter</kbd> or <kbd>Space</kbd> key press.
    * @default false
    */
-  activateOnFocus?: boolean;
+  activateOnFocus?: boolean | undefined;
   /**
    * Whether to loop keyboard focus back to the first item
    * when the end of the list is reached while using the arrow keys.
    * @default true
    */
-  loopFocus?: boolean;
+  loopFocus?: boolean | undefined;
 }
 
 export namespace TabsList {

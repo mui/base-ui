@@ -31,7 +31,7 @@ export const PopoverBackdrop = React.forwardRef(function PopoverBackdrop(
   const open = store.useState('open');
   const mounted = store.useState('mounted');
   const transitionStatus = store.useState('transitionStatus');
-  const openReason = store.useState('openReason');
+  const openReason = store.useState('openChangeReason');
 
   const state: PopoverBackdrop.State = React.useMemo(
     () => ({

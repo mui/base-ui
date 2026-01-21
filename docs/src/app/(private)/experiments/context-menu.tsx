@@ -1,7 +1,7 @@
 'use client';
-import { ContextMenu } from '@base-ui-components/react/context-menu';
-import { Menu } from '@base-ui-components/react/menu';
-import { Popover } from '@base-ui-components/react/popover';
+import { ContextMenu } from '@base-ui/react/context-menu';
+import { Menu } from '@base-ui/react/menu';
+import { Popover } from '@base-ui/react/popover';
 
 export default function ContextMenuExperiment() {
   return (

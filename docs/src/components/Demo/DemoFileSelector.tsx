@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { Tabs } from '@base-ui-components/react/tabs';
+import { Tabs } from '@base-ui/react/tabs';
 
 interface DemoFileSelectorProps {
   files: Array<{ name: string; slug?: string; component: React.ReactNode }>;

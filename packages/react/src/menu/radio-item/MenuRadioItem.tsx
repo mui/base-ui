@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useBaseUiId } from '../../utils/useBaseUiId';
@@ -22,7 +22,7 @@ import { REASONS } from '../../utils/reasons';
  */
 export const MenuRadioItem = React.forwardRef(function MenuRadioItem(
   componentProps: MenuRadioItem.Props,
-  forwardedRef: React.ForwardedRef<Element>,
+  forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
   const {
     render,
@@ -116,8 +116,7 @@ export type MenuRadioItemState = {
 };
 
 export interface MenuRadioItemProps
-  extends NonNativeButtonProps,
-    BaseUIComponentProps<'div', MenuRadioItem.State> {
+  extends NonNativeButtonProps, BaseUIComponentProps<'div', MenuRadioItem.State> {
   /**
    * Value of the radio item.
    * This is the value that will be set in the MenuRadioGroup when the item is selected.
@@ -126,25 +125,25 @@ export interface MenuRadioItemProps
   /**
    * The click handler for the menu item.
    */
-  onClick?: React.MouseEventHandler<HTMLElement>;
+  onClick?: React.MouseEventHandler<HTMLElement> | undefined;
   /**
    * Whether the component should ignore user interaction.
    * @default false
    */
-  disabled?: boolean;
+  disabled?: boolean | undefined;
   /**
    * Overrides the text label to use when the item is matched during keyboard text navigation.
    */
-  label?: string;
+  label?: string | undefined;
   /**
    * @ignore
    */
-  id?: string;
+  id?: string | undefined;
   /**
    * Whether to close the menu when the item is clicked.
    * @default false
    */
-  closeOnClick?: boolean;
+  closeOnClick?: boolean | undefined;
 }
 
 export namespace MenuRadioItem {

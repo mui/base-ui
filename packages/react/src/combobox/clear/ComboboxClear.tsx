@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useStore } from '@base-ui-components/utils/store';
+import { useStore } from '@base-ui/utils/store';
 import { useComboboxInputValueContext, useComboboxRootContext } from '../root/ComboboxRootContext';
 import type { BaseUIComponentProps, NativeButtonProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
@@ -45,6 +45,7 @@ export const ComboboxClear = React.forwardRef(function ComboboxClear(
   const readOnly = useStore(store, selectors.readOnly);
   const open = useStore(store, selectors.open);
   const selectedValue = useStore(store, selectors.selectedValue);
+  const hasSelectionChips = useStore(store, selectors.hasSelectionChips);
 
   const inputValue = useComboboxInputValueContext();
 
@@ -54,7 +55,7 @@ export const ComboboxClear = React.forwardRef(function ComboboxClear(
   } else if (selectionMode === 'single') {
     visible = selectedValue != null;
   } else {
-    visible = Array.isArray(selectedValue) && selectedValue.length > 0;
+    visible = hasSelectionChips;
   }
 
   const disabled = fieldDisabled || comboboxDisabled || disabledProp;
@@ -92,7 +93,6 @@ export const ComboboxClear = React.forwardRef(function ComboboxClear(
       {
         tabIndex: -1,
         children: 'x',
-        disabled,
         'aria-readonly': readOnly || undefined,
         // Avoid stealing focus from the input.
         onMouseDown(event) {
@@ -157,18 +157,17 @@ export interface ComboboxClearState {
 }
 
 export interface ComboboxClearProps
-  extends NativeButtonProps,
-    BaseUIComponentProps<'button', ComboboxClear.State> {
+  extends NativeButtonProps, BaseUIComponentProps<'button', ComboboxClear.State> {
   /**
    * Whether the component should ignore user interaction.
    * @default false
    */
-  disabled?: boolean;
+  disabled?: boolean | undefined;
   /**
    * Whether the component should remain mounted in the DOM when not visible.
    * @default false
    */
-  keepMounted?: boolean;
+  keepMounted?: boolean | undefined;
 }
 
 export namespace ComboboxClear {

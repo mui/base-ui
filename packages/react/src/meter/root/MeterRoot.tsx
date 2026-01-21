@@ -2,20 +2,8 @@
 import * as React from 'react';
 import { MeterRootContext } from './MeterRootContext';
 import { BaseUIComponentProps, HTMLProps } from '../../utils/types';
-import { formatNumber } from '../../utils/formatNumber';
+import { formatNumberValue } from '../../utils/formatNumber';
 import { useRenderElement } from '../../utils/useRenderElement';
-
-function formatValue(
-  value: number,
-  locale?: Intl.LocalesArgument,
-  format?: Intl.NumberFormatOptions,
-): string {
-  if (!format) {
-    return formatNumber(value / 100, locale, { style: 'percent' });
-  }
-
-  return formatNumber(value, locale, format);
-}
 
 /**
  * Groups all parts of the meter and provides the value for screen readers.
@@ -40,7 +28,7 @@ export const MeterRoot = React.forwardRef(function MeterRoot(
   } = componentProps;
 
   const [labelId, setLabelId] = React.useState<string | undefined>();
-  const formattedValue = formatValue(valueProp, locale, format);
+  const formattedValue = formatNumberValue(valueProp, locale, format);
 
   let ariaValuetext = `${valueProp}%`;
   if (getAriaValueText) {
@@ -81,30 +69,30 @@ export interface MeterRootProps extends BaseUIComponentProps<'div', MeterRoot.St
   /**
    * A string value that provides a user-friendly name for `aria-valuenow`, the current value of the meter.
    */
-  'aria-valuetext'?: React.AriaAttributes['aria-valuetext'];
+  'aria-valuetext'?: React.AriaAttributes['aria-valuetext'] | undefined;
   /**
    * Options to format the value.
    */
-  format?: Intl.NumberFormatOptions;
+  format?: Intl.NumberFormatOptions | undefined;
   /**
    * A function that returns a string value that provides a human-readable text alternative for `aria-valuenow`, the current value of the meter.
    */
-  getAriaValueText?: (formattedValue: string, value: number) => string;
+  getAriaValueText?: ((formattedValue: string, value: number) => string) | undefined;
   /**
    * The locale used by `Intl.NumberFormat` when formatting the value.
    * Defaults to the user's runtime locale.
    */
-  locale?: Intl.LocalesArgument;
+  locale?: Intl.LocalesArgument | undefined;
   /**
    * The maximum value
    * @default 100
    */
-  max?: number;
+  max?: number | undefined;
   /**
    * The minimum value
    * @default 0
    */
-  min?: number;
+  min?: number | undefined;
   /**
    * The current value.
    */

@@ -1,5 +1,5 @@
 'use client';
-import { Menu } from '@base-ui-components/react/menu';
+import { Menu } from '@base-ui/react/menu';
 import styles from './menu-nested.module.css';
 
 export default function NestedMenu() {

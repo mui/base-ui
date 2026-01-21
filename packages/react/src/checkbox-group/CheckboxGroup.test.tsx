@@ -1,9 +1,9 @@
 import * as React from 'react';
 import { createRenderer, screen, fireEvent } from '@mui/internal-test-utils';
-import { CheckboxGroup } from '@base-ui-components/react/checkbox-group';
-import { Checkbox } from '@base-ui-components/react/checkbox';
-import { Field } from '@base-ui-components/react/field';
-import { Form } from '@base-ui-components/react/form';
+import { CheckboxGroup } from '@base-ui/react/checkbox-group';
+import { Checkbox } from '@base-ui/react/checkbox';
+import { Field } from '@base-ui/react/field';
+import { Form } from '@base-ui/react/form';
 import { spy } from 'sinon';
 import { expect } from 'chai';
 import { describeConformance, isJSDOM } from '#test-utils';
@@ -486,6 +486,34 @@ describe('<CheckboxGroup />', () => {
 
       fireEvent.click(screen.getByText('Gala'));
       expect(changeSpy.callCount).to.equal(1);
+    });
+  });
+
+  describe('Field.Description', () => {
+    it('links the group and individual checkboxes', async () => {
+      await render(
+        <Field.Root name="apple">
+          <CheckboxGroup defaultValue={[]}>
+            <Field.Description data-testid="group-description">Group description</Field.Description>
+            <Field.Item>
+              <Field.Label>
+                <Checkbox.Root value="fuji-apple" />
+                Fuji
+              </Field.Label>
+            </Field.Item>
+          </CheckboxGroup>
+        </Field.Root>,
+      );
+
+      const groupDescription = screen.getByTestId('group-description');
+      const groupDescriptionId = groupDescription.getAttribute('id');
+      expect(groupDescriptionId).to.not.equal(null);
+      expect(screen.getByRole('group').getAttribute('aria-describedby')).to.include(
+        groupDescriptionId,
+      );
+      expect(screen.getByRole('checkbox').getAttribute('aria-describedby')).to.include(
+        groupDescriptionId,
+      );
     });
   });
 

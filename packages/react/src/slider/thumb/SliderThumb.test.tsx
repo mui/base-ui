@@ -2,9 +2,9 @@ import * as React from 'react';
 import { expect } from 'chai';
 import { spy, stub } from 'sinon';
 import { fireEvent, screen } from '@mui/internal-test-utils';
-import { Slider } from '@base-ui-components/react/slider';
+import { Slider } from '@base-ui/react/slider';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
-import { isWebKit } from '@base-ui-components/utils/detectBrowser';
+import { isWebKit } from '@base-ui/utils/detectBrowser';
 import { createTouches, getHorizontalSliderRect } from '../utils/test-utils';
 
 describe('<Slider.Thumb />', () => {

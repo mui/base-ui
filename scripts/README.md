@@ -6,7 +6,7 @@ A typical release goes like this:
 
 ### Prerequisites
 
-1. You must be a member of the `@base-ui-components` org in npm to publish the release.
+1. You must be a member of the `@base-ui` org in npm to publish the release.
 2. Set up your npm authToken by logging into npm (`npm login`) . This will save a token to `~/.npmrc` as a line that looks like this:
    ```text
    //registry.npmjs.org/:_authToken=npm_000000000000000000000000000000000000
@@ -24,7 +24,7 @@ A typical release goes like this:
    The output must be prepended to the top level `CHANGELOG.md`.
    Run `pnpm release:changelog --help` for more information. If your GitHub token is not in your env, pass it as `--githubToken <my-token>` to the above command.
 3. Update the changelog as necessary. In particular, describe all the breaking changes.
-4. Generate the changelog in a format suitable for the docs with `pnpm release:changelog --format docs` and copy it to `docs/src/app/(public)/(content)/react/overview/releases/page.mdx`.
+4. Generate the changelog in a format suitable for the docs with `pnpm release:changelog --format docs` and copy it to `docs/src/app/(docs)/react/overview/releases/page.mdx`.
 5. Copy the changes made in point 3 to the new changelog.
 6. Run `pnpm release:version`. Keep the package versions of stable public packages the same as the root `package.json` version.
 7. Open a PR with changes and wait for review and green CI.

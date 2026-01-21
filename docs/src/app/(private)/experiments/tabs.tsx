@@ -1,8 +1,8 @@
 'use client';
 import * as React from 'react';
 import clsx from 'clsx';
-import { DirectionProvider } from '@base-ui-components/react/direction-provider';
-import { Tabs } from '@base-ui-components/react/tabs';
+import { DirectionProvider } from '@base-ui/react/direction-provider';
+import { Tabs } from '@base-ui/react/tabs';
 import {
   SettingsMetadata,
   useExperimentSettings,

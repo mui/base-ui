@@ -1,9 +1,9 @@
 'use client';
 import * as React from 'react';
 import { isHTMLElement } from '@floating-ui/utils/dom';
-import { useControlled } from '@base-ui-components/utils/useControlled';
-import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
-import { ownerDocument } from '@base-ui-components/utils/owner';
+import { useControlled } from '@base-ui/utils/useControlled';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { ownerDocument } from '@base-ui/utils/owner';
 import {
   FloatingTree,
   useFloatingNodeId,
@@ -291,16 +291,18 @@ export interface NavigationMenuRootState {
   nested: boolean;
 }
 
-export interface NavigationMenuRootProps
-  extends BaseUIComponentProps<'nav', NavigationMenuRoot.State> {
+export interface NavigationMenuRootProps extends BaseUIComponentProps<
+  'nav',
+  NavigationMenuRoot.State
+> {
   /**
    * A ref to imperative actions.
    */
-  actionsRef?: React.RefObject<NavigationMenuRoot.Actions>;
+  actionsRef?: React.RefObject<NavigationMenuRoot.Actions | null> | undefined;
   /**
    * Event handler called after any animations complete when the navigation menu is closed.
    */
-  onOpenChangeComplete?: (open: boolean) => void;
+  onOpenChangeComplete?: ((open: boolean) => void) | undefined;
   /**
    * The controlled value of the navigation menu item that should be currently open.
    * When non-nullish, the menu will be open. When nullish, the menu will be closed.
@@ -319,22 +321,24 @@ export interface NavigationMenuRootProps
   /**
    * Callback fired when the value changes.
    */
-  onValueChange?: (value: any, eventDetails: NavigationMenuRoot.ChangeEventDetails) => void;
+  onValueChange?:
+    | ((value: any, eventDetails: NavigationMenuRoot.ChangeEventDetails) => void)
+    | undefined;
   /**
    * How long to wait before opening the navigation menu. Specified in milliseconds.
    * @default 50
    */
-  delay?: number;
+  delay?: number | undefined;
   /**
    * How long to wait before closing the navigation menu. Specified in milliseconds.
    * @default 50
    */
-  closeDelay?: number;
+  closeDelay?: number | undefined;
   /**
    * The orientation of the navigation menu.
    * @default 'horizontal'
    */
-  orientation?: 'horizontal' | 'vertical';
+  orientation?: ('horizontal' | 'vertical') | undefined;
 }
 
 export interface NavigationMenuRootActions {

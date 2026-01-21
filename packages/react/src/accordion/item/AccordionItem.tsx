@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
-import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
-import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useCollapsibleRoot } from '../../collapsible/root/useCollapsibleRoot';
@@ -146,7 +146,8 @@ export interface AccordionItemState extends AccordionRoot.State {
 }
 
 export interface AccordionItemProps
-  extends BaseUIComponentProps<'div', AccordionItem.State>,
+  extends
+    BaseUIComponentProps<'div', AccordionItem.State>,
     Partial<Pick<useCollapsibleRoot.Parameters, 'disabled'>> {
   /**
    * A unique value that identifies this accordion item.
@@ -165,7 +166,9 @@ export interface AccordionItemProps
   /**
    * Event handler called when the panel is opened or closed.
    */
-  onOpenChange?: (open: boolean, eventDetails: AccordionItem.ChangeEventDetails) => void;
+  onOpenChange?:
+    | ((open: boolean, eventDetails: AccordionItem.ChangeEventDetails) => void)
+    | undefined;
 }
 
 export type AccordionItemChangeEventReason = typeof REASONS.triggerPress | typeof REASONS.none;

@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useBaseUiId } from '../utils/useBaseUiId';
 import type { BaseUIChangeEventDetails } from '../utils/createBaseUIEventDetails';
 import type { BaseUIEventReasons } from '../utils/reasons';
@@ -105,12 +105,14 @@ export function useCheckboxGroupParent(
 }
 
 export interface UseCheckboxGroupParentParameters {
-  allValues?: string[];
-  value?: string[];
-  onValueChange?: (
-    value: string[],
-    eventDetails: BaseUIChangeEventDetails<BaseUIEventReasons['none']>,
-  ) => void;
+  allValues?: string[] | undefined;
+  value?: string[] | undefined;
+  onValueChange?:
+    | ((
+        value: string[],
+        eventDetails: BaseUIChangeEventDetails<BaseUIEventReasons['none']>,
+      ) => void)
+    | undefined;
 }
 
 export interface UseCheckboxGroupParentReturnValue {

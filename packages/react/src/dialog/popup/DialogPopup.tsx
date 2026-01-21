@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { InteractionType } from '@base-ui-components/utils/useEnhancedClickHandler';
+import { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import { FloatingFocusManager } from '../../floating-ui-react';
 import { useDialogRootContext } from '../root/DialogRootContext';
 import { useRenderElement } from '../../utils/useRenderElement';
@@ -139,9 +139,12 @@ export interface DialogPopupProps extends BaseUIComponentProps<'div', DialogPopu
    *   Return an element to focus, `true` to use the default behavior, or `false`/`undefined` to do nothing.
    */
   initialFocus?:
-    | boolean
-    | React.RefObject<HTMLElement | null>
-    | ((openType: InteractionType) => boolean | HTMLElement | null | void);
+    | (
+        | boolean
+        | React.RefObject<HTMLElement | null>
+        | ((openType: InteractionType) => boolean | HTMLElement | null | void)
+      )
+    | undefined;
   /**
    * Determines the element to focus when the dialog is closed.
    *
@@ -152,9 +155,12 @@ export interface DialogPopupProps extends BaseUIComponentProps<'div', DialogPopu
    *   Return an element to focus, `true` to use the default behavior, or `false`/`undefined` to do nothing.
    */
   finalFocus?:
-    | boolean
-    | React.RefObject<HTMLElement | null>
-    | ((closeType: InteractionType) => boolean | HTMLElement | null | void);
+    | (
+        | boolean
+        | React.RefObject<HTMLElement | null>
+        | ((closeType: InteractionType) => boolean | HTMLElement | null | void)
+      )
+    | undefined;
 }
 
 export interface DialogPopupState {

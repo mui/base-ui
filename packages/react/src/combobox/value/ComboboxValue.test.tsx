@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { expect } from 'chai';
 import { screen } from '@mui/internal-test-utils';
-import { Combobox } from '@base-ui-components/react/combobox';
+import { Combobox } from '@base-ui/react/combobox';
 import { createRenderer } from '#test-utils';
 
 describe('<Combobox.Value />', () => {
@@ -521,6 +521,101 @@ describe('<Combobox.Value />', () => {
     });
   });
 
+  describe('multiple selection', () => {
+    it('displays comma-separated labels from items array', async () => {
+      const items = [
+        { value: 'sans', label: 'Sans-serif' },
+        { value: 'serif', label: 'Serif' },
+        { value: 'mono', label: 'Monospace' },
+      ];
+
+      await render(
+        <Combobox.Root defaultValue={[items[0], items[1]]} items={items} multiple>
+          <Combobox.Trigger>
+            <span data-testid="value">
+              <Combobox.Value />
+            </span>
+          </Combobox.Trigger>
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.Input />
+                <Combobox.List>
+                  {(item: any) => (
+                    <Combobox.Item key={item.value} value={item}>
+                      {item.label}
+                    </Combobox.Item>
+                  )}
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      expect(screen.getByTestId('value')).to.have.text('Sans-serif, Serif');
+    });
+
+    it('supports ReactNode labels for multiple selections', async () => {
+      const items = [
+        { value: 'bold', label: <strong>Bold Text</strong> },
+        { value: 'italic', label: <em>Italic Text</em> },
+      ];
+
+      await render(
+        <Combobox.Root defaultValue={items} items={items} multiple>
+          <Combobox.Trigger>
+            <span data-testid="value">
+              <Combobox.Value />
+            </span>
+          </Combobox.Trigger>
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  {(item: any) => (
+                    <Combobox.Item key={item.value} value={item}>
+                      {item.label}
+                    </Combobox.Item>
+                  )}
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const value = screen.getByTestId('value');
+      expect(value.querySelector('strong')).to.have.text('Bold Text');
+      expect(value.querySelector('em')).to.have.text('Italic Text');
+      expect(value).to.have.text('Bold Text, Italic Text');
+    });
+
+    it('falls back to raw values when items are not provided', async () => {
+      await render(
+        <Combobox.Root defaultValue={['serif', 'mono']} multiple>
+          <Combobox.Trigger>
+            <span data-testid="value">
+              <Combobox.Value />
+            </span>
+          </Combobox.Trigger>
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  <Combobox.Item value="serif">Serif</Combobox.Item>
+                  <Combobox.Item value="mono">Monospace</Combobox.Item>
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      expect(screen.getByTestId('value')).to.have.text('serif, mono');
+    });
+  });
+
   describe('primitive values', () => {
     it('handles string values correctly', async () => {
       await render(
@@ -616,6 +711,190 @@ describe('<Combobox.Value />', () => {
       );
 
       expect(screen.getByTestId('value')).to.have.text('Custom: Test Item');
+    });
+  });
+
+  describe('prop: placeholder', () => {
+    it('displays placeholder when no value is selected', async () => {
+      await render(
+        <Combobox.Root>
+          <Combobox.Trigger data-testid="value">
+            <Combobox.Value placeholder="Select an option" />
+          </Combobox.Trigger>
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  <Combobox.Item value="option1">Option 1</Combobox.Item>
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      expect(screen.getByTestId('value')).to.have.text('Select an option');
+    });
+
+    it('does not display placeholder when value is selected', async () => {
+      await render(
+        <Combobox.Root defaultValue="option1">
+          <Combobox.Trigger data-testid="value">
+            <Combobox.Value placeholder="Select an option" />
+          </Combobox.Trigger>
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  <Combobox.Item value="option1">Option 1</Combobox.Item>
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      expect(screen.getByTestId('value')).to.have.text('option1');
+    });
+
+    it('children prop takes precedence over placeholder', async () => {
+      await render(
+        <Combobox.Root>
+          <Combobox.Trigger data-testid="value">
+            <Combobox.Value placeholder="Select an option">Custom Text</Combobox.Value>
+          </Combobox.Trigger>
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  <Combobox.Item value="option1">Option 1</Combobox.Item>
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      expect(screen.getByTestId('value')).to.have.text('Custom Text');
+    });
+
+    it('children function takes precedence over placeholder', async () => {
+      await render(
+        <Combobox.Root>
+          <Combobox.Trigger data-testid="value">
+            <Combobox.Value placeholder="Select an option">
+              {(value) => value || 'Function fallback'}
+            </Combobox.Value>
+          </Combobox.Trigger>
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  <Combobox.Item value="option1">Option 1</Combobox.Item>
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      expect(screen.getByTestId('value')).to.have.text('Function fallback');
+    });
+
+    it('null item label in items takes precedence over placeholder', async () => {
+      const items = [
+        { value: null, label: 'None' },
+        { value: 'option1', label: 'Option 1' },
+      ];
+
+      await render(
+        <Combobox.Root items={items}>
+          <Combobox.Trigger data-testid="value">
+            <Combobox.Value placeholder="Select an option" />
+          </Combobox.Trigger>
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  <Combobox.Item value={null}>None</Combobox.Item>
+                  <Combobox.Item value="option1">Option 1</Combobox.Item>
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      expect(screen.getByTestId('value')).to.have.text('None');
+    });
+
+    it('uses placeholder when items have null value without label', async () => {
+      const items = [
+        { value: null, label: null },
+        { value: 'option1', label: 'Option 1' },
+      ];
+
+      await render(
+        <Combobox.Root items={items}>
+          <Combobox.Trigger data-testid="value">
+            <Combobox.Value placeholder="Select an option" />
+          </Combobox.Trigger>
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  <Combobox.Item value={null}>None</Combobox.Item>
+                  <Combobox.Item value="option1">Option 1</Combobox.Item>
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      expect(screen.getByTestId('value')).to.have.text('Select an option');
+    });
+
+    it('supports ReactNode as placeholder', async () => {
+      await render(
+        <Combobox.Root>
+          <Combobox.Trigger>
+            <Combobox.Value placeholder={<span data-testid="placeholder">Select an option</span>} />
+          </Combobox.Trigger>
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  <Combobox.Item value="option1">Option 1</Combobox.Item>
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      expect(screen.getByTestId('placeholder')).to.have.text('Select an option');
+    });
+
+    it('displays placeholder when multiple mode has empty array', async () => {
+      await render(
+        <Combobox.Root multiple defaultValue={[]}>
+          <Combobox.Trigger data-testid="value">
+            <Combobox.Value placeholder="Select options" />
+          </Combobox.Trigger>
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  <Combobox.Item value="option1">Option 1</Combobox.Item>
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      expect(screen.getByTestId('value')).to.have.text('Select options');
     });
   });
 });

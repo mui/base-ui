@@ -1,10 +1,10 @@
 'use client';
 import * as React from 'react';
 import { getSide, getAlignment, type Rect, getSideAxis } from '@floating-ui/utils';
-import { ownerDocument } from '@base-ui-components/utils/owner';
-import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
-import { useValueAsRef } from '@base-ui-components/utils/useValueAsRef';
-import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
+import { ownerDocument } from '@base-ui/utils/owner';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import {
   autoUpdate,
   flip,
@@ -13,7 +13,6 @@ import {
   shift,
   useFloating,
   size,
-  hide,
   type UseFloatingOptions,
   type Placement,
   type FloatingRootContext,
@@ -24,10 +23,12 @@ import {
   type MiddlewareState,
   type AutoUpdateOptions,
   type Middleware,
-} from '../floating-ui-react/index';
+  type FloatingTreeStore,
+} from '../floating-ui-react';
 import { useDirection } from '../direction-provider/DirectionContext';
 import { arrow } from '../floating-ui-react/middleware/arrow';
-import { FloatingTreeStore } from '../floating-ui-react/components/FloatingTreeStore';
+import { hide } from './hideMiddleware';
+import { DEFAULT_SIDES } from './adaptiveOriginMiddleware';
 
 function getLogicalSide(sideParam: Side, renderedSide: PhysicalSide, isRtl: boolean): Side {
   const isLogicalSideParam = sideParam === 'inline-start' || sideParam === 'inline-end';
@@ -68,32 +69,32 @@ interface SideFlipMode {
   /**
    * How to avoid collisions on the side axis.
    */
-  side?: 'flip' | 'none';
+  side?: ('flip' | 'none') | undefined;
   /**
    * How to avoid collisions on the align axis.
    */
-  align?: 'flip' | 'shift' | 'none';
+  align?: ('flip' | 'shift' | 'none') | undefined;
   /**
    * If both sides on the preferred axis do not fit, determines whether to fallback
    * to a side on the perpendicular axis and which logical side to prefer.
    */
-  fallbackAxisSide?: 'start' | 'end' | 'none';
+  fallbackAxisSide?: ('start' | 'end' | 'none') | undefined;
 }
 
 interface SideShiftMode {
   /**
    * How to avoid collisions on the side axis.
    */
-  side?: 'shift' | 'none';
+  side?: ('shift' | 'none') | undefined;
   /**
    * How to avoid collisions on the align axis.
    */
-  align?: 'shift' | 'none';
+  align?: ('shift' | 'none') | undefined;
   /**
    * If both sides on the preferred axis do not fit, determines whether to fallback
    * to a side on the perpendicular axis and which logical side to prefer.
    */
-  fallbackAxisSide?: 'start' | 'end' | 'none';
+  fallbackAxisSide?: ('start' | 'end' | 'none') | undefined;
 }
 
 export type CollisionAvoidance = SideFlipMode | SideShiftMode;
@@ -328,7 +329,6 @@ export function useAnchorPositioning(
       }),
       [arrowPadding],
     ),
-    hide(),
     {
       name: 'transformOrigin',
       fn(state) {
@@ -369,18 +369,21 @@ export function useAnchorPositioning(
         return {};
       },
     },
+    hide,
     adaptiveOrigin,
   );
 
-  // Ensure positioning doesn't run initially for `keepMounted` elements that
-  // aren't initially open.
-  let rootContext = floatingRootContext;
-  if (!mounted && floatingRootContext) {
-    rootContext = {
-      ...floatingRootContext,
-      elements: { reference: null, floating: null, domReference: null },
-    };
-  }
+  useIsoLayoutEffect(() => {
+    // Ensure positioning doesn't run initially for `keepMounted` elements that
+    // aren't initially open.
+    if (!mounted && floatingRootContext) {
+      floatingRootContext.update({
+        referenceElement: null,
+        floatingElement: null,
+        domReferenceElement: null,
+      });
+    }
+  }, [mounted, floatingRootContext]);
 
   const autoUpdateOptions: AutoUpdateOptions = React.useMemo(
     () => ({
@@ -402,7 +405,7 @@ export function useAnchorPositioning(
     isPositioned,
     floatingStyles: originalFloatingStyles,
   } = useFloating({
-    rootContext,
+    rootContext: floatingRootContext,
     placement,
     middleware,
     strategy: positionMethod,
@@ -413,14 +416,18 @@ export function useAnchorPositioning(
     externalTree,
   });
 
-  const { sideX, sideY } = middlewareData.adaptiveOrigin || {};
+  const { sideX, sideY } = middlewareData.adaptiveOrigin || DEFAULT_SIDES;
+
+  // Default to `fixed` when not positioned to prevent `autoFocus` scroll jumps.
+  // This ensures the popup is inside the viewport initially before it gets positioned.
+  const resolvedPosition: 'absolute' | 'fixed' = isPositioned ? positionMethod : 'fixed';
 
   const floatingStyles = React.useMemo<React.CSSProperties>(
     () =>
       adaptiveOrigin
-        ? { position: positionMethod, [sideX]: `${x}px`, [sideY]: `${y}px` }
-        : originalFloatingStyles,
-    [adaptiveOrigin, sideX, sideY, positionMethod, x, y, originalFloatingStyles],
+        ? { position: resolvedPosition, [sideX]: x, [sideY]: y }
+        : { position: resolvedPosition, ...originalFloatingStyles },
+    [adaptiveOrigin, resolvedPosition, sideX, x, sideY, y, originalFloatingStyles],
   );
 
   const registeredPositionReferenceRef = React.useRef<Element | VirtualElement | null>(null);
@@ -539,22 +546,25 @@ export interface UseAnchorPositioningSharedParameters {
    * By default, the popup will be positioned against the trigger.
    */
   anchor?:
-    | Element
-    | null
-    | VirtualElement
-    | React.RefObject<Element | null>
-    | (() => Element | VirtualElement | null);
+    | (
+        | Element
+        | null
+        | VirtualElement
+        | React.RefObject<Element | null>
+        | (() => Element | VirtualElement | null)
+      )
+    | undefined;
   /**
    * Determines which CSS `position` property to use.
    * @default 'absolute'
    */
-  positionMethod?: 'absolute' | 'fixed';
+  positionMethod?: ('absolute' | 'fixed') | undefined;
   /**
    * Which side of the anchor element to align the popup against.
    * May automatically change to avoid collisions.
    * @default 'bottom'
    */
-  side?: Side;
+  side?: Side | undefined;
   /**
    * Distance between the anchor and the popup in pixels.
    * Also accepts a function that returns the distance to read the dimensions of the anchor
@@ -579,12 +589,12 @@ export interface UseAnchorPositioningSharedParameters {
    *
    * @default 0
    */
-  sideOffset?: number | OffsetFunction;
+  sideOffset?: (number | OffsetFunction) | undefined;
   /**
    * How to align the popup relative to the specified side.
    * @default 'center'
    */
-  align?: Align;
+  align?: Align | undefined;
   /**
    * Additional offset along the alignment axis in pixels.
    * Also accepts a function that returns the offset to read the dimensions of the anchor
@@ -609,35 +619,35 @@ export interface UseAnchorPositioningSharedParameters {
    *
    * @default 0
    */
-  alignOffset?: number | OffsetFunction;
+  alignOffset?: (number | OffsetFunction) | undefined;
   /**
    * An element or a rectangle that delimits the area that the popup is confined to.
    * @default 'clipping-ancestors'
    */
-  collisionBoundary?: Boundary;
+  collisionBoundary?: Boundary | undefined;
   /**
    * Additional space to maintain from the edge of the collision boundary.
    * @default 5
    */
-  collisionPadding?: Padding;
+  collisionPadding?: Padding | undefined;
   /**
    * Whether to maintain the popup in the viewport after
    * the anchor element was scrolled out of view.
    * @default false
    */
-  sticky?: boolean;
+  sticky?: boolean | undefined;
   /**
    * Minimum distance to maintain between the arrow and the edges of the popup.
    *
    * Use it to prevent the arrow element from hanging out of the rounded corners of a popup.
    * @default 5
    */
-  arrowPadding?: number;
+  arrowPadding?: number | undefined;
   /**
    * Whether to disable the popup from tracking any layout shift of its positioning anchor.
    * @default false
    */
-  disableAnchorTracking?: boolean;
+  disableAnchorTracking?: boolean | undefined;
   /**
    * Determines how to handle collisions when positioning the popup.
    *
@@ -653,21 +663,21 @@ export interface UseAnchorPositioningSharedParameters {
    * ```
    *
    */
-  collisionAvoidance?: CollisionAvoidance;
+  collisionAvoidance?: CollisionAvoidance | undefined;
 }
 
 export interface UseAnchorPositioningParameters extends useAnchorPositioning.SharedParameters {
-  keepMounted?: boolean;
-  trackCursorAxis?: 'none' | 'x' | 'y' | 'both';
-  floatingRootContext?: FloatingRootContext;
+  keepMounted?: boolean | undefined;
+  trackCursorAxis?: ('none' | 'x' | 'y' | 'both') | undefined;
+  floatingRootContext?: FloatingRootContext | undefined;
   mounted: boolean;
   disableAnchorTracking: boolean;
-  nodeId?: string;
-  adaptiveOrigin?: Middleware;
+  nodeId?: string | undefined;
+  adaptiveOrigin?: Middleware | undefined;
   collisionAvoidance: CollisionAvoidance;
-  shiftCrossAxis?: boolean;
-  lazyFlip?: boolean;
-  externalTree?: FloatingTreeStore;
+  shiftCrossAxis?: boolean | undefined;
+  lazyFlip?: boolean | undefined;
+  externalTree?: FloatingTreeStore | undefined;
 }
 
 export interface UseAnchorPositioningReturnValue {

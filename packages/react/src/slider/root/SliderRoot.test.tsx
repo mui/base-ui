@@ -2,15 +2,12 @@ import { expect } from 'chai';
 import * as React from 'react';
 import { spy, stub } from 'sinon';
 import { act, flushMicrotasks, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
-import {
-  DirectionProvider,
-  type TextDirection,
-} from '@base-ui-components/react/direction-provider';
-import { Field } from '@base-ui-components/react/field';
-import { Slider } from '@base-ui-components/react/slider';
-import { Form } from '@base-ui-components/react/form';
+import { DirectionProvider, type TextDirection } from '@base-ui/react/direction-provider';
+import { Field } from '@base-ui/react/field';
+import { Slider } from '@base-ui/react/slider';
+import { Form } from '@base-ui/react/form';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
-import { isWebKit } from '@base-ui-components/utils/detectBrowser';
+import { isWebKit } from '@base-ui/utils/detectBrowser';
 import { REASONS } from '../../utils/reasons';
 import {
   ARROW_RIGHT,
@@ -594,6 +591,100 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
       await user.keyboard(`[${ARROW_DOWN}]`);
       expect(handleValueChange.callCount).to.equal(3);
       expect(handleValueChange.args[2][0]).to.deep.equal([46, 50]);
+    });
+  });
+
+  describe('prop: onValueCommitted', () => {
+    it('single value', async () => {
+      const handleValueCommitted = spy((newValue: number, eventDetails) => ({
+        newValue,
+        reason: eventDetails.reason,
+      }));
+
+      await render(
+        <Slider.Root onValueCommitted={handleValueCommitted} defaultValue={0}>
+          <Slider.Control data-testid="control">
+            <Slider.Thumb />
+          </Slider.Control>
+        </Slider.Root>,
+      );
+
+      const sliderControl = screen.getByTestId('control');
+
+      stub(sliderControl, 'getBoundingClientRect').callsFake(getHorizontalSliderRect);
+
+      const slider = screen.getByRole('slider');
+
+      fireEvent.pointerDown(sliderControl, {
+        buttons: 1,
+        clientX: 10,
+      });
+      fireEvent.pointerUp(sliderControl, {
+        buttons: 1,
+        clientX: 10,
+      });
+
+      expect(handleValueCommitted.callCount).to.equal(1);
+      expect(handleValueCommitted.lastCall.returnValue.newValue).to.equal(10);
+      expect(handleValueCommitted.lastCall.returnValue.reason).to.equal(REASONS.trackPress);
+
+      await act(async () => {
+        slider.focus();
+      });
+
+      fireEvent.change(slider, { target: { value: 23 } });
+      expect(handleValueCommitted.callCount).to.equal(2);
+      expect(handleValueCommitted.lastCall.returnValue.reason).to.equal(REASONS.inputChange);
+    });
+
+    it('array value', async () => {
+      const handleValueCommitted = spy((newValue: number[], eventDetails) => ({
+        newValue,
+        reason: eventDetails.reason,
+      }));
+
+      await render(
+        <Slider.Root onValueCommitted={handleValueCommitted} defaultValue={[10, 20]}>
+          <Slider.Control data-testid="control">
+            <Slider.Thumb index={0} />
+            <Slider.Thumb index={1} />
+          </Slider.Control>
+        </Slider.Root>,
+      );
+
+      const sliderControl = screen.getByTestId('control');
+
+      stub(sliderControl, 'getBoundingClientRect').callsFake(getHorizontalSliderRect);
+
+      const [thumb1, thumb2] = screen.getAllByRole('slider');
+
+      fireEvent.pointerDown(thumb2, {
+        buttons: 1,
+        clientX: 20,
+      });
+
+      fireEvent.pointerMove(thumb2, {
+        buttons: 1,
+        clientX: 30,
+      });
+
+      expect(handleValueCommitted.callCount).to.equal(0);
+
+      fireEvent.pointerUp(thumb2, {
+        buttons: 1,
+        clientX: 30,
+      });
+
+      expect(handleValueCommitted.callCount).to.equal(1);
+      expect(handleValueCommitted.lastCall.returnValue.reason).to.equal(REASONS.drag);
+
+      await act(async () => {
+        thumb1.focus();
+      });
+
+      fireEvent.change(thumb1, { target: { value: 23 } });
+      expect(handleValueCommitted.callCount).to.equal(2);
+      expect(handleValueCommitted.lastCall.returnValue.reason).to.equal(REASONS.inputChange);
     });
   });
 

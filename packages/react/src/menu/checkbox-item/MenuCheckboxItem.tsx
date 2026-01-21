@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
-import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
-import { useControlled } from '@base-ui-components/utils/useControlled';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { useControlled } from '@base-ui/utils/useControlled';
 import { MenuCheckboxItemContext } from './MenuCheckboxItemContext';
 import { REGULAR_ITEM, useMenuItem } from '../item/useMenuItem';
 import { useCompositeListItem } from '../../composite/list/useCompositeListItem';
@@ -23,7 +23,7 @@ import type { MenuRoot } from '../root/MenuRoot';
  */
 export const MenuCheckboxItem = React.forwardRef(function MenuCheckboxItem(
   componentProps: MenuCheckboxItem.Props,
-  forwardedRef: React.ForwardedRef<Element>,
+  forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
   const {
     render,
@@ -126,47 +126,48 @@ export type MenuCheckboxItemState = {
 };
 
 export interface MenuCheckboxItemProps
-  extends NonNativeButtonProps,
-    BaseUIComponentProps<'div', MenuCheckboxItem.State> {
+  extends NonNativeButtonProps, BaseUIComponentProps<'div', MenuCheckboxItem.State> {
   /**
    * Whether the checkbox item is currently ticked.
    *
    * To render an uncontrolled checkbox item, use the `defaultChecked` prop instead.
    */
-  checked?: boolean;
+  checked?: boolean | undefined;
   /**
    * Whether the checkbox item is initially ticked.
    *
    * To render a controlled checkbox item, use the `checked` prop instead.
    * @default false
    */
-  defaultChecked?: boolean;
+  defaultChecked?: boolean | undefined;
   /**
    * Event handler called when the checkbox item is ticked or unticked.
    */
-  onCheckedChange?: (checked: boolean, eventDetails: MenuCheckboxItem.ChangeEventDetails) => void;
+  onCheckedChange?:
+    | ((checked: boolean, eventDetails: MenuCheckboxItem.ChangeEventDetails) => void)
+    | undefined;
   /**
    * The click handler for the menu item.
    */
-  onClick?: React.MouseEventHandler<HTMLElement>;
+  onClick?: React.MouseEventHandler<HTMLElement> | undefined;
   /**
    * Whether the component should ignore user interaction.
    * @default false
    */
-  disabled?: boolean;
+  disabled?: boolean | undefined;
   /**
    * Overrides the text label to use when the item is matched during keyboard text navigation.
    */
-  label?: string;
+  label?: string | undefined;
   /**
    * @ignore
    */
-  id?: string;
+  id?: string | undefined;
   /**
    * Whether to close the menu when the item is clicked.
    * @default false
    */
-  closeOnClick?: boolean;
+  closeOnClick?: boolean | undefined;
 }
 
 export type MenuCheckboxItemChangeEventReason = MenuRoot.ChangeEventReason;

@@ -1,11 +1,11 @@
 'use client';
 import * as React from 'react';
-import { EMPTY_OBJECT } from '@base-ui-components/utils/empty';
-import { useControlled } from '@base-ui-components/utils/useControlled';
-import { useStableCallback } from '@base-ui-components/utils/useStableCallback';
-import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
-import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
-import { visuallyHidden } from '@base-ui-components/utils/visuallyHidden';
+import { EMPTY_OBJECT } from '@base-ui/utils/empty';
+import { useControlled } from '@base-ui/utils/useControlled';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
+import { visuallyHidden, visuallyHiddenInput } from '@base-ui/utils/visuallyHidden';
 import { NOOP } from '../../utils/noop';
 import { useStateAttributesMapping } from '../utils/useStateAttributesMapping';
 import { useRenderElement } from '../../utils/useRenderElement';
@@ -54,6 +54,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     readOnly = false,
     render,
     required = false,
+    uncheckedValue,
     value: valueProp,
     nativeButton = false,
     ...elementProps
@@ -74,8 +75,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     validation: localValidation,
   } = useFieldRootContext();
   const fieldItemContext = useFieldItemContext();
-  const { registerLabelableControlRef, labelId, controlId, setControlId, getDescriptionProps } =
-    useLabelableContext();
+  const { labelId, controlId, setControlId, getDescriptionProps } = useLabelableContext();
 
   const groupContext = useCheckboxGroupContext();
   const parentContext = groupContext?.parent;
@@ -192,11 +192,12 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
       disabled,
       // parent checkboxes unset `name` to be excluded from form submission
       name: parent ? undefined : name,
-      // Set `id` to stop Chrome warning about an unassociated input
-      id: inputId ?? undefined,
+      // Set `id` to stop Chrome warning about an unassociated input.
+      // When using a native button, the `id` is applied to the button instead.
+      id: nativeButton ? undefined : (inputId ?? undefined),
       required,
       ref: mergedInputRef,
-      style: visuallyHidden,
+      style: name ? visuallyHiddenInput : visuallyHidden,
       tabIndex: -1,
       type: 'checkbox',
       'aria-hidden': true,
@@ -266,16 +267,10 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
 
   const element = useRenderElement('span', componentProps, {
     state,
-    ref: [
-      buttonRef,
-      controlRef,
-      forwardedRef,
-      groupContext?.registerControlRef,
-      registerLabelableControlRef,
-    ],
+    ref: [buttonRef, controlRef, forwardedRef, groupContext?.registerControlRef],
     props: [
       {
-        id,
+        id: nativeButton ? (inputId ?? undefined) : id,
         role: 'checkbox',
         'aria-checked': groupIndeterminate ? 'mixed' : checked,
         'aria-readonly': readOnly || undefined,
@@ -320,8 +315,8 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
   return (
     <CheckboxRootContext.Provider value={state}>
       {element}
-      {!checked && !groupContext && name && !parent && (
-        <input type="hidden" name={name} value="off" />
+      {!checked && !groupContext && name && !parent && uncheckedValue !== undefined && (
+        <input type="hidden" name={name} value={uncheckedValue} />
       )}
       <input {...inputProps} />
     </CheckboxRootContext.Provider>
@@ -352,70 +347,78 @@ export interface CheckboxRootState extends FieldRoot.State {
 }
 
 export interface CheckboxRootProps
-  extends NonNativeButtonProps,
+  extends
+    NonNativeButtonProps,
     Omit<BaseUIComponentProps<'span', CheckboxRoot.State>, 'onChange' | 'value'> {
   /**
    * The id of the input element.
    */
-  id?: string;
+  id?: string | undefined;
   /**
    * Identifies the field when a form is submitted.
    * @default undefined
    */
-  name?: string;
+  name?: string | undefined;
   /**
    * Whether the checkbox is currently ticked.
    *
    * To render an uncontrolled checkbox, use the `defaultChecked` prop instead.
    * @default undefined
    */
-  checked?: boolean;
+  checked?: boolean | undefined;
   /**
    * Whether the checkbox is initially ticked.
    *
    * To render a controlled checkbox, use the `checked` prop instead.
    * @default false
    */
-  defaultChecked?: boolean;
+  defaultChecked?: boolean | undefined;
   /**
    * Whether the component should ignore user interaction.
    * @default false
    */
-  disabled?: boolean;
+  disabled?: boolean | undefined;
   /**
    * Event handler called when the checkbox is ticked or unticked.
    */
-  onCheckedChange?: (checked: boolean, eventDetails: CheckboxRootChangeEventDetails) => void;
+  onCheckedChange?:
+    | ((checked: boolean, eventDetails: CheckboxRootChangeEventDetails) => void)
+    | undefined;
   /**
    * Whether the user should be unable to tick or untick the checkbox.
    * @default false
    */
-  readOnly?: boolean;
+  readOnly?: boolean | undefined;
   /**
    * Whether the user must tick the checkbox before submitting a form.
    * @default false
    */
-  required?: boolean;
+  required?: boolean | undefined;
   /**
    * Whether the checkbox is in a mixed state: neither ticked, nor unticked.
    * @default false
    */
-  indeterminate?: boolean;
+  indeterminate?: boolean | undefined;
   /**
    * A ref to access the hidden `<input>` element.
    */
-  inputRef?: React.Ref<HTMLInputElement>;
+  inputRef?: React.Ref<HTMLInputElement> | undefined;
   /**
    * Whether the checkbox controls a group of child checkboxes.
    *
    * Must be used in a [Checkbox Group](https://base-ui.com/react/components/checkbox-group).
    * @default false
    */
-  parent?: boolean;
+  parent?: boolean | undefined;
+  /**
+   * The value submitted with the form when the checkbox is unchecked.
+   * By default, unchecked checkboxes do not submit any value, matching native checkbox behavior.
+   */
+  uncheckedValue?: string | undefined;
   /**
    * The value of the selected checkbox.
    */
-  value?: string;
+  value?: string | undefined;
 }
 
 export type CheckboxRootChangeEventReason = typeof REASONS.none;

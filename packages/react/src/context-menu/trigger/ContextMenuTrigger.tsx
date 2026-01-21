@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
-import { ownerDocument } from '@base-ui-components/utils/owner';
-import { useTimeout } from '@base-ui-components/utils/useTimeout';
+import { ownerDocument } from '@base-ui/utils/owner';
+import { useTimeout } from '@base-ui/utils/useTimeout';
 import { contains, getTarget, stopEvent } from '../../floating-ui-react/utils';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useContextMenuRootContext } from '../root/ContextMenuRootContext';
@@ -33,6 +33,7 @@ export const ContextMenuTrigger = React.forwardRef(function ContextMenuTrigger(
     backdropRef,
     positionerRef,
     allowMouseUpTriggerRef,
+    initialCursorPointRef,
     rootId,
   } = useContextMenuRootContext(false);
 
@@ -47,6 +48,8 @@ export const ContextMenuTrigger = React.forwardRef(function ContextMenuTrigger(
 
   function handleLongPress(x: number, y: number, event: MouseEvent | TouchEvent) {
     const isTouchEvent = event.type.startsWith('touch');
+
+    initialCursorPointRef.current = { x, y };
 
     setAnchor({
       getBoundingClientRect() {
@@ -197,8 +200,10 @@ export type ContextMenuTriggerState = {
   open: boolean;
 };
 
-export interface ContextMenuTriggerProps
-  extends BaseUIComponentProps<'div', ContextMenuTrigger.State> {}
+export interface ContextMenuTriggerProps extends BaseUIComponentProps<
+  'div',
+  ContextMenuTrigger.State
+> {}
 
 export namespace ContextMenuTrigger {
   export type State = ContextMenuTriggerState;

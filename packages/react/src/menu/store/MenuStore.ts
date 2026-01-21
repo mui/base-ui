@@ -1,61 +1,50 @@
 import * as React from 'react';
-import { createSelector, ReactStore } from '@base-ui-components/utils/store';
-import { EMPTY_OBJECT } from '@base-ui-components/utils/empty';
-import { useRefWithInit } from '@base-ui-components/utils/useRefWithInit';
+import { createSelector, ReactStore } from '@base-ui/utils/store';
+import { EMPTY_OBJECT } from '@base-ui/utils/empty';
+import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { MenuParent, MenuRoot } from '../root/MenuRoot';
-import { type FloatingRootContext } from '../../floating-ui-react';
-import { getEmptyRootContext } from '../../floating-ui-react/utils/getEmptyRootContext';
 import { FloatingTreeStore } from '../../floating-ui-react/components/FloatingTreeStore';
-import { TransitionStatus } from '../../utils/useTransitionStatus';
 import { HTMLProps } from '../../utils/types';
-import { PopupTriggerMap } from '../../utils/popupStoreUtils';
+import {
+  createInitialPopupStoreState,
+  PopupStoreContext,
+  popupStoreSelectors,
+  PopupStoreState,
+  PopupTriggerMap,
+} from '../../utils/popups';
 
-export type State<Payload> = {
-  open: boolean;
+export type State<Payload> = PopupStoreState<Payload> & {
   disabled: boolean;
   modal: boolean;
-  mounted: boolean;
   allowMouseEnter: boolean;
   parent: MenuParent;
   rootId: string | undefined;
   activeIndex: number | null;
   hoverEnabled: boolean;
   stickIfOpen: boolean;
-  positionerElement: HTMLElement | null;
-  transitionStatus: TransitionStatus;
   instantType: 'dismiss' | 'click' | 'group' | undefined;
-  lastOpenChangeReason: MenuRoot.ChangeEventReason | null;
-  floatingRootContext: FloatingRootContext;
+  openChangeReason: MenuRoot.ChangeEventReason | null;
   floatingTreeRoot: FloatingTreeStore;
   floatingNodeId: string | undefined;
   floatingParentNodeId: string | null;
   itemProps: HTMLProps;
-  popupProps: HTMLProps;
-  payload: Payload | undefined;
-  triggers: PopupTriggerMap;
-  activeTriggerProps: HTMLProps;
-  inactiveTriggerProps: HTMLProps;
-  activeTriggerId: string | null;
   closeDelay: number;
   keyboardEventRelay: ((event: React.KeyboardEvent<any>) => void) | undefined;
 };
 
-type Context = {
-  positionerRef: React.RefObject<HTMLElement | null>;
-  popupRef: React.RefObject<HTMLElement | null>;
-  typingRef: React.RefObject<boolean>;
-  itemDomElements: React.RefObject<(HTMLElement | null)[]>;
-  itemLabels: React.RefObject<(string | null)[]>;
+type Context = PopupStoreContext<MenuRoot.ChangeEventDetails> & {
+  readonly positionerRef: React.RefObject<HTMLElement | null>;
+  readonly popupRef: React.RefObject<HTMLElement | null>;
+  readonly typingRef: React.RefObject<boolean>;
+  readonly itemDomElements: React.RefObject<(HTMLElement | null)[]>;
+  readonly itemLabels: React.RefObject<(string | null)[]>;
   allowMouseUpTriggerRef: React.RefObject<boolean>;
-  preventUnmountingRef: React.RefObject<boolean>;
-  triggerFocusTargetRef: React.RefObject<HTMLElement | null>;
-  beforeContentFocusGuardRef: React.RefObject<HTMLElement | null>;
-
-  onOpenChangeComplete: ((open: boolean) => void) | undefined;
+  readonly triggerFocusTargetRef: React.RefObject<HTMLElement | null>;
+  readonly beforeContentFocusGuardRef: React.RefObject<HTMLElement | null>;
 };
 
 const selectors = {
-  open: createSelector((state: State<unknown>) => state.open),
+  ...popupStoreSelectors,
   disabled: createSelector((state: State<unknown>) =>
     state.parent.type === 'menubar'
       ? state.parent.context.disabled || state.disabled
@@ -68,26 +57,7 @@ const selectors = {
       (state.modal ?? true),
   ),
 
-  mounted: createSelector((state: State<unknown>) => state.mounted),
-  activeTriggerId: createSelector((state: State<unknown>) => state.activeTriggerId),
-  activeTriggerElement: createSelector((state: State<unknown>) =>
-    state.mounted && state.activeTriggerId != null
-      ? (state.triggers.get(state.activeTriggerId) ?? null)
-      : null,
-  ),
-  isTriggerActive: createSelector(
-    (state: State<unknown>, triggerId: string | undefined) =>
-      triggerId !== undefined && state.activeTriggerId === triggerId,
-  ),
-  isOpenedByTrigger: createSelector(
-    (state: State<unknown>, triggerId: string | undefined) =>
-      triggerId !== undefined && state.activeTriggerId === triggerId && state.open,
-  ),
-  allowMouseEnter: createSelector((state: State<unknown>): boolean =>
-    state.parent.type === 'menu'
-      ? state.parent.store.select('allowMouseEnter')
-      : state.allowMouseEnter,
-  ),
+  allowMouseEnter: createSelector((state: State<unknown>) => state.allowMouseEnter),
   stickIfOpen: createSelector((state: State<unknown>) => state.stickIfOpen),
   parent: createSelector((state: State<unknown>) => state.parent),
   rootId: createSelector((state: State<unknown>): string | undefined => {
@@ -102,11 +72,8 @@ const selectors = {
     (state: State<unknown>, itemIndex: number) => state.activeIndex === itemIndex,
   ),
   hoverEnabled: createSelector((state: State<unknown>) => state.hoverEnabled),
-  positionerElement: createSelector((state: State<unknown>) => state.positionerElement),
-  transitionStatus: createSelector((state: State<unknown>) => state.transitionStatus),
   instantType: createSelector((state: State<unknown>) => state.instantType),
-  lastOpenChangeReason: createSelector((state: State<unknown>) => state.lastOpenChangeReason),
-  floatingRootContext: createSelector((state: State<unknown>) => state.floatingRootContext),
+  lastOpenChangeReason: createSelector((state: State<unknown>) => state.openChangeReason),
   floatingTreeRoot: createSelector((state: State<unknown>): FloatingTreeStore => {
     if (state.parent.type === 'menu') {
       return state.parent.store.select('floatingTreeRoot');
@@ -117,11 +84,6 @@ const selectors = {
   floatingNodeId: createSelector((state: State<unknown>) => state.floatingNodeId),
   floatingParentNodeId: createSelector((state: State<unknown>) => state.floatingParentNodeId),
   itemProps: createSelector((state: State<unknown>) => state.itemProps),
-  popupProps: createSelector((state: State<unknown>) => state.popupProps),
-  activeTriggerProps: createSelector((state: State<unknown>) => state.activeTriggerProps),
-  inactiveTriggerProps: createSelector((state: State<unknown>) => state.inactiveTriggerProps),
-  payload: createSelector((state: State<unknown>) => state.payload),
-  triggers: createSelector((state: State<unknown>) => state.triggers),
   closeDelay: createSelector((state: State<unknown>) => state.closeDelay),
   keyboardEventRelay: createSelector(
     (state: State<unknown>): React.KeyboardEventHandler<any> | undefined => {
@@ -138,7 +100,11 @@ const selectors = {
   ),
 };
 
-export class MenuStore<Payload> extends ReactStore<State<Payload>, Context, typeof selectors> {
+export class MenuStore<Payload> extends ReactStore<
+  Readonly<State<Payload>>,
+  Context,
+  typeof selectors
+> {
   constructor(initialState?: Partial<State<Payload>>) {
     super(
       { ...createInitialState(), ...initialState },
@@ -149,24 +115,12 @@ export class MenuStore<Payload> extends ReactStore<State<Payload>, Context, type
         itemDomElements: { current: [] },
         itemLabels: { current: [] },
         allowMouseUpTriggerRef: { current: false },
-        preventUnmountingRef: { current: false },
         triggerFocusTargetRef: React.createRef<HTMLElement>(),
         beforeContentFocusGuardRef: React.createRef<HTMLElement>(),
         onOpenChangeComplete: undefined,
+        triggerElements: new PopupTriggerMap(),
       },
       selectors,
-    );
-
-    // Sync `allowMouseEnter` with parent menu if applicable.
-    this.observe(
-      createSelector((state) => state.allowMouseEnter),
-      (allowMouseEnter, oldValue) => {
-        // The allowMouseEnter !== oldValue check prevent calling parent store's set
-        // on intialization. Without it, React might complain about updating one component during rendering another.
-        if (this.state.parent.type === 'menu' && allowMouseEnter !== oldValue) {
-          this.state.parent.store.set('allowMouseEnter', allowMouseEnter);
-        }
-      },
     );
 
     // Set up propagation of state from parent menu if applicable.
@@ -191,7 +145,7 @@ export class MenuStore<Payload> extends ReactStore<State<Payload>, Context, type
   }
 
   setOpen(open: boolean, eventDetails: Omit<MenuRoot.ChangeEventDetails, 'preventUnmountOnClose'>) {
-    this.state.floatingRootContext.events.emit('setOpen', { open, eventDetails });
+    this.state.floatingRootContext.context.events.emit('setOpen', { open, eventDetails });
   }
 
   public static useStore<Payload>(
@@ -199,11 +153,11 @@ export class MenuStore<Payload> extends ReactStore<State<Payload>, Context, type
     initialState: Partial<State<Payload>>,
   ) {
     // eslint-disable-next-line react-hooks/rules-of-hooks
-    const store = useRefWithInit(() => {
-      return externalStore ?? new MenuStore<Payload>(initialState);
+    const internalStore = useRefWithInit(() => {
+      return new MenuStore<Payload>(initialState);
     }).current;
 
-    return store;
+    return externalStore ?? internalStore;
   }
 
   private unsubscribeParentListener: (() => void) | null = null;
@@ -211,11 +165,10 @@ export class MenuStore<Payload> extends ReactStore<State<Payload>, Context, type
 
 function createInitialState<Payload>(): State<Payload> {
   return {
-    open: false,
+    ...createInitialPopupStoreState(),
     disabled: false,
     modal: true,
-    mounted: false,
-    allowMouseEnter: true,
+    allowMouseEnter: false,
     stickIfOpen: true,
     parent: {
       type: undefined,
@@ -223,21 +176,12 @@ function createInitialState<Payload>(): State<Payload> {
     rootId: undefined,
     activeIndex: null,
     hoverEnabled: true,
-    positionerElement: null,
-    transitionStatus: 'idle',
     instantType: undefined,
-    lastOpenChangeReason: null,
-    floatingRootContext: getEmptyRootContext(),
+    openChangeReason: null,
     floatingTreeRoot: new FloatingTreeStore(),
     floatingNodeId: undefined,
     floatingParentNodeId: null,
     itemProps: EMPTY_OBJECT as HTMLProps,
-    popupProps: EMPTY_OBJECT as HTMLProps,
-    activeTriggerProps: EMPTY_OBJECT as HTMLProps,
-    inactiveTriggerProps: EMPTY_OBJECT as HTMLProps,
-    payload: undefined,
-    triggers: new Map<string, HTMLElement>(),
-    activeTriggerId: null,
     keyboardEventRelay: undefined,
     closeDelay: 0,
   };
