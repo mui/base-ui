@@ -6,13 +6,14 @@ import { AttributesReferenceTable } from './AttributesReferenceTable';
 import { CssVariablesReferenceTable } from './CssVariablesReferenceTable';
 
 import '../Demo/CodeHighlighting.css';
+import AdditionalTypesAccordion from './AdditionalTypesAccordion';
 
 type ReferenceTableProps = TypesContentProps<{
   hideDescription?: boolean;
 }>;
 
 export function ReferenceTable(props: ReferenceTableProps) {
-  const { type, multiple, hideDescription } = useTypes(props);
+  const { type, additionalTypes, multiple, hideDescription } = useTypes(props);
 
   if (type?.type !== 'component') {
     return <p>No type information provided.</p>;
@@ -34,6 +35,10 @@ export function ReferenceTable(props: ReferenceTableProps) {
 
       {Object.keys(data.cssVariables).length > 0 && (
         <CssVariablesReferenceTable data={data.cssVariables} className="mt-5 mb-6" />
+      )}
+
+      {additionalTypes && additionalTypes.length > 0 && (
+        <AdditionalTypesAccordion data={additionalTypes} />
       )}
     </React.Fragment>
   );
