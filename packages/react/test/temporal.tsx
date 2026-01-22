@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Locale } from 'date-fns/locale';
-import { UnstableTemporalLocaleProvider as TemporalLocaleProvider } from '@base-ui/react/temporal-locale-provider';
+import { TemporalLocaleProvider } from '@base-ui/react/temporal-locale-provider';
 import { TemporalAdapter } from '@base-ui/react/types';
 import {
   createRenderer,
@@ -11,7 +11,7 @@ import {
 import { TemporalAdapterDateFns } from '../../react/src/temporal-adapter-date-fns/TemporalAdapterDateFns';
 
 /**
- * Returns a function to render a temporal component, wrapped with TemporalAdapterProvider.
+ * Returns a function to render a temporal component, wrapped with TemporalLocaleProvider.
  */
 export function createTemporalRenderer(
   parameters: createTemporalRenderer.Parameters = {},

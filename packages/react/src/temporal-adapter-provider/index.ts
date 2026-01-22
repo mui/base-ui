@@ -1,1 +1,1 @@
-export { Provider as UnstableTemporalAdapterProvider } from './index.parts';
+export { TemporalAdapterProvider } from './TemporalAdapterProvider';
