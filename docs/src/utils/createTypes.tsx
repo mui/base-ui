@@ -4,23 +4,28 @@ import {
 } from '@mui/internal-docs-infra/abstractCreateTypes';
 import clsx from 'clsx';
 import { ReferenceTable } from '../components/ReferenceTable/ReferenceTable';
-import { mdxComponents as components, inlineMdxComponents } from '../mdx-components';
+import { mdxComponents, inlineMdxComponents } from '../mdx-components';
+import { CodeBlockPrecomputed } from '../components/CodeBlockPrecomputed';
+import { Code } from '../components/Code';
 
 interface MDXComponents {
   [key: string]: React.FC<any> | MDXComponents;
 }
 
-const Code =
-  typeof inlineMdxComponents.code === 'function'
-    ? inlineMdxComponents.code
-    : (props: any) => <code {...props} />;
+const components: MDXComponents = {
+  ...mdxComponents,
+  pre: CodeBlockPrecomputed,
+};
 
 const inlineComponents: MDXComponents = {
   ...inlineMdxComponents,
   code: (props) => (
-    <Code {...props} data-table-code="" className={clsx(props.className, 'text-xs')} />
+    <Code
+      {...props}
+      data-table-code=""
+      className={clsx(props.className, 'text-xs', 'data-[inline]:mx-[0.1em]')}
+    />
   ),
-  pre: (props) => <pre {...props} className={clsx(props.className, 'text-xs p-0 m-0')} />,
 };
 
 /**

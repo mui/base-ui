@@ -15,10 +15,8 @@ export default function ExampleAccordion({ data }: { data: ProcessedTypesMeta[] 
                   <PlusIcon className="mr-2 size-3 shrink-0 transition-all ease-out group-data-[panel-open]:scale-110 group-data-[panel-open]:rotate-45" />
                 </Accordion.Trigger>
               </Accordion.Header>
-              <Accordion.Panel className="h-[var(--accordion-panel-height)] overflow-hidden text-base text-gray-600 transition-[height] ease-out data-[ending-style]:h-0 data-[starting-style]:h-0">
-                <pre className="mt-2 mb-4 rounded-lg bg-gray-100 p-4">
-                  <code>{additionalType.data.formattedCode}</code>
-                </pre>
+              <Accordion.Panel className="h-[var(--accordion-panel-height)] border-l border-r border-gray-200 overflow-hidden text-base text-gray-600 transition-[height] ease-out data-[ending-style]:h-0 data-[starting-style]:h-0">
+                {additionalType.data.formattedCode}
               </Accordion.Panel>
             </Accordion.Item>
           )
