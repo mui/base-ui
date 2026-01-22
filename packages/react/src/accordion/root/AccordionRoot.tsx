@@ -177,18 +177,18 @@ export interface AccordionRootProps extends BaseUIComponentProps<'div', Accordio
    *
    * To render an uncontrolled accordion, use the `defaultValue` prop instead.
    */
-  value?: AccordionValue;
+  value?: AccordionValue | undefined;
   /**
    * The uncontrolled value of the item(s) that should be initially expanded.
    *
    * To render a controlled accordion, use the `value` prop instead.
    */
-  defaultValue?: AccordionValue;
+  defaultValue?: AccordionValue | undefined;
   /**
    * Whether the component should ignore user interaction.
    * @default false
    */
-  disabled?: boolean;
+  disabled?: boolean | undefined;
   /**
    * Allows the browser’s built-in page search to find and expand the panel contents.
    *
@@ -196,35 +196,37 @@ export interface AccordionRootProps extends BaseUIComponentProps<'div', Accordio
    * to hide the element without removing it from the DOM.
    * @default false
    */
-  hiddenUntilFound?: boolean;
+  hiddenUntilFound?: boolean | undefined;
   /**
    * Whether to keep the element in the DOM while the panel is closed.
    * This prop is ignored when `hiddenUntilFound` is used.
    * @default false
    */
-  keepMounted?: boolean;
+  keepMounted?: boolean | undefined;
   /**
    * Whether to loop keyboard focus back to the first item
    * when the end of the list is reached while using the arrow keys.
    * @default true
    */
-  loopFocus?: boolean;
+  loopFocus?: boolean | undefined;
   /**
    * Event handler called when an accordion item is expanded or collapsed.
    * Provides the new value as an argument.
    */
-  onValueChange?: (value: AccordionValue, eventDetails: AccordionRootChangeEventDetails) => void;
+  onValueChange?:
+    | ((value: AccordionValue, eventDetails: AccordionRootChangeEventDetails) => void)
+    | undefined;
   /**
    * Whether multiple items can be open at the same time.
    * @default false
    */
-  multiple?: boolean;
+  multiple?: boolean | undefined;
   /**
    * The visual orientation of the accordion.
    * Controls whether roving focus uses left/right or up/down arrow keys.
    * @default 'vertical'
    */
-  orientation?: Orientation;
+  orientation?: Orientation | undefined;
 }
 
 export type AccordionRootChangeEventReason = typeof REASONS.triggerPress | typeof REASONS.none;

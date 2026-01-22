@@ -231,8 +231,6 @@
 
 @layer all {
   html {
-    /* Stable scrollbar */
-    overflow-y: scroll;
     word-break: break-word;
   }
 
@@ -240,6 +238,8 @@
     font-synthesis: none;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    /* Stable scrollbar */
+    overflow-y: scroll;
   }
 
   /* Debugging red text? You just forgot to set or inherit color in your demo. */

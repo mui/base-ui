@@ -9,6 +9,7 @@ import { isMouseWithinBounds } from '@base-ui/utils/isMouseWithinBounds';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStore } from '@base-ui/utils/store';
 import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
+import type { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import { FloatingFocusManager } from '../../floating-ui-react';
 import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 import { useSelectFloatingContext, useSelectRootContext } from '../root/SelectRootContext';
@@ -29,6 +30,7 @@ import { useToolbarRootContext } from '../../toolbar/root/ToolbarRootContext';
 import { COMPOSITE_KEYS } from '../../composite/composite';
 import { getDisabledMountTransitionStyles } from '../../utils/getDisabledMountTransitionStyles';
 import { clamp } from '../../utils/clamp';
+import { useCSPContext } from '../../csp-provider/CSPContext';
 
 const stateAttributesMapping: StateAttributesMapping<SelectPopup.State> = {
   ...popupStateMapping,
@@ -45,7 +47,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
   componentProps: SelectPopup.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, ...elementProps } = componentProps;
+  const { render, className, finalFocus, ...elementProps } = componentProps;
 
   const {
     store,
@@ -70,6 +72,8 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
   } = useSelectPositionerContext();
   const insideToolbar = useToolbarRootContext(true) != null;
   const floatingRootContext = useSelectFloatingContext();
+
+  const { nonce, disableStyleElements } = useCSPContext();
 
   const highlightTimeout = useTimeout();
 
@@ -108,6 +112,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
     const positionerStyles = getComputedStyle(positionerElement);
     const marginTop = parseFloat(positionerStyles.marginTop);
     const marginBottom = parseFloat(positionerStyles.marginBottom);
+    const maxPopupHeight = getMaxPopupHeight(getComputedStyle(popupRef.current));
     const viewportHeight = doc.documentElement.clientHeight - marginTop - marginBottom;
 
     const scrollTop = scroller.scrollTop;
@@ -115,7 +120,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
     const clientHeight = scroller.clientHeight;
     const maxScrollTop = scrollHeight - clientHeight;
 
-    let nextPositionerHeight: number | null = null;
+    let nextPositionerHeight = 0;
     let nextScrollTop: number | null = null;
     let setReachedMax = false;
 
@@ -150,13 +155,13 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
       }
     }
 
-    if (nextPositionerHeight != null) {
+    if (nextPositionerHeight !== 0) {
       positionerElement.style.height = `${nextPositionerHeight}px`;
     }
     if (nextScrollTop != null) {
       scroller.scrollTop = nextScrollTop;
     }
-    if (setReachedMax) {
+    if (setReachedMax || nextPositionerHeight >= maxPopupHeight) {
       reachedMaxHeightRef.current = true;
     }
 
@@ -264,6 +269,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
         const marginTop = parseFloat(positionerStyles.marginTop) || 10;
         const marginBottom = parseFloat(positionerStyles.marginBottom) || 10;
         const minHeight = parseFloat(positionerStyles.minHeight) || 100;
+        const maxPopupHeight = getMaxPopupHeight(popupStyles);
 
         const paddingLeft = 5;
         const paddingRight = 5;
@@ -359,7 +365,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
           popupElement.style.setProperty('--transform-origin', `50% ${clampedY}%`);
         }
 
-        if (initialHeightRef.current === viewportHeight) {
+        if (initialHeightRef.current === viewportHeight || height >= maxPopupHeight) {
           reachedMaxHeightRef.current = true;
         }
 
@@ -469,11 +475,12 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
 
   return (
     <React.Fragment>
-      {styleDisableScrollbar.element}
+      {!disableStyleElements && styleDisableScrollbar.getElement(nonce)}
       <FloatingFocusManager
         context={floatingRootContext}
         modal={false}
         disabled={!mounted}
+        returnFocus={finalFocus}
         restoreFocus
       >
         {element}
@@ -484,6 +491,22 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
 
 export interface SelectPopupProps extends BaseUIComponentProps<'div', SelectPopup.State> {
   children?: React.ReactNode;
+  /**
+   * Determines the element to focus when the select popup is closed.
+   *
+   * - `false`: Do not move focus.
+   * - `true`: Move focus based on the default behavior (trigger or previously focused element).
+   * - `RefObject`: Move focus to the ref element.
+   * - `function`: Called with the interaction type (`mouse`, `touch`, `pen`, or `keyboard`).
+   *   Return an element to focus, `true` to use the default behavior, or `false`/`undefined` to do nothing.
+   */
+  finalFocus?:
+    | (
+        | boolean
+        | React.RefObject<HTMLElement | null>
+        | ((closeType: InteractionType) => boolean | HTMLElement | null | void)
+      )
+    | undefined;
 }
 
 export interface SelectPopupState {
@@ -496,6 +519,11 @@ export interface SelectPopupState {
 export namespace SelectPopup {
   export type Props = SelectPopupProps;
   export type State = SelectPopupState;
+}
+
+function getMaxPopupHeight(popupStyles: CSSStyleDeclaration) {
+  const maxHeightStyle = popupStyles.maxHeight || '';
+  return maxHeightStyle.endsWith('px') ? parseFloat(maxHeightStyle) || Infinity : Infinity;
 }
 
 const UNSET_TRANSFORM_STYLES = {

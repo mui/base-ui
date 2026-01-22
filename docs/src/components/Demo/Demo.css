@@ -56,7 +56,8 @@
     align-items: center;
     gap: 2rem;
     height: 2.25rem;
-    padding: 0 0.75rem;
+    padding: 0;
+    padding-left: 0.75rem;
     user-select: none;
 
     /* Scroll */
@@ -74,6 +75,34 @@
       outline: 2px solid var(--color-blue);
       outline-offset: -1px;
       z-index: 1;
+    }
+  }
+
+  .DemoToolbarActions {
+    position: relative;
+    /* Apply sticky only on wider viewports to avoid actions taking up most of it */
+    @media (min-width: 768px) {
+      position: sticky;
+      padding-left: 1rem;
+    }
+    right: 0;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-left: auto;
+    padding-right: 0.75rem;
+    background-color: var(--color-gray-50);
+    height: 100%;
+
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -24px;
+      width: 24px;
+      height: 100%;
+      background: linear-gradient(to right, transparent, var(--color-gray-50));
+      pointer-events: none;
     }
   }
 

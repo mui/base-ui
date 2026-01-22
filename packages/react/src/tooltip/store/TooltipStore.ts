@@ -58,7 +58,7 @@ export class TooltipStore<Payload> extends ReactStore<
     );
   }
 
-  public setOpen = (
+  setOpen = (
     nextOpen: boolean,
     eventDetails: Omit<TooltipRoot.ChangeEventDetails, 'preventUnmountOnClose'>,
   ) => {
@@ -110,14 +110,16 @@ export class TooltipStore<Payload> extends ReactStore<
     }
   };
 
-  public static useStore<Payload>(
+  static useStore<Payload>(
     externalStore: TooltipStore<Payload> | undefined,
     initialState?: Partial<State<Payload>>,
   ) {
     // eslint-disable-next-line react-hooks/rules-of-hooks
-    const store = useRefWithInit(() => {
-      return externalStore ?? new TooltipStore<Payload>(initialState);
+    const internalStore = useRefWithInit(() => {
+      return new TooltipStore<Payload>(initialState);
     }).current;
+
+    const store = externalStore ?? internalStore;
 
     // eslint-disable-next-line react-hooks/rules-of-hooks
     const floatingRootContext = useSyncedFloatingRootContext({

@@ -21,6 +21,15 @@ export default function getBabelConfig(api) {
     ],
   ];
 
+  const displayNamePlugin = baseConfig.plugins.find(
+    (p) => p[2] === '@mui/internal-babel-plugin-display-name',
+  );
+  displayNamePlugin[1].allowedCallees ??= {};
+  displayNamePlugin[1].allowedCallees['@base-ui/utils/fastHooks'] = [
+    'fastComponent',
+    'fastComponentRef',
+  ];
+
   return {
     ...baseConfig,
     plugins: [...baseConfig.plugins, ...plugins],

@@ -16,7 +16,7 @@ import { useBaseUiId } from '../../utils/useBaseUiId';
  */
 export const NavigationMenuItem = React.forwardRef(function NavigationMenuItem(
   componentProps: NavigationMenuItem.Props,
-  forwardedRef: React.ForwardedRef<HTMLDivElement>,
+  forwardedRef: React.ForwardedRef<HTMLLIElement>,
 ) {
   const { className, render, value: valueProp, ...elementProps } = componentProps;
 

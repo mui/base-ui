@@ -1,38 +1,46 @@
 'use client';
 import * as React from 'react';
 import { Combobox } from '@base-ui/react/combobox';
+import { Field } from '@base-ui/react/field';
 import styles from './index.module.css';
 
 export default function ExamplePopoverCombobox() {
   return (
-    <Combobox.Root items={countries} defaultValue={countries[0]}>
-      <Combobox.Trigger className={styles.Trigger}>
-        <Combobox.Value />
-        <Combobox.Icon className={styles.TriggerIcon}>
-          <ChevronUpDownIcon />
-        </Combobox.Icon>
-      </Combobox.Trigger>
-      <Combobox.Portal>
-        <Combobox.Positioner align="start" sideOffset={4}>
-          <Combobox.Popup className={styles.Popup} aria-label="Select country">
-            <div className={styles.InputContainer}>
-              <Combobox.Input placeholder="e.g. United Kingdom" className={styles.Input} />
-            </div>
-            <Combobox.Empty className={styles.Empty}>No countries found.</Combobox.Empty>
-            <Combobox.List className={styles.List}>
-              {(country: Country) => (
-                <Combobox.Item key={country.code} value={country} className={styles.Item}>
-                  <Combobox.ItemIndicator className={styles.ItemIndicator}>
-                    <CheckIcon className={styles.ItemIndicatorIcon} />
-                  </Combobox.ItemIndicator>
-                  <div className={styles.ItemText}>{country.label ?? country.value}</div>
-                </Combobox.Item>
-              )}
-            </Combobox.List>
-          </Combobox.Popup>
-        </Combobox.Positioner>
-      </Combobox.Portal>
-    </Combobox.Root>
+    <Field.Root className={styles.Field}>
+      <Field.Label className={styles.Label} nativeLabel={false} render={<div />}>
+        Country
+      </Field.Label>
+      <Combobox.Root items={countries}>
+        <Combobox.Trigger className={styles.Trigger}>
+          <Combobox.Value
+            placeholder={<span className={styles.Placeholder}>Select country</span>}
+          />
+          <Combobox.Icon className={styles.TriggerIcon}>
+            <ChevronUpDownIcon />
+          </Combobox.Icon>
+        </Combobox.Trigger>
+        <Combobox.Portal>
+          <Combobox.Positioner align="start" sideOffset={4}>
+            <Combobox.Popup className={styles.Popup} aria-label="Select country">
+              <div className={styles.InputContainer}>
+                <Combobox.Input placeholder="e.g. United Kingdom" className={styles.Input} />
+              </div>
+              <Combobox.Empty className={styles.Empty}>No countries found.</Combobox.Empty>
+              <Combobox.List className={styles.List}>
+                {(country: Country) => (
+                  <Combobox.Item key={country.code} value={country} className={styles.Item}>
+                    <Combobox.ItemIndicator className={styles.ItemIndicator}>
+                      <CheckIcon className={styles.ItemIndicatorIcon} />
+                    </Combobox.ItemIndicator>
+                    <div className={styles.ItemText}>{country.label}</div>
+                  </Combobox.Item>
+                )}
+              </Combobox.List>
+            </Combobox.Popup>
+          </Combobox.Positioner>
+        </Combobox.Portal>
+      </Combobox.Root>
+    </Field.Root>
   );
 }
 
@@ -63,13 +71,12 @@ function CheckIcon(props: React.ComponentProps<'svg'>) {
 
 interface Country {
   code: string;
-  value: string | null;
+  value: string;
   continent: string;
   label: string;
 }
 
 const countries: Country[] = [
-  { code: '', value: null, continent: '', label: 'Select country' },
   { code: 'af', value: 'afghanistan', label: 'Afghanistan', continent: 'Asia' },
   { code: 'al', value: 'albania', label: 'Albania', continent: 'Europe' },
   { code: 'dz', value: 'algeria', label: 'Algeria', continent: 'Africa' },
