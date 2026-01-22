@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { screen, act } from '@mui/internal-test-utils';
+import { screen, act, fireEvent } from '@mui/internal-test-utils';
 import { spy } from 'sinon';
 import { NumberField } from '@base-ui/react/number-field';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
@@ -222,5 +222,41 @@ describe('<NumberField.ScrubArea />', () => {
 
       expect(input).to.have.value('10');
     });
+  });
+
+  it('should fire onClick when clicked without scrubbing', async () => {
+    const handleClick = spy();
+
+    await render(
+      <NumberField.Root defaultValue={0}>
+        <NumberField.ScrubArea data-testid="scrub-area" onClick={handleClick}>
+          <NumberField.ScrubAreaCursor />
+        </NumberField.ScrubArea>
+      </NumberField.Root>,
+    );
+
+    fireEvent.click(screen.getByTestId('scrub-area'));
+
+    expect(handleClick.callCount).to.equal(1);
+  });
+
+  it('should fire onClick on child elements', async () => {
+    const handleScrubAreaClick = spy();
+    const handleLabelClick = spy();
+
+    await render(
+      <NumberField.Root defaultValue={0}>
+        <NumberField.ScrubArea onClick={handleScrubAreaClick}>
+          {/* eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions */}
+          <label onClick={handleLabelClick}>Amount</label>
+          <NumberField.ScrubAreaCursor />
+        </NumberField.ScrubArea>
+      </NumberField.Root>,
+    );
+
+    fireEvent.click(screen.getByText('Amount'));
+
+    expect(handleLabelClick.callCount).to.equal(1);
+    expect(handleScrubAreaClick.callCount).to.equal(1);
   });
 });
