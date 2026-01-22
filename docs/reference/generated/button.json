@@ -32,6 +32,9 @@
   "dataAttributes": {
     "data-disabled": {
       "description": "Present when the button is disabled."
+    },
+    "data-active": {
+      "description": "Present when the button is active."
     }
   },
   "cssVariables": {}
