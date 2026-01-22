@@ -170,8 +170,8 @@ importers:
         specifier: ^3.1.1
         version: 3.1.1(@types/react@19.2.8)(react@19.2.3)
       '@mui/internal-docs-infra':
-        specifier: 0.3.1-canary.13
-        version: 0.3.1-canary.13(@types/react@19.2.8)(next@16.1.1(@babel/core@7.28.6)(@playwright/test@1.57.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(prettier@3.7.4)(react@19.2.3)
+        specifier: 0.3.1-canary.14
+        version: 0.3.1-canary.14(@types/react@19.2.8)(next@16.1.1(@babel/core@7.28.6)(@playwright/test@1.57.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(prettier@3.7.4)(react@19.2.3)
       '@next/mdx':
         specifier: ^16.1.1
         version: 16.1.2(@mdx-js/loader@3.1.1(webpack@5.104.1))(@mdx-js/react@3.1.1(@types/react@19.2.8)(react@19.2.3))
@@ -554,8 +554,8 @@ importers:
   scripts/api-docs-builder:
     dependencies:
       '@mui/internal-docs-infra':
-        specifier: 0.3.1-canary.13
-        version: 0.3.1-canary.13(@types/react@19.2.8)(next@16.1.1(@babel/core@7.28.6)(@playwright/test@1.57.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(prettier@3.7.4)(react@19.2.3)
+        specifier: 0.3.1-canary.14
+        version: 0.3.1-canary.14(@types/react@19.2.8)(next@16.1.1(@babel/core@7.28.6)(@playwright/test@1.57.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(prettier@3.7.4)(react@19.2.3)
       '@types/yargs':
         specifier: ^17.0.35
         version: 17.0.35
@@ -2287,8 +2287,8 @@ packages:
       prettier: ^3.0.0
       typescript: ^5.0.0
 
-  '@mui/internal-docs-infra@0.3.1-canary.13':
-    resolution: {integrity: sha512-MKi2+MXPgF/b9Zqqj+nizg4Tsi2tczHh3iWAGvb6suR82CJrUQU3y4GGhB6BXKbJH80UNQ7P8eqYhxhTCSeVsQ==}
+  '@mui/internal-docs-infra@0.3.1-canary.14':
+    resolution: {integrity: sha512-KNPZsvY3kkrXq4s3v1daR41fGkg+guAuIJ2Zh7TZjU391yfVYN+hCLJS4Y9xkdswhTuopkEHQLUMnzN/hIViiQ==}
     engines: {node: '>=22.12.0'}
     hasBin: true
     peerDependencies:
@@ -11905,7 +11905,7 @@ snapshots:
       - supports-color
       - vitest
 
-  '@mui/internal-docs-infra@0.3.1-canary.13(@types/react@19.2.8)(next@16.1.1(@babel/core@7.28.6)(@playwright/test@1.57.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(prettier@3.7.4)(react@19.2.3)':
+  '@mui/internal-docs-infra@0.3.1-canary.14(@types/react@19.2.8)(next@16.1.1(@babel/core@7.28.6)(@playwright/test@1.57.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(prettier@3.7.4)(react@19.2.3)':
     dependencies:
       '@babel/runtime': 7.28.6
       '@babel/standalone': 7.28.6
