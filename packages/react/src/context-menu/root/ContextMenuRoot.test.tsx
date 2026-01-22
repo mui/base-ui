@@ -194,5 +194,30 @@ describe('<ContextMenu.Root />', () => {
 
       expect(onOpenChange.lastCall?.args[0]).to.equal(false);
     });
+
+    it('does not open when disabled', async () => {
+      const onOpenChange = spy();
+
+      await render(
+        <ContextMenu.Root disabled onOpenChange={onOpenChange}>
+          <ContextMenu.Trigger data-testid="context-trigger">Surface</ContextMenu.Trigger>
+          <ContextMenu.Portal>
+            <ContextMenu.Positioner>
+              <ContextMenu.Popup data-testid="context-popup">
+                <ContextMenu.Item>Action</ContextMenu.Item>
+              </ContextMenu.Popup>
+            </ContextMenu.Positioner>
+          </ContextMenu.Portal>
+        </ContextMenu.Root>,
+      );
+
+      const trigger = screen.getByTestId('context-trigger');
+
+      fireEvent.contextMenu(trigger, { clientX: 10, clientY: 10, button: 2 });
+      await flushMicrotasks();
+
+      expect(screen.queryByTestId('context-popup')).to.equal(null);
+      expect(onOpenChange.callCount).to.equal(0);
+    });
   });
 });
