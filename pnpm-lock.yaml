@@ -569,8 +569,8 @@ importers:
         specifier: ^4.21.0
         version: 4.21.0
       typescript-api-extractor:
-        specifier: https://pkg.pr.new/typescript-api-extractor@c4085dd
-        version: https://pkg.pr.new/typescript-api-extractor@c4085dd(typescript@5.9.3)
+        specifier: ^1.0.0-alpha.13
+        version: 1.0.0-alpha.13(typescript@5.9.3)
       yargs:
         specifier: ^18.0.0
         version: 18.0.0
@@ -9063,9 +9063,8 @@ packages:
   typedarray@0.0.6:
     resolution: {integrity: sha512-/aCDEGatGvZ2BIk+HmLf4ifCJFwvKFNb9/JeZPMulfgFracn9QFcAf5GO8B/mweUjSoblS5In0cWhqpfs/5PQA==}
 
-  typescript-api-extractor@https://pkg.pr.new/typescript-api-extractor@c4085dd:
-    resolution: {tarball: https://pkg.pr.new/typescript-api-extractor@c4085dd}
-    version: 1.0.0-alpha.12
+  typescript-api-extractor@1.0.0-alpha.13:
+    resolution: {integrity: sha512-vMn26RR+SisBu3t0E0n7odikrw/+C+5al52q6JwmiMEhUhLVgkO747BiwGhSTmedwjC6ACFFFHa9bytoQQhZ4w==}
     engines: {node: '>=22'}
     peerDependencies:
       typescript: ^5.8
@@ -19921,7 +19920,7 @@ snapshots:
 
   typedarray@0.0.6: {}
 
-  typescript-api-extractor@https://pkg.pr.new/typescript-api-extractor@c4085dd(typescript@5.9.3):
+  typescript-api-extractor@1.0.0-alpha.13(typescript@5.9.3):
     dependencies:
       es-toolkit: 1.43.0
       typescript: 5.9.3
