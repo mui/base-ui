@@ -1,6 +1,6 @@
 import * as React from 'react';
 import clsx from 'clsx';
-import { Toggle as BaseToggle } from '@base-ui-components/react/toggle';
+import { Toggle as BaseToggle } from '@base-ui/react/toggle';
 
 export const Toggle = React.forwardRef<HTMLButtonElement, BaseToggle.Props>(function Toggle(
   { className, ...props }: BaseToggle.Props,

@@ -1,5 +1,5 @@
 import clsx from 'clsx';
-import { Menu } from '@base-ui-components/react/menu';
+import { Menu } from '@base-ui/react/menu';
 import { ChevronDown, ChevronRight } from 'lucide-react';
 
 export function Root(props: Menu.Root.Props) {

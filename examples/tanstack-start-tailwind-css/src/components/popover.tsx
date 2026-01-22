@@ -1,5 +1,5 @@
 import clsx from 'clsx';
-import { Popover } from '@base-ui-components/react/popover';
+import { Popover } from '@base-ui/react/popover';
 
 export function Root(props: Popover.Root.Props) {
   return <Popover.Root {...props} />;

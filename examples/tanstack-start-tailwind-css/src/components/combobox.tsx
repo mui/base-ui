@@ -1,6 +1,6 @@
 import * as React from 'react';
 import clsx from 'clsx';
-import { Combobox } from '@base-ui-components/react/combobox';
+import { Combobox } from '@base-ui/react/combobox';
 import { Check, ChevronDown, X } from 'lucide-react';
 
 export function Root(props: Combobox.Root.Props<any, any>) {
