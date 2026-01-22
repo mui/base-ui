@@ -1,6 +1,6 @@
 # Base UI + TanStack Start
 
-This is a simple [TanStack Start](https://tanstack.com/start/latest/docs/framework/react/overview) app with [Base UI components](https://base-ui.com/react/overview/quick-start) and styled with [Tailwind CSS](https://tailwindcss.com/).
+This is a simple [TanStack Start](https://tanstack.com/start/latest/docs/framework/react/overview) app with [Base UI components](https://base-ui.com/react/overview/quick-start) styled using [Tailwind CSS](https://tailwindcss.com/).
 
 ## Getting started
 
