@@ -70,4 +70,96 @@ describe('<Field.Control />', () => {
     expect(control).to.have.attribute('data-focused', '');
     expect(screen.getByText('Name')).to.have.attribute('data-focused', '');
   });
+
+  describe('style hooks', () => {
+    describe('touched', () => {
+      it('should apply [data-touched] style hook when focused and blurred', async () => {
+        await render(<Field.Control data-testid="control" />);
+
+        const control = screen.getByTestId('control');
+
+        expect(control).not.to.have.attribute('data-touched');
+
+        fireEvent.focus(control);
+        fireEvent.blur(control);
+
+        expect(control).to.have.attribute('data-touched', '');
+      });
+
+      it('should remain touched after regaining and losing focus', async () => {
+        await render(<Field.Control data-testid="control" />);
+
+        const control = screen.getByTestId('control');
+
+        fireEvent.focus(control);
+        fireEvent.blur(control);
+
+        expect(control).to.have.attribute('data-touched', '');
+
+        fireEvent.focus(control);
+        expect(control).to.have.attribute('data-touched', '');
+
+        fireEvent.blur(control);
+        expect(control).to.have.attribute('data-touched', '');
+      });
+    });
+
+    describe('dirty', () => {
+      it('should apply [data-dirty] style hook when value changes', async () => {
+        await render(<Field.Control data-testid="control" />);
+
+        const control = screen.getByTestId('control');
+        expect(control).not.to.have.attribute('data-dirty');
+
+        fireEvent.change(control, { target: { value: 'value' } });
+        expect(control).to.have.attribute('data-dirty', '');
+
+        fireEvent.change(control, { target: { value: '' } });
+        expect(control).not.to.have.attribute('data-dirty');
+      });
+
+      it('should not be dirty when changing back to the initial value', async () => {
+        await render(<Field.Control data-testid="control" defaultValue="initial" />);
+
+        const control = screen.getByTestId('control');
+        expect(control).not.to.have.attribute('data-dirty');
+
+        fireEvent.change(control, { target: { value: 'changed' } });
+        expect(control).to.have.attribute('data-dirty', '');
+
+        fireEvent.change(control, { target: { value: 'initial' } });
+        expect(control).not.to.have.attribute('data-dirty');
+      });
+    });
+
+    describe('filled', () => {
+      it('should apply [data-filled] style hook when filled', async () => {
+        await render(<Field.Control data-testid="control" />);
+
+        const control = screen.getByTestId('control');
+        expect(control).not.to.have.attribute('data-filled');
+
+        fireEvent.change(control, { target: { value: 'value' } });
+        expect(control).to.have.attribute('data-filled', '');
+
+        fireEvent.change(control, { target: { value: '' } });
+        expect(control).not.to.have.attribute('data-filled');
+      });
+    });
+
+    describe('focused', () => {
+      it('should apply [data-focused] style hook when focused', async () => {
+        await render(<Field.Control data-testid="control" />);
+
+        const control = screen.getByTestId('control');
+        expect(control).not.to.have.attribute('data-focused');
+
+        fireEvent.focus(control);
+        expect(control).to.have.attribute('data-focused', '');
+
+        fireEvent.blur(control);
+        expect(control).not.to.have.attribute('data-focused');
+      });
+    });
+  });
 });
