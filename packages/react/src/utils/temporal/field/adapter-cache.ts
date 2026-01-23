@@ -5,25 +5,42 @@ import { TemporalAdapter, TemporalSupportedObject } from '../../../types';
  * Uses a WeakMap keyed by adapter instance, so entries are garbage-collected when the adapter is no longer referenced.
  */
 interface TemporalAdapterFieldCache {
-  /** Formatted weekday strings keyed by format token (e.g., 'EEE' → ['Sun', 'Mon', ...]) */
   weekDay: {
+    /**
+     * Formatted weekday strings keyed by format token (e.g., 'EEE' → ['Sun', 'Mon', ...])
+     */
     strMap: Map<string, string[]>;
   } | null;
-  /** Formatted meridiem strings keyed by format token (e.g., 'a' → ['AM', 'PM']) */
   meridiem: {
+    /**
+     * Formatted meridiem strings keyed by format token (e.g., 'a' → ['AM', 'PM'])
+     */
     strMap: Map<string, string[]>;
   } | null;
-  /** Month-related data: formatted strings, date objects for each month, and the longest month */
   month: {
+    /**
+     * Formatted month strings keyed by format token (e.g., 'MMM' → ['Jan', 'Feb', ...])
+     */
     strMap: Map<string, string[]>;
+    /**
+     * Date objects for each month in the year (from January to December).
+     * The year and timezone are arbitrary, only the month value can be used reliably.
+     */
     objects: TemporalSupportedObject[];
+    /**
+     * The month with the most days in the current year.
+     */
     longestMonth: TemporalSupportedObject;
   } | null;
-  /** Year format metadata keyed by format token (e.g., 'yyyy' → { length: 4 }) */
   year: {
+    /**
+     * Year format metadata keyed by format token (e.g., 'yyyy' → { length: 4 })
+     */
     formatMap: Map<string, { length: number }>;
   } | null;
-  /** The 10 digits (0–9) in the adapter's locale (e.g., ['0', '1', ...] or ['٠', '١', ...]) */
+  /**
+   *  The 10 digits (0–9) in the adapter's locale (e.g., ['0', '1', ...] or ['٠', '١', ...])
+   */
   localizedDigits: string[] | null;
 }
 
