@@ -197,8 +197,8 @@ importers:
         specifier: ^2.1.1
         version: 2.1.1
       es-toolkit:
-        specifier: ^1.43.0
-        version: 1.43.0
+        specifier: ^1.44.0
+        version: 1.44.0
       estree-util-value-to-estree:
         specifier: ^3.5.0
         version: 3.5.0
@@ -560,8 +560,8 @@ importers:
         specifier: ^17.0.35
         version: 17.0.35
       es-toolkit:
-        specifier: ^1.43.0
-        version: 1.43.0
+        specifier: ^1.44.0
+        version: 1.44.0
       rimraf:
         specifier: ^6.1.2
         version: 6.1.2
@@ -5607,6 +5607,9 @@ packages:
 
   es-toolkit@1.43.0:
     resolution: {integrity: sha512-SKCT8AsWvYzBBuUqMk4NPwFlSdqLpJwmy6AP322ERn8W2YLIB6JBXnwMI2Qsh2gfphT3q7EKAxKb23cvFHFwKA==}
+
+  es-toolkit@1.44.0:
+    resolution: {integrity: sha512-6penXeZalaV88MM3cGkFZZfOoLGWshWWfdy0tWw/RlVVyhvMaWSBTOvXNeiW3e5FwdS5ePW0LGEu17zT139ktg==}
 
   esast-util-from-estree@2.0.0:
     resolution: {integrity: sha512-4CyanoAudUSBAn5K13H4JhsMH6L9ZP7XbLVe/dKybkxMO7eDyLsT8UHl9TRNrU2Gr9nz+FovfSIjuXWJ81uVwQ==}
@@ -11953,7 +11956,7 @@ snapshots:
       chai: 6.2.2
       chai-dom: 1.12.1(chai@6.2.2)
       dom-accessibility-api: 0.7.1
-      es-toolkit: 1.43.0
+      es-toolkit: 1.44.0
       format-util: 1.0.5
       jsdom: 27.4.0
       prop-types: 15.8.1
@@ -15538,6 +15541,8 @@ snapshots:
       is-symbol: 1.1.1
 
   es-toolkit@1.43.0: {}
+
+  es-toolkit@1.44.0: {}
 
   esast-util-from-estree@2.0.0:
     dependencies:
@@ -19995,7 +20000,7 @@ snapshots:
 
   typescript-api-extractor@1.0.0-alpha.11(typescript@5.9.3):
     dependencies:
-      es-toolkit: 1.43.0
+      es-toolkit: 1.44.0
       typescript: 5.9.3
 
   typescript-eslint@8.53.0(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.3):
