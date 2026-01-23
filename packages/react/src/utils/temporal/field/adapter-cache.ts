@@ -5,19 +5,19 @@ import { TemporalAdapter, TemporalSupportedObject } from '../../../types';
  * Uses a WeakMap keyed by adapter instance, so entries are garbage-collected when the adapter is no longer referenced.
  */
 interface TemporalAdapterFieldCache {
-  weekDay: {
+  weekDay?: {
     /**
      * Formatted weekday strings keyed by format token (e.g., 'EEE' → ['Sun', 'Mon', ...])
      */
     strMap: Map<string, string[]>;
-  } | null;
-  meridiem: {
+  };
+  meridiem?: {
     /**
      * Formatted meridiem strings keyed by format token (e.g., 'a' → ['AM', 'PM'])
      */
     strMap: Map<string, string[]>;
-  } | null;
-  month: {
+  };
+  month?: {
     /**
      * Formatted month strings keyed by format token (e.g., 'MMM' → ['Jan', 'Feb', ...])
      */
@@ -31,17 +31,17 @@ interface TemporalAdapterFieldCache {
      * The month with the most days in the current year.
      */
     longestMonth: TemporalSupportedObject;
-  } | null;
-  year: {
+  };
+  year?: {
     /**
      * Year format metadata keyed by format token (e.g., 'yyyy' → { length: 4 })
      */
     formatMap: Map<string, { length: number }>;
-  } | null;
+  };
   /**
    *  The 10 digits (0–9) in the adapter's locale (e.g., ['0', '1', ...] or ['٠', '١', ...])
    */
-  localizedDigits: string[] | null;
+  localizedDigits?: string[];
 }
 
 const adapterCache = new WeakMap<TemporalAdapter, TemporalAdapterFieldCache>();
@@ -49,13 +49,7 @@ const adapterCache = new WeakMap<TemporalAdapter, TemporalAdapterFieldCache>();
 function getAdapterFieldCache(adapter: TemporalAdapter): TemporalAdapterFieldCache {
   let cache = adapterCache.get(adapter);
   if (!cache) {
-    cache = {
-      weekDay: null,
-      meridiem: null,
-      month: null,
-      year: null,
-      localizedDigits: null,
-    };
+    cache = {};
     adapterCache.set(adapter, cache);
   }
   return cache;
