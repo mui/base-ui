@@ -4,7 +4,7 @@ import { selectors } from '../selectors';
 import { TemporalFieldSectionPlugin } from './TemporalFieldSectionPlugin';
 import { TemporalFieldStore } from '../TemporalFieldStore';
 import { TemporalFieldState as State, TemporalFieldDatePart, TemporalFieldSection } from '../types';
-import { getWeekDaysStr } from '../adapter-cache';
+import { getMeridiemsStr, getMonthsStr, getWeekDaysStr } from '../adapter-cache';
 import { isDatePart } from '../utils';
 
 const translations = {
@@ -41,7 +41,7 @@ const sectionPropsSelectors = {
         return {
           // Aria attributes
           'aria-readonly': readOnly,
-          'aria-valuenow': getAriaValueNow(adapter, section, timezone),
+          'aria-valuenow': getAriaValueNow(adapter, section),
           'aria-valuemin': datePartBoundaries.minimum,
           'aria-valuemax': datePartBoundaries.maximum,
           'aria-valuetext': section.value
@@ -281,7 +281,6 @@ export class TemporalFieldSectionPropsPlugin<TValue extends TemporalSupportedVal
 function getAriaValueNow(
   adapter: TemporalAdapter,
   section: TemporalFieldDatePart,
-  timezone: TemporalTimezone,
 ): number | undefined {
   if (section.value === '') {
     return undefined;
@@ -290,22 +289,14 @@ function getAriaValueNow(
   switch (section.token.config.part) {
     case 'weekDay': {
       if (section.token.config.contentType === 'letter') {
-        const formattedDaysInWeek = getWeekDaysStr(adapter, section.token.value);
-        const index = formattedDaysInWeek.indexOf(section.value);
+        const index = getWeekDaysStr(adapter, section.token.value).indexOf(section.value);
         return index >= 0 ? index + 1 : undefined;
       }
       return Number(section.value);
     }
     case 'meridiem': {
-      const parsedDate = adapter.parse(
-        `01:00 ${section.value}`,
-        `${adapter.formats.hours12h}:${adapter.formats.minutesPadded} ${section.token.value}`,
-        timezone,
-      );
-      if (parsedDate) {
-        return adapter.getHours(parsedDate) >= 12 ? 1 : 0;
-      }
-      return undefined;
+      const index = getMeridiemsStr(adapter, section.token.value).indexOf(section.value);
+      return index >= 0 ? index : undefined;
     }
     case 'day':
       return section.token.config.contentType === 'digit-with-letter'
@@ -315,8 +306,8 @@ function getAriaValueNow(
       if (section.token.config.contentType === 'digit') {
         return Number(section.value);
       }
-      const parsedDate = adapter.parse(section.value, section.token.value, timezone);
-      return parsedDate ? adapter.getMonth(parsedDate) + 1 : undefined;
+      const index = getMonthsStr(adapter, section.token.value).indexOf(section.value);
+      return index >= 0 ? index + 1 : undefined;
     }
     default:
       return section.token.config.contentType !== 'letter' ? Number(section.value) : undefined;
