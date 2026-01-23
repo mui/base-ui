@@ -157,8 +157,12 @@ export function useHoverReferenceInteraction(
     },
   });
 
-  const { isClickLikeOpenEvent, cleanupMouseMoveHandler, clearPointerEvents, handleScrollMouseLeave } =
-    stableCallbacks;
+  const {
+    isClickLikeOpenEvent,
+    cleanupMouseMoveHandler,
+    clearPointerEvents,
+    handleScrollMouseLeave,
+  } = stableCallbacks;
 
   // When closing before opening, clear the delay timeouts to cancel it
   // from showing.

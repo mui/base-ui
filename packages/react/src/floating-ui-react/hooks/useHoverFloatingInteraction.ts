@@ -72,7 +72,9 @@ export function useHoverFloatingInteraction(
         return true;
       }
 
-      return dataRef.current.openEvent ? clickLikeEvents.has(dataRef.current.openEvent.type) : false;
+      return dataRef.current.openEvent
+        ? clickLikeEvents.has(dataRef.current.openEvent.type)
+        : false;
     },
 
     isHoverOpen: () => {
