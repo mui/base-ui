@@ -228,7 +228,7 @@ export class TemporalFieldCharacterEditingPlugin<TValue extends TemporalSupporte
           skipIfBelowMinimum: true,
           datePart: {
             ...datePart,
-            token: FormatParser.buildSingleToken(adapter, 'MM'),
+            token: FormatParser.buildSingleToken(adapter, adapter.formats.monthPadded),
           },
         });
 
@@ -238,7 +238,7 @@ export class TemporalFieldCharacterEditingPlugin<TValue extends TemporalSupporte
 
         const formattedValue = this.getDatePartValueInForAnotherToken(
           response.datePartValue,
-          'MM',
+          adapter.formats.monthPadded,
           datePart.token.value,
         );
 

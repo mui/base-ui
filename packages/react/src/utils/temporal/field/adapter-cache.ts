@@ -1,17 +1,29 @@
 import { TemporalAdapter, TemporalSupportedObject } from '../../../types';
 
+/**
+ * Cache for locale-dependent computations that are shared across all field instances using the same adapter.
+ * Uses a WeakMap keyed by adapter instance, so entries are garbage-collected when the adapter is no longer referenced.
+ */
 interface TemporalAdapterFieldCache {
+  /** Formatted weekday strings keyed by format token (e.g., 'EEE' → ['Sun', 'Mon', ...]) */
   weekDay: {
     strMap: Map<string, string[]>;
   } | null;
+  /** Formatted meridiem strings keyed by format token (e.g., 'a' → ['AM', 'PM']) */
   meridiem: {
     strMap: Map<string, string[]>;
   } | null;
+  /** Month-related data: formatted strings, date objects for each month, and the longest month */
   month: {
     strMap: Map<string, string[]>;
     objects: TemporalSupportedObject[];
     longestMonth: TemporalSupportedObject;
   } | null;
+  /** Year format metadata keyed by format token (e.g., 'yyyy' → { length: 4 }) */
+  year: {
+    formatMap: Map<string, { length: number }>;
+  } | null;
+  /** The 10 digits (0–9) in the adapter's locale (e.g., ['0', '1', ...] or ['٠', '١', ...]) */
   localizedDigits: string[] | null;
 }
 
@@ -24,6 +36,7 @@ function getAdapterFieldCache(adapter: TemporalAdapter): TemporalAdapterFieldCac
       weekDay: null,
       meridiem: null,
       month: null,
+      year: null,
       localizedDigits: null,
     };
     adapterCache.set(adapter, cache);
@@ -156,6 +169,37 @@ export function getMeridiemsStr(adapter: TemporalAdapter, format: string) {
   );
   meridiemCache.strMap.set(format, result);
   return result;
+}
+
+function getYearCache(adapter: TemporalAdapter) {
+  const cache = getAdapterFieldCache(adapter);
+  if (cache.year == null) {
+    cache.year = {
+      formatMap: new Map<string, { length: number }>(),
+    };
+  }
+  return cache.year;
+}
+
+/**
+ * Returns the length of a formatted year for the given format token.
+ * This is used to determine if a year format produces a 2-digit or 4-digit year.
+ *
+ * ```ts
+ * getYearFormatLength(adapter, 'yyyy'); // 4
+ * getYearFormatLength(adapter, 'yy'); // 2
+ * ```
+ */
+export function getYearFormatLength(adapter: TemporalAdapter, format: string): number {
+  const yearCache = getYearCache(adapter);
+  const cached = yearCache.formatMap.get(format);
+  if (cached) {
+    return cached.length;
+  }
+
+  const length = adapter.formatByString(adapter.now('default'), format).length;
+  yearCache.formatMap.set(format, { length });
+  return length;
 }
 
 export function getLongestMonthInCurrentYear(adapter: TemporalAdapter) {

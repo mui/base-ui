@@ -4,7 +4,7 @@ import { mergeDateIntoReferenceDate } from './mergeDateIntoReferenceDate';
 import { selectors } from './selectors';
 import type { TemporalFieldStore } from './TemporalFieldStore';
 import { TemporalFieldState as State, TemporalFieldDatePart, TemporalFieldSection } from './types';
-import { getLocalizedDigits, getWeekDaysStr, getLongestMonthInCurrentYear } from './adapter-cache';
+import { getLocalizedDigits, getWeekDaysStr, getLongestMonthInCurrentYear, getYearFormatLength } from './adapter-cache';
 import { isDatePart, removeLocalizedDigits } from './utils';
 import { TemporalFieldValuePlugin } from './TemporalFieldValuePlugin';
 
@@ -55,10 +55,7 @@ const sectionSelectors = {
         case 'year': {
           return {
             minimum: 0,
-            maximum:
-              adapter.formatByString(adapter.now('system'), datePart.token.value).length === 4
-                ? 9999
-                : 99,
+            maximum: getYearFormatLength(adapter, datePart.token.value) === 4 ? 9999 : 99,
           };
         }
 

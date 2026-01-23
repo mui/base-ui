@@ -5,6 +5,7 @@ import {
   getMeridiemsStr,
   getLongestMonthInCurrentYear,
   getLocalizedDigits,
+  getYearFormatLength,
 } from './adapter-cache';
 
 describe('getWeekDaysStr', () => {
@@ -159,6 +160,29 @@ describe('getLocalizedDigits', () => {
   it('should return the same reference when called twice', () => {
     const result1 = getLocalizedDigits(adapter);
     const result2 = getLocalizedDigits(adapter);
+
+    expect(result1).to.equal(result2);
+  });
+});
+
+describe('getYearFormatLength', () => {
+  const { adapter } = createTemporalRenderer();
+
+  it('should return 4 for a 4-digit year format', () => {
+    const result = getYearFormatLength(adapter, adapter.formats.yearPadded);
+
+    expect(result).to.equal(4);
+  });
+
+  it('should return 2 for a 2-digit year format', () => {
+    const result = getYearFormatLength(adapter, 'yy');
+
+    expect(result).to.equal(2);
+  });
+
+  it('should return the same value when called twice with the same format', () => {
+    const result1 = getYearFormatLength(adapter, adapter.formats.yearPadded);
+    const result2 = getYearFormatLength(adapter, adapter.formats.yearPadded);
 
     expect(result1).to.equal(result2);
   });
