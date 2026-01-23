@@ -287,6 +287,13 @@ function getAriaValueNow(
   }
 
   switch (section.token.config.part) {
+    case 'month': {
+      if (section.token.config.contentType === 'letter') {
+        const index = getMonthsStr(adapter, section.token.value).indexOf(section.value);
+        return index >= 0 ? index + 1 : undefined;
+      }
+      return Number(section.value);
+    }
     case 'weekDay': {
       if (section.token.config.contentType === 'letter') {
         const index = getWeekDaysStr(adapter, section.token.value).indexOf(section.value);
@@ -294,20 +301,11 @@ function getAriaValueNow(
       }
       return Number(section.value);
     }
+    case 'day':
+      return parseInt(section.value, 10);
     case 'meridiem': {
       const index = getMeridiemsStr(adapter, section.token.value).indexOf(section.value);
       return index >= 0 ? index : undefined;
-    }
-    case 'day':
-      return section.token.config.contentType === 'digit-with-letter'
-        ? parseInt(section.value, 10)
-        : Number(section.value);
-    case 'month': {
-      if (section.token.config.contentType === 'digit') {
-        return Number(section.value);
-      }
-      const index = getMonthsStr(adapter, section.token.value).indexOf(section.value);
-      return index >= 0 ? index + 1 : undefined;
     }
     default:
       return section.token.config.contentType !== 'letter' ? Number(section.value) : undefined;
