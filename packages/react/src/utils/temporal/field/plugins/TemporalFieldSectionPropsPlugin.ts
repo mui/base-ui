@@ -41,11 +41,11 @@ const sectionPropsSelectors = {
         return {
           // Aria attributes
           'aria-readonly': readOnly,
-          'aria-valuenow': getDatePartValueNow(adapter, section, timezone),
+          'aria-valuenow': getAriaValueNow(adapter, section, timezone),
           'aria-valuemin': datePartBoundaries.minimum,
           'aria-valuemax': datePartBoundaries.maximum,
           'aria-valuetext': section.value
-            ? getDatePartValueText(adapter, section, timezone)
+            ? getAriaValueText(adapter, section, timezone)
             : translations.empty,
           'aria-label': translations[section.token.config.part],
           'aria-disabled': disabled,
@@ -278,14 +278,15 @@ export class TemporalFieldSectionPropsPlugin<TValue extends TemporalSupportedVal
   };
 }
 
-function getDatePartValueNow(
+function getAriaValueNow(
   adapter: TemporalAdapter,
   section: TemporalFieldDatePart,
   timezone: TemporalTimezone,
 ): number | undefined {
-  if (!section.value) {
+  if (section.value === '') {
     return undefined;
   }
+
   switch (section.token.config.part) {
     case 'weekDay': {
       if (section.token.config.contentType === 'letter') {
@@ -322,14 +323,15 @@ function getDatePartValueNow(
   }
 }
 
-function getDatePartValueText(
+function getAriaValueText(
   adapter: TemporalAdapter,
   section: TemporalFieldDatePart,
   timezone: TemporalTimezone,
 ): string | undefined {
-  if (!section.value) {
+  if (section.value === '') {
     return undefined;
   }
+
   switch (section.token.config.part) {
     case 'month': {
       if (section.token.config.contentType === 'digit') {
