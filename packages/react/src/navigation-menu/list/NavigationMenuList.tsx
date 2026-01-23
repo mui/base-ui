@@ -44,12 +44,9 @@ export const NavigationMenuList = React.forwardRef(function NavigationMenuList(
 
   const dismissProps = floatingRootContext ? dismiss : undefined;
 
-  const state: NavigationMenuList.State = React.useMemo(
-    () => ({
-      open,
-    }),
-    [open],
-  );
+  const state: NavigationMenuList.State = {
+    open,
+  };
 
   // `stopEventPropagation` won't stop the propagation if the end of the list is reached,
   // but we want to block it in this case.
