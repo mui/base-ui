@@ -55,7 +55,7 @@
     "remark-mdx-frontmatter": "^5.2.0",
     "remark-parse": "^11.0.0",
     "remark-rehype": "^11.1.2",
-    "remark-typography": "0.7.0",
+    "remark-typography": "0.7.3",
     "scroll-into-view-if-needed": "3.1.0",
     "server-only": "^0.0.1",
     "shiki": "^3.21.0",
