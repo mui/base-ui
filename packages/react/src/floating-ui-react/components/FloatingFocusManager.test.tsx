@@ -755,7 +755,12 @@ describe.skipIf(!isJSDOM)('FloatingFocusManager', () => {
             <button ref={refs.setReference} {...getReferenceProps()} data-testid="reference" />
             {open && (
               <FloatingFocusManager context={context} modal initialFocus={priorityRef}>
-                <div role="dialog" ref={refs.setFloating} {...getFloatingProps()} data-testid="floating">
+                <div
+                  role="dialog"
+                  ref={refs.setFloating}
+                  {...getFloatingProps()}
+                  data-testid="floating"
+                >
                   <button ref={priorityRef} tabIndex={1} data-testid="priority">
                     Priority
                   </button>
