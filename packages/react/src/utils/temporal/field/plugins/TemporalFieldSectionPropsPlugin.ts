@@ -36,6 +36,7 @@ const sectionPropsSelectors = {
       datePartBoundaries,
       section: TemporalFieldSection,
     ): React.HTMLAttributes<HTMLDivElement> => {
+      // Date part
       if (isDatePart(section)) {
         return {
           // Aria attributes
@@ -51,7 +52,7 @@ const sectionPropsSelectors = {
 
           // Other
           children: section.value || section.token.placeholder,
-          tabIndex: !editable || section.index > 0 ? -1 : 0,
+          tabIndex: editable ? 0 : -1,
           contentEditable: editable,
           suppressContentEditableWarning: true,
           role: 'spinbutton',
@@ -65,6 +66,7 @@ const sectionPropsSelectors = {
         };
       }
 
+      // Separator
       return {
         // Aria attributes
         'aria-hidden': true,
@@ -269,7 +271,7 @@ export class TemporalFieldSectionPropsPlugin<TValue extends TemporalSupportedVal
       const newSectionIndex = this.store.dom.getSectionIndexFromDOMElement(activeEl);
 
       // If focus didn't move to another section in this field, clear selection
-      if (newSectionIndex == null && !this.store.dom.inputRef.current?.contains(activeEl)) {
+      if (newSectionIndex == null || !this.store.dom.inputRef.current?.contains(activeEl)) {
         this.store.section.removeSelectedSection();
       }
     });
