@@ -4,7 +4,7 @@ import { selectors } from './selectors';
 import { TemporalFieldSectionPlugin } from './TemporalFieldSectionPlugin';
 import { TemporalFieldStore } from './TemporalFieldStore';
 import { TemporalFieldState as State, TemporalFieldDatePart, TemporalFieldSection } from './types';
-import { isDatePart } from './utils';
+import { getDaysInWeekStr, isDatePart } from './utils';
 
 const translations = {
   empty: 'Empty',
@@ -286,8 +286,9 @@ function getDatePartValueNow(
   switch (section.token.config.part) {
     case 'weekDay': {
       if (section.token.config.contentType === 'letter') {
-        // TODO: improve by resolving the week day number from a letter week day
-        return undefined;
+        const formattedDaysInWeek = getDaysInWeekStr(adapter, section.token.value);
+        const index = formattedDaysInWeek.indexOf(section.value);
+        return index >= 0 ? index + 1 : undefined;
       }
       return Number(section.value);
     }
@@ -350,9 +351,24 @@ function getDatePartValueText(
           : '';
       }
       return section.value;
-    case 'weekDay':
-      // TODO: improve by providing the label of the week day
-      return undefined;
+    case 'weekDay': {
+      const startOfWeekDate = adapter.startOfWeek(adapter.now(timezone));
+      if (section.token.config.contentType === 'digit') {
+        const dateWithWeekDay = adapter.addDays(startOfWeekDate, Number(section.value) - 1);
+        return adapter.isValid(dateWithWeekDay)
+          ? adapter.format(dateWithWeekDay, 'weekday')
+          : '';
+      }
+      const formattedDaysInWeek = getDaysInWeekStr(adapter, section.token.value);
+      const index = formattedDaysInWeek.indexOf(section.value);
+      if (index < 0) {
+        return undefined;
+      }
+      const dateWithWeekDay = adapter.addDays(startOfWeekDate, index);
+      return adapter.isValid(dateWithWeekDay)
+        ? adapter.format(dateWithWeekDay, 'weekday')
+        : undefined;
+    }
     default:
       return undefined;
   }
