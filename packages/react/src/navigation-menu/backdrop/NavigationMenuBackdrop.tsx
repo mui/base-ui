@@ -27,13 +27,10 @@ export const NavigationMenuBackdrop = React.forwardRef(function NavigationMenuBa
 
   const { open, mounted, transitionStatus } = useNavigationMenuRootContext();
 
-  const state: NavigationMenuBackdrop.State = React.useMemo(
-    () => ({
-      open,
-      transitionStatus,
-    }),
-    [open, transitionStatus],
-  );
+  const state: NavigationMenuBackdrop.State = {
+    open,
+    transitionStatus,
+  };
 
   const element = useRenderElement('div', componentProps, {
     state,

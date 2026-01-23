@@ -566,6 +566,7 @@ export function useListNavigation(
           return;
         }
 
+        enqueueFocus(null, { sync: true });
         indexRef.current = -1;
         onNavigate(event);
 
