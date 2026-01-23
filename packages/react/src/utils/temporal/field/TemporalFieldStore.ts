@@ -231,9 +231,13 @@ export class TemporalFieldStore<
   };
 
   public mountEffect = () => {
-    // TODO: Make this logic more reliable
+    // Sync selection to DOM on mount and whenever the selected section changes.
     this.dom.syncSelectionToDOM();
-    this.subscribe(this.dom.syncSelectionToDOM);
+    this.registerStoreEffect(
+      TemporalFieldSectionPlugin.selectors.selectedSection,
+      this.dom.syncSelectionToDOM,
+    );
+
     return this.timeoutManager.clearAll;
   };
 }

@@ -169,7 +169,7 @@ export function cleanDigitDatePartValue(
   localizedDigits: string[],
   token: TemporalFieldToken,
 ) {
-  if (token.config.contentType === 'digit') {
+  if (token.config.contentType === 'digit-with-letter') {
     if (process.env.NODE_ENV !== 'production') {
       if (token.config.part !== 'day') {
         throw new Error(
