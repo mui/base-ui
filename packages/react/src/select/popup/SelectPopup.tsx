@@ -180,15 +180,12 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
     },
   });
 
-  const state: SelectPopup.State = React.useMemo(
-    () => ({
-      open,
-      transitionStatus,
-      side,
-      align,
-    }),
-    [open, transitionStatus, side, align],
-  );
+  const state: SelectPopup.State = {
+    open,
+    transitionStatus,
+    side,
+    align,
+  };
 
   useIsoLayoutEffect(() => {
     if (

@@ -30,12 +30,9 @@ export const AvatarFallback = React.forwardRef(function AvatarFallback(
     return timeout.clear;
   }, [timeout, delay]);
 
-  const state: AvatarRoot.State = React.useMemo(
-    () => ({
-      imageLoadingStatus,
-    }),
-    [imageLoadingStatus],
-  );
+  const state: AvatarRoot.State = {
+    imageLoadingStatus,
+  };
 
   const element = useRenderElement('span', componentProps, {
     state,

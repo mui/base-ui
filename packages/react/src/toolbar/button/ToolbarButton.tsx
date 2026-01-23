@@ -40,14 +40,11 @@ export const ToolbarButton = React.forwardRef(function ToolbarButton(
     native: nativeButton,
   });
 
-  const state: ToolbarButton.State = React.useMemo(
-    () => ({
-      disabled,
-      orientation,
-      focusable: focusableWhenDisabled,
-    }),
-    [disabled, focusableWhenDisabled, orientation],
-  );
+  const state: ToolbarButton.State = {
+    disabled,
+    orientation,
+    focusable: focusableWhenDisabled,
+  };
 
   return (
     <CompositeItem

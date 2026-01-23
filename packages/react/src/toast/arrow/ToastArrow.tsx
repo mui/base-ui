@@ -19,14 +19,11 @@ export const ToastArrow = React.forwardRef(function ToastArrow(
 
   const { arrowRef, side, align, arrowUncentered, arrowStyles } = useToastPositionerContext();
 
-  const state: ToastArrow.State = React.useMemo(
-    () => ({
-      side,
-      align,
-      uncentered: arrowUncentered,
-    }),
-    [side, align, arrowUncentered],
-  );
+  const state: ToastArrow.State = {
+    side,
+    align,
+    uncentered: arrowUncentered,
+  };
 
   const element = useRenderElement('div', componentProps, {
     state,
