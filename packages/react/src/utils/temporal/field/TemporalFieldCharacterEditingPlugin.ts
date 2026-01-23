@@ -1,5 +1,6 @@
 import { createSelector, createSelectorMemoized } from '@base-ui/utils/store';
 import { TemporalSupportedValue } from '../../../types';
+import { getLocalizedDigits, getWeekDaysStr } from './adapter-cache';
 import { FormatParser } from './formatParser';
 import { selectors } from './selectors';
 import { TemporalFieldStore } from './TemporalFieldStore';
@@ -12,7 +13,6 @@ import {
 import {
   applyLocalizedDigits,
   cleanDigitDatePartValue,
-  getDaysInWeekStr,
   getLetterEditingOptions,
   isDatePart,
   isStringNumber,
@@ -47,7 +47,7 @@ export class TemporalFieldCharacterEditingPlugin<TValue extends TemporalSupporte
 
   public editSection(parameters: EditSectionParameters) {
     const { keyPressed, sectionIndex } = parameters;
-    const localizedDigits = selectors.localizedDigits(this.store.state);
+    const localizedDigits = getLocalizedDigits(selectors.adapter(this.store.state));
     const response = isStringNumber(keyPressed, localizedDigits)
       ? this.applyNumericEditing(parameters)
       : this.applyLetterEditing(parameters);
@@ -64,7 +64,6 @@ export class TemporalFieldCharacterEditingPlugin<TValue extends TemporalSupporte
 
   private applyLetterEditing(parameters: EditSectionParameters) {
     const adapter = selectors.adapter(this.store.state);
-    const timezone = selectors.timezoneToRender(this.store.state);
 
     const findMatchingOptions = (
       format: string,
@@ -92,7 +91,7 @@ export class TemporalFieldCharacterEditingPlugin<TValue extends TemporalSupporte
       formatFallbackValue?: (fallbackValue: string, fallbackOptions: string[]) => string,
     ) => {
       const getOptions = (format: string) =>
-        getLetterEditingOptions(adapter, timezone, token.config.part, format);
+        getLetterEditingOptions(adapter, token.config.part, format);
 
       if (token.config.contentType === 'letter') {
         return findMatchingOptions(token.value, getOptions(token.value), queryValue);
@@ -166,7 +165,7 @@ export class TemporalFieldCharacterEditingPlugin<TValue extends TemporalSupporte
 
   private applyNumericEditing(parameters: EditSectionParameters) {
     const adapter = selectors.adapter(this.store.state);
-    const localizedDigits = selectors.localizedDigits(this.store.state);
+    const localizedDigits = getLocalizedDigits(adapter);
 
     const getNewDatePartValue = ({
       queryValue,
@@ -202,7 +201,6 @@ export class TemporalFieldCharacterEditingPlugin<TValue extends TemporalSupporte
       const newDatePartValue = cleanDigitDatePartValue(
         adapter,
         queryValueNumber,
-        boundaries,
         localizedDigits,
         datePart.token,
       );
@@ -262,7 +260,7 @@ export class TemporalFieldCharacterEditingPlugin<TValue extends TemporalSupporte
           return response;
         }
 
-        const formattedValue = getDaysInWeekStr(adapter, datePart.token.value)[
+        const formattedValue = getWeekDaysStr(adapter, datePart.token.value)[
           Number(response.datePartValue) - 1
         ];
         return {

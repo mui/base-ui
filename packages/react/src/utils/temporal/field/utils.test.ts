@@ -1,41 +1,10 @@
 import { createTemporalRenderer } from '#test-utils';
-import { getDaysInWeekStr, getLetterEditingOptions, cleanDigitDatePartValue } from './utils';
-import { TemporalFieldDatePartValueBoundaries } from './types';
+import { getLetterEditingOptions, cleanDigitDatePartValue } from './utils';
 import { FormatParser } from './formatParser';
 
 const STANDARD_DIGITS = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
 const ARABIC_INDIC_DIGITS = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
 const EASTERN_ARABIC_INDIC_DIGITS = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'];
-
-describe('getDaysInWeekStr', () => {
-  const { adapter } = createTemporalRenderer();
-
-  it('should return abbreviated weekday names', () => {
-    const result = getDaysInWeekStr(adapter, adapter.formats.weekday3Letters);
-
-    expect(result).to.deep.equal(['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']);
-  });
-
-  it('should return full weekday names', () => {
-    const result = getDaysInWeekStr(adapter, adapter.formats.weekday);
-
-    expect(result).to.deep.equal([
-      'Sunday',
-      'Monday',
-      'Tuesday',
-      'Wednesday',
-      'Thursday',
-      'Friday',
-      'Saturday',
-    ]);
-  });
-
-  it('should return single-letter weekday names', () => {
-    const result = getDaysInWeekStr(adapter, adapter.formats.weekday1Letter);
-
-    expect(result).to.deep.equal(['S', 'M', 'T', 'W', 'T', 'F', 'S']);
-  });
-});
 
 describe('getLetterEditingOptions', () => {
   const { adapter } = createTemporalRenderer();
@@ -44,7 +13,6 @@ describe('getLetterEditingOptions', () => {
     it('should return abbreviated month names', () => {
       const result = getLetterEditingOptions(
         adapter,
-        'default',
         'month',
         adapter.formats.month3Letters,
       );
@@ -68,7 +36,6 @@ describe('getLetterEditingOptions', () => {
     it('should return full month names', () => {
       const result = getLetterEditingOptions(
         adapter,
-        'default',
         'month',
         adapter.formats.monthFullLetter,
       );
@@ -94,7 +61,6 @@ describe('getLetterEditingOptions', () => {
     it('should return abbreviated weekday names', () => {
       const result = getLetterEditingOptions(
         adapter,
-        'default',
         'weekDay',
         adapter.formats.weekday3Letters,
       );
@@ -105,7 +71,6 @@ describe('getLetterEditingOptions', () => {
     it('should return full weekday names', () => {
       const result = getLetterEditingOptions(
         adapter,
-        'default',
         'weekDay',
         adapter.formats.weekday,
       );
@@ -126,7 +91,6 @@ describe('getLetterEditingOptions', () => {
     it('should return AM and PM', () => {
       const result = getLetterEditingOptions(
         adapter,
-        'default',
         'meridiem',
         adapter.formats.meridiem,
       );
@@ -139,7 +103,6 @@ describe('getLetterEditingOptions', () => {
     it('should return empty array for year section', () => {
       const result = getLetterEditingOptions(
         adapter,
-        'default',
         'year',
         adapter.formats.yearPadded,
       );
@@ -150,7 +113,6 @@ describe('getLetterEditingOptions', () => {
     it('should return empty array for day section', () => {
       const result = getLetterEditingOptions(
         adapter,
-        'default',
         'day',
         adapter.formats.dayOfMonthPadded,
       );
@@ -161,7 +123,6 @@ describe('getLetterEditingOptions', () => {
     it('should return empty array for hours section', () => {
       const result = getLetterEditingOptions(
         adapter,
-        'default',
         'hours',
         adapter.formats.hours24hPadded,
       );
@@ -172,7 +133,6 @@ describe('getLetterEditingOptions', () => {
     it('should return empty array for minutes section', () => {
       const result = getLetterEditingOptions(
         adapter,
-        'default',
         'minutes',
         adapter.formats.minutesPadded,
       );
@@ -183,7 +143,6 @@ describe('getLetterEditingOptions', () => {
     it('should return empty array for seconds section', () => {
       const result = getLetterEditingOptions(
         adapter,
-        'default',
         'seconds',
         adapter.formats.secondsPadded,
       );
@@ -198,221 +157,134 @@ describe('cleanDigitSectionValue', () => {
 
   describe('basic digit formatting', () => {
     it('should format a simple unpadded value', () => {
-      const boundaries: TemporalFieldDatePartValueBoundaries<'month'> = {
-        minimum: 1,
-        maximum: 12,
-      };
       // Unpadded month format - not in adapter.formats
       const token = FormatParser.buildSingleToken(adapter, 'M');
 
-      const result = cleanDigitDatePartValue(adapter, 5, boundaries, STANDARD_DIGITS, token);
+      const result = cleanDigitDatePartValue(adapter, 5, STANDARD_DIGITS, token);
       expect(result).to.equal('5');
     });
 
     it('should format a padded value with leading zeros', () => {
-      const boundaries: TemporalFieldDatePartValueBoundaries<'month'> = {
-        minimum: 1,
-        maximum: 12,
-      };
       const token = FormatParser.buildSingleToken(adapter, adapter.formats.monthPadded);
 
-      const result = cleanDigitDatePartValue(adapter, 5, boundaries, STANDARD_DIGITS, token);
+      const result = cleanDigitDatePartValue(adapter, 5, STANDARD_DIGITS, token);
       expect(result).to.equal('05');
     });
 
     it('should handle single-digit values without padding', () => {
-      const boundaries: TemporalFieldDatePartValueBoundaries<'day'> = {
-        minimum: 1,
-        maximum: 31,
-        longestMonth: adapter.date('2020-01-01', 'default'),
-      };
       const token = FormatParser.buildSingleToken(adapter, adapter.formats.dayOfMonth);
 
-      const result = cleanDigitDatePartValue(adapter, 3, boundaries, STANDARD_DIGITS, token);
+      const result = cleanDigitDatePartValue(adapter, 3, STANDARD_DIGITS, token);
       expect(result).to.equal('3');
     });
 
     it('should handle double-digit values with padding', () => {
-      const boundaries: TemporalFieldDatePartValueBoundaries<'day'> = {
-        minimum: 1,
-        maximum: 31,
-        longestMonth: adapter.date('2020-01-01', 'default'),
-      };
       const token = FormatParser.buildSingleToken(adapter, adapter.formats.dayOfMonthPadded);
 
-      const result = cleanDigitDatePartValue(adapter, 15, boundaries, STANDARD_DIGITS, token);
+      const result = cleanDigitDatePartValue(adapter, 15, STANDARD_DIGITS, token);
       expect(result).to.equal('15');
     });
   });
 
   describe('padded values', () => {
     it('should pad year values correctly', () => {
-      const boundaries: TemporalFieldDatePartValueBoundaries<'year'> = {
-        minimum: 1,
-        maximum: 9999,
-      };
       const token = FormatParser.buildSingleToken(adapter, adapter.formats.yearPadded);
 
-      const result = cleanDigitDatePartValue(adapter, 2023, boundaries, STANDARD_DIGITS, token);
+      const result = cleanDigitDatePartValue(adapter, 2023, STANDARD_DIGITS, token);
       expect(result).to.equal('2023');
     });
 
     it('should pad hours correctly', () => {
-      const boundaries: TemporalFieldDatePartValueBoundaries<'hours'> = {
-        minimum: 0,
-        maximum: 23,
-      };
       const token = FormatParser.buildSingleToken(adapter, adapter.formats.hours24hPadded);
 
-      const result = cleanDigitDatePartValue(adapter, 9, boundaries, STANDARD_DIGITS, token);
+      const result = cleanDigitDatePartValue(adapter, 9, STANDARD_DIGITS, token);
       expect(result).to.equal('09');
     });
 
     it('should pad minutes correctly', () => {
-      const boundaries: TemporalFieldDatePartValueBoundaries<'minutes'> = {
-        minimum: 0,
-        maximum: 59,
-      };
       const token = FormatParser.buildSingleToken(adapter, adapter.formats.minutesPadded);
 
-      const result = cleanDigitDatePartValue(adapter, 5, boundaries, STANDARD_DIGITS, token);
+      const result = cleanDigitDatePartValue(adapter, 5, STANDARD_DIGITS, token);
       expect(result).to.equal('05');
     });
 
     it('should pad seconds correctly', () => {
-      const boundaries: TemporalFieldDatePartValueBoundaries<'seconds'> = {
-        minimum: 0,
-        maximum: 59,
-      };
       const token = FormatParser.buildSingleToken(adapter, adapter.formats.secondsPadded);
 
-      const result = cleanDigitDatePartValue(adapter, 7, boundaries, STANDARD_DIGITS, token);
+      const result = cleanDigitDatePartValue(adapter, 7, STANDARD_DIGITS, token);
       expect(result).to.equal('07');
     });
   });
 
   describe('localized digits', () => {
     it('should convert to Arabic-Indic digits', () => {
-      const boundaries: TemporalFieldDatePartValueBoundaries<'month'> = {
-        minimum: 1,
-        maximum: 12,
-      };
       // Unpadded month format - not in adapter.formats
       const token = FormatParser.buildSingleToken(adapter, 'M');
 
-      const result = cleanDigitDatePartValue(adapter, 5, boundaries, ARABIC_INDIC_DIGITS, token);
+      const result = cleanDigitDatePartValue(adapter, 5, ARABIC_INDIC_DIGITS, token);
       expect(result).to.equal('٥');
     });
 
     it('should convert padded values to localized digits', () => {
-      const boundaries: TemporalFieldDatePartValueBoundaries<'month'> = {
-        minimum: 1,
-        maximum: 12,
-      };
       const token = FormatParser.buildSingleToken(adapter, adapter.formats.monthPadded);
 
-      const result = cleanDigitDatePartValue(adapter, 5, boundaries, ARABIC_INDIC_DIGITS, token);
+      const result = cleanDigitDatePartValue(adapter, 5, ARABIC_INDIC_DIGITS, token);
       expect(result).to.equal('٠٥');
     });
 
     it('should handle Eastern Arabic-Indic digits', () => {
-      const boundaries: TemporalFieldDatePartValueBoundaries<'day'> = {
-        minimum: 1,
-        maximum: 31,
-        longestMonth: adapter.date('2020-01-01', 'default'),
-      };
       const token = FormatParser.buildSingleToken(adapter, adapter.formats.dayOfMonthPadded);
 
-      const result = cleanDigitDatePartValue(
-        adapter,
-        15,
-        boundaries,
-        EASTERN_ARABIC_INDIC_DIGITS,
-        token,
-      );
+      const result = cleanDigitDatePartValue(adapter, 15, EASTERN_ARABIC_INDIC_DIGITS, token);
       expect(result).to.equal('۱۵');
     });
 
     it('should skip localization when digits start with 0', () => {
-      const boundaries: TemporalFieldDatePartValueBoundaries<'month'> = {
-        minimum: 1,
-        maximum: 12,
-      };
       const token = FormatParser.buildSingleToken(adapter, adapter.formats.monthPadded);
 
-      const result = cleanDigitDatePartValue(adapter, 5, boundaries, STANDARD_DIGITS, token);
+      const result = cleanDigitDatePartValue(adapter, 5, STANDARD_DIGITS, token);
       expect(result).to.equal('05');
     });
   });
 
   describe('digit-with-letter format for days', () => {
     it('should format day with ordinal suffix', () => {
-      const longestMonth = adapter.date('2020-01-01', 'default');
-      const boundaries: TemporalFieldDatePartValueBoundaries<'day'> = {
-        minimum: 1,
-        maximum: 31,
-        longestMonth,
-      };
       const token = FormatParser.buildSingleToken(adapter, adapter.formats.dayOfMonthWithLetter);
 
-      expect(cleanDigitDatePartValue(adapter, 1, boundaries, STANDARD_DIGITS, token)).to.equal(
-        '1st',
-      );
-      expect(cleanDigitDatePartValue(adapter, 2, boundaries, STANDARD_DIGITS, token)).to.equal(
-        '2nd',
-      );
-      expect(cleanDigitDatePartValue(adapter, 3, boundaries, STANDARD_DIGITS, token)).to.equal(
-        '3rd',
-      );
-      expect(cleanDigitDatePartValue(adapter, 15, boundaries, STANDARD_DIGITS, token)).to.equal(
-        '15th',
-      );
+      expect(cleanDigitDatePartValue(adapter, 1, STANDARD_DIGITS, token)).to.equal('1st');
+      expect(cleanDigitDatePartValue(adapter, 2, STANDARD_DIGITS, token)).to.equal('2nd');
+      expect(cleanDigitDatePartValue(adapter, 3, STANDARD_DIGITS, token)).to.equal('3rd');
+      expect(cleanDigitDatePartValue(adapter, 15, STANDARD_DIGITS, token)).to.equal('15th');
     });
   });
 
   describe('edge cases', () => {
     it('should handle zero value', () => {
-      const boundaries: TemporalFieldDatePartValueBoundaries<'hours'> = {
-        minimum: 0,
-        maximum: 23,
-      };
       const token = FormatParser.buildSingleToken(adapter, adapter.formats.hours24hPadded);
 
-      const result = cleanDigitDatePartValue(adapter, 0, boundaries, STANDARD_DIGITS, token);
+      const result = cleanDigitDatePartValue(adapter, 0, STANDARD_DIGITS, token);
       expect(result).to.equal('00');
     });
 
     it('should handle maximum boundary value', () => {
-      const boundaries: TemporalFieldDatePartValueBoundaries<'hours'> = {
-        minimum: 0,
-        maximum: 23,
-      };
       const token = FormatParser.buildSingleToken(adapter, adapter.formats.hours24hPadded);
 
-      const result = cleanDigitDatePartValue(adapter, 23, boundaries, STANDARD_DIGITS, token);
+      const result = cleanDigitDatePartValue(adapter, 23, STANDARD_DIGITS, token);
       expect(result).to.equal('23');
     });
 
     it('should handle 4-digit year with full padding', () => {
-      const boundaries: TemporalFieldDatePartValueBoundaries<'year'> = {
-        minimum: 1,
-        maximum: 9999,
-      };
       const token = FormatParser.buildSingleToken(adapter, adapter.formats.yearPadded);
 
-      const result = cleanDigitDatePartValue(adapter, 50, boundaries, STANDARD_DIGITS, token);
+      const result = cleanDigitDatePartValue(adapter, 50, STANDARD_DIGITS, token);
       expect(result).to.equal('0050');
     });
 
     it('should handle 2-digit year', () => {
-      const boundaries: TemporalFieldDatePartValueBoundaries<'year'> = {
-        minimum: 0,
-        maximum: 99,
-      };
       // 2-digit year format - not in adapter.formats
       const token = FormatParser.buildSingleToken(adapter, 'yy');
 
-      const result = cleanDigitDatePartValue(adapter, 5, boundaries, STANDARD_DIGITS, token);
+      const result = cleanDigitDatePartValue(adapter, 5, STANDARD_DIGITS, token);
       expect(result).to.equal('05');
     });
   });

@@ -4,7 +4,8 @@ import { selectors } from './selectors';
 import { TemporalFieldSectionPlugin } from './TemporalFieldSectionPlugin';
 import { TemporalFieldStore } from './TemporalFieldStore';
 import { TemporalFieldState as State, TemporalFieldDatePart, TemporalFieldSection } from './types';
-import { getDaysInWeekStr, isDatePart } from './utils';
+import { getWeekDaysStr } from './adapter-cache';
+import { isDatePart } from './utils';
 
 const translations = {
   empty: 'Empty',
@@ -286,7 +287,7 @@ function getDatePartValueNow(
   switch (section.token.config.part) {
     case 'weekDay': {
       if (section.token.config.contentType === 'letter') {
-        const formattedDaysInWeek = getDaysInWeekStr(adapter, section.token.value);
+        const formattedDaysInWeek = getWeekDaysStr(adapter, section.token.value);
         const index = formattedDaysInWeek.indexOf(section.value);
         return index >= 0 ? index + 1 : undefined;
       }
@@ -359,7 +360,7 @@ function getDatePartValueText(
           ? adapter.format(dateWithWeekDay, 'weekday')
           : '';
       }
-      const formattedDaysInWeek = getDaysInWeekStr(adapter, section.token.value);
+      const formattedDaysInWeek = getWeekDaysStr(adapter, section.token.value);
       const index = formattedDaysInWeek.indexOf(section.value);
       if (index < 0) {
         return undefined;

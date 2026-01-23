@@ -405,10 +405,10 @@ export interface TemporalFieldPlaceholderGetters {
   meridiem?: (params: { format: string }) => string;
 }
 
-export type TemporalFieldDatePartValueBoundaries<Part extends TemporalFieldDatePartType> = {
+export type TemporalFieldDatePartValueBoundaries = {
   minimum: number;
   maximum: number;
-} & (Part extends 'day' ? { longestMonth: TemporalSupportedObject } : {});
+};
 
 export type TemporalFieldModelUpdater<
   State extends TemporalFieldState<any, any, any>,

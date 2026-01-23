@@ -1,11 +1,11 @@
 import { createSelector, createSelectorMemoized } from '@base-ui/utils/store';
-import { TemporalSupportedObject, TemporalSupportedValue } from '../../../types';
+import { TemporalSupportedValue } from '../../../types';
 import { mergeDateIntoReferenceDate } from './mergeDateIntoReferenceDate';
 import { selectors } from './selectors';
 import type { TemporalFieldStore } from './TemporalFieldStore';
 import { TemporalFieldState as State, TemporalFieldDatePart, TemporalFieldSection } from './types';
-import { getDaysInWeekStr, isDatePart, removeLocalizedDigits } from './utils';
-import { getMonthsInYear } from '../date-helpers';
+import { getLocalizedDigits, getWeekDaysStr, getLongestMonthInCurrentYear } from './adapter-cache';
+import { isDatePart, removeLocalizedDigits } from './utils';
 import { TemporalFieldValuePlugin } from './TemporalFieldValuePlugin';
 
 const sectionSelectors = {
@@ -44,9 +44,9 @@ const sectionSelectors = {
     (state: State) => state.config,
     (state: State) => state.value,
     selectors.adapter,
-    selectors.localizedDigits,
     selectors.timezoneToRender,
-    (fieldConfig, value, adapter, localizedDigits, timezone, datePart: TemporalFieldDatePart) => {
+    (fieldConfig, value, adapter, timezone, datePart: TemporalFieldDatePart) => {
+      const localizedDigits = getLocalizedDigits(adapter);
       if (!isDatePart(datePart)) {
         return { minimum: 0, maximum: 0 };
       }
@@ -74,7 +74,7 @@ const sectionSelectors = {
 
         case 'weekDay': {
           if (datePart.token.config.contentType === 'digit') {
-            const daysInWeek = getDaysInWeekStr(adapter, datePart.token.value).map(Number);
+            const daysInWeek = getWeekDaysStr(adapter, datePart.token.value).map(Number);
             return {
               minimum: Math.min(...daysInWeek),
               maximum: Math.max(...daysInWeek),
@@ -88,27 +88,12 @@ const sectionSelectors = {
         }
 
         case 'day': {
-          const today = adapter.now(timezone);
           const activeDate = fieldConfig.getDateFromSection(value, datePart);
-          const { maxDaysInMonth, longestMonth } = getMonthsInYear(adapter, today).reduce(
-            (acc, month) => {
-              const daysInMonth = adapter.getDaysInMonth(month);
-
-              if (daysInMonth > acc.maxDaysInMonth) {
-                return { maxDaysInMonth: daysInMonth, longestMonth: month };
-              }
-
-              return acc;
-            },
-            { maxDaysInMonth: 0, longestMonth: null as TemporalSupportedObject | null },
-          );
-
           return {
             minimum: 1,
             maximum: adapter.isValid(activeDate)
               ? adapter.getDaysInMonth(activeDate)
-              : maxDaysInMonth,
-            longestMonth: longestMonth!,
+              : adapter.getDaysInMonth(getLongestMonthInCurrentYear(adapter)),
           };
         }
 

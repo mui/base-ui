@@ -6,12 +6,16 @@ import {
   TemporalSupportedValue,
   TemporalTimezone,
 } from '../../../types';
-import { getMonthsInYear } from '../date-helpers';
 import { TemporalManager } from '../types';
+import {
+  getLongestMonthInCurrentYear,
+  getMeridiemsStr,
+  getMonthsStr,
+  getWeekDaysStr,
+} from './adapter-cache';
 import {
   TemporalFieldParsedFormat,
   TemporalFieldSection,
-  TemporalFieldDatePartValueBoundaries,
   TemporalFieldStoreSharedParameters,
   TemporalFieldToken,
   TemporalFieldConfiguration,
@@ -94,32 +98,6 @@ export function removeLocalizedDigits(valueStr: string, localizedDigits: string[
   return digits.join('');
 }
 
-/**
- * Returns an array of formatted weekday strings for all days in a week.
- * Uses the adapter's locale to determine the start of the week and format the day names.
- *
- * ```ts
- * getDaysInWeekStr(adapter, 'EEE');
- * // Returns: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'] (for US locale)
- * // Returns: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'] (for most European locales)
- * ```
- */
-export function getDaysInWeekStr(adapter: TemporalAdapter, format: string) {
-  const elements: TemporalSupportedObject[] = [];
-
-  const now = adapter.now('default');
-  const startDate = adapter.startOfWeek(now);
-  const endDate = adapter.endOfWeek(now);
-
-  let current = startDate;
-  while (adapter.isBefore(current, endDate)) {
-    elements.push(current);
-    current = adapter.addDays(current, 1);
-  }
-
-  return elements.map((weekDay) => adapter.formatByString(weekDay, format));
-}
-
 export function getTimezoneToRender<TValue extends TemporalSupportedValue>(
   adapter: TemporalAdapter,
   manager: TemporalManager<TValue, any, any>,
@@ -144,40 +122,23 @@ export function getTimezoneToRender<TValue extends TemporalSupportedValue>(
 
 /**
  * Returns an array of valid letter-based editing options for a given section type.
- * Used to provide autocomplete options when a user types letters into a field section.
- * Supports `'month'` (returns 12 months), `'weekDay'` (returns 7 weekdays), and `'meridiem'` (returns AM/PM).
- * Other section types return an empty array.
- *
- * ```ts
- * getLetterEditingOptions(adapter, 'default', 'month', 'MMM');
- * // Returns: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
- *
- * getLetterEditingOptions(adapter, 'default', 'weekDay', 'EEEE');
- * // Returns: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
- * ```
  */
 export function getLetterEditingOptions(
   adapter: TemporalAdapter,
-  timezone: TemporalTimezone,
   type: TemporalFieldDatePartType,
   format: string,
 ) {
   switch (type) {
     case 'month': {
-      return getMonthsInYear(adapter, adapter.now(timezone)).map((month) =>
-        adapter.formatByString(month, format!),
-      );
+      return getMonthsStr(adapter, format);
     }
 
     case 'weekDay': {
-      return getDaysInWeekStr(adapter, format);
+      return getWeekDaysStr(adapter, format);
     }
 
     case 'meridiem': {
-      const now = adapter.now(timezone);
-      return [adapter.startOfDay(now), adapter.endOfDay(now)].map((date) =>
-        adapter.formatByString(date, format),
-      );
+      return getMeridiemsStr(adapter, format);
     }
 
     default: {
@@ -192,12 +153,12 @@ export function getLetterEditingOptions(
  *
  * ```ts
  * // Padded month: 5 → '05'
- * cleanDigitDatePartValue(adapter, 5, boundaries, ['0', '1', ...], {
+ * cleanDigitDatePartValue(adapter, 5, ['0', '1', ...], {
  *   value: 'MM', config: { part: 'month', contentType: 'digit' }, isPadded: true, maxLength: 2
  * });
  *
  * // Arabic numerals: 5 → '٥'
- * cleanDigitDatePartValue(adapter, 5, boundaries, ['٠', '١', '٢', '٣', '٤', '٥', ...], {
+ * cleanDigitDatePartValue(adapter, 5, ['٠', '١', '٢', '٣', '٤', '٥', ...], {
  *   value: 'M', config: { part: 'month', contentType: 'digit' }, isPadded: false, maxLength: undefined
  * });
  * ```
@@ -205,7 +166,6 @@ export function getLetterEditingOptions(
 export function cleanDigitDatePartValue(
   adapter: TemporalAdapter,
   value: number,
-  boundaries: TemporalFieldDatePartValueBoundaries<any>,
   localizedDigits: string[],
   token: TemporalFieldToken,
 ) {
@@ -221,10 +181,7 @@ export function cleanDigitDatePartValue(
   }
 
   if (token.config.part === 'day' && token.config.contentType === 'digit-with-letter') {
-    const date = adapter.setDate(
-      (boundaries as TemporalFieldDatePartValueBoundaries<'day'>).longestMonth,
-      value,
-    );
+    const date = adapter.setDate(getLongestMonthInCurrentYear(adapter), value);
     return adapter.formatByString(date, token.value);
   }
 

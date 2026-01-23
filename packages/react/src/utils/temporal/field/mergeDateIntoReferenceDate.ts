@@ -4,7 +4,8 @@ import {
   TemporalSupportedObject,
 } from '../../../types';
 import { TemporalFieldDatePart, TemporalFieldSection } from './types';
-import { cleanLeadingZeros, getDaysInWeekStr, isDatePart } from './utils';
+import { getWeekDaysStr } from './adapter-cache';
+import { cleanLeadingZeros, isDatePart } from './utils';
 
 function transferDatePartValue(
   adapter: TemporalAdapter,
@@ -33,7 +34,7 @@ function transferDatePartValue(
         );
       }
 
-      const formattedDaysInWeek = getDaysInWeekStr(adapter, section.token.value);
+      const formattedDaysInWeek = getWeekDaysStr(adapter, section.token.value);
       const dayInWeekOfActiveDate = formattedDaysInWeek.indexOf(dayInWeekStrOfActiveDate);
       const dayInWeekOfNewDatePartValue = formattedDaysInWeek.indexOf(section.value);
       const diff = dayInWeekOfNewDatePartValue - dayInWeekOfActiveDate;

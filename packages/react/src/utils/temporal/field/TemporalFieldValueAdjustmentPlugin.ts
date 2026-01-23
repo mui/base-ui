@@ -1,4 +1,5 @@
 import { TemporalSupportedValue } from '../../../types';
+import { getLocalizedDigits } from './adapter-cache';
 import { cleanDigitDatePartValue, getLetterEditingOptions, removeLocalizedDigits } from './utils';
 import { TemporalFieldStore } from './TemporalFieldStore';
 import { selectors } from './selectors';
@@ -26,7 +27,7 @@ export class TemporalFieldValueAdjustmentPlugin<TValue extends TemporalSupported
    */
   public adjustActiveDatePartValue(keyCode: AdjustDatePartValueKeyCode) {
     const adapter = selectors.adapter(this.store.state);
-    const localizedDigits = selectors.localizedDigits(this.store.state);
+    const localizedDigits = getLocalizedDigits(adapter);
     const timezone = selectors.timezoneToRender(this.store.state);
     const activeDatePart = TemporalFieldSectionPlugin.selectors.activeDatePart(this.store.state);
 
@@ -56,7 +57,6 @@ export class TemporalFieldValueAdjustmentPlugin<TValue extends TemporalSupported
         cleanDigitDatePartValue(
           adapter,
           newDatePartValue,
-          boundaries,
           localizedDigits,
           activeDatePart.token,
         );
@@ -112,7 +112,6 @@ export class TemporalFieldValueAdjustmentPlugin<TValue extends TemporalSupported
     /// Letter part
     const options = getLetterEditingOptions(
       adapter,
-      timezone,
       activeDatePart.token.config.part,
       activeDatePart.token.value,
     );
