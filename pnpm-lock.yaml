@@ -184,6 +184,9 @@ importers:
       '@tanstack/react-form':
         specifier: ^1.27.7
         version: 1.27.7(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+      '@tanstack/react-query':
+        specifier: ^5.90.20
+        version: 5.90.20(react@19.2.3)
       '@tanstack/react-virtual':
         specifier: ^3.13.18
         version: 3.13.18(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
@@ -4329,6 +4332,9 @@ packages:
     resolution: {integrity: sha512-y/xtNPNt/YeyoVxE/JCx+T7yjEzpezmbb+toK8DDD1P4m7Kzs5YR956+7OKexG3f8aXgC3rLZl7b1V+yNUSy5w==}
     engines: {node: '>=18'}
 
+  '@tanstack/query-core@5.90.20':
+    resolution: {integrity: sha512-OMD2HLpNouXEfZJWcKeVKUgQ5n+n3A2JFmBaScpNDUqSrQSjiveC7dKMe53uJUg1nDG16ttFPz2xfilz6i2uVg==}
+
   '@tanstack/react-devtools@0.9.2':
     resolution: {integrity: sha512-JNXvBO3jgq16GzTVm7p65n5zHNfMhnqF6Bm7CawjoqZrjEakxbM6Yvy63aKSIpbrdf+Wun2Xn8P0qD+vp56e1g==}
     engines: {node: '>=18'}
@@ -4346,6 +4352,11 @@ packages:
     peerDependenciesMeta:
       '@tanstack/react-start':
         optional: true
+
+  '@tanstack/react-query@5.90.20':
+    resolution: {integrity: sha512-vXBxa+qeyveVO7OA0jX1z+DeyCA4JKnThKv411jd5SORpBKgkcVnYKCiBgECvADvniBX7tobwBmg01qq9JmMJw==}
+    peerDependencies:
+      react: ^18 || ^19
 
   '@tanstack/react-router-devtools@1.154.12':
     resolution: {integrity: sha512-TcGe7pmeVjk1zD58eMR87GG9OXMx6LDGz5QopmJS4LafvK2hvuaht+eKBnZlCvKLPlXu5juwHT4u+2bYdn6sqQ==}
@@ -14600,6 +14611,8 @@ snapshots:
 
   '@tanstack/pacer-lite@0.1.1': {}
 
+  '@tanstack/query-core@5.90.20': {}
+
   '@tanstack/react-devtools@0.9.2(@types/react-dom@19.2.3(@types/react@19.2.8))(@types/react@19.2.8)(csstype@3.2.3)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(solid-js@1.9.10)':
     dependencies:
       '@tanstack/devtools': 0.10.3(csstype@3.2.3)(solid-js@1.9.10)
@@ -14620,6 +14633,11 @@ snapshots:
       react: 19.2.3
     transitivePeerDependencies:
       - react-dom
+
+  '@tanstack/react-query@5.90.20(react@19.2.3)':
+    dependencies:
+      '@tanstack/query-core': 5.90.20
+      react: 19.2.3
 
   '@tanstack/react-router-devtools@1.154.12(@tanstack/react-router@1.154.12(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(@tanstack/router-core@1.154.12)(csstype@3.2.3)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)':
     dependencies:
