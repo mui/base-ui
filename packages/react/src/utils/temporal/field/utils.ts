@@ -169,18 +169,19 @@ export function cleanDigitDatePartValue(
   localizedDigits: string[],
   token: TemporalFieldToken,
 ) {
-  if (process.env.NODE_ENV !== 'production') {
-    if (token.config.part !== 'day' && token.config.contentType === 'digit-with-letter') {
-      throw new Error(
-        [
-          `Base UI: The token "${token.value}" is a digit format with letter in it.'
+  if (token.config.contentType === 'digit') {
+    if (process.env.NODE_ENV !== 'production') {
+      if (token.config.part !== 'day') {
+        throw new Error(
+          [
+            `Base UI: The token "${token.value}" is a digit format with letter in it.'
              This type of format is only supported for 'day' sections`,
-        ].join('\n'),
-      );
+          ].join('\n'),
+        );
+      }
     }
-  }
 
-  if (token.config.part === 'day' && token.config.contentType === 'digit-with-letter') {
+    // Special case for day with letter (1st, 2nd, 3rd, 4th, etc.)
     const date = adapter.setDate(getLongestMonthInCurrentYear(adapter), value);
     return adapter.formatByString(date, token.value);
   }
