@@ -5,7 +5,7 @@ import { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useTemporalFieldRootContext } from '../../utils/temporal/field/TemporalFieldRootContext';
 import { TemporalFieldSection } from '../../utils/temporal/field/types';
-import { TemporalFieldSectionPlugin } from '../../utils/temporal/field/TemporalFieldSectionPlugin';
+import { TemporalFieldSectionPlugin } from '../../utils/temporal/field/plugins/TemporalFieldSectionPlugin';
 
 /**
  * Groups all sections of the date or time field input.

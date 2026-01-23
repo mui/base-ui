@@ -1,15 +1,15 @@
 import { createSelector, createSelectorMemoized } from '@base-ui/utils/store';
 import { warn } from '@base-ui/utils/warn';
-import { TemporalFieldDatePartType, TemporalSupportedValue } from '../../../types';
-import { TemporalFieldStore } from './TemporalFieldStore';
+import { TemporalFieldDatePartType, TemporalSupportedValue } from '../../../../types';
+import { TemporalFieldStore } from '../TemporalFieldStore';
 import {
   TemporalFieldState as State,
   TemporalFieldParsedFormat,
   TemporalFieldToken,
-} from './types';
-import { FormatParser } from './formatParser';
-import { TemporalDateType } from '../types';
-import { isToken } from './utils';
+} from '../types';
+import { FormatParser } from '../formatParser';
+import { TemporalDateType } from '../../types';
+import { isToken } from '../utils';
 
 const formatSelectors = {
   format: createSelector((state: State) => state.format),

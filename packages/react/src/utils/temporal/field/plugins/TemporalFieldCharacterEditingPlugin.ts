@@ -1,15 +1,15 @@
 import { createSelector, createSelectorMemoized } from '@base-ui/utils/store';
-import { TemporalSupportedValue } from '../../../types';
-import { getLocalizedDigits, getWeekDaysStr } from './adapter-cache';
-import { FormatParser } from './formatParser';
-import { selectors } from './selectors';
-import { TemporalFieldStore } from './TemporalFieldStore';
+import { TemporalSupportedValue } from '../../../../types';
+import { getLocalizedDigits, getWeekDaysStr } from '../adapter-cache';
+import { FormatParser } from '../formatParser';
+import { selectors } from '../selectors';
+import { TemporalFieldStore } from '../TemporalFieldStore';
 import {
   TemporalFieldCharacterEditingQuery,
   TemporalFieldToken,
   TemporalFieldState as State,
   TemporalFieldDatePart,
-} from './types';
+} from '../types';
 import {
   applyLocalizedDigits,
   cleanDigitDatePartValue,
@@ -17,7 +17,7 @@ import {
   isDatePart,
   isStringNumber,
   removeLocalizedDigits,
-} from './utils';
+} from '../utils';
 import { TemporalFieldSectionPlugin } from './TemporalFieldSectionPlugin';
 
 const characterEditingSelectors = {

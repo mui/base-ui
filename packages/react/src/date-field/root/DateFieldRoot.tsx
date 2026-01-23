@@ -10,7 +10,7 @@ import { BaseUIComponentProps, MakeOptional } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useDirection } from '../../direction-provider';
 import { DateFieldStore } from './DateFieldStore';
-import { TemporalFieldRootPropsPlugin } from '../../utils/temporal/field/TemporalFieldRootPropsPlugin';
+import { TemporalFieldRootPropsPlugin } from '../../utils/temporal/field/plugins/TemporalFieldRootPropsPlugin';
 import { TemporalFieldRootContext } from '../../utils/temporal/field/TemporalFieldRootContext';
 import { FieldRoot } from '../../field';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';

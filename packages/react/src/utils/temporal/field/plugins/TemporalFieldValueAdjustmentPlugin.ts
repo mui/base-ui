@@ -1,8 +1,8 @@
-import { TemporalSupportedValue } from '../../../types';
-import { getLocalizedDigits } from './adapter-cache';
-import { cleanDigitDatePartValue, getLetterEditingOptions, removeLocalizedDigits } from './utils';
-import { TemporalFieldStore } from './TemporalFieldStore';
-import { selectors } from './selectors';
+import { TemporalSupportedValue } from '../../../../types';
+import { getLocalizedDigits } from '../adapter-cache';
+import { cleanDigitDatePartValue, getLetterEditingOptions, removeLocalizedDigits } from '../utils';
+import { TemporalFieldStore } from '../TemporalFieldStore';
+import { selectors } from '../selectors';
 import { TemporalFieldSectionPlugin } from './TemporalFieldSectionPlugin';
 
 /**

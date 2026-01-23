@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { createTemporalRenderer } from '#test-utils';
-import { DateFieldStore } from '../../../date-field/root/DateFieldStore';
-import { TimeFieldStore } from '../../../time-field/root/TimeFieldStore';
+import { DateFieldStore } from '../../../../date-field/root/DateFieldStore';
+import { TimeFieldStore } from '../../../../time-field/root/TimeFieldStore';
 import { TemporalFieldSectionPlugin } from './TemporalFieldSectionPlugin';
 
 describe('TemporalFieldCharacterEditingPlugin', () => {

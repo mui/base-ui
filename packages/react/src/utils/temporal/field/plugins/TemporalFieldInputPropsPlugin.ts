@@ -1,7 +1,7 @@
-import { TemporalSupportedValue } from '../../../types';
-import { selectors } from './selectors';
+import { TemporalSupportedValue } from '../../../../types';
+import { selectors } from '../selectors';
 import { TemporalFieldSectionPlugin } from './TemporalFieldSectionPlugin';
-import { TemporalFieldStore } from './TemporalFieldStore';
+import { TemporalFieldStore } from '../TemporalFieldStore';
 
 /**
  * Plugin to build the props to pass to the input part.

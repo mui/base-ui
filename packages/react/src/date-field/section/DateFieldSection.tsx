@@ -7,7 +7,7 @@ import { useTemporalFieldRootContext } from '../../utils/temporal/field/Temporal
 import { TemporalFieldSection } from '../../utils/temporal/field/types';
 import { StateAttributesMapping } from '../../utils/getStateAttributesProps';
 import { DateFieldSectionDataAttributes } from './DateFieldSectionDataAttributes';
-import { TemporalFieldSectionPropsPlugin } from '../../utils/temporal/field/TemporalFieldSectionPropsPlugin';
+import { TemporalFieldSectionPropsPlugin } from '../../utils/temporal/field/plugins/TemporalFieldSectionPropsPlugin';
 
 const stateAttributesMapping: StateAttributesMapping<DateFieldSectionState> = {
   sectionIndex: (index) => {

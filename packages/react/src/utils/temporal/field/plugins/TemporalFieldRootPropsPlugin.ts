@@ -1,8 +1,8 @@
 import { createSelectorMemoized } from '@base-ui/utils/store';
 import { visuallyHiddenInput } from '@base-ui/utils/visuallyHidden';
-import { TemporalFieldStore } from './TemporalFieldStore';
+import { TemporalFieldStore } from '../TemporalFieldStore';
 import { TemporalFieldValuePlugin } from './TemporalFieldValuePlugin';
-import { selectors } from './selectors';
+import { selectors } from '../selectors';
 
 const rootPropsSelectors = {
   rootState: createSelectorMemoized(

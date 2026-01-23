@@ -3,19 +3,19 @@ import {
   TemporalNonNullableValue,
   TemporalSupportedObject,
   TemporalSupportedValue,
-} from '../../../types';
-import { mergeDateIntoReferenceDate } from './mergeDateIntoReferenceDate';
-import { selectors } from './selectors';
-import { TemporalFieldStore } from './TemporalFieldStore';
+} from '../../../../types';
+import { mergeDateIntoReferenceDate } from '../mergeDateIntoReferenceDate';
+import { selectors } from '../selectors';
+import { TemporalFieldStore } from '../TemporalFieldStore';
 import {
   TemporalFieldState as State,
   TemporalFieldSection,
   TemporalFieldValueChangeEventDetails,
-} from './types';
-import { buildSections } from './utils';
+} from '../types';
+import { buildSections } from '../utils';
 import { TemporalFieldFormatPlugin } from './TemporalFieldFormatPlugin';
 import { TemporalFieldSectionPlugin } from './TemporalFieldSectionPlugin';
-import { createChangeEventDetails } from '../../createBaseUIEventDetails';
+import { createChangeEventDetails } from '../../../createBaseUIEventDetails';
 
 const valueSelectors = {
   value: createSelector((state: State) => state.value),

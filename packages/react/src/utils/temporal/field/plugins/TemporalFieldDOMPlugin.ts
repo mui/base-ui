@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { ownerDocument } from '@base-ui/utils/owner';
-import { TemporalFieldStore } from './TemporalFieldStore';
-import { activeElement } from '../../../floating-ui-react/utils';
+import { TemporalFieldStore } from '../TemporalFieldStore';
+import { activeElement } from '../../../../floating-ui-react/utils';
 import { TemporalFieldSectionPlugin } from './TemporalFieldSectionPlugin';
 
 /**

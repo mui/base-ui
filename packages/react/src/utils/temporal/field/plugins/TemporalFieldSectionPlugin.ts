@@ -1,11 +1,11 @@
 import { createSelector, createSelectorMemoized } from '@base-ui/utils/store';
-import { TemporalSupportedValue } from '../../../types';
-import { mergeDateIntoReferenceDate } from './mergeDateIntoReferenceDate';
-import { selectors } from './selectors';
-import type { TemporalFieldStore } from './TemporalFieldStore';
-import { TemporalFieldState as State, TemporalFieldDatePart, TemporalFieldSection } from './types';
-import { getLocalizedDigits, getWeekDaysStr, getLongestMonthInCurrentYear, getYearFormatLength } from './adapter-cache';
-import { isDatePart, removeLocalizedDigits } from './utils';
+import { TemporalSupportedValue } from '../../../../types';
+import { mergeDateIntoReferenceDate } from '../mergeDateIntoReferenceDate';
+import { selectors } from '../selectors';
+import type { TemporalFieldStore } from '../TemporalFieldStore';
+import { TemporalFieldState as State, TemporalFieldDatePart, TemporalFieldSection } from '../types';
+import { getLocalizedDigits, getWeekDaysStr, getLongestMonthInCurrentYear, getYearFormatLength } from '../adapter-cache';
+import { isDatePart, removeLocalizedDigits } from '../utils';
 import { TemporalFieldValuePlugin } from './TemporalFieldValuePlugin';
 
 const sectionSelectors = {

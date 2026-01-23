@@ -10,16 +10,16 @@ import {
 import { FormatParser } from './formatParser';
 import { buildSections, deriveStateFromParameters, getTimezoneToRender } from './utils';
 import { TextDirection } from '../../../direction-provider';
-import { TemporalFieldValueAdjustmentPlugin } from './TemporalFieldValueAdjustmentPlugin';
-import { TemporalFieldCharacterEditingPlugin } from './TemporalFieldCharacterEditingPlugin';
-import { TemporalFieldSectionPlugin } from './TemporalFieldSectionPlugin';
+import { TemporalFieldValueAdjustmentPlugin } from './plugins/TemporalFieldValueAdjustmentPlugin';
+import { TemporalFieldCharacterEditingPlugin } from './plugins/TemporalFieldCharacterEditingPlugin';
+import { TemporalFieldSectionPlugin } from './plugins/TemporalFieldSectionPlugin';
 import { TimeoutManager } from '../../TimeoutManager';
-import { TemporalFieldValuePlugin } from './TemporalFieldValuePlugin';
-import { TemporalFieldInputPropsPlugin } from './TemporalFieldInputPropsPlugin';
-import { TemporalFieldSectionPropsPlugin } from './TemporalFieldSectionPropsPlugin';
-import { TemporalFieldFormatPlugin } from './TemporalFieldFormatPlugin';
-import { TemporalFieldDOMPlugin } from './TemporalFieldDOMPlugin';
-import { TemporalFieldRootPropsPlugin } from './TemporalFieldRootPropsPlugin';
+import { TemporalFieldValuePlugin } from './plugins/TemporalFieldValuePlugin';
+import { TemporalFieldInputPropsPlugin } from './plugins/TemporalFieldInputPropsPlugin';
+import { TemporalFieldSectionPropsPlugin } from './plugins/TemporalFieldSectionPropsPlugin';
+import { TemporalFieldFormatPlugin } from './plugins/TemporalFieldFormatPlugin';
+import { TemporalFieldDOMPlugin } from './plugins/TemporalFieldDOMPlugin';
+import { TemporalFieldRootPropsPlugin } from './plugins/TemporalFieldRootPropsPlugin';
 
 export class TemporalFieldStore<
   TValue extends TemporalSupportedValue,

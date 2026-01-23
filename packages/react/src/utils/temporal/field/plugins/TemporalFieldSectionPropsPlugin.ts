@@ -1,11 +1,11 @@
 import { createSelectorMemoized } from '@base-ui/utils/store/createSelector';
-import { TemporalAdapter, TemporalSupportedValue, TemporalTimezone } from '../../../types';
-import { selectors } from './selectors';
+import { TemporalAdapter, TemporalSupportedValue, TemporalTimezone } from '../../../../types';
+import { selectors } from '../selectors';
 import { TemporalFieldSectionPlugin } from './TemporalFieldSectionPlugin';
-import { TemporalFieldStore } from './TemporalFieldStore';
-import { TemporalFieldState as State, TemporalFieldDatePart, TemporalFieldSection } from './types';
-import { getWeekDaysStr } from './adapter-cache';
-import { isDatePart } from './utils';
+import { TemporalFieldStore } from '../TemporalFieldStore';
+import { TemporalFieldState as State, TemporalFieldDatePart, TemporalFieldSection } from '../types';
+import { getWeekDaysStr } from '../adapter-cache';
+import { isDatePart } from '../utils';
 
 const translations = {
   empty: 'Empty',
@@ -356,9 +356,7 @@ function getDatePartValueText(
       const startOfWeekDate = adapter.startOfWeek(adapter.now(timezone));
       if (section.token.config.contentType === 'digit') {
         const dateWithWeekDay = adapter.addDays(startOfWeekDate, Number(section.value) - 1);
-        return adapter.isValid(dateWithWeekDay)
-          ? adapter.format(dateWithWeekDay, 'weekday')
-          : '';
+        return adapter.isValid(dateWithWeekDay) ? adapter.format(dateWithWeekDay, 'weekday') : '';
       }
       const formattedDaysInWeek = getWeekDaysStr(adapter, section.token.value);
       const index = formattedDaysInWeek.indexOf(section.value);
