@@ -393,6 +393,48 @@ describe('<Dialog.Root />', () => {
         // focus guard -> internal backdrop
         expect(popup.previousElementSibling?.previousElementSibling).to.equal(null);
       });
+
+      it('keeps focus trapped when content includes a positive tabIndex', async () => {
+        function Test() {
+          const escapeRef = React.useRef<HTMLButtonElement>(null);
+
+          return (
+            <div>
+              <TestDialog
+                rootProps={{ modal: true }}
+                popupProps={{
+                  initialFocus: escapeRef,
+                  children: (
+                    <React.Fragment>
+                      <button ref={escapeRef} tabIndex={1}>
+                        Escape
+                      </button>
+                      <Dialog.Close>Close</Dialog.Close>
+                    </React.Fragment>
+                  ),
+                }}
+              />
+              <button>Outside</button>
+            </div>
+          );
+        }
+
+        const { user } = await render(<Test />);
+
+        await user.click(screen.getByText('Open'));
+
+        const escapeButton = screen.getByRole('button', { name: 'Escape' });
+        await waitFor(() => {
+          expect(escapeButton).toHaveFocus();
+        });
+
+        await user.keyboard('[Tab]');
+        expect(screen.getByRole('button', { name: 'Close' })).toHaveFocus();
+
+        await user.keyboard('[Tab]');
+        expect(escapeButton).toHaveFocus();
+        expect(screen.getByText('Outside')).not.toHaveFocus();
+      });
     });
 
     it('does not dismiss previous modal dialog when clicking new modal dialog', async () => {

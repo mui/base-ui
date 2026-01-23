@@ -738,6 +738,55 @@ describe.skipIf(!isJSDOM)('FloatingFocusManager', () => {
       expect(screen.getByTestId('one')).toHaveFocus();
     });
 
+    test('traps focus when content includes a positive tabIndex', async () => {
+      function App() {
+        const priorityRef = React.useRef<HTMLButtonElement | null>(null);
+        const [open, setOpen] = React.useState(false);
+        const { refs, context } = useFloating({
+          open,
+          onOpenChange: setOpen,
+        });
+
+        const click = useClick(context);
+        const { getReferenceProps, getFloatingProps } = useInteractions([click]);
+
+        return (
+          <>
+            <button ref={refs.setReference} {...getReferenceProps()} data-testid="reference" />
+            {open && (
+              <FloatingFocusManager context={context} modal initialFocus={priorityRef}>
+                <div role="dialog" ref={refs.setFloating} {...getFloatingProps()} data-testid="floating">
+                  <button ref={priorityRef} tabIndex={1} data-testid="priority">
+                    Priority
+                  </button>
+                  <button data-testid="one">One</button>
+                  <button data-testid="two">Two</button>
+                </div>
+              </FloatingFocusManager>
+            )}
+            <button data-testid="outside" />
+          </>
+        );
+      }
+
+      render(<App />);
+
+      await userEvent.click(screen.getByTestId('reference'));
+      await flushMicrotasks();
+
+      expect(screen.getByTestId('priority')).toHaveFocus();
+
+      await userEvent.tab();
+      expect(screen.getByTestId('one')).toHaveFocus();
+
+      await userEvent.tab();
+      expect(screen.getByTestId('two')).toHaveFocus();
+
+      await userEvent.tab();
+      expect(screen.getByTestId('priority')).toHaveFocus();
+      expect(screen.getByTestId('outside')).not.toHaveFocus();
+    });
+
     test('false', async () => {
       render(<App modal={false} />);
 
