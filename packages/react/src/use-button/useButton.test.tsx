@@ -1,14 +1,41 @@
 import * as React from 'react';
-import { expect } from 'chai';
-import { spy } from 'sinon';
-import { act, fireEvent } from '@mui/internal-test-utils';
-import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
+import { expect } from 'vitest';
+import { act, fireEvent, screen } from '@mui/internal-test-utils';
+import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { createRenderer, isJSDOM } from '#test-utils';
 import { useButton } from './useButton';
 import { CompositeRoot } from '../composite/root/CompositeRoot';
 
 describe('useButton', () => {
   const { render, renderToString } = createRenderer();
+
+  describe('non-native button', () => {
+    describe('keyboard interactions', () => {
+      ['Enter', 'Space'].forEach((key) => {
+        it(`can be activated with ${key} key`, async () => {
+          const clickSpy = vi.fn();
+
+          function Button(props: React.ButtonHTMLAttributes<HTMLButtonElement>) {
+            const { getButtonProps } = useButton({
+              native: false,
+            });
+
+            return <span {...getButtonProps(props)} />;
+          }
+
+          const { user } = await render(<Button onClick={clickSpy} />);
+
+          const button = screen.getByRole('button');
+
+          await user.keyboard('[Tab]');
+          expect(button).toHaveFocus();
+
+          await user.keyboard(`[${key}]`);
+          expect(clickSpy).toHaveBeenCalledTimes(1);
+        });
+      });
+    });
+  });
 
   describe('param: focusableWhenDisabled', () => {
     it('allows disabled buttons to be focused', async () => {
@@ -21,8 +48,8 @@ describe('useButton', () => {
 
         return <button {...getButtonProps(otherProps)} />;
       }
-      const { getByRole } = await render(<TestButton disabled />);
-      const button = getByRole('button');
+      await render(<TestButton disabled />);
+      const button = screen.getByRole('button');
       await act(() => button.focus());
       expect(button).toHaveFocus();
     });
@@ -38,14 +65,14 @@ describe('useButton', () => {
         );
       }
 
-      const { rerender, getByRole } = await render(
+      const { rerender } = await render(
         <CompositeRoot>
           <TestButton />
         </CompositeRoot>,
       );
 
       async function verify() {
-        const button = getByRole('button');
+        const button = screen.getByRole('button');
         await act(() => button.focus());
         expect(button).toHaveFocus();
       }
@@ -62,11 +89,11 @@ describe('useButton', () => {
     });
 
     it('prevents interactions except focus and blur', async () => {
-      const handleClick = spy();
-      const handleKeyDown = spy();
-      const handleKeyUp = spy();
-      const handleFocus = spy();
-      const handleBlur = spy();
+      const handleClick = vi.fn();
+      const handleKeyDown = vi.fn();
+      const handleKeyUp = vi.fn();
+      const handleFocus = vi.fn();
+      const handleBlur = vi.fn();
 
       function TestButton(props: React.ButtonHTMLAttributes<HTMLButtonElement>) {
         const { disabled, ...otherProps } = props;
@@ -79,7 +106,7 @@ describe('useButton', () => {
         return <span {...getButtonProps(otherProps)} />;
       }
 
-      const { getByRole, user } = await render(
+      const { user } = await render(
         <TestButton
           disabled
           onClick={handleClick}
@@ -90,30 +117,30 @@ describe('useButton', () => {
         />,
       );
 
-      const button = getByRole('button');
+      const button = screen.getByRole('button');
       expect(document.activeElement).not.to.equal(button);
 
-      expect(handleFocus.callCount).to.equal(0);
+      expect(handleFocus).toHaveBeenCalledTimes(0);
       await user.keyboard('[Tab]');
       expect(button).toHaveFocus();
-      expect(handleFocus.callCount).to.equal(1);
+      expect(handleFocus).toHaveBeenCalledTimes(1);
 
       await user.keyboard('[Enter]');
-      expect(handleKeyDown.callCount).to.equal(0);
-      expect(handleClick.callCount).to.equal(0);
+      expect(handleKeyDown).toHaveBeenCalledTimes(0);
+      expect(handleClick).toHaveBeenCalledTimes(0);
 
       await user.keyboard('[Space]');
-      expect(handleKeyUp.callCount).to.equal(0);
-      expect(handleClick.callCount).to.equal(0);
+      expect(handleKeyUp).toHaveBeenCalledTimes(0);
+      expect(handleClick).toHaveBeenCalledTimes(0);
 
       await user.click(button);
-      expect(handleKeyDown.callCount).to.equal(0);
-      expect(handleKeyUp.callCount).to.equal(0);
-      expect(handleClick.callCount).to.equal(0);
+      expect(handleKeyDown).toHaveBeenCalledTimes(0);
+      expect(handleKeyUp).toHaveBeenCalledTimes(0);
+      expect(handleClick).toHaveBeenCalledTimes(0);
 
-      expect(handleBlur.callCount).to.equal(0);
+      expect(handleBlur).toHaveBeenCalledTimes(0);
       await user.keyboard('[Tab]');
-      expect(handleBlur.callCount).to.equal(1);
+      expect(handleBlur).toHaveBeenCalledTimes(1);
       expect(document.activeElement).not.to.equal(button);
     });
   });
@@ -128,8 +155,8 @@ describe('useButton', () => {
         return <button {...getButtonProps()} />;
       }
 
-      const { getByRole } = await render(<TestButton />);
-      expect(getByRole('button')).to.have.property('tabIndex', 0);
+      await render(<TestButton />);
+      expect(screen.getByRole('button')).to.have.property('tabIndex', 0);
     });
 
     it('returns tabIndex in getButtonProps when host component is not BUTTON', async () => {
@@ -143,8 +170,8 @@ describe('useButton', () => {
         return <span {...getButtonProps()} />;
       }
 
-      const { getByRole } = await render(<TestButton />);
-      expect(getByRole('button')).to.have.property('tabIndex', 0);
+      await render(<TestButton />);
+      expect(screen.getByRole('button')).to.have.property('tabIndex', 0);
     });
 
     it('returns tabIndex in getButtonProps if it is explicitly provided', async () => {
@@ -154,8 +181,8 @@ describe('useButton', () => {
         return <button {...getButtonProps()} />;
       }
 
-      const { getByRole } = await render(<TestButton />);
-      expect(getByRole('button')).to.have.property('tabIndex', customTabIndex);
+      await render(<TestButton />);
+      expect(screen.getByRole('button')).to.have.property('tabIndex', customTabIndex);
     });
   });
 
@@ -167,8 +194,8 @@ describe('useButton', () => {
         return <button {...getButtonProps({ 'data-testid': buttonTestId })} />;
       }
 
-      const { getByRole } = await render(<TestButton />);
-      expect(getByRole('button')).to.have.attribute('data-testid', buttonTestId);
+      await render(<TestButton />);
+      expect(screen.getByRole('button')).to.have.attribute('data-testid', buttonTestId);
     });
   });
 
@@ -176,7 +203,7 @@ describe('useButton', () => {
     // calling preventDefault in keyUp on a <button> will not dispatch a click event if Space is pressed
     // https://codesandbox.io/p/sandbox/button-keyup-preventdefault-dn7f0
     it('key: Space fires a click event even if preventDefault was called on keyUp', async () => {
-      const handleClick = spy();
+      const handleClick = vi.fn();
 
       function TestButton(props: React.ButtonHTMLAttributes<HTMLButtonElement>) {
         const { getButtonProps } = useButton({ native: false });
@@ -184,25 +211,25 @@ describe('useButton', () => {
         return <span {...getButtonProps(props)} />;
       }
 
-      const { getByRole, user } = await render(
+      const { user } = await render(
         <TestButton
           onKeyUp={(event: React.KeyboardEvent<HTMLButtonElement>) => event.preventDefault()}
           onClick={handleClick}
         />,
       );
 
-      const button = getByRole('button');
+      const button = screen.getByRole('button');
 
       await user.keyboard('[Tab]');
       expect(button).toHaveFocus();
 
       await user.keyboard('[Space]');
-      expect(handleClick.callCount).to.equal(1);
+      expect(handleClick).toHaveBeenCalledTimes(1);
     });
 
     it('key: Enter fires keydown then click on non-native buttons', async () => {
-      const handleKeyDown = spy();
-      const handleClick = spy();
+      const handleKeyDown = vi.fn();
+      const handleClick = vi.fn();
 
       function TestButton(props: React.ButtonHTMLAttributes<HTMLButtonElement>) {
         const { getButtonProps } = useButton({ native: false });
@@ -210,19 +237,17 @@ describe('useButton', () => {
         return <span {...getButtonProps(props)} />;
       }
 
-      const { getByRole } = await render(
-        <TestButton onKeyDown={handleKeyDown} onClick={handleClick} />,
-      );
+      await render(<TestButton onKeyDown={handleKeyDown} onClick={handleClick} />);
 
-      const button = getByRole('button');
+      const button = screen.getByRole('button');
 
       await act(() => button.focus());
       expect(button).toHaveFocus();
 
-      expect(handleKeyDown.callCount).to.equal(0);
+      expect(handleKeyDown).toHaveBeenCalledTimes(0);
       fireEvent.keyDown(button, { key: 'Enter' });
-      expect(handleKeyDown.callCount).to.equal(1);
-      expect(handleClick.callCount).to.equal(1);
+      expect(handleKeyDown).toHaveBeenCalledTimes(1);
+      expect(handleClick).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -247,36 +272,42 @@ describe('useButton', () => {
         return <button {...getButtonProps(otherProps)} />;
       }
 
-      const { container } = renderToString(<TestButton disabled>Submit</TestButton>);
-      expect(container.querySelector('button')).to.have.property('disabled');
+      renderToString(<TestButton disabled>Submit</TestButton>);
+      expect(screen.getByRole('button')).to.have.property('disabled');
     });
   });
 
   describe('dev warnings', () => {
     it('errors if nativeButton=true but ref is not a button', async () => {
-      const errorSpy = spy(console, 'error');
+      const errorSpy = vi
+        .spyOn(console, 'error')
+        .mockName('console.error')
+        .mockImplementation(() => {});
       function TestButton() {
         const { getButtonProps, buttonRef } = useButton({ native: true });
         return <span {...getButtonProps()} ref={buttonRef} />;
       }
       await render(<TestButton />);
-      expect(errorSpy.firstCall.args[0]).to.equal(
+      expect(errorSpy).toHaveBeenCalledTimes(1);
+      expect(errorSpy).toHaveBeenCalledWith(
         'Base UI: A component that acts as a button was not rendered as a native <button>, which does not match the default. Ensure that the element passed to the `render` prop of the component is a real <button>, or set the `nativeButton` prop on the component to `false`.',
       );
-      errorSpy.restore();
     });
 
     it('errors if nativeButton=false but ref is a button', async () => {
-      const errorSpy = spy(console, 'error');
+      const errorSpy = vi
+        .spyOn(console, 'error')
+        .mockName('console.error')
+        .mockImplementation(() => {});
       function TestButton() {
         const { getButtonProps, buttonRef } = useButton({ native: false });
         return <button {...getButtonProps()} ref={buttonRef} />;
       }
       await render(<TestButton />);
-      expect(errorSpy.firstCall.args[0]).to.equal(
+      expect(errorSpy).toHaveBeenCalledTimes(1);
+      expect(errorSpy).toHaveBeenCalledWith(
         'Base UI: A component that acts as a button was rendered as a native <button>, which does not match the default. Ensure that the element passed to the `render` prop of the component is not a real <button>, or set the `nativeButton` prop on the component to `true`.',
       );
-      errorSpy.restore();
     });
   });
 });

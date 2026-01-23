@@ -1,0 +1,217 @@
+# Select
+
+<Subtitle>A common form component for choosing a predefined value in a dropdown menu.</Subtitle>
+<Meta
+  name="description"
+  content="A high-quality, unstyled React select component for choosing a predefined value in a dropdown menu."
+/>
+
+import { DemoSelectHero } from './demos/hero';
+
+<DemoSelectHero />
+
+## Usage guidelines
+
+- **Prefer Combobox for large lists**: Select is not filterable, aside from basic keyboard typeahead functionality to find items by focusing and highlighting them. Prefer [Combobox](/react/components/combobox) instead of Select when the number of items is sufficiently large to warrant filtering.
+- **Special positioning behavior**: The select popup by default overlaps its trigger so the selected item's text is aligned with the trigger's value text. This behavior [can be disabled or customized](/react/components/select#positioning).
+- **Form controls must have an accessible name**: It can be created using the `Field` component. See [Labeling a select](#labeling-a-select) and the [forms guide](/react/handbook/forms).
+
+## Anatomy
+
+Import the component and assemble its parts:
+
+```jsx title="Anatomy"
+import { Select } from '@base-ui/react/select';
+
+<Select.Root>
+  <Select.Trigger>
+    <Select.Value />
+    <Select.Icon />
+  </Select.Trigger>
+
+  <Select.Portal>
+    <Select.Backdrop />
+    <Select.Positioner>
+      <Select.ScrollUpArrow />
+      <Select.Popup>
+        <Select.Arrow />
+        <Select.List>
+          <Select.Item>
+            <Select.ItemText />
+            <Select.ItemIndicator />
+          </Select.Item>
+          <Select.Separator />
+          <Select.Group>
+            <Select.GroupLabel />
+          </Select.Group>
+        </Select.List>
+      </Select.Popup>
+      <Select.ScrollDownArrow />
+    </Select.Positioner>
+  </Select.Portal>
+</Select.Root>;
+```
+
+## Positioning
+
+`<Select.Positioner>` has a special prop called `alignItemWithTrigger` which causes the positioning to act differently by default from other `Positioner` components.
+The prop makes the select popup overlap the trigger so the selected item's text is aligned with the trigger's value text.
+
+For styling, `data-side` is `"none"` on the `.Popup` and `.Positioner` parts when the mode is active.
+
+To prevent the select popup from overlapping its trigger, set the `alignItemWithTrigger` prop to `false`.
+When set to `true` (its default) there are a few important points to note about its behavior:
+
+- **Interaction type dependent**: For UX reasons, the `alignItemWithTrigger` positioning mode is disabled if touch was the pointer type used to open the popup.
+- **Viewport space dependent**: There must be enough space in the viewport to align the selected item's text with the trigger's value text without causing the popup to be too vertically small - otherwise, it falls back to the default positioning mode.
+  This can be customized by setting `min-height` on the `<Select.Positioner>` element; a smaller value will fallback less often.
+  Additionally, the trigger must be at least 20px from the edges of the top and bottom of the viewport, or it will also fall back.
+- **Other positioning props are ignored**: Props like `side` or `align` have no effect unless the prop is set to `false` or when in fallback mode.
+
+## Examples
+
+### Typed wrapper component
+
+The following example shows a typed wrapper around the Select component with correct type inference and type safety:
+
+```tsx title="Specifying generic type parameters"
+import * as React from 'react';
+import { Select } from '@base-ui/react/select';
+
+export function MySelect<Value, Multiple extends boolean | undefined = false>(
+  props: Select.Root.Props<Value, Multiple>,
+): React.JSX.Element {
+  return <Select.Root {...props}>{/* ... */}</Select.Root>;
+}
+```
+
+### Formatting the value
+
+By default, the `<Select.Value>` component renders the raw `value`.
+
+Passing the `items` prop to `<Select.Root>` instead renders the matching label for the rendered value:
+
+```jsx title="items prop" "items"1,3
+const items = [
+  { value: null, label: 'Select theme' },
+  { value: 'system', label: 'System default' },
+  { value: 'light', label: 'Light' },
+  { value: 'dark', label: 'Dark' },
+];
+
+<Select.Root items={items}>
+  <Select.Value />
+</Select.Root>;
+```
+
+A function can also be passed as the `children` prop of `<Select.Value>` to render a formatted value:
+
+```jsx title="Lookup map" {8-12}
+const items = {
+  monospace: 'Monospace',
+  serif: 'Serif',
+  'san-serif': 'Sans-serif',
+};
+
+<Select.Value>
+  {(value: keyof typeof items) => (
+    <span style={{ fontFamily: value }}>
+      {items[value]}
+    </span>
+  )}
+</Select.Value>;
+```
+
+To avoid lookup, [object values](#object-values) for each item can also be used.
+
+### Labeling a select
+
+Use the [Field](/react/components/field) component to provide a visible label for the select trigger:
+
+```tsx title="Using Field to label a select" {2,4}
+<Field.Root>
+  <Field.Label nativeLabel={false} render={<div />}>
+    Theme
+  </Field.Label>
+  <Select.Root>{/* ... */}</Select.Root>
+</Field.Root>
+```
+
+Replace the rendered `<label>` element with a `<div>` element and add `nativeLabel={false}` so it does not inherit native label behaviors. This ensures clicking on the label will focus the select trigger without opening the associated popup to match native `<select>` behavior, and prevents CSS `:hover` from activating on the trigger when hovering over the label.
+
+### Placeholder values
+
+To show a placeholder value, use the `placeholder` prop on `<Select.Value>`:
+
+```jsx title="Placeholder item" {8}
+const items = [
+  { value: 'system', label: 'System default' },
+  { value: 'light', label: 'Light' },
+  { value: 'dark', label: 'Dark' },
+];
+
+<Select.Root items={items}>
+  <Select.Value placeholder="Select theme" />
+</Select.Root>;
+```
+
+With placeholders, users cannot clear selected values using the select itself. If the select value should be clearable from the popup (instead of an external "reset" button), use a `null` item rendered in the list itself:
+
+```jsx title="Clearable item" {2}
+const items = [
+  { value: null, label: 'Select theme' },
+  { value: 'system', label: 'System default' },
+  { value: 'light', label: 'Light' },
+  { value: 'dark', label: 'Dark' },
+];
+
+<Select.Root items={items}>
+  <Select.Value />
+</Select.Root>;
+```
+
+### Multiple selection
+
+Add the `multiple` prop to the `<Select.Root>` component to allow multiple selections.
+
+import { DemoSelectMultiple } from './demos/multiple';
+
+<DemoSelectMultiple compact />
+
+### Object values
+
+Select items can use objects as values instead of primitives.
+This lets you access the full object in custom render functions, and can avoid needing to specify `items` for lookup.
+
+import { DemoSelectObjectValues } from './demos/object-values';
+
+<DemoSelectObjectValues compact />
+
+## API reference
+
+<Reference
+  component="Select"
+  parts="Root, Trigger, Value, Icon, Backdrop, Portal, Positioner, Popup, List, Arrow, Item, ItemText, ItemIndicator, Group, GroupLabel, ScrollUpArrow, ScrollDownArrow, Separator"
+/>
+
+export const metadata = {
+  keywords: [
+    'React Select Component',
+    'Dropdown Select',
+    'Select Box',
+    'Select Menu',
+    'Picker',
+    'Listbox',
+    'Choice Selector',
+    'Option List',
+    'Dropdown Menu',
+    'Combo Box',
+    'Multi Select React',
+    'Multiselect',
+    'Object Value Select',
+    'Accessible Select',
+    'Align Item with Trigger',
+    'Headless React Components',
+    'Base UI',
+  ],
+};

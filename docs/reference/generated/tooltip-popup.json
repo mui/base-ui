@@ -3,8 +3,13 @@
   "description": "A container for the tooltip contents.\nRenders a `<div>` element.",
   "props": {
     "className": {
-      "type": "string | ((state: Tooltip.Popup.State) => string)",
-      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
+      "type": "string | ((state: Tooltip.Popup.State) => string | undefined)",
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
+      "detailedType": "| string\n| ((state: Tooltip.Popup.State) => string | undefined)"
+    },
+    "style": {
+      "type": "CSSProperties | ((state: Tooltip.Popup.State) => CSSProperties | undefined)",
+      "detailedType": "| React.CSSProperties\n| ((\n    state: Tooltip.Popup.State,\n  ) => CSSProperties | undefined)\n| undefined"
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: Tooltip.Popup.State) => ReactElement)",

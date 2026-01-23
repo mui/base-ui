@@ -1,7 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
-import { useLatestRef } from '@base-ui-components/utils/useLatestRef';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useAnimationsFinished } from './useAnimationsFinished';
 
 /**
@@ -10,41 +9,44 @@ import { useAnimationsFinished } from './useAnimationsFinished';
 export function useOpenChangeComplete(parameters: useOpenChangeComplete.Parameters) {
   const { enabled = true, open, ref, onComplete: onCompleteParam } = parameters;
 
-  const openRef = useLatestRef(open);
-  const onComplete = useEventCallback(onCompleteParam);
-  const runOnceAnimationsFinish = useAnimationsFinished(ref, open);
+  const onComplete = useStableCallback(onCompleteParam);
+  const runOnceAnimationsFinish = useAnimationsFinished(ref, open, false);
 
   React.useEffect(() => {
     if (!enabled) {
-      return;
+      return undefined;
     }
 
-    runOnceAnimationsFinish(() => {
-      if (open === openRef.current) {
-        onComplete();
-      }
-    });
-  }, [enabled, open, onComplete, runOnceAnimationsFinish, openRef]);
+    const abortController = new AbortController();
+
+    runOnceAnimationsFinish(onComplete, abortController.signal);
+
+    return () => {
+      abortController.abort();
+    };
+  }, [enabled, open, onComplete, runOnceAnimationsFinish]);
+}
+
+export interface UseOpenChangeCompleteParameters {
+  /**
+   * Whether the hook is enabled.
+   * @default true
+   */
+  enabled?: boolean | undefined;
+  /**
+   * Whether the element is open.
+   */
+  open?: boolean | undefined;
+  /**
+   * Ref to the element being closed.
+   */
+  ref: React.RefObject<HTMLElement | null>;
+  /**
+   * Function to call when the animation completes (or there is no animation).
+   */
+  onComplete: () => void;
 }
 
 export namespace useOpenChangeComplete {
-  export interface Parameters {
-    /**
-     * Whether the hook is enabled.
-     * @default true
-     */
-    enabled?: boolean;
-    /**
-     * Whether the element is open.
-     */
-    open?: boolean;
-    /**
-     * Ref to the element being closed.
-     */
-    ref: React.RefObject<HTMLElement | null>;
-    /**
-     * Function to call when the animation completes (or there is no animation).
-     */
-    onComplete: () => void;
-  }
+  export type Parameters = UseOpenChangeCompleteParameters;
 }

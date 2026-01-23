@@ -1,13 +1,15 @@
 'use client';
 import * as React from 'react';
-import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
-import { ownerDocument } from '@base-ui-components/utils/owner';
-import { useTimeout } from '@base-ui-components/utils/useTimeout';
+import { ownerDocument } from '@base-ui/utils/owner';
+import { useTimeout } from '@base-ui/utils/useTimeout';
 import { contains, getTarget, stopEvent } from '../../floating-ui-react/utils';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useContextMenuRootContext } from '../root/ContextMenuRootContext';
+import { useMenuRootContext } from '../../menu/root/MenuRootContext';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
+import { pressableTriggerOpenStateMapping } from '../../utils/popupStateMapping';
+import { REASONS } from '../../utils/reasons';
 import { findRootOwnerId } from '../../menu/utils/findRootOwnerId';
 
 const LONG_PRESS_DELAY = 500;
@@ -31,8 +33,13 @@ export const ContextMenuTrigger = React.forwardRef(function ContextMenuTrigger(
     backdropRef,
     positionerRef,
     allowMouseUpTriggerRef,
+    initialCursorPointRef,
     rootId,
   } = useContextMenuRootContext(false);
+
+  const { store } = useMenuRootContext(false);
+  const open = store.useState('open');
+  const disabled = store.useState('disabled');
 
   const triggerRef = React.useRef<HTMLDivElement | null>(null);
   const touchPositionRef = React.useRef<{ x: number; y: number } | null>(null);
@@ -40,31 +47,34 @@ export const ContextMenuTrigger = React.forwardRef(function ContextMenuTrigger(
   const allowMouseUpTimeout = useTimeout();
   const allowMouseUpRef = React.useRef(false);
 
-  const handleLongPress = useEventCallback(
-    (x: number, y: number, event: MouseEvent | TouchEvent) => {
-      const isTouchEvent = event.type.startsWith('touch');
+  function handleLongPress(x: number, y: number, event: MouseEvent | TouchEvent) {
+    const isTouchEvent = event.type.startsWith('touch');
 
-      setAnchor({
-        getBoundingClientRect() {
-          return DOMRect.fromRect({
-            width: isTouchEvent ? 10 : 0,
-            height: isTouchEvent ? 10 : 0,
-            x,
-            y,
-          });
-        },
-      });
+    initialCursorPointRef.current = { x, y };
 
-      allowMouseUpRef.current = false;
-      actionsRef.current?.setOpen(true, createChangeEventDetails('trigger-press', event));
+    setAnchor({
+      getBoundingClientRect() {
+        return DOMRect.fromRect({
+          width: isTouchEvent ? 10 : 0,
+          height: isTouchEvent ? 10 : 0,
+          x,
+          y,
+        });
+      },
+    });
 
-      allowMouseUpTimeout.start(LONG_PRESS_DELAY, () => {
-        allowMouseUpRef.current = true;
-      });
-    },
-  );
+    allowMouseUpRef.current = false;
+    actionsRef.current?.setOpen(true, createChangeEventDetails(REASONS.triggerPress, event));
 
-  const handleContextMenu = useEventCallback((event: React.MouseEvent) => {
+    allowMouseUpTimeout.start(LONG_PRESS_DELAY, () => {
+      allowMouseUpRef.current = true;
+    });
+  }
+
+  function handleContextMenu(event: React.MouseEvent) {
+    if (disabled) {
+      return;
+    }
     allowMouseUpTriggerRef.current = true;
     stopEvent(event);
     handleLongPress(event.clientX, event.clientY, event.nativeEvent);
@@ -92,13 +102,19 @@ export const ContextMenuTrigger = React.forwardRef(function ContextMenuTrigger(
           return;
         }
 
-        actionsRef.current?.setOpen(false, createChangeEventDetails('cancel-open', mouseEvent));
+        actionsRef.current?.setOpen(
+          false,
+          createChangeEventDetails(REASONS.cancelOpen, mouseEvent),
+        );
       },
       { once: true },
     );
-  });
+  }
 
-  const handleTouchStart = useEventCallback((event: React.TouchEvent) => {
+  function handleTouchStart(event: React.TouchEvent) {
+    if (disabled) {
+      return;
+    }
     allowMouseUpTriggerRef.current = false;
     if (event.touches.length === 1) {
       event.stopPropagation();
@@ -114,9 +130,9 @@ export const ContextMenuTrigger = React.forwardRef(function ContextMenuTrigger(
         }
       });
     }
-  });
+  }
 
-  const handleTouchMove = useEventCallback((event: React.TouchEvent) => {
+  function handleTouchMove(event: React.TouchEvent) {
     if (longPressTimeout.isStarted() && touchPositionRef.current && event.touches.length === 1) {
       const touch = event.touches[0];
       const moveThreshold = 10;
@@ -128,15 +144,18 @@ export const ContextMenuTrigger = React.forwardRef(function ContextMenuTrigger(
         longPressTimeout.clear();
       }
     }
-  });
+  }
 
-  const handleTouchEnd = useEventCallback(() => {
+  function handleTouchEnd() {
     longPressTimeout.clear();
     touchPositionRef.current = null;
-  });
+  }
 
   React.useEffect(() => {
     function handleDocumentContextMenu(event: MouseEvent) {
+      if (disabled) {
+        return;
+      }
       const target = getTarget(event);
       const targetElement = target as HTMLElement | null;
       if (
@@ -153,9 +172,17 @@ export const ContextMenuTrigger = React.forwardRef(function ContextMenuTrigger(
     return () => {
       doc.removeEventListener('contextmenu', handleDocumentContextMenu);
     };
-  }, [backdropRef, internalBackdropRef]);
+  }, [backdropRef, disabled, internalBackdropRef]);
+
+  const state: ContextMenuTrigger.State = React.useMemo(
+    () => ({
+      open,
+    }),
+    [open],
+  );
 
   const element = useRenderElement('div', componentProps, {
+    state,
     ref: [triggerRef, forwardedRef],
     props: [
       {
@@ -170,13 +197,25 @@ export const ContextMenuTrigger = React.forwardRef(function ContextMenuTrigger(
       },
       elementProps,
     ],
+    stateAttributesMapping: pressableTriggerOpenStateMapping,
   });
 
   return element;
 });
 
-export namespace ContextMenuTrigger {
-  export interface State {}
+export type ContextMenuTriggerState = {
+  /**
+   * Whether the context menu is currently open.
+   */
+  open: boolean;
+};
 
-  export interface Props extends BaseUIComponentProps<'div', State> {}
+export interface ContextMenuTriggerProps extends BaseUIComponentProps<
+  'div',
+  ContextMenuTrigger.State
+> {}
+
+export namespace ContextMenuTrigger {
+  export type State = ContextMenuTriggerState;
+  export type Props = ContextMenuTriggerProps;
 }

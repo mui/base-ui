@@ -1,8 +1,8 @@
 'use client';
 import * as React from 'react';
-import { useTimeout } from '@base-ui-components/utils/useTimeout';
-import { useStore } from '@base-ui-components/utils/store';
-import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
+import { useTimeout } from '@base-ui/utils/useTimeout';
+import { useStore } from '@base-ui/utils/store';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useSelectRootContext } from '../root/SelectRootContext';
 import { useSelectPositionerContext } from '../positioner/SelectPositionerContext';
@@ -29,16 +29,16 @@ export const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
     direction === 'up' ? selectors.scrollUpArrowVisible : selectors.scrollDownArrowVisible;
 
   const stateVisible = useStore(store, visibleSelector);
-  const touchModality = useStore(store, selectors.touchModality);
+  const openMethod = useStore(store, selectors.openMethod);
 
   // Scroll arrows are disabled for touch modality as they are a hover-only element.
-  const visible = stateVisible && !touchModality;
+  const visible = stateVisible && openMethod !== 'touch';
 
   const timeout = useTimeout();
 
   const scrollArrowRef = direction === 'up' ? scrollUpArrowRef : scrollDownArrowRef;
 
-  const { mounted, transitionStatus, setMounted } = useTransitionStatus(visible);
+  const { transitionStatus, setMounted } = useTransitionStatus(visible);
 
   useIsoLayoutEffect(() => {
     scrollArrowsMountedCountRef.current += 1;
@@ -75,7 +75,6 @@ export const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
   );
 
   const defaultProps: React.ComponentProps<'div'> = {
-    hidden: !mounted,
     'aria-hidden': true,
     children: direction === 'up' ? '▲' : '▼',
     style: {
@@ -209,20 +208,26 @@ export const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
   return element;
 });
 
-export namespace SelectScrollArrow {
-  export interface State {
-    direction: 'up' | 'down';
-    visible: boolean;
-    side: Side | 'none';
-    transitionStatus: TransitionStatus;
-  }
+export interface SelectScrollArrowState {
+  direction: 'up' | 'down';
+  visible: boolean;
+  side: Side | 'none';
+  transitionStatus: TransitionStatus;
+}
 
-  export interface Props extends BaseUIComponentProps<'div', State> {
-    direction: 'up' | 'down';
-    /**
-     * Whether to keep the HTML element in the DOM while the select popup is not scrollable.
-     * @default false
-     */
-    keepMounted?: boolean;
-  }
+export interface SelectScrollArrowProps extends BaseUIComponentProps<
+  'div',
+  SelectScrollArrow.State
+> {
+  direction: 'up' | 'down';
+  /**
+   * Whether to keep the HTML element in the DOM while the select popup is not scrollable.
+   * @default false
+   */
+  keepMounted?: boolean | undefined;
+}
+
+export namespace SelectScrollArrow {
+  export type State = SelectScrollArrowState;
+  export type Props = SelectScrollArrowProps;
 }

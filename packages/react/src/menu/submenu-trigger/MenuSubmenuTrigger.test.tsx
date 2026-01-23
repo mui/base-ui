@@ -1,9 +1,8 @@
-import * as React from 'react';
 import { expect } from 'chai';
 import { fireEvent, waitFor, screen } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance } from '#test-utils';
-import { DirectionProvider } from '@base-ui-components/react/direction-provider';
-import { Menu } from '@base-ui-components/react/menu';
+import { DirectionProvider } from '@base-ui/react/direction-provider';
+import { Menu } from '@base-ui/react/menu';
 
 type TextDirection = 'ltr' | 'rtl';
 
@@ -27,6 +26,7 @@ describe('<Menu.SubmenuTrigger />', () => {
     return (
       <DirectionProvider direction={direction}>
         <Menu.Root open>
+          <Menu.Trigger>Open menu</Menu.Trigger>
           <Menu.Portal>
             <Menu.Positioner>
               <Menu.Popup>

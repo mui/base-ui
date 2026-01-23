@@ -3,14 +3,14 @@ import { expect } from 'chai';
 import { afterEach } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import { flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
-import { Menu } from '@base-ui-components/react/menu';
+import { Menu } from '@base-ui/react/menu';
 import { describeConformance, createRenderer, isJSDOM } from '#test-utils';
 
 const Trigger = React.forwardRef(function Trigger(
   props: Menu.Trigger.Props,
-  ref: React.ForwardedRef<HTMLDivElement>,
+  ref: React.ForwardedRef<any>,
 ) {
-  return <Menu.Trigger {...props} ref={ref} render={<div />} />;
+  return <Menu.Trigger {...props} ref={ref} render={<div />} nativeButton={false} />;
 });
 
 describe('<Menu.Positioner />', () => {
@@ -55,10 +55,10 @@ describe('<Menu.Positioner />', () => {
         );
       }
 
-      const { getByTestId } = await render(<TestComponent />);
+      await render(<TestComponent />);
 
-      const positioner = getByTestId('positioner');
-      const anchor = getByTestId('anchor');
+      const positioner = screen.getByTestId('positioner');
+      const anchor = screen.getByTestId('anchor');
 
       const anchorPosition = anchor.getBoundingClientRect();
 
@@ -99,10 +99,10 @@ describe('<Menu.Positioner />', () => {
         );
       }
 
-      const { getByTestId } = await render(<TestComponent />);
+      await render(<TestComponent />);
 
-      const positioner = getByTestId('positioner');
-      const anchor = getByTestId('anchor');
+      const positioner = screen.getByTestId('positioner');
+      const anchor = screen.getByTestId('anchor');
 
       const anchorPosition = anchor.getBoundingClientRect();
 
@@ -145,10 +145,10 @@ describe('<Menu.Positioner />', () => {
         );
       }
 
-      const { getByTestId } = await render(<TestComponent />);
+      await render(<TestComponent />);
 
-      const positioner = getByTestId('positioner');
-      const anchor = getByTestId('anchor');
+      const positioner = screen.getByTestId('positioner');
+      const anchor = screen.getByTestId('anchor');
 
       const anchorPosition = anchor.getBoundingClientRect();
 
@@ -174,7 +174,7 @@ describe('<Menu.Positioner />', () => {
 
       const virtualElement = { getBoundingClientRect: () => boundingRect };
 
-      const { getByTestId } = await render(
+      await render(
         <Menu.Root open>
           <Menu.Portal>
             <Menu.Positioner
@@ -193,7 +193,7 @@ describe('<Menu.Positioner />', () => {
         </Menu.Root>,
       );
 
-      const positioner = getByTestId('positioner');
+      const positioner = screen.getByTestId('positioner');
       expect(positioner.style.getPropertyValue('transform')).to.equal(`translate(200px, 100px)`);
     });
 
@@ -265,14 +265,14 @@ describe('<Menu.Positioner />', () => {
         );
       }
 
-      const { getByTestId, getByRole } = await render(<TestComponent />);
+      await render(<TestComponent />);
 
-      const positioner = getByTestId('positioner');
-      const anchorElement = getByTestId('anchor');
+      const positioner = screen.getByTestId('positioner');
+      const anchorElement = screen.getByTestId('anchor');
 
-      const setUndefinedButton = getByRole('button', { name: 'undefined' });
-      const setRefButton = getByRole('button', { name: 'ref' });
-      const trigger = getByRole('button', { name: 'trigger' });
+      const setUndefinedButton = screen.getByRole('button', { name: 'undefined' });
+      const setRefButton = screen.getByRole('button', { name: 'ref' });
+      const trigger = screen.getByRole('button', { name: 'trigger' });
 
       let anchorRect = anchorElement.getBoundingClientRect();
       await flushMicrotasks();
@@ -305,7 +305,7 @@ describe('<Menu.Positioner />', () => {
     });
 
     it('when keepMounted=true, should keep the content mounted when closed', async () => {
-      const { userEvent: user } = await import('@vitest/browser/context');
+      const { userEvent: user } = await import('vitest/browser');
       const { render: vbrRender } = await import('vitest-browser-react');
 
       vbrRender(
@@ -343,7 +343,7 @@ describe('<Menu.Positioner />', () => {
     });
 
     it('when keepMounted=false, should unmount the content when closed', async () => {
-      const { userEvent: user } = await import('@vitest/browser/context');
+      const { userEvent: user } = await import('vitest/browser');
       const { render: vbrRender } = await import('vitest-browser-react');
 
       vbrRender(

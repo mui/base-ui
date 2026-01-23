@@ -3,9 +3,13 @@
   "description": "The clipping viewport of the navigation menu's current content.\nRenders a `<div>` element.",
   "props": {
     "className": {
-      "type": "string | ((state: NavigationMenu.Viewport.State) => string)",
+      "type": "string | ((state: NavigationMenu.Viewport.State) => string | undefined)",
       "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
-      "detailedType": "| string\n| ((state: NavigationMenu.Viewport.State) => string)"
+      "detailedType": "| string\n| ((\n    state: NavigationMenu.Viewport.State,\n  ) => string | undefined)"
+    },
+    "style": {
+      "type": "CSSProperties | ((state: NavigationMenu.Viewport.State) => CSSProperties | undefined)",
+      "detailedType": "| React.CSSProperties\n| ((\n    state: NavigationMenu.Viewport.State,\n  ) => CSSProperties | undefined)\n| undefined"
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: NavigationMenu.Viewport.State) => ReactElement)",

@@ -4,7 +4,8 @@
   "props": {
     "value": {
       "type": "Tabs.Tab.Value",
-      "description": "The value of the Tab.\nWhen not specified, the value is the child position index."
+      "required": true,
+      "description": "The value of the Tab."
     },
     "nativeButton": {
       "type": "boolean",
@@ -12,9 +13,19 @@
       "description": "Whether the component renders a native `<button>` element when replacing it\nvia the `render` prop.\nSet to `false` if the rendered element is not a button (e.g. `<div>`).",
       "detailedType": "boolean | undefined"
     },
+    "disabled": {
+      "type": "boolean",
+      "description": "Whether the Tab is disabled.\n\nIf a first Tab on a `<Tabs.List>` is disabled, it won't initially be selected.\nInstead, the next enabled Tab will be selected.\nHowever, it does not work like this during server-side rendering, as it is not known\nduring pre-rendering which Tabs are disabled.\nTo work around it, ensure that `defaultValue` or `value` on `<Tabs.Root>` is set to an enabled Tab's value.",
+      "detailedType": "boolean | undefined"
+    },
     "className": {
-      "type": "string | ((state: Tabs.Tab.State) => string)",
-      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
+      "type": "string | ((state: Tabs.Tab.State) => string | undefined)",
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
+      "detailedType": "| string\n| ((state: Tabs.Tab.State) => string | undefined)"
+    },
+    "style": {
+      "type": "CSSProperties | ((state: Tabs.Tab.State) => CSSProperties | undefined)",
+      "detailedType": "| React.CSSProperties\n| ((state: Tabs.Tab.State) => CSSProperties | undefined)\n| undefined"
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: Tabs.Tab.State) => ReactElement)",
@@ -23,12 +34,6 @@
     }
   },
   "dataAttributes": {
-    "data-selected": {
-      "description": "Present when the tab is selected."
-    },
-    "data-highlighted": {
-      "description": "Present when the tab is highlighted."
-    },
     "data-orientation": {
       "description": "Indicates the orientation of the tabs.",
       "type": "'horizontal' | 'vertical'"
@@ -37,8 +42,11 @@
       "description": "Present when the tab is disabled."
     },
     "data-activation-direction": {
-      "description": "Indicates the direction of the activation (based on the previous selected tab).",
+      "description": "Indicates the direction of the activation (based on the previous active tab).",
       "type": "'left' | 'right' | 'up' | 'down' | 'none'"
+    },
+    "data-active": {
+      "description": "Present when the tab is active."
     }
   },
   "cssVariables": {}

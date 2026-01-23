@@ -1,21 +1,21 @@
 'use client';
 import * as React from 'react';
-import * as ReactDOM from 'react-dom';
-import { useControlled } from '@base-ui-components/utils/useControlled';
-import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
-import {
-  safePolygon,
-  useDismiss,
-  useHover,
-  useInteractions,
-  useFloatingRootContext,
-} from '../../floating-ui-react';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { useOnFirstRender } from '@base-ui/utils/useOnFirstRender';
+import { useDismiss, useInteractions } from '../../floating-ui-react';
 import { PreviewCardRootContext } from './PreviewCardContext';
-import { CLOSE_DELAY, OPEN_DELAY } from '../utils/constants';
-import type { BaseUIChangeEventDetails } from '../../utils/createBaseUIEventDetails';
-import { useFocusWithDelay } from '../../utils/interactions/useFocusWithDelay';
-import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
-import { useTransitionStatus } from '../../utils/useTransitionStatus';
+import {
+  createChangeEventDetails,
+  type BaseUIChangeEventDetails,
+} from '../../utils/createBaseUIEventDetails';
+import { REASONS } from '../../utils/reasons';
+import { PreviewCardStore } from '../store/PreviewCardStore';
+import {
+  PayloadChildRenderFunction,
+  useImplicitActiveTrigger,
+  useOpenStateTransitions,
+} from '../../utils/popups';
+import { PreviewCardHandle } from '../store/PreviewCardHandle';
 
 /**
  * Groups all parts of the preview card.
@@ -23,211 +23,182 @@ import { useTransitionStatus } from '../../utils/useTransitionStatus';
  *
  * Documentation: [Base UI Preview Card](https://base-ui.com/react/components/preview-card)
  */
-export function PreviewCardRoot(props: PreviewCardRoot.Props) {
+export function PreviewCardRoot<Payload>(props: PreviewCardRoot.Props<Payload>) {
   const {
-    open: externalOpen,
-    defaultOpen,
-    onOpenChange: onOpenChangeProp,
-    delay,
-    closeDelay,
+    open: openProp,
+    defaultOpen = false,
+    onOpenChange,
     onOpenChangeComplete,
     actionsRef,
+    handle,
+    triggerId: triggerIdProp,
+    defaultTriggerId: defaultTriggerIdProp = null,
+    children,
   } = props;
 
-  const delayWithDefault = delay ?? OPEN_DELAY;
-  const closeDelayWithDefault = closeDelay ?? CLOSE_DELAY;
-
-  const [triggerElement, setTriggerElement] = React.useState<Element | null>(null);
-  const [positionerElement, setPositionerElement] = React.useState<HTMLElement | null>(null);
-  const [instantTypeState, setInstantTypeState] = React.useState<'dismiss' | 'focus'>();
-
-  const popupRef = React.useRef<HTMLDivElement | null>(null);
-
-  const [open, setOpenUnwrapped] = useControlled({
-    controlled: externalOpen,
-    default: defaultOpen,
-    name: 'PreviewCard',
-    state: 'open',
+  const store = PreviewCardStore.useStore<Payload>(handle?.store, {
+    open: defaultOpen,
+    openProp,
+    activeTriggerId: defaultTriggerIdProp,
+    triggerIdProp,
   });
 
-  const onOpenChange = useEventCallback(onOpenChangeProp);
-
-  const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
-
-  const handleUnmount = useEventCallback(() => {
-    setMounted(false);
-    onOpenChangeComplete?.(false);
+  // Support initially open state when uncontrolled
+  useOnFirstRender(() => {
+    if (openProp === undefined && store.state.open === false && defaultOpen === true) {
+      store.update({
+        open: true,
+        activeTriggerId: defaultTriggerIdProp,
+      });
+    }
   });
 
-  useOpenChangeComplete({
-    enabled: !actionsRef,
-    open,
-    ref: popupRef,
-    onComplete() {
-      if (!open) {
-        handleUnmount();
+  store.useControlledProp('openProp', openProp);
+  store.useControlledProp('triggerIdProp', triggerIdProp);
+
+  store.useContextCallback('onOpenChange', onOpenChange);
+  store.useContextCallback('onOpenChangeComplete', onOpenChangeComplete);
+
+  const open = store.useState('open');
+
+  const activeTriggerId = store.useState('activeTriggerId');
+  const payload = store.useState('payload') as Payload | undefined;
+
+  useImplicitActiveTrigger(store);
+  const { forceUnmount } = useOpenStateTransitions(open, store);
+
+  useIsoLayoutEffect(() => {
+    if (open) {
+      if (activeTriggerId == null) {
+        store.set('payload', undefined);
       }
-    },
-  });
+    }
+  }, [store, activeTriggerId, open]);
 
-  React.useImperativeHandle(actionsRef, () => ({ unmount: handleUnmount }), [handleUnmount]);
+  const handleImperativeClose = React.useCallback(() => {
+    store.setOpen(false, createPreviewCardEventDetails(store, REASONS.imperativeAction));
+  }, [store]);
 
-  const setOpen = useEventCallback(
-    (nextOpen: boolean, eventDetails: PreviewCardRoot.ChangeEventDetails) => {
-      const isHover = eventDetails.reason === 'trigger-hover';
-      const isFocusOpen = nextOpen && eventDetails.reason === 'trigger-focus';
-      const isDismissClose =
-        !nextOpen &&
-        (eventDetails.reason === 'trigger-press' || eventDetails.reason === 'escape-key');
-
-      onOpenChange(nextOpen, eventDetails);
-
-      if (eventDetails.isCanceled) {
-        return;
-      }
-
-      function changeState() {
-        setOpenUnwrapped(nextOpen);
-      }
-
-      if (isHover) {
-        // If a hover reason is provided, we need to flush the state synchronously. This ensures
-        // `node.getAnimations()` knows about the new state.
-        ReactDOM.flushSync(changeState);
-      } else {
-        changeState();
-      }
-
-      if (isFocusOpen || isDismissClose) {
-        setInstantTypeState(isFocusOpen ? 'focus' : 'dismiss');
-      } else if (eventDetails.reason === 'trigger-hover') {
-        setInstantTypeState(undefined);
-      }
-    },
+  React.useImperativeHandle(
+    actionsRef,
+    () => ({ unmount: forceUnmount, close: handleImperativeClose }),
+    [forceUnmount, handleImperativeClose],
   );
 
-  const context = useFloatingRootContext({
-    elements: {
-      reference: triggerElement,
-      floating: positionerElement,
-    },
-    open,
-    onOpenChange: setOpen,
+  const floatingRootContext = store.useState('floatingRootContext');
+
+  const dismiss = useDismiss(floatingRootContext);
+
+  const { getReferenceProps, getTriggerProps, getFloatingProps } = useInteractions([dismiss]);
+
+  const activeTriggerProps = React.useMemo(() => getReferenceProps(), [getReferenceProps]);
+  const inactiveTriggerProps = React.useMemo(() => getTriggerProps(), [getTriggerProps]);
+  const popupProps = React.useMemo(() => getFloatingProps(), [getFloatingProps]);
+
+  store.useSyncedValues({
+    activeTriggerProps,
+    inactiveTriggerProps,
+    popupProps,
   });
-
-  const instantType = instantTypeState;
-  const computedRestMs = delayWithDefault;
-
-  const hover = useHover(context, {
-    mouseOnly: true,
-    move: false,
-    handleClose: safePolygon(),
-    restMs: computedRestMs,
-    delay: {
-      close: closeDelayWithDefault,
-    },
-  });
-  const focus = useFocusWithDelay(context, { delay: OPEN_DELAY });
-  const dismiss = useDismiss(context);
-
-  const { getReferenceProps, getFloatingProps } = useInteractions([hover, focus, dismiss]);
-
-  const contextValue = React.useMemo(
-    () => ({
-      open,
-      setOpen,
-      mounted,
-      setMounted,
-      setTriggerElement,
-      positionerElement,
-      setPositionerElement,
-      popupRef,
-      triggerProps: getReferenceProps(),
-      popupProps: getFloatingProps(),
-      floatingRootContext: context,
-      instantType,
-      transitionStatus,
-      onOpenChangeComplete,
-      delay: delayWithDefault,
-      closeDelay: closeDelayWithDefault,
-    }),
-    [
-      open,
-      setOpen,
-      mounted,
-      setMounted,
-      positionerElement,
-      getReferenceProps,
-      getFloatingProps,
-      context,
-      instantType,
-      transitionStatus,
-      onOpenChangeComplete,
-      delayWithDefault,
-      closeDelayWithDefault,
-    ],
-  );
 
   return (
-    <PreviewCardRootContext.Provider value={contextValue}>
-      {props.children}
+    <PreviewCardRootContext.Provider value={store as PreviewCardRootContext}>
+      {typeof children === 'function' ? children({ payload }) : children}
     </PreviewCardRootContext.Provider>
   );
 }
 
+function createPreviewCardEventDetails<Payload>(
+  store: PreviewCardStore<Payload>,
+  reason: PreviewCardRoot.ChangeEventReason,
+) {
+  const details: PreviewCardRoot.ChangeEventDetails =
+    createChangeEventDetails<PreviewCardRoot.ChangeEventReason>(
+      reason,
+    ) as PreviewCardRoot.ChangeEventDetails;
+  details.preventUnmountOnClose = () => {
+    store.set('preventUnmountingOnClose', true);
+  };
+  return details;
+}
+
+export interface PreviewCardRootState {}
+
+export interface PreviewCardRootProps<Payload = unknown> {
+  /**
+   * Whether the preview card is initially open.
+   *
+   * To render a controlled preview card, use the `open` prop instead.
+   * @default false
+   */
+  defaultOpen?: boolean | undefined;
+  /**
+   * Whether the preview card is currently open.
+   */
+  open?: boolean | undefined;
+  /**
+   * Event handler called when the preview card is opened or closed.
+   */
+  onOpenChange?:
+    | ((open: boolean, eventDetails: PreviewCardRoot.ChangeEventDetails) => void)
+    | undefined;
+  /**
+   * Event handler called after any animations complete when the preview card is opened or closed.
+   */
+  onOpenChangeComplete?: ((open: boolean) => void) | undefined;
+  /**
+   * A ref to imperative actions.
+   * - `unmount`: Unmounts the preview card popup.
+   * - `close`: Closes the preview card imperatively when called.
+   */
+  actionsRef?: React.RefObject<PreviewCardRoot.Actions | null> | undefined;
+  /**
+   * A handle to associate the preview card with a trigger.
+   * If specified, allows external triggers to control the card's open state.
+   * Can be created with the PreviewCard.createHandle() method.
+   */
+  handle?: PreviewCardHandle<Payload> | undefined;
+  /**
+   * The content of the preview card.
+   * This can be a regular React node or a render function that receives the `payload` of the active trigger.
+   */
+  children?: React.ReactNode | PayloadChildRenderFunction<Payload>;
+  /**
+   * ID of the trigger that the preview card is associated with.
+   * This is useful in conjuntion with the `open` prop to create a controlled preview card.
+   * There's no need to specify this prop when the preview card is uncontrolled (i.e. when the `open` prop is not set).
+   */
+  triggerId?: (string | null) | undefined;
+  /**
+   * ID of the trigger that the preview card is associated with.
+   * This is useful in conjunction with the `defaultOpen` prop to create an initially open preview card.
+   */
+  defaultTriggerId?: (string | null) | undefined;
+}
+
+export interface PreviewCardRootActions {
+  unmount: () => void;
+  close: () => void;
+}
+
+export type PreviewCardRootChangeEventReason =
+  | typeof REASONS.triggerHover
+  | typeof REASONS.triggerFocus
+  | typeof REASONS.triggerPress
+  | typeof REASONS.outsidePress
+  | typeof REASONS.escapeKey
+  | typeof REASONS.imperativeAction
+  | typeof REASONS.none;
+
+export type PreviewCardRootChangeEventDetails =
+  BaseUIChangeEventDetails<PreviewCardRoot.ChangeEventReason> & {
+    preventUnmountOnClose(): void;
+  };
+
 export namespace PreviewCardRoot {
-  export interface State {}
-
-  export interface Props {
-    children?: React.ReactNode;
-    /**
-     * Whether the preview card is initially open.
-     *
-     * To render a controlled preview card, use the `open` prop instead.
-     * @default false
-     */
-    defaultOpen?: boolean;
-    /**
-     * Whether the preview card is currently open.
-     */
-    open?: boolean;
-    /**
-     * Event handler called when the preview card is opened or closed.
-     */
-    onOpenChange?: (open: boolean, eventDetails: ChangeEventDetails) => void;
-    /**
-     * Event handler called after any animations complete when the preview card is opened or closed.
-     */
-    onOpenChangeComplete?: (open: boolean) => void;
-    /**
-     * How long to wait before the preview card opens. Specified in milliseconds.
-     * @default 600
-     */
-    delay?: number;
-    /**
-     * How long to wait before closing the preview card. Specified in milliseconds.
-     * @default 300
-     */
-    closeDelay?: number;
-    /**
-     * A ref to imperative actions.
-     * - `unmount`: When specified, the preview card will not be unmounted when closed.
-     * Instead, the `unmount` function must be called to unmount the preview card manually.
-     * Useful when the preview card's animation is controlled by an external library.
-     */
-    actionsRef?: React.RefObject<Actions>;
-  }
-
-  export interface Actions {
-    unmount: () => void;
-  }
-
-  export type ChangeEventReason =
-    | 'trigger-hover'
-    | 'trigger-focus'
-    | 'trigger-press'
-    | 'outside-press'
-    | 'escape-key'
-    | 'none';
-  export type ChangeEventDetails = BaseUIChangeEventDetails<ChangeEventReason>;
+  export type State = PreviewCardRootState;
+  export type Props<Payload = unknown> = PreviewCardRootProps<Payload>;
+  export type Actions = PreviewCardRootActions;
+  export type ChangeEventReason = PreviewCardRootChangeEventReason;
+  export type ChangeEventDetails = PreviewCardRootChangeEventDetails;
 }

@@ -1,5 +1,5 @@
 'use client';
-import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import * as React from 'react';
 
 export interface PackageManagerSnippetContext {

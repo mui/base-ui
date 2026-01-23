@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useStore } from '@base-ui-components/utils/store';
+import { useStore } from '@base-ui/utils/store';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useSelectRootContext } from '../root/SelectRootContext';
@@ -39,8 +39,16 @@ export const SelectIcon = React.forwardRef(function SelectIcon(
   return element;
 });
 
-export namespace SelectIcon {
-  export interface State {}
+export interface SelectIconState {
+  /**
+   * Whether the select popup is currently open.
+   */
+  open: boolean;
+}
 
-  export interface Props extends BaseUIComponentProps<'span', State> {}
+export interface SelectIconProps extends BaseUIComponentProps<'span', SelectIcon.State> {}
+
+export namespace SelectIcon {
+  export type State = SelectIconState;
+  export type Props = SelectIconProps;
 }

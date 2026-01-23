@@ -9,7 +9,7 @@ import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 
 /**
  * Indicates whether the checkbox item is ticked.
- * Renders a `<div>` element.
+ * Renders a `<span>` element.
  *
  * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
  */
@@ -59,25 +59,31 @@ export const MenuCheckboxItemIndicator = React.forwardRef(function MenuCheckboxI
   return element;
 });
 
-export namespace MenuCheckboxItemIndicator {
-  export interface Props extends BaseUIComponentProps<'span', State> {
-    /**
-     * Whether to keep the HTML element in the DOM when the checkbox item is not checked.
-     * @default false
-     */
-    keepMounted?: boolean;
-  }
+export interface MenuCheckboxItemIndicatorProps extends BaseUIComponentProps<
+  'span',
+  MenuCheckboxItemIndicator.State
+> {
+  /**
+   * Whether to keep the HTML element in the DOM when the checkbox item is not checked.
+   * @default false
+   */
+  keepMounted?: boolean | undefined;
+}
 
-  export interface State {
-    /**
-     * Whether the checkbox item is currently ticked.
-     */
-    checked: boolean;
-    /**
-     * Whether the component should ignore user interaction.
-     */
-    disabled: boolean;
-    highlighted: boolean;
-    transitionStatus: TransitionStatus;
-  }
+export interface MenuCheckboxItemIndicatorState {
+  /**
+   * Whether the checkbox item is currently ticked.
+   */
+  checked: boolean;
+  /**
+   * Whether the component should ignore user interaction.
+   */
+  disabled: boolean;
+  highlighted: boolean;
+  transitionStatus: TransitionStatus;
+}
+
+export namespace MenuCheckboxItemIndicator {
+  export type Props = MenuCheckboxItemIndicatorProps;
+  export type State = MenuCheckboxItemIndicatorState;
 }

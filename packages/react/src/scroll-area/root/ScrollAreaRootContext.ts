@@ -1,11 +1,11 @@
 import * as React from 'react';
-import type { ScrollAreaRoot } from './ScrollAreaRoot';
+import type { Coords, HiddenState, OverflowEdges, ScrollAreaRoot, Size } from './ScrollAreaRoot';
 
 export interface ScrollAreaRootContext {
-  cornerSize: { width: number; height: number };
-  setCornerSize: React.Dispatch<React.SetStateAction<{ width: number; height: number }>>;
-  thumbSize: { width: number; height: number };
-  setThumbSize: React.Dispatch<React.SetStateAction<{ width: number; height: number }>>;
+  cornerSize: Size;
+  setCornerSize: React.Dispatch<React.SetStateAction<Size>>;
+  thumbSize: Size;
+  setThumbSize: React.Dispatch<React.SetStateAction<Size>>;
   touchModality: boolean;
   hovering: boolean;
   setHovering: React.Dispatch<React.SetStateAction<boolean>>;
@@ -23,34 +23,12 @@ export interface ScrollAreaRootContext {
   handlePointerDown: (event: React.PointerEvent) => void;
   handlePointerMove: (event: React.PointerEvent) => void;
   handlePointerUp: (event: React.PointerEvent) => void;
-  handleScroll: (scrollPosition: { x: number; y: number }) => void;
+  handleScroll: (scrollPosition: Coords) => void;
   rootId: string | undefined;
-  hiddenState: {
-    scrollbarYHidden: boolean;
-    scrollbarXHidden: boolean;
-    cornerHidden: boolean;
-  };
-  setHiddenState: React.Dispatch<
-    React.SetStateAction<{
-      scrollbarYHidden: boolean;
-      scrollbarXHidden: boolean;
-      cornerHidden: boolean;
-    }>
-  >;
-  overflowEdges: {
-    xStart: boolean;
-    xEnd: boolean;
-    yStart: boolean;
-    yEnd: boolean;
-  };
-  setOverflowEdges: React.Dispatch<
-    React.SetStateAction<{
-      xStart: boolean;
-      xEnd: boolean;
-      yStart: boolean;
-      yEnd: boolean;
-    }>
-  >;
+  hiddenState: HiddenState;
+  setHiddenState: React.Dispatch<React.SetStateAction<HiddenState>>;
+  overflowEdges: OverflowEdges;
+  setOverflowEdges: React.Dispatch<React.SetStateAction<OverflowEdges>>;
   viewportState: ScrollAreaRoot.State;
   overflowEdgeThreshold: {
     xStart: number;

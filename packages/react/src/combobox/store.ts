@@ -1,10 +1,11 @@
-import { Store, createSelector } from '@base-ui-components/utils/store';
-import type { InteractionType } from '@base-ui-components/utils/useEnhancedClickHandler';
+import { Store, createSelector } from '@base-ui/utils/store';
+import type { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import type { TransitionStatus } from '../utils/useTransitionStatus';
 import type { HTMLProps } from '../utils/types';
-import type { useFieldControlValidation } from '../field/control/useFieldControlValidation';
-import type { ComboboxRootInternal } from './root/ComboboxRootInternal';
+import type { Side } from '../utils/useAnchorPositioning';
 import { compareItemEquality } from '../utils/itemEquality';
+import { hasNullItemLabel } from '../utils/resolveValueLabel';
+import type { AriaCombobox } from './root/AriaCombobox';
 
 export type State = {
   id: string | undefined;
@@ -16,7 +17,6 @@ export type State = {
   items: readonly any[] | undefined;
 
   selectedValue: any;
-  inputValue: React.ComponentProps<'input'>['value'];
 
   open: boolean;
   mounted: boolean;
@@ -31,12 +31,12 @@ export type State = {
   popupProps: HTMLProps;
   inputProps: HTMLProps;
   triggerProps: HTMLProps;
-  typeaheadTriggerProps: HTMLProps;
 
   positionerElement: HTMLElement | null;
   listElement: HTMLElement | null;
   triggerElement: HTMLElement | null;
   inputElement: HTMLInputElement | null;
+  popupSide: Side | null;
 
   openMethod: InteractionType | null;
 
@@ -45,7 +45,9 @@ export type State = {
   selectionMode: 'single' | 'multiple' | 'none';
 
   listRef: React.RefObject<Array<HTMLElement | null>>;
+  labelsRef: React.RefObject<Array<string | null>>;
   popupRef: React.RefObject<HTMLDivElement | null>;
+  emptyRef: React.RefObject<HTMLDivElement | null>;
   inputRef: React.RefObject<HTMLInputElement | null>;
   keyboardActiveRef: React.RefObject<boolean>;
   chipsContainerRef: React.RefObject<HTMLDivElement | null>;
@@ -54,36 +56,36 @@ export type State = {
   allValuesRef: React.RefObject<Array<any>>;
   selectionEventRef: React.RefObject<MouseEvent | PointerEvent | KeyboardEvent | null>;
 
-  setOpen: (open: boolean, eventDetails: ComboboxRootInternal.ChangeEventDetails) => void;
-  setInputValue: (value: string, eventDetails: ComboboxRootInternal.ChangeEventDetails) => void;
-  setSelectedValue: (value: any, eventDetails: ComboboxRootInternal.ChangeEventDetails) => void;
+  setOpen: (open: boolean, eventDetails: AriaCombobox.ChangeEventDetails) => void;
+  setInputValue: (value: string, eventDetails: AriaCombobox.ChangeEventDetails) => void;
+  setSelectedValue: (value: any, eventDetails: AriaCombobox.ChangeEventDetails) => void;
   setIndices: (indices: {
-    activeIndex?: number | null;
-    selectedIndex?: number | null;
-    type?: 'keyboard' | 'pointer' | 'none';
+    activeIndex?: (number | null) | undefined;
+    selectedIndex?: (number | null) | undefined;
+    type?: ('keyboard' | 'pointer' | 'none') | undefined;
   }) => void;
-  onItemHighlighted: (item: any, eventDetails: ComboboxRootInternal.HighlightEventDetails) => void;
+  onItemHighlighted: (item: any, eventDetails: AriaCombobox.HighlightEventDetails) => void;
   forceMount: () => void;
   handleSelection: (event: MouseEvent | PointerEvent | KeyboardEvent, passedValue?: any) => void;
   getItemProps: (
-    props?: HTMLProps & { active?: boolean; selected?: boolean },
+    props?: HTMLProps & { active?: boolean | undefined; selected?: boolean | undefined },
   ) => Record<string, unknown>;
+  requestSubmit: () => void;
 
   name: string | undefined;
   disabled: boolean;
   readOnly: boolean;
   required: boolean;
-  fieldControlValidation: ReturnType<typeof useFieldControlValidation>;
   grid: boolean;
   isGrouped: boolean;
   virtualized: boolean;
   onOpenChangeComplete: (open: boolean) => void;
   openOnInputClick: boolean;
-  itemToStringLabel?: (item: any) => string;
+  itemToStringLabel?: ((item: any) => string) | undefined;
   isItemEqualToValue: (item: any, value: any) => boolean;
   modal: boolean;
-  autoHighlight: boolean;
-  alwaysSubmitOnEnter: boolean;
+  autoHighlight: false | 'always' | 'input-change';
+  submitOnItemClick: boolean;
   hasInputValue: boolean;
 };
 
@@ -97,7 +99,25 @@ export const selectors = {
   items: createSelector((state: State) => state.items),
 
   selectedValue: createSelector((state: State) => state.selectedValue),
-  inputValue: createSelector((state: State) => state.inputValue),
+  hasSelectionChips: createSelector((state: State) => {
+    const selectedValue = state.selectedValue;
+    return Array.isArray(selectedValue) && selectedValue.length > 0;
+  }),
+
+  hasSelectedValue: createSelector((state: State) => {
+    const { selectedValue, selectionMode } = state;
+    if (selectedValue == null) {
+      return false;
+    }
+    if (selectionMode === 'multiple' && Array.isArray(selectedValue)) {
+      return selectedValue.length > 0;
+    }
+    return true;
+  }),
+
+  hasNullItemLabel: createSelector((state: State, enabled: boolean) => {
+    return enabled ? hasNullItemLabel(state.items) : false;
+  }),
 
   open: createSelector((state: State) => state.open),
   mounted: createSelector((state: State) => state.mounted),
@@ -122,13 +142,13 @@ export const selectors = {
   popupProps: createSelector((state: State) => state.popupProps),
   inputProps: createSelector((state: State) => state.inputProps),
   triggerProps: createSelector((state: State) => state.triggerProps),
-  typeaheadTriggerProps: createSelector((state: State) => state.typeaheadTriggerProps),
   getItemProps: createSelector((state: State) => state.getItemProps),
 
   positionerElement: createSelector((state: State) => state.positionerElement),
   listElement: createSelector((state: State) => state.listElement),
   triggerElement: createSelector((state: State) => state.triggerElement),
   inputElement: createSelector((state: State) => state.inputElement),
+  popupSide: createSelector((state: State) => state.popupSide),
 
   openMethod: createSelector((state: State) => state.openMethod),
 
@@ -136,7 +156,9 @@ export const selectors = {
 
   selectionMode: createSelector((state: State) => state.selectionMode),
   listRef: createSelector((state: State) => state.listRef),
+  labelsRef: createSelector((state: State) => state.labelsRef),
   popupRef: createSelector((state: State) => state.popupRef),
+  emptyRef: createSelector((state: State) => state.emptyRef),
   inputRef: createSelector((state: State) => state.inputRef),
   keyboardActiveRef: createSelector((state: State) => state.keyboardActiveRef),
   chipsContainerRef: createSelector((state: State) => state.chipsContainerRef),
@@ -148,7 +170,6 @@ export const selectors = {
   disabled: createSelector((state: State) => state.disabled),
   readOnly: createSelector((state: State) => state.readOnly),
   required: createSelector((state: State) => state.required),
-  fieldControlValidation: createSelector((state: State) => state.fieldControlValidation),
   grid: createSelector((state: State) => state.grid),
   isGrouped: createSelector((state: State) => state.isGrouped),
   virtualized: createSelector((state: State) => state.virtualized),
@@ -158,5 +179,5 @@ export const selectors = {
   isItemEqualToValue: createSelector((state: State) => state.isItemEqualToValue),
   modal: createSelector((state: State) => state.modal),
   autoHighlight: createSelector((state: State) => state.autoHighlight),
-  alwaysSubmitOnEnter: createSelector((state: State) => state.alwaysSubmitOnEnter),
+  submitOnItemClick: createSelector((state: State) => state.submitOnItemClick),
 };

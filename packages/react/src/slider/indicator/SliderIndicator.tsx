@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useOnMount } from '@base-ui-components/utils/useOnMount';
+import { useOnMount } from '@base-ui/utils/useOnMount';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { valueToPercent } from '../../utils/valueToPercent';
 import { useRenderElement } from '../../utils/useRenderElement';
@@ -130,6 +130,8 @@ export const SliderIndicator = React.forwardRef(function SliderIndicator(
   return element;
 });
 
+export interface SliderIndicatorProps extends BaseUIComponentProps<'div', SliderRoot.State> {}
+
 export namespace SliderIndicator {
-  export interface Props extends BaseUIComponentProps<'div', SliderRoot.State> {}
+  export type Props = SliderIndicatorProps;
 }

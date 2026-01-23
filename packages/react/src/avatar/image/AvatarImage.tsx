@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
-import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
-import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useAvatarRootContext } from '../root/AvatarRootContext';
@@ -34,7 +34,7 @@ export const AvatarImage = React.forwardRef(function AvatarImage(
     crossOrigin,
   });
 
-  const handleLoadingStatusChange = useEventCallback((status: ImageLoadingStatus) => {
+  const handleLoadingStatusChange = useStableCallback((status: ImageLoadingStatus) => {
     onLoadingStatusChangeProp?.(status);
     context.setImageLoadingStatus(status);
   });
@@ -63,11 +63,13 @@ export const AvatarImage = React.forwardRef(function AvatarImage(
   return element;
 });
 
+export interface AvatarImageProps extends BaseUIComponentProps<'img', AvatarRoot.State> {
+  /**
+   * Callback fired when the loading status changes.
+   */
+  onLoadingStatusChange?: ((status: ImageLoadingStatus) => void) | undefined;
+}
+
 export namespace AvatarImage {
-  export interface Props extends BaseUIComponentProps<'img', AvatarRoot.State> {
-    /**
-     * Callback fired when the loading status changes.
-     */
-    onLoadingStatusChange?: (status: ImageLoadingStatus) => void;
-  }
+  export type Props = AvatarImageProps;
 }

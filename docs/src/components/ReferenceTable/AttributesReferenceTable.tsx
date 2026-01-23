@@ -64,10 +64,12 @@ export async function AttributesReferenceTable({ data, ...props }: AttributesRef
               Attribute
             </Table.ColumnHeader>
             <Table.ColumnHeader className="xs:w-2/3 md:w-[calc(11.5/16.5*100%)]">
-              <div className="sr-only xs:not-sr-only xs:contents">Description</div>
+              <span className="sr-only xs:not-sr-only xs:contents">Description</span>
             </Table.ColumnHeader>
             {/* A cell to maintain a layout consistent with the props table */}
-            <Table.ColumnHeader className="w-10 max-xs:hidden" aria-hidden role="presentation" />
+            <Table.ColumnHeader className="w-10 max-xs:hidden" aria-hidden>
+              <span className="invisible">{'-'}</span>
+            </Table.ColumnHeader>
           </Table.Row>
         </Table.Head>
         <Table.Body>

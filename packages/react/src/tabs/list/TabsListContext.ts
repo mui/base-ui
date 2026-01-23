@@ -7,7 +7,7 @@ export interface TabsListContext {
   highlightedTabIndex: number;
   onTabActivation: (newValue: any, eventDetails: TabsRoot.ChangeEventDetails) => void;
   setHighlightedTabIndex: (index: number) => void;
-  tabsListRef: React.RefObject<HTMLElement | null>;
+  tabsListElement: HTMLElement | null;
 }
 
 export const TabsListContext = React.createContext<TabsListContext | undefined>(undefined);

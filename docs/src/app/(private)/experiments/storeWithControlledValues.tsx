@@ -1,8 +1,8 @@
 'use client';
 import * as React from 'react';
-import { useRefWithInit } from '@base-ui-components/utils/useRefWithInit';
-import { ReactStore } from '@base-ui-components/utils/store';
-import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
+import { ReactStore } from '@base-ui/utils/store';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
 
 export default function Playground() {
   const [open, setOpen] = React.useState(false);
@@ -72,16 +72,25 @@ interface Props {
 
 function ControllableComponent(props: Props) {
   const store = useRefWithInit(
-    () => new ReactStore({ open: props.defaultOpen ?? false, value: 0 }, {}, selectors),
+    () =>
+      new ReactStore(
+        {
+          open: props.defaultOpen ?? false,
+          openProp: props.open,
+          value: 0,
+        },
+        {},
+        selectors,
+      ),
   ).current;
 
-  store.useControlledProp('open', props.open, props.defaultOpen ?? false);
+  store.useControlledProp('openProp', props.open);
   store.useSyncedValue('value', props.value ?? 0);
 
   const open = store.useState('open');
   const value = store.useState('value');
 
-  const handleClick = useEventCallback(() => {
+  const handleClick = useStableCallback(() => {
     store.set('open', !open);
     props.onOpenChange?.(!open, 'toggle-button');
   });
@@ -113,10 +122,11 @@ function ChildComponent(props: ChildProps) {
 
 interface State {
   open: boolean;
+  openProp: boolean | undefined;
   value: number;
 }
 
 const selectors = {
-  open: (state: State) => state.open,
+  open: (state: State) => state.openProp ?? state.open,
   value: (state: State) => state.value,
 };

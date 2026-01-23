@@ -1,5 +1,5 @@
 import { isElement } from '@floating-ui/utils/dom';
-import { Timeout } from '@base-ui-components/utils/useTimeout';
+import { Timeout } from '@base-ui/utils/useTimeout';
 import type { Rect, Side } from './types';
 import type { HandleClose } from './hooks/useHover';
 import { contains, getTarget } from './utils/element';
@@ -36,9 +36,9 @@ function isInside(point: Point, rect: Rect) {
 }
 
 export interface SafePolygonOptions {
-  buffer?: number;
-  blockPointerEvents?: boolean;
-  requireIntent?: boolean;
+  buffer?: number | undefined;
+  blockPointerEvents?: boolean | undefined;
+  requireIntent?: boolean | undefined;
 }
 
 /**

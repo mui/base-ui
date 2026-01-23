@@ -1,11 +1,11 @@
 import * as React from 'react';
-import { useLatestRef } from '@base-ui-components/utils/useLatestRef';
-import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
-import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
-import { useTimeout } from '@base-ui-components/utils/useTimeout';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { useTimeout } from '@base-ui/utils/useTimeout';
 import { contains, stopEvent } from '../utils';
 
-import type { ElementProps, FloatingRootContext } from '../types';
+import type { ElementProps, FloatingContext, FloatingRootContext } from '../types';
+import { EMPTY_ARRAY } from '../../utils/constants';
 
 export interface UseTypeaheadProps {
   /**
@@ -22,39 +22,39 @@ export interface UseTypeaheadProps {
   /**
    * Callback invoked with the matching index if found as the user types.
    */
-  onMatch?: (index: number) => void;
+  onMatch?: ((index: number) => void) | undefined;
   /**
    * Callback invoked with the typing state as the user types.
    */
-  onTypingChange?: (isTyping: boolean) => void;
+  onTypingChange?: ((isTyping: boolean) => void) | undefined;
   /**
    * Whether the Hook is enabled, including all internal Effects and event
    * handlers.
    * @default true
    */
-  enabled?: boolean;
+  enabled?: boolean | undefined;
   /**
    * A function that returns the matching string from the list.
    * @default lowercase-finder
    */
   findMatch?:
-    | null
-    | ((list: Array<string | null>, typedString: string) => string | null | undefined);
+    | (null | ((list: Array<string | null>, typedString: string) => string | null | undefined))
+    | undefined;
   /**
    * The number of milliseconds to wait before resetting the typed string.
    * @default 750
    */
-  resetMs?: number;
+  resetMs?: number | undefined;
   /**
    * An array of keys to ignore when typing.
    * @default []
    */
-  ignoreKeys?: Array<string>;
+  ignoreKeys?: Array<string> | undefined;
   /**
    * The index of the selected item in the list, if available.
    * @default null
    */
-  selectedIndex?: number | null;
+  selectedIndex?: (number | null) | undefined;
 }
 
 /**
@@ -62,17 +62,22 @@ export interface UseTypeaheadProps {
  * types, often used in tandem with `useListNavigation()`.
  * @see https://floating-ui.com/docs/useTypeahead
  */
-export function useTypeahead(context: FloatingRootContext, props: UseTypeaheadProps): ElementProps {
-  const { open, dataRef, elements } = context;
+export function useTypeahead(
+  context: FloatingRootContext | FloatingContext,
+  props: UseTypeaheadProps,
+): ElementProps {
+  const store = 'rootStore' in context ? context.rootStore : context;
+  const dataRef = store.context.dataRef;
+  const open = store.useState('open');
   const {
     listRef,
     activeIndex,
     onMatch: onMatchProp,
-    onTypingChange: onTypingChangeProp,
+    onTypingChange,
     enabled = true,
     findMatch = null,
     resetMs = 750,
-    ignoreKeys = [],
+    ignoreKeys = EMPTY_ARRAY,
     selectedIndex = null,
   } = props;
 
@@ -80,12 +85,6 @@ export function useTypeahead(context: FloatingRootContext, props: UseTypeaheadPr
   const stringRef = React.useRef('');
   const prevIndexRef = React.useRef<number | null>(selectedIndex ?? activeIndex ?? -1);
   const matchIndexRef = React.useRef<number | null>(null);
-
-  const onMatch = useEventCallback(onMatchProp);
-  const onTypingChange = useEventCallback(onTypingChangeProp);
-
-  const findMatchRef = useLatestRef(findMatch);
-  const ignoreKeysRef = useLatestRef(ignoreKeys);
 
   useIsoLayoutEffect(() => {
     if (!open && selectedIndex !== null) {
@@ -107,26 +106,26 @@ export function useTypeahead(context: FloatingRootContext, props: UseTypeaheadPr
     }
   }, [open, selectedIndex, activeIndex]);
 
-  const setTypingChange = useEventCallback((value: boolean) => {
+  const setTypingChange = useStableCallback((value: boolean) => {
     if (value) {
       if (!dataRef.current.typing) {
         dataRef.current.typing = value;
-        onTypingChange(value);
+        onTypingChange?.(value);
       }
     } else if (dataRef.current.typing) {
       dataRef.current.typing = value;
-      onTypingChange(value);
+      onTypingChange?.(value);
     }
   });
 
-  const onKeyDown = useEventCallback((event: React.KeyboardEvent) => {
+  const onKeyDown = useStableCallback((event: React.KeyboardEvent) => {
     function getMatchingIndex(
       list: Array<string | null>,
       orderedList: Array<string | null>,
       string: string,
     ) {
-      const str = findMatchRef.current
-        ? findMatchRef.current(orderedList, string)
+      const str = findMatch
+        ? findMatch(orderedList, string)
         : orderedList.find(
             (text) => text?.toLocaleLowerCase().indexOf(string.toLocaleLowerCase()) === 0,
           );
@@ -146,7 +145,7 @@ export function useTypeahead(context: FloatingRootContext, props: UseTypeaheadPr
 
     if (
       listContent == null ||
-      ignoreKeysRef.current.includes(event.key) ||
+      ignoreKeys.includes(event.key) ||
       // Character key.
       event.key.length !== 1 ||
       // Modifier key.
@@ -197,7 +196,7 @@ export function useTypeahead(context: FloatingRootContext, props: UseTypeaheadPr
     );
 
     if (index !== -1) {
-      onMatch(index);
+      onMatchProp?.(index);
       matchIndexRef.current = index;
     } else if (event.key !== ' ') {
       stringRef.current = '';
@@ -205,10 +204,12 @@ export function useTypeahead(context: FloatingRootContext, props: UseTypeaheadPr
     }
   });
 
-  const onBlur = useEventCallback((event: React.FocusEvent) => {
+  const onBlur = useStableCallback((event: React.FocusEvent) => {
     const next = event.relatedTarget as Element | null;
-    const withinReference = contains(elements.domReference, next);
-    const withinFloating = contains(elements.floating, next);
+    const currentDomReferenceElement = store.select('domReferenceElement');
+    const currentFloatingElement = store.select('floatingElement');
+    const withinReference = contains(currentDomReferenceElement, next);
+    const withinFloating = contains(currentFloatingElement, next);
 
     // Keep the session if focus moves within the composite (reference <-> floating).
     if (withinReference || withinFloating) {

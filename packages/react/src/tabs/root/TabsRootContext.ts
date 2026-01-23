@@ -5,7 +5,7 @@ import type { TabsRoot } from './TabsRoot';
 
 export interface TabsRootContext {
   /**
-   * The currently selected tab's value.
+   * The currently active tab's value.
    */
   value: TabsTab.Value;
   /**
@@ -21,21 +21,20 @@ export interface TabsRootContext {
    */
   getTabElementBySelectedValue: (selectedValue: TabsTab.Value | undefined) => HTMLElement | null;
   /**
-   * Gets the `id` attribute of the Tab that corresponds to the given TabPanel value or index.
-   * @param (any | undefined) panelValue Value to find the Tab for.
-   * @param (number) index The index of the TabPanel to look for.
+   * Gets the `id` attribute of the Tab that corresponds to the given TabPanel value.
+   * @param (any) panelValue Value to find the Tab for.
    */
-  getTabIdByPanelValueOrIndex: (
-    panelValue: TabsTab.Value | undefined,
-    index: number,
-  ) => string | undefined;
+  getTabIdByPanelValue: (panelValue: TabsTab.Value) => string | undefined;
   /**
-   * Gets the `id` attribute of the TabPanel that corresponds to the given Tab value or index.
-   * @param (any | undefined) tabValue Value to find the Tab for.
-   * @param (number) index The index of the Tab to look for.
+   * Gets the `id` attribute of the TabPanel that corresponds to the given Tab value.
+   * @param (any) tabValue Value to find the TabPanel for.
    */
-  getTabPanelIdByTabValueOrIndex: (tabValue: any, index: number) => string | undefined;
-  setTabMap: (map: Map<Node, (TabsTab.Metadata & { index?: number | null }) | null>) => void;
+  getTabPanelIdByValue: (tabValue: TabsTab.Value) => string | undefined;
+  registerMountedTabPanel: (panelValue: TabsTab.Value | number, panelId: string) => void;
+  setTabMap: (
+    map: Map<Node, (TabsTab.Metadata & { index?: (number | null) | undefined }) | null>,
+  ) => void;
+  unregisterMountedTabPanel: (panelValue: TabsTab.Value | number, panelId: string) => void;
   /**
    * The position of the active tab relative to the previously active tab.
    */

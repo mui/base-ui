@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useToastRootContext } from '../root/ToastRootContext';
 import { useRenderElement } from '../../utils/useRenderElement';
@@ -29,14 +29,19 @@ export const ToastContent = React.forwardRef(function ToastContent(
 
     recalculateHeight();
 
-    if (typeof ResizeObserver !== 'function') {
+    if (typeof ResizeObserver !== 'function' || typeof MutationObserver !== 'function') {
       return undefined;
     }
 
-    const resizeObserver = new ResizeObserver(recalculateHeight);
+    const resizeObserver = new ResizeObserver(() => recalculateHeight(true));
+    const mutationObserver = new MutationObserver(() => recalculateHeight(true));
+
     resizeObserver.observe(node);
+    mutationObserver.observe(node, { childList: true, subtree: true, characterData: true });
+
     return () => {
       resizeObserver.disconnect();
+      mutationObserver.disconnect();
     };
   }, [recalculateHeight]);
 
@@ -59,17 +64,20 @@ export const ToastContent = React.forwardRef(function ToastContent(
   return element;
 });
 
-export namespace ToastContent {
-  export interface State {
-    /**
-     * Whether the toast viewport is expanded.
-     */
-    expanded: boolean;
-    /**
-     * Whether the toast is behind the frontmost toast in the stack.
-     */
-    behind: boolean;
-  }
+export interface ToastContentState {
+  /**
+   * Whether the toast viewport is expanded.
+   */
+  expanded: boolean;
+  /**
+   * Whether the toast is behind the frontmost toast in the stack.
+   */
+  behind: boolean;
+}
 
-  export interface Props extends BaseUIComponentProps<'div', State> {}
+export interface ToastContentProps extends BaseUIComponentProps<'div', ToastContent.State> {}
+
+export namespace ToastContent {
+  export type State = ToastContentState;
+  export type Props = ToastContentProps;
 }

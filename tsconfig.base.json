@@ -1,23 +1,23 @@
 {
   "compilerOptions": {
     "module": "nodenext",
-    "target": "es2020",
-    "lib": ["es2020", "dom"],
-    "jsx": "preserve",
+    "target": "es2022",
+    "lib": ["es2022", "dom"],
+    "jsx": "react-jsx",
     "forceConsistentCasingInFileNames": true,
     "strict": true,
     "noEmit": true,
     "experimentalDecorators": true,
-    "baseUrl": "./",
     "allowSyntheticDefaultImports": true,
     "noErrorTruncation": false,
     "allowJs": true,
     "skipLibCheck": true,
     "allowImportingTsExtensions": true,
+    "noUncheckedSideEffectImports": true,
     "paths": {
-      "@base-ui-components/react": ["./packages/react/src"],
-      "@base-ui-components/react/*": ["./packages/react/src/*"],
-      "@base-ui-components/utils/*": ["./packages/utils/src/*"],
+      "@base-ui/react": ["./packages/react/src"],
+      "@base-ui/react/*": ["./packages/react/src/*"],
+      "@base-ui/utils/*": ["./packages/utils/src/*"],
       "docs/*": ["./docs/*"]
     }
   },

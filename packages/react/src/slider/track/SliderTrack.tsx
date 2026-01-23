@@ -14,7 +14,7 @@ import { sliderStateAttributesMapping } from '../root/stateAttributesMapping';
  */
 export const SliderTrack = React.forwardRef(function SliderTrack(
   componentProps: SliderTrack.Props,
-  forwardedRef: React.ForwardedRef<HTMLElement>,
+  forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const { render, className, ...elementProps } = componentProps;
 
@@ -37,6 +37,8 @@ export const SliderTrack = React.forwardRef(function SliderTrack(
   return element;
 });
 
+export interface SliderTrackProps extends BaseUIComponentProps<'div', SliderRoot.State> {}
+
 export namespace SliderTrack {
-  export interface Props extends BaseUIComponentProps<'div', SliderRoot.State> {}
+  export type Props = SliderTrackProps;
 }

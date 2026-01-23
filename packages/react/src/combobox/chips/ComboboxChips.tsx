@@ -1,12 +1,13 @@
 'use client';
 import * as React from 'react';
-import { useStore } from '@base-ui-components/utils/store';
+import { useStore } from '@base-ui/utils/store';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { BaseUIComponentProps } from '../../utils/types';
 import { ComboboxChipsContext } from './ComboboxChipsContext';
 import { CompositeList } from '../../composite/list/CompositeList';
 import { useComboboxRootContext } from '../root/ComboboxRootContext';
 import { selectors } from '../store';
+import { EMPTY_OBJECT } from '../../utils/constants';
 
 /**
  * A container for the chips in a multiselectable input.
@@ -20,8 +21,8 @@ export const ComboboxChips = React.forwardRef(function ComboboxChips(
 
   const store = useComboboxRootContext();
 
-  const chipsContainerRef = useStore(store, selectors.chipsContainerRef);
   const open = useStore(store, selectors.open);
+  const hasSelectionChips = useStore(store, selectors.hasSelectionChips);
 
   const [highlightedChipIndex, setHighlightedChipIndex] = React.useState<number | undefined>(
     undefined,
@@ -34,8 +35,10 @@ export const ComboboxChips = React.forwardRef(function ComboboxChips(
   const chipsRef = React.useRef<Array<HTMLButtonElement | null>>([]);
 
   const element = useRenderElement('div', componentProps, {
-    ref: [forwardedRef, chipsContainerRef],
-    props: elementProps,
+    ref: [forwardedRef, store.state.chipsContainerRef],
+    // NVDA enters browse mode instead of staying in focus mode when navigating with
+    // arrow keys inside a container unless it has a toolbar role.
+    props: [hasSelectionChips ? { role: 'toolbar' } : EMPTY_OBJECT, elementProps],
   });
 
   const contextValue: ComboboxChipsContext = React.useMemo(
@@ -54,8 +57,11 @@ export const ComboboxChips = React.forwardRef(function ComboboxChips(
   );
 });
 
-export namespace ComboboxChips {
-  export interface State {}
+export interface ComboboxChipsState {}
 
-  export interface Props extends BaseUIComponentProps<'div', State> {}
+export interface ComboboxChipsProps extends BaseUIComponentProps<'div', ComboboxChips.State> {}
+
+export namespace ComboboxChips {
+  export type State = ComboboxChipsState;
+  export type Props = ComboboxChipsProps;
 }

@@ -5,12 +5,12 @@
     "check": "cross-env NODE_OPTIONS=\"--max-old-space-size=4096\" bundle-size-checker --output ../size-snapshot.json"
   },
   "dependencies": {
-    "@base-ui-components/react": "workspace:*",
-    "@base-ui-components/utils": "workspace:*",
-    "@mui/internal-bundle-size-checker": "^1.0.9-canary.38",
-    "radix-ui": "^1.4.2"
+    "@base-ui/react": "workspace:*",
+    "@base-ui/utils": "workspace:*",
+    "@mui/internal-bundle-size-checker": "1.0.9-canary.60",
+    "radix-ui": "^1.4.3"
   },
   "devDependencies": {
-    "cross-env": "^10.0.0"
+    "cross-env": "10.1.0"
   }
 }

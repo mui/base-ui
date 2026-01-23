@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { expect } from 'chai';
-import { Dialog } from '@base-ui-components/react/dialog';
+import { Dialog } from '@base-ui/react/dialog';
 import { createRenderer, describeConformance } from '#test-utils';
 import { screen } from '@mui/internal-test-utils';
 
@@ -19,13 +19,13 @@ describe('<Dialog.Backdrop />', () => {
   }));
 
   it('has role="presentation"', async () => {
-    const { getByTestId } = await render(
+    await render(
       <Dialog.Root open>
         <Dialog.Backdrop data-testid="backdrop" />
       </Dialog.Root>,
     );
 
-    expect(getByTestId('backdrop')).to.have.attribute('role', 'presentation');
+    expect(screen.getByTestId('backdrop')).to.have.attribute('role', 'presentation');
   });
 
   describe('prop: forceRender', () => {

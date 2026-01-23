@@ -1,6 +1,7 @@
+/* eslint-disable testing-library/render-result-naming-convention */
 import * as React from 'react';
 import { expect } from 'chai';
-import { useRender } from '@base-ui-components/react/use-render';
+import { useRender } from '@base-ui/react/use-render';
 import { createRenderer } from '#test-utils';
 
 describe('useRender', () => {

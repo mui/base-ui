@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
-import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
-import { warn } from '@base-ui-components/utils/warn';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { warn } from '@base-ui/utils/warn';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useCollapsibleRootContext } from '../../collapsible/root/CollapsibleRootContext';
 import { useCollapsiblePanel } from '../../collapsible/panel/useCollapsiblePanel';
@@ -164,12 +164,16 @@ export const AccordionPanel = React.forwardRef(function AccordionPanel(
   return element;
 });
 
-export namespace AccordionPanel {
-  export interface State extends AccordionItem.State {
-    transitionStatus: TransitionStatus;
-  }
+export interface AccordionPanelState extends AccordionItem.State {
+  transitionStatus: TransitionStatus;
+}
 
-  export interface Props
-    extends BaseUIComponentProps<'div', State>,
-      Pick<AccordionRoot.Props, 'hiddenUntilFound' | 'keepMounted'> {}
+export interface AccordionPanelProps
+  extends
+    BaseUIComponentProps<'div', AccordionPanel.State>,
+    Pick<AccordionRoot.Props, 'hiddenUntilFound' | 'keepMounted'> {}
+
+export namespace AccordionPanel {
+  export type State = AccordionPanelState;
+  export type Props = AccordionPanelProps;
 }

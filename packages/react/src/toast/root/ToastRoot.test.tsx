@@ -1,8 +1,9 @@
 import * as React from 'react';
-import { Toast } from '@base-ui-components/react/toast';
+import { Toast } from '@base-ui/react/toast';
 import { act, screen, fireEvent, waitFor } from '@mui/internal-test-utils';
 import { expect } from 'chai';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
+import type { ToastManagerAddOptions } from '../useToastManager';
 import { List, Button } from '../utils/test-utils';
 
 const toast: Toast.Root.ToastObject = {
@@ -23,6 +24,88 @@ describe('<Toast.Root />', () => {
       );
     },
   }));
+
+  it.skipIf(isJSDOM)('recalculates height when content mutates', async () => {
+    function ToastList() {
+      return Toast.useToastManager().toasts.map((toastItem) => (
+        <Toast.Root
+          key={toastItem.id}
+          toast={toastItem}
+          data-testid="toast-root"
+          style={{ width: 30 }}
+        >
+          <Toast.Content>
+            <Toast.Title>{toastItem.title}</Toast.Title>
+            <Toast.Description>{toastItem.description}</Toast.Description>
+          </Toast.Content>
+        </Toast.Root>
+      ));
+    }
+
+    function App() {
+      const { add, update } = Toast.useToastManager();
+      const [toastId, setToastId] = React.useState<string | null>(null);
+      const addedRef = React.useRef(false);
+
+      React.useEffect(() => {
+        if (addedRef.current) {
+          return;
+        }
+        addedRef.current = true;
+        const id = add({
+          id: 'resizable-toast',
+          title: 'Loading',
+          description: 'Short',
+        });
+        setToastId(id);
+      }, [add]);
+
+      return (
+        <div>
+          <button
+            type="button"
+            onClick={() => {
+              if (!toastId) {
+                return;
+              }
+              update(toastId, {
+                title: 'Success',
+                description:
+                  'This content is longer than before and should cause the height to increase',
+              });
+            }}
+          >
+            update
+          </button>
+          <Toast.Viewport>
+            <ToastList />
+          </Toast.Viewport>
+        </div>
+      );
+    }
+
+    await render(
+      <Toast.Provider>
+        <App />
+      </Toast.Provider>,
+    );
+
+    const toastRoot = await screen.findByTestId('toast-root');
+
+    await waitFor(() => {
+      const height = toastRoot.style.getPropertyValue('--toast-height');
+      expect(height).to.not.equal('');
+    });
+
+    const initialHeight = parseInt(toastRoot.style.getPropertyValue('--toast-height'), 10);
+
+    fireEvent.click(screen.getByRole('button', { name: 'update' }));
+
+    await waitFor(() => {
+      const newHeight = parseInt(toastRoot.style.getPropertyValue('--toast-height'), 10);
+      expect(newHeight).to.be.greaterThan(initialHeight);
+    });
+  });
 
   // requires :focus-visible check
   it.skipIf(isJSDOM)('closes when pressing escape', async () => {
@@ -48,7 +131,11 @@ describe('<Toast.Root />', () => {
   });
 
   describe.skipIf(isJSDOM)('swipe behavior', () => {
-    function SwipeTestButton() {
+    function SwipeTestButton({
+      toastOptions,
+    }: {
+      toastOptions?: Partial<ToastManagerAddOptions<any>>;
+    } = {}) {
       const { add } = Toast.useToastManager();
       return (
         <button
@@ -58,6 +145,7 @@ describe('<Toast.Root />', () => {
               id: 'swipe-test-toast',
               title: 'Swipe Me',
               description: 'Swipe to dismiss',
+              ...(toastOptions ?? {}),
             });
           }}
         >
@@ -192,25 +280,98 @@ describe('<Toast.Root />', () => {
       expect(screen.queryByTestId('toast-root')).not.to.equal(null);
     });
 
-    it('supports multiple swipe directions', async () => {
-      await render(
-        <Toast.Provider>
-          <Toast.Viewport>
-            <SwipeTestToast swipeDirection={['up', 'right']} />
-          </Toast.Viewport>
-          <SwipeTestButton />
-        </Toast.Provider>,
-      );
+    describe('supports multiple swipe directions', () => {
+      it('up + right', async () => {
+        await render(
+          <Toast.Provider>
+            <Toast.Viewport>
+              <SwipeTestToast swipeDirection={['up', 'right']} />
+            </Toast.Viewport>
+            <SwipeTestButton />
+          </Toast.Provider>,
+        );
 
-      fireEvent.click(screen.getByRole('button', { name: 'add toast' }));
+        const addToast = screen.getByRole('button', { name: 'add toast' });
 
-      const toastElement = screen.getByTestId('toast-root');
+        fireEvent.click(addToast);
 
-      // Swipe right
-      simulateSwipe(toastElement, 100, 100, 150, 100);
+        // Swipe right
+        simulateSwipe(screen.getByTestId('toast-root'), 100, 100, 150, 100);
 
-      await waitFor(() => {
-        expect(screen.queryByTestId('toast-root')).to.equal(null);
+        await waitFor(() => {
+          expect(screen.queryByTestId('toast-root')).to.equal(null);
+        });
+
+        fireEvent.click(addToast);
+
+        // Swipe up
+        simulateSwipe(screen.getByTestId('toast-root'), 100, 100, 100, 50);
+
+        await waitFor(() => {
+          expect(screen.queryByTestId('toast-root')).to.equal(null);
+        });
+      });
+
+      it('right + left', async () => {
+        await render(
+          <Toast.Provider>
+            <Toast.Viewport>
+              <SwipeTestToast swipeDirection={['right', 'left']} />
+            </Toast.Viewport>
+            <SwipeTestButton />
+          </Toast.Provider>,
+        );
+
+        const addToast = screen.getByRole('button', { name: 'add toast' });
+
+        fireEvent.click(addToast);
+
+        // Swipe right
+        simulateSwipe(screen.getByTestId('toast-root'), 100, 100, 150, 100);
+
+        await waitFor(() => {
+          expect(screen.queryByTestId('toast-root')).to.equal(null);
+        });
+
+        fireEvent.click(addToast);
+
+        // Swipe left
+        simulateSwipe(screen.getByTestId('toast-root'), 100, 100, 50, 100);
+
+        await waitFor(() => {
+          expect(screen.queryByTestId('toast-root')).to.equal(null);
+        });
+      });
+
+      it('up + down', async () => {
+        await render(
+          <Toast.Provider>
+            <Toast.Viewport>
+              <SwipeTestToast swipeDirection={['up', 'down']} />
+            </Toast.Viewport>
+            <SwipeTestButton />
+          </Toast.Provider>,
+        );
+
+        const addToast = screen.getByRole('button', { name: 'add toast' });
+
+        fireEvent.click(addToast);
+
+        // Swipe up
+        simulateSwipe(screen.getByTestId('toast-root'), 100, 100, 100, 50);
+
+        await waitFor(() => {
+          expect(screen.queryByTestId('toast-root')).to.equal(null);
+        });
+
+        fireEvent.click(addToast);
+
+        // Swipe down
+        simulateSwipe(screen.getByTestId('toast-root'), 100, 100, 100, 150);
+
+        await waitFor(() => {
+          expect(screen.queryByTestId('toast-root')).to.equal(null);
+        });
       });
     });
 
@@ -382,6 +543,38 @@ describe('<Toast.Root />', () => {
       simulateSwipe(toastElement, 100, 100, 100, 95);
 
       expect(screen.queryByTestId('toast-root')).not.to.equal(null);
+    });
+
+    it('ignores swipe gestures when toast is anchored', async () => {
+      const anchor = document.createElement('div');
+      document.body.appendChild(anchor);
+
+      try {
+        await render(
+          <Toast.Provider>
+            <Toast.Viewport>
+              <SwipeTestToast swipeDirection="up" />
+            </Toast.Viewport>
+            <SwipeTestButton
+              toastOptions={{
+                positionerProps: {
+                  anchor,
+                },
+              }}
+            />
+          </Toast.Provider>,
+        );
+
+        fireEvent.click(screen.getByRole('button', { name: 'add toast' }));
+
+        const toastElement = screen.getByTestId('toast-root');
+
+        simulateSwipe(toastElement, 100, 100, 100, 55);
+
+        expect(screen.queryByTestId('toast-root')).not.to.equal(null);
+      } finally {
+        document.body.removeChild(anchor);
+      }
     });
   });
 });

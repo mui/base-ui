@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { usePreviewCardRootContext } from '../root/PreviewCardContext';
 import { usePreviewCardPositionerContext } from '../positioner/PreviewCardPositionerContext';
 import type { StateAttributesMapping } from '../../utils/getStateAttributesProps';
@@ -10,7 +11,8 @@ import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useRenderElement } from '../../utils/useRenderElement';
-import { DISABLED_TRANSITIONS_STYLE, EMPTY_OBJECT } from '../../utils/constants';
+import { getDisabledMountTransitionStyles } from '../../utils/getDisabledMountTransitionStyles';
+import { useHoverFloatingInteraction } from '../../floating-ui-react';
 
 const stateAttributesMapping: StateAttributesMapping<PreviewCardPopup.State> = {
   ...baseMapping,
@@ -29,18 +31,29 @@ export const PreviewCardPopup = React.forwardRef(function PreviewCardPopup(
 ) {
   const { className, render, ...elementProps } = componentProps;
 
-  const { open, transitionStatus, popupRef, onOpenChangeComplete, popupProps } =
-    usePreviewCardRootContext();
+  const store = usePreviewCardRootContext();
   const { side, align } = usePreviewCardPositionerContext();
+
+  const open = store.useState('open');
+  const instantType = store.useState('instantType');
+  const transitionStatus = store.useState('transitionStatus');
+  const popupProps = store.useState('popupProps');
+  const floatingContext = store.useState('floatingRootContext');
 
   useOpenChangeComplete({
     open,
-    ref: popupRef,
+    ref: store.context.popupRef,
     onComplete() {
       if (open) {
-        onOpenChangeComplete?.(true);
+        store.context.onOpenChangeComplete?.(true);
       }
     },
+  });
+
+  const getCloseDelay = useStableCallback(() => store.context.closeDelayRef.current);
+
+  useHoverFloatingInteraction(floatingContext, {
+    closeDelay: getCloseDelay,
   });
 
   const state: PreviewCardPopup.State = React.useMemo(
@@ -48,35 +61,39 @@ export const PreviewCardPopup = React.forwardRef(function PreviewCardPopup(
       open,
       side,
       align,
+      instant: instantType,
       transitionStatus,
     }),
-    [open, side, align, transitionStatus],
+    [open, side, align, instantType, transitionStatus],
   );
 
   const element = useRenderElement('div', componentProps, {
-    ref: [popupRef, forwardedRef],
     state,
-    props: [
-      popupProps,
-      transitionStatus === 'starting' ? DISABLED_TRANSITIONS_STYLE : EMPTY_OBJECT,
-      elementProps,
-    ],
+    ref: [forwardedRef, store.context.popupRef, store.useStateSetter('popupElement')],
+    props: [popupProps, getDisabledMountTransitionStyles(transitionStatus), elementProps],
     stateAttributesMapping,
   });
 
   return element;
 });
 
-export namespace PreviewCardPopup {
-  export interface State {
-    /**
-     * Whether the preview card is currently open.
-     */
-    open: boolean;
-    side: Side;
-    align: Align;
-    transitionStatus: TransitionStatus;
-  }
+export interface PreviewCardPopupState {
+  /**
+   * Whether the preview card is currently open.
+   */
+  open: boolean;
+  side: Side;
+  align: Align;
+  instant: 'dismiss' | 'focus' | undefined;
+  transitionStatus: TransitionStatus;
+}
 
-  export interface Props extends BaseUIComponentProps<'div', State> {}
+export interface PreviewCardPopupProps extends BaseUIComponentProps<
+  'div',
+  PreviewCardPopup.State
+> {}
+
+export namespace PreviewCardPopup {
+  export type State = PreviewCardPopupState;
+  export type Props = PreviewCardPopupProps;
 }

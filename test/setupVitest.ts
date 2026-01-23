@@ -1,60 +1,23 @@
-/* eslint-disable vars-on-top */
-import { beforeAll, afterAll } from 'vitest';
-import * as chai from 'chai';
-import chaiDom from 'chai-dom';
-import chaiPlugin from '@mui/internal-test-utils/chaiPlugin';
-
+import setupVitest from '@mui/internal-test-utils/setupVitest';
 import '@testing-library/jest-dom/vitest';
+import { vi } from 'vitest';
+import { reset } from '@base-ui/utils/error';
 
 declare global {
-  var before: typeof beforeAll;
-  var after: typeof afterAll;
+  // eslint-disable-next-line vars-on-top
   var BASE_UI_ANIMATIONS_DISABLED: boolean;
 }
 
-chai.use(chaiDom);
-chai.use(chaiPlugin);
+setupVitest();
 
-// required for conformance tests (until everything is migrated to Vite)
-globalThis.before = beforeAll;
-globalThis.after = afterAll;
+afterEach(() => {
+  vi.resetAllMocks();
+  reset();
+});
 
 globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
 
-const isVitestJsdom = process.env.VITEST_ENV === 'jsdom';
-
-// Only necessary when not in browser mode.
-if (isVitestJsdom) {
-  class Touch {
-    instance: any;
-
-    constructor(instance: any) {
-      this.instance = instance;
-    }
-
-    get identifier() {
-      return this.instance.identifier;
-    }
-
-    get pageX() {
-      return this.instance.pageX;
-    }
-
-    get pageY() {
-      return this.instance.pageY;
-    }
-
-    get clientX() {
-      return this.instance.clientX;
-    }
-
-    get clientY() {
-      return this.instance.clientY;
-    }
-  }
-  // @ts-expect-error Touch is not defined on window
-  globalThis.window.Touch = Touch;
-
+if (typeof window !== 'undefined' && window?.navigator?.userAgent?.includes('jsdom')) {
   globalThis.requestAnimationFrame = (cb) => {
     setTimeout(() => cb(0), 0);
     return 0;

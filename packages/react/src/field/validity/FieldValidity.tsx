@@ -14,7 +14,7 @@ export const FieldValidity: React.FC<FieldValidity.Props> = function FieldValidi
   const { children } = props;
   const { validityData, invalid } = useFieldRootContext(false);
 
-  const fieldValidityState: FieldValidityState = React.useMemo(() => {
+  const fieldValidityState: FieldValidity.State = React.useMemo(() => {
     const combinedFieldValidityData = getCombinedFieldValidityData(validityData, invalid);
     return {
       ...combinedFieldValidityData,
@@ -29,21 +29,22 @@ export interface FieldValidityState extends Omit<FieldValidityData, 'state'> {
   validity: FieldValidityData['state'];
 }
 
-export namespace FieldValidity {
-  export interface State {}
+export interface FieldValidityProps {
+  /**
+   * A function that accepts the field validity state as an argument.
+   *
+   * ```jsx
+   * <Field.Validity>
+   *   {(validity) => {
+   *     return <div>...</div>
+   *   }}
+   * </Field.Validity>
+   * ```
+   */
+  children: (state: FieldValidity.State) => React.ReactNode;
+}
 
-  export interface Props {
-    /**
-     * A function that accepts the field validity state as an argument.
-     *
-     * ```jsx
-     * <Field.Validity>
-     *   {(validity) => {
-     *     return <div>...</div>
-     *   }}
-     * </Field.Validity>
-     * ```
-     */
-    children: (state: FieldValidityState) => React.ReactNode;
-  }
+export namespace FieldValidity {
+  export type State = FieldValidityState;
+  export type Props = FieldValidityProps;
 }

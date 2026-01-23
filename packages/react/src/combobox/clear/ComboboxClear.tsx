@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useStore } from '@base-ui-components/utils/store';
+import { useStore } from '@base-ui/utils/store';
 import { useComboboxInputValueContext, useComboboxRootContext } from '../root/ComboboxRootContext';
 import type { BaseUIComponentProps, NativeButtonProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
@@ -12,6 +12,7 @@ import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
 import { StateAttributesMapping } from '../../utils/getStateAttributesProps';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
+import { REASONS } from '../../utils/reasons';
 import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
 
 const stateAttributesMapping: StateAttributesMapping<ComboboxClear.State> = {
@@ -42,9 +43,9 @@ export const ComboboxClear = React.forwardRef(function ComboboxClear(
   const selectionMode = useStore(store, selectors.selectionMode);
   const comboboxDisabled = useStore(store, selectors.disabled);
   const readOnly = useStore(store, selectors.readOnly);
-  const clearRef = useStore(store, selectors.clearRef);
   const open = useStore(store, selectors.open);
   const selectedValue = useStore(store, selectors.selectedValue);
+  const hasSelectionChips = useStore(store, selectors.hasSelectionChips);
 
   const inputValue = useComboboxInputValueContext();
 
@@ -54,7 +55,7 @@ export const ComboboxClear = React.forwardRef(function ComboboxClear(
   } else if (selectionMode === 'single') {
     visible = selectedValue != null;
   } else {
-    visible = Array.isArray(selectedValue) && selectedValue.length > 0;
+    visible = hasSelectionChips;
   }
 
   const disabled = fieldDisabled || comboboxDisabled || disabledProp;
@@ -77,7 +78,7 @@ export const ComboboxClear = React.forwardRef(function ComboboxClear(
 
   useOpenChangeComplete({
     open: visible,
-    ref: clearRef,
+    ref: store.state.clearRef,
     onComplete() {
       if (!visible) {
         setMounted(false);
@@ -87,13 +88,11 @@ export const ComboboxClear = React.forwardRef(function ComboboxClear(
 
   const element = useRenderElement('button', componentProps, {
     state,
-    ref: [forwardedRef, buttonRef, clearRef],
+    ref: [forwardedRef, buttonRef, store.state.clearRef],
     props: [
       {
         tabIndex: -1,
-        hidden: !mounted,
         children: 'x',
-        disabled,
         'aria-readonly': readOnly || undefined,
         // Avoid stealing focus from the input.
         onMouseDown(event) {
@@ -106,12 +105,15 @@ export const ComboboxClear = React.forwardRef(function ComboboxClear(
 
           const keyboardActiveRef = store.state.keyboardActiveRef;
 
-          store.state.setInputValue('', createChangeEventDetails('clear-press', event.nativeEvent));
+          store.state.setInputValue(
+            '',
+            createChangeEventDetails(REASONS.clearPress, event.nativeEvent),
+          );
 
           if (selectionMode !== 'none') {
             store.state.setSelectedValue(
               Array.isArray(selectedValue) ? [] : null,
-              createChangeEventDetails('clear-press', event.nativeEvent),
+              createChangeEventDetails(REASONS.clearPress, event.nativeEvent),
             );
             store.state.setIndices({
               activeIndex: null,
@@ -142,29 +144,33 @@ export const ComboboxClear = React.forwardRef(function ComboboxClear(
   return element;
 });
 
-export namespace ComboboxClear {
-  export interface State {
-    /**
-     * Whether the popup is open.
-     */
-    open: boolean;
-    /**
-     * Whether the component should ignore user interaction.
-     */
-    disabled: boolean;
-    transitionStatus: TransitionStatus;
-  }
+export interface ComboboxClearState {
+  /**
+   * Whether the popup is open.
+   */
+  open: boolean;
+  /**
+   * Whether the component should ignore user interaction.
+   */
+  disabled: boolean;
+  transitionStatus: TransitionStatus;
+}
 
-  export interface Props extends NativeButtonProps, BaseUIComponentProps<'button', State> {
-    /**
-     * Whether the component should ignore user interaction.
-     * @default false
-     */
-    disabled?: boolean;
-    /**
-     * Whether the component should remain mounted in the DOM when not visible.
-     * @default false
-     */
-    keepMounted?: boolean;
-  }
+export interface ComboboxClearProps
+  extends NativeButtonProps, BaseUIComponentProps<'button', ComboboxClear.State> {
+  /**
+   * Whether the component should ignore user interaction.
+   * @default false
+   */
+  disabled?: boolean | undefined;
+  /**
+   * Whether the component should remain mounted in the DOM when not visible.
+   * @default false
+   */
+  keepMounted?: boolean | undefined;
+}
+
+export namespace ComboboxClear {
+  export type State = ComboboxClearState;
+  export type Props = ComboboxClearProps;
 }
