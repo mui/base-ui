@@ -89,6 +89,13 @@ export interface TemporalFieldStoreSharedParameters<
    * Used internally when the temporal field is rendered inside a Field component.
    */
   fieldContext?: any | null;
+  /**
+   * The step increment for the most granular section of the field.
+   * For example, with format 'HH:mm' and step=5, pressing ArrowUp on the minutes section
+   * will increment by 5 (e.g., 10 -> 15 -> 20).
+   * @default 1
+   */
+  step?: number;
 }
 
 export interface TemporalFieldState<
@@ -191,6 +198,10 @@ export interface TemporalFieldState<
    * Null when the temporal field is not used inside a Field component.
    */
   fieldContext: FieldRootContext | null;
+  /**
+   * The step increment for the most granular section.
+   */
+  step: number;
 }
 
 export interface TemporalFieldCharacterEditingQuery {
@@ -205,6 +216,7 @@ export interface TemporalFieldParsedFormat {
   prefix: string;
   suffix: string;
   elements: (TemporalFieldToken | TemporalFieldSeparator)[];
+  granularity: TemporalFieldDatePartType;
 }
 
 export interface TemporalFieldToken {
@@ -231,6 +243,11 @@ export interface TemporalFieldToken {
    * Text to display when the section is empty.
    */
   placeholder: string;
+  /**
+   * Whether this token represents the most granular section in the format.
+   * When true, the field's `step` prop applies to this section during value adjustment.
+   */
+  isMostGranularPart: boolean;
 }
 
 export interface TemporalFieldSeparator {
@@ -351,7 +368,7 @@ export interface TemporalFieldConfiguration<
     value: TValue;
     validationProps: GetInitialReferenceDateValidationProps;
     adapter: TemporalAdapter;
-    granularity: number;
+    granularity: TemporalFieldDatePartType;
     timezone: TemporalTimezone;
     getTodayDate?: () => TemporalSupportedObject;
   }) => TemporalNonNullableValue<TValue>;

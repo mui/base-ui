@@ -50,6 +50,7 @@ export function deriveStateFromParameters<
     timezoneProp: parameters.timezone,
     placeholderGetters: parameters.placeholderGetters,
     fieldContext: parameters.fieldContext ?? null,
+    step: parameters.step ?? 1,
   };
 }
 

@@ -54,4 +54,5 @@ export const selectors = {
   config: createSelector((state: State) => state.config),
   validationProps: createSelector((state: State) => state.validationProps),
   fieldContext: createSelector((state: State) => state.fieldContext),
+  step: createSelector((state: State) => state.step),
 };

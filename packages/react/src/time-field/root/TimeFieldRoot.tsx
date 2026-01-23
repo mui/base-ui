@@ -51,6 +51,7 @@ export const TimeFieldRoot = React.forwardRef(function TimeFieldRoot(
     referenceDate,
     format,
     ampm,
+    step,
     // Validation props
     minTime,
     maxTime,
@@ -82,6 +83,7 @@ export const TimeFieldRoot = React.forwardRef(function TimeFieldRoot(
       referenceDate,
       format,
       ampm,
+      step,
       name: nameProp,
       id,
       fieldContext,
@@ -100,6 +102,7 @@ export const TimeFieldRoot = React.forwardRef(function TimeFieldRoot(
       referenceDate,
       format,
       ampm,
+      step,
       nameProp,
       id,
       fieldContext,

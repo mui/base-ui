@@ -638,11 +638,12 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
     describe('minutes section with step', () => {
       it('should increment minutes by 5 (step)', () => {
         const store = new TimeFieldStore({
-        format: time24Format,
-        adapter,
-        direction: 'ltr',
-        validationProps: {},
-      });
+          format: time24Format,
+          adapter,
+          direction: 'ltr',
+          validationProps: {},
+          step: 5,
+        });
         store.section.selectClosestDatePart(2); // minutes section
         store.section.updateDatePart({
           sectionIndex: 2,
@@ -656,11 +657,12 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
 
       it('should decrement minutes by 5 (step)', () => {
         const store = new TimeFieldStore({
-        format: time24Format,
-        adapter,
-        direction: 'ltr',
-        validationProps: {},
-      });
+          format: time24Format,
+          adapter,
+          direction: 'ltr',
+          validationProps: {},
+          step: 5,
+        });
         store.section.selectClosestDatePart(2); // minutes section
         store.section.updateDatePart({
           sectionIndex: 2,
@@ -674,11 +676,12 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
 
       it('should snap to nearest step when not aligned', () => {
         const store = new TimeFieldStore({
-        format: time24Format,
-        adapter,
-        direction: 'ltr',
-        validationProps: {},
-      });
+          format: time24Format,
+          adapter,
+          direction: 'ltr',
+          validationProps: {},
+          step: 5,
+        });
         store.section.selectClosestDatePart(2); // minutes section
         store.section.updateDatePart({
           sectionIndex: 2,
@@ -692,11 +695,12 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
 
       it('should wrap around at 60 minutes', () => {
         const store = new TimeFieldStore({
-        format: time24Format,
-        adapter,
-        direction: 'ltr',
-        validationProps: {},
-      });
+          format: time24Format,
+          adapter,
+          direction: 'ltr',
+          validationProps: {},
+          step: 5,
+        });
         store.section.selectClosestDatePart(2); // minutes section
         store.section.updateDatePart({
           sectionIndex: 2,
@@ -706,6 +710,43 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
 
         const newValue = store.valueAdjustment.adjustActiveDatePartValue('ArrowUp');
         expect(newValue).to.equal('00');
+      });
+
+      it('should not apply step to non-most-granular sections', () => {
+        const store = new TimeFieldStore({
+          format: time24Format,
+          adapter,
+          direction: 'ltr',
+          validationProps: {},
+          step: 5,
+        });
+        store.section.selectClosestDatePart(0); // hours section
+        store.section.updateDatePart({
+          sectionIndex: 0,
+          newDatePartValue: '10',
+          shouldGoToNextSection: false,
+        });
+
+        const newValue = store.valueAdjustment.adjustActiveDatePartValue('ArrowUp');
+        expect(newValue).to.equal('11'); // hours increment by 1, not 5
+      });
+
+      it('should default step to 1 when not specified', () => {
+        const store = new TimeFieldStore({
+          format: time24Format,
+          adapter,
+          direction: 'ltr',
+          validationProps: {},
+        });
+        store.section.selectClosestDatePart(2); // minutes section
+        store.section.updateDatePart({
+          sectionIndex: 2,
+          newDatePartValue: '15',
+          shouldGoToNextSection: false,
+        });
+
+        const newValue = store.valueAdjustment.adjustActiveDatePartValue('ArrowUp');
+        expect(newValue).to.equal('16'); // increments by 1 (default step)
       });
     });
   });
@@ -956,6 +997,49 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
 
         const newValue = store.valueAdjustment.adjustActiveDatePartValue('ArrowUp');
         expect(newValue).to.equal('06');
+      });
+    });
+
+    describe('letter section with step', () => {
+      // Format with month (letter, granularity 2) as most granular, year (digit, granularity 1) as less granular
+      const monthYearFormat = `${adapter.formats.month3Letters} ${adapter.formats.yearPadded}`;
+
+      it('should skip months by step when month is the most granular section', () => {
+        const store = new DateFieldStore({
+          format: monthYearFormat,
+          adapter,
+          direction: 'ltr',
+          validationProps: {},
+          step: 2,
+        });
+        store.section.selectClosestDatePart(0); // month section
+        store.section.updateDatePart({
+          sectionIndex: 0,
+          newDatePartValue: 'Jan',
+          shouldGoToNextSection: false,
+        });
+
+        const newValue = store.valueAdjustment.adjustActiveDatePartValue('ArrowUp');
+        expect(newValue).to.equal('Mar'); // skips by 2
+      });
+
+      it('should not apply step to year when month is the most granular', () => {
+        const store = new DateFieldStore({
+          format: monthYearFormat,
+          adapter,
+          direction: 'ltr',
+          validationProps: {},
+          step: 2,
+        });
+        store.section.selectClosestDatePart(2); // year section
+        store.section.updateDatePart({
+          sectionIndex: 2,
+          newDatePartValue: '2024',
+          shouldGoToNextSection: false,
+        });
+
+        const newValue = store.valueAdjustment.adjustActiveDatePartValue('ArrowUp');
+        expect(newValue).to.equal('2025'); // year increments by 1, not 2
       });
     });
   });

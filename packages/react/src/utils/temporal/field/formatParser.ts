@@ -53,6 +53,7 @@ export class FormatParser {
     const expandedFormat = parser.expandFormat();
     const escapedParts = parser.computeEscapedParts(expandedFormat);
     const parsedFormat = parser.parse(expandedFormat, escapedParts);
+    FormatParser.markMostGranularPart(parsedFormat);
 
     if (direction === 'rtl') {
       for (const element of parsedFormat.elements) {
@@ -181,6 +182,7 @@ export class FormatParser {
       isPadded,
       maxLength,
       placeholder: this.getTokenPlaceholder(tokenValue, tokenConfig),
+      isMostGranularPart: false,
     };
   }
 
@@ -365,7 +367,36 @@ export class FormatParser {
       }
     }
 
-    return { elements, suffix, prefix };
+    return { elements, suffix, prefix, granularity: 'year' };
+  }
+
+  private static markMostGranularPart(parsedFormat: TemporalFieldParsedFormat): void {
+    const GRANULARITY: Record<string, number> = {
+      year: 1,
+      month: 2,
+      day: 3,
+      hours: 4,
+      minutes: 5,
+      seconds: 6,
+    };
+
+    let mostGranularToken: TemporalFieldToken | null = null;
+    let highestGranularity = 0;
+
+    for (const element of parsedFormat.elements) {
+      if (isToken(element)) {
+        const granularity = GRANULARITY[element.config.part] ?? 0;
+        if (granularity > highestGranularity) {
+          highestGranularity = granularity;
+          mostGranularToken = element;
+        }
+      }
+    }
+
+    if (mostGranularToken) {
+      mostGranularToken.isMostGranularPart = true;
+      parsedFormat.granularity = mostGranularToken.config.part;
+    }
   }
 }
 

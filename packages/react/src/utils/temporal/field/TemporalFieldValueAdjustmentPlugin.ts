@@ -4,11 +4,6 @@ import { TemporalFieldStore } from './TemporalFieldStore';
 import { selectors } from './selectors';
 import { TemporalFieldSectionPlugin } from './TemporalFieldSectionPlugin';
 
-// TODO: Implement props to configure steps for different section types
-const stepsAttributes = {
-  minutesStep: 5,
-};
-
 /**
  * Plugin to adjust the value of the active section when pressing ArrowUp, ArrowDown, PageUp, PageDown, Home or End.
  */
@@ -39,6 +34,9 @@ export class TemporalFieldValueAdjustmentPlugin<TValue extends TemporalSupported
       return '';
     }
 
+    const step = activeDatePart.token.isMostGranularPart
+      ? selectors.step(this.store.state)
+      : 1;
     const delta = getDeltaFromKeyCode(keyCode);
     const isStart = keyCode === 'Home';
     const isEnd = keyCode === 'End';
@@ -62,11 +60,6 @@ export class TemporalFieldValueAdjustmentPlugin<TValue extends TemporalSupported
           localizedDigits,
           activeDatePart.token,
         );
-
-      const step =
-        activeDatePart.token.config.part === 'minutes' && stepsAttributes?.minutesStep
-          ? stepsAttributes.minutesStep
-          : 1;
 
       let newDatePartValueNumber: number;
 
@@ -136,7 +129,7 @@ export class TemporalFieldValueAdjustmentPlugin<TValue extends TemporalSupported
     }
 
     const currentOptionIndex = options.indexOf(activeDatePart.value);
-    const newOptionIndex = (currentOptionIndex + delta) % options.length;
+    const newOptionIndex = (currentOptionIndex + delta * step) % options.length;
     const clampedIndex = (newOptionIndex + options.length) % options.length;
 
     return options[clampedIndex];

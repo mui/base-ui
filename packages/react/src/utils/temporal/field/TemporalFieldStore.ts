@@ -1,6 +1,6 @@
 import { Store } from '@base-ui/utils/store';
 import { warn } from '@base-ui/utils/warn';
-import { TemporalAdapter, TemporalFieldDatePartType, TemporalSupportedValue } from '../../../types';
+import { TemporalAdapter, TemporalSupportedValue } from '../../../types';
 import {
   TemporalFieldModelUpdater,
   TemporalFieldState,
@@ -8,7 +8,7 @@ import {
   TemporalFieldConfiguration,
 } from './types';
 import { FormatParser } from './formatParser';
-import { buildSections, deriveStateFromParameters, getTimezoneToRender, isToken } from './utils';
+import { buildSections, deriveStateFromParameters, getTimezoneToRender } from './utils';
 import { TextDirection } from '../../../direction-provider';
 import { TemporalFieldValueAdjustmentPlugin } from './TemporalFieldValueAdjustmentPlugin';
 import { TemporalFieldCharacterEditingPlugin } from './TemporalFieldCharacterEditingPlugin';
@@ -20,15 +20,6 @@ import { TemporalFieldSectionPropsPlugin } from './TemporalFieldSectionPropsPlug
 import { TemporalFieldFormatPlugin } from './TemporalFieldFormatPlugin';
 import { TemporalFieldDOMPlugin } from './TemporalFieldDOMPlugin';
 import { TemporalFieldRootPropsPlugin } from './TemporalFieldRootPropsPlugin';
-
-const SECTION_TYPE_GRANULARITY: { [key in TemporalFieldDatePartType]?: number } = {
-  year: 1,
-  month: 2,
-  day: 3,
-  hours: 4,
-  minutes: 5,
-  seconds: 6,
-};
 
 export class TemporalFieldStore<
   TValue extends TemporalSupportedValue,
@@ -84,11 +75,7 @@ export class TemporalFieldStore<
       value,
       adapter,
       validationProps,
-      granularity: Math.max(
-        ...parsedFormat.elements
-          .filter(isToken)
-          .map((token) => SECTION_TYPE_GRANULARITY[token.config.part] ?? 1),
-      ),
+      granularity: parsedFormat.granularity,
       timezone: getTimezoneToRender(
         adapter,
         manager,
