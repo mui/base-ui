@@ -139,14 +139,6 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
         ) {
           store.setOpen(false, createChangeEventDetails(REASONS.siblingOpen));
         }
-      } else if (details.parentNodeId === floatingNodeId) {
-        // Re-enable hover on the parent when a child closes, except when the child
-        // closed due to hovering a different sibling item in this parent (sibling-open).
-        // Keeping hover disabled in that scenario prevents the parent from closing
-        // immediately when the pointer then leaves it.
-        if (details.reason !== REASONS.siblingOpen) {
-          store.set('hoverEnabled', true);
-        }
       }
     }
 

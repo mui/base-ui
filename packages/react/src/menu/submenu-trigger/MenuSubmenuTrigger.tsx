@@ -92,7 +92,9 @@ export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerCompon
   const itemMetadata = React.useMemo(
     () => ({
       type: 'submenu-trigger' as const,
-      setActive: () => parentMenuStore.set('activeIndex', listItem.index),
+      setActive() {
+        parentMenuStore.set('activeIndex', listItem.index);
+      },
     }),
     [parentMenuStore, listItem.index],
   );

@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useControlled } from '@base-ui/utils/useControlled';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { FieldRoot } from '../root/FieldRoot';
@@ -66,7 +65,7 @@ export const FieldControl = React.forwardRef(function FieldControl(
     }
   }, [validation.inputRef, setFilled, valueProp]);
 
-  const [value, setValueUnwrapped] = useControlled({
+  const [valueUnwrapped] = useControlled({
     controlled: valueProp,
     default: defaultValue,
     name: 'FieldControl',
@@ -74,18 +73,7 @@ export const FieldControl = React.forwardRef(function FieldControl(
   });
 
   const isControlled = valueProp !== undefined;
-
-  const setValue = useStableCallback(
-    (nextValue: string, eventDetails: FieldControl.ChangeEventDetails) => {
-      onValueChange?.(nextValue, eventDetails);
-
-      if (eventDetails.isCanceled) {
-        return;
-      }
-
-      setValueUnwrapped(nextValue);
-    },
-  );
+  const value = isControlled ? valueUnwrapped : undefined;
 
   useField({
     id,
@@ -109,7 +97,7 @@ export const FieldControl = React.forwardRef(function FieldControl(
         ...(isControlled ? { value } : { defaultValue }),
         onChange(event) {
           const inputValue = event.currentTarget.value;
-          setValue(inputValue, createChangeEventDetails(REASONS.none, event.nativeEvent));
+          onValueChange?.(inputValue, createChangeEventDetails(REASONS.none, event.nativeEvent));
           setDirty(inputValue !== validityData.initialValue);
           setFilled(inputValue !== '');
         },
