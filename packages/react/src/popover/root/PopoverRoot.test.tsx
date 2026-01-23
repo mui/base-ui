@@ -990,6 +990,51 @@ describe('<Popover.Root />', () => {
         expect(positioner.previousElementSibling).to.equal(null);
       });
 
+      it('keeps focus trapped when content includes a positive tabIndex', async () => {
+        function Test() {
+          const priorityRef = React.useRef<HTMLButtonElement>(null);
+
+          return (
+            <div>
+              <TestPopover
+                rootProps={{ modal: 'trap-focus' }}
+                popupProps={{
+                  initialFocus: priorityRef,
+                  children: (
+                    <React.Fragment>
+                      <button ref={priorityRef} tabIndex={1}>
+                        Priority
+                      </button>
+                      <button>Close</button>
+                    </React.Fragment>
+                  ),
+                }}
+              />
+              <button>Outside</button>
+            </div>
+          );
+        }
+
+        const { user } = await render(<Test />);
+
+        await user.click(screen.getByRole('button', { name: 'Toggle' }));
+        await waitFor(() => {
+          expect(screen.queryByTestId('popover-popup')).not.to.equal(null);
+        });
+
+        const priorityButton = screen.getByRole('button', { name: 'Priority' });
+        await waitFor(() => {
+          expect(priorityButton).toHaveFocus();
+        });
+
+        await user.keyboard('[Tab]');
+        expect(screen.getByRole('button', { name: 'Close' })).toHaveFocus();
+
+        await user.keyboard('[Tab]');
+        expect(priorityButton).toHaveFocus();
+        expect(screen.getByText('Outside')).not.toHaveFocus();
+      });
+
       describe('with openOnHover', () => {
         clock.withFakeTimers();
 
