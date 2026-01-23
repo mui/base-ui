@@ -163,6 +163,9 @@ export function useTypeahead(
 
     // Capture whether this is a new typing session before mutating the string.
     const isNewSession = stringRef.current === '';
+    if (isNewSession) {
+      prevIndexRef.current = selectedIndex ?? activeIndex ?? -1;
+    }
 
     // Bail out if the list contains a word like "llama" or "aaron". TODO:
     // allow it in this case, too.
