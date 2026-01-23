@@ -732,6 +732,28 @@ describe('<Field.Root />', () => {
         expect(label).not.to.have.attribute('data-dirty');
         expect(description).not.to.have.attribute('data-dirty');
       });
+
+      it('should not be dirty when changing back to the initial value', async () => {
+        await render(
+          <Field.Root data-testid="root">
+            <Field.Control data-testid="control" defaultValue="initial" />
+          </Field.Root>,
+        );
+
+        const root = screen.getByTestId('root');
+        const control = screen.getByTestId('control');
+
+        expect(root).not.to.have.attribute('data-dirty');
+        expect(control).not.to.have.attribute('data-dirty');
+
+        fireEvent.change(control, { target: { value: 'changed' } });
+        expect(root).to.have.attribute('data-dirty', '');
+        expect(control).to.have.attribute('data-dirty', '');
+
+        fireEvent.change(control, { target: { value: 'initial' } });
+        expect(root).not.to.have.attribute('data-dirty');
+        expect(control).not.to.have.attribute('data-dirty');
+      });
     });
 
     describe('filled', () => {
