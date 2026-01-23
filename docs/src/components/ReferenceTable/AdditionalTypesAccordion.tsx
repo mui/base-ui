@@ -8,7 +8,11 @@ export default function ExampleAccordion({ data }: { data: ProcessedTypesMeta[] 
       {data.map((additionalType) => {
         return (
           additionalType.type === 'raw' && (
-            <Accordion.Item className="border-b border-gray-200" key={additionalType.name}>
+            <Accordion.Item
+              className="border-b border-gray-200"
+              key={additionalType.name}
+              id={additionalType.slug}
+            >
               <Accordion.Header>
                 <Accordion.Trigger className="group relative flex w-full items-baseline justify-between gap-4 bg-gray-50 py-2 pr-1 pl-3 text-left font-medium hover:bg-gray-100 focus-visible:z-1 focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-800">
                   {additionalType.name}
