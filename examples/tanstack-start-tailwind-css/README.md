@@ -8,7 +8,7 @@ This is a simple [TanStack Start](https://tanstack.com/start/latest/docs/framew
 
 [![Edit on StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/mui/base-ui/tree/master/examples/tanstack-start-tailwind-css)
 
-TanStack Start Server Functions used in the combobox example may not work in StackBlitz due to AsyncLocalStorage support.
+**Note:** TanStack Start Server Functions used in the combobox example may not work in StackBlitz due to lack of AsyncLocalStorage support.
 
 Or to run it locally:
 
