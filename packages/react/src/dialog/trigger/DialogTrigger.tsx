@@ -64,13 +64,10 @@ export const DialogTrigger = React.forwardRef(function DialogTrigger(
 
   const localInteractionProps = useInteractions([click]);
 
-  const state: DialogTrigger.State = React.useMemo(
-    () => ({
-      disabled,
-      open: isOpenedByThisTrigger,
-    }),
-    [disabled, isOpenedByThisTrigger],
-  );
+  const state: DialogTrigger.State = {
+    disabled,
+    open: isOpenedByThisTrigger,
+  };
 
   const rootTriggerProps = store.useState('triggerProps', isMountedByThisTrigger);
 

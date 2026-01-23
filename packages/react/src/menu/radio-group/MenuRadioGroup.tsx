@@ -48,7 +48,7 @@ export const MenuRadioGroup = React.memo(
       },
     );
 
-    const state = React.useMemo(() => ({ disabled }), [disabled]);
+    const state: MenuRadioGroup.State = { disabled };
 
     const element = useRenderElement('div', componentProps, {
       state,

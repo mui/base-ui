@@ -99,16 +99,13 @@ export const ComboboxPositioner = React.forwardRef(function ComboboxPositioner(
     };
   }, [open, mounted, positioning.positionerStyles]);
 
-  const state: ComboboxPositioner.State = React.useMemo(
-    () => ({
-      open,
-      side: positioning.side,
-      align: positioning.align,
-      anchorHidden: positioning.anchorHidden,
-      empty,
-    }),
-    [open, positioning.side, positioning.align, positioning.anchorHidden, empty],
-  );
+  const state: ComboboxPositioner.State = {
+    open,
+    side: positioning.side,
+    align: positioning.align,
+    anchorHidden: positioning.anchorHidden,
+    empty,
+  };
 
   useIsoLayoutEffect(() => {
     store.set('popupSide', positioning.side);

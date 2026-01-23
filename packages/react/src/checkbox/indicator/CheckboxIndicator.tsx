@@ -31,13 +31,10 @@ export const CheckboxIndicator = React.forwardRef(function CheckboxIndicator(
 
   const indicatorRef = React.useRef<HTMLSpanElement | null>(null);
 
-  const state: CheckboxIndicator.State = React.useMemo(
-    () => ({
-      ...rootState,
-      transitionStatus,
-    }),
-    [rootState, transitionStatus],
-  );
+  const state: CheckboxIndicator.State = {
+    ...rootState,
+    transitionStatus,
+  };
 
   useOpenChangeComplete({
     open: rendered,

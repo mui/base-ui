@@ -1,6 +1,7 @@
+import * as React from 'react';
 import { expect } from 'chai';
 import { Select } from '@base-ui/react/select';
-import { screen } from '@mui/internal-test-utils';
+import { act, screen, waitFor } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance } from '#test-utils';
 
 describe('<Select.Popup />', () => {
@@ -122,5 +123,225 @@ describe('<Select.Popup />', () => {
     expect(popupElement!.style.getPropertyValue('transform')).to.equal('translateX(10px)');
     expect(popupElement!.style.getPropertyValue('scale')).to.equal('0.8');
     expect(popupElement!.style.getPropertyValue('translate')).to.equal('1px 2px');
+  });
+
+  describe('prop: finalFocus', () => {
+    it('should focus the trigger by default when closed', async () => {
+      await render(
+        <div>
+          <input />
+          <Select.Root>
+            <Select.Trigger data-testid="trigger">Open</Select.Trigger>
+            <Select.Portal>
+              <Select.Positioner>
+                <Select.Popup>
+                  <Select.Item value="1">Item 1</Select.Item>
+                </Select.Popup>
+              </Select.Positioner>
+            </Select.Portal>
+          </Select.Root>
+          <input />
+        </div>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+      await act(async () => {
+        trigger.click();
+      });
+
+      const item = screen.getByText('Item 1');
+      await act(async () => {
+        item.click();
+      });
+
+      await waitFor(() => {
+        expect(trigger).toHaveFocus();
+      });
+    });
+
+    it('should focus the element provided to the prop when closed', async () => {
+      function TestComponent() {
+        const inputRef = React.useRef<HTMLInputElement | null>(null);
+        return (
+          <div>
+            <input />
+            <Select.Root>
+              <Select.Trigger data-testid="trigger">Open</Select.Trigger>
+              <Select.Portal>
+                <Select.Positioner>
+                  <Select.Popup finalFocus={inputRef}>
+                    <Select.Item value="1">Item 1</Select.Item>
+                  </Select.Popup>
+                </Select.Positioner>
+              </Select.Portal>
+            </Select.Root>
+            <input />
+            <input data-testid="input-to-focus" ref={inputRef} />
+            <input />
+          </div>
+        );
+      }
+
+      await render(<TestComponent />);
+
+      const trigger = screen.getByTestId('trigger');
+      await act(async () => {
+        trigger.click();
+      });
+
+      const item = screen.getByText('Item 1');
+      await act(async () => {
+        item.click();
+      });
+
+      const inputToFocus = screen.getByTestId('input-to-focus');
+
+      await waitFor(() => {
+        expect(inputToFocus).toHaveFocus();
+      });
+    });
+
+    it('should focus the element provided to `finalFocus` as a function when closed', async () => {
+      function TestComponent() {
+        const ref = React.useRef<HTMLInputElement>(null);
+        const getRef = React.useCallback(() => ref.current, []);
+        return (
+          <div>
+            <Select.Root>
+              <Select.Trigger data-testid="trigger">Open</Select.Trigger>
+              <Select.Portal>
+                <Select.Positioner>
+                  <Select.Popup finalFocus={getRef}>
+                    <Select.Item value="1">Item 1</Select.Item>
+                  </Select.Popup>
+                </Select.Positioner>
+              </Select.Portal>
+            </Select.Root>
+            <input data-testid="input-to-focus" ref={ref} />
+          </div>
+        );
+      }
+
+      await render(<TestComponent />);
+
+      const trigger = screen.getByTestId('trigger');
+      await act(async () => {
+        trigger.click();
+      });
+
+      const item = screen.getByText('Item 1');
+      await act(async () => {
+        item.click();
+      });
+
+      await waitFor(() => {
+        expect(screen.getByTestId('input-to-focus')).toHaveFocus();
+      });
+    });
+
+    it('should not move focus when finalFocus is false', async () => {
+      function TestComponent() {
+        return (
+          <div>
+            <Select.Root>
+              <Select.Trigger data-testid="trigger">Open</Select.Trigger>
+              <Select.Portal>
+                <Select.Positioner>
+                  <Select.Popup finalFocus={false}>
+                    <Select.Item value="1">Item 1</Select.Item>
+                  </Select.Popup>
+                </Select.Positioner>
+              </Select.Portal>
+            </Select.Root>
+          </div>
+        );
+      }
+
+      await render(<TestComponent />);
+      const trigger = screen.getByTestId('trigger');
+
+      await act(async () => {
+        trigger.click();
+      });
+
+      const item = screen.getByText('Item 1');
+      await act(async () => {
+        item.click();
+      });
+
+      await waitFor(() => {
+        expect(trigger).not.toHaveFocus();
+      });
+    });
+
+    it('should move focus to trigger when finalFocus returns true', async () => {
+      function TestComponent() {
+        return (
+          <div>
+            <Select.Root>
+              <Select.Trigger data-testid="trigger">Open</Select.Trigger>
+              <Select.Portal>
+                <Select.Positioner>
+                  <Select.Popup finalFocus={() => true}>
+                    <Select.Item value="1">Item 1</Select.Item>
+                  </Select.Popup>
+                </Select.Positioner>
+              </Select.Portal>
+            </Select.Root>
+          </div>
+        );
+      }
+
+      await render(<TestComponent />);
+      const trigger = screen.getByTestId('trigger');
+
+      await act(async () => {
+        trigger.click();
+      });
+
+      const item = screen.getByText('Item 1');
+      await act(async () => {
+        item.click();
+      });
+
+      await waitFor(() => {
+        expect(trigger).toHaveFocus();
+      });
+    });
+
+    it('uses default behavior when finalFocus returns null', async () => {
+      function TestComponent() {
+        return (
+          <div>
+            <Select.Root>
+              <Select.Trigger data-testid="trigger">Open</Select.Trigger>
+              <Select.Portal>
+                <Select.Positioner>
+                  <Select.Popup finalFocus={() => null}>
+                    <Select.Item value="1">Item 1</Select.Item>
+                  </Select.Popup>
+                </Select.Positioner>
+              </Select.Portal>
+            </Select.Root>
+          </div>
+        );
+      }
+
+      await render(<TestComponent />);
+      const trigger = screen.getByTestId('trigger');
+
+      await act(async () => {
+        trigger.click();
+      });
+
+      const item = screen.getByText('Item 1');
+      await act(async () => {
+        item.click();
+      });
+
+      await waitFor(() => {
+        expect(trigger).toHaveFocus();
+      });
+    });
   });
 });
