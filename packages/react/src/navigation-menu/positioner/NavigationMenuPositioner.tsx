@@ -141,16 +141,13 @@ export const NavigationMenuPositioner = React.forwardRef(function NavigationMenu
     };
   }, [open, mounted, positioning.positionerStyles]);
 
-  const state: NavigationMenuPositioner.State = React.useMemo(
-    () => ({
-      open,
-      side: positioning.side,
-      align: positioning.align,
-      anchorHidden: positioning.anchorHidden,
-      instant,
-    }),
-    [open, positioning.side, positioning.align, positioning.anchorHidden, instant],
-  );
+  const state: NavigationMenuPositioner.State = {
+    open,
+    side: positioning.side,
+    align: positioning.align,
+    anchorHidden: positioning.anchorHidden,
+    instant,
+  };
 
   React.useEffect(() => {
     if (!open) {

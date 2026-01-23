@@ -175,15 +175,12 @@ export const RadioGroup = React.forwardRef(function RadioGroup(
     validation.getInputValidationProps,
   );
 
-  const state: RadioGroup.State = React.useMemo(
-    () => ({
-      ...fieldState,
-      disabled: disabled ?? false,
-      required: required ?? false,
-      readOnly: readOnly ?? false,
-    }),
-    [fieldState, disabled, readOnly, required],
-  );
+  const state: RadioGroup.State = {
+    ...fieldState,
+    disabled: disabled ?? false,
+    required: required ?? false,
+    readOnly: readOnly ?? false,
+  };
 
   const contextValue: RadioGroupContext = React.useMemo(
     () => ({
@@ -250,7 +247,11 @@ export interface RadioGroupState extends FieldRoot.State {
   /**
    * Whether the user should be unable to select a different radio button in the group.
    */
-  readOnly: boolean | undefined;
+  readOnly: boolean;
+  /**
+   * Whether the user must tick a radio button within the group before submitting a form.
+   */
+  required: boolean;
 }
 
 export interface RadioGroupProps extends Omit<

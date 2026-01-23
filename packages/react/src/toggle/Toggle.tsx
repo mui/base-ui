@@ -68,13 +68,10 @@ export const Toggle = React.forwardRef(function Toggle(
     native: nativeButton,
   });
 
-  const state: Toggle.State = React.useMemo(
-    () => ({
-      disabled,
-      pressed,
-    }),
-    [disabled, pressed],
-  );
+  const state: Toggle.State = {
+    disabled,
+    pressed,
+  };
 
   const refs = [buttonRef, forwardedRef];
   const props = [
