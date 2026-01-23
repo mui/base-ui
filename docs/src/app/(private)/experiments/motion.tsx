@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { Popover } from '@base-ui-components/react/popover';
+import { Popover } from '@base-ui/react/popover';
 import { motion, AnimatePresence } from 'motion/react';
 
 function ConditionallyMounted() {
@@ -59,7 +59,7 @@ function AlwaysMounted() {
 
 function NoOpacity() {
   const [open, setOpen] = React.useState(false);
-  const actionsRef = React.useRef<Popover.Root.Actions>({ unmount: () => {}, close: () => {} });
+  const actionsRef = React.useRef<Popover.Root.Actions>(null);
 
   return (
     <Popover.Root
@@ -83,7 +83,7 @@ function NoOpacity() {
                     exit={{ scale: 0 }}
                     onAnimationComplete={() => {
                       if (!open) {
-                        actionsRef.current.unmount();
+                        actionsRef.current?.unmount();
                       }
                     }}
                   />

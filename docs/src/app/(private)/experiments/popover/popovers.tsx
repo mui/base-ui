@@ -1,11 +1,11 @@
 'use client';
 import * as React from 'react';
-import { Popover } from '@base-ui-components/react/popover';
+import { Popover } from '@base-ui/react/popover';
 import {
   SettingsMetadata,
   useExperimentSettings,
 } from 'docs/src/components/Experiments/SettingsPanel';
-import demoStyles from 'docs/src/app/(public)/(content)/react/components/popover/demos/detached-triggers-full/css-modules/index.module.css';
+import demoStyles from 'docs/src/app/(docs)/react/components/popover/demos/detached-triggers-full/css-modules/index.module.css';
 import styles from './popovers.module.css';
 
 const popover1 = Popover.createHandle<number>();
@@ -68,15 +68,15 @@ export default function Popovers() {
       <h1>Popovers</h1>
       <h2>Uncontrolled, single trigger</h2>
       <div className={styles.Container}>
-        <Popover.Root>
+        <Popover.Root modal={settings.modal}>
           <StyledTrigger />
           {renderPopoverContent(0, settings)}
         </Popover.Root>
-        <Popover.Root>
+        <Popover.Root modal={settings.modal}>
           <StyledTrigger />
           {renderPopoverContent(1, settings)}
         </Popover.Root>
-        <Popover.Root>
+        <Popover.Root modal={settings.modal}>
           <StyledTrigger />
           {renderPopoverContent(2, settings)}
         </Popover.Root>
@@ -87,6 +87,7 @@ export default function Popovers() {
         <Popover.Root
           open={singleTriggerOpen}
           onOpenChange={(nextOpen) => setSingleTriggerOpen(nextOpen)}
+          modal={settings.modal}
         >
           <StyledTrigger />
           {renderPopoverContent(0, settings)}
@@ -98,7 +99,7 @@ export default function Popovers() {
 
       <h2>Uncontrolled, multiple triggers within Root</h2>
       <div className={styles.Container}>
-        <Popover.Root>
+        <Popover.Root modal={settings.modal}>
           {({ payload }) => (
             <React.Fragment>
               <StyledTrigger payload={0} />
@@ -118,6 +119,7 @@ export default function Popovers() {
             setControlledWithinRootOpen(open);
             setControlledWithinRootTriggerId(eventDetails.trigger?.id ?? null);
           }}
+          modal={settings.modal}
           triggerId={controlledWithinRootTriggerId}
         >
           {({ payload }) => (
@@ -177,6 +179,15 @@ export default function Popovers() {
         >
           Open externally (2nd trigger)
         </button>
+        <button
+          type="button"
+          className={styles.Button}
+          onClick={() => {
+            popover2.open('detached-second-trigger');
+          }}
+        >
+          Open via handle (2nd trigger)
+        </button>
       </div>
     </div>
   );
@@ -209,13 +220,19 @@ function StyledPopover(props: StyledPopoverProps<number>) {
   const { settings } = useExperimentSettings<Settings>();
 
   return (
-    <Popover.Root handle={handle} open={open} onOpenChange={onOpenChange} triggerId={triggerId}>
-      {({ payload }) => payload !== undefined && renderPopoverContent(payload, settings)}
+    <Popover.Root
+      handle={handle}
+      open={open}
+      onOpenChange={onOpenChange}
+      triggerId={triggerId}
+      modal={settings.modal}
+    >
+      {({ payload }) => renderPopoverContent(payload, settings)}
     </Popover.Root>
   );
 }
 
-function renderPopoverContent(contentIndex: number, settings: Settings) {
+function renderPopoverContent(contentIndex: number | undefined, settings: Settings) {
   return (
     <Popover.Portal keepMounted={settings.keepMounted}>
       <Popover.Positioner sideOffset={8} className={demoStyles.Positioner} side={settings.side}>
@@ -224,14 +241,20 @@ function renderPopoverContent(contentIndex: number, settings: Settings) {
             <ArrowSvg />
           </Popover.Arrow>
           <Popover.Viewport className={demoStyles.Viewport}>
-            <Popover.Title className={demoStyles.Title}>Popover {contentIndex}</Popover.Title>
-            <div>
-              <div className={styles.PopoverSection}>{contents[contentIndex]}</div>
+            {contentIndex !== undefined ? (
+              <React.Fragment>
+                <Popover.Title className={demoStyles.Title}>Popover {contentIndex}</Popover.Title>
+                <div>
+                  <div className={styles.PopoverSection}>{contents[contentIndex]}</div>
 
-              <div className={styles.PopoverSection}>
-                <StatefulComponent key={contentIndex} />
-              </div>
-            </div>
+                  <div className={styles.PopoverSection}>
+                    <StatefulComponent key={contentIndex} />
+                  </div>
+                </div>
+              </React.Fragment>
+            ) : (
+              <p className={styles.PopoverSection}>No content for this trigger.</p>
+            )}
           </Popover.Viewport>
         </Popover.Popup>
       </Popover.Positioner>

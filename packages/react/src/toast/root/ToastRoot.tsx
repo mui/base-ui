@@ -1,9 +1,10 @@
 'use client';
 import * as React from 'react';
-import { ownerDocument } from '@base-ui-components/utils/owner';
-import { inertValue } from '@base-ui-components/utils/inertValue';
-import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
-import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import * as ReactDOM from 'react-dom';
+import { ownerDocument } from '@base-ui/utils/owner';
+import { inertValue } from '@base-ui/utils/inertValue';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { activeElement, contains, getTarget } from '../../floating-ui-react/utils';
 import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 import type { ToastObject as ToastObjectType } from '../useToastManager';
@@ -89,7 +90,14 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
     ...elementProps
   } = componentProps;
 
-  const swipeDirections = Array.isArray(swipeDirection) ? swipeDirection : [swipeDirection];
+  const isAnchored = toast.positionerProps?.anchor !== undefined;
+
+  let swipeDirections: ('up' | 'down' | 'left' | 'right')[] = [];
+  if (!isAnchored) {
+    swipeDirections = Array.isArray(swipeDirection) ? swipeDirection : [swipeDirection];
+  }
+
+  const swipeEnabled = swipeDirections.length > 0;
 
   const { toasts, focused, close, remove, setToasts, pauseTimers, expanded, setHovering } =
     useToastContext();
@@ -138,7 +146,12 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
     },
   });
 
-  const recalculateHeight = useEventCallback(() => {
+  /**
+   * Recalculates the natural height of the toast and updates it in the toast manager.
+   * @param flushSync Whether to flush the update synchronously. Use in observer
+   * callbacks to avoid visual flickers.
+   */
+  const recalculateHeight = useStableCallback((flushSync: boolean = false) => {
     const element = rootRef.current;
     if (!element) {
       return;
@@ -149,18 +162,26 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
     const height = element.offsetHeight;
     element.style.height = previousHeight;
 
-    setToasts((prev) =>
-      prev.map((t) =>
-        t.id === toast.id
-          ? {
-              ...t,
-              ref: rootRef,
-              height,
-              transitionStatus: undefined,
-            }
-          : t,
-      ),
-    );
+    function update() {
+      setToasts((prev) =>
+        prev.map((t) =>
+          t.id === toast.id
+            ? {
+                ...t,
+                ref: rootRef,
+                height,
+                transitionStatus: undefined,
+              }
+            : t,
+        ),
+      );
+    }
+
+    if (flushSync) {
+      ReactDOM.flushSync(update);
+    } else {
+      update();
+    }
   });
 
   useIsoLayoutEffect(recalculateHeight, [recalculateHeight]);
@@ -329,8 +350,9 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
         cancelledSwipeRef.current = false;
         setCurrentSwipeDirection(direction);
       } else if (
-        maxSwipeDisplacementRef.current - currentDisplacement >=
-        REVERSE_CANCEL_THRESHOLD
+        !(swipeDirections.includes('left') && swipeDirections.includes('right')) &&
+        !(swipeDirections.includes('up') && swipeDirections.includes('down')) &&
+        maxSwipeDisplacementRef.current - currentDisplacement >= REVERSE_CANCEL_THRESHOLD
       ) {
         // Mark that a change-of-mind has occurred
         cancelledSwipeRef.current = true;
@@ -440,6 +462,10 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
   }
 
   React.useEffect(() => {
+    if (!swipeEnabled) {
+      return undefined;
+    }
+
     const element = rootRef.current;
     if (!element) {
       return undefined;
@@ -455,7 +481,7 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
     return () => {
       element.removeEventListener('touchmove', preventDefaultTouchStart);
     };
-  }, []);
+  }, [swipeEnabled]);
 
   function getDragStyles() {
     if (
@@ -494,9 +520,9 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
     'aria-labelledby': titleId,
     'aria-describedby': descriptionId,
     'aria-hidden': isHighPriority && !focused ? true : undefined,
-    onPointerDown: handlePointerDown,
-    onPointerMove: handlePointerMove,
-    onPointerUp: handlePointerUp,
+    onPointerDown: swipeEnabled ? handlePointerDown : undefined,
+    onPointerMove: swipeEnabled ? handlePointerMove : undefined,
+    onPointerUp: swipeEnabled ? handlePointerUp : undefined,
     onKeyDown: handleKeyDown,
     inert: inertValue(toast.limited),
     style: {
@@ -588,7 +614,9 @@ export interface ToastRootProps extends BaseUIComponentProps<'div', ToastRoot.St
    * Direction(s) in which the toast can be swiped to dismiss.
    * @default ['down', 'right']
    */
-  swipeDirection?: 'up' | 'down' | 'left' | 'right' | ('up' | 'down' | 'left' | 'right')[];
+  swipeDirection?:
+    | ('up' | 'down' | 'left' | 'right' | ('up' | 'down' | 'left' | 'right')[])
+    | undefined;
 }
 
 export namespace ToastRoot {

@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
-import { useControlled } from '@base-ui-components/utils/useControlled';
-import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useControlled } from '@base-ui/utils/useControlled';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { MenuRadioGroupContext } from './MenuRadioGroupContext';
 import { useRenderElement } from '../../utils/useRenderElement';
 import type { BaseUIComponentProps } from '../../utils/types';
@@ -16,7 +16,7 @@ import type { MenuRoot } from '../root/MenuRoot';
 export const MenuRadioGroup = React.memo(
   React.forwardRef(function MenuRadioGroup(
     componentProps: MenuRadioGroup.Props,
-    forwardedRef: React.ForwardedRef<Element>,
+    forwardedRef: React.ForwardedRef<HTMLDivElement>,
   ) {
     const {
       render,
@@ -34,9 +34,9 @@ export const MenuRadioGroup = React.memo(
       name: 'MenuRadioGroup',
     });
 
-    const onValueChange = useEventCallback(onValueChangeProp);
+    const onValueChange = useStableCallback(onValueChangeProp);
 
-    const setValue = useEventCallback(
+    const setValue = useStableCallback(
       (newValue: any, eventDetails: MenuRadioGroup.ChangeEventDetails) => {
         onValueChange?.(newValue, eventDetails);
 
@@ -95,13 +95,15 @@ export interface MenuRadioGroupProps extends BaseUIComponentProps<'div', MenuRad
   /**
    * Function called when the selected value changes.
    */
-  onValueChange?: (value: any, eventDetails: MenuRadioGroup.ChangeEventDetails) => void;
+  onValueChange?:
+    | ((value: any, eventDetails: MenuRadioGroup.ChangeEventDetails) => void)
+    | undefined;
   /**
    * Whether the component should ignore user interaction.
    *
    * @default false
    */
-  disabled?: boolean;
+  disabled?: boolean | undefined;
 }
 
 export type MenuRadioGroupState = {

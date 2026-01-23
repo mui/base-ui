@@ -3,8 +3,13 @@
   "description": "The clickable, interactive part of the slider.\nRenders a `<div>` element.",
   "props": {
     "className": {
-      "type": "string | ((state: Slider.Root.State) => string)",
-      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
+      "type": "string | ((state: Slider.Root.State) => string | undefined)",
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
+      "detailedType": "| string\n| ((state: Slider.Root.State) => string | undefined)"
+    },
+    "style": {
+      "type": "CSSProperties | ((state: Slider.Root.State) => CSSProperties | undefined)",
+      "detailedType": "| React.CSSProperties\n| ((state: Slider.Root.State) => CSSProperties | undefined)\n| undefined"
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: Slider.Root.State) => ReactElement)",
@@ -22,12 +27,6 @@
     },
     "data-disabled": {
       "description": "Present when the slider is disabled."
-    },
-    "data-readonly": {
-      "description": "Present when the slider is readonly."
-    },
-    "data-required": {
-      "description": "Present when the slider is required."
     },
     "data-valid": {
       "description": "Present when the slider is in valid state (when wrapped in Field.Root)."

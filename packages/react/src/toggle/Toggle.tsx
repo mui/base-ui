@@ -1,7 +1,8 @@
 'use client';
 import * as React from 'react';
-import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
-import { useControlled } from '@base-ui-components/utils/useControlled';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { useControlled } from '@base-ui/utils/useControlled';
+import { useBaseUiId } from '../utils/useBaseUiId';
 import { useRenderElement } from '../utils/useRenderElement';
 import type { BaseUIComponentProps, NativeButtonProps } from '../utils/types';
 import { useToggleGroupContext } from '../toggle-group/ToggleGroupContext';
@@ -11,6 +12,7 @@ import {
   type BaseUIChangeEventDetails,
   createChangeEventDetails,
 } from '../utils/createBaseUIEventDetails';
+import { REASONS } from '../utils/reasons';
 
 /**
  * A two-state button that can be on or off.
@@ -36,10 +38,9 @@ export const Toggle = React.forwardRef(function Toggle(
     ...elementProps
   } = componentProps;
 
-  const value = valueProp ?? '';
-
+  // `|| undefined` handles cases, where value is falsy (i.e. "")
+  const value = useBaseUiId(valueProp || undefined);
   const groupContext = useToggleGroupContext();
-
   const groupValue = groupContext?.value ?? [];
 
   const defaultPressed = groupContext ? undefined : defaultPressedProp;
@@ -47,15 +48,17 @@ export const Toggle = React.forwardRef(function Toggle(
   const disabled = (disabledProp || groupContext?.disabled) ?? false;
 
   const [pressed, setPressedState] = useControlled({
-    controlled: groupContext && value ? groupValue?.indexOf(value) > -1 : pressedProp,
+    controlled: groupContext ? value !== undefined && groupValue.indexOf(value) > -1 : pressedProp,
     default: defaultPressed,
     name: 'Toggle',
     state: 'pressed',
   });
 
-  const onPressedChange = useEventCallback(
+  const onPressedChange = useStableCallback(
     (nextPressed: boolean, eventDetails: Toggle.ChangeEventDetails) => {
-      groupContext?.setGroupValue?.(value, nextPressed, eventDetails);
+      if (value) {
+        groupContext?.setGroupValue?.(value, nextPressed, eventDetails);
+      }
       onPressedChangeProp?.(nextPressed, eventDetails);
     },
   );
@@ -79,7 +82,7 @@ export const Toggle = React.forwardRef(function Toggle(
       'aria-pressed': pressed,
       onClick(event: React.MouseEvent) {
         const nextPressed = !pressed;
-        const details = createChangeEventDetails('none', event.nativeEvent);
+        const details = createChangeEventDetails(REASONS.none, event.nativeEvent);
 
         onPressedChange(nextPressed, details);
 
@@ -129,36 +132,37 @@ export interface ToggleState {
 }
 
 export interface ToggleProps
-  extends NativeButtonProps,
-    BaseUIComponentProps<'button', Toggle.State> {
+  extends NativeButtonProps, BaseUIComponentProps<'button', Toggle.State> {
   /**
    * Whether the toggle button is currently pressed.
    * This is the controlled counterpart of `defaultPressed`.
    */
-  pressed?: boolean;
+  pressed?: boolean | undefined;
   /**
    * Whether the toggle button is currently pressed.
    * This is the uncontrolled counterpart of `pressed`.
    * @default false
    */
-  defaultPressed?: boolean;
+  defaultPressed?: boolean | undefined;
   /**
    * Whether the component should ignore user interaction.
    * @default false
    */
-  disabled?: boolean;
+  disabled?: boolean | undefined;
   /**
    * Callback fired when the pressed state is changed.
    */
-  onPressedChange?: (pressed: boolean, eventDetails: Toggle.ChangeEventDetails) => void;
+  onPressedChange?:
+    | ((pressed: boolean, eventDetails: Toggle.ChangeEventDetails) => void)
+    | undefined;
   /**
    * A unique string that identifies the toggle when used
    * inside a toggle group.
    */
-  value?: string;
+  value?: string | undefined;
 }
 
-export type ToggleChangeEventReason = 'none';
+export type ToggleChangeEventReason = typeof REASONS.none;
 
 export type ToggleChangeEventDetails = BaseUIChangeEventDetails<Toggle.ChangeEventReason>;
 

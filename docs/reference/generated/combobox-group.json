@@ -8,8 +8,13 @@
       "detailedType": "any[] | undefined"
     },
     "className": {
-      "type": "string | ((state: Combobox.Group.State) => string)",
-      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
+      "type": "string | ((state: Combobox.Group.State) => string | undefined)",
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
+      "detailedType": "| string\n| ((state: Combobox.Group.State) => string | undefined)"
+    },
+    "style": {
+      "type": "CSSProperties | ((state: Combobox.Group.State) => CSSProperties | undefined)",
+      "detailedType": "| React.CSSProperties\n| ((\n    state: Combobox.Group.State,\n  ) => CSSProperties | undefined)\n| undefined"
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: Combobox.Group.State) => ReactElement)",

@@ -1,14 +1,10 @@
-import * as React from 'react';
 import { expect } from 'chai';
 import { spy } from 'sinon';
 import { act, flushMicrotasks, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
-import {
-  DirectionProvider,
-  type TextDirection,
-} from '@base-ui-components/react/direction-provider';
-import { Popover } from '@base-ui-components/react/popover';
-import { Dialog } from '@base-ui-components/react/dialog';
-import { Tabs } from '@base-ui-components/react/tabs';
+import { DirectionProvider, type TextDirection } from '@base-ui/react/direction-provider';
+import { Popover } from '@base-ui/react/popover';
+import { Dialog } from '@base-ui/react/dialog';
+import { Tabs } from '@base-ui/react/tabs';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 
 describe('<Tabs.Root />', () => {
@@ -76,13 +72,13 @@ describe('<Tabs.Root />', () => {
           <Tabs.List>
             <Tabs.Tab value="tab-0" />
             <Tabs.Tab value="tab-1" id="explicit-tab-id-1" />
-            <Tabs.Tab />
-            <Tabs.Tab id="explicit-tab-id-3" />
+            <Tabs.Tab value="tab-2" />
+            <Tabs.Tab value="tab-3" id="explicit-tab-id-3" />
           </Tabs.List>
-          <Tabs.Panel value="tab-1" />
-          <Tabs.Panel value="tab-0" />
-          <Tabs.Panel />
-          <Tabs.Panel />
+          <Tabs.Panel value="tab-1" keepMounted />
+          <Tabs.Panel value="tab-0" keepMounted />
+          <Tabs.Panel value="tab-2" keepMounted />
+          <Tabs.Panel value="tab-3" keepMounted />
         </Tabs.Root>,
       );
 
@@ -101,13 +97,13 @@ describe('<Tabs.Root />', () => {
           <Tabs.List>
             <Tabs.Tab value="tab-0" />
             <Tabs.Tab value="tab-1" id="explicit-tab-id-1" />
-            <Tabs.Tab />
-            <Tabs.Tab id="explicit-tab-id-3" />
+            <Tabs.Tab value="tab-2" />
+            <Tabs.Tab value="tab-3" id="explicit-tab-id-3" />
           </Tabs.List>
-          <Tabs.Panel value="tab-1" />
-          <Tabs.Panel value="tab-0" />
-          <Tabs.Panel />
-          <Tabs.Panel />
+          <Tabs.Panel value="tab-1" keepMounted />
+          <Tabs.Panel value="tab-0" keepMounted />
+          <Tabs.Panel value="tab-2" keepMounted />
+          <Tabs.Panel value="tab-3" keepMounted />
         </Tabs.Root>,
       );
 
@@ -118,6 +114,56 @@ describe('<Tabs.Root />', () => {
       expect(tabs[1]).to.have.attribute('aria-controls', tabPanels[0].id);
       expect(tabs[2]).to.have.attribute('aria-controls', tabPanels[2].id);
       expect(tabs[3]).to.have.attribute('aria-controls', tabPanels[3].id);
+    });
+
+    it('sets aria-controls on the first tab when no value is provided', async () => {
+      await render(
+        <Tabs.Root>
+          <Tabs.List>
+            <Tabs.Tab value={0} />
+            <Tabs.Tab value={1} />
+          </Tabs.List>
+          <Tabs.Panel value={0} keepMounted />
+          <Tabs.Panel value={1} keepMounted />
+        </Tabs.Root>,
+      );
+
+      const tabs = screen.getAllByRole('tab');
+      const tabPanels = screen.getAllByRole('tabpanel', { hidden: true });
+
+      expect(tabs[0]).to.have.attribute('aria-controls', tabPanels[0].id);
+      expect(tabs[1]).to.have.attribute('aria-controls', tabPanels[1].id);
+      expect(tabPanels[0]).to.have.attribute('aria-labelledby', tabs[0].id);
+      expect(tabPanels[1]).to.have.attribute('aria-labelledby', tabs[1].id);
+    });
+
+    it('syncs aria-controls to the mounted tab panel when keepMounted is false', async () => {
+      const { user } = await render(
+        <Tabs.Root defaultValue="tab-0">
+          <Tabs.List>
+            <Tabs.Tab value="tab-0">Tab 0</Tabs.Tab>
+            <Tabs.Tab value="tab-1">Tab 1</Tabs.Tab>
+          </Tabs.List>
+          <Tabs.Panel value="tab-0">Panel 0</Tabs.Panel>
+          <Tabs.Panel value="tab-1">Panel 1</Tabs.Panel>
+        </Tabs.Root>,
+      );
+
+      const tabs = screen.getAllByRole('tab');
+      const [firstTabPanel] = screen.getAllByRole('tabpanel');
+
+      expect(tabs[0]).to.have.attribute('aria-controls', firstTabPanel.id);
+      expect(tabs[1]).not.to.have.attribute('aria-controls');
+
+      await user.click(tabs[1]);
+
+      await waitFor(() => {
+        const [secondTabPanel] = screen.getAllByRole('tabpanel');
+
+        expect(secondTabPanel).to.have.text('Panel 1');
+        expect(tabs[0]).not.to.have.attribute('aria-controls');
+        expect(tabs[1]).to.have.attribute('aria-controls', secondTabPanel.id);
+      });
     });
   });
 
@@ -149,7 +195,7 @@ describe('<Tabs.Root />', () => {
             ))}
           </Tabs.List>
           {tabValues.map((value, index) => (
-            <Tabs.Panel key={index} value={value} />
+            <Tabs.Panel key={index} value={value} keepMounted />
           ))}
         </Tabs.Root>,
       );
@@ -174,13 +220,207 @@ describe('<Tabs.Root />', () => {
     });
   });
 
+  describe('disabled tabs', () => {
+    it('should select the second tab when the first one is disabled', async () => {
+      await render(
+        <Tabs.Root>
+          <Tabs.List>
+            <Tabs.Tab value={0} disabled>
+              Disabled tab
+            </Tabs.Tab>
+            <Tabs.Tab value={1}>Enabled tab</Tabs.Tab>
+          </Tabs.List>
+          <Tabs.Panel value={0} keepMounted>
+            Disabled panel
+          </Tabs.Panel>
+          <Tabs.Panel value={1} keepMounted>
+            Enabled panel
+          </Tabs.Panel>
+        </Tabs.Root>,
+      );
+
+      const [disabledTab, enabledTab] = screen.getAllByRole('tab');
+      const [disabledPanel, enabledPanel] = screen.getAllByRole('tabpanel', { hidden: true });
+
+      expect(disabledTab).to.have.attribute('aria-selected', 'false');
+      expect(enabledTab).to.have.attribute('aria-selected', 'true');
+      expect(disabledPanel).to.have.attribute('hidden');
+      expect(enabledPanel).not.to.have.attribute('hidden');
+      expect(enabledPanel).to.have.text('Enabled panel');
+    });
+
+    it('should select the third tab when first two tabs are disabled', async () => {
+      await render(
+        <Tabs.Root>
+          <Tabs.List>
+            <Tabs.Tab value={0} disabled data-testid="tab-0">
+              Tab 0
+            </Tabs.Tab>
+            <Tabs.Tab value={1} disabled data-testid="tab-1">
+              Tab 1
+            </Tabs.Tab>
+            <Tabs.Tab value={2} data-testid="tab-2">
+              Tab 2
+            </Tabs.Tab>
+            <Tabs.Tab value={3} data-testid="tab-3">
+              Tab 3
+            </Tabs.Tab>
+          </Tabs.List>
+          <Tabs.Panel value={0}>Panel 0</Tabs.Panel>
+          <Tabs.Panel value={1}>Panel 1</Tabs.Panel>
+          <Tabs.Panel value={2}>Panel 2</Tabs.Panel>
+          <Tabs.Panel value={3}>Panel 3</Tabs.Panel>
+        </Tabs.Root>,
+      );
+
+      const tabs = screen.getAllByRole('tab');
+
+      // The first non-disabled tab (tab 2) should be selected
+      expect(tabs[2]).to.have.attribute('aria-selected', 'true');
+      expect(tabs[0]).to.have.attribute('aria-selected', 'false');
+      expect(tabs[1]).to.have.attribute('aria-selected', 'false');
+      expect(tabs[3]).to.have.attribute('aria-selected', 'false');
+    });
+
+    it('should still honor explicit defaultValue even if it points to a disabled tab', async () => {
+      await render(
+        <Tabs.Root defaultValue={0}>
+          <Tabs.List>
+            <Tabs.Tab value={0} disabled data-testid="tab-0">
+              Tab 0
+            </Tabs.Tab>
+            <Tabs.Tab value={1} data-testid="tab-1">
+              Tab 1
+            </Tabs.Tab>
+            <Tabs.Tab value={2} data-testid="tab-2">
+              Tab 2
+            </Tabs.Tab>
+          </Tabs.List>
+          <Tabs.Panel value={0}>Panel 0</Tabs.Panel>
+          <Tabs.Panel value={1}>Panel 1</Tabs.Panel>
+          <Tabs.Panel value={2}>Panel 2</Tabs.Panel>
+        </Tabs.Root>,
+      );
+
+      const tabs = screen.getAllByRole('tab');
+
+      // The explicitly set disabled tab should be selected
+      expect(tabs[0]).to.have.attribute('aria-selected', 'true');
+      expect(tabs[1]).to.have.attribute('aria-selected', 'false');
+      expect(tabs[2]).to.have.attribute('aria-selected', 'false');
+    });
+
+    it('should still honor explicit value prop even if it points to a disabled tab', async () => {
+      await render(
+        <Tabs.Root value={0}>
+          <Tabs.List>
+            <Tabs.Tab value={0} disabled data-testid="tab-0">
+              Tab 0
+            </Tabs.Tab>
+            <Tabs.Tab value={1} data-testid="tab-1">
+              Tab 1
+            </Tabs.Tab>
+            <Tabs.Tab value={2} data-testid="tab-2">
+              Tab 2
+            </Tabs.Tab>
+          </Tabs.List>
+          <Tabs.Panel value={0}>Panel 0</Tabs.Panel>
+          <Tabs.Panel value={1}>Panel 1</Tabs.Panel>
+          <Tabs.Panel value={2}>Panel 2</Tabs.Panel>
+        </Tabs.Root>,
+      );
+
+      const tabs = screen.getAllByRole('tab');
+
+      // The explicitly set disabled tab should be selected
+      expect(tabs[0]).to.have.attribute('aria-selected', 'true');
+      expect(tabs[1]).to.have.attribute('aria-selected', 'false');
+      expect(tabs[2]).to.have.attribute('aria-selected', 'false');
+    });
+
+    it('does not set tabIndex=0 on disabled tabs when they are programmatically selected', async () => {
+      const { setProps } = await render(
+        <Tabs.Root value={1}>
+          <Tabs.List>
+            <Tabs.Tab value={0} disabled>
+              Tab 0
+            </Tabs.Tab>
+            <Tabs.Tab value={1}>Tab 1</Tabs.Tab>
+            <Tabs.Tab value={2}>Tab 2</Tabs.Tab>
+          </Tabs.List>
+          <Tabs.Panel value={0}>Panel 0</Tabs.Panel>
+          <Tabs.Panel value={1}>Panel 1</Tabs.Panel>
+          <Tabs.Panel value={2}>Panel 2</Tabs.Panel>
+        </Tabs.Root>,
+      );
+
+      const tabs = screen.getAllByRole('tab');
+
+      // Initially, tab 1 is selected and should be highlighted (tabIndex=0)
+      expect(tabs[1]).to.have.attribute('tabindex', '0');
+      expect(tabs[0]).to.have.attribute('tabindex', '-1');
+      expect(tabs[2]).to.have.attribute('tabindex', '-1');
+
+      // Programmatically select the disabled tab 0
+      await setProps({ value: 0 });
+      await flushMicrotasks();
+
+      // The disabled tab should be selected but NOT highlighted (tabIndex should remain -1)
+      expect(tabs[0]).to.have.attribute('aria-selected', 'true');
+      expect(tabs[0]).to.have.attribute('tabindex', '-1');
+
+      // The previously highlighted tab should retain the highlight
+      expect(tabs[1]).to.have.attribute('tabindex', '0');
+    });
+
+    it('does not select any tab when all tabs are disabled', async () => {
+      await render(
+        <Tabs.Root>
+          <Tabs.List>
+            <Tabs.Tab value={0} disabled>
+              Tab 0
+            </Tabs.Tab>
+            <Tabs.Tab value={1} disabled>
+              Tab 1
+            </Tabs.Tab>
+            <Tabs.Tab value={2} disabled>
+              Tab 2
+            </Tabs.Tab>
+          </Tabs.List>
+          <Tabs.Panel value={0} keepMounted>
+            Panel 0
+          </Tabs.Panel>
+          <Tabs.Panel value={1} keepMounted>
+            Panel 1
+          </Tabs.Panel>
+          <Tabs.Panel value={2} keepMounted>
+            Panel 2
+          </Tabs.Panel>
+        </Tabs.Root>,
+      );
+
+      const tabs = screen.getAllByRole('tab');
+      const panels = screen.getAllByRole('tabpanel', { hidden: true });
+
+      // No tab should be selected
+      expect(tabs[0]).to.have.attribute('aria-selected', 'false');
+      expect(tabs[1]).to.have.attribute('aria-selected', 'false');
+      expect(tabs[2]).to.have.attribute('aria-selected', 'false');
+
+      // All panels should be hidden
+      expect(panels[0]).to.have.attribute('hidden');
+      expect(panels[1]).to.have.attribute('hidden');
+      expect(panels[2]).to.have.attribute('hidden');
+    });
+  });
+
   describe('prop: onValueChange', () => {
-    it('should call onValueChange on pointerdown', async () => {
+    it('when `activateOnFocus = true` should call onValueChange on pointerdown', async () => {
       const handleChange = spy();
       const handlePointerDown = spy();
       const { user } = await render(
         <Tabs.Root value={0} onValueChange={handleChange}>
-          <Tabs.List>
+          <Tabs.List activateOnFocus>
             <Tabs.Tab value={0} />
             <Tabs.Tab value={1} onPointerDown={handlePointerDown} />
           </Tabs.List>
@@ -226,7 +466,7 @@ describe('<Tabs.Root />', () => {
       expect(handleChange.callCount).to.equal(0);
     });
 
-    it('should not call onValueChange when already selected', async () => {
+    it('should not call onValueChange when already active', async () => {
       const handleChange = spy();
 
       await render(
@@ -242,12 +482,12 @@ describe('<Tabs.Root />', () => {
       expect(handleChange.callCount).to.equal(0);
     });
 
-    it('should call onValueChange if an unselected tab gets focused', async () => {
+    it('when `activateOnFocus = true` should call onValueChange if an unactive tab gets focused', async () => {
       const handleChange = spy();
 
       await render(
         <Tabs.Root value={0} onValueChange={handleChange}>
-          <Tabs.List>
+          <Tabs.List activateOnFocus>
             <Tabs.Tab value={0} />
             <Tabs.Tab value={1} />
           </Tabs.List>
@@ -267,7 +507,7 @@ describe('<Tabs.Root />', () => {
       expect(handleChange.firstCall.args[0]).to.equal(1);
     });
 
-    it('when `activateOnFocus = false` should not call onValueChange if an unselected tab gets focused', async () => {
+    it('when `activateOnFocus = false` should not call onValueChange if an unactive tab gets focused', async () => {
       const handleChange = spy();
 
       await render(
@@ -316,7 +556,7 @@ describe('<Tabs.Root />', () => {
   });
 
   describe('pointer navigation', () => {
-    it('activates the clicked tab', async () => {
+    it('selects the clicked tab', async () => {
       const { user } = await render(
         <Tabs.Root defaultValue={0}>
           <Tabs.List activateOnFocus={false}>
@@ -324,9 +564,15 @@ describe('<Tabs.Root />', () => {
             <Tabs.Tab value={1}>Tab 2</Tabs.Tab>
             <Tabs.Tab value={2}>Tab 3</Tabs.Tab>
           </Tabs.List>
-          <Tabs.Panel>Panel 1</Tabs.Panel>
-          <Tabs.Panel>Panel 2</Tabs.Panel>
-          <Tabs.Panel>Panel 3</Tabs.Panel>
+          <Tabs.Panel value={0} keepMounted>
+            Panel 1
+          </Tabs.Panel>
+          <Tabs.Panel value={1} keepMounted>
+            Panel 2
+          </Tabs.Panel>
+          <Tabs.Panel value={2} keepMounted>
+            Panel 3
+          </Tabs.Panel>
         </Tabs.Root>,
       );
 
@@ -340,7 +586,7 @@ describe('<Tabs.Root />', () => {
       expect(panels[2]).to.have.attribute('hidden');
     });
 
-    it('does not activate the clicked disabled tab', async () => {
+    it('does not select the clicked disabled tab', async () => {
       const { user } = await render(
         <Tabs.Root defaultValue={0}>
           <Tabs.List activateOnFocus={false}>
@@ -350,9 +596,15 @@ describe('<Tabs.Root />', () => {
             </Tabs.Tab>
             <Tabs.Tab value={2}>Tab 3</Tabs.Tab>
           </Tabs.List>
-          <Tabs.Panel>Panel 1</Tabs.Panel>
-          <Tabs.Panel>Panel 2</Tabs.Panel>
-          <Tabs.Panel>Panel 3</Tabs.Panel>
+          <Tabs.Panel value={0} keepMounted>
+            Panel 1
+          </Tabs.Panel>
+          <Tabs.Panel value={1} keepMounted>
+            Panel 2
+          </Tabs.Panel>
+          <Tabs.Panel value={2} keepMounted>
+            Panel 3
+          </Tabs.Panel>
         </Tabs.Root>,
       );
 
@@ -492,7 +744,7 @@ describe('<Tabs.Root />', () => {
                       orientation={orientation as Tabs.Root.Props['orientation']}
                       value={0}
                     >
-                      <Tabs.List onKeyDown={handleKeyDown}>
+                      <Tabs.List onKeyDown={handleKeyDown} activateOnFocus>
                         <Tabs.Tab value={0} />
                         <Tabs.Tab value={1} />
                         <Tabs.Tab value={2} />
@@ -527,7 +779,7 @@ describe('<Tabs.Root />', () => {
                       orientation={orientation as Tabs.Root.Props['orientation']}
                       value={1}
                     >
-                      <Tabs.List onKeyDown={handleKeyDown}>
+                      <Tabs.List onKeyDown={handleKeyDown} activateOnFocus>
                         <Tabs.Tab value={0} />
                         <Tabs.Tab value={1} />
                         <Tabs.Tab value={2} />
@@ -702,7 +954,7 @@ describe('<Tabs.Root />', () => {
                       orientation={orientation as Tabs.Root.Props['orientation']}
                       value={2}
                     >
-                      <Tabs.List onKeyDown={handleKeyDown}>
+                      <Tabs.List onKeyDown={handleKeyDown} activateOnFocus>
                         <Tabs.Tab value={0} />
                         <Tabs.Tab value={1} />
                         <Tabs.Tab value={2} />
@@ -737,7 +989,7 @@ describe('<Tabs.Root />', () => {
                       orientation={orientation as Tabs.Root.Props['orientation']}
                       value={1}
                     >
-                      <Tabs.List onKeyDown={handleKeyDown}>
+                      <Tabs.List onKeyDown={handleKeyDown} activateOnFocus>
                         <Tabs.Tab value={0} />
                         <Tabs.Tab value={1} />
                         <Tabs.Tab value={2} />
@@ -879,7 +1131,7 @@ describe('<Tabs.Root />', () => {
 
           await render(
             <Tabs.Root onValueChange={handleChange} value={2}>
-              <Tabs.List onKeyDown={handleKeyDown}>
+              <Tabs.List onKeyDown={handleKeyDown} activateOnFocus>
                 <Tabs.Tab value={0} />
                 <Tabs.Tab value={1} />
                 <Tabs.Tab value={2} />
@@ -968,7 +1220,7 @@ describe('<Tabs.Root />', () => {
 
           await render(
             <Tabs.Root onValueChange={handleChange} value={0}>
-              <Tabs.List onKeyDown={handleKeyDown}>
+              <Tabs.List onKeyDown={handleKeyDown} activateOnFocus>
                 <Tabs.Tab value={0} />
                 <Tabs.Tab value={1} />
                 <Tabs.Tab value={2} />
@@ -1045,8 +1297,8 @@ describe('<Tabs.Root />', () => {
       await render(
         <Tabs.Root data-testid="root">
           <Tabs.List>
-            <Tabs.Tab />
-            <Tabs.Tab />
+            <Tabs.Tab value={0} />
+            <Tabs.Tab value={1} />
           </Tabs.List>
         </Tabs.Root>,
       );
@@ -1072,8 +1324,8 @@ describe('<Tabs.Root />', () => {
       await render(
         <Tabs.Root data-testid="root" orientation="vertical">
           <Tabs.List>
-            <Tabs.Tab style={{ display: 'block' }} />
-            <Tabs.Tab style={{ display: 'block' }} />
+            <Tabs.Tab value={0} style={{ display: 'block' }} />
+            <Tabs.Tab value={1} style={{ display: 'block' }} />
           </Tabs.List>
         </Tabs.Root>,
       );
@@ -1184,7 +1436,7 @@ describe('<Tabs.Root />', () => {
   });
 
   describe('highlight synchronization on external value change relative to focus', () => {
-    it('when focus is outside the tablist, highlight follows the new selected tab (tabIndex=0 moves)', async () => {
+    it('when focus is outside the tablist, highlight follows the new active tab (tabIndex=0 moves)', async () => {
       const { setProps } = await render(
         <Tabs.Root value={0}>
           <Tabs.List activateOnFocus={false}>

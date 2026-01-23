@@ -1,8 +1,14 @@
-import * as React from 'react';
-import { Popover } from '@base-ui-components/react/popover';
+import { Popover } from '@base-ui/react/popover';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import { expect } from 'chai';
-import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
+import {
+  act,
+  fireEvent,
+  flushMicrotasks,
+  ignoreActWarnings,
+  screen,
+  waitFor,
+} from '@mui/internal-test-utils';
 import { PATIENT_CLICK_THRESHOLD } from '../../utils/constants';
 
 describe('<Popover.Trigger />', () => {
@@ -254,6 +260,37 @@ describe('<Popover.Trigger />', () => {
       expect(trigger).not.to.have.attribute('data-popup-open');
     });
 
+    it('sticks when clicked before the hover delay completes', async () => {
+      await renderFakeTimers(
+        <Popover.Root>
+          <Popover.Trigger openOnHover delay={300}>
+            Open
+          </Popover.Trigger>
+          <Popover.Portal>
+            <Popover.Positioner>
+              <Popover.Popup>Content</Popover.Popup>
+            </Popover.Positioner>
+          </Popover.Portal>
+        </Popover.Root>,
+      );
+
+      const trigger = screen.getByRole('button');
+
+      fireEvent.mouseEnter(trigger);
+      fireEvent.mouseMove(trigger);
+
+      clock.tick(100);
+
+      // User clicks impatiently to open
+      fireEvent.click(trigger);
+
+      expect(trigger).to.have.attribute('data-popup-open');
+
+      fireEvent.mouseLeave(trigger);
+
+      expect(trigger).to.have.attribute('data-popup-open');
+    });
+
     it('should keep the popover open when re-hovered and clicked within the patient threshold', async () => {
       await render(
         <Popover.Root>
@@ -292,7 +329,8 @@ describe('<Popover.Trigger />', () => {
   it.skipIf(isJSDOM)(
     'should toggle closed with Enter or Space when rendering a <div>',
     async () => {
-      const { userEvent: user } = await import('@vitest/browser/context');
+      ignoreActWarnings();
+      const { userEvent: user } = await import('vitest/browser');
       const { render: vbrRender, cleanup } = await import('vitest-browser-react');
 
       try {

@@ -15,7 +15,7 @@ import { mdxToMarkdown } from './mdxToMarkdown.mjs';
 import { resolveUrl, isAbsoluteUrl } from './resolver.mjs';
 
 const PROJECT_ROOT = path.resolve(import.meta.dirname, '../..');
-const MDX_SOURCE_DIR = path.join(PROJECT_ROOT, 'src/app/(public)/(content)/react');
+const MDX_SOURCE_DIR = path.join(PROJECT_ROOT, 'src/app/(docs)/react');
 const OUTPUT_BASE_DIR = path.join(PROJECT_ROOT, 'public');
 const OUTPUT_REACT_DIR = path.join(OUTPUT_BASE_DIR, 'react');
 
@@ -200,7 +200,7 @@ async function generateLlmsTxt() {
     const preamble = [
       '# Base UI',
       '',
-      'This is the documentation for the `@base-ui-components/react` package.',
+      'This is the documentation for the `@base-ui/react` package.',
       'It contains a collection of components and utilities for building user interfaces in React.',
       'The library is designed to be composable and styling agnostic.',
       '',

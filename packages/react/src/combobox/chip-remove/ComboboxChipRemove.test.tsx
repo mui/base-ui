@@ -1,5 +1,4 @@
-import * as React from 'react';
-import { Combobox } from '@base-ui-components/react/combobox';
+import { Combobox } from '@base-ui/react/combobox';
 import { createRenderer, describeConformance } from '#test-utils';
 import { screen } from '@mui/internal-test-utils';
 import { expect } from 'chai';
@@ -36,7 +35,7 @@ describe('<Combobox.ChipRemove />', () => {
       );
 
       const remove = screen.getByTestId('remove');
-      expect(remove).to.have.attribute('disabled');
+      expect(remove).to.have.attribute('aria-disabled', 'true');
     });
 
     it('should not remove chip when disabled', async () => {

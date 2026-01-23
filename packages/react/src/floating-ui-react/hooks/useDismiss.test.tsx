@@ -1,18 +1,10 @@
 /* eslint-disable @typescript-eslint/no-shadow */
-import {
-  act,
-  cleanup,
-  fireEvent,
-  flushMicrotasks,
-  render,
-  screen,
-  waitFor,
-} from '@mui/internal-test-utils';
+import { act, fireEvent, flushMicrotasks, render, screen, waitFor } from '@mui/internal-test-utils';
 import userEvent from '@testing-library/user-event';
 import * as React from 'react';
 import { vi } from 'vitest';
 
-import { isJSDOM } from '@base-ui-components/utils/detectBrowser';
+import { isJSDOM } from '@base-ui/utils/detectBrowser';
 import {
   FloatingFocusManager,
   FloatingNode,
@@ -26,10 +18,11 @@ import {
   useInteractions,
   useClick,
 } from '../index';
+import { REASONS } from '../../utils/reasons';
 import type { UseDismissProps } from './useDismiss';
 import { normalizeProp } from './useDismiss';
 
-beforeAll(() => {
+beforeEach(() => {
   vi.spyOn(window, 'requestAnimationFrame').mockImplementation(
     (callback: FrameRequestCallback): number => {
       callback(0);
@@ -50,16 +43,16 @@ function App(
       setOpen(openArg);
       const reason = data?.reason;
       if (props.outsidePress) {
-        expect(reason).toBe('outside-press');
+        expect(reason).toBe(REASONS.outsidePress);
       } else if (props.escapeKey) {
-        expect(reason).toBe('escape-key');
+        expect(reason).toBe(REASONS.escapeKey);
         if (!openArg) {
           props.onClose?.();
         }
       } else if (props.referencePress) {
-        expect(reason).toBe('trigger-press');
+        expect(reason).toBe(REASONS.triggerPress);
       } else if (props.ancestorScroll) {
-        expect(reason).toBe('none');
+        expect(reason).toBe(REASONS.none);
       }
     },
   });
@@ -79,11 +72,11 @@ function App(
 
 describe.skipIf(!isJSDOM)('useDismiss', () => {
   describe('true', () => {
-    test('dismisses with escape key', () => {
+    test('dismisses with escape key', async () => {
       render(<App />);
       fireEvent.keyDown(document.body, { key: 'Escape' });
       expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
-      cleanup();
+      await flushMicrotasks();
     });
 
     test('does not dismiss with escape key if IME is active', async () => {
@@ -122,35 +115,31 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
       render(<App />);
       await userEvent.click(document.body);
       expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
-      cleanup();
     });
 
     test('dismisses with reference press', async () => {
       render(<App referencePress />);
       await userEvent.click(screen.getByRole('button'));
       expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
-      cleanup();
     });
 
     test('dismisses with native click', async () => {
       render(<App referencePress />);
       fireEvent.click(screen.getByRole('button'));
       expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
-      cleanup();
     });
 
     test('dismisses with ancestor scroll', async () => {
       render(<App ancestorScroll />);
       fireEvent.scroll(window);
       expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
-      cleanup();
+      await flushMicrotasks();
     });
 
     test('outsidePress function guard', async () => {
       render(<App outsidePress={() => false} />);
       await userEvent.click(document.body);
       expect(screen.getByRole('tooltip')).toBeInTheDocument();
-      cleanup();
     });
 
     test('outsidePress ignored for third party elements', async () => {
@@ -298,32 +287,30 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
   });
 
   describe('false', () => {
-    test('dismisses with escape key', () => {
+    test('dismisses with escape key', async () => {
       render(<App escapeKey={false} />);
       fireEvent.keyDown(document.body, { key: 'Escape' });
       expect(screen.getByRole('tooltip')).toBeInTheDocument();
-      cleanup();
+      await flushMicrotasks();
     });
 
     test('dismisses with outside press', async () => {
       render(<App outsidePress={false} />);
       await userEvent.click(document.body);
       expect(screen.getByRole('tooltip')).toBeInTheDocument();
-      cleanup();
     });
 
     test('dismisses with reference pointer down', async () => {
       render(<App referencePress={false} />);
       await userEvent.click(screen.getByRole('button'));
       expect(screen.getByRole('tooltip')).toBeInTheDocument();
-      cleanup();
     });
 
     test('dismisses with ancestor scroll', async () => {
       render(<App ancestorScroll={false} />);
       fireEvent.scroll(window);
       expect(screen.getByRole('tooltip')).toBeInTheDocument();
-      cleanup();
+      await flushMicrotasks();
     });
 
     test('does not dismiss when clicking portaled children', async () => {
@@ -355,17 +342,15 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
       fireEvent.pointerDown(screen.getByTestId('portaled-button'), {
         bubbles: true,
       });
+      await flushMicrotasks();
 
       expect(screen.getByTestId('portaled-button')).toBeInTheDocument();
-
-      cleanup();
     });
 
     test('outsidePress function guard', async () => {
       render(<App outsidePress={() => true} />);
       await userEvent.click(document.body);
       expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
-      cleanup();
     });
   });
 
@@ -475,7 +460,6 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
 
         expect(screen.queryByTestId('outer')).not.toBeInTheDocument();
         expect(screen.queryByTestId('inner')).not.toBeInTheDocument();
-        cleanup();
       });
 
       test('false', async () => {
@@ -499,7 +483,6 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
 
         expect(screen.queryByTestId('outer')).not.toBeInTheDocument();
         expect(screen.queryByTestId('inner')).not.toBeInTheDocument();
-        cleanup();
       });
 
       test('mixed', async () => {
@@ -523,7 +506,6 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
 
         expect(screen.queryByTestId('outer')).not.toBeInTheDocument();
         expect(screen.queryByTestId('inner')).not.toBeInTheDocument();
-        cleanup();
       });
     });
 
@@ -613,8 +595,8 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
 
         expect(screen.queryByTestId('outer')).not.toBeInTheDocument();
         expect(screen.queryByTestId('inner')).not.toBeInTheDocument();
-        cleanup();
       });
+
       test('false', async () => {
         render(
           <NestedDialog testId="outer" bubbles={{ escapeKey: false }}>
@@ -636,7 +618,6 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
 
         expect(screen.queryByTestId('outer')).not.toBeInTheDocument();
         expect(screen.queryByTestId('inner')).not.toBeInTheDocument();
-        cleanup();
       });
 
       test('mixed', async () => {
@@ -660,7 +641,6 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
 
         expect(screen.queryByTestId('outer')).not.toBeInTheDocument();
         expect(screen.queryByTestId('inner')).not.toBeInTheDocument();
-        cleanup();
       });
     });
   });
@@ -783,43 +763,13 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
     }
 
     describe('outsidePress', () => {
-      test('false', async () => {
-        const user = userEvent.setup();
-
-        render(
-          <Overlay>
-            <NestedDialog id="outer" capture={{ outsidePress: false }}>
-              <NestedDialog id="inner" capture={{ outsidePress: false }}>
-                {null}
-              </NestedDialog>
-            </NestedDialog>
-          </Overlay>,
-        );
-
-        expect(screen.getByText('outer')).toBeInTheDocument();
-        expect(screen.getByText('inner')).toBeInTheDocument();
-
-        await user.click(screen.getByText('outer'));
-
-        expect(screen.getByText('outer')).toBeInTheDocument();
-        expect(screen.getByText('inner')).toBeInTheDocument();
-
-        await user.click(screen.getByText('outside'));
-
-        expect(screen.getByText('outer')).toBeInTheDocument();
-        expect(screen.getByText('inner')).toBeInTheDocument();
-        cleanup();
-      });
-
       test('true', async () => {
         const user = userEvent.setup();
 
         render(
           <Overlay>
-            <NestedDialog id="outer" capture={{ outsidePress: true }}>
-              <NestedDialog id="inner" capture={{ outsidePress: true }}>
-                {null}
-              </NestedDialog>
+            <NestedDialog id="outer">
+              <NestedDialog id="inner">{null}</NestedDialog>
             </NestedDialog>
           </Overlay>,
         );
@@ -836,7 +786,6 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
 
         expect(screen.queryByText('outer')).not.toBeInTheDocument();
         expect(screen.queryByText('inner')).not.toBeInTheDocument();
-        cleanup();
       });
     });
 
@@ -846,10 +795,8 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
 
         render(
           <Overlay>
-            <NestedDialog id="outer" capture={{ escapeKey: false }}>
-              <NestedDialog id="inner" capture={{ escapeKey: false }}>
-                {null}
-              </NestedDialog>
+            <NestedDialog id="outer">
+              <NestedDialog id="inner">{null}</NestedDialog>
             </NestedDialog>
           </Overlay>,
         );
@@ -866,56 +813,27 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
 
         expect(screen.queryByText('outer')).not.toBeInTheDocument();
         expect(screen.queryByText('inner')).not.toBeInTheDocument();
-        cleanup();
-      });
-
-      test('true', async () => {
-        const user = userEvent.setup();
-
-        render(
-          <Overlay>
-            <NestedDialog id="outer" capture={{ escapeKey: true }}>
-              <NestedDialog id="inner" capture={{ escapeKey: true }}>
-                {null}
-              </NestedDialog>
-            </NestedDialog>
-          </Overlay>,
-        );
-
-        expect(screen.getByText('outer')).toBeInTheDocument();
-        expect(screen.getByText('inner')).toBeInTheDocument();
-
-        await user.keyboard('{Escape}');
-
-        expect(screen.getByText('outer')).toBeInTheDocument();
-        expect(screen.queryByText('inner')).not.toBeInTheDocument();
-
-        await user.keyboard('{Escape}');
-
-        expect(screen.queryByText('outer')).not.toBeInTheDocument();
-        expect(screen.queryByText('inner')).not.toBeInTheDocument();
-        cleanup();
       });
     });
   });
 
   describe('outsidePressEvent: intentional', () => {
-    test('dragging outside the floating element does not close', () => {
+    test('dragging outside the floating element does not close', async () => {
       render(<App outsidePressEvent="intentional" />);
       const floatingEl = screen.getByRole('tooltip');
       fireEvent.mouseDown(floatingEl);
       fireEvent.mouseUp(document.body);
       expect(screen.getByRole('tooltip')).toBeInTheDocument();
-      cleanup();
+      await flushMicrotasks();
     });
 
-    test('dragging inside the floating element does not close', () => {
+    test('dragging inside the floating element does not close', async () => {
       render(<App outsidePressEvent="intentional" />);
       const floatingEl = screen.getByRole('tooltip');
       fireEvent.mouseDown(document.body);
       fireEvent.mouseUp(floatingEl);
       expect(screen.getByRole('tooltip')).toBeInTheDocument();
-      cleanup();
+      await flushMicrotasks();
     });
 
     test('dragging outside the floating element then clicking outside closes', async () => {
@@ -927,18 +845,17 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
       fireEvent.click(document.body);
       fireEvent.click(document.body);
       expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
-      cleanup();
     });
   });
 
-  test('nested floating elements with different portal roots', async () => {
+  test('nested floating elements with different portal containers', async () => {
     function ButtonWithFloating({
       children,
-      portalRoot,
+      portalContainer,
       triggerText,
     }: {
       children?: React.ReactNode;
-      portalRoot?: HTMLElement | null;
+      portalContainer?: HTMLElement | null;
       triggerText: string;
     }) {
       const [open, setOpen] = React.useState(false);
@@ -958,7 +875,7 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
             {triggerText}
           </button>
           {open && (
-            <FloatingPortal root={portalRoot}>
+            <FloatingPortal container={portalContainer}>
               <FloatingFocusManager context={context} modal={false}>
                 <div ref={refs.setFloating} style={floatingStyles} {...getFloatingProps()}>
                   {children}
@@ -978,8 +895,8 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
 
       return (
         <React.Fragment>
-          <ButtonWithFloating portalRoot={portal1} triggerText="open 1">
-            <ButtonWithFloating portalRoot={portal2} triggerText="open 2">
+          <ButtonWithFloating portalContainer={portal1} triggerText="open 1">
+            <ButtonWithFloating portalContainer={portal2} triggerText="open 2">
               <button>nested</button>
             </ButtonWithFloating>
           </ButtonWithFloating>

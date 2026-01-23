@@ -12,6 +12,16 @@ export async function formatProperties(
   const result: Record<string, any> = {};
 
   for (const prop of props) {
+    // skip `ref` for components
+    if (prop.name === 'ref' && (allExports?.length ?? -1) > 0) {
+      continue;
+    }
+
+    // skip props marked with @ignore
+    if (prop.documentation?.hasTag('ignore')) {
+      continue;
+    }
+
     const exampleTag = prop.documentation?.tags
       ?.filter((tag) => tag.name === 'example')
       .map((tag) => tag.value)
@@ -73,20 +83,31 @@ export async function formatProperties(
   return result;
 }
 
-export function formatParameters(params: tae.Parameter[]) {
+export type DocumentationOverride = {
+  description?: string;
+  tags?: tae.DocumentationTag[];
+};
+
+export function formatParameters(
+  params: tae.Parameter[],
+  optionalOverrides?: boolean[],
+  documentationOverrides?: Array<DocumentationOverride | undefined>,
+) {
   const result: Record<string, any> = {};
 
-  for (const param of params) {
-    const exampleTag = param.documentation?.tags
+  for (const [index, param] of params.entries()) {
+    const isOptional = optionalOverrides?.[index] ?? param.optional;
+    const documentation = documentationOverrides?.[index] ?? param.documentation;
+    const exampleTag = documentation?.tags
       ?.filter((tag) => tag.name === 'example')
       .map((tag) => tag.value)
       .join('\n');
 
     result[param.name] = {
-      type: formatType(param.type, param.optional, param.documentation?.tags, true),
+      type: formatType(param.type, isOptional, documentation?.tags, true),
       default: param.defaultValue,
-      optional: param.optional || undefined,
-      description: param.documentation?.description,
+      optional: isOptional || undefined,
+      description: documentation?.description,
       example: exampleTag || undefined,
     };
   }

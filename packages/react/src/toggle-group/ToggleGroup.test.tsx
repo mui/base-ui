@@ -1,13 +1,9 @@
-import * as React from 'react';
 import { expect } from 'chai';
 import { spy } from 'sinon';
 import { act, screen } from '@mui/internal-test-utils';
-import {
-  DirectionProvider,
-  type TextDirection,
-} from '@base-ui-components/react/direction-provider';
-import { ToggleGroup } from '@base-ui-components/react/toggle-group';
-import { Toggle } from '@base-ui-components/react/toggle';
+import { DirectionProvider, type TextDirection } from '@base-ui/react/direction-provider';
+import { ToggleGroup } from '@base-ui/react/toggle-group';
+import { Toggle } from '@base-ui/react/toggle';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 
 describe('<ToggleGroup />', () => {
@@ -74,6 +70,28 @@ describe('<ToggleGroup />', () => {
       expect(button1).to.have.attribute('aria-pressed', 'true');
       expect(button1).to.have.attribute('data-pressed');
       expect(button2).to.have.attribute('aria-pressed', 'false');
+    });
+
+    it('when Toggles omit value', async () => {
+      const { user } = await render(
+        <ToggleGroup>
+          <Toggle />
+          <Toggle value="" />
+        </ToggleGroup>,
+      );
+
+      const [button1, button2] = screen.getAllByRole('button');
+
+      expect(button2).to.have.attribute('aria-pressed', 'false');
+      expect(button1).to.have.attribute('aria-pressed', 'false');
+
+      await user.click(button1);
+      expect(button1).to.have.attribute('aria-pressed', 'true');
+      expect(button2).to.have.attribute('aria-pressed', 'false');
+
+      await user.click(button2);
+      expect(button1).to.have.attribute('aria-pressed', 'false');
+      expect(button2).to.have.attribute('aria-pressed', 'true');
     });
   });
 
@@ -210,6 +228,32 @@ describe('<ToggleGroup />', () => {
 
       await user.pointer({ keys: '[MouseLeft]', target: button2 });
 
+      expect(button1).to.have.attribute('aria-pressed', 'false');
+      expect(button2).to.have.attribute('aria-pressed', 'true');
+    });
+
+    it('when Toggles omit value', async () => {
+      const { user } = await render(
+        <ToggleGroup multiple>
+          <Toggle value="" />
+          <Toggle />
+        </ToggleGroup>,
+      );
+
+      const [button1, button2] = screen.getAllByRole('button');
+
+      expect(button2).to.have.attribute('aria-pressed', 'false');
+      expect(button1).to.have.attribute('aria-pressed', 'false');
+
+      await user.click(button1);
+      expect(button1).to.have.attribute('aria-pressed', 'true');
+      expect(button2).to.have.attribute('aria-pressed', 'false');
+
+      await user.click(button2);
+      expect(button1).to.have.attribute('aria-pressed', 'true');
+      expect(button2).to.have.attribute('aria-pressed', 'true');
+
+      await user.click(button1);
       expect(button1).to.have.attribute('aria-pressed', 'false');
       expect(button2).to.have.attribute('aria-pressed', 'true');
     });

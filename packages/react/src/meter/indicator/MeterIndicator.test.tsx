@@ -1,7 +1,6 @@
-import * as React from 'react';
 import { screen } from '@mui/internal-test-utils';
 import { expect } from 'chai';
-import { Meter } from '@base-ui-components/react/meter';
+import { Meter } from '@base-ui/react/meter';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 
 describe('<Meter.Indicator />', () => {

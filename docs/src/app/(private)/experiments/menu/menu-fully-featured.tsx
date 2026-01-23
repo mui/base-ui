@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { Menu } from '@base-ui-components/react/menu';
+import { Menu } from '@base-ui/react/menu';
 import {
   SettingsMetadata,
   useExperimentSettings,
@@ -35,19 +35,16 @@ export default function MenuFullyFeatured() {
   return (
     <div>
       <h1>Fully featured menu</h1>
-      <Menu.Root
-        openOnHover={settings.openOnHover}
-        modal={settings.modal}
-        disabled={settings.disabled}
-      >
+      <Menu.Root modal={settings.modal} disabled={settings.disabled}>
         <Menu.Trigger
           className={classes.Button}
           render={triggerRender}
           nativeButton={triggerRender === undefined}
+          openOnHover={settings.openOnHover}
         >
           Menu <ChevronDownIcon className={classes.ButtonIcon} />
         </Menu.Trigger>
-        <Menu.Portal keepMounted>
+        <Menu.Portal>
           <Menu.Positioner
             className={classes.Positioner}
             sideOffset={8}

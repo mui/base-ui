@@ -1,7 +1,6 @@
-import * as React from 'react';
 import { screen } from '@mui/internal-test-utils';
 import { expect } from 'chai';
-import { Menu } from '@base-ui-components/react/menu';
+import { Menu } from '@base-ui/react/menu';
 import { createRenderer, describeConformance } from '#test-utils';
 import { MenuGroupContext } from '../group/MenuGroupContext';
 

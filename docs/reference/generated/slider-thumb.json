@@ -1,6 +1,6 @@
 {
   "name": "SliderThumb",
-  "description": "The draggable part of the the slider at the tip of the indicator.\nRenders a `<div>` element and a nested `<input type=\"range\">`.",
+  "description": "The draggable part of the slider at the tip of the indicator.\nRenders a `<div>` element and a nested `<input type=\"range\">`.",
   "props": {
     "getAriaLabel": {
       "type": "((index: number) => string) | null",
@@ -45,8 +45,13 @@
       "detailedType": "React.Ref<HTMLInputElement> | undefined"
     },
     "className": {
-      "type": "string | ((state: Slider.Thumb.State) => string)",
-      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
+      "type": "string | ((state: Slider.Thumb.State) => string | undefined)",
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
+      "detailedType": "| string\n| ((state: Slider.Thumb.State) => string | undefined)"
+    },
+    "style": {
+      "type": "CSSProperties | ((state: Slider.Thumb.State) => CSSProperties | undefined)",
+      "detailedType": "| React.CSSProperties\n| ((state: Slider.Thumb.State) => CSSProperties | undefined)\n| undefined"
     },
     "render": {
       "type": "ReactElement | ((props: HTMLProps, state: Slider.Thumb.State) => ReactElement)",
@@ -64,12 +69,6 @@
     },
     "data-disabled": {
       "description": "Present when the slider is disabled."
-    },
-    "data-readonly": {
-      "description": "Present when the slider is readonly."
-    },
-    "data-required": {
-      "description": "Present when the slider is required."
     },
     "data-valid": {
       "description": "Present when the slider is in valid state (when wrapped in Field.Root)."

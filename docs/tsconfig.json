@@ -30,7 +30,13 @@
         "name": "next"
       }
     ],
-    "strictNullChecks": true
+    "paths": {
+      "@base-ui/react": ["../packages/react/src"],
+      "@base-ui/react/*": ["../packages/react/src/*"],
+      "@base-ui/utils/*": ["../packages/utils/src/*"]
+    },
+    "strictNullChecks": true,
+    "jsx": "preserve"
   },
   "exclude": ["node_modules"],
   "references": [

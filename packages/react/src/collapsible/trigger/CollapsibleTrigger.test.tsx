@@ -1,6 +1,5 @@
-import * as React from 'react';
 import { createRenderer } from '@mui/internal-test-utils';
-import { Collapsible } from '@base-ui-components/react/collapsible';
+import { Collapsible } from '@base-ui/react/collapsible';
 import { describeConformance } from '../../../test/describeConformance';
 
 describe('<Collapsible.Trigger />', () => {

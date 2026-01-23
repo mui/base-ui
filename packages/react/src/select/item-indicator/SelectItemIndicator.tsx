@@ -44,7 +44,7 @@ const Inner = React.memo(
 
       const indicatorRef = React.useRef<HTMLSpanElement | null>(null);
 
-      const { mounted, transitionStatus, setMounted } = useTransitionStatus(selected);
+      const { transitionStatus, setMounted } = useTransitionStatus(selected);
 
       const state: SelectItemIndicator.State = React.useMemo(
         () => ({
@@ -59,7 +59,6 @@ const Inner = React.memo(
         state,
         props: [
           {
-            hidden: !mounted,
             'aria-hidden': true,
             children: '✔️',
           },
@@ -88,11 +87,13 @@ export interface SelectItemIndicatorState {
   transitionStatus: TransitionStatus;
 }
 
-export interface SelectItemIndicatorProps
-  extends BaseUIComponentProps<'span', SelectItemIndicator.State> {
+export interface SelectItemIndicatorProps extends BaseUIComponentProps<
+  'span',
+  SelectItemIndicator.State
+> {
   children?: React.ReactNode;
   /** Whether to keep the HTML element in the DOM when the item is not selected. */
-  keepMounted?: boolean;
+  keepMounted?: boolean | undefined;
 }
 
 export namespace SelectItemIndicator {

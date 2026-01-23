@@ -75,18 +75,17 @@ export interface ToolbarButtonState extends ToolbarRoot.State {
 }
 
 export interface ToolbarButtonProps
-  extends NativeButtonProps,
-    BaseUIComponentProps<'button', ToolbarButton.State> {
+  extends NativeButtonProps, BaseUIComponentProps<'button', ToolbarButton.State> {
   /**
    * When `true` the item is disabled.
    * @default false
    */
-  disabled?: boolean;
+  disabled?: boolean | undefined;
   /**
    * When `true` the item remains focuseable when disabled.
    * @default true
    */
-  focusableWhenDisabled?: boolean;
+  focusableWhenDisabled?: boolean | undefined;
 }
 
 export namespace ToolbarButton {

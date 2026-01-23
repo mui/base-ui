@@ -1,9 +1,9 @@
 'use client';
 import * as React from 'react';
-import { useControlled } from '@base-ui-components/utils/useControlled';
-import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
-import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
-import { warn } from '@base-ui-components/utils/warn';
+import { useControlled } from '@base-ui/utils/useControlled';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { warn } from '@base-ui/utils/warn';
 import { BaseUIComponentProps, Orientation } from '../../utils/types';
 import { CompositeList } from '../../composite/list/CompositeList';
 import { useDirection } from '../../direction-provider/DirectionContext';
@@ -13,6 +13,7 @@ import {
   createChangeEventDetails,
   type BaseUIChangeEventDetails,
 } from '../../utils/createBaseUIEventDetails';
+import { REASONS } from '../../utils/reasons';
 
 const rootStateAttributesMapping = {
   value: () => null,
@@ -34,9 +35,9 @@ export const AccordionRoot = React.forwardRef(function AccordionRoot(
     disabled = false,
     hiddenUntilFound: hiddenUntilFoundProp,
     keepMounted: keepMountedProp,
-    loop = true,
+    loopFocus = true,
     onValueChange: onValueChangeProp,
-    multiple = true,
+    multiple = false,
     orientation = 'vertical',
     value: valueProp,
     defaultValue: defaultValueProp,
@@ -66,7 +67,7 @@ export const AccordionRoot = React.forwardRef(function AccordionRoot(
     return undefined;
   }, [valueProp, defaultValueProp]);
 
-  const onValueChange = useEventCallback(onValueChangeProp);
+  const onValueChange = useStableCallback(onValueChangeProp);
 
   const accordionItemRefs = React.useRef<(HTMLElement | null)[]>([]);
 
@@ -77,8 +78,8 @@ export const AccordionRoot = React.forwardRef(function AccordionRoot(
     state: 'value',
   });
 
-  const handleValueChange = useEventCallback((newValue: number | string, nextOpen: boolean) => {
-    const details = createChangeEventDetails('none');
+  const handleValueChange = useStableCallback((newValue: number | string, nextOpen: boolean) => {
+    const details = createChangeEventDetails(REASONS.none);
     if (!multiple) {
       const nextValue = value[0] === newValue ? [] : [newValue];
       onValueChange(nextValue, details);
@@ -121,7 +122,7 @@ export const AccordionRoot = React.forwardRef(function AccordionRoot(
       handleValueChange,
       hiddenUntilFound: hiddenUntilFoundProp ?? false,
       keepMounted: keepMountedProp ?? false,
-      loop,
+      loopFocus,
       orientation,
       state,
       value,
@@ -132,7 +133,7 @@ export const AccordionRoot = React.forwardRef(function AccordionRoot(
       handleValueChange,
       hiddenUntilFoundProp,
       keepMountedProp,
-      loop,
+      loopFocus,
       orientation,
       state,
       value,
@@ -176,18 +177,18 @@ export interface AccordionRootProps extends BaseUIComponentProps<'div', Accordio
    *
    * To render an uncontrolled accordion, use the `defaultValue` prop instead.
    */
-  value?: AccordionValue;
+  value?: AccordionValue | undefined;
   /**
    * The uncontrolled value of the item(s) that should be initially expanded.
    *
    * To render a controlled accordion, use the `value` prop instead.
    */
-  defaultValue?: AccordionValue;
+  defaultValue?: AccordionValue | undefined;
   /**
    * Whether the component should ignore user interaction.
    * @default false
    */
-  disabled?: boolean;
+  disabled?: boolean | undefined;
   /**
    * Allows the browser’s built-in page search to find and expand the panel contents.
    *
@@ -195,38 +196,40 @@ export interface AccordionRootProps extends BaseUIComponentProps<'div', Accordio
    * to hide the element without removing it from the DOM.
    * @default false
    */
-  hiddenUntilFound?: boolean;
+  hiddenUntilFound?: boolean | undefined;
   /**
    * Whether to keep the element in the DOM while the panel is closed.
    * This prop is ignored when `hiddenUntilFound` is used.
    * @default false
    */
-  keepMounted?: boolean;
+  keepMounted?: boolean | undefined;
   /**
    * Whether to loop keyboard focus back to the first item
    * when the end of the list is reached while using the arrow keys.
    * @default true
    */
-  loop?: boolean;
+  loopFocus?: boolean | undefined;
   /**
    * Event handler called when an accordion item is expanded or collapsed.
    * Provides the new value as an argument.
    */
-  onValueChange?: (value: AccordionValue, eventDetails: AccordionRootChangeEventDetails) => void;
+  onValueChange?:
+    | ((value: AccordionValue, eventDetails: AccordionRootChangeEventDetails) => void)
+    | undefined;
   /**
    * Whether multiple items can be open at the same time.
-   * @default true
+   * @default false
    */
-  multiple?: boolean;
+  multiple?: boolean | undefined;
   /**
    * The visual orientation of the accordion.
    * Controls whether roving focus uses left/right or up/down arrow keys.
    * @default 'vertical'
    */
-  orientation?: Orientation;
+  orientation?: Orientation | undefined;
 }
 
-export type AccordionRootChangeEventReason = 'trigger-press' | 'none';
+export type AccordionRootChangeEventReason = typeof REASONS.triggerPress | typeof REASONS.none;
 
 export type AccordionRootChangeEventDetails =
   BaseUIChangeEventDetails<AccordionRoot.ChangeEventReason>;

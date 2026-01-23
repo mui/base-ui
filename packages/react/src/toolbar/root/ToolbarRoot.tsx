@@ -16,9 +16,8 @@ export const ToolbarRoot = React.forwardRef(function ToolbarRoot(
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const {
-    cols = 1,
     disabled = false,
-    loop = true,
+    loopFocus = true,
     orientation = 'horizontal',
     className,
     render,
@@ -63,9 +62,8 @@ export const ToolbarRoot = React.forwardRef(function ToolbarRoot(
         state={state}
         refs={[forwardedRef]}
         props={[defaultProps, elementProps]}
-        cols={cols}
         disabledIndices={disabledIndices}
-        loop={loop}
+        loopFocus={loopFocus}
         onMapChange={setItemMap}
         orientation={orientation}
       />
@@ -85,24 +83,18 @@ export interface ToolbarRootState {
 }
 
 export interface ToolbarRootProps extends BaseUIComponentProps<'div', ToolbarRoot.State> {
-  /**
-   * The number of columns. When greater than 1, the toolbar is arranged into
-   * a grid.
-   * @default 1
-   */
-  cols?: number;
-  disabled?: boolean;
+  disabled?: boolean | undefined;
   /**
    * The orientation of the toolbar.
    * @default 'horizontal'
    */
-  orientation?: ToolbarRoot.Orientation;
+  orientation?: ToolbarRoot.Orientation | undefined;
   /**
    * If `true`, using keyboard navigation will wrap focus to the other end of the toolbar once the end is reached.
    *
    * @default true
    */
-  loop?: boolean;
+  loopFocus?: boolean | undefined;
 }
 
 export namespace ToolbarRoot {

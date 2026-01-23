@@ -1,10 +1,6 @@
-import * as React from 'react';
 import { expect } from 'chai';
-import { Toolbar } from '@base-ui-components/react/toolbar';
-import {
-  DirectionProvider,
-  type TextDirection,
-} from '@base-ui-components/react/direction-provider';
+import { Toolbar } from '@base-ui/react/toolbar';
+import { DirectionProvider, type TextDirection } from '@base-ui/react/direction-provider';
 import { screen } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import { type Orientation } from '../../utils/types';

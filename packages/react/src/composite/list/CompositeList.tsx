@@ -1,12 +1,14 @@
 /* eslint-disable no-bitwise */
 'use client';
 import * as React from 'react';
-import { useRefWithInit } from '@base-ui-components/utils/useRefWithInit';
-import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
-import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
+import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { CompositeListContext } from './CompositeListContext';
 
-export type CompositeMetadata<CustomMetadata> = { index?: number | null } & CustomMetadata;
+export type CompositeMetadata<CustomMetadata> = {
+  index?: (number | null) | undefined;
+} & CustomMetadata;
 
 /**
  * Provides context for a list of items in a composite component.
@@ -15,7 +17,7 @@ export type CompositeMetadata<CustomMetadata> = { index?: number | null } & Cust
 export function CompositeList<Metadata>(props: CompositeList.Props<Metadata>) {
   const { children, elementsRef, labelsRef, onMapChange: onMapChangeProp } = props;
 
-  const onMapChange = useEventCallback(onMapChangeProp);
+  const onMapChange = useStableCallback(onMapChangeProp);
 
   const nextIndexRef = React.useRef(0);
   const listeners = useRefWithInit(createListeners).current;
@@ -33,13 +35,13 @@ export function CompositeList<Metadata>(props: CompositeList.Props<Metadata>) {
   const [mapTick, setMapTick] = React.useState(0);
   const lastTickRef = React.useRef(mapTick);
 
-  const register = useEventCallback((node: Element, metadata: Metadata) => {
+  const register = useStableCallback((node: Element, metadata: Metadata) => {
     map.set(node, metadata ?? null);
     lastTickRef.current += 1;
     setMapTick(lastTickRef.current);
   });
 
-  const unregister = useEventCallback((node: Element) => {
+  const unregister = useStableCallback((node: Element) => {
     map.delete(node);
     lastTickRef.current += 1;
     setMapTick(lastTickRef.current);
@@ -50,7 +52,11 @@ export function CompositeList<Metadata>(props: CompositeList.Props<Metadata>) {
     disableEslintWarning(mapTick);
 
     const newMap = new Map<Element, CompositeMetadata<Metadata>>();
-    const sortedNodes = Array.from(map.keys()).sort(sortByDocumentPosition);
+    // Filter out disconnected elements before sorting to avoid inconsistent
+    // compareDocumentPosition results when elements are detached from the DOM.
+    const sortedNodes = Array.from(map.keys())
+      .filter((node) => node.isConnected)
+      .sort(sortByDocumentPosition);
 
     sortedNodes.forEach((node, index) => {
       const metadata = map.get(node) ?? ({} as CompositeMetadata<Metadata>);
@@ -118,7 +124,7 @@ export function CompositeList<Metadata>(props: CompositeList.Props<Metadata>) {
     };
   }, [labelsRef]);
 
-  const subscribeMapChange = useEventCallback((fn) => {
+  const subscribeMapChange = useStableCallback((fn) => {
     listeners.add(fn);
     return () => {
       listeners.delete(fn);
@@ -177,8 +183,8 @@ export interface CompositeListProps<Metadata> {
    * A ref to the list of element labels, ordered by their index.
    * `useTypeahead`'s `listRef` prop.
    */
-  labelsRef?: React.RefObject<Array<string | null>>;
-  onMapChange?: (newMap: Map<Element, CompositeMetadata<Metadata> | null>) => void;
+  labelsRef?: React.RefObject<Array<string | null>> | undefined;
+  onMapChange?: ((newMap: Map<Element, CompositeMetadata<Metadata> | null>) => void) | undefined;
 }
 
 export namespace CompositeList {

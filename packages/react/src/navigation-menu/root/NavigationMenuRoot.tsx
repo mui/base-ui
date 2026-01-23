@@ -1,9 +1,9 @@
 'use client';
 import * as React from 'react';
 import { isHTMLElement } from '@floating-ui/utils/dom';
-import { useControlled } from '@base-ui-components/utils/useControlled';
-import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
-import { ownerDocument } from '@base-ui-components/utils/owner';
+import { useControlled } from '@base-ui/utils/useControlled';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { ownerDocument } from '@base-ui/utils/owner';
 import {
   FloatingTree,
   useFloatingNodeId,
@@ -21,9 +21,14 @@ import type { BaseUIComponentProps } from '../../utils/types';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useTransitionStatus } from '../../utils/useTransitionStatus';
 import { setFixedSize } from '../utils/setFixedSize';
-import { BaseUIChangeEventDetails } from '../../utils/createBaseUIEventDetails';
+import { type BaseUIChangeEventDetails } from '../../utils/createBaseUIEventDetails';
+import { REASONS } from '../../utils/reasons';
 
-const blockedReturnFocusReasons = new Set<string>(['trigger-hover', 'outside-press', 'focus-out']);
+const blockedReturnFocusReasons = new Set<string>([
+  REASONS.triggerHover,
+  REASONS.outsidePress,
+  REASONS.focusOut,
+]);
 
 /**
  * Groups all parts of the navigation menu.
@@ -87,7 +92,7 @@ export const NavigationMenuRoot = React.forwardRef(function NavigationMenuRoot(
     setViewportInert(false);
   }, [value]);
 
-  const setValue = useEventCallback(
+  const setValue = useStableCallback(
     (nextValue: any, eventDetails: NavigationMenuRoot.ChangeEventDetails) => {
       if (!nextValue) {
         closeReasonRef.current = eventDetails.reason;
@@ -112,7 +117,7 @@ export const NavigationMenuRoot = React.forwardRef(function NavigationMenuRoot(
     },
   );
 
-  const handleUnmount = useEventCallback(() => {
+  const handleUnmount = useStableCallback(() => {
     const doc = ownerDocument(rootRef.current);
     const activeEl = activeElement(doc);
 
@@ -286,16 +291,18 @@ export interface NavigationMenuRootState {
   nested: boolean;
 }
 
-export interface NavigationMenuRootProps
-  extends BaseUIComponentProps<'nav', NavigationMenuRoot.State> {
+export interface NavigationMenuRootProps extends BaseUIComponentProps<
+  'nav',
+  NavigationMenuRoot.State
+> {
   /**
    * A ref to imperative actions.
    */
-  actionsRef?: React.RefObject<NavigationMenuRoot.Actions>;
+  actionsRef?: React.RefObject<NavigationMenuRoot.Actions | null> | undefined;
   /**
    * Event handler called after any animations complete when the navigation menu is closed.
    */
-  onOpenChangeComplete?: (open: boolean) => void;
+  onOpenChangeComplete?: ((open: boolean) => void) | undefined;
   /**
    * The controlled value of the navigation menu item that should be currently open.
    * When non-nullish, the menu will be open. When nullish, the menu will be closed.
@@ -314,22 +321,24 @@ export interface NavigationMenuRootProps
   /**
    * Callback fired when the value changes.
    */
-  onValueChange?: (value: any, eventDetails: NavigationMenuRoot.ChangeEventDetails) => void;
+  onValueChange?:
+    | ((value: any, eventDetails: NavigationMenuRoot.ChangeEventDetails) => void)
+    | undefined;
   /**
    * How long to wait before opening the navigation menu. Specified in milliseconds.
    * @default 50
    */
-  delay?: number;
+  delay?: number | undefined;
   /**
    * How long to wait before closing the navigation menu. Specified in milliseconds.
    * @default 50
    */
-  closeDelay?: number;
+  closeDelay?: number | undefined;
   /**
    * The orientation of the navigation menu.
    * @default 'horizontal'
    */
-  orientation?: 'horizontal' | 'vertical';
+  orientation?: ('horizontal' | 'vertical') | undefined;
 }
 
 export interface NavigationMenuRootActions {
@@ -337,14 +346,14 @@ export interface NavigationMenuRootActions {
 }
 
 export type NavigationMenuRootChangeEventReason =
-  | 'trigger-press'
-  | 'trigger-hover'
-  | 'outside-press'
-  | 'list-navigation'
-  | 'focus-out'
-  | 'escape-key'
-  | 'link-press'
-  | 'none';
+  | typeof REASONS.triggerPress
+  | typeof REASONS.triggerHover
+  | typeof REASONS.outsidePress
+  | typeof REASONS.listNavigation
+  | typeof REASONS.focusOut
+  | typeof REASONS.escapeKey
+  | typeof REASONS.linkPress
+  | typeof REASONS.none;
 
 export type NavigationMenuRootChangeEventDetails =
   BaseUIChangeEventDetails<NavigationMenuRoot.ChangeEventReason>;

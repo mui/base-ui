@@ -1,4 +1,3 @@
-import * as React from 'react';
 import { expect } from 'chai';
 import { createRenderer } from '#test-utils';
 import { CompositeList } from './CompositeList';

@@ -1,9 +1,10 @@
 import * as React from 'react';
 import { expect } from 'chai';
-import { Dialog } from '@base-ui-components/react/dialog';
-import { AlertDialog } from '@base-ui-components/react/alert-dialog';
+import { spy } from 'sinon';
+import { Dialog } from '@base-ui/react/dialog';
+import { AlertDialog } from '@base-ui/react/alert-dialog';
 import { act, waitFor, screen } from '@mui/internal-test-utils';
-import { describeConformance, createRenderer, isJSDOM } from '#test-utils';
+import { describeConformance, createRenderer, isJSDOM, waitSingleFrame } from '#test-utils';
 
 describe('<Dialog.Popup />', () => {
   const { render } = createRenderer();
@@ -258,6 +259,55 @@ describe('<Dialog.Popup />', () => {
         expect(screen.getByTestId('input-1')).toHaveFocus();
       });
     });
+
+    it('should not call initialFocus function when closing the dialog', async () => {
+      const initialFocusSpy = spy();
+
+      function TestComponent() {
+        const input2Ref = React.useRef<HTMLInputElement>(null);
+
+        const getRef = React.useCallback(() => {
+          initialFocusSpy();
+          return input2Ref.current;
+        }, []);
+
+        return (
+          <div>
+            <Dialog.Root modal={false}>
+              <Dialog.Trigger>Open</Dialog.Trigger>
+              <Dialog.Portal>
+                <Dialog.Popup data-testid="dialog" initialFocus={getRef}>
+                  <input data-testid="input-1" />
+                  <input data-testid="input-2" ref={input2Ref} />
+                  <Dialog.Close>Close</Dialog.Close>
+                </Dialog.Popup>
+              </Dialog.Portal>
+            </Dialog.Root>
+          </div>
+        );
+      }
+
+      const { user } = await render(<TestComponent />);
+
+      const trigger = screen.getByText('Open');
+      await user.click(trigger);
+
+      await waitFor(() => {
+        const input2 = screen.getByTestId('input-2');
+        expect(input2).toHaveFocus();
+      });
+
+      expect(initialFocusSpy.callCount).to.equal(1);
+
+      const closeButton = screen.getByText('Close');
+      await user.click(closeButton);
+
+      await waitFor(() => {
+        expect(trigger).toHaveFocus();
+      });
+
+      expect(initialFocusSpy.callCount).to.equal(1);
+    });
   });
 
   describe('prop: finalFocus', () => {
@@ -445,6 +495,7 @@ describe('<Dialog.Popup />', () => {
 
       // Close via keyboard: should move focus to final-input
       await user.click(trigger);
+      await waitSingleFrame();
       await user.keyboard('{Escape}');
       await waitFor(() => {
         expect(screen.getByTestId('final-input')).toHaveFocus();

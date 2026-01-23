@@ -1,9 +1,9 @@
 import * as React from 'react';
-import { Combobox } from '@base-ui-components/react/combobox';
+import { Combobox } from '@base-ui/react/combobox';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import { screen, waitFor } from '@mui/internal-test-utils';
 import { expect } from 'chai';
-import { Field } from '@base-ui-components/react/field';
+import { Field } from '@base-ui/react/field';
 
 describe('<Combobox.Input />', () => {
   const { render } = createRenderer();
@@ -173,6 +173,19 @@ describe('<Combobox.Input />', () => {
     });
   });
 
+  describe('prop: required', () => {
+    it('sets aria-required attribute when required', async () => {
+      await render(
+        <Combobox.Root required>
+          <Combobox.Input data-testid="input" />
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByTestId('input');
+      expect(input).to.have.attribute('aria-required', 'true');
+    });
+  });
+
   describe('interaction behavior', () => {
     it('clears selected value when input text is cleared (single selection)', async () => {
       const { user } = await render(
@@ -263,7 +276,7 @@ describe('<Combobox.Input />', () => {
 
       expect(input).to.have.attribute('disabled');
       expect(chip).to.have.attribute('aria-disabled', 'true');
-      expect(remove).to.have.attribute('disabled');
+      expect(remove).to.have.attribute('aria-disabled', 'true');
 
       await user.type(input, '{backspace}');
       expect(screen.getByTestId('chip')).not.to.equal(null);
@@ -513,6 +526,64 @@ describe('<Combobox.Input />', () => {
         expect(button).toHaveFocus();
       });
       expect(screen.queryByRole('listbox')).to.equal(null);
+    });
+  });
+
+  describe('data state attributes', () => {
+    it.skipIf(isJSDOM)('sets data-popup-side to the current popup side', async () => {
+      const { user } = await render(
+        <Combobox.Root items={['apple']}>
+          <Combobox.Input />
+          <Combobox.Portal>
+            <Combobox.Positioner side="right">
+              <Combobox.Popup>
+                <Combobox.List>
+                  {(item: string) => (
+                    <Combobox.Item key={item} value={item}>
+                      {item}
+                    </Combobox.Item>
+                  )}
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByRole('combobox');
+      expect(input).not.to.have.attribute('data-popup-side');
+
+      await user.click(input);
+
+      await waitFor(() => expect(screen.queryByRole('listbox')).not.to.equal(null));
+      expect(input).to.have.attribute('data-popup-side', 'right');
+
+      await user.click(document.body);
+
+      await waitFor(() => expect(screen.queryByRole('listbox')).to.equal(null));
+      expect(input).not.to.have.attribute('data-popup-side');
+    });
+
+    it('toggles data-empty when the filtered list is empty', async () => {
+      const { user } = await render(
+        <Combobox.Root items={[]}>
+          <Combobox.Input />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List />
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByRole('combobox');
+
+      await user.click(input);
+
+      await waitFor(() => expect(screen.getByRole('listbox')).not.to.equal(null));
+      expect(input).to.have.attribute('data-list-empty');
     });
   });
 });

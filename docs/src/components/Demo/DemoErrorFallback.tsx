@@ -1,4 +1,3 @@
-import * as React from 'react';
 import { FallbackProps } from 'react-error-boundary';
 
 export function DemoErrorFallback(props: FallbackProps) {

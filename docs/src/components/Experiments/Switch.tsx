@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
-import { Field } from '@base-ui-components/react/field';
-import { Switch as BaseSwitch } from '@base-ui-components/react/switch';
+import { Field } from '@base-ui/react/field';
+import { Switch as BaseSwitch } from '@base-ui/react/switch';
 import classes from './Switch.module.css';
 
 export function Switch(props: Switch.Props) {

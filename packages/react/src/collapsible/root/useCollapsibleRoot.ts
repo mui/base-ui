@@ -1,10 +1,11 @@
 'use client';
 import * as React from 'react';
-import { useControlled } from '@base-ui-components/utils/useControlled';
-import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
-import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useControlled } from '@base-ui/utils/useControlled';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
+import { REASONS } from '../../utils/reasons';
 import { useAnimationsFinished } from '../../utils/useAnimationsFinished';
 import { useTransitionStatus, TransitionStatus } from '../../utils/useTransitionStatus';
 import type { CollapsibleRoot } from './CollapsibleRoot';
@@ -51,9 +52,9 @@ export function useCollapsibleRoot(
 
   const runOnceAnimationsFinish = useAnimationsFinished(panelRef, false);
 
-  const handleTrigger = useEventCallback((event: React.MouseEvent | React.KeyboardEvent) => {
+  const handleTrigger = useStableCallback((event: React.MouseEvent | React.KeyboardEvent) => {
     const nextOpen = !open;
-    const eventDetails = createChangeEventDetails('trigger-press', event.nativeEvent);
+    const eventDetails = createChangeEventDetails(REASONS.triggerPress, event.nativeEvent);
 
     onOpenChange(nextOpen, eventDetails);
 
@@ -156,14 +157,14 @@ export interface UseCollapsibleRootParameters {
    *
    * To render an uncontrolled collapsible, use the `defaultOpen` prop instead.
    */
-  open?: boolean;
+  open?: boolean | undefined;
   /**
    * Whether the collapsible panel is initially open.
    *
    * To render a controlled collapsible, use the `open` prop instead.
    * @default false
    */
-  defaultOpen?: boolean;
+  defaultOpen?: boolean | undefined;
   /**
    * Event handler called when the panel is opened or closed.
    */

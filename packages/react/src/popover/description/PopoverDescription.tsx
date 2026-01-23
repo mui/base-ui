@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { usePopoverRootContext } from '../root/PopoverRootContext';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useBaseUiId } from '../../utils/useBaseUiId';
@@ -23,9 +23,9 @@ export const PopoverDescription = React.forwardRef(function PopoverDescription(
   const id = useBaseUiId(elementProps.id);
 
   useIsoLayoutEffect(() => {
-    store.set('descriptionId', id);
+    store.set('descriptionElementId', id);
     return () => {
-      store.set('descriptionId', undefined);
+      store.set('descriptionElementId', undefined);
     };
   }, [store, id]);
 
@@ -39,8 +39,10 @@ export const PopoverDescription = React.forwardRef(function PopoverDescription(
 
 export interface PopoverDescriptionState {}
 
-export interface PopoverDescriptionProps
-  extends BaseUIComponentProps<'p', PopoverDescription.State> {}
+export interface PopoverDescriptionProps extends BaseUIComponentProps<
+  'p',
+  PopoverDescription.State
+> {}
 
 export namespace PopoverDescription {
   export type State = PopoverDescriptionState;

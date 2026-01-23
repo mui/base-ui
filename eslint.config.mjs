@@ -20,7 +20,7 @@ const OneLevelImportMessage = [
 
 const NO_RESTRICTED_IMPORTS_PATTERNS_DEEPLY_NESTED = [
   {
-    group: ['@base-ui-components/react/*/*'],
+    group: ['@base-ui/react/*/*'],
     message: OneLevelImportMessage,
   },
 ];
@@ -32,11 +32,12 @@ const NO_RESTRICTED_IMPORTS_PATHS_TOP_LEVEL_PACKAGES = [
 
 export default defineConfig(
   globalIgnores(['./examples']),
+  createBaseConfig({
+    baseDirectory: dirname,
+  }),
   {
-    name: 'Base Config',
-    extends: createBaseConfig({
-      baseDirectory: dirname,
-    }),
+    name: 'Base UI overrides',
+    files: [`**/*${EXTENSION_TS}`],
     settings: {
       'import/resolver': {
         typescript: {
@@ -60,6 +61,7 @@ export default defineConfig(
       ],
       // We LOVE non-breaking spaces, and both straight and curly quotes here
       'no-irregular-whitespace': ['warn', { skipJSXText: true, skipStrings: true }],
+      'react/react-in-jsx-scope': 'off',
       'react/no-unescaped-entities': ['warn', { forbid: ['>', '}'] }],
       'react/prop-types': 'off',
       'react-hooks/exhaustive-deps': [
@@ -74,6 +76,18 @@ export default defineConfig(
 
       // This rule doesn't recognise <label> wrapped around custom controls
       'jsx-a11y/label-has-associated-control': 'off',
+      // Turn off new eslint-plugin-react-hooks rules till we can fix all warnings
+      'react-hooks/globals': 'off',
+      'react-hooks/immutability': 'off',
+      'react-hooks/incompatible-library': 'off',
+      'react-hooks/refs': 'off',
+    },
+  },
+  {
+    files: [`packages/*/src/**/*${EXTENSION_TS}`],
+    ignores: [`**/*${EXTENSION_TEST_FILE}`, `test/**/*${EXTENSION_TS}`],
+    rules: {
+      'material-ui/add-undef-to-optional': 'error',
     },
   },
   {
@@ -82,11 +96,14 @@ export default defineConfig(
       `**/*${EXTENSION_TEST_FILE}`,
     ],
     extends: createTestConfig({ useMocha: false }),
+    rules: {
+      'material-ui/add-undef-to-optional': 'off',
+    },
   },
   baseSpecRules,
   {
     name: 'MUI ESLint config for docs',
-    files: [`docs/**/*.${EXTENSION_TS}`],
+    files: [`docs/**/*${EXTENSION_TS}`],
     extends: createDocsConfig(),
     rules: {
       '@typescript-eslint/no-use-before-define': 'off',
@@ -110,7 +127,7 @@ export default defineConfig(
     },
   },
   {
-    files: [`docs/src/app/(private)/experiments/**/*.${EXTENSION_TS}`],
+    files: [`docs/src/app/(private)/experiments/**/*${EXTENSION_TS}`],
     rules: {
       '@typescript-eslint/no-use-before-define': 'off',
       'no-alert': 'off',
@@ -119,7 +136,7 @@ export default defineConfig(
     },
   },
   {
-    files: [`docs/src/app/(public)/(content)/react/utils/use-render/demos/**/*.${EXTENSION_TS}`],
+    files: [`docs/src/app/(docs)/react/utils/use-render/demos/**/*${EXTENSION_TS}`],
     rules: {
       'jsx-a11y/control-has-associated-label': 'off',
       'react/button-has-type': 'off',
@@ -128,8 +145,8 @@ export default defineConfig(
   {
     name: 'Disable image rule for demos',
     files: [
-      `docs/src/app/(public)/(content)/**/demos/**/*.${EXTENSION_TS}`,
-      `docs/src/app/(private)/experiments/**/*.${EXTENSION_TS}`,
+      `docs/src/app/(docs)/**/demos/**/*${EXTENSION_TS}`,
+      `docs/src/app/(private)/experiments/**/*${EXTENSION_TS}`,
     ],
     ignores: ['docs/src/app/(private)/experiments/**/page.tsx'],
     rules: {
@@ -137,10 +154,11 @@ export default defineConfig(
     },
   },
   {
-    files: [`test/**/*.${EXTENSION_TS}`],
+    files: [`test/**/*${EXTENSION_TS}`],
     rules: {
       'guard-for-in': 'off',
       'testing-library/prefer-screen-queries': 'off', // Enable usage of playwright queries
+      'testing-library/no-await-sync-queries': 'off',
       'testing-library/render-result-naming-convention': 'off', // inconsequential in regression tests
     },
   },

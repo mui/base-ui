@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
-import { InteractionType } from '@base-ui-components/utils/useEnhancedClickHandler';
-import { useStore } from '@base-ui-components/utils/store';
+import { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
+import { useStore } from '@base-ui/utils/store';
 import { FloatingFocusManager } from '../../floating-ui-react';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
@@ -15,11 +15,11 @@ import { popupStateMapping } from '../../utils/popupStateMapping';
 import { useComboboxPositionerContext } from '../positioner/ComboboxPositionerContext';
 import type { Side, Align } from '../../utils/useAnchorPositioning';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
-import { DISABLED_TRANSITIONS_STYLE, EMPTY_OBJECT } from '../../utils/constants';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
 import { StateAttributesMapping } from '../../utils/getStateAttributesProps';
 import { contains, getTarget } from '../../floating-ui-react/utils';
+import { getDisabledMountTransitionStyles } from '../../utils/getDisabledMountTransitionStyles';
 
 const stateAttributesMapping: StateAttributesMapping<ComboboxPopup.State> = {
   ...popupStateMapping,
@@ -47,7 +47,7 @@ export const ComboboxPopup = React.forwardRef(function ComboboxPopup(
   const transitionStatus = useStore(store, selectors.transitionStatus);
   const inputInsidePopup = useStore(store, selectors.inputInsidePopup);
   const inputElement = useStore(store, selectors.inputElement);
-  const listElement = useStore(store, selectors.listElement);
+  const modal = useStore(store, selectors.modal);
 
   const empty = filteredItems.length === 0;
 
@@ -78,15 +78,19 @@ export const ComboboxPopup = React.forwardRef(function ComboboxPopup(
     ref: [forwardedRef, store.state.popupRef],
     props: [
       {
+        role: inputInsidePopup ? 'dialog' : 'presentation',
         tabIndex: -1,
         onFocus(event) {
           const target = getTarget(event.nativeEvent) as Element | null;
-          if (openMethod !== 'touch' && !contains(listElement, target)) {
+          if (
+            openMethod !== 'touch' &&
+            (contains(store.state.listElement, target) || target === event.currentTarget)
+          ) {
             store.state.inputRef.current?.focus();
           }
         },
       },
-      transitionStatus === 'starting' ? DISABLED_TRANSITIONS_STYLE : EMPTY_OBJECT,
+      getDisabledMountTransitionStyles(transitionStatus),
       elementProps,
     ],
     stateAttributesMapping,
@@ -114,7 +118,7 @@ export const ComboboxPopup = React.forwardRef(function ComboboxPopup(
     <FloatingFocusManager
       context={floatingRootContext}
       disabled={!mounted}
-      modal={!inputInsidePopup}
+      modal={inputInsidePopup ? modal : false}
       openInteractionType={openMethod}
       initialFocus={resolvedInitialFocus}
       returnFocus={resolvedFinalFocus}
@@ -144,9 +148,12 @@ export interface ComboboxPopupProps extends BaseUIComponentProps<'div', Combobox
    *   Return an element to focus, `true` to use the default behavior, or `false`/`undefined` to do nothing.
    */
   initialFocus?:
-    | boolean
-    | React.RefObject<HTMLElement | null>
-    | ((openType: InteractionType) => void | boolean | HTMLElement | null);
+    | (
+        | boolean
+        | React.RefObject<HTMLElement | null>
+        | ((openType: InteractionType) => void | boolean | HTMLElement | null)
+      )
+    | undefined;
   /**
    * Determines the element to focus when the popup is closed.
    *
@@ -157,9 +164,12 @@ export interface ComboboxPopupProps extends BaseUIComponentProps<'div', Combobox
    *   Return an element to focus, `true` to use the default behavior, or `false`/`undefined` to do nothing.
    */
   finalFocus?:
-    | boolean
-    | React.RefObject<HTMLElement | null>
-    | ((closeType: InteractionType) => void | boolean | HTMLElement | null);
+    | (
+        | boolean
+        | React.RefObject<HTMLElement | null>
+        | ((closeType: InteractionType) => void | boolean | HTMLElement | null)
+      )
+    | undefined;
 }
 
 export namespace ComboboxPopup {

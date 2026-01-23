@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
-import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
-import { useId } from '@base-ui-components/utils/useId';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { useId } from '@base-ui/utils/useId';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useToastRootContext } from '../root/ToastRootContext';
 import { useRenderElement } from '../../utils/useRenderElement';

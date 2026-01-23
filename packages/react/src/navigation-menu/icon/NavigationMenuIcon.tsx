@@ -13,11 +13,11 @@ import { useNavigationMenuItemContext } from '../item/NavigationMenuItemContext'
  */
 export const NavigationMenuIcon = React.forwardRef(function NavigationMenuIcon(
   componentProps: NavigationMenuIcon.Props,
-  forwardedRef: React.ForwardedRef<HTMLDivElement>,
+  forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
   const { className, render, ...elementProps } = componentProps;
 
-  const itemValue = useNavigationMenuItemContext();
+  const { value: itemValue } = useNavigationMenuItemContext();
   const { open, value } = useNavigationMenuRootContext();
 
   const isActiveItem = open && value === itemValue;
@@ -46,8 +46,10 @@ export interface NavigationMenuIconState {
   open: boolean;
 }
 
-export interface NavigationMenuIconProps
-  extends BaseUIComponentProps<'span', NavigationMenuIcon.State> {}
+export interface NavigationMenuIconProps extends BaseUIComponentProps<
+  'span',
+  NavigationMenuIcon.State
+> {}
 
 export namespace NavigationMenuIcon {
   export type State = NavigationMenuIconState;

@@ -1,0 +1,38 @@
+{
+  "name": "Button",
+  "description": "A button component that can be used to trigger actions.\nRenders a `<button>` element.",
+  "props": {
+    "focusableWhenDisabled": {
+      "type": "boolean",
+      "default": "false",
+      "description": "Whether the button should be focusable when disabled.",
+      "detailedType": "boolean | undefined"
+    },
+    "nativeButton": {
+      "type": "boolean",
+      "default": "true",
+      "description": "Whether the component renders a native `<button>` element when replacing it\nvia the `render` prop.\nSet to `false` if the rendered element is not a button (e.g. `<div>`).",
+      "detailedType": "boolean | undefined"
+    },
+    "className": {
+      "type": "string | ((state: Button.State) => string | undefined)",
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
+      "detailedType": "| string\n| ((state: Button.State) => string | undefined)"
+    },
+    "style": {
+      "type": "CSSProperties | ((state: Button.State) => CSSProperties | undefined)",
+      "detailedType": "| React.CSSProperties\n| ((state: Button.State) => CSSProperties | undefined)\n| undefined"
+    },
+    "render": {
+      "type": "ReactElement | ((props: HTMLProps, state: Button.State) => ReactElement)",
+      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render.",
+      "detailedType": "| ReactElement\n| ((props: HTMLProps, state: Button.State) => ReactElement)"
+    }
+  },
+  "dataAttributes": {
+    "data-disabled": {
+      "description": "Present when the button is disabled."
+    }
+  },
+  "cssVariables": {}
+}

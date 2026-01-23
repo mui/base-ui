@@ -1,8 +1,8 @@
-import * as React from 'react';
 import { expect } from 'chai';
-import { Tabs } from '@base-ui-components/react/tabs';
+import { Tabs } from '@base-ui/react/tabs';
 import { waitFor, screen } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
+import { getCssDimensions } from '../../utils/getCssDimensions';
 
 describe('<Tabs.Indicator />', () => {
   const { render } = createRenderer();
@@ -23,7 +23,7 @@ describe('<Tabs.Indicator />', () => {
   }));
 
   describe.skipIf(isJSDOM)('rendering', () => {
-    it('should not render when no tab is selected', async () => {
+    it('should not render when no tab is active', async () => {
       await render(
         <Tabs.Root value={null}>
           <Tabs.List>
@@ -45,15 +45,19 @@ describe('<Tabs.Indicator />', () => {
       tabList: HTMLElement,
       activeTab: HTMLElement,
     ) {
-      const relativeLeft = activeTab.offsetLeft - tabList.clientLeft;
-      const { width: rectWidth, height: rectHeight } = activeTab.getBoundingClientRect();
-      const flooredWidth = Math.floor(rectWidth);
-      const flooredHeight = Math.floor(rectHeight);
-      const relativeRight =
-        tabList.scrollWidth - activeTab.offsetLeft - flooredWidth - tabList.clientLeft;
-      const relativeTop = activeTab.offsetTop - tabList.clientTop;
-      const relativeBottom =
-        tabList.scrollHeight - activeTab.offsetTop - flooredHeight - tabList.clientTop;
+      const tabRect = activeTab.getBoundingClientRect();
+      const tabListRect = tabList.getBoundingClientRect();
+      const { width: tabWidth, height: tabHeight } = getCssDimensions(activeTab);
+      const { width: tabListWidth, height: tabListHeight } = getCssDimensions(tabList);
+      const scaleX = tabListWidth > 0 ? tabListRect.width / tabListWidth : 1;
+      const scaleY = tabListHeight > 0 ? tabListRect.height / tabListHeight : 1;
+
+      const relativeLeft =
+        (tabRect.left - tabListRect.left) / scaleX + tabList.scrollLeft - tabList.clientLeft;
+      const relativeTop =
+        (tabRect.top - tabListRect.top) / scaleY + tabList.scrollTop - tabList.clientTop;
+      const relativeRight = tabList.scrollWidth - relativeLeft - tabWidth;
+      const relativeBottom = tabList.scrollHeight - relativeTop - tabHeight;
 
       const bubbleComputedStyle = window.getComputedStyle(bubble);
       const actualLeft = bubbleComputedStyle.getPropertyValue('--active-tab-left');
@@ -67,8 +71,8 @@ describe('<Tabs.Indicator />', () => {
       assertSize(actualRight, relativeRight);
       assertSize(actualTop, relativeTop);
       assertSize(actualBottom, relativeBottom);
-      assertSize(actualWidth, flooredWidth);
-      assertSize(actualHeight, flooredHeight);
+      assertSize(actualWidth, tabWidth);
+      assertSize(actualHeight, tabHeight);
     }
 
     it('should set CSS variables corresponding to the active tab', async () => {
@@ -146,6 +150,53 @@ describe('<Tabs.Indicator />', () => {
       await setProps({
         style: { width: '800px' },
       });
+
+      await waitFor(() => {
+        assertBubblePositionVariables(bubble, tabList, activeTab);
+      });
+    });
+
+    it('should account for scroll and border when the tab list is transformed', async () => {
+      await render(
+        <div style={{ transform: 'scale(1.5)' }}>
+          <Tabs.Root value={3}>
+            <Tabs.List
+              data-testid="tab-list"
+              style={{
+                width: '240px',
+                display: 'flex',
+                gap: '8px',
+                overflowX: 'auto',
+                border: '6px solid black',
+                padding: '4px',
+              }}
+            >
+              <Tabs.Tab value={1} style={{ flex: '0 0 120px' }}>
+                One
+              </Tabs.Tab>
+              <Tabs.Tab value={2} style={{ flex: '0 0 120px' }}>
+                Two
+              </Tabs.Tab>
+              <Tabs.Tab value={3} style={{ flex: '0 0 120px' }}>
+                Three
+              </Tabs.Tab>
+              <Tabs.Tab value={4} style={{ flex: '0 0 120px' }}>
+                Four
+              </Tabs.Tab>
+              <Tabs.Tab value={5} style={{ flex: '0 0 120px' }}>
+                Five
+              </Tabs.Tab>
+              <Tabs.Indicator data-testid="bubble" />
+            </Tabs.List>
+          </Tabs.Root>
+        </div>,
+      );
+
+      const bubble = screen.getByTestId('bubble');
+      const tabList = screen.getByTestId('tab-list');
+      const activeTab = screen.getAllByRole('tab')[2];
+
+      tabList.scrollLeft = 80;
 
       await waitFor(() => {
         assertBubblePositionVariables(bubble, tabList, activeTab);

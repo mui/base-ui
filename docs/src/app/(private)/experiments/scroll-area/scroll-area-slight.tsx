@@ -1,5 +1,4 @@
-import * as React from 'react';
-import { ScrollArea } from '@base-ui-components/react/scroll-area';
+import { ScrollArea } from '@base-ui/react/scroll-area';
 import styles from './scroll-area-slight.module.css';
 
 export default function ScrollAreaSlight() {

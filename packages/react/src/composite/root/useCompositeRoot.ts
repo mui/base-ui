@@ -1,8 +1,8 @@
 'use client';
 import * as React from 'react';
-import { isElementDisabled } from '@base-ui-components/utils/isElementDisabled';
-import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
-import { useMergedRefs } from '@base-ui-components/utils/useMergedRefs';
+import { isElementDisabled } from '@base-ui/utils/isElementDisabled';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import type { TextDirection } from '../../direction-provider/DirectionContext';
 import {
   ALL_KEYS,
@@ -37,38 +37,38 @@ import { CompositeMetadata } from '../list/CompositeList';
 import { HTMLProps } from '../../utils/types';
 
 export interface UseCompositeRootParameters {
-  orientation?: 'horizontal' | 'vertical' | 'both';
-  cols?: number;
-  loop?: boolean;
-  highlightedIndex?: number;
-  onHighlightedIndexChange?: (index: number) => void;
-  dense?: boolean;
+  orientation?: ('horizontal' | 'vertical' | 'both') | undefined;
+  cols?: number | undefined;
+  loopFocus?: boolean | undefined;
+  highlightedIndex?: number | undefined;
+  onHighlightedIndexChange?: ((index: number) => void) | undefined;
+  dense?: boolean | undefined;
   direction: TextDirection;
-  itemSizes?: Array<Dimensions>;
-  rootRef?: React.Ref<Element>;
+  itemSizes?: Array<Dimensions> | undefined;
+  rootRef?: React.Ref<Element> | undefined;
   /**
    * When `true`, pressing the Home key moves focus to the first item,
    * and pressing the End key moves focus to the last item.
    * @default false
    */
-  enableHomeAndEndKeys?: boolean;
+  enableHomeAndEndKeys?: boolean | undefined;
   /**
    * When `true`, keypress events on Composite's navigation keys
-   * be stopped with event.stopPropagation()
+   * be stopped with event.stopPropagation().
    * @default false
    */
-  stopEventPropagation?: boolean;
+  stopEventPropagation?: boolean | undefined;
   /**
    * Array of item indices to be considered disabled.
    * Used for composite items that are focusable when disabled.
    */
-  disabledIndices?: number[];
+  disabledIndices?: number[] | undefined;
   /**
    * Array of [modifier key values](https://developer.mozilla.org/en-US/docs/Web/API/UI_Events/Keyboard_event_key_values#modifier_keys) that should allow normal keyboard actions
    * when pressed. By default, all modifier keys prevent normal actions.
    * @default []
    */
-  modifierKeys?: ModifierKey[];
+  modifierKeys?: ModifierKey[] | undefined;
 }
 
 const EMPTY_ARRAY: never[] = [];
@@ -77,7 +77,7 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
   const {
     itemSizes,
     cols = 1,
-    loop = true,
+    loopFocus = true,
     dense = false,
     orientation = 'both',
     direction,
@@ -101,7 +101,7 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
   const hasSetDefaultIndexRef = React.useRef(false);
 
   const highlightedIndex = externalHighlightedIndex ?? internalHighlightedIndex;
-  const onHighlightedIndexChange = useEventCallback((index, shouldScrollIntoView = false) => {
+  const onHighlightedIndexChange = useStableCallback((index, shouldScrollIntoView = false) => {
     (externalSetHighlightedIndex ?? internalSetHighlightedIndex)(index);
     if (shouldScrollIntoView) {
       const newActiveItem = elementsRef.current[index];
@@ -109,7 +109,7 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
     }
   });
 
-  const onMapChange = useEventCallback((map: Map<Element, CompositeMetadata<any>>) => {
+  const onMapChange = useStableCallback((map: Map<Element, CompositeMetadata<any>>) => {
     if (map.size === 0 || hasSetDefaultIndexRef.current) {
       return;
     }
@@ -223,7 +223,7 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
               {
                 event,
                 orientation,
-                loop,
+                loopFocus,
                 cols,
                 // treat undefined (empty grid spaces) as disabled indices so we
                 // don't end up in them
@@ -288,9 +288,9 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
           nextIndex === highlightedIndex &&
           (forwardKeys.includes(event.key) || backwardKeys.includes(event.key))
         ) {
-          if (loop && nextIndex === maxIndex && forwardKeys.includes(event.key)) {
+          if (loopFocus && nextIndex === maxIndex && forwardKeys.includes(event.key)) {
             nextIndex = minIndex;
-          } else if (loop && nextIndex === minIndex && backwardKeys.includes(event.key)) {
+          } else if (loopFocus && nextIndex === minIndex && backwardKeys.includes(event.key)) {
             nextIndex = maxIndex;
           } else {
             nextIndex = findNonDisabledListIndex(elementsRef, {
@@ -328,7 +328,7 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
       highlightedIndex,
       isGrid,
       itemSizes,
-      loop,
+      loopFocus,
       mergedRef,
       modifierKeys,
       onHighlightedIndexChange,
@@ -345,6 +345,7 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
       elementsRef,
       disabledIndices,
       onMapChange,
+      relayKeyboardEvent: props.onKeyDown!,
     }),
     [props, highlightedIndex, onHighlightedIndexChange, elementsRef, disabledIndices, onMapChange],
   );

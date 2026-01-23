@@ -1,6 +1,5 @@
 'use client';
-import * as React from 'react';
-import { Toast } from '@base-ui-components/react/toast';
+import { Toast } from '@base-ui/react/toast';
 import styles from './toast.module.css';
 
 const globalToastManager = Toast.createToastManager();
@@ -9,7 +8,7 @@ function showGlobalToast() {
   globalToastManager.promise(fetchUserData(), {
     error: 'Failed to fetch user data',
     success: 'User data loaded!',
-    loading: 'Fetching user data...',
+    loading: 'Fetching user data…',
   });
 }
 
@@ -105,7 +104,7 @@ function ToastPromiseExample() {
   const handlePromiseClick = () => {
     toastManager
       .promise(fetchUserData(), {
-        loading: 'Fetching user data...',
+        loading: 'Fetching user data…',
         success: 'User data loaded!',
         error: 'Failed to load user data',
       })

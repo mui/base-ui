@@ -4,7 +4,7 @@ export enum TabsPanelDataAttributes {
    */
   index = 'data-index',
   /**
-   * Indicates the direction of the activation (based on the previous selected tab).
+   * Indicates the direction of the activation (based on the previous active tab).
    * @type {'left' | 'right' | 'up' | 'down' | 'none'}
    */
   activationDirection = 'data-activation-direction',

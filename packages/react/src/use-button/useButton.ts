@@ -1,9 +1,9 @@
 'use client';
 import * as React from 'react';
 import { isHTMLElement } from '@floating-ui/utils/dom';
-import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
-import { error } from '@base-ui-components/utils/error';
-import { useIsoLayoutEffect } from '@base-ui-components/utils/useIsoLayoutEffect';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { error } from '@base-ui/utils/error';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { makeEventPreventable, mergeProps } from '../merge-props';
 import { useCompositeRootContext } from '../composite/root/CompositeRootContext';
 import { BaseUIEvent, HTMLProps } from '../utils/types';
@@ -21,7 +21,7 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
 
   const isCompositeItem = useCompositeRootContext(true) !== undefined;
 
-  const isValidLink = useEventCallback(() => {
+  const isValidLink = useStableCallback(() => {
     const element = elementRef.current;
     return Boolean(element?.tagName === 'A' && (element as HTMLAnchorElement)?.href);
   });
@@ -175,7 +175,7 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
     [disabled, focusableWhenDisabledProps, isNativeButton, isValidLink],
   );
 
-  const buttonRef = useEventCallback((element: HTMLElement | null) => {
+  const buttonRef = useStableCallback((element: HTMLElement | null) => {
     elementRef.current = element;
     updateDisabled();
   });
@@ -193,34 +193,33 @@ function isButtonElement(
 }
 
 interface GenericButtonProps extends Omit<HTMLProps, 'onClick'>, AdditionalButtonProps {
-  onClick?: (event: React.SyntheticEvent) => void;
+  onClick?: ((event: React.SyntheticEvent) => void) | undefined;
 }
 
-interface AdditionalButtonProps
-  extends Partial<{
-    'aria-disabled': React.AriaAttributes['aria-disabled'];
-    disabled: boolean;
-    role: React.AriaRole;
-    tabIndex?: number;
-  }> {}
+interface AdditionalButtonProps extends Partial<{
+  'aria-disabled': React.AriaAttributes['aria-disabled'];
+  disabled: boolean;
+  role: React.AriaRole;
+  tabIndex?: number | undefined;
+}> {}
 
 export interface UseButtonParameters {
   /**
    * Whether the component should ignore user interaction.
    * @default false
    */
-  disabled?: boolean;
+  disabled?: boolean | undefined;
   /**
    * Whether the button may receive focus even if it is disabled.
    * @default false
    */
-  focusableWhenDisabled?: boolean;
-  tabIndex?: NonNullable<React.HTMLAttributes<any>['tabIndex']>;
+  focusableWhenDisabled?: boolean | undefined;
+  tabIndex?: NonNullable<React.HTMLAttributes<any>['tabIndex']> | undefined;
   /**
    * Whether the component is being rendered as a native button.
    * @default true
    */
-  native?: boolean;
+  native?: boolean | undefined;
 }
 
 export interface UseButtonReturnValue {

@@ -1,9 +1,10 @@
 'use client';
 import * as React from 'react';
-import { useEventCallback } from '@base-ui-components/utils/useEventCallback';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { AriaCombobox } from '../../combobox/root/AriaCombobox';
 import { useCoreFilter } from '../../combobox/root/utils/useFilter';
 import { stringifyAsLabel } from '../../utils/resolveValueLabel';
+import { REASONS } from '../../utils/reasons';
 
 /**
  * Groups all parts of the autocomplete.
@@ -26,7 +27,7 @@ export function AutocompleteRoot<ItemValue>(
      * The items to be displayed in the list.
      * Can be either a flat array of items or an array of groups with items.
      */
-    items?: readonly ItemValue[];
+    items?: readonly ItemValue[] | undefined;
   },
 ): React.JSX.Element;
 export function AutocompleteRoot<ItemValue>(
@@ -67,7 +68,7 @@ export function AutocompleteRoot<ItemValue>(
     resolvedInputValue = internalValue;
   }
 
-  const handleValueChange = useEventCallback(
+  const handleValueChange = useStableCallback(
     (nextValue: string, eventDetails: AutocompleteRoot.ChangeEventDetails) => {
       setInlineInputValue('');
       if (!isControlled) {
@@ -100,11 +101,11 @@ export function AutocompleteRoot<ItemValue>(
     };
   }, [baseFilter, mode, other.filter, resolvedQuery, staticItems]);
 
-  const handleItemHighlighted = useEventCallback(
+  const handleItemHighlighted = useStableCallback(
     (highlightedValue: any, eventDetails: AriaCombobox.HighlightEventDetails) => {
       props.onItemHighlighted?.(highlightedValue, eventDetails);
 
-      if (eventDetails.reason === 'pointer') {
+      if (eventDetails.reason === REASONS.pointer) {
         return;
       }
 
@@ -149,27 +150,28 @@ export type AutocompleteRootChangeEventDetails = AriaCombobox.ChangeEventDetails
 export type AutocompleteRootHighlightEventReason = AriaCombobox.HighlightEventReason;
 export type AutocompleteRootHighlightEventDetails = AriaCombobox.HighlightEventDetails;
 
-export interface AutocompleteRootProps<ItemValue>
-  extends Omit<
-    AriaCombobox.Props<ItemValue, 'none'>,
-    | 'selectionMode'
-    | 'selectedValue'
-    | 'defaultSelectedValue'
-    | 'onSelectedValueChange'
-    | 'fillInputOnItemPress'
-    | 'itemToStringValue'
-    | 'isItemEqualToValue'
-    // Different names
-    | 'inputValue' // value
-    | 'defaultInputValue' // defaultValue
-    | 'onInputValueChange' // onValueChange
-    | 'autoComplete' // mode
-    | 'itemToStringLabel' // itemToStringValue
-    // Custom JSDoc
-    | 'actionsRef'
-    | 'onOpenChange'
-    | 'onInputValueChange'
-  > {
+export interface AutocompleteRootProps<ItemValue> extends Omit<
+  AriaCombobox.Props<ItemValue, 'none'>,
+  | 'selectionMode'
+  | 'selectedValue'
+  | 'defaultSelectedValue'
+  | 'onSelectedValueChange'
+  | 'fillInputOnItemPress'
+  | 'itemToStringValue'
+  | 'isItemEqualToValue'
+  // Different names
+  | 'inputValue' // value
+  | 'defaultInputValue' // defaultValue
+  | 'onInputValueChange' // onValueChange
+  | 'autoComplete' // mode
+  | 'itemToStringLabel' // itemToStringValue
+  // Custom JSDoc
+  | 'autoHighlight'
+  | 'keepHighlight'
+  | 'highlightItemOnHover'
+  | 'actionsRef'
+  | 'onOpenChange'
+> {
   /**
    * Controls how the autocomplete behaves with respect to list filtering and inline autocompletion.
    * - `list` (default): items are dynamically filtered based on the input value. The input value does not change based on the active item.
@@ -178,47 +180,70 @@ export interface AutocompleteRootProps<ItemValue>
    * - `none`: items are static (not filtered), and the input value will not change based on the active item.
    * @default 'list'
    */
-  mode?: 'list' | 'both' | 'inline' | 'none';
+  mode?: ('list' | 'both' | 'inline' | 'none') | undefined;
+  /**
+   * Whether the first matching item is highlighted automatically.
+   * - `true`: highlight after the user types and keep the highlight while the query changes.
+   * - `'always'`: always highlight the first item.
+   * @default false
+   */
+  autoHighlight?: (boolean | 'always') | undefined;
+  /**
+   * Whether the highlighted item should be preserved when the pointer leaves the list.
+   * @default false
+   */
+  keepHighlight?: boolean | undefined;
+  /**
+   * Whether moving the pointer over items should highlight them.
+   * Disabling this prop allows CSS `:hover` to be differentiated from the `:focus` (`data-highlighted`) state.
+   * @default true
+   */
+  highlightItemOnHover?: boolean | undefined;
   /**
    * The uncontrolled input value of the autocomplete when it's initially rendered.
    *
    * To render a controlled autocomplete, use the `value` prop instead.
    */
-  defaultValue?: AriaCombobox.Props<
-    React.ComponentProps<'input'>['defaultValue'],
-    'none'
-  >['defaultInputValue'];
+  defaultValue?:
+    | AriaCombobox.Props<React.ComponentProps<'input'>['defaultValue'], 'none'>['defaultInputValue']
+    | undefined;
   /**
    * The input value of the autocomplete. Use when controlled.
    */
-  value?: AriaCombobox.Props<React.ComponentProps<'input'>['value'], 'none'>['inputValue'];
+  value?:
+    | AriaCombobox.Props<React.ComponentProps<'input'>['value'], 'none'>['inputValue']
+    | undefined;
   /**
    * Event handler called when the input value of the autocomplete changes.
    */
-  onValueChange?: (value: string, eventDetails: AutocompleteRootChangeEventDetails) => void;
+  onValueChange?:
+    | ((value: string, eventDetails: AutocompleteRootChangeEventDetails) => void)
+    | undefined;
+  /**
+   * Whether clicking an item should submit the autocomplete's owning form.
+   * By default, clicking an item via a pointer or <kbd>Enter</kbd> key does not submit the owning form.
+   * Useful when the autocomplete is used as a single-field form search input.
+   * @default false
+   */
+  submitOnItemClick?: AriaCombobox.Props<ItemValue, 'none'>['submitOnItemClick'] | undefined;
   /**
    * When the item values are objects (`<Autocomplete.Item value={object}>`), this function converts the object value to a string representation for both display in the input and form submission.
    * If the shape of the object is `{ value, label }`, the label will be used automatically without needing to specify this prop.
    */
-  itemToStringValue?: (itemValue: ItemValue) => string;
+  itemToStringValue?: ((itemValue: ItemValue) => string) | undefined;
   /**
    * A ref to imperative actions.
    * - `unmount`: When specified, the autocomplete will not be unmounted when closed.
    * Instead, the `unmount` function must be called to unmount the autocomplete manually.
    * Useful when the autocomplete's animation is controlled by an external library.
    */
-  actionsRef?: React.RefObject<AutocompleteRootActions>;
+  actionsRef?: React.RefObject<AutocompleteRootActions | null> | undefined;
   /**
    * Event handler called when the popup is opened or closed.
    */
-  onOpenChange?: (open: boolean, eventDetails: AutocompleteRootChangeEventDetails) => void;
-  /**
-   * Event handler called when the input value changes.
-   */
-  onInputValueChange?: (
-    inputValue: string,
-    eventDetails: AutocompleteRootChangeEventDetails,
-  ) => void;
+  onOpenChange?:
+    | ((open: boolean, eventDetails: AutocompleteRootChangeEventDetails) => void)
+    | undefined;
   /**
    * Callback fired when an item is highlighted or unhighlighted.
    * Receives the highlighted item value (or `undefined` if no item is highlighted) and event details with a `reason` property describing why the highlight changed.
@@ -227,10 +252,12 @@ export interface AutocompleteRootProps<ItemValue>
    * - `'pointer'`: the highlight changed due to pointer hovering.
    * - `'none'`: the highlight changed programmatically.
    */
-  onItemHighlighted?: (
-    highlightedValue: ItemValue | undefined,
-    eventDetails: AutocompleteRootHighlightEventDetails,
-  ) => void;
+  onItemHighlighted?:
+    | ((
+        highlightedValue: ItemValue | undefined,
+        eventDetails: AutocompleteRootHighlightEventDetails,
+      ) => void)
+    | undefined;
 }
 
 export namespace AutocompleteRoot {

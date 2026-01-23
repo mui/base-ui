@@ -1,11 +1,11 @@
 import * as React from 'react';
-import { Popover } from '@base-ui-components/react/popover';
-import { act, screen, waitFor } from '@mui/internal-test-utils';
+import { Popover } from '@base-ui/react/popover';
+import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
 import { expect } from 'chai';
-import { createRenderer, describeConformance } from '#test-utils';
+import { createRenderer, describeConformance, isJSDOM, waitSingleFrame } from '#test-utils';
 
 describe('<Popover.Popup />', () => {
-  const { render } = createRenderer();
+  const { render, clock } = createRenderer();
 
   describeConformance(<Popover.Popup />, () => ({
     refInstanceof: window.HTMLDivElement,
@@ -264,6 +264,85 @@ describe('<Popover.Popup />', () => {
     });
   });
 
+  it.skipIf(isJSDOM)('focuses the popup when the active element becomes display:none', async () => {
+    function TestComponent() {
+      const [hidden, setHidden] = React.useState(false);
+
+      return (
+        <Popover.Root open>
+          <Popover.Trigger>Open</Popover.Trigger>
+          <Popover.Portal>
+            <Popover.Positioner>
+              <Popover.Popup data-testid="popup">
+                <button
+                  data-testid="hide-button"
+                  style={{ display: hidden ? 'none' : undefined }}
+                  onClick={() => setHidden(true)}
+                >
+                  Hide
+                </button>
+                <input />
+              </Popover.Popup>
+            </Popover.Positioner>
+          </Popover.Portal>
+        </Popover.Root>
+      );
+    }
+
+    const { user } = await render(<TestComponent />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('hide-button')).toHaveFocus();
+    });
+
+    await user.click(screen.getByTestId('hide-button'));
+
+    await waitFor(() => {
+      expect(screen.getByTestId('popup')).toHaveFocus();
+    });
+  });
+
+  describe('openOnHover: delay + click', () => {
+    clock.withFakeTimers();
+
+    it('returns focus to the trigger if opened by click before the hover delay completes', async () => {
+      await render(
+        <Popover.Root>
+          <Popover.Trigger openOnHover delay={300}>
+            Open
+          </Popover.Trigger>
+          <Popover.Portal>
+            <Popover.Positioner>
+              <Popover.Popup>
+                <Popover.Close>Close</Popover.Close>
+              </Popover.Popup>
+            </Popover.Positioner>
+          </Popover.Portal>
+        </Popover.Root>,
+      );
+
+      const trigger = screen.getByText('Open');
+
+      fireEvent.mouseEnter(trigger);
+      fireEvent.mouseMove(trigger);
+
+      clock.tick(100);
+
+      fireEvent.click(trigger);
+      await flushMicrotasks();
+
+      expect(screen.getByText('Close')).not.to.equal(null);
+
+      clock.tick(1000);
+      await flushMicrotasks();
+
+      fireEvent.click(screen.getByText('Close'));
+      await flushMicrotasks();
+
+      expect(trigger).toHaveFocus();
+    });
+  });
+
   describe('prop: finalFocus', () => {
     it('should focus the trigger by default when closed', async () => {
       await render(
@@ -472,6 +551,7 @@ describe('<Popover.Popup />', () => {
 
       // Close via keyboard: should move focus to final-input
       await user.click(trigger);
+      await waitSingleFrame();
       await user.keyboard('{Escape}');
       await waitFor(() => {
         expect(screen.getByTestId('final-input')).toHaveFocus();
