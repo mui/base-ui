@@ -604,6 +604,60 @@ describe('<Popover.Root />', () => {
       expect(screen.getByTestId('popup').textContent).to.equal('2');
     });
 
+    it('should not have inline scale style after switching triggers', async () => {
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+      const testPopover = Popover.createHandle<number>();
+
+      function Test() {
+        return (
+          <React.Fragment>
+            <Popover.Trigger handle={testPopover} payload={1}>
+              Trigger 1
+            </Popover.Trigger>
+            <Popover.Trigger handle={testPopover} payload={2}>
+              Trigger 2
+            </Popover.Trigger>
+
+            <Popover.Root handle={testPopover}>
+              {({ payload }: NumberPayload) => (
+                <Popover.Portal>
+                  <Popover.Positioner>
+                    <Popover.Popup data-testid="popup">
+                      <Popover.Viewport>
+                        <span data-testid="content">{payload}</span>
+                      </Popover.Viewport>
+                    </Popover.Popup>
+                  </Popover.Positioner>
+                </Popover.Portal>
+              )}
+            </Popover.Root>
+          </React.Fragment>
+        );
+      }
+
+      const { user } = await render(<Test />);
+
+      const trigger1 = screen.getByRole('button', { name: 'Trigger 1' });
+      const trigger2 = screen.getByRole('button', { name: 'Trigger 2' });
+
+      // Open with Trigger 1
+      await user.click(trigger1);
+      await waitFor(() => {
+        expect(screen.getByTestId('content').textContent).to.equal('1');
+      });
+
+      // Switch to Trigger 2
+      await user.click(trigger2);
+      await waitFor(() => {
+        expect(screen.getByTestId('content').textContent).to.equal('2');
+      });
+
+      // The popup should not have an inline scale style that would override CSS transitions
+      const popup = screen.getByTestId('popup');
+      expect(popup.style.scale).to.equal('');
+    });
+
     it('keeps positioning correct when conditional triggers unmount and the tree remounts', async () => {
       const testPopover = Popover.createHandle();
 
