@@ -4,7 +4,13 @@ import { fastComponent } from '@base-ui/utils/fastHooks';
 import { useOnFirstRender } from '@base-ui/utils/useOnFirstRender';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { TooltipRootContext } from './TooltipRootContext';
-import { useClientPoint, useDismiss, useFocus, useInteractions } from '../../floating-ui-react';
+import {
+  useClientPoint,
+  useDismiss,
+  useFocus,
+  useInteractions,
+  useRole,
+} from '../../floating-ui-react';
 import {
   type BaseUIChangeEventDetails,
   createChangeEventDetails,
@@ -140,11 +146,13 @@ export const TooltipRoot = fastComponent(function TooltipRoot<Payload>(
     enabled: !disabled && trackCursorAxis !== 'none',
     axis: trackCursorAxis === 'none' ? undefined : trackCursorAxis,
   });
+  const role = useRole(floatingRootContext, { role: 'tooltip' });
 
   const { getReferenceProps, getFloatingProps, getTriggerProps } = useInteractions([
     focus,
     dismiss,
     clientPoint,
+    role,
   ]);
 
   const activeTriggerProps = React.useMemo(() => getReferenceProps(), [getReferenceProps]);

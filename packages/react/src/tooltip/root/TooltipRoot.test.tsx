@@ -41,6 +41,38 @@ describe('<Tooltip.Root />', () => {
     { name: 'detached triggers', Component: DetachedTriggerTooltip },
     { name: 'multiple detached triggers', Component: MultipleDetachedTriggersTooltip },
   ])('when using $name', ({ Component: TestTooltip }) => {
+    describe('ARIA attributes', () => {
+      clock.withFakeTimers();
+
+      it('should have role="tooltip" on the popup', async () => {
+        await render(<TestTooltip rootProps={{ open: true }} />);
+
+        expect(screen.getByRole('tooltip')).not.to.equal(null);
+      });
+
+      it('should have aria-describedby on the trigger pointing to the popup', async () => {
+        await render(
+          <TestTooltip
+            rootProps={{ open: true, triggerId: 'test-trigger' }}
+            triggerProps={{ id: 'test-trigger' }}
+          />,
+        );
+
+        const trigger = screen.getByRole('button', { name: 'Toggle' });
+        const popup = screen.getByRole('tooltip');
+
+        expect(trigger.getAttribute('aria-describedby')).to.equal(popup.id);
+      });
+
+      it('should not have aria-describedby on the trigger when closed', async () => {
+        await render(<TestTooltip />);
+
+        const trigger = screen.getByRole('button', { name: 'Toggle' });
+
+        expect(trigger.getAttribute('aria-describedby')).to.equal(null);
+      });
+    });
+
     describe('uncontrolled open', () => {
       clock.withFakeTimers();
 
