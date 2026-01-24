@@ -22,12 +22,9 @@ export const NavigationMenuIcon = React.forwardRef(function NavigationMenuIcon(
 
   const isActiveItem = open && value === itemValue;
 
-  const state: NavigationMenuIcon.State = React.useMemo(
-    () => ({
-      open: isActiveItem,
-    }),
-    [isActiveItem],
-  );
+  const state: NavigationMenuIcon.State = {
+    open: isActiveItem,
+  };
 
   const element = useRenderElement('span', componentProps, {
     state,

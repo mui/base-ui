@@ -12,7 +12,7 @@
       "type": "Align",
       "default": "'center'",
       "description": "How to align the popup relative to the specified side.",
-      "detailedType": "'center' | 'end' | 'start' | undefined"
+      "detailedType": "'start' | 'center' | 'end' | undefined"
     },
     "alignOffset": {
       "type": "number | OffsetFunction",
@@ -25,7 +25,7 @@
       "type": "Side",
       "default": "'bottom'",
       "description": "Which side of the anchor element to align the popup against.\nMay automatically change to avoid collisions.",
-      "detailedType": "| 'left'\n| 'right'\n| 'bottom'\n| 'top'\n| 'inline-end'\n| 'inline-start'\n| undefined"
+      "detailedType": "| 'top'\n| 'bottom'\n| 'left'\n| 'right'\n| 'inline-end'\n| 'inline-start'\n| undefined"
     },
     "sideOffset": {
       "type": "number | OffsetFunction",
@@ -41,21 +41,21 @@
       "detailedType": "number | undefined"
     },
     "anchor": {
-      "type": "Element | RefObject<Element | null> | VirtualElement | (() => Element | VirtualElement | null) | null",
+      "type": "Element | VirtualElement | RefObject<Element | null> | (() => Element | VirtualElement | null) | null",
       "description": "An element to position the popup against.\nBy default, the popup will be positioned against the trigger.",
-      "detailedType": "| Element\n| React.RefObject<Element | null>\n| VirtualElement\n| (() => Element | VirtualElement | null)\n| null\n| undefined"
+      "detailedType": "| Element\n| VirtualElement\n| React.RefObject<Element | null>\n| (() => Element | VirtualElement | null)\n| null\n| undefined"
     },
     "collisionAvoidance": {
       "type": "CollisionAvoidance",
       "description": "Determines how to handle collisions when positioning the popup.",
       "example": "```jsx\n<Positioner\n  collisionAvoidance={{\n    side: 'shift',\n    align: 'shift',\n    fallbackAxisSide: 'none',\n  }}\n/>\n```",
-      "detailedType": "| {\n    side?: 'none' | 'flip'\n    align?: 'none' | 'flip' | 'shift'\n    fallbackAxisSide?: 'none' | 'end' | 'start'\n  }\n| {\n    side?: 'none' | 'shift'\n    align?: 'none' | 'shift'\n    fallbackAxisSide?: 'none' | 'end' | 'start'\n  }\n| undefined"
+      "detailedType": "| {\n    side?: 'flip' | 'none'\n    align?: 'flip' | 'shift' | 'none'\n    fallbackAxisSide?: 'start' | 'end' | 'none'\n  }\n| {\n    side?: 'shift' | 'none'\n    align?: 'shift' | 'none'\n    fallbackAxisSide?: 'start' | 'end' | 'none'\n  }\n| undefined"
     },
     "collisionBoundary": {
       "type": "Boundary",
       "default": "'clipping-ancestors'",
       "description": "An element or a rectangle that delimits the area that the popup is confined to.",
-      "detailedType": "| Element\n| 'clipping-ancestors'\n| Element[]\n| Rect\n| undefined"
+      "detailedType": "| 'clipping-ancestors'\n| Element\n| Element[]\n| Rect\n| undefined"
     },
     "collisionPadding": {
       "type": "Padding",
@@ -70,10 +70,10 @@
       "detailedType": "boolean | undefined"
     },
     "positionMethod": {
-      "type": "'fixed' | 'absolute'",
+      "type": "'absolute' | 'fixed'",
       "default": "'absolute'",
       "description": "Determines which CSS `position` property to use.",
-      "detailedType": "'fixed' | 'absolute' | undefined"
+      "detailedType": "'absolute' | 'fixed' | undefined"
     },
     "className": {
       "type": "string | ((state: PreviewCard.Positioner.State) => string | undefined)",

@@ -164,7 +164,7 @@ export function usePopupAutoResize(parameters: UsePopupAutoResizeParameters) {
     }
 
     setPopupCssSize(popupElement, previousDimensions);
-    restoreMeasurementOverrides();
+    restoreMeasurementOverridesIncludingScale();
     onMeasureLayoutComplete?.(previousDimensions, newDimensions);
 
     setPositionerCssSize(positionerElement, newDimensions);

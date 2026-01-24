@@ -79,20 +79,17 @@ export function useHoverFloatingInteraction(
     return type?.includes('mouse') && type !== 'mousedown';
   });
 
-  const closeWithDelay = React.useCallback(
-    (event: MouseEvent, runElseBranch = true) => {
-      const closeDelay = getDelay(closeDelayProp, pointerTypeRef.current);
-      if (closeDelay && !handlerRef.current) {
-        openChangeTimeout.start(closeDelay, () =>
-          store.setOpen(false, createChangeEventDetails(REASONS.triggerHover, event)),
-        );
-      } else if (runElseBranch) {
-        openChangeTimeout.clear();
-        store.setOpen(false, createChangeEventDetails(REASONS.triggerHover, event));
-      }
-    },
-    [closeDelayProp, handlerRef, store, pointerTypeRef, openChangeTimeout],
-  );
+  const closeWithDelay = useStableCallback((event: MouseEvent, runElseBranch = true) => {
+    const closeDelay = getDelay(closeDelayProp, pointerTypeRef.current);
+    if (closeDelay && !handlerRef.current) {
+      openChangeTimeout.start(closeDelay, () =>
+        store.setOpen(false, createChangeEventDetails(REASONS.triggerHover, event)),
+      );
+    } else if (runElseBranch) {
+      openChangeTimeout.clear();
+      store.setOpen(false, createChangeEventDetails(REASONS.triggerHover, event));
+    }
+  });
 
   const cleanupMouseMoveHandler = useStableCallback(() => {
     unbindMouseMoveRef.current();
@@ -251,7 +248,19 @@ export function useHoverFloatingInteraction(
         floating.removeEventListener('pointerdown', handleInteractInside, true);
       }
     };
-  });
+  }, [
+    enabled,
+    floatingElement,
+    store,
+    dataRef,
+    isClickLikeOpenEvent,
+    closeWithDelay,
+    clearPointerEvents,
+    cleanupMouseMoveHandler,
+    handleInteractInside,
+    openChangeTimeout,
+    handlerRef,
+  ]);
 }
 
 export function getDelay(

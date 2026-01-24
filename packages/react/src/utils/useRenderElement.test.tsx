@@ -14,7 +14,7 @@ describe('useRenderElement', () => {
   ) {
     const { className, render: renderProp, active, ...elementProps } = componentProps;
 
-    const state = React.useMemo(() => ({ active }), [active]);
+    const state = { active };
 
     const element = useRenderElement('div', componentProps, {
       state,

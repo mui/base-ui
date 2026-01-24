@@ -39,6 +39,7 @@ export const ContextMenuTrigger = React.forwardRef(function ContextMenuTrigger(
 
   const { store } = useMenuRootContext(false);
   const open = store.useState('open');
+  const disabled = store.useState('disabled');
 
   const triggerRef = React.useRef<HTMLDivElement | null>(null);
   const touchPositionRef = React.useRef<{ x: number; y: number } | null>(null);
@@ -71,6 +72,9 @@ export const ContextMenuTrigger = React.forwardRef(function ContextMenuTrigger(
   }
 
   function handleContextMenu(event: React.MouseEvent) {
+    if (disabled) {
+      return;
+    }
     allowMouseUpTriggerRef.current = true;
     stopEvent(event);
     handleLongPress(event.clientX, event.clientY, event.nativeEvent);
@@ -108,6 +112,9 @@ export const ContextMenuTrigger = React.forwardRef(function ContextMenuTrigger(
   }
 
   function handleTouchStart(event: React.TouchEvent) {
+    if (disabled) {
+      return;
+    }
     allowMouseUpTriggerRef.current = false;
     if (event.touches.length === 1) {
       event.stopPropagation();
@@ -146,6 +153,9 @@ export const ContextMenuTrigger = React.forwardRef(function ContextMenuTrigger(
 
   React.useEffect(() => {
     function handleDocumentContextMenu(event: MouseEvent) {
+      if (disabled) {
+        return;
+      }
       const target = getTarget(event);
       const targetElement = target as HTMLElement | null;
       if (
@@ -162,14 +172,11 @@ export const ContextMenuTrigger = React.forwardRef(function ContextMenuTrigger(
     return () => {
       doc.removeEventListener('contextmenu', handleDocumentContextMenu);
     };
-  }, [backdropRef, internalBackdropRef]);
+  }, [backdropRef, disabled, internalBackdropRef]);
 
-  const state: ContextMenuTrigger.State = React.useMemo(
-    () => ({
-      open,
-    }),
-    [open],
-  );
+  const state: ContextMenuTrigger.State = {
+    open,
+  };
 
   const element = useRenderElement('div', componentProps, {
     state,

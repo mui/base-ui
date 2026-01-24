@@ -129,17 +129,14 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
     disabled,
   });
 
-  const state: ComboboxTrigger.State = React.useMemo(
-    () => ({
-      ...fieldState,
-      open,
-      disabled,
-      popupSide,
-      listEmpty,
-      placeholder: !hasSelectedValue,
-    }),
-    [fieldState, open, disabled, popupSide, listEmpty, hasSelectedValue],
-  );
+  const state: ComboboxTrigger.State = {
+    ...fieldState,
+    open,
+    disabled,
+    popupSide,
+    listEmpty,
+    placeholder: !hasSelectedValue,
+  };
 
   const setTriggerElement = useStableCallback((element) => {
     store.set('triggerElement', element);

@@ -1,5 +1,5 @@
 import { chromium, expect, Page, Browser } from '@playwright/test';
-import { describe, it, beforeAll } from 'vitest';
+import { describe, it, beforeAll, afterAll } from 'vitest';
 import '@mui/internal-test-utils/initPlaywrightMatchers';
 
 const BASE_URL = 'http://localhost:5173';
@@ -213,6 +213,71 @@ describe('e2e', () => {
       await page.mouse.move(90, 10);
       await page.mouse.up();
       await expect(page.getByRole('status')).toHaveText('80');
+    });
+  });
+
+  describe('<Menu />', () => {
+    describe('<Menu.LinkItem />', () => {
+      it('navigates on click', async () => {
+        await renderFixture('menu/LinkItemNavigation');
+
+        const trigger = page.getByTestId('menu-trigger');
+        await trigger.click();
+
+        const linkOne = page.getByTestId('link-one');
+        await linkOne.click();
+
+        await expect(page).toHaveURL(/\/e2e-fixtures\/menu\/PageOne/);
+        await expect(page.getByTestId('test-page')).toHaveText('Page one');
+
+        await page.goBack();
+        await expect(page.getByTestId('page-heading')).toHaveText('Menu with Link Items');
+
+        await trigger.click();
+        const linkTwo = page.getByTestId('link-two');
+        await linkTwo.click();
+
+        await expect(page).toHaveURL(/\/e2e-fixtures\/menu\/PageTwo/);
+        await expect(page.getByTestId('test-page')).toHaveText('Page two');
+      });
+
+      it('navigates on Enter key press', async () => {
+        await renderFixture('menu/LinkItemNavigation');
+
+        await page.keyboard.press('Tab');
+        await page.keyboard.press('Enter');
+        // first item (page one) is initially highlighted
+        await page.keyboard.press('ArrowDown');
+        await page.keyboard.press('Enter');
+
+        await expect(page).toHaveURL(/\/e2e-fixtures\/menu\/PageTwo/);
+        await expect(page.getByTestId('test-page')).toHaveText('Page two');
+      });
+
+      it('navigates when rendering React Router Link component', async () => {
+        await renderFixture('menu/ReactRouterLinkItemNavigation');
+
+        const trigger = page.getByTestId('menu-trigger');
+        await trigger.click();
+
+        const linkOne = page.getByTestId('link-one');
+        await linkOne.click();
+
+        await expect(page).toHaveURL(/\/e2e-fixtures\/menu\/PageOne/);
+        await expect(page.getByTestId('test-page')).toHaveText('Page one');
+
+        await page.goBack();
+        await expect(page.getByTestId('page-heading')).toHaveText(
+          'Menu with React Router Link Items',
+        );
+
+        await trigger.click();
+        const linkTwo = page.getByTestId('link-two');
+        await linkTwo.click();
+
+        await expect(page).toHaveURL(/\/e2e-fixtures\/menu\/PageTwo/);
+        await expect(page.getByTestId('test-page')).toHaveText('Page two');
+      });
     });
   });
 });

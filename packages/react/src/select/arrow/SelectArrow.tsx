@@ -34,15 +34,12 @@ export const SelectArrow = React.forwardRef(function SelectArrow(
 
   const open = useStore(store, selectors.open, true);
 
-  const state: SelectArrow.State = React.useMemo(
-    () => ({
-      open,
-      side,
-      align,
-      uncentered: arrowUncentered,
-    }),
-    [open, side, align, arrowUncentered],
-  );
+  const state: SelectArrow.State = {
+    open,
+    side,
+    align,
+    uncentered: arrowUncentered,
+  };
 
   const element = useRenderElement('div', componentProps, {
     state,

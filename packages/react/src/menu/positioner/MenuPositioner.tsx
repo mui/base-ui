@@ -139,14 +139,6 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
         ) {
           store.setOpen(false, createChangeEventDetails(REASONS.siblingOpen));
         }
-      } else if (details.parentNodeId === floatingNodeId) {
-        // Re-enable hover on the parent when a child closes, except when the child
-        // closed due to hovering a different sibling item in this parent (sibling-open).
-        // Keeping hover disabled in that scenario prevents the parent from closing
-        // immediately when the pointer then leaves it.
-        if (details.reason !== REASONS.siblingOpen) {
-          store.set('hoverEnabled', true);
-        }
       }
     }
 
@@ -209,16 +201,13 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
     floatingTreeRoot.events.emit('menuopenchange', eventDetails);
   }, [floatingTreeRoot.events, open, store, floatingNodeId, floatingParentNodeId]);
 
-  const state: MenuPositioner.State = React.useMemo(
-    () => ({
-      open,
-      side: positioner.side,
-      align: positioner.align,
-      anchorHidden: positioner.anchorHidden,
-      nested: parent.type === 'menu',
-    }),
-    [open, positioner.side, positioner.align, positioner.anchorHidden, parent.type],
-  );
+  const state: MenuPositioner.State = {
+    open,
+    side: positioner.side,
+    align: positioner.align,
+    anchorHidden: positioner.anchorHidden,
+    nested: parent.type === 'menu',
+  };
 
   const contextValue: MenuPositionerContext = React.useMemo(
     () => ({

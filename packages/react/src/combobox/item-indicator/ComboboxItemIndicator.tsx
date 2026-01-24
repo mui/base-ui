@@ -44,13 +44,10 @@ const Inner = React.memo(
 
       const { transitionStatus, setMounted } = useTransitionStatus(selected);
 
-      const state: ComboboxItemIndicator.State = React.useMemo(
-        () => ({
-          selected,
-          transitionStatus,
-        }),
-        [selected, transitionStatus],
-      );
+      const state: ComboboxItemIndicator.State = {
+        selected,
+        transitionStatus,
+      };
 
       const element = useRenderElement('span', componentProps, {
         ref: [forwardedRef, indicatorRef],

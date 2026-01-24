@@ -259,13 +259,10 @@ function TreeContext(props: {
 
   const { open } = useNavigationMenuRootContext();
 
-  const state: NavigationMenuRoot.State = React.useMemo(
-    () => ({
-      open,
-      nested,
-    }),
-    [open, nested],
-  );
+  const state: NavigationMenuRoot.State = {
+    open,
+    nested,
+  };
 
   const element = useRenderElement(nested ? 'div' : 'nav', props.componentProps, {
     state,

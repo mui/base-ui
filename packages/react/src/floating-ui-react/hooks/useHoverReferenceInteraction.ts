@@ -77,6 +77,7 @@ export function useHoverReferenceInteraction(
   const handleCloseRef = useValueAsRef(handleClose);
   const delayRef = useValueAsRef(delay);
   const restMsRef = useValueAsRef(restMs);
+  const enabledRef = useValueAsRef(enabled);
 
   if (isActiveTrigger) {
     // eslint-disable-next-line no-underscore-dangle
@@ -93,20 +94,17 @@ export function useHoverReferenceInteraction(
       : false;
   });
 
-  const closeWithDelay = React.useCallback(
-    (event: MouseEvent, runElseBranch = true) => {
-      const closeDelay = getDelay(delayRef.current, 'close', pointerTypeRef.current);
-      if (closeDelay && !closeHandlerRef.current) {
-        openChangeTimeout.start(closeDelay, () =>
-          store.setOpen(false, createChangeEventDetails(REASONS.triggerHover, event)),
-        );
-      } else if (runElseBranch) {
-        openChangeTimeout.clear();
-        store.setOpen(false, createChangeEventDetails(REASONS.triggerHover, event));
-      }
-    },
-    [delayRef, closeHandlerRef, store, pointerTypeRef, openChangeTimeout],
-  );
+  const closeWithDelay = useStableCallback((event: MouseEvent, runElseBranch = true) => {
+    const closeDelay = getDelay(delayRef.current, 'close', pointerTypeRef.current);
+    if (closeDelay && !closeHandlerRef.current) {
+      openChangeTimeout.start(closeDelay, () =>
+        store.setOpen(false, createChangeEventDetails(REASONS.triggerHover, event)),
+      );
+    } else if (runElseBranch) {
+      openChangeTimeout.clear();
+      store.setOpen(false, createChangeEventDetails(REASONS.triggerHover, event));
+    }
+  });
 
   const cleanupMouseMoveHandler = useStableCallback(() => {
     unbindMouseMoveRef.current();
@@ -263,7 +261,11 @@ export function useHoverReferenceInteraction(
           onClose() {
             clearPointerEvents();
             cleanupMouseMoveHandler();
-            if (!isClickLikeOpenEvent() && currentTrigger === store.select('domReferenceElement')) {
+            if (
+              enabledRef.current &&
+              !isClickLikeOpenEvent() &&
+              currentTrigger === store.select('domReferenceElement')
+            ) {
               closeWithDelay(event, true);
             }
           },
@@ -341,6 +343,7 @@ export function useHoverReferenceInteraction(
     tree,
     unbindMouseMoveRef,
     closeHandlerRef,
+    enabledRef,
   ]);
 
   return React.useMemo<HTMLProps>(() => {

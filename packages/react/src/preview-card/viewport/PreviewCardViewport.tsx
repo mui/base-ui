@@ -220,13 +220,11 @@ export const PreviewCardViewport = React.forwardRef(function PreviewCardViewport
     direction,
   });
 
-  const state = React.useMemo(() => {
-    return {
-      activationDirection: getActivationDirection(newTriggerOffset),
-      transitioning: isTransitioning,
-      instant: instantType,
-    };
-  }, [newTriggerOffset, isTransitioning, instantType]);
+  const state: PreviewCardViewport.State = {
+    activationDirection: getActivationDirection(newTriggerOffset),
+    transitioning: isTransitioning,
+    instant: instantType,
+  };
 
   return useRenderElement('div', componentProps, {
     state,
@@ -245,7 +243,12 @@ export namespace PreviewCardViewport {
   }
 
   export interface State {
-    activationDirection?: string | undefined;
+    activationDirection: string | undefined;
+    /**
+     * Whether the viewport is currently transitioning between contents.
+     */
+    transitioning: boolean;
+    instant: 'dismiss' | 'focus' | undefined;
   }
 }
 

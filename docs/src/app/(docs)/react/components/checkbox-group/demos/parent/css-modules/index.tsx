@@ -20,7 +20,7 @@ export default function ExampleCheckboxGroup() {
       style={{ marginLeft: '1rem' }}
     >
       <label className={styles.Item} id={id} style={{ marginLeft: '-1rem' }}>
-        <Checkbox.Root className={styles.Checkbox} name="apples" parent>
+        <Checkbox.Root className={styles.Checkbox} parent>
           <Checkbox.Indicator
             className={styles.Indicator}
             render={(props, state) => (

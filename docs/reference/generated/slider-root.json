@@ -39,10 +39,10 @@
       "detailedType": "'center' | 'edge' | 'edge-client-only' | undefined"
     },
     "thumbCollisionBehavior": {
-      "type": "'none' | 'push' | 'swap'",
+      "type": "'push' | 'swap' | 'none'",
       "default": "'push'",
       "description": "Controls how thumbs behave when they collide during pointer interactions.\n\n- `'push'` (default): Thumbs push each other without restoring their previous positions when dragged back.\n- `'swap'`: Thumbs swap places when dragged past each other.\n- `'none'`: Thumbs cannot move past each other; excess movement is ignored.",
-      "detailedType": "'none' | 'push' | 'swap' | undefined"
+      "detailedType": "'push' | 'swap' | 'none' | undefined"
     },
     "step": {
       "type": "number",

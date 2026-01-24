@@ -31,13 +31,10 @@ export const DialogBackdrop = React.forwardRef(function DialogBackdrop(
   const mounted = store.useState('mounted');
   const transitionStatus = store.useState('transitionStatus');
 
-  const state: DialogBackdrop.State = React.useMemo(
-    () => ({
-      open,
-      transitionStatus,
-    }),
-    [open, transitionStatus],
-  );
+  const state: DialogBackdrop.State = {
+    open,
+    transitionStatus,
+  };
 
   return useRenderElement('div', componentProps, {
     state,

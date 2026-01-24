@@ -112,10 +112,7 @@ export const TooltipTrigger = fastComponentRef(function TooltipTrigger(
     isActiveTrigger: isTriggerActive,
   });
 
-  const state: TooltipTrigger.State = React.useMemo(
-    () => ({ open: isOpenedByThisTrigger }),
-    [isOpenedByThisTrigger],
-  );
+  const state: TooltipTrigger.State = { open: isOpenedByThisTrigger };
 
   const rootTriggerProps = store.useState('triggerProps', isMountedByThisTrigger);
 

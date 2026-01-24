@@ -62,12 +62,9 @@ export const ComboboxList = React.forwardRef(function ComboboxList(
     return children;
   }, [children]);
 
-  const state: ComboboxList.State = React.useMemo(
-    () => ({
-      empty,
-    }),
-    [empty],
-  );
+  const state: ComboboxList.State = {
+    empty,
+  };
 
   const floatingId = floatingRootContext.useState('floatingId');
 

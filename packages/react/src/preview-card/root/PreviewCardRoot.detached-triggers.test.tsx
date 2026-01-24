@@ -717,6 +717,62 @@ describe('<PreviewCard.Root />', () => {
         expect(screen.getByTestId('popup').textContent).to.equal('2');
       });
     });
+
+    it('should not have inline scale style after switching triggers', async () => {
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+      const testPreviewCard = PreviewCard.createHandle<number>();
+
+      function Test() {
+        return (
+          <React.Fragment>
+            <button type="button" aria-label="Initial focus" autoFocus />
+            <PreviewCard.Trigger href="#" handle={testPreviewCard} payload={1} delay={0}>
+              Trigger 1
+            </PreviewCard.Trigger>
+            <PreviewCard.Trigger href="#" handle={testPreviewCard} payload={2} delay={0}>
+              Trigger 2
+            </PreviewCard.Trigger>
+
+            <PreviewCard.Root handle={testPreviewCard}>
+              {({ payload }: NumberPayload) => (
+                <PreviewCard.Portal>
+                  <PreviewCard.Positioner>
+                    <PreviewCard.Popup data-testid="popup">
+                      <PreviewCard.Viewport>
+                        <span data-testid="content">{payload}</span>
+                      </PreviewCard.Viewport>
+                    </PreviewCard.Popup>
+                  </PreviewCard.Positioner>
+                </PreviewCard.Portal>
+              )}
+            </PreviewCard.Root>
+          </React.Fragment>
+        );
+      }
+
+      const { user } = await render(<Test />);
+
+      const trigger1 = screen.getByRole('link', { name: 'Trigger 1' });
+      const trigger2 = screen.getByRole('link', { name: 'Trigger 2' });
+
+      // Open with Trigger 1
+      await user.hover(trigger1);
+      await waitFor(() => {
+        expect(screen.getByTestId('content').textContent).to.equal('1');
+      });
+
+      // Switch to Trigger 2
+      await user.unhover(trigger1);
+      await user.hover(trigger2);
+      await waitFor(() => {
+        expect(screen.getByTestId('content').textContent).to.equal('2');
+      });
+
+      // The popup should not have an inline scale style that would override CSS transitions
+      const popup = screen.getByTestId('popup');
+      expect(popup.style.scale).to.equal('');
+    });
   });
 
   describe.skipIf(isJSDOM)('imperative actions on the handle', () => {

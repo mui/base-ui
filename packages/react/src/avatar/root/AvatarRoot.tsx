@@ -19,12 +19,9 @@ export const AvatarRoot = React.forwardRef(function AvatarRoot(
 
   const [imageLoadingStatus, setImageLoadingStatus] = React.useState<ImageLoadingStatus>('idle');
 
-  const state: AvatarRoot.State = React.useMemo(
-    () => ({
-      imageLoadingStatus,
-    }),
-    [imageLoadingStatus],
-  );
+  const state: AvatarRoot.State = {
+    imageLoadingStatus,
+  };
 
   const contextValue = React.useMemo(
     () => ({

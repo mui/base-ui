@@ -24,15 +24,12 @@ export const ComboboxArrow = React.forwardRef(function ComboboxArrow(
 
   const open = useStore(store, selectors.open);
 
-  const state: ComboboxArrow.State = React.useMemo(
-    () => ({
-      open,
-      side,
-      align,
-      uncentered: arrowUncentered,
-    }),
-    [open, side, align, arrowUncentered],
-  );
+  const state: ComboboxArrow.State = {
+    open,
+    side,
+    align,
+    uncentered: arrowUncentered,
+  };
 
   return useRenderElement('div', componentProps, {
     ref: [arrowRef, forwardedRef],

@@ -22,12 +22,9 @@ export const SelectIcon = React.forwardRef(function SelectIcon(
   const { store } = useSelectRootContext();
   const open = useStore(store, selectors.open);
 
-  const state: SelectIcon.State = React.useMemo(
-    () => ({
-      open,
-    }),
-    [open],
-  );
+  const state: SelectIcon.State = {
+    open,
+  };
 
   const element = useRenderElement('span', componentProps, {
     state,

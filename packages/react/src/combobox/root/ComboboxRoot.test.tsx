@@ -102,7 +102,7 @@ describe('<Combobox.Root />', () => {
         <Combobox.Portal>
           <Combobox.Positioner>
             <Combobox.Popup aria-label="Demo">
-              <Combobox.Input data-testid="input" />
+              <Combobox.Input data-testid="input" aria-label="combobox-input" />
               <Combobox.List>
                 {(item: string) => (
                   <Combobox.Item key={item} value={item}>
@@ -121,12 +121,8 @@ describe('<Combobox.Root />', () => {
 
     expect(await screen.findByRole('listbox')).not.to.equal(null);
 
-    const input = await waitFor(() =>
-      screen.getAllByRole('combobox').find((element) => element.tagName === 'INPUT'),
-    );
-    await waitFor(() => {
-      expect(input).toHaveFocus();
-    });
+    const input = await screen.findByRole('combobox', { name: 'combobox-input' });
+    await waitFor(() => expect(input).toHaveFocus());
 
     await user.click(trigger);
     await waitFor(() => {

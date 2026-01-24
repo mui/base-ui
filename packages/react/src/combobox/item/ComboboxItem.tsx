@@ -127,14 +127,11 @@ export const ComboboxItem = React.memo(
       }
     }, [hasRegistered, items, open, store, index, value, isItemEqualToValue]);
 
-    const state: ComboboxItem.State = React.useMemo(
-      () => ({
-        disabled,
-        selected,
-        highlighted,
-      }),
-      [disabled, selected, highlighted],
-    );
+    const state: ComboboxItem.State = {
+      disabled,
+      selected,
+      highlighted,
+    };
 
     const rootProps = getItemProps({ active: highlighted, selected });
     rootProps.id = undefined;

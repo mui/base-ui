@@ -165,14 +165,11 @@ export const TabsTab = React.forwardRef(function TabsTab(
     }
   }
 
-  const state: TabsTab.State = React.useMemo(
-    () => ({
-      disabled,
-      active,
-      orientation,
-    }),
-    [disabled, active, orientation],
-  );
+  const state: TabsTab.State = {
+    disabled,
+    active,
+    orientation,
+  };
 
   const element = useRenderElement('button', componentProps, {
     state,

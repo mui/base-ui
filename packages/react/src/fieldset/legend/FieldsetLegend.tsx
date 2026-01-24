@@ -29,12 +29,9 @@ export const FieldsetLegend = React.forwardRef(function FieldsetLegend(
     };
   }, [setLegendId, id]);
 
-  const state: FieldsetLegend.State = React.useMemo(
-    () => ({
-      disabled: disabled ?? false,
-    }),
-    [disabled],
-  );
+  const state: FieldsetLegend.State = {
+    disabled: disabled ?? false,
+  };
 
   const element = useRenderElement('div', componentProps, {
     state,

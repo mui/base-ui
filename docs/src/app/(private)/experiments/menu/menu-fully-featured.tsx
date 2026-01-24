@@ -1,6 +1,8 @@
 'use client';
 import * as React from 'react';
 import { Menu } from '@base-ui/react/menu';
+import clsx from 'clsx';
+import NextLink from 'next/link';
 import {
   SettingsMetadata,
   useExperimentSettings,
@@ -44,7 +46,7 @@ export default function MenuFullyFeatured() {
         >
           Menu <ChevronDownIcon className={classes.ButtonIcon} />
         </Menu.Trigger>
-        <Menu.Portal keepMounted>
+        <Menu.Portal>
           <Menu.Positioner
             className={classes.Positioner}
             sideOffset={8}
@@ -61,6 +63,23 @@ export default function MenuFullyFeatured() {
               </Menu.Item>
               <Menu.Item className={classes.Item} onClick={handleItemClick}>
                 Item 2
+              </Menu.Item>
+              <Menu.LinkItem
+                href="https://base-ui.com"
+                className={clsx(classes.Item, 'hover:cursor-pointer!')}
+              >
+                Link 1 (base-ui.com)
+              </Menu.LinkItem>
+              <Menu.LinkItem
+                render={<a href="https://github.com">Link 2 (github.com)</a>}
+                className={clsx(classes.Item, 'hover:cursor-pointer!')}
+              />
+              <Menu.LinkItem
+                render={<NextLink href="/experiments">Link 3 (/experiments)</NextLink>}
+                className={clsx(classes.Item, 'hover:cursor-pointer!')}
+              />
+              <Menu.Item className={classes.Item} onClick={handleItemClick}>
+                Item 3
               </Menu.Item>
               <Menu.Separator className={classes.Separator} />
               <Menu.Item className={classes.Item} closeOnClick={false} onClick={handleItemClick}>
@@ -80,7 +99,9 @@ export default function MenuFullyFeatured() {
                 <Menu.Portal>
                   <Menu.Positioner className={classes.Positioner} sideOffset={8}>
                     <Menu.Popup className={classes.Popup}>
-                      <div>Non-focusable text</div>
+                      <div className="flex items-center py-2 pl-7.5 text-xs">
+                        Non-focusable text
+                      </div>
                       <Menu.Group>
                         <Menu.GroupLabel className={classes.GroupLabel}>
                           Radio items

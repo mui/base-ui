@@ -61,17 +61,14 @@ export const ComboboxPopup = React.forwardRef(function ComboboxPopup(
     },
   });
 
-  const state: ComboboxPopup.State = React.useMemo(
-    () => ({
-      open,
-      side: positioning.side,
-      align: positioning.align,
-      anchorHidden: positioning.anchorHidden,
-      transitionStatus,
-      empty,
-    }),
-    [open, positioning.side, positioning.align, positioning.anchorHidden, transitionStatus, empty],
-  );
+  const state: ComboboxPopup.State = {
+    open,
+    side: positioning.side,
+    align: positioning.align,
+    anchorHidden: positioning.anchorHidden,
+    transitionStatus,
+    empty,
+  };
 
   const element = useRenderElement('div', componentProps, {
     state,

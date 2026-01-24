@@ -44,12 +44,9 @@ export const ComboboxChipRemove = React.forwardRef(function ComboboxChipRemove(
     focusableWhenDisabled: true,
   });
 
-  const state: ComboboxChipRemove.State = React.useMemo(
-    () => ({
-      disabled,
-    }),
-    [disabled],
-  );
+  const state: ComboboxChipRemove.State = {
+    disabled,
+  };
 
   const element = useRenderElement('button', componentProps, {
     ref: [forwardedRef, buttonRef],

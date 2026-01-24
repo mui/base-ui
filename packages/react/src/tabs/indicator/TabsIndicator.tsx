@@ -142,15 +142,12 @@ export const TabsIndicator = React.forwardRef(function TabIndicator(
 
   const displayIndicator = isTabSelected && width > 0 && height > 0;
 
-  const state: TabsIndicator.State = React.useMemo(
-    () => ({
-      orientation,
-      activeTabPosition,
-      activeTabSize,
-      tabActivationDirection,
-    }),
-    [orientation, activeTabPosition, activeTabSize, tabActivationDirection],
-  );
+  const state: TabsIndicator.State = {
+    orientation,
+    activeTabPosition,
+    activeTabSize,
+    tabActivationDirection,
+  };
 
   const element = useRenderElement('span', componentProps, {
     state,

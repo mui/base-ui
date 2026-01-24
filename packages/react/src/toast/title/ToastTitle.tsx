@@ -40,12 +40,9 @@ export const ToastTitle = React.forwardRef(function ToastTitle(
     };
   }, [shouldRender, id, setTitleId]);
 
-  const state: ToastTitle.State = React.useMemo(
-    () => ({
-      type: toast.type,
-    }),
-    [toast.type],
-  );
+  const state: ToastTitle.State = {
+    type: toast.type,
+  };
 
   const element = useRenderElement('h2', componentProps, {
     ref: forwardedRef,

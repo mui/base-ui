@@ -41,12 +41,9 @@ export const ToastDescription = React.forwardRef(function ToastDescription(
     };
   }, [shouldRender, id, setDescriptionId]);
 
-  const state: ToastDescription.State = React.useMemo(
-    () => ({
-      type: toast.type,
-    }),
-    [toast.type],
-  );
+  const state: ToastDescription.State = {
+    type: toast.type,
+  };
 
   const element = useRenderElement('p', componentProps, {
     ref: forwardedRef,

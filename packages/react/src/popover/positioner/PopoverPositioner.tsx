@@ -140,16 +140,13 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
     return undefined;
   }, [domReference, runOnceAnimationsFinish, store]);
 
-  const state: PopoverPositioner.State = React.useMemo(
-    () => ({
-      open,
-      side: positioner.side,
-      align: positioner.align,
-      anchorHidden: positioner.anchorHidden,
-      instant: instantType,
-    }),
-    [open, positioner.side, positioner.align, positioner.anchorHidden, instantType],
-  );
+  const state: PopoverPositioner.State = {
+    open,
+    side: positioner.side,
+    align: positioner.align,
+    anchorHidden: positioner.anchorHidden,
+    instant: instantType,
+  };
 
   const setPositionerElement = React.useCallback(
     (element: HTMLElement | null) => {

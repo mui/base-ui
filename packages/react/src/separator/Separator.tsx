@@ -15,7 +15,7 @@ export const Separator = React.forwardRef(function SeparatorComponent(
 ) {
   const { className, render, orientation = 'horizontal', ...elementProps } = componentProps;
 
-  const state: Separator.State = React.useMemo(() => ({ orientation }), [orientation]);
+  const state: Separator.State = { orientation };
 
   const element = useRenderElement('div', componentProps, {
     state,

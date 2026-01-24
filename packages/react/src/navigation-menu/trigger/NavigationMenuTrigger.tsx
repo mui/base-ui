@@ -359,12 +359,9 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
     handleValueChange(width, height);
   });
 
-  const state: NavigationMenuTrigger.State = React.useMemo(
-    () => ({
-      open: isActiveItem,
-    }),
-    [isActiveItem],
-  );
+  const state: NavigationMenuTrigger.State = {
+    open: isActiveItem,
+  };
 
   function handleSetPointerType(event: React.PointerEvent) {
     setPointerType(event.pointerType);

@@ -39,7 +39,7 @@ export const DialogClose = React.forwardRef(function DialogClose(
     native: nativeButton,
   });
 
-  const state: DialogClose.State = React.useMemo(() => ({ disabled }), [disabled]);
+  const state: DialogClose.State = { disabled };
 
   return useRenderElement('button', componentProps, {
     state,

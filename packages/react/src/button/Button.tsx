@@ -29,12 +29,9 @@ export const Button = React.forwardRef(function Button(
     native: nativeButton,
   });
 
-  const state: Button.State = React.useMemo(
-    () => ({
-      disabled,
-    }),
-    [disabled],
-  );
+  const state: Button.State = {
+    disabled,
+  };
 
   return useRenderElement('button', componentProps, {
     state,

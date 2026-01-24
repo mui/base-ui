@@ -41,14 +41,11 @@ export const ToolbarInput = React.forwardRef(function ToolbarInput(
     isNativeButton: false,
   });
 
-  const state: ToolbarInput.State = React.useMemo(
-    () => ({
-      disabled,
-      orientation,
-      focusable: focusableWhenDisabled,
-    }),
-    [disabled, focusableWhenDisabled, orientation],
-  );
+  const state: ToolbarInput.State = {
+    disabled,
+    orientation,
+    focusable: focusableWhenDisabled,
+  };
 
   const defaultProps: HTMLProps = {
     onClick(event) {

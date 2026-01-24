@@ -50,14 +50,11 @@ export const TabsPanel = React.forwardRef(function TabPanel(
 
   const correspondingTabId = getTabIdByPanelValue(value);
 
-  const state: TabsPanel.State = React.useMemo(
-    () => ({
-      hidden,
-      orientation,
-      tabActivationDirection,
-    }),
-    [hidden, orientation, tabActivationDirection],
-  );
+  const state: TabsPanel.State = {
+    hidden,
+    orientation,
+    tabActivationDirection,
+  };
 
   const element = useRenderElement('div', componentProps, {
     state,

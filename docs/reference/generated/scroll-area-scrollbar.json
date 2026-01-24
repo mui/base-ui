@@ -3,10 +3,10 @@
   "description": "A vertical or horizontal scrollbar for the scroll area.\nRenders a `<div>` element.",
   "props": {
     "orientation": {
-      "type": "'horizontal' | 'vertical'",
+      "type": "'vertical' | 'horizontal'",
       "default": "'vertical'",
       "description": "Whether the scrollbar controls vertical or horizontal scroll.",
-      "detailedType": "'horizontal' | 'vertical' | undefined"
+      "detailedType": "'vertical' | 'horizontal' | undefined"
     },
     "className": {
       "type": "string | ((state: ScrollArea.Scrollbar.State) => string | undefined)",

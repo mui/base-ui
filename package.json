@@ -62,10 +62,10 @@
     "@arethetypeswrong/cli": "0.18.2",
     "@babel/plugin-transform-react-constant-elements": "7.27.1",
     "@base-ui/monorepo-tests": "workspace:*",
-    "@mui/internal-code-infra": "0.0.3-canary.73",
+    "@mui/internal-code-infra": "0.0.3-canary.75",
     "@mui/internal-netlify-cache": "0.0.2-canary.1",
-    "@mui/internal-test-utils": "2.0.18-canary.2",
-    "@next/eslint-plugin-next": "16.1.1",
+    "@mui/internal-test-utils": "2.0.18-canary.5",
+    "@next/eslint-plugin-next": "16.1.4",
     "@octokit/rest": "22.0.1",
     "@playwright/test": "1.57.0",
     "@tailwindcss/postcss": "4.1.18",
@@ -105,9 +105,9 @@
     "vitest": "4.0.17",
     "yargs": "18.0.0"
   },
-  "packageManager": "pnpm@10.28.0",
+  "packageManager": "pnpm@10.28.1",
   "engines": {
-    "pnpm": "10.28.0",
+    "pnpm": "10.28.1",
     "node": ">=22.18.0"
   },
   "resolutions": {

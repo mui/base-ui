@@ -180,7 +180,7 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
     [fieldState, disabled, readOnly, checked, required],
   );
 
-  const contextValue: RadioRootContext = React.useMemo(() => state, [state]);
+  const contextValue: RadioRootContext = state;
 
   const isRadioGroup = setCheckedValue !== NOOP;
 

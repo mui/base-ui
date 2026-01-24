@@ -1,12 +1,15 @@
 'use client';
+import * as React from 'react';
 import { ContextMenu } from '@base-ui/react/context-menu';
 import { Menu } from '@base-ui/react/menu';
 import { Popover } from '@base-ui/react/popover';
 
 export default function ContextMenuExperiment() {
+  const [disabled, setDisabled] = React.useState(false);
+
   return (
     <div className="space-y-12 p-8">
-      <h1 className="text-2xl font-bold">Context Menu Nesting Experiments</h1>
+      <h1 className="text-2xl font-bold">Context Menu Experiments</h1>
 
       {/* Scenario 1: Context menu within a context menu trigger */}
       <section className="space-y-4">
@@ -344,6 +347,63 @@ export default function ContextMenuExperiment() {
               <ContextMenu.Popup className="min-w-[220px] rounded-md border border-gray-200 bg-white py-2 shadow-lg">
                 <ContextMenu.Item className="cursor-default px-3 py-2 text-sm hover:bg-gray-100">
                   Outer Action
+                </ContextMenu.Item>
+              </ContextMenu.Popup>
+            </ContextMenu.Positioner>
+          </ContextMenu.Portal>
+        </ContextMenu.Root>
+      </section>
+
+      {/* Scenario 5: Disabled context menu */}
+      <section className="space-y-4">
+        <h2 className="text-xl font-semibold">5. Disabled Context Menu</h2>
+        <p className="text-gray-600">
+          Toggle the checkbox to disable the context menu. When disabled, right-clicking will not
+          open the menu.
+        </p>
+
+        <label className="flex cursor-pointer items-center gap-2">
+          <input
+            type="checkbox"
+            checked={disabled}
+            onChange={(event) => setDisabled(event.target.checked)}
+            className="h-4 w-4 rounded border-gray-300"
+          />
+          <span className="text-sm text-gray-700">Disable context menu</span>
+        </label>
+
+        <ContextMenu.Root disabled={disabled}>
+          <ContextMenu.Trigger className="rounded-lg border-2 p-8 transition-colors border-indigo-300 bg-indigo-50">
+            <div className="text-center">
+              <span
+                className={`block font-medium ${disabled ? 'text-gray-500' : 'text-indigo-700'}`}
+              >
+                Right-click here
+              </span>
+              <span className={`block text-sm ${disabled ? 'text-gray-400' : 'text-indigo-600'}`}>
+                {disabled ? 'Context menu is disabled' : 'Context menu will open on right-click'}
+              </span>
+            </div>
+          </ContextMenu.Trigger>
+          <ContextMenu.Portal>
+            <ContextMenu.Positioner className="outline-none">
+              <ContextMenu.Popup className="min-w-[180px] rounded-md border border-gray-200 bg-white py-2 shadow-lg">
+                <ContextMenu.Item className="cursor-default px-3 py-2 text-sm hover:bg-gray-100">
+                  Cut
+                </ContextMenu.Item>
+                <ContextMenu.Item className="cursor-default px-3 py-2 text-sm hover:bg-gray-100">
+                  Copy
+                </ContextMenu.Item>
+                <ContextMenu.Item className="cursor-default px-3 py-2 text-sm hover:bg-gray-100">
+                  Paste
+                </ContextMenu.Item>
+                <ContextMenu.Separator className="my-1 h-px bg-gray-200" />
+                <ContextMenu.Item className="cursor-default px-3 py-2 text-sm hover:bg-gray-100">
+                  Select All
+                </ContextMenu.Item>
+                <ContextMenu.Separator className="my-1 h-px bg-gray-200" />
+                <ContextMenu.Item className="cursor-default px-3 py-2 text-sm text-red-600 hover:bg-gray-100">
+                  Delete
                 </ContextMenu.Item>
               </ContextMenu.Popup>
             </ContextMenu.Positioner>

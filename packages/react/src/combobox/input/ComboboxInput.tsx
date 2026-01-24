@@ -99,17 +99,14 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
     });
   });
 
-  const state: ComboboxInput.State = React.useMemo(
-    () => ({
-      ...fieldState,
-      open,
-      disabled,
-      readOnly,
-      popupSide,
-      listEmpty,
-    }),
-    [fieldState, open, disabled, readOnly, popupSide, listEmpty],
-  );
+  const state: ComboboxInput.State = {
+    ...fieldState,
+    open,
+    disabled,
+    readOnly,
+    popupSide,
+    listEmpty,
+  };
 
   function handleKeyDown(event: React.KeyboardEvent<HTMLInputElement>) {
     if (!comboboxChipsContext) {

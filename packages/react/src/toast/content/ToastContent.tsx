@@ -47,13 +47,10 @@ export const ToastContent = React.forwardRef(function ToastContent(
 
   const behind = visibleIndex > 0;
 
-  const state: ToastContent.State = React.useMemo(
-    () => ({
-      expanded,
-      behind,
-    }),
-    [expanded, behind],
-  );
+  const state: ToastContent.State = {
+    expanded,
+    behind,
+  };
 
   const element = useRenderElement('div', componentProps, {
     ref: [forwardedRef, contentRef],

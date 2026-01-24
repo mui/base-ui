@@ -219,13 +219,10 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
 
   const localInteractionProps = useInteractions([click, focus]);
 
-  const state: MenuTrigger.State = React.useMemo(
-    () => ({
-      disabled,
-      open: isOpenedByThisTrigger,
-    }),
-    [disabled, isOpenedByThisTrigger],
-  );
+  const state: MenuTrigger.State = {
+    disabled,
+    open: isOpenedByThisTrigger,
+  };
 
   const rootTriggerProps = store.useState('triggerProps', isMountedByThisTrigger);
 
@@ -403,6 +400,10 @@ export type MenuTriggerState = {
    * Whether the menu is currently open.
    */
   open: boolean;
+  /**
+   * Whether the trigger is disabled.
+   */
+  disabled: boolean;
 };
 
 export namespace MenuTrigger {

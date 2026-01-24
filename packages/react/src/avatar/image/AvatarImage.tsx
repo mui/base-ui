@@ -45,12 +45,9 @@ export const AvatarImage = React.forwardRef(function AvatarImage(
     }
   }, [imageLoadingStatus, handleLoadingStatusChange]);
 
-  const state: AvatarRoot.State = React.useMemo(
-    () => ({
-      imageLoadingStatus,
-    }),
-    [imageLoadingStatus],
-  );
+  const state: AvatarRoot.State = {
+    imageLoadingStatus,
+  };
 
   const element = useRenderElement('img', componentProps, {
     state,
