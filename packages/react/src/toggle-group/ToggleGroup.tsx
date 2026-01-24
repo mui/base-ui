@@ -134,7 +134,7 @@ export const ToggleGroup = React.forwardRef(function ToggleGroup<Value extends T
   );
 }) as {
   <Value extends ToggleValue>(
-    props: ToggleGroup.Props<Value> & { ref?: React.RefObject<HTMLDivElement> },
+    props: ToggleGroup.Props<Value> & { ref?: React.RefObject<HTMLDivElement> | undefined },
   ): React.JSX.Element;
 };
 

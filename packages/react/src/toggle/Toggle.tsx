@@ -118,7 +118,7 @@ export const Toggle = React.forwardRef(function Toggle<Value extends ToggleValue
 }) as {
   <Value extends ToggleValue>(
     props: Toggle.Props<Value> & {
-      ref?: React.RefObject<HTMLButtonElement>;
+      ref?: React.RefObject<HTMLButtonElement> | undefined;
     },
   ): React.JSX.Element;
 };
