@@ -129,7 +129,6 @@ function preventScrollInsetScrollbars(referenceElement: Element | null) {
     const elementToLock = isOverflowElement(html) ? html : body;
 
     updateGutterOnly = supportsStableScrollbarGutter(referenceElement);
-    console.log('updateGutterOnly', updateGutterOnly);
 
     /*
      * DOM writes:
