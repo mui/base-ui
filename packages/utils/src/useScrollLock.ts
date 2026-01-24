@@ -30,20 +30,22 @@ function supportsStableScrollbarGutter(referenceElement: Element | null) {
 
   const doc = ownerDocument(referenceElement);
   const html = doc.documentElement;
+  const body = doc.body;
+
+  const elementToCheck = isOverflowElement(html) ? html : body;
 
   const originalStyles = {
-    scrollbarGutter: html.style.scrollbarGutter,
-    overflowY: html.style.overflowY,
+    scrollbarGutter: elementToCheck.style.scrollbarGutter,
+    overflowY: elementToCheck.style.overflowY,
   };
 
   html.style.scrollbarGutter = 'stable';
-  html.style.overflowY = 'scroll';
-  const before = html.offsetWidth;
+  elementToCheck.style.overflowY = 'scroll';
+  const before = elementToCheck.offsetWidth;
 
-  html.style.overflowY = 'hidden';
-  const after = html.offsetWidth;
-
-  Object.assign(html.style, originalStyles);
+  elementToCheck.style.overflowY = 'hidden';
+  const after = elementToCheck.offsetWidth;
+  Object.assign(elementToCheck.style, originalStyles);
   return before === after;
 }
 
@@ -127,6 +129,7 @@ function preventScrollInsetScrollbars(referenceElement: Element | null) {
     const elementToLock = isOverflowElement(html) ? html : body;
 
     updateGutterOnly = supportsStableScrollbarGutter(referenceElement);
+    console.log('updateGutterOnly', updateGutterOnly);
 
     /*
      * DOM writes:
