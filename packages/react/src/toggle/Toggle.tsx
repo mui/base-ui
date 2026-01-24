@@ -2,6 +2,8 @@
 import * as React from 'react';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useControlled } from '@base-ui/utils/useControlled';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { warn } from '@base-ui/utils/warn';
 import { useBaseUiId } from '../utils/useBaseUiId';
 import { useRenderElement } from '../utils/useRenderElement';
 import type { BaseUIComponentProps, NativeButtonProps } from '../utils/types';
@@ -13,8 +15,6 @@ import {
   createChangeEventDetails,
 } from '../utils/createBaseUIEventDetails';
 import { REASONS } from '../utils/reasons';
-import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import { warn } from '@base-ui/utils/warn';
 
 /**
  * A two-state button that can be on or off.
