@@ -32,20 +32,22 @@ function supportsStableScrollbarGutter(referenceElement: Element | null) {
   const html = doc.documentElement;
   const body = doc.body;
 
-  const elementToCheck = isOverflowElement(html) ? html : body;
+  const scrollContainer = isOverflowElement(html) ? html : body;
 
   const originalStyles = {
-    scrollbarGutter: elementToCheck.style.scrollbarGutter,
-    overflowY: elementToCheck.style.overflowY,
+    scrollbarGutter: scrollContainer.style.scrollbarGutter,
+    overflowY: scrollContainer.style.overflowY,
   };
 
   html.style.scrollbarGutter = 'stable';
-  elementToCheck.style.overflowY = 'scroll';
-  const before = elementToCheck.offsetWidth;
 
-  elementToCheck.style.overflowY = 'hidden';
-  const after = elementToCheck.offsetWidth;
-  Object.assign(elementToCheck.style, originalStyles);
+  scrollContainer.style.overflowY = 'scroll';
+  const before = scrollContainer.offsetWidth;
+
+  scrollContainer.style.overflowY = 'hidden';
+  const after = scrollContainer.offsetWidth;
+
+  Object.assign(scrollContainer.style, originalStyles);
   return before === after;
 }
 
