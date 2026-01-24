@@ -104,6 +104,13 @@ function useRenderElementProps<
   return outProps;
 }
 
+// The symbol React uses internally for lazy components
+const REACT_LAZY_TYPE = Symbol.for('react.lazy');
+
+function isLazy(element: any) {
+  return element?.$$typeof === REACT_LAZY_TYPE;
+}
+
 function evaluateRenderProp<T extends React.ElementType, S>(
   element: IntrinsicTagName | undefined,
   render: BaseUIComponentProps<T, S>['render'],
@@ -116,7 +123,30 @@ function evaluateRenderProp<T extends React.ElementType, S>(
     }
     const mergedProps = mergeProps(props, render.props);
     mergedProps.ref = props.ref;
-    return React.cloneElement(render, mergedProps);
+
+    let newElement = render;
+
+    // Workaround for https://github.com/facebook/react/issues/32392
+    if (isLazy(newElement)) {
+      const children = React.Children.toArray(render);
+      newElement = children[0] as BaseUIComponentProps<T, S>['render'];
+    }
+
+    // There is a high number of indirections, the error message thrown by React.cloneElement() is
+    // hard to use for developers, this logic provides a better context.
+    //
+    // Our general guideline is to never change the control flow depending on the environment.
+    // However, React.cloneElement() throws if React.isValidElement() is false,
+    // so we can throw before with custom message.
+    if (process.env.NODE_ENV !== 'production') {
+      if (!React.isValidElement(newElement)) {
+        throw new Error(
+          `Base UI: Expected to receive a valid React element in the "render" prop but received an invalid one.`,
+        );
+      }
+    }
+
+    return React.cloneElement(newElement, mergedProps);
   }
   if (element) {
     if (typeof element === 'string') {
