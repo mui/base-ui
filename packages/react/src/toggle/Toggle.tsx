@@ -13,6 +13,8 @@ import {
   createChangeEventDetails,
 } from '../utils/createBaseUIEventDetails';
 import { REASONS } from '../utils/reasons';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { warn } from '@base-ui/utils/warn';
 
 /**
  * A two-state button that can be on or off.
@@ -46,6 +48,17 @@ export const Toggle = React.forwardRef(function Toggle<Value extends ToggleValue
   const defaultPressed = groupContext ? undefined : defaultPressedProp;
 
   const disabled = (disabledProp || groupContext?.disabled) ?? false;
+
+  if (process.env.NODE_ENV !== 'production') {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    useIsoLayoutEffect(() => {
+      if (groupContext && valueProp === undefined) {
+        warn(
+          'Value prop in `Toggle` component is `undefined` while its in a `ToggleGroup` component. This can cause type issues between the `ToggleGroup` values and the `Toggle` value, Provide the `Toggle` with a value prop matching the `ToggleGroup` values prop type.',
+        );
+      }
+    }, [groupContext, valueProp]);
+  }
 
   const [pressed, setPressedState] = useControlled({
     controlled: groupContext ? value !== undefined && groupValue.indexOf(value) > -1 : pressedProp,
