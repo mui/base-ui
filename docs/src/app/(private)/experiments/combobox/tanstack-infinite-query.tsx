@@ -11,16 +11,10 @@ import { Check, ChevronDown, X } from 'lucide-react';
 import { Combobox } from '@base-ui/react/combobox';
 import { useTimeout } from '@base-ui/utils/useTimeout';
 import styles from '../../../(docs)/react/components/combobox/demos/async-single/css-modules/index.module.css';
-import { MOVIES } from './data';
-
-// Top ranked 4918 movies from TMDB
-const allMovies = MOVIES.map((m) => ({
-  id: m.id,
-  title: m.title,
-  overview: m.overview,
-  releaseDate: m.release_date,
-  posterPath: m.poster_path,
-}));
+import {
+  movies as allMovies,
+  Movie,
+} from '../../../(docs)/react/components/combobox/demos/tanstack-query/movies';
 
 const appQueryClient = new QueryClient({
   defaultOptions: {
@@ -234,14 +228,6 @@ function ExampleCombobox() {
       </Combobox.Portal>
     </Combobox.Root>
   );
-}
-
-interface Movie {
-  id: number;
-  title: string;
-  overview: string;
-  releaseDate: string;
-  posterPath: string | null;
 }
 
 interface SearchMoviesResponse {
