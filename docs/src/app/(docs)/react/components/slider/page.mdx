@@ -12,7 +12,7 @@ import { DemoSliderHero } from './demos/hero';
 
 ## Usage guidelines
 
-- **Form controls must have an accessible name**: The thumb must have a meaningful label. Prefer using [`<Field>`](/react/components/field) to provide visible text labels and descriptions, or [`<Fieldset>`](/react/components/fieldset) for multi-thumb range sliders. Otherwise, the `aria-label` attribute can be used as an alternative. See the [forms guide](/react/handbook/forms) for more on building form controls.
+- **Form controls must have an accessible name**: See [Labeling a slider](#labeling-a-slider) and the [forms guide](/react/handbook/forms).
 
 ## Anatomy
 
@@ -57,6 +57,124 @@ import { DemoSliderEdgeAlignment } from './demos/edge-alignment';
 
 <DemoSliderEdgeAlignment compact />
 
+### Labeling a slider
+
+A single-thumb slider without a visible label (such as a volume control) can be labeled using `aria-label` on `<Slider.Thumb>`:
+
+```tsx title="Slider with invisible label" {5}
+<Slider.Root>
+  <Slider.Control>
+    <Slider.Track>
+      <Slider.Indicator />
+      <Slider.Thumb aria-label="Volume" />
+    </Slider.Track>
+  </Slider.Control>
+</Slider.Root>
+```
+
+A visible label can be created using `aria-labelledby` on `<Slider.Root>` that references the `id` of a sibling element, such as a `<div>`:
+
+```tsx title="Slider with visible label" {1,2}
+<div id="volume-label">Volume</div>
+<Slider.Root aria-labelledby="volume-label">
+  <Slider.Control>
+    <Slider.Track>
+      <Slider.Indicator />
+      <Slider.Thumb />
+    </Slider.Track>
+  </Slider.Control>
+</Slider.Root>
+```
+
+For a multi-thumb range slider with a visible label, add `aria-label` on each `<Slider.Thumb>` to distinguish them:
+
+```tsx title="Labeling multi-thumb range sliders" {6-7}
+<div id="price-label">Price range</div>
+<Slider.Root defaultValue={[25, 75]} aria-labelledby="price-label">
+  <Slider.Control>
+    <Slider.Track>
+      <Slider.Indicator />
+      <Slider.Thumb index={0} aria-label="Minimum price" />
+      <Slider.Thumb index={1} aria-label="Maximum price" />
+    </Slider.Track>
+  </Slider.Control>
+</Slider.Root>
+```
+
+The [Field](/react/components/field) and [Fieldset](/react/components/fieldset) components can also be used to provide accessible labels for sliders, eliminating the need to track `id` or `aria-labelledby` associations manually. Field comes with a UX improvement to prevent double clicks from selecting the label text.
+
+For a single-thumb slider, use [Field](/react/components/field) to provide a visible label:
+
+```tsx title="Using Field to label a slider" {2}
+<Field.Root>
+  <Field.Label>Volume</Field.Label>
+  <Slider.Root>
+    <Slider.Control>
+      <Slider.Track>
+        <Slider.Indicator />
+        <Slider.Thumb />
+      </Slider.Track>
+    </Slider.Control>
+  </Slider.Root>
+</Field.Root>
+```
+
+For a multi-thumb range slider, use [Fieldset](/react/components/fieldset) by replacing the `<Fieldset.Root>` element with `<Slider.Root>` via the `render` prop. `<Fieldset.Legend>` provides the visible label for the group:
+
+```tsx title="Using Fieldset to label a multi-thumb slider" {2,3,7-8}
+<Field.Root>
+  <Fieldset.Root render={<Slider.Root />}>
+    <Fieldset.Legend>Price range</Fieldset.Legend>
+    <Slider.Control>
+      <Slider.Track>
+        <Slider.Indicator />
+        <Slider.Thumb index={0} aria-label="Minimum price" />
+        <Slider.Thumb index={1} aria-label="Maximum price" />
+      </Slider.Track>
+    </Slider.Control>
+  </Fieldset.Root>
+</Field.Root>
+```
+
+### Form integration
+
+To use a slider in a form, pass the slider's `name` to `<Field.Root>`:
+
+```tsx title="Using Slider in a form" {2}
+<Form>
+  <Field.Root name="volume">
+    <Field.Label>Volume</Field.Label>
+    <Slider.Root>
+      <Slider.Control>
+        <Slider.Track>
+          <Slider.Indicator />
+          <Slider.Thumb />
+        </Slider.Track>
+      </Slider.Control>
+    </Slider.Root>
+  </Field.Root>
+</Form>
+```
+
 ## API reference
 
 <Reference component="Slider" parts="Root, Value, Control, Track, Indicator, Thumb" />
+
+export const metadata = {
+  keywords: [
+    'React Slider',
+    'Range Slider Component',
+    'Range Input',
+    'Range Control',
+    'Track Control',
+    'Value Selector',
+    'Dual Slider',
+    'Double Slider',
+    'Two-Handle Slider',
+    'Multi Thumb Slider',
+    'Thumb Alignment Edge',
+    'Accessible Slider',
+    'Headless React Components',
+    'Base UI',
+  ],
+};

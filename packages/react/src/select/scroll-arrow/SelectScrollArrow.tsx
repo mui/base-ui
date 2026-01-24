@@ -64,15 +64,12 @@ export const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
     },
   });
 
-  const state: SelectScrollArrow.State = React.useMemo(
-    () => ({
-      direction,
-      visible,
-      side,
-      transitionStatus,
-    }),
-    [direction, visible, side, transitionStatus],
-  );
+  const state: SelectScrollArrow.State = {
+    direction,
+    visible,
+    side,
+    transitionStatus,
+  };
 
   const defaultProps: React.ComponentProps<'div'> = {
     'aria-hidden': true,
@@ -224,7 +221,7 @@ export interface SelectScrollArrowProps extends BaseUIComponentProps<
    * Whether to keep the HTML element in the DOM while the select popup is not scrollable.
    * @default false
    */
-  keepMounted?: boolean;
+  keepMounted?: boolean | undefined;
 }
 
 export namespace SelectScrollArrow {

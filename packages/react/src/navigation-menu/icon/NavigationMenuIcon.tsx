@@ -13,7 +13,7 @@ import { useNavigationMenuItemContext } from '../item/NavigationMenuItemContext'
  */
 export const NavigationMenuIcon = React.forwardRef(function NavigationMenuIcon(
   componentProps: NavigationMenuIcon.Props,
-  forwardedRef: React.ForwardedRef<HTMLDivElement>,
+  forwardedRef: React.ForwardedRef<HTMLSpanElement>,
 ) {
   const { className, render, ...elementProps } = componentProps;
 
@@ -22,12 +22,9 @@ export const NavigationMenuIcon = React.forwardRef(function NavigationMenuIcon(
 
   const isActiveItem = open && value === itemValue;
 
-  const state: NavigationMenuIcon.State = React.useMemo(
-    () => ({
-      open: isActiveItem,
-    }),
-    [isActiveItem],
-  );
+  const state: NavigationMenuIcon.State = {
+    open: isActiveItem,
+  };
 
   const element = useRenderElement('span', componentProps, {
     state,

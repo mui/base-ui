@@ -46,24 +46,21 @@ export const ScrollAreaScrollbar = React.forwardRef(function ScrollAreaScrollbar
     thumbSize,
   } = useScrollAreaRootContext();
 
-  const state: ScrollAreaScrollbar.State = React.useMemo(
-    () => ({
-      hovering,
-      scrolling: {
-        horizontal: scrollingX,
-        vertical: scrollingY,
-      }[orientation],
-      orientation,
-      hasOverflowX: !hiddenState.scrollbarXHidden,
-      hasOverflowY: !hiddenState.scrollbarYHidden,
-      overflowXStart: overflowEdges.xStart,
-      overflowXEnd: overflowEdges.xEnd,
-      overflowYStart: overflowEdges.yStart,
-      overflowYEnd: overflowEdges.yEnd,
-      cornerHidden: hiddenState.cornerHidden,
-    }),
-    [hovering, scrollingX, scrollingY, orientation, hiddenState, overflowEdges],
-  );
+  const state: ScrollAreaScrollbar.State = {
+    hovering,
+    scrolling: {
+      horizontal: scrollingX,
+      vertical: scrollingY,
+    }[orientation],
+    orientation,
+    hasOverflowX: !hiddenState.x,
+    hasOverflowY: !hiddenState.y,
+    overflowXStart: overflowEdges.xStart,
+    overflowXEnd: overflowEdges.xEnd,
+    overflowYStart: overflowEdges.yStart,
+    overflowYEnd: overflowEdges.yEnd,
+    cornerHidden: hiddenState.corner,
+  };
 
   const direction = useDirection();
 
@@ -217,8 +214,7 @@ export const ScrollAreaScrollbar = React.forwardRef(function ScrollAreaScrollbar
 
   const contextValue = React.useMemo(() => ({ orientation }), [orientation]);
 
-  const isHidden =
-    orientation === 'vertical' ? hiddenState.scrollbarYHidden : hiddenState.scrollbarXHidden;
+  const isHidden = orientation === 'vertical' ? hiddenState.y : hiddenState.x;
 
   const shouldRender = keepMounted || !isHidden;
   if (!shouldRender) {
@@ -249,12 +245,12 @@ export interface ScrollAreaScrollbarProps extends BaseUIComponentProps<
    * Whether the scrollbar controls vertical or horizontal scroll.
    * @default 'vertical'
    */
-  orientation?: 'vertical' | 'horizontal';
+  orientation?: ('vertical' | 'horizontal') | undefined;
   /**
    * Whether to keep the HTML element in the DOM when the viewport isn’t scrollable.
    * @default false
    */
-  keepMounted?: boolean;
+  keepMounted?: boolean | undefined;
 }
 
 export namespace ScrollAreaScrollbar {

@@ -19,18 +19,16 @@ export const PreviewCardArrow = React.forwardRef(function PreviewCardArrow(
 ) {
   const { render, className, ...elementProps } = componentProps;
 
-  const { open } = usePreviewCardRootContext();
+  const store = usePreviewCardRootContext();
   const { arrowRef, side, align, arrowUncentered, arrowStyles } = usePreviewCardPositionerContext();
+  const open = store.useState('open');
 
-  const state: PreviewCardArrow.State = React.useMemo(
-    () => ({
-      open,
-      side,
-      align,
-      uncentered: arrowUncentered,
-    }),
-    [open, side, align, arrowUncentered],
-  );
+  const state: PreviewCardArrow.State = {
+    open,
+    side,
+    align,
+    uncentered: arrowUncentered,
+  };
 
   const element = useRenderElement('div', componentProps, {
     state,

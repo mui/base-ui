@@ -91,10 +91,7 @@ export const ToggleGroup = React.forwardRef(function ToggleGroup<Value extends T
     },
   );
 
-  const state: ToggleGroup.State = React.useMemo(
-    () => ({ disabled, multiple, orientation }),
-    [disabled, orientation, multiple],
-  );
+  const state: ToggleGroup.State = { disabled, multiple, orientation };
 
   const contextValue: ToggleGroupContext<Value> = React.useMemo(
     () => ({
@@ -153,6 +150,10 @@ export interface ToggleGroupState {
    * @default false
    */
   multiple: boolean;
+  /**
+   * The orientation of the toggle group.
+   */
+  orientation: Orientation;
 }
 
 export interface ToggleGroupProps<Value extends ToggleValue> extends BaseUIComponentProps<
@@ -164,39 +165,41 @@ export interface ToggleGroupProps<Value extends ToggleValue> extends BaseUICompo
    * the values of all pressed toggle buttons.
    * This is the controlled counterpart of `defaultValue`.
    */
-  value?: Value[];
+  value?: readonly Value[] | undefined;
   /**
    * The open state of the toggle group represented by an array of
    * the values of all pressed toggle buttons.
    * This is the uncontrolled counterpart of `value`.
    */
-  defaultValue?: Value[];
+  defaultValue?: Value[] | undefined;
   /**
    * Callback fired when the pressed states of the toggle group changes.
    */
-  onValueChange?: (groupValue: Value[], eventDetails: ToggleGroup.ChangeEventDetails) => void;
+  onValueChange?:
+    | ((groupValue: Value[], eventDetails: ToggleGroup.ChangeEventDetails) => void)
+    | undefined;
   /**
    * Whether the toggle group should ignore user interaction.
    * @default false
    */
-  disabled?: boolean;
+  disabled?: boolean | undefined;
   /**
    * @default 'horizontal'
    */
-  orientation?: Orientation;
+  orientation?: Orientation | undefined;
   /**
    * Whether to loop keyboard focus back to the first item
    * when the end of the list is reached while using the arrow keys.
    * @default true
    */
-  loopFocus?: boolean;
+  loopFocus?: boolean | undefined;
   /**
    * When `false` only one item in the group can be pressed. If any item in
    * the group becomes pressed, the others will become unpressed.
    * When `true` multiple items can be pressed.
    * @default false
    */
-  multiple?: boolean;
+  multiple?: boolean | undefined;
 }
 
 export type ToggleGroupChangeEventReason = typeof REASONS.none;

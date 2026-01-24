@@ -1,7 +1,7 @@
 # Forms
 
-<Subtitle>A guide to building forms with Base UI components.</Subtitle>
-<Meta name="description" content="A guide to building forms with Base UI components." />
+<Subtitle>A guide to building forms with Base UI components.</Subtitle>
+<Meta name="description" content="A guide to building forms with Base UI components." />
 
 Base UI form control components extend the native [constraint validation API](https://html.spec.whatwg.org/multipage/form-control-infrastructure.html#the-constraint-validation-api) so you can build forms for collecting user input or providing control over an interface. They also integrate seamlessly with third-party libraries like [React Hook Form](#react-hook-form) and [TanStack Form](#tanstack-form).
 
@@ -82,7 +82,7 @@ import { Slider } from '@base-ui/react/slider';
 </Form>;
 ```
 
-Optionally use `<Field.Item>` in checkbox or radio groups to individually label each control when not implicitly labeled:
+`<Field.Item>` should enclose each item in checkbox or radio groups to label each individual control:
 
 ```tsx {10,14-15,19} title="Explicitly labeling checkboxes in a checkbox group"
 import { Form } from '@base-ui/react/form';
@@ -181,6 +181,21 @@ import { Field } from '@base-ui/react/field';
 <Field.Root name="website">
   <Field.Control type="url" required pattern="https?://.*" />
   <Field.Error />
+</Field.Root>;
+```
+
+Base UI form components use a hidden input to participate in native form submission and validation.
+To anchor the hidden input near a control so the native validation bubble points to the correct area, ensure the component has been given a `name`, and wrap controls in a relatively positioned container for best results.
+
+```tsx title="Positioning hidden inputs" {4,6}
+import { Field } from '@base-ui/react/field';
+import { Select } from '@base-ui/react/select';
+
+<Field.Root name="apple">
+  <Field.Label>Apple</Field.Label>
+  <div className="relative">
+    <Select.Root />
+  </div>
 </Field.Root>;
 ```
 
@@ -604,3 +619,23 @@ const form = useForm({
   <button type="submit">Submit</button>
 </form>;
 ```
+
+export const metadata = {
+  keywords: [
+    'Base UI Forms',
+    'React Accessible Forms',
+    'Field Validation Handbook',
+    'React Hook Form Integration',
+    'TanStack Form Guide',
+    'Constraint Validation API',
+    'Handbook Forms',
+    'Form State',
+    'Form Library',
+    'Form Handling',
+    'Input Validation',
+    'Error Messages',
+    'Form Submission',
+    'Accessible Forms',
+    'ARIA Forms',
+  ],
+};

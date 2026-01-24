@@ -84,11 +84,21 @@ export default defineConfig(
     },
   },
   {
+    files: [`packages/*/src/**/*${EXTENSION_TS}`],
+    ignores: [`**/*${EXTENSION_TEST_FILE}`, `test/**/*${EXTENSION_TS}`],
+    rules: {
+      'material-ui/add-undef-to-optional': 'error',
+    },
+  },
+  {
     files: [
       // matching the pattern of the test runner
       `**/*${EXTENSION_TEST_FILE}`,
     ],
     extends: createTestConfig({ useMocha: false }),
+    rules: {
+      'material-ui/add-undef-to-optional': 'off',
+    },
   },
   baseSpecRules,
   {

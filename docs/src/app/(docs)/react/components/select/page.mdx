@@ -14,7 +14,7 @@ import { DemoSelectHero } from './demos/hero';
 
 - **Prefer Combobox for large lists**: Select is not filterable, aside from basic keyboard typeahead functionality to find items by focusing and highlighting them. Prefer [Combobox](/react/components/combobox) instead of Select when the number of items is sufficiently large to warrant filtering.
 - **Special positioning behavior**: The select popup by default overlaps its trigger so the selected item's text is aligned with the trigger's value text. This behavior [can be disabled or customized](/react/components/select#positioning).
-- **Form controls must have an accessible name**: The trigger must have a meaningful label. Prefer using [`<Field>`](/react/components/field) to provide a visible text label and description, or use the `aria-label` attribute as an alternative. See the [forms guide](/react/handbook/forms) for more on building form controls.
+- **Form controls must have an accessible name**: It can be created using the `Field` component. See [Labeling a select](#labeling-a-select) and the [forms guide](/react/handbook/forms).
 
 ## Anatomy
 
@@ -52,21 +52,6 @@ import { Select } from '@base-ui/react/select';
 </Select.Root>;
 ```
 
-## TypeScript
-
-The following example shows a typed wrapper around the Select component with correct type inference and type safety:
-
-```tsx title="Specifying generic type parameters"
-import * as React from 'react';
-import { Select } from '@base-ui/react/select';
-
-export function MySelect<Value, Multiple extends boolean | undefined = false>(
-  props: Select.Root.Props<Value, Multiple>,
-): React.JSX.Element {
-  return <Select.Root {...props}>{/* ... */}</Select.Root>;
-}
-```
-
 ## Positioning
 
 `<Select.Positioner>` has a special prop called `alignItemWithTrigger` which causes the positioning to act differently by default from other `Positioner` components.
@@ -83,7 +68,24 @@ When set to `true` (its default) there are a few important points to note about 
   Additionally, the trigger must be at least 20px from the edges of the top and bottom of the viewport, or it will also fall back.
 - **Other positioning props are ignored**: Props like `side` or `align` have no effect unless the prop is set to `false` or when in fallback mode.
 
-## Formatting the value
+## Examples
+
+### Typed wrapper component
+
+The following example shows a typed wrapper around the Select component with correct type inference and type safety:
+
+```tsx title="Specifying generic type parameters"
+import * as React from 'react';
+import { Select } from '@base-ui/react/select';
+
+export function MySelect<Value, Multiple extends boolean | undefined = false>(
+  props: Select.Root.Props<Value, Multiple>,
+): React.JSX.Element {
+  return <Select.Root {...props}>{/* ... */}</Select.Root>;
+}
+```
+
+### Formatting the value
 
 By default, the `<Select.Value>` component renders the raw `value`.
 
@@ -122,7 +124,51 @@ const items = {
 
 To avoid lookup, [object values](#object-values) for each item can also be used.
 
-## Examples
+### Labeling a select
+
+Use the [Field](/react/components/field) component to provide a visible label for the select trigger:
+
+```tsx title="Using Field to label a select" {2,4}
+<Field.Root>
+  <Field.Label nativeLabel={false} render={<div />}>
+    Theme
+  </Field.Label>
+  <Select.Root>{/* ... */}</Select.Root>
+</Field.Root>
+```
+
+Replace the rendered `<label>` element with a `<div>` element and add `nativeLabel={false}` so it does not inherit native label behaviors. This ensures clicking on the label will focus the select trigger without opening the associated popup to match native `<select>` behavior, and prevents CSS `:hover` from activating on the trigger when hovering over the label.
+
+### Placeholder values
+
+To show a placeholder value, use the `placeholder` prop on `<Select.Value>`:
+
+```jsx title="Placeholder item" {8}
+const items = [
+  { value: 'system', label: 'System default' },
+  { value: 'light', label: 'Light' },
+  { value: 'dark', label: 'Dark' },
+];
+
+<Select.Root items={items}>
+  <Select.Value placeholder="Select theme" />
+</Select.Root>;
+```
+
+With placeholders, users cannot clear selected values using the select itself. If the select value should be clearable from the popup (instead of an external "reset" button), use a `null` item rendered in the list itself:
+
+```jsx title="Clearable item" {2}
+const items = [
+  { value: null, label: 'Select theme' },
+  { value: 'system', label: 'System default' },
+  { value: 'light', label: 'Light' },
+  { value: 'dark', label: 'Dark' },
+];
+
+<Select.Root items={items}>
+  <Select.Value />
+</Select.Root>;
+```
 
 ### Multiple selection
 
@@ -147,3 +193,25 @@ import { DemoSelectObjectValues } from './demos/object-values';
   component="Select"
   parts="Root, Trigger, Value, Icon, Backdrop, Portal, Positioner, Popup, List, Arrow, Item, ItemText, ItemIndicator, Group, GroupLabel, ScrollUpArrow, ScrollDownArrow, Separator"
 />
+
+export const metadata = {
+  keywords: [
+    'React Select Component',
+    'Dropdown Select',
+    'Select Box',
+    'Select Menu',
+    'Picker',
+    'Listbox',
+    'Choice Selector',
+    'Option List',
+    'Dropdown Menu',
+    'Combo Box',
+    'Multi Select React',
+    'Multiselect',
+    'Object Value Select',
+    'Accessible Select',
+    'Align Item with Trigger',
+    'Headless React Components',
+    'Base UI',
+  ],
+};

@@ -28,7 +28,7 @@ import { compareItemEquality, removeItem } from '../../utils/itemEquality';
 export const SelectItem = React.memo(
   React.forwardRef(function SelectItem(
     componentProps: SelectItem.Props,
-    forwardedRef: React.ForwardedRef<HTMLDivElement>,
+    forwardedRef: React.ForwardedRef<HTMLElement>,
   ) {
     const {
       render,
@@ -104,14 +104,11 @@ export const SelectItem = React.memo(
       return undefined;
     }, [hasRegistered, index, multiple, isItemEqualToValue, store, value]);
 
-    const state: SelectItem.State = React.useMemo(
-      () => ({
-        disabled,
-        selected,
-        highlighted,
-      }),
-      [disabled, selected, highlighted],
-    );
+    const state: SelectItem.State = {
+      disabled,
+      selected,
+      highlighted,
+    };
 
     const rootProps = getItemProps({ active: highlighted, selected });
     // With our custom `focusItemOnHover` implementation, this interferes with the logic and can
@@ -146,7 +143,6 @@ export const SelectItem = React.memo(
     const defaultProps: HTMLProps = {
       role: 'option',
       'aria-selected': selected,
-      'aria-disabled': disabled || undefined,
       tabIndex: highlighted ? 0 : -1,
       onFocus() {
         store.set('activeIndex', index);
@@ -281,13 +277,13 @@ export interface SelectItemProps
    * Whether the component should ignore user interaction.
    * @default false
    */
-  disabled?: boolean;
+  disabled?: boolean | undefined;
   /**
    * Specifies the text label to use when the item is matched during keyboard text navigation.
    *
    * Defaults to the item text content if not provided.
    */
-  label?: string;
+  label?: string | undefined;
 }
 
 export namespace SelectItem {

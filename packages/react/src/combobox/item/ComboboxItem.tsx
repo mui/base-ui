@@ -127,14 +127,11 @@ export const ComboboxItem = React.memo(
       }
     }, [hasRegistered, items, open, store, index, value, isItemEqualToValue]);
 
-    const state: ComboboxItem.State = React.useMemo(
-      () => ({
-        disabled,
-        selected,
-        highlighted,
-      }),
-      [disabled, selected, highlighted],
-    );
+    const state: ComboboxItem.State = {
+      disabled,
+      selected,
+      highlighted,
+    };
 
     const rootProps = getItemProps({ active: highlighted, selected });
     rootProps.id = undefined;
@@ -162,7 +159,6 @@ export const ComboboxItem = React.memo(
     const defaultProps: HTMLProps = {
       id,
       role: isRow ? 'gridcell' : 'option',
-      'aria-disabled': disabled || undefined,
       'aria-selected': selectable ? selected : undefined,
       // Focusable items steal focus from the input upon mouseup.
       // Warn if the user renders a natively focusable element like `<button>`,
@@ -233,11 +229,11 @@ export interface ComboboxItemProps
    * An optional click handler for the item when selected.
    * It fires when clicking the item with the pointer, as well as when pressing `Enter` with the keyboard if the item is highlighted when the `Input` or `List` element has focus.
    */
-  onClick?: React.MouseEventHandler<HTMLElement>;
+  onClick?: React.MouseEventHandler<HTMLElement> | undefined;
   /**
    * The index of the item in the list. Improves performance when specified by avoiding the need to calculate the index automatically from the DOM.
    */
-  index?: number;
+  index?: number | undefined;
   /**
    * A unique value that identifies this item.
    * @default null
@@ -247,7 +243,7 @@ export interface ComboboxItemProps
    * Whether the component should ignore user interaction.
    * @default false
    */
-  disabled?: boolean;
+  disabled?: boolean | undefined;
 }
 
 export namespace ComboboxItem {

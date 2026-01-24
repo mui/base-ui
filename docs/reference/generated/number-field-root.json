@@ -38,10 +38,10 @@
       "detailedType": "boolean | undefined"
     },
     "step": {
-      "type": "number",
+      "type": "number | 'any'",
       "default": "1",
-      "description": "Amount to increment and decrement with the buttons and arrow keys,\nor to scrub with pointer movement in the scrub area.",
-      "detailedType": "number | undefined"
+      "description": "Amount to increment and decrement with the buttons and arrow keys, or to scrub with pointer movement in the scrub area.\nTo always enable step validation on form submission, specify the `min` prop explicitly in conjunction with this prop.\nSpecify `step=\"any\"` to always disable step validation.",
+      "detailedType": "number | 'any' | undefined"
     },
     "smallStep": {
       "type": "number",
