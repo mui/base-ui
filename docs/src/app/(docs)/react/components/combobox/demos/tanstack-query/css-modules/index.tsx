@@ -144,6 +144,7 @@ function ExampleTanstackQueryCombobox() {
       items={items}
       itemToStringLabel={(movie: Movie) => movie.title}
       filter={null}
+      loopFocus={!hasNextPage && !isPending}
       onOpenChange={(open) => {
         // Reset items to the first page when the popup closes
         if (!open) {
