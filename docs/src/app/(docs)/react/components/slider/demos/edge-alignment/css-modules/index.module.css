@@ -1,9 +1,33 @@
+.Root {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-row-gap: 0.5rem;
+  width: 14rem;
+}
+
+.Label {
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  font-weight: 500;
+  color: var(--color-gray-900);
+}
+
+.Value {
+  grid-column-start: 2;
+  margin: 0;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  color: var(--color-gray-900);
+  text-align: right;
+}
+
 .Control {
+  grid-column: 1 / 3;
   box-sizing: border-box;
   display: flex;
   align-items: center;
-  width: 14rem;
-  padding-block: 0.75rem;
+  width: 100%;
+  padding-block: 0.25rem;
   touch-action: none;
   user-select: none;
 }
