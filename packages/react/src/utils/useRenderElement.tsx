@@ -145,6 +145,7 @@ function evaluateRenderProp<T extends React.ElementType, S>(
           [
             `Base UI: The "render" prop expects a valid React element but the value provided is invalid, it's not passing the React.isValidElement() test.`,
             'This is required because the element is cloned to replace the default React element.',
+            'https://base-ui.com/r/invalid-render-prop',
           ].join('\n'),
         );
       }

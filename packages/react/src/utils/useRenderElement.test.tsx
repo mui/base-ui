@@ -232,7 +232,9 @@ describe('useRenderElement', () => {
         }
 
         expect(error).to.not.equal(null);
-        expect(error?.message).to.match(/Base UI: Expected to receive a valid React element/);
+        expect(error?.message).to.match(
+          /Base UI: The "render" prop expects a valid React element but/,
+        );
       },
     );
 
