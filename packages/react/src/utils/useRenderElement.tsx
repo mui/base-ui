@@ -105,11 +105,9 @@ function useRenderElementProps<
 }
 
 // The symbol React uses internally for lazy components
+// https://github.com/facebook/react/blob/a0566250b210499b4c5677f5ac2eedbd71d51a1b/packages/shared/ReactSymbols.js#L31
+// TODO delete once https://github.com/facebook/react/issues/32392 is fixed
 const REACT_LAZY_TYPE = Symbol.for('react.lazy');
-
-function isLazy(element: any) {
-  return element?.$$typeof === REACT_LAZY_TYPE;
-}
 
 function evaluateRenderProp<T extends React.ElementType, S>(
   element: IntrinsicTagName | undefined,
@@ -127,7 +125,9 @@ function evaluateRenderProp<T extends React.ElementType, S>(
     let newElement = render;
 
     // Workaround for https://github.com/facebook/react/issues/32392
-    if (isLazy(newElement)) {
+    // This works because the toArray() logic unwrap lazy element type in
+    // https://github.com/facebook/react/blob/a0566250b210499b4c5677f5ac2eedbd71d51a1b/packages/react/src/ReactChildren.js#L186
+    if (newElement?.$$typeof === REACT_LAZY_TYPE) {
       const children = React.Children.toArray(render);
       newElement = children[0] as BaseUIComponentProps<T, S>['render'];
     }
