@@ -106,6 +106,7 @@ function useRenderElementProps<
 
 // The symbol React uses internally for lazy components
 // https://github.com/facebook/react/blob/a0566250b210499b4c5677f5ac2eedbd71d51a1b/packages/shared/ReactSymbols.js#L31
+//
 // TODO delete once https://github.com/facebook/react/issues/32392 is fixed
 const REACT_LAZY_TYPE = Symbol.for('react.lazy');
 
@@ -141,7 +142,10 @@ function evaluateRenderProp<T extends React.ElementType, S>(
     if (process.env.NODE_ENV !== 'production') {
       if (!React.isValidElement(newElement)) {
         throw new Error(
-          `Base UI: Expected to receive a valid React element in the "render" prop but received an invalid one.`,
+          [
+            `Base UI: The "render" prop expects a valid React element but the value provided is invalid, it's not passing the React.isValidElement() test.`,
+            'This is required because the element is cloned to replace the default React element.',
+          ].join('\n'),
         );
       }
     }
