@@ -40,6 +40,12 @@ export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerCompon
     ...elementProps
   } = componentProps;
 
+  const renderElementDisabled = Boolean(
+    render &&
+    React.isValidElement<{ disabled?: boolean | undefined }>(render) &&
+    render.props.disabled,
+  );
+
   const listItem = useCompositeListItem();
   const menuPositionerContext = useMenuPositionerContext();
 
@@ -100,7 +106,7 @@ export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerCompon
   );
 
   const rootDisabled = store.useState('disabled');
-  const disabled = disabledProp || rootDisabled;
+  const disabled = disabledProp || rootDisabled || renderElementDisabled;
 
   const { getItemProps, itemRef } = useMenuItem({
     closeOnClick: false,

@@ -99,4 +99,127 @@ describe('<Menu.SubmenuTrigger />', () => {
       expect(submenuTrigger).to.have.attribute('tabIndex', '0');
     });
   });
+
+  describe('prop: disabled', () => {
+    it('should render a disabled submenu trigger', async () => {
+      await render(
+        <Menu.Root open>
+          <Menu.Trigger>Open menu</Menu.Trigger>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.Item>1</Menu.Item>
+                <Menu.SubmenuRoot>
+                  <Menu.SubmenuTrigger disabled>Open submenu</Menu.SubmenuTrigger>
+                  <Menu.Portal>
+                    <Menu.Positioner>
+                      <Menu.Popup data-testid="submenu-popup">
+                        <Menu.Item>2.1</Menu.Item>
+                        <Menu.Item>2.2</Menu.Item>
+                      </Menu.Popup>
+                    </Menu.Positioner>
+                  </Menu.Portal>
+                </Menu.SubmenuRoot>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>,
+      );
+
+      const submenuTrigger = screen.getByRole('menuitem', { name: 'Open submenu' });
+
+      expect(submenuTrigger).to.have.attribute('data-disabled');
+      expect(submenuTrigger).to.have.attribute('aria-disabled', 'true');
+    });
+
+    it('does not open the submenu when the render prop renders a disabled button', async () => {
+      await render(
+        <Menu.Root open>
+          <Menu.Trigger>Open menu</Menu.Trigger>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.Item>1</Menu.Item>
+                <Menu.SubmenuRoot>
+                  <Menu.SubmenuTrigger nativeButton render={<button type="button" disabled />}>
+                    Open submenu
+                  </Menu.SubmenuTrigger>
+                  <Menu.Portal>
+                    <Menu.Positioner>
+                      <Menu.Popup data-testid="submenu-popup">
+                        <Menu.Item>2.1</Menu.Item>
+                        <Menu.Item>2.2</Menu.Item>
+                      </Menu.Popup>
+                    </Menu.Positioner>
+                  </Menu.Portal>
+                </Menu.SubmenuRoot>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>,
+      );
+
+      const submenuTrigger = screen.getByRole('menuitem', { name: 'Open submenu' });
+
+      expect(submenuTrigger).to.have.attribute('data-disabled');
+
+      fireEvent.click(submenuTrigger);
+
+      // The submenu should not open
+      expect(screen.queryByTestId('submenu-popup')).to.equal(null);
+    });
+
+    testCases.forEach(({ direction, openKey }) => {
+      it(`does not open the submenu with ${openKey} when the render prop renders a disabled button in ${direction.toUpperCase()}`, async () => {
+        const { user } = await render(
+          <DirectionProvider direction={direction as TextDirection}>
+            <Menu.Root>
+              <Menu.Trigger>Open menu</Menu.Trigger>
+              <Menu.Portal>
+                <Menu.Positioner>
+                  <Menu.Popup>
+                    <Menu.Item>1</Menu.Item>
+                    <Menu.SubmenuRoot>
+                      <Menu.SubmenuTrigger nativeButton render={<button type="button" disabled />}>
+                        Open submenu
+                      </Menu.SubmenuTrigger>
+                      <Menu.Portal>
+                        <Menu.Positioner>
+                          <Menu.Popup data-testid="submenu-popup">
+                            <Menu.Item>2.1</Menu.Item>
+                            <Menu.Item>2.2</Menu.Item>
+                          </Menu.Popup>
+                        </Menu.Positioner>
+                      </Menu.Portal>
+                    </Menu.SubmenuRoot>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+          </DirectionProvider>,
+        );
+
+        const trigger = screen.getByRole('button', { name: 'Open menu' });
+        trigger.focus();
+
+        // Open the menu
+        await user.keyboard('[Enter]');
+
+        // Navigate to the submenu trigger (first item is "1", second is the submenu trigger)
+        await user.keyboard('{ArrowDown}');
+
+        const submenuTrigger = screen.getByRole('menuitem', { name: 'Open submenu' });
+
+        await waitFor(() => {
+          expect(submenuTrigger).to.have.attribute('data-disabled');
+        });
+
+        // Try to open the submenu - should not work since it's disabled
+        await user.keyboard(`{${openKey}}`);
+
+        // The submenu should not open
+        expect(screen.queryByTestId('submenu-popup')).to.equal(null);
+      });
+    });
+  });
 });
