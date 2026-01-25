@@ -13,7 +13,7 @@ export default function ScrollLock() {
   useScrollLock(enabled);
 
   React.useEffect(() => {
-    document.body.style.overflowY = bodyScrollY ? 'scroll' : 'visible';
+    document.body.style.overflow = bodyScrollY ? 'scroll' : 'visible';
   }, [bodyScrollY]);
 
   React.useEffect(() => {
