@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { screen, act, fireEvent } from '@mui/internal-test-utils';
+import { screen, act } from '@mui/internal-test-utils';
 import { spy } from 'sinon';
 import { NumberField } from '@base-ui/react/number-field';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
@@ -227,7 +227,7 @@ describe('<NumberField.ScrubArea />', () => {
   it('should fire onClick when clicked without scrubbing', async () => {
     const handleClick = spy();
 
-    await render(
+    const { user } = await render(
       <NumberField.Root defaultValue={0}>
         <NumberField.ScrubArea data-testid="scrub-area" onClick={handleClick}>
           <NumberField.ScrubAreaCursor />
@@ -235,7 +235,7 @@ describe('<NumberField.ScrubArea />', () => {
       </NumberField.Root>,
     );
 
-    fireEvent.click(screen.getByTestId('scrub-area'));
+    await user.click(screen.getByTestId('scrub-area'));
 
     expect(handleClick.callCount).to.equal(1);
   });
@@ -244,7 +244,7 @@ describe('<NumberField.ScrubArea />', () => {
     const handleScrubAreaClick = spy();
     const handleLabelClick = spy();
 
-    await render(
+    const { user } = await render(
       <NumberField.Root defaultValue={0}>
         <NumberField.ScrubArea onClick={handleScrubAreaClick}>
           {/* eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions */}
@@ -254,7 +254,7 @@ describe('<NumberField.ScrubArea />', () => {
       </NumberField.Root>,
     );
 
-    fireEvent.click(screen.getByText('Amount'));
+    await user.click(screen.getByText('Amount'));
 
     expect(handleLabelClick.callCount).to.equal(1);
     expect(handleScrubAreaClick.callCount).to.equal(1);
