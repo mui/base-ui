@@ -81,13 +81,15 @@ function transformJsx() {
           if (node.data.estree.type === 'Program') {
             const estree = node.data.estree;
             if (estree.body[0].type === 'ImportDeclaration') {
-              // Collect demo for processing
               const importPath = estree.body[0].source.value;
-              demosToProcess.push({
-                index,
-                parent,
-                importPath,
-              });
+              // Only collect demo imports (those starting with ./demos/)
+              if (importPath.startsWith('./demos/')) {
+                demosToProcess.push({
+                  index,
+                  parent,
+                  importPath,
+                });
+              }
               return visit.CONTINUE;
             }
             if (estree.body[0].type === 'ExportNamedDeclaration') {
