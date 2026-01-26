@@ -14,12 +14,10 @@ import { TextDirection } from '../../direction-provider';
 import { MakeOptional } from '../../utils/types';
 
 /**
- * Formats a date value as YYYY-MM-DD for native date input.
+ * Formats a date value for native input.
+ * Returns '' for invalid/empty input to trigger valueMissing validation if required.
  */
-function formatDateForNativeInput(
-  adapter: TemporalAdapter,
-  value: TemporalValue,
-): string {
+function formatDateForNativeInput(adapter: TemporalAdapter, value: TemporalValue): string {
   if (!adapter.isValid(value)) {
     return '';
   }
@@ -49,8 +47,10 @@ const config: TemporalFieldConfiguration<
   stringifyValue: (adapter, value) =>
     adapter.isValid(value) ? adapter.toJsDate(value).toISOString() : '',
   nativeInputType: 'date',
-  stringifyValueForNativeInput: formatDateForNativeInput,
+  stringifyValueForNativeInput: (adapter, value, _sections) =>
+    formatDateForNativeInput(adapter, value),
   stringifyValidationPropsForNativeInput: (adapter, validationProps) => {
+    // Date inputs don't use step attribute
     const result: { min?: string; max?: string } = {};
     if (validationProps.minDate) {
       const formatted = formatDateForNativeInput(adapter, validationProps.minDate);

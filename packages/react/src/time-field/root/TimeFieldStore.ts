@@ -1,4 +1,4 @@
-import { TemporalAdapter, TemporalValue } from '../../types';
+import { TemporalAdapter, TemporalFieldDatePartType, TemporalValue } from '../../types';
 import { TemporalFieldStore } from '../../utils/temporal/field/TemporalFieldStore';
 import {
   ValidateTimeReturnValue,
@@ -7,6 +7,7 @@ import {
 import {
   TemporalFieldStoreSharedParameters,
   TemporalFieldConfiguration,
+  TemporalFieldSection,
 } from '../../utils/temporal/field/types';
 import { getInitialReferenceDate } from '../../utils/temporal/getInitialReferenceDate';
 import { getTimeManager } from '../../utils/temporal/getTimeManager';
@@ -14,24 +15,56 @@ import { TextDirection } from '../../direction-provider';
 import { MakeOptional } from '../../utils/types';
 
 /**
- * Formats a time value as HH:MM or HH:MM:SS for native time input.
+ * Checks if the format includes seconds by examining sections.
+ */
+function hasSecondsInFormat(sections: TemporalFieldSection[]): boolean {
+  return sections.some((section) => 'token' in section && section.token.config.part === 'seconds');
+}
+
+/**
+ * Formats a time value for native input.
+ * @param hasSeconds - Whether to include seconds (based on format)
+ * Returns '' for invalid/empty input to trigger valueMissing validation if required.
  */
 function formatTimeForNativeInput(
   adapter: TemporalAdapter,
   value: TemporalValue,
+  hasSeconds: boolean,
 ): string {
   if (!adapter.isValid(value)) {
     return '';
   }
   const hours = adapter.format(value, 'hours24hPadded');
   const minutes = adapter.format(value, 'minutesPadded');
-  const seconds = adapter.getSeconds(value);
-  // Include seconds only if they are non-zero
-  if (seconds === 0) {
-    return `${hours}:${minutes}`;
+  // Include seconds based on format, not the value
+  if (hasSeconds) {
+    return `${hours}:${minutes}:${adapter.format(value, 'secondsPadded')}`;
   }
-  return `${hours}:${minutes}:${adapter.format(value, 'secondsPadded')}`;
+  return `${hours}:${minutes}`;
 }
+
+/**
+ * Formats a time value for min/max attributes.
+ * Always includes seconds for rounding purposes.
+ */
+function formatTimeForMinMax(adapter: TemporalAdapter, value: TemporalValue): string {
+  if (!adapter.isValid(value)) {
+    return '';
+  }
+  const hours = adapter.format(value, 'hours24hPadded');
+  const minutes = adapter.format(value, 'minutesPadded');
+  const seconds = adapter.format(value, 'secondsPadded');
+  return `${hours}:${minutes}:${seconds}`;
+}
+
+/**
+ * Multipliers to convert props.step to native input step (in seconds).
+ */
+const STEP_MULTIPLIERS: Partial<Record<TemporalFieldDatePartType, number>> = {
+  hours: 3600,
+  minutes: 60,
+  seconds: 1,
+};
 
 const config: TemporalFieldConfiguration<
   TemporalValue,
@@ -53,17 +86,27 @@ const config: TemporalFieldConfiguration<
   stringifyValue: (adapter, value) =>
     adapter.isValid(value) ? adapter.toJsDate(value).toISOString() : '',
   nativeInputType: 'time',
-  stringifyValueForNativeInput: formatTimeForNativeInput,
-  stringifyValidationPropsForNativeInput: (adapter, validationProps) => {
-    const result: { min?: string; max?: string } = {};
+  stringifyValueForNativeInput: (adapter, value, sections) => {
+    const hasSeconds = hasSecondsInFormat(sections);
+    return formatTimeForNativeInput(adapter, value, hasSeconds);
+  },
+  stringifyValidationPropsForNativeInput: (adapter, validationProps, parsedFormat, step) => {
+    // Use parsedFormat.granularity to determine step multiplier
+    const multiplier = STEP_MULTIPLIERS[parsedFormat.granularity] ?? 60;
+    const nativeStep = step * multiplier;
+
+    const result: { min?: string; max?: string; step?: string } = {
+      step: String(nativeStep),
+    };
+    // Always include seconds in min/max for rounding purposes
     if (validationProps.minTime) {
-      const formatted = formatTimeForNativeInput(adapter, validationProps.minTime);
+      const formatted = formatTimeForMinMax(adapter, validationProps.minTime);
       if (formatted) {
         result.min = formatted;
       }
     }
     if (validationProps.maxTime) {
-      const formatted = formatTimeForNativeInput(adapter, validationProps.maxTime);
+      const formatted = formatTimeForMinMax(adapter, validationProps.maxTime);
       if (formatted) {
         result.max = formatted;
       }

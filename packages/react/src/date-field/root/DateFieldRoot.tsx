@@ -50,7 +50,6 @@ export const DateFieldRoot = React.forwardRef(function DateFieldRoot(
     timezone,
     referenceDate,
     format,
-    step,
     // Validation props
     minDate,
     maxDate,
@@ -81,7 +80,6 @@ export const DateFieldRoot = React.forwardRef(function DateFieldRoot(
       timezone,
       referenceDate,
       format,
-      step,
       name: nameProp,
       id,
       fieldContext,
@@ -99,7 +97,6 @@ export const DateFieldRoot = React.forwardRef(function DateFieldRoot(
       timezone,
       referenceDate,
       format,
-      step,
       nameProp,
       id,
       fieldContext,
@@ -159,9 +156,12 @@ export interface DateFieldRootState extends FieldRoot.State {
 export interface DateFieldRootProps
   extends
     BaseUIComponentProps<'div', DateFieldRootState>,
-    MakeOptional<
-      TemporalFieldStoreSharedParameters<TemporalValue, ValidateDateReturnValue>,
-      'format'
+    Omit<
+      MakeOptional<
+        TemporalFieldStoreSharedParameters<TemporalValue, ValidateDateReturnValue>,
+        'format'
+      >,
+      'step'
     >,
     ValidateDateValidationProps {}
 

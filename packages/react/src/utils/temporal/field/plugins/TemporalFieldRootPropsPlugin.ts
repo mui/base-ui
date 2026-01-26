@@ -2,6 +2,8 @@ import { createSelectorMemoized } from '@base-ui/utils/store';
 import { visuallyHiddenInput } from '@base-ui/utils/visuallyHidden';
 import { TemporalFieldStore } from '../TemporalFieldStore';
 import { TemporalFieldValuePlugin } from './TemporalFieldValuePlugin';
+import { TemporalFieldSectionPlugin } from './TemporalFieldSectionPlugin';
+import { TemporalFieldFormatPlugin } from './TemporalFieldFormatPlugin';
 import { selectors } from '../selectors';
 
 const rootPropsSelectors = {
@@ -21,6 +23,8 @@ const rootPropsSelectors = {
   ),
   hiddenInputProps: createSelectorMemoized(
     TemporalFieldValuePlugin.selectors.value,
+    TemporalFieldSectionPlugin.selectors.sections,
+    TemporalFieldFormatPlugin.selectors.parsedFormat,
     selectors.adapter,
     selectors.config,
     selectors.required,
@@ -29,14 +33,18 @@ const rootPropsSelectors = {
     selectors.name,
     selectors.id,
     selectors.validationProps,
-    (value, adapter, config, required, disabled, readOnly, name, id, validationProps) => {
+    selectors.step,
+    (value, sections, parsedFormat, adapter, config, required, disabled, readOnly, name, id, validationProps, step) => {
       const nativeValidationProps = config.stringifyValidationPropsForNativeInput(
         adapter,
         validationProps,
+        parsedFormat,
+        step,
       );
+
       return {
         type: config.nativeInputType,
-        value: config.stringifyValueForNativeInput(adapter, value),
+        value: config.stringifyValueForNativeInput(adapter, value, sections),
         name,
         id,
         disabled,
@@ -44,6 +52,7 @@ const rootPropsSelectors = {
         required,
         min: nativeValidationProps.min,
         max: nativeValidationProps.max,
+        step: nativeValidationProps.step,
         'aria-hidden': true,
         tabIndex: -1,
         style: visuallyHiddenInput,

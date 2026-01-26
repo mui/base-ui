@@ -1,15 +1,8 @@
 'use client';
 import * as React from 'react';
-import { set } from 'date-fns/set';
-import { format } from 'date-fns/format';
 import { Field } from '@base-ui/react/field';
-import { Form } from '@base-ui/react/form';
 import { TimeField } from '@base-ui/react/time-field';
-import styles from './time-field.module.css';
-
-const today = new Date();
-const minTime = set(today, { hours: 9, minutes: 0, seconds: 0 });
-const maxTime = set(today, { hours: 17, minutes: 30, seconds: 0 });
+import styles from './time-field-basic.module.css';
 
 export default function TimeFieldBasic() {
   return (
@@ -90,119 +83,6 @@ export default function TimeFieldBasic() {
               </TimeField.Root>
             </Field.Root>
           </div>
-        </section>
-        <section>
-          <h2>Validation</h2>
-          <div className={styles.Form}>
-            <Field.Root name="time-field-required" className={styles.Field}>
-              <Field.Label className={styles.Label}>Required</Field.Label>
-              <TimeField.Root className={styles.Root} required>
-                <TimeField.Input className={styles.Input}>
-                  {(section) => (
-                    <TimeField.Section
-                      key={section.index}
-                      className={styles.Section}
-                      section={section}
-                    />
-                  )}
-                </TimeField.Input>
-              </TimeField.Root>
-              <Field.Error className={styles.Error} />
-            </Field.Root>
-            <Field.Root name="time-field-min" className={styles.Field}>
-              <Field.Label className={styles.Label}>Min time (9:00 AM)</Field.Label>
-              <TimeField.Root className={styles.Root} required minTime={minTime}>
-                <TimeField.Input className={styles.Input}>
-                  {(section) => (
-                    <TimeField.Section
-                      key={section.index}
-                      className={styles.Section}
-                      section={section}
-                    />
-                  )}
-                </TimeField.Input>
-              </TimeField.Root>
-              <Field.Error className={styles.Error} />
-            </Field.Root>
-            <Field.Root name="time-field-max" className={styles.Field}>
-              <Field.Label className={styles.Label}>Max time (5:30 PM)</Field.Label>
-              <TimeField.Root className={styles.Root} required maxTime={maxTime}>
-                <TimeField.Input className={styles.Input}>
-                  {(section) => (
-                    <TimeField.Section
-                      key={section.index}
-                      className={styles.Section}
-                      section={section}
-                    />
-                  )}
-                </TimeField.Input>
-              </TimeField.Root>
-              <Field.Error className={styles.Error} />
-            </Field.Root>
-            <Field.Root name="time-field-min-max" className={styles.Field}>
-              <Field.Label className={styles.Label}>
-                Min and max time (9:00 AM to 5:30 PM)
-              </Field.Label>
-              <TimeField.Root className={styles.Root} required minTime={minTime} maxTime={maxTime}>
-                <TimeField.Input className={styles.Input}>
-                  {(section) => (
-                    <TimeField.Section
-                      key={section.index}
-                      className={styles.Section}
-                      section={section}
-                    />
-                  )}
-                </TimeField.Input>
-              </TimeField.Root>
-              <Field.Error className={styles.Error} />
-            </Field.Root>
-          </div>
-        </section>
-        <section>
-          <h2>Native Validation with Form</h2>
-          <p>
-            Min: {format(minTime, 'HH:mm')} | Max: {format(maxTime, 'HH:mm')}
-          </p>
-          <Form
-            className={styles.Form}
-            onFormSubmit={(formData) => {
-              alert(`Form submitted with time: ${formData['time-form-validation']}`);
-            }}
-          >
-            <Field.Root name="time-form-validation" className={styles.Field}>
-              <Field.Label className={styles.Label}>
-                Select a time (native validation on submit)
-              </Field.Label>
-              <TimeField.Root
-                className={styles.Root}
-                required
-                minTime={minTime}
-                maxTime={maxTime}
-              >
-                <TimeField.Input className={styles.Input}>
-                  {(section) => (
-                    <TimeField.Section
-                      key={section.index}
-                      className={styles.Section}
-                      section={section}
-                    />
-                  )}
-                </TimeField.Input>
-              </TimeField.Root>
-              <Field.Error match="valueMissing" className={styles.Error}>
-                Please select a time
-              </Field.Error>
-              <Field.Error match="rangeUnderflow" className={styles.Error}>
-                Time must be on or after {format(minTime, 'h:mm a')}
-              </Field.Error>
-              <Field.Error match="rangeOverflow" className={styles.Error}>
-                Time must be on or before {format(maxTime, 'h:mm a')}
-              </Field.Error>
-            </Field.Root>
-            <button type="submit" className={styles.Button}>
-              Submit
-            </button>
-          </Form>
         </section>
       </div>
     </div>

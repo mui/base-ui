@@ -17,8 +17,9 @@ const inputPropsSelectors = {
     selectors.fieldContext,
     selectors.inputRef,
     TemporalFieldValuePlugin.selectors.value,
-    (id, name, adapter, config, fieldContext, inputRef, value) => {
-      const formValue = config.stringifyValueForNativeInput(adapter, value);
+    TemporalFieldSectionPlugin.selectors.sections,
+    (id, name, adapter, config, fieldContext, inputRef, value, sections) => {
+      const formValue = config.stringifyValueForNativeInput(adapter, value, sections);
       return {
         id,
         name,

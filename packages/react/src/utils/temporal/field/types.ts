@@ -405,15 +405,23 @@ export interface TemporalFieldConfiguration<
    * Stringifies the value for native input format.
    * For date inputs: 'YYYY-MM-DD'
    * For time inputs: 'HH:MM' or 'HH:MM:SS'
+   * Returns 'invalid' for partial input (some sections filled) to trigger badInput validation.
+   * Returns '' for empty input to trigger valueMissing validation if required.
    */
-  stringifyValueForNativeInput: (adapter: TemporalAdapter, value: TValue) => string;
+  stringifyValueForNativeInput: (
+    adapter: TemporalAdapter,
+    value: TValue,
+    sections: TemporalFieldSection[],
+  ) => string;
   /**
-   * Stringifies the min/max validation props for native input attributes.
+   * Stringifies the min/max/step validation props for native input attributes.
    */
   stringifyValidationPropsForNativeInput: (
     adapter: TemporalAdapter,
     validationProps: TValidationProps,
-  ) => { min?: string; max?: string };
+    parsedFormat: TemporalFieldParsedFormat,
+    step: number,
+  ) => { min?: string; max?: string; step?: string };
 }
 
 export interface TemporalFieldPlaceholderGetters {
