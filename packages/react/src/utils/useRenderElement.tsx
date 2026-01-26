@@ -104,6 +104,12 @@ function useRenderElementProps<
   return outProps;
 }
 
+// The symbol React uses internally for lazy components
+// https://github.com/facebook/react/blob/a0566250b210499b4c5677f5ac2eedbd71d51a1b/packages/shared/ReactSymbols.js#L31
+//
+// TODO delete once https://github.com/facebook/react/issues/32392 is fixed
+const REACT_LAZY_TYPE = Symbol.for('react.lazy');
+
 function evaluateRenderProp<T extends React.ElementType, S>(
   element: IntrinsicTagName | undefined,
   render: BaseUIComponentProps<T, S>['render'],
@@ -116,7 +122,36 @@ function evaluateRenderProp<T extends React.ElementType, S>(
     }
     const mergedProps = mergeProps(props, render.props);
     mergedProps.ref = props.ref;
-    return React.cloneElement(render, mergedProps);
+
+    let newElement = render;
+
+    // Workaround for https://github.com/facebook/react/issues/32392
+    // This works because the toArray() logic unwrap lazy element type in
+    // https://github.com/facebook/react/blob/a0566250b210499b4c5677f5ac2eedbd71d51a1b/packages/react/src/ReactChildren.js#L186
+    if (newElement?.$$typeof === REACT_LAZY_TYPE) {
+      const children = React.Children.toArray(render);
+      newElement = children[0] as BaseUIComponentProps<T, S>['render'];
+    }
+
+    // There is a high number of indirections, the error message thrown by React.cloneElement() is
+    // hard to use for developers, this logic provides a better context.
+    //
+    // Our general guideline is to never change the control flow depending on the environment.
+    // However, React.cloneElement() throws if React.isValidElement() is false,
+    // so we can throw before with custom message.
+    if (process.env.NODE_ENV !== 'production') {
+      if (!React.isValidElement(newElement)) {
+        throw /* minify-error-disabled */ new Error(
+          [
+            'Base UI: The `render` prop was provided an invalid React element as `React.isValidElement(render)` is `false`.',
+            'A valid React element must be provided to the `render` prop because it is cloned with props to replace the default element.',
+            'https://base-ui.com/r/invalid-render-prop',
+          ].join('\n'),
+        );
+      }
+    }
+
+    return React.cloneElement(newElement, mergedProps);
   }
   if (element) {
     if (typeof element === 'string') {
