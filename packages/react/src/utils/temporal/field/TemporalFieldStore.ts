@@ -27,9 +27,9 @@ export class TemporalFieldStore<
   TError,
   TValidationProps extends object,
 > extends Store<TemporalFieldState<TValue, TError, TValidationProps>> {
-  public parameters: TemporalFieldStoreSharedParameters<TValue, TError>;
+  public parameters: TemporalFieldStoreSharedParameters<TValue>;
 
-  private initialParameters: TemporalFieldStoreSharedParameters<TValue, TError> | null = null;
+  private initialParameters: TemporalFieldStoreSharedParameters<TValue> | null = null;
 
   public instanceName: string;
 
@@ -54,7 +54,7 @@ export class TemporalFieldStore<
   public sectionProps: TemporalFieldSectionPropsPlugin<TValue>;
 
   constructor(
-    parameters: TemporalFieldStoreSharedParameters<TValue, TError>,
+    parameters: TemporalFieldStoreSharedParameters<TValue>,
     validationProps: TValidationProps,
     adapter: TemporalAdapter,
     config: TemporalFieldConfiguration<TValue, TError, TValidationProps>,
@@ -143,7 +143,7 @@ export class TemporalFieldStore<
    * Updates the state of the Tree View based on the new parameters provided to the root component.
    */
   protected updateStateFromParameters(
-    parameters: TemporalFieldStoreSharedParameters<TValue, TError>,
+    parameters: TemporalFieldStoreSharedParameters<TValue>,
     validationProps: TValidationProps,
     adapter: TemporalAdapter,
     config: TemporalFieldConfiguration<TValue, TError, TValidationProps>,
@@ -151,7 +151,7 @@ export class TemporalFieldStore<
   ) {
     const updateModel: TemporalFieldModelUpdater<
       TemporalFieldState<TValue, TError, TValidationProps>,
-      TemporalFieldStoreSharedParameters<TValue, TError>
+      TemporalFieldStoreSharedParameters<TValue>
     > = (mutableNewState, controlledProp, defaultProp) => {
       if (parameters[controlledProp] !== undefined) {
         mutableNewState[controlledProp] = parameters[controlledProp] as any;

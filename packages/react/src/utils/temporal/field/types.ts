@@ -19,7 +19,6 @@ import { TemporalManager, TemporalTimezoneProps } from '../types';
  */
 export interface TemporalFieldStoreSharedParameters<
   TValue extends TemporalSupportedValue,
-  TError,
 > extends TemporalTimezoneProps {
   /**
    * The controlled value that should be selected.
@@ -36,10 +35,7 @@ export interface TemporalFieldStoreSharedParameters<
    * Provides the new value as an argument.
    * Has `getValidationError()` in the `eventDetails` to retrieve the validation error associated to the new value.
    */
-  onValueChange?: (
-    value: TValue,
-    eventDetails: TemporalFieldValueChangeEventDetails<TError>,
-  ) => void;
+  onValueChange?: (value: TValue, eventDetails: TemporalFieldValueChangeEventDetails) => void;
   /**
    * The date used to generate the new value when both `value` and `defaultValue` are empty.
    * @default 'The closest valid date using the validation props.'
@@ -297,17 +293,8 @@ export type TemporalFieldRangePosition = 'start' | 'end';
 
 export type TemporalFieldSelectedSection = number | null;
 
-export interface TemporalFieldValueChangeHandlerContext<TError> {
-  /**
-   * The validation error associated to the new value.
-   */
-  getValidationError: () => TError;
-}
-
-export type TemporalFieldValueChangeEventDetails<TError> = BaseUIChangeEventDetails<
-  TemporalFieldChangeReason,
-  TemporalFieldValueChangeHandlerContext<TError>
->;
+export type TemporalFieldValueChangeEventDetails =
+  BaseUIChangeEventDetails<TemporalFieldChangeReason>;
 
 /**
  * Configuration of a given field (DateField, TimeField, etc.).
@@ -442,7 +429,7 @@ export type TemporalFieldDatePartValueBoundaries = {
 
 export type TemporalFieldModelUpdater<
   State extends TemporalFieldState<any, any, any>,
-  Parameters extends TemporalFieldStoreSharedParameters<any, any>,
+  Parameters extends TemporalFieldStoreSharedParameters<any>,
 > = (
   newState: Partial<State>,
   controlledProp: keyof Parameters & keyof State & string,

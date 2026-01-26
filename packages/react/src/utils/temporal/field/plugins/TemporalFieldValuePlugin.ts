@@ -50,19 +50,10 @@ export class TemporalFieldValuePlugin<
 
     // Pass event
     // event.nativeEvent, event.currentTarget
-    const eventDetails: TemporalFieldValueChangeEventDetails<TError> = createChangeEventDetails(
+    const eventDetails: TemporalFieldValueChangeEventDetails = createChangeEventDetails(
       'none',
       undefined,
       undefined,
-      {
-        getValidationError: () =>
-          selectors
-            .manager(this.store.state)
-            .getValidationError(
-              newValueWithInputTimezone,
-              selectors.validationProps(this.store.state),
-            ),
-      },
     );
 
     this.store.parameters.onValueChange?.(newValueWithInputTimezone, eventDetails);
