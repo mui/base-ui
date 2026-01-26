@@ -13,7 +13,10 @@ export function ReleaseTimeline() {
         <div key={release.versionSlug} className="TimelineItem">
           <div className="TimelineDot" />
           <div className="TimelineCard">
-            <Link href={`/react/overview/releases/${release.versionSlug}`} className="TimelineCardLink">
+            <Link
+              href={`/react/overview/releases/${release.versionSlug}`}
+              className="TimelineCardLink"
+            >
               <div className="TimelineCardHeader">
                 <h3 className="TimelineVersion">{release.version}</h3>
                 <p className="TimelineDate">{release.date}</p>
