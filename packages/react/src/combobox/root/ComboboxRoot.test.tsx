@@ -4921,6 +4921,45 @@ describe('<Combobox.Root />', () => {
       await waitFor(() => expect(input).not.to.have.attribute('aria-activedescendant'));
       expect(banana).not.to.have.attribute('data-highlighted');
     });
+
+    it('allows mouse drag selection when disabled', async () => {
+      const handleValueChange = spy();
+
+      await render(
+        <Combobox.Root
+          items={['apple', 'banana', 'cherry']}
+          highlightItemOnHover={false}
+          onValueChange={handleValueChange}
+        >
+          <Combobox.Input data-testid="input" />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  {(item: string) => (
+                    <Combobox.Item key={item} value={item}>
+                      {item}
+                    </Combobox.Item>
+                  )}
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByTestId('input');
+      fireEvent.mouseDown(input);
+
+      const banana = await screen.findByRole('option', { name: 'banana' });
+      fireEvent.mouseMove(banana);
+      fireEvent.mouseUp(banana);
+
+      await waitFor(() => {
+        expect(handleValueChange.callCount).to.equal(1);
+      });
+      expect(handleValueChange.args[0][0]).to.equal('banana');
+    });
   });
 
   describe('prop: loopFocus', () => {
