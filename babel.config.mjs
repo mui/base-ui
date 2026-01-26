@@ -17,6 +17,7 @@ export default function getBabelConfig(api) {
         runtimeModule: '#formatErrorMessage',
         detection: 'opt-out',
         errorCodesPath,
+        outExtension: process.env.MUI_OUT_FILE_EXTENSION ?? undefined,
       },
     ],
   ];
