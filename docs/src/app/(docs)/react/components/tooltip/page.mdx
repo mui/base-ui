@@ -16,10 +16,8 @@ import { DemoTooltipHero } from './demos/hero';
 
 To ensure that tooltips are accessible and helpful, follow these guidelines:
 
-- **Provide an accessible name for the trigger**: The tooltip's trigger must have a meaningful label. This can be its visible text or an `aria-label`/`aria-labelledby` attribute. The label should closely match the tooltip's content to ensure consistency for screen reader users.
-- **Avoid tooltips for critical information**: Tooltips work well for enhancing UI clarity (like labeling icon buttons) but should not be the sole means of conveying important information. Since tooltips do not appear on touch devices, consider using a [Popover](/react/components/popover) for essential content.
-- **Avoid tooltips for "infotips"**: If your tooltip is attached to an "info icon" button whose only purpose is to show the tooltip, opt for [Popover](/react/components/popover) and add the `openOnHover` prop instead. Tooltips should describe an element that performs an action separate from opening the tooltip itself.
-- **Avoid for transient information**: Use the Toast component's [anchoring ability](/react/components/toast#anchored-toasts) instead of Tooltip for transient notifications, like a "Copied" popup that appears above a copy-to-clipboard button. This way, the message is announced to screen readers when it appears. Toasts can also contain more complex content, such as links or actions.
+- **Provide an accessible name for the trigger**: Tooltips are visual-only elements and are not a replacement for labeling the trigger. The tooltip's trigger must have an `aria-label` attribute that closely matches the tooltip's content to ensure consistency for screen reader users.
+- **Prefer using tooltips as visual labels only**: Tooltips should act as supplementary visual labels for sighted mouse users. Tooltips alone are not accessible to touch or screen reader users. See [Alternatives to tooltips](#alternatives-to-tooltips) for more details.
 
 ## Anatomy
 
@@ -41,6 +39,31 @@ import { Tooltip } from '@base-ui/react/tooltip';
   </Tooltip.Root>
 </Tooltip.Provider>;
 ```
+
+## Alternatives to tooltips
+
+Tooltips should be supplementary, visual-only popups that provide clarity in high-density UIs. Omitting a tooltip from a user should not result in loss of critical information.
+
+Tooltips do not work when using a touch pointer. Unlike mouse pointers with hover capability, there is no easy-to-discover way to reveal a tooltip before tapping its trigger when using a touch pointer.
+
+iOS provides no tooltips in its operating system, while Android may show a tooltip on long press. However, on the web, long press is often used to trigger contextual menus in the browser, which can lead to potential conflicts. For this reason, tooltips are disabled on touch devices by default.
+
+### Infotips
+
+Popups that open when hovering an info icon should use [Popover](/react/components/popover) and the `openOnHover` prop on the trigger instead. This way, touch users and screen reader users can access the content.
+
+To know when to reach for a popover instead of a tooltip, consider the **purpose** of the trigger element:
+if the trigger's purpose is to open the popup itself, it's a popover. If the trigger's purpose is unrelated to opening the popup, it's a tooltip.
+
+### Important description text
+
+In the vast majority of cases, tooltips should act as labels, not descriptions. If you need to provide a description about an element, use inline text or a [Popover](/react/components/popover) trigger near the tooltip trigger if space is limited.
+
+Attempting to hide additional, important information behind a tooltip excludes touch and screen reader users — popovers are accessible to all users. If the description is not critical to understanding the element, a tooltip may be used to provide clarity for sighted mouse users.
+
+### Contextual feedback messages
+
+Use the Toast component's [anchoring ability](/react/components/toast#anchored-toasts) for more ergonomic DX, to ensure the message is announced to screen readers, and to support complex content inside.
 
 ## Examples
 
