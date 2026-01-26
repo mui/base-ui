@@ -41,7 +41,7 @@ export const Toggle = React.forwardRef(function Toggle<Value extends string>(
   } = componentProps;
 
   // `|| undefined` handles cases, where value is falsy (i.e. "")
-  const value = useBaseUiId(valueProp?.toString() || undefined);
+  const value = useBaseUiId(valueProp || undefined);
   const groupContext = useToggleGroupContext();
   const groupValue = groupContext?.value ?? [];
 
