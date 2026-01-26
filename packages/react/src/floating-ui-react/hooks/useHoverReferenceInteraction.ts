@@ -3,6 +3,7 @@ import * as ReactDOM from 'react-dom';
 import { isElement } from '@floating-ui/utils/dom';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { isElementDisabled } from '@base-ui/utils/isElementDisabled';
 import type { FloatingContext, FloatingRootContext } from '../types';
 import { contains, getDocument, isMouseLikePointerType } from '../utils';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
@@ -186,6 +187,12 @@ export function useHoverReferenceInteraction(
     }
 
     function onMouseEnter(event: MouseEvent) {
+      // Prevent hover interactions when the trigger element is disabled (e.g., via render prop)
+      const triggerElement = triggerElementRef.current as HTMLElement | null;
+      if (isElementDisabled(triggerElement)) {
+        return;
+      }
+
       openChangeTimeout.clear();
       blockMouseMoveRef.current = false;
 

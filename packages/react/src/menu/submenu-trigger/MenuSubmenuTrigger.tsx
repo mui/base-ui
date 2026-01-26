@@ -1,5 +1,8 @@
 'use client';
 import * as React from 'react';
+import { isElementDisabled } from '@base-ui/utils/isElementDisabled';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { warn } from '@base-ui/utils/warn';
 import {
   safePolygon,
   useClick,
@@ -40,12 +43,6 @@ export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerCompon
     ...elementProps
   } = componentProps;
 
-  const renderElementDisabled = Boolean(
-    render &&
-    React.isValidElement<{ disabled?: boolean | undefined }>(render) &&
-    render.props.disabled,
-  );
-
   const listItem = useCompositeListItem();
   const menuPositionerContext = useMenuPositionerContext();
 
@@ -83,6 +80,19 @@ export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerCompon
     [store],
   );
 
+  if (process.env.NODE_ENV !== 'production') {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    useIsoLayoutEffect(() => {
+      const element = triggerElementRef.current;
+      if (element && isElementDisabled(element) && !disabledProp) {
+        warn(
+          'A disabled element was detected on <Menu.SubmenuTrigger>. ' +
+            'To properly disable the trigger, use the `disabled` prop on the component instead of setting it on the rendered element.',
+        );
+      }
+    });
+  }
+
   const submenuRootContext = useMenuSubmenuRootContext();
   if (!submenuRootContext?.parentMenu) {
     throw new Error('Base UI: <Menu.SubmenuTrigger> must be placed in <Menu.SubmenuRoot>.');
@@ -106,7 +116,7 @@ export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerCompon
   );
 
   const rootDisabled = store.useState('disabled');
-  const disabled = disabledProp || rootDisabled || renderElementDisabled;
+  const disabled = disabledProp || rootDisabled;
 
   const { getItemProps, itemRef } = useMenuItem({
     closeOnClick: false,
