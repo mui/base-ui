@@ -1,3 +1,4 @@
+import { useOnMount } from '@base-ui/utils/useOnMount';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { Timeout } from '@base-ui/utils/useTimeout';
 
@@ -40,6 +41,15 @@ export class HoverInteraction {
   static create(): HoverInteraction {
     return new HoverInteraction();
   }
+
+  dispose = () => {
+    this.openChangeTimeout.clear();
+    this.restTimeout.clear();
+  };
+
+  disposeEffect = () => {
+    return this.dispose;
+  };
 }
 
 type HoverContextData = ContextData & {
@@ -53,6 +63,8 @@ export function useHoverInteractionSharedState(store: FloatingRootContext): Hove
   if (!data.hoverInteractionState) {
     data.hoverInteractionState = instance;
   }
+
+  useOnMount(data.hoverInteractionState.disposeEffect);
 
   return data.hoverInteractionState;
 }
