@@ -31,13 +31,10 @@ export const ComboboxBackdrop = React.forwardRef(function ComboboxBackdrop(
   const mounted = useStore(store, selectors.mounted);
   const transitionStatus = useStore(store, selectors.transitionStatus);
 
-  const state: ComboboxBackdrop.State = React.useMemo(
-    () => ({
-      open,
-      transitionStatus,
-    }),
-    [open, transitionStatus],
-  );
+  const state: ComboboxBackdrop.State = {
+    open,
+    transitionStatus,
+  };
 
   return useRenderElement('div', componentProps, {
     state,

@@ -9,17 +9,19 @@ import { FloatingRootStore, type FloatingRootState } from '../components/Floatin
 import { PopupTriggerMap } from '../../utils/popups';
 
 export interface UseFloatingRootContextOptions {
-  open?: boolean;
+  open?: boolean | undefined;
   onOpenChange?(open: boolean, eventDetails: BaseUIChangeEventDetails<string>): void;
-  elements?: {
-    reference?: ReferenceType | null;
-    floating?: HTMLElement | null;
-    triggers?: PopupTriggerMap;
-  };
+  elements?:
+    | {
+        reference?: (ReferenceType | null) | undefined;
+        floating?: (HTMLElement | null) | undefined;
+        triggers?: PopupTriggerMap | undefined;
+      }
+    | undefined;
   /**
    * Whether to prevent the auto-emitted `openchange` event.
    */
-  noEmit?: boolean;
+  noEmit?: boolean | undefined;
 }
 
 export function useFloatingRootContext(options: UseFloatingRootContextOptions): FloatingRootStore {

@@ -25,15 +25,15 @@ export const PreviewCardBackdrop = React.forwardRef(function PreviewCardBackdrop
 ) {
   const { render, className, ...elementProps } = componentProps;
 
-  const { open, mounted, transitionStatus } = usePreviewCardRootContext();
+  const store = usePreviewCardRootContext();
+  const open = store.useState('open');
+  const mounted = store.useState('mounted');
+  const transitionStatus = store.useState('transitionStatus');
 
-  const state: PreviewCardBackdrop.State = React.useMemo(
-    () => ({
-      open,
-      transitionStatus,
-    }),
-    [open, transitionStatus],
-  );
+  const state: PreviewCardBackdrop.State = {
+    open,
+    transitionStatus,
+  };
 
   const element = useRenderElement('div', componentProps, {
     state,

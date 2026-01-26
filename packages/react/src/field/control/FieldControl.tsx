@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useControlled } from '@base-ui/utils/useControlled';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { FieldRoot } from '../root/FieldRoot';
@@ -46,13 +45,10 @@ export const FieldControl = React.forwardRef(function FieldControl(
   const disabled = fieldDisabled || disabledProp;
   const name = fieldName ?? nameProp;
 
-  const state: FieldControl.State = React.useMemo(
-    () => ({
-      ...fieldState,
-      disabled,
-    }),
-    [fieldState, disabled],
-  );
+  const state: FieldControl.State = {
+    ...fieldState,
+    disabled,
+  };
 
   const { setTouched, setDirty, validityData, setFocused, setFilled, validationMode, validation } =
     useFieldRootContext();
@@ -69,7 +65,7 @@ export const FieldControl = React.forwardRef(function FieldControl(
     }
   }, [validation.inputRef, setFilled, valueProp]);
 
-  const [value, setValueUnwrapped] = useControlled({
+  const [valueUnwrapped] = useControlled({
     controlled: valueProp,
     default: defaultValue,
     name: 'FieldControl',
@@ -77,18 +73,7 @@ export const FieldControl = React.forwardRef(function FieldControl(
   });
 
   const isControlled = valueProp !== undefined;
-
-  const setValue = useStableCallback(
-    (nextValue: string, eventDetails: FieldControl.ChangeEventDetails) => {
-      onValueChange?.(nextValue, eventDetails);
-
-      if (eventDetails.isCanceled) {
-        return;
-      }
-
-      setValueUnwrapped(nextValue);
-    },
-  );
+  const value = isControlled ? valueUnwrapped : undefined;
 
   useField({
     id,
@@ -112,7 +97,7 @@ export const FieldControl = React.forwardRef(function FieldControl(
         ...(isControlled ? { value } : { defaultValue }),
         onChange(event) {
           const inputValue = event.currentTarget.value;
-          setValue(inputValue, createChangeEventDetails(REASONS.none, event.nativeEvent));
+          onValueChange?.(inputValue, createChangeEventDetails(REASONS.none, event.nativeEvent));
           setDirty(inputValue !== validityData.initialValue);
           setFilled(inputValue !== '');
         },
@@ -149,8 +134,10 @@ export interface FieldControlProps extends BaseUIComponentProps<'input', FieldCo
   /**
    * Callback fired when the `value` changes. Use when controlled.
    */
-  onValueChange?: (value: string, eventDetails: FieldControl.ChangeEventDetails) => void;
-  defaultValue?: React.ComponentProps<'input'>['defaultValue'];
+  onValueChange?:
+    | ((value: string, eventDetails: FieldControl.ChangeEventDetails) => void)
+    | undefined;
+  defaultValue?: React.ComponentProps<'input'>['defaultValue'] | undefined;
 }
 
 export type FieldControlChangeEventReason = typeof REASONS.none;

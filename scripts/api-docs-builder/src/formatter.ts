@@ -83,20 +83,31 @@ export async function formatProperties(
   return result;
 }
 
-export function formatParameters(params: tae.Parameter[]) {
+export type DocumentationOverride = {
+  description?: string;
+  tags?: tae.DocumentationTag[];
+};
+
+export function formatParameters(
+  params: tae.Parameter[],
+  optionalOverrides?: boolean[],
+  documentationOverrides?: Array<DocumentationOverride | undefined>,
+) {
   const result: Record<string, any> = {};
 
-  for (const param of params) {
-    const exampleTag = param.documentation?.tags
+  for (const [index, param] of params.entries()) {
+    const isOptional = optionalOverrides?.[index] ?? param.optional;
+    const documentation = documentationOverrides?.[index] ?? param.documentation;
+    const exampleTag = documentation?.tags
       ?.filter((tag) => tag.name === 'example')
       .map((tag) => tag.value)
       .join('\n');
 
     result[param.name] = {
-      type: formatType(param.type, param.optional, param.documentation?.tags, true),
+      type: formatType(param.type, isOptional, documentation?.tags, true),
       default: param.defaultValue,
-      optional: param.optional || undefined,
-      description: param.documentation?.description,
+      optional: isOptional || undefined,
+      description: documentation?.description,
       example: exampleTag || undefined,
     };
   }
@@ -118,7 +129,15 @@ export function formatDetailedType(
     visited.add(qualifiedName);
 
     const exportNode = allExports.find((node) => node.name === type.typeName.name);
-    if (exportNode) {
+    // Only recurse if the export actually provides more type information
+    // (not just re-exporting the same external type)
+    if (
+      exportNode &&
+      !(
+        exportNode.type instanceof tae.ExternalTypeNode &&
+        exportNode.type.typeName.name === type.typeName.name
+      )
+    ) {
       return formatDetailedType(
         (exportNode.type as unknown as tae.AnyType) ?? type,
         allExports,
@@ -128,7 +147,7 @@ export function formatDetailedType(
 
     // Manually expand known external aliases when declaration is not in local exports
     switch (true) {
-      case qualifiedName.endsWith('Padding'):
+      case qualifiedName.includes('Padding'):
         return '{ top?: number; right?: number; bottom?: number; left?: number } | number';
       default:
         return qualifiedName;

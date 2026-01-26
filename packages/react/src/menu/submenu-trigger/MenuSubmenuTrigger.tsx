@@ -92,7 +92,9 @@ export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerCompon
   const itemMetadata = React.useMemo(
     () => ({
       type: 'submenu-trigger' as const,
-      setActive: () => parentMenuStore.set('activeIndex', listItem.index),
+      setActive() {
+        parentMenuStore.set('activeIndex', listItem.index);
+      },
     }),
     [parentMenuStore, listItem.index],
   );
@@ -112,15 +114,15 @@ export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerCompon
   });
 
   const hoverEnabled = store.useState('hoverEnabled');
-  const allowMouseEnter = store.useState('allowMouseEnter');
+  const allowMouseEnter = parentMenuStore.useState('allowMouseEnter');
 
   const hoverProps = useHoverReferenceInteraction(floatingRootContext, {
-    enabled: hoverEnabled && openOnHover && !disabled && allowMouseEnter,
+    enabled: hoverEnabled && openOnHover && !disabled,
     handleClose: safePolygon({ blockPointerEvents: true }),
     mouseOnly: true,
     move: true,
     restMs: delay,
-    delay: { open: delay, close: closeDelay },
+    delay: allowMouseEnter ? { open: delay, close: closeDelay } : 0,
     triggerElementRef,
     externalTree: floatingTreeRoot,
   });
@@ -138,10 +140,7 @@ export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerCompon
   const rootTriggerProps = store.useState('triggerProps', true);
   delete rootTriggerProps.id;
 
-  const state: MenuSubmenuTrigger.State = React.useMemo(
-    () => ({ disabled, highlighted, open }),
-    [disabled, highlighted, open],
-  );
+  const state: MenuSubmenuTrigger.State = { disabled, highlighted, open };
 
   const element = useRenderElement('div', componentProps, {
     state,
@@ -170,27 +169,27 @@ export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerCompon
 
 export interface MenuSubmenuTriggerProps
   extends NonNativeButtonProps, BaseUIComponentProps<'div', MenuSubmenuTrigger.State> {
-  onClick?: React.MouseEventHandler<HTMLElement>;
+  onClick?: React.MouseEventHandler<HTMLElement> | undefined;
   /**
    * Overrides the text label to use when the item is matched during keyboard text navigation.
    */
-  label?: string;
+  label?: string | undefined;
   /**
    * @ignore
    */
-  id?: string;
+  id?: string | undefined;
   /**
    * Whether the component should ignore user interaction.
    * @default false
    */
-  disabled?: boolean;
+  disabled?: boolean | undefined;
   /**
    * How long to wait before the menu may be opened on hover. Specified in milliseconds.
    *
    * Requires the `openOnHover` prop.
    * @default 100
    */
-  delay?: number;
+  delay?: number | undefined;
   /**
    * How long to wait before closing the menu that was opened on hover.
    * Specified in milliseconds.
@@ -198,11 +197,11 @@ export interface MenuSubmenuTriggerProps
    * Requires the `openOnHover` prop.
    * @default 0
    */
-  closeDelay?: number;
+  closeDelay?: number | undefined;
   /**
    * Whether the menu should also open when the trigger is hovered.
    */
-  openOnHover?: boolean;
+  openOnHover?: boolean | undefined;
 }
 
 export interface MenuSubmenuTriggerState {

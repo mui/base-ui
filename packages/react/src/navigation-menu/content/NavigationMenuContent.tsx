@@ -78,14 +78,11 @@ export const NavigationMenuContent = React.forwardRef(function NavigationMenuCon
     },
   });
 
-  const state: NavigationMenuContent.State = React.useMemo(
-    () => ({
-      open,
-      transitionStatus,
-      activationDirection,
-    }),
-    [open, transitionStatus, activationDirection],
-  );
+  const state: NavigationMenuContent.State = {
+    open,
+    transitionStatus,
+    activationDirection,
+  };
 
   const handleCurrentContentRef = React.useCallback(
     (node: HTMLDivElement | null) => {

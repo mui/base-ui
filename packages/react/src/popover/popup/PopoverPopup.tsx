@@ -2,11 +2,7 @@
 import * as React from 'react';
 import { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import { isHTMLElement } from '@floating-ui/utils/dom';
-import {
-  Dimensions,
-  FloatingFocusManager,
-  useHoverFloatingInteraction,
-} from '../../floating-ui-react';
+import { FloatingFocusManager, useHoverFloatingInteraction } from '../../floating-ui-react';
 import { usePopoverRootContext } from '../root/PopoverRootContext';
 import { usePopoverPositionerContext } from '../positioner/PopoverPositionerContext';
 import type { Side, Align } from '../../utils/useAnchorPositioning';
@@ -18,8 +14,6 @@ import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { REASONS } from '../../utils/reasons';
-import { usePopupAutoResize } from '../../utils/usePopupAutoResize';
-import { useDirection } from '../../direction-provider/DirectionContext';
 import { COMPOSITE_KEYS } from '../../composite/composite';
 import { useToolbarRootContext } from '../../toolbar/root/ToolbarRootContext';
 import { getDisabledMountTransitionStyles } from '../../utils/getDisabledMountTransitionStyles';
@@ -45,7 +39,6 @@ export const PopoverPopup = React.forwardRef(function PopoverPopup(
 
   const positioner = usePopoverPositionerContext();
   const insideToolbar = useToolbarRootContext(true) != null;
-  const direction = useDirection();
 
   const open = store.useState('open');
   const openMethod = store.useState('openMethod');
@@ -57,9 +50,6 @@ export const PopoverPopup = React.forwardRef(function PopoverPopup(
   const modal = store.useState('modal');
   const mounted = store.useState('mounted');
   const openReason = store.useState('openChangeReason');
-  const popupElement = store.useState('popupElement');
-  const payload = store.useState('payload');
-  const positionerElement = store.useState('positionerElement');
   const activeTriggerElement = store.useState('activeTriggerElement');
   const floatingContext = store.useState('floatingRootContext');
 
@@ -91,16 +81,13 @@ export const PopoverPopup = React.forwardRef(function PopoverPopup(
 
   const resolvedInitialFocus = initialFocus === undefined ? defaultInitialFocus : initialFocus;
 
-  const state: PopoverPopup.State = React.useMemo(
-    () => ({
-      open,
-      side: positioner.side,
-      align: positioner.align,
-      instant: instantType,
-      transitionStatus,
-    }),
-    [open, positioner.side, positioner.align, instantType, transitionStatus],
-  );
+  const state: PopoverPopup.State = {
+    open,
+    side: positioner.side,
+    align: positioner.align,
+    instant: instantType,
+    transitionStatus,
+  };
 
   const setPopupElement = React.useCallback(
     (element: HTMLElement | null) => {
@@ -108,39 +95,6 @@ export const PopoverPopup = React.forwardRef(function PopoverPopup(
     },
     [store],
   );
-
-  function handleMeasureLayout() {
-    floatingContext.context.events.emit('measure-layout');
-  }
-
-  function handleMeasureLayoutComplete(
-    previousDimensions: Dimensions | null,
-    nextDimensions: Dimensions,
-  ) {
-    floatingContext.context.events.emit('measure-layout-complete', {
-      previousDimensions,
-      nextDimensions,
-    });
-  }
-
-  // If there's just one trigger, we can skip the auto-resize logic as
-  // the popover will always be anchored to the same position.
-  const autoresizeEnabled = React.useCallback(
-    () => store.context.triggerElements.size > 1,
-    [store],
-  );
-
-  usePopupAutoResize({
-    popupElement,
-    positionerElement,
-    mounted,
-    content: payload,
-    enabled: autoresizeEnabled,
-    onMeasureLayout: handleMeasureLayout,
-    onMeasureLayoutComplete: handleMeasureLayoutComplete,
-    side: positioner.side,
-    direction,
-  });
 
   const element = useRenderElement('div', componentProps, {
     state,
@@ -190,6 +144,7 @@ export interface PopoverPopupState {
   side: Side;
   align: Align;
   transitionStatus: TransitionStatus;
+  instant: 'dismiss' | 'click' | undefined;
 }
 
 export interface PopoverPopupProps extends BaseUIComponentProps<'div', PopoverPopup.State> {
@@ -203,9 +158,12 @@ export interface PopoverPopupProps extends BaseUIComponentProps<'div', PopoverPo
    *   Return an element to focus, `true` to use the default behavior, or `false`/`undefined` to do nothing.
    */
   initialFocus?:
-    | boolean
-    | React.RefObject<HTMLElement | null>
-    | ((openType: InteractionType) => void | boolean | HTMLElement | null);
+    | (
+        | boolean
+        | React.RefObject<HTMLElement | null>
+        | ((openType: InteractionType) => void | boolean | HTMLElement | null)
+      )
+    | undefined;
   /**
    * Determines the element to focus when the popover is closed.
    *
@@ -216,9 +174,12 @@ export interface PopoverPopupProps extends BaseUIComponentProps<'div', PopoverPo
    *   Return an element to focus, `true` to use the default behavior, or `false`/`undefined` to do nothing.
    */
   finalFocus?:
-    | boolean
-    | React.RefObject<HTMLElement | null>
-    | ((closeType: InteractionType) => void | boolean | HTMLElement | null);
+    | (
+        | boolean
+        | React.RefObject<HTMLElement | null>
+        | ((closeType: InteractionType) => void | boolean | HTMLElement | null)
+      )
+    | undefined;
 }
 
 export namespace PopoverPopup {

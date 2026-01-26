@@ -12,13 +12,13 @@
       "type": "ToastObject<any>",
       "required": true,
       "description": "The toast object associated with the positioner.",
-      "detailedType": "id: string\n  ref?: RefObject<HTMLElement | null>\n  title?: ReactNode\n  type?: string\n  description?: ReactNode\n  timeout?: number\n  priority?: 'high' | 'low'\n  transitionStatus?: 'starting' | 'ending'\n  limited?: boolean\n  height?: number\n  onClose?: () => void\n  onRemove?: () => void\n  actionProps?: Omit<\n    DetailedHTMLProps<\n      ButtonHTMLAttributes<HTMLButtonElement>,\n      HTMLButtonElement\n    >,\n    'ref'\n  >\n  positionerProps?: ToastManagerPositionerProps\n  data?: any\n}"
+      "detailedType": "id: string\n  ref?: RefObject<HTMLElement | null>\n  title?: ReactNode\n  type?: string\n  description?: ReactNode\n  timeout?: number\n  priority?: 'low' | 'high'\n  transitionStatus?: 'starting' | 'ending'\n  limited?: boolean\n  height?: number\n  onClose?: () => void\n  onRemove?: () => void\n  actionProps?: Omit<\n    DetailedHTMLProps<\n      ButtonHTMLAttributes<HTMLButtonElement>,\n      HTMLButtonElement\n    >,\n    'ref'\n  >\n  positionerProps?: ToastManagerPositionerProps\n  data?: {}\n}"
     },
     "align": {
       "type": "Align",
       "default": "'center'",
       "description": "How to align the popup relative to the specified side.",
-      "detailedType": "'center' | 'end' | 'start' | undefined"
+      "detailedType": "'start' | 'center' | 'end' | undefined"
     },
     "alignOffset": {
       "type": "number | OffsetFunction",
@@ -31,7 +31,7 @@
       "type": "Side",
       "default": "'top'",
       "description": "Which side of the anchor element to align the toast against.\nMay automatically change to avoid collisions.",
-      "detailedType": "| 'left'\n| 'right'\n| 'bottom'\n| 'top'\n| 'inline-end'\n| 'inline-start'\n| undefined"
+      "detailedType": "| 'top'\n| 'bottom'\n| 'left'\n| 'right'\n| 'inline-end'\n| 'inline-start'\n| undefined"
     },
     "sideOffset": {
       "type": "number | OffsetFunction",
@@ -55,13 +55,13 @@
       "type": "CollisionAvoidance",
       "description": "Determines how to handle collisions when positioning the popup.",
       "example": "```jsx\n<Positioner\n  collisionAvoidance={{\n    side: 'shift',\n    align: 'shift',\n    fallbackAxisSide: 'none',\n  }}\n/>\n```",
-      "detailedType": "| {\n    side?: 'none' | 'flip'\n    align?: 'none' | 'flip' | 'shift'\n    fallbackAxisSide?: 'none' | 'end' | 'start'\n  }\n| {\n    side?: 'none' | 'shift'\n    align?: 'none' | 'shift'\n    fallbackAxisSide?: 'none' | 'end' | 'start'\n  }\n| undefined"
+      "detailedType": "| {\n    side?: 'flip' | 'none'\n    align?: 'flip' | 'shift' | 'none'\n    fallbackAxisSide?: 'start' | 'end' | 'none'\n  }\n| {\n    side?: 'shift' | 'none'\n    align?: 'shift' | 'none'\n    fallbackAxisSide?: 'start' | 'end' | 'none'\n  }\n| undefined"
     },
     "collisionBoundary": {
       "type": "Boundary",
       "default": "'clipping-ancestors'",
       "description": "An element or a rectangle that delimits the area that the popup is confined to.",
-      "detailedType": "| Element\n| 'clipping-ancestors'\n| Element[]\n| Rect\n| undefined"
+      "detailedType": "| 'clipping-ancestors'\n| Element\n| Element[]\n| Rect\n| undefined"
     },
     "collisionPadding": {
       "type": "Padding",
@@ -76,10 +76,10 @@
       "detailedType": "boolean | undefined"
     },
     "positionMethod": {
-      "type": "'fixed' | 'absolute'",
+      "type": "'absolute' | 'fixed'",
       "default": "'absolute'",
       "description": "Determines which CSS `position` property to use.",
-      "detailedType": "'fixed' | 'absolute' | undefined"
+      "detailedType": "'absolute' | 'fixed' | undefined"
     },
     "className": {
       "type": "string | ((state: Toast.Positioner.State) => string | undefined)",

@@ -6,7 +6,7 @@ export interface AccordionItemContext {
   open: boolean;
   state: AccordionItem.State;
   setTriggerId: (id: string | undefined) => void;
-  triggerId?: string;
+  triggerId?: string | undefined;
 }
 
 export const AccordionItemContext = React.createContext<AccordionItemContext | undefined>(

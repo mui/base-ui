@@ -40,14 +40,11 @@ export const ToolbarButton = React.forwardRef(function ToolbarButton(
     native: nativeButton,
   });
 
-  const state: ToolbarButton.State = React.useMemo(
-    () => ({
-      disabled,
-      orientation,
-      focusable: focusableWhenDisabled,
-    }),
-    [disabled, focusableWhenDisabled, orientation],
-  );
+  const state: ToolbarButton.State = {
+    disabled,
+    orientation,
+    focusable: focusableWhenDisabled,
+  };
 
   return (
     <CompositeItem
@@ -80,12 +77,12 @@ export interface ToolbarButtonProps
    * When `true` the item is disabled.
    * @default false
    */
-  disabled?: boolean;
+  disabled?: boolean | undefined;
   /**
    * When `true` the item remains focuseable when disabled.
    * @default true
    */
-  focusableWhenDisabled?: boolean;
+  focusableWhenDisabled?: boolean | undefined;
 }
 
 export namespace ToolbarButton {

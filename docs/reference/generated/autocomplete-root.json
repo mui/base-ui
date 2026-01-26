@@ -57,14 +57,14 @@
       "detailedType": "boolean | undefined"
     },
     "actionsRef": {
-      "type": "RefObject<Autocomplete.Root.Actions>",
+      "type": "RefObject<Autocomplete.Root.Actions | null>",
       "description": "A ref to imperative actions.\n- `unmount`: When specified, the autocomplete will not be unmounted when closed.\nInstead, the `unmount` function must be called to unmount the autocomplete manually.\nUseful when the autocomplete's animation is controlled by an external library.",
-      "detailedType": "| React.RefObject<Autocomplete.Root.Actions>\n| undefined"
+      "detailedType": "| React.RefObject<Autocomplete.Root.Actions | null>\n| undefined"
     },
     "filter": {
-      "type": "((itemValue: any, query: string, itemToString: ((itemValue: any) => string) | undefined) => boolean) | ((itemValue: ItemValue, query: string, itemToString: ((itemValue: ItemValue) => string) | undefined) => boolean) | null",
+      "type": "((itemValue: ItemValue, query: string, itemToString: ((itemValue: ItemValue) => string) | undefined) => boolean) | null",
       "description": "Filter function used to match items vs input query.",
-      "detailedType": "| ((\n    itemValue: any,\n    query: string,\n    itemToString:\n      | ((itemValue: any) => string)\n      | undefined,\n  ) => boolean)\n| ((\n    itemValue: ItemValue,\n    query: string,\n    itemToString:\n      | ((itemValue: ItemValue) => string)\n| null\n| undefined"
+      "detailedType": "| ((\n    itemValue: ItemValue,\n    query: string,\n    itemToString:\n      | ((itemValue: ItemValue) => string)\n      | undefined,\n  ) => boolean)\n| null\n| undefined"
     },
     "filteredItems": {
       "type": "any[] | Group[]",
@@ -84,9 +84,9 @@
       "detailedType": "boolean | undefined"
     },
     "itemToStringValue": {
-      "type": "((itemValue: any) => string) | ((itemValue: ItemValue) => string)",
+      "type": "((itemValue: ItemValue) => string)",
       "description": "When the item values are objects (`<Autocomplete.Item value={object}>`), this function converts the object value to a string representation for both display in the input and form submission.\nIf the shape of the object is `{ value, label }`, the label will be used automatically without needing to specify this prop.",
-      "detailedType": "| ((itemValue: any) => string)\n| ((itemValue: ItemValue) => string)\n| undefined"
+      "detailedType": "((itemValue: ItemValue) => string) | undefined"
     },
     "items": {
       "type": "({ items: any[] })[] | ItemValue[]",
@@ -117,15 +117,15 @@
       "detailedType": "boolean | undefined"
     },
     "mode": {
-      "type": "'none' | 'list' | 'inline' | 'both'",
+      "type": "'list' | 'both' | 'inline' | 'none'",
       "default": "'list'",
       "description": "Controls how the autocomplete behaves with respect to list filtering and inline autocompletion.\n- `list` (default): items are dynamically filtered based on the input value. The input value does not change based on the active item.\n- `both`: items are dynamically filtered based on the input value, which will temporarily change based on the active item (inline autocompletion).\n- `inline`: items are static (not filtered), and the input value will temporarily change based on the active item (inline autocompletion).\n- `none`: items are static (not filtered), and the input value will not change based on the active item.",
-      "detailedType": "'none' | 'list' | 'inline' | 'both' | undefined"
+      "detailedType": "'list' | 'both' | 'inline' | 'none' | undefined"
     },
     "onItemHighlighted": {
-      "type": "((highlightedValue: any | undefined, eventDetails: Autocomplete.Root.HighlightEventDetails) => void) | ((highlightedValue: ItemValue | undefined, eventDetails: Autocomplete.Root.HighlightEventDetails) => void)",
+      "type": "((highlightedValue: ItemValue | undefined, eventDetails: Autocomplete.Root.HighlightEventDetails) => void)",
       "description": "Callback fired when an item is highlighted or unhighlighted.\nReceives the highlighted item value (or `undefined` if no item is highlighted) and event details with a `reason` property describing why the highlight changed.\nThe `reason` can be:\n- `'keyboard'`: the highlight changed due to keyboard navigation.\n- `'pointer'`: the highlight changed due to pointer hovering.\n- `'none'`: the highlight changed programmatically.",
-      "detailedType": "| ((\n    highlightedValue: any | undefined,\n    eventDetails: Autocomplete.Root.HighlightEventDetails,\n  ) => void)\n| ((\n    highlightedValue: ItemValue | undefined,\n    eventDetails: Autocomplete.Root.HighlightEventDetails,\n  ) => void)\n| undefined"
+      "detailedType": "| ((\n    highlightedValue: ItemValue | undefined,\n    eventDetails: Autocomplete.Root.HighlightEventDetails,\n  ) => void)\n| undefined"
     },
     "onOpenChangeComplete": {
       "type": "((open: boolean) => void)",

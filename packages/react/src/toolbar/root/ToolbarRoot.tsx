@@ -47,7 +47,7 @@ export const ToolbarRoot = React.forwardRef(function ToolbarRoot(
     [disabled, orientation, setItemMap],
   );
 
-  const state = React.useMemo(() => ({ disabled, orientation }), [disabled, orientation]);
+  const state: ToolbarRoot.State = { disabled, orientation };
 
   const defaultProps: HTMLProps = {
     'aria-orientation': orientation,
@@ -83,18 +83,18 @@ export interface ToolbarRootState {
 }
 
 export interface ToolbarRootProps extends BaseUIComponentProps<'div', ToolbarRoot.State> {
-  disabled?: boolean;
+  disabled?: boolean | undefined;
   /**
    * The orientation of the toolbar.
    * @default 'horizontal'
    */
-  orientation?: ToolbarRoot.Orientation;
+  orientation?: ToolbarRoot.Orientation | undefined;
   /**
    * If `true`, using keyboard navigation will wrap focus to the other end of the toolbar once the end is reached.
    *
    * @default true
    */
-  loopFocus?: boolean;
+  loopFocus?: boolean | undefined;
 }
 
 export namespace ToolbarRoot {

@@ -31,13 +31,10 @@ export const CheckboxIndicator = React.forwardRef(function CheckboxIndicator(
 
   const indicatorRef = React.useRef<HTMLSpanElement | null>(null);
 
-  const state: CheckboxIndicator.State = React.useMemo(
-    () => ({
-      ...rootState,
-      transitionStatus,
-    }),
-    [rootState, transitionStatus],
-  );
+  const state: CheckboxIndicator.State = {
+    ...rootState,
+    transitionStatus,
+  };
 
   useOpenChangeComplete({
     open: rendered,
@@ -89,7 +86,7 @@ export interface CheckboxIndicatorProps extends BaseUIComponentProps<
    * Whether to keep the element in the DOM when the checkbox is not checked.
    * @default false
    */
-  keepMounted?: boolean;
+  keepMounted?: boolean | undefined;
 }
 
 export namespace CheckboxIndicator {
