@@ -49,7 +49,7 @@ export interface CalendarDayGridHeaderCellProps extends BaseUIComponentProps<
    * @returns {string} The formatted date.
    * @default (date) => adapter.format(date, 'weekday3Letters').charAt(0).toUpperCase()
    */
-  formatter?: (date: TemporalSupportedObject) => string;
+  formatter?: ((date: TemporalSupportedObject) => string) | undefined;
 }
 
 export namespace CalendarDayGridHeaderCell {

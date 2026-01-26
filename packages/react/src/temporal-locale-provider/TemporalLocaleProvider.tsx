@@ -34,6 +34,6 @@ export namespace TemporalLocaleProvider {
      * The locale to use in temporal components.
      * @default en-US
      */
-    locale?: Locale;
+    locale?: Locale | undefined;
   }
 }

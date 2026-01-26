@@ -301,67 +301,71 @@ export interface SharedCalendarStoreParameters<TValue extends TemporalSupportedV
    * The controlled value that should be selected.
    * To render an uncontrolled (Range)Calendar, use the `defaultValue` prop instead.
    */
-  value?: TValue;
+  value?: TValue | undefined;
   /**
    * The uncontrolled value that should be initially selected.
    * To render a controlled (Range)Calendar, use the `value` prop instead.
    */
-  defaultValue?: TValue;
+  defaultValue?: TValue | undefined;
   /**
    * Event handler called when the selected value changes.
    * Provides the new value as an argument.
    * Has `getValidationError()` in the `eventDetails` to retrieve the validation error associated to the new value.
    */
-  onValueChange?: (value: TValue, eventDetails: CalendarValueChangeEventDetails<TError>) => void;
+  onValueChange?:
+    | ((value: TValue, eventDetails: CalendarValueChangeEventDetails<TError>) => void)
+    | undefined;
   /**
    * Whether the component should ignore user interaction.
    * @default false
    */
-  disabled?: boolean;
+  disabled?: boolean | undefined;
   /**
    * Whether the user should be unable to select a date in the calendar.
    * @default false
    */
-  readOnly?: boolean;
+  readOnly?: boolean | undefined;
   /**
    * Whether the calendar is forcefully marked as invalid.
    */
-  invalid?: boolean;
+  invalid?: boolean | undefined;
   /**
    * Mark specific dates as unavailable.
    * Those dates will not be selectable but they will still be focusable with the keyboard.
    */
-  isDateUnavailable?: (day: TemporalSupportedObject) => boolean;
+  isDateUnavailable?: ((day: TemporalSupportedObject) => boolean) | undefined;
   /**
    * The date used to decide which month should be displayed in the Day Grid.
    * To render an uncontrolled Calendar, use the `defaultVisibleDate` prop instead.
    */
-  visibleDate?: TemporalSupportedObject;
+  visibleDate?: TemporalSupportedObject | undefined;
   /**
    * The date used to decide which month should be initially displayed in the Day Grid.
    * To render a controlled Calendar, use the `visibleDate` prop instead.
    */
-  defaultVisibleDate?: TemporalSupportedObject;
+  defaultVisibleDate?: TemporalSupportedObject | undefined;
   /**
    * Event handler called when the selected value changes.
    * Provides the new value as an argument.
    * Has `getValidationError()` in the `eventDetails` to retrieve the validation error associated to the new value.
    */
-  onVisibleDateChange?: (
-    visibleDate: TemporalSupportedObject,
-    eventDetails: CalendarVisibleDateChangeEventDetails,
-  ) => void;
+  onVisibleDateChange?:
+    | ((
+        visibleDate: TemporalSupportedObject,
+        eventDetails: CalendarVisibleDateChangeEventDetails,
+      ) => void)
+    | undefined;
   /**
    * The date used to generate the new value when both `value` and `defaultValue` are empty.
    * @default 'The closest valid date using the validation props.'
    */
-  referenceDate?: TemporalSupportedObject;
+  referenceDate?: TemporalSupportedObject | undefined;
   /**
    * The amount of months to move by when navigating.
    * This is mostly useful when displaying multiple day grids.
    * @default 1
    */
-  monthPageSize?: number;
+  monthPageSize?: number | undefined;
 }
 
 export interface ValueManager<TValue extends TemporalSupportedValue> {

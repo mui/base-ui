@@ -13,6 +13,7 @@ import { globby } from 'globby';
 import { syncPageIndex } from '@mui/internal-docs-infra/pipeline/syncPageIndex';
 import { isPublicComponent, formatComponentData, extractComponentGroup } from './componentHandler';
 import { isPublicHook, formatHookData } from './hookHandler';
+import { isPublicUtility, formatUtilityData } from './utilityHandler';
 
 const isDebug = inspector.url() !== undefined;
 
@@ -129,6 +130,11 @@ async function run(options: RunOptions) {
     fs.writeFileSync(path.join(options.out, `${kebabCase(exportNode.name)}.json`), json);
   }
 
+  for (const exportNode of exports.filter(isPublicUtility)) {
+    const json = JSON.stringify(await formatUtilityData(exportNode), null, 2) + '\n';
+    fs.writeFileSync(path.join(options.out, `${kebabCase(exportNode.name)}.json`), json);
+  }
+
   // Build the final components metadata
   const componentsMetadata = new Map<
     string,
@@ -235,19 +241,13 @@ async function run(options: RunOptions) {
     const allComponentsMetadata = (
       await Promise.all(
         Array.from(componentsMetadata.entries()).map(async ([componentName, metadata]) => {
-          let slug = kebabCase(componentName);
-          let componentPagePath = path.join(docsBasePath, slug, 'page.mdx');
+          const slug = kebabCase(componentName);
+          const componentPagePath = path.join(docsBasePath, slug, 'page.mdx');
 
           // Check if the page exists
           if (!fs.existsSync(componentPagePath)) {
-            const unstablePagePath = path.join(docsBasePath, `unstable-${slug}`, 'page.mdx');
-            if (fs.existsSync(unstablePagePath)) {
-              slug = `unstable-${slug}`;
-              componentPagePath = unstablePagePath;
-            } else {
-              skippedComponents.push(componentName);
-              return null;
-            }
+            skippedComponents.push(componentName);
+            return null;
           }
 
           return {

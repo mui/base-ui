@@ -6,8 +6,8 @@ import { NOOP } from '../../utils/noop';
 export type ImageLoadingStatus = 'idle' | 'loading' | 'loaded' | 'error';
 
 interface UseImageLoadingStatusOptions {
-  referrerPolicy?: React.HTMLAttributeReferrerPolicy;
-  crossOrigin?: React.ImgHTMLAttributes<HTMLImageElement>['crossOrigin'];
+  referrerPolicy?: React.HTMLAttributeReferrerPolicy | undefined;
+  crossOrigin?: React.ImgHTMLAttributes<HTMLImageElement>['crossOrigin'] | undefined;
 }
 
 export function useImageLoadingStatus(

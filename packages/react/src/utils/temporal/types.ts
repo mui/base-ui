@@ -11,7 +11,7 @@ export interface TemporalTimezoneProps {
    * If you pass values from other timezones to some props, they will be converted to this timezone before being used.
    * @default 'The timezone of the "value" or "defaultValue" prop if defined, "default" otherwise.'
    */
-  timezone?: TemporalTimezone;
+  timezone?: TemporalTimezone | undefined;
 }
 
 export interface TemporalOnErrorProps<TValue extends TemporalSupportedValue, TError> {
@@ -24,7 +24,7 @@ export interface TemporalOnErrorProps<TValue extends TemporalSupportedValue, TEr
    * @param {TError} error The reason why the current value is not valid.
    * @param {TValue} value The value associated with the error.
    */
-  onError?: (error: TError, value: TValue) => void;
+  onError?: ((error: TError, value: TValue) => void) | undefined;
 }
 
 /**

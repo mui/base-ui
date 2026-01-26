@@ -39,12 +39,12 @@ export interface CompositeItemProps<Metadata, State extends Record<string, any>>
   'render' | 'className'
 > {
   children?: React.ReactNode;
-  metadata?: Metadata;
-  refs?: React.Ref<HTMLElement | null>[];
-  props?: Array<Record<string, any> | (() => Record<string, any>)>;
-  state?: State;
-  stateAttributesMapping?: StateAttributesMapping<State>;
-  tag?: keyof React.JSX.IntrinsicElements;
+  metadata?: Metadata | undefined;
+  refs?: React.Ref<HTMLElement | null>[] | undefined;
+  props?: Array<Record<string, any> | (() => Record<string, any>)> | undefined;
+  state?: State | undefined;
+  stateAttributesMapping?: StateAttributesMapping<State> | undefined;
+  tag?: keyof React.JSX.IntrinsicElements | undefined;
 }
 
 export namespace CompositeItem {

@@ -5,7 +5,7 @@ import type { BaseUIChangeEventDetails } from '../utils/createBaseUIEventDetails
 import type { BaseUIEventReasons } from '../utils/reasons';
 
 export interface ToggleGroupContext {
-  value: readonly any[];
+  value: readonly string[];
   setGroupValue: (
     newValue: string,
     nextPressed: boolean,

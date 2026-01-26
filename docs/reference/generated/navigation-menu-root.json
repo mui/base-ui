@@ -18,9 +18,9 @@
       "detailedType": "| ((\n    value: any,\n    eventDetails: NavigationMenu.Root.ChangeEventDetails,\n  ) => void)\n| undefined"
     },
     "actionsRef": {
-      "type": "RefObject<NavigationMenu.Root.Actions>",
+      "type": "RefObject<NavigationMenu.Root.Actions | null>",
       "description": "A ref to imperative actions.",
-      "detailedType": "| React.RefObject<NavigationMenu.Root.Actions>\n| undefined"
+      "detailedType": "| React.RefObject<NavigationMenu.Root.Actions | null>\n| undefined"
     },
     "onOpenChangeComplete": {
       "type": "((open: boolean) => void)",

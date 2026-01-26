@@ -157,7 +157,7 @@ export interface CalendarDayButtonProps
    * The format used to display the day.
    * @default adapter.formats.dayOfMonth
    */
-  format?: string;
+  format?: string | undefined;
 }
 
 export namespace CalendarDayButton {

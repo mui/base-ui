@@ -40,11 +40,11 @@ export interface ValidateDateValidationProps {
   /**
    * Minimal selectable date.
    */
-  minDate?: TemporalSupportedObject;
+  minDate?: TemporalSupportedObject | undefined;
   /**
    * Maximal selectable date.
    */
-  maxDate?: TemporalSupportedObject;
+  maxDate?: TemporalSupportedObject | undefined;
 }
 
 export type ValidateDateReturnValue = 'invalid' | 'before-min-date' | 'after-max-date' | null;

@@ -100,7 +100,7 @@ export const TabsPanel = React.forwardRef(function TabPanel(
 });
 
 export interface TabsPanelMetadata {
-  id?: string;
+  id?: string | undefined;
   value: TabsTab.Value;
 }
 
@@ -117,7 +117,7 @@ export interface TabsPanelProps extends BaseUIComponentProps<'div', TabsPanel.St
    * Whether to keep the HTML element in the DOM while the panel is hidden.
    * @default false
    */
-  keepMounted?: boolean;
+  keepMounted?: boolean | undefined;
 }
 
 export namespace TabsPanel {

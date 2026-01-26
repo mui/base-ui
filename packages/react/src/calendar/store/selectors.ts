@@ -313,7 +313,7 @@ export interface CalendarRootElementState {
   /**
    * Whether the calendar is readonly.
    */
-  readOnly?: boolean;
+  readOnly?: boolean | undefined;
   /**
    * The direction of the navigation (based on the month navigating to).
    */

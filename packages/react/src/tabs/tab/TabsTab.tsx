@@ -23,7 +23,7 @@ import { activeElement, contains } from '../../floating-ui-react/utils';
  */
 export const TabsTab = React.forwardRef(function TabsTab(
   componentProps: TabsTab.Props,
-  forwardedRef: React.ForwardedRef<Element>,
+  forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
   const {
     className,
@@ -246,7 +246,7 @@ export interface TabsTabProps
    * during pre-rendering which Tabs are disabled.
    * To work around it, ensure that `defaultValue` or `value` on `<Tabs.Root>` is set to an enabled Tab's value.
    */
-  disabled?: boolean;
+  disabled?: boolean | undefined;
 }
 
 export namespace TabsTab {

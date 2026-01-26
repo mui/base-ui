@@ -40,10 +40,10 @@ export function findNonDisabledListIndex(
     disabledIndices,
     amount = 1,
   }: {
-    startingIndex?: number;
-    decrement?: boolean;
-    disabledIndices?: DisabledIndices;
-    amount?: number;
+    startingIndex?: number | undefined;
+    decrement?: boolean | undefined;
+    disabledIndices?: DisabledIndices | undefined;
+    amount?: number | undefined;
   } = {},
 ): number {
   let index = startingIndex;
@@ -76,14 +76,16 @@ export function getGridNavigatedIndex(
     event: React.KeyboardEvent;
     orientation: 'horizontal' | 'vertical' | 'both';
     loopFocus: boolean;
-    onLoop?: (event: React.KeyboardEvent, prevIndex: number, nextIndex: number) => number;
+    onLoop?:
+      | ((event: React.KeyboardEvent, prevIndex: number, nextIndex: number) => number)
+      | undefined;
     rtl: boolean;
     cols: number;
     disabledIndices: DisabledIndices | undefined;
     minIndex: number;
     maxIndex: number;
     prevIndex: number;
-    stopEvent?: boolean;
+    stopEvent?: boolean | undefined;
   },
 ) {
   let nextIndex = prevIndex;

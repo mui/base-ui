@@ -263,6 +263,7 @@ describe('<Tooltip.Root />', () => {
         <Tooltip.Root handle={testTooltip} defaultOpen defaultTriggerId={triggerId}>
           {({ payload }: NumberPayload) => (
             <React.Fragment>
+              <button type="button" aria-label="Initial focus" autoFocus />
               <Tooltip.Trigger handle={testTooltip} payload={1}>
                 Trigger 1
               </Tooltip.Trigger>

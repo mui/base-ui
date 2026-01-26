@@ -54,4 +54,8 @@ export enum ComboboxTriggerDataAttributes {
    * Present when the corresponding items list is empty.
    */
   listEmpty = 'data-list-empty',
+  /**
+   * Present when the combobox doesn't have a value.
+   */
+  placeholder = 'data-placeholder',
 }
