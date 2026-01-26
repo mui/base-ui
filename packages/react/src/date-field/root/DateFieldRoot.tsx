@@ -15,10 +15,7 @@ import { TemporalFieldRootContext } from '../../utils/temporal/field/TemporalFie
 import { FieldRoot } from '../../field';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { useLabelableId } from '../../labelable-provider/useLabelableId';
-import {
-  ValidateDateReturnValue,
-  ValidateDateValidationProps,
-} from '../../utils/temporal/validateDate';
+import { ValidateDateValidationProps } from '../../utils/temporal/validateDate';
 import { TemporalValue } from '../../types';
 import { TemporalFieldStoreSharedParameters } from '../../utils/temporal/field/types';
 
@@ -156,13 +153,7 @@ export interface DateFieldRootState extends FieldRoot.State {
 export interface DateFieldRootProps
   extends
     BaseUIComponentProps<'div', DateFieldRootState>,
-    Omit<
-      MakeOptional<
-        TemporalFieldStoreSharedParameters<TemporalValue, ValidateDateReturnValue>,
-        'format'
-      >,
-      'step'
-    >,
+    Omit<MakeOptional<TemporalFieldStoreSharedParameters<TemporalValue>, 'format'>, 'step'>,
     ValidateDateValidationProps {}
 
 export namespace DateFieldRoot {

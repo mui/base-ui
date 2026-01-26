@@ -27,10 +27,9 @@ const valueSelectors = {
  */
 export class TemporalFieldValuePlugin<
   TValue extends TemporalSupportedValue,
-  TError,
   TValidationProps extends object,
 > {
-  private store: TemporalFieldStore<TValue, TError, TValidationProps>;
+  private store: TemporalFieldStore<TValue, TValidationProps>;
 
   public static selectors = valueSelectors;
 

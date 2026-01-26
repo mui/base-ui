@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { TemporalFieldStore } from './TemporalFieldStore';
 
-export type TemporalFieldRootContext = TemporalFieldStore<any, any, any>;
+export type TemporalFieldRootContext = TemporalFieldStore<any, any>;
 
 export const TemporalFieldRootContext = React.createContext<TemporalFieldRootContext | undefined>(
   undefined,

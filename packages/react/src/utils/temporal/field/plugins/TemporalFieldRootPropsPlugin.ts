@@ -34,7 +34,20 @@ const rootPropsSelectors = {
     selectors.id,
     selectors.validationProps,
     selectors.step,
-    (value, sections, parsedFormat, adapter, config, required, disabled, readOnly, name, id, validationProps, step) => {
+    (
+      value,
+      sections,
+      parsedFormat,
+      adapter,
+      config,
+      required,
+      disabled,
+      readOnly,
+      name,
+      id,
+      validationProps,
+      step,
+    ) => {
       const nativeValidationProps = config.stringifyValidationPropsForNativeInput(
         adapter,
         validationProps,
@@ -65,7 +78,7 @@ const rootPropsSelectors = {
  * Plugin to build the props to pass to the root part.
  */
 export class TemporalFieldRootPropsPlugin {
-  private store: TemporalFieldStore<any, any, any>;
+  private store: TemporalFieldStore<any, any>;
 
   public static selectors = rootPropsSelectors;
 

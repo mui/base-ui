@@ -4,7 +4,12 @@ import { mergeDateIntoReferenceDate } from '../mergeDateIntoReferenceDate';
 import { selectors } from '../selectors';
 import type { TemporalFieldStore } from '../TemporalFieldStore';
 import { TemporalFieldState as State, TemporalFieldDatePart, TemporalFieldSection } from '../types';
-import { getLocalizedDigits, getWeekDaysStr, getLongestMonthInCurrentYear, getYearFormatLength } from '../adapter-cache';
+import {
+  getLocalizedDigits,
+  getWeekDaysStr,
+  getLongestMonthInCurrentYear,
+  getYearFormatLength,
+} from '../adapter-cache';
 import { isDatePart, removeLocalizedDigits } from '../utils';
 import { TemporalFieldValuePlugin } from './TemporalFieldValuePlugin';
 
@@ -164,7 +169,7 @@ const sectionSelectors = {
  * Plugin to interact with a single section of the field value.
  */
 export class TemporalFieldSectionPlugin<TValue extends TemporalSupportedValue> {
-  private store: TemporalFieldStore<TValue, any, any>;
+  private store: TemporalFieldStore<TValue, any>;
 
   public sectionToUpdateOnNextInvalidDate: { index: number; value: string } | null = null;
 

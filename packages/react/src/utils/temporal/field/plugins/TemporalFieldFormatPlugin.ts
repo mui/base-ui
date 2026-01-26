@@ -32,7 +32,7 @@ const formatSelectors = {
  * Plugin to interact with a single section of the field value.
  */
 export class TemporalFieldFormatPlugin<TValue extends TemporalSupportedValue> {
-  private store: TemporalFieldStore<TValue, any, any>;
+  private store: TemporalFieldStore<TValue, any>;
 
   public static selectors = formatSelectors;
 

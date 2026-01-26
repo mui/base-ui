@@ -29,13 +29,12 @@ import {
  */
 export function deriveStateFromParameters<
   TValue extends TemporalSupportedValue,
-  TError,
   TValidationProps extends object,
 >(
-  parameters: TemporalFieldStoreSharedParameters<TValue, TError>,
+  parameters: TemporalFieldStoreSharedParameters<TValue>,
   validationProps: TValidationProps,
   adapter: TemporalAdapter,
-  config: TemporalFieldConfiguration<TValue, TError, TValidationProps>,
+  config: TemporalFieldConfiguration<TValue, TValidationProps>,
   direction: TextDirection,
 ) {
   return {

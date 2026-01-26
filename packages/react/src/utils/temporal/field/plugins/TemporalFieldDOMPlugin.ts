@@ -7,7 +7,7 @@ import { TemporalFieldSectionPlugin } from './TemporalFieldSectionPlugin';
  * Plugin to interact with the DOM of the field.
  */
 export class TemporalFieldDOMPlugin {
-  private store: TemporalFieldStore<any, any, any>;
+  private store: TemporalFieldStore<any, any>;
 
   private sectionElementMap = new Map<number, HTMLElement>();
 

@@ -1,9 +1,6 @@
 import { TemporalAdapter, TemporalFieldDatePartType, TemporalValue } from '../../types';
 import { TemporalFieldStore } from '../../utils/temporal/field/TemporalFieldStore';
-import {
-  ValidateTimeReturnValue,
-  ValidateTimeValidationProps,
-} from '../../utils/temporal/validateTime';
+import { ValidateTimeValidationProps } from '../../utils/temporal/validateTime';
 import {
   TemporalFieldStoreSharedParameters,
   TemporalFieldConfiguration,
@@ -66,11 +63,7 @@ const STEP_MULTIPLIERS: Partial<Record<TemporalFieldDatePartType, number>> = {
   seconds: 1,
 };
 
-const config: TemporalFieldConfiguration<
-  TemporalValue,
-  ValidateTimeReturnValue,
-  ValidateTimeValidationProps
-> = {
+const config: TemporalFieldConfiguration<TemporalValue, ValidateTimeValidationProps> = {
   getManager: getTimeManager,
   getSectionsFromValue: (date, getSectionsFromDate) => getSectionsFromDate(date),
   getDateFromSection: (value) => value,
@@ -115,11 +108,7 @@ const config: TemporalFieldConfiguration<
   },
 };
 
-export class TimeFieldStore extends TemporalFieldStore<
-  TemporalValue,
-  ValidateTimeReturnValue,
-  ValidateTimeValidationProps
-> {
+export class TimeFieldStore extends TemporalFieldStore<TemporalValue, ValidateTimeValidationProps> {
   constructor(parameters: TimeFieldStoreParameters) {
     const { validationProps, adapter, direction, ampm, ...sharedParameters } = parameters;
 
@@ -162,10 +151,7 @@ export class TimeFieldStore extends TemporalFieldStore<
 
 interface TimeFieldStoreParameters
   extends
-    MakeOptional<
-      TemporalFieldStoreSharedParameters<TemporalValue, ValidateTimeReturnValue>,
-      'format'
-    >,
+    MakeOptional<TemporalFieldStoreSharedParameters<TemporalValue>, 'format'>,
     AmPmParameters {
   validationProps: ValidateTimeValidationProps;
   adapter: TemporalAdapter;

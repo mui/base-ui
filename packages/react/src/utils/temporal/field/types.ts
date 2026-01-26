@@ -96,7 +96,6 @@ export interface TemporalFieldStoreSharedParameters<
 
 export interface TemporalFieldState<
   TValue extends TemporalSupportedValue = any,
-  TError = any,
   TValidationProps extends object = any,
 > {
   /**
@@ -120,7 +119,7 @@ export interface TemporalFieldState<
    * The config of the field.
    * Not publicly exposed, is only set in state to avoid passing it to the selectors.
    */
-  config: TemporalFieldConfiguration<TValue, TError, TValidationProps>;
+  config: TemporalFieldConfiguration<TValue, TValidationProps>;
   /**
    * The adapter of the date library.
    * Not publicly exposed, is only set in state to avoid passing it to the selectors.
@@ -302,13 +301,12 @@ export type TemporalFieldValueChangeEventDetails =
  */
 export interface TemporalFieldConfiguration<
   TValue extends TemporalSupportedValue,
-  TError,
   TValidationProps extends {},
 > {
   /**
    * Returns the manager of the field.
    */
-  getManager: (adapter: TemporalAdapter) => TemporalManager<TValue, TError, TValidationProps>;
+  getManager: (adapter: TemporalAdapter) => TemporalManager<TValue, any, TValidationProps>;
   /**
    * Creates the section list from the current value.
    * The `prevSections` are used on the range fields to avoid losing the sections of a partially filled date when editing the other date.
@@ -428,7 +426,7 @@ export type TemporalFieldDatePartValueBoundaries = {
 };
 
 export type TemporalFieldModelUpdater<
-  State extends TemporalFieldState<any, any, any>,
+  State extends TemporalFieldState<any, any>,
   Parameters extends TemporalFieldStoreSharedParameters<any>,
 > = (
   newState: Partial<State>,

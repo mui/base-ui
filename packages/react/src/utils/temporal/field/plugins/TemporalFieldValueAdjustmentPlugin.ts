@@ -9,7 +9,7 @@ import { TemporalFieldSectionPlugin } from './TemporalFieldSectionPlugin';
  * Plugin to adjust the value of the active section when pressing ArrowUp, ArrowDown, PageUp, PageDown, Home or End.
  */
 export class TemporalFieldValueAdjustmentPlugin<TValue extends TemporalSupportedValue> {
-  private store: TemporalFieldStore<TValue, any, any>;
+  private store: TemporalFieldStore<TValue, any>;
 
   // We can't type `store`, otherwise we get the following TS error:
   // 'valueAdjustment' implicitly has type 'any' because it does not have a type annotation and is referenced directly or indirectly in its own initializer.
@@ -35,9 +35,7 @@ export class TemporalFieldValueAdjustmentPlugin<TValue extends TemporalSupported
       return '';
     }
 
-    const step = activeDatePart.token.isMostGranularPart
-      ? selectors.step(this.store.state)
-      : 1;
+    const step = activeDatePart.token.isMostGranularPart ? selectors.step(this.store.state) : 1;
     const delta = getDeltaFromKeyCode(keyCode);
     const isStart = keyCode === 'Home';
     const isEnd = keyCode === 'End';
@@ -54,12 +52,7 @@ export class TemporalFieldValueAdjustmentPlugin<TValue extends TemporalSupported
       );
 
       const getCleanValue = (newDatePartValue: number) =>
-        cleanDigitDatePartValue(
-          adapter,
-          newDatePartValue,
-          localizedDigits,
-          activeDatePart.token,
-        );
+        cleanDigitDatePartValue(adapter, newDatePartValue, localizedDigits, activeDatePart.token);
 
       let newDatePartValueNumber: number;
 

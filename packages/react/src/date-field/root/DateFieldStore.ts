@@ -27,11 +27,7 @@ function formatDateForNativeInput(adapter: TemporalAdapter, value: TemporalValue
   return `${year}-${month}-${day}`;
 }
 
-const config: TemporalFieldConfiguration<
-  TemporalValue,
-  ValidateDateReturnValue,
-  ValidateDateValidationProps
-> = {
+const config: TemporalFieldConfiguration<TemporalValue, ValidateDateValidationProps> = {
   getManager: getDateManager,
   getSectionsFromValue: (date, getSectionsFromDate) => getSectionsFromDate(date),
   getDateFromSection: (value) => value,
@@ -68,11 +64,7 @@ const config: TemporalFieldConfiguration<
   },
 };
 
-export class DateFieldStore extends TemporalFieldStore<
-  TemporalValue,
-  ValidateDateReturnValue,
-  ValidateDateValidationProps
-> {
+export class DateFieldStore extends TemporalFieldStore<TemporalValue, ValidateDateValidationProps> {
   constructor(parameters: DateFieldStoreParameters) {
     const { validationProps, adapter, direction, ...sharedParameters } = parameters;
 
@@ -106,7 +98,7 @@ export class DateFieldStore extends TemporalFieldStore<
 }
 
 export interface DateFieldStoreParameters extends MakeOptional<
-  TemporalFieldStoreSharedParameters<TemporalValue, ValidateDateReturnValue>,
+  TemporalFieldStoreSharedParameters<TemporalValue>,
   'format'
 > {
   validationProps: ValidateDateValidationProps;
