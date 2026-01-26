@@ -6,6 +6,8 @@ import { useRenderElement } from '../../utils/useRenderElement';
 import { useTemporalFieldRootContext } from '../../utils/temporal/field/TemporalFieldRootContext';
 import { TemporalFieldSection } from '../../utils/temporal/field/types';
 import { TemporalFieldSectionPlugin } from '../../utils/temporal/field/plugins/TemporalFieldSectionPlugin';
+import { TemporalFieldInputPropsPlugin } from '../../utils/temporal/field/plugins/TemporalFieldInputPropsPlugin';
+import { useField } from '../../field/useField';
 
 /**
  * Groups all sections of the date or time field input.
@@ -28,6 +30,9 @@ export const DateFieldInput = React.forwardRef(function DateFieldInput(
 
   const store = useTemporalFieldRootContext();
   const sections = useStore(store, TemporalFieldSectionPlugin.selectors.sections);
+  const useFieldParams = useStore(store, TemporalFieldInputPropsPlugin.selectors.useFieldParams);
+
+  useField(useFieldParams);
 
   const resolvedChildren = React.useMemo(() => {
     if (!React.isValidElement(children) && typeof children === 'function') {
@@ -38,7 +43,7 @@ export const DateFieldInput = React.forwardRef(function DateFieldInput(
   }, [children, sections]);
 
   return useRenderElement('div', componentProps, {
-    ref: [forwardedRef, store.dom.inputRef],
+    ref: [forwardedRef, useFieldParams.controlRef],
     props: [
       {
         children: resolvedChildren,

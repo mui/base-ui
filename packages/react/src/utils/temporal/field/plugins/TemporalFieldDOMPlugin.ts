@@ -1,4 +1,3 @@
-import * as React from 'react';
 import { ownerDocument } from '@base-ui/utils/owner';
 import { TemporalFieldStore } from '../TemporalFieldStore';
 import { activeElement } from '../../../../floating-ui-react/utils';
@@ -10,14 +9,16 @@ import { TemporalFieldSectionPlugin } from './TemporalFieldSectionPlugin';
 export class TemporalFieldDOMPlugin {
   private store: TemporalFieldStore<any, any, any>;
 
-  public inputRef = React.createRef<HTMLElement>();
-
   private sectionElementMap = new Map<number, HTMLElement>();
 
   // We can't type `store`, otherwise we get the following TS error:
   // 'dom' implicitly has type 'any' because it does not have a type annotation and is referenced directly or indirectly in its own initializer.
   constructor(store: any) {
     this.store = store;
+  }
+
+  public get inputRef() {
+    return this.store.state.inputRef;
   }
 
   public getActiveElement() {

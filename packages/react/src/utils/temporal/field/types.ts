@@ -202,6 +202,10 @@ export interface TemporalFieldState<
    * The step increment for the most granular section.
    */
   step: number;
+  /**
+   * A ref to the input element (the div containing the sections).
+   */
+  inputRef: React.RefObject<HTMLElement | null>;
 }
 
 export interface TemporalFieldCharacterEditingQuery {
@@ -392,6 +396,24 @@ export interface TemporalFieldConfiguration<
    * Stringifies the value to be used in form submissions.
    */
   stringifyValue: (adapter: TemporalAdapter, value: TValue) => string;
+  /**
+   * Returns the type attribute for the native hidden input.
+   * Used for native HTML validation (e.g., 'date' or 'time').
+   */
+  nativeInputType: 'date' | 'time' | 'text';
+  /**
+   * Stringifies the value for native input format.
+   * For date inputs: 'YYYY-MM-DD'
+   * For time inputs: 'HH:MM' or 'HH:MM:SS'
+   */
+  stringifyValueForNativeInput: (adapter: TemporalAdapter, value: TValue) => string;
+  /**
+   * Stringifies the min/max validation props for native input attributes.
+   */
+  stringifyValidationPropsForNativeInput: (
+    adapter: TemporalAdapter,
+    validationProps: TValidationProps,
+  ) => { min?: string; max?: string };
 }
 
 export interface TemporalFieldPlaceholderGetters {

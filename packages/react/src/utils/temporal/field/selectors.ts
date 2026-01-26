@@ -27,4 +27,5 @@ export const selectors = {
   validationProps: createSelector((state: State) => state.validationProps),
   fieldContext: createSelector((state: State) => state.fieldContext),
   step: createSelector((state: State) => state.step),
+  inputRef: createSelector((state: State) => state.inputRef),
 };

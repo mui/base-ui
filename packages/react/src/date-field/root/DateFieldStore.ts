@@ -13,6 +13,22 @@ import { getDateManager } from '../../utils/temporal/getDateManager';
 import { TextDirection } from '../../direction-provider';
 import { MakeOptional } from '../../utils/types';
 
+/**
+ * Formats a date value as YYYY-MM-DD for native date input.
+ */
+function formatDateForNativeInput(
+  adapter: TemporalAdapter,
+  value: TemporalValue,
+): string {
+  if (!adapter.isValid(value)) {
+    return '';
+  }
+  const year = adapter.format(value, 'yearPadded');
+  const month = adapter.format(value, 'monthPadded');
+  const day = adapter.format(value, 'dayOfMonthPadded');
+  return `${year}-${month}-${day}`;
+}
+
 const config: TemporalFieldConfiguration<
   TemporalValue,
   ValidateDateReturnValue,
@@ -32,6 +48,24 @@ const config: TemporalFieldConfiguration<
     adapter.isValid(value) ? value : prevReferenceValue,
   stringifyValue: (adapter, value) =>
     adapter.isValid(value) ? adapter.toJsDate(value).toISOString() : '',
+  nativeInputType: 'date',
+  stringifyValueForNativeInput: formatDateForNativeInput,
+  stringifyValidationPropsForNativeInput: (adapter, validationProps) => {
+    const result: { min?: string; max?: string } = {};
+    if (validationProps.minDate) {
+      const formatted = formatDateForNativeInput(adapter, validationProps.minDate);
+      if (formatted) {
+        result.min = formatted;
+      }
+    }
+    if (validationProps.maxDate) {
+      const formatted = formatDateForNativeInput(adapter, validationProps.maxDate);
+      if (formatted) {
+        result.max = formatted;
+      }
+    }
+    return result;
+  },
 };
 
 export class DateFieldStore extends TemporalFieldStore<

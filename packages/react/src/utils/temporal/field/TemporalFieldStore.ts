@@ -1,3 +1,4 @@
+import * as React from 'react';
 import { Store } from '@base-ui/utils/store';
 import { warn } from '@base-ui/utils/warn';
 import { TemporalAdapter, TemporalSupportedValue } from '../../../types';
@@ -89,6 +90,8 @@ export class TemporalFieldStore<
       buildSections(adapter, parsedFormat, date),
     );
 
+    const inputRef = React.createRef<HTMLElement>();
+
     super({
       ...deriveStateFromParameters(parameters, validationProps, adapter, config, direction),
       manager,
@@ -97,6 +100,7 @@ export class TemporalFieldStore<
       referenceValue,
       characterQuery: null,
       selectedSection: null,
+      inputRef,
     });
 
     this.parameters = parameters;

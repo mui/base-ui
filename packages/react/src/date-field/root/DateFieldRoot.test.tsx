@@ -1,7 +1,9 @@
 import { expect } from 'chai';
-import { screen } from '@mui/internal-test-utils';
+import { spy } from 'sinon';
+import { screen, fireEvent } from '@mui/internal-test-utils';
 import { DateField as DateFieldBase } from '@base-ui/react/date-field';
 import { Field } from '@base-ui/react/field';
+import { Form } from '@base-ui/react/form';
 import { createRenderer, createTemporalRenderer } from '#test-utils';
 
 describe('<DateField /> - Field Integration', () => {
@@ -87,7 +89,7 @@ describe('<DateField /> - Field Integration', () => {
       const hiddenInput = document.querySelector('input[name="standaloneField"]') as HTMLInputElement;
       expect(hiddenInput).not.to.equal(null);
       expect(hiddenInput.name).to.equal('standaloneField');
-      expect(hiddenInput.value).to.equal('2024-03-20T00:00:00.000Z');
+      expect(hiddenInput.value).to.equal('2024-03-20');
     });
   });
 
@@ -110,7 +112,7 @@ describe('<DateField /> - Field Integration', () => {
       // Assert the hidden input has the correct ISO string value
       const hiddenInput = document.querySelector('input[tabindex="-1"]') as HTMLInputElement;
       expect(hiddenInput).not.to.equal(null);
-      expect(hiddenInput.value).to.equal('2024-01-15T00:00:00.000Z');
+      expect(hiddenInput.value).to.equal('2024-01-15');
     });
 
     it('renders with null value', async () => {
@@ -236,7 +238,98 @@ describe('<DateField /> - Field Integration', () => {
       // Verify hidden input has the ISO value
       const hiddenInput = document.querySelector('input[tabindex="-1"]') as HTMLInputElement;
       expect(hiddenInput).not.to.equal(null);
-      expect(hiddenInput.value).to.equal('2024-03-15T00:00:00.000Z');
+      expect(hiddenInput.value).to.equal('2024-03-15');
+    });
+  });
+
+  describe('Form submission', () => {
+    it('submits the value in native date format (YYYY-MM-DD) via onFormSubmit', async () => {
+      const handleSubmit = spy();
+      await render(
+        <Form onFormSubmit={handleSubmit}>
+          <Field.Root name="birthdate">
+            <DateField
+              format={numericDateFormat}
+              defaultValue={adapter.date('2024-03-20', 'default')}
+            />
+          </Field.Root>
+          <button type="submit">Submit</button>
+        </Form>,
+      );
+
+      fireEvent.click(screen.getByText('Submit'));
+
+      expect(handleSubmit.callCount).to.equal(1);
+      expect(handleSubmit.firstCall.args[0].birthdate).to.equal('2024-03-20');
+    });
+
+    it('submits empty string when value is null', async () => {
+      const handleSubmit = spy();
+      await render(
+        <Form onFormSubmit={handleSubmit}>
+          <Field.Root name="birthdate">
+            <DateField format={numericDateFormat} defaultValue={null} />
+          </Field.Root>
+          <button type="submit">Submit</button>
+        </Form>,
+      );
+
+      fireEvent.click(screen.getByText('Submit'));
+
+      expect(handleSubmit.callCount).to.equal(1);
+      expect(handleSubmit.firstCall.args[0].birthdate).to.equal('');
+    });
+
+    it('validates with rangeUnderflow when date is before minDate', async () => {
+      const handleSubmit = spy();
+      const minDate = adapter.date('2024-03-15', 'default');
+
+      await render(
+        <Form onFormSubmit={handleSubmit}>
+          <Field.Root name="date">
+            <DateField
+              format={numericDateFormat}
+              defaultValue={adapter.date('2024-03-10', 'default')}
+              minDate={minDate}
+            />
+            <Field.Error match="rangeUnderflow" data-testid="error">
+              Date is too early
+            </Field.Error>
+          </Field.Root>
+          <button type="submit">Submit</button>
+        </Form>,
+      );
+
+      fireEvent.click(screen.getByText('Submit'));
+
+      expect(handleSubmit.callCount).to.equal(0);
+      expect(screen.getByTestId('error')).to.have.text('Date is too early');
+    });
+
+    it('validates with rangeOverflow when date is after maxDate', async () => {
+      const handleSubmit = spy();
+      const maxDate = adapter.date('2024-03-15', 'default');
+
+      await render(
+        <Form onFormSubmit={handleSubmit}>
+          <Field.Root name="date">
+            <DateField
+              format={numericDateFormat}
+              defaultValue={adapter.date('2024-03-20', 'default')}
+              maxDate={maxDate}
+            />
+            <Field.Error match="rangeOverflow" data-testid="error">
+              Date is too late
+            </Field.Error>
+          </Field.Root>
+          <button type="submit">Submit</button>
+        </Form>,
+      );
+
+      fireEvent.click(screen.getByText('Submit'));
+
+      expect(handleSubmit.callCount).to.equal(0);
+      expect(screen.getByTestId('error')).to.have.text('Date is too late');
     });
   });
 });

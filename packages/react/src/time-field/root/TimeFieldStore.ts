@@ -13,6 +13,26 @@ import { getTimeManager } from '../../utils/temporal/getTimeManager';
 import { TextDirection } from '../../direction-provider';
 import { MakeOptional } from '../../utils/types';
 
+/**
+ * Formats a time value as HH:MM or HH:MM:SS for native time input.
+ */
+function formatTimeForNativeInput(
+  adapter: TemporalAdapter,
+  value: TemporalValue,
+): string {
+  if (!adapter.isValid(value)) {
+    return '';
+  }
+  const hours = adapter.format(value, 'hours24hPadded');
+  const minutes = adapter.format(value, 'minutesPadded');
+  const seconds = adapter.getSeconds(value);
+  // Include seconds only if they are non-zero
+  if (seconds === 0) {
+    return `${hours}:${minutes}`;
+  }
+  return `${hours}:${minutes}:${adapter.format(value, 'secondsPadded')}`;
+}
+
 const config: TemporalFieldConfiguration<
   TemporalValue,
   ValidateTimeReturnValue,
@@ -32,6 +52,24 @@ const config: TemporalFieldConfiguration<
     adapter.isValid(value) ? value : prevReferenceValue,
   stringifyValue: (adapter, value) =>
     adapter.isValid(value) ? adapter.toJsDate(value).toISOString() : '',
+  nativeInputType: 'time',
+  stringifyValueForNativeInput: formatTimeForNativeInput,
+  stringifyValidationPropsForNativeInput: (adapter, validationProps) => {
+    const result: { min?: string; max?: string } = {};
+    if (validationProps.minTime) {
+      const formatted = formatTimeForNativeInput(adapter, validationProps.minTime);
+      if (formatted) {
+        result.min = formatted;
+      }
+    }
+    if (validationProps.maxTime) {
+      const formatted = formatTimeForNativeInput(adapter, validationProps.maxTime);
+      if (formatted) {
+        result.max = formatted;
+      }
+    }
+    return result;
+  },
 };
 
 export class TimeFieldStore extends TemporalFieldStore<

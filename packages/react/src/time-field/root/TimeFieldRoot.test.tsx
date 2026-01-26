@@ -1,7 +1,9 @@
 import { expect } from 'chai';
-import { screen } from '@mui/internal-test-utils';
+import { spy } from 'sinon';
+import { screen, fireEvent } from '@mui/internal-test-utils';
 import { TimeField as TimeFieldBase } from '@base-ui/react/time-field';
 import { Field } from '@base-ui/react/field';
+import { Form } from '@base-ui/react/form';
 import { createRenderer, createTemporalRenderer } from '#test-utils';
 
 describe('<TimeField /> - Field Integration', () => {
@@ -88,7 +90,7 @@ describe('<TimeField /> - Field Integration', () => {
       const hiddenInput = document.querySelector('input[name="standaloneField"]') as HTMLInputElement;
       expect(hiddenInput).not.to.equal(null);
       expect(hiddenInput.name).to.equal('standaloneField');
-      expect(hiddenInput.value).to.equal('2024-03-20T09:45:00.000Z');
+      expect(hiddenInput.value).to.equal('09:45');
     });
   });
 
@@ -110,7 +112,7 @@ describe('<TimeField /> - Field Integration', () => {
       // Assert the hidden input has the correct ISO string value
       const hiddenInput = document.querySelector('input[tabindex="-1"]') as HTMLInputElement;
       expect(hiddenInput).not.to.equal(null);
-      expect(hiddenInput.value).to.equal('2024-01-15T14:30:00.000Z');
+      expect(hiddenInput.value).to.equal('14:30');
     });
 
     it('renders with null value', async () => {
@@ -204,6 +206,97 @@ describe('<TimeField /> - Field Integration', () => {
       expect(sections[0]).to.have.attribute('aria-label', 'Hours');
       expect(sections[1]).to.have.attribute('aria-label', 'Minutes');
       expect(sections[2]).to.have.attribute('aria-label', 'Meridiem');
+    });
+  });
+
+  describe('Form submission', () => {
+    it('submits the value in native time format (HH:MM) via onFormSubmit', async () => {
+      const handleSubmit = spy();
+      await render(
+        <Form onFormSubmit={handleSubmit}>
+          <Field.Root name="appointmentTime">
+            <TimeField
+              format={time24Format}
+              defaultValue={adapter.date('2024-03-20T09:30', 'default')}
+            />
+          </Field.Root>
+          <button type="submit">Submit</button>
+        </Form>,
+      );
+
+      fireEvent.click(screen.getByText('Submit'));
+
+      expect(handleSubmit.callCount).to.equal(1);
+      expect(handleSubmit.firstCall.args[0].appointmentTime).to.equal('09:30');
+    });
+
+    it('submits empty string when value is null', async () => {
+      const handleSubmit = spy();
+      await render(
+        <Form onFormSubmit={handleSubmit}>
+          <Field.Root name="appointmentTime">
+            <TimeField format={time24Format} defaultValue={null} />
+          </Field.Root>
+          <button type="submit">Submit</button>
+        </Form>,
+      );
+
+      fireEvent.click(screen.getByText('Submit'));
+
+      expect(handleSubmit.callCount).to.equal(1);
+      expect(handleSubmit.firstCall.args[0].appointmentTime).to.equal('');
+    });
+
+    it('validates with rangeUnderflow when time is before minTime', async () => {
+      const handleSubmit = spy();
+      const minTime = adapter.date('2024-03-20T09:00', 'default');
+
+      await render(
+        <Form onFormSubmit={handleSubmit}>
+          <Field.Root name="time">
+            <TimeField
+              format={time24Format}
+              defaultValue={adapter.date('2024-03-20T08:30', 'default')}
+              minTime={minTime}
+            />
+            <Field.Error match="rangeUnderflow" data-testid="error">
+              Time is too early
+            </Field.Error>
+          </Field.Root>
+          <button type="submit">Submit</button>
+        </Form>,
+      );
+
+      fireEvent.click(screen.getByText('Submit'));
+
+      expect(handleSubmit.callCount).to.equal(0);
+      expect(screen.getByTestId('error')).to.have.text('Time is too early');
+    });
+
+    it('validates with rangeOverflow when time is after maxTime', async () => {
+      const handleSubmit = spy();
+      const maxTime = adapter.date('2024-03-20T17:00', 'default');
+
+      await render(
+        <Form onFormSubmit={handleSubmit}>
+          <Field.Root name="time">
+            <TimeField
+              format={time24Format}
+              defaultValue={adapter.date('2024-03-20T18:30', 'default')}
+              maxTime={maxTime}
+            />
+            <Field.Error match="rangeOverflow" data-testid="error">
+              Time is too late
+            </Field.Error>
+          </Field.Root>
+          <button type="submit">Submit</button>
+        </Form>,
+      );
+
+      fireEvent.click(screen.getByText('Submit'));
+
+      expect(handleSubmit.callCount).to.equal(0);
+      expect(screen.getByTestId('error')).to.have.text('Time is too late');
     });
   });
 });

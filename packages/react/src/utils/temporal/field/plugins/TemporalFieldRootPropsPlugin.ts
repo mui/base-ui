@@ -28,17 +28,27 @@ const rootPropsSelectors = {
     selectors.readOnly,
     selectors.name,
     selectors.id,
-    (value, adapter, config, required, disabled, readOnly, name, id) => ({
-      value: config.stringifyValue(adapter, value),
-      name,
-      id,
-      disabled,
-      readOnly,
-      required,
-      'aria-hidden': true,
-      tabIndex: -1,
-      style: visuallyHiddenInput,
-    }),
+    selectors.validationProps,
+    (value, adapter, config, required, disabled, readOnly, name, id, validationProps) => {
+      const nativeValidationProps = config.stringifyValidationPropsForNativeInput(
+        adapter,
+        validationProps,
+      );
+      return {
+        type: config.nativeInputType,
+        value: config.stringifyValueForNativeInput(adapter, value),
+        name,
+        id,
+        disabled,
+        readOnly,
+        required,
+        min: nativeValidationProps.min,
+        max: nativeValidationProps.max,
+        'aria-hidden': true,
+        tabIndex: -1,
+        style: visuallyHiddenInput,
+      };
+    },
   ),
 };
 

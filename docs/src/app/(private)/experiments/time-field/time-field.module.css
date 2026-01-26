@@ -56,3 +56,18 @@
   line-height: 1rem;
   color: red;
 }
+
+.Button {
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  border-radius: 0.375rem;
+  border: 1px solid var(--color-gray-200);
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+  cursor: pointer;
+
+  &:hover {
+    background-color: var(--color-gray-100);
+  }
+}
