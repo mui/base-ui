@@ -46,13 +46,10 @@ const Inner = React.memo(
 
       const { transitionStatus, setMounted } = useTransitionStatus(selected);
 
-      const state: SelectItemIndicator.State = React.useMemo(
-        () => ({
-          selected,
-          transitionStatus,
-        }),
-        [selected, transitionStatus],
-      );
+      const state: SelectItemIndicator.State = {
+        selected,
+        transitionStatus,
+      };
 
       const element = useRenderElement('span', componentProps, {
         ref: [forwardedRef, indicatorRef],

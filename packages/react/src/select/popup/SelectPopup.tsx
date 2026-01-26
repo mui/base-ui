@@ -9,6 +9,7 @@ import { isMouseWithinBounds } from '@base-ui/utils/isMouseWithinBounds';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStore } from '@base-ui/utils/store';
 import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
+import type { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import { FloatingFocusManager } from '../../floating-ui-react';
 import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 import { useSelectFloatingContext, useSelectRootContext } from '../root/SelectRootContext';
@@ -46,7 +47,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
   componentProps: SelectPopup.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, ...elementProps } = componentProps;
+  const { render, className, finalFocus, ...elementProps } = componentProps;
 
   const {
     store,
@@ -179,15 +180,12 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
     },
   });
 
-  const state: SelectPopup.State = React.useMemo(
-    () => ({
-      open,
-      transitionStatus,
-      side,
-      align,
-    }),
-    [open, transitionStatus, side, align],
-  );
+  const state: SelectPopup.State = {
+    open,
+    transitionStatus,
+    side,
+    align,
+  };
 
   useIsoLayoutEffect(() => {
     if (
@@ -479,6 +477,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
         context={floatingRootContext}
         modal={false}
         disabled={!mounted}
+        returnFocus={finalFocus}
         restoreFocus
       >
         {element}
@@ -489,6 +488,22 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
 
 export interface SelectPopupProps extends BaseUIComponentProps<'div', SelectPopup.State> {
   children?: React.ReactNode;
+  /**
+   * Determines the element to focus when the select popup is closed.
+   *
+   * - `false`: Do not move focus.
+   * - `true`: Move focus based on the default behavior (trigger or previously focused element).
+   * - `RefObject`: Move focus to the ref element.
+   * - `function`: Called with the interaction type (`mouse`, `touch`, `pen`, or `keyboard`).
+   *   Return an element to focus, `true` to use the default behavior, or `false`/`undefined` to do nothing.
+   */
+  finalFocus?:
+    | (
+        | boolean
+        | React.RefObject<HTMLElement | null>
+        | ((closeType: InteractionType) => boolean | HTMLElement | null | void)
+      )
+    | undefined;
 }
 
 export interface SelectPopupState {
@@ -508,41 +523,31 @@ function getMaxPopupHeight(popupStyles: CSSStyleDeclaration) {
   return maxHeightStyle.endsWith('px') ? parseFloat(maxHeightStyle) || Infinity : Infinity;
 }
 
-const UNSET_TRANSFORM_STYLES = {
-  transform: 'none',
-  scale: '1',
-  translate: '0 0',
-} as const;
+const TRANSFORM_STYLE_RESETS = [
+  ['transform', 'none'],
+  ['scale', '1'],
+  ['translate', '0 0'],
+] as const;
 
-type TransformStyleProperty = keyof typeof UNSET_TRANSFORM_STYLES;
-
-function restoreInlineStyleProperty(
-  style: CSSStyleDeclaration,
-  property: TransformStyleProperty,
-  value: string,
-) {
-  if (value) {
-    style.setProperty(property, value);
-  } else {
-    style.removeProperty(property);
-  }
-}
+type TransformStyleProperty = (typeof TRANSFORM_STYLE_RESETS)[number][0];
 
 function unsetTransformStyles(popupElement: HTMLElement) {
   const { style } = popupElement;
-
   const originalStyles = {} as Record<TransformStyleProperty, string>;
 
-  const props = Object.keys(UNSET_TRANSFORM_STYLES) as TransformStyleProperty[];
-
-  for (const prop of props) {
-    originalStyles[prop] = style.getPropertyValue(prop);
-    style.setProperty(prop, UNSET_TRANSFORM_STYLES[prop]);
+  for (const [property, value] of TRANSFORM_STYLE_RESETS) {
+    originalStyles[property] = style.getPropertyValue(property);
+    style.setProperty(property, value, 'important');
   }
 
   return () => {
-    for (const prop of props) {
-      restoreInlineStyleProperty(style, prop, originalStyles[prop]);
+    for (const [property] of TRANSFORM_STYLE_RESETS) {
+      const originalValue = originalStyles[property];
+      if (originalValue) {
+        style.setProperty(property, originalValue);
+      } else {
+        style.removeProperty(property);
+      }
     }
   };
 }

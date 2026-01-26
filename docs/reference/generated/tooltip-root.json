@@ -44,10 +44,10 @@
       "detailedType": "string | null | undefined"
     },
     "trackCursorAxis": {
-      "type": "'none' | 'both' | 'x' | 'y'",
+      "type": "'none' | 'x' | 'y' | 'both'",
       "default": "'none'",
       "description": "Determines which axis the tooltip should track the cursor on.",
-      "detailedType": "'none' | 'both' | 'x' | 'y' | undefined"
+      "detailedType": "'none' | 'x' | 'y' | 'both' | undefined"
     },
     "disabled": {
       "type": "boolean",
