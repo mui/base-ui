@@ -10,7 +10,6 @@ import { ToggleGroupContext } from './ToggleGroupContext';
 import { ToggleGroupDataAttributes } from './ToggleGroupDataAttributes';
 import type { BaseUIChangeEventDetails } from '../utils/createBaseUIEventDetails';
 import { REASONS } from '../utils/reasons';
-import { ToggleValue } from '../toggle/Toggle';
 
 const stateAttributesMapping = {
   multiple(value: boolean) {
@@ -26,7 +25,7 @@ const stateAttributesMapping = {
  *
  * Documentation: [Base UI Toggle Group](https://base-ui.com/react/components/toggle-group)
  */
-export const ToggleGroup = React.forwardRef(function ToggleGroup<Value extends ToggleValue>(
+export const ToggleGroup = React.forwardRef(function ToggleGroup<Value extends string>(
   componentProps: ToggleGroup.Props<Value>,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
@@ -133,7 +132,7 @@ export const ToggleGroup = React.forwardRef(function ToggleGroup<Value extends T
     </ToggleGroupContext.Provider>
   );
 }) as {
-  <Value extends ToggleValue>(
+  <Value extends string>(
     props: ToggleGroup.Props<Value> & { ref?: React.RefObject<HTMLDivElement> | undefined },
   ): React.JSX.Element;
 };
@@ -156,7 +155,7 @@ export interface ToggleGroupState {
   orientation: Orientation;
 }
 
-export interface ToggleGroupProps<Value extends ToggleValue> extends BaseUIComponentProps<
+export interface ToggleGroupProps<Value extends string> extends BaseUIComponentProps<
   'div',
   ToggleGroup.State
 > {
@@ -208,7 +207,7 @@ export type ToggleGroupChangeEventDetails = BaseUIChangeEventDetails<ToggleGroup
 
 export namespace ToggleGroup {
   export type State = ToggleGroupState;
-  export type Props<Value extends ToggleValue> = ToggleGroupProps<Value>;
+  export type Props<Value extends string> = ToggleGroupProps<Value>;
   export type ChangeEventReason = ToggleGroupChangeEventReason;
   export type ChangeEventDetails = ToggleGroupChangeEventDetails;
 }

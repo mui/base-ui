@@ -22,7 +22,7 @@ import { REASONS } from '../utils/reasons';
  *
  * Documentation: [Base UI Toggle](https://base-ui.com/react/components/toggle)
  */
-export const Toggle = React.forwardRef(function Toggle<Value extends ToggleValue>(
+export const Toggle = React.forwardRef(function Toggle<Value extends string>(
   componentProps: Toggle.Props<Value>,
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
@@ -129,14 +129,12 @@ export const Toggle = React.forwardRef(function Toggle<Value extends ToggleValue
 
   return element;
 }) as {
-  <Value extends ToggleValue>(
+  <Value extends string>(
     props: Toggle.Props<Value> & {
       ref?: React.RefObject<HTMLButtonElement> | undefined;
     },
   ): React.JSX.Element;
 };
-
-export type ToggleValue = string | number;
 
 export interface ToggleState {
   /**
@@ -149,7 +147,7 @@ export interface ToggleState {
   disabled: boolean;
 }
 
-export interface ToggleProps<Value extends ToggleValue>
+export interface ToggleProps<Value extends string>
   extends NativeButtonProps, BaseUIComponentProps<'button', Toggle.State> {
   /**
    * Whether the toggle button is currently pressed.
@@ -185,9 +183,8 @@ export type ToggleChangeEventReason = typeof REASONS.none;
 export type ToggleChangeEventDetails = BaseUIChangeEventDetails<Toggle.ChangeEventReason>;
 
 export namespace Toggle {
-  export type Value = ToggleValue;
   export type State = ToggleState;
-  export type Props<TValue extends Value> = ToggleProps<TValue>;
+  export type Props<TValue extends string> = ToggleProps<TValue>;
   export type ChangeEventReason = ToggleChangeEventReason;
   export type ChangeEventDetails = ToggleChangeEventDetails;
 }

@@ -3,9 +3,9 @@
   "description": "A two-state button that can be on or off.\nRenders a `<button>` element.",
   "props": {
     "value": {
-      "type": "string | number",
+      "type": "string",
       "description": "A unique string that identifies the toggle when used\ninside a toggle group.",
-      "detailedType": "ToggleValue | undefined"
+      "detailedType": "string | undefined"
     },
     "defaultPressed": {
       "type": "boolean",
