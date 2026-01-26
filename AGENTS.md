@@ -35,3 +35,41 @@ This repository contains the source code and documentation for Base UI: a headl
 
 - Commit messages follow the format `[scope] Imperative summary` (for example `[popover] Fix focus trap`). Choose scopes that mirror package or component names that were changed.
 - Use `[all components]` scope for changes that broadly affect most components.
+
+## Errors
+
+These guidelines only apply for errors thrown from public packages.
+
+Every error message must:
+
+1. **Say what happened** - Describe the problem clearly
+2. **Say why it's a problem** - Explain the consequence
+3. **Point toward how to solve it** - Give actionable guidance
+
+Format:
+
+<!-- markdownlint-disable MD038 -->
+
+- Prefix with `MUI: `
+- Use string concatenation for readability
+- Include a documentation link when applicable (`https://mui.com/r/...`)
+
+### Error Minifier
+
+Use the `/* minify-error */` comment to activate the babel plugin:
+
+```tsx
+throw /* minify-error */ new Error(
+  'MUI: Expected valid input target. ' +
+    'Did you use a custom `inputComponent` and forget to forward refs? ' +
+    'See https://mui.com/r/input-component-ref-interface for more info.',
+);
+```
+
+The minifier works with both `Error` and `TypeError` constructors.
+
+### After Adding/Updating Errors
+
+Run `pnpm extract-error-codes` to update `docs/public/static/error-codes.json`.
+
+**Important:** If the update created a new error code, but the new and original message have the same number of arguments and semantics haven't changed, update the original error in `error-codes.json` instead of creating a new code.
