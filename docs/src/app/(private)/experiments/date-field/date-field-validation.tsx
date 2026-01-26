@@ -184,6 +184,68 @@ export default function DateFieldValidation() {
             </Form>
           </div>
         </section>
+
+        {/* Format with week day + minDate validation */}
+        <section>
+          <h2>Min Date (Jan 19, 2026) when the format contains week day</h2>
+          <div className={styles.DemoList}>
+            {/* Native form + label */}
+            <form
+              className={styles.Demo}
+              onSubmit={(event) => {
+                event.preventDefault();
+                const formData = new FormData(event.currentTarget);
+                alert(`Submitted: ${formData.get('date-weekday-native')}`);
+              }}
+            >
+              <div className={styles.DemoField}>
+                <div className={styles.SectionTitle}>Native</div>
+                <label className={styles.Label} htmlFor="date-weekday-native">
+                  Date (min: {format(minDate, 'MMM d')})
+                </label>
+                <DateField.Root
+                  id="date-weekday-native"
+                  name="date-weekday-native"
+                  format="EEEE, MMM d, yyyy"
+                  minDate={minDate}
+                >
+                  <DateFieldInput />
+                </DateField.Root>
+              </div>
+              <button type="submit" className={styles.Button}>
+                Submit
+              </button>
+            </form>
+
+            {/* Base UI Form + Field */}
+            <Form
+              className={styles.Demo}
+              onFormSubmit={(formData) => {
+                alert(`Submitted: ${formData['date-weekday-baseui']}`);
+              }}
+            >
+              <Field.Root name="date-weekday-baseui" className={styles.DemoField}>
+                <div className={styles.SectionTitle}>Base UI</div>
+                <Field.Label className={styles.Label}>
+                  Date (min: {format(minDate, 'MMM d')})
+                </Field.Label>
+                <DateField.Root
+                  className={styles.Root}
+                  format="EEEE, MMM d, yyyy"
+                  minDate={minDate}
+                >
+                  <DateFieldInput />
+                </DateField.Root>
+                <Field.Error match="rangeUnderflow" className={styles.Error}>
+                  Date must be on or after {format(minDate, 'MMM d, yyyy')}
+                </Field.Error>
+              </Field.Root>
+              <button type="submit" className={styles.Button}>
+                Submit
+              </button>
+            </Form>
+          </div>
+        </section>
       </div>
     </div>
   );
