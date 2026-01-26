@@ -1,11 +1,13 @@
 # Visual Timeline for Releases - Implementation Summary
 
 ## Overview
+
 Implemented a visual timeline for Base UI releases page that provides an overview of all releases with key highlights, similar to MUI X's "What's New" page.
 
 ## Features Implemented
 
 ### 1. Visual Timeline Component
+
 - **Location**: `/docs/src/components/ReleaseTimeline/`
 - **Features**:
   - Visual spine running down the center (desktop) or left side (mobile)
@@ -16,12 +18,14 @@ Implemented a visual timeline for Base UI releases page that provides an overvie
   - Clean, modern styling using CSS modules
 
 ### 2. Individual Release Pages
+
 - **Route Pattern**: `/react/overview/releases/[version]`
 - **Created 17 individual pages**: one for each release from v1.0.0 down to v1.0.0-alpha.4
 - Each page contains the full release notes extracted from the original releases page
 - Format: MDX files for easy editing and markdown support
 
 ### 3. Main Releases Page Enhancement
+
 - **Location**: `/docs/src/app/(docs)/react/overview/releases/page.tsx`
 - **Sections**:
   1. **Release Timeline**: Interactive visual timeline showing all releases
@@ -29,6 +33,7 @@ Implemented a visual timeline for Base UI releases page that provides an overvie
   3. **Full Release Notes**: Links to detailed documentation and GitHub changelog
 
 ### 4. Data Structure
+
 - **Location**: `/docs/src/data/releases.ts`
 - Centralized release data with:
   - Version number
@@ -38,6 +43,7 @@ Implemented a visual timeline for Base UI releases page that provides an overvie
 - Easy to maintain and update for future releases
 
 ### 5. Utility Script
+
 - **Location**: `/docs/src/scripts/generate-release-pages.js`
 - Automated script to extract individual release sections from the combined page
 - Used to generate the initial 17 release page files
@@ -66,7 +72,7 @@ docs/src/
 
 ## Design Decisions
 
-1. **Timeline Layout**: 
+1. **Timeline Layout**:
    - Alternating left/right cards on desktop for visual interest
    - All cards on the right on mobile for simplicity
    - Visual spine provides continuity and context
@@ -102,6 +108,7 @@ docs/src/
 ## Future Enhancements
 
 Potential improvements for the future:
+
 - Add filtering by version type (alpha, beta, rc, stable)
 - Search functionality within release notes
 - RSS feed for releases
@@ -112,6 +119,7 @@ Potential improvements for the future:
 ## Testing
 
 To test the implementation:
+
 1. Run `pnpm install` in the docs directory
 2. Run `pnpm dev` to start the development server
 3. Navigate to `/react/overview/releases`
