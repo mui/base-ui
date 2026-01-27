@@ -56,20 +56,6 @@ Format:
 
 ### Error Minifier
 
-Use the `/* minify-error */` comment to activate the babel plugin:
-
-```tsx
-throw /* minify-error */ new Error(
-  'MUI: Expected valid input target. ' +
-    'Did you use a custom `inputComponent` and forget to forward refs? ' +
-    'See https://mui.com/r/input-component-ref-interface for more info.',
-);
-```
-
-The minifier works with both `Error` and `TypeError` constructors.
-
-### After Adding/Updating Errors
-
-Run `pnpm extract-error-codes` to update `docs/public/static/error-codes.json`.
+You MUST run `pnpm extract-error-codes` to update `docs/public/static/error-codes.json` eevry time you add or update an error message in an `Error` constructor.
 
 **Important:** If the update created a new error code, but the new and original message have the same number of arguments and semantics haven't changed, update the original error in `error-codes.json` instead of creating a new code.
