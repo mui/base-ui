@@ -1,24 +1,25 @@
 {
   "compilerOptions": {
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
+    "composite": true,
     "target": "ES2022",
     "useDefineForClassFields": true,
     "lib": ["ES2022", "DOM", "DOM.Iterable"],
     "module": "ESNext",
-    "types": ["vite/client"],
+    "types": ["vite/client", "node"],
     "skipLibCheck": true,
     "baseUrl": ".",
     "paths": {
       "@base-ui/react": ["../../packages/react/src/index.ts"],
       "@base-ui/react/*": ["../../packages/react/src/*"],
       "@base-ui/utils": ["../../packages/utils/src/index.ts"],
-      "@base-ui/utils/*": ["../../packages/utils/src/*"]
+      "@base-ui/utils/*": ["../../packages/utils/src/*"],
+      "docs/*": ["../../docs/*"]
     },
 
     /* Bundler mode */
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
-    "verbatimModuleSyntax": true,
     "moduleDetection": "force",
     "noEmit": true,
     "jsx": "react-jsx",
@@ -27,9 +28,12 @@
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "erasableSyntaxOnly": true,
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true
   },
+  "references": [
+    { "path": "../../packages/utils/tsconfig.build.json" },
+    { "path": "../../packages/react/tsconfig.build.json" }
+  ],
   "include": ["src"]
 }

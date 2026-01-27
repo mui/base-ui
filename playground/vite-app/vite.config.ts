@@ -10,6 +10,7 @@ export default defineConfig({
     alias: {
       '@base-ui/react': path.resolve(__dirname, '..', '..', 'packages', 'react', 'src'),
       '@base-ui/utils': path.resolve(__dirname, '..', '..', 'packages', 'utils', 'src'),
+      docs: path.resolve(__dirname, '..', '..', 'docs'),
     },
   },
   server: {
