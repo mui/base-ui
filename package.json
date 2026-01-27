@@ -62,7 +62,7 @@
     "@arethetypeswrong/cli": "0.18.2",
     "@babel/plugin-transform-react-constant-elements": "7.27.1",
     "@base-ui/monorepo-tests": "workspace:*",
-    "@mui/internal-code-infra": "https://pkg.pr.new/mui/mui-public/@mui/internal-code-infra@0866b68",
+    "@mui/internal-code-infra": "0.0.3-canary.78",
     "@mui/internal-netlify-cache": "0.0.2-canary.1",
     "@mui/internal-test-utils": "2.0.18-canary.5",
     "@next/eslint-plugin-next": "16.1.4",
