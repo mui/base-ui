@@ -251,7 +251,7 @@ export function isDatePart(section: TemporalFieldSection): section is TemporalFi
 }
 
 export function isSeparator(
-  element: TemporalFieldSeparator | TemporalFieldToken | TemporalFieldSection,
+  element: TemporalFieldToken | TemporalFieldSection,
 ): element is TemporalFieldSeparator {
   return element.type === 'separator';
 }
