@@ -7,16 +7,15 @@ import {
   useInfiniteQuery,
   useQueryClient,
 } from '@tanstack/react-query';
-import { Check, ChevronDown, X } from 'lucide-react';
-import { Combobox } from '@base-ui/react/combobox';
+import { Autocomplete } from '@base-ui/react/autocomplete';
 import { useTimeout } from '@base-ui/utils/useTimeout';
-import styles from '../../../(docs)/react/components/combobox/demos/async-single/css-modules/index.module.css';
+import styles from '../../../(docs)/react/components/autocomplete/demos/async/css-modules/index.module.css';
 import {
   movies as allMovies,
   Movie,
 } from '../../../(docs)/react/components/combobox/demos/tanstack-query/movies';
 
-const appQueryClient = new QueryClient({
+const client = new QueryClient({
   defaultOptions: {
     queries: {
       staleTime: 1000 * 60, // 1 minute
@@ -27,22 +26,20 @@ const appQueryClient = new QueryClient({
 
 export default function App() {
   return (
-    <QueryClientProvider client={appQueryClient}>
-      <ExampleCombobox />
+    <QueryClientProvider client={client}>
+      <ExampleAutocomplete />
     </QueryClientProvider>
   );
 }
 
-function ExampleCombobox() {
-  const id = React.useId();
+function ExampleAutocomplete() {
   const popupRef = React.useRef<HTMLDivElement>(null);
   const scrollTimeout = useTimeout();
   const queryClient = useQueryClient();
 
-  const [selectedValue, setSelectedValue] = React.useState<Movie | null>(null);
   const [searchValueUnwrapped, setSearchValue] = React.useState('');
 
-  const { contains } = Combobox.useFilter();
+  const { contains } = Autocomplete.useFilter();
 
   const searchValue = React.useDeferredValue(searchValueUnwrapped.trim());
   const isEmpty = searchValue === '';
@@ -67,14 +64,6 @@ function ExampleCombobox() {
   }, [data]);
 
   const error = queryError ? 'Failed to fetch movies. Please try again.' : null;
-
-  const items = React.useMemo(() => {
-    if (!selectedValue || searchResults.some((movie) => movie.id === selectedValue.id)) {
-      return searchResults;
-    }
-
-    return [...searchResults, selectedValue];
-  }, [searchResults, selectedValue]);
 
   React.useEffect(() => {
     const popupEl = popupRef.current;
@@ -112,7 +101,7 @@ function ExampleCombobox() {
 
   function getStatus() {
     if (isEmpty) {
-      return selectedValue ? null : 'Start typing to search movies…';
+      return 'Start typing to search movies…';
     }
 
     if (isPending) {
@@ -132,22 +121,21 @@ function ExampleCombobox() {
       return `No matches for "${searchValue}".`;
     }
 
-    return null;
+    return `${searchResults.length} result${searchResults.length === 1 ? '' : 's'} found`;
   }
 
-  function getEmptyMessage() {
-    if (isEmpty || isPending || searchResults.length > 0 || error) {
-      return null;
-    }
-
-    return 'Try a different search term.';
-  }
+  const status = getStatus();
 
   return (
-    <Combobox.Root
-      items={items}
-      itemToStringLabel={(movie: Movie) => movie.title}
+    <Autocomplete.Root
+      items={searchResults}
+      value={searchValueUnwrapped}
+      onValueChange={(nextSearchValue) => {
+        setSearchValue(nextSearchValue);
+      }}
+      itemToStringValue={(movie: Movie) => movie.title}
       filter={null}
+      loopFocus={!isPending && !hasNextPage}
       onOpenChange={(open) => {
         // reset items to the first page when the popup closes
         if (!open) {
@@ -163,20 +151,13 @@ function ExampleCombobox() {
               };
             },
           );
-          setSearchValue('');
-        }
-      }}
-      onValueChange={setSelectedValue}
-      onInputValueChange={(nextSearchValue, { reason }) => {
-        if (reason !== 'item-press') {
-          setSearchValue(nextSearchValue);
         }
       }}
       onItemHighlighted={(highlightedItem, eventDetails) => {
         if (highlightedItem && hasNextPage && eventDetails.reason === 'keyboard') {
-          const highlightedIndex = items.indexOf(highlightedItem);
+          const highlightedIndex = searchResults.indexOf(highlightedItem);
           // fetch if the highlighted index is close to the end
-          const shouldFetch = highlightedIndex >= items.length - 1;
+          const shouldFetch = highlightedIndex >= searchResults.length - 1;
 
           if (shouldFetch) {
             fetchNextPage();
@@ -184,49 +165,46 @@ function ExampleCombobox() {
         }
       }}
     >
-      <div className={styles.Label}>
-        <label htmlFor={id}>Find a movie</label>
-        <div className={styles.InputWrapper}>
-          <Combobox.Input id={id} placeholder="e.g. Aliens" className={styles.Input} />
-          <div className={styles.ActionButtons}>
-            <Combobox.Clear className={styles.Clear} aria-label="Clear selection">
-              <X className="size-4" />
-            </Combobox.Clear>
-            <Combobox.Trigger className={styles.Trigger} aria-label="Open popup">
-              <ChevronDown className="size-4" />
-            </Combobox.Trigger>
-          </div>
-        </div>
-      </div>
+      <label className={styles.Label}>
+        Search movies by name
+        <Autocomplete.Input placeholder="e.g. Aliens" className={styles.Input} />
+      </label>
 
-      <Combobox.Portal>
-        <Combobox.Positioner className={styles.Positioner} sideOffset={4}>
-          <Combobox.Popup
+      <Autocomplete.Portal hidden={!status}>
+        <Autocomplete.Positioner className={styles.Positioner} sideOffset={4} align="start">
+          <Autocomplete.Popup
             ref={popupRef}
             className={styles.Popup}
             aria-busy={isPending || undefined}
           >
-            <Combobox.Status className={styles.Status}>{getStatus()}</Combobox.Status>
-            <Combobox.Empty className={styles.Empty}>{getEmptyMessage()}</Combobox.Empty>
-            <Combobox.List>
+            <Autocomplete.Status>
+              {status && <div className={styles.Status}>{status}</div>}
+            </Autocomplete.Status>
+            <Autocomplete.List>
               {(movie: Movie) => (
-                <Combobox.Item key={movie.id} className={styles.Item} value={movie}>
-                  <Combobox.ItemIndicator className={styles.ItemIndicator}>
-                    <Check className="size-4" />
-                  </Combobox.ItemIndicator>
-                  <div className={styles.ItemText}>
-                    <div className={styles.ItemTitle}>{movie.title}</div>
-                    <div className={styles.ItemSubtitle}>
-                      <span className={styles.ItemUsername}>{movie.releaseDate}</span>
-                    </div>
-                  </div>
-                </Combobox.Item>
+                <Autocomplete.Item
+                  key={movie.id}
+                  className={styles.Item}
+                  value={movie}
+                  render={
+                    <a
+                      href={`https://www.themoviedb.org/movie/${movie.id}`}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      <div className={styles.MovieItem}>
+                        <div className={styles.MovieName}>{movie.title}</div>
+                        <div className={styles.MovieYear}>{movie.releaseDate.slice(0, 4)}</div>
+                      </div>
+                    </a>
+                  }
+                />
               )}
-            </Combobox.List>
-          </Combobox.Popup>
-        </Combobox.Positioner>
-      </Combobox.Portal>
-    </Combobox.Root>
+            </Autocomplete.List>
+          </Autocomplete.Popup>
+        </Autocomplete.Positioner>
+      </Autocomplete.Portal>
+    </Autocomplete.Root>
   );
 }
 
