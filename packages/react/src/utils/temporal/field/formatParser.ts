@@ -194,10 +194,11 @@ export class FormatParser {
 
     switch (tokenConfig.part) {
       case 'year': {
-        // Remove once https://github.com/iamkun/dayjs/pull/2847 is merged and bump dayjs version
-        if (this.adapter.lib === 'dayjs' && token === 'YY') {
-          return true;
-        }
+        // Uncommt if Day.js support is added.
+        // Remove once https://github.com/iamkun/dayjs/pull/2847 is merged and released.
+        // if (this.adapter.lib === 'dayjs' && token === 'YY') {
+        //   return true;
+        // }
         return this.adapter
           .formatByString(this.adapter.setYear(this.now, 1), token)
           .startsWith('0');
