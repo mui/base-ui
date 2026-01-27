@@ -56,7 +56,6 @@ const sectionPropsSelectors = {
           contentEditable: editable,
           suppressContentEditableWarning: true,
           role: 'spinbutton',
-          // 'data-range-position': (section as FieldRangeSection).dateName || undefined,
           spellCheck: editable ? false : undefined,
           // Firefox hydrates this as `'none`' instead of `'off'`. No problems in chromium with both values.
           // For reference https://github.com/mui/mui-x/issues/19012

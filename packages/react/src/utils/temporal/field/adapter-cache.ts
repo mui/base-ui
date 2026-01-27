@@ -69,7 +69,7 @@ function getMonthCache(adapter: TemporalAdapter) {
     const firstMonth = adapter.startOfYear(adapter.now('default'));
     const monthsInYear = [firstMonth];
     let longestMonth = firstMonth;
-    const daysInLongestMonth = adapter.getDaysInMonth(firstMonth);
+    let daysInLongestMonth = adapter.getDaysInMonth(firstMonth);
 
     while (monthsInYear.length < 12) {
       const prevMonth = monthsInYear[monthsInYear.length - 1];
@@ -78,6 +78,7 @@ function getMonthCache(adapter: TemporalAdapter) {
       monthsInYear.push(month);
       if (daysInMonth > daysInLongestMonth) {
         longestMonth = month;
+        daysInLongestMonth = daysInMonth;
       }
     }
 

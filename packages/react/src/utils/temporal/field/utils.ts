@@ -24,6 +24,22 @@ import {
 } from './types';
 
 /**
+ * Ordering of date part types by granularity (from least to most granular).
+ * Used both for determining the most granular part in a format
+ * and for ordering section modifications during date merging.
+ */
+export const DATE_PART_GRANULARITY: Record<string, number> = {
+  year: 1,
+  month: 2,
+  day: 3,
+  weekDay: 4,
+  hours: 5,
+  minutes: 6,
+  seconds: 7,
+  meridiem: 8,
+};
+
+/**
  * Returns the properties of the state that are derived from the parameters.
  * This do not contain state properties that don't update whenever the parameters update.
  */
@@ -69,11 +85,11 @@ export function applyLocalizedDigits(valueStr: string, localizedDigits: string[]
 }
 
 /**
- * Make sure the value of a digit section have the right amount of leading zeros.
- * E.g.: `03` => `3`
+ * Normalizes a digit string to have the correct amount of leading zeros for the given size.
+ * E.g.: `3` with size 2 => `03`, `007` with size 2 => `07`
  * Warning: Should only be called with non-localized digits. Call `removeLocalizedDigits` with your value if needed.
  */
-export function cleanLeadingZeros(valueStr: string, size: number) {
+export function normalizeLeadingZeros(valueStr: string, size: number) {
   // Remove the leading zeros and then add back as many as needed.
   return Number(valueStr).toString().padStart(size, '0');
 }
@@ -189,7 +205,7 @@ export function cleanDigitDatePartValue(
   let valueStr = value.toString();
 
   if (token.isPadded) {
-    valueStr = cleanLeadingZeros(valueStr, token.maxLength!);
+    valueStr = normalizeLeadingZeros(valueStr, token.maxLength!);
   }
 
   return applyLocalizedDigits(valueStr, localizedDigits);
@@ -209,6 +225,7 @@ export function buildSections(
   return parsedFormat.elements.map((element, index) => {
     if (isToken(element)) {
       return {
+        type: 'datePart' as const,
         token: element,
         value: adapter.isValid(date) ? adapter.formatByString(date, element.value) : '',
         modified: false,
@@ -226,15 +243,15 @@ export function buildSections(
 export function isToken(
   element: TemporalFieldToken | TemporalFieldSeparator,
 ): element is TemporalFieldToken {
-  return typeof (element as TemporalFieldToken).isPadded === 'boolean';
+  return element.type === 'token';
 }
 
 export function isDatePart(section: TemporalFieldSection): section is TemporalFieldDatePart {
-  return (section as TemporalFieldDatePart).token !== undefined;
+  return section.type === 'datePart';
 }
 
 export function isSeparator(
   element: TemporalFieldSeparator | TemporalFieldToken | TemporalFieldSection,
-) {
-  return !isToken(element) && !isDatePart(element);
+): element is TemporalFieldSeparator {
+  return element.type === 'separator';
 }

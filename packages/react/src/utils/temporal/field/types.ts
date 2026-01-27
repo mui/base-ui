@@ -221,6 +221,7 @@ export interface TemporalFieldParsedFormat {
 }
 
 export interface TemporalFieldToken {
+  type: 'token';
   /**
    * Token value as present in the format string.
    * For example, on Date Fns, in the format `MM/DD/YYYY`, the token values are `MM`, `DD` and `YYYY`.
@@ -252,6 +253,7 @@ export interface TemporalFieldToken {
 }
 
 export interface TemporalFieldSeparator {
+  type: 'separator';
   /**
    * Separator displayed as displayed the input.
    */
@@ -263,6 +265,7 @@ export interface TemporalFieldSeparator {
 }
 
 export interface TemporalFieldDatePart {
+  type: 'datePart';
   /**
    * Value of the section, as rendered inside the input.
    * For example, in the date `05/25/1995`, the value of the month section is "05".

@@ -105,11 +105,6 @@ export class TemporalFieldDOMPlugin {
       return;
     }
 
-    // On multi input range pickers we want to update selection range only for the active input
-    // if (!this.inputRef.current.contains(this.getActiveElement())) {
-    //   return;
-    // }
-
     const range = new window.Range();
     const target = this.getSectionElement(selectedSection);
     if (target == null) {

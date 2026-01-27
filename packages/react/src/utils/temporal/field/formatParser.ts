@@ -10,7 +10,7 @@ import {
   TemporalFieldToken,
 } from './types';
 import { TextDirection } from '../../../direction-provider';
-import { isSeparator, isToken } from './utils';
+import { DATE_PART_GRANULARITY, isSeparator, isToken } from './utils';
 
 const DEFAULT_PLACEHOLDER_GETTERS: TemporalFieldPlaceholderGetters = {
   year: (params) => 'Y'.repeat(params.digitAmount),
@@ -177,6 +177,7 @@ export class FormatParser {
     }
 
     return {
+      type: 'token',
       value: tokenValue,
       config: tokenConfig,
       isPadded,
@@ -347,7 +348,7 @@ export class FormatParser {
           } else {
             // If there is no separator yet, we create it
             if (isToken(elements[elements.length - 1])) {
-              elements.push({ value: '', index: 0 });
+              elements.push({ type: 'separator', value: '', index: 0 });
             }
 
             (elements[elements.length - 1] as TemporalFieldSeparator).value += char;
@@ -371,21 +372,12 @@ export class FormatParser {
   }
 
   private static markMostGranularPart(parsedFormat: TemporalFieldParsedFormat): void {
-    const GRANULARITY: Record<string, number> = {
-      year: 1,
-      month: 2,
-      day: 3,
-      hours: 4,
-      minutes: 5,
-      seconds: 6,
-    };
-
     let mostGranularToken: TemporalFieldToken | null = null;
     let highestGranularity = 0;
 
     for (const element of parsedFormat.elements) {
       if (isToken(element)) {
-        const granularity = GRANULARITY[element.config.part] ?? 0;
+        const granularity = DATE_PART_GRANULARITY[element.config.part] ?? 0;
         if (granularity > highestGranularity) {
           highestGranularity = granularity;
           mostGranularToken = element;

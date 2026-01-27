@@ -1,11 +1,10 @@
 import {
   TemporalAdapter,
-  TemporalFieldDatePartType,
   TemporalSupportedObject,
 } from '../../../types';
 import { TemporalFieldDatePart, TemporalFieldSection } from './types';
 import { getWeekDaysStr } from './adapter-cache';
-import { cleanLeadingZeros, isDatePart } from './utils';
+import { normalizeLeadingZeros, DATE_PART_GRANULARITY, isDatePart } from './utils';
 
 function transferDatePartValue(
   adapter: TemporalAdapter,
@@ -28,7 +27,7 @@ function transferDatePartValue(
         section.token.value,
       );
       if (section.token.isPadded) {
-        dayInWeekStrOfActiveDate = cleanLeadingZeros(
+        dayInWeekStrOfActiveDate = normalizeLeadingZeros(
           dayInWeekStrOfActiveDate,
           section.token.maxLength!,
         );
@@ -78,17 +77,6 @@ function transferDatePartValue(
   }
 }
 
-const reliableSectionModificationOrder: Record<TemporalFieldDatePartType, number> = {
-  year: 1,
-  month: 2,
-  day: 3,
-  weekDay: 4,
-  hours: 5,
-  minutes: 6,
-  seconds: 7,
-  meridiem: 8,
-};
-
 export function mergeDateIntoReferenceDate(
   adapter: TemporalAdapter,
   dateToTransferFrom: TemporalSupportedObject,
@@ -100,8 +88,8 @@ export function mergeDateIntoReferenceDate(
     .filter(isDatePart)
     .sort(
       (a, b) =>
-        reliableSectionModificationOrder[a.token.config.part] -
-        reliableSectionModificationOrder[b.token.config.part],
+        DATE_PART_GRANULARITY[a.token.config.part] -
+        DATE_PART_GRANULARITY[b.token.config.part],
     )
     .reduce((mergedDate, section) => {
       if (!shouldLimitToEditedSections || section.modified) {

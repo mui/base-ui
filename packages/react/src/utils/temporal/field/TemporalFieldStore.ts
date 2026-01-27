@@ -139,7 +139,7 @@ export class TemporalFieldStore<
   }
 
   /**
-   * Updates the state of the Tree View based on the new parameters provided to the root component.
+   * Updates the state of the field based on the new parameters provided to the root component.
    */
   protected updateStateFromParameters(
     parameters: TemporalFieldStoreSharedParameters<TValue>,
