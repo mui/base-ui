@@ -248,6 +248,10 @@ export interface TemporalFieldToken {
    * When true, the field's `step` prop applies to this section during value adjustment.
    */
   isMostGranularPart: boolean;
+  /**
+   * Boundaries for this date part when adjusting using arrow keys, Home/End, etc.
+   */
+  boundaries: TemporalFieldDatePartValueBoundaries;
 }
 
 export interface TemporalFieldSeparator {
@@ -403,14 +407,12 @@ export interface TemporalFieldConfiguration<
   /**
    * Returns the boundaries for a date part when adjusting using arrow keys, Home/End, etc.
    * The boundaries take into account the validation props (minDate/maxDate, minTime/maxTime).
-   * Receives the structural boundaries (without validation props) and should return the final boundaries.
    * If not provided, the structural boundaries are used as-is.
    */
   getAdjustmentBoundaries: (
     adapter: TemporalAdapter,
     validationProps: TValidationProps,
     datePart: TemporalFieldDatePart,
-    structuralBoundaries: TemporalFieldDatePartValueBoundaries,
   ) => TemporalFieldDatePartValueBoundaries;
   /**
    * Stringifies the min/max/step validation props for hidden input attributes.
@@ -429,10 +431,10 @@ export interface HiddenInputValidationProps {
   step?: string | undefined;
 }
 
-export type TemporalFieldDatePartValueBoundaries = {
+export interface TemporalFieldDatePartValueBoundaries {
   minimum: number;
   maximum: number;
-};
+}
 
 export type TemporalFieldModelUpdater<
   State extends TemporalFieldState<any, any>,

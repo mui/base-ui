@@ -44,16 +44,16 @@ const config: TemporalFieldConfiguration<TemporalValue, ValidateDateValidationPr
   hiddenInputType: 'date',
   stringifyValueForHiddenInput: (adapter, value, _sections) =>
     formatDateForNativeInput(adapter, value),
-  getAdjustmentBoundaries: (adapter, validationProps, datePart, structuralBoundaries) => {
+  getAdjustmentBoundaries: (adapter, validationProps, datePart) => {
     const { minDate, maxDate } = validationProps;
     if (!minDate && !maxDate) {
-      return structuralBoundaries;
+      return datePart.token.boundaries;
     }
 
     const validMinDate = minDate && adapter.isValid(minDate) ? minDate : null;
     const validMaxDate = maxDate && adapter.isValid(maxDate) ? maxDate : null;
 
-    const result: TemporalFieldDatePartValueBoundaries = { ...structuralBoundaries };
+    const result: TemporalFieldDatePartValueBoundaries = { ...datePart.token.boundaries };
 
     switch (datePart.token.config.part) {
       case 'year': {
@@ -69,7 +69,7 @@ const config: TemporalFieldConfiguration<TemporalValue, ValidateDateValidationPr
       case 'month': {
         // Only restrict month if min and max share the same year
         if (validMinDate && validMaxDate && !adapter.isSameYear(validMinDate, validMaxDate)) {
-          return structuralBoundaries;
+          return datePart.token.boundaries;
         }
         if (validMinDate && (!validMaxDate || adapter.isSameYear(validMinDate, validMaxDate))) {
           result.minimum = adapter.getMonth(validMinDate) + 1;
@@ -83,7 +83,7 @@ const config: TemporalFieldConfiguration<TemporalValue, ValidateDateValidationPr
       case 'day': {
         // Only restrict day if min and max share the same year and month
         if (validMinDate && validMaxDate && !adapter.isSameMonth(validMinDate, validMaxDate)) {
-          return structuralBoundaries;
+          return datePart.token.boundaries;
         }
         if (validMinDate && (!validMaxDate || adapter.isSameMonth(validMinDate, validMaxDate))) {
           result.minimum = adapter.getDate(validMinDate);
@@ -95,7 +95,7 @@ const config: TemporalFieldConfiguration<TemporalValue, ValidateDateValidationPr
       }
 
       default:
-        return structuralBoundaries;
+        return datePart.token.boundaries;
     }
   },
   stringifyValidationPropsForHiddenInput: (adapter, validationProps) => {

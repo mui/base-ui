@@ -1,22 +1,210 @@
 import {
   TemporalAdapter,
+  TemporalFieldDatePartType,
   TemporalFieldPlaceholderGetters,
   TemporalFormatTokenConfig,
   TemporalSupportedObject,
 } from '../../../types';
 import { TemporalFieldParsedFormat, TemporalFieldSeparator, TemporalFieldToken } from './types';
 import { TextDirection } from '../../../direction-provider';
-import { DATE_PART_GRANULARITY, isSeparator, isToken } from './utils';
+import { DATE_PART_GRANULARITY, isSeparator, isToken, removeLocalizedDigits } from './utils';
+import {
+  getLocalizedDigits,
+  getLongestMonthInCurrentYear,
+  getWeekDaysStr,
+  getYearFormatLength,
+} from './adapter-cache';
 
-const DEFAULT_PLACEHOLDER_GETTERS: TemporalFieldPlaceholderGetters = {
-  year: (params) => 'Y'.repeat(params.digitAmount),
-  month: (params) => (params.contentType === 'letter' ? 'MMMM' : 'MM'),
-  day: () => 'DD',
-  weekDay: (params) => (params.contentType === 'letter' ? 'EEEE' : 'EE'),
-  hours: () => 'hh',
-  minutes: () => 'mm',
-  seconds: () => 'ss',
-  meridiem: () => 'aa',
+const DATE_PART_CONFIG_MAP: Record<TemporalFieldDatePartType, FormatParserDatePartConfig> = {
+  year: {
+    getBoundaries(adapter, token) {
+      return {
+        minimum: 0,
+        maximum: getYearFormatLength(adapter, token.value) === 4 ? 9999 : 99,
+      };
+    },
+    getTokenPlaceholder(placeholderGetters, tokenValue, tokenConfig, formatNowByToken) {
+      const digitAmount = formatNowByToken(tokenValue).length;
+      if (placeholderGetters?.year === undefined) {
+        return 'Y'.repeat(digitAmount);
+      }
+
+      return placeholderGetters.year({
+        digitAmount,
+        format: tokenValue,
+      });
+    },
+    isDigitTokenPadded(adapter, tokenValue, now) {
+      // Uncomment if Day.js support is added.
+      // Remove once https://github.com/iamkun/dayjs/pull/2847 is merged and released.
+      // if (this.adapter.lib === 'dayjs' && token === 'YY') {
+      //   return true;
+      // }
+      return adapter.formatByString(adapter.setYear(now, 1), tokenValue).startsWith('0');
+    },
+  },
+  month: {
+    getBoundaries(adapter) {
+      return {
+        minimum: 1,
+        // Assumption: All years have the same amount of months
+        maximum: adapter.getMonth(adapter.endOfYear(adapter.now('default'))) + 1,
+      };
+    },
+    getTokenPlaceholder(placeholderGetters, tokenValue, tokenConfig) {
+      if (placeholderGetters?.month === undefined) {
+        return tokenConfig.contentType === 'letter' ? 'MMMM' : 'MM';
+      }
+
+      return placeholderGetters.month({
+        contentType: tokenConfig.contentType,
+        format: tokenValue,
+      });
+    },
+    isDigitTokenPadded(adapter, tokenValue, now) {
+      return adapter.formatByString(adapter.startOfYear(now), tokenValue).length > 1;
+    },
+  },
+  weekDay: {
+    getBoundaries(adapter, token) {
+      if (token.config.contentType === 'digit') {
+        const daysInWeek = getWeekDaysStr(adapter, token.value).map(Number);
+        return {
+          minimum: Math.min(...daysInWeek),
+          maximum: Math.max(...daysInWeek),
+        };
+      }
+
+      return {
+        minimum: 1,
+        maximum: 7,
+      };
+    },
+    getTokenPlaceholder(placeholderGetters, tokenValue, tokenConfig) {
+      if (placeholderGetters?.weekDay === undefined) {
+        return tokenConfig.contentType === 'letter' ? 'EEEE' : 'EE';
+      }
+
+      return placeholderGetters.weekDay({
+        contentType: tokenConfig.contentType,
+        format: tokenValue,
+      });
+    },
+    isDigitTokenPadded(adapter, tokenValue, now) {
+      return adapter.formatByString(adapter.startOfWeek(now), tokenValue).length > 1;
+    },
+  },
+  day: {
+    getBoundaries(adapter) {
+      return {
+        minimum: 1,
+        maximum: adapter.getDaysInMonth(getLongestMonthInCurrentYear(adapter)),
+      };
+    },
+    getTokenPlaceholder(placeholderGetters, tokenValue) {
+      if (placeholderGetters?.day === undefined) {
+        return 'DD';
+      }
+
+      return placeholderGetters.day({ format: tokenValue });
+    },
+    isDigitTokenPadded(adapter, tokenValue, now) {
+      return adapter.formatByString(adapter.startOfMonth(now), tokenValue).length > 1;
+    },
+  },
+  hours: {
+    getBoundaries(adapter, token) {
+      const localizedDigits = getLocalizedDigits(adapter);
+      const today = adapter.now('default');
+      const endOfDay = adapter.endOfDay(today);
+      const lastHourInDay = adapter.getHours(endOfDay);
+      const hasMeridiem =
+        removeLocalizedDigits(adapter.formatByString(endOfDay, token.value), localizedDigits) !==
+        lastHourInDay.toString();
+
+      if (hasMeridiem) {
+        return {
+          minimum: 1,
+          maximum: Number(
+            removeLocalizedDigits(
+              adapter.formatByString(adapter.startOfDay(today), token.value),
+              localizedDigits,
+            ),
+          ),
+        };
+      }
+
+      return {
+        minimum: 0,
+        maximum: lastHourInDay,
+      };
+    },
+    getTokenPlaceholder(placeholderGetters, tokenValue) {
+      if (placeholderGetters?.hours === undefined) {
+        return 'hh';
+      }
+
+      return placeholderGetters.hours({ format: tokenValue });
+    },
+    isDigitTokenPadded(adapter, tokenValue, now) {
+      return adapter.formatByString(adapter.setHours(now, 1), tokenValue).length > 1;
+    },
+  },
+  minutes: {
+    getBoundaries(adapter) {
+      return {
+        minimum: 0,
+        maximum: adapter.getMinutes(adapter.endOfDay(adapter.now('default'))),
+      };
+    },
+    getTokenPlaceholder(placeholderGetters, tokenValue) {
+      if (placeholderGetters?.minutes === undefined) {
+        return 'mm';
+      }
+
+      return placeholderGetters.minutes({ format: tokenValue });
+    },
+    isDigitTokenPadded(adapter, tokenValue, now) {
+      return adapter.formatByString(adapter.setMinutes(now, 1), tokenValue).length > 1;
+    },
+  },
+  seconds: {
+    getBoundaries(adapter) {
+      return {
+        minimum: 0,
+        maximum: adapter.getSeconds(adapter.endOfDay(adapter.now('default'))),
+      };
+    },
+    getTokenPlaceholder(placeholderGetters, tokenValue) {
+      if (placeholderGetters?.seconds === undefined) {
+        return 'ss';
+      }
+
+      return placeholderGetters.seconds({ format: tokenValue });
+    },
+    isDigitTokenPadded(adapter, tokenValue, now) {
+      return adapter.formatByString(adapter.setSeconds(now, 1), tokenValue).length > 1;
+    },
+  },
+  meridiem: {
+    getBoundaries() {
+      return {
+        minimum: 0,
+        maximum: 1,
+      };
+    },
+    getTokenPlaceholder(placeholderGetters, tokenValue) {
+      if (placeholderGetters?.meridiem === undefined) {
+        return 'aa';
+      }
+
+      return placeholderGetters.meridiem({ format: tokenValue });
+    },
+    isDigitTokenPadded() {
+      // Meridiem is never a digit section.
+      return false;
+    },
+  },
 };
 
 /**
@@ -28,7 +216,7 @@ export class FormatParser {
 
   private format: string;
 
-  private placeholderGetters: Required<TemporalFieldPlaceholderGetters>;
+  private placeholderGetters: Partial<TemporalFieldPlaceholderGetters> | undefined;
 
   private direction: TextDirection;
 
@@ -101,19 +289,19 @@ export class FormatParser {
     this.adapter = adapter;
     this.format = format;
     this.direction = direction;
-    this.placeholderGetters = { ...DEFAULT_PLACEHOLDER_GETTERS, ...placeholderGetters };
+    this.placeholderGetters = placeholderGetters;
     this.now = adapter.now('default');
   }
 
   /**
    * Formats this.now with the given token, caching the result to avoid duplicate formatting calls.
    */
-  private formatNowByToken(tokenValue: string): string {
+  private formatNowByToken = (tokenValue: string): string => {
     if (!this.nowFormattedMap.has(tokenValue)) {
       this.nowFormattedMap.set(tokenValue, this.adapter.formatByString(this.now, tokenValue));
     }
     return this.nowFormattedMap.get(tokenValue)!;
-  }
+  };
 
   /**
    * Expands the format until is doesn't have any meta tokens left.
@@ -160,7 +348,11 @@ export class FormatParser {
     }
 
     const tokenConfig = FormatParser.getTokenConfig(this.adapter, tokenValue);
-    const isPadded = this.isTokenPadded(tokenValue, tokenConfig);
+    const isPadded = DATE_PART_CONFIG_MAP[tokenConfig.part].isDigitTokenPadded(
+      this.adapter,
+      tokenValue,
+      this.now,
+    );
 
     let maxLength: number | undefined;
     if (isPadded && tokenConfig.contentType === 'digit') {
@@ -172,111 +364,23 @@ export class FormatParser {
       maxLength = formatted.replace(/\D/g, '').length;
     }
 
+    const datePartConfig = DATE_PART_CONFIG_MAP[tokenConfig.part];
+
     return {
       type: 'token',
       value: tokenValue,
       config: tokenConfig,
       isPadded,
       maxLength,
-      placeholder: this.getTokenPlaceholder(tokenValue, tokenConfig),
+      placeholder: datePartConfig.getTokenPlaceholder(
+        this.placeholderGetters,
+        tokenValue,
+        tokenConfig,
+        this.formatNowByToken,
+      ),
+      boundaries: datePartConfig.getBoundaries(this.adapter, this.createToken(tokenValue)),
       isMostGranularPart: false,
     };
-  }
-
-  private isTokenPadded(token: string, tokenConfig: TemporalFormatTokenConfig): boolean {
-    if (tokenConfig.contentType !== 'digit') {
-      return false;
-    }
-
-    switch (tokenConfig.part) {
-      case 'year': {
-        // Uncommt if Day.js support is added.
-        // Remove once https://github.com/iamkun/dayjs/pull/2847 is merged and released.
-        // if (this.adapter.lib === 'dayjs' && token === 'YY') {
-        //   return true;
-        // }
-        return this.adapter
-          .formatByString(this.adapter.setYear(this.now, 1), token)
-          .startsWith('0');
-      }
-
-      case 'month': {
-        return this.adapter.formatByString(this.adapter.startOfYear(this.now), token).length > 1;
-      }
-
-      case 'day': {
-        return this.adapter.formatByString(this.adapter.startOfMonth(this.now), token).length > 1;
-      }
-
-      case 'weekDay': {
-        return this.adapter.formatByString(this.adapter.startOfWeek(this.now), token).length > 1;
-      }
-
-      case 'hours': {
-        return this.adapter.formatByString(this.adapter.setHours(this.now, 1), token).length > 1;
-      }
-
-      case 'minutes': {
-        return this.adapter.formatByString(this.adapter.setMinutes(this.now, 1), token).length > 1;
-      }
-
-      case 'seconds': {
-        return this.adapter.formatByString(this.adapter.setSeconds(this.now, 1), token).length > 1;
-      }
-
-      default: {
-        throw new Error('Invalid section type');
-      }
-    }
-  }
-
-  private getTokenPlaceholder(tokenValue: string, config: TemporalFormatTokenConfig): string {
-    switch (config.part) {
-      case 'year': {
-        return this.placeholderGetters.year({
-          digitAmount: this.formatNowByToken(tokenValue).length,
-          format: tokenValue,
-        });
-      }
-
-      case 'month': {
-        return this.placeholderGetters.month({
-          contentType: config.contentType,
-          format: tokenValue,
-        });
-      }
-
-      case 'day': {
-        return this.placeholderGetters.day({ format: tokenValue });
-      }
-
-      case 'weekDay': {
-        return this.placeholderGetters.weekDay({
-          contentType: config.contentType,
-          format: tokenValue,
-        });
-      }
-
-      case 'hours': {
-        return this.placeholderGetters.hours({ format: tokenValue });
-      }
-
-      case 'minutes': {
-        return this.placeholderGetters.minutes({ format: tokenValue });
-      }
-
-      case 'seconds': {
-        return this.placeholderGetters.seconds({ format: tokenValue });
-      }
-
-      case 'meridiem': {
-        return this.placeholderGetters.meridiem({ format: tokenValue });
-      }
-
-      default: {
-        return tokenValue;
-      }
-    }
   }
 
   private parse(
@@ -380,3 +484,21 @@ export class FormatParser {
 }
 
 type FormatEscapedParts = { start: number; end: number }[];
+
+interface FormatParserDatePartConfig {
+  getBoundaries(
+    adapter: TemporalAdapter,
+    token: TemporalFieldToken,
+  ): { minimum: number; maximum: number };
+  getTokenPlaceholder(
+    placeholderGetters: Partial<TemporalFieldPlaceholderGetters> | undefined,
+    tokenValue: string,
+    tokenConfig: TemporalFormatTokenConfig,
+    formatNowByToken: (token: string) => string,
+  ): string;
+  isDigitTokenPadded: (
+    adapter: TemporalAdapter,
+    tokenValue: string,
+    now: TemporalSupportedObject,
+  ) => boolean;
+}

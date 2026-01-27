@@ -26,14 +26,12 @@ const sectionPropsSelectors = {
     selectors.disabled,
     selectors.readOnly,
     selectors.timezoneToRender,
-    TemporalFieldSectionPlugin.selectors.datePartBoundaries,
     (
       adapter,
       editable,
       disabled,
       readOnly,
       timezone,
-      datePartBoundaries,
       section: TemporalFieldSection,
     ): React.HTMLAttributes<HTMLDivElement> => {
       // Date part
@@ -42,8 +40,8 @@ const sectionPropsSelectors = {
           // Aria attributes
           'aria-readonly': readOnly,
           'aria-valuenow': getAriaValueNow(adapter, section),
-          'aria-valuemin': datePartBoundaries.minimum,
-          'aria-valuemax': datePartBoundaries.maximum,
+          'aria-valuemin': section.token.boundaries.minimum,
+          'aria-valuemax': section.token.boundaries.maximum,
           'aria-valuetext': section.value
             ? getAriaValueText(adapter, section, timezone)
             : translations.empty,

@@ -178,25 +178,21 @@ export class TemporalFieldCharacterEditingPlugin<TValue extends TemporalSupporte
     }): ReturnType<QueryApplier> => {
       const cleanQueryValue = removeLocalizedDigits(queryValue, localizedDigits);
       const queryValueNumber = Number(cleanQueryValue);
-      const boundaries = TemporalFieldSectionPlugin.selectors.datePartBoundaries(
-        this.store.state,
-        datePart,
-      );
 
-      if (queryValueNumber > boundaries.maximum) {
+      if (queryValueNumber > datePart.token.boundaries.maximum) {
         return { saveQuery: false };
       }
 
       // If the user types `0` on a month part,
       // It is below the minimum, but we want to store the `0` in the query,
       // So that when he pressed `1`, it will store `01` and move to the next part.
-      if (skipIfBelowMinimum && queryValueNumber < boundaries.minimum) {
+      if (skipIfBelowMinimum && queryValueNumber < datePart.token.boundaries.minimum) {
         return { saveQuery: true };
       }
 
       const shouldGoToNextSection =
-        queryValueNumber * 10 > boundaries.maximum ||
-        cleanQueryValue.length === boundaries.maximum.toString().length;
+        queryValueNumber * 10 > datePart.token.boundaries.maximum ||
+        cleanQueryValue.length === datePart.token.boundaries.maximum.toString().length;
 
       const newDatePartValue = cleanDigitDatePartValue(
         adapter,

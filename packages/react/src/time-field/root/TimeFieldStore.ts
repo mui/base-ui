@@ -85,16 +85,16 @@ const config: TemporalFieldConfiguration<TemporalValue, ValidateTimeValidationPr
     const hasSeconds = hasSecondsInFormat(sections);
     return formatTimeForNativeInput(adapter, value, hasSeconds);
   },
-  getAdjustmentBoundaries: (adapter, validationProps, datePart, structuralBoundaries) => {
+  getAdjustmentBoundaries: (adapter, validationProps, datePart) => {
     const { minTime, maxTime } = validationProps;
     if (!minTime && !maxTime) {
-      return structuralBoundaries;
+      return datePart.token.boundaries;
     }
 
     const validMinTime = minTime && adapter.isValid(minTime) ? minTime : null;
     const validMaxTime = maxTime && adapter.isValid(maxTime) ? maxTime : null;
 
-    const result: TemporalFieldDatePartValueBoundaries = { ...structuralBoundaries };
+    const result: TemporalFieldDatePartValueBoundaries = { ...datePart.token.boundaries };
 
     switch (datePart.token.config.part) {
       case 'hours': {
@@ -112,7 +112,7 @@ const config: TemporalFieldConfiguration<TemporalValue, ValidateTimeValidationPr
         const minHour = validMinTime ? adapter.getHours(validMinTime) : null;
         const maxHour = validMaxTime ? adapter.getHours(validMaxTime) : null;
         if (minHour !== null && maxHour !== null && minHour !== maxHour) {
-          return structuralBoundaries;
+          return datePart.token.boundaries;
         }
         if (validMinTime && (maxHour === null || minHour === maxHour)) {
           result.minimum = adapter.getMinutes(validMinTime);
@@ -130,7 +130,7 @@ const config: TemporalFieldConfiguration<TemporalValue, ValidateTimeValidationPr
         const minM = validMinTime ? adapter.getMinutes(validMinTime) : null;
         const maxM = validMaxTime ? adapter.getMinutes(validMaxTime) : null;
         if (minH !== null && maxH !== null && (minH !== maxH || minM !== maxM)) {
-          return structuralBoundaries;
+          return datePart.token.boundaries;
         }
         if (validMinTime && (maxH === null || (minH === maxH && minM === maxM))) {
           result.minimum = adapter.getSeconds(validMinTime);
@@ -153,11 +153,11 @@ const config: TemporalFieldConfiguration<TemporalValue, ValidateTimeValidationPr
             return { minimum: 0, maximum: 0 };
           }
         }
-        return structuralBoundaries;
+        return datePart.token.boundaries;
       }
 
       default:
-        return structuralBoundaries;
+        return datePart.token.boundaries;
     }
   },
   stringifyValidationPropsForHiddenInput: (adapter, validationProps, parsedFormat, step) => {
