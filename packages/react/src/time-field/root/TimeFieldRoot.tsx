@@ -52,6 +52,8 @@ export const TimeFieldRoot = React.forwardRef(function TimeFieldRoot(
     // Validation props
     minTime,
     maxTime,
+    // Other props
+    placeholderGetters,
     // Props forwarded to the DOM element
     ...elementProps
   } = componentProps;
@@ -87,6 +89,7 @@ export const TimeFieldRoot = React.forwardRef(function TimeFieldRoot(
       adapter,
       direction,
       validationProps,
+      placeholderGetters,
     }),
     [
       readOnly,
@@ -106,6 +109,7 @@ export const TimeFieldRoot = React.forwardRef(function TimeFieldRoot(
       adapter,
       direction,
       validationProps,
+      placeholderGetters,
     ],
   );
 

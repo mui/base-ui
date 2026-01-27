@@ -50,6 +50,8 @@ export const DateFieldRoot = React.forwardRef(function DateFieldRoot(
     // Validation props
     minDate,
     maxDate,
+    // Other props
+    placeholderGetters,
     // Props forwarded to the DOM element
     ...elementProps
   } = componentProps;
@@ -83,6 +85,7 @@ export const DateFieldRoot = React.forwardRef(function DateFieldRoot(
       adapter,
       direction,
       validationProps,
+      placeholderGetters,
     }),
     [
       readOnly,
@@ -100,6 +103,7 @@ export const DateFieldRoot = React.forwardRef(function DateFieldRoot(
       adapter,
       direction,
       validationProps,
+      placeholderGetters,
     ],
   );
 

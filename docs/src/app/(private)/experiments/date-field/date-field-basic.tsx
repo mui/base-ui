@@ -10,7 +10,7 @@ export default function DateFieldBasic() {
       <h1>Date Field</h1>
       <div className={styles.Page}>
         <section>
-          <h2>Formats</h2>
+          <h2>Format</h2>
           <div className={styles.Form}>
             <Field.Root name="date-field-numeric" className={styles.Field}>
               <Field.Label className={styles.Label}>Numeric date (default)</Field.Label>
@@ -71,6 +71,44 @@ export default function DateFieldBasic() {
             <Field.Root name="date-field-ordinal-day" className={styles.Field}>
               <Field.Label className={styles.Label}>Ordinal day</Field.Label>
               <DateField.Root className={styles.Root} format="MMMM do, yyyy">
+                <DateField.Input className={styles.Input}>
+                  {(section) => (
+                    <DateField.Section
+                      key={section.index}
+                      className={styles.Section}
+                      section={section}
+                    />
+                  )}
+                </DateField.Input>
+              </DateField.Root>
+            </Field.Root>
+          </div>
+        </section>
+        <section>
+          <h2>Read only</h2>
+          <div className={styles.Form}>
+            <Field.Root name="date-field-readonly" className={styles.Field}>
+              <Field.Label className={styles.Label}>Read only</Field.Label>
+              <DateField.Root className={styles.Root} readOnly>
+                <DateField.Input className={styles.Input}>
+                  {(section) => (
+                    <DateField.Section
+                      key={section.index}
+                      className={styles.Section}
+                      section={section}
+                    />
+                  )}
+                </DateField.Input>
+              </DateField.Root>
+            </Field.Root>
+          </div>
+        </section>
+        <section>
+          <h2>Disabled</h2>
+          <div className={styles.Form}>
+            <Field.Root name="date-field-disabled" disabled className={styles.Field}>
+              <Field.Label className={styles.Label}>Disabled</Field.Label>
+              <DateField.Root className={styles.Root}>
                 <DateField.Input className={styles.Input}>
                   {(section) => (
                     <DateField.Section

@@ -10,6 +10,7 @@ import {
   TemporalSupportedValue,
   TemporalTimezone,
   TemporalFieldDatePartType,
+  TemporalFieldPlaceholderGetters,
 } from '../../../types';
 import { GetInitialReferenceDateValidationProps } from '../getInitialReferenceDate';
 import { TemporalManager, TemporalTimezoneProps } from '../types';
@@ -427,17 +428,6 @@ export interface HiddenInputValidationProps {
   min?: string | undefined;
   max?: string | undefined;
   step?: string | undefined;
-}
-
-export interface TemporalFieldPlaceholderGetters {
-  year: (params: { digitAmount: number; format: string }) => string;
-  month: (params: { contentType: TemporalFieldSectionContentType; format: string }) => string;
-  day: (params: { format: string }) => string;
-  weekDay: (params: { contentType: TemporalFieldSectionContentType; format: string }) => string;
-  hours: (params: { format: string }) => string;
-  minutes: (params: { format: string }) => string;
-  seconds: (params: { format: string }) => string;
-  meridiem: (params: { format: string }) => string;
 }
 
 export type TemporalFieldDatePartValueBoundaries = {

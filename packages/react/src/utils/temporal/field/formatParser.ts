@@ -1,14 +1,10 @@
 import {
   TemporalAdapter,
+  TemporalFieldPlaceholderGetters,
   TemporalFormatTokenConfig,
   TemporalSupportedObject,
 } from '../../../types';
-import {
-  TemporalFieldParsedFormat,
-  TemporalFieldPlaceholderGetters,
-  TemporalFieldSeparator,
-  TemporalFieldToken,
-} from './types';
+import { TemporalFieldParsedFormat, TemporalFieldSeparator, TemporalFieldToken } from './types';
 import { TextDirection } from '../../../direction-provider';
 import { DATE_PART_GRANULARITY, isSeparator, isToken } from './utils';
 

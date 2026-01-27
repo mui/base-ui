@@ -190,7 +190,12 @@ export class TemporalFieldStore<
     ) as Partial<TemporalFieldState<TValue, TValidationProps>>;
 
     // If the format changed, we need to rebuild the sections
-    if (parameters.format !== this.state.format) {
+    if (
+      parameters.format !== this.state.format ||
+      parameters.placeholderGetters !== this.state.placeholderGetters ||
+      direction !== this.state.direction ||
+      adapter !== this.state.adapter
+    ) {
       newState.sections = config.getSectionsFromValue(this.state.value, (date) =>
         buildSections(
           adapter,
