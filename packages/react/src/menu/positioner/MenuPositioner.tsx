@@ -106,7 +106,8 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
     keepMounted,
     disableAnchorTracking,
     collisionAvoidance,
-    shiftCrossAxis: contextMenu && !('side' in collisionAvoidance && collisionAvoidance.side === 'flip'),
+    shiftCrossAxis:
+      contextMenu && !('side' in collisionAvoidance && collisionAvoidance.side === 'flip'),
     externalTree: floatingTreeRoot,
   });
 
