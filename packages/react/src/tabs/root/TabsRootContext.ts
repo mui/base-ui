@@ -34,6 +34,10 @@ export interface TabsRootContext {
   setTabMap: (
     map: Map<Node, (TabsTab.Metadata & { index?: (number | null) | undefined }) | null>,
   ) => void;
+  /**
+   * Sets the tab activation direction state.
+   */
+  setTabActivationDirection: React.Dispatch<React.SetStateAction<TabsTab.ActivationDirection>>;
   unregisterMountedTabPanel: (panelValue: TabsTab.Value | number, panelId: string) => void;
   /**
    * The position of the active tab relative to the previously active tab.

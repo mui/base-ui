@@ -33,6 +33,7 @@ export const TabsList = React.forwardRef(function TabsList(
     getTabElementBySelectedValue,
     onValueChange,
     orientation,
+    setTabActivationDirection,
     value,
     setTabMap,
     tabActivationDirection,
@@ -47,12 +48,13 @@ export const TabsList = React.forwardRef(function TabsList(
     orientation,
     tabsListElement,
     getTabElementBySelectedValue,
+    setTabActivationDirection,
   );
 
   const onTabActivation = useStableCallback(
     (newValue: TabsTab.Value, eventDetails: TabsRoot.ChangeEventDetails) => {
       if (newValue !== value) {
-        const activationDirection = detectActivationDirection(newValue);
+        const activationDirection = detectActivationDirection(newValue, false);
         eventDetails.activationDirection = activationDirection;
         onValueChange(newValue, eventDetails);
       }
@@ -120,39 +122,96 @@ function getInset(tab: HTMLElement, tabsList: HTMLElement) {
 }
 
 function useActivationDirectionDetector(
-  // the old value
+  // the current value (will be the old value when newValue is passed to the returned function)
   activeTabValue: any,
   orientation: TabsRoot.Orientation,
   tabsListElement: HTMLElement | null,
   getTabElement: (selectedValue: any) => HTMLElement | null,
-): (newValue: any) => TabsTab.ActivationDirection {
-  const [previousTabEdge, setPreviousTabEdge] = React.useState<number | null>(null);
+  setTabActivationDirection: React.Dispatch<React.SetStateAction<TabsTab.ActivationDirection>>,
+): (newValue: any, isExternalChange: boolean) => TabsTab.ActivationDirection {
+  const previousTabEdgeRef = React.useRef<number | null>(null);
+  // Track the value that was last processed by the callback (internal change)
+  // to avoid double-processing when the effect runs after
+  const valueHandledByCallbackRef = React.useRef<any>(undefined);
 
+  // Calculate direction based on comparing new tab edge with previous
+  const calculateDirection = React.useCallback(
+    (newTabEdge: number): TabsTab.ActivationDirection => {
+      const previousEdge = previousTabEdgeRef.current;
+
+      if (previousEdge == null) {
+        return 'none';
+      }
+
+      if (orientation === 'horizontal') {
+        if (newTabEdge < previousEdge) {
+          return 'left';
+        }
+        if (newTabEdge > previousEdge) {
+          return 'right';
+        }
+      } else {
+        if (newTabEdge < previousEdge) {
+          return 'up';
+        }
+        if (newTabEdge > previousEdge) {
+          return 'down';
+        }
+      }
+
+      return 'none';
+    },
+    [orientation],
+  );
+
+  // Track the active tab's edge position and detect external value changes
   useIsoLayoutEffect(() => {
-    // Whenever orientation changes, reset the state.
     if (activeTabValue == null || tabsListElement == null) {
-      setPreviousTabEdge(null);
+      previousTabEdgeRef.current = null;
       return;
     }
 
     const activeTab = getTabElement(activeTabValue);
     if (activeTab == null) {
-      setPreviousTabEdge(null);
+      previousTabEdgeRef.current = null;
       return;
     }
 
     const { left, top } = getInset(activeTab, tabsListElement);
-    setPreviousTabEdge(orientation === 'horizontal' ? left : top);
-  }, [orientation, getTabElement, tabsListElement, activeTabValue]);
+    const newTabEdge = orientation === 'horizontal' ? left : top;
+
+    // If this value was already handled by the callback (internal click),
+    // just update the edge without calculating direction
+    if (activeTabValue === valueHandledByCallbackRef.current) {
+      previousTabEdgeRef.current = newTabEdge;
+      valueHandledByCallbackRef.current = undefined;
+      return;
+    }
+
+    // External change: calculate and set direction if we have a previous edge
+    if (previousTabEdgeRef.current != null) {
+      const direction = calculateDirection(newTabEdge);
+      setTabActivationDirection(direction);
+    }
+
+    previousTabEdgeRef.current = newTabEdge;
+  }, [
+    orientation,
+    getTabElement,
+    tabsListElement,
+    activeTabValue,
+    calculateDirection,
+    setTabActivationDirection,
+  ]);
 
   return React.useCallback(
-    (newValue: any) => {
+    (newValue: any, _isExternalChange: boolean) => {
       if (newValue === activeTabValue) {
         return 'none';
       }
 
       if (newValue == null) {
-        setPreviousTabEdge(null);
+        previousTabEdgeRef.current = null;
         return 'none';
       }
 
@@ -161,34 +220,29 @@ function useActivationDirectionDetector(
 
         if (activeTabElement != null) {
           const { left, top } = getInset(activeTabElement, tabsListElement);
+          const newTabEdge = orientation === 'horizontal' ? left : top;
 
-          if (previousTabEdge == null) {
-            setPreviousTabEdge(orientation === 'horizontal' ? left : top);
+          if (previousTabEdgeRef.current == null) {
+            previousTabEdgeRef.current = newTabEdge;
+            // Mark as handled so the effect doesn't double-process
+            valueHandledByCallbackRef.current = newValue;
             return 'none';
           }
 
-          if (orientation === 'horizontal') {
-            if (left < previousTabEdge) {
-              setPreviousTabEdge(left);
-              return 'left';
-            }
-            if (left > previousTabEdge) {
-              setPreviousTabEdge(left);
-              return 'right';
-            }
-          } else if (top < previousTabEdge) {
-            setPreviousTabEdge(top);
-            return 'up';
-          } else if (top > previousTabEdge) {
-            setPreviousTabEdge(top);
-            return 'down';
-          }
+          const direction = calculateDirection(newTabEdge);
+
+          // Update the edge for future comparisons
+          previousTabEdgeRef.current = newTabEdge;
+          // Mark as handled so the effect doesn't double-process
+          valueHandledByCallbackRef.current = newValue;
+
+          return direction;
         }
       }
 
       return 'none';
     },
-    [getTabElement, orientation, previousTabEdge, tabsListElement, activeTabValue],
+    [getTabElement, orientation, tabsListElement, activeTabValue, calculateDirection],
   );
 }
 
