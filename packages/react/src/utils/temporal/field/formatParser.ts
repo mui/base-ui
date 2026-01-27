@@ -22,6 +22,7 @@ import {
 } from './adapter-cache';
 import { ValidateDateValidationProps } from '../validateDate';
 import { ValidateTimeValidationProps } from '../validateTime';
+import { get } from 'http';
 
 const DATE_PART_CONFIG_MAP: Record<TemporalFieldDatePartType, FormatParserDatePartConfig> = {
   year: {
@@ -282,7 +283,7 @@ const DATE_PART_CONFIG_MAP: Record<TemporalFieldDatePartType, FormatParserDatePa
       const shouldIgnoreValidation =
         !adapter.isValid(minTime) ||
         !adapter.isValid(maxTime) ||
-        // TODO: Add a isSameMinute method to TemporalAdapter
+        // Equivalent to adapter.isSameMinute(minTime, maxTime) if it existed
         !adapter.isSameHour(minTime, maxTime) ||
         adapter.getMinutes(minTime) !== adapter.getMinutes(maxTime);
 
@@ -308,10 +309,30 @@ const DATE_PART_CONFIG_MAP: Record<TemporalFieldDatePartType, FormatParserDatePa
     },
   },
   meridiem: {
-    getBoundaries() {
+    getBoundaries(adapter, tokenValue, tokenConfig, validationProps) {
+      const boundaries = { minimum: 0, maximum: 1 };
+
+      const minTime = validationProps.minTime ?? null;
+      const maxTime = validationProps.maxTime ?? null;
+
+      const getMeridiemValue = (date: TemporalSupportedObject) => {
+        const hours = adapter.getHours(date);
+        return hours < 12 ? 0 : 1;
+      };
+
+      // Only use minTime and maxTime to restrict hours if they share the same day
+      const shouldIgnoreValidation =
+        !adapter.isValid(minTime) ||
+        !adapter.isValid(maxTime) ||
+        // Equivalent to adapter.isSameMeridiem(minTime, maxTime) if it existed
+        !adapter.isSameDay(minTime, maxTime) ||
+        getMeridiemValue(minTime) !== getMeridiemValue(maxTime);
+
       return {
-        characterEditing: { minimum: 0, maximum: 1 },
-        adjustment: { minimum: 0, maximum: 1 },
+        characterEditing: boundaries,
+        adjustment: shouldIgnoreValidation
+          ? boundaries
+          : { minimum: getMeridiemValue(minTime), maximum: getMeridiemValue(maxTime) },
       };
     },
     getTokenPlaceholder(placeholderGetters, tokenValue) {
@@ -484,11 +505,14 @@ export class FormatParser {
     }
 
     const tokenConfig = FormatParser.getTokenConfig(this.adapter, tokenValue);
-    const isPadded = DATE_PART_CONFIG_MAP[tokenConfig.part].isDigitTokenPadded(
-      this.adapter,
-      tokenValue,
-      this.now,
-    );
+    const isPadded =
+      tokenConfig.contentType === 'digit'
+        ? DATE_PART_CONFIG_MAP[tokenConfig.part].isDigitTokenPadded(
+            this.adapter,
+            tokenValue,
+            this.now,
+          )
+        : false;
 
     let maxLength: number | undefined;
     if (isPadded && tokenConfig.contentType === 'digit') {

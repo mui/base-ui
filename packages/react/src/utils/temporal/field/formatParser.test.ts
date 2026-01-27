@@ -178,9 +178,15 @@ describe('FormatParser', () => {
 
     it('should use custom year placeholder', () => {
       const format = adapter.formats.yearPadded;
-      const result = FormatParser.parse(adapter, format, 'ltr', {
-        year: () => 'CustomYear',
-      }, {});
+      const result = FormatParser.parse(
+        adapter,
+        format,
+        'ltr',
+        {
+          year: () => 'CustomYear',
+        },
+        {},
+      );
 
       expect('placeholder' in result.elements[0]).to.equal(true);
       if ('placeholder' in result.elements[0]) {
@@ -190,9 +196,15 @@ describe('FormatParser', () => {
 
     it('should use custom month placeholder', () => {
       const format = adapter.formats.monthFullLetter;
-      const result = FormatParser.parse(adapter, format, 'ltr', {
-        month: () => 'CustomMonth',
-      }, {});
+      const result = FormatParser.parse(
+        adapter,
+        format,
+        'ltr',
+        {
+          month: () => 'CustomMonth',
+        },
+        {},
+      );
 
       expect('placeholder' in result.elements[0]).to.equal(true);
       if ('placeholder' in result.elements[0]) {
@@ -202,9 +214,15 @@ describe('FormatParser', () => {
 
     it('should use custom day placeholder', () => {
       const format = adapter.formats.dayOfMonth;
-      const result = FormatParser.parse(adapter, format, 'ltr', {
-        day: () => 'CustomDay',
-      }, {});
+      const result = FormatParser.parse(
+        adapter,
+        format,
+        'ltr',
+        {
+          day: () => 'CustomDay',
+        },
+        {},
+      );
 
       expect('placeholder' in result.elements[0]).to.equal(true);
       if ('placeholder' in result.elements[0]) {
