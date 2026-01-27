@@ -1,6 +1,6 @@
-# Base UI Vite playground
+# Base UI Vite playground
 
-A small Vite + React app used for local experimentation and performance benchmarks against the Base UI source in this repo.
+A small Vite + React app used for local experimentation and performance benchmarks against the Base UI source in this repo.
 
 ## Usage
 

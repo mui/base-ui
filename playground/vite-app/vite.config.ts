@@ -5,8 +5,7 @@ import react from '@vitejs/plugin-react';
 
 // https://vite.dev/config/
 export default defineConfig(() => {
-  const isProfiling =
-    process.env.REACT_PROFILING === '1' || process.env.REACT_PROFILING === 'true';
+  const isProfiling = process.env.REACT_PROFILING === '1' || process.env.REACT_PROFILING === 'true';
   const baseUrl = process.env.PLAYGROUND_BASE ?? '/';
   const outDir = process.env.PLAYGROUND_OUT_DIR ?? 'dist';
   const resolvedOutDir = path.isAbsolute(outDir) ? outDir : path.resolve(__dirname, outDir);
