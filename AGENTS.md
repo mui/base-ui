@@ -50,7 +50,7 @@ Format:
 
 <!-- markdownlint-disable MD038 -->
 
-- Prefix with `MUI: `
+- Prefix with `Base UI: `
 - Use string concatenation for readability
 - Include a documentation link when applicable (`https://mui.com/r/...`)
 
