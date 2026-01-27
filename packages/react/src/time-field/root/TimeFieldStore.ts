@@ -6,6 +6,7 @@ import {
   TemporalFieldConfiguration,
   TemporalFieldSection,
   TemporalFieldDatePartValueBoundaries,
+  HiddenInputValidationProps,
 } from '../../utils/temporal/field/types';
 import { getInitialReferenceDate } from '../../utils/temporal/getInitialReferenceDate';
 import { getTimeManager } from '../../utils/temporal/getTimeManager';
@@ -80,7 +81,7 @@ const config: TemporalFieldConfiguration<TemporalValue, ValidateTimeValidationPr
   stringifyValue: (adapter, value) =>
     adapter.isValid(value) ? adapter.toJsDate(value).toISOString() : '',
   nativeInputType: 'time',
-  stringifyValueForNativeInput: (adapter, value, sections) => {
+  stringifyValueForHiddenInput: (adapter, value, sections) => {
     const hasSeconds = hasSecondsInFormat(sections);
     return formatTimeForNativeInput(adapter, value, hasSeconds);
   },
@@ -159,12 +160,12 @@ const config: TemporalFieldConfiguration<TemporalValue, ValidateTimeValidationPr
         return structuralBoundaries;
     }
   },
-  stringifyValidationPropsForNativeInput: (adapter, validationProps, parsedFormat, step) => {
+  stringifyValidationPropsForHiddenInput: (adapter, validationProps, parsedFormat, step) => {
     // Use parsedFormat.granularity to determine step multiplier
     const multiplier = STEP_MULTIPLIERS[parsedFormat.granularity] ?? 60;
     const nativeStep = step * multiplier;
 
-    const result: { min?: string; max?: string; step?: string } = {
+    const result: HiddenInputValidationProps = {
       step: String(nativeStep),
     };
     // Always include seconds in min/max for rounding purposes

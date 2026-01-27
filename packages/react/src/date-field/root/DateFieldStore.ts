@@ -1,13 +1,11 @@
 import { TemporalAdapter, TemporalValue } from '../../types';
 import { TemporalFieldStore } from '../../utils/temporal/field/TemporalFieldStore';
-import {
-  ValidateDateReturnValue,
-  ValidateDateValidationProps,
-} from '../../utils/temporal/validateDate';
+import { ValidateDateValidationProps } from '../../utils/temporal/validateDate';
 import {
   TemporalFieldStoreSharedParameters,
   TemporalFieldConfiguration,
   TemporalFieldDatePartValueBoundaries,
+  HiddenInputValidationProps,
 } from '../../utils/temporal/field/types';
 import { getInitialReferenceDate } from '../../utils/temporal/getInitialReferenceDate';
 import { getDateManager } from '../../utils/temporal/getDateManager';
@@ -44,7 +42,7 @@ const config: TemporalFieldConfiguration<TemporalValue, ValidateDateValidationPr
   stringifyValue: (adapter, value) =>
     adapter.isValid(value) ? adapter.toJsDate(value).toISOString() : '',
   nativeInputType: 'date',
-  stringifyValueForNativeInput: (adapter, value, _sections) =>
+  stringifyValueForHiddenInput: (adapter, value, _sections) =>
     formatDateForNativeInput(adapter, value),
   getAdjustmentBoundaries: (adapter, validationProps, datePart, structuralBoundaries) => {
     const { minDate, maxDate } = validationProps;
@@ -100,9 +98,8 @@ const config: TemporalFieldConfiguration<TemporalValue, ValidateDateValidationPr
         return structuralBoundaries;
     }
   },
-  stringifyValidationPropsForNativeInput: (adapter, validationProps) => {
-    // Date inputs don't use step attribute
-    const result: { min?: string; max?: string } = {};
+  stringifyValidationPropsForHiddenInput: (adapter, validationProps) => {
+    const result: HiddenInputValidationProps = {};
     if (validationProps.minDate) {
       const formatted = formatDateForNativeInput(adapter, validationProps.minDate);
       if (formatted) {

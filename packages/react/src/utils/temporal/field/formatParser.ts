@@ -12,7 +12,7 @@ import {
 import { TextDirection } from '../../../direction-provider';
 import { isSeparator, isToken } from './utils';
 
-const DEFAULT_PLACEHOLDER_GETTERS: Required<TemporalFieldPlaceholderGetters> = {
+const DEFAULT_PLACEHOLDER_GETTERS: TemporalFieldPlaceholderGetters = {
   year: (params) => 'Y'.repeat(params.digitAmount),
   month: (params) => (params.contentType === 'letter' ? 'MMMM' : 'MM'),
   day: () => 'DD',
@@ -47,7 +47,7 @@ export class FormatParser {
     adapter: TemporalAdapter,
     format: string,
     direction: TextDirection,
-    placeholderGetters: TemporalFieldPlaceholderGetters | undefined,
+    placeholderGetters: Partial<TemporalFieldPlaceholderGetters> | undefined,
   ) {
     const parser = new FormatParser(adapter, format, direction, placeholderGetters);
     const expandedFormat = parser.expandFormat();
@@ -100,7 +100,7 @@ export class FormatParser {
     adapter: TemporalAdapter,
     format: string,
     direction: TextDirection,
-    placeholderGetters: TemporalFieldPlaceholderGetters | undefined,
+    placeholderGetters: Partial<TemporalFieldPlaceholderGetters> | undefined,
   ) {
     this.adapter = adapter;
     this.format = format;

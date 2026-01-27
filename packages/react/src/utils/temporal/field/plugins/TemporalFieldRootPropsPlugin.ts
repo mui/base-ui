@@ -48,7 +48,7 @@ const rootPropsSelectors = {
       validationProps,
       step,
     ) => {
-      const nativeValidationProps = config.stringifyValidationPropsForNativeInput(
+      const nativeValidationProps = config.stringifyValidationPropsForHiddenInput(
         adapter,
         validationProps,
         parsedFormat,
@@ -57,7 +57,7 @@ const rootPropsSelectors = {
 
       return {
         type: config.nativeInputType,
-        value: config.stringifyValueForNativeInput(adapter, value, sections),
+        value: config.stringifyValueForHiddenInput(adapter, value, sections),
         name,
         id,
         disabled,

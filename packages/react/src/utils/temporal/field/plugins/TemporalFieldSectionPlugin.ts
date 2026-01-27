@@ -170,11 +170,19 @@ const sectionSelectors = {
     selectors.adapter,
     selectors.validationProps,
     datePartBoundaries,
-    (fieldConfig, adapter, validationProps, structuralBoundaries, datePart: TemporalFieldDatePart) => {
-      if (!fieldConfig.getAdjustmentBoundaries) {
-        return structuralBoundaries;
-      }
-      return fieldConfig.getAdjustmentBoundaries(adapter, validationProps, datePart, structuralBoundaries);
+    (
+      fieldConfig,
+      adapter,
+      validationProps,
+      structuralBoundaries,
+      datePart: TemporalFieldDatePart,
+    ) => {
+      return fieldConfig.getAdjustmentBoundaries(
+        adapter,
+        validationProps,
+        datePart,
+        structuralBoundaries,
+      );
     },
   ),
 };

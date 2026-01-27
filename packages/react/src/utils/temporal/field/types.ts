@@ -24,23 +24,25 @@ export interface TemporalFieldStoreSharedParameters<
    * The controlled value that should be selected.
    * To render an uncontrolled temporal field, use the `defaultValue` prop instead.
    */
-  value?: TValue;
+  value?: TValue | undefined;
   /**
    * The uncontrolled value that should be initially selected.
    * To render a controlled temporal field, use the `value` prop instead.
    */
-  defaultValue?: TValue;
+  defaultValue?: TValue | undefined;
   /**
    * Event handler called when the selected value changes.
    * Provides the new value as an argument.
    * Has `getValidationError()` in the `eventDetails` to retrieve the validation error associated to the new value.
    */
-  onValueChange?: (value: TValue, eventDetails: TemporalFieldValueChangeEventDetails) => void;
+  onValueChange?:
+    | ((value: TValue, eventDetails: TemporalFieldValueChangeEventDetails) => void)
+    | undefined;
   /**
    * The date used to generate the new value when both `value` and `defaultValue` are empty.
    * @default 'The closest valid date using the validation props.'
    */
-  referenceDate?: TemporalSupportedObject;
+  referenceDate?: TemporalSupportedObject | undefined;
   /**
    * Format of the date when rendered in the field.
    */
@@ -49,49 +51,49 @@ export interface TemporalFieldStoreSharedParameters<
    * Whether the user must enter a value before submitting a form.
    * @default false
    */
-  required?: boolean;
+  required?: boolean | undefined;
   /**
    * Whether the component should ignore user interaction.
    * @default false
    */
-  disabled?: boolean;
+  disabled?: boolean | undefined;
   /**
    * Whether the user should be unable to select a date in the field.
    * @default false
    */
-  readOnly?: boolean;
+  readOnly?: boolean | undefined;
   /**
    * Identifies the field when a form is submitted.
    */
-  name?: string;
+  name?: string | undefined;
   /**
    * The id of the hidden input element.
    */
-  id?: string;
+  id?: string | undefined;
   /**
    * A ref to access the hidden input element.
    */
-  inputRef?: React.Ref<HTMLInputElement>;
+  inputRef?: React.Ref<HTMLInputElement> | undefined;
   /**
    * Methods to generate the placeholders for each section type.
    * Used when the field is empty or when a section is empty.
    * If a section type is not specified, a default placeholder will be used.
    * @default {}
    */
-  placeholderGetters?: TemporalFieldPlaceholderGetters;
+  placeholderGetters?: Partial<TemporalFieldPlaceholderGetters> | undefined;
   /**
    * The field context from Field.Root.
    * Contains state, callbacks, validation, etc.
    * Used internally when the temporal field is rendered inside a Field component.
    */
-  fieldContext?: any | null;
+  fieldContext?: FieldRootContext | null | undefined;
   /**
    * The step increment for the most granular section of the field.
    * For example, with format 'HH:mm' and step=5, pressing ArrowUp on the minutes section
    * will increment by 5 (e.g., 10 -> 15 -> 20).
    * @default 1
    */
-  step?: number;
+  step?: number | undefined;
 }
 
 export interface TemporalFieldState<
@@ -182,7 +184,7 @@ export interface TemporalFieldState<
   /**
    * Methods to generate the placeholders for each section type.
    */
-  placeholderGetters: TemporalFieldPlaceholderGetters | undefined;
+  placeholderGetters: Partial<TemporalFieldPlaceholderGetters> | undefined;
   /**
    * Props used to check the validity of a date.
    */
@@ -190,7 +192,7 @@ export interface TemporalFieldState<
   /**
    * The field context from Field.Root.
    * Contains state (disabled, touched, dirty, valid, filled, focused), callbacks (setDirty, setTouched, etc.), and validation.
-   * Null when the temporal field is not used inside a Field component.
+   * Is null when the temporal field is not used inside a Field component.
    */
   fieldContext: FieldRootContext | null;
   /**
@@ -359,7 +361,6 @@ export interface TemporalFieldConfiguration<
     adapter: TemporalAdapter;
     granularity: TemporalFieldDatePartType;
     timezone: TemporalTimezone;
-    getTodayDate?: () => TemporalSupportedObject;
   }) => TemporalNonNullableValue<TValue>;
   /**
    * Clears all the sections representing the same date as the given section.
@@ -387,13 +388,13 @@ export interface TemporalFieldConfiguration<
    */
   nativeInputType: 'date' | 'time' | 'text';
   /**
-   * Stringifies the value for native input format.
+   * Stringifies the value for hidden input format.
    * For date inputs: 'YYYY-MM-DD'
    * For time inputs: 'HH:MM' or 'HH:MM:SS'
    * Returns 'invalid' for partial input (some sections filled) to trigger badInput validation.
    * Returns '' for empty input to trigger valueMissing validation if required.
    */
-  stringifyValueForNativeInput: (
+  stringifyValueForHiddenInput: (
     adapter: TemporalAdapter,
     value: TValue,
     sections: TemporalFieldSection[],
@@ -404,32 +405,38 @@ export interface TemporalFieldConfiguration<
    * Receives the structural boundaries (without validation props) and should return the final boundaries.
    * If not provided, the structural boundaries are used as-is.
    */
-  getAdjustmentBoundaries?: (
+  getAdjustmentBoundaries: (
     adapter: TemporalAdapter,
     validationProps: TValidationProps,
     datePart: TemporalFieldDatePart,
     structuralBoundaries: TemporalFieldDatePartValueBoundaries,
   ) => TemporalFieldDatePartValueBoundaries;
   /**
-   * Stringifies the min/max/step validation props for native input attributes.
+   * Stringifies the min/max/step validation props for hidden input attributes.
    */
-  stringifyValidationPropsForNativeInput: (
+  stringifyValidationPropsForHiddenInput: (
     adapter: TemporalAdapter,
     validationProps: TValidationProps,
     parsedFormat: TemporalFieldParsedFormat,
     step: number,
-  ) => { min?: string; max?: string; step?: string };
+  ) => HiddenInputValidationProps;
+}
+
+export interface HiddenInputValidationProps {
+  min?: string | undefined;
+  max?: string | undefined;
+  step?: string | undefined;
 }
 
 export interface TemporalFieldPlaceholderGetters {
-  year?: (params: { digitAmount: number; format: string }) => string;
-  month?: (params: { contentType: TemporalFieldSectionContentType; format: string }) => string;
-  day?: (params: { format: string }) => string;
-  weekDay?: (params: { contentType: TemporalFieldSectionContentType; format: string }) => string;
-  hours?: (params: { format: string }) => string;
-  minutes?: (params: { format: string }) => string;
-  seconds?: (params: { format: string }) => string;
-  meridiem?: (params: { format: string }) => string;
+  year: (params: { digitAmount: number; format: string }) => string;
+  month: (params: { contentType: TemporalFieldSectionContentType; format: string }) => string;
+  day: (params: { format: string }) => string;
+  weekDay: (params: { contentType: TemporalFieldSectionContentType; format: string }) => string;
+  hours: (params: { format: string }) => string;
+  minutes: (params: { format: string }) => string;
+  seconds: (params: { format: string }) => string;
+  meridiem: (params: { format: string }) => string;
 }
 
 export type TemporalFieldDatePartValueBoundaries = {

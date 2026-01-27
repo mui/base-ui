@@ -19,6 +19,10 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
   // Date format with ordinal day
   const ordinalDayFormat = `${adapter.formats.month3Letters} ${adapter.formats.dayOfMonthWithLetter}, ${adapter.formats.yearPadded}`;
 
+  function getDatePartValue(store: DateFieldStore | TimeFieldStore, sectionIndex: number) {
+    return TemporalFieldSectionPlugin.selectors.datePart(store.state, sectionIndex)?.value ?? '';
+  }
+
   describe('isAdjustSectionValueKeyCode', () => {
     it('should return true for valid key codes', () => {
       const store = new DateFieldStore({
@@ -54,11 +58,11 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
     describe('ArrowUp', () => {
       it('should increment day by 1', () => {
         const store = new DateFieldStore({
-        format: numericDateFormat,
-        adapter,
-        direction: 'ltr',
-        validationProps: {},
-      });
+          format: numericDateFormat,
+          adapter,
+          direction: 'ltr',
+          validationProps: {},
+        });
         store.section.selectClosestDatePart(2); // day section
         store.section.updateDatePart({
           sectionIndex: 2,
@@ -66,30 +70,30 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
           shouldGoToNextSection: false,
         });
 
-        const newValue = store.valueAdjustment.adjustActiveDatePartValue('ArrowUp');
-        expect(newValue).to.equal('16');
+        store.valueAdjustment.adjustActiveDatePartValue('ArrowUp', 2);
+        expect(getDatePartValue(store, 2)).to.equal('16');
       });
 
       it('should set minimum value when section is empty', () => {
         const store = new DateFieldStore({
-        format: numericDateFormat,
-        adapter,
-        direction: 'ltr',
-        validationProps: {},
-      });
+          format: numericDateFormat,
+          adapter,
+          direction: 'ltr',
+          validationProps: {},
+        });
         store.section.selectClosestDatePart(2); // day section (empty)
 
-        const newValue = store.valueAdjustment.adjustActiveDatePartValue('ArrowUp');
-        expect(newValue).to.equal('01');
+        store.valueAdjustment.adjustActiveDatePartValue('ArrowUp', 2);
+        expect(getDatePartValue(store, 2)).to.equal('01');
       });
 
       it('should wrap around to minimum when exceeding maximum', () => {
         const store = new DateFieldStore({
-        format: numericDateFormat,
-        adapter,
-        direction: 'ltr',
-        validationProps: {},
-      });
+          format: numericDateFormat,
+          adapter,
+          direction: 'ltr',
+          validationProps: {},
+        });
         store.section.selectClosestDatePart(2); // day section
         store.section.updateDatePart({
           sectionIndex: 2,
@@ -97,19 +101,19 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
           shouldGoToNextSection: false,
         });
 
-        const newValue = store.valueAdjustment.adjustActiveDatePartValue('ArrowUp');
-        expect(newValue).to.equal('01');
+        store.valueAdjustment.adjustActiveDatePartValue('ArrowUp', 2);
+        expect(getDatePartValue(store, 2)).to.equal('01');
       });
     });
 
     describe('ArrowDown', () => {
       it('should decrement day by 1', () => {
         const store = new DateFieldStore({
-        format: numericDateFormat,
-        adapter,
-        direction: 'ltr',
-        validationProps: {},
-      });
+          format: numericDateFormat,
+          adapter,
+          direction: 'ltr',
+          validationProps: {},
+        });
         store.section.selectClosestDatePart(2); // day section
         store.section.updateDatePart({
           sectionIndex: 2,
@@ -117,30 +121,30 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
           shouldGoToNextSection: false,
         });
 
-        const newValue = store.valueAdjustment.adjustActiveDatePartValue('ArrowDown');
-        expect(newValue).to.equal('14');
+        store.valueAdjustment.adjustActiveDatePartValue('ArrowDown', 2);
+        expect(getDatePartValue(store, 2)).to.equal('14');
       });
 
       it('should set maximum value when section is empty', () => {
         const store = new DateFieldStore({
-        format: numericDateFormat,
-        adapter,
-        direction: 'ltr',
-        validationProps: {},
-      });
+          format: numericDateFormat,
+          adapter,
+          direction: 'ltr',
+          validationProps: {},
+        });
         store.section.selectClosestDatePart(2); // day section (empty)
 
-        const newValue = store.valueAdjustment.adjustActiveDatePartValue('ArrowDown');
-        expect(newValue).to.equal('31');
+        store.valueAdjustment.adjustActiveDatePartValue('ArrowDown', 2);
+        expect(getDatePartValue(store, 2)).to.equal('31');
       });
 
       it('should wrap around to maximum when going below minimum', () => {
         const store = new DateFieldStore({
-        format: numericDateFormat,
-        adapter,
-        direction: 'ltr',
-        validationProps: {},
-      });
+          format: numericDateFormat,
+          adapter,
+          direction: 'ltr',
+          validationProps: {},
+        });
         store.section.selectClosestDatePart(2); // day section
         store.section.updateDatePart({
           sectionIndex: 2,
@@ -148,19 +152,19 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
           shouldGoToNextSection: false,
         });
 
-        const newValue = store.valueAdjustment.adjustActiveDatePartValue('ArrowDown');
-        expect(newValue).to.equal('31');
+        store.valueAdjustment.adjustActiveDatePartValue('ArrowDown', 2);
+        expect(getDatePartValue(store, 2)).to.equal('31');
       });
     });
 
     describe('PageUp', () => {
       it('should increment day by 5', () => {
         const store = new DateFieldStore({
-        format: numericDateFormat,
-        adapter,
-        direction: 'ltr',
-        validationProps: {},
-      });
+          format: numericDateFormat,
+          adapter,
+          direction: 'ltr',
+          validationProps: {},
+        });
         store.section.selectClosestDatePart(2); // day section
         store.section.updateDatePart({
           sectionIndex: 2,
@@ -168,17 +172,17 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
           shouldGoToNextSection: false,
         });
 
-        const newValue = store.valueAdjustment.adjustActiveDatePartValue('PageUp');
-        expect(newValue).to.equal('15');
+        store.valueAdjustment.adjustActiveDatePartValue('PageUp', 2);
+        expect(getDatePartValue(store, 2)).to.equal('15');
       });
 
       it('should wrap around when exceeding maximum', () => {
         const store = new DateFieldStore({
-        format: numericDateFormat,
-        adapter,
-        direction: 'ltr',
-        validationProps: {},
-      });
+          format: numericDateFormat,
+          adapter,
+          direction: 'ltr',
+          validationProps: {},
+        });
         store.section.selectClosestDatePart(2); // day section
         store.section.updateDatePart({
           sectionIndex: 2,
@@ -186,19 +190,19 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
           shouldGoToNextSection: false,
         });
 
-        const newValue = store.valueAdjustment.adjustActiveDatePartValue('PageUp');
-        expect(newValue).to.equal('04'); // 30 + 5 = 35, wraps to 04
+        store.valueAdjustment.adjustActiveDatePartValue('PageUp', 2);
+        expect(getDatePartValue(store, 2)).to.equal('04'); // 30 + 5 = 35, wraps to 04
       });
     });
 
     describe('PageDown', () => {
       it('should decrement day by 5', () => {
         const store = new DateFieldStore({
-        format: numericDateFormat,
-        adapter,
-        direction: 'ltr',
-        validationProps: {},
-      });
+          format: numericDateFormat,
+          adapter,
+          direction: 'ltr',
+          validationProps: {},
+        });
         store.section.selectClosestDatePart(2); // day section
         store.section.updateDatePart({
           sectionIndex: 2,
@@ -206,17 +210,17 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
           shouldGoToNextSection: false,
         });
 
-        const newValue = store.valueAdjustment.adjustActiveDatePartValue('PageDown');
-        expect(newValue).to.equal('15');
+        store.valueAdjustment.adjustActiveDatePartValue('PageDown', 2);
+        expect(getDatePartValue(store, 2)).to.equal('15');
       });
 
       it('should wrap around when going below minimum', () => {
         const store = new DateFieldStore({
-        format: numericDateFormat,
-        adapter,
-        direction: 'ltr',
-        validationProps: {},
-      });
+          format: numericDateFormat,
+          adapter,
+          direction: 'ltr',
+          validationProps: {},
+        });
         store.section.selectClosestDatePart(2); // day section
         store.section.updateDatePart({
           sectionIndex: 2,
@@ -224,19 +228,19 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
           shouldGoToNextSection: false,
         });
 
-        const newValue = store.valueAdjustment.adjustActiveDatePartValue('PageDown');
-        expect(newValue).to.equal('29'); // 03 - 5 = -2, wraps to 29
+        store.valueAdjustment.adjustActiveDatePartValue('PageDown', 2);
+        expect(getDatePartValue(store, 2)).to.equal('29'); // 03 - 5 = -2, wraps to 29
       });
     });
 
     describe('Home', () => {
       it('should set day to minimum value', () => {
         const store = new DateFieldStore({
-        format: numericDateFormat,
-        adapter,
-        direction: 'ltr',
-        validationProps: {},
-      });
+          format: numericDateFormat,
+          adapter,
+          direction: 'ltr',
+          validationProps: {},
+        });
         store.section.selectClosestDatePart(2); // day section
         store.section.updateDatePart({
           sectionIndex: 2,
@@ -244,19 +248,19 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
           shouldGoToNextSection: false,
         });
 
-        const newValue = store.valueAdjustment.adjustActiveDatePartValue('Home');
-        expect(newValue).to.equal('01');
+        store.valueAdjustment.adjustActiveDatePartValue('Home', 2);
+        expect(getDatePartValue(store, 2)).to.equal('01');
       });
     });
 
     describe('End', () => {
       it('should set day to maximum value', () => {
         const store = new DateFieldStore({
-        format: numericDateFormat,
-        adapter,
-        direction: 'ltr',
-        validationProps: {},
-      });
+          format: numericDateFormat,
+          adapter,
+          direction: 'ltr',
+          validationProps: {},
+        });
         store.section.selectClosestDatePart(2); // day section
         store.section.updateDatePart({
           sectionIndex: 2,
@@ -264,19 +268,19 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
           shouldGoToNextSection: false,
         });
 
-        const newValue = store.valueAdjustment.adjustActiveDatePartValue('End');
-        expect(newValue).to.equal('31');
+        store.valueAdjustment.adjustActiveDatePartValue('End', 2);
+        expect(getDatePartValue(store, 2)).to.equal('31');
       });
     });
 
     describe('month section', () => {
       it('should increment month by 1', () => {
         const store = new DateFieldStore({
-        format: numericDateFormat,
-        adapter,
-        direction: 'ltr',
-        validationProps: {},
-      });
+          format: numericDateFormat,
+          adapter,
+          direction: 'ltr',
+          validationProps: {},
+        });
         store.section.selectClosestDatePart(0); // month section
         store.section.updateDatePart({
           sectionIndex: 0,
@@ -284,17 +288,17 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
           shouldGoToNextSection: false,
         });
 
-        const newValue = store.valueAdjustment.adjustActiveDatePartValue('ArrowUp');
-        expect(newValue).to.equal('07');
+        store.valueAdjustment.adjustActiveDatePartValue('ArrowUp', 0);
+        expect(getDatePartValue(store, 0)).to.equal('07');
       });
 
       it('should wrap around from December to January', () => {
         const store = new DateFieldStore({
-        format: numericDateFormat,
-        adapter,
-        direction: 'ltr',
-        validationProps: {},
-      });
+          format: numericDateFormat,
+          adapter,
+          direction: 'ltr',
+          validationProps: {},
+        });
         store.section.selectClosestDatePart(0); // month section
         store.section.updateDatePart({
           sectionIndex: 0,
@@ -302,17 +306,17 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
           shouldGoToNextSection: false,
         });
 
-        const newValue = store.valueAdjustment.adjustActiveDatePartValue('ArrowUp');
-        expect(newValue).to.equal('01');
+        store.valueAdjustment.adjustActiveDatePartValue('ArrowUp', 0);
+        expect(getDatePartValue(store, 0)).to.equal('01');
       });
 
       it('should set minimum month value with Home', () => {
         const store = new DateFieldStore({
-        format: numericDateFormat,
-        adapter,
-        direction: 'ltr',
-        validationProps: {},
-      });
+          format: numericDateFormat,
+          adapter,
+          direction: 'ltr',
+          validationProps: {},
+        });
         store.section.selectClosestDatePart(0); // month section
         store.section.updateDatePart({
           sectionIndex: 0,
@@ -320,17 +324,17 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
           shouldGoToNextSection: false,
         });
 
-        const newValue = store.valueAdjustment.adjustActiveDatePartValue('Home');
-        expect(newValue).to.equal('01');
+        store.valueAdjustment.adjustActiveDatePartValue('Home', 0);
+        expect(getDatePartValue(store, 0)).to.equal('01');
       });
 
       it('should set maximum month value with End', () => {
         const store = new DateFieldStore({
-        format: numericDateFormat,
-        adapter,
-        direction: 'ltr',
-        validationProps: {},
-      });
+          format: numericDateFormat,
+          adapter,
+          direction: 'ltr',
+          validationProps: {},
+        });
         store.section.selectClosestDatePart(0); // month section
         store.section.updateDatePart({
           sectionIndex: 0,
@@ -338,8 +342,8 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
           shouldGoToNextSection: false,
         });
 
-        const newValue = store.valueAdjustment.adjustActiveDatePartValue('End');
-        expect(newValue).to.equal('12');
+        store.valueAdjustment.adjustActiveDatePartValue('End', 0);
+        expect(getDatePartValue(store, 0)).to.equal('12');
       });
 
       it('should keep day value when incrementing month to a month with fewer days', () => {
@@ -358,15 +362,8 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
 
         store.section.selectClosestDatePart(0); // month section
 
-        const newMonthValue = store.valueAdjustment.adjustActiveDatePartValue('ArrowUp');
-        expect(newMonthValue).to.equal('02'); // February
-
-        // Apply the new month value - day value (31) is preserved in the field
-        store.section.updateDatePart({
-          sectionIndex: 0,
-          newDatePartValue: newMonthValue,
-          shouldGoToNextSection: false,
-        });
+        store.valueAdjustment.adjustActiveDatePartValue('ArrowUp', 0);
+        expect(getDatePartValue(store, 0)).to.equal('02'); // February
 
         // The field should show "February 31" even though it's invalid
         const monthPart = TemporalFieldSectionPlugin.selectors.datePart(store.state, 0);
@@ -395,15 +392,8 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
 
         store.section.selectClosestDatePart(0); // month section
 
-        const newMonthValue = store.valueAdjustment.adjustActiveDatePartValue('ArrowDown');
-        expect(newMonthValue).to.equal('02'); // February
-
-        // Apply the new month value - day value (31) is preserved in the field
-        store.section.updateDatePart({
-          sectionIndex: 0,
-          newDatePartValue: newMonthValue,
-          shouldGoToNextSection: false,
-        });
+        store.valueAdjustment.adjustActiveDatePartValue('ArrowDown', 0);
+        expect(getDatePartValue(store, 0)).to.equal('02'); // February
 
         // The field should show "February 31" even though it's invalid
         const monthPart = TemporalFieldSectionPlugin.selectors.datePart(store.state, 0);
@@ -420,11 +410,11 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
     describe('year section', () => {
       it('should increment year by 1', () => {
         const store = new DateFieldStore({
-        format: numericDateFormat,
-        adapter,
-        direction: 'ltr',
-        validationProps: {},
-      });
+          format: numericDateFormat,
+          adapter,
+          direction: 'ltr',
+          validationProps: {},
+        });
         store.section.selectClosestDatePart(4); // year section
         store.section.updateDatePart({
           sectionIndex: 4,
@@ -432,17 +422,17 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
           shouldGoToNextSection: false,
         });
 
-        const newValue = store.valueAdjustment.adjustActiveDatePartValue('ArrowUp');
-        expect(newValue).to.equal('2025');
+        store.valueAdjustment.adjustActiveDatePartValue('ArrowUp', 4);
+        expect(getDatePartValue(store, 4)).to.equal('2025');
       });
 
       it('should decrement year by 1', () => {
         const store = new DateFieldStore({
-        format: numericDateFormat,
-        adapter,
-        direction: 'ltr',
-        validationProps: {},
-      });
+          format: numericDateFormat,
+          adapter,
+          direction: 'ltr',
+          validationProps: {},
+        });
         store.section.selectClosestDatePart(4); // year section
         store.section.updateDatePart({
           sectionIndex: 4,
@@ -450,33 +440,33 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
           shouldGoToNextSection: false,
         });
 
-        const newValue = store.valueAdjustment.adjustActiveDatePartValue('ArrowDown');
-        expect(newValue).to.equal('2023');
+        store.valueAdjustment.adjustActiveDatePartValue('ArrowDown', 4);
+        expect(getDatePartValue(store, 4)).to.equal('2023');
       });
 
       it('should set current year when section is empty and pressing ArrowUp', () => {
         const store = new DateFieldStore({
-        format: numericDateFormat,
-        adapter,
-        direction: 'ltr',
-        validationProps: {},
-      });
+          format: numericDateFormat,
+          adapter,
+          direction: 'ltr',
+          validationProps: {},
+        });
         store.section.selectClosestDatePart(4); // year section (empty)
 
-        const newValue = store.valueAdjustment.adjustActiveDatePartValue('ArrowUp');
+        store.valueAdjustment.adjustActiveDatePartValue('ArrowUp', 4);
         const currentYear = new Date().getFullYear().toString();
-        expect(newValue).to.equal(currentYear);
+        expect(getDatePartValue(store, 4)).to.equal(currentYear);
       });
     });
 
     describe('day section with ordinal suffix (digit-with-letter)', () => {
       it('should increment day with ordinal suffix', () => {
         const store = new DateFieldStore({
-        format: ordinalDayFormat,
-        adapter,
-        direction: 'ltr',
-        validationProps: {},
-      });
+          format: ordinalDayFormat,
+          adapter,
+          direction: 'ltr',
+          validationProps: {},
+        });
         store.section.selectClosestDatePart(2); // day section with ordinal
         store.section.updateDatePart({
           sectionIndex: 2,
@@ -484,17 +474,17 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
           shouldGoToNextSection: false,
         });
 
-        const newValue = store.valueAdjustment.adjustActiveDatePartValue('ArrowUp');
-        expect(newValue).to.equal('16th');
+        store.valueAdjustment.adjustActiveDatePartValue('ArrowUp', 2);
+        expect(getDatePartValue(store, 2)).to.equal('16th');
       });
 
       it('should decrement day with ordinal suffix', () => {
         const store = new DateFieldStore({
-        format: ordinalDayFormat,
-        adapter,
-        direction: 'ltr',
-        validationProps: {},
-      });
+          format: ordinalDayFormat,
+          adapter,
+          direction: 'ltr',
+          validationProps: {},
+        });
         store.section.selectClosestDatePart(2); // day section with ordinal
         store.section.updateDatePart({
           sectionIndex: 2,
@@ -502,17 +492,17 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
           shouldGoToNextSection: false,
         });
 
-        const newValue = store.valueAdjustment.adjustActiveDatePartValue('ArrowDown');
-        expect(newValue).to.equal('9th');
+        store.valueAdjustment.adjustActiveDatePartValue('ArrowDown', 2);
+        expect(getDatePartValue(store, 2)).to.equal('9th');
       });
 
       it('should handle special ordinal suffixes (1st, 2nd, 3rd)', () => {
         const store = new DateFieldStore({
-        format: ordinalDayFormat,
-        adapter,
-        direction: 'ltr',
-        validationProps: {},
-      });
+          format: ordinalDayFormat,
+          adapter,
+          direction: 'ltr',
+          validationProps: {},
+        });
         store.section.selectClosestDatePart(2); // day section with ordinal
 
         // Test 1st
@@ -521,8 +511,8 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
           newDatePartValue: '1st',
           shouldGoToNextSection: false,
         });
-        let newValue = store.valueAdjustment.adjustActiveDatePartValue('ArrowUp');
-        expect(newValue).to.equal('2nd');
+        store.valueAdjustment.adjustActiveDatePartValue('ArrowUp', 2);
+        expect(getDatePartValue(store, 2)).to.equal('2nd');
 
         // Test 2nd
         store.section.updateDatePart({
@@ -530,8 +520,8 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
           newDatePartValue: '2nd',
           shouldGoToNextSection: false,
         });
-        newValue = store.valueAdjustment.adjustActiveDatePartValue('ArrowUp');
-        expect(newValue).to.equal('3rd');
+        store.valueAdjustment.adjustActiveDatePartValue('ArrowUp', 2);
+        expect(getDatePartValue(store, 2)).to.equal('3rd');
 
         // Test 3rd
         store.section.updateDatePart({
@@ -539,17 +529,17 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
           newDatePartValue: '3rd',
           shouldGoToNextSection: false,
         });
-        newValue = store.valueAdjustment.adjustActiveDatePartValue('ArrowUp');
-        expect(newValue).to.equal('4th');
+        store.valueAdjustment.adjustActiveDatePartValue('ArrowUp', 2);
+        expect(getDatePartValue(store, 2)).to.equal('4th');
       });
 
       it('should wrap around at month boundary', () => {
         const store = new DateFieldStore({
-        format: ordinalDayFormat,
-        adapter,
-        direction: 'ltr',
-        validationProps: {},
-      });
+          format: ordinalDayFormat,
+          adapter,
+          direction: 'ltr',
+          validationProps: {},
+        });
         store.section.selectClosestDatePart(2); // day section with ordinal
         store.section.updateDatePart({
           sectionIndex: 2,
@@ -557,17 +547,17 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
           shouldGoToNextSection: false,
         });
 
-        const newValue = store.valueAdjustment.adjustActiveDatePartValue('ArrowUp');
-        expect(newValue).to.equal('1st');
+        store.valueAdjustment.adjustActiveDatePartValue('ArrowUp', 2);
+        expect(getDatePartValue(store, 2)).to.equal('1st');
       });
 
       it('should set minimum value with Home', () => {
         const store = new DateFieldStore({
-        format: ordinalDayFormat,
-        adapter,
-        direction: 'ltr',
-        validationProps: {},
-      });
+          format: ordinalDayFormat,
+          adapter,
+          direction: 'ltr',
+          validationProps: {},
+        });
         store.section.selectClosestDatePart(2); // day section with ordinal
         store.section.updateDatePart({
           sectionIndex: 2,
@@ -575,17 +565,17 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
           shouldGoToNextSection: false,
         });
 
-        const newValue = store.valueAdjustment.adjustActiveDatePartValue('Home');
-        expect(newValue).to.equal('1st');
+        store.valueAdjustment.adjustActiveDatePartValue('Home', 2);
+        expect(getDatePartValue(store, 2)).to.equal('1st');
       });
 
       it('should set maximum value with End', () => {
         const store = new DateFieldStore({
-        format: ordinalDayFormat,
-        adapter,
-        direction: 'ltr',
-        validationProps: {},
-      });
+          format: ordinalDayFormat,
+          adapter,
+          direction: 'ltr',
+          validationProps: {},
+        });
         store.section.selectClosestDatePart(2); // day section with ordinal
         store.section.updateDatePart({
           sectionIndex: 2,
@@ -593,17 +583,17 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
           shouldGoToNextSection: false,
         });
 
-        const newValue = store.valueAdjustment.adjustActiveDatePartValue('End');
-        expect(newValue).to.equal('31st');
+        store.valueAdjustment.adjustActiveDatePartValue('End', 2);
+        expect(getDatePartValue(store, 2)).to.equal('31st');
       });
 
       it('should handle 21st, 22nd, 23rd correctly', () => {
         const store = new DateFieldStore({
-        format: ordinalDayFormat,
-        adapter,
-        direction: 'ltr',
-        validationProps: {},
-      });
+          format: ordinalDayFormat,
+          adapter,
+          direction: 'ltr',
+          validationProps: {},
+        });
         store.section.selectClosestDatePart(2); // day section with ordinal
 
         // Test 21st
@@ -612,8 +602,8 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
           newDatePartValue: '21st',
           shouldGoToNextSection: false,
         });
-        let newValue = store.valueAdjustment.adjustActiveDatePartValue('ArrowUp');
-        expect(newValue).to.equal('22nd');
+        store.valueAdjustment.adjustActiveDatePartValue('ArrowUp', 2);
+        expect(getDatePartValue(store, 2)).to.equal('22nd');
 
         // Test 22nd
         store.section.updateDatePart({
@@ -621,8 +611,8 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
           newDatePartValue: '22nd',
           shouldGoToNextSection: false,
         });
-        newValue = store.valueAdjustment.adjustActiveDatePartValue('ArrowUp');
-        expect(newValue).to.equal('23rd');
+        store.valueAdjustment.adjustActiveDatePartValue('ArrowUp', 2);
+        expect(getDatePartValue(store, 2)).to.equal('23rd');
 
         // Test 23rd
         store.section.updateDatePart({
@@ -630,8 +620,8 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
           newDatePartValue: '23rd',
           shouldGoToNextSection: false,
         });
-        newValue = store.valueAdjustment.adjustActiveDatePartValue('ArrowUp');
-        expect(newValue).to.equal('24th');
+        store.valueAdjustment.adjustActiveDatePartValue('ArrowUp', 2);
+        expect(getDatePartValue(store, 2)).to.equal('24th');
       });
     });
 
@@ -651,8 +641,8 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
           shouldGoToNextSection: false,
         });
 
-        const newValue = store.valueAdjustment.adjustActiveDatePartValue('ArrowUp');
-        expect(newValue).to.equal('20');
+        store.valueAdjustment.adjustActiveDatePartValue('ArrowUp', 2);
+        expect(getDatePartValue(store, 2)).to.equal('20');
       });
 
       it('should decrement minutes by 5 (step)', () => {
@@ -670,8 +660,8 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
           shouldGoToNextSection: false,
         });
 
-        const newValue = store.valueAdjustment.adjustActiveDatePartValue('ArrowDown');
-        expect(newValue).to.equal('25');
+        store.valueAdjustment.adjustActiveDatePartValue('ArrowDown', 2);
+        expect(getDatePartValue(store, 2)).to.equal('25');
       });
 
       it('should snap to nearest step when not aligned', () => {
@@ -689,8 +679,8 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
           shouldGoToNextSection: false,
         });
 
-        const newValue = store.valueAdjustment.adjustActiveDatePartValue('ArrowUp');
-        expect(newValue).to.equal('20'); // snaps up to 20
+        store.valueAdjustment.adjustActiveDatePartValue('ArrowUp', 2);
+        expect(getDatePartValue(store, 2)).to.equal('20'); // snaps up to 20
       });
 
       it('should wrap around at 60 minutes', () => {
@@ -708,8 +698,8 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
           shouldGoToNextSection: false,
         });
 
-        const newValue = store.valueAdjustment.adjustActiveDatePartValue('ArrowUp');
-        expect(newValue).to.equal('00');
+        store.valueAdjustment.adjustActiveDatePartValue('ArrowUp', 2);
+        expect(getDatePartValue(store, 2)).to.equal('00');
       });
 
       it('should not apply step to non-most-granular sections', () => {
@@ -727,8 +717,8 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
           shouldGoToNextSection: false,
         });
 
-        const newValue = store.valueAdjustment.adjustActiveDatePartValue('ArrowUp');
-        expect(newValue).to.equal('11'); // hours increment by 1, not 5
+        store.valueAdjustment.adjustActiveDatePartValue('ArrowUp', 0);
+        expect(getDatePartValue(store, 0)).to.equal('11'); // hours increment by 1, not 5
       });
 
       it('should default step to 1 when not specified', () => {
@@ -745,8 +735,8 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
           shouldGoToNextSection: false,
         });
 
-        const newValue = store.valueAdjustment.adjustActiveDatePartValue('ArrowUp');
-        expect(newValue).to.equal('16'); // increments by 1 (default step)
+        store.valueAdjustment.adjustActiveDatePartValue('ArrowUp', 2);
+        expect(getDatePartValue(store, 2)).to.equal('16'); // increments by 1 (default step)
       });
     });
   });
@@ -755,11 +745,11 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
     describe('month letter section', () => {
       it('should cycle through month names with ArrowUp', () => {
         const store = new DateFieldStore({
-        format: monthNameDateFormat,
-        adapter,
-        direction: 'ltr',
-        validationProps: {},
-      });
+          format: monthNameDateFormat,
+          adapter,
+          direction: 'ltr',
+          validationProps: {},
+        });
         store.section.selectClosestDatePart(0); // month section
         store.section.updateDatePart({
           sectionIndex: 0,
@@ -767,17 +757,17 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
           shouldGoToNextSection: false,
         });
 
-        const newValue = store.valueAdjustment.adjustActiveDatePartValue('ArrowUp');
-        expect(newValue).to.equal('Feb');
+        store.valueAdjustment.adjustActiveDatePartValue('ArrowUp', 0);
+        expect(getDatePartValue(store, 0)).to.equal('Feb');
       });
 
       it('should cycle through month names with ArrowDown', () => {
         const store = new DateFieldStore({
-        format: monthNameDateFormat,
-        adapter,
-        direction: 'ltr',
-        validationProps: {},
-      });
+          format: monthNameDateFormat,
+          adapter,
+          direction: 'ltr',
+          validationProps: {},
+        });
         store.section.selectClosestDatePart(0); // month section
         store.section.updateDatePart({
           sectionIndex: 0,
@@ -785,17 +775,17 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
           shouldGoToNextSection: false,
         });
 
-        const newValue = store.valueAdjustment.adjustActiveDatePartValue('ArrowDown');
-        expect(newValue).to.equal('Jan');
+        store.valueAdjustment.adjustActiveDatePartValue('ArrowDown', 0);
+        expect(getDatePartValue(store, 0)).to.equal('Jan');
       });
 
       it('should wrap around from December to January', () => {
         const store = new DateFieldStore({
-        format: monthNameDateFormat,
-        adapter,
-        direction: 'ltr',
-        validationProps: {},
-      });
+          format: monthNameDateFormat,
+          adapter,
+          direction: 'ltr',
+          validationProps: {},
+        });
         store.section.selectClosestDatePart(0); // month section
         store.section.updateDatePart({
           sectionIndex: 0,
@@ -803,17 +793,17 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
           shouldGoToNextSection: false,
         });
 
-        const newValue = store.valueAdjustment.adjustActiveDatePartValue('ArrowUp');
-        expect(newValue).to.equal('Jan');
+        store.valueAdjustment.adjustActiveDatePartValue('ArrowUp', 0);
+        expect(getDatePartValue(store, 0)).to.equal('Jan');
       });
 
       it('should wrap around from January to December', () => {
         const store = new DateFieldStore({
-        format: monthNameDateFormat,
-        adapter,
-        direction: 'ltr',
-        validationProps: {},
-      });
+          format: monthNameDateFormat,
+          adapter,
+          direction: 'ltr',
+          validationProps: {},
+        });
         store.section.selectClosestDatePart(0); // month section
         store.section.updateDatePart({
           sectionIndex: 0,
@@ -821,17 +811,17 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
           shouldGoToNextSection: false,
         });
 
-        const newValue = store.valueAdjustment.adjustActiveDatePartValue('ArrowDown');
-        expect(newValue).to.equal('Dec');
+        store.valueAdjustment.adjustActiveDatePartValue('ArrowDown', 0);
+        expect(getDatePartValue(store, 0)).to.equal('Dec');
       });
 
       it('should set first month with Home', () => {
         const store = new DateFieldStore({
-        format: monthNameDateFormat,
-        adapter,
-        direction: 'ltr',
-        validationProps: {},
-      });
+          format: monthNameDateFormat,
+          adapter,
+          direction: 'ltr',
+          validationProps: {},
+        });
         store.section.selectClosestDatePart(0); // month section
         store.section.updateDatePart({
           sectionIndex: 0,
@@ -839,17 +829,17 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
           shouldGoToNextSection: false,
         });
 
-        const newValue = store.valueAdjustment.adjustActiveDatePartValue('Home');
-        expect(newValue).to.equal('Jan');
+        store.valueAdjustment.adjustActiveDatePartValue('Home', 0);
+        expect(getDatePartValue(store, 0)).to.equal('Jan');
       });
 
       it('should set last month with End', () => {
         const store = new DateFieldStore({
-        format: monthNameDateFormat,
-        adapter,
-        direction: 'ltr',
-        validationProps: {},
-      });
+          format: monthNameDateFormat,
+          adapter,
+          direction: 'ltr',
+          validationProps: {},
+        });
         store.section.selectClosestDatePart(0); // month section
         store.section.updateDatePart({
           sectionIndex: 0,
@@ -857,45 +847,45 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
           shouldGoToNextSection: false,
         });
 
-        const newValue = store.valueAdjustment.adjustActiveDatePartValue('End');
-        expect(newValue).to.equal('Dec');
+        store.valueAdjustment.adjustActiveDatePartValue('End', 0);
+        expect(getDatePartValue(store, 0)).to.equal('Dec');
       });
 
       it('should set first month when empty and pressing ArrowUp', () => {
         const store = new DateFieldStore({
-        format: monthNameDateFormat,
-        adapter,
-        direction: 'ltr',
-        validationProps: {},
-      });
+          format: monthNameDateFormat,
+          adapter,
+          direction: 'ltr',
+          validationProps: {},
+        });
         store.section.selectClosestDatePart(0); // month section (empty)
 
-        const newValue = store.valueAdjustment.adjustActiveDatePartValue('ArrowUp');
-        expect(newValue).to.equal('Jan');
+        store.valueAdjustment.adjustActiveDatePartValue('ArrowUp', 0);
+        expect(getDatePartValue(store, 0)).to.equal('Jan');
       });
 
       it('should set last month when empty and pressing ArrowDown', () => {
         const store = new DateFieldStore({
-        format: monthNameDateFormat,
-        adapter,
-        direction: 'ltr',
-        validationProps: {},
-      });
+          format: monthNameDateFormat,
+          adapter,
+          direction: 'ltr',
+          validationProps: {},
+        });
         store.section.selectClosestDatePart(0); // month section (empty)
 
-        const newValue = store.valueAdjustment.adjustActiveDatePartValue('ArrowDown');
-        expect(newValue).to.equal('Dec');
+        store.valueAdjustment.adjustActiveDatePartValue('ArrowDown', 0);
+        expect(getDatePartValue(store, 0)).to.equal('Dec');
       });
     });
 
     describe('meridiem section', () => {
       it('should toggle between AM and PM with ArrowUp', () => {
         const store = new TimeFieldStore({
-        format: time12Format,
-        adapter,
-        direction: 'ltr',
-        validationProps: {},
-      });
+          format: time12Format,
+          adapter,
+          direction: 'ltr',
+          validationProps: {},
+        });
         store.section.selectClosestDatePart(4); // meridiem section
         store.section.updateDatePart({
           sectionIndex: 4,
@@ -903,17 +893,17 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
           shouldGoToNextSection: false,
         });
 
-        const newValue = store.valueAdjustment.adjustActiveDatePartValue('ArrowUp');
-        expect(newValue).to.equal('PM');
+        store.valueAdjustment.adjustActiveDatePartValue('ArrowUp', 4);
+        expect(getDatePartValue(store, 4)).to.equal('PM');
       });
 
       it('should toggle between PM and AM with ArrowDown', () => {
         const store = new TimeFieldStore({
-        format: time12Format,
-        adapter,
-        direction: 'ltr',
-        validationProps: {},
-      });
+          format: time12Format,
+          adapter,
+          direction: 'ltr',
+          validationProps: {},
+        });
         store.section.selectClosestDatePart(4); // meridiem section
         store.section.updateDatePart({
           sectionIndex: 4,
@@ -921,17 +911,17 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
           shouldGoToNextSection: false,
         });
 
-        const newValue = store.valueAdjustment.adjustActiveDatePartValue('ArrowDown');
-        expect(newValue).to.equal('AM');
+        store.valueAdjustment.adjustActiveDatePartValue('ArrowDown', 4);
+        expect(getDatePartValue(store, 4)).to.equal('AM');
       });
 
       it('should wrap around from PM to AM', () => {
         const store = new TimeFieldStore({
-        format: time12Format,
-        adapter,
-        direction: 'ltr',
-        validationProps: {},
-      });
+          format: time12Format,
+          adapter,
+          direction: 'ltr',
+          validationProps: {},
+        });
         store.section.selectClosestDatePart(4); // meridiem section
         store.section.updateDatePart({
           sectionIndex: 4,
@@ -939,19 +929,19 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
           shouldGoToNextSection: false,
         });
 
-        const newValue = store.valueAdjustment.adjustActiveDatePartValue('ArrowUp');
-        expect(newValue).to.equal('AM');
+        store.valueAdjustment.adjustActiveDatePartValue('ArrowUp', 4);
+        expect(getDatePartValue(store, 4)).to.equal('AM');
       });
     });
 
     describe('12-hour format hours', () => {
       it('should wrap hours from 12 to 1 when incrementing', () => {
         const store = new TimeFieldStore({
-        format: time12Format,
-        adapter,
-        direction: 'ltr',
-        validationProps: {},
-      });
+          format: time12Format,
+          adapter,
+          direction: 'ltr',
+          validationProps: {},
+        });
         store.section.selectClosestDatePart(0); // hours section
         store.section.updateDatePart({
           sectionIndex: 0,
@@ -959,17 +949,17 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
           shouldGoToNextSection: false,
         });
 
-        const newValue = store.valueAdjustment.adjustActiveDatePartValue('ArrowUp');
-        expect(newValue).to.equal('01');
+        store.valueAdjustment.adjustActiveDatePartValue('ArrowUp', 0);
+        expect(getDatePartValue(store, 0)).to.equal('01');
       });
 
       it('should wrap hours from 1 to 12 when decrementing', () => {
         const store = new TimeFieldStore({
-        format: time12Format,
-        adapter,
-        direction: 'ltr',
-        validationProps: {},
-      });
+          format: time12Format,
+          adapter,
+          direction: 'ltr',
+          validationProps: {},
+        });
         store.section.selectClosestDatePart(0); // hours section
         store.section.updateDatePart({
           sectionIndex: 0,
@@ -977,17 +967,17 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
           shouldGoToNextSection: false,
         });
 
-        const newValue = store.valueAdjustment.adjustActiveDatePartValue('ArrowDown');
-        expect(newValue).to.equal('12');
+        store.valueAdjustment.adjustActiveDatePartValue('ArrowDown', 0);
+        expect(getDatePartValue(store, 0)).to.equal('12');
       });
 
       it('should increment hours correctly in 12-hour format', () => {
         const store = new TimeFieldStore({
-        format: time12Format,
-        adapter,
-        direction: 'ltr',
-        validationProps: {},
-      });
+          format: time12Format,
+          adapter,
+          direction: 'ltr',
+          validationProps: {},
+        });
         store.section.selectClosestDatePart(0); // hours section
         store.section.updateDatePart({
           sectionIndex: 0,
@@ -995,8 +985,8 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
           shouldGoToNextSection: false,
         });
 
-        const newValue = store.valueAdjustment.adjustActiveDatePartValue('ArrowUp');
-        expect(newValue).to.equal('06');
+        store.valueAdjustment.adjustActiveDatePartValue('ArrowUp', 0);
+        expect(getDatePartValue(store, 0)).to.equal('06');
       });
     });
 
@@ -1019,8 +1009,8 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
           shouldGoToNextSection: false,
         });
 
-        const newValue = store.valueAdjustment.adjustActiveDatePartValue('ArrowUp');
-        expect(newValue).to.equal('Mar'); // skips by 2
+        store.valueAdjustment.adjustActiveDatePartValue('ArrowUp', 0);
+        expect(getDatePartValue(store, 0)).to.equal('Mar'); // skips by 2
       });
 
       it('should not apply step to year when month is the most granular', () => {
@@ -1038,24 +1028,30 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
           shouldGoToNextSection: false,
         });
 
-        const newValue = store.valueAdjustment.adjustActiveDatePartValue('ArrowUp');
-        expect(newValue).to.equal('2025'); // year increments by 1, not 2
+        store.valueAdjustment.adjustActiveDatePartValue('ArrowUp', 2);
+        expect(getDatePartValue(store, 2)).to.equal('2025'); // year increments by 1, not 2
       });
     });
   });
 
   describe('adjustActiveSectionValue - edge cases', () => {
-    it('should return empty string when no active section', () => {
+    it('should not update store when not editable', () => {
       const store = new DateFieldStore({
         format: numericDateFormat,
         adapter,
         direction: 'ltr',
         validationProps: {},
+        readOnly: true,
       });
-      // Don't select any section
+      store.section.selectClosestDatePart(2); // day section
+      store.section.updateDatePart({
+        sectionIndex: 2,
+        newDatePartValue: '15',
+        shouldGoToNextSection: false,
+      });
 
-      const newValue = store.valueAdjustment.adjustActiveDatePartValue('ArrowUp');
-      expect(newValue).to.equal('');
+      store.valueAdjustment.adjustActiveDatePartValue('ArrowUp', 2);
+      expect(getDatePartValue(store, 2)).to.equal('15');
     });
 
     it('should preserve padding for single-digit values', () => {
@@ -1072,8 +1068,8 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
         shouldGoToNextSection: false,
       });
 
-      const newValue = store.valueAdjustment.adjustActiveDatePartValue('ArrowUp');
-      expect(newValue).to.equal('10');
+      store.valueAdjustment.adjustActiveDatePartValue('ArrowUp', 0);
+      expect(getDatePartValue(store, 0)).to.equal('10');
     });
 
     it('should handle hours section correctly', () => {
@@ -1090,8 +1086,8 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
         shouldGoToNextSection: false,
       });
 
-      const newValue = store.valueAdjustment.adjustActiveDatePartValue('ArrowUp');
-      expect(newValue).to.equal('15');
+      store.valueAdjustment.adjustActiveDatePartValue('ArrowUp', 0);
+      expect(getDatePartValue(store, 0)).to.equal('15');
     });
 
     it('should wrap hours at 24', () => {
@@ -1108,15 +1104,12 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
         shouldGoToNextSection: false,
       });
 
-      const newValue = store.valueAdjustment.adjustActiveDatePartValue('ArrowUp');
-      expect(newValue).to.equal('00');
+      store.valueAdjustment.adjustActiveDatePartValue('ArrowUp', 0);
+      expect(getDatePartValue(store, 0)).to.equal('00');
     });
   });
 
   describe('adjustment boundaries with validation props', () => {
-    function getDatePartValue(store: DateFieldStore | TimeFieldStore, sectionIndex: number) {
-      return TemporalFieldSectionPlugin.selectors.datePart(store.state, sectionIndex)?.value ?? '';
-    }
 
     describe('DateField - minDate and maxDate', () => {
       describe('same year', () => {

@@ -46,11 +46,11 @@ export interface ValidateTimeValidationProps {
   /**
    * Minimal selectable time.
    */
-  minTime?: TemporalSupportedObject;
+  minTime?: TemporalSupportedObject | undefined;
   /**
    * Maximal selectable time.
    */
-  maxTime?: TemporalSupportedObject;
+  maxTime?: TemporalSupportedObject | undefined;
 }
 
 export type ValidateTimeReturnValue = 'invalid' | 'before-min-time' | 'after-max-time' | null;
