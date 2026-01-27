@@ -9,7 +9,7 @@ export function ReleaseTimeline() {
   return (
     <div className="ReleaseTimeline">
       <div className="TimelineSpine" />
-      {releases.map((release, index) => (
+      {releases.map((release) => (
         <div key={release.versionSlug} className="TimelineItem">
           <div className="TimelineDot" />
           <div className="TimelineCard">
