@@ -73,13 +73,13 @@
     "@types/react": "19.2.8",
     "@types/react-dom": "19.2.3",
     "@types/unist": "3.0.3",
-    "@wooorm/starry-night": "3.8.0",
-    "baseline-browser-mapping": "2.9.14",
+    "@wooorm/starry-night": "3.9.0",
+    "baseline-browser-mapping": "2.9.17",
     "chai": "6.2.2",
     "cross-env": "10.1.0",
     "mdast-util-mdx-jsx": "3.2.0",
-    "motion": "12.26.1",
-    "prettier": "3.7.4",
+    "motion": "12.29.0",
+    "prettier": "3.8.1",
     "react-reconciler": "0.33.0",
     "remark-parse": "11.0.0",
     "remark-stringify": "11.0.0",
@@ -87,8 +87,8 @@
     "serve": "14.2.5",
     "tailwindcss": "4.1.18",
     "unified": "11.0.5",
-    "unist-util-visit": "5.0.0",
+    "unist-util-visit": "5.1.0",
     "yargs": "18.0.0",
-    "zod": "4.3.5"
+    "zod": "4.3.6"
   }
 }
