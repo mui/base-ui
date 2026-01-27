@@ -52,7 +52,7 @@ Format:
 
 - Prefix with `Base UI: `
 - Use string concatenation for readability
-- Include a documentation link when applicable (`https://mui.com/r/...`)
+- Include a documentation link when applicable (`https://base-ui.com/...`)
 
 ### Error Minifier
 
