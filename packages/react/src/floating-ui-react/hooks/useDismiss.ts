@@ -32,6 +32,14 @@ import { createAttribute } from '../utils/createAttribute';
 
 type PressType = 'intentional' | 'sloppy';
 
+type TouchState = {
+  startTime: number;
+  startX: number;
+  startY: number;
+  dismissOnTouchEnd: boolean;
+  dismissOnMouseDown: boolean;
+};
+
 const bubbleHandlerKeys = {
   intentional: 'onClick',
   sloppy: 'onPointerDown',
@@ -158,22 +166,16 @@ export function useDismiss(
 
   const tree = useFloatingTree(externalTree);
 
-  const endedOrStartedInsideRef = React.useRef(false);
   const { escapeKey: escapeKeyBubbles, outsidePress: outsidePressBubbles } = normalizeProp(bubbles);
-
-  const touchStateRef = React.useRef<{
-    startTime: number;
-    startX: number;
-    startY: number;
-    dismissOnTouchEnd: boolean;
-    dismissOnMouseDown: boolean;
-  } | null>(null);
+  const refs = React.useRef({
+    endedOrStartedInside: false,
+    touchState: null as TouchState | null,
+    isComposing: false,
+    currentPointerType: '' as PointerEvent['pointerType'],
+  });
 
   const cancelDismissOnEndTimeout = useTimeout();
   const clearInsideReactTreeTimeout = useTimeout();
-
-  const isComposingRef = React.useRef(false);
-  const currentPointerTypeRef = React.useRef<PointerEvent['pointerType']>('');
 
   // Combine all stable callbacks into a single hook call
   const stableCallbacks = useStableCallbacks({
@@ -185,11 +187,11 @@ export function useDismiss(
     },
 
     trackPointerType: (event: PointerEvent) => {
-      currentPointerTypeRef.current = event.pointerType;
+      refs.current.currentPointerType = event.pointerType;
     },
 
     getOutsidePressEvent: () => {
-      const type = currentPointerTypeRef.current as 'pen' | 'mouse' | 'touch' | '';
+      const type = refs.current.currentPointerType as 'pen' | 'mouse' | 'touch' | '';
       const computedType = type === 'pen' || !type ? 'mouse' : type;
 
       const resolved =
@@ -209,7 +211,7 @@ export function useDismiss(
 
       // Wait until IME is settled. Pressing `Escape` while composing should
       // close the compose menu, but not the floating element.
-      if (isComposingRef.current) {
+      if (refs.current.isComposing) {
         return;
       }
 
@@ -418,7 +420,7 @@ export function useDismiss(
 
       const touch = event.touches[0];
       if (touch) {
-        touchStateRef.current = {
+        refs.current.touchState = {
           startTime: Date.now(),
           startX: touch.clientX,
           startY: touch.clientY,
@@ -427,9 +429,9 @@ export function useDismiss(
         };
 
         cancelDismissOnEndTimeout.start(1000, () => {
-          if (touchStateRef.current) {
-            touchStateRef.current.dismissOnTouchEnd = false;
-            touchStateRef.current.dismissOnMouseDown = false;
+          if (refs.current.touchState) {
+            refs.current.touchState.dismissOnTouchEnd = false;
+            refs.current.touchState.dismissOnMouseDown = false;
           }
         });
       }
@@ -449,15 +451,15 @@ export function useDismiss(
       // Don't close if:
       // - The click started inside the floating element.
       // - The click ended inside the floating element.
-      const endedOrStartedInside = endedOrStartedInsideRef.current;
-      endedOrStartedInsideRef.current = false;
+      const endedOrStartedInside = refs.current.endedOrStartedInside;
+      refs.current.endedOrStartedInside = false;
 
       cancelDismissOnEndTimeout.clear();
 
       if (
         event.type === 'mousedown' &&
-        touchStateRef.current &&
-        !touchStateRef.current.dismissOnMouseDown
+        refs.current.touchState &&
+        !refs.current.touchState.dismissOnMouseDown
       ) {
         return;
       }
@@ -476,9 +478,10 @@ export function useDismiss(
     },
 
     handleTouchMove: (event: TouchEvent) => {
+      const touchState = refs.current.touchState;
       if (
         stableCallbacks.getOutsidePressEvent() !== 'sloppy' ||
-        !touchStateRef.current ||
+        !touchState ||
         isEventTargetWithin(event, store.select('floatingElement')) ||
         isEventTargetWithin(event, store.select('domReferenceElement'))
       ) {
@@ -490,18 +493,18 @@ export function useDismiss(
         return;
       }
 
-      const deltaX = Math.abs(touch.clientX - touchStateRef.current.startX);
-      const deltaY = Math.abs(touch.clientY - touchStateRef.current.startY);
+      const deltaX = Math.abs(touch.clientX - touchState.startX);
+      const deltaY = Math.abs(touch.clientY - touchState.startY);
       const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
 
       if (distance > 5) {
-        touchStateRef.current.dismissOnTouchEnd = true;
+        touchState.dismissOnTouchEnd = true;
       }
 
       if (distance > 10) {
         stableCallbacks.closeOnPressOutside(event);
         cancelDismissOnEndTimeout.clear();
-        touchStateRef.current = null;
+        refs.current.touchState = null;
       }
     },
 
@@ -515,21 +518,22 @@ export function useDismiss(
     },
 
     handleTouchEnd: (event: TouchEvent) => {
+      const touchState = refs.current.touchState;
       if (
         stableCallbacks.getOutsidePressEvent() !== 'sloppy' ||
-        !touchStateRef.current ||
+        !touchState ||
         isEventTargetWithin(event, store.select('floatingElement')) ||
         isEventTargetWithin(event, store.select('domReferenceElement'))
       ) {
         return;
       }
 
-      if (touchStateRef.current.dismissOnTouchEnd) {
+      if (touchState.dismissOnTouchEnd) {
         stableCallbacks.closeOnPressOutside(event);
       }
 
       cancelDismissOnEndTimeout.clear();
-      touchStateRef.current = null;
+      refs.current.touchState = null;
     },
 
     handleTouchEndCapture: (event: TouchEvent) => {
@@ -546,14 +550,14 @@ export function useDismiss(
       if (!contains(store.select('floatingElement'), target) || event.button !== 0) {
         return;
       }
-      endedOrStartedInsideRef.current = true;
+      refs.current.endedOrStartedInside = true;
     },
 
     markPressStartedInsideReactTree: (event: React.PointerEvent | React.MouseEvent) => {
       if (!open || !enabled || event.button !== 0) {
         return;
       }
-      endedOrStartedInsideRef.current = true;
+      refs.current.endedOrStartedInside = true;
     },
   });
 
@@ -589,7 +593,7 @@ export function useDismiss(
 
     function handleCompositionStart() {
       compositionTimeout.clear();
-      isComposingRef.current = true;
+      refs.current.isComposing = true;
     }
 
     function handleCompositionEnd() {
@@ -601,7 +605,7 @@ export function useDismiss(
         // Only apply to WebKit for the test to remain 0ms.
         isWebKit() ? 5 : 0,
         () => {
-          isComposingRef.current = false;
+          refs.current.isComposing = false;
         },
       );
     }
@@ -671,7 +675,10 @@ export function useDismiss(
       });
 
       compositionTimeout.clear();
-      endedOrStartedInsideRef.current = false;
+
+      // refs.current is stable, only its properties change
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+      refs.current.endedOrStartedInside = false;
     };
   }, [
     dataRef,

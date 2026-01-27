@@ -96,6 +96,18 @@ export function useHoverFloatingInteraction(
       }
     },
 
+    closeWithDelay: (event: MouseEvent, runElseBranch = true) => {
+      const closeDelay = getDelay(closeDelayProp, pointerTypeRef.current);
+      if (closeDelay && !handlerRef.current) {
+        openChangeTimeout.start(closeDelay, () =>
+          store.setOpen(false, createChangeEventDetails(REASONS.triggerHover, event)),
+        );
+      } else if (runElseBranch) {
+        openChangeTimeout.clear();
+        store.setOpen(false, createChangeEventDetails(REASONS.triggerHover, event));
+      }
+    },
+
     handleInteractInside: (event: PointerEvent) => {
       const target = getTarget(event) as Element | null;
       if (!isInteractiveElement(target)) {
@@ -112,20 +124,9 @@ export function useHoverFloatingInteraction(
     isHoverOpen,
     cleanupMouseMoveHandler,
     clearPointerEvents,
+    closeWithDelay,
     handleInteractInside,
   } = stableCallbacks;
-
-  const closeWithDelay = useStableCallback((event: MouseEvent, runElseBranch = true) => {
-    const closeDelay = getDelay(closeDelayProp, pointerTypeRef.current);
-    if (closeDelay && !handlerRef.current) {
-      openChangeTimeout.start(closeDelay, () =>
-        store.setOpen(false, createChangeEventDetails(REASONS.triggerHover, event)),
-      );
-    } else if (runElseBranch) {
-      openChangeTimeout.clear();
-      store.setOpen(false, createChangeEventDetails(REASONS.triggerHover, event));
-    }
-  });
 
   useIsoLayoutEffect(() => {
     if (!open) {

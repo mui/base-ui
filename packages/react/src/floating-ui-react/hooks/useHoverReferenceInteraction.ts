@@ -1,7 +1,7 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { isElement } from '@floating-ui/utils/dom';
-import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
+import { useValuesAsRef } from '@base-ui/utils/useValuesAsRef';
 import { useStableCallbacks } from '@base-ui/utils/useStableCallbacks';
 import type { FloatingContext, FloatingRootContext } from '../types';
 import { contains, getDocument, isMouseLikePointerType } from '../utils';
@@ -74,10 +74,12 @@ export function useHoverReferenceInteraction(
     handleCloseOptionsRef,
   } = useHoverInteractionSharedState(store);
 
-  const handleCloseRef = useValueAsRef(handleClose);
-  const delayRef = useValueAsRef(delay);
-  const restMsRef = useValueAsRef(restMs);
-  const enabledRef = useValueAsRef(enabled);
+  const [handleCloseRef, delayRef, restMsRef, enabledRef] = useValuesAsRef(
+    handleClose,
+    delay,
+    restMs,
+    enabled,
+  );
 
   if (isActiveTrigger) {
     // eslint-disable-next-line no-underscore-dangle
@@ -337,10 +339,10 @@ export function useHoverReferenceInteraction(
     clearPointerEvents,
     blockMouseMoveRef,
     dataRef,
-    delayRef,
     closeWithDelay,
     store,
     enabled,
+    delayRef,
     handleCloseRef,
     handleScrollMouseLeave,
     isActiveTrigger,
