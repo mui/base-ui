@@ -170,8 +170,8 @@ importers:
         specifier: ^3.1.1
         version: 3.1.1(@types/react@19.2.7)(react@19.2.3)
       '@mui/internal-docs-infra':
-        specifier: https://pkg.pr.new/mui/mui-public/@mui/internal-docs-infra@9a50a10
-        version: https://pkg.pr.new/mui/mui-public/@mui/internal-docs-infra@9a50a10(@types/react@19.2.7)(next@16.1.1(@babel/core@7.28.5)(@playwright/test@1.57.0)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(prettier@3.7.4)(react@19.2.3)(typescript@5.9.3)
+        specifier: https://pkg.pr.new/mui/mui-public/@mui/internal-docs-infra@bb1c282
+        version: https://pkg.pr.new/mui/mui-public/@mui/internal-docs-infra@bb1c282(@types/react@19.2.7)(next@16.1.1(@babel/core@7.28.5)(@playwright/test@1.57.0)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(prettier@3.7.4)(react@19.2.3)(typescript@5.9.3)
       '@next/mdx':
         specifier: ^16.1.1
         version: 16.1.1(@mdx-js/loader@3.1.1(webpack@5.103.0))(@mdx-js/react@3.1.1(@types/react@19.2.7)(react@19.2.3))
@@ -2278,8 +2278,8 @@ packages:
       prettier: ^3.0.0
       typescript: ^5.0.0
 
-  '@mui/internal-docs-infra@https://pkg.pr.new/mui/mui-public/@mui/internal-docs-infra@9a50a10':
-    resolution: {tarball: https://pkg.pr.new/mui/mui-public/@mui/internal-docs-infra@9a50a10}
+  '@mui/internal-docs-infra@https://pkg.pr.new/mui/mui-public/@mui/internal-docs-infra@bb1c282':
+    resolution: {tarball: https://pkg.pr.new/mui/mui-public/@mui/internal-docs-infra@bb1c282}
     version: 0.5.0
     engines: {node: '>=22.12.0'}
     hasBin: true
@@ -11946,7 +11946,7 @@ snapshots:
       - supports-color
       - vitest
 
-  '@mui/internal-docs-infra@https://pkg.pr.new/mui/mui-public/@mui/internal-docs-infra@9a50a10(@types/react@19.2.7)(next@16.1.1(@babel/core@7.28.5)(@playwright/test@1.57.0)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(prettier@3.7.4)(react@19.2.3)(typescript@5.9.3)':
+  '@mui/internal-docs-infra@https://pkg.pr.new/mui/mui-public/@mui/internal-docs-infra@bb1c282(@types/react@19.2.7)(next@16.1.1(@babel/core@7.28.5)(@playwright/test@1.57.0)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(prettier@3.7.4)(react@19.2.3)(typescript@5.9.3)':
     dependencies:
       '@babel/runtime': 7.28.6
       '@babel/standalone': 7.28.6
