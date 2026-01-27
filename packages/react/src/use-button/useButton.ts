@@ -43,15 +43,16 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
       }
 
       const isButtonTag = elementRef.current.tagName === 'BUTTON';
-      const ownerStackMessage = SafeReact.captureOwnerStack?.() || '';
 
       if (isNativeButton) {
         if (!isButtonTag) {
+          const ownerStackMessage = SafeReact.captureOwnerStack?.() || '';
           error(
             `A component that acts as a button was not rendered as a native <button>, which does not match the default. Ensure that the element passed to the \`render\` prop of the component is a real <button>, or set the \`nativeButton\` prop on the component to \`false\`.${ownerStackMessage}`,
           );
         }
       } else if (isButtonTag) {
+        const ownerStackMessage = SafeReact.captureOwnerStack?.() || '';
         error(
           `A component that acts as a button was rendered as a native <button>, which does not match the default. Ensure that the element passed to the \`render\` prop of the component is not a real <button>, or set the \`nativeButton\` prop on the component to \`true\`.${ownerStackMessage}`,
         );
