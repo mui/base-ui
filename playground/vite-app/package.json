@@ -6,8 +6,7 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "build:profile": "cross-env REACT_PROFILING=1 pnpm run build",
-    "lint": "eslint .",
-    "preview": "vite preview"
+    "serve": "vite preview"
   },
   "dependencies": {
     "radix-ui": "^1.4.3",

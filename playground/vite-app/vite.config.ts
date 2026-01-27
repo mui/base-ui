@@ -7,11 +7,17 @@ import react from '@vitejs/plugin-react';
 export default defineConfig(() => {
   const isProfiling =
     process.env.REACT_PROFILING === '1' || process.env.REACT_PROFILING === 'true';
+  const baseUrl = process.env.PLAYGROUND_BASE ?? '/';
+  const outDir = process.env.PLAYGROUND_OUT_DIR ?? 'dist';
+  const resolvedOutDir = path.isAbsolute(outDir) ? outDir : path.resolve(__dirname, outDir);
 
   return {
+    base: baseUrl,
     plugins: [tailwindcss(), react()],
     build: {
       sourcemap: true,
+      outDir: resolvedOutDir,
+      emptyOutDir: true,
     },
     resolve: {
       alias: {

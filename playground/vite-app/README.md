@@ -6,15 +6,15 @@ A small Vite + React app used for local experimentation and performance benchmar
 
 ### Dev mode
 
-```sh
+```bash
 pnpm dev
 ```
 
 ### Production mode
 
-```sh
+```bash
 pnpm build
-pnpm preview
+pnpm serve
 ```
 
 ### Profiling build
@@ -22,9 +22,9 @@ pnpm preview
 This app supports a profiling build that aliases `react-dom/client` to `react-dom/profiling`.
 This enables React Performance Tracks in Chrome Developer Tools profiler.
 
-```sh
+```bash
 pnpm build:profile
-pnpm preview
+pnpm serve
 ```
 
 ## React Performance Tracks
@@ -37,3 +37,9 @@ React can annotate the browser Performance panel with scheduling, commit, and co
 4. Look for the React tracks in the timeline.
 
 Reference: https://react.dev/reference/dev-tools/react-performance-tracks
+
+## Deployment
+
+The playground is deployed alongside the main docs.
+`pnpm docs:build` in the repo root builds the playground and copies the output to the Next.js export directory.
+The playground is then available under `/vite-playground`.
