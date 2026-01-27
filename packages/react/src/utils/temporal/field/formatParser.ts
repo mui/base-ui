@@ -25,10 +25,10 @@ import { ValidateTimeValidationProps } from '../validateTime';
 
 const DATE_PART_CONFIG_MAP: Record<TemporalFieldDatePartType, FormatParserDatePartConfig> = {
   year: {
-    getBoundaries(adapter, token, validationProps) {
+    getBoundaries(adapter, tokenValue, tokenConfig, validationProps) {
       const boundaries = {
         minimum: 0,
-        maximum: getYearFormatLength(adapter, token.value) === 4 ? 9999 : 99,
+        maximum: getYearFormatLength(adapter, tokenValue) === 4 ? 9999 : 99,
       };
 
       const minDate = validationProps.minDate ?? null;
@@ -63,7 +63,7 @@ const DATE_PART_CONFIG_MAP: Record<TemporalFieldDatePartType, FormatParserDatePa
     },
   },
   month: {
-    getBoundaries(adapter, token, validationProps) {
+    getBoundaries(adapter, tokenValue, tokenConfig, validationProps) {
       const boundaries = {
         minimum: 1,
         // Assumption: All years have the same amount of months
@@ -104,10 +104,10 @@ const DATE_PART_CONFIG_MAP: Record<TemporalFieldDatePartType, FormatParserDatePa
     },
   },
   weekDay: {
-    getBoundaries(adapter, token) {
+    getBoundaries(adapter, tokenValue, tokenConfig) {
       let boundaries: { minimum: number; maximum: number };
-      if (token.config.contentType === 'digit') {
-        const daysInWeek = getWeekDaysStr(adapter, token.value).map(Number);
+      if (tokenConfig.contentType === 'digit') {
+        const daysInWeek = getWeekDaysStr(adapter, tokenValue).map(Number);
         boundaries = {
           minimum: Math.min(...daysInWeek),
           maximum: Math.max(...daysInWeek),
@@ -137,7 +137,7 @@ const DATE_PART_CONFIG_MAP: Record<TemporalFieldDatePartType, FormatParserDatePa
     },
   },
   day: {
-    getBoundaries(adapter, token, validationProps) {
+    getBoundaries(adapter, tokenValue, tokenConfig, validationProps) {
       const boundaries = {
         minimum: 1,
         maximum: adapter.getDaysInMonth(getLongestMonthInCurrentYear(adapter)),
@@ -174,14 +174,14 @@ const DATE_PART_CONFIG_MAP: Record<TemporalFieldDatePartType, FormatParserDatePa
     },
   },
   hours: {
-    getBoundaries(adapter, token, validationProps) {
+    getBoundaries(adapter, tokenValue, tokenConfig, validationProps) {
       let boundaries: { minimum: number; maximum: number };
       const localizedDigits = getLocalizedDigits(adapter);
       const today = adapter.now('default');
       const endOfDay = adapter.endOfDay(today);
       const lastHourInDay = adapter.getHours(endOfDay);
       const hasMeridiem =
-        removeLocalizedDigits(adapter.formatByString(endOfDay, token.value), localizedDigits) !==
+        removeLocalizedDigits(adapter.formatByString(endOfDay, tokenValue), localizedDigits) !==
         lastHourInDay.toString();
 
       if (hasMeridiem) {
@@ -189,7 +189,7 @@ const DATE_PART_CONFIG_MAP: Record<TemporalFieldDatePartType, FormatParserDatePa
           minimum: 1,
           maximum: Number(
             removeLocalizedDigits(
-              adapter.formatByString(adapter.startOfDay(today), token.value),
+              adapter.formatByString(adapter.startOfDay(today), tokenValue),
               localizedDigits,
             ),
           ),
@@ -232,7 +232,7 @@ const DATE_PART_CONFIG_MAP: Record<TemporalFieldDatePartType, FormatParserDatePa
     },
   },
   minutes: {
-    getBoundaries(adapter, token, validationProps) {
+    getBoundaries(adapter, tokenValue, tokenConfig, validationProps) {
       const boundaries = {
         minimum: 0,
         maximum: adapter.getMinutes(adapter.endOfDay(adapter.now('default'))),
@@ -269,7 +269,7 @@ const DATE_PART_CONFIG_MAP: Record<TemporalFieldDatePartType, FormatParserDatePa
     },
   },
   seconds: {
-    getBoundaries(adapter, token, validationProps) {
+    getBoundaries(adapter, tokenValue, tokenConfig, validationProps) {
       const boundaries = {
         minimum: 0,
         maximum: adapter.getSeconds(adapter.endOfDay(adapter.now('default'))),
@@ -516,7 +516,8 @@ export class FormatParser {
       ),
       boundaries: datePartConfig.getBoundaries(
         this.adapter,
-        this.createToken(tokenValue),
+        tokenValue,
+        tokenConfig,
         this.validationProps,
       ),
       isMostGranularPart: false,
@@ -628,7 +629,8 @@ type FormatEscapedParts = { start: number; end: number }[];
 interface FormatParserDatePartConfig {
   getBoundaries(
     adapter: TemporalAdapter,
-    token: TemporalFieldToken,
+    tokenValue: string,
+    tokenConfig: TemporalFormatTokenConfig,
     validationProps: ValidateDateValidationProps & ValidateTimeValidationProps,
   ): TemporalFieldDatePartValueBoundaries;
   getTokenPlaceholder(
