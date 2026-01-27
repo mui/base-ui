@@ -214,8 +214,6 @@ export interface TemporalFieldCharacterEditingQuery {
 export type TemporalFieldChangeReason = 'none';
 
 export interface TemporalFieldParsedFormat {
-  prefix: string;
-  suffix: string;
   elements: (TemporalFieldToken | TemporalFieldSeparator)[];
   granularity: TemporalFieldDatePartType;
 }

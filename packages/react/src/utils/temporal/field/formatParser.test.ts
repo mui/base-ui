@@ -10,10 +10,12 @@ describe('FormatParser', () => {
       const format = `${startChar}Escaped${endChar} ${adapter.formats.yearPadded}`;
       const result = FormatParser.parse(adapter, format, 'ltr', undefined);
 
-      expect(result.prefix).to.equal('Escaped ');
-      expect(result.suffix).to.equal('');
-      expect(result.elements).to.have.lengthOf(1);
+      expect(result.elements).to.have.lengthOf(2);
       expect(result.elements[0]).to.deep.include({
+        type: 'separator',
+        value: 'Escaped ',
+      });
+      expect(result.elements[1]).to.deep.include({
         value: adapter.formats.yearPadded,
         placeholder: 'YYYY',
       });
@@ -24,8 +26,6 @@ describe('FormatParser', () => {
       const format = `${adapter.formats.monthFullLetter} ${startChar}Escaped${endChar} ${adapter.formats.yearPadded}`;
       const result = FormatParser.parse(adapter, format, 'ltr', undefined);
 
-      expect(result.prefix).to.equal('');
-      expect(result.suffix).to.equal('');
       expect(result.elements).to.have.lengthOf(3);
       expect(result.elements[0]).to.deep.include({
         value: adapter.formats.monthFullLetter,
@@ -45,8 +45,6 @@ describe('FormatParser', () => {
         const format = `${adapter.formats.monthFullLetter} ${startChar}Escaped ${startChar}${endChar} ${adapter.formats.yearPadded}`;
         const result = FormatParser.parse(adapter, format, 'ltr', undefined);
 
-        expect(result.prefix).to.equal('');
-        expect(result.suffix).to.equal('');
         expect(result.elements).to.have.lengthOf(3);
         expect(result.elements[0]).to.deep.include({
           value: adapter.formats.monthFullLetter,
@@ -65,16 +63,18 @@ describe('FormatParser', () => {
       const format = `${startChar}Escaped${endChar} ${adapter.formats.monthFullLetter} ${startChar}Escaped${endChar} ${adapter.formats.yearPadded}`;
       const result = FormatParser.parse(adapter, format, 'ltr', undefined);
 
-      expect(result.prefix).to.equal('Escaped ');
-      expect(result.suffix).to.equal('');
-      expect(result.elements).to.have.lengthOf(3);
+      expect(result.elements).to.have.lengthOf(4);
       expect(result.elements[0]).to.deep.include({
-        value: adapter.formats.monthFullLetter,
+        type: 'separator',
+        value: 'Escaped ',
       });
       expect(result.elements[1]).to.deep.include({
-        value: ' Escaped ',
+        value: adapter.formats.monthFullLetter,
       });
       expect(result.elements[2]).to.deep.include({
+        value: ' Escaped ',
+      });
+      expect(result.elements[3]).to.deep.include({
         value: adapter.formats.yearPadded,
       });
     });
@@ -85,8 +85,6 @@ describe('FormatParser', () => {
       const result = FormatParser.parse(adapter, format, 'ltr', undefined);
 
       // When there are no tokens, escaped parts are absorbed and result in empty format
-      expect(result.prefix).to.equal('');
-      expect(result.suffix).to.equal('');
       expect(result.elements).to.deep.equal([]);
     });
   });
@@ -96,8 +94,6 @@ describe('FormatParser', () => {
       const format = `${adapter.formats.dayOfMonth}${adapter.formats.month3Letters}`;
       const result = FormatParser.parse(adapter, format, 'ltr', undefined);
 
-      expect(result.prefix).to.equal('');
-      expect(result.suffix).to.equal('');
       expect(result.elements).to.have.lengthOf(2);
       expect(result.elements[0]).to.deep.include({
         value: adapter.formats.dayOfMonth,
@@ -218,31 +214,53 @@ describe('FormatParser', () => {
   });
 
   describe('prefix and suffix', () => {
-    it('should extract prefix from format', () => {
+    it('should include prefix as the first separator element', () => {
       const { start: startChar, end: endChar } = adapter.escapedCharacters;
       const format = `${startChar}Prefix${endChar} ${adapter.formats.yearPadded}`;
       const result = FormatParser.parse(adapter, format, 'ltr', undefined);
 
-      expect(result.prefix).to.equal('Prefix ');
-      expect(result.suffix).to.equal('');
+      expect(result.elements).to.have.lengthOf(2);
+      expect(result.elements[0]).to.deep.include({
+        type: 'separator',
+        value: 'Prefix ',
+      });
+      expect(result.elements[1]).to.deep.include({
+        value: adapter.formats.yearPadded,
+      });
     });
 
-    it('should extract suffix from format', () => {
+    it('should include suffix as the last separator element', () => {
       const { start: startChar, end: endChar } = adapter.escapedCharacters;
       const format = `${adapter.formats.yearPadded} ${startChar}Suffix${endChar}`;
       const result = FormatParser.parse(adapter, format, 'ltr', undefined);
 
-      expect(result.prefix).to.equal('');
-      expect(result.suffix).to.equal(' Suffix');
+      expect(result.elements).to.have.lengthOf(2);
+      expect(result.elements[0]).to.deep.include({
+        value: adapter.formats.yearPadded,
+      });
+      expect(result.elements[1]).to.deep.include({
+        type: 'separator',
+        value: ' Suffix',
+      });
     });
 
-    it('should extract both prefix and suffix from format', () => {
+    it('should include both prefix and suffix as separator elements', () => {
       const { start: startChar, end: endChar } = adapter.escapedCharacters;
       const format = `${startChar}Before${endChar} ${adapter.formats.yearPadded} ${startChar}After${endChar}`;
       const result = FormatParser.parse(adapter, format, 'ltr', undefined);
 
-      expect(result.prefix).to.equal('Before ');
-      expect(result.suffix).to.equal(' After');
+      expect(result.elements).to.have.lengthOf(3);
+      expect(result.elements[0]).to.deep.include({
+        type: 'separator',
+        value: 'Before ',
+      });
+      expect(result.elements[1]).to.deep.include({
+        value: adapter.formats.yearPadded,
+      });
+      expect(result.elements[2]).to.deep.include({
+        type: 'separator',
+        value: ' After',
+      });
     });
   });
 
@@ -391,8 +409,6 @@ describe('FormatParser', () => {
       // Count tokens (elements with placeholder property)
       const tokens = result.elements.filter((el) => 'placeholder' in el);
       expect(tokens).to.have.lengthOf.at.least(2);
-      expect(result.prefix).to.be.a('string');
-      expect(result.suffix).to.be.a('string');
     });
 
     it('should parse date with weekday', () => {

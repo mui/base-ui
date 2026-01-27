@@ -24,7 +24,7 @@ const DEFAULT_PLACEHOLDER_GETTERS: TemporalFieldPlaceholderGetters = {
 };
 
 /**
- * Class used to convert a format into a list of tokens, a prefix and a suffix.
+ * Class used to convert a format into a list of tokens and separators.
  * If the format contains localized meta tokens (like "P" for Date Fns), it is expanded first.
  */
 export class FormatParser {
@@ -41,7 +41,7 @@ export class FormatParser {
   private nowFormattedMap = new Map<string, string>();
 
   /**
-   * Converts a format into a list of tokens, a prefix and a suffix.
+   * Converts a format into a list of tokens and separators.
    */
   public static parse(
     adapter: TemporalAdapter,
@@ -288,7 +288,6 @@ export class FormatParser {
     escapedParts: FormatEscapedParts,
   ): TemporalFieldParsedFormat {
     const elements: (TemporalFieldToken | TemporalFieldSeparator)[] = [];
-    let prefix = '';
     let separator: string = '';
 
     // This RegExp tests if the beginning of a string corresponds to a supported token
@@ -321,9 +320,9 @@ export class FormatParser {
           const firstWord = regExpFirstTokenInWord.exec(word)![1];
           word = word.slice(firstWord.length);
 
-          // Set prefix only when creating the very first token
-          if (elements.length === 0) {
-            prefix = separator;
+          // If there is a separator before the very first token, add it as a prefix separator
+          if (elements.length === 0 && separator !== '') {
+            elements.push({ type: 'separator', value: separator, index: 0 });
             separator = '';
           }
 
@@ -360,16 +359,7 @@ export class FormatParser {
       }
     }
 
-    let suffix = '';
-    if (elements.length > 0) {
-      const lastElement = elements[elements.length - 1];
-      if (isSeparator(lastElement)) {
-        suffix = lastElement.value;
-        elements.pop();
-      }
-    }
-
-    return { elements, suffix, prefix, granularity: 'year' };
+    return { elements, granularity: 'year' };
   }
 
   private static markMostGranularPart(parsedFormat: TemporalFieldParsedFormat): void {
