@@ -3,7 +3,6 @@ import { TextDirection } from '../../../direction-provider';
 import {
   BaseUIChangeEventDetails,
   TemporalAdapter,
-  TemporalFieldSectionContentType,
   TemporalFormatTokenConfig,
   TemporalNonNullableValue,
   TemporalSupportedObject,

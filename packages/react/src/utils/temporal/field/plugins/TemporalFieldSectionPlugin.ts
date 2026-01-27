@@ -398,7 +398,7 @@ export class TemporalFieldSectionPlugin<TValue extends TemporalSupportedValue> {
   ) {
     const newSections = [...sections];
     newSections[sectionIndex] = {
-      ...newSections[sectionIndex],
+      ...(newSections[sectionIndex] as TemporalFieldDatePart),
       value: newDatePartValue,
       modified: true,
     };
