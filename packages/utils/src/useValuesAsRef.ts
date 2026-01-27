@@ -56,8 +56,8 @@ export function useValuesAsRef(
   const rawLength = arguments.length;
   const length = rawLength > 6 ? 6 : rawLength;
 
-  const stable = useRefWithInit(
-    () => createLatestRefsFromArgs(length, value1, value2, value3, value4, value5, value6),
+  const stable = useRefWithInit(() =>
+    createLatestRefsFromArgs(length, value1, value2, value3, value4, value5, value6),
   ).current;
   const { refs, effect, length: stableLength } = stable;
 
