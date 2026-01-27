@@ -828,6 +828,16 @@ type ReturnValue = {
 };
 ```
 
+### Autocomplete.useFilteredItems
+
+Returns the internally filtered items.
+
+**Return Value:**
+
+```tsx
+type ReturnValue = T[];
+```
+
 ## Additional Types
 
 ### AutocompleteFilter

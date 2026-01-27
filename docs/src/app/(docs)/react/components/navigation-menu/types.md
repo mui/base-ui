@@ -370,7 +370,13 @@ Re-export of [Popup](#popup) props.
 ### Popup.State
 
 ```typescript
-type NavigationMenuPopupState = { open: boolean; transitionStatus: TransitionStatus };
+type NavigationMenuPopupState = {
+  open: boolean;
+  transitionStatus: TransitionStatus;
+  side: Side;
+  align: Align;
+  anchorHidden: boolean;
+};
 ```
 
 ### Arrow

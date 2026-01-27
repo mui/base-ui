@@ -236,7 +236,7 @@ Re-export of [Value](#value) props.
 ### Value.State
 
 ```typescript
-type SelectValueState = { value: any };
+type SelectValueState = { value: any; placeholder: boolean };
 ```
 
 ### Icon

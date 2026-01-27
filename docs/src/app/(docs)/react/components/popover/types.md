@@ -355,6 +355,7 @@ type PopoverPopupState = {
   side: Side;
   align: Align;
   transitionStatus: TransitionStatus;
+  instant: 'dismiss' | 'click' | undefined;
 };
 ```
 
@@ -500,7 +501,7 @@ Re-export of [Viewport](#viewport) props.
 ### Viewport.State
 
 ```typescript
-type PopoverViewportState = { activationDirection?: string };
+type PopoverViewportState = { activationDirection: string | undefined; transitioning: boolean };
 ```
 
 ### Popover.createHandle

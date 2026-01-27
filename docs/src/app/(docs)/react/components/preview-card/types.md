@@ -393,7 +393,11 @@ Re-export of [Viewport](#viewport) props.
 ### Viewport.State
 
 ```typescript
-type PreviewCardViewportState = { activationDirection?: string };
+type PreviewCardViewportState = {
+  activationDirection: string | undefined;
+  transitioning: boolean;
+  instant: 'dismiss' | 'focus' | undefined;
+};
 ```
 
 ### PreviewCard.createHandle

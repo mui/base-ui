@@ -39,7 +39,8 @@ Re-export of [RadioGroup](#radiogroup) props.
 
 ```typescript
 type RadioGroupState = {
-  readOnly: boolean | undefined;
+  readOnly: boolean;
+  required: boolean;
   disabled: boolean;
   touched: boolean;
   dirty: boolean;

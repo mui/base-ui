@@ -38,7 +38,7 @@ Re-export of [ToggleGroup](#togglegroup) props.
 ### ToggleGroup.State
 
 ```typescript
-type ToggleGroupState = { disabled: boolean; multiple: boolean };
+type ToggleGroupState = { disabled: boolean; multiple: boolean; orientation: Orientation };
 ```
 
 ### ToggleGroup.ChangeEventReason
