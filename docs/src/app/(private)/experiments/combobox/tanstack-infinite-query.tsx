@@ -8,12 +8,18 @@ import {
   useQueryClient,
 } from '@tanstack/react-query';
 import { Autocomplete } from '@base-ui/react/autocomplete';
+import { Field } from '@base-ui/react/field';
+import { Form } from '@base-ui/react/form';
 import { useTimeout } from '@base-ui/utils/useTimeout';
 import styles from '../../../(docs)/react/components/autocomplete/demos/async/css-modules/index.module.css';
-import {
-  movies as allMovies,
-  Movie,
-} from '../../../(docs)/react/components/combobox/demos/tanstack-query/movies';
+
+interface Book {
+  key: string;
+  title: string;
+  author?: string[];
+  year?: number;
+  cover?: number;
+}
 
 const client = new QueryClient({
   defaultOptions: {
@@ -39,8 +45,6 @@ function ExampleAutocomplete() {
 
   const [searchValueUnwrapped, setSearchValue] = React.useState('');
 
-  const { contains } = Autocomplete.useFilter();
-
   const searchValue = React.useDeferredValue(searchValueUnwrapped.trim());
   const isEmpty = searchValue === '';
 
@@ -52,18 +56,18 @@ function ExampleAutocomplete() {
     hasNextPage,
     isFetchingNextPage,
   } = useInfiniteQuery({
-    queryKey: ['movies', searchValue, contains],
-    queryFn: ({ pageParam, signal }) => searchMovies(searchValue, contains, pageParam, 10, signal),
-    initialPageParam: 0,
+    queryKey: ['books', searchValue],
+    queryFn: ({ pageParam, signal }) => searchBooks(searchValue, pageParam, 20, signal),
+    initialPageParam: 1,
     getNextPageParam: (lastPage) => lastPage.nextPage,
     enabled: !isEmpty,
   });
 
   const searchResults = React.useMemo(() => {
-    return data?.pages.flatMap((page) => page.movies) ?? [];
+    return data?.pages.flatMap((page) => page.books) ?? [];
   }, [data]);
 
-  const error = queryError ? 'Failed to fetch movies. Please try again.' : null;
+  const error = queryError ? 'Failed to fetch books. Please try again.' : null;
 
   React.useEffect(() => {
     const popupEl = popupRef.current;
@@ -101,7 +105,7 @@ function ExampleAutocomplete() {
 
   function getStatus() {
     if (isEmpty) {
-      return 'Start typing to search movies…';
+      return 'Start typing to search books…';
     }
 
     if (isPending) {
@@ -126,133 +130,159 @@ function ExampleAutocomplete() {
 
   const status = getStatus();
 
+  const handleSubmit: React.FormEventHandler<HTMLFormElement> = (event) => {
+    event.preventDefault();
+    const formData = new FormData(event.currentTarget);
+    const query = formData.get('book');
+    console.log('form submit', query);
+  };
+
   return (
-    <Autocomplete.Root
-      items={searchResults}
-      value={searchValueUnwrapped}
-      onValueChange={(nextSearchValue) => {
-        setSearchValue(nextSearchValue);
-      }}
-      itemToStringValue={(movie: Movie) => movie.title}
-      filter={null}
-      loopFocus={!isPending && !hasNextPage}
-      onOpenChange={(open) => {
-        // reset items to the first page when the popup closes
-        if (!open) {
-          queryClient.setQueryData(
-            ['movies', searchValue, contains],
-            (queryData: InfiniteData<SearchMoviesResponse> | undefined) => {
-              if (!queryData) {
-                return queryData;
-              }
-              return {
-                pages: queryData.pages.slice(0, 1),
-                pageParams: queryData.pageParams.slice(0, 1),
-              };
-            },
-          );
-        }
-      }}
-      onItemHighlighted={(highlightedItem, eventDetails) => {
-        if (highlightedItem && hasNextPage && eventDetails.reason === 'keyboard') {
-          const highlightedIndex = searchResults.indexOf(highlightedItem);
-          // fetch if the highlighted index is close to the end
-          const shouldFetch = highlightedIndex >= searchResults.length - 1;
-
-          if (shouldFetch) {
-            fetchNextPage();
-          }
-        }
-      }}
-    >
-      <label className={styles.Label}>
-        Search movies by name
-        <Autocomplete.Input placeholder="e.g. Aliens" className={styles.Input} />
-      </label>
-
-      <Autocomplete.Portal hidden={!status}>
-        <Autocomplete.Positioner className={styles.Positioner} sideOffset={4} align="start">
-          <Autocomplete.Popup
-            ref={popupRef}
-            className={styles.Popup}
-            aria-busy={isPending || undefined}
-          >
-            <Autocomplete.Status>
-              {status && <div className={styles.Status}>{status}</div>}
-            </Autocomplete.Status>
-            <Autocomplete.List>
-              {(movie: Movie) => (
-                <Autocomplete.Item
-                  key={movie.id}
-                  className={styles.Item}
-                  value={movie}
-                  render={
-                    <a
-                      href={`https://www.themoviedb.org/movie/${movie.id}`}
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                      <div className={styles.MovieItem}>
-                        <div className={styles.MovieName}>{movie.title}</div>
-                        <div className={styles.MovieYear}>{movie.releaseDate.slice(0, 4)}</div>
-                      </div>
-                    </a>
+    <Form onSubmit={handleSubmit}>
+      <Field.Root name="book">
+        <Autocomplete.Root
+          items={searchResults}
+          value={searchValueUnwrapped}
+          onValueChange={(nextSearchValue) => {
+            setSearchValue(nextSearchValue);
+          }}
+          loopFocus={!isPending && !hasNextPage}
+          submitOnItemClick={searchResults?.length === 0}
+          itemToStringValue={(book: Book) => book.title}
+          filter={null}
+          onOpenChange={(open) => {
+            // reset items to the first page when the popup closes
+            if (!open) {
+              queryClient.setQueryData(
+                ['books', searchValue],
+                (queryData: InfiniteData<SearchBooksResponse> | undefined) => {
+                  if (!queryData) {
+                    return queryData;
                   }
-                />
-              )}
-            </Autocomplete.List>
-          </Autocomplete.Popup>
-        </Autocomplete.Positioner>
-      </Autocomplete.Portal>
-    </Autocomplete.Root>
+                  return {
+                    pages: queryData.pages.slice(0, 1),
+                    pageParams: queryData.pageParams.slice(0, 1),
+                  };
+                },
+              );
+            }
+          }}
+          onItemHighlighted={(highlightedItem, eventDetails) => {
+            if (highlightedItem && hasNextPage && eventDetails.reason === 'keyboard') {
+              const highlightedIndex = searchResults.indexOf(highlightedItem);
+              // fetch if the highlighted index is close to the end
+              const shouldFetch = highlightedIndex >= searchResults.length - 1;
+
+              if (shouldFetch) {
+                fetchNextPage();
+              }
+            }
+          }}
+        >
+          <Field.Label className={styles.Label}>
+            Search openlibrary.org
+            <Autocomplete.Input
+              placeholder="e.g. “The Dark Tower” or “CS Lewis”"
+              className={styles.Input}
+            />
+          </Field.Label>
+
+          <Autocomplete.Portal hidden={!status}>
+            <Autocomplete.Positioner className={styles.Positioner} sideOffset={4} align="start">
+              <Autocomplete.Popup
+                ref={popupRef}
+                className={styles.Popup}
+                aria-busy={isPending || undefined}
+              >
+                <Autocomplete.Status>
+                  {status && <div className={styles.Status}>{status}</div>}
+                </Autocomplete.Status>
+                <Autocomplete.List>
+                  {(book: Book) => (
+                    <Autocomplete.Item
+                      key={book.key}
+                      className={styles.Item}
+                      value={book}
+                      render={
+                        <a
+                          href={`https://openlibrary.org${book.key}`}
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          <div className={styles.MovieItem}>
+                            <div className={styles.MovieName}>{book.title}</div>
+                            <div className={styles.MovieYear}>
+                              {book.author?.[0] || 'Unknown author'}
+                              {book.year && ` (${book.year})`}
+                            </div>
+                          </div>
+                        </a>
+                      }
+                    />
+                  )}
+                </Autocomplete.List>
+              </Autocomplete.Popup>
+            </Autocomplete.Positioner>
+          </Autocomplete.Portal>
+        </Autocomplete.Root>
+      </Field.Root>
+    </Form>
   );
 }
 
-interface SearchMoviesResponse {
-  movies: Movie[];
+interface SearchBooksResponse {
+  books: Book[];
   nextPage: number | undefined;
   totalResults: number;
 }
 
-async function searchMovies(
+interface OpenLibraryResponse {
+  start: number;
+  num_found: number;
+  docs: Array<{
+    key: string;
+    title: string;
+    author_name?: string[];
+    first_publish_year?: number;
+    cover_i?: number;
+  }>;
+}
+
+async function searchBooks(
   query: string,
-  filter: (item: string, query: string) => boolean,
   page: number,
-  pageSize: number = 10,
+  pageSize: number = 20,
   signal?: AbortSignal,
-): Promise<SearchMoviesResponse> {
-  // Simulate network delay
-  await new Promise((resolve, reject) => {
-    const timeout = setTimeout(resolve, Math.random() * 500 + 100);
+): Promise<SearchBooksResponse> {
+  // https://openlibrary.org/dev/docs/api/search
+  const url = new URL('https://openlibrary.org/search.json');
+  url.searchParams.set('q', `title:${query} OR author:${query}`);
+  url.searchParams.set('lang', 'en');
+  url.searchParams.set('page', String(page));
+  url.searchParams.set('limit', String(pageSize));
+  url.searchParams.set('fields', 'key,title,author_name,first_publish_year,cover_i');
 
-    signal?.addEventListener('abort', () => {
-      clearTimeout(timeout);
-      reject(new Error('Request cancelled'));
-    });
-  });
+  const response = await fetch(url.toString(), { signal });
 
-  if (signal?.aborted) {
-    throw new Error('Request cancelled');
+  if (!response.ok) {
+    throw new Error('Failed to fetch books. Please try again.');
   }
 
-  // Simulate occasional network errors (1% chance)
-  if (Math.random() < 0.01 || query === 'will_error') {
-    throw new Error('Failed to fetch movies. Please try again.');
-  }
+  const data: OpenLibraryResponse = await response.json();
 
-  const allMatches = allMovies.filter((movie) => {
-    return filter(movie.title, query);
-  });
+  const books: Book[] = data.docs.map((doc) => ({
+    key: doc.key,
+    title: doc.title,
+    author: doc.author_name,
+    year: doc.first_publish_year,
+    cover: doc.cover_i,
+  }));
 
-  // Calculate pagination
-  const startIndex = page * pageSize;
-  const endIndex = startIndex + pageSize;
-  const movies = allMatches.slice(startIndex, endIndex);
-  const hasMore = endIndex < allMatches.length;
+  const hasMore = data.start + pageSize < data.num_found;
 
   return {
-    movies,
+    books,
     nextPage: hasMore ? page + 1 : undefined,
-    totalResults: allMatches.length,
+    totalResults: data.num_found,
   };
 }
