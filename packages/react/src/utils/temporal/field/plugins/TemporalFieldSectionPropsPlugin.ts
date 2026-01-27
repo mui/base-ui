@@ -240,16 +240,7 @@ export class TemporalFieldSectionPropsPlugin<TValue extends TemporalSupportedVal
       // Increment / decrement the current section value
       case this.store.valueAdjustment.isAdjustSectionValueKeyCode(event.key): {
         event.preventDefault();
-
-        if (!selectors.editable(this.store.state)) {
-          break;
-        }
-
-        this.store.section.updateDatePart({
-          sectionIndex,
-          newDatePartValue: this.store.valueAdjustment.adjustActiveDatePartValue(event.key),
-          shouldGoToNextSection: false,
-        });
+        this.store.valueAdjustment.adjustActiveDatePartValue(event.key, sectionIndex);
         break;
       }
     }

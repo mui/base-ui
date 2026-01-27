@@ -11,6 +11,8 @@ import { TemporalFieldSectionPlugin } from './TemporalFieldSectionPlugin';
 export class TemporalFieldValueAdjustmentPlugin<TValue extends TemporalSupportedValue> {
   private store: TemporalFieldStore<TValue, any>;
 
+  private static queryLifeDuration = 5000;
+
   // We can't type `store`, otherwise we get the following TS error:
   // 'valueAdjustment' implicitly has type 'any' because it does not have a type annotation and is referenced directly or indirectly in its own initializer.
   constructor(store: any) {
@@ -25,40 +27,60 @@ export class TemporalFieldValueAdjustmentPlugin<TValue extends TemporalSupported
    * Adjusts the value of the active section based on the provided key code.
    * For example, pressing ArrowUp will increment the section's value.
    */
-  public adjustActiveDatePartValue(keyCode: AdjustDatePartValueKeyCode) {
+  public adjustActiveDatePartValue(keyCode: AdjustDatePartValueKeyCode, sectionIndex: number) {
+    if (!selectors.editable(this.store.state)) {
+      return;
+    }
+
+    this.store.section.updateDatePart({
+      sectionIndex,
+      newDatePartValue: this.getAdjustedDatePartValue(keyCode, sectionIndex),
+      shouldGoToNextSection: false,
+    });
+
+    this.store.timeoutManager.startInterval(
+      'cleanCharacterQuery',
+      TemporalFieldValueAdjustmentPlugin.queryLifeDuration,
+      () => {
+        this.store.set('characterQuery', null);
+      },
+    );
+  }
+
+  private getAdjustedDatePartValue(keyCode: AdjustDatePartValueKeyCode, sectionIndex: number) {
     const adapter = selectors.adapter(this.store.state);
     const localizedDigits = getLocalizedDigits(adapter);
     const timezone = selectors.timezoneToRender(this.store.state);
-    const activeDatePart = TemporalFieldSectionPlugin.selectors.activeDatePart(this.store.state);
+    const datePart = TemporalFieldSectionPlugin.selectors.datePart(this.store.state, sectionIndex);
 
-    if (activeDatePart == null) {
+    if (datePart == null) {
       return '';
     }
 
-    const step = activeDatePart.token.isMostGranularPart ? selectors.step(this.store.state) : 1;
+    const step = datePart.token.isMostGranularPart ? selectors.step(this.store.state) : 1;
     const delta = getDeltaFromKeyCode(keyCode);
     const isStart = keyCode === 'Home';
     const isEnd = keyCode === 'End';
-    const shouldSetAbsolute = activeDatePart.value === '' || isStart || isEnd;
+    const shouldSetAbsolute = datePart.value === '' || isStart || isEnd;
 
     // Digit part
     if (
-      activeDatePart.token.config.contentType === 'digit' ||
-      activeDatePart.token.config.contentType === 'digit-with-letter'
+      datePart.token.config.contentType === 'digit' ||
+      datePart.token.config.contentType === 'digit-with-letter'
     ) {
-      const boundaries = TemporalFieldSectionPlugin.selectors.datePartBoundaries(
+      const boundaries = TemporalFieldSectionPlugin.selectors.datePartAdjustmentBoundaries(
         this.store.state,
-        activeDatePart,
+        datePart,
       );
 
       const getCleanValue = (newDatePartValue: number) =>
-        cleanDigitDatePartValue(adapter, newDatePartValue, localizedDigits, activeDatePart.token);
+        cleanDigitDatePartValue(adapter, newDatePartValue, localizedDigits, datePart.token);
 
       let newDatePartValueNumber: number;
 
       if (shouldSetAbsolute) {
-        if (activeDatePart.token.config.part === 'year' && !isEnd && !isStart) {
-          return adapter.formatByString(adapter.now(timezone), activeDatePart.token.value);
+        if (datePart.token.config.part === 'year' && !isEnd && !isStart) {
+          return adapter.formatByString(adapter.now(timezone), datePart.token.value);
         }
 
         if (delta > 0 || isStart) {
@@ -68,7 +90,7 @@ export class TemporalFieldValueAdjustmentPlugin<TValue extends TemporalSupported
         }
       } else {
         const currentSectionValue = parseInt(
-          removeLocalizedDigits(activeDatePart.value, localizedDigits),
+          removeLocalizedDigits(datePart.value, localizedDigits),
           10,
         );
         newDatePartValueNumber = currentSectionValue + delta * step;
@@ -105,11 +127,11 @@ export class TemporalFieldValueAdjustmentPlugin<TValue extends TemporalSupported
     /// Letter part
     const options = getLetterEditingOptions(
       adapter,
-      activeDatePart.token.config.part,
-      activeDatePart.token.value,
+      datePart.token.config.part,
+      datePart.token.value,
     );
     if (options.length === 0) {
-      return activeDatePart.value;
+      return datePart.value;
     }
 
     if (shouldSetAbsolute) {
@@ -120,7 +142,7 @@ export class TemporalFieldValueAdjustmentPlugin<TValue extends TemporalSupported
       return options[options.length - 1];
     }
 
-    const currentOptionIndex = options.indexOf(activeDatePart.value);
+    const currentOptionIndex = options.indexOf(datePart.value);
     const newOptionIndex = (currentOptionIndex + delta * step) % options.length;
     const clampedIndex = (newOptionIndex + options.length) % options.length;
 

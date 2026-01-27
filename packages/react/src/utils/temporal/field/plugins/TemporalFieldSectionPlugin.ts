@@ -13,6 +13,125 @@ import {
 import { isDatePart, removeLocalizedDigits } from '../utils';
 import { TemporalFieldValuePlugin } from './TemporalFieldValuePlugin';
 
+const datePartBoundaries = createSelectorMemoized(
+  (state: State) => state.config,
+  (state: State) => state.value,
+  selectors.adapter,
+  selectors.timezoneToRender,
+  (fieldConfig, value, adapter, timezone, datePart: TemporalFieldDatePart) => {
+    const localizedDigits = getLocalizedDigits(adapter);
+    if (!isDatePart(datePart)) {
+      return { minimum: 0, maximum: 0 };
+    }
+
+    switch (datePart.token.config.part) {
+      case 'year': {
+        return {
+          minimum: 0,
+          maximum: getYearFormatLength(adapter, datePart.token.value) === 4 ? 9999 : 99,
+        };
+      }
+
+      case 'month': {
+        const today = adapter.now(timezone);
+        const endOfYear = adapter.endOfYear(today);
+        return {
+          minimum: 1,
+          // Assumption: All years have the same amount of months
+          maximum: adapter.getMonth(endOfYear) + 1,
+        };
+      }
+
+      case 'weekDay': {
+        if (datePart.token.config.contentType === 'digit') {
+          const daysInWeek = getWeekDaysStr(adapter, datePart.token.value).map(Number);
+          return {
+            minimum: Math.min(...daysInWeek),
+            maximum: Math.max(...daysInWeek),
+          };
+        }
+
+        return {
+          minimum: 1,
+          maximum: 7,
+        };
+      }
+
+      case 'day': {
+        const activeDate = fieldConfig.getDateFromSection(value, datePart);
+        return {
+          minimum: 1,
+          maximum: adapter.isValid(activeDate)
+            ? adapter.getDaysInMonth(activeDate)
+            : adapter.getDaysInMonth(getLongestMonthInCurrentYear(adapter)),
+        };
+      }
+
+      case 'hours': {
+        const today = adapter.now(timezone);
+        const endOfDay = adapter.endOfDay(today);
+        const lastHourInDay = adapter.getHours(endOfDay);
+        const hasMeridiem =
+          removeLocalizedDigits(
+            adapter.formatByString(adapter.endOfDay(today), datePart.token.value),
+            localizedDigits,
+          ) !== lastHourInDay.toString();
+
+        if (hasMeridiem) {
+          return {
+            minimum: 1,
+            maximum: Number(
+              removeLocalizedDigits(
+                adapter.formatByString(adapter.startOfDay(today), datePart.token.value),
+                localizedDigits,
+              ),
+            ),
+          };
+        }
+
+        return {
+          minimum: 0,
+          maximum: lastHourInDay,
+        };
+      }
+
+      case 'seconds': {
+        const today = adapter.now(timezone);
+        const endOfDay = adapter.endOfDay(today);
+        return {
+          minimum: 0,
+          // Assumption: All years have the same amount of seconds
+          maximum: adapter.getSeconds(endOfDay),
+        };
+      }
+
+      case 'minutes': {
+        const today = adapter.now(timezone);
+        const endOfDay = adapter.endOfDay(today);
+        return {
+          minimum: 0,
+          // Assumption: All years have the same amount of minutes
+          maximum: adapter.getMinutes(endOfDay),
+        };
+      }
+
+      case 'meridiem': {
+        return {
+          minimum: 0,
+          maximum: 1,
+        };
+      }
+
+      default: {
+        return {
+          minimum: 0,
+          maximum: 0,
+        };
+      }
+    }
+  },
+);
+
 const sectionSelectors = {
   sections: createSelector((state: State) => state.sections),
   selectedSection: createSelector((state: State) => state.selectedSection),
@@ -45,122 +164,17 @@ const sectionSelectors = {
       };
     },
   ),
-  datePartBoundaries: createSelectorMemoized(
+  datePartBoundaries,
+  datePartAdjustmentBoundaries: createSelectorMemoized(
     (state: State) => state.config,
-    (state: State) => state.value,
     selectors.adapter,
-    selectors.timezoneToRender,
-    (fieldConfig, value, adapter, timezone, datePart: TemporalFieldDatePart) => {
-      const localizedDigits = getLocalizedDigits(adapter);
-      if (!isDatePart(datePart)) {
-        return { minimum: 0, maximum: 0 };
+    selectors.validationProps,
+    datePartBoundaries,
+    (fieldConfig, adapter, validationProps, structuralBoundaries, datePart: TemporalFieldDatePart) => {
+      if (!fieldConfig.getAdjustmentBoundaries) {
+        return structuralBoundaries;
       }
-
-      switch (datePart.token.config.part) {
-        case 'year': {
-          return {
-            minimum: 0,
-            maximum: getYearFormatLength(adapter, datePart.token.value) === 4 ? 9999 : 99,
-          };
-        }
-
-        case 'month': {
-          const today = adapter.now(timezone);
-          const endOfYear = adapter.endOfYear(today);
-          return {
-            minimum: 1,
-            // Assumption: All years have the same amount of months
-            maximum: adapter.getMonth(endOfYear) + 1,
-          };
-        }
-
-        case 'weekDay': {
-          if (datePart.token.config.contentType === 'digit') {
-            const daysInWeek = getWeekDaysStr(adapter, datePart.token.value).map(Number);
-            return {
-              minimum: Math.min(...daysInWeek),
-              maximum: Math.max(...daysInWeek),
-            };
-          }
-
-          return {
-            minimum: 1,
-            maximum: 7,
-          };
-        }
-
-        case 'day': {
-          const activeDate = fieldConfig.getDateFromSection(value, datePart);
-          return {
-            minimum: 1,
-            maximum: adapter.isValid(activeDate)
-              ? adapter.getDaysInMonth(activeDate)
-              : adapter.getDaysInMonth(getLongestMonthInCurrentYear(adapter)),
-          };
-        }
-
-        case 'hours': {
-          const today = adapter.now(timezone);
-          const endOfDay = adapter.endOfDay(today);
-          const lastHourInDay = adapter.getHours(endOfDay);
-          const hasMeridiem =
-            removeLocalizedDigits(
-              adapter.formatByString(adapter.endOfDay(today), datePart.token.value),
-              localizedDigits,
-            ) !== lastHourInDay.toString();
-
-          if (hasMeridiem) {
-            return {
-              minimum: 1,
-              maximum: Number(
-                removeLocalizedDigits(
-                  adapter.formatByString(adapter.startOfDay(today), datePart.token.value),
-                  localizedDigits,
-                ),
-              ),
-            };
-          }
-
-          return {
-            minimum: 0,
-            maximum: lastHourInDay,
-          };
-        }
-
-        case 'seconds': {
-          const today = adapter.now(timezone);
-          const endOfDay = adapter.endOfDay(today);
-          return {
-            minimum: 0,
-            // Assumption: All years have the same amount of seconds
-            maximum: adapter.getSeconds(endOfDay),
-          };
-        }
-
-        case 'minutes': {
-          const today = adapter.now(timezone);
-          const endOfDay = adapter.endOfDay(today);
-          return {
-            minimum: 0,
-            // Assumption: All years have the same amount of minutes
-            maximum: adapter.getMinutes(endOfDay),
-          };
-        }
-
-        case 'meridiem': {
-          return {
-            minimum: 0,
-            maximum: 1,
-          };
-        }
-
-        default: {
-          return {
-            minimum: 0,
-            maximum: 0,
-          };
-        }
-      }
+      return fieldConfig.getAdjustmentBoundaries(adapter, validationProps, datePart, structuralBoundaries);
     },
   ),
 };

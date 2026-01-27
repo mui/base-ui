@@ -1112,4 +1112,428 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
       expect(newValue).to.equal('00');
     });
   });
+
+  describe('adjustment boundaries with validation props', () => {
+    function getDatePartValue(store: DateFieldStore | TimeFieldStore, sectionIndex: number) {
+      return TemporalFieldSectionPlugin.selectors.datePart(store.state, sectionIndex)?.value ?? '';
+    }
+
+    describe('DateField - minDate and maxDate', () => {
+      describe('same year', () => {
+        // minDate=2024-04-02, maxDate=2024-07-03
+        // year: [2024, 2024], month: [4, 7], day: unchanged
+
+        it('should restrict year section to the single valid year', () => {
+          const store = new DateFieldStore({
+            format: numericDateFormat,
+            adapter,
+            direction: 'ltr',
+            validationProps: {
+              minDate: adapter.date('2024-04-02', 'default'),
+              maxDate: adapter.date('2024-07-03', 'default'),
+            },
+          });
+
+          store.section.selectClosestDatePart(4); // year section
+          store.section.updateDatePart({
+            sectionIndex: 4,
+            newDatePartValue: '2024',
+            shouldGoToNextSection: false,
+          });
+
+          // ArrowUp from 2024 should wrap to 2024 (same min and max)
+          store.valueAdjustment.adjustActiveDatePartValue('ArrowUp', 4);
+          expect(getDatePartValue(store, 4)).to.equal('2024');
+        });
+
+        it('should restrict month range when years are the same', () => {
+          const store = new DateFieldStore({
+            format: numericDateFormat,
+            adapter,
+            direction: 'ltr',
+            validationProps: {
+              minDate: adapter.date('2024-04-02', 'default'),
+              maxDate: adapter.date('2024-07-03', 'default'),
+            },
+          });
+
+          store.section.selectClosestDatePart(0); // month section
+
+          // Home should go to min month (04)
+          store.section.updateDatePart({
+            sectionIndex: 0,
+            newDatePartValue: '06',
+            shouldGoToNextSection: false,
+          });
+          store.valueAdjustment.adjustActiveDatePartValue('Home', 0);
+          expect(getDatePartValue(store, 0)).to.equal('04');
+
+          // End should go to max month (07)
+          store.valueAdjustment.adjustActiveDatePartValue('End', 0);
+          expect(getDatePartValue(store, 0)).to.equal('07');
+        });
+
+        it('should wrap month within restricted range', () => {
+          const store = new DateFieldStore({
+            format: numericDateFormat,
+            adapter,
+            direction: 'ltr',
+            validationProps: {
+              minDate: adapter.date('2024-04-02', 'default'),
+              maxDate: adapter.date('2024-07-03', 'default'),
+            },
+          });
+
+          store.section.selectClosestDatePart(0); // month section
+          store.section.updateDatePart({
+            sectionIndex: 0,
+            newDatePartValue: '07',
+            shouldGoToNextSection: false,
+          });
+
+          // ArrowUp from 07 (max) should wrap to 04 (min)
+          store.valueAdjustment.adjustActiveDatePartValue('ArrowUp', 0);
+          expect(getDatePartValue(store, 0)).to.equal('04');
+        });
+
+        it('should not restrict day section when years are same but months differ', () => {
+          const store = new DateFieldStore({
+            format: numericDateFormat,
+            adapter,
+            direction: 'ltr',
+            validationProps: {
+              minDate: adapter.date('2024-04-02', 'default'),
+              maxDate: adapter.date('2024-07-03', 'default'),
+            },
+          });
+
+          store.section.selectClosestDatePart(2); // day section
+          store.section.updateDatePart({
+            sectionIndex: 2,
+            newDatePartValue: '15',
+            shouldGoToNextSection: false,
+          });
+
+          // Home should go to structural min (01), not minDate day (02)
+          store.valueAdjustment.adjustActiveDatePartValue('Home', 2);
+          expect(getDatePartValue(store, 2)).to.equal('01');
+
+          // End should go to structural max (31), not maxDate day (03)
+          store.valueAdjustment.adjustActiveDatePartValue('End', 2);
+          expect(getDatePartValue(store, 2)).to.equal('31');
+        });
+      });
+
+      describe('different years', () => {
+        // minDate=2024-04-02, maxDate=2025-01-01
+        // year: [2024, 2025], month: unchanged, day: unchanged
+
+        it('should restrict year range', () => {
+          const store = new DateFieldStore({
+            format: numericDateFormat,
+            adapter,
+            direction: 'ltr',
+            validationProps: {
+              minDate: adapter.date('2024-04-02', 'default'),
+              maxDate: adapter.date('2025-01-01', 'default'),
+            },
+          });
+
+          store.section.selectClosestDatePart(4); // year section
+          store.section.updateDatePart({
+            sectionIndex: 4,
+            newDatePartValue: '2024',
+            shouldGoToNextSection: false,
+          });
+
+          // Home should go to min year (2024)
+          store.valueAdjustment.adjustActiveDatePartValue('Home', 4);
+          expect(getDatePartValue(store, 4)).to.equal('2024');
+
+          // End should go to max year (2025)
+          store.valueAdjustment.adjustActiveDatePartValue('End', 4);
+          expect(getDatePartValue(store, 4)).to.equal('2025');
+        });
+
+        it('should not restrict month when years differ', () => {
+          const store = new DateFieldStore({
+            format: numericDateFormat,
+            adapter,
+            direction: 'ltr',
+            validationProps: {
+              minDate: adapter.date('2024-04-02', 'default'),
+              maxDate: adapter.date('2025-01-01', 'default'),
+            },
+          });
+
+          store.section.selectClosestDatePart(0); // month section
+          store.section.updateDatePart({
+            sectionIndex: 0,
+            newDatePartValue: '06',
+            shouldGoToNextSection: false,
+          });
+
+          // Home should go to structural min (01), not minDate month (04)
+          store.valueAdjustment.adjustActiveDatePartValue('Home', 0);
+          expect(getDatePartValue(store, 0)).to.equal('01');
+
+          // End should go to structural max (12), not maxDate month (01)
+          store.valueAdjustment.adjustActiveDatePartValue('End', 0);
+          expect(getDatePartValue(store, 0)).to.equal('12');
+        });
+
+        it('should not restrict day when years differ', () => {
+          const store = new DateFieldStore({
+            format: numericDateFormat,
+            adapter,
+            direction: 'ltr',
+            validationProps: {
+              minDate: adapter.date('2024-04-02', 'default'),
+              maxDate: adapter.date('2025-01-01', 'default'),
+            },
+          });
+
+          store.section.selectClosestDatePart(2); // day section
+          store.section.updateDatePart({
+            sectionIndex: 2,
+            newDatePartValue: '15',
+            shouldGoToNextSection: false,
+          });
+
+          store.valueAdjustment.adjustActiveDatePartValue('Home', 2);
+          expect(getDatePartValue(store, 2)).to.equal('01');
+
+          store.valueAdjustment.adjustActiveDatePartValue('End', 2);
+          expect(getDatePartValue(store, 2)).to.equal('31');
+        });
+      });
+
+      describe('same year and month', () => {
+        // minDate=2024-04-05, maxDate=2024-04-20
+        // year: [2024, 2024], month: [4, 4], day: [5, 20]
+
+        it('should restrict day range when year and month are the same', () => {
+          const store = new DateFieldStore({
+            format: numericDateFormat,
+            adapter,
+            direction: 'ltr',
+            validationProps: {
+              minDate: adapter.date('2024-04-05', 'default'),
+              maxDate: adapter.date('2024-04-20', 'default'),
+            },
+          });
+
+          store.section.selectClosestDatePart(2); // day section
+          store.section.updateDatePart({
+            sectionIndex: 2,
+            newDatePartValue: '10',
+            shouldGoToNextSection: false,
+          });
+
+          // Home should go to restricted min (05)
+          store.valueAdjustment.adjustActiveDatePartValue('Home', 2);
+          expect(getDatePartValue(store, 2)).to.equal('05');
+
+          // End should go to restricted max (20)
+          store.valueAdjustment.adjustActiveDatePartValue('End', 2);
+          expect(getDatePartValue(store, 2)).to.equal('20');
+        });
+      });
+
+      describe('only minDate provided', () => {
+        it('should restrict min side only, max stays structural', () => {
+          const store = new DateFieldStore({
+            format: numericDateFormat,
+            adapter,
+            direction: 'ltr',
+            validationProps: {
+              minDate: adapter.date('2024-04-02', 'default'),
+            },
+          });
+
+          store.section.selectClosestDatePart(4); // year section
+          store.section.updateDatePart({
+            sectionIndex: 4,
+            newDatePartValue: '2024',
+            shouldGoToNextSection: false,
+          });
+
+          // Home should go to restricted min year (2024)
+          store.valueAdjustment.adjustActiveDatePartValue('Home', 4);
+          expect(getDatePartValue(store, 4)).to.equal('2024');
+
+          // End should go to structural max year (9999)
+          store.valueAdjustment.adjustActiveDatePartValue('End', 4);
+          expect(getDatePartValue(store, 4)).to.equal('9999');
+        });
+      });
+
+      describe('only maxDate provided', () => {
+        it('should restrict max side only, min stays structural', () => {
+          const store = new DateFieldStore({
+            format: numericDateFormat,
+            adapter,
+            direction: 'ltr',
+            validationProps: {
+              maxDate: adapter.date('2025-07-15', 'default'),
+            },
+          });
+
+          store.section.selectClosestDatePart(4); // year section
+          store.section.updateDatePart({
+            sectionIndex: 4,
+            newDatePartValue: '2025',
+            shouldGoToNextSection: false,
+          });
+
+          // Home should go to structural min year (0)
+          store.valueAdjustment.adjustActiveDatePartValue('Home', 4);
+          expect(getDatePartValue(store, 4)).to.equal('0000');
+
+          // End should go to restricted max year (2025)
+          store.valueAdjustment.adjustActiveDatePartValue('End', 4);
+          expect(getDatePartValue(store, 4)).to.equal('2025');
+        });
+      });
+    });
+
+    describe('TimeField - minTime and maxTime', () => {
+      describe('different hours', () => {
+        it('should restrict hours range', () => {
+          const store = new TimeFieldStore({
+            format: time24Format,
+            adapter,
+            direction: 'ltr',
+            validationProps: {
+              minTime: adapter.date('2024-01-01T10:30', 'default'),
+              maxTime: adapter.date('2024-01-01T14:45', 'default'),
+            },
+          });
+
+          store.section.selectClosestDatePart(0); // hours section
+          store.section.updateDatePart({
+            sectionIndex: 0,
+            newDatePartValue: '12',
+            shouldGoToNextSection: false,
+          });
+
+          // Home should go to min hour (10)
+          store.valueAdjustment.adjustActiveDatePartValue('Home', 0);
+          expect(getDatePartValue(store, 0)).to.equal('10');
+
+          // End should go to max hour (14)
+          store.valueAdjustment.adjustActiveDatePartValue('End', 0);
+          expect(getDatePartValue(store, 0)).to.equal('14');
+        });
+
+        it('should not restrict minutes when hours differ', () => {
+          const store = new TimeFieldStore({
+            format: time24Format,
+            adapter,
+            direction: 'ltr',
+            validationProps: {
+              minTime: adapter.date('2024-01-01T10:30', 'default'),
+              maxTime: adapter.date('2024-01-01T14:45', 'default'),
+            },
+          });
+
+          store.section.selectClosestDatePart(2); // minutes section
+          store.section.updateDatePart({
+            sectionIndex: 2,
+            newDatePartValue: '15',
+            shouldGoToNextSection: false,
+          });
+
+          // Home should go to structural min (00)
+          store.valueAdjustment.adjustActiveDatePartValue('Home', 2);
+          expect(getDatePartValue(store, 2)).to.equal('00');
+
+          // End should go to structural max (59)
+          store.valueAdjustment.adjustActiveDatePartValue('End', 2);
+          expect(getDatePartValue(store, 2)).to.equal('59');
+        });
+      });
+
+      describe('same hour', () => {
+        it('should restrict minutes when hours are the same', () => {
+          const store = new TimeFieldStore({
+            format: time24Format,
+            adapter,
+            direction: 'ltr',
+            validationProps: {
+              minTime: adapter.date('2024-01-01T10:15', 'default'),
+              maxTime: adapter.date('2024-01-01T10:45', 'default'),
+            },
+          });
+
+          store.section.selectClosestDatePart(2); // minutes section
+          store.section.updateDatePart({
+            sectionIndex: 2,
+            newDatePartValue: '30',
+            shouldGoToNextSection: false,
+          });
+
+          // Home should go to restricted min minutes (15)
+          store.valueAdjustment.adjustActiveDatePartValue('Home', 2);
+          expect(getDatePartValue(store, 2)).to.equal('15');
+
+          // End should go to restricted max minutes (45)
+          store.valueAdjustment.adjustActiveDatePartValue('End', 2);
+          expect(getDatePartValue(store, 2)).to.equal('45');
+        });
+      });
+
+      describe('meridiem restriction', () => {
+        it('should restrict meridiem to PM when both minTime and maxTime are PM', () => {
+          const store = new TimeFieldStore({
+            format: time12Format,
+            adapter,
+            direction: 'ltr',
+            validationProps: {
+              minTime: adapter.date('2024-01-01T13:00', 'default'), // 1 PM
+              maxTime: adapter.date('2024-01-01T16:00', 'default'), // 4 PM
+            },
+          });
+
+          store.section.selectClosestDatePart(4); // meridiem section
+          store.section.updateDatePart({
+            sectionIndex: 4,
+            newDatePartValue: 'PM',
+            shouldGoToNextSection: false,
+          });
+
+          // ArrowUp from PM should stay PM (restricted to PM only)
+          store.valueAdjustment.adjustActiveDatePartValue('ArrowUp', 4);
+          expect(getDatePartValue(store, 4)).to.equal('PM');
+
+          // ArrowDown from PM should also stay PM
+          store.valueAdjustment.adjustActiveDatePartValue('ArrowDown', 4);
+          expect(getDatePartValue(store, 4)).to.equal('PM');
+        });
+
+        it('should not restrict meridiem when minTime is AM and maxTime is PM', () => {
+          const store = new TimeFieldStore({
+            format: time12Format,
+            adapter,
+            direction: 'ltr',
+            validationProps: {
+              minTime: adapter.date('2024-01-01T08:00', 'default'), // 8 AM
+              maxTime: adapter.date('2024-01-01T16:00', 'default'), // 4 PM
+            },
+          });
+
+          store.section.selectClosestDatePart(4); // meridiem section
+          store.section.updateDatePart({
+            sectionIndex: 4,
+            newDatePartValue: 'AM',
+            shouldGoToNextSection: false,
+          });
+
+          // Should be able to toggle between AM and PM
+          store.valueAdjustment.adjustActiveDatePartValue('ArrowUp', 4);
+          expect(getDatePartValue(store, 4)).to.equal('PM');
+        });
+      });
+    });
+  });
 });

@@ -399,6 +399,18 @@ export interface TemporalFieldConfiguration<
     sections: TemporalFieldSection[],
   ) => string;
   /**
+   * Returns the boundaries for a date part when adjusting using arrow keys, Home/End, etc.
+   * The boundaries take into account the validation props (minDate/maxDate, minTime/maxTime).
+   * Receives the structural boundaries (without validation props) and should return the final boundaries.
+   * If not provided, the structural boundaries are used as-is.
+   */
+  getAdjustmentBoundaries?: (
+    adapter: TemporalAdapter,
+    validationProps: TValidationProps,
+    datePart: TemporalFieldDatePart,
+    structuralBoundaries: TemporalFieldDatePartValueBoundaries,
+  ) => TemporalFieldDatePartValueBoundaries;
+  /**
    * Stringifies the min/max/step validation props for native input attributes.
    */
   stringifyValidationPropsForNativeInput: (
