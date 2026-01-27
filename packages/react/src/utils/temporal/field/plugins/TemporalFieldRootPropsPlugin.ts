@@ -47,30 +47,24 @@ const rootPropsSelectors = {
       id,
       validationProps,
       step,
-    ) => {
-      const nativeValidationProps = config.stringifyValidationPropsForHiddenInput(
+    ) => ({
+      ...config.stringifyValidationPropsForHiddenInput(
         adapter,
         validationProps,
         parsedFormat,
         step,
-      );
-
-      return {
-        type: config.nativeInputType,
-        value: config.stringifyValueForHiddenInput(adapter, value, sections),
-        name,
-        id,
-        disabled,
-        readOnly,
-        required,
-        min: nativeValidationProps.min,
-        max: nativeValidationProps.max,
-        step: nativeValidationProps.step,
-        'aria-hidden': true,
-        tabIndex: -1,
-        style: visuallyHiddenInput,
-      };
-    },
+      ),
+      type: config.hiddenInputType,
+      value: config.stringifyValueForHiddenInput(adapter, value, sections),
+      name,
+      id,
+      disabled,
+      readOnly,
+      required,
+      'aria-hidden': true,
+      tabIndex: -1,
+      style: visuallyHiddenInput,
+    }),
   ),
 };
 

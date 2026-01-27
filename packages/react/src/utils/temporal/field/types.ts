@@ -386,10 +386,10 @@ export interface TemporalFieldConfiguration<
    */
   stringifyValue: (adapter: TemporalAdapter, value: TValue) => string;
   /**
-   * Returns the type attribute for the native hidden input.
+   * Returns the type attribute for the hidden input.
    * Used for native HTML validation (e.g., 'date' or 'time').
    */
-  nativeInputType: 'date' | 'time' | 'text';
+  hiddenInputType: 'date' | 'time' | 'text';
   /**
    * Stringifies the value for hidden input format.
    * For date inputs: 'YYYY-MM-DD'

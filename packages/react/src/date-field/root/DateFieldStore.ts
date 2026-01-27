@@ -41,7 +41,7 @@ const config: TemporalFieldConfiguration<TemporalValue, ValidateDateValidationPr
     adapter.isValid(value) ? value : prevReferenceValue,
   stringifyValue: (adapter, value) =>
     adapter.isValid(value) ? adapter.toJsDate(value).toISOString() : '',
-  nativeInputType: 'date',
+  hiddenInputType: 'date',
   stringifyValueForHiddenInput: (adapter, value, _sections) =>
     formatDateForNativeInput(adapter, value),
   getAdjustmentBoundaries: (adapter, validationProps, datePart, structuralBoundaries) => {

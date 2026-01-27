@@ -80,7 +80,7 @@ const config: TemporalFieldConfiguration<TemporalValue, ValidateTimeValidationPr
     adapter.isValid(value) ? value : prevReferenceValue,
   stringifyValue: (adapter, value) =>
     adapter.isValid(value) ? adapter.toJsDate(value).toISOString() : '',
-  nativeInputType: 'time',
+  hiddenInputType: 'time',
   stringifyValueForHiddenInput: (adapter, value, sections) => {
     const hasSeconds = hasSecondsInFormat(sections);
     return formatTimeForNativeInput(adapter, value, hasSeconds);
