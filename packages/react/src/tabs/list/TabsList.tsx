@@ -122,7 +122,10 @@ function getInset(tab: HTMLElement, tabsList: HTMLElement) {
 }
 
 function useActivationDirectionDetector(
-  // the current value (will be the old value when newValue is passed to the returned function)
+  /**
+   * The currently active tab value. Used as the reference point for
+   * calculating direction when the value changes.
+   */
   activeTabValue: any,
   orientation: TabsRoot.Orientation,
   tabsListElement: HTMLElement | null,
