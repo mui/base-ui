@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useRefWithInit } from './useRefWithInit';
+import { warn } from './warn';
 
 // https://github.com/mui/material-ui/issues/41190#issuecomment-2040873379
 const useInsertionEffect = (React as any)[
@@ -21,6 +22,8 @@ type StableCallbacks<T extends Record<string, Callback | undefined>> = {
 };
 
 type StableState<T extends Record<string, Callback | undefined>> = {
+  /** Captured keys */
+  keys: string[];
   /** The next values for callbacks */
   next: T;
   /** The current callbacks to be called by trampolines */
@@ -49,18 +52,35 @@ type StableState<T extends Record<string, Callback | undefined>> = {
 export function useStableCallbacks<T extends Record<string, Callback | undefined>>(
   callbacksObj: T,
 ): StableCallbacks<T> {
-  const stable = useRefWithInit(createStableCallbacks<T>, Object.keys(callbacksObj)).current;
+  const stableCallbacks = useRefWithInit(
+    createStableCallbacks<T>,
+    Object.keys(callbacksObj),
+  ).current;
+  const { keys } = stableCallbacks;
 
-  // Update next values
-  for (const key in callbacksObj) {
-    if (Object.hasOwn(callbacksObj, key)) {
-      stable.next[key] = callbacksObj[key];
+  if (process.env.NODE_ENV !== 'production') {
+    const currentKeys = Object.keys(callbacksObj);
+    if (currentKeys.length !== keys.length) {
+      warn('useStableCallbacks expects a stable set of keys between renders.');
+    } else {
+      for (let i = 0; i < currentKeys.length; i += 1) {
+        if (!Object.hasOwn(stableCallbacks.trampolines, currentKeys[i])) {
+          warn('useStableCallbacks expects a stable set of keys between renders.');
+          break;
+        }
+      }
     }
   }
 
-  useSafeInsertionEffect(stable.effect);
+  // Update next values
+  for (let i = 0; i < keys.length; i += 1) {
+    const key = keys[i] as keyof T;
+    stableCallbacks.next[key] = callbacksObj[key];
+  }
 
-  return stable.trampolines;
+  useSafeInsertionEffect(stableCallbacks.effect);
+
+  return stableCallbacks.trampolines;
 }
 
 function createStableCallbacks<T extends Record<string, Callback | undefined>>(
@@ -70,22 +90,21 @@ function createStableCallbacks<T extends Record<string, Callback | undefined>>(
   const callbacks = {} as { [K in keyof T]: T[K] | typeof assertNotCalled };
   const trampolines = {} as StableCallbacks<T>;
 
-  for (const key of keys) {
-    callbacks[key as keyof T] = assertNotCalled;
+  for (let i = 0; i < keys.length; i += 1) {
+    const key = keys[i] as keyof T;
+    callbacks[key] = assertNotCalled;
     // Create a trampoline for each key
-    trampolines[key as keyof T] = ((...args: any[]) =>
-      (callbacks[key as keyof T] as Callback)?.(...args)) as any;
+    trampolines[key] = ((...args: any[]) => (callbacks[key] as Callback)?.(...args)) as any;
   }
 
   const effect = () => {
-    for (const key in next) {
-      if (Object.hasOwn(next, key)) {
-        callbacks[key] = next[key] as any;
-      }
+    for (let i = 0; i < keys.length; i += 1) {
+      const key = keys[i] as keyof T;
+      callbacks[key] = next[key] as any;
     }
   };
 
-  return { next, callbacks, trampolines, effect };
+  return { keys, next, callbacks, trampolines, effect };
 }
 
 function assertNotCalled() {
