@@ -17,8 +17,7 @@ const datePartBoundaries = createSelectorMemoized(
   (state: State) => state.config,
   (state: State) => state.value,
   selectors.adapter,
-  selectors.timezoneToRender,
-  (fieldConfig, value, adapter, timezone, datePart: TemporalFieldDatePart) => {
+  (fieldConfig, value, adapter, datePart: TemporalFieldDatePart) => {
     const localizedDigits = getLocalizedDigits(adapter);
     if (!isDatePart(datePart)) {
       return { minimum: 0, maximum: 0 };
@@ -33,7 +32,7 @@ const datePartBoundaries = createSelectorMemoized(
       }
 
       case 'month': {
-        const today = adapter.now(timezone);
+        const today = adapter.now('default');
         const endOfYear = adapter.endOfYear(today);
         return {
           minimum: 1,
@@ -68,12 +67,12 @@ const datePartBoundaries = createSelectorMemoized(
       }
 
       case 'hours': {
-        const today = adapter.now(timezone);
+        const today = adapter.now('default');
         const endOfDay = adapter.endOfDay(today);
         const lastHourInDay = adapter.getHours(endOfDay);
         const hasMeridiem =
           removeLocalizedDigits(
-            adapter.formatByString(adapter.endOfDay(today), datePart.token.value),
+            adapter.formatByString(endOfDay, datePart.token.value),
             localizedDigits,
           ) !== lastHourInDay.toString();
 
@@ -96,8 +95,7 @@ const datePartBoundaries = createSelectorMemoized(
       }
 
       case 'seconds': {
-        const today = adapter.now(timezone);
-        const endOfDay = adapter.endOfDay(today);
+        const endOfDay = adapter.endOfDay(adapter.now('default'));
         return {
           minimum: 0,
           // Assumption: All years have the same amount of seconds
@@ -106,8 +104,7 @@ const datePartBoundaries = createSelectorMemoized(
       }
 
       case 'minutes': {
-        const today = adapter.now(timezone);
-        const endOfDay = adapter.endOfDay(today);
+        const endOfDay = adapter.endOfDay(adapter.now('default'));
         return {
           minimum: 0,
           // Assumption: All years have the same amount of minutes
