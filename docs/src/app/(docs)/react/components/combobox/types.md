@@ -25,7 +25,7 @@ Doesn't render its own HTML element.
 | onOpenChange         | `((open: boolean, eventDetails: Combobox.Root.ChangeEventDetails) => void)`                             | -       | Event handler called when the popup is opened or closed.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
 | autoHighlight        | `boolean`                                                                                               | `false` | Whether the first matching item is highlighted automatically while filtering.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
 | highlightItemOnHover | `boolean`                                                                                               | `true`  | Whether moving the pointer over items should highlight them.&#xA;Disabling this prop allows CSS `:hover` to be differentiated from the `:focus` (`data-highlighted`) state.                                                                                                                                                                                                                                                                                                                                                                                           |
-| actionsRef           | `React.RefObject<Combobox.Root.Actions>`                                                                | -       | A ref to imperative actions. `unmount`: When specified, the combobox will not be unmounted when closed.&#xA;Instead, the `unmount` function must be called to unmount the combobox manually.&#xA;Useful when the combobox's animation is controlled by an external library.                                                                                                                                                                                                                                                                                           |
+| actionsRef           | `React.RefObject<Combobox.Root.Actions \| null>`                                                        | -       | A ref to imperative actions. `unmount`: When specified, the combobox will not be unmounted when closed.&#xA;Instead, the `unmount` function must be called to unmount the combobox manually.&#xA;Useful when the combobox's animation is controlled by an external library.                                                                                                                                                                                                                                                                                           |
 | filter               | `((itemValue: Value, query: string, itemToString?: ((itemValue: Value) => string)) => boolean) \| null` | -       | ComboboxFilter function used to match items vs input query.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
 | filteredItems        | `any[] \| Group[]`                                                                                      | -       | Filtered items to display in the list.&#xA;When provided, the list will use these items instead of filtering the `items` prop internally.&#xA;Use when you want to control filtering logic externally with the `useFilter()` hook.                                                                                                                                                                                                                                                                                                                                    |
 | grid                 | `boolean`                                                                                               | `false` | Whether list items are presented in a grid layout.&#xA;When enabled, arrow keys navigate across rows and columns inferred from DOM rows.                                                                                                                                                                                                                                                                                                                                                                                                                              |
@@ -220,21 +220,22 @@ Renders a `<button>` element.
 
 **Trigger Data Attributes:**
 
-| Attribute       | Type                                                                               | Description                                                                        |
-| :-------------- | :--------------------------------------------------------------------------------- | :--------------------------------------------------------------------------------- |
-| data-popup-open | -                                                                                  | Present when the corresponding popup is open.                                      |
-| data-popup-side | `'top' \| 'bottom' \| 'left' \| 'right' \| 'inline-end' \| 'inline-start' \| null` | Indicates which side the corresponding popup is positioned relative to its anchor. |
-| data-list-empty | -                                                                                  | Present when the corresponding items list is empty.                                |
-| data-pressed    | -                                                                                  | Present when the trigger is pressed.                                               |
-| data-disabled   | -                                                                                  | Present when the component is disabled.                                            |
-| data-readonly   | -                                                                                  | Present when the component is readonly.                                            |
-| data-required   | -                                                                                  | Present when the component is required.                                            |
-| data-valid      | -                                                                                  | Present when the component is in valid state (when wrapped in Field.Root).         |
-| data-invalid    | -                                                                                  | Present when the component is in invalid state (when wrapped in Field.Root).       |
-| data-dirty      | -                                                                                  | Present when the component's value has changed (when wrapped in Field.Root).       |
-| data-touched    | -                                                                                  | Present when the component has been touched (when wrapped in Field.Root).          |
-| data-filled     | -                                                                                  | Present when the component has a value (when wrapped in Field.Root).               |
-| data-focused    | -                                                                                  | Present when the trigger is focused (when wrapped in Field.Root).                  |
+| Attribute        | Type                                                                               | Description                                                                        |
+| :--------------- | :--------------------------------------------------------------------------------- | :--------------------------------------------------------------------------------- |
+| data-popup-open  | -                                                                                  | Present when the corresponding popup is open.                                      |
+| data-popup-side  | `'top' \| 'bottom' \| 'left' \| 'right' \| 'inline-end' \| 'inline-start' \| null` | Indicates which side the corresponding popup is positioned relative to its anchor. |
+| data-list-empty  | -                                                                                  | Present when the corresponding items list is empty.                                |
+| data-pressed     | -                                                                                  | Present when the trigger is pressed.                                               |
+| data-disabled    | -                                                                                  | Present when the component is disabled.                                            |
+| data-readonly    | -                                                                                  | Present when the component is readonly.                                            |
+| data-required    | -                                                                                  | Present when the component is required.                                            |
+| data-valid       | -                                                                                  | Present when the component is in valid state (when wrapped in Field.Root).         |
+| data-invalid     | -                                                                                  | Present when the component is in invalid state (when wrapped in Field.Root).       |
+| data-dirty       | -                                                                                  | Present when the component's value has changed (when wrapped in Field.Root).       |
+| data-touched     | -                                                                                  | Present when the component has been touched (when wrapped in Field.Root).          |
+| data-filled      | -                                                                                  | Present when the component has a value (when wrapped in Field.Root).               |
+| data-focused     | -                                                                                  | Present when the trigger is focused (when wrapped in Field.Root).                  |
+| data-placeholder | -                                                                                  | Present when the combobox doesn't have a value.                                    |
 
 ### Trigger.Props
 
@@ -248,6 +249,7 @@ type ComboboxTriggerState = {
   disabled: boolean;
   popupSide: Side | null;
   listEmpty: boolean;
+  placeholder: boolean;
   touched: boolean;
   dirty: boolean;
   valid: boolean | null;
@@ -263,9 +265,10 @@ Doesn't render its own HTML element.
 
 **Value Props:**
 
-| Prop     | Type                                                           | Default | Description |
-| :------- | :------------------------------------------------------------- | :------ | :---------- |
-| children | `React.ReactNode \| ((selectedValue: any) => React.ReactNode)` | -       | -           |
+| Prop        | Type                                                           | Default | Description                                                                                                                                          |
+| :---------- | :------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------- |
+| placeholder | `React.ReactNode`                                              | -       | The placeholder value to display when no value is selected.&#xA;This is overridden by `children` if specified, or by a null item's label in `items`. |
+| children    | `React.ReactNode \| ((selectedValue: any) => React.ReactNode)` | -       | -                                                                                                                                                    |
 
 ### Value.Props
 

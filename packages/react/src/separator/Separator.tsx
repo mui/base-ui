@@ -33,7 +33,7 @@ export interface SeparatorProps extends BaseUIComponentProps<'div', Separator.St
    * The orientation of the separator.
    * @default 'horizontal'
    */
-  orientation?: Separator.Orientation;
+  orientation?: Separator.Orientation | undefined;
 }
 
 export interface SeparatorState {

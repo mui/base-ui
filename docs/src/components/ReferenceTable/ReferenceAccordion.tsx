@@ -21,13 +21,17 @@ interface Props extends React.ComponentPropsWithoutRef<any> {
   // replace occurrences of "renameFrom.*" with "renameTo.*" in types
   renameFrom?: string;
   renameTo?: string;
+  nameLabel?: string;
+  caption?: string;
 }
 
-export function PropsReferenceAccordion({
+export function ReferenceAccordion({
   data,
   name: partName,
   renameFrom,
   renameTo,
+  nameLabel = 'Prop',
+  caption = 'Component props table',
   ...props
 }: Props) {
   const captionId = `${partName}-caption`;
@@ -35,10 +39,10 @@ export function PropsReferenceAccordion({
   return (
     <Accordion.Root aria-describedby={captionId} {...props}>
       <span id={captionId} style={visuallyHidden} aria-hidden>
-        Component props table
+        {caption}
       </span>
       <Accordion.HeaderRow className={clsx('grid', TRIGGER_GRID_LAYOUT)}>
-        <Accordion.HeaderCell>Prop</Accordion.HeaderCell>
+        <Accordion.HeaderCell>{nameLabel}</Accordion.HeaderCell>
         <Accordion.HeaderCell className="max-xs:hidden">Type</Accordion.HeaderCell>
         <Accordion.HeaderCell className="max-md:hidden">Default</Accordion.HeaderCell>
         <Accordion.HeaderCell className="max-md:hidden w-10" />
@@ -62,7 +66,7 @@ export function PropsReferenceAccordion({
             <Accordion.Trigger
               id={id}
               index={index}
-              aria-label={`prop: ${name},${prop.required ? ' required,' : ''} type: ${shortTypeText} ${defaultText !== undefined ? `(default: ${defaultText})` : ''}`}
+              aria-label={`${nameLabel}: ${name},${prop.required ? ' required,' : ''} type: ${shortTypeText} ${defaultText !== undefined ? `(default: ${defaultText})` : ''}`}
               className={clsx('min-h-min scroll-mt-12 p-0 md:scroll-mt-0', TRIGGER_GRID_LAYOUT)}
             >
               <Accordion.Scrollable className="px-3">

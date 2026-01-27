@@ -190,7 +190,7 @@ An input that suggests options as you type.
     - Props: actionsRef, autoHighlight, children, defaultOpen, defaultValue, disabled, filter, filteredItems, grid, highlightItemOnHover, id, inline, inputRef, itemToStringValue, items, keepHighlight, limit, locale, loopFocus, modal, mode, name, onItemHighlighted, onOpenChange, onOpenChangeComplete, onValueChange, open, openOnInputClick, readOnly, required, submitOnItemClick, value, virtualized
   - Autocomplete - Trigger
     - Props: className, disabled, nativeButton, render, style
-    - Data Attributes: data-dirty, data-disabled, data-filled, data-focused, data-invalid, data-list-empty, data-popup-open, data-popup-side, data-pressed, data-readonly, data-required, data-touched, data-valid
+    - Data Attributes: data-dirty, data-disabled, data-filled, data-focused, data-invalid, data-list-empty, data-placeholder, data-popup-open, data-popup-side, data-pressed, data-readonly, data-required, data-touched, data-valid
   - Autocomplete - Value
     - Props: children
   - Autocomplete - Input
@@ -285,7 +285,7 @@ A button component that can be rendered as another tag or focusable when disable
   - API reference
 - Exports:
   - Button
-    - Props: className, disabled, focusableWhenDisabled, nativeButton, render, style
+    - Props: className, focusableWhenDisabled, nativeButton, render, style
     - Data Attributes: data-disabled
 
 </details>
@@ -393,6 +393,7 @@ An input combined with a list of predefined items to select.
   - Anatomy
   - TypeScript
   - Examples
+    - Typed wrapper component
     - Multiple select
     - Input inside popup
     - Grouped
@@ -433,9 +434,9 @@ An input combined with a list of predefined items to select.
     - Props: actionsRef, autoHighlight, children, defaultInputValue, defaultOpen, defaultValue, disabled, filter, filteredItems, grid, highlightItemOnHover, id, inline, inputRef, inputValue, isItemEqualToValue, itemToStringLabel, itemToStringValue, items, limit, locale, loopFocus, modal, multiple, name, onInputValueChange, onItemHighlighted, onOpenChange, onOpenChangeComplete, onValueChange, open, openOnInputClick, readOnly, required, value, virtualized
   - Combobox - Trigger
     - Props: className, disabled, nativeButton, render, style
-    - Data Attributes: data-dirty, data-disabled, data-filled, data-focused, data-invalid, data-list-empty, data-popup-open, data-popup-side, data-pressed, data-readonly, data-required, data-touched, data-valid
+    - Data Attributes: data-dirty, data-disabled, data-filled, data-focused, data-invalid, data-list-empty, data-placeholder, data-popup-open, data-popup-side, data-pressed, data-readonly, data-required, data-touched, data-valid
   - Combobox - Value
-    - Props: children
+    - Props: children, placeholder
   - Combobox - Input
     - Props: className, disabled, render, style
     - Data Attributes: data-dirty, data-disabled, data-filled, data-focused, data-invalid, data-list-empty, data-popup-open, data-popup-side, data-pressed, data-readonly, data-required, data-touched, data-valid
@@ -674,7 +675,7 @@ A component that provides labeling and validation for form controls.
     - Props: className, defaultValue, onValueChange, render, style
     - Data Attributes: data-dirty, data-disabled, data-filled, data-focused, data-invalid, data-touched, data-valid
   - Field - Label
-    - Props: className, render, style
+    - Props: className, nativeLabel, render, style
     - Data Attributes: data-dirty, data-disabled, data-filled, data-focused, data-invalid, data-touched, data-valid
   - Field - Error
     - Props: className, match, render, style
@@ -1100,9 +1101,16 @@ A popup that appears when a link is hovered, showing a preview for sighted users
 
 <summary>Outline</summary>
 
-- Keywords: React Preview Card, Preview Card Component, Link Hover Preview, Hover Card React, Hover Card, Link Tooltip, URL Preview, Link Preview Popup, Content Preview, Accessible Preview Popup, Headless React Components, Link Preview UI, Base UI
+- Keywords: React Preview Card, Preview Card Component, Link Hover Preview, Hover Card React, Hover Card, Link Tooltip, URL Preview, Link Preview Popup, Content Preview, Accessible Preview Popup, Detached Trigger Preview Card, Multiple Preview Card Triggers, Animated Preview Card, Headless React Components, Link Preview UI, Base UI
 - Sections:
   - Anatomy
+  - Examples
+    - Detached triggers
+    - Multiple triggers
+    - Controlled mode with multiple triggers
+    - Animating the Preview Card
+      - Position and Size
+      - Content
   - API reference
     - Root
     - Trigger
@@ -1110,12 +1118,13 @@ A popup that appears when a link is hovered, showing a preview for sighted users
     - Backdrop
     - Positioner
     - Popup
+    - Viewport
     - Arrow
 - Exports:
   - Preview Card - Root
-    - Props: actionsRef, children, defaultOpen, onOpenChange, onOpenChangeComplete, open
+    - Props: actionsRef, children, defaultOpen, defaultTriggerId, handle, onOpenChange, onOpenChangeComplete, open, triggerId
   - Preview Card - Trigger
-    - Props: className, closeDelay, delay, render, style
+    - Props: className, closeDelay, delay, handle, payload, render, style
     - Data Attributes: data-popup-open
   - Preview Card - Portal
     - Props: className, container, keepMounted, render, style
@@ -1132,6 +1141,11 @@ A popup that appears when a link is hovered, showing a preview for sighted users
   - Preview Card - Arrow
     - Props: className, render, style
     - Data Attributes: data-align, data-closed, data-open, data-side, data-uncentered
+  - Preview Card - Viewport
+    - Props: children, className, render, style
+    - Data Attributes: data-activation-direction, data-current, data-instant, data-previous, data-transitioning
+    - CSS Variables: --popup-height, --popup-width
+  - PreviewCard.createHandle
 
 </details>
 
@@ -1298,7 +1312,7 @@ A common form component for choosing a predefined value in a dropdown menu.
     - Props: children, className, disabled, nativeButton, render, style
     - Data Attributes: data-dirty, data-disabled, data-filled, data-focused, data-invalid, data-placeholder, data-popup-open, data-pressed, data-readonly, data-required, data-touched, data-valid
   - Select - Value
-    - Props: children, className, render, style
+    - Props: children, className, placeholder, render, style
     - Data Attributes: data-placeholder
   - Select - Icon
     - Props: className, render, style
@@ -1315,7 +1329,7 @@ A common form component for choosing a predefined value in a dropdown menu.
     - Data Attributes: data-align, data-anchor-hidden, data-closed, data-open, data-side
     - CSS Variables: --anchor-height, --anchor-width, --available-height, --available-width, --transform-origin
   - Select - Popup
-    - Props: children, className, render, style
+    - Props: children, className, finalFocus, render, style
     - Data Attributes: data-align, data-closed, data-ending-style, data-open, data-side, data-starting-style
   - Select - Arrow
     - Props: className, render, style
@@ -1432,7 +1446,7 @@ A control that indicates whether a setting is on or off.
     - Thumb
 - Exports:
   - Switch - Root
-    - Props: checked, className, defaultChecked, disabled, id, inputRef, name, nativeButton, onCheckedChange, readOnly, render, required, style, uncheckedValue
+    - Props: checked, className, defaultChecked, disabled, id, inputRef, name, nativeButton, onCheckedChange, readOnly, render, required, style, uncheckedValue, value
     - Data Attributes: data-checked, data-dirty, data-disabled, data-filled, data-focused, data-invalid, data-readonly, data-required, data-touched, data-unchecked, data-valid
   - Switch - Thumb
     - Props: className, render, style

@@ -2,7 +2,7 @@ import { Select } from '@base-ui/react/select';
 import { createRenderer, describeConformance } from '#test-utils';
 import { expect } from 'chai';
 import { spy } from 'sinon';
-import { act, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
+import { fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 
 describe('<Select.Trigger />', () => {
   const { render } = createRenderer();
@@ -157,11 +157,27 @@ describe('<Select.Trigger />', () => {
       expect(trigger).not.to.have.attribute('data-placeholder');
       expect(value).not.to.have.attribute('data-placeholder');
     });
+
+    it('should not have the data-placeholder attribute when multiple mode has a default value', async () => {
+      await render(
+        <Select.Root multiple defaultValue={['a']}>
+          <Select.Trigger data-testid="trigger">
+            <Select.Value data-testid="value" />
+          </Select.Trigger>
+        </Select.Root>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+      const value = screen.getByTestId('value');
+
+      expect(trigger).not.to.have.attribute('data-placeholder');
+      expect(value).not.to.have.attribute('data-placeholder');
+    });
   });
 
   describe('style hooks', () => {
     it('should have the data-popup-open and data-pressed attributes when open', async () => {
-      await render(
+      const { user } = await render(
         <Select.Root>
           <Select.Trigger />
         </Select.Root>,
@@ -169,11 +185,11 @@ describe('<Select.Trigger />', () => {
 
       const trigger = screen.getByRole('combobox');
 
-      await act(async () => {
-        trigger.click();
-      });
+      await user.click(trigger);
 
-      expect(trigger).to.have.attribute('data-popup-open');
+      await waitFor(() => {
+        expect(trigger).to.have.attribute('data-popup-open');
+      });
       expect(trigger).to.have.attribute('data-pressed');
     });
   });

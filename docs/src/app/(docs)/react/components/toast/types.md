@@ -486,7 +486,7 @@ type ReturnValue = {
       'ref'
     >;
     positionerProps?: ToastManagerPositionerProps;
-    data?: any;
+    data?: {};
   }[];
   add: (options: {
     id?: string;
@@ -758,7 +758,7 @@ type UseToastManagerReturnValue = {
       'ref'
     >;
     positionerProps?: ToastManagerPositionerProps;
-    data?: any;
+    data?: {};
   }[];
   add: (options: {
     id?: string;

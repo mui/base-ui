@@ -20,8 +20,8 @@ export interface InputProps extends BaseUIComponentProps<'input', Input.State> {
   /**
    * Callback fired when the `value` changes. Use when controlled.
    */
-  onValueChange?: (value: string, eventDetails: Input.ChangeEventDetails) => void;
-  defaultValue?: Field.Control.Props['defaultValue'];
+  onValueChange?: (value: string, eventDetails: Input.ChangeEventDetails) => void | undefined;
+  defaultValue?: Field.Control.Props['defaultValue'] | undefined;
 }
 
 export interface InputState extends Field.Control.State {}

@@ -9,4 +9,5 @@ export const TypesPreviewCardPortal = types.Portal;
 export const TypesPreviewCardBackdrop = types.Backdrop;
 export const TypesPreviewCardPositioner = types.Positioner;
 export const TypesPreviewCardPopup = types.Popup;
+export const TypesPreviewCardViewport = types.Viewport;
 export const TypesPreviewCardArrow = types.Arrow;
