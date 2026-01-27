@@ -9,10 +9,10 @@
     "skipLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@base-ui-components/react": ["../../packages/react/src/index.ts"],
-      "@base-ui-components/react/*": ["../../packages/react/src/*"],
-      "@base-ui-components/utils": ["../../packages/utils/src/index.ts"],
-      "@base-ui-components/utils/*": ["../../packages/utils/src/*"]
+      "@base-ui/react": ["../../packages/react/src/index.ts"],
+      "@base-ui/react/*": ["../../packages/react/src/*"],
+      "@base-ui/utils": ["../../packages/utils/src/index.ts"],
+      "@base-ui/utils/*": ["../../packages/utils/src/*"]
     },
 
     /* Bundler mode */
