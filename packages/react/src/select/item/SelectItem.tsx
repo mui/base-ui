@@ -148,7 +148,11 @@ export const SelectItem = React.memo(
         store.set('activeIndex', index);
       },
       onMouseEnter() {
-        if (!keyboardActiveRef.current && store.state.selectedIndex === null) {
+        if (
+          !keyboardActiveRef.current &&
+          store.state.selectedIndex === null &&
+          highlightItemOnHover
+        ) {
           store.set('activeIndex', index);
         }
       },
