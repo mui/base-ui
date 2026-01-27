@@ -51,6 +51,7 @@ Format:
 <!-- markdownlint-disable MD038 -->
 
 - Prefix with `Base UI: `
+<!-- markdownlint-enable MD038 -->
 - Use string concatenation for readability
 - Include a documentation link when applicable (`https://base-ui.com/...`)
 
