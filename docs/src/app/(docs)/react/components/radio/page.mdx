@@ -52,20 +52,24 @@ For individual radio buttons, use an enclosing `<label>` element that wraps each
 The [Field](/react/components/field) and [Fieldset](/react/components/fieldset) components eliminate the need to track `id` or `aria-labelledby` associations manually. They support both enclosing and sibling labeling patterns, along with a UX improvement to prevent double clicks from selecting the label text.
 
 1. **Group label**: Since the group contains multiple controls, it can be labeled as a fieldset. Use [Fieldset](/react/components/fieldset) by replacing the `<Fieldset.Root>` element with `<RadioGroup>` via the `render` prop. `<Fieldset.Legend>` provides the visible label for the group.
-2. **Individual label**: Label an individual radio using an enclosing `<Field.Label>`. Enclosing labels ensure that clicking on any gaps between the label and radio still toggles it.
+2. **Individual label**: Place each individual radio in `<Field.Item>`, then label it using an enclosing `<Field.Label>`. Enclosing labels ensure that clicking on any gaps between the label and radio still toggles it.
 
 ```tsx title="Using Field and Fieldset to label a radio group"
 <Field.Root>
   <Fieldset.Root render={<RadioGroup />}>
     <Fieldset.Legend>Storage type</Fieldset.Legend>
-    <Field.Label>
-      <Radio.Root value="ssd" />
-      SSD
-    </Field.Label>
-    <Field.Label>
-      <Radio.Root value="hdd" />
-      HDD
-    </Field.Label>
+    <Field.Item>
+      <Field.Label>
+        <Radio.Root value="ssd" />
+        SSD
+      </Field.Label>
+    </Field.Item>
+    <Field.Item>
+      <Field.Label>
+        <Radio.Root value="hdd" />
+        HDD
+      </Field.Label>
+    </Field.Item>
   </Fieldset.Root>
 </Field.Root>
 ```
@@ -79,14 +83,18 @@ To use a radio group in a form, pass the radio group's `name` to `<Field.Root>`:
   <Field.Root name="storageType">
     <Fieldset.Root render={<RadioGroup />}>
       <Fieldset.Legend>Storage type</Fieldset.Legend>
-      <Field.Label>
-        <Radio.Root value="ssd" />
-        SSD
-      </Field.Label>
-      <Field.Label>
-        <Radio.Root value="hdd" />
-        HDD
-      </Field.Label>
+      <Field.Item>
+        <Field.Label>
+          <Radio.Root value="ssd" />
+          SSD
+        </Field.Label>
+      </Field.Item>
+      <Field.Item>
+        <Field.Label>
+          <Radio.Root value="hdd" />
+          HDD
+        </Field.Label>
+      </Field.Item>
     </Fieldset.Root>
   </Field.Root>
 </Form>

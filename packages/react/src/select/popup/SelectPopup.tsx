@@ -180,15 +180,12 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
     },
   });
 
-  const state: SelectPopup.State = React.useMemo(
-    () => ({
-      open,
-      transitionStatus,
-      side,
-      align,
-    }),
-    [open, transitionStatus, side, align],
-  );
+  const state: SelectPopup.State = {
+    open,
+    transitionStatus,
+    side,
+    align,
+  };
 
   useIsoLayoutEffect(() => {
     if (
@@ -526,41 +523,31 @@ function getMaxPopupHeight(popupStyles: CSSStyleDeclaration) {
   return maxHeightStyle.endsWith('px') ? parseFloat(maxHeightStyle) || Infinity : Infinity;
 }
 
-const UNSET_TRANSFORM_STYLES = {
-  transform: 'none',
-  scale: '1',
-  translate: '0 0',
-} as const;
+const TRANSFORM_STYLE_RESETS = [
+  ['transform', 'none'],
+  ['scale', '1'],
+  ['translate', '0 0'],
+] as const;
 
-type TransformStyleProperty = keyof typeof UNSET_TRANSFORM_STYLES;
-
-function restoreInlineStyleProperty(
-  style: CSSStyleDeclaration,
-  property: TransformStyleProperty,
-  value: string,
-) {
-  if (value) {
-    style.setProperty(property, value);
-  } else {
-    style.removeProperty(property);
-  }
-}
+type TransformStyleProperty = (typeof TRANSFORM_STYLE_RESETS)[number][0];
 
 function unsetTransformStyles(popupElement: HTMLElement) {
   const { style } = popupElement;
-
   const originalStyles = {} as Record<TransformStyleProperty, string>;
 
-  const props = Object.keys(UNSET_TRANSFORM_STYLES) as TransformStyleProperty[];
-
-  for (const prop of props) {
-    originalStyles[prop] = style.getPropertyValue(prop);
-    style.setProperty(prop, UNSET_TRANSFORM_STYLES[prop]);
+  for (const [property, value] of TRANSFORM_STYLE_RESETS) {
+    originalStyles[property] = style.getPropertyValue(property);
+    style.setProperty(property, value, 'important');
   }
 
   return () => {
-    for (const prop of props) {
-      restoreInlineStyleProperty(style, prop, originalStyles[prop]);
+    for (const [property] of TRANSFORM_STYLE_RESETS) {
+      const originalValue = originalStyles[property];
+      if (originalValue) {
+        style.setProperty(property, originalValue);
+      } else {
+        style.removeProperty(property);
+      }
     }
   };
 }

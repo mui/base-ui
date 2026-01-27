@@ -10,6 +10,7 @@ import { useNavigationMenuPositionerContext } from '../positioner/NavigationMenu
 import { useDirection } from '../../direction-provider/DirectionContext';
 import { StateAttributesMapping } from '../../utils/getStateAttributesProps';
 import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping';
+import { Align, Side } from '../../utils/useAnchorPositioning';
 
 const stateAttributesMapping: StateAttributesMapping<NavigationMenuPopup.State> = {
   ...baseMapping,
@@ -34,16 +35,13 @@ export const NavigationMenuPopup = React.forwardRef(function NavigationMenuPopup
 
   const id = useBaseUiId(idProp);
 
-  const state: NavigationMenuPopup.State = React.useMemo(
-    () => ({
-      open,
-      transitionStatus,
-      side: positioning.side,
-      align: positioning.align,
-      anchorHidden: positioning.anchorHidden,
-    }),
-    [open, transitionStatus, positioning.side, positioning.align, positioning.anchorHidden],
-  );
+  const state: NavigationMenuPopup.State = {
+    open,
+    transitionStatus,
+    side: positioning.side,
+    align: positioning.align,
+    anchorHidden: positioning.anchorHidden,
+  };
 
   // Ensure popup size transitions correctly when anchored to `bottom` (side=top) or `right` (side=left).
   let isOriginSide = positioning.side === 'top';
@@ -88,6 +86,18 @@ export interface NavigationMenuPopupState {
    * The transition status of the popup.
    */
   transitionStatus: TransitionStatus;
+  /**
+   * The side of the anchor the popup is positioned on.
+   */
+  side: Side;
+  /**
+   * The alignment of the popup relative to the anchor.
+   */
+  align: Align;
+  /**
+   * Whether the anchor element is hidden.
+   */
+  anchorHidden: boolean;
 }
 
 export interface NavigationMenuPopupProps extends BaseUIComponentProps<

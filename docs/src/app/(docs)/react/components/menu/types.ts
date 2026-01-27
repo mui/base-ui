@@ -11,6 +11,7 @@ export const TypesMenuPositioner = types.Positioner;
 export const TypesMenuPopup = types.Popup;
 export const TypesMenuArrow = types.Arrow;
 export const TypesMenuItem = types.Item;
+export const TypesMenuLinkItem = types.LinkItem;
 export const TypesMenuSubmenuRoot = types.SubmenuRoot;
 export const TypesMenuSubmenuTrigger = types.SubmenuTrigger;
 export const TypesMenuGroup = types.Group;

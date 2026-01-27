@@ -122,13 +122,10 @@ export const CheckboxGroup = React.forwardRef(function CheckboxGroup(
     }
   });
 
-  const state: CheckboxGroup.State = React.useMemo(
-    () => ({
-      ...fieldState,
-      disabled,
-    }),
-    [fieldState, disabled],
-  );
+  const state: CheckboxGroup.State = {
+    ...fieldState,
+    disabled,
+  };
 
   const contextValue: CheckboxGroupContext = React.useMemo(
     () => ({

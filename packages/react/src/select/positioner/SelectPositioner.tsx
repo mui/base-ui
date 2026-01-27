@@ -141,15 +141,12 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
     };
   }, [open, mounted, positionerStyles]);
 
-  const state: SelectPositioner.State = React.useMemo(
-    () => ({
-      open,
-      side: renderedSide,
-      align: positioning.align,
-      anchorHidden: positioning.anchorHidden,
-    }),
-    [open, renderedSide, positioning.align, positioning.anchorHidden],
-  );
+  const state: SelectPositioner.State = {
+    open,
+    side: renderedSide,
+    align: positioning.align,
+    anchorHidden: positioning.anchorHidden,
+  };
 
   const setPositionerElement = useStableCallback((element) => {
     store.set('positionerElement', element);

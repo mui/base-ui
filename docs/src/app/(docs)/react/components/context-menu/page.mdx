@@ -25,6 +25,7 @@ import { ContextMenu } from '@base-ui/react/context-menu';
       <ContextMenu.Popup>
         <ContextMenu.Arrow />
         <ContextMenu.Item />
+        <ContextMenu.LinkItem />
         <ContextMenu.Separator />
         <ContextMenu.Group>
           <ContextMenu.GroupLabel />
@@ -60,11 +61,11 @@ import {
   TypesContextMenuRoot,
   TypesContextMenuTrigger,
   TypesContextMenuPortal,
-  TypesContextMenuBackdrop,
   TypesContextMenuPositioner,
   TypesContextMenuPopup,
   TypesContextMenuArrow,
   TypesContextMenuItem,
+  TypesContextMenuLinkItem,
   TypesContextMenuSubmenuRoot,
   TypesContextMenuSubmenuTrigger,
   TypesContextMenuGroup,
@@ -89,10 +90,6 @@ import {
 
 <TypesContextMenuPortal />
 
-### Backdrop
-
-<TypesContextMenuBackdrop />
-
 ### Positioner
 
 <TypesContextMenuPositioner />
@@ -108,6 +105,10 @@ import {
 ### Item
 
 <TypesContextMenuItem />
+
+### Link Item
+
+<TypesContextMenuLinkItem />
 
 ### SubmenuRoot
 

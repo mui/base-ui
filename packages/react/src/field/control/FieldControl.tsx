@@ -47,13 +47,10 @@ export const FieldControl = React.forwardRef(function FieldControl(
   const disabled = fieldDisabled || disabledProp;
   const name = fieldName ?? nameProp;
 
-  const state: FieldControl.State = React.useMemo(
-    () => ({
-      ...fieldState,
-      disabled,
-    }),
-    [fieldState, disabled],
-  );
+  const state: FieldControl.State = {
+    ...fieldState,
+    disabled,
+  };
 
   const { setTouched, setDirty, validityData, setFocused, setFilled, validationMode, validation } =
     useFieldRootContext();

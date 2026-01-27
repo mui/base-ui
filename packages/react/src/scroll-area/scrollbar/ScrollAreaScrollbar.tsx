@@ -46,24 +46,21 @@ export const ScrollAreaScrollbar = React.forwardRef(function ScrollAreaScrollbar
     thumbSize,
   } = useScrollAreaRootContext();
 
-  const state: ScrollAreaScrollbar.State = React.useMemo(
-    () => ({
-      hovering,
-      scrolling: {
-        horizontal: scrollingX,
-        vertical: scrollingY,
-      }[orientation],
-      orientation,
-      hasOverflowX: !hiddenState.x,
-      hasOverflowY: !hiddenState.y,
-      overflowXStart: overflowEdges.xStart,
-      overflowXEnd: overflowEdges.xEnd,
-      overflowYStart: overflowEdges.yStart,
-      overflowYEnd: overflowEdges.yEnd,
-      cornerHidden: hiddenState.corner,
-    }),
-    [hovering, scrollingX, scrollingY, orientation, hiddenState, overflowEdges],
-  );
+  const state: ScrollAreaScrollbar.State = {
+    hovering,
+    scrolling: {
+      horizontal: scrollingX,
+      vertical: scrollingY,
+    }[orientation],
+    orientation,
+    hasOverflowX: !hiddenState.x,
+    hasOverflowY: !hiddenState.y,
+    overflowXStart: overflowEdges.xStart,
+    overflowXEnd: overflowEdges.xEnd,
+    overflowYStart: overflowEdges.yStart,
+    overflowYEnd: overflowEdges.yEnd,
+    cornerHidden: hiddenState.corner,
+  };
 
   const direction = useDirection();
 

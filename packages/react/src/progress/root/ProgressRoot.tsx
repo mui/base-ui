@@ -47,12 +47,7 @@ export const ProgressRoot = React.forwardRef(function ProgressRoot(
   }
   const formattedValue = formatNumberValue(value, locale, formatOptionsRef.current);
 
-  const state: ProgressRoot.State = React.useMemo(
-    () => ({
-      status,
-    }),
-    [status],
-  );
+  const state: ProgressRoot.State = React.useMemo(() => ({ status }), [status]);
 
   const defaultProps: HTMLProps = {
     'aria-labelledby': labelId,

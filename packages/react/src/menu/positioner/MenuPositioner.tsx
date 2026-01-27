@@ -201,16 +201,13 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
     floatingTreeRoot.events.emit('menuopenchange', eventDetails);
   }, [floatingTreeRoot.events, open, store, floatingNodeId, floatingParentNodeId]);
 
-  const state: MenuPositioner.State = React.useMemo(
-    () => ({
-      open,
-      side: positioner.side,
-      align: positioner.align,
-      anchorHidden: positioner.anchorHidden,
-      nested: parent.type === 'menu',
-    }),
-    [open, positioner.side, positioner.align, positioner.anchorHidden, parent.type],
-  );
+  const state: MenuPositioner.State = {
+    open,
+    side: positioner.side,
+    align: positioner.align,
+    anchorHidden: positioner.anchorHidden,
+    nested: parent.type === 'menu',
+  };
 
   const contextValue: MenuPositionerContext = React.useMemo(
     () => ({

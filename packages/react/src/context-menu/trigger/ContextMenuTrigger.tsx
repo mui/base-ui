@@ -174,12 +174,9 @@ export const ContextMenuTrigger = React.forwardRef(function ContextMenuTrigger(
     };
   }, [backdropRef, disabled, internalBackdropRef]);
 
-  const state: ContextMenuTrigger.State = React.useMemo(
-    () => ({
-      open,
-    }),
-    [open],
-  );
+  const state: ContextMenuTrigger.State = {
+    open,
+  };
 
   const element = useRenderElement('div', componentProps, {
     state,
