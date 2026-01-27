@@ -38,7 +38,7 @@ This repository contains the source code and documentation for Base UI: a headl
 
 ## Errors
 
-These guidelines only apply for errors thrown from public packages.
+These guidelines apply only to errors thrown by public packages.
 
 Every error message must:
 
