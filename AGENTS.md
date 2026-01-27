@@ -1,3 +1,5 @@
+<!-- markdownlint-disable MD038 -->
+
 # Repository Guidelines
 
 This repository contains the source code and documentation for Base UI: a headless, unstyled React component library.
@@ -48,10 +50,7 @@ Every error message must:
 
 Format:
 
-<!-- markdownlint-disable MD038 -->
-
 - Prefix with `Base UI: `
-<!-- markdownlint-enable MD038 -->
 - Use string concatenation for readability
 - Include a documentation link when applicable (`https://base-ui.com/...`)
 
