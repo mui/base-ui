@@ -10,17 +10,25 @@ import {
 import { FormatParser } from '../formatParser';
 import { TemporalDateType } from '../../types';
 import { isToken } from '../utils';
+import { selectors } from '../selectors';
 
 const formatSelectors = {
   format: createSelector((state: State) => state.format),
   parsedFormat: createSelectorMemoized(
-    (state: State) => state.adapter,
-    (state: State) => state.manager,
+    selectors.adapter,
+    selectors.manager,
     (state: State) => state.format,
     (state: State) => state.direction,
     (state: State) => state.placeholderGetters,
-    (adapter, manager, format, direction, placeholderGetters) => {
-      const parsedFormat = FormatParser.parse(adapter, format, direction, placeholderGetters);
+    (state: State) => state.validationProps,
+    (adapter, manager, format, direction, placeholderGetters, validationProps) => {
+      const parsedFormat = FormatParser.parse(
+        adapter,
+        format,
+        direction,
+        placeholderGetters,
+        validationProps,
+      );
       validateFormat(parsedFormat, manager.dateType);
 
       return parsedFormat;

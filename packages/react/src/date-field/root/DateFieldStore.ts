@@ -4,7 +4,6 @@ import { ValidateDateValidationProps } from '../../utils/temporal/validateDate';
 import {
   TemporalFieldStoreSharedParameters,
   TemporalFieldConfiguration,
-  TemporalFieldDatePartValueBoundaries,
   HiddenInputValidationProps,
 } from '../../utils/temporal/field/types';
 import { getInitialReferenceDate } from '../../utils/temporal/getInitialReferenceDate';
@@ -44,60 +43,6 @@ const config: TemporalFieldConfiguration<TemporalValue, ValidateDateValidationPr
   hiddenInputType: 'date',
   stringifyValueForHiddenInput: (adapter, value, _sections) =>
     formatDateForNativeInput(adapter, value),
-  getAdjustmentBoundaries: (adapter, validationProps, datePart) => {
-    const { minDate, maxDate } = validationProps;
-    if (!minDate && !maxDate) {
-      return datePart.token.boundaries;
-    }
-
-    const validMinDate = minDate && adapter.isValid(minDate) ? minDate : null;
-    const validMaxDate = maxDate && adapter.isValid(maxDate) ? maxDate : null;
-
-    const result: TemporalFieldDatePartValueBoundaries = { ...datePart.token.boundaries };
-
-    switch (datePart.token.config.part) {
-      case 'year': {
-        if (validMinDate) {
-          result.minimum = adapter.getYear(validMinDate);
-        }
-        if (validMaxDate) {
-          result.maximum = adapter.getYear(validMaxDate);
-        }
-        return result;
-      }
-
-      case 'month': {
-        // Only restrict month if min and max share the same year
-        if (validMinDate && validMaxDate && !adapter.isSameYear(validMinDate, validMaxDate)) {
-          return datePart.token.boundaries;
-        }
-        if (validMinDate && (!validMaxDate || adapter.isSameYear(validMinDate, validMaxDate))) {
-          result.minimum = adapter.getMonth(validMinDate) + 1;
-        }
-        if (validMaxDate && (!validMinDate || adapter.isSameYear(validMinDate, validMaxDate))) {
-          result.maximum = adapter.getMonth(validMaxDate) + 1;
-        }
-        return result;
-      }
-
-      case 'day': {
-        // Only restrict day if min and max share the same year and month
-        if (validMinDate && validMaxDate && !adapter.isSameMonth(validMinDate, validMaxDate)) {
-          return datePart.token.boundaries;
-        }
-        if (validMinDate && (!validMaxDate || adapter.isSameMonth(validMinDate, validMaxDate))) {
-          result.minimum = adapter.getDate(validMinDate);
-        }
-        if (validMaxDate && (!validMinDate || adapter.isSameMonth(validMinDate, validMaxDate))) {
-          result.maximum = adapter.getDate(validMaxDate);
-        }
-        return result;
-      }
-
-      default:
-        return datePart.token.boundaries;
-    }
-  },
   stringifyValidationPropsForHiddenInput: (adapter, validationProps) => {
     const result: HiddenInputValidationProps = {};
     if (validationProps.minDate) {

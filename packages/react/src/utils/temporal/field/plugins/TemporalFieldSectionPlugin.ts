@@ -39,14 +39,6 @@ const sectionSelectors = {
       };
     },
   ),
-  datePartAdjustmentBoundaries: createSelectorMemoized(
-    (state: State) => state.config,
-    selectors.adapter,
-    selectors.validationProps,
-    (fieldConfig, adapter, validationProps, datePart: TemporalFieldDatePart) => {
-      return fieldConfig.getAdjustmentBoundaries(adapter, validationProps, datePart);
-    },
-  ),
 };
 
 /**

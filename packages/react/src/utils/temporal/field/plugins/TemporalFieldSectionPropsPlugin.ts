@@ -40,8 +40,8 @@ const sectionPropsSelectors = {
           // Aria attributes
           'aria-readonly': readOnly,
           'aria-valuenow': getAriaValueNow(adapter, section),
-          'aria-valuemin': section.token.boundaries.minimum,
-          'aria-valuemax': section.token.boundaries.maximum,
+          'aria-valuemin': section.token.boundaries.characterEditing.minimum,
+          'aria-valuemax': section.token.boundaries.characterEditing.maximum,
           'aria-valuetext': section.value
             ? getAriaValueText(adapter, section, timezone)
             : translations.empty,

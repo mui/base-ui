@@ -13,6 +13,8 @@ import {
 } from '../../../types';
 import { GetInitialReferenceDateValidationProps } from '../getInitialReferenceDate';
 import { TemporalManager, TemporalTimezoneProps } from '../types';
+import { ValidateDateValidationProps } from '../validateDate';
+import { ValidateTimeValidationProps } from '../validateTime';
 
 /**
  * Parameters shared across all temporal field stores.
@@ -405,16 +407,6 @@ export interface TemporalFieldConfiguration<
     sections: TemporalFieldSection[],
   ) => string;
   /**
-   * Returns the boundaries for a date part when adjusting using arrow keys, Home/End, etc.
-   * The boundaries take into account the validation props (minDate/maxDate, minTime/maxTime).
-   * If not provided, the structural boundaries are used as-is.
-   */
-  getAdjustmentBoundaries: (
-    adapter: TemporalAdapter,
-    validationProps: TValidationProps,
-    datePart: TemporalFieldDatePart,
-  ) => TemporalFieldDatePartValueBoundaries;
-  /**
    * Stringifies the min/max/step validation props for hidden input attributes.
    */
   stringifyValidationPropsForHiddenInput: (
@@ -432,8 +424,14 @@ export interface HiddenInputValidationProps {
 }
 
 export interface TemporalFieldDatePartValueBoundaries {
-  minimum: number;
-  maximum: number;
+  adjustment: {
+    minimum: number;
+    maximum: number;
+  };
+  characterEditing: {
+    minimum: number;
+    maximum: number;
+  };
 }
 
 export type TemporalFieldModelUpdater<
@@ -444,3 +442,6 @@ export type TemporalFieldModelUpdater<
   controlledProp: keyof Parameters & keyof State & string,
   defaultProp: keyof Parameters,
 ) => void;
+
+export interface TemporalFieldValidationProps
+  extends ValidateDateValidationProps, ValidateTimeValidationProps {}

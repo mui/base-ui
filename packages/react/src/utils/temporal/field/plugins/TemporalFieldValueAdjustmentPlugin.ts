@@ -68,10 +68,7 @@ export class TemporalFieldValueAdjustmentPlugin<TValue extends TemporalSupported
       datePart.token.config.contentType === 'digit' ||
       datePart.token.config.contentType === 'digit-with-letter'
     ) {
-      const boundaries = TemporalFieldSectionPlugin.selectors.datePartAdjustmentBoundaries(
-        this.store.state,
-        datePart,
-      );
+      const boundaries = datePart.token.boundaries.adjustment;
 
       const getCleanValue = (newDatePartValue: number) =>
         cleanDigitDatePartValue(adapter, newDatePartValue, localizedDigits, datePart.token);

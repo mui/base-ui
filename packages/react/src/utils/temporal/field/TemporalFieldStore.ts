@@ -68,6 +68,7 @@ export class TemporalFieldStore<
       parameters.format,
       direction,
       parameters.placeholderGetters,
+      validationProps,
     );
 
     const referenceValue = config.getInitialReferenceValue({
@@ -194,12 +195,19 @@ export class TemporalFieldStore<
       parameters.format !== this.state.format ||
       parameters.placeholderGetters !== this.state.placeholderGetters ||
       direction !== this.state.direction ||
-      adapter !== this.state.adapter
+      adapter !== this.state.adapter ||
+      validationProps !== this.state.validationProps
     ) {
       newState.sections = config.getSectionsFromValue(this.state.value, (date) =>
         buildSections(
           adapter,
-          FormatParser.parse(adapter, parameters.format, direction, parameters.placeholderGetters),
+          FormatParser.parse(
+            adapter,
+            parameters.format,
+            direction,
+            parameters.placeholderGetters,
+            validationProps,
+          ),
           date,
         ),
       );

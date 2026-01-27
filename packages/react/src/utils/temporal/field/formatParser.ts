@@ -5,7 +5,13 @@ import {
   TemporalFormatTokenConfig,
   TemporalSupportedObject,
 } from '../../../types';
-import { TemporalFieldParsedFormat, TemporalFieldSeparator, TemporalFieldToken } from './types';
+import {
+  TemporalFieldDatePartValueBoundaries,
+  TemporalFieldParsedFormat,
+  TemporalFieldSeparator,
+  TemporalFieldToken,
+  TemporalFieldValidationProps,
+} from './types';
 import { TextDirection } from '../../../direction-provider';
 import { DATE_PART_GRANULARITY, isSeparator, isToken, removeLocalizedDigits } from './utils';
 import {
@@ -14,13 +20,26 @@ import {
   getWeekDaysStr,
   getYearFormatLength,
 } from './adapter-cache';
+import { ValidateDateValidationProps } from '../validateDate';
+import { ValidateTimeValidationProps } from '../validateTime';
 
 const DATE_PART_CONFIG_MAP: Record<TemporalFieldDatePartType, FormatParserDatePartConfig> = {
   year: {
-    getBoundaries(adapter, token) {
-      return {
+    getBoundaries(adapter, token, validationProps) {
+      const boundaries = {
         minimum: 0,
         maximum: getYearFormatLength(adapter, token.value) === 4 ? 9999 : 99,
+      };
+
+      const minDate = validationProps.minDate ?? null;
+      const maxDate = validationProps.maxDate ?? null;
+
+      return {
+        characterEditing: boundaries,
+        adjustment: {
+          minimum: adapter.isValid(minDate) ? adapter.getYear(minDate) : boundaries.minimum,
+          maximum: adapter.isValid(maxDate) ? adapter.getYear(maxDate) : boundaries.maximum,
+        },
       };
     },
     getTokenPlaceholder(placeholderGetters, tokenValue, tokenConfig, formatNowByToken) {
@@ -44,11 +63,30 @@ const DATE_PART_CONFIG_MAP: Record<TemporalFieldDatePartType, FormatParserDatePa
     },
   },
   month: {
-    getBoundaries(adapter) {
-      return {
+    getBoundaries(adapter, token, validationProps) {
+      const boundaries = {
         minimum: 1,
         // Assumption: All years have the same amount of months
         maximum: adapter.getMonth(adapter.endOfYear(adapter.now('default'))) + 1,
+      };
+
+      const minDate = validationProps.minDate ?? null;
+      const maxDate = validationProps.maxDate ?? null;
+
+      // Only use minDate and maxDate to restrict month if they share the same year
+      const shouldIgnoreValidation =
+        !adapter.isValid(minDate) ||
+        !adapter.isValid(maxDate) ||
+        !adapter.isSameYear(minDate, maxDate);
+
+      return {
+        characterEditing: boundaries,
+        adjustment: shouldIgnoreValidation
+          ? boundaries
+          : {
+              minimum: adapter.getMonth(minDate) + 1,
+              maximum: adapter.getMonth(maxDate) + 1,
+            },
       };
     },
     getTokenPlaceholder(placeholderGetters, tokenValue, tokenConfig) {
@@ -67,17 +105,21 @@ const DATE_PART_CONFIG_MAP: Record<TemporalFieldDatePartType, FormatParserDatePa
   },
   weekDay: {
     getBoundaries(adapter, token) {
+      let boundaries: { minimum: number; maximum: number };
       if (token.config.contentType === 'digit') {
         const daysInWeek = getWeekDaysStr(adapter, token.value).map(Number);
-        return {
+        boundaries = {
           minimum: Math.min(...daysInWeek),
           maximum: Math.max(...daysInWeek),
         };
+      } else {
+        boundaries = { minimum: 1, maximum: 7 };
       }
 
       return {
-        minimum: 1,
-        maximum: 7,
+        characterEditing: boundaries,
+        // TODO: See if we can add support for minTime/maxTime affecting weekDay boundaries
+        adjustment: boundaries,
       };
     },
     getTokenPlaceholder(placeholderGetters, tokenValue, tokenConfig) {
@@ -95,10 +137,29 @@ const DATE_PART_CONFIG_MAP: Record<TemporalFieldDatePartType, FormatParserDatePa
     },
   },
   day: {
-    getBoundaries(adapter) {
-      return {
+    getBoundaries(adapter, token, validationProps) {
+      const boundaries = {
         minimum: 1,
         maximum: adapter.getDaysInMonth(getLongestMonthInCurrentYear(adapter)),
+      };
+
+      const minDate = validationProps.minDate ?? null;
+      const maxDate = validationProps.maxDate ?? null;
+
+      // Only use minDate and maxDate to restrict day if they share the same month
+      const shouldIgnoreValidation =
+        !adapter.isValid(minDate) ||
+        !adapter.isValid(maxDate) ||
+        !adapter.isSameMonth(minDate, maxDate);
+
+      return {
+        characterEditing: boundaries,
+        adjustment: shouldIgnoreValidation
+          ? boundaries
+          : {
+              minimum: adapter.getDate(minDate),
+              maximum: adapter.getDate(maxDate),
+            },
       };
     },
     getTokenPlaceholder(placeholderGetters, tokenValue) {
@@ -113,7 +174,8 @@ const DATE_PART_CONFIG_MAP: Record<TemporalFieldDatePartType, FormatParserDatePa
     },
   },
   hours: {
-    getBoundaries(adapter, token) {
+    getBoundaries(adapter, token, validationProps) {
+      let boundaries: { minimum: number; maximum: number };
       const localizedDigits = getLocalizedDigits(adapter);
       const today = adapter.now('default');
       const endOfDay = adapter.endOfDay(today);
@@ -123,7 +185,7 @@ const DATE_PART_CONFIG_MAP: Record<TemporalFieldDatePartType, FormatParserDatePa
         lastHourInDay.toString();
 
       if (hasMeridiem) {
-        return {
+        boundaries = {
           minimum: 1,
           maximum: Number(
             removeLocalizedDigits(
@@ -132,11 +194,30 @@ const DATE_PART_CONFIG_MAP: Record<TemporalFieldDatePartType, FormatParserDatePa
             ),
           ),
         };
+      } else {
+        boundaries = {
+          minimum: 0,
+          maximum: lastHourInDay,
+        };
       }
 
+      const minTime = validationProps.minTime ?? null;
+      const maxTime = validationProps.maxTime ?? null;
+
+      // Only use minTime and maxTime to restrict hours if they share the same day
+      const shouldIgnoreValidation =
+        !adapter.isValid(minTime) ||
+        !adapter.isValid(maxTime) ||
+        !adapter.isSameDay(minTime, maxTime);
+
       return {
-        minimum: 0,
-        maximum: lastHourInDay,
+        characterEditing: boundaries,
+        adjustment: shouldIgnoreValidation
+          ? boundaries
+          : {
+              minimum: adapter.getHours(minTime),
+              maximum: adapter.getHours(maxTime),
+            },
       };
     },
     getTokenPlaceholder(placeholderGetters, tokenValue) {
@@ -151,10 +232,29 @@ const DATE_PART_CONFIG_MAP: Record<TemporalFieldDatePartType, FormatParserDatePa
     },
   },
   minutes: {
-    getBoundaries(adapter) {
-      return {
+    getBoundaries(adapter, token, validationProps) {
+      const boundaries = {
         minimum: 0,
         maximum: adapter.getMinutes(adapter.endOfDay(adapter.now('default'))),
+      };
+
+      const minTime = validationProps.minTime ?? null;
+      const maxTime = validationProps.maxTime ?? null;
+
+      // Only use minTime and maxTime to restrict minutes if they share the same hour
+      const shouldIgnoreValidation =
+        !adapter.isValid(minTime) ||
+        !adapter.isValid(maxTime) ||
+        !adapter.isSameHour(minTime, maxTime);
+
+      return {
+        characterEditing: boundaries,
+        adjustment: shouldIgnoreValidation
+          ? boundaries
+          : {
+              minimum: adapter.getMinutes(minTime),
+              maximum: adapter.getMinutes(maxTime),
+            },
       };
     },
     getTokenPlaceholder(placeholderGetters, tokenValue) {
@@ -169,10 +269,31 @@ const DATE_PART_CONFIG_MAP: Record<TemporalFieldDatePartType, FormatParserDatePa
     },
   },
   seconds: {
-    getBoundaries(adapter) {
-      return {
+    getBoundaries(adapter, token, validationProps) {
+      const boundaries = {
         minimum: 0,
         maximum: adapter.getSeconds(adapter.endOfDay(adapter.now('default'))),
+      };
+
+      const minTime = validationProps.minTime ?? null;
+      const maxTime = validationProps.maxTime ?? null;
+
+      // Only use minTime and maxTime to restrict seconds if they share the same minute
+      const shouldIgnoreValidation =
+        !adapter.isValid(minTime) ||
+        !adapter.isValid(maxTime) ||
+        // TODO: Add a isSameMinute method to TemporalAdapter
+        !adapter.isSameHour(minTime, maxTime) ||
+        adapter.getMinutes(minTime) !== adapter.getMinutes(maxTime);
+
+      return {
+        characterEditing: boundaries,
+        adjustment: shouldIgnoreValidation
+          ? boundaries
+          : {
+              minimum: adapter.getSeconds(minTime),
+              maximum: adapter.getSeconds(maxTime),
+            },
       };
     },
     getTokenPlaceholder(placeholderGetters, tokenValue) {
@@ -189,8 +310,8 @@ const DATE_PART_CONFIG_MAP: Record<TemporalFieldDatePartType, FormatParserDatePa
   meridiem: {
     getBoundaries() {
       return {
-        minimum: 0,
-        maximum: 1,
+        characterEditing: { minimum: 0, maximum: 1 },
+        adjustment: { minimum: 0, maximum: 1 },
       };
     },
     getTokenPlaceholder(placeholderGetters, tokenValue) {
@@ -218,6 +339,8 @@ export class FormatParser {
 
   private placeholderGetters: Partial<TemporalFieldPlaceholderGetters> | undefined;
 
+  private validationProps: TemporalFieldValidationProps;
+
   private direction: TextDirection;
 
   private now: TemporalSupportedObject;
@@ -232,8 +355,15 @@ export class FormatParser {
     format: string,
     direction: TextDirection,
     placeholderGetters: Partial<TemporalFieldPlaceholderGetters> | undefined,
+    validationProps: TemporalFieldValidationProps,
   ) {
-    const parser = new FormatParser(adapter, format, direction, placeholderGetters);
+    const parser = new FormatParser(
+      adapter,
+      format,
+      direction,
+      placeholderGetters,
+      validationProps,
+    );
     const expandedFormat = parser.expandFormat();
     const escapedParts = parser.computeEscapedParts(expandedFormat);
     const parsedFormat = parser.parse(expandedFormat, escapedParts);
@@ -254,8 +384,12 @@ export class FormatParser {
    * Builds the object representation of the given token.
    * The placeholder property will always be empty.
    */
-  public static buildSingleToken(adapter: TemporalAdapter, tokenValue: string): TemporalFieldToken {
-    const parser = new FormatParser(adapter, '', 'ltr', undefined);
+  public static buildSingleToken(
+    adapter: TemporalAdapter,
+    tokenValue: string,
+    validationProps: TemporalFieldValidationProps,
+  ): TemporalFieldToken {
+    const parser = new FormatParser(adapter, '', 'ltr', undefined, validationProps);
     return parser.createToken(tokenValue);
   }
 
@@ -285,12 +419,14 @@ export class FormatParser {
     format: string,
     direction: TextDirection,
     placeholderGetters: Partial<TemporalFieldPlaceholderGetters> | undefined,
+    validationProps: TemporalFieldValidationProps,
   ) {
     this.adapter = adapter;
     this.format = format;
     this.direction = direction;
     this.placeholderGetters = placeholderGetters;
     this.now = adapter.now('default');
+    this.validationProps = validationProps;
   }
 
   /**
@@ -378,7 +514,11 @@ export class FormatParser {
         tokenConfig,
         this.formatNowByToken,
       ),
-      boundaries: datePartConfig.getBoundaries(this.adapter, this.createToken(tokenValue)),
+      boundaries: datePartConfig.getBoundaries(
+        this.adapter,
+        this.createToken(tokenValue),
+        this.validationProps,
+      ),
       isMostGranularPart: false,
     };
   }
@@ -489,7 +629,8 @@ interface FormatParserDatePartConfig {
   getBoundaries(
     adapter: TemporalAdapter,
     token: TemporalFieldToken,
-  ): { minimum: number; maximum: number };
+    validationProps: ValidateDateValidationProps & ValidateTimeValidationProps,
+  ): TemporalFieldDatePartValueBoundaries;
   getTokenPlaceholder(
     placeholderGetters: Partial<TemporalFieldPlaceholderGetters> | undefined,
     tokenValue: string,

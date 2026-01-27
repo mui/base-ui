@@ -5,7 +5,6 @@ import {
   TemporalFieldStoreSharedParameters,
   TemporalFieldConfiguration,
   TemporalFieldSection,
-  TemporalFieldDatePartValueBoundaries,
   HiddenInputValidationProps,
 } from '../../utils/temporal/field/types';
 import { getInitialReferenceDate } from '../../utils/temporal/getInitialReferenceDate';
@@ -84,81 +83,6 @@ const config: TemporalFieldConfiguration<TemporalValue, ValidateTimeValidationPr
   stringifyValueForHiddenInput: (adapter, value, sections) => {
     const hasSeconds = hasSecondsInFormat(sections);
     return formatTimeForNativeInput(adapter, value, hasSeconds);
-  },
-  getAdjustmentBoundaries: (adapter, validationProps, datePart) => {
-    const { minTime, maxTime } = validationProps;
-    if (!minTime && !maxTime) {
-      return datePart.token.boundaries;
-    }
-
-    const validMinTime = minTime && adapter.isValid(minTime) ? minTime : null;
-    const validMaxTime = maxTime && adapter.isValid(maxTime) ? maxTime : null;
-
-    const result: TemporalFieldDatePartValueBoundaries = { ...datePart.token.boundaries };
-
-    switch (datePart.token.config.part) {
-      case 'hours': {
-        if (validMinTime) {
-          result.minimum = adapter.getHours(validMinTime);
-        }
-        if (validMaxTime) {
-          result.maximum = adapter.getHours(validMaxTime);
-        }
-        return result;
-      }
-
-      case 'minutes': {
-        // Only restrict minutes if min and max share the same hour
-        const minHour = validMinTime ? adapter.getHours(validMinTime) : null;
-        const maxHour = validMaxTime ? adapter.getHours(validMaxTime) : null;
-        if (minHour !== null && maxHour !== null && minHour !== maxHour) {
-          return datePart.token.boundaries;
-        }
-        if (validMinTime && (maxHour === null || minHour === maxHour)) {
-          result.minimum = adapter.getMinutes(validMinTime);
-        }
-        if (validMaxTime && (minHour === null || minHour === maxHour)) {
-          result.maximum = adapter.getMinutes(validMaxTime);
-        }
-        return result;
-      }
-
-      case 'seconds': {
-        // Only restrict seconds if min and max share the same hour and minute
-        const minH = validMinTime ? adapter.getHours(validMinTime) : null;
-        const maxH = validMaxTime ? adapter.getHours(validMaxTime) : null;
-        const minM = validMinTime ? adapter.getMinutes(validMinTime) : null;
-        const maxM = validMaxTime ? adapter.getMinutes(validMaxTime) : null;
-        if (minH !== null && maxH !== null && (minH !== maxH || minM !== maxM)) {
-          return datePart.token.boundaries;
-        }
-        if (validMinTime && (maxH === null || (minH === maxH && minM === maxM))) {
-          result.minimum = adapter.getSeconds(validMinTime);
-        }
-        if (validMaxTime && (minH === null || (minH === maxH && minM === maxM))) {
-          result.maximum = adapter.getSeconds(validMaxTime);
-        }
-        return result;
-      }
-
-      case 'meridiem': {
-        // Restrict meridiem if both min and max are in the same AM/PM half
-        if (validMinTime && validMaxTime) {
-          const minIsPM = adapter.getHours(validMinTime) >= 12;
-          const maxIsPM = adapter.getHours(validMaxTime) >= 12;
-          if (minIsPM && maxIsPM) {
-            return { minimum: 1, maximum: 1 };
-          }
-          if (!minIsPM && !maxIsPM) {
-            return { minimum: 0, maximum: 0 };
-          }
-        }
-        return datePart.token.boundaries;
-      }
-
-      default:
-        return datePart.token.boundaries;
-    }
   },
   stringifyValidationPropsForHiddenInput: (adapter, validationProps, parsedFormat, step) => {
     // Use parsedFormat.granularity to determine step multiplier
