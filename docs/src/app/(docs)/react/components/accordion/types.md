@@ -250,3 +250,11 @@ type AccordionPanelState = {
 ```typescript
 type AccordionValue = any[];
 ```
+
+## External Types
+
+### Orientation
+
+```typescript
+type Orientation = 'horizontal' | 'vertical';
+```

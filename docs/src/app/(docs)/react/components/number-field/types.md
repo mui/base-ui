@@ -441,3 +441,11 @@ type NumberFieldIncrementState = {
   focused: boolean;
 };
 ```
+
+## External Types
+
+### Direction
+
+```typescript
+type Direction = -1 | 1;
+```

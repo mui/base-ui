@@ -29,3 +29,11 @@ Re-export of [Menubar](#menubar) props.
 ```typescript
 type MenubarState = { orientation: MenuRoot.Orientation; modal: boolean; hasSubmenuOpen: boolean };
 ```
+
+## External Types
+
+### Orientation
+
+```typescript
+type Orientation = 'horizontal' | 'vertical';
+```

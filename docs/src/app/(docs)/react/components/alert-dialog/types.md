@@ -392,3 +392,11 @@ A handle to control a Dialog imperatively and to associate detached triggers wit
 ```typescript
 type AlertDialogHandle = {};
 ```
+
+## External Types
+
+### InteractionType
+
+```typescript
+type InteractionType = 'mouse' | 'touch' | 'pen' | 'keyboard' | '';
+```

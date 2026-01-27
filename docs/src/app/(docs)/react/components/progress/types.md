@@ -148,3 +148,11 @@ Renders a `<span>` element.
 ### Label.Props
 
 Re-export of [Label](#label) props.
+
+## External Types
+
+### Status
+
+```typescript
+type Status = 'indeterminate' | 'progressing' | 'complete';
+```

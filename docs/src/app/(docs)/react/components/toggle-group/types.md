@@ -60,3 +60,11 @@ type ToggleGroupChangeEventDetails = {
   trigger: Element | undefined;
 };
 ```
+
+## External Types
+
+### Orientation
+
+```typescript
+type Orientation = 'horizontal' | 'vertical';
+```

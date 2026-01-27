@@ -4,89 +4,9 @@
 
 ## API Reference
 
-### BaseUIComponentProps
-
-```typescript
-type BaseUIComponentProps<
-  ElementType extends React.ElementType,
-  State,
-  RenderFunctionProps = HTMLProps,
-> = {
-  [P in Exclude<
-    keyof React.ComponentPropsWithRef<ElementType>,
-    'className' | 'color' | 'defaultValue' | 'defaultChecked'
-  >]: WithBaseUIEvent<React.ComponentPropsWithRef<ElementType>>[P];
-} & {
-  className?: string | ((state: State) => string | undefined);
-  render?: ComponentRenderFn<RenderFunctionProps, State> | React.ReactElement;
-  style?: React.CSSProperties | ((state: State) => React.CSSProperties | undefined);
-};
-```
-
-### BaseUIEvent
-
-```typescript
-type BaseUIEvent<E extends React.SyntheticEvent<Element, Event>> = E & {
-  preventBaseUIHandler: () => void;
-  readonly baseUIHandlerPrevented?: boolean;
-};
-```
-
 ### ComponentRenderFn
 
-```typescript
-type ComponentRenderFn<Props, State> = (props: Props, state: State) => React.ReactElement<unknown>;
-```
-
-### FloatingUIOpenChangeDetails
-
-```typescript
-type FloatingUIOpenChangeDetails = {
-  open: boolean;
-  reason: string;
-  nativeEvent: Event;
-  nested: boolean;
-  triggerElement?: Element;
-};
-```
-
-### HTMLProps
-
-```typescript
-type HTMLProps<T = any> = React.HTMLAttributes<T> & { ref?: React.Ref<T> | undefined };
-```
-
-### NativeButtonProps
-
-```typescript
-type NativeButtonProps = { nativeButton?: boolean };
-```
-
-### NonNativeButtonProps
-
-```typescript
-type NonNativeButtonProps = { nativeButton?: boolean };
-```
-
-### Orientation
-
-```typescript
-type Orientation = 'horizontal' | 'vertical';
-```
-
-### RequiredExcept
-
-```typescript
-type RequiredExcept<T, K extends keyof T> = { [P in keyof Omit<T, K>]-?: Omit<T, K>[P] } & {
-  [P in K]: T[P];
-};
-```
-
-### Simplify
-
-```typescript
-type Simplify<T> = T extends Function ? T : { [K in keyof T]: T[K] };
-```
+Shape of the render prop: a function that takes props to be spread on the element and component's state and returns a React element.
 
 ### useRender
 
@@ -96,8 +16,8 @@ Renders a Base UI element.
 
 | Parameter              | Type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          | Default | Description                                                                                                                                                                                                                                                         |
 | :--------------------- | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :------ | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| render                 | `useRender.RenderProp<Record<string, unknown>>`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               | -       | The React element or a function that returns one to override the default element.                                                                                                                                                                                   |
-| ref                    | `Ref<Element> \| Ref<Element>[]`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              | -       | The ref to apply to the rendered element.                                                                                                                                                                                                                           |
+| render                 | `UseRenderRenderProp<Record<string, unknown>>`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                | -       | The React element or a function that returns one to override the default element.                                                                                                                                                                                   |
+| ref                    | `React.Ref<Element>[] \| React.Ref<Element>`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  | -       | The ref to apply to the rendered element.                                                                                                                                                                                                                           |
 | state                  | `Record<string, unknown>`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     | -       | The state of the component, passed as the second argument to the `render` callback.&#xA;State properties are automatically converted to data-\* attributes.                                                                                                         |
 | stateAttributesMapping | `StateAttributesMapping<Record<string, unknown>>`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             | -       | Custom mapping for converting state properties to data-\* attributes.                                                                                                                                                                                               |
 | props                  | `Record<string, unknown>`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     | -       | Props to be spread on the rendered element.&#xA;They are merged with the internal props of the component, so that event handlers&#xA;are merged, `className` strings and `style` properties are joined, while other external props overwrite the&#xA;internal ones. |
@@ -113,28 +33,28 @@ type ReturnValue = ReactElement | null;
 ### useRender.ComponentProps
 
 ```typescript
-type useRenderComponentProps<
-  ElementType extends React.ElementType,
-  State = {},
-  RenderFunctionProps = HTMLProps,
-> =
-  ElementType extends React.JSXElementConstructor<infer Props>
-    ? ElementType extends abstract new (args: any) => any
-      ? React.PropsWithoutRef<Props> & React.RefAttributes<InstanceType<ElementType>>
-      : Props
-    : useRender.ComponentProps<ElementType> & {
-        render?: ComponentRenderFn<RenderFunctionProps, State> | React.ReactElement;
-      };
+type useRenderComponentProps = React.ComponentPropsWithRef<React.ElementType> & {
+  render?: ReactElement | ((props: RenderFunctionProps, state: State) => ReactElement);
+};
+```
+
+### useRender.ElementProps
+
+```typescript
+type useRenderElementProps =
+  | (React.PropsWithoutRef<Props> & React.RefAttributes<R | any>)
+  | Props
+  | React.ComponentProps<React.ElementType>;
 ```
 
 ### useRender.Parameters
 
 ```typescript
-type UseRenderParameters = {
-  render?: useRender.RenderProp<State>;
-  ref?: Ref<Element> | Ref<Element>[];
+type useRenderParameters = {
+  render?: UseRenderRenderProp<State>;
+  ref?: React.Ref<Element>[] | React.Ref<Element>;
   state?: State;
-  stateAttributesMapping?: {};
+  stateAttributesMapping?: StateAttributesMapping<State>;
   props?: Record<string, unknown>;
   enabled?: boolean | undefined;
   defaultTagName?:
@@ -322,21 +242,244 @@ type UseRenderParameters = {
 ### useRender.RenderProp
 
 ```typescript
-type useRenderRenderProp<State = Record<string, unknown>> =
-  | ComponentRenderFn<React.HTMLAttributes<any>, State>
-  | React.ReactElement<unknown, string | React.JSXElementConstructor<any>>;
+type useRenderRenderProp =
+  | ReactElement
+  | ((props: React.HTMLAttributes<any>, state: State) => ReactElement);
 ```
 
 ### useRender.ReturnValue
 
 ```typescript
-type useRenderReturnValue<Enabled extends boolean | undefined> = Enabled extends false
-  ? null
-  : React.ReactElement<unknown, string | React.JSXElementConstructor<any>>;
+type useRenderReturnValue = ReactElement | null;
 ```
 
-### WithBaseUIEvent
+## Additional Types
+
+### HTMLProps
 
 ```typescript
-type WithBaseUIEvent<T> = { [K in keyof T]: WithPreventBaseUIHandler<T[K]> };
+type HTMLProps = React.HTMLAttributes<T> & { ref?: React.Ref<T> };
+```
+
+### UseRenderComponentProps
+
+```typescript
+type UseRenderComponentProps = React.ComponentPropsWithRef<React.ElementType> & {
+  render?: ReactElement | ((props: RenderFunctionProps, state: State) => ReactElement);
+};
+```
+
+### UseRenderElementProps
+
+```typescript
+type UseRenderElementProps =
+  | (React.PropsWithoutRef<Props> & React.RefAttributes<R | any>)
+  | Props
+  | React.ComponentProps<React.ElementType>;
+```
+
+### UseRenderParameters
+
+```typescript
+type UseRenderParameters = {
+  render?: UseRenderRenderProp<State>;
+  ref?: React.Ref<Element> | React.Ref<Element>[];
+  state?: State;
+  stateAttributesMapping?: StateAttributesMapping<State>;
+  props?: Record<string, unknown>;
+  enabled?: boolean | undefined;
+  defaultTagName?:
+    | 'symbol'
+    | 'object'
+    | 'a'
+    | 'abbr'
+    | 'address'
+    | 'area'
+    | 'article'
+    | 'aside'
+    | 'audio'
+    | 'b'
+    | 'base'
+    | 'bdi'
+    | 'bdo'
+    | 'big'
+    | 'blockquote'
+    | 'body'
+    | 'br'
+    | 'button'
+    | 'canvas'
+    | 'caption'
+    | 'center'
+    | 'cite'
+    | 'code'
+    | 'col'
+    | 'colgroup'
+    | 'data'
+    | 'datalist'
+    | 'dd'
+    | 'del'
+    | 'details'
+    | 'dfn'
+    | 'dialog'
+    | 'div'
+    | 'dl'
+    | 'dt'
+    | 'em'
+    | 'embed'
+    | 'fieldset'
+    | 'figcaption'
+    | 'figure'
+    | 'footer'
+    | 'form'
+    | 'h1'
+    | 'h2'
+    | 'h3'
+    | 'h4'
+    | 'h5'
+    | 'h6'
+    | 'head'
+    | 'header'
+    | 'hgroup'
+    | 'hr'
+    | 'html'
+    | 'i'
+    | 'iframe'
+    | 'img'
+    | 'input'
+    | 'ins'
+    | 'kbd'
+    | 'keygen'
+    | 'label'
+    | 'legend'
+    | 'li'
+    | 'link'
+    | 'main'
+    | 'map'
+    | 'mark'
+    | 'menu'
+    | 'menuitem'
+    | 'meta'
+    | 'meter'
+    | 'nav'
+    | 'noindex'
+    | 'noscript'
+    | 'ol'
+    | 'optgroup'
+    | 'option'
+    | 'output'
+    | 'p'
+    | 'param'
+    | 'picture'
+    | 'pre'
+    | 'progress'
+    | 'q'
+    | 'rp'
+    | 'rt'
+    | 'ruby'
+    | 's'
+    | 'samp'
+    | 'search'
+    | 'slot'
+    | 'script'
+    | 'section'
+    | 'select'
+    | 'small'
+    | 'source'
+    | 'span'
+    | 'strong'
+    | 'style'
+    | 'sub'
+    | 'summary'
+    | 'sup'
+    | 'table'
+    | 'template'
+    | 'tbody'
+    | 'td'
+    | 'textarea'
+    | 'tfoot'
+    | 'th'
+    | 'thead'
+    | 'time'
+    | 'title'
+    | 'tr'
+    | 'track'
+    | 'u'
+    | 'ul'
+    | 'var'
+    | 'video'
+    | 'wbr'
+    | 'webview'
+    | 'svg'
+    | 'animate'
+    | 'animateMotion'
+    | 'animateTransform'
+    | 'circle'
+    | 'clipPath'
+    | 'defs'
+    | 'desc'
+    | 'ellipse'
+    | 'feBlend'
+    | 'feColorMatrix'
+    | 'feComponentTransfer'
+    | 'feComposite'
+    | 'feConvolveMatrix'
+    | 'feDiffuseLighting'
+    | 'feDisplacementMap'
+    | 'feDistantLight'
+    | 'feDropShadow'
+    | 'feFlood'
+    | 'feFuncA'
+    | 'feFuncB'
+    | 'feFuncG'
+    | 'feFuncR'
+    | 'feGaussianBlur'
+    | 'feImage'
+    | 'feMerge'
+    | 'feMergeNode'
+    | 'feMorphology'
+    | 'feOffset'
+    | 'fePointLight'
+    | 'feSpecularLighting'
+    | 'feSpotLight'
+    | 'feTile'
+    | 'feTurbulence'
+    | 'filter'
+    | 'foreignObject'
+    | 'g'
+    | 'image'
+    | 'line'
+    | 'linearGradient'
+    | 'marker'
+    | 'mask'
+    | 'metadata'
+    | 'mpath'
+    | 'path'
+    | 'pattern'
+    | 'polygon'
+    | 'polyline'
+    | 'radialGradient'
+    | 'rect'
+    | 'set'
+    | 'stop'
+    | 'switch'
+    | 'text'
+    | 'textPath'
+    | 'tspan'
+    | 'use'
+    | 'view';
+};
+```
+
+### UseRenderRenderProp
+
+```typescript
+type UseRenderRenderProp =
+  | ReactElement
+  | ((props: React.HTMLAttributes<any>, state: State) => ReactElement);
+```
+
+### UseRenderReturnValue
+
+```typescript
+type UseRenderReturnValue = ReactElement | null;
 ```

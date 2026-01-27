@@ -1294,3 +1294,29 @@ type MenuParent =
   | { type: 'nested-context-menu'; context: ContextMenuRootContext; menuContext: Menu.Root.Context }
   | { type: undefined };
 ```
+
+## External Types
+
+### Orientation
+
+```typescript
+type Orientation = 'horizontal' | 'vertical';
+```
+
+### Side
+
+```typescript
+type Side = 'top' | 'bottom' | 'left' | 'right' | 'inline-end' | 'inline-start';
+```
+
+### Align
+
+```typescript
+type Align = 'start' | 'center' | 'end';
+```
+
+### InteractionType
+
+```typescript
+type InteractionType = 'mouse' | 'touch' | 'pen' | 'keyboard' | '';
+```

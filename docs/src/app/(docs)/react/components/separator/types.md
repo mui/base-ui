@@ -33,3 +33,11 @@ type SeparatorState = { orientation: Separator.Orientation };
 ```typescript
 type SeparatorOrientation = 'horizontal' | 'vertical';
 ```
+
+## External Types
+
+### Orientation
+
+```typescript
+type Orientation = 'horizontal' | 'vertical';
+```

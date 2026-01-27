@@ -707,3 +707,23 @@ Re-export of [ScrollDownArrow](#scrolldownarrow) props.
 ```typescript
 type SelectScrollDownArrowState = {};
 ```
+
+## External Types
+
+### Orientation
+
+```typescript
+type Orientation = 'horizontal' | 'vertical';
+```
+
+### Side
+
+```typescript
+type Side = 'top' | 'bottom' | 'left' | 'right' | 'inline-end' | 'inline-start';
+```
+
+### Align
+
+```typescript
+type Align = 'start' | 'center' | 'end';
+```

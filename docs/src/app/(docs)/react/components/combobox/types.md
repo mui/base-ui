@@ -25,8 +25,8 @@ Doesn't render its own HTML element.
 | onOpenChange         | `((open: boolean, eventDetails: Combobox.Root.ChangeEventDetails) => void)`                             | -       | Event handler called when the popup is opened or closed.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
 | autoHighlight        | `boolean`                                                                                               | `false` | Whether the first matching item is highlighted automatically while filtering.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
 | highlightItemOnHover | `boolean`                                                                                               | `true`  | Whether moving the pointer over items should highlight them.&#xA;Disabling this prop allows CSS `:hover` to be differentiated from the `:focus` (`data-highlighted`) state.                                                                                                                                                                                                                                                                                                                                                                                           |
-| actionsRef           | `RefObject<Combobox.Root.Actions>`                                                                      | -       | A ref to imperative actions. `unmount`: When specified, the combobox will not be unmounted when closed.&#xA;Instead, the `unmount` function must be called to unmount the combobox manually.&#xA;Useful when the combobox's animation is controlled by an external library.                                                                                                                                                                                                                                                                                           |
-| filter               | `((itemValue: Value, query: string, itemToString?: ((itemValue: Value) => string)) => boolean) \| null` | -       | Filter function used to match items vs input query.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| actionsRef           | `React.RefObject<Combobox.Root.Actions>`                                                                | -       | A ref to imperative actions. `unmount`: When specified, the combobox will not be unmounted when closed.&#xA;Instead, the `unmount` function must be called to unmount the combobox manually.&#xA;Useful when the combobox's animation is controlled by an external library.                                                                                                                                                                                                                                                                                           |
+| filter               | `((itemValue: Value, query: string, itemToString?: ((itemValue: Value) => string)) => boolean) \| null` | -       | ComboboxFilter function used to match items vs input query.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
 | filteredItems        | `any[] \| Group[]`                                                                                      | -       | Filtered items to display in the list.&#xA;When provided, the list will use these items instead of filtering the `items` prop internally.&#xA;Use when you want to control filtering logic externally with the `useFilter()` hook.                                                                                                                                                                                                                                                                                                                                    |
 | grid                 | `boolean`                                                                                               | `false` | Whether list items are presented in a grid layout.&#xA;When enabled, arrow keys navigate across rows and columns inferred from DOM rows.                                                                                                                                                                                                                                                                                                                                                                                                                              |
 | inline               | `boolean`                                                                                               | `false` | Whether the list is rendered inline without using the popup.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
@@ -35,7 +35,7 @@ Doesn't render its own HTML element.
 | itemToStringValue    | `((itemValue: Value) => string)`                                                                        | -       | When the item values are objects (`<Combobox.Item value={object}>`), this function converts the object value to a string representation for form submission.&#xA;If the shape of the object is `{ value, label }`, the value will be used automatically without needing to specify this prop.                                                                                                                                                                                                                                                                         |
 | items                | `any[] \| Group[]`                                                                                      | -       | The items to be displayed in the list.&#xA;Can be either a flat array of items or an array of groups with items.                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
 | limit                | `number`                                                                                                | `-1`    | The maximum number of items to display in the list.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
-| locale               | `IntlLocalesArgument`                                                                                   | -       | The locale to use for string comparison.&#xA;Defaults to the user's runtime locale.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| locale               | `Intl.LocalesArgument`                                                                                  | -       | The locale to use for string comparison.&#xA;Defaults to the user's runtime locale.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
 | loopFocus            | `boolean`                                                                                               | `true`  | Whether to loop keyboard focus back to the input when the end of the list is reached while using the arrow keys. The first item can then be reached by pressing ArrowDown again from the input, or the last item can be reached by pressing ArrowUp from the input.&#xA;The input is always included in the focus loop per [ARIA Authoring Practices](https://www.w3.org/WAI/ARIA/apg/patterns/combobox/).&#xA;When disabled, focus does not move when on the last element and the user presses ArrowDown, or when on the first element and the user presses ArrowUp. |
 | modal                | `boolean`                                                                                               | `false` | Determines if the popup enters a modal state when open. `true`: user interaction is limited to the popup: document page scroll is locked and pointer interactions on outside elements are disabled.`false`: user interaction with the rest of the document is allowed.                                                                                                                                                                                                                                                                                                |
 | multiple             | `boolean`                                                                                               | `false` | Whether multiple items can be selected.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
@@ -46,13 +46,162 @@ Doesn't render its own HTML element.
 | disabled             | `boolean`                                                                                               | `false` | Whether the component should ignore user interaction.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
 | readOnly             | `boolean`                                                                                               | `false` | Whether the user should be unable to choose a different option from the popup.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
 | required             | `boolean`                                                                                               | `false` | Whether the user must choose a value before submitting a form.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
-| inputRef             | `Ref<HTMLInputElement>`                                                                                 | -       | A ref to the hidden input element.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| inputRef             | `React.Ref<HTMLInputElement>`                                                                           | -       | A ref to the hidden input element.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
 | id                   | `string`                                                                                                | -       | The id of the component.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
-| children             | `ReactNode`                                                                                             | -       | -                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| children             | `React.ReactNode`                                                                                       | -       | -                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
 
 ### Root.Props
 
 Re-export of [Root](#root) props.
+
+### Root.State
+
+```typescript
+type ComboboxRootState = {};
+```
+
+### Root.Actions
+
+```typescript
+type ComboboxRootActions = { unmount: () => void };
+```
+
+### Root.ChangeEventReason
+
+```typescript
+type ComboboxRootChangeEventReason =
+  | 'trigger-press'
+  | 'outside-press'
+  | 'item-press'
+  | 'escape-key'
+  | 'list-navigation'
+  | 'focus-out'
+  | 'input-change'
+  | 'input-clear'
+  | 'clear-press'
+  | 'chip-remove-press'
+  | 'none';
+```
+
+### Root.ChangeEventDetails
+
+```typescript
+type ComboboxRootChangeEventDetails =
+  | {
+      reason: 'none';
+      event: Event;
+      cancel: () => void;
+      allowPropagation: () => void;
+      isCanceled: boolean;
+      isPropagationAllowed: boolean;
+      trigger: Element | undefined;
+    }
+  | {
+      reason: 'trigger-press';
+      event: MouseEvent | PointerEvent | TouchEvent | KeyboardEvent;
+      cancel: () => void;
+      allowPropagation: () => void;
+      isCanceled: boolean;
+      isPropagationAllowed: boolean;
+      trigger: Element | undefined;
+    }
+  | {
+      reason: 'outside-press';
+      event: MouseEvent | PointerEvent | TouchEvent;
+      cancel: () => void;
+      allowPropagation: () => void;
+      isCanceled: boolean;
+      isPropagationAllowed: boolean;
+      trigger: Element | undefined;
+    }
+  | {
+      reason: 'item-press';
+      event: MouseEvent | PointerEvent | KeyboardEvent;
+      cancel: () => void;
+      allowPropagation: () => void;
+      isCanceled: boolean;
+      isPropagationAllowed: boolean;
+      trigger: Element | undefined;
+    }
+  | {
+      reason: 'escape-key';
+      event: KeyboardEvent;
+      cancel: () => void;
+      allowPropagation: () => void;
+      isCanceled: boolean;
+      isPropagationAllowed: boolean;
+      trigger: Element | undefined;
+    }
+  | {
+      reason: 'list-navigation';
+      event: KeyboardEvent;
+      cancel: () => void;
+      allowPropagation: () => void;
+      isCanceled: boolean;
+      isPropagationAllowed: boolean;
+      trigger: Element | undefined;
+    }
+  | {
+      reason: 'focus-out';
+      event: KeyboardEvent | FocusEvent;
+      cancel: () => void;
+      allowPropagation: () => void;
+      isCanceled: boolean;
+      isPropagationAllowed: boolean;
+      trigger: Element | undefined;
+    }
+  | {
+      reason: 'input-change';
+      event: Event | InputEvent;
+      cancel: () => void;
+      allowPropagation: () => void;
+      isCanceled: boolean;
+      isPropagationAllowed: boolean;
+      trigger: Element | undefined;
+    }
+  | {
+      reason: 'input-clear';
+      event: Event | FocusEvent | InputEvent;
+      cancel: () => void;
+      allowPropagation: () => void;
+      isCanceled: boolean;
+      isPropagationAllowed: boolean;
+      trigger: Element | undefined;
+    }
+  | {
+      reason: 'clear-press';
+      event: MouseEvent | PointerEvent | KeyboardEvent;
+      cancel: () => void;
+      allowPropagation: () => void;
+      isCanceled: boolean;
+      isPropagationAllowed: boolean;
+      trigger: Element | undefined;
+    }
+  | {
+      reason: 'chip-remove-press';
+      event: MouseEvent | PointerEvent | KeyboardEvent;
+      cancel: () => void;
+      allowPropagation: () => void;
+      isCanceled: boolean;
+      isPropagationAllowed: boolean;
+      trigger: Element | undefined;
+    };
+```
+
+### Root.HighlightEventReason
+
+```typescript
+type ComboboxRootHighlightEventReason = 'keyboard' | 'pointer' | 'none';
+```
+
+### Root.HighlightEventDetails
+
+```typescript
+type ComboboxRootHighlightEventDetails =
+  | BaseUIGenericEventDetail<'none', { index: number }>
+  | BaseUIGenericEventDetail<'keyboard', { index: number }>
+  | BaseUIGenericEventDetail<'pointer', { index: number }>;
+```
 
 ### Trigger
 
@@ -61,13 +210,13 @@ Renders a `<button>` element.
 
 **Trigger Props:**
 
-| Prop         | Type                                                                                  | Default | Description                                                                                                                                                                                   |
-| :----------- | :------------------------------------------------------------------------------------ | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| nativeButton | `boolean`                                                                             | `true`  | Whether the component renders a native `<button>` element when replacing it&#xA;via the `render` prop.&#xA;Set to `false` if the rendered element is not a button (for example, `<div>`).     |
-| disabled     | `boolean`                                                                             | `false` | Whether the component should ignore user interaction.                                                                                                                                         |
-| className    | `string \| ((state: Combobox.Trigger.State) => string \| undefined)`                  | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
-| style        | `CSSProperties \| ((state: Combobox.Trigger.State) => CSSProperties \| undefined)`    | -       | -                                                                                                                                                                                             |
-| render       | `ReactElement \| ((props: HTMLProps, state: Combobox.Trigger.State) => ReactElement)` | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop         | Type                                                                                           | Default | Description                                                                                                                                                                                   |
+| :----------- | :--------------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| nativeButton | `boolean`                                                                                      | `true`  | Whether the component renders a native `<button>` element when replacing it&#xA;via the `render` prop.&#xA;Set to `false` if the rendered element is not a button (for example, `<div>`).     |
+| disabled     | `boolean`                                                                                      | `false` | Whether the component should ignore user interaction.                                                                                                                                         |
+| className    | `string \| ((state: Combobox.Trigger.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
+| style        | `React.CSSProperties \| ((state: Combobox.Trigger.State) => React.CSSProperties \| undefined)` | -       | -                                                                                                                                                                                             |
+| render       | `ReactElement \| ((props: HTMLProps, state: Combobox.Trigger.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
 
 **Trigger Data Attributes:**
 
@@ -114,9 +263,9 @@ Doesn't render its own HTML element.
 
 **Value Props:**
 
-| Prop     | Type                                               | Default | Description |
-| :------- | :------------------------------------------------- | :------ | :---------- |
-| children | `ReactNode \| ((selectedValue: any) => ReactNode)` | -       | -           |
+| Prop     | Type                                                           | Default | Description |
+| :------- | :------------------------------------------------------------- | :------ | :---------- |
+| children | `React.ReactNode \| ((selectedValue: any) => React.ReactNode)` | -       | -           |
 
 ### Value.Props
 
@@ -135,12 +284,12 @@ Renders an `<input>` element.
 
 **Input Props:**
 
-| Prop      | Type                                                                                | Default | Description                                                                                                                                                                                   |
-| :-------- | :---------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| disabled  | `boolean`                                                                           | `false` | Whether the component should ignore user interaction.                                                                                                                                         |
-| className | `string \| ((state: Combobox.Input.State) => string \| undefined)`                  | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
-| style     | `CSSProperties \| ((state: Combobox.Input.State) => CSSProperties \| undefined)`    | -       | -                                                                                                                                                                                             |
-| render    | `ReactElement \| ((props: HTMLProps, state: Combobox.Input.State) => ReactElement)` | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop      | Type                                                                                         | Default | Description                                                                                                                                                                                   |
+| :-------- | :------------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| disabled  | `boolean`                                                                                    | `false` | Whether the component should ignore user interaction.                                                                                                                                         |
+| className | `string \| ((state: Combobox.Input.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
+| style     | `React.CSSProperties \| ((state: Combobox.Input.State) => React.CSSProperties \| undefined)` | -       | -                                                                                                                                                                                             |
+| render    | `ReactElement \| ((props: HTMLProps, state: Combobox.Input.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
 
 **Input Data Attributes:**
 
@@ -188,11 +337,11 @@ Renders a `<span>` element.
 
 **Icon Props:**
 
-| Prop      | Type                                                                               | Default | Description                                                                                                                                                                                   |
-| :-------- | :--------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| className | `string \| ((state: Combobox.Icon.State) => string \| undefined)`                  | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
-| style     | `CSSProperties \| ((state: Combobox.Icon.State) => CSSProperties \| undefined)`    | -       | -                                                                                                                                                                                             |
-| render    | `ReactElement \| ((props: HTMLProps, state: Combobox.Icon.State) => ReactElement)` | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop      | Type                                                                                        | Default | Description                                                                                                                                                                                   |
+| :-------- | :------------------------------------------------------------------------------------------ | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| className | `string \| ((state: Combobox.Icon.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
+| style     | `React.CSSProperties \| ((state: Combobox.Icon.State) => React.CSSProperties \| undefined)` | -       | -                                                                                                                                                                                             |
+| render    | `ReactElement \| ((props: HTMLProps, state: Combobox.Icon.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
 
 ### Icon.Props
 
@@ -211,14 +360,14 @@ Renders a `<button>` element.
 
 **Clear Props:**
 
-| Prop         | Type                                                                                | Default | Description                                                                                                                                                                                   |
-| :----------- | :---------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| nativeButton | `boolean`                                                                           | `true`  | Whether the component renders a native `<button>` element when replacing it&#xA;via the `render` prop.&#xA;Set to `false` if the rendered element is not a button (for example, `<div>`).     |
-| disabled     | `boolean`                                                                           | `false` | Whether the component should ignore user interaction.                                                                                                                                         |
-| className    | `string \| ((state: Combobox.Clear.State) => string \| undefined)`                  | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
-| style        | `CSSProperties \| ((state: Combobox.Clear.State) => CSSProperties \| undefined)`    | -       | -                                                                                                                                                                                             |
-| keepMounted  | `boolean`                                                                           | `false` | Whether the component should remain mounted in the DOM when not visible.                                                                                                                      |
-| render       | `ReactElement \| ((props: HTMLProps, state: Combobox.Clear.State) => ReactElement)` | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop         | Type                                                                                         | Default | Description                                                                                                                                                                                   |
+| :----------- | :------------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| nativeButton | `boolean`                                                                                    | `true`  | Whether the component renders a native `<button>` element when replacing it&#xA;via the `render` prop.&#xA;Set to `false` if the rendered element is not a button (for example, `<div>`).     |
+| disabled     | `boolean`                                                                                    | `false` | Whether the component should ignore user interaction.                                                                                                                                         |
+| className    | `string \| ((state: Combobox.Clear.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
+| style        | `React.CSSProperties \| ((state: Combobox.Clear.State) => React.CSSProperties \| undefined)` | -       | -                                                                                                                                                                                             |
+| keepMounted  | `boolean`                                                                                    | `false` | Whether the component should remain mounted in the DOM when not visible.                                                                                                                      |
+| render       | `ReactElement \| ((props: HTMLProps, state: Combobox.Clear.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
 
 ### Clear.Props
 
@@ -237,12 +386,12 @@ Renders a `<div>` element.
 
 **List Props:**
 
-| Prop      | Type                                                                               | Default | Description                                                                                                                                                                                   |
-| :-------- | :--------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| children  | `ReactNode \| ((item: any, index: number) => ReactNode)`                           | -       | -                                                                                                                                                                                             |
-| className | `string \| ((state: Combobox.List.State) => string \| undefined)`                  | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
-| style     | `CSSProperties \| ((state: Combobox.List.State) => CSSProperties \| undefined)`    | -       | -                                                                                                                                                                                             |
-| render    | `ReactElement \| ((props: HTMLProps, state: Combobox.List.State) => ReactElement)` | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop      | Type                                                                                        | Default | Description                                                                                                                                                                                   |
+| :-------- | :------------------------------------------------------------------------------------------ | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| children  | `React.ReactNode \| ((item: any, index: number) => React.ReactNode)`                        | -       | -                                                                                                                                                                                             |
+| className | `string \| ((state: Combobox.List.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
+| style     | `React.CSSProperties \| ((state: Combobox.List.State) => React.CSSProperties \| undefined)` | -       | -                                                                                                                                                                                             |
+| render    | `ReactElement \| ((props: HTMLProps, state: Combobox.List.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
 
 ### List.Props
 
@@ -262,17 +411,23 @@ Renders a `<div>` element.
 
 **Portal Props:**
 
-| Prop        | Type                                                                                 | Default | Description                                                                                                                                                                                   |
-| :---------- | :----------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| container   | `HTMLElement \| ShadowRoot \| RefObject<HTMLElement \| ShadowRoot \| null> \| null`  | -       | A parent element to render the portal element into.                                                                                                                                           |
-| className   | `string \| ((state: Combobox.Portal.State) => string \| undefined)`                  | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
-| style       | `CSSProperties \| ((state: Combobox.Portal.State) => CSSProperties \| undefined)`    | -       | -                                                                                                                                                                                             |
-| keepMounted | `boolean`                                                                            | `false` | Whether to keep the portal mounted in the DOM while the popup is hidden.                                                                                                                      |
-| render      | `ReactElement \| ((props: HTMLProps, state: Combobox.Portal.State) => ReactElement)` | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop        | Type                                                                                          | Default | Description                                                                                                                                                                                   |
+| :---------- | :-------------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| container   | `HTMLElement \| ShadowRoot \| React.RefObject<HTMLElement \| ShadowRoot \| null> \| null`     | -       | A parent element to render the portal element into.                                                                                                                                           |
+| className   | `string \| ((state: Combobox.Portal.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
+| style       | `React.CSSProperties \| ((state: Combobox.Portal.State) => React.CSSProperties \| undefined)` | -       | -                                                                                                                                                                                             |
+| keepMounted | `boolean`                                                                                     | `false` | Whether to keep the portal mounted in the DOM while the popup is hidden.                                                                                                                      |
+| render      | `ReactElement \| ((props: HTMLProps, state: Combobox.Portal.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
 
 ### Portal.Props
 
 Re-export of [Portal](#portal) props.
+
+### Portal.State
+
+```typescript
+type ComboboxPortalState = {};
+```
 
 ### Backdrop
 
@@ -281,11 +436,11 @@ Renders a `<div>` element.
 
 **Backdrop Props:**
 
-| Prop      | Type                                                                                   | Default | Description                                                                                                                                                                                   |
-| :-------- | :------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| className | `string \| ((state: Combobox.Backdrop.State) => string \| undefined)`                  | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
-| style     | `CSSProperties \| ((state: Combobox.Backdrop.State) => CSSProperties \| undefined)`    | -       | -                                                                                                                                                                                             |
-| render    | `ReactElement \| ((props: HTMLProps, state: Combobox.Backdrop.State) => ReactElement)` | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop      | Type                                                                                            | Default | Description                                                                                                                                                                                   |
+| :-------- | :---------------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| className | `string \| ((state: Combobox.Backdrop.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
+| style     | `React.CSSProperties \| ((state: Combobox.Backdrop.State) => React.CSSProperties \| undefined)` | -       | -                                                                                                                                                                                             |
+| render    | `ReactElement \| ((props: HTMLProps, state: Combobox.Backdrop.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
 
 **Backdrop Data Attributes:**
 
@@ -313,23 +468,23 @@ Renders a `<div>` element.
 
 **Positioner Props:**
 
-| Prop                  | Type                                                                                                           | Default                | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
-| :-------------------- | :------------------------------------------------------------------------------------------------------------- | :--------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| disableAnchorTracking | `boolean`                                                                                                      | `false`                | Whether to disable the popup from tracking any layout shift of its positioning anchor.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
-| align                 | `Align`                                                                                                        | `'center'`             | How to align the popup relative to the specified side.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
-| alignOffset           | `number \| OffsetFunction`                                                                                     | `0`                    | Additional offset along the alignment axis in pixels.&#xA;Also accepts a function that returns the offset to read the dimensions of the anchor&#xA;and positioner elements, along with its side and alignment. The function takes a `data` object parameter with the following properties: `data.anchor`: the dimensions of the anchor element with properties `width` and `height`.`data.positioner`: the dimensions of the positioner element with properties `width` and `height`.`data.side`: which side of the anchor element the positioner is aligned against.`data.align`: how the positioner is aligned relative to the specified side.  |
-| side                  | `Side`                                                                                                         | `'bottom'`             | Which side of the anchor element to align the popup against.&#xA;May automatically change to avoid collisions.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
-| sideOffset            | `number \| OffsetFunction`                                                                                     | `0`                    | Distance between the anchor and the popup in pixels.&#xA;Also accepts a function that returns the distance to read the dimensions of the anchor&#xA;and positioner elements, along with its side and alignment. The function takes a `data` object parameter with the following properties: `data.anchor`: the dimensions of the anchor element with properties `width` and `height`.`data.positioner`: the dimensions of the positioner element with properties `width` and `height`.`data.side`: which side of the anchor element the positioner is aligned against.`data.align`: how the positioner is aligned relative to the specified side. |
-| arrowPadding          | `number`                                                                                                       | `5`                    | Minimum distance to maintain between the arrow and the edges of the popup. Use it to prevent the arrow element from hanging out of the rounded corners of a popup.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
-| anchor                | `Element \| RefObject<Element \| null> \| VirtualElement \| (() => Element \| VirtualElement \| null) \| null` | -                      | An element to position the popup against.&#xA;By default, the popup will be positioned against the trigger.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
-| collisionAvoidance    | `CollisionAvoidance`                                                                                           | -                      | Determines how to handle collisions when positioning the popup.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
-| collisionBoundary     | `Boundary`                                                                                                     | `'clipping-ancestors'` | An element or a rectangle that delimits the area that the popup is confined to.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
-| collisionPadding      | `Padding`                                                                                                      | `5`                    | Additional space to maintain from the edge of the collision boundary.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
-| sticky                | `boolean`                                                                                                      | `false`                | Whether to maintain the popup in the viewport after&#xA;the anchor element was scrolled out of view.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
-| positionMethod        | `'fixed' \| 'absolute'`                                                                                        | `'absolute'`           | Determines which CSS `position` property to use.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
-| className             | `string \| ((state: Combobox.Positioner.State) => string \| undefined)`                                        | -                      | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
-| style                 | `CSSProperties \| ((state: Combobox.Positioner.State) => CSSProperties \| undefined)`                          | -                      | -                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
-| render                | `ReactElement \| ((props: HTMLProps, state: Combobox.Positioner.State) => ReactElement)`                       | -                      | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render.                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| Prop                  | Type                                                                                                                                                   | Default                | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| :-------------------- | :----------------------------------------------------------------------------------------------------------------------------------------------------- | :--------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| disableAnchorTracking | `boolean`                                                                                                                                              | `false`                | Whether to disable the popup from tracking any layout shift of its positioning anchor.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
+| align                 | `Align`                                                                                                                                                | `'center'`             | How to align the popup relative to the specified side.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
+| alignOffset           | `number \| ((data: { side: Side; align: Align; anchor: { width: number; height: number }; positioner: { width: number; height: number } }) => number)` | `0`                    | Additional offset along the alignment axis in pixels.&#xA;Also accepts a function that returns the offset to read the dimensions of the anchor&#xA;and positioner elements, along with its side and alignment. The function takes a `data` object parameter with the following properties: `data.anchor`: the dimensions of the anchor element with properties `width` and `height`.`data.positioner`: the dimensions of the positioner element with properties `width` and `height`.`data.side`: which side of the anchor element the positioner is aligned against.`data.align`: how the positioner is aligned relative to the specified side.  |
+| side                  | `Side`                                                                                                                                                 | `'bottom'`             | Which side of the anchor element to align the popup against.&#xA;May automatically change to avoid collisions.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| sideOffset            | `number \| ((data: { side: Side; align: Align; anchor: { width: number; height: number }; positioner: { width: number; height: number } }) => number)` | `0`                    | Distance between the anchor and the popup in pixels.&#xA;Also accepts a function that returns the distance to read the dimensions of the anchor&#xA;and positioner elements, along with its side and alignment. The function takes a `data` object parameter with the following properties: `data.anchor`: the dimensions of the anchor element with properties `width` and `height`.`data.positioner`: the dimensions of the positioner element with properties `width` and `height`.`data.side`: which side of the anchor element the positioner is aligned against.`data.align`: how the positioner is aligned relative to the specified side. |
+| arrowPadding          | `number`                                                                                                                                               | `5`                    | Minimum distance to maintain between the arrow and the edges of the popup. Use it to prevent the arrow element from hanging out of the rounded corners of a popup.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
+| anchor                | `Element \| VirtualElement \| React.RefObject<Element \| null> \| (() => Element \| VirtualElement \| null) \| null`                                   | -                      | An element to position the popup against.&#xA;By default, the popup will be positioned against the trigger.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| collisionAvoidance    | `CollisionAvoidance`                                                                                                                                   | -                      | Determines how to handle collisions when positioning the popup.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| collisionBoundary     | `Boundary`                                                                                                                                             | `'clipping-ancestors'` | An element or a rectangle that delimits the area that the popup is confined to.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| collisionPadding      | `Padding`                                                                                                                                              | `5`                    | Additional space to maintain from the edge of the collision boundary.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
+| sticky                | `boolean`                                                                                                                                              | `false`                | Whether to maintain the popup in the viewport after&#xA;the anchor element was scrolled out of view.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| positionMethod        | `'absolute' \| 'fixed'`                                                                                                                                | `'absolute'`           | Determines which CSS `position` property to use.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
+| className             | `string \| ((state: Combobox.Positioner.State) => string \| undefined)`                                                                                | -                      | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| style                 | `React.CSSProperties \| ((state: Combobox.Positioner.State) => React.CSSProperties \| undefined)`                                                      | -                      | -                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| render                | `ReactElement \| ((props: HTMLProps, state: Combobox.Positioner.State) => ReactElement)`                                                               | -                      | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render.                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
 
 **Positioner Data Attributes:**
 
@@ -375,13 +530,13 @@ Renders a `<div>` element.
 
 **Popup Props:**
 
-| Prop         | Type                                                                                                                    | Default | Description                                                                                                                                                                                                                                                                                                                                                                                                               |
-| :----------- | :---------------------------------------------------------------------------------------------------------------------- | :------ | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| initialFocus | `boolean \| RefObject<HTMLElement \| null> \| ((openType: InteractionType) => boolean \| void \| HTMLElement \| null)`  | -       | Determines the element to focus when the popup is opened. `false`: Do not move focus.`true`: Move focus based on the default behavior (first tabbable element or popup).`RefObject`: Move focus to the ref element.`function`: Called with the interaction type (`mouse`, `touch`, `pen`, or `keyboard`).&#xA;Return an element to focus, `true` to use the default behavior, or `false`/`undefined` to do nothing.       |
-| finalFocus   | `boolean \| RefObject<HTMLElement \| null> \| ((closeType: InteractionType) => boolean \| void \| HTMLElement \| null)` | -       | Determines the element to focus when the popup is closed. `false`: Do not move focus.`true`: Move focus based on the default behavior (trigger or previously focused element).`RefObject`: Move focus to the ref element.`function`: Called with the interaction type (`mouse`, `touch`, `pen`, or `keyboard`).&#xA;Return an element to focus, `true` to use the default behavior, or `false`/`undefined` to do nothing. |
-| className    | `string \| ((state: Combobox.Popup.State) => string \| undefined)`                                                      | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                                                                                                                                                                                                                                                  |
-| style        | `CSSProperties \| ((state: Combobox.Popup.State) => CSSProperties \| undefined)`                                        | -       | -                                                                                                                                                                                                                                                                                                                                                                                                                         |
-| render       | `ReactElement \| ((props: HTMLProps, state: Combobox.Popup.State) => ReactElement)`                                     | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render.                                                                                                                                                                                                                             |
+| Prop         | Type                                                                                                                          | Default | Description                                                                                                                                                                                                                                                                                                                                                                                                               |
+| :----------- | :---------------------------------------------------------------------------------------------------------------------------- | :------ | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| initialFocus | `boolean \| React.RefObject<HTMLElement \| null> \| ((openType: InteractionType) => boolean \| void \| HTMLElement \| null)`  | -       | Determines the element to focus when the popup is opened. `false`: Do not move focus.`true`: Move focus based on the default behavior (first tabbable element or popup).`RefObject`: Move focus to the ref element.`function`: Called with the interaction type (`mouse`, `touch`, `pen`, or `keyboard`).&#xA;Return an element to focus, `true` to use the default behavior, or `false`/`undefined` to do nothing.       |
+| finalFocus   | `boolean \| React.RefObject<HTMLElement \| null> \| ((closeType: InteractionType) => boolean \| void \| HTMLElement \| null)` | -       | Determines the element to focus when the popup is closed. `false`: Do not move focus.`true`: Move focus based on the default behavior (trigger or previously focused element).`RefObject`: Move focus to the ref element.`function`: Called with the interaction type (`mouse`, `touch`, `pen`, or `keyboard`).&#xA;Return an element to focus, `true` to use the default behavior, or `false`/`undefined` to do nothing. |
+| className    | `string \| ((state: Combobox.Popup.State) => string \| undefined)`                                                            | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                                                                                                                                                                                                                                                  |
+| style        | `React.CSSProperties \| ((state: Combobox.Popup.State) => React.CSSProperties \| undefined)`                                  | -       | -                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| render       | `ReactElement \| ((props: HTMLProps, state: Combobox.Popup.State) => ReactElement)`                                           | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render.                                                                                                                                                                                                                             |
 
 **Popup Data Attributes:**
 
@@ -420,11 +575,11 @@ Renders a `<div>` element.
 
 **Arrow Props:**
 
-| Prop      | Type                                                                                | Default | Description                                                                                                                                                                                   |
-| :-------- | :---------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| className | `string \| ((state: Combobox.Arrow.State) => string \| undefined)`                  | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
-| style     | `CSSProperties \| ((state: Combobox.Arrow.State) => CSSProperties \| undefined)`    | -       | -                                                                                                                                                                                             |
-| render    | `ReactElement \| ((props: HTMLProps, state: Combobox.Arrow.State) => ReactElement)` | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop      | Type                                                                                         | Default | Description                                                                                                                                                                                   |
+| :-------- | :------------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| className | `string \| ((state: Combobox.Arrow.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
+| style     | `React.CSSProperties \| ((state: Combobox.Arrow.State) => React.CSSProperties \| undefined)` | -       | -                                                                                                                                                                                             |
+| render    | `ReactElement \| ((props: HTMLProps, state: Combobox.Arrow.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
 
 **Arrow Data Attributes:**
 
@@ -453,17 +608,17 @@ Renders a `<div>` element.
 
 **Item Props:**
 
-| Prop         | Type                                                                               | Default | Description                                                                                                                                                                                                                             |
-| :----------- | :--------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| value        | `any`                                                                              | `null`  | A unique value that identifies this item.                                                                                                                                                                                               |
-| onClick      | `MouseEventHandler<HTMLElement>`                                                   | -       | An optional click handler for the item when selected.&#xA;It fires when clicking the item with the pointer, as well as when pressing `Enter` with the keyboard if the item is highlighted when the `Input` or `List` element has focus. |
-| index        | `number`                                                                           | -       | The index of the item in the list. Improves performance when specified by avoiding the need to calculate the index automatically from the DOM.                                                                                          |
-| nativeButton | `boolean`                                                                          | `false` | Whether the component renders a native `<button>` element when replacing it&#xA;via the `render` prop.&#xA;Set to `true` if the rendered element is a native button.                                                                    |
-| disabled     | `boolean`                                                                          | `false` | Whether the component should ignore user interaction.                                                                                                                                                                                   |
-| children     | `ReactNode`                                                                        | -       | -                                                                                                                                                                                                                                       |
-| className    | `string \| ((state: Combobox.Item.State) => string \| undefined)`                  | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                                                                |
-| style        | `CSSProperties \| ((state: Combobox.Item.State) => CSSProperties \| undefined)`    | -       | -                                                                                                                                                                                                                                       |
-| render       | `ReactElement \| ((props: HTMLProps, state: Combobox.Item.State) => ReactElement)` | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render.                                           |
+| Prop         | Type                                                                                        | Default | Description                                                                                                                                                                                                                             |
+| :----------- | :------------------------------------------------------------------------------------------ | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| value        | `any`                                                                                       | `null`  | A unique value that identifies this item.                                                                                                                                                                                               |
+| onClick      | `React.MouseEventHandler<HTMLElement>`                                                      | -       | An optional click handler for the item when selected.&#xA;It fires when clicking the item with the pointer, as well as when pressing `Enter` with the keyboard if the item is highlighted when the `Input` or `List` element has focus. |
+| index        | `number`                                                                                    | -       | The index of the item in the list. Improves performance when specified by avoiding the need to calculate the index automatically from the DOM.                                                                                          |
+| nativeButton | `boolean`                                                                                   | `false` | Whether the component renders a native `<button>` element when replacing it&#xA;via the `render` prop.&#xA;Set to `true` if the rendered element is a native button.                                                                    |
+| disabled     | `boolean`                                                                                   | `false` | Whether the component should ignore user interaction.                                                                                                                                                                                   |
+| children     | `React.ReactNode`                                                                           | -       | -                                                                                                                                                                                                                                       |
+| className    | `string \| ((state: Combobox.Item.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                                                                |
+| style        | `React.CSSProperties \| ((state: Combobox.Item.State) => React.CSSProperties \| undefined)` | -       | -                                                                                                                                                                                                                                       |
+| render       | `ReactElement \| ((props: HTMLProps, state: Combobox.Item.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render.                                           |
 
 **Item Data Attributes:**
 
@@ -490,12 +645,12 @@ Renders a `<div>` element.
 
 **Group Props:**
 
-| Prop      | Type                                                                                | Default | Description                                                                                                                                                                                   |
-| :-------- | :---------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| items     | `any[]`                                                                             | -       | Items to be rendered within this group.&#xA;When provided, child `Collection` components will use these items.                                                                                |
-| className | `string \| ((state: Combobox.Group.State) => string \| undefined)`                  | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
-| style     | `CSSProperties \| ((state: Combobox.Group.State) => CSSProperties \| undefined)`    | -       | -                                                                                                                                                                                             |
-| render    | `ReactElement \| ((props: HTMLProps, state: Combobox.Group.State) => ReactElement)` | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop      | Type                                                                                         | Default | Description                                                                                                                                                                                   |
+| :-------- | :------------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| items     | `any[]`                                                                                      | -       | Items to be rendered within this group.&#xA;When provided, child `Collection` components will use these items.                                                                                |
+| className | `string \| ((state: Combobox.Group.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
+| style     | `React.CSSProperties \| ((state: Combobox.Group.State) => React.CSSProperties \| undefined)` | -       | -                                                                                                                                                                                             |
+| render    | `ReactElement \| ((props: HTMLProps, state: Combobox.Group.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
 
 ### Group.Props
 
@@ -514,11 +669,11 @@ Renders a `<div>` element.
 
 **GroupLabel Props:**
 
-| Prop      | Type                                                                                     | Default | Description                                                                                                                                                                                   |
-| :-------- | :--------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| className | `string \| ((state: Combobox.GroupLabel.State) => string \| undefined)`                  | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
-| style     | `CSSProperties \| ((state: Combobox.GroupLabel.State) => CSSProperties \| undefined)`    | -       | -                                                                                                                                                                                             |
-| render    | `ReactElement \| ((props: HTMLProps, state: Combobox.GroupLabel.State) => ReactElement)` | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop      | Type                                                                                              | Default | Description                                                                                                                                                                                   |
+| :-------- | :------------------------------------------------------------------------------------------------ | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| className | `string \| ((state: Combobox.GroupLabel.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
+| style     | `React.CSSProperties \| ((state: Combobox.GroupLabel.State) => React.CSSProperties \| undefined)` | -       | -                                                                                                                                                                                             |
+| render    | `ReactElement \| ((props: HTMLProps, state: Combobox.GroupLabel.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
 
 ### GroupLabel.Props
 
@@ -537,12 +692,12 @@ Renders a `<div>` element.
 
 **Separator Props:**
 
-| Prop        | Type                                                                                    | Default        | Description                                                                                                                                                                                   |
-| :---------- | :-------------------------------------------------------------------------------------- | :------------- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| orientation | `Combobox.Separator.Orientation`                                                        | `'horizontal'` | The orientation of the separator.                                                                                                                                                             |
-| className   | `string \| ((state: Combobox.Separator.State) => string \| undefined)`                  | -              | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
-| style       | `CSSProperties \| ((state: Combobox.Separator.State) => CSSProperties \| undefined)`    | -              | -                                                                                                                                                                                             |
-| render      | `ReactElement \| ((props: HTMLProps, state: Combobox.Separator.State) => ReactElement)` | -              | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop        | Type                                                                                   | Default        | Description                                                                                                                                                                                   |
+| :---------- | :------------------------------------------------------------------------------------- | :------------- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| orientation | `Separator.Orientation`                                                                | `'horizontal'` | The orientation of the separator.                                                                                                                                                             |
+| className   | `string \| ((state: SeparatorState) => string \| undefined)`                           | -              | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
+| style       | `React.CSSProperties \| ((state: SeparatorState) => React.CSSProperties \| undefined)` | -              | -                                                                                                                                                                                             |
+| render      | `ReactElement \| ((props: HTMLProps, state: SeparatorState) => ReactElement)`          | -              | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
 
 ### Separator.Props
 
@@ -551,7 +706,7 @@ Re-export of [Separator](#separator) props.
 ### Separator.State
 
 ```typescript
-type SeparatorState = { orientation: Combobox.Separator.Orientation };
+type ComboboxSeparatorState = { orientation: Separator.Orientation };
 ```
 
 ### Separator.Orientation
@@ -568,11 +723,11 @@ Renders a `<div>` element.
 
 **Status Props:**
 
-| Prop      | Type                                                                                 | Default | Description                                                                                                                                                                                   |
-| :-------- | :----------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| className | `string \| ((state: Combobox.Status.State) => string \| undefined)`                  | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
-| style     | `CSSProperties \| ((state: Combobox.Status.State) => CSSProperties \| undefined)`    | -       | -                                                                                                                                                                                             |
-| render    | `ReactElement \| ((props: HTMLProps, state: Combobox.Status.State) => ReactElement)` | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop      | Type                                                                                          | Default | Description                                                                                                                                                                                   |
+| :-------- | :-------------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| className | `string \| ((state: Combobox.Status.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
+| style     | `React.CSSProperties \| ((state: Combobox.Status.State) => React.CSSProperties \| undefined)` | -       | -                                                                                                                                                                                             |
+| render    | `ReactElement \| ((props: HTMLProps, state: Combobox.Status.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
 
 ### Status.Props
 
@@ -593,11 +748,11 @@ Renders a `<div>` element.
 
 **Empty Props:**
 
-| Prop      | Type                                                                                | Default | Description                                                                                                                                                                                   |
-| :-------- | :---------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| className | `string \| ((state: Combobox.Empty.State) => string \| undefined)`                  | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
-| style     | `CSSProperties \| ((state: Combobox.Empty.State) => CSSProperties \| undefined)`    | -       | -                                                                                                                                                                                             |
-| render    | `ReactElement \| ((props: HTMLProps, state: Combobox.Empty.State) => ReactElement)` | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop      | Type                                                                                         | Default | Description                                                                                                                                                                                   |
+| :-------- | :------------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| className | `string \| ((state: Combobox.Empty.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
+| style     | `React.CSSProperties \| ((state: Combobox.Empty.State) => React.CSSProperties \| undefined)` | -       | -                                                                                                                                                                                             |
+| render    | `ReactElement \| ((props: HTMLProps, state: Combobox.Empty.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
 
 ### Empty.Props
 
@@ -618,9 +773,9 @@ If rendering a flat list, pass a function child to the `List` component instead,
 
 **Collection Props:**
 
-| Prop       | Type                                        | Default | Description |
-| :--------- | :------------------------------------------ | :------ | :---------- |
-| children\* | `((item: any, index: number) => ReactNode)` | -       | -           |
+| Prop       | Type                                              | Default | Description |
+| :--------- | :------------------------------------------------ | :------ | :---------- |
+| children\* | `((item: any, index: number) => React.ReactNode)` | -       | -           |
 
 ### Collection.Props
 
@@ -634,11 +789,11 @@ Renders a `<div>` element.
 
 **Row Props:**
 
-| Prop      | Type                                                                              | Default | Description                                                                                                                                                                                   |
-| :-------- | :-------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| className | `string \| ((state: Combobox.Row.State) => string \| undefined)`                  | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
-| style     | `CSSProperties \| ((state: Combobox.Row.State) => CSSProperties \| undefined)`    | -       | -                                                                                                                                                                                             |
-| render    | `ReactElement \| ((props: HTMLProps, state: Combobox.Row.State) => ReactElement)` | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop      | Type                                                                                       | Default | Description                                                                                                                                                                                   |
+| :-------- | :----------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| className | `string \| ((state: Combobox.Row.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
+| style     | `React.CSSProperties \| ((state: Combobox.Row.State) => React.CSSProperties \| undefined)` | -       | -                                                                                                                                                                                             |
+| render    | `ReactElement \| ((props: HTMLProps, state: Combobox.Row.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
 
 ### Row.Props
 
@@ -657,11 +812,11 @@ Renders a `<div>` element.
 
 **Chips Props:**
 
-| Prop      | Type                                                                                | Default | Description                                                                                                                                                                                   |
-| :-------- | :---------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| className | `string \| ((state: Combobox.Chips.State) => string \| undefined)`                  | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
-| style     | `CSSProperties \| ((state: Combobox.Chips.State) => CSSProperties \| undefined)`    | -       | -                                                                                                                                                                                             |
-| render    | `ReactElement \| ((props: HTMLProps, state: Combobox.Chips.State) => ReactElement)` | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop      | Type                                                                                         | Default | Description                                                                                                                                                                                   |
+| :-------- | :------------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| className | `string \| ((state: Combobox.Chips.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
+| style     | `React.CSSProperties \| ((state: Combobox.Chips.State) => React.CSSProperties \| undefined)` | -       | -                                                                                                                                                                                             |
+| render    | `ReactElement \| ((props: HTMLProps, state: Combobox.Chips.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
 
 ### Chips.Props
 
@@ -680,11 +835,11 @@ Renders a `<div>` element.
 
 **Chip Props:**
 
-| Prop      | Type                                                                               | Default | Description                                                                                                                                                                                   |
-| :-------- | :--------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| className | `string \| ((state: Combobox.Chip.State) => string \| undefined)`                  | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
-| style     | `CSSProperties \| ((state: Combobox.Chip.State) => CSSProperties \| undefined)`    | -       | -                                                                                                                                                                                             |
-| render    | `ReactElement \| ((props: HTMLProps, state: Combobox.Chip.State) => ReactElement)` | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop      | Type                                                                                        | Default | Description                                                                                                                                                                                   |
+| :-------- | :------------------------------------------------------------------------------------------ | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| className | `string \| ((state: Combobox.Chip.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
+| style     | `React.CSSProperties \| ((state: Combobox.Chip.State) => React.CSSProperties \| undefined)` | -       | -                                                                                                                                                                                             |
+| render    | `ReactElement \| ((props: HTMLProps, state: Combobox.Chip.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
 
 ### Chip.Props
 
@@ -703,12 +858,12 @@ Renders a `<button>` element.
 
 **ChipRemove Props:**
 
-| Prop         | Type                                                                                     | Default | Description                                                                                                                                                                                   |
-| :----------- | :--------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| nativeButton | `boolean`                                                                                | `true`  | Whether the component renders a native `<button>` element when replacing it&#xA;via the `render` prop.&#xA;Set to `false` if the rendered element is not a button (for example, `<div>`).     |
-| className    | `string \| ((state: Combobox.ChipRemove.State) => string \| undefined)`                  | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
-| style        | `CSSProperties \| ((state: Combobox.ChipRemove.State) => CSSProperties \| undefined)`    | -       | -                                                                                                                                                                                             |
-| render       | `ReactElement \| ((props: HTMLProps, state: Combobox.ChipRemove.State) => ReactElement)` | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop         | Type                                                                                              | Default | Description                                                                                                                                                                                   |
+| :----------- | :------------------------------------------------------------------------------------------------ | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| nativeButton | `boolean`                                                                                         | `true`  | Whether the component renders a native `<button>` element when replacing it&#xA;via the `render` prop.&#xA;Set to `false` if the rendered element is not a button (for example, `<div>`).     |
+| className    | `string \| ((state: Combobox.ChipRemove.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
+| style        | `React.CSSProperties \| ((state: Combobox.ChipRemove.State) => React.CSSProperties \| undefined)` | -       | -                                                                                                                                                                                             |
+| render       | `ReactElement \| ((props: HTMLProps, state: Combobox.ChipRemove.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
 
 ### ChipRemove.Props
 
@@ -727,13 +882,13 @@ Renders a `<span>` element.
 
 **ItemIndicator Props:**
 
-| Prop        | Type                                                                                        | Default | Description                                                                                                                                                                                   |
-| :---------- | :------------------------------------------------------------------------------------------ | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| children    | `ReactNode`                                                                                 | -       | -                                                                                                                                                                                             |
-| className   | `string \| ((state: Combobox.ItemIndicator.State) => string \| undefined)`                  | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
-| style       | `CSSProperties \| ((state: Combobox.ItemIndicator.State) => CSSProperties \| undefined)`    | -       | -                                                                                                                                                                                             |
-| keepMounted | `boolean`                                                                                   | `false` | Whether to keep the HTML element in the DOM when the item is not selected.                                                                                                                    |
-| render      | `ReactElement \| ((props: HTMLProps, state: Combobox.ItemIndicator.State) => ReactElement)` | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop        | Type                                                                                                 | Default | Description                                                                                                                                                                                   |
+| :---------- | :--------------------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| children    | `React.ReactNode`                                                                                    | -       | -                                                                                                                                                                                             |
+| className   | `string \| ((state: Combobox.ItemIndicator.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
+| style       | `React.CSSProperties \| ((state: Combobox.ItemIndicator.State) => React.CSSProperties \| undefined)` | -       | -                                                                                                                                                                                             |
+| keepMounted | `boolean`                                                                                            | `false` | Whether to keep the HTML element in the DOM when the item is not selected.                                                                                                                    |
+| render      | `ReactElement \| ((props: HTMLProps, state: Combobox.ItemIndicator.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
 
 ### ItemIndicator.Props
 
@@ -745,51 +900,15 @@ Re-export of [ItemIndicator](#itemindicator) props.
 type ComboboxItemIndicatorState = { selected: boolean; transitionStatus: TransitionStatus };
 ```
 
-### Filter
-
-```typescript
-type Filter = {
-  contains: (item: Item, query: string, itemToString?: (item: Item) => string) => boolean;
-  startsWith: (item: Item, query: string, itemToString?: (item: Item) => string) => boolean;
-  endsWith: (item: Item, query: string, itemToString?: (item: Item) => string) => boolean;
-};
-```
-
-### UseComboboxFilterOptions
-
-```typescript
-type UseComboboxFilterOptions = { multiple?: boolean; value?: any; locale?: IntlLocalesArgument };
-```
-
-### Combobox.useCoreFilter
-
-Matches items against a query using `Intl.Collator` for robust string matching.
-
-**Parameters:**
-
-| Parameter | Type                               | Default | Description |
-| :-------- | :--------------------------------- | :------ | :---------- |
-| options?  | `{ locale?: IntlLocalesArgument }` | -       | -           |
-
-**Return Value:**
-
-```tsx
-type ReturnValue = {
-  contains: (item: Item, query: string, itemToString?: (item: Item) => string) => boolean;
-  startsWith: (item: Item, query: string, itemToString?: (item: Item) => string) => boolean;
-  endsWith: (item: Item, query: string, itemToString?: (item: Item) => string) => boolean;
-};
-```
-
 ### Combobox.useFilter
 
 Matches items against a query using `Intl.Collator` for robust string matching.
 
 **Parameters:**
 
-| Parameter | Type                                                                | Default | Description |
-| :-------- | :------------------------------------------------------------------ | :------ | :---------- |
-| options?  | `{ multiple?: boolean, value?: any, locale?: IntlLocalesArgument }` | -       | -           |
+| Parameter | Type                                                                 | Default | Description |
+| :-------- | :------------------------------------------------------------------- | :------ | :---------- |
+| options?  | `{ multiple?: boolean; value?: any; locale?: Intl.LocalesArgument }` | -       | -           |
 
 **Return Value:**
 
@@ -801,8 +920,46 @@ type ReturnValue = {
 };
 ```
 
-### UseFilterOptions
+## Additional Types
+
+### ComboboxFilter
 
 ```typescript
-type UseFilterOptions = { locale?: IntlLocalesArgument };
+type ComboboxFilter = {
+  contains: (item: Item, query: string, itemToString?: (item: Item) => string) => boolean;
+  startsWith: (item: Item, query: string, itemToString?: (item: Item) => string) => boolean;
+  endsWith: (item: Item, query: string, itemToString?: (item: Item) => string) => boolean;
+};
+```
+
+### ComboboxFilterOptions
+
+```typescript
+type ComboboxFilterOptions = { multiple?: boolean; value?: any; locale?: Intl.LocalesArgument };
+```
+
+## External Types
+
+### Orientation
+
+```typescript
+type Orientation = 'horizontal' | 'vertical';
+```
+
+### Side
+
+```typescript
+type Side = 'top' | 'bottom' | 'left' | 'right' | 'inline-end' | 'inline-start';
+```
+
+### Align
+
+```typescript
+type Align = 'start' | 'center' | 'end';
+```
+
+### InteractionType
+
+```typescript
+type InteractionType = 'mouse' | 'touch' | 'pen' | 'keyboard' | '';
 ```

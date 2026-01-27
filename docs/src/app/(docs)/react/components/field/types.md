@@ -349,3 +349,11 @@ type FieldValidityData = {
   initialValue: unknown;
 };
 ```
+
+## External Types
+
+### ValidationMode
+
+```typescript
+type ValidationMode = 'onSubmit' | 'onBlur' | 'onChange';
+```

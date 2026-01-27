@@ -415,3 +415,17 @@ A handle to control a tooltip imperatively and to associate detached triggers wi
 ```typescript
 type TooltipHandle = {};
 ```
+
+## External Types
+
+### Side
+
+```typescript
+type Side = 'top' | 'bottom' | 'left' | 'right' | 'inline-end' | 'inline-start';
+```
+
+### Align
+
+```typescript
+type Align = 'start' | 'center' | 'end';
+```
