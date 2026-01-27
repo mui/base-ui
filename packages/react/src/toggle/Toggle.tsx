@@ -54,7 +54,7 @@ export const Toggle = React.forwardRef(function Toggle<Value extends string>(
     useIsoLayoutEffect(() => {
       if (groupContext && valueProp === undefined) {
         warn(
-          'Value prop in `Toggle` component is `undefined` while its in a `ToggleGroup` component. This can cause type issues between the `ToggleGroup` values and the `Toggle` value, Provide the `Toggle` with a value prop matching the `ToggleGroup` values prop type.',
+          'A `<Toggle>` component rendered in a `<ToggleGroup>` has no explicit `value` prop. This can cause type issues between the Toggle Group and Toggle values. Provide the `<Toggle>` with a `value` prop matching the `<ToggleGroup>` values prop type.',
         );
       }
     }, [groupContext, valueProp]);
@@ -184,7 +184,7 @@ export type ToggleChangeEventDetails = BaseUIChangeEventDetails<Toggle.ChangeEve
 
 export namespace Toggle {
   export type State = ToggleState;
-  export type Props<TValue extends string> = ToggleProps<TValue>;
+  export type Props<TValue extends string = string> = ToggleProps<TValue>;
   export type ChangeEventReason = ToggleChangeEventReason;
   export type ChangeEventDetails = ToggleChangeEventDetails;
 }

@@ -170,7 +170,7 @@ export interface ToggleGroupProps<Value extends string> extends BaseUIComponentP
    * the values of all pressed toggle buttons.
    * This is the uncontrolled counterpart of `value`.
    */
-  defaultValue?: Value[] | undefined;
+  defaultValue?: readonly Value[] | undefined;
   /**
    * Callback fired when the pressed states of the toggle group changes.
    */
@@ -207,7 +207,7 @@ export type ToggleGroupChangeEventDetails = BaseUIChangeEventDetails<ToggleGroup
 
 export namespace ToggleGroup {
   export type State = ToggleGroupState;
-  export type Props<Value extends string> = ToggleGroupProps<Value>;
+  export type Props<Value extends string = string> = ToggleGroupProps<Value>;
   export type ChangeEventReason = ToggleGroupChangeEventReason;
   export type ChangeEventDetails = ToggleGroupChangeEventDetails;
 }
