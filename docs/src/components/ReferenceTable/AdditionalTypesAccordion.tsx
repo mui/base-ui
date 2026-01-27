@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { Accordion } from '@base-ui/react/accordion';
 import { ProcessedTypesMeta } from '@mui/internal-docs-infra/useTypes';
+import { Link } from '../Link';
 
 export default function ExampleAccordion({ data }: { data: ProcessedTypesMeta[] }) {
   return (
@@ -20,7 +21,24 @@ export default function ExampleAccordion({ data }: { data: ProcessedTypesMeta[] 
                 </Accordion.Trigger>
               </Accordion.Header>
               <Accordion.Panel className="h-[var(--accordion-panel-height)] border-l border-r border-gray-200 overflow-hidden text-base text-gray-600 transition-[height] ease-out data-[ending-style]:h-0 data-[starting-style]:h-0">
-                {additionalType.data.formattedCode}
+                {additionalType.data.reExportOf ? (
+                  <p className="p-3">
+                    Re-Export of{' '}
+                    <Link href={additionalType.data.reExportOf.slug}>
+                      {additionalType.data.reExportOf.name}
+                    </Link>{' '}
+                    {additionalType.data.reExportOf.suffix} as{' '}
+                    <code
+                      className="Code language-ts text-xs data-[inline]:mx-[0.1em]"
+                      data-inline=""
+                      data-table-code=""
+                    >
+                      <span className="pl-en">{additionalType.name.replaceAll('.', '')}</span>
+                    </code>
+                  </p>
+                ) : (
+                  additionalType.data.formattedCode
+                )}
               </Accordion.Panel>
             </Accordion.Item>
           )
