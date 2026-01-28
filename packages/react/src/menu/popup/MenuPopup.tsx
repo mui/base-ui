@@ -89,17 +89,14 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
     closeDelay,
   });
 
-  const state: MenuPopup.State = React.useMemo(
-    () => ({
-      transitionStatus,
-      side,
-      align,
-      open,
-      nested: parent.type === 'menu',
-      instant: instantType,
-    }),
-    [transitionStatus, side, align, open, parent.type, instantType],
-  );
+  const state: MenuPopup.State = {
+    transitionStatus,
+    side,
+    align,
+    open,
+    nested: parent.type === 'menu',
+    instant: instantType,
+  };
 
   const element = useRenderElement('div', componentProps, {
     state,
@@ -155,7 +152,7 @@ export interface MenuPopupProps extends BaseUIComponentProps<'div', MenuPopup.St
   /**
    * @ignore
    */
-  id?: string;
+  id?: string | undefined;
   /**
    * Determines the element to focus when the menu is closed.
    *
@@ -166,9 +163,12 @@ export interface MenuPopupProps extends BaseUIComponentProps<'div', MenuPopup.St
    *   Return an element to focus, `true` to use the default behavior, or `false`/`undefined` to do nothing.
    */
   finalFocus?:
-    | boolean
-    | React.RefObject<HTMLElement | null>
-    | ((closeType: InteractionType) => boolean | HTMLElement | null | void);
+    | (
+        | boolean
+        | React.RefObject<HTMLElement | null>
+        | ((closeType: InteractionType) => boolean | HTMLElement | null | void)
+      )
+    | undefined;
 }
 
 export type MenuPopupState = {
@@ -180,6 +180,7 @@ export type MenuPopupState = {
    */
   open: boolean;
   nested: boolean;
+  instant: 'dismiss' | 'click' | 'group' | undefined;
 };
 
 export namespace MenuPopup {

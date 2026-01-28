@@ -23,7 +23,7 @@ export default function TooltipDetachedTriggersFullDemo() {
           handle={demoTooltip}
           payload={InfoContent}
         >
-          <InfoIcon aria-label="Information" className="size-5" />
+          <InfoIcon aria-label="This is information about the feature" className="size-5" />
         </Tooltip.Trigger>
 
         <Tooltip.Trigger
@@ -40,7 +40,7 @@ export default function TooltipDetachedTriggersFullDemo() {
           handle={demoTooltip}
           payload={HelpContent}
         >
-          <HelpIcon aria-label="Help" className="size-5" />
+          <HelpIcon aria-label="Need help?" className="size-5" />
         </Tooltip.Trigger>
 
         <Tooltip.Trigger
@@ -57,7 +57,7 @@ export default function TooltipDetachedTriggersFullDemo() {
           handle={demoTooltip}
           payload={AlertContent}
         >
-          <AlertIcon aria-label="Alert" className="size-5" />
+          <AlertIcon aria-label="Warning: This action cannot be undone" className="size-5" />
         </Tooltip.Trigger>
       </div>
 

@@ -18,12 +18,9 @@ export const FieldsetRoot = React.forwardRef(function FieldsetRoot(
 
   const [legendId, setLegendId] = React.useState<string | undefined>(undefined);
 
-  const state: FieldsetRoot.State = React.useMemo(
-    () => ({
-      disabled,
-    }),
-    [disabled],
-  );
+  const state: FieldsetRoot.State = {
+    disabled,
+  };
 
   const element = useRenderElement('fieldset', componentProps, {
     ref: forwardedRef,

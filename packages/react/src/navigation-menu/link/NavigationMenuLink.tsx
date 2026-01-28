@@ -33,12 +33,9 @@ export const NavigationMenuLink = React.forwardRef(function NavigationMenuLink(
   const nodeId = useNavigationMenuTreeContext();
   const tree = useFloatingTree();
 
-  const state: NavigationMenuLink.State = React.useMemo(
-    () => ({
-      active,
-    }),
-    [active],
-  );
+  const state: NavigationMenuLink.State = {
+    active,
+  };
 
   const defaultProps: HTMLProps = {
     'aria-current': active ? 'page' : undefined,
@@ -92,12 +89,12 @@ export interface NavigationMenuLinkProps extends BaseUIComponentProps<
    * Whether the link is the currently active page.
    * @default false
    */
-  active?: boolean;
+  active?: boolean | undefined;
   /**
    * Whether to close the navigation menu when the link is clicked.
    * @default false
    */
-  closeOnClick?: boolean;
+  closeOnClick?: boolean | undefined;
 }
 
 export namespace NavigationMenuLink {

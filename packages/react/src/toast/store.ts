@@ -388,7 +388,7 @@ export class ToastStore extends Store<State> {
 }
 
 interface TimerInfo {
-  timeout?: Timeout;
+  timeout?: Timeout | undefined;
   start: number;
   delay: number;
   remaining: number;

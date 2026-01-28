@@ -77,15 +77,12 @@ export const DialogPopup = React.forwardRef(function DialogPopup(
 
   const nestedDialogOpen = nestedOpenDialogCount > 0;
 
-  const state: DialogPopup.State = React.useMemo(
-    () => ({
-      open,
-      nested,
-      transitionStatus,
-      nestedDialogOpen,
-    }),
-    [open, nested, transitionStatus, nestedDialogOpen],
-  );
+  const state: DialogPopup.State = {
+    open,
+    nested,
+    transitionStatus,
+    nestedDialogOpen,
+  };
 
   const element = useRenderElement('div', componentProps, {
     state,
@@ -139,9 +136,12 @@ export interface DialogPopupProps extends BaseUIComponentProps<'div', DialogPopu
    *   Return an element to focus, `true` to use the default behavior, or `false`/`undefined` to do nothing.
    */
   initialFocus?:
-    | boolean
-    | React.RefObject<HTMLElement | null>
-    | ((openType: InteractionType) => boolean | HTMLElement | null | void);
+    | (
+        | boolean
+        | React.RefObject<HTMLElement | null>
+        | ((openType: InteractionType) => boolean | HTMLElement | null | void)
+      )
+    | undefined;
   /**
    * Determines the element to focus when the dialog is closed.
    *
@@ -152,9 +152,12 @@ export interface DialogPopupProps extends BaseUIComponentProps<'div', DialogPopu
    *   Return an element to focus, `true` to use the default behavior, or `false`/`undefined` to do nothing.
    */
   finalFocus?:
-    | boolean
-    | React.RefObject<HTMLElement | null>
-    | ((closeType: InteractionType) => boolean | HTMLElement | null | void);
+    | (
+        | boolean
+        | React.RefObject<HTMLElement | null>
+        | ((closeType: InteractionType) => boolean | HTMLElement | null | void)
+      )
+    | undefined;
 }
 
 export interface DialogPopupState {

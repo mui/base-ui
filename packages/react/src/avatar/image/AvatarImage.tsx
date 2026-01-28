@@ -45,12 +45,9 @@ export const AvatarImage = React.forwardRef(function AvatarImage(
     }
   }, [imageLoadingStatus, handleLoadingStatusChange]);
 
-  const state: AvatarRoot.State = React.useMemo(
-    () => ({
-      imageLoadingStatus,
-    }),
-    [imageLoadingStatus],
-  );
+  const state: AvatarRoot.State = {
+    imageLoadingStatus,
+  };
 
   const element = useRenderElement('img', componentProps, {
     state,
@@ -67,7 +64,7 @@ export interface AvatarImageProps extends BaseUIComponentProps<'img', AvatarRoot
   /**
    * Callback fired when the loading status changes.
    */
-  onLoadingStatusChange?: (status: ImageLoadingStatus) => void;
+  onLoadingStatusChange?: ((status: ImageLoadingStatus) => void) | undefined;
 }
 
 export namespace AvatarImage {

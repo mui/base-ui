@@ -238,12 +238,9 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
     onClick: handleFocus,
   };
 
-  const state: ToastViewport.State = React.useMemo(
-    () => ({
-      expanded,
-    }),
-    [expanded],
-  );
+  const state: ToastViewport.State = {
+    expanded,
+  };
 
   const element = useRenderElement('div', componentProps, {
     ref: [forwardedRef, store.setViewport],

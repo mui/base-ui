@@ -19,9 +19,9 @@
       "detailedType": "| ((\n    open: boolean,\n    eventDetails: Dialog.Root.ChangeEventDetails,\n  ) => void)\n| undefined"
     },
     "actionsRef": {
-      "type": "RefObject<Dialog.Root.Actions>",
+      "type": "RefObject<Dialog.Root.Actions | null>",
       "description": "A ref to imperative actions.\n- `unmount`: When specified, the dialog will not be unmounted when closed.\nInstead, the `unmount` function must be called to unmount the dialog manually.\nUseful when the dialog's animation is controlled by an external library.\n- `close`: Closes the dialog imperatively when called.",
-      "detailedType": "React.RefObject<Dialog.Root.Actions> | undefined"
+      "detailedType": "| React.RefObject<Dialog.Root.Actions | null>\n| undefined"
     },
     "defaultTriggerId": {
       "type": "string | null",
@@ -36,7 +36,7 @@
     },
     "handle": {
       "type": "Dialog.Handle<Payload>",
-      "description": "A handle to associate the popover with a trigger.\nIf specified, allows external triggers to control the popover's open state.\nCan be created with the Dialog.createHandle() method.",
+      "description": "A handle to associate the dialog with a trigger.\nIf specified, allows external triggers to control the dialog's open state.\nCan be created with the Dialog.createHandle() method.",
       "detailedType": "{} | undefined"
     },
     "modal": {

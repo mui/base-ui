@@ -32,7 +32,7 @@ export default function TooltipDetachedTriggersControlledDemo() {
             handle={demoTooltip}
             id="trigger-1"
           >
-            <InfoIcon aria-label="Information 1" />
+            <InfoIcon aria-label="Controlled tooltip" />
           </Tooltip.Trigger>
 
           <Tooltip.Trigger
@@ -49,7 +49,7 @@ export default function TooltipDetachedTriggersControlledDemo() {
             handle={demoTooltip}
             id="trigger-2"
           >
-            <InfoIcon aria-label="Information 2" />
+            <InfoIcon aria-label="Controlled tooltip" />
           </Tooltip.Trigger>
 
           <Tooltip.Trigger
@@ -66,7 +66,7 @@ export default function TooltipDetachedTriggersControlledDemo() {
             handle={demoTooltip}
             id="trigger-3"
           >
-            <InfoIcon aria-label="Information 3" />
+            <InfoIcon aria-label="Controlled tooltip" />
           </Tooltip.Trigger>
         </div>
 

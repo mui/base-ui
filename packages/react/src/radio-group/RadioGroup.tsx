@@ -3,7 +3,7 @@ import * as React from 'react';
 import { useControlled } from '@base-ui/utils/useControlled';
 import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
-import { visuallyHiddenInput } from '@base-ui/utils/visuallyHidden';
+import { visuallyHidden, visuallyHiddenInput } from '@base-ui/utils/visuallyHidden';
 import { NOOP } from '../utils/noop';
 import type { BaseUIComponentProps, HTMLProps } from '../utils/types';
 import { useBaseUiId } from '../utils/useBaseUiId';
@@ -166,7 +166,7 @@ export const RadioGroup = React.forwardRef(function RadioGroup(
       'aria-labelledby': elementProps['aria-labelledby'] ?? fieldsetContext?.legendId,
       'aria-hidden': true,
       tabIndex: -1,
-      style: visuallyHiddenInput,
+      style: name ? visuallyHiddenInput : visuallyHidden,
       onChange: NOOP, // suppress a Next.js error
       onFocus() {
         controlRef.current?.focus();
@@ -175,15 +175,12 @@ export const RadioGroup = React.forwardRef(function RadioGroup(
     validation.getInputValidationProps,
   );
 
-  const state: RadioGroup.State = React.useMemo(
-    () => ({
-      ...fieldState,
-      disabled: disabled ?? false,
-      required: required ?? false,
-      readOnly: readOnly ?? false,
-    }),
-    [fieldState, disabled, readOnly, required],
-  );
+  const state: RadioGroup.State = {
+    ...fieldState,
+    disabled: disabled ?? false,
+    required: required ?? false,
+    readOnly: readOnly ?? false,
+  };
 
   const contextValue: RadioGroupContext = React.useMemo(
     () => ({
@@ -250,7 +247,11 @@ export interface RadioGroupState extends FieldRoot.State {
   /**
    * Whether the user should be unable to select a different radio button in the group.
    */
-  readOnly: boolean | undefined;
+  readOnly: boolean;
+  /**
+   * Whether the user must tick a radio button within the group before submitting a form.
+   */
+  required: boolean;
 }
 
 export interface RadioGroupProps extends Omit<
@@ -261,21 +262,21 @@ export interface RadioGroupProps extends Omit<
    * Whether the component should ignore user interaction.
    * @default false
    */
-  disabled?: boolean;
+  disabled?: boolean | undefined;
   /**
    * Whether the user should be unable to select a different radio button in the group.
    * @default false
    */
-  readOnly?: boolean;
+  readOnly?: boolean | undefined;
   /**
    * Whether the user must choose a value before submitting a form.
    * @default false
    */
-  required?: boolean;
+  required?: boolean | undefined;
   /**
    * Identifies the field when a form is submitted.
    */
-  name?: string;
+  name?: string | undefined;
   /**
    * The controlled value of the radio item that should be currently selected.
    *
@@ -291,11 +292,11 @@ export interface RadioGroupProps extends Omit<
   /**
    * Callback fired when the value changes.
    */
-  onValueChange?: (value: any, eventDetails: RadioGroup.ChangeEventDetails) => void;
+  onValueChange?: ((value: any, eventDetails: RadioGroup.ChangeEventDetails) => void) | undefined;
   /**
    * A ref to access the hidden input element.
    */
-  inputRef?: React.Ref<HTMLInputElement>;
+  inputRef?: React.Ref<HTMLInputElement> | undefined;
 }
 
 export type RadioGroupChangeEventReason = typeof REASONS.none;
