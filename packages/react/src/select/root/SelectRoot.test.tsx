@@ -2911,7 +2911,7 @@ describe('<Select.Root />', () => {
 
   describe('prop: highlightItemOnHover', () => {
     it('highlights an item on mouse move by default', async () => {
-      await render(
+      const { user } = await render(
         <Select.Root defaultOpen>
           <Select.Trigger data-testid="trigger">
             <Select.Value />
@@ -2929,7 +2929,7 @@ describe('<Select.Root />', () => {
       );
 
       const optionB = screen.getByRole('option', { name: 'b' });
-      fireEvent.mouseMove(optionB);
+      await user.hover(optionB);
 
       await waitFor(() => {
         expect(optionB).to.have.attribute('data-highlighted');
@@ -2937,7 +2937,7 @@ describe('<Select.Root />', () => {
     });
 
     it('does not highlight items from mouse movement when disabled', async () => {
-      await render(
+      const { user } = await render(
         <Select.Root defaultOpen highlightItemOnHover={false}>
           <Select.Trigger data-testid="trigger">
             <Select.Value />
@@ -2955,7 +2955,7 @@ describe('<Select.Root />', () => {
       );
 
       const optionB = screen.getByRole('option', { name: 'b' });
-      fireEvent.mouseMove(optionB);
+      await user.hover(optionB);
 
       await flushMicrotasks();
 
@@ -2981,7 +2981,7 @@ describe('<Select.Root />', () => {
       );
 
       const optionA = screen.getByRole('option', { name: 'a' });
-      fireEvent.mouseMove(optionA);
+      await user.hover(optionA);
 
       await user.keyboard('{ArrowDown}');
 
