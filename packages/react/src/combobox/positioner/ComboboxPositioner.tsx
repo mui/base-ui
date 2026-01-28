@@ -58,6 +58,7 @@ export const ComboboxPositioner = React.forwardRef(function ComboboxPositioner(
   const triggerElement = useStore(store, selectors.triggerElement);
   const inputElement = useStore(store, selectors.inputElement);
   const inputInsidePopup = useStore(store, selectors.inputInsidePopup);
+  const positionerElement = useStore(store, selectors.positionerElement);
 
   const empty = filteredItems.length === 0;
   const resolvedAnchor = anchor ?? (inputInsidePopup ? triggerElement : inputElement);
@@ -81,7 +82,7 @@ export const ComboboxPositioner = React.forwardRef(function ComboboxPositioner(
     lazyFlip: true,
   });
 
-  useScrollLock(open && modal && openMethod !== 'touch', triggerElement);
+  useScrollLock(open && modal && openMethod !== 'touch', positionerElement ?? triggerElement);
 
   const defaultProps: HTMLProps = React.useMemo(() => {
     const style: React.CSSProperties = {
