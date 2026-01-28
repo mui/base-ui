@@ -24,6 +24,7 @@ const MIN_DRAG_THRESHOLD = 1;
 const MIN_VELOCITY_DURATION_MS = 50;
 const MIN_RELEASE_VELOCITY_DURATION_MS = 16;
 const MAX_RELEASE_VELOCITY_AGE_MS = 80;
+const DEFAULT_IGNORE_SELECTOR = 'button,a,input,select,textarea,label,[role="button"]';
 
 function getDisplacement(direction: SwipeDirection, deltaX: number, deltaY: number) {
   switch (direction) {
@@ -119,10 +120,8 @@ export function useSwipeDismiss(options: useSwipeDismiss.Options): useSwipeDismi
     elementRef,
     movementCssVars,
     canStart,
-    ignoreSelector = 'button,a,input,textarea,label,[role="button"],[data-swipe-ignore]',
     ignoreSelectorWhenTouch = true,
     ignoreScrollableAncestors = false,
-    oppositeDirectionDamping = 'exponential',
     swipeThreshold: swipeThresholdProp,
     onDismiss,
     onProgress,
@@ -131,23 +130,31 @@ export function useSwipeDismiss(options: useSwipeDismiss.Options): useSwipeDismi
     onRelease,
   } = options;
 
+  const ignoreSelector = DEFAULT_IGNORE_SELECTOR;
+
   const swipeThresholdDefault = Math.max(
     0,
     typeof swipeThresholdProp === 'number' ? swipeThresholdProp : DEFAULT_SWIPE_THRESHOLD,
   );
 
   const primaryDirection = directions.length === 1 ? directions[0] : undefined;
+  const allowLeft = directions.includes('left');
+  const allowRight = directions.includes('right');
+  const allowUp = directions.includes('up');
+  const allowDown = directions.includes('down');
+  const hasHorizontal = allowLeft || allowRight;
+  const hasVertical = allowUp || allowDown;
 
   const scrollAxes = React.useMemo((): ScrollAxis[] => {
     const axes: ScrollAxis[] = [];
-    if (directions.includes('up') || directions.includes('down')) {
+    if (hasVertical) {
       axes.push('vertical');
     }
-    if (directions.includes('left') || directions.includes('right')) {
+    if (hasHorizontal) {
       axes.push('horizontal');
     }
     return axes;
-  }, [directions]);
+  }, [hasHorizontal, hasVertical]);
 
   const [currentSwipeDirection, setCurrentSwipeDirection] = React.useState<
     SwipeDirection | undefined
@@ -178,6 +185,7 @@ export function useSwipeDismiss(options: useSwipeDismiss.Options): useSwipeDismi
   const swipeStartTimeRef = React.useRef<number | null>(null);
   const lastDragSampleRef = React.useRef<{ x: number; y: number; time: number } | null>(null);
   const lastDragVelocityRef = React.useRef({ x: 0, y: 0 });
+  const lastProgressDetailsRef = React.useRef<SwipeProgressDetailsInternal | null>(null);
 
   const onProgressStable = useStableCallback(onProgress);
   const onReleaseStable = useStableCallback(onRelease);
@@ -204,11 +212,28 @@ export function useSwipeDismiss(options: useSwipeDismiss.Options): useSwipeDismi
   const updateSwipeProgress = useStableCallback(
     (progress: number, details?: SwipeProgressDetailsInternal) => {
       const nextProgress = Number.isFinite(progress) ? clamp(progress, 0, 1) : 0;
-      if (nextProgress === swipeProgressRef.current) {
+      const progressChanged = nextProgress !== swipeProgressRef.current;
+      let detailsChanged = false;
+
+      if (details) {
+        const lastDetails = lastProgressDetailsRef.current;
+        detailsChanged =
+          !lastDetails ||
+          lastDetails.deltaX !== details.deltaX ||
+          lastDetails.deltaY !== details.deltaY ||
+          lastDetails.direction !== details.direction;
+      }
+
+      if (!progressChanged && !detailsChanged) {
         return;
       }
 
       swipeProgressRef.current = nextProgress;
+      if (details) {
+        lastProgressDetailsRef.current = details;
+      } else if (progressChanged) {
+        lastProgressDetailsRef.current = null;
+      }
       onProgressStable(nextProgress, details);
     },
   );
@@ -258,6 +283,7 @@ export function useSwipeDismiss(options: useSwipeDismiss.Options): useSwipeDismi
     swipeStartTimeRef.current = null;
     lastDragSampleRef.current = null;
     lastDragVelocityRef.current = { x: 0, y: 0 };
+    lastProgressDetailsRef.current = null;
   }, [swipeThresholdDefault, updateSwipeProgress]);
 
   React.useEffect(() => {
@@ -372,35 +398,19 @@ export function useSwipeDismiss(options: useSwipeDismiss.Options): useSwipeDismi
   );
 
   const applyDirectionalDamping = useStableCallback((deltaX: number, deltaY: number) => {
-    let newDeltaX = deltaX;
-    let newDeltaY = deltaY;
+    const exponent = (value: number) => (value >= 0 ? value ** 0.5 : -(Math.abs(value) ** 0.5));
+    const dampAxis = (delta: number, allowNegative: boolean, allowPositive: boolean) => {
+      if (!allowNegative && delta < 0) {
+        return exponent(delta);
+      }
+      if (!allowPositive && delta > 0) {
+        return exponent(delta);
+      }
+      return delta;
+    };
 
-    const exponent =
-      oppositeDirectionDamping === 'exponential'
-        ? (value: number) => (value >= 0 ? value ** 0.5 : -(Math.abs(value) ** 0.5))
-        : () => 0;
-
-    if (!directions.includes('left') && !directions.includes('right')) {
-      newDeltaX = exponent(deltaX);
-    } else {
-      if (!directions.includes('right') && deltaX > 0) {
-        newDeltaX = exponent(deltaX);
-      }
-      if (!directions.includes('left') && deltaX < 0) {
-        newDeltaX = exponent(deltaX);
-      }
-    }
-
-    if (!directions.includes('up') && !directions.includes('down')) {
-      newDeltaY = exponent(deltaY);
-    } else {
-      if (!directions.includes('down') && deltaY > 0) {
-        newDeltaY = exponent(deltaY);
-      }
-      if (!directions.includes('up') && deltaY < 0) {
-        newDeltaY = exponent(deltaY);
-      }
-    }
+    const newDeltaX = hasHorizontal ? dampAxis(deltaX, allowLeft, allowRight) : exponent(deltaX);
+    const newDeltaY = hasVertical ? dampAxis(deltaY, allowUp, allowDown) : exponent(deltaY);
 
     return { x: newDeltaX, y: newDeltaY };
   });
@@ -506,8 +516,6 @@ export function useSwipeDismiss(options: useSwipeDismiss.Options): useSwipeDismi
         if (movementDistance >= MIN_DRAG_THRESHOLD) {
           setIsRealSwipe(true);
           if (lockedDirection === null) {
-            const hasHorizontal = directions.includes('left') || directions.includes('right');
-            const hasVertical = directions.includes('up') || directions.includes('down');
             if (hasHorizontal && hasVertical) {
               const absX = Math.abs(deltaX);
               const absY = Math.abs(deltaY);
@@ -537,11 +545,18 @@ export function useSwipeDismiss(options: useSwipeDismiss.Options): useSwipeDismi
           candidate = deltaY > 0 ? 'down' : 'up';
         }
 
-        if (candidate && directions.includes(candidate)) {
-          intendedSwipeDirectionRef.current = candidate;
-          maxSwipeDisplacementRef.current = getDisplacement(candidate, deltaX, deltaY);
-          setCurrentSwipeDirection(candidate);
-          resolveSwipeThreshold(candidate);
+        if (candidate) {
+          const isAllowed =
+            (candidate === 'left' && allowLeft) ||
+            (candidate === 'right' && allowRight) ||
+            (candidate === 'up' && allowUp) ||
+            (candidate === 'down' && allowDown);
+          if (isAllowed) {
+            intendedSwipeDirectionRef.current = candidate;
+            maxSwipeDisplacementRef.current = getDisplacement(candidate, deltaX, deltaY);
+            setCurrentSwipeDirection(candidate);
+            resolveSwipeThreshold(candidate);
+          }
         }
       } else {
         const direction = intendedSwipeDirectionRef.current;
@@ -550,8 +565,8 @@ export function useSwipeDismiss(options: useSwipeDismiss.Options): useSwipeDismi
           cancelledSwipeRef.current = false;
           setCurrentSwipeDirection(direction);
         } else if (
-          !(directions.includes('left') && directions.includes('right')) &&
-          !(directions.includes('up') && directions.includes('down')) &&
+          !(allowLeft && allowRight) &&
+          !(allowUp && allowDown) &&
           maxSwipeDisplacementRef.current - currentDisplacement >= REVERSE_CANCEL_THRESHOLD
         ) {
           // Mark that a change-of-mind has occurred
@@ -564,18 +579,18 @@ export function useSwipeDismiss(options: useSwipeDismiss.Options): useSwipeDismi
       let newOffsetY = initialTransformRef.current.y;
 
       if (lockedDirection === 'horizontal') {
-        if (directions.includes('left') || directions.includes('right')) {
+        if (hasHorizontal) {
           newOffsetX += dampedDelta.x;
         }
       } else if (lockedDirection === 'vertical') {
-        if (directions.includes('up') || directions.includes('down')) {
+        if (hasVertical) {
           newOffsetY += dampedDelta.y;
         }
       } else {
-        if (directions.includes('left') || directions.includes('right')) {
+        if (hasHorizontal) {
           newOffsetX += dampedDelta.x;
         }
-        if (directions.includes('up') || directions.includes('down')) {
+        if (hasVertical) {
           newOffsetY += dampedDelta.y;
         }
       }
@@ -673,7 +688,6 @@ export function useSwipeDismiss(options: useSwipeDismiss.Options): useSwipeDismi
             ) {
               const deltaX = currentPos.x - pendingStartPos.x;
               const deltaY = currentPos.y - pendingStartPos.y;
-              const hasVertical = directions.includes('down') || directions.includes('up');
               if (hasVertical && deltaY !== 0 && Math.abs(deltaY) >= Math.abs(deltaX)) {
                 const maxScrollTop = Math.max(
                   0,
@@ -683,10 +697,10 @@ export function useSwipeDismiss(options: useSwipeDismiss.Options): useSwipeDismi
                 const atBottom = scrollTarget.scrollTop >= maxScrollTop;
                 const movingDown = deltaY > 0;
                 const movingUp = deltaY < 0;
-                const allowDown = movingDown && atTop && directions.includes('down');
-                const allowUp = movingUp && atBottom && directions.includes('up');
+                const canSwipeDown = movingDown && atTop && allowDown;
+                const canSwipeUp = movingUp && atBottom && allowUp;
 
-                if (allowDown || allowUp) {
+                if (canSwipeDown || canSwipeUp) {
                   ignoreScrollableTarget = true;
                   ignoreScrollableAncestorsOnStart = true;
                 } else {
@@ -963,7 +977,6 @@ export namespace useSwipeDismiss {
     canStart?:
       | ((position: { x: number; y: number }, details: SwipeDismissDetails) => boolean)
       | undefined;
-    ignoreSelector?: string | undefined;
     /**
      * If true, swiping won't start when the gesture begins within a scrollable element.
      * This helps avoid conflicts between scrolling content and swipe-to-dismiss.
@@ -971,11 +984,11 @@ export namespace useSwipeDismiss {
      */
     ignoreScrollableAncestors?: boolean | undefined;
     /**
-     * If false, touch interactions can start swiping on elements matched by `ignoreSelector`.
+     * If false, touch interactions can start swiping on interactive elements
+     * that are ignored during pointer swipes.
      * @default true
      */
     ignoreSelectorWhenTouch?: boolean | undefined;
-    oppositeDirectionDamping?: ('exponential' | 'none') | undefined;
     onSwipeStart?: ((event: PointerEvent | TouchEvent) => void) | undefined;
     onTouchSwipeStart?: ((event: PointerEvent | TouchEvent) => void) | undefined;
     onProgress?: ((progress: number, details?: SwipeProgressDetailsInternal) => void) | undefined;

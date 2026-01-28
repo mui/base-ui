@@ -93,7 +93,6 @@ export const DrawerPopup = React.forwardRef(function DrawerPopup(
   const [popupHeight, setPopupHeight] = React.useState(0);
 
   const popupHeightRef = React.useRef(0);
-  const nestedOpenDialogCountRef = React.useRef(nestedOpenDialogCount);
 
   const measureHeight = useStableCallback(() => {
     const popupElement = store.context.popupRef.current;
@@ -102,8 +101,6 @@ export const DrawerPopup = React.forwardRef(function DrawerPopup(
     }
 
     const offsetHeight = popupElement.offsetHeight;
-
-    nestedOpenDialogCountRef.current = nestedOpenDialogCount;
 
     // Only skip while the element is still actually stretched beyond its last measured height.
     if (
@@ -286,9 +283,7 @@ export const DrawerPopup = React.forwardRef(function DrawerPopup(
             ? `${frontmostHeight}px`
             : undefined,
           [DrawerPopupCssVars.swipeStrength]:
-            typeof swipeStrength === 'number' &&
-            Number.isFinite(swipeStrength) &&
-            swipeStrength > 0
+            typeof swipeStrength === 'number' && Number.isFinite(swipeStrength) && swipeStrength > 0
               ? `${swipeStrength}`
               : undefined,
         } as React.CSSProperties,
