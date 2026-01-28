@@ -4,10 +4,9 @@ import menuDemoStyles from 'docs/src/app/(docs)/react/components/menu/demos/subm
 import tooltipDemoStyles from 'docs/src/app/(docs)/react/components/tooltip/demos/hero/css-modules/index.module.css';
 import popoverDemoStyles from 'docs/src/app/(docs)/react/components/popover/demos/_index.module.css';
 import dialogDemoStyles from 'docs/src/app/(docs)/react/components/dialog/demos/_index.module.css';
-import styles from './perf.module.css';
 import PerformanceBenchmark from './utils/benchmark';
-import type { Settings } from './SettingsPanel';
-import { SettingsPanel, defaultSettings } from './SettingsPanel';
+import { type Settings, SettingsPanel, defaultSettings } from './SettingsPanel';
+import styles from './perf.module.css';
 
 interface RowData {
   label: string;
@@ -36,7 +35,7 @@ export default function PerfExperiment() {
 
   return (
     <div className={styles.container}>
-      <h1>Component performance - Radix</h1>
+      <h1>Initial render performance - Radix</h1>
       <SettingsPanel settings={settings} onChange={setSettings} />
       <PerformanceBenchmark>
         <Tooltip.Provider>
