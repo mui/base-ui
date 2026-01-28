@@ -5,6 +5,7 @@ export interface Settings {
   renderDialog: boolean;
   renderMenu: boolean;
   renderPopover: boolean;
+  renderPreviewCard: boolean;
   renderTooltip: boolean;
 }
 
@@ -12,14 +13,16 @@ export const defaultSettings: Settings = {
   renderDialog: true,
   renderMenu: true,
   renderPopover: true,
+  renderPreviewCard: true,
   renderTooltip: true,
 };
 
 const settingRows: Array<{ key: keyof Settings; label: string }> = [
-  { key: 'renderDialog', label: 'Render Dialog' },
-  { key: 'renderMenu', label: 'Render Menu' },
-  { key: 'renderPopover', label: 'Render Popover' },
-  { key: 'renderTooltip', label: 'Render Tooltip' },
+  { key: 'renderDialog', label: 'Dialog' },
+  { key: 'renderMenu', label: 'Menu' },
+  { key: 'renderPopover', label: 'Popover' },
+  { key: 'renderPreviewCard', label: 'Preview Card' },
+  { key: 'renderTooltip', label: 'Tooltip' },
 ];
 
 interface SettingsPanelProps {
@@ -32,7 +35,7 @@ export function SettingsPanel(props: SettingsPanelProps) {
 
   return (
     <fieldset className={styles.settingsPanel}>
-      <legend className={styles.settingsLegend}>Settings</legend>
+      <legend className={styles.settingsLegend}>Render components</legend>
       <div className={styles.settingsGrid}>
         {settingRows.map((row) => (
           <label key={row.key} className={styles.settingsRow}>
