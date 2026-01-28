@@ -13,6 +13,7 @@ export interface ToggleGroupContext<Value> {
   ) => void;
   disabled: boolean;
   orientation: Orientation;
+  isValueInitialized: boolean;
 }
 
 export const ToggleGroupContext = React.createContext<ToggleGroupContext<any> | undefined>(

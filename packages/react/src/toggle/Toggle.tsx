@@ -52,14 +52,14 @@ export const Toggle = React.forwardRef(function Toggle<Value extends string>(
   if (process.env.NODE_ENV !== 'production') {
     // eslint-disable-next-line react-hooks/rules-of-hooks
     useIsoLayoutEffect(() => {
-      if (groupContext && valueProp === undefined && groupContext?.value.length > 0) {
+      if (groupContext && valueProp === undefined && groupContext.isValueInitialized) {
         warn(
           'A `<Toggle>` component rendered in a `<ToggleGroup>` has no explicit `value` prop.',
           'This will cause issues between the Toggle Group and Toggle values.',
           'Provide the `<Toggle>` with a `value` prop matching the `<ToggleGroup>` values prop type.',
         );
       }
-    }, [groupContext, valueProp]);
+    }, [groupContext, valueProp, groupContext?.isValueInitialized]);
   }
 
   const [pressed, setPressedState] = useControlled({

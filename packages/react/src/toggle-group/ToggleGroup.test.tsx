@@ -73,10 +73,6 @@ describe('<ToggleGroup />', () => {
     });
 
     it('when Toggles omit value', async () => {
-      vi.spyOn(console, 'warn')
-        .mockName('console.warn')
-        .mockImplementation(() => {});
-
       const { user } = await render(
         <ToggleGroup>
           <Toggle />
@@ -96,9 +92,21 @@ describe('<ToggleGroup />', () => {
       await user.click(button2);
       expect(button1).to.have.attribute('aria-pressed', 'false');
       expect(button2).to.have.attribute('aria-pressed', 'true');
+    });
 
-      expect(console.warn).toHaveBeenCalledTimes(1);
-      expect(console.warn).toHaveBeenCalledWith(
+    it('should warn if Toggle value is not set and ToggleGroup value is defined', async () => {
+      vi.spyOn(console, 'warn')
+        .mockName('console.warn')
+        .mockImplementation(() => {});
+
+      await render(
+        <ToggleGroup defaultValue={['one']}>
+          <Toggle />
+          <Toggle />
+        </ToggleGroup>,
+      );
+
+      expect(console.warn).toHaveBeenCalledExactlyOnceWith(
         'Base UI: A `<Toggle>` component rendered in a `<ToggleGroup>` has no explicit `value` prop. This will cause issues between the Toggle Group and Toggle values. Provide the `<Toggle>` with a `value` prop matching the `<ToggleGroup>` values prop type.',
       );
     });

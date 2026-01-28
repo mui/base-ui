@@ -52,6 +52,11 @@ export const ToggleGroup = React.forwardRef(function ToggleGroup<Value extends s
     return undefined;
   }, [valueProp, defaultValueProp]);
 
+  const isValueInitialized = React.useMemo(
+    () => valueProp !== undefined || defaultValueProp !== undefined,
+    [valueProp, defaultValueProp],
+  );
+
   const disabled = (toolbarContext?.disabled ?? false) || disabledProp;
 
   const [groupValue, setValueState] = useControlled({
@@ -98,8 +103,9 @@ export const ToggleGroup = React.forwardRef(function ToggleGroup<Value extends s
       orientation,
       setGroupValue,
       value: groupValue,
+      isValueInitialized,
     }),
-    [disabled, orientation, setGroupValue, groupValue],
+    [disabled, orientation, setGroupValue, groupValue, isValueInitialized],
   );
 
   const defaultProps: HTMLProps = {
