@@ -100,7 +100,7 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
 
   useScrollLock(
     (alignItemWithTriggerActive || modal) && open && openMethod !== 'touch',
-    triggerElement,
+    positionerElement ?? triggerElement,
   );
 
   const positioning = useAnchorPositioning({
