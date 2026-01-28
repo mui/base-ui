@@ -27,8 +27,6 @@ describe('<ScrollArea.Root />', () => {
         <ScrollArea.Viewport data-testid="viewport" style={{ width: '100%', height: '100%' }}>
           <div style={{ width: 1000, height: 1000 }} />
         </ScrollArea.Viewport>
-        <ScrollArea.Scrollbar orientation="vertical" keepMounted />
-        <ScrollArea.Scrollbar orientation="horizontal" keepMounted />
       </ScrollArea.Root>,
     );
 
