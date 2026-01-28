@@ -1,4 +1,4 @@
-import { expect } from 'chai';
+import { expect } from 'vitest';
 import { spy } from 'sinon';
 import { act, screen } from '@mui/internal-test-utils';
 import { DirectionProvider, type TextDirection } from '@base-ui/react/direction-provider';
@@ -73,6 +73,10 @@ describe('<ToggleGroup />', () => {
     });
 
     it('when Toggles omit value', async () => {
+      vi.spyOn(console, 'warn')
+        .mockName('console.warn')
+        .mockImplementation(() => {});
+
       const { user } = await render(
         <ToggleGroup>
           <Toggle />
@@ -92,6 +96,11 @@ describe('<ToggleGroup />', () => {
       await user.click(button2);
       expect(button1).to.have.attribute('aria-pressed', 'false');
       expect(button2).to.have.attribute('aria-pressed', 'true');
+
+      expect(console.warn).toHaveBeenCalledTimes(1);
+      expect(console.warn).toHaveBeenCalledWith(
+        'Base UI: A `<Toggle>` component rendered in a `<ToggleGroup>` has no explicit `value` prop. This will cause issues between the Toggle Group and Toggle values. Provide the `<Toggle>` with a `value` prop matching the `<ToggleGroup>` values prop type.',
+      );
     });
   });
 
