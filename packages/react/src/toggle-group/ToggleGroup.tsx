@@ -115,7 +115,7 @@ export const ToggleGroup = React.forwardRef(function ToggleGroup<Value extends s
   });
 
   return (
-    <ToggleGroupContext.Provider value={contextValue as ToggleGroupContext<unknown>}>
+    <ToggleGroupContext.Provider value={contextValue}>
       {toolbarContext ? (
         element
       ) : (

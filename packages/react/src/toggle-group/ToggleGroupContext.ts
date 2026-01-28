@@ -15,17 +15,17 @@ export interface ToggleGroupContext<Value> {
   orientation: Orientation;
 }
 
-export const ToggleGroupContext = React.createContext<ToggleGroupContext<unknown> | undefined>(
+export const ToggleGroupContext = React.createContext<ToggleGroupContext<any> | undefined>(
   undefined,
 );
 
 export function useToggleGroupContext<Value>(optional = true) {
-  const context = React.useContext(ToggleGroupContext);
+  const context = React.useContext<ToggleGroupContext<Value> | undefined>(ToggleGroupContext);
   if (context === undefined && !optional) {
     throw new Error(
       'Base UI: ToggleGroupContext is missing. ToggleGroup parts must be placed within <ToggleGroup>.',
     );
   }
 
-  return context as ToggleGroupContext<Value>;
+  return context;
 }
