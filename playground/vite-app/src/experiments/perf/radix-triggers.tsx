@@ -54,10 +54,10 @@ function TestComponent(props: { settings: Settings }) {
         <div key={row.index} className={styles.row}>
           <span className={styles.label}>{row.label}</span>
           <span className={styles.actions}>
-            {renderDialog && <RowDialog rowData={row} />}
-            {renderMenu && <RowMenu rowData={row} />}
-            {renderPopover && <RowPopover rowData={row} />}
-            {renderTooltip && <RowTooltip rowData={row} />}
+            {renderDialog && <StyledDialog rowData={row} />}
+            {renderMenu && <StyledMenu rowData={row} />}
+            {renderPopover && <StyledPopover rowData={row} />}
+            {renderTooltip && <StyledTooltip rowData={row} />}
           </span>
         </div>
       ))}
@@ -65,7 +65,7 @@ function TestComponent(props: { settings: Settings }) {
   );
 }
 
-function RowMenu({ rowData }: RowProps) {
+function StyledMenu({ rowData }: RowProps) {
   return (
     <DropdownMenu.Root>
       <DropdownMenu.Trigger className={styles.button} data-id={rowData.index}>
@@ -91,7 +91,7 @@ function RowMenu({ rowData }: RowProps) {
   );
 }
 
-function RowPopover({ rowData }: RowProps) {
+function StyledPopover({ rowData }: RowProps) {
   return (
     <Popover.Root>
       <Popover.Trigger className={styles.button} data-id={rowData.index}>
@@ -109,7 +109,7 @@ function RowPopover({ rowData }: RowProps) {
   );
 }
 
-function RowTooltip({ rowData }: RowProps) {
+function StyledTooltip({ rowData }: RowProps) {
   return (
     <Tooltip.Root>
       <Tooltip.Trigger className={styles.button} data-id={rowData.index}>
@@ -127,7 +127,7 @@ function RowTooltip({ rowData }: RowProps) {
   );
 }
 
-function RowDialog({ rowData }: RowProps) {
+function StyledDialog({ rowData }: RowProps) {
   return (
     <Dialog.Root>
       <Dialog.Trigger className={styles.button} data-id={rowData.index}>

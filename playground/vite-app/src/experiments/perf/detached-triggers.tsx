@@ -102,15 +102,15 @@ function TestComponent(props: { settings: Settings }) {
           </div>
         ))}
       </div>
-      {renderDialog && <RowDialog />}
-      {renderMenu && <RowMenu />}
-      {renderPopover && <RowPopover />}
-      {renderTooltip && <RowTooltip />}
+      {renderDialog && <StyledDialog />}
+      {renderMenu && <StyledMenu />}
+      {renderPopover && <StyledPopover />}
+      {renderTooltip && <StyledTooltip />}
     </div>
   );
 }
 
-function RowMenu() {
+function StyledMenu() {
   return (
     <Menu.Root handle={rowMenuHandle}>
       {({ payload: rowData }) => (
@@ -141,7 +141,7 @@ function RowMenu() {
   );
 }
 
-function RowPopover() {
+function StyledPopover() {
   return (
     <Popover.Root handle={rowPopoverHandle}>
       {({ payload: rowData }) => (
@@ -160,7 +160,7 @@ function RowPopover() {
   );
 }
 
-function RowTooltip() {
+function StyledTooltip() {
   return (
     <Tooltip.Root handle={genericTooltipHandle}>
       {({ payload: rowData }) =>
@@ -181,7 +181,7 @@ function RowTooltip() {
   );
 }
 
-function RowDialog() {
+function StyledDialog() {
   return (
     <Dialog.Root handle={rowDialogHandle}>
       {({ payload: rowData }) =>
