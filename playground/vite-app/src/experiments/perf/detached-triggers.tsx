@@ -10,7 +10,7 @@ import popoverDemoStyles from 'docs/src/app/(docs)/react/components/popover/demo
 import dialogDemoStyles from 'docs/src/app/(docs)/react/components/dialog/demos/_index.module.css';
 import previewCardDemoStyles from 'docs/src/app/(docs)/react/components/preview-card/demos/index.module.css';
 import PerformanceBenchmark from './utils/benchmark';
-import { type Settings, SettingsPanel, defaultSettings } from './SettingsPanel';
+import { type Settings, SettingsPanel, usePersistedSettings } from './SettingsPanel';
 import styles from './perf.module.css';
 
 interface RowData {
@@ -38,7 +38,7 @@ const rowDialogHandle = Dialog.createHandle<RowData>();
 const rowPreviewCardHandle = PreviewCard.createHandle<RowData>();
 
 export default function PerfExperiment() {
-  const [settings, setSettings] = React.useState<Settings>(defaultSettings);
+  const [settings, setSettings] = usePersistedSettings();
 
   return (
     <div className={styles.container}>
