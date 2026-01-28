@@ -1,4 +1,4 @@
-import { FallbackProps } from 'react-error-boundary';
+import { FallbackProps, getErrorMessage } from 'react-error-boundary';
 
 export function DemoErrorFallback(props: FallbackProps) {
   const { error, resetErrorBoundary } = props;
@@ -6,7 +6,7 @@ export function DemoErrorFallback(props: FallbackProps) {
   return (
     <div role="alert">
       <p>There was an error while rendering the demo.</p>
-      <pre>{error.message}</pre>
+      <pre>{getErrorMessage(error) ?? 'Unknown error'}</pre>
       <button type="button" onClick={resetErrorBoundary}>
         Try again
       </button>
