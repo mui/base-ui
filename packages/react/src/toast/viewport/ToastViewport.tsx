@@ -3,6 +3,7 @@ import * as React from 'react';
 import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
 import { visuallyHidden } from '@base-ui/utils/visuallyHidden';
 import { useStore } from '@base-ui/utils/store';
+import { useTimeout } from '@base-ui/utils/useTimeout';
 import { activeElement, contains, getTarget } from '../../floating-ui-react/utils';
 import { FocusGuard } from '../../utils/FocusGuard';
 import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
@@ -25,6 +26,7 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
   const { render, className, children, ...elementProps } = componentProps;
 
   const store = useToastContext();
+  const windowFocusTimeout = useTimeout();
 
   const handlingFocusGuardRef = React.useRef(false);
   const markedReadyForMouseLeaveRef = React.useRef(false);
@@ -100,7 +102,7 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
       }
 
       // Wait for the `handleFocus` event to fire.
-      setTimeout(() => store.setIsWindowFocused(true));
+      windowFocusTimeout.start(0, () => store.setIsWindowFocused(true));
     }
 
     win.addEventListener('blur', handleWindowBlur, true);
@@ -112,6 +114,7 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
     };
   }, [
     store,
+    windowFocusTimeout,
     // `store.state.viewport` isn't available on the first render,
     // since the portal node hasn't yet been created.
     // By adding this dependency, we ensure the window listeners

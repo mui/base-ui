@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { useOnMount } from '@base-ui/utils/useOnMount';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { ToastContext } from './ToastProviderContext';
 import type { ToastManager } from '../createToastManager';
@@ -27,6 +28,8 @@ export const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvid
         prevFocusElement: null,
       }),
   ).current;
+
+  useOnMount(store.disposeEffect);
 
   React.useEffect(
     function subscribeToToastManager() {

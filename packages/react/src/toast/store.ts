@@ -101,6 +101,15 @@ export class ToastStore extends Store<State> {
     this.set('viewport', viewport);
   };
 
+  disposeEffect = () => {
+    return () => {
+      this.timers.forEach((timer) => {
+        timer.timeout?.clear();
+      });
+      this.timers.clear();
+    };
+  };
+
   removeToast(toastId: string) {
     const index = selectors.toastIndex(this.state, toastId);
     if (index === -1) {
