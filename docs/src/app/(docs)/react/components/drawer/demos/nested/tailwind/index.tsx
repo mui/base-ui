@@ -67,10 +67,7 @@ export default function ExampleDrawerNested() {
 
                             <div className="flex items-center justify-end gap-4">
                               <div className="mr-auto">
-                                <Drawer.Root
-                                  open={thirdOpen}
-                                  onOpenChange={setThirdOpen}
-                                >
+                                <Drawer.Root open={thirdOpen} onOpenChange={setThirdOpen}>
                                   <Drawer.Trigger className="text-base font-medium text-blue-800 rounded px-1.5 py-0.5 -m-0.5 hover:bg-blue-800/5 active:bg-blue-800/10 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800">
                                     Advanced options
                                   </Drawer.Trigger>
