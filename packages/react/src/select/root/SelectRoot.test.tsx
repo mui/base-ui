@@ -2427,6 +2427,95 @@ describe('<Select.Root />', () => {
     });
   });
 
+  describe('typeahead', () => {
+    it('starts from the first match after value reset (closed)', async () => {
+      function App() {
+        const [value, setValue] = React.useState<string | null>(null);
+        return (
+          <React.Fragment>
+            <button data-testid="reset" onClick={() => setValue(null)}>
+              Reset
+            </button>
+            <Select.Root value={value} onValueChange={setValue}>
+              <Select.Trigger data-testid="trigger">
+                <Select.Value data-testid="value" />
+              </Select.Trigger>
+              <Select.Portal>
+                <Select.Positioner>
+                  <Select.Popup>
+                    <Select.Item value="a1">A1</Select.Item>
+                    <Select.Item value="a2">A2</Select.Item>
+                  </Select.Popup>
+                </Select.Positioner>
+              </Select.Portal>
+            </Select.Root>
+          </React.Fragment>
+        );
+      }
+
+      const { user } = await render(<App />);
+
+      const trigger = screen.getByTestId('trigger');
+      const valueEl = screen.getByTestId('value');
+      const resetBtn = screen.getByTestId('reset');
+
+      act(() => trigger.focus());
+      await user.keyboard('a');
+      expect(valueEl.textContent).to.equal('a1');
+
+      await user.click(resetBtn);
+
+      act(() => trigger.focus());
+      await user.keyboard('a');
+      expect(valueEl.textContent).to.equal('a1');
+    });
+
+    it('does not jump matches after a closed-state value reset', async () => {
+      function App() {
+        const [value, setValue] = React.useState<string | null>('dog');
+        return (
+          <React.Fragment>
+            <button data-testid="set-car" onClick={() => setValue('car')}>
+              Set car
+            </button>
+            <Select.Root value={value} onValueChange={setValue}>
+              <Select.Trigger data-testid="trigger">
+                <Select.Value data-testid="value" />
+              </Select.Trigger>
+              <Select.Portal>
+                <Select.Positioner>
+                  <Select.Popup>
+                    <Select.Item value="car">car</Select.Item>
+                    <Select.Item value="cat">cat</Select.Item>
+                    <Select.Item value="dog">dog</Select.Item>
+                  </Select.Popup>
+                </Select.Positioner>
+              </Select.Portal>
+            </Select.Root>
+          </React.Fragment>
+        );
+      }
+
+      const { user } = await render(<App />);
+
+      const trigger = screen.getByTestId('trigger');
+      const valueEl = screen.getByTestId('value');
+      const setCarButton = screen.getByTestId('set-car');
+
+      expect(valueEl.textContent).to.equal('dog');
+
+      await user.click(setCarButton);
+      expect(valueEl.textContent).to.equal('car');
+
+      await act(async () => trigger.focus());
+      await user.keyboard('c');
+      expect(valueEl.textContent).to.equal('cat');
+
+      await user.keyboard('a');
+      expect(valueEl.textContent).to.equal('cat');
+    });
+  });
+
   describe('prop: multiple', () => {
     it('removes selections that no longer exist', async () => {
       function Test() {
