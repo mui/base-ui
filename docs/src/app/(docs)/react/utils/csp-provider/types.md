@@ -6,14 +6,14 @@
 
 ### CSPProvider
 
-Provides a default Content Security Policy (CSP) configuration for Base UI components that
+Provides a default Content Security Policy (CSP) configuration for Base UI components that
 require inline `<style>` or `<script>` tags.
 
 **CSPProvider Props:**
 
 | Prop                 | Type              | Default | Description                                                                                                                                                                      |
 | :------------------- | :---------------- | :------ | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| disableStyleElements | `boolean`         | `false` | Whether inline `<style>` elements created by Base UI components should not be rendered. Instead, components must specify the CSS styles via custom class names or other methods. |
+| disableStyleElements | `boolean`         | `false` | Whether inline `<style>` elements created by Base UI components should not be rendered. Instead, components must specify the CSS styles via custom class names or other methods. |
 | nonce                | `string`          | -       | The nonce value to apply to inline `<style>` and `<script>` tags.                                                                                                                |
 | children             | `React.ReactNode` | -       | -                                                                                                                                                                                |
 
