@@ -332,4 +332,115 @@ describe('<DateField /> - Field Integration', () => {
       expect(screen.getByTestId('error')).to.have.text('Date is too late');
     });
   });
+
+  describe('Controlled value updates', () => {
+    it('should update displayed sections when value prop changes', async () => {
+      const { setProps } = await render(
+        <DateField format={numericDateFormat} value={adapter.date('2024-01-15', 'default')} />,
+      );
+
+      let sections = screen.getAllByRole('spinbutton');
+      expect(sections[0]).to.have.attribute('aria-valuenow', '1');
+      expect(sections[1]).to.have.attribute('aria-valuenow', '15');
+
+      await setProps({ value: adapter.date('2024-06-20', 'default') });
+
+      sections = screen.getAllByRole('spinbutton');
+      expect(sections[0]).to.have.attribute('aria-valuenow', '6');
+      expect(sections[1]).to.have.attribute('aria-valuenow', '20');
+    });
+
+    it('should update hidden input when value prop changes', async () => {
+      const { setProps } = await render(
+        <DateField format={numericDateFormat} value={adapter.date('2024-01-15', 'default')} />,
+      );
+
+      let hiddenInput = document.querySelector('input[tabindex="-1"]') as HTMLInputElement;
+      expect(hiddenInput.value).to.equal('2024-01-15');
+
+      await setProps({ value: adapter.date('2024-06-20', 'default') });
+
+      hiddenInput = document.querySelector('input[tabindex="-1"]') as HTMLInputElement;
+      expect(hiddenInput.value).to.equal('2024-06-20');
+    });
+  });
+
+  describe('Form validation - required', () => {
+    it('should show valueMissing error when required and empty', async () => {
+      const handleSubmit = spy();
+      await render(
+        <Form onFormSubmit={handleSubmit}>
+          <Field.Root name="date">
+            <DateField format={numericDateFormat} required />
+            <Field.Error match="valueMissing" data-testid="error">
+              Date is required
+            </Field.Error>
+          </Field.Root>
+          <button type="submit">Submit</button>
+        </Form>,
+      );
+
+      fireEvent.click(screen.getByText('Submit'));
+
+      expect(handleSubmit.callCount).to.equal(0);
+      expect(screen.getByTestId('error')).to.have.text('Date is required');
+    });
+
+    it('should not show valueMissing error when required and filled', async () => {
+      const handleSubmit = spy();
+      await render(
+        <Form onFormSubmit={handleSubmit}>
+          <Field.Root name="date">
+            <DateField
+              format={numericDateFormat}
+              required
+              defaultValue={adapter.date('2024-03-15', 'default')}
+            />
+            <Field.Error match="valueMissing" data-testid="error">
+              Date is required
+            </Field.Error>
+          </Field.Root>
+          <button type="submit">Submit</button>
+        </Form>,
+      );
+
+      fireEvent.click(screen.getByText('Submit'));
+
+      expect(handleSubmit.callCount).to.equal(1);
+      expect(screen.queryByTestId('error')).to.equal(null);
+    });
+  });
+
+  describe('Hidden input attributes', () => {
+    it('should set type="date" on hidden input', async () => {
+      await render(<DateField format={numericDateFormat} />);
+
+      const hiddenInput = document.querySelector('input[tabindex="-1"]') as HTMLInputElement;
+      expect(hiddenInput.type).to.equal('date');
+    });
+
+    it('should set min attribute when minDate is provided', async () => {
+      await render(
+        <DateField
+          format={numericDateFormat}
+          minDate={adapter.date('2024-01-01', 'default')}
+        />,
+      );
+
+      const hiddenInput = document.querySelector('input[tabindex="-1"]') as HTMLInputElement;
+      expect(hiddenInput.min).to.equal('2024-01-01');
+    });
+
+    it('should set max attribute when maxDate is provided', async () => {
+      await render(
+        <DateField
+          format={numericDateFormat}
+          maxDate={adapter.date('2024-12-31', 'default')}
+        />,
+      );
+
+      const hiddenInput = document.querySelector('input[tabindex="-1"]') as HTMLInputElement;
+      expect(hiddenInput.max).to.equal('2024-12-31');
+    });
+  });
 });

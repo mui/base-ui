@@ -215,7 +215,7 @@ export class TemporalFieldSectionPlugin<TValue extends TemporalSupportedValue> {
       nextIndex += 1;
     }
 
-    if (isDatePart(sections[nextIndex])) {
+    if (nextIndex < sections.length && isDatePart(sections[nextIndex])) {
       this.store.set('selectedSection', nextIndex);
     }
   }
@@ -236,7 +236,7 @@ export class TemporalFieldSectionPlugin<TValue extends TemporalSupportedValue> {
       previousIndex -= 1;
     }
 
-    if (isDatePart(sections[previousIndex])) {
+    if (previousIndex >= 0 && isDatePart(sections[previousIndex])) {
       this.store.set('selectedSection', previousIndex);
     }
   }

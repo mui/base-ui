@@ -299,4 +299,178 @@ describe('<TimeField /> - Field Integration', () => {
       expect(screen.getByTestId('error')).to.have.text('Time is too late');
     });
   });
+
+  describe('Controlled value updates', () => {
+    it('should update displayed sections when value prop changes', async () => {
+      const { setProps } = await render(
+        <TimeField format={time24Format} value={adapter.date('2024-01-15T09:30', 'default')} />,
+      );
+
+      let sections = screen.getAllByRole('spinbutton');
+      expect(sections[0]).to.have.attribute('aria-valuenow', '9');
+      expect(sections[1]).to.have.attribute('aria-valuenow', '30');
+
+      await setProps({ value: adapter.date('2024-01-15T14:45', 'default') });
+
+      sections = screen.getAllByRole('spinbutton');
+      expect(sections[0]).to.have.attribute('aria-valuenow', '14');
+      expect(sections[1]).to.have.attribute('aria-valuenow', '45');
+    });
+
+    it('should update hidden input when value prop changes', async () => {
+      const { setProps } = await render(
+        <TimeField format={time24Format} value={adapter.date('2024-01-15T09:30', 'default')} />,
+      );
+
+      let hiddenInput = document.querySelector('input[tabindex="-1"]') as HTMLInputElement;
+      expect(hiddenInput.value).to.equal('09:30');
+
+      await setProps({ value: adapter.date('2024-01-15T14:45', 'default') });
+
+      hiddenInput = document.querySelector('input[tabindex="-1"]') as HTMLInputElement;
+      expect(hiddenInput.value).to.equal('14:45');
+    });
+  });
+
+  describe('Form validation - required', () => {
+    it('should show valueMissing error when required and empty', async () => {
+      const handleSubmit = spy();
+      await render(
+        <Form onFormSubmit={handleSubmit}>
+          <Field.Root name="time">
+            <TimeField format={time24Format} required />
+            <Field.Error match="valueMissing" data-testid="error">
+              Time is required
+            </Field.Error>
+          </Field.Root>
+          <button type="submit">Submit</button>
+        </Form>,
+      );
+
+      fireEvent.click(screen.getByText('Submit'));
+
+      expect(handleSubmit.callCount).to.equal(0);
+      expect(screen.getByTestId('error')).to.have.text('Time is required');
+    });
+
+    it('should not show valueMissing error when required and filled', async () => {
+      const handleSubmit = spy();
+      await render(
+        <Form onFormSubmit={handleSubmit}>
+          <Field.Root name="time">
+            <TimeField
+              format={time24Format}
+              required
+              defaultValue={adapter.date('2024-03-15T14:30', 'default')}
+            />
+            <Field.Error match="valueMissing" data-testid="error">
+              Time is required
+            </Field.Error>
+          </Field.Root>
+          <button type="submit">Submit</button>
+        </Form>,
+      );
+
+      fireEvent.click(screen.getByText('Submit'));
+
+      expect(handleSubmit.callCount).to.equal(1);
+      expect(screen.queryByTestId('error')).to.equal(null);
+    });
+  });
+
+  describe('Hidden input attributes', () => {
+    it('should set type="time" on hidden input', async () => {
+      await render(<TimeField format={time24Format} />);
+
+      const hiddenInput = document.querySelector('input[tabindex="-1"]') as HTMLInputElement;
+      expect(hiddenInput.type).to.equal('time');
+    });
+
+    it('should set min attribute when minTime is provided', async () => {
+      await render(
+        <TimeField
+          format={time24Format}
+          minTime={adapter.date('2024-01-01T09:00', 'default')}
+        />,
+      );
+
+      const hiddenInput = document.querySelector('input[tabindex="-1"]') as HTMLInputElement;
+      expect(hiddenInput.min).to.equal('09:00:00');
+    });
+
+    it('should set max attribute when maxTime is provided', async () => {
+      await render(
+        <TimeField
+          format={time24Format}
+          maxTime={adapter.date('2024-01-01T17:00', 'default')}
+        />,
+      );
+
+      const hiddenInput = document.querySelector('input[tabindex="-1"]') as HTMLInputElement;
+      expect(hiddenInput.max).to.equal('17:00:00');
+    });
+  });
+
+  describe('12-hour format with meridiem', () => {
+    const time12Format = `${adapter.formats.hours12hPadded}:${adapter.formats.minutesPadded} ${adapter.formats.meridiem}`;
+
+    it('should render 3 sections with meridiem', async () => {
+      await render(
+        <TimeField
+          format={time12Format}
+          defaultValue={adapter.date('2024-01-15T14:30', 'default')}
+        />,
+      );
+
+      const sections = screen.getAllByRole('spinbutton');
+      expect(sections).to.have.length(3);
+      expect(sections[0]).to.have.attribute('aria-label', 'Hours');
+      expect(sections[1]).to.have.attribute('aria-label', 'Minutes');
+      expect(sections[2]).to.have.attribute('aria-label', 'Meridiem');
+    });
+
+    it('should display PM for afternoon times', async () => {
+      await render(
+        <TimeField
+          format={time12Format}
+          defaultValue={adapter.date('2024-01-15T14:30', 'default')}
+        />,
+      );
+
+      const sections = screen.getAllByRole('spinbutton');
+      expect(sections[0]).to.have.attribute('aria-valuenow', '2'); // 2 PM
+      expect(sections[1]).to.have.attribute('aria-valuenow', '30');
+    });
+
+    it('should display AM for morning times', async () => {
+      await render(
+        <TimeField
+          format={time12Format}
+          defaultValue={adapter.date('2024-01-15T09:30', 'default')}
+        />,
+      );
+
+      const sections = screen.getAllByRole('spinbutton');
+      expect(sections[0]).to.have.attribute('aria-valuenow', '9');
+      expect(sections[1]).to.have.attribute('aria-valuenow', '30');
+    });
+  });
+
+  describe('Seconds format', () => {
+    it('should render hours, minutes, and seconds when format includes seconds', async () => {
+      const timeWithSecondsFormat = `${adapter.formats.hours24hPadded}:${adapter.formats.minutesPadded}:${adapter.formats.secondsPadded}`;
+      await render(
+        <TimeField
+          format={timeWithSecondsFormat}
+          defaultValue={adapter.date('2024-01-15T14:30:45', 'default')}
+        />,
+      );
+
+      const sections = screen.getAllByRole('spinbutton');
+      expect(sections).to.have.length(3);
+      expect(sections[0]).to.have.attribute('aria-label', 'Hours');
+      expect(sections[1]).to.have.attribute('aria-label', 'Minutes');
+      expect(sections[2]).to.have.attribute('aria-label', 'Seconds');
+    });
+  });
 });

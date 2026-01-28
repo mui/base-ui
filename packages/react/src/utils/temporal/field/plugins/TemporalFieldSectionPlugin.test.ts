@@ -658,6 +658,45 @@ describe('TemporalFieldSectionPlugin', () => {
       expect(store.state.selectedSection).to.equal(0); // Should stay at month
     });
 
+    it('should not crash when navigating forward with a trailing separator', () => {
+      const { start: esc, end: escEnd } = adapter.escapedCharacters;
+      // Format: MM/dd/yyyy. — produces a trailing separator after the last datePart
+      const formatWithTrailingSeparator = `${adapter.formats.monthPadded}/${adapter.formats.dayOfMonthPadded}/${adapter.formats.yearPadded}${esc}.${escEnd}`;
+      const store = new DateFieldStore({
+        format: formatWithTrailingSeparator,
+        adapter,
+        direction: 'ltr',
+        validationProps: {},
+      });
+
+      store.section.selectClosestDatePart(4); // year (last datePart)
+      expect(store.state.selectedSection).to.equal(4);
+
+      // Should not throw and should stay on the current section
+      store.section.selectNextDatePart();
+      expect(store.state.selectedSection).to.equal(4);
+    });
+
+    it('should not crash when navigating backward with a leading separator', () => {
+      const { start: esc, end: escEnd } = adapter.escapedCharacters;
+      // Format: .MM/dd/yyyy — produces a leading separator before the first datePart
+      const formatWithLeadingSeparator = `${esc}.${escEnd}${adapter.formats.monthPadded}/${adapter.formats.dayOfMonthPadded}/${adapter.formats.yearPadded}`;
+      const store = new DateFieldStore({
+        format: formatWithLeadingSeparator,
+        adapter,
+        direction: 'ltr',
+        validationProps: {},
+      });
+
+      // The first datePart is at index 1 (index 0 is the leading separator)
+      store.section.selectClosestDatePart(1); // month
+      expect(store.state.selectedSection).to.equal(1);
+
+      // Should not throw and should stay on the current section
+      store.section.selectPreviousDatePart();
+      expect(store.state.selectedSection).to.equal(1);
+    });
+
     it('should remove selected section', () => {
       const store = new DateFieldStore({
         format: numericDateFormat,

@@ -850,4 +850,77 @@ describe('TemporalFieldStore - Field Integration', () => {
       }
     });
   });
+
+  describe('simultaneous format and value changes', () => {
+    const europeanDateFormat = `${adapter.formats.dayOfMonthPadded}/${adapter.formats.monthPadded}/${adapter.formats.yearPadded}`;
+
+    it('should clear sectionToUpdateOnNextInvalidDate when format changes', () => {
+      const defaultValue = adapter.date('2024-01-30', 'default');
+      const store = new DateFieldStore({
+        format: numericDateFormat,
+        defaultValue,
+        adapter,
+        direction: 'ltr',
+        validationProps: {},
+      });
+
+      // Edit month from 01 to 02: Jan 30 → Feb 30 (invalid) → sets sectionToUpdateOnNextInvalidDate
+      store.section.selectClosestDatePart(0); // month section
+      store.section.updateDatePart({
+        sectionIndex: 0,
+        newDatePartValue: '02',
+        shouldGoToNextSection: false,
+      });
+
+      expect(store.section.sectionToUpdateOnNextInvalidDate).to.not.equal(null);
+
+      // Change format via syncState (simulates parent re-render with new format prop)
+      store.syncState({
+        format: europeanDateFormat,
+        defaultValue,
+        adapter,
+        direction: 'ltr',
+        validationProps: {},
+      });
+
+      // The stale pending patch should have been cleared
+      expect(store.section.sectionToUpdateOnNextInvalidDate).to.equal(null);
+    });
+
+    it('should not corrupt sections when format and value change simultaneously with a pending invalid date', () => {
+      const store = new DateFieldStore({
+        format: numericDateFormat,
+        value: adapter.date('2024-01-30', 'default'),
+        adapter,
+        direction: 'ltr',
+        validationProps: {},
+      });
+
+      // Edit month from 01 to 02: Jan 30 → Feb 30 (invalid) → sets sectionToUpdateOnNextInvalidDate
+      store.section.selectClosestDatePart(0); // month section
+      store.section.updateDatePart({
+        sectionIndex: 0,
+        newDatePartValue: '02',
+        shouldGoToNextSection: false,
+      });
+
+      expect(store.section.sectionToUpdateOnNextInvalidDate).to.not.equal(null);
+
+      // Simulate parent re-render that changes BOTH format and value
+      const newValue = adapter.date('2024-06-15', 'default');
+      store.syncState({
+        format: europeanDateFormat,
+        value: newValue,
+        adapter,
+        direction: 'ltr',
+        validationProps: {},
+      });
+
+      // Sections should reflect the NEW format (dd/MM/yyyy) with the NEW value
+      const sections = store.state.sections.filter((s) => s.type === 'datePart');
+      expect(sections[0].value).to.equal('15'); // day first in european format
+      expect(sections[1].value).to.equal('06'); // month second
+      expect(sections[2].value).to.equal('2024'); // year
+    });
+  });
 });

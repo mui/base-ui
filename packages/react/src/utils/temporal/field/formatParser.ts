@@ -22,7 +22,6 @@ import {
 } from './adapter-cache';
 import { ValidateDateValidationProps } from '../validateDate';
 import { ValidateTimeValidationProps } from '../validateTime';
-import { get } from 'http';
 
 const DATE_PART_CONFIG_MAP: Record<TemporalFieldDatePartType, FormatParserDatePartConfig> = {
   year: {

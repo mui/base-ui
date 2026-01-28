@@ -191,30 +191,45 @@ export class TemporalFieldStore<
     ) as Partial<TemporalFieldState<TValue, TValidationProps>>;
 
     // If the format changed, we need to rebuild the sections
-    if (
+    const hasFormatChanged =
       parameters.format !== this.state.format ||
       parameters.placeholderGetters !== this.state.placeholderGetters ||
       direction !== this.state.direction ||
       adapter !== this.state.adapter ||
-      validationProps !== this.state.validationProps
-    ) {
-      newState.sections = config.getSectionsFromValue(this.state.value, (date) =>
-        buildSections(
-          adapter,
-          FormatParser.parse(
-            adapter,
-            parameters.format,
-            direction,
-            parameters.placeholderGetters,
-            validationProps,
-          ),
-          date,
-        ),
-      );
-    }
+      validationProps !== this.state.validationProps;
+    const hasValueChanged =
+      parameters.value !== undefined && parameters.value !== this.parameters.value;
 
-    if (parameters.value !== undefined && parameters.value !== this.parameters.value) {
-      Object.assign(newState, this.value.deriveStateFromNewValue(parameters.value));
+    if (hasFormatChanged) {
+      const parsedFormat = FormatParser.parse(
+        adapter,
+        parameters.format,
+        direction,
+        parameters.placeholderGetters,
+        validationProps,
+      );
+
+      // When both format and value change, build sections from the new value directly.
+      // deriveStateFromNewValue cannot be used here because it reads parsedFormat from
+      // the store state which still contains the old format at this point.
+      const valueToUse = hasValueChanged ? (parameters.value as TValue) : this.state.value;
+      newState.sections = config.getSectionsFromValue(valueToUse, (date) =>
+        buildSections(adapter, parsedFormat, date),
+      );
+
+      // The pending invalid-date section patch references indices from the old format,
+      // so it must be discarded when sections are rebuilt.
+      this.section.sectionToUpdateOnNextInvalidDate = null;
+
+      if (hasValueChanged) {
+        newState.referenceValue = config.updateReferenceValue(
+          adapter,
+          parameters.value as TValue,
+          this.state.referenceValue,
+        );
+      }
+    } else if (hasValueChanged) {
+      Object.assign(newState, this.value.deriveStateFromNewValue(parameters.value as TValue));
     }
 
     // If the adapter changed, we need to rebuild the manager
