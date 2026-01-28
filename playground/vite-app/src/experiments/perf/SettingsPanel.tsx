@@ -39,15 +39,22 @@ function normalizeSettings(value: unknown): Settings {
 
   const record = value as Partial<Settings>;
   return {
-    renderDialog: typeof record.renderDialog === 'boolean' ? record.renderDialog : defaultSettings.renderDialog,
-    renderMenu: typeof record.renderMenu === 'boolean' ? record.renderMenu : defaultSettings.renderMenu,
+    renderDialog:
+      typeof record.renderDialog === 'boolean' ? record.renderDialog : defaultSettings.renderDialog,
+    renderMenu:
+      typeof record.renderMenu === 'boolean' ? record.renderMenu : defaultSettings.renderMenu,
     renderPopover:
-      typeof record.renderPopover === 'boolean' ? record.renderPopover : defaultSettings.renderPopover,
+      typeof record.renderPopover === 'boolean'
+        ? record.renderPopover
+        : defaultSettings.renderPopover,
     renderPreviewCard:
       typeof record.renderPreviewCard === 'boolean'
         ? record.renderPreviewCard
         : defaultSettings.renderPreviewCard,
-    renderTooltip: typeof record.renderTooltip === 'boolean' ? record.renderTooltip : defaultSettings.renderTooltip,
+    renderTooltip:
+      typeof record.renderTooltip === 'boolean'
+        ? record.renderTooltip
+        : defaultSettings.renderTooltip,
   };
 }
 

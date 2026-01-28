@@ -232,7 +232,10 @@ function StyledPreviewCard() {
                 <PreviewCard.Arrow className={previewCardDemoStyles.Arrow}>
                   <PreviewCardArrowSvg />
                 </PreviewCard.Arrow>
-                <div className={previewCardDemoStyles.PopupContent} style={{ width: 'max-content' }}>
+                <div
+                  className={previewCardDemoStyles.PopupContent}
+                  style={{ width: 'max-content' }}
+                >
                   <p className={previewCardDemoStyles.Summary}>Preview for {rowData.label}</p>
                 </div>
               </PreviewCard.Popup>
