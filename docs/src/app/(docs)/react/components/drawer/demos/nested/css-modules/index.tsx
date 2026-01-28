@@ -64,10 +64,7 @@ export default function ExampleDrawerNested() {
 
                             <div className={styles.Actions}>
                               <div className={styles.ActionsLeft}>
-                                <Drawer.Root
-                                  open={thirdOpen}
-                                  onOpenChange={setThirdOpen}
-                                >
+                                <Drawer.Root open={thirdOpen} onOpenChange={setThirdOpen}>
                                   <Drawer.Trigger className={styles.GhostButton}>
                                     Advanced options
                                   </Drawer.Trigger>

@@ -4,16 +4,13 @@ import { createRenderer, isJSDOM } from '#test-utils';
 import { beforeAll, describe, expect, it, vi } from 'vitest';
 import { useSwipeDismiss } from './useSwipeDismiss';
 
-function SwipeBox({
-  oppositeDirectionDamping,
-}: Pick<useSwipeDismiss.Options, 'oppositeDirectionDamping'>) {
+function SwipeBox() {
   const ref = React.useRef<HTMLDivElement>(null);
   const swipe = useSwipeDismiss({
     enabled: true,
     directions: ['down'],
     elementRef: ref,
     movementCssVars: { x: '--x', y: '--y' },
-    oppositeDirectionDamping,
   });
 
   return (
@@ -194,51 +191,6 @@ describe('useSwipeDismiss', () => {
     expect(touchMoveAfter.defaultPrevented).toBe(false);
   });
 
-  it('clamps movement in the opposite direction when damping is disabled', async () => {
-    await render(<SwipeBox oppositeDirectionDamping="none" />);
-    const element = screen.getByTestId('el');
-
-    fireEvent.pointerDown(element, {
-      button: 0,
-      buttons: 1,
-      pointerId: 1,
-      clientX: 0,
-      clientY: 100,
-      bubbles: true,
-      pointerType: 'mouse',
-      movementX: 0,
-      movementY: 0,
-    });
-
-    await flushMicrotasks();
-
-    // First move establishes the baseline (iOS pointermove delay handling).
-    fireEvent.pointerMove(element, {
-      pointerId: 1,
-      clientX: 0,
-      clientY: 100,
-      bubbles: true,
-      movementX: 0,
-      movementY: 0,
-    });
-
-    await flushMicrotasks();
-
-    // Move up (opposite of allowed "down") should not move the element.
-    fireEvent.pointerMove(element, {
-      pointerId: 1,
-      clientX: 0,
-      clientY: 50,
-      bubbles: true,
-      movementX: 0,
-      movementY: -50,
-    });
-
-    await flushMicrotasks();
-
-    expect(element.style.getPropertyValue('--y')).toBe('0px');
-  });
-
   it('fires onProgress relative to the element size', async () => {
     const onProgress = vi.fn();
     await render(<SwipeProgressBox onProgress={onProgress} />);
@@ -289,7 +241,86 @@ describe('useSwipeDismiss', () => {
     expect(progress).toBeCloseTo(0.25, 2);
   });
 
-  it('applies exponential damping by default for opposite-direction movement', async () => {
+  it('continues firing onProgress when swipe progress is clamped', async () => {
+    const onProgress = vi.fn();
+    await render(<SwipeProgressBox onProgress={onProgress} />);
+    const element = screen.getByTestId('progress');
+
+    const widthDescriptor = Object.getOwnPropertyDescriptor(element, 'offsetWidth');
+    if (!widthDescriptor || widthDescriptor.configurable) {
+      Object.defineProperty(element, 'offsetWidth', { value: 200, configurable: true });
+    }
+
+    fireEvent.pointerDown(element, {
+      button: 0,
+      buttons: 1,
+      pointerId: 1,
+      clientX: 0,
+      clientY: 0,
+      bubbles: true,
+      pointerType: 'mouse',
+      movementX: 0,
+      movementY: 0,
+    });
+
+    await flushMicrotasks();
+
+    // Baseline move.
+    fireEvent.pointerMove(element, {
+      pointerId: 1,
+      clientX: 0,
+      clientY: 0,
+      bubbles: true,
+      movementX: 0,
+      movementY: 0,
+    });
+
+    await flushMicrotasks();
+
+    fireEvent.pointerMove(element, {
+      pointerId: 1,
+      clientX: 50,
+      clientY: 0,
+      bubbles: true,
+      movementX: 50,
+      movementY: 0,
+    });
+
+    await flushMicrotasks();
+
+    const callsAfterForward = onProgress.mock.calls.length;
+
+    // Move past the starting point in the opposite direction; progress is clamped to 0.
+    fireEvent.pointerMove(element, {
+      pointerId: 1,
+      clientX: -10,
+      clientY: 0,
+      bubbles: true,
+      movementX: -60,
+      movementY: 0,
+    });
+
+    await flushMicrotasks();
+
+    const callsAfterReverse = onProgress.mock.calls.length;
+    expect(callsAfterReverse).toBeGreaterThan(callsAfterForward);
+
+    fireEvent.pointerMove(element, {
+      pointerId: 1,
+      clientX: -20,
+      clientY: 0,
+      bubbles: true,
+      movementX: -10,
+      movementY: 0,
+    });
+
+    await flushMicrotasks();
+
+    expect(onProgress.mock.calls.length).toBeGreaterThan(callsAfterReverse);
+    expect(onProgress.mock.calls.at(-1)?.[0]).toBe(0);
+  });
+
+  it('applies exponential damping for opposite-direction movement', async () => {
     await render(<SwipeBox />);
     const element = screen.getByTestId('el');
 

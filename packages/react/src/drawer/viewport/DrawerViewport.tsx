@@ -33,7 +33,6 @@ const MIN_SWIPE_RELEASE_DURATION_MS = 80;
 const MAX_SWIPE_RELEASE_DURATION_MS = 360;
 const MIN_SWIPE_RELEASE_SCALAR = 0.1;
 const MAX_SWIPE_RELEASE_SCALAR = 1;
-const POINTER_IGNORE_SELECTOR = 'button,a,input,textarea,label,[role="button"]';
 
 /**
  * A positioning container for the drawer popup that can be made scrollable.
@@ -186,6 +185,47 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
     setSwipeRelease(null);
   });
 
+  const applySwipeProgress = useStableCallback(
+    ({
+      resolvedProgress,
+      shouldTrackProgress,
+      notifyParent,
+    }: {
+      resolvedProgress: number;
+      shouldTrackProgress: boolean;
+      notifyParent: boolean;
+    }) => {
+      const isActive = open && !nested && shouldTrackProgress;
+      const swipeProgress = isActive ? resolvedProgress : 0;
+
+      if (notifyParent && notifyParentSwipeProgressChange) {
+        const nestedSwipeProgress = open && shouldTrackProgress ? resolvedProgress : 0;
+        notifyParentSwipeProgressChange(nestedSwipeProgress);
+      }
+
+      providerContext?.swipeProgressStore.set(swipeProgress);
+      providerContext?.frontmostHeightStore.set(swipeProgress > 0 ? frontmostHeight : 0);
+
+      const backdropElement = store.context.backdropRef.current;
+      if (!backdropElement) {
+        return;
+      }
+
+      if (!isActive || swipeProgress <= 0) {
+        backdropElement.style.removeProperty(DrawerBackdropCssVars.swipeProgress);
+        backdropElement.style.removeProperty(DrawerPopupCssVars.height);
+        return;
+      }
+
+      backdropElement.style.setProperty(DrawerBackdropCssVars.swipeProgress, `${swipeProgress}`);
+      if (frontmostHeight > 0) {
+        backdropElement.style.setProperty(DrawerPopupCssVars.height, `${frontmostHeight}px`);
+      } else {
+        backdropElement.style.removeProperty(DrawerPopupCssVars.height);
+      }
+    },
+  );
+
   const setBackdropSwiping = useStableCallback((swiping: boolean) => {
     const backdropElement = store.context.backdropRef.current;
     if (!backdropElement) {
@@ -324,7 +364,6 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
     enabled: mounted && !nestedDrawerOpen,
     directions: swipeDirections,
     elementRef: store.context.popupRef,
-    ignoreSelector: POINTER_IGNORE_SELECTOR,
     ignoreSelectorWhenTouch: false,
     ignoreScrollableAncestors: true,
     onSwipeStart: clearSelectionOnSwipeStart,
@@ -387,33 +426,11 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
         }
       }
 
-      const swipeProgress = nested || !open || !shouldTrackProgress ? 0 : resolvedProgress;
-
-      if (notifyParentSwipeProgressChange) {
-        const nestedSwipeProgress = open && shouldTrackProgress ? resolvedProgress : 0;
-        notifyParentSwipeProgressChange(nestedSwipeProgress);
-      }
-
-      providerContext?.swipeProgressStore.set(swipeProgress);
-      providerContext?.frontmostHeightStore.set(swipeProgress > 0 ? frontmostHeight : 0);
-
-      const backdropElement = store.context.backdropRef.current;
-      if (!backdropElement) {
-        return;
-      }
-
-      if (nested || !open || swipeProgress <= 0) {
-        backdropElement.style.removeProperty(DrawerBackdropCssVars.swipeProgress);
-        backdropElement.style.removeProperty(DrawerPopupCssVars.height);
-        return;
-      }
-
-      backdropElement.style.setProperty(DrawerBackdropCssVars.swipeProgress, `${swipeProgress}`);
-      if (frontmostHeight > 0) {
-        backdropElement.style.setProperty(DrawerPopupCssVars.height, `${frontmostHeight}px`);
-      } else {
-        backdropElement.style.removeProperty(DrawerPopupCssVars.height);
-      }
+      applySwipeProgress({
+        resolvedProgress,
+        shouldTrackProgress,
+        notifyParent: true,
+      });
     },
     onRelease({
       event,
@@ -786,34 +803,18 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
     }
 
     const resolvedProgress = !open || nested ? 0 : (snapPointProgress ?? 0);
-    providerContext?.swipeProgressStore.set(resolvedProgress);
-    providerContext?.frontmostHeightStore.set(resolvedProgress > 0 ? frontmostHeight : 0);
-
-    const backdropElement = store.context.backdropRef.current;
-    if (!backdropElement) {
-      return;
-    }
-
-    if (nested || !open || resolvedProgress <= 0) {
-      backdropElement.style.removeProperty(DrawerBackdropCssVars.swipeProgress);
-      backdropElement.style.removeProperty(DrawerPopupCssVars.height);
-      return;
-    }
-
-    backdropElement.style.setProperty(DrawerBackdropCssVars.swipeProgress, `${resolvedProgress}`);
-    if (frontmostHeight > 0) {
-      backdropElement.style.setProperty(DrawerPopupCssVars.height, `${frontmostHeight}px`);
-    } else {
-      backdropElement.style.removeProperty(DrawerPopupCssVars.height);
-    }
+    applySwipeProgress({
+      resolvedProgress,
+      shouldTrackProgress: true,
+      notifyParent: false,
+    });
   }, [
+    applySwipeProgress,
     frontmostHeight,
     nested,
     open,
-    providerContext,
     snapPointProgress,
     snapPointRange,
-    store.context.backdropRef,
     swipe.swiping,
   ]);
 
