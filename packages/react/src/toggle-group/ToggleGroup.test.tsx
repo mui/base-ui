@@ -95,8 +95,8 @@ describe('<ToggleGroup />', () => {
     });
 
     it('should warn if Toggle value is not set and ToggleGroup value is defined', async () => {
-      vi.spyOn(console, 'warn')
-        .mockName('console.warn')
+      vi.spyOn(console, 'error')
+        .mockName('console.error')
         .mockImplementation(() => {});
 
       await render(
@@ -106,7 +106,7 @@ describe('<ToggleGroup />', () => {
         </ToggleGroup>,
       );
 
-      expect(console.warn).toHaveBeenCalledExactlyOnceWith(
+      expect(console.error).toHaveBeenCalledExactlyOnceWith(
         'Base UI: A `<Toggle>` component rendered in a `<ToggleGroup>` has no explicit `value` prop. This will cause issues between the Toggle Group and Toggle values. Provide the `<Toggle>` with a `value` prop matching the `<ToggleGroup>` values prop type.',
       );
     });

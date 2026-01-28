@@ -3,7 +3,7 @@ import * as React from 'react';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useControlled } from '@base-ui/utils/useControlled';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import { warn } from '@base-ui/utils/warn';
+import { error } from '@base-ui/utils/error';
 import { useBaseUiId } from '../utils/useBaseUiId';
 import { useRenderElement } from '../utils/useRenderElement';
 import type { BaseUIComponentProps, NativeButtonProps } from '../utils/types';
@@ -53,7 +53,7 @@ export const Toggle = React.forwardRef(function Toggle<Value extends string>(
     // eslint-disable-next-line react-hooks/rules-of-hooks
     useIsoLayoutEffect(() => {
       if (groupContext && valueProp === undefined && groupContext.isValueInitialized) {
-        warn(
+        error(
           'A `<Toggle>` component rendered in a `<ToggleGroup>` has no explicit `value` prop.',
           'This will cause issues between the Toggle Group and Toggle values.',
           'Provide the `<Toggle>` with a `value` prop matching the `<ToggleGroup>` values prop type.',
