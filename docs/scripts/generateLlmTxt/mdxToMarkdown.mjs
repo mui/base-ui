@@ -11,7 +11,6 @@ import remarkMdx from 'remark-mdx';
 import remarkGfm from 'remark-gfm';
 import remarkStringify from 'remark-stringify';
 import { visit } from 'unist-util-visit';
-import { processReference } from './referenceProcessor.mjs';
 import { processDemo } from './demoProcessor.mjs';
 import { processPropsReferenceTable } from './propsReferenceTableProcessor.mjs';
 import * as mdx from './mdxNodeHelpers.mjs';
@@ -158,16 +157,6 @@ function transformJsx() {
 
         // Process different component types
         switch (node.name) {
-          case 'Reference': {
-            // Process the reference component using our dedicated processor
-            const tables = processReference(node, parent, index);
-
-            // Replace the reference component with the generated tables
-            parent.children.splice(index, 1, ...tables);
-
-            return visit.CONTINUE;
-          }
-
           case 'PropsReferenceTable': {
             // Process the PropsReferenceTable component using our dedicated processor
             const tables = processPropsReferenceTable(node);

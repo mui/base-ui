@@ -24,6 +24,9 @@ Configures CSP-related behavior for inline tags rendered by Base UI components.
   - Disable inline style elements
   - Inline style attributes
   - API reference
+- Exports:
+  - CSPProvider
+    - Props: children, disableStyleElements, nonce
 
 </details>
 
@@ -65,8 +68,16 @@ A utility to merge multiple sets of React props.
     - Preventing Base UI's default behavior
   - Passing a function instead of an object
   - API reference
-    - mergeProps
     - mergePropsN
+- Exports:
+  - mergeProps
+    - Parameters: a, b, c, d, e
+  - mergePropsN
+    - Parameters: props
+  - makeEventPreventable
+    - Parameters: event
+  - mergeClassNames
+    - Parameters: ourClassName, theirClassName
 
 </details>
 
