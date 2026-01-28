@@ -120,6 +120,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
     const marginBottom = parseFloat(positionerStyles.marginBottom);
     const maxPopupHeight = getMaxPopupHeight(getComputedStyle(popupRef.current));
     const viewportHeight = doc.documentElement.clientHeight - marginTop - marginBottom;
+    const maxAvailableHeight = Math.min(viewportHeight, maxPopupHeight);
 
     const scrollTop = scroller.scrollTop;
     const scrollHeight = scroller.scrollHeight;
@@ -139,8 +140,14 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
       nextPositionerHeight = nextHeight;
 
       if (diff <= SCROLL_EPS_PX) {
-        // Ensure a small scrollable area isn't left.
-        setHeight(nextPositionerHeight + diff);
+        const heightDelta = clamp(diff, 0, maxAvailableHeight - currentHeight);
+        if (heightDelta > 0) {
+          // Consume the remaining scroll in height.
+          setHeight(currentHeight + heightDelta);
+        }
+        if (maxAvailableHeight - (currentHeight + heightDelta) <= SCROLL_EPS_PX) {
+          reachedMaxHeightRef.current = true;
+        }
         handleScrollArrowVisibility();
         return;
       }
@@ -159,8 +166,14 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
       nextPositionerHeight = nextHeight;
 
       if (diff <= SCROLL_EPS_PX) {
-        // Ensure a small scrollable area isn't left.
-        setHeight(nextPositionerHeight + diff);
+        const heightDelta = clamp(diff, 0, maxAvailableHeight - currentHeight);
+        if (heightDelta > 0) {
+          // Consume the remaining scroll in height.
+          setHeight(currentHeight + heightDelta);
+        }
+        if (maxAvailableHeight - (currentHeight + heightDelta) <= SCROLL_EPS_PX) {
+          reachedMaxHeightRef.current = true;
+        }
         handleScrollArrowVisibility();
         return;
       }
@@ -188,15 +201,13 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
 
       const target = scrollToMax ? nextMaxScrollTop : clamp(nextScrollTop!, 0, nextMaxScrollTop);
 
-      const scrollRemaining = Math.abs(scroller.scrollTop - target);
-
       // Avoid adjustments that re-trigger scroll events forever.
-      if (scrollRemaining > SCROLL_EPS_PX) {
+      if (Math.abs(scroller.scrollTop - target) > SCROLL_EPS_PX) {
         scroller.scrollTop = target;
       }
     }
 
-    if (setReachedMax || nextPositionerHeight >= maxPopupHeight - SCROLL_EPS_PX) {
+    if (setReachedMax || nextPositionerHeight >= maxAvailableHeight - SCROLL_EPS_PX) {
       reachedMaxHeightRef.current = true;
     }
 
