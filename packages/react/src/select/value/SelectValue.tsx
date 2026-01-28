@@ -40,13 +40,10 @@ export const SelectValue = React.forwardRef(function SelectValue(
   const shouldCheckNullItemLabel = !hasSelectedValue && placeholder != null && childrenProp == null;
   const hasNullLabel = useStore(store, selectors.hasNullItemLabel, shouldCheckNullItemLabel);
 
-  const state: SelectValue.State = React.useMemo(
-    () => ({
-      value,
-      placeholder: !hasSelectedValue,
-    }),
-    [value, hasSelectedValue],
-  );
+  const state: SelectValue.State = {
+    value,
+    placeholder: !hasSelectedValue,
+  };
 
   let children = null;
   if (typeof childrenProp === 'function') {
@@ -76,6 +73,10 @@ export interface SelectValueState {
    * The value of the currently selected item.
    */
   value: any;
+  /**
+   * Whether the placeholder is being displayed.
+   */
+  placeholder: boolean;
 }
 
 export interface SelectValueProps extends Omit<

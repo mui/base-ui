@@ -23,15 +23,12 @@ export const MenuArrow = React.forwardRef(function MenuArrow(
   const { arrowRef, side, align, arrowUncentered, arrowStyles } = useMenuPositionerContext();
   const open = store.useState('open');
 
-  const state: MenuArrow.State = React.useMemo(
-    () => ({
-      open,
-      side,
-      align,
-      uncentered: arrowUncentered,
-    }),
-    [open, side, align, arrowUncentered],
-  );
+  const state: MenuArrow.State = {
+    open,
+    side,
+    align,
+    uncentered: arrowUncentered,
+  };
 
   return useRenderElement('div', componentProps, {
     ref: [arrowRef, forwardedRef],

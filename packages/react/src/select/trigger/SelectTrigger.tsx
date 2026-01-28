@@ -267,17 +267,14 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
   // <Toolbar.Button render={<Select.Trigger />} />
   props.role = 'combobox';
 
-  const state: SelectTrigger.State = React.useMemo(
-    () => ({
-      ...fieldState,
-      open,
-      disabled,
-      value,
-      readOnly,
-      placeholder: !hasSelectedValue,
-    }),
-    [fieldState, open, disabled, value, readOnly, hasSelectedValue],
-  );
+  const state: SelectTrigger.State = {
+    ...fieldState,
+    open,
+    disabled,
+    value,
+    readOnly,
+    placeholder: !hasSelectedValue,
+  };
 
   return useRenderElement('button', componentProps, {
     ref: [forwardedRef, triggerRef],

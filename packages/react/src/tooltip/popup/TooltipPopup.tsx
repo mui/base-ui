@@ -57,16 +57,13 @@ export const TooltipPopup = React.forwardRef(function TooltipPopup(
     closeDelay,
   });
 
-  const state: TooltipPopup.State = React.useMemo(
-    () => ({
-      open,
-      side,
-      align,
-      instant: instantType,
-      transitionStatus,
-    }),
-    [open, side, align, instantType, transitionStatus],
-  );
+  const state: TooltipPopup.State = {
+    open,
+    side,
+    align,
+    instant: instantType,
+    transitionStatus,
+  };
 
   const element = useRenderElement('div', componentProps, {
     state,

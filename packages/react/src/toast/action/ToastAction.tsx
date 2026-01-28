@@ -27,12 +27,9 @@ export const ToastAction = React.forwardRef(function ToastAction(
     native: nativeButton,
   });
 
-  const state: ToastAction.State = React.useMemo(
-    () => ({
-      type: toast.type,
-    }),
-    [toast.type],
-  );
+  const state: ToastAction.State = {
+    type: toast.type,
+  };
 
   const element = useRenderElement('button', componentProps, {
     ref: [forwardedRef, buttonRef],
