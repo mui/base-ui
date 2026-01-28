@@ -189,15 +189,9 @@ export function SearchBar({
     [search],
   );
 
-  const modifierPressedRef = React.useRef(false);
   const highlightedResultRef = React.useRef<SearchResult | undefined>(undefined);
 
   const handleItemClick = React.useCallback(() => {
-    // Don't close dialog if modifier was pressed
-    if (modifierPressedRef.current) {
-      modifierPressedRef.current = false;
-      return;
-    }
     handleCloseDialog(false);
   }, [handleCloseDialog]);
 
@@ -220,8 +214,6 @@ export function SearchBar({
       // Prevent the Input/List handlers from processing this
       event.preventDefault();
       event.stopPropagation();
-
-      modifierPressedRef.current = true;
 
       // Open in new tab
       const url = buildResultUrl(highlightedResult);
