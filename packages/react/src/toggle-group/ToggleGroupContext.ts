@@ -13,6 +13,10 @@ export interface ToggleGroupContext<Value> {
   ) => void;
   disabled: boolean;
   orientation: Orientation;
+  /**
+   * Indicates whether the value has been initialized via `value` or `defaultValue` props.
+   * Used to determine if Toggle should warn users about data inconsistency problems.
+   */
   isValueInitialized: boolean;
 }
 
