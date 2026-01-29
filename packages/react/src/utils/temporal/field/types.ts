@@ -157,7 +157,7 @@ export interface TemporalFieldState<TValue extends TemporalSupportedValue = any>
    * - If a number is provided, the section at this index will be selected.
    * - If `null` is provided, no section will be selected.
    */
-  selectedSection: TemporalFieldSelectedSection;
+  selectedSection: number | null;
   /**
    * Non-nullable value used to keep trace of the timezone and the date parts not present in the format.
    * It is updated whenever we have a valid date (for the Range Pickers we update only the portion of the range that is valid).
@@ -283,13 +283,13 @@ export interface TemporalFieldDatePart {
    */
   value: string;
   /**
-   * If `true`, the section value has been modified since the last time the sections were generated from a valid date.
-   * When we can generate a valid date from the section, we don't directly pass it to `onChange`,
+   * Whether the section value has been modified since the last time the sections were generated from a valid date.
+   * When we can generate a valid date from the section, we don't directly pass the generated date to `onChange`,
    * Otherwise, we would lose all the information contained in the original date, things like:
    * - time if the format does not contain it
-   * - timezone / UTC
+   * - timezone
    *
-   * To avoid losing that information, we transfer the values of the modified sections from the newly generated date to the original date.
+   * To avoid losing those informations, we transfer the values of the modified sections from the newly generated date to the original date.
    */
   modified: boolean;
   /**
@@ -303,10 +303,6 @@ export interface TemporalFieldDatePart {
 }
 
 export type TemporalFieldSection = TemporalFieldDatePart | TemporalFieldSeparator;
-
-export type TemporalFieldRangePosition = 'start' | 'end';
-
-export type TemporalFieldSelectedSection = number | null;
 
 export type TemporalFieldValueChangeEventDetails =
   BaseUIChangeEventDetails<TemporalFieldChangeReason>;
@@ -399,7 +395,7 @@ export interface TemporalFieldConfiguration<TValue extends TemporalSupportedValu
    * Returns the type attribute for the hidden input.
    * Used for native HTML validation (e.g., 'date' or 'time').
    */
-  hiddenInputType: 'date' | 'time' | 'text';
+  hiddenInputType: 'date' | 'time';
   /**
    * Stringifies the value for hidden input format.
    * For date inputs: 'YYYY-MM-DD'
@@ -430,10 +426,16 @@ export interface HiddenInputValidationProps {
 }
 
 export interface TemporalFieldDatePartValueBoundaries {
+  /**
+   * Boundaries when adjusting the value using ArrowUp, ArrowDown, PageUp, PageDown, Home, End, etc.
+   */
   adjustment: {
     minimum: number;
     maximum: number;
   };
+  /**
+   * Boundaries when editing the value using character keys.
+   */
   characterEditing: {
     minimum: number;
     maximum: number;

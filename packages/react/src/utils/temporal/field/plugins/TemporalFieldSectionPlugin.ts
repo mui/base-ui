@@ -318,7 +318,7 @@ interface UpdateValueParameters {
    */
   newDatePartValue: string;
   /**
-   * If `true`, the focus will move to the next section.
+   * Whether the focus will move to the next section if any.
    */
   shouldGoToNextSection: boolean;
 }
