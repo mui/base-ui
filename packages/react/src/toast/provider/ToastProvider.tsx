@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useOnMount } from '@base-ui/utils/useOnMount';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { ToastContext } from './ToastProviderContext';
@@ -56,9 +55,7 @@ export const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvid
     [store, timeout, toastManager],
   );
 
-  useIsoLayoutEffect(() => {
-    store.update({ timeout, limit });
-  }, [store, timeout, limit]);
+  store.useSyncedValues({ timeout, limit });
 
   return <ToastContext.Provider value={store}>{children}</ToastContext.Provider>;
 };

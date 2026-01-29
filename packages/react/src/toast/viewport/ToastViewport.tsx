@@ -2,7 +2,6 @@
 import * as React from 'react';
 import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
 import { visuallyHidden } from '@base-ui/utils/visuallyHidden';
-import { useStore } from '@base-ui/utils/store';
 import { useTimeout } from '@base-ui/utils/useTimeout';
 import { activeElement, contains, getTarget } from '../../floating-ui-react/utils';
 import { FocusGuard } from '../../utils/FocusGuard';
@@ -11,7 +10,6 @@ import { useToastContext } from '../provider/ToastProviderContext';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { isFocusVisible } from '../utils/focusVisible';
 import { ToastViewportCssVars } from './ToastViewportCssVars';
-import { selectors } from '../store';
 
 /**
  * A container viewport for toasts.
@@ -31,11 +29,11 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
   const handlingFocusGuardRef = React.useRef(false);
   const markedReadyForMouseLeaveRef = React.useRef(false);
 
-  const isEmpty = useStore(store, selectors.isEmpty);
-  const toasts = useStore(store, selectors.toasts);
-  const focused = useStore(store, selectors.focused);
-  const expanded = useStore(store, selectors.expanded);
-  const prevFocusElement = useStore(store, selectors.prevFocusElement);
+  const isEmpty = store.useState('isEmpty');
+  const toasts = store.useState('toasts');
+  const focused = store.useState('focused');
+  const expanded = store.useState('expanded');
+  const prevFocusElement = store.useState('prevFocusElement');
   const frontmostHeight = toasts[0]?.height ?? 0;
 
   const hasTransitioningToasts = React.useMemo(

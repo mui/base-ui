@@ -1,4 +1,4 @@
-import { Store, createSelector, createSelectorMemoized } from '@base-ui/utils/store';
+import { ReactStore, createSelector, createSelectorMemoized } from '@base-ui/utils/store';
 import { generateId } from '@base-ui/utils/generateId';
 import { ownerDocument } from '@base-ui/utils/owner';
 import { Timeout } from '@base-ui/utils/useTimeout';
@@ -76,10 +76,14 @@ export const selectors = {
   prevFocusElement: createSelector((state: State) => state.prevFocusElement),
 };
 
-export class ToastStore extends Store<State> {
+export class ToastStore extends ReactStore<State, {}, typeof selectors> {
   private timers = new Map<string, TimerInfo>();
 
   private areTimersPaused = false;
+
+  constructor(initialState: State) {
+    super(initialState, {}, selectors);
+  }
 
   setFocused(focused: boolean) {
     this.set('focused', focused);
@@ -172,10 +176,48 @@ export class ToastStore extends Store<State> {
     if (index === -1) {
       return;
     }
-    const { toasts } = this.state;
+
+    const { toasts, timeout } = this.state;
+    const prevToast = toasts[index];
+    const nextToast = { ...prevToast, ...updates };
+
     const newToasts = [...toasts];
-    newToasts.splice(index, 1, { ...toasts[index], ...updates });
+    newToasts.splice(index, 1, nextToast);
     this.setToasts(newToasts);
+
+    const nextTimeout = nextToast.timeout ?? timeout;
+    const prevTimeout = prevToast.timeout ?? timeout;
+
+    const timeoutUpdated = Object.hasOwn(updates, 'timeout');
+
+    const shouldHaveTimer =
+      nextToast.transitionStatus !== 'ending' && nextToast.type !== 'loading' && nextTimeout > 0;
+
+    const hasTimer = this.timers.has(id);
+    const timeoutChanged = prevTimeout !== nextTimeout;
+    const wasLoading = prevToast.type === 'loading';
+
+    if (!shouldHaveTimer && hasTimer) {
+      const timer = this.timers.get(id);
+      timer?.timeout?.clear();
+      this.timers.delete(id);
+      return;
+    }
+
+    // Schedule or reschedule timer if needed
+    if (shouldHaveTimer && (!hasTimer || timeoutChanged || timeoutUpdated || wasLoading)) {
+      const timer = this.timers.get(id);
+      if (timer) {
+        timer.timeout?.clear();
+        this.timers.delete(id);
+      }
+
+      this.scheduleTimer(id, nextTimeout, () => this.closeToast(id));
+
+      if (selectors.expandedOrOutOfFocus(this.state)) {
+        this.pauseTimers();
+      }
+    }
   };
 
   closeToast = (toastId: string) => {
@@ -225,16 +267,8 @@ export class ToastStore extends Store<State> {
         this.updateToast(id, {
           ...successOptions,
           type: 'success',
+          timeout: successOptions.timeout,
         });
-
-        const successTimeout = successOptions.timeout ?? this.state.timeout;
-        if (successTimeout > 0) {
-          this.scheduleTimer(id, successTimeout, () => this.closeToast(id));
-        }
-
-        if (selectors.expandedOrOutOfFocus(this.state)) {
-          this.pauseTimers();
-        }
 
         return result;
       })
@@ -243,16 +277,8 @@ export class ToastStore extends Store<State> {
         this.updateToast(id, {
           ...errorOptions,
           type: 'error',
+          timeout: errorOptions.timeout,
         });
-
-        const errorTimeout = errorOptions.timeout ?? this.state.timeout;
-        if (errorTimeout > 0) {
-          this.scheduleTimer(id, errorTimeout, () => this.closeToast(id));
-        }
-
-        if (selectors.expandedOrOutOfFocus(this.state)) {
-          this.pauseTimers();
-        }
 
         return Promise.reject(error);
       });

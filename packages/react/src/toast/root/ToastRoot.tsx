@@ -3,7 +3,6 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { ownerDocument } from '@base-ui/utils/owner';
 import { inertValue } from '@base-ui/utils/inertValue';
-import { useStore } from '@base-ui/utils/store';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { activeElement, contains, getTarget } from '../../floating-ui-react/utils';
@@ -17,7 +16,6 @@ import { StateAttributesMapping } from '../../utils/getStateAttributesProps';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { ToastRootCssVars } from './ToastRootCssVars';
-import { selectors } from '../store';
 
 const stateAttributesMapping: StateAttributesMapping<ToastRoot.State> = {
   ...transitionStatusMapping,
@@ -128,11 +126,11 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
   const swipeCancelBaselineRef = React.useRef({ x: 0, y: 0 });
   const isFirstPointerMoveRef = React.useRef(false);
 
-  const domIndex = useStore(store, selectors.toastIndex, toast.id);
-  const visibleIndex = useStore(store, selectors.toastVisibleIndex, toast.id);
-  const offsetY = useStore(store, selectors.toastOffsetY, toast.id);
-  const focused = useStore(store, selectors.focused);
-  const expanded = useStore(store, selectors.expanded);
+  const domIndex = store.useState('toastIndex', toast.id);
+  const visibleIndex = store.useState('toastVisibleIndex', toast.id);
+  const offsetY = store.useState('toastOffsetY', toast.id);
+  const focused = store.useState('focused');
+  const expanded = store.useState('expanded');
 
   useOpenChangeComplete({
     open: toast.transitionStatus !== 'ending',
