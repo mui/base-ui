@@ -18,9 +18,7 @@ interface UseTemporalFieldRootReturnValue {
 }
 
 /**
- * Shared hook for DateFieldRoot and TimeFieldRoot that handles:
- * - Reading hiddenInputProps, state and rootProps from the store
- * - Form integration via useField
+ * Hook managing the root state and props of a temporal field component.
  */
 export function useTemporalFieldRoot<TValue extends TemporalSupportedValue>(
   params: UseTemporalFieldRootParameters<TValue>,
