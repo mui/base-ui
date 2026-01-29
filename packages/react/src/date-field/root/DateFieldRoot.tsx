@@ -116,23 +116,15 @@ export const DateFieldRoot = React.forwardRef(function DateFieldRoot(
 
   useOnMount(store.mountEffect);
 
-  const { hiddenInputProps, state, resolvedChildren, getInputProps } = useTemporalFieldRoot({
+  const { state, hiddenInputProps, rootProps, rootRef } = useTemporalFieldRoot({
     store,
     children,
   });
 
-  const inputProps = getInputProps();
-
   const element = useRenderElement('div', componentProps, {
     state,
-    ref: [forwardedRef, inputProps.ref],
-    props: [
-      {
-        children: resolvedChildren,
-        onClick: inputProps.onClick,
-      },
-      elementProps,
-    ],
+    ref: [forwardedRef, rootRef],
+    props: [rootProps, elementProps],
   });
 
   return (

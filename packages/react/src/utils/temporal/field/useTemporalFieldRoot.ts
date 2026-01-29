@@ -16,11 +16,11 @@ interface UseTemporalFieldRootParameters<TValue extends TemporalSupportedValue> 
 interface UseTemporalFieldRootReturnValue {
   hiddenInputProps: ReturnType<typeof TemporalFieldElementsPropsPlugin.selectors.hiddenInputProps>;
   state: ReturnType<typeof TemporalFieldElementsPropsPlugin.selectors.rootState>;
-  resolvedChildren: React.ReactNode;
-  getInputProps: () => {
+  rootProps: {
     onClick: () => void;
-    ref: React.RefObject<HTMLElement | null>;
+    children: React.ReactNode;
   };
+  rootRef: React.RefObject<HTMLElement | null>;
 }
 
 /**
@@ -53,18 +53,15 @@ export function useTemporalFieldRoot<TValue extends TemporalSupportedValue>(
     return children;
   }, [children, sections]);
 
-  const getInputProps = React.useCallback(
-    () => ({
-      onClick: store.elementsProps.handleRootClick,
-      ref: useFieldParams.controlRef,
-    }),
-    [store.elementsProps.handleRootClick, useFieldParams.controlRef],
-  );
+  const rootProps = {
+    onClick: store.elementsProps.handleRootClick,
+    children: resolvedChildren,
+  };
 
   return {
     hiddenInputProps,
     state,
-    resolvedChildren,
-    getInputProps,
+    rootProps,
+    rootRef: useFieldParams.controlRef,
   };
 }
