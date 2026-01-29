@@ -132,9 +132,7 @@ export const Toggle = React.forwardRef(function Toggle<Value extends string>(
   return element;
 }) as {
   <Value extends string>(
-    props: Toggle.Props<Value> & {
-      ref?: React.RefObject<HTMLButtonElement> | undefined;
-    },
+    props: Toggle.Props<Value> & React.RefAttributes<HTMLButtonElement>,
   ): React.JSX.Element;
 };
 
