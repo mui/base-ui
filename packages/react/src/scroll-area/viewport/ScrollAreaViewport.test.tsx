@@ -5,9 +5,7 @@ import { expect } from 'chai';
 import { SCROLL_TIMEOUT } from '../constants';
 
 describe('<ScrollArea.Viewport />', () => {
-  const { render, clock } = createRenderer();
-
-  clock.withFakeTimers();
+  const { render } = createRenderer();
 
   describeConformance(<ScrollArea.Viewport />, () => ({
     refInstanceof: window.HTMLDivElement,
@@ -17,8 +15,12 @@ describe('<ScrollArea.Viewport />', () => {
   }));
 
   describe('data-scrolling attribute', () => {
+    const { render: renderWithClock, clock } = createRenderer();
+
+    clock.withFakeTimers();
+
     it('adds [data-scrolling] attribute when viewport is scrolled', async () => {
-      await render(
+      await renderWithClock(
         <ScrollArea.Root style={{ width: 200, height: 200 }}>
           <ScrollArea.Viewport data-testid="viewport" style={{ width: '100%', height: '100%' }}>
             <div style={{ width: 1000, height: 1000 }} />
@@ -51,7 +53,7 @@ describe('<ScrollArea.Viewport />', () => {
     });
 
     it('removes [data-scrolling] after timeout', async () => {
-      await render(
+      await renderWithClock(
         <ScrollArea.Root style={{ width: 200, height: 200 }}>
           <ScrollArea.Viewport data-testid="viewport" style={{ width: '100%', height: '100%' }}>
             <div style={{ width: 1000, height: 1000 }} />

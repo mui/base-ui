@@ -12,47 +12,51 @@ const SCROLLBAR_WIDTH = 10;
 const SCROLLBAR_HEIGHT = 10;
 
 describe('<ScrollArea.Root />', () => {
-  const { render, clock } = createRenderer();
-
-  clock.withFakeTimers();
+  const { render } = createRenderer();
 
   describeConformance(<ScrollArea.Root />, () => ({
     refInstanceof: window.HTMLDivElement,
     render,
   }));
 
-  it('adds [data-scrolling] attribute when viewport is scrolled', async () => {
-    await render(
-      <ScrollArea.Root data-testid="root" style={{ width: 200, height: 200 }}>
-        <ScrollArea.Viewport data-testid="viewport" style={{ width: '100%', height: '100%' }}>
-          <div style={{ width: 1000, height: 1000 }} />
-        </ScrollArea.Viewport>
-      </ScrollArea.Root>,
-    );
+  describe('data-scrolling attribute', () => {
+    const { render: renderWithClock, clock } = createRenderer();
 
-    const root = screen.getByTestId('root');
-    const viewport = screen.getByTestId('viewport');
+    clock.withFakeTimers();
 
-    expect(root).not.to.have.attribute('data-scrolling');
+    it('adds [data-scrolling] attribute when viewport is scrolled', async () => {
+      await renderWithClock(
+        <ScrollArea.Root data-testid="root" style={{ width: 200, height: 200 }}>
+          <ScrollArea.Viewport data-testid="viewport" style={{ width: '100%', height: '100%' }}>
+            <div style={{ width: 1000, height: 1000 }} />
+          </ScrollArea.Viewport>
+        </ScrollArea.Root>,
+      );
 
-    fireEvent.pointerEnter(viewport);
-    fireEvent.scroll(viewport, { target: { scrollTop: 1 } });
+      const root = screen.getByTestId('root');
+      const viewport = screen.getByTestId('viewport');
 
-    expect(root).to.have.attribute('data-scrolling', '');
+      expect(root).not.to.have.attribute('data-scrolling');
 
-    await clock.tickAsync(SCROLL_TIMEOUT);
+      fireEvent.pointerEnter(viewport);
+      fireEvent.scroll(viewport, { target: { scrollTop: 1 } });
 
-    expect(root).not.to.have.attribute('data-scrolling');
+      expect(root).to.have.attribute('data-scrolling', '');
 
-    // Test horizontal scrolling
-    fireEvent.pointerEnter(viewport);
-    fireEvent.scroll(viewport, { target: { scrollLeft: 1 } });
+      await clock.tickAsync(SCROLL_TIMEOUT);
 
-    expect(root).to.have.attribute('data-scrolling', '');
+      expect(root).not.to.have.attribute('data-scrolling');
 
-    await clock.tickAsync(SCROLL_TIMEOUT);
+      // Test horizontal scrolling
+      fireEvent.pointerEnter(viewport);
+      fireEvent.scroll(viewport, { target: { scrollLeft: 1 } });
 
-    expect(root).not.to.have.attribute('data-scrolling');
+      expect(root).to.have.attribute('data-scrolling', '');
+
+      await clock.tickAsync(SCROLL_TIMEOUT);
+
+      expect(root).not.to.have.attribute('data-scrolling');
+    });
   });
 
   describe.skipIf(isJSDOM)('sizing', () => {
