@@ -54,11 +54,11 @@ export const TabsList = React.forwardRef(function TabsList(
         return 'none';
       }
 
-      const { left: currentTabLeft, top: currentTabTop } = currentTabElement.getBoundingClientRect();
+      const { left: currentTabLeft, top: currentTabTop } =
+        currentTabElement.getBoundingClientRect();
       const { left: listLeft, top: listTop } = tabsListElement.getBoundingClientRect();
-      const currentTabEdge = orientation === 'horizontal' 
-        ? currentTabLeft - listLeft 
-        : currentTabTop - listTop;
+      const currentTabEdge =
+        orientation === 'horizontal' ? currentTabLeft - listLeft : currentTabTop - listTop;
 
       // Get the new tab's position
       const newTabElement = getTabElementBySelectedValue(newValue);
@@ -67,17 +67,23 @@ export const TabsList = React.forwardRef(function TabsList(
       }
 
       const { left: newTabLeft, top: newTabTop } = newTabElement.getBoundingClientRect();
-      const newTabEdge = orientation === 'horizontal' 
-        ? newTabLeft - listLeft 
-        : newTabTop - listTop;
+      const newTabEdge = orientation === 'horizontal' ? newTabLeft - listLeft : newTabTop - listTop;
 
       // Calculate direction
       if (orientation === 'horizontal') {
-        if (newTabEdge < currentTabEdge) return 'left';
-        if (newTabEdge > currentTabEdge) return 'right';
+        if (newTabEdge < currentTabEdge) {
+          return 'left';
+        }
+        if (newTabEdge > currentTabEdge) {
+          return 'right';
+        }
       } else {
-        if (newTabEdge < currentTabEdge) return 'up';
-        if (newTabEdge > currentTabEdge) return 'down';
+        if (newTabEdge < currentTabEdge) {
+          return 'up';
+        }
+        if (newTabEdge > currentTabEdge) {
+          return 'down';
+        }
       }
 
       return 'none';

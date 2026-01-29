@@ -121,10 +121,7 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
   // Compute the activation direction during render for external value changes
   const computeActivationDirection = React.useCallback((): TabsTab.ActivationDirection => {
     // If value hasn't changed or was handled internally, don't compute
-    if (
-      value === previousValueRef.current ||
-      value === valueHandledInternallyRef.current
-    ) {
+    if (value === previousValueRef.current || value === valueHandledInternallyRef.current) {
       return 'none';
     }
 
@@ -158,9 +155,8 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
     React.useState<TabsTab.ActivationDirection>('none');
 
   // The actual direction to use - either from external computation or state
-  const tabActivationDirection = externalChangeDirection !== 'none' 
-    ? externalChangeDirection 
-    : tabActivationDirectionState;
+  const tabActivationDirection =
+    externalChangeDirection !== 'none' ? externalChangeDirection : tabActivationDirectionState;
 
   // Update refs after computing direction
   useIsoLayoutEffect(() => {
@@ -199,7 +195,7 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
 
       // Mark this value as handled internally so we don't recompute direction
       valueHandledInternallyRef.current = newValue;
-      
+
       setValue(newValue);
       setTabActivationDirection(eventDetails.activationDirection);
     },
