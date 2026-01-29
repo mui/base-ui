@@ -42,7 +42,7 @@ export const TabsList = React.forwardRef(function TabsList(
   const [highlightedTabIndex, setHighlightedTabIndex] = React.useState(0);
 
   // Calculate direction for internal tab clicks
-  const calculateDirectionForClick = React.useCallback(
+  const calculateDirectionForClick = useStableCallback(
     (newValue: TabsTab.Value): TabsTab.ActivationDirection => {
       if (newValue === value || newValue == null || tabsListElement == null) {
         return 'none';
@@ -88,7 +88,6 @@ export const TabsList = React.forwardRef(function TabsList(
 
       return 'none';
     },
-    [value, tabsListElement, getTabElementBySelectedValue, orientation],
   );
 
   const onTabActivation = useStableCallback(

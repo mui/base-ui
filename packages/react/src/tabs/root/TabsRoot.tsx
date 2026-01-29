@@ -25,6 +25,29 @@ function getInset(tab: HTMLElement, tabsList: HTMLElement) {
   return { left, top };
 }
 
+function calculateDirection(
+  newTabEdge: number,
+  previousEdge: number,
+  orientation: TabsRoot.Props['orientation'],
+): TabsTab.ActivationDirection {
+  if (orientation === 'horizontal') {
+    if (newTabEdge < previousEdge) {
+      return 'left';
+    }
+    if (newTabEdge > previousEdge) {
+      return 'right';
+    }
+  } else {
+    if (newTabEdge < previousEdge) {
+      return 'up';
+    }
+    if (newTabEdge > previousEdge) {
+      return 'down';
+    }
+  }
+  return 'none';
+}
+
 /**
  * Groups the tabs and the corresponding panels.
  * Renders a `<div>` element.
@@ -78,7 +101,7 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
   const valueHandledInternallyRef = React.useRef<TabsTab.Value | undefined>(undefined);
 
   // Helper to get tab element by value
-  const getTabElementBySelectedValue = React.useCallback(
+  const getTabElementBySelectedValue = useStableCallback(
     (selectedValue: TabsTab.Value | undefined): HTMLElement | null => {
       if (selectedValue === undefined) {
         return null;
@@ -92,34 +115,10 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
 
       return null;
     },
-    [tabMap],
-  );
-
-  // Calculate direction based on comparing edges
-  const calculateDirection = React.useCallback(
-    (newTabEdge: number, previousEdge: number): TabsTab.ActivationDirection => {
-      if (orientation === 'horizontal') {
-        if (newTabEdge < previousEdge) {
-          return 'left';
-        }
-        if (newTabEdge > previousEdge) {
-          return 'right';
-        }
-      } else {
-        if (newTabEdge < previousEdge) {
-          return 'up';
-        }
-        if (newTabEdge > previousEdge) {
-          return 'down';
-        }
-      }
-      return 'none';
-    },
-    [orientation],
   );
 
   // Compute the activation direction during render for external value changes
-  const computeActivationDirection = React.useCallback((): TabsTab.ActivationDirection => {
+  const computeActivationDirection = useStableCallback((): TabsTab.ActivationDirection => {
     // If value hasn't changed or was handled internally, don't compute
     if (value === previousValueRef.current || value === valueHandledInternallyRef.current) {
       return 'none';
@@ -144,8 +143,8 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
       return 'none';
     }
 
-    return calculateDirection(newTabEdge, previousTabEdgeRef.current);
-  }, [value, tabsListElement, getTabElementBySelectedValue, orientation, calculateDirection]);
+    return calculateDirection(newTabEdge, previousTabEdgeRef.current, orientation);
+  });
 
   // Compute direction for external changes
   const externalChangeDirection = computeActivationDirection();
