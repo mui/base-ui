@@ -2,6 +2,8 @@
 import * as React from 'react';
 import { useControlled } from '@base-ui/utils/useControlled';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { ownerWindow } from '@base-ui/utils/owner';
+import { isAndroid } from '@base-ui/utils/detectBrowser';
 import {
   DrawerRootContext,
   type DrawerSwipeDirection,
@@ -41,6 +43,8 @@ export function DrawerRoot(props: DrawerRoot.Props) {
     onSnapPointChange: onSnapPointChangeProp,
   } = props;
 
+  const onSnapPointChange = useStableCallback(onSnapPointChangeProp);
+
   const parentDrawerRootContext = useDrawerRootContext(true);
 
   const notifyParentSwipeProgressChange = parentDrawerRootContext?.onNestedSwipeProgressChange;
@@ -48,14 +52,16 @@ export function DrawerRoot(props: DrawerRoot.Props) {
   const notifyParentSwipingChange = parentDrawerRootContext?.onNestedSwipingChange;
   const notifyParentHasNestedDrawer = parentDrawerRootContext?.onNestedDrawerPresenceChange;
 
-  const resolvedDefaultSnapPoint =
-    defaultSnapPoint !== undefined ? defaultSnapPoint : (snapPoints?.[0] ?? null);
-
   const [popupHeight, setPopupHeight] = React.useState(0);
   const [frontmostHeight, setFrontmostHeight] = React.useState(0);
   const [hasNestedDrawer, setHasNestedDrawer] = React.useState(false);
   const [nestedSwiping, setNestedSwiping] = React.useState(false);
   const [nestedSwipeProgress, setNestedSwipeProgress] = React.useState(0);
+
+  const resolvedDefaultSnapPoint =
+    defaultSnapPoint !== undefined ? defaultSnapPoint : (snapPoints?.[0] ?? null);
+  const isSnapPointControlled = snapPointProp !== undefined;
+
   const [activeSnapPoint, setActiveSnapPointUnwrapped] = useControlled({
     controlled: snapPointProp,
     default: resolvedDefaultSnapPoint,
@@ -65,16 +71,15 @@ export function DrawerRoot(props: DrawerRoot.Props) {
 
   const isNestedDrawerOpenRef = React.useRef(false);
 
-  const onSnapPointChange = useStableCallback(onSnapPointChangeProp);
-  const isSnapPointControlled = snapPointProp !== undefined;
-
   const setActiveSnapPoint = useStableCallback(
     (
       nextSnapPoint: DrawerSnapPoint | null,
       eventDetails?: DrawerRoot.SnapPointChangeEventDetails,
     ) => {
       const resolvedEventDetails = eventDetails ?? createChangeEventDetails(REASONS.none);
+
       onSnapPointChange?.(nextSnapPoint, resolvedEventDetails);
+
       if (resolvedEventDetails.isCanceled) {
         return;
       }
@@ -83,6 +88,8 @@ export function DrawerRoot(props: DrawerRoot.Props) {
     },
   );
 
+  // Keep uncontrolled snap point in sync when snapPoints change so we don't hold a stale value.
+  // This must be an effect since it mutates state based on prop changes.
   React.useEffect(() => {
     if (isSnapPointControlled || !snapPoints || snapPoints.length === 0) {
       return;
@@ -306,6 +313,7 @@ export type DrawerRootChangeEventReason =
   | typeof REASONS.triggerPress
   | typeof REASONS.outsidePress
   | typeof REASONS.escapeKey
+  | typeof REASONS.closeWatcher
   | typeof REASONS.closePress
   | typeof REASONS.focusOut
   | typeof REASONS.imperativeAction
@@ -337,7 +345,12 @@ function DrawerProviderReporter() {
 
   const providerContext = useDrawerProviderContext(true);
   const dialogRootContext = useDialogRootContext(false);
+
   const open = dialogRootContext.store.useState('open');
+  const nestedOpenDialogCount = dialogRootContext.store.useState('nestedOpenDialogCount');
+  const popupElement = dialogRootContext.store.useState('popupElement');
+
+  const isTopmost = nestedOpenDialogCount === 0;
 
   React.useEffect(() => {
     if (!providerContext) {
@@ -352,6 +365,36 @@ function DrawerProviderReporter() {
   React.useEffect(() => {
     providerContext?.setDrawerOpen(drawerId, open);
   }, [drawerId, open, providerContext]);
+
+  React.useEffect(() => {
+    // CloseWatcher enables the Android back swipe gesture (Chromium-only).
+    // Keep this Android-only for now to avoid interfering with Escape/nesting semantics on desktop due to `useDismiss`.
+    if (!open || !isTopmost || !isAndroid) {
+      return undefined;
+    }
+
+    const win = ownerWindow(popupElement);
+
+    if (!win.CloseWatcher) {
+      return undefined;
+    }
+
+    function handleCloseWatcher(event: Event) {
+      if (!dialogRootContext.store.select('open')) {
+        return;
+      }
+      dialogRootContext.store.setOpen(false, createChangeEventDetails(REASONS.closeWatcher, event));
+    }
+
+    const closeWatcher = new win.CloseWatcher();
+
+    closeWatcher.addEventListener('close', handleCloseWatcher);
+
+    return () => {
+      closeWatcher.removeEventListener('close', handleCloseWatcher);
+      closeWatcher.destroy();
+    };
+  }, [dialogRootContext.store, isTopmost, open, popupElement]);
 
   return null;
 }

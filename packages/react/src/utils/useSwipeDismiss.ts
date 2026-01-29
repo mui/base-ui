@@ -26,7 +26,7 @@ const MIN_RELEASE_VELOCITY_DURATION_MS = 16;
 const MAX_RELEASE_VELOCITY_AGE_MS = 80;
 const DEFAULT_IGNORE_SELECTOR = 'button,a,input,select,textarea,label,[role="button"]';
 
-function getDisplacement(direction: SwipeDirection, deltaX: number, deltaY: number) {
+export function getDisplacement(direction: SwipeDirection, deltaX: number, deltaY: number) {
   switch (direction) {
     case 'up':
       return -deltaY;
@@ -41,7 +41,7 @@ function getDisplacement(direction: SwipeDirection, deltaX: number, deltaY: numb
   }
 }
 
-function getElementTransform(element: HTMLElement) {
+export function getElementTransform(element: HTMLElement) {
   const computedStyle = window.getComputedStyle(element);
   const transform = computedStyle.transform;
   let translateX = 0;

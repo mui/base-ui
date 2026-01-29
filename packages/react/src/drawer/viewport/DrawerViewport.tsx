@@ -718,28 +718,32 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
         return;
       }
 
-      const selection = win.getSelection?.();
-      const selectionTarget = target ?? rootElement;
-      if (
-        selection &&
-        selectionTarget &&
-        !selection.isCollapsed &&
-        selection.containsNode(selectionTarget, true)
-      ) {
-        touchState.lastY = touch.clientY;
-        return;
+      let allowTouchMove = false;
+
+      // Allow the ability to adjust text selection.
+      if (target) {
+        const selection = target.ownerDocument.defaultView?.getSelection();
+        if (selection && !selection.isCollapsed && selection.containsNode(target, true)) {
+          allowTouchMove = true;
+        }
       }
 
+      // Allow user to drag the selection handles in an input element.
       if (target instanceof win.HTMLInputElement) {
+        const input = target;
         if (
-          target.selectionStart != null &&
-          target.selectionEnd != null &&
-          target.selectionStart < target.selectionEnd &&
-          target.ownerDocument.activeElement === target
+          input.selectionStart != null &&
+          input.selectionEnd != null &&
+          input.selectionStart < input.selectionEnd &&
+          doc.activeElement === input
         ) {
-          touchState.lastY = touch.clientY;
-          return;
+          allowTouchMove = true;
         }
+      }
+
+      if (allowTouchMove) {
+        touchState.lastY = touch.clientY;
+        return;
       }
 
       if (!open || !mounted || nestedDrawerOpen) {

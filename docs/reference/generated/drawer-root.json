@@ -68,7 +68,7 @@
     },
     "swipeDirection": {
       "type": "DrawerSwipeDirection",
-      "default": "'right'",
+      "default": "'down'",
       "description": "The swipe direction used to dismiss the drawer.",
       "detailedType": "'up' | 'down' | 'left' | 'right' | undefined"
     },
