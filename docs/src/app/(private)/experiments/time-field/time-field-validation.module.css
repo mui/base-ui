@@ -29,10 +29,6 @@
 }
 
 .Root {
-  border-radius: 2px;
-}
-
-.Input {
   display: flex;
   border: 1px solid var(--color-gray-200);
   padding: 4px 8px;
