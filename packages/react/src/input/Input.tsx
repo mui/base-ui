@@ -11,7 +11,7 @@ import { Field } from '../field';
  */
 export const Input = React.forwardRef(function Input(
   props: Input.Props,
-  forwardedRef: React.ForwardedRef<HTMLInputElement>,
+  forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
   return <Field.Control ref={forwardedRef} {...props} />;
 });

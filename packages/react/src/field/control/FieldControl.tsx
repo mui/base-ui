@@ -28,7 +28,7 @@ import type { BaseUIChangeEventDetails } from '../../utils/createBaseUIEventDeta
  */
 export const FieldControl = React.forwardRef(function FieldControl(
   componentProps: FieldControl.Props,
-  forwardedRef: React.ForwardedRef<HTMLInputElement>,
+  forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
   const {
     render,
