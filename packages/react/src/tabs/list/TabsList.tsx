@@ -54,7 +54,7 @@ export const TabsList = React.forwardRef(function TabsList(
   const onTabActivation = useStableCallback(
     (newValue: TabsTab.Value, eventDetails: TabsRoot.ChangeEventDetails) => {
       if (newValue !== value) {
-        const activationDirection = detectActivationDirection(newValue, false);
+        const activationDirection = detectActivationDirection(newValue);
         eventDetails.activationDirection = activationDirection;
         onValueChange(newValue, eventDetails);
       }
@@ -131,7 +131,7 @@ function useActivationDirectionDetector(
   tabsListElement: HTMLElement | null,
   getTabElement: (selectedValue: any) => HTMLElement | null,
   setTabActivationDirection: React.Dispatch<React.SetStateAction<TabsTab.ActivationDirection>>,
-): (newValue: any, isExternalChange: boolean) => TabsTab.ActivationDirection {
+): (newValue: any) => TabsTab.ActivationDirection {
   const previousTabEdgeRef = React.useRef<number | null>(null);
   // Track the value that was last processed by the callback (internal change)
   // to avoid double-processing when the effect runs after
@@ -208,7 +208,7 @@ function useActivationDirectionDetector(
   ]);
 
   return React.useCallback(
-    (newValue: any, _isExternalChange: boolean) => {
+    (newValue: any) => {
       if (newValue === activeTabValue) {
         return 'none';
       }
