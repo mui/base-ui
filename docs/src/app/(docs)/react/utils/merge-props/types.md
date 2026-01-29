@@ -74,11 +74,11 @@ type ReturnValue = { [key: string]: ((event: BaseUIEvent<any>) => R | any) | any
 
 ### mergePropsN
 
-Merges an arbitrary number of React props using the same logic as [`mergeProps`](#mergeProps).
+Merges an arbitrary number of React props using the same logic as [`mergeProps`](#mergeprops).
 This function accepts an array of props instead of individual arguments.
 
-This has slightly lower performance than [`mergeProps`](#mergeProps) due to accepting an array
-instead of a fixed number of arguments. Prefer [`mergeProps`](#mergeProps) when merging 5 or
+This has slightly lower performance than [`mergeProps`](#mergeprops) due to accepting an array
+instead of a fixed number of arguments. Prefer [`mergeProps`](#mergeprops) when merging 5 or
 fewer prop sets for better performance.
 
 **Parameters:**
