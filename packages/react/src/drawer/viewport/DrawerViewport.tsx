@@ -67,10 +67,12 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
 
   const { snapPoints, resolvedSnapPoints, activeSnapPointOffset, setActiveSnapPoint, popupHeight } =
     useDrawerSnapPoints();
+
   const [swipeRelease, setSwipeRelease] = React.useState<{
     durationScalar: number;
   } | null>(null);
   const [nestedSwipeActive, setNestedSwipeActive] = React.useState(false);
+
   const nestedSwipeActiveRef = React.useRef(false);
   const touchScrollStateRef = React.useRef<{
     lastY: number;
@@ -203,8 +205,10 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
         notifyParentSwipeProgressChange(nestedSwipeProgress);
       }
 
-      providerContext?.swipeProgressStore.set(swipeProgress);
-      providerContext?.frontmostHeightStore.set(swipeProgress > 0 ? frontmostHeight : 0);
+      providerContext?.visualStateStore.set({
+        swipeProgress,
+        frontmostHeight: swipeProgress > 0 ? frontmostHeight : 0,
+      });
 
       const backdropElement = store.context.backdropRef.current;
       if (!backdropElement) {
@@ -676,8 +680,7 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
       return false;
     },
     onDismiss(event) {
-      providerContext?.swipeProgressStore.set(0);
-      providerContext?.frontmostHeightStore.set(0);
+      providerContext?.visualStateStore.set({ swipeProgress: 0, frontmostHeight: 0 });
 
       const backdropElement = store.context.backdropRef.current;
       if (backdropElement) {
@@ -718,28 +721,32 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
         return;
       }
 
-      const selection = win.getSelection?.();
-      const selectionTarget = target ?? rootElement;
-      if (
-        selection &&
-        selectionTarget &&
-        !selection.isCollapsed &&
-        selection.containsNode(selectionTarget, true)
-      ) {
-        touchState.lastY = touch.clientY;
-        return;
+      let allowTouchMove = false;
+
+      // Allow the ability to adjust text selection.
+      if (target) {
+        const selection = target.ownerDocument.defaultView?.getSelection();
+        if (selection && !selection.isCollapsed && selection.containsNode(target, true)) {
+          allowTouchMove = true;
+        }
       }
 
+      // Allow user to drag the selection handles in an input element.
       if (target instanceof win.HTMLInputElement) {
+        const input = target;
         if (
-          target.selectionStart != null &&
-          target.selectionEnd != null &&
-          target.selectionStart < target.selectionEnd &&
-          target.ownerDocument.activeElement === target
+          input.selectionStart != null &&
+          input.selectionEnd != null &&
+          input.selectionStart < input.selectionEnd &&
+          doc.activeElement === input
         ) {
-          touchState.lastY = touch.clientY;
-          return;
+          allowTouchMove = true;
         }
+      }
+
+      if (allowTouchMove) {
+        touchState.lastY = touch.clientY;
+        return;
       }
 
       if (!open || !mounted || nestedDrawerOpen) {
@@ -868,8 +875,7 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
 
   React.useEffect(() => {
     return () => {
-      providerContext?.swipeProgressStore.set(0);
-      providerContext?.frontmostHeightStore.set(0);
+      providerContext?.visualStateStore.set({ swipeProgress: 0, frontmostHeight: 0 });
     };
   }, [providerContext]);
 

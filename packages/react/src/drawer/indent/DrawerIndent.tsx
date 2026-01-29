@@ -32,66 +32,44 @@ export const DrawerIndent = React.forwardRef(function DrawerIndent(
   const providerContext = useDrawerProviderContext(true);
 
   const active = providerContext?.active ?? false;
-  const swipeProgressStore = providerContext?.swipeProgressStore;
-  const frontmostHeightStore = providerContext?.frontmostHeightStore;
+  const visualStateStore = providerContext?.visualStateStore;
 
   const indentRef = React.useRef<HTMLDivElement | null>(null);
 
   useIsoLayoutEffect(() => {
     const element = indentRef.current;
-    if (!element || !swipeProgressStore) {
+    if (!element || !visualStateStore) {
       return undefined;
     }
 
-    const syncSwipeProgress = () => {
-      const progress = swipeProgressStore.getSnapshot();
-      if (progress <= 0) {
+    const syncVisualState = () => {
+      const { swipeProgress, frontmostHeight } = visualStateStore.getSnapshot();
+      if (swipeProgress <= 0) {
         element.style.removeProperty(DrawerBackdropCssVars.swipeProgress);
-        return;
+      } else {
+        element.style.setProperty(DrawerBackdropCssVars.swipeProgress, `${swipeProgress}`);
       }
 
-      element.style.setProperty(DrawerBackdropCssVars.swipeProgress, `${progress}`);
+      if (frontmostHeight <= 0) {
+        element.style.removeProperty(DrawerPopupCssVars.height);
+      } else {
+        element.style.setProperty(DrawerPopupCssVars.height, `${frontmostHeight}px`);
+      }
     };
 
-    syncSwipeProgress();
+    syncVisualState();
 
-    const unsubscribe = swipeProgressStore.subscribe(syncSwipeProgress);
+    const unsubscribe = visualStateStore.subscribe(syncVisualState);
     return () => {
       unsubscribe();
       element.style.removeProperty(DrawerBackdropCssVars.swipeProgress);
-    };
-  }, [swipeProgressStore]);
-
-  useIsoLayoutEffect(() => {
-    const element = indentRef.current;
-    if (!element || !frontmostHeightStore) {
-      return undefined;
-    }
-
-    const syncFrontmostHeight = () => {
-      const height = frontmostHeightStore.getSnapshot();
-      if (height <= 0) {
-        element.style.removeProperty(DrawerPopupCssVars.height);
-      } else {
-        element.style.setProperty(DrawerPopupCssVars.height, `${height}px`);
-      }
-    };
-
-    syncFrontmostHeight();
-
-    const unsubscribe = frontmostHeightStore.subscribe(syncFrontmostHeight);
-    return () => {
-      unsubscribe();
       element.style.removeProperty(DrawerPopupCssVars.height);
     };
-  }, [frontmostHeightStore]);
+  }, [visualStateStore]);
 
-  const state: DrawerIndent.State = React.useMemo(
-    () => ({
-      active,
-    }),
-    [active],
-  );
+  const state: DrawerIndent.State = {
+    active,
+  };
 
   return useRenderElement('div', componentProps, {
     ref: [forwardedRef, indentRef],

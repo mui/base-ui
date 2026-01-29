@@ -27,12 +27,9 @@ export const DrawerIndentBackground = React.forwardRef(function DrawerIndentBack
   const providerContext = useDrawerProviderContext(true);
   const active = providerContext?.active ?? false;
 
-  const state: DrawerIndentBackground.State = React.useMemo(
-    () => ({
-      active,
-    }),
-    [active],
-  );
+  const state: DrawerIndentBackground.State = {
+    active,
+  };
 
   return useRenderElement('div', componentProps, {
     ref: forwardedRef,

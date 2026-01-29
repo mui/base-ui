@@ -1,10 +1,17 @@
 import * as React from 'react';
 import { Drawer } from '@base-ui/react/drawer';
-import { fireEvent, flushMicrotasks, screen } from '@mui/internal-test-utils';
+import { act, fireEvent, flushMicrotasks, screen } from '@mui/internal-test-utils';
 import { beforeAll, describe, expect, it, vi } from 'vitest';
 import { createRenderer, isJSDOM } from '#test-utils';
 import { REASONS } from '../../utils/reasons';
 import { useDrawerRootContext } from './DrawerRootContext';
+
+vi.mock('@base-ui/utils/detectBrowser', async () => {
+  const actual = await vi.importActual<typeof import('@base-ui/utils/detectBrowser')>(
+    '@base-ui/utils/detectBrowser',
+  );
+  return { ...actual, isAndroid: true };
+});
 
 function TestCase({ onOpenChange }: { onOpenChange: (open: boolean) => void }) {
   const [open, setOpen] = React.useState(true);
@@ -16,6 +23,7 @@ function TestCase({ onOpenChange }: { onOpenChange: (open: boolean) => void }) {
         setOpen(nextOpen);
         onOpenChange(nextOpen);
       }}
+      swipeDirection="right"
     >
       <Drawer.Portal>
         <Drawer.Viewport data-testid="viewport">
@@ -782,4 +790,56 @@ describe('<Drawer.Root />', () => {
       }
     },
   );
+
+  it('closes when CloseWatcher emits a close event', async () => {
+    const handleOpenChange = vi.fn();
+
+    class CloseWatcherStub extends EventTarget {
+      static instances: CloseWatcherStub[] = [];
+      onclose: ((this: CloseWatcherStub, ev: Event) => void) | null = null;
+      oncancel: ((this: CloseWatcherStub, ev: Event) => void) | null = null;
+      destroy = vi.fn();
+      close = vi.fn();
+      requestClose = vi.fn();
+      constructor() {
+        super();
+        CloseWatcherStub.instances.push(this);
+      }
+    }
+
+    const originalCloseWatcher = (window as Window & { CloseWatcher?: unknown | undefined })
+      .CloseWatcher;
+    (window as Window & { CloseWatcher?: typeof CloseWatcherStub | undefined }).CloseWatcher =
+      CloseWatcherStub;
+
+    try {
+      await render(
+        <Drawer.Root defaultOpen onOpenChange={handleOpenChange}>
+          <Drawer.Portal>
+            <Drawer.Viewport>
+              <Drawer.Popup>Drawer</Drawer.Popup>
+            </Drawer.Viewport>
+          </Drawer.Portal>
+        </Drawer.Root>,
+      );
+
+      await flushMicrotasks();
+
+      const instance = CloseWatcherStub.instances[CloseWatcherStub.instances.length - 1];
+      expect(instance).not.toBeUndefined();
+
+      await act(async () => {
+        instance.dispatchEvent(new Event('close'));
+        await flushMicrotasks();
+      });
+
+      expect(handleOpenChange).toHaveBeenCalled();
+      const lastCall = handleOpenChange.mock.calls[handleOpenChange.mock.calls.length - 1];
+      expect(lastCall?.[0]).toBe(false);
+      expect(lastCall?.[1]?.reason).toBe(REASONS.closeWatcher);
+    } finally {
+      (window as Window & { CloseWatcher?: unknown | undefined }).CloseWatcher =
+        originalCloseWatcher;
+    }
+  });
 });

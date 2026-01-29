@@ -6,7 +6,7 @@ import { ownerDocument } from '@base-ui/utils/owner';
 import { clamp } from '../../utils/clamp';
 import { useDialogRootContext } from '../../dialog/root/DialogRootContext';
 import { useDrawerRootContext } from './DrawerRootContext';
-import type { DrawerSnapPoint } from './DrawerSnapPoint';
+import type { DrawerSnapPoint } from './DrawerRootContext';
 
 export interface ResolvedDrawerSnapPoint {
   value: DrawerSnapPoint;

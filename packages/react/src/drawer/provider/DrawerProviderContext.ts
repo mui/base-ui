@@ -5,24 +5,22 @@ export interface DrawerProviderContext {
   setDrawerOpen: (drawerId: string, open: boolean) => void;
   removeDrawer: (drawerId: string) => void;
   active: boolean;
-  swipeProgressStore: DrawerSwipeProgressStore;
-  frontmostHeightStore: DrawerFrontmostHeightStore;
+  visualStateStore: DrawerVisualStateStore;
 }
 
 export const DrawerProviderContext = React.createContext<DrawerProviderContext | undefined>(
   undefined,
 );
 
-export interface DrawerSwipeProgressStore {
-  getSnapshot: () => number;
-  subscribe: (listener: () => void) => () => void;
-  set: (progress: number) => void;
+export interface DrawerVisualState {
+  swipeProgress: number;
+  frontmostHeight: number;
 }
 
-export interface DrawerFrontmostHeightStore {
-  getSnapshot: () => number;
+export interface DrawerVisualStateStore {
+  getSnapshot: () => DrawerVisualState;
   subscribe: (listener: () => void) => () => void;
-  set: (height: number) => void;
+  set: (state: Partial<DrawerVisualState>) => void;
 }
 
 export function useDrawerProviderContext(optional?: false): DrawerProviderContext;

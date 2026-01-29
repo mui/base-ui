@@ -104,9 +104,6 @@
 
   &[data-ending-style] {
     pointer-events: none;
-  }
-
-  &[data-ending-style] {
     transition-duration: calc(var(--drawer-swipe-strength, 1) * 400ms);
   }
 }
@@ -209,9 +206,6 @@
 
   &[data-ending-style] {
     box-shadow: 0 2px 10px rgb(0 0 0 / 0);
-  }
-
-  &[data-ending-style] {
     transition-duration: calc(var(--drawer-swipe-strength, 1) * 400ms);
   }
 }

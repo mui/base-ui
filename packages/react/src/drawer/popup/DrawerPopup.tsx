@@ -194,28 +194,16 @@ export const DrawerPopup = React.forwardRef(function DrawerPopup(
 
   const resolvedInitialFocus = initialFocus === undefined ? store.context.popupRef : initialFocus;
 
-  const state: DrawerPopup.State = React.useMemo(
-    () => ({
-      open,
-      nested,
-      transitionStatus,
-      expanded: activeSnapPoint === 1,
-      nestedDrawerOpen,
-      nestedDrawerSwiping: nestedSwiping,
-      swipeDirection,
-      swiping,
-    }),
-    [
-      activeSnapPoint,
-      nested,
-      nestedDrawerOpen,
-      nestedSwiping,
-      open,
-      swiping,
-      swipeDirection,
-      transitionStatus,
-    ],
-  );
+  const state: DrawerPopup.State = {
+    open,
+    nested,
+    transitionStatus,
+    expanded: activeSnapPoint === 1,
+    nestedDrawerOpen,
+    nestedDrawerSwiping: nestedSwiping,
+    swipeDirection,
+    swiping,
+  };
 
   let popupHeightCssVarValue: string | undefined;
   const shouldUseAutoHeight = !hasNestedDrawer && transitionStatus !== 'ending';

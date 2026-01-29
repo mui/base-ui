@@ -22,6 +22,7 @@ import { Drawer } from '@base-ui/react/drawer';
   <Drawer.Indent>
     <Drawer.Root>
       <Drawer.Trigger />
+      <Drawer.SwipeArea />
       <Drawer.Portal>
         <Drawer.Backdrop />
         <Drawer.Viewport>
@@ -40,8 +41,6 @@ import { Drawer } from '@base-ui/react/drawer';
 ```
 
 Drawer supports swipe gestures to dismiss. Set `swipeDirection` to control which direction dismisses the drawer. `<Drawer.Content>` allows text selection of its children without swipe interference when using a mouse pointer.
-
-Use the `data-swipe-ignore` attribute on elements to prevent swipe gestures from triggering on them with a mouse or trackpad. Touch swipes still work, so you can keep mobile swipe-to-dismiss while allowing text selection on desktop. Interactive elements like buttons, inputs, and links automatically ignore swipe gestures.
 
 ## Examples
 
@@ -94,14 +93,13 @@ import { DemoDrawerPosition } from './demos/position';
 
 <DemoDrawerPosition />
 
-### Non-modal
+### Nested drawers
 
-Set `modal={false}` to opt out of focus trapping and `disablePointerDismissal` to keep the drawer
-open on outside clicks.
+Use the `[data-nested-drawer-open]` selector and the `--nested-drawers` CSS variable to style drawers when a nested drawer is open. This demo stacks nested drawers using a constant peek so the frontmost drawer stays anchored to the bottom while the ones behind it are scaled down and lifted. It also uses the `--drawer-height` and `--drawer-frontmost-height` CSS variables to handle varying drawer heights.
 
-import { DemoDrawerNonModal } from './demos/non-modal';
+import { DemoDrawerNested } from './demos/nested';
 
-<DemoDrawerNonModal />
+<DemoDrawerNested compact />
 
 ### Snap points
 
@@ -138,14 +136,6 @@ import { DemoDrawerSnapPoints } from './demos/snap-points';
 By default, the drawer can skip snap points when swiping quickly.
 Specify the `snapToSequentialPoints` prop to disable velocity-based skipping so the snap target is determined by drag distance (you can still drag past multiple points).
 
-### Nested drawers
-
-Use the `[data-nested-drawer-open]` selector and the `--nested-drawers` CSS variable to style drawers when a nested drawer is open. This demo stacks nested drawers using a constant peek so the frontmost drawer stays anchored to the bottom while the ones behind it are scaled down and lifted. It also uses the `--drawer-height` and `--drawer-frontmost-height` CSS variables to handle varying drawer heights.
-
-import { DemoDrawerNested } from './demos/nested';
-
-<DemoDrawerNested compact />
-
 ### Indent effect
 
 Scale the background down when any drawer opens by wrapping your app in `<Drawer.Provider>` and use `<Drawer.IndentBackground>` + `<Drawer.Indent>` at the top of your tree. Any `<Drawer.Root>` within the provider notifies it when it mounts, which activates the indent parts (they receive `[data-active]` state attributes).
@@ -154,6 +144,15 @@ import { DemoDrawerIndentProvider } from './demos/indent-provider';
 
 <DemoDrawerIndentProvider />
 
+### Non-modal
+
+Set `modal={false}` to opt out of focus trapping and `disablePointerDismissal` to keep the drawer
+open on outside clicks.
+
+import { DemoDrawerNonModal } from './demos/non-modal';
+
+<DemoDrawerNonModal />
+
 ### Mobile navigation
 
 You can build a full-screen mobile navigation sheet using Drawer parts, including a flick-to-dismiss from the top gesture.
@@ -161,6 +160,14 @@ You can build a full-screen mobile navigation sheet using Drawer parts, includin
 import { DemoDrawerMobileNav } from './demos/mobile-nav';
 
 <DemoDrawerMobileNav />
+
+### Swipe to open
+
+Place `<Drawer.SwipeArea>` along the edge of the viewport to enable swipe-to-open gestures. The drawer stays open on release once the swipe covers roughly half its size (minimum 40px).
+
+import { DemoDrawerSwipeArea } from './demos/swipe-area';
+
+<DemoDrawerSwipeArea />
 
 ### Animations
 
@@ -204,7 +211,7 @@ Use `--drawer-swipe-progress` to fade the backdrop as the drawer is swiped:
 
 <Reference
   component="Drawer"
-  parts="Provider, IndentBackground, Indent, Root, Trigger, Portal, Backdrop, Viewport, Popup, Title, Description, Close"
+  parts="Provider, IndentBackground, Indent, Root, Trigger, SwipeArea, Portal, Backdrop, Viewport, Popup, Title, Description, Close"
 />
 
 export const metadata = {

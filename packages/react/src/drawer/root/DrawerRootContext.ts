@@ -1,10 +1,10 @@
 'use client';
 import * as React from 'react';
 import type { SwipeDirection } from '../../utils/useSwipeDismiss';
-import type { DrawerSnapPoint } from './DrawerSnapPoint';
 import type { DrawerRootSnapPointChangeEventDetails } from './DrawerRoot';
 
 export type DrawerSwipeDirection = SwipeDirection;
+export type DrawerSnapPoint = number | string;
 
 export interface DrawerRootContext {
   swipeDirection: DrawerSwipeDirection;
