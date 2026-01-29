@@ -2,6 +2,7 @@
 import * as React from 'react';
 import { useControlled } from '@base-ui/utils/useControlled';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { ownerDocument } from '@base-ui/utils/owner';
 import { FieldRoot } from '../root/FieldRoot';
 import { useFieldRootContext } from '../root/FieldRootContext';
 import { useLabelableContext } from '../../labelable-provider/LabelableContext';
@@ -13,6 +14,7 @@ import { useField } from '../useField';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
 import type { BaseUIChangeEventDetails } from '../../utils/createBaseUIEventDetails';
+import { activeElement } from '../../floating-ui-react/utils';
 
 /**
  * The form control to label and validate.
@@ -37,10 +39,22 @@ export const FieldControl = React.forwardRef(function FieldControl(
     disabled: disabledProp = false,
     onValueChange,
     defaultValue,
+    autoFocus = false,
     ...elementProps
   } = componentProps;
 
-  const { state: fieldState, name: fieldName, disabled: fieldDisabled } = useFieldRootContext();
+  const {
+    state: fieldState,
+    name: fieldName,
+    disabled: fieldDisabled,
+    setTouched,
+    setDirty,
+    validityData,
+    setFocused,
+    setFilled,
+    validationMode,
+    validation,
+  } = useFieldRootContext();
 
   const disabled = fieldDisabled || disabledProp;
   const name = fieldName ?? nameProp;
@@ -50,8 +64,6 @@ export const FieldControl = React.forwardRef(function FieldControl(
     disabled,
   };
 
-  const { setTouched, setDirty, validityData, setFocused, setFilled, validationMode, validation } =
-    useFieldRootContext();
   const { labelId } = useLabelableContext();
 
   const id = useLabelableId({ id: idProp });
@@ -64,6 +76,14 @@ export const FieldControl = React.forwardRef(function FieldControl(
       setFilled(false);
     }
   }, [validation.inputRef, setFilled, valueProp]);
+
+  const inputRef = React.useRef<HTMLElement>(null);
+
+  useIsoLayoutEffect(() => {
+    if (autoFocus && inputRef.current === activeElement(ownerDocument(inputRef.current))) {
+      setFocused(true);
+    }
+  }, [autoFocus, setFocused]);
 
   const [valueUnwrapped] = useControlled({
     controlled: valueProp,
@@ -85,7 +105,7 @@ export const FieldControl = React.forwardRef(function FieldControl(
   });
 
   const element = useRenderElement('input', componentProps, {
-    ref: forwardedRef,
+    ref: [forwardedRef, inputRef],
     state,
     props: [
       {
@@ -94,6 +114,7 @@ export const FieldControl = React.forwardRef(function FieldControl(
         name,
         ref: validation.inputRef,
         'aria-labelledby': labelId,
+        autoFocus,
         ...(isControlled ? { value } : { defaultValue }),
         onChange(event) {
           const inputValue = event.currentTarget.value;
