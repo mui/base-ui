@@ -52,6 +52,8 @@ export const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubAr
   const scrubAreaRef = React.useRef<HTMLSpanElement>(null);
 
   const isScrubbingRef = React.useRef(false);
+  const didMoveRef = React.useRef(false);
+  const pointerDownTargetRef = React.useRef<EventTarget | null>(null);
   const scrubAreaCursorRef = React.useRef<HTMLSpanElement>(null);
   const virtualCursorCoords = React.useRef({ x: 0, y: 0 });
   const visualScaleRef = React.useRef(1);
@@ -157,6 +159,17 @@ export const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubAr
               lastChangedValueRef.current ?? valueRef.current,
               createGenericEventDetails(REASONS.scrub, event),
             );
+
+            // Manually dispatch a click event if no movement happened, since
+            // preventDefault on pointerdown prevents the browser click event.
+            if (!didMoveRef.current && pointerDownTargetRef.current != null) {
+              pointerDownTargetRef.current.dispatchEvent(
+                new MouseEvent('click', { bubbles: true, cancelable: true }),
+              );
+            }
+
+            didMoveRef.current = false;
+            pointerDownTargetRef.current = null;
           }
         }
 
@@ -185,6 +198,7 @@ export const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubAr
 
         if (Math.abs(cumulativeDelta) >= pixelSensitivity) {
           cumulativeDelta = 0;
+          didMoveRef.current = true;
           const dValue = direction === 'vertical' ? -movementY : movementX;
           const stepAmount = getStepAmount(event) ?? DEFAULT_STEP;
           const rawAmount = dValue * stepAmount;
@@ -200,7 +214,6 @@ export const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubAr
       }
 
       const win = ownerWindow(inputRef.current);
-
       win.addEventListener('pointerup', handleScrubPointerUp, true);
       win.addEventListener('pointermove', handleScrubPointerMove, true);
 
@@ -273,6 +286,8 @@ export const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubAr
       }
 
       isScrubbingRef.current = true;
+      didMoveRef.current = false;
+      pointerDownTargetRef.current = event.target;
       onScrubbingChange(true, event.nativeEvent);
 
       // WebKit causes significant layout shift with the native message, so we can't use it.

@@ -72,7 +72,7 @@ const SearchItem = React.memo(function SearchItem({ result }: { result: SearchRe
           )}
         </React.Fragment>
       ))}
-      {process.env.NODE_ENV === 'development' && result.score && (
+      {process.env.NODE_ENV !== 'production' && result.score && (
         <span className="text-xs opacity-70 whitespace-nowrap ml-1.5">
           {result.score.toFixed(2)}
         </span>
@@ -189,9 +189,38 @@ export function SearchBar({
     [search],
   );
 
+  const highlightedResultRef = React.useRef<SearchResult | undefined>(undefined);
+
   const handleItemClick = React.useCallback(() => {
     handleCloseDialog(false);
   }, [handleCloseDialog]);
+
+  const handleItemHighlighted = React.useCallback((item: SearchResult | undefined) => {
+    highlightedResultRef.current = item;
+  }, []);
+
+  const handleKeyDownCapture = React.useCallback(
+    (event: React.KeyboardEvent) => {
+      // Only handle Enter with modifiers
+      if (event.key !== 'Enter' || (!event.metaKey && !event.ctrlKey && !event.altKey)) {
+        return;
+      }
+
+      const highlightedResult = highlightedResultRef.current;
+      if (!highlightedResult) {
+        return;
+      }
+
+      // Prevent the Input/List handlers from processing this
+      event.preventDefault();
+      event.stopPropagation();
+
+      // Open in new tab
+      const url = buildResultUrl(highlightedResult);
+      window.open(url, '_blank', 'noopener,noreferrer');
+    },
+    [buildResultUrl],
+  );
 
   const showCmdSymbol = React.useSyncExternalStore(
     () => () => {},
@@ -209,10 +238,11 @@ export function SearchBar({
           ref={inputRef}
           placeholder="Search"
           className="w-full border-0 bg-transparent text-base tracking-[0.016em] font-normal text-gray-900 placeholder:text-gray-500 focus:outline-none"
+          onKeyDownCapture={handleKeyDownCapture}
         />
       </div>
     ),
-    [],
+    [handleKeyDownCapture],
   );
 
   // Memoized callback for itemToStringValue
@@ -283,6 +313,7 @@ export function SearchBar({
                   items={searchResults.results}
                   onValueChange={handleValueChange}
                   onOpenChange={handleAutocompleteEscape}
+                  onItemHighlighted={handleItemHighlighted}
                   open
                   inline
                   itemToStringValue={itemToStringValue}
@@ -300,7 +331,10 @@ export function SearchBar({
                           {searchResults.results.length === 0 ? (
                             <EmptyState />
                           ) : (
-                            <Autocomplete.List className="outline-0 p-2">
+                            <Autocomplete.List
+                              className="outline-0 p-2"
+                              onKeyDownCapture={handleKeyDownCapture}
+                            >
                               {renderResultsList}
                             </Autocomplete.List>
                           )}
@@ -343,6 +377,7 @@ export function SearchBar({
                         items={searchResults.results}
                         onValueChange={handleValueChange}
                         onOpenChange={handleAutocompleteEscape}
+                        onItemHighlighted={handleItemHighlighted}
                         open
                         inline
                         itemToStringValue={itemToStringValue}
@@ -354,7 +389,10 @@ export function SearchBar({
                           {searchResults.results.length === 0 ? (
                             <EmptyState />
                           ) : (
-                            <Autocomplete.List className="outline-0 overflow-y-auto p-2 scroll-pt-9 scroll-pb-2 overscroll-contain max-h-[min(22.5rem,var(--available-height))] rounded-b-[5px]">
+                            <Autocomplete.List
+                              className="outline-0 overflow-y-auto p-2 scroll-pt-9 scroll-pb-2 overscroll-contain max-h-[min(22.5rem,var(--available-height))] rounded-b-[5px]"
+                              onKeyDownCapture={handleKeyDownCapture}
+                            >
                               {renderResultsList}
                             </Autocomplete.List>
                           )}
