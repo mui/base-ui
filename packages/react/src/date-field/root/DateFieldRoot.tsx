@@ -2,7 +2,6 @@
 import * as React from 'react';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import { useOnMount } from '@base-ui/utils/useOnMount';
 import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { useTemporalAdapter } from '../../temporal-adapter-provider/TemporalAdapterContext';
 import { BaseUIComponentProps, MakeOptional } from '../../utils/types';
@@ -89,6 +88,7 @@ export const DateFieldRoot = React.forwardRef(function DateFieldRoot(
       direction,
       validationProps,
       placeholderGetters,
+      children,
     }),
     [
       readOnly,
@@ -107,6 +107,7 @@ export const DateFieldRoot = React.forwardRef(function DateFieldRoot(
       direction,
       validationProps,
       placeholderGetters,
+      children,
     ],
   );
 
@@ -114,11 +115,8 @@ export const DateFieldRoot = React.forwardRef(function DateFieldRoot(
 
   useIsoLayoutEffect(() => store.syncState(parameters), [store, parameters, adapter, direction]);
 
-  useOnMount(store.mountEffect);
-
   const { state, hiddenInputProps, rootProps, rootRef } = useTemporalFieldRoot({
     store,
-    children,
   });
 
   const element = useRenderElement('div', componentProps, {
@@ -129,12 +127,7 @@ export const DateFieldRoot = React.forwardRef(function DateFieldRoot(
 
   return (
     <TemporalFieldRootContext.Provider value={store}>
-      <input
-        {...hiddenInputProps}
-        ref={hiddenInputRef}
-        onChange={store.elementsProps.handleHiddenInputChange}
-        onFocus={store.elementsProps.handleHiddenInputFocus}
-      />
+      <input {...hiddenInputProps} ref={hiddenInputRef} />
       {element}
     </TemporalFieldRootContext.Provider>
   );

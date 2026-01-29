@@ -93,6 +93,7 @@ export const TimeFieldRoot = React.forwardRef(function TimeFieldRoot(
       direction,
       validationProps,
       placeholderGetters,
+      children,
     }),
     [
       readOnly,
@@ -113,6 +114,7 @@ export const TimeFieldRoot = React.forwardRef(function TimeFieldRoot(
       direction,
       validationProps,
       placeholderGetters,
+      children,
     ],
   );
 
@@ -120,11 +122,8 @@ export const TimeFieldRoot = React.forwardRef(function TimeFieldRoot(
 
   useIsoLayoutEffect(() => store.syncState(parameters), [store, parameters, adapter, direction]);
 
-  useOnMount(store.mountEffect);
-
   const { state, hiddenInputProps, rootProps, rootRef } = useTemporalFieldRoot({
     store,
-    children,
   });
 
   const element = useRenderElement('div', componentProps, {
@@ -135,12 +134,7 @@ export const TimeFieldRoot = React.forwardRef(function TimeFieldRoot(
 
   return (
     <TemporalFieldRootContext.Provider value={store}>
-      <input
-        {...hiddenInputProps}
-        ref={hiddenInputRef}
-        onChange={store.elementsProps.handleHiddenInputChange}
-        onFocus={store.elementsProps.handleHiddenInputFocus}
-      />
+      <input {...hiddenInputProps} ref={hiddenInputRef} />
       {element}
     </TemporalFieldRootContext.Provider>
   );

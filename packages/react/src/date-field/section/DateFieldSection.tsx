@@ -42,6 +42,7 @@ export const DateFieldSection = React.forwardRef(function DateFieldSection(
     store,
     TemporalFieldElementsPropsPlugin.selectors.sectionProps,
     section,
+    store,
   );
 
   const state: DateFieldSection.State = {
@@ -52,20 +53,7 @@ export const DateFieldSection = React.forwardRef(function DateFieldSection(
   return useRenderElement('div', componentProps, {
     state,
     ref: [forwardedRef, store.dom.registerSection],
-    props: [
-      propsFromState,
-      {
-        onClick: store.elementsProps.handleSectionClick,
-        onInput: store.elementsProps.handleSectionInput,
-        onPaste: store.elementsProps.handleSectionPaste,
-        onKeyDown: store.elementsProps.handleSectionKeyDown,
-        onMouseUp: store.elementsProps.handleSectionMouseUp,
-        onDragOver: store.elementsProps.handleSectionDragOver,
-        onFocus: store.elementsProps.handleSectionFocus,
-        onBlur: store.elementsProps.handleSectionBlur,
-      },
-      elementProps,
-    ],
+    props: [propsFromState, elementProps],
     stateAttributesMapping,
   });
 });

@@ -20,6 +20,7 @@ describe('TemporalFieldElementsPropsPlugin', () => {
     return TemporalFieldElementsPropsPlugin.selectors.sectionProps(
       store.state,
       sections[sectionIndex],
+      store,
     );
   }
 

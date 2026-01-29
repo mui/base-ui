@@ -96,6 +96,11 @@ export interface TemporalFieldStoreSharedParameters<
    * @default 1
    */
   step?: number | undefined;
+  /**
+   * The children of the field root.
+   * Can be a ReactNode or a function that receives a section and returns a ReactNode.
+   */
+  children?: React.ReactNode | ((section: TemporalFieldSection) => React.ReactNode);
 }
 
 export interface TemporalFieldState<TValue extends TemporalSupportedValue = any> {
@@ -202,6 +207,11 @@ export interface TemporalFieldState<TValue extends TemporalSupportedValue = any>
    * A ref to the input element (the div containing the sections).
    */
   inputRef: React.RefObject<HTMLElement | null>;
+  /**
+   * The children of the field root.
+   * Can be a ReactNode or a function that receives a section and returns a ReactNode.
+   */
+  children: React.ReactNode | ((section: TemporalFieldSection) => React.ReactNode);
 }
 
 export interface TemporalFieldCharacterEditingQuery {

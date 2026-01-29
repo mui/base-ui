@@ -37,6 +37,19 @@ const elementsPropsSelectors = {
       invalid,
     }),
   ),
+  rootProps: createSelectorMemoized(
+    TemporalFieldSectionPlugin.selectors.sections,
+    (state: State) => state.children,
+    (sections, children, store: TemporalFieldStore<any>) => {
+      const resolvedChildren =
+        typeof children === 'function' ? sections.map((section) => children(section)) : children;
+
+      return {
+        onClick: store.elementsProps.handleRootClick,
+        children: resolvedChildren,
+      };
+    },
+  ),
   hiddenInputProps: createSelectorMemoized(
     TemporalFieldValuePlugin.selectors.value,
     TemporalFieldSectionPlugin.selectors.sections,
@@ -63,6 +76,7 @@ const elementsPropsSelectors = {
       id,
       validationProps,
       step,
+      store: TemporalFieldStore<any>,
     ) => ({
       ...config.stringifyValidationPropsForHiddenInput(
         adapter,
@@ -80,6 +94,8 @@ const elementsPropsSelectors = {
       'aria-hidden': true,
       tabIndex: -1,
       style: visuallyHiddenInput,
+      onChange: store.elementsProps.handleHiddenInputChange,
+      onFocus: store.elementsProps.handleHiddenInputFocus,
     }),
   ),
   /**
@@ -119,7 +135,19 @@ const elementsPropsSelectors = {
       readOnly,
       timezone,
       section: TemporalFieldSection,
+      store: TemporalFieldStore<any>,
     ): React.HTMLAttributes<HTMLDivElement> => {
+      const eventHandlers = {
+        onClick: store.elementsProps.handleSectionClick,
+        onInput: store.elementsProps.handleSectionInput,
+        onPaste: store.elementsProps.handleSectionPaste,
+        onKeyDown: store.elementsProps.handleSectionKeyDown,
+        onMouseUp: store.elementsProps.handleSectionMouseUp,
+        onDragOver: store.elementsProps.handleSectionDragOver,
+        onFocus: store.elementsProps.handleSectionFocus,
+        onBlur: store.elementsProps.handleSectionBlur,
+      };
+
       // Date part
       if (isDatePart(section)) {
         return {
@@ -146,6 +174,9 @@ const elementsPropsSelectors = {
           autoCapitalize: editable ? 'none' : undefined,
           autoCorrect: editable ? 'off' : undefined,
           inputMode: section.token.config.contentType === 'letter' ? 'text' : 'numeric',
+
+          // Event handlers
+          ...eventHandlers,
         };
       }
 
@@ -156,6 +187,9 @@ const elementsPropsSelectors = {
 
         // Other
         children: section.value,
+
+        // Event handlers
+        ...eventHandlers,
       };
     },
   ),

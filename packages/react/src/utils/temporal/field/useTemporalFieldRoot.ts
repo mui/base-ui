@@ -1,62 +1,43 @@
 'use client';
-import * as React from 'react';
 import { useStore } from '@base-ui/utils/store';
+import { useOnMount } from '@base-ui/utils/useOnMount';
 import { TemporalSupportedValue } from '../../../types';
 import { useField } from '../../../field/useField';
 import { TemporalFieldStore } from './TemporalFieldStore';
 import { TemporalFieldElementsPropsPlugin } from './plugins/TemporalFieldElementsPropsPlugin';
-import { TemporalFieldSectionPlugin } from './plugins/TemporalFieldSectionPlugin';
-import { TemporalFieldSection } from './types';
 
 interface UseTemporalFieldRootParameters<TValue extends TemporalSupportedValue> {
   store: TemporalFieldStore<TValue>;
-  children?: React.ReactNode | ((section: TemporalFieldSection) => React.ReactNode);
 }
 
 interface UseTemporalFieldRootReturnValue {
   hiddenInputProps: ReturnType<typeof TemporalFieldElementsPropsPlugin.selectors.hiddenInputProps>;
   state: ReturnType<typeof TemporalFieldElementsPropsPlugin.selectors.rootState>;
-  rootProps: {
-    onClick: () => void;
-    children: React.ReactNode;
-  };
+  rootProps: ReturnType<typeof TemporalFieldElementsPropsPlugin.selectors.rootProps>;
   rootRef: React.RefObject<HTMLElement | null>;
 }
 
 /**
  * Shared hook for DateFieldRoot and TimeFieldRoot that handles:
- * - Reading hiddenInputProps and state from the store
+ * - Reading hiddenInputProps, state and rootProps from the store
  * - Form integration via useField
- * - Resolving children with sections
- * - Returning input props (onClick and ref)
  */
 export function useTemporalFieldRoot<TValue extends TemporalSupportedValue>(
   params: UseTemporalFieldRootParameters<TValue>,
 ): UseTemporalFieldRootReturnValue {
-  const { store, children } = params;
+  const { store } = params;
 
   const hiddenInputProps = useStore(
     store,
     TemporalFieldElementsPropsPlugin.selectors.hiddenInputProps,
+    store,
   );
   const state = useStore(store, TemporalFieldElementsPropsPlugin.selectors.rootState);
-  const sections = useStore(store, TemporalFieldSectionPlugin.selectors.sections);
+  const rootProps = useStore(store, TemporalFieldElementsPropsPlugin.selectors.rootProps, store);
   const useFieldParams = useStore(store, TemporalFieldElementsPropsPlugin.selectors.useFieldParams);
 
   useField(useFieldParams);
-
-  const resolvedChildren = React.useMemo(() => {
-    if (!React.isValidElement(children) && typeof children === 'function') {
-      return sections.map((section) => children(section));
-    }
-
-    return children;
-  }, [children, sections]);
-
-  const rootProps = {
-    onClick: store.elementsProps.handleRootClick,
-    children: resolvedChildren,
-  };
+  useOnMount(store.mountEffect);
 
   return {
     hiddenInputProps,

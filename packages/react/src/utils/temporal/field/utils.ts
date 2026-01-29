@@ -68,6 +68,7 @@ export function deriveStateFromParameters<TValue extends TemporalSupportedValue>
     placeholderGetters: parameters.placeholderGetters,
     fieldContext: parameters.fieldContext ?? null,
     step: parameters.step ?? 1,
+    children: parameters.children,
   };
 }
 
