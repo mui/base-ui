@@ -220,6 +220,47 @@ describe('cleanDigitSectionValue', () => {
       expect(cleanDigitDatePartValue(adapter, 3, STANDARD_DIGITS, token)).to.equal('3rd');
       expect(cleanDigitDatePartValue(adapter, 15, STANDARD_DIGITS, token)).to.equal('15th');
     });
+
+    it('should format days 4-9 with "th" suffix', () => {
+      const token = FormatParser.buildSingleToken(
+        adapter,
+        adapter.formats.dayOfMonthWithLetter,
+        {},
+      );
+
+      expect(cleanDigitDatePartValue(adapter, 4, STANDARD_DIGITS, token)).to.equal('4th');
+      expect(cleanDigitDatePartValue(adapter, 5, STANDARD_DIGITS, token)).to.equal('5th');
+      expect(cleanDigitDatePartValue(adapter, 6, STANDARD_DIGITS, token)).to.equal('6th');
+      expect(cleanDigitDatePartValue(adapter, 7, STANDARD_DIGITS, token)).to.equal('7th');
+      expect(cleanDigitDatePartValue(adapter, 8, STANDARD_DIGITS, token)).to.equal('8th');
+      expect(cleanDigitDatePartValue(adapter, 9, STANDARD_DIGITS, token)).to.equal('9th');
+    });
+
+    it('should format 11th, 12th, 13th with "th" suffix (not st/nd/rd)', () => {
+      const token = FormatParser.buildSingleToken(
+        adapter,
+        adapter.formats.dayOfMonthWithLetter,
+        {},
+      );
+
+      // These are exceptions - even though they end in 1, 2, 3
+      expect(cleanDigitDatePartValue(adapter, 11, STANDARD_DIGITS, token)).to.equal('11th');
+      expect(cleanDigitDatePartValue(adapter, 12, STANDARD_DIGITS, token)).to.equal('12th');
+      expect(cleanDigitDatePartValue(adapter, 13, STANDARD_DIGITS, token)).to.equal('13th');
+    });
+
+    it('should format 21st, 22nd, 23rd, 31st with special suffixes', () => {
+      const token = FormatParser.buildSingleToken(
+        adapter,
+        adapter.formats.dayOfMonthWithLetter,
+        {},
+      );
+
+      expect(cleanDigitDatePartValue(adapter, 21, STANDARD_DIGITS, token)).to.equal('21st');
+      expect(cleanDigitDatePartValue(adapter, 22, STANDARD_DIGITS, token)).to.equal('22nd');
+      expect(cleanDigitDatePartValue(adapter, 23, STANDARD_DIGITS, token)).to.equal('23rd');
+      expect(cleanDigitDatePartValue(adapter, 31, STANDARD_DIGITS, token)).to.equal('31st');
+    });
   });
 
   describe('edge cases', () => {

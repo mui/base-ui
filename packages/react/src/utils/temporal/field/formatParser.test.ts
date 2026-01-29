@@ -417,6 +417,22 @@ describe('FormatParser', () => {
         expect(firstToken.isPadded).to.equal(false);
       }
     });
+
+    it('should handle digit-with-letter format (ordinal)', () => {
+      const format = adapter.formats.dayOfMonthWithLetter; // 'do'
+      const result = FormatParser.parse(adapter, format, 'ltr', undefined, {});
+
+      const firstToken = result.elements[0];
+      expect('config' in firstToken).to.equal(true);
+      if ('config' in firstToken) {
+        expect(firstToken.config.contentType).to.equal('digit-with-letter');
+        // isPadded is true because "1st".length > 1, but this is not zero-padding
+        expect(firstToken.isPadded).to.equal(true);
+        // maxLength is the digit count only (strips non-digits like "th", "st", etc.)
+        // For days, max is 31, so maxLength is 2
+        expect(firstToken.maxLength).to.equal(2);
+      }
+    });
   });
 
   describe('complex formats', () => {

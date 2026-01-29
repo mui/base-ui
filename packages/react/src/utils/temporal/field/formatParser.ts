@@ -23,7 +23,7 @@ import {
 import { ValidateDateValidationProps } from '../validateDate';
 import { ValidateTimeValidationProps } from '../validateTime';
 
-const DATE_PART_CONFIG_MAP: Record<TemporalFieldDatePartType, FormatParserDatePartConfig> = {
+const DATE_PART_HELPERS_MAP: Record<TemporalFieldDatePartType, FormatParserDatePartConfig> = {
   year: {
     getBoundaries(adapter, tokenValue, tokenConfig, validationProps) {
       const boundaries = {
@@ -387,7 +387,6 @@ export class FormatParser {
     const expandedFormat = parser.expandFormat();
     const escapedParts = parser.computeEscapedParts(expandedFormat);
     const parsedFormat = parser.parse(expandedFormat, escapedParts);
-    FormatParser.markMostGranularPart(parsedFormat);
 
     if (direction === 'rtl') {
       for (const element of parsedFormat.elements) {
@@ -504,46 +503,36 @@ export class FormatParser {
     }
 
     const tokenConfig = FormatParser.getTokenConfig(this.adapter, tokenValue);
+    const helpers = DATE_PART_HELPERS_MAP[tokenConfig.part];
+
     const isPadded =
-      tokenConfig.contentType === 'digit'
-        ? DATE_PART_CONFIG_MAP[tokenConfig.part].isDigitTokenPadded(
-            this.adapter,
-            tokenValue,
-            this.now,
-          )
-        : false;
-
-    let maxLength: number | undefined;
-    if (isPadded && tokenConfig.contentType === 'digit') {
-      maxLength = this.formatNowByToken(tokenValue).length;
-    } else if (isPadded && tokenConfig.contentType === 'digit-with-letter') {
-      // For digit-with-letter formats (e.g., '1st', '2nd'), we need to extract only the digit part
-      const formatted = this.formatNowByToken(tokenValue);
-      // Remove all non-digit characters to get the length of just the digits
-      maxLength = formatted.replace(/\D/g, '').length;
-    }
-
-    const datePartConfig = DATE_PART_CONFIG_MAP[tokenConfig.part];
+      tokenConfig.contentType === 'letter'
+        ? false
+        : helpers.isDigitTokenPadded(this.adapter, tokenValue, this.now);
 
     return {
       type: 'token',
+      isPadded,
       value: tokenValue,
       config: tokenConfig,
-      isPadded,
-      maxLength,
-      placeholder: datePartConfig.getTokenPlaceholder(
+      isMostGranularPart: false,
+      maxLength:
+        isPadded && tokenConfig.contentType !== 'letter'
+          ? // Remove all non-digit characters to get the length of digits
+            this.formatNowByToken(tokenValue).replace(/\D/g, '').length
+          : undefined,
+      placeholder: helpers.getTokenPlaceholder(
         this.placeholderGetters,
         tokenValue,
         tokenConfig,
         this.formatNowByToken,
       ),
-      boundaries: datePartConfig.getBoundaries(
+      boundaries: helpers.getBoundaries(
         this.adapter,
         tokenValue,
         tokenConfig,
         this.validationProps,
       ),
-      isMostGranularPart: false,
     };
   }
 
@@ -623,14 +612,16 @@ export class FormatParser {
       }
     }
 
-    return { elements, granularity: 'year' };
+    return this.markMostGranularPart(elements);
   }
 
-  private static markMostGranularPart(parsedFormat: TemporalFieldParsedFormat): void {
+  private markMostGranularPart(
+    elements: (TemporalFieldToken | TemporalFieldSeparator)[],
+  ): TemporalFieldParsedFormat {
     let mostGranularToken: TemporalFieldToken | null = null;
     let highestGranularity = 0;
 
-    for (const element of parsedFormat.elements) {
+    for (const element of elements) {
       if (isToken(element)) {
         const granularity = DATE_PART_GRANULARITY[element.config.part] ?? 0;
         if (granularity > highestGranularity) {
@@ -638,12 +629,13 @@ export class FormatParser {
           mostGranularToken = element;
         }
       }
+
+      if (mostGranularToken) {
+        mostGranularToken.isMostGranularPart = true;
+      }
     }
 
-    if (mostGranularToken) {
-      mostGranularToken.isMostGranularPart = true;
-      parsedFormat.granularity = mostGranularToken.config.part;
-    }
+    return { elements, granularity: mostGranularToken?.config.part ?? 'year' };
   }
 }
 
