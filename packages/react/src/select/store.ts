@@ -13,6 +13,7 @@ export type State = {
   items:
     | Record<string, React.ReactNode>
     | ReadonlyArray<{ label: React.ReactNode; value: any }>
+    | ReadonlyArray<Group<any>>
     | ReadonlyArray<Group<{ label: React.ReactNode; value: any }>>
     | undefined;
   itemToStringLabel: ((item: any) => string) | undefined;

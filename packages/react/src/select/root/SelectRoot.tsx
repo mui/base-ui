@@ -684,6 +684,7 @@ export interface SelectRootProps<Value, Multiple extends boolean | undefined = f
   items?:
     | Record<string, React.ReactNode>
     | ReadonlyArray<{ label: React.ReactNode; value: any }>
+    | ReadonlyArray<Group<any>>
     | ReadonlyArray<Group<{ label: React.ReactNode; value: any }>>
     | undefined;
   /**
