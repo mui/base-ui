@@ -19,11 +19,11 @@ describe('TemporalFieldCharacterEditingPlugin', () => {
     describe('single digit entry', () => {
       it('should update month section with single digit', () => {
         const store = new DateFieldStore({
-        format: numericDateFormat,
-        adapter,
-        direction: 'ltr',
-        validationProps: {},
-      });
+          format: numericDateFormat,
+          adapter,
+          direction: 'ltr',
+          validationProps: {},
+        });
         store.section.selectClosestDatePart(0); // month section
 
         store.characterEditing.editSection({
@@ -37,11 +37,11 @@ describe('TemporalFieldCharacterEditingPlugin', () => {
 
       it('should update day section with single digit', () => {
         const store = new DateFieldStore({
-        format: numericDateFormat,
-        adapter,
-        direction: 'ltr',
-        validationProps: {},
-      });
+          format: numericDateFormat,
+          adapter,
+          direction: 'ltr',
+          validationProps: {},
+        });
         store.section.selectClosestDatePart(2); // day section (index 2 because of separator at index 1)
 
         store.characterEditing.editSection({
@@ -55,11 +55,11 @@ describe('TemporalFieldCharacterEditingPlugin', () => {
 
       it('should update year section with single digit', () => {
         const store = new DateFieldStore({
-        format: numericDateFormat,
-        adapter,
-        direction: 'ltr',
-        validationProps: {},
-      });
+          format: numericDateFormat,
+          adapter,
+          direction: 'ltr',
+          validationProps: {},
+        });
         store.section.selectClosestDatePart(4); // year section (index 4 because of separators)
 
         store.characterEditing.editSection({
@@ -75,11 +75,11 @@ describe('TemporalFieldCharacterEditingPlugin', () => {
     describe('multi-digit entry with concatenation', () => {
       it('should concatenate digits for month (0 then 9)', () => {
         const store = new DateFieldStore({
-        format: numericDateFormat,
-        adapter,
-        direction: 'ltr',
-        validationProps: {},
-      });
+          format: numericDateFormat,
+          adapter,
+          direction: 'ltr',
+          validationProps: {},
+        });
         store.section.selectClosestDatePart(0); // month section
 
         // Type '0'
@@ -104,11 +104,11 @@ describe('TemporalFieldCharacterEditingPlugin', () => {
 
       it('should concatenate digits for day (1 then 5)', () => {
         const store = new DateFieldStore({
-        format: numericDateFormat,
-        adapter,
-        direction: 'ltr',
-        validationProps: {},
-      });
+          format: numericDateFormat,
+          adapter,
+          direction: 'ltr',
+          validationProps: {},
+        });
         store.section.selectClosestDatePart(2); // day section (index 2 because of separator at index 1)
 
         // Type '1'
@@ -132,11 +132,11 @@ describe('TemporalFieldCharacterEditingPlugin', () => {
 
       it('should concatenate digits for year (2, 0, 2, 4)', () => {
         const store = new DateFieldStore({
-        format: numericDateFormat,
-        adapter,
-        direction: 'ltr',
-        validationProps: {},
-      });
+          format: numericDateFormat,
+          adapter,
+          direction: 'ltr',
+          validationProps: {},
+        });
         store.section.selectClosestDatePart(4); // year section (index 4 because of separators)
 
         const digits = ['2', '0', '2', '4'];
@@ -155,11 +155,11 @@ describe('TemporalFieldCharacterEditingPlugin', () => {
     describe('boundary validation', () => {
       it('should reject month value above 12', () => {
         const store = new DateFieldStore({
-        format: numericDateFormat,
-        adapter,
-        direction: 'ltr',
-        validationProps: {},
-      });
+          format: numericDateFormat,
+          adapter,
+          direction: 'ltr',
+          validationProps: {},
+        });
         store.section.selectClosestDatePart(0); // month section
 
         // Type '1' - should work
@@ -182,11 +182,11 @@ describe('TemporalFieldCharacterEditingPlugin', () => {
 
       it('should reject day value above 31', () => {
         const store = new DateFieldStore({
-        format: numericDateFormat,
-        adapter,
-        direction: 'ltr',
-        validationProps: {},
-      });
+          format: numericDateFormat,
+          adapter,
+          direction: 'ltr',
+          validationProps: {},
+        });
         store.section.selectClosestDatePart(2); // day section (index 2 because of separator at index 1)
 
         // Type '3' - should work
@@ -211,11 +211,11 @@ describe('TemporalFieldCharacterEditingPlugin', () => {
     describe('automatic navigation', () => {
       it('should move to next section when typing digit that would exceed maximum', () => {
         const store = new DateFieldStore({
-        format: numericDateFormat,
-        adapter,
-        direction: 'ltr',
-        validationProps: {},
-      });
+          format: numericDateFormat,
+          adapter,
+          direction: 'ltr',
+          validationProps: {},
+        });
         store.section.selectClosestDatePart(0); // month section
 
         // Type '9' - should move to next section (9*10 = 90 > 12)
@@ -229,11 +229,11 @@ describe('TemporalFieldCharacterEditingPlugin', () => {
 
       it('should complete year section after typing max length', () => {
         const store = new DateFieldStore({
-        format: numericDateFormat,
-        adapter,
-        direction: 'ltr',
-        validationProps: {},
-      });
+          format: numericDateFormat,
+          adapter,
+          direction: 'ltr',
+          validationProps: {},
+        });
         store.section.selectClosestDatePart(4); // year section (index 4 because of separators)
 
         // Type 4 digits

@@ -12,7 +12,9 @@ export const selectors = {
     getTimezoneToRender,
   ),
   required: createSelector((state: State) => state.required),
-  disabled: createSelector((state: State) => state.fieldContext?.state.disabled || state.disabledProp),
+  disabled: createSelector(
+    (state: State) => state.fieldContext?.state.disabled || state.disabledProp,
+  ),
   readOnly: createSelector((state: State) => state.readOnly),
   editable: createSelector(
     (state: State) =>

@@ -11,10 +11,8 @@ describe('<DateField /> - DOM Interactions', () => {
 
   function DateField(props: DateFieldBase.Root.Props) {
     return (
-      <DateFieldBase.Root {...props}>
-        <DateFieldBase.Input data-testid="input">
-          {(section) => <DateFieldBase.Section key={section.index} section={section} />}
-        </DateFieldBase.Input>
+      <DateFieldBase.Root {...props} data-testid="input">
+        {(section) => <DateFieldBase.Section key={section.index} section={section} />}
       </DateFieldBase.Root>
     );
   }

@@ -11,16 +11,6 @@ const today = new Date();
 const minTime = set(today, { hours: 9, minutes: 0, seconds: 0 });
 const maxTime = set(today, { hours: 17, minutes: 30, seconds: 0 });
 
-function TimeFieldInput() {
-  return (
-    <TimeField.Input className={styles.Input}>
-      {(section) => (
-        <TimeField.Section key={section.index} className={styles.Section} section={section} />
-      )}
-    </TimeField.Input>
-  );
-}
-
 export default function TimeFieldValidation() {
   return (
     <div>
@@ -45,7 +35,13 @@ export default function TimeFieldValidation() {
                   Time (required)
                 </label>
                 <TimeField.Root id="time-required-native" name="time-required-native" required>
-                  <TimeFieldInput />
+                  {(section) => (
+                    <TimeField.Section
+                      key={section.index}
+                      className={styles.Section}
+                      section={section}
+                    />
+                  )}
                 </TimeField.Root>
               </div>
               <button type="submit" className={styles.Button}>
@@ -64,7 +60,13 @@ export default function TimeFieldValidation() {
                 <div className={styles.SectionTitle}>Base UI</div>
                 <Field.Label className={styles.Label}>Time (required)</Field.Label>
                 <TimeField.Root className={styles.Root} required>
-                  <TimeFieldInput />
+                  {(section) => (
+                    <TimeField.Section
+                      key={section.index}
+                      className={styles.Section}
+                      section={section}
+                    />
+                  )}
                 </TimeField.Root>
                 <Field.Error match="valueMissing" className={styles.Error}>
                   Please select a time
@@ -96,7 +98,13 @@ export default function TimeFieldValidation() {
                   Time (min: {format(minTime, 'h:mm a')})
                 </label>
                 <TimeField.Root id="time-min-native" name="time-min-native" minTime={minTime}>
-                  <TimeFieldInput />
+                  {(section) => (
+                    <TimeField.Section
+                      key={section.index}
+                      className={styles.Section}
+                      section={section}
+                    />
+                  )}
                 </TimeField.Root>
               </div>
               <button type="submit" className={styles.Button}>
@@ -117,7 +125,13 @@ export default function TimeFieldValidation() {
                   Time (min: {format(minTime, 'h:mm a')})
                 </Field.Label>
                 <TimeField.Root className={styles.Root} minTime={minTime}>
-                  <TimeFieldInput />
+                  {(section) => (
+                    <TimeField.Section
+                      key={section.index}
+                      className={styles.Section}
+                      section={section}
+                    />
+                  )}
                 </TimeField.Root>
                 <Field.Error match="rangeUnderflow" className={styles.Error}>
                   Time must be on or after {format(minTime, 'h:mm a')}
@@ -149,7 +163,13 @@ export default function TimeFieldValidation() {
                   Time (max: {format(maxTime, 'h:mm a')})
                 </label>
                 <TimeField.Root id="time-max-native" name="time-max-native" maxTime={maxTime}>
-                  <TimeFieldInput />
+                  {(section) => (
+                    <TimeField.Section
+                      key={section.index}
+                      className={styles.Section}
+                      section={section}
+                    />
+                  )}
                 </TimeField.Root>
               </div>
               <button type="submit" className={styles.Button}>
@@ -170,7 +190,13 @@ export default function TimeFieldValidation() {
                   Time (max: {format(maxTime, 'h:mm a')})
                 </Field.Label>
                 <TimeField.Root className={styles.Root} maxTime={maxTime}>
-                  <TimeFieldInput />
+                  {(section) => (
+                    <TimeField.Section
+                      key={section.index}
+                      className={styles.Section}
+                      section={section}
+                    />
+                  )}
                 </TimeField.Root>
                 <Field.Error match="rangeOverflow" className={styles.Error}>
                   Time must be on or before {format(maxTime, 'h:mm a')}
@@ -206,7 +232,13 @@ export default function TimeFieldValidation() {
                   name="time-seconds-native"
                   format="HH:mm:ss"
                 >
-                  <TimeFieldInput />
+                  {(section) => (
+                    <TimeField.Section
+                      key={section.index}
+                      className={styles.Section}
+                      section={section}
+                    />
+                  )}
                 </TimeField.Root>
               </div>
               <button type="submit" className={styles.Button}>
@@ -225,7 +257,13 @@ export default function TimeFieldValidation() {
                 <div className={styles.SectionTitle}>Base UI</div>
                 <Field.Label className={styles.Label}>Time with seconds</Field.Label>
                 <TimeField.Root className={styles.Root} format="HH:mm:ss">
-                  <TimeFieldInput />
+                  {(section) => (
+                    <TimeField.Section
+                      key={section.index}
+                      className={styles.Section}
+                      section={section}
+                    />
+                  )}
                 </TimeField.Root>
               </Field.Root>
               <button type="submit" className={styles.Button}>

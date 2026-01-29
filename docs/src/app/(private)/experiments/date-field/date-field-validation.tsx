@@ -13,16 +13,6 @@ const today = startOfDay(new Date());
 const minDate = subDays(today, 7);
 const maxDate = addDays(today, 30);
 
-function DateFieldInput() {
-  return (
-    <DateField.Input className={styles.Input}>
-      {(section) => (
-        <DateField.Section key={section.index} className={styles.Section} section={section} />
-      )}
-    </DateField.Input>
-  );
-}
-
 export default function DateFieldValidation() {
   return (
     <div>
@@ -47,7 +37,13 @@ export default function DateFieldValidation() {
                   Date (required)
                 </label>
                 <DateField.Root id="date-required-native" name="date-required-native" required>
-                  <DateFieldInput />
+                  {(section) => (
+                    <DateField.Section
+                      key={section.index}
+                      className={styles.Section}
+                      section={section}
+                    />
+                  )}
                 </DateField.Root>
               </div>
               <button type="submit" className={styles.Button}>
@@ -66,7 +62,13 @@ export default function DateFieldValidation() {
                 <div className={styles.SectionTitle}>Base UI</div>
                 <Field.Label className={styles.Label}>Date (required)</Field.Label>
                 <DateField.Root className={styles.Root} required>
-                  <DateFieldInput />
+                  {(section) => (
+                    <DateField.Section
+                      key={section.index}
+                      className={styles.Section}
+                      section={section}
+                    />
+                  )}
                 </DateField.Root>
                 <Field.Error match="valueMissing" className={styles.Error}>
                   Please select a date
@@ -98,7 +100,13 @@ export default function DateFieldValidation() {
                   Date (min: {format(minDate, 'MMM d')})
                 </label>
                 <DateField.Root id="date-min-native" name="date-min-native" minDate={minDate}>
-                  <DateFieldInput />
+                  {(section) => (
+                    <DateField.Section
+                      key={section.index}
+                      className={styles.Section}
+                      section={section}
+                    />
+                  )}
                 </DateField.Root>
               </div>
               <button type="submit" className={styles.Button}>
@@ -119,7 +127,13 @@ export default function DateFieldValidation() {
                   Date (min: {format(minDate, 'MMM d')})
                 </Field.Label>
                 <DateField.Root className={styles.Root} minDate={minDate}>
-                  <DateFieldInput />
+                  {(section) => (
+                    <DateField.Section
+                      key={section.index}
+                      className={styles.Section}
+                      section={section}
+                    />
+                  )}
                 </DateField.Root>
                 <Field.Error match="rangeUnderflow" className={styles.Error}>
                   Date must be on or after {format(minDate, 'MMM d, yyyy')}
@@ -151,7 +165,13 @@ export default function DateFieldValidation() {
                   Date (max: {format(maxDate, 'MMM d')})
                 </label>
                 <DateField.Root id="date-max-native" name="date-max-native" maxDate={maxDate}>
-                  <DateFieldInput />
+                  {(section) => (
+                    <DateField.Section
+                      key={section.index}
+                      className={styles.Section}
+                      section={section}
+                    />
+                  )}
                 </DateField.Root>
               </div>
               <button type="submit" className={styles.Button}>
@@ -172,7 +192,13 @@ export default function DateFieldValidation() {
                   Date (max: {format(maxDate, 'MMM d')})
                 </Field.Label>
                 <DateField.Root className={styles.Root} maxDate={maxDate}>
-                  <DateFieldInput />
+                  {(section) => (
+                    <DateField.Section
+                      key={section.index}
+                      className={styles.Section}
+                      section={section}
+                    />
+                  )}
                 </DateField.Root>
                 <Field.Error match="rangeOverflow" className={styles.Error}>
                   Date must be on or before {format(maxDate, 'MMM d, yyyy')}
@@ -209,7 +235,13 @@ export default function DateFieldValidation() {
                   format="EEEE, MMM d, yyyy"
                   minDate={minDate}
                 >
-                  <DateFieldInput />
+                  {(section) => (
+                    <DateField.Section
+                      key={section.index}
+                      className={styles.Section}
+                      section={section}
+                    />
+                  )}
                 </DateField.Root>
               </div>
               <button type="submit" className={styles.Button}>
@@ -234,7 +266,13 @@ export default function DateFieldValidation() {
                   format="EEEE, MMM d, yyyy"
                   minDate={minDate}
                 >
-                  <DateFieldInput />
+                  {(section) => (
+                    <DateField.Section
+                      key={section.index}
+                      className={styles.Section}
+                      section={section}
+                    />
+                  )}
                 </DateField.Root>
                 <Field.Error match="rangeUnderflow" className={styles.Error}>
                   Date must be on or after {format(minDate, 'MMM d, yyyy')}

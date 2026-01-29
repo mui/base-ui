@@ -1,7 +1,6 @@
 'use client';
 import * as React from 'react';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
-import { useStore } from '@base-ui/utils/store';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useOnMount } from '@base-ui/utils/useOnMount';
 import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
@@ -10,14 +9,17 @@ import { BaseUIComponentProps, MakeOptional } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useDirection } from '../../direction-provider';
 import { DateFieldStore } from './DateFieldStore';
-import { TemporalFieldRootPropsPlugin } from '../../utils/temporal/field/plugins/TemporalFieldRootPropsPlugin';
 import { TemporalFieldRootContext } from '../../utils/temporal/field/TemporalFieldRootContext';
 import { FieldRoot } from '../../field';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { useLabelableId } from '../../labelable-provider/useLabelableId';
 import { ValidateDateValidationProps } from '../../utils/temporal/validateDate';
 import { TemporalValue } from '../../types';
-import { TemporalFieldStoreSharedParameters } from '../../utils/temporal/field/types';
+import {
+  TemporalFieldSection,
+  TemporalFieldStoreSharedParameters,
+} from '../../utils/temporal/field/types';
+import { useTemporalFieldRoot } from '../../utils/temporal/field/useTemporalFieldRoot';
 
 /**
  * Groups all parts of the date field.
@@ -33,6 +35,7 @@ export const DateFieldRoot = React.forwardRef(function DateFieldRoot(
     // Rendering props
     className,
     render,
+    children,
     // Form props
     required,
     readOnly,
@@ -113,26 +116,32 @@ export const DateFieldRoot = React.forwardRef(function DateFieldRoot(
 
   useOnMount(store.mountEffect);
 
-  const inputProps = useStore(store, TemporalFieldRootPropsPlugin.selectors.hiddenInputProps);
-
-  const state: DateFieldRootState = useStore(
+  const { hiddenInputProps, state, resolvedChildren, getInputProps } = useTemporalFieldRoot({
     store,
-    TemporalFieldRootPropsPlugin.selectors.rootState,
-  );
+    children,
+  });
+
+  const inputProps = getInputProps();
 
   const element = useRenderElement('div', componentProps, {
     state,
-    ref: forwardedRef,
-    props: [elementProps],
+    ref: [forwardedRef, inputProps.ref],
+    props: [
+      {
+        children: resolvedChildren,
+        onClick: inputProps.onClick,
+      },
+      elementProps,
+    ],
   });
 
   return (
     <TemporalFieldRootContext.Provider value={store}>
       <input
-        {...inputProps}
+        {...hiddenInputProps}
         ref={hiddenInputRef}
-        onChange={store.rootProps.onHiddenInputChange}
-        onFocus={store.rootProps.onHiddenInputFocus}
+        onChange={store.elementsProps.handleHiddenInputChange}
+        onFocus={store.elementsProps.handleHiddenInputFocus}
       />
       {element}
     </TemporalFieldRootContext.Provider>
@@ -156,9 +165,15 @@ export interface DateFieldRootState extends FieldRoot.State {
 
 export interface DateFieldRootProps
   extends
-    BaseUIComponentProps<'div', DateFieldRootState>,
+    Omit<BaseUIComponentProps<'div', DateFieldRootState>, 'children'>,
     Omit<MakeOptional<TemporalFieldStoreSharedParameters<TemporalValue>, 'format'>, 'step'>,
-    ValidateDateValidationProps {}
+    ValidateDateValidationProps {
+  /**
+   * The children of the component.
+   * If a function is provided, it will be called with each section as its parameter.
+   */
+  children?: React.ReactNode | ((section: TemporalFieldSection) => React.ReactNode);
+}
 
 export namespace DateFieldRoot {
   export type Props = DateFieldRootProps;

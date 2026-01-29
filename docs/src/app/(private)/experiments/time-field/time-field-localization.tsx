@@ -25,15 +25,13 @@ export default function TimeFieldLocalization() {
                 French locale (24h clock by default)
               </Field.Label>
               <TimeField.Root className={styles.Root}>
-                <TimeField.Input className={styles.Input}>
-                  {(section) => (
-                    <TimeField.Section
-                      key={section.index}
-                      className={styles.Section}
-                      section={section}
-                    />
-                  )}
-                </TimeField.Input>
+                {(section) => (
+                  <TimeField.Section
+                    key={section.index}
+                    className={styles.Section}
+                    section={section}
+                  />
+                )}
               </TimeField.Root>
             </Field.Root>
             <Field.Root name="time-field-fr-seconds" className={styles.Field}>
@@ -43,15 +41,13 @@ export default function TimeFieldLocalization() {
                 placeholderGetters={CUSTOM_TIME_PLACEHOLDER_GETTERS}
                 ampm
               >
-                <TimeField.Input className={styles.Input}>
-                  {(section) => (
-                    <TimeField.Section
-                      key={section.index}
-                      className={styles.Section}
-                      section={section}
-                    />
-                  )}
-                </TimeField.Input>
+                {(section) => (
+                  <TimeField.Section
+                    key={section.index}
+                    className={styles.Section}
+                    section={section}
+                  />
+                )}
               </TimeField.Root>
             </Field.Root>
           </TemporalLocaleProvider>

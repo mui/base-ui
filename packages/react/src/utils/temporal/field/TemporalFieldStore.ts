@@ -17,11 +17,9 @@ import { TemporalFieldCharacterEditingPlugin } from './plugins/TemporalFieldChar
 import { TemporalFieldSectionPlugin } from './plugins/TemporalFieldSectionPlugin';
 import { TimeoutManager } from '../../TimeoutManager';
 import { TemporalFieldValuePlugin } from './plugins/TemporalFieldValuePlugin';
-import { TemporalFieldInputPropsPlugin } from './plugins/TemporalFieldInputPropsPlugin';
-import { TemporalFieldSectionPropsPlugin } from './plugins/TemporalFieldSectionPropsPlugin';
 import { TemporalFieldFormatPlugin } from './plugins/TemporalFieldFormatPlugin';
 import { TemporalFieldDOMPlugin } from './plugins/TemporalFieldDOMPlugin';
-import { TemporalFieldRootPropsPlugin } from './plugins/TemporalFieldRootPropsPlugin';
+import { TemporalFieldElementsPropsPlugin } from './plugins/TemporalFieldElementsPropsPlugin';
 
 export class TemporalFieldStore<TValue extends TemporalSupportedValue> extends Store<
   TemporalFieldState<TValue>
@@ -46,11 +44,7 @@ export class TemporalFieldStore<TValue extends TemporalSupportedValue> extends S
 
   public dom: TemporalFieldDOMPlugin;
 
-  public rootProps: TemporalFieldRootPropsPlugin;
-
-  public inputProps: TemporalFieldInputPropsPlugin<TValue>;
-
-  public sectionProps: TemporalFieldSectionPropsPlugin<TValue>;
+  public elementsProps: TemporalFieldElementsPropsPlugin<TValue>;
 
   constructor(
     parameters: TemporalFieldStoreSharedParameters<TValue>,
@@ -116,9 +110,7 @@ export class TemporalFieldStore<TValue extends TemporalSupportedValue> extends S
     this.section = new TemporalFieldSectionPlugin<TValue>(this);
     this.format = new TemporalFieldFormatPlugin<TValue>(this);
     this.dom = new TemporalFieldDOMPlugin(this);
-    this.rootProps = new TemporalFieldRootPropsPlugin(this);
-    this.inputProps = new TemporalFieldInputPropsPlugin<TValue>(this);
-    this.sectionProps = new TemporalFieldSectionPropsPlugin<TValue>(this);
+    this.elementsProps = new TemporalFieldElementsPropsPlugin<TValue>(this);
 
     // Register effect to update Field's filled state when value changes
     this.registerStoreEffect(

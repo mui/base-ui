@@ -2,10 +2,10 @@ import { expect } from 'chai';
 import { createTemporalRenderer } from '#test-utils';
 import { DateFieldStore } from '../../../../date-field/root/DateFieldStore';
 import { TimeFieldStore } from '../../../../time-field/root/TimeFieldStore';
-import { TemporalFieldSectionPropsPlugin } from './TemporalFieldSectionPropsPlugin';
+import { TemporalFieldElementsPropsPlugin } from './TemporalFieldElementsPropsPlugin';
 import { TemporalFieldSectionPlugin } from './TemporalFieldSectionPlugin';
 
-describe('TemporalFieldSectionPropsPlugin', () => {
+describe('TemporalFieldElementsPropsPlugin', () => {
   const { adapter } = createTemporalRenderer();
   const numericDateFormat = `${adapter.formats.monthPadded}/${adapter.formats.dayOfMonthPadded}/${adapter.formats.yearPadded}`;
   const time24Format = `${adapter.formats.hours24hPadded}:${adapter.formats.minutesPadded}`;
@@ -17,7 +17,7 @@ describe('TemporalFieldSectionPropsPlugin', () => {
 
   function getProps(store: DateFieldStore | TimeFieldStore, sectionIndex: number) {
     const sections = getSections(store);
-    return TemporalFieldSectionPropsPlugin.selectors.sectionProps(
+    return TemporalFieldElementsPropsPlugin.selectors.sectionProps(
       store.state,
       sections[sectionIndex],
     );

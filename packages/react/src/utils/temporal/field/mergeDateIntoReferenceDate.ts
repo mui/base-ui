@@ -1,7 +1,4 @@
-import {
-  TemporalAdapter,
-  TemporalSupportedObject,
-} from '../../../types';
+import { TemporalAdapter, TemporalSupportedObject } from '../../../types';
 import { TemporalFieldDatePart, TemporalFieldSection } from './types';
 import { getWeekDaysStr } from './adapter-cache';
 import { normalizeLeadingZeros, DATE_PART_GRANULARITY, isDatePart } from './utils';
@@ -88,8 +85,7 @@ export function mergeDateIntoReferenceDate(
     .filter(isDatePart)
     .sort(
       (a, b) =>
-        DATE_PART_GRANULARITY[a.token.config.part] -
-        DATE_PART_GRANULARITY[b.token.config.part],
+        DATE_PART_GRANULARITY[a.token.config.part] - DATE_PART_GRANULARITY[b.token.config.part],
     )
     .reduce((mergedDate, section) => {
       if (!shouldLimitToEditedSections || section.modified) {

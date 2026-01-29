@@ -13,10 +13,8 @@ describe('<TimeField /> - Field Integration', () => {
 
   function TimeField(props: TimeFieldBase.Root.Props) {
     return (
-      <TimeFieldBase.Root {...props}>
-        <TimeFieldBase.Input data-testid="input">
-          {(section) => <TimeFieldBase.Section key={section.index} section={section} />}
-        </TimeFieldBase.Input>
+      <TimeFieldBase.Root {...props} data-testid="input">
+        {(section) => <TimeFieldBase.Section key={section.index} section={section} />}
       </TimeFieldBase.Root>
     );
   }
@@ -43,9 +41,7 @@ describe('<TimeField /> - Field Integration', () => {
       );
 
       const form = screen.getByTestId<HTMLFormElement>('form');
-      const hiddenInput = form.querySelector(
-        'input[name="appointmentTime"]',
-      ) as HTMLInputElement;
+      const hiddenInput = form.querySelector('input[name="appointmentTime"]') as HTMLInputElement;
 
       expect(hiddenInput).not.to.equal(null);
       expect(hiddenInput.name).to.equal('appointmentTime');
@@ -87,7 +83,9 @@ describe('<TimeField /> - Field Integration', () => {
       expect(sections[1]).to.have.attribute('aria-valuenow', '45'); // minutes = 45
 
       // Assert the hidden input has the correct name and value
-      const hiddenInput = document.querySelector('input[name="standaloneField"]') as HTMLInputElement;
+      const hiddenInput = document.querySelector(
+        'input[name="standaloneField"]',
+      ) as HTMLInputElement;
       expect(hiddenInput).not.to.equal(null);
       expect(hiddenInput.name).to.equal('standaloneField');
       expect(hiddenInput.value).to.equal('09:45');
@@ -97,7 +95,10 @@ describe('<TimeField /> - Field Integration', () => {
   describe('Basic functionality', () => {
     it('renders with defaultValue', async () => {
       await render(
-        <TimeField format={time24Format} defaultValue={adapter.date('2024-01-15T14:30', 'default')} />,
+        <TimeField
+          format={time24Format}
+          defaultValue={adapter.date('2024-01-15T14:30', 'default')}
+        />,
       );
 
       const input = screen.getByTestId('input');
@@ -388,10 +389,7 @@ describe('<TimeField /> - Field Integration', () => {
 
     it('should set min attribute when minTime is provided', async () => {
       await render(
-        <TimeField
-          format={time24Format}
-          minTime={adapter.date('2024-01-01T09:00', 'default')}
-        />,
+        <TimeField format={time24Format} minTime={adapter.date('2024-01-01T09:00', 'default')} />,
       );
 
       const hiddenInput = document.querySelector('input[tabindex="-1"]') as HTMLInputElement;
@@ -400,10 +398,7 @@ describe('<TimeField /> - Field Integration', () => {
 
     it('should set max attribute when maxTime is provided', async () => {
       await render(
-        <TimeField
-          format={time24Format}
-          maxTime={adapter.date('2024-01-01T17:00', 'default')}
-        />,
+        <TimeField format={time24Format} maxTime={adapter.date('2024-01-01T17:00', 'default')} />,
       );
 
       const hiddenInput = document.querySelector('input[tabindex="-1"]') as HTMLInputElement;

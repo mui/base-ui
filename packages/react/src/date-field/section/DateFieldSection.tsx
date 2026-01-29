@@ -7,7 +7,7 @@ import { useTemporalFieldRootContext } from '../../utils/temporal/field/Temporal
 import { TemporalFieldSection } from '../../utils/temporal/field/types';
 import { StateAttributesMapping } from '../../utils/getStateAttributesProps';
 import { DateFieldSectionDataAttributes } from './DateFieldSectionDataAttributes';
-import { TemporalFieldSectionPropsPlugin } from '../../utils/temporal/field/plugins/TemporalFieldSectionPropsPlugin';
+import { TemporalFieldElementsPropsPlugin } from '../../utils/temporal/field/plugins/TemporalFieldElementsPropsPlugin';
 
 const stateAttributesMapping: StateAttributesMapping<DateFieldSectionState> = {
   sectionIndex: (index) => {
@@ -40,7 +40,7 @@ export const DateFieldSection = React.forwardRef(function DateFieldSection(
   const store = useTemporalFieldRootContext();
   const propsFromState = useStore(
     store,
-    TemporalFieldSectionPropsPlugin.selectors.sectionProps,
+    TemporalFieldElementsPropsPlugin.selectors.sectionProps,
     section,
   );
 
@@ -55,14 +55,14 @@ export const DateFieldSection = React.forwardRef(function DateFieldSection(
     props: [
       propsFromState,
       {
-        onClick: store.sectionProps.handleClick,
-        onInput: store.sectionProps.handleInput,
-        onPaste: store.sectionProps.handlePaste,
-        onKeyDown: store.sectionProps.handleKeyDown,
-        onMouseUp: store.sectionProps.handleMouseUp,
-        onDragOver: store.sectionProps.handleDragOver,
-        onFocus: store.sectionProps.handleFocus,
-        onBlur: store.sectionProps.handleBlur,
+        onClick: store.elementsProps.handleSectionClick,
+        onInput: store.elementsProps.handleSectionInput,
+        onPaste: store.elementsProps.handleSectionPaste,
+        onKeyDown: store.elementsProps.handleSectionKeyDown,
+        onMouseUp: store.elementsProps.handleSectionMouseUp,
+        onDragOver: store.elementsProps.handleSectionDragOver,
+        onFocus: store.elementsProps.handleSectionFocus,
+        onBlur: store.elementsProps.handleSectionBlur,
       },
       elementProps,
     ],

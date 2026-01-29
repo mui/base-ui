@@ -33,15 +33,13 @@ export default function DateFieldLocalization() {
                 className={styles.Root}
                 placeholderGetters={FRENCH_PLACEHOLDER_GETTERS}
               >
-                <DateField.Input className={styles.Input}>
-                  {(section) => (
-                    <DateField.Section
-                      key={section.index}
-                      className={styles.Section}
-                      section={section}
-                    />
-                  )}
-                </DateField.Input>
+                {(section) => (
+                  <DateField.Section
+                    key={section.index}
+                    className={styles.Section}
+                    section={section}
+                  />
+                )}
               </DateField.Root>
             </Field.Root>
           </TemporalLocaleProvider>
@@ -54,15 +52,13 @@ export default function DateFieldLocalization() {
                 className={styles.Root}
                 placeholderGetters={GERMAN_PLACEHOLDER_GETTERS}
               >
-                <DateField.Input className={styles.Input}>
-                  {(section) => (
-                    <DateField.Section
-                      key={section.index}
-                      className={styles.Section}
-                      section={section}
-                    />
-                  )}
-                </DateField.Input>
+                {(section) => (
+                  <DateField.Section
+                    key={section.index}
+                    className={styles.Section}
+                    section={section}
+                  />
+                )}
               </DateField.Root>
             </Field.Root>
           </TemporalLocaleProvider>

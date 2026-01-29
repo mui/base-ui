@@ -13,10 +13,8 @@ describe('<DateField /> - Field Integration', () => {
 
   function DateField(props: DateFieldBase.Root.Props) {
     return (
-      <DateFieldBase.Root {...props}>
-        <DateFieldBase.Input data-testid="input">
-          {(section) => <DateFieldBase.Section key={section.index} section={section} />}
-        </DateFieldBase.Input>
+      <DateFieldBase.Root {...props} data-testid="input">
+        {(section) => <DateFieldBase.Section key={section.index} section={section} />}
       </DateFieldBase.Root>
     );
   }
@@ -86,7 +84,9 @@ describe('<DateField /> - Field Integration', () => {
       expect(sections[2]).to.have.attribute('aria-valuenow', '2024'); // year = 2024
 
       // Assert the hidden input has the correct name and value
-      const hiddenInput = document.querySelector('input[name="standaloneField"]') as HTMLInputElement;
+      const hiddenInput = document.querySelector(
+        'input[name="standaloneField"]',
+      ) as HTMLInputElement;
       expect(hiddenInput).not.to.equal(null);
       expect(hiddenInput.name).to.equal('standaloneField');
       expect(hiddenInput.value).to.equal('2024-03-20');
@@ -96,7 +96,10 @@ describe('<DateField /> - Field Integration', () => {
   describe('Basic functionality', () => {
     it('renders with defaultValue', async () => {
       await render(
-        <DateField format={numericDateFormat} defaultValue={adapter.date('2024-01-15', 'default')} />,
+        <DateField
+          format={numericDateFormat}
+          defaultValue={adapter.date('2024-01-15', 'default')}
+        />,
       );
 
       const input = screen.getByTestId('input');
@@ -421,10 +424,7 @@ describe('<DateField /> - Field Integration', () => {
 
     it('should set min attribute when minDate is provided', async () => {
       await render(
-        <DateField
-          format={numericDateFormat}
-          minDate={adapter.date('2024-01-01', 'default')}
-        />,
+        <DateField format={numericDateFormat} minDate={adapter.date('2024-01-01', 'default')} />,
       );
 
       const hiddenInput = document.querySelector('input[tabindex="-1"]') as HTMLInputElement;
@@ -433,10 +433,7 @@ describe('<DateField /> - Field Integration', () => {
 
     it('should set max attribute when maxDate is provided', async () => {
       await render(
-        <DateField
-          format={numericDateFormat}
-          maxDate={adapter.date('2024-12-31', 'default')}
-        />,
+        <DateField format={numericDateFormat} maxDate={adapter.date('2024-12-31', 'default')} />,
       );
 
       const hiddenInput = document.querySelector('input[tabindex="-1"]') as HTMLInputElement;
