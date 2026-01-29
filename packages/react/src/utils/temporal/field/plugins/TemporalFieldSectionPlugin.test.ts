@@ -24,7 +24,6 @@ describe('TemporalFieldSectionPlugin', () => {
         defaultValue: adapter.date('2024-03-15', 'default'),
         adapter,
         direction: 'ltr',
-        validationProps: {},
       });
 
       store.section.selectClosestDatePart(0); // month section
@@ -43,7 +42,6 @@ describe('TemporalFieldSectionPlugin', () => {
         format: numericDateFormat,
         adapter,
         direction: 'ltr',
-        validationProps: {},
       });
 
       store.section.selectClosestDatePart(0); // month section (empty)
@@ -63,7 +61,6 @@ describe('TemporalFieldSectionPlugin', () => {
         defaultValue: adapter.date('2024-03-15', 'default'),
         adapter,
         direction: 'ltr',
-        validationProps: {},
       });
 
       store.section.selectClosestDatePart(2); // day section
@@ -88,7 +85,6 @@ describe('TemporalFieldSectionPlugin', () => {
         defaultValue: adapter.date('2024-03-15', 'default'),
         adapter,
         direction: 'ltr',
-        validationProps: {},
       });
 
       // Clear month
@@ -120,7 +116,6 @@ describe('TemporalFieldSectionPlugin', () => {
         defaultValue: adapter.date('2024-03-15', 'default'),
         adapter,
         direction: 'ltr',
-        validationProps: {},
       });
 
       store.section.selectClosestDatePart(0); // month section
@@ -151,7 +146,6 @@ describe('TemporalFieldSectionPlugin', () => {
         format: numericDateFormat,
         adapter,
         direction: 'ltr',
-        validationProps: {},
       });
 
       store.value.updateFromString('03/15/2024');
@@ -169,7 +163,6 @@ describe('TemporalFieldSectionPlugin', () => {
         defaultValue: adapter.date('2023-01-01', 'default'),
         adapter,
         direction: 'ltr',
-        validationProps: {},
       });
 
       store.value.updateFromString('12/31/2024');
@@ -187,7 +180,6 @@ describe('TemporalFieldSectionPlugin', () => {
         defaultValue: adapter.date('2024-03-15', 'default'),
         adapter,
         direction: 'ltr',
-        validationProps: {},
       });
 
       store.value.updateFromString('invalid date string');
@@ -202,7 +194,6 @@ describe('TemporalFieldSectionPlugin', () => {
         defaultValue: adapter.date('2024-03-15', 'default'),
         adapter,
         direction: 'ltr',
-        validationProps: {},
       });
 
       store.value.updateFromString('');
@@ -216,7 +207,6 @@ describe('TemporalFieldSectionPlugin', () => {
         format: time24Format,
         adapter,
         direction: 'ltr',
-        validationProps: {},
       });
 
       store.value.updateFromString('14:30');
@@ -232,7 +222,6 @@ describe('TemporalFieldSectionPlugin', () => {
         format: numericDateFormat,
         adapter,
         direction: 'ltr',
-        validationProps: {},
       });
 
       // Select month section and start typing
@@ -263,7 +252,6 @@ describe('TemporalFieldSectionPlugin', () => {
         defaultValue: adapter.date('2024-03-15T14:30:00', 'default'),
         adapter,
         direction: 'ltr',
-        validationProps: {},
       });
 
       // Edit the day
@@ -291,7 +279,6 @@ describe('TemporalFieldSectionPlugin', () => {
         defaultValue: adapter.date('2024-03-15T14:30:00', 'default'),
         adapter,
         direction: 'ltr',
-        validationProps: {},
       });
 
       // Clear day
@@ -319,7 +306,6 @@ describe('TemporalFieldSectionPlugin', () => {
         defaultValue: adapter.date('2024-03-15T14:30:00', 'default'),
         adapter,
         direction: 'ltr',
-        validationProps: {},
       });
 
       // Edit the year
@@ -349,7 +335,6 @@ describe('TemporalFieldSectionPlugin', () => {
         defaultValue: adapter.date('2024-03-15T14:30:00', 'default'),
         adapter,
         direction: 'ltr',
-        validationProps: {},
       });
 
       // Edit the month
@@ -379,7 +364,6 @@ describe('TemporalFieldSectionPlugin', () => {
         defaultValue: adapter.date('2024-03-15T14:30:00', 'default'),
         adapter,
         direction: 'ltr',
-        validationProps: {},
       });
 
       // Edit the hour
@@ -408,7 +392,6 @@ describe('TemporalFieldSectionPlugin', () => {
         defaultValue: adapter.date('2024-03-15T14:30:00', 'default'),
         adapter,
         direction: 'ltr',
-        validationProps: {},
       });
 
       // Clear hour
@@ -437,7 +420,6 @@ describe('TemporalFieldSectionPlugin', () => {
         defaultValue: adapter.date('2024-03-15T14:30:45', 'default'),
         adapter,
         direction: 'ltr',
-        validationProps: {},
       });
 
       // Edit the hour
@@ -466,7 +448,6 @@ describe('TemporalFieldSectionPlugin', () => {
         format: numericDateFormat,
         adapter,
         direction: 'ltr',
-        validationProps: {},
       });
 
       // Enter 02/29/2024 (2024 is a leap year)
@@ -504,7 +485,6 @@ describe('TemporalFieldSectionPlugin', () => {
         defaultValue: adapter.date('2023-02-28', 'default'), // 2023 is not a leap year
         adapter,
         direction: 'ltr',
-        validationProps: {},
       });
 
       // Update year to 2024 (leap year)
@@ -536,7 +516,6 @@ describe('TemporalFieldSectionPlugin', () => {
         format: numericDateFormat,
         adapter,
         direction: 'ltr',
-        validationProps: {},
       });
 
       store.section.selectClosestDatePart(4); // year (4-digit)
@@ -557,7 +536,6 @@ describe('TemporalFieldSectionPlugin', () => {
         defaultValue: adapter.date('2023-03-15', 'default'),
         adapter,
         direction: 'ltr',
-        validationProps: {},
       });
 
       store.section.selectClosestDatePart(4);
@@ -579,7 +557,6 @@ describe('TemporalFieldSectionPlugin', () => {
         format: numericDateFormat,
         adapter,
         direction: 'ltr',
-        validationProps: {},
       });
 
       store.section.selectClosestDatePart(0); // month
@@ -597,7 +574,6 @@ describe('TemporalFieldSectionPlugin', () => {
         format: numericDateFormat,
         adapter,
         direction: 'ltr',
-        validationProps: {},
       });
 
       store.section.selectClosestDatePart(0); // month
@@ -615,7 +591,6 @@ describe('TemporalFieldSectionPlugin', () => {
         format: numericDateFormat,
         adapter,
         direction: 'ltr',
-        validationProps: {},
       });
 
       store.section.selectClosestDatePart(4); // year
@@ -633,7 +608,6 @@ describe('TemporalFieldSectionPlugin', () => {
         format: numericDateFormat,
         adapter,
         direction: 'ltr',
-        validationProps: {},
       });
 
       store.section.selectClosestDatePart(4); // year (last section)
@@ -648,7 +622,6 @@ describe('TemporalFieldSectionPlugin', () => {
         format: numericDateFormat,
         adapter,
         direction: 'ltr',
-        validationProps: {},
       });
 
       store.section.selectClosestDatePart(0); // month (first section)
@@ -666,7 +639,6 @@ describe('TemporalFieldSectionPlugin', () => {
         format: formatWithTrailingSeparator,
         adapter,
         direction: 'ltr',
-        validationProps: {},
       });
 
       store.section.selectClosestDatePart(4); // year (last datePart)
@@ -685,7 +657,6 @@ describe('TemporalFieldSectionPlugin', () => {
         format: formatWithLeadingSeparator,
         adapter,
         direction: 'ltr',
-        validationProps: {},
       });
 
       // The first datePart is at index 1 (index 0 is the leading separator)
@@ -705,7 +676,6 @@ describe('TemporalFieldSectionPlugin', () => {
         format: formatWithLeadingSeparator,
         adapter,
         direction: 'ltr',
-        validationProps: {},
       });
 
       // Clicking on the leading separator (index 0) should select the first date part (index 1)
@@ -718,7 +688,6 @@ describe('TemporalFieldSectionPlugin', () => {
         format: numericDateFormat,
         adapter,
         direction: 'ltr',
-        validationProps: {},
       });
 
       store.section.selectClosestDatePart(0);
@@ -736,7 +705,6 @@ describe('TemporalFieldSectionPlugin', () => {
         defaultValue: adapter.date('2024-03-15', 'default'),
         adapter,
         direction: 'ltr',
-        validationProps: {},
       });
 
       // Verify initial value
@@ -763,7 +731,6 @@ describe('TemporalFieldSectionPlugin', () => {
         defaultValue: adapter.date('2024-03-15', 'default'),
         adapter,
         direction: 'ltr',
-        validationProps: {},
       });
 
       // Reset value to null

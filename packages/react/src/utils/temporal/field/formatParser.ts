@@ -21,7 +21,6 @@ import {
   getYearFormatLength,
 } from './adapter-cache';
 import { ValidateDateValidationProps } from '../validateDate';
-import { ValidateTimeValidationProps } from '../validateTime';
 
 const DATE_PART_HELPERS_MAP: Record<TemporalFieldDatePartType, FormatParserDatePartConfig> = {
   year: {
@@ -118,7 +117,7 @@ const DATE_PART_HELPERS_MAP: Record<TemporalFieldDatePartType, FormatParserDateP
 
       return {
         characterEditing: boundaries,
-        // TODO: See if we can add support for minTime/maxTime affecting weekDay boundaries
+        // TODO: See if we can add support for minDate/maxDate affecting weekDay boundaries
         adjustment: boundaries,
       };
     },
@@ -201,28 +200,28 @@ const DATE_PART_HELPERS_MAP: Record<TemporalFieldDatePartType, FormatParserDateP
         };
       }
 
-      const minTime = validationProps.minTime ?? null;
-      const maxTime = validationProps.maxTime ?? null;
+      const minDate = validationProps.minDate ?? null;
+      const maxDate = validationProps.maxDate ?? null;
 
-      // Only use minTime and maxTime to restrict hours if they share the same day
+      // Only use minDate and maxDate to restrict hours if they share the same day
       const shouldIgnoreValidation =
-        !adapter.isValid(minTime) ||
-        !adapter.isValid(maxTime) ||
-        !adapter.isSameDay(minTime, maxTime);
+        !adapter.isValid(minDate) ||
+        !adapter.isValid(maxDate) ||
+        !adapter.isSameDay(minDate, maxDate);
 
       return {
         characterEditing: boundaries,
         adjustment: shouldIgnoreValidation
           ? boundaries
           : {
-              minimum: adapter.getHours(minTime),
-              maximum: adapter.getHours(maxTime),
+              minimum: adapter.getHours(minDate),
+              maximum: adapter.getHours(maxDate),
             },
       };
     },
     getTokenPlaceholder(placeholderGetters, tokenValue) {
       if (placeholderGetters?.hours === undefined) {
-        return 'hh';
+        return '--';
       }
 
       return placeholderGetters.hours({ format: tokenValue });
@@ -238,28 +237,28 @@ const DATE_PART_HELPERS_MAP: Record<TemporalFieldDatePartType, FormatParserDateP
         maximum: adapter.getMinutes(adapter.endOfDay(adapter.now('default'))),
       };
 
-      const minTime = validationProps.minTime ?? null;
-      const maxTime = validationProps.maxTime ?? null;
+      const minDate = validationProps.minDate ?? null;
+      const maxDate = validationProps.maxDate ?? null;
 
-      // Only use minTime and maxTime to restrict minutes if they share the same hour
+      // Only use minDate and maxDate to restrict minutes if they share the same hour
       const shouldIgnoreValidation =
-        !adapter.isValid(minTime) ||
-        !adapter.isValid(maxTime) ||
-        !adapter.isSameHour(minTime, maxTime);
+        !adapter.isValid(minDate) ||
+        !adapter.isValid(maxDate) ||
+        !adapter.isSameHour(minDate, maxDate);
 
       return {
         characterEditing: boundaries,
         adjustment: shouldIgnoreValidation
           ? boundaries
           : {
-              minimum: adapter.getMinutes(minTime),
-              maximum: adapter.getMinutes(maxTime),
+              minimum: adapter.getMinutes(minDate),
+              maximum: adapter.getMinutes(maxDate),
             },
       };
     },
     getTokenPlaceholder(placeholderGetters, tokenValue) {
       if (placeholderGetters?.minutes === undefined) {
-        return 'mm';
+        return '--';
       }
 
       return placeholderGetters.minutes({ format: tokenValue });
@@ -275,30 +274,30 @@ const DATE_PART_HELPERS_MAP: Record<TemporalFieldDatePartType, FormatParserDateP
         maximum: adapter.getSeconds(adapter.endOfDay(adapter.now('default'))),
       };
 
-      const minTime = validationProps.minTime ?? null;
-      const maxTime = validationProps.maxTime ?? null;
+      const minDate = validationProps.minDate ?? null;
+      const maxDate = validationProps.maxDate ?? null;
 
-      // Only use minTime and maxTime to restrict seconds if they share the same minute
+      // Only use minDate and maxDate to restrict seconds if they share the same minute
       const shouldIgnoreValidation =
-        !adapter.isValid(minTime) ||
-        !adapter.isValid(maxTime) ||
-        // Equivalent to adapter.isSameMinute(minTime, maxTime) if it existed
-        !adapter.isSameHour(minTime, maxTime) ||
-        adapter.getMinutes(minTime) !== adapter.getMinutes(maxTime);
+        !adapter.isValid(minDate) ||
+        !adapter.isValid(maxDate) ||
+        // Equivalent to adapter.isSameMinute(minDate, maxDate) if it existed
+        !adapter.isSameHour(minDate, maxDate) ||
+        adapter.getMinutes(minDate) !== adapter.getMinutes(maxDate);
 
       return {
         characterEditing: boundaries,
         adjustment: shouldIgnoreValidation
           ? boundaries
           : {
-              minimum: adapter.getSeconds(minTime),
-              maximum: adapter.getSeconds(maxTime),
+              minimum: adapter.getSeconds(minDate),
+              maximum: adapter.getSeconds(maxDate),
             },
       };
     },
     getTokenPlaceholder(placeholderGetters, tokenValue) {
       if (placeholderGetters?.seconds === undefined) {
-        return 'ss';
+        return '--';
       }
 
       return placeholderGetters.seconds({ format: tokenValue });
@@ -311,32 +310,32 @@ const DATE_PART_HELPERS_MAP: Record<TemporalFieldDatePartType, FormatParserDateP
     getBoundaries(adapter, tokenValue, tokenConfig, validationProps) {
       const boundaries = { minimum: 0, maximum: 1 };
 
-      const minTime = validationProps.minTime ?? null;
-      const maxTime = validationProps.maxTime ?? null;
+      const minDate = validationProps.minDate ?? null;
+      const maxDate = validationProps.maxDate ?? null;
 
       const getMeridiemValue = (date: TemporalSupportedObject) => {
         const hours = adapter.getHours(date);
         return hours < 12 ? 0 : 1;
       };
 
-      // Only use minTime and maxTime to restrict hours if they share the same day
+      // Only use minDate and maxDate to restrict hours if they share the same day
       const shouldIgnoreValidation =
-        !adapter.isValid(minTime) ||
-        !adapter.isValid(maxTime) ||
-        // Equivalent to adapter.isSameMeridiem(minTime, maxTime) if it existed
-        !adapter.isSameDay(minTime, maxTime) ||
-        getMeridiemValue(minTime) !== getMeridiemValue(maxTime);
+        !adapter.isValid(minDate) ||
+        !adapter.isValid(maxDate) ||
+        // Equivalent to adapter.isSameMeridiem(minDate, maxDate) if it existed
+        !adapter.isSameDay(minDate, maxDate) ||
+        getMeridiemValue(minDate) !== getMeridiemValue(maxDate);
 
       return {
         characterEditing: boundaries,
         adjustment: shouldIgnoreValidation
           ? boundaries
-          : { minimum: getMeridiemValue(minTime), maximum: getMeridiemValue(maxTime) },
+          : { minimum: getMeridiemValue(minDate), maximum: getMeridiemValue(maxDate) },
       };
     },
     getTokenPlaceholder(placeholderGetters, tokenValue) {
       if (placeholderGetters?.meridiem === undefined) {
-        return 'aa';
+        return '--';
       }
 
       return placeholderGetters.meridiem({ format: tokenValue });
@@ -629,10 +628,10 @@ export class FormatParser {
           mostGranularToken = element;
         }
       }
+    }
 
-      if (mostGranularToken) {
-        mostGranularToken.isMostGranularPart = true;
-      }
+    if (mostGranularToken) {
+      mostGranularToken.isMostGranularPart = true;
     }
 
     return { elements, granularity: mostGranularToken?.config.part ?? 'year' };
@@ -646,7 +645,7 @@ interface FormatParserDatePartConfig {
     adapter: TemporalAdapter,
     tokenValue: string,
     tokenConfig: TemporalFormatTokenConfig,
-    validationProps: ValidateDateValidationProps & ValidateTimeValidationProps,
+    validationProps: ValidateDateValidationProps,
   ): TemporalFieldDatePartValueBoundaries;
   getTokenPlaceholder(
     placeholderGetters: Partial<TemporalFieldPlaceholderGetters> | undefined,

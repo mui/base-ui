@@ -7,7 +7,6 @@ import {
   TemporalFieldState,
   TemporalFieldStoreSharedParameters,
   TemporalFieldConfiguration,
-  TemporalFieldValidationProps,
   TemporalFieldRootActions,
 } from './types';
 import { FormatParser } from './formatParser';
@@ -49,7 +48,6 @@ export class TemporalFieldStore<TValue extends TemporalSupportedValue> extends S
 
   constructor(
     parameters: TemporalFieldStoreSharedParameters<TValue>,
-    validationProps: TemporalFieldValidationProps,
     adapter: TemporalAdapter,
     config: TemporalFieldConfiguration<TValue>,
     direction: TextDirection,
@@ -57,6 +55,7 @@ export class TemporalFieldStore<TValue extends TemporalSupportedValue> extends S
   ) {
     const manager = config.getManager(adapter);
     const value = parameters.value ?? parameters.defaultValue ?? manager.emptyValue;
+    const validationProps = { minDate: parameters.minDate, maxDate: parameters.maxDate };
 
     const parsedFormat = FormatParser.parse(
       adapter,
@@ -88,7 +87,7 @@ export class TemporalFieldStore<TValue extends TemporalSupportedValue> extends S
     const inputRef = React.createRef<HTMLElement>();
 
     super({
-      ...deriveStateFromParameters(parameters, validationProps, adapter, config, direction),
+      ...deriveStateFromParameters(parameters, adapter, config, direction),
       manager,
       value,
       sections,
@@ -146,7 +145,6 @@ export class TemporalFieldStore<TValue extends TemporalSupportedValue> extends S
    */
   protected updateStateFromParameters(
     parameters: TemporalFieldStoreSharedParameters<TValue>,
-    validationProps: TemporalFieldValidationProps,
     adapter: TemporalAdapter,
     config: TemporalFieldConfiguration<TValue>,
     direction: TextDirection,
@@ -186,11 +184,12 @@ export class TemporalFieldStore<TValue extends TemporalSupportedValue> extends S
 
     const newState = deriveStateFromParameters(
       parameters,
-      validationProps,
       adapter,
       config,
       direction,
     ) as Partial<TemporalFieldState<TValue>>;
+
+    const validationProps = { minDate: parameters.minDate, maxDate: parameters.maxDate };
 
     // If the format changed, we need to rebuild the sections
     const hasFormatChanged =
@@ -198,7 +197,8 @@ export class TemporalFieldStore<TValue extends TemporalSupportedValue> extends S
       parameters.placeholderGetters !== this.state.placeholderGetters ||
       direction !== this.state.direction ||
       adapter !== this.state.adapter ||
-      validationProps !== this.state.validationProps;
+      parameters.minDate !== this.state.minDate ||
+      parameters.maxDate !== this.state.maxDate;
     const hasValueChanged =
       parameters.value !== undefined && parameters.value !== this.parameters.value;
 

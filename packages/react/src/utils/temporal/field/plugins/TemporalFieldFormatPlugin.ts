@@ -20,7 +20,7 @@ const formatSelectors = {
     (state: State) => state.format,
     (state: State) => state.direction,
     (state: State) => state.placeholderGetters,
-    (state: State) => state.validationProps,
+    selectors.validationProps,
     (adapter, manager, format, direction, placeholderGetters, validationProps) => {
       const parsedFormat = FormatParser.parse(
         adapter,

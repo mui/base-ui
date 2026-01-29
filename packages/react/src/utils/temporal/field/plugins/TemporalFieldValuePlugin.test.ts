@@ -17,7 +17,6 @@ describe('TemporalFieldValuePlugin', () => {
           format: numericDateFormat,
           adapter,
           direction: 'ltr',
-          validationProps: {},
         });
 
         const newDate = adapter.date('2024-06-15', 'default');
@@ -33,7 +32,6 @@ describe('TemporalFieldValuePlugin', () => {
           format: numericDateFormat,
           adapter,
           direction: 'ltr',
-          validationProps: {},
         });
 
         const newDate = adapter.date('2024-06-15', 'default');
@@ -57,7 +55,6 @@ describe('TemporalFieldValuePlugin', () => {
           onValueChange: onValueChangeSpy,
           adapter,
           direction: 'ltr',
-          validationProps: {},
         });
 
         const newDate = adapter.date('2024-06-15', 'default');
@@ -78,7 +75,6 @@ describe('TemporalFieldValuePlugin', () => {
           onValueChange: onValueChangeSpy,
           adapter,
           direction: 'ltr',
-          validationProps: {},
         });
 
         const newDate = adapter.date('2024-06-15', 'default');
@@ -95,7 +91,6 @@ describe('TemporalFieldValuePlugin', () => {
           onValueChange: onValueChangeSpy,
           adapter,
           direction: 'ltr',
-          validationProps: {},
         });
 
         store.value.publish(adapter.date('2024-06-15', 'default'));
@@ -111,7 +106,6 @@ describe('TemporalFieldValuePlugin', () => {
         format: numericDateFormat,
         adapter,
         direction: 'ltr',
-        validationProps: {},
       });
 
       store.value.updateFromString('06/15/2024');
@@ -127,7 +121,6 @@ describe('TemporalFieldValuePlugin', () => {
         format: time24Format,
         adapter,
         direction: 'ltr',
-        validationProps: {},
       });
 
       store.value.updateFromString('14:30');
@@ -144,7 +137,6 @@ describe('TemporalFieldValuePlugin', () => {
         onValueChange: onValueChangeSpy,
         adapter,
         direction: 'ltr',
-        validationProps: {},
       });
 
       store.value.updateFromString('06/15/2024');
@@ -160,7 +152,6 @@ describe('TemporalFieldValuePlugin', () => {
         defaultValue: adapter.date('2024-06-15', 'default'),
         adapter,
         direction: 'ltr',
-        validationProps: {},
       });
 
       expect(store.state.value).to.not.equal(null);
@@ -176,7 +167,6 @@ describe('TemporalFieldValuePlugin', () => {
         onValueChange: onValueChangeSpy,
         adapter,
         direction: 'ltr',
-        validationProps: {},
       });
 
       store.value.clear();
@@ -189,7 +179,6 @@ describe('TemporalFieldValuePlugin', () => {
         format: numericDateFormat,
         adapter,
         direction: 'ltr',
-        validationProps: {},
       });
 
       // First set some section values without creating a complete date
@@ -217,7 +206,6 @@ describe('TemporalFieldValuePlugin', () => {
         defaultValue: adapter.date('2024-06-15T14:30', 'default'),
         adapter,
         direction: 'ltr',
-        validationProps: {},
       });
 
       expect(store.state.value).to.not.equal(null);
@@ -233,7 +221,6 @@ describe('TemporalFieldValuePlugin', () => {
         defaultValue: adapter.date('2024-01-01', 'default'),
         adapter,
         direction: 'ltr',
-        validationProps: {},
       });
 
       const newDate = adapter.date('2024-06-15', 'default');
@@ -252,7 +239,6 @@ describe('TemporalFieldValuePlugin', () => {
         defaultValue: adapter.date('2024-01-01', 'default'),
         adapter,
         direction: 'ltr',
-        validationProps: {},
       });
 
       const newDate = adapter.date('2024-06-15', 'default');
@@ -267,7 +253,6 @@ describe('TemporalFieldValuePlugin', () => {
         defaultValue: adapter.date('2024-01-01', 'default'),
         adapter,
         direction: 'ltr',
-        validationProps: {},
       });
 
       const derived = store.value.deriveStateFromNewValue(null as any);

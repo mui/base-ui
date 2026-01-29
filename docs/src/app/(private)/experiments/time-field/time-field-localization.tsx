@@ -8,8 +8,8 @@ import { TemporalLocaleProvider } from '@base-ui/react/temporal-locale-provider'
 import styles from './time-field-localization.module.css';
 
 const CUSTOM_TIME_PLACEHOLDER_GETTERS: Partial<TemporalFieldPlaceholderGetters> = {
-  hours: () => '––',
-  minutes: () => '––',
+  hours: () => 'hh',
+  minutes: () => 'mm',
   meridiem: () => 'AM',
 };
 

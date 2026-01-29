@@ -6,15 +6,15 @@ import {
   HiddenInputValidationProps,
 } from '../../utils/temporal/field/types';
 import { getInitialReferenceDate } from '../../utils/temporal/getInitialReferenceDate';
-import { getTimeManager } from '../../utils/temporal/getTimeManager';
+import { getDateTimeManager } from '../../utils/temporal/getDateTimeManager';
 import { TextDirection } from '../../direction-provider';
 import { MakeOptional } from '../../utils/types';
 
 /**
- * Formats a time value for native input.
+ * Formats a datetime value for native input.
  * Returns '' for invalid/empty input to trigger valueMissing validation if required.
  */
-function formatTimeForNativeInput(
+function formatDateTimeForNativeInput(
   adapter: TemporalAdapter,
   value: TemporalValue,
   granularity: TemporalFieldDatePartType,
@@ -24,20 +24,21 @@ function formatTimeForNativeInput(
   }
 
   const f = adapter.formats;
+  const c = adapter.escapedCharacters;
   return adapter.formatByString(
     value,
     granularity === 'seconds'
-      ? `${f.hours24hPadded}:${f.minutesPadded}:${f.secondsPadded}`
-      : `${f.hours24hPadded}:${f.minutesPadded}`,
+      ? `${f.yearPadded}-${f.monthPadded}-${f.dayOfMonthPadded}${c.start}T${c.end}${f.hours24hPadded}:${f.minutesPadded}:${f.secondsPadded}`
+      : `${f.yearPadded}-${f.monthPadded}-${f.dayOfMonthPadded}${c.start}T${c.end}${f.hours24hPadded}:${f.minutesPadded}`,
   );
 }
 
 /**
- * Formats a time value for min/max attributes.
+ * Formats a datetime value for min/max attributes.
  * Always includes seconds for rounding purposes.
  */
-function formatTimeForMinMax(adapter: TemporalAdapter, value: TemporalValue): string {
-  return formatTimeForNativeInput(adapter, value, 'seconds');
+function formatDateTimeForMinMax(adapter: TemporalAdapter, value: TemporalValue): string {
+  return formatDateTimeForNativeInput(adapter, value, 'seconds');
 }
 
 /**
@@ -50,7 +51,7 @@ const STEP_MULTIPLIERS: Partial<Record<TemporalFieldDatePartType, number>> = {
 };
 
 const config: TemporalFieldConfiguration<TemporalValue> = {
-  getManager: getTimeManager,
+  getManager: getDateTimeManager,
   getSectionsFromValue: (date, getSectionsFromDate) => getSectionsFromDate(date),
   getDateFromSection: (value) => value,
   getDateSectionsFromValue: (sections) => sections,
@@ -64,8 +65,8 @@ const config: TemporalFieldConfiguration<TemporalValue> = {
     adapter.isValid(value) ? value : prevReferenceValue,
   stringifyValue: (adapter, value) =>
     adapter.isValid(value) ? adapter.toJsDate(value).toISOString() : '',
-  hiddenInputType: 'time',
-  stringifyValueForHiddenInput: formatTimeForNativeInput,
+  hiddenInputType: 'datetime-local',
+  stringifyValueForHiddenInput: formatDateTimeForNativeInput,
   stringifyValidationPropsForHiddenInput: (adapter, validationProps, parsedFormat, step) => {
     // Use parsedFormat.granularity to determine step multiplier
     const multiplier = STEP_MULTIPLIERS[parsedFormat.granularity] ?? 60;
@@ -74,47 +75,48 @@ const config: TemporalFieldConfiguration<TemporalValue> = {
     const result: HiddenInputValidationProps = {
       step: String(nativeStep),
     };
+
     // Always include seconds in min/max for rounding purposes
-    // Extract time portion from minDate/maxDate for the hidden input
     if (validationProps.minDate) {
-      const formatted = formatTimeForMinMax(adapter, validationProps.minDate);
+      const formatted = formatDateTimeForMinMax(adapter, validationProps.minDate);
       if (formatted) {
         result.min = formatted;
       }
     }
     if (validationProps.maxDate) {
-      const formatted = formatTimeForMinMax(adapter, validationProps.maxDate);
+      const formatted = formatDateTimeForMinMax(adapter, validationProps.maxDate);
       if (formatted) {
         result.max = formatted;
       }
     }
+
     return result;
   },
 };
 
-export class TimeFieldStore extends TemporalFieldStore<TemporalValue> {
-  constructor(parameters: TimeFieldStoreParameters) {
+export class DateTimeFieldStore extends TemporalFieldStore<TemporalValue> {
+  constructor(parameters: DateTimeFieldStoreParameters) {
     const { adapter, direction, ampm, ...sharedParameters } = parameters;
 
     super(
       {
         ...sharedParameters,
-        format: sharedParameters.format ?? TimeFieldStore.getDefaultFormat(adapter, ampm),
+        format: sharedParameters.format ?? DateTimeFieldStore.getDefaultFormat(adapter, ampm),
       },
       adapter,
       config,
       direction,
-      'TimeField',
+      'DateTimeField',
     );
   }
 
-  public syncState(parameters: TimeFieldStoreParameters) {
+  public syncState(parameters: DateTimeFieldStoreParameters) {
     const { adapter, direction, ampm, ...sharedParameters } = parameters;
 
     super.updateStateFromParameters(
       {
         ...sharedParameters,
-        format: sharedParameters.format ?? TimeFieldStore.getDefaultFormat(adapter, ampm),
+        format: sharedParameters.format ?? DateTimeFieldStore.getDefaultFormat(adapter, ampm),
       },
       adapter,
       config,
@@ -125,13 +127,14 @@ export class TimeFieldStore extends TemporalFieldStore<TemporalValue> {
   private static getDefaultFormat(adapter: TemporalAdapter, ampm: boolean | undefined) {
     const ampmWithDefault = ampm ?? adapter.is12HourCycleInCurrentLocale();
     const f = adapter.formats;
+    const c = adapter.escapedCharacters;
     return ampmWithDefault
-      ? `${f.hours12hPadded}:${f.minutesPadded} ${f.meridiem}`
-      : `${f.hours24hPadded}:${f.minutesPadded}`;
+      ? `${f.localizedNumericDate}${c.start},${c.end} ${f.hours12hPadded}:${f.minutesPadded} ${f.meridiem}`
+      : `${f.localizedNumericDate}${c.start},${c.end} ${f.hours24hPadded}:${f.minutesPadded}`;
   }
 }
 
-interface TimeFieldStoreParameters
+export interface DateTimeFieldStoreParameters
   extends MakeOptional<TemporalFieldStoreSharedParameters<TemporalValue>, 'format'>,
     AmPmParameters {
   adapter: TemporalAdapter;

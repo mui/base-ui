@@ -22,7 +22,6 @@ describe('TemporalFieldCharacterEditingPlugin', () => {
           format: numericDateFormat,
           adapter,
           direction: 'ltr',
-          validationProps: {},
         });
         store.section.selectClosestDatePart(0); // month section
 
@@ -40,7 +39,6 @@ describe('TemporalFieldCharacterEditingPlugin', () => {
           format: numericDateFormat,
           adapter,
           direction: 'ltr',
-          validationProps: {},
         });
         store.section.selectClosestDatePart(2); // day section (index 2 because of separator at index 1)
 
@@ -58,7 +56,6 @@ describe('TemporalFieldCharacterEditingPlugin', () => {
           format: numericDateFormat,
           adapter,
           direction: 'ltr',
-          validationProps: {},
         });
         store.section.selectClosestDatePart(4); // year section (index 4 because of separators)
 
@@ -78,7 +75,6 @@ describe('TemporalFieldCharacterEditingPlugin', () => {
           format: numericDateFormat,
           adapter,
           direction: 'ltr',
-          validationProps: {},
         });
         store.section.selectClosestDatePart(0); // month section
 
@@ -107,7 +103,6 @@ describe('TemporalFieldCharacterEditingPlugin', () => {
           format: numericDateFormat,
           adapter,
           direction: 'ltr',
-          validationProps: {},
         });
         store.section.selectClosestDatePart(2); // day section (index 2 because of separator at index 1)
 
@@ -135,7 +130,6 @@ describe('TemporalFieldCharacterEditingPlugin', () => {
           format: numericDateFormat,
           adapter,
           direction: 'ltr',
-          validationProps: {},
         });
         store.section.selectClosestDatePart(4); // year section (index 4 because of separators)
 
@@ -158,7 +152,6 @@ describe('TemporalFieldCharacterEditingPlugin', () => {
           format: numericDateFormat,
           adapter,
           direction: 'ltr',
-          validationProps: {},
         });
         store.section.selectClosestDatePart(0); // month section
 
@@ -185,7 +178,6 @@ describe('TemporalFieldCharacterEditingPlugin', () => {
           format: numericDateFormat,
           adapter,
           direction: 'ltr',
-          validationProps: {},
         });
         store.section.selectClosestDatePart(2); // day section (index 2 because of separator at index 1)
 
@@ -214,7 +206,6 @@ describe('TemporalFieldCharacterEditingPlugin', () => {
           format: numericDateFormat,
           adapter,
           direction: 'ltr',
-          validationProps: {},
         });
         store.section.selectClosestDatePart(0); // month section
 
@@ -232,7 +223,6 @@ describe('TemporalFieldCharacterEditingPlugin', () => {
           format: numericDateFormat,
           adapter,
           direction: 'ltr',
-          validationProps: {},
         });
         store.section.selectClosestDatePart(4); // year section (index 4 because of separators)
 
@@ -263,7 +253,6 @@ describe('TemporalFieldCharacterEditingPlugin', () => {
           format: monthNameDateFormat,
           adapter,
           direction: 'ltr',
-          validationProps: {},
         });
         store.section.selectClosestDatePart(0); // month section
 
@@ -281,7 +270,6 @@ describe('TemporalFieldCharacterEditingPlugin', () => {
           format: monthNameDateFormat,
           adapter,
           direction: 'ltr',
-          validationProps: {},
         });
         store.section.selectClosestDatePart(0); // month section
 
@@ -307,7 +295,6 @@ describe('TemporalFieldCharacterEditingPlugin', () => {
           format: monthNameDateFormat,
           adapter,
           direction: 'ltr',
-          validationProps: {},
         });
         store.section.selectClosestDatePart(0); // month section
 
@@ -335,7 +322,6 @@ describe('TemporalFieldCharacterEditingPlugin', () => {
           format: monthNameDateFormat,
           adapter,
           direction: 'ltr',
-          validationProps: {},
         });
         store.section.selectClosestDatePart(0); // month section
 
@@ -356,7 +342,6 @@ describe('TemporalFieldCharacterEditingPlugin', () => {
           format: time12Format,
           adapter,
           direction: 'ltr',
-          validationProps: {},
         });
         store.section.selectClosestDatePart(4); // meridiem section (index 4 because of separators)
 
@@ -374,7 +359,6 @@ describe('TemporalFieldCharacterEditingPlugin', () => {
           format: time12Format,
           adapter,
           direction: 'ltr',
-          validationProps: {},
         });
         store.section.selectClosestDatePart(4); // meridiem section (index 4 because of separators)
 
@@ -392,7 +376,6 @@ describe('TemporalFieldCharacterEditingPlugin', () => {
           format: time12Format,
           adapter,
           direction: 'ltr',
-          validationProps: {},
         });
         store.section.selectClosestDatePart(4); // meridiem section (index 4 because of separators)
 
@@ -418,7 +401,6 @@ describe('TemporalFieldCharacterEditingPlugin', () => {
         format: monthNameDateFormat,
         adapter,
         direction: 'ltr',
-        validationProps: {},
       });
       store.section.selectClosestDatePart(0); // month section (letter format)
 
@@ -437,7 +419,6 @@ describe('TemporalFieldCharacterEditingPlugin', () => {
         format: monthNameDateFormat,
         adapter,
         direction: 'ltr',
-        validationProps: {},
       });
       store.section.selectClosestDatePart(0); // month section (letter format)
 
@@ -466,7 +447,6 @@ describe('TemporalFieldCharacterEditingPlugin', () => {
         format: monthNameDateFormat,
         adapter,
         direction: 'ltr',
-        validationProps: {},
       });
       store.section.selectClosestDatePart(0); // month section (letter format)
 
@@ -496,7 +476,6 @@ describe('TemporalFieldCharacterEditingPlugin', () => {
         format: monthNameDateFormat,
         adapter,
         direction: 'ltr',
-        validationProps: {},
       });
       store.section.selectClosestDatePart(0); // month section
 
@@ -525,7 +504,6 @@ describe('TemporalFieldCharacterEditingPlugin', () => {
         format: numericDateFormat,
         adapter,
         direction: 'ltr',
-        validationProps: {},
       });
 
       // Type '0' in month section
@@ -553,7 +531,6 @@ describe('TemporalFieldCharacterEditingPlugin', () => {
         format: monthNameDateFormat,
         adapter,
         direction: 'ltr',
-        validationProps: {},
       });
       store.section.selectClosestDatePart(0); // month section
 
@@ -580,7 +557,6 @@ describe('TemporalFieldCharacterEditingPlugin', () => {
         format: fullMonthNameFormat,
         adapter,
         direction: 'ltr',
-        validationProps: {},
       });
       store.section.selectClosestDatePart(0); // month section
 
@@ -598,7 +574,6 @@ describe('TemporalFieldCharacterEditingPlugin', () => {
         format: fullMonthNameFormat,
         adapter,
         direction: 'ltr',
-        validationProps: {},
       });
       store.section.selectClosestDatePart(0); // month section
 
@@ -622,7 +597,6 @@ describe('TemporalFieldCharacterEditingPlugin', () => {
         format: numericDateFormat,
         adapter,
         direction: 'ltr',
-        validationProps: {},
       });
       store.section.selectClosestDatePart(0); // month section
 
@@ -650,7 +624,6 @@ describe('TemporalFieldCharacterEditingPlugin', () => {
         format: numericDateFormat,
         adapter,
         direction: 'ltr',
-        validationProps: {},
       });
       store.section.selectClosestDatePart(0); // month section (empty)
 
@@ -669,7 +642,6 @@ describe('TemporalFieldCharacterEditingPlugin', () => {
         format: numericDateFormat,
         adapter,
         direction: 'ltr',
-        validationProps: {},
       });
       store.section.selectClosestDatePart(0); // month section
 
@@ -688,7 +660,6 @@ describe('TemporalFieldCharacterEditingPlugin', () => {
         format: time12Format,
         adapter,
         direction: 'ltr',
-        validationProps: {},
       });
       store.section.selectClosestDatePart(4); // meridiem section (index 4 because of separators)
 

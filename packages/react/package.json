@@ -38,6 +38,7 @@
     "./csp-provider": "./src/csp-provider/index.ts",
     "./context-menu": "./src/context-menu/index.ts",
     "./date-field": "./src/date-field/index.ts",
+    "./date-time-field": "./src/date-time-field/index.ts",
     "./dialog": "./src/dialog/index.ts",
     "./direction-provider": "./src/direction-provider/index.ts",
     "./field": "./src/field/index.ts",

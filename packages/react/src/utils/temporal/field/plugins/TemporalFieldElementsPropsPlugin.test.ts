@@ -32,7 +32,6 @@ describe('TemporalFieldElementsPropsPlugin', () => {
           defaultValue: adapter.date('2024-03-15', 'default'),
           adapter,
           direction: 'ltr',
-          validationProps: {},
         });
 
         const props = getProps(store, 0); // month section
@@ -45,7 +44,6 @@ describe('TemporalFieldElementsPropsPlugin', () => {
           defaultValue: adapter.date('2024-03-15', 'default'),
           adapter,
           direction: 'ltr',
-          validationProps: {},
         });
 
         const props = getProps(store, 0);
@@ -58,7 +56,6 @@ describe('TemporalFieldElementsPropsPlugin', () => {
           defaultValue: adapter.date('2024-03-15', 'default'),
           adapter,
           direction: 'ltr',
-          validationProps: {},
         });
 
         const props = getProps(store, 2); // day section (index 2, after separator)
@@ -71,7 +68,6 @@ describe('TemporalFieldElementsPropsPlugin', () => {
           defaultValue: adapter.date('2024-03-15', 'default'),
           adapter,
           direction: 'ltr',
-          validationProps: {},
         });
 
         const props = getProps(store, 4); // year section
@@ -84,7 +80,6 @@ describe('TemporalFieldElementsPropsPlugin', () => {
           defaultValue: adapter.date('2024-03-15T14:30', 'default'),
           adapter,
           direction: 'ltr',
-          validationProps: {},
         });
 
         const props = getProps(store, 0);
@@ -97,7 +92,6 @@ describe('TemporalFieldElementsPropsPlugin', () => {
           defaultValue: adapter.date('2024-03-15T14:30', 'default'),
           adapter,
           direction: 'ltr',
-          validationProps: {},
         });
 
         const props = getProps(store, 2);
@@ -110,7 +104,6 @@ describe('TemporalFieldElementsPropsPlugin', () => {
           defaultValue: adapter.date('2024-03-15', 'default'),
           adapter,
           direction: 'ltr',
-          validationProps: {},
         });
 
         const props = getProps(store, 0);
@@ -122,7 +115,6 @@ describe('TemporalFieldElementsPropsPlugin', () => {
           format: numericDateFormat,
           adapter,
           direction: 'ltr',
-          validationProps: {},
         });
 
         const props = getProps(store, 0);
@@ -134,7 +126,6 @@ describe('TemporalFieldElementsPropsPlugin', () => {
           format: numericDateFormat,
           adapter,
           direction: 'ltr',
-          validationProps: {},
         });
 
         const props = getProps(store, 0);
@@ -147,7 +138,6 @@ describe('TemporalFieldElementsPropsPlugin', () => {
           defaultValue: adapter.date('2024-03-15', 'default'),
           adapter,
           direction: 'ltr',
-          validationProps: {},
         });
 
         const props = getProps(store, 0); // month
@@ -162,7 +152,6 @@ describe('TemporalFieldElementsPropsPlugin', () => {
           format: numericDateFormat,
           adapter,
           direction: 'ltr',
-          validationProps: {},
         });
 
         const props = getProps(store, 0);
@@ -174,7 +163,6 @@ describe('TemporalFieldElementsPropsPlugin', () => {
           format: numericDateFormat,
           adapter,
           direction: 'ltr',
-          validationProps: {},
         });
 
         const props = getProps(store, 0);
@@ -187,7 +175,6 @@ describe('TemporalFieldElementsPropsPlugin', () => {
           disabled: true,
           adapter,
           direction: 'ltr',
-          validationProps: {},
         });
 
         const props = getProps(store, 0);
@@ -200,7 +187,6 @@ describe('TemporalFieldElementsPropsPlugin', () => {
           disabled: true,
           adapter,
           direction: 'ltr',
-          validationProps: {},
         });
 
         const props = getProps(store, 0);
@@ -213,7 +199,6 @@ describe('TemporalFieldElementsPropsPlugin', () => {
           readOnly: true,
           adapter,
           direction: 'ltr',
-          validationProps: {},
         });
 
         const props = getProps(store, 0);
@@ -225,7 +210,6 @@ describe('TemporalFieldElementsPropsPlugin', () => {
           format: numericDateFormat,
           adapter,
           direction: 'ltr',
-          validationProps: {},
         });
 
         const props = getProps(store, 0);
@@ -241,7 +225,6 @@ describe('TemporalFieldElementsPropsPlugin', () => {
         defaultValue: adapter.date('2024-03-15', 'default'),
         adapter,
         direction: 'ltr',
-        validationProps: {},
       });
 
       const props = getProps(store, 1); // first separator "/"
@@ -254,7 +237,6 @@ describe('TemporalFieldElementsPropsPlugin', () => {
         defaultValue: adapter.date('2024-03-15', 'default'),
         adapter,
         direction: 'ltr',
-        validationProps: {},
       });
 
       const props = getProps(store, 1);
@@ -267,7 +249,6 @@ describe('TemporalFieldElementsPropsPlugin', () => {
         defaultValue: adapter.date('2024-03-15', 'default'),
         adapter,
         direction: 'ltr',
-        validationProps: {},
       });
 
       const props = getProps(store, 1);
@@ -280,7 +261,6 @@ describe('TemporalFieldElementsPropsPlugin', () => {
         defaultValue: adapter.date('2024-03-15', 'default'),
         adapter,
         direction: 'ltr',
-        validationProps: {},
       });
 
       const props = getProps(store, 1);
@@ -295,7 +275,6 @@ describe('TemporalFieldElementsPropsPlugin', () => {
         defaultValue: adapter.date('2024-03-15T14:30', 'default'),
         adapter,
         direction: 'ltr',
-        validationProps: {},
       });
 
       const props = getProps(store, 4); // meridiem section
@@ -308,7 +287,6 @@ describe('TemporalFieldElementsPropsPlugin', () => {
         defaultValue: adapter.date('2024-03-15T14:30', 'default'),
         adapter,
         direction: 'ltr',
-        validationProps: {},
       });
 
       const props = getProps(store, 4);
@@ -323,7 +301,6 @@ describe('TemporalFieldElementsPropsPlugin', () => {
         defaultValue: adapter.date('2024-03-15', 'default'),
         adapter,
         direction: 'ltr',
-        validationProps: {},
       });
 
       const props = getProps(store, 0); // month
@@ -335,7 +312,6 @@ describe('TemporalFieldElementsPropsPlugin', () => {
         format: numericDateFormat,
         adapter,
         direction: 'ltr',
-        validationProps: {},
       });
 
       const props = getProps(store, 0); // month (empty)

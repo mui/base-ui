@@ -26,7 +26,6 @@ describe('TemporalFieldStore - Field Integration', () => {
         fieldContext: mockFieldContext,
         adapter,
         direction: 'ltr',
-        validationProps: {},
       });
 
       expect(store.state.fieldContext).to.equal(mockFieldContext);
@@ -37,7 +36,6 @@ describe('TemporalFieldStore - Field Integration', () => {
         format: numericDateFormat,
         adapter,
         direction: 'ltr',
-        validationProps: {},
       });
 
       expect(store.state.fieldContext).to.equal(null);
@@ -54,7 +52,6 @@ describe('TemporalFieldStore - Field Integration', () => {
         fieldContext: initialFieldContext,
         adapter,
         direction: 'ltr',
-        validationProps: {},
       });
 
       expect(store.state.fieldContext).to.equal(initialFieldContext);
@@ -69,7 +66,6 @@ describe('TemporalFieldStore - Field Integration', () => {
         fieldContext: newFieldContext,
         adapter,
         direction: 'ltr',
-        validationProps: {},
       });
 
       expect(store.state.fieldContext).to.equal(newFieldContext);
@@ -83,7 +79,6 @@ describe('TemporalFieldStore - Field Integration', () => {
         disabled: true,
         adapter,
         direction: 'ltr',
-        validationProps: {},
       });
 
       expect(store.state.disabledProp).to.equal(true);
@@ -102,7 +97,6 @@ describe('TemporalFieldStore - Field Integration', () => {
         fieldContext: mockFieldContext,
         adapter,
         direction: 'ltr',
-        validationProps: {},
       });
 
       expect(store.state.disabledProp).to.equal(false);
@@ -121,7 +115,6 @@ describe('TemporalFieldStore - Field Integration', () => {
         fieldContext: mockFieldContext,
         adapter,
         direction: 'ltr',
-        validationProps: {},
       });
 
       expect(store.state.disabledProp).to.equal(true);
@@ -137,7 +130,6 @@ describe('TemporalFieldStore - Field Integration', () => {
         name: 'localName',
         adapter,
         direction: 'ltr',
-        validationProps: {},
       });
 
       expect(store.state.nameProp).to.equal('localName');
@@ -156,7 +148,6 @@ describe('TemporalFieldStore - Field Integration', () => {
         fieldContext: mockFieldContext,
         adapter,
         direction: 'ltr',
-        validationProps: {},
       });
 
       expect(store.state.nameProp).to.equal('localName');
@@ -175,7 +166,6 @@ describe('TemporalFieldStore - Field Integration', () => {
         fieldContext: mockFieldContext,
         adapter,
         direction: 'ltr',
-        validationProps: {},
       });
 
       expect(store.state.nameProp).to.equal('localName');
@@ -199,7 +189,6 @@ describe('TemporalFieldStore - Field Integration', () => {
         fieldContext: mockFieldContext,
         adapter,
         direction: 'ltr',
-        validationProps: {},
       });
 
       // Initial value is null, so setFilled should not be called yet for the initial state
@@ -228,7 +217,6 @@ describe('TemporalFieldStore - Field Integration', () => {
         fieldContext: mockFieldContext,
         adapter,
         direction: 'ltr',
-        validationProps: {},
       });
 
       // Value is initially non-null, effect is registered so setFilled should be called on mount
@@ -248,7 +236,6 @@ describe('TemporalFieldStore - Field Integration', () => {
         format: numericDateFormat,
         adapter,
         direction: 'ltr',
-        validationProps: {},
       });
 
       // This should not throw even without fieldContext
@@ -277,7 +264,6 @@ describe('TemporalFieldStore - Field Integration', () => {
         fieldContext: mockFieldContext,
         adapter,
         direction: 'ltr',
-        validationProps: {},
       });
 
       setDirtySpy.resetHistory();
@@ -306,7 +292,6 @@ describe('TemporalFieldStore - Field Integration', () => {
         fieldContext: mockFieldContext,
         adapter,
         direction: 'ltr',
-        validationProps: {},
       });
 
       setDirtySpy.resetHistory();
@@ -325,7 +310,6 @@ describe('TemporalFieldStore - Field Integration', () => {
         defaultValue: adapter.date('2024-01-15', 'default'),
         adapter,
         direction: 'ltr',
-        validationProps: {},
       });
 
       // This should not throw even without fieldContext
@@ -354,7 +338,6 @@ describe('TemporalFieldStore - Field Integration', () => {
         fieldContext: mockFieldContext,
         adapter,
         direction: 'ltr',
-        validationProps: {},
       });
 
       // Change value
@@ -384,7 +367,6 @@ describe('TemporalFieldStore - Field Integration', () => {
         fieldContext: mockFieldContext,
         adapter,
         direction: 'ltr',
-        validationProps: {},
       });
 
       // Change value
@@ -402,7 +384,6 @@ describe('TemporalFieldStore - Field Integration', () => {
         format: numericDateFormat,
         adapter,
         direction: 'ltr',
-        validationProps: {},
       });
 
       // This should not throw even without fieldContext
@@ -427,7 +408,6 @@ describe('TemporalFieldStore - Field Integration', () => {
         fieldContext: mockFieldContext,
         adapter,
         direction: 'ltr',
-        validationProps: {},
       });
 
       expect(store.state.fieldContext).to.equal(mockFieldContext);
@@ -447,7 +427,6 @@ describe('TemporalFieldStore - Field Integration', () => {
         fieldContext: mockFieldContext,
         adapter,
         direction: 'ltr',
-        validationProps: {},
       });
 
       setDirtySpy.resetHistory();
@@ -475,7 +454,6 @@ describe('TemporalFieldStore - Field Integration', () => {
         fieldContext: mockFieldContext,
         adapter,
         direction: 'ltr',
-        validationProps: {},
       });
 
       // Change time value
@@ -500,7 +478,6 @@ describe('TemporalFieldStore - Field Integration', () => {
         fieldContext: mockFieldContext,
         adapter,
         direction: 'ltr',
-        validationProps: {},
       });
 
       setFilledSpy.resetHistory();
@@ -533,7 +510,6 @@ describe('TemporalFieldStore - Field Integration', () => {
         fieldContext: mockFieldContext,
         adapter,
         direction: 'ltr',
-        validationProps: {},
       });
 
       // Change value
@@ -566,7 +542,6 @@ describe('TemporalFieldStore - Field Integration', () => {
         name: 'standaloneField',
         adapter,
         direction: 'ltr',
-        validationProps: {},
       });
 
       // Should work normally without Field context
@@ -594,7 +569,6 @@ describe('TemporalFieldStore - Field Integration', () => {
         onValueChange: onValueChangeSpy,
         adapter,
         direction: 'ltr',
-        validationProps: {},
       });
 
       // Start with empty field
@@ -643,7 +617,6 @@ describe('TemporalFieldStore - Field Integration', () => {
         onValueChange: onValueChangeSpy,
         adapter,
         direction: 'ltr',
-        validationProps: {},
       });
 
       // Start with empty field
@@ -691,7 +664,6 @@ describe('TemporalFieldStore - Field Integration', () => {
         onValueChange: onValueChangeSpy,
         adapter,
         direction: 'ltr',
-        validationProps: {},
       });
 
       // Start with empty field
@@ -731,7 +703,6 @@ describe('TemporalFieldStore - Field Integration', () => {
         onValueChange: onValueChangeSpy,
         adapter,
         direction: 'ltr',
-        validationProps: {},
       });
 
       // Start with empty field
@@ -779,7 +750,6 @@ describe('TemporalFieldStore - Field Integration', () => {
         onValueChange: onValueChangeSpy,
         adapter,
         direction: 'ltr',
-        validationProps: {},
       });
 
       // Start with empty field
@@ -827,7 +797,6 @@ describe('TemporalFieldStore - Field Integration', () => {
         onValueChange: onValueChangeSpy,
         adapter,
         direction: 'ltr',
-        validationProps: {},
       });
 
       // Start with empty field
@@ -861,7 +830,6 @@ describe('TemporalFieldStore - Field Integration', () => {
         defaultValue,
         adapter,
         direction: 'ltr',
-        validationProps: {},
       });
 
       // Edit month from 01 to 02: Jan 30 → Feb 30 (invalid) → sets sectionToUpdateOnNextInvalidDate
@@ -880,7 +848,6 @@ describe('TemporalFieldStore - Field Integration', () => {
         defaultValue,
         adapter,
         direction: 'ltr',
-        validationProps: {},
       });
 
       // The stale pending patch should have been cleared
@@ -893,7 +860,6 @@ describe('TemporalFieldStore - Field Integration', () => {
         value: adapter.date('2024-01-30', 'default'),
         adapter,
         direction: 'ltr',
-        validationProps: {},
       });
 
       // Edit month from 01 to 02: Jan 30 → Feb 30 (invalid) → sets sectionToUpdateOnNextInvalidDate
@@ -913,7 +879,6 @@ describe('TemporalFieldStore - Field Integration', () => {
         value: newValue,
         adapter,
         direction: 'ltr',
-        validationProps: {},
       });
 
       // Sections should reflect the NEW format (dd/MM/yyyy) with the NEW value

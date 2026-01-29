@@ -52,7 +52,6 @@ const elementsPropsSelectors = {
   ),
   hiddenInputProps: createSelectorMemoized(
     TemporalFieldValuePlugin.selectors.value,
-    TemporalFieldSectionPlugin.selectors.sections,
     TemporalFieldFormatPlugin.selectors.parsedFormat,
     selectors.adapter,
     selectors.config,
@@ -65,7 +64,6 @@ const elementsPropsSelectors = {
     selectors.step,
     (
       value,
-      sections,
       parsedFormat,
       adapter,
       config,
@@ -85,7 +83,7 @@ const elementsPropsSelectors = {
         step,
       ),
       type: config.hiddenInputType,
-      value: config.stringifyValueForHiddenInput(adapter, value, sections),
+      value: config.stringifyValueForHiddenInput(adapter, value, parsedFormat.granularity),
       name,
       id,
       disabled,
@@ -109,9 +107,13 @@ const elementsPropsSelectors = {
     selectors.fieldContext,
     selectors.inputRef,
     TemporalFieldValuePlugin.selectors.value,
-    TemporalFieldSectionPlugin.selectors.sections,
-    (id, name, adapter, config, fieldContext, inputRef, value, sections) => {
-      const formValue = config.stringifyValueForHiddenInput(adapter, value, sections);
+    TemporalFieldFormatPlugin.selectors.parsedFormat,
+    (id, name, adapter, config, fieldContext, inputRef, value, parsedFormat) => {
+      const formValue = config.stringifyValueForHiddenInput(
+        adapter,
+        value,
+        parsedFormat.granularity,
+      );
       return {
         id,
         name,
@@ -187,6 +189,7 @@ const elementsPropsSelectors = {
 
         // Other
         children: section.value,
+        style: { whiteSpace: 'pre' },
 
         // Event handlers
         ...eventHandlers,

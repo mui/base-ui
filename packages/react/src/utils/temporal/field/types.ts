@@ -14,14 +14,12 @@ import {
 import { GetInitialReferenceDateValidationProps } from '../getInitialReferenceDate';
 import { TemporalManager, TemporalTimezoneProps } from '../types';
 import { ValidateDateValidationProps } from '../validateDate';
-import { ValidateTimeValidationProps } from '../validateTime';
 
 /**
  * Parameters shared across all temporal field stores.
  */
-export interface TemporalFieldStoreSharedParameters<
-  TValue extends TemporalSupportedValue,
-> extends TemporalTimezoneProps {
+export interface TemporalFieldStoreSharedParameters<TValue extends TemporalSupportedValue>
+  extends TemporalTimezoneProps, ValidateDateValidationProps {
   /**
    * The controlled value that should be selected.
    * To render an uncontrolled temporal field, use the `defaultValue` prop instead.
@@ -190,9 +188,13 @@ export interface TemporalFieldState<TValue extends TemporalSupportedValue = any>
    */
   placeholderGetters: Partial<TemporalFieldPlaceholderGetters> | undefined;
   /**
-   * Props used to check the validity of a date.
+   * The minimum selectable date.
    */
-  validationProps: TemporalFieldValidationProps;
+  minDate: TemporalSupportedObject | undefined;
+  /**
+   * The maximum selectable date.
+   */
+  maxDate: TemporalSupportedObject | undefined;
   /**
    * The field context from Field.Root.
    * Contains state (disabled, touched, dirty, valid, filled, focused), callbacks (setDirty, setTouched, etc.), and validation.
@@ -395,18 +397,19 @@ export interface TemporalFieldConfiguration<TValue extends TemporalSupportedValu
    * Returns the type attribute for the hidden input.
    * Used for native HTML validation (e.g., 'date' or 'time').
    */
-  hiddenInputType: 'date' | 'time';
+  hiddenInputType: 'date' | 'time' | 'datetime-local';
   /**
    * Stringifies the value for hidden input format.
    * For date inputs: 'YYYY-MM-DD'
    * For time inputs: 'HH:MM' or 'HH:MM:SS'
+   * For datetime-local inputs: 'YYYY-MM-DDTHH:MM' or 'YYYY-MM-DDTHH:MM:SS'
    * Returns 'invalid' for partial input (some sections filled) to trigger badInput validation.
    * Returns '' for empty input to trigger valueMissing validation if required.
    */
   stringifyValueForHiddenInput: (
     adapter: TemporalAdapter,
     value: TValue,
-    sections: TemporalFieldSection[],
+    granularity: TemporalFieldDatePartType,
   ) => string;
   /**
    * Stringifies the min/max/step validation props for hidden input attributes.
@@ -451,9 +454,10 @@ export type TemporalFieldModelUpdater<
   defaultProp: keyof Parameters,
 ) => void;
 
-export interface TemporalFieldValidationProps
-  extends ValidateDateValidationProps,
-    ValidateTimeValidationProps {}
+export interface TemporalFieldValidationProps {
+  minDate?: TemporalSupportedObject | undefined;
+  maxDate?: TemporalSupportedObject | undefined;
+}
 
 /**
  * Actions that can be performed imperatively on a temporal field via actionsRef.

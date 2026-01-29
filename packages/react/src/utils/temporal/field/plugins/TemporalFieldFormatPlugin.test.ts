@@ -17,7 +17,6 @@ describe('TemporalFieldFormatPlugin', () => {
           format: numericDateFormat,
           adapter,
           direction: 'ltr',
-          validationProps: {},
         });
 
         expect(TemporalFieldFormatPlugin.selectors.format(store.state)).to.equal(numericDateFormat);
@@ -29,7 +28,6 @@ describe('TemporalFieldFormatPlugin', () => {
           format: customFormat,
           adapter,
           direction: 'ltr',
-          validationProps: {},
         });
 
         expect(TemporalFieldFormatPlugin.selectors.format(store.state)).to.equal(customFormat);
@@ -42,7 +40,6 @@ describe('TemporalFieldFormatPlugin', () => {
           format: numericDateFormat,
           adapter,
           direction: 'ltr',
-          validationProps: {},
         });
 
         const parsedFormat = TemporalFieldFormatPlugin.selectors.parsedFormat(store.state);
@@ -55,7 +52,6 @@ describe('TemporalFieldFormatPlugin', () => {
           format: time24Format,
           adapter,
           direction: 'ltr',
-          validationProps: {},
         });
 
         const parsedFormat = TemporalFieldFormatPlugin.selectors.parsedFormat(store.state);
@@ -68,7 +64,6 @@ describe('TemporalFieldFormatPlugin', () => {
           format: numericDateFormat,
           adapter,
           direction: 'ltr',
-          validationProps: {},
         });
 
         const parsedFormat = TemporalFieldFormatPlugin.selectors.parsedFormat(store.state);
@@ -81,7 +76,6 @@ describe('TemporalFieldFormatPlugin', () => {
           format: time24Format,
           adapter,
           direction: 'ltr',
-          validationProps: {},
         });
 
         const parsedFormat = TemporalFieldFormatPlugin.selectors.parsedFormat(store.state);
@@ -94,7 +88,6 @@ describe('TemporalFieldFormatPlugin', () => {
           format: numericDateFormat,
           adapter,
           direction: 'ltr',
-          validationProps: {},
         });
 
         const parsedFormat = TemporalFieldFormatPlugin.selectors.parsedFormat(store.state);

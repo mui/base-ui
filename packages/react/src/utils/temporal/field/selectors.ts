@@ -26,7 +26,11 @@ export const selectors = {
   adapter: createSelector((state: State) => state.adapter),
   manager: createSelector((state: State) => state.manager),
   config: createSelector((state: State) => state.config),
-  validationProps: createSelector((state: State) => state.validationProps),
+  validationProps: createSelectorMemoized(
+    (state: State) => state.minDate,
+    (state: State) => state.maxDate,
+    (minDate, maxDate) => ({ minDate, maxDate }),
+  ),
   fieldContext: createSelector((state: State) => state.fieldContext),
   step: createSelector((state: State) => state.step),
   inputRef: createSelector((state: State) => state.inputRef),

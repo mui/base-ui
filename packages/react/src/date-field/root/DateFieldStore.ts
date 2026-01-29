@@ -1,6 +1,5 @@
 import { TemporalAdapter, TemporalValue } from '../../types';
 import { TemporalFieldStore } from '../../utils/temporal/field/TemporalFieldStore';
-import { ValidateDateValidationProps } from '../../utils/temporal/validateDate';
 import {
   TemporalFieldStoreSharedParameters,
   TemporalFieldConfiguration,
@@ -19,10 +18,8 @@ function formatDateForNativeInput(adapter: TemporalAdapter, value: TemporalValue
   if (!adapter.isValid(value)) {
     return '';
   }
-  const year = adapter.format(value, 'yearPadded');
-  const month = adapter.format(value, 'monthPadded');
-  const day = adapter.format(value, 'dayOfMonthPadded');
-  return `${year}-${month}-${day}`;
+  const f = adapter.formats;
+  return adapter.formatByString(value, `${f.yearPadded}-${f.monthPadded}-${f.dayOfMonthPadded}`);
 }
 
 const config: TemporalFieldConfiguration<TemporalValue> = {
@@ -41,8 +38,7 @@ const config: TemporalFieldConfiguration<TemporalValue> = {
   stringifyValue: (adapter, value) =>
     adapter.isValid(value) ? adapter.toJsDate(value).toISOString() : '',
   hiddenInputType: 'date',
-  stringifyValueForHiddenInput: (adapter, value, _sections) =>
-    formatDateForNativeInput(adapter, value),
+  stringifyValueForHiddenInput: formatDateForNativeInput,
   stringifyValidationPropsForHiddenInput: (adapter, validationProps) => {
     const result: HiddenInputValidationProps = {};
     if (validationProps.minDate) {
@@ -63,14 +59,13 @@ const config: TemporalFieldConfiguration<TemporalValue> = {
 
 export class DateFieldStore extends TemporalFieldStore<TemporalValue> {
   constructor(parameters: DateFieldStoreParameters) {
-    const { validationProps, adapter, direction, ...sharedParameters } = parameters;
+    const { adapter, direction, ...sharedParameters } = parameters;
 
     super(
       {
         ...sharedParameters,
         format: sharedParameters.format ?? adapter.formats.localizedNumericDate,
       },
-      validationProps,
       adapter,
       config,
       direction,
@@ -79,14 +74,13 @@ export class DateFieldStore extends TemporalFieldStore<TemporalValue> {
   }
 
   public syncState(parameters: DateFieldStoreParameters) {
-    const { validationProps, adapter, direction, ...sharedParameters } = parameters;
+    const { adapter, direction, ...sharedParameters } = parameters;
 
     super.updateStateFromParameters(
       {
         ...sharedParameters,
         format: sharedParameters.format ?? adapter.formats.localizedNumericDate,
       },
-      validationProps,
       adapter,
       config,
       direction,
@@ -94,11 +88,8 @@ export class DateFieldStore extends TemporalFieldStore<TemporalValue> {
   }
 }
 
-export interface DateFieldStoreParameters extends MakeOptional<
-  TemporalFieldStoreSharedParameters<TemporalValue>,
-  'format'
-> {
-  validationProps: ValidateDateValidationProps;
+export interface DateFieldStoreParameters
+  extends MakeOptional<TemporalFieldStoreSharedParameters<TemporalValue>, 'format'> {
   adapter: TemporalAdapter;
   direction: TextDirection;
 }

@@ -791,12 +791,12 @@ describe('FormatParser', () => {
         });
       });
 
-      describe('hours adjustment boundaries with minTime/maxTime', () => {
-        it('should restrict hours adjustment boundaries when minTime and maxTime share the same day', () => {
+      describe('hours adjustment boundaries with minDate/maxDate', () => {
+        it('should restrict hours adjustment boundaries when minDate and maxDate share the same day', () => {
           const format = adapter.formats.hours24hPadded;
           const result = FormatParser.parse(adapter, format, 'ltr', undefined, {
-            minTime: adapter.date('2024-06-15T08:00:00', 'default'),
-            maxTime: adapter.date('2024-06-15T18:00:00', 'default'),
+            minDate: adapter.date('2024-06-15T08:00:00', 'default'),
+            maxDate: adapter.date('2024-06-15T18:00:00', 'default'),
           });
 
           const token = result.elements[0];
@@ -807,11 +807,11 @@ describe('FormatParser', () => {
           }
         });
 
-        it('should not restrict hours adjustment boundaries when minTime and maxTime have different days', () => {
+        it('should not restrict hours adjustment boundaries when minDate and maxDate have different days', () => {
           const format = adapter.formats.hours24hPadded;
           const result = FormatParser.parse(adapter, format, 'ltr', undefined, {
-            minTime: adapter.date('2024-06-14T08:00:00', 'default'),
-            maxTime: adapter.date('2024-06-15T18:00:00', 'default'),
+            minDate: adapter.date('2024-06-14T08:00:00', 'default'),
+            maxDate: adapter.date('2024-06-15T18:00:00', 'default'),
           });
 
           const token = result.elements[0];
@@ -823,12 +823,12 @@ describe('FormatParser', () => {
         });
       });
 
-      describe('minutes adjustment boundaries with minTime/maxTime', () => {
-        it('should restrict minutes adjustment boundaries when minTime and maxTime share the same hour', () => {
+      describe('minutes adjustment boundaries with minDate/maxDate', () => {
+        it('should restrict minutes adjustment boundaries when minDate and maxDate share the same hour', () => {
           const format = adapter.formats.minutesPadded;
           const result = FormatParser.parse(adapter, format, 'ltr', undefined, {
-            minTime: adapter.date('2024-06-15T14:10:00', 'default'),
-            maxTime: adapter.date('2024-06-15T14:50:00', 'default'),
+            minDate: adapter.date('2024-06-15T14:10:00', 'default'),
+            maxDate: adapter.date('2024-06-15T14:50:00', 'default'),
           });
 
           const token = result.elements[0];
@@ -839,11 +839,11 @@ describe('FormatParser', () => {
           }
         });
 
-        it('should not restrict minutes adjustment boundaries when minTime and maxTime have different hours', () => {
+        it('should not restrict minutes adjustment boundaries when minDate and maxDate have different hours', () => {
           const format = adapter.formats.minutesPadded;
           const result = FormatParser.parse(adapter, format, 'ltr', undefined, {
-            minTime: adapter.date('2024-06-15T13:10:00', 'default'),
-            maxTime: adapter.date('2024-06-15T14:50:00', 'default'),
+            minDate: adapter.date('2024-06-15T13:10:00', 'default'),
+            maxDate: adapter.date('2024-06-15T14:50:00', 'default'),
           });
 
           const token = result.elements[0];
@@ -855,12 +855,12 @@ describe('FormatParser', () => {
         });
       });
 
-      describe('seconds adjustment boundaries with minTime/maxTime', () => {
-        it('should restrict seconds adjustment boundaries when minTime and maxTime share the same minute', () => {
+      describe('seconds adjustment boundaries with minDate/maxDate', () => {
+        it('should restrict seconds adjustment boundaries when minDate and maxDate share the same minute', () => {
           const format = adapter.formats.secondsPadded;
           const result = FormatParser.parse(adapter, format, 'ltr', undefined, {
-            minTime: adapter.date('2024-06-15T14:30:05', 'default'),
-            maxTime: adapter.date('2024-06-15T14:30:45', 'default'),
+            minDate: adapter.date('2024-06-15T14:30:05', 'default'),
+            maxDate: adapter.date('2024-06-15T14:30:45', 'default'),
           });
 
           const token = result.elements[0];
@@ -871,11 +871,11 @@ describe('FormatParser', () => {
           }
         });
 
-        it('should not restrict seconds adjustment boundaries when minTime and maxTime have different minutes', () => {
+        it('should not restrict seconds adjustment boundaries when minDate and maxDate have different minutes', () => {
           const format = adapter.formats.secondsPadded;
           const result = FormatParser.parse(adapter, format, 'ltr', undefined, {
-            minTime: adapter.date('2024-06-15T14:29:05', 'default'),
-            maxTime: adapter.date('2024-06-15T14:30:45', 'default'),
+            minDate: adapter.date('2024-06-15T14:29:05', 'default'),
+            maxDate: adapter.date('2024-06-15T14:30:45', 'default'),
           });
 
           const token = result.elements[0];
@@ -886,11 +886,11 @@ describe('FormatParser', () => {
           }
         });
 
-        it('should not restrict seconds adjustment boundaries when minTime and maxTime have different hours', () => {
+        it('should not restrict seconds adjustment boundaries when minDate and maxDate have different hours', () => {
           const format = adapter.formats.secondsPadded;
           const result = FormatParser.parse(adapter, format, 'ltr', undefined, {
-            minTime: adapter.date('2024-06-15T13:30:05', 'default'),
-            maxTime: adapter.date('2024-06-15T14:30:45', 'default'),
+            minDate: adapter.date('2024-06-15T13:30:05', 'default'),
+            maxDate: adapter.date('2024-06-15T14:30:45', 'default'),
           });
 
           const token = result.elements[0];
@@ -948,12 +948,12 @@ describe('FormatParser', () => {
           }
         });
 
-        it('should not change characterEditing for hours even with minTime/maxTime', () => {
+        it('should not change characterEditing for hours even with minDate/maxDate', () => {
           const format = adapter.formats.hours24hPadded;
           const resultWithout = FormatParser.parse(adapter, format, 'ltr', undefined, {});
           const resultWith = FormatParser.parse(adapter, format, 'ltr', undefined, {
-            minTime: adapter.date('2024-06-15T08:00:00', 'default'),
-            maxTime: adapter.date('2024-06-15T18:00:00', 'default'),
+            minDate: adapter.date('2024-06-15T08:00:00', 'default'),
+            maxDate: adapter.date('2024-06-15T18:00:00', 'default'),
           });
 
           if ('boundaries' in resultWithout.elements[0] && 'boundaries' in resultWith.elements[0]) {
@@ -963,12 +963,12 @@ describe('FormatParser', () => {
           }
         });
 
-        it('should not change characterEditing for minutes even with minTime/maxTime', () => {
+        it('should not change characterEditing for minutes even with minDate/maxDate', () => {
           const format = adapter.formats.minutesPadded;
           const resultWithout = FormatParser.parse(adapter, format, 'ltr', undefined, {});
           const resultWith = FormatParser.parse(adapter, format, 'ltr', undefined, {
-            minTime: adapter.date('2024-06-15T14:10:00', 'default'),
-            maxTime: adapter.date('2024-06-15T14:50:00', 'default'),
+            minDate: adapter.date('2024-06-15T14:10:00', 'default'),
+            maxDate: adapter.date('2024-06-15T14:50:00', 'default'),
           });
 
           if ('boundaries' in resultWithout.elements[0] && 'boundaries' in resultWith.elements[0]) {
@@ -978,12 +978,12 @@ describe('FormatParser', () => {
           }
         });
 
-        it('should not change characterEditing for seconds even with minTime/maxTime', () => {
+        it('should not change characterEditing for seconds even with minDate/maxDate', () => {
           const format = adapter.formats.secondsPadded;
           const resultWithout = FormatParser.parse(adapter, format, 'ltr', undefined, {});
           const resultWith = FormatParser.parse(adapter, format, 'ltr', undefined, {
-            minTime: adapter.date('2024-06-15T14:30:05', 'default'),
-            maxTime: adapter.date('2024-06-15T14:30:45', 'default'),
+            minDate: adapter.date('2024-06-15T14:30:05', 'default'),
+            maxDate: adapter.date('2024-06-15T14:30:45', 'default'),
           });
 
           if ('boundaries' in resultWithout.elements[0] && 'boundaries' in resultWith.elements[0]) {

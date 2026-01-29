@@ -22,6 +22,7 @@ import {
   TemporalFieldSeparator,
   TemporalFieldDatePart,
   TemporalFieldValidationProps,
+  TemporalFieldState,
 } from './types';
 
 /**
@@ -46,13 +47,13 @@ export const DATE_PART_GRANULARITY: Record<string, number> = {
  */
 export function deriveStateFromParameters<TValue extends TemporalSupportedValue>(
   parameters: TemporalFieldStoreSharedParameters<TValue>,
-  validationProps: TemporalFieldValidationProps,
   adapter: TemporalAdapter,
   config: TemporalFieldConfiguration<TValue>,
   direction: TextDirection,
 ) {
   return {
-    validationProps,
+    minDate: parameters.minDate,
+    maxDate: parameters.maxDate,
     direction,
     config,
     adapter,
@@ -69,6 +70,19 @@ export function deriveStateFromParameters<TValue extends TemporalSupportedValue>
     fieldContext: parameters.fieldContext ?? null,
     step: parameters.step ?? 1,
     children: parameters.children,
+  };
+}
+
+/**
+ * Selector to get validation props from state.
+ * Rebuilds the validationProps object from minDate/maxDate in state.
+ */
+export function selectValidationProps<TValue extends TemporalSupportedValue>(
+  state: TemporalFieldState<TValue>,
+): TemporalFieldValidationProps {
+  return {
+    minDate: state.minDate,
+    maxDate: state.maxDate,
   };
 }
 

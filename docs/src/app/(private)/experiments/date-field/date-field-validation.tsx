@@ -36,7 +36,7 @@ export default function DateFieldValidation() {
                 <label className={styles.Label} htmlFor="date-required-native">
                   Date (required)
                 </label>
-                <DateField.Root id="date-required-native" name="date-required-native" required>
+                <DateField.Root id="date-required-native" name="date-required-native" className={styles.Root} required>
                   {(section) => (
                     <DateField.Section
                       key={section.index}
@@ -99,7 +99,7 @@ export default function DateFieldValidation() {
                 <label className={styles.Label} htmlFor="date-min-native">
                   Date (min: {format(minDate, 'MMM d')})
                 </label>
-                <DateField.Root id="date-min-native" name="date-min-native" minDate={minDate}>
+                <DateField.Root id="date-min-native" name="date-min-native" className={styles.Root} minDate={minDate}>
                   {(section) => (
                     <DateField.Section
                       key={section.index}
@@ -164,7 +164,7 @@ export default function DateFieldValidation() {
                 <label className={styles.Label} htmlFor="date-max-native">
                   Date (max: {format(maxDate, 'MMM d')})
                 </label>
-                <DateField.Root id="date-max-native" name="date-max-native" maxDate={maxDate}>
+                <DateField.Root id="date-max-native" name="date-max-native" className={styles.Root} maxDate={maxDate}>
                   {(section) => (
                     <DateField.Section
                       key={section.index}
@@ -232,6 +232,7 @@ export default function DateFieldValidation() {
                 <DateField.Root
                   id="date-weekday-native"
                   name="date-weekday-native"
+                  className={styles.Root}
                   format="EEEE, MMM d, yyyy"
                   minDate={minDate}
                 >

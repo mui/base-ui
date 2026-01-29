@@ -1,20 +1,21 @@
 'use client';
 import * as React from 'react';
-import { set } from 'date-fns/set';
+import { addDays } from 'date-fns/addDays';
+import { subDays } from 'date-fns/subDays';
 import { format } from 'date-fns/format';
 import { Field } from '@base-ui/react/field';
 import { Form } from '@base-ui/react/form';
-import { TimeField } from '@base-ui/react/time-field';
-import styles from './time-field-validation.module.css';
+import { DateTimeField } from '@base-ui/react/date-time-field';
+import styles from './date-time-field-validation.module.css';
 
 const today = new Date();
-const minDate = set(today, { hours: 9, minutes: 0, seconds: 0 });
-const maxDate = set(today, { hours: 17, minutes: 30, seconds: 0 });
+const minDate = subDays(today, 7);
+const maxDate = addDays(today, 7);
 
-export default function TimeFieldValidation() {
+export default function DateTimeFieldValidation() {
   return (
     <div>
-      <h1>Time Field Validation</h1>
+      <h1>Date Time Field Validation</h1>
       <div className={styles.Page}>
         {/* Required validation */}
         <section>
@@ -26,23 +27,28 @@ export default function TimeFieldValidation() {
               onSubmit={(event) => {
                 event.preventDefault();
                 const formData = new FormData(event.currentTarget);
-                alert(`Submitted: ${formData.get('time-required-native')}`);
+                alert(`Submitted: ${formData.get('datetime-required-native')}`);
               }}
             >
               <div className={styles.DemoField}>
                 <div className={styles.SectionTitle}>Native</div>
-                <label className={styles.Label} htmlFor="time-required-native">
-                  Time (required)
+                <label className={styles.Label} htmlFor="datetime-required-native">
+                  Date and Time (required)
                 </label>
-                <TimeField.Root id="time-required-native" name="time-required-native" className={styles.Root} required>
+                <DateTimeField.Root
+                  id="datetime-required-native"
+                  name="datetime-required-native"
+                  className={styles.Root}
+                  required
+                >
                   {(section) => (
-                    <TimeField.Section
+                    <DateTimeField.Section
                       key={section.index}
                       className={styles.Section}
                       section={section}
                     />
                   )}
-                </TimeField.Root>
+                </DateTimeField.Root>
               </div>
               <button type="submit" className={styles.Button}>
                 Submit
@@ -53,23 +59,163 @@ export default function TimeFieldValidation() {
             <Form
               className={styles.Demo}
               onFormSubmit={(formData) => {
-                alert(`Submitted: ${formData['time-required-baseui']}`);
+                alert(`Submitted: ${formData['datetime-required-baseui']}`);
               }}
             >
-              <Field.Root name="time-required-baseui" className={styles.DemoField}>
+              <Field.Root name="datetime-required-baseui" className={styles.DemoField}>
                 <div className={styles.SectionTitle}>Base UI</div>
-                <Field.Label className={styles.Label}>Time (required)</Field.Label>
-                <TimeField.Root className={styles.Root} required>
+                <Field.Label className={styles.Label}>Date and Time (required)</Field.Label>
+                <DateTimeField.Root className={styles.Root} required>
                   {(section) => (
-                    <TimeField.Section
+                    <DateTimeField.Section
                       key={section.index}
                       className={styles.Section}
                       section={section}
                     />
                   )}
-                </TimeField.Root>
+                </DateTimeField.Root>
                 <Field.Error match="valueMissing" className={styles.Error}>
-                  Please select a time
+                  Please select a date and time
+                </Field.Error>
+              </Field.Root>
+              <button type="submit" className={styles.Button}>
+                Submit
+              </button>
+            </Form>
+          </div>
+        </section>
+
+        {/* minDate validation */}
+        <section>
+          <h2>Min Date ({format(minDate, 'MMM d, yyyy')})</h2>
+          <div className={styles.DemoList}>
+            {/* Native form + label */}
+            <form
+              className={styles.Demo}
+              onSubmit={(event) => {
+                event.preventDefault();
+                const formData = new FormData(event.currentTarget);
+                alert(`Submitted: ${formData.get('datetime-min-date-native')}`);
+              }}
+            >
+              <div className={styles.DemoField}>
+                <div className={styles.SectionTitle}>Native</div>
+                <label className={styles.Label} htmlFor="datetime-min-date-native">
+                  Date and Time (min: {format(minDate, 'MMM d')})
+                </label>
+                <DateTimeField.Root
+                  id="datetime-min-date-native"
+                  name="datetime-min-date-native"
+                  className={styles.Root}
+                  minDate={minDate}
+                >
+                  {(section) => (
+                    <DateTimeField.Section
+                      key={section.index}
+                      className={styles.Section}
+                      section={section}
+                    />
+                  )}
+                </DateTimeField.Root>
+              </div>
+              <button type="submit" className={styles.Button}>
+                Submit
+              </button>
+            </form>
+
+            {/* Base UI Form + Field */}
+            <Form
+              className={styles.Demo}
+              onFormSubmit={(formData) => {
+                alert(`Submitted: ${formData['datetime-min-date-baseui']}`);
+              }}
+            >
+              <Field.Root name="datetime-min-date-baseui" className={styles.DemoField}>
+                <div className={styles.SectionTitle}>Base UI</div>
+                <Field.Label className={styles.Label}>
+                  Date and Time (min: {format(minDate, 'MMM d')})
+                </Field.Label>
+                <DateTimeField.Root className={styles.Root} minDate={minDate}>
+                  {(section) => (
+                    <DateTimeField.Section
+                      key={section.index}
+                      className={styles.Section}
+                      section={section}
+                    />
+                  )}
+                </DateTimeField.Root>
+                <Field.Error match="rangeUnderflow" className={styles.Error}>
+                  Date must be on or after {format(minDate, 'MMM d, yyyy')}
+                </Field.Error>
+              </Field.Root>
+              <button type="submit" className={styles.Button}>
+                Submit
+              </button>
+            </Form>
+          </div>
+        </section>
+
+        {/* maxDate validation */}
+        <section>
+          <h2>Max Date ({format(maxDate, 'MMM d, yyyy')})</h2>
+          <div className={styles.DemoList}>
+            {/* Native form + label */}
+            <form
+              className={styles.Demo}
+              onSubmit={(event) => {
+                event.preventDefault();
+                const formData = new FormData(event.currentTarget);
+                alert(`Submitted: ${formData.get('datetime-max-date-native')}`);
+              }}
+            >
+              <div className={styles.DemoField}>
+                <div className={styles.SectionTitle}>Native</div>
+                <label className={styles.Label} htmlFor="datetime-max-date-native">
+                  Date and Time (max: {format(maxDate, 'MMM d')})
+                </label>
+                <DateTimeField.Root
+                  id="datetime-max-date-native"
+                  name="datetime-max-date-native"
+                  className={styles.Root}
+                  maxDate={maxDate}
+                >
+                  {(section) => (
+                    <DateTimeField.Section
+                      key={section.index}
+                      className={styles.Section}
+                      section={section}
+                    />
+                  )}
+                </DateTimeField.Root>
+              </div>
+              <button type="submit" className={styles.Button}>
+                Submit
+              </button>
+            </form>
+
+            {/* Base UI Form + Field */}
+            <Form
+              className={styles.Demo}
+              onFormSubmit={(formData) => {
+                alert(`Submitted: ${formData['datetime-max-date-baseui']}`);
+              }}
+            >
+              <Field.Root name="datetime-max-date-baseui" className={styles.DemoField}>
+                <div className={styles.SectionTitle}>Base UI</div>
+                <Field.Label className={styles.Label}>
+                  Date and Time (max: {format(maxDate, 'MMM d')})
+                </Field.Label>
+                <DateTimeField.Root className={styles.Root} maxDate={maxDate}>
+                  {(section) => (
+                    <DateTimeField.Section
+                      key={section.index}
+                      className={styles.Section}
+                      section={section}
+                    />
+                  )}
+                </DateTimeField.Root>
+                <Field.Error match="rangeOverflow" className={styles.Error}>
+                  Date must be on or before {format(maxDate, 'MMM d, yyyy')}
                 </Field.Error>
               </Field.Root>
               <button type="submit" className={styles.Button}>
@@ -83,56 +229,27 @@ export default function TimeFieldValidation() {
         <section>
           <h2>Min Time ({format(minDate, 'h:mm a')})</h2>
           <div className={styles.DemoList}>
-            {/* Native form + label */}
-            <form
-              className={styles.Demo}
-              onSubmit={(event) => {
-                event.preventDefault();
-                const formData = new FormData(event.currentTarget);
-                alert(`Submitted: ${formData.get('time-min-native')}`);
-              }}
-            >
-              <div className={styles.DemoField}>
-                <div className={styles.SectionTitle}>Native</div>
-                <label className={styles.Label} htmlFor="time-min-native">
-                  Time (min: {format(minDate, 'h:mm a')})
-                </label>
-                <TimeField.Root id="time-min-native" name="time-min-native" className={styles.Root} minDate={minDate}>
-                  {(section) => (
-                    <TimeField.Section
-                      key={section.index}
-                      className={styles.Section}
-                      section={section}
-                    />
-                  )}
-                </TimeField.Root>
-              </div>
-              <button type="submit" className={styles.Button}>
-                Submit
-              </button>
-            </form>
-
             {/* Base UI Form + Field */}
             <Form
               className={styles.Demo}
               onFormSubmit={(formData) => {
-                alert(`Submitted: ${formData['time-min-baseui']}`);
+                alert(`Submitted: ${formData['datetime-min-time-baseui']}`);
               }}
             >
-              <Field.Root name="time-min-baseui" className={styles.DemoField}>
+              <Field.Root name="datetime-min-time-baseui" className={styles.DemoField}>
                 <div className={styles.SectionTitle}>Base UI</div>
                 <Field.Label className={styles.Label}>
-                  Time (min: {format(minDate, 'h:mm a')})
+                  Date and Time (min time: {format(minDate, 'h:mm a')})
                 </Field.Label>
-                <TimeField.Root className={styles.Root} minDate={minDate}>
+                <DateTimeField.Root className={styles.Root} minDate={minDate}>
                   {(section) => (
-                    <TimeField.Section
+                    <DateTimeField.Section
                       key={section.index}
                       className={styles.Section}
                       section={section}
                     />
                   )}
-                </TimeField.Root>
+                </DateTimeField.Root>
                 <Field.Error match="rangeUnderflow" className={styles.Error}>
                   Time must be on or after {format(minDate, 'h:mm a')}
                 </Field.Error>
@@ -148,124 +265,30 @@ export default function TimeFieldValidation() {
         <section>
           <h2>Max Time ({format(maxDate, 'h:mm a')})</h2>
           <div className={styles.DemoList}>
-            {/* Native form + label */}
-            <form
-              className={styles.Demo}
-              onSubmit={(event) => {
-                event.preventDefault();
-                const formData = new FormData(event.currentTarget);
-                alert(`Submitted: ${formData.get('time-max-native')}`);
-              }}
-            >
-              <div className={styles.DemoField}>
-                <div className={styles.SectionTitle}>Native</div>
-                <label className={styles.Label} htmlFor="time-max-native">
-                  Time (max: {format(maxDate, 'h:mm a')})
-                </label>
-                <TimeField.Root id="time-max-native" name="time-max-native" className={styles.Root} maxDate={maxDate}>
-                  {(section) => (
-                    <TimeField.Section
-                      key={section.index}
-                      className={styles.Section}
-                      section={section}
-                    />
-                  )}
-                </TimeField.Root>
-              </div>
-              <button type="submit" className={styles.Button}>
-                Submit
-              </button>
-            </form>
-
             {/* Base UI Form + Field */}
             <Form
               className={styles.Demo}
               onFormSubmit={(formData) => {
-                alert(`Submitted: ${formData['time-max-baseui']}`);
+                alert(`Submitted: ${formData['datetime-max-time-baseui']}`);
               }}
             >
-              <Field.Root name="time-max-baseui" className={styles.DemoField}>
+              <Field.Root name="datetime-max-time-baseui" className={styles.DemoField}>
                 <div className={styles.SectionTitle}>Base UI</div>
                 <Field.Label className={styles.Label}>
-                  Time (max: {format(maxDate, 'h:mm a')})
+                  Date and Time (max time: {format(maxDate, 'h:mm a')})
                 </Field.Label>
-                <TimeField.Root className={styles.Root} maxDate={maxDate}>
+                <DateTimeField.Root className={styles.Root} maxDate={maxDate}>
                   {(section) => (
-                    <TimeField.Section
+                    <DateTimeField.Section
                       key={section.index}
                       className={styles.Section}
                       section={section}
                     />
                   )}
-                </TimeField.Root>
+                </DateTimeField.Root>
                 <Field.Error match="rangeOverflow" className={styles.Error}>
                   Time must be on or before {format(maxDate, 'h:mm a')}
                 </Field.Error>
-              </Field.Root>
-              <button type="submit" className={styles.Button}>
-                Submit
-              </button>
-            </Form>
-          </div>
-        </section>
-
-        {/* Format with seconds */}
-        <section>
-          <h2>With Seconds (HH:mm:ss)</h2>
-          <div className={styles.DemoList}>
-            {/* Native form + label */}
-            <form
-              className={styles.Demo}
-              onSubmit={(event) => {
-                event.preventDefault();
-                const formData = new FormData(event.currentTarget);
-                alert(`Submitted: ${formData.get('time-seconds-native')}`);
-              }}
-            >
-              <div className={styles.DemoField}>
-                <div className={styles.SectionTitle}>Native</div>
-                <label className={styles.Label} htmlFor="time-seconds-native">
-                  Time with seconds
-                </label>
-                <TimeField.Root
-                  id="time-seconds-native"
-                  name="time-seconds-native"
-                  className={styles.Root}
-                  format="HH:mm:ss"
-                >
-                  {(section) => (
-                    <TimeField.Section
-                      key={section.index}
-                      className={styles.Section}
-                      section={section}
-                    />
-                  )}
-                </TimeField.Root>
-              </div>
-              <button type="submit" className={styles.Button}>
-                Submit
-              </button>
-            </form>
-
-            {/* Base UI Form + Field */}
-            <Form
-              className={styles.Demo}
-              onFormSubmit={(formData) => {
-                alert(`Submitted: ${formData['time-seconds-baseui']}`);
-              }}
-            >
-              <Field.Root name="time-seconds-baseui" className={styles.DemoField}>
-                <div className={styles.SectionTitle}>Base UI</div>
-                <Field.Label className={styles.Label}>Time with seconds</Field.Label>
-                <TimeField.Root className={styles.Root} format="HH:mm:ss">
-                  {(section) => (
-                    <TimeField.Section
-                      key={section.index}
-                      className={styles.Section}
-                      section={section}
-                    />
-                  )}
-                </TimeField.Root>
               </Field.Root>
               <button type="submit" className={styles.Button}>
                 Submit

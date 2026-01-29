@@ -22,7 +22,6 @@ describe('mergeDateIntoReferenceDate', () => {
         defaultValue: adapter.date('2024-03-15', 'default'),
         adapter,
         direction: 'ltr',
-        validationProps: {},
       });
 
       const sections = TemporalFieldSectionPlugin.selectors.sections(store.state);
@@ -42,7 +41,6 @@ describe('mergeDateIntoReferenceDate', () => {
         defaultValue: adapter.date('2024-03-15', 'default'),
         adapter,
         direction: 'ltr',
-        validationProps: {},
       });
 
       const sections = TemporalFieldSectionPlugin.selectors.sections(store.state);
@@ -60,7 +58,6 @@ describe('mergeDateIntoReferenceDate', () => {
         defaultValue: adapter.date('2024-03-15', 'default'),
         adapter,
         direction: 'ltr',
-        validationProps: {},
       });
 
       const sections = TemporalFieldSectionPlugin.selectors.sections(store.state);
@@ -78,7 +75,6 @@ describe('mergeDateIntoReferenceDate', () => {
         defaultValue: adapter.date('2024-03-15T14:30:45', 'default'),
         adapter,
         direction: 'ltr',
-        validationProps: {},
       });
 
       const sections = TemporalFieldSectionPlugin.selectors.sections(store.state);
@@ -96,7 +92,6 @@ describe('mergeDateIntoReferenceDate', () => {
         defaultValue: adapter.date('2024-03-15T14:30:45', 'default'),
         adapter,
         direction: 'ltr',
-        validationProps: {},
       });
 
       const sections = TemporalFieldSectionPlugin.selectors.sections(store.state);
@@ -114,7 +109,6 @@ describe('mergeDateIntoReferenceDate', () => {
         defaultValue: adapter.date('2024-03-15T14:30:45', 'default'),
         adapter,
         direction: 'ltr',
-        validationProps: {},
       });
 
       const sections = TemporalFieldSectionPlugin.selectors.sections(store.state);
@@ -134,7 +128,6 @@ describe('mergeDateIntoReferenceDate', () => {
         defaultValue: adapter.date('2024-03-15', 'default'),
         adapter,
         direction: 'ltr',
-        validationProps: {},
       });
 
       const sections = TemporalFieldSectionPlugin.selectors.sections(store.state);
@@ -154,7 +147,6 @@ describe('mergeDateIntoReferenceDate', () => {
         defaultValue: adapter.date('2024-03-15', 'default'),
         adapter,
         direction: 'ltr',
-        validationProps: {},
       });
 
       const sections = TemporalFieldSectionPlugin.selectors.sections(store.state).map((section) => {
@@ -181,7 +173,6 @@ describe('mergeDateIntoReferenceDate', () => {
         defaultValue: adapter.date('2024-03-15', 'default'),
         adapter,
         direction: 'ltr',
-        validationProps: {},
       });
 
       const sections = TemporalFieldSectionPlugin.selectors
@@ -207,7 +198,6 @@ describe('mergeDateIntoReferenceDate', () => {
         defaultValue: adapter.date('2024-03-15T08:30:00', 'default'),
         adapter,
         direction: 'ltr',
-        validationProps: {},
       });
 
       const sections = TemporalFieldSectionPlugin.selectors.sections(store.state);
@@ -225,7 +215,6 @@ describe('mergeDateIntoReferenceDate', () => {
         defaultValue: adapter.date('2024-03-15T20:30:00', 'default'),
         adapter,
         direction: 'ltr',
-        validationProps: {},
       });
 
       const sections = TemporalFieldSectionPlugin.selectors.sections(store.state);
@@ -243,7 +232,6 @@ describe('mergeDateIntoReferenceDate', () => {
         defaultValue: adapter.date('2024-03-15T14:30:00', 'default'),
         adapter,
         direction: 'ltr',
-        validationProps: {},
       });
 
       const sections = TemporalFieldSectionPlugin.selectors.sections(store.state);
@@ -264,7 +252,6 @@ describe('mergeDateIntoReferenceDate', () => {
         defaultValue: adapter.date('2024-03-15', 'default'),
         adapter,
         direction: 'ltr',
-        validationProps: {},
       });
 
       const sections = TemporalFieldSectionPlugin.selectors.sections(store.state);
@@ -294,7 +281,6 @@ describe('mergeDateIntoReferenceDate', () => {
         defaultValue: adapter.date('2024-03-15', 'default'),
         adapter,
         direction: 'ltr',
-        validationProps: {},
       });
 
       const sections = TemporalFieldSectionPlugin.selectors.sections(store.state);

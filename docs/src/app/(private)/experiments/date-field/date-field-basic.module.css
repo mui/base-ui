@@ -17,8 +17,8 @@
 }
 
 .Section {
-  padding: 0 2px;
   outline: none;
+  font-family: monospace;
 
   &[data-empty] {
     color: var(--color-gray-700);

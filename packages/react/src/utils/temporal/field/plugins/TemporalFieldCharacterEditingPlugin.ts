@@ -228,7 +228,7 @@ export class TemporalFieldCharacterEditingPlugin<TValue extends TemporalSupporte
             token: FormatParser.buildSingleToken(
               adapter,
               adapter.formats.monthPadded,
-              this.store.state.validationProps,
+              selectors.validationProps(this.store.state),
             ),
           },
         });

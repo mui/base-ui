@@ -12,7 +12,6 @@ import { TemporalFieldRootContext } from '../../utils/temporal/field/TemporalFie
 import { FieldRoot } from '../../field';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { useLabelableId } from '../../labelable-provider/useLabelableId';
-import { ValidateTimeValidationProps } from '../../utils/temporal/validateTime';
 import {
   TemporalFieldSection,
   TemporalFieldStoreSharedParameters,
@@ -53,8 +52,8 @@ export const TimeFieldRoot = React.forwardRef(function TimeFieldRoot(
     ampm,
     step,
     // Validation props
-    minTime,
-    maxTime,
+    minDate,
+    maxDate,
     // Other props
     placeholderGetters,
     actionsRef,
@@ -68,11 +67,6 @@ export const TimeFieldRoot = React.forwardRef(function TimeFieldRoot(
 
   const id = useLabelableId({ id: idProp });
   const hiddenInputRef = useMergedRefs(inputRefProp, fieldContext.validation.inputRef);
-
-  const validationProps: ValidateTimeValidationProps = React.useMemo(
-    () => ({ minTime, maxTime }),
-    [minTime, maxTime],
-  );
 
   const parameters = React.useMemo(
     () => ({
@@ -92,7 +86,8 @@ export const TimeFieldRoot = React.forwardRef(function TimeFieldRoot(
       fieldContext,
       adapter,
       direction,
-      validationProps,
+      minDate,
+      maxDate,
       placeholderGetters,
       children,
     }),
@@ -113,7 +108,8 @@ export const TimeFieldRoot = React.forwardRef(function TimeFieldRoot(
       fieldContext,
       adapter,
       direction,
-      validationProps,
+      minDate,
+      maxDate,
       placeholderGetters,
       children,
     ],
@@ -159,10 +155,8 @@ export interface TimeFieldRootState extends FieldRoot.State {
 }
 
 export interface TimeFieldRootProps
-  extends
-    Omit<BaseUIComponentProps<'div', TimeFieldRootState>, 'children'>,
+  extends Omit<BaseUIComponentProps<'div', TimeFieldRootState>, 'children'>,
     MakeOptional<TemporalFieldStoreSharedParameters<TemporalValue>, 'format'>,
-    ValidateTimeValidationProps,
     AmPmParameters {
   /**
    * The children of the component.

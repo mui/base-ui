@@ -7,27 +7,27 @@ import { useTemporalAdapter } from '../../temporal-adapter-provider/TemporalAdap
 import { BaseUIComponentProps, MakeOptional } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useDirection } from '../../direction-provider';
-import { DateFieldStore } from './DateFieldStore';
+import { AmPmParameters, DateTimeFieldStore } from './DateTimeFieldStore';
 import { TemporalFieldRootContext } from '../../utils/temporal/field/TemporalFieldRootContext';
 import { FieldRoot } from '../../field';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { useLabelableId } from '../../labelable-provider/useLabelableId';
-import { TemporalValue } from '../../types';
 import {
   TemporalFieldSection,
   TemporalFieldStoreSharedParameters,
   TemporalFieldRootActions,
 } from '../../utils/temporal/field/types';
+import { TemporalValue } from '../../types';
 import { useTemporalFieldRoot } from '../../utils/temporal/field/useTemporalFieldRoot';
 
 /**
- * Groups all parts of the date field.
+ * Groups all parts of the date-time field.
  * Renders a `<div>` element and a hidden `<input>` beside.
  *
- * Documentation: [Base UI Date Field](https://base-ui.com/react/components/date-field)
+ * Documentation: [Base UI Date Time Field](https://base-ui.com/react/components/date-time-field)
  */
-export const DateFieldRoot = React.forwardRef(function DateFieldRoot(
-  componentProps: DateFieldRoot.Props,
+export const DateTimeFieldRoot = React.forwardRef(function DateTimeFieldRoot(
+  componentProps: DateTimeFieldRoot.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const {
@@ -49,6 +49,8 @@ export const DateFieldRoot = React.forwardRef(function DateFieldRoot(
     timezone,
     referenceDate,
     format,
+    ampm,
+    step,
     // Validation props
     minDate,
     maxDate,
@@ -77,6 +79,8 @@ export const DateFieldRoot = React.forwardRef(function DateFieldRoot(
       timezone,
       referenceDate,
       format,
+      ampm,
+      step,
       name: nameProp,
       id,
       fieldContext,
@@ -97,6 +101,8 @@ export const DateFieldRoot = React.forwardRef(function DateFieldRoot(
       timezone,
       referenceDate,
       format,
+      ampm,
+      step,
       nameProp,
       id,
       fieldContext,
@@ -109,7 +115,7 @@ export const DateFieldRoot = React.forwardRef(function DateFieldRoot(
     ],
   );
 
-  const store = useRefWithInit(() => new DateFieldStore(parameters)).current;
+  const store = useRefWithInit(() => new DateTimeFieldStore(parameters)).current;
 
   useIsoLayoutEffect(() => store.syncState(parameters), [store, parameters, adapter, direction]);
 
@@ -133,7 +139,7 @@ export const DateFieldRoot = React.forwardRef(function DateFieldRoot(
   );
 });
 
-export interface DateFieldRootState extends FieldRoot.State {
+export interface DateTimeFieldRootState extends FieldRoot.State {
   /**
    * Whether the user must enter a value before submitting a form.
    */
@@ -148,9 +154,10 @@ export interface DateFieldRootState extends FieldRoot.State {
   readOnly: boolean;
 }
 
-export interface DateFieldRootProps
-  extends Omit<BaseUIComponentProps<'div', DateFieldRootState>, 'children'>,
-    Omit<MakeOptional<TemporalFieldStoreSharedParameters<TemporalValue>, 'format'>, 'step'> {
+export interface DateTimeFieldRootProps
+  extends Omit<BaseUIComponentProps<'div', DateTimeFieldRootState>, 'children'>,
+    MakeOptional<TemporalFieldStoreSharedParameters<TemporalValue>, 'format'>,
+    AmPmParameters {
   /**
    * The children of the component.
    * If a function is provided, it will be called with each section as its parameter.
@@ -160,13 +167,13 @@ export interface DateFieldRootProps
    * A ref to imperative actions.
    * - `clear`: Clears the field value.
    */
-  actionsRef?: React.RefObject<DateFieldRoot.Actions | null> | undefined;
+  actionsRef?: React.RefObject<DateTimeFieldRoot.Actions | null> | undefined;
 }
 
-export type DateFieldRootActions = TemporalFieldRootActions;
+export type DateTimeFieldRootActions = TemporalFieldRootActions;
 
-export namespace DateFieldRoot {
-  export type Props = DateFieldRootProps;
-  export type State = DateFieldRootState;
-  export type Actions = DateFieldRootActions;
+export namespace DateTimeFieldRoot {
+  export type Props = DateTimeFieldRootProps;
+  export type State = DateTimeFieldRootState;
+  export type Actions = DateTimeFieldRootActions;
 }

@@ -4,9 +4,8 @@ import {
   TemporalSupportedObject,
   TemporalFieldDatePartType,
 } from '../../types';
-import { isAfterDay, isBeforeDay, mergeDateAndTime } from './date-helpers';
+import { isAfterDay, isBeforeDay, isTimePartAfter, isTimePartBefore } from './date-helpers';
 import { ValidateDateValidationProps } from './validateDate';
-import { ValidateTimeValidationProps } from './validateTime';
 
 function roundDate(
   adapter: TemporalAdapter,
@@ -31,6 +30,19 @@ function roundDate(
   }
 }
 
+function setTimePart(
+  adapter: TemporalAdapter,
+  target: TemporalSupportedObject,
+  source: TemporalSupportedObject,
+): TemporalSupportedObject {
+  let result = target;
+  result = adapter.setHours(result, adapter.getHours(source));
+  result = adapter.setMinutes(result, adapter.getMinutes(source));
+  result = adapter.setSeconds(result, adapter.getSeconds(source));
+  result = adapter.setMilliseconds(result, adapter.getMilliseconds(source));
+  return result;
+}
+
 export function getInitialReferenceDate(
   parameters: GetInitialReferenceDateParameters,
 ): TemporalSupportedObject {
@@ -40,7 +52,7 @@ export function getInitialReferenceDate(
     granularity,
     externalDate,
     externalReferenceDate,
-    validationProps: { minDate, maxDate, minTime, maxTime },
+    validationProps: { minDate, maxDate },
   } = parameters;
   let referenceDate: TemporalSupportedObject | null = null;
 
@@ -58,20 +70,13 @@ export function getInitialReferenceDate(
       referenceDate = roundDate(adapter, granularity, maxDate);
     }
 
-    if (minTime != null && adapter.isAfter(minTime, referenceDate)) {
-      referenceDate = roundDate(
-        adapter,
-        granularity,
-        mergeDateAndTime(adapter, referenceDate, minTime),
-      );
+    // Also adjust time portion if needed (for time-only or datetime fields)
+    if (minDate != null && adapter.isValid(minDate) && isTimePartBefore(adapter, referenceDate, minDate)) {
+      referenceDate = roundDate(adapter, granularity, setTimePart(adapter, referenceDate, minDate));
     }
 
-    if (maxTime != null && adapter.isAfter(referenceDate, maxTime)) {
-      referenceDate = roundDate(
-        adapter,
-        granularity,
-        mergeDateAndTime(adapter, referenceDate, maxTime),
-      );
+    if (maxDate != null && adapter.isValid(maxDate) && isTimePartAfter(adapter, referenceDate, maxDate)) {
+      referenceDate = roundDate(adapter, granularity, setTimePart(adapter, referenceDate, maxDate));
     }
   }
 
@@ -106,5 +111,4 @@ export interface GetInitialReferenceDateParameters {
   granularity: TemporalFieldDatePartType;
 }
 
-export interface GetInitialReferenceDateValidationProps
-  extends ValidateDateValidationProps, ValidateTimeValidationProps {}
+export type GetInitialReferenceDateValidationProps = ValidateDateValidationProps;
