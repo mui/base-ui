@@ -11,6 +11,30 @@ export function preventScrollIOS(referenceElement: Element | null = null) {
   const doc = ownerDocument(referenceElement);
   const win = ownerWindow(doc);
 
+  type TouchWithTouchType = Touch & { touchType: string | undefined };
+  type EventWithPointerType = { pointerType: PointerEvent['pointerType'] };
+
+  function isStylusTouch(event: TouchEvent) {
+    const touch = event.touches[0] ?? event.changedTouches[0];
+    // Some browsers expose a non-standard `touchType` property for stylus touches.
+    const touchType = (touch as TouchWithTouchType)?.touchType;
+    // `pointerType` is part of Pointer Events, not Touch Events, but it can be present in some environments.
+    const pointerType = (event as unknown as EventWithPointerType).pointerType;
+    return touchType === 'stylus' || touchType === 'pen' || pointerType === 'pen';
+  }
+
+  function isRangeInput(target: EventTarget | null) {
+    return target instanceof win.HTMLInputElement && target.type === 'range';
+  }
+
+  function isEventOnRangeInput(event: TouchEvent) {
+    const composedPath = event.composedPath();
+    if (composedPath) {
+      return composedPath.some(isRangeInput);
+    }
+    return isRangeInput(event.target);
+  }
+
   function isScrollable(element: Element | null) {
     if (!element) {
       return false;
@@ -18,15 +42,13 @@ export function preventScrollIOS(referenceElement: Element | null = null) {
 
     const style = win.getComputedStyle(element);
 
-    let result = /(auto|scroll)/.test(style.overflow + style.overflowX + style.overflowY);
+    const isOverflowScrollable = /(auto|scroll)/.test(
+      style.overflow + style.overflowX + style.overflowY,
+    );
+    const isElementScrollable =
+      element.scrollHeight !== element.clientHeight || element.scrollWidth !== element.clientWidth;
 
-    if (result) {
-      result =
-        element.scrollHeight !== element.clientHeight ||
-        element.scrollWidth !== element.clientWidth;
-    }
-
-    return result;
+    return isOverflowScrollable && isElementScrollable;
   }
 
   function getScrollParent(element: Element | null) {
@@ -49,50 +71,50 @@ export function preventScrollIOS(referenceElement: Element | null = null) {
 
   function onTouchStart(event: TouchEvent) {
     const target = event.target as Element | null;
+
+    // Apple Pencil typically fires a touchmove along with touchstart, so we need to bail
+    // out if a stylus is active, since it breaks interactive elements.
     stylusActive = isStylusTouch(event);
     scrollable = getScrollParent(target);
-    allowTouchMove = false;
-    if (stylusActive) {
-      allowTouchMove = true;
-    }
+
+    const selection = target?.ownerDocument.defaultView?.getSelection();
 
     // Allow the ability to adjust text selection.
-    if (target) {
-      const selection = target.ownerDocument.defaultView?.getSelection();
-      if (selection && !selection.isCollapsed && selection.containsNode(target, true)) {
-        allowTouchMove = true;
-      }
-    }
+    const hasTextSelection =
+      !!target && !!selection && !selection.isCollapsed && selection.containsNode(target, true);
 
     // Allow user to drag the selection handles in an input element.
-    if (target instanceof win.HTMLInputElement) {
-      const input = target;
-      if (
-        input.selectionStart != null &&
-        input.selectionEnd != null &&
-        input.selectionStart < input.selectionEnd &&
-        doc.activeElement === input
-      ) {
-        allowTouchMove = true;
-      }
-    }
+    const isDraggingInputSelection =
+      target instanceof win.HTMLInputElement &&
+      target.selectionStart != null &&
+      target.selectionEnd != null &&
+      target.selectionStart < target.selectionEnd &&
+      doc.activeElement === target;
+
+    // Allow range inputs to be interactive.
+    const isRangeInputEvent = isEventOnRangeInput(event);
+
+    allowTouchMove =
+      stylusActive || hasTextSelection || isDraggingInputSelection || isRangeInputEvent;
   }
 
   function onTouchMove(event: TouchEvent) {
-    // Allow pinch-zooming.
-    if (event.touches.length === 2 || allowTouchMove || stylusActive) {
+    const isPinchZooming = event.touches.length === 2;
+    const shouldAllowTouchMove = isPinchZooming || allowTouchMove || stylusActive;
+
+    if (shouldAllowTouchMove) {
       return;
     }
 
-    if (!scrollable || scrollable === doc.documentElement || scrollable === doc.body) {
-      event.preventDefault();
-      return;
-    }
+    const isScrollRoot =
+      !scrollable || scrollable === doc.documentElement || scrollable === doc.body;
 
-    if (
+    const isScrollParentFullyNonScrollable =
+      !!scrollable &&
       scrollable.scrollHeight === scrollable.clientHeight &&
-      scrollable.scrollWidth === scrollable.clientWidth
-    ) {
+      scrollable.scrollWidth === scrollable.clientWidth;
+
+    if (isScrollRoot || isScrollParentFullyNonScrollable) {
       event.preventDefault();
     }
   }
@@ -302,13 +324,6 @@ function preventScrollInsetScrollbars(referenceElement: Element | null) {
   };
 }
 
-function isStylusTouch(event: TouchEvent) {
-  const touch = event.touches[0] ?? event.changedTouches[0];
-  const touchType = (touch as { touchType?: string | undefined } | undefined)?.touchType;
-  const pointerType = (event as { pointerType?: string | undefined } | undefined)?.pointerType;
-  return touchType === 'stylus' || touchType === 'pen' || pointerType === 'pen';
-}
-
 class ScrollLocker {
   lockCount = 0;
   restore = null as (() => void) | null;
@@ -332,7 +347,7 @@ class ScrollLocker {
 
   private unlock = () => {
     if (this.lockCount === 0 && this.restore) {
-      this.restore?.();
+      this.restore();
       this.restore = null;
     }
   };
@@ -353,7 +368,14 @@ class ScrollLocker {
     }
 
     if (isIOS) {
-      this.restore = preventScrollIOS(referenceElement);
+      // Keep `overflow: hidden` on `<body>` when the navbar is collapsed for improved
+      // scroll locking support in cases like Apple Pencil usage.
+      const restoreOverlayScrollbars = preventScrollOverlayScrollbars(referenceElement);
+      const restoreIOS = preventScrollIOS(referenceElement);
+      this.restore = () => {
+        restoreIOS();
+        restoreOverlayScrollbars();
+      };
       return;
     }
 
