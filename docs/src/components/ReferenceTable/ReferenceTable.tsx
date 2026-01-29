@@ -19,11 +19,7 @@ type ReferenceTableProps = TypesContentProps<{
 export function ReferenceTable(props: ReferenceTableProps) {
   const { type, additionalTypes, multiple, hideDescription } = useTypes(props);
 
-  if (!type) {
-    return <p>No type information provided.</p>;
-  }
-
-  if (type.type === 'component') {
+  if (type?.type === 'component') {
     const data = type.data;
     return (
       <React.Fragment>
@@ -48,7 +44,7 @@ export function ReferenceTable(props: ReferenceTableProps) {
     );
   }
 
-  if (type.type === 'hook') {
+  if (type?.type === 'hook') {
     const data = type.data;
     return (
       <React.Fragment>
@@ -69,7 +65,7 @@ export function ReferenceTable(props: ReferenceTableProps) {
     );
   }
 
-  if (type.type === 'function') {
+  if (type?.type === 'function') {
     const data = type.data;
     return (
       <React.Fragment>
@@ -95,7 +91,7 @@ export function ReferenceTable(props: ReferenceTableProps) {
     );
   }
 
-  if (type.type === 'class') {
+  if (type?.type === 'class') {
     const data = type.data;
 
     // Separate static and instance methods

@@ -402,60 +402,13 @@ Creates a new toast manager.
 
 ```tsx
 type ReturnValue = {
-  ' subscribe': (
-    listener: (data: { action: 'add' | 'close' | 'update' | 'promise'; options: any }) => void,
-  ) => () => void;
-  add: (options: {
-    id?: string;
-    title?: React.ReactNode;
-    type?: string;
-    description?: React.ReactNode;
-    timeout?: number;
-    priority?: 'low' | 'high';
-    transitionStatus?: 'starting' | 'ending';
-    onClose?: () => void;
-    onRemove?: () => void;
-    actionProps?: Omit<
-      React.DetailedHTMLProps<React.ButtonHTMLAttributes<HTMLButtonElement>, HTMLButtonElement>,
-      'ref'
-    >;
-    positionerProps?: ToastManagerPositionerProps;
-    data?: {};
-  }) => string;
+  ' subscribe': (listener: (data: ToastManagerEvent) => void) => () => void;
+  add: (options: ToastManagerUpdateOptions<{}>) => string;
   close: (id: string) => void;
-  update: (
-    id: string,
-    updates: {
-      id?: string;
-      title?: React.ReactNode;
-      type?: string;
-      description?: React.ReactNode;
-      timeout?: number;
-      priority?: 'low' | 'high';
-      transitionStatus?: 'starting' | 'ending';
-      onClose?: () => void;
-      onRemove?: () => void;
-      actionProps?: Omit<
-        React.DetailedHTMLProps<React.ButtonHTMLAttributes<HTMLButtonElement>, HTMLButtonElement>,
-        'ref'
-      >;
-      positionerProps?: ToastManagerPositionerProps;
-      data?: {};
-    },
-  ) => void;
+  update: (id: string, updates: ToastManagerUpdateOptions<{}>) => void;
   promise: (
     promiseValue: Promise<Value>,
-    options: {
-      loading: string | ToastManagerUpdateOptions<{}>;
-      success:
-        | string
-        | ToastManagerUpdateOptions<{}>
-        | ((result: Value) => string | ToastManagerUpdateOptions<{}>);
-      error:
-        | string
-        | ToastManagerUpdateOptions<{}>
-        | ((error: any) => string | ToastManagerUpdateOptions<{}>);
-    },
+    options: ToastManagerPromiseOptions<Value, {}>,
   ) => Promise<Value>;
 };
 ```
@@ -468,77 +421,13 @@ Returns the array of toasts and methods to manage them.
 
 ```tsx
 type ReturnValue = {
-  toasts: {
-    id: string;
-    ref?: React.RefObject<HTMLElement | null>;
-    title?: React.ReactNode;
-    type?: string;
-    description?: React.ReactNode;
-    timeout?: number;
-    priority?: 'low' | 'high';
-    transitionStatus?: 'starting' | 'ending';
-    limited?: boolean;
-    height?: number;
-    onClose?: () => void;
-    onRemove?: () => void;
-    actionProps?: Omit<
-      React.DetailedHTMLProps<React.ButtonHTMLAttributes<HTMLButtonElement>, HTMLButtonElement>,
-      'ref'
-    >;
-    positionerProps?: ToastManagerPositionerProps;
-    data?: {};
-  }[];
-  add: (options: {
-    id?: string;
-    title?: React.ReactNode;
-    type?: string;
-    description?: React.ReactNode;
-    timeout?: number;
-    priority?: 'low' | 'high';
-    transitionStatus?: 'starting' | 'ending';
-    onClose?: () => void;
-    onRemove?: () => void;
-    actionProps?: Omit<
-      React.DetailedHTMLProps<React.ButtonHTMLAttributes<HTMLButtonElement>, HTMLButtonElement>,
-      'ref'
-    >;
-    positionerProps?: ToastManagerPositionerProps;
-    data?: {};
-  }) => string;
+  toasts: ToastManagerAddOptions<any>[];
+  add: (options: ToastManagerUpdateOptions<{}>) => string;
   close: (toastId: string) => void;
-  update: (
-    toastId: string,
-    options: {
-      id?: string;
-      title?: React.ReactNode;
-      type?: string;
-      description?: React.ReactNode;
-      timeout?: number;
-      priority?: 'low' | 'high';
-      transitionStatus?: 'starting' | 'ending';
-      onClose?: () => void;
-      onRemove?: () => void;
-      actionProps?: Omit<
-        React.DetailedHTMLProps<React.ButtonHTMLAttributes<HTMLButtonElement>, HTMLButtonElement>,
-        'ref'
-      >;
-      positionerProps?: ToastManagerPositionerProps;
-      data?: {};
-    },
-  ) => void;
+  update: (toastId: string, options: ToastManagerUpdateOptions<{}>) => void;
   promise: (
     promise: Promise<Value>,
-    options: {
-      loading: string | ToastManagerUpdateOptions<{}>;
-      success:
-        | string
-        | ToastManagerUpdateOptions<{}>
-        | ((result: Value) => string | ToastManagerUpdateOptions<{}>);
-      error:
-        | string
-        | ToastManagerUpdateOptions<{}>
-        | ((error: any) => string | ToastManagerUpdateOptions<{}>);
-    },
+    options: ToastManagerPromiseOptions<Value, {}>,
   ) => Promise<Value>;
 };
 ```
@@ -549,60 +438,13 @@ type ReturnValue = {
 
 ```typescript
 type ToastManager = {
-  ' subscribe': (
-    listener: (data: { action: 'add' | 'close' | 'update' | 'promise'; options: any }) => void,
-  ) => () => void;
-  add: (options: {
-    id?: string;
-    title?: React.ReactNode;
-    type?: string;
-    description?: React.ReactNode;
-    timeout?: number;
-    priority?: 'low' | 'high';
-    transitionStatus?: 'starting' | 'ending';
-    onClose?: () => void;
-    onRemove?: () => void;
-    actionProps?: Omit<
-      React.DetailedHTMLProps<React.ButtonHTMLAttributes<HTMLButtonElement>, HTMLButtonElement>,
-      'ref'
-    >;
-    positionerProps?: ToastManagerPositionerProps;
-    data?: {};
-  }) => string;
+  ' subscribe': (listener: (data: ToastManagerEvent) => void) => () => void;
+  add: (options: ToastManagerAddOptions<{}>) => string;
   close: (id: string) => void;
-  update: (
-    id: string,
-    updates: {
-      id?: string;
-      title?: React.ReactNode;
-      type?: string;
-      description?: React.ReactNode;
-      timeout?: number;
-      priority?: 'low' | 'high';
-      transitionStatus?: 'starting' | 'ending';
-      onClose?: () => void;
-      onRemove?: () => void;
-      actionProps?: Omit<
-        React.DetailedHTMLProps<React.ButtonHTMLAttributes<HTMLButtonElement>, HTMLButtonElement>,
-        'ref'
-      >;
-      positionerProps?: ToastManagerPositionerProps;
-      data?: {};
-    },
-  ) => void;
+  update: (id: string, updates: ToastManagerUpdateOptions<{}>) => void;
   promise: (
     promiseValue: Promise<Value>,
-    options: {
-      loading: string | ToastManagerUpdateOptions<{}>;
-      success:
-        | string
-        | ToastManagerUpdateOptions<{}>
-        | ((result: Value) => string | ToastManagerUpdateOptions<{}>);
-      error:
-        | string
-        | ToastManagerUpdateOptions<{}>
-        | ((error: any) => string | ToastManagerUpdateOptions<{}>);
-    },
+    options: ToastManagerPromiseOptions<Value, {}>,
   ) => Promise<Value>;
 };
 ```
@@ -740,77 +582,13 @@ type ToastObject = {
 
 ```typescript
 type UseToastManagerReturnValue = {
-  toasts: {
-    id: string;
-    ref?: React.RefObject<HTMLElement | null>;
-    title?: React.ReactNode;
-    type?: string;
-    description?: React.ReactNode;
-    timeout?: number;
-    priority?: 'low' | 'high';
-    transitionStatus?: 'starting' | 'ending';
-    limited?: boolean;
-    height?: number;
-    onClose?: () => void;
-    onRemove?: () => void;
-    actionProps?: Omit<
-      React.DetailedHTMLProps<React.ButtonHTMLAttributes<HTMLButtonElement>, HTMLButtonElement>,
-      'ref'
-    >;
-    positionerProps?: ToastManagerPositionerProps;
-    data?: {};
-  }[];
-  add: (options: {
-    id?: string;
-    title?: React.ReactNode;
-    type?: string;
-    description?: React.ReactNode;
-    timeout?: number;
-    priority?: 'low' | 'high';
-    transitionStatus?: 'starting' | 'ending';
-    onClose?: () => void;
-    onRemove?: () => void;
-    actionProps?: Omit<
-      React.DetailedHTMLProps<React.ButtonHTMLAttributes<HTMLButtonElement>, HTMLButtonElement>,
-      'ref'
-    >;
-    positionerProps?: ToastManagerPositionerProps;
-    data?: {};
-  }) => string;
+  toasts: ToastObject<any>[];
+  add: (options: ToastManagerAddOptions<{}>) => string;
   close: (toastId: string) => void;
-  update: (
-    toastId: string,
-    options: {
-      id?: string;
-      title?: React.ReactNode;
-      type?: string;
-      description?: React.ReactNode;
-      timeout?: number;
-      priority?: 'low' | 'high';
-      transitionStatus?: 'starting' | 'ending';
-      onClose?: () => void;
-      onRemove?: () => void;
-      actionProps?: Omit<
-        React.DetailedHTMLProps<React.ButtonHTMLAttributes<HTMLButtonElement>, HTMLButtonElement>,
-        'ref'
-      >;
-      positionerProps?: ToastManagerPositionerProps;
-      data?: {};
-    },
-  ) => void;
+  update: (toastId: string, options: ToastManagerUpdateOptions<{}>) => void;
   promise: (
     promise: Promise<Value>,
-    options: {
-      loading: string | ToastManagerUpdateOptions<{}>;
-      success:
-        | string
-        | ToastManagerUpdateOptions<{}>
-        | ((result: Value) => string | ToastManagerUpdateOptions<{}>);
-      error:
-        | string
-        | ToastManagerUpdateOptions<{}>
-        | ((error: any) => string | ToastManagerUpdateOptions<{}>);
-    },
+    options: ToastManagerPromiseOptions<Value, {}>,
   ) => Promise<Value>;
 };
 ```
