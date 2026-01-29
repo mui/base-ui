@@ -7,6 +7,106 @@ import { Timeout } from './useTimeout';
 import { AnimationFrame } from './useAnimationFrame';
 import { NOOP } from './empty';
 
+export function preventScrollIOS(referenceElement: Element | null = null) {
+  const doc = ownerDocument(referenceElement);
+  const win = ownerWindow(doc);
+
+  function isScrollable(element: Element | null) {
+    if (!element) {
+      return false;
+    }
+
+    const style = win.getComputedStyle(element);
+
+    let result = /(auto|scroll)/.test(style.overflow + style.overflowX + style.overflowY);
+
+    if (result) {
+      result =
+        element.scrollHeight !== element.clientHeight ||
+        element.scrollWidth !== element.clientWidth;
+    }
+
+    return result;
+  }
+
+  function getScrollParent(element: Element | null) {
+    let currentParent: Element | null = element;
+
+    if (currentParent && isScrollable(currentParent)) {
+      currentParent = currentParent.parentElement;
+    }
+
+    while (currentParent && !isScrollable(currentParent)) {
+      currentParent = currentParent.parentElement;
+    }
+
+    return currentParent || doc.scrollingElement || doc.documentElement;
+  }
+
+  let scrollable: Element | undefined;
+  let allowTouchMove = false;
+  let stylusActive = false;
+
+  function onTouchStart(event: TouchEvent) {
+    const target = event.target as Element | null;
+    stylusActive = isStylusTouch(event);
+    scrollable = getScrollParent(target);
+    allowTouchMove = false;
+    if (stylusActive) {
+      allowTouchMove = true;
+    }
+
+    // Allow the ability to adjust text selection.
+    if (target) {
+      const selection = target.ownerDocument.defaultView?.getSelection();
+      if (selection && !selection.isCollapsed && selection.containsNode(target, true)) {
+        allowTouchMove = true;
+      }
+    }
+
+    // Allow user to drag the selection handles in an input element.
+    if (target instanceof win.HTMLInputElement) {
+      const input = target;
+      if (
+        input.selectionStart != null &&
+        input.selectionEnd != null &&
+        input.selectionStart < input.selectionEnd &&
+        doc.activeElement === input
+      ) {
+        allowTouchMove = true;
+      }
+    }
+  }
+
+  function onTouchMove(event: TouchEvent) {
+    // Allow pinch-zooming.
+    if (event.touches.length === 2 || allowTouchMove || stylusActive) {
+      return;
+    }
+
+    if (!scrollable || scrollable === doc.documentElement || scrollable === doc.body) {
+      event.preventDefault();
+      return;
+    }
+
+    if (
+      scrollable.scrollHeight === scrollable.clientHeight &&
+      scrollable.scrollWidth === scrollable.clientWidth
+    ) {
+      event.preventDefault();
+    }
+  }
+
+  const touchOptions = { passive: false, capture: true };
+  doc.addEventListener('touchstart', onTouchStart, touchOptions);
+  doc.addEventListener('touchmove', onTouchMove, touchOptions);
+
+  return () => {
+    doc.removeEventListener('touchstart', onTouchStart, touchOptions);
+    doc.removeEventListener('touchmove', onTouchMove, touchOptions);
+  };
+}
+
 let originalHtmlStyles: Partial<CSSStyleDeclaration> = {};
 let originalBodyStyles: Partial<CSSStyleDeclaration> = {};
 let originalHtmlScrollBehavior = '';
@@ -202,6 +302,13 @@ function preventScrollInsetScrollbars(referenceElement: Element | null) {
   };
 }
 
+function isStylusTouch(event: TouchEvent) {
+  const touch = event.touches[0] ?? event.changedTouches[0];
+  const touchType = (touch as { touchType?: string | undefined } | undefined)?.touchType;
+  const pointerType = (event as { pointerType?: string | undefined } | undefined)?.pointerType;
+  return touchType === 'stylus' || touchType === 'pen' || pointerType === 'pen';
+}
+
 class ScrollLocker {
   lockCount = 0;
   restore = null as (() => void) | null;
@@ -245,15 +352,12 @@ class ScrollLocker {
       return;
     }
 
-    const hasOverlayScrollbars = isIOS || !hasInsetScrollbars(referenceElement);
+    if (isIOS) {
+      this.restore = preventScrollIOS(referenceElement);
+      return;
+    }
 
-    // On iOS, scroll locking does not work if the navbar is collapsed. Due to numerous
-    // side effects and bugs that arise on iOS, it must be researched extensively before
-    // being enabled to ensure it doesn't cause the following issues:
-    // - Textboxes must scroll into view when focused, nor cause a glitchy scroll animation.
-    // - The navbar must not force itself into view and cause layout shift.
-    // - Scroll containers must not flicker upon closing a popup when it has an exit animation.
-    this.restore = hasOverlayScrollbars
+    this.restore = !hasInsetScrollbars(referenceElement)
       ? preventScrollOverlayScrollbars(referenceElement)
       : preventScrollInsetScrollbars(referenceElement);
   }
@@ -265,7 +369,7 @@ const SCROLL_LOCKER = new ScrollLocker();
  * Locks the scroll of the document when enabled.
  *
  * @param enabled - Whether to enable the scroll lock.
- * @param referenceElement - Element to use as a reference for lock calculations.
+ * @param referenceElement - Element that defines the lock scope. Used for document lookup and iOS gesture handling.
  */
 export function useScrollLock(enabled: boolean = true, referenceElement: Element | null = null) {
   useIsoLayoutEffect(() => {
