@@ -18,20 +18,6 @@ export function preventScrollIOS(referenceElement: Element | null = null) {
     return touchType === 'stylus' || touchType === 'pen' || pointerType === 'pen';
   }
 
-  function isInteractiveTarget(element: Element | null) {
-    if (!element) {
-      return false;
-    }
-
-    const interactiveSelector =
-      'button,a[href],input,textarea,select,[role="button"],[role="link"],' +
-      '[role="menuitem"],[role="menuitemcheckbox"],[role="menuitemradio"],[role="option"],' +
-      '[role="checkbox"],[role="switch"],[role="radio"],[role="tab"],[role="combobox"],' +
-      '[role="gridcell"],[tabindex]:not([tabindex="-1"]),[contenteditable=""],[contenteditable="true"]';
-
-    return Boolean(element.closest(interactiveSelector));
-  }
-
   function isScrollable(element: Element | null) {
     if (!element) {
       return false;
@@ -66,25 +52,15 @@ export function preventScrollIOS(referenceElement: Element | null = null) {
 
   let scrollable: Element | undefined;
   let allowTouchMove = false;
-  let stylusInsideReference = false;
-  let stylusStartX = 0;
-  let stylusStartY = 0;
-  let stylusTargetInteractive = false;
+  let stylusActive = false;
 
   function onTouchStart(event: TouchEvent) {
     const target = event.target as Element | null;
+    stylusActive = isStylusTouch(event);
     scrollable = getScrollParent(target);
     allowTouchMove = false;
-    stylusInsideReference =
-      isStylusTouch(event) && !!(referenceElement && target && referenceElement.contains(target));
-
-    if (stylusInsideReference) {
-      const touch = event.touches[0] ?? event.changedTouches[0];
-      stylusStartX = touch?.clientX ?? 0;
-      stylusStartY = touch?.clientY ?? 0;
-      stylusTargetInteractive = isInteractiveTarget(target);
-    } else {
-      stylusTargetInteractive = false;
+    if (stylusActive) {
+      allowTouchMove = true;
     }
 
     // Allow the ability to adjust text selection.
@@ -111,43 +87,7 @@ export function preventScrollIOS(referenceElement: Element | null = null) {
 
   function onTouchMove(event: TouchEvent) {
     // Allow pinch-zooming.
-    if (event.touches.length === 2 || allowTouchMove) {
-      return;
-    }
-
-    if (stylusInsideReference) {
-      const touch = event.touches[0] ?? event.changedTouches[0];
-      const deltaX = Math.abs((touch?.clientX ?? 0) - stylusStartX);
-      const deltaY = Math.abs((touch?.clientY ?? 0) - stylusStartY);
-      const exceedsSlop = deltaX > 8 || deltaY > 8;
-      const shouldBlockWithinSlop =
-        !stylusTargetInteractive &&
-        (!scrollable ||
-          scrollable === doc.documentElement ||
-          scrollable === doc.body ||
-          (referenceElement && !referenceElement.contains(scrollable)));
-
-      if (!exceedsSlop && !shouldBlockWithinSlop) {
-        return;
-      }
-
-      if (!scrollable || scrollable === doc.documentElement || scrollable === doc.body) {
-        event.preventDefault();
-        return;
-      }
-
-      if (referenceElement && !referenceElement.contains(scrollable)) {
-        event.preventDefault();
-        return;
-      }
-
-      if (
-        scrollable.scrollHeight === scrollable.clientHeight &&
-        scrollable.scrollWidth === scrollable.clientWidth
-      ) {
-        event.preventDefault();
-      }
-
+    if (event.touches.length === 2 || allowTouchMove || stylusActive) {
       return;
     }
 
