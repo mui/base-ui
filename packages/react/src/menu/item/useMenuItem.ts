@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { isElementDisabled } from '@base-ui/utils/isElementDisabled';
 import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { useButton } from '../../use-button';
 import { mergeProps } from '../../merge-props';
@@ -47,6 +48,10 @@ export function useMenuItem(params: useMenuItem.Parameters): useMenuItem.ReturnV
         commonProps,
         {
           onMouseEnter() {
+            if (isElementDisabled(itemRef.current)) {
+              return;
+            }
+
             if (itemMetadata.type !== 'submenu-trigger') {
               return;
             }
@@ -54,6 +59,10 @@ export function useMenuItem(params: useMenuItem.Parameters): useMenuItem.ReturnV
             itemMetadata.setActive();
           },
           onKeyUp(event: BaseUIEvent<React.KeyboardEvent>) {
+            if (isElementDisabled(itemRef.current)) {
+              return;
+            }
+
             if (event.key === ' ' && store.context.typingRef.current) {
               event.preventBaseUIHandler();
             }
@@ -63,7 +72,7 @@ export function useMenuItem(params: useMenuItem.Parameters): useMenuItem.ReturnV
         getButtonProps,
       );
     },
-    [commonProps, getButtonProps, store, itemMetadata],
+    [commonProps, getButtonProps, store, itemMetadata, itemRef],
   );
 
   const mergedRef = useMergedRefs(itemRef, buttonRef);
