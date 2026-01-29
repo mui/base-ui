@@ -697,6 +697,22 @@ describe('TemporalFieldSectionPlugin', () => {
       expect(store.state.selectedSection).to.equal(1);
     });
 
+    it('should select the first date part when clicking on a leading separator', () => {
+      const { start: esc, end: escEnd } = adapter.escapedCharacters;
+      // Format: .MM/dd/yyyy — produces a leading separator before the first datePart
+      const formatWithLeadingSeparator = `${esc}.${escEnd}${adapter.formats.monthPadded}/${adapter.formats.dayOfMonthPadded}/${adapter.formats.yearPadded}`;
+      const store = new DateFieldStore({
+        format: formatWithLeadingSeparator,
+        adapter,
+        direction: 'ltr',
+        validationProps: {},
+      });
+
+      // Clicking on the leading separator (index 0) should select the first date part (index 1)
+      store.section.selectClosestDatePart(0);
+      expect(store.state.selectedSection).to.equal(1); // Should select month (first date part)
+    });
+
     it('should remove selected section', () => {
       const store = new DateFieldStore({
         format: numericDateFormat,

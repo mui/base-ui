@@ -193,6 +193,22 @@ const elementsPropsSelectors = {
       };
     },
   ),
+  clearProps: createSelectorMemoized(
+    selectors.disabled,
+    selectors.readOnly,
+    (
+      disabled,
+      readOnly,
+      store: TemporalFieldStore<any>,
+    ): React.HTMLAttributes<HTMLButtonElement> => ({
+      tabIndex: -1,
+      children: '✕',
+      'aria-readonly': readOnly || undefined,
+      'aria-disabled': disabled || undefined,
+      onMouseDown: store.elementsProps.handleClearMouseDown,
+      onClick: store.elementsProps.handleClearClick,
+    }),
+  ),
 };
 
 /**
@@ -237,6 +253,24 @@ export class TemporalFieldElementsPropsPlugin<TValue extends TemporalSupportedVa
     ) {
       this.store.section.selectClosestDatePart(0);
     }
+  };
+
+  // ======================
+  // Clear element handlers
+  // ======================
+
+  public handleClearMouseDown = (event: React.MouseEvent) => {
+    // Prevent focus stealing from the input
+    event.preventDefault();
+  };
+
+  public handleClearClick = () => {
+    if (selectors.disabled(this.store.state) || selectors.readOnly(this.store.state)) {
+      return;
+    }
+
+    this.store.value.clear();
+    this.store.dom.inputRef.current?.focus();
   };
 
   // =========================

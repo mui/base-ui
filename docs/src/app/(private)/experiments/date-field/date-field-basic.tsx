@@ -60,6 +60,18 @@ export default function DateFieldBasic() {
                 )}
               </DateField.Root>
             </Field.Root>
+            <Field.Root name="date-field-iso" className={styles.Field}>
+              <Field.Label className={styles.Label}>Format with prefix and suffix</Field.Label>
+              <DateField.Root className={styles.Root} format="'👉' yyyy-MM-dd '👈'">
+                {(section) => (
+                  <DateField.Section
+                    key={section.index}
+                    className={styles.Section}
+                    section={section}
+                  />
+                )}
+              </DateField.Root>
+            </Field.Root>
             <Field.Root name="date-field-ordinal-day" className={styles.Field}>
               <Field.Label className={styles.Label}>Ordinal day</Field.Label>
               <DateField.Root className={styles.Root} format="MMMM do, yyyy">
@@ -104,6 +116,26 @@ export default function DateFieldBasic() {
                     section={section}
                   />
                 )}
+              </DateField.Root>
+            </Field.Root>
+          </div>
+        </section>
+        <section>
+          <h2>Clear button</h2>
+          <div className={styles.Form}>
+            <Field.Root name="date-field-with-clear" className={styles.Field}>
+              <Field.Label className={styles.Label}>With clear button</Field.Label>
+              <DateField.Root className={styles.Root}>
+                <DateField.SectionList>
+                  {(section) => (
+                    <DateField.Section
+                      key={section.index}
+                      className={styles.Section}
+                      section={section}
+                    />
+                  )}
+                </DateField.SectionList>
+                <DateField.Clear className={styles.Clear} />
               </DateField.Root>
             </Field.Root>
           </div>

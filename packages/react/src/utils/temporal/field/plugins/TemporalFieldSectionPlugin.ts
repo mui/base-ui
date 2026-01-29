@@ -10,6 +10,9 @@ import { TemporalFieldValuePlugin } from './TemporalFieldValuePlugin';
 const sectionSelectors = {
   sections: createSelector((state: State) => state.sections),
   selectedSection: createSelector((state: State) => state.selectedSection),
+  areAllSectionsEmpty: createSelector((state: State) =>
+    state.sections.every((section) => !isDatePart(section) || section.value === ''),
+  ),
   datePart: createSelectorMemoized(
     (state: State) => state.sections,
     (sections, sectionIndex: number) => {
@@ -189,12 +192,16 @@ export class TemporalFieldSectionPlugin<TValue extends TemporalSupportedValue> {
 
   public selectClosestDatePart(sectionIndex: number) {
     const sections = TemporalFieldSectionPlugin.selectors.sections(this.store.state);
-    let closestIndex = sectionIndex;
-    while (closestIndex > 0 && !isDatePart(sections[closestIndex])) {
-      closestIndex -= 1;
+
+    // First, try to find a date part by searching backward
+    let closestIndex = this.getPreviousDatePartIndex(sections, sectionIndex + 1);
+
+    // If we didn't find a date part searching backward, search forward
+    if (closestIndex == null) {
+      closestIndex = this.getNextDatePartIndex(sections, sectionIndex);
     }
 
-    if (isDatePart(sections[closestIndex])) {
+    if (closestIndex != null) {
       this.store.set('selectedSection', closestIndex);
     }
   }
@@ -206,16 +213,8 @@ export class TemporalFieldSectionPlugin<TValue extends TemporalSupportedValue> {
     }
 
     const sections = TemporalFieldSectionPlugin.selectors.sections(this.store.state);
-    if (selectedSection >= sections.length - 1) {
-      return;
-    }
-
-    let nextIndex = selectedSection + 1;
-    while (nextIndex < sections.length && !isDatePart(sections[nextIndex])) {
-      nextIndex += 1;
-    }
-
-    if (nextIndex < sections.length && isDatePart(sections[nextIndex])) {
+    const nextIndex = this.getNextDatePartIndex(sections, selectedSection + 1);
+    if (nextIndex != null) {
       this.store.set('selectedSection', nextIndex);
     }
   }
@@ -227,18 +226,42 @@ export class TemporalFieldSectionPlugin<TValue extends TemporalSupportedValue> {
     }
 
     const sections = TemporalFieldSectionPlugin.selectors.sections(this.store.state);
-    if (selectedSection <= 0) {
-      return;
-    }
-
-    let previousIndex = selectedSection - 1;
-    while (previousIndex >= 0 && !isDatePart(sections[previousIndex])) {
-      previousIndex -= 1;
-    }
-
-    if (previousIndex >= 0 && isDatePart(sections[previousIndex])) {
+    const previousIndex = this.getPreviousDatePartIndex(sections, selectedSection);
+    if (previousIndex != null) {
       this.store.set('selectedSection', previousIndex);
     }
+  }
+
+  private getNextDatePartIndex(
+    sections: TemporalFieldSection[],
+    startIndex: number,
+  ): number | null {
+    let index = startIndex;
+    while (index < sections.length && !isDatePart(sections[index])) {
+      index += 1;
+    }
+
+    if (index < sections.length) {
+      return index;
+    }
+
+    return null;
+  }
+
+  private getPreviousDatePartIndex(
+    sections: TemporalFieldSection[],
+    startIndex: number,
+  ): number | null {
+    let index = startIndex - 1;
+    while (index >= 0 && !isDatePart(sections[index])) {
+      index -= 1;
+    }
+
+    if (index >= 0) {
+      return index;
+    }
+
+    return null;
   }
 
   public removeSelectedSection() {

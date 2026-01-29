@@ -118,6 +118,26 @@ export default function TimeFieldBasic() {
             </Field.Root>
           </div>
         </section>
+        <section>
+          <h2>TODO: Add clear icon</h2>
+          <div className={styles.Form}>
+            <Field.Root name="time-field-with-clear" className={styles.Field}>
+              <Field.Label className={styles.Label}>With clear icon</Field.Label>
+              <TimeField.Root className={styles.Root}>
+                <TimeField.SectionList>
+                  {(section) => (
+                    <TimeField.Section
+                      key={section.index}
+                      className={styles.Section}
+                      section={section}
+                    />
+                  )}
+                </TimeField.SectionList>
+                {/* TODO: Add clear icon */}
+              </TimeField.Root>
+            </Field.Root>
+          </div>
+        </section>
       </div>
     </div>
   );

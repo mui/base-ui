@@ -16,6 +16,7 @@ import { ValidateTimeValidationProps } from '../../utils/temporal/validateTime';
 import {
   TemporalFieldSection,
   TemporalFieldStoreSharedParameters,
+  TemporalFieldRootActions,
 } from '../../utils/temporal/field/types';
 import { TemporalValue } from '../../types';
 import { useTemporalFieldRoot } from '../../utils/temporal/field/useTemporalFieldRoot';
@@ -56,6 +57,7 @@ export const TimeFieldRoot = React.forwardRef(function TimeFieldRoot(
     maxTime,
     // Other props
     placeholderGetters,
+    actionsRef,
     // Props forwarded to the DOM element
     ...elementProps
   } = componentProps;
@@ -121,6 +123,8 @@ export const TimeFieldRoot = React.forwardRef(function TimeFieldRoot(
 
   useIsoLayoutEffect(() => store.syncState(parameters), [store, parameters, adapter, direction]);
 
+  React.useImperativeHandle(actionsRef, () => store.getActions(), [store]);
+
   const { state, hiddenInputProps, rootProps, rootRef } = useTemporalFieldRoot({
     store,
   });
@@ -165,9 +169,17 @@ export interface TimeFieldRootProps
    * If a function is provided, it will be called with each section as its parameter.
    */
   children?: React.ReactNode | ((section: TemporalFieldSection) => React.ReactNode);
+  /**
+   * A ref to imperative actions.
+   * - `clear`: Clears the field value.
+   */
+  actionsRef?: React.RefObject<TimeFieldRoot.Actions | null> | undefined;
 }
+
+export type TimeFieldRootActions = TemporalFieldRootActions;
 
 export namespace TimeFieldRoot {
   export type Props = TimeFieldRootProps;
   export type State = TimeFieldRootState;
+  export type Actions = TimeFieldRootActions;
 }

@@ -8,6 +8,7 @@ import {
   TemporalFieldStoreSharedParameters,
   TemporalFieldConfiguration,
   TemporalFieldValidationProps,
+  TemporalFieldRootActions,
 } from './types';
 import { FormatParser } from './formatParser';
 import { buildSections, deriveStateFromParameters, getTimezoneToRender } from './utils';
@@ -129,6 +130,15 @@ export class TemporalFieldStore<TValue extends TemporalSupportedValue> extends S
    */
   public updateFieldContext(fieldContext: any | null) {
     this.update({ fieldContext });
+  }
+
+  /**
+   * Returns imperative actions that can be exposed via actionsRef.
+   */
+  public getActions(): TemporalFieldRootActions {
+    return {
+      clear: () => this.value.clear(),
+    };
   }
 
   /**

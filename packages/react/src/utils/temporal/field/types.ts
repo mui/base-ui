@@ -452,4 +452,16 @@ export type TemporalFieldModelUpdater<
 ) => void;
 
 export interface TemporalFieldValidationProps
-  extends ValidateDateValidationProps, ValidateTimeValidationProps {}
+  extends ValidateDateValidationProps,
+    ValidateTimeValidationProps {}
+
+/**
+ * Actions that can be performed imperatively on a temporal field via actionsRef.
+ */
+export interface TemporalFieldRootActions {
+  /**
+   * Clears the field value.
+   * If the value is already empty, it clears the sections (visual placeholders).
+   */
+  clear: () => void;
+}
