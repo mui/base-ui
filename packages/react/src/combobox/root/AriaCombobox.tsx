@@ -855,52 +855,6 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     store,
   ]);
 
-  // When the available items change, ensure the selected value(s) remain valid.
-  // - Single: if current selection is removed, fall back to defaultSelectedValue if it exists in the list; else null.
-  // - Multiple: drop any removed selections.
-  useIsoLayoutEffect(() => {
-    if (!items || selectionMode === 'none') {
-      return;
-    }
-
-    const registry = flatItems;
-
-    if (multiple) {
-      const current = Array.isArray(selectedValue) ? selectedValue : EMPTY_ARRAY;
-      const next = current.filter((v) => itemIncludes(registry, v, store.state.isItemEqualToValue));
-      if (next.length !== current.length) {
-        setSelectedValue(next, createChangeEventDetails(REASONS.none));
-      }
-      return;
-    }
-
-    const isStillPresent =
-      selectedValue == null ||
-      itemIncludes(registry, selectedValue, store.state.isItemEqualToValue);
-    if (isStillPresent) {
-      return;
-    }
-
-    let fallback = null;
-    if (
-      defaultSelectedValue != null &&
-      itemIncludes(registry, defaultSelectedValue, store.state.isItemEqualToValue)
-    ) {
-      fallback = defaultSelectedValue;
-    }
-
-    setSelectedValue(fallback, createChangeEventDetails(REASONS.none));
-  }, [
-    items,
-    flatItems,
-    multiple,
-    selectionMode,
-    selectedValue,
-    defaultSelectedValue,
-    store,
-    setSelectedValue,
-  ]);
-
   useIsoLayoutEffect(() => {
     if (selectionMode === 'none') {
       setFilled(String(inputValue) !== '');
