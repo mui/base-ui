@@ -11,3 +11,5 @@ export const TypesPreviewCardPositioner = types.Positioner;
 export const TypesPreviewCardPopup = types.Popup;
 export const TypesPreviewCardViewport = types.Viewport;
 export const TypesPreviewCardArrow = types.Arrow;
+export const TypesPreviewCardCreateHandle = types.createHandle;
+export const TypesPreviewCardHandle = types.Handle;

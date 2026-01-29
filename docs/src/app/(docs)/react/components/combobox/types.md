@@ -903,7 +903,7 @@ Re-export of [ItemIndicator](#itemindicator) props.
 type ComboboxItemIndicatorState = { selected: boolean; transitionStatus: TransitionStatus };
 ```
 
-### Combobox.useFilter
+### useFilter
 
 Matches items against a query using `Intl.Collator` for robust string matching.
 
@@ -923,7 +923,7 @@ type ReturnValue = {
 };
 ```
 
-### Combobox.useFilteredItems
+### useFilteredItems
 
 Returns the internally filtered items.
 

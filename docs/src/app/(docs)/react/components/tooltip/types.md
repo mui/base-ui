@@ -404,7 +404,7 @@ Re-export of [Viewport](#viewport) props.
 type TooltipViewportState = { activationDirection?: string };
 ```
 
-### Tooltip.createHandle
+### createHandle
 
 Creates a new handle to connect a Tooltip.Root with detached Tooltip.Trigger components.
 
@@ -418,9 +418,28 @@ type ReturnValue = {};
 
 A handle to control a tooltip imperatively and to associate detached triggers with it.
 
+**Properties:**
+
+| Property | Type      | Modifiers | Description                                      |
+| :------- | :-------- | :-------- | :----------------------------------------------- |
+| isOpen   | `boolean` | readonly  | Indicates whether the tooltip is currently open. |
+
+**Methods:**
+
 ```typescript
-type TooltipHandle = {};
+function open(triggerId: string): void;
 ```
+
+Opens the tooltip and associates it with the trigger with the given ID.
+The trigger must be a Tooltip.Trigger component with this handle passed as a prop.
+
+This method should only be called in an event handler or an effect (not during rendering).
+
+```typescript
+function close(): void;
+```
+
+Closes the tooltip.
 
 ## External Types
 

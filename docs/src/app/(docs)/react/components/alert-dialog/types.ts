@@ -12,3 +12,5 @@ export const TypesAlertDialogPopup = types.Popup;
 export const TypesAlertDialogTitle = types.Title;
 export const TypesAlertDialogDescription = types.Description;
 export const TypesAlertDialogClose = types.Close;
+export const TypesAlertDialogCreateHandle = types.createHandle;
+export const TypesAlertDialogHandle = types.Handle;

@@ -6,6 +6,8 @@ import { AttributesReferenceTable } from './AttributesReferenceTable';
 import { CssVariablesReferenceTable } from './CssVariablesReferenceTable';
 import { ParametersReferenceTable } from './ParametersReferenceTable';
 import { ReturnValueReferenceTable } from './ReturnValueReferenceTable';
+import { PropertiesReferenceAccordion } from './PropertiesReferenceAccordion';
+import { MethodsReferenceAccordion } from './MethodsReferenceAccordion';
 
 import '../Demo/CodeHighlighting.css';
 import AdditionalTypesAccordion from './AdditionalTypesAccordion';
@@ -75,6 +77,74 @@ export function ReferenceTable(props: ReferenceTableProps) {
 
         {Object.keys(data.parameters).length > 0 && (
           <ParametersReferenceTable name={data.name} data={data.parameters} className="mt-5 mb-6" />
+        )}
+
+        {data.returnValue && (
+          <div className="mt-5 mb-6">
+            <h4 className="mb-3 text-base font-medium text-gray-900 dark:text-white">
+              Return value
+            </h4>
+            {data.returnValue}
+          </div>
+        )}
+
+        {additionalTypes && additionalTypes.length > 0 && (
+          <AdditionalTypesAccordion data={additionalTypes} />
+        )}
+      </React.Fragment>
+    );
+  }
+
+  if (type.type === 'class') {
+    const data = type.data;
+
+    // Separate static and instance methods
+    const staticMethods: Record<string, (typeof data.methods)[string]> = {};
+    const instanceMethods: Record<string, (typeof data.methods)[string]> = {};
+
+    Object.entries(data.methods).forEach(([name, method]) => {
+      if (method.isStatic) {
+        staticMethods[name] = method;
+      } else {
+        instanceMethods[name] = method;
+      }
+    });
+
+    return (
+      <React.Fragment>
+        {multiple && !hideDescription && data.description && data.description}
+
+        {Object.keys(staticMethods).length > 0 && (
+          <MethodsReferenceAccordion
+            name={data.name}
+            data={staticMethods}
+            className="mt-5 mb-6"
+            methodLabel="Static method"
+          />
+        )}
+
+        {Object.keys(data.constructorParameters).length > 0 && (
+          <ParametersReferenceTable
+            name={data.name}
+            data={data.constructorParameters}
+            className="mt-5 mb-6"
+          />
+        )}
+
+        {Object.keys(data.properties).length > 0 && (
+          <PropertiesReferenceAccordion
+            name={data.name}
+            data={data.properties}
+            className="mt-5 mb-6"
+          />
+        )}
+
+        {Object.keys(instanceMethods).length > 0 && (
+          <MethodsReferenceAccordion
+            name={data.name}
+            data={instanceMethods}
+            className="mt-5 mb-6"
+          />
         )}
 
         {additionalTypes && additionalTypes.length > 0 && (

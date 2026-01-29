@@ -394,7 +394,7 @@ Re-export of [Viewport](#viewport) props.
 type ToastViewportState = { expanded: boolean };
 ```
 
-### Toast.createToastManager
+### createToastManager
 
 Creates a new toast manager.
 
@@ -460,7 +460,7 @@ type ReturnValue = {
 };
 ```
 
-### Toast.useToastManager
+### useToastManager
 
 Returns the array of toasts and methods to manage them.
 

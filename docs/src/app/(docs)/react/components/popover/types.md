@@ -504,7 +504,7 @@ Re-export of [Viewport](#viewport) props.
 type PopoverViewportState = { activationDirection: string | undefined; transitioning: boolean };
 ```
 
-### Popover.createHandle
+### createHandle
 
 Creates a new handle to connect a Popover.Root with detached Popover.Trigger components.
 
@@ -516,9 +516,26 @@ type ReturnValue = {};
 
 ### Handle
 
+**Properties:**
+
+| Property | Type      | Modifiers | Description                                      |
+| :------- | :-------- | :-------- | :----------------------------------------------- |
+| isOpen   | `boolean` | readonly  | Indicates whether the popover is currently open. |
+
+**Methods:**
+
 ```typescript
-type PopoverHandle = {};
+function open(triggerId: string): void;
 ```
+
+Opens the popover and associates it with the trigger with the given id.
+The trigger must be a Popover.Trigger component with this handle passed as a prop.
+
+```typescript
+function close(): void;
+```
+
+Closes the popover.
 
 ## External Types
 

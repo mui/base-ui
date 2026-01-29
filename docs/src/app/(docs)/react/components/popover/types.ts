@@ -16,3 +16,5 @@ export const TypesPopoverTitle = types.Title;
 export const TypesPopoverDescription = types.Description;
 export const TypesPopoverClose = types.Close;
 export const TypesPopoverViewport = types.Viewport;
+export const TypesPopoverCreateHandle = types.createHandle;
+export const TypesPopoverHandle = types.Handle;

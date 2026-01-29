@@ -400,7 +400,7 @@ type PreviewCardViewportState = {
 };
 ```
 
-### PreviewCard.createHandle
+### createHandle
 
 Creates a new handle to connect a PreviewCard.Root with detached PreviewCard.Trigger components.
 
@@ -414,9 +414,28 @@ type ReturnValue = {};
 
 A handle to control a preview card imperatively and to associate detached triggers with it.
 
+**Properties:**
+
+| Property | Type      | Modifiers | Description                                           |
+| :------- | :-------- | :-------- | :---------------------------------------------------- |
+| isOpen   | `boolean` | readonly  | Indicates whether the preview card is currently open. |
+
+**Methods:**
+
 ```typescript
-type PreviewCardHandle = {};
+function open(triggerId: string): void;
 ```
+
+Opens the preview card and associates it with the trigger with the given ID.
+The trigger must be a PreviewCard.Trigger component with this handle passed as a prop.
+
+This method should only be called in an event handler or an effect (not during rendering).
+
+```typescript
+function close(): void;
+```
+
+Closes the preview card.
 
 ## External Types
 

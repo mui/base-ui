@@ -10,3 +10,5 @@ export const TypesTooltipPortal = types.Portal;
 export const TypesTooltipPositioner = types.Positioner;
 export const TypesTooltipPopup = types.Popup;
 export const TypesTooltipArrow = types.Arrow;
+export const TypesTooltipCreateHandle = types.createHandle;
+export const TypesTooltipHandle = types.Handle;

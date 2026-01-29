@@ -377,7 +377,7 @@ type AlertDialogViewportState = {
 };
 ```
 
-### AlertDialog.createHandle
+### createHandle
 
 **Return Value:**
 
@@ -389,9 +389,41 @@ type ReturnValue = {};
 
 A handle to control a Dialog imperatively and to associate detached triggers with it.
 
+**Constructor Parameters:**
+
+| Parameter | Type                   | Default | Description |
+| :-------- | :--------------------- | :------ | :---------- |
+| store?    | `DialogStore<Payload>` | -       | -           |
+
+**Properties:**
+
+| Property | Type      | Modifiers | Description                                     |
+| :------- | :-------- | :-------- | :---------------------------------------------- |
+| isOpen   | `boolean` | readonly  | Indicates whether the dialog is currently open. |
+
+**Methods:**
+
 ```typescript
-type AlertDialogHandle = {};
+function open(triggerId: string | null): void;
 ```
+
+Opens the dialog and associates it with the trigger with the given id.
+The trigger, if provided, must be a Dialog.Trigger component with this handle passed as a prop.
+
+This method should only be called in an event handler or an effect (not during rendering).
+
+```typescript
+function openWithPayload(payload: Payload): void;
+```
+
+Opens the dialog and sets the payload.
+Does not associate the dialog with any trigger.
+
+```typescript
+function close(): void;
+```
+
+Closes the dialog.
 
 ## External Types
 

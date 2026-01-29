@@ -808,7 +808,7 @@ Re-export of [Row](#row) props.
 type AutocompleteRowState = {};
 ```
 
-### Autocomplete.useFilter
+### useFilter
 
 Matches items against a query using `Intl.Collator` for robust string matching.
 
@@ -828,7 +828,7 @@ type ReturnValue = {
 };
 ```
 
-### Autocomplete.useFilteredItems
+### useFilteredItems
 
 Returns the internally filtered items.
 

@@ -170,8 +170,8 @@ importers:
         specifier: ^3.1.1
         version: 3.1.1(@types/react@19.2.8)(react@19.2.3)
       '@mui/internal-docs-infra':
-        specifier: https://pkg.pr.new/mui/mui-public/@mui/internal-docs-infra@1d4cba6
-        version: https://pkg.pr.new/mui/mui-public/@mui/internal-docs-infra@1d4cba6(@types/react@19.2.8)(next@16.1.4(@babel/core@7.28.6)(@playwright/test@1.57.0)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(prettier@3.8.1)(react@19.2.3)(typescript@5.9.3)
+        specifier: https://pkg.pr.new/mui/mui-public/@mui/internal-docs-infra@05c0221
+        version: https://pkg.pr.new/mui/mui-public/@mui/internal-docs-infra@05c0221(@types/react@19.2.8)(next@16.1.4(@babel/core@7.28.6)(@playwright/test@1.57.0)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(prettier@3.8.1)(react@19.2.3)(typescript@5.9.3)
       '@next/mdx':
         specifier: ^16.1.4
         version: 16.1.5(@mdx-js/loader@3.1.1(webpack@5.104.1))(@mdx-js/react@3.1.1(@types/react@19.2.8)(react@19.2.3))
@@ -2389,8 +2389,8 @@ packages:
       prettier: ^3.0.0
       typescript: ^5.0.0
 
-  '@mui/internal-docs-infra@https://pkg.pr.new/mui/mui-public/@mui/internal-docs-infra@1d4cba6':
-    resolution: {tarball: https://pkg.pr.new/mui/mui-public/@mui/internal-docs-infra@1d4cba6}
+  '@mui/internal-docs-infra@https://pkg.pr.new/mui/mui-public/@mui/internal-docs-infra@05c0221':
+    resolution: {tarball: https://pkg.pr.new/mui/mui-public/@mui/internal-docs-infra@05c0221}
     version: 0.5.0
     engines: {node: '>=22.12.0'}
     hasBin: true
@@ -9553,8 +9553,9 @@ packages:
   typedarray@0.0.6:
     resolution: {integrity: sha512-/aCDEGatGvZ2BIk+HmLf4ifCJFwvKFNb9/JeZPMulfgFracn9QFcAf5GO8B/mweUjSoblS5In0cWhqpfs/5PQA==}
 
-  typescript-api-extractor@1.0.0-alpha.13:
-    resolution: {integrity: sha512-vMn26RR+SisBu3t0E0n7odikrw/+C+5al52q6JwmiMEhUhLVgkO747BiwGhSTmedwjC6ACFFFHa9bytoQQhZ4w==}
+  typescript-api-extractor@https://pkg.pr.new/typescript-api-extractor@8865998:
+    resolution: {tarball: https://pkg.pr.new/typescript-api-extractor@8865998}
+    version: 1.0.0-alpha.13
     engines: {node: '>=22'}
     peerDependencies:
       typescript: ^5.8
@@ -12489,7 +12490,7 @@ snapshots:
       - supports-color
       - vitest
 
-  '@mui/internal-docs-infra@https://pkg.pr.new/mui/mui-public/@mui/internal-docs-infra@1d4cba6(@types/react@19.2.8)(next@16.1.4(@babel/core@7.28.6)(@playwright/test@1.57.0)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(prettier@3.8.1)(react@19.2.3)(typescript@5.9.3)':
+  '@mui/internal-docs-infra@https://pkg.pr.new/mui/mui-public/@mui/internal-docs-infra@05c0221(@types/react@19.2.8)(next@16.1.4(@babel/core@7.28.6)(@playwright/test@1.57.0)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(prettier@3.8.1)(react@19.2.3)(typescript@5.9.3)':
     dependencies:
       '@babel/runtime': 7.28.6
       '@babel/standalone': 7.28.6
@@ -12517,7 +12518,7 @@ snapshots:
       remark-stringify: 11.0.0
       remark-typography: 0.7.3
       typescript: 5.9.3
-      typescript-api-extractor: 1.0.0-alpha.13(typescript@5.9.3)
+      typescript-api-extractor: https://pkg.pr.new/typescript-api-extractor@8865998(typescript@5.9.3)
       uint8-to-base64: 0.2.1
       unified: 11.0.5
       unist-util-visit: 5.1.0
@@ -21090,7 +21091,7 @@ snapshots:
 
   typedarray@0.0.6: {}
 
-  typescript-api-extractor@1.0.0-alpha.13(typescript@5.9.3):
+  typescript-api-extractor@https://pkg.pr.new/typescript-api-extractor@8865998(typescript@5.9.3):
     dependencies:
       es-toolkit: 1.44.0
       typescript: 5.9.3

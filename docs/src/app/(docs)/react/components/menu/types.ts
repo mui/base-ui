@@ -22,3 +22,5 @@ export const TypesMenuRadioItemIndicator = types.RadioItemIndicator;
 export const TypesMenuCheckboxItem = types.CheckboxItem;
 export const TypesMenuCheckboxItemIndicator = types.CheckboxItemIndicator;
 export const TypesMenuSeparator = types.Separator;
+export const TypesMenuCreateHandle = types.createHandle;
+export const TypesMenuHandle = types.Handle;
