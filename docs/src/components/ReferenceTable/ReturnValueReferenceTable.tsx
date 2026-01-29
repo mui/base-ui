@@ -1,44 +1,15 @@
 import * as React from 'react';
 import clsx from 'clsx';
-import { createMdxComponent } from 'docs/src/mdx/createMdxComponent';
-import { inlineMdxComponents } from 'docs/src/mdx-components';
-import { rehypeSyntaxHighlighting } from 'docs/src/syntax-highlighting';
+import type { ProcessedProperty } from '@mui/internal-docs-infra/useTypes';
 import * as Accordion from '../Accordion';
 import * as Table from '../Table';
 import { TableCode } from '../TableCode';
-import type { PropDef } from './types';
 
 interface ReturnValueReferenceTableProps extends React.ComponentProps<typeof Table.Root> {
-  data: Record<string, PropDef>;
+  data: Record<string, ProcessedProperty>;
 }
 
-const TYPE_MDX_OPTIONS = {
-  rehypePlugins: rehypeSyntaxHighlighting,
-  useMDXComponents: () => ({
-    ...inlineMdxComponents,
-    code: TableCode,
-  }),
-};
-
-const DESCRIPTION_MDX_OPTIONS = {
-  rehypePlugins: rehypeSyntaxHighlighting,
-  useMDXComponents: () => inlineMdxComponents,
-};
-
-function getDescription(def: PropDef, name: string, includeName: boolean) {
-  const baseDescription = [def.description, def.example].filter(Boolean).join('\n\n');
-  if (!includeName) {
-    return baseDescription;
-  }
-
-  const nameLabel = `**${name}**`;
-  return baseDescription ? `${nameLabel}: ${baseDescription}` : nameLabel;
-}
-
-export async function ReturnValueReferenceTable({
-  data,
-  ...props
-}: ReturnValueReferenceTableProps) {
+export function ReturnValueReferenceTable({ data, ...props }: ReturnValueReferenceTableProps) {
   const entries = Object.entries(data);
   const includeName = entries.length > 1;
 
@@ -48,26 +19,13 @@ export async function ReturnValueReferenceTable({
         <Accordion.HeaderRow>
           <Accordion.HeaderCell className="pl-3">Type</Accordion.HeaderCell>
         </Accordion.HeaderRow>
-        {entries.map(async ([name, def], index) => {
+        {entries.map(([name, def], index) => {
           const typeValue = def.type ?? def.detailedType;
-          const descriptionText = getDescription(def, name, includeName);
-
-          const ReturnType = typeValue
-            ? await createMdxComponent(`\`${typeValue}\``, TYPE_MDX_OPTIONS)
-            : null;
-
-          const ReturnDescription = descriptionText
-            ? await createMdxComponent(descriptionText, DESCRIPTION_MDX_OPTIONS)
-            : null;
 
           return (
             <Accordion.Item key={name}>
               <Accordion.Trigger index={index}>
-                {ReturnType ? (
-                  <ReturnType />
-                ) : (
-                  <TableCode className="text-(--syntax-nullish)">—</TableCode>
-                )}
+                {typeValue ?? <TableCode className="text-(--syntax-nullish)">—</TableCode>}
                 <svg
                   className="AccordionIcon ml-auto mr-1"
                   width="10"
@@ -81,11 +39,9 @@ export async function ReturnValueReferenceTable({
               </Accordion.Trigger>
               <Accordion.Panel>
                 <Accordion.Content className="flex flex-col gap-3 p-4 text-md text-pretty">
-                  {ReturnDescription ? (
-                    <ReturnDescription />
-                  ) : (
-                    <TableCode className="text-(--syntax-nullish)">—</TableCode>
-                  )}
+                  {includeName && <strong>{name}</strong>}
+                  {def.description ?? <TableCode className="text-(--syntax-nullish)">—</TableCode>}
+                  {def.example}
                 </Accordion.Content>
               </Accordion.Panel>
             </Accordion.Item>
@@ -103,32 +59,22 @@ export async function ReturnValueReferenceTable({
           </Table.Row>
         </Table.Head>
         <Table.Body>
-          {entries.map(async ([name, def]) => {
+          {entries.map(([name, def]) => {
             const typeValue = def.type ?? def.detailedType;
-            const descriptionText = getDescription(def, name, includeName);
-
-            const ReturnType = typeValue
-              ? await createMdxComponent(`\`${typeValue}\``, TYPE_MDX_OPTIONS)
-              : null;
-
-            const ReturnDescription = descriptionText
-              ? await createMdxComponent(descriptionText, DESCRIPTION_MDX_OPTIONS)
-              : null;
 
             return (
               <Table.Row key={name}>
                 <Table.Cell>
-                  {ReturnType ? (
-                    <ReturnType />
-                  ) : (
-                    <TableCode className="text-(--syntax-nullish)">—</TableCode>
-                  )}
+                  {typeValue ?? <TableCode className="text-(--syntax-nullish)">—</TableCode>}
                 </Table.Cell>
                 <Table.Cell>
-                  {ReturnDescription ? (
-                    <ReturnDescription />
-                  ) : (
-                    <TableCode className="text-(--syntax-nullish)">—</TableCode>
+                  {includeName && <strong>{name}: </strong>}
+                  {def.description ?? <TableCode className="text-(--syntax-nullish)">—</TableCode>}
+                  {def.example && (
+                    <React.Fragment>
+                      <br />
+                      {def.example}
+                    </React.Fragment>
                   )}
                 </Table.Cell>
               </Table.Row>

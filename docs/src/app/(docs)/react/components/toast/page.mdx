@@ -254,10 +254,64 @@ import { DemoToastVaryingHeights } from './demos/varying-heights';
 
 ## API reference
 
-<Reference
-  component="Toast"
-  parts="Provider, Viewport, Portal, Root, Content, Title, Description, Action, Close, Positioner, Arrow"
-/>
+import {
+  TypesToastProvider,
+  TypesToastViewport,
+  TypesToastPortal,
+  TypesToastRoot,
+  TypesToastContent,
+  TypesToastTitle,
+  TypesToastDescription,
+  TypesToastAction,
+  TypesToastClose,
+  TypesToastPositioner,
+  TypesToastArrow,
+  TypesToastAdditionalTypes,
+} from './types';
+
+### Provider
+
+<TypesToastProvider />
+
+### Viewport
+
+<TypesToastViewport />
+
+### Portal
+
+<TypesToastPortal />
+
+### Root
+
+<TypesToastRoot />
+
+### Content
+
+<TypesToastContent />
+
+### Title
+
+<TypesToastTitle />
+
+### Description
+
+<TypesToastDescription />
+
+### Action
+
+<TypesToastAction />
+
+### Close
+
+<TypesToastClose />
+
+### Positioner
+
+<TypesToastPositioner />
+
+### Arrow
+
+<TypesToastArrow />
 
 ## useToastManager
 
@@ -444,6 +498,10 @@ const promise = toastManager.promise(
   },
 );
 ```
+
+## Additional Types
+
+<TypesToastAdditionalTypes />
 
 export const metadata = {
   keywords: [
