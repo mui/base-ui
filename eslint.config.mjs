@@ -98,6 +98,7 @@ export default defineConfig(
     extends: createTestConfig({ useMocha: false }),
     rules: {
       'material-ui/add-undef-to-optional': 'off',
+      'material-ui/consistent-production-guard': 'off',
     },
   },
   baseSpecRules,
@@ -160,6 +161,7 @@ export default defineConfig(
       'testing-library/prefer-screen-queries': 'off', // Enable usage of playwright queries
       'testing-library/no-await-sync-queries': 'off',
       'testing-library/render-result-naming-convention': 'off', // inconsequential in regression tests
+      'material-ui/consistent-production-guard': 'off',
     },
   },
 );
