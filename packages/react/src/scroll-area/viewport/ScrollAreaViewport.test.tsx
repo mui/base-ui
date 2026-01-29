@@ -51,30 +51,33 @@ describe('<ScrollArea.Viewport />', () => {
     });
 
     // scrollend event tests require real browser support - JSDOM doesn't dispatch scrollend to React handlers
-    it.skipIf(isJSDOM)('removes [data-scrolling] immediately when scrollend event fires', async () => {
-      await render(
-        <ScrollArea.Root style={{ width: 200, height: 200 }}>
-          <ScrollArea.Viewport data-testid="viewport" style={{ width: '100%', height: '100%' }}>
-            <div style={{ width: 1000, height: 1000 }} />
-          </ScrollArea.Viewport>
-        </ScrollArea.Root>,
-      );
+    it.skipIf(isJSDOM)(
+      'removes [data-scrolling] immediately when scrollend event fires',
+      async () => {
+        await render(
+          <ScrollArea.Root style={{ width: 200, height: 200 }}>
+            <ScrollArea.Viewport data-testid="viewport" style={{ width: '100%', height: '100%' }}>
+              <div style={{ width: 1000, height: 1000 }} />
+            </ScrollArea.Viewport>
+          </ScrollArea.Root>,
+        );
 
-      const viewport = screen.getByTestId('viewport');
+        const viewport = screen.getByTestId('viewport');
 
-      expect(viewport).not.to.have.attribute('data-scrolling');
+        expect(viewport).not.to.have.attribute('data-scrolling');
 
-      // Start scrolling
-      fireEvent.pointerEnter(viewport);
-      fireEvent.scroll(viewport, { target: { scrollTop: 1 } });
+        // Start scrolling
+        fireEvent.pointerEnter(viewport);
+        fireEvent.scroll(viewport, { target: { scrollTop: 1 } });
 
-      expect(viewport).to.have.attribute('data-scrolling', '');
+        expect(viewport).to.have.attribute('data-scrolling', '');
 
-      // Fire scrollend event - should clear immediately without waiting for timeout
-      fireEvent(viewport, new Event('scrollend', { bubbles: true }));
+        // Fire scrollend event - should clear immediately without waiting for timeout
+        fireEvent(viewport, new Event('scrollend', { bubbles: true }));
 
-      expect(viewport).not.to.have.attribute('data-scrolling');
-    });
+        expect(viewport).not.to.have.attribute('data-scrolling');
+      },
+    );
 
     it.skipIf(isJSDOM)('clears pending timeout when scrollend fires', async () => {
       await render(
