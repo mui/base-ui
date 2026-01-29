@@ -12,6 +12,7 @@ import { fileURLToPath } from 'url';
 
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
+const playgroundRootDir = path.join(dirname, 'playground', 'vite-app');
 
 const OneLevelImportMessage = [
   'Prefer one level nested imports to avoid bundling everything in dev mode or breaking CJS/ESM split.',
@@ -31,10 +32,23 @@ const NO_RESTRICTED_IMPORTS_PATHS_TOP_LEVEL_PACKAGES = [
 ];
 
 export default defineConfig(
-  globalIgnores(['./examples']),
+  globalIgnores(['./examples', './playground/vite-app/dist']),
   createBaseConfig({
     baseDirectory: dirname,
   }),
+  {
+    name: 'Playground Vite app overrides',
+    files: ['playground/vite-app/**/*.{ts,tsx}'],
+    languageOptions: {
+      parserOptions: {
+        project: ['./tsconfig.app.json', './tsconfig.node.json'],
+        tsconfigRootDir: playgroundRootDir,
+      },
+    },
+    rules: {
+      'no-console': 'off',
+    },
+  },
   {
     name: 'Base UI overrides',
     files: [`**/*${EXTENSION_TS}`],
