@@ -1,3 +1,4 @@
+import * as React from 'react';
 import { expect } from 'chai';
 import { spy } from 'sinon';
 import { act, flushMicrotasks, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
@@ -1347,56 +1348,53 @@ describe('<Tabs.Root />', () => {
       expect(root).to.have.attribute('data-activation-direction', 'up');
     });
 
-    it('should set `data-activation-direction` when value is changed programmatically with orientation=horizontal', async () => {
-      const { setProps } = await render(
-        <Tabs.Root data-testid="root" value={0}>
-          <Tabs.List>
-            <Tabs.Tab value={0} />
-            <Tabs.Tab value={1} />
-            <Tabs.Tab value={2} />
-          </Tabs.List>
-        </Tabs.Root>,
-      );
+    describe('programmatic value changes', () => {
+      const tabValues = [0, 1, 2] as const;
+      function ControlledTabs(props: Tabs.Root.Props) {
+        const [value, setValue] = React.useState(props.value ?? 0);
 
-      const root = screen.getByTestId('root');
+        return (
+          <Tabs.Root data-testid="root" value={value} onValueChange={setValue} {...props}>
+            <Tabs.List>
+              {tabValues.map((tabValue) => (
+                <Tabs.Tab
+                  key={tabValue}
+                  value={tabValue}
+                  style={props.orientation === 'vertical' ? { display: 'block' } : undefined}
+                />
+              ))}
+            </Tabs.List>
+            <button onClick={() => setValue(0)}>Set 0</button>
+            <button onClick={() => setValue(1)}>Set 1</button>
+          </Tabs.Root>
+        );
+      }
 
-      expect(root).to.have.attribute('data-activation-direction', 'none');
+      it('should set `data-activation-direction` when value is changed programmatically with orientation=horizontal', async () => {
+        const { user } = await render(<ControlledTabs />);
 
-      await setProps({ value: 2 });
-      await flushMicrotasks();
+        const root = screen.getByTestId('root');
+        expect(root).to.have.attribute('data-activation-direction', 'none');
 
-      expect(root).to.have.attribute('data-activation-direction', 'right');
+        await user.click(screen.getByText('Set 1'));
+        expect(root).to.have.attribute('data-activation-direction', 'right');
 
-      await setProps({ value: 1 });
-      await flushMicrotasks();
+        await user.click(screen.getByText('Set 0'));
+        expect(root).to.have.attribute('data-activation-direction', 'left');
+      });
 
-      expect(root).to.have.attribute('data-activation-direction', 'left');
-    });
+      it('should set `data-activation-direction` when value is changed programmatically with orientation=vertical', async () => {
+        const { user } = await render(<ControlledTabs orientation="vertical" />);
 
-    it('should set `data-activation-direction` when value is changed programmatically with orientation=vertical', async () => {
-      const { setProps } = await render(
-        <Tabs.Root data-testid="root" value={0} orientation="vertical">
-          <Tabs.List>
-            <Tabs.Tab value={0} style={{ display: 'block' }} />
-            <Tabs.Tab value={1} style={{ display: 'block' }} />
-            <Tabs.Tab value={2} style={{ display: 'block' }} />
-          </Tabs.List>
-        </Tabs.Root>,
-      );
+        const root = screen.getByTestId('root');
+        expect(root).to.have.attribute('data-activation-direction', 'none');
 
-      const root = screen.getByTestId('root');
+        await user.click(screen.getByText('Set 1'));
+        expect(root).to.have.attribute('data-activation-direction', 'down');
 
-      expect(root).to.have.attribute('data-activation-direction', 'none');
-
-      await setProps({ value: 2 });
-      await flushMicrotasks();
-
-      expect(root).to.have.attribute('data-activation-direction', 'down');
-
-      await setProps({ value: 1 });
-      await flushMicrotasks();
-
-      expect(root).to.have.attribute('data-activation-direction', 'up');
+        await user.click(screen.getByText('Set 0'));
+        expect(root).to.have.attribute('data-activation-direction', 'up');
+      });
     });
   });
 
