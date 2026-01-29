@@ -16,11 +16,11 @@ const values = ['a', 'b', 'c'];
   }}
 />;
 
-const readonlyValues = ['a', 'b', 'c'] as const;
-type ReadonlyValue = (typeof readonlyValues)[number];
+const narrowedValues = ['a', 'b', 'c'] as const;
+type ReadonlyValue = (typeof narrowedValues)[number];
 
 <ToggleGroup
-  value={readonlyValues}
+  value={narrowedValues}
   onValueChange={(value) => {
     expectType<ReadonlyValue[], typeof value>(value);
   }}
