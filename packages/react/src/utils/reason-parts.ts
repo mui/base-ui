@@ -21,6 +21,7 @@ export const inputPaste = 'input-paste' as const;
 
 export const focusOut = 'focus-out' as const;
 export const escapeKey = 'escape-key' as const;
+export const closeWatcher = 'close-watcher' as const;
 export const listNavigation = 'list-navigation' as const;
 export const keyboard = 'keyboard' as const;
 

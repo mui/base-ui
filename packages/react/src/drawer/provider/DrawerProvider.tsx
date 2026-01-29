@@ -3,20 +3,21 @@ import * as React from 'react';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import {
   DrawerProviderContext,
-  type DrawerFrontmostHeightStore,
-  type DrawerSwipeProgressStore,
+  type DrawerVisualState,
+  type DrawerVisualStateStore,
 } from './DrawerProviderContext';
 
 /**
  * Provides a shared context for coordinating global Drawer UI,
  * such as indent/background effects based on whether any Drawer is open.
+ *
+ * Documentation: [Base UI Drawer](https://base-ui.com/react/components/drawer)
  */
 export function DrawerProvider(props: DrawerProvider.Props) {
   const { children } = props;
 
   const [openById, setOpenById] = React.useState(() => new Map<string, boolean>());
-  const [swipeProgressStore] = React.useState(createSwipeProgressStore);
-  const [frontmostHeightStore] = React.useState(createFrontmostHeightStore);
+  const [visualStateStore] = React.useState(createVisualStateStore);
 
   const setDrawerOpen = useStableCallback((drawerId: string, open: boolean) => {
     setOpenById((prev) => {
@@ -55,10 +56,9 @@ export function DrawerProvider(props: DrawerProvider.Props) {
       setDrawerOpen,
       removeDrawer,
       active,
-      swipeProgressStore,
-      frontmostHeightStore,
+      visualStateStore,
     }),
-    [active, frontmostHeightStore, removeDrawer, setDrawerOpen, swipeProgressStore],
+    [active, removeDrawer, setDrawerOpen, visualStateStore],
   );
 
   return (
@@ -77,47 +77,42 @@ export namespace DrawerProvider {
   export type Props = DrawerProviderProps;
 }
 
-type SwipeProgressListener = () => void;
+type VisualStateListener = () => void;
 
-function createSwipeProgressStore(): DrawerSwipeProgressStore {
-  let progress = 0;
-  const listeners = new Set<SwipeProgressListener>();
-
-  return {
-    getSnapshot: () => progress,
-    set(nextProgress) {
-      const resolvedProgress = Number.isFinite(nextProgress) ? nextProgress : 0;
-      if (resolvedProgress === progress) {
-        return;
-      }
-
-      progress = resolvedProgress;
-      listeners.forEach((listener) => {
-        listener();
-      });
-    },
-    subscribe(listener) {
-      listeners.add(listener);
-      return () => {
-        listeners.delete(listener);
-      };
-    },
+function createVisualStateStore(): DrawerVisualStateStore {
+  let state: DrawerVisualState = {
+    swipeProgress: 0,
+    frontmostHeight: 0,
   };
-}
-
-function createFrontmostHeightStore(): DrawerFrontmostHeightStore {
-  let height = 0;
-  const listeners = new Set<SwipeProgressListener>();
+  const listeners = new Set<VisualStateListener>();
 
   return {
-    getSnapshot: () => height,
-    set(nextHeight) {
-      const resolvedHeight = Number.isFinite(nextHeight) ? nextHeight : 0;
-      if (resolvedHeight === height) {
+    getSnapshot: () => state,
+    set(nextState) {
+      let nextSwipeProgress = state.swipeProgress;
+      if (nextState.swipeProgress !== undefined) {
+        nextSwipeProgress = Number.isFinite(nextState.swipeProgress) ? nextState.swipeProgress : 0;
+      }
+
+      let nextFrontmostHeight = state.frontmostHeight;
+      if (nextState.frontmostHeight !== undefined) {
+        nextFrontmostHeight = Number.isFinite(nextState.frontmostHeight)
+          ? nextState.frontmostHeight
+          : 0;
+      }
+
+      if (
+        nextSwipeProgress === state.swipeProgress &&
+        nextFrontmostHeight === state.frontmostHeight
+      ) {
         return;
       }
 
-      height = resolvedHeight;
+      state = {
+        swipeProgress: nextSwipeProgress,
+        frontmostHeight: nextFrontmostHeight,
+      };
+
       listeners.forEach((listener) => {
         listener();
       });

@@ -31,13 +31,10 @@ export const DrawerBackdrop = React.forwardRef(function DrawerBackdrop(
   const mounted = store.useState('mounted');
   const transitionStatus = store.useState('transitionStatus');
 
-  const state: DrawerBackdrop.State = React.useMemo(
-    () => ({
-      open,
-      transitionStatus,
-    }),
-    [open, transitionStatus],
-  );
+  const state: DrawerBackdrop.State = {
+    open,
+    transitionStatus,
+  };
 
   return useRenderElement('div', componentProps, {
     state,
