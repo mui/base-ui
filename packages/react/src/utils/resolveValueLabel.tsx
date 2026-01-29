@@ -6,6 +6,7 @@ type ItemRecord = Record<string, React.ReactNode>;
 type ItemsInput =
   | ItemRecord
   | ReadonlyArray<LabeledItem>
+  | ReadonlyArray<Group<any>>
   | ReadonlyArray<Group<LabeledItem>>
   | undefined;
 
