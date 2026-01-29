@@ -373,6 +373,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
         inline: inlineProp,
         activeIndex: null,
         selectedIndex: null,
+        highlightReason: 'none',
         popupProps: {},
         inputProps: {},
         triggerProps: {},
@@ -465,8 +466,17 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       selectedIndex?: (number | null) | undefined;
       type?: ('none' | 'keyboard' | 'pointer') | undefined;
     }) => {
-      store.update(options);
-      const type: AriaCombobox.HighlightEventReason = options.type || 'none';
+      const { type: highlightType, ...indices } = options;
+      const type: AriaCombobox.HighlightEventReason = highlightType || 'none';
+
+      store.update(
+        options.activeIndex === undefined
+          ? indices
+          : {
+              ...indices,
+              highlightReason: type,
+            },
+      );
 
       if (options.activeIndex === undefined) {
         return;

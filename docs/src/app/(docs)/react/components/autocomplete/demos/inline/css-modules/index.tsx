@@ -7,7 +7,9 @@ export default function ExampleAutocompleteInline() {
     <Autocomplete.Root items={tags} mode="both">
       <label className={styles.Label}>
         Search tags
-        <Autocomplete.Input placeholder="e.g. feature" className={styles.Input} />
+        <Autocomplete.InputGroup className={styles.InputGroup}>
+          <Autocomplete.Input placeholder="e.g. feature" className={styles.Input} />
+        </Autocomplete.InputGroup>
       </label>
 
       <Autocomplete.Portal>

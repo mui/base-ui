@@ -13,7 +13,7 @@ export default function ExampleMultipleCombobox() {
           Programming languages
         </label>
         <Combobox.InputGroup
-          className="w-64 rounded-md border border-gray-200 bg-[canvas] px-1.5 py-1 focus-within:outline focus-within:outline-2 focus-within:-outline-offset-1 focus-within:outline-blue-800 min-[500px]:w-[22rem]"
+          className="w-64 rounded-md border border-gray-200 bg-[canvas] px-1.5 py-1 focus-within:outline focus-within:outline-1 focus-within:-outline-offset-1 focus-within:outline-blue-800 data-[highlighted]:outline-2 min-[500px]:w-[22rem]"
           ref={containerRef}
         >
           <Combobox.Chips className="flex w-full flex-wrap items-center gap-0.5">

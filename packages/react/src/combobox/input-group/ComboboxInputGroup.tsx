@@ -6,6 +6,7 @@ import { useRenderElement } from '../../utils/useRenderElement';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import type { FieldRoot } from '../../field/root/FieldRoot';
+import { contains } from '../../floating-ui-react/utils';
 import {
   useComboboxDerivedItemsContext,
   useComboboxRootContext,
@@ -36,11 +37,16 @@ export const ComboboxInputGroup = React.forwardRef(function ComboboxInputGroup(
   const readOnly = useStore(store, selectors.readOnly);
   const hasSelectedValue = useStore(store, selectors.hasSelectedValue);
   const selectionMode = useStore(store, selectors.selectionMode);
+  const activeIndex = useStore(store, selectors.activeIndex);
+  const highlightReason = useStore(store, selectors.highlightReason);
+
+  const [focusWithin, setFocusWithin] = React.useState(false);
 
   const popupSide = mounted && positionerElement ? popupSideValue : null;
   const disabled = fieldDisabled || comboboxDisabled || disabledProp;
   const listEmpty = filteredItems.length === 0;
   const placeholder = selectionMode === 'none' ? false : !hasSelectedValue;
+  const highlighted = focusWithin && activeIndex === null && highlightReason === 'keyboard';
 
   const state: ComboboxInputGroup.State = React.useMemo(
     () => ({
@@ -51,8 +57,9 @@ export const ComboboxInputGroup = React.forwardRef(function ComboboxInputGroup(
       popupSide,
       listEmpty,
       placeholder,
+      highlighted,
     }),
-    [fieldState, open, disabled, readOnly, popupSide, listEmpty, placeholder],
+    [fieldState, open, disabled, readOnly, popupSide, listEmpty, placeholder, highlighted],
   );
 
   const setInputGroupElement = useStableCallback((element: HTMLDivElement | null) => {
@@ -61,7 +68,21 @@ export const ComboboxInputGroup = React.forwardRef(function ComboboxInputGroup(
 
   return useRenderElement('div', componentProps, {
     ref: [forwardedRef, setInputGroupElement],
-    props: [elementProps],
+    props: [
+      elementProps,
+      {
+        onFocus() {
+          setFocusWithin(true);
+        },
+        onBlur(event) {
+          const relatedTarget = event.relatedTarget as Element | null;
+          if (contains(event.currentTarget, relatedTarget)) {
+            return;
+          }
+          setFocusWithin(false);
+        },
+      },
+    ],
     state,
     stateAttributesMapping: triggerStateAttributesMapping,
   });
@@ -92,6 +113,11 @@ export interface ComboboxInputGroupState extends FieldRoot.State {
    * Whether the combobox doesn't have a value.
    */
   placeholder: boolean;
+  /**
+   * Present when no item is highlighted in the list, focus is within the input group,
+   * and the last highlight change was from keyboard navigation.
+   */
+  highlighted: boolean;
 }
 
 export interface ComboboxInputGroupProps extends BaseUIComponentProps<
@@ -102,7 +128,7 @@ export interface ComboboxInputGroupProps extends BaseUIComponentProps<
    * Whether the component should ignore user interaction.
    * @default false
    */
-  disabled?: boolean;
+  disabled?: boolean | undefined;
 }
 
 export namespace ComboboxInputGroup {

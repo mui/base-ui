@@ -27,6 +27,7 @@ export type State = {
 
   activeIndex: number | null;
   selectedIndex: number | null;
+  highlightReason: AriaCombobox.HighlightEventReason;
 
   popupProps: HTMLProps;
   inputProps: HTMLProps;
@@ -128,6 +129,7 @@ export const selectors = {
 
   activeIndex: createSelector((state: State) => state.activeIndex),
   selectedIndex: createSelector((state: State) => state.selectedIndex),
+  highlightReason: createSelector((state: State) => state.highlightReason),
   isActive: createSelector((state: State, index: number) => state.activeIndex === index),
   isSelected: createSelector((state: State, candidate: any) => {
     const comparer = state.isItemEqualToValue;

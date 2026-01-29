@@ -48,4 +48,9 @@ export enum ComboboxInputGroupDataAttributes {
    * Present when the combobox doesn't have a value.
    */
   placeholder = 'data-placeholder',
+  /**
+   * Present when no item is highlighted in the list, focus is within the input group,
+   * and the last highlight change was from keyboard navigation.
+   */
+  highlighted = 'data-highlighted',
 }

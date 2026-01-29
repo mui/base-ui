@@ -26,12 +26,12 @@ export default function ExamplePopoverCombobox() {
               className="[--input-container-height:3rem] origin-[var(--transform-origin)] max-w-[var(--available-width)] max-h-[24rem] rounded-lg bg-[canvas] shadow-lg shadow-gray-200 text-gray-900 outline-1 outline-gray-200 transition-[transform,scale,opacity] data-[ending-style]:scale-90 data-[ending-style]:opacity-0 data-[starting-style]:scale-90 data-[starting-style]:opacity-0 dark:shadow-none dark:-outline-offset-1 dark:outline-gray-300"
               aria-label="Select country"
             >
-              <div className="w-80 h-[var(--input-container-height)] text-center p-2">
+              <Combobox.InputGroup className="group w-80 h-[var(--input-container-height)] text-center p-2">
                 <Combobox.Input
                   placeholder="e.g. United Kingdom"
-                  className="h-10 w-full font-normal rounded-md border border-gray-200 pl-3.5 text-base text-gray-900 focus:outline focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800"
+                  className="h-10 w-full font-normal rounded-md border border-gray-200 pl-3.5 text-base text-gray-900 focus:outline focus:outline-1 focus:-outline-offset-1 focus:outline-blue-800 group-data-[highlighted]:outline-2"
                 />
-              </div>
+              </Combobox.InputGroup>
               <Combobox.Empty className="p-4 text-[0.925rem] leading-4 text-gray-600 empty:m-0 empty:p-0">
                 No countries found.
               </Combobox.Empty>

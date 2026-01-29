@@ -27,8 +27,12 @@
   width: 16rem;
 
   &:focus-within {
-    outline: 2px solid var(--color-blue);
+    outline: 1px solid var(--color-blue);
     outline-offset: -1px;
+  }
+
+  &[data-highlighted] {
+    outline-width: 2px;
   }
 
   @media (min-width: 500px) {
