@@ -11,13 +11,6 @@ export function preventScrollIOS(referenceElement: Element | null = null) {
   const doc = ownerDocument(referenceElement);
   const win = ownerWindow(doc);
 
-  function isStylusTouch(event: TouchEvent) {
-    const touch = event.touches[0] ?? event.changedTouches[0];
-    const touchType = (touch as { touchType?: string | undefined } | undefined)?.touchType;
-    const pointerType = (event as { pointerType?: string | undefined } | undefined)?.pointerType;
-    return touchType === 'stylus' || touchType === 'pen' || pointerType === 'pen';
-  }
-
   function isScrollable(element: Element | null) {
     if (!element) {
       return false;
@@ -307,6 +300,13 @@ function preventScrollInsetScrollbars(referenceElement: Element | null) {
       win.removeEventListener('resize', handleResize);
     }
   };
+}
+
+function isStylusTouch(event: TouchEvent) {
+  const touch = event.touches[0] ?? event.changedTouches[0];
+  const touchType = (touch as { touchType?: string | undefined } | undefined)?.touchType;
+  const pointerType = (event as { pointerType?: string | undefined } | undefined)?.pointerType;
+  return touchType === 'stylus' || touchType === 'pen' || pointerType === 'pen';
 }
 
 class ScrollLocker {
