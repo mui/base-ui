@@ -25,6 +25,7 @@ interface ReasonToEventMap {
 
   [REASONS.focusOut]: FocusEvent | KeyboardEvent;
   [REASONS.escapeKey]: KeyboardEvent;
+  [REASONS.closeWatcher]: Event;
   [REASONS.listNavigation]: KeyboardEvent;
   [REASONS.keyboard]: KeyboardEvent;
 
