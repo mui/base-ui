@@ -172,21 +172,18 @@ export class ToastStore extends ReactStore<State, {}, typeof selectors> {
   };
 
   updateToast = <Data extends object>(id: string, updates: ToastManagerUpdateOptions<Data>) => {
-    const index = selectors.toastIndex(this.state, id);
-    if (index === -1) {
+    const { timeout, toasts } = this.state;
+    const prevToast = selectors.toast(this.state, id) ?? null;
+    const nextToast = prevToast ? { ...prevToast, ...updates } : null;
+
+    this.setToasts(toasts.map((toast) => (toast.id === id ? { ...toast, ...updates } : toast)));
+
+    if (!nextToast) {
       return;
     }
 
-    const { toasts, timeout } = this.state;
-    const prevToast = toasts[index];
-    const nextToast = { ...prevToast, ...updates };
-
-    const newToasts = [...toasts];
-    newToasts.splice(index, 1, nextToast);
-    this.setToasts(newToasts);
-
     const nextTimeout = nextToast.timeout ?? timeout;
-    const prevTimeout = prevToast.timeout ?? timeout;
+    const prevTimeout = prevToast?.timeout ?? timeout;
 
     const timeoutUpdated = Object.hasOwn(updates, 'timeout');
 
@@ -195,7 +192,7 @@ export class ToastStore extends ReactStore<State, {}, typeof selectors> {
 
     const hasTimer = this.timers.has(id);
     const timeoutChanged = prevTimeout !== nextTimeout;
-    const wasLoading = prevToast.type === 'loading';
+    const wasLoading = prevToast?.type === 'loading';
 
     if (!shouldHaveTimer && hasTimer) {
       const timer = this.timers.get(id);
