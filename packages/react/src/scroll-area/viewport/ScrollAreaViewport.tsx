@@ -17,6 +17,7 @@ import { onVisible } from '../utils/onVisible';
 import { scrollAreaStateAttributesMapping } from '../root/stateAttributes';
 import type { ScrollAreaRoot } from '../root/ScrollAreaRoot';
 import { ScrollAreaViewportCssVars } from './ScrollAreaViewportCssVars';
+import { normalizeScrollOffset } from '../utils/scrollEdges';
 
 // Module-level flag to ensure we only register the CSS properties once,
 // regardless of how many Scroll Area components are mounted.
@@ -135,15 +136,20 @@ export const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
     let scrollLeftFromStart = 0;
     let scrollLeftFromEnd = 0;
     if (!scrollbarXHidden) {
+      let rawScrollLeftFromStart = 0;
       if (direction === 'rtl') {
-        scrollLeftFromStart = clamp(-scrollLeft, 0, maxScrollLeft);
+        rawScrollLeftFromStart = clamp(-scrollLeft, 0, maxScrollLeft);
       } else {
-        scrollLeftFromStart = clamp(scrollLeft, 0, maxScrollLeft);
+        rawScrollLeftFromStart = clamp(scrollLeft, 0, maxScrollLeft);
       }
+      scrollLeftFromStart = normalizeScrollOffset(rawScrollLeftFromStart, maxScrollLeft);
       scrollLeftFromEnd = maxScrollLeft - scrollLeftFromStart;
     }
 
-    const scrollTopFromStart = !scrollbarYHidden ? clamp(scrollTop, 0, maxScrollTop) : 0;
+    const rawScrollTopFromStart = !scrollbarYHidden ? clamp(scrollTop, 0, maxScrollTop) : 0;
+    const scrollTopFromStart = !scrollbarYHidden
+      ? normalizeScrollOffset(rawScrollTopFromStart, maxScrollTop)
+      : 0;
     const scrollTopFromEnd = !scrollbarYHidden ? maxScrollTop - scrollTopFromStart : 0;
     const nextWidth = scrollbarXHidden ? 0 : viewportWidth;
     const nextHeight = scrollbarYHidden ? 0 : viewportHeight;
@@ -221,16 +227,11 @@ export const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
       thumbXEl.style.transform = `translate3d(${thumbOffsetX}px,0,0)`;
     }
 
-    const clampedScrollLeftStart = clamp(scrollLeftFromStart, 0, maxScrollLeft);
-    const clampedScrollLeftEnd = clamp(scrollLeftFromEnd, 0, maxScrollLeft);
-    const clampedScrollTopStart = clamp(scrollTopFromStart, 0, maxScrollTop);
-    const clampedScrollTopEnd = clamp(scrollTopFromEnd, 0, maxScrollTop);
-
     const overflowMetricsPx: Array<[ScrollAreaViewportCssVars, number]> = [
-      [ScrollAreaViewportCssVars.scrollAreaOverflowXStart, clampedScrollLeftStart],
-      [ScrollAreaViewportCssVars.scrollAreaOverflowXEnd, clampedScrollLeftEnd],
-      [ScrollAreaViewportCssVars.scrollAreaOverflowYStart, clampedScrollTopStart],
-      [ScrollAreaViewportCssVars.scrollAreaOverflowYEnd, clampedScrollTopEnd],
+      [ScrollAreaViewportCssVars.scrollAreaOverflowXStart, scrollLeftFromStart],
+      [ScrollAreaViewportCssVars.scrollAreaOverflowXEnd, scrollLeftFromEnd],
+      [ScrollAreaViewportCssVars.scrollAreaOverflowYStart, scrollTopFromStart],
+      [ScrollAreaViewportCssVars.scrollAreaOverflowYEnd, scrollTopFromEnd],
     ];
 
     for (const [cssVar, value] of overflowMetricsPx) {
@@ -264,10 +265,10 @@ export const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
     });
 
     const nextOverflowEdges = {
-      xStart: !scrollbarXHidden && clampedScrollLeftStart > overflowEdgeThreshold.xStart,
-      xEnd: !scrollbarXHidden && clampedScrollLeftEnd > overflowEdgeThreshold.xEnd,
-      yStart: !scrollbarYHidden && clampedScrollTopStart > overflowEdgeThreshold.yStart,
-      yEnd: !scrollbarYHidden && clampedScrollTopEnd > overflowEdgeThreshold.yEnd,
+      xStart: !scrollbarXHidden && scrollLeftFromStart > overflowEdgeThreshold.xStart,
+      xEnd: !scrollbarXHidden && scrollLeftFromEnd > overflowEdgeThreshold.xEnd,
+      yStart: !scrollbarYHidden && scrollTopFromStart > overflowEdgeThreshold.yStart,
+      yEnd: !scrollbarYHidden && scrollTopFromEnd > overflowEdgeThreshold.yEnd,
     };
 
     setOverflowEdges((prev) => {
