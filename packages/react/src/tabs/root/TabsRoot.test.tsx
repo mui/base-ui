@@ -1346,6 +1346,58 @@ describe('<Tabs.Root />', () => {
 
       expect(root).to.have.attribute('data-activation-direction', 'up');
     });
+
+    it('should set `data-activation-direction` when value is changed programmatically with orientation=horizontal', async () => {
+      const { setProps } = await render(
+        <Tabs.Root data-testid="root" value={0}>
+          <Tabs.List>
+            <Tabs.Tab value={0} />
+            <Tabs.Tab value={1} />
+            <Tabs.Tab value={2} />
+          </Tabs.List>
+        </Tabs.Root>,
+      );
+
+      const root = screen.getByTestId('root');
+
+      expect(root).to.have.attribute('data-activation-direction', 'none');
+
+      await setProps({ value: 2 });
+      await flushMicrotasks();
+
+      expect(root).to.have.attribute('data-activation-direction', 'right');
+
+      await setProps({ value: 1 });
+      await flushMicrotasks();
+
+      expect(root).to.have.attribute('data-activation-direction', 'left');
+    });
+
+    it('should set `data-activation-direction` when value is changed programmatically with orientation=vertical', async () => {
+      const { setProps } = await render(
+        <Tabs.Root data-testid="root" value={0} orientation="vertical">
+          <Tabs.List>
+            <Tabs.Tab value={0} style={{ display: 'block' }} />
+            <Tabs.Tab value={1} style={{ display: 'block' }} />
+            <Tabs.Tab value={2} style={{ display: 'block' }} />
+          </Tabs.List>
+        </Tabs.Root>,
+      );
+
+      const root = screen.getByTestId('root');
+
+      expect(root).to.have.attribute('data-activation-direction', 'none');
+
+      await setProps({ value: 2 });
+      await flushMicrotasks();
+
+      expect(root).to.have.attribute('data-activation-direction', 'down');
+
+      await setProps({ value: 1 });
+      await flushMicrotasks();
+
+      expect(root).to.have.attribute('data-activation-direction', 'up');
+    });
   });
 
   describe('popups', () => {
