@@ -3,7 +3,6 @@ import { spy } from 'sinon';
 import { createTemporalRenderer } from '#test-utils';
 import { DateFieldStore } from '../../../../date-field/root/DateFieldStore';
 import { TimeFieldStore } from '../../../../time-field/root/TimeFieldStore';
-import { TemporalFieldValuePlugin } from './TemporalFieldValuePlugin';
 import { TemporalFieldSectionPlugin } from './TemporalFieldSectionPlugin';
 
 describe('TemporalFieldValuePlugin', () => {

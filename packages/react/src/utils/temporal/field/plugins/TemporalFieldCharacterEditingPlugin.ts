@@ -28,7 +28,7 @@ const characterEditingSelectors = {
  * Plugin to update the value of a date part when pressing a digit or letter key.
  */
 export class TemporalFieldCharacterEditingPlugin<TValue extends TemporalSupportedValue> {
-  private store: TemporalFieldStore<TValue, any>;
+  private store: TemporalFieldStore<TValue>;
 
   public static selectors = characterEditingSelectors;
 
@@ -383,7 +383,7 @@ function isQueryResponseWithoutValue(
 }
 
 function syncCharacterQueryWithSections<TValue extends TemporalSupportedValue>(
-  store: TemporalFieldStore<TValue, any>,
+  store: TemporalFieldStore<TValue>,
 ) {
   const selector = createSelectorMemoized(
     characterEditingSelectors.characterQuery,

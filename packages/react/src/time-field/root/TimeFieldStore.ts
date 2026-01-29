@@ -64,7 +64,7 @@ const STEP_MULTIPLIERS: Partial<Record<TemporalFieldDatePartType, number>> = {
   seconds: 1,
 };
 
-const config: TemporalFieldConfiguration<TemporalValue, ValidateTimeValidationProps> = {
+const config: TemporalFieldConfiguration<TemporalValue> = {
   getManager: getTimeManager,
   getSectionsFromValue: (date, getSectionsFromDate) => getSectionsFromDate(date),
   getDateFromSection: (value) => value,
@@ -109,7 +109,7 @@ const config: TemporalFieldConfiguration<TemporalValue, ValidateTimeValidationPr
   },
 };
 
-export class TimeFieldStore extends TemporalFieldStore<TemporalValue, ValidateTimeValidationProps> {
+export class TimeFieldStore extends TemporalFieldStore<TemporalValue> {
   constructor(parameters: TimeFieldStoreParameters) {
     const { validationProps, adapter, direction, ampm, ...sharedParameters } = parameters;
 

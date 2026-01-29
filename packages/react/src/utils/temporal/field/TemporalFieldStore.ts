@@ -7,6 +7,7 @@ import {
   TemporalFieldState,
   TemporalFieldStoreSharedParameters,
   TemporalFieldConfiguration,
+  TemporalFieldValidationProps,
 } from './types';
 import { FormatParser } from './formatParser';
 import { buildSections, deriveStateFromParameters, getTimezoneToRender } from './utils';
@@ -22,10 +23,9 @@ import { TemporalFieldFormatPlugin } from './plugins/TemporalFieldFormatPlugin';
 import { TemporalFieldDOMPlugin } from './plugins/TemporalFieldDOMPlugin';
 import { TemporalFieldRootPropsPlugin } from './plugins/TemporalFieldRootPropsPlugin';
 
-export class TemporalFieldStore<
-  TValue extends TemporalSupportedValue,
-  TValidationProps extends object,
-> extends Store<TemporalFieldState<TValue, TValidationProps>> {
+export class TemporalFieldStore<TValue extends TemporalSupportedValue> extends Store<
+  TemporalFieldState<TValue>
+> {
   public parameters: TemporalFieldStoreSharedParameters<TValue>;
 
   private initialParameters: TemporalFieldStoreSharedParameters<TValue> | null = null;
@@ -38,7 +38,7 @@ export class TemporalFieldStore<
 
   public valueAdjustment: TemporalFieldValueAdjustmentPlugin<TValue>;
 
-  public value: TemporalFieldValuePlugin<TValue, TValidationProps>;
+  public value: TemporalFieldValuePlugin<TValue>;
 
   public section: TemporalFieldSectionPlugin<TValue>;
 
@@ -54,9 +54,9 @@ export class TemporalFieldStore<
 
   constructor(
     parameters: TemporalFieldStoreSharedParameters<TValue>,
-    validationProps: TValidationProps,
+    validationProps: TemporalFieldValidationProps,
     adapter: TemporalAdapter,
-    config: TemporalFieldConfiguration<TValue, TValidationProps>,
+    config: TemporalFieldConfiguration<TValue>,
     direction: TextDirection,
     instanceName: string,
   ) {
@@ -112,7 +112,7 @@ export class TemporalFieldStore<
 
     this.characterEditing = new TemporalFieldCharacterEditingPlugin<TValue>(this);
     this.valueAdjustment = new TemporalFieldValueAdjustmentPlugin<TValue>(this);
-    this.value = new TemporalFieldValuePlugin<TValue, TValidationProps>(this);
+    this.value = new TemporalFieldValuePlugin<TValue>(this);
     this.section = new TemporalFieldSectionPlugin<TValue>(this);
     this.format = new TemporalFieldFormatPlugin<TValue>(this);
     this.dom = new TemporalFieldDOMPlugin(this);
@@ -144,13 +144,13 @@ export class TemporalFieldStore<
    */
   protected updateStateFromParameters(
     parameters: TemporalFieldStoreSharedParameters<TValue>,
-    validationProps: TValidationProps,
+    validationProps: TemporalFieldValidationProps,
     adapter: TemporalAdapter,
-    config: TemporalFieldConfiguration<TValue, TValidationProps>,
+    config: TemporalFieldConfiguration<TValue>,
     direction: TextDirection,
   ) {
     const updateModel: TemporalFieldModelUpdater<
-      TemporalFieldState<TValue, TValidationProps>,
+      TemporalFieldState<TValue>,
       TemporalFieldStoreSharedParameters<TValue>
     > = (mutableNewState, controlledProp, defaultProp) => {
       if (parameters[controlledProp] !== undefined) {
@@ -188,7 +188,7 @@ export class TemporalFieldStore<
       adapter,
       config,
       direction,
-    ) as Partial<TemporalFieldState<TValue, TValidationProps>>;
+    ) as Partial<TemporalFieldState<TValue>>;
 
     // If the format changed, we need to rebuild the sections
     const hasFormatChanged =
@@ -247,7 +247,7 @@ export class TemporalFieldStore<
    * Registers an effect to be run when the value returned by the selector changes.
    */
   public registerStoreEffect = <Value>(
-    selector: (state: TemporalFieldState<TValue, TValidationProps>) => Value,
+    selector: (state: TemporalFieldState<TValue>) => Value,
     effect: (previous: Value, next: Value) => void,
   ) => {
     let previousValue = selector(this.state);

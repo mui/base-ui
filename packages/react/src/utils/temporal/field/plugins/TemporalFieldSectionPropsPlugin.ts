@@ -79,7 +79,7 @@ const sectionPropsSelectors = {
  * Plugin to build the props to pass to the section part.
  */
 export class TemporalFieldSectionPropsPlugin<TValue extends TemporalSupportedValue> {
-  private store: TemporalFieldStore<TValue, any>;
+  private store: TemporalFieldStore<TValue>;
 
   public static selectors = sectionPropsSelectors;
 

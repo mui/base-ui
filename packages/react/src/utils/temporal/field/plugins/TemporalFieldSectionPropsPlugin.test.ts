@@ -4,7 +4,6 @@ import { DateFieldStore } from '../../../../date-field/root/DateFieldStore';
 import { TimeFieldStore } from '../../../../time-field/root/TimeFieldStore';
 import { TemporalFieldSectionPropsPlugin } from './TemporalFieldSectionPropsPlugin';
 import { TemporalFieldSectionPlugin } from './TemporalFieldSectionPlugin';
-import { isDatePart, isSeparator } from '../utils';
 
 describe('TemporalFieldSectionPropsPlugin', () => {
   const { adapter } = createTemporalRenderer();
@@ -18,7 +17,10 @@ describe('TemporalFieldSectionPropsPlugin', () => {
 
   function getProps(store: DateFieldStore | TimeFieldStore, sectionIndex: number) {
     const sections = getSections(store);
-    return TemporalFieldSectionPropsPlugin.selectors.sectionProps(store.state, sections[sectionIndex]);
+    return TemporalFieldSectionPropsPlugin.selectors.sectionProps(
+      store.state,
+      sections[sectionIndex],
+    );
   }
 
   describe('date part sections', () => {

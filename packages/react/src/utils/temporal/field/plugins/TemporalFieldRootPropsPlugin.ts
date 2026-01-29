@@ -72,7 +72,7 @@ const rootPropsSelectors = {
  * Plugin to build the props to pass to the root part.
  */
 export class TemporalFieldRootPropsPlugin {
-  private store: TemporalFieldStore<any, any>;
+  private store: TemporalFieldStore<any>;
 
   public static selectors = rootPropsSelectors;
 

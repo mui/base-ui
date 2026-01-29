@@ -9,7 +9,7 @@ import { TemporalFieldSectionPlugin } from './TemporalFieldSectionPlugin';
  * Plugin to adjust the value of the active section when pressing ArrowUp, ArrowDown, PageUp, PageDown, Home or End.
  */
 export class TemporalFieldValueAdjustmentPlugin<TValue extends TemporalSupportedValue> {
-  private store: TemporalFieldStore<TValue, any>;
+  private store: TemporalFieldStore<TValue>;
 
   private static queryLifeDuration = 5000;
 

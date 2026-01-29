@@ -25,11 +25,8 @@ const valueSelectors = {
 /**
  * Plugin to interact with the entire field value.
  */
-export class TemporalFieldValuePlugin<
-  TValue extends TemporalSupportedValue,
-  TValidationProps extends object,
-> {
-  private store: TemporalFieldStore<TValue, TValidationProps>;
+export class TemporalFieldValuePlugin<TValue extends TemporalSupportedValue> {
+  private store: TemporalFieldStore<TValue>;
 
   public static selectors = valueSelectors;
 

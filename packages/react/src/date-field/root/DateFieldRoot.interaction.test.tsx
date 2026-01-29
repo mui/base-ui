@@ -1,7 +1,6 @@
 import { expect } from 'chai';
 import { spy } from 'sinon';
 import { screen, fireEvent } from '@mui/internal-test-utils';
-import { isJSDOM } from '#test-utils';
 import { DateField as DateFieldBase } from '@base-ui/react/date-field';
 import { createRenderer, createTemporalRenderer } from '#test-utils';
 

@@ -21,6 +21,7 @@ import {
   TemporalFieldConfiguration,
   TemporalFieldSeparator,
   TemporalFieldDatePart,
+  TemporalFieldValidationProps,
 } from './types';
 
 /**
@@ -43,14 +44,11 @@ export const DATE_PART_GRANULARITY: Record<string, number> = {
  * Returns the properties of the state that are derived from the parameters.
  * This do not contain state properties that don't update whenever the parameters update.
  */
-export function deriveStateFromParameters<
-  TValue extends TemporalSupportedValue,
-  TValidationProps extends object,
->(
+export function deriveStateFromParameters<TValue extends TemporalSupportedValue>(
   parameters: TemporalFieldStoreSharedParameters<TValue>,
-  validationProps: TValidationProps,
+  validationProps: TemporalFieldValidationProps,
   adapter: TemporalAdapter,
-  config: TemporalFieldConfiguration<TValue, TValidationProps>,
+  config: TemporalFieldConfiguration<TValue>,
   direction: TextDirection,
 ) {
   return {

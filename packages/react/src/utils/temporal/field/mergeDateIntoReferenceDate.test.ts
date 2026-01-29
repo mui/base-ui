@@ -157,14 +157,12 @@ describe('mergeDateIntoReferenceDate', () => {
         validationProps: {},
       });
 
-      const sections = TemporalFieldSectionPlugin.selectors.sections(store.state).map(
-        (section, index) => {
-          if ('token' in section && section.token.config.part === 'month') {
-            return { ...section, modified: true };
-          }
-          return { ...section, modified: false };
-        },
-      );
+      const sections = TemporalFieldSectionPlugin.selectors.sections(store.state).map((section) => {
+        if ('token' in section && section.token.config.part === 'month') {
+          return { ...section, modified: true };
+        }
+        return { ...section, modified: false };
+      });
 
       const source = adapter.date('2030-09-25', 'default');
       const reference = adapter.date('2024-03-15', 'default');
@@ -186,9 +184,9 @@ describe('mergeDateIntoReferenceDate', () => {
         validationProps: {},
       });
 
-      const sections = TemporalFieldSectionPlugin.selectors.sections(store.state).map(
-        (section) => ({ ...section, modified: false }),
-      );
+      const sections = TemporalFieldSectionPlugin.selectors
+        .sections(store.state)
+        .map((section) => ({ ...section, modified: false }));
 
       const source = adapter.date('2030-09-25', 'default');
       const reference = adapter.date('2024-03-15', 'default');
@@ -272,7 +270,9 @@ describe('mergeDateIntoReferenceDate', () => {
       const sections = TemporalFieldSectionPlugin.selectors.sections(store.state);
 
       // Verify that there are separator sections in the format (MM/DD/YYYY has 2 separators)
-      const separatorCount = sections.filter((s) => !('token' in s) || s.token.config.part === undefined).length;
+      const separatorCount = sections.filter(
+        (s) => !('token' in s) || s.token.config.part === undefined,
+      ).length;
       expect(separatorCount).to.be.greaterThan(0);
 
       // Despite separators, the function should work correctly

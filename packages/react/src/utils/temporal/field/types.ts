@@ -98,10 +98,7 @@ export interface TemporalFieldStoreSharedParameters<
   step?: number | undefined;
 }
 
-export interface TemporalFieldState<
-  TValue extends TemporalSupportedValue = any,
-  TValidationProps extends object = any,
-> {
+export interface TemporalFieldState<TValue extends TemporalSupportedValue = any> {
   /**
    * The timezone as passed to `props.timezone`.
    */
@@ -123,7 +120,7 @@ export interface TemporalFieldState<
    * The config of the field.
    * Not publicly exposed, is only set in state to avoid passing it to the selectors.
    */
-  config: TemporalFieldConfiguration<TValue, TValidationProps>;
+  config: TemporalFieldConfiguration<TValue>;
   /**
    * The adapter of the date library.
    * Not publicly exposed, is only set in state to avoid passing it to the selectors.
@@ -190,7 +187,7 @@ export interface TemporalFieldState<
   /**
    * Props used to check the validity of a date.
    */
-  validationProps: TValidationProps;
+  validationProps: TemporalFieldValidationProps;
   /**
    * The field context from Field.Root.
    * Contains state (disabled, touched, dirty, valid, filled, focused), callbacks (setDirty, setTouched, etc.), and validation.
@@ -308,14 +305,13 @@ export type TemporalFieldValueChangeEventDetails =
  * Configuration of a given field (DateField, TimeField, etc.).
  * It defines how to manipulate the value of the field.
  */
-export interface TemporalFieldConfiguration<
-  TValue extends TemporalSupportedValue,
-  TValidationProps extends {},
-> {
+export interface TemporalFieldConfiguration<TValue extends TemporalSupportedValue> {
   /**
    * Returns the manager of the field.
    */
-  getManager: (adapter: TemporalAdapter) => TemporalManager<TValue, any, TValidationProps>;
+  getManager: (
+    adapter: TemporalAdapter,
+  ) => TemporalManager<TValue, any, TemporalFieldValidationProps>;
   /**
    * Creates the section list from the current value.
    * The `prevSections` are used on the range fields to avoid losing the sections of a partially filled date when editing the other date.
@@ -411,7 +407,7 @@ export interface TemporalFieldConfiguration<
    */
   stringifyValidationPropsForHiddenInput: (
     adapter: TemporalAdapter,
-    validationProps: TValidationProps,
+    validationProps: TemporalFieldValidationProps,
     parsedFormat: TemporalFieldParsedFormat,
     step: number,
   ) => HiddenInputValidationProps;
@@ -435,7 +431,7 @@ export interface TemporalFieldDatePartValueBoundaries {
 }
 
 export type TemporalFieldModelUpdater<
-  State extends TemporalFieldState<any, any>,
+  State extends TemporalFieldState<any>,
   Parameters extends TemporalFieldStoreSharedParameters<any>,
 > = (
   newState: Partial<State>,

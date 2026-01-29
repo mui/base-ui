@@ -37,7 +37,7 @@ const inputPropsSelectors = {
  */
 export class TemporalFieldInputPropsPlugin<TValue extends TemporalSupportedValue> {
   public static selectors = inputPropsSelectors;
-  private store: TemporalFieldStore<TValue, any>;
+  private store: TemporalFieldStore<TValue>;
 
   // We can't type `store`, otherwise we get the following TS error:
   // 'inputProps' implicitly has type 'any' because it does not have a type annotation and is referenced directly or indirectly in its own initializer.
