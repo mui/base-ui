@@ -47,7 +47,7 @@ export interface UseMixedToggleClickHandlerParameters {
    * Whether the mixed toggle click handler is enabled.
    * @default true
    */
-  enabled?: boolean;
+  enabled?: boolean | undefined;
   /**
    * Determines what action is performed on mousedown.
    */

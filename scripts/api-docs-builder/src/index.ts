@@ -13,6 +13,7 @@ import { globby } from 'globby';
 import { syncPageIndex } from '@mui/internal-docs-infra/pipeline/syncPageIndex';
 import { isPublicComponent, formatComponentData, extractComponentGroup } from './componentHandler';
 import { isPublicHook, formatHookData } from './hookHandler';
+import { isPublicUtility, formatUtilityData } from './utilityHandler';
 
 const isDebug = inspector.url() !== undefined;
 
@@ -58,6 +59,22 @@ function kebabToPascal(str: string): string {
     .join('');
 }
 
+function isNotReExport(exp: tae.ExportNode & { sourceFilePath?: string }) {
+  // Filter out:
+  // 1. Namespaced exports like "Accordion.Root" (from `export * as Accordion`)
+  // 2. Re-exports/aliases where the export name differs from the type name
+  //    e.g., `export { AccordionRoot as Root }` has name="Root" but typeName="AccordionRoot"
+  if (exp.name.includes('.')) {
+    return false;
+  }
+
+  if (exp.sourceFilePath?.endsWith('.parts.ts')) {
+    return false;
+  }
+
+  return true;
+}
+
 async function run(options: RunOptions) {
   const config = tae.loadConfig(options.configPath);
   const files = await getFilesToProcess(options, config);
@@ -78,7 +95,7 @@ async function run(options: RunOptions) {
     >
   >();
 
-  for (const exportNode of exports.filter(isPublicComponent)) {
+  for (const exportNode of exports.filter(isNotReExport).filter(isPublicComponent)) {
     const componentApiReference = await formatComponentData(exportNode, exports);
     const componentName = exportNode.name; // e.g., "AlertDialogPortal" or "DialogBackdrop"
 
@@ -124,8 +141,13 @@ async function run(options: RunOptions) {
     fs.writeFileSync(path.join(options.out, `${kebabCase(exportNode.name)}.json`), json);
   }
 
-  for (const exportNode of exports.filter(isPublicHook)) {
+  for (const exportNode of exports.filter(isNotReExport).filter(isPublicHook)) {
     const json = JSON.stringify(await formatHookData(exportNode), null, 2) + '\n';
+    fs.writeFileSync(path.join(options.out, `${kebabCase(exportNode.name)}.json`), json);
+  }
+
+  for (const exportNode of exports.filter(isPublicUtility)) {
+    const json = JSON.stringify(await formatUtilityData(exportNode), null, 2) + '\n';
     fs.writeFileSync(path.join(options.out, `${kebabCase(exportNode.name)}.json`), json);
   }
 

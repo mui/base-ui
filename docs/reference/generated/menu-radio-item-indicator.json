@@ -1,6 +1,6 @@
 {
   "name": "MenuRadioItemIndicator",
-  "description": "Indicates whether the radio item is selected.\nRenders a `<div>` element.",
+  "description": "Indicates whether the radio item is selected.\nRenders a `<span>` element.",
   "props": {
     "className": {
       "type": "string | ((state: Menu.RadioItemIndicator.State) => string | undefined)",

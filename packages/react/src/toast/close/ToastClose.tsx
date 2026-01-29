@@ -28,12 +28,9 @@ export const ToastClose = React.forwardRef(function ToastClose(
     native: nativeButton,
   });
 
-  const state: ToastClose.State = React.useMemo(
-    () => ({
-      type: toast.type,
-    }),
-    [toast.type],
-  );
+  const state: ToastClose.State = {
+    type: toast.type,
+  };
 
   const element = useRenderElement('button', componentProps, {
     ref: [forwardedRef, buttonRef],

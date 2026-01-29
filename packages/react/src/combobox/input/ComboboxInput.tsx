@@ -72,41 +72,41 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
   const selectedValue = useStore(store, selectors.selectedValue);
   const popupSideValue = useStore(store, selectors.popupSide);
   const positionerElement = useStore(store, selectors.positionerElement);
+  const rootId = useStore(store, selectors.id);
+  const inline = useStore(store, selectors.inline);
 
   const autoHighlightEnabled = Boolean(autoHighlightMode);
   const popupSide = mounted && positionerElement ? popupSideValue : null;
   const disabled = fieldDisabled || comboboxDisabled || disabledProp;
   const listEmpty = filteredItems.length === 0;
 
-  const id = useBaseUiId(idProp);
+  const isInsidePopup = hasPositionerParent || inline;
+  const id = useBaseUiId(idProp ?? (!isInsidePopup ? rootId : undefined));
 
   const [composingValue, setComposingValue] = React.useState<string | null>(null);
   const isComposingRef = React.useRef(false);
 
   const setInputElement = useStableCallback((element: HTMLInputElement | null) => {
-    const isInsidePopup = hasPositionerParent || store.state.inline;
+    const nextIsInsidePopup = hasPositionerParent || store.state.inline;
 
-    if (isInsidePopup && !store.state.hasInputValue) {
+    if (nextIsInsidePopup && !store.state.hasInputValue) {
       store.state.setInputValue('', createChangeEventDetails(REASONS.none));
     }
 
     store.update({
       inputElement: element,
-      inputInsidePopup: isInsidePopup,
+      inputInsidePopup: nextIsInsidePopup,
     });
   });
 
-  const state: ComboboxInput.State = React.useMemo(
-    () => ({
-      ...fieldState,
-      open,
-      disabled,
-      readOnly,
-      popupSide,
-      listEmpty,
-    }),
-    [fieldState, open, disabled, readOnly, popupSide, listEmpty],
-  );
+  const state: ComboboxInput.State = {
+    ...fieldState,
+    open,
+    disabled,
+    readOnly,
+    popupSide,
+    listEmpty,
+  };
 
   function handleKeyDown(event: React.KeyboardEvent<HTMLInputElement>) {
     if (!comboboxChipsContext) {
@@ -453,7 +453,7 @@ export interface ComboboxInputProps extends BaseUIComponentProps<'input', Combob
    * Whether the component should ignore user interaction.
    * @default false
    */
-  disabled?: boolean;
+  disabled?: boolean | undefined;
 }
 
 export namespace ComboboxInput {

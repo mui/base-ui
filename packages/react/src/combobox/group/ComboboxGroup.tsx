@@ -55,7 +55,7 @@ export interface ComboboxGroupProps extends BaseUIComponentProps<'div', Combobox
    * Items to be rendered within this group.
    * When provided, child `Collection` components will use these items.
    */
-  items?: readonly any[];
+  items?: readonly any[] | undefined;
 }
 
 export namespace ComboboxGroup {

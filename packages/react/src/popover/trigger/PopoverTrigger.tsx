@@ -111,13 +111,10 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
 
   const rootTriggerProps = store.useState('triggerProps', isMountedByThisTrigger);
 
-  const state: PopoverTrigger.State = React.useMemo(
-    () => ({
-      disabled,
-      open: isOpenedByThisTrigger,
-    }),
-    [disabled, isOpenedByThisTrigger],
-  );
+  const state: PopoverTrigger.State = {
+    disabled,
+    open: isOpenedByThisTrigger,
+  };
 
   const { getButtonProps, buttonRef } = useButton({
     disabled,
@@ -244,32 +241,32 @@ export type PopoverTriggerProps<Payload = unknown> = NativeButtonProps &
      * Set to `false` if the rendered element is not a button (e.g. `<div>`).
      * @default true
      */
-    nativeButton?: boolean;
+    nativeButton?: boolean | undefined;
     /**
      * A handle to associate the trigger with a popover.
      */
-    handle?: PopoverHandle<Payload>;
+    handle?: PopoverHandle<Payload> | undefined;
     /**
      * A payload to pass to the popover when it is opened.
      */
-    payload?: Payload;
+    payload?: Payload | undefined;
     /**
      * ID of the trigger. In addition to being forwarded to the rendered element,
      * it is also used to specify the active trigger for the popover in controlled mode (with the PopoverRoot `triggerId` prop).
      */
-    id?: string;
+    id?: string | undefined;
     /**
      * Whether the popover should also open when the trigger is hovered.
      * @default false
      */
-    openOnHover?: boolean;
+    openOnHover?: boolean | undefined;
     /**
      * How long to wait before the popover may be opened on hover. Specified in milliseconds.
      *
      * Requires the `openOnHover` prop.
      * @default 300
      */
-    delay?: number;
+    delay?: number | undefined;
     /**
      * How long to wait before closing the popover that was opened on hover.
      * Specified in milliseconds.
@@ -277,7 +274,7 @@ export type PopoverTriggerProps<Payload = unknown> = NativeButtonProps &
      * Requires the `openOnHover` prop.
      * @default 0
      */
-    closeDelay?: number;
+    closeDelay?: number | undefined;
   };
 
 export namespace PopoverTrigger {

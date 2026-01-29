@@ -80,7 +80,7 @@ export function useField(params: UseFieldParameters) {
 }
 
 export interface UseFieldParameters {
-  enabled?: boolean;
+  enabled?: boolean | undefined;
   value: unknown;
   getValue?: (() => unknown) | undefined;
   id: string | undefined;

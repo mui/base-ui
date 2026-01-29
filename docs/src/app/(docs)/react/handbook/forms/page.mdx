@@ -82,7 +82,7 @@ import { Slider } from '@base-ui/react/slider';
 </Form>;
 ```
 
-Optionally use `<Field.Item>` in checkbox or radio groups to individually label each control when not implicitly labeled:
+`<Field.Item>` should enclose each item in checkbox or radio groups to label each individual control:
 
 ```tsx {10,14-15,19} title="Explicitly labeling checkboxes in a checkbox group"
 import { Form } from '@base-ui/react/form';
@@ -181,6 +181,21 @@ import { Field } from '@base-ui/react/field';
 <Field.Root name="website">
   <Field.Control type="url" required pattern="https?://.*" />
   <Field.Error />
+</Field.Root>;
+```
+
+Base UI form components use a hidden input to participate in native form submission and validation.
+To anchor the hidden input near a control so the native validation bubble points to the correct area, ensure the component has been given a `name`, and wrap controls in a relatively positioned container for best results.
+
+```tsx title="Positioning hidden inputs" {4,6}
+import { Field } from '@base-ui/react/field';
+import { Select } from '@base-ui/react/select';
+
+<Field.Root name="apple">
+  <Field.Label>Apple</Field.Label>
+  <div className="relative">
+    <Select.Root />
+  </div>
 </Field.Root>;
 ```
 

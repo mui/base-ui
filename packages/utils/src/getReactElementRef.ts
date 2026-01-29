@@ -9,8 +9,8 @@ export function getReactElementRef(element: unknown): React.Ref<unknown> | null 
     return null;
   }
 
-  const reactElement = element as React.ReactElement & { ref?: React.Ref<unknown> };
-  const propsWithRef = reactElement.props as { ref?: React.Ref<unknown> } | undefined;
+  const reactElement = element as React.ReactElement & { ref?: React.Ref<unknown> | undefined };
+  const propsWithRef = reactElement.props as { ref?: React.Ref<unknown> | undefined } | undefined;
 
   return (isReactVersionAtLeast(19) ? propsWithRef?.ref : reactElement.ref) ?? null;
 }

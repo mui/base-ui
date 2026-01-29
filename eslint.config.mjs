@@ -76,7 +76,6 @@ export default defineConfig(
 
       // This rule doesn't recognise <label> wrapped around custom controls
       'jsx-a11y/label-has-associated-control': 'off',
-
       // Turn off new eslint-plugin-react-hooks rules till we can fix all warnings
       'react-hooks/globals': 'off',
       'react-hooks/immutability': 'off',
@@ -85,9 +84,10 @@ export default defineConfig(
     },
   },
   {
-    files: [`packages/**/*${EXTENSION_TS}`],
-    ignores: [`**/*${EXTENSION_TEST_FILE}`, `**/*.spec${EXTENSION_TS}`],
+    files: [`packages/*/src/**/*${EXTENSION_TS}`],
+    ignores: [`**/*${EXTENSION_TEST_FILE}`, `test/**/*${EXTENSION_TS}`],
     rules: {
+      'material-ui/add-undef-to-optional': 'error',
       'material-ui/disallow-react-api-in-server-components': ['error'],
     },
   },
@@ -97,6 +97,9 @@ export default defineConfig(
       `**/*${EXTENSION_TEST_FILE}`,
     ],
     extends: createTestConfig({ useMocha: false }),
+    rules: {
+      'material-ui/add-undef-to-optional': 'off',
+    },
   },
   baseSpecRules,
   {

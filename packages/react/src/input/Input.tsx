@@ -11,7 +11,7 @@ import { Field } from '../field';
  */
 export const Input = React.forwardRef(function Input(
   props: Input.Props,
-  forwardedRef: React.ForwardedRef<HTMLInputElement>,
+  forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
   return <Field.Control ref={forwardedRef} {...props} />;
 });
@@ -20,8 +20,8 @@ export interface InputProps extends BaseUIComponentProps<'input', Input.State> {
   /**
    * Callback fired when the `value` changes. Use when controlled.
    */
-  onValueChange?: Field.Control.Props['onValueChange'];
-  defaultValue?: Field.Control.Props['defaultValue'];
+  onValueChange?: Field.Control.Props['onValueChange'] | undefined;
+  defaultValue?: Field.Control.Props['defaultValue'] | undefined;
 }
 
 export interface InputState extends Field.Control.State {}

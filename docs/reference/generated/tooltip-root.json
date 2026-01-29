@@ -19,9 +19,9 @@
       "detailedType": "| ((\n    open: boolean,\n    eventDetails: Tooltip.Root.ChangeEventDetails,\n  ) => void)\n| undefined"
     },
     "actionsRef": {
-      "type": "RefObject<Tooltip.Root.Actions>",
-      "description": "A ref to imperative actions.\n- `unmount`: When specified, the tooltip will not be unmounted when closed.\nInstead, the `unmount` function must be called to unmount the tooltip manually.\nUseful when the tooltip's animation is controlled by an external library.\n- `close`: Closes the dialog imperatively when called.",
-      "detailedType": "React.RefObject<Tooltip.Root.Actions> | undefined"
+      "type": "RefObject<Tooltip.Root.Actions | null>",
+      "description": "A ref to imperative actions.\n- `unmount`: Unmounts the tooltip popup.\n- `close`: Closes the tooltip imperatively when called.",
+      "detailedType": "| React.RefObject<Tooltip.Root.Actions | null>\n| undefined"
     },
     "defaultTriggerId": {
       "type": "string | null",
@@ -44,10 +44,10 @@
       "detailedType": "string | null | undefined"
     },
     "trackCursorAxis": {
-      "type": "'none' | 'both' | 'x' | 'y'",
+      "type": "'none' | 'x' | 'y' | 'both'",
       "default": "'none'",
       "description": "Determines which axis the tooltip should track the cursor on.",
-      "detailedType": "'none' | 'both' | 'x' | 'y' | undefined"
+      "detailedType": "'none' | 'x' | 'y' | 'both' | undefined"
     },
     "disabled": {
       "type": "boolean",

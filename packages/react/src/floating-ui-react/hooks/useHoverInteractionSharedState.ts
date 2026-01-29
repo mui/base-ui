@@ -27,7 +27,7 @@ export interface HoverInteractionSharedState {
 }
 
 type HoverContextData = ContextData & {
-  hoverInteractionState?: HoverInteractionSharedState;
+  hoverInteractionState?: HoverInteractionSharedState | undefined;
 };
 
 export function useHoverInteractionSharedState(

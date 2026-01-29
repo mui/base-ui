@@ -215,12 +215,10 @@ export const PopoverViewport = React.forwardRef(function PopoverViewport(
     direction,
   });
 
-  const state = React.useMemo(() => {
-    return {
-      activationDirection: getActivationDirection(newTriggerOffset),
-      transitioning: isTransitioning,
-    };
-  }, [newTriggerOffset, isTransitioning]);
+  const state: PopoverViewport.State = {
+    activationDirection: getActivationDirection(newTriggerOffset),
+    transitioning: isTransitioning,
+  };
 
   return useRenderElement('div', componentProps, {
     state,
@@ -239,7 +237,11 @@ export namespace PopoverViewport {
   }
 
   export interface State {
-    activationDirection?: string;
+    activationDirection: string | undefined;
+    /**
+     * Whether the viewport is currently transitioning between contents.
+     */
+    transitioning: boolean;
   }
 }
 

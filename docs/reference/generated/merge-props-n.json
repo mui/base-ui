@@ -1,0 +1,14 @@
+{
+  "name": "mergePropsN",
+  "description": "Merges an arbitrary number of React props using the same logic as {@link mergeProps}.\nThis function accepts an array of props instead of individual arguments.\nThis has slightly lower performance than {@link mergeProps}due to accepting an array\ninstead of a fixed number of arguments. Prefer {@link mergeProps}when merging 5 or\nfewer prop sets for better performance.",
+  "parameters": {
+    "props": {
+      "type": "InputProps<ElementType>[]",
+      "description": "Array of props to merge."
+    }
+  },
+  "returnValue": {
+    "type": "{}",
+    "description": "The merged props."
+  }
+}

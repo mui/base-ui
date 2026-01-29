@@ -50,24 +50,30 @@ For individual checkboxes, use an enclosing `<label>` element that wraps each `<
 The [Field](/react/components/field) and [Fieldset](/react/components/fieldset) components eliminate the need to track `id` or `aria-labelledby` associations manually. They support both enclosing and sibling labeling patterns, along with a UX improvement to prevent double clicks from selecting the label text.
 
 1. **Group label**: Since the group contains multiple controls, it can be labeled as a fieldset. Use [Fieldset](/react/components/fieldset) by replacing the `<Fieldset.Root>` element with `<CheckboxGroup>` via the `render` prop. `<Fieldset.Legend>` provides the visible label for the group.
-2. **Individual label**: Label an individual checkbox using an enclosing `<Field.Label>`. Enclosing labels ensure that clicking on any gaps between the label and checkbox still toggles it.
+2. **Individual label**: Place each individual checkbox in `<Field.Item>`, then label it using an enclosing `<Field.Label>`. Enclosing labels ensure that clicking on any gaps between the label and checkbox still toggles it.
 
 ```tsx title="Using Field and Fieldset to label a checkbox group"
 <Field.Root>
   <Fieldset.Root render={<CheckboxGroup />}>
     <Fieldset.Legend>Allowed network protocols</Fieldset.Legend>
-    <Field.Label>
-      <Checkbox.Root value="http" />
-      HTTP
-    </Field.Label>
-    <Field.Label>
-      <Checkbox.Root value="https" />
-      HTTPS
-    </Field.Label>
-    <Field.Label>
-      <Checkbox.Root value="ssh" />
-      SSH
-    </Field.Label>
+    <Field.Item>
+      <Field.Label>
+        <Checkbox.Root value="http" />
+        HTTP
+      </Field.Label>
+    </Field.Item>
+    <Field.Item>
+      <Field.Label>
+        <Checkbox.Root value="https" />
+        HTTPS
+      </Field.Label>
+    </Field.Item>
+    <Field.Item>
+      <Field.Label>
+        <Checkbox.Root value="ssh" />
+        SSH
+      </Field.Label>
+    </Field.Item>
   </Fieldset.Root>
 </Field.Root>
 ```
@@ -81,18 +87,24 @@ To use a checkbox group in a form, pass the checkbox group's `name` to `<Field.R
   <Field.Root name="allowedNetworkProtocols">
     <Fieldset.Root render={<CheckboxGroup />}>
       <Fieldset.Legend>Allowed network protocols</Fieldset.Legend>
-      <Field.Label>
-        <Checkbox.Root value="http" />
-        HTTP
-      </Field.Label>
-      <Field.Label>
-        <Checkbox.Root value="https" />
-        HTTPS
-      </Field.Label>
-      <Field.Label>
-        <Checkbox.Root value="ssh" />
-        SSH
-      </Field.Label>
+      <Field.Item>
+        <Field.Label>
+          <Checkbox.Root value="http" />
+          HTTP
+        </Field.Label>
+      </Field.Item>
+      <Field.Item>
+        <Field.Label>
+          <Checkbox.Root value="https" />
+          HTTPS
+        </Field.Label>
+      </Field.Item>
+      <Field.Item>
+        <Field.Label>
+          <Checkbox.Root value="ssh" />
+          SSH
+        </Field.Label>
+      </Field.Item>
     </Fieldset.Root>
   </Field.Root>
 </Form>
@@ -104,7 +116,7 @@ A checkbox that controls other checkboxes within a `<CheckboxGroup>` can be crea
 
 1. Make `<CheckboxGroup>` a controlled component
 2. Pass an array of all the child checkbox values to the `allValues` prop on the `<CheckboxGroup>` component
-3. Add the `parent` boolean prop to the parent `<Checkbox>`
+3. Add the `parent` boolean prop to the parent `<Checkbox.Root>`
 
 import { DemoCheckboxGroupParent } from './demos/parent';
 

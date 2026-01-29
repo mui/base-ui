@@ -59,13 +59,10 @@ export const TabsList = React.forwardRef(function TabsList(
     },
   );
 
-  const state: TabsList.State = React.useMemo(
-    () => ({
-      orientation,
-      tabActivationDirection,
-    }),
-    [orientation, tabActivationDirection],
-  );
+  const state: TabsList.State = {
+    orientation,
+    tabActivationDirection,
+  };
 
   const defaultProps: HTMLProps = {
     'aria-orientation': orientation === 'vertical' ? 'vertical' : undefined,
@@ -203,13 +200,13 @@ export interface TabsListProps extends BaseUIComponentProps<'div', TabsList.Stat
    * Otherwise, tabs will be activated using <kbd>Enter</kbd> or <kbd>Space</kbd> key press.
    * @default false
    */
-  activateOnFocus?: boolean;
+  activateOnFocus?: boolean | undefined;
   /**
    * Whether to loop keyboard focus back to the first item
    * when the end of the list is reached while using the arrow keys.
    * @default true
    */
-  loopFocus?: boolean;
+  loopFocus?: boolean | undefined;
 }
 
 export namespace TabsList {
