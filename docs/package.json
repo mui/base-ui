@@ -21,7 +21,7 @@
     "@mdx-js/loader": "^3.1.1",
     "@mdx-js/react": "^3.1.1",
     "@mui/internal-docs-infra": "0.3.1-canary.14",
-    "@next/mdx": "^16.1.4",
+    "@next/mdx": "^16.1.5",
     "@react-spring/web": "^10.0.3",
     "@stefanprobst/rehype-extract-toc": "^3.0.0",
     "@tanstack/react-form": "^1.27.7",
