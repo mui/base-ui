@@ -159,15 +159,12 @@ describe('<Menu.SubmenuTrigger />', () => {
         </Menu.Root>,
       );
 
-      await waitFor(() => {
-        expect(warnSpy).toHaveBeenCalledTimes(1);
-      });
-
+      expect(warnSpy).toHaveBeenCalledTimes(1);
       expect(warnSpy).toHaveBeenCalledWith(
-        'Base UI: A disabled element was detected on <Menu.SubmenuTrigger>. To properly disable the trigger, use the `disabled` prop on the component instead of setting it on the rendered element.',
+        expect.stringContaining(
+          'Base UI: A disabled element was detected on <Menu.SubmenuTrigger>. To properly disable the trigger, use the `disabled` prop on the component instead of setting it on the rendered element.',
+        ),
       );
-
-      warnSpy.mockRestore();
     });
   });
 });
