@@ -187,6 +187,34 @@ import { DemoSelectObjectValues } from './demos/object-values';
 
 <DemoSelectObjectValues compact />
 
+### Grouped
+
+Organize related options with `<Select.Group>` and `<Select.GroupLabel>` to add section headings inside the popup.
+
+Groups are represented by an array of objects with an `items` property, which itself is an array of individual items for each group. An extra property, such as `value`, can be provided for the heading text when rendering the group label.
+
+```tsx title="Example" {3,9,13}
+interface ProduceGroupItem {
+  value: string;
+  items: string[];
+}
+
+const groups: ProduceGroupItem[] = [
+  {
+    value: 'Fruits',
+    items: ['Apple', 'Banana', 'Orange'],
+  },
+  {
+    value: 'Vegetables',
+    items: ['Carrot', 'Lettuce', 'Spinach'],
+  },
+];
+```
+
+import { DemoSelectGrouped } from './demos/grouped';
+
+<DemoSelectGrouped compact />
+
 ## API reference
 
 <Reference
