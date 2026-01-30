@@ -141,7 +141,7 @@ function evaluateRenderProp<T extends React.ElementType, S>(
     // so we can throw before with custom message.
     if (process.env.NODE_ENV !== 'production') {
       if (!React.isValidElement(newElement)) {
-        throw /* minify-error-disabled */ new Error(
+        throw new Error(
           [
             'Base UI: The `render` prop was provided an invalid React element as `React.isValidElement(render)` is `false`.',
             'A valid React element must be provided to the `render` prop because it is cloned with props to replace the default element.',

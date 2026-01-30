@@ -93,6 +93,8 @@ export const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
     setOverflowEdges,
     overflowEdges,
     overflowEdgeThreshold,
+    scrollingX,
+    scrollingY,
   } = useScrollAreaRootContext();
 
   const direction = useDirection();
@@ -402,6 +404,7 @@ export const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
 
   const viewportState: ScrollAreaViewport.State = React.useMemo(
     () => ({
+      scrolling: scrollingX || scrollingY,
       hasOverflowX: !hiddenState.x,
       hasOverflowY: !hiddenState.y,
       overflowXStart: overflowEdges.xStart,
@@ -410,7 +413,7 @@ export const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
       overflowYEnd: overflowEdges.yEnd,
       cornerHidden: hiddenState.corner,
     }),
-    [hiddenState.x, hiddenState.y, hiddenState.corner, overflowEdges],
+    [scrollingX, scrollingY, hiddenState.x, hiddenState.y, hiddenState.corner, overflowEdges],
   );
 
   const element = useRenderElement('div', componentProps, {

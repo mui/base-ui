@@ -974,11 +974,11 @@ A native scroll container with custom scrollbars.
 - Exports:
   - Scroll Area - Root
     - Props: className, overflowEdgeThreshold, render, style
-    - Data Attributes: data-has-overflow-x, data-has-overflow-y, data-overflow-x-end, data-overflow-x-start, data-overflow-y-end, data-overflow-y-start
+    - Data Attributes: data-has-overflow-x, data-has-overflow-y, data-overflow-x-end, data-overflow-x-start, data-overflow-y-end, data-overflow-y-start, data-scrolling
     - CSS Variables: --scroll-area-corner-height, --scroll-area-corner-width
   - Scroll Area - Viewport
     - Props: className, render, style
-    - Data Attributes: data-has-overflow-x, data-has-overflow-y, data-overflow-x-end, data-overflow-x-start, data-overflow-y-end, data-overflow-y-start
+    - Data Attributes: data-has-overflow-x, data-has-overflow-y, data-overflow-x-end, data-overflow-x-start, data-overflow-y-end, data-overflow-y-start, data-scrolling
     - CSS Variables: --scroll-area-overflow-x-end, --scroll-area-overflow-x-start, --scroll-area-overflow-y-end, --scroll-area-overflow-y-start
   - Scroll Area - Scrollbar
     - Props: className, keepMounted, orientation, render, style
@@ -1356,6 +1356,10 @@ A popup that appears when an element is hovered or focused, showing a hint for s
 - Sections:
   - Usage guidelines
   - Anatomy
+  - Alternatives to tooltips
+    - Infotips
+    - Description text
+    - Contextual feedback messages
   - Examples
     - Detached triggers
     - Multiple triggers
