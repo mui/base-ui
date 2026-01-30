@@ -16,6 +16,7 @@ import {
 import { TextDirection } from '../../../direction-provider';
 import { DATE_PART_GRANULARITY, isSeparator, isToken, removeLocalizedDigits } from './utils';
 import {
+  getArbitraryDate,
   getLocalizedDigits,
   getLongestMonthInCurrentYear,
   getWeekDaysStr,
@@ -70,7 +71,7 @@ const DATE_PART_HELPERS_MAP: Record<TemporalFieldDatePartType, FormatParserDateP
       const boundaries = {
         minimum: 1,
         // Assumption: All years have the same amount of months
-        maximum: adapter.getMonth(adapter.endOfYear(adapter.now('default'))) + 1,
+        maximum: adapter.getMonth(adapter.endOfYear(getArbitraryDate(adapter))) + 1,
       };
 
       const minDate = validationProps.minDate ?? null;
@@ -197,8 +198,8 @@ const DATE_PART_HELPERS_MAP: Record<TemporalFieldDatePartType, FormatParserDateP
     getBoundaries(adapter, tokenValue, tokenConfig, validationProps) {
       let boundaries: { minimum: number; maximum: number };
       const localizedDigits = getLocalizedDigits(adapter);
-      const today = adapter.now('default');
-      const endOfDay = adapter.endOfDay(today);
+      const arbitraryDate = getArbitraryDate(adapter);
+      const endOfDay = adapter.endOfDay(arbitraryDate);
       const lastHourInDay = adapter.getHours(endOfDay);
       const hasMeridiem =
         removeLocalizedDigits(adapter.formatByString(endOfDay, tokenValue), localizedDigits) !==
@@ -209,7 +210,7 @@ const DATE_PART_HELPERS_MAP: Record<TemporalFieldDatePartType, FormatParserDateP
           minimum: 1,
           maximum: Number(
             removeLocalizedDigits(
-              adapter.formatByString(adapter.startOfDay(today), tokenValue),
+              adapter.formatByString(adapter.startOfDay(arbitraryDate), tokenValue),
               localizedDigits,
             ),
           ),
@@ -258,7 +259,7 @@ const DATE_PART_HELPERS_MAP: Record<TemporalFieldDatePartType, FormatParserDateP
     getBoundaries(adapter, tokenValue, tokenConfig, validationProps) {
       const boundaries = {
         minimum: 0,
-        maximum: adapter.getMinutes(adapter.endOfDay(adapter.now('default'))),
+        maximum: adapter.getMinutes(adapter.endOfDay(getArbitraryDate(adapter))),
       };
 
       const minDate = validationProps.minDate ?? null;
@@ -298,7 +299,7 @@ const DATE_PART_HELPERS_MAP: Record<TemporalFieldDatePartType, FormatParserDateP
     getBoundaries(adapter, tokenValue, tokenConfig, validationProps) {
       const boundaries = {
         minimum: 0,
-        maximum: adapter.getSeconds(adapter.endOfDay(adapter.now('default'))),
+        maximum: adapter.getSeconds(adapter.endOfDay(getArbitraryDate(adapter))),
       };
 
       const minDate = validationProps.minDate ?? null;
@@ -402,9 +403,7 @@ export class FormatParser {
 
   private direction: TextDirection;
 
-  private now: TemporalSupportedObject;
-
-  private nowFormattedMap = new Map<string, string>();
+  private arbitraryDateFormattedMap = new Map<string, string>();
 
   /**
    * Converts a format into a list of tokens and separators.
@@ -483,18 +482,20 @@ export class FormatParser {
     this.format = format;
     this.direction = direction;
     this.placeholderGetters = placeholderGetters;
-    this.now = adapter.now('default');
     this.validationProps = validationProps;
   }
 
   /**
-   * Formats this.now with the given token, caching the result to avoid duplicate formatting calls.
+   * Formats the arbitrary date with the given token, caching the result to avoid duplicate formatting calls.
    */
-  private formatNowByToken = (tokenValue: string): string => {
-    if (!this.nowFormattedMap.has(tokenValue)) {
-      this.nowFormattedMap.set(tokenValue, this.adapter.formatByString(this.now, tokenValue));
+  private formatArbitraryDateByToken = (tokenValue: string): string => {
+    if (!this.arbitraryDateFormattedMap.has(tokenValue)) {
+      this.arbitraryDateFormattedMap.set(
+        tokenValue,
+        this.adapter.formatByString(getArbitraryDate(this.adapter), tokenValue),
+      );
     }
-    return this.nowFormattedMap.get(tokenValue)!;
+    return this.arbitraryDateFormattedMap.get(tokenValue)!;
   };
 
   /**
@@ -547,7 +548,7 @@ export class FormatParser {
     const isPadded =
       tokenConfig.contentType === 'letter'
         ? false
-        : helpers.isDigitTokenPadded(this.adapter, tokenValue, this.now);
+        : helpers.isDigitTokenPadded(this.adapter, tokenValue, getArbitraryDate(this.adapter));
 
     return {
       type: 'token',
@@ -558,13 +559,13 @@ export class FormatParser {
       maxLength:
         isPadded && tokenConfig.contentType !== 'letter'
           ? // Remove all non-digit characters to get the length of digits
-            this.formatNowByToken(tokenValue).replace(/\D/g, '').length
+            this.formatArbitraryDateByToken(tokenValue).replace(/\D/g, '').length
           : undefined,
       placeholder: helpers.getTokenPlaceholder(
         this.placeholderGetters,
         tokenValue,
         tokenConfig,
-        this.formatNowByToken,
+        this.formatArbitraryDateByToken,
       ),
       boundaries: helpers.getBoundaries(
         this.adapter,

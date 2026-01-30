@@ -50,6 +50,13 @@ interface TemporalAdapterFieldCache {
    *  The 10 digits (0–9) in the adapter's locale (e.g., ['0', '1', ...] or ['٠', '١', ...])
    */
   localizedDigits?: string[] | undefined;
+  /**
+   * An arbitrary date used for locale-dependent computations where the actual date value doesn't matter.
+   * This is cached to avoid repeated `adapter.now('default')` calls when only invariant information is needed
+   * (e.g., number of months in a year, days in a week, hour boundaries, etc.).
+   * The actual date and timezone of this value should NOT be relied upon - only use it for format/locale queries.
+   */
+  arbitraryDate?: TemporalSupportedObject | undefined;
 }
 
 const adapterCache = new WeakMap<TemporalAdapter, TemporalAdapterFieldCache>();
@@ -63,10 +70,33 @@ function getAdapterFieldCache(adapter: TemporalAdapter): TemporalAdapterFieldCac
   return cache;
 }
 
+/**
+ * Returns a cached arbitrary date for the given adapter.
+ * This date is used for locale-dependent computations where the actual date value doesn't matter.
+ *
+ * IMPORTANT: Do NOT rely on the actual date or timezone of this value.
+ * Only use it for invariant queries like:
+ * - Number of months in a year
+ * - Number of days in a week
+ * - Hour/minute/second boundaries
+ * - Format string analysis
+ * - Localized digit detection
+ *
+ * @param adapter The temporal adapter instance
+ * @returns A cached date object for the adapter
+ */
+export function getArbitraryDate(adapter: TemporalAdapter): TemporalSupportedObject {
+  const cache = getAdapterFieldCache(adapter);
+  if (cache.arbitraryDate == null) {
+    cache.arbitraryDate = adapter.now('default');
+  }
+  return cache.arbitraryDate;
+}
+
 function getMonthCache(adapter: TemporalAdapter) {
   const cache = getAdapterFieldCache(adapter);
   if (cache.month == null) {
-    const firstMonth = adapter.startOfYear(adapter.now('default'));
+    const firstMonth = adapter.startOfYear(getArbitraryDate(adapter));
     const monthsInYear = [firstMonth];
     let longestMonth = firstMonth;
     let daysInLongestMonth = adapter.getDaysInMonth(firstMonth);
@@ -131,9 +161,9 @@ export function getWeekDaysStr(adapter: TemporalAdapter, format: string) {
 
   const elements: TemporalSupportedObject[] = [];
 
-  const now = adapter.now('default');
-  const startDate = adapter.startOfWeek(now);
-  const endDate = adapter.endOfWeek(now);
+  const arbitraryDate = getArbitraryDate(adapter);
+  const startDate = adapter.startOfWeek(arbitraryDate);
+  const endDate = adapter.endOfWeek(arbitraryDate);
 
   let current = startDate;
   while (adapter.isBefore(current, endDate)) {
@@ -183,8 +213,8 @@ export function getMeridiemsStr(adapter: TemporalAdapter, format: string) {
     return cached;
   }
 
-  const now = adapter.now('default');
-  const result = [adapter.startOfDay(now), adapter.endOfDay(now)].map((date) =>
+  const arbitraryDate = getArbitraryDate(adapter);
+  const result = [adapter.startOfDay(arbitraryDate), adapter.endOfDay(arbitraryDate)].map((date) =>
     adapter.formatByString(date, format),
   );
   meridiemCache.strMap.set(format, result);
@@ -217,7 +247,7 @@ export function getYearFormatLength(adapter: TemporalAdapter, format: string): n
     return cached.length;
   }
 
-  const length = adapter.formatByString(adapter.now('default'), format).length;
+  const length = adapter.formatByString(getArbitraryDate(adapter), format).length;
   yearCache.formatMap.set(format, { length });
   return length;
 }
@@ -245,9 +275,9 @@ const NON_LOCALIZED_DIGITS = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
 export function getLocalizedDigits(adapter: TemporalAdapter): string[] {
   const cache = getAdapterFieldCache(adapter);
   if (cache.localizedDigits == null) {
-    const today = adapter.now('default');
+    const arbitraryDate = getArbitraryDate(adapter);
     const formattedZero = adapter.formatByString(
-      adapter.setSeconds(today, 0),
+      adapter.setSeconds(arbitraryDate, 0),
       FORMAT_SECONDS_NO_LEADING_ZEROS,
     );
 
@@ -255,7 +285,10 @@ export function getLocalizedDigits(adapter: TemporalAdapter): string[] {
       cache.localizedDigits = NON_LOCALIZED_DIGITS;
     } else {
       cache.localizedDigits = Array.from({ length: 10 }).map((_, index) =>
-        adapter.formatByString(adapter.setSeconds(today, index), FORMAT_SECONDS_NO_LEADING_ZEROS),
+        adapter.formatByString(
+          adapter.setSeconds(arbitraryDate, index),
+          FORMAT_SECONDS_NO_LEADING_ZEROS,
+        ),
       );
     }
   }
