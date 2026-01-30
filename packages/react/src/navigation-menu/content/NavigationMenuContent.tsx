@@ -2,7 +2,6 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { inertValue } from '@base-ui/utils/inertValue';
-import { useOnMount } from '@base-ui/utils/useOnMount';
 import { FloatingNode } from '../../floating-ui-react';
 import { contains, getTarget } from '../../floating-ui-react/utils';
 import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
@@ -17,6 +16,7 @@ import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
 import { StateAttributesMapping } from '../../utils/getStateAttributesProps';
 import { CompositeRoot } from '../../composite/root/CompositeRoot';
 import { popupStateMapping } from '../../utils/popupStateMapping';
+import { EMPTY_OBJECT } from '../../utils/constants';
 
 const stateAttributesMapping: StateAttributesMapping<NavigationMenuContent.State> = {
   ...popupStateMapping,
@@ -59,11 +59,10 @@ export const NavigationMenuContent = React.forwardRef(function NavigationMenuCon
 
   const ref = React.useRef<HTMLDivElement | null>(null);
 
+  const [hasMountedInPortal, setHasMountedInPortal] = React.useState(false);
   const [focusInside, setFocusInside] = React.useState(false);
-  const [selfMounted, setSelfMounted] = React.useState(false);
-  const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
 
-  useOnMount(() => setSelfMounted(true));
+  const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
 
   // If the popup unmounts before the content's exit animation completes, reset the internal
   // mounted state so the next open can re-enter via `transitionStatus="starting"`.
@@ -121,45 +120,43 @@ export const NavigationMenuContent = React.forwardRef(function NavigationMenuCon
       : commonProps;
 
   const portalContainer = viewportTargetElement || viewportElement;
+  const hidden = keepMounted && !mounted;
+  const shouldRenderInline = keepMounted && !portalContainer && !hasMountedInPortal;
 
-  const clone = keepMounted ? (
-    <CompositeRoot
-      render={render}
-      className={className}
-      state={state}
-      props={[elementProps, { hidden: true }]}
-      stateAttributesMapping={stateAttributesMapping}
-    />
-  ) : null;
-
-  if (!mounted || !portalContainer || !selfMounted) {
-    return clone;
+  if (keepMounted && portalContainer && !hasMountedInPortal) {
+    setHasMountedInPortal(true);
   }
 
-  const portal = ReactDOM.createPortal(
+  if (shouldRenderInline) {
+    return (
+      <CompositeRoot
+        render={render}
+        className={className}
+        state={state}
+        refs={[forwardedRef]}
+        props={[defaultProps, { hidden: true }, elementProps]}
+        stateAttributesMapping={stateAttributesMapping}
+      />
+    );
+  }
+
+  if (!portalContainer || (!mounted && !keepMounted)) {
+    return null;
+  }
+
+  return ReactDOM.createPortal(
     <FloatingNode id={nodeId}>
       <CompositeRoot
         render={render}
         className={className}
         state={state}
         refs={[forwardedRef, ref, handleCurrentContentRef]}
-        props={[defaultProps, elementProps]}
+        props={[defaultProps, hidden ? { hidden: true } : EMPTY_OBJECT, elementProps]}
         stateAttributesMapping={stateAttributesMapping}
       />
     </FloatingNode>,
     portalContainer,
   );
-
-  if (keepMounted) {
-    return (
-      <React.Fragment>
-        {clone}
-        {portal}
-      </React.Fragment>
-    );
-  }
-
-  return portal;
 });
 
 export interface NavigationMenuContentState {
@@ -182,7 +179,7 @@ export interface NavigationMenuContentProps extends BaseUIComponentProps<
   NavigationMenuContent.State
 > {
   /**
-   * Whether to render a clone of the content in the DOM while the popup is closed.
+   * Whether to keep the content mounted in the DOM while the popup is closed.
    * Ensures the content is present during server-side rendering for web crawlers.
    * @default false
    */
