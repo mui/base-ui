@@ -7,7 +7,7 @@ import { TemporalFieldSectionPlugin } from './TemporalFieldSectionPlugin';
 import { TemporalFieldFormatPlugin } from './TemporalFieldFormatPlugin';
 import { selectors } from '../selectors';
 import { TemporalFieldState as State, TemporalFieldDatePart, TemporalFieldSection } from '../types';
-import { getMeridiemsStr, getMonthsStr, getWeekDaysStr } from '../adapter-cache';
+import { getArbitraryDate, getMeridiemsStr, getMonthsStr, getWeekDaysStr } from '../adapter-cache';
 import { isDatePart } from '../utils';
 
 const translations = {
@@ -500,10 +500,11 @@ function getAriaValueText(
     return undefined;
   }
 
+  const arbitraryDate = getArbitraryDate(adapter);
   switch (section.token.config.part) {
     case 'month': {
       if (section.token.config.contentType === 'digit') {
-        const dateWithMonth = adapter.setMonth(adapter.now(timezone), Number(section.value) - 1);
+        const dateWithMonth = adapter.setMonth(arbitraryDate, Number(section.value) - 1);
         return adapter.isValid(dateWithMonth)
           ? adapter.format(dateWithMonth, 'monthFullLetter')
           : '';
@@ -516,7 +517,7 @@ function getAriaValueText(
     case 'day':
       if (section.token.config.contentType === 'digit') {
         const dateWithDay = adapter.setDate(
-          adapter.startOfYear(adapter.now(timezone)),
+          adapter.startOfYear(arbitraryDate),
           Number(section.value),
         );
         return adapter.isValid(dateWithDay)
@@ -525,7 +526,7 @@ function getAriaValueText(
       }
       return section.value;
     case 'weekDay': {
-      const startOfWeekDate = adapter.startOfWeek(adapter.now(timezone));
+      const startOfWeekDate = adapter.startOfWeek(arbitraryDate);
       if (section.token.config.contentType === 'digit') {
         const dateWithWeekDay = adapter.addDays(startOfWeekDate, Number(section.value) - 1);
         return adapter.isValid(dateWithWeekDay) ? adapter.format(dateWithWeekDay, 'weekday') : '';
