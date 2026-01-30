@@ -1,10 +1,9 @@
 import { createSelector, createSelectorMemoized } from '@base-ui/utils/store';
 import { TemporalSupportedValue } from '../../../../types';
-import { mergeDateIntoReferenceDate } from '../mergeDateIntoReferenceDate';
 import { selectors } from '../selectors';
 import type { TemporalFieldStore } from '../TemporalFieldStore';
 import { TemporalFieldState as State, TemporalFieldDatePart, TemporalFieldSection } from '../types';
-import { isDatePart } from '../utils';
+import { isDatePart, mergeDateIntoReferenceDate } from '../utils';
 import { TemporalFieldValuePlugin } from './TemporalFieldValuePlugin';
 
 const sectionSelectors = {

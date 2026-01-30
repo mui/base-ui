@@ -4,7 +4,6 @@ import {
   TemporalSupportedObject,
   TemporalSupportedValue,
 } from '../../../../types';
-import { mergeDateIntoReferenceDate } from '../mergeDateIntoReferenceDate';
 import { selectors } from '../selectors';
 import { TemporalFieldStore } from '../TemporalFieldStore';
 import {
@@ -12,7 +11,7 @@ import {
   TemporalFieldSection,
   TemporalFieldValueChangeEventDetails,
 } from '../types';
-import { buildSections } from '../utils';
+import { buildSections, mergeDateIntoReferenceDate } from '../utils';
 import { TemporalFieldFormatPlugin } from './TemporalFieldFormatPlugin';
 import { TemporalFieldSectionPlugin } from './TemporalFieldSectionPlugin';
 import { createChangeEventDetails } from '../../../createBaseUIEventDetails';
