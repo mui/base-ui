@@ -381,8 +381,9 @@ type AlertDialogViewportState = {
 
 **Return Value:**
 
-| Property | Type | Description |
-| :------- | :--- | :---------- |
+```tsx
+type ReturnValue = AlertDialog.Handle<Payload>;
+```
 
 ### Handle
 

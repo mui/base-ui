@@ -255,23 +255,23 @@ type ScrollAreaCornerState = {};
 ### Coords
 
 ```typescript
-type Coords = {};
+type Coords = __object;
 ```
 
 ### HiddenState
 
 ```typescript
-type HiddenState = {};
+type HiddenState = __object;
 ```
 
 ### OverflowEdges
 
 ```typescript
-type OverflowEdges = {};
+type OverflowEdges = __object;
 ```
 
 ### Size
 
 ```typescript
-type Size = {};
+type Size = __object;
 ```

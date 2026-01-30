@@ -410,8 +410,9 @@ Creates a new handle to connect a Tooltip.Root with detached Tooltip.Trigger com
 
 **Return Value:**
 
-| Property | Type | Description |
-| :------- | :--- | :---------- |
+```tsx
+type ReturnValue = Tooltip.Handle<Payload>;
+```
 
 ### Handle
 

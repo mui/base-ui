@@ -406,8 +406,9 @@ Creates a new handle to connect a PreviewCard.Root with detached PreviewCard.Tri
 
 **Return Value:**
 
-| Property | Type | Description |
-| :------- | :--- | :---------- |
+```tsx
+type ReturnValue = PreviewCard.Handle<Payload>;
+```
 
 ### Handle
 

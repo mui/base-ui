@@ -1273,8 +1273,9 @@ Creates a new handle to connect a Menu.Root with detached Menu.Trigger component
 
 **Return Value:**
 
-| Property | Type | Description |
-| :------- | :--- | :---------- |
+```tsx
+type ReturnValue = Menu.Handle<Payload>;
+```
 
 ### Handle
 

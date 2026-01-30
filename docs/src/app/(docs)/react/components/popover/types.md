@@ -510,8 +510,9 @@ Creates a new handle to connect a Popover.Root with detached Popover.Trigger com
 
 **Return Value:**
 
-| Property | Type | Description |
-| :------- | :--- | :---------- |
+```tsx
+type ReturnValue = Popover.Handle<Payload>;
+```
 
 ### Handle
 
