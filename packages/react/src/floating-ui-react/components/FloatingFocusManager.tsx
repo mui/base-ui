@@ -357,13 +357,37 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
 
     function onKeyDown(event: KeyboardEvent) {
       if (event.key === 'Tab') {
+        const activeEl = activeElement(getDocument(floatingFocusElement));
         // The focus guards have nothing to focus, so we need to stop the event.
         if (
-          contains(floatingFocusElement, activeElement(getDocument(floatingFocusElement))) &&
+          contains(floatingFocusElement, activeEl) &&
           getTabbableContent().length === 0 &&
           !isUntrappedTypeableCombobox
         ) {
           stopEvent(event);
+        }
+
+        const tabbableContent = getTabbableContent() as Array<FocusableElement>;
+        if (
+          contains(floatingFocusElement, activeEl) &&
+          !isUntrappedTypeableCombobox &&
+          tabbableContent.some((element) => element.tabIndex > 0)
+        ) {
+          // Positive tabIndex content can jump ahead of the focus guards in the browser's
+          // global tab order, so manually cycle within the floating element to preserve
+          // the focus trap.
+          stopEvent(event);
+          const activeIndex = tabbableContent.indexOf(activeEl as FocusableElement);
+          let nextIndex = 0;
+          if (event.shiftKey) {
+            nextIndex = activeIndex <= 0 ? tabbableContent.length - 1 : activeIndex - 1;
+          } else {
+            nextIndex =
+              activeIndex === -1 || activeIndex === tabbableContent.length - 1
+                ? 0
+                : activeIndex + 1;
+          }
+          enqueueFocus(tabbableContent[nextIndex] ?? null, { sync: true });
         }
       }
     }
