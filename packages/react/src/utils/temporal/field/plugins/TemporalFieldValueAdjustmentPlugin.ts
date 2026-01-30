@@ -4,6 +4,7 @@ import { cleanDigitDatePartValue, getLetterEditingOptions, removeLocalizedDigits
 import { TemporalFieldStore } from '../TemporalFieldStore';
 import { selectors } from '../selectors';
 import { TemporalFieldSectionPlugin } from './TemporalFieldSectionPlugin';
+import { TemporalFieldFormatPlugin } from './TemporalFieldFormatPlugin';
 
 /**
  * Plugin to adjust the value of the active section when pressing ArrowUp, ArrowDown, PageUp, PageDown, Home or End.

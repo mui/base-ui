@@ -8,13 +8,14 @@ import { TemporalFieldPlaceholderGetters } from '@base-ui/react/types';
 import { TemporalLocaleProvider } from '@base-ui/react/temporal-locale-provider';
 import styles from './date-time-field-localization.module.css';
 
-const CUSTOM_DATETIME_PLACEHOLDER_GETTERS: Partial<TemporalFieldPlaceholderGetters> = {
-  month: () => 'mm',
-  day: () => 'jj',
-  year: () => 'aaaa',
-  hours: () => 'hh',
-  minutes: () => 'mm',
-  meridiem: () => 'AM',
+const FRENCH_PLACEHOLDER_GETTERS: Partial<TemporalFieldPlaceholderGetters> = {
+  year: (params) => 'A'.repeat(params.digitAmount),
+  day: () => 'DD',
+};
+
+const GERMAN_PLACEHOLDER_GETTERS: Partial<TemporalFieldPlaceholderGetters> = {
+  year: (params) => 'J'.repeat(params.digitAmount),
+  day: () => 'TT',
 };
 
 export default function DateTimeFieldLocalization() {
@@ -24,25 +25,11 @@ export default function DateTimeFieldLocalization() {
       <div className={styles.Page}>
         <section className={styles.Form}>
           <TemporalLocaleProvider locale={fr}>
-            <Field.Root name="datetime-field-fr-default" className={styles.Field}>
-              <Field.Label className={styles.Label}>
-                French locale (24h clock by default)
-              </Field.Label>
-              <DateTimeField.Root className={styles.Root}>
-                {(section) => (
-                  <DateTimeField.Section
-                    key={section.index}
-                    className={styles.Section}
-                    section={section}
-                  />
-                )}
-              </DateTimeField.Root>
-            </Field.Root>
             <Field.Root name="datetime-field-fr-custom" className={styles.Field}>
-              <Field.Label className={styles.Label}>French with custom placeholders</Field.Label>
+              <Field.Label className={styles.Label}>French (date + placeholders)</Field.Label>
               <DateTimeField.Root
                 className={styles.Root}
-                placeholderGetters={CUSTOM_DATETIME_PLACEHOLDER_GETTERS}
+                placeholderGetters={FRENCH_PLACEHOLDER_GETTERS}
               >
                 {(section) => (
                   <DateTimeField.Section
@@ -54,12 +41,13 @@ export default function DateTimeFieldLocalization() {
               </DateTimeField.Root>
             </Field.Root>
           </TemporalLocaleProvider>
-        </section>
-        <section className={styles.Form}>
           <TemporalLocaleProvider locale={de}>
             <Field.Root name="datetime-field-de-default" className={styles.Field}>
-              <Field.Label className={styles.Label}>German locale</Field.Label>
-              <DateTimeField.Root className={styles.Root}>
+              <Field.Label className={styles.Label}>German (date + placeholders)</Field.Label>
+              <DateTimeField.Root
+                className={styles.Root}
+                placeholderGetters={GERMAN_PLACEHOLDER_GETTERS}
+              >
                 {(section) => (
                   <DateTimeField.Section
                     key={section.index}
@@ -69,9 +57,17 @@ export default function DateTimeFieldLocalization() {
                 )}
               </DateTimeField.Root>
             </Field.Root>
+          </TemporalLocaleProvider>
+          <TemporalLocaleProvider locale={de}>
             <Field.Root name="datetime-field-de-12h" className={styles.Field}>
-              <Field.Label className={styles.Label}>German with 12-hour format</Field.Label>
-              <DateTimeField.Root className={styles.Root} ampm>
+              <Field.Label className={styles.Label}>
+                German (date + placeholders) with 12-hour format
+              </Field.Label>
+              <DateTimeField.Root
+                className={styles.Root}
+                placeholderGetters={GERMAN_PLACEHOLDER_GETTERS}
+                ampm
+              >
                 {(section) => (
                   <DateTimeField.Section
                     key={section.index}

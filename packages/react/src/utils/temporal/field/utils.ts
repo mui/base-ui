@@ -27,10 +27,24 @@ import {
 
 /**
  * Ordering of date part types by granularity (from least to most granular).
- * Used both for determining the most granular part in a format
- * and for ordering section modifications during date merging.
+ * Used for determining the most granular part in a format.
  */
 export const DATE_PART_GRANULARITY: Record<string, number> = {
+  year: 1,
+  month: 2,
+  day: 3,
+  weekDay: 4,
+  meridiem: 5,
+  hours: 6,
+  minutes: 7,
+  seconds: 8,
+};
+
+/**
+ * Ordering of date part types by granularity (from least to most granular).
+ * Used for ordering section modifications during date merging.
+ */
+export const DATE_PART_TRANSFER_PRIORITY: Record<string, number> = {
   year: 1,
   month: 2,
   day: 3,
@@ -279,7 +293,8 @@ export function mergeDateIntoReferenceDate(
     .filter(isDatePart)
     .sort(
       (a, b) =>
-        DATE_PART_GRANULARITY[a.token.config.part] - DATE_PART_GRANULARITY[b.token.config.part],
+        DATE_PART_TRANSFER_PRIORITY[a.token.config.part] -
+        DATE_PART_TRANSFER_PRIORITY[b.token.config.part],
     );
 
   let targetDate = referenceDate;
