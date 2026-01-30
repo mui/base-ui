@@ -10,46 +10,50 @@ export function AdditionalTypesAccordion({
   data: ProcessedTypesMeta[];
   multiple?: boolean;
 }) {
+  const rawTypes = data.filter((t) => t.type === 'raw');
+
   return (
     <Accordion.Root className="flex flex-col justify-center text-gray-900">
-      {data.map((additionalType, index) => {
+      {rawTypes.map((additionalType, index) => {
+        const isFirst = index === 0;
+        const isLast = index === rawTypes.length - 1;
+
         return (
-          additionalType.type === 'raw' && (
-            <Accordion.Item className="border-b border-gray-200" key={additionalType.name}>
-              <Accordion.Trigger
-                id={additionalType.slug}
-                index={index}
-                className="group relative flex w-full items-baseline justify-between gap-4 bg-gray-50 py-2 pr-1 pl-3 text-left font-medium hover:bg-gray-100 focus-visible:z-1 focus-visible:outline-2 focus-visible:outline-blue-800 scroll-mt-12 md:scroll-mt-0"
-              >
-                {additionalType.name}
-                <PlusIcon className="mr-2 size-3 shrink-0 transition-all ease-out group-open:scale-110 group-open:rotate-45" />
-              </Accordion.Trigger>
-              <Accordion.Panel className="border-l border-r border-gray-200 text-base text-gray-600">
-                <Accordion.Content>
-                  {additionalType.data.reExportOf ? (
-                    <p className="p-3">
-                      Re-Export of{' '}
-                      <Link
-                        href={multiple ? additionalType.data.reExportOf.slug : '#api-reference'}
-                      >
-                        {additionalType.data.reExportOf.name}
-                      </Link>{' '}
-                      {additionalType.data.reExportOf.suffix} as{' '}
-                      <code
-                        className="Code language-ts text-xs data-inline:mx-[0.1em]"
-                        data-inline=""
-                        data-table-code=""
-                      >
-                        <span className="pl-en">{additionalType.name.replaceAll('.', '')}</span>
-                      </code>
-                    </p>
-                  ) : (
-                    additionalType.data.formattedCode
-                  )}
-                </Accordion.Content>
-              </Accordion.Panel>
-            </Accordion.Item>
-          )
+          <Accordion.Item
+            className={isLast ? undefined : 'border-b border-gray-200'}
+            key={additionalType.name}
+          >
+            <Accordion.Trigger
+              id={additionalType.slug}
+              index={index}
+              className={`group relative flex w-full items-baseline justify-between gap-4 bg-gray-50 py-2 pr-1 pl-3 text-left font-medium hover:bg-gray-100 focus-visible:z-1 focus-visible:outline-2 focus-visible:outline-blue-800 scroll-mt-12 md:scroll-mt-0 ${isFirst ? 'rounded-t-[5px]' : ''} ${isLast ? 'rounded-b-[5px]' : ''}`}
+            >
+              {additionalType.name}
+              <PlusIcon className="mr-2 size-3 shrink-0 transition-all ease-out group-open:scale-110 group-open:rotate-45" />
+            </Accordion.Trigger>
+            <Accordion.Panel className="text-base text-gray-600">
+              <Accordion.Content>
+                {additionalType.data.reExportOf ? (
+                  <p className="p-3">
+                    Re-Export of{' '}
+                    <Link href={multiple ? additionalType.data.reExportOf.slug : '#api-reference'}>
+                      {additionalType.data.reExportOf.name}
+                    </Link>{' '}
+                    {additionalType.data.reExportOf.suffix} as{' '}
+                    <code
+                      className="Code language-ts text-xs data-inline:mx-[0.1em]"
+                      data-inline=""
+                      data-table-code=""
+                    >
+                      <span className="pl-en">{additionalType.name.replaceAll('.', '')}</span>
+                    </code>
+                  </p>
+                ) : (
+                  additionalType.data.formattedCode
+                )}
+              </Accordion.Content>
+            </Accordion.Panel>
+          </Accordion.Item>
         );
       })}
     </Accordion.Root>
