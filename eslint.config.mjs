@@ -163,7 +163,7 @@ export default defineConfig(
       'testing-library/prefer-screen-queries': 'off', // Enable usage of playwright queries
       'testing-library/no-await-sync-queries': 'off',
       'testing-library/render-result-naming-convention': 'off', // inconsequential in regression tests
-      'material-ui/consistent-production-guard': 'off',
+      'mui/consistent-production-guard': 'off',
     },
   },
 );
