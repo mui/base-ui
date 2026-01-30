@@ -143,10 +143,10 @@ export default function DateTimeFieldBasic() {
           </div>
         </section>
         <section>
-          <h2>With SectionList and Clear</h2>
+          <h2>Clear button</h2>
           <div className={styles.Form}>
             <Field.Root name="date-time-field-with-clear" className={styles.Field}>
-              <Field.Label className={styles.Label}>With SectionList</Field.Label>
+              <Field.Label className={styles.Label}>With clear button</Field.Label>
               <DateTimeField.Root className={styles.Root}>
                 <DateTimeField.SectionList>
                   {(section) => (
@@ -157,6 +157,7 @@ export default function DateTimeFieldBasic() {
                     />
                   )}
                 </DateTimeField.SectionList>
+                <DateTimeField.Clear className={styles.Clear} />
               </DateTimeField.Root>
             </Field.Root>
           </div>

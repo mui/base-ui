@@ -11,7 +11,7 @@ import {
   TemporalFieldSection,
   TemporalFieldValueChangeEventDetails,
 } from '../types';
-import { buildSections, mergeDateIntoReferenceDate } from '../utils';
+import { buildSections, isDatePart, mergeDateIntoReferenceDate } from '../utils';
 import { TemporalFieldFormatPlugin } from './TemporalFieldFormatPlugin';
 import { TemporalFieldSectionPlugin } from './TemporalFieldSectionPlugin';
 import { createChangeEventDetails } from '../../../createBaseUIEventDetails';
@@ -115,14 +115,18 @@ export class TemporalFieldValuePlugin<TValue extends TemporalSupportedValue> {
     if (manager.areValuesEqual(value, manager.emptyValue)) {
       const emptySections = TemporalFieldSectionPlugin.selectors
         .sections(this.store.state)
-        .map((section) => ({ ...section, value: '' }));
+        .map((section) => (isDatePart(section) ? { ...section, value: '' } : section));
 
       this.store.update({
         sections: emptySections,
         characterQuery: null,
+        selectedSection: 0,
       });
     } else {
-      this.store.characterEditing.resetCharacterQuery();
+      this.store.update({
+        characterQuery: null,
+        selectedSection: 0,
+      });
       this.publish(manager.emptyValue);
     }
   }
