@@ -30,7 +30,7 @@ importers:
         version: link:test
       '@mui/internal-code-infra':
         specifier: 0.0.3-canary.82
-        version: 0.0.3-canary.82(@next/eslint-plugin-next@16.1.4)(@types/node@22.18.13)(eslint-import-resolver-node@0.3.9)(eslint-plugin-import-x@4.16.1(@typescript-eslint/utils@8.53.1(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.3))(eslint-import-resolver-node@0.3.9)(eslint@9.39.2(jiti@2.6.1)))(eslint@9.39.2(jiti@2.6.1))(postcss@8.5.6)(prettier@3.8.1)(stylelint@16.26.1(typescript@5.9.3))(typescript@5.9.3)(vitest@4.0.17)
+        version: 0.0.3-canary.82(@next/eslint-plugin-next@16.1.5)(@types/node@22.18.13)(eslint-import-resolver-node@0.3.9)(eslint-plugin-import-x@4.16.1(@typescript-eslint/utils@8.53.1(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.3))(eslint-import-resolver-node@0.3.9)(eslint@9.39.2(jiti@2.6.1)))(eslint@9.39.2(jiti@2.6.1))(postcss@8.5.6)(prettier@3.8.1)(stylelint@16.26.1(typescript@5.9.3))(typescript@5.9.3)(vitest@4.0.17)
       '@mui/internal-netlify-cache':
         specifier: 0.0.2-canary.1
         version: 0.0.2-canary.1
@@ -38,8 +38,8 @@ importers:
         specifier: 2.0.18-canary.5
         version: 2.0.18-canary.5(@playwright/test@1.57.0)(@types/react-dom@19.2.3(@types/react@19.2.8))(@types/react@19.2.8)(@vitest/utils@4.0.17)(chai@6.2.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(vite@7.3.1(@types/node@22.18.13)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.46.0)(tsx@4.21.0)(yaml@2.8.2))(vitest@4.0.17)
       '@next/eslint-plugin-next':
-        specifier: 16.1.4
-        version: 16.1.4
+        specifier: 16.1.5
+        version: 16.1.5
       '@octokit/rest':
         specifier: 22.0.1
         version: 22.0.1
@@ -164,8 +164,8 @@ importers:
         specifier: 0.3.1-canary.14
         version: 0.3.1-canary.14(@types/react@19.2.8)(next@16.1.5(@babel/core@7.28.6)(@playwright/test@1.57.0)(babel-plugin-macros@3.1.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(prettier@3.8.1)(react@19.2.3)
       '@next/mdx':
-        specifier: ^16.1.4
-        version: 16.1.4(@mdx-js/loader@3.1.1(webpack@5.104.1))(@mdx-js/react@3.1.1(@types/react@19.2.8)(react@19.2.3))
+        specifier: ^16.1.5
+        version: 16.1.6(@mdx-js/loader@3.1.1(webpack@5.104.1))(@mdx-js/react@3.1.1(@types/react@19.2.8)(react@19.2.3))
       '@react-spring/web':
         specifier: ^10.0.3
         version: 10.0.3(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
@@ -2598,11 +2598,11 @@ packages:
   '@next/env@16.1.5':
     resolution: {integrity: sha512-CRSCPJiSZoi4Pn69RYBDI9R7YK2g59vLexPQFXY0eyw+ILevIenCywzg+DqmlBik9zszEnw2HLFOUlLAcJbL7g==}
 
-  '@next/eslint-plugin-next@16.1.4':
-    resolution: {integrity: sha512-38WMjGP8y+1MN4bcZFs+GTcBe0iem5GGTzFE5GWW/dWdRKde7LOXH3lQT2QuoquVWyfl2S0fQRchGmeacGZ4Wg==}
+  '@next/eslint-plugin-next@16.1.5':
+    resolution: {integrity: sha512-gUWcEsOl+1W7XakmouClcJ0TNFCkblvDUho31wulbDY9na0C6mGtBTSXGRU5GXJY65GjGj0zNaCD/GaBp888Mg==}
 
-  '@next/mdx@16.1.4':
-    resolution: {integrity: sha512-lher3tczPFUCKvB2LiUJKacGKTzqwkq0OH2rAubjQoORkeqxCsiD8MxncGGhjEJl/1vO9e803JLMnnYsGJsOZQ==}
+  '@next/mdx@16.1.6':
+    resolution: {integrity: sha512-PT5JR4WPPYOls7WD6xEqUVVI9HDY8kY7XLQsNYB2lSZk5eJSXWu3ECtIYmfR0hZpx8Sg7BKZYKi2+u5OTSEx0w==}
     peerDependencies:
       '@mdx-js/loader': '>=0.15.0'
       '@mdx-js/react': '>=0.15.0'
@@ -12368,7 +12368,7 @@ snapshots:
       - tsx
       - yaml
 
-  '@mui/internal-code-infra@0.0.3-canary.82(@next/eslint-plugin-next@16.1.4)(@types/node@22.18.13)(eslint-import-resolver-node@0.3.9)(eslint-plugin-import-x@4.16.1(@typescript-eslint/utils@8.53.1(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.3))(eslint-import-resolver-node@0.3.9)(eslint@9.39.2(jiti@2.6.1)))(eslint@9.39.2(jiti@2.6.1))(postcss@8.5.6)(prettier@3.8.1)(stylelint@16.26.1(typescript@5.9.3))(typescript@5.9.3)(vitest@4.0.17)':
+  '@mui/internal-code-infra@0.0.3-canary.82(@next/eslint-plugin-next@16.1.5)(@types/node@22.18.13)(eslint-import-resolver-node@0.3.9)(eslint-plugin-import-x@4.16.1(@typescript-eslint/utils@8.53.1(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.3))(eslint-import-resolver-node@0.3.9)(eslint@9.39.2(jiti@2.6.1)))(eslint@9.39.2(jiti@2.6.1))(postcss@8.5.6)(prettier@3.8.1)(stylelint@16.26.1(typescript@5.9.3))(typescript@5.9.3)(vitest@4.0.17)':
     dependencies:
       '@argos-ci/core': 4.5.0
       '@babel/cli': 7.28.6(@babel/core@7.28.6)
@@ -12388,7 +12388,7 @@ snapshots:
       '@mui/internal-babel-plugin-minify-errors': 2.0.8-canary.18(@babel/core@7.28.6)
       '@mui/internal-babel-plugin-resolve-imports': 2.0.7-canary.31(@babel/core@7.28.6)
       '@napi-rs/keyring': 1.2.0
-      '@next/eslint-plugin-next': 16.1.4
+      '@next/eslint-plugin-next': 16.1.5
       '@octokit/auth-action': 6.0.2
       '@octokit/oauth-methods': 6.0.2
       '@octokit/rest': 22.0.1
@@ -12658,11 +12658,11 @@ snapshots:
 
   '@next/env@16.1.5': {}
 
-  '@next/eslint-plugin-next@16.1.4':
+  '@next/eslint-plugin-next@16.1.5':
     dependencies:
       fast-glob: 3.3.1
 
-  '@next/mdx@16.1.4(@mdx-js/loader@3.1.1(webpack@5.104.1))(@mdx-js/react@3.1.1(@types/react@19.2.8)(react@19.2.3))':
+  '@next/mdx@16.1.6(@mdx-js/loader@3.1.1(webpack@5.104.1))(@mdx-js/react@3.1.1(@types/react@19.2.8)(react@19.2.3))':
     dependencies:
       source-map: 0.7.6
     optionalDependencies:
