@@ -3,7 +3,13 @@ import { ProcessedTypesMeta } from '@mui/internal-docs-infra/useTypes';
 import * as Accordion from '../Accordion';
 import { Link } from '../Link';
 
-export function AdditionalTypesAccordion({ data }: { data: ProcessedTypesMeta[] }) {
+export function AdditionalTypesAccordion({
+  data,
+  multiple,
+}: {
+  data: ProcessedTypesMeta[];
+  multiple?: boolean;
+}) {
   return (
     <Accordion.Root className="flex flex-col justify-center text-gray-900">
       {data.map((additionalType, index) => {
@@ -23,7 +29,9 @@ export function AdditionalTypesAccordion({ data }: { data: ProcessedTypesMeta[] 
                   {additionalType.data.reExportOf ? (
                     <p className="p-3">
                       Re-Export of{' '}
-                      <Link href={additionalType.data.reExportOf.slug}>
+                      <Link
+                        href={multiple ? additionalType.data.reExportOf.slug : '#api-reference'}
+                      >
                         {additionalType.data.reExportOf.name}
                       </Link>{' '}
                       {additionalType.data.reExportOf.suffix} as{' '}

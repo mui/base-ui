@@ -38,7 +38,7 @@ export function ReferenceTable(props: ReferenceTableProps) {
         )}
 
         {additionalTypes && additionalTypes.length > 0 && (
-          <AdditionalTypesAccordion data={additionalTypes} />
+          <AdditionalTypesAccordion data={additionalTypes} multiple={multiple} />
         )}
       </React.Fragment>
     );
@@ -59,7 +59,7 @@ export function ReferenceTable(props: ReferenceTableProps) {
         )}
 
         {additionalTypes && additionalTypes.length > 0 && (
-          <AdditionalTypesAccordion data={additionalTypes} />
+          <AdditionalTypesAccordion data={additionalTypes} multiple={multiple} />
         )}
       </React.Fragment>
     );
@@ -85,7 +85,7 @@ export function ReferenceTable(props: ReferenceTableProps) {
         )}
 
         {additionalTypes && additionalTypes.length > 0 && (
-          <AdditionalTypesAccordion data={additionalTypes} />
+          <AdditionalTypesAccordion data={additionalTypes} multiple={multiple} />
         )}
       </React.Fragment>
     );
@@ -144,7 +144,7 @@ export function ReferenceTable(props: ReferenceTableProps) {
         )}
 
         {additionalTypes && additionalTypes.length > 0 && (
-          <AdditionalTypesAccordion data={additionalTypes} />
+          <AdditionalTypesAccordion data={additionalTypes} multiple={multiple} />
         )}
       </React.Fragment>
     );
@@ -154,7 +154,7 @@ export function ReferenceTable(props: ReferenceTableProps) {
   return (
     <React.Fragment>
       {additionalTypes && additionalTypes.length > 0 && (
-        <AdditionalTypesAccordion data={additionalTypes} />
+        <AdditionalTypesAccordion data={additionalTypes} multiple={multiple} />
       )}
     </React.Fragment>
   );
