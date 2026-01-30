@@ -263,6 +263,14 @@ export interface TemporalFieldToken {
    * Boundaries for this date part when adjusting using arrow keys, Home/End, etc.
    */
   boundaries: TemporalFieldDatePartValueBoundaries;
+  /**
+   * Transfers the value of this date part from a source date to a target date.
+   */
+  transferValue(
+    sourceDate: TemporalSupportedObject,
+    targetDate: TemporalSupportedObject,
+    datePart: TemporalFieldDatePart,
+  ): TemporalSupportedObject;
 }
 
 export interface TemporalFieldSeparator {

@@ -6,6 +6,7 @@ import {
   TemporalSupportedObject,
 } from '../../../types';
 import {
+  TemporalFieldDatePart,
   TemporalFieldDatePartValueBoundaries,
   TemporalFieldParsedFormat,
   TemporalFieldSeparator,
@@ -13,7 +14,13 @@ import {
   TemporalFieldValidationProps,
 } from './types';
 import { TextDirection } from '../../../direction-provider';
-import { DATE_PART_GRANULARITY, isSeparator, isToken, removeLocalizedDigits } from './utils';
+import {
+  DATE_PART_GRANULARITY,
+  isSeparator,
+  isToken,
+  normalizeLeadingZeros,
+  removeLocalizedDigits,
+} from './utils';
 import {
   getLocalizedDigits,
   getLongestMonthInCurrentYear,
@@ -60,6 +67,9 @@ const DATE_PART_HELPERS_MAP: Record<TemporalFieldDatePartType, FormatParserDateP
       // }
       return adapter.formatByString(adapter.setYear(now, 1), tokenValue).startsWith('0');
     },
+    transferValue(adapter, sourceDate, targetDate) {
+      return adapter.setYear(targetDate, adapter.getYear(sourceDate));
+    },
   },
   month: {
     getBoundaries(adapter, tokenValue, tokenConfig, validationProps) {
@@ -101,6 +111,9 @@ const DATE_PART_HELPERS_MAP: Record<TemporalFieldDatePartType, FormatParserDateP
     isDigitTokenPadded(adapter, tokenValue, now) {
       return adapter.formatByString(adapter.startOfYear(now), tokenValue).length > 1;
     },
+    transferValue(adapter, sourceDate, targetDate) {
+      return adapter.setMonth(targetDate, adapter.getMonth(sourceDate));
+    },
   },
   weekDay: {
     getBoundaries(adapter, tokenValue, tokenConfig) {
@@ -133,6 +146,21 @@ const DATE_PART_HELPERS_MAP: Record<TemporalFieldDatePartType, FormatParserDateP
     },
     isDigitTokenPadded(adapter, tokenValue, now) {
       return adapter.formatByString(adapter.startOfWeek(now), tokenValue).length > 1;
+    },
+    transferValue(adapter, sourceDate, targetDate, datePart) {
+      let dayInWeekStrOfActiveDate = adapter.formatByString(sourceDate, datePart.token.value);
+      if (datePart.token.isPadded) {
+        dayInWeekStrOfActiveDate = normalizeLeadingZeros(
+          dayInWeekStrOfActiveDate,
+          datePart.token.maxLength!,
+        );
+      }
+
+      const formattedDaysInWeek = getWeekDaysStr(adapter, datePart.token.value);
+      const dayInWeekOfActiveDate = formattedDaysInWeek.indexOf(dayInWeekStrOfActiveDate);
+      const dayInWeekOfNewDatePartValue = formattedDaysInWeek.indexOf(datePart.value);
+      const diff = dayInWeekOfNewDatePartValue - dayInWeekOfActiveDate;
+      return adapter.addDays(sourceDate, diff);
     },
   },
   day: {
@@ -170,6 +198,9 @@ const DATE_PART_HELPERS_MAP: Record<TemporalFieldDatePartType, FormatParserDateP
     },
     isDigitTokenPadded(adapter, tokenValue, now) {
       return adapter.formatByString(adapter.startOfMonth(now), tokenValue).length > 1;
+    },
+    transferValue(adapter, sourceDate, targetDate) {
+      return adapter.setDate(targetDate, adapter.getDate(sourceDate));
     },
   },
   hours: {
@@ -229,6 +260,9 @@ const DATE_PART_HELPERS_MAP: Record<TemporalFieldDatePartType, FormatParserDateP
     isDigitTokenPadded(adapter, tokenValue, now) {
       return adapter.formatByString(adapter.setHours(now, 1), tokenValue).length > 1;
     },
+    transferValue(adapter, sourceDate, targetDate) {
+      return adapter.setHours(targetDate, adapter.getHours(sourceDate));
+    },
   },
   minutes: {
     getBoundaries(adapter, tokenValue, tokenConfig, validationProps) {
@@ -265,6 +299,9 @@ const DATE_PART_HELPERS_MAP: Record<TemporalFieldDatePartType, FormatParserDateP
     },
     isDigitTokenPadded(adapter, tokenValue, now) {
       return adapter.formatByString(adapter.setMinutes(now, 1), tokenValue).length > 1;
+    },
+    transferValue(adapter, sourceDate, targetDate) {
+      return adapter.setMinutes(targetDate, adapter.getMinutes(sourceDate));
     },
   },
   seconds: {
@@ -305,6 +342,9 @@ const DATE_PART_HELPERS_MAP: Record<TemporalFieldDatePartType, FormatParserDateP
     isDigitTokenPadded(adapter, tokenValue, now) {
       return adapter.formatByString(adapter.setSeconds(now, 1), tokenValue).length > 1;
     },
+    transferValue(adapter, sourceDate, targetDate) {
+      return adapter.setSeconds(targetDate, adapter.getSeconds(sourceDate));
+    },
   },
   meridiem: {
     getBoundaries(adapter, tokenValue, tokenConfig, validationProps) {
@@ -341,8 +381,22 @@ const DATE_PART_HELPERS_MAP: Record<TemporalFieldDatePartType, FormatParserDateP
       return placeholderGetters.meridiem({ format: tokenValue });
     },
     isDigitTokenPadded() {
-      // Meridiem is never a digit section.
+      // Meridiem is never a digit date part.
       return false;
+    },
+    transferValue(adapter, sourceDate, targetDate) {
+      const isAM = adapter.getHours(sourceDate) < 12;
+      const mergedDateHours = adapter.getHours(targetDate);
+
+      if (isAM && mergedDateHours >= 12) {
+        return adapter.addHours(targetDate, -12);
+      }
+
+      if (!isAM && mergedDateHours < 12) {
+        return adapter.addHours(targetDate, 12);
+      }
+
+      return targetDate;
     },
   },
 };
@@ -532,6 +586,8 @@ export class FormatParser {
         tokenConfig,
         this.validationProps,
       ),
+      transferValue: (sourceDate, targetDate, datePart) =>
+        helpers.transferValue(this.adapter, sourceDate, targetDate, datePart),
     };
   }
 
@@ -658,4 +714,10 @@ interface FormatParserDatePartConfig {
     tokenValue: string,
     now: TemporalSupportedObject,
   ) => boolean;
+  transferValue: (
+    adapter: TemporalAdapter,
+    sourceDate: TemporalSupportedObject,
+    targetDate: TemporalSupportedObject,
+    datePart: TemporalFieldDatePart,
+  ) => TemporalSupportedObject;
 }

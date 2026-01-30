@@ -143,7 +143,6 @@ export class TemporalFieldSectionPlugin<TValue extends TemporalSupportedValue> {
      */
     if (adapter.isValid(newActiveDate)) {
       const mergedDate = mergeDateIntoReferenceDate(
-        adapter,
         newActiveDate,
         newActiveDateSections,
         fieldConfig.getDateFromSection(referenceValue as any, section)!,

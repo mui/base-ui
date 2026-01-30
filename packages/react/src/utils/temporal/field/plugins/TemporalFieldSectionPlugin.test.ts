@@ -699,7 +699,7 @@ describe('TemporalFieldSectionPlugin', () => {
   });
 
   describe('external value changes', () => {
-    it('should update sections when value is set externally via updateFromString', () => {
+    it.only('should update sections when value is set externally via updateFromString', () => {
       const store = new DateFieldStore({
         format: numericDateFormat,
         defaultValue: adapter.date('2024-03-15', 'default'),

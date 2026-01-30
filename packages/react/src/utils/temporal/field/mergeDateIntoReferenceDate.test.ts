@@ -28,7 +28,7 @@ describe('mergeDateIntoReferenceDate', () => {
       const source = adapter.date('2030-06-20', 'default');
       const reference = adapter.date('2024-03-15', 'default');
 
-      const result = mergeDateIntoReferenceDate(adapter, source, sections, reference, false);
+      const result = mergeDateIntoReferenceDate(source, sections, reference, false);
 
       expect(adapter.getYear(result)).to.equal(2030);
       expect(adapter.getMonth(result)).to.equal(5); // June = 5 (0-indexed)
@@ -47,7 +47,7 @@ describe('mergeDateIntoReferenceDate', () => {
       const source = adapter.date('2024-09-15', 'default');
       const reference = adapter.date('2024-03-15', 'default');
 
-      const result = mergeDateIntoReferenceDate(adapter, source, sections, reference, false);
+      const result = mergeDateIntoReferenceDate(source, sections, reference, false);
 
       expect(adapter.getMonth(result)).to.equal(8); // September = 8 (0-indexed)
     });
@@ -64,7 +64,7 @@ describe('mergeDateIntoReferenceDate', () => {
       const source = adapter.date('2024-03-25', 'default');
       const reference = adapter.date('2024-03-15', 'default');
 
-      const result = mergeDateIntoReferenceDate(adapter, source, sections, reference, false);
+      const result = mergeDateIntoReferenceDate(source, sections, reference, false);
 
       expect(adapter.getDate(result)).to.equal(25);
     });
@@ -81,7 +81,7 @@ describe('mergeDateIntoReferenceDate', () => {
       const source = adapter.date('2024-03-15T09:30:45', 'default');
       const reference = adapter.date('2024-03-15T14:30:45', 'default');
 
-      const result = mergeDateIntoReferenceDate(adapter, source, sections, reference, false);
+      const result = mergeDateIntoReferenceDate(source, sections, reference, false);
 
       expect(adapter.getHours(result)).to.equal(9);
     });
@@ -98,7 +98,7 @@ describe('mergeDateIntoReferenceDate', () => {
       const source = adapter.date('2024-03-15T14:55:45', 'default');
       const reference = adapter.date('2024-03-15T14:30:45', 'default');
 
-      const result = mergeDateIntoReferenceDate(adapter, source, sections, reference, false);
+      const result = mergeDateIntoReferenceDate(source, sections, reference, false);
 
       expect(adapter.getMinutes(result)).to.equal(55);
     });
@@ -115,7 +115,7 @@ describe('mergeDateIntoReferenceDate', () => {
       const source = adapter.date('2024-03-15T14:30:10', 'default');
       const reference = adapter.date('2024-03-15T14:30:45', 'default');
 
-      const result = mergeDateIntoReferenceDate(adapter, source, sections, reference, false);
+      const result = mergeDateIntoReferenceDate(source, sections, reference, false);
 
       expect(adapter.getSeconds(result)).to.equal(10);
     });
@@ -134,7 +134,7 @@ describe('mergeDateIntoReferenceDate', () => {
       const source = adapter.date('2030-09-25', 'default');
       const reference = adapter.date('2024-03-15', 'default');
 
-      const result = mergeDateIntoReferenceDate(adapter, source, sections, reference, false);
+      const result = mergeDateIntoReferenceDate(source, sections, reference, false);
 
       expect(adapter.getYear(result)).to.equal(2030);
       expect(adapter.getMonth(result)).to.equal(8); // September = 8 (0-indexed)
@@ -159,7 +159,7 @@ describe('mergeDateIntoReferenceDate', () => {
       const source = adapter.date('2030-09-25', 'default');
       const reference = adapter.date('2024-03-15', 'default');
 
-      const result = mergeDateIntoReferenceDate(adapter, source, sections, reference, true);
+      const result = mergeDateIntoReferenceDate(source, sections, reference, true);
 
       // Only month should be transferred from source
       expect(adapter.getYear(result)).to.equal(2024); // unchanged from reference
@@ -182,7 +182,7 @@ describe('mergeDateIntoReferenceDate', () => {
       const source = adapter.date('2030-09-25', 'default');
       const reference = adapter.date('2024-03-15', 'default');
 
-      const result = mergeDateIntoReferenceDate(adapter, source, sections, reference, true);
+      const result = mergeDateIntoReferenceDate(source, sections, reference, true);
 
       // Nothing should be transferred; result should match reference
       expect(adapter.getYear(result)).to.equal(2024);
@@ -204,7 +204,7 @@ describe('mergeDateIntoReferenceDate', () => {
       const source = adapter.date('2024-03-15T08:30:00', 'default'); // 8 AM
       const reference = adapter.date('2024-03-15T20:30:00', 'default'); // 8 PM
 
-      const result = mergeDateIntoReferenceDate(adapter, source, sections, reference, false);
+      const result = mergeDateIntoReferenceDate(source, sections, reference, false);
 
       expect(adapter.getHours(result)).to.equal(8); // converted from PM to AM
     });
@@ -221,7 +221,7 @@ describe('mergeDateIntoReferenceDate', () => {
       const source = adapter.date('2024-03-15T20:30:00', 'default'); // 8 PM
       const reference = adapter.date('2024-03-15T08:30:00', 'default'); // 8 AM
 
-      const result = mergeDateIntoReferenceDate(adapter, source, sections, reference, false);
+      const result = mergeDateIntoReferenceDate(source, sections, reference, false);
 
       expect(adapter.getHours(result)).to.equal(20); // converted from AM to PM
     });
@@ -238,7 +238,7 @@ describe('mergeDateIntoReferenceDate', () => {
       const source = adapter.date('2024-03-15T14:30:00', 'default'); // 2 PM
       const reference = adapter.date('2024-03-15T16:45:00', 'default'); // 4 PM
 
-      const result = mergeDateIntoReferenceDate(adapter, source, sections, reference, false);
+      const result = mergeDateIntoReferenceDate(source, sections, reference, false);
 
       // Hours are transferred from source (14), and meridiem matches (both PM), so no adjustment
       expect(adapter.getHours(result)).to.equal(14);
@@ -266,7 +266,7 @@ describe('mergeDateIntoReferenceDate', () => {
       const source = adapter.date('2030-09-25', 'default');
       const reference = adapter.date('2024-03-15', 'default');
 
-      const result = mergeDateIntoReferenceDate(adapter, source, sections, reference, false);
+      const result = mergeDateIntoReferenceDate(source, sections, reference, false);
 
       expect(adapter.getYear(result)).to.equal(2030);
       expect(adapter.getMonth(result)).to.equal(8); // September = 8 (0-indexed)
@@ -287,7 +287,7 @@ describe('mergeDateIntoReferenceDate', () => {
       const source = adapter.date('2030-09-25', 'default');
       const reference = adapter.date('2024-03-15', 'default');
 
-      const result = mergeDateIntoReferenceDate(adapter, source, sections, reference, false);
+      const result = mergeDateIntoReferenceDate(source, sections, reference, false);
 
       // All parts should be correctly transferred despite the section order (month first, then day, then year)
       expect(adapter.getYear(result)).to.equal(2030);

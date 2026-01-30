@@ -94,7 +94,7 @@ export class TemporalFieldValuePlugin<TValue extends TemporalSupportedValue> {
       }
 
       const sections = buildSections(adapter, parsedFormat, date);
-      return mergeDateIntoReferenceDate(adapter, date, sections, referenceDate, false);
+      return mergeDateIntoReferenceDate(date, sections, referenceDate, false);
     };
 
     const newValue = fieldConfig.parseValueStr(
