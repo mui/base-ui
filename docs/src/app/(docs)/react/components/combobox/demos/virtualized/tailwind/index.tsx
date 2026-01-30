@@ -34,7 +34,9 @@ export default function ExampleVirtualizedCombobox() {
     >
       <label className="flex flex-col gap-1 text-sm leading-5 font-medium text-gray-900">
         Search 10,000 items
-        <Combobox.Input className="h-10 w-64 rounded-md font-normal border border-gray-200 pl-3.5 text-base text-gray-900 bg-[canvas] focus:outline focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800" />
+        <Combobox.InputGroup className="group">
+          <Combobox.Input className="h-10 w-64 rounded-md font-normal border border-gray-200 pl-3.5 text-base text-gray-900 bg-[canvas] focus:outline focus:outline-1 focus:-outline-offset-1 focus:outline-blue-800 group-data-[highlighted]:outline-2" />
+        </Combobox.InputGroup>
       </label>
 
       <Combobox.Portal>

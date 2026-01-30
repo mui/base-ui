@@ -135,27 +135,29 @@ export default function ExampleAsyncMultipleCombobox() {
         <label className={styles.Label} htmlFor={id}>
           Assign reviewers
         </label>
-        <Combobox.Chips className={styles.Chips} ref={containerRef}>
-          <Combobox.Value>
-            {(value: DirectoryUser[]) => (
-              <React.Fragment>
-                {value.map((user) => (
-                  <Combobox.Chip key={user.id} className={styles.Chip} aria-label={user.name}>
-                    {user.name}
-                    <Combobox.ChipRemove className={styles.ChipRemove} aria-label="Remove">
-                      <XIcon />
-                    </Combobox.ChipRemove>
-                  </Combobox.Chip>
-                ))}
-                <Combobox.Input
-                  id={id}
-                  placeholder={value.length > 0 ? '' : 'e.g. Michael'}
-                  className={styles.Input}
-                />
-              </React.Fragment>
-            )}
-          </Combobox.Value>
-        </Combobox.Chips>
+        <Combobox.InputGroup className={styles.InputGroup} ref={containerRef}>
+          <Combobox.Chips className={styles.Chips}>
+            <Combobox.Value>
+              {(value: DirectoryUser[]) => (
+                <React.Fragment>
+                  {value.map((user) => (
+                    <Combobox.Chip key={user.id} className={styles.Chip} aria-label={user.name}>
+                      {user.name}
+                      <Combobox.ChipRemove className={styles.ChipRemove} aria-label="Remove">
+                        <XIcon />
+                      </Combobox.ChipRemove>
+                    </Combobox.Chip>
+                  ))}
+                  <Combobox.Input
+                    id={id}
+                    placeholder={value.length > 0 ? '' : 'e.g. Michael'}
+                    className={styles.Input}
+                  />
+                </React.Fragment>
+              )}
+            </Combobox.Value>
+          </Combobox.Chips>
+        </Combobox.InputGroup>
       </div>
 
       <Combobox.Portal>

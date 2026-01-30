@@ -77,7 +77,9 @@ export default function ExampleAsyncAutocomplete() {
     >
       <label className={styles.Label}>
         Search movies by name or year
-        <Autocomplete.Input placeholder="e.g. Pulp Fiction or 1994" className={styles.Input} />
+        <Autocomplete.InputGroup className={styles.InputGroup}>
+          <Autocomplete.Input placeholder="e.g. Pulp Fiction or 1994" className={styles.Input} />
+        </Autocomplete.InputGroup>
       </label>
 
       <Autocomplete.Portal hidden={!status}>

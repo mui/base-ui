@@ -24,7 +24,9 @@ export default function ExampleAutocompleteLimit() {
     <Autocomplete.Root items={tags} value={value} onValueChange={setValue} limit={limit}>
       <label className={styles.Label}>
         Limit results to 8
-        <Autocomplete.Input placeholder="e.g. component" className={styles.Input} />
+        <Autocomplete.InputGroup className={styles.InputGroup}>
+          <Autocomplete.Input placeholder="e.g. component" className={styles.Input} />
+        </Autocomplete.InputGroup>
       </label>
 
       <Autocomplete.Portal>

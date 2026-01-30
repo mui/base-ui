@@ -63,12 +63,12 @@ export default function ExampleEmojiPicker() {
           <Autocomplete.Portal>
             <Autocomplete.Positioner className="outline-none" sideOffset={4} align="end">
               <Autocomplete.Popup className="[--input-container-height:3rem] max-w-[var(--available-width)] max-h-[20.5rem] origin-[var(--transform-origin)] rounded-lg bg-[canvas] shadow-lg shadow-gray-200 text-gray-900 outline-1 outline-gray-200 transition-[transform,scale,opacity] data-[ending-style]:scale-90 data-[ending-style]:opacity-0 data-[starting-style]:scale-90 data-[starting-style]:opacity-0 dark:shadow-none dark:-outline-offset-1 dark:outline-gray-300">
-                <div className="mx-1 flex h-[var(--input-container-height)] w-64 items-center justify-center bg-[canvas] text-center">
+                <Autocomplete.InputGroup className="group mx-1 flex h-[var(--input-container-height)] w-64 items-center justify-center bg-[canvas] text-center">
                   <Autocomplete.Input
                     placeholder="Search emojis…"
-                    className="h-10 w-[16rem] md:w-[20rem] font-normal rounded-md border border-gray-200 pl-3.5 text-base text-gray-900 focus:outline focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800"
+                    className="h-10 w-[16rem] md:w-[20rem] font-normal rounded-md border border-gray-200 pl-3.5 text-base text-gray-900 focus:outline focus:outline-1 focus:-outline-offset-1 focus:outline-blue-800 group-data-[highlighted]:outline-2"
                   />
-                </div>
+                </Autocomplete.InputGroup>
                 <Autocomplete.Empty className="px-4 pb-4 pt-2 text-[0.925rem] leading-4 text-gray-600 empty:m-0 empty:p-0">
                   No emojis found
                 </Autocomplete.Empty>

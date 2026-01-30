@@ -6,10 +6,12 @@ export default function ExampleAutocompleteAutoHighlight() {
     <Autocomplete.Root items={tags} autoHighlight>
       <label className="flex flex-col gap-1 text-sm leading-5 font-medium text-gray-900">
         Auto highlight on type
-        <Autocomplete.Input
-          placeholder="e.g. feature"
-          className="bg-[canvas] h-10 w-[16rem] md:w-[20rem] font-normal rounded-md border border-gray-200 pl-3.5 text-base text-gray-900 focus:outline focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800"
-        />
+        <Autocomplete.InputGroup className="group">
+          <Autocomplete.Input
+            placeholder="e.g. feature"
+            className="bg-[canvas] h-10 w-[16rem] md:w-[20rem] font-normal rounded-md border border-gray-200 pl-3.5 text-base text-gray-900 focus:outline focus:outline-1 focus:-outline-offset-1 focus:outline-blue-800 group-data-[highlighted]:outline-2"
+          />
+        </Autocomplete.InputGroup>
       </label>
 
       <Autocomplete.Portal>

@@ -61,9 +61,9 @@ export default function ExampleEmojiPicker() {
           <Autocomplete.Portal>
             <Autocomplete.Positioner className={styles.Positioner} sideOffset={4} align="end">
               <Autocomplete.Popup className={styles.Popup} aria-label="Select emoji">
-                <div className={styles.InputContainer}>
+                <Autocomplete.InputGroup className={styles.InputContainer}>
                   <Autocomplete.Input placeholder="Search emojis…" className={styles.Input} />
-                </div>
+                </Autocomplete.InputGroup>
                 <Autocomplete.Empty className={styles.Empty}>No emojis found</Autocomplete.Empty>
                 <Autocomplete.List
                   className={styles.List}

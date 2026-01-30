@@ -36,7 +36,9 @@ export default function ExampleVirtualizedAutocomplete() {
     >
       <label className={styles.Label}>
         Search 10,000 items
-        <Autocomplete.Input className={styles.Input} />
+        <Autocomplete.InputGroup className={styles.InputGroup}>
+          <Autocomplete.Input className={styles.Input} />
+        </Autocomplete.InputGroup>
       </label>
 
       <Autocomplete.Portal>

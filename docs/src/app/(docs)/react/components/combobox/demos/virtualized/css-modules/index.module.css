@@ -11,11 +11,15 @@
   background-color: canvas;
   color: var(--color-gray-900);
   outline: none;
+}
 
-  &:focus {
-    border-color: var(--color-blue);
-    outline: 1px solid var(--color-blue);
-  }
+.InputGroup:focus-within .Input {
+  border-color: var(--color-blue);
+  outline: 1px solid var(--color-blue);
+}
+
+.InputGroup[data-highlighted] .Input {
+  outline-width: 2px;
 }
 
 .Label {

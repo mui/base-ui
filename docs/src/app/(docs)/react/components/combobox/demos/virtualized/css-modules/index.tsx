@@ -35,7 +35,9 @@ export default function ExampleVirtualizedCombobox() {
     >
       <label className={styles.Label}>
         Search 10,000 items
-        <Combobox.Input className={styles.Input} />
+        <Combobox.InputGroup className={styles.InputGroup}>
+          <Combobox.Input className={styles.Input} />
+        </Combobox.InputGroup>
       </label>
 
       <Combobox.Portal>

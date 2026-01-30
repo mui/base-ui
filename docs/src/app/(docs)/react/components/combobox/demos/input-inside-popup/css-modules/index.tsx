@@ -22,9 +22,9 @@ export default function ExamplePopoverCombobox() {
         <Combobox.Portal>
           <Combobox.Positioner align="start" sideOffset={4}>
             <Combobox.Popup className={styles.Popup} aria-label="Select country">
-              <div className={styles.InputContainer}>
+              <Combobox.InputGroup className={styles.InputContainer}>
                 <Combobox.Input placeholder="e.g. United Kingdom" className={styles.Input} />
-              </div>
+              </Combobox.InputGroup>
               <Combobox.Empty className={styles.Empty}>No countries found.</Combobox.Empty>
               <Combobox.List className={styles.List}>
                 {(country: Country) => (
