@@ -14,4 +14,5 @@ export const TypesToastAction = types.Action;
 export const TypesToastClose = types.Close;
 export const TypesToastPositioner = types.Positioner;
 export const TypesToastArrow = types.Arrow;
+export const TypesToastUseToastManager = types.useToastManager;
 export const TypesToastAdditionalTypes = AdditionalTypes;

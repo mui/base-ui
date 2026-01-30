@@ -1273,9 +1273,8 @@ Creates a new handle to connect a Menu.Root with detached Menu.Trigger component
 
 **Return Value:**
 
-```tsx
-type ReturnValue = {};
-```
+| Property | Type | Description |
+| :------- | :--- | :---------- |
 
 ### Handle
 

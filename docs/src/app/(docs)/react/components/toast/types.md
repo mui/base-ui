@@ -400,18 +400,13 @@ Creates a new toast manager.
 
 **Return Value:**
 
-```tsx
-type ReturnValue = {
-  ' subscribe': (listener: (data: ToastManagerEvent) => void) => () => void;
-  add: (options: ToastManagerUpdateOptions<{}>) => string;
-  close: (id: string) => void;
-  update: (id: string, updates: ToastManagerUpdateOptions<{}>) => void;
-  promise: (
-    promiseValue: Promise<Value>,
-    options: ToastManagerPromiseOptions<Value, {}>,
-  ) => Promise<Value>;
-};
-```
+| Property     | Type                                                              | Description |
+| :----------- | :---------------------------------------------------------------- | :---------- |
+| ` subscribe` | `((listener: ((data: ToastManagerEvent) => void)) => (() => v...` | -           |
+| `add`        | `((options: ToastManagerUpdateOptions<{}>) => string)`            | -           |
+| `close`      | `((id: string) => void)`                                          | -           |
+| `update`     | `((id: string, updates: ToastManagerUpdateOptions<{}>) => voi...` | -           |
+| `promise`    | `((promiseValue: Promise<Value>, options: ToastManagerPromise...` | -           |
 
 ### useToastManager
 
@@ -419,18 +414,13 @@ Returns the array of toasts and methods to manage them.
 
 **Return Value:**
 
-```tsx
-type ReturnValue = {
-  toasts: ToastManagerAddOptions<any>[];
-  add: (options: ToastManagerUpdateOptions<{}>) => string;
-  close: (toastId: string) => void;
-  update: (toastId: string, options: ToastManagerUpdateOptions<{}>) => void;
-  promise: (
-    promise: Promise<Value>,
-    options: ToastManagerPromiseOptions<Value, {}>,
-  ) => Promise<Value>;
-};
-```
+| Property  | Type                                                              | Description |
+| :-------- | :---------------------------------------------------------------- | :---------- |
+| `toasts`  | `ToastManagerAddOptions<any>[]`                                   | -           |
+| `add`     | `((options: ToastManagerUpdateOptions<{}>) => string)`            | -           |
+| `close`   | `((toastId: string) => void)`                                     | -           |
+| `update`  | `((toastId: string, options: ToastManagerUpdateOptions<{}>) =...` | -           |
+| `promise` | `((promise: Promise<Value>, options: ToastManagerPromiseOptio...` | -           |
 
 ## Additional Types
 

@@ -266,6 +266,7 @@ import {
   TypesToastClose,
   TypesToastPositioner,
   TypesToastArrow,
+  TypesToastUseToastManager,
   TypesToastAdditionalTypes,
 } from './types';
 
@@ -321,84 +322,7 @@ Manages toasts, called inside of a `<Toast.Provider>`.
 const toastManager = Toast.useToastManager();
 ```
 
-### Return value
-
-<PropsReferenceTable
-  type="return"
-  data={{
-    toasts: {
-      type: 'Toast.Root.ToastObject[]',
-      description: 'The array of toast objects.',
-    },
-    add: {
-      type: '(options: ToastManagerAddOptions) => string',
-      description: 'Add a toast to the toast list.',
-    },
-    close: {
-      type: '(toastId: string) => void',
-      description: 'Closes and removes a toast from the toast list.',
-    },
-    update: {
-      type: '(toastId: string, options: ToastManagerUpdateOptions) => void',
-      description: 'Update a toast in the toast list.',
-    },
-    promise: {
-      type: '<Value>(promise: Promise<Value>, options: ToastManagerPromiseOptions) => Promise<Value>',
-      description:
-        'Create a toast that resolves with a value, with three possible states for the toast: `loading`, `success`, and `error`.',
-    },
-  }}
-/>
-
-### Method options
-
-<PropsReferenceTable
-  data={{
-    title: {
-      type: 'React.ReactNode',
-      description: 'The title of the toast.',
-    },
-    description: {
-      type: 'React.ReactNode',
-      description: 'The description of the toast.',
-    },
-    type: {
-      type: 'string',
-      description:
-        'The type of the toast. Used to conditionally style the toast or render different elements.',
-    },
-    timeout: {
-      type: 'number',
-      description: 'The amount of time (in ms) before the toast is auto dismissed.',
-    },
-    priority: {
-      type: "'low' | 'high'",
-      description: `
-        The priority of the toast.
-        - \`low\` - The toast will be announced politely.
-        - \`high\` - The toast will be announced urgently.
-      `,
-      default: "'low'",
-    },
-    onClose: {
-      type: '() => void',
-      description: 'A callback invoked when the toast is closed.',
-    },
-    onRemove: {
-      type: '() => void',
-      description:
-        'A callback invoked when the toast is removed from the list after animations complete when closed.',
-    },
-    actionProps: {
-      type: "React.ComponentPropsWithRef<'button'>",
-      description: 'The props of the action button.',
-    },
-    data: {
-      type: 'Record<string, unknown>',
-      description: 'The data of the toast.',
-    },
-  }}
-/>
+<TypesToastUseToastManager hideDescription />
 
 ### `add` method
 
@@ -469,7 +393,7 @@ const promise = toastManager.promise(
 );
 ```
 
-Each state also accepts the [method options](/react/components/toast#method-options) object to granularly control the toast for each state:
+Each state also accepts the [method options](#toastmanagerupdateoptions) object to granularly control the toast for each state:
 
 ```tsx title="Method options configuration"
 const promise = toastManager.promise(
@@ -498,6 +422,8 @@ const promise = toastManager.promise(
   },
 );
 ```
+
+See full [`promise` method options](#toastmanagerpromiseoptions)
 
 ## Additional Types
 

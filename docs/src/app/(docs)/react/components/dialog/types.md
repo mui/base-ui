@@ -385,9 +385,8 @@ Creates a new handle to connect a Dialog.Root with detached Dialog.Trigger compo
 
 **Return Value:**
 
-```tsx
-type ReturnValue = {};
-```
+| Property | Type | Description |
+| :------- | :--- | :---------- |
 
 ### Handle
 

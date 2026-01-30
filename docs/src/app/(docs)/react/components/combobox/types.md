@@ -915,13 +915,11 @@ Matches items against a query using `Intl.Collator` for robust string matching.
 
 **Return Value:**
 
-```tsx
-type ReturnValue = {
-  contains: (item: Item, query: string, itemToString?: (item: Item) => string) => boolean;
-  startsWith: (item: Item, query: string, itemToString?: (item: Item) => string) => boolean;
-  endsWith: (item: Item, query: string, itemToString?: (item: Item) => string) => boolean;
-};
-```
+| Property     | Type                                                              | Description |
+| :----------- | :---------------------------------------------------------------- | :---------- |
+| `contains`   | `((item: Item, query: string, itemToString?: ((item: Item) =>...` | -           |
+| `startsWith` | `((item: Item, query: string, itemToString?: ((item: Item) =>...` | -           |
+| `endsWith`   | `((item: Item, query: string, itemToString?: ((item: Item) =>...` | -           |
 
 ### useFilteredItems
 

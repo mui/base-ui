@@ -5,7 +5,6 @@ import { ReferenceAccordion } from './ReferenceAccordion';
 import { AttributesReferenceTable } from './AttributesReferenceTable';
 import { CssVariablesReferenceTable } from './CssVariablesReferenceTable';
 import { ParametersReferenceTable } from './ParametersReferenceTable';
-import { ReturnValueReferenceTable } from './ReturnValueReferenceTable';
 import { PropertiesReferenceAccordion } from './PropertiesReferenceAccordion';
 import { MethodsReferenceAccordion } from './MethodsReferenceAccordion';
 import { AdditionalTypesAccordion } from './AdditionalTypesAccordion';
@@ -61,7 +60,17 @@ export function ReferenceTable(props: ReferenceTableProps) {
         )}
 
         {data.returnValue && data.returnValue.kind === 'object' && (
-          <ReturnValueReferenceTable data={data.returnValue.properties} className="mt-5 mb-6" />
+          <React.Fragment>
+            <SectionHeading>Return value</SectionHeading>
+            <ReferenceAccordion
+              name={data.name}
+              data={data.returnValue.properties}
+              nameLabel="Property"
+              caption="Return value properties table"
+              hideRequired
+              className="mb-6"
+            />
+          </React.Fragment>
         )}
 
         {additionalTypes && additionalTypes.length > 0 && (
@@ -84,10 +93,24 @@ export function ReferenceTable(props: ReferenceTableProps) {
           </React.Fragment>
         )}
 
-        {data.returnValue && (
+        {data.returnValue && data.returnValue.kind === 'object' && (
+          <React.Fragment>
+            <SectionHeading>Return value</SectionHeading>
+            <ReferenceAccordion
+              name={data.name}
+              data={data.returnValue.properties}
+              nameLabel="Property"
+              caption="Return value properties table"
+              hideRequired
+              className="mb-6"
+            />
+          </React.Fragment>
+        )}
+
+        {data.returnValue && data.returnValue.kind === 'simple' && (
           <div className="mb-6">
             <SectionHeading>Return value</SectionHeading>
-            {data.returnValue}
+            {data.returnValue.type}
           </div>
         )}
 

@@ -381,9 +381,8 @@ type AlertDialogViewportState = {
 
 **Return Value:**
 
-```tsx
-type ReturnValue = {};
-```
+| Property | Type | Description |
+| :------- | :--- | :---------- |
 
 ### Handle
 

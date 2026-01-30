@@ -15,7 +15,6 @@ function TableDefault({ children }: { children: React.ReactNode }) {
 
 interface Props extends React.ComponentPropsWithoutRef<any> {
   data: Record<string, ProcessedProperty>;
-  type?: 'props' | 'return';
   name: string;
   // When reusing a component's reference for another component,
   // replace occurrences of "renameFrom.*" with "renameTo.*" in types
@@ -23,6 +22,8 @@ interface Props extends React.ComponentPropsWithoutRef<any> {
   renameTo?: string;
   nameLabel?: string;
   caption?: string;
+  /** Hide the required indicator (red star) - useful for return values where "required" doesn't apply */
+  hideRequired?: boolean;
 }
 
 export function ReferenceAccordion({
@@ -32,6 +33,7 @@ export function ReferenceAccordion({
   renameTo,
   nameLabel = 'Prop',
   caption = 'Component props table',
+  hideRequired = false,
   ...props
 }: Props) {
   const captionId = `${partName}-caption`;
@@ -66,13 +68,17 @@ export function ReferenceAccordion({
             <Accordion.Trigger
               id={id}
               index={index}
-              aria-label={`${nameLabel}: ${name},${prop.required ? ' required,' : ''} type: ${shortTypeText} ${defaultText !== undefined ? `(default: ${defaultText})` : ''}`}
+              aria-label={`${nameLabel}: ${name},${!hideRequired && prop.required ? ' required,' : ''} type: ${shortTypeText} ${defaultText !== undefined ? `(default: ${defaultText})` : ''}`}
               className={clsx('min-h-min scroll-mt-12 p-0 md:scroll-mt-0', TRIGGER_GRID_LAYOUT)}
             >
               <Accordion.Scrollable className="px-3">
                 <TableCode className="text-navy whitespace-nowrap">
                   {name}
-                  {prop.required ? <sup className="top-[-0.3em] text-xs text-red-800">*</sup> : ''}
+                  {!hideRequired && prop.required ? (
+                    <sup className="top-[-0.3em] text-xs text-red-800">*</sup>
+                  ) : (
+                    ''
+                  )}
                 </TableCode>
               </Accordion.Scrollable>
               {prop.type && (
