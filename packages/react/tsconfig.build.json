@@ -9,8 +9,7 @@
     "module": "esnext",
     "moduleResolution": "bundler",
     "noEmit": false,
-    "rootDir": "./src",
-    "outDir": "build/esm"
+    "rootDir": "./src"
   },
   "include": ["src/**/*.ts*"],
   "exclude": ["src/**/*.spec.ts*", "src/**/*.test.ts*"],
