@@ -1444,4 +1444,153 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
       });
     });
   });
+
+  describe('weekDay section (format with both weekDay and day)', () => {
+    // Format: "EEEE, MMMM dd, yyyy" (e.g., "Friday, January 30, 2026")
+    // Section indices: 0=weekDay, 1=sep, 2=month, 3=sep, 4=day, 5=sep, 6=year
+    const weekDayDateFormat = `${adapter.formats.weekday}, ${adapter.formats.monthFullLetter} ${adapter.formats.dayOfMonthPadded}, ${adapter.formats.yearPadded}`;
+
+    describe('ArrowDown', () => {
+      it('should decrement weekDay when format has both weekDay and day', () => {
+        const store = new DateFieldStore({
+          format: weekDayDateFormat,
+          defaultValue: adapter.date('2026-01-30', 'default'), // Friday
+          adapter,
+          direction: 'ltr',
+        });
+
+        // weekDay section is index 0
+        store.section.selectClosestDatePart(0);
+        store.valueAdjustment.adjustActiveDatePartValue('ArrowDown', 0);
+
+        // Should now show Thursday
+        expect(getDatePartValue(store, 0)).to.equal('Thursday');
+
+        // The actual date should be January 29, 2026 (Thursday)
+        const value = TemporalFieldValuePlugin.selectors.value(store.state);
+        expect(adapter.getDate(value!)).to.equal(29);
+      });
+    });
+
+    describe('ArrowUp', () => {
+      it('should increment weekDay when format has both weekDay and day', () => {
+        const store = new DateFieldStore({
+          format: weekDayDateFormat,
+          defaultValue: adapter.date('2026-01-30', 'default'), // Friday
+          adapter,
+          direction: 'ltr',
+        });
+
+        store.section.selectClosestDatePart(0);
+        store.valueAdjustment.adjustActiveDatePartValue('ArrowUp', 0);
+
+        // Should now show Saturday
+        expect(getDatePartValue(store, 0)).to.equal('Saturday');
+
+        // The actual date should be January 31, 2026 (Saturday)
+        const value = TemporalFieldValuePlugin.selectors.value(store.state);
+        expect(adapter.getDate(value!)).to.equal(31);
+      });
+    });
+
+    describe('PageDown', () => {
+      it('should decrement weekDay by 5 when format has both weekDay and day', () => {
+        const store = new DateFieldStore({
+          format: weekDayDateFormat,
+          defaultValue: adapter.date('2026-01-30', 'default'), // Friday (day 5)
+          adapter,
+          direction: 'ltr',
+        });
+
+        store.section.selectClosestDatePart(0);
+        store.valueAdjustment.adjustActiveDatePartValue('PageDown', 0);
+
+        // Friday - 5 = Sunday (wraps around)
+        expect(getDatePartValue(store, 0)).to.equal('Sunday');
+
+        // The actual date should be January 25, 2026 (Sunday)
+        const value = TemporalFieldValuePlugin.selectors.value(store.state);
+        expect(adapter.getDate(value!)).to.equal(25);
+      });
+    });
+
+    describe('PageUp', () => {
+      it('should increment weekDay by 5 when format has both weekDay and day', () => {
+        const store = new DateFieldStore({
+          format: weekDayDateFormat,
+          defaultValue: adapter.date('2026-01-30', 'default'), // Friday (day 5)
+          adapter,
+          direction: 'ltr',
+        });
+
+        store.section.selectClosestDatePart(0);
+        store.valueAdjustment.adjustActiveDatePartValue('PageUp', 0);
+
+        // Friday + 5 in options = Wednesday (wraps around in the cycle)
+        expect(getDatePartValue(store, 0)).to.equal('Wednesday');
+
+        // The actual date should be January 28, 2026 (Wednesday)
+        // Wednesday is 2 days before Friday, so Jan 30 - 2 = Jan 28
+        const value = TemporalFieldValuePlugin.selectors.value(store.state);
+        expect(adapter.getDate(value!)).to.equal(28);
+        expect(adapter.getMonth(value!)).to.equal(0); // January (0-indexed)
+      });
+    });
+
+    describe('other date parts should still work', () => {
+      it('should increment month correctly with weekDay in format', () => {
+        const store = new DateFieldStore({
+          format: weekDayDateFormat,
+          defaultValue: adapter.date('2026-01-30', 'default'), // Friday, January 30, 2026
+          adapter,
+          direction: 'ltr',
+        });
+
+        // month section is index 2
+        store.section.selectClosestDatePart(2);
+        store.valueAdjustment.adjustActiveDatePartValue('ArrowUp', 2);
+
+        // Should now show February
+        expect(getDatePartValue(store, 2)).to.equal('February');
+      });
+
+      it('should increment day correctly with weekDay in format', () => {
+        const store = new DateFieldStore({
+          format: weekDayDateFormat,
+          defaultValue: adapter.date('2026-01-30', 'default'), // Friday, January 30, 2026
+          adapter,
+          direction: 'ltr',
+        });
+
+        // day section is index 4
+        store.section.selectClosestDatePart(4);
+        store.valueAdjustment.adjustActiveDatePartValue('ArrowUp', 4);
+
+        // Day should be 31
+        expect(getDatePartValue(store, 4)).to.equal('31');
+
+        // WeekDay should update to Saturday
+        expect(getDatePartValue(store, 0)).to.equal('Saturday');
+      });
+
+      it('should increment year correctly with weekDay in format', () => {
+        const store = new DateFieldStore({
+          format: weekDayDateFormat,
+          defaultValue: adapter.date('2026-01-30', 'default'), // Friday, January 30, 2026
+          adapter,
+          direction: 'ltr',
+        });
+
+        // year section is index 6
+        store.section.selectClosestDatePart(6);
+        store.valueAdjustment.adjustActiveDatePartValue('ArrowUp', 6);
+
+        // Year should be 2027
+        expect(getDatePartValue(store, 6)).to.equal('2027');
+
+        // WeekDay should update to Saturday (Jan 30, 2027 is Saturday)
+        expect(getDatePartValue(store, 0)).to.equal('Saturday');
+      });
+    });
+  });
 });

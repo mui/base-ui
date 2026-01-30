@@ -285,7 +285,7 @@ export function mergeDateIntoReferenceDate(
   let targetDate = referenceDate;
   for (const datePart of dateParts) {
     if (!shouldLimitToEditedSections || datePart.modified) {
-      targetDate = datePart.token.transferValue(sourceDate, targetDate);
+      targetDate = datePart.token.transferValue(sourceDate, targetDate, datePart);
     }
   }
   return targetDate;

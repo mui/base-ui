@@ -6,6 +6,7 @@ import {
   TemporalSupportedObject,
 } from '../../../types';
 import {
+  TemporalFieldDatePart,
   TemporalFieldDatePartValueBoundaries,
   TemporalFieldParsedFormat,
   TemporalFieldSeparator,
@@ -60,7 +61,7 @@ const DATE_PART_HELPERS_MAP: Record<TemporalFieldDatePartType, FormatParserDateP
       // }
       return adapter.formatByString(adapter.setYear(now, 1), tokenValue).startsWith('0');
     },
-    transferValue(adapter, sourceDate, targetDate) {
+    transferValue(adapter, sourceDate, targetDate, _datePart) {
       return adapter.setYear(targetDate, adapter.getYear(sourceDate));
     },
   },
@@ -104,7 +105,7 @@ const DATE_PART_HELPERS_MAP: Record<TemporalFieldDatePartType, FormatParserDateP
     isDigitTokenPadded(adapter, tokenValue, now) {
       return adapter.formatByString(adapter.startOfYear(now), tokenValue).length > 1;
     },
-    transferValue(adapter, sourceDate, targetDate) {
+    transferValue(adapter, sourceDate, targetDate, _datePart) {
       return adapter.setMonth(targetDate, adapter.getMonth(sourceDate));
     },
   },
@@ -140,11 +141,16 @@ const DATE_PART_HELPERS_MAP: Record<TemporalFieldDatePartType, FormatParserDateP
     isDigitTokenPadded(adapter, tokenValue, now) {
       return adapter.formatByString(adapter.startOfWeek(now), tokenValue).length > 1;
     },
-    transferValue(adapter, sourceDate, targetDate) {
-      const sourceDayOfWeek = adapter.getDayOfWeek(sourceDate);
-      const targetDayOfWeek = adapter.getDayOfWeek(targetDate);
-      const diff = sourceDayOfWeek - targetDayOfWeek;
-      return adapter.addDays(targetDate, diff);
+    transferValue(adapter, sourceDate, _targetDate, datePart) {
+      // We can't use targetDate here, because if both day and weekDay are in the format,
+      // Then targetDate's weekDay might not reflect datePart.value.
+      const formattedDaysInWeek = getWeekDaysStr(adapter, datePart.token.value);
+      const sourceDayInWeek = formattedDaysInWeek.indexOf(
+        adapter.formatByString(sourceDate, datePart.token.value),
+      );
+      const targetDayInWeek = formattedDaysInWeek.indexOf(datePart.value);
+      const diff = targetDayInWeek - sourceDayInWeek;
+      return adapter.addDays(sourceDate, diff);
     },
   },
   day: {
@@ -183,7 +189,7 @@ const DATE_PART_HELPERS_MAP: Record<TemporalFieldDatePartType, FormatParserDateP
     isDigitTokenPadded(adapter, tokenValue, now) {
       return adapter.formatByString(adapter.startOfMonth(now), tokenValue).length > 1;
     },
-    transferValue(adapter, sourceDate, targetDate) {
+    transferValue(adapter, sourceDate, targetDate, _datePart) {
       return adapter.setDate(targetDate, adapter.getDate(sourceDate));
     },
   },
@@ -244,7 +250,7 @@ const DATE_PART_HELPERS_MAP: Record<TemporalFieldDatePartType, FormatParserDateP
     isDigitTokenPadded(adapter, tokenValue, now) {
       return adapter.formatByString(adapter.setHours(now, 1), tokenValue).length > 1;
     },
-    transferValue(adapter, sourceDate, targetDate) {
+    transferValue(adapter, sourceDate, targetDate, _datePart) {
       return adapter.setHours(targetDate, adapter.getHours(sourceDate));
     },
   },
@@ -284,7 +290,7 @@ const DATE_PART_HELPERS_MAP: Record<TemporalFieldDatePartType, FormatParserDateP
     isDigitTokenPadded(adapter, tokenValue, now) {
       return adapter.formatByString(adapter.setMinutes(now, 1), tokenValue).length > 1;
     },
-    transferValue(adapter, sourceDate, targetDate) {
+    transferValue(adapter, sourceDate, targetDate, _datePart) {
       return adapter.setMinutes(targetDate, adapter.getMinutes(sourceDate));
     },
   },
@@ -326,7 +332,7 @@ const DATE_PART_HELPERS_MAP: Record<TemporalFieldDatePartType, FormatParserDateP
     isDigitTokenPadded(adapter, tokenValue, now) {
       return adapter.formatByString(adapter.setSeconds(now, 1), tokenValue).length > 1;
     },
-    transferValue(adapter, sourceDate, targetDate) {
+    transferValue(adapter, sourceDate, targetDate, _datePart) {
       return adapter.setSeconds(targetDate, adapter.getSeconds(sourceDate));
     },
   },
@@ -368,7 +374,7 @@ const DATE_PART_HELPERS_MAP: Record<TemporalFieldDatePartType, FormatParserDateP
       // Meridiem is never a digit date part.
       return false;
     },
-    transferValue(adapter, sourceDate, targetDate) {
+    transferValue(adapter, sourceDate, targetDate, _datePart) {
       const sourceIsAM = adapter.getHours(sourceDate) < 12;
       const targetIsAM = adapter.getHours(targetDate) < 12;
 
@@ -566,8 +572,8 @@ export class FormatParser {
         tokenConfig,
         this.validationProps,
       ),
-      transferValue: (sourceDate, targetDate) =>
-        helpers.transferValue(this.adapter, sourceDate, targetDate),
+      transferValue: (sourceDate, targetDate, datePart) =>
+        helpers.transferValue(this.adapter, sourceDate, targetDate, datePart),
     };
   }
 
@@ -647,12 +653,7 @@ export class FormatParser {
       }
     }
 
-    return this.markMostGranularPart(elements);
-  }
-
-  private markMostGranularPart(
-    elements: (TemporalFieldToken | TemporalFieldSeparator)[],
-  ): TemporalFieldParsedFormat {
+    // Mark the most granular part
     let mostGranularToken: TemporalFieldToken | null = null;
     let highestGranularity = 0;
 
@@ -698,5 +699,6 @@ interface FormatParserDatePartConfig {
     adapter: TemporalAdapter,
     sourceDate: TemporalSupportedObject,
     targetDate: TemporalSupportedObject,
+    datePart: TemporalFieldDatePart,
   ) => TemporalSupportedObject;
 }

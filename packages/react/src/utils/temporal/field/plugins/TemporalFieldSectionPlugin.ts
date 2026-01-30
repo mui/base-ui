@@ -100,13 +100,13 @@ export class TemporalFieldSectionPlugin<TValue extends TemporalSupportedValue> {
     sectionIndex,
     newDatePartValue,
     shouldGoToNextSection,
-  }: UpdateValueParameters) {
+  }: UpdateDatePartParameters) {
     const value = TemporalFieldValuePlugin.selectors.value(this.store.state);
     const fieldConfig = selectors.config(this.store.state);
     const referenceValue = TemporalFieldValuePlugin.selectors.referenceValue(this.store.state);
     const adapter = selectors.adapter(this.store.state);
-    const section = TemporalFieldSectionPlugin.selectors.datePart(this.store.state, sectionIndex);
-    if (section == null) {
+    const datePart = TemporalFieldSectionPlugin.selectors.datePart(this.store.state, sectionIndex);
+    if (datePart == null) {
       return undefined;
     }
 
@@ -115,7 +115,7 @@ export class TemporalFieldSectionPlugin<TValue extends TemporalSupportedValue> {
     this.store.timeoutManager.clearTimeout('updateSectionValueOnNextInvalidDate');
     this.store.timeoutManager.clearTimeout('cleanActiveDateSectionsIfValueNull');
 
-    const activeDate = fieldConfig.getDateFromSection(value, section);
+    const activeDate = fieldConfig.getDateFromSection(value, datePart);
 
     /**
      * Decide which section should be focused
@@ -132,7 +132,7 @@ export class TemporalFieldSectionPlugin<TValue extends TemporalSupportedValue> {
       sectionIndex,
       newDatePartValue,
     );
-    const newActiveDateSections = fieldConfig.getDateSectionsFromValue(newSections, section);
+    const newActiveDateSections = fieldConfig.getDateSectionsFromValue(newSections, datePart);
     const newActiveDate = this.getDateFromDateSections(newActiveDateSections);
 
     /**
@@ -144,19 +144,19 @@ export class TemporalFieldSectionPlugin<TValue extends TemporalSupportedValue> {
       const mergedDate = mergeDateIntoReferenceDate(
         newActiveDate,
         newActiveDateSections,
-        fieldConfig.getDateFromSection(referenceValue as any, section)!,
+        fieldConfig.getDateFromSection(referenceValue as any, datePart)!,
         true,
       );
 
       if (activeDate == null) {
         this.store.timeoutManager.startTimeout('cleanActiveDateSectionsIfValueNull', 0, () => {
           if (this.store.state.value === value) {
-            this.store.set('sections', fieldConfig.clearDateSections(sections, section));
+            this.store.set('sections', fieldConfig.clearDateSections(sections, datePart));
           }
         });
       }
 
-      return this.store.value.publish(fieldConfig.updateDateInValue(value, section, mergedDate));
+      return this.store.value.publish(fieldConfig.updateDateInValue(value, datePart, mergedDate));
     }
 
     /**
@@ -168,7 +168,9 @@ export class TemporalFieldSectionPlugin<TValue extends TemporalSupportedValue> {
       (activeDate == null || adapter.isValid(activeDate))
     ) {
       this.setSectionUpdateToApplyOnNextInvalidDate(sectionIndex, newDatePartValue);
-      return this.store.value.publish(fieldConfig.updateDateInValue(value, section, newActiveDate));
+      return this.store.value.publish(
+        fieldConfig.updateDateInValue(value, datePart, newActiveDate),
+      );
     }
 
     /**
@@ -178,7 +180,7 @@ export class TemporalFieldSectionPlugin<TValue extends TemporalSupportedValue> {
      */
     if (activeDate != null) {
       this.setSectionUpdateToApplyOnNextInvalidDate(sectionIndex, newDatePartValue);
-      this.store.value.publish(fieldConfig.updateDateInValue(value, section, newActiveDate));
+      this.store.value.publish(fieldConfig.updateDateInValue(value, datePart, newActiveDate));
     }
 
     /**
@@ -329,7 +331,7 @@ export class TemporalFieldSectionPlugin<TValue extends TemporalSupportedValue> {
   };
 }
 
-interface UpdateValueParameters {
+interface UpdateDatePartParameters {
   /**
    * The section on which we want to apply the new value.
    */

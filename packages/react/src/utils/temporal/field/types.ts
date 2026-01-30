@@ -269,6 +269,7 @@ export interface TemporalFieldToken {
   transferValue(
     sourceDate: TemporalSupportedObject,
     targetDate: TemporalSupportedObject,
+    datePart: TemporalFieldDatePart,
   ): TemporalSupportedObject;
 }
 
