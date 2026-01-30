@@ -1,3 +1,4 @@
+'use client';
 import c from 'clsx';
 import * as React from 'react';
 import { useMergedRefsN } from '@base-ui/utils/useMergedRefs';
