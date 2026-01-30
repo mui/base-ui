@@ -81,6 +81,9 @@ export default defineConfig(
       'react-hooks/immutability': 'off',
       'react-hooks/incompatible-library': 'off',
       'react-hooks/refs': 'off',
+
+      // TODO (@Janpot) REconfigure test env to not use production guard
+      'mui/consistent-production-guard': 'off',
     },
   },
   {
