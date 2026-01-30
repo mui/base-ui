@@ -2,10 +2,21 @@ import * as React from 'react';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useTimeout } from '@base-ui/utils/useTimeout';
-import { contains, stopEvent } from '../utils';
+import { contains } from '../utils';
 
 import type { ElementProps, FloatingContext, FloatingRootContext } from '../types';
 import { EMPTY_ARRAY } from '../../utils/constants';
+
+// Track handled native events without mutating them so ancestors can skip typeahead.
+const handledTypeaheadEvents = new WeakSet<Event>();
+
+function isTypeaheadEventHandled(event: React.KeyboardEvent) {
+  return handledTypeaheadEvents.has(event.nativeEvent);
+}
+
+function markTypeaheadEventHandled(event: React.KeyboardEvent) {
+  handledTypeaheadEvents.add(event.nativeEvent);
+}
 
 export interface UseTypeaheadProps {
   /**
@@ -46,6 +57,11 @@ export interface UseTypeaheadProps {
    */
   resetMs?: number | undefined;
   /**
+   * Whether to stop event propagation after typeahead handles the key.
+   * @default true
+   */
+  stopPropagation?: boolean | undefined;
+  /**
    * An array of keys to ignore when typing.
    * @default []
    */
@@ -77,6 +93,7 @@ export function useTypeahead(
     enabled = true,
     findMatch = null,
     resetMs = 750,
+    stopPropagation = true,
     ignoreKeys = EMPTY_ARRAY,
     selectedIndex = null,
   } = props;
@@ -118,7 +135,24 @@ export function useTypeahead(
     }
   });
 
+  function handleTypeaheadEvent(event: React.KeyboardEvent) {
+    markTypeaheadEventHandled(event);
+    event.preventDefault();
+
+    if (stopPropagation) {
+      event.stopPropagation();
+    }
+  }
+
   const onKeyDown = useStableCallback((event: React.KeyboardEvent) => {
+    // Allow bubbling for group handlers, but avoid parent typeahead re-running.
+    if (isTypeaheadEventHandled(event)) {
+      if (stopPropagation) {
+        event.stopPropagation();
+      }
+      return;
+    }
+
     function getMatchingIndex(
       list: Array<string | null>,
       orderedList: Array<string | null>,
@@ -139,7 +173,7 @@ export function useTypeahead(
       if (getMatchingIndex(listContent, listContent, stringRef.current) === -1) {
         setTypingChange(false);
       } else if (event.key === ' ') {
-        stopEvent(event);
+        handleTypeaheadEvent(event);
       }
     }
 
@@ -157,7 +191,7 @@ export function useTypeahead(
     }
 
     if (open && event.key !== ' ') {
-      stopEvent(event);
+      handleTypeaheadEvent(event);
       setTypingChange(true);
     }
 
