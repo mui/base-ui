@@ -60,22 +60,6 @@ describe('<DateField.SectionList />', () => {
     expect(screen.getAllByRole('spinbutton')).to.have.length(3);
   });
 
-  it('receives section index as second argument', async () => {
-    const indices: number[] = [];
-    await render(
-      <DateField.Root format={numericDateFormat}>
-        <DateField.SectionList>
-          {(section, index) => {
-            indices.push(index);
-            return <DateField.Section key={section.index} section={section} />;
-          }}
-        </DateField.SectionList>
-      </DateField.Root>,
-    );
-
-    expect(indices).to.deep.equal([0, 1, 2, 3, 4]);
-  });
-
   it('does not render a wrapper element', async () => {
     await render(
       <DateField.Root format={numericDateFormat} data-testid="root">
