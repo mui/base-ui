@@ -7,7 +7,13 @@ import { TemporalFieldSectionPlugin } from './TemporalFieldSectionPlugin';
 import { TemporalFieldFormatPlugin } from './TemporalFieldFormatPlugin';
 import { selectors } from '../selectors';
 import { TemporalFieldState as State, TemporalFieldDatePart, TemporalFieldSection } from '../types';
-import { getArbitraryDate, getMeridiemsStr, getMonthsStr, getWeekDaysStr } from '../adapter-cache';
+import {
+  getArbitraryDate,
+  getLongestMonthInCurrentYear,
+  getMeridiemsStr,
+  getMonthsStr,
+  getWeekDaysStr,
+} from '../adapter-cache';
 import { isDatePart } from '../utils';
 
 const translations = {
@@ -504,7 +510,10 @@ function getAriaValueText(
   switch (section.token.config.part) {
     case 'month': {
       if (section.token.config.contentType === 'digit') {
-        const dateWithMonth = adapter.setMonth(arbitraryDate, Number(section.value) - 1);
+        const dateWithMonth = adapter.setMonth(
+          adapter.startOfYear(arbitraryDate),
+          Number(section.value) - 1,
+        );
         return adapter.isValid(dateWithMonth)
           ? adapter.format(dateWithMonth, 'monthFullLetter')
           : '';
@@ -517,7 +526,7 @@ function getAriaValueText(
     case 'day':
       if (section.token.config.contentType === 'digit') {
         const dateWithDay = adapter.setDate(
-          adapter.startOfYear(arbitraryDate),
+          getLongestMonthInCurrentYear(adapter),
           Number(section.value),
         );
         return adapter.isValid(dateWithDay)
