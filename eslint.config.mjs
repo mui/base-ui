@@ -81,13 +81,16 @@ export default defineConfig(
       'react-hooks/immutability': 'off',
       'react-hooks/incompatible-library': 'off',
       'react-hooks/refs': 'off',
+
+      // TODO (@Janpot) REconfigure test env to not use production guard
+      'mui/consistent-production-guard': 'off',
     },
   },
   {
     files: [`packages/*/src/**/*${EXTENSION_TS}`],
     ignores: [`**/*${EXTENSION_TEST_FILE}`, `test/**/*${EXTENSION_TS}`],
     rules: {
-      'material-ui/add-undef-to-optional': 'error',
+      'mui/add-undef-to-optional': 'error',
     },
   },
   {
@@ -97,7 +100,7 @@ export default defineConfig(
     ],
     extends: createTestConfig({ useMocha: false }),
     rules: {
-      'material-ui/add-undef-to-optional': 'off',
+      'mui/add-undef-to-optional': 'off',
     },
   },
   baseSpecRules,
@@ -160,7 +163,7 @@ export default defineConfig(
       'testing-library/prefer-screen-queries': 'off', // Enable usage of playwright queries
       'testing-library/no-await-sync-queries': 'off',
       'testing-library/render-result-naming-convention': 'off', // inconsequential in regression tests
-      'material-ui/consistent-production-guard': 'off',
+      'mui/consistent-production-guard': 'off',
     },
   },
 );
