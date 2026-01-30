@@ -82,6 +82,14 @@ export function isTypeableCombobox(element: Element | null) {
   return element.getAttribute('role') === 'combobox' && isTypeableElement(element);
 }
 
+/**
+ * Determines if an element is an HTML input.
+ * @param element Element to check
+ */
+export function isInputElement(element: Element): element is HTMLInputElement {
+  return element.tagName === 'INPUT';
+}
+
 export function matchesFocusVisible(element: Element | null) {
   // We don't want to block focus from working with `visibleOnly`
   // (JSDOM doesn't match `:focus-visible` when the element has `:focus`)
