@@ -1,4 +1,4 @@
-import { expect } from 'chai';
+import { vi, expect } from 'vitest';
 import { fireEvent, waitFor, screen } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance } from '#test-utils';
 import { DirectionProvider } from '@base-ui/react/direction-provider';
@@ -97,6 +97,74 @@ describe('<Menu.SubmenuTrigger />', () => {
 
     await waitFor(() => {
       expect(submenuTrigger).to.have.attribute('tabIndex', '0');
+    });
+  });
+
+  describe('prop: disabled', () => {
+    it('should render with disabled attributes when disabled prop is set', async () => {
+      await render(
+        <Menu.Root open>
+          <Menu.Trigger>Open menu</Menu.Trigger>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.Item>1</Menu.Item>
+                <Menu.SubmenuRoot>
+                  <Menu.SubmenuTrigger disabled>Open submenu</Menu.SubmenuTrigger>
+                  <Menu.Portal>
+                    <Menu.Positioner>
+                      <Menu.Popup data-testid="submenu-popup">
+                        <Menu.Item>2.1</Menu.Item>
+                        <Menu.Item>2.2</Menu.Item>
+                      </Menu.Popup>
+                    </Menu.Positioner>
+                  </Menu.Portal>
+                </Menu.SubmenuRoot>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>,
+      );
+
+      const submenuTrigger = screen.getByRole('menuitem', { name: 'Open submenu' });
+
+      expect(submenuTrigger).to.have.attribute('data-disabled');
+      expect(submenuTrigger).to.have.attribute('aria-disabled', 'true');
+    });
+
+    it('should warn when a disabled element is detected via render prop with JSX element', async () => {
+      const warnSpy = vi
+        .spyOn(console, 'warn')
+        .mockName('console.warn')
+        .mockImplementation(() => {});
+
+      await render(
+        <Menu.Root open>
+          <Menu.Trigger>Open menu</Menu.Trigger>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.Item>1</Menu.Item>
+                <Menu.SubmenuRoot>
+                  <Menu.SubmenuTrigger
+                    nativeButton
+                    render={<button type="button" disabled={true} />}
+                  >
+                    Open submenu
+                  </Menu.SubmenuTrigger>
+                </Menu.SubmenuRoot>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>,
+      );
+
+      expect(warnSpy).toHaveBeenCalledTimes(1);
+      expect(warnSpy).toHaveBeenCalledWith(
+        expect.stringContaining(
+          'Base UI: A disabled element was detected on <Menu.SubmenuTrigger>. To properly disable the trigger, use the `disabled` prop on the component instead of setting it on the rendered element.',
+        ),
+      );
     });
   });
 });
