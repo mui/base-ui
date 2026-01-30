@@ -35,13 +35,18 @@ export const TooltipViewport = React.forwardRef(function TooltipViewport(
 
   const instantType = store.useState('instantType');
 
-  const { children: childrenToRender, state } = usePopupViewport({
+  const { children: childrenToRender, state: viewportState } = usePopupViewport({
     store,
     side: positioner.side,
-    instantType,
     cssVars: TooltipViewportCssVars,
     children,
   });
+
+  const state: TooltipViewport.State = {
+    activationDirection: viewportState.activationDirection,
+    transitioning: viewportState.transitioning,
+    instant: instantType,
+  };
 
   return useRenderElement('div', componentProps, {
     state,

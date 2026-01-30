@@ -35,13 +35,18 @@ export const PreviewCardViewport = React.forwardRef(function PreviewCardViewport
 
   const instantType = store.useState('instantType');
 
-  const { children: childrenToRender, state } = usePopupViewport({
+  const { children: childrenToRender, state: viewportState } = usePopupViewport({
     store,
     side: positioner.side,
-    instantType,
     cssVars: PreviewCardViewportCssVars,
     children,
   });
+
+  const state: PreviewCardViewport.State = {
+    activationDirection: viewportState.activationDirection,
+    transitioning: viewportState.transitioning,
+    instant: instantType,
+  };
 
   return useRenderElement('div', componentProps, {
     state,

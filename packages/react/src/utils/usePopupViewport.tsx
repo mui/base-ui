@@ -22,7 +22,7 @@ export type PopupViewportCssVars = {
   popupHeight: string;
 };
 
-export interface PopupViewportState<InstantType> {
+export interface PopupViewportState {
   /**
    * Direction from which the popup was activated, used for directional animations.
    */
@@ -31,15 +31,11 @@ export interface PopupViewportState<InstantType> {
    * Whether the viewport is currently transitioning between contents.
    */
   transitioning: boolean;
-  /**
-   * Present if animations should be instant (component-specific semantics).
-   */
-  instant: InstantType | undefined;
 }
 
-export type PopupViewportStore = Pick<ReactStore<any, any, any>, 'useState' | 'set'>;
+type PopupViewportStore = Pick<ReactStore<any, any, any>, 'useState' | 'set'>;
 
-export interface UsePopupViewportParameters<InstantType> {
+export interface UsePopupViewportParameters {
   /**
    * Popup store instance for accessing shared popup state.
    */
@@ -48,10 +44,6 @@ export interface UsePopupViewportParameters<InstantType> {
    * Side of the positioner relative to the trigger.
    */
   side: Side;
-  /**
-   * Component-specific "instant" flag used to skip transitions.
-   */
-  instantType?: InstantType | undefined;
   /**
    * CSS variable names used for sizing the previous content snapshot.
    */
@@ -62,7 +54,7 @@ export interface UsePopupViewportParameters<InstantType> {
   children?: React.ReactNode;
 }
 
-export interface UsePopupViewportResult<InstantType> {
+export interface UsePopupViewportResult {
   /**
    * The viewport children wrapped in current/previous containers as needed.
    */
@@ -70,17 +62,15 @@ export interface UsePopupViewportResult<InstantType> {
   /**
    * Viewport state used for data attributes and render prop styling.
    */
-  state: PopupViewportState<InstantType>;
+  state: PopupViewportState;
 }
 
 /**
  * Builds morphing viewport containers for popups that animate between trigger-based content.
  * Handles previous-content snapshots, auto-resize, and state attributes for transitions.
  */
-export function usePopupViewport<InstantType>(
-  parameters: UsePopupViewportParameters<InstantType>,
-): UsePopupViewportResult<InstantType> {
-  const { store, side, instantType, cssVars, children } = parameters;
+export function usePopupViewport(parameters: UsePopupViewportParameters): UsePopupViewportResult {
+  const { store, side, cssVars, children } = parameters;
 
   const direction = useDirection();
 
@@ -261,10 +251,9 @@ export function usePopupViewport<InstantType>(
     direction,
   });
 
-  const state: PopupViewportState<InstantType> = {
+  const state: PopupViewportState = {
     activationDirection: getActivationDirection(newTriggerOffset),
     transitioning: isTransitioning,
-    instant: instantType,
   };
 
   return { children: childrenToRender, state };

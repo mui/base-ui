@@ -31,17 +31,22 @@ export const PopoverViewport = React.forwardRef(function PopoverViewport(
 ) {
   const { render, className, children, ...elementProps } = componentProps;
   const { store } = usePopoverRootContext();
-  const positioner = usePopoverPositionerContext();
+  const { side } = usePopoverPositionerContext();
 
   const instantType = store.useState('instantType');
 
-  const { children: childrenToRender, state } = usePopupViewport({
+  const { children: childrenToRender, state: viewportState } = usePopupViewport({
     store,
-    side: positioner.side,
-    instantType,
+    side,
     cssVars: PopoverViewportCssVars,
     children,
   });
+
+  const state: PopoverViewport.State = {
+    activationDirection: viewportState.activationDirection,
+    transitioning: viewportState.transitioning,
+    instant: instantType,
+  };
 
   return useRenderElement('div', componentProps, {
     state,
