@@ -9,7 +9,12 @@ import { useTriggerDataForwarding } from '../../utils/popups';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { TooltipHandle } from '../store/TooltipHandle';
 import { useTooltipProviderContext } from '../provider/TooltipProviderContext';
-import { safePolygon, useDelayGroup, useHoverReferenceInteraction } from '../../floating-ui-react';
+import {
+  safePolygon,
+  useDelayGroup,
+  useFocus,
+  useHoverReferenceInteraction,
+} from '../../floating-ui-react';
 
 import { OPEN_DELAY } from '../utils/constants';
 
@@ -112,6 +117,8 @@ export const TooltipTrigger = fastComponentRef(function TooltipTrigger(
     isActiveTrigger: isTriggerActive,
   });
 
+  const focusProps = useFocus(floatingRootContext, { enabled: !disabled }).reference;
+
   const state: TooltipTrigger.State = { open: isOpenedByThisTrigger };
 
   const rootTriggerProps = store.useState('triggerProps', isMountedByThisTrigger);
@@ -119,7 +126,7 @@ export const TooltipTrigger = fastComponentRef(function TooltipTrigger(
   const element = useRenderElement('button', componentProps, {
     state,
     ref: [forwardedRef, registerTrigger, triggerElementRef],
-    props: [hoverProps, rootTriggerProps, { id: thisTriggerId }, elementProps],
+    props: [hoverProps, focusProps, rootTriggerProps, { id: thisTriggerId }, elementProps],
     stateAttributesMapping: triggerOpenStateMapping,
   });
 
