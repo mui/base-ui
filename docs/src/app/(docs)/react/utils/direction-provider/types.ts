@@ -1,4 +1,8 @@
-import { DirectionProvider } from '@base-ui/react/direction-provider';
-import { createTypes } from 'docs/src/utils/createTypes';
+import * as DirectionProviderNamespace from '@base-ui/react/direction-provider';
+import { createMultipleTypes } from 'docs/src/utils/createTypes';
 
-export const TypesDirectionProvider = createTypes(import.meta.url, DirectionProvider);
+const { types, AdditionalTypes } = createMultipleTypes(import.meta.url, DirectionProviderNamespace);
+
+export const TypesDirectionProvider = types.DirectionProvider;
+export const TypesUseDirection = types.useDirection;
+export const TypesDirectionProviderAdditionalTypes = AdditionalTypes;

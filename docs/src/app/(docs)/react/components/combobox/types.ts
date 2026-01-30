@@ -27,3 +27,5 @@ export const TypesComboboxItemIndicator = types.ItemIndicator;
 export const TypesComboboxGroup = types.Group;
 export const TypesComboboxGroupLabel = types.GroupLabel;
 export const TypesComboboxSeparator = types.Separator;
+export const TypesComboboxUseFilter = types.useFilter;
+export const TypesComboboxUseFilteredItems = types.useFilteredItems;

@@ -27,27 +27,25 @@ import { DirectionProvider } from '@base-ui/react/direction-provider';
 
 ## API reference
 
-import { TypesDirectionProvider } from './types';
+import {
+  TypesDirectionProvider,
+  TypesUseDirection,
+  TypesDirectionProviderAdditionalTypes,
+} from './types';
+
+### DirectionProvider
 
 <TypesDirectionProvider />
 
-## useDirection
+### useDirection
 
 Use this hook to read the current text direction. This is useful for wrapping portaled components that may be rendered outside your application root and are unaffected by the `dir` attribute set within.
 
-### Return value
+<TypesUseDirection />
 
-<PropsReferenceTable
-  type="return"
-  data={{
-    direction: {
-      type: 'TextDirection',
-      detailedType: "'ltr' | 'rtl' | undefined",
-      description: 'The current text direction.',
-      default: "'ltr'",
-    },
-  }}
-/>
+## Additional Types
+
+<TypesDirectionProviderAdditionalTypes />
 
 export const metadata = {
   keywords: [

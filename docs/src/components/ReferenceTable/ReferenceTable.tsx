@@ -73,6 +73,13 @@ export function ReferenceTable(props: ReferenceTableProps) {
           </React.Fragment>
         )}
 
+        {data.returnValue && data.returnValue.kind === 'simple' && (
+          <div className="mb-6">
+            <SectionHeading>Return value</SectionHeading>
+            {data.returnValue.type}
+          </div>
+        )}
+
         {additionalTypes && additionalTypes.length > 0 && (
           <AdditionalTypesAccordion data={additionalTypes} multiple={multiple} />
         )}

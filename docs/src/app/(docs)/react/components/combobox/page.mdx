@@ -206,6 +206,8 @@ import {
   TypesComboboxGroup,
   TypesComboboxGroupLabel,
   TypesComboboxSeparator,
+  TypesComboboxUseFilter,
+  TypesComboboxUseFilteredItems,
 } from './types';
 
 ### Root
@@ -304,54 +306,19 @@ import {
 
 <TypesComboboxSeparator />
 
-## useFilter
+### useFilter
 
 Matches items against a query using `Intl.Collator` for robust string matching.
 This hook is used when externally filtering items.
 Pass the result to the `filter` prop of `<Combobox.Root>`.
 
-### Input parameters
+<TypesComboboxUseFilter hideDescription />
 
-Accepts all `Intl.CollatorOptions`, plus the following options:
+### useFilteredItems
 
-<PropsReferenceTable
-  data={{
-    locale: {
-      type: 'Intl.LocalesArgument',
-      description: 'The locale to use for string comparison.',
-    },
-    multiple: {
-      type: 'boolean',
-      description: 'Whether the combobox is in multiple selection mode.',
-      default: 'false',
-    },
-    value: {
-      type: 'any',
-      description:
-        'The current value of the combobox. For single selection, pass this so all items are visible when the query is empty or matches the selection.',
-    },
-  }}
-/>
+Returns the internally filtered items when called inside `<Combobox.Root>`.
 
-### Return value
-
-<PropsReferenceTable
-  type="return"
-  data={{
-    contains: {
-      type: '(itemValue: any, query: string, itemToString?: (itemValue) => string) => boolean',
-      description: 'Returns whether the item matches the query anywhere.',
-    },
-    startsWith: {
-      type: '(itemValue: any, query: string, itemToString?: (itemValue) => string) => boolean',
-      description: 'Returns whether the item starts with the query.',
-    },
-    endsWith: {
-      type: '(itemValue: any, query: string, itemToString?: (itemValue) => string) => boolean',
-      description: 'Returns whether the item ends with the query.',
-    },
-  }}
-/>
+<TypesComboboxUseFilteredItems hideDescription />
 
 export const metadata = {
   keywords: [
@@ -373,19 +340,3 @@ export const metadata = {
     'Base UI',
   ],
 };
-
-## useFilteredItems
-
-Returns the internally filtered items when called inside `<Combobox.Root>`.
-
-### Return value
-
-<PropsReferenceTable
-  type="return"
-  data={{
-    filteredItems: {
-      type: 'any[]',
-      description: 'The filtered items.',
-    },
-  }}
-/>

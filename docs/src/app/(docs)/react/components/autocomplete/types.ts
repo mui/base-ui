@@ -23,3 +23,5 @@ export const TypesAutocompleteItem = types.Item;
 export const TypesAutocompleteGroup = types.Group;
 export const TypesAutocompleteGroupLabel = types.GroupLabel;
 export const TypesAutocompleteSeparator = types.Separator;
+export const TypesAutocompleteUseFilter = types.useFilter;
+export const TypesAutocompleteUseFilteredItems = types.useFilteredItems;
