@@ -890,16 +890,8 @@ type ReturnValue = TextDirection;
 type TextDirection = 'ltr' | 'rtl';
 \`\`\`
 
-## useDirection
-
 Use this hook to read the current text direction. This is useful for wrapping portaled components that may be rendered outside your application root and are unaffected by the \`dir\` attribute set within.
 
-### Return value
-
-**Return Value:**
-
-| Property  | Type            | Description                 |
-| :-------- | :-------------- | :-------------------------- |
-| direction | \`TextDirection\` | The current text direction. |
+## Additional Types
 "
 `;
