@@ -41,9 +41,7 @@ export class TemporalFieldValueAdjustmentPlugin<TValue extends TemporalSupported
     this.store.timeoutManager.startInterval(
       'cleanCharacterQuery',
       TemporalFieldValueAdjustmentPlugin.queryLifeDuration,
-      () => {
-        this.store.set('characterQuery', null);
-      },
+      () => this.store.set('characterQuery', null),
     );
   }
 
