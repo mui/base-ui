@@ -60,9 +60,9 @@ They must check `event.baseUIHandlerPrevented` themselves and bail out if it's t
 | :-------- | :------------------------ | :------ | :--------------------------------------------------------------------------------------------- |
 | a         | `InputProps<ElementType>` | -       | Props object to merge.                                                                         |
 | b         | `InputProps<ElementType>` | -       | Props object to merge. The function will overwrite conflicting props from `a`.                 |
-| c         | `InputProps<ElementType>` | -       | Props object to merge. The function will overwrite conflicting props from previous parameters. |
-| d         | `InputProps<ElementType>` | -       | Props object to merge. The function will overwrite conflicting props from previous parameters. |
-| e         | `InputProps<ElementType>` | -       | Props object to merge. The function will overwrite conflicting props from previous parameters. |
+| c?        | `InputProps<ElementType>` | -       | Props object to merge. The function will overwrite conflicting props from previous parameters. |
+| d?        | `InputProps<ElementType>` | -       | Props object to merge. The function will overwrite conflicting props from previous parameters. |
+| e?        | `InputProps<ElementType>` | -       | Props object to merge. The function will overwrite conflicting props from previous parameters. |
 
 **Return Value:**
 
