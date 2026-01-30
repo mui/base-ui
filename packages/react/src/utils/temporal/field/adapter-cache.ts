@@ -81,9 +81,6 @@ function getAdapterFieldCache(adapter: TemporalAdapter): TemporalAdapterFieldCac
  * - Hour/minute/second boundaries
  * - Format string analysis
  * - Localized digit detection
- *
- * @param adapter The temporal adapter instance
- * @returns A cached date object for the adapter
  */
 export function getArbitraryDate(adapter: TemporalAdapter): TemporalSupportedObject {
   const cache = getAdapterFieldCache(adapter);

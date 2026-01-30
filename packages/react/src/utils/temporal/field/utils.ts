@@ -21,8 +21,6 @@ import {
   TemporalFieldConfiguration,
   TemporalFieldSeparator,
   TemporalFieldDatePart,
-  TemporalFieldValidationProps,
-  TemporalFieldState,
 } from './types';
 
 /**
@@ -84,19 +82,6 @@ export function deriveStateFromParameters<TValue extends TemporalSupportedValue>
     fieldContext: parameters.fieldContext ?? null,
     step: parameters.step ?? 1,
     children: parameters.children,
-  };
-}
-
-/**
- * Selector to get validation props from state.
- * Rebuilds the validationProps object from minDate/maxDate in state.
- */
-export function selectValidationProps<TValue extends TemporalSupportedValue>(
-  state: TemporalFieldState<TValue>,
-): TemporalFieldValidationProps {
-  return {
-    minDate: state.minDate,
-    maxDate: state.maxDate,
   };
 }
 
