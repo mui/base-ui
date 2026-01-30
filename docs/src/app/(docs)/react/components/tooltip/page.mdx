@@ -14,12 +14,8 @@ import { DemoTooltipHero } from './demos/hero';
 
 ## Usage guidelines
 
-To ensure that tooltips are accessible and helpful, follow these guidelines:
-
-- **Provide an accessible name for the trigger**: The tooltip's trigger must have a meaningful label. This can be its visible text or an `aria-label`/`aria-labelledby` attribute. The label should closely match the tooltip's content to ensure consistency for screen reader users.
-- **Avoid tooltips for critical information**: Tooltips work well for enhancing UI clarity (like labeling icon buttons) but should not be the sole means of conveying important information. Since tooltips do not appear on touch devices, consider using a [Popover](/react/components/popover) for essential content.
-- **Avoid tooltips for "infotips"**: If your tooltip is attached to an "info icon" button whose only purpose is to show the tooltip, opt for [Popover](/react/components/popover) and add the `openOnHover` prop instead. Tooltips should describe an element that performs an action separate from opening the tooltip itself.
-- **Avoid for transient information**: Use the Toast component's [anchoring ability](/react/components/toast#anchored-toasts) instead of Tooltip for transient notifications, like a "Copied" popup that appears above a copy-to-clipboard button. This way, the message is announced to screen readers when it appears. Toasts can also contain more complex content, such as links or actions.
+- **Prefer using tooltips as visual labels only**: Tooltips should act as supplementary visual labels for sighted mouse and keyboard users. Tooltips alone are not accessible to touch or screen reader users. See [Alternatives to tooltips](#alternatives-to-tooltips) for more details.
+- **Provide an accessible name for the trigger**: Tooltips are visual-only elements and are not a replacement for labeling the trigger. The tooltip's trigger must have an `aria-label` attribute that closely matches the tooltip's content to ensure consistency for screen reader users.
 
 ## Anatomy
 
@@ -41,6 +37,33 @@ import { Tooltip } from '@base-ui/react/tooltip';
   </Tooltip.Root>
 </Tooltip.Provider>;
 ```
+
+## Alternatives to tooltips
+
+Tooltips should be supplementary popups that provide non-essential clarity in high-density UIs. A user should not miss critical information if they never see a tooltip.
+
+Tooltips don't work well with touch input. Unlike mouse pointers with hover capability, there's no easily discoverable way to reveal a tooltip before tapping its trigger on a touch device.
+
+iOS doesn't provide a system-standard, touch-friendly tooltip affordance, while Android may show a tooltip on long press. However, on the web, long press is often used to trigger contextual menus in the browser, which can lead to potential conflicts. For this reason, tooltips are disabled on touch devices.
+
+### Infotips
+
+Popups that open when hovering an info icon should use [Popover](/react/components/popover) with the `openOnHover` prop on the trigger instead of a tooltip. This way, touch users and screen reader users can access the content.
+
+To know when to reach for a popover instead of a tooltip, consider the **purpose** of the trigger element:
+If the trigger's purpose is to open the popup itself, it's a popover. If the trigger's purpose is unrelated to opening the popup, it's a tooltip.
+
+### Description text
+
+Tooltips are designed for sighted users and are not a reliable way to deliver important information to touch users or assistive technologies. If the description is important to understanding the element, don't hide it behind a tooltip — use inline text or [Popover](/react/components/popover) if space is limited, so the information is accessible to everyone.
+
+Since tooltips serve sighted mouse and keyboard users, iconography should clearly communicate the purpose of icon-only triggers, especially on mobile where the text label may not be visible.
+
+If the description is not critical, a tooltip can still be used to provide extra clarity for sighted mouse or keyboard users.
+
+### Contextual feedback messages
+
+Use the Toast component's [anchoring ability](/react/components/toast#anchored-toasts) for more ergonomic DX, to ensure the message is announced to screen readers, and to support complex content.
 
 ## Examples
 

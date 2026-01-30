@@ -28,6 +28,7 @@ Renders a `<div>` element.
 | data-overflow-x-start | -    | Present when there is overflow on the horizontal start side.      |
 | data-overflow-y-end   | -    | Present when there is overflow on the vertical end side.          |
 | data-overflow-y-start | -    | Present when there is overflow on the vertical start side.        |
+| data-scrolling        | -    | Present when the user scrolls inside the scroll area.             |
 
 **Root CSS Variables:**
 
@@ -44,6 +45,7 @@ Re-export of [Root](#root) props.
 
 ```typescript
 type ScrollAreaRootState = {
+  scrolling: boolean;
   hasOverflowX: boolean;
   hasOverflowY: boolean;
   overflowXStart: boolean;
@@ -75,6 +77,7 @@ Re-export of [Content](#content) props.
 
 ```typescript
 type ScrollAreaContentState = {
+  scrolling: boolean;
   hasOverflowX: boolean;
   hasOverflowY: boolean;
   overflowXStart: boolean;
@@ -108,6 +111,7 @@ Renders a `<div>` element.
 | data-overflow-x-start | -    | Present when there is overflow on the horizontal start side.      |
 | data-overflow-y-end   | -    | Present when there is overflow on the vertical end side.          |
 | data-overflow-y-start | -    | Present when there is overflow on the vertical start side.        |
+| data-scrolling        | -    | Present when the user scrolls inside the scroll area.             |
 
 **Viewport CSS Variables:**
 
@@ -126,6 +130,7 @@ Re-export of [Viewport](#viewport) props.
 
 ```typescript
 type ScrollAreaViewportState = {
+  scrolling: boolean;
   hasOverflowX: boolean;
   hasOverflowY: boolean;
   overflowXStart: boolean;
@@ -192,7 +197,7 @@ Renders a `<div>` element.
 | data-overflow-x-start | -                            | Present when there is overflow on the horizontal start side.      |
 | data-overflow-y-end   | -                            | Present when there is overflow on the vertical end side.          |
 | data-overflow-y-start | -                            | Present when there is overflow on the vertical start side.        |
-| data-scrolling        | -                            | Present when the users scrolls inside the scroll area.            |
+| data-scrolling        | -                            | Present when the user scrolls inside the scroll area.             |
 
 **Scrollbar CSS Variables:**
 
