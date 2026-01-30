@@ -4,6 +4,7 @@ import { cleanDigitDatePartValue, getLetterEditingOptions, removeLocalizedDigits
 import { TemporalFieldStore } from '../TemporalFieldStore';
 import { selectors } from '../selectors';
 import { TemporalFieldSectionPlugin } from './TemporalFieldSectionPlugin';
+import { TemporalFieldDatePart } from '../types';
 
 /**
  * Plugin to adjust the value of the active section when pressing ArrowUp, ArrowDown, PageUp, PageDown, Home or End.
@@ -47,8 +48,6 @@ export class TemporalFieldValueAdjustmentPlugin<TValue extends TemporalSupported
 
   private getAdjustedDatePartValue(keyCode: AdjustDatePartValueKeyCode, sectionIndex: number) {
     const adapter = selectors.adapter(this.store.state);
-    const localizedDigits = getLocalizedDigits(adapter);
-    const timezone = selectors.timezoneToRender(this.store.state);
     const validationProps = selectors.validationProps(this.store.state);
     const datePart = TemporalFieldSectionPlugin.selectors.datePart(this.store.state, sectionIndex);
 
@@ -56,100 +55,87 @@ export class TemporalFieldValueAdjustmentPlugin<TValue extends TemporalSupported
       return '';
     }
 
-    // If we are initializing the year and their is no validation boundary in the direction we are going,
-    // Then we set the section to the current year.
-    const shouldSetCurrentYear =
-      datePart.value === '' &&
-      datePart.token.config.part === 'year' &&
-      ((validationProps.maxDate == null && ['ArrowDown', 'PageDown'].includes(keyCode)) ||
-        (validationProps.minDate == null && ['ArrowUp', 'PageUp'].includes(keyCode)));
-    if (shouldSetCurrentYear) {
+    // When initializing the year and there is no validation boundary in the direction we are going,
+    // we set the section to the current year instead of the structural boundary.
+    const isYearInitialization = datePart.value === '' && datePart.token.config.part === 'year';
+    const hasNoBoundaryInDirection =
+      (isDecrementDirection(keyCode) && validationProps.maxDate == null) ||
+      (isIncrementDirection(keyCode) && validationProps.minDate == null);
+    if (isYearInitialization && hasNoBoundaryInDirection) {
+      const timezone = selectors.timezoneToRender(this.store.state);
       return adapter.formatByString(adapter.now(timezone), datePart.token.value);
     }
 
     const step = datePart.token.isMostGranularPart ? selectors.step(this.store.state) : 1;
-    const delta = getDeltaFromKeyCode(keyCode);
-    const isStart = keyCode === 'Home';
-    const isEnd = keyCode === 'End';
-    const shouldSetAbsolute = datePart.value === '' || isStart || isEnd;
+    const delta = getAdjustmentDelta(keyCode, datePart.value);
+    const direction = getDirection(keyCode);
+    const contentType = datePart.token.config.contentType;
 
-    // Digit part
-    if (
-      datePart.token.config.contentType === 'digit' ||
-      datePart.token.config.contentType === 'digit-with-letter'
-    ) {
-      const boundaries = datePart.token.boundaries.adjustment;
-
-      const getCleanValue = (newDatePartValue: number) =>
-        cleanDigitDatePartValue(adapter, newDatePartValue, localizedDigits, datePart.token);
-
-      let newDatePartValueNumber: number;
-
-      if (shouldSetAbsolute) {
-        if (delta > 0 || isStart) {
-          newDatePartValueNumber = boundaries.minimum;
-        } else {
-          newDatePartValueNumber = boundaries.maximum;
-        }
-      } else {
-        const currentSectionValue = parseInt(
-          removeLocalizedDigits(datePart.value, localizedDigits),
-          10,
-        );
-        newDatePartValueNumber = currentSectionValue + delta * step;
-      }
-
-      if (newDatePartValueNumber % step !== 0) {
-        if (delta < 0 || isStart) {
-          newDatePartValueNumber += step - ((step + newDatePartValueNumber) % step); // for JS -3 % 5 = -3 (should be 2)
-        }
-        if (delta > 0 || isEnd) {
-          newDatePartValueNumber -= newDatePartValueNumber % step;
-        }
-      }
-
-      if (newDatePartValueNumber > boundaries.maximum) {
-        return getCleanValue(
-          boundaries.minimum +
-            ((newDatePartValueNumber - boundaries.maximum - 1) %
-              (boundaries.maximum - boundaries.minimum + 1)),
-        );
-      }
-
-      if (newDatePartValueNumber < boundaries.minimum) {
-        return getCleanValue(
-          boundaries.maximum -
-            ((boundaries.minimum - newDatePartValueNumber - 1) %
-              (boundaries.maximum - boundaries.minimum + 1)),
-        );
-      }
-
-      return getCleanValue(newDatePartValueNumber);
+    if (contentType === 'digit' || contentType === 'digit-with-letter') {
+      return this.getAdjustedDigitPartValue(datePart, delta, direction, step);
     }
 
-    /// Letter part
+    return this.getAdjustedLetterPartValue(datePart, delta, direction, step);
+  }
+
+  private getAdjustedDigitPartValue(
+    datePart: TemporalFieldDatePart,
+    delta: number | 'boundary',
+    direction: 'up' | 'down',
+    step: number,
+  ) {
+    const adapter = selectors.adapter(this.store.state);
+    const localizedDigits = getLocalizedDigits(adapter);
+    const boundaries = datePart.token.boundaries.adjustment;
+
+    const formatValue = (value: number) =>
+      cleanDigitDatePartValue(adapter, value, localizedDigits, datePart.token);
+
+    let newValue: number;
+
+    if (delta === 'boundary') {
+      newValue = direction === 'up' ? boundaries.minimum : boundaries.maximum;
+    } else {
+      const currentValue = parseInt(removeLocalizedDigits(datePart.value, localizedDigits), 10);
+      newValue = currentValue + delta * step;
+
+      // Align to step boundary if needed
+      if (step > 1 && newValue % step !== 0) {
+        newValue = alignToStep(newValue, step, direction);
+      }
+    }
+
+    return formatValue(wrapInRange(newValue, boundaries.minimum, boundaries.maximum));
+  }
+
+  private getAdjustedLetterPartValue(
+    datePart: TemporalFieldDatePart,
+    delta: number | 'boundary',
+    direction: 'up' | 'down',
+    step: number,
+  ) {
+    const adapter = selectors.adapter(this.store.state);
+
     const options = getLetterEditingOptions(
       adapter,
       datePart.token.config.part,
       datePart.token.value,
     );
+
     if (options.length === 0) {
       return datePart.value;
     }
 
-    if (shouldSetAbsolute) {
-      if (delta > 0 || isStart) {
-        return options[0];
-      }
-
-      return options[options.length - 1];
+    if (delta === 'boundary') {
+      return direction === 'up' ? options[0] : options[options.length - 1];
     }
 
-    const currentOptionIndex = options.indexOf(datePart.value);
-    const newOptionIndex = (currentOptionIndex + delta * step) % options.length;
-    const clampedIndex = (newOptionIndex + options.length) % options.length;
+    const currentIndex = options.indexOf(datePart.value);
+    const newIndex = (currentIndex + delta * step) % options.length;
+    // Handle negative modulo (JS returns negative for negative dividend)
+    const wrappedIndex = (newIndex + options.length) % options.length;
 
-    return options[clampedIndex];
+    return options[wrappedIndex];
   }
 
   private static keyCodes: Set<AdjustDatePartValueKeyCode> = new Set([
@@ -162,7 +148,19 @@ export class TemporalFieldValueAdjustmentPlugin<TValue extends TemporalSupported
   ]);
 }
 
-function getDeltaFromKeyCode(keyCode: Omit<AdjustDatePartValueKeyCode, 'Home' | 'End'>) {
+type AdjustDatePartValueKeyCode = 'ArrowUp' | 'ArrowDown' | 'PageUp' | 'PageDown' | 'Home' | 'End';
+
+function getAdjustmentDelta(
+  keyCode: AdjustDatePartValueKeyCode,
+  currentValue: string,
+): number | 'boundary' {
+  const isStart = keyCode === 'Home';
+  const isEnd = keyCode === 'End';
+
+  if (currentValue === '' || isStart || isEnd) {
+    return 'boundary';
+  }
+
   switch (keyCode) {
     case 'ArrowUp':
       return 1;
@@ -173,8 +171,49 @@ function getDeltaFromKeyCode(keyCode: Omit<AdjustDatePartValueKeyCode, 'Home' | 
     case 'PageDown':
       return -5;
     default:
-      return 0;
+      return 'boundary';
   }
 }
 
-type AdjustDatePartValueKeyCode = 'ArrowUp' | 'ArrowDown' | 'PageUp' | 'PageDown' | 'Home' | 'End';
+function getDirection(keyCode: AdjustDatePartValueKeyCode): 'up' | 'down' {
+  return keyCode === 'ArrowUp' || keyCode === 'PageUp' || keyCode === 'Home' ? 'up' : 'down';
+}
+
+function isIncrementDirection(keyCode: AdjustDatePartValueKeyCode): boolean {
+  return keyCode === 'ArrowUp' || keyCode === 'PageUp';
+}
+
+function isDecrementDirection(keyCode: AdjustDatePartValueKeyCode): boolean {
+  return keyCode === 'ArrowDown' || keyCode === 'PageDown';
+}
+
+/**
+ * Wraps a value within [min, max] bounds, cycling around when exceeding limits.
+ * E.g., wrapInRange(32, 1, 31) => 1, wrapInRange(0, 1, 31) => 31
+ */
+function wrapInRange(value: number, min: number, max: number): number {
+  const range = max - min + 1;
+  if (value > max) {
+    return min + ((value - max - 1) % range);
+  }
+  if (value < min) {
+    return max - ((min - value - 1) % range);
+  }
+  return value;
+}
+
+/**
+ * Aligns a value to the nearest step boundary in the given direction.
+ * - 'up' rounds down (e.g., alignToStep(22, 5, 'up') => 20)
+ * - 'down' rounds up (e.g., alignToStep(22, 5, 'down') => 25)
+ */
+function alignToStep(value: number, step: number, direction: 'up' | 'down'): number {
+  if (value % step === 0) {
+    return value;
+  }
+  if (direction === 'down') {
+    // For JS: -3 % 5 = -3 (should be 2), so we use (step + value) % step
+    return value + step - ((step + value) % step);
+  }
+  return value - (value % step);
+}
