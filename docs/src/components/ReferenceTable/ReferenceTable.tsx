@@ -8,9 +8,9 @@ import { ParametersReferenceTable } from './ParametersReferenceTable';
 import { ReturnValueReferenceTable } from './ReturnValueReferenceTable';
 import { PropertiesReferenceAccordion } from './PropertiesReferenceAccordion';
 import { MethodsReferenceAccordion } from './MethodsReferenceAccordion';
+import { AdditionalTypesAccordion } from './AdditionalTypesAccordion';
 
 import '../Demo/CodeHighlighting.css';
-import AdditionalTypesAccordion from './AdditionalTypesAccordion';
 
 type ReferenceTableProps = TypesContentProps<{
   hideDescription?: boolean;
