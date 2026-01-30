@@ -71,7 +71,7 @@
     "@playwright/test": "1.58.0",
     "@tailwindcss/postcss": "4.1.18",
     "@types/node": "22.18.13",
-    "@types/react": "19.2.8",
+    "@types/react": "19.2.9",
     "@types/yargs": "17.0.35",
     "@vitejs/plugin-react": "5.1.2",
     "@vitest/browser-playwright": "4.0.17",
@@ -89,8 +89,8 @@
     "prettier": "3.8.1",
     "pretty-quick": "4.2.2",
     "publint": "0.3.17",
-    "react": "19.2.3",
-    "react-dom": "19.2.3",
+    "react": "19.2.4",
+    "react-dom": "19.2.4",
     "remark-mdx": "3.1.1",
     "rimraf": "6.1.2",
     "serve": "14.2.5",
@@ -116,7 +116,7 @@
     "@babel/preset-typescript": "^7.28.5",
     "@babel/types": "^7.28.6",
     "@types/node": "22.18.13",
-    "@types/react": "19.2.8",
+    "@types/react": "19.2.9",
     "@types/react-dom": "^19.2.3"
   }
 }
