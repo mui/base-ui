@@ -318,8 +318,8 @@ importers:
         specifier: 3.9.0
         version: 3.9.0
       baseline-browser-mapping:
-        specifier: 2.9.17
-        version: 2.9.17
+        specifier: 2.9.18
+        version: 2.9.18
       chai:
         specifier: 6.2.2
         version: 6.2.2
@@ -330,8 +330,8 @@ importers:
         specifier: 3.2.0
         version: 3.2.0
       motion:
-        specifier: 12.29.0
-        version: 12.29.0(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+        specifier: 12.29.2
+        version: 12.29.2(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       prettier:
         specifier: 3.8.1
         version: 3.8.1
@@ -5196,8 +5196,8 @@ packages:
   base64-js@1.5.1:
     resolution: {integrity: sha512-AKpaYlHn8t4SVbOHCy+b5+KKgvR4vrsD8vbvrbiQJps7fKDTkjkDry6ji0rUJjC0kzbNePLwzxq8iypo41qeWA==}
 
-  baseline-browser-mapping@2.9.17:
-    resolution: {integrity: sha512-agD0MgJFUP/4nvjqzIB29zRPUuCF7Ge6mEv9s8dHrtYD7QWXRcx75rOADE/d5ah1NI+0vkDl0yorDd5U852IQQ==}
+  baseline-browser-mapping@2.9.18:
+    resolution: {integrity: sha512-e23vBV1ZLfjb9apvfPk4rHVu2ry6RIr2Wfs+O324okSidrX7pTAnEJPCh/O5BtRlr7QtZI7ktOP3vsqr7Z5XoA==}
     hasBin: true
 
   before-after-hook@2.2.3:
@@ -6383,8 +6383,8 @@ packages:
     resolution: {integrity: sha512-wzsgA6WOq+09wrU1tsJ09udeR/YZRaeArL9e1wPbFg3GG2yDnC2ldKpxs4xunpFF9DgqCqOIra3bc1HWrJ37Ww==}
     engines: {node: '>=0.4.x'}
 
-  framer-motion@12.29.0:
-    resolution: {integrity: sha512-1gEFGXHYV2BD42ZPTFmSU9buehppU+bCuOnHU0AD18DKh9j4DuTx47MvqY5ax+NNWRtK32qIcJf1UxKo1WwjWg==}
+  framer-motion@12.29.2:
+    resolution: {integrity: sha512-lSNRzBJk4wuIy0emYQ/nfZ7eWhqud2umPKw2QAQki6uKhZPKm2hRQHeQoHTG9MIvfobb+A/LbEWPJU794ZUKrg==}
     peerDependencies:
       '@emotion/is-prop-valid': '*'
       react: ^18.0.0 || ^19.0.0
@@ -7859,14 +7859,14 @@ packages:
     resolution: {integrity: sha512-xV2bxeN6F7oYjZWTe/YPAy6MN2M+sL4u/Rlm2AHCIVGfo2p1yGmBHQ6vHehl4bRTZBdHu3TSkWdYgkwpYzAGSw==}
     engines: {node: '>=0.10.0'}
 
-  motion-dom@12.29.0:
-    resolution: {integrity: sha512-3eiz9bb32yvY8Q6XNM4AwkSOBPgU//EIKTZwsSWgA9uzbPBhZJeScCVcBuwwYVqhfamewpv7ZNmVKTGp5qnzkA==}
+  motion-dom@12.29.2:
+    resolution: {integrity: sha512-/k+NuycVV8pykxyiTCoFzIVLA95Nb1BFIVvfSu9L50/6K6qNeAYtkxXILy/LRutt7AzaYDc2myj0wkCVVYAPPA==}
 
-  motion-utils@12.27.2:
-    resolution: {integrity: sha512-B55gcoL85Mcdt2IEStY5EEAsrMSVE2sI14xQ/uAdPL+mfQxhKKFaEag9JmfxedJOR4vZpBGoPeC/Gm13I/4g5Q==}
+  motion-utils@12.29.2:
+    resolution: {integrity: sha512-G3kc34H2cX2gI63RqU+cZq+zWRRPSsNIOjpdl9TN4AQwC4sgwYPl/Q/Obf/d53nOm569T0fYK+tcoSV50BWx8A==}
 
-  motion@12.29.0:
-    resolution: {integrity: sha512-rjB5CP2N9S2ESAyEFnAFMgTec6X8yvfxLNcz8n12gPq3M48R7ZbBeVYkDOTj8SPMwfvGIFI801SiPSr1+HCr9g==}
+  motion@12.29.2:
+    resolution: {integrity: sha512-jMpHdAzEDF1QQ055cB+1lOBLdJ6ialVWl6QQzpJI2OvmHequ7zFVHM2mx0HNAy+Tu4omUlApfC+4vnkX0geEOg==}
     peerDependencies:
       '@emotion/is-prop-valid': '*'
       react: ^18.0.0 || ^19.0.0
@@ -15666,7 +15666,7 @@ snapshots:
 
   base64-js@1.5.1: {}
 
-  baseline-browser-mapping@2.9.17: {}
+  baseline-browser-mapping@2.9.18: {}
 
   before-after-hook@2.2.3: {}
 
@@ -15722,7 +15722,7 @@ snapshots:
 
   browserslist@4.28.1:
     dependencies:
-      baseline-browser-mapping: 2.9.17
+      baseline-browser-mapping: 2.9.18
       caniuse-lite: 1.0.30001764
       electron-to-chromium: 1.5.267
       node-releases: 2.0.27
@@ -17086,10 +17086,10 @@ snapshots:
 
   format@0.2.2: {}
 
-  framer-motion@12.29.0(react-dom@19.2.3(react@19.2.3))(react@19.2.3):
+  framer-motion@12.29.2(react-dom@19.2.3(react@19.2.3))(react@19.2.3):
     dependencies:
-      motion-dom: 12.29.0
-      motion-utils: 12.27.2
+      motion-dom: 12.29.2
+      motion-utils: 12.29.2
       tslib: 2.8.1
     optionalDependencies:
       react: 19.2.3
@@ -19034,15 +19034,15 @@ snapshots:
 
   modify-values@1.0.1: {}
 
-  motion-dom@12.29.0:
+  motion-dom@12.29.2:
     dependencies:
-      motion-utils: 12.27.2
+      motion-utils: 12.29.2
 
-  motion-utils@12.27.2: {}
+  motion-utils@12.29.2: {}
 
-  motion@12.29.0(react-dom@19.2.3(react@19.2.3))(react@19.2.3):
+  motion@12.29.2(react-dom@19.2.3(react@19.2.3))(react@19.2.3):
     dependencies:
-      framer-motion: 12.29.0(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+      framer-motion: 12.29.2(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       tslib: 2.8.1
     optionalDependencies:
       react: 19.2.3
@@ -19090,7 +19090,7 @@ snapshots:
     dependencies:
       '@next/env': 16.1.5
       '@swc/helpers': 0.5.15
-      baseline-browser-mapping: 2.9.17
+      baseline-browser-mapping: 2.9.18
       caniuse-lite: 1.0.30001764
       postcss: 8.4.31
       react: 19.2.3
