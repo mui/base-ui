@@ -2,7 +2,6 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { inertValue } from '@base-ui/utils/inertValue';
-import { useOnMount } from '@base-ui/utils/useOnMount';
 import { FloatingNode } from '../../floating-ui-react';
 import { contains, getTarget } from '../../floating-ui-react/utils';
 import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
@@ -60,10 +59,7 @@ export const NavigationMenuContent = React.forwardRef(function NavigationMenuCon
   const ref = React.useRef<HTMLDivElement | null>(null);
 
   const [focusInside, setFocusInside] = React.useState(false);
-  const [selfMounted, setSelfMounted] = React.useState(false);
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
-
-  useOnMount(() => setSelfMounted(true));
 
   // If the popup unmounts before the content's exit animation completes, reset the internal
   // mounted state so the next open can re-enter via `transitionStatus="starting"`.
@@ -135,7 +131,7 @@ export const NavigationMenuContent = React.forwardRef(function NavigationMenuCon
     />
   ) : null;
 
-  if (!mounted || !portalContainer || !selfMounted) {
+  if (!mounted || !portalContainer) {
     return clone;
   }
 
