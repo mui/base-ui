@@ -422,17 +422,138 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
         expect(getDatePartValue(store, 4)).to.equal('2023');
       });
 
-      it('should set current year when section is empty and pressing ArrowUp', () => {
-        const store = new DateFieldStore({
-          format: numericDateFormat,
-          adapter,
-          direction: 'ltr',
-        });
-        store.section.selectClosestDatePart(4); // year section (empty)
+      describe('initialization (empty year section)', () => {
+        it('should set current year when pressing ArrowUp and no minDate', () => {
+          const store = new DateFieldStore({
+            format: numericDateFormat,
+            adapter,
+            direction: 'ltr',
+          });
+          store.section.selectClosestDatePart(4); // year section (empty)
 
-        store.valueAdjustment.adjustActiveDatePartValue('ArrowUp', 4);
-        const currentYear = new Date().getFullYear().toString();
-        expect(getDatePartValue(store, 4)).to.equal(currentYear);
+          store.valueAdjustment.adjustActiveDatePartValue('ArrowUp', 4);
+          const currentYear = new Date().getFullYear().toString();
+          expect(getDatePartValue(store, 4)).to.equal(currentYear);
+        });
+
+        it('should set current year when pressing PageUp and no minDate', () => {
+          const store = new DateFieldStore({
+            format: numericDateFormat,
+            adapter,
+            direction: 'ltr',
+          });
+          store.section.selectClosestDatePart(4); // year section (empty)
+
+          store.valueAdjustment.adjustActiveDatePartValue('PageUp', 4);
+          const currentYear = new Date().getFullYear().toString();
+          expect(getDatePartValue(store, 4)).to.equal(currentYear);
+        });
+
+        it('should set current year when pressing ArrowDown and no maxDate', () => {
+          const store = new DateFieldStore({
+            format: numericDateFormat,
+            adapter,
+            direction: 'ltr',
+          });
+          store.section.selectClosestDatePart(4); // year section (empty)
+
+          store.valueAdjustment.adjustActiveDatePartValue('ArrowDown', 4);
+          const currentYear = new Date().getFullYear().toString();
+          expect(getDatePartValue(store, 4)).to.equal(currentYear);
+        });
+
+        it('should set current year when pressing PageDown and no maxDate', () => {
+          const store = new DateFieldStore({
+            format: numericDateFormat,
+            adapter,
+            direction: 'ltr',
+          });
+          store.section.selectClosestDatePart(4); // year section (empty)
+
+          store.valueAdjustment.adjustActiveDatePartValue('PageDown', 4);
+          const currentYear = new Date().getFullYear().toString();
+          expect(getDatePartValue(store, 4)).to.equal(currentYear);
+        });
+
+        it('should set minDate year when pressing ArrowUp and minDate is set', () => {
+          const store = new DateFieldStore({
+            format: numericDateFormat,
+            adapter,
+            direction: 'ltr',
+            minDate: adapter.date('2020-01-01', 'default'),
+          });
+          store.section.selectClosestDatePart(4); // year section (empty)
+
+          store.valueAdjustment.adjustActiveDatePartValue('ArrowUp', 4);
+          expect(getDatePartValue(store, 4)).to.equal('2020');
+        });
+
+        it('should set minDate year when pressing PageUp and minDate is set', () => {
+          const store = new DateFieldStore({
+            format: numericDateFormat,
+            adapter,
+            direction: 'ltr',
+            minDate: adapter.date('2020-01-01', 'default'),
+          });
+          store.section.selectClosestDatePart(4); // year section (empty)
+
+          store.valueAdjustment.adjustActiveDatePartValue('PageUp', 4);
+          expect(getDatePartValue(store, 4)).to.equal('2020');
+        });
+
+        it('should set maxDate year when pressing ArrowDown and maxDate is set', () => {
+          const store = new DateFieldStore({
+            format: numericDateFormat,
+            adapter,
+            direction: 'ltr',
+            maxDate: adapter.date('2030-12-31', 'default'),
+          });
+          store.section.selectClosestDatePart(4); // year section (empty)
+
+          store.valueAdjustment.adjustActiveDatePartValue('ArrowDown', 4);
+          expect(getDatePartValue(store, 4)).to.equal('2030');
+        });
+
+        it('should set maxDate year when pressing PageDown and maxDate is set', () => {
+          const store = new DateFieldStore({
+            format: numericDateFormat,
+            adapter,
+            direction: 'ltr',
+            maxDate: adapter.date('2030-12-31', 'default'),
+          });
+          store.section.selectClosestDatePart(4); // year section (empty)
+
+          store.valueAdjustment.adjustActiveDatePartValue('PageDown', 4);
+          expect(getDatePartValue(store, 4)).to.equal('2030');
+        });
+
+        it('should set current year when pressing ArrowDown with minDate but no maxDate', () => {
+          const store = new DateFieldStore({
+            format: numericDateFormat,
+            adapter,
+            direction: 'ltr',
+            minDate: adapter.date('2020-01-01', 'default'),
+          });
+          store.section.selectClosestDatePart(4); // year section (empty)
+
+          store.valueAdjustment.adjustActiveDatePartValue('ArrowDown', 4);
+          const currentYear = new Date().getFullYear().toString();
+          expect(getDatePartValue(store, 4)).to.equal(currentYear);
+        });
+
+        it('should set current year when pressing ArrowUp with maxDate but no minDate', () => {
+          const store = new DateFieldStore({
+            format: numericDateFormat,
+            adapter,
+            direction: 'ltr',
+            maxDate: adapter.date('2030-12-31', 'default'),
+          });
+          store.section.selectClosestDatePart(4); // year section (empty)
+
+          store.valueAdjustment.adjustActiveDatePartValue('ArrowUp', 4);
+          const currentYear = new Date().getFullYear().toString();
+          expect(getDatePartValue(store, 4)).to.equal(currentYear);
+        });
       });
     });
 

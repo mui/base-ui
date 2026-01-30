@@ -3,6 +3,8 @@ import * as React from 'react';
 import { startOfDay } from 'date-fns/startOfDay';
 import { subDays } from 'date-fns/subDays';
 import { addDays } from 'date-fns/addDays';
+import { subYears } from 'date-fns/subYears';
+import { addYears } from 'date-fns/addYears';
 import { format } from 'date-fns/format';
 import { Field } from '@base-ui/react/field';
 import { Form } from '@base-ui/react/form';
@@ -12,6 +14,9 @@ import styles from './date-field-validation.module.css';
 const today = startOfDay(new Date());
 const minDate = subDays(today, 7);
 const maxDate = addDays(today, 30);
+
+const minDateLarge = subYears(today, 5);
+const maxDateLarge = addYears(today, 5);
 
 export default function DateFieldValidation() {
   return (
@@ -36,7 +41,12 @@ export default function DateFieldValidation() {
                 <label className={styles.Label} htmlFor="date-required-native">
                   Date (required)
                 </label>
-                <DateField.Root id="date-required-native" name="date-required-native" className={styles.Root} required>
+                <DateField.Root
+                  id="date-required-native"
+                  name="date-required-native"
+                  className={styles.Root}
+                  required
+                >
                   {(section) => (
                     <DateField.Section
                       key={section.index}
@@ -99,7 +109,12 @@ export default function DateFieldValidation() {
                 <label className={styles.Label} htmlFor="date-min-native">
                   Date (min: {format(minDate, 'MMM d')})
                 </label>
-                <DateField.Root id="date-min-native" name="date-min-native" className={styles.Root} minDate={minDate}>
+                <DateField.Root
+                  id="date-min-native"
+                  name="date-min-native"
+                  className={styles.Root}
+                  minDate={minDate}
+                >
                   {(section) => (
                     <DateField.Section
                       key={section.index}
@@ -146,6 +161,87 @@ export default function DateFieldValidation() {
           </div>
         </section>
 
+        {/* minDate + maxDate validation */}
+        <section>
+          <h2>
+            Min Date ({format(minDateLarge, 'MMM d, yyyy')}), Max Date (
+            {format(maxDateLarge, 'MMM d, yyyy')})
+          </h2>
+          <div className={styles.DemoList}>
+            {/* Native form + label */}
+            <form
+              className={styles.Demo}
+              onSubmit={(event) => {
+                event.preventDefault();
+                const formData = new FormData(event.currentTarget);
+                alert(`Submitted: ${formData.get('date-min-native')}`);
+              }}
+            >
+              <div className={styles.DemoField}>
+                <div className={styles.SectionTitle}>Native</div>
+                <label className={styles.Label} htmlFor="date-min-native">
+                  Date (min: {format(minDateLarge, 'MMM d')}, max: {format(maxDateLarge, 'MMM d')})
+                </label>
+                <DateField.Root
+                  id="date-min-max-native"
+                  name="date-min-max-native"
+                  className={styles.Root}
+                  minDate={minDateLarge}
+                  maxDate={maxDateLarge}
+                >
+                  {(section) => (
+                    <DateField.Section
+                      key={section.index}
+                      className={styles.Section}
+                      section={section}
+                    />
+                  )}
+                </DateField.Root>
+              </div>
+              <button type="submit" className={styles.Button}>
+                Submit
+              </button>
+            </form>
+
+            {/* Base UI Form + Field */}
+            <Form
+              className={styles.Demo}
+              onFormSubmit={(formData) => {
+                alert(`Submitted: ${formData['date-min-max-baseui']}`);
+              }}
+            >
+              <Field.Root name="date-min-max-baseui" className={styles.DemoField}>
+                <div className={styles.SectionTitle}>Base UI</div>
+                <Field.Label className={styles.Label}>
+                  Date (min: {format(minDateLarge, 'MMM d')}, max: {format(maxDateLarge, 'MMM d')})
+                </Field.Label>
+                <DateField.Root
+                  className={styles.Root}
+                  minDate={minDateLarge}
+                  maxDate={maxDateLarge}
+                >
+                  {(section) => (
+                    <DateField.Section
+                      key={section.index}
+                      className={styles.Section}
+                      section={section}
+                    />
+                  )}
+                </DateField.Root>
+                <Field.Error match="rangeUnderflow" className={styles.Error}>
+                  Date must be on or after {format(minDateLarge, 'MMM d, yyyy')}
+                </Field.Error>
+                <Field.Error match="rangeOverflow" className={styles.Error}>
+                  Date must be on or before {format(maxDateLarge, 'MMM d, yyyy')}
+                </Field.Error>
+              </Field.Root>
+              <button type="submit" className={styles.Button}>
+                Submit
+              </button>
+            </Form>
+          </div>
+        </section>
+
         {/* maxDate validation */}
         <section>
           <h2>Max Date ({format(maxDate, 'MMM d, yyyy')})</h2>
@@ -164,7 +260,12 @@ export default function DateFieldValidation() {
                 <label className={styles.Label} htmlFor="date-max-native">
                   Date (max: {format(maxDate, 'MMM d')})
                 </label>
-                <DateField.Root id="date-max-native" name="date-max-native" className={styles.Root} maxDate={maxDate}>
+                <DateField.Root
+                  id="date-max-native"
+                  name="date-max-native"
+                  className={styles.Root}
+                  maxDate={maxDate}
+                >
                   {(section) => (
                     <DateField.Section
                       key={section.index}

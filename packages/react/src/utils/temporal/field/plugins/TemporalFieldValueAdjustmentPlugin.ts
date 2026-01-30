@@ -49,10 +49,22 @@ export class TemporalFieldValueAdjustmentPlugin<TValue extends TemporalSupported
     const adapter = selectors.adapter(this.store.state);
     const localizedDigits = getLocalizedDigits(adapter);
     const timezone = selectors.timezoneToRender(this.store.state);
+    const validationProps = selectors.validationProps(this.store.state);
     const datePart = TemporalFieldSectionPlugin.selectors.datePart(this.store.state, sectionIndex);
 
     if (datePart == null) {
       return '';
+    }
+
+    // If we are initializing the year and their is no validation boundary in the direction we are going,
+    // Then we set the section to the current year.
+    const shouldSetCurrentYear =
+      datePart.value === '' &&
+      datePart.token.config.part === 'year' &&
+      ((validationProps.maxDate == null && ['ArrowDown', 'PageDown'].includes(keyCode)) ||
+        (validationProps.minDate == null && ['ArrowUp', 'PageUp'].includes(keyCode)));
+    if (shouldSetCurrentYear) {
+      return adapter.formatByString(adapter.now(timezone), datePart.token.value);
     }
 
     const step = datePart.token.isMostGranularPart ? selectors.step(this.store.state) : 1;
@@ -74,10 +86,6 @@ export class TemporalFieldValueAdjustmentPlugin<TValue extends TemporalSupported
       let newDatePartValueNumber: number;
 
       if (shouldSetAbsolute) {
-        if (datePart.token.config.part === 'year' && !isEnd && !isStart) {
-          return adapter.formatByString(adapter.now(timezone), datePart.token.value);
-        }
-
         if (delta > 0 || isStart) {
           newDatePartValueNumber = boundaries.minimum;
         } else {
