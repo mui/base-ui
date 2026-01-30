@@ -15,7 +15,7 @@ export const Input = React.forwardRef<HTMLInputElement, Combobox.Input.Props>(fu
     <Combobox.Input
       ref={forwardedRef}
       className={clsx(
-        'h-10 w-64 rounded-md font-normal border border-gray-200 pl-3.5 text-base text-gray-900 bg-[canvas] focus:outline focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800',
+        'h-9 w-full pl-3 text-sm border border-gray-300 rounded-md my-1 focus:outline focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800 data-[invalid]:border-red-500',
         className,
       )}
       {...props}
@@ -27,7 +27,7 @@ export function Clear({ className, ...props }: Combobox.Clear.Props) {
   return (
     <Combobox.Clear
       className={clsx(
-        'combobox-clear flex h-10 w-6 items-center justify-center rounded bg-transparent p-0',
+        'combobox-clear flex items-center justify-center rounded bg-transparent p-0',
         className,
       )}
       {...props}
@@ -40,10 +40,7 @@ export function Clear({ className, ...props }: Combobox.Clear.Props) {
 export function Trigger({ className, ...props }: Combobox.Trigger.Props) {
   return (
     <Combobox.Trigger
-      className={clsx(
-        'flex h-10 w-6 items-center justify-center rounded bg-transparent p-0',
-        className,
-      )}
+      className={clsx('flex items-center justify-center rounded bg-transparent p-0', className)}
       {...props}
     />
   );
@@ -96,7 +93,7 @@ export function Item({ className, ...props }: Combobox.Item.Props) {
   return (
     <Combobox.Item
       className={clsx(
-        'grid cursor-default grid-cols-[0.75rem_1fr] items-center gap-2 py-2 pr-8 pl-4 text-base leading-4 outline-none select-none data-[highlighted]:relative data-[highlighted]:z-0 data-[highlighted]:text-gray-50 data-[highlighted]:before:absolute data-[highlighted]:before:inset-x-2 data-[highlighted]:before:inset-y-0 data-[highlighted]:before:z-[-1] data-[highlighted]:before:rounded-sm data-[highlighted]:before:bg-gray-900',
+        'grid cursor-default grid-cols-[0.75rem_1fr] items-center gap-2 py-2 pr-8 pl-4 text-sm leading-4 outline-none select-none data-[highlighted]:relative data-[highlighted]:z-0 data-[highlighted]:text-gray-50 data-[highlighted]:before:absolute data-[highlighted]:before:inset-x-2 data-[highlighted]:before:inset-y-0 data-[highlighted]:before:z-[-1] data-[highlighted]:before:rounded-sm data-[highlighted]:before:bg-gray-900',
         className,
       )}
       {...props}
