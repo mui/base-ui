@@ -39,13 +39,7 @@ Re-export of [Root](#root) props.
 ### Root.State
 
 ```typescript
-type ProgressRootState = { status: Progress.Root.Status };
-```
-
-### Root.Status
-
-```typescript
-type ProgressRootStatus = 'indeterminate' | 'progressing' | 'complete';
+type ProgressRootState = { status: Progress.Status };
 ```
 
 ### Value
@@ -149,10 +143,8 @@ Renders a `<span>` element.
 
 Re-export of [Label](#label) props.
 
-## External Types
-
 ### Status
 
 ```typescript
-type Status = 'indeterminate' | 'progressing' | 'complete';
+type ProgressStatus = 'indeterminate' | 'progressing' | 'complete';
 ```

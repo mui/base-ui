@@ -13,7 +13,7 @@ Renders a `<div>` element.
 
 | Prop        | Type                                                                                    | Default        | Description                                                                                                                                                                                   |
 | :---------- | :-------------------------------------------------------------------------------------- | :------------- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| orientation | `Separator.Orientation`                                                                 | `'horizontal'` | The orientation of the separator.                                                                                                                                                             |
+| orientation | `Orientation`                                                                           | `'horizontal'` | The orientation of the separator.                                                                                                                                                             |
 | className   | `string \| ((state: Separator.State) => string \| undefined)`                           | -              | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
 | style       | `React.CSSProperties \| ((state: Separator.State) => React.CSSProperties \| undefined)` | -              | -                                                                                                                                                                                             |
 | render      | `ReactElement \| ((props: HTMLProps, state: Separator.State) => ReactElement)`          | -              | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
@@ -25,13 +25,7 @@ Re-export of [Separator](#separator) props.
 ### Separator.State
 
 ```typescript
-type SeparatorState = { orientation: Separator.Orientation };
-```
-
-### Separator.Orientation
-
-```typescript
-type SeparatorOrientation = 'horizontal' | 'vertical';
+type SeparatorState = { orientation: Orientation };
 ```
 
 ## External Types

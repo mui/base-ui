@@ -66,7 +66,7 @@ export type BaseUIComponentProps<
    *
    * Accepts a `ReactElement` or a function that returns the element to render.
    */
-  render?: React.ReactElement | ComponentRenderFn<RenderFunctionProps, State> | undefined;
+  render?: (React.ReactElement | ComponentRenderFn<RenderFunctionProps, State>) | undefined;
   /**
    * Style applied to the element, or a function that
    * returns a style object based on the component's state.

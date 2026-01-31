@@ -209,7 +209,13 @@ Re-export of [Link](#link) props.
 type ToolbarLinkState = { orientation: Toolbar.Root.Orientation };
 ```
 
-## External Types
+### Orientation
+
+```typescript
+type ToolbarOrientation = 'horizontal' | 'vertical';
+```
+
+## Additional Types
 
 ### Orientation
 
