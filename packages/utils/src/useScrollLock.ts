@@ -61,10 +61,18 @@ function preventScrollOverlayScrollbars(referenceElement: Element | null) {
   // But if <body> has an `overflow` style (like `overflow-x: hidden`), we need to lock it
   // instead, as sticky elements shift otherwise.
   const elementToLock = isOverflowElement(html) ? html : body;
-  const originalOverflow = elementToLock.style.overflow;
-  elementToLock.style.overflow = 'hidden';
+  const originalElementToLockStyles = {
+    overflowY: elementToLock.style.overflowY,
+    overflowX: elementToLock.style.overflowX,
+  };
+
+  Object.assign(elementToLock.style, {
+    overflowY: 'hidden',
+    overflowX: 'hidden',
+  });
+
   return () => {
-    elementToLock.style.overflow = originalOverflow;
+    Object.assign(elementToLock.style, originalElementToLockStyles);
   };
 }
 
