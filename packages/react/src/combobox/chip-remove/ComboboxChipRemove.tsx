@@ -54,7 +54,6 @@ export const ComboboxChipRemove = React.forwardRef(function ComboboxChipRemove(
     props: [
       {
         tabIndex: -1,
-        'aria-readonly': readOnly || undefined,
         onClick(event) {
           if (disabled || readOnly) {
             return;
