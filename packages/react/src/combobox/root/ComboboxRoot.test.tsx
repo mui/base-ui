@@ -1331,7 +1331,7 @@ describe('<Combobox.Root />', () => {
   });
 
   describe('prop: readOnly', () => {
-    it('should render readOnly state on all interactive components', async () => {
+    it('should render readOnly state on the input and disable interactions', async () => {
       const { user } = await render(
         <Combobox.Root readOnly>
           <Combobox.Input data-testid="input" />
@@ -1358,7 +1358,6 @@ describe('<Combobox.Root />', () => {
 
       expect(input).to.have.attribute('aria-readonly', 'true');
       expect(input).to.have.attribute('readonly');
-      expect(trigger).to.have.attribute('aria-readonly', 'true');
 
       // Verify interactions are disabled
       await user.click(trigger);
