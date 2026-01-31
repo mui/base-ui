@@ -19,7 +19,7 @@ import { PreviewCardHandle } from '../store/PreviewCardHandle';
 
 /**
  * Groups all parts of the preview card.
- * Doesn’t render its own HTML element.
+ * Doesn't render its own HTML element.
  *
  * Documentation: [Base UI Preview Card](https://base-ui.com/react/components/preview-card)
  */
@@ -166,7 +166,7 @@ export interface PreviewCardRootProps<Payload = unknown> {
   /**
    * ID of the trigger that the preview card is associated with.
    * This is useful in conjuntion with the `open` prop to create a controlled preview card.
-   * There's no need to specify this prop when the preview card is uncontrolled (i.e. when the `open` prop is not set).
+   * There's no need to specify this prop when the preview card is uncontrolled (that is, when the `open` prop is not set).
    */
   triggerId?: (string | null) | undefined;
   /**
