@@ -26,7 +26,7 @@ Doesn't render its own HTML element.
 | triggerId            | `string \| null`                                                               | -            | ID of the trigger that the popover is associated with.&#xA;This is useful in conjunction with the `open` prop to create a controlled popover.&#xA;There's no need to specify this prop when the popover is uncontrolled (that is, when the `open` prop is not set).                                                          |
 | disabled             | `boolean`                                                                      | `false`      | Whether the component should ignore user interaction.                                                                                                                                                                                                                                                                        |
 | orientation          | `MenuRoot.Orientation`                                                         | `'vertical'` | The visual orientation of the menu.&#xA;Controls whether roving focus uses up/down or left/right arrow keys.                                                                                                                                                                                                                 |
-| children             | `React.ReactNode \| ((arg: { payload: unknown }) => React.ReactNode)`          | -            | The content of the popover.&#xA;This can be a regular React node or a render function that receives the `payload` of the active trigger.                                                                                                                                                                                     |
+| children             | `React.ReactNode \| PayloadChildRenderFunction<unknown>`                       | -            | The content of the popover.&#xA;This can be a regular React node or a render function that receives the `payload` of the active trigger.                                                                                                                                                                                     |
 
 ### Root.Props
 
@@ -281,23 +281,23 @@ Renders a `<div>` element.
 
 **Positioner Props:**
 
-| Prop                  | Type                                                                                                                                                   | Default                | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
-| :-------------------- | :----------------------------------------------------------------------------------------------------------------------------------------------------- | :--------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| disableAnchorTracking | `boolean`                                                                                                                                              | `false`                | Whether to disable the popup from tracking any layout shift of its positioning anchor.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
-| align                 | `Align`                                                                                                                                                | `'center'`             | How to align the popup relative to the specified side.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
-| alignOffset           | `number \| ((data: { side: Side; align: Align; anchor: { width: number; height: number }; positioner: { width: number; height: number } }) => number)` | `0`                    | Additional offset along the alignment axis in pixels.&#xA;Also accepts a function that returns the offset to read the dimensions of the anchor&#xA;and positioner elements, along with its side and alignment. The function takes a `data` object parameter with the following properties: `data.anchor`: the dimensions of the anchor element with properties `width` and `height`.`data.positioner`: the dimensions of the positioner element with properties `width` and `height`.`data.side`: which side of the anchor element the positioner is aligned against.`data.align`: how the positioner is aligned relative to the specified side.  |
-| side                  | `Side`                                                                                                                                                 | `'bottom'`             | Which side of the anchor element to align the popup against.&#xA;May automatically change to avoid collisions.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
-| sideOffset            | `number \| ((data: { side: Side; align: Align; anchor: { width: number; height: number }; positioner: { width: number; height: number } }) => number)` | `0`                    | Distance between the anchor and the popup in pixels.&#xA;Also accepts a function that returns the distance to read the dimensions of the anchor&#xA;and positioner elements, along with its side and alignment. The function takes a `data` object parameter with the following properties: `data.anchor`: the dimensions of the anchor element with properties `width` and `height`.`data.positioner`: the dimensions of the positioner element with properties `width` and `height`.`data.side`: which side of the anchor element the positioner is aligned against.`data.align`: how the positioner is aligned relative to the specified side. |
-| arrowPadding          | `number`                                                                                                                                               | `5`                    | Minimum distance to maintain between the arrow and the edges of the popup. Use it to prevent the arrow element from hanging out of the rounded corners of a popup.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
-| anchor                | `Element \| VirtualElement \| React.RefObject<Element \| null> \| (() => Element \| VirtualElement \| null) \| null`                                   | -                      | An element to position the popup against.&#xA;By default, the popup will be positioned against the trigger.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
-| collisionAvoidance    | `CollisionAvoidance`                                                                                                                                   | -                      | Determines how to handle collisions when positioning the popup.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
-| collisionBoundary     | `Boundary`                                                                                                                                             | `'clipping-ancestors'` | An element or a rectangle that delimits the area that the popup is confined to.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
-| collisionPadding      | `Padding`                                                                                                                                              | `5`                    | Additional space to maintain from the edge of the collision boundary.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
-| sticky                | `boolean`                                                                                                                                              | `false`                | Whether to maintain the popup in the viewport after&#xA;the anchor element was scrolled out of view.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
-| positionMethod        | `'absolute' \| 'fixed'`                                                                                                                                | `'absolute'`           | Determines which CSS `position` property to use.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
-| className             | `string \| ((state: ContextMenu.Positioner.State) => string \| undefined)`                                                                             | -                      | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
-| style                 | `React.CSSProperties \| ((state: ContextMenu.Positioner.State) => React.CSSProperties \| undefined)`                                                   | -                      | -                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
-| render                | `ReactElement \| ((props: HTMLProps, state: ContextMenu.Positioner.State) => ReactElement)`                                                            | -                      | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render.                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| Prop                  | Type                                                                                                                 | Default                | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| :-------------------- | :------------------------------------------------------------------------------------------------------------------- | :--------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| disableAnchorTracking | `boolean`                                                                                                            | `false`                | Whether to disable the popup from tracking any layout shift of its positioning anchor.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
+| align                 | `Align`                                                                                                              | `'center'`             | How to align the popup relative to the specified side.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
+| alignOffset           | `number \| OffsetFunction`                                                                                           | `0`                    | Additional offset along the alignment axis in pixels.&#xA;Also accepts a function that returns the offset to read the dimensions of the anchor&#xA;and positioner elements, along with its side and alignment. The function takes a `data` object parameter with the following properties: `data.anchor`: the dimensions of the anchor element with properties `width` and `height`.`data.positioner`: the dimensions of the positioner element with properties `width` and `height`.`data.side`: which side of the anchor element the positioner is aligned against.`data.align`: how the positioner is aligned relative to the specified side.  |
+| side                  | `Side`                                                                                                               | `'bottom'`             | Which side of the anchor element to align the popup against.&#xA;May automatically change to avoid collisions.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| sideOffset            | `number \| OffsetFunction`                                                                                           | `0`                    | Distance between the anchor and the popup in pixels.&#xA;Also accepts a function that returns the distance to read the dimensions of the anchor&#xA;and positioner elements, along with its side and alignment. The function takes a `data` object parameter with the following properties: `data.anchor`: the dimensions of the anchor element with properties `width` and `height`.`data.positioner`: the dimensions of the positioner element with properties `width` and `height`.`data.side`: which side of the anchor element the positioner is aligned against.`data.align`: how the positioner is aligned relative to the specified side. |
+| arrowPadding          | `number`                                                                                                             | `5`                    | Minimum distance to maintain between the arrow and the edges of the popup. Use it to prevent the arrow element from hanging out of the rounded corners of a popup.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
+| anchor                | `Element \| VirtualElement \| React.RefObject<Element \| null> \| (() => Element \| VirtualElement \| null) \| null` | -                      | An element to position the popup against.&#xA;By default, the popup will be positioned against the trigger.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| collisionAvoidance    | `CollisionAvoidance`                                                                                                 | -                      | Determines how to handle collisions when positioning the popup.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| collisionBoundary     | `Boundary`                                                                                                           | `'clipping-ancestors'` | An element or a rectangle that delimits the area that the popup is confined to.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| collisionPadding      | `Padding`                                                                                                            | `5`                    | Additional space to maintain from the edge of the collision boundary.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
+| sticky                | `boolean`                                                                                                            | `false`                | Whether to maintain the popup in the viewport after&#xA;the anchor element was scrolled out of view.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| positionMethod        | `'absolute' \| 'fixed'`                                                                                              | `'absolute'`           | Determines which CSS `position` property to use.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
+| className             | `string \| ((state: ContextMenu.Positioner.State) => string \| undefined)`                                           | -                      | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| style                 | `React.CSSProperties \| ((state: ContextMenu.Positioner.State) => React.CSSProperties \| undefined)`                 | -                      | -                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| render                | `ReactElement \| ((props: HTMLProps, state: ContextMenu.Positioner.State) => ReactElement)`                          | -                      | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render.                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
 
 **Positioner Data Attributes:**
 
@@ -546,7 +546,7 @@ Doesn't render its own HTML element.
 | triggerId            | `string \| null`                                                                      | -            | ID of the trigger that the popover is associated with.&#xA;This is useful in conjunction with the `open` prop to create a controlled popover.&#xA;There's no need to specify this prop when the popover is uncontrolled (that is, when the `open` prop is not set).                                                          |
 | disabled             | `boolean`                                                                             | `false`      | Whether the component should ignore user interaction.                                                                                                                                                                                                                                                                        |
 | orientation          | `MenuRoot.Orientation`                                                                | `'vertical'` | The visual orientation of the menu.&#xA;Controls whether roving focus uses up/down or left/right arrow keys.                                                                                                                                                                                                                 |
-| children             | `React.ReactNode \| ((arg: { payload: unknown }) => React.ReactNode)`                 | -            | The content of the popover.&#xA;This can be a regular React node or a render function that receives the `payload` of the active trigger.                                                                                                                                                                                     |
+| children             | `React.ReactNode \| PayloadChildRenderFunction<unknown>`                              | -            | The content of the popover.&#xA;This can be a regular React node or a render function that receives the `payload` of the active trigger.                                                                                                                                                                                     |
 
 ### SubmenuRoot.Props
 
@@ -589,7 +589,7 @@ type ContextMenuSubmenuRootChangeEventDetails =
       isCanceled: boolean;
       isPropagationAllowed: boolean;
       trigger: Element | undefined;
-      preventUnmountOnClose: () => void;
+      preventUnmountOnClose: preventUnmountOnClose;
     }
   | {
       reason: 'trigger-focus';
@@ -599,7 +599,7 @@ type ContextMenuSubmenuRootChangeEventDetails =
       isCanceled: boolean;
       isPropagationAllowed: boolean;
       trigger: Element | undefined;
-      preventUnmountOnClose: () => void;
+      preventUnmountOnClose: preventUnmountOnClose;
     }
   | {
       reason: 'trigger-press';
@@ -609,7 +609,7 @@ type ContextMenuSubmenuRootChangeEventDetails =
       isCanceled: boolean;
       isPropagationAllowed: boolean;
       trigger: Element | undefined;
-      preventUnmountOnClose: () => void;
+      preventUnmountOnClose: preventUnmountOnClose;
     }
   | {
       reason: 'outside-press';
@@ -619,7 +619,7 @@ type ContextMenuSubmenuRootChangeEventDetails =
       isCanceled: boolean;
       isPropagationAllowed: boolean;
       trigger: Element | undefined;
-      preventUnmountOnClose: () => void;
+      preventUnmountOnClose: preventUnmountOnClose;
     }
   | {
       reason: 'focus-out';
@@ -629,7 +629,7 @@ type ContextMenuSubmenuRootChangeEventDetails =
       isCanceled: boolean;
       isPropagationAllowed: boolean;
       trigger: Element | undefined;
-      preventUnmountOnClose: () => void;
+      preventUnmountOnClose: preventUnmountOnClose;
     }
   | {
       reason: 'list-navigation';
@@ -639,7 +639,7 @@ type ContextMenuSubmenuRootChangeEventDetails =
       isCanceled: boolean;
       isPropagationAllowed: boolean;
       trigger: Element | undefined;
-      preventUnmountOnClose: () => void;
+      preventUnmountOnClose: preventUnmountOnClose;
     }
   | {
       reason: 'escape-key';
@@ -649,7 +649,7 @@ type ContextMenuSubmenuRootChangeEventDetails =
       isCanceled: boolean;
       isPropagationAllowed: boolean;
       trigger: Element | undefined;
-      preventUnmountOnClose: () => void;
+      preventUnmountOnClose: preventUnmountOnClose;
     }
   | {
       reason: 'item-press';
@@ -659,7 +659,7 @@ type ContextMenuSubmenuRootChangeEventDetails =
       isCanceled: boolean;
       isPropagationAllowed: boolean;
       trigger: Element | undefined;
-      preventUnmountOnClose: () => void;
+      preventUnmountOnClose: preventUnmountOnClose;
     }
   | {
       reason: 'close-press';
@@ -669,7 +669,7 @@ type ContextMenuSubmenuRootChangeEventDetails =
       isCanceled: boolean;
       isPropagationAllowed: boolean;
       trigger: Element | undefined;
-      preventUnmountOnClose: () => void;
+      preventUnmountOnClose: preventUnmountOnClose;
     }
   | {
       reason: 'sibling-open';
@@ -679,7 +679,7 @@ type ContextMenuSubmenuRootChangeEventDetails =
       isCanceled: boolean;
       isPropagationAllowed: boolean;
       trigger: Element | undefined;
-      preventUnmountOnClose: () => void;
+      preventUnmountOnClose: preventUnmountOnClose;
     }
   | {
       reason: 'cancel-open';
@@ -689,7 +689,7 @@ type ContextMenuSubmenuRootChangeEventDetails =
       isCanceled: boolean;
       isPropagationAllowed: boolean;
       trigger: Element | undefined;
-      preventUnmountOnClose: () => void;
+      preventUnmountOnClose: preventUnmountOnClose;
     }
   | {
       reason: 'imperative-action';
@@ -699,7 +699,7 @@ type ContextMenuSubmenuRootChangeEventDetails =
       isCanceled: boolean;
       isPropagationAllowed: boolean;
       trigger: Element | undefined;
-      preventUnmountOnClose: () => void;
+      preventUnmountOnClose: preventUnmountOnClose;
     }
   | {
       reason: 'none';
@@ -709,7 +709,7 @@ type ContextMenuSubmenuRootChangeEventDetails =
       isCanceled: boolean;
       isPropagationAllowed: boolean;
       trigger: Element | undefined;
-      preventUnmountOnClose: () => void;
+      preventUnmountOnClose: preventUnmountOnClose;
     };
 ```
 
@@ -810,7 +810,7 @@ type ContextMenuRadioGroupChangeEventDetails =
       isCanceled: boolean;
       isPropagationAllowed: boolean;
       trigger: Element | undefined;
-      preventUnmountOnClose: () => void;
+      preventUnmountOnClose: preventUnmountOnClose;
     }
   | {
       reason: 'trigger-focus';
@@ -820,7 +820,7 @@ type ContextMenuRadioGroupChangeEventDetails =
       isCanceled: boolean;
       isPropagationAllowed: boolean;
       trigger: Element | undefined;
-      preventUnmountOnClose: () => void;
+      preventUnmountOnClose: preventUnmountOnClose;
     }
   | {
       reason: 'trigger-press';
@@ -830,7 +830,7 @@ type ContextMenuRadioGroupChangeEventDetails =
       isCanceled: boolean;
       isPropagationAllowed: boolean;
       trigger: Element | undefined;
-      preventUnmountOnClose: () => void;
+      preventUnmountOnClose: preventUnmountOnClose;
     }
   | {
       reason: 'outside-press';
@@ -840,7 +840,7 @@ type ContextMenuRadioGroupChangeEventDetails =
       isCanceled: boolean;
       isPropagationAllowed: boolean;
       trigger: Element | undefined;
-      preventUnmountOnClose: () => void;
+      preventUnmountOnClose: preventUnmountOnClose;
     }
   | {
       reason: 'focus-out';
@@ -850,7 +850,7 @@ type ContextMenuRadioGroupChangeEventDetails =
       isCanceled: boolean;
       isPropagationAllowed: boolean;
       trigger: Element | undefined;
-      preventUnmountOnClose: () => void;
+      preventUnmountOnClose: preventUnmountOnClose;
     }
   | {
       reason: 'list-navigation';
@@ -860,7 +860,7 @@ type ContextMenuRadioGroupChangeEventDetails =
       isCanceled: boolean;
       isPropagationAllowed: boolean;
       trigger: Element | undefined;
-      preventUnmountOnClose: () => void;
+      preventUnmountOnClose: preventUnmountOnClose;
     }
   | {
       reason: 'escape-key';
@@ -870,7 +870,7 @@ type ContextMenuRadioGroupChangeEventDetails =
       isCanceled: boolean;
       isPropagationAllowed: boolean;
       trigger: Element | undefined;
-      preventUnmountOnClose: () => void;
+      preventUnmountOnClose: preventUnmountOnClose;
     }
   | {
       reason: 'item-press';
@@ -880,7 +880,7 @@ type ContextMenuRadioGroupChangeEventDetails =
       isCanceled: boolean;
       isPropagationAllowed: boolean;
       trigger: Element | undefined;
-      preventUnmountOnClose: () => void;
+      preventUnmountOnClose: preventUnmountOnClose;
     }
   | {
       reason: 'close-press';
@@ -890,7 +890,7 @@ type ContextMenuRadioGroupChangeEventDetails =
       isCanceled: boolean;
       isPropagationAllowed: boolean;
       trigger: Element | undefined;
-      preventUnmountOnClose: () => void;
+      preventUnmountOnClose: preventUnmountOnClose;
     }
   | {
       reason: 'sibling-open';
@@ -900,7 +900,7 @@ type ContextMenuRadioGroupChangeEventDetails =
       isCanceled: boolean;
       isPropagationAllowed: boolean;
       trigger: Element | undefined;
-      preventUnmountOnClose: () => void;
+      preventUnmountOnClose: preventUnmountOnClose;
     }
   | {
       reason: 'cancel-open';
@@ -910,7 +910,7 @@ type ContextMenuRadioGroupChangeEventDetails =
       isCanceled: boolean;
       isPropagationAllowed: boolean;
       trigger: Element | undefined;
-      preventUnmountOnClose: () => void;
+      preventUnmountOnClose: preventUnmountOnClose;
     }
   | {
       reason: 'imperative-action';
@@ -920,7 +920,7 @@ type ContextMenuRadioGroupChangeEventDetails =
       isCanceled: boolean;
       isPropagationAllowed: boolean;
       trigger: Element | undefined;
-      preventUnmountOnClose: () => void;
+      preventUnmountOnClose: preventUnmountOnClose;
     }
   | {
       reason: 'none';
@@ -930,7 +930,7 @@ type ContextMenuRadioGroupChangeEventDetails =
       isCanceled: boolean;
       isPropagationAllowed: boolean;
       trigger: Element | undefined;
-      preventUnmountOnClose: () => void;
+      preventUnmountOnClose: preventUnmountOnClose;
     };
 ```
 
@@ -1082,7 +1082,7 @@ type ContextMenuCheckboxItemChangeEventDetails =
       isCanceled: boolean;
       isPropagationAllowed: boolean;
       trigger: Element | undefined;
-      preventUnmountOnClose: () => void;
+      preventUnmountOnClose: preventUnmountOnClose;
     }
   | {
       reason: 'trigger-focus';
@@ -1092,7 +1092,7 @@ type ContextMenuCheckboxItemChangeEventDetails =
       isCanceled: boolean;
       isPropagationAllowed: boolean;
       trigger: Element | undefined;
-      preventUnmountOnClose: () => void;
+      preventUnmountOnClose: preventUnmountOnClose;
     }
   | {
       reason: 'trigger-press';
@@ -1102,7 +1102,7 @@ type ContextMenuCheckboxItemChangeEventDetails =
       isCanceled: boolean;
       isPropagationAllowed: boolean;
       trigger: Element | undefined;
-      preventUnmountOnClose: () => void;
+      preventUnmountOnClose: preventUnmountOnClose;
     }
   | {
       reason: 'outside-press';
@@ -1112,7 +1112,7 @@ type ContextMenuCheckboxItemChangeEventDetails =
       isCanceled: boolean;
       isPropagationAllowed: boolean;
       trigger: Element | undefined;
-      preventUnmountOnClose: () => void;
+      preventUnmountOnClose: preventUnmountOnClose;
     }
   | {
       reason: 'focus-out';
@@ -1122,7 +1122,7 @@ type ContextMenuCheckboxItemChangeEventDetails =
       isCanceled: boolean;
       isPropagationAllowed: boolean;
       trigger: Element | undefined;
-      preventUnmountOnClose: () => void;
+      preventUnmountOnClose: preventUnmountOnClose;
     }
   | {
       reason: 'list-navigation';
@@ -1132,7 +1132,7 @@ type ContextMenuCheckboxItemChangeEventDetails =
       isCanceled: boolean;
       isPropagationAllowed: boolean;
       trigger: Element | undefined;
-      preventUnmountOnClose: () => void;
+      preventUnmountOnClose: preventUnmountOnClose;
     }
   | {
       reason: 'escape-key';
@@ -1142,7 +1142,7 @@ type ContextMenuCheckboxItemChangeEventDetails =
       isCanceled: boolean;
       isPropagationAllowed: boolean;
       trigger: Element | undefined;
-      preventUnmountOnClose: () => void;
+      preventUnmountOnClose: preventUnmountOnClose;
     }
   | {
       reason: 'item-press';
@@ -1152,7 +1152,7 @@ type ContextMenuCheckboxItemChangeEventDetails =
       isCanceled: boolean;
       isPropagationAllowed: boolean;
       trigger: Element | undefined;
-      preventUnmountOnClose: () => void;
+      preventUnmountOnClose: preventUnmountOnClose;
     }
   | {
       reason: 'close-press';
@@ -1162,7 +1162,7 @@ type ContextMenuCheckboxItemChangeEventDetails =
       isCanceled: boolean;
       isPropagationAllowed: boolean;
       trigger: Element | undefined;
-      preventUnmountOnClose: () => void;
+      preventUnmountOnClose: preventUnmountOnClose;
     }
   | {
       reason: 'sibling-open';
@@ -1172,7 +1172,7 @@ type ContextMenuCheckboxItemChangeEventDetails =
       isCanceled: boolean;
       isPropagationAllowed: boolean;
       trigger: Element | undefined;
-      preventUnmountOnClose: () => void;
+      preventUnmountOnClose: preventUnmountOnClose;
     }
   | {
       reason: 'cancel-open';
@@ -1182,7 +1182,7 @@ type ContextMenuCheckboxItemChangeEventDetails =
       isCanceled: boolean;
       isPropagationAllowed: boolean;
       trigger: Element | undefined;
-      preventUnmountOnClose: () => void;
+      preventUnmountOnClose: preventUnmountOnClose;
     }
   | {
       reason: 'imperative-action';
@@ -1192,7 +1192,7 @@ type ContextMenuCheckboxItemChangeEventDetails =
       isCanceled: boolean;
       isPropagationAllowed: boolean;
       trigger: Element | undefined;
-      preventUnmountOnClose: () => void;
+      preventUnmountOnClose: preventUnmountOnClose;
     }
   | {
       reason: 'none';
@@ -1202,7 +1202,7 @@ type ContextMenuCheckboxItemChangeEventDetails =
       isCanceled: boolean;
       isPropagationAllowed: boolean;
       trigger: Element | undefined;
-      preventUnmountOnClose: () => void;
+      preventUnmountOnClose: preventUnmountOnClose;
     };
 ```
 
@@ -1284,6 +1284,18 @@ type ContextMenuLinkItemState = { highlighted: boolean };
 type Orientation = 'horizontal' | 'vertical';
 ```
 
+### PayloadChildRenderFunction
+
+```typescript
+type PayloadChildRenderFunction = (arg: { payload: unknown }) => ReactNode;
+```
+
+### preventUnmountOnClose
+
+```typescript
+type preventUnmountOnClose = () => void;
+```
+
 ### Side
 
 ```typescript
@@ -1300,4 +1312,15 @@ type Align = 'start' | 'center' | 'end';
 
 ```typescript
 type InteractionType = 'mouse' | 'touch' | 'pen' | 'keyboard' | '';
+```
+
+### OffsetFunction
+
+```typescript
+type OffsetFunction = (data: {
+  side: 'top' | 'bottom' | 'left' | 'right' | 'inline-end' | 'inline-start';
+  align: 'start' | 'center' | 'end';
+  anchor: { width: number; height: number };
+  positioner: { width: number; height: number };
+}) => number;
 ```

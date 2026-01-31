@@ -11,19 +11,19 @@ Doesn't render its own HTML element.
 
 **Root Props:**
 
-| Prop                    | Type                                                                                | Default | Description                                                                                                                                                                                                                                                                                                                                                                                                                                       |
-| :---------------------- | :---------------------------------------------------------------------------------- | :------ | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| defaultOpen             | `boolean`                                                                           | `false` | Whether the dialog is initially open. To render a controlled dialog, use the `open` prop instead.                                                                                                                                                                                                                                                                                                                                                 |
-| open                    | `boolean`                                                                           | -       | Whether the dialog is currently open.                                                                                                                                                                                                                                                                                                                                                                                                             |
-| onOpenChange            | `((open: boolean, eventDetails: Dialog.Root.ChangeEventDetails) => void)`           | -       | Event handler called when the dialog is opened or closed.                                                                                                                                                                                                                                                                                                                                                                                         |
-| actionsRef              | `React.RefObject<Dialog.Root.Actions \| null>`                                      | -       | A ref to imperative actions. `unmount`: When specified, the dialog will not be unmounted when closed.&#xA;Instead, the `unmount` function must be called to unmount the dialog manually.&#xA;Useful when the dialog's animation is controlled by an external library.`close`: Closes the dialog imperatively when called.                                                                                                                         |
-| defaultTriggerId        | `string \| null`                                                                    | -       | ID of the trigger that the dialog is associated with.&#xA;This is useful in conjunction with the `defaultOpen` prop to create an initially open dialog.                                                                                                                                                                                                                                                                                           |
-| disablePointerDismissal | `boolean`                                                                           | `false` | Determines whether the dialog should close on outside clicks.                                                                                                                                                                                                                                                                                                                                                                                     |
-| handle                  | `Dialog.Handle<Payload>`                                                            | -       | A handle to associate the dialog with a trigger.&#xA;If specified, allows external triggers to control the dialog's open state.&#xA;Can be created with the Dialog.createHandle() method.                                                                                                                                                                                                                                                         |
-| modal                   | `boolean \| 'trap-focus'`                                                           | `true`  | Determines if the dialog enters a modal state when open. `true`: user interaction is limited to just the dialog: focus is trapped, document page scroll is locked, and pointer interactions on outside elements are disabled.`false`: user interaction with the rest of the document is allowed.`'trap-focus'`: focus is trapped inside the dialog, but document page scroll is not locked and pointer interactions outside of it remain enabled. |
-| onOpenChangeComplete    | `((open: boolean) => void)`                                                         | -       | Event handler called after any animations complete when the dialog is opened or closed.                                                                                                                                                                                                                                                                                                                                                           |
-| triggerId               | `string \| null`                                                                    | -       | ID of the trigger that the dialog is associated with.&#xA;This is useful in conjunction with the `open` prop to create a controlled dialog.&#xA;There's no need to specify this prop when the popover is uncontrolled (that is, when the `open` prop is not set).                                                                                                                                                                                 |
-| children                | `React.ReactNode \| ((arg?: { payload: Payload \| undefined }) => React.ReactNode)` | -       | The content of the dialog.&#xA;This can be a regular React node or a render function that receives the `payload` of the active trigger.                                                                                                                                                                                                                                                                                                           |
+| Prop                    | Type                                                                      | Default | Description                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| :---------------------- | :------------------------------------------------------------------------ | :------ | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| defaultOpen             | `boolean`                                                                 | `false` | Whether the dialog is initially open. To render a controlled dialog, use the `open` prop instead.                                                                                                                                                                                                                                                                                                                                                 |
+| open                    | `boolean`                                                                 | -       | Whether the dialog is currently open.                                                                                                                                                                                                                                                                                                                                                                                                             |
+| onOpenChange            | `((open: boolean, eventDetails: Dialog.Root.ChangeEventDetails) => void)` | -       | Event handler called when the dialog is opened or closed.                                                                                                                                                                                                                                                                                                                                                                                         |
+| actionsRef              | `React.RefObject<Dialog.Root.Actions \| null>`                            | -       | A ref to imperative actions. `unmount`: When specified, the dialog will not be unmounted when closed.&#xA;Instead, the `unmount` function must be called to unmount the dialog manually.&#xA;Useful when the dialog's animation is controlled by an external library.`close`: Closes the dialog imperatively when called.                                                                                                                         |
+| defaultTriggerId        | `string \| null`                                                          | -       | ID of the trigger that the dialog is associated with.&#xA;This is useful in conjunction with the `defaultOpen` prop to create an initially open dialog.                                                                                                                                                                                                                                                                                           |
+| disablePointerDismissal | `boolean`                                                                 | `false` | Determines whether the dialog should close on outside clicks.                                                                                                                                                                                                                                                                                                                                                                                     |
+| handle                  | `Dialog.Handle<Payload>`                                                  | -       | A handle to associate the dialog with a trigger.&#xA;If specified, allows external triggers to control the dialog's open state.&#xA;Can be created with the Dialog.createHandle() method.                                                                                                                                                                                                                                                         |
+| modal                   | `boolean \| 'trap-focus'`                                                 | `true`  | Determines if the dialog enters a modal state when open. `true`: user interaction is limited to just the dialog: focus is trapped, document page scroll is locked, and pointer interactions on outside elements are disabled.`false`: user interaction with the rest of the document is allowed.`'trap-focus'`: focus is trapped inside the dialog, but document page scroll is not locked and pointer interactions outside of it remain enabled. |
+| onOpenChangeComplete    | `((open: boolean) => void)`                                               | -       | Event handler called after any animations complete when the dialog is opened or closed.                                                                                                                                                                                                                                                                                                                                                           |
+| triggerId               | `string \| null`                                                          | -       | ID of the trigger that the dialog is associated with.&#xA;This is useful in conjunction with the `open` prop to create a controlled dialog.&#xA;There's no need to specify this prop when the popover is uncontrolled (that is, when the `open` prop is not set).                                                                                                                                                                                 |
+| children                | `React.ReactNode \| PayloadChildRenderFunction<Payload>`                  | -       | The content of the dialog.&#xA;This can be a regular React node or a render function that receives the `payload` of the active trigger.                                                                                                                                                                                                                                                                                                           |
 
 ### Root.Props
 
@@ -60,7 +60,7 @@ type DialogRootChangeEventDetails =
       isCanceled: boolean;
       isPropagationAllowed: boolean;
       trigger: Element | undefined;
-      preventUnmountOnClose: () => void;
+      preventUnmountOnClose: preventUnmountOnClose;
     }
   | {
       reason: 'outside-press';
@@ -70,7 +70,7 @@ type DialogRootChangeEventDetails =
       isCanceled: boolean;
       isPropagationAllowed: boolean;
       trigger: Element | undefined;
-      preventUnmountOnClose: () => void;
+      preventUnmountOnClose: preventUnmountOnClose;
     }
   | {
       reason: 'escape-key';
@@ -80,7 +80,7 @@ type DialogRootChangeEventDetails =
       isCanceled: boolean;
       isPropagationAllowed: boolean;
       trigger: Element | undefined;
-      preventUnmountOnClose: () => void;
+      preventUnmountOnClose: preventUnmountOnClose;
     }
   | {
       reason: 'close-press';
@@ -90,7 +90,7 @@ type DialogRootChangeEventDetails =
       isCanceled: boolean;
       isPropagationAllowed: boolean;
       trigger: Element | undefined;
-      preventUnmountOnClose: () => void;
+      preventUnmountOnClose: preventUnmountOnClose;
     }
   | {
       reason: 'focus-out';
@@ -100,7 +100,7 @@ type DialogRootChangeEventDetails =
       isCanceled: boolean;
       isPropagationAllowed: boolean;
       trigger: Element | undefined;
-      preventUnmountOnClose: () => void;
+      preventUnmountOnClose: preventUnmountOnClose;
     }
   | {
       reason: 'imperative-action';
@@ -110,7 +110,7 @@ type DialogRootChangeEventDetails =
       isCanceled: boolean;
       isPropagationAllowed: boolean;
       trigger: Element | undefined;
-      preventUnmountOnClose: () => void;
+      preventUnmountOnClose: preventUnmountOnClose;
     }
   | {
       reason: 'none';
@@ -120,7 +120,7 @@ type DialogRootChangeEventDetails =
       isCanceled: boolean;
       isPropagationAllowed: boolean;
       trigger: Element | undefined;
-      preventUnmountOnClose: () => void;
+      preventUnmountOnClose: preventUnmountOnClose;
     };
 ```
 
@@ -430,6 +430,18 @@ function close(): void;
 Closes the dialog.
 
 ## External Types
+
+### preventUnmountOnClose
+
+```typescript
+type preventUnmountOnClose = () => void;
+```
+
+### PayloadChildRenderFunction
+
+```typescript
+type PayloadChildRenderFunction = (arg: { payload: unknown | undefined }) => ReactNode;
+```
 
 ### InteractionType
 
