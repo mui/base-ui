@@ -12,7 +12,7 @@ const SCROLLBAR_WIDTH = 10;
 const SCROLLBAR_HEIGHT = 10;
 
 describe('<ScrollArea.Root />', () => {
-  const { render } = createRenderer();
+  const { render, renderToString } = createRenderer();
 
   describeConformance(<ScrollArea.Root />, () => ({
     refInstanceof: window.HTMLDivElement,
@@ -463,6 +463,45 @@ describe('<ScrollArea.Root />', () => {
 
       await waitFor(() => expect(root).to.have.attribute('data-overflow-x-start'));
       expect(root).not.to.have.attribute('data-overflow-x-end');
+    });
+  });
+
+  describe.skipIf(isJSDOM)('server-side rendering', () => {
+    it('does not set overflow attributes before measurements', async () => {
+      renderToString(
+        <ScrollArea.Root data-testid="root" style={{ width: VIEWPORT_SIZE, height: VIEWPORT_SIZE }}>
+          <ScrollArea.Viewport data-testid="viewport" style={{ width: '100%', height: '100%' }}>
+            <ScrollArea.Content>
+              <div style={{ width: SCROLLABLE_CONTENT_SIZE, height: SCROLLABLE_CONTENT_SIZE }} />
+            </ScrollArea.Content>
+          </ScrollArea.Viewport>
+        </ScrollArea.Root>,
+      );
+
+      const root = screen.getByTestId('root');
+      const viewport = screen.getByTestId('viewport');
+
+      expect(root).not.to.have.attribute('data-has-overflow-x');
+      expect(root).not.to.have.attribute('data-has-overflow-y');
+      expect(viewport).not.to.have.attribute('data-has-overflow-x');
+      expect(viewport).not.to.have.attribute('data-has-overflow-y');
+    });
+
+    it('does not render the corner before measurements', async () => {
+      renderToString(
+        <ScrollArea.Root data-testid="root" style={{ width: VIEWPORT_SIZE, height: VIEWPORT_SIZE }}>
+          <ScrollArea.Viewport data-testid="viewport" style={{ width: '100%', height: '100%' }}>
+            <ScrollArea.Content>
+              <div style={{ width: SCROLLABLE_CONTENT_SIZE, height: SCROLLABLE_CONTENT_SIZE }} />
+            </ScrollArea.Content>
+          </ScrollArea.Viewport>
+          <ScrollArea.Scrollbar orientation="vertical" keepMounted />
+          <ScrollArea.Scrollbar orientation="horizontal" keepMounted />
+          <ScrollArea.Corner data-testid="corner" />
+        </ScrollArea.Root>,
+      );
+
+      expect(screen.queryByTestId('corner')).to.equal(null);
     });
   });
 });
