@@ -82,7 +82,7 @@ export default function ExampleCreatableCombobox() {
     setQuery('');
   }
 
-  function handleCreateSubmit(event: React.FormEvent<HTMLFormElement>) {
+  function handleCreateSubmit(event: React.SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
     handleCreate();
   }
