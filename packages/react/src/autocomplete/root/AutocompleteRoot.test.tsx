@@ -642,7 +642,7 @@ describe('<Autocomplete.Root />', () => {
     it('prevents submit on Enter when an item is highlighted by default (false)', async () => {
       let submitted = 0;
 
-      const handleSubmit: React.FormEventHandler<HTMLFormElement> = (event) => {
+      const handleSubmit: React.SubmitEventHandler<HTMLFormElement> = (event) => {
         event.preventDefault();
         submitted += 1;
       };
@@ -682,7 +682,7 @@ describe('<Autocomplete.Root />', () => {
       let submitValue: string | null = null;
       let submitCount = 0;
 
-      const handleSubmit: React.FormEventHandler<HTMLFormElement> = (event) => {
+      const handleSubmit: React.SubmitEventHandler<HTMLFormElement> = (event) => {
         event.preventDefault();
         const data = new FormData(event.currentTarget);
         submitValue = (data.get('q') as string) ?? null;
@@ -726,7 +726,7 @@ describe('<Autocomplete.Root />', () => {
       let submitValue: string | null = null;
       let submitCount = 0;
 
-      const handleSubmit: React.FormEventHandler<HTMLFormElement> = (event) => {
+      const handleSubmit: React.SubmitEventHandler<HTMLFormElement> = (event) => {
         event.preventDefault();
         const data = new FormData(event.currentTarget);
         submitValue = (data.get('q') as string) ?? null;
@@ -773,7 +773,7 @@ describe('<Autocomplete.Root />', () => {
       let submitValue: string | null = null;
       let submitCount = 0;
 
-      const handleSubmit: React.FormEventHandler<HTMLFormElement> = (event) => {
+      const handleSubmit: React.SubmitEventHandler<HTMLFormElement> = (event) => {
         event.preventDefault();
         const data = new FormData(event.currentTarget);
         submitValue = (data.get('q') as string) ?? null;
@@ -837,7 +837,7 @@ describe('<Autocomplete.Root />', () => {
     it('submits the typed input value when wrapped in Field.Root', async () => {
       let submitted: string | null = null;
 
-      const handleSubmit: React.FormEventHandler<HTMLFormElement> = (event) => {
+      const handleSubmit: React.SubmitEventHandler<HTMLFormElement> = (event) => {
         event.preventDefault();
         const data = new FormData(event.currentTarget);
         submitted = (data.get('search') as string) ?? null;
@@ -864,7 +864,7 @@ describe('<Autocomplete.Root />', () => {
     it('submits the typed input value when name is provided on Autocomplete.Root', async () => {
       let submitted: FormDataEntryValue | null = null;
 
-      const handleSubmit: React.FormEventHandler<HTMLFormElement> = (event) => {
+      const handleSubmit: React.SubmitEventHandler<HTMLFormElement> = (event) => {
         event.preventDefault();
         const data = new FormData(event.currentTarget);
         submitted = data.get('query');
@@ -967,7 +967,7 @@ describe('<Autocomplete.Root />', () => {
     it('submits the input value directly (not selection value)', async () => {
       let submitted: string | null = null;
 
-      const handleSubmit: React.FormEventHandler<HTMLFormElement> = (event) => {
+      const handleSubmit: React.SubmitEventHandler<HTMLFormElement> = (event) => {
         event.preventDefault();
         const data = new FormData(event.currentTarget);
         submitted = data.get('search') as string;
@@ -1005,7 +1005,7 @@ describe('<Autocomplete.Root />', () => {
     it('Enter submits when no item is highlighted', async () => {
       let submitted = 0;
 
-      const handleSubmit: React.FormEventHandler<HTMLFormElement> = (event) => {
+      const handleSubmit: React.SubmitEventHandler<HTMLFormElement> = (event) => {
         event.preventDefault();
         submitted += 1;
       };
@@ -1044,7 +1044,7 @@ describe('<Autocomplete.Root />', () => {
       let submitValue: string | null = null;
       let submitCount = 0;
 
-      const handleSubmit: React.FormEventHandler<HTMLFormElement> = (event) => {
+      const handleSubmit: React.SubmitEventHandler<HTMLFormElement> = (event) => {
         event.preventDefault();
         const data = new FormData(event.currentTarget);
         submitValue = (data.get('q') as string) ?? null;
@@ -1088,7 +1088,7 @@ describe('<Autocomplete.Root />', () => {
       let submitValue: string | null = null;
       let submitCount = 0;
 
-      const handleSubmit: React.FormEventHandler<HTMLFormElement> = (event) => {
+      const handleSubmit: React.SubmitEventHandler<HTMLFormElement> = (event) => {
         event.preventDefault();
         const data = new FormData(event.currentTarget);
         submitValue = (data.get('q') as string) ?? null;

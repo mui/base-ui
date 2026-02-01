@@ -3776,7 +3776,7 @@ describe('<Combobox.Root />', () => {
 
       let submittedCalls = 0;
 
-      const handleSubmit: React.FormEventHandler<HTMLFormElement> = (event) => {
+      const handleSubmit: React.SubmitEventHandler<HTMLFormElement> = (event) => {
         event.preventDefault();
         submittedCalls += 1;
       };
@@ -3873,7 +3873,7 @@ describe('<Combobox.Root />', () => {
     it('submits on Enter when no item is highlighted (does not prevent)', async () => {
       let submittedCalls = 0;
 
-      const handleSubmit: React.FormEventHandler<HTMLFormElement> = (event) => {
+      const handleSubmit: React.SubmitEventHandler<HTMLFormElement> = (event) => {
         event.preventDefault();
         submittedCalls += 1;
       };
@@ -3913,7 +3913,7 @@ describe('<Combobox.Root />', () => {
     it('prevents submit on Enter when an item is highlighted', async () => {
       let submittedCalls = 0;
 
-      const handleSubmit: React.FormEventHandler<HTMLFormElement> = (event) => {
+      const handleSubmit: React.SubmitEventHandler<HTMLFormElement> = (event) => {
         event.preventDefault();
         submittedCalls += 1;
       };
