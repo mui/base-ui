@@ -20,15 +20,23 @@ function createTrigger(rects: RectLike[]) {
   return trigger;
 }
 
+function createMouseEvent(
+  trigger: Element,
+  clientX: number,
+  clientY: number,
+): React.MouseEvent<Element> {
+  return {
+    currentTarget: trigger,
+    clientX,
+    clientY,
+  } as unknown as React.MouseEvent<Element>;
+}
+
 describe('inlineRect', () => {
   it('returns undefined when there is only one rect', () => {
     const rects: RectLike[] = [{ left: 0, top: 0, right: 10, bottom: 10, width: 10, height: 10 }];
     const trigger = createTrigger(rects);
-    const event = {
-      currentTarget: trigger,
-      clientX: 5,
-      clientY: 5,
-    } as React.MouseEvent<Element>;
+    const event = createMouseEvent(trigger, 5, 5);
 
     expect(getInlineRectHoverCoords(event)).toBeUndefined();
   });
@@ -39,11 +47,7 @@ describe('inlineRect', () => {
       { left: 0, top: 20, right: 10, bottom: 30, width: 10, height: 10 },
     ];
     const trigger = createTrigger(rects);
-    const event = {
-      currentTarget: trigger,
-      clientX: 5,
-      clientY: 25,
-    } as React.MouseEvent<Element>;
+    const event = createMouseEvent(trigger, 5, 25);
 
     expect(getInlineRectHoverCoords(event)).toEqual({
       rectIndex: 1,
