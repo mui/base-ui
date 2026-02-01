@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { isAndroid, isIOS } from '@base-ui/utils/detectBrowser';
 import type { Timeout } from '@base-ui/utils/useTimeout';
 import {
   DEFAULT_STEP,
@@ -53,6 +54,11 @@ export function useNumberFieldButton(params: useNumberFieldButton.Parameters) {
     ? 'increment-press'
     : 'decrement-press';
 
+  // "pen" maps to mouse-like behavior on Linux Chrome, so only treat it as touch on mobile.
+  function isTouchPointerType(pointerType: string) {
+    return pointerType === 'touch' || (pointerType === 'pen' && (isIOS || isAndroid));
+  }
+
   function commitValue(nativeEvent: MouseEvent) {
     allowInputSyncRef.current = true;
 
@@ -100,7 +106,7 @@ export function useNumberFieldButton(params: useNumberFieldButton.Parameters) {
         event.defaultPrevented ||
         isDisabled ||
         // If it's not a keyboard/virtual click, ignore.
-        (pointerTypeRef.current === 'touch' ? ignoreClickRef.current : event.detail !== 0)
+        (isTouchPointerType(pointerTypeRef.current) ? ignoreClickRef.current : event.detail !== 0)
       ) {
         return;
       }
@@ -135,8 +141,12 @@ export function useNumberFieldButton(params: useNumberFieldButton.Parameters) {
 
       commitValue(event.nativeEvent);
 
+      const isTouchPointer = isTouchPointerType(event.pointerType);
+
       // Note: "pen" is sometimes returned for mouse usage on Linux Chrome.
-      if (event.pointerType !== 'touch') {
+      // Treat pen as touch on mobile platforms because stylus taps can otherwise focus
+      // the input and force the software keyboard to appear.
+      if (!isTouchPointer) {
         event.preventDefault();
         inputRef.current?.focus();
         startAutoChange(isIncrement, event);
@@ -164,13 +174,13 @@ export function useNumberFieldButton(params: useNumberFieldButton.Parameters) {
     onPointerUp(event) {
       // Ensure we mark the press as released for touch flows even if auto-change never started,
       // so the delayed auto-change check won’t start after a quick tap.
-      if (event.pointerType === 'touch') {
+      if (isTouchPointerType(event.pointerType)) {
         isPressedRef.current = false;
       }
     },
     onPointerMove(event) {
       const isDisabled = disabled || readOnly;
-      if (isDisabled || event.pointerType !== 'touch' || !isPressedRef.current) {
+      if (isDisabled || !isTouchPointerType(event.pointerType) || !isPressedRef.current) {
         return;
       }
 
@@ -195,7 +205,7 @@ export function useNumberFieldButton(params: useNumberFieldButton.Parameters) {
         isDisabled ||
         !isPressedRef.current ||
         isTouchingButtonRef.current ||
-        pointerTypeRef.current === 'touch'
+        isTouchPointerType(pointerTypeRef.current)
       ) {
         return;
       }
