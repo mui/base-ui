@@ -66,16 +66,18 @@ function getEventType(event: Event, lastInteractionType?: InteractionType): Inte
 }
 
 const LIST_LIMIT = 20;
-let previouslyFocusedElements: Element[] = [];
+let previouslyFocusedElements: WeakRef<Element>[] = [];
 
 function clearDisconnectedPreviouslyFocusedElements() {
-  previouslyFocusedElements = previouslyFocusedElements.filter((el) => el.isConnected);
+  previouslyFocusedElements = previouslyFocusedElements.filter((entry) => {
+    return entry.deref()?.isConnected;
+  });
 }
 
-function addPreviouslyFocusedElement(element: Element | null) {
+function addPreviouslyFocusedElement(element: Element | null | undefined) {
   clearDisconnectedPreviouslyFocusedElements();
   if (element && getNodeName(element) !== 'body') {
-    previouslyFocusedElements.push(element);
+    previouslyFocusedElements.push(new WeakRef(element));
     if (previouslyFocusedElements.length > LIST_LIMIT) {
       previouslyFocusedElements = previouslyFocusedElements.slice(-LIST_LIMIT);
     }
@@ -84,7 +86,7 @@ function addPreviouslyFocusedElement(element: Element | null) {
 
 function getPreviouslyFocusedElement() {
   clearDisconnectedPreviouslyFocusedElements();
-  return previouslyFocusedElements[previouslyFocusedElements.length - 1];
+  return previouslyFocusedElements[previouslyFocusedElements.length - 1]?.deref();
 }
 
 function getFirstTabbableElement(container: Element | null) {
