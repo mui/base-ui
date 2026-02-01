@@ -78,6 +78,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
   const { nonce, disableStyleElements } = useCSPContext();
 
   const highlightTimeout = useTimeout();
+  const resizeDismissalTimeout = useTimeout();
 
   const id = useStore(store, selectors.id);
   const open = useStore(store, selectors.open);
@@ -93,6 +94,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
   const maxHeightRef = React.useRef(0);
   const initialPlacedRef = React.useRef(false);
   const originalPositionerStylesRef = React.useRef<React.CSSProperties>({});
+  const allowWindowResizeDismissalRef = React.useRef(false);
 
   const scrollArrowFrame = useAnimationFrame();
 
@@ -437,13 +439,36 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
   ]);
 
   React.useEffect(() => {
-    if (!alignItemWithTriggerActive || !positionerElement || !open) {
+    if (!open || !alignItemWithTriggerActive) {
+      allowWindowResizeDismissalRef.current = false;
+      resizeDismissalTimeout.clear();
+      return () => {
+        resizeDismissalTimeout.clear();
+      };
+    }
+
+    // Avoid closing immediately when the popup causes a resize (e.g. extension popups).
+    allowWindowResizeDismissalRef.current = false;
+    resizeDismissalTimeout.start(300, () => {
+      allowWindowResizeDismissalRef.current = true;
+    });
+
+    return () => {
+      resizeDismissalTimeout.clear();
+    };
+  }, [open, alignItemWithTriggerActive, resizeDismissalTimeout]);
+
+  React.useEffect(() => {
+    if (!open || !alignItemWithTriggerActive || !positionerElement) {
       return undefined;
     }
 
     const win = ownerWindow(positionerElement);
 
     function handleResize(event: UIEvent) {
+      if (!allowWindowResizeDismissalRef.current) {
+        return;
+      }
       setOpen(false, createChangeEventDetails(REASONS.windowResize, event));
     }
 
