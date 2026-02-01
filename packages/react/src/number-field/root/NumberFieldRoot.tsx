@@ -233,6 +233,7 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
       const isInputReason =
         details.reason === REASONS.inputChange ||
         details.reason === REASONS.inputClear ||
+        details.reason === REASONS.inputBlur ||
         details.reason === REASONS.inputPaste ||
         details.reason === REASONS.none;
       const shouldFireChange =
