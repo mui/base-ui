@@ -104,7 +104,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
     sticky,
     nodeId: floatingNodeId,
     keepMounted,
-    disableAnchorTracking: parent.type === 'menu' || disableAnchorTracking,
+    disableAnchorTracking: parent.type !== 'menu' || disableAnchorTracking,
     collisionAvoidance,
     shiftCrossAxis:
       contextMenu && !('side' in collisionAvoidance && collisionAvoidance.side === 'flip'),

@@ -389,6 +389,7 @@ export function useAnchorPositioning(
     () => ({
       elementResize: !disableAnchorTracking && typeof ResizeObserver !== 'undefined',
       layoutShift: !disableAnchorTracking && typeof IntersectionObserver !== 'undefined',
+      animationFrame: !disableAnchorTracking,
     }),
     [disableAnchorTracking],
   );
