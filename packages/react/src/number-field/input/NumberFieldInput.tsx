@@ -239,8 +239,8 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
         return;
       }
 
-      // For trusted user typing, update the input text immediately and only fire onValueChange
-      // if the typed value is currently parseable into a number. This preserves good UX for IME
+      // Update the input text immediately and only fire onValueChange if the typed value is
+      // currently parseable into a number. This preserves good UX for IME
       // composition/partial input while still providing live numeric updates when possible.
       const allowedNonNumericKeys = getAllowedNonNumericKeys();
       const isValidCharacterString = Array.from(targetValue).every((ch) => {
@@ -265,19 +265,11 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
         return;
       }
 
-      if (event.isTrusted) {
-        setInputValue(targetValue);
-        const parsedValue = parseNumber(targetValue, locale, formatOptionsRef.current);
-        if (parsedValue !== null) {
-          setValue(parsedValue, createChangeEventDetails(REASONS.inputChange, event.nativeEvent));
-        }
-        return;
-      }
-
       const parsedValue = parseNumber(targetValue, locale, formatOptionsRef.current);
 
+      setInputValue(targetValue);
+
       if (parsedValue !== null) {
-        setInputValue(targetValue);
         setValue(parsedValue, createChangeEventDetails(REASONS.inputChange, event.nativeEvent));
       }
     },

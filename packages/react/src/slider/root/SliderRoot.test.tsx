@@ -2105,9 +2105,9 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
         await render(
           <Form>
             <Field.Root validate={(val) => ((val as number) > 90 ? 'error' : null)}>
-              <Slider.Root defaultValue={99}>
+              <Slider.Root defaultValue={99} data-testid="root">
                 <Slider.Control>
-                  <Slider.Thumb />
+                  <Slider.Thumb data-testid="thumb" />
                 </Slider.Control>
               </Slider.Root>
               <Field.Error data-testid="error" />
@@ -2116,6 +2116,8 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
           </Form>,
         );
 
+        const root = screen.getByTestId('root');
+        const thumb = screen.getByTestId('thumb');
         const input = screen.getByRole('slider');
         expect(input).not.to.have.attribute('aria-invalid');
         expect(screen.queryByTestId('error')).to.equal(null);
@@ -2127,10 +2129,16 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
         fireEvent.click(screen.getByText('submit'));
         expect(input).to.have.attribute('aria-invalid', 'true');
         expect(screen.queryByTestId('error')).to.not.equal(null);
+        expect(root).to.have.attribute('data-invalid');
+        expect(thumb).to.have.attribute('data-invalid');
 
         fireEvent.change(input, { target: { value: '10' } });
         expect(input).not.to.have.attribute('aria-invalid');
         expect(screen.queryByTestId('error')).to.equal(null);
+        expect(root).not.to.have.attribute('data-invalid');
+        expect(input).not.to.have.attribute('data-invalid');
+        expect(root).to.have.attribute('data-valid');
+        expect(thumb).to.have.attribute('data-valid');
 
         fireEvent.change(input, { target: { value: '94' } });
         expect(input).to.have.attribute('aria-invalid', 'true');
