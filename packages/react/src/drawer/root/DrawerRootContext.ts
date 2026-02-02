@@ -6,6 +6,11 @@ import type { DrawerRootSnapPointChangeEventDetails } from './DrawerRoot';
 export type DrawerSwipeDirection = SwipeDirection;
 export type DrawerSnapPoint = number | string;
 
+export interface DrawerNestedSwipeProgressStore {
+  getSnapshot: () => number;
+  subscribe: (listener: () => void) => () => void;
+}
+
 export interface DrawerRootContext {
   swipeDirection: DrawerSwipeDirection;
   /**
@@ -47,9 +52,9 @@ export interface DrawerRootContext {
    */
   nestedSwiping: boolean;
   /**
-   * The swipe progress for the frontmost nested drawer.
+   * Provides nested swipe progress without re-rendering the drawer tree.
    */
-  nestedSwipeProgress: number;
+  nestedSwipeProgressStore: DrawerNestedSwipeProgressStore;
   /**
    * Called by a nested drawer to report whether it is still present (open or transitioning out).
    */

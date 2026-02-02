@@ -6,6 +6,7 @@ import { ownerWindow } from '@base-ui/utils/owner';
 import { isAndroid } from '@base-ui/utils/detectBrowser';
 import {
   DrawerRootContext,
+  type DrawerNestedSwipeProgressStore,
   type DrawerSwipeDirection,
   useDrawerRootContext,
   type DrawerSnapPoint,
@@ -56,7 +57,7 @@ export function DrawerRoot(props: DrawerRoot.Props) {
   const [frontmostHeight, setFrontmostHeight] = React.useState(0);
   const [hasNestedDrawer, setHasNestedDrawer] = React.useState(false);
   const [nestedSwiping, setNestedSwiping] = React.useState(false);
-  const [nestedSwipeProgress, setNestedSwipeProgress] = React.useState(0);
+  const [nestedSwipeProgressStore] = React.useState(createNestedSwipeProgressStore);
 
   const resolvedDefaultSnapPoint =
     defaultSnapPoint !== undefined ? defaultSnapPoint : (snapPoints?.[0] ?? null);
@@ -133,7 +134,7 @@ export function DrawerRoot(props: DrawerRoot.Props) {
   });
 
   const onNestedSwipeProgressChange = useStableCallback((progress: number) => {
-    setNestedSwipeProgress(progress);
+    nestedSwipeProgressStore.set(progress);
     notifyParentSwipeProgressChange?.(progress);
   });
 
@@ -170,7 +171,7 @@ export function DrawerRoot(props: DrawerRoot.Props) {
       popupHeight,
       hasNestedDrawer,
       nestedSwiping,
-      nestedSwipeProgress,
+      nestedSwipeProgressStore,
       onNestedDrawerPresenceChange,
       onPopupHeightChange,
       onNestedFrontmostHeightChange,
@@ -186,7 +187,7 @@ export function DrawerRoot(props: DrawerRoot.Props) {
       frontmostHeight,
       hasNestedDrawer,
       nestedSwiping,
-      nestedSwipeProgress,
+      nestedSwipeProgressStore,
       notifyParentHasNestedDrawer,
       notifyParentSwipeProgressChange,
       notifyParentSwipingChange,
@@ -397,4 +398,33 @@ function DrawerProviderReporter() {
   }, [dialogRootContext.store, isTopmost, open, popupElement]);
 
   return null;
+}
+
+interface NestedSwipeProgressStore extends DrawerNestedSwipeProgressStore {
+  set: (progress: number) => void;
+}
+
+function createNestedSwipeProgressStore(): NestedSwipeProgressStore {
+  let progress = 0;
+  const listeners = new Set<() => void>();
+
+  return {
+    getSnapshot: () => progress,
+    set(nextProgress) {
+      const resolved = Number.isFinite(nextProgress) ? nextProgress : 0;
+      if (resolved === progress) {
+        return;
+      }
+      progress = resolved;
+      listeners.forEach((listener) => {
+        listener();
+      });
+    },
+    subscribe(listener) {
+      listeners.add(listener);
+      return () => {
+        listeners.delete(listener);
+      };
+    },
+  };
 }

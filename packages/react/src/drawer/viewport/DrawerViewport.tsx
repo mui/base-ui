@@ -698,6 +698,10 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
   const resetSwipe = swipe.reset;
 
   React.useEffect(() => {
+    if (!open || !mounted || nestedDrawerOpen) {
+      return undefined;
+    }
+
     const rootElement = viewportElement ?? popupElementState;
     if (!rootElement) {
       return undefined;

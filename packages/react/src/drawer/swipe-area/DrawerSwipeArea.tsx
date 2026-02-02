@@ -121,7 +121,13 @@ export const DrawerSwipeArea = React.forwardRef(function DrawerSwipeArea(
     const transform = getElementTransform(popupElement);
     const transformOffset = isHorizontal ? transform.x : transform.y;
     if (Number.isFinite(transformOffset) && Math.abs(transformOffset) > 0.5) {
-      return Math.min(offset, Math.abs(transformOffset));
+      const displacement = getDisplacement(
+        resolvedSwipeDirection,
+        dragDeltaRef.current.x,
+        dragDeltaRef.current.y,
+      );
+      const adjustedOffset = Math.abs(transformOffset) + Math.max(0, displacement);
+      return Math.min(offset, adjustedOffset);
     }
 
     const viewport =

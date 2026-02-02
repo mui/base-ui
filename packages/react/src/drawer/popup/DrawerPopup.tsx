@@ -61,7 +61,7 @@ export const DrawerPopup = React.forwardRef(function DrawerPopup(
     frontmostHeight,
     hasNestedDrawer,
     nestedSwiping,
-    nestedSwipeProgress,
+    nestedSwipeProgressStore,
     onPopupHeightChange,
     notifyParentFrontmostHeight,
     notifyParentHasNestedDrawer,
@@ -156,6 +156,35 @@ export const DrawerPopup = React.forwardRef(function DrawerPopup(
       resizeObserver.disconnect();
     };
   }, [measureHeight, mounted, nestedDrawerOpen, onPopupHeightChange, store.context.popupRef]);
+
+  useIsoLayoutEffect(() => {
+    const popupRef = store.context.popupRef;
+
+    const syncNestedSwipeProgress = () => {
+      const popupElement = popupRef.current;
+      if (!popupElement) {
+        return;
+      }
+
+      const progress = nestedSwipeProgressStore.getSnapshot();
+      if (progress > 0) {
+        popupElement.style.setProperty(DrawerBackdropCssVars.swipeProgress, `${progress}`);
+      } else {
+        popupElement.style.removeProperty(DrawerBackdropCssVars.swipeProgress);
+      }
+    };
+
+    syncNestedSwipeProgress();
+    const unsubscribe = nestedSwipeProgressStore.subscribe(syncNestedSwipeProgress);
+
+    return () => {
+      unsubscribe();
+      const popupElement = popupRef.current;
+      if (popupElement) {
+        popupElement.style.removeProperty(DrawerBackdropCssVars.swipeProgress);
+      }
+    };
+  }, [nestedSwipeProgressStore, store.context.popupRef]);
 
   React.useEffect(() => {
     if (!open) {
@@ -261,8 +290,6 @@ export const DrawerPopup = React.forwardRef(function DrawerPopup(
         },
         style: {
           ...dragStyles,
-          [DrawerBackdropCssVars.swipeProgress]:
-            nestedSwipeProgress > 0 ? `${nestedSwipeProgress}` : undefined,
           [DrawerPopupCssVars.nestedDrawers]: nestedOpenDialogCount,
           [DrawerPopupCssVars.height]: popupHeightCssVarValue,
           [DrawerPopupCssVars.snapPointOffset]:
