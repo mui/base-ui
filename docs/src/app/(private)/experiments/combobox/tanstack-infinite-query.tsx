@@ -87,11 +87,17 @@ function ExampleAutocomplete() {
         isThrottled = false;
 
         const { scrollTop, scrollHeight, clientHeight } = popupEl;
-        // fetch when 75% of the list has been scrolled
-        const shouldFetch = scrollTop >= (scrollHeight - clientHeight) * 0.75;
 
-        if (shouldFetch && hasNextPage && !isFetchingNextPage) {
-          fetchNextPage();
+        // fetch when roughly within 10 items from the end
+        if (searchResults.length > 0) {
+          const averageItemHeight = scrollHeight / searchResults.length;
+          const lastVisibleIndex = Math.floor((scrollTop + clientHeight) / averageItemHeight);
+          const itemsFromEnd = searchResults.length - lastVisibleIndex;
+          const shouldFetch = itemsFromEnd <= 10;
+
+          if (shouldFetch && hasNextPage && !isFetchingNextPage) {
+            fetchNextPage();
+          }
         }
       });
     };
@@ -102,7 +108,7 @@ function ExampleAutocomplete() {
       popupEl.removeEventListener('scroll', handleScroll);
       scrollTimeout.clear();
     };
-  }, [scrollTimeout, hasNextPage, isFetchingNextPage, fetchNextPage]);
+  }, [scrollTimeout, hasNextPage, isFetchingNextPage, fetchNextPage, searchResults]);
 
   function getStatus() {
     if (isEmpty) {
@@ -172,7 +178,7 @@ function ExampleAutocomplete() {
             if (highlightedItem && hasNextPage && eventDetails.reason === 'keyboard') {
               const highlightedIndex = searchResults.indexOf(highlightedItem);
               // fetch if the highlighted index is close to the end
-              const shouldFetch = highlightedIndex >= searchResults.length - 6;
+              const shouldFetch = highlightedIndex >= searchResults.length - 10;
 
               if (shouldFetch) {
                 fetchNextPage();

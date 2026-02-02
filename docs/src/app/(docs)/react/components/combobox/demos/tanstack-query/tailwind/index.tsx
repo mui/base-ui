@@ -89,11 +89,16 @@ function ExampleTanstackQueryCombobox() {
         isThrottled = false;
 
         const { scrollTop, scrollHeight, clientHeight } = popupEl;
-        // fetch when 75% of the list has been scrolled
-        const shouldFetch = scrollTop >= (scrollHeight - clientHeight) * 0.75;
+        // fetch when roughly within 10 items from the end
+        if (searchResults.length > 0) {
+          const averageItemHeight = scrollHeight / searchResults.length;
+          const lastVisibleIndex = Math.floor((scrollTop + clientHeight) / averageItemHeight);
+          const itemsFromEnd = searchResults.length - lastVisibleIndex;
+          const shouldFetch = itemsFromEnd <= 10;
 
-        if (shouldFetch && hasNextPage && !isFetchingNextPage) {
-          fetchNextPage();
+          if (shouldFetch && hasNextPage && !isFetchingNextPage) {
+            fetchNextPage();
+          }
         }
       });
     };
@@ -104,7 +109,7 @@ function ExampleTanstackQueryCombobox() {
       popupEl.removeEventListener('scroll', handleScroll);
       scrollTimeout.clear();
     };
-  }, [scrollTimeout, hasNextPage, isFetchingNextPage, fetchNextPage]);
+  }, [scrollTimeout, hasNextPage, isFetchingNextPage, fetchNextPage, searchResults]);
 
   function getStatus() {
     if (isEmpty) {
@@ -176,7 +181,7 @@ function ExampleTanstackQueryCombobox() {
         if (highlightedItem && hasNextPage && eventDetails.reason === 'keyboard') {
           const highlightedIndex = items.indexOf(highlightedItem);
           // Fetch if the highlighted index is close to the end
-          if (highlightedIndex >= items.length - 6) {
+          if (highlightedIndex >= items.length - 10) {
             fetchNextPage();
           }
         }
@@ -187,7 +192,7 @@ function ExampleTanstackQueryCombobox() {
         <div className="relative w-64 sm:w-80 has-[.combobox-clear]:[&>input]:pr-[calc(0.5rem+1.5rem*2)]">
           <Combobox.Input
             id={id}
-            placeholder="e.g. Aliens"
+            placeholder="e.g. The…"
             className="h-10 w-full rounded-md font-normal border border-gray-200 pl-3.5 pr-[calc(0.5rem+1.5rem)] text-base text-gray-900 bg-[canvas] focus:outline focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800"
           />
           <div className="absolute right-2 bottom-0 flex h-10 items-center justify-center text-gray-600">

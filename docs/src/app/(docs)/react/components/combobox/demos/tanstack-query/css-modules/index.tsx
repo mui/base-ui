@@ -90,11 +90,16 @@ function ExampleTanstackQueryCombobox() {
         isThrottled = false;
 
         const { scrollTop, scrollHeight, clientHeight } = popupEl;
-        // fetch when 75% of the list has been scrolled
-        const shouldFetch = scrollTop >= (scrollHeight - clientHeight) * 0.75;
+        // fetch when roughly within 10 items from the end
+        if (searchResults.length > 0) {
+          const averageItemHeight = scrollHeight / searchResults.length;
+          const lastVisibleIndex = Math.floor((scrollTop + clientHeight) / averageItemHeight);
+          const itemsFromEnd = searchResults.length - lastVisibleIndex;
+          const shouldFetch = itemsFromEnd <= 10;
 
-        if (shouldFetch && hasNextPage && !isFetchingNextPage) {
-          fetchNextPage();
+          if (shouldFetch && hasNextPage && !isFetchingNextPage) {
+            fetchNextPage();
+          }
         }
       });
     };
@@ -105,7 +110,7 @@ function ExampleTanstackQueryCombobox() {
       popupEl.removeEventListener('scroll', handleScroll);
       scrollTimeout.clear();
     };
-  }, [scrollTimeout, hasNextPage, isFetchingNextPage, fetchNextPage]);
+  }, [scrollTimeout, hasNextPage, isFetchingNextPage, fetchNextPage, searchResults]);
 
   function getStatus() {
     if (isEmpty) {
@@ -174,7 +179,7 @@ function ExampleTanstackQueryCombobox() {
         if (highlightedItem && hasNextPage && eventDetails.reason === 'keyboard') {
           const highlightedIndex = items.indexOf(highlightedItem);
           // Fetch if the highlighted index is close to the end
-          if (highlightedIndex >= items.length - 6) {
+          if (highlightedIndex >= items.length - 10) {
             fetchNextPage();
           }
         }
@@ -183,7 +188,7 @@ function ExampleTanstackQueryCombobox() {
       <div className={styles.Label}>
         <label htmlFor={id}>Find a movie</label>
         <div className={styles.InputWrapper}>
-          <Combobox.Input id={id} placeholder="e.g. Aliens" className={styles.Input} />
+          <Combobox.Input id={id} placeholder="e.g. The…" className={styles.Input} />
           <div className={styles.ActionButtons}>
             <Combobox.Clear className={styles.Clear} aria-label="Clear selection">
               <ClearIcon className={styles.ClearIcon} />
