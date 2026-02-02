@@ -62,10 +62,6 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
   const floatingNodeId = store.useState('floatingNodeId');
   const floatingParentNodeId = store.useState('floatingParentNodeId');
 
-  // Get parent transition status to prevent position jumping during parent animations
-  const parentType = parent.type;
-  const isParentAnimating = parentType === 'menu' && parent.store.useState('transitionStatus');
-
   let anchor = anchorProp;
   let sideOffset = sideOffsetProp;
   let alignOffset = alignOffsetProp;
@@ -97,7 +93,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
     anchor,
     floatingRootContext,
     positionMethod: contextMenuContext ? 'fixed' : positionMethodProp,
-    mounted: !isParentAnimating && mounted,
+    mounted,
     side: computedSide,
     sideOffset,
     align: computedAlign,
@@ -108,7 +104,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
     sticky,
     nodeId: floatingNodeId,
     keepMounted,
-    disableAnchorTracking,
+    disableAnchorTracking: parent.type === 'menu' || disableAnchorTracking,
     collisionAvoidance,
     shiftCrossAxis:
       contextMenu && !('side' in collisionAvoidance && collisionAvoidance.side === 'flip'),
