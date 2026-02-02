@@ -89,9 +89,10 @@ function ExampleTanstackQueryCombobox() {
         isThrottled = false;
 
         const { scrollTop, scrollHeight, clientHeight } = popupEl;
-        const scrolledToBottom = scrollTop + clientHeight >= scrollHeight;
+        // fetch when 75% of the list has been scrolled
+        const shouldFetch = scrollTop >= (scrollHeight - clientHeight) * 0.75;
 
-        if (scrolledToBottom && hasNextPage && !isFetchingNextPage) {
+        if (shouldFetch && hasNextPage && !isFetchingNextPage) {
           fetchNextPage();
         }
       });
@@ -175,7 +176,7 @@ function ExampleTanstackQueryCombobox() {
         if (highlightedItem && hasNextPage && eventDetails.reason === 'keyboard') {
           const highlightedIndex = items.indexOf(highlightedItem);
           // Fetch if the highlighted index is close to the end
-          if (highlightedIndex >= items.length - 1) {
+          if (highlightedIndex >= items.length - 6) {
             fetchNextPage();
           }
         }

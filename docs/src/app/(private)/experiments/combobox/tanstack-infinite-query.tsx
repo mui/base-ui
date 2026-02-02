@@ -87,9 +87,10 @@ function ExampleAutocomplete() {
         isThrottled = false;
 
         const { scrollTop, scrollHeight, clientHeight } = popupEl;
-        const scrolledToBottom = scrollTop + clientHeight >= scrollHeight;
+        // fetch when 75% of the list has been scrolled
+        const shouldFetch = scrollTop >= (scrollHeight - clientHeight) * 0.75;
 
-        if (scrolledToBottom && hasNextPage && !isFetchingNextPage) {
+        if (shouldFetch && hasNextPage && !isFetchingNextPage) {
           fetchNextPage();
         }
       });
@@ -171,7 +172,7 @@ function ExampleAutocomplete() {
             if (highlightedItem && hasNextPage && eventDetails.reason === 'keyboard') {
               const highlightedIndex = searchResults.indexOf(highlightedItem);
               // fetch if the highlighted index is close to the end
-              const shouldFetch = highlightedIndex >= searchResults.length - 1;
+              const shouldFetch = highlightedIndex >= searchResults.length - 6;
 
               if (shouldFetch) {
                 fetchNextPage();
