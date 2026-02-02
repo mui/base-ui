@@ -21,6 +21,23 @@ const typedAddId = typedManager.add({
 });
 expectType<string, typeof typedAddId>(typedAddId);
 
+typedManager.add({
+  title: 'wrong-shape',
+  data: {
+    id: 'test',
+    // @ts-expect-error - message is not a valid property
+    message: 'not a number',
+  },
+});
+
+typedManager.add({
+  title: 'wrong-shape',
+  // @ts-expect-error - count is a missing property
+  data: {
+    id: 'test',
+  },
+});
+
 typedManager.update('typed', {
   data: {
     id: 'typed-update',
