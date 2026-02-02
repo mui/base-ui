@@ -9,18 +9,212 @@ import { CheckboxGroup } from '@base-ui/react/checkbox-group';
 import { Switch } from '@base-ui/react/switch';
 import { Slider } from '@base-ui/react/slider';
 import { Field } from '@base-ui/react/field';
-import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
+import { reset } from '@base-ui/utils/error';
+import {
+  act,
+  fireEvent,
+  flushMicrotasks,
+  reactMajor,
+  screen,
+  waitFor,
+} from '@mui/internal-test-utils';
+import { vi } from 'vitest';
 import { expect } from 'chai';
 import { spy } from 'sinon';
 import { createRenderer, describeConformance } from '#test-utils';
 
 describe('<Field.Root />', () => {
   const { render } = createRenderer();
+  const { render: renderStrict } = createRenderer({ strict: true });
+
+  afterEach(() => {
+    reset();
+  });
 
   describeConformance(<Field.Root />, () => ({
     refInstanceof: window.HTMLDivElement,
     render,
   }));
+
+  it('warns when multiple labelable controls are registered', async () => {
+    const errorSpy = vi
+      .spyOn(console, 'error')
+      .mockName('console.error')
+      .mockImplementation(() => {});
+
+    try {
+      await render(
+        <Field.Root>
+          <Field.Label>Label</Field.Label>
+          <Select.Root id="select">
+            <Select.Trigger>
+              <Select.Value />
+            </Select.Trigger>
+            <Select.Portal>
+              <Select.Positioner>
+                <Select.Popup>
+                  <Select.Item value="a">A</Select.Item>
+                </Select.Popup>
+              </Select.Positioner>
+            </Select.Portal>
+          </Select.Root>
+          <Checkbox.Root id="checkbox" defaultChecked />
+        </Field.Root>,
+      );
+
+      expect(errorSpy.mock.calls.length).to.equal(1);
+      expect(errorSpy.mock.calls[0][0]).to.equal(
+        'Base UI: Multiple labelable controls were rendered within the same <Field.Root>. This makes label associations ambiguous and can cause render loops. Ensure that <Field.Root> wraps a single control. For checkbox or radio groups, wrap each option in <Field.Item>. For a shared label across multiple controls, use <Fieldset.Root>.',
+      );
+    } finally {
+      errorSpy.mockRestore();
+    }
+  });
+
+  it('does not warn for a single control', async () => {
+    const errorSpy = spy(console, 'error');
+
+    try {
+      await render(
+        <Field.Root>
+          <Field.Label>Label</Field.Label>
+          <Checkbox.Root />
+        </Field.Root>,
+      );
+
+      expect(errorSpy.callCount).to.equal(0);
+    } finally {
+      errorSpy.restore();
+    }
+  });
+
+  it('updates label associations when the control id changes', async () => {
+    const errorSpy = spy(console, 'error');
+
+    try {
+      function TestCase() {
+        const [controlId, setControlId] = React.useState('control-a');
+
+        return (
+          <React.Fragment>
+            <Field.Root>
+              <Field.Label>Label</Field.Label>
+              <Field.Control id={controlId} />
+            </Field.Root>
+            <button type="button" onClick={() => setControlId('control-b')}>
+              Change
+            </button>
+          </React.Fragment>
+        );
+      }
+
+      await render(<TestCase />);
+
+      const label = screen.getByText('Label');
+
+      expect(label).to.have.attribute('for', 'control-a');
+
+      fireEvent.click(screen.getByRole('button', { name: 'Change' }));
+
+      await waitFor(() => {
+        expect(label).to.have.attribute('for', 'control-b');
+      });
+
+      expect(errorSpy.callCount).to.equal(0);
+    } finally {
+      errorSpy.restore();
+    }
+  });
+
+  it('does not warn for checkbox group items', async () => {
+    const errorSpy = spy(console, 'error');
+
+    try {
+      await render(
+        <Field.Root>
+          <CheckboxGroup defaultValue={[]}>
+            <Field.Item>
+              <Checkbox.Root value="daily" />
+              <Field.Label>Daily</Field.Label>
+            </Field.Item>
+            <Field.Item>
+              <Checkbox.Root value="weekly" />
+              <Field.Label>Weekly</Field.Label>
+            </Field.Item>
+          </CheckboxGroup>
+        </Field.Root>,
+      );
+
+      expect(errorSpy.callCount).to.equal(0);
+    } finally {
+      errorSpy.restore();
+    }
+  });
+
+  it.skipIf(reactMajor < 19)(
+    'does not loop when a control is unmounted and remounted',
+    async () => {
+      const errorSpy = vi
+        .spyOn(console, 'error')
+        .mockName('console.error')
+        .mockImplementation(() => {});
+
+      try {
+        type ActivityProps = {
+          mode: 'visible' | 'hidden';
+          children: React.ReactNode;
+        };
+
+        const Activity = (React as typeof React & { Activity: React.ComponentType<ActivityProps> })
+          .Activity;
+
+        function TestCase() {
+          const [showSelect, setShowSelect] = React.useState(true);
+
+          return (
+            <React.Fragment>
+              <Field.Root>
+                <Field.Label nativeLabel={false} render={<div />}>
+                  Label
+                </Field.Label>
+                <Activity mode={showSelect ? 'visible' : 'hidden'}>
+                  <Select.Root>
+                    <Select.Trigger>
+                      <Select.Value placeholder="Select a model" />
+                    </Select.Trigger>
+                    <Select.Portal>
+                      <Select.Positioner>
+                        <Select.Popup>
+                          <Select.Item value="model">Model</Select.Item>
+                        </Select.Popup>
+                      </Select.Positioner>
+                    </Select.Portal>
+                  </Select.Root>
+                </Activity>
+              </Field.Root>
+              <Checkbox.Root
+                checked={!showSelect}
+                onCheckedChange={(checked) => {
+                  setShowSelect(!checked);
+                }}
+              />
+            </React.Fragment>
+          );
+        }
+
+        await renderStrict(<TestCase />);
+
+        const checkbox = screen.getByRole('checkbox');
+
+        fireEvent.click(checkbox);
+        fireEvent.click(checkbox);
+
+        expect(errorSpy.mock.calls.length).to.equal(0);
+      } finally {
+        errorSpy.mockRestore();
+      }
+    },
+  );
 
   describe('prop: disabled', () => {
     it('should add data-disabled style hook to all components', async () => {
@@ -131,8 +325,12 @@ describe('<Field.Root />', () => {
 
           <Field.Root name="checkbox-group">
             <CheckboxGroup defaultValue={['apple', 'banana']}>
-              <Checkbox.Root value="apple" />
-              <Checkbox.Root value="banana" />
+              <Field.Item>
+                <Checkbox.Root value="apple" />
+              </Field.Item>
+              <Field.Item>
+                <Checkbox.Root value="banana" />
+              </Field.Item>
             </CheckboxGroup>
           </Field.Root>
 
