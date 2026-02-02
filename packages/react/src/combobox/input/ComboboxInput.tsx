@@ -212,7 +212,11 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
             createChangeEventDetails(REASONS.inputChange, event.nativeEvent),
           );
         },
-        onChange(event: React.ChangeEvent<HTMLInputElement>) {
+        onChange(event) {
+          // `inputType` is undefined for autofill change events.
+          const inputType = (event.nativeEvent as InputEvent | undefined)?.inputType;
+          const shouldOpenOnInput = isComposingRef.current || inputType != null;
+
           // During IME composition, avoid propagating controlled updates to prevent
           // filtering the options prematurely so `Empty` won't show incorrectly.
           // We can't rely on this check for Android due to how it handles composition
@@ -233,8 +237,8 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
             const trimmed = nextVal.trim();
             const shouldMaintainHighlight = autoHighlightEnabled && trimmed !== '';
 
-            if (!readOnly && !disabled) {
-              if (trimmed !== '') {
+            if (!readOnly && !disabled && trimmed !== '') {
+              if (shouldOpenOnInput) {
                 store.state.setOpen(
                   true,
                   createChangeEventDetails(REASONS.inputChange, event.nativeEvent),
@@ -279,8 +283,8 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
           }
 
           const trimmed = event.currentTarget.value.trim();
-          if (!readOnly && !disabled) {
-            if (trimmed !== '') {
+          if (!readOnly && !disabled && trimmed !== '') {
+            if (shouldOpenOnInput) {
               store.state.setOpen(
                 true,
                 createChangeEventDetails(REASONS.inputChange, event.nativeEvent),
@@ -378,13 +382,14 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
             return;
           }
 
+          const hadHighlightedChip = comboboxChipsContext?.highlightedChipIndex !== undefined;
           const nextIndex = handleKeyDown(event);
 
           comboboxChipsContext?.setHighlightedChipIndex(nextIndex);
 
           if (nextIndex !== undefined) {
             comboboxChipsContext?.chipsRef.current[nextIndex]?.focus();
-          } else {
+          } else if (hadHighlightedChip) {
             store.state.inputRef.current?.focus();
           }
 

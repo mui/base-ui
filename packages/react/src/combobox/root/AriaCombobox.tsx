@@ -501,15 +501,18 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       // If user is typing, ensure we don't auto-highlight on open due to a race
       // with the post-open effect that sets this flag.
       if (eventDetails.reason === REASONS.inputChange) {
-        const hasQuery = next.trim() !== '';
-        if (hasQuery) {
-          setQueryChangedAfterOpen(true);
-        }
-        // Defer index updates until after the filtered items have been derived to ensure
-        // `onItemHighlighted` receives the latest item.
-        pendingQueryHighlightRef.current = { hasQuery };
-        if (hasQuery && autoHighlightMode && store.state.activeIndex == null) {
-          store.set('activeIndex', 0);
+        const inputType = (eventDetails.event as InputEvent | undefined)?.inputType;
+        if (inputType != null) {
+          const hasQuery = next.trim() !== '';
+          if (hasQuery) {
+            setQueryChangedAfterOpen(true);
+          }
+          // Defer index updates until after the filtered items have been derived to ensure
+          // `onItemHighlighted` receives the latest item.
+          pendingQueryHighlightRef.current = { hasQuery };
+          if (hasQuery && autoHighlightMode && store.state.activeIndex == null) {
+            store.set('activeIndex', 0);
+          }
         }
       }
 
