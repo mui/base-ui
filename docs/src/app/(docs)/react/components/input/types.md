@@ -67,3 +67,12 @@ type InputChangeEventDetails = {
   trigger: Element | undefined;
 };
 ```
+
+## Canonical Types
+
+Maps `Canonical`: `Alias` — rename aliases to their canonical form for consistent usage.
+
+- `Input.Props`: `InputProps`
+- `Input.State`: `InputState`
+- `Input.ChangeEventReason`: `InputChangeEventReason`
+- `Input.ChangeEventDetails`: `InputChangeEventDetails`

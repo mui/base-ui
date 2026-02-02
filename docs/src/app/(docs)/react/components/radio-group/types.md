@@ -69,3 +69,12 @@ type RadioGroupChangeEventDetails = {
   trigger: Element | undefined;
 };
 ```
+
+## Canonical Types
+
+Maps `Canonical`: `Alias` — rename aliases to their canonical form for consistent usage.
+
+- `RadioGroup.State`: `RadioGroupState`
+- `RadioGroup.Props`: `RadioGroupProps`
+- `RadioGroup.ChangeEventReason`: `RadioGroupChangeEventReason`
+- `RadioGroup.ChangeEventDetails`: `RadioGroupChangeEventDetails`

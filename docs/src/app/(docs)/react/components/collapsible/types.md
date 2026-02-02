@@ -129,3 +129,22 @@ type CollapsiblePanelState = {
   disabled: boolean;
 };
 ```
+
+## Export Groups
+
+- `Collapsible.Root`: `Collapsible.Root`, `Collapsible.Root.State`, `Collapsible.Root.Props`, `Collapsible.Root.ChangeEventReason`, `Collapsible.Root.ChangeEventDetails`
+- `Collapsible.Trigger`: `Collapsible.Trigger`, `Collapsible.Trigger.Props`
+- `Collapsible.Panel`: `Collapsible.Panel`, `Collapsible.Panel.State`, `Collapsible.Panel.Props`
+- `Default`: `CollapsibleRootState`, `CollapsibleRootProps`, `CollapsibleRootChangeEventReason`, `CollapsibleRootChangeEventDetails`, `CollapsibleTriggerProps`, `CollapsiblePanelState`, `CollapsiblePanelProps`
+
+## Canonical Types
+
+Maps `Canonical`: `Alias` — rename aliases to their canonical form for consistent usage.
+
+- `Collapsible.Root.State`: `CollapsibleRootState`
+- `Collapsible.Root.Props`: `CollapsibleRootProps`
+- `Collapsible.Root.ChangeEventReason`: `CollapsibleRootChangeEventReason`
+- `Collapsible.Root.ChangeEventDetails`: `CollapsibleRootChangeEventDetails`
+- `Collapsible.Trigger.Props`: `CollapsibleTriggerProps`
+- `Collapsible.Panel.State`: `CollapsiblePanelState`
+- `Collapsible.Panel.Props`: `CollapsiblePanelProps`

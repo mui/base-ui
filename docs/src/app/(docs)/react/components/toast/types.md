@@ -151,6 +151,38 @@ Renders a `<div>` element.
 | style                 | `React.CSSProperties \| ((state: Toast.Positioner.State) => React.CSSProperties \| undefined)` | -                      | -                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
 | render                | `ReactElement \| ((props: HTMLProps, state: Toast.Positioner.State) => ReactElement)`          | -                      | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render.                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
 
+**`alignOffset` Prop Example:**
+
+```jsx
+<Positioner
+  alignOffset={({ side, align, anchor, positioner }) => {
+    return side === 'top' || side === 'bottom' ? anchor.width : anchor.height;
+  }}
+/>
+```
+
+**`sideOffset` Prop Example:**
+
+```jsx
+<Positioner
+  sideOffset={({ side, align, anchor, positioner }) => {
+    return side === 'top' || side === 'bottom' ? anchor.height : anchor.width;
+  }}
+/>
+```
+
+**`collisionAvoidance` Prop Example:**
+
+```jsx
+<Positioner
+  collisionAvoidance={{
+    side: 'shift',
+    align: 'shift',
+    fallbackAxisSide: 'none',
+  }}
+/>
+```
+
 **Positioner Data Attributes:**
 
 | Attribute          | Type                                                                       | Description                                                           |
@@ -424,6 +456,31 @@ Returns the array of toasts and methods to manage them.
 
 ## Additional Types
 
+### ToastObject
+
+```typescript
+type ToastObject = {
+  id: string;
+  ref?: React.RefObject<HTMLElement | null>;
+  title?: React.ReactNode;
+  type?: string;
+  description?: React.ReactNode;
+  timeout?: number;
+  priority?: 'low' | 'high';
+  transitionStatus?: 'starting' | 'ending';
+  limited?: boolean;
+  height?: number;
+  onClose?: () => void;
+  onRemove?: () => void;
+  actionProps?: Omit<
+    React.DetailedHTMLProps<React.ButtonHTMLAttributes<HTMLButtonElement>, HTMLButtonElement>,
+    'ref'
+  >;
+  positionerProps?: ToastManagerPositionerProps;
+  data?: {};
+};
+```
+
 ### ToastManager
 
 ```typescript
@@ -529,31 +586,6 @@ type ToastManagerUpdateOptions = {
 };
 ```
 
-### ToastObject
-
-```typescript
-type ToastObject = {
-  id: string;
-  ref?: React.RefObject<HTMLElement | null>;
-  title?: React.ReactNode;
-  type?: string;
-  description?: React.ReactNode;
-  timeout?: number;
-  priority?: 'low' | 'high';
-  transitionStatus?: 'starting' | 'ending';
-  limited?: boolean;
-  height?: number;
-  onClose?: () => void;
-  onRemove?: () => void;
-  actionProps?: Omit<
-    React.DetailedHTMLProps<React.ButtonHTMLAttributes<HTMLButtonElement>, HTMLButtonElement>,
-    'ref'
-  >;
-  positionerProps?: ToastManagerPositionerProps;
-  data?: {};
-};
-```
-
 ### UseToastManagerReturnValue
 
 ```typescript
@@ -593,3 +625,46 @@ type OffsetFunction = (data: {
   positioner: { width: number; height: number };
 }) => number;
 ```
+
+## Export Groups
+
+- `Toast.Provider`: `Toast.Provider`, `Toast.Provider.Props`
+- `Toast.Viewport`: `Toast.Viewport`, `Toast.Viewport.State`, `Toast.Viewport.Props`
+- `Toast.Root`: `Toast.Root`, `Toast.Root.ToastObject`, `Toast.Root.State`, `Toast.Root.Props`
+- `Toast.Content`: `Toast.Content`, `Toast.Content.State`, `Toast.Content.Props`
+- `Toast.Description`: `Toast.Description`, `Toast.Description.State`, `Toast.Description.Props`
+- `Toast.Title`: `Toast.Title`, `Toast.Title.State`, `Toast.Title.Props`
+- `Toast.Close`: `Toast.Close`, `Toast.Close.State`, `Toast.Close.Props`
+- `Toast.Action`: `Toast.Action`, `Toast.Action.State`, `Toast.Action.Props`
+- `Toast.Portal`: `Toast.Portal`, `Toast.Portal.State`, `Toast.Portal.Props`, `Toast.Portal.State`, `Toast.Portal.Props`
+- `Toast.Positioner`: `Toast.Positioner`, `Toast.Positioner.State`, `Toast.Positioner.Props`
+- `Toast.Arrow`: `Toast.Arrow`, `Toast.Arrow.State`, `Toast.Arrow.Props`
+- `Toast.useToastManager`
+- `Toast.createToastManager`
+- `Default`: `ToastRootToastObject`, `ToastRootState`, `ToastRootProps`, `ToastProviderProps`, `ToastViewportState`, `ToastViewportProps`, `ToastContentState`, `ToastContentProps`, `ToastDescriptionState`, `ToastDescriptionProps`, `ToastTitleState`, `ToastTitleProps`, `ToastCloseState`, `ToastCloseProps`, `ToastActionState`, `ToastActionProps`, `ToastPortalProps`, `ToastPositionerState`, `ToastPositionerProps`, `ToastArrowState`, `ToastArrowProps`, `ToastObject`, `ToastManagerPositionerProps`, `UseToastManagerReturnValue`, `ToastManagerAddOptions`, `ToastManagerUpdateOptions`, `ToastManagerPromiseOptions`, `ToastManager`, `ToastManagerEvent`
+
+## Canonical Types
+
+Maps `Canonical`: `Alias` — rename aliases to their canonical form for consistent usage.
+
+- `Toast.Provider.Props`: `ToastProviderProps`
+- `Toast.Viewport.State`: `ToastViewportState`
+- `Toast.Viewport.Props`: `ToastViewportProps`
+- `Toast.Root.ToastObject`: `ToastRootToastObject`
+- `Toast.Root.State`: `ToastRootState`
+- `Toast.Root.Props`: `ToastRootProps`
+- `Toast.Content.State`: `ToastContentState`
+- `Toast.Content.Props`: `ToastContentProps`
+- `Toast.Description.State`: `ToastDescriptionState`
+- `Toast.Description.Props`: `ToastDescriptionProps`
+- `Toast.Title.State`: `ToastTitleState`
+- `Toast.Title.Props`: `ToastTitleProps`
+- `Toast.Close.State`: `ToastCloseState`
+- `Toast.Close.Props`: `ToastCloseProps`
+- `Toast.Action.State`: `ToastActionState`
+- `Toast.Action.Props`: `ToastActionProps`
+- `Toast.Portal.Props`: `ToastPortalProps`
+- `Toast.Positioner.State`: `ToastPositionerState`
+- `Toast.Positioner.Props`: `ToastPositionerProps`
+- `Toast.Arrow.State`: `ToastArrowState`
+- `Toast.Arrow.Props`: `ToastArrowProps`

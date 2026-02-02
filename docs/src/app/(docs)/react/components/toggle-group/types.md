@@ -68,3 +68,12 @@ type ToggleGroupChangeEventDetails = {
 ```typescript
 type Orientation = 'horizontal' | 'vertical';
 ```
+
+## Canonical Types
+
+Maps `Canonical`: `Alias` — rename aliases to their canonical form for consistent usage.
+
+- `ToggleGroup.State`: `ToggleGroupState`
+- `ToggleGroup.Props`: `ToggleGroupProps`
+- `ToggleGroup.ChangeEventReason`: `ToggleGroupChangeEventReason`
+- `ToggleGroup.ChangeEventDetails`: `ToggleGroupChangeEventDetails`

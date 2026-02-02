@@ -321,6 +321,38 @@ Renders a `<div>` element.
 | style                 | `React.CSSProperties \| ((state: Menu.Positioner.State) => React.CSSProperties \| undefined)`                        | -                      | -                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
 | render                | `ReactElement \| ((props: HTMLProps, state: Menu.Positioner.State) => ReactElement)`                                 | -                      | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render.                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
 
+**`alignOffset` Prop Example:**
+
+```jsx
+<Positioner
+  alignOffset={({ side, align, anchor, positioner }) => {
+    return side === 'top' || side === 'bottom' ? anchor.width : anchor.height;
+  }}
+/>
+```
+
+**`sideOffset` Prop Example:**
+
+```jsx
+<Positioner
+  sideOffset={({ side, align, anchor, positioner }) => {
+    return side === 'top' || side === 'bottom' ? anchor.height : anchor.width;
+  }}
+/>
+```
+
+**`collisionAvoidance` Prop Example:**
+
+```jsx
+<Positioner
+  collisionAvoidance={{
+    side: 'shift',
+    align: 'shift',
+    fallbackAxisSide: 'none',
+  }}
+/>
+```
+
 **Positioner Data Attributes:**
 
 | Attribute          | Type                                                                       | Description                                                           |
@@ -1334,7 +1366,7 @@ type MenuParent =
   | { type: 'menu'; store: MenuStore<unknown> }
   | { type: 'menubar'; context: MenubarContext }
   | { type: 'context-menu'; context: ContextMenuRootContext }
-  | { type: 'nested-context-menu'; context: ContextMenuRootContext; menuContext: Menu.Root.Context }
+  | { type: 'nested-context-menu'; context: ContextMenuRootContext; menuContext: MenuRootContext }
   | { type: undefined };
 ```
 
@@ -1386,3 +1418,77 @@ type OffsetFunction = (data: {
   positioner: { width: number; height: number };
 }) => number;
 ```
+
+## Export Groups
+
+- `Menu.Arrow`: `Menu.Arrow`, `Menu.Arrow.State`, `Menu.Arrow.Props`
+- `Menu.Backdrop`: `Menu.Backdrop`, `Menu.Backdrop.State`, `Menu.Backdrop.Props`
+- `Menu.CheckboxItem`: `Menu.CheckboxItem`, `Menu.CheckboxItem.State`, `Menu.CheckboxItem.Props`, `Menu.CheckboxItem.ChangeEventReason`, `Menu.CheckboxItem.ChangeEventDetails`
+- `Menu.CheckboxItemIndicator`: `Menu.CheckboxItemIndicator`, `Menu.CheckboxItemIndicator.Props`, `Menu.CheckboxItemIndicator.State`
+- `Menu.Group`: `Menu.Group`, `Menu.Group.Props`, `Menu.Group.State`
+- `Menu.GroupLabel`: `Menu.GroupLabel`, `Menu.GroupLabel.Props`, `Menu.GroupLabel.State`
+- `Menu.Item`: `Menu.Item`, `Menu.Item.State`, `Menu.Item.Props`
+- `Menu.LinkItem`: `Menu.LinkItem`, `Menu.LinkItem.State`, `Menu.LinkItem.Props`
+- `Menu.Popup`: `Menu.Popup`, `Menu.Popup.Props`, `Menu.Popup.State`
+- `Menu.Portal`: `Menu.Portal`, `Menu.Portal.State`, `Menu.Portal.Props`, `Menu.Portal.State`, `Menu.Portal.Props`
+- `Menu.Positioner`: `Menu.Positioner`, `Menu.Positioner.State`, `Menu.Positioner.Props`
+- `Menu.RadioGroup`: `Menu.RadioGroup`, `Menu.RadioGroup.Props`, `Menu.RadioGroup.State`, `Menu.RadioGroup.ChangeEventReason`, `Menu.RadioGroup.ChangeEventDetails`
+- `Menu.RadioItem`: `Menu.RadioItem`, `Menu.RadioItem.State`, `Menu.RadioItem.Props`
+- `Menu.RadioItemIndicator`: `Menu.RadioItemIndicator`, `Menu.RadioItemIndicator.Props`, `Menu.RadioItemIndicator.State`
+- `Menu.Root`: `Menu.Root`, `Menu.Root.Props`, `Menu.Root.Actions`, `Menu.Root.ChangeEventReason`, `Menu.Root.ChangeEventDetails`, `Menu.Root.Orientation`
+- `Menu.SubmenuRoot`: `Menu.SubmenuRoot`, `Menu.SubmenuRoot.Props`, `Menu.SubmenuRoot.State`, `Menu.SubmenuRoot.ChangeEventReason`, `Menu.SubmenuRoot.ChangeEventDetails`
+- `Menu.Trigger`: `Menu.Trigger`, `Menu.Trigger.Props`, `Menu.Trigger.State`
+- `Menu.Separator`: `Menu.Separator`, `Menu.Separator.Props`, `Menu.Separator.State`
+- `Menu.SubmenuTrigger`: `Menu.SubmenuTrigger`, `Menu.SubmenuTrigger.Props`, `Menu.SubmenuTrigger.State`
+- `Menu.Handle`
+- `Menu.createHandle`
+- `Default`: `MenuRootProps`, `MenuRootActions`, `MenuRootChangeEventReason`, `MenuRootChangeEventDetails`, `MenuRootOrientation`, `MenuParent`, `MenuArrowState`, `MenuArrowProps`, `MenuBackdropState`, `MenuBackdropProps`, `MenuCheckboxItemState`, `MenuCheckboxItemProps`, `MenuCheckboxItemChangeEventReason`, `MenuCheckboxItemChangeEventDetails`, `MenuCheckboxItemIndicatorProps`, `MenuCheckboxItemIndicatorState`, `MenuGroupLabelProps`, `MenuGroupLabelState`, `MenuGroupProps`, `MenuGroupState`, `MenuItemState`, `MenuItemProps`, `MenuLinkItemState`, `MenuLinkItemProps`, `MenuPopupProps`, `MenuPopupState`, `MenuPortalProps`, `MenuPositionerState`, `MenuPositionerProps`, `MenuRadioGroupProps`, `MenuRadioGroupState`, `MenuRadioGroupChangeEventReason`, `MenuRadioGroupChangeEventDetails`, `MenuRadioItemState`, `MenuRadioItemProps`, `MenuRadioItemIndicatorProps`, `MenuRadioItemIndicatorState`, `MenuSubmenuRootProps`, `MenuSubmenuRootState`, `MenuSubmenuRootChangeEventReason`, `MenuSubmenuRootChangeEventDetails`, `MenuTriggerProps`, `MenuTriggerState`, `MenuSubmenuTriggerProps`, `MenuSubmenuTriggerState`
+
+## Canonical Types
+
+Maps `Canonical`: `Alias` — rename aliases to their canonical form for consistent usage.
+
+- `Menu.Arrow.State`: `MenuArrowState`
+- `Menu.Arrow.Props`: `MenuArrowProps`
+- `Menu.Backdrop.State`: `MenuBackdropState`
+- `Menu.Backdrop.Props`: `MenuBackdropProps`
+- `Menu.CheckboxItem.State`: `MenuCheckboxItemState`
+- `Menu.CheckboxItem.Props`: `MenuCheckboxItemProps`
+- `Menu.CheckboxItem.ChangeEventReason`: `MenuCheckboxItemChangeEventReason`
+- `Menu.CheckboxItem.ChangeEventDetails`: `MenuCheckboxItemChangeEventDetails`
+- `Menu.CheckboxItemIndicator.Props`: `MenuCheckboxItemIndicatorProps`
+- `Menu.CheckboxItemIndicator.State`: `MenuCheckboxItemIndicatorState`
+- `Menu.Group.Props`: `MenuGroupProps`
+- `Menu.Group.State`: `MenuGroupState`
+- `Menu.GroupLabel.Props`: `MenuGroupLabelProps`
+- `Menu.GroupLabel.State`: `MenuGroupLabelState`
+- `Menu.Item.State`: `MenuItemState`
+- `Menu.Item.Props`: `MenuItemProps`
+- `Menu.LinkItem.State`: `MenuLinkItemState`
+- `Menu.LinkItem.Props`: `MenuLinkItemProps`
+- `Menu.Popup.Props`: `MenuPopupProps`
+- `Menu.Popup.State`: `MenuPopupState`
+- `Menu.Portal.Props`: `MenuPortalProps`
+- `Menu.Positioner.State`: `MenuPositionerState`
+- `Menu.Positioner.Props`: `MenuPositionerProps`
+- `Menu.RadioGroup.Props`: `MenuRadioGroupProps`
+- `Menu.RadioGroup.State`: `MenuRadioGroupState`
+- `Menu.RadioGroup.ChangeEventReason`: `MenuRadioGroupChangeEventReason`
+- `Menu.RadioGroup.ChangeEventDetails`: `MenuRadioGroupChangeEventDetails`
+- `Menu.RadioItem.State`: `MenuRadioItemState`
+- `Menu.RadioItem.Props`: `MenuRadioItemProps`
+- `Menu.RadioItemIndicator.Props`: `MenuRadioItemIndicatorProps`
+- `Menu.RadioItemIndicator.State`: `MenuRadioItemIndicatorState`
+- `Menu.Root.Props`: `MenuRootProps`
+- `Menu.Root.Actions`: `MenuRootActions`
+- `Menu.Root.ChangeEventReason`: `MenuRootChangeEventReason`
+- `Menu.Root.ChangeEventDetails`: `MenuRootChangeEventDetails`
+- `Menu.Root.Orientation`: `MenuRootOrientation`
+- `Menu.SubmenuRoot.Props`: `MenuSubmenuRootProps`
+- `Menu.SubmenuRoot.State`: `MenuSubmenuRootState`
+- `Menu.SubmenuRoot.ChangeEventReason`: `MenuSubmenuRootChangeEventReason`
+- `Menu.SubmenuRoot.ChangeEventDetails`: `MenuSubmenuRootChangeEventDetails`
+- `Menu.Trigger.Props`: `MenuTriggerProps`
+- `Menu.Trigger.State`: `MenuTriggerState`
+- `Menu.SubmenuTrigger.Props`: `MenuSubmenuTriggerProps`
+- `Menu.SubmenuTrigger.State`: `MenuSubmenuTriggerState`

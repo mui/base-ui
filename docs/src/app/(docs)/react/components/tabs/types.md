@@ -241,6 +241,16 @@ type TabsTabValue = Tabs.Tab.Value;
 type TabsTabActivationDirection = 'left' | 'right' | 'up' | 'down' | 'none';
 ```
 
+### Tab.Metadata
+
+```typescript
+type TabsTabMetadata = {
+  disabled: boolean;
+  id: string | undefined;
+  value: Tabs.Tab.Value | undefined;
+};
+```
+
 ### Tab.Position
 
 ```typescript
@@ -251,16 +261,6 @@ type TabsTabPosition = { left: number; right: number; top: number; bottom: numbe
 
 ```typescript
 type TabsTabSize = { width: number; height: number };
-```
-
-### Tab.Metadata
-
-```typescript
-type TabsTabMetadata = {
-  disabled: boolean;
-  id: string | undefined;
-  value: Tabs.Tab.Value | undefined;
-};
 ```
 
 ## External Types
@@ -276,3 +276,36 @@ type Orientation = 'horizontal' | 'vertical';
 ```typescript
 type ActivationDirection = 'left' | 'right' | 'up' | 'down' | 'none';
 ```
+
+## Export Groups
+
+- `Tabs.Root`: `Tabs.Root`, `Tabs.Root.State`, `Tabs.Root.Props`, `Tabs.Root.Orientation`, `Tabs.Root.ChangeEventReason`, `Tabs.Root.ChangeEventDetails`
+- `Tabs.Tab`: `Tabs.Tab`, `Tabs.Tab.Value`, `Tabs.Tab.ActivationDirection`, `Tabs.Tab.Position`, `Tabs.Tab.Size`, `Tabs.Tab.Metadata`, `Tabs.Tab.State`, `Tabs.Tab.Props`
+- `Tabs.Indicator`: `Tabs.Indicator`, `Tabs.Indicator.State`, `Tabs.Indicator.Props`
+- `Tabs.Panel`: `Tabs.Panel`, `Tabs.Panel.Metadata`, `Tabs.Panel.State`, `Tabs.Panel.Props`
+- `Tabs.List`: `Tabs.List`, `Tabs.List.State`, `Tabs.List.Props`
+- `Default`: `TabsRootOrientation`, `TabsRootState`, `TabsRootProps`, `TabsRootChangeEventReason`, `TabsRootChangeEventDetails`, `TabsIndicatorState`, `TabsIndicatorProps`, `TabsTabValue`, `TabsTabActivationDirection`, `TabsTabPosition`, `TabsTabSize`, `TabsTabMetadata`, `TabsTabState`, `TabsTabProps`, `TabsPanelMetadata`, `TabsPanelState`, `TabsPanelProps`, `TabsListState`, `TabsListProps`
+
+## Canonical Types
+
+Maps `Canonical`: `Alias` — rename aliases to their canonical form for consistent usage.
+
+- `Tabs.Root.State`: `TabsRootState`
+- `Tabs.Root.Props`: `TabsRootProps`
+- `Tabs.Root.Orientation`: `TabsRootOrientation`
+- `Tabs.Root.ChangeEventReason`: `TabsRootChangeEventReason`
+- `Tabs.Root.ChangeEventDetails`: `TabsRootChangeEventDetails`
+- `Tabs.Tab.Value`: `TabsTabValue`
+- `Tabs.Tab.ActivationDirection`: `TabsTabActivationDirection`
+- `Tabs.Tab.Position`: `TabsTabPosition`
+- `Tabs.Tab.Size`: `TabsTabSize`
+- `Tabs.Tab.Metadata`: `TabsTabMetadata`
+- `Tabs.Tab.State`: `TabsTabState`
+- `Tabs.Tab.Props`: `TabsTabProps`
+- `Tabs.Indicator.State`: `TabsIndicatorState`
+- `Tabs.Indicator.Props`: `TabsIndicatorProps`
+- `Tabs.Panel.Metadata`: `TabsPanelMetadata`
+- `Tabs.Panel.State`: `TabsPanelState`
+- `Tabs.Panel.Props`: `TabsPanelProps`
+- `Tabs.List.State`: `TabsListState`
+- `Tabs.List.Props`: `TabsListProps`

@@ -444,3 +444,42 @@ type PayloadChildRenderFunction = (arg: { payload: unknown | undefined }) => Rea
 ```typescript
 type InteractionType = 'mouse' | 'touch' | 'pen' | 'keyboard' | '';
 ```
+
+## Export Groups
+
+- `AlertDialog.Root`: `AlertDialog.Root`, `AlertDialog.Root.Props`, `AlertDialog.Root.Actions`, `AlertDialog.Root.ChangeEventReason`, `AlertDialog.Root.ChangeEventDetails`
+- `AlertDialog.Backdrop`: `AlertDialog.Backdrop`, `AlertDialog.Backdrop.Props`, `AlertDialog.Backdrop.State`
+- `AlertDialog.Close`: `AlertDialog.Close`, `AlertDialog.Close.Props`, `AlertDialog.Close.State`
+- `AlertDialog.Description`: `AlertDialog.Description`, `AlertDialog.Description.Props`, `AlertDialog.Description.State`
+- `AlertDialog.Popup`: `AlertDialog.Popup`, `AlertDialog.Popup.Props`, `AlertDialog.Popup.State`
+- `AlertDialog.Portal`: `AlertDialog.Portal`, `AlertDialog.Portal.State`, `AlertDialog.Portal.Props`, `AlertDialog.Portal.State`, `AlertDialog.Portal.Props`
+- `AlertDialog.Title`: `AlertDialog.Title`, `AlertDialog.Title.Props`, `AlertDialog.Title.State`
+- `AlertDialog.Trigger`: `AlertDialog.Trigger`, `AlertDialog.Trigger.Props`, `AlertDialog.Trigger.State`
+- `AlertDialog.Viewport`: `AlertDialog.Viewport`, `AlertDialog.Viewport.State`, `AlertDialog.Viewport.Props`
+- `AlertDialog.createHandle`
+- `AlertDialog.Handle`
+- `Default`: `AlertDialogBackdropProps`, `AlertDialogBackdropState`, `AlertDialogCloseProps`, `AlertDialogCloseState`, `AlertDialogDescriptionProps`, `AlertDialogDescriptionState`, `AlertDialogPopupProps`, `AlertDialogPopupState`, `AlertDialogPortalProps`, `AlertDialogTitleProps`, `AlertDialogTitleState`, `AlertDialogTriggerProps`, `AlertDialogTriggerState`, `AlertDialogViewportProps`, `AlertDialogViewportState`, `AlertDialogRootProps`, `AlertDialogRootActions`, `AlertDialogRootChangeEventReason`, `AlertDialogRootChangeEventDetails`
+
+## Canonical Types
+
+Maps `Canonical`: `Alias` — rename aliases to their canonical form for consistent usage.
+
+- `AlertDialog.Root.Props`: `AlertDialogRootProps`
+- `AlertDialog.Root.Actions`: `AlertDialogRootActions`
+- `AlertDialog.Root.ChangeEventReason`: `AlertDialogRootChangeEventReason`
+- `AlertDialog.Root.ChangeEventDetails`: `AlertDialogRootChangeEventDetails`
+- `AlertDialog.Backdrop.Props`: `AlertDialogBackdropProps`
+- `AlertDialog.Backdrop.State`: `AlertDialogBackdropState`
+- `AlertDialog.Close.Props`: `AlertDialogCloseProps`
+- `AlertDialog.Close.State`: `AlertDialogCloseState`
+- `AlertDialog.Description.Props`: `AlertDialogDescriptionProps`
+- `AlertDialog.Description.State`: `AlertDialogDescriptionState`
+- `AlertDialog.Popup.Props`: `AlertDialogPopupProps`
+- `AlertDialog.Popup.State`: `AlertDialogPopupState`
+- `AlertDialog.Portal.Props`: `AlertDialogPortalProps`
+- `AlertDialog.Title.Props`: `AlertDialogTitleProps`
+- `AlertDialog.Title.State`: `AlertDialogTitleState`
+- `AlertDialog.Trigger.Props`: `AlertDialogTriggerProps`
+- `AlertDialog.Trigger.State`: `AlertDialogTriggerState`
+- `AlertDialog.Viewport.State`: `AlertDialogViewportState`
+- `AlertDialog.Viewport.Props`: `AlertDialogViewportProps`

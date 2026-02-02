@@ -209,16 +209,38 @@ Re-export of [Link](#link) props.
 type ToolbarLinkState = { orientation: Toolbar.Root.Orientation };
 ```
 
-### Orientation
+## Additional Types
+
+### Toolbar.Orientation
 
 ```typescript
 type ToolbarOrientation = 'horizontal' | 'vertical';
 ```
 
-## Additional Types
+## Export Groups
 
-### Orientation
+- `Toolbar.Separator`: `Toolbar.Separator`, `Toolbar.Separator.Props`, `Toolbar.Separator.State`
+- `Toolbar.Root`: `Toolbar.Root`, `Toolbar.Root.ItemMetadata`, `Toolbar.Root.Orientation`, `Toolbar.Root.State`, `Toolbar.Root.Props`
+- `Toolbar.Group`: `Toolbar.Group`, `Toolbar.Group.Props`
+- `Toolbar.Button`: `Toolbar.Button`, `Toolbar.Button.State`, `Toolbar.Button.Props`
+- `Toolbar.Link`: `Toolbar.Link`, `Toolbar.Link.State`, `Toolbar.Link.Props`
+- `Toolbar.Input`: `Toolbar.Input`, `Toolbar.Input.State`, `Toolbar.Input.Props`
+- `Default`: `Toolbar.Orientation`, `Orientation`, `ToolbarRootItemMetadata`, `ToolbarRootOrientation`, `ToolbarRootState`, `ToolbarRootProps`, `ToolbarGroupProps`, `ToolbarButtonState`, `ToolbarButtonProps`, `ToolbarLinkState`, `ToolbarLinkProps`, `ToolbarInputState`, `ToolbarInputProps`, `ToolbarSeparatorProps`, `ToolbarSeparatorState`
 
-```typescript
-type Orientation = 'horizontal' | 'vertical';
-```
+## Canonical Types
+
+Maps `Canonical`: `Alias` — rename aliases to their canonical form for consistent usage.
+
+- `Toolbar.Separator.Props`: `ToolbarSeparatorProps`
+- `Toolbar.Separator.State`: `ToolbarSeparatorState`
+- `Toolbar.Root.ItemMetadata`: `ToolbarRootItemMetadata`
+- `Toolbar.Root.Orientation`: `ToolbarRootOrientation`
+- `Toolbar.Root.State`: `ToolbarRootState`
+- `Toolbar.Root.Props`: `ToolbarRootProps`
+- `Toolbar.Group.Props`: `ToolbarGroupProps`
+- `Toolbar.Button.State`: `ToolbarButtonState`
+- `Toolbar.Button.Props`: `ToolbarButtonProps`
+- `Toolbar.Link.State`: `ToolbarLinkState`
+- `Toolbar.Link.Props`: `ToolbarLinkProps`
+- `Toolbar.Input.State`: `ToolbarInputState`
+- `Toolbar.Input.Props`: `ToolbarInputProps`

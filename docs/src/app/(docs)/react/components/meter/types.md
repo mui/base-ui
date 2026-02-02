@@ -102,3 +102,23 @@ Renders a `<span>` element.
 ### Label.Props
 
 Re-export of [Label](#label) props.
+
+## Export Groups
+
+- `Meter.Root`: `Meter.Root`, `Meter.Root.State`, `Meter.Root.Props`
+- `Meter.Track`: `Meter.Track`, `Meter.Track.Props`
+- `Meter.Indicator`: `Meter.Indicator`, `Meter.Indicator.Props`
+- `Meter.Value`: `Meter.Value`, `Meter.Value.Props`
+- `Meter.Label`: `Meter.Label`, `Meter.Label.Props`
+- `Default`: `MeterRootState`, `MeterRootProps`, `MeterIndicatorProps`, `MeterLabelProps`, `MeterTrackProps`, `MeterValueProps`
+
+## Canonical Types
+
+Maps `Canonical`: `Alias` — rename aliases to their canonical form for consistent usage.
+
+- `Meter.Root.State`: `MeterRootState`
+- `Meter.Root.Props`: `MeterRootProps`
+- `Meter.Track.Props`: `MeterTrackProps`
+- `Meter.Indicator.Props`: `MeterIndicatorProps`
+- `Meter.Value.Props`: `MeterValueProps`
+- `Meter.Label.Props`: `MeterLabelProps`

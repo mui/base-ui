@@ -70,3 +70,19 @@ Re-export of [Fallback](#fallback) props.
 ```typescript
 type ImageLoadingStatus = 'idle' | 'loading' | 'loaded' | 'error';
 ```
+
+## Export Groups
+
+- `Avatar.Root`: `Avatar.Root`, `Avatar.Root.State`, `Avatar.Root.Props`
+- `Avatar.Image`: `Avatar.Image`, `Avatar.Image.Props`
+- `Avatar.Fallback`: `Avatar.Fallback`, `Avatar.Fallback.Props`
+- `Default`: `ImageLoadingStatus`, `AvatarRootState`, `AvatarRootProps`, `AvatarImageProps`, `AvatarFallbackProps`
+
+## Canonical Types
+
+Maps `Canonical`: `Alias` — rename aliases to their canonical form for consistent usage.
+
+- `Avatar.Root.State`: `AvatarRootState`
+- `Avatar.Root.Props`: `AvatarRootProps`
+- `Avatar.Image.Props`: `AvatarImageProps`
+- `Avatar.Fallback.Props`: `AvatarFallbackProps`

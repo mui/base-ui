@@ -26,3 +26,10 @@ Re-export of [CSPProvider](#cspprovider) props.
 ```typescript
 type CSPProviderState = {};
 ```
+
+## Canonical Types
+
+Maps `Canonical`: `Alias` — rename aliases to their canonical form for consistent usage.
+
+- `CSPProvider.State`: `CSPProviderState`
+- `CSPProvider.Props`: `CSPProviderProps`

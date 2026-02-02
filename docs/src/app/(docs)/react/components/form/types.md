@@ -21,6 +21,16 @@ Renders a `<form>` element.
 | style          | `React.CSSProperties \| ((state: Form.State) => React.CSSProperties \| undefined)`   | -            | -                                                                                                                                                                                                                                                                                                                                                          |
 | render         | `ReactElement \| ((props: HTMLProps, state: Form.State) => ReactElement)`            | -            | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render.                                                                                                                                                              |
 
+**`actionsRef` Prop Example:**
+
+```tsx
+// validate all fields
+actionsRef.current.validate();
+
+// validate one field
+actionsRef.current.validate('email');
+```
+
 ### Form.Props
 
 Re-export of [Form](#form) props.
@@ -60,3 +70,14 @@ type FormValidationMode = 'onSubmit' | 'onBlur' | 'onChange';
 ```typescript
 type FormValues = Record<string, any>;
 ```
+
+## Canonical Types
+
+Maps `Canonical`: `Alias` — rename aliases to their canonical form for consistent usage.
+
+- `Form.Props`: `FormProps`
+- `Form.State`: `FormState`
+- `Form.Actions`: `FormActions`
+- `Form.ValidationMode`: `FormValidationMode`
+- `Form.SubmitEventReason`: `FormSubmitEventReason`
+- `Form.SubmitEventDetails`: `FormSubmitEventDetails`

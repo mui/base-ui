@@ -133,3 +133,20 @@ type SwitchThumbState = {
   focused: boolean;
 };
 ```
+
+## Export Groups
+
+- `Switch.Root`: `Switch.Root`, `Switch.Root.State`, `Switch.Root.Props`, `Switch.Root.ChangeEventReason`, `Switch.Root.ChangeEventDetails`
+- `Switch.Thumb`: `Switch.Thumb`, `Switch.Thumb.Props`, `Switch.Thumb.State`
+- `Default`: `SwitchRootState`, `SwitchRootProps`, `SwitchRootChangeEventReason`, `SwitchRootChangeEventDetails`, `SwitchThumbProps`, `SwitchThumbState`
+
+## Canonical Types
+
+Maps `Canonical`: `Alias` — rename aliases to their canonical form for consistent usage.
+
+- `Switch.Root.State`: `SwitchRootState`
+- `Switch.Root.Props`: `SwitchRootProps`
+- `Switch.Root.ChangeEventReason`: `SwitchRootChangeEventReason`
+- `Switch.Root.ChangeEventDetails`: `SwitchRootChangeEventDetails`
+- `Switch.Thumb.Props`: `SwitchThumbProps`
+- `Switch.Thumb.State`: `SwitchThumbState`

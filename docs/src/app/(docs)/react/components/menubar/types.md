@@ -37,3 +37,10 @@ type MenubarState = { orientation: MenuRoot.Orientation; modal: boolean; hasSubm
 ```typescript
 type Orientation = 'horizontal' | 'vertical';
 ```
+
+## Canonical Types
+
+Maps `Canonical`: `Alias` — rename aliases to their canonical form for consistent usage.
+
+- `Menubar.State`: `MenubarState`
+- `Menubar.Props`: `MenubarProps`

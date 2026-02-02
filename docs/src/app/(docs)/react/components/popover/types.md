@@ -271,6 +271,38 @@ Renders a `<div>` element.
 | style                 | `React.CSSProperties \| ((state: Popover.Positioner.State) => React.CSSProperties \| undefined)`                     | -                      | -                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
 | render                | `ReactElement \| ((props: HTMLProps, state: Popover.Positioner.State) => ReactElement)`                              | -                      | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render.                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
 
+**`alignOffset` Prop Example:**
+
+```jsx
+<Positioner
+  alignOffset={({ side, align, anchor, positioner }) => {
+    return side === 'top' || side === 'bottom' ? anchor.width : anchor.height;
+  }}
+/>
+```
+
+**`sideOffset` Prop Example:**
+
+```jsx
+<Positioner
+  sideOffset={({ side, align, anchor, positioner }) => {
+    return side === 'top' || side === 'bottom' ? anchor.height : anchor.width;
+  }}
+/>
+```
+
+**`collisionAvoidance` Prop Example:**
+
+```jsx
+<Positioner
+  collisionAvoidance={{
+    side: 'shift',
+    align: 'shift',
+    fallbackAxisSide: 'none',
+  }}
+/>
+```
+
 **Positioner Data Attributes:**
 
 | Attribute          | Type                                                                       | Description                                                           |
@@ -579,3 +611,47 @@ type OffsetFunction = (data: {
   positioner: { width: number; height: number };
 }) => number;
 ```
+
+## Export Groups
+
+- `Popover.Root`: `Popover.Root`, `Popover.Root.State`, `Popover.Root.Props`, `Popover.Root.Actions`, `Popover.Root.ChangeEventReason`, `Popover.Root.ChangeEventDetails`
+- `Popover.Trigger`: `Popover.Trigger`, `Popover.Trigger.State`, `Popover.Trigger.Props`
+- `Popover.Portal`: `Popover.Portal`, `Popover.Portal.State`, `Popover.Portal.Props`, `Popover.Portal.State`, `Popover.Portal.Props`
+- `Popover.Positioner`: `Popover.Positioner`, `Popover.Positioner.State`, `Popover.Positioner.Props`
+- `Popover.Popup`: `Popover.Popup`, `Popover.Popup.State`, `Popover.Popup.Props`
+- `Popover.Arrow`: `Popover.Arrow`, `Popover.Arrow.State`, `Popover.Arrow.Props`
+- `Popover.Backdrop`: `Popover.Backdrop`, `Popover.Backdrop.State`, `Popover.Backdrop.Props`
+- `Popover.Title`: `Popover.Title`, `Popover.Title.State`, `Popover.Title.Props`
+- `Popover.Description`: `Popover.Description`, `Popover.Description.State`, `Popover.Description.Props`
+- `Popover.Close`: `Popover.Close`, `Popover.Close.State`, `Popover.Close.Props`
+- `Popover.Viewport`: `Popover.Viewport`, `Popover.Viewport.Props`, `Popover.Viewport.State`
+- `Popover.createHandle`
+- `Popover.Handle`
+- `Default`: `PopoverRootState`, `PopoverRootProps`, `PopoverRootActions`, `PopoverRootChangeEventReason`, `PopoverRootChangeEventDetails`, `PopoverTriggerState`, `PopoverTriggerProps`, `PopoverPortalProps`, `PopoverPositionerState`, `PopoverPositionerProps`, `PopoverPopupState`, `PopoverPopupProps`, `PopoverArrowState`, `PopoverArrowProps`, `PopoverBackdropState`, `PopoverBackdropProps`, `PopoverTitleState`, `PopoverTitleProps`, `PopoverDescriptionState`, `PopoverDescriptionProps`, `PopoverCloseState`, `PopoverCloseProps`
+
+## Canonical Types
+
+Maps `Canonical`: `Alias` — rename aliases to their canonical form for consistent usage.
+
+- `Popover.Root.State`: `PopoverRootState`
+- `Popover.Root.Props`: `PopoverRootProps`
+- `Popover.Root.Actions`: `PopoverRootActions`
+- `Popover.Root.ChangeEventReason`: `PopoverRootChangeEventReason`
+- `Popover.Root.ChangeEventDetails`: `PopoverRootChangeEventDetails`
+- `Popover.Trigger.State`: `PopoverTriggerState`
+- `Popover.Trigger.Props`: `PopoverTriggerProps`
+- `Popover.Portal.Props`: `PopoverPortalProps`
+- `Popover.Positioner.State`: `PopoverPositionerState`
+- `Popover.Positioner.Props`: `PopoverPositionerProps`
+- `Popover.Popup.State`: `PopoverPopupState`
+- `Popover.Popup.Props`: `PopoverPopupProps`
+- `Popover.Arrow.State`: `PopoverArrowState`
+- `Popover.Arrow.Props`: `PopoverArrowProps`
+- `Popover.Backdrop.State`: `PopoverBackdropState`
+- `Popover.Backdrop.Props`: `PopoverBackdropProps`
+- `Popover.Title.State`: `PopoverTitleState`
+- `Popover.Title.Props`: `PopoverTitleProps`
+- `Popover.Description.State`: `PopoverDescriptionState`
+- `Popover.Description.Props`: `PopoverDescriptionProps`
+- `Popover.Close.State`: `PopoverCloseState`
+- `Popover.Close.Props`: `PopoverCloseProps`

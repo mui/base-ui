@@ -114,6 +114,15 @@ Renders a `<div>` element.
 | style        | `React.CSSProperties \| ((state: Accordion.Item.State) => React.CSSProperties \| undefined)` | -       | -                                                                                                                                                                                                                           |
 | render       | `ReactElement \| ((props: HTMLProps, state: Accordion.Item.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render.                               |
 
+**`value` Prop Example:**
+
+```tsx
+<Accordion.Root value={['a']}>
+  <Accordion.Item value="a" /> // initially open
+  <Accordion.Item value="b" /> // initially closed
+</Accordion.Root>
+```
+
 **Item Data Attributes:**
 
 | Attribute     | Type     | Description                                  |
@@ -258,3 +267,29 @@ type AccordionValue = any[];
 ```typescript
 type Orientation = 'horizontal' | 'vertical';
 ```
+
+## Export Groups
+
+- `Accordion.Root`: `Accordion.Root`, `Accordion.Root.State`, `Accordion.Root.Props`, `Accordion.Root.ChangeEventReason`, `Accordion.Root.ChangeEventDetails`
+- `Accordion.Item`: `Accordion.Item`, `Accordion.Item.State`, `Accordion.Item.Props`, `Accordion.Item.ChangeEventReason`, `Accordion.Item.ChangeEventDetails`
+- `Accordion.Header`: `Accordion.Header`, `Accordion.Header.Props`
+- `Accordion.Trigger`: `Accordion.Trigger`, `Accordion.Trigger.Props`
+- `Accordion.Panel`: `Accordion.Panel`, `Accordion.Panel.State`, `Accordion.Panel.Props`
+- `Default`: `AccordionValue`, `AccordionRootState`, `AccordionRootProps`, `AccordionRootChangeEventReason`, `AccordionRootChangeEventDetails`, `AccordionItemState`, `AccordionItemProps`, `AccordionItemChangeEventReason`, `AccordionItemChangeEventDetails`, `AccordionHeaderProps`, `AccordionTriggerProps`, `AccordionPanelState`, `AccordionPanelProps`
+
+## Canonical Types
+
+Maps `Canonical`: `Alias` — rename aliases to their canonical form for consistent usage.
+
+- `Accordion.Root.State`: `AccordionRootState`
+- `Accordion.Root.Props`: `AccordionRootProps`
+- `Accordion.Root.ChangeEventReason`: `AccordionRootChangeEventReason`
+- `Accordion.Root.ChangeEventDetails`: `AccordionRootChangeEventDetails`
+- `Accordion.Item.State`: `AccordionItemState`
+- `Accordion.Item.Props`: `AccordionItemProps`
+- `Accordion.Item.ChangeEventReason`: `AccordionItemChangeEventReason`
+- `Accordion.Item.ChangeEventDetails`: `AccordionItemChangeEventDetails`
+- `Accordion.Header.Props`: `AccordionHeaderProps`
+- `Accordion.Trigger.Props`: `AccordionTriggerProps`
+- `Accordion.Panel.State`: `AccordionPanelState`
+- `Accordion.Panel.Props`: `AccordionPanelProps`

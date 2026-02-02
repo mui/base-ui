@@ -63,3 +63,12 @@ type CheckboxGroupChangeEventDetails = {
   trigger: Element | undefined;
 };
 ```
+
+## Canonical Types
+
+Maps `Canonical`: `Alias` — rename aliases to their canonical form for consistent usage.
+
+- `CheckboxGroup.State`: `CheckboxGroupState`
+- `CheckboxGroup.Props`: `CheckboxGroupProps`
+- `CheckboxGroup.ChangeEventReason`: `CheckboxGroupChangeEventReason`
+- `CheckboxGroup.ChangeEventDetails`: `CheckboxGroupChangeEventDetails`

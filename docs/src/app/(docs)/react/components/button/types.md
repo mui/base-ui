@@ -34,3 +34,10 @@ Re-export of [Button](#button) props.
 ```typescript
 type ButtonState = { disabled: boolean };
 ```
+
+## Canonical Types
+
+Maps `Canonical`: `Alias` — rename aliases to their canonical form for consistent usage.
+
+- `Button.State`: `ButtonState`
+- `Button.Props`: `ButtonProps`

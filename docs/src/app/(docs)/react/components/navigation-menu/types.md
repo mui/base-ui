@@ -293,6 +293,38 @@ Renders a `<div>` element.
 | style                 | `React.CSSProperties \| ((state: NavigationMenu.Positioner.State) => React.CSSProperties \| undefined)`              | -                      | -                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
 | render                | `ReactElement \| ((props: HTMLProps, state: NavigationMenu.Positioner.State) => ReactElement)`                       | -                      | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render.                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
 
+**`alignOffset` Prop Example:**
+
+```jsx
+<Positioner
+  alignOffset={({ side, align, anchor, positioner }) => {
+    return side === 'top' || side === 'bottom' ? anchor.width : anchor.height;
+  }}
+/>
+```
+
+**`sideOffset` Prop Example:**
+
+```jsx
+<Positioner
+  sideOffset={({ side, align, anchor, positioner }) => {
+    return side === 'top' || side === 'bottom' ? anchor.height : anchor.width;
+  }}
+/>
+```
+
+**`collisionAvoidance` Prop Example:**
+
+```jsx
+<Positioner
+  collisionAvoidance={{
+    side: 'shift',
+    align: 'shift',
+    fallbackAxisSide: 'none',
+  }}
+/>
+```
+
 **Positioner Data Attributes:**
 
 | Attribute          | Type                                                                       | Description                                                           |
@@ -552,3 +584,53 @@ type OffsetFunction = (data: {
   positioner: { width: number; height: number };
 }) => number;
 ```
+
+## Export Groups
+
+- `NavigationMenu.Root`: `NavigationMenu.Root`, `NavigationMenu.Root.State`, `NavigationMenu.Root.Props`, `NavigationMenu.Root.Actions`, `NavigationMenu.Root.ChangeEventReason`, `NavigationMenu.Root.ChangeEventDetails`
+- `NavigationMenu.List`: `NavigationMenu.List`, `NavigationMenu.List.State`, `NavigationMenu.List.Props`
+- `NavigationMenu.Item`: `NavigationMenu.Item`, `NavigationMenu.Item.State`, `NavigationMenu.Item.Props`
+- `NavigationMenu.Content`: `NavigationMenu.Content`, `NavigationMenu.Content.State`, `NavigationMenu.Content.Props`
+- `NavigationMenu.Trigger`: `NavigationMenu.Trigger`, `NavigationMenu.Trigger.State`, `NavigationMenu.Trigger.Props`
+- `NavigationMenu.Portal`: `NavigationMenu.Portal`, `NavigationMenu.Portal.State`, `NavigationMenu.Portal.Props`, `NavigationMenu.Portal.State`, `NavigationMenu.Portal.Props`
+- `NavigationMenu.Positioner`: `NavigationMenu.Positioner`, `NavigationMenu.Positioner.State`, `NavigationMenu.Positioner.Props`
+- `NavigationMenu.Viewport`: `NavigationMenu.Viewport`, `NavigationMenu.Viewport.State`, `NavigationMenu.Viewport.Props`
+- `NavigationMenu.Backdrop`: `NavigationMenu.Backdrop`, `NavigationMenu.Backdrop.State`, `NavigationMenu.Backdrop.Props`
+- `NavigationMenu.Popup`: `NavigationMenu.Popup`, `NavigationMenu.Popup.State`, `NavigationMenu.Popup.Props`
+- `NavigationMenu.Arrow`: `NavigationMenu.Arrow`, `NavigationMenu.Arrow.State`, `NavigationMenu.Arrow.Props`
+- `NavigationMenu.Link`: `NavigationMenu.Link`, `NavigationMenu.Link.State`, `NavigationMenu.Link.Props`
+- `NavigationMenu.Icon`: `NavigationMenu.Icon`, `NavigationMenu.Icon.State`, `NavigationMenu.Icon.Props`
+- `Default`: `NavigationMenuRootState`, `NavigationMenuRootProps`, `NavigationMenuRootActions`, `NavigationMenuRootChangeEventReason`, `NavigationMenuRootChangeEventDetails`, `NavigationMenuTriggerState`, `NavigationMenuTriggerProps`, `NavigationMenuPortalProps`, `NavigationMenuPositionerState`, `NavigationMenuPositionerProps`, `NavigationMenuViewportState`, `NavigationMenuViewportProps`, `NavigationMenuListState`, `NavigationMenuListProps`, `NavigationMenuItemState`, `NavigationMenuItemProps`, `NavigationMenuContentState`, `NavigationMenuContentProps`, `NavigationMenuPopupState`, `NavigationMenuPopupProps`, `NavigationMenuBackdropState`, `NavigationMenuBackdropProps`, `NavigationMenuArrowState`, `NavigationMenuArrowProps`, `NavigationMenuLinkState`, `NavigationMenuLinkProps`, `NavigationMenuIconState`, `NavigationMenuIconProps`
+
+## Canonical Types
+
+Maps `Canonical`: `Alias` — rename aliases to their canonical form for consistent usage.
+
+- `NavigationMenu.Root.State`: `NavigationMenuRootState`
+- `NavigationMenu.Root.Props`: `NavigationMenuRootProps`
+- `NavigationMenu.Root.Actions`: `NavigationMenuRootActions`
+- `NavigationMenu.Root.ChangeEventReason`: `NavigationMenuRootChangeEventReason`
+- `NavigationMenu.Root.ChangeEventDetails`: `NavigationMenuRootChangeEventDetails`
+- `NavigationMenu.List.State`: `NavigationMenuListState`
+- `NavigationMenu.List.Props`: `NavigationMenuListProps`
+- `NavigationMenu.Item.State`: `NavigationMenuItemState`
+- `NavigationMenu.Item.Props`: `NavigationMenuItemProps`
+- `NavigationMenu.Content.State`: `NavigationMenuContentState`
+- `NavigationMenu.Content.Props`: `NavigationMenuContentProps`
+- `NavigationMenu.Trigger.State`: `NavigationMenuTriggerState`
+- `NavigationMenu.Trigger.Props`: `NavigationMenuTriggerProps`
+- `NavigationMenu.Portal.Props`: `NavigationMenuPortalProps`
+- `NavigationMenu.Positioner.State`: `NavigationMenuPositionerState`
+- `NavigationMenu.Positioner.Props`: `NavigationMenuPositionerProps`
+- `NavigationMenu.Viewport.State`: `NavigationMenuViewportState`
+- `NavigationMenu.Viewport.Props`: `NavigationMenuViewportProps`
+- `NavigationMenu.Backdrop.State`: `NavigationMenuBackdropState`
+- `NavigationMenu.Backdrop.Props`: `NavigationMenuBackdropProps`
+- `NavigationMenu.Popup.State`: `NavigationMenuPopupState`
+- `NavigationMenu.Popup.Props`: `NavigationMenuPopupProps`
+- `NavigationMenu.Arrow.State`: `NavigationMenuArrowState`
+- `NavigationMenu.Arrow.Props`: `NavigationMenuArrowProps`
+- `NavigationMenu.Link.State`: `NavigationMenuLinkState`
+- `NavigationMenu.Link.Props`: `NavigationMenuLinkProps`
+- `NavigationMenu.Icon.State`: `NavigationMenuIconState`
+- `NavigationMenu.Icon.Props`: `NavigationMenuIconProps`

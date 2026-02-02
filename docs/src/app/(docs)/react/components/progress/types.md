@@ -143,8 +143,31 @@ Renders a `<span>` element.
 
 Re-export of [Label](#label) props.
 
-### Status
+## Additional Types
+
+### Progress.Status
 
 ```typescript
 type ProgressStatus = 'indeterminate' | 'progressing' | 'complete';
 ```
+
+## Export Groups
+
+- `Progress.Root`: `Progress.Root`, `Progress.Root.State`, `Progress.Root.Props`
+- `Progress.Track`: `Progress.Track`, `Progress.Track.Props`
+- `Progress.Indicator`: `Progress.Indicator`, `Progress.Indicator.Props`
+- `Progress.Value`: `Progress.Value`, `Progress.Value.Props`
+- `Progress.Label`: `Progress.Label`, `Progress.Label.Props`
+- `Default`: `Progress.Status`, `ProgressStatus`, `ProgressRootState`, `ProgressRootProps`, `ProgressIndicatorProps`, `ProgressLabelProps`, `ProgressTrackProps`, `ProgressValueProps`
+
+## Canonical Types
+
+Maps `Canonical`: `Alias` — rename aliases to their canonical form for consistent usage.
+
+- `Progress.Root.State`: `ProgressRootState`
+- `Progress.Root.Props`: `ProgressRootProps`
+- `Progress.Track.Props`: `ProgressTrackProps`
+- `Progress.Indicator.Props`: `ProgressIndicatorProps`
+- `Progress.Value.Props`: `ProgressValueProps`
+- `Progress.Label.Props`: `ProgressLabelProps`
+- `Progress.Status`: `ProgressStatus`

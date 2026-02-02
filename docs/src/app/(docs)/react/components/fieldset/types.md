@@ -49,3 +49,18 @@ Re-export of [Legend](#legend) props.
 ```typescript
 type FieldsetLegendState = { disabled: boolean };
 ```
+
+## Export Groups
+
+- `Fieldset.Root`: `Fieldset.Root`, `Fieldset.Root.State`, `Fieldset.Root.Props`
+- `Fieldset.Legend`: `Fieldset.Legend`, `Fieldset.Legend.State`, `Fieldset.Legend.Props`
+- `Default`: `FieldsetRootState`, `FieldsetRootProps`, `FieldsetLegendState`, `FieldsetLegendProps`
+
+## Canonical Types
+
+Maps `Canonical`: `Alias` — rename aliases to their canonical form for consistent usage.
+
+- `Fieldset.Root.State`: `FieldsetRootState`
+- `Fieldset.Root.Props`: `FieldsetRootProps`
+- `Fieldset.Legend.State`: `FieldsetLegendState`
+- `Fieldset.Legend.Props`: `FieldsetLegendProps`

@@ -35,3 +35,10 @@ type SeparatorState = { orientation: Orientation };
 ```typescript
 type Orientation = 'horizontal' | 'vertical';
 ```
+
+## Canonical Types
+
+Maps `Canonical`: `Alias` — rename aliases to their canonical form for consistent usage.
+
+- `Separator.Props`: `SeparatorProps`
+- `Separator.State`: `SeparatorState`

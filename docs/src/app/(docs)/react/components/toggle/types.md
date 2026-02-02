@@ -58,3 +58,12 @@ type ToggleChangeEventDetails = {
   trigger: Element | undefined;
 };
 ```
+
+## Canonical Types
+
+Maps `Canonical`: `Alias` — rename aliases to their canonical form for consistent usage.
+
+- `Toggle.State`: `ToggleState`
+- `Toggle.Props`: `ToggleProps`
+- `Toggle.ChangeEventReason`: `ToggleChangeEventReason`
+- `Toggle.ChangeEventDetails`: `ToggleChangeEventDetails`

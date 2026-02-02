@@ -98,3 +98,18 @@ Re-export of [Indicator](#indicator) props.
 ```typescript
 type RadioIndicatorState = { checked: boolean; transitionStatus: TransitionStatus };
 ```
+
+## Export Groups
+
+- `Radio.Root`: `Radio.Root`, `Radio.Root.State`, `Radio.Root.Props`
+- `Radio.Indicator`: `Radio.Indicator`, `Radio.Indicator.Props`, `Radio.Indicator.State`
+- `Default`: `RadioRootState`, `RadioRootProps`, `RadioIndicatorProps`, `RadioIndicatorState`
+
+## Canonical Types
+
+Maps `Canonical`: `Alias` — rename aliases to their canonical form for consistent usage.
+
+- `Radio.Root.State`: `RadioRootState`
+- `Radio.Root.Props`: `RadioRootProps`
+- `Radio.Indicator.Props`: `RadioIndicatorProps`
+- `Radio.Indicator.State`: `RadioIndicatorState`

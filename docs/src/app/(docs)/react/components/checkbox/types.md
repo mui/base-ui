@@ -143,3 +143,20 @@ type CheckboxIndicatorState = {
   focused: boolean;
 };
 ```
+
+## Export Groups
+
+- `Checkbox.Root`: `Checkbox.Root`, `Checkbox.Root.State`, `Checkbox.Root.Props`, `Checkbox.Root.ChangeEventReason`, `Checkbox.Root.ChangeEventDetails`
+- `Checkbox.Indicator`: `Checkbox.Indicator`, `Checkbox.Indicator.State`, `Checkbox.Indicator.Props`
+- `Default`: `CheckboxRootState`, `CheckboxRootProps`, `CheckboxRootChangeEventReason`, `CheckboxRootChangeEventDetails`, `CheckboxIndicatorState`, `CheckboxIndicatorProps`
+
+## Canonical Types
+
+Maps `Canonical`: `Alias` — rename aliases to their canonical form for consistent usage.
+
+- `Checkbox.Root.State`: `CheckboxRootState`
+- `Checkbox.Root.Props`: `CheckboxRootProps`
+- `Checkbox.Root.ChangeEventReason`: `CheckboxRootChangeEventReason`
+- `Checkbox.Root.ChangeEventDetails`: `CheckboxRootChangeEventDetails`
+- `Checkbox.Indicator.State`: `CheckboxIndicatorState`
+- `Checkbox.Indicator.Props`: `CheckboxIndicatorProps`

@@ -34,3 +34,9 @@ type ReturnValue = TextDirection;
 ```typescript
 type TextDirection = 'ltr' | 'rtl';
 ```
+
+## Canonical Types
+
+Maps `Canonical`: `Alias` — rename aliases to their canonical form for consistent usage.
+
+- `DirectionProvider.Props`: `DirectionProviderProps`

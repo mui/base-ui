@@ -81,11 +81,11 @@ type SliderRootChangeEventReason = 'input-change' | 'track-press' | 'drag' | 'ke
 
 ```typescript
 type SliderRootChangeEventDetails =
-  | BaseUIChangeEventDetail<'none', Slider.Root.ChangeEventCustomProperties>
-  | BaseUIChangeEventDetail<'input-change', Slider.Root.ChangeEventCustomProperties>
-  | BaseUIChangeEventDetail<'track-press', Slider.Root.ChangeEventCustomProperties>
-  | BaseUIChangeEventDetail<'drag', Slider.Root.ChangeEventCustomProperties>
-  | BaseUIChangeEventDetail<'keyboard', Slider.Root.ChangeEventCustomProperties>;
+  | BaseUIChangeEventDetail<'none', SliderRootChangeEventCustomProperties>
+  | BaseUIChangeEventDetail<'input-change', SliderRootChangeEventCustomProperties>
+  | BaseUIChangeEventDetail<'track-press', SliderRootChangeEventCustomProperties>
+  | BaseUIChangeEventDetail<'drag', SliderRootChangeEventCustomProperties>
+  | BaseUIChangeEventDetail<'keyboard', SliderRootChangeEventCustomProperties>;
 ```
 
 ### Root.CommitEventReason
@@ -217,6 +217,15 @@ Renders a `<div>` element and a nested `<input type="range">`.
 | style            | `React.CSSProperties \| ((state: Slider.Thumb.State) => React.CSSProperties \| undefined)` | -       | -                                                                                                                                                                                                                                                |
 | render           | `ReactElement \| ((props: HTMLProps, state: Slider.Thumb.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render.                                                    |
 
+**`index` Prop Example:**
+
+```tsx
+<Slider.Root value={[10, 20]}>
+  <Slider.Thumb index={0} />
+  <Slider.Thumb index={1} />
+</Slider.Root>
+```
+
 **Thumb Data Attributes:**
 
 | Attribute        | Type                         | Description                                                               |
@@ -328,3 +337,30 @@ type ThumbMetadata = { inputId: string | null | undefined };
 ```typescript
 type Orientation = 'horizontal' | 'vertical';
 ```
+
+## Export Groups
+
+- `Slider.Root`: `Slider.Root`, `Slider.Root.State`, `Slider.Root.Props`, `Slider.Root.ChangeEventReason`, `Slider.Root.ChangeEventDetails`, `Slider.Root.CommitEventReason`, `Slider.Root.CommitEventDetails`
+- `Slider.Value`: `Slider.Value`, `Slider.Value.Props`
+- `Slider.Control`: `Slider.Control`, `Slider.Control.State`, `Slider.Control.Props`
+- `Slider.Track`: `Slider.Track`, `Slider.Track.Props`
+- `Slider.Thumb`: `Slider.Thumb`, `Slider.Thumb.State`, `Slider.Thumb.Props`
+- `Slider.Indicator`: `Slider.Indicator`, `Slider.Indicator.Props`
+- `Default`: `SliderRootState`, `SliderRootProps`, `SliderRootChangeEventCustomProperties`, `SliderRootChangeEventReason`, `SliderRootChangeEventDetails`, `SliderRootCommitEventReason`, `SliderRootCommitEventDetails`, `SliderValueProps`, `SliderControlProps`, `SliderTrackProps`, `ThumbMetadata`, `SliderThumbState`, `SliderThumbProps`, `SliderIndicatorProps`
+
+## Canonical Types
+
+Maps `Canonical`: `Alias` — rename aliases to their canonical form for consistent usage.
+
+- `Slider.Root.State`: `SliderRootState`
+- `Slider.Root.Props`: `SliderRootProps`
+- `Slider.Root.ChangeEventReason`: `SliderRootChangeEventReason`
+- `Slider.Root.ChangeEventDetails`: `SliderRootChangeEventDetails`
+- `Slider.Root.CommitEventReason`: `SliderRootCommitEventReason`
+- `Slider.Root.CommitEventDetails`: `SliderRootCommitEventDetails`
+- `Slider.Value.Props`: `SliderValueProps`
+- `Slider.Control.Props`: `SliderControlProps`
+- `Slider.Track.Props`: `SliderTrackProps`
+- `Slider.Thumb.State`: `SliderThumbState`
+- `Slider.Thumb.Props`: `SliderThumbProps`
+- `Slider.Indicator.Props`: `SliderIndicatorProps`

@@ -327,7 +327,9 @@ type FieldValidityState = {
 };
 ```
 
-### ValidityData
+## Additional Types
+
+### Field.ValidityData
 
 ```typescript
 type FieldValidityData = {
@@ -358,3 +360,36 @@ type FieldValidityData = {
 ```typescript
 type ValidationMode = 'onSubmit' | 'onBlur' | 'onChange';
 ```
+
+## Export Groups
+
+- `Field.Root`: `Field.Root`, `Field.Root.State`, `Field.Root.Props`, `Field.Root.Actions`
+- `Field.Label`: `Field.Label`, `Field.Label.State`, `Field.Label.Props`
+- `Field.Error`: `Field.Error`, `Field.Error.State`, `Field.Error.Props`
+- `Field.Description`: `Field.Description`, `Field.Description.State`, `Field.Description.Props`
+- `Field.Control`: `Field.Control`, `Field.Control.State`, `Field.Control.Props`, `Field.Control.ChangeEventReason`, `Field.Control.ChangeEventDetails`
+- `Field.Validity`: `Field.Validity`, `Field.Validity.State`, `Field.Validity.Props`
+- `Field.Item`: `Field.Item`, `Field.Item.State`, `Field.Item.Props`
+- `Default`: `Field.ValidityData`, `FieldValidityData`, `FieldRootActions`, `FieldRootState`, `FieldRootProps`, `FieldLabelState`, `FieldLabelProps`, `FieldDescriptionState`, `FieldDescriptionProps`, `FieldErrorState`, `FieldErrorProps`, `FieldControlState`, `FieldControlProps`, `FieldControlChangeEventReason`, `FieldControlChangeEventDetails`, `FieldValidityState`, `FieldValidityProps`, `FieldItemProps`
+
+## Canonical Types
+
+Maps `Canonical`: `Alias` — rename aliases to their canonical form for consistent usage.
+
+- `Field.Root.State`: `FieldRootState`
+- `Field.Root.Props`: `FieldRootProps`
+- `Field.Root.Actions`: `FieldRootActions`
+- `Field.Label.State`: `FieldLabelState`
+- `Field.Label.Props`: `FieldLabelProps`
+- `Field.Error.State`: `FieldErrorState`
+- `Field.Error.Props`: `FieldErrorProps`
+- `Field.Description.State`: `FieldDescriptionState`
+- `Field.Description.Props`: `FieldDescriptionProps`
+- `Field.Control.State`: `FieldControlState`
+- `Field.Control.Props`: `FieldControlProps`
+- `Field.Control.ChangeEventReason`: `FieldControlChangeEventReason`
+- `Field.Control.ChangeEventDetails`: `FieldControlChangeEventDetails`
+- `Field.Validity.State`: `FieldValidityState`
+- `Field.Validity.Props`: `FieldValidityProps`
+- `Field.Item.Props`: `FieldItemProps`
+- `Field.ValidityData`: `FieldValidityData`

@@ -275,3 +275,30 @@ type OverflowEdges = __object;
 ```typescript
 type Size = __object;
 ```
+
+## Export Groups
+
+- `ScrollArea.Root`: `ScrollArea.Root`, `ScrollArea.Root.State`, `ScrollArea.Root.Props`
+- `ScrollArea.Viewport`: `ScrollArea.Viewport`, `ScrollArea.Viewport.Props`, `ScrollArea.Viewport.State`
+- `ScrollArea.Scrollbar`: `ScrollArea.Scrollbar`, `ScrollArea.Scrollbar.State`, `ScrollArea.Scrollbar.Props`
+- `ScrollArea.Content`: `ScrollArea.Content`, `ScrollArea.Content.State`, `ScrollArea.Content.Props`
+- `ScrollArea.Thumb`: `ScrollArea.Thumb`, `ScrollArea.Thumb.State`, `ScrollArea.Thumb.Props`
+- `ScrollArea.Corner`: `ScrollArea.Corner`, `ScrollArea.Corner.State`, `ScrollArea.Corner.Props`
+- `Default`: `HiddenState`, `OverflowEdges`, `Size`, `Coords`, `ScrollAreaRootState`, `ScrollAreaRootProps`, `ScrollAreaViewportProps`, `ScrollAreaViewportState`, `ScrollAreaScrollbarState`, `ScrollAreaScrollbarProps`, `ScrollAreaContentState`, `ScrollAreaContentProps`, `ScrollAreaThumbState`, `ScrollAreaThumbProps`, `ScrollAreaCornerState`, `ScrollAreaCornerProps`
+
+## Canonical Types
+
+Maps `Canonical`: `Alias` — rename aliases to their canonical form for consistent usage.
+
+- `ScrollArea.Root.State`: `ScrollAreaRootState`
+- `ScrollArea.Root.Props`: `ScrollAreaRootProps`
+- `ScrollArea.Viewport.Props`: `ScrollAreaViewportProps`
+- `ScrollArea.Viewport.State`: `ScrollAreaViewportState`
+- `ScrollArea.Scrollbar.State`: `ScrollAreaScrollbarState`
+- `ScrollArea.Scrollbar.Props`: `ScrollAreaScrollbarProps`
+- `ScrollArea.Content.State`: `ScrollAreaContentState`
+- `ScrollArea.Content.Props`: `ScrollAreaContentProps`
+- `ScrollArea.Thumb.State`: `ScrollAreaThumbState`
+- `ScrollArea.Thumb.Props`: `ScrollAreaThumbProps`
+- `ScrollArea.Corner.State`: `ScrollAreaCornerState`
+- `ScrollArea.Corner.Props`: `ScrollAreaCornerProps`
