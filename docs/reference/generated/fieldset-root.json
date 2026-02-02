@@ -1,6 +1,6 @@
 {
   "name": "FieldsetRoot",
-  "description": "Groups the fieldset legend and the associated fields.\nRenders a `<fieldset>` element.",
+  "description": "Groups a shared legend with related controls.\nUse this when one label applies to multiple controls.\nFor checkbox and radio options, wrap each item with `<Field.Item>`.\nRenders a `<fieldset>` element.",
   "props": {
     "className": {
       "type": "string | ((state: Fieldset.Root.State) => string | undefined)",
