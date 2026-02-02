@@ -1,0 +1,52 @@
+{
+  "name": "PreviewCardViewport",
+  "description": "A viewport for displaying content transitions.\nThis component is only required if one popup can be opened by multiple triggers, its content change based on the trigger\nand switching between them is animated.\nRenders a `<div>` element.",
+  "props": {
+    "children": {
+      "type": "ReactNode",
+      "description": "The content to render inside the transition container.",
+      "detailedType": "React.ReactNode"
+    },
+    "className": {
+      "type": "string | ((state: PreviewCard.Viewport.State) => string | undefined)",
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
+      "detailedType": "| string\n| ((\n    state: PreviewCard.Viewport.State,\n  ) => string | undefined)"
+    },
+    "style": {
+      "type": "CSSProperties | ((state: PreviewCard.Viewport.State) => CSSProperties | undefined)",
+      "detailedType": "| React.CSSProperties\n| ((\n    state: PreviewCard.Viewport.State,\n  ) => CSSProperties | undefined)\n| undefined"
+    },
+    "render": {
+      "type": "ReactElement | ((props: HTMLProps, state: PreviewCard.Viewport.State) => ReactElement)",
+      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render.",
+      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: PreviewCard.Viewport.State,\n  ) => ReactElement)"
+    }
+  },
+  "dataAttributes": {
+    "data-activation-direction": {
+      "description": "Indicates the direction from which the popup was activated.\nThis can be used to create directional animations based on how the popup was triggered.\nContains space-separated values for both horizontal and vertical axes.",
+      "type": "`${'left' | 'right'} {'top' | 'bottom'}`"
+    },
+    "data-current": {
+      "description": "Applied to the direct child of the viewport when no transitions are present or the new content when it's entering."
+    },
+    "data-instant": {
+      "description": "Present if animations should be instant.",
+      "type": "'delay' | 'dismiss' | 'focus'"
+    },
+    "data-previous": {
+      "description": "Applied to the direct child of the viewport that contains the exiting content when transitions are present."
+    },
+    "data-transitioning": {
+      "description": "Indicates that the viewport is currently transitioning between old and new content."
+    }
+  },
+  "cssVariables": {
+    "--popup-height": {
+      "description": "The height of the parent popup.\nThis variable is placed on the 'previous' container and stores the height of the popup when the previous content was rendered.\nIt can be used to freeze the dimensions of the popup when animating between different content."
+    },
+    "--popup-width": {
+      "description": "The width of the parent popup.\nThis variable is placed on the 'previous' container and stores the width of the popup when the previous content was rendered.\nIt can be used to freeze the dimensions of the popup when animating between different content."
+    }
+  }
+}

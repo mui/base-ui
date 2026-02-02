@@ -259,13 +259,10 @@ function TreeContext(props: {
 
   const { open } = useNavigationMenuRootContext();
 
-  const state: NavigationMenuRoot.State = React.useMemo(
-    () => ({
-      open,
-      nested,
-    }),
-    [open, nested],
-  );
+  const state: NavigationMenuRoot.State = {
+    open,
+    nested,
+  };
 
   const element = useRenderElement(nested ? 'div' : 'nav', props.componentProps, {
     state,
@@ -298,11 +295,11 @@ export interface NavigationMenuRootProps extends BaseUIComponentProps<
   /**
    * A ref to imperative actions.
    */
-  actionsRef?: React.RefObject<NavigationMenuRoot.Actions>;
+  actionsRef?: React.RefObject<NavigationMenuRoot.Actions | null> | undefined;
   /**
    * Event handler called after any animations complete when the navigation menu is closed.
    */
-  onOpenChangeComplete?: (open: boolean) => void;
+  onOpenChangeComplete?: ((open: boolean) => void) | undefined;
   /**
    * The controlled value of the navigation menu item that should be currently open.
    * When non-nullish, the menu will be open. When nullish, the menu will be closed.
@@ -321,22 +318,24 @@ export interface NavigationMenuRootProps extends BaseUIComponentProps<
   /**
    * Callback fired when the value changes.
    */
-  onValueChange?: (value: any, eventDetails: NavigationMenuRoot.ChangeEventDetails) => void;
+  onValueChange?:
+    | ((value: any, eventDetails: NavigationMenuRoot.ChangeEventDetails) => void)
+    | undefined;
   /**
    * How long to wait before opening the navigation menu. Specified in milliseconds.
    * @default 50
    */
-  delay?: number;
+  delay?: number | undefined;
   /**
    * How long to wait before closing the navigation menu. Specified in milliseconds.
    * @default 50
    */
-  closeDelay?: number;
+  closeDelay?: number | undefined;
   /**
    * The orientation of the navigation menu.
    * @default 'horizontal'
    */
-  orientation?: 'horizontal' | 'vertical';
+  orientation?: ('horizontal' | 'vertical') | undefined;
 }
 
 export interface NavigationMenuRootActions {

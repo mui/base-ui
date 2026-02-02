@@ -46,7 +46,7 @@ export interface FloatingDelayGroupProps {
    * This is useful if you want grouping to “last” longer than the close delay,
    * for example if there is no close delay at all.
    */
-  timeoutMs?: number;
+  timeoutMs?: number | undefined;
 }
 
 /**
@@ -93,7 +93,7 @@ interface UseDelayGroupOptions {
    * Whether delay grouping should be enabled.
    * @default true
    */
-  enabled?: boolean;
+  enabled?: boolean | undefined;
   /**
    * Whether the trigger this hook is used in has opened the tooltip.
    */

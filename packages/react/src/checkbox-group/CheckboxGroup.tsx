@@ -122,13 +122,10 @@ export const CheckboxGroup = React.forwardRef(function CheckboxGroup(
     }
   });
 
-  const state: CheckboxGroup.State = React.useMemo(
-    () => ({
-      ...fieldState,
-      disabled,
-    }),
-    [fieldState, disabled],
-  );
+  const state: CheckboxGroup.State = {
+    ...fieldState,
+    disabled,
+  };
 
   const contextValue: CheckboxGroupContext = React.useMemo(
     () => ({
@@ -176,27 +173,29 @@ export interface CheckboxGroupProps extends BaseUIComponentProps<'div', Checkbox
    *
    * To render an uncontrolled checkbox group, use the `defaultValue` prop instead.
    */
-  value?: string[];
+  value?: string[] | undefined;
   /**
    * Names of the checkboxes in the group that should be initially ticked.
    *
    * To render a controlled checkbox group, use the `value` prop instead.
    */
-  defaultValue?: string[];
+  defaultValue?: string[] | undefined;
   /**
    * Event handler called when a checkbox in the group is ticked or unticked.
    * Provides the new value as an argument.
    */
-  onValueChange?: (value: string[], eventDetails: CheckboxGroupChangeEventDetails) => void;
+  onValueChange?:
+    | ((value: string[], eventDetails: CheckboxGroupChangeEventDetails) => void)
+    | undefined;
   /**
    * Names of all checkboxes in the group. Use this when creating a parent checkbox.
    */
-  allValues?: string[];
+  allValues?: string[] | undefined;
   /**
    * Whether the component should ignore user interaction.
    * @default false
    */
-  disabled?: boolean;
+  disabled?: boolean | undefined;
 }
 
 export type CheckboxGroupChangeEventReason = typeof REASONS.none;

@@ -63,14 +63,11 @@ export const Menubar = React.forwardRef(function Menubar(
 
   const id = useBaseUiId(idProp);
 
-  const state = React.useMemo(
-    () => ({
-      orientation,
-      modal,
-      hasSubmenuOpen,
-    }),
-    [orientation, modal, hasSubmenuOpen],
-  );
+  const state: Menubar.State = {
+    orientation,
+    modal,
+    hasSubmenuOpen,
+  };
 
   const contentRef = React.useRef<HTMLDivElement>(null);
   const allowMouseUpTriggerRef = React.useRef(false);
@@ -161,23 +158,23 @@ export interface MenubarProps extends BaseUIComponentProps<'div', Menubar.State>
    * Whether the menubar is modal.
    * @default true
    */
-  modal?: boolean;
+  modal?: boolean | undefined;
   /**
    * Whether the whole menubar is disabled.
    * @default false
    */
-  disabled?: boolean;
+  disabled?: boolean | undefined;
   /**
    * The orientation of the menubar.
    * @default 'horizontal'
    */
-  orientation?: MenuRoot.Orientation;
+  orientation?: MenuRoot.Orientation | undefined;
   /**
    * Whether to loop keyboard focus back to the first item
    * when the end of the list is reached while using the arrow keys.
    * @default true
    */
-  loopFocus?: boolean;
+  loopFocus?: boolean | undefined;
 }
 
 export namespace Menubar {

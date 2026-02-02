@@ -1,3 +1,4 @@
+'use client';
 import * as React from 'react';
 import { useTimeout } from '@base-ui/utils/useTimeout';
 
@@ -26,7 +27,7 @@ export interface HoverInteractionSharedState {
 }
 
 type HoverContextData = ContextData & {
-  hoverInteractionState?: HoverInteractionSharedState;
+  hoverInteractionState?: HoverInteractionSharedState | undefined;
 };
 
 export function useHoverInteractionSharedState(

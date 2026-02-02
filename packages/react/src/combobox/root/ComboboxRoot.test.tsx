@@ -102,7 +102,7 @@ describe('<Combobox.Root />', () => {
         <Combobox.Portal>
           <Combobox.Positioner>
             <Combobox.Popup aria-label="Demo">
-              <Combobox.Input data-testid="input" />
+              <Combobox.Input data-testid="input" aria-label="combobox-input" />
               <Combobox.List>
                 {(item: string) => (
                   <Combobox.Item key={item} value={item}>
@@ -121,12 +121,8 @@ describe('<Combobox.Root />', () => {
 
     expect(await screen.findByRole('listbox')).not.to.equal(null);
 
-    const input = await waitFor(() =>
-      screen.getAllByRole('combobox').find((element) => element.tagName === 'INPUT'),
-    );
-    await waitFor(() => {
-      expect(input).toHaveFocus();
-    });
+    const input = await screen.findByRole('combobox', { name: 'combobox-input' });
+    await waitFor(() => expect(input).toHaveFocus());
 
     await user.click(trigger);
     await waitFor(() => {
@@ -301,60 +297,6 @@ describe('<Combobox.Root />', () => {
         expect(cherryOption).to.have.attribute('data-selected', '');
       });
 
-      it('reconciles a controlled value when the selected item is removed', async () => {
-        const handleValueChange = spy();
-
-        function App() {
-          const [items, setItems] = React.useState(['a', 'b']);
-          const [value, setValue] = React.useState<string | null>('b');
-
-          return (
-            <React.Fragment>
-              <button type="button" onClick={() => setItems(['a'])}>
-                Remove
-              </button>
-              <Combobox.Root
-                items={items}
-                value={value}
-                defaultValue="a"
-                onValueChange={(nextValue, details) => {
-                  handleValueChange(nextValue, details);
-                  setValue(nextValue);
-                }}
-              >
-                <Combobox.Input data-testid="input" />
-                <Combobox.Portal>
-                  <Combobox.Positioner>
-                    <Combobox.Popup>
-                      <Combobox.List>
-                        {(item: string) => (
-                          <Combobox.Item key={item} value={item}>
-                            {item}
-                          </Combobox.Item>
-                        )}
-                      </Combobox.List>
-                    </Combobox.Popup>
-                  </Combobox.Positioner>
-                </Combobox.Portal>
-              </Combobox.Root>
-            </React.Fragment>
-          );
-        }
-
-        const { user } = await render(<App />);
-
-        expect(screen.getByTestId('input')).to.have.value('b');
-
-        await user.click(screen.getByRole('button', { name: 'Remove' }));
-
-        await waitFor(() => {
-          expect(handleValueChange.callCount).to.equal(1);
-          expect(handleValueChange.firstCall.args[0]).to.equal('a');
-          expect(handleValueChange.firstCall.args[1].reason).to.equal(REASONS.none);
-          expect(screen.getByTestId('input')).to.have.value('a');
-        });
-      });
-
       it('should not auto-close popup when open state is controlled', async () => {
         const items = ['apple', 'banana', 'cherry'];
 
@@ -527,57 +469,6 @@ describe('<Combobox.Root />', () => {
     });
 
     describe('multiple', () => {
-      it('reconciles a controlled value when selected items are removed', async () => {
-        const handleValueChange = spy();
-
-        function App() {
-          const [items, setItems] = React.useState(['a', 'b', 'c']);
-          const [value, setValue] = React.useState(['a', 'b']);
-
-          return (
-            <React.Fragment>
-              <button type="button" onClick={() => setItems(['a', 'c'])}>
-                Remove
-              </button>
-              <Combobox.Root
-                items={items}
-                multiple
-                value={value}
-                onValueChange={(nextValue, details) => {
-                  handleValueChange(nextValue, details);
-                  setValue(nextValue);
-                }}
-              >
-                <Combobox.Input />
-                <Combobox.Portal>
-                  <Combobox.Positioner>
-                    <Combobox.Popup>
-                      <Combobox.List>
-                        {(item: string) => (
-                          <Combobox.Item key={item} value={item}>
-                            {item}
-                          </Combobox.Item>
-                        )}
-                      </Combobox.List>
-                    </Combobox.Popup>
-                  </Combobox.Positioner>
-                </Combobox.Portal>
-              </Combobox.Root>
-            </React.Fragment>
-          );
-        }
-
-        const { user } = await render(<App />);
-
-        await user.click(screen.getByRole('button', { name: 'Remove' }));
-
-        await waitFor(() => {
-          expect(handleValueChange.callCount).to.equal(1);
-          expect(handleValueChange.firstCall.args[0]).to.deep.equal(['a']);
-          expect(handleValueChange.firstCall.args[1].reason).to.equal(REASONS.none);
-        });
-      });
-
       it('should handle multiple selection', async () => {
         const handleValueChange = spy();
 
@@ -742,7 +633,6 @@ describe('<Combobox.Root />', () => {
         const removeA = screen.getByTestId('remove-a');
 
         expect(chipA).to.have.attribute('aria-readonly', 'true');
-        expect(removeA).to.have.attribute('aria-readonly', 'true');
 
         await user.click(removeA);
         expect(screen.getByTestId('chip-a')).not.to.equal(null);
@@ -1258,7 +1148,7 @@ describe('<Combobox.Root />', () => {
   });
 
   describe('prop: id', () => {
-    it('sets the id on the hidden input', async () => {
+    it('sets the id on the input when it is outside the popup', async () => {
       await render(
         <Combobox.Root id="test-id">
           <Combobox.Input />
@@ -1275,8 +1165,35 @@ describe('<Combobox.Root />', () => {
         </Combobox.Root>,
       );
 
-      const hiddenInput = screen.getByRole('textbox', { hidden: true });
-      expect(hiddenInput).to.have.attribute('id', 'test-id');
+      const input = screen.getByRole('combobox');
+      await waitFor(() => {
+        expect(input).to.have.attribute('id', 'test-id');
+      });
+    });
+
+    it('sets the id on the trigger when the input is inside the popup', async () => {
+      await render(
+        <Combobox.Root id="test-id" defaultOpen>
+          <Combobox.Trigger data-testid="trigger">Open</Combobox.Trigger>
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.Input data-testid="input" />
+                <Combobox.List>
+                  <Combobox.Item value="a">a</Combobox.Item>
+                  <Combobox.Item value="b">b</Combobox.Item>
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+      const input = screen.getByTestId('input');
+
+      expect(trigger).to.have.attribute('id', 'test-id');
+      expect(input).to.not.have.attribute('id', 'test-id');
     });
   });
 
@@ -1413,7 +1330,7 @@ describe('<Combobox.Root />', () => {
   });
 
   describe('prop: readOnly', () => {
-    it('should render readOnly state on all interactive components', async () => {
+    it('should render readOnly state on the input and disable interactions', async () => {
       const { user } = await render(
         <Combobox.Root readOnly>
           <Combobox.Input data-testid="input" />
@@ -1440,7 +1357,6 @@ describe('<Combobox.Root />', () => {
 
       expect(input).to.have.attribute('aria-readonly', 'true');
       expect(input).to.have.attribute('readonly');
-      expect(trigger).to.have.attribute('aria-readonly', 'true');
 
       // Verify interactions are disabled
       await user.click(trigger);
@@ -1582,6 +1498,24 @@ describe('<Combobox.Root />', () => {
       const input = screen.getByRole('combobox');
       await user.click(screen.getByText('Canada'));
       expect(input).to.have.value('Canada');
+    });
+
+    it('shows the label for a controlled object value not in items', async () => {
+      const value = { country: 'Japan', code: 'JP' };
+
+      await render(
+        <Combobox.Root
+          items={items}
+          value={value}
+          itemToStringLabel={(item) => item.country}
+          itemToStringValue={(item) => item.code}
+        >
+          <Combobox.Input />
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByRole('combobox');
+      expect(input).to.have.value('Japan');
     });
   });
 
@@ -1810,7 +1744,7 @@ describe('<Combobox.Root />', () => {
       );
 
       const input = screen.getByRole<HTMLInputElement>('combobox');
-      expect(input).to.have.value('');
+      expect(input).to.have.value('banana');
 
       await setProps({ items: ['apple', 'banana', 'bread'] });
 
@@ -1819,10 +1753,6 @@ describe('<Combobox.Root />', () => {
       await setProps({ items: ['banana'] });
 
       expect(input).to.have.value('banana');
-
-      await setProps({ items: ['grape', 'apple'] });
-
-      expect(input).to.have.value('');
     });
   });
 
@@ -4078,6 +4008,38 @@ describe('<Combobox.Root />', () => {
       expect(hiddenInput).to.have.attribute('name', 'field-combobox');
     });
 
+    it('Field.Label links to Combobox.Trigger when input is inside popup and trigger has an explicit id', async () => {
+      await render(
+        <Field.Root>
+          <Field.Label data-testid="label">Search</Field.Label>
+          <Combobox.Root>
+            <Combobox.Trigger data-testid="trigger" id="x-id">
+              Open
+            </Combobox.Trigger>
+            <Combobox.Portal>
+              <Combobox.Positioner>
+                <Combobox.Popup>
+                  <Combobox.Input />
+                  <Combobox.List>
+                    <Combobox.Item value="a">a</Combobox.Item>
+                    <Combobox.Item value="b">b</Combobox.Item>
+                  </Combobox.List>
+                </Combobox.Popup>
+              </Combobox.Positioner>
+            </Combobox.Portal>
+          </Combobox.Root>
+        </Field.Root>,
+      );
+
+      const label = screen.getByTestId<HTMLLabelElement>('label');
+      const trigger = screen.getByTestId('trigger');
+
+      await waitFor(() => {
+        expect(trigger).to.have.attribute('id', 'x-id');
+        expect(label).to.have.attribute('for', 'x-id');
+      });
+    });
+
     it('[data-touched]', async () => {
       await render(
         <Field.Root>
@@ -4266,6 +4228,97 @@ describe('<Combobox.Root />', () => {
 
       expect(input).not.to.have.attribute('data-focused');
       expect(trigger).not.to.have.attribute('data-focused');
+    });
+
+    it('does not mark as touched when focus moves into the popup', async () => {
+      const validateSpy = spy(() => 'error');
+
+      await render(
+        <React.Fragment>
+          <Field.Root validationMode="onBlur" validate={validateSpy}>
+            <Combobox.Root>
+              <Combobox.Trigger data-testid="trigger" />
+              <Combobox.Portal>
+                <Combobox.Positioner>
+                  <Combobox.Popup>
+                    <Combobox.List>
+                      <Combobox.Item value="1">Option 1</Combobox.Item>
+                    </Combobox.List>
+                  </Combobox.Popup>
+                </Combobox.Positioner>
+              </Combobox.Portal>
+            </Combobox.Root>
+          </Field.Root>
+          <button data-testid="outside">Outside</button>
+        </React.Fragment>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+
+      fireEvent.focus(trigger);
+      fireEvent.click(trigger);
+
+      await flushMicrotasks();
+
+      const popup = screen.getByRole('dialog');
+
+      fireEvent.blur(trigger, { relatedTarget: popup });
+      fireEvent.focus(popup);
+
+      await flushMicrotasks();
+
+      expect(validateSpy.callCount).to.equal(0);
+      expect(trigger).to.have.attribute('data-focused', '');
+      expect(trigger).not.to.have.attribute('data-touched');
+      expect(trigger).not.to.have.attribute('aria-invalid');
+    });
+
+    it('validates when the popup is blurred', async () => {
+      const validateSpy = spy(() => 'error');
+
+      await render(
+        <React.Fragment>
+          <Field.Root validationMode="onBlur" validate={validateSpy}>
+            <Combobox.Root>
+              <Combobox.Trigger data-testid="trigger" />
+              <Combobox.Portal>
+                <Combobox.Positioner>
+                  <Combobox.Popup>
+                    <Combobox.List>
+                      <Combobox.Item value="1">Option 1</Combobox.Item>
+                    </Combobox.List>
+                  </Combobox.Popup>
+                </Combobox.Positioner>
+              </Combobox.Portal>
+            </Combobox.Root>
+          </Field.Root>
+          <button data-testid="outside">Outside</button>
+        </React.Fragment>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+      const outside = screen.getByTestId('outside');
+
+      fireEvent.focus(trigger);
+      fireEvent.click(trigger);
+
+      await flushMicrotasks();
+
+      const popup = screen.getByRole('dialog');
+
+      fireEvent.blur(trigger, { relatedTarget: popup });
+      fireEvent.focus(popup);
+
+      fireEvent.blur(popup, { relatedTarget: outside });
+      fireEvent.focus(outside);
+
+      await waitFor(() => {
+        expect(validateSpy.callCount).to.equal(1);
+      });
+
+      expect(trigger).to.have.attribute('data-touched', '');
+      expect(trigger).not.to.have.attribute('data-focused');
+      expect(trigger).to.have.attribute('aria-invalid', 'true');
     });
 
     it('[data-invalid]', async () => {
@@ -4536,7 +4589,7 @@ describe('<Combobox.Root />', () => {
               <Combobox.Positioner />
             </Combobox.Portal>
           </Combobox.Root>
-          <Field.Label data-testid="label" render={<span />} />
+          <Field.Label data-testid="label" nativeLabel={false} render={<span />} />
         </Field.Root>,
       );
 

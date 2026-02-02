@@ -31,13 +31,10 @@ export const DialogBackdrop = React.forwardRef(function DialogBackdrop(
   const mounted = store.useState('mounted');
   const transitionStatus = store.useState('transitionStatus');
 
-  const state: DialogBackdrop.State = React.useMemo(
-    () => ({
-      open,
-      transitionStatus,
-    }),
-    [open, transitionStatus],
-  );
+  const state: DialogBackdrop.State = {
+    open,
+    transitionStatus,
+  };
 
   return useRenderElement('div', componentProps, {
     state,
@@ -63,7 +60,7 @@ export interface DialogBackdropProps extends BaseUIComponentProps<'div', DialogB
    * Whether the backdrop is forced to render even when nested.
    * @default false
    */
-  forceRender?: boolean;
+  forceRender?: boolean | undefined;
 }
 
 export interface DialogBackdropState {

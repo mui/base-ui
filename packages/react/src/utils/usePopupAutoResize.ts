@@ -1,3 +1,4 @@
+'use client';
 import * as React from 'react';
 import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
@@ -164,7 +165,7 @@ export function usePopupAutoResize(parameters: UsePopupAutoResizeParameters) {
     }
 
     setPopupCssSize(popupElement, previousDimensions);
-    restoreMeasurementOverrides();
+    restoreMeasurementOverridesIncludingScale();
     onMeasureLayoutComplete?.(previousDimensions, newDimensions);
 
     setPositionerCssSize(positionerElement, newDimensions);
@@ -222,21 +223,20 @@ interface UsePopupAutoResizeParameters {
   /**
    * Whether the auto-resize is enabled. This function runs in an effect and can safely access refs.
    */
-  enabled?: () => boolean;
+  enabled?: (() => boolean) | undefined;
   /**
    * Callback fired immediately before measuring the dimensions of the new content.
    */
-  onMeasureLayout?: () => void;
+  onMeasureLayout?: (() => void) | undefined;
   /**
    * Callback fired after the new dimensions have been measured.
    *
    * @param previousDimensions Dimensions before the change, or `null` if this is the first measurement.
    * @param newDimensions Newly measured dimensions.
    */
-  onMeasureLayoutComplete?: (
-    previousDimensions: Dimensions | null,
-    newDimensions: Dimensions,
-  ) => void;
+  onMeasureLayoutComplete?:
+    | ((previousDimensions: Dimensions | null, newDimensions: Dimensions) => void)
+    | undefined;
 
   side: Side;
   direction: 'ltr' | 'rtl';

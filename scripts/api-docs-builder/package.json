@@ -3,12 +3,12 @@
   "private": true,
   "type": "module",
   "dependencies": {
-    "@mui/internal-docs-infra": "0.3.1-canary.9",
+    "@mui/internal-docs-infra": "0.3.1-canary.14",
     "@types/yargs": "^17.0.35",
-    "es-toolkit": "^1.43.0",
+    "es-toolkit": "^1.44.0",
     "rimraf": "^6.1.2",
     "tsx": "^4.21.0",
-    "typescript-api-extractor": "1.0.0-alpha.11",
+    "typescript-api-extractor": "1.0.0-alpha.13",
     "yargs": "^18.0.0"
   },
   "scripts": {

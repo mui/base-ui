@@ -25,6 +25,7 @@ import { Menu } from '@base-ui/react/menu';
       <Menu.Popup>
         <Menu.Arrow />
         <Menu.Item />
+        <Menu.LinkItem />
         <Menu.Separator />
         <Menu.Group>
           <Menu.GroupLabel />
@@ -46,7 +47,7 @@ import { Menu } from '@base-ui/react/menu';
 
 ### Open on hover
 
-To create a menu that opens on hover, add the `openOnHover` prop to the Root part. You can additionally configure how quickly the menu opens on hover using the `delay` prop.
+To create a menu that opens on hover, add the `openOnHover` prop to `<Menu.Trigger>`. You can additionally configure how quickly the menu opens on hover using the `delay` prop.
 
 import { DemoMenuOpenOnHover } from './demos/open-on-hover';
 
@@ -125,10 +126,10 @@ import { DemoMenuSubmenu } from './demos/submenu';
 
 ### Navigate to another page
 
-Use the `render` prop to compose a menu item with an anchor element.
+Use the `<Menu.LinkItem>` part to create a link.
 
 ```jsx title="A menu item that opens a link"
-<Menu.Item render={<a href="/projects">Go to Projects</a>} />
+<Menu.LinkItem href="/projects">Go to Projects</<Menu.LinkItem>
 ```
 
 ### Open a dialog
@@ -277,7 +278,7 @@ import { DemoMenuDetachedTriggersControlled } from './demos/detached-triggers-co
 
 <Reference
   component="Menu"
-  parts="Root, Trigger, Portal, Backdrop, Positioner, Popup, Arrow, Item, SubmenuRoot, SubmenuTrigger, Group, GroupLabel, RadioGroup, RadioItem, RadioItemIndicator, CheckboxItem, CheckboxItemIndicator, Separator"
+  parts="Root, Trigger, Portal, Backdrop, Positioner, Popup, Arrow, Item, LinkItem, SubmenuRoot, SubmenuTrigger, Group, GroupLabel, RadioGroup, RadioItem, RadioItemIndicator, CheckboxItem, CheckboxItemIndicator, Separator"
 />
 
 export const metadata = {

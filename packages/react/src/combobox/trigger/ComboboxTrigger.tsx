@@ -24,6 +24,7 @@ import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
 import { useClick, useTypeahead } from '../../floating-ui-react';
 import type { Side } from '../../utils/useAnchorPositioning';
+import { useLabelableId } from '../../labelable-provider/useLabelableId';
 
 const BOUNDARY_OFFSET = 2;
 
@@ -40,6 +41,7 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
     className,
     nativeButton = true,
     disabled: disabledProp = false,
+    id: idProp,
     ...elementProps
   } = componentProps;
 
@@ -66,10 +68,12 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
   const triggerProps = useStore(store, selectors.triggerProps);
   const triggerElement = useStore(store, selectors.triggerElement);
   const inputInsidePopup = useStore(store, selectors.inputInsidePopup);
+  const rootId = useStore(store, selectors.id);
   const open = useStore(store, selectors.open);
   const selectedValue = useStore(store, selectors.selectedValue);
   const activeIndex = useStore(store, selectors.activeIndex);
   const selectedIndex = useStore(store, selectors.selectedIndex);
+  const hasSelectedValue = useStore(store, selectors.hasSelectedValue);
 
   const floatingRootContext = useComboboxFloatingContext();
   const inputValue = useComboboxInputValueContext();
@@ -79,6 +83,9 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
   const disabled = fieldDisabled || comboboxDisabled || disabledProp;
   const listEmpty = filteredItems.length === 0;
   const popupSide = mounted && positionerElement ? popupSideValue : null;
+
+  useLabelableId({ id: inputInsidePopup ? idProp : undefined });
+  const id = inputInsidePopup ? (idProp ?? rootId) : idProp;
 
   const currentPointerTypeRef = React.useRef<PointerEvent['pointerType']>('');
 
@@ -122,16 +129,14 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
     disabled,
   });
 
-  const state: ComboboxTrigger.State = React.useMemo(
-    () => ({
-      ...fieldState,
-      open,
-      disabled,
-      popupSide,
-      listEmpty,
-    }),
-    [fieldState, open, disabled, popupSide, listEmpty],
-  );
+  const state: ComboboxTrigger.State = {
+    ...fieldState,
+    open,
+    disabled,
+    popupSide,
+    listEmpty,
+    placeholder: !hasSelectedValue,
+  };
 
   const setTriggerElement = useStableCallback((element) => {
     store.set('triggerElement', element);
@@ -145,12 +150,12 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
       triggerClickProps,
       triggerTypeaheadProps,
       {
+        id,
         tabIndex: inputInsidePopup ? 0 : -1,
         role: inputInsidePopup ? 'combobox' : undefined,
         'aria-expanded': open ? 'true' : 'false',
         'aria-haspopup': inputInsidePopup ? 'dialog' : 'listbox',
         'aria-controls': open ? listElement?.id : undefined,
-        'aria-readonly': readOnly || undefined,
         'aria-required': inputInsidePopup ? required || undefined : undefined,
         'aria-labelledby': labelId,
         onPointerDown: trackPointerType,
@@ -164,7 +169,12 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
 
           focusTimeout.start(0, store.state.forceMount);
         },
-        onBlur() {
+        onBlur(event) {
+          // If focus is moving into the popup, don't count it as a blur.
+          if (contains(positionerElement, event.relatedTarget)) {
+            return;
+          }
+
           setTouched(true);
           setFocused(false);
 
@@ -278,6 +288,10 @@ export interface ComboboxTriggerState extends FieldRoot.State {
    * Present when the corresponding items list is empty.
    */
   listEmpty: boolean;
+  /**
+   * Whether the combobox doesn't have a value.
+   */
+  placeholder: boolean;
 }
 
 export interface ComboboxTriggerProps
@@ -286,7 +300,7 @@ export interface ComboboxTriggerProps
    * Whether the component should ignore user interaction.
    * @default false
    */
-  disabled?: boolean;
+  disabled?: boolean | undefined;
 }
 
 export namespace ComboboxTrigger {

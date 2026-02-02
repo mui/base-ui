@@ -5,7 +5,7 @@ import { useControlled } from '@base-ui/utils/useControlled';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
-import { visuallyHiddenInput } from '@base-ui/utils/visuallyHidden';
+import { visuallyHidden, visuallyHiddenInput } from '@base-ui/utils/visuallyHidden';
 import { NOOP } from '../../utils/noop';
 import { useStateAttributesMapping } from '../utils/useStateAttributesMapping';
 import { useRenderElement } from '../../utils/useRenderElement';
@@ -197,7 +197,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
       id: nativeButton ? undefined : (inputId ?? undefined),
       required,
       ref: mergedInputRef,
-      style: visuallyHiddenInput,
+      style: name ? visuallyHiddenInput : visuallyHidden,
       tabIndex: -1,
       type: 'checkbox',
       'aria-hidden': true,
@@ -246,9 +246,16 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     : indeterminate;
 
   React.useEffect(() => {
-    if (parentContext && value) {
-      parentContext.disabledStatesRef.current.set(value, disabled);
+    if (!parentContext || !value) {
+      return undefined;
     }
+
+    const disabledStates = parentContext.disabledStatesRef.current;
+    disabledStates.set(value, disabled);
+
+    return () => {
+      disabledStates.delete(value);
+    };
   }, [parentContext, disabled, value]);
 
   const state: CheckboxRoot.State = React.useMemo(
@@ -353,70 +360,72 @@ export interface CheckboxRootProps
   /**
    * The id of the input element.
    */
-  id?: string;
+  id?: string | undefined;
   /**
    * Identifies the field when a form is submitted.
    * @default undefined
    */
-  name?: string;
+  name?: string | undefined;
   /**
    * Whether the checkbox is currently ticked.
    *
    * To render an uncontrolled checkbox, use the `defaultChecked` prop instead.
    * @default undefined
    */
-  checked?: boolean;
+  checked?: boolean | undefined;
   /**
    * Whether the checkbox is initially ticked.
    *
    * To render a controlled checkbox, use the `checked` prop instead.
    * @default false
    */
-  defaultChecked?: boolean;
+  defaultChecked?: boolean | undefined;
   /**
    * Whether the component should ignore user interaction.
    * @default false
    */
-  disabled?: boolean;
+  disabled?: boolean | undefined;
   /**
    * Event handler called when the checkbox is ticked or unticked.
    */
-  onCheckedChange?: (checked: boolean, eventDetails: CheckboxRootChangeEventDetails) => void;
+  onCheckedChange?:
+    | ((checked: boolean, eventDetails: CheckboxRootChangeEventDetails) => void)
+    | undefined;
   /**
    * Whether the user should be unable to tick or untick the checkbox.
    * @default false
    */
-  readOnly?: boolean;
+  readOnly?: boolean | undefined;
   /**
    * Whether the user must tick the checkbox before submitting a form.
    * @default false
    */
-  required?: boolean;
+  required?: boolean | undefined;
   /**
    * Whether the checkbox is in a mixed state: neither ticked, nor unticked.
    * @default false
    */
-  indeterminate?: boolean;
+  indeterminate?: boolean | undefined;
   /**
    * A ref to access the hidden `<input>` element.
    */
-  inputRef?: React.Ref<HTMLInputElement>;
+  inputRef?: React.Ref<HTMLInputElement> | undefined;
   /**
    * Whether the checkbox controls a group of child checkboxes.
    *
    * Must be used in a [Checkbox Group](https://base-ui.com/react/components/checkbox-group).
    * @default false
    */
-  parent?: boolean;
+  parent?: boolean | undefined;
   /**
    * The value submitted with the form when the checkbox is unchecked.
    * By default, unchecked checkboxes do not submit any value, matching native checkbox behavior.
    */
-  uncheckedValue?: string;
+  uncheckedValue?: string | undefined;
   /**
    * The value of the selected checkbox.
    */
-  value?: string;
+  value?: string | undefined;
 }
 
 export type CheckboxRootChangeEventReason = typeof REASONS.none;

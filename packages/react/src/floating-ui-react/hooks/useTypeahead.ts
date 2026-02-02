@@ -1,8 +1,9 @@
+'use client';
 import * as React from 'react';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useTimeout } from '@base-ui/utils/useTimeout';
-import { stopEvent } from '../utils';
+import { contains, stopEvent } from '../utils';
 
 import type { ElementProps, FloatingContext, FloatingRootContext } from '../types';
 import { EMPTY_ARRAY } from '../../utils/constants';
@@ -22,39 +23,39 @@ export interface UseTypeaheadProps {
   /**
    * Callback invoked with the matching index if found as the user types.
    */
-  onMatch?: (index: number) => void;
+  onMatch?: ((index: number) => void) | undefined;
   /**
    * Callback invoked with the typing state as the user types.
    */
-  onTypingChange?: (isTyping: boolean) => void;
+  onTypingChange?: ((isTyping: boolean) => void) | undefined;
   /**
    * Whether the Hook is enabled, including all internal Effects and event
    * handlers.
    * @default true
    */
-  enabled?: boolean;
+  enabled?: boolean | undefined;
   /**
    * A function that returns the matching string from the list.
    * @default lowercase-finder
    */
   findMatch?:
-    | null
-    | ((list: Array<string | null>, typedString: string) => string | null | undefined);
+    | (null | ((list: Array<string | null>, typedString: string) => string | null | undefined))
+    | undefined;
   /**
    * The number of milliseconds to wait before resetting the typed string.
    * @default 750
    */
-  resetMs?: number;
+  resetMs?: number | undefined;
   /**
    * An array of keys to ignore when typing.
    * @default []
    */
-  ignoreKeys?: Array<string>;
+  ignoreKeys?: Array<string> | undefined;
   /**
    * The index of the selected item in the list, if available.
    * @default null
    */
-  selectedIndex?: number | null;
+  selectedIndex?: (number | null) | undefined;
 }
 
 /**
@@ -67,8 +68,8 @@ export function useTypeahead(
   props: UseTypeaheadProps,
 ): ElementProps {
   const store = 'rootStore' in context ? context.rootStore : context;
-  const open = store.useState('open');
   const dataRef = store.context.dataRef;
+  const open = store.useState('open');
   const {
     listRef,
     activeIndex,
@@ -87,12 +88,17 @@ export function useTypeahead(
   const matchIndexRef = React.useRef<number | null>(null);
 
   useIsoLayoutEffect(() => {
-    if (open) {
-      timeout.clear();
-      matchIndexRef.current = null;
+    if (!open && selectedIndex !== null) {
+      return;
+    }
+
+    timeout.clear();
+    matchIndexRef.current = null;
+
+    if (stringRef.current !== '') {
       stringRef.current = '';
     }
-  }, [open, timeout]);
+  }, [open, selectedIndex, timeout]);
 
   useIsoLayoutEffect(() => {
     // Sync arrow key navigation but not typeahead navigation.
@@ -156,6 +162,12 @@ export function useTypeahead(
       setTypingChange(true);
     }
 
+    // Capture whether this is a new typing session before mutating the string.
+    const isNewSession = stringRef.current === '';
+    if (isNewSession) {
+      prevIndexRef.current = selectedIndex ?? activeIndex ?? -1;
+    }
+
     // Bail out if the list contains a word like "llama" or "aaron". TODO:
     // allow it in this case, too.
     const allowRapidSuccessionOfFirstLetter = listContent.every((text) =>
@@ -176,7 +188,10 @@ export function useTypeahead(
       setTypingChange(false);
     });
 
-    const prevIndex = prevIndexRef.current;
+    // Compute the starting index for this search.
+    // If this is a new typing session (string is empty), base it on the current
+    // selection/active item; otherwise continue from the last matched index.
+    const prevIndex = isNewSession ? (selectedIndex ?? activeIndex ?? -1) : prevIndexRef.current;
 
     const index = getMatchingIndex(
       listContent,
@@ -193,7 +208,29 @@ export function useTypeahead(
     }
   });
 
-  const reference: ElementProps['reference'] = React.useMemo(() => ({ onKeyDown }), [onKeyDown]);
+  const onBlur = useStableCallback((event: React.FocusEvent) => {
+    const next = event.relatedTarget as Element | null;
+    const currentDomReferenceElement = store.select('domReferenceElement');
+    const currentFloatingElement = store.select('floatingElement');
+    const withinReference = contains(currentDomReferenceElement, next);
+    const withinFloating = contains(currentFloatingElement, next);
+
+    // Keep the session if focus moves within the composite (reference <-> floating).
+    if (withinReference || withinFloating) {
+      return;
+    }
+
+    // End the current typing session when focus leaves the composite entirely.
+    timeout.clear();
+    stringRef.current = '';
+    prevIndexRef.current = matchIndexRef.current;
+    setTypingChange(false);
+  });
+
+  const reference: ElementProps['reference'] = React.useMemo(
+    () => ({ onKeyDown, onBlur }),
+    [onKeyDown, onBlur],
+  );
 
   const floating: ElementProps['floating'] = React.useMemo(() => {
     return {
@@ -203,8 +240,9 @@ export function useTypeahead(
           setTypingChange(false);
         }
       },
+      onBlur,
     };
-  }, [onKeyDown, setTypingChange]);
+  }, [onKeyDown, onBlur, setTypingChange]);
 
   return React.useMemo(
     () => (enabled ? { reference, floating } : {}),

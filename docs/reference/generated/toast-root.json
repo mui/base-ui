@@ -3,16 +3,16 @@
   "description": "Groups all parts of an individual toast.\nRenders a `<div>` element.",
   "props": {
     "swipeDirection": {
-      "type": "'left' | 'right' | 'up' | 'down' | ('left' | 'right' | 'up' | 'down')[]",
+      "type": "'up' | 'down' | 'left' | 'right' | ('left' | 'right' | 'up' | 'down')[]",
       "default": "['down', 'right']",
       "description": "Direction(s) in which the toast can be swiped to dismiss.",
-      "detailedType": "| 'left'\n| 'right'\n| 'up'\n| 'down'\n| ('left' | 'right' | 'up' | 'down')[]\n| undefined"
+      "detailedType": "| 'up'\n| 'down'\n| 'left'\n| 'right'\n| ('left' | 'right' | 'up' | 'down')[]\n| undefined"
     },
     "toast": {
       "type": "Toast.Root.ToastObject<any>",
       "required": true,
       "description": "The toast to render.",
-      "detailedType": "id: string\n  ref?: RefObject<HTMLElement | null>\n  title?: ReactNode\n  type?: string\n  description?: ReactNode\n  timeout?: number\n  priority?: 'high' | 'low'\n  transitionStatus?: 'starting' | 'ending'\n  limited?: boolean\n  height?: number\n  onClose?: () => void\n  onRemove?: () => void\n  actionProps?: Omit<\n    DetailedHTMLProps<\n      ButtonHTMLAttributes<HTMLButtonElement>,\n      HTMLButtonElement\n    >,\n    'ref'\n  >\n  positionerProps?: ToastManagerPositionerProps\n  data?: any\n}"
+      "detailedType": "id: string\n  ref?: RefObject<HTMLElement | null>\n  title?: ReactNode\n  type?: string\n  description?: ReactNode\n  timeout?: number\n  priority?: 'low' | 'high'\n  transitionStatus?: 'starting' | 'ending'\n  limited?: boolean\n  height?: number\n  onClose?: () => void\n  onRemove?: () => void\n  actionProps?: Omit<\n    DetailedHTMLProps<\n      ButtonHTMLAttributes<HTMLButtonElement>,\n      HTMLButtonElement\n    >,\n    'ref'\n  >\n  positionerProps?: ToastManagerPositionerProps\n  data?: {}\n}"
     },
     "className": {
       "type": "string | ((state: Toast.Root.State) => string | undefined)",

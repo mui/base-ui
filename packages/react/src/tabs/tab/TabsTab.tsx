@@ -165,14 +165,11 @@ export const TabsTab = React.forwardRef(function TabsTab(
     }
   }
 
-  const state: TabsTab.State = React.useMemo(
-    () => ({
-      disabled,
-      active,
-      orientation,
-    }),
-    [disabled, active, orientation],
-  );
+  const state: TabsTab.State = {
+    disabled,
+    active,
+    orientation,
+  };
 
   const element = useRenderElement('button', componentProps, {
     state,
@@ -246,7 +243,7 @@ export interface TabsTabProps
    * during pre-rendering which Tabs are disabled.
    * To work around it, ensure that `defaultValue` or `value` on `<Tabs.Root>` is set to an enabled Tab's value.
    */
-  disabled?: boolean;
+  disabled?: boolean | undefined;
 }
 
 export namespace TabsTab {

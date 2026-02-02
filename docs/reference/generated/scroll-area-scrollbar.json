@@ -3,10 +3,10 @@
   "description": "A vertical or horizontal scrollbar for the scroll area.\nRenders a `<div>` element.",
   "props": {
     "orientation": {
-      "type": "'horizontal' | 'vertical'",
+      "type": "'vertical' | 'horizontal'",
       "default": "'vertical'",
       "description": "Whether the scrollbar controls vertical or horizontal scroll.",
-      "detailedType": "'horizontal' | 'vertical' | undefined"
+      "detailedType": "'vertical' | 'horizontal' | undefined"
     },
     "className": {
       "type": "string | ((state: ScrollArea.Scrollbar.State) => string | undefined)",
@@ -56,7 +56,7 @@
       "description": "Present when there is overflow on the vertical start side."
     },
     "data-scrolling": {
-      "description": "Present when the users scrolls inside the scroll area."
+      "description": "Present when the user scrolls inside the scroll area."
     }
   },
   "cssVariables": {

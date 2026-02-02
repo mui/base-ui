@@ -1,3 +1,4 @@
+'use client';
 import * as React from 'react';
 import { isElement } from '@floating-ui/utils/dom';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
@@ -22,17 +23,17 @@ export type UseHoverFloatingInteractionProps = {
    * handlers.
    * @default true
    */
-  enabled?: boolean;
+  enabled?: boolean | undefined;
   /**
    * Waits for the specified time when the event listener runs before changing
    * the `open` state.
    * @default 0
    */
-  closeDelay?: number | (() => number);
+  closeDelay?: (number | (() => number)) | undefined;
   /**
    * An optional external floating tree to use instead of the default context.
    */
-  externalTree?: FloatingTreeStore;
+  externalTree?: FloatingTreeStore | undefined;
 };
 
 const clickLikeEvents = new Set(['click', 'mousedown']);
@@ -79,20 +80,17 @@ export function useHoverFloatingInteraction(
     return type?.includes('mouse') && type !== 'mousedown';
   });
 
-  const closeWithDelay = React.useCallback(
-    (event: MouseEvent, runElseBranch = true) => {
-      const closeDelay = getDelay(closeDelayProp, pointerTypeRef.current);
-      if (closeDelay && !handlerRef.current) {
-        openChangeTimeout.start(closeDelay, () =>
-          store.setOpen(false, createChangeEventDetails(REASONS.triggerHover, event)),
-        );
-      } else if (runElseBranch) {
-        openChangeTimeout.clear();
-        store.setOpen(false, createChangeEventDetails(REASONS.triggerHover, event));
-      }
-    },
-    [closeDelayProp, handlerRef, store, pointerTypeRef, openChangeTimeout],
-  );
+  const closeWithDelay = useStableCallback((event: MouseEvent, runElseBranch = true) => {
+    const closeDelay = getDelay(closeDelayProp, pointerTypeRef.current);
+    if (closeDelay && !handlerRef.current) {
+      openChangeTimeout.start(closeDelay, () =>
+        store.setOpen(false, createChangeEventDetails(REASONS.triggerHover, event)),
+      );
+    } else if (runElseBranch) {
+      openChangeTimeout.clear();
+      store.setOpen(false, createChangeEventDetails(REASONS.triggerHover, event));
+    }
+  });
 
   const cleanupMouseMoveHandler = useStableCallback(() => {
     unbindMouseMoveRef.current();
@@ -251,7 +249,19 @@ export function useHoverFloatingInteraction(
         floating.removeEventListener('pointerdown', handleInteractInside, true);
       }
     };
-  });
+  }, [
+    enabled,
+    floatingElement,
+    store,
+    dataRef,
+    isClickLikeOpenEvent,
+    closeWithDelay,
+    clearPointerEvents,
+    cleanupMouseMoveHandler,
+    handleInteractInside,
+    openChangeTimeout,
+    handlerRef,
+  ]);
 }
 
 export function getDelay(

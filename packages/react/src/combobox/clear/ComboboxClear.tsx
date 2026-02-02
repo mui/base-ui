@@ -45,6 +45,7 @@ export const ComboboxClear = React.forwardRef(function ComboboxClear(
   const readOnly = useStore(store, selectors.readOnly);
   const open = useStore(store, selectors.open);
   const selectedValue = useStore(store, selectors.selectedValue);
+  const hasSelectionChips = useStore(store, selectors.hasSelectionChips);
 
   const inputValue = useComboboxInputValueContext();
 
@@ -54,7 +55,7 @@ export const ComboboxClear = React.forwardRef(function ComboboxClear(
   } else if (selectionMode === 'single') {
     visible = selectedValue != null;
   } else {
-    visible = Array.isArray(selectedValue) && selectedValue.length > 0;
+    visible = hasSelectionChips;
   }
 
   const disabled = fieldDisabled || comboboxDisabled || disabledProp;
@@ -66,14 +67,11 @@ export const ComboboxClear = React.forwardRef(function ComboboxClear(
 
   const { mounted, transitionStatus, setMounted } = useTransitionStatus(visible);
 
-  const state: ComboboxClear.State = React.useMemo(
-    () => ({
-      disabled,
-      open,
-      transitionStatus,
-    }),
-    [disabled, open, transitionStatus],
-  );
+  const state: ComboboxClear.State = {
+    disabled,
+    open,
+    transitionStatus,
+  };
 
   useOpenChangeComplete({
     open: visible,
@@ -92,7 +90,6 @@ export const ComboboxClear = React.forwardRef(function ComboboxClear(
       {
         tabIndex: -1,
         children: 'x',
-        'aria-readonly': readOnly || undefined,
         // Avoid stealing focus from the input.
         onMouseDown(event) {
           event.preventDefault();
@@ -161,12 +158,12 @@ export interface ComboboxClearProps
    * Whether the component should ignore user interaction.
    * @default false
    */
-  disabled?: boolean;
+  disabled?: boolean | undefined;
   /**
    * Whether the component should remain mounted in the DOM when not visible.
    * @default false
    */
-  keepMounted?: boolean;
+  keepMounted?: boolean | undefined;
 }
 
 export namespace ComboboxClear {

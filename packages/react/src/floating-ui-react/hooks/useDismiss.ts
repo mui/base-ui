@@ -1,3 +1,4 @@
+'use client';
 import * as React from 'react';
 import { getOverflowAncestors } from '@floating-ui/react-dom';
 import {
@@ -37,7 +38,7 @@ const bubbleHandlerKeys = {
 } as const;
 
 export function normalizeProp(
-  normalizable?: boolean | { escapeKey?: boolean; outsidePress?: boolean },
+  normalizable?: boolean | { escapeKey?: boolean | undefined; outsidePress?: boolean | undefined },
 ) {
   return {
     escapeKey:
@@ -53,26 +54,26 @@ export interface UseDismissProps {
    * handlers.
    * @default true
    */
-  enabled?: boolean;
+  enabled?: boolean | undefined;
   /**
    * Whether to dismiss the floating element upon pressing the `esc` key.
    * @default true
    */
-  escapeKey?: boolean;
+  escapeKey?: boolean | undefined;
   /**
    * Whether to dismiss the floating element upon pressing the reference
    * element. You likely want to ensure the `move` option in the `useHover()`
    * Hook has been disabled when this is in use.
    * @default false
    */
-  referencePress?: boolean;
+  referencePress?: boolean | undefined;
   /**
    * The type of event to use to determine a "press".
    * - `down` is `pointerdown` on mouse input, but special iOS-like touch handling on touch input.
    * - `up` is lazy on both mouse + touch input (equivalent to `click`).
    * @default 'down'
    */
-  referencePressEvent?: PressType;
+  referencePressEvent?: PressType | undefined;
   /**
    * Whether to dismiss the floating element upon pressing outside of the
    * floating element.
@@ -86,39 +87,44 @@ export interface UseDismissProps {
    * ```
    * @default true
    */
-  outsidePress?: boolean | ((event: MouseEvent | TouchEvent) => boolean);
+  outsidePress?: (boolean | ((event: MouseEvent | TouchEvent) => boolean)) | undefined;
   /**
    * The type of event to use to determine an outside "press".
    * - `intentional` requires the user to click outside intentionally, firing on `pointerup` for mouse, and requiring minimal `touchmove`s for touch.
    * - `sloppy` fires on `pointerdown` for mouse, while for touch it fires on `touchend` (within 1 second) or while scrolling away after `touchstart`.
    */
   outsidePressEvent?:
-    | PressType
-    | {
-        mouse: PressType;
-        touch: PressType;
-      }
-    | (() =>
+    | (
         | PressType
         | {
             mouse: PressType;
             touch: PressType;
-          });
+          }
+        | (() =>
+            | PressType
+            | {
+                mouse: PressType;
+                touch: PressType;
+              })
+      )
+    | undefined;
   /**
    * Whether to dismiss the floating element upon scrolling an overflow
    * ancestor.
    * @default false
    */
-  ancestorScroll?: boolean;
+  ancestorScroll?: boolean | undefined;
   /**
    * Determines whether event listeners bubble upwards through a tree of
    * floating elements.
    */
-  bubbles?: boolean | { escapeKey?: boolean; outsidePress?: boolean };
+  bubbles?:
+    | (boolean | { escapeKey?: boolean | undefined; outsidePress?: boolean | undefined })
+    | undefined;
   /**
    * External FlatingTree to use when the one provided by context can't be used.
    */
-  externalTree?: FloatingTreeStore;
+  externalTree?: FloatingTreeStore | undefined;
 }
 
 /**

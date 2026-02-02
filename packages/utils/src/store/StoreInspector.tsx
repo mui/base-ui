@@ -1,3 +1,4 @@
+'use client';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { Store } from './Store';
@@ -122,12 +123,12 @@ export interface StoreInspectorProps {
   /**
    * Title to display in the panel header.
    */
-  title?: string;
+  title?: string | undefined;
   /**
    * Whether the inspector panel should be open by default.
    * @default false
    */
-  defaultOpen?: boolean;
+  defaultOpen?: boolean | undefined;
 }
 
 /**
@@ -169,10 +170,10 @@ export function StoreInspector(props: StoreInspectorProps) {
 
 interface PanelProps {
   store: Store<any>;
-  title?: string;
+  title?: string | undefined;
   additionalData?: any;
   open: boolean;
-  onClose?: () => void;
+  onClose?: (() => void) | undefined;
 }
 
 export function StoreInspectorPanel({ store, title, additionalData, open, onClose }: PanelProps) {
@@ -278,8 +279,8 @@ function getStringifyReplacer() {
 }
 
 interface WindowProps {
-  title?: string;
-  onClose?: () => void;
+  title?: string | undefined;
+  onClose?: (() => void) | undefined;
   children: React.ReactNode;
   headerActions?: React.ReactNode;
 }

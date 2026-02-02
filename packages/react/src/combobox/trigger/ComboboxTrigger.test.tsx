@@ -114,17 +114,6 @@ describe('<Combobox.Trigger />', () => {
   });
 
   describe('prop: readOnly', () => {
-    it('should render aria-readonly attribute when readOnly', async () => {
-      await render(
-        <Combobox.Root readOnly>
-          <Combobox.Trigger data-testid="trigger">Open</Combobox.Trigger>
-        </Combobox.Root>,
-      );
-
-      const trigger = screen.getByTestId('trigger');
-      expect(trigger).to.have.attribute('aria-readonly', 'true');
-    });
-
     it('should not open popup when readOnly', async () => {
       const { user } = await render(
         <Combobox.Root readOnly>
@@ -629,6 +618,94 @@ describe('<Combobox.Trigger />', () => {
 
       await waitFor(() => expect(screen.getByRole('listbox')).not.to.equal(null));
       expect(trigger).to.have.attribute('data-list-empty');
+    });
+
+    it('has data-placeholder when no value is selected', async () => {
+      await render(
+        <Combobox.Root>
+          <Combobox.Trigger data-testid="trigger">
+            <Combobox.Value placeholder="Select" />
+          </Combobox.Trigger>
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  <Combobox.Item value="a">a</Combobox.Item>
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+      expect(trigger).to.have.attribute('data-placeholder');
+    });
+
+    it('does not have data-placeholder when value is selected', async () => {
+      await render(
+        <Combobox.Root defaultValue="a">
+          <Combobox.Trigger data-testid="trigger">
+            <Combobox.Value placeholder="Select" />
+          </Combobox.Trigger>
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  <Combobox.Item value="a">a</Combobox.Item>
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+      expect(trigger).not.to.have.attribute('data-placeholder');
+    });
+
+    it('has data-placeholder when multiple mode has empty array', async () => {
+      await render(
+        <Combobox.Root multiple defaultValue={[]}>
+          <Combobox.Trigger data-testid="trigger">
+            <Combobox.Value placeholder="Select" />
+          </Combobox.Trigger>
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  <Combobox.Item value="a">a</Combobox.Item>
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+      expect(trigger).to.have.attribute('data-placeholder');
+    });
+
+    it('does not have data-placeholder when multiple mode has a default value', async () => {
+      await render(
+        <Combobox.Root multiple defaultValue={['a']}>
+          <Combobox.Trigger data-testid="trigger">
+            <Combobox.Value placeholder="Select" />
+          </Combobox.Trigger>
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  <Combobox.Item value="a">a</Combobox.Item>
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+      expect(trigger).not.to.have.attribute('data-placeholder');
     });
   });
 });

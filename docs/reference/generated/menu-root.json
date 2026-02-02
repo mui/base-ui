@@ -25,9 +25,9 @@
       "detailedType": "boolean | undefined"
     },
     "actionsRef": {
-      "type": "RefObject<Menu.Root.Actions>",
+      "type": "RefObject<Menu.Root.Actions | null>",
       "description": "A ref to imperative actions.\n- `unmount`: When specified, the menu will not be unmounted when closed.\n   Instead, the `unmount` function must be called to unmount the menu manually.\n  Useful when the menu's animation is controlled by an external library.\n- `close`: When specified, the menu can be closed imperatively.",
-      "detailedType": "React.RefObject<Menu.Root.Actions> | undefined"
+      "detailedType": "| React.RefObject<Menu.Root.Actions | null>\n| undefined"
     },
     "closeParentOnEsc": {
       "type": "boolean",
@@ -42,7 +42,7 @@
     },
     "handle": {
       "type": "Menu.Handle<Payload>",
-      "description": "A handle to associate the popover with a trigger.\nIf specified, allows external triggers to control the popover's open state.",
+      "description": "A handle to associate the menu with a trigger.\nIf specified, allows external triggers to control the menu's open state.",
       "detailedType": "{} | undefined"
     },
     "loopFocus": {

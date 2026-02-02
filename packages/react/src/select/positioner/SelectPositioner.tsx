@@ -141,15 +141,12 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
     };
   }, [open, mounted, positionerStyles]);
 
-  const state: SelectPositioner.State = React.useMemo(
-    () => ({
-      open,
-      side: renderedSide,
-      align: positioning.align,
-      anchorHidden: positioning.anchorHidden,
-    }),
-    [open, renderedSide, positioning.align, positioning.anchorHidden],
-  );
+  const state: SelectPositioner.State = {
+    open,
+    side: renderedSide,
+    align: positioning.align,
+    anchorHidden: positioning.anchorHidden,
+  };
 
   const setPositionerElement = useStableCallback((element) => {
     store.set('positionerElement', element);
@@ -164,66 +161,70 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
 
   const prevMapSizeRef = React.useRef(0);
 
-  const onMapChange = useStableCallback((map: Map<Element, { index?: number | null } | null>) => {
-    if (map.size === 0 && prevMapSizeRef.current === 0) {
-      return;
-    }
+  const onMapChange = useStableCallback(
+    (map: Map<Element, { index?: (number | null) | undefined } | null>) => {
+      if (map.size === 0 && prevMapSizeRef.current === 0) {
+        return;
+      }
 
-    if (valuesRef.current.length === 0) {
-      return;
-    }
+      if (valuesRef.current.length === 0) {
+        return;
+      }
 
-    const prevSize = prevMapSizeRef.current;
-    prevMapSizeRef.current = map.size;
+      const prevSize = prevMapSizeRef.current;
+      prevMapSizeRef.current = map.size;
 
-    if (map.size === prevSize) {
-      return;
-    }
+      if (map.size === prevSize) {
+        return;
+      }
 
-    const eventDetails = createChangeEventDetails(REASONS.none);
+      const eventDetails = createChangeEventDetails(REASONS.none);
 
-    if (prevSize !== 0 && !store.state.multiple && value !== null) {
-      const valueIndex = findItemIndex(valuesRef.current, value, isItemEqualToValue);
-      if (valueIndex === -1) {
-        const initial = initialValueRef.current;
-        const hasInitial =
-          initial != null && itemIncludes(valuesRef.current, initial, isItemEqualToValue);
-        const nextValue = hasInitial ? initial : null;
-        setValue(nextValue, eventDetails);
+      if (prevSize !== 0 && !store.state.multiple && value !== null) {
+        const valueIndex = findItemIndex(valuesRef.current, value, isItemEqualToValue);
+        if (valueIndex === -1) {
+          const initial = initialValueRef.current;
+          const hasInitial =
+            initial != null && itemIncludes(valuesRef.current, initial, isItemEqualToValue);
+          const nextValue = hasInitial ? initial : null;
+          setValue(nextValue, eventDetails);
 
-        if (nextValue === null) {
-          store.set('selectedIndex', null);
-          selectedItemTextRef.current = null;
+          if (nextValue === null) {
+            store.set('selectedIndex', null);
+            selectedItemTextRef.current = null;
+          }
         }
       }
-    }
 
-    if (prevSize !== 0 && store.state.multiple && Array.isArray(value)) {
-      const nextValue = value.filter((v) => itemIncludes(valuesRef.current, v, isItemEqualToValue));
-      if (
-        nextValue.length !== value.length ||
-        nextValue.some((v) => !itemIncludes(value, v, isItemEqualToValue))
-      ) {
-        setValue(nextValue, eventDetails);
+      if (prevSize !== 0 && store.state.multiple && Array.isArray(value)) {
+        const nextValue = value.filter((v) =>
+          itemIncludes(valuesRef.current, v, isItemEqualToValue),
+        );
+        if (
+          nextValue.length !== value.length ||
+          nextValue.some((v) => !itemIncludes(value, v, isItemEqualToValue))
+        ) {
+          setValue(nextValue, eventDetails);
 
-        if (nextValue.length === 0) {
-          store.set('selectedIndex', null);
-          selectedItemTextRef.current = null;
+          if (nextValue.length === 0) {
+            store.set('selectedIndex', null);
+            selectedItemTextRef.current = null;
+          }
         }
       }
-    }
 
-    if (open && alignItemWithTriggerActive) {
-      store.update({
-        scrollUpArrowVisible: false,
-        scrollDownArrowVisible: false,
-      });
+      if (open && alignItemWithTriggerActive) {
+        store.update({
+          scrollUpArrowVisible: false,
+          scrollDownArrowVisible: false,
+        });
 
-      const stylesToClear: React.CSSProperties = { height: '' };
-      clearStyles(positionerElement, stylesToClear);
-      clearStyles(popupRef.current, stylesToClear);
-    }
-  });
+        const stylesToClear: React.CSSProperties = { height: '' };
+        clearStyles(positionerElement, stylesToClear);
+        clearStyles(popupRef.current, stylesToClear);
+      }
+    },
+  );
 
   const contextValue: SelectPositionerContext = React.useMemo(
     () => ({
@@ -262,7 +263,7 @@ export interface SelectPositionerProps
    * Whether the positioner overlaps the trigger so the selected item's text is aligned with the trigger's value text. This only applies to mouse input and is automatically disabled if there is not enough space.
    * @default true
    */
-  alignItemWithTrigger?: boolean;
+  alignItemWithTrigger?: boolean | undefined;
 }
 
 export namespace SelectPositioner {

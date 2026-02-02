@@ -4,6 +4,7 @@ import { isHTMLElement } from '@floating-ui/utils/dom';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { error } from '@base-ui/utils/error';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { SafeReact } from '@base-ui/utils/safeReact';
 import { makeEventPreventable, mergeProps } from '../merge-props';
 import { useCompositeRootContext } from '../composite/root/CompositeRootContext';
 import { BaseUIEvent, HTMLProps } from '../utils/types';
@@ -45,13 +46,15 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
 
       if (isNativeButton) {
         if (!isButtonTag) {
+          const ownerStackMessage = SafeReact.captureOwnerStack?.() || '';
           error(
-            'A component that acts as a button was not rendered as a native <button>, which does not match the default. Ensure that the element passed to the `render` prop of the component is a real <button>, or set the `nativeButton` prop on the component to `false`.',
+            `A component that acts as a button was not rendered as a native <button>, which does not match the default. Ensure that the element passed to the \`render\` prop of the component is a real <button>, or set the \`nativeButton\` prop on the component to \`false\`.${ownerStackMessage}`,
           );
         }
       } else if (isButtonTag) {
+        const ownerStackMessage = SafeReact.captureOwnerStack?.() || '';
         error(
-          'A component that acts as a button was rendered as a native <button>, which does not match the default. Ensure that the element passed to the `render` prop of the component is not a real <button>, or set the `nativeButton` prop on the component to `true`.',
+          `A component that acts as a button was rendered as a native <button>, which does not match the default. Ensure that the element passed to the \`render\` prop of the component is not a real <button>, or set the \`nativeButton\` prop on the component to \`true\`.${ownerStackMessage}`,
         );
       }
     }, [isNativeButton]);
@@ -193,14 +196,14 @@ function isButtonElement(
 }
 
 interface GenericButtonProps extends Omit<HTMLProps, 'onClick'>, AdditionalButtonProps {
-  onClick?: (event: React.SyntheticEvent) => void;
+  onClick?: ((event: React.SyntheticEvent) => void) | undefined;
 }
 
 interface AdditionalButtonProps extends Partial<{
   'aria-disabled': React.AriaAttributes['aria-disabled'];
   disabled: boolean;
   role: React.AriaRole;
-  tabIndex?: number;
+  tabIndex?: number | undefined;
 }> {}
 
 export interface UseButtonParameters {
@@ -208,18 +211,18 @@ export interface UseButtonParameters {
    * Whether the component should ignore user interaction.
    * @default false
    */
-  disabled?: boolean;
+  disabled?: boolean | undefined;
   /**
    * Whether the button may receive focus even if it is disabled.
    * @default false
    */
-  focusableWhenDisabled?: boolean;
-  tabIndex?: NonNullable<React.HTMLAttributes<any>['tabIndex']>;
+  focusableWhenDisabled?: boolean | undefined;
+  tabIndex?: NonNullable<React.HTMLAttributes<any>['tabIndex']> | undefined;
   /**
    * Whether the component is being rendered as a native button.
    * @default true
    */
-  native?: boolean;
+  native?: boolean | undefined;
 }
 
 export interface UseButtonReturnValue {

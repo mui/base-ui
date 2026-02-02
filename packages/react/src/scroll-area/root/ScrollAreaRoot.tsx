@@ -13,6 +13,7 @@ import { styleDisableScrollbar } from '../../utils/styles';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { scrollAreaStateAttributesMapping } from './stateAttributes';
 import { contains } from '../../floating-ui-react/utils';
+import { useCSPContext } from '../../csp-provider/CSPContext';
 
 const DEFAULT_COORDS = { x: 0, y: 0 };
 const DEFAULT_SIZE = { width: 0, height: 0 };
@@ -47,6 +48,7 @@ export const ScrollAreaRoot = React.forwardRef(function ScrollAreaRoot(
 
   const scrollYTimeout = useTimeout();
   const scrollXTimeout = useTimeout();
+  const { nonce, disableStyleElements } = useCSPContext();
 
   const [hovering, setHovering] = React.useState(false);
   const [scrollingX, setScrollingX] = React.useState(false);
@@ -205,6 +207,7 @@ export const ScrollAreaRoot = React.forwardRef(function ScrollAreaRoot(
 
   const state: ScrollAreaRoot.State = React.useMemo(
     () => ({
+      scrolling: scrollingX || scrollingY,
       hasOverflowX: !hiddenState.x,
       hasOverflowY: !hiddenState.y,
       overflowXStart: overflowEdges.xStart,
@@ -213,7 +216,7 @@ export const ScrollAreaRoot = React.forwardRef(function ScrollAreaRoot(
       overflowYEnd: overflowEdges.yEnd,
       cornerHidden: hiddenState.corner,
     }),
-    [hiddenState.x, hiddenState.y, hiddenState.corner, overflowEdges],
+    [scrollingX, scrollingY, hiddenState.x, hiddenState.y, hiddenState.corner, overflowEdges],
   );
 
   const props: HTMLProps = {
@@ -294,13 +297,15 @@ export const ScrollAreaRoot = React.forwardRef(function ScrollAreaRoot(
 
   return (
     <ScrollAreaRootContext.Provider value={contextValue}>
-      {styleDisableScrollbar.element}
+      {!disableStyleElements && styleDisableScrollbar.getElement(nonce)}
       {element}
     </ScrollAreaRootContext.Provider>
   );
 });
 
 export interface ScrollAreaRootState {
+  /** Whether the scroll area is being scrolled. */
+  scrolling: boolean;
   /** Whether horizontal overflow is present. */
   hasOverflowX: boolean;
   /** Whether vertical overflow is present. */
@@ -324,13 +329,16 @@ export interface ScrollAreaRootProps extends BaseUIComponentProps<'div', ScrollA
    * @default 0
    */
   overflowEdgeThreshold?:
-    | number
-    | Partial<{
-        xStart: number;
-        xEnd: number;
-        yStart: number;
-        yEnd: number;
-      }>;
+    | (
+        | number
+        | Partial<{
+            xStart: number;
+            xEnd: number;
+            yStart: number;
+            yEnd: number;
+          }>
+      )
+    | undefined;
 }
 
 export namespace ScrollAreaRoot {

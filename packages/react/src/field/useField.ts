@@ -1,3 +1,4 @@
+'use client';
 import * as ReactDOM from 'react-dom';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
@@ -79,7 +80,7 @@ export function useField(params: UseFieldParameters) {
 }
 
 export interface UseFieldParameters {
-  enabled?: boolean;
+  enabled?: boolean | undefined;
   value: unknown;
   getValue?: (() => unknown) | undefined;
   id: string | undefined;

@@ -29,13 +29,10 @@ export const ToolbarGroup = React.forwardRef(function ToolbarGroup(
     [disabled],
   );
 
-  const state: ToolbarRoot.State = React.useMemo(
-    () => ({
-      disabled,
-      orientation,
-    }),
-    [disabled, orientation],
-  );
+  const state: ToolbarRoot.State = {
+    disabled,
+    orientation,
+  };
 
   const element = useRenderElement('div', componentProps, {
     state,
@@ -53,7 +50,7 @@ export interface ToolbarGroupProps extends BaseUIComponentProps<'div', ToolbarRo
    * When `true` all toolbar items in the group are disabled.
    * @default false
    */
-  disabled?: boolean;
+  disabled?: boolean | undefined;
 }
 
 export namespace ToolbarGroup {

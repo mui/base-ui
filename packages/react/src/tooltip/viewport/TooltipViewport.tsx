@@ -216,13 +216,11 @@ export const TooltipViewport = React.forwardRef(function TooltipViewport(
     direction,
   });
 
-  const state = React.useMemo(() => {
-    return {
-      activationDirection: getActivationDirection(newTriggerOffset),
-      transitioning: isTransitioning,
-      instant: instantType,
-    };
-  }, [newTriggerOffset, isTransitioning, instantType]);
+  const state = {
+    activationDirection: getActivationDirection(newTriggerOffset),
+    transitioning: isTransitioning,
+    instant: instantType,
+  };
 
   return useRenderElement('div', componentProps, {
     state,
@@ -241,7 +239,7 @@ export namespace TooltipViewport {
   }
 
   export interface State {
-    activationDirection?: string;
+    activationDirection?: string | undefined;
   }
 }
 

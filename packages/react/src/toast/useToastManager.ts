@@ -6,7 +6,7 @@ import type { ToastPositionerProps } from './positioner/ToastPositioner';
 /**
  * Returns the array of toasts and methods to manage them.
  */
-export function useToastManager(): UseToastManagerReturnValue {
+export function useToastManager<Data extends object = any>(): UseToastManagerReturnValue<Data> {
   const context = React.useContext(ToastContext);
 
   if (!context) {
@@ -35,7 +35,7 @@ export interface ToastObject<Data extends object> {
   /**
    * The ref for the toast.
    */
-  ref?: React.RefObject<HTMLElement | null>;
+  ref?: React.RefObject<HTMLElement | null> | undefined;
   /**
    * The title of the toast.
    */
@@ -44,7 +44,7 @@ export interface ToastObject<Data extends object> {
    * The type of the toast. Used to conditionally style the toast,
    * including conditionally rendering elements based on the type.
    */
-  type?: string;
+  type?: string | undefined;
   /**
    * The description of the toast.
    */
@@ -54,14 +54,14 @@ export interface ToastObject<Data extends object> {
    * A value of `0` will prevent the toast from being dismissed automatically.
    * @default 5000
    */
-  timeout?: number;
+  timeout?: number | undefined;
   /**
    * The priority of the toast.
    * - `low` - The toast will be announced politely.
    * - `high` - The toast will be announced urgently.
    * @default 'low'
    */
-  priority?: 'low' | 'high';
+  priority?: ('low' | 'high') | undefined;
   /**
    * The transition status of the toast.
    */
@@ -69,31 +69,31 @@ export interface ToastObject<Data extends object> {
   /**
    * Determines if the toast was closed due to the limit being reached.
    */
-  limited?: boolean;
+  limited?: boolean | undefined;
   /**
    * The height of the toast.
    */
-  height?: number;
+  height?: number | undefined;
   /**
    * Callback function to be called when the toast is closed.
    */
-  onClose?: () => void;
+  onClose?: (() => void) | undefined;
   /**
    * Callback function to be called when the toast is removed from the list after any animations are complete when closed.
    */
-  onRemove?: () => void;
+  onRemove?: (() => void) | undefined;
   /**
    * The props for the action button.
    */
-  actionProps?: React.ComponentPropsWithoutRef<'button'>;
+  actionProps?: React.ComponentPropsWithoutRef<'button'> | undefined;
   /**
    * The props forwarded to the toast positioner element when rendering anchored toasts.
    */
-  positionerProps?: ToastManagerPositionerProps;
+  positionerProps?: ToastManagerPositionerProps | undefined;
   /**
    * Custom data for the toast.
    */
-  data?: Data;
+  data?: Data | undefined;
 }
 
 export interface ToastManagerPositionerProps extends Omit<
@@ -103,17 +103,17 @@ export interface ToastManagerPositionerProps extends Omit<
   /**
    * An element to position the toast against.
    */
-  anchor?: Element | null;
+  anchor?: (Element | null) | undefined;
 }
 
-export interface UseToastManagerReturnValue {
-  toasts: ToastContext<any>['toasts'];
-  add: <Data extends object>(options: ToastManagerAddOptions<Data>) => string;
+export interface UseToastManagerReturnValue<Data extends object = any> {
+  toasts: ToastContext<Data>['toasts'];
+  add: <T extends Data = Data>(options: ToastManagerAddOptions<T>) => string;
   close: (toastId: string) => void;
-  update: <Data extends object>(toastId: string, options: ToastManagerUpdateOptions<Data>) => void;
-  promise: <Value, Data extends object>(
+  update: <T extends Data = Data>(toastId: string, options: ToastManagerUpdateOptions<T>) => void;
+  promise: <Value, T extends Data = Data>(
     promise: Promise<Value>,
-    options: ToastManagerPromiseOptions<Value, Data>,
+    options: ToastManagerPromiseOptions<Value, T>,
   ) => Promise<Value>;
 }
 
@@ -121,7 +121,7 @@ export interface ToastManagerAddOptions<Data extends object> extends Omit<
   ToastObject<Data>,
   'id' | 'animation' | 'height' | 'ref' | 'limited'
 > {
-  id?: string;
+  id?: string | undefined;
 }
 
 export interface ToastManagerUpdateOptions<Data extends object> extends Partial<

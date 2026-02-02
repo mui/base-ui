@@ -81,16 +81,13 @@ export const PopoverPopup = React.forwardRef(function PopoverPopup(
 
   const resolvedInitialFocus = initialFocus === undefined ? defaultInitialFocus : initialFocus;
 
-  const state: PopoverPopup.State = React.useMemo(
-    () => ({
-      open,
-      side: positioner.side,
-      align: positioner.align,
-      instant: instantType,
-      transitionStatus,
-    }),
-    [open, positioner.side, positioner.align, instantType, transitionStatus],
-  );
+  const state: PopoverPopup.State = {
+    open,
+    side: positioner.side,
+    align: positioner.align,
+    instant: instantType,
+    transitionStatus,
+  };
 
   const setPopupElement = React.useCallback(
     (element: HTMLElement | null) => {
@@ -147,6 +144,7 @@ export interface PopoverPopupState {
   side: Side;
   align: Align;
   transitionStatus: TransitionStatus;
+  instant: 'dismiss' | 'click' | undefined;
 }
 
 export interface PopoverPopupProps extends BaseUIComponentProps<'div', PopoverPopup.State> {
@@ -160,9 +158,12 @@ export interface PopoverPopupProps extends BaseUIComponentProps<'div', PopoverPo
    *   Return an element to focus, `true` to use the default behavior, or `false`/`undefined` to do nothing.
    */
   initialFocus?:
-    | boolean
-    | React.RefObject<HTMLElement | null>
-    | ((openType: InteractionType) => void | boolean | HTMLElement | null);
+    | (
+        | boolean
+        | React.RefObject<HTMLElement | null>
+        | ((openType: InteractionType) => void | boolean | HTMLElement | null)
+      )
+    | undefined;
   /**
    * Determines the element to focus when the popover is closed.
    *
@@ -173,9 +174,12 @@ export interface PopoverPopupProps extends BaseUIComponentProps<'div', PopoverPo
    *   Return an element to focus, `true` to use the default behavior, or `false`/`undefined` to do nothing.
    */
   finalFocus?:
-    | boolean
-    | React.RefObject<HTMLElement | null>
-    | ((closeType: InteractionType) => void | boolean | HTMLElement | null);
+    | (
+        | boolean
+        | React.RefObject<HTMLElement | null>
+        | ((closeType: InteractionType) => void | boolean | HTMLElement | null)
+      )
+    | undefined;
 }
 
 export namespace PopoverPopup {
