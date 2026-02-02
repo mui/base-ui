@@ -108,10 +108,10 @@ export interface ToastManagerPositionerProps extends Omit<
 
 export interface UseToastManagerReturnValue<Data extends object = any> {
   toasts: ToastContext<Data>['toasts'];
-  add: <T extends object = Data>(options: ToastManagerAddOptions<T>) => string;
+  add: <T extends Data = Data>(options: ToastManagerAddOptions<T>) => string;
   close: (toastId: string) => void;
-  update: <T extends object = Data>(toastId: string, options: ToastManagerUpdateOptions<T>) => void;
-  promise: <Value, T extends object = Data>(
+  update: <T extends Data = Data>(toastId: string, options: ToastManagerUpdateOptions<T>) => void;
+  promise: <Value, T extends Data = Data>(
     promise: Promise<Value>,
     options: ToastManagerPromiseOptions<Value, T>,
   ) => Promise<Value>;
