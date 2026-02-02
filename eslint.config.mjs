@@ -88,7 +88,7 @@ export default defineConfig(
   },
   {
     files: [`packages/*/src/**/*${EXTENSION_TS}`],
-    ignores: [`**/*${EXTENSION_TEST_FILE}`, `**/*.spec${EXTENSION_TS}`,`test/**/*${EXTENSION_TS}`],
+    ignores: [`**/*${EXTENSION_TEST_FILE}`, `**/*.spec${EXTENSION_TS}`, `test/**/*${EXTENSION_TS}`],
     rules: {
       'mui/add-undef-to-optional': 'error',
       'mui/disallow-react-api-in-server-components': 'error',
