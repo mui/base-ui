@@ -95,8 +95,8 @@ describe('<Switch.Root />', () => {
     });
   });
 
-  describe('prop: onChange', () => {
-    it('should call onChange when clicked', async () => {
+  describe('prop: onCheckedChange', () => {
+    it('should call onCheckedChange when clicked', async () => {
       const handleChange = spy();
       await render(<Switch.Root onCheckedChange={handleChange} />);
       const switchElement = screen.getByRole('switch');
@@ -107,6 +107,19 @@ describe('<Switch.Root />', () => {
 
       expect(handleChange.callCount).to.equal(1);
       expect(handleChange.firstCall.args[0]).to.equal(true);
+    });
+
+    it('should report keyboard modifier event properties when calling onCheckedChange', async () => {
+      const handleChange = spy((checked, eventDetails) => eventDetails);
+      const { user } = await render(<Switch.Root onCheckedChange={handleChange} />);
+      const switchElement = screen.getByRole('switch');
+
+      await user.keyboard('{Shift>}');
+      await user.click(switchElement);
+      await user.keyboard('{/Shift}');
+
+      expect(handleChange.callCount).to.equal(1);
+      expect(handleChange.firstCall.returnValue.event.shiftKey).to.equal(true);
     });
   });
 
