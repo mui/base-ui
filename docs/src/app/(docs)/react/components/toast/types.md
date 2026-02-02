@@ -448,7 +448,7 @@ Returns the array of toasts and methods to manage them.
 
 | Property  | Type                                                              | Description |
 | :-------- | :---------------------------------------------------------------- | :---------- |
-| `toasts`  | `ToastManagerAddOptions<any>[]`                                   | -           |
+| `toasts`  | `ToastManagerAddOptions<{}>[]`                                    | -           |
 | `add`     | `((options: ToastManagerUpdateOptions<{}>) => string)`            | -           |
 | `close`   | `((toastId: string) => void)`                                     | -           |
 | `update`  | `((toastId: string, options: ToastManagerUpdateOptions<{}>) =...` | -           |
@@ -590,7 +590,7 @@ type ToastManagerUpdateOptions = {
 
 ```typescript
 type UseToastManagerReturnValue = {
-  toasts: ToastObject<any>[];
+  toasts: ToastObject<{}>[];
   add: (options: ToastManagerAddOptions<{}>) => string;
   close: (toastId: string) => void;
   update: (toastId: string, options: ToastManagerUpdateOptions<{}>) => void;
