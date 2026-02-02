@@ -502,15 +502,24 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       // If user is typing, ensure we don't auto-highlight on open due to a race
       // with the post-open effect that sets this flag.
       if (eventDetails.reason === REASONS.inputChange) {
-        const hasQuery = next.trim() !== '';
-        if (hasQuery) {
-          setQueryChangedAfterOpen(true);
-        }
-        // Defer index updates until after the filtered items have been derived to ensure
-        // `onItemHighlighted` receives the latest item.
-        pendingQueryHighlightRef.current = { hasQuery };
-        if (hasQuery && autoHighlightMode && store.state.activeIndex == null) {
-          store.set('activeIndex', 0);
+        const event = eventDetails.event as Event;
+        const inputType = (event as InputEvent).inputType;
+        // Treat composition commits as typed input; autofill may omit `inputType` or
+        // report `insertReplacementText`.
+        const isTypedInput =
+          event.type === 'compositionend' ||
+          (inputType != null && inputType !== '' && inputType !== 'insertReplacementText');
+        if (isTypedInput) {
+          const hasQuery = next.trim() !== '';
+          if (hasQuery) {
+            setQueryChangedAfterOpen(true);
+          }
+          // Defer index updates until after the filtered items have been derived to ensure
+          // `onItemHighlighted` receives the latest item.
+          pendingQueryHighlightRef.current = { hasQuery };
+          if (hasQuery && autoHighlightMode && store.state.activeIndex == null) {
+            store.set('activeIndex', 0);
+          }
         }
       }
 
@@ -1156,6 +1165,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
   }, [fieldRawValue, itemToStringValue]);
 
   const hasMultipleSelection = multiple && Array.isArray(selectedValue) && selectedValue.length > 0;
+  const hiddenInputName = multiple || selectionMode === 'none' ? undefined : name;
 
   const hiddenInputs = React.useMemo(() => {
     if (!multiple || !Array.isArray(selectedValue) || !name) {
@@ -1197,7 +1207,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
             }
 
             const nextValue = event.target.value;
-            const details = createChangeEventDetails(REASONS.inputChange, event.nativeEvent);
+            const details = createChangeEventDetails(REASONS.none, event.nativeEvent);
 
             function handleChange() {
               // Browser autofill only writes a single scalar value.
@@ -1241,14 +1251,15 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
             }
           },
         })}
-        name={multiple || selectionMode === 'none' ? undefined : name}
+        id={id && hiddenInputName == null ? `${id}-hidden-input` : undefined}
+        name={hiddenInputName}
         autoComplete={formAutoComplete}
         disabled={disabled}
         required={required && !hasMultipleSelection}
         readOnly={readOnly}
         value={serializedValue}
         ref={hiddenInputRef}
-        style={name ? visuallyHiddenInput : visuallyHidden}
+        style={hiddenInputName ? visuallyHiddenInput : visuallyHidden}
         tabIndex={-1}
         aria-hidden
       />
