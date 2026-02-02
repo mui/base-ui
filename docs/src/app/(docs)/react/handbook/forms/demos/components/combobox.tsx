@@ -15,7 +15,7 @@ export const Input = React.forwardRef<HTMLInputElement, Combobox.Input.Props>(fu
     <Combobox.Input
       ref={forwardedRef}
       className={clsx(
-        'h-10 w-64 rounded-md font-normal border border-gray-200 pl-3.5 text-base text-gray-900 bg-[canvas] focus:outline focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800',
+        'h-10 w-64 rounded-md font-normal border border-gray-200 pl-3.5 text-base text-gray-900 bg-[canvas] focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800',
         className,
       )}
       {...props}
