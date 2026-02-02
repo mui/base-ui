@@ -891,12 +891,16 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
   // when the popup unmounts from the DOM.
   // By blurring it before the popup unmounts, we can prevent this behavior.
   useIsoLayoutEffect(() => {
-    const isClosedInWebKit = isWebKit && floating && !open;
-    const activeEl = activeElement(getDocument(floating));
-    const shouldBlur =
-      isHTMLElement(activeEl) && isTypeableElement(activeEl) && contains(floating, activeEl);
+    if (!isWebKit || open || !floating) {
+      return;
+    }
 
-    if (isClosedInWebKit && shouldBlur) {
+    const activeEl = activeElement(getDocument(floating));
+    if (!isHTMLElement(activeEl) || !isTypeableElement(activeEl)) {
+      return;
+    }
+
+    if (contains(floating, activeEl)) {
       activeEl.blur();
     }
   }, [open, floating]);
