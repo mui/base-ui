@@ -573,17 +573,16 @@ describe('<NumberField />', () => {
       expect(onValueChange.firstCall.args[0]).to.equal(12.34);
     });
 
-    // In JSDOM, change events are not trusted; input text state is not updated for invalid
-    // partials (like "."). We cover browser behavior here.
-    it.skipIf(isJSDOM)('does not commit on blur for invalid input', async () => {
+    it('does not commit on blur for invalid input', async () => {
       const onValueCommitted = spy();
       await render(<NumberField onValueCommitted={onValueCommitted} />);
       const input = screen.getByRole('textbox');
 
       fireEvent.change(input, { target: { value: '.' } });
+      expect(input).to.have.value('.');
       fireEvent.blur(input);
 
-      expect(onValueCommitted.firstCall.args[0]).to.equal(null);
+      expect(onValueCommitted.callCount).to.equal(0);
     });
   });
 
