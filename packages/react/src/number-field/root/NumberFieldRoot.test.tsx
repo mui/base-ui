@@ -1350,7 +1350,7 @@ describe('<NumberField />', () => {
         await render(
           <Form>
             <Field.Root validate={(value) => (value === 1 ? 'custom error' : null)}>
-              <NumberFieldBase.Root required>
+              <NumberFieldBase.Root required data-testid="root">
                 <NumberFieldBase.Input data-testid="input" />
               </NumberFieldBase.Root>
               <Field.Error data-testid="error" match="valueMissing">
@@ -1378,10 +1378,16 @@ describe('<NumberField />', () => {
         fireEvent.click(screen.getByText('submit'));
         expect(input).to.have.attribute('aria-invalid', 'true');
         expect(screen.queryByTestId('error')).to.have.text('valueMissing error');
+        expect(screen.getByTestId('root')).to.have.attribute('data-invalid');
+        expect(input).to.have.attribute('data-invalid');
 
         fireEvent.change(input, { target: { value: '2' } });
         expect(input).not.to.have.attribute('aria-invalid');
         expect(screen.queryByTestId('error')).to.equal(null);
+        expect(screen.getByTestId('root')).not.to.have.attribute('data-invalid');
+        expect(input).not.to.have.attribute('data-invalid');
+        expect(screen.getByTestId('root')).to.have.attribute('data-valid');
+        expect(input).to.have.attribute('data-valid');
         // re-invalidate the field value
         fireEvent.change(input, { target: { value: '1' } });
         expect(input).to.have.attribute('aria-invalid', 'true');
