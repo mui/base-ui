@@ -8,6 +8,7 @@ import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { visuallyHidden } from '@base-ui/utils/visuallyHidden';
 import { useTimeout } from '@base-ui/utils/useTimeout';
+import { isWebKit } from '@base-ui/utils/detectBrowser';
 import type { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
 import { ownerWindow } from '@base-ui/utils/owner';
@@ -28,6 +29,7 @@ import {
   isOutsideEvent,
   getNextTabbable,
   getPreviousTabbable,
+  isTypeableElement,
 } from '../utils';
 import type { FloatingContext, FloatingRootContext } from '../types';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
@@ -884,6 +886,20 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     domReference,
     getNodeId,
   ]);
+
+  // Safari may randomly scroll to the bottom of the page if an input inside a popup has focus
+  // when the popup unmounts from the DOM.
+  // By blurring it before the popup unmounts, we can prevent this behavior.
+  useIsoLayoutEffect(() => {
+    const isClosedInWebKit = isWebKit && floating && !open;
+    const activeEl = activeElement(getDocument(floating));
+    const shouldBlur =
+      isHTMLElement(activeEl) && isTypeableElement(activeEl) && contains(floating, activeEl);
+
+    if (isClosedInWebKit && shouldBlur) {
+      activeEl.blur();
+    }
+  }, [open, floating]);
 
   React.useEffect(() => {
     // The `returnFocus` cleanup behavior is inside a microtask; ensure we
