@@ -1,16 +1,7 @@
 import { AlertDialog } from '@base-ui/react/alert-dialog';
 import { createMultipleTypes } from 'docs/src/utils/createTypes';
 
-const { types } = createMultipleTypes(import.meta.url, AlertDialog);
+const { types, AdditionalTypes } = createMultipleTypes(import.meta.url, AlertDialog);
 
-export const TypesAlertDialogRoot = types.Root;
-export const TypesAlertDialogTrigger = types.Trigger;
-export const TypesAlertDialogPortal = types.Portal;
-export const TypesAlertDialogBackdrop = types.Backdrop;
-export const TypesAlertDialogViewport = types.Viewport;
-export const TypesAlertDialogPopup = types.Popup;
-export const TypesAlertDialogTitle = types.Title;
-export const TypesAlertDialogDescription = types.Description;
-export const TypesAlertDialogClose = types.Close;
-export const TypesAlertDialogCreateHandle = types.createHandle;
-export const TypesAlertDialogHandle = types.Handle;
+export const TypesAlertDialog = types;
+export const TypesAlertDialogAdditional = AdditionalTypes;

@@ -254,65 +254,51 @@ import { DemoToastVaryingHeights } from './demos/varying-heights';
 
 ## API reference
 
-import {
-  TypesToastProvider,
-  TypesToastViewport,
-  TypesToastPortal,
-  TypesToastRoot,
-  TypesToastContent,
-  TypesToastTitle,
-  TypesToastDescription,
-  TypesToastAction,
-  TypesToastClose,
-  TypesToastPositioner,
-  TypesToastArrow,
-  TypesToastUseToastManager,
-  TypesToastAdditionalTypes,
-} from './types';
+import { TypesToast, TypesToastAdditional } from './types';
 
 ### Provider
 
-<TypesToastProvider />
+<TypesToast.Provider />
 
 ### Viewport
 
-<TypesToastViewport />
+<TypesToast.Viewport />
 
 ### Portal
 
-<TypesToastPortal />
+<TypesToast.Portal />
 
 ### Root
 
-<TypesToastRoot />
+<TypesToast.Root />
 
 ### Content
 
-<TypesToastContent />
+<TypesToast.Content />
 
 ### Title
 
-<TypesToastTitle />
+<TypesToast.Title />
 
 ### Description
 
-<TypesToastDescription />
+<TypesToast.Description />
 
 ### Action
 
-<TypesToastAction />
+<TypesToast.Action />
 
 ### Close
 
-<TypesToastClose />
+<TypesToast.Close />
 
 ### Positioner
 
-<TypesToastPositioner />
+<TypesToast.Positioner />
 
 ### Arrow
 
-<TypesToastArrow />
+<TypesToast.Arrow />
 
 ## useToastManager
 
@@ -322,7 +308,7 @@ Manages toasts, called inside of a `<Toast.Provider>`.
 const toastManager = Toast.useToastManager();
 ```
 
-<TypesToastUseToastManager hideDescription />
+<TypesToast.useToastManager hideDescription />
 
 ### `add` method
 
@@ -427,7 +413,7 @@ See full [`promise` method options](#toastmanagerpromiseoptions)
 
 ## Additional Types
 
-<TypesToastAdditionalTypes />
+<TypesToastAdditional />
 
 export const metadata = {
   keywords: [

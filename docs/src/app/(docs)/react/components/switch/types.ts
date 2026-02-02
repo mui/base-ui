@@ -1,7 +1,7 @@
 import { Switch } from '@base-ui/react/switch';
 import { createMultipleTypes } from 'docs/src/utils/createTypes';
 
-const { types } = createMultipleTypes(import.meta.url, Switch);
+const { types, AdditionalTypes } = createMultipleTypes(import.meta.url, Switch);
 
-export const TypesSwitchRoot = types.Root;
-export const TypesSwitchThumb = types.Thumb;
+export const TypesSwitch = types;
+export const TypesSwitchAdditional = AdditionalTypes;

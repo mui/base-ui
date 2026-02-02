@@ -181,130 +181,103 @@ import { DemoComboboxVirtualized } from './demos/virtualized';
 
 ## API reference
 
-import {
-  TypesComboboxRoot,
-  TypesComboboxValue,
-  TypesComboboxIcon,
-  TypesComboboxInput,
-  TypesComboboxClear,
-  TypesComboboxTrigger,
-  TypesComboboxChips,
-  TypesComboboxChip,
-  TypesComboboxChipRemove,
-  TypesComboboxList,
-  TypesComboboxPortal,
-  TypesComboboxBackdrop,
-  TypesComboboxPositioner,
-  TypesComboboxPopup,
-  TypesComboboxArrow,
-  TypesComboboxStatus,
-  TypesComboboxEmpty,
-  TypesComboboxCollection,
-  TypesComboboxRow,
-  TypesComboboxItem,
-  TypesComboboxItemIndicator,
-  TypesComboboxGroup,
-  TypesComboboxGroupLabel,
-  TypesComboboxSeparator,
-  TypesComboboxUseFilter,
-  TypesComboboxUseFilteredItems,
-} from './types';
+import { TypesCombobox } from './types';
 
 ### Root
 
-<TypesComboboxRoot />
+<TypesCombobox.Root />
 
 ### Value
 
-<TypesComboboxValue />
+<TypesCombobox.Value />
 
 ### Icon
 
-<TypesComboboxIcon />
+<TypesCombobox.Icon />
 
 ### Input
 
-<TypesComboboxInput />
+<TypesCombobox.Input />
 
 ### Clear
 
-<TypesComboboxClear />
+<TypesCombobox.Clear />
 
 ### Trigger
 
-<TypesComboboxTrigger />
+<TypesCombobox.Trigger />
 
 ### Chips
 
-<TypesComboboxChips />
+<TypesCombobox.Chips />
 
 ### Chip
 
-<TypesComboboxChip />
+<TypesCombobox.Chip />
 
 ### ChipRemove
 
-<TypesComboboxChipRemove />
+<TypesCombobox.ChipRemove />
 
 ### List
 
-<TypesComboboxList />
+<TypesCombobox.List />
 
 ### Portal
 
-<TypesComboboxPortal />
+<TypesCombobox.Portal />
 
 ### Backdrop
 
-<TypesComboboxBackdrop />
+<TypesCombobox.Backdrop />
 
 ### Positioner
 
-<TypesComboboxPositioner />
+<TypesCombobox.Positioner />
 
 ### Popup
 
-<TypesComboboxPopup />
+<TypesCombobox.Popup />
 
 ### Arrow
 
-<TypesComboboxArrow />
+<TypesCombobox.Arrow />
 
 ### Status
 
-<TypesComboboxStatus />
+<TypesCombobox.Status />
 
 ### Empty
 
-<TypesComboboxEmpty />
+<TypesCombobox.Empty />
 
 ### Collection
 
-<TypesComboboxCollection />
+<TypesCombobox.Collection />
 
 ### Row
 
-<TypesComboboxRow />
+<TypesCombobox.Row />
 
 ### Item
 
-<TypesComboboxItem />
+<TypesCombobox.Item />
 
 ### ItemIndicator
 
-<TypesComboboxItemIndicator />
+<TypesCombobox.ItemIndicator />
 
 ### Group
 
-<TypesComboboxGroup />
+<TypesCombobox.Group />
 
 ### GroupLabel
 
-<TypesComboboxGroupLabel />
+<TypesCombobox.GroupLabel />
 
 ### Separator
 
-<TypesComboboxSeparator />
+<TypesCombobox.Separator />
 
 ### useFilter
 
@@ -312,13 +285,13 @@ Matches items against a query using `Intl.Collator` for robust string matching.
 This hook is used when externally filtering items.
 Pass the result to the `filter` prop of `<Combobox.Root>`.
 
-<TypesComboboxUseFilter hideDescription />
+<TypesCombobox.useFilter hideDescription />
 
 ### useFilteredItems
 
 Returns the internally filtered items when called inside `<Combobox.Root>`.
 
-<TypesComboboxUseFilteredItems hideDescription />
+<TypesCombobox.useFilteredItems hideDescription />
 
 export const metadata = {
   keywords: [

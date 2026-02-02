@@ -1,7 +1,7 @@
 import { Fieldset } from '@base-ui/react/fieldset';
 import { createMultipleTypes } from 'docs/src/utils/createTypes';
 
-const { types } = createMultipleTypes(import.meta.url, Fieldset);
+const { types, AdditionalTypes } = createMultipleTypes(import.meta.url, Fieldset);
 
-export const TypesFieldsetRoot = types.Root;
-export const TypesFieldsetLegend = types.Legend;
+export const TypesFieldset = types;
+export const TypesFieldsetAdditional = AdditionalTypes;

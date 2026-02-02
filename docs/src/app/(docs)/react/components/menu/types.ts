@@ -1,26 +1,7 @@
 import { Menu } from '@base-ui/react/menu';
 import { createMultipleTypes } from 'docs/src/utils/createTypes';
 
-const { types } = createMultipleTypes(import.meta.url, Menu);
+const { types, AdditionalTypes } = createMultipleTypes(import.meta.url, Menu);
 
-export const TypesMenuRoot = types.Root;
-export const TypesMenuTrigger = types.Trigger;
-export const TypesMenuPortal = types.Portal;
-export const TypesMenuBackdrop = types.Backdrop;
-export const TypesMenuPositioner = types.Positioner;
-export const TypesMenuPopup = types.Popup;
-export const TypesMenuArrow = types.Arrow;
-export const TypesMenuItem = types.Item;
-export const TypesMenuLinkItem = types.LinkItem;
-export const TypesMenuSubmenuRoot = types.SubmenuRoot;
-export const TypesMenuSubmenuTrigger = types.SubmenuTrigger;
-export const TypesMenuGroup = types.Group;
-export const TypesMenuGroupLabel = types.GroupLabel;
-export const TypesMenuRadioGroup = types.RadioGroup;
-export const TypesMenuRadioItem = types.RadioItem;
-export const TypesMenuRadioItemIndicator = types.RadioItemIndicator;
-export const TypesMenuCheckboxItem = types.CheckboxItem;
-export const TypesMenuCheckboxItemIndicator = types.CheckboxItemIndicator;
-export const TypesMenuSeparator = types.Separator;
-export const TypesMenuCreateHandle = types.createHandle;
-export const TypesMenuHandle = types.Handle;
+export const TypesMenu = types;
+export const TypesMenuAdditional = AdditionalTypes;

@@ -1,10 +1,7 @@
 import { Accordion } from '@base-ui/react/accordion';
 import { createMultipleTypes } from 'docs/src/utils/createTypes';
 
-const { types } = createMultipleTypes(import.meta.url, Accordion);
+const { types, AdditionalTypes } = createMultipleTypes(import.meta.url, Accordion);
 
-export const TypesAccordionHeader = types.Header;
-export const TypesAccordionItem = types.Item;
-export const TypesAccordionPanel = types.Panel;
-export const TypesAccordionRoot = types.Root;
-export const TypesAccordionTrigger = types.Trigger;
+export const TypesAccordion = types;
+export const TypesAccordionAdditional = AdditionalTypes;
