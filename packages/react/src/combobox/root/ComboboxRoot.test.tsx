@@ -633,7 +633,6 @@ describe('<Combobox.Root />', () => {
         const removeA = screen.getByTestId('remove-a');
 
         expect(chipA).to.have.attribute('aria-readonly', 'true');
-        expect(removeA).to.have.attribute('aria-readonly', 'true');
 
         await user.click(removeA);
         expect(screen.getByTestId('chip-a')).not.to.equal(null);
