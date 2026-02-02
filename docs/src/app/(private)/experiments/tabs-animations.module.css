@@ -167,8 +167,12 @@
   padding: 1.5rem;
   outline: none;
   transform: translate3d(0, 0, 0);
-  transition: opacity 200ms ease, transform 200ms ease;
-  will-change: opacity, transform;
+  filter: blur(0);
+  transition:
+    opacity 320ms var(--ease-out-fast),
+    transform 650ms var(--ease-out-fast),
+    filter 320ms var(--ease-out-fast);
+  will-change: opacity, transform, filter;
 
   &:focus-visible {
     outline: 2px solid var(--color-blue);
@@ -179,59 +183,56 @@
   &[data-starting-style],
   &[data-ending-style] {
     opacity: 0;
+    filter: blur(12px);
   }
 
   &[data-activation-direction='right'] {
     &[data-starting-style] {
-      transform: translateX(1.25rem);
+      transform: translateX(100%);
     }
 
     &[data-ending-style] {
-      transform: translateX(-1.25rem);
+      transform: translateX(-100%);
     }
   }
 
   &[data-activation-direction='left'] {
     &[data-starting-style] {
-      transform: translateX(-1.25rem);
+      transform: translateX(-100%);
     }
 
     &[data-ending-style] {
-      transform: translateX(1.25rem);
+      transform: translateX(100%);
     }
   }
 
   &[data-activation-direction='down'] {
     &[data-starting-style] {
-      transform: translateY(1rem);
+      transform: translateY(100%);
     }
 
     &[data-ending-style] {
-      transform: translateY(-1rem);
+      transform: translateY(-100%);
     }
   }
 
   &[data-activation-direction='up'] {
     &[data-starting-style] {
-      transform: translateY(-1rem);
+      transform: translateY(-100%);
     }
 
     &[data-ending-style] {
-      transform: translateY(1rem);
+      transform: translateY(100%);
     }
   }
 }
 
-.panelCard {
+.panelContent {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
-  width: min(24rem, 100%);
-  padding: 1.5rem;
-  border-radius: 0.75rem;
-  background: white;
-  border: 1px solid var(--color-gray-200);
-  box-shadow: 0 6px 18px rgba(15, 23, 42, 0.08);
+  gap: 0.6rem;
+  width: min(26rem, 100%);
+  text-align: center;
 }
 
 .panelTitle {
@@ -248,6 +249,12 @@
 @media (prefers-reduced-motion: reduce) {
   .panel {
     transition-duration: 0ms;
+  }
+
+  .panel[data-starting-style],
+  .panel[data-ending-style] {
+    filter: none;
+    transform: none;
   }
 
   .indicator {

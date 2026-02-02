@@ -39,7 +39,8 @@ export default function TabsAnimationsExperiment() {
         <header className={classes.header}>
           <h1>Tabs panel transitions</h1>
           <p className={classes.subtitle}>
-            Panels animate based on data-starting-style, data-ending-style, and activation direction.
+            Panels animate based on data-starting-style, data-ending-style, and activation
+            direction.
           </p>
         </header>
         <Tabs.Root
@@ -54,7 +55,9 @@ export default function TabsAnimationsExperiment() {
                 {panel.title}
               </Tabs.Tab>
             ))}
-            <Tabs.Indicator className={clsx(classes.indicator, settings.elastic && classes.elastic)} />
+            <Tabs.Indicator
+              className={clsx(classes.indicator, settings.elastic && classes.elastic)}
+            />
           </Tabs.List>
           <div className={classes.panels}>
             {PANELS.map((panel, index) => (
@@ -64,7 +67,7 @@ export default function TabsAnimationsExperiment() {
                 keepMounted={settings.keepMounted}
                 value={index}
               >
-                <div className={classes.panelCard}>
+                <div className={classes.panelContent}>
                   <h2 className={classes.panelTitle}>{panel.title}</h2>
                   <p className={classes.panelDescription}>{panel.description}</p>
                 </div>
