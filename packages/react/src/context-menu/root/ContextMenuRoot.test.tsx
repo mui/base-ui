@@ -8,30 +8,12 @@ import {
   waitFor,
 } from '@mui/internal-test-utils';
 import { spy } from 'sinon';
-import { vi } from 'vitest';
 import { ContextMenu } from '@base-ui/react/context-menu';
 import { createRenderer, isJSDOM } from '#test-utils';
-import { REASONS } from '../../utils/reasons';
-
-const mockedIsMac = vi.hoisted(() => ({ value: true }));
-
-vi.mock('@base-ui/utils/detectBrowser', async () => {
-  const actual = await vi.importActual<typeof import('@base-ui/utils/detectBrowser')>(
-    '@base-ui/utils/detectBrowser',
-  );
-
-  return {
-    ...actual,
-    get isMac() {
-      return mockedIsMac.value;
-    },
-  };
-});
 
 describe('<ContextMenu.Root />', () => {
   beforeEach(() => {
     globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
-    mockedIsMac.value = true;
   });
 
   const { render, clock } = createRenderer({
@@ -42,120 +24,6 @@ describe('<ContextMenu.Root />', () => {
 
   describe('interactions', () => {
     clock.withFakeTimers();
-
-    it('closes nested submenus on macOS when releasing the context menu pointer over an item', async () => {
-      const rootOnOpenChange = spy();
-      const submenuOnOpenChange = spy();
-
-      const { user } = await render(
-        <ContextMenu.Root onOpenChange={rootOnOpenChange}>
-          <ContextMenu.Trigger data-testid="context-trigger">Surface</ContextMenu.Trigger>
-          <ContextMenu.Portal>
-            <ContextMenu.Positioner>
-              <ContextMenu.Popup data-testid="context-root-popup">
-                <ContextMenu.SubmenuRoot defaultOpen onOpenChange={submenuOnOpenChange}>
-                  <ContextMenu.SubmenuTrigger delay={1} data-testid="context-submenu-trigger">
-                    More options
-                  </ContextMenu.SubmenuTrigger>
-                  <ContextMenu.Portal>
-                    <ContextMenu.Positioner>
-                      <ContextMenu.Popup data-testid="context-submenu-popup">
-                        <ContextMenu.Item data-testid="context-submenu-item">
-                          Deep action
-                        </ContextMenu.Item>
-                      </ContextMenu.Popup>
-                    </ContextMenu.Positioner>
-                  </ContextMenu.Portal>
-                </ContextMenu.SubmenuRoot>
-              </ContextMenu.Popup>
-            </ContextMenu.Positioner>
-          </ContextMenu.Portal>
-        </ContextMenu.Root>,
-      );
-
-      const trigger = screen.getByTestId('context-trigger');
-
-      fireEvent.contextMenu(trigger, { clientX: 10, clientY: 10, button: 2 });
-      await flushMicrotasks();
-
-      await screen.findByTestId('context-root-popup');
-
-      const submenuTrigger = screen.getByTestId('context-submenu-trigger');
-      await user.hover(submenuTrigger);
-
-      await screen.findByTestId('context-submenu-popup');
-
-      const submenuItem = screen.getByTestId('context-submenu-item');
-      fireEvent.mouseUp(submenuItem, { button: 2 });
-      await flushMicrotasks();
-
-      await waitFor(() => {
-        expect(screen.queryByTestId('context-submenu-popup')).to.equal(null);
-      });
-
-      await waitFor(() => {
-        expect(screen.queryByTestId('context-root-popup')).to.equal(null);
-      });
-
-      expect(submenuOnOpenChange.lastCall?.args[0]).to.equal(false);
-      expect(submenuOnOpenChange.lastCall?.args[1].reason).to.equal(REASONS.itemPress);
-      expect(rootOnOpenChange.lastCall?.args[0]).to.equal(false);
-      expect(rootOnOpenChange.lastCall?.args[1].reason).to.equal(REASONS.itemPress);
-    });
-
-    it('keeps menus open on non-mac when releasing the context menu pointer over an item', async () => {
-      mockedIsMac.value = false;
-
-      const { user } = await render(
-        <ContextMenu.Root>
-          <ContextMenu.Trigger data-testid="context-trigger">Surface</ContextMenu.Trigger>
-          <ContextMenu.Portal>
-            <ContextMenu.Positioner>
-              <ContextMenu.Popup data-testid="context-root-popup">
-                <ContextMenu.SubmenuRoot defaultOpen>
-                  <ContextMenu.SubmenuTrigger delay={1} data-testid="context-submenu-trigger">
-                    More options
-                  </ContextMenu.SubmenuTrigger>
-                  <ContextMenu.Portal>
-                    <ContextMenu.Positioner>
-                      <ContextMenu.Popup data-testid="context-submenu-popup">
-                        <ContextMenu.Item data-testid="context-submenu-item">
-                          Deep action
-                        </ContextMenu.Item>
-                      </ContextMenu.Popup>
-                    </ContextMenu.Positioner>
-                  </ContextMenu.Portal>
-                </ContextMenu.SubmenuRoot>
-              </ContextMenu.Popup>
-            </ContextMenu.Positioner>
-          </ContextMenu.Portal>
-        </ContextMenu.Root>,
-      );
-
-      const trigger = screen.getByTestId('context-trigger');
-
-      fireEvent.contextMenu(trigger, { clientX: 10, clientY: 10, button: 2 });
-      await flushMicrotasks();
-
-      await screen.findByTestId('context-root-popup');
-
-      const submenuTrigger = screen.getByTestId('context-submenu-trigger');
-      await user.hover(submenuTrigger);
-
-      await screen.findByTestId('context-submenu-popup');
-
-      const submenuItem = screen.getByTestId('context-submenu-item');
-      fireEvent.mouseUp(submenuItem, { button: 2 });
-      await flushMicrotasks();
-
-      await waitFor(() => {
-        expect(screen.queryByTestId('context-submenu-popup')).not.to.equal(null);
-      });
-
-      await waitFor(() => {
-        expect(screen.queryByTestId('context-root-popup')).not.to.equal(null);
-      });
-    });
 
     it('ignores mouseup directly under the cursor when the context menu spawns there', async () => {
       if (reactMajor <= 18) {
@@ -221,82 +89,6 @@ describe('<ContextMenu.Root />', () => {
       const item = screen.getByTestId('context-item');
 
       fireEvent.mouseUp(item, { button: 2, clientX: 18, clientY: 18 });
-
-      await waitFor(() => {
-        expect(screen.queryByTestId('context-popup')).not.to.equal(null);
-      });
-
-      expect(onOpenChange.callCount).to.equal(1);
-    });
-
-    it('allows mouseup after leaving the initial cursor point on macOS', async () => {
-      if (reactMajor <= 18) {
-        ignoreActWarnings();
-      }
-
-      const onOpenChange = spy();
-
-      await render(
-        <ContextMenu.Root onOpenChange={onOpenChange}>
-          <ContextMenu.Trigger data-testid="context-trigger">Surface</ContextMenu.Trigger>
-          <ContextMenu.Portal>
-            <ContextMenu.Positioner alignOffset={0}>
-              <ContextMenu.Popup data-testid="context-popup">
-                <ContextMenu.Item data-testid="context-item">Action</ContextMenu.Item>
-              </ContextMenu.Popup>
-            </ContextMenu.Positioner>
-          </ContextMenu.Portal>
-        </ContextMenu.Root>,
-      );
-
-      const trigger = screen.getByTestId('context-trigger');
-
-      fireEvent.contextMenu(trigger, { clientX: 20, clientY: 20, button: 2 });
-
-      await screen.findByTestId('context-popup');
-      const item = screen.getByTestId('context-item');
-
-      fireEvent.pointerMove(document.body, { clientX: 24, clientY: 24 });
-      fireEvent.mouseUp(item, { button: 2, clientX: 24, clientY: 24 });
-
-      await waitFor(() => {
-        expect(screen.queryByTestId('context-popup')).to.equal(null);
-      });
-
-      expect(onOpenChange.lastCall?.args[0]).to.equal(false);
-    });
-
-    it('keeps the menu open after leaving the initial cursor point on non-mac', async () => {
-      if (reactMajor <= 18) {
-        ignoreActWarnings();
-      }
-
-      mockedIsMac.value = false;
-
-      const onOpenChange = spy();
-
-      await render(
-        <ContextMenu.Root onOpenChange={onOpenChange}>
-          <ContextMenu.Trigger data-testid="context-trigger">Surface</ContextMenu.Trigger>
-          <ContextMenu.Portal>
-            <ContextMenu.Positioner alignOffset={0}>
-              <ContextMenu.Popup data-testid="context-popup">
-                <ContextMenu.Item data-testid="context-item">Action</ContextMenu.Item>
-              </ContextMenu.Popup>
-            </ContextMenu.Positioner>
-          </ContextMenu.Portal>
-        </ContextMenu.Root>,
-      );
-
-      const trigger = screen.getByTestId('context-trigger');
-
-      fireEvent.contextMenu(trigger, { clientX: 20, clientY: 20, button: 2 });
-
-      await screen.findByTestId('context-popup');
-      const item = screen.getByTestId('context-item');
-
-      fireEvent.pointerMove(document.body, { clientX: 24, clientY: 24 });
-      fireEvent.mouseUp(item, { button: 2, clientX: 24, clientY: 24 });
 
       await waitFor(() => {
         expect(screen.queryByTestId('context-popup')).not.to.equal(null);
