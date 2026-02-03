@@ -89,6 +89,9 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
 
   const contextMenu = parent.type === 'context-menu';
 
+  const parentTransitionStatus = parent.type === 'menu' && parent.store.select('transitionStatus');
+  const parentAnimationFinished = parentTransitionStatus === undefined;
+
   const positioner = useAnchorPositioning({
     anchor,
     floatingRootContext,
@@ -104,7 +107,8 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
     sticky,
     nodeId: floatingNodeId,
     keepMounted,
-    disableAnchorTracking: parent.type !== 'menu' || disableAnchorTracking,
+    disableAnchorTracking,
+    disabledAnimationFrame: parentAnimationFinished,
     collisionAvoidance,
     shiftCrossAxis:
       contextMenu && !('side' in collisionAvoidance && collisionAvoidance.side === 'flip'),
