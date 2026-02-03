@@ -213,6 +213,13 @@ export function useHoverFloatingInteraction(
         return;
       }
 
+      // If the safePolygon handler is active, let it handle the close logic.
+      // The handler checks for open children in the floating tree.
+      if (handlerRef.current) {
+        handlerRef.current(event);
+        return;
+      }
+
       clearPointerEvents();
       cleanupMouseMoveHandler();
       if (!isClickLikeOpenEvent()) {
@@ -223,8 +230,11 @@ export function useHoverFloatingInteraction(
     function onFloatingMouseEnter(event: MouseEvent) {
       openChangeTimeout.clear();
       clearPointerEvents();
+      // Call the safePolygon handler if it exists, but DON'T clear it.
+      // The handler needs to remain active to detect when mouse leaves to
+      // a nested portaled popup. The safePolygon logic checks for open children
+      // in the floating tree and prevents closing when appropriate.
       handlerRef.current?.(event);
-      cleanupMouseMoveHandler();
     }
 
     function onFloatingMouseLeave(event: MouseEvent) {
