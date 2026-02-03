@@ -68,7 +68,7 @@
     "./types": "./src/types/index.ts",
     "./unstable-use-media-query": "./src/unstable-use-media-query/index.ts",
     "./use-render": "./src/use-render/index.ts",
-    "./utils/types": "./src/utils/types.ts"
+    "./utils/types": "./src/types/types.ts"
   },
   "imports": {
     "#test-utils": "./test/index.ts",
