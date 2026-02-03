@@ -9,7 +9,7 @@ export default function ExampleGroupedCombobox() {
     <Combobox.Root items={groupedProduce}>
       <div className={styles.Label}>
         <label htmlFor={id}>Select produce</label>
-        <Combobox.InputGroup className={styles.InputWrapper}>
+        <Combobox.InputGroup className={styles.InputGroup}>
           <Combobox.Input placeholder="e.g. Mango" className={styles.Input} id={id} />
           <div className={styles.ActionButtons}>
             <Combobox.Clear className={styles.Clear} aria-label="Clear selection">
