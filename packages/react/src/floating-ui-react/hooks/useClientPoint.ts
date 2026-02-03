@@ -11,7 +11,7 @@ function createVirtualElement(
   domElement: Element | null | undefined,
   data: {
     axis: 'x' | 'y' | 'both';
-    dataRef: React.MutableRefObject<ContextData>;
+    dataRef: React.RefObject<ContextData>;
     pointerType: string | undefined;
     x: number | null;
     y: number | null;
