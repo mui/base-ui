@@ -85,7 +85,7 @@ export function AutocompleteRoot<ItemValue>(
       return other.filter;
     }
     return (item, query, toString) => {
-      return collator.contains(stringifyAsLabel(item, toString), query);
+      return collator.contains(item, query, toString);
     };
   }, [other.filter, collator]);
 
