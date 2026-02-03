@@ -12,6 +12,14 @@ export type {
   ComboboxInputState as AutocompleteInputState,
 } from '../combobox/input/ComboboxInput';
 export type {
+  ComboboxIconProps as AutocompleteIconProps,
+  ComboboxIconState as AutocompleteIconState,
+} from '../combobox/icon/ComboboxIcon';
+export type {
+  ComboboxClearProps as AutocompleteClearProps,
+  ComboboxClearState as AutocompleteClearState,
+} from '../combobox/clear/ComboboxClear';
+export type {
   ComboboxPopupProps as AutocompletePopupProps,
   ComboboxPopupState as AutocompletePopupState,
 } from '../combobox/popup/ComboboxPopup';
@@ -27,6 +35,10 @@ export type {
   ComboboxItemProps as AutocompleteItemProps,
   ComboboxItemState as AutocompleteItemState,
 } from '../combobox/item/ComboboxItem';
+export type {
+  ComboboxRowProps as AutocompleteRowProps,
+  ComboboxRowState as AutocompleteRowState,
+} from '../combobox/row/ComboboxRow';
 export type {
   ComboboxArrowProps as AutocompleteArrowProps,
   ComboboxArrowState as AutocompleteArrowState,
