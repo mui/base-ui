@@ -654,23 +654,37 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
       isTypeableCombobox(node.context?.elements.domReference || null),
     )?.context?.elements.domReference;
 
-    const insideElements = [
+    const commonInsideElements = [
       floating,
-      rootAncestorComboboxDomReference,
       ...portalNodes,
       ...getInsideElements(),
-      startDismissButtonRef.current,
-      endDismissButtonRef.current,
       beforeGuardRef.current,
       afterGuardRef.current,
       portalContext?.beforeOutsideRef.current,
       portalContext?.afterOutsideRef.current,
+    ];
+    const insideElements = [
+      ...commonInsideElements,
+      rootAncestorComboboxDomReference,
+      startDismissButtonRef.current,
+      endDismissButtonRef.current,
       resolveRef(previousFocusableElement),
       resolveRef(nextFocusableElement),
       isUntrappedTypeableCombobox ? domReference : null,
     ].filter((x): x is Element => x != null);
 
-    return markOthers(insideElements, modal || isUntrappedTypeableCombobox);
+    const ariaHiddenCleanup = markOthers(insideElements, {
+      ariaHidden: modal || isUntrappedTypeableCombobox,
+      mark: false,
+    });
+
+    const markerInsideElements = commonInsideElements.filter((x): x is Element => x != null);
+    const markerCleanup = markOthers(markerInsideElements);
+
+    return () => {
+      markerCleanup();
+      ariaHiddenCleanup();
+    };
   }, [
     open,
     disabled,
