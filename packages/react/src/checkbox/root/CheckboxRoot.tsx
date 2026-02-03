@@ -11,7 +11,7 @@ import { NOOP } from '../../internals/noop';
 import { useStateAttributesMapping } from '../utils/useStateAttributesMapping';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { useBaseUiId } from '../../internals/useBaseUiId';
-import type { BaseUIComponentProps, NonNativeButtonProps } from '../../internals/types';
+import type { NativeButtonComponentProps } from '../../internals/types';
 import { mergeProps } from '../../merge-props';
 import { useButton } from '../../internals/use-button/useButton';
 import type { FieldRootState } from '../../field/root/FieldRoot';
@@ -363,7 +363,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
       <input {...inputProps} suppressHydrationWarning />
     </CheckboxRootContext.Provider>
   );
-});
+}) as unknown as CheckboxRootComponent;
 
 export interface CheckboxRootState extends FieldRootState {
   /**
@@ -388,10 +388,13 @@ export interface CheckboxRootState extends FieldRootState {
   indeterminate: boolean;
 }
 
-export interface CheckboxRootProps
-  extends
-    NonNativeButtonProps,
-    Omit<BaseUIComponentProps<'span', CheckboxRootState>, 'onChange' | 'value'> {
+export type CheckboxRootProps<
+  TNativeButton extends boolean = false,
+  TElement extends React.ElementType = 'span',
+> = Omit<
+  NativeButtonComponentProps<TNativeButton, TElement, CheckboxRoot.State, false, 'value'>,
+  'disabled' | 'onChange'
+> & {
   /**
    * The id of the input element.
    */
@@ -466,7 +469,7 @@ export interface CheckboxRootProps
    * The value of the selected checkbox.
    */
   value?: string | undefined;
-}
+};
 
 export type CheckboxRootChangeEventReason = typeof REASONS.none;
 export type CheckboxRootChangeEventDetails =
@@ -474,7 +477,26 @@ export type CheckboxRootChangeEventDetails =
 
 export namespace CheckboxRoot {
   export type State = CheckboxRootState;
-  export type Props = CheckboxRootProps;
+  export type Props<
+    TNativeButton extends boolean = false,
+    TElement extends React.ElementType = 'span',
+  > = CheckboxRootProps<TNativeButton, TElement>;
   export type ChangeEventReason = CheckboxRootChangeEventReason;
   export type ChangeEventDetails = CheckboxRootChangeEventDetails;
 }
+
+type CheckboxRootComponent = {
+  <TElement extends React.ElementType = 'span'>(
+    props: CheckboxRoot.Props<false, TElement> & { ref?: React.Ref<HTMLElement> | undefined },
+  ): React.ReactElement | null;
+  <TElement extends React.ElementType = 'span'>(
+    props: CheckboxRoot.Props<true, TElement> & { nativeButton: true } & {
+      ref?: React.Ref<HTMLButtonElement> | undefined;
+    },
+  ): React.ReactElement | null;
+  <TElement extends React.ElementType = 'span'>(
+    props: CheckboxRoot.Props<boolean, TElement> & { nativeButton: boolean } & {
+      ref?: React.Ref<HTMLElement> | undefined;
+    },
+  ): React.ReactElement | null;
+};

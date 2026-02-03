@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { BaseUIComponentProps, NativeButtonProps } from '../../internals/types';
+import type { NativeButtonComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { useButton } from '../../internals/use-button';
 import { useNumberFieldRootContext } from '../root/NumberFieldRootContext';
@@ -90,14 +90,37 @@ export const NumberFieldDecrement = React.forwardRef(function NumberFieldDecreme
   });
 
   return element;
-});
+}) as unknown as NumberFieldDecrementComponent;
 
 export interface NumberFieldDecrementState extends NumberFieldRootState {}
 
-export interface NumberFieldDecrementProps
-  extends NativeButtonProps, BaseUIComponentProps<'button', NumberFieldDecrementState> {}
+export type NumberFieldDecrementProps<
+  TNativeButton extends boolean = true,
+  TElement extends React.ElementType = 'button',
+> = NativeButtonComponentProps<TNativeButton, TElement, NumberFieldDecrement.State>;
 
 export namespace NumberFieldDecrement {
   export type State = NumberFieldDecrementState;
-  export type Props = NumberFieldDecrementProps;
+  export type Props<
+    TNativeButton extends boolean = true,
+    TElement extends React.ElementType = 'button',
+  > = NumberFieldDecrementProps<TNativeButton, TElement>;
 }
+
+type NumberFieldDecrementComponent = {
+  <TElement extends React.ElementType = 'button'>(
+    props: NumberFieldDecrement.Props<true, TElement> & {
+      ref?: React.Ref<HTMLButtonElement> | undefined;
+    },
+  ): React.ReactElement | null;
+  <TElement extends React.ElementType = 'button'>(
+    props: NumberFieldDecrement.Props<false, TElement> & { nativeButton: false } & {
+      ref?: React.Ref<HTMLElement> | undefined;
+    },
+  ): React.ReactElement | null;
+  <TElement extends React.ElementType = 'button'>(
+    props: NumberFieldDecrement.Props<boolean, TElement> & { nativeButton: boolean } & {
+      ref?: React.Ref<HTMLElement> | undefined;
+    },
+  ): React.ReactElement | null;
+};

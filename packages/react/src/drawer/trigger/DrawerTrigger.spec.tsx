@@ -1,0 +1,15 @@
+import { expectType } from '#test-utils';
+import { Drawer } from '@base-ui/react/drawer';
+
+<Drawer.Trigger />;
+<Drawer.Trigger type="button" />;
+<Drawer.Trigger
+  nativeButton={false}
+  render={<span />}
+  ref={(node) => {
+    expectType<HTMLElement | null, typeof node>(node);
+  }}
+/>;
+
+// @ts-expect-error -- 'type' is not a valid prop when 'nativeButton' is false
+<Drawer.Trigger nativeButton={false} type="button" />;

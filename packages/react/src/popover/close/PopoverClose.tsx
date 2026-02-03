@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import type { BaseUIComponentProps, NativeButtonProps } from '../../internals/types';
+import type { NativeButtonComponentProps } from '../../internals/types';
 import { usePopoverRootContext } from '../root/PopoverRootContext';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { useButton } from '../../internals/use-button';
@@ -53,14 +53,35 @@ export const PopoverClose = React.forwardRef(function PopoverClose(
   });
 
   return element;
-});
+}) as unknown as PopoverCloseComponent;
 
 export interface PopoverCloseState {}
 
-export interface PopoverCloseProps
-  extends NativeButtonProps, BaseUIComponentProps<'button', PopoverCloseState> {}
+export type PopoverCloseProps<
+  TNativeButton extends boolean = true,
+  TElement extends React.ElementType = 'button',
+> = NativeButtonComponentProps<TNativeButton, TElement, PopoverClose.State>;
 
 export namespace PopoverClose {
   export type State = PopoverCloseState;
-  export type Props = PopoverCloseProps;
+  export type Props<
+    TNativeButton extends boolean = true,
+    TElement extends React.ElementType = 'button',
+  > = PopoverCloseProps<TNativeButton, TElement>;
 }
+
+type PopoverCloseComponent = {
+  <TElement extends React.ElementType = 'button'>(
+    props: PopoverClose.Props<true, TElement> & { ref?: React.Ref<HTMLButtonElement> | undefined },
+  ): React.ReactElement | null;
+  <TElement extends React.ElementType = 'button'>(
+    props: PopoverClose.Props<false, TElement> & { nativeButton: false } & {
+      ref?: React.Ref<HTMLElement> | undefined;
+    },
+  ): React.ReactElement | null;
+  <TElement extends React.ElementType = 'button'>(
+    props: PopoverClose.Props<boolean, TElement> & { nativeButton: boolean } & {
+      ref?: React.Ref<HTMLElement> | undefined;
+    },
+  ): React.ReactElement | null;
+};

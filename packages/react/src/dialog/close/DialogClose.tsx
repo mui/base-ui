@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { useDialogRootContext } from '../root/DialogRootContext';
 import { useRenderElement } from '../../internals/useRenderElement';
-import type { BaseUIComponentProps, NativeButtonProps } from '../../internals/types';
+import type { NativeButtonComponentProps } from '../../internals/types';
 import { useButton } from '../../internals/use-button';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
@@ -47,10 +47,12 @@ export const DialogClose = React.forwardRef(function DialogClose(
     ref: [forwardedRef, buttonRef],
     props: [{ onClick: handleClick }, elementProps, getButtonProps],
   });
-});
+}) as unknown as DialogCloseComponent;
 
-export interface DialogCloseProps
-  extends NativeButtonProps, BaseUIComponentProps<'button', DialogCloseState> {}
+export type DialogCloseProps<
+  TNativeButton extends boolean = true,
+  TElement extends React.ElementType = 'button',
+> = NativeButtonComponentProps<TNativeButton, TElement, DialogClose.State>;
 
 export interface DialogCloseState {
   /**
@@ -60,6 +62,25 @@ export interface DialogCloseState {
 }
 
 export namespace DialogClose {
-  export type Props = DialogCloseProps;
+  export type Props<
+    TNativeButton extends boolean = true,
+    TElement extends React.ElementType = 'button',
+  > = DialogCloseProps<TNativeButton, TElement>;
   export type State = DialogCloseState;
 }
+
+type DialogCloseComponent = {
+  <TElement extends React.ElementType = 'button'>(
+    props: DialogClose.Props<true, TElement> & { ref?: React.Ref<HTMLButtonElement> | undefined },
+  ): React.ReactElement | null;
+  <TElement extends React.ElementType = 'button'>(
+    props: DialogClose.Props<false, TElement> & { nativeButton: false } & {
+      ref?: React.Ref<HTMLElement> | undefined;
+    },
+  ): React.ReactElement | null;
+  <TElement extends React.ElementType = 'button'>(
+    props: DialogClose.Props<boolean, TElement> & { nativeButton: boolean } & {
+      ref?: React.Ref<HTMLElement> | undefined;
+    },
+  ): React.ReactElement | null;
+};

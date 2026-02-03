@@ -4,7 +4,7 @@ import { REGULAR_ITEM, useMenuItem } from './useMenuItem';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { useBaseUiId } from '../../internals/useBaseUiId';
-import type { BaseUIComponentProps, NonNativeButtonProps } from '../../internals/types';
+import type { NativeButtonComponentProps } from '../../internals/types';
 import { useCompositeListItem } from '../../internals/composite/list/useCompositeListItem';
 import { useMenuPositionerContext } from '../positioner/MenuPositionerContext';
 
@@ -56,10 +56,10 @@ export const MenuItem = React.forwardRef(function MenuItem(
 
   return useRenderElement('div', componentProps, {
     state,
-    props: [itemProps, elementProps, getItemProps],
+    props: [itemProps, elementProps as React.HTMLAttributes<HTMLDivElement>, getItemProps],
     ref: [itemRef, forwardedRef, listItem.ref],
   });
-});
+}) as unknown as MenuItemComponent;
 
 export interface MenuItemState {
   /**
@@ -72,12 +72,19 @@ export interface MenuItemState {
   highlighted: boolean;
 }
 
-export interface MenuItemProps
-  extends NonNativeButtonProps, BaseUIComponentProps<'div', MenuItemState> {
+export type MenuItemProps<
+  TNativeButton extends boolean = false,
+  TElement extends React.ElementType = 'div',
+> = Omit<
+  NativeButtonComponentProps<TNativeButton, TElement, MenuItem.State, false>,
+  'disabled' | 'onClick'
+> & {
   /**
    * The click handler for the menu item.
    */
-  onClick?: BaseUIComponentProps<'div', MenuItemState>['onClick'] | undefined;
+  onClick?:
+    | NativeButtonComponentProps<TNativeButton, TElement, MenuItem.State, false>['onClick']
+    | undefined;
   /**
    * Whether the component should ignore user interaction.
    * @default false
@@ -97,9 +104,28 @@ export interface MenuItemProps
    * @default true
    */
   closeOnClick?: boolean | undefined;
-}
+};
 
 export namespace MenuItem {
   export type State = MenuItemState;
-  export type Props = MenuItemProps;
+  export type Props<
+    TNativeButton extends boolean = false,
+    TElement extends React.ElementType = 'div',
+  > = MenuItemProps<TNativeButton, TElement>;
 }
+
+type MenuItemComponent = {
+  <TElement extends React.ElementType = 'div'>(
+    props: MenuItem.Props<false, TElement> & { ref?: React.Ref<HTMLElement> | undefined },
+  ): React.ReactElement | null;
+  <TElement extends React.ElementType = 'div'>(
+    props: MenuItem.Props<true, TElement> & { nativeButton: true } & {
+      ref?: React.Ref<HTMLButtonElement> | undefined;
+    },
+  ): React.ReactElement | null;
+  <TElement extends React.ElementType = 'div'>(
+    props: MenuItem.Props<boolean, TElement> & { nativeButton: boolean } & {
+      ref?: React.Ref<HTMLElement> | undefined;
+    },
+  ): React.ReactElement | null;
+};

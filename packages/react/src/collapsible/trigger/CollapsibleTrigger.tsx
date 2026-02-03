@@ -4,7 +4,7 @@ import { triggerOpenStateMapping } from '../../utils/collapsibleOpenStateMapping
 import type { StateAttributesMapping } from '../../internals/getStateAttributesProps';
 import { transitionStatusMapping } from '../../internals/stateAttributesMapping';
 import { useRenderElement } from '../../internals/useRenderElement';
-import { BaseUIComponentProps, NativeButtonProps } from '../../internals/types';
+import type { NativeButtonComponentProps } from '../../internals/types';
 import { useButton } from '../../internals/use-button';
 import { useCollapsibleRootContext } from '../root/CollapsibleRootContext';
 import { type CollapsibleRootState } from '../root/CollapsibleRoot';
@@ -64,14 +64,37 @@ export const CollapsibleTrigger = React.forwardRef(function CollapsibleTrigger(
   });
 
   return element;
-});
+}) as unknown as CollapsibleTriggerComponent;
 
 export interface CollapsibleTriggerState extends CollapsibleRootState {}
 
-export interface CollapsibleTriggerProps
-  extends NativeButtonProps, BaseUIComponentProps<'button', CollapsibleTriggerState> {}
+export type CollapsibleTriggerProps<
+  TNativeButton extends boolean = true,
+  TElement extends React.ElementType = 'button',
+> = NativeButtonComponentProps<TNativeButton, TElement, CollapsibleTrigger.State>;
 
 export namespace CollapsibleTrigger {
   export type State = CollapsibleTriggerState;
-  export type Props = CollapsibleTriggerProps;
+  export type Props<
+    TNativeButton extends boolean = true,
+    TElement extends React.ElementType = 'button',
+  > = CollapsibleTriggerProps<TNativeButton, TElement>;
 }
+
+type CollapsibleTriggerComponent = {
+  <TElement extends React.ElementType = 'button'>(
+    props: CollapsibleTrigger.Props<true, TElement> & {
+      ref?: React.Ref<HTMLButtonElement> | undefined;
+    },
+  ): React.ReactElement | null;
+  <TElement extends React.ElementType = 'button'>(
+    props: CollapsibleTrigger.Props<false, TElement> & { nativeButton: false } & {
+      ref?: React.Ref<HTMLElement> | undefined;
+    },
+  ): React.ReactElement | null;
+  <TElement extends React.ElementType = 'button'>(
+    props: CollapsibleTrigger.Props<boolean, TElement> & { nativeButton: boolean } & {
+      ref?: React.Ref<HTMLElement> | undefined;
+    },
+  ): React.ReactElement | null;
+};

@@ -3,7 +3,7 @@ import * as React from 'react';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { useBaseUiId } from '../../internals/useBaseUiId';
-import type { BaseUIComponentProps, NonNativeButtonProps } from '../../internals/types';
+import type { NativeButtonComponentProps } from '../../internals/types';
 import { useMenuRadioGroupContext } from '../radio-group/MenuRadioGroupContext';
 import { MenuRadioItemContext } from './MenuRadioItemContext';
 import { itemMapping } from '../utils/stateAttributesMapping';
@@ -91,14 +91,14 @@ export const MenuRadioItem = React.forwardRef(function MenuRadioItem(
         'aria-checked': checked,
         onClick: handleClick,
       },
-      elementProps,
+      elementProps as React.HTMLAttributes<HTMLDivElement>,
       getItemProps,
     ],
     ref: [itemRef, forwardedRef, listItem.ref],
   });
 
   return <MenuRadioItemContext.Provider value={state}>{element}</MenuRadioItemContext.Provider>;
-});
+}) as unknown as MenuRadioItemComponent;
 
 export interface MenuRadioItemState {
   /**
@@ -115,8 +115,13 @@ export interface MenuRadioItemState {
   checked: boolean;
 }
 
-export interface MenuRadioItemProps
-  extends NonNativeButtonProps, BaseUIComponentProps<'div', MenuRadioItemState> {
+export type MenuRadioItemProps<
+  TNativeButton extends boolean = false,
+  TElement extends React.ElementType = 'div',
+> = Omit<
+  NativeButtonComponentProps<TNativeButton, TElement, MenuRadioItem.State, false, 'value'>,
+  'disabled' | 'onClick'
+> & {
   /**
    * Value of the radio item.
    * This is the value that will be set in the MenuRadioGroup when the item is selected.
@@ -125,7 +130,9 @@ export interface MenuRadioItemProps
   /**
    * The click handler for the menu item.
    */
-  onClick?: BaseUIComponentProps<'div', MenuRadioItemState>['onClick'] | undefined;
+  onClick?:
+    | NativeButtonComponentProps<TNativeButton, TElement, MenuRadioItem.State, false>['onClick']
+    | undefined;
   /**
    * Whether the component should ignore user interaction.
    * @default false
@@ -144,9 +151,28 @@ export interface MenuRadioItemProps
    * @default false
    */
   closeOnClick?: boolean | undefined;
-}
+};
 
 export namespace MenuRadioItem {
   export type State = MenuRadioItemState;
-  export type Props = MenuRadioItemProps;
+  export type Props<
+    TNativeButton extends boolean = false,
+    TElement extends React.ElementType = 'div',
+  > = MenuRadioItemProps<TNativeButton, TElement>;
 }
+
+type MenuRadioItemComponent = {
+  <TElement extends React.ElementType = 'div'>(
+    props: MenuRadioItem.Props<false, TElement> & { ref?: React.Ref<HTMLElement> | undefined },
+  ): React.ReactElement | null;
+  <TElement extends React.ElementType = 'div'>(
+    props: MenuRadioItem.Props<true, TElement> & { nativeButton: true } & {
+      ref?: React.Ref<HTMLButtonElement> | undefined;
+    },
+  ): React.ReactElement | null;
+  <TElement extends React.ElementType = 'div'>(
+    props: MenuRadioItem.Props<boolean, TElement> & { nativeButton: boolean } & {
+      ref?: React.Ref<HTMLElement> | undefined;
+    },
+  ): React.ReactElement | null;
+};

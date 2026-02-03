@@ -6,7 +6,7 @@ import { Menu } from '@base-ui/react/menu';
 import { describeConformance, createRenderer, isJSDOM } from '#test-utils';
 
 const Trigger = React.forwardRef(function Trigger(
-  props: Menu.Trigger.Props,
+  props: Menu.Trigger.Props<unknown, false>,
   ref: React.ForwardedRef<any>,
 ) {
   return <Menu.Trigger {...props} ref={ref} render={<div />} nativeButton={false} />;

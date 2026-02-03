@@ -3,7 +3,7 @@ import * as React from 'react';
 import { isElementDisabled } from '@base-ui/utils/isElementDisabled';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { triggerOpenStateMapping } from '../../utils/collapsibleOpenStateMapping';
-import { BaseUIComponentProps, NativeButtonProps } from '../../internals/types';
+import type { NativeButtonComponentProps } from '../../internals/types';
 import { useButton } from '../../internals/use-button';
 import { useCollapsibleRootContext } from '../../collapsible/root/CollapsibleRootContext';
 import {
@@ -179,14 +179,37 @@ export const AccordionTrigger = React.forwardRef(function AccordionTrigger(
   });
 
   return element;
-});
+}) as unknown as AccordionTriggerComponent;
 
 export interface AccordionTriggerState extends AccordionItemState {}
 
-export interface AccordionTriggerProps
-  extends NativeButtonProps, BaseUIComponentProps<'button', AccordionTriggerState> {}
+export type AccordionTriggerProps<
+  TNativeButton extends boolean = true,
+  TElement extends React.ElementType = 'button',
+> = NativeButtonComponentProps<TNativeButton, TElement, AccordionTrigger.State>;
 
 export namespace AccordionTrigger {
   export type State = AccordionTriggerState;
-  export type Props = AccordionTriggerProps;
+  export type Props<
+    TNativeButton extends boolean = true,
+    TElement extends React.ElementType = 'button',
+  > = AccordionTriggerProps<TNativeButton, TElement>;
 }
+
+type AccordionTriggerComponent = {
+  <TElement extends React.ElementType = 'button'>(
+    props: AccordionTrigger.Props<true, TElement> & {
+      ref?: React.Ref<HTMLButtonElement> | undefined;
+    },
+  ): React.ReactElement | null;
+  <TElement extends React.ElementType = 'button'>(
+    props: AccordionTrigger.Props<false, TElement> & { nativeButton: false } & {
+      ref?: React.Ref<HTMLElement> | undefined;
+    },
+  ): React.ReactElement | null;
+  <TElement extends React.ElementType = 'button'>(
+    props: AccordionTrigger.Props<boolean, TElement> & { nativeButton: boolean } & {
+      ref?: React.Ref<HTMLElement> | undefined;
+    },
+  ): React.ReactElement | null;
+};

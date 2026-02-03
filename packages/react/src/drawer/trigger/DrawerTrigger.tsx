@@ -2,7 +2,7 @@
 import type * as React from 'react';
 import { DialogTrigger } from '../../dialog/trigger/DialogTrigger';
 import type { DialogHandle as DrawerHandle } from '../../dialog/store/DialogHandle';
-import type { BaseUIComponentProps, NativeButtonProps } from '../../internals/types';
+import type { NativeButtonComponentProps } from '../../internals/types';
 
 /**
  * A button that opens the drawer.
@@ -13,13 +13,27 @@ import type { BaseUIComponentProps, NativeButtonProps } from '../../internals/ty
 export const DrawerTrigger = DialogTrigger as DrawerTrigger;
 
 export interface DrawerTrigger {
-  <Payload>(
-    componentProps: DrawerTriggerProps<Payload> & React.RefAttributes<HTMLElement>,
+  <Payload = unknown, TElement extends React.ElementType = 'button'>(
+    componentProps: DrawerTrigger.Props<Payload, true, TElement> &
+      React.RefAttributes<HTMLButtonElement>,
+  ): React.JSX.Element;
+  <Payload = unknown, TElement extends React.ElementType = 'button'>(
+    componentProps: DrawerTrigger.Props<Payload, false, TElement> & {
+      nativeButton: false;
+    } & React.RefAttributes<HTMLElement>,
+  ): React.JSX.Element;
+  <Payload = unknown, TElement extends React.ElementType = 'button'>(
+    componentProps: DrawerTrigger.Props<Payload, boolean, TElement> & {
+      nativeButton: boolean;
+    } & React.RefAttributes<HTMLElement>,
   ): React.JSX.Element;
 }
 
-export interface DrawerTriggerProps<Payload = unknown>
-  extends NativeButtonProps, BaseUIComponentProps<'button', DrawerTriggerState> {
+export type DrawerTriggerProps<
+  Payload = unknown,
+  TNativeButton extends boolean = true,
+  TElement extends React.ElementType = 'button',
+> = NativeButtonComponentProps<TNativeButton, TElement, DrawerTrigger.State> & {
   /**
    * A handle to associate the trigger with a drawer.
    * Can be created with the Drawer.createHandle() method.
@@ -34,7 +48,7 @@ export interface DrawerTriggerProps<Payload = unknown>
    * it is also used to specify the active trigger for drawers in controlled mode (with the Drawer.Root `triggerId` prop).
    */
   id?: string | undefined;
-}
+};
 
 export interface DrawerTriggerState {
   /**
@@ -48,6 +62,10 @@ export interface DrawerTriggerState {
 }
 
 export namespace DrawerTrigger {
-  export type Props<Payload = unknown> = DrawerTriggerProps<Payload>;
+  export type Props<
+    Payload = unknown,
+    TNativeButton extends boolean = true,
+    TElement extends React.ElementType = 'button',
+  > = DrawerTriggerProps<Payload, TNativeButton, TElement>;
   export type State = DrawerTriggerState;
 }

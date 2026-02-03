@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { BaseUIComponentProps, NativeButtonProps } from '../../internals/types';
+import type { NativeButtonComponentProps } from '../../internals/types';
 import { useButton } from '../../internals/use-button';
 import type { ToolbarRootState } from '../root/ToolbarRoot';
 import { useToolbarRootContext } from '../root/ToolbarRootContext';
@@ -66,7 +66,7 @@ export const ToolbarButton = React.forwardRef(function ToolbarButton(
       ]}
     />
   );
-});
+}) as unknown as ToolbarButtonComponent;
 
 export interface ToolbarButtonState extends ToolbarRootState {
   /**
@@ -79,8 +79,10 @@ export interface ToolbarButtonState extends ToolbarRootState {
   focusable: boolean;
 }
 
-export interface ToolbarButtonProps
-  extends NativeButtonProps, BaseUIComponentProps<'button', ToolbarButtonState> {
+export type ToolbarButtonProps<
+  TNativeButton extends boolean = true,
+  TElement extends React.ElementType = 'button',
+> = Omit<NativeButtonComponentProps<TNativeButton, TElement, ToolbarButton.State>, 'disabled'> & {
   /**
    * When `true` the item is disabled.
    * @default false
@@ -91,9 +93,28 @@ export interface ToolbarButtonProps
    * @default true
    */
   focusableWhenDisabled?: boolean | undefined;
-}
+};
 
 export namespace ToolbarButton {
   export type State = ToolbarButtonState;
-  export type Props = ToolbarButtonProps;
+  export type Props<
+    TNativeButton extends boolean = true,
+    TElement extends React.ElementType = 'button',
+  > = ToolbarButtonProps<TNativeButton, TElement>;
 }
+
+type ToolbarButtonComponent = {
+  <TElement extends React.ElementType = 'button'>(
+    props: ToolbarButton.Props<true, TElement> & { ref?: React.Ref<HTMLButtonElement> | undefined },
+  ): React.ReactElement | null;
+  <TElement extends React.ElementType = 'button'>(
+    props: ToolbarButton.Props<false, TElement> & { nativeButton: false } & {
+      ref?: React.Ref<HTMLElement> | undefined;
+    },
+  ): React.ReactElement | null;
+  <TElement extends React.ElementType = 'button'>(
+    props: ToolbarButton.Props<boolean, TElement> & { nativeButton: boolean } & {
+      ref?: React.Ref<HTMLElement> | undefined;
+    },
+  ): React.ReactElement | null;
+};

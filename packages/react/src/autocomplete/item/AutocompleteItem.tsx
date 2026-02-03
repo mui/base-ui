@@ -1,7 +1,7 @@
 'use client';
 import type * as React from 'react';
 import { ComboboxItem } from '../../combobox/item/ComboboxItem';
-import type { BaseUIComponentProps, NonNativeButtonProps } from '../../internals/types';
+import type { NativeButtonComponentProps } from '../../internals/types';
 
 /**
  * An individual item in the list.
@@ -22,14 +22,21 @@ export interface AutocompleteItemState {
   highlighted: boolean;
 }
 
-export interface AutocompleteItemProps
-  extends NonNativeButtonProps, Omit<BaseUIComponentProps<'div', AutocompleteItemState>, 'id'> {
+export type AutocompleteItemProps<
+  TNativeButton extends boolean = false,
+  TElement extends React.ElementType = 'div',
+> = Omit<
+  NativeButtonComponentProps<TNativeButton, TElement, AutocompleteItem.State, false>,
+  'disabled' | 'id' | 'onClick'
+> & {
   children?: React.ReactNode;
   /**
    * An optional click handler for the item when selected.
    * It fires when clicking the item with the pointer, as well as when pressing `Enter` with the keyboard if the item is highlighted when the `Input` or `List` element has focus.
    */
-  onClick?: BaseUIComponentProps<'div', AutocompleteItemState>['onClick'] | undefined;
+  onClick?:
+    | NativeButtonComponentProps<TNativeButton, TElement, AutocompleteItem.State, false>['onClick']
+    | undefined;
   /**
    * The index of the item in the list. Improves performance when specified by avoiding the need to calculate the index automatically from the DOM.
    */
@@ -44,13 +51,28 @@ export interface AutocompleteItemProps
    * @default false
    */
   disabled?: boolean | undefined;
-}
+};
 
 export interface AutocompleteItem {
-  (componentProps: AutocompleteItemProps & React.RefAttributes<HTMLDivElement>): React.JSX.Element;
+  <TElement extends React.ElementType = 'div'>(
+    componentProps: AutocompleteItem.Props<false, TElement> & React.RefAttributes<HTMLElement>,
+  ): React.JSX.Element;
+  <TElement extends React.ElementType = 'div'>(
+    componentProps: AutocompleteItem.Props<true, TElement> & {
+      nativeButton: true;
+    } & React.RefAttributes<HTMLButtonElement>,
+  ): React.JSX.Element;
+  <TElement extends React.ElementType = 'div'>(
+    componentProps: AutocompleteItem.Props<boolean, TElement> & {
+      nativeButton: boolean;
+    } & React.RefAttributes<HTMLElement>,
+  ): React.JSX.Element;
 }
 
 export namespace AutocompleteItem {
   export type State = AutocompleteItemState;
-  export type Props = AutocompleteItemProps;
+  export type Props<
+    TNativeButton extends boolean = false,
+    TElement extends React.ElementType = 'div',
+  > = AutocompleteItemProps<TNativeButton, TElement>;
 }

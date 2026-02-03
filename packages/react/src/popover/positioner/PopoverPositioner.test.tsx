@@ -5,7 +5,7 @@ import { screen, waitFor } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 
 const Trigger = React.forwardRef(function Trigger(
-  props: Popover.Trigger.Props,
+  props: Popover.Trigger.Props<unknown, false>,
   ref: React.ForwardedRef<any>,
 ) {
   return <Popover.Trigger {...props} ref={ref} render={<div />} nativeButton={false} />;

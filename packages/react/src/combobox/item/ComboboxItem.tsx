@@ -11,7 +11,7 @@ import {
   useCompositeListItem,
   IndexGuessBehavior,
 } from '../../internals/composite/list/useCompositeListItem';
-import type { BaseUIComponentProps, HTMLProps, NonNativeButtonProps } from '../../internals/types';
+import type { HTMLProps, NativeButtonComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { ComboboxItemContext } from './ComboboxItemContext';
 import { selectors } from '../store';
@@ -200,7 +200,12 @@ export const ComboboxItem = React.memo(
     const element = useRenderElement('div', componentProps, {
       ref: [buttonRef, forwardedRef, listItem.ref, itemRef],
       state,
-      props: [rootProps, defaultProps, elementProps, getButtonProps],
+      props: [
+        rootProps,
+        defaultProps,
+        elementProps as React.HTMLAttributes<HTMLDivElement>,
+        getButtonProps,
+      ],
     });
 
     const contextValue: ComboboxItemContext = React.useMemo(
@@ -215,7 +220,7 @@ export const ComboboxItem = React.memo(
       <ComboboxItemContext.Provider value={contextValue}>{element}</ComboboxItemContext.Provider>
     );
   }),
-);
+) as unknown as ComboboxItemComponent;
 
 export interface ComboboxItemState {
   /**
@@ -232,14 +237,21 @@ export interface ComboboxItemState {
   highlighted: boolean;
 }
 
-export interface ComboboxItemProps
-  extends NonNativeButtonProps, Omit<BaseUIComponentProps<'div', ComboboxItemState>, 'id'> {
+export type ComboboxItemProps<
+  TNativeButton extends boolean = false,
+  TElement extends React.ElementType = 'div',
+> = Omit<
+  NativeButtonComponentProps<TNativeButton, TElement, ComboboxItem.State, false>,
+  'disabled' | 'id' | 'onClick' | 'value'
+> & {
   children?: React.ReactNode;
   /**
    * An optional click handler for the item when selected.
    * It fires when clicking the item with the pointer, as well as when pressing `Enter` with the keyboard if the item is highlighted when the `Input` or `List` element has focus.
    */
-  onClick?: BaseUIComponentProps<'div', ComboboxItemState>['onClick'] | undefined;
+  onClick?:
+    | NativeButtonComponentProps<TNativeButton, TElement, ComboboxItem.State, false>['onClick']
+    | undefined;
   /**
    * The index of the item in the list. Improves performance when specified by avoiding the need to calculate the index automatically from the DOM.
    */
@@ -254,9 +266,28 @@ export interface ComboboxItemProps
    * @default false
    */
   disabled?: boolean | undefined;
-}
+};
 
 export namespace ComboboxItem {
   export type State = ComboboxItemState;
-  export type Props = ComboboxItemProps;
+  export type Props<
+    TNativeButton extends boolean = false,
+    TElement extends React.ElementType = 'div',
+  > = ComboboxItemProps<TNativeButton, TElement>;
 }
+
+type ComboboxItemComponent = {
+  <TElement extends React.ElementType = 'div'>(
+    props: ComboboxItem.Props<false, TElement> & { ref?: React.Ref<HTMLElement> | undefined },
+  ): React.ReactElement | null;
+  <TElement extends React.ElementType = 'div'>(
+    props: ComboboxItem.Props<true, TElement> & { nativeButton: true } & {
+      ref?: React.Ref<HTMLButtonElement> | undefined;
+    },
+  ): React.ReactElement | null;
+  <TElement extends React.ElementType = 'div'>(
+    props: ComboboxItem.Props<boolean, TElement> & { nativeButton: boolean } & {
+      ref?: React.Ref<HTMLElement> | undefined;
+    },
+  ): React.ReactElement | null;
+};
