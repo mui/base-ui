@@ -84,9 +84,7 @@ export function AutocompleteRoot<ItemValue>(
     if (other.filter) {
       return other.filter;
     }
-    return (item, query, toString) => {
-      return collator.contains(stringifyAsLabel(item, toString), query);
-    };
+    return collator.contains;
   }, [other.filter, collator]);
 
   const resolvedQuery = String(isControlled ? value : internalValue).trim();
