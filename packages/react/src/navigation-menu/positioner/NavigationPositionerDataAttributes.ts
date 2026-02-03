@@ -17,12 +17,12 @@ export enum NavigationMenuPositionerDataAttributes {
    * Indicates which side the popup is positioned relative to the trigger.
    * @type {'top' | 'bottom' | 'left' | 'right' | 'inline-end' | 'inline-start'}
    */
-  side = 'data-side',
+  side = CommonPopupDataAttributes.side,
   /**
    * Indicates how the popup is aligned relative to the specified side.
    * @type {'start' | 'center' | 'end'}
    */
-  align = 'data-align',
+  align = CommonPopupDataAttributes.align,
   /**
    * Present if animations should be instant.
    */
