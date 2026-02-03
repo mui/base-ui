@@ -233,7 +233,7 @@ export interface PopoverRootProps<Payload = unknown> {
   modal?: (boolean | 'trap-focus') | undefined;
   /**
    * Whether scroll lock should apply when the popover opens via hover.
-   * Requires the `modal` prop.
+   * Requires `modal={true}`.
    * @default false
    */
   lockScrollOnHover?: boolean | undefined;

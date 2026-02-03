@@ -36,7 +36,7 @@
     "lockScrollOnHover": {
       "type": "boolean",
       "default": "false",
-      "description": "Whether scroll lock should apply when the popover opens via hover.\nRequires the `modal` prop.",
+      "description": "Whether scroll lock should apply when the popover opens via hover.\nRequires `modal={true}`.",
       "detailedType": "boolean | undefined"
     },
     "modal": {
