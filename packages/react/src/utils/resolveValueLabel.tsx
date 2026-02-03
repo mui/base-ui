@@ -14,9 +14,21 @@ interface LabeledItem {
   label: React.ReactNode;
 }
 
+export function isPrimitiveValue(value: unknown): boolean {
+  return value != null && typeof value !== 'object' && typeof value !== 'function';
+}
+
+export function hasValueField(item: any): item is { value: unknown } {
+  return item != null && typeof item === 'object' && 'value' in item;
+}
+
+export function getItemValue(item: any) {
+  return hasValueField(item) ? item.value : item;
+}
+
 export interface Group<Item = any> {
   value: unknown;
-  items: Item[];
+  items: ReadonlyArray<Item>;
 }
 
 export function isGroupedItems(
@@ -129,6 +141,15 @@ export function resolveSelectedLabel(
   }
 
   return fallback();
+}
+
+export function resolveSelectedLabelString(
+  value: any,
+  items: ItemsInput,
+  itemToStringLabel?: (item: any) => string,
+): string {
+  const label = resolveSelectedLabel(value, items, itemToStringLabel);
+  return label == null ? '' : String(label);
 }
 
 export function resolveMultipleLabels(

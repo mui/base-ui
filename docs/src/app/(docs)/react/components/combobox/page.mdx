@@ -69,8 +69,16 @@ import { Combobox } from '@base-ui/react/combobox';
 
 ## TypeScript
 
-Combobox infers the item type from the `defaultValue` or `value` props passed to `<Combobox.Root>`.
-The type of items held in the `items` array must also match the `value` prop type passed to `<Combobox.Item>`.
+Combobox infers the selection value type from the `value`/`defaultValue` props on `<Combobox.Root>`.
+If your `items` array contains objects with the shape `{ value, label }`, you can choose either of these patterns:
+
+1. **Object selection**
+   - `<Combobox.Item value={item}>`
+   - `value`/`defaultValue` are the full item objects (or `null`)
+
+2. **Primitive selection**
+   - `<Combobox.Item value={item.value}>`
+   - `value`/`defaultValue` are the primitive `item.value` (string/number)
 
 ## Examples
 
