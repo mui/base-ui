@@ -61,7 +61,7 @@ export interface ToastCloseState {
   /**
    * The type of the toast.
    */
-  type: ToastType
+  type: ToastType;
 }
 
 export interface ToastCloseProps

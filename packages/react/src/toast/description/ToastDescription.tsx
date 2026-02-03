@@ -67,7 +67,7 @@ export interface ToastDescriptionState {
   /**
    * The type of the toast.
    */
-  type: ToastType
+  type: ToastType;
 }
 
 export interface ToastDescriptionProps extends BaseUIComponentProps<'p', ToastDescription.State> {}

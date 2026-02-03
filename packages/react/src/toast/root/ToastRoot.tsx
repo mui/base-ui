@@ -589,7 +589,7 @@ export interface ToastRootState {
   /** Whether the toast was removed due to exceeding the limit. */
   limited: boolean;
   /** The type of the toast. */
-  type: ToastType
+  type: ToastType;
   /** Whether the toast is being swiped. */
   swiping: boolean;
   /** The direction the toast is being swiped. */

@@ -56,7 +56,7 @@ export interface ToastActionState {
   /**
    * The type of the toast.
    */
-  type: ToastType
+  type: ToastType;
 }
 
 export interface ToastActionProps
