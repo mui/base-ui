@@ -5,6 +5,7 @@ import { useToastRootContext } from '../root/ToastRootContext';
 import { useToastContext } from '../provider/ToastProviderContext';
 import { useButton } from '../../use-button/useButton';
 import { useRenderElement } from '../../utils/useRenderElement';
+import { ToastType } from '../useToastManager';
 
 /**
  * Closes the toast when clicked.
@@ -60,7 +61,7 @@ export interface ToastCloseState {
   /**
    * The type of the toast.
    */
-  type: string | undefined;
+  type: ToastType
 }
 
 export interface ToastCloseProps

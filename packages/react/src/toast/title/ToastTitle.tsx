@@ -5,6 +5,7 @@ import { useId } from '@base-ui/utils/useId';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useToastRootContext } from '../root/ToastRootContext';
 import { useRenderElement } from '../../utils/useRenderElement';
+import { ToastType } from '../useToastManager';
 
 /**
  * A title that labels the toast.
@@ -65,7 +66,7 @@ export interface ToastTitleState {
   /**
    * The type of the toast.
    */
-  type: string | undefined;
+  type: ToastType;
 }
 
 export interface ToastTitleProps extends BaseUIComponentProps<'h2', ToastTitle.State> {}

@@ -5,6 +5,7 @@ import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useToastRootContext } from '../root/ToastRootContext';
 import { useRenderElement } from '../../utils/useRenderElement';
+import { ToastType } from '../useToastManager';
 
 /**
  * A description that describes the toast.
@@ -66,7 +67,7 @@ export interface ToastDescriptionState {
   /**
    * The type of the toast.
    */
-  type: string | undefined;
+  type: ToastType
 }
 
 export interface ToastDescriptionProps extends BaseUIComponentProps<'p', ToastDescription.State> {}
