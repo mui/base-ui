@@ -8,7 +8,7 @@ const translations = {
     System: 'MUI System',
     Css: 'Plain CSS',
     CssModules: 'CSS Modules',
-    Tailwind: 'Tailwind CSS (v4)',
+    Tailwind: 'Tailwind CSS',
   } as Record<string, string>,
 };
 
