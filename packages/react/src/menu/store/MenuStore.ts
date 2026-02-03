@@ -60,6 +60,13 @@ const selectors = {
   allowMouseEnter: createSelector((state: State<unknown>) => state.allowMouseEnter),
   stickIfOpen: createSelector((state: State<unknown>) => state.stickIfOpen),
   parent: createSelector((state: State<unknown>) => state.parent),
+  parentAnimationFinished: createSelector((state: State<unknown>) => {
+    if (state.parent.type === 'menu') {
+      return state.parent.store.select('transitionStatus') === undefined;
+    }
+
+    return false;
+  }),
   rootId: createSelector((state: State<unknown>): string | undefined => {
     if (state.parent.type === 'menu') {
       return state.parent.store.select('rootId');

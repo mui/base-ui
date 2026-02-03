@@ -61,6 +61,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
   const lastOpenChangeReason = store.useState('lastOpenChangeReason');
   const floatingNodeId = store.useState('floatingNodeId');
   const floatingParentNodeId = store.useState('floatingParentNodeId');
+  const parentAnimationFinished = store.useState('parentAnimationFinished');
 
   let anchor = anchorProp;
   let sideOffset = sideOffsetProp;
@@ -88,9 +89,6 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
   }
 
   const contextMenu = parent.type === 'context-menu';
-
-  const parentTransitionStatus = parent.type === 'menu' && parent.store.select('transitionStatus');
-  const parentAnimationFinished = parentTransitionStatus === undefined;
 
   const positioner = useAnchorPositioning({
     anchor,
