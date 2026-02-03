@@ -11,7 +11,7 @@ import {
   useCompositeListItem,
   IndexGuessBehavior,
 } from '../../composite/list/useCompositeListItem';
-import type { BaseUIComponentProps, HTMLProps, NonNativeButtonProps } from '../../utils/types';
+import type { HTMLProps, NativeButtonComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { ComboboxItemContext } from './ComboboxItemContext';
 import { selectors } from '../store';
@@ -205,7 +205,7 @@ export const ComboboxItem = React.memo(
       <ComboboxItemContext.Provider value={contextValue}>{element}</ComboboxItemContext.Provider>
     );
   }),
-);
+) as ComboboxItemComponent;
 
 export interface ComboboxItemState {
   /**
@@ -222,8 +222,13 @@ export interface ComboboxItemState {
   highlighted: boolean;
 }
 
-export interface ComboboxItemProps
-  extends NonNativeButtonProps, Omit<BaseUIComponentProps<'div', ComboboxItem.State>, 'id'> {
+export type ComboboxItemProps<
+  TNativeButton extends boolean,
+  TElement extends React.ElementType,
+> = Omit<
+  NativeButtonComponentProps<TNativeButton, TElement, ComboboxItem.State>,
+  'id' | 'value'
+> & {
   children?: React.ReactNode;
   /**
    * An optional click handler for the item when selected.
@@ -244,9 +249,21 @@ export interface ComboboxItemProps
    * @default false
    */
   disabled?: boolean | undefined;
-}
+};
 
 export namespace ComboboxItem {
   export type State = ComboboxItemState;
-  export type Props = ComboboxItemProps;
+  export type Props<
+    TNativeButton extends boolean = false,
+    TElement extends React.ElementType = 'div',
+  > = ComboboxItemProps<TNativeButton, TElement>;
 }
+
+type ComboboxItemComponent = <
+  TNativeButton extends boolean = false,
+  TElement extends React.ElementType = 'div',
+>(
+  props: ComboboxItem.Props<TNativeButton, TElement> & {
+    ref?: React.Ref<HTMLDivElement> | undefined;
+  },
+) => React.ReactElement | null;

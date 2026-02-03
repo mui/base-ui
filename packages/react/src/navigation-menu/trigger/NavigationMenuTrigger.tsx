@@ -22,7 +22,7 @@ import {
   isOutsideEvent,
   stopEvent,
 } from '../../floating-ui-react/utils';
-import type { BaseUIComponentProps, NativeButtonProps, HTMLProps } from '../../utils/types';
+import type { HTMLProps, NativeButtonComponentProps } from '../../utils/types';
 import { useNavigationMenuItemContext } from '../item/NavigationMenuItemContext';
 import {
   useNavigationMenuRootContext,
@@ -483,7 +483,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
       )}
     </React.Fragment>
   );
-});
+}) as NavigationMenuTriggerComponent;
 
 export interface NavigationMenuTriggerState {
   /**
@@ -492,10 +492,24 @@ export interface NavigationMenuTriggerState {
   open: boolean;
 }
 
-export interface NavigationMenuTriggerProps
-  extends NativeButtonProps, BaseUIComponentProps<'button', NavigationMenuTrigger.State> {}
+export type NavigationMenuTriggerProps<
+  TNativeButton extends boolean,
+  TElement extends React.ElementType,
+> = NativeButtonComponentProps<TNativeButton, TElement, NavigationMenuTrigger.State>;
 
 export namespace NavigationMenuTrigger {
   export type State = NavigationMenuTriggerState;
-  export type Props = NavigationMenuTriggerProps;
+  export type Props<
+    TNativeButton extends boolean = true,
+    TElement extends React.ElementType = 'button',
+  > = NavigationMenuTriggerProps<TNativeButton, TElement>;
 }
+
+type NavigationMenuTriggerComponent = <
+  TNativeButton extends boolean = true,
+  TElement extends React.ElementType = 'button',
+>(
+  props: NavigationMenuTrigger.Props<TNativeButton, TElement> & {
+    ref?: React.Ref<HTMLButtonElement> | undefined;
+  },
+) => React.ReactElement | null;

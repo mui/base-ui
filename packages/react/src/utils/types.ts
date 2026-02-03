@@ -74,25 +74,52 @@ export type BaseUIComponentProps<
   style?: (React.CSSProperties | ((state: State) => React.CSSProperties | undefined)) | undefined;
 };
 
-export interface NativeButtonProps {
+export type NativeButtonAttributeKeys =
+  | 'form'
+  | 'formAction'
+  | 'formEncType'
+  | 'formMethod'
+  | 'formNoValidate'
+  | 'formTarget'
+  | 'name'
+  | 'type'
+  | 'value';
+
+export type NativeButtonAttributes = Pick<
+  React.ButtonHTMLAttributes<HTMLButtonElement>,
+  NativeButtonAttributeKeys
+>;
+
+export interface NativeButtonProps<TNativeButton extends boolean> {
   /**
    * Whether the component renders a native `<button>` element when replacing it
    * via the `render` prop.
    * Set to `false` if the rendered element is not a button (e.g. `<div>`).
    * @default true
    */
-  nativeButton?: boolean | undefined;
+  nativeButton?: TNativeButton | undefined;
 }
 
-export interface NonNativeButtonProps {
+export interface NonNativeButtonProps<TNativeButton extends boolean> {
   /**
    * Whether the component renders a native `<button>` element when replacing it
    * via the `render` prop.
    * Set to `true` if the rendered element is a native button.
    * @default false
    */
-  nativeButton?: boolean | undefined;
+  nativeButton?: TNativeButton | undefined;
 }
+
+export type NativeButtonComponentProps<
+  TNativeButton extends boolean,
+  TElement extends React.ElementType,
+  State,
+> = NativeButtonProps<TNativeButton> &
+  (TNativeButton extends true
+    ? Omit<BaseUIComponentProps<TElement, State>, 'disabled'> & NativeButtonAttributes
+    : Omit<BaseUIComponentProps<TElement, State>, NativeButtonAttributeKeys | 'disabled'>) & {
+    disabled?: boolean | undefined;
+  };
 
 /**
  * Simplifies the display of a type (without modifying it).

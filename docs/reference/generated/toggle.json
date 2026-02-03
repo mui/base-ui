@@ -31,23 +31,20 @@
     },
     "disabled": {
       "type": "boolean",
-      "default": "false",
-      "description": "Whether the component should ignore user interaction.",
       "detailedType": "boolean | undefined"
     },
     "className": {
-      "type": "string | ((state: Toggle.State) => string | undefined)",
-      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
-      "detailedType": "| string\n| ((state: Toggle.State) => string | undefined)"
+      "type": "any",
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "style": {
-      "type": "CSSProperties | ((state: Toggle.State) => CSSProperties | undefined)",
-      "detailedType": "| React.CSSProperties\n| ((state: Toggle.State) => CSSProperties | undefined)\n| undefined"
+      "type": "any",
+      "description": "Style applied to the element, or a function that\nreturns a style object based on the component’s state.",
+      "detailedType": "any | undefined"
     },
     "render": {
-      "type": "ReactElement | ((props: HTMLProps, state: Toggle.State) => ReactElement)",
-      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render.",
-      "detailedType": "| ReactElement\n| ((props: HTMLProps, state: Toggle.State) => ReactElement)"
+      "type": "any",
+      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
     }
   },
   "dataAttributes": {

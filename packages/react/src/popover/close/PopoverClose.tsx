@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import type { BaseUIComponentProps, NativeButtonProps } from '../../utils/types';
+import type { NativeButtonComponentProps } from '../../utils/types';
 import { usePopoverRootContext } from '../root/PopoverRootContext';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useButton } from '../../use-button';
@@ -44,14 +44,28 @@ export const PopoverClose = React.forwardRef(function PopoverClose(
   });
 
   return element;
-});
+}) as PopoverCloseComponent;
 
 export interface PopoverCloseState {}
 
-export interface PopoverCloseProps
-  extends NativeButtonProps, BaseUIComponentProps<'button', PopoverClose.State> {}
+export type PopoverCloseProps<
+  TNativeButton extends boolean,
+  TElement extends React.ElementType,
+> = NativeButtonComponentProps<TNativeButton, TElement, PopoverClose.State>;
 
 export namespace PopoverClose {
   export type State = PopoverCloseState;
-  export type Props = PopoverCloseProps;
+  export type Props<
+    TNativeButton extends boolean = true,
+    TElement extends React.ElementType = 'button',
+  > = PopoverCloseProps<TNativeButton, TElement>;
 }
+
+type PopoverCloseComponent = <
+  TNativeButton extends boolean = true,
+  TElement extends React.ElementType = 'button',
+>(
+  props: PopoverClose.Props<TNativeButton, TElement> & {
+    ref?: React.Ref<HTMLButtonElement> | undefined;
+  },
+) => React.ReactElement | null;

@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import type { BaseUIComponentProps, NativeButtonProps } from '../../utils/types';
+import type { NativeButtonComponentProps } from '../../utils/types';
 import { useToastRootContext } from '../root/ToastRootContext';
 import { useButton } from '../../use-button/useButton';
 import { useRenderElement } from '../../utils/useRenderElement';
@@ -49,7 +49,7 @@ export const ToastAction = React.forwardRef(function ToastAction(
   }
 
   return element;
-});
+}) as ToastActionComponent;
 
 export interface ToastActionState {
   /**
@@ -58,10 +58,24 @@ export interface ToastActionState {
   type: string | undefined;
 }
 
-export interface ToastActionProps
-  extends NativeButtonProps, BaseUIComponentProps<'button', ToastAction.State> {}
+export type ToastActionProps<
+  TNativeButton extends boolean,
+  TElement extends React.ElementType,
+> = NativeButtonComponentProps<TNativeButton, TElement, ToastAction.State>;
 
 export namespace ToastAction {
   export type State = ToastActionState;
-  export type Props = ToastActionProps;
+  export type Props<
+    TNativeButton extends boolean = true,
+    TElement extends React.ElementType = 'button',
+  > = ToastActionProps<TNativeButton, TElement>;
 }
+
+type ToastActionComponent = <
+  TNativeButton extends boolean = true,
+  TElement extends React.ElementType = 'button',
+>(
+  props: ToastAction.Props<TNativeButton, TElement> & {
+    ref?: React.Ref<HTMLButtonElement> | undefined;
+  },
+) => React.ReactElement | null;

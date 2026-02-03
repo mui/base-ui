@@ -10,7 +10,7 @@ import { NOOP } from '../../utils/noop';
 import { useStateAttributesMapping } from '../utils/useStateAttributesMapping';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useBaseUiId } from '../../utils/useBaseUiId';
-import type { BaseUIComponentProps, NonNativeButtonProps } from '../../utils/types';
+import type { NativeButtonComponentProps } from '../../utils/types';
 import { mergeProps } from '../../merge-props';
 import { useButton } from '../../use-button/useButton';
 import type { FieldRoot } from '../../field/root/FieldRoot';
@@ -328,7 +328,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
       <input {...inputProps} />
     </CheckboxRootContext.Provider>
   );
-});
+}) as CheckboxRootComponent;
 
 export interface CheckboxRootState extends FieldRoot.State {
   /**
@@ -353,10 +353,13 @@ export interface CheckboxRootState extends FieldRoot.State {
   indeterminate: boolean;
 }
 
-export interface CheckboxRootProps
-  extends
-    NonNativeButtonProps,
-    Omit<BaseUIComponentProps<'span', CheckboxRoot.State>, 'onChange' | 'value'> {
+export type CheckboxRootProps<
+  TNativeButton extends boolean,
+  TElement extends React.ElementType,
+> = Omit<
+  NativeButtonComponentProps<TNativeButton, TElement, CheckboxRoot.State>,
+  'onChange' | 'value'
+> & {
   /**
    * The id of the input element.
    */
@@ -426,7 +429,7 @@ export interface CheckboxRootProps
    * The value of the selected checkbox.
    */
   value?: string | undefined;
-}
+};
 
 export type CheckboxRootChangeEventReason = typeof REASONS.none;
 export type CheckboxRootChangeEventDetails =
@@ -434,7 +437,17 @@ export type CheckboxRootChangeEventDetails =
 
 export namespace CheckboxRoot {
   export type State = CheckboxRootState;
-  export type Props = CheckboxRootProps;
+  export type Props<
+    TNativeButton extends boolean = false,
+    TElement extends React.ElementType = 'span',
+  > = CheckboxRootProps<TNativeButton, TElement>;
   export type ChangeEventReason = CheckboxRootChangeEventReason;
   export type ChangeEventDetails = CheckboxRootChangeEventDetails;
 }
+
+type CheckboxRootComponent = <
+  TNativeButton extends boolean = false,
+  TElement extends React.ElementType = 'span',
+>(
+  props: CheckboxRoot.Props<TNativeButton, TElement> & { ref?: React.Ref<HTMLElement> | undefined },
+) => React.ReactElement | null;

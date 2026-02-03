@@ -18,6 +18,10 @@
       "description": "A payload to pass to the popover when it is opened.",
       "detailedType": "Payload | undefined"
     },
+    "disabled": {
+      "type": "boolean",
+      "detailedType": "boolean | undefined"
+    },
     "openOnHover": {
       "type": "boolean",
       "default": "false",
@@ -42,19 +46,17 @@
       "detailedType": "string | undefined"
     },
     "className": {
-      "type": "string | ((state: Popover.Trigger.State) => string | undefined)",
-      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state.",
-      "detailedType": "| string\n| ((state: Popover.Trigger.State) => string | undefined)"
+      "type": "any",
+      "description": "CSS class applied to the element, or a function that\nreturns a class based on the component’s state."
     },
     "style": {
-      "type": "CSSProperties | ((state: Popover.Trigger.State) => CSSProperties | undefined)",
+      "type": "any",
       "description": "Style applied to the element, or a function that\nreturns a style object based on the component’s state.",
-      "detailedType": "| React.CSSProperties\n| ((\n    state: Popover.Trigger.State,\n  ) => CSSProperties | undefined)\n| undefined"
+      "detailedType": "any | undefined"
     },
     "render": {
-      "type": "ReactElement | ((props: HTMLProps, state: Popover.Trigger.State) => ReactElement)",
-      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render.",
-      "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Popover.Trigger.State,\n  ) => ReactElement)"
+      "type": "any",
+      "description": "Allows you to replace the component’s HTML element\nwith a different tag, or compose it with another component.\n\nAccepts a `ReactElement` or a function that returns the element to render."
     }
   },
   "dataAttributes": {

@@ -5,7 +5,7 @@ import { type FocusableElement } from 'tabbable';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { usePopoverRootContext } from '../root/PopoverRootContext';
 import { useButton } from '../../use-button/useButton';
-import type { BaseUIComponentProps, NativeButtonProps } from '../../utils/types';
+import type { NativeButtonComponentProps } from '../../utils/types';
 import {
   triggerOpenStateMapping,
   pressableTriggerOpenStateMapping,
@@ -217,8 +217,13 @@ export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
 }) as PopoverTrigger;
 
 export interface PopoverTrigger {
-  <Payload>(
-    componentProps: PopoverTriggerProps<Payload> & React.RefAttributes<HTMLElement>,
+  <
+    Payload = unknown,
+    TNativeButton extends boolean = true,
+    TElement extends React.ElementType = 'button',
+  >(
+    componentProps: PopoverTriggerProps<Payload, TNativeButton, TElement> &
+      React.RefAttributes<HTMLElement>,
   ): React.JSX.Element;
 }
 
@@ -233,51 +238,58 @@ export interface PopoverTriggerState {
   open: boolean;
 }
 
-export type PopoverTriggerProps<Payload = unknown> = NativeButtonProps &
-  BaseUIComponentProps<'button', PopoverTriggerState> & {
-    /**
-     * Whether the component renders a native `<button>` element when replacing it
-     * via the `render` prop.
-     * Set to `false` if the rendered element is not a button (e.g. `<div>`).
-     * @default true
-     */
-    nativeButton?: boolean | undefined;
-    /**
-     * A handle to associate the trigger with a popover.
-     */
-    handle?: PopoverHandle<Payload> | undefined;
-    /**
-     * A payload to pass to the popover when it is opened.
-     */
-    payload?: Payload | undefined;
-    /**
-     * ID of the trigger. In addition to being forwarded to the rendered element,
-     * it is also used to specify the active trigger for the popover in controlled mode (with the PopoverRoot `triggerId` prop).
-     */
-    id?: string | undefined;
-    /**
-     * Whether the popover should also open when the trigger is hovered.
-     * @default false
-     */
-    openOnHover?: boolean | undefined;
-    /**
-     * How long to wait before the popover may be opened on hover. Specified in milliseconds.
-     *
-     * Requires the `openOnHover` prop.
-     * @default 300
-     */
-    delay?: number | undefined;
-    /**
-     * How long to wait before closing the popover that was opened on hover.
-     * Specified in milliseconds.
-     *
-     * Requires the `openOnHover` prop.
-     * @default 0
-     */
-    closeDelay?: number | undefined;
-  };
+export type PopoverTriggerProps<
+  Payload = unknown,
+  TNativeButton extends boolean = true,
+  TElement extends React.ElementType = 'button',
+> = NativeButtonComponentProps<TNativeButton, TElement, PopoverTriggerState> & {
+  /**
+   * Whether the component renders a native `<button>` element when replacing it
+   * via the `render` prop.
+   * Set to `false` if the rendered element is not a button (e.g. `<div>`).
+   * @default true
+   */
+  nativeButton?: TNativeButton | undefined;
+  /**
+   * A handle to associate the trigger with a popover.
+   */
+  handle?: PopoverHandle<Payload> | undefined;
+  /**
+   * A payload to pass to the popover when it is opened.
+   */
+  payload?: Payload | undefined;
+  /**
+   * ID of the trigger. In addition to being forwarded to the rendered element,
+   * it is also used to specify the active trigger for the popover in controlled mode (with the PopoverRoot `triggerId` prop).
+   */
+  id?: string | undefined;
+  /**
+   * Whether the popover should also open when the trigger is hovered.
+   * @default false
+   */
+  openOnHover?: boolean | undefined;
+  /**
+   * How long to wait before the popover may be opened on hover. Specified in milliseconds.
+   *
+   * Requires the `openOnHover` prop.
+   * @default 300
+   */
+  delay?: number | undefined;
+  /**
+   * How long to wait before closing the popover that was opened on hover.
+   * Specified in milliseconds.
+   *
+   * Requires the `openOnHover` prop.
+   * @default 0
+   */
+  closeDelay?: number | undefined;
+};
 
 export namespace PopoverTrigger {
   export type State = PopoverTriggerState;
-  export type Props<Payload = unknown> = PopoverTriggerProps<Payload>;
+  export type Props<
+    Payload = unknown,
+    TNativeButton extends boolean = true,
+    TElement extends React.ElementType = 'button',
+  > = PopoverTriggerProps<Payload, TNativeButton, TElement>;
 }
