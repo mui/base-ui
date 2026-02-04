@@ -1,0 +1,33 @@
+# Editor
+
+<Subtitle>
+  A simple rich text editor component built on top of Lexical.
+</Subtitle>
+<Meta
+  name="description"
+  content="A high-quality, unstyled React rich text editor component built on top of Lexical."
+/>
+
+import { DemoEditorHero } from './demos/hero';
+
+<DemoEditorHero />
+
+## Anatomy
+
+Import the component and render a basic editor:
+
+```jsx title="Anatomy"
+import { Editor } from '@base-ui/react/editor';
+
+export default function BasicEditor() {
+  return (
+    <Editor placeholder="Start typing..." />
+  );
+}
+```
+
+## Usage
+
+- Provide a helpful `placeholder` to guide users when the editor is empty.
+- Use the `value` and `onChange` props to control the content with a serialized editor state.
+- For more advanced editing controls, compose with `EditorToolbar` and other utilities from the editor package.
