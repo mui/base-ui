@@ -214,7 +214,7 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
   });
 
   const setValue = useStableCallback(
-    (unvalidatedValue: number | null, details: NumberFieldRoot.ChangeEventDetails) => {
+    (unvalidatedValue: number | null, details: NumberFieldRoot.ChangeEventDetails): boolean => {
       const eventWithOptionalKeyState = details.event as EventWithOptionalKeyState;
       const dir = details.direction;
       const reason = details.reason;
@@ -244,17 +244,22 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
       // Determine whether we should notify about a change even if the numeric value is unchanged.
       // This is needed when the user input is clamped/snapped to the same current value, or when
       // the source value differs but validation normalizes to the existing value.
+      const isInputReason =
+        details.reason === REASONS.inputChange ||
+        details.reason === REASONS.inputClear ||
+        details.reason === REASONS.inputBlur ||
+        details.reason === REASONS.inputPaste ||
+        details.reason === REASONS.none;
       const shouldFireChange =
         validatedValue !== value ||
-        unvalidatedValue !== value ||
-        allowInputSyncRef.current === false;
+        (isInputReason && (unvalidatedValue !== value || allowInputSyncRef.current === false));
 
       if (shouldFireChange) {
         lastChangedValueRef.current = validatedValue;
         onValueChangeProp?.(validatedValue, details);
 
         if (details.isCanceled) {
-          return;
+          return shouldFireChange;
         }
 
         setValueUnwrapped(validatedValue);
@@ -272,6 +277,8 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
 
       // Formatting can change even if the numeric value hasn't, so ensure a re-render when needed.
       forceRender();
+
+      return shouldFireChange;
     },
   );
 
@@ -281,7 +288,7 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
       const nextValue =
         typeof prevValue === 'number' ? prevValue + amount * direction : Math.max(0, min ?? 0);
       const nativeEvent = event as ReasonToEvent<IncrementValueParameters['reason']> | undefined;
-      setValue(
+      return setValue(
         nextValue,
         createChangeEventDetails(reason, nativeEvent, undefined, {
           direction,
@@ -333,17 +340,24 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
 
       function tick() {
         const amount = getStepAmount(triggerEvent as EventWithOptionalKeyState) ?? DEFAULT_STEP;
-        incrementValue(amount, {
+        return incrementValue(amount, {
           direction: isIncrement ? 1 : -1,
           event: triggerEvent,
           reason: isIncrement ? 'increment-press' : 'decrement-press',
         });
       }
 
-      tick();
+      if (!tick()) {
+        stopAutoChange();
+        return;
+      }
 
       startTickTimeout.start(START_AUTO_CHANGE_DELAY, () => {
-        tickInterval.start(CHANGE_VALUE_TICK_DELAY, tick);
+        tickInterval.start(CHANGE_VALUE_TICK_DELAY, () => {
+          if (!tick()) {
+            stopAutoChange();
+          }
+        });
       });
     },
   );
