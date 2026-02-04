@@ -1,3 +1,4 @@
+'use client';
 import * as React from 'react';
 import { ContentEditable } from '@lexical/react/LexicalContentEditable';
 import clsx from 'clsx';

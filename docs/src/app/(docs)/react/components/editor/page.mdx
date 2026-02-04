@@ -9,6 +9,7 @@
 />
 
 import { DemoEditorHero } from './demos/hero';
+import { DemoEditorToolbar } from './demos/toolbar';
 
 <DemoEditorHero />
 
@@ -31,3 +32,9 @@ export default function BasicEditor() {
 - Provide a helpful `placeholder` to guide users when the editor is empty.
 - Use the `value` and `onChange` props to control the content with a serialized editor state.
 - For more advanced editing controls, compose with `EditorToolbar` and other utilities from the editor package.
+
+### With toolbar
+
+This example shows `EditorToolbar` integrated above the editable area for basic formatting.
+
+<DemoEditorToolbar />

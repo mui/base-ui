@@ -1,3 +1,4 @@
+'use client';
 import * as React from 'react';
 import { Button } from '../../button';
 import classes from './EditorToolbar.module.css';
