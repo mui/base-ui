@@ -22,6 +22,7 @@ import { vi } from 'vitest';
 import { expect } from 'chai';
 import { spy } from 'sinon';
 import { createRenderer, describeConformance } from '#test-utils';
+import { LabelableProvider } from '../../labelable-provider';
 
 describe('<Field.Root />', () => {
   const { render } = createRenderer();
@@ -88,6 +89,30 @@ describe('<Field.Root />', () => {
     }
   });
 
+  it('preserves null initial control ids', async () => {
+    const errorSpy = spy(console, 'error');
+
+    try {
+      await render(
+        <Field.Root>
+          <LabelableProvider initialControlId={null}>
+            <Field.Label>Label</Field.Label>
+            <Field.Control data-testid="control" />
+          </LabelableProvider>
+        </Field.Root>,
+      );
+
+      const label = screen.getByText('Label');
+      const control = screen.getByTestId('control');
+
+      expect(label).not.to.have.attribute('for');
+      expect(control.getAttribute('id')).to.not.equal(null);
+      expect(errorSpy.callCount).to.equal(0);
+    } finally {
+      errorSpy.restore();
+    }
+  });
+
   it('updates label associations when the control id changes', async () => {
     const errorSpy = spy(console, 'error');
 
@@ -118,6 +143,51 @@ describe('<Field.Root />', () => {
 
       await waitFor(() => {
         expect(label).to.have.attribute('for', 'control-b');
+      });
+
+      expect(errorSpy.callCount).to.equal(0);
+    } finally {
+      errorSpy.restore();
+    }
+  });
+
+  it('falls back to a generated id when the control id is removed', async () => {
+    const errorSpy = spy(console, 'error');
+
+    try {
+      function TestCase() {
+        const [controlId, setControlId] = React.useState<string | undefined>('control-a');
+
+        return (
+          <React.Fragment>
+            <Field.Root>
+              <Field.Label>Label</Field.Label>
+              <Field.Control id={controlId} />
+            </Field.Root>
+            <button type="button" onClick={() => setControlId(undefined)}>
+              Clear
+            </button>
+          </React.Fragment>
+        );
+      }
+
+      await render(<TestCase />);
+
+      const label = screen.getByText('Label');
+      const control = screen.getByRole('textbox');
+
+      expect(label).to.have.attribute('for', 'control-a');
+      expect(control).to.have.attribute('id', 'control-a');
+
+      fireEvent.click(screen.getByRole('button', { name: 'Clear' }));
+
+      await waitFor(() => {
+        const updatedControl = screen.getByRole('textbox');
+        const updatedId = updatedControl.getAttribute('id') ?? '';
+
+        expect(updatedId).to.not.equal('');
+        expect(updatedId).to.not.equal('control-a');
+        expect(label).to.have.attribute('for', updatedId);
       });
 
       expect(errorSpy.callCount).to.equal(0);

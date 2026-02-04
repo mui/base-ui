@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { isElement } from '@floating-ui/utils/dom';
 import { NOOP } from '../utils/noop';
@@ -9,22 +10,28 @@ import { useLabelableContext } from './LabelableContext';
 
 export function useLabelableId(params: useLabelableId.Parameters = {}) {
   const { id, implicit = false, controlRef } = params;
+
   const { controlId, registerControlId } = useLabelableContext();
+
   const defaultId = useBaseUiId(id);
+
   const controlIdForEffect = implicit ? controlId : undefined;
+
   const controlSourceRef = useRefWithInit(() => Symbol('labelable-control'));
   const hasRegisteredRef = React.useRef(false);
+  const hadExplicitIdRef = React.useRef(id != null);
+
+  const unregisterControlId = useStableCallback(() => {
+    if (!hasRegisteredRef.current || registerControlId === NOOP) {
+      return;
+    }
+
+    hasRegisteredRef.current = false;
+    registerControlId(controlSourceRef.current, undefined);
+  });
 
   useIsoLayoutEffect(() => {
     if (registerControlId === NOOP) {
-      return undefined;
-    }
-
-    if (!implicit && !id) {
-      if (hasRegisteredRef.current) {
-        hasRegisteredRef.current = false;
-        registerControlId(controlSourceRef.current, undefined);
-      }
       return undefined;
     }
 
@@ -38,8 +45,19 @@ export function useLabelableId(params: useLabelableId.Parameters = {}) {
       } else {
         nextId = controlIdForEffect ?? defaultId;
       }
-    } else {
+    } else if (id != null) {
+      hadExplicitIdRef.current = true;
       nextId = id;
+    } else if (hadExplicitIdRef.current) {
+      nextId = defaultId;
+    } else {
+      unregisterControlId();
+      return undefined;
+    }
+
+    if (nextId === undefined) {
+      unregisterControlId();
+      return undefined;
     }
 
     hasRegisteredRef.current = true;
@@ -54,20 +72,12 @@ export function useLabelableId(params: useLabelableId.Parameters = {}) {
     implicit,
     defaultId,
     controlSourceRef,
+    unregisterControlId,
   ]);
 
   React.useEffect(() => {
-    const controlSource = controlSourceRef.current;
-
-    return () => {
-      if (!hasRegisteredRef.current || registerControlId === NOOP) {
-        return;
-      }
-
-      hasRegisteredRef.current = false;
-      registerControlId(controlSource, undefined);
-    };
-  }, [registerControlId, controlSourceRef]);
+    return unregisterControlId;
+  }, [unregisterControlId]);
 
   return controlId ?? defaultId;
 }

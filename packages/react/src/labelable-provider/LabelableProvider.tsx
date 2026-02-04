@@ -17,7 +17,7 @@ export const LabelableProvider: React.FC<LabelableProvider.Props> = function Lab
   const defaultId = useBaseUiId();
 
   const [controlId, setControlIdState] = React.useState<string | null | undefined>(
-    !props.initialControlId ? defaultId : props.initialControlId,
+    props.initialControlId === undefined ? defaultId : props.initialControlId,
   );
   const [labelId, setLabelId] = React.useState<string | undefined>(undefined);
   const [messageIds, setMessageIds] = React.useState<string[]>([]);
