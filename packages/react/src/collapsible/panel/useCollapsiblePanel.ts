@@ -46,6 +46,10 @@ export function useCollapsiblePanel(
   const shouldCancelInitialOpenAnimationRef = React.useRef(open);
   const shouldCancelInitialOpenTransitionRef = React.useRef(open);
   const hasInitialMeasurementRef = React.useRef(false);
+  // whether initial setup for CSS animations has been done
+  const hasSetupAnimationsRef = React.useRef(false);
+  // to differentiate between React.Activity reveal vs normal open
+  const previousVisibleRef = React.useRef(visible);
 
   const endingStyleFrame = useAnimationFrame();
 
@@ -55,6 +59,11 @@ export function useCollapsiblePanel(
    */
   const hidden = React.useMemo(() => {
     if (animationTypeRef.current === 'css-animation') {
+      // When Activity reveals with the panel already open (hasSetupAnimationsRef
+      // is true from a previous render), unhide immediately without waiting for the visible state
+      if (hasSetupAnimationsRef.current && open) {
+        return false;
+      }
       return !visible;
     }
 
@@ -303,16 +312,6 @@ export function useCollapsiblePanel(
       return;
     }
 
-    latestAnimationNameRef.current = panel.style.animationName || latestAnimationNameRef.current;
-
-    panel.style.setProperty('animation-name', 'none');
-
-    setDimensions({ height: panel.scrollHeight, width: panel.scrollWidth });
-
-    if (!shouldCancelInitialOpenAnimationRef.current && !isBeforeMatchRef.current) {
-      panel.style.removeProperty('animation-name');
-    }
-
     if (open) {
       if (abortControllerRef.current != null) {
         abortControllerRef.current.abort();
@@ -320,7 +319,41 @@ export function useCollapsiblePanel(
       }
       setMounted(true);
       setVisible(true);
+
+      // prevent opening animations from playing when Activity reveals a panel that was already open
+      const revealedByActivity = hasSetupAnimationsRef.current && previousVisibleRef.current;
+      previousVisibleRef.current = visible;
+
+      if (revealedByActivity) {
+        panel.style.setProperty('animation-name', 'none');
+        return;
+      }
+
+      hasSetupAnimationsRef.current = true;
+
+      latestAnimationNameRef.current = panel.style.animationName || latestAnimationNameRef.current;
+
+      panel.style.setProperty('animation-name', 'none');
+
+      setDimensions({ height: panel.scrollHeight, width: panel.scrollWidth });
+
+      if (!shouldCancelInitialOpenAnimationRef.current && !isBeforeMatchRef.current) {
+        panel.style.removeProperty('animation-name');
+      }
     } else {
+      hasSetupAnimationsRef.current = false;
+      previousVisibleRef.current = visible;
+
+      latestAnimationNameRef.current = panel.style.animationName || latestAnimationNameRef.current;
+
+      panel.style.setProperty('animation-name', 'none');
+
+      setDimensions({ height: panel.scrollHeight, width: panel.scrollWidth });
+
+      if (!shouldCancelInitialOpenAnimationRef.current && !isBeforeMatchRef.current) {
+        panel.style.removeProperty('animation-name');
+      }
+
       abortControllerRef.current = new AbortController();
       runOnceAnimationsFinish(() => {
         setMounted(false);
