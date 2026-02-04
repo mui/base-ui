@@ -10,6 +10,7 @@ import { HTMLProps } from '../../utils/types';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
 import type { AnimationType, Dimensions } from '../root/useCollapsibleRoot';
+import type { TransitionStatus } from '../../utils/useTransitionStatus';
 import { CollapsiblePanelDataAttributes } from './CollapsiblePanelDataAttributes';
 import { AccordionRootDataAttributes } from '../../accordion/root/AccordionRootDataAttributes';
 import type { CollapsibleRoot } from '../root/CollapsibleRoot';
@@ -35,6 +36,7 @@ export function useCollapsiblePanel(
     setOpen,
     setVisible,
     transitionDimensionRef,
+    transitionStatus,
     visible,
     width,
   } = parameters;
@@ -43,6 +45,7 @@ export function useCollapsiblePanel(
   const latestAnimationNameRef = React.useRef<string>(null);
   const shouldCancelInitialOpenAnimationRef = React.useRef(open);
   const shouldCancelInitialOpenTransitionRef = React.useRef(open);
+  const hasInitialMeasurementRef = React.useRef(false);
 
   const endingStyleFrame = useAnimationFrame();
 
@@ -169,6 +172,19 @@ export function useCollapsiblePanel(
     }
 
     if (open) {
+      // Don't re-measure when React.Activity reveals the panel; re-measuring
+      // causes pixel dimensions to be set which replays CSS transitions
+      if (
+        hasInitialMeasurementRef.current &&
+        transitionStatus === 'idle' &&
+        height === undefined &&
+        width === undefined
+      ) {
+        return undefined;
+      }
+
+      hasInitialMeasurementRef.current = true;
+
       const originalLayoutStyles = {
         'justify-content': panel.style.justifyContent,
         'align-items': panel.style.alignItems,
@@ -209,6 +225,7 @@ export function useCollapsiblePanel(
       }
 
       /* closing */
+      hasInitialMeasurementRef.current = false;
       setDimensions({ height: panel.scrollHeight, width: panel.scrollWidth });
 
       const abortController = new AbortController();
@@ -258,6 +275,10 @@ export function useCollapsiblePanel(
     return () => {
       AnimationFrame.cancel(resizeFrame);
     };
+    // intentionally excludes height, width, transitionStatus
+    // they are used only to detect React.Activity reveals
+    // if added to effect deps it will re-run this effect causing a re-measurement loop
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     abortControllerRef,
     animationTypeRef,
@@ -325,6 +346,34 @@ export function useCollapsiblePanel(
     });
     return () => AnimationFrame.cancel(frame);
   });
+
+  // rAF callbacks don't run inside React.Activity with mode="hidden", causing
+  // refs and inline styles to be stuck in the initial state, need to cleanup with an effect
+  const prevTransitionStatusRef = React.useRef(transitionStatus);
+  React.useEffect(() => {
+    const prevStatus = prevTransitionStatusRef.current;
+    prevTransitionStatusRef.current = transitionStatus;
+
+    // cleanup only when transitioning from 'starting' to 'idle' so it doesn't
+    // affect normal conditional rendering
+    if (prevStatus !== 'starting' || transitionStatus !== 'idle') {
+      return;
+    }
+
+    if (animationTypeRef.current !== 'css-transition') {
+      return;
+    }
+
+    const panel = panelRef.current;
+    if (!panel) {
+      return;
+    }
+
+    shouldCancelInitialOpenTransitionRef.current = false;
+    shouldCancelInitialOpenAnimationRef.current = false;
+
+    panel.style.removeProperty('transition-duration');
+  }, [transitionStatus, animationTypeRef, panelRef]);
 
   useIsoLayoutEffect(() => {
     if (!hiddenUntilFound) {
@@ -454,6 +503,7 @@ export interface UseCollapsiblePanelParameters {
   setOpen: (nextOpen: boolean) => void;
   setVisible: React.Dispatch<React.SetStateAction<boolean>>;
   transitionDimensionRef: React.RefObject<'height' | 'width' | null>;
+  transitionStatus: TransitionStatus;
   /**
    * The visible state of the panel used to determine the `[hidden]` attribute
    * only when CSS keyframe animations are used.
