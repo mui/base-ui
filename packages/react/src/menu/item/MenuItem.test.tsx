@@ -44,6 +44,31 @@ describe('<Menu.Item />', () => {
     expect(onClick.callCount).to.equal(1);
   });
 
+  it('does not close the menu when onClick prevents Base UI handler', async () => {
+    const onClick = spy((event) => event.preventBaseUIHandler());
+    const { user } = await render(
+      <Menu.Root>
+        <Menu.Trigger>Open</Menu.Trigger>
+        <Menu.Portal>
+          <Menu.Positioner>
+            <Menu.Popup>
+              <Menu.Item onClick={onClick}>Item</Menu.Item>
+            </Menu.Popup>
+          </Menu.Positioner>
+        </Menu.Portal>
+      </Menu.Root>,
+    );
+
+    const trigger = screen.getByRole('button', { name: 'Open' });
+    await user.click(trigger);
+
+    const item = screen.getByRole('menuitem');
+    await user.click(item);
+
+    expect(onClick.callCount).to.equal(1);
+    expect(screen.queryByRole('menu')).not.to.equal(null);
+  });
+
   it('perf: does not rerender menu items unnecessarily', async ({ skip }) => {
     if (isJSDOM) {
       skip();

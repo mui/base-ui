@@ -24,9 +24,9 @@
       "detailedType": "| ((\n    checked: boolean,\n    eventDetails: Menu.CheckboxItem.ChangeEventDetails,\n  ) => void)\n| undefined"
     },
     "onClick": {
-      "type": "MouseEventHandler<HTMLElement>",
+      "type": "((event: BaseUIEvent<MouseEvent<HTMLDivElement, MouseEvent>>) => void)",
       "description": "The click handler for the menu item.",
-      "detailedType": "React.MouseEventHandler<HTMLElement> | undefined"
+      "detailedType": "| ((\n    event: BaseUIEvent<\n      MouseEvent<HTMLDivElement, MouseEvent>\n    >,\n  ) => void)\n| undefined"
     },
     "closeOnClick": {
       "type": "boolean",
