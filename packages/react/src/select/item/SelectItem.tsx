@@ -10,7 +10,13 @@ import {
   useCompositeListItem,
   IndexGuessBehavior,
 } from '../../composite/list/useCompositeListItem';
-import type { BaseUIComponentProps, HTMLProps, NonNativeButtonProps } from '../../utils/types';
+import type {
+  BaseUIComponentProps,
+  BaseUIEvent,
+  HTMLProps,
+  NonNativeButtonProps,
+} from '../../utils/types';
+import { makeEventPreventable } from '../../merge-props';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { SelectItemContext } from './SelectItemContext';
 import { selectors } from '../store';
@@ -208,11 +214,12 @@ export const SelectItem = React.memo(
         pointerTypeRef.current = event.pointerType;
         didPointerDownRef.current = true;
       },
-      onMouseUp(event) {
+      onMouseUp(event: BaseUIEvent<React.MouseEvent<HTMLDivElement>>) {
         if (disabled) {
           return;
         }
 
+        // Regular click (pointerdown on this element) if didPointerDownRef is set, otherwise drag-to-select
         if (didPointerDownRef.current) {
           didPointerDownRef.current = false;
           return;
@@ -229,7 +236,12 @@ export const SelectItem = React.memo(
           return;
         }
 
-        commitSelection(event.nativeEvent);
+        makeEventPreventable(event);
+        componentProps.onClick?.(event);
+
+        if (!event.baseUIHandlerPrevented) {
+          commitSelection(event.nativeEvent);
+        }
       },
     };
 
