@@ -1,10 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useControlled } from '@base-ui/utils/useControlled';
-import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
-import { visuallyHidden, visuallyHiddenInput } from '@base-ui/utils/visuallyHidden';
-import { NOOP } from '../utils/noop';
 import type { BaseUIComponentProps, HTMLProps } from '../utils/types';
 import { useBaseUiId } from '../utils/useBaseUiId';
 import { contains } from '../floating-ui-react/utils';
@@ -17,7 +14,6 @@ import type { FieldRoot } from '../field/root/FieldRoot';
 import { useFieldsetRootContext } from '../fieldset/root/FieldsetRootContext';
 import { useFormContext } from '../form/FormContext';
 import { useLabelableContext } from '../labelable-provider/LabelableContext';
-import { mergeProps } from '../merge-props';
 import { useValueChanged } from '../utils/useValueChanged';
 import { RadioGroupContext } from './RadioGroupContext';
 import type { BaseUIChangeEventDetails } from '../utils/createBaseUIEventDetails';
@@ -93,10 +89,60 @@ export const RadioGroup = React.forwardRef(function RadioGroup(
   );
 
   const controlRef = React.useRef<HTMLElement>(null);
-  const registerControlRef = useStableCallback((element: HTMLElement | null) => {
-    if (controlRef.current == null && element != null) {
-      controlRef.current = element;
+  const groupInputRef = React.useRef<HTMLInputElement | null>(null);
+  const firstEnabledInputRef = React.useRef<HTMLInputElement | null>(null);
+
+  function setInputRef(hiddenInput: HTMLInputElement | null) {
+    let cleanup: void | (() => void) | undefined = undefined;
+
+    if (inputRefProp) {
+      if (typeof inputRefProp === 'function') {
+        cleanup = inputRefProp(hiddenInput);
+      } else {
+        inputRefProp.current = hiddenInput;
+      }
     }
+
+    groupInputRef.current = hiddenInput;
+    validation.inputRef.current = hiddenInput;
+
+    return cleanup;
+  }
+
+  const registerControlRef = useStableCallback(
+    (element: HTMLElement | null, isDisabled = false) => {
+      if (!element) {
+        return;
+      }
+
+      if (isDisabled) {
+        if (controlRef.current === element) {
+          controlRef.current = null;
+        }
+        return;
+      }
+
+      if (controlRef.current == null) {
+        controlRef.current = element;
+      }
+    },
+  );
+
+  const registerInputRef = useStableCallback((input: HTMLInputElement | null) => {
+    if (!input || input.disabled) {
+      return undefined;
+    }
+
+    if (!firstEnabledInputRef.current) {
+      firstEnabledInputRef.current = input;
+    }
+
+    const currentInput = groupInputRef.current;
+    if (input.checked || currentInput == null || currentInput.disabled) {
+      return setInputRef(input);
+    }
+
+    return undefined;
   });
 
   useField({
@@ -119,61 +165,16 @@ export const RadioGroup = React.forwardRef(function RadioGroup(
     } else {
       validation.commit(checkedValue, true);
     }
+
+    const fallbackInput = firstEnabledInputRef.current;
+    if (checkedValue == null && fallbackInput && !fallbackInput.disabled) {
+      setInputRef(fallbackInput);
+    }
   });
 
   const [touched, setTouched] = React.useState(false);
 
-  const onBlur = useStableCallback((event) => {
-    if (!contains(event.currentTarget, event.relatedTarget)) {
-      setFieldTouched(true);
-      setFocused(false);
-
-      if (validationMode === 'onBlur') {
-        validation.commit(checkedValue);
-      }
-    }
-  });
-
-  const onKeyDownCapture = useStableCallback((event) => {
-    if (event.key.startsWith('Arrow')) {
-      setFieldTouched(true);
-      setTouched(true);
-      setFocused(true);
-    }
-  });
-
-  const serializedCheckedValue = React.useMemo(() => {
-    if (checkedValue == null) {
-      return ''; // avoid uncontrolled -> controlled error
-    }
-    if (typeof checkedValue === 'string') {
-      return checkedValue;
-    }
-    return JSON.stringify(checkedValue);
-  }, [checkedValue]);
-
-  const mergedInputRef = useMergedRefs(validation.inputRef, inputRefProp);
-
-  const inputProps = mergeProps<'input'>(
-    {
-      value: serializedCheckedValue,
-      ref: mergedInputRef,
-      id,
-      name: serializedCheckedValue ? name : undefined,
-      disabled,
-      readOnly,
-      required,
-      'aria-labelledby': elementProps['aria-labelledby'] ?? fieldsetContext?.legendId,
-      'aria-hidden': true,
-      tabIndex: -1,
-      style: name ? visuallyHiddenInput : visuallyHidden,
-      onChange: NOOP, // suppress a Next.js error
-      onFocus() {
-        controlRef.current?.focus();
-      },
-    },
-    validation.getInputValidationProps,
-  );
+  const ariaLabelledby = elementProps['aria-labelledby'] ?? labelId ?? fieldsetContext?.legendId;
 
   const state: RadioGroup.State = {
     ...fieldState,
@@ -192,6 +193,7 @@ export const RadioGroup = React.forwardRef(function RadioGroup(
       onValueChange,
       readOnly,
       registerControlRef,
+      registerInputRef,
       required,
       setCheckedValue,
       setTouched,
@@ -206,6 +208,7 @@ export const RadioGroup = React.forwardRef(function RadioGroup(
       onValueChange,
       readOnly,
       registerControlRef,
+      registerInputRef,
       required,
       setCheckedValue,
       setTouched,
@@ -218,12 +221,27 @@ export const RadioGroup = React.forwardRef(function RadioGroup(
     'aria-required': required || undefined,
     'aria-disabled': disabled || undefined,
     'aria-readonly': readOnly || undefined,
-    'aria-labelledby': labelId,
+    'aria-labelledby': ariaLabelledby,
     onFocus() {
       setFocused(true);
     },
-    onBlur,
-    onKeyDownCapture,
+    onBlur(event) {
+      if (!contains(event.currentTarget, event.relatedTarget)) {
+        setFieldTouched(true);
+        setFocused(false);
+
+        if (validationMode === 'onBlur') {
+          validation.commit(checkedValue);
+        }
+      }
+    },
+    onKeyDownCapture(event) {
+      if (event.key.startsWith('Arrow')) {
+        setFieldTouched(true);
+        setTouched(true);
+        setFocused(true);
+      }
+    },
   };
 
   return (
@@ -238,7 +256,6 @@ export const RadioGroup = React.forwardRef(function RadioGroup(
         enableHomeAndEndKeys={false}
         modifierKeys={MODIFIER_KEYS}
       />
-      <input {...inputProps} />
     </RadioGroupContext.Provider>
   );
 });

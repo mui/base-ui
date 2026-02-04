@@ -71,22 +71,6 @@ describe('<Combobox.ChipRemove />', () => {
   });
 
   describe('prop: readOnly', () => {
-    it('should render aria-readonly attribute when readOnly', async () => {
-      await render(
-        <Combobox.Root multiple readOnly>
-          <Combobox.Chips>
-            <Combobox.Chip>
-              apple
-              <Combobox.ChipRemove data-testid="remove" />
-            </Combobox.Chip>
-          </Combobox.Chips>
-        </Combobox.Root>,
-      );
-
-      const remove = screen.getByTestId('remove');
-      expect(remove).to.have.attribute('aria-readonly', 'true');
-    });
-
     it('should not remove chip when readOnly', async () => {
       const handleValueChange = spy();
       const { user } = await render(

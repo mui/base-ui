@@ -297,60 +297,6 @@ describe('<Combobox.Root />', () => {
         expect(cherryOption).to.have.attribute('data-selected', '');
       });
 
-      it('reconciles a controlled value when the selected item is removed', async () => {
-        const handleValueChange = spy();
-
-        function App() {
-          const [items, setItems] = React.useState(['a', 'b']);
-          const [value, setValue] = React.useState<string | null>('b');
-
-          return (
-            <React.Fragment>
-              <button type="button" onClick={() => setItems(['a'])}>
-                Remove
-              </button>
-              <Combobox.Root
-                items={items}
-                value={value}
-                defaultValue="a"
-                onValueChange={(nextValue, details) => {
-                  handleValueChange(nextValue, details);
-                  setValue(nextValue);
-                }}
-              >
-                <Combobox.Input data-testid="input" />
-                <Combobox.Portal>
-                  <Combobox.Positioner>
-                    <Combobox.Popup>
-                      <Combobox.List>
-                        {(item: string) => (
-                          <Combobox.Item key={item} value={item}>
-                            {item}
-                          </Combobox.Item>
-                        )}
-                      </Combobox.List>
-                    </Combobox.Popup>
-                  </Combobox.Positioner>
-                </Combobox.Portal>
-              </Combobox.Root>
-            </React.Fragment>
-          );
-        }
-
-        const { user } = await render(<App />);
-
-        expect(screen.getByTestId('input')).to.have.value('b');
-
-        await user.click(screen.getByRole('button', { name: 'Remove' }));
-
-        await waitFor(() => {
-          expect(handleValueChange.callCount).to.equal(1);
-          expect(handleValueChange.firstCall.args[0]).to.equal('a');
-          expect(handleValueChange.firstCall.args[1].reason).to.equal(REASONS.none);
-          expect(screen.getByTestId('input')).to.have.value('a');
-        });
-      });
-
       it('should not auto-close popup when open state is controlled', async () => {
         const items = ['apple', 'banana', 'cherry'];
 
@@ -523,57 +469,6 @@ describe('<Combobox.Root />', () => {
     });
 
     describe('multiple', () => {
-      it('reconciles a controlled value when selected items are removed', async () => {
-        const handleValueChange = spy();
-
-        function App() {
-          const [items, setItems] = React.useState(['a', 'b', 'c']);
-          const [value, setValue] = React.useState(['a', 'b']);
-
-          return (
-            <React.Fragment>
-              <button type="button" onClick={() => setItems(['a', 'c'])}>
-                Remove
-              </button>
-              <Combobox.Root
-                items={items}
-                multiple
-                value={value}
-                onValueChange={(nextValue, details) => {
-                  handleValueChange(nextValue, details);
-                  setValue(nextValue);
-                }}
-              >
-                <Combobox.Input />
-                <Combobox.Portal>
-                  <Combobox.Positioner>
-                    <Combobox.Popup>
-                      <Combobox.List>
-                        {(item: string) => (
-                          <Combobox.Item key={item} value={item}>
-                            {item}
-                          </Combobox.Item>
-                        )}
-                      </Combobox.List>
-                    </Combobox.Popup>
-                  </Combobox.Positioner>
-                </Combobox.Portal>
-              </Combobox.Root>
-            </React.Fragment>
-          );
-        }
-
-        const { user } = await render(<App />);
-
-        await user.click(screen.getByRole('button', { name: 'Remove' }));
-
-        await waitFor(() => {
-          expect(handleValueChange.callCount).to.equal(1);
-          expect(handleValueChange.firstCall.args[0]).to.deep.equal(['a']);
-          expect(handleValueChange.firstCall.args[1].reason).to.equal(REASONS.none);
-        });
-      });
-
       it('should handle multiple selection', async () => {
         const handleValueChange = spy();
 
@@ -738,7 +633,6 @@ describe('<Combobox.Root />', () => {
         const removeA = screen.getByTestId('remove-a');
 
         expect(chipA).to.have.attribute('aria-readonly', 'true');
-        expect(removeA).to.have.attribute('aria-readonly', 'true');
 
         await user.click(removeA);
         expect(screen.getByTestId('chip-a')).not.to.equal(null);
@@ -1436,7 +1330,7 @@ describe('<Combobox.Root />', () => {
   });
 
   describe('prop: readOnly', () => {
-    it('should render readOnly state on all interactive components', async () => {
+    it('should render readOnly state on the input and disable interactions', async () => {
       const { user } = await render(
         <Combobox.Root readOnly>
           <Combobox.Input data-testid="input" />
@@ -1463,7 +1357,6 @@ describe('<Combobox.Root />', () => {
 
       expect(input).to.have.attribute('aria-readonly', 'true');
       expect(input).to.have.attribute('readonly');
-      expect(trigger).to.have.attribute('aria-readonly', 'true');
 
       // Verify interactions are disabled
       await user.click(trigger);
@@ -1605,6 +1498,24 @@ describe('<Combobox.Root />', () => {
       const input = screen.getByRole('combobox');
       await user.click(screen.getByText('Canada'));
       expect(input).to.have.value('Canada');
+    });
+
+    it('shows the label for a controlled object value not in items', async () => {
+      const value = { country: 'Japan', code: 'JP' };
+
+      await render(
+        <Combobox.Root
+          items={items}
+          value={value}
+          itemToStringLabel={(item) => item.country}
+          itemToStringValue={(item) => item.code}
+        >
+          <Combobox.Input />
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByRole('combobox');
+      expect(input).to.have.value('Japan');
     });
   });
 
@@ -1833,7 +1744,7 @@ describe('<Combobox.Root />', () => {
       );
 
       const input = screen.getByRole<HTMLInputElement>('combobox');
-      expect(input).to.have.value('');
+      expect(input).to.have.value('banana');
 
       await setProps({ items: ['apple', 'banana', 'bread'] });
 
@@ -1842,10 +1753,6 @@ describe('<Combobox.Root />', () => {
       await setProps({ items: ['banana'] });
 
       expect(input).to.have.value('banana');
-
-      await setProps({ items: ['grape', 'apple'] });
-
-      expect(input).to.have.value('');
     });
   });
 

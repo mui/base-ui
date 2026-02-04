@@ -9,7 +9,7 @@ export enum ScrollAreaScrollbarDataAttributes {
    */
   hovering = 'data-hovering',
   /**
-   * Present when the users scrolls inside the scroll area.
+   * Present when the user scrolls inside the scroll area.
    */
   scrolling = 'data-scrolling',
   /**
