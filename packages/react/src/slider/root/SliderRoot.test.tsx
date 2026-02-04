@@ -1,6 +1,7 @@
 import { expect } from 'chai';
 import * as React from 'react';
 import { spy, stub } from 'sinon';
+import { expect as expectVitest, vi } from 'vitest';
 import { act, flushMicrotasks, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 import { DirectionProvider, type TextDirection } from '@base-ui/react/direction-provider';
 import { Field } from '@base-ui/react/field';
@@ -1291,6 +1292,50 @@ describe.skipIf(typeof Touch === 'undefined')('<Slider.Root />', () => {
         name: 'change-testing',
         value: 4,
       });
+    });
+
+    it('should not rely on the global event when cloning change events', async () => {
+      const hadGlobalEvent = Object.prototype.hasOwnProperty.call(globalThis, 'event');
+      const previousGlobalEvent = (globalThis as any).event;
+      const globalEventConstructor = class {
+        constructor() {
+          throw new Error('Should not construct global event');
+        }
+      };
+      (globalThis as any).event = {
+        type: 'click',
+        constructor: globalEventConstructor,
+      };
+
+      try {
+        const handleValueChange = vi.fn();
+
+        await render(
+          <TestSlider onValueChange={handleValueChange} name="change-testing" value={3} />,
+        );
+
+        const slider = screen.getByRole('slider');
+
+        await act(async () => {
+          slider.focus();
+        });
+
+        expectVitest(() => {
+          fireEvent.change(slider, {
+            target: {
+              value: 4,
+            },
+          });
+        }).not.toThrow();
+
+        expectVitest(handleValueChange).toHaveBeenCalledTimes(1);
+      } finally {
+        if (hadGlobalEvent) {
+          (globalThis as any).event = previousGlobalEvent;
+        } else {
+          delete (globalThis as any).event;
+        }
+      }
     });
 
     it.skipIf(isJSDOM)(
