@@ -68,6 +68,7 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
     onValueCommitted: onValueCommittedProp,
     allowWheelScrub = false,
     snapOnStep = false,
+    allowOutOfRange = false,
     format,
     locale,
     render,
@@ -216,6 +217,18 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
     (unvalidatedValue: number | null, details: NumberFieldRoot.ChangeEventDetails) => {
       const eventWithOptionalKeyState = details.event as EventWithOptionalKeyState;
       const dir = details.direction;
+      const reason = details.reason;
+      // Only allow out-of-range values for direct text entry (native-like behavior).
+      // Step-based interactions (keyboard arrows, buttons, wheel, scrub) still clamp to min/max.
+      const shouldClampValue =
+        !allowOutOfRange ||
+        !(
+          reason === REASONS.inputChange ||
+          reason === REASONS.inputBlur ||
+          reason === REASONS.inputPaste ||
+          reason === REASONS.inputClear ||
+          reason === REASONS.none
+        );
 
       const validatedValue = toValidatedNumber(unvalidatedValue, {
         step: dir ? getStepAmount(eventWithOptionalKeyState) * dir : undefined,
@@ -225,6 +238,7 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
         minWithZeroDefault,
         snapOnStep,
         small: eventWithOptionalKeyState?.altKey ?? false,
+        clamp: shouldClampValue,
       });
 
       // Determine whether we should notify about a change even if the numeric value is unchanged.
@@ -576,6 +590,13 @@ export interface NumberFieldRootProps extends Omit<
    */
   max?: number | undefined;
   /**
+   * When true, direct text entry may be outside the `min`/`max` range without clamping,
+   * so native range underflow/overflow validation can occur.
+   * Step-based interactions (keyboard arrows, buttons, wheel, scrub) still clamp.
+   * @default false
+   */
+  allowOutOfRange?: boolean | undefined;
+  /**
    * The small step value of the input element when incrementing while the meta key is held. Snaps
    * to multiples of this value.
    * @default 0.1
@@ -644,7 +665,7 @@ export interface NumberFieldRootProps extends Omit<
    * The `eventDetails.reason` indicates what triggered the change:
    * - `'input-change'` for parseable typing or programmatic text updates
    * - `'input-clear'` when the field becomes empty
-   * - `'input-blur'` when formatting or clamping occurs on blur
+   * - `'input-blur'` when formatting (and clamping, if enabled) occurs on blur
    * - `'input-paste'` for paste interactions
    * - `'keyboard'` for keyboard input
    * - `'increment-press'` / `'decrement-press'` for button presses on the increment and decrement controls
