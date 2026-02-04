@@ -33,7 +33,11 @@ const tailwindSetup = `
 <script>
   tailwind.config = {
     theme: {
-      extend: {},
+      extend: {
+        screens: {
+          xs: '32rem', // => @media (min-width: 512px)
+        },
+      },
     },
   }
 </script>`;
