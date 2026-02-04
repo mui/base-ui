@@ -10,7 +10,13 @@ import {
   useCompositeListItem,
   IndexGuessBehavior,
 } from '../../composite/list/useCompositeListItem';
-import type { BaseUIComponentProps, HTMLProps, NonNativeButtonProps } from '../../utils/types';
+import type {
+  BaseUIComponentProps,
+  BaseUIEvent,
+  HTMLProps,
+  NonNativeButtonProps,
+} from '../../utils/types';
+import { makeEventPreventable } from '../../merge-props';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { SelectItemContext } from './SelectItemContext';
 import { selectors } from '../store';
@@ -37,6 +43,7 @@ export const SelectItem = React.memo(
       label,
       disabled = false,
       nativeButton = false,
+      onClick: onClickProp,
       ...elementProps
     } = componentProps;
 
@@ -208,7 +215,7 @@ export const SelectItem = React.memo(
         pointerTypeRef.current = event.pointerType;
         didPointerDownRef.current = true;
       },
-      onMouseUp(event) {
+      onMouseUp(event: BaseUIEvent<React.MouseEvent<HTMLDivElement>>) {
         if (disabled) {
           return;
         }
@@ -229,7 +236,12 @@ export const SelectItem = React.memo(
           return;
         }
 
-        commitSelection(event.nativeEvent);
+        makeEventPreventable(event);
+        onClickProp?.(event);
+
+        if (!event.baseUIHandlerPrevented) {
+          commitSelection(event.nativeEvent);
+        }
       },
     };
 
