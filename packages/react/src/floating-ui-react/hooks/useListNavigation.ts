@@ -1,3 +1,4 @@
+'use client';
 import * as React from 'react';
 import { isHTMLElement } from '@floating-ui/utils/dom';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
@@ -95,7 +96,7 @@ export interface UseListNavigationProps {
    * A ref that holds an array of list items.
    * @default empty list
    */
-  listRef: React.MutableRefObject<Array<HTMLElement | null>>;
+  listRef: React.RefObject<Array<HTMLElement | null>>;
   /**
    * The index of the currently active (focused or highlighted) item, which may
    * or may not be selected.

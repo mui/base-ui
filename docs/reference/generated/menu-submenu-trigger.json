@@ -8,8 +8,8 @@
       "detailedType": "string | undefined"
     },
     "onClick": {
-      "type": "MouseEventHandler<HTMLElement>",
-      "detailedType": "React.MouseEventHandler<HTMLElement> | undefined"
+      "type": "((event: BaseUIEvent<MouseEvent<HTMLDivElement, MouseEvent>>) => void)",
+      "detailedType": "| ((\n    event: BaseUIEvent<\n      MouseEvent<HTMLDivElement, MouseEvent>\n    >,\n  ) => void)\n| undefined"
     },
     "nativeButton": {
       "type": "boolean",
