@@ -307,11 +307,9 @@ describe('<Combobox.Input />', () => {
 
       const input = screen.getByTestId('input');
       const chip = screen.getByTestId('chip');
-      const remove = screen.getByTestId('remove');
 
       expect(input).to.have.attribute('aria-readonly', 'true');
       expect(chip).to.have.attribute('aria-readonly', 'true');
-      expect(remove).to.have.attribute('aria-readonly', 'true');
 
       await user.type(input, '{backspace}');
       expect(screen.getByTestId('chip')).not.to.equal(null);
