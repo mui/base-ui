@@ -1,0 +1,45 @@
+.root {
+  display: flex;
+  align-items: center;
+  padding: 4px;
+  border-bottom: 1px solid #ccc;
+}
+
+.buttonGroup {
+  display: flex;
+  gap: 2px;
+}
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  border: 1px solid transparent;
+  background: transparent;
+  border-radius: 4px;
+  cursor: pointer;
+  color: inherit;
+}
+
+.button:hover {
+  background-color: rgba(0, 0, 0, 0.04);
+}
+
+.button[data-selected="true"] {
+  background-color: rgba(25, 118, 210, 0.08);
+  border-color: rgba(25, 118, 210, 0.12);
+  color: #1976d2;
+}
+
+.button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.divider {
+  width: 1px;
+  height: 24px;
+  background-color: #ccc;
+  margin: 0 8px;
+}

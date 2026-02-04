@@ -26,6 +26,7 @@
   },
   "exports": {
     ".": "./src/index.ts",
+    "./editor": "./src/editor/index.ts",
     "./accordion": "./src/accordion/index.ts",
     "./alert-dialog": "./src/alert-dialog/index.ts",
     "./autocomplete": "./src/autocomplete/index.ts",
@@ -89,7 +90,11 @@
     "@floating-ui/utils": "^0.2.10",
     "reselect": "^5.1.1",
     "tabbable": "^6.4.0",
-    "use-sync-external-store": "^1.6.0"
+    "use-sync-external-store": "^1.6.0",
+    "lexical": "^0.18.0",
+    "@lexical/react": "^0.18.0",
+    "@lexical/history": "^0.18.0",
+    "@lexical/html": "^0.18.0"
   },
   "devDependencies": {
     "@testing-library/react": "16.3.2",
@@ -119,7 +124,9 @@
       "optional": true
     }
   },
-  "sideEffects": false,
+  "sideEffects": [
+    "**/*.css"
+  ],
   "publishConfig": {
     "access": "public",
     "directory": "build"

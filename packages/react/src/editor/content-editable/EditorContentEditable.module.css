@@ -1,0 +1,9 @@
+.root {
+  min-height: 150px;
+  outline: none;
+  padding: 12px;
+}
+
+.root p {
+  margin: 0;
+}
