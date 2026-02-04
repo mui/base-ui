@@ -28,6 +28,7 @@ import {
   isOutsideEvent,
   getNextTabbable,
   getPreviousTabbable,
+  isInputElement,
 } from '../utils';
 import type { FloatingContext, FloatingRootContext } from '../types';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
@@ -738,6 +739,16 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
 
       enqueueFocus(elToFocus, {
         preventScroll: elToFocus === floatingFocusElement,
+        onFocused: (element) => {
+          // Select text if it's a text input
+          if (isInputElement(element)) {
+            try {
+              element.select();
+            } catch {
+              // Fail silently if select() throws
+            }
+          }
+        },
       });
     });
   }, [
