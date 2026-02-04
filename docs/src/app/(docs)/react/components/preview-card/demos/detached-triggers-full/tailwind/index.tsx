@@ -10,7 +10,7 @@ const cardContents = {
       <img
         width="224"
         height="150"
-        className="block rounded-sm max-w-none"
+        className="block rounded-xs max-w-none"
         src="https://images.unsplash.com/photo-1619615391095-dfa29e1672ef?q=80&w=448&h=300"
         alt="Station Hofplein signage in Rotterdam, Netherlands"
       />
@@ -24,7 +24,7 @@ const cardContents = {
       <img
         width="250"
         height="249"
-        className="block rounded-sm max-w-none"
+        className="block rounded-xs max-w-none"
         src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b7/Braun_ABW30_%28schwarz%29.jpg/250px-Braun_ABW30_%28schwarz%29.jpg"
         alt="Braun ABW30"
       />
@@ -38,7 +38,7 @@ const cardContents = {
       <img
         width="250"
         height="290"
-        className="block rounded-sm max-w-none"
+        className="block rounded-xs max-w-none"
         src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5f/MonaLisa_sfumato.jpeg/250px-MonaLisa_sfumato.jpeg"
         alt="Mona Lisa"
       />
@@ -58,7 +58,7 @@ export default function PreviewCardDetachedTriggersFullDemo() {
       <p className="m-0 text-base leading-6 text-gray-900 text-balance">
         Discover{' '}
         <PreviewCard.Trigger
-          className="text-blue-800 no-underline decoration-blue-800/60 decoration-1 underline-offset-2 outline-0 hover:underline data-[popup-open]:underline focus-visible:rounded-[2px] focus-visible:no-underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-800"
+          className="text-blue-800 no-underline decoration-blue-800/60 decoration-1 underline-offset-2 outline-0 hover:underline data-[popup-open]:underline focus-visible:rounded-[2px] focus-visible:no-underline focus-visible:outline-2 focus-visible:outline-blue-800"
           handle={demoPreviewCard}
           href="https://en.wikipedia.org/wiki/Typography"
           payload={cardContents.typography}
@@ -67,7 +67,7 @@ export default function PreviewCardDetachedTriggersFullDemo() {
         </PreviewCard.Trigger>
         ,{' '}
         <PreviewCard.Trigger
-          className="text-blue-800 no-underline decoration-blue-800/60 decoration-1 underline-offset-2 outline-0 hover:underline data-[popup-open]:underline focus-visible:rounded-[2px] focus-visible:no-underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-800"
+          className="text-blue-800 no-underline decoration-blue-800/60 decoration-1 underline-offset-2 outline-0 hover:underline data-[popup-open]:underline focus-visible:rounded-[2px] focus-visible:no-underline focus-visible:outline-2 focus-visible:outline-blue-800"
           handle={demoPreviewCard}
           href="https://en.wikipedia.org/wiki/Design"
           payload={cardContents.design}
@@ -76,7 +76,7 @@ export default function PreviewCardDetachedTriggersFullDemo() {
         </PreviewCard.Trigger>
         , or{' '}
         <PreviewCard.Trigger
-          className="text-blue-800 no-underline decoration-blue-800/60 decoration-1 underline-offset-2 outline-0 hover:underline data-[popup-open]:underline focus-visible:rounded-[2px] focus-visible:no-underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-800"
+          className="text-blue-800 no-underline decoration-blue-800/60 decoration-1 underline-offset-2 outline-0 hover:underline data-[popup-open]:underline focus-visible:rounded-[2px] focus-visible:no-underline focus-visible:outline-2 focus-visible:outline-blue-800"
           handle={demoPreviewCard}
           href="https://en.wikipedia.org/wiki/Art"
           payload={cardContents.art}
@@ -93,7 +93,7 @@ export default function PreviewCardDetachedTriggersFullDemo() {
               sideOffset={8}
               className="h-[var(--positioner-height)] w-[var(--positioner-width)] max-w-[var(--available-width)] transition-[top,left,right,bottom,transform] duration-[0.35s] ease-[cubic-bezier(0.22,1,0.36,1)]"
             >
-              <PreviewCard.Popup className="box-border relative w-[var(--popup-width,auto)] h-[var(--popup-height,auto)] rounded-lg bg-[canvas] origin-[var(--transform-origin)] transition-[width,height,opacity,scale] duration-[0.35s] ease-[cubic-bezier(0.22,1,0.36,1)] data-[starting-style]:scale-90 data-[starting-style]:opacity-0 data-[ending-style]:scale-90 data-[ending-style]:opacity-0 shadow-lg shadow-gray-200 outline outline-1 outline-gray-200 dark:shadow-none dark:outline-gray-300 dark:-outline-offset-1">
+              <PreviewCard.Popup className="box-border relative w-[var(--popup-width,auto)] h-[var(--popup-height,auto)] rounded-lg bg-[canvas] origin-[var(--transform-origin)] transition-[width,height,opacity,scale] duration-[0.35s] ease-[cubic-bezier(0.22,1,0.36,1)] data-[starting-style]:scale-90 data-[starting-style]:opacity-0 data-[ending-style]:scale-90 data-[ending-style]:opacity-0 shadow-lg shadow-gray-200 outline-1 outline-gray-200 dark:shadow-none dark:outline-gray-300 dark:-outline-offset-1">
                 <PreviewCard.Arrow className="flex data-[side=bottom]:top-[-8px] data-[side=left]:right-[-13px] data-[side=left]:rotate-90 data-[side=right]:left-[-13px] data-[side=right]:-rotate-90 data-[side=top]:bottom-[-8px] data-[side=top]:rotate-180">
                   <ArrowSvg />
                 </PreviewCard.Arrow>
