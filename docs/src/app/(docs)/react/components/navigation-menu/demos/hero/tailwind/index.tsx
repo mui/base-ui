@@ -6,20 +6,20 @@ export default function ExampleNavigationMenu() {
     <NavigationMenu.Root className="min-w-max rounded-lg bg-gray-50 p-1 text-gray-900">
       <NavigationMenu.List className="relative flex">
         <NavigationMenu.Item>
-          <NavigationMenu.Trigger className="box-border flex items-center justify-center gap-1.5 h-10 px-2 xs:px-3.5 m-0 rounded-md bg-gray-50 text-gray-900 font-medium text-[0.925rem] xs:text-base leading-6 select-none no-underline hover:bg-gray-100 active:bg-gray-100 data-[popup-open]:bg-gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 focus-visible:relative">
+          <NavigationMenu.Trigger className="box-border flex items-center justify-center gap-1.5 h-10 px-2 [@media(min-width:32rem)]:px-3.5 m-0 rounded-md bg-gray-50 text-gray-900 font-medium text-[0.925rem] [@media(min-width:32rem)]:text-base leading-6 select-none no-underline hover:bg-gray-100 active:bg-gray-100 data-[popup-open]:bg-gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 focus-visible:relative">
             Overview
             <NavigationMenu.Icon className="transition-transform duration-200 ease-in-out data-[popup-open]:rotate-180">
               <ChevronDownIcon />
             </NavigationMenu.Icon>
           </NavigationMenu.Trigger>
 
-          <NavigationMenu.Content className="w-[calc(100vw_-_40px)] h-full p-6 xs:w-max xs:min-w-[400px] transition-[opacity,transform,translate] duration-[var(--duration)] ease-[var(--easing)] data-[starting-style]:opacity-0 data-[ending-style]:opacity-0 data-[starting-style]:data-[activation-direction=left]:translate-x-[-50%] data-[starting-style]:data-[activation-direction=right]:translate-x-[50%] data-[ending-style]:data-[activation-direction=left]:translate-x-[50%] data-[ending-style]:data-[activation-direction=right]:translate-x-[-50%]">
-            <ul className="grid list-none grid-cols-1 gap-0 xs:grid-cols-[12rem_12rem]">
+          <NavigationMenu.Content className="w-[calc(100vw_-_40px)] h-full p-6 [@media(min-width:32rem)]:w-max [@media(min-width:32rem)]:min-w-[400px] transition-[opacity,transform,translate] duration-[var(--duration)] ease-[var(--easing)] data-[starting-style]:opacity-0 data-[ending-style]:opacity-0 data-[starting-style]:data-[activation-direction=left]:translate-x-[-50%] data-[starting-style]:data-[activation-direction=right]:translate-x-[50%] data-[ending-style]:data-[activation-direction=left]:translate-x-[50%] data-[ending-style]:data-[activation-direction=right]:translate-x-[-50%]">
+            <ul className="grid list-none grid-cols-1 gap-0 [@media(min-width:32rem)]:grid-cols-[12rem_12rem]">
               {overviewLinks.map((item) => (
                 <li key={item.href}>
                   <Link
                     href={item.href}
-                    className="block rounded-md p-2 xs:p-3 no-underline text-inherit hover:bg-gray-100 focus-visible:relative focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800"
+                    className="block rounded-md p-2 [@media(min-width:32rem)]:p-3 no-underline text-inherit hover:bg-gray-100 focus-visible:relative focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800"
                   >
                     <h3 className="m-0 mb-1 text-base leading-5 font-medium">{item.title}</h3>
                     <p className="m-0 text-sm leading-5 text-gray-500">{item.description}</p>
@@ -31,20 +31,20 @@ export default function ExampleNavigationMenu() {
         </NavigationMenu.Item>
 
         <NavigationMenu.Item>
-          <NavigationMenu.Trigger className="box-border flex items-center justify-center gap-1.5 h-10 px-2 xs:px-3.5 m-0 rounded-md bg-gray-50 text-gray-900 font-medium text-[0.925rem] xs:text-base leading-6 select-none no-underline hover:bg-gray-100 active:bg-gray-100 data-[popup-open]:bg-gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 focus-visible:relative">
+          <NavigationMenu.Trigger className="box-border flex items-center justify-center gap-1.5 h-10 px-2 [@media(min-width:32rem)]:px-3.5 m-0 rounded-md bg-gray-50 text-gray-900 font-medium text-[0.925rem] [@media(min-width:32rem)]:text-base leading-6 select-none no-underline hover:bg-gray-100 active:bg-gray-100 data-[popup-open]:bg-gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 focus-visible:relative">
             Handbook
             <NavigationMenu.Icon className="transition-transform duration-200 ease-in-out data-[popup-open]:rotate-180">
               <ChevronDownIcon />
             </NavigationMenu.Icon>
           </NavigationMenu.Trigger>
 
-          <NavigationMenu.Content className="w-[calc(100vw_-_40px)] h-full p-6 xs:w-max xs:min-w-[400px] transition-[opacity,transform,translate] duration-[var(--duration)] ease-[var(--easing)] data-[starting-style]:opacity-0 data-[ending-style]:opacity-0 data-[starting-style]:data-[activation-direction=left]:translate-x-[-50%] data-[starting-style]:data-[activation-direction=right]:translate-x-[50%] data-[ending-style]:data-[activation-direction=left]:translate-x-[50%] data-[ending-style]:data-[activation-direction=right]:translate-x-[-50%]">
+          <NavigationMenu.Content className="w-[calc(100vw_-_40px)] h-full p-6 [@media(min-width:32rem)]:w-max [@media(min-width:32rem)]:min-w-[400px] transition-[opacity,transform,translate] duration-[var(--duration)] ease-[var(--easing)] data-[starting-style]:opacity-0 data-[ending-style]:opacity-0 data-[starting-style]:data-[activation-direction=left]:translate-x-[-50%] data-[starting-style]:data-[activation-direction=right]:translate-x-[50%] data-[ending-style]:data-[activation-direction=left]:translate-x-[50%] data-[ending-style]:data-[activation-direction=right]:translate-x-[-50%]">
             <ul className="flex max-w-[400px] flex-col justify-center">
               {handbookLinks.map((item) => (
                 <li key={item.href}>
                   <Link
                     href={item.href}
-                    className="block rounded-md p-2 xs:p-3 no-underline text-inherit hover:bg-gray-100 focus-visible:relative focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800"
+                    className="block rounded-md p-2 [@media(min-width:32rem)]:p-3 no-underline text-inherit hover:bg-gray-100 focus-visible:relative focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800"
                   >
                     <h3 className="m-0 mb-1 text-base leading-5 font-medium">{item.title}</h3>
                     <p className="m-0 text-sm leading-5 text-gray-500">{item.description}</p>
@@ -57,7 +57,7 @@ export default function ExampleNavigationMenu() {
 
         <NavigationMenu.Item>
           <Link
-            className="box-border flex items-center justify-center gap-1.5 h-10 px-2 xs:px-3.5 m-0 rounded-md bg-gray-50 text-gray-900 font-medium text-[0.925rem] xs:text-base leading-6 select-none no-underline hover:bg-gray-100 active:bg-gray-100 data-[popup-open]:bg-gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 focus-visible:relative"
+            className="box-border flex items-center justify-center gap-1.5 h-10 px-2 [@media(min-width:32rem)]:px-3.5 m-0 rounded-md bg-gray-50 text-gray-900 font-medium text-[0.925rem] [@media(min-width:32rem)]:text-base leading-6 select-none no-underline hover:bg-gray-100 active:bg-gray-100 data-[popup-open]:bg-gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 focus-visible:relative"
             href="https://github.com/mui/base-ui"
           >
             GitHub
