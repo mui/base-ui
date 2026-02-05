@@ -397,6 +397,12 @@ Closes the toast, removing it from the toast list after any animations complete.
 toastManager.close(toastId);
 ```
 
+Or you can close all toasts at once by not passing an ID:
+
+```jsx title="Close all toasts"
+toastManager.close();
+```
+
 ### `promise` method
 
 Creates an asynchronous toast with three possible states: `loading`, `success`, and `error`.
