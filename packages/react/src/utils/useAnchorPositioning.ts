@@ -426,7 +426,10 @@ export function useAnchorPositioning(
     const base = adaptiveOrigin
       ? { position: resolvedPosition, [sideX]: x, [sideY]: y }
       : { position: resolvedPosition, ...originalFloatingStyles };
-    return !isPositioned ? { ...base, opacity: 0 } : base;
+    if (!isPositioned) {
+      base.opacity = 0;
+    }
+    return base;
   }, [adaptiveOrigin, resolvedPosition, sideX, x, sideY, y, originalFloatingStyles, isPositioned]);
 
   const registeredPositionReferenceRef = React.useRef<Element | VirtualElement | null>(null);
