@@ -37,6 +37,8 @@ export type ComboboxRootProps<Value, Multiple extends boolean | undefined = fals
   | 'fillInputOnItemPress'
   | 'autoComplete'
   | 'submitOnItemClick'
+  | 'clearInputAfterSelection'
+  | 'closePopupAfterSelection'
   | 'autoHighlight'
   | 'keepHighlight'
   | 'highlightItemOnHover'
@@ -70,6 +72,18 @@ export type ComboboxRootProps<Value, Multiple extends boolean | undefined = fals
    * @default true
    */
   highlightItemOnHover?: boolean | undefined;
+  /**
+   * Whether the input value is cleared after selecting an item while filtering.
+   * Only applies when `multiple` is `true`.
+   * @default true
+   */
+  clearInputAfterSelection?: boolean | undefined;
+  /**
+   * Whether the popup closes after selecting an item when the input is rendered outside the popup.
+   * Only applies when `multiple` is `true`.
+   * @default true
+   */
+  closePopupAfterSelection?: boolean | undefined;
   /**
    * When the item values are objects (`<Combobox.Item value={object}>`), this function converts the object value to a string representation for display in the input.
    * If the shape of the object is `{ value, label }`, the label will be used automatically without needing to specify this prop.

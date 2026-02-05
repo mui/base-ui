@@ -110,6 +110,8 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     autoComplete = 'list',
     locale,
     submitOnItemClick = false,
+    clearInputAfterSelection = true,
+    closePopupAfterSelection = true,
   } = props;
 
   const { clearErrors } = useFormContext();
@@ -139,6 +141,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
   const emptyRef = React.useRef<HTMLDivElement | null>(null);
   const keyboardActiveRef = React.useRef(true);
   const hadInputClearRef = React.useRef(false);
+  const skipInputClearOnCloseRef = React.useRef(false);
   const chipsContainerRef = React.useRef<HTMLDivElement | null>(null);
   const clearRef = React.useRef<HTMLButtonElement | null>(null);
   const selectionEventRef = React.useRef<MouseEvent | PointerEvent | KeyboardEvent | null>(null);
@@ -541,6 +544,16 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
         return;
       }
 
+      const shouldSkipClearOnClose =
+        !nextOpen &&
+        multiple &&
+        !clearInputAfterSelection &&
+        eventDetails.reason === REASONS.itemPress;
+
+      if (!nextOpen) {
+        skipInputClearOnCloseRef.current = shouldSkipClearOnClose;
+      }
+
       if (!nextOpen && queryChangedAfterOpen) {
         if (single) {
           setCloseQuery(query);
@@ -557,7 +570,9 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
           }
           // Clear the input immediately on close while retaining filtering via closeQuery for exit animations
           // if the input is outside the popup.
-          setInputValue('', createChangeEventDetails(REASONS.inputClear, eventDetails.event));
+          if (!shouldSkipClearOnClose) {
+            setInputValue('', createChangeEventDetails(REASONS.inputClear, eventDetails.event));
+          }
         }
       }
 
@@ -656,10 +671,20 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
         }
 
         if (store.state.inputInsidePopup) {
-          setInputValue('', createChangeEventDetails(REASONS.inputClear, eventDetails.event));
-        } else {
-          setOpen(false, eventDetails);
+          if (clearInputAfterSelection) {
+            setInputValue('', createChangeEventDetails(REASONS.inputClear, eventDetails.event));
+          }
+          return;
         }
+
+        if (!closePopupAfterSelection) {
+          if (clearInputAfterSelection) {
+            setInputValue('', createChangeEventDetails(REASONS.inputClear, eventDetails.event));
+          }
+          return;
+        }
+
+        setOpen(false, eventDetails);
       } else {
         setSelectedValue(value, eventDetails);
         setOpen(false, eventDetails);
@@ -698,10 +723,13 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       multiple &&
       inputRef.current &&
       inputRef.current.value !== '' &&
-      !hadInputClearRef.current
+      !hadInputClearRef.current &&
+      !skipInputClearOnCloseRef.current
     ) {
       setInputValue('', createChangeEventDetails(REASONS.inputClear));
     }
+
+    skipInputClearOnCloseRef.current = false;
 
     // Single selection mode:
     // - If input is rendered inside the popup, clear it so the next open is blank
@@ -1479,6 +1507,18 @@ interface ComboboxRootProps<ItemValue> {
    * @default false
    */
   submitOnItemClick?: boolean | undefined;
+  /**
+   * Whether the input value is cleared after selecting an item while filtering.
+   * Only applies when `selectionMode` is `multiple`.
+   * @default true
+   */
+  clearInputAfterSelection?: boolean | undefined;
+  /**
+   * Whether the popup closes after selecting an item when the input is rendered outside the popup.
+   * Only applies when `selectionMode` is `multiple`.
+   * @default true
+   */
+  closePopupAfterSelection?: boolean | undefined;
   /**
    * INTERNAL: When `selectionMode` is `none`, controls whether selecting an item fills the input.
    */
