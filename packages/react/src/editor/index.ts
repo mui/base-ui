@@ -4,6 +4,7 @@ export * from './hooks/useSelection';
 export * from './root/Editor';
 export * from './content-editable/EditorContentEditable';
 export * from './toolbar/EditorToolbar';
+export * from './floating-toolbar/EditorFloatingToolbar';
 export * from './utils/SerializerRegistry';
 export * from './utils/toHTML';
 export * from './plugins/KeyboardShortcutsPlugin';

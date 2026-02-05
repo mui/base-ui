@@ -5,6 +5,7 @@ import {
   $getSelection,
   $isRangeSelection,
   COMMAND_PRIORITY_LOW,
+  COMMAND_PRIORITY_NORMAL,
   KEY_TAB_COMMAND,
   createCommand,
   LexicalCommand,
@@ -248,7 +249,7 @@ export function AIAutocompletePlugin(props: AIAutocompletePluginProps) {
           }
           return false;
         },
-        COMMAND_PRIORITY_LOW + 1,
+        COMMAND_PRIORITY_NORMAL,
       ),
       editor.registerCommand(
         SET_AI_COMPLETION_COMMAND,
