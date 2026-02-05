@@ -22,14 +22,14 @@ export type SerializedAICompletionNode = SerializedLexicalNode & {
 
 export class AICompletionNode extends DecoratorNode<React.ReactNode> {
   completion: string;
-  key?: NodeKey | undefined;
 
   static getType(): string {
     return 'ai-completion';
   }
 
   static clone(node: AICompletionNode): AICompletionNode {
-    return new AICompletionNode(node.completion, node.key);
+    // eslint-disable-next-line no-underscore-dangle
+    return new AICompletionNode(node.completion, node.__key);
   }
 
   constructor(completion: string, key?: NodeKey) {
@@ -152,6 +152,27 @@ export function AIAutocompletePlugin(props: AIAutocompletePluginProps) {
     }
 
     const result = await getCompletion(text);
+
+    // Check for staleness
+    const isStale = editor.getEditorState().read(() => {
+      const selection = $getSelection();
+      if (!$isRangeSelection(selection) || !selection.isCollapsed()) {
+        return true;
+      }
+      const anchor = selection.anchor;
+      if (anchor.type !== 'text') {
+        return true;
+      }
+      const node = anchor.getNode();
+      if (anchor.offset !== node.getTextContentSize()) {
+        return true;
+      }
+      return node.getTextContent().slice(0, anchor.offset) !== text;
+    });
+
+    if (isStale) {
+      return;
+    }
 
     if (result) {
       setCompletion(result);
