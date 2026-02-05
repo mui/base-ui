@@ -14,11 +14,11 @@ import { REASONS } from '../../utils/reasons';
 interface ContextValue {
   hasProvider: boolean;
   timeoutMs: number;
-  delayRef: React.MutableRefObject<Delay>;
-  initialDelayRef: React.MutableRefObject<Delay>;
+  delayRef: React.RefObject<Delay>;
+  initialDelayRef: React.RefObject<Delay>;
   timeout: Timeout;
-  currentIdRef: React.MutableRefObject<any>;
-  currentContextRef: React.MutableRefObject<{
+  currentIdRef: React.RefObject<any>;
+  currentContextRef: React.RefObject<{
     onOpenChange: (open: boolean, eventDetails: BaseUIChangeEventDetails<any>) => void;
     setIsInstantPhase: (value: boolean) => void;
   } | null>;
@@ -104,7 +104,7 @@ interface UseDelayGroupReturn {
   /**
    * The delay reference object.
    */
-  delayRef: React.MutableRefObject<Delay>;
+  delayRef: React.RefObject<Delay>;
   /**
    * Whether animations should be removed.
    */

@@ -14,7 +14,7 @@ export interface UseTypeaheadProps {
    * elements of the list.
    * @default empty list
    */
-  listRef: React.MutableRefObject<Array<string | null>>;
+  listRef: React.RefObject<Array<string | null>>;
   /**
    * The index of the active (focused or highlighted) item in the list.
    * @default null
