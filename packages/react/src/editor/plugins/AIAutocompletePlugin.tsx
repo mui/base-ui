@@ -248,7 +248,7 @@ export function AIAutocompletePlugin(props: AIAutocompletePluginProps) {
           }
           return false;
         },
-        COMMAND_PRIORITY_LOW,
+        COMMAND_PRIORITY_LOW + 1,
       ),
       editor.registerCommand(
         SET_AI_COMPLETION_COMMAND,

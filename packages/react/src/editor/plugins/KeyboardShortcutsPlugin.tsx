@@ -4,7 +4,7 @@ import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext
 import {
   COMMAND_PRIORITY_EDITOR,
   FORMAT_TEXT_COMMAND,
-  KEY_MODIFIER_COMMAND,
+  KEY_DOWN_COMMAND,
   UNDO_COMMAND,
   REDO_COMMAND,
 } from 'lexical';
@@ -16,28 +16,29 @@ export function KeyboardShortcutsPlugin() {
   React.useEffect(() => {
     return mergeRegister(
       editor.registerCommand(
-        KEY_MODIFIER_COMMAND,
+        KEY_DOWN_COMMAND,
         (event) => {
-          const { code, ctrlKey, metaKey } = event;
+          const { key, ctrlKey, metaKey } = event;
           const isModifier = ctrlKey || metaKey;
 
           if (isModifier) {
-            if (code === 'KeyB') {
+            const lowerKey = key.toLowerCase();
+            if (lowerKey === 'b') {
               event.preventDefault();
               editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'bold');
               return true;
             }
-            if (code === 'KeyI') {
+            if (lowerKey === 'i') {
               event.preventDefault();
               editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'italic');
               return true;
             }
-            if (code === 'KeyU') {
+            if (lowerKey === 'u') {
               event.preventDefault();
               editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'underline');
               return true;
             }
-            if (code === 'KeyZ') {
+            if (lowerKey === 'z') {
               event.preventDefault();
               if (event.shiftKey) {
                 editor.dispatchCommand(REDO_COMMAND, undefined);
@@ -46,15 +47,14 @@ export function KeyboardShortcutsPlugin() {
               }
               return true;
             }
-            if (code === 'KeyY') {
+            if (lowerKey === 'y') {
               event.preventDefault();
               editor.dispatchCommand(REDO_COMMAND, undefined);
               return true;
             }
-            if (code === 'KeyK') {
+            if (lowerKey === 'k') {
               event.preventDefault();
               // Link insertion will be handled in a later task
-              // For now, we can keep it as a placeholder or just prevent default
               return true;
             }
           }

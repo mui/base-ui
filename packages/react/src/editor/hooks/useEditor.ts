@@ -55,14 +55,17 @@ export function useEditor() {
   }, [editor]);
 
   const undo = React.useCallback(() => {
+    editor.focus();
     editor.dispatchCommand(UNDO_COMMAND, undefined);
   }, [editor]);
 
   const redo = React.useCallback(() => {
+    editor.focus();
     editor.dispatchCommand(REDO_COMMAND, undefined);
   }, [editor]);
 
   const toggleBlock = React.useCallback((type: 'h1' | 'h2' | 'quote' | 'paragraph') => {
+    editor.focus();
     editor.update(() => {
       const selection = $getSelection();
       if (type === 'h1' || type === 'h2') {
@@ -76,6 +79,7 @@ export function useEditor() {
   }, [editor]);
 
   const toggleList = React.useCallback((type: 'ul' | 'ol') => {
+    editor.focus();
     if (type === 'ul') {
       editor.dispatchCommand(INSERT_UNORDERED_LIST_COMMAND, undefined);
     } else {
@@ -84,10 +88,12 @@ export function useEditor() {
   }, [editor]);
 
   const removeList = React.useCallback(() => {
+    editor.focus();
     editor.dispatchCommand(REMOVE_LIST_COMMAND, undefined);
   }, [editor]);
 
   const toggleLink = React.useCallback((url: string | null) => {
+    editor.focus();
     editor.dispatchCommand(TOGGLE_LINK_COMMAND, url);
   }, [editor]);
 
