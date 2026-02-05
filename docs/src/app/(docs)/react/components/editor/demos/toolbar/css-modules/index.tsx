@@ -8,7 +8,7 @@ export default function ExampleEditorWithToolbar() {
 
   return (
     <div className={styles.Container}>
-      <label>Message</label>
+      <label className={styles.Label}>Toolbar</label>
       <Editor value={value} onChange={setValue} placeholder="Type your message...">
         <EditorToolbar />
       </Editor>

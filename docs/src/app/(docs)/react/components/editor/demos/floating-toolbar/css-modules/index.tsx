@@ -8,7 +8,7 @@ export default function ExampleEditorFloatingToolbar() {
 
   return (
     <div className={styles.Container}>
-      <label>Message</label>
+      <label className={styles.Label}>Floating Toolbar</label>
       <Editor value={value} onChange={setValue} placeholder="Select some text to format" className={styles.Editor}>
         <EditorFloatingToolbar />
       </Editor>
