@@ -67,6 +67,7 @@ export function toValidatedNumber(
     format,
     snapOnStep,
     small,
+    clamp: shouldClamp,
   }: {
     step: number | undefined;
     minWithDefault: number;
@@ -75,13 +76,14 @@ export function toValidatedNumber(
     format: Intl.NumberFormatOptions | undefined;
     snapOnStep: boolean;
     small: boolean;
+    clamp: boolean;
   },
 ) {
   if (value === null) {
     return value;
   }
 
-  const clampedValue = clamp(value, minWithDefault, maxWithDefault);
+  const clampedValue = shouldClamp ? clamp(value, minWithDefault, maxWithDefault) : value;
 
   if (step != null && snapOnStep) {
     if (step === 0) {
