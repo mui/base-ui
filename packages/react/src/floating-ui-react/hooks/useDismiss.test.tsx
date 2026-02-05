@@ -846,6 +846,28 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
       fireEvent.click(document.body);
       expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
     });
+
+    test('inside click after drag does not cause immediate close on first outside click', async () => {
+      render(<App outsidePressEvent="intentional" />);
+      const floatingEl = screen.getByRole('tooltip');
+      const insideInput = screen.getByRole('textbox');
+
+      fireEvent.mouseDown(floatingEl);
+      fireEvent.mouseUp(document.body);
+
+      // Inside clicks should never dismiss, and they should not consume the
+      // one-shot outside click suppression from the drag that started inside.
+      fireEvent.click(insideInput);
+      expect(screen.getByRole('tooltip')).toBeInTheDocument();
+
+      // First true outside click after that drag is still ignored once.
+      fireEvent.click(document.body);
+      expect(screen.getByRole('tooltip')).toBeInTheDocument();
+
+      // The next outside click is a deliberate outside press and dismisses.
+      fireEvent.click(document.body);
+      expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
+    });
   });
 
   test('nested floating elements with different portal containers', async () => {

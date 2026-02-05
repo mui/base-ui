@@ -270,14 +270,6 @@ export function useDismiss(
         return;
       }
 
-      if (getOutsidePressEvent() === 'intentional' && endedOrStartedInside) {
-        return;
-      }
-
-      if (typeof outsidePress === 'function' && !outsidePress(event)) {
-        return;
-      }
-
       const target = getTarget(event);
       const inertSelector = `[${createAttribute('inert')}]`;
       const markers = getDocument(store.select('floatingElement')).querySelectorAll(inertSelector);
@@ -368,6 +360,18 @@ export function useDismiss(
         return;
       }
 
+      // In intentional mode, a press that starts inside gets one suppressed
+      // outside click. Run this after inside-target checks so inside clicks
+      // don't consume the one-shot suppression.
+      if (getOutsidePressEvent() === 'intentional' && endedOrStartedInside) {
+        endedOrStartedInsideRef.current = false;
+        return;
+      }
+
+      if (typeof outsidePress === 'function' && !outsidePress(event)) {
+        return;
+      }
+
       const children = tree ? getNodeChildren(tree.nodesRef.current, nodeId) : [];
       if (children.length > 0) {
         let shouldDismiss = true;
@@ -447,8 +451,12 @@ export function useDismiss(
     // Don't close if:
     // - The click started inside the floating element.
     // - The click ended inside the floating element.
+    // Preserve the "started/ended inside" flag through click. If we clear it
+    // here, closeOnPressOutside can't apply intentional drag suppression.
     const endedOrStartedInside = endedOrStartedInsideRef.current;
-    endedOrStartedInsideRef.current = false;
+    if (event.type !== 'click') {
+      endedOrStartedInsideRef.current = false;
+    }
 
     cancelDismissOnEndTimeout.clear();
 
