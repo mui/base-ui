@@ -2974,6 +2974,40 @@ describe('<Combobox.Root />', () => {
         expect(screen.getByRole('listbox')).not.to.equal(null);
       });
     });
+
+    it('keeps filtering responsive after selection when inline and open is controlled', async () => {
+      const items = ['Apple', 'Apricot', 'Banana', 'Grape', 'Orange'];
+
+      const { user } = await render(
+        <Combobox.Root items={items} open inline>
+          <Combobox.Input data-testid="input" />
+          <Combobox.List>
+            {(item: string) => (
+              <Combobox.Item key={item} value={item}>
+                {item}
+              </Combobox.Item>
+            )}
+          </Combobox.List>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByTestId('input');
+
+      await user.type(input, 'ap');
+
+      await waitFor(() => {
+        expect(screen.queryByRole('option', { name: 'Banana' })).to.equal(null);
+      });
+
+      await user.click(screen.getByRole('option', { name: 'Apple' }));
+
+      await user.clear(input);
+      await user.type(input, 'ba');
+
+      await waitFor(() => {
+        expect(screen.getByRole('option', { name: 'Banana' })).not.to.equal(null);
+      });
+    });
   });
 
   describe('prop: onOpenChange', () => {
