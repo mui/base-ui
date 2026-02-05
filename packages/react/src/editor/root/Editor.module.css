@@ -1,13 +1,17 @@
 .root {
   display: flex;
   flex-direction: column;
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
+  border: 1px solid var(--color-gray-200);
+  border-radius: 0.5rem;
+  background-color: var(--color-gray-50);
+  color: var(--color-gray-900);
+  transition: border-color 150ms;
+  overflow: hidden;
 }
+
 .root:focus-within {
-  border-color: #1976d2;
-  border-width: 2px;
-  margin: -1px;
+  outline: 2px solid var(--color-blue);
+  outline-offset: -1px;
 }
 
 .content {
@@ -16,12 +20,12 @@
 }
 
 .placeholder {
-  color: #9e9e9e;
+  color: var(--color-gray-500);
   position: absolute;
-  inset: 12px 0 0 12px;
+  inset: 0.75rem 0 0 0.75rem;
   user-select: none;
   pointer-events: none;
-  font-size: 14px;
+  font-size: 1rem;
 }
 .textBold {
   font-weight: bold;
@@ -34,4 +38,46 @@
 }
 .textStrikethrough {
   text-decoration: line-through;
+}
+
+.h1 {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin: 0.5rem 0;
+}
+
+.h2 {
+  font-size: 1.25rem;
+  font-weight: bold;
+  margin: 0.4rem 0;
+}
+
+.quote {
+  border-left: 4px solid var(--color-gray-300);
+  padding-left: 1rem;
+  margin: 0.5rem 0;
+  color: var(--color-gray-600);
+  font-style: italic;
+}
+
+.ul {
+  padding: 0;
+  margin: 0.5rem 0 0.5rem 1.5rem;
+  list-style-type: disc;
+}
+
+.ol {
+  padding: 0;
+  margin: 0.5rem 0 0.5rem 1.5rem;
+  list-style-type: decimal;
+}
+
+.listitem {
+  margin: 0.25rem 0;
+}
+
+.link {
+  color: var(--color-blue);
+  text-decoration: underline;
+  cursor: pointer;
 }

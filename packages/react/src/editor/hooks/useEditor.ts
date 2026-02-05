@@ -6,8 +6,21 @@ import {
   FORMAT_TEXT_COMMAND,
   TextFormatType,
   UNDO_COMMAND,
-  REDO_COMMAND
+  REDO_COMMAND,
+  $createParagraphNode,
 } from 'lexical';
+import {
+  $createHeadingNode,
+  $createQuoteNode,
+  HeadingTagType,
+} from '@lexical/rich-text';
+import {
+  INSERT_ORDERED_LIST_COMMAND,
+  INSERT_UNORDERED_LIST_COMMAND,
+  REMOVE_LIST_COMMAND,
+} from '@lexical/list';
+import { TOGGLE_LINK_COMMAND } from '@lexical/link';
+import { $setBlocksType } from '@lexical/selection';
 
 export function useEditor() {
   const [editor] = useLexicalComposerContext();
@@ -49,12 +62,45 @@ export function useEditor() {
     editor.dispatchCommand(REDO_COMMAND, undefined);
   }, [editor]);
 
+  const toggleBlock = React.useCallback((type: 'h1' | 'h2' | 'quote' | 'paragraph') => {
+    editor.update(() => {
+      const selection = $getSelection();
+      if (type === 'h1' || type === 'h2') {
+        $setBlocksType(selection, () => $createHeadingNode(type as HeadingTagType));
+      } else if (type === 'quote') {
+        $setBlocksType(selection, () => $createQuoteNode());
+      } else {
+        $setBlocksType(selection, () => $createParagraphNode());
+      }
+    });
+  }, [editor]);
+
+  const toggleList = React.useCallback((type: 'ul' | 'ol') => {
+    if (type === 'ul') {
+      editor.dispatchCommand(INSERT_UNORDERED_LIST_COMMAND, undefined);
+    } else {
+      editor.dispatchCommand(INSERT_ORDERED_LIST_COMMAND, undefined);
+    }
+  }, [editor]);
+
+  const removeList = React.useCallback(() => {
+    editor.dispatchCommand(REMOVE_LIST_COMMAND, undefined);
+  }, [editor]);
+
+  const toggleLink = React.useCallback((url: string | null) => {
+    editor.dispatchCommand(TOGGLE_LINK_COMMAND, url);
+  }, [editor]);
+
   return {
     editor,
     commands: {
       formatText,
       undo,
       redo,
+      toggleBlock,
+      toggleList,
+      removeList,
+      toggleLink,
     },
   };
 }

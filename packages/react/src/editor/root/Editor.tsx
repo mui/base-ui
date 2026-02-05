@@ -2,24 +2,26 @@
 
 import * as React from 'react';
 import clsx from 'clsx';
+import type { EditorState } from 'lexical';
 import { RichTextPlugin } from '@lexical/react/LexicalRichTextPlugin';
 import { HistoryPlugin } from '@lexical/react/LexicalHistoryPlugin';
+import { ListPlugin } from '@lexical/react/LexicalListPlugin';
+import { LinkPlugin } from '@lexical/react/LexicalLinkPlugin';
 import { LexicalErrorBoundary } from '@lexical/react/LexicalErrorBoundary';
 import { OnChangePlugin } from '@lexical/react/LexicalOnChangePlugin';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
-import type { EditorState } from 'lexical';
+import { EditorContentEditable, KeyboardShortcutsPlugin } from '@base-ui/react/editor';
 import { EditorProvider } from '../EditorProvider';
-import { EditorContentEditable } from '../content-editable/EditorContentEditable';
 import classes from './Editor.module.css';
 
 export interface EditorProps {
-  placeholder?: string;
+  placeholder?: string | undefined;
   children?: React.ReactNode;
   value?: any; // SerializedEditorState
   defaultValue?: any; // SerializedEditorState
-  onChange?: (value: any) => void;
-  className?: string;
-  style?: React.CSSProperties;
+  onChange?: ((value: any) => void) | undefined;
+  className?: string | undefined;
+  style?: React.CSSProperties | undefined;
 }
 
 function ControlledInitializer({ value, defaultValue }: { value?: any; defaultValue?: any }) {
@@ -57,6 +59,17 @@ const initialConfig = {
       underline: classes.textUnderline,
       strikethrough: classes.textStrikethrough,
     },
+    heading: {
+      h1: classes.h1,
+      h2: classes.h2,
+    },
+    quote: classes.quote,
+    list: {
+      ul: classes.ul,
+      ol: classes.ol,
+      listitem: classes.listitem,
+    },
+    link: classes.link,
   },
 };
 
@@ -86,6 +99,9 @@ export function Editor(props: EditorProps) {
           )}
         </div>
         <HistoryPlugin />
+        <ListPlugin />
+        <LinkPlugin />
+        <KeyboardShortcutsPlugin />
       </div>
     </EditorProvider>
   );

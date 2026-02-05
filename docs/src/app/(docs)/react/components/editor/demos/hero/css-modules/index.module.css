@@ -7,8 +7,4 @@
 
 .Editor {
   min-height: 160px;
-  padding: 12px;
-  border: 1px solid var(--mauve-7);
-  border-radius: 8px;
-  background: var(--color-bg, white);
 }

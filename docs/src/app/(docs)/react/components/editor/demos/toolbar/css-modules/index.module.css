@@ -1,6 +1,10 @@
 .Container {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 0.25rem;
   flex: 1;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  font-weight: 500;
+  color: var(--color-gray-900);
 }

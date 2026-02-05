@@ -1,10 +1,13 @@
 'use client';
 import * as React from 'react';
 import { LexicalComposer, InitialConfigType } from '@lexical/react/LexicalComposer';
+import { HeadingNode, QuoteNode } from '@lexical/rich-text';
+import { ListNode, ListItemNode } from '@lexical/list';
+import { LinkNode } from '@lexical/link';
 
 export interface EditorProviderProps {
   children: React.ReactNode;
-  initialConfig?: Partial<InitialConfigType>;
+  initialConfig?: Partial<InitialConfigType> | undefined;
 }
 
 const defaultConfig: InitialConfigType = {
@@ -13,8 +16,8 @@ const defaultConfig: InitialConfigType = {
   onError: (error: Error) => {
     console.error(error);
   },
-  nodes: [],
-};
+  nodes: [HeadingNode, QuoteNode, ListNode, ListItemNode, LinkNode],
+} ;
 
 export function EditorProvider(props: EditorProviderProps) {
   const { children, initialConfig } = props;

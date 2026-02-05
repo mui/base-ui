@@ -6,3 +6,4 @@ export * from './content-editable/EditorContentEditable';
 export * from './toolbar/EditorToolbar';
 export * from './utils/SerializerRegistry';
 export * from './utils/toHTML';
+export * from './plugins/KeyboardShortcutsPlugin';
