@@ -10,7 +10,7 @@ import { LinkPlugin } from '@lexical/react/LexicalLinkPlugin';
 import { LexicalErrorBoundary } from '@lexical/react/LexicalErrorBoundary';
 import { OnChangePlugin } from '@lexical/react/LexicalOnChangePlugin';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
-import { EditorContentEditable, KeyboardShortcutsPlugin } from '@base-ui/react/editor';
+import { EditorContentEditable, KeyboardShortcutsPlugin, AIAutocompletePlugin } from '@base-ui/react/editor';
 import { EditorProvider } from '../EditorProvider';
 import classes from './Editor.module.css';
 
@@ -22,6 +22,13 @@ export interface EditorProps {
   onChange?: ((value: any) => void) | undefined;
   className?: string | undefined;
   style?: React.CSSProperties | undefined;
+  /**
+   * AI completion configuration.
+   */
+  ai?: {
+    getCompletion: (text: string) => Promise<string | null>;
+    debounceMs?: number | undefined;
+  } | undefined;
 }
 
 function ControlledInitializer({ value, defaultValue }: { value?: any; defaultValue?: any }) {
@@ -74,7 +81,7 @@ const initialConfig = {
 };
 
 export function Editor(props: EditorProps) {
-  const { placeholder, children, value, defaultValue, onChange, className, style } = props;
+  const { placeholder, children, value, defaultValue, onChange, className, style, ai } = props;
 
   return (
     <EditorProvider initialConfig={initialConfig}>
@@ -86,6 +93,12 @@ export function Editor(props: EditorProps) {
             placeholder={placeholder ? <div className={classes.placeholder}>{placeholder}</div> : null}
             ErrorBoundary={LexicalErrorBoundary}
           />
+          {ai && (
+            <AIAutocompletePlugin
+              getCompletion={ai.getCompletion}
+              debounceMs={ai.debounceMs}
+            />
+          )}
           {(value || defaultValue) && (
             <ControlledInitializer value={value} defaultValue={defaultValue} />
           )}

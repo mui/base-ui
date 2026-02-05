@@ -10,6 +10,7 @@
 
 import { DemoEditorHero } from './demos/hero';
 import { DemoEditorToolbar } from './demos/toolbar';
+import { DemoEditorAICompletion } from './demos/ai-completion';
 
 <DemoEditorHero />
 
@@ -38,3 +39,24 @@ export default function BasicEditor() {
 This example shows `EditorToolbar` integrated above the editable area for basic formatting.
 
 <DemoEditorToolbar />
+
+### AI Autocomplete
+
+The Editor can be configured with an AI provider to offer autocomplete suggestions.
+The following example demonstrates a mock AI provider that suggests text based on the last word typed.
+
+<DemoEditorAICompletion />
+
+To enable AI completions, provide an `ai` object to the `Editor`:
+
+```jsx
+<Editor
+  ai={{
+    getCompletion: async (text) => {
+      // Call your AI API here
+      return " suggestion";
+    },
+    debounceMs: 500,
+  }}
+/>
+```
