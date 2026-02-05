@@ -55,13 +55,22 @@ export const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvid
   const windowFocusedRef = React.useRef(true);
   const isPausedRef = React.useRef(false);
 
-  function handleFocusManagement(toastId: string) {
+  function handleFocusManagement(toastId: string | undefined) {
     const activeEl = activeElement(ownerDocument(viewportRef.current));
     if (
       !viewportRef.current ||
       !contains(viewportRef.current, activeEl) ||
       !isFocusVisible(activeEl)
     ) {
+      return;
+    }
+
+    const focusPrevFocusElement = () => {
+      prevFocusElement?.focus({ preventScroll: true });
+    };
+
+    if (toastId === undefined) {
+      focusPrevFocusElement();
       return;
     }
 
@@ -93,7 +102,7 @@ export const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvid
     if (nextToast) {
       nextToast.ref?.current?.focus();
     } else {
-      prevFocusElement?.focus({ preventScroll: true });
+      focusPrevFocusElement();
     }
   }
 
@@ -128,11 +137,19 @@ export const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvid
     });
   });
 
-  const close = useStableCallback((toastId: string) => {
+  const close = useStableCallback((toastId: string | undefined) => {
+    const closeAll = toastId === undefined;
+
     setToasts((prevToasts) => {
       const toastsWithEnding = prevToasts.map((toast) =>
-        toast.id === toastId ? { ...toast, transitionStatus: 'ending' as const, height: 0 } : toast,
+        closeAll || toast.id === toastId
+          ? { ...toast, transitionStatus: 'ending' as const, height: 0 }
+          : toast,
       );
+
+      if (closeAll) {
+        return toastsWithEnding;
+      }
 
       const activeToasts = toastsWithEnding.filter((t) => t.transitionStatus !== 'ending');
 
@@ -145,18 +162,29 @@ export const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvid
       });
     });
 
-    const timer = timersRef.current.get(toastId);
-    if (timer && timer.timeout) {
-      timer.timeout.clear();
-      timersRef.current.delete(toastId);
-    }
+    if (closeAll) {
+      timersRef.current.forEach((timer) => {
+        timer.timeout?.clear();
+      });
+      timersRef.current.clear();
 
-    const toast = toasts.find((t) => t.id === toastId);
-    toast?.onClose?.();
+      toasts.forEach((toast) => {
+        toast.onClose?.();
+      });
+    } else {
+      const timer = timersRef.current.get(toastId);
+      if (timer && timer.timeout) {
+        timer.timeout.clear();
+        timersRef.current.delete(toastId);
+      }
+
+      const toast = toasts.find((t) => t.id === toastId);
+      toast?.onClose?.();
+    }
 
     handleFocusManagement(toastId);
 
-    if (toasts.length === 1) {
+    if (closeAll || toasts.length === 1) {
       setHovering(false);
       setFocused(false);
     }
@@ -339,7 +367,7 @@ export const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvid
           promise(options.promise, options);
         } else if (action === 'update' && id) {
           update(id, options);
-        } else if (action === 'close' && id) {
+        } else if (action === 'close') {
           close(id);
         } else {
           add(options);
