@@ -34,7 +34,6 @@ const tailwindSetup = `
   tailwind.config = {
     theme: {
       extend: {},
-      },
     },
   }
 </script>`;
