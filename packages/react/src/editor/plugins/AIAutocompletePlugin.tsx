@@ -8,9 +8,90 @@ import {
   KEY_TAB_COMMAND,
   createCommand,
   LexicalCommand,
-  SELECTION_CHANGE_COMMAND,
+  DecoratorNode,
+  NodeKey,
+  SerializedLexicalNode,
+  $getNodeByKey,
+  $createTextNode,
 } from 'lexical';
 import { mergeRegister } from '@lexical/utils';
+
+export type SerializedAICompletionNode = SerializedLexicalNode & {
+  completion: string;
+};
+
+export class AICompletionNode extends DecoratorNode<React.ReactNode> {
+  completion: string;
+  key?: NodeKey | undefined;
+
+  static getType(): string {
+    return 'ai-completion';
+  }
+
+  static clone(node: AICompletionNode): AICompletionNode {
+    return new AICompletionNode(node.completion, node.key);
+  }
+
+  constructor(completion: string, key?: NodeKey) {
+    super(key);
+    this.completion = completion;
+  }
+
+  isInline(): boolean {
+    return true;
+  }
+
+  isKeyboardSelectable(): boolean {
+    return false;
+  }
+
+  createDOM(): HTMLElement {
+    const span = document.createElement('span');
+    span.style.display = 'inline';
+    return span;
+  }
+
+  updateDOM(): boolean {
+    return false;
+  }
+
+  decorate(): React.ReactNode {
+    return (
+      <span
+        style={{
+          color: 'var(--color-gray-400)',
+          whiteSpace: 'pre-wrap',
+          pointerEvents: 'none',
+          userSelect: 'none',
+          fontStyle: 'italic',
+        }}
+      >
+        {this.completion}
+      </span>
+    );
+  }
+
+  static importJSON(serializedNode: SerializedAICompletionNode): AICompletionNode {
+    return $createAICompletionNode(serializedNode.completion);
+  }
+
+  exportJSON(): SerializedAICompletionNode {
+    return {
+      ...super.exportJSON(),
+      completion: this.completion,
+      type: 'ai-completion',
+      version: 1,
+    };
+  }
+}
+
+export function $createAICompletionNode(completion: string): AICompletionNode {
+  return new AICompletionNode(completion);
+}
+
+export function $isAICompletionNode(node: any): node is AICompletionNode {
+  return node instanceof AICompletionNode;
+}
 
 export interface AIAutocompletePluginProps {
   /**
@@ -30,30 +111,21 @@ export function AIAutocompletePlugin(props: AIAutocompletePluginProps) {
   const { getCompletion, debounceMs = 500 } = props;
   const [editor] = useLexicalComposerContext();
   const [completion, setCompletion] = React.useState<string | null>(null);
-  const [position, setPosition] = React.useState<{ top: number; left: number } | null>(null);
   const timeoutRef = React.useRef<NodeJS.Timeout | null>(null);
+  const completionNodeKeyRef = React.useRef<NodeKey | null>(null);
 
-  const updatePosition = React.useCallback(() => {
-    editor.getEditorState().read(() => {
-      const selection = $getSelection();
-      if ($isRangeSelection(selection) && selection.isCollapsed()) {
-        const domSelection = window.getSelection();
-        if (domSelection && domSelection.rangeCount > 0) {
-          const range = domSelection.getRangeAt(0);
-          const rect = range.getBoundingClientRect();
-          const editorElement = editor.getRootElement();
-          if (editorElement) {
-            const editorRect = editorElement.getBoundingClientRect();
-            setPosition({
-              top: rect.top - editorRect.top,
-              left: rect.left - editorRect.left,
-            });
-          }
+  const clearCompletion = React.useCallback(() => {
+    if (completionNodeKeyRef.current) {
+      const key = completionNodeKeyRef.current;
+      editor.update(() => {
+        const node = $getNodeByKey(key);
+        if ($isAICompletionNode(node)) {
+          node.remove();
         }
-      } else {
-        setPosition(null);
-      }
-    });
+      });
+      completionNodeKeyRef.current = null;
+    }
+    setCompletion(null);
   }, [editor]);
 
   const updateCompletion = React.useCallback(async () => {
@@ -67,32 +139,61 @@ export function AIAutocompletePlugin(props: AIAutocompletePluginProps) {
         return null;
       }
       const node = anchor.getNode();
+      // Ensure we are at the end of the text node
+      if (anchor.offset !== node.getTextContentSize()) {
+        return null;
+      }
       return node.getTextContent().slice(0, anchor.offset);
     });
 
     if (text === null || text.trim() === '') {
-      setCompletion(null);
+      clearCompletion();
       return;
     }
 
     const result = await getCompletion(text);
-    setCompletion(result);
+
     if (result) {
-      updatePosition();
+      setCompletion(result);
+      editor.update(() => {
+        // Remove existing completion node if any
+        if (completionNodeKeyRef.current) {
+          const prevNode = $getNodeByKey(completionNodeKeyRef.current);
+          if ($isAICompletionNode(prevNode)) {
+            prevNode.remove();
+          }
+        }
+
+        const selection = $getSelection();
+        if ($isRangeSelection(selection) && selection.isCollapsed()) {
+          const anchor = selection.anchor;
+          const prevOffset = anchor.offset;
+          const prevNodeKey = anchor.key;
+
+          const completionNode = $createAICompletionNode(result);
+          selection.insertNodes([completionNode]);
+          completionNodeKeyRef.current = completionNode.getKey();
+
+          // Restore selection to before the completion node
+          const newSelection = $getSelection();
+          if ($isRangeSelection(newSelection)) {
+            newSelection.anchor.set(prevNodeKey, prevOffset, 'text');
+            newSelection.focus.set(prevNodeKey, prevOffset, 'text');
+          }
+        }
+      });
+    } else {
+      clearCompletion();
     }
-  }, [editor, getCompletion, updatePosition]);
+  }, [editor, getCompletion, clearCompletion]);
 
   React.useEffect(() => {
     return mergeRegister(
       editor.registerUpdateListener((payload) => {
-        const { dirtyElements, editorState } = payload;
+        const { dirtyElements } = payload;
         const dirtyNodes = (payload as any).dirtyNodes;
 
         if (dirtyElements.size === 0 && (dirtyNodes?.size ?? 0) === 0) {
-          // If no nodes are dirty, we might still want to update position if selection changed
-          editorState.read(() => {
-             updatePosition();
-          });
           return;
         }
 
@@ -105,26 +206,23 @@ export function AIAutocompletePlugin(props: AIAutocompletePluginProps) {
         }, debounceMs);
       }),
       editor.registerCommand(
-        SELECTION_CHANGE_COMMAND,
-        () => {
-          updatePosition();
-          return false;
-        },
-        COMMAND_PRIORITY_LOW,
-      ),
-      editor.registerCommand(
         KEY_TAB_COMMAND,
         (event: KeyboardEvent) => {
-          if (completion) {
+          if (completion && completionNodeKeyRef.current) {
             event.preventDefault();
             editor.update(() => {
-              const selection = $getSelection();
-              if ($isRangeSelection(selection)) {
-                selection.insertText(completion);
-                setCompletion(null);
-                setPosition(null);
+              const node = $getNodeByKey(completionNodeKeyRef.current!);
+              if ($isAICompletionNode(node)) {
+                const textToInsert = node.completion;
+                const textNode = $createTextNode(textToInsert);
+                node.replace(textNode);
+                completionNodeKeyRef.current = null;
+
+                // Move selection to the end of the inserted text
+                textNode.select();
               }
             });
+            setCompletion(null);
             return true;
           }
           return false;
@@ -135,36 +233,15 @@ export function AIAutocompletePlugin(props: AIAutocompletePluginProps) {
         SET_AI_COMPLETION_COMMAND,
         (payload) => {
           setCompletion(payload);
+          if (payload === null) {
+            clearCompletion();
+          }
           return true;
         },
         COMMAND_PRIORITY_LOW,
       )
     );
-  }, [editor, completion, debounceMs, updateCompletion, updatePosition]);
+  }, [editor, completion, debounceMs, updateCompletion, clearCompletion]);
 
-  // Render ghost text (simplified approach for MVP)
-  // In a real production component, we'd use a decorator node or a more sophisticated overlay
-  // For now, we'll expose the completion via a custom event or context if needed,
-  // but let's try to render it simply.
-
-  return completion && position ? (
-    <span
-      className="ai-completion-ghost"
-      style={{
-        position: 'absolute',
-        pointerEvents: 'none',
-        color: 'var(--color-gray-400)',
-        whiteSpace: 'pre',
-        zIndex: 1,
-        top: position.top,
-        left: position.left,
-        fontSize: 'inherit',
-        lineHeight: 'inherit',
-        fontFamily: 'inherit',
-        opacity: 0.8,
-      }}
-    >
-      {completion}
-    </span>
-  ) : null;
+  return null;
 }
