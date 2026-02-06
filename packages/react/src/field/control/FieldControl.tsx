@@ -80,10 +80,12 @@ export const FieldControl = React.forwardRef(function FieldControl(
   const inputRef = React.useRef<HTMLElement>(null);
 
   useIsoLayoutEffect(() => {
-    if (autoFocus && inputRef.current === activeElement(ownerDocument(inputRef.current))) {
+    if (disabled) {
+      setFocused(false);
+    } else if (autoFocus && inputRef.current === activeElement(ownerDocument(inputRef.current))) {
       setFocused(true);
     }
-  }, [autoFocus, setFocused]);
+  }, [disabled, autoFocus, setFocused]);
 
   const [valueUnwrapped] = useControlled({
     controlled: valueProp,
