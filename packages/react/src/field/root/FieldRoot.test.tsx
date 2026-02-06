@@ -1028,6 +1028,31 @@ describe('<Field.Root />', () => {
         expect(description).not.to.have.attribute('data-focused');
       });
     });
+
+    it('should remove data-focused when disabled', async () => {
+      const { setProps } = await render(
+        <Field.Root data-testid="root">
+          <Field.Control data-testid="control" />
+          <Field.Label data-testid="label" />
+        </Field.Root>,
+      );
+
+      const root = screen.getByTestId('root');
+      const control = screen.getByTestId('control');
+      const label = screen.getByTestId('label');
+
+      fireEvent.focus(control);
+
+      expect(root).to.have.attribute('data-focused', '');
+      expect(control).to.have.attribute('data-focused', '');
+      expect(label).to.have.attribute('data-focused', '');
+
+      await setProps({ disabled: true });
+
+      expect(root).not.to.have.attribute('data-focused');
+      expect(control).not.to.have.attribute('data-focused');
+      expect(label).not.to.have.attribute('data-focused');
+    });
   });
 
   describe('defaultValue behavior', () => {

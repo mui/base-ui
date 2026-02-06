@@ -96,7 +96,7 @@ const FieldRootInner = React.forwardRef(function FieldRootInner(
       dirty,
       valid,
       filled,
-      focused,
+      focused: disabled ? false : focused,
     }),
     [disabled, touched, dirty, valid, filled, focused],
   );
