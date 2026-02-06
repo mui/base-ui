@@ -116,6 +116,16 @@ const suggestions: Item[] = [
   { value: 'slack', label: 'Slack' },
   { value: 'youtube', label: 'YouTube' },
   { value: 'raycast', label: 'Raycast' },
+  { value: 'notion', label: 'Notion' },
+  { value: 'github', label: 'GitHub' },
+  { value: 'jira', label: 'Jira' },
+  { value: 'calendar', label: 'Google Calendar' },
+  { value: 'drive', label: 'Google Drive' },
+  { value: 'spotify', label: 'Spotify' },
+  { value: 'chrome', label: 'Google Chrome' },
+  { value: 'mail', label: 'Apple Mail' },
+  { value: 'terminal', label: 'Terminal' },
+  { value: 'notes', label: 'Notes' },
 ];
 
 const commands: Item[] = [
@@ -124,6 +134,16 @@ const commands: Item[] = [
   { value: 'create-snippet', label: 'Create Snippet' },
   { value: 'system-preferences', label: 'System Preferences' },
   { value: 'window-management', label: 'Window Management' },
+  { value: 'toggle-dark-mode', label: 'Toggle Dark Mode' },
+  { value: 'new-window', label: 'New Window' },
+  { value: 'new-tab', label: 'New Tab' },
+  { value: 'search-docs', label: 'Search Documentation' },
+  { value: 'capture-screen', label: 'Capture Screenshot' },
+  { value: 'open-recent', label: 'Open Recent Project' },
+  { value: 'close-sidebar', label: 'Toggle Sidebar' },
+  { value: 'toggle-terminal', label: 'Toggle Integrated Terminal' },
+  { value: 'run-tests', label: 'Run Test Suite' },
+  { value: 'sync-settings', label: 'Sync Settings' },
 ];
 
 const groupedItems: Group[] = [
