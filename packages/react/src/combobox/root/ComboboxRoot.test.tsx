@@ -3956,6 +3956,42 @@ describe('<Combobox.Root />', () => {
         expect(reopenedInput).to.have.value('');
         await screen.findByRole('option', { name: 'Banana' });
       });
+
+      it('restores highlight when the input regains focus', async () => {
+        const { user } = await render(<DialogSingleCombobox />);
+
+        const input = await screen.findByTestId('dialog-input');
+
+        await act(async () => {
+          input.focus();
+        });
+
+        await user.keyboard('{ArrowDown}');
+
+        const apple = screen.getByRole('option', { name: 'Apple' });
+
+        await waitFor(() => {
+          expect(apple).to.have.attribute('data-highlighted');
+          expect(input).to.have.attribute('aria-activedescendant', apple.id);
+        });
+
+        const done = screen.getByRole('button', { name: 'Done' });
+        fireEvent.blur(input, { relatedTarget: done });
+        fireEvent.focus(done);
+
+        await waitFor(() => {
+          expect(input).not.to.have.attribute('aria-activedescendant');
+          expect(apple).not.to.have.attribute('data-highlighted');
+        });
+
+        fireEvent.blur(done, { relatedTarget: input });
+        fireEvent.focus(input);
+
+        await waitFor(() => {
+          expect(apple).to.have.attribute('data-highlighted');
+          expect(input).to.have.attribute('aria-activedescendant', apple.id);
+        });
+      });
     });
   });
 
