@@ -48,83 +48,71 @@ export const ComboboxChipRemove = React.forwardRef(function ComboboxChipRemove(
     disabled,
   };
 
+  function clearActiveIndexForRemovedItem(removedItem: any) {
+    const activeIndex = store.state.activeIndex;
+
+    if (activeIndex == null) {
+      return;
+    }
+
+    // Try current visible list first; if not found, it's filtered out.
+    // No need to clear highlight in that case since it can't equal activeIndex.
+    const removedIndex = findItemIndex(
+      store.state.valuesRef.current,
+      removedItem,
+      isItemEqualToValue,
+    );
+    if (removedIndex !== -1 && activeIndex === removedIndex) {
+      store.state.setIndices({
+        activeIndex: null,
+        type: store.state.keyboardActiveRef.current ? 'keyboard' : 'pointer',
+      });
+    }
+  }
+
+  function removeChip(
+    event: React.MouseEvent<HTMLButtonElement> | React.KeyboardEvent<HTMLButtonElement>,
+  ) {
+    const eventDetails = createChangeEventDetails(REASONS.chipRemovePress, event.nativeEvent);
+    const removedItem = selectedValue[index];
+
+    clearActiveIndexForRemovedItem(removedItem);
+
+    store.state.setSelectedValue(
+      selectedValue.filter((_: any, i: number) => i !== index),
+      eventDetails,
+    );
+
+    store.state.inputRef.current?.focus();
+    return eventDetails;
+  }
+
   const element = useRenderElement('button', componentProps, {
     ref: [forwardedRef, buttonRef],
     state,
     props: [
       {
         tabIndex: -1,
-        'aria-readonly': readOnly || undefined,
         onClick(event) {
           if (disabled || readOnly) {
             return;
           }
 
-          const eventDetails = createChangeEventDetails(REASONS.chipRemovePress, event.nativeEvent);
-
-          // If the removed chip was the active item, clear highlight
-          const activeIndex = store.state.activeIndex;
-          const removedItem = selectedValue[index];
-
-          // Try current visible list first; if not found, it's filtered out. No need
-          // to clear highlight in that case since it can't equal activeIndex.
-          const removedIndex = findItemIndex(
-            store.state.valuesRef.current,
-            removedItem,
-            isItemEqualToValue,
-          );
-          if (removedIndex !== -1 && activeIndex === removedIndex) {
-            store.state.setIndices({
-              activeIndex: null,
-              type: store.state.keyboardActiveRef.current ? 'pointer' : 'keyboard',
-            });
-          }
-
-          store.state.setSelectedValue(
-            selectedValue.filter((_: any, i: number) => i !== index),
-            eventDetails,
-          );
-
+          const eventDetails = removeChip(event);
           if (!eventDetails.isPropagationAllowed) {
             event.stopPropagation();
           }
-
-          store.state.inputRef.current?.focus();
         },
         onKeyDown(event) {
           if (disabled || readOnly) {
             return;
           }
 
-          const eventDetails = createChangeEventDetails(REASONS.chipRemovePress, event.nativeEvent);
-
           if (event.key === 'Enter' || event.key === ' ') {
-            // If the removed chip was the active item, clear highlight
-            const activeIndex = store.state.activeIndex;
-            const removedItem = selectedValue[index];
-            const removedIndex = findItemIndex(
-              store.state.valuesRef.current,
-              removedItem,
-              isItemEqualToValue,
-            );
-
-            if (removedIndex !== -1 && activeIndex === removedIndex) {
-              store.state.setIndices({
-                activeIndex: null,
-                type: store.state.keyboardActiveRef.current ? 'pointer' : 'keyboard',
-              });
-            }
-
-            store.state.setSelectedValue(
-              selectedValue.filter((_: any, i: number) => i !== index),
-              eventDetails,
-            );
-
+            const eventDetails = removeChip(event);
             if (!eventDetails.isPropagationAllowed) {
               stopEvent(event);
             }
-
-            store.state.inputRef.current?.focus();
           }
         },
       },

@@ -1,3 +1,4 @@
+'use client';
 import { isElement } from '@floating-ui/utils/dom';
 import { useId } from '@base-ui/utils/useId';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';

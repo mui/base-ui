@@ -223,8 +223,9 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
       // This allows seamless integration with the most popular form libraries.
       // https://github.com/mui/material-ui/issues/13485#issuecomment-676048492
       // Clone the event to not override `target` of the original event.
-      // @ts-expect-error The nativeEvent is function, not object
-      const clonedEvent = new event.constructor(event.type, event);
+      const nativeEvent = changeDetails.event;
+      const EventConstructor = (nativeEvent.constructor as typeof Event | undefined) ?? Event;
+      const clonedEvent = new EventConstructor(nativeEvent.type, nativeEvent);
 
       Object.defineProperty(clonedEvent, 'target', {
         writable: true,

@@ -317,6 +317,61 @@ describe('<ToggleGroup />', () => {
       });
     });
 
+    it('Home key moves focus to the first item', async () => {
+      const { user } = await render(
+        <ToggleGroup>
+          <Toggle value="one" />
+          <Toggle value="two" />
+          <Toggle value="three" />
+        </ToggleGroup>,
+      );
+
+      const [button1, button2, button3] = screen.getAllByRole('button');
+
+      await user.keyboard('[Tab]');
+      expect(button1).toHaveFocus();
+
+      await user.keyboard('[ArrowRight][ArrowRight]');
+      expect(button3).toHaveFocus();
+
+      await user.keyboard('[Home]');
+      expect(button1).to.have.attribute('tabindex', '0');
+      expect(button1).toHaveFocus();
+
+      await user.keyboard('[ArrowRight]');
+      expect(button2).toHaveFocus();
+
+      await user.keyboard('[Home]');
+      expect(button1).to.have.attribute('tabindex', '0');
+      expect(button1).toHaveFocus();
+    });
+
+    it('End key moves focus to the last item', async () => {
+      const { user } = await render(
+        <ToggleGroup>
+          <Toggle value="one" />
+          <Toggle value="two" />
+          <Toggle value="three" />
+        </ToggleGroup>,
+      );
+
+      const [button1, button2, button3] = screen.getAllByRole('button');
+
+      await user.keyboard('[Tab]');
+      expect(button1).toHaveFocus();
+
+      await user.keyboard('[End]');
+      expect(button3).to.have.attribute('tabindex', '0');
+      expect(button3).toHaveFocus();
+
+      await user.keyboard('[ArrowLeft]');
+      expect(button2).toHaveFocus();
+
+      await user.keyboard('[End]');
+      expect(button3).to.have.attribute('tabindex', '0');
+      expect(button3).toHaveFocus();
+    });
+
     ['Enter', 'Space'].forEach((key) => {
       it(`key: ${key} toggles the pressed state`, async () => {
         const { user } = await render(

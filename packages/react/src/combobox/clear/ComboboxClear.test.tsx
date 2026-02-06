@@ -93,7 +93,7 @@ describe('<Combobox.Clear />', () => {
     expect(screen.getByTestId('clear')).not.to.equal(null);
   });
 
-  it('is readOnly when root readOnly and does nothing on click', async () => {
+  it('when root is readOnly it does nothing on click', async () => {
     await render(
       <Combobox.Root defaultValue="a" readOnly>
         <Combobox.Input data-testid="input" />
@@ -102,7 +102,6 @@ describe('<Combobox.Clear />', () => {
     );
 
     const clear = screen.getByTestId('clear');
-    expect(clear).to.have.attribute('aria-readonly', 'true');
 
     fireEvent.click(clear);
     expect(screen.getByTestId('clear')).not.to.equal(null);

@@ -1,3 +1,4 @@
+'use client';
 import * as React from 'react';
 import { getWindow } from '@floating-ui/utils/dom';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
@@ -10,7 +11,7 @@ function createVirtualElement(
   domElement: Element | null | undefined,
   data: {
     axis: 'x' | 'y' | 'both';
-    dataRef: React.MutableRefObject<ContextData>;
+    dataRef: React.RefObject<ContextData>;
     pointerType: string | undefined;
     x: number | null;
     y: number | null;

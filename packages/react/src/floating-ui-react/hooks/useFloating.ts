@@ -1,3 +1,4 @@
+'use client';
 import * as React from 'react';
 import { useFloating as usePosition, type VirtualElement } from '@floating-ui/react-dom';
 import { isElement } from '@floating-ui/utils/dom';
@@ -81,7 +82,7 @@ export function useFloating(options: UseFloatingOptions = {}): UseFloatingReturn
   const setReference = React.useCallback(
     (node: ReferenceType | null) => {
       if (isElement(node) || node === null) {
-        (domReferenceRef as React.MutableRefObject<Element | null>).current = node;
+        (domReferenceRef as React.RefObject<Element | null>).current = node;
         setLocalDomReference(node as NarrowedElement<ReferenceType> | null);
       }
 

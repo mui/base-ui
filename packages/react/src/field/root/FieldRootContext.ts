@@ -30,7 +30,7 @@ export interface FieldRootContext {
   validationDebounceTime: number;
   shouldValidateOnChange: () => boolean;
   state: FieldRoot.State;
-  markedDirtyRef: React.MutableRefObject<boolean>;
+  markedDirtyRef: React.RefObject<boolean>;
   validation: UseFieldValidationReturnValue;
 }
 

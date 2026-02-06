@@ -57,9 +57,9 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
   // `inputValue` can't be placed in the store.
   // https://github.com/mui/base-ui/issues/2703
   const inputValue = useComboboxInputValueContext();
-  const required = useStore(store, selectors.required);
   const direction = useDirection();
 
+  const required = useStore(store, selectors.required);
   const comboboxDisabled = useStore(store, selectors.disabled);
   const readOnly = useStore(store, selectors.readOnly);
   const name = useStore(store, selectors.name);
@@ -85,6 +85,8 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
 
   const [composingValue, setComposingValue] = React.useState<string | null>(null);
   const isComposingRef = React.useRef(false);
+  const lastActiveIndexRef = React.useRef<number | null>(null);
+  const shouldRestoreActiveIndexRef = React.useRef(false);
 
   const setInputElement = useStableCallback((element: HTMLInputElement | null) => {
     const nextIsInsidePopup = hasPositionerParent || store.state.inline;
@@ -186,10 +188,34 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
         id,
         onFocus() {
           setFocused(true);
+
+          if (!inline || !shouldRestoreActiveIndexRef.current) {
+            return;
+          }
+
+          shouldRestoreActiveIndexRef.current = false;
+          const nextActiveIndex = lastActiveIndexRef.current;
+
+          if (
+            nextActiveIndex == null ||
+            // `valuesRef` can be sparse, so guard against restoring a removed slot.
+            !Object.hasOwn(store.state.valuesRef.current, nextActiveIndex)
+          ) {
+            return;
+          }
+
+          store.state.setIndices({ activeIndex: nextActiveIndex });
         },
         onBlur() {
           setTouched(true);
           setFocused(false);
+
+          const activeIndex = store.state.activeIndex;
+          if (inline && activeIndex !== null) {
+            lastActiveIndexRef.current = activeIndex;
+            shouldRestoreActiveIndexRef.current = true;
+            store.state.setIndices({ activeIndex: null });
+          }
 
           if (validationMode === 'onBlur') {
             const valueToValidate = selectionMode === 'none' ? inputValue : selectedValue;

@@ -6,7 +6,7 @@ import type { ToastPositionerProps } from './positioner/ToastPositioner';
 /**
  * Returns the array of toasts and methods to manage them.
  */
-export function useToastManager(): UseToastManagerReturnValue {
+export function useToastManager<Data extends object = any>(): UseToastManagerReturnValue<Data> {
   const context = React.useContext(ToastContext);
 
   if (!context) {
@@ -106,14 +106,14 @@ export interface ToastManagerPositionerProps extends Omit<
   anchor?: (Element | null) | undefined;
 }
 
-export interface UseToastManagerReturnValue {
-  toasts: ToastContext<any>['toasts'];
-  add: <Data extends object>(options: ToastManagerAddOptions<Data>) => string;
+export interface UseToastManagerReturnValue<Data extends object = any> {
+  toasts: ToastContext<Data>['toasts'];
+  add: <T extends Data = Data>(options: ToastManagerAddOptions<T>) => string;
   close: (toastId: string) => void;
-  update: <Data extends object>(toastId: string, options: ToastManagerUpdateOptions<Data>) => void;
-  promise: <Value, Data extends object>(
+  update: <T extends Data = Data>(toastId: string, options: ToastManagerUpdateOptions<T>) => void;
+  promise: <Value, T extends Data = Data>(
     promise: Promise<Value>,
-    options: ToastManagerPromiseOptions<Value, Data>,
+    options: ToastManagerPromiseOptions<Value, T>,
   ) => Promise<Value>;
 }
 

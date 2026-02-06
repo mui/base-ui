@@ -84,9 +84,7 @@ export function AutocompleteRoot<ItemValue>(
     if (other.filter) {
       return other.filter;
     }
-    return (item, query, toString) => {
-      return collator.contains(stringifyAsLabel(item, toString), query);
-    };
+    return collator.contains;
   }, [other.filter, collator]);
 
   const resolvedQuery = String(isControlled ? value : internalValue).trim();
@@ -94,12 +92,12 @@ export function AutocompleteRoot<ItemValue>(
   // In "both", wrap filtering to use only the typed value, ignoring the inline value.
   const resolvedFilter: typeof other.filter = React.useMemo(() => {
     if (mode !== 'both') {
-      return staticItems ? null : other.filter;
+      return staticItems ? null : baseFilter;
     }
     return (item, _query, toString) => {
       return baseFilter(item, resolvedQuery, toString);
     };
-  }, [baseFilter, mode, other.filter, resolvedQuery, staticItems]);
+  }, [baseFilter, mode, resolvedQuery, staticItems]);
 
   const handleItemHighlighted = useStableCallback(
     (highlightedValue: any, eventDetails: AriaCombobox.HighlightEventDetails) => {
