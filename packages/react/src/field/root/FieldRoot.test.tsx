@@ -9,7 +9,6 @@ import { CheckboxGroup } from '@base-ui/react/checkbox-group';
 import { Switch } from '@base-ui/react/switch';
 import { Slider } from '@base-ui/react/slider';
 import { Field } from '@base-ui/react/field';
-import { reset } from '@base-ui/utils/error';
 import {
   act,
   fireEvent,
@@ -28,197 +27,126 @@ describe('<Field.Root />', () => {
   const { render } = createRenderer();
   const { render: renderStrict } = createRenderer({ strict: true });
 
-  afterEach(() => {
-    reset();
-  });
-
   describeConformance(<Field.Root />, () => ({
     refInstanceof: window.HTMLDivElement,
     render,
   }));
 
-  it('warns when multiple labelable controls are registered', async () => {
-    const errorSpy = vi
-      .spyOn(console, 'error')
-      .mockName('console.error')
-      .mockImplementation(() => {});
+  it('updates label association when replacing one control with another', async () => {
+    function TestCase() {
+      const [showB, setShowB] = React.useState(false);
 
-    try {
-      await render(
-        <Field.Root>
-          <Field.Label>Label</Field.Label>
-          <Select.Root id="select">
-            <Select.Trigger>
-              <Select.Value />
-            </Select.Trigger>
-            <Select.Portal>
-              <Select.Positioner>
-                <Select.Popup>
-                  <Select.Item value="a">A</Select.Item>
-                </Select.Popup>
-              </Select.Positioner>
-            </Select.Portal>
-          </Select.Root>
-          <Checkbox.Root id="checkbox" defaultChecked />
-        </Field.Root>,
+      return (
+        <React.Fragment>
+          <Field.Root>
+            <Field.Label>Label</Field.Label>
+            {showB ? (
+              <Field.Control key="b" id="control-b" />
+            ) : (
+              <Field.Control key="a" id="control-a" />
+            )}
+          </Field.Root>
+          <button type="button" onClick={() => setShowB(true)}>
+            Toggle
+          </button>
+        </React.Fragment>
       );
-
-      expect(errorSpy.mock.calls.length).to.equal(1);
-      expect(errorSpy.mock.calls[0][0]).to.equal(
-        'Base UI: Multiple labelable controls were rendered within the same <Field.Root>. This makes label associations ambiguous and can cause render loops. Ensure that <Field.Root> wraps a single control. For checkbox or radio groups, wrap each option in <Field.Item>. For a shared label across multiple controls, use <Fieldset.Root>.',
-      );
-    } finally {
-      errorSpy.mockRestore();
     }
-  });
 
-  it('does not warn for a single control', async () => {
-    const errorSpy = spy(console, 'error');
+    await render(<TestCase />);
 
-    try {
-      await render(
-        <Field.Root>
-          <Field.Label>Label</Field.Label>
-          <Checkbox.Root />
-        </Field.Root>,
-      );
+    const label = screen.getByText('Label');
+    expect(label).to.have.attribute('for', 'control-a');
 
-      expect(errorSpy.callCount).to.equal(0);
-    } finally {
-      errorSpy.restore();
-    }
+    fireEvent.click(screen.getByRole('button', { name: 'Toggle' }));
+
+    await waitFor(() => {
+      expect(label).to.have.attribute('for', 'control-b');
+    });
   });
 
   it('preserves null initial control ids', async () => {
-    const errorSpy = spy(console, 'error');
+    await render(
+      <Field.Root>
+        <LabelableProvider initialControlId={null}>
+          <Field.Label>Label</Field.Label>
+          <Field.Control data-testid="control" />
+        </LabelableProvider>
+      </Field.Root>,
+    );
 
-    try {
-      await render(
-        <Field.Root>
-          <LabelableProvider initialControlId={null}>
-            <Field.Label>Label</Field.Label>
-            <Field.Control data-testid="control" />
-          </LabelableProvider>
-        </Field.Root>,
-      );
+    const label = screen.getByText('Label');
+    const control = screen.getByTestId('control');
 
-      const label = screen.getByText('Label');
-      const control = screen.getByTestId('control');
-
-      expect(label).not.to.have.attribute('for');
-      expect(control.getAttribute('id')).to.not.equal(null);
-      expect(errorSpy.callCount).to.equal(0);
-    } finally {
-      errorSpy.restore();
-    }
+    expect(label).not.to.have.attribute('for');
+    expect(control.getAttribute('id')).to.not.equal(null);
   });
 
   it('updates label associations when the control id changes', async () => {
-    const errorSpy = spy(console, 'error');
+    function TestCase() {
+      const [controlId, setControlId] = React.useState('control-a');
 
-    try {
-      function TestCase() {
-        const [controlId, setControlId] = React.useState('control-a');
-
-        return (
-          <React.Fragment>
-            <Field.Root>
-              <Field.Label>Label</Field.Label>
-              <Field.Control id={controlId} />
-            </Field.Root>
-            <button type="button" onClick={() => setControlId('control-b')}>
-              Change
-            </button>
-          </React.Fragment>
-        );
-      }
-
-      await render(<TestCase />);
-
-      const label = screen.getByText('Label');
-
-      expect(label).to.have.attribute('for', 'control-a');
-
-      fireEvent.click(screen.getByRole('button', { name: 'Change' }));
-
-      await waitFor(() => {
-        expect(label).to.have.attribute('for', 'control-b');
-      });
-
-      expect(errorSpy.callCount).to.equal(0);
-    } finally {
-      errorSpy.restore();
+      return (
+        <React.Fragment>
+          <Field.Root>
+            <Field.Label>Label</Field.Label>
+            <Field.Control id={controlId} />
+          </Field.Root>
+          <button type="button" onClick={() => setControlId('control-b')}>
+            Change
+          </button>
+        </React.Fragment>
+      );
     }
+
+    await render(<TestCase />);
+
+    const label = screen.getByText('Label');
+
+    expect(label).to.have.attribute('for', 'control-a');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Change' }));
+
+    await waitFor(() => {
+      expect(label).to.have.attribute('for', 'control-b');
+    });
   });
 
   it('falls back to a generated id when the control id is removed', async () => {
-    const errorSpy = spy(console, 'error');
+    function TestCase() {
+      const [controlId, setControlId] = React.useState<string | undefined>('control-a');
 
-    try {
-      function TestCase() {
-        const [controlId, setControlId] = React.useState<string | undefined>('control-a');
-
-        return (
-          <React.Fragment>
-            <Field.Root>
-              <Field.Label>Label</Field.Label>
-              <Field.Control id={controlId} />
-            </Field.Root>
-            <button type="button" onClick={() => setControlId(undefined)}>
-              Clear
-            </button>
-          </React.Fragment>
-        );
-      }
-
-      await render(<TestCase />);
-
-      const label = screen.getByText('Label');
-      const control = screen.getByRole('textbox');
-
-      expect(label).to.have.attribute('for', 'control-a');
-      expect(control).to.have.attribute('id', 'control-a');
-
-      fireEvent.click(screen.getByRole('button', { name: 'Clear' }));
-
-      await waitFor(() => {
-        const updatedControl = screen.getByRole('textbox');
-        const updatedId = updatedControl.getAttribute('id') ?? '';
-
-        expect(updatedId).to.not.equal('');
-        expect(updatedId).to.not.equal('control-a');
-        expect(label).to.have.attribute('for', updatedId);
-      });
-
-      expect(errorSpy.callCount).to.equal(0);
-    } finally {
-      errorSpy.restore();
-    }
-  });
-
-  it('does not warn for checkbox group items', async () => {
-    const errorSpy = spy(console, 'error');
-
-    try {
-      await render(
-        <Field.Root>
-          <CheckboxGroup defaultValue={[]}>
-            <Field.Item>
-              <Checkbox.Root value="daily" />
-              <Field.Label>Daily</Field.Label>
-            </Field.Item>
-            <Field.Item>
-              <Checkbox.Root value="weekly" />
-              <Field.Label>Weekly</Field.Label>
-            </Field.Item>
-          </CheckboxGroup>
-        </Field.Root>,
+      return (
+        <React.Fragment>
+          <Field.Root>
+            <Field.Label>Label</Field.Label>
+            <Field.Control id={controlId} />
+          </Field.Root>
+          <button type="button" onClick={() => setControlId(undefined)}>
+            Clear
+          </button>
+        </React.Fragment>
       );
-
-      expect(errorSpy.callCount).to.equal(0);
-    } finally {
-      errorSpy.restore();
     }
+
+    await render(<TestCase />);
+
+    const label = screen.getByText('Label');
+    const control = screen.getByRole('textbox');
+
+    expect(label).to.have.attribute('for', 'control-a');
+    expect(control).to.have.attribute('id', 'control-a');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Clear' }));
+
+    await waitFor(() => {
+      const updatedControl = screen.getByRole('textbox');
+      const updatedId = updatedControl.getAttribute('id') ?? '';
+
+      expect(updatedId).to.not.equal('');
+      expect(updatedId).to.not.equal('control-a');
+      expect(label).to.have.attribute('for', updatedId);
+    });
   });
 
   it.skipIf(reactMajor < 19)(

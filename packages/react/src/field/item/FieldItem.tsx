@@ -10,10 +10,7 @@ import { LabelableProvider } from '../../labelable-provider';
 import { useCheckboxGroupContext } from '../../checkbox-group/CheckboxGroupContext';
 
 /**
- * Groups individual checkbox or radio items so each control can be labeled and described.
- * Use this inside checkbox and radio groups. For a single label shared by multiple controls,
- * use `<Fieldset.Root>` instead.
- * Renders a `<div>` element.
+ * Groups individual items in a checkbox group or radio group with a label and description.
  *
  * Documentation: [Base UI Field](https://base-ui.com/react/components/field)
  */
