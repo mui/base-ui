@@ -631,24 +631,60 @@ describe('<Switch.Root />', () => {
       });
     });
 
-    it('[data-focused]', async () => {
-      await render(
-        <Field.Root>
-          <Switch.Root data-testid="button" />
-        </Field.Root>,
-      );
+    describe('[data-focused]', () => {
+      it('[data-focused]', async () => {
+        await render(
+          <Field.Root>
+            <Switch.Root data-testid="button" />
+          </Field.Root>,
+        );
 
-      const button = screen.getByTestId('button');
+        const button = screen.getByTestId('button');
+        expect(button).not.to.have.attribute('data-focused');
 
-      expect(button).not.to.have.attribute('data-focused');
+        fireEvent.focus(button);
+        expect(button).to.have.attribute('data-focused', '');
 
-      fireEvent.focus(button);
+        fireEvent.blur(button);
+        expect(button).not.to.have.attribute('data-focused');
+      });
 
-      expect(button).to.have.attribute('data-focused', '');
+      it('should remove data-focused when the field becomes disabled', async () => {
+        const { user, setProps } = await render(
+          <Field.Root>
+            <Switch.Root />
+          </Field.Root>,
+        );
 
-      fireEvent.blur(button);
+        const switchEl = screen.getByRole('switch');
+        expect(switchEl).not.to.have.attribute('data-focused');
 
-      expect(button).not.to.have.attribute('data-focused');
+        await user.keyboard('{Tab}');
+        expect(switchEl).to.have.attribute('data-focused', '');
+
+        await setProps({ disabled: true });
+        expect(switchEl).not.to.have.attribute('data-focused');
+      });
+
+      it('should remove data-focused when the switch becomes disabled', async () => {
+        function App({ disabled }: { disabled: boolean }) {
+          return (
+            <Field.Root>
+              <Switch.Root disabled={disabled} />
+            </Field.Root>
+          );
+        }
+        const { user, setProps } = await render(<App disabled={false} />);
+
+        const switchEl = screen.getByRole('switch');
+        expect(switchEl).not.to.have.attribute('data-focused');
+
+        await user.keyboard('{Tab}');
+        expect(switchEl).to.have.attribute('data-focused', '');
+
+        await setProps({ disabled: true });
+        expect(switchEl).not.to.have.attribute('data-focused');
+      });
     });
 
     it('prop: validationMode=onSubmit', async () => {
