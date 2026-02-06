@@ -24,7 +24,13 @@ export default function ExampleAutocompleteCommandPalette() {
       <Dialog.Portal>
         <Dialog.Backdrop className={styles.Backdrop} />
         <Dialog.Popup className={styles.Popup} aria-label="Command palette">
-          <Autocomplete.Root open items={groupedItems} filter={customFilter} autoHighlight="always">
+          <Autocomplete.Root
+            open
+            items={groupedItems}
+            filter={customFilter}
+            autoHighlight="always"
+            keepHighlight
+          >
             <Autocomplete.Input
               className={styles.Input}
               placeholder="Search for apps and commands..."
