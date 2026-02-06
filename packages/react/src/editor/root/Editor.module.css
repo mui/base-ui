@@ -1,0 +1,83 @@
+.root {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--color-gray-200);
+  border-radius: 0.5rem;
+  background-color: var(--color-gray-50);
+  color: var(--color-gray-900);
+  transition: border-color 150ms;
+  overflow: hidden;
+}
+
+.root:focus-within {
+  outline: 2px solid var(--color-blue);
+  outline-offset: -1px;
+}
+
+.content {
+  position: relative;
+  flex: 1;
+}
+
+.placeholder {
+  color: var(--color-gray-500);
+  position: absolute;
+  inset: 0.75rem 0 0 0.75rem;
+  user-select: none;
+  pointer-events: none;
+  font-size: 1rem;
+}
+.textBold {
+  font-weight: bold;
+}
+.textItalic {
+  font-style: italic;
+}
+.textUnderline {
+  text-decoration: underline;
+}
+.textStrikethrough {
+  text-decoration: line-through;
+}
+
+.h1 {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin: 0.5rem 0;
+}
+
+.h2 {
+  font-size: 1.25rem;
+  font-weight: bold;
+  margin: 0.4rem 0;
+}
+
+.quote {
+  border-left: 4px solid var(--color-gray-300);
+  padding-left: 1rem;
+  margin: 0.5rem 0;
+  color: var(--color-gray-600);
+  font-style: italic;
+}
+
+.ul {
+  padding: 0;
+  margin: 0.5rem 0 0.5rem 1.5rem;
+  list-style-type: disc;
+}
+
+.ol {
+  padding: 0;
+  margin: 0.5rem 0 0.5rem 1.5rem;
+  list-style-type: decimal;
+}
+
+.listitem {
+  margin: 0.25rem 0;
+}
+
+.link {
+  color: var(--color-blue);
+  text-decoration: underline;
+  cursor: pointer;
+}

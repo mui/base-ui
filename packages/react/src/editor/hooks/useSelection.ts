@@ -1,0 +1,121 @@
+'use client'
+
+import * as React from 'react';
+import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
+import {
+  $getSelection,
+  $isRangeSelection,
+  CAN_REDO_COMMAND,
+  CAN_UNDO_COMMAND,
+  COMMAND_PRIORITY_CRITICAL,
+  SELECTION_CHANGE_COMMAND,
+  $isElementNode,
+  ElementNode,
+} from 'lexical';
+import { $getNearestNodeOfType, mergeRegister } from '@lexical/utils';
+import { $isHeadingNode, HeadingNode } from '@lexical/rich-text';
+import { $isListNode, ListNode } from '@lexical/list';
+import { $isLinkNode, LinkNode } from '@lexical/link';
+
+export function useSelection() {
+  const [editor] = useLexicalComposerContext();
+  const [isBold, setIsBold] = React.useState(false);
+  const [isItalic, setIsItalic] = React.useState(false);
+  const [isUnderline, setIsUnderline] = React.useState(false);
+  const [isStrikethrough, setIsStrikethrough] = React.useState(false);
+  const [canUndo, setCanUndo] = React.useState(false);
+  const [canRedo, setCanRedo] = React.useState(false);
+  const [blockType, setBlockType] = React.useState('paragraph');
+  const [isLink, setIsLink] = React.useState(false);
+  const [linkUrl, setLinkUrl] = React.useState('');
+
+  const updateToolbar = React.useCallback(() => {
+    const selection = $getSelection();
+    if ($isRangeSelection(selection)) {
+      setIsBold(selection.hasFormat('bold'));
+      setIsItalic(selection.hasFormat('italic'));
+      setIsUnderline(selection.hasFormat('underline'));
+      setIsStrikethrough(selection.hasFormat('strikethrough'));
+
+      const anchorNode = selection.anchor.getNode();
+      const parent = anchorNode.getParent();
+      if ($isLinkNode(parent)) {
+        setIsLink(true);
+        setLinkUrl((parent as LinkNode).getURL());
+      } else if ($isLinkNode(anchorNode)) {
+        setIsLink(true);
+        setLinkUrl((anchorNode as LinkNode).getURL());
+      } else {
+        setIsLink(false);
+        setLinkUrl('');
+      }
+
+      const element =
+        anchorNode.getKey() === 'root'
+          ? anchorNode
+          : anchorNode.getTopLevelElementOrThrow();
+      const elementKey = element.getKey();
+      const elementDOM = editor.getElementByKey(elementKey);
+
+      if (elementDOM !== null) {
+        if ($isHeadingNode(element)) {
+          setBlockType((element as HeadingNode).getTag());
+        } else if ($isListNode(element)) {
+          const parentList = $getNearestNodeOfType<ListNode>(anchorNode, ListNode);
+          const type = parentList ? parentList.getListType() : (element as ListNode).getListType();
+          setBlockType(type);
+        } else if ($isElementNode(element)) {
+          setBlockType((element as ElementNode).getType());
+        } else {
+          setBlockType(element.getType());
+        }
+      }
+    }
+  }, [editor]);
+
+  React.useEffect(() => {
+    return mergeRegister(
+      editor.registerUpdateListener(({ editorState }) => {
+        editorState.read(() => {
+          updateToolbar();
+        });
+      }),
+      editor.registerCommand(
+        SELECTION_CHANGE_COMMAND,
+        () => {
+          updateToolbar();
+          return false;
+        },
+        COMMAND_PRIORITY_CRITICAL,
+      ),
+      editor.registerCommand(
+        CAN_UNDO_COMMAND,
+        (payload) => {
+          setCanUndo(payload as boolean);
+          return false;
+        },
+        COMMAND_PRIORITY_CRITICAL,
+      ),
+      editor.registerCommand(
+        CAN_REDO_COMMAND,
+        (payload) => {
+          setCanRedo(payload as boolean);
+          return false;
+        },
+        COMMAND_PRIORITY_CRITICAL,
+      ),
+    );
+  }, [editor, updateToolbar]);
+
+  return {
+    isBold,
+    isItalic,
+    isUnderline,
+    isStrikethrough,
+    canUndo,
+    canRedo,
+    blockType,
+    isLink,
+    linkUrl,
+  };
+}

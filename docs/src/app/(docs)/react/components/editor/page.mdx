@@ -1,0 +1,69 @@
+# Editor
+
+<Subtitle>
+  A simple rich text editor component built on top of Lexical.
+</Subtitle>
+<Meta
+  name="description"
+  content="A high-quality, unstyled React rich text editor component built on top of Lexical."
+/>
+
+import { DemoEditorHero } from './demos/hero';
+import { DemoEditorToolbar } from './demos/toolbar';
+import { DemoEditorAICompletion } from './demos/ai-completion';
+import { DemoEditorFloatingToolbar } from './demos/floating-toolbar';
+
+<DemoEditorHero />
+
+## Anatomy
+
+Import the component and render a basic editor:
+
+```jsx title="Anatomy"
+import { Editor } from '@base-ui/react/editor';
+
+export default function BasicEditor() {
+  return (
+    <Editor placeholder="Start typing..." />
+  );
+}
+```
+
+## Usage
+
+- Provide a helpful `placeholder` to guide users when the editor is empty.
+- Use the `value` and `onChange` props to control the content with a serialized editor state.
+- For more advanced editing controls, compose with `EditorToolbar` and other utilities from the editor package.
+
+### With toolbar
+
+This example shows `EditorToolbar` integrated above the editable area for basic formatting.
+
+<DemoEditorToolbar />
+
+### Floating toolbar
+
+A compact toolbar that appears near the current text selection.
+
+<DemoEditorFloatingToolbar />
+
+### AI Autocomplete
+
+The Editor can be configured with an AI provider to offer autocomplete suggestions.
+The following example demonstrates a mock AI provider that suggests text based on the last word typed.
+
+<DemoEditorAICompletion />
+
+To enable AI completions, provide an `ai` object to the `Editor`:
+
+```jsx
+<Editor
+  ai={{
+    getCompletion: async (text) => {
+      // Call your AI API here
+      return " suggestion";
+    },
+    debounceMs: 500,
+  }}
+/>
+```
