@@ -72,7 +72,7 @@ const SearchItem = React.memo(function SearchItem({ result }: { result: SearchRe
           )}
         </React.Fragment>
       ))}
-      {process.env.NODE_ENV === 'development' && result.score && (
+      {process.env.NODE_ENV !== 'production' && result.score && (
         <span className="text-xs opacity-70 whitespace-nowrap ml-1.5">
           {result.score.toFixed(2)}
         </span>

@@ -542,6 +542,60 @@ describe('<Combobox.Root />', () => {
         });
       });
 
+      it('re-syncs selectedIndex after an external controlled update when closing', async () => {
+        const items = ['apple', 'banana', 'cherry'];
+
+        function App() {
+          const [value, setValue] = React.useState([items[0]]);
+
+          return (
+            <Combobox.Root items={items} multiple value={value} onValueChange={setValue}>
+              <Combobox.Input data-testid="input" />
+              <SelectedIndexProbe />
+              <button type="button" data-testid="set-external" onClick={() => setValue([items[2]])}>
+                Set external
+              </button>
+              <Combobox.Portal>
+                <Combobox.Positioner>
+                  <Combobox.Popup>
+                    <Combobox.List>
+                      {(item: string) => (
+                        <Combobox.Item key={item} value={item}>
+                          {item}
+                        </Combobox.Item>
+                      )}
+                    </Combobox.List>
+                  </Combobox.Popup>
+                </Combobox.Positioner>
+              </Combobox.Portal>
+            </Combobox.Root>
+          );
+        }
+
+        const { user } = await render(<App />);
+
+        const input = screen.getByTestId('input');
+        await user.click(input);
+        expect(await screen.findByRole('listbox')).not.to.equal(null);
+
+        await waitFor(() => {
+          expect(screen.getByTestId('selected-index').textContent).to.equal('0');
+        });
+
+        await user.click(screen.getByTestId('set-external'));
+        await waitFor(() => {
+          expect(screen.queryByRole('listbox')).to.equal(null);
+          expect(screen.getByTestId('selected-index').textContent).to.equal('2');
+        });
+
+        await user.click(input);
+        expect(await screen.findByRole('listbox')).not.to.equal(null);
+
+        await waitFor(() => {
+          expect(screen.getByTestId('selected-index').textContent).to.equal('2');
+        });
+      });
+
       it('should create multiple hidden inputs for form submission', async () => {
         const items = ['a', 'b', 'c'];
         await render(
@@ -633,7 +687,6 @@ describe('<Combobox.Root />', () => {
         const removeA = screen.getByTestId('remove-a');
 
         expect(chipA).to.have.attribute('aria-readonly', 'true');
-        expect(removeA).to.have.attribute('aria-readonly', 'true');
 
         await user.click(removeA);
         expect(screen.getByTestId('chip-a')).not.to.equal(null);
@@ -1331,7 +1384,7 @@ describe('<Combobox.Root />', () => {
   });
 
   describe('prop: readOnly', () => {
-    it('should render readOnly state on all interactive components', async () => {
+    it('should render readOnly state on the input and disable interactions', async () => {
       const { user } = await render(
         <Combobox.Root readOnly>
           <Combobox.Input data-testid="input" />
@@ -1358,7 +1411,6 @@ describe('<Combobox.Root />', () => {
 
       expect(input).to.have.attribute('aria-readonly', 'true');
       expect(input).to.have.attribute('readonly');
-      expect(trigger).to.have.attribute('aria-readonly', 'true');
 
       // Verify interactions are disabled
       await user.click(trigger);
@@ -2717,6 +2769,297 @@ describe('<Combobox.Root />', () => {
       expect(activeEl?.textContent).to.equal('banana');
     });
 
+    it('clears highlight after removing the highlighted chip while filtering (multiple mode)', async () => {
+      const { user } = await render(
+        <Combobox.Root
+          items={['apple', 'banana', 'cherry']}
+          multiple
+          autoHighlight
+          defaultOpen
+          defaultValue={['apple']}
+        >
+          <Combobox.Chips>
+            <Combobox.Value>
+              {(value: string[]) => (
+                <React.Fragment>
+                  {value.map((item) => (
+                    <Combobox.Chip key={item}>
+                      {item}
+                      <Combobox.ChipRemove aria-label={`Remove ${item}`} />
+                    </Combobox.Chip>
+                  ))}
+                  <Combobox.Input data-testid="input" />
+                </React.Fragment>
+              )}
+            </Combobox.Value>
+          </Combobox.Chips>
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  {(item: string) => (
+                    <Combobox.Item key={item} value={item}>
+                      {item}
+                    </Combobox.Item>
+                  )}
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByTestId('input');
+
+      await waitFor(() => {
+        expect(screen.getByRole('listbox')).not.to.equal(null);
+      });
+
+      await user.type(input, 'a');
+      await waitFor(() => expect(input).to.have.attribute('aria-activedescendant'));
+
+      await user.click(screen.getByRole('button', { name: 'Remove apple', hidden: true }));
+
+      await waitFor(() => expect(input.getAttribute('aria-activedescendant')).to.equal(null));
+    });
+
+    it('keeps the active item highlighted after clearing the last selected value', async () => {
+      const items = [
+        { id: 'js', value: 'JavaScript' },
+        { id: 'ts', value: 'TypeScript' },
+        { id: 'py', value: 'Python' },
+        { id: 'rb', value: 'Ruby' },
+      ];
+
+      const { user } = await render(
+        <Combobox.Root items={items} multiple>
+          <Combobox.Input data-testid="input" />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  {(item: (typeof items)[number]) => (
+                    <Combobox.Item key={item.id} value={item}>
+                      {item.value}
+                    </Combobox.Item>
+                  )}
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByTestId('input');
+
+      await user.click(input);
+      await waitFor(() => expect(screen.getByRole('listbox')).not.to.equal(null));
+
+      await user.click(screen.getByRole('option', { name: 'JavaScript' }));
+      await user.click(screen.getByRole('option', { name: 'TypeScript' }));
+
+      await user.type(input, 'pyth');
+      await user.click(screen.getByRole('option', { name: 'Python' }));
+
+      await waitFor(() => expect(screen.queryByRole('listbox')).to.equal(null));
+
+      input.focus();
+      await user.keyboard('{ArrowDown}');
+      await waitFor(() => expect(screen.getByRole('listbox')).not.to.equal(null));
+
+      await user.hover(screen.getByRole('option', { name: 'JavaScript' }));
+      await user.click(screen.getByRole('option', { name: 'JavaScript' }));
+      await user.hover(screen.getByRole('option', { name: 'TypeScript' }));
+      await user.click(screen.getByRole('option', { name: 'TypeScript' }));
+
+      const pythonOption = screen.getByRole('option', { name: 'Python' });
+      await user.hover(pythonOption);
+      await user.click(pythonOption);
+
+      await waitFor(() => {
+        expect(input).to.have.attribute('aria-activedescendant', pythonOption.id);
+      });
+
+      await user.keyboard('{ArrowDown}');
+      const rubyOption = screen.getByRole('option', { name: 'Ruby' });
+      await waitFor(() => {
+        expect(input).to.have.attribute('aria-activedescendant', rubyOption.id);
+      });
+    });
+
+    it('does not shift highlight to the previous selected item on Enter deselect', async () => {
+      const items = [
+        { id: 'js', value: 'JavaScript' },
+        { id: 'ts', value: 'TypeScript' },
+        { id: 'py', value: 'Python' },
+      ];
+
+      const { user } = await render(
+        <Combobox.Root items={items} multiple defaultValue={[items[0], items[1]]}>
+          <Combobox.Input data-testid="input" />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  {(item: (typeof items)[number]) => (
+                    <Combobox.Item key={item.id} value={item}>
+                      {item.value}
+                    </Combobox.Item>
+                  )}
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByTestId('input');
+
+      await user.click(input);
+      await waitFor(() => expect(screen.getByRole('listbox')).not.to.equal(null));
+
+      const typeScriptOption = screen.getByRole('option', { name: 'TypeScript' });
+      await user.hover(typeScriptOption);
+      await waitFor(() => {
+        expect(input).to.have.attribute('aria-activedescendant', typeScriptOption.id);
+      });
+
+      await user.keyboard('{Enter}');
+
+      await waitFor(() => {
+        expect(typeScriptOption).to.have.attribute('aria-selected', 'false');
+        expect(input).to.have.attribute('aria-activedescendant', typeScriptOption.id);
+      });
+    });
+
+    it('continues ArrowDown navigation from the Enter-selected item (multiple mode)', async () => {
+      const items = [
+        { id: 'js', value: 'JavaScript' },
+        { id: 'ts', value: 'TypeScript' },
+        { id: 'py', value: 'Python' },
+      ];
+
+      const { user } = await render(
+        <Combobox.Root items={items} multiple>
+          <Combobox.Chips>
+            <Combobox.Value>
+              {(value: (typeof items)[number][]) => (
+                <React.Fragment>
+                  {value.map((item) => (
+                    <Combobox.Chip key={item.id} aria-label={item.value}>
+                      {item.value}
+                      <Combobox.ChipRemove aria-label={`Remove ${item.value}`} />
+                    </Combobox.Chip>
+                  ))}
+                  <Combobox.Input data-testid="input" />
+                </React.Fragment>
+              )}
+            </Combobox.Value>
+          </Combobox.Chips>
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  {(item: (typeof items)[number]) => (
+                    <Combobox.Item key={item.id} value={item}>
+                      {item.value}
+                    </Combobox.Item>
+                  )}
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByTestId('input');
+      await user.click(input);
+      await waitFor(() => expect(screen.getByRole('listbox')).not.to.equal(null));
+
+      const typeScriptOption = screen.getByRole('option', { name: 'TypeScript' });
+      await user.hover(typeScriptOption);
+      await waitFor(() => {
+        expect(input).to.have.attribute('aria-activedescendant', typeScriptOption.id);
+      });
+
+      await user.keyboard('{Enter}');
+      await waitFor(() => {
+        expect(input).to.have.attribute('aria-activedescendant', typeScriptOption.id);
+      });
+
+      await user.keyboard('{ArrowDown}');
+
+      const pythonOption = screen.getByRole('option', { name: 'Python' });
+      await waitFor(() => {
+        expect(input).to.have.attribute('aria-activedescendant', pythonOption.id);
+      });
+    });
+
+    it('clears active highlight when removing the highlighted chip item', async () => {
+      const items = [
+        { id: 'js', value: 'JavaScript' },
+        { id: 'ts', value: 'TypeScript' },
+        { id: 'py', value: 'Python' },
+      ];
+
+      const { user } = await render(
+        <Combobox.Root items={items} multiple defaultValue={[items[0], items[1]]}>
+          <Combobox.Chips>
+            <Combobox.Value>
+              {(value: (typeof items)[number][]) => (
+                <React.Fragment>
+                  {value.map((item) => (
+                    <Combobox.Chip key={item.id} aria-label={item.value}>
+                      {item.value}
+                      <Combobox.ChipRemove aria-label={`Remove ${item.value}`} />
+                    </Combobox.Chip>
+                  ))}
+                  <Combobox.Input data-testid="input" />
+                </React.Fragment>
+              )}
+            </Combobox.Value>
+          </Combobox.Chips>
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  {(item: (typeof items)[number]) => (
+                    <Combobox.Item key={item.id} value={item}>
+                      {item.value}
+                    </Combobox.Item>
+                  )}
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByTestId('input');
+      await user.click(input);
+      await waitFor(() => expect(screen.getByRole('listbox')).not.to.equal(null));
+
+      await user.keyboard('{ArrowUp}');
+
+      await waitFor(() => {
+        expect(input).to.have.attribute('aria-activedescendant');
+      });
+
+      const highlightedOption = document.getElementById(
+        input.getAttribute('aria-activedescendant')!,
+      );
+      const highlightedLabel = highlightedOption?.textContent;
+      expect(highlightedLabel).not.to.equal(null);
+
+      await user.click(
+        screen.getByRole('button', { name: `Remove ${highlightedLabel as string}`, hidden: true }),
+      );
+
+      await waitFor(() => {
+        expect(input.getAttribute('aria-activedescendant')).to.equal(null);
+      });
+    });
+
     it('keeps highlight in sync after selecting then backspacing to a single match', async () => {
       const items = ['alpha', 'beta', 'gamma', 'delta', 'epsilon'];
       const { user } = await render(
@@ -2974,6 +3317,40 @@ describe('<Combobox.Root />', () => {
       await user.click(document.body);
       await waitFor(() => {
         expect(screen.getByRole('listbox')).not.to.equal(null);
+      });
+    });
+
+    it('keeps filtering responsive after selection when inline and open is controlled', async () => {
+      const items = ['Apple', 'Apricot', 'Banana', 'Grape', 'Orange'];
+
+      const { user } = await render(
+        <Combobox.Root items={items} open inline>
+          <Combobox.Input data-testid="input" />
+          <Combobox.List>
+            {(item: string) => (
+              <Combobox.Item key={item} value={item}>
+                {item}
+              </Combobox.Item>
+            )}
+          </Combobox.List>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByTestId('input');
+
+      await user.type(input, 'ap');
+
+      await waitFor(() => {
+        expect(screen.queryByRole('option', { name: 'Banana' })).to.equal(null);
+      });
+
+      await user.click(screen.getByRole('option', { name: 'Apple' }));
+
+      await user.clear(input);
+      await user.type(input, 'ba');
+
+      await waitFor(() => {
+        expect(screen.getByRole('option', { name: 'Banana' })).not.to.equal(null);
       });
     });
   });
@@ -3578,6 +3955,42 @@ describe('<Combobox.Root />', () => {
 
         expect(reopenedInput).to.have.value('');
         await screen.findByRole('option', { name: 'Banana' });
+      });
+
+      it('restores highlight when the input regains focus', async () => {
+        const { user } = await render(<DialogSingleCombobox />);
+
+        const input = await screen.findByTestId('dialog-input');
+
+        await act(async () => {
+          input.focus();
+        });
+
+        await user.keyboard('{ArrowDown}');
+
+        const apple = screen.getByRole('option', { name: 'Apple' });
+
+        await waitFor(() => {
+          expect(apple).to.have.attribute('data-highlighted');
+          expect(input).to.have.attribute('aria-activedescendant', apple.id);
+        });
+
+        const done = screen.getByRole('button', { name: 'Done' });
+        fireEvent.blur(input, { relatedTarget: done });
+        fireEvent.focus(done);
+
+        await waitFor(() => {
+          expect(input).not.to.have.attribute('aria-activedescendant');
+          expect(apple).not.to.have.attribute('data-highlighted');
+        });
+
+        fireEvent.blur(done, { relatedTarget: input });
+        fireEvent.focus(input);
+
+        await waitFor(() => {
+          expect(apple).to.have.attribute('data-highlighted');
+          expect(input).to.have.attribute('aria-activedescendant', apple.id);
+        });
       });
     });
   });

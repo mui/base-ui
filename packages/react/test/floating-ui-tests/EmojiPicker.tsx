@@ -1,3 +1,4 @@
+'use client';
 import * as React from 'react';
 import c from 'clsx';
 import { useId } from '@base-ui/utils/useId';

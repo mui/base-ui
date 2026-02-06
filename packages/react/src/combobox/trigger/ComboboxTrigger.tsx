@@ -156,7 +156,6 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
         'aria-expanded': open ? 'true' : 'false',
         'aria-haspopup': inputInsidePopup ? 'dialog' : 'listbox',
         'aria-controls': open ? listElement?.id : undefined,
-        'aria-readonly': readOnly || undefined,
         'aria-required': inputInsidePopup ? required || undefined : undefined,
         'aria-labelledby': labelId,
         onPointerDown: trackPointerType,
