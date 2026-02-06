@@ -897,14 +897,6 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       validation.commit(selectedValue, true);
     }
 
-    if (
-      multiple &&
-      store.state.selectedIndex !== null &&
-      (!Array.isArray(selectedValue) || selectedValue.length === 0)
-    ) {
-      setIndices({ activeIndex: null, selectedIndex: null });
-    }
-
     if (single && !hasInputValue && !inputInsidePopup) {
       const nextInputValue = stringifyAsLabel(selectedValue, itemToStringLabel);
 

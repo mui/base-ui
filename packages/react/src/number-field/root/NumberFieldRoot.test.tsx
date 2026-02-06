@@ -801,6 +801,86 @@ describe('<NumberField />', () => {
     });
   });
 
+  describe('prop: allowOutOfRange', () => {
+    it('allows range overflow validation when true', async () => {
+      await render(
+        <form data-testid="form">
+          <NumberFieldBase.Root name="quantity" max={5} allowOutOfRange>
+            <NumberFieldBase.Group>
+              <NumberFieldBase.Input />
+            </NumberFieldBase.Group>
+          </NumberFieldBase.Root>
+          <button type="submit">Submit</button>
+        </form>,
+      );
+
+      const input = screen.getByRole('textbox');
+      fireEvent.change(input, { target: { value: '6' } });
+
+      const hiddenInput = document.querySelector(
+        'input[type="number"][name="quantity"]',
+      ) as HTMLInputElement;
+
+      expect(hiddenInput).not.to.equal(null);
+      expect(hiddenInput.value).to.equal('6');
+      expect(hiddenInput.validity.rangeOverflow).to.equal(true);
+
+      const form = screen.getByTestId<HTMLFormElement>('form');
+      expect(form.checkValidity()).to.equal(false);
+    });
+
+    it('still clamps step interactions when true', async () => {
+      await render(
+        <form data-testid="form">
+          <NumberField defaultValue={5} max={5} allowOutOfRange name="quantity" />
+          <button type="submit">Submit</button>
+        </form>,
+      );
+
+      const input = screen.getByRole('textbox');
+      fireEvent.click(screen.getByLabelText('Increase'));
+
+      const hiddenInput = document.querySelector(
+        'input[type="number"][name="quantity"]',
+      ) as HTMLInputElement;
+
+      expect(input).to.have.value('5');
+      expect(hiddenInput).not.to.equal(null);
+      expect(hiddenInput.value).to.equal('5');
+      expect(hiddenInput.validity.rangeOverflow).to.equal(false);
+
+      const form = screen.getByTestId<HTMLFormElement>('form');
+      expect(form.checkValidity()).to.equal(true);
+    });
+
+    it('clamps to range when false', async () => {
+      await render(
+        <form data-testid="form">
+          <NumberFieldBase.Root name="quantity" max={5} allowOutOfRange={false}>
+            <NumberFieldBase.Group>
+              <NumberFieldBase.Input />
+            </NumberFieldBase.Group>
+          </NumberFieldBase.Root>
+          <button type="submit">Submit</button>
+        </form>,
+      );
+
+      const input = screen.getByRole('textbox');
+      fireEvent.change(input, { target: { value: '6' } });
+
+      const hiddenInput = document.querySelector(
+        'input[type="number"][name="quantity"]',
+      ) as HTMLInputElement;
+
+      expect(hiddenInput).not.to.equal(null);
+      expect(hiddenInput.value).to.equal('5');
+      expect(hiddenInput.validity.rangeOverflow).to.equal(false);
+
+      const form = screen.getByTestId<HTMLFormElement>('form');
+      expect(form.checkValidity()).to.equal(true);
+    });
+  });
+
   describe('prop: step', () => {
     it('defaults to 1', async () => {
       await render(<NumberField defaultValue={5} />);
