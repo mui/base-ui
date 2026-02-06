@@ -139,6 +139,29 @@ Use the [Field](/react/components/field) component to provide a visible label fo
 
 Replace the rendered `<label>` element with a `<div>` element and add `nativeLabel={false}` so it does not inherit native label behaviors. This ensures clicking on the label will focus the select trigger without opening the associated popup to match native `<select>` behavior, and prevents CSS `:hover` from activating on the trigger when hovering over the label.
 
+### Browser autofill
+
+To enable browser autofill for the select, provide both the `name` and `autoComplete` props:
+
+```jsx title="Browser autofill" {1}
+<Select.Root name="country" autoComplete="country">
+  <Select.Trigger>
+    <Select.Value placeholder="Select country" />
+  </Select.Trigger>
+  <Select.Portal>
+    <Select.Positioner>
+      <Select.Popup>
+        <Select.Item value="US">United States</Select.Item>
+        <Select.Item value="CA">Canada</Select.Item>
+        <Select.Item value="GB">United Kingdom</Select.Item>
+      </Select.Popup>
+    </Select.Positioner>
+  </Select.Portal>
+</Select.Root>
+```
+
+The `name` prop identifies the field for form submission, while `autoComplete` provides a hint to the browser about what data to fill. Use [standard autocomplete values](https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/autocomplete) like `"country"`, `"address-level1"` (state/province), etc.
+
 ### Placeholder values
 
 To show a placeholder value, use the `placeholder` prop on `<Select.Value>`:
