@@ -1063,7 +1063,7 @@ describe('<Field.Root />', () => {
           </Field.Root>
         );
       }
-      const { setProps } = await render(<App />);
+      const { setProps } = await render(<App disabled={false} />);
 
       const root = screen.getByTestId('root');
       const control = screen.getByTestId('control');
