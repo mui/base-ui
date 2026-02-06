@@ -8,7 +8,7 @@ import { useCompositeListItem } from '../../composite/list/useCompositeListItem'
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useBaseUiId } from '../../utils/useBaseUiId';
-import type { NativeButtonComponentProps } from '../../utils/types';
+import type { BaseUIComponentProps, NativeButtonComponentProps } from '../../utils/types';
 import { itemMapping } from '../utils/stateAttributesMapping';
 import { useMenuPositionerContext } from '../positioner/MenuPositionerContext';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';

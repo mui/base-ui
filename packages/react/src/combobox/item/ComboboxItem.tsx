@@ -11,7 +11,7 @@ import {
   useCompositeListItem,
   IndexGuessBehavior,
 } from '../../composite/list/useCompositeListItem';
-import type { HTMLProps, NativeButtonComponentProps } from '../../utils/types';
+import type { BaseUIComponentProps, HTMLProps, NativeButtonComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { ComboboxItemContext } from './ComboboxItemContext';
 import { selectors } from '../store';
