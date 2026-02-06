@@ -297,6 +297,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
     stickIfOpen,
     toggle: isActiveItem,
   });
+
   useIsoLayoutEffect(() => {
     if (isActiveItem) {
       setFloatingRootContext(context);
@@ -306,7 +307,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
 
   const { getReferenceProps } = useInteractions([hover, click]);
 
-  function handleActivation(event: React.MouseEvent | React.KeyboardEvent) {
+  function handleActivation(event: React.MouseEvent | React.KeyboardEvent | undefined) {
     ReactDOM.flushSync(() => {
       const prevTriggerRect = prevTriggerElementRef.current?.getBoundingClientRect();
 
@@ -325,11 +326,11 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
       // Reset the `openEvent` to `undefined` when the active item changes so that a
       // `click` -> `hover` on new trigger -> `hover` back to old trigger doesn't unexpectedly
       // cause the popup to remain stuck open when leaving the old trigger.
-      if (event.type !== 'click') {
+      if (event?.type !== 'click') {
         context.context.dataRef.current.openEvent = undefined;
       }
 
-      if (pointerType === 'touch' && event.type !== 'click') {
+      if (pointerType === 'touch' && event?.type !== 'click') {
         return;
       }
 
@@ -337,27 +338,36 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
         setValue(
           itemValue,
           createChangeEventDetails(
-            event.type === 'mouseenter' ? REASONS.triggerHover : REASONS.triggerPress,
-            event.nativeEvent,
+            event?.type === 'mouseenter' ? REASONS.triggerHover : REASONS.triggerPress,
+            event?.nativeEvent,
           ),
         );
       }
     });
   }
 
-  const handleOpenEvent = useStableCallback((event: React.MouseEvent | React.KeyboardEvent) => {
-    // For nested scenarios without positioner/popup, we can still open the menu
-    // but we can't do size calculations
-    if (!popupElement || !positionerElement) {
+  const handleOpenEvent = useStableCallback(
+    (event: React.MouseEvent | React.KeyboardEvent | undefined) => {
+      // For nested scenarios without positioner/popup, we can still open the menu
+      // but we can't do size calculations
+      if (!popupElement || !positionerElement) {
+        handleActivation(event);
+        return;
+      }
+
+      const { width, height } = getCssDimensions(popupElement);
+
       handleActivation(event);
-      return;
+      handleValueChange(width, height);
+    },
+  );
+
+  useIsoLayoutEffect(() => {
+    if (triggerElement?.matches(':hover')) {
+      handleOpenEvent(undefined);
     }
-
-    const { width, height } = getCssDimensions(popupElement);
-
-    handleActivation(event);
-    handleValueChange(width, height);
-  });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const state: NavigationMenuTrigger.State = {
     open: isActiveItem,

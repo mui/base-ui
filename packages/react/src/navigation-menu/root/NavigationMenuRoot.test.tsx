@@ -327,6 +327,31 @@ describe('<NavigationMenu.Root />', () => {
       expect(trigger).to.have.attribute('aria-expanded', 'true');
     });
 
+    it('opens when the trigger is already hovered when it mounts (hydration)', async () => {
+      const originalMatches = window.HTMLElement.prototype.matches;
+
+      window.HTMLElement.prototype.matches = function matches(selector: string) {
+        if (selector === ':hover' && this.getAttribute?.('data-testid') === 'trigger-1') {
+          return true;
+        }
+        return originalMatches.call(this, selector);
+      };
+
+      try {
+        await render(<TestNavigationMenu />);
+        await flushMicrotasks();
+
+        const trigger = screen.getByTestId('trigger-1');
+
+        await waitFor(() => {
+          expect(screen.queryByTestId('popup-1')).not.to.equal(null);
+          expect(trigger).to.have.attribute('aria-expanded', 'true');
+        });
+      } finally {
+        window.HTMLElement.prototype.matches = originalMatches;
+      }
+    });
+
     it('opens on click with mouse input', async () => {
       await render(<TestNavigationMenu />);
       const trigger = screen.getByTestId('trigger-1');
