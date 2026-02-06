@@ -42,17 +42,17 @@ export default function ExampleAutocompleteCommandPalette() {
 
             <ScrollArea.Root className="relative flex h-[min(70dvh,30rem)] min-h-0 flex-1 overflow-hidden">
               <ScrollArea.Viewport className="min-h-0 flex-1 overscroll-contain focus-visible:outline focus-visible:outline-1 focus-visible:-outline-offset-1 focus-visible:outline-blue-800">
-                <ScrollArea.Content>
+                <ScrollArea.Content style={{ minWidth: '100%' }}>
                   <Autocomplete.Empty className="flex min-h-[min(70dvh,30rem)] items-center justify-center p-4 text-[0.925rem] leading-4 text-gray-600 empty:m-0 empty:min-h-0 empty:p-0">
                     No results found.
                   </Autocomplete.Empty>
 
-                  <Autocomplete.List className="px-3 py-2.5">
+                  <Autocomplete.List className="p-2">
                     {(group: Group) => (
                       <Autocomplete.Group
                         key={group.value}
                         items={group.items}
-                        className="not-last:mb-3"
+                        className="not-last:mb-2"
                       >
                         <Autocomplete.GroupLabel className="m-0 flex h-8 items-center px-3.5 text-[0.9375rem] tracking-[0.00625em] font-normal leading-none text-gray-600 select-none outline-none">
                           {group.value}
@@ -63,10 +63,10 @@ export default function ExampleAutocompleteCommandPalette() {
                               key={item.value}
                               value={item}
                               onClick={handleItemClick}
-                              className="grid min-h-10 cursor-default grid-cols-[1fr_auto] items-center gap-4 rounded-lg px-3.5 py-2.5 text-[0.9375rem] tracking-[0.016em] font-normal leading-none select-none outline-none data-[highlighted]:bg-gray-100"
+                              className="grid h-8 cursor-default grid-cols-[minmax(0,1fr)_auto] items-center gap-2 rounded-lg pl-9 pr-2 text-[0.9375rem] tracking-[0.016em] font-normal leading-none select-none outline-none data-[highlighted]:bg-gray-100"
                             >
-                              <span className="font-semibold">{item.label}</span>
-                              <span className="text-[0.875rem] tracking-[0.00625em] text-gray-500 data-[highlighted]:text-gray-700">
+                              <span className="truncate font-normal">{item.label}</span>
+                              <span className="shrink-0 whitespace-nowrap text-[0.875rem] tracking-[0.00625em] text-gray-500 data-[highlighted]:text-gray-700">
                                 {group.value === 'Suggestions' ? 'Application' : 'Command'}
                               </span>
                             </Autocomplete.Item>
