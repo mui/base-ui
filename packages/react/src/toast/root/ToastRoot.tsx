@@ -159,7 +159,7 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
     element.style.height = previousHeight;
 
     function update() {
-      store.updateToast(toast.id, {
+      store.updateToastInternal(toast.id, {
         ref: rootRef,
         height,
         transitionStatus: undefined,

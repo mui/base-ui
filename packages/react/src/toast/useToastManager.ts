@@ -125,7 +125,7 @@ export interface ToastManagerAddOptions<Data extends object> extends Omit<
 }
 
 export interface ToastManagerUpdateOptions<Data extends object> extends Partial<
-  Omit<ToastObject<Data>, 'id'>
+  Omit<ToastObject<Data>, 'id' | 'ref' | 'height' | 'transitionStatus' | 'limited'>
 > {}
 
 export interface ToastManagerPromiseOptions<Value, Data extends object> {

@@ -12,6 +12,9 @@ import { resolvePromiseOptions } from './utils/resolvePromiseOptions';
 import { activeElement, contains, getTarget } from '../floating-ui-react/utils';
 import { isFocusVisible } from './utils/focusVisible';
 
+// Internal type that allows all fields (used by ToastRoot for height/ref updates)
+type ToastInternalUpdateOptions<Data extends object> = Partial<Omit<ToastObject<Data>, 'id'>>;
+
 export type State = {
   toasts: ToastObject<any>[];
   hovering: boolean;
@@ -172,6 +175,10 @@ export class ToastStore extends ReactStore<State, {}, typeof selectors> {
   };
 
   updateToast = <Data extends object>(id: string, updates: ToastManagerUpdateOptions<Data>) => {
+    this.updateToastInternal(id, updates);
+  };
+
+  updateToastInternal = <Data extends object>(id: string, updates: ToastInternalUpdateOptions<Data>) => {
     const { timeout, toasts } = this.state;
     const prevToast = selectors.toast(this.state, id) ?? null;
     const nextToast = prevToast ? { ...prevToast, ...updates } : null;
