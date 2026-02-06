@@ -499,9 +499,6 @@ importers:
       '@floating-ui/utils':
         specifier: ^0.2.10
         version: 0.2.10
-      reselect:
-        specifier: ^5.1.1
-        version: 5.1.1
       tabbable:
         specifier: ^6.4.0
         version: 6.4.0
