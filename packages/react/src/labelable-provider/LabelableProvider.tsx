@@ -3,6 +3,7 @@ import * as React from 'react';
 import { error } from '@base-ui/utils/error';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
+import { useTimeout } from '@base-ui/utils/useTimeout';
 import { mergeProps } from '../merge-props';
 import { HTMLProps } from '../utils/types';
 import { useBaseUiId } from '../utils/useBaseUiId';
@@ -21,7 +22,9 @@ export const LabelableProvider: React.FC<LabelableProvider.Props> = function Lab
   );
   const [labelId, setLabelId] = React.useState<string | undefined>(undefined);
   const [messageIds, setMessageIds] = React.useState<string[]>([]);
+
   const registrationsRef = useRefWithInit(() => new Map<symbol, string | null>());
+  const warningTimeout = useTimeout();
 
   const { messageIds: parentMessageIds } = useLabelableContext();
 
@@ -60,7 +63,10 @@ export const LabelableProvider: React.FC<LabelableProvider.Props> = function Lab
       }
 
       if (process.env.NODE_ENV !== 'production') {
-        if (nextId !== undefined) {
+        // Use a macrotask so React passive effect cleanups run first.
+        // This avoids transient multi-control warnings when one control is replaced
+        // by another in the same commit (e.g. React Activity visibility toggles).
+        warningTimeout.start(0, () => {
           let firstId: string | null | undefined;
           let hasMultipleIds = false;
 
@@ -82,7 +88,7 @@ export const LabelableProvider: React.FC<LabelableProvider.Props> = function Lab
                 'For a shared label across multiple controls, use <Fieldset.Root>.',
             );
           }
-        }
+        });
       }
 
       // Only flush when registering, not when unregistering.

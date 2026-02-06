@@ -63,7 +63,10 @@ describe('<Field.Root />', () => {
         </Field.Root>,
       );
 
-      expect(errorSpy.mock.calls.length).to.equal(1);
+      await waitFor(() => {
+        expect(errorSpy.mock.calls.length).to.equal(1);
+      });
+
       expect(errorSpy.mock.calls[0][0]).to.equal(
         'Base UI: Multiple labelable controls were rendered within the same <Field.Root>. This makes label associations ambiguous and can cause render loops. Ensure that <Field.Root> wraps a single control. For checkbox or radio groups, wrap each option in <Field.Item>. For a shared label across multiple controls, use <Fieldset.Root>.',
       );
@@ -86,6 +89,51 @@ describe('<Field.Root />', () => {
       expect(errorSpy.callCount).to.equal(0);
     } finally {
       errorSpy.restore();
+    }
+  });
+
+  it('does not warn when replacing one control with another', async () => {
+    const errorSpy = vi
+      .spyOn(console, 'error')
+      .mockName('console.error')
+      .mockImplementation(() => {});
+
+    try {
+      function TestCase() {
+        const [showB, setShowB] = React.useState(false);
+
+        return (
+          <React.Fragment>
+            <Field.Root>
+              <Field.Label>Label</Field.Label>
+              {showB ? (
+                <Field.Control key="b" id="control-b" />
+              ) : (
+                <Field.Control key="a" id="control-a" />
+              )}
+            </Field.Root>
+            <button type="button" onClick={() => setShowB(true)}>
+              Toggle
+            </button>
+          </React.Fragment>
+        );
+      }
+
+      await render(<TestCase />);
+
+      const label = screen.getByText('Label');
+      expect(label).to.have.attribute('for', 'control-a');
+
+      fireEvent.click(screen.getByRole('button', { name: 'Toggle' }));
+
+      await waitFor(() => {
+        expect(label).to.have.attribute('for', 'control-b');
+      });
+
+      await flushMicrotasks();
+      expect(errorSpy.mock.calls.length).to.equal(0);
+    } finally {
+      errorSpy.mockRestore();
     }
   });
 
