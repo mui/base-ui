@@ -178,7 +178,7 @@
   outline: 0;
   cursor: default;
   user-select: none;
-  min-height: 2rem;
+  min-height: 1.875rem;
   padding: 0 0.5rem 0 2.25rem;
   margin-block-end: 0.25rem;
   border-radius: 0.5rem;

@@ -74,7 +74,7 @@ export default function ExampleAutocompleteCommandPalette() {
                               key={item.value}
                               value={item}
                               onClick={handleItemClick}
-                              className="grid min-h-8 cursor-default grid-cols-[minmax(0,1fr)_auto] items-center gap-2 rounded-lg pl-9 pr-2 text-[0.9375rem] tracking-[0.016em] font-normal leading-[1.25] select-none outline-none data-[highlighted]:bg-gray-100"
+                              className="grid min-h-[1.875rem] cursor-default grid-cols-[minmax(0,1fr)_auto] items-center gap-2 rounded-lg pl-9 pr-2 text-[0.9375rem] tracking-[0.016em] font-normal leading-[1.25] select-none outline-none data-[highlighted]:bg-gray-100"
                             >
                               <span className="truncate font-normal">{item.label}</span>
                               <span className="shrink-0 whitespace-nowrap text-[0.875rem] tracking-[0.00625em] text-gray-500 data-[highlighted]:text-gray-700">
