@@ -801,6 +801,86 @@ describe('<NumberField />', () => {
     });
   });
 
+  describe('prop: allowOutOfRange', () => {
+    it('allows range overflow validation when true', async () => {
+      await render(
+        <form data-testid="form">
+          <NumberFieldBase.Root name="quantity" max={5} allowOutOfRange>
+            <NumberFieldBase.Group>
+              <NumberFieldBase.Input />
+            </NumberFieldBase.Group>
+          </NumberFieldBase.Root>
+          <button type="submit">Submit</button>
+        </form>,
+      );
+
+      const input = screen.getByRole('textbox');
+      fireEvent.change(input, { target: { value: '6' } });
+
+      const hiddenInput = document.querySelector(
+        'input[type="number"][name="quantity"]',
+      ) as HTMLInputElement;
+
+      expect(hiddenInput).not.to.equal(null);
+      expect(hiddenInput.value).to.equal('6');
+      expect(hiddenInput.validity.rangeOverflow).to.equal(true);
+
+      const form = screen.getByTestId<HTMLFormElement>('form');
+      expect(form.checkValidity()).to.equal(false);
+    });
+
+    it('still clamps step interactions when true', async () => {
+      await render(
+        <form data-testid="form">
+          <NumberField defaultValue={5} max={5} allowOutOfRange name="quantity" />
+          <button type="submit">Submit</button>
+        </form>,
+      );
+
+      const input = screen.getByRole('textbox');
+      fireEvent.click(screen.getByLabelText('Increase'));
+
+      const hiddenInput = document.querySelector(
+        'input[type="number"][name="quantity"]',
+      ) as HTMLInputElement;
+
+      expect(input).to.have.value('5');
+      expect(hiddenInput).not.to.equal(null);
+      expect(hiddenInput.value).to.equal('5');
+      expect(hiddenInput.validity.rangeOverflow).to.equal(false);
+
+      const form = screen.getByTestId<HTMLFormElement>('form');
+      expect(form.checkValidity()).to.equal(true);
+    });
+
+    it('clamps to range when false', async () => {
+      await render(
+        <form data-testid="form">
+          <NumberFieldBase.Root name="quantity" max={5} allowOutOfRange={false}>
+            <NumberFieldBase.Group>
+              <NumberFieldBase.Input />
+            </NumberFieldBase.Group>
+          </NumberFieldBase.Root>
+          <button type="submit">Submit</button>
+        </form>,
+      );
+
+      const input = screen.getByRole('textbox');
+      fireEvent.change(input, { target: { value: '6' } });
+
+      const hiddenInput = document.querySelector(
+        'input[type="number"][name="quantity"]',
+      ) as HTMLInputElement;
+
+      expect(hiddenInput).not.to.equal(null);
+      expect(hiddenInput.value).to.equal('5');
+      expect(hiddenInput.validity.rangeOverflow).to.equal(false);
+
+      const form = screen.getByTestId<HTMLFormElement>('form');
+      expect(form.checkValidity()).to.equal(true);
+    });
+  });
+
   describe('prop: step', () => {
     it('defaults to 1', async () => {
       await render(<NumberField defaultValue={5} />);
@@ -1349,7 +1429,7 @@ describe('<NumberField />', () => {
         await render(
           <Form>
             <Field.Root validate={(value) => (value === 1 ? 'custom error' : null)}>
-              <NumberFieldBase.Root required>
+              <NumberFieldBase.Root required data-testid="root">
                 <NumberFieldBase.Input data-testid="input" />
               </NumberFieldBase.Root>
               <Field.Error data-testid="error" match="valueMissing">
@@ -1377,10 +1457,16 @@ describe('<NumberField />', () => {
         fireEvent.click(screen.getByText('submit'));
         expect(input).to.have.attribute('aria-invalid', 'true');
         expect(screen.queryByTestId('error')).to.have.text('valueMissing error');
+        expect(screen.getByTestId('root')).to.have.attribute('data-invalid');
+        expect(input).to.have.attribute('data-invalid');
 
         fireEvent.change(input, { target: { value: '2' } });
         expect(input).not.to.have.attribute('aria-invalid');
         expect(screen.queryByTestId('error')).to.equal(null);
+        expect(screen.getByTestId('root')).not.to.have.attribute('data-invalid');
+        expect(input).not.to.have.attribute('data-invalid');
+        expect(screen.getByTestId('root')).to.have.attribute('data-valid');
+        expect(input).to.have.attribute('data-valid');
         // re-invalidate the field value
         fireEvent.change(input, { target: { value: '1' } });
         expect(input).to.have.attribute('aria-invalid', 'true');
