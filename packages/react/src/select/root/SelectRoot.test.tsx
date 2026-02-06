@@ -592,7 +592,7 @@ describe('<Select.Root />', () => {
   });
 
   it('should pass autoComplete to the hidden input', async () => {
-    await render(
+    const { container } = await render(
       <Select.Root name="country" autoComplete="country">
         <Select.Trigger data-testid="trigger">
           <Select.Value />
@@ -608,11 +608,8 @@ describe('<Select.Root />', () => {
       </Select.Root>,
     );
 
-    const selectInput = screen.getByRole('textbox', {
-      hidden: true,
-    });
-    expect(selectInput).to.have.attribute('name', 'country');
-    expect(selectInput).to.have.attribute('autocomplete', 'country');
+    const hiddenInput = container.querySelector('input[name="country"]');
+    expect(hiddenInput).to.have.attribute('autocomplete', 'country');
   });
 
   it('should handle browser autofill with object values', async () => {
