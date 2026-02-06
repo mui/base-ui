@@ -847,6 +847,19 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
       expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
     });
 
+    test('inside click then programmatic outside click closes', async () => {
+      render(<App outsidePressEvent="intentional" />);
+      const insideInput = screen.getByRole('textbox');
+
+      fireEvent.mouseDown(insideInput);
+      fireEvent.mouseUp(insideInput);
+      fireEvent.click(insideInput);
+      expect(screen.getByRole('tooltip')).toBeInTheDocument();
+
+      fireEvent.click(document.body);
+      expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
+    });
+
     test('inside click after drag does not cause immediate close on first outside click', async () => {
       render(<App outsidePressEvent="intentional" />);
       const floatingEl = screen.getByRole('tooltip');
