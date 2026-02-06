@@ -18,6 +18,15 @@ export default function ExampleAutocompleteCommandPalette() {
     setOpen(false);
   }
 
+  const handleAutocompleteEscape = React.useCallback(
+    (nextOpen: boolean, eventDetails: Autocomplete.Root.ChangeEventDetails) => {
+      if (!nextOpen && eventDetails.reason === 'escape-key') {
+        setOpen(false);
+      }
+    },
+    [],
+  );
+
   return (
     <Dialog.Root open={open} onOpenChange={setOpen}>
       <Dialog.Trigger className={styles.Button}>Open command palette</Dialog.Trigger>
@@ -30,11 +39,15 @@ export default function ExampleAutocompleteCommandPalette() {
             filter={customFilter}
             autoHighlight="always"
             keepHighlight
+            onOpenChange={handleAutocompleteEscape}
           >
             <Autocomplete.Input
               className={styles.Input}
               placeholder="Search for apps and commands..."
             />
+            <Dialog.Close className={styles.VisuallyHiddenClose}>
+              Close command palette
+            </Dialog.Close>
 
             <ScrollArea.Root className={styles.ListArea}>
               <ScrollArea.Viewport className={styles.ListViewport}>
@@ -80,7 +93,7 @@ export default function ExampleAutocompleteCommandPalette() {
 
             <div className={styles.Footer}>
               <div className={styles.FooterLeft}>
-                <span>Open application</span>
+                <span>Activate</span>
                 <kbd className={styles.Kbd}>Enter</kbd>
               </div>
               <div className={styles.FooterRight}>

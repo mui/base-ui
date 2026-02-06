@@ -17,6 +17,15 @@ export default function ExampleAutocompleteCommandPalette() {
     setOpen(false);
   }
 
+  const handleAutocompleteEscape = React.useCallback(
+    (nextOpen: boolean, eventDetails: Autocomplete.Root.ChangeEventDetails) => {
+      if (!nextOpen && eventDetails.reason === 'escape-key') {
+        setOpen(false);
+      }
+    },
+    [],
+  );
+
   return (
     <Dialog.Root open={open} onOpenChange={setOpen}>
       <Dialog.Trigger className="flex h-10 items-center justify-center rounded-md border border-gray-200 bg-gray-50 px-3.5 text-base font-medium text-gray-900 select-none hover:bg-gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 active:bg-gray-100">
@@ -34,11 +43,13 @@ export default function ExampleAutocompleteCommandPalette() {
             filter={customFilter}
             autoHighlight="always"
             keepHighlight
+            onOpenChange={handleAutocompleteEscape}
           >
             <Autocomplete.Input
               className="w-full border-0 border-b border-gray-100 bg-transparent p-4 text-base tracking-[0.016em] text-gray-900 placeholder:text-gray-500 outline-none"
               placeholder="Search for apps and commands..."
             />
+            <Dialog.Close className="sr-only">Close command palette</Dialog.Close>
 
             <ScrollArea.Root className="relative flex h-[min(70dvh,30rem)] min-h-0 flex-1 overflow-hidden">
               <ScrollArea.Viewport className="min-h-0 flex-1 overscroll-contain focus-visible:outline focus-visible:outline-1 focus-visible:-outline-offset-1 focus-visible:outline-blue-800">
@@ -63,7 +74,7 @@ export default function ExampleAutocompleteCommandPalette() {
                               key={item.value}
                               value={item}
                               onClick={handleItemClick}
-                              className="grid h-8 cursor-default grid-cols-[minmax(0,1fr)_auto] items-center gap-2 rounded-lg pl-9 pr-2 text-[0.9375rem] tracking-[0.016em] font-normal leading-none select-none outline-none data-[highlighted]:bg-gray-100"
+                              className="grid min-h-8 cursor-default grid-cols-[minmax(0,1fr)_auto] items-center gap-2 rounded-lg pl-9 pr-2 text-[0.9375rem] tracking-[0.016em] font-normal leading-[1.25] select-none outline-none data-[highlighted]:bg-gray-100"
                             >
                               <span className="truncate font-normal">{item.label}</span>
                               <span className="shrink-0 whitespace-nowrap text-[0.875rem] tracking-[0.00625em] text-gray-500 data-[highlighted]:text-gray-700">
@@ -84,7 +95,7 @@ export default function ExampleAutocompleteCommandPalette() {
 
             <div className="flex items-center justify-between border-t border-gray-100 bg-white px-3 py-2.5 text-xs text-gray-500">
               <div className="flex items-center gap-3">
-                <span>Open application</span>
+                <span>Activate</span>
                 <kbd className="inline-flex h-5 min-w-5 items-center justify-center rounded border border-gray-300 bg-gray-50 px-1 text-[0.625rem] font-medium text-gray-600">
                   Enter
                 </kbd>
