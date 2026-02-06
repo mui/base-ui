@@ -4798,41 +4798,160 @@ describe('<Combobox.Root />', () => {
       });
     });
 
-    it('[data-focused]', async () => {
-      await render(
-        <Field.Root>
-          <Combobox.Root>
-            <Combobox.Input data-testid="input" />
-            <Combobox.Trigger data-testid="trigger" />
-            <Combobox.Portal>
-              <Combobox.Positioner>
-                <Combobox.Popup>
-                  <Combobox.List>
-                    <Combobox.Item value="">Select</Combobox.Item>
-                    <Combobox.Item value="1">Option 1</Combobox.Item>
-                  </Combobox.List>
-                </Combobox.Popup>
-              </Combobox.Positioner>
-            </Combobox.Portal>
-          </Combobox.Root>
-        </Field.Root>,
-      );
+    describe('[data-focused]', () => {
+      it('[data-focused]', async () => {
+        await render(
+          <Field.Root>
+            <Combobox.Root>
+              <Combobox.Input data-testid="input" />
+              <Combobox.Trigger data-testid="trigger" />
+              <Combobox.Portal>
+                <Combobox.Positioner>
+                  <Combobox.Popup>
+                    <Combobox.List>
+                      <Combobox.Item value="">Select</Combobox.Item>
+                      <Combobox.Item value="1">Option 1</Combobox.Item>
+                    </Combobox.List>
+                  </Combobox.Popup>
+                </Combobox.Positioner>
+              </Combobox.Portal>
+            </Combobox.Root>
+          </Field.Root>,
+        );
 
-      const input = screen.getByTestId('input');
-      const trigger = screen.getByTestId('trigger');
+        const input = screen.getByTestId('input');
+        const trigger = screen.getByTestId('trigger');
 
-      expect(input).not.to.have.attribute('data-focused');
-      expect(trigger).not.to.have.attribute('data-focused');
+        expect(input).not.to.have.attribute('data-focused');
+        expect(trigger).not.to.have.attribute('data-focused');
 
-      fireEvent.focus(input);
+        fireEvent.focus(input);
 
-      expect(input).to.have.attribute('data-focused', '');
-      expect(trigger).to.have.attribute('data-focused', '');
+        expect(input).to.have.attribute('data-focused', '');
+        expect(trigger).to.have.attribute('data-focused', '');
 
-      fireEvent.blur(input);
+        fireEvent.blur(input);
 
-      expect(input).not.to.have.attribute('data-focused');
-      expect(trigger).not.to.have.attribute('data-focused');
+        expect(input).not.to.have.attribute('data-focused');
+        expect(trigger).not.to.have.attribute('data-focused');
+      });
+
+      it('should remove data-focused when the field becomes disabled', async () => {
+        const { setProps } = await render(
+          <Field.Root>
+            <Combobox.Root>
+              <Combobox.Input data-testid="input" />
+              <Combobox.Trigger data-testid="trigger" />
+              <Combobox.Portal>
+                <Combobox.Positioner>
+                  <Combobox.Popup>
+                    <Combobox.List>
+                      <Combobox.Item value="">Select</Combobox.Item>
+                      <Combobox.Item value="1">Option 1</Combobox.Item>
+                    </Combobox.List>
+                  </Combobox.Popup>
+                </Combobox.Positioner>
+              </Combobox.Portal>
+            </Combobox.Root>
+          </Field.Root>,
+        );
+
+        const input = screen.getByTestId('input');
+        const trigger = screen.getByTestId('trigger');
+
+        expect(input).not.to.have.attribute('data-focused');
+        expect(trigger).not.to.have.attribute('data-focused');
+
+        fireEvent.focus(input);
+
+        expect(input).to.have.attribute('data-focused', '');
+        expect(trigger).to.have.attribute('data-focused', '');
+
+        await setProps({ disabled: true });
+
+        expect(input).not.to.have.attribute('data-focused');
+        expect(trigger).not.to.have.attribute('data-focused');
+      });
+
+      it('should remove data-focused when the trigger becomes disabled', async () => {
+        function App({ disabled }: { disabled: boolean }) {
+          return (
+            <Field.Root>
+              <Combobox.Root>
+                <Combobox.Input data-testid="input" />
+                <Combobox.Trigger data-testid="trigger" disabled={disabled} />
+                <Combobox.Portal>
+                  <Combobox.Positioner>
+                    <Combobox.Popup>
+                      <Combobox.List>
+                        <Combobox.Item value="">Select</Combobox.Item>
+                        <Combobox.Item value="1">Option 1</Combobox.Item>
+                      </Combobox.List>
+                    </Combobox.Popup>
+                  </Combobox.Positioner>
+                </Combobox.Portal>
+              </Combobox.Root>
+            </Field.Root>
+          );
+        }
+        const { setProps } = await render(<App disabled={false} />);
+
+        const input = screen.getByTestId('input');
+        const trigger = screen.getByTestId('trigger');
+
+        expect(input).not.to.have.attribute('data-focused');
+        expect(trigger).not.to.have.attribute('data-focused');
+
+        fireEvent.focus(input);
+
+        expect(input).to.have.attribute('data-focused', '');
+        expect(trigger).to.have.attribute('data-focused', '');
+
+        await setProps({ disabled: true });
+
+        expect(input).not.to.have.attribute('data-focused');
+        expect(trigger).not.to.have.attribute('data-focused');
+      });
+
+      it('should remove data-focused when the input becomes disabled', async () => {
+        function App({ disabled }: { disabled: boolean }) {
+          return (
+            <Field.Root>
+              <Combobox.Root>
+                <Combobox.Input data-testid="input" disabled={disabled} />
+                <Combobox.Trigger data-testid="trigger" />
+                <Combobox.Portal>
+                  <Combobox.Positioner>
+                    <Combobox.Popup>
+                      <Combobox.List>
+                        <Combobox.Item value="">Select</Combobox.Item>
+                        <Combobox.Item value="1">Option 1</Combobox.Item>
+                      </Combobox.List>
+                    </Combobox.Popup>
+                  </Combobox.Positioner>
+                </Combobox.Portal>
+              </Combobox.Root>
+            </Field.Root>
+          );
+        }
+        const { setProps } = await render(<App disabled={false} />);
+
+        const input = screen.getByTestId('input');
+        const trigger = screen.getByTestId('trigger');
+
+        expect(input).not.to.have.attribute('data-focused');
+        expect(trigger).not.to.have.attribute('data-focused');
+
+        fireEvent.focus(input);
+
+        expect(input).to.have.attribute('data-focused', '');
+        expect(trigger).to.have.attribute('data-focused', '');
+
+        await setProps({ disabled: true });
+
+        expect(input).not.to.have.attribute('data-focused');
+        expect(trigger).not.to.have.attribute('data-focused');
+      });
     });
 
     it('does not mark as touched when focus moves into the popup', async () => {

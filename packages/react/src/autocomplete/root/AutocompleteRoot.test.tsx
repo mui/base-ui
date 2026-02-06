@@ -1453,36 +1453,99 @@ describe('<Autocomplete.Root />', () => {
       });
     });
 
-    it('[data-focused]', async () => {
-      await render(
-        <Field.Root>
-          <Autocomplete.Root>
-            <Autocomplete.Input data-testid="input" />
-            <Autocomplete.Portal>
-              <Autocomplete.Positioner>
-                <Autocomplete.Popup>
-                  <Autocomplete.List>
-                    <Autocomplete.Item value="">Select</Autocomplete.Item>
-                    <Autocomplete.Item value="1">Option 1</Autocomplete.Item>
-                  </Autocomplete.List>
-                </Autocomplete.Popup>
-              </Autocomplete.Positioner>
-            </Autocomplete.Portal>
-          </Autocomplete.Root>
-        </Field.Root>,
-      );
+    describe('[data-focused]', () => {
+      it('sets [data-focused] when focused', async () => {
+        await render(
+          <Field.Root>
+            <Autocomplete.Root>
+              <Autocomplete.Input data-testid="input" />
+              <Autocomplete.Portal>
+                <Autocomplete.Positioner>
+                  <Autocomplete.Popup>
+                    <Autocomplete.List>
+                      <Autocomplete.Item value="">Select</Autocomplete.Item>
+                      <Autocomplete.Item value="1">Option 1</Autocomplete.Item>
+                    </Autocomplete.List>
+                  </Autocomplete.Popup>
+                </Autocomplete.Positioner>
+              </Autocomplete.Portal>
+            </Autocomplete.Root>
+          </Field.Root>,
+        );
 
-      const input = screen.getByTestId('input');
+        const input = screen.getByTestId('input');
 
-      expect(input).not.to.have.attribute('data-focused');
+        expect(input).not.to.have.attribute('data-focused');
 
-      fireEvent.focus(input);
+        fireEvent.focus(input);
 
-      expect(input).to.have.attribute('data-focused', '');
+        expect(input).to.have.attribute('data-focused', '');
 
-      fireEvent.blur(input);
+        fireEvent.blur(input);
 
-      expect(input).not.to.have.attribute('data-focused');
+        expect(input).not.to.have.attribute('data-focused');
+      });
+
+      it('should remove [data-focused] when the field becomes disabled', async () => {
+        const { setProps } = await render(
+          <Field.Root>
+            <Autocomplete.Root>
+              <Autocomplete.Input data-testid="input" />
+              <Autocomplete.Portal>
+                <Autocomplete.Positioner>
+                  <Autocomplete.Popup>
+                    <Autocomplete.List>
+                      <Autocomplete.Item value="">Select</Autocomplete.Item>
+                      <Autocomplete.Item value="1">Option 1</Autocomplete.Item>
+                    </Autocomplete.List>
+                  </Autocomplete.Popup>
+                </Autocomplete.Positioner>
+              </Autocomplete.Portal>
+            </Autocomplete.Root>
+          </Field.Root>,
+        );
+
+        const input = screen.getByTestId('input');
+        expect(input).not.to.have.attribute('data-focused');
+
+        fireEvent.focus(input);
+        expect(input).to.have.attribute('data-focused', '');
+
+        await setProps({ disabled: true });
+        expect(input).not.to.have.attribute('data-focused');
+      });
+
+      it('should remove [data-focused] when the input becomes disabled', async () => {
+        function App({ disabled }: { disabled: boolean }) {
+          return (
+            <Field.Root>
+              <Autocomplete.Root>
+                <Autocomplete.Input data-testid="input" disabled={disabled} />
+                <Autocomplete.Portal>
+                  <Autocomplete.Positioner>
+                    <Autocomplete.Popup>
+                      <Autocomplete.List>
+                        <Autocomplete.Item value="">Select</Autocomplete.Item>
+                        <Autocomplete.Item value="1">Option 1</Autocomplete.Item>
+                      </Autocomplete.List>
+                    </Autocomplete.Popup>
+                  </Autocomplete.Positioner>
+                </Autocomplete.Portal>
+              </Autocomplete.Root>
+            </Field.Root>
+          );
+        }
+        const { setProps } = await render(<App disabled={false} />);
+
+        const input = screen.getByTestId('input');
+        expect(input).not.to.have.attribute('data-focused');
+
+        fireEvent.focus(input);
+        expect(input).to.have.attribute('data-focused', '');
+
+        await setProps({ disabled: true });
+        expect(input).not.to.have.attribute('data-focused');
+      });
     });
 
     it('[data-invalid]', async () => {
