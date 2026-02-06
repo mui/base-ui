@@ -17,7 +17,7 @@
     "@types/sinon": "21.0.0",
     "chai": "6.2.2",
     "docs": "workspace:^",
-    "es-toolkit": "1.43.0",
+    "es-toolkit": "1.44.0",
     "is-wsl": "3.1.0",
     "react": "19.2.3",
     "react-dom": "19.2.3",

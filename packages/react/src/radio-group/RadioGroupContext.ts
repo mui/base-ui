@@ -22,7 +22,8 @@ export interface RadioGroupContext {
   touched: boolean;
   setTouched: React.Dispatch<React.SetStateAction<boolean>>;
   validation?: UseFieldValidationReturnValue | undefined;
-  registerControlRef: (element: HTMLElement | null) => void;
+  registerControlRef: (element: HTMLElement | null, disabled?: boolean) => void;
+  registerInputRef: (element: HTMLInputElement | null) => void;
 }
 
 export const RadioGroupContext = React.createContext<RadioGroupContext>({
@@ -36,6 +37,7 @@ export const RadioGroupContext = React.createContext<RadioGroupContext>({
   touched: false,
   setTouched: NOOP,
   registerControlRef: NOOP,
+  registerInputRef: NOOP,
 });
 
 export function useRadioGroupContext() {
