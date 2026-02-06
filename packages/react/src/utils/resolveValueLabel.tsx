@@ -14,6 +14,10 @@ interface LabeledItem {
   label: React.ReactNode;
 }
 
+function isTextLabel(label: React.ReactNode): label is string | number | bigint {
+  return typeof label === 'string' || typeof label === 'number' || typeof label === 'bigint';
+}
+
 export function isPrimitiveValue(value: unknown): boolean {
   return value != null && typeof value !== 'object' && typeof value !== 'function';
 }
@@ -76,11 +80,11 @@ export function stringifyAsLabel(item: any, itemToStringLabel?: (item: any) => s
     return itemToStringLabel(item) ?? '';
   }
   if (item && typeof item === 'object') {
-    if ('label' in item && item.label != null) {
+    if ('label' in item && item.label != null && isTextLabel(item.label)) {
       return String(item.label);
     }
     if ('value' in item) {
-      return String(item.value);
+      return serializeValue(item.value);
     }
   }
   return serializeValue(item);
@@ -149,7 +153,13 @@ export function resolveSelectedLabelString(
   itemToStringLabel?: (item: any) => string,
 ): string {
   const label = resolveSelectedLabel(value, items, itemToStringLabel);
-  return label == null ? '' : String(label);
+  if (label == null || typeof label === 'boolean') {
+    return '';
+  }
+  if (isTextLabel(label)) {
+    return String(label);
+  }
+  return stringifyAsLabel(value, itemToStringLabel);
 }
 
 export function resolveMultipleLabels(

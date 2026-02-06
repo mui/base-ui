@@ -89,16 +89,16 @@ export const ComboboxItem = React.memo(
         list[index] = itemRef.current;
       }
 
-      if (items && itemValueModeRef.current !== 'value' && hasRegistered) {
+      if (items && hasRegistered) {
         const resolvedItem = flatFilteredItems[index];
-        if (
+        const usesPrimitiveItemValue =
           hasValueField(resolvedItem) &&
           isPrimitiveValue(resolvedItem.value) &&
-          Object.is(value, resolvedItem.value)
-        ) {
-          // Record that item values are primitives so the root can map values without re-rendering.
-          itemValueModeRef.current = 'value';
-        }
+          Object.is(value, resolvedItem.value);
+
+        // Keep inferred value mode in sync when item value shape changes.
+        // Assumes all rendered items use the same value shape.
+        itemValueModeRef.current = usesPrimitiveItemValue ? 'value' : null;
       }
 
       if (!shouldRegister) {

@@ -5634,7 +5634,7 @@ describe('<Combobox.Root />', () => {
       });
     });
 
-    it('resets inferred value mode when items change', async () => {
+    it('resets inferred value mode when item value shape or items change', async () => {
       const initialItems: FruitItem[] = [
         { value: 'apple', label: 'Apple' },
         { value: 'banana', label: 'Banana' },
@@ -5685,6 +5685,16 @@ describe('<Combobox.Root />', () => {
       expect(onItemHighlighted.lastCall.args[0]).to.equal('apple');
 
       onItemHighlighted.resetHistory();
+      await setProps({ items: initialItems, useItemValue: false });
+      await user.keyboard('{ArrowDown}');
+
+      await waitFor(() => {
+        expect(onItemHighlighted.callCount).to.be.greaterThan(0);
+      });
+
+      expect(onItemHighlighted.lastCall.args[0]).to.equal(initialItems[1]);
+
+      onItemHighlighted.resetHistory();
 
       const nextItems: FruitItem[] = [
         { value: 'apricot', label: 'Apricot' },
@@ -5697,7 +5707,33 @@ describe('<Combobox.Root />', () => {
         expect(onItemHighlighted.callCount).to.be.greaterThan(0);
       });
 
-      expect(onItemHighlighted.lastCall.args[0]).to.equal(nextItems[0]);
+      expect(onItemHighlighted.lastCall.args[0]).to.equal(nextItems[1]);
+    });
+
+    it('falls back to item value when selected item label is a non-text React node', async () => {
+      const items = [{ value: 'apple', label: <strong>Apple</strong> }];
+
+      await render(
+        <Combobox.Root items={items} defaultValue="apple">
+          <Combobox.Input />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  {(item: { value: string; label: React.ReactNode }) => (
+                    <Combobox.Item key={item.value} value={item.value}>
+                      {item.label}
+                    </Combobox.Item>
+                  )}
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByRole('combobox');
+      expect(input).to.have.value('apple');
     });
 
     it('highlights primitive values in virtualized lists', async () => {
