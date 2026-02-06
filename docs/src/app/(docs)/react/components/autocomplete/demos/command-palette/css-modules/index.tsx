@@ -38,7 +38,7 @@ export default function ExampleAutocompleteCommandPalette() {
 
             <ScrollArea.Root className={styles.ListArea}>
               <ScrollArea.Viewport className={styles.ListViewport}>
-                <ScrollArea.Content>
+                <ScrollArea.Content className={styles.ListContent}>
                   <Autocomplete.Empty className={styles.Empty}>
                     No results found.
                   </Autocomplete.Empty>
