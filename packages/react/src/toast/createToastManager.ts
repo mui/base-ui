@@ -10,7 +10,7 @@ import type {
  * Creates a new toast manager.
  */
 export function createToastManager(): ToastManager {
-  const listeners: ((data: ToastManagerEvent) => void)[] = [];
+  const listeners = new Set<(data: ToastManagerEvent) => void>();
 
   function emit(data: ToastManagerEvent) {
     listeners.forEach((listener) => listener(data));
@@ -20,12 +20,9 @@ export function createToastManager(): ToastManager {
     // This should be private aside from ToastProvider needing to access it.
     // https://x.com/drosenwasser/status/1816947740032872664
     ' subscribe': function subscribe(listener: (data: ToastManagerEvent) => void) {
-      listeners.push(listener);
+      listeners.add(listener);
       return () => {
-        const index = listeners.indexOf(listener);
-        if (index !== -1) {
-          listeners.splice(index, 1);
-        }
+        listeners.delete(listener);
       };
     },
 

@@ -12,7 +12,6 @@ import { resolvePromiseOptions } from './utils/resolvePromiseOptions';
 import { activeElement, contains, getTarget } from '../floating-ui-react/utils';
 import { isFocusVisible } from './utils/focusVisible';
 
-// Internal type that allows all fields (used by ToastRoot for height/ref updates)
 type ToastInternalUpdateOptions<Data extends object> = Partial<Omit<ToastObject<Data>, 'id'>>;
 
 export type State = {
@@ -178,16 +177,19 @@ export class ToastStore extends ReactStore<State, {}, typeof selectors> {
     this.updateToastInternal(id, updates);
   };
 
-  updateToastInternal = <Data extends object>(id: string, updates: ToastInternalUpdateOptions<Data>) => {
+  updateToastInternal = <Data extends object>(
+    id: string,
+    updates: ToastInternalUpdateOptions<Data>,
+  ) => {
     const { timeout, toasts } = this.state;
     const prevToast = selectors.toast(this.state, id) ?? null;
-    const nextToast = prevToast ? { ...prevToast, ...updates } : null;
-
-    this.setToasts(toasts.map((toast) => (toast.id === id ? { ...toast, ...updates } : toast)));
-
-    if (!nextToast) {
+    if (!prevToast) {
       return;
     }
+
+    const nextToast = { ...prevToast, ...updates };
+
+    this.setToasts(toasts.map((toast) => (toast.id === id ? { ...toast, ...updates } : toast)));
 
     const nextTimeout = nextToast.timeout ?? timeout;
     const prevTimeout = prevToast?.timeout ?? timeout;
@@ -230,18 +232,17 @@ export class ToastStore extends ReactStore<State, {}, typeof selectors> {
 
     const { limit, toasts } = this.state;
 
-    const toastsWithEnding = toasts.map((item) =>
-      item.id === toastId ? { ...item, transitionStatus: 'ending' as const, height: 0 } : item,
-    );
-
-    const activeToasts = toastsWithEnding.filter((t) => t.transitionStatus !== 'ending');
-
-    const newToasts = toastsWithEnding.map((item) => {
+    let activeIndex = 0;
+    const newToasts = toasts.map((item) => {
+      if (item.id === toastId) {
+        return { ...item, transitionStatus: 'ending' as const, height: 0 };
+      }
       if (item.transitionStatus === 'ending') {
         return item;
       }
-      const isActiveToastLimited = activeToasts.indexOf(item) >= limit;
-      return { ...item, limited: isActiveToastLimited };
+      const isLimited = activeIndex >= limit;
+      activeIndex += 1;
+      return item.limited !== isLimited ? { ...item, limited: isLimited } : item;
     });
 
     const timer = this.timers.get(toastId);
