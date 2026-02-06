@@ -2,6 +2,7 @@
 import * as React from 'react';
 import { useControlled } from '@base-ui/utils/useControlled';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import type { BaseUIComponentProps, HTMLProps } from '../utils/types';
 import { useBaseUiId } from '../utils/useBaseUiId';
 import { contains } from '../floating-ui-react/utils';
@@ -171,6 +172,12 @@ export const RadioGroup = React.forwardRef(function RadioGroup<Value>(
       setInputRef(fallbackInput);
     }
   });
+
+  useIsoLayoutEffect(() => {
+    if (disabled) {
+      setFocused(false);
+    }
+  }, [disabled, setFocused]);
 
   const [touched, setTouched] = React.useState(false);
 
