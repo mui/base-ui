@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { stopEvent } from '../../floating-ui-react/utils';
 import { useNumberFieldRootContext } from '../root/NumberFieldRootContext';
 import type { BaseUIComponentProps } from '../../utils/types';
@@ -57,11 +58,11 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
   componentProps: NumberFieldInput.Props,
   forwardedRef: React.ForwardedRef<HTMLInputElement>,
 ) {
-  const { render, className, ...elementProps } = componentProps;
+  const { render, className, disabled: disabledProp, ...elementProps } = componentProps;
 
   const {
     allowInputSyncRef,
-    disabled,
+    disabled: contextDisabled,
     formatOptionsRef,
     getAllowedNonNumericKeys,
     getStepAmount,
@@ -85,6 +86,8 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
     hasPendingCommitRef,
     valueRef,
   } = useNumberFieldRootContext();
+
+  const disabled = disabledProp || contextDisabled;
 
   const { clearErrors } = useFormContext();
   const { validationMode, setTouched, setFocused, invalid, shouldValidateOnChange, validation } =
@@ -123,6 +126,12 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
 
     validation.commit(value, true);
   });
+
+  useIsoLayoutEffect(() => {
+    if (disabled) {
+      setFocused(false);
+    }
+  }, [disabled, setFocused]);
 
   const inputProps: React.ComponentProps<'input'> = {
     id,
