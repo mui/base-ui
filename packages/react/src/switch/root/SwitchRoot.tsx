@@ -109,6 +109,12 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
     }
   }, [inputRef, setFilled]);
 
+  useIsoLayoutEffect(() => {
+    if (disabled) {
+      setFocused(false);
+    }
+  }, [disabled, setFocused]);
+
   useValueChanged(checked, () => {
     clearErrors(name);
     setDirty(checked !== validityData.initialValue);
