@@ -17,15 +17,6 @@ export default function ExampleAutocompleteCommandPalette() {
     setOpen(false);
   }
 
-  const handleAutocompleteEscape = React.useCallback(
-    (nextOpen: boolean, eventDetails: Autocomplete.Root.ChangeEventDetails) => {
-      if (!nextOpen && eventDetails.reason === 'escape-key') {
-        setOpen(false);
-      }
-    },
-    [],
-  );
-
   return (
     <Dialog.Root open={open} onOpenChange={setOpen}>
       <Dialog.Trigger className="flex h-10 items-center justify-center rounded-md border border-gray-200 bg-gray-50 px-3.5 text-base font-medium text-gray-900 select-none hover:bg-gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 active:bg-gray-100">
@@ -39,11 +30,11 @@ export default function ExampleAutocompleteCommandPalette() {
         >
           <Autocomplete.Root
             open
+            inline
             items={groupedItems}
             filter={customFilter}
             autoHighlight="always"
             keepHighlight
-            onOpenChange={handleAutocompleteEscape}
           >
             <Autocomplete.Input
               className="w-full border-0 border-b border-gray-100 bg-transparent p-4 text-base tracking-[0.016em] text-gray-900 placeholder:text-gray-500 outline-none"
