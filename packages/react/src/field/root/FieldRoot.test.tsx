@@ -1029,13 +1029,41 @@ describe('<Field.Root />', () => {
       });
     });
 
-    it('should remove data-focused when disabled', async () => {
+    it('should remove data-focused when the field becomes disabled', async () => {
       const { setProps } = await render(
         <Field.Root data-testid="root">
           <Field.Control data-testid="control" />
           <Field.Label data-testid="label" />
         </Field.Root>,
       );
+
+      const root = screen.getByTestId('root');
+      const control = screen.getByTestId('control');
+      const label = screen.getByTestId('label');
+
+      fireEvent.focus(control);
+
+      expect(root).to.have.attribute('data-focused', '');
+      expect(control).to.have.attribute('data-focused', '');
+      expect(label).to.have.attribute('data-focused', '');
+
+      await setProps({ disabled: true });
+
+      expect(root).not.to.have.attribute('data-focused');
+      expect(control).not.to.have.attribute('data-focused');
+      expect(label).not.to.have.attribute('data-focused');
+    });
+
+    it('should remove data-focused when the control becomes disabled', async () => {
+      function App({ disabled }: { disabled: boolean }) {
+        return (
+          <Field.Root data-testid="root">
+            <Field.Control data-testid="control" disabled={disabled} />
+            <Field.Label data-testid="label" />
+          </Field.Root>
+        );
+      }
+      const { setProps } = await render(<App />);
 
       const root = screen.getByTestId('root');
       const control = screen.getByTestId('control');
