@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { PreviewCard } from '@base-ui/react/preview-card';
-import { StoreInspector } from '@base-ui/utils/store';
+import { StoreInspector } from '@base-ui/utils/store/inspector';
 import {
   SettingsMetadata,
   useExperimentSettings,

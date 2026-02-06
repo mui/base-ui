@@ -9,6 +9,7 @@
   },
   "license": "MIT",
   "exports": {
+    "./store/inspector": "./src/store/inspector.ts",
     "./store": "./src/store/index.ts",
     "./*": "./src/*.ts"
   },
