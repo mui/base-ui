@@ -658,11 +658,7 @@ describe('<Toast.Root />', () => {
         const transformedToasts = toasts.map((t) => ({ ...t }));
 
         return transformedToasts.map((toastItem) => (
-          <Toast.Root
-            key={toastItem.id}
-            toast={toastItem}
-            data-testid={`toast-${toastItem.id}`}
-          >
+          <Toast.Root key={toastItem.id} toast={toastItem} data-testid={`toast-${toastItem.id}`}>
             <Toast.Title>{toastItem.title}</Toast.Title>
           </Toast.Root>
         ));
