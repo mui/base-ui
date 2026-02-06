@@ -72,7 +72,7 @@
     },
     "filter": {
       "type": "((itemValue: Value, query: string, itemToString: ((itemValue: Value) => string) | undefined) => boolean) | null",
-      "description": "Filter function used to match items vs input query.",
+      "description": "Filter function used to match items vs input query.\nBy default, when an item is an object with a `keywords` array, those keywords are also\nmatched (trimmed) alongside the item's label/value.",
       "detailedType": "| ((\n    itemValue: Value,\n    query: string,\n    itemToString:\n      | ((itemValue: Value) => string)\n      | undefined,\n  ) => boolean)\n| null\n| undefined"
     },
     "filteredItems": {
