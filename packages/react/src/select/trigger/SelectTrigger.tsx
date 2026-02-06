@@ -2,6 +2,7 @@
 import * as React from 'react';
 import { ownerDocument } from '@base-ui/utils/owner';
 import { useTimeout } from '@base-ui/utils/useTimeout';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
@@ -84,6 +85,12 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
   const hasSelectedValue = useStore(store, selectors.hasSelectedValue);
   const shouldCheckNullItemLabel = !hasSelectedValue && open;
   const hasNullItemLabel = useStore(store, selectors.hasNullItemLabel, shouldCheckNullItemLabel);
+
+  useIsoLayoutEffect(() => {
+    if (disabled) {
+      setFocused(false);
+    }
+  }, [disabled, setFocused]);
 
   const id = idProp ?? rootId;
   useLabelableId({ id });
