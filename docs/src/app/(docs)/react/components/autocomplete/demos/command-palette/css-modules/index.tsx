@@ -18,15 +18,6 @@ export default function ExampleAutocompleteCommandPalette() {
     setOpen(false);
   }
 
-  const handleAutocompleteEscape = React.useCallback(
-    (nextOpen: boolean, eventDetails: Autocomplete.Root.ChangeEventDetails) => {
-      if (!nextOpen && eventDetails.reason === 'escape-key') {
-        setOpen(false);
-      }
-    },
-    [],
-  );
-
   return (
     <Dialog.Root open={open} onOpenChange={setOpen}>
       <Dialog.Trigger className={styles.Button}>Open command palette</Dialog.Trigger>
@@ -35,11 +26,11 @@ export default function ExampleAutocompleteCommandPalette() {
         <Dialog.Popup className={styles.Popup} aria-label="Command palette">
           <Autocomplete.Root
             open
+            inline
             items={groupedItems}
             filter={customFilter}
             autoHighlight="always"
             keepHighlight
-            onOpenChange={handleAutocompleteEscape}
           >
             <Autocomplete.Input
               className={styles.Input}
