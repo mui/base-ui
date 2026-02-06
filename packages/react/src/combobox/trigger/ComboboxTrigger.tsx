@@ -2,6 +2,7 @@
 import * as React from 'react';
 import { useStore } from '@base-ui/utils/store';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useTimeout } from '@base-ui/utils/useTimeout';
 import { ownerDocument } from '@base-ui/utils/owner';
 import { BaseUIComponentProps, NativeButtonProps } from '../../utils/types';
@@ -128,6 +129,12 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
     native: nativeButton,
     disabled,
   });
+
+  useIsoLayoutEffect(() => {
+    if (disabled) {
+      setFocused(false);
+    }
+  }, [disabled, setFocused]);
 
   const state: ComboboxTrigger.State = {
     ...fieldState,
