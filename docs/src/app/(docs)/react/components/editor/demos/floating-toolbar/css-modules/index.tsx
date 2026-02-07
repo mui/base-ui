@@ -1,6 +1,7 @@
 'use client'
 import * as React from 'react';
 import { Editor } from '@base-ui/react/editor';
+import styles from './index.module.css';
 
 export default function ExampleEditorFloatingToolbar() {
   const [value, setValue] = React.useState<any | undefined>(undefined);

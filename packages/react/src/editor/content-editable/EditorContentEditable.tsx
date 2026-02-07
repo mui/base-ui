@@ -5,7 +5,7 @@ import clsx from 'clsx';
 import classes from './EditorContentEditable.module.css';
 
 export interface EditorContentEditableProps {
-  className?: string;
+  className?: string | undefined;
 }
 
 export function EditorContentEditable(props: EditorContentEditableProps) {

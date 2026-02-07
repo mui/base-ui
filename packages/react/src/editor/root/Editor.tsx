@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import clsx from 'clsx';
-import type { EditorState } from 'lexical';
+import type { EditorState, SerializedEditorState } from 'lexical';
 import { RichTextPlugin } from '@lexical/react/LexicalRichTextPlugin';
 import { HistoryPlugin } from '@lexical/react/LexicalHistoryPlugin';
 import { ListPlugin } from '@lexical/react/LexicalListPlugin';
@@ -19,10 +19,10 @@ import classes from './Editor.module.css';
 
 export interface EditorProps {
   placeholder?: string | undefined;
-  children?: React.ReactNode;
-  value?: any; // SerializedEditorState
-  defaultValue?: any; // SerializedEditorState
-  onChange?: ((value: any) => void) | undefined;
+  children?: React.ReactNode | undefined;
+  value?: SerializedEditorState | undefined;
+  defaultValue?: SerializedEditorState | undefined;
+  onChange?: ((value: SerializedEditorState) => void) | undefined;
   className?: string | undefined;
   style?: React.CSSProperties | undefined;
   /**
@@ -38,7 +38,13 @@ export interface EditorProps {
   floatingToolbar?: boolean | undefined;
 }
 
-function ControlledInitializer({ value, defaultValue }: { value?: any; defaultValue?: any }) {
+function ControlledInitializer({
+  value,
+  defaultValue,
+}: {
+  value?: SerializedEditorState | undefined;
+  defaultValue?: SerializedEditorState | undefined;
+}) {
   const [editor] = useLexicalComposerContext();
 
   React.useEffect(() => {

@@ -18,6 +18,7 @@ import {
   Strikethrough,
   Link as LinkIcon,
 } from 'lucide-react';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useEditor } from '../hooks/useEditor';
 import { useSelection } from '../hooks/useSelection';
 import classes from './EditorFloatingToolbar.module.css';
@@ -37,7 +38,7 @@ export function EditorFloatingToolbar(props: EditorFloatingToolbarProps) {
   const [isFocused, setIsFocused] = React.useState(false);
   const [position, setPosition] = React.useState<{ top: number; left: number } | null>(null);
 
-  const updateFromSelection = React.useCallback(() => {
+  const updateFromSelection = useStableCallback(() => {
     const isCurrentlyFocused = editor.getEditorState().read(() => {
       return editor.getRootElement() === document.activeElement || editor.getRootElement()?.contains(document.activeElement);
     });
@@ -77,7 +78,7 @@ export function EditorFloatingToolbar(props: EditorFloatingToolbarProps) {
       setVisible(false);
       setPosition(null);
     }
-  }, [editor, isFocused, offset]);
+  });
 
   React.useEffect(() => {
     return mergeRegister(

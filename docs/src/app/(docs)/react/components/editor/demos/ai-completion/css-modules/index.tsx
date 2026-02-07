@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { Editor, EditorToolbar } from '@base-ui/react/editor';
+import { Editor } from '@base-ui/react/editor';
 import styles from './index.module.css';
 
 // Mock AI completion provider
@@ -40,7 +40,7 @@ export default function ExampleEditorWithAI() {
           debounceMs: 300,
         }}
       >
-        <EditorToolbar />
+        <Editor.Toolbar />
       </Editor>
       <p className={styles.Hint}>Press <strong>Tab</strong> to accept the completion.</p>
     </div>

@@ -1,4 +1,3 @@
-import * as React from 'react';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import {
   $getSelection,
@@ -21,11 +20,12 @@ import {
 } from '@lexical/list';
 import { TOGGLE_LINK_COMMAND } from '@lexical/link';
 import { $setBlocksType } from '@lexical/selection';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
 
 export function useEditor() {
   const [editor] = useLexicalComposerContext();
 
-  const formatText = React.useCallback((format: TextFormatType) => {
+  const formatText = useStableCallback((format: TextFormatType) => {
     // Ensure the editor retains focus so selection is available
     editor.focus();
 
@@ -52,19 +52,19 @@ export function useEditor() {
 
     // Toggle the requested format last
     editor.dispatchCommand(FORMAT_TEXT_COMMAND, format);
-  }, [editor]);
+  });
 
-  const undo = React.useCallback(() => {
+  const undo = useStableCallback(() => {
     editor.focus();
     editor.dispatchCommand(UNDO_COMMAND, undefined);
-  }, [editor]);
+  });
 
-  const redo = React.useCallback(() => {
+  const redo = useStableCallback(() => {
     editor.focus();
     editor.dispatchCommand(REDO_COMMAND, undefined);
-  }, [editor]);
+  });
 
-  const toggleBlock = React.useCallback((type: 'h1' | 'h2' | 'quote' | 'paragraph') => {
+  const toggleBlock = useStableCallback((type: 'h1' | 'h2' | 'quote' | 'paragraph') => {
     editor.focus();
     editor.update(() => {
       const selection = $getSelection();
@@ -76,26 +76,26 @@ export function useEditor() {
         $setBlocksType(selection, () => $createParagraphNode());
       }
     });
-  }, [editor]);
+  });
 
-  const toggleList = React.useCallback((type: 'ul' | 'ol') => {
+  const toggleList = useStableCallback((type: 'ul' | 'ol') => {
     editor.focus();
     if (type === 'ul') {
       editor.dispatchCommand(INSERT_UNORDERED_LIST_COMMAND, undefined);
     } else {
       editor.dispatchCommand(INSERT_ORDERED_LIST_COMMAND, undefined);
     }
-  }, [editor]);
+  });
 
-  const removeList = React.useCallback(() => {
+  const removeList = useStableCallback(() => {
     editor.focus();
     editor.dispatchCommand(REMOVE_LIST_COMMAND, undefined);
-  }, [editor]);
+  });
 
-  const toggleLink = React.useCallback((url: string | null) => {
+  const toggleLink = useStableCallback((url: string | null) => {
     editor.focus();
     editor.dispatchCommand(TOGGLE_LINK_COMMAND, url);
-  }, [editor]);
+  });
 
   return {
     editor,

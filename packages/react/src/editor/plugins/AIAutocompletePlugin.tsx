@@ -16,6 +16,7 @@ import {
   $createTextNode,
 } from 'lexical';
 import { mergeRegister } from '@lexical/utils';
+import { useTimeout } from '@base-ui/utils/useTimeout';
 
 export type SerializedAICompletionNode = SerializedLexicalNode & {
   completion: string;
@@ -33,7 +34,7 @@ export class AICompletionNode extends DecoratorNode<React.ReactNode> {
     return new AICompletionNode(node.completion, node.__key);
   }
 
-  constructor(completion: string, key?: NodeKey) {
+  constructor(completion: string, key?: NodeKey | undefined) {
     super(key);
     this.completion = completion;
   }
@@ -112,7 +113,7 @@ export function AIAutocompletePlugin(props: AIAutocompletePluginProps) {
   const { getCompletion, debounceMs = 500 } = props;
   const [editor] = useLexicalComposerContext();
   const [completion, setCompletion] = React.useState<string | null>(null);
-  const timeoutRef = React.useRef<NodeJS.Timeout | null>(null);
+  const completionTimeout = useTimeout();
   const completionNodeKeyRef = React.useRef<NodeKey | null>(null);
 
   const clearCompletion = React.useCallback(() => {
@@ -213,19 +214,13 @@ export function AIAutocompletePlugin(props: AIAutocompletePluginProps) {
     return mergeRegister(
       editor.registerUpdateListener((payload) => {
         const { dirtyElements } = payload;
-        const dirtyNodes = (payload as any).dirtyNodes;
+        const dirtyNodes = (payload as { dirtyNodes?: Map<string, unknown> | undefined }).dirtyNodes;
 
         if (dirtyElements.size === 0 && (dirtyNodes?.size ?? 0) === 0) {
           return;
         }
 
-        if (timeoutRef.current) {
-          clearTimeout(timeoutRef.current);
-        }
-
-        timeoutRef.current = setTimeout(() => {
-          updateCompletion();
-        }, debounceMs);
+        completionTimeout.start(debounceMs, updateCompletion);
       }),
       editor.registerCommand(
         KEY_TAB_COMMAND,
@@ -263,7 +258,7 @@ export function AIAutocompletePlugin(props: AIAutocompletePluginProps) {
         COMMAND_PRIORITY_LOW,
       )
     );
-  }, [editor, completion, debounceMs, updateCompletion, clearCompletion]);
+  }, [editor, completion, debounceMs, updateCompletion, clearCompletion, completionTimeout]);
 
   return null;
 }

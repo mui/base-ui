@@ -44,7 +44,7 @@ const defaultRules: SerializerRuleSets = {
   },
 };
 
-export function createSerializerRegistry(initial?: Partial<SerializerRuleSets>): SerializerRegistry {
+export function createSerializerRegistry(initial?: Partial<SerializerRuleSets> | undefined): SerializerRegistry {
   const rules: SerializerRuleSets = {
     nodes: { ...defaultRules.nodes, ...initial?.nodes },
     marks: { ...defaultRules.marks, ...initial?.marks },

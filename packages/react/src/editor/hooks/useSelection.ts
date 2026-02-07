@@ -16,6 +16,7 @@ import { $getNearestNodeOfType, mergeRegister } from '@lexical/utils';
 import { $isHeadingNode, HeadingNode } from '@lexical/rich-text';
 import { $isListNode, ListNode } from '@lexical/list';
 import { $isLinkNode, LinkNode } from '@lexical/link';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
 
 export function useSelection() {
   const [editor] = useLexicalComposerContext();
@@ -29,7 +30,7 @@ export function useSelection() {
   const [isLink, setIsLink] = React.useState(false);
   const [linkUrl, setLinkUrl] = React.useState('');
 
-  const updateToolbar = React.useCallback(() => {
+  const updateToolbar = useStableCallback(() => {
     const selection = $getSelection();
     if ($isRangeSelection(selection)) {
       setIsBold(selection.hasFormat('bold'));
@@ -71,7 +72,7 @@ export function useSelection() {
         }
       }
     }
-  }, [editor]);
+  });
 
   React.useEffect(() => {
     return mergeRegister(
