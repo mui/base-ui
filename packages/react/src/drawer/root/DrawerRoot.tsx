@@ -19,6 +19,8 @@ import {
 import { REASONS } from '../../utils/reasons';
 import { useDialogRootContext } from '../../dialog/root/DialogRootContext';
 import { useDrawerProviderContext } from '../provider/DrawerProviderContext';
+import type { DialogHandle } from '../../dialog/store/DialogHandle';
+import type { PayloadChildRenderFunction } from '../../utils/popups';
 
 /**
  * Groups all parts of the drawer.
@@ -26,7 +28,7 @@ import { useDrawerProviderContext } from '../provider/DrawerProviderContext';
  *
  * Documentation: [Base UI Drawer](https://base-ui.com/react/components/drawer)
  */
-export function DrawerRoot(props: DrawerRoot.Props) {
+export function DrawerRoot<Payload = unknown>(props: DrawerRoot.Props<Payload>) {
   const {
     children,
     open: openProp,
@@ -36,6 +38,9 @@ export function DrawerRoot(props: DrawerRoot.Props) {
     disablePointerDismissal = false,
     modal = true,
     actionsRef,
+    handle,
+    triggerId: triggerIdProp,
+    defaultTriggerId: defaultTriggerIdProp = null,
     swipeDirection = 'down',
     snapToSequentialPoints = false,
     snapPoints,
@@ -145,6 +150,12 @@ export function DrawerRoot(props: DrawerRoot.Props) {
 
   const handleOpenChange = useStableCallback(
     (nextOpen: boolean, eventDetails: DrawerRoot.ChangeEventDetails) => {
+      onOpenChange?.(nextOpen, eventDetails);
+
+      if (eventDetails.isCanceled) {
+        return;
+      }
+
       if (!nextOpen && snapPoints && snapPoints.length > 0) {
         setActiveSnapPoint(
           resolvedDefaultSnapPoint,
@@ -155,8 +166,6 @@ export function DrawerRoot(props: DrawerRoot.Props) {
           ),
         );
       }
-
-      onOpenChange?.(nextOpen, eventDetails);
     },
   );
 
@@ -205,6 +214,21 @@ export function DrawerRoot(props: DrawerRoot.Props) {
     ],
   );
 
+  const resolvedChildren: React.ReactNode | PayloadChildRenderFunction<Payload> =
+    typeof children === 'function' ? (
+      (payload) => (
+        <React.Fragment>
+          <DrawerProviderReporter />
+          {children(payload)}
+        </React.Fragment>
+      )
+    ) : (
+      <React.Fragment>
+        <DrawerProviderReporter />
+        {children}
+      </React.Fragment>
+    );
+
   return (
     <DrawerRootContext.Provider value={contextValue}>
       <Dialog.Root
@@ -215,15 +239,17 @@ export function DrawerRoot(props: DrawerRoot.Props) {
         disablePointerDismissal={disablePointerDismissal}
         modal={modal}
         actionsRef={actionsRef}
+        handle={handle}
+        triggerId={triggerIdProp}
+        defaultTriggerId={defaultTriggerIdProp}
       >
-        <DrawerProviderReporter />
-        {children}
+        {resolvedChildren}
       </Dialog.Root>
     </DrawerRootContext.Provider>
   );
 }
 
-export interface DrawerRootProps {
+export interface DrawerRootProps<Payload = unknown> {
   /**
    * Whether the drawer is currently open.
    */
@@ -265,9 +291,26 @@ export interface DrawerRootProps {
    */
   actionsRef?: React.RefObject<DrawerRoot.Actions> | undefined;
   /**
+   * A handle to associate the drawer with a trigger.
+   * If specified, allows detached triggers to control the drawer's open state.
+   * Can be created with the Drawer.createHandle() method.
+   */
+  handle?: DialogHandle<Payload> | undefined;
+  /**
+   * ID of the trigger that the drawer is associated with.
+   * This is useful in conjunction with the `open` prop to create a controlled drawer.
+   * There's no need to specify this prop when the drawer is uncontrolled (i.e. when the `open` prop is not set).
+   */
+  triggerId?: (string | null) | undefined;
+  /**
+   * ID of the trigger that the drawer is associated with.
+   * This is useful in conjunction with the `defaultOpen` prop to create an initially open drawer.
+   */
+  defaultTriggerId?: (string | null) | undefined;
+  /**
    * The content of the drawer.
    */
-  children?: React.ReactNode;
+  children?: React.ReactNode | PayloadChildRenderFunction<Payload>;
   /**
    * The swipe direction used to dismiss the drawer.
    * @default 'down'
@@ -330,13 +373,43 @@ export type DrawerRootSnapPointChangeEventDetails =
   BaseUIChangeEventDetails<DrawerRootSnapPointChangeEventReason>;
 
 export namespace DrawerRoot {
-  export type Props = DrawerRootProps;
+  export type Props<Payload = unknown> = DrawerRootProps<Payload>;
   export type Actions = DrawerRootActions;
   export type ChangeEventReason = DrawerRootChangeEventReason;
   export type ChangeEventDetails = DrawerRootChangeEventDetails;
   export type SnapPointChangeEventReason = DrawerRootSnapPointChangeEventReason;
   export type SnapPointChangeEventDetails = DrawerRootSnapPointChangeEventDetails;
   export type SnapPoint = DrawerSnapPoint;
+}
+
+interface NestedSwipeProgressStore extends DrawerNestedSwipeProgressStore {
+  set: (progress: number) => void;
+}
+
+function createNestedSwipeProgressStore(): NestedSwipeProgressStore {
+  let progress = 0;
+  const listeners = new Set<() => void>();
+
+  return {
+    getSnapshot: () => progress,
+    set(nextProgress) {
+      const resolved = Number.isFinite(nextProgress) ? nextProgress : 0;
+      if (resolved === progress) {
+        return;
+      }
+
+      progress = resolved;
+      listeners.forEach((listener) => {
+        listener();
+      });
+    },
+    subscribe(listener) {
+      listeners.add(listener);
+      return () => {
+        listeners.delete(listener);
+      };
+    },
+  };
 }
 
 function DrawerProviderReporter() {
@@ -398,33 +471,4 @@ function DrawerProviderReporter() {
   }, [dialogRootContext.store, isTopmost, open, popupElement]);
 
   return null;
-}
-
-interface NestedSwipeProgressStore extends DrawerNestedSwipeProgressStore {
-  set: (progress: number) => void;
-}
-
-function createNestedSwipeProgressStore(): NestedSwipeProgressStore {
-  let progress = 0;
-  const listeners = new Set<() => void>();
-
-  return {
-    getSnapshot: () => progress,
-    set(nextProgress) {
-      const resolved = Number.isFinite(nextProgress) ? nextProgress : 0;
-      if (resolved === progress) {
-        return;
-      }
-      progress = resolved;
-      listeners.forEach((listener) => {
-        listener();
-      });
-    },
-    subscribe(listener) {
-      listeners.add(listener);
-      return () => {
-        listeners.delete(listener);
-      };
-    },
-  };
 }

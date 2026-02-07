@@ -126,8 +126,8 @@ export function useSwipeDismiss(options: useSwipeDismiss.Options): useSwipeDismi
     onDismiss,
     onProgress,
     onSwipeStart,
-    onTouchSwipeStart,
     onRelease,
+    onSwipingChange,
     trackDrag = true,
   } = options;
 
@@ -188,9 +188,21 @@ export function useSwipeDismiss(options: useSwipeDismiss.Options): useSwipeDismi
   const lastDragSampleRef = React.useRef<{ x: number; y: number; time: number } | null>(null);
   const lastDragVelocityRef = React.useRef({ x: 0, y: 0 });
   const lastProgressDetailsRef = React.useRef<SwipeProgressDetailsInternal | null>(null);
+  const isSwipingRef = React.useRef(false);
 
   const onProgressStable = useStableCallback(onProgress);
   const onReleaseStable = useStableCallback(onRelease);
+  const onSwipingChangeStable = useStableCallback(onSwipingChange);
+
+  const setSwiping = useStableCallback((nextSwiping: boolean) => {
+    if (isSwipingRef.current === nextSwiping) {
+      return;
+    }
+
+    isSwipingRef.current = nextSwiping;
+    setIsSwiping(nextSwiping);
+    onSwipingChangeStable(nextSwiping);
+  });
 
   const resolveSwipeThreshold = useStableCallback((direction: SwipeDirection | undefined) => {
     if (!direction) {
@@ -261,7 +273,7 @@ export function useSwipeDismiss(options: useSwipeDismiss.Options): useSwipeDismi
 
   const reset = React.useCallback(() => {
     setCurrentSwipeDirection(undefined);
-    setIsSwiping(false);
+    setSwiping(false);
     setIsRealSwipe(false);
     setDragDismissed(false);
     setDragOffset({ x: 0, y: 0 });
@@ -287,7 +299,7 @@ export function useSwipeDismiss(options: useSwipeDismiss.Options): useSwipeDismi
     lastDragSampleRef.current = null;
     lastDragVelocityRef.current = { x: 0, y: 0 };
     lastProgressDetailsRef.current = null;
-  }, [swipeThresholdDefault, updateSwipeProgress]);
+  }, [setSwiping, swipeThresholdDefault, updateSwipeProgress]);
 
   React.useEffect(() => {
     if (typeof swipeThresholdProp !== 'function') {
@@ -361,10 +373,6 @@ export function useSwipeDismiss(options: useSwipeDismiss.Options): useSwipeDismi
         }
       }
 
-      if (touchLike) {
-        onTouchSwipeStart?.(event.nativeEvent as SwipeDismissNativeEvent);
-      }
-
       cancelledSwipeRef.current = false;
       intendedSwipeDirectionRef.current = undefined;
       maxSwipeDisplacementRef.current = 0;
@@ -391,7 +399,7 @@ export function useSwipeDismiss(options: useSwipeDismiss.Options): useSwipeDismi
 
       onSwipeStart?.(event.nativeEvent as SwipeDismissNativeEvent);
 
-      setIsSwiping(true);
+      setSwiping(true);
       setIsRealSwipe(false);
       setLockedDirection(null);
       isFirstPointerMoveRef.current = true;
@@ -772,7 +780,7 @@ export function useSwipeDismiss(options: useSwipeDismiss.Options): useSwipeDismi
       }
     }
 
-    setIsSwiping(false);
+    setSwiping(false);
     setIsRealSwipe(false);
     setLockedDirection(null);
 
@@ -1010,8 +1018,11 @@ export namespace useSwipeDismiss {
      */
     trackDrag?: boolean | undefined;
     onSwipeStart?: ((event: PointerEvent | TouchEvent) => void) | undefined;
-    onTouchSwipeStart?: ((event: PointerEvent | TouchEvent) => void) | undefined;
     onProgress?: ((progress: number, details?: SwipeProgressDetailsInternal) => void) | undefined;
+    /**
+     * Called when the swipe interaction starts or ends.
+     */
+    onSwipingChange?: ((swiping: boolean) => void) | undefined;
     /**
      * Called when the swipe interaction ends. Returning `true` or `false`
      * overrides the default dismissal behavior.

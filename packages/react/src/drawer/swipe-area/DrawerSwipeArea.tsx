@@ -121,51 +121,7 @@ export const DrawerSwipeArea = React.forwardRef(function DrawerSwipeArea(
     const transform = getElementTransform(popupElement);
     const transformOffset = isHorizontal ? transform.x : transform.y;
     if (Number.isFinite(transformOffset) && Math.abs(transformOffset) > 0.5) {
-      const displacement = getDisplacement(
-        resolvedSwipeDirection,
-        dragDeltaRef.current.x,
-        dragDeltaRef.current.y,
-      );
-      const adjustedOffset = Math.abs(transformOffset) + Math.max(0, displacement);
-      return Math.min(offset, adjustedOffset);
-    }
-
-    const viewport =
-      store.select('viewportElement') ?? popupElement.ownerDocument?.documentElement ?? null;
-    if (!viewport || typeof viewport.getBoundingClientRect !== 'function') {
-      return offset;
-    }
-
-    const popupRect = popupElement.getBoundingClientRect();
-    const viewportRect = viewport.getBoundingClientRect();
-    let overlap = 0;
-
-    switch (dismissDirection) {
-      case 'right':
-        overlap = popupRect.right - viewportRect.right;
-        break;
-      case 'left':
-        overlap = viewportRect.left - popupRect.left;
-        break;
-      case 'down':
-        overlap = popupRect.bottom - viewportRect.bottom;
-        break;
-      case 'up':
-        overlap = viewportRect.top - popupRect.top;
-        break;
-      default:
-        overlap = 0;
-        break;
-    }
-
-    if (!Number.isFinite(overlap)) {
-      return offset;
-    }
-
-    const resolvedOverlap = Math.max(0, overlap);
-    const resolvedOffset = offset - resolvedOverlap;
-    if (resolvedOffset > 0) {
-      return resolvedOffset;
+      return Math.min(offset, Math.abs(transformOffset));
     }
 
     return offset;

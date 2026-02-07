@@ -1,5 +1,5 @@
 'use client';
-import * as React from 'react';
+import type * as React from 'react';
 import { DialogTrigger } from '../../dialog/trigger/DialogTrigger';
 import type { DialogTriggerProps } from '../../dialog/trigger/DialogTrigger';
 
@@ -9,20 +9,19 @@ import type { DialogTriggerProps } from '../../dialog/trigger/DialogTrigger';
  *
  * Documentation: [Base UI Drawer](https://base-ui.com/react/components/drawer)
  */
-export const DrawerTrigger = React.forwardRef(function DrawerTrigger(
-  componentProps: DrawerTrigger.Props,
-  forwardedRef: React.ForwardedRef<HTMLButtonElement>,
-) {
-  return (
-    <DialogTrigger {...componentProps} payload={undefined} handle={undefined} ref={forwardedRef} />
-  );
-});
+export const DrawerTrigger = DialogTrigger as DrawerTrigger;
 
 export type DrawerTriggerState = DialogTrigger.State;
 
-export interface DrawerTriggerProps extends Omit<DialogTriggerProps<never>, 'payload' | 'handle'> {}
+export interface DrawerTrigger {
+  <Payload>(
+    componentProps: DrawerTriggerProps<Payload> & React.RefAttributes<HTMLElement>,
+  ): React.JSX.Element;
+}
+
+export type DrawerTriggerProps<Payload = unknown> = DialogTriggerProps<Payload>;
 
 export namespace DrawerTrigger {
-  export type Props = DrawerTriggerProps;
+  export type Props<Payload = unknown> = DrawerTriggerProps<Payload>;
   export type State = DrawerTriggerState;
 }

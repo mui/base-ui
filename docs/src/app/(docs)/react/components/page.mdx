@@ -475,6 +475,7 @@ A panel that slides in from the edge of the screen.
   - Examples
     - State
     - Position
+    - Detached triggers
     - Nested drawers
     - Snap points
     - Indent effect
@@ -485,7 +486,7 @@ A panel that slides in from the edge of the screen.
   - API reference
 - Exports:
   - Drawer - Root
-    - Props: actionsRef, children, defaultOpen, defaultSnapPoint, disablePointerDismissal, modal, onOpenChange, onOpenChangeComplete, onSnapPointChange, open, snapPoint, snapPoints, snapToSequentialPoints, swipeDirection
+    - Props: actionsRef, children, defaultOpen, defaultSnapPoint, defaultTriggerId, disablePointerDismissal, handle, modal, onOpenChange, onOpenChangeComplete, onSnapPointChange, open, snapPoint, snapPoints, snapToSequentialPoints, swipeDirection, triggerId
   - Drawer - Provider
     - Props: children
   - Drawer - Indent
@@ -493,7 +494,7 @@ A panel that slides in from the edge of the screen.
   - Drawer - IndentBackground
     - Props: className, render, style
   - Drawer - Trigger
-    - Props: className, id, nativeButton, render, style
+    - Props: className, handle, id, nativeButton, payload, render, style
   - Drawer - Portal
     - Props: className, container, keepMounted, render, style
   - Drawer - Popup

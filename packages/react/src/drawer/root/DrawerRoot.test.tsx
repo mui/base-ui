@@ -443,6 +443,40 @@ function SnapPointChangeDetailsCase({
   );
 }
 
+function CanceledCloseSnapPointResetCase() {
+  const snapPoints = ['100px', '300px', 1];
+  const [open, setOpen] = React.useState(true);
+  const [snapPoint, setSnapPoint] = React.useState<Drawer.Root.SnapPoint | null>(snapPoints[2]);
+
+  return (
+    <div>
+      <div data-testid="active-snap">{String(snapPoint)}</div>
+      <Drawer.Root
+        open={open}
+        onOpenChange={(nextOpen, eventDetails) => {
+          if (!nextOpen) {
+            eventDetails.cancel();
+          } else {
+            setOpen(nextOpen);
+          }
+        }}
+        snapPoints={snapPoints}
+        snapPoint={snapPoint}
+        onSnapPointChange={setSnapPoint}
+      >
+        <Drawer.Portal>
+          <Drawer.Viewport data-testid="viewport">
+            <Drawer.Popup data-testid="popup">
+              Drawer
+              <Drawer.Close data-testid="close">Close</Drawer.Close>
+            </Drawer.Popup>
+          </Drawer.Viewport>
+        </Drawer.Portal>
+      </Drawer.Root>
+    </div>
+  );
+}
+
 function SnapPointSwipeCase({ onOpenChange }: { onOpenChange: (open: boolean) => void }) {
   const snapPoints = ['100px', '300px', 1];
   const [open, setOpen] = React.useState(true);
@@ -555,6 +589,48 @@ describe('<Drawer.Root />', () => {
     }
   });
 
+  it('supports detached triggers with handles', async () => {
+    const handle = Drawer.createHandle<number>();
+
+    await render(
+      <div>
+        <Drawer.Trigger handle={handle} payload={1}>
+          Trigger 1
+        </Drawer.Trigger>
+        <Drawer.Trigger handle={handle} payload={2}>
+          Trigger 2
+        </Drawer.Trigger>
+        <Drawer.Root handle={handle}>
+          {({ payload }: { payload: number | undefined }) => (
+            <Drawer.Portal>
+              <Drawer.Viewport>
+                <Drawer.Popup>
+                  <span data-testid="payload">{payload}</span>
+                  <Drawer.Close>Close</Drawer.Close>
+                </Drawer.Popup>
+              </Drawer.Viewport>
+            </Drawer.Portal>
+          )}
+        </Drawer.Root>
+      </div>,
+    );
+
+    await flushMicrotasks();
+    expect(screen.queryByTestId('payload')).toBeNull();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Trigger 1' }));
+    await flushMicrotasks();
+    expect(screen.getByTestId('payload').textContent).toBe('1');
+
+    fireEvent.click(screen.getByText('Close'));
+    await flushMicrotasks();
+    expect(screen.queryByTestId('payload')).toBeNull();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Trigger 2' }));
+    await flushMicrotasks();
+    expect(screen.getByTestId('payload').textContent).toBe('2');
+  });
+
   it('resets the active snap point when closing', async () => {
     await render(<SnapPointResetCase />);
     await flushMicrotasks();
@@ -594,6 +670,18 @@ describe('<Drawer.Root />', () => {
     expect(handleSnapPointChange).toHaveBeenCalled();
     const [, eventDetails] = handleSnapPointChange.mock.calls[0];
     expect(eventDetails.reason).toBe(REASONS.closePress);
+  });
+
+  it('does not reset snap point when a close is canceled', async () => {
+    await render(<CanceledCloseSnapPointResetCase />);
+    await flushMicrotasks();
+
+    expect(screen.getByTestId('active-snap').textContent).toBe('1');
+
+    fireEvent.click(screen.getByTestId('close'));
+    await flushMicrotasks();
+
+    expect(screen.getByTestId('active-snap').textContent).toBe('1');
   });
 
   it.skipIf(isJSDOM)(

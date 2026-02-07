@@ -86,12 +86,57 @@ return (
 Positioning is handled by your styles. `swipeDirection` defaults to `"down"` for bottom sheets. Use `"up"`, `"left"`, or `"right"` for other drawer positions.
 
 ```tsx title="Swipe directions"
-<Drawer.Root swipeDirection="top">
+<Drawer.Root swipeDirection="up">
 ```
 
 import { DemoDrawerPosition } from './demos/position';
 
 <DemoDrawerPosition />
+
+### Detached triggers
+
+A drawer can be controlled by a trigger located either inside or outside the `<Drawer.Root>` component.
+For simple, one-off interactions, place the `<Drawer.Trigger>` inside `<Drawer.Root>`, as shown in the example above.
+
+However, if defining the drawer's content next to its trigger is not practical, you can use a detached trigger.
+This involves placing the `<Drawer.Trigger>` outside of `<Drawer.Root>` and linking them with a `handle` created by the `Drawer.createHandle()` function.
+
+```jsx title="Detached triggers"
+const demoDrawer = Drawer.createHandle();
+
+<Drawer.Trigger handle={demoDrawer}>Open</Drawer.Trigger>
+
+<Drawer.Root handle={demoDrawer}>
+  ...
+</Drawer.Root>
+```
+
+The drawer can render different content depending on which trigger opened it.
+This is achieved by passing a `payload` to the `<Drawer.Trigger>` and using the function-as-a-child pattern in `<Drawer.Root>`.
+
+```jsx title="Detached triggers with payload"
+const demoDrawer = Drawer.createHandle<{ title: string }>();
+
+<Drawer.Trigger handle={demoDrawer} payload={{ title: 'Profile' }}>
+  Profile
+</Drawer.Trigger>
+
+<Drawer.Trigger handle={demoDrawer} payload={{ title: 'Settings' }}>
+  Settings
+</Drawer.Trigger>
+
+<Drawer.Root handle={demoDrawer}>
+  {({ payload }) => (
+    <Drawer.Portal>
+      <Drawer.Popup>
+        <Drawer.Content>
+          <Drawer.Title>{payload?.title}</Drawer.Title>
+        </Drawer.Content>
+      </Drawer.Popup>
+    </Drawer.Portal>
+  )}
+</Drawer.Root>
+```
 
 ### Nested drawers
 
@@ -163,7 +208,7 @@ import { DemoDrawerMobileNav } from './demos/mobile-nav';
 
 ### Swipe to open
 
-Place `<Drawer.SwipeArea>` along the edge of the viewport to enable swipe-to-open gestures.
+Place `<Drawer.SwipeArea>` along the edge of the viewport to enable swipe-to-open gestures. The drawer stays open on release once the swipe covers roughly half its size (minimum 40px).
 
 import { DemoDrawerSwipeArea } from './demos/swipe-area';
 

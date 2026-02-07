@@ -43,11 +43,21 @@
       "description": "A ref to imperative actions.\n- `unmount`: When specified, the drawer will not be unmounted when closed.\nInstead, the `unmount` function must be called to unmount the drawer manually.\nUseful when the drawer's animation is controlled by an external library.\n- `close`: Closes the drawer imperatively when called.",
       "detailedType": "React.RefObject<Drawer.Root.Actions> | undefined"
     },
+    "defaultTriggerId": {
+      "type": "string | null",
+      "description": "ID of the trigger that the drawer is associated with.\nThis is useful in conjunction with the `defaultOpen` prop to create an initially open drawer.",
+      "detailedType": "string | null | undefined"
+    },
     "disablePointerDismissal": {
       "type": "boolean",
       "default": "false",
       "description": "Determines whether the drawer should close on outside clicks.",
       "detailedType": "boolean | undefined"
+    },
+    "handle": {
+      "type": "Drawer.Handle<Payload>",
+      "description": "A handle to associate the drawer with a trigger.\nIf specified, allows detached triggers to control the drawer's open state.\nCan be created with the Drawer.createHandle() method.",
+      "detailedType": "{} | undefined"
     },
     "modal": {
       "type": "boolean | 'trap-focus'",
@@ -72,10 +82,15 @@
       "description": "The swipe direction used to dismiss the drawer.",
       "detailedType": "'up' | 'down' | 'left' | 'right' | undefined"
     },
+    "triggerId": {
+      "type": "string | null",
+      "description": "ID of the trigger that the drawer is associated with.\nThis is useful in conjunction with the `open` prop to create a controlled drawer.\nThere's no need to specify this prop when the drawer is uncontrolled (i.e. when the `open` prop is not set).",
+      "detailedType": "string | null | undefined"
+    },
     "children": {
-      "type": "ReactNode",
+      "type": "ReactNode | PayloadChildRenderFunction<Payload>",
       "description": "The content of the drawer.",
-      "detailedType": "React.ReactNode"
+      "detailedType": "| React.ReactNode\n| ((arg: { payload: Payload | undefined }) => ReactNode)"
     }
   },
   "dataAttributes": {},

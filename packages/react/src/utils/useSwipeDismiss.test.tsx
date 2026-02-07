@@ -441,6 +441,60 @@ describe('useSwipeDismiss', () => {
     expect(onDismiss).toHaveBeenCalled();
   });
 
+  it('fires onSwipingChange on start and end', async () => {
+    const onSwipingChange = vi.fn();
+
+    function SwipeBoxSwipingChange() {
+      const ref = React.useRef<HTMLDivElement>(null);
+      const swipe = useSwipeDismiss({
+        enabled: true,
+        directions: ['down'],
+        elementRef: ref,
+        movementCssVars: { x: '--x', y: '--y' },
+        onSwipingChange,
+      });
+
+      return (
+        <div
+          data-testid="swiping"
+          ref={ref}
+          style={swipe.getDragStyles()}
+          {...swipe.getPointerProps()}
+        />
+      );
+    }
+
+    await render(<SwipeBoxSwipingChange />);
+    const element = screen.getByTestId('swiping');
+
+    fireEvent.pointerDown(element, {
+      button: 0,
+      buttons: 1,
+      pointerId: 1,
+      clientX: 0,
+      clientY: 0,
+      bubbles: true,
+      pointerType: 'mouse',
+      movementX: 0,
+      movementY: 0,
+    });
+
+    await flushMicrotasks();
+
+    fireEvent.pointerUp(element, {
+      pointerId: 1,
+      clientX: 0,
+      clientY: 0,
+      bubbles: true,
+    });
+
+    await flushMicrotasks();
+
+    expect(onSwipingChange).toHaveBeenCalledTimes(2);
+    expect(onSwipingChange).toHaveBeenNthCalledWith(1, true);
+    expect(onSwipingChange).toHaveBeenLastCalledWith(false);
+  });
+
   it('allows onRelease to override dismissal', async () => {
     const onDismiss = vi.fn();
     const onRelease = vi.fn(() => false);

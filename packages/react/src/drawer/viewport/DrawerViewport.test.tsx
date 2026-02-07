@@ -286,6 +286,47 @@ describe('<Drawer.Viewport />', () => {
     expect(prevented).toBe(false);
   });
 
+  it('prevents touchmove at scroll bottom when swiping up on scrollable content', async () => {
+    await render(
+      <Drawer.Root open swipeDirection="up">
+        <Drawer.Portal>
+          <Drawer.Viewport>
+            <Drawer.Popup>
+              <div data-testid="scroll" style={{ overflowY: 'auto', maxHeight: 40 }}>
+                <div style={{ height: 120 }}>Scrollable content</div>
+              </div>
+            </Drawer.Popup>
+          </Drawer.Viewport>
+        </Drawer.Portal>
+      </Drawer.Root>,
+    );
+
+    const scroll = screen.getByTestId('scroll');
+    Object.defineProperty(scroll, 'scrollHeight', { value: 120, configurable: true });
+    Object.defineProperty(scroll, 'clientHeight', { value: 40, configurable: true });
+    scroll.scrollTop = 80;
+
+    fireEvent.touchStart(scroll, {
+      touches: [
+        createTouch(scroll, {
+          clientX: 0,
+          clientY: 20,
+        }),
+      ],
+    });
+
+    const prevented = fireEvent.touchMove(scroll, {
+      touches: [
+        createTouch(scroll, {
+          clientX: 0,
+          clientY: 10,
+        }),
+      ],
+    });
+
+    expect(prevented).toBe(false);
+  });
+
   it('prevents touchmove when a scrollable ancestor wraps the popup at the top', async () => {
     await render(
       <Drawer.Root open swipeDirection="down">
