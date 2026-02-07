@@ -14,6 +14,8 @@ import {
   SerializedLexicalNode,
   $getNodeByKey,
   $createTextNode,
+  LexicalEditor,
+  EditorConfig,
 } from 'lexical';
 import { mergeRegister } from '@lexical/utils';
 import { useTimeout } from '@base-ui/utils/useTimeout';
@@ -57,17 +59,9 @@ export class AICompletionNode extends DecoratorNode<React.ReactNode> {
     return false;
   }
 
-  decorate(): React.ReactNode {
+  decorate(editor: LexicalEditor, config: EditorConfig): React.ReactNode {
     return (
-      <span
-        style={{
-          color: 'var(--color-gray-400)',
-          whiteSpace: 'pre-wrap',
-          pointerEvents: 'none',
-          userSelect: 'none',
-          fontStyle: 'italic',
-        }}
-      >
+      <span className={config.theme.aiCompletion}>
         {this.completion}
       </span>
     );

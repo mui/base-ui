@@ -9,9 +9,21 @@ import {
   REDO_COMMAND,
 } from 'lexical';
 import { mergeRegister } from '@lexical/utils';
+import { useEditorContext } from '../root/Editor';
 
 export function KeyboardShortcutsPlugin() {
   const [editor] = useLexicalComposerContext();
+  const { enabledFormats } = useEditorContext();
+
+  const isEnabled = React.useCallback(
+    (format: string) => {
+      if (!enabledFormats) {
+        return true;
+      }
+      return enabledFormats.includes(format);
+    },
+    [enabledFormats],
+  );
 
   React.useEffect(() => {
     return mergeRegister(
@@ -23,38 +35,41 @@ export function KeyboardShortcutsPlugin() {
 
           if (isModifier) {
             const lowerKey = key.toLowerCase();
-            if (lowerKey === 'b') {
+            if (lowerKey === 'b' && isEnabled('bold')) {
               event.preventDefault();
               editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'bold');
               return true;
             }
-            if (lowerKey === 'i') {
+            if (lowerKey === 'i' && isEnabled('italic')) {
               event.preventDefault();
               editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'italic');
               return true;
             }
-            if (lowerKey === 'u') {
+            if (lowerKey === 'u' && isEnabled('underline')) {
               event.preventDefault();
               editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'underline');
               return true;
             }
-            if (lowerKey === 'z') {
+            if (lowerKey === 'z' && isEnabled('undo')) {
               event.preventDefault();
               if (event.shiftKey) {
-                editor.dispatchCommand(REDO_COMMAND, undefined);
+                if (isEnabled('redo')) {
+                  editor.dispatchCommand(REDO_COMMAND, undefined);
+                }
               } else {
                 editor.dispatchCommand(UNDO_COMMAND, undefined);
               }
               return true;
             }
-            if (lowerKey === 'y') {
+            if (lowerKey === 'y' && isEnabled('redo')) {
               event.preventDefault();
               editor.dispatchCommand(REDO_COMMAND, undefined);
               return true;
             }
-            if (lowerKey === 'k') {
+            if (lowerKey === 'k' && isEnabled('link')) {
               event.preventDefault();
-              // Link insertion will be handled in a later task
+              // Link insertion is currently handled via the toolbar popover.
+              // In the future, we could trigger the popover from here.
               return true;
             }
           }
@@ -63,7 +78,7 @@ export function KeyboardShortcutsPlugin() {
         COMMAND_PRIORITY_EDITOR,
       ),
     );
-  }, [editor]);
+  }, [editor, isEnabled]);
 
   return null;
 }

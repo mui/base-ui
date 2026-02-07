@@ -12,6 +12,7 @@ import { DemoEditorHero } from './demos/hero';
 import { DemoEditorToolbar } from './demos/toolbar';
 import { DemoEditorAICompletion } from './demos/ai-completion';
 import { DemoEditorFloatingToolbar } from './demos/floating-toolbar';
+import { DemoEditorCustomization } from './demos/customization';
 
 <DemoEditorHero />
 
@@ -83,3 +84,19 @@ To enable AI completions, provide an `ai` object to the `Editor`:
   }}
 />
 ```
+
+### Customization
+
+You can restrict the available formatting options using the `enabledFormats` prop. This affects both the `Editor.Toolbar` and the built-in keyboard shortcuts.
+
+<DemoEditorCustomization />
+
+```jsx
+<Editor
+  enabledFormats={['bold', 'italic', 'undo', 'redo']}
+>
+  <Editor.Toolbar />
+</Editor>
+```
+
+You can also register custom Lexical nodes via the `nodes` prop for advanced customization.

@@ -3,6 +3,7 @@
 import * as React from 'react';
 import clsx from 'clsx';
 import type { EditorState, SerializedEditorState } from 'lexical';
+import type { InitialConfigType } from '@lexical/react/LexicalComposer';
 import { RichTextPlugin } from '@lexical/react/LexicalRichTextPlugin';
 import { HistoryPlugin } from '@lexical/react/LexicalHistoryPlugin';
 import { ListPlugin } from '@lexical/react/LexicalListPlugin';
@@ -10,9 +11,23 @@ import { LinkPlugin } from '@lexical/react/LexicalLinkPlugin';
 import { LexicalErrorBoundary } from '@lexical/react/LexicalErrorBoundary';
 import { OnChangePlugin } from '@lexical/react/LexicalOnChangePlugin';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
+import {
+  HeadingNode,
+  QuoteNode,
+} from '@lexical/rich-text';
+import {
+  ListNode,
+  ListItemNode,
+} from '@lexical/list';
+import { LinkNode } from '@lexical/link';
+import {
+  CodeNode,
+  CodeHighlightNode,
+} from '@lexical/code';
 import { EditorContentEditable } from '../content-editable/EditorContentEditable';
 import { KeyboardShortcutsPlugin } from '../plugins/KeyboardShortcutsPlugin';
-import { AIAutocompletePlugin } from '../plugins/AIAutocompletePlugin';
+import { AIAutocompletePlugin, AICompletionNode } from '../plugins/AIAutocompletePlugin';
+import { CodePlugin } from '../plugins/CodePlugin';
 import { EditorFloatingToolbar } from '../floating-toolbar/EditorFloatingToolbar';
 import { EditorProvider } from '../EditorProvider';
 import classes from './Editor.module.css';
@@ -36,7 +51,20 @@ export interface EditorProps {
    * Whether to enable the floating toolbar.
    */
   floatingToolbar?: boolean | undefined;
+  /**
+   * Enabled formatting options. If not provided, all options are enabled.
+   * Options: 'bold', 'italic', 'underline', 'strikethrough', 'code', 'h1', 'h2', 'quote', 'bullet', 'number', 'link', 'undo', 'redo'
+   */
+  enabledFormats?: string[] | undefined;
+  /**
+   * Additional Lexical nodes to register.
+   */
+  nodes?: InitialConfigType['nodes'] | undefined;
 }
+
+const EditorContext = React.createContext<{
+  enabledFormats?: string[] | undefined;
+}>({});
 
 function ControlledInitializer({
   value,
@@ -72,6 +100,16 @@ function ControlledInitializer({
 }
 
 const initialConfig = {
+  nodes: [
+    HeadingNode,
+    QuoteNode,
+    ListNode,
+    ListItemNode,
+    LinkNode,
+    CodeNode,
+    CodeHighlightNode,
+    AICompletionNode,
+  ],
   theme: {
     text: {
       bold: classes.textBold,
@@ -90,46 +128,102 @@ const initialConfig = {
       listitem: classes.listitem,
     },
     link: classes.link,
+    code: classes.code,
+    aiCompletion: classes.aiCompletion,
+    codeHighlight: {
+      atrule: classes.codeAtRule,
+      attr: classes.codeAttr,
+      boolean: classes.codeBoolean,
+      builtin: classes.codeBuiltin,
+      cdata: classes.codeCdata,
+      char: classes.codeChar,
+      class: classes.codeClass,
+      'class-name': classes.codeClassName,
+      comment: classes.codeComment,
+      constant: classes.codeConstant,
+      deleted: classes.codeDeleted,
+      doctype: classes.codeDoctype,
+      entity: classes.codeEntity,
+      function: classes.codeFunction,
+      important: classes.codeImportant,
+      inserted: classes.codeInserted,
+      keyword: classes.codeKeyword,
+      namespace: classes.codeNamespace,
+      number: classes.codeNumber,
+      operator: classes.codeOperator,
+      prolog: classes.codeProlog,
+      property: classes.codeProperty,
+      punctuation: classes.codePunctuation,
+      regex: classes.codeRegex,
+      selector: classes.codeSelector,
+      string: classes.codeString,
+      symbol: classes.codeSymbol,
+      tag: classes.codeTag,
+      url: classes.codeUrl,
+      variable: classes.codeVariable,
+    },
   },
 };
 
 export function Editor(props: EditorProps) {
-  const { placeholder, children, value, defaultValue, onChange, className, style, ai, floatingToolbar } = props;
+  const {
+    placeholder,
+    children,
+    value,
+    defaultValue,
+    onChange,
+    className,
+    style,
+    ai,
+    floatingToolbar,
+    enabledFormats,
+    nodes,
+  } = props;
+
+  const contextValue = React.useMemo(() => ({ enabledFormats }), [enabledFormats]);
+  const combinedInitialConfig: InitialConfigType = React.useMemo(() => {
+    return {
+      ...initialConfig,
+      namespace: 'Editor',
+      onError: (error: Error) => console.error(error),
+      nodes: [...(initialConfig.nodes || []), ...(nodes || [])],
+    };
+  }, [nodes]);
 
   return (
-    <EditorProvider initialConfig={initialConfig}>
-      <div className={clsx(classes.root, className)} style={style}>
-        {children}
-        <div className={classes.content}>
-          <RichTextPlugin
-            contentEditable={<EditorContentEditable />}
-            placeholder={placeholder ? <div className={classes.placeholder}>{placeholder}</div> : null}
-            ErrorBoundary={LexicalErrorBoundary}
-          />
-          {ai && (
-            <AIAutocompletePlugin
-              getCompletion={ai.getCompletion}
-              debounceMs={ai.debounceMs}
+    <EditorContext.Provider value={contextValue}>
+      <EditorProvider initialConfig={combinedInitialConfig}>
+        <div className={clsx(classes.root, className)} style={style}>
+          {children}
+          <div className={classes.content}>
+            <RichTextPlugin
+              contentEditable={<EditorContentEditable />}
+              placeholder={placeholder ? <div className={classes.placeholder}>{placeholder}</div> : null}
+              ErrorBoundary={LexicalErrorBoundary}
             />
-          )}
-          {floatingToolbar && <EditorFloatingToolbar />}
-          {(value || defaultValue) && (
-            <ControlledInitializer value={value} defaultValue={defaultValue} />
-          )}
-          {onChange && (
-            <OnChangePlugin
-              onChange={(state: EditorState) => {
-                const json = state.toJSON();
-                onChange(json);
-              }}
-            />
-          )}
+            {ai && <AIAutocompletePlugin getCompletion={ai.getCompletion} debounceMs={ai.debounceMs} />}
+            {floatingToolbar && <EditorFloatingToolbar />}
+            {(value || defaultValue) && <ControlledInitializer value={value} defaultValue={defaultValue} />}
+            {onChange && (
+              <OnChangePlugin
+                onChange={(state: EditorState) => {
+                  const json = state.toJSON();
+                  onChange(json);
+                }}
+              />
+            )}
+          </div>
+          <HistoryPlugin />
+          <ListPlugin />
+          <LinkPlugin />
+          <CodePlugin />
+          <KeyboardShortcutsPlugin />
         </div>
-        <HistoryPlugin />
-        <ListPlugin />
-        <LinkPlugin />
-        <KeyboardShortcutsPlugin />
-      </div>
-    </EditorProvider>
+      </EditorProvider>
+    </EditorContext.Provider>
   );
+}
+
+export function useEditorContext() {
+  return React.useContext(EditorContext);
 }

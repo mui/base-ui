@@ -14,6 +14,7 @@ import {
 } from 'lexical';
 import { $getNearestNodeOfType, mergeRegister } from '@lexical/utils';
 import { $isHeadingNode, HeadingNode } from '@lexical/rich-text';
+import { $isCodeNode } from '@lexical/code';
 import { $isListNode, ListNode } from '@lexical/list';
 import { $isLinkNode, LinkNode } from '@lexical/link';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
@@ -24,6 +25,7 @@ export function useSelection() {
   const [isItalic, setIsItalic] = React.useState(false);
   const [isUnderline, setIsUnderline] = React.useState(false);
   const [isStrikethrough, setIsStrikethrough] = React.useState(false);
+  const [isCode, setIsCode] = React.useState(false);
   const [canUndo, setCanUndo] = React.useState(false);
   const [canRedo, setCanRedo] = React.useState(false);
   const [blockType, setBlockType] = React.useState('paragraph');
@@ -37,6 +39,7 @@ export function useSelection() {
       setIsItalic(selection.hasFormat('italic'));
       setIsUnderline(selection.hasFormat('underline'));
       setIsStrikethrough(selection.hasFormat('strikethrough'));
+      setIsCode(selection.hasFormat('code'));
 
       const anchorNode = selection.anchor.getNode();
       const parent = anchorNode.getParent();
@@ -65,6 +68,8 @@ export function useSelection() {
           const parentList = $getNearestNodeOfType<ListNode>(anchorNode, ListNode);
           const type = parentList ? parentList.getListType() : (element as ListNode).getListType();
           setBlockType(type);
+        } else if ($isCodeNode(element)) {
+          setBlockType('code');
         } else if ($isElementNode(element)) {
           setBlockType((element as ElementNode).getType());
         } else {
@@ -113,6 +118,7 @@ export function useSelection() {
     isItalic,
     isUnderline,
     isStrikethrough,
+    isCode,
     canUndo,
     canRedo,
     blockType,

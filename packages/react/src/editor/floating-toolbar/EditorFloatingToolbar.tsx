@@ -19,9 +19,9 @@ import {
   Link as LinkIcon,
 } from 'lucide-react';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
-import { useEditor } from '../hooks/useEditor';
-import { useSelection } from '../hooks/useSelection';
 import classes from './EditorFloatingToolbar.module.css';
+import { FormatButton } from '../toolbar/components/FormatButton';
+import { LinkButton } from '../toolbar/components/LinkButton';
 
 export interface EditorFloatingToolbarProps {
   /** Optional offset in pixels applied to the toolbar position. */
@@ -31,8 +31,6 @@ export interface EditorFloatingToolbarProps {
 export function EditorFloatingToolbar(props: EditorFloatingToolbarProps) {
   const { offset = 8 } = props;
   const [editor] = useLexicalComposerContext();
-  const { commands } = useEditor();
-  const selectionState = useSelection();
 
   const [visible, setVisible] = React.useState(false);
   const [isFocused, setIsFocused] = React.useState(false);
@@ -135,61 +133,28 @@ export function EditorFloatingToolbar(props: EditorFloatingToolbarProps) {
 
   return (
     <div className={classes.root} style={style} role="toolbar" aria-label="Floating text formatting">
-      <button
-        type="button"
-        className={classes.button}
-        data-selected={selectionState.isBold}
-        onMouseDown={(event) => event.preventDefault()}
-        onClick={() => commands.formatText('bold')}
-        aria-pressed={selectionState.isBold}
-        aria-label="bold"
-      >
+      <FormatButton format="bold" className={classes.button} aria-label="bold">
         <Bold size={18} />
-      </button>
-      <button
-        type="button"
-        className={classes.button}
-        data-selected={selectionState.isItalic}
-        onMouseDown={(event) => event.preventDefault()}
-        onClick={() => commands.formatText('italic')}
-        aria-pressed={selectionState.isItalic}
-        aria-label="italic"
-      >
+      </FormatButton>
+      <FormatButton format="italic" className={classes.button} aria-label="italic">
         <Italic size={18} />
-      </button>
-      <button
-        type="button"
-        className={classes.button}
-        data-selected={selectionState.isUnderline}
-        onMouseDown={(event) => event.preventDefault()}
-        onClick={() => commands.formatText('underline')}
-        aria-pressed={selectionState.isUnderline}
-        aria-label="underline"
-      >
+      </FormatButton>
+      <FormatButton format="underline" className={classes.button} aria-label="underline">
         <Underline size={18} />
-      </button>
-      <button
-        type="button"
-        className={classes.button}
-        data-selected={selectionState.isStrikethrough}
-        onMouseDown={(event) => event.preventDefault()}
-        onClick={() => commands.formatText('strikethrough')}
-        aria-pressed={selectionState.isStrikethrough}
-        aria-label="strikethrough"
-      >
+      </FormatButton>
+      <FormatButton format="strikethrough" className={classes.button} aria-label="strikethrough">
         <Strikethrough size={18} />
-      </button>
-      <button
-        type="button"
+      </FormatButton>
+      <LinkButton
         className={classes.button}
-        data-selected={selectionState.isLink}
-        onMouseDown={(event) => event.preventDefault()}
-        onClick={() => commands.toggleLink(selectionState.isLink ? null : '')}
-        aria-pressed={selectionState.isLink}
+        popoverClassName={classes.popoverPopup}
+        formClassName={classes.linkForm}
+        inputClassName={classes.linkInput}
+        applyButtonClassName={classes.linkButton}
         aria-label="link"
       >
         <LinkIcon size={18} />
-      </button>
+      </LinkButton>
     </div>
   );
 }

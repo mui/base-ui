@@ -40,6 +40,36 @@
   text-decoration: line-through;
 }
 
+.code {
+  background-color: var(--color-gray-200);
+  padding: 0.1rem 0.3rem;
+  border-radius: 0.25rem;
+  font-family: monospace;
+  font-size: 0.9em;
+}
+
+.codeBlock {
+  background-color: var(--color-gray-100);
+  border: 1px solid var(--color-gray-200);
+  padding: 1rem;
+  border-radius: 0.5rem;
+  margin: 0.5rem 0;
+  font-family: monospace;
+  overflow-x: auto;
+}
+
+.codeComment { color: var(--color-gray-500); font-style: italic; }
+.codeKeyword { color: #d73a49; font-weight: bold; }
+.codeString { color: #032f62; }
+.codeFunction { color: #6f42c1; }
+.codeNumber { color: #005cc5; }
+.codeOperator { color: #d73a49; }
+.codePunctuation { color: var(--color-gray-600); }
+.codeAttr { color: #e36209; }
+.codeVariable { color: #e36209; }
+.codeBoolean { color: #005cc5; }
+.codeConstant { color: #005cc5; }
+
 .h1 {
   font-size: 1.5rem;
   font-weight: bold;
@@ -80,4 +110,12 @@
   color: var(--color-blue);
   text-decoration: underline;
   cursor: pointer;
+}
+
+.aiCompletion {
+  color: var(--color-gray-400);
+  white-space: pre-wrap;
+  pointer-events: none;
+  user-select: none;
+  font-style: italic;
 }

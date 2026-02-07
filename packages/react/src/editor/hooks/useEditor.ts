@@ -14,6 +14,9 @@ import {
   HeadingTagType,
 } from '@lexical/rich-text';
 import {
+  $createCodeNode,
+} from '@lexical/code';
+import {
   INSERT_ORDERED_LIST_COMMAND,
   INSERT_UNORDERED_LIST_COMMAND,
   REMOVE_LIST_COMMAND,
@@ -64,7 +67,7 @@ export function useEditor() {
     editor.dispatchCommand(REDO_COMMAND, undefined);
   });
 
-  const toggleBlock = useStableCallback((type: 'h1' | 'h2' | 'quote' | 'paragraph') => {
+  const toggleBlock = useStableCallback((type: 'h1' | 'h2' | 'quote' | 'paragraph' | 'code') => {
     editor.focus();
     editor.update(() => {
       const selection = $getSelection();
@@ -72,6 +75,8 @@ export function useEditor() {
         $setBlocksType(selection, () => $createHeadingNode(type as HeadingTagType));
       } else if (type === 'quote') {
         $setBlocksType(selection, () => $createQuoteNode());
+      } else if (type === 'code') {
+        $setBlocksType(selection, () => $createCodeNode());
       } else {
         $setBlocksType(selection, () => $createParagraphNode());
       }

@@ -499,6 +499,9 @@ importers:
       '@floating-ui/utils':
         specifier: ^0.2.10
         version: 0.2.10
+      '@lexical/code':
+        specifier: ^0.40.0
+        version: 0.40.0
       '@lexical/history':
         specifier: ^0.40.0
         version: 0.40.0

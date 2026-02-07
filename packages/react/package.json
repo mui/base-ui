@@ -88,6 +88,7 @@
     "@base-ui/utils": "workspace:*",
     "@floating-ui/react-dom": "^2.1.6",
     "@floating-ui/utils": "^0.2.10",
+    "@lexical/code": "^0.40.0",
     "@lexical/history": "^0.40.0",
     "@lexical/html": "^0.40.0",
     "@lexical/link": "^0.40.0",

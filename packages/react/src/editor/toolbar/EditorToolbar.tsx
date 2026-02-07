@@ -15,206 +15,152 @@ import {
   Heading2,
   Quote,
   Type,
+  Code,
+  SquareCode,
   List,
   ListOrdered,
   Link as LinkIcon,
   Undo2,
   Redo2,
 } from 'lucide-react';
-import { Button } from '../../button';
-import { Popover } from '../../popover';
 import classes from './EditorToolbar.module.css';
-import { useEditor } from '../hooks/useEditor';
-import { useSelection } from '../hooks/useSelection';
+import { useEditorContext } from '../root/Editor';
+import { FormatButton } from './components/FormatButton';
+import { BlockButton } from './components/BlockButton';
+import { ListButton } from './components/ListButton';
+import { LinkButton } from './components/LinkButton';
+import { HistoryButton } from './components/HistoryButton';
 
 export function EditorToolbar() {
-  const { commands } = useEditor();
-  const selection = useSelection();
-  const [linkUrl, setLinkUrl] = React.useState('');
+  const { enabledFormats } = useEditorContext();
 
-  React.useEffect(() => {
-    if (selection.isLink) {
-      setLinkUrl(selection.linkUrl);
+  const isEnabled = (format: string) => {
+    if (!enabledFormats) {
+      return true;
     }
-  }, [selection.isLink, selection.linkUrl]);
-
-  const handleLinkSubmit = (event: React.FormEvent) => {
-    event.preventDefault();
-    commands.toggleLink(linkUrl);
+    return enabledFormats.includes(format);
   };
 
   return (
     <div className={classes.root}>
       <div className={classes.buttonGroup} role="group" aria-label="text formatting">
-        <Button
-          className={classes.button}
-          data-selected={selection.isBold}
-          onMouseDown={(event) => event.preventDefault()}
-          onClick={() => commands.formatText('bold')}
-          aria-pressed={selection.isBold}
-          aria-label="bold"
-        >
-          <Bold size={18} />
-        </Button>
-        <Button
-          className={classes.button}
-          data-selected={selection.isItalic}
-          onMouseDown={(event) => event.preventDefault()}
-          onClick={() => commands.formatText('italic')}
-          aria-pressed={selection.isItalic}
-          aria-label="italic"
-        >
-          <Italic size={18} />
-        </Button>
-        <Button
-          className={classes.button}
-          data-selected={selection.isUnderline}
-          onMouseDown={(event) => event.preventDefault()}
-          onClick={() => commands.formatText('underline')}
-          aria-pressed={selection.isUnderline}
-          aria-label="underline"
-        >
-          <Underline size={18} />
-        </Button>
-        <Button
-          className={classes.button}
-          data-selected={selection.isStrikethrough}
-          onMouseDown={(event) => event.preventDefault()}
-          onClick={() => commands.formatText('strikethrough')}
-          aria-pressed={selection.isStrikethrough}
-          aria-label="strikethrough"
-        >
-          <Strikethrough size={18} />
-        </Button>
+        {isEnabled('bold') && (
+          <FormatButton format="bold" className={classes.button} aria-label="bold">
+            <Bold size={18} />
+          </FormatButton>
+        )}
+        {isEnabled('italic') && (
+          <FormatButton format="italic" className={classes.button} aria-label="italic">
+            <Italic size={18} />
+          </FormatButton>
+        )}
+        {isEnabled('underline') && (
+          <FormatButton format="underline" className={classes.button} aria-label="underline">
+            <Underline size={18} />
+          </FormatButton>
+        )}
+        {isEnabled('strikethrough') && (
+          <FormatButton format="strikethrough" className={classes.button} aria-label="strikethrough">
+            <Strikethrough size={18} />
+          </FormatButton>
+        )}
+        {isEnabled('code') && (
+          <FormatButton format="code" className={classes.button} aria-label="inline code">
+            <Code size={18} />
+          </FormatButton>
+        )}
       </div>
 
-      <div className={classes.divider} aria-hidden="true" />
+      {(isEnabled('h1') ||
+        isEnabled('h2') ||
+        isEnabled('quote') ||
+        isEnabled('paragraph') ||
+        isEnabled('code')) && (
+        <React.Fragment>
+          <div className={classes.divider} aria-hidden="true" />
+          <div className={classes.buttonGroup} role="group" aria-label="block formatting">
+            {isEnabled('h1') && (
+              <BlockButton type="h1" className={classes.button} aria-label="heading 1">
+                <Heading1 size={18} />
+              </BlockButton>
+            )}
+            {isEnabled('h2') && (
+              <BlockButton type="h2" className={classes.button} aria-label="heading 2">
+                <Heading2 size={18} />
+              </BlockButton>
+            )}
+            {isEnabled('quote') && (
+              <BlockButton type="quote" className={classes.button} aria-label="blockquote">
+                <Quote size={18} />
+              </BlockButton>
+            )}
+            {isEnabled('paragraph') && (
+              <BlockButton type="paragraph" className={classes.button} aria-label="paragraph">
+                <Type size={18} />
+              </BlockButton>
+            )}
+            {isEnabled('code') && (
+              <BlockButton type="code" className={classes.button} aria-label="code block">
+                <SquareCode size={18} />
+              </BlockButton>
+            )}
+          </div>
+        </React.Fragment>
+      )}
 
-      <div className={classes.buttonGroup} role="group" aria-label="block formatting">
-        <Button
-          className={classes.button}
-          data-selected={selection.blockType === 'h1'}
-          onMouseDown={(event) => event.preventDefault()}
-          onClick={() => commands.toggleBlock('h1')}
-          aria-pressed={selection.blockType === 'h1'}
-          aria-label="heading 1"
-        >
-          <Heading1 size={18} />
-        </Button>
-        <Button
-          className={classes.button}
-          data-selected={selection.blockType === 'h2'}
-          onMouseDown={(event) => event.preventDefault()}
-          onClick={() => commands.toggleBlock('h2')}
-          aria-pressed={selection.blockType === 'h2'}
-          aria-label="heading 2"
-        >
-          <Heading2 size={18} />
-        </Button>
-        <Button
-          className={classes.button}
-          data-selected={selection.blockType === 'quote'}
-          onMouseDown={(event) => event.preventDefault()}
-          onClick={() => commands.toggleBlock('quote')}
-          aria-pressed={selection.blockType === 'quote'}
-          aria-label="blockquote"
-        >
-          <Quote size={18} />
-        </Button>
-        <Button
-          className={classes.button}
-          data-selected={selection.blockType === 'paragraph'}
-          onMouseDown={(event) => event.preventDefault()}
-          onClick={() => commands.toggleBlock('paragraph')}
-          aria-pressed={selection.blockType === 'paragraph'}
-          aria-label="paragraph"
-        >
-          <Type size={18} />
-        </Button>
-      </div>
+      {(isEnabled('bullet') || isEnabled('number')) && (
+        <React.Fragment>
+          <div className={classes.divider} aria-hidden="true" />
+          <div className={classes.buttonGroup} role="group" aria-label="lists">
+            {isEnabled('bullet') && (
+              <ListButton type="bullet" className={classes.button} aria-label="bullet list">
+                <List size={18} />
+              </ListButton>
+            )}
+            {isEnabled('number') && (
+              <ListButton type="number" className={classes.button} aria-label="numbered list">
+                <ListOrdered size={18} />
+              </ListButton>
+            )}
+          </div>
+        </React.Fragment>
+      )}
 
-      <div className={classes.divider} aria-hidden="true" />
+      {isEnabled('link') && (
+        <React.Fragment>
+          <div className={classes.divider} aria-hidden="true" />
+          <div className={classes.buttonGroup} role="group" aria-label="links">
+            <LinkButton
+              className={classes.button}
+              popoverClassName={classes.popoverPopup}
+              formClassName={classes.linkForm}
+              inputClassName={classes.linkInput}
+              applyButtonClassName={classes.linkButton}
+              aria-label="link"
+            >
+              <LinkIcon size={18} />
+            </LinkButton>
+          </div>
+        </React.Fragment>
+      )}
 
-      <div className={classes.buttonGroup} role="group" aria-label="lists">
-        <Button
-          className={classes.button}
-          data-selected={selection.blockType === 'bullet'}
-          onMouseDown={(event) => event.preventDefault()}
-          onClick={() => commands.toggleList('ul')}
-          aria-pressed={selection.blockType === 'bullet'}
-          aria-label="bullet list"
-        >
-          <List size={18} />
-        </Button>
-        <Button
-          className={classes.button}
-          data-selected={selection.blockType === 'number'}
-          onMouseDown={(event) => event.preventDefault()}
-          onClick={() => commands.toggleList('ol')}
-          aria-pressed={selection.blockType === 'number'}
-          aria-label="numbered list"
-        >
-          <ListOrdered size={18} />
-        </Button>
-      </div>
-
-      <div className={classes.divider} aria-hidden="true" />
-
-      <div className={classes.buttonGroup} role="group" aria-label="links">
-        <Popover.Root>
-          <Popover.Trigger
-            render={
-              <Button
-                className={classes.button}
-                data-selected={selection.isLink}
-                aria-pressed={selection.isLink}
-                aria-label="link"
-              >
-                <LinkIcon size={18} />
-              </Button>
-            }
-          />
-          <Popover.Portal>
-            <Popover.Positioner sideOffset={8}>
-              <Popover.Popup className={classes.popoverPopup}>
-                <form onSubmit={handleLinkSubmit} className={classes.linkForm}>
-                  <input
-                    className={classes.linkInput}
-                    value={linkUrl}
-                    onChange={(event) => setLinkUrl(event.target.value)}
-                    placeholder="https://..."
-                    autoFocus
-                  />
-                  <Button type="submit" className={classes.linkButton}>
-                    Apply
-                  </Button>
-                </form>
-              </Popover.Popup>
-            </Popover.Positioner>
-          </Popover.Portal>
-        </Popover.Root>
-      </div>
-
-      <div className={classes.divider} aria-hidden="true" />
-
-      <div className={classes.buttonGroup} role="group" aria-label="history">
-        <Button
-          className={classes.button}
-          onClick={() => commands.undo()}
-          disabled={!selection.canUndo}
-          aria-label="undo"
-        >
-          <Undo2 size={18} />
-        </Button>
-        <Button
-          className={classes.button}
-          onClick={() => commands.redo()}
-          disabled={!selection.canRedo}
-          aria-label="redo"
-        >
-          <Redo2 size={18} />
-        </Button>
-      </div>
+      {(isEnabled('undo') || isEnabled('redo')) && (
+        <React.Fragment>
+          <div className={classes.divider} aria-hidden="true" />
+          <div className={classes.buttonGroup} role="group" aria-label="history">
+            {isEnabled('undo') && (
+              <HistoryButton type="undo" className={classes.button} aria-label="undo">
+                <Undo2 size={18} />
+              </HistoryButton>
+            )}
+            {isEnabled('redo') && (
+              <HistoryButton type="redo" className={classes.button} aria-label="redo">
+                <Redo2 size={18} />
+              </HistoryButton>
+            )}
+          </div>
+        </React.Fragment>
+      )}
     </div>
   );
 }

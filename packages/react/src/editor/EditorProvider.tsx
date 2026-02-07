@@ -4,7 +4,8 @@ import { LexicalComposer, InitialConfigType } from '@lexical/react/LexicalCompos
 import { HeadingNode, QuoteNode } from '@lexical/rich-text';
 import { ListNode, ListItemNode } from '@lexical/list';
 import { LinkNode } from '@lexical/link';
-import { AICompletionNode } from './plugins/AIAutocompletePlugin';
+import { CodeNode, CodeHighlightNode } from '@lexical/code';
+import { AICompletionNode } from '@base-ui/react';
 
 export interface EditorProviderProps {
   children: React.ReactNode;
@@ -17,7 +18,7 @@ const defaultConfig: InitialConfigType = {
   onError: (error: Error) => {
     console.error(error);
   },
-  nodes: [HeadingNode, QuoteNode, ListNode, ListItemNode, LinkNode, AICompletionNode],
+  nodes: [HeadingNode, QuoteNode, ListNode, ListItemNode, LinkNode, CodeNode, CodeHighlightNode, AICompletionNode],
 } ;
 
 export function EditorProvider(props: EditorProviderProps) {
@@ -26,6 +27,7 @@ export function EditorProvider(props: EditorProviderProps) {
   const config: InitialConfigType = React.useMemo(() => ({
     ...defaultConfig,
     ...initialConfig,
+    nodes: [...(defaultConfig.nodes || []), ...(initialConfig?.nodes || [])],
   }), [initialConfig]);
 
   return (

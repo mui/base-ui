@@ -9,3 +9,4 @@ export * from './utils/SerializerRegistry';
 export * from './utils/toHTML';
 export * from './plugins/KeyboardShortcutsPlugin';
 export * from './plugins/AIAutocompletePlugin';
+export * from './plugins/CodePlugin';
