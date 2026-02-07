@@ -29,21 +29,37 @@ export default function BasicEditor() {
 }
 ```
 
+For more advanced layouts, you can compose the editor components:
+
+```jsx title="Compositional Anatomy"
+import { Editor } from '@base-ui/react/editor';
+
+export default function AdvancedEditor() {
+  return (
+    <Editor.Provider>
+      <Editor.Toolbar />
+      <Editor.Content />
+      <Editor.FloatingToolbar />
+    </Editor.Provider>
+  );
+}
+```
+
 ## Usage
 
 - Provide a helpful `placeholder` to guide users when the editor is empty.
 - Use the `value` and `onChange` props to control the content with a serialized editor state.
-- For more advanced editing controls, compose with `EditorToolbar` and other utilities from the editor package.
+- For more advanced editing controls, compose with `Editor.Toolbar` and other components from the `Editor` namespace.
 
 ### With toolbar
 
-This example shows `EditorToolbar` integrated above the editable area for basic formatting.
+This example shows `Editor.Toolbar` integrated above the editable area for basic formatting.
 
 <DemoEditorToolbar />
 
 ### Floating toolbar
 
-A compact toolbar that appears near the current text selection.
+A compact toolbar that appears near the current text selection. This can be enabled via the `floatingToolbar` prop on the `Editor` component, or manually composed using `Editor.FloatingToolbar`.
 
 <DemoEditorFloatingToolbar />
 

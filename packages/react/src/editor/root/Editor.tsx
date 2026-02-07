@@ -10,7 +10,10 @@ import { LinkPlugin } from '@lexical/react/LexicalLinkPlugin';
 import { LexicalErrorBoundary } from '@lexical/react/LexicalErrorBoundary';
 import { OnChangePlugin } from '@lexical/react/LexicalOnChangePlugin';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
-import { EditorContentEditable, KeyboardShortcutsPlugin, AIAutocompletePlugin } from '@base-ui/react/editor';
+import { EditorContentEditable } from '../content-editable/EditorContentEditable';
+import { KeyboardShortcutsPlugin } from '../plugins/KeyboardShortcutsPlugin';
+import { AIAutocompletePlugin } from '../plugins/AIAutocompletePlugin';
+import { EditorFloatingToolbar } from '../floating-toolbar/EditorFloatingToolbar';
 import { EditorProvider } from '../EditorProvider';
 import classes from './Editor.module.css';
 
@@ -29,6 +32,10 @@ export interface EditorProps {
     getCompletion: (text: string) => Promise<string | null>;
     debounceMs?: number | undefined;
   } | undefined;
+  /**
+   * Whether to enable the floating toolbar.
+   */
+  floatingToolbar?: boolean | undefined;
 }
 
 function ControlledInitializer({ value, defaultValue }: { value?: any; defaultValue?: any }) {
@@ -81,7 +88,7 @@ const initialConfig = {
 };
 
 export function Editor(props: EditorProps) {
-  const { placeholder, children, value, defaultValue, onChange, className, style, ai } = props;
+  const { placeholder, children, value, defaultValue, onChange, className, style, ai, floatingToolbar } = props;
 
   return (
     <EditorProvider initialConfig={initialConfig}>
@@ -99,6 +106,7 @@ export function Editor(props: EditorProps) {
               debounceMs={ai.debounceMs}
             />
           )}
+          {floatingToolbar && <EditorFloatingToolbar />}
           {(value || defaultValue) && (
             <ControlledInitializer value={value} defaultValue={defaultValue} />
           )}

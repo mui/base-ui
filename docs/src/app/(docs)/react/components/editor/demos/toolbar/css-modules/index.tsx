@@ -1,7 +1,6 @@
 'use client';
 import * as React from 'react';
-import { Editor, EditorToolbar } from '@base-ui/react/editor';
-import styles from './index.module.css';
+import { Editor } from '@base-ui/react/editor';
 
 export default function ExampleEditorWithToolbar() {
   const [value, setValue] = React.useState<any | undefined>(undefined);
@@ -10,7 +9,7 @@ export default function ExampleEditorWithToolbar() {
     <div className={styles.Container}>
       <label className={styles.Label}>Toolbar</label>
       <Editor value={value} onChange={setValue} placeholder="Type your message...">
-        <EditorToolbar />
+        <Editor.Toolbar />
       </Editor>
     </div>
   );

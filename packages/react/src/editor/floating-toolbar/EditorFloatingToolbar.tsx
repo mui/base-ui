@@ -6,6 +6,8 @@ import {
   $getSelection,
   $isRangeSelection,
   COMMAND_PRIORITY_LOW,
+  BLUR_COMMAND,
+  FOCUS_COMMAND,
   SELECTION_CHANGE_COMMAND,
 } from 'lexical';
 import { mergeRegister } from '@lexical/utils';
@@ -32,9 +34,19 @@ export function EditorFloatingToolbar(props: EditorFloatingToolbarProps) {
   const selectionState = useSelection();
 
   const [visible, setVisible] = React.useState(false);
+  const [isFocused, setIsFocused] = React.useState(false);
   const [position, setPosition] = React.useState<{ top: number; left: number } | null>(null);
 
   const updateFromSelection = React.useCallback(() => {
+    const isCurrentlyFocused = editor.getEditorState().read(() => {
+      return editor.getRootElement() === document.activeElement || editor.getRootElement()?.contains(document.activeElement);
+    });
+
+    if (!isCurrentlyFocused && !isFocused) {
+      setVisible(false);
+      return;
+    }
+
     const winSel = window.getSelection();
     if (!winSel || winSel.rangeCount === 0) {
       setVisible(false);
@@ -65,7 +77,7 @@ export function EditorFloatingToolbar(props: EditorFloatingToolbarProps) {
       setVisible(false);
       setPosition(null);
     }
-  }, [editor, offset]);
+  }, [editor, isFocused, offset]);
 
   React.useEffect(() => {
     return mergeRegister(
@@ -73,6 +85,23 @@ export function EditorFloatingToolbar(props: EditorFloatingToolbarProps) {
         SELECTION_CHANGE_COMMAND,
         () => {
           updateFromSelection();
+          return false;
+        },
+        COMMAND_PRIORITY_LOW,
+      ),
+      editor.registerCommand(
+        FOCUS_COMMAND,
+        () => {
+          setIsFocused(true);
+          return false;
+        },
+        COMMAND_PRIORITY_LOW,
+      ),
+      editor.registerCommand(
+        BLUR_COMMAND,
+        () => {
+          setIsFocused(false);
+          setVisible(false);
           return false;
         },
         COMMAND_PRIORITY_LOW,

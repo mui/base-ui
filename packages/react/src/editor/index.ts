@@ -1,10 +1,10 @@
-export * from './EditorProvider';
+import { Editor as EditorComponent } from './root/Editor';
+import * as Parts from './index.parts';
+
+export const Editor = Object.assign(EditorComponent, Parts);
+
 export * from './hooks/useEditor';
 export * from './hooks/useSelection';
-export * from './root/Editor';
-export * from './content-editable/EditorContentEditable';
-export * from './toolbar/EditorToolbar';
-export * from './floating-toolbar/EditorFloatingToolbar';
 export * from './utils/SerializerRegistry';
 export * from './utils/toHTML';
 export * from './plugins/KeyboardShortcutsPlugin';
