@@ -1,0 +1,277 @@
+# Drawer
+
+<Subtitle>A panel that slides in from the edge of the screen.</Subtitle>
+<Meta
+  name="description"
+  content="A high-quality, unstyled React drawer component with swipe-to-dismiss gestures."
+/>
+
+import { DemoDrawerHero } from './demos/hero';
+
+<DemoDrawerHero />
+
+## Anatomy
+
+Import the component and assemble its parts:
+
+```jsx title="Anatomy"
+import { Drawer } from '@base-ui/react/drawer';
+
+<Drawer.Provider>
+  <Drawer.IndentBackground />
+  <Drawer.Indent>
+    <Drawer.Root>
+      <Drawer.Trigger />
+      <Drawer.SwipeArea />
+      <Drawer.Portal>
+        <Drawer.Backdrop />
+        <Drawer.Viewport>
+          <Drawer.Popup>
+            <Drawer.Content>
+              <Drawer.Title />
+              <Drawer.Description />
+              <Drawer.Close />
+            </Drawer.Content>
+          </Drawer.Popup>
+        </Drawer.Viewport>
+      </Drawer.Portal>
+    </Drawer.Root>
+  </Drawer.Indent>
+</Drawer.Provider>;
+```
+
+Drawer supports swipe gestures to dismiss. Set `swipeDirection` to control which direction dismisses the drawer. `<Drawer.Content>` allows text selection of its children without swipe interference when using a mouse pointer.
+
+## Examples
+
+### State
+
+By default, Drawer is an uncontrolled component that manages its own state.
+
+```tsx title="Uncontrolled drawer"
+<Drawer.Root>
+  <Drawer.Trigger>Open</Drawer.Trigger>
+  <Drawer.Portal>
+    <Drawer.Popup>
+      <Drawer.Content>
+        <Drawer.Title>Example drawer</Drawer.Title>
+        <Drawer.Close>Close</Drawer.Close>
+      </Drawer.Content>
+    </Drawer.Popup>
+  </Drawer.Portal>
+</Drawer.Root>
+```
+
+Use `open` and `onOpenChange` props if you need to access or control the state of the drawer.
+
+```tsx title="Controlled drawer"
+const [open, setOpen] = React.useState(false);
+return (
+  <Drawer.Root open={open} onOpenChange={setOpen}>
+    <Drawer.Trigger>Open</Drawer.Trigger>
+    <Drawer.Portal>
+      <Drawer.Popup>
+        <Drawer.Content>
+          <Drawer.Title>Example drawer</Drawer.Title>
+          <Drawer.Close>Close</Drawer.Close>
+        </Drawer.Content>
+      </Drawer.Popup>
+    </Drawer.Portal>
+  </Drawer.Root>
+);
+```
+
+### Position
+
+Positioning is handled by your styles. `swipeDirection` defaults to `"down"` for bottom sheets. Use `"up"`, `"left"`, or `"right"` for other drawer positions.
+
+```tsx title="Swipe directions"
+<Drawer.Root swipeDirection="up">
+```
+
+import { DemoDrawerPosition } from './demos/position';
+
+<DemoDrawerPosition />
+
+### Detached triggers
+
+A drawer can be controlled by a trigger located either inside or outside the `<Drawer.Root>` component.
+For simple, one-off interactions, place the `<Drawer.Trigger>` inside `<Drawer.Root>`, as shown in the example above.
+
+However, if defining the drawer's content next to its trigger is not practical, you can use a detached trigger.
+This involves placing the `<Drawer.Trigger>` outside of `<Drawer.Root>` and linking them with a `handle` created by the `Drawer.createHandle()` function.
+
+```jsx title="Detached triggers"
+const demoDrawer = Drawer.createHandle();
+
+<Drawer.Trigger handle={demoDrawer}>Open</Drawer.Trigger>
+
+<Drawer.Root handle={demoDrawer}>
+  ...
+</Drawer.Root>
+```
+
+The drawer can render different content depending on which trigger opened it.
+This is achieved by passing a `payload` to the `<Drawer.Trigger>` and using the function-as-a-child pattern in `<Drawer.Root>`.
+
+```jsx title="Detached triggers with payload"
+const demoDrawer = Drawer.createHandle<{ title: string }>();
+
+<Drawer.Trigger handle={demoDrawer} payload={{ title: 'Profile' }}>
+  Profile
+</Drawer.Trigger>
+
+<Drawer.Trigger handle={demoDrawer} payload={{ title: 'Settings' }}>
+  Settings
+</Drawer.Trigger>
+
+<Drawer.Root handle={demoDrawer}>
+  {({ payload }) => (
+    <Drawer.Portal>
+      <Drawer.Popup>
+        <Drawer.Content>
+          <Drawer.Title>{payload?.title}</Drawer.Title>
+        </Drawer.Content>
+      </Drawer.Popup>
+    </Drawer.Portal>
+  )}
+</Drawer.Root>
+```
+
+### Nested drawers
+
+Use the `[data-nested-drawer-open]` selector and the `--nested-drawers` CSS variable to style drawers when a nested drawer is open. This demo stacks nested drawers using a constant peek so the frontmost drawer stays anchored to the bottom while the ones behind it are scaled down and lifted. It also uses the `--drawer-height` and `--drawer-frontmost-height` CSS variables to handle varying drawer heights.
+
+import { DemoDrawerNested } from './demos/nested';
+
+<DemoDrawerNested compact />
+
+### Snap points
+
+Use `snapPoints` to snap a bottom sheet drawer to preset heights. Numbers between 0 and 1 represent fractions of the viewport height; strings are treated as CSS lengths (for example, `'148px'`).
+
+```tsx title="Snap points"
+const snapPoints = ['148px', '355px', 1];
+const [snapPoint, setSnapPoint] = React.useState<Drawer.Root.SnapPoint | null>(snapPoints[0]);
+
+<Drawer.Root
+  swipeDirection="down"
+  snapPoints={snapPoints}
+  snapPoint={snapPoint}
+  onSnapPointChange={setSnapPoint}
+>
+  {/* ... */}
+</Drawer.Root>;
+```
+
+Apply the snap point offset in your styles when using vertical drawers:
+
+```css title="Snap point offset"
+.DrawerPopup {
+  transform: translateY(
+    calc(var(--drawer-snap-point-offset, 0px) + var(--drawer-swipe-movement-y))
+  );
+}
+```
+
+import { DemoDrawerSnapPoints } from './demos/snap-points';
+
+<DemoDrawerSnapPoints />
+
+By default, the drawer can skip snap points when swiping quickly.
+Specify the `snapToSequentialPoints` prop to disable velocity-based skipping so the snap target is determined by drag distance (you can still drag past multiple points).
+
+### Indent effect
+
+Scale the background down when any drawer opens by wrapping your app in `<Drawer.Provider>` and use `<Drawer.IndentBackground>` + `<Drawer.Indent>` at the top of your tree. Any `<Drawer.Root>` within the provider notifies it when it mounts, which activates the indent parts (they receive `[data-active]` state attributes).
+
+import { DemoDrawerIndentProvider } from './demos/indent-provider';
+
+<DemoDrawerIndentProvider />
+
+### Non-modal
+
+Set `modal={false}` to opt out of focus trapping and `disablePointerDismissal` to keep the drawer
+open on outside clicks.
+
+import { DemoDrawerNonModal } from './demos/non-modal';
+
+<DemoDrawerNonModal />
+
+### Mobile navigation
+
+You can build a full-screen mobile navigation sheet using Drawer parts, including a flick-to-dismiss from the top gesture.
+
+import { DemoDrawerMobileNav } from './demos/mobile-nav';
+
+<DemoDrawerMobileNav />
+
+### Swipe to open
+
+Place `<Drawer.SwipeArea>` along the edge of the viewport to enable swipe-to-open gestures. The drawer stays open on release once the swipe covers roughly half its size (minimum 40px).
+
+import { DemoDrawerSwipeArea } from './demos/swipe-area';
+
+<DemoDrawerSwipeArea />
+
+### Animations
+
+Use CSS transitions or animations to animate the drawer opening and closing. The `data-starting-style` attribute is applied when the drawer starts to open, and `data-ending-style` is applied when it starts to close.
+
+The `--drawer-swipe-movement-x`, `--drawer-swipe-movement-y`, and `--drawer-swipe-progress` CSS variables can be used to create smooth drag interactions:
+
+```css title="Animating the drawer"
+.DrawerPopup {
+  /* Apply swipe offset during drag */
+  transform: translateX(var(--drawer-swipe-movement-x));
+  transition: transform 525ms cubic-bezier(0.45, 1.005, 0, 1.005);
+}
+
+.DrawerPopup[data-starting-style],
+.DrawerPopup[data-ending-style] {
+  transform: translateX(100%);
+}
+
+.DrawerPopup[data-ending-style] {
+  transition-duration: 180ms;
+  transition-timing-function: cubic-bezier(0.375, 0.015, 0.545, 0.455);
+}
+```
+
+Use `--drawer-swipe-progress` to fade the backdrop as the drawer is swiped:
+
+```css title="Fading the backdrop"
+.DrawerBackdrop {
+  --backdrop-opacity: 0.2;
+  opacity: calc(var(--backdrop-opacity) * (1 - var(--drawer-swipe-progress, 0)));
+  transition-duration: 450ms;
+}
+
+.DrawerBackdrop[data-swiping] {
+  transition-duration: 0ms;
+}
+```
+
+## API reference
+
+<Reference
+  component="Drawer"
+  parts="Provider, IndentBackground, Indent, Root, Trigger, SwipeArea, Portal, Backdrop, Viewport, Popup, Title, Description, Close"
+/>
+
+export const metadata = {
+  keywords: [
+    'React Drawer',
+    'Drawer Component',
+    'Side Panel',
+    'Bottom Sheet',
+    'Swipe Dismiss Drawer',
+    'Offcanvas',
+    'Sliding Panel',
+    'Modal Drawer',
+    'Controlled Drawer State',
+    'Accessible Drawer',
+    'Headless React Components',
+    'Base UI',
+  ],
+};
