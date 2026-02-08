@@ -109,12 +109,12 @@
     "node": ">=22.18.0"
   },
   "resolutions": {
-    "@babel/core": "^7.28.6",
-    "@babel/plugin-transform-runtime": "^7.28.5",
-    "@babel/preset-env": "^7.28.6",
+    "@babel/core": "^7.29.0",
+    "@babel/plugin-transform-runtime": "^7.29.0",
+    "@babel/preset-env": "^7.29.0",
     "@babel/preset-react": "^7.28.5",
     "@babel/preset-typescript": "^7.28.5",
-    "@babel/types": "^7.28.6",
+    "@babel/types": "^7.29.0",
     "@types/node": "22.18.13",
     "@types/react": "19.2.10",
     "@types/react-dom": "^19.2.3"
