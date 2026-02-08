@@ -26,7 +26,7 @@ export const ToastPositioner = React.forwardRef(function ToastPositioner(
 ) {
   const { toast, ...props } = componentProps;
 
-  const { toasts } = useToastContext();
+  const store = useToastContext();
 
   const positionerProps = (toast.positionerProps ?? EMPTY_OBJECT) as NonNullable<
     typeof toast.positionerProps
@@ -52,11 +52,8 @@ export const ToastPositioner = React.forwardRef(function ToastPositioner(
 
   const [positionerElement, setPositionerElement] = React.useState<HTMLDivElement | null>(null);
 
-  const domIndex = React.useMemo(() => toasts.indexOf(toast), [toast, toasts]);
-  const visibleIndex = React.useMemo(
-    () => toasts.filter((t) => t.transitionStatus !== 'ending').indexOf(toast),
-    [toast, toasts],
-  );
+  const domIndex = store.useState('toastIndex', toast.id);
+  const visibleIndex = store.useState('toastVisibleIndex', toast.id);
 
   const anchor = isElement(anchorProp) ? anchorProp : null;
 
