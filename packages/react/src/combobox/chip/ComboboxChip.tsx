@@ -96,6 +96,13 @@ export const ComboboxChip = React.forwardRef(function ComboboxChip(
         tabIndex: -1,
         'aria-disabled': disabled || undefined,
         'aria-readonly': readOnly || undefined,
+        onFocus(event) {
+          if (disabled || readOnly) {
+            return;
+          }
+
+          store.state.setOpen(false, createChangeEventDetails(REASONS.focusOut, event.nativeEvent));
+        },
         onKeyDown(event) {
           if (disabled || readOnly) {
             return;
