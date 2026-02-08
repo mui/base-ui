@@ -18,7 +18,7 @@ import { useCSPContext } from '../../csp-provider/CSPContext';
 const DEFAULT_COORDS = { x: 0, y: 0 };
 const DEFAULT_SIZE = { width: 0, height: 0 };
 const DEFAULT_OVERFLOW_EDGES = { xStart: false, xEnd: false, yStart: false, yEnd: false };
-const DEFAULT_HIDDEN_STATE = { x: false, y: false, corner: false };
+const DEFAULT_HIDDEN_STATE = { x: true, y: true, corner: true };
 
 export type HiddenState = typeof DEFAULT_HIDDEN_STATE;
 export type OverflowEdges = typeof DEFAULT_OVERFLOW_EDGES;
