@@ -12,7 +12,6 @@ export default function ExampleCreatableCombobox() {
   const [query, setQuery] = React.useState('');
   const [openDialog, setOpenDialog] = React.useState(false);
 
-  const containerRef = React.useRef<HTMLDivElement | null>(null);
   const createInputRef = React.useRef<HTMLInputElement | null>(null);
   const comboboxInputRef = React.useRef<HTMLInputElement | null>(null);
   const pendingQueryRef = React.useRef('');
@@ -127,33 +126,39 @@ export default function ExampleCreatableCombobox() {
           <label className={styles.Label} htmlFor={id}>
             Labels
           </label>
-          <Combobox.Chips className={styles.Chips} ref={containerRef}>
-            <Combobox.Value>
-              {(value: LabelItem[]) => (
-                <React.Fragment>
-                  {value.map((label) => (
-                    <Combobox.Chip key={label.id} className={styles.Chip} aria-label={label.value}>
-                      {label.value}
-                      <Combobox.ChipRemove className={styles.ChipRemove} aria-label="Remove">
-                        <XIcon />
-                      </Combobox.ChipRemove>
-                    </Combobox.Chip>
-                  ))}
-                  <Combobox.Input
-                    ref={comboboxInputRef}
-                    id={id}
-                    placeholder={value.length > 0 ? '' : 'e.g. bug'}
-                    className={styles.Input}
-                    onKeyDown={handleInputKeyDown}
-                  />
-                </React.Fragment>
-              )}
-            </Combobox.Value>
-          </Combobox.Chips>
+          <Combobox.InputGroup className={styles.InputGroup}>
+            <Combobox.Chips className={styles.Chips}>
+              <Combobox.Value>
+                {(value: LabelItem[]) => (
+                  <React.Fragment>
+                    {value.map((label) => (
+                      <Combobox.Chip
+                        key={label.id}
+                        className={styles.Chip}
+                        aria-label={label.value}
+                      >
+                        {label.value}
+                        <Combobox.ChipRemove className={styles.ChipRemove} aria-label="Remove">
+                          <XIcon />
+                        </Combobox.ChipRemove>
+                      </Combobox.Chip>
+                    ))}
+                    <Combobox.Input
+                      ref={comboboxInputRef}
+                      id={id}
+                      placeholder={value.length > 0 ? '' : 'e.g. bug'}
+                      className={styles.Input}
+                      onKeyDown={handleInputKeyDown}
+                    />
+                  </React.Fragment>
+                )}
+              </Combobox.Value>
+            </Combobox.Chips>
+          </Combobox.InputGroup>
         </div>
 
         <Combobox.Portal>
-          <Combobox.Positioner className={styles.Positioner} sideOffset={4} anchor={containerRef}>
+          <Combobox.Positioner className={styles.Positioner} sideOffset={4}>
             <Combobox.Popup className={styles.Popup}>
               <Combobox.Empty className={styles.Empty}>No labels found.</Combobox.Empty>
               <Combobox.List>

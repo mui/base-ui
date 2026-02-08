@@ -58,11 +58,13 @@ export const ComboboxPositioner = React.forwardRef(function ComboboxPositioner(
   const openMethod = useStore(store, selectors.openMethod);
   const triggerElement = useStore(store, selectors.triggerElement);
   const inputElement = useStore(store, selectors.inputElement);
+  const inputGroupElement = useStore(store, selectors.inputGroupElement);
   const inputInsidePopup = useStore(store, selectors.inputInsidePopup);
   const transitionStatus = useStore(store, selectors.transitionStatus);
 
   const empty = filteredItems.length === 0;
-  const resolvedAnchor = anchor ?? (inputInsidePopup ? triggerElement : inputElement);
+  const resolvedAnchor =
+    anchor ?? (inputInsidePopup ? triggerElement : (inputGroupElement ?? inputElement));
 
   const positioning = useAnchorPositioning({
     anchor: resolvedAnchor,
@@ -148,7 +150,10 @@ export const ComboboxPositioner = React.forwardRef(function ComboboxPositioner(
   return (
     <ComboboxPositionerContext.Provider value={contextValue}>
       {mounted && modal && (
-        <InternalBackdrop inert={inertValue(!open)} cutout={inputElement ?? triggerElement} />
+        <InternalBackdrop
+          inert={inertValue(!open)}
+          cutout={inputGroupElement ?? inputElement ?? triggerElement}
+        />
       )}
       {element}
     </ComboboxPositionerContext.Provider>
