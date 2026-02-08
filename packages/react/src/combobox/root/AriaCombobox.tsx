@@ -983,6 +983,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     // Apply a small delay for touch to let iOS viewport centering settle.
     // This avoids top-bottom flip flickers if the preferred position is "top" when first tapping.
     touchOpenDelay: inputInsidePopup ? 0 : 50,
+    reason: REASONS.inputPress,
   });
 
   const dismiss = useDismiss(floatingRootContext, {
