@@ -1151,6 +1151,45 @@ describe('<Combobox.Root />', () => {
     });
   });
 
+  it('shows all items when opening after browser autofill', async () => {
+    const items = ['a', 'b', 'c'];
+    const { user } = await render(
+      <Combobox.Root name="test" items={items}>
+        <Combobox.Input />
+        <Combobox.Portal>
+          <Combobox.Positioner>
+            <Combobox.Popup>
+              <Combobox.List>
+                {(item: string) => (
+                  <Combobox.Item key={item} value={item}>
+                    {item}
+                  </Combobox.Item>
+                )}
+              </Combobox.List>
+            </Combobox.Popup>
+          </Combobox.Positioner>
+        </Combobox.Portal>
+      </Combobox.Root>,
+    );
+
+    const input = screen.getByRole('combobox');
+
+    fireEvent.change(
+      screen.getAllByDisplayValue('').find((el) => el.getAttribute('name') === 'test')!,
+      { target: { value: 'b' } },
+    );
+    await flushMicrotasks();
+
+    await user.click(input);
+
+    await waitFor(() => {
+      expect(screen.getByRole('listbox')).not.to.equal(null);
+    });
+    expect(screen.getByRole('option', { name: 'a' })).not.to.equal(null);
+    expect(screen.getByRole('option', { name: 'b' })).not.to.equal(null);
+    expect(screen.getByRole('option', { name: 'c' })).not.to.equal(null);
+  });
+
   it('should handle browser autofill with object values', async () => {
     const items = [
       { country: 'United States', code: 'US' },
@@ -1198,6 +1237,58 @@ describe('<Combobox.Root />', () => {
         'aria-selected',
         'true',
       );
+    });
+  });
+
+  it('does not open on programmatic input events', async () => {
+    await render(
+      <Combobox.Root>
+        <Combobox.Input />
+        <Combobox.Portal>
+          <Combobox.Positioner>
+            <Combobox.Popup>
+              <Combobox.List>
+                <Combobox.Item value="Darlinghurst">Darlinghurst</Combobox.Item>
+                <Combobox.Item value="Sydney">Sydney</Combobox.Item>
+              </Combobox.List>
+            </Combobox.Popup>
+          </Combobox.Positioner>
+        </Combobox.Portal>
+      </Combobox.Root>,
+    );
+
+    const input = screen.getByRole('combobox');
+    fireEvent.change(input, { target: { value: 'Darlinghurst' } });
+    await flushMicrotasks();
+
+    expect(screen.queryByRole('listbox')).to.equal(null);
+  });
+
+  it('opens on paste input events', async () => {
+    await render(
+      <Combobox.Root>
+        <Combobox.Input />
+        <Combobox.Portal>
+          <Combobox.Positioner>
+            <Combobox.Popup>
+              <Combobox.List>
+                <Combobox.Item value="Darlinghurst">Darlinghurst</Combobox.Item>
+                <Combobox.Item value="Sydney">Sydney</Combobox.Item>
+              </Combobox.List>
+            </Combobox.Popup>
+          </Combobox.Positioner>
+        </Combobox.Portal>
+      </Combobox.Root>,
+    );
+
+    const input = screen.getByRole('combobox');
+    fireEvent.input(input, {
+      target: { value: 'Darlinghurst' },
+      inputType: 'insertFromPaste',
+    });
+
+    await waitFor(() => {
+      expect(screen.getByRole('listbox')).not.to.equal(null);
     });
   });
 
