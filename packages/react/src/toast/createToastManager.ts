@@ -45,7 +45,7 @@ export function createToastManager<Data extends object = any>(): ToastManager<Da
       return id;
     },
 
-    close(id: string): void {
+    close(id?: string): void {
       emit({
         action: 'close',
         options: { id },
@@ -87,7 +87,7 @@ export function createToastManager<Data extends object = any>(): ToastManager<Da
 export interface ToastManager<Data extends object = any> {
   ' subscribe': (listener: (data: ToastManagerEvent) => void) => () => void;
   add: <T extends Data = Data>(options: ToastManagerAddOptions<T>) => string;
-  close: (id: string) => void;
+  close: (id?: string) => void;
   update: <T extends Data = Data>(id: string, updates: ToastManagerUpdateOptions<T>) => void;
   promise: <Value, T extends Data = Data>(
     promiseValue: Promise<Value>,

@@ -21,7 +21,7 @@ export interface ToastContextValue<Data extends object> {
     value: Promise<Value>,
     options: ToastManagerPromiseOptions<Value, Data>,
   ) => Promise<Value>;
-  close: (id: string) => void;
+  close: (id?: string) => void;
   pauseTimers: () => void;
   resumeTimers: () => void;
   remove: (id: string) => void;
