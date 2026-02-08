@@ -14,9 +14,25 @@ interface LabeledItem {
   label: React.ReactNode;
 }
 
+function isTextLabel(label: React.ReactNode): label is string | number | bigint {
+  return typeof label === 'string' || typeof label === 'number' || typeof label === 'bigint';
+}
+
+export function isPrimitiveValue(value: unknown): boolean {
+  return value != null && typeof value !== 'object' && typeof value !== 'function';
+}
+
+export function hasValueField(item: any): item is { value: unknown } {
+  return item != null && typeof item === 'object' && 'value' in item;
+}
+
+export function getItemValue(item: any) {
+  return hasValueField(item) ? item.value : item;
+}
+
 export interface Group<Item = any> {
   value: unknown;
-  items: Item[];
+  items: ReadonlyArray<Item>;
 }
 
 export function isGroupedItems(
@@ -64,11 +80,11 @@ export function stringifyAsLabel(item: any, itemToStringLabel?: (item: any) => s
     return itemToStringLabel(item) ?? '';
   }
   if (item && typeof item === 'object') {
-    if ('label' in item && item.label != null) {
+    if ('label' in item && item.label != null && isTextLabel(item.label)) {
       return String(item.label);
     }
     if ('value' in item) {
-      return String(item.value);
+      return serializeValue(item.value);
     }
   }
   return serializeValue(item);
@@ -129,6 +145,21 @@ export function resolveSelectedLabel(
   }
 
   return fallback();
+}
+
+export function resolveSelectedLabelString(
+  value: any,
+  items: ItemsInput,
+  itemToStringLabel?: (item: any) => string,
+): string {
+  const label = resolveSelectedLabel(value, items, itemToStringLabel);
+  if (label == null || typeof label === 'boolean') {
+    return '';
+  }
+  if (isTextLabel(label)) {
+    return String(label);
+  }
+  return stringifyAsLabel(value, itemToStringLabel);
 }
 
 export function resolveMultipleLabels(
