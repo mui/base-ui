@@ -6,6 +6,7 @@ import { createRenderer } from '#test-utils';
 import { reactMajor } from '@mui/internal-test-utils';
 import type { BaseUIComponentProps } from '../utils/types';
 import { useRenderElement } from './useRenderElement';
+import { EMPTY_OBJECT } from './constants';
 
 describe('useRenderElement', () => {
   const { render } = createRenderer();
@@ -253,6 +254,51 @@ describe('useRenderElement', () => {
       expect(renderRef.current).to.be.instanceOf(HTMLDivElement);
       expect(componentRef.current).to.be.instanceOf(HTMLDivElement);
       expect(renderRef.current).to.equal(componentRef.current);
+    });
+  });
+
+  describe('EMPTY_OBJECT mutation safety', () => {
+    // This test verifies that the hook doesn't attempt to mutate EMPTY_OBJECT
+    // which would throw a TypeError in strict mode since it's frozen.
+    const MinimalComponent = React.forwardRef(function MinimalComponent(
+      componentProps: BaseUIComponentProps<'div', Record<string, never>>,
+      forwardedRef: React.ForwardedRef<HTMLDivElement>,
+    ) {
+      // Using EMPTY_OBJECT as state and no additional props simulates the edge case
+      // where mergeObjects might return undefined and fall back to EMPTY_OBJECT
+      const element = useRenderElement('div', componentProps, {
+        state: EMPTY_OBJECT,
+        ref: forwardedRef,
+        // No props passed - relies on stateProps which will be {}
+      });
+
+      return element;
+    });
+
+    it('does not throw when className is provided with minimal props', async () => {
+      // This would throw "Cannot add property className, object is not extensible"
+      // if outProps were the frozen EMPTY_OBJECT
+      const { container } = await render(<MinimalComponent className="test-class" />);
+      expect(container.firstElementChild).to.not.equal(null);
+    });
+
+    it('does not throw when style is provided with minimal props', async () => {
+      // This would throw "Cannot add property style, object is not extensible"
+      // if outProps were the frozen EMPTY_OBJECT
+      const { container } = await render(<MinimalComponent style={{ color: 'red' }} />);
+      expect(container.firstElementChild).to.not.equal(null);
+    });
+
+    it('renders correctly with className when using minimal props', async () => {
+      const { container } = await render(<MinimalComponent className="custom-class" />);
+      const element = container.firstElementChild;
+      expect(element).to.have.attribute('class', 'custom-class');
+    });
+
+    it('renders correctly with style when using minimal props', async () => {
+      const { container } = await render(<MinimalComponent style={{ color: 'rgb(255, 0, 0)' }} />);
+      const element = container.firstElementChild as HTMLElement;
+      expect(element.style.color).to.equal('rgb(255, 0, 0)');
     });
   });
 });

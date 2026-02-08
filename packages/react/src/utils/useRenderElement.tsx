@@ -69,8 +69,11 @@ function useRenderElementProps<
     ? getStateAttributesProps(state, stateAttributesMapping)
     : EMPTY_OBJECT;
 
+  // Ensure outProps is always a new mutable object when enabled, never EMPTY_OBJECT.
+  // This prevents potential TypeError when setting ref, className, or style properties,
+  // since EMPTY_OBJECT is frozen and mutations would fail in strict mode.
   const outProps: React.HTMLAttributes<any> & React.RefAttributes<any> = enabled
-    ? (mergeObjects(stateProps, Array.isArray(props) ? mergePropsN(props) : props) ?? EMPTY_OBJECT)
+    ? (mergeObjects(stateProps, Array.isArray(props) ? mergePropsN(props) : props) ?? {})
     : EMPTY_OBJECT;
 
   // SAFETY: The `useMergedRefs` functions use a single hook to store the same value,
