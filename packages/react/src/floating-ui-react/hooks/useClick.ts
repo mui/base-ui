@@ -48,7 +48,7 @@ export interface UseClickProps {
    * The reason for the click.
    * @default REASONS.triggerPress
    */
-  reason?: (typeof REASONS.triggerPress | typeof REASONS.outsidePress) | undefined;
+  reason?: (typeof REASONS.triggerPress | typeof REASONS.inputPress) | undefined;
 }
 
 /**
