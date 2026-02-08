@@ -111,7 +111,6 @@ export function usePopupViewport(parameters: UsePopupViewportParameters): UsePop
   useIsoLayoutEffect(() => {
     return () => {
       transitionAbortControllerRef.current?.abort();
-      transitionAbortControllerRef.current = null;
     };
   }, []);
 
@@ -169,8 +168,8 @@ export function usePopupViewport(parameters: UsePopupViewportParameters): UsePop
       // Force layout in the starting state before removing the attribute to ensure
       // transitions always start while keeping the first transition frame early.
       cleanupFrame.request(() => {
+        // A single layout read is enough to flush pending style changes.
         currentContainerRef.current?.getBoundingClientRect();
-        previousContainerRef.current?.getBoundingClientRect();
 
         setShowStartingStyleAttribute(false);
         onAnimationsFinished(() => {
