@@ -246,9 +246,16 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     : indeterminate;
 
   React.useEffect(() => {
-    if (parentContext && value) {
-      parentContext.disabledStatesRef.current.set(value, disabled);
+    if (!parentContext || !value) {
+      return undefined;
     }
+
+    const disabledStates = parentContext.disabledStatesRef.current;
+    disabledStates.set(value, disabled);
+
+    return () => {
+      disabledStates.delete(value);
+    };
   }, [parentContext, disabled, value]);
 
   const state: CheckboxRoot.State = React.useMemo(
@@ -300,7 +307,15 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
 
           event.preventDefault();
 
-          inputRef.current?.click();
+          inputRef.current?.dispatchEvent(
+            new PointerEvent('click', {
+              bubbles: true,
+              shiftKey: event.shiftKey,
+              ctrlKey: event.ctrlKey,
+              altKey: event.altKey,
+              metaKey: event.metaKey,
+            }),
+          );
         },
       },
       getDescriptionProps,
