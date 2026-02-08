@@ -105,6 +105,7 @@ export const CollapsiblePanel = React.forwardRef(function CollapsiblePanel(
     setOpen,
     setVisible,
     transitionDimensionRef,
+    transitionStatus,
     visible,
     width,
   });
