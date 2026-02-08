@@ -663,4 +663,119 @@ describe('<NumberField.Input />', () => {
 
     expect(input.value).to.equal((1234.5).toLocaleString('fr-FR'));
   });
+
+  describe('style hooks', () => {
+    describe('touched', () => {
+      it('should apply [data-touched] when focused and blurred', async () => {
+        await render(
+          <NumberField.Root>
+            <NumberField.Input data-testid="input" />
+          </NumberField.Root>,
+        );
+
+        const input = screen.getByTestId('input');
+        expect(input).not.to.have.attribute('data-touched');
+
+        fireEvent.focus(input);
+        fireEvent.blur(input);
+
+        expect(input).to.have.attribute('data-touched', '');
+      });
+
+      it('should remain touched after regaining and losing focus', async () => {
+        await render(
+          <NumberField.Root>
+            <NumberField.Input data-testid="input" />
+          </NumberField.Root>,
+        );
+
+        const input = screen.getByTestId('input');
+
+        fireEvent.focus(input);
+        fireEvent.blur(input);
+
+        expect(input).to.have.attribute('data-touched', '');
+
+        fireEvent.focus(input);
+        expect(input).to.have.attribute('data-touched', '');
+
+        fireEvent.blur(input);
+        expect(input).to.have.attribute('data-touched', '');
+      });
+    });
+
+    describe('dirty', () => {
+      it('should apply [data-dirty] when value changes', async () => {
+        await render(
+          <NumberField.Root>
+            <NumberField.Input data-testid="input" />
+          </NumberField.Root>,
+        );
+
+        const input = screen.getByTestId('input');
+        expect(input).not.to.have.attribute('data-dirty');
+
+        fireEvent.change(input, { target: { value: '5' } });
+        expect(input).to.have.attribute('data-dirty', '');
+
+        fireEvent.change(input, { target: { value: '' } });
+        expect(input).not.to.have.attribute('data-dirty');
+      });
+
+      it('should not be dirty when changing back to the initial value', async () => {
+        await render(
+          <NumberField.Root defaultValue={10}>
+            <NumberField.Input data-testid="input" />
+          </NumberField.Root>,
+        );
+
+        const input = screen.getByTestId('input');
+        expect(input).not.to.have.attribute('data-dirty');
+
+        fireEvent.change(input, { target: { value: '20' } });
+        expect(input).to.have.attribute('data-dirty', '');
+
+        fireEvent.change(input, { target: { value: '10' } });
+        expect(input).not.to.have.attribute('data-dirty');
+      });
+    });
+
+    describe('filled', () => {
+      it('should apply [data-filled] when filled', async () => {
+        await render(
+          <NumberField.Root>
+            <NumberField.Input data-testid="input" />
+          </NumberField.Root>,
+        );
+
+        const input = screen.getByTestId('input');
+        expect(input).not.to.have.attribute('data-filled');
+
+        fireEvent.change(input, { target: { value: '42' } });
+        expect(input).to.have.attribute('data-filled', '');
+
+        fireEvent.change(input, { target: { value: '' } });
+        expect(input).not.to.have.attribute('data-filled');
+      });
+    });
+
+    describe('focused', () => {
+      it('should apply [data-focused] when focused', async () => {
+        await render(
+          <NumberField.Root>
+            <NumberField.Input data-testid="input" />
+          </NumberField.Root>,
+        );
+
+        const input = screen.getByTestId('input');
+        expect(input).not.to.have.attribute('data-focused');
+
+        fireEvent.focus(input);
+        expect(input).to.have.attribute('data-focused', '');
+
+        fireEvent.blur(input);
+        expect(input).not.to.have.attribute('data-focused');
+      });
+    });
+  });
 });

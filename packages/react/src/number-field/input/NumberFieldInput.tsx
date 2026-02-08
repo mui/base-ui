@@ -4,6 +4,7 @@ import { stopEvent } from '../../floating-ui-react/utils';
 import { useNumberFieldRootContext } from '../root/NumberFieldRootContext';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
+import { useFieldInteractionStateContext } from '../../field/FieldInteractionStateContext';
 import { fieldValidityMapping } from '../../field/utils/constants';
 import { useField } from '../../field/useField';
 import { useFormContext } from '../../form/FormContext';
@@ -87,8 +88,8 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
   } = useNumberFieldRootContext();
 
   const { clearErrors } = useFormContext();
-  const { validationMode, setTouched, setFocused, invalid, shouldValidateOnChange, validation } =
-    useFieldRootContext();
+  const { validationMode, invalid, shouldValidateOnChange, validation } = useFieldRootContext();
+  const { setTouched, setFocused } = useFieldInteractionStateContext();
   const { labelId } = useLabelableContext();
 
   const hasTouchedInputRef = React.useRef(false);
