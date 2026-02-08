@@ -12,7 +12,10 @@ import { TabsRootContext } from './TabsRootContext';
 import { tabsStateAttributesMapping } from './stateAttributesMapping';
 import type { TabsTab } from '../tab/TabsTab';
 import type { TabsPanel } from '../panel/TabsPanel';
-import { type BaseUIChangeEventDetails } from '../../utils/createBaseUIEventDetails';
+import {
+  type BaseUIChangeEventDetails,
+  createChangeEventDetails,
+} from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
 
 /**
@@ -192,9 +195,13 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
   }, [tabMap]);
 
   // Automatically switch to the first enabled tab when:
-  // - The current selection is disabled (and wasn't explicitly set via defaultValue)
+  // - Initial render with no explicit value (fires onValueChange with 'initial' reason)
+  // - The current selection is disabled (and wasn't explicitly set via defaultValue on initial render)
   // - The current selection is missing (tab was removed from DOM)
   // Falls back to null if all tabs are disabled.
+  const hasRunOnceRef = React.useRef(false);
+  const initialDisabledStateRef = React.useRef<boolean | undefined>(undefined);
+
   useIsoLayoutEffect(() => {
     if (isControlled || tabMap.size === 0) {
       return;
@@ -202,34 +209,77 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
 
     const selectionIsDisabled = selectedTabMetadata?.disabled;
     const selectionIsMissing = selectedTabMetadata == null && value !== null;
+    const hasNoSelection = value == null; // Catches both null and undefined
+    const isInitialRun = !hasRunOnceRef.current;
 
+    // Track the initial disabled state on first run
+    if (isInitialRun && selectedTabMetadata != null) {
+      initialDisabledStateRef.current = selectedTabMetadata.disabled;
+    }
+
+    // Always honor explicit defaultValue pointing to a disabled tab,
+    // BUT only if it was disabled from the start (not if it became disabled later).
+    // This preserves the user's explicit choice while still firing callbacks for dynamic changes.
     const shouldHonorExplicitDefaultSelection =
-      hasExplicitDefaultValueProp && selectionIsDisabled && value === defaultValueProp;
+      hasExplicitDefaultValueProp &&
+      selectionIsDisabled &&
+      value === defaultValueProp &&
+      initialDisabledStateRef.current === true;
 
     if (shouldHonorExplicitDefaultSelection) {
+      hasRunOnceRef.current = true;
       return;
     }
 
-    if (!selectionIsDisabled && !selectionIsMissing) {
+    hasRunOnceRef.current = true;
+
+    // Need to auto-select if:
+    // - Selection is disabled
+    // - Selection is missing (tab removed)
+    // - No selection at all (value is null/undefined)
+    // - Initial run with no explicit defaultValue (automatic default to 0)
+    const isAutomaticDefault = isInitialRun && !hasExplicitDefaultValueProp;
+    const needsAutoSelection =
+      selectionIsDisabled || selectionIsMissing || hasNoSelection || isAutomaticDefault;
+
+    if (!needsAutoSelection) {
       return;
     }
 
     const fallbackValue = firstEnabledTabValue ?? null;
 
-    if (value === fallbackValue) {
+    // Skip if value already matches fallback, UNLESS this is an automatic default selection
+    // (where value happens to match fallback but we still need to notify)
+    if (value === fallbackValue && !isAutomaticDefault) {
       return;
     }
 
-    setValue(fallbackValue);
-    setTabActivationDirection('none');
+    // Determine the appropriate reason based on context:
+    // - 'initial': First automatic selection (no value/defaultValue provided)
+    // - 'disabled': Tab became disabled after initial render
+    // - 'missing': Tab was removed from DOM
+    let reason: TabsRoot.ChangeEventReason;
+    if (isInitialRun) {
+      reason = REASONS.initial;
+    } else if (selectionIsDisabled) {
+      reason = REASONS.disabled;
+    } else {
+      reason = REASONS.missing;
+    }
+
+    // Call onValueChange to notify about automatic selection
+    const eventDetails = createChangeEventDetails(reason, undefined, undefined, {
+      activationDirection: 'none' as const,
+    });
+
+    onValueChange(fallbackValue, eventDetails);
   }, [
     defaultValueProp,
     firstEnabledTabValue,
     hasExplicitDefaultValueProp,
     isControlled,
+    onValueChange,
     selectedTabMetadata,
-    setTabActivationDirection,
-    setValue,
     tabMap,
     value,
   ]);
@@ -285,7 +335,11 @@ export interface TabsRootProps extends BaseUIComponentProps<'div', TabsRoot.Stat
     | undefined;
 }
 
-export type TabsRootChangeEventReason = typeof REASONS.none;
+export type TabsRootChangeEventReason =
+  | typeof REASONS.none
+  | typeof REASONS.disabled
+  | typeof REASONS.missing
+  | typeof REASONS.initial;
 export type TabsRootChangeEventDetails = BaseUIChangeEventDetails<
   TabsRoot.ChangeEventReason,
   { activationDirection: TabsTab.ActivationDirection }
