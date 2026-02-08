@@ -10,7 +10,7 @@ import {
   useCompositeListItem,
   IndexGuessBehavior,
 } from '../../composite/list/useCompositeListItem';
-import type { BaseUIComponentProps, HTMLProps, NonNativeButtonProps } from '../../utils/types';
+import type { HTMLProps, NativeButtonComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { SelectItemContext } from './SelectItemContext';
 import { selectors } from '../store';
@@ -252,7 +252,7 @@ export const SelectItem = React.memo(
 
     return <SelectItemContext.Provider value={contextValue}>{element}</SelectItemContext.Provider>;
   }),
-);
+) as SelectItemComponent;
 
 export interface SelectItemState {
   /**
@@ -269,8 +269,10 @@ export interface SelectItemState {
   highlighted: boolean;
 }
 
-export interface SelectItemProps
-  extends NonNativeButtonProps, Omit<BaseUIComponentProps<'div', SelectItem.State>, 'id'> {
+export type SelectItemProps<
+  TNativeButton extends boolean,
+  TElement extends React.ElementType,
+> = Omit<NativeButtonComponentProps<TNativeButton, TElement, SelectItem.State>, 'id' | 'value'> & {
   children?: React.ReactNode;
   /**
    * A unique value that identifies this select item.
@@ -288,9 +290,19 @@ export interface SelectItemProps
    * Defaults to the item text content if not provided.
    */
   label?: string | undefined;
-}
+};
 
 export namespace SelectItem {
   export type State = SelectItemState;
-  export type Props = SelectItemProps;
+  export type Props<
+    TNativeButton extends boolean = false,
+    TElement extends React.ElementType = 'div',
+  > = SelectItemProps<TNativeButton, TElement>;
 }
+
+type SelectItemComponent = <
+  TNativeButton extends boolean = false,
+  TElement extends React.ElementType = 'div',
+>(
+  props: SelectItem.Props<TNativeButton, TElement> & { ref?: React.Ref<HTMLElement> | undefined },
+) => React.ReactElement | null;

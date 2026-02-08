@@ -3,7 +3,7 @@ import * as React from 'react';
 import { isElementDisabled } from '@base-ui/utils/isElementDisabled';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { triggerOpenStateMapping } from '../../utils/collapsibleOpenStateMapping';
-import { BaseUIComponentProps, NativeButtonProps } from '../../utils/types';
+import { NativeButtonComponentProps } from '../../utils/types';
 import { useButton } from '../../use-button';
 import { useCollapsibleRootContext } from '../../collapsible/root/CollapsibleRootContext';
 import {
@@ -179,11 +179,25 @@ export const AccordionTrigger = React.forwardRef(function AccordionTrigger(
   });
 
   return element;
-});
+}) as AccordionTriggerComponent;
 
-export interface AccordionTriggerProps
-  extends NativeButtonProps, BaseUIComponentProps<'button', AccordionItem.State> {}
+export type AccordionTriggerProps<
+  TNativeButton extends boolean,
+  TElement extends React.ElementType,
+> = NativeButtonComponentProps<TNativeButton, TElement, AccordionItem.State>;
 
 export namespace AccordionTrigger {
-  export type Props = AccordionTriggerProps;
+  export type Props<
+    TNativeButton extends boolean = true,
+    TElement extends React.ElementType = 'button',
+  > = AccordionTriggerProps<TNativeButton, TElement>;
 }
+
+type AccordionTriggerComponent = <
+  TNativeButton extends boolean = true,
+  TElement extends React.ElementType = 'button',
+>(
+  props: AccordionTrigger.Props<TNativeButton, TElement> & {
+    ref?: React.Ref<HTMLElement> | undefined;
+  },
+) => React.ReactElement | null;

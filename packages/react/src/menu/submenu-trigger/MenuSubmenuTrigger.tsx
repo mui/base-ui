@@ -6,7 +6,7 @@ import {
   useHoverReferenceInteraction,
   useInteractions,
 } from '../../floating-ui-react';
-import { BaseUIComponentProps, NonNativeButtonProps } from '../../utils/types';
+import { NativeButtonComponentProps } from '../../utils/types';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
@@ -165,7 +165,7 @@ export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerCompon
   });
 
   return element;
-});
+}) as MenuSubmenuTriggerComponent;
 
 export interface MenuSubmenuTriggerState {
   /**
@@ -182,9 +182,11 @@ export interface MenuSubmenuTriggerState {
   open: boolean;
 }
 
-export interface MenuSubmenuTriggerProps
-  extends NonNativeButtonProps, BaseUIComponentProps<'div', MenuSubmenuTriggerState> {
-  onClick?: BaseUIComponentProps<'div', MenuSubmenuTriggerState>['onClick'] | undefined;
+export type MenuSubmenuTriggerProps<
+  TNativeButton extends boolean,
+  TElement extends React.ElementType,
+> = NativeButtonComponentProps<TNativeButton, TElement, MenuSubmenuTrigger.State> & {
+  onClick?: React.MouseEventHandler<HTMLElement> | undefined;
   /**
    * Overrides the text label to use when the item is matched during keyboard text navigation.
    */
@@ -217,9 +219,21 @@ export interface MenuSubmenuTriggerProps
    * Whether the menu should also open when the trigger is hovered.
    */
   openOnHover?: boolean | undefined;
-}
+};
 
 export namespace MenuSubmenuTrigger {
-  export type Props = MenuSubmenuTriggerProps;
+  export type Props<
+    TNativeButton extends boolean = false,
+    TElement extends React.ElementType = 'div',
+  > = MenuSubmenuTriggerProps<TNativeButton, TElement>;
   export type State = MenuSubmenuTriggerState;
 }
+
+type MenuSubmenuTriggerComponent = <
+  TNativeButton extends boolean = false,
+  TElement extends React.ElementType = 'div',
+>(
+  props: MenuSubmenuTrigger.Props<TNativeButton, TElement> & {
+    ref?: React.Ref<HTMLElement> | undefined;
+  },
+) => React.ReactElement | null;

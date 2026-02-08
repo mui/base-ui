@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { useStore } from '@base-ui/utils/store';
 import { useComboboxInputValueContext, useComboboxRootContext } from '../root/ComboboxRootContext';
-import type { BaseUIComponentProps, NativeButtonProps } from '../../utils/types';
+import type { NativeButtonComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { selectors } from '../store';
 import { useButton } from '../../use-button';
@@ -138,7 +138,7 @@ export const ComboboxClear = React.forwardRef(function ComboboxClear(
   }
 
   return element;
-});
+}) as ComboboxClearComponent;
 
 export interface ComboboxClearState {
   /**
@@ -152,8 +152,10 @@ export interface ComboboxClearState {
   transitionStatus: TransitionStatus;
 }
 
-export interface ComboboxClearProps
-  extends NativeButtonProps, BaseUIComponentProps<'button', ComboboxClear.State> {
+export type ComboboxClearProps<
+  TNativeButton extends boolean,
+  TElement extends React.ElementType,
+> = NativeButtonComponentProps<TNativeButton, TElement, ComboboxClear.State> & {
   /**
    * Whether the component should ignore user interaction.
    * @default false
@@ -164,9 +166,21 @@ export interface ComboboxClearProps
    * @default false
    */
   keepMounted?: boolean | undefined;
-}
+};
 
 export namespace ComboboxClear {
   export type State = ComboboxClearState;
-  export type Props = ComboboxClearProps;
+  export type Props<
+    TNativeButton extends boolean = true,
+    TElement extends React.ElementType = 'button',
+  > = ComboboxClearProps<TNativeButton, TElement>;
 }
+
+type ComboboxClearComponent = <
+  TNativeButton extends boolean = true,
+  TElement extends React.ElementType = 'button',
+>(
+  props: ComboboxClear.Props<TNativeButton, TElement> & {
+    ref?: React.Ref<HTMLButtonElement> | undefined;
+  },
+) => React.ReactElement | null;
