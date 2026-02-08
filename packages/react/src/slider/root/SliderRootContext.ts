@@ -41,6 +41,8 @@ export interface SliderRootContext {
    * Defaults to the user's runtime locale.
    */
   locale?: Intl.LocalesArgument | undefined;
+  mapPositionToValue: (position: number) => number;
+  mapValueToPosition: (value: number) => number;
   /**
    * The maximum allowed value of the slider.
    */
