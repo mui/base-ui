@@ -33,6 +33,12 @@
       "description": "A handle to associate the popover with a trigger.\nIf specified, allows external triggers to control the popover's open state.",
       "detailedType": "{} | undefined"
     },
+    "lockScrollOnHover": {
+      "type": "boolean",
+      "default": "false",
+      "description": "Whether scroll lock should apply when the popover opens via hover.\nRequires `modal={true}`.",
+      "detailedType": "boolean | undefined"
+    },
     "modal": {
       "type": "boolean | 'trap-focus'",
       "default": "false",
