@@ -105,6 +105,15 @@ export function usePopupViewport(parameters: UsePopupViewportParameters): UsePop
   } | null>(null);
 
   const [showStartingStyleAttribute, setShowStartingStyleAttribute] = React.useState(false);
+  const transitionIdRef = React.useRef(0);
+  const transitionAbortControllerRef = React.useRef<AbortController | null>(null);
+
+  useIsoLayoutEffect(() => {
+    return () => {
+      transitionAbortControllerRef.current?.abort();
+      transitionAbortControllerRef.current = null;
+    };
+  }, []);
 
   useIsoLayoutEffect(() => {
     store.set('hasViewport', true);
@@ -143,6 +152,12 @@ export function usePopupViewport(parameters: UsePopupViewportParameters): UsePop
       lastHandledTriggerRef.current !== activeTrigger &&
       capturedNodeRef.current
     ) {
+      transitionAbortControllerRef.current?.abort();
+      const transitionAbortController = new AbortController();
+      transitionAbortControllerRef.current = transitionAbortController;
+      const transitionId = transitionIdRef.current + 1;
+      transitionIdRef.current = transitionId;
+
       setPreviousContentNode(capturedNodeRef.current);
       setShowStartingStyleAttribute(true);
 
@@ -151,15 +166,26 @@ export function usePopupViewport(parameters: UsePopupViewportParameters): UsePop
       const offset = calculateRelativePosition(previousActiveTrigger, activeTrigger);
       setNewTriggerOffset(offset);
 
+      // Force layout in the starting state before removing the attribute to ensure
+      // transitions always start while keeping the first transition frame early.
       cleanupFrame.request(() => {
-        cleanupFrame.request(() => {
-          setShowStartingStyleAttribute(false);
-          onAnimationsFinished(() => {
-            setPreviousContentNode(null);
-            setPreviousContentDimensions(null);
-            capturedNodeRef.current = null;
-          });
-        });
+        currentContainerRef.current?.getBoundingClientRect();
+        previousContainerRef.current?.getBoundingClientRect();
+
+        setShowStartingStyleAttribute(false);
+        onAnimationsFinished(() => {
+          if (transitionIdRef.current !== transitionId) {
+            return;
+          }
+
+          setPreviousContentNode(null);
+          setPreviousContentDimensions(null);
+          capturedNodeRef.current = null;
+
+          if (transitionAbortControllerRef.current === transitionAbortController) {
+            transitionAbortControllerRef.current = null;
+          }
+        }, transitionAbortController.signal);
       });
 
       lastHandledTriggerRef.current = activeTrigger;
