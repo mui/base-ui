@@ -170,6 +170,12 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     }
   }, [checked, groupIndeterminate, setFilled]);
 
+  useIsoLayoutEffect(() => {
+    if (disabled) {
+      setFocused(false);
+    }
+  }, [disabled, setFocused]);
+
   useValueChanged(checked, () => {
     if (groupContext && !parent) {
       return;

@@ -581,6 +581,71 @@ describe('<RadioGroup />', () => {
       expect(b).to.have.attribute('data-unchecked', '');
       expect(indicatorB).to.have.attribute('data-unchecked', '');
     });
+
+    describe('[data-focused]', () => {
+      it('sets [data-focused] when focused', async () => {
+        const { user } = await render(
+          <Field.Root>
+            <RadioGroup>
+              <Radio.Root value="a" />
+              <Radio.Root value="b" />
+            </RadioGroup>
+          </Field.Root>,
+        );
+
+        const [radioA] = screen.getAllByRole('radio');
+        expect(radioA).not.to.have.attribute('data-focused');
+
+        await user.keyboard('{Tab}');
+        expect(radioA).to.have.attribute('data-focused', '');
+
+        await user.keyboard('{Tab}');
+        expect(radioA).not.to.have.attribute('data-focused');
+      });
+
+      it('should remove [data-focused] when the field becomes disabled', async () => {
+        const { user, setProps } = await render(
+          <Field.Root>
+            <RadioGroup>
+              <Radio.Root value="a" />
+              <Radio.Root value="b" />
+            </RadioGroup>
+          </Field.Root>,
+        );
+
+        const [radioA] = screen.getAllByRole('radio');
+        expect(radioA).not.to.have.attribute('data-focused');
+
+        await user.keyboard('{Tab}');
+        expect(radioA).to.have.attribute('data-focused', '');
+
+        await setProps({ disabled: true });
+        expect(radioA).not.to.have.attribute('data-focused');
+      });
+
+      it('should remove [data-focused] when the radio group becomes disabled', async () => {
+        function App({ disabled }: { disabled: boolean }) {
+          return (
+            <Field.Root>
+              <RadioGroup disabled={disabled}>
+                <Radio.Root value="a" />
+                <Radio.Root value="b" />
+              </RadioGroup>
+            </Field.Root>
+          );
+        }
+        const { user, setProps } = await render(<App disabled={false} />);
+
+        const [radioA] = screen.getAllByRole('radio');
+        expect(radioA).not.to.have.attribute('data-focused');
+
+        await user.keyboard('{Tab}');
+        expect(radioA).to.have.attribute('data-focused', '');
+
+        await setProps({ disabled: true });
+        expect(radioA).not.to.have.attribute('data-focused');
+      });
+    });
   });
 
   it('does not forward `value` prop', async () => {
