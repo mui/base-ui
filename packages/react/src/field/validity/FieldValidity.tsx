@@ -3,6 +3,7 @@ import * as React from 'react';
 import { useFieldRootContext } from '../root/FieldRootContext';
 import { getCombinedFieldValidityData } from '../utils/getCombinedFieldValidityData';
 import { FieldValidityData } from '../root/FieldRoot';
+import { type TransitionStatus, useTransitionStatus } from '../../utils/useTransitionStatus';
 
 /**
  * Used to display a custom message based on the field’s validity.
@@ -14,19 +15,27 @@ export const FieldValidity: React.FC<FieldValidity.Props> = function FieldValidi
   const { children } = props;
   const { validityData, invalid } = useFieldRootContext(false);
 
+  const combinedFieldValidityData = React.useMemo(
+    () => getCombinedFieldValidityData(validityData, invalid),
+    [validityData, invalid],
+  );
+  const isInvalid = combinedFieldValidityData.state.valid === false;
+  const { transitionStatus } = useTransitionStatus(isInvalid);
+
   const fieldValidityState: FieldValidity.State = React.useMemo(() => {
-    const combinedFieldValidityData = getCombinedFieldValidityData(validityData, invalid);
     return {
       ...combinedFieldValidityData,
       validity: combinedFieldValidityData.state,
+      transitionStatus,
     };
-  }, [validityData, invalid]);
+  }, [combinedFieldValidityData, transitionStatus]);
 
   return <React.Fragment>{children(fieldValidityState)}</React.Fragment>;
 };
 
 export interface FieldValidityState extends Omit<FieldValidityData, 'state'> {
   validity: FieldValidityData['state'];
+  transitionStatus: TransitionStatus;
 }
 
 export interface FieldValidityProps {
