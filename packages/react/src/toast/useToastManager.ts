@@ -26,8 +26,17 @@ export function useToastManager<Data extends object = any>(): UseToastManagerRet
     [toasts, add, close, update, promise],
   );
 }
+export interface UserToastObject {}
 
-export interface ToastObject<Data extends object> {
+interface BaseToastType {
+  /**
+   * The type of the toast. Used to conditionally style the toast,
+   * including conditionally rendering elements based on the type.
+   */
+  type?: string | undefined;
+}
+
+interface BaseToastObject<Data extends object> {
   /**
    * The unique identifier for the toast.
    */
@@ -40,11 +49,6 @@ export interface ToastObject<Data extends object> {
    * The title of the toast.
    */
   title?: React.ReactNode;
-  /**
-   * The type of the toast. Used to conditionally style the toast,
-   * including conditionally rendering elements based on the type.
-   */
-  type?: string | undefined;
   /**
    * The description of the toast.
    */
@@ -96,6 +100,15 @@ export interface ToastObject<Data extends object> {
   data?: Data | undefined;
 }
 
+type ToastTypeObject = keyof UserToastObject extends never
+  ? BaseToastType
+  : UserToastObject extends BaseToastType
+    ? UserToastObject
+    : BaseToastType;
+
+export type ToastType = ToastTypeObject['type'];
+
+export type ToastObject<Data extends object> = BaseToastObject<Data> & ToastTypeObject;
 export interface ToastManagerPositionerProps extends Omit<
   ToastPositionerProps,
   'anchor' | 'toast'
