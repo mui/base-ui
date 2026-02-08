@@ -5,7 +5,7 @@ import { expect } from 'chai';
 import { createRenderer, isJSDOM } from '#test-utils';
 import { List } from './utils/test-utils';
 
-describe.skipIf(!isJSDOM)('Manager', () => {
+describe.skipIf(!isJSDOM)('createToastManager', () => {
   const { render, clock } = createRenderer();
 
   clock.withFakeTimers();
