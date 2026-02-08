@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { isMac } from '@base-ui/utils/detectBrowser';
 import { HTMLProps } from '../../utils/types';
 import { MenuStore } from '../store/MenuStore';
 import { REASONS } from '../../utils/reasons';
@@ -81,6 +82,10 @@ export function useMenuItemCommonProps(params: UseMenuItemCommonPropsParameters)
             Math.abs(event.clientX - initialCursorPoint.x) <= 1 &&
             Math.abs(event.clientY - initialCursorPoint.y) <= 1
           ) {
+            return;
+          }
+
+          if (isContextMenu && !isMac && event.button === 2) {
             return;
           }
         }
