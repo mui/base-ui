@@ -2080,6 +2080,62 @@ describe('<Combobox.Root />', () => {
       expect(input).to.have.value('');
     });
 
+    it('"multiple" keeps uncontrolled input after select when clearInputAfterSelection is false', async () => {
+      const { user } = await render(
+        <Combobox.Root multiple clearInputAfterSelection={false}>
+          <Combobox.Input data-testid="input" />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  <Combobox.Item value="apple">apple</Combobox.Item>
+                  <Combobox.Item value="banana">banana</Combobox.Item>
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByTestId('input');
+      await user.type(input, 'app');
+      await flushMicrotasks();
+      await user.click(screen.getByRole('option', { name: 'apple' }));
+      await flushMicrotasks();
+
+      expect(input).to.have.value('app');
+      expect(screen.queryByRole('listbox')).to.equal(null);
+    });
+
+    it('"multiple" keeps popup open when closePopupAfterSelection is false', async () => {
+      const { user } = await render(
+        <Combobox.Root multiple closePopupAfterSelection={false}>
+          <Combobox.Input data-testid="input" />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  <Combobox.Item value="apple">apple</Combobox.Item>
+                  <Combobox.Item value="banana">banana</Combobox.Item>
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByTestId('input');
+      await user.type(input, 'app');
+      await flushMicrotasks();
+      await user.click(screen.getByRole('option', { name: 'apple' }));
+      await flushMicrotasks();
+
+      await waitFor(() => {
+        expect(screen.queryByRole('listbox')).not.to.equal(null);
+      });
+      expect(input).to.have.value('');
+    });
+
     it('does not close popup when filtering with input inside popup in multiple mode', async () => {
       const items = ['apple', 'apricot', 'banana'];
       const { user } = await render(
