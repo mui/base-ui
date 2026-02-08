@@ -43,6 +43,7 @@ export type ComboboxRootProps<Value, Multiple extends boolean | undefined = fals
   | 'itemToStringLabel'
   | 'itemToStringValue'
   | 'isItemEqualToValue'
+  | 'filter'
   // Different names
   | 'selectionMode'
   | 'defaultSelectedValue'
@@ -64,6 +65,15 @@ export type ComboboxRootProps<Value, Multiple extends boolean | undefined = fals
    * @default false
    */
   autoHighlight?: boolean | undefined;
+  /**
+   * Filter function used to match items vs input query.
+   * By default, when an item is an object with a `keywords` array, those keywords are also
+   * matched (trimmed) alongside the item's label/value.
+   */
+  filter?:
+    | ((itemValue: Value, query: string, itemToString?: (itemValue: Value) => string) => boolean)
+    | null
+    | undefined;
   /**
    * Whether moving the pointer over items should highlight them.
    * Disabling this prop allows CSS `:hover` to be differentiated from the `:focus` (`data-highlighted`) state.

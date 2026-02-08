@@ -74,6 +74,28 @@ export function stringifyAsLabel(item: any, itemToStringLabel?: (item: any) => s
   return serializeValue(item);
 }
 
+export function resolveItemKeywords(item: any): string[] {
+  if (!item || typeof item !== 'object') {
+    return [];
+  }
+
+  const { keywords } = item as { keywords?: unknown };
+  if (!Array.isArray(keywords)) {
+    return [];
+  }
+
+  return keywords.reduce<string[]>((acc, keyword) => {
+    if (keyword == null) {
+      return acc;
+    }
+    const trimmed = String(keyword).trim();
+    if (trimmed.length) {
+      acc.push(trimmed);
+    }
+    return acc;
+  }, []);
+}
+
 export function stringifyAsValue(item: any, itemToStringValue?: (item: any) => string) {
   if (itemToStringValue && item != null) {
     return itemToStringValue(item) ?? '';
