@@ -179,6 +179,23 @@ import { DemoComboboxVirtualized } from './demos/virtualized';
 
 <DemoComboboxVirtualized compact />
 
+### Inline (multiple)
+
+Use the `inline` prop to render the list in the normal document flow without its own popup, like in a dialog instead.
+Also pass `open` to keep the list rendered while inline.
+
+import { DemoComboboxInline } from './demos/inline';
+
+<DemoComboboxInline compact />
+
+### Inline in dialog (single)
+
+Render the inline list inside a dialog for a single selection pattern, and share the `open` state between the dialog and combobox.
+
+import { DemoComboboxDialogInline } from './demos/dialog-inline';
+
+<DemoComboboxDialogInline compact />
+
 ## API reference
 
 <Reference
