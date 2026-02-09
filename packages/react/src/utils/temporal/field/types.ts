@@ -477,3 +477,50 @@ export interface TemporalFieldRootActions {
    */
   clear: () => void;
 }
+
+export interface EditSectionParameters {
+  keyPressed: string;
+  sectionIndex: number;
+}
+
+/**
+ * Function called by `applyQuery` which decides:
+ * - what is the new date part value ?
+ * - should the query used to get this value be stored for the next key press ?
+ *
+ * If it returns `{ datePartValue: string; shouldGoToNextSection: boolean }`,
+ * Then we store the query and update the date part with the new value.
+ *
+ * If it returns `{ saveQuery: true` },
+ * Then we store the query and don't update the date part.
+ *
+ * If it returns `{ saveQuery: false },
+ * Then we do nothing.
+ */
+export type TemporalFieldQueryApplier = (
+  queryValue: string,
+  datePart: TemporalFieldDatePart,
+) => { datePartValue: string; shouldGoToNextSection: boolean } | { saveQuery: boolean };
+
+export type AdjustDatePartValueKeyCode =
+  | 'ArrowUp'
+  | 'ArrowDown'
+  | 'PageUp'
+  | 'PageDown'
+  | 'Home'
+  | 'End';
+
+export interface UpdateDatePartParameters {
+  /**
+   * The section on which we want to apply the new value.
+   */
+  sectionIndex: number;
+  /**
+   * Value to apply to the active section.
+   */
+  newDatePartValue: string;
+  /**
+   * Whether the focus will move to the next section if any.
+   */
+  shouldGoToNextSection: boolean;
+}

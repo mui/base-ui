@@ -14,6 +14,8 @@ import {
   getWeekDaysStr,
 } from './adapter-cache';
 import {
+  AdjustDatePartValueKeyCode,
+  TemporalFieldQueryApplier,
   TemporalFieldParsedFormat,
   TemporalFieldSection,
   TemporalFieldStoreSharedParameters,
@@ -289,4 +291,78 @@ export function mergeDateIntoReferenceDate(
     }
   }
   return targetDate;
+}
+
+export function isQueryResponseWithoutValue(
+  response: ReturnType<TemporalFieldQueryApplier>,
+): response is { saveQuery: boolean } {
+  return (response as { saveQuery: boolean }).saveQuery != null;
+}
+
+export function getAdjustmentDelta(
+  keyCode: AdjustDatePartValueKeyCode,
+  currentValue: string,
+): number | 'boundary' {
+  const isStart = keyCode === 'Home';
+  const isEnd = keyCode === 'End';
+
+  if (currentValue === '' || isStart || isEnd) {
+    return 'boundary';
+  }
+
+  switch (keyCode) {
+    case 'ArrowUp':
+      return 1;
+    case 'ArrowDown':
+      return -1;
+    case 'PageUp':
+      return 5;
+    case 'PageDown':
+      return -5;
+    default:
+      return 'boundary';
+  }
+}
+
+export function getDirection(keyCode: AdjustDatePartValueKeyCode): 'up' | 'down' {
+  return keyCode === 'ArrowUp' || keyCode === 'PageUp' || keyCode === 'Home' ? 'up' : 'down';
+}
+
+export function isIncrementDirection(keyCode: AdjustDatePartValueKeyCode): boolean {
+  return keyCode === 'ArrowUp' || keyCode === 'PageUp';
+}
+
+export function isDecrementDirection(keyCode: AdjustDatePartValueKeyCode): boolean {
+  return keyCode === 'ArrowDown' || keyCode === 'PageDown';
+}
+
+/**
+ * Wraps a value within [min, max] bounds, cycling around when exceeding limits.
+ * E.g., wrapInRange(32, 1, 31) => 1, wrapInRange(0, 1, 31) => 31
+ */
+export function wrapInRange(value: number, min: number, max: number): number {
+  const range = max - min + 1;
+  if (value > max) {
+    return min + ((value - max - 1) % range);
+  }
+  if (value < min) {
+    return max - ((min - value - 1) % range);
+  }
+  return value;
+}
+
+/**
+ * Aligns a value to the nearest step boundary in the given direction.
+ * - 'up' rounds down (e.g., alignToStep(22, 5, 'up') => 20)
+ * - 'down' rounds up (e.g., alignToStep(22, 5, 'down') => 25)
+ */
+export function alignToStep(value: number, stepVal: number, direction: 'up' | 'down'): number {
+  if (value % stepVal === 0) {
+    return value;
+  }
+  if (direction === 'down') {
+    // For JS: -3 % 5 = -3 (should be 2), so we use (step + value) % step
+    return value + stepVal - ((stepVal + value) % stepVal);
+  }
+  return value - (value % stepVal);
 }

@@ -9,6 +9,9 @@ import {
   TemporalSupportedValue,
 } from '../../../types';
 import {
+  AdjustDatePartValueKeyCode,
+  EditSectionParameters,
+  TemporalFieldQueryApplier,
   TemporalFieldModelUpdater,
   TemporalFieldState,
   TemporalFieldStoreSharedParameters,
@@ -19,19 +22,27 @@ import {
   TemporalFieldSection,
   TemporalFieldToken,
   TemporalFieldValueChangeEventDetails,
+  UpdateDatePartParameters,
 } from './types';
 import { FormatParser } from './formatParser';
 import {
+  alignToStep,
   buildSections,
   deriveStateFromParameters,
+  getAdjustmentDelta,
+  getDirection,
   getTimezoneToRender,
   applyLocalizedDigits,
   cleanDigitDatePartValue,
   getLetterEditingOptions,
   isDatePart,
+  isDecrementDirection,
+  isIncrementDirection,
+  isQueryResponseWithoutValue,
   isStringNumber,
   mergeDateIntoReferenceDate,
   removeLocalizedDigits,
+  wrapInRange,
 } from './utils';
 import { TextDirection } from '../../../direction-provider';
 import { TimeoutManager } from '../../TimeoutManager';
@@ -739,7 +750,7 @@ export class TemporalFieldStore<TValue extends TemporalSupportedValue> extends R
       _format: string,
       options: string[],
       queryValue: string,
-    ): ReturnType<QueryApplier> => {
+    ): ReturnType<TemporalFieldQueryApplier> => {
       const matchingValues = options.filter((option) =>
         option.toLowerCase().startsWith(queryValue),
       );
@@ -790,7 +801,7 @@ export class TemporalFieldStore<TValue extends TemporalSupportedValue> extends R
       return { saveQuery: false };
     };
 
-    const getFirstDatePartValueMatchingWithQuery: QueryApplier = (queryValue, dp) => {
+    const getFirstDatePartValueMatchingWithQuery: TemporalFieldQueryApplier = (queryValue, dp) => {
       switch (dp.token.config.part) {
         case 'month': {
           const formatFallbackValue = (fallbackValue: string) =>
@@ -845,7 +856,7 @@ export class TemporalFieldStore<TValue extends TemporalSupportedValue> extends R
       queryValue: string;
       skipIfBelowMinimum: boolean;
       datePart: TemporalFieldDatePart;
-    }): ReturnType<QueryApplier> => {
+    }): ReturnType<TemporalFieldQueryApplier> => {
       const cleanQueryValue = removeLocalizedDigits(queryValue, localizedDigits);
       const queryValueNumber = Number(cleanQueryValue);
       const boundaries = dp.token.boundaries.characterEditing;
@@ -875,7 +886,7 @@ export class TemporalFieldStore<TValue extends TemporalSupportedValue> extends R
       return { datePartValue: newDatePartValue, shouldGoToNextSection };
     };
 
-    const getFirstDatePartValueMatchingWithQuery: QueryApplier = (queryValue, dp) => {
+    const getFirstDatePartValueMatchingWithQuery: TemporalFieldQueryApplier = (queryValue, dp) => {
       if (
         dp.token.config.contentType === 'digit' ||
         dp.token.config.contentType === 'digit-with-letter'
@@ -952,7 +963,7 @@ export class TemporalFieldStore<TValue extends TemporalSupportedValue> extends R
 
   private applyQuery(
     parameters: EditSectionParameters,
-    getFirstDatePartValueMatchingWithQuery: QueryApplier,
+    getFirstDatePartValueMatchingWithQuery: TemporalFieldQueryApplier,
     isValidQueryValue?: (queryValue: string) => boolean,
   ) {
     const { keyPressed, sectionIndex } = parameters;
@@ -1462,119 +1473,4 @@ export class TemporalFieldStore<TValue extends TemporalSupportedValue> extends R
       }
     });
   };
-}
-
-function isQueryResponseWithoutValue(
-  response: ReturnType<QueryApplier>,
-): response is { saveQuery: boolean } {
-  return (response as { saveQuery: boolean }).saveQuery != null;
-}
-
-function getAdjustmentDelta(
-  keyCode: AdjustDatePartValueKeyCode,
-  currentValue: string,
-): number | 'boundary' {
-  const isStart = keyCode === 'Home';
-  const isEnd = keyCode === 'End';
-
-  if (currentValue === '' || isStart || isEnd) {
-    return 'boundary';
-  }
-
-  switch (keyCode) {
-    case 'ArrowUp':
-      return 1;
-    case 'ArrowDown':
-      return -1;
-    case 'PageUp':
-      return 5;
-    case 'PageDown':
-      return -5;
-    default:
-      return 'boundary';
-  }
-}
-
-function getDirection(keyCode: AdjustDatePartValueKeyCode): 'up' | 'down' {
-  return keyCode === 'ArrowUp' || keyCode === 'PageUp' || keyCode === 'Home' ? 'up' : 'down';
-}
-
-function isIncrementDirection(keyCode: AdjustDatePartValueKeyCode): boolean {
-  return keyCode === 'ArrowUp' || keyCode === 'PageUp';
-}
-
-function isDecrementDirection(keyCode: AdjustDatePartValueKeyCode): boolean {
-  return keyCode === 'ArrowDown' || keyCode === 'PageDown';
-}
-
-/**
- * Wraps a value within [min, max] bounds, cycling around when exceeding limits.
- * E.g., wrapInRange(32, 1, 31) => 1, wrapInRange(0, 1, 31) => 31
- */
-function wrapInRange(value: number, min: number, max: number): number {
-  const range = max - min + 1;
-  if (value > max) {
-    return min + ((value - max - 1) % range);
-  }
-  if (value < min) {
-    return max - ((min - value - 1) % range);
-  }
-  return value;
-}
-
-/**
- * Aligns a value to the nearest step boundary in the given direction.
- * - 'up' rounds down (e.g., alignToStep(22, 5, 'up') => 20)
- * - 'down' rounds up (e.g., alignToStep(22, 5, 'down') => 25)
- */
-function alignToStep(value: number, stepVal: number, direction: 'up' | 'down'): number {
-  if (value % stepVal === 0) {
-    return value;
-  }
-  if (direction === 'down') {
-    // For JS: -3 % 5 = -3 (should be 2), so we use (step + value) % step
-    return value + stepVal - ((stepVal + value) % stepVal);
-  }
-  return value - (value % stepVal);
-}
-
-interface EditSectionParameters {
-  keyPressed: string;
-  sectionIndex: number;
-}
-
-/**
- * Function called by `applyQuery` which decides:
- * - what is the new date part value ?
- * - should the query used to get this value be stored for the next key press ?
- *
- * If it returns `{ datePartValue: string; shouldGoToNextSection: boolean }`,
- * Then we store the query and update the date part with the new value.
- *
- * If it returns `{ saveQuery: true` },
- * Then we store the query and don't update the date part.
- *
- * If it returns `{ saveQuery: false },
- * Then we do nothing.
- */
-type QueryApplier = (
-  queryValue: string,
-  datePart: TemporalFieldDatePart,
-) => { datePartValue: string; shouldGoToNextSection: boolean } | { saveQuery: boolean };
-
-type AdjustDatePartValueKeyCode = 'ArrowUp' | 'ArrowDown' | 'PageUp' | 'PageDown' | 'Home' | 'End';
-
-interface UpdateDatePartParameters {
-  /**
-   * The section on which we want to apply the new value.
-   */
-  sectionIndex: number;
-  /**
-   * Value to apply to the active section.
-   */
-  newDatePartValue: string;
-  /**
-   * Whether the focus will move to the next section if any.
-   */
-  shouldGoToNextSection: boolean;
 }

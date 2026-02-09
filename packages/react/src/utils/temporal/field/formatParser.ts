@@ -550,29 +550,32 @@ export class FormatParser {
         ? false
         : helpers.isDigitTokenPadded(this.adapter, tokenValue, getArbitraryDate(this.adapter));
 
+    const boundaries = helpers.getBoundaries(
+      this.adapter,
+      tokenValue,
+      tokenConfig,
+      this.validationProps,
+    );
+
+    const maxLength =
+      isPadded && tokenConfig.contentType !== 'letter'
+        ? String(boundaries.characterEditing.maximum).length
+        : undefined;
+
     return {
       type: 'token',
       isPadded,
       value: tokenValue,
       config: tokenConfig,
       isMostGranularPart: false,
-      maxLength:
-        isPadded && tokenConfig.contentType !== 'letter'
-          ? // Remove all non-digit characters to get the length of digits
-            this.formatArbitraryDateByToken(tokenValue).replace(/\D/g, '').length
-          : undefined,
+      maxLength,
       placeholder: helpers.getTokenPlaceholder(
         this.placeholderGetters,
         tokenValue,
         tokenConfig,
         this.formatArbitraryDateByToken,
       ),
-      boundaries: helpers.getBoundaries(
-        this.adapter,
-        tokenValue,
-        tokenConfig,
-        this.validationProps,
-      ),
+      boundaries,
       transferValue: (sourceDate, targetDate, datePart) =>
         helpers.transferValue(this.adapter, sourceDate, targetDate, datePart),
     };
