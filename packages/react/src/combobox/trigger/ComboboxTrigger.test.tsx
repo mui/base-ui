@@ -290,7 +290,9 @@ describe('<Combobox.Trigger />', () => {
       const trigger = screen.getByTestId('trigger');
       await user.click(trigger);
 
-      expect(onOpenChange.callCount).to.be.greaterThan(0);
+      await waitFor(() => {
+        expect(onOpenChange.callCount).to.equal(1);
+      });
       expect(onOpenChange.lastCall.args[0]).to.equal(true);
       expect(onOpenChange.lastCall.args[1].reason).to.equal(REASONS.triggerPress);
     });
