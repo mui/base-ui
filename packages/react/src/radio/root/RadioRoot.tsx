@@ -143,7 +143,15 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
 
       event.preventDefault();
 
-      inputRef.current?.click();
+      inputRef.current?.dispatchEvent(
+        new PointerEvent('click', {
+          bubbles: true,
+          shiftKey: event.shiftKey,
+          ctrlKey: event.ctrlKey,
+          altKey: event.altKey,
+          metaKey: event.metaKey,
+        }),
+      );
     },
     onFocus(event) {
       if (event.defaultPrevented || disabled || readOnly || !touched) {

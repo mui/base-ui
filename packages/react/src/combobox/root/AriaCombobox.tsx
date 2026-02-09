@@ -543,7 +543,9 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
 
       if (!nextOpen && queryChangedAfterOpen) {
         if (single) {
-          setCloseQuery(query);
+          if (!inline) {
+            setCloseQuery(query);
+          }
           // Avoid a flicker when closing the popup with an empty query.
           if (query === '') {
             setQueryChangedAfterOpen(false);
@@ -606,7 +608,8 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
         single &&
         nextValue != null &&
         eventDetails.reason !== REASONS.inputChange &&
-        queryChangedAfterOpen
+        queryChangedAfterOpen &&
+        !inline
       ) {
         setCloseQuery(query);
       }
@@ -892,14 +895,6 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       validation.commit(selectedValue);
     } else {
       validation.commit(selectedValue, true);
-    }
-
-    if (
-      multiple &&
-      store.state.selectedIndex !== null &&
-      (!Array.isArray(selectedValue) || selectedValue.length === 0)
-    ) {
-      setIndices({ activeIndex: null, selectedIndex: null });
     }
 
     if (single && !hasInputValue && !inputInsidePopup) {

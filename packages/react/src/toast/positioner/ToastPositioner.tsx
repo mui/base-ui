@@ -6,6 +6,7 @@ import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 import { popupStateMapping } from '../../utils/popupStateMapping';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { EMPTY_OBJECT, POPUP_COLLISION_AVOIDANCE } from '../../utils/constants';
+import { getDisabledMountTransitionStyles } from '../../utils/getDisabledMountTransitionStyles';
 import { ToastPositionerContext } from './ToastPositionerContext';
 import { useFloatingRootContext } from '../../floating-ui-react';
 import { NOOP } from '../../utils/noop';
@@ -121,7 +122,7 @@ export const ToastPositioner = React.forwardRef(function ToastPositioner(
 
   const element = useRenderElement('div', componentProps, {
     state,
-    props: [defaultProps, elementProps],
+    props: [defaultProps, getDisabledMountTransitionStyles(toast.transitionStatus), elementProps],
     ref: [forwardedRef, setPositionerElement],
     stateAttributesMapping: popupStateMapping,
   });
