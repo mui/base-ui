@@ -120,6 +120,7 @@ describe('<Autocomplete.Root />', () => {
     expect(input).to.have.attribute('name', 'search');
     expect(input).to.have.attribute('autocomplete', 'on');
     expect(hiddenInput).not.to.have.attribute('name');
+    expect(hiddenInput).to.have.attribute('id');
     expect(hiddenInput).not.to.have.attribute('autocomplete');
   });
 
