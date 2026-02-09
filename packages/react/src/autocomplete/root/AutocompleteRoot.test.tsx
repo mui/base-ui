@@ -97,10 +97,10 @@ describe('<Autocomplete.Root />', () => {
     expect(input.value).to.equal('beta');
   });
 
-  it('should pass autoComplete to the hidden input', async () => {
-    const { container } = await render(
-      <Autocomplete.Root name="search" autoComplete="on">
-        <Autocomplete.Input />
+  it('should pass autoComplete to the visible input', async () => {
+    await render(
+      <Autocomplete.Root name="search">
+        <Autocomplete.Input autoComplete="on" />
         <Autocomplete.Portal>
           <Autocomplete.Positioner>
             <Autocomplete.Popup>
@@ -114,8 +114,13 @@ describe('<Autocomplete.Root />', () => {
       </Autocomplete.Root>,
     );
 
-    const hiddenInput = container.querySelector('input[name="search"]');
-    expect(hiddenInput).to.have.attribute('autocomplete', 'on');
+    const input = screen.getByRole('combobox');
+    const hiddenInput = screen.getByRole('textbox', { hidden: true });
+
+    expect(input).to.have.attribute('name', 'search');
+    expect(input).to.have.attribute('autocomplete', 'on');
+    expect(hiddenInput).not.to.have.attribute('name');
+    expect(hiddenInput).not.to.have.attribute('autocomplete');
   });
 
   describe('prop: autoHighlight', () => {

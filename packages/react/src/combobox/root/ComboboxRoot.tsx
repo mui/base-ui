@@ -11,7 +11,14 @@ import { AriaCombobox } from './AriaCombobox';
 export function ComboboxRoot<Value, Multiple extends boolean | undefined = false>(
   props: ComboboxRoot.Props<Value, Multiple>,
 ): React.JSX.Element {
-  const { multiple = false as Multiple, defaultValue, value, onValueChange, autoComplete, ...other } = props;
+  const {
+    multiple = false as Multiple,
+    defaultValue,
+    value,
+    onValueChange,
+    autoComplete,
+    ...other
+  } = props;
 
   return (
     <AriaCombobox

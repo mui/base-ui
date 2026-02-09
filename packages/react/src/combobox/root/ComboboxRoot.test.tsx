@@ -1202,7 +1202,7 @@ describe('<Combobox.Root />', () => {
   });
 
   it('should pass autoComplete to the hidden input', async () => {
-    const { container } = await render(
+    await render(
       <Combobox.Root name="country" autoComplete="country">
         <Combobox.Input />
         <Combobox.Portal>
@@ -1218,7 +1218,12 @@ describe('<Combobox.Root />', () => {
       </Combobox.Root>,
     );
 
-    const hiddenInput = container.querySelector('input[name="country"]');
+    const input = screen.getByRole('combobox');
+    const hiddenInput = screen.getByRole('textbox', { hidden: true });
+
+    expect(input).to.have.attribute('autocomplete', 'off');
+    expect(input).not.to.have.attribute('name');
+    expect(hiddenInput).to.have.attribute('name', 'country');
     expect(hiddenInput).to.have.attribute('autocomplete', 'country');
   });
 
