@@ -108,6 +108,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     modal = false,
     limit = -1,
     autoComplete = 'list',
+    formAutoComplete,
     locale,
     submitOnItemClick = false,
   } = props;
@@ -543,7 +544,9 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
 
       if (!nextOpen && queryChangedAfterOpen) {
         if (single) {
-          setCloseQuery(query);
+          if (!inline) {
+            setCloseQuery(query);
+          }
           // Avoid a flicker when closing the popup with an empty query.
           if (query === '') {
             setQueryChangedAfterOpen(false);
@@ -606,7 +609,8 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
         single &&
         nextValue != null &&
         eventDetails.reason !== REASONS.inputChange &&
-        queryChangedAfterOpen
+        queryChangedAfterOpen &&
+        !inline
       ) {
         setCloseQuery(query);
       }
@@ -892,14 +896,6 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       validation.commit(selectedValue);
     } else {
       validation.commit(selectedValue, true);
-    }
-
-    if (
-      multiple &&
-      store.state.selectedIndex !== null &&
-      (!Array.isArray(selectedValue) || selectedValue.length === 0)
-    ) {
-      setIndices({ activeIndex: null, selectedIndex: null });
     }
 
     if (single && !hasInputValue && !inputInsidePopup) {
@@ -1246,6 +1242,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
           },
         })}
         name={multiple || selectionMode === 'none' ? undefined : name}
+        autoComplete={formAutoComplete}
         disabled={disabled}
         required={required && !hasMultipleSelection}
         readOnly={readOnly}
@@ -1469,6 +1466,11 @@ interface ComboboxRootProps<ItemValue> {
    * @default 'list'
    */
   autoComplete?: ('list' | 'both' | 'inline' | 'none') | undefined;
+  /**
+   * Provides a hint to the browser for autofill on the hidden input element.
+   * @see https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/autocomplete
+   */
+  formAutoComplete?: string | undefined;
   /**
    * The locale to use for string comparison.
    * Defaults to the user's runtime locale.

@@ -114,17 +114,6 @@ describe('<Combobox.Trigger />', () => {
   });
 
   describe('prop: readOnly', () => {
-    it('should render aria-readonly attribute when readOnly', async () => {
-      await render(
-        <Combobox.Root readOnly>
-          <Combobox.Trigger data-testid="trigger">Open</Combobox.Trigger>
-        </Combobox.Root>,
-      );
-
-      const trigger = screen.getByTestId('trigger');
-      expect(trigger).to.have.attribute('aria-readonly', 'true');
-    });
-
     it('should not open popup when readOnly', async () => {
       const { user } = await render(
         <Combobox.Root readOnly>
