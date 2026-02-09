@@ -254,7 +254,7 @@ export const FloatingPortal = React.forwardRef(function FloatingPortal(
           />
         )}
         {shouldRenderGuards && portalNode && (
-          <span aria-owns={portalNode.id} style={ownerVisuallyHidden} />
+          <span aria-owns={portalNode.id} style={ownerVisuallyHidden} aria-hidden />
         )}
         {portalNode && ReactDOM.createPortal(children, portalNode)}
         {shouldRenderGuards && portalNode && (
