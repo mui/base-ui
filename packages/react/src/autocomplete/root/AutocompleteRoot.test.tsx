@@ -114,7 +114,7 @@ describe('<Autocomplete.Root />', () => {
       </Autocomplete.Root>,
     );
 
-    const hiddenInput = container.querySelector('input[type="hidden"], input[aria-hidden="true"]');
+    const hiddenInput = container.querySelector('input[name="search"]');
     expect(hiddenInput).to.have.attribute('autocomplete', 'on');
   });
 
