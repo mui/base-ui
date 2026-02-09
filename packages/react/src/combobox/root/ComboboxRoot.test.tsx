@@ -1201,6 +1201,32 @@ describe('<Combobox.Root />', () => {
     });
   });
 
+  it('should pass autoComplete to the hidden input', async () => {
+    await render(
+      <Combobox.Root name="country" autoComplete="country">
+        <Combobox.Input />
+        <Combobox.Portal>
+          <Combobox.Positioner>
+            <Combobox.Popup>
+              <Combobox.List>
+                <Combobox.Item value="US">United States</Combobox.Item>
+                <Combobox.Item value="CA">Canada</Combobox.Item>
+              </Combobox.List>
+            </Combobox.Popup>
+          </Combobox.Positioner>
+        </Combobox.Portal>
+      </Combobox.Root>,
+    );
+
+    const input = screen.getByRole('combobox');
+    const hiddenInput = screen.getByRole('textbox', { hidden: true });
+
+    expect(input).to.have.attribute('autocomplete', 'off');
+    expect(input).not.to.have.attribute('name');
+    expect(hiddenInput).to.have.attribute('name', 'country');
+    expect(hiddenInput).to.have.attribute('autocomplete', 'country');
+  });
+
   describe('prop: id', () => {
     it('sets the id on the input when it is outside the popup', async () => {
       await render(

@@ -211,7 +211,7 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
           setFocused(false);
 
           const activeIndex = store.state.activeIndex;
-          if (inline && activeIndex !== null) {
+          if (inline && activeIndex !== null && autoHighlightMode !== 'always') {
             lastActiveIndexRef.current = activeIndex;
             shouldRestoreActiveIndexRef.current = true;
             store.state.setIndices({ activeIndex: null });

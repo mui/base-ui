@@ -162,6 +162,7 @@ export interface AutocompleteRootProps<ItemValue> extends Omit<
   | 'defaultInputValue' // defaultValue
   | 'onInputValueChange' // onValueChange
   | 'autoComplete' // mode
+  | 'formAutoComplete'
   | 'itemToStringLabel' // itemToStringValue
   // Custom JSDoc
   | 'autoHighlight'
