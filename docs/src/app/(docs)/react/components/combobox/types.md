@@ -51,6 +51,10 @@ Doesn't render its own HTML element.
 | id                   | `string`                                                                                                | -       | The id of the component.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
 | children             | `React.ReactNode`                                                                                       | -       | -                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
 
+**`autoComplete` Prop References:**
+
+- See [developer.mozilla.org](https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/autocomplete)
+
 ### Root.Props
 
 Re-export of [Root](#root) props.
