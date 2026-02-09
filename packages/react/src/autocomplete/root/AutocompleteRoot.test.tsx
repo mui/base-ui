@@ -97,6 +97,27 @@ describe('<Autocomplete.Root />', () => {
     expect(input.value).to.equal('beta');
   });
 
+  it('should pass autoComplete to the hidden input', async () => {
+    const { container } = await render(
+      <Autocomplete.Root name="search" autoComplete="on">
+        <Autocomplete.Input />
+        <Autocomplete.Portal>
+          <Autocomplete.Positioner>
+            <Autocomplete.Popup>
+              <Autocomplete.List>
+                <Autocomplete.Item value="alpha">alpha</Autocomplete.Item>
+                <Autocomplete.Item value="beta">beta</Autocomplete.Item>
+              </Autocomplete.List>
+            </Autocomplete.Popup>
+          </Autocomplete.Positioner>
+        </Autocomplete.Portal>
+      </Autocomplete.Root>,
+    );
+
+    const hiddenInput = container.querySelector('input[type="hidden"], input[aria-hidden="true"]');
+    expect(hiddenInput).to.have.attribute('autocomplete', 'on');
+  });
+
   describe('prop: autoHighlight', () => {
     it('calls onItemHighlighted when the popup auto highlights on open', async () => {
       const onItemHighlighted = spy();

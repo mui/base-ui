@@ -39,6 +39,7 @@ export function AutocompleteRoot<ItemValue>(
     defaultValue,
     onValueChange,
     mode = 'list',
+    autoComplete,
     itemToStringValue,
     ...other
   } = props;
@@ -128,6 +129,7 @@ export function AutocompleteRoot<ItemValue>(
       fillInputOnItemPress
       filter={resolvedFilter}
       autoComplete={mode}
+      formAutoComplete={autoComplete}
       inputValue={resolvedInputValue}
       defaultInputValue={defaultValue}
       onInputValueChange={handleValueChange}
@@ -162,6 +164,7 @@ export interface AutocompleteRootProps<ItemValue> extends Omit<
   | 'defaultInputValue' // defaultValue
   | 'onInputValueChange' // onValueChange
   | 'autoComplete' // mode
+  | 'formAutoComplete' // autoComplete
   | 'itemToStringLabel' // itemToStringValue
   // Custom JSDoc
   | 'autoHighlight'
@@ -179,6 +182,11 @@ export interface AutocompleteRootProps<ItemValue> extends Omit<
    * @default 'list'
    */
   mode?: ('list' | 'both' | 'inline' | 'none') | undefined;
+  /**
+   * Provides a hint to the browser for autofill.
+   * @see https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/autocomplete
+   */
+  autoComplete?: string | undefined;
   /**
    * Whether the first matching item is highlighted automatically.
    * - `true`: highlight after the user types and keep the highlight while the query changes.

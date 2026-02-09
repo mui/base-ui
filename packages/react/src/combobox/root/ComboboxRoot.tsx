@@ -11,7 +11,7 @@ import { AriaCombobox } from './AriaCombobox';
 export function ComboboxRoot<Value, Multiple extends boolean | undefined = false>(
   props: ComboboxRoot.Props<Value, Multiple>,
 ): React.JSX.Element {
-  const { multiple = false as Multiple, defaultValue, value, onValueChange, ...other } = props;
+  const { multiple = false as Multiple, defaultValue, value, onValueChange, autoComplete, ...other } = props;
 
   return (
     <AriaCombobox
@@ -20,6 +20,7 @@ export function ComboboxRoot<Value, Multiple extends boolean | undefined = false
       selectedValue={value}
       defaultSelectedValue={defaultValue}
       onSelectedValueChange={onValueChange}
+      formAutoComplete={autoComplete}
     />
   );
 }
@@ -36,6 +37,7 @@ export type ComboboxRootProps<Value, Multiple extends boolean | undefined = fals
   AriaCombobox.Props<Value, ModeFromMultiple<Multiple>>,
   | 'fillInputOnItemPress'
   | 'autoComplete'
+  | 'formAutoComplete'
   | 'submitOnItemClick'
   | 'autoHighlight'
   | 'keepHighlight'
@@ -59,6 +61,11 @@ export type ComboboxRootProps<Value, Multiple extends boolean | undefined = fals
    * @default false
    */
   multiple?: Multiple | undefined;
+  /**
+   * Provides a hint to the browser for autofill.
+   * @see https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/autocomplete
+   */
+  autoComplete?: string | undefined;
   /**
    * Whether the first matching item is highlighted automatically while filtering.
    * @default false
