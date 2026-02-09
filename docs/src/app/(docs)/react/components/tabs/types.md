@@ -136,6 +136,7 @@ Re-export of [Panel](#panel) props.
 ```typescript
 type TabsPanelState = {
   hidden: boolean;
+  transitionStatus: TransitionStatus;
   orientation: Tabs.Root.Orientation;
   tabActivationDirection: Tabs.Tab.ActivationDirection;
 };

@@ -44,7 +44,7 @@
     "test:regressions:dev": "vite --config test/regressions/vite.config.mjs --port 5173",
     "test:regressions:run": "cross-env VITEST_ENV=chromium vitest run --project regressions",
     "test:regressions:server": "serve test/regressions -p 5173",
-    "test:_unit": "cross-env NODE_ENV=test vitest --project @base-ui/react --project @base-ui/utils --project docs",
+    "test:_unit": "cross-env vitest --project @base-ui/react --project @base-ui/utils --project docs",
     "test:jsdom": "cross-env VITEST_ENV=jsdom pnpm test:_unit",
     "test:jsdom:coverage": "pnpm test:jsdom --coverage",
     "test:chromium": "cross-env VITEST_ENV=chromium pnpm test:_unit",
@@ -68,10 +68,10 @@
     "@mui/internal-test-utils": "2.0.18-canary.5",
     "@next/eslint-plugin-next": "16.1.5",
     "@octokit/rest": "22.0.1",
-    "@playwright/test": "1.58.0",
+    "@playwright/test": "1.58.1",
     "@tailwindcss/postcss": "4.1.18",
     "@types/node": "22.18.13",
-    "@types/react": "19.2.9",
+    "@types/react": "19.2.10",
     "@types/yargs": "17.0.35",
     "@vitejs/plugin-react": "5.1.2",
     "@vitest/browser-playwright": "4.0.18",
@@ -109,14 +109,14 @@
     "node": ">=22.18.0"
   },
   "resolutions": {
-    "@babel/core": "^7.28.6",
-    "@babel/plugin-transform-runtime": "^7.28.5",
-    "@babel/preset-env": "^7.28.6",
+    "@babel/core": "^7.29.0",
+    "@babel/plugin-transform-runtime": "^7.29.0",
+    "@babel/preset-env": "^7.29.0",
     "@babel/preset-react": "^7.28.5",
     "@babel/preset-typescript": "^7.28.5",
-    "@babel/types": "^7.28.6",
+    "@babel/types": "^7.29.0",
     "@types/node": "22.18.13",
-    "@types/react": "19.2.9",
+    "@types/react": "19.2.10",
     "@types/react-dom": "^19.2.3"
   }
 }

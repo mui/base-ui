@@ -516,6 +516,7 @@ Renders a `<div>` element.
 | :------------------------ | :----------------------------------------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | data-activation-direction | `` `${'left' \| 'right'} {'top' \| 'bottom'}` `` | Indicates the direction from which the popup was activated.&#xA;This can be used to create directional animations based on how the popup was triggered.&#xA;Contains space-separated values for both horizontal and vertical axes. |
 | data-current              | -                                                | Applied to the direct child of the viewport when no transitions are present or the new content when it's entering.                                                                                                                 |
+| data-instant              | `'dismiss' \| 'click'`                           | Present if animations should be instant.                                                                                                                                                                                           |
 | data-previous             | -                                                | Applied to the direct child of the viewport that contains the exiting content when transitions are present.                                                                                                                        |
 | data-transitioning        | -                                                | Indicates that the viewport is currently transitioning between old and new content.                                                                                                                                                |
 
@@ -533,7 +534,11 @@ Re-export of [Viewport](#viewport) props.
 ### Viewport.State
 
 ```typescript
-type PopoverViewportState = { activationDirection: string | undefined; transitioning: boolean };
+type PopoverViewportState = {
+  activationDirection: string | undefined;
+  transitioning: boolean;
+  instant: 'dismiss' | 'click' | undefined;
+};
 ```
 
 ### createHandle

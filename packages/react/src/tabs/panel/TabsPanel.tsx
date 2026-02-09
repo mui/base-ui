@@ -1,7 +1,12 @@
 'use client';
 import * as React from 'react';
+import { inertValue } from '@base-ui/utils/inertValue';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useBaseUiId } from '../../utils/useBaseUiId';
+import type { StateAttributesMapping } from '../../utils/getStateAttributesProps';
+import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
+import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
+import { type TransitionStatus, useTransitionStatus } from '../../utils/useTransitionStatus';
 import { useRenderElement } from '../../utils/useRenderElement';
 import type { BaseUIComponentProps } from '../../utils/types';
 import { useCompositeListItem } from '../../composite/list/useCompositeListItem';
@@ -10,6 +15,11 @@ import { useTabsRootContext } from '../root/TabsRootContext';
 import type { TabsRoot } from '../root/TabsRoot';
 import type { TabsTab } from '../tab/TabsTab';
 import { TabsPanelDataAttributes } from './TabsPanelDataAttributes';
+
+const stateAttributesMapping: StateAttributesMapping<TabsPanel.State> = {
+  ...tabsStateAttributesMapping,
+  ...transitionStatusMapping,
+};
 
 /**
  * A panel displayed when the corresponding tab is active.
@@ -46,7 +56,9 @@ export const TabsPanel = React.forwardRef(function TabPanel(
     metadata,
   });
 
-  const hidden = value !== selectedValue;
+  const open = value === selectedValue;
+  const { mounted, transitionStatus, setMounted } = useTransitionStatus(open);
+  const hidden = !mounted;
 
   const correspondingTabId = getTabIdByPanelValue(value);
 
@@ -54,23 +66,37 @@ export const TabsPanel = React.forwardRef(function TabPanel(
     hidden,
     orientation,
     tabActivationDirection,
+    transitionStatus,
   };
+
+  const panelRef = React.useRef<HTMLDivElement | null>(null);
 
   const element = useRenderElement('div', componentProps, {
     state,
-    ref: [forwardedRef, listItemRef],
+    ref: [forwardedRef, listItemRef, panelRef],
     props: [
       {
         'aria-labelledby': correspondingTabId,
         hidden,
-        id: id ?? undefined,
+        id,
         role: 'tabpanel',
-        tabIndex: hidden ? -1 : 0,
+        tabIndex: open ? 0 : -1,
+        inert: inertValue(!open),
         [TabsPanelDataAttributes.index as string]: index,
       },
       elementProps,
     ],
-    stateAttributesMapping: tabsStateAttributesMapping,
+    stateAttributesMapping,
+  });
+
+  useOpenChangeComplete({
+    open,
+    ref: panelRef,
+    onComplete() {
+      if (!open) {
+        setMounted(false);
+      }
+    },
   });
 
   useIsoLayoutEffect(() => {
@@ -88,7 +114,7 @@ export const TabsPanel = React.forwardRef(function TabPanel(
     };
   }, [hidden, keepMounted, value, id, registerMountedTabPanel, unregisterMountedTabPanel]);
 
-  const shouldRender = !hidden || keepMounted;
+  const shouldRender = keepMounted || mounted;
   if (!shouldRender) {
     return null;
   }
@@ -103,6 +129,7 @@ export interface TabsPanelMetadata {
 
 export interface TabsPanelState extends TabsRoot.State {
   hidden: boolean;
+  transitionStatus: TransitionStatus;
 }
 
 export interface TabsPanelProps extends BaseUIComponentProps<'div', TabsPanel.State> {

@@ -433,7 +433,11 @@ Re-export of [Viewport](#viewport) props.
 ### Viewport.State
 
 ```typescript
-type TooltipViewportState = { activationDirection?: string };
+type TooltipViewportState = {
+  activationDirection: string | undefined;
+  transitioning: boolean;
+  instant: 'delay' | 'dismiss' | 'focus' | undefined;
+};
 ```
 
 ### createHandle

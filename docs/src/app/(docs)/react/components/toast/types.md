@@ -435,7 +435,7 @@ Creates a new toast manager.
 | Property     | Type                                                              | Description |
 | :----------- | :---------------------------------------------------------------- | :---------- |
 | ` subscribe` | `((listener: ((data: ToastManagerEvent) => void)) => (() => v...` | -           |
-| `add`        | `((options: ToastManagerUpdateOptions<{}>) => string)`            | -           |
+| `add`        | `((options: ToastManagerAddOptions<{}>) => string)`               | -           |
 | `close`      | `((id: string) => void)`                                          | -           |
 | `update`     | `((id: string, updates: ToastManagerUpdateOptions<{}>) => voi...` | -           |
 | `promise`    | `((promiseValue: Promise<Value>, options: ToastManagerPromise...` | -           |
@@ -449,7 +449,7 @@ Returns the array of toasts and methods to manage them.
 | Property  | Type                                                              | Description |
 | :-------- | :---------------------------------------------------------------- | :---------- |
 | `toasts`  | `ToastManagerAddOptions<{}>[]`                                    | -           |
-| `add`     | `((options: ToastManagerUpdateOptions<{}>) => string)`            | -           |
+| `add`     | `((options: ToastManagerAddOptions<{}>) => string)`               | -           |
 | `close`   | `((toastId: string) => void)`                                     | -           |
 | `update`  | `((toastId: string, options: ToastManagerUpdateOptions<{}>) =...` | -           |
 | `promise` | `((promise: Promise<Value>, options: ToastManagerPromiseOptio...` | -           |
@@ -568,13 +568,11 @@ type ToastManagerPromiseOptions = {
 
 ```typescript
 type ToastManagerUpdateOptions = {
-  id?: string;
   title?: React.ReactNode;
   type?: string;
   description?: React.ReactNode;
   timeout?: number;
   priority?: 'low' | 'high';
-  transitionStatus?: 'starting' | 'ending';
   onClose?: () => void;
   onRemove?: () => void;
   actionProps?: Omit<
