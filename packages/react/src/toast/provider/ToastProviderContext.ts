@@ -6,7 +6,7 @@ export type ToastContext = ToastStore;
 
 export const ToastContext = React.createContext<ToastContext | undefined>(undefined);
 
-export function useToastContext() {
+export function useToastProviderContext() {
   const context = React.useContext(ToastContext);
   if (!context) {
     throw new Error('Base UI: useToastManager must be used within <Toast.Provider>.');

@@ -12,7 +12,7 @@ import { useFloatingRootContext } from '../../floating-ui-react';
 import { NOOP } from '../../utils/noop';
 import type { ToastObject } from '../useToastManager';
 import { ToastRootCssVars } from '../root/ToastRootCssVars';
-import { useToastContext } from '../provider/ToastProviderContext';
+import { useToastProviderContext } from '../provider/ToastProviderContext';
 
 /**
  * Positions the toast against the anchor.
@@ -26,7 +26,7 @@ export const ToastPositioner = React.forwardRef(function ToastPositioner(
 ) {
   const { toast, ...props } = componentProps;
 
-  const store = useToastContext();
+  const store = useToastProviderContext();
 
   const positionerProps = (toast.positionerProps ?? EMPTY_OBJECT) as NonNullable<
     typeof toast.positionerProps

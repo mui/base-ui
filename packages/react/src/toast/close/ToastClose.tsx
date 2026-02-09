@@ -2,7 +2,7 @@
 import * as React from 'react';
 import type { BaseUIComponentProps, NativeButtonProps } from '../../utils/types';
 import { useToastRootContext } from '../root/ToastRootContext';
-import { useToastContext } from '../provider/ToastProviderContext';
+import { useToastProviderContext } from '../provider/ToastProviderContext';
 import { useButton } from '../../use-button/useButton';
 import { useRenderElement } from '../../utils/useRenderElement';
 
@@ -18,7 +18,7 @@ export const ToastClose = React.forwardRef(function ToastClose(
 ) {
   const { render, className, disabled, nativeButton = true, ...elementProps } = componentProps;
 
-  const store = useToastContext();
+  const store = useToastProviderContext();
   const { toast } = useToastRootContext();
   const expanded = store.useState('expanded');
 

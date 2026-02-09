@@ -6,7 +6,7 @@ import { useTimeout } from '@base-ui/utils/useTimeout';
 import { activeElement, contains, getTarget } from '../../floating-ui-react/utils';
 import { FocusGuard } from '../../utils/FocusGuard';
 import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
-import { useToastContext } from '../provider/ToastProviderContext';
+import { useToastProviderContext } from '../provider/ToastProviderContext';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { isFocusVisible } from '../utils/focusVisible';
 import { ToastViewportCssVars } from './ToastViewportCssVars';
@@ -23,7 +23,7 @@ export const ToastViewport = React.forwardRef(function ToastViewport(
 ) {
   const { render, className, children, ...elementProps } = componentProps;
 
-  const store = useToastContext();
+  const store = useToastProviderContext();
   const windowFocusTimeout = useTimeout();
 
   const handlingFocusGuardRef = React.useRef(false);
