@@ -227,14 +227,33 @@
 
   .DemoSourceBrowser {
     @apply text-xs;
-    padding: 0.5rem 0.75rem;
     cursor: text;
 
     & code {
       /* Different fonts may introduce vertical align issues */
-      display: block;
+      display: flex;
       /* Make sure selection highlight spans full container width in Safari */
       flex-grow: 1;
+      padding: 0.5rem 0;
+    }
+
+    & code .frame {
+      padding-left: 0.75rem;
+      padding-right: 0.75rem;
+    }
+
+    & code .frame[data-lined] {
+      display: block;
+      white-space: normal;
+      padding-left: 0;
+      padding-right: 0;
+    }
+
+    * code .frame[data-lined] .line {
+      display: block;
+      white-space: pre;
+      padding-left: 0.75rem;
+      padding-right: 0.75rem;
     }
   }
 
