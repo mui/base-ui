@@ -55,13 +55,6 @@ function getOffsetData(state: MiddlewareState, sideParam: Side, isRtl: boolean) 
   return data;
 }
 
-function addPadding(
-  p: { top: number; right: number; bottom: number; left: number },
-  n: number,
-) {
-  return { top: p.top + n, right: p.right + n, bottom: p.bottom + n, left: p.left + n };
-}
-
 export type Side = 'top' | 'bottom' | 'left' | 'right' | 'inline-end' | 'inline-start';
 export type Align = 'start' | 'center' | 'end';
 export type Boundary = 'clipping-ancestors' | Element | Element[] | Rect;
@@ -249,7 +242,12 @@ export function useAnchorPositioning(
           ...commonCollisionProps,
           // Ensure the popup flips if it's been limited by its --available-height and it resizes.
           // Since the size() padding is smaller than the flip() padding, flip() will take precedence.
-          padding: addPadding(collisionPadding, bias),
+          padding: {
+            top: collisionPadding.top + bias,
+            right: collisionPadding.right + bias,
+            bottom: collisionPadding.bottom + bias,
+            left: collisionPadding.left + bias,
+          },
           mainAxis: !shiftCrossAxis && collisionAvoidanceSide === 'flip',
           crossAxis: collisionAvoidanceAlign === 'flip' ? 'alignment' : false,
           fallbackAxisSideDirection: collisionAvoidanceFallbackAxisSide,
