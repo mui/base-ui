@@ -169,6 +169,8 @@ export interface AutocompleteRootProps<ItemValue> extends Omit<
   | 'highlightItemOnHover'
   | 'actionsRef'
   | 'onOpenChange'
+  | 'clearInputAfterSelection'
+  | 'closePopupAfterSelection'
 > {
   /**
    * Controls how the autocomplete behaves with respect to list filtering and inline autocompletion.
