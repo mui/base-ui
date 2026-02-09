@@ -70,6 +70,11 @@
       "description": "A ref to imperative actions.\n- `unmount`: When specified, the combobox will not be unmounted when closed.\nInstead, the `unmount` function must be called to unmount the combobox manually.\nUseful when the combobox's animation is controlled by an external library.",
       "detailedType": "| React.RefObject<Combobox.Root.Actions | null>\n| undefined"
     },
+    "autoComplete": {
+      "type": "string",
+      "description": "Provides a hint to the browser for autofill.",
+      "detailedType": "string | undefined"
+    },
     "filter": {
       "type": "((itemValue: Value, query: string, itemToString: ((itemValue: Value) => string) | undefined) => boolean) | null",
       "description": "Filter function used to match items vs input query.",

@@ -49,6 +49,11 @@
       "description": "A ref to imperative actions.\n- `unmount`: When specified, the select will not be unmounted when closed.\nInstead, the `unmount` function must be called to unmount the select manually.\nUseful when the select's animation is controlled by an external library.",
       "detailedType": "| React.RefObject<Select.Root.Actions | null>\n| undefined"
     },
+    "autoComplete": {
+      "type": "string",
+      "description": "Provides a hint to the browser for autofill.",
+      "detailedType": "string | undefined"
+    },
     "isItemEqualToValue": {
       "type": "((itemValue: Value, value: Value) => boolean)",
       "description": "Custom comparison logic used to determine if a select item value matches the current selected value. Useful when item values are objects without matching referentially.\nDefaults to `Object.is` comparison.",
