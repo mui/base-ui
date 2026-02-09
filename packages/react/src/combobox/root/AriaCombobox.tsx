@@ -108,6 +108,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     modal = false,
     limit = -1,
     autoComplete = 'list',
+    formAutoComplete,
     locale,
     submitOnItemClick = false,
   } = props;
@@ -1241,6 +1242,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
           },
         })}
         name={multiple || selectionMode === 'none' ? undefined : name}
+        autoComplete={formAutoComplete}
         disabled={disabled}
         required={required && !hasMultipleSelection}
         readOnly={readOnly}
@@ -1464,6 +1466,11 @@ interface ComboboxRootProps<ItemValue> {
    * @default 'list'
    */
   autoComplete?: ('list' | 'both' | 'inline' | 'none') | undefined;
+  /**
+   * Provides a hint to the browser for autofill on the hidden input element.
+   * @see https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/autocomplete
+   */
+  formAutoComplete?: string | undefined;
   /**
    * The locale to use for string comparison.
    * Defaults to the user's runtime locale.
