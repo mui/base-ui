@@ -1085,33 +1085,32 @@ export class TemporalFieldStore<TValue extends TemporalSupportedValue> extends R
   private getAdjustedDatePartValue(keyCode: AdjustDatePartValueKeyCode, sectionIndex: number) {
     const adapterVal = selectors.adapter(this.state);
     const validationPropsVal = selectors.validationProps(this.state);
-    const dp = selectors.datePart(this.state, sectionIndex);
-
-    if (dp == null) {
+    const datePart = selectors.datePart(this.state, sectionIndex);
+    if (datePart == null) {
       return '';
     }
 
     // When initializing the year and there is no validation boundary in the direction we are going,
     // we set the section to the current year instead of the structural boundary.
-    const isYearInitialization = dp.value === '' && dp.token.config.part === 'year';
+    const isYearInitialization = datePart.value === '' && datePart.token.config.part === 'year';
     const hasNoBoundaryInDirection =
       (isDecrementDirection(keyCode) && validationPropsVal.maxDate == null) ||
       (isIncrementDirection(keyCode) && validationPropsVal.minDate == null);
     if (isYearInitialization && hasNoBoundaryInDirection) {
       const timezone = selectors.timezoneToRender(this.state);
-      return adapterVal.formatByString(adapterVal.now(timezone), dp.token.value);
+      return adapterVal.formatByString(adapterVal.now(timezone), datePart.token.value);
     }
 
-    const stepVal = dp.token.isMostGranularPart ? selectors.step(this.state) : 1;
-    const delta = getAdjustmentDelta(keyCode, dp.value);
+    const stepVal = datePart.token.isMostGranularPart ? selectors.step(this.state) : 1;
+    const delta = getAdjustmentDelta(keyCode, datePart.value);
     const direction = getDirection(keyCode);
-    const contentType = dp.token.config.contentType;
+    const contentType = datePart.token.config.contentType;
 
     if (contentType === 'digit' || contentType === 'digit-with-letter') {
-      return this.getAdjustedDigitPartValue(dp, delta, direction, stepVal);
+      return this.getAdjustedDigitPartValue(datePart, delta, direction, stepVal);
     }
 
-    return this.getAdjustedLetterPartValue(dp, delta, direction, stepVal);
+    return this.getAdjustedLetterPartValue(datePart, delta, direction, stepVal);
   }
 
   private getAdjustedDigitPartValue(
@@ -1212,11 +1211,11 @@ export class TemporalFieldStore<TValue extends TemporalSupportedValue> extends R
       return;
     }
 
-    const dp = selectors.datePart(this.state, sectionIndex);
-    if (dp == null) {
+    const datePart = selectors.datePart(this.state, sectionIndex);
+    if (datePart == null) {
       return;
     }
-    sectionElement.innerHTML = this.getDatePartRenderedValue(dp);
+    sectionElement.innerHTML = this.getDatePartRenderedValue(datePart);
     this.syncSelectionToDOM();
   }
 
