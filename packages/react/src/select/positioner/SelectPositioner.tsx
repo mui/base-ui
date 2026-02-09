@@ -14,6 +14,7 @@ import { SelectPositionerContext } from './SelectPositionerContext';
 import { InternalBackdrop } from '../../utils/InternalBackdrop';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { DROPDOWN_COLLISION_AVOIDANCE } from '../../utils/constants';
+import { getDisabledMountTransitionStyles } from '../../utils/getDisabledMountTransitionStyles';
 import { clearStyles } from '../popup/utils';
 import { selectors } from '../store';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
@@ -72,6 +73,7 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
   const positionerElement = useStore(store, selectors.positionerElement);
   const triggerElement = useStore(store, selectors.triggerElement);
   const isItemEqualToValue = useStore(store, selectors.isItemEqualToValue);
+  const transitionStatus = useStore(store, selectors.transitionStatus);
 
   const scrollUpArrowRef = React.useRef<HTMLDivElement | null>(null);
   const scrollDownArrowRef = React.useRef<HTMLDivElement | null>(null);
@@ -141,15 +143,12 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
     };
   }, [open, mounted, positionerStyles]);
 
-  const state: SelectPositioner.State = React.useMemo(
-    () => ({
-      open,
-      side: renderedSide,
-      align: positioning.align,
-      anchorHidden: positioning.anchorHidden,
-    }),
-    [open, renderedSide, positioning.align, positioning.anchorHidden],
-  );
+  const state: SelectPositioner.State = {
+    open,
+    side: renderedSide,
+    align: positioning.align,
+    anchorHidden: positioning.anchorHidden,
+  };
 
   const setPositionerElement = useStableCallback((element) => {
     store.set('positionerElement', element);
@@ -159,7 +158,7 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
     ref: [forwardedRef, setPositionerElement],
     state,
     stateAttributesMapping: popupStateMapping,
-    props: [defaultProps, elementProps],
+    props: [defaultProps, getDisabledMountTransitionStyles(transitionStatus), elementProps],
   });
 
   const prevMapSizeRef = React.useRef(0);

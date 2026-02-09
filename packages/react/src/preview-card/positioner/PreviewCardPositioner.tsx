@@ -88,16 +88,13 @@ export const PreviewCardPositioner = React.forwardRef(function PreviewCardPositi
     };
   }, [open, mounted, positioning.positionerStyles]);
 
-  const state: PreviewCardPositioner.State = React.useMemo(
-    () => ({
-      open,
-      side: positioning.side,
-      align: positioning.align,
-      anchorHidden: positioning.anchorHidden,
-      instant: instantType,
-    }),
-    [open, positioning.side, positioning.align, positioning.anchorHidden, instantType],
-  );
+  const state: PreviewCardPositioner.State = {
+    open,
+    side: positioning.side,
+    align: positioning.align,
+    anchorHidden: positioning.anchorHidden,
+    instant: instantType,
+  };
 
   const contextValue: PreviewCardPositionerContext = React.useMemo(
     () => ({

@@ -47,7 +47,7 @@ export const ToolbarRoot = React.forwardRef(function ToolbarRoot(
     [disabled, orientation, setItemMap],
   );
 
-  const state = React.useMemo(() => ({ disabled, orientation }), [disabled, orientation]);
+  const state: ToolbarRoot.State = { disabled, orientation };
 
   const defaultProps: HTMLProps = {
     'aria-orientation': orientation,

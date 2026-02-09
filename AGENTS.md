@@ -1,3 +1,5 @@
+<!-- markdownlint-disable MD038 -->
+
 # Repository Guidelines
 
 This repository contains the source code and documentation for Base UI: a headless, unstyled React component library.
@@ -22,6 +24,7 @@ This repository contains the source code and documentation for Base UI: a headl
 - Do not randomly cast (for example `as any`) if there are no type errors without doing so. Run `pnpm typescript` to verify types.
 - Ensure your changes pass linting - run `pnpm eslint`.
 - Ensure your changes are formatted correctly - run `pnpm prettier`.
+- When you change a public component API (props or JSDoc), run `pnpm docs:api`.
 
 ## Testing
 
@@ -35,3 +38,25 @@ This repository contains the source code and documentation for Base UI: a headl
 
 - Commit messages follow the format `[scope] Imperative summary` (for example `[popover] Fix focus trap`). Choose scopes that mirror package or component names that were changed.
 - Use `[all components]` scope for changes that broadly affect most components.
+
+## Errors
+
+These guidelines apply only to errors thrown by public packages.
+
+Every error message must:
+
+1. **Say what happened** - Describe the problem clearly
+2. **Say why it's a problem** - Explain the consequence
+3. **Point toward how to solve it** - Give actionable guidance
+
+Format:
+
+- Prefix with `Base UI: `
+- Use string concatenation for readability
+- Include a documentation link when applicable (`https://base-ui.com/...`)
+
+### Error Minifier
+
+You MUST run `pnpm extract-error-codes` to update `docs/src/error-codes.json` every time you add or update an error message in an `Error` constructor.
+
+**Important:** If the update created a new error code, but the new and original message have the same number of arguments and semantics haven't changed, update the original error in `error-codes.json` instead of creating a new code.

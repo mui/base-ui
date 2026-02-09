@@ -48,13 +48,10 @@ export const MenuItem = React.forwardRef(function MenuItem(
     itemMetadata: REGULAR_ITEM,
   });
 
-  const state: MenuItem.State = React.useMemo(
-    () => ({
-      disabled,
-      highlighted,
-    }),
-    [disabled, highlighted],
-  );
+  const state: MenuItem.State = {
+    disabled,
+    highlighted,
+  };
 
   return useRenderElement('div', componentProps, {
     state,
@@ -79,7 +76,7 @@ export interface MenuItemProps
   /**
    * The click handler for the menu item.
    */
-  onClick?: React.MouseEventHandler<HTMLElement> | undefined;
+  onClick?: BaseUIComponentProps<'div', MenuItemState>['onClick'] | undefined;
   /**
    * Whether the component should ignore user interaction.
    * @default false

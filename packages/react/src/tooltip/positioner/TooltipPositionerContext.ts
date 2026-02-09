@@ -6,7 +6,7 @@ export interface TooltipPositionerContext {
   open: boolean;
   side: Side;
   align: Align;
-  arrowRef: React.MutableRefObject<Element | null>;
+  arrowRef: React.RefObject<Element | null>;
   arrowUncentered: boolean;
   arrowStyles: React.CSSProperties;
 }

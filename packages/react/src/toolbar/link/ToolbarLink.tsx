@@ -25,12 +25,9 @@ export const ToolbarLink = React.forwardRef(function ToolbarLink(
 
   const { orientation } = useToolbarRootContext();
 
-  const state: ToolbarLink.State = React.useMemo(
-    () => ({
-      orientation,
-    }),
-    [orientation],
-  );
+  const state: ToolbarLink.State = {
+    orientation,
+  };
 
   return (
     <CompositeItem

@@ -90,10 +90,7 @@ export const ToggleGroup = React.forwardRef(function ToggleGroup(
     },
   );
 
-  const state: ToggleGroup.State = React.useMemo(
-    () => ({ disabled, multiple, orientation }),
-    [disabled, orientation, multiple],
-  );
+  const state: ToggleGroup.State = { disabled, multiple, orientation };
 
   const contextValue: ToggleGroupContext = React.useMemo(
     () => ({
@@ -130,6 +127,7 @@ export const ToggleGroup = React.forwardRef(function ToggleGroup(
           props={[defaultProps, elementProps]}
           stateAttributesMapping={stateAttributesMapping}
           loopFocus={loopFocus}
+          enableHomeAndEndKeys
         />
       )}
     </ToggleGroupContext.Provider>
@@ -141,7 +139,14 @@ export interface ToggleGroupState {
    * Whether the component should ignore user interaction.
    */
   disabled: boolean;
+  /**
+   * Whether multiple toggle buttons in the group can be pressed.
+   */
   multiple: boolean;
+  /**
+   * The orientation of the toggle group.
+   */
+  orientation: Orientation;
 }
 
 export interface ToggleGroupProps extends BaseUIComponentProps<'div', ToggleGroup.State> {

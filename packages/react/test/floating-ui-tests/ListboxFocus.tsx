@@ -1,3 +1,4 @@
+'use client';
 import * as React from 'react';
 import { CompositeList } from '../../src/composite/list/CompositeList';
 import { useCompositeListItem } from '../../src/composite/list/useCompositeListItem';

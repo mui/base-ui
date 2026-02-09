@@ -2,6 +2,7 @@
 import * as React from 'react';
 import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { visuallyHidden, visuallyHiddenInput } from '@base-ui/utils/visuallyHidden';
 import type { BaseUIComponentProps, NonNativeButtonProps } from '../../utils/types';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
@@ -20,6 +21,7 @@ import { useFieldItemContext } from '../../field/item/FieldItemContext';
 import { useLabelableContext } from '../../labelable-provider/LabelableContext';
 import { useLabelableId } from '../../labelable-provider/useLabelableId';
 import { useRadioGroupContext } from '../../radio-group/RadioGroupContext';
+import { serializeValue } from '../../utils/serializeValue';
 import { RadioRootContext } from './RadioRootContext';
 
 /**
@@ -55,6 +57,7 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
     setTouched,
     validation,
     registerControlRef,
+    registerInputRef,
     name,
   } = useRadioGroupContext();
 
@@ -74,17 +77,43 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
   const required = requiredGroup || requiredProp;
 
   const checked = checkedValue === value;
+  const serializedValue = React.useMemo(() => serializeValue(value), [value]);
 
   const radioRef = React.useRef<HTMLElement>(null);
   const inputRef = React.useRef<HTMLInputElement>(null);
 
-  const mergedInputRef = useMergedRefs(inputRefProp, inputRef);
+  const handleControlRef = useStableCallback((element: HTMLElement | null) => {
+    if (!element) {
+      return;
+    }
+
+    registerControlRef(element, disabled);
+  });
+
+  const mergedInputRef = useMergedRefs(inputRefProp, inputRef, registerInputRef);
 
   useIsoLayoutEffect(() => {
     if (inputRef.current?.checked) {
       setFilled(true);
     }
   }, [setFilled]);
+
+  useIsoLayoutEffect(() => {
+    if (!inputRef.current) {
+      return;
+    }
+
+    if (disabled && checked) {
+      registerInputRef(null);
+      return;
+    }
+
+    if (radioRef.current) {
+      registerControlRef(radioRef.current, disabled);
+    }
+
+    registerInputRef(inputRef.current);
+  }, [checked, disabled, registerControlRef, registerInputRef]);
 
   const id = useBaseUiId();
   const inputId = useLabelableId({
@@ -114,7 +143,15 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
 
       event.preventDefault();
 
-      inputRef.current?.click();
+      inputRef.current?.dispatchEvent(
+        new PointerEvent('click', {
+          bubbles: true,
+          shiftKey: event.shiftKey,
+          ctrlKey: event.ctrlKey,
+          altKey: event.altKey,
+          metaKey: event.metaKey,
+        }),
+      );
     },
     onFocus(event) {
       if (event.defaultPrevented || disabled || readOnly || !touched) {
@@ -136,9 +173,11 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
     type: 'radio',
     ref: mergedInputRef,
     id: hiddenInputId,
+    name,
     tabIndex: -1,
     style: name ? visuallyHiddenInput : visuallyHidden,
     'aria-hidden': true,
+    ...(value !== undefined ? { value: serializedValue } : EMPTY_OBJECT),
     disabled,
     checked,
     required,
@@ -180,11 +219,11 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
     [fieldState, disabled, readOnly, checked, required],
   );
 
-  const contextValue: RadioRootContext = React.useMemo(() => state, [state]);
+  const contextValue: RadioRootContext = state;
 
   const isRadioGroup = setCheckedValue !== NOOP;
 
-  const refs = [forwardedRef, registerControlRef, radioRef, buttonRef];
+  const refs = [forwardedRef, radioRef, buttonRef, handleControlRef];
   const props = [
     rootProps,
     getDescriptionProps,
@@ -222,27 +261,45 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
 });
 
 export interface RadioRootState extends FieldRoot.State {
-  /** Whether the radio button is currently selected. */
+  /**
+   * Whether the radio button is currently selected.
+   */
   checked: boolean;
-  /** Whether the component should ignore user interaction. */
+  /**
+   * Whether the component should ignore user interaction.
+   */
   disabled: boolean;
-  /** Whether the user should be unable to select the radio button. */
+  /**
+   * Whether the user should be unable to select the radio button.
+   */
   readOnly: boolean;
-  /** Whether the user must choose a value before submitting a form. */
+  /**
+   * Whether the user must choose a value before submitting a form.
+   */
   required: boolean;
 }
 
 export interface RadioRootProps
   extends NonNativeButtonProps, Omit<BaseUIComponentProps<'span', RadioRoot.State>, 'value'> {
-  /** The unique identifying value of the radio in a group. */
+  /**
+   * The unique identifying value of the radio in a group.
+   */
   value: any;
-  /** Whether the component should ignore user interaction. */
+  /**
+   * Whether the component should ignore user interaction.
+   */
   disabled?: boolean | undefined;
-  /** Whether the user must choose a value before submitting a form. */
+  /**
+   * Whether the user must choose a value before submitting a form.
+   */
   required?: boolean | undefined;
-  /** Whether the user should be unable to select the radio button. */
+  /**
+   * Whether the user should be unable to select the radio button.
+   */
   readOnly?: boolean | undefined;
-  /** A ref to access the hidden input element. */
+  /**
+   * A ref to access the hidden input element.
+   */
   inputRef?: React.Ref<HTMLInputElement> | undefined;
 }
 

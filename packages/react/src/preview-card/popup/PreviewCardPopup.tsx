@@ -56,16 +56,13 @@ export const PreviewCardPopup = React.forwardRef(function PreviewCardPopup(
     closeDelay: getCloseDelay,
   });
 
-  const state: PreviewCardPopup.State = React.useMemo(
-    () => ({
-      open,
-      side,
-      align,
-      instant: instantType,
-      transitionStatus,
-    }),
-    [open, side, align, instantType, transitionStatus],
-  );
+  const state: PreviewCardPopup.State = {
+    open,
+    side,
+    align,
+    instant: instantType,
+    transitionStatus,
+  };
 
   const element = useRenderElement('div', componentProps, {
     state,
