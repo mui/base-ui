@@ -157,7 +157,7 @@ jobs:
     resource_class: 'medium+'
     executor:
       name: code-infra/mui-node-browser
-      playwright-img-version: v1.58.0-noble
+      playwright-img-version: v1.58.1-noble
     steps:
       - checkout
       - code-infra/install-deps:
@@ -173,7 +173,7 @@ jobs:
     <<: *default-job
     executor:
       name: code-infra/mui-node-browser
-      playwright-img-version: v1.58.0-noble
+      playwright-img-version: v1.58.1-noble
     steps:
       - checkout
       - code-infra/install-deps
@@ -189,7 +189,7 @@ jobs:
     <<: *default-job
     executor:
       name: code-infra/mui-node-browser
-      playwright-img-version: v1.58.0-noble
+      playwright-img-version: v1.58.1-noble
     steps:
       - checkout
       - code-infra/install-deps
@@ -239,7 +239,7 @@ jobs:
     <<: *default-job
     executor:
       name: code-infra/mui-node-browser
-      playwright-img-version: v1.58.0-noble
+      playwright-img-version: v1.58.1-noble
     steps:
       - checkout
       - code-infra/install-deps
