@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import type { ImageLoadingStatus } from './AvatarRoot';
+import { useContext } from '../../utils/createContext';
 
 export interface AvatarRootContext {
   imageLoadingStatus: ImageLoadingStatus;
@@ -10,11 +11,8 @@ export interface AvatarRootContext {
 export const AvatarRootContext = React.createContext<AvatarRootContext | undefined>(undefined);
 
 export function useAvatarRootContext() {
-  const context = React.useContext(AvatarRootContext);
-  if (context === undefined) {
-    throw new Error(
-      'Base UI: AvatarRootContext is missing. Avatar parts must be placed within <Avatar.Root>.',
-    );
-  }
-  return context;
+  return useContext(
+    AvatarRootContext,
+    'Base UI: AvatarRootContext is missing. Avatar parts must be placed within <Avatar.Root>.',
+  );
 }
