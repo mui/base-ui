@@ -170,6 +170,7 @@ export interface AutocompleteRootProps<ItemValue> extends Omit<
   | 'highlightItemOnHover'
   | 'actionsRef'
   | 'onOpenChange'
+  | 'openOnInputClick'
 > {
   /**
    * Controls how the autocomplete behaves with respect to list filtering and inline autocompletion.
@@ -257,6 +258,11 @@ export interface AutocompleteRootProps<ItemValue> extends Omit<
         eventDetails: AutocompleteRootHighlightEventDetails,
       ) => void)
     | undefined;
+  /**
+   * Whether the popup opens when clicking the input.
+   * @default false
+   */
+  openOnInputClick?: boolean | undefined;
 }
 
 export namespace AutocompleteRoot {
