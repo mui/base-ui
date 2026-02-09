@@ -1,4 +1,11 @@
 .root {
+  --editor-highlight-yellow: #fff9c4;
+  --editor-highlight-pink: #f8bbd0;
+  --editor-highlight-blue: #e1f5fe;
+  --editor-highlight-green: #e8f5e9;
+  --editor-highlight-purple: #f3e5f5;
+  --editor-highlight-orange: #fff3e0;
+
   display: flex;
   flex-direction: column;
   border: 1px solid var(--color-gray-200);
@@ -7,6 +14,17 @@
   color: var(--color-gray-900);
   transition: border-color 150ms;
   overflow: hidden;
+}
+
+@media (prefers-color-scheme: dark) {
+  .root {
+    --editor-highlight-yellow: #4d4400;
+    --editor-highlight-pink: #4d0019;
+    --editor-highlight-blue: #002d4d;
+    --editor-highlight-green: #003d14;
+    --editor-highlight-purple: #2d004d;
+    --editor-highlight-orange: #4d2600;
+  }
 }
 
 .root:focus-within {
@@ -38,6 +56,17 @@
 }
 .textStrikethrough {
   text-decoration: line-through;
+}
+.textSubscript {
+  vertical-align: sub;
+  font-size: 0.8em;
+}
+.textSuperscript {
+  vertical-align: super;
+  font-size: 0.8em;
+}
+.textHighlight {
+  background-color: var(--editor-highlight-yellow);
 }
 
 .code {

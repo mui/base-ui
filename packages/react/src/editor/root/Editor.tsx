@@ -28,6 +28,7 @@ import { EditorContentEditable } from '../content-editable/EditorContentEditable
 import { KeyboardShortcutsPlugin } from '../plugins/KeyboardShortcutsPlugin';
 import { AIAutocompletePlugin, AICompletionNode } from '../plugins/AIAutocompletePlugin';
 import { CodePlugin } from '../plugins/CodePlugin';
+import { ImageNode } from '../nodes/ImageNode';
 import { EditorFloatingToolbar } from '../floating-toolbar/EditorFloatingToolbar';
 import { EditorProvider } from '../EditorProvider';
 import classes from './Editor.module.css';
@@ -57,6 +58,10 @@ export interface EditorProps {
    */
   enabledFormats?: string[] | undefined;
   /**
+   * Whether the toolbar should be compact.
+   */
+  compact?: boolean | undefined;
+  /**
    * Additional Lexical nodes to register.
    */
   nodes?: InitialConfigType['nodes'] | undefined;
@@ -64,6 +69,7 @@ export interface EditorProps {
 
 const EditorContext = React.createContext<{
   enabledFormats?: string[] | undefined;
+  compact?: boolean | undefined;
 }>({});
 
 function ControlledInitializer({
@@ -109,6 +115,7 @@ const initialConfig = {
     CodeNode,
     CodeHighlightNode,
     AICompletionNode,
+    ImageNode,
   ],
   theme: {
     text: {
@@ -116,6 +123,9 @@ const initialConfig = {
       italic: classes.textItalic,
       underline: classes.textUnderline,
       strikethrough: classes.textStrikethrough,
+      subscript: classes.textSubscript,
+      superscript: classes.textSuperscript,
+      highlight: classes.textHighlight,
     },
     heading: {
       h1: classes.h1,
@@ -177,10 +187,11 @@ export function Editor(props: EditorProps) {
     ai,
     floatingToolbar,
     enabledFormats,
+    compact,
     nodes,
   } = props;
 
-  const contextValue = React.useMemo(() => ({ enabledFormats }), [enabledFormats]);
+  const contextValue = React.useMemo(() => ({ enabledFormats, compact }), [enabledFormats, compact]);
   const combinedInitialConfig: InitialConfigType = React.useMemo(() => {
     return {
       ...initialConfig,

@@ -11,7 +11,9 @@ import {
   SELECTION_CHANGE_COMMAND,
   $isElementNode,
   ElementNode,
+  ElementFormatType,
 } from 'lexical';
+import { $getSelectionStyleValueForProperty } from '@lexical/selection';
 import { $getNearestNodeOfType, mergeRegister } from '@lexical/utils';
 import { $isHeadingNode, HeadingNode } from '@lexical/rich-text';
 import { $isCodeNode } from '@lexical/code';
@@ -25,10 +27,15 @@ export function useSelection() {
   const [isItalic, setIsItalic] = React.useState(false);
   const [isUnderline, setIsUnderline] = React.useState(false);
   const [isStrikethrough, setIsStrikethrough] = React.useState(false);
+  const [isSubscript, setIsSubscript] = React.useState(false);
+  const [isSuperscript, setIsSuperscript] = React.useState(false);
+  const [isHighlight, setIsHighlight] = React.useState(false);
+  const [highlightColor, setHighlightColor] = React.useState('');
   const [isCode, setIsCode] = React.useState(false);
   const [canUndo, setCanUndo] = React.useState(false);
   const [canRedo, setCanRedo] = React.useState(false);
   const [blockType, setBlockType] = React.useState('paragraph');
+  const [elementFormat, setElementFormat] = React.useState<ElementFormatType>('left');
   const [isLink, setIsLink] = React.useState(false);
   const [linkUrl, setLinkUrl] = React.useState('');
 
@@ -39,6 +46,10 @@ export function useSelection() {
       setIsItalic(selection.hasFormat('italic'));
       setIsUnderline(selection.hasFormat('underline'));
       setIsStrikethrough(selection.hasFormat('strikethrough'));
+      setIsSubscript(selection.hasFormat('subscript'));
+      setIsSuperscript(selection.hasFormat('superscript'));
+      setIsHighlight(selection.hasFormat('highlight'));
+      setHighlightColor($getSelectionStyleValueForProperty(selection, 'background-color', ''));
       setIsCode(selection.hasFormat('code'));
 
       const anchorNode = selection.anchor.getNode();
@@ -58,6 +69,13 @@ export function useSelection() {
         anchorNode.getKey() === 'root'
           ? anchorNode
           : anchorNode.getTopLevelElementOrThrow();
+
+      if ($isElementNode(element)) {
+        setElementFormat(element.getFormatType() || 'left');
+      } else {
+        setElementFormat('left');
+      }
+
       const elementKey = element.getKey();
       const elementDOM = editor.getElementByKey(elementKey);
 
@@ -118,10 +136,15 @@ export function useSelection() {
     isItalic,
     isUnderline,
     isStrikethrough,
+    isSubscript,
+    isSuperscript,
+    isHighlight,
+    highlightColor,
     isCode,
     canUndo,
     canRedo,
     blockType,
+    elementFormat,
     isLink,
     linkUrl,
   };

@@ -2,9 +2,8 @@
 
 import * as React from 'react';
 import { type TextFormatType } from 'lexical';
-import { Button } from '../../../button';
-import { useEditor } from '../../hooks/useEditor';
-import { useSelection } from '../../hooks/useSelection';
+import { Button } from '@base-ui/react/button';
+import { useEditor, useSelection } from '@base-ui/react/editor';
 
 export interface FormatButtonProps {
   format: TextFormatType;
@@ -24,7 +23,10 @@ export function FormatButton(props: FormatButtonProps) {
       case 'italic': return selection.isItalic;
       case 'underline': return selection.isUnderline;
       case 'strikethrough': return selection.isStrikethrough;
+      case 'subscript': return selection.isSubscript;
+      case 'superscript': return selection.isSuperscript;
       case 'code': return selection.isCode;
+      case 'highlight': return selection.isHighlight;
       default: return false;
     }
   }, [format, selection]);

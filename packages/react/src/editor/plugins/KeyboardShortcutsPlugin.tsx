@@ -50,6 +50,21 @@ export function KeyboardShortcutsPlugin() {
               editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'underline');
               return true;
             }
+            if (lowerKey === ',' && isEnabled('subscript')) {
+              event.preventDefault();
+              editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'subscript');
+              return true;
+            }
+            if (lowerKey === '.' && isEnabled('superscript')) {
+              event.preventDefault();
+              editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'superscript');
+              return true;
+            }
+            if (lowerKey === 'h' && isEnabled('highlight')) {
+              event.preventDefault();
+              editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'highlight');
+              return true;
+            }
             if (lowerKey === 'z' && isEnabled('undo')) {
               event.preventDefault();
               if (event.shiftKey) {

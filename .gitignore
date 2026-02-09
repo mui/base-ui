@@ -43,3 +43,6 @@ next-env.d.ts
 
 # Testing
 test-results/
+
+# Roadmap
+EDITOR_ROADMAP.md

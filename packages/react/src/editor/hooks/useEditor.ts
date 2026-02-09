@@ -2,11 +2,15 @@ import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext
 import {
   $getSelection,
   $isRangeSelection,
+  $insertNodes,
+  $createParagraphNode,
+  $getSelection as $getLexicalSelection,
   FORMAT_TEXT_COMMAND,
   TextFormatType,
   UNDO_COMMAND,
   REDO_COMMAND,
-  $createParagraphNode,
+  FORMAT_ELEMENT_COMMAND,
+  ElementFormatType,
 } from 'lexical';
 import {
   $createHeadingNode,
@@ -22,8 +26,9 @@ import {
   REMOVE_LIST_COMMAND,
 } from '@lexical/list';
 import { TOGGLE_LINK_COMMAND } from '@lexical/link';
-import { $setBlocksType } from '@lexical/selection';
+import { $setBlocksType, $patchStyleText } from '@lexical/selection';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { $createImageNode } from '../nodes/ImageNode';
 
 export function useEditor() {
   const [editor] = useLexicalComposerContext();
@@ -44,6 +49,10 @@ export function useEditor() {
           conflicting = 'strikethrough';
         } else if (format === 'strikethrough') {
           conflicting = 'underline';
+        } else if (format === 'subscript') {
+          conflicting = 'superscript';
+        } else if (format === 'superscript') {
+          conflicting = 'subscript';
         }
 
         if (shouldEnable && conflicting && selection.hasFormat(conflicting)) {
@@ -102,6 +111,29 @@ export function useEditor() {
     editor.dispatchCommand(TOGGLE_LINK_COMMAND, url);
   });
 
+  const formatElement = useStableCallback((format: ElementFormatType) => {
+    editor.focus();
+    editor.dispatchCommand(FORMAT_ELEMENT_COMMAND, format);
+  });
+
+  const insertImage = useStableCallback((src: string, altText: string) => {
+    editor.focus();
+    editor.update(() => {
+      const imageNode = $createImageNode({ src, altText });
+      $insertNodes([imageNode]);
+    });
+  });
+
+  const patchStyle = useStableCallback((styles: Record<string, string>) => {
+    editor.focus();
+    editor.update(() => {
+      const selection = $getLexicalSelection();
+      if ($isRangeSelection(selection)) {
+        $patchStyleText(selection, styles);
+      }
+    });
+  });
+
   return {
     editor,
     commands: {
@@ -112,6 +144,9 @@ export function useEditor() {
       toggleList,
       removeList,
       toggleLink,
+      formatElement,
+      insertImage,
+      patchStyle,
     },
   };
 }

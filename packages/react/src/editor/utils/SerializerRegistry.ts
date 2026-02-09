@@ -1,7 +1,8 @@
 import { LexicalEditor, LexicalNode } from 'lexical';
+import { $isImageNode } from '../nodes/ImageNode';
 
-export type NodeType = 'paragraph' | 'heading' | 'list' | 'listitem' | 'link' | 'blockquote' | 'text';
-export type MarkType = 'bold' | 'italic' | 'underline' | 'strike' | 'code';
+export type NodeType = 'paragraph' | 'heading' | 'list' | 'listitem' | 'link' | 'blockquote' | 'text' | 'image';
+export type MarkType = 'bold' | 'italic' | 'underline' | 'strike' | 'code' | 'subscript' | 'superscript' | 'highlight';
 
 export interface NodeSerializeCtx {
   editor: LexicalEditor;
@@ -34,6 +35,14 @@ const defaultRules: SerializerRuleSets = {
     paragraph: {
       toHTML: (node) => `<p>${node.getTextContent()}</p>`, // Simple fallback
     },
+    image: {
+      toHTML: (node) => {
+        if ($isImageNode(node)) {
+          return `<img src="${node.getSrc()}" alt="${node.getAltText()}" />`;
+        }
+        return null;
+      },
+    },
   },
   marks: {
     bold: { open: () => '<strong>', close: () => '</strong>' },
@@ -41,6 +50,9 @@ const defaultRules: SerializerRuleSets = {
     underline: { open: () => '<u>', close: () => '</u>' },
     strike: { open: () => '<s>', close: () => '</s>' },
     code: { open: () => '<code>', close: () => '</code>' },
+    subscript: { open: () => '<sub>', close: () => '</sub>' },
+    superscript: { open: () => '<sup>', close: () => '</sup>' },
+    highlight: { open: () => '<mark>', close: () => '</mark>' },
   },
 };
 
