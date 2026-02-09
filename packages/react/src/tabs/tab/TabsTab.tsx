@@ -4,7 +4,7 @@ import { ownerDocument } from '@base-ui/utils/owner';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useBaseUiId } from '../../utils/useBaseUiId';
 import { useRenderElement } from '../../utils/useRenderElement';
-import type { BaseUIComponentProps, NativeButtonProps } from '../../utils/types';
+import type { NativeButtonComponentProps } from '../../utils/types';
 import { useButton } from '../../use-button';
 import { ACTIVE_COMPOSITE_ITEM } from '../../composite/constants';
 import { useCompositeItem } from '../../composite/item/useCompositeItem';
@@ -195,7 +195,7 @@ export const TabsTab = React.forwardRef(function TabsTab(
   });
 
   return element;
-});
+}) as TabsTabComponent;
 
 export type TabsTabValue = any | null;
 
@@ -228,8 +228,10 @@ export interface TabsTabState {
   orientation: TabsRoot.Orientation;
 }
 
-export interface TabsTabProps
-  extends NativeButtonProps, BaseUIComponentProps<'button', TabsTab.State> {
+export type TabsTabProps<TNativeButton extends boolean, TElement extends React.ElementType> = Omit<
+  NativeButtonComponentProps<TNativeButton, TElement, TabsTab.State>,
+  'value'
+> & {
   /**
    * The value of the Tab.
    */
@@ -244,7 +246,7 @@ export interface TabsTabProps
    * To work around it, ensure that `defaultValue` or `value` on `<Tabs.Root>` is set to an enabled Tab's value.
    */
   disabled?: boolean | undefined;
-}
+};
 
 export namespace TabsTab {
   export type Value = TabsTabValue;
@@ -253,5 +255,15 @@ export namespace TabsTab {
   export type Size = TabsTabSize;
   export type Metadata = TabsTabMetadata;
   export type State = TabsTabState;
-  export type Props = TabsTabProps;
+  export type Props<
+    TNativeButton extends boolean = true,
+    TElement extends React.ElementType = 'button',
+  > = TabsTabProps<TNativeButton, TElement>;
 }
+
+type TabsTabComponent = <
+  TNativeButton extends boolean = true,
+  TElement extends React.ElementType = 'button',
+>(
+  props: TabsTab.Props<TNativeButton, TElement> & { ref?: React.Ref<HTMLElement> | undefined },
+) => React.ReactElement | null;

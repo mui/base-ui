@@ -4,7 +4,7 @@ import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useControlled } from '@base-ui/utils/useControlled';
 import { useBaseUiId } from '../utils/useBaseUiId';
 import { useRenderElement } from '../utils/useRenderElement';
-import type { BaseUIComponentProps, NativeButtonProps } from '../utils/types';
+import type { NativeButtonComponentProps } from '../utils/types';
 import { useToggleGroupContext } from '../toggle-group/ToggleGroupContext';
 import { useButton } from '../use-button/useButton';
 import { CompositeItem } from '../composite/item/CompositeItem';
@@ -115,7 +115,7 @@ export const Toggle = React.forwardRef(function Toggle(
   }
 
   return element;
-});
+}) as ToggleComponent;
 
 export interface ToggleState {
   /**
@@ -128,8 +128,10 @@ export interface ToggleState {
   disabled: boolean;
 }
 
-export interface ToggleProps
-  extends NativeButtonProps, BaseUIComponentProps<'button', Toggle.State> {
+export type ToggleProps<
+  TNativeButton extends boolean,
+  TElement extends React.ElementType,
+> = NativeButtonComponentProps<TNativeButton, TElement, Toggle.State> & {
   /**
    * Whether the toggle button is currently pressed.
    * This is the controlled counterpart of `defaultPressed`.
@@ -157,7 +159,7 @@ export interface ToggleProps
    * inside a toggle group.
    */
   value?: string | undefined;
-}
+};
 
 export type ToggleChangeEventReason = typeof REASONS.none;
 
@@ -165,7 +167,17 @@ export type ToggleChangeEventDetails = BaseUIChangeEventDetails<Toggle.ChangeEve
 
 export namespace Toggle {
   export type State = ToggleState;
-  export type Props = ToggleProps;
+  export type Props<
+    TNativeButton extends boolean = true,
+    TElement extends React.ElementType = 'button',
+  > = ToggleProps<TNativeButton, TElement>;
   export type ChangeEventReason = ToggleChangeEventReason;
   export type ChangeEventDetails = ToggleChangeEventDetails;
 }
+
+type ToggleComponent = <
+  TNativeButton extends boolean = true,
+  TElement extends React.ElementType = 'button',
+>(
+  props: Toggle.Props<TNativeButton, TElement> & { ref?: React.Ref<HTMLButtonElement> | undefined },
+) => React.ReactElement | null;
