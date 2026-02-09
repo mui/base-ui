@@ -591,6 +591,28 @@ describe('<Select.Root />', () => {
     });
   });
 
+  it('should pass autoComplete to the hidden input', async () => {
+    await render(
+      <Select.Root name="country" autoComplete="country">
+        <Select.Trigger data-testid="trigger">
+          <Select.Value />
+        </Select.Trigger>
+        <Select.Portal>
+          <Select.Positioner>
+            <Select.Popup>
+              <Select.Item value="US">United States</Select.Item>
+              <Select.Item value="CA">Canada</Select.Item>
+            </Select.Popup>
+          </Select.Positioner>
+        </Select.Portal>
+      </Select.Root>,
+    );
+
+    const hiddenInput = screen.getByRole('textbox', { hidden: true });
+    expect(hiddenInput).to.have.attribute('name', 'country');
+    expect(hiddenInput).to.have.attribute('autocomplete', 'country');
+  });
+
   it('should handle browser autofill with object values', async () => {
     const items = [
       { country: 'United States', code: 'US' },

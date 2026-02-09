@@ -18,6 +18,7 @@ export const inputChange = 'input-change' as const;
 export const inputClear = 'input-clear' as const;
 export const inputBlur = 'input-blur' as const;
 export const inputPaste = 'input-paste' as const;
+export const inputPress = 'input-press' as const;
 
 export const focusOut = 'focus-out' as const;
 export const escapeKey = 'escape-key' as const;
