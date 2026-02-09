@@ -1,6 +1,6 @@
 import { Combobox } from '@base-ui/react/combobox';
 import { createRenderer, describeConformance } from '#test-utils';
-import { screen } from '@mui/internal-test-utils';
+import { act, screen, waitFor } from '@mui/internal-test-utils';
 import { expect } from 'chai';
 import { spy } from 'sinon';
 
@@ -46,7 +46,9 @@ describe('<Combobox.Chip />', () => {
       const chipApple = screen.getByTestId('chip-apple');
 
       // Focus the chip manually (simulating navigation)
-      chipApple.focus();
+      act(() => {
+        chipApple.focus();
+      });
 
       // Try to navigate with arrow keys
       await user.keyboard('{ArrowRight}');
@@ -75,7 +77,9 @@ describe('<Combobox.Chip />', () => {
       const chipApple = screen.getByTestId('chip-apple');
 
       // Focus the chip manually
-      chipApple.focus();
+      act(() => {
+        chipApple.focus();
+      });
 
       // Try to delete with backspace
       await user.keyboard('{Backspace}');
@@ -137,7 +141,9 @@ describe('<Combobox.Chip />', () => {
       const chipApple = screen.getByTestId('chip-apple');
 
       // Focus the chip manually
-      chipApple.focus();
+      act(() => {
+        chipApple.focus();
+      });
 
       // Try to delete with backspace
       await user.keyboard('{Backspace}');
@@ -160,7 +166,9 @@ describe('<Combobox.Chip />', () => {
       const chipApple = screen.getByTestId('chip-apple');
 
       // Focus the first chip
-      chipApple.focus();
+      act(() => {
+        chipApple.focus();
+      });
 
       // Navigation should be blocked
       await user.keyboard('{ArrowRight}');
@@ -201,6 +209,39 @@ describe('<Combobox.Chip />', () => {
       expect(screen.getByRole('listbox')).not.to.equal(null);
     });
 
+    it('closes the popup when a chip receives focus', async () => {
+      const { user } = await render(
+        <Combobox.Root multiple defaultOpen defaultValue={['apple', 'banana']}>
+          <Combobox.Input data-testid="input" />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  <Combobox.Item value="a">a</Combobox.Item>
+                  <Combobox.Item value="b">b</Combobox.Item>
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+          <Combobox.Chips>
+            <Combobox.Chip data-testid="chip-apple">apple</Combobox.Chip>
+            <Combobox.Chip data-testid="chip-banana">banana</Combobox.Chip>
+          </Combobox.Chips>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByTestId('input');
+      expect(screen.getByRole('listbox')).not.to.equal(null);
+
+      await user.click(input);
+      const chipApple = screen.getByTestId('chip-apple');
+      act(() => {
+        chipApple.focus();
+      });
+
+      await waitFor(() => expect(screen.queryByRole('listbox')).to.equal(null));
+    });
+
     it('should handle keyboard navigation when enabled', async () => {
       const { user } = await render(
         <Combobox.Root multiple defaultValue={['apple', 'banana', 'cherry']}>
@@ -219,7 +260,9 @@ describe('<Combobox.Chip />', () => {
       const input = screen.getByTestId('input');
 
       // Focus the first chip
-      chipApple.focus();
+      act(() => {
+        chipApple.focus();
+      });
 
       // Navigate right
       await user.keyboard('{ArrowRight}');
@@ -234,7 +277,9 @@ describe('<Combobox.Chip />', () => {
       expect(input).toHaveFocus();
 
       // Navigate left from first chip should also focus input
-      chipApple.focus();
+      act(() => {
+        chipApple.focus();
+      });
       await user.keyboard('{ArrowLeft}');
       expect(input).toHaveFocus();
     });
@@ -258,7 +303,9 @@ describe('<Combobox.Chip />', () => {
       const chipApple = screen.getByTestId('chip-apple');
 
       // Focus the chip and delete it
-      chipApple.focus();
+      act(() => {
+        chipApple.focus();
+      });
       await user.keyboard('{Backspace}');
 
       expect(handleValueChange.callCount).to.equal(1);
