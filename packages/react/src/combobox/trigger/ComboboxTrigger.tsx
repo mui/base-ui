@@ -9,7 +9,6 @@ import { useRenderElement } from '../../utils/useRenderElement';
 import { useButton } from '../../use-button';
 import {
   useComboboxFloatingContext,
-  useComboboxDerivedItemsContext,
   useComboboxInputValueContext,
   useComboboxRootContext,
 } from '../root/ComboboxRootContext';
@@ -55,7 +54,6 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
   } = useFieldRootContext();
   const { labelId } = useLabelableContext();
   const store = useComboboxRootContext();
-  const { filteredItems } = useComboboxDerivedItemsContext();
 
   const selectionMode = useStore(store, selectors.selectionMode);
   const comboboxDisabled = useStore(store, selectors.disabled);
@@ -74,6 +72,7 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
   const activeIndex = useStore(store, selectors.activeIndex);
   const selectedIndex = useStore(store, selectors.selectedIndex);
   const hasSelectedValue = useStore(store, selectors.hasSelectedValue);
+  const visibleItemCount = useStore(store, selectors.visibleItemCount);
 
   const floatingRootContext = useComboboxFloatingContext();
   const inputValue = useComboboxInputValueContext();
@@ -81,7 +80,7 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
   const focusTimeout = useTimeout();
 
   const disabled = fieldDisabled || comboboxDisabled || disabledProp;
-  const listEmpty = filteredItems.length === 0;
+  const listEmpty = visibleItemCount === 0;
   const popupSide = mounted && positionerElement ? popupSideValue : null;
 
   useLabelableId({ id: inputInsidePopup ? idProp : undefined });
