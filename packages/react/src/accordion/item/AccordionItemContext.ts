@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
+import { useContext } from '@base-ui/utils/createContext';
 import type { AccordionItem } from './AccordionItem';
-import { useContext } from '../../utils/createContext';
 
 export interface AccordionItemContext {
   open: boolean;

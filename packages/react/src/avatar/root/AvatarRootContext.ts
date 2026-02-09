@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
+import { useContext } from '@base-ui/utils/createContext';
 import type { ImageLoadingStatus } from './AvatarRoot';
-import { useContext } from '../../utils/createContext';
 
 export interface AvatarRootContext {
   imageLoadingStatus: ImageLoadingStatus;

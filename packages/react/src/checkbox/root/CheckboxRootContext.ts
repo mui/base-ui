@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
+import { useContext } from '@base-ui/utils/createContext';
 import type { CheckboxRoot } from './CheckboxRoot';
-import { useContext } from '../../utils/createContext';
 
 export type CheckboxRootContext = CheckboxRoot.State;
 

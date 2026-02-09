@@ -1,9 +1,9 @@
 'use client';
 import * as React from 'react';
+import { useContext } from '@base-ui/utils/createContext';
 import type { Orientation } from '../../utils/types';
 import type { TextDirection } from '../../direction-provider';
 import type { AccordionRoot, AccordionValue } from './AccordionRoot';
-import { useContext } from '../../utils/createContext';
 
 export interface AccordionRootContext {
   accordionItemRefs: React.RefObject<(HTMLElement | null)[]>;
