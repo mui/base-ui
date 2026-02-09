@@ -87,7 +87,6 @@
     "@base-ui/utils": "workspace:*",
     "@floating-ui/react-dom": "^2.1.6",
     "@floating-ui/utils": "^0.2.10",
-    "reselect": "^5.1.1",
     "tabbable": "^6.4.0",
     "use-sync-external-store": "^1.6.0"
   },
@@ -96,7 +95,7 @@
     "@testing-library/user-event": "14.6.1",
     "@types/chai": "5.2.3",
     "@types/chai-dom": "1.11.3",
-    "@types/react": "19.2.9",
+    "@types/react": "19.2.10",
     "@types/react-dom": "19.2.3",
     "@types/sinon": "21.0.0",
     "@types/use-sync-external-store": "1.5.0",
