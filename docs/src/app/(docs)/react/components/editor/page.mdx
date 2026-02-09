@@ -1,0 +1,102 @@
+# Editor
+
+<Subtitle>
+  A simple rich text editor component built on top of Lexical.
+</Subtitle>
+<Meta
+  name="description"
+  content="A high-quality, unstyled React rich text editor component built on top of Lexical."
+/>
+
+import { DemoEditorHero } from './demos/hero';
+import { DemoEditorToolbar } from './demos/toolbar';
+import { DemoEditorAICompletion } from './demos/ai-completion';
+import { DemoEditorFloatingToolbar } from './demos/floating-toolbar';
+import { DemoEditorCustomization } from './demos/customization';
+
+<DemoEditorHero />
+
+## Anatomy
+
+Import the component and render a basic editor:
+
+```jsx title="Anatomy"
+import { Editor } from '@base-ui/react/editor';
+
+export default function BasicEditor() {
+  return (
+    <Editor placeholder="Start typing..." />
+  );
+}
+```
+
+For more advanced layouts, you can compose the editor components:
+
+```jsx title="Compositional Anatomy"
+import { Editor } from '@base-ui/react/editor';
+
+export default function AdvancedEditor() {
+  return (
+    <Editor.Provider>
+      <Editor.Toolbar />
+      <Editor.Content />
+      <Editor.FloatingToolbar />
+    </Editor.Provider>
+  );
+}
+```
+
+## Usage
+
+- Provide a helpful `placeholder` to guide users when the editor is empty.
+- Use the `value` and `onChange` props to control the content with a serialized editor state.
+- For more advanced editing controls, compose with `Editor.Toolbar` and other components from the `Editor` namespace.
+
+### With toolbar
+
+This example shows `Editor.Toolbar` integrated above the editable area for basic formatting.
+
+<DemoEditorToolbar />
+
+### Floating toolbar
+
+A compact toolbar that appears near the current text selection. This can be enabled via the `floatingToolbar` prop on the `Editor` component, or manually composed using `Editor.FloatingToolbar`.
+
+<DemoEditorFloatingToolbar />
+
+### AI Autocomplete
+
+The Editor can be configured with an AI provider to offer autocomplete suggestions.
+The following example demonstrates a mock AI provider that suggests text based on the last word typed.
+
+<DemoEditorAICompletion />
+
+To enable AI completions, provide an `ai` object to the `Editor`:
+
+```jsx
+<Editor
+  ai={{
+    getCompletion: async (text) => {
+      // Call your AI API here
+      return " suggestion";
+    },
+    debounceMs: 500,
+  }}
+/>
+```
+
+### Customization
+
+You can restrict the available formatting options using the `enabledFormats` prop. This affects both the `Editor.Toolbar` and the built-in keyboard shortcuts.
+
+<DemoEditorCustomization />
+
+```jsx
+<Editor
+  enabledFormats={['bold', 'italic', 'undo', 'redo']}
+>
+  <Editor.Toolbar />
+</Editor>
+```
+
+You can also register custom Lexical nodes via the `nodes` prop for advanced customization.

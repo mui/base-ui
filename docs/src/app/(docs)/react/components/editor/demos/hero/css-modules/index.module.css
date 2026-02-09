@@ -1,0 +1,10 @@
+.Container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+}
+
+.Editor {
+  min-height: 160px;
+}
