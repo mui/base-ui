@@ -5,10 +5,10 @@ export function useContext<T>(
   Context: React.Context<T | undefined>,
   errorMessage: string,
   optional: boolean = false,
-) {
+): T {
   const context = React.useContext(Context);
   if (context === undefined && !optional) {
     throw new Error(errorMessage);
   }
-  return context;
+  return context as T;
 }
