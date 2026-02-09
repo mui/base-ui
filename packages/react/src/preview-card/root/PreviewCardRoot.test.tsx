@@ -780,6 +780,86 @@ describe('<PreviewCard.Root />', () => {
       // Parent popup should still be open after hovering the child trigger
       expect(screen.queryByTestId('parent-popup')).not.to.equal(null);
     });
+
+    describe('race condition between close timers and hover-open logic', () => {
+      clock.withFakeTimers();
+
+      it('keeps the parent open and re-opens the child when re-entering after partial close', async () => {
+        function Test() {
+          return (
+            <PreviewCard.Root defaultOpen>
+              <PreviewCard.Trigger href="#" data-testid="parent-trigger">
+                Parent
+              </PreviewCard.Trigger>
+              <PreviewCard.Portal>
+                <PreviewCard.Positioner>
+                  <PreviewCard.Popup data-testid="parent-popup">
+                    <div>Parent content</div>
+                    <PreviewCard.Root defaultOpen>
+                      <PreviewCard.Trigger href="#" data-testid="child-trigger">
+                        Child
+                      </PreviewCard.Trigger>
+                      <PreviewCard.Portal>
+                        <PreviewCard.Positioner>
+                          <PreviewCard.Popup data-testid="child-popup">
+                            Child content
+                          </PreviewCard.Popup>
+                        </PreviewCard.Positioner>
+                      </PreviewCard.Portal>
+                    </PreviewCard.Root>
+                  </PreviewCard.Popup>
+                </PreviewCard.Positioner>
+              </PreviewCard.Portal>
+            </PreviewCard.Root>
+          );
+        }
+
+        await render(<Test />);
+
+        const parentPopup = screen.getByTestId('parent-popup');
+        const childPopup = screen.getByTestId('child-popup');
+
+        expect(parentPopup).not.to.equal(null);
+        expect(childPopup).not.to.equal(null);
+
+        // Step 3: Move mouse outside all previews — both start close timers
+        fireEvent.mouseLeave(childPopup);
+        fireEvent.mouseLeave(parentPopup);
+
+        // Advance partway through close delay but not all the way
+        clock.tick(CLOSE_DELAY / 2);
+
+        // Step 4: Re-enter parent popup before it closes
+        fireEvent.mouseEnter(parentPopup);
+
+        await flushMicrotasks();
+
+        // Parent should still be open
+        expect(screen.queryByTestId('parent-popup')).not.to.equal(null);
+
+        // Let the child's close delay finish — child closes
+        clock.tick(CLOSE_DELAY);
+
+        await flushMicrotasks();
+
+        // Parent should still be open
+        expect(screen.queryByTestId('parent-popup')).not.to.equal(null);
+
+        // Step 5: Hover child trigger again to re-open child
+        const childTrigger = screen.getByTestId('child-trigger');
+
+        fireEvent.pointerDown(childTrigger, { pointerType: 'mouse' });
+        fireEvent.mouseEnter(childTrigger);
+        fireEvent.mouseMove(childTrigger);
+
+        clock.tick(OPEN_DELAY);
+
+        await flushMicrotasks();
+
+        // Parent should still be open
+        expect(screen.queryByTestId('parent-popup')).not.to.equal(null);
+      });
+    });
   });
 });
 
