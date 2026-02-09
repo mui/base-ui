@@ -1,11 +1,11 @@
 import { expect } from 'chai';
 import { spy } from 'sinon';
 import { createTemporalRenderer } from '#test-utils';
-import { DateFieldStore } from '../../../../date-field/root/DateFieldStore';
-import { TimeFieldStore } from '../../../../time-field/root/TimeFieldStore';
-import { TemporalFieldSectionPlugin } from './TemporalFieldSectionPlugin';
+import { DateFieldStore } from '../../../date-field/root/DateFieldStore';
+import { TimeFieldStore } from '../../../time-field/root/TimeFieldStore';
+import { selectors } from './selectors';
 
-describe('TemporalFieldValuePlugin', () => {
+describe('TemporalFieldStore - Value', () => {
   const { adapter } = createTemporalRenderer();
   const numericDateFormat = `${adapter.formats.monthPadded}/${adapter.formats.dayOfMonthPadded}/${adapter.formats.yearPadded}`;
   const time24Format = `${adapter.formats.hours24hPadded}:${adapter.formats.minutesPadded}`;
@@ -20,7 +20,7 @@ describe('TemporalFieldValuePlugin', () => {
         });
 
         const newDate = adapter.date('2024-06-15', 'default');
-        store.value.publish(newDate);
+        store.publish(newDate);
 
         expect(adapter.isValid(store.state.value)).to.equal(true);
         expect(adapter.getMonth(store.state.value!)).to.equal(5); // June (0-indexed)
@@ -35,9 +35,9 @@ describe('TemporalFieldValuePlugin', () => {
         });
 
         const newDate = adapter.date('2024-06-15', 'default');
-        store.value.publish(newDate);
+        store.publish(newDate);
 
-        const sections = TemporalFieldSectionPlugin.selectors.sections(store.state);
+        const sections = selectors.sections(store.state);
         const dateParts = sections.filter((s) => s.type === 'datePart');
         expect(dateParts[0].value).to.equal('06'); // month
         expect(dateParts[1].value).to.equal('15'); // day
@@ -58,7 +58,7 @@ describe('TemporalFieldValuePlugin', () => {
         });
 
         const newDate = adapter.date('2024-06-15', 'default');
-        store.value.publish(newDate);
+        store.publish(newDate);
 
         // onValueChange should be called
         expect(onValueChangeSpy.callCount).to.equal(1);
@@ -78,7 +78,7 @@ describe('TemporalFieldValuePlugin', () => {
         });
 
         const newDate = adapter.date('2024-06-15', 'default');
-        store.value.publish(newDate);
+        store.publish(newDate);
 
         expect(onValueChangeSpy.callCount).to.equal(1);
         expect(adapter.isValid(onValueChangeSpy.firstCall.args[0])).to.equal(true);
@@ -93,7 +93,7 @@ describe('TemporalFieldValuePlugin', () => {
           direction: 'ltr',
         });
 
-        store.value.publish(adapter.date('2024-06-15', 'default'));
+        store.publish(adapter.date('2024-06-15', 'default'));
 
         expect(onValueChangeSpy.firstCall.args[1]).to.not.equal(undefined);
       });
@@ -108,7 +108,7 @@ describe('TemporalFieldValuePlugin', () => {
         direction: 'ltr',
       });
 
-      store.value.updateFromString('06/15/2024');
+      store.updateFromString('06/15/2024');
 
       expect(adapter.isValid(store.state.value)).to.equal(true);
       expect(adapter.getMonth(store.state.value!)).to.equal(5);
@@ -123,7 +123,7 @@ describe('TemporalFieldValuePlugin', () => {
         direction: 'ltr',
       });
 
-      store.value.updateFromString('14:30');
+      store.updateFromString('14:30');
 
       expect(adapter.isValid(store.state.value)).to.equal(true);
       expect(adapter.getHours(store.state.value!)).to.equal(14);
@@ -139,7 +139,7 @@ describe('TemporalFieldValuePlugin', () => {
         direction: 'ltr',
       });
 
-      store.value.updateFromString('06/15/2024');
+      store.updateFromString('06/15/2024');
 
       expect(onValueChangeSpy.callCount).to.equal(1);
     });
@@ -155,7 +155,7 @@ describe('TemporalFieldValuePlugin', () => {
       });
 
       expect(store.state.value).to.not.equal(null);
-      store.value.clear();
+      store.clear();
       expect(store.state.value).to.equal(null);
     });
 
@@ -169,7 +169,7 @@ describe('TemporalFieldValuePlugin', () => {
         direction: 'ltr',
       });
 
-      store.value.clear();
+      store.clear();
       expect(onValueChangeSpy.callCount).to.equal(1);
       expect(onValueChangeSpy.firstCall.args[0]).to.equal(null);
     });
@@ -182,8 +182,8 @@ describe('TemporalFieldValuePlugin', () => {
       });
 
       // First set some section values without creating a complete date
-      store.section.selectClosestDatePart(0);
-      store.section.updateDatePart({
+      store.selectClosestDatePart(0);
+      store.updateDatePart({
         sectionIndex: 0,
         newDatePartValue: '03',
         shouldGoToNextSection: false,
@@ -191,9 +191,9 @@ describe('TemporalFieldValuePlugin', () => {
 
       // Value is still null (not all sections filled)
       // Clear should empty the section values
-      store.value.clear();
+      store.clear();
 
-      const sections = TemporalFieldSectionPlugin.selectors.sections(store.state);
+      const sections = selectors.sections(store.state);
       const dateParts = sections.filter((s) => s.type === 'datePart');
       dateParts.forEach((section) => {
         expect(section.value).to.equal('');
@@ -209,7 +209,7 @@ describe('TemporalFieldValuePlugin', () => {
       });
 
       expect(store.state.value).to.not.equal(null);
-      store.value.clear();
+      store.clear();
       expect(store.state.value).to.equal(null);
     });
   });
@@ -224,7 +224,7 @@ describe('TemporalFieldValuePlugin', () => {
       });
 
       const newDate = adapter.date('2024-06-15', 'default');
-      const derived = store.value.deriveStateFromNewValue(newDate);
+      const derived = store.deriveStateFromNewValue(newDate);
 
       // Should have sections matching the new date
       const dateParts = derived.sections.filter((s) => s.type === 'datePart');
@@ -242,7 +242,7 @@ describe('TemporalFieldValuePlugin', () => {
       });
 
       const newDate = adapter.date('2024-06-15', 'default');
-      const derived = store.value.deriveStateFromNewValue(newDate);
+      const derived = store.deriveStateFromNewValue(newDate);
 
       expect(adapter.isValid(derived.referenceValue)).to.equal(true);
     });
@@ -255,7 +255,7 @@ describe('TemporalFieldValuePlugin', () => {
         direction: 'ltr',
       });
 
-      const derived = store.value.deriveStateFromNewValue(null as any);
+      const derived = store.deriveStateFromNewValue(null as any);
 
       const dateParts = derived.sections.filter((s) => s.type === 'datePart');
       dateParts.forEach((section) => {

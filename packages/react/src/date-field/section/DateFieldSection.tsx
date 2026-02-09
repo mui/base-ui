@@ -7,7 +7,7 @@ import { useTemporalFieldRootContext } from '../../utils/temporal/field/Temporal
 import { TemporalFieldSection } from '../../utils/temporal/field/types';
 import { StateAttributesMapping } from '../../utils/getStateAttributesProps';
 import { DateFieldSectionDataAttributes } from './DateFieldSectionDataAttributes';
-import { TemporalFieldElementsPropsPlugin } from '../../utils/temporal/field/plugins/TemporalFieldElementsPropsPlugin';
+import { selectors } from '../../utils/temporal/field/selectors';
 
 const stateAttributesMapping: StateAttributesMapping<DateFieldSectionState> = {
   sectionIndex: (index) => {
@@ -40,7 +40,7 @@ export const DateFieldSection = React.forwardRef(function DateFieldSection(
   const store = useTemporalFieldRootContext();
   const propsFromState = useStore(
     store,
-    TemporalFieldElementsPropsPlugin.selectors.sectionProps,
+    selectors.sectionProps,
     section,
     store,
   );
@@ -52,7 +52,7 @@ export const DateFieldSection = React.forwardRef(function DateFieldSection(
 
   return useRenderElement('div', componentProps, {
     state,
-    ref: [forwardedRef, store.dom.registerSection],
+    ref: [forwardedRef, store.registerSection],
     props: [propsFromState, elementProps],
     stateAttributesMapping,
   });

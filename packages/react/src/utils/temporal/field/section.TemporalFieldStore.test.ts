@@ -1,11 +1,10 @@
 import { expect } from 'chai';
 import { createTemporalRenderer } from '#test-utils';
-import { DateFieldStore } from '../../../../date-field/root/DateFieldStore';
-import { TimeFieldStore } from '../../../../time-field/root/TimeFieldStore';
-import { TemporalFieldSectionPlugin } from './TemporalFieldSectionPlugin';
-import { TemporalFieldValuePlugin } from './TemporalFieldValuePlugin';
+import { DateFieldStore } from '../../../date-field/root/DateFieldStore';
+import { TimeFieldStore } from '../../../time-field/root/TimeFieldStore';
+import { selectors } from './selectors';
 
-describe('TemporalFieldSectionPlugin', () => {
+describe('TemporalFieldStore - Section', () => {
   const { adapter } = createTemporalRenderer();
 
   // Date formats
@@ -26,14 +25,14 @@ describe('TemporalFieldSectionPlugin', () => {
         direction: 'ltr',
       });
 
-      store.section.selectClosestDatePart(0); // month section
+      store.selectClosestDatePart(0); // month section
 
-      const datePart = TemporalFieldSectionPlugin.selectors.datePart(store.state, 0);
+      const datePart = selectors.datePart(store.state, 0);
       expect(datePart!.value).to.equal('03'); // Month is set
 
-      store.section.clearActive();
+      store.clearActive();
 
-      const updatedDatePart = TemporalFieldSectionPlugin.selectors.datePart(store.state, 0);
+      const updatedDatePart = selectors.datePart(store.state, 0);
       expect(updatedDatePart!.value).to.equal(''); // Month is cleared
     });
 
@@ -44,14 +43,14 @@ describe('TemporalFieldSectionPlugin', () => {
         direction: 'ltr',
       });
 
-      store.section.selectClosestDatePart(0); // month section (empty)
+      store.selectClosestDatePart(0); // month section (empty)
 
-      const datePart = TemporalFieldSectionPlugin.selectors.datePart(store.state, 0);
+      const datePart = selectors.datePart(store.state, 0);
       expect(datePart!.value).to.equal(''); // Already empty
 
-      store.section.clearActive(); // Should not error
+      store.clearActive(); // Should not error
 
-      const updatedDatePart = TemporalFieldSectionPlugin.selectors.datePart(store.state, 0);
+      const updatedDatePart = selectors.datePart(store.state, 0);
       expect(updatedDatePart!.value).to.equal(''); // Still empty
     });
 
@@ -63,19 +62,19 @@ describe('TemporalFieldSectionPlugin', () => {
         direction: 'ltr',
       });
 
-      store.section.selectClosestDatePart(2); // day section
+      store.selectClosestDatePart(2); // day section
 
-      store.section.clearActive();
+      store.clearActive();
 
       // Day should be cleared
-      const dayPart = TemporalFieldSectionPlugin.selectors.datePart(store.state, 2);
+      const dayPart = selectors.datePart(store.state, 2);
       expect(dayPart!.value).to.equal('');
 
       // Month and year should remain
-      const monthPart = TemporalFieldSectionPlugin.selectors.datePart(store.state, 0);
+      const monthPart = selectors.datePart(store.state, 0);
       expect(monthPart!.value).to.equal('03');
 
-      const yearPart = TemporalFieldSectionPlugin.selectors.datePart(store.state, 4);
+      const yearPart = selectors.datePart(store.state, 4);
       expect(yearPart!.value).to.equal('2024');
     });
 
@@ -88,25 +87,25 @@ describe('TemporalFieldSectionPlugin', () => {
       });
 
       // Clear month
-      store.section.selectClosestDatePart(0);
-      store.section.clearActive();
-      const monthPart = TemporalFieldSectionPlugin.selectors.datePart(store.state, 0);
+      store.selectClosestDatePart(0);
+      store.clearActive();
+      const monthPart = selectors.datePart(store.state, 0);
       expect(monthPart!.value).to.equal('');
 
       // Clear day
-      store.section.selectClosestDatePart(2);
-      store.section.clearActive();
-      const dayPart = TemporalFieldSectionPlugin.selectors.datePart(store.state, 2);
+      store.selectClosestDatePart(2);
+      store.clearActive();
+      const dayPart = selectors.datePart(store.state, 2);
       expect(dayPart!.value).to.equal('');
 
       // Clear year
-      store.section.selectClosestDatePart(4);
-      store.section.clearActive();
-      const yearPart = TemporalFieldSectionPlugin.selectors.datePart(store.state, 4);
+      store.selectClosestDatePart(4);
+      store.clearActive();
+      const yearPart = selectors.datePart(store.state, 4);
       expect(yearPart!.value).to.equal('');
 
       // All sections should be empty
-      const value = TemporalFieldValuePlugin.selectors.value(store.state);
+      const value = selectors.value(store.state);
       expect(value).to.equal(null);
     });
 
@@ -118,24 +117,24 @@ describe('TemporalFieldSectionPlugin', () => {
         direction: 'ltr',
       });
 
-      store.section.selectClosestDatePart(0); // month section
+      store.selectClosestDatePart(0); // month section
 
       // Start typing
-      store.characterEditing.editSection({
+      store.editSection({
         keyPressed: '0',
         sectionIndex: 0,
       });
 
       // Clear the section
-      store.section.clearActive();
+      store.clearActive();
 
       // Type again - should start fresh query
-      store.characterEditing.editSection({
+      store.editSection({
         keyPressed: '5',
         sectionIndex: 0,
       });
 
-      const monthPart = TemporalFieldSectionPlugin.selectors.datePart(store.state, 0);
+      const monthPart = selectors.datePart(store.state, 0);
       expect(monthPart!.value).to.equal('05'); // Should be 05, not trying to concatenate with cleared '0'
     });
   });
@@ -148,9 +147,9 @@ describe('TemporalFieldSectionPlugin', () => {
         direction: 'ltr',
       });
 
-      store.value.updateFromString('03/15/2024');
+      store.updateFromString('03/15/2024');
 
-      const value = TemporalFieldValuePlugin.selectors.value(store.state);
+      const value = selectors.value(store.state);
       expect(adapter.isValid(value)).to.equal(true);
       expect(adapter.getMonth(value!)).to.equal(2); // March = month 2 (0-indexed)
       expect(adapter.getDate(value!)).to.equal(15);
@@ -165,9 +164,9 @@ describe('TemporalFieldSectionPlugin', () => {
         direction: 'ltr',
       });
 
-      store.value.updateFromString('12/31/2024');
+      store.updateFromString('12/31/2024');
 
-      const value = TemporalFieldValuePlugin.selectors.value(store.state);
+      const value = selectors.value(store.state);
       expect(adapter.isValid(value)).to.equal(true);
       expect(adapter.getMonth(value!)).to.equal(11); // December = month 11 (0-indexed)
       expect(adapter.getDate(value!)).to.equal(31);
@@ -182,9 +181,9 @@ describe('TemporalFieldSectionPlugin', () => {
         direction: 'ltr',
       });
 
-      store.value.updateFromString('invalid date string');
+      store.updateFromString('invalid date string');
 
-      const value = TemporalFieldValuePlugin.selectors.value(store.state);
+      const value = selectors.value(store.state);
       expect(value).to.equal(null);
     });
 
@@ -196,9 +195,9 @@ describe('TemporalFieldSectionPlugin', () => {
         direction: 'ltr',
       });
 
-      store.value.updateFromString('');
+      store.updateFromString('');
 
-      const value = TemporalFieldValuePlugin.selectors.value(store.state);
+      const value = selectors.value(store.state);
       expect(value).to.equal(null);
     });
 
@@ -209,9 +208,9 @@ describe('TemporalFieldSectionPlugin', () => {
         direction: 'ltr',
       });
 
-      store.value.updateFromString('14:30');
+      store.updateFromString('14:30');
 
-      const value = TemporalFieldValuePlugin.selectors.value(store.state);
+      const value = selectors.value(store.state);
       expect(adapter.isValid(value)).to.equal(true);
       expect(adapter.getHours(value!)).to.equal(14);
       expect(adapter.getMinutes(value!)).to.equal(30);
@@ -225,22 +224,22 @@ describe('TemporalFieldSectionPlugin', () => {
       });
 
       // Select month section and start typing
-      store.section.selectClosestDatePart(0);
-      store.characterEditing.editSection({
+      store.selectClosestDatePart(0);
+      store.editSection({
         keyPressed: '0',
         sectionIndex: 0,
       });
 
       // Paste a complete date
-      store.value.updateFromString('05/20/2024');
+      store.updateFromString('05/20/2024');
 
       // Now type in the month section - should not try to concatenate with previous '0'
-      store.characterEditing.editSection({
+      store.editSection({
         keyPressed: '7',
         sectionIndex: 0,
       });
 
-      const monthPart = TemporalFieldSectionPlugin.selectors.datePart(store.state, 0);
+      const monthPart = selectors.datePart(store.state, 0);
       expect(monthPart!.value).to.equal('07'); // Should be 07, not trying to use old query
     });
   });
@@ -255,14 +254,14 @@ describe('TemporalFieldSectionPlugin', () => {
       });
 
       // Edit the day
-      store.section.selectClosestDatePart(2); // day section
-      store.section.updateDatePart({
+      store.selectClosestDatePart(2); // day section
+      store.updateDatePart({
         sectionIndex: 2,
         newDatePartValue: '20',
         shouldGoToNextSection: false,
       });
 
-      const value = TemporalFieldValuePlugin.selectors.value(store.state);
+      const value = selectors.value(store.state);
       expect(adapter.isValid(value)).to.equal(true);
 
       // Date should be updated
@@ -282,17 +281,17 @@ describe('TemporalFieldSectionPlugin', () => {
       });
 
       // Clear day
-      store.section.selectClosestDatePart(2);
-      store.section.clearActive();
+      store.selectClosestDatePart(2);
+      store.clearActive();
 
       // Refill day
-      store.section.updateDatePart({
+      store.updateDatePart({
         sectionIndex: 2,
         newDatePartValue: '20',
         shouldGoToNextSection: false,
       });
 
-      const value = TemporalFieldValuePlugin.selectors.value(store.state);
+      const value = selectors.value(store.state);
       expect(adapter.isValid(value)).to.equal(true);
 
       // Time should still be preserved
@@ -309,14 +308,14 @@ describe('TemporalFieldSectionPlugin', () => {
       });
 
       // Edit the year
-      store.section.selectClosestDatePart(0); // year section
-      store.section.updateDatePart({
+      store.selectClosestDatePart(0); // year section
+      store.updateDatePart({
         sectionIndex: 0,
         newDatePartValue: '2025',
         shouldGoToNextSection: false,
       });
 
-      const value = TemporalFieldValuePlugin.selectors.value(store.state);
+      const value = selectors.value(store.state);
       expect(adapter.isValid(value)).to.equal(true);
 
       // Year should be updated
@@ -338,14 +337,14 @@ describe('TemporalFieldSectionPlugin', () => {
       });
 
       // Edit the month
-      store.section.selectClosestDatePart(0); // month section
-      store.section.updateDatePart({
+      store.selectClosestDatePart(0); // month section
+      store.updateDatePart({
         sectionIndex: 0,
         newDatePartValue: '12',
         shouldGoToNextSection: false,
       });
 
-      const value = TemporalFieldValuePlugin.selectors.value(store.state);
+      const value = selectors.value(store.state);
       expect(adapter.isValid(value)).to.equal(true);
 
       // Month should be updated
@@ -367,14 +366,14 @@ describe('TemporalFieldSectionPlugin', () => {
       });
 
       // Edit the hour
-      store.section.selectClosestDatePart(0); // hour section
-      store.section.updateDatePart({
+      store.selectClosestDatePart(0); // hour section
+      store.updateDatePart({
         sectionIndex: 0,
         newDatePartValue: '18',
         shouldGoToNextSection: false,
       });
 
-      const value = TemporalFieldValuePlugin.selectors.value(store.state);
+      const value = selectors.value(store.state);
       expect(adapter.isValid(value)).to.equal(true);
 
       // Hour should be updated
@@ -395,17 +394,17 @@ describe('TemporalFieldSectionPlugin', () => {
       });
 
       // Clear hour
-      store.section.selectClosestDatePart(0);
-      store.section.clearActive();
+      store.selectClosestDatePart(0);
+      store.clearActive();
 
       // Refill hour
-      store.section.updateDatePart({
+      store.updateDatePart({
         sectionIndex: 0,
         newDatePartValue: '18',
         shouldGoToNextSection: false,
       });
 
-      const value = TemporalFieldValuePlugin.selectors.value(store.state);
+      const value = selectors.value(store.state);
       expect(adapter.isValid(value)).to.equal(true);
 
       // Date should still be preserved
@@ -423,14 +422,14 @@ describe('TemporalFieldSectionPlugin', () => {
       });
 
       // Edit the hour
-      store.section.selectClosestDatePart(0); // hour section
-      store.section.updateDatePart({
+      store.selectClosestDatePart(0); // hour section
+      store.updateDatePart({
         sectionIndex: 0,
         newDatePartValue: '18',
         shouldGoToNextSection: false,
       });
 
-      const value = TemporalFieldValuePlugin.selectors.value(store.state);
+      const value = selectors.value(store.state);
       expect(adapter.isValid(value)).to.equal(true);
 
       // Hour should be updated
@@ -451,28 +450,28 @@ describe('TemporalFieldSectionPlugin', () => {
       });
 
       // Enter 02/29/2024 (2024 is a leap year)
-      store.section.selectClosestDatePart(0); // month
-      store.section.updateDatePart({
+      store.selectClosestDatePart(0); // month
+      store.updateDatePart({
         sectionIndex: 0,
         newDatePartValue: '02',
         shouldGoToNextSection: false,
       });
 
-      store.section.selectClosestDatePart(2); // day
-      store.section.updateDatePart({
+      store.selectClosestDatePart(2); // day
+      store.updateDatePart({
         sectionIndex: 2,
         newDatePartValue: '29',
         shouldGoToNextSection: false,
       });
 
-      store.section.selectClosestDatePart(4); // year
-      store.section.updateDatePart({
+      store.selectClosestDatePart(4); // year
+      store.updateDatePart({
         sectionIndex: 4,
         newDatePartValue: '2024',
         shouldGoToNextSection: false,
       });
 
-      const value = TemporalFieldValuePlugin.selectors.value(store.state);
+      const value = selectors.value(store.state);
       expect(adapter.isValid(value)).to.equal(true);
       expect(adapter.getMonth(value!)).to.equal(1); // February = month 1
       expect(adapter.getDate(value!)).to.equal(29);
@@ -488,22 +487,22 @@ describe('TemporalFieldSectionPlugin', () => {
       });
 
       // Update year to 2024 (leap year)
-      store.section.selectClosestDatePart(4);
-      store.section.updateDatePart({
+      store.selectClosestDatePart(4);
+      store.updateDatePart({
         sectionIndex: 4,
         newDatePartValue: '2024',
         shouldGoToNextSection: false,
       });
 
       // Update day to 29
-      store.section.selectClosestDatePart(2);
-      store.section.updateDatePart({
+      store.selectClosestDatePart(2);
+      store.updateDatePart({
         sectionIndex: 2,
         newDatePartValue: '29',
         shouldGoToNextSection: false,
       });
 
-      const value = TemporalFieldValuePlugin.selectors.value(store.state);
+      const value = selectors.value(store.state);
       expect(adapter.isValid(value)).to.equal(true);
       expect(adapter.getDate(value!)).to.equal(29);
       expect(adapter.getYear(value!)).to.equal(2024);
@@ -518,15 +517,15 @@ describe('TemporalFieldSectionPlugin', () => {
         direction: 'ltr',
       });
 
-      store.section.selectClosestDatePart(4); // year (4-digit)
-      store.section.updateDatePart({
+      store.selectClosestDatePart(4); // year (4-digit)
+      store.updateDatePart({
         sectionIndex: 4,
         newDatePartValue: '2024',
         shouldGoToNextSection: false,
       });
 
       // Value might be null if other sections are empty, but year section should be filled
-      const yearPart = TemporalFieldSectionPlugin.selectors.datePart(store.state, 4);
+      const yearPart = selectors.datePart(store.state, 4);
       expect(yearPart!.value).to.equal('2024');
     });
 
@@ -538,14 +537,14 @@ describe('TemporalFieldSectionPlugin', () => {
         direction: 'ltr',
       });
 
-      store.section.selectClosestDatePart(4);
-      store.section.updateDatePart({
+      store.selectClosestDatePart(4);
+      store.updateDatePart({
         sectionIndex: 4,
         newDatePartValue: '2025',
         shouldGoToNextSection: false,
       });
 
-      const value = TemporalFieldValuePlugin.selectors.value(store.state);
+      const value = selectors.value(store.state);
       expect(adapter.isValid(value)).to.equal(true);
       expect(adapter.getYear(value!)).to.equal(2025);
     });
@@ -559,13 +558,13 @@ describe('TemporalFieldSectionPlugin', () => {
         direction: 'ltr',
       });
 
-      store.section.selectClosestDatePart(0); // month
+      store.selectClosestDatePart(0); // month
       expect(store.state.selectedSection).to.equal(0);
 
-      store.section.selectClosestDatePart(2); // day
+      store.selectClosestDatePart(2); // day
       expect(store.state.selectedSection).to.equal(2);
 
-      store.section.selectClosestDatePart(4); // year
+      store.selectClosestDatePart(4); // year
       expect(store.state.selectedSection).to.equal(4);
     });
 
@@ -576,13 +575,13 @@ describe('TemporalFieldSectionPlugin', () => {
         direction: 'ltr',
       });
 
-      store.section.selectClosestDatePart(0); // month
+      store.selectClosestDatePart(0); // month
       expect(store.state.selectedSection).to.equal(0);
 
-      store.section.selectNextDatePart();
+      store.selectNextDatePart();
       expect(store.state.selectedSection).to.equal(2); // day (skips separator at index 1)
 
-      store.section.selectNextDatePart();
+      store.selectNextDatePart();
       expect(store.state.selectedSection).to.equal(4); // year (skips separator at index 3)
     });
 
@@ -593,13 +592,13 @@ describe('TemporalFieldSectionPlugin', () => {
         direction: 'ltr',
       });
 
-      store.section.selectClosestDatePart(4); // year
+      store.selectClosestDatePart(4); // year
       expect(store.state.selectedSection).to.equal(4);
 
-      store.section.selectPreviousDatePart();
+      store.selectPreviousDatePart();
       expect(store.state.selectedSection).to.equal(2); // day (skips separator at index 3)
 
-      store.section.selectPreviousDatePart();
+      store.selectPreviousDatePart();
       expect(store.state.selectedSection).to.equal(0); // month (skips separator at index 1)
     });
 
@@ -610,10 +609,10 @@ describe('TemporalFieldSectionPlugin', () => {
         direction: 'ltr',
       });
 
-      store.section.selectClosestDatePart(4); // year (last section)
+      store.selectClosestDatePart(4); // year (last section)
       expect(store.state.selectedSection).to.equal(4);
 
-      store.section.selectNextDatePart();
+      store.selectNextDatePart();
       expect(store.state.selectedSection).to.equal(4); // Should stay at year
     });
 
@@ -624,10 +623,10 @@ describe('TemporalFieldSectionPlugin', () => {
         direction: 'ltr',
       });
 
-      store.section.selectClosestDatePart(0); // month (first section)
+      store.selectClosestDatePart(0); // month (first section)
       expect(store.state.selectedSection).to.equal(0);
 
-      store.section.selectPreviousDatePart();
+      store.selectPreviousDatePart();
       expect(store.state.selectedSection).to.equal(0); // Should stay at month
     });
 
@@ -641,11 +640,11 @@ describe('TemporalFieldSectionPlugin', () => {
         direction: 'ltr',
       });
 
-      store.section.selectClosestDatePart(4); // year (last datePart)
+      store.selectClosestDatePart(4); // year (last datePart)
       expect(store.state.selectedSection).to.equal(4);
 
       // Should not throw and should stay on the current section
-      store.section.selectNextDatePart();
+      store.selectNextDatePart();
       expect(store.state.selectedSection).to.equal(4);
     });
 
@@ -660,11 +659,11 @@ describe('TemporalFieldSectionPlugin', () => {
       });
 
       // The first datePart is at index 1 (index 0 is the leading separator)
-      store.section.selectClosestDatePart(1); // month
+      store.selectClosestDatePart(1); // month
       expect(store.state.selectedSection).to.equal(1);
 
       // Should not throw and should stay on the current section
-      store.section.selectPreviousDatePart();
+      store.selectPreviousDatePart();
       expect(store.state.selectedSection).to.equal(1);
     });
 
@@ -679,7 +678,7 @@ describe('TemporalFieldSectionPlugin', () => {
       });
 
       // Clicking on the leading separator (index 0) should select the first date part (index 1)
-      store.section.selectClosestDatePart(0);
+      store.selectClosestDatePart(0);
       expect(store.state.selectedSection).to.equal(1); // Should select month (first date part)
     });
 
@@ -690,10 +689,10 @@ describe('TemporalFieldSectionPlugin', () => {
         direction: 'ltr',
       });
 
-      store.section.selectClosestDatePart(0);
+      store.selectClosestDatePart(0);
       expect(store.state.selectedSection).to.equal(0);
 
-      store.section.removeSelectedSection();
+      store.removeSelectedSection();
       expect(store.state.selectedSection).to.equal(null);
     });
   });
@@ -708,20 +707,20 @@ describe('TemporalFieldSectionPlugin', () => {
       });
 
       // Verify initial value
-      const initialMonthPart = TemporalFieldSectionPlugin.selectors.datePart(store.state, 0);
+      const initialMonthPart = selectors.datePart(store.state, 0);
       expect(initialMonthPart!.value).to.equal('03');
 
       // Update value externally
-      store.value.updateFromString('12/25/2025');
+      store.updateFromString('12/25/2025');
 
       // Verify sections are updated
-      const monthPart = TemporalFieldSectionPlugin.selectors.datePart(store.state, 0);
+      const monthPart = selectors.datePart(store.state, 0);
       expect(monthPart!.value).to.equal('12');
 
-      const dayPart = TemporalFieldSectionPlugin.selectors.datePart(store.state, 2);
+      const dayPart = selectors.datePart(store.state, 2);
       expect(dayPart!.value).to.equal('25');
 
-      const yearPart = TemporalFieldSectionPlugin.selectors.datePart(store.state, 4);
+      const yearPart = selectors.datePart(store.state, 4);
       expect(yearPart!.value).to.equal('2025');
     });
 
@@ -734,16 +733,16 @@ describe('TemporalFieldSectionPlugin', () => {
       });
 
       // Reset value to null
-      store.value.clear();
+      store.clear();
 
       // All sections should be empty
-      const monthPart = TemporalFieldSectionPlugin.selectors.datePart(store.state, 0);
+      const monthPart = selectors.datePart(store.state, 0);
       expect(monthPart!.value).to.equal('');
 
-      const dayPart = TemporalFieldSectionPlugin.selectors.datePart(store.state, 2);
+      const dayPart = selectors.datePart(store.state, 2);
       expect(dayPart!.value).to.equal('');
 
-      const yearPart = TemporalFieldSectionPlugin.selectors.datePart(store.state, 4);
+      const yearPart = selectors.datePart(store.state, 4);
       expect(yearPart!.value).to.equal('');
     });
   });

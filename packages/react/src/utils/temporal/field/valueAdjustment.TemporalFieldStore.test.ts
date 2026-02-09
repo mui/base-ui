@@ -1,11 +1,10 @@
 import { expect } from 'chai';
 import { createTemporalRenderer } from '#test-utils';
-import { DateFieldStore } from '../../../../date-field/root/DateFieldStore';
-import { TimeFieldStore } from '../../../../time-field/root/TimeFieldStore';
-import { TemporalFieldValuePlugin } from './TemporalFieldValuePlugin';
-import { TemporalFieldSectionPlugin } from './TemporalFieldSectionPlugin';
+import { DateFieldStore } from '../../../date-field/root/DateFieldStore';
+import { TimeFieldStore } from '../../../time-field/root/TimeFieldStore';
+import { selectors } from './selectors';
 
-describe('TemporalFieldValueAdjustmentPlugin', () => {
+describe('TemporalFieldStore - Value Adjustment', () => {
   const { adapter } = createTemporalRenderer();
 
   // Date formats
@@ -20,7 +19,7 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
   const ordinalDayFormat = `${adapter.formats.month3Letters} ${adapter.formats.dayOfMonthWithLetter}, ${adapter.formats.yearPadded}`;
 
   function getDatePartValue(store: DateFieldStore | TimeFieldStore, sectionIndex: number) {
-    return TemporalFieldSectionPlugin.selectors.datePart(store.state, sectionIndex)?.value ?? '';
+    return selectors.datePart(store.state, sectionIndex)?.value ?? '';
   }
 
   describe('isAdjustSectionValueKeyCode', () => {
@@ -31,12 +30,12 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
         direction: 'ltr',
       });
 
-      expect(store.valueAdjustment.isAdjustSectionValueKeyCode('ArrowUp')).to.equal(true);
-      expect(store.valueAdjustment.isAdjustSectionValueKeyCode('ArrowDown')).to.equal(true);
-      expect(store.valueAdjustment.isAdjustSectionValueKeyCode('PageUp')).to.equal(true);
-      expect(store.valueAdjustment.isAdjustSectionValueKeyCode('PageDown')).to.equal(true);
-      expect(store.valueAdjustment.isAdjustSectionValueKeyCode('Home')).to.equal(true);
-      expect(store.valueAdjustment.isAdjustSectionValueKeyCode('End')).to.equal(true);
+      expect(store.isAdjustSectionValueKeyCode('ArrowUp')).to.equal(true);
+      expect(store.isAdjustSectionValueKeyCode('ArrowDown')).to.equal(true);
+      expect(store.isAdjustSectionValueKeyCode('PageUp')).to.equal(true);
+      expect(store.isAdjustSectionValueKeyCode('PageDown')).to.equal(true);
+      expect(store.isAdjustSectionValueKeyCode('Home')).to.equal(true);
+      expect(store.isAdjustSectionValueKeyCode('End')).to.equal(true);
     });
 
     it('should return false for invalid key codes', () => {
@@ -46,9 +45,9 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
         direction: 'ltr',
       });
 
-      expect(store.valueAdjustment.isAdjustSectionValueKeyCode('Enter')).to.equal(false);
-      expect(store.valueAdjustment.isAdjustSectionValueKeyCode('Space')).to.equal(false);
-      expect(store.valueAdjustment.isAdjustSectionValueKeyCode('a')).to.equal(false);
+      expect(store.isAdjustSectionValueKeyCode('Enter')).to.equal(false);
+      expect(store.isAdjustSectionValueKeyCode('Space')).to.equal(false);
+      expect(store.isAdjustSectionValueKeyCode('a')).to.equal(false);
     });
   });
 
@@ -60,14 +59,14 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
           adapter,
           direction: 'ltr',
         });
-        store.section.selectClosestDatePart(2); // day section
-        store.section.updateDatePart({
+        store.selectClosestDatePart(2); // day section
+        store.updateDatePart({
           sectionIndex: 2,
           newDatePartValue: '15',
           shouldGoToNextSection: false,
         });
 
-        store.valueAdjustment.adjustActiveDatePartValue('ArrowUp', 2);
+        store.adjustActiveDatePartValue('ArrowUp', 2);
         expect(getDatePartValue(store, 2)).to.equal('16');
       });
 
@@ -77,9 +76,9 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
           adapter,
           direction: 'ltr',
         });
-        store.section.selectClosestDatePart(2); // day section (empty)
+        store.selectClosestDatePart(2); // day section (empty)
 
-        store.valueAdjustment.adjustActiveDatePartValue('ArrowUp', 2);
+        store.adjustActiveDatePartValue('ArrowUp', 2);
         expect(getDatePartValue(store, 2)).to.equal('01');
       });
 
@@ -89,14 +88,14 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
           adapter,
           direction: 'ltr',
         });
-        store.section.selectClosestDatePart(2); // day section
-        store.section.updateDatePart({
+        store.selectClosestDatePart(2); // day section
+        store.updateDatePart({
           sectionIndex: 2,
           newDatePartValue: '31',
           shouldGoToNextSection: false,
         });
 
-        store.valueAdjustment.adjustActiveDatePartValue('ArrowUp', 2);
+        store.adjustActiveDatePartValue('ArrowUp', 2);
         expect(getDatePartValue(store, 2)).to.equal('01');
       });
     });
@@ -108,14 +107,14 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
           adapter,
           direction: 'ltr',
         });
-        store.section.selectClosestDatePart(2); // day section
-        store.section.updateDatePart({
+        store.selectClosestDatePart(2); // day section
+        store.updateDatePart({
           sectionIndex: 2,
           newDatePartValue: '15',
           shouldGoToNextSection: false,
         });
 
-        store.valueAdjustment.adjustActiveDatePartValue('ArrowDown', 2);
+        store.adjustActiveDatePartValue('ArrowDown', 2);
         expect(getDatePartValue(store, 2)).to.equal('14');
       });
 
@@ -125,9 +124,9 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
           adapter,
           direction: 'ltr',
         });
-        store.section.selectClosestDatePart(2); // day section (empty)
+        store.selectClosestDatePart(2); // day section (empty)
 
-        store.valueAdjustment.adjustActiveDatePartValue('ArrowDown', 2);
+        store.adjustActiveDatePartValue('ArrowDown', 2);
         expect(getDatePartValue(store, 2)).to.equal('31');
       });
 
@@ -137,14 +136,14 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
           adapter,
           direction: 'ltr',
         });
-        store.section.selectClosestDatePart(2); // day section
-        store.section.updateDatePart({
+        store.selectClosestDatePart(2); // day section
+        store.updateDatePart({
           sectionIndex: 2,
           newDatePartValue: '01',
           shouldGoToNextSection: false,
         });
 
-        store.valueAdjustment.adjustActiveDatePartValue('ArrowDown', 2);
+        store.adjustActiveDatePartValue('ArrowDown', 2);
         expect(getDatePartValue(store, 2)).to.equal('31');
       });
     });
@@ -156,14 +155,14 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
           adapter,
           direction: 'ltr',
         });
-        store.section.selectClosestDatePart(2); // day section
-        store.section.updateDatePart({
+        store.selectClosestDatePart(2); // day section
+        store.updateDatePart({
           sectionIndex: 2,
           newDatePartValue: '10',
           shouldGoToNextSection: false,
         });
 
-        store.valueAdjustment.adjustActiveDatePartValue('PageUp', 2);
+        store.adjustActiveDatePartValue('PageUp', 2);
         expect(getDatePartValue(store, 2)).to.equal('15');
       });
 
@@ -173,14 +172,14 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
           adapter,
           direction: 'ltr',
         });
-        store.section.selectClosestDatePart(2); // day section
-        store.section.updateDatePart({
+        store.selectClosestDatePart(2); // day section
+        store.updateDatePart({
           sectionIndex: 2,
           newDatePartValue: '30',
           shouldGoToNextSection: false,
         });
 
-        store.valueAdjustment.adjustActiveDatePartValue('PageUp', 2);
+        store.adjustActiveDatePartValue('PageUp', 2);
         expect(getDatePartValue(store, 2)).to.equal('04'); // 30 + 5 = 35, wraps to 04
       });
     });
@@ -192,14 +191,14 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
           adapter,
           direction: 'ltr',
         });
-        store.section.selectClosestDatePart(2); // day section
-        store.section.updateDatePart({
+        store.selectClosestDatePart(2); // day section
+        store.updateDatePart({
           sectionIndex: 2,
           newDatePartValue: '20',
           shouldGoToNextSection: false,
         });
 
-        store.valueAdjustment.adjustActiveDatePartValue('PageDown', 2);
+        store.adjustActiveDatePartValue('PageDown', 2);
         expect(getDatePartValue(store, 2)).to.equal('15');
       });
 
@@ -209,14 +208,14 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
           adapter,
           direction: 'ltr',
         });
-        store.section.selectClosestDatePart(2); // day section
-        store.section.updateDatePart({
+        store.selectClosestDatePart(2); // day section
+        store.updateDatePart({
           sectionIndex: 2,
           newDatePartValue: '03',
           shouldGoToNextSection: false,
         });
 
-        store.valueAdjustment.adjustActiveDatePartValue('PageDown', 2);
+        store.adjustActiveDatePartValue('PageDown', 2);
         expect(getDatePartValue(store, 2)).to.equal('29'); // 03 - 5 = -2, wraps to 29
       });
     });
@@ -228,14 +227,14 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
           adapter,
           direction: 'ltr',
         });
-        store.section.selectClosestDatePart(2); // day section
-        store.section.updateDatePart({
+        store.selectClosestDatePart(2); // day section
+        store.updateDatePart({
           sectionIndex: 2,
           newDatePartValue: '20',
           shouldGoToNextSection: false,
         });
 
-        store.valueAdjustment.adjustActiveDatePartValue('Home', 2);
+        store.adjustActiveDatePartValue('Home', 2);
         expect(getDatePartValue(store, 2)).to.equal('01');
       });
     });
@@ -247,14 +246,14 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
           adapter,
           direction: 'ltr',
         });
-        store.section.selectClosestDatePart(2); // day section
-        store.section.updateDatePart({
+        store.selectClosestDatePart(2); // day section
+        store.updateDatePart({
           sectionIndex: 2,
           newDatePartValue: '05',
           shouldGoToNextSection: false,
         });
 
-        store.valueAdjustment.adjustActiveDatePartValue('End', 2);
+        store.adjustActiveDatePartValue('End', 2);
         expect(getDatePartValue(store, 2)).to.equal('31');
       });
     });
@@ -266,14 +265,14 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
           adapter,
           direction: 'ltr',
         });
-        store.section.selectClosestDatePart(0); // month section
-        store.section.updateDatePart({
+        store.selectClosestDatePart(0); // month section
+        store.updateDatePart({
           sectionIndex: 0,
           newDatePartValue: '06',
           shouldGoToNextSection: false,
         });
 
-        store.valueAdjustment.adjustActiveDatePartValue('ArrowUp', 0);
+        store.adjustActiveDatePartValue('ArrowUp', 0);
         expect(getDatePartValue(store, 0)).to.equal('07');
       });
 
@@ -283,14 +282,14 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
           adapter,
           direction: 'ltr',
         });
-        store.section.selectClosestDatePart(0); // month section
-        store.section.updateDatePart({
+        store.selectClosestDatePart(0); // month section
+        store.updateDatePart({
           sectionIndex: 0,
           newDatePartValue: '12',
           shouldGoToNextSection: false,
         });
 
-        store.valueAdjustment.adjustActiveDatePartValue('ArrowUp', 0);
+        store.adjustActiveDatePartValue('ArrowUp', 0);
         expect(getDatePartValue(store, 0)).to.equal('01');
       });
 
@@ -300,14 +299,14 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
           adapter,
           direction: 'ltr',
         });
-        store.section.selectClosestDatePart(0); // month section
-        store.section.updateDatePart({
+        store.selectClosestDatePart(0); // month section
+        store.updateDatePart({
           sectionIndex: 0,
           newDatePartValue: '08',
           shouldGoToNextSection: false,
         });
 
-        store.valueAdjustment.adjustActiveDatePartValue('Home', 0);
+        store.adjustActiveDatePartValue('Home', 0);
         expect(getDatePartValue(store, 0)).to.equal('01');
       });
 
@@ -317,14 +316,14 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
           adapter,
           direction: 'ltr',
         });
-        store.section.selectClosestDatePart(0); // month section
-        store.section.updateDatePart({
+        store.selectClosestDatePart(0); // month section
+        store.updateDatePart({
           sectionIndex: 0,
           newDatePartValue: '03',
           shouldGoToNextSection: false,
         });
 
-        store.valueAdjustment.adjustActiveDatePartValue('End', 0);
+        store.adjustActiveDatePartValue('End', 0);
         expect(getDatePartValue(store, 0)).to.equal('12');
       });
 
@@ -337,23 +336,23 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
         });
 
         // Verify initial state
-        let value = TemporalFieldValuePlugin.selectors.value(store.state);
+        let value = selectors.value(store.state);
         expect(adapter.getMonth(value!)).to.equal(0); // January (0-indexed)
         expect(adapter.getDate(value!)).to.equal(31); // 31st
 
-        store.section.selectClosestDatePart(0); // month section
+        store.selectClosestDatePart(0); // month section
 
-        store.valueAdjustment.adjustActiveDatePartValue('ArrowUp', 0);
+        store.adjustActiveDatePartValue('ArrowUp', 0);
         expect(getDatePartValue(store, 0)).to.equal('02'); // February
 
         // The field should show "February 31" even though it's invalid
-        const monthPart = TemporalFieldSectionPlugin.selectors.datePart(store.state, 0);
-        const dayPart = TemporalFieldSectionPlugin.selectors.datePart(store.state, 2);
+        const monthPart = selectors.datePart(store.state, 0);
+        const dayPart = selectors.datePart(store.state, 2);
         expect(monthPart!.value).to.equal('02'); // February
         expect(dayPart!.value).to.equal('31'); // Day preserved
 
         // The actual date value becomes invalid (February 31 doesn't exist)
-        value = TemporalFieldValuePlugin.selectors.value(store.state);
+        value = selectors.value(store.state);
         expect(adapter.isValid(value)).to.equal(false); // Invalid date
       });
 
@@ -366,23 +365,23 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
         });
 
         // Verify initial state
-        let value = TemporalFieldValuePlugin.selectors.value(store.state);
+        let value = selectors.value(store.state);
         expect(adapter.getMonth(value!)).to.equal(2); // March (0-indexed)
         expect(adapter.getDate(value!)).to.equal(31); // 31st
 
-        store.section.selectClosestDatePart(0); // month section
+        store.selectClosestDatePart(0); // month section
 
-        store.valueAdjustment.adjustActiveDatePartValue('ArrowDown', 0);
+        store.adjustActiveDatePartValue('ArrowDown', 0);
         expect(getDatePartValue(store, 0)).to.equal('02'); // February
 
         // The field should show "February 31" even though it's invalid
-        const monthPart = TemporalFieldSectionPlugin.selectors.datePart(store.state, 0);
-        const dayPart = TemporalFieldSectionPlugin.selectors.datePart(store.state, 2);
+        const monthPart = selectors.datePart(store.state, 0);
+        const dayPart = selectors.datePart(store.state, 2);
         expect(monthPart!.value).to.equal('02'); // February
         expect(dayPart!.value).to.equal('31'); // Day preserved
 
         // The actual date value becomes invalid (February 31 doesn't exist)
-        value = TemporalFieldValuePlugin.selectors.value(store.state);
+        value = selectors.value(store.state);
         expect(adapter.isValid(value)).to.equal(false); // Invalid date
       });
     });
@@ -394,14 +393,14 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
           adapter,
           direction: 'ltr',
         });
-        store.section.selectClosestDatePart(4); // year section
-        store.section.updateDatePart({
+        store.selectClosestDatePart(4); // year section
+        store.updateDatePart({
           sectionIndex: 4,
           newDatePartValue: '2024',
           shouldGoToNextSection: false,
         });
 
-        store.valueAdjustment.adjustActiveDatePartValue('ArrowUp', 4);
+        store.adjustActiveDatePartValue('ArrowUp', 4);
         expect(getDatePartValue(store, 4)).to.equal('2025');
       });
 
@@ -411,14 +410,14 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
           adapter,
           direction: 'ltr',
         });
-        store.section.selectClosestDatePart(4); // year section
-        store.section.updateDatePart({
+        store.selectClosestDatePart(4); // year section
+        store.updateDatePart({
           sectionIndex: 4,
           newDatePartValue: '2024',
           shouldGoToNextSection: false,
         });
 
-        store.valueAdjustment.adjustActiveDatePartValue('ArrowDown', 4);
+        store.adjustActiveDatePartValue('ArrowDown', 4);
         expect(getDatePartValue(store, 4)).to.equal('2023');
       });
 
@@ -429,9 +428,9 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
             adapter,
             direction: 'ltr',
           });
-          store.section.selectClosestDatePart(4); // year section (empty)
+          store.selectClosestDatePart(4); // year section (empty)
 
-          store.valueAdjustment.adjustActiveDatePartValue('ArrowUp', 4);
+          store.adjustActiveDatePartValue('ArrowUp', 4);
           const currentYear = new Date().getFullYear().toString();
           expect(getDatePartValue(store, 4)).to.equal(currentYear);
         });
@@ -442,9 +441,9 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
             adapter,
             direction: 'ltr',
           });
-          store.section.selectClosestDatePart(4); // year section (empty)
+          store.selectClosestDatePart(4); // year section (empty)
 
-          store.valueAdjustment.adjustActiveDatePartValue('PageUp', 4);
+          store.adjustActiveDatePartValue('PageUp', 4);
           const currentYear = new Date().getFullYear().toString();
           expect(getDatePartValue(store, 4)).to.equal(currentYear);
         });
@@ -455,9 +454,9 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
             adapter,
             direction: 'ltr',
           });
-          store.section.selectClosestDatePart(4); // year section (empty)
+          store.selectClosestDatePart(4); // year section (empty)
 
-          store.valueAdjustment.adjustActiveDatePartValue('ArrowDown', 4);
+          store.adjustActiveDatePartValue('ArrowDown', 4);
           const currentYear = new Date().getFullYear().toString();
           expect(getDatePartValue(store, 4)).to.equal(currentYear);
         });
@@ -468,9 +467,9 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
             adapter,
             direction: 'ltr',
           });
-          store.section.selectClosestDatePart(4); // year section (empty)
+          store.selectClosestDatePart(4); // year section (empty)
 
-          store.valueAdjustment.adjustActiveDatePartValue('PageDown', 4);
+          store.adjustActiveDatePartValue('PageDown', 4);
           const currentYear = new Date().getFullYear().toString();
           expect(getDatePartValue(store, 4)).to.equal(currentYear);
         });
@@ -482,9 +481,9 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
             direction: 'ltr',
             minDate: adapter.date('2020-01-01', 'default'),
           });
-          store.section.selectClosestDatePart(4); // year section (empty)
+          store.selectClosestDatePart(4); // year section (empty)
 
-          store.valueAdjustment.adjustActiveDatePartValue('ArrowUp', 4);
+          store.adjustActiveDatePartValue('ArrowUp', 4);
           expect(getDatePartValue(store, 4)).to.equal('2020');
         });
 
@@ -495,9 +494,9 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
             direction: 'ltr',
             minDate: adapter.date('2020-01-01', 'default'),
           });
-          store.section.selectClosestDatePart(4); // year section (empty)
+          store.selectClosestDatePart(4); // year section (empty)
 
-          store.valueAdjustment.adjustActiveDatePartValue('PageUp', 4);
+          store.adjustActiveDatePartValue('PageUp', 4);
           expect(getDatePartValue(store, 4)).to.equal('2020');
         });
 
@@ -508,9 +507,9 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
             direction: 'ltr',
             maxDate: adapter.date('2030-12-31', 'default'),
           });
-          store.section.selectClosestDatePart(4); // year section (empty)
+          store.selectClosestDatePart(4); // year section (empty)
 
-          store.valueAdjustment.adjustActiveDatePartValue('ArrowDown', 4);
+          store.adjustActiveDatePartValue('ArrowDown', 4);
           expect(getDatePartValue(store, 4)).to.equal('2030');
         });
 
@@ -521,9 +520,9 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
             direction: 'ltr',
             maxDate: adapter.date('2030-12-31', 'default'),
           });
-          store.section.selectClosestDatePart(4); // year section (empty)
+          store.selectClosestDatePart(4); // year section (empty)
 
-          store.valueAdjustment.adjustActiveDatePartValue('PageDown', 4);
+          store.adjustActiveDatePartValue('PageDown', 4);
           expect(getDatePartValue(store, 4)).to.equal('2030');
         });
 
@@ -534,9 +533,9 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
             direction: 'ltr',
             minDate: adapter.date('2020-01-01', 'default'),
           });
-          store.section.selectClosestDatePart(4); // year section (empty)
+          store.selectClosestDatePart(4); // year section (empty)
 
-          store.valueAdjustment.adjustActiveDatePartValue('ArrowDown', 4);
+          store.adjustActiveDatePartValue('ArrowDown', 4);
           const currentYear = new Date().getFullYear().toString();
           expect(getDatePartValue(store, 4)).to.equal(currentYear);
         });
@@ -548,9 +547,9 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
             direction: 'ltr',
             maxDate: adapter.date('2030-12-31', 'default'),
           });
-          store.section.selectClosestDatePart(4); // year section (empty)
+          store.selectClosestDatePart(4); // year section (empty)
 
-          store.valueAdjustment.adjustActiveDatePartValue('ArrowUp', 4);
+          store.adjustActiveDatePartValue('ArrowUp', 4);
           const currentYear = new Date().getFullYear().toString();
           expect(getDatePartValue(store, 4)).to.equal(currentYear);
         });
@@ -564,14 +563,14 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
           adapter,
           direction: 'ltr',
         });
-        store.section.selectClosestDatePart(2); // day section with ordinal
-        store.section.updateDatePart({
+        store.selectClosestDatePart(2); // day section with ordinal
+        store.updateDatePart({
           sectionIndex: 2,
           newDatePartValue: '15th',
           shouldGoToNextSection: false,
         });
 
-        store.valueAdjustment.adjustActiveDatePartValue('ArrowUp', 2);
+        store.adjustActiveDatePartValue('ArrowUp', 2);
         expect(getDatePartValue(store, 2)).to.equal('16th');
       });
 
@@ -581,14 +580,14 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
           adapter,
           direction: 'ltr',
         });
-        store.section.selectClosestDatePart(2); // day section with ordinal
-        store.section.updateDatePart({
+        store.selectClosestDatePart(2); // day section with ordinal
+        store.updateDatePart({
           sectionIndex: 2,
           newDatePartValue: '10th',
           shouldGoToNextSection: false,
         });
 
-        store.valueAdjustment.adjustActiveDatePartValue('ArrowDown', 2);
+        store.adjustActiveDatePartValue('ArrowDown', 2);
         expect(getDatePartValue(store, 2)).to.equal('9th');
       });
 
@@ -598,33 +597,33 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
           adapter,
           direction: 'ltr',
         });
-        store.section.selectClosestDatePart(2); // day section with ordinal
+        store.selectClosestDatePart(2); // day section with ordinal
 
         // Test 1st
-        store.section.updateDatePart({
+        store.updateDatePart({
           sectionIndex: 2,
           newDatePartValue: '1st',
           shouldGoToNextSection: false,
         });
-        store.valueAdjustment.adjustActiveDatePartValue('ArrowUp', 2);
+        store.adjustActiveDatePartValue('ArrowUp', 2);
         expect(getDatePartValue(store, 2)).to.equal('2nd');
 
         // Test 2nd
-        store.section.updateDatePart({
+        store.updateDatePart({
           sectionIndex: 2,
           newDatePartValue: '2nd',
           shouldGoToNextSection: false,
         });
-        store.valueAdjustment.adjustActiveDatePartValue('ArrowUp', 2);
+        store.adjustActiveDatePartValue('ArrowUp', 2);
         expect(getDatePartValue(store, 2)).to.equal('3rd');
 
         // Test 3rd
-        store.section.updateDatePart({
+        store.updateDatePart({
           sectionIndex: 2,
           newDatePartValue: '3rd',
           shouldGoToNextSection: false,
         });
-        store.valueAdjustment.adjustActiveDatePartValue('ArrowUp', 2);
+        store.adjustActiveDatePartValue('ArrowUp', 2);
         expect(getDatePartValue(store, 2)).to.equal('4th');
       });
 
@@ -634,14 +633,14 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
           adapter,
           direction: 'ltr',
         });
-        store.section.selectClosestDatePart(2); // day section with ordinal
-        store.section.updateDatePart({
+        store.selectClosestDatePart(2); // day section with ordinal
+        store.updateDatePart({
           sectionIndex: 2,
           newDatePartValue: '31st',
           shouldGoToNextSection: false,
         });
 
-        store.valueAdjustment.adjustActiveDatePartValue('ArrowUp', 2);
+        store.adjustActiveDatePartValue('ArrowUp', 2);
         expect(getDatePartValue(store, 2)).to.equal('1st');
       });
 
@@ -651,14 +650,14 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
           adapter,
           direction: 'ltr',
         });
-        store.section.selectClosestDatePart(2); // day section with ordinal
-        store.section.updateDatePart({
+        store.selectClosestDatePart(2); // day section with ordinal
+        store.updateDatePart({
           sectionIndex: 2,
           newDatePartValue: '20th',
           shouldGoToNextSection: false,
         });
 
-        store.valueAdjustment.adjustActiveDatePartValue('Home', 2);
+        store.adjustActiveDatePartValue('Home', 2);
         expect(getDatePartValue(store, 2)).to.equal('1st');
       });
 
@@ -668,14 +667,14 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
           adapter,
           direction: 'ltr',
         });
-        store.section.selectClosestDatePart(2); // day section with ordinal
-        store.section.updateDatePart({
+        store.selectClosestDatePart(2); // day section with ordinal
+        store.updateDatePart({
           sectionIndex: 2,
           newDatePartValue: '5th',
           shouldGoToNextSection: false,
         });
 
-        store.valueAdjustment.adjustActiveDatePartValue('End', 2);
+        store.adjustActiveDatePartValue('End', 2);
         expect(getDatePartValue(store, 2)).to.equal('31st');
       });
 
@@ -685,33 +684,33 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
           adapter,
           direction: 'ltr',
         });
-        store.section.selectClosestDatePart(2); // day section with ordinal
+        store.selectClosestDatePart(2); // day section with ordinal
 
         // Test 21st
-        store.section.updateDatePart({
+        store.updateDatePart({
           sectionIndex: 2,
           newDatePartValue: '21st',
           shouldGoToNextSection: false,
         });
-        store.valueAdjustment.adjustActiveDatePartValue('ArrowUp', 2);
+        store.adjustActiveDatePartValue('ArrowUp', 2);
         expect(getDatePartValue(store, 2)).to.equal('22nd');
 
         // Test 22nd
-        store.section.updateDatePart({
+        store.updateDatePart({
           sectionIndex: 2,
           newDatePartValue: '22nd',
           shouldGoToNextSection: false,
         });
-        store.valueAdjustment.adjustActiveDatePartValue('ArrowUp', 2);
+        store.adjustActiveDatePartValue('ArrowUp', 2);
         expect(getDatePartValue(store, 2)).to.equal('23rd');
 
         // Test 23rd
-        store.section.updateDatePart({
+        store.updateDatePart({
           sectionIndex: 2,
           newDatePartValue: '23rd',
           shouldGoToNextSection: false,
         });
-        store.valueAdjustment.adjustActiveDatePartValue('ArrowUp', 2);
+        store.adjustActiveDatePartValue('ArrowUp', 2);
         expect(getDatePartValue(store, 2)).to.equal('24th');
       });
     });
@@ -724,14 +723,14 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
           direction: 'ltr',
           step: 5,
         });
-        store.section.selectClosestDatePart(2); // minutes section
-        store.section.updateDatePart({
+        store.selectClosestDatePart(2); // minutes section
+        store.updateDatePart({
           sectionIndex: 2,
           newDatePartValue: '15',
           shouldGoToNextSection: false,
         });
 
-        store.valueAdjustment.adjustActiveDatePartValue('ArrowUp', 2);
+        store.adjustActiveDatePartValue('ArrowUp', 2);
         expect(getDatePartValue(store, 2)).to.equal('20');
       });
 
@@ -742,14 +741,14 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
           direction: 'ltr',
           step: 5,
         });
-        store.section.selectClosestDatePart(2); // minutes section
-        store.section.updateDatePart({
+        store.selectClosestDatePart(2); // minutes section
+        store.updateDatePart({
           sectionIndex: 2,
           newDatePartValue: '30',
           shouldGoToNextSection: false,
         });
 
-        store.valueAdjustment.adjustActiveDatePartValue('ArrowDown', 2);
+        store.adjustActiveDatePartValue('ArrowDown', 2);
         expect(getDatePartValue(store, 2)).to.equal('25');
       });
 
@@ -760,14 +759,14 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
           direction: 'ltr',
           step: 5,
         });
-        store.section.selectClosestDatePart(2); // minutes section
-        store.section.updateDatePart({
+        store.selectClosestDatePart(2); // minutes section
+        store.updateDatePart({
           sectionIndex: 2,
           newDatePartValue: '17', // not aligned to 5-minute step
           shouldGoToNextSection: false,
         });
 
-        store.valueAdjustment.adjustActiveDatePartValue('ArrowUp', 2);
+        store.adjustActiveDatePartValue('ArrowUp', 2);
         expect(getDatePartValue(store, 2)).to.equal('20'); // snaps up to 20
       });
 
@@ -778,14 +777,14 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
           direction: 'ltr',
           step: 5,
         });
-        store.section.selectClosestDatePart(2); // minutes section
-        store.section.updateDatePart({
+        store.selectClosestDatePart(2); // minutes section
+        store.updateDatePart({
           sectionIndex: 2,
           newDatePartValue: '55',
           shouldGoToNextSection: false,
         });
 
-        store.valueAdjustment.adjustActiveDatePartValue('ArrowUp', 2);
+        store.adjustActiveDatePartValue('ArrowUp', 2);
         expect(getDatePartValue(store, 2)).to.equal('00');
       });
 
@@ -796,14 +795,14 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
           direction: 'ltr',
           step: 5,
         });
-        store.section.selectClosestDatePart(0); // hours section
-        store.section.updateDatePart({
+        store.selectClosestDatePart(0); // hours section
+        store.updateDatePart({
           sectionIndex: 0,
           newDatePartValue: '10',
           shouldGoToNextSection: false,
         });
 
-        store.valueAdjustment.adjustActiveDatePartValue('ArrowUp', 0);
+        store.adjustActiveDatePartValue('ArrowUp', 0);
         expect(getDatePartValue(store, 0)).to.equal('11'); // hours increment by 1, not 5
       });
 
@@ -813,14 +812,14 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
           adapter,
           direction: 'ltr',
         });
-        store.section.selectClosestDatePart(2); // minutes section
-        store.section.updateDatePart({
+        store.selectClosestDatePart(2); // minutes section
+        store.updateDatePart({
           sectionIndex: 2,
           newDatePartValue: '15',
           shouldGoToNextSection: false,
         });
 
-        store.valueAdjustment.adjustActiveDatePartValue('ArrowUp', 2);
+        store.adjustActiveDatePartValue('ArrowUp', 2);
         expect(getDatePartValue(store, 2)).to.equal('16'); // increments by 1 (default step)
       });
     });
@@ -834,14 +833,14 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
           adapter,
           direction: 'ltr',
         });
-        store.section.selectClosestDatePart(0); // month section
-        store.section.updateDatePart({
+        store.selectClosestDatePart(0); // month section
+        store.updateDatePart({
           sectionIndex: 0,
           newDatePartValue: 'Jan',
           shouldGoToNextSection: false,
         });
 
-        store.valueAdjustment.adjustActiveDatePartValue('ArrowUp', 0);
+        store.adjustActiveDatePartValue('ArrowUp', 0);
         expect(getDatePartValue(store, 0)).to.equal('Feb');
       });
 
@@ -851,14 +850,14 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
           adapter,
           direction: 'ltr',
         });
-        store.section.selectClosestDatePart(0); // month section
-        store.section.updateDatePart({
+        store.selectClosestDatePart(0); // month section
+        store.updateDatePart({
           sectionIndex: 0,
           newDatePartValue: 'Feb',
           shouldGoToNextSection: false,
         });
 
-        store.valueAdjustment.adjustActiveDatePartValue('ArrowDown', 0);
+        store.adjustActiveDatePartValue('ArrowDown', 0);
         expect(getDatePartValue(store, 0)).to.equal('Jan');
       });
 
@@ -868,14 +867,14 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
           adapter,
           direction: 'ltr',
         });
-        store.section.selectClosestDatePart(0); // month section
-        store.section.updateDatePart({
+        store.selectClosestDatePart(0); // month section
+        store.updateDatePart({
           sectionIndex: 0,
           newDatePartValue: 'Dec',
           shouldGoToNextSection: false,
         });
 
-        store.valueAdjustment.adjustActiveDatePartValue('ArrowUp', 0);
+        store.adjustActiveDatePartValue('ArrowUp', 0);
         expect(getDatePartValue(store, 0)).to.equal('Jan');
       });
 
@@ -885,14 +884,14 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
           adapter,
           direction: 'ltr',
         });
-        store.section.selectClosestDatePart(0); // month section
-        store.section.updateDatePart({
+        store.selectClosestDatePart(0); // month section
+        store.updateDatePart({
           sectionIndex: 0,
           newDatePartValue: 'Jan',
           shouldGoToNextSection: false,
         });
 
-        store.valueAdjustment.adjustActiveDatePartValue('ArrowDown', 0);
+        store.adjustActiveDatePartValue('ArrowDown', 0);
         expect(getDatePartValue(store, 0)).to.equal('Dec');
       });
 
@@ -902,14 +901,14 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
           adapter,
           direction: 'ltr',
         });
-        store.section.selectClosestDatePart(0); // month section
-        store.section.updateDatePart({
+        store.selectClosestDatePart(0); // month section
+        store.updateDatePart({
           sectionIndex: 0,
           newDatePartValue: 'Jun',
           shouldGoToNextSection: false,
         });
 
-        store.valueAdjustment.adjustActiveDatePartValue('Home', 0);
+        store.adjustActiveDatePartValue('Home', 0);
         expect(getDatePartValue(store, 0)).to.equal('Jan');
       });
 
@@ -919,14 +918,14 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
           adapter,
           direction: 'ltr',
         });
-        store.section.selectClosestDatePart(0); // month section
-        store.section.updateDatePart({
+        store.selectClosestDatePart(0); // month section
+        store.updateDatePart({
           sectionIndex: 0,
           newDatePartValue: 'Jun',
           shouldGoToNextSection: false,
         });
 
-        store.valueAdjustment.adjustActiveDatePartValue('End', 0);
+        store.adjustActiveDatePartValue('End', 0);
         expect(getDatePartValue(store, 0)).to.equal('Dec');
       });
 
@@ -936,9 +935,9 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
           adapter,
           direction: 'ltr',
         });
-        store.section.selectClosestDatePart(0); // month section (empty)
+        store.selectClosestDatePart(0); // month section (empty)
 
-        store.valueAdjustment.adjustActiveDatePartValue('ArrowUp', 0);
+        store.adjustActiveDatePartValue('ArrowUp', 0);
         expect(getDatePartValue(store, 0)).to.equal('Jan');
       });
 
@@ -948,9 +947,9 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
           adapter,
           direction: 'ltr',
         });
-        store.section.selectClosestDatePart(0); // month section (empty)
+        store.selectClosestDatePart(0); // month section (empty)
 
-        store.valueAdjustment.adjustActiveDatePartValue('ArrowDown', 0);
+        store.adjustActiveDatePartValue('ArrowDown', 0);
         expect(getDatePartValue(store, 0)).to.equal('Dec');
       });
     });
@@ -962,14 +961,14 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
           adapter,
           direction: 'ltr',
         });
-        store.section.selectClosestDatePart(4); // meridiem section
-        store.section.updateDatePart({
+        store.selectClosestDatePart(4); // meridiem section
+        store.updateDatePart({
           sectionIndex: 4,
           newDatePartValue: 'AM',
           shouldGoToNextSection: false,
         });
 
-        store.valueAdjustment.adjustActiveDatePartValue('ArrowUp', 4);
+        store.adjustActiveDatePartValue('ArrowUp', 4);
         expect(getDatePartValue(store, 4)).to.equal('PM');
       });
 
@@ -979,14 +978,14 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
           adapter,
           direction: 'ltr',
         });
-        store.section.selectClosestDatePart(4); // meridiem section
-        store.section.updateDatePart({
+        store.selectClosestDatePart(4); // meridiem section
+        store.updateDatePart({
           sectionIndex: 4,
           newDatePartValue: 'PM',
           shouldGoToNextSection: false,
         });
 
-        store.valueAdjustment.adjustActiveDatePartValue('ArrowDown', 4);
+        store.adjustActiveDatePartValue('ArrowDown', 4);
         expect(getDatePartValue(store, 4)).to.equal('AM');
       });
 
@@ -996,14 +995,14 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
           adapter,
           direction: 'ltr',
         });
-        store.section.selectClosestDatePart(4); // meridiem section
-        store.section.updateDatePart({
+        store.selectClosestDatePart(4); // meridiem section
+        store.updateDatePart({
           sectionIndex: 4,
           newDatePartValue: 'PM',
           shouldGoToNextSection: false,
         });
 
-        store.valueAdjustment.adjustActiveDatePartValue('ArrowUp', 4);
+        store.adjustActiveDatePartValue('ArrowUp', 4);
         expect(getDatePartValue(store, 4)).to.equal('AM');
       });
     });
@@ -1015,14 +1014,14 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
           adapter,
           direction: 'ltr',
         });
-        store.section.selectClosestDatePart(0); // hours section
-        store.section.updateDatePart({
+        store.selectClosestDatePart(0); // hours section
+        store.updateDatePart({
           sectionIndex: 0,
           newDatePartValue: '12',
           shouldGoToNextSection: false,
         });
 
-        store.valueAdjustment.adjustActiveDatePartValue('ArrowUp', 0);
+        store.adjustActiveDatePartValue('ArrowUp', 0);
         expect(getDatePartValue(store, 0)).to.equal('01');
       });
 
@@ -1032,14 +1031,14 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
           adapter,
           direction: 'ltr',
         });
-        store.section.selectClosestDatePart(0); // hours section
-        store.section.updateDatePart({
+        store.selectClosestDatePart(0); // hours section
+        store.updateDatePart({
           sectionIndex: 0,
           newDatePartValue: '01',
           shouldGoToNextSection: false,
         });
 
-        store.valueAdjustment.adjustActiveDatePartValue('ArrowDown', 0);
+        store.adjustActiveDatePartValue('ArrowDown', 0);
         expect(getDatePartValue(store, 0)).to.equal('12');
       });
 
@@ -1049,14 +1048,14 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
           adapter,
           direction: 'ltr',
         });
-        store.section.selectClosestDatePart(0); // hours section
-        store.section.updateDatePart({
+        store.selectClosestDatePart(0); // hours section
+        store.updateDatePart({
           sectionIndex: 0,
           newDatePartValue: '05',
           shouldGoToNextSection: false,
         });
 
-        store.valueAdjustment.adjustActiveDatePartValue('ArrowUp', 0);
+        store.adjustActiveDatePartValue('ArrowUp', 0);
         expect(getDatePartValue(store, 0)).to.equal('06');
       });
     });
@@ -1072,14 +1071,14 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
           direction: 'ltr',
           step: 2,
         });
-        store.section.selectClosestDatePart(0); // month section
-        store.section.updateDatePart({
+        store.selectClosestDatePart(0); // month section
+        store.updateDatePart({
           sectionIndex: 0,
           newDatePartValue: 'Jan',
           shouldGoToNextSection: false,
         });
 
-        store.valueAdjustment.adjustActiveDatePartValue('ArrowUp', 0);
+        store.adjustActiveDatePartValue('ArrowUp', 0);
         expect(getDatePartValue(store, 0)).to.equal('Mar'); // skips by 2
       });
 
@@ -1090,14 +1089,14 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
           direction: 'ltr',
           step: 2,
         });
-        store.section.selectClosestDatePart(2); // year section
-        store.section.updateDatePart({
+        store.selectClosestDatePart(2); // year section
+        store.updateDatePart({
           sectionIndex: 2,
           newDatePartValue: '2024',
           shouldGoToNextSection: false,
         });
 
-        store.valueAdjustment.adjustActiveDatePartValue('ArrowUp', 2);
+        store.adjustActiveDatePartValue('ArrowUp', 2);
         expect(getDatePartValue(store, 2)).to.equal('2025'); // year increments by 1, not 2
       });
     });
@@ -1111,14 +1110,14 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
         direction: 'ltr',
         readOnly: true,
       });
-      store.section.selectClosestDatePart(2); // day section
-      store.section.updateDatePart({
+      store.selectClosestDatePart(2); // day section
+      store.updateDatePart({
         sectionIndex: 2,
         newDatePartValue: '15',
         shouldGoToNextSection: false,
       });
 
-      store.valueAdjustment.adjustActiveDatePartValue('ArrowUp', 2);
+      store.adjustActiveDatePartValue('ArrowUp', 2);
       expect(getDatePartValue(store, 2)).to.equal('15');
     });
 
@@ -1128,14 +1127,14 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
         adapter,
         direction: 'ltr',
       });
-      store.section.selectClosestDatePart(0); // month section
-      store.section.updateDatePart({
+      store.selectClosestDatePart(0); // month section
+      store.updateDatePart({
         sectionIndex: 0,
         newDatePartValue: '09',
         shouldGoToNextSection: false,
       });
 
-      store.valueAdjustment.adjustActiveDatePartValue('ArrowUp', 0);
+      store.adjustActiveDatePartValue('ArrowUp', 0);
       expect(getDatePartValue(store, 0)).to.equal('10');
     });
 
@@ -1145,14 +1144,14 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
         adapter,
         direction: 'ltr',
       });
-      store.section.selectClosestDatePart(0); // hours section
-      store.section.updateDatePart({
+      store.selectClosestDatePart(0); // hours section
+      store.updateDatePart({
         sectionIndex: 0,
         newDatePartValue: '14',
         shouldGoToNextSection: false,
       });
 
-      store.valueAdjustment.adjustActiveDatePartValue('ArrowUp', 0);
+      store.adjustActiveDatePartValue('ArrowUp', 0);
       expect(getDatePartValue(store, 0)).to.equal('15');
     });
 
@@ -1162,14 +1161,14 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
         adapter,
         direction: 'ltr',
       });
-      store.section.selectClosestDatePart(0); // hours section
-      store.section.updateDatePart({
+      store.selectClosestDatePart(0); // hours section
+      store.updateDatePart({
         sectionIndex: 0,
         newDatePartValue: '23',
         shouldGoToNextSection: false,
       });
 
-      store.valueAdjustment.adjustActiveDatePartValue('ArrowUp', 0);
+      store.adjustActiveDatePartValue('ArrowUp', 0);
       expect(getDatePartValue(store, 0)).to.equal('00');
     });
   });
@@ -1189,15 +1188,15 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
             maxDate: adapter.date('2024-07-03', 'default'),
           });
 
-          store.section.selectClosestDatePart(4); // year section
-          store.section.updateDatePart({
+          store.selectClosestDatePart(4); // year section
+          store.updateDatePart({
             sectionIndex: 4,
             newDatePartValue: '2024',
             shouldGoToNextSection: false,
           });
 
           // ArrowUp from 2024 should wrap to 2024 (same min and max)
-          store.valueAdjustment.adjustActiveDatePartValue('ArrowUp', 4);
+          store.adjustActiveDatePartValue('ArrowUp', 4);
           expect(getDatePartValue(store, 4)).to.equal('2024');
         });
 
@@ -1210,19 +1209,19 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
             maxDate: adapter.date('2024-07-03', 'default'),
           });
 
-          store.section.selectClosestDatePart(0); // month section
+          store.selectClosestDatePart(0); // month section
 
           // Home should go to min month (04)
-          store.section.updateDatePart({
+          store.updateDatePart({
             sectionIndex: 0,
             newDatePartValue: '06',
             shouldGoToNextSection: false,
           });
-          store.valueAdjustment.adjustActiveDatePartValue('Home', 0);
+          store.adjustActiveDatePartValue('Home', 0);
           expect(getDatePartValue(store, 0)).to.equal('04');
 
           // End should go to max month (07)
-          store.valueAdjustment.adjustActiveDatePartValue('End', 0);
+          store.adjustActiveDatePartValue('End', 0);
           expect(getDatePartValue(store, 0)).to.equal('07');
         });
 
@@ -1235,15 +1234,15 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
             maxDate: adapter.date('2024-07-03', 'default'),
           });
 
-          store.section.selectClosestDatePart(0); // month section
-          store.section.updateDatePart({
+          store.selectClosestDatePart(0); // month section
+          store.updateDatePart({
             sectionIndex: 0,
             newDatePartValue: '07',
             shouldGoToNextSection: false,
           });
 
           // ArrowUp from 07 (max) should wrap to 04 (min)
-          store.valueAdjustment.adjustActiveDatePartValue('ArrowUp', 0);
+          store.adjustActiveDatePartValue('ArrowUp', 0);
           expect(getDatePartValue(store, 0)).to.equal('04');
         });
 
@@ -1256,19 +1255,19 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
             maxDate: adapter.date('2024-07-03', 'default'),
           });
 
-          store.section.selectClosestDatePart(2); // day section
-          store.section.updateDatePart({
+          store.selectClosestDatePart(2); // day section
+          store.updateDatePart({
             sectionIndex: 2,
             newDatePartValue: '15',
             shouldGoToNextSection: false,
           });
 
           // Home should go to structural min (01), not minDate day (02)
-          store.valueAdjustment.adjustActiveDatePartValue('Home', 2);
+          store.adjustActiveDatePartValue('Home', 2);
           expect(getDatePartValue(store, 2)).to.equal('01');
 
           // End should go to structural max (31), not maxDate day (03)
-          store.valueAdjustment.adjustActiveDatePartValue('End', 2);
+          store.adjustActiveDatePartValue('End', 2);
           expect(getDatePartValue(store, 2)).to.equal('31');
         });
       });
@@ -1286,19 +1285,19 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
             maxDate: adapter.date('2025-01-01', 'default'),
           });
 
-          store.section.selectClosestDatePart(4); // year section
-          store.section.updateDatePart({
+          store.selectClosestDatePart(4); // year section
+          store.updateDatePart({
             sectionIndex: 4,
             newDatePartValue: '2024',
             shouldGoToNextSection: false,
           });
 
           // Home should go to min year (2024)
-          store.valueAdjustment.adjustActiveDatePartValue('Home', 4);
+          store.adjustActiveDatePartValue('Home', 4);
           expect(getDatePartValue(store, 4)).to.equal('2024');
 
           // End should go to max year (2025)
-          store.valueAdjustment.adjustActiveDatePartValue('End', 4);
+          store.adjustActiveDatePartValue('End', 4);
           expect(getDatePartValue(store, 4)).to.equal('2025');
         });
 
@@ -1311,19 +1310,19 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
             maxDate: adapter.date('2025-01-01', 'default'),
           });
 
-          store.section.selectClosestDatePart(0); // month section
-          store.section.updateDatePart({
+          store.selectClosestDatePart(0); // month section
+          store.updateDatePart({
             sectionIndex: 0,
             newDatePartValue: '06',
             shouldGoToNextSection: false,
           });
 
           // Home should go to structural min (01), not minDate month (04)
-          store.valueAdjustment.adjustActiveDatePartValue('Home', 0);
+          store.adjustActiveDatePartValue('Home', 0);
           expect(getDatePartValue(store, 0)).to.equal('01');
 
           // End should go to structural max (12), not maxDate month (01)
-          store.valueAdjustment.adjustActiveDatePartValue('End', 0);
+          store.adjustActiveDatePartValue('End', 0);
           expect(getDatePartValue(store, 0)).to.equal('12');
         });
 
@@ -1336,17 +1335,17 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
             maxDate: adapter.date('2025-01-01', 'default'),
           });
 
-          store.section.selectClosestDatePart(2); // day section
-          store.section.updateDatePart({
+          store.selectClosestDatePart(2); // day section
+          store.updateDatePart({
             sectionIndex: 2,
             newDatePartValue: '15',
             shouldGoToNextSection: false,
           });
 
-          store.valueAdjustment.adjustActiveDatePartValue('Home', 2);
+          store.adjustActiveDatePartValue('Home', 2);
           expect(getDatePartValue(store, 2)).to.equal('01');
 
-          store.valueAdjustment.adjustActiveDatePartValue('End', 2);
+          store.adjustActiveDatePartValue('End', 2);
           expect(getDatePartValue(store, 2)).to.equal('31');
         });
       });
@@ -1364,19 +1363,19 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
             maxDate: adapter.date('2024-04-20', 'default'),
           });
 
-          store.section.selectClosestDatePart(2); // day section
-          store.section.updateDatePart({
+          store.selectClosestDatePart(2); // day section
+          store.updateDatePart({
             sectionIndex: 2,
             newDatePartValue: '10',
             shouldGoToNextSection: false,
           });
 
           // Home should go to restricted min (05)
-          store.valueAdjustment.adjustActiveDatePartValue('Home', 2);
+          store.adjustActiveDatePartValue('Home', 2);
           expect(getDatePartValue(store, 2)).to.equal('05');
 
           // End should go to restricted max (20)
-          store.valueAdjustment.adjustActiveDatePartValue('End', 2);
+          store.adjustActiveDatePartValue('End', 2);
           expect(getDatePartValue(store, 2)).to.equal('20');
         });
       });
@@ -1390,19 +1389,19 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
             minDate: adapter.date('2024-04-02', 'default'),
           });
 
-          store.section.selectClosestDatePart(4); // year section
-          store.section.updateDatePart({
+          store.selectClosestDatePart(4); // year section
+          store.updateDatePart({
             sectionIndex: 4,
             newDatePartValue: '2024',
             shouldGoToNextSection: false,
           });
 
           // Home should go to restricted min year (2024)
-          store.valueAdjustment.adjustActiveDatePartValue('Home', 4);
+          store.adjustActiveDatePartValue('Home', 4);
           expect(getDatePartValue(store, 4)).to.equal('2024');
 
           // End should go to structural max year (9999)
-          store.valueAdjustment.adjustActiveDatePartValue('End', 4);
+          store.adjustActiveDatePartValue('End', 4);
           expect(getDatePartValue(store, 4)).to.equal('9999');
         });
       });
@@ -1416,19 +1415,19 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
             maxDate: adapter.date('2025-07-15', 'default')
           });
 
-          store.section.selectClosestDatePart(4); // year section
-          store.section.updateDatePart({
+          store.selectClosestDatePart(4); // year section
+          store.updateDatePart({
             sectionIndex: 4,
             newDatePartValue: '2025',
             shouldGoToNextSection: false,
           });
 
           // Home should go to structural min year (0)
-          store.valueAdjustment.adjustActiveDatePartValue('Home', 4);
+          store.adjustActiveDatePartValue('Home', 4);
           expect(getDatePartValue(store, 4)).to.equal('0000');
 
           // End should go to restricted max year (2025)
-          store.valueAdjustment.adjustActiveDatePartValue('End', 4);
+          store.adjustActiveDatePartValue('End', 4);
           expect(getDatePartValue(store, 4)).to.equal('2025');
         });
       });
@@ -1445,19 +1444,19 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
             maxDate: adapter.date('2024-01-01T14:45', 'default'),
           });
 
-          store.section.selectClosestDatePart(0); // hours section
-          store.section.updateDatePart({
+          store.selectClosestDatePart(0); // hours section
+          store.updateDatePart({
             sectionIndex: 0,
             newDatePartValue: '12',
             shouldGoToNextSection: false,
           });
 
           // Home should go to min hour (10)
-          store.valueAdjustment.adjustActiveDatePartValue('Home', 0);
+          store.adjustActiveDatePartValue('Home', 0);
           expect(getDatePartValue(store, 0)).to.equal('10');
 
           // End should go to max hour (14)
-          store.valueAdjustment.adjustActiveDatePartValue('End', 0);
+          store.adjustActiveDatePartValue('End', 0);
           expect(getDatePartValue(store, 0)).to.equal('14');
         });
 
@@ -1470,19 +1469,19 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
             maxDate: adapter.date('2024-01-01T14:45', 'default'),
           });
 
-          store.section.selectClosestDatePart(2); // minutes section
-          store.section.updateDatePart({
+          store.selectClosestDatePart(2); // minutes section
+          store.updateDatePart({
             sectionIndex: 2,
             newDatePartValue: '15',
             shouldGoToNextSection: false,
           });
 
           // Home should go to structural min (00)
-          store.valueAdjustment.adjustActiveDatePartValue('Home', 2);
+          store.adjustActiveDatePartValue('Home', 2);
           expect(getDatePartValue(store, 2)).to.equal('00');
 
           // End should go to structural max (59)
-          store.valueAdjustment.adjustActiveDatePartValue('End', 2);
+          store.adjustActiveDatePartValue('End', 2);
           expect(getDatePartValue(store, 2)).to.equal('59');
         });
       });
@@ -1497,19 +1496,19 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
             maxDate: adapter.date('2024-01-01T10:45', 'default'),
           });
 
-          store.section.selectClosestDatePart(2); // minutes section
-          store.section.updateDatePart({
+          store.selectClosestDatePart(2); // minutes section
+          store.updateDatePart({
             sectionIndex: 2,
             newDatePartValue: '30',
             shouldGoToNextSection: false,
           });
 
           // Home should go to restricted min minutes (15)
-          store.valueAdjustment.adjustActiveDatePartValue('Home', 2);
+          store.adjustActiveDatePartValue('Home', 2);
           expect(getDatePartValue(store, 2)).to.equal('15');
 
           // End should go to restricted max minutes (45)
-          store.valueAdjustment.adjustActiveDatePartValue('End', 2);
+          store.adjustActiveDatePartValue('End', 2);
           expect(getDatePartValue(store, 2)).to.equal('45');
         });
       });
@@ -1526,19 +1525,19 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
         //     },
         //   });
 
-        //   store.section.selectClosestDatePart(4); // meridiem section
-        //   store.section.updateDatePart({
+        //   store.selectClosestDatePart(4); // meridiem section
+        //   store.updateDatePart({
         //     sectionIndex: 4,
         //     newDatePartValue: 'PM',
         //     shouldGoToNextSection: false,
         //   });
 
         //   // ArrowUp from PM should stay PM (restricted to PM only)
-        //   store.valueAdjustment.adjustActiveDatePartValue('ArrowUp', 4);
+        //   store.adjustActiveDatePartValue('ArrowUp', 4);
         //   expect(getDatePartValue(store, 4)).to.equal('PM');
 
         //   // ArrowDown from PM should also stay PM
-        //   store.valueAdjustment.adjustActiveDatePartValue('ArrowDown', 4);
+        //   store.adjustActiveDatePartValue('ArrowDown', 4);
         //   expect(getDatePartValue(store, 4)).to.equal('PM');
         // });
 
@@ -1551,15 +1550,15 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
             maxDate: adapter.date('2024-01-01T16:00', 'default'), // 4 PM,
           });
 
-          store.section.selectClosestDatePart(4); // meridiem section
-          store.section.updateDatePart({
+          store.selectClosestDatePart(4); // meridiem section
+          store.updateDatePart({
             sectionIndex: 4,
             newDatePartValue: 'AM',
             shouldGoToNextSection: false,
           });
 
           // Should be able to toggle between AM and PM
-          store.valueAdjustment.adjustActiveDatePartValue('ArrowUp', 4);
+          store.adjustActiveDatePartValue('ArrowUp', 4);
           expect(getDatePartValue(store, 4)).to.equal('PM');
         });
       });
@@ -1581,14 +1580,14 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
         });
 
         // weekDay section is index 0
-        store.section.selectClosestDatePart(0);
-        store.valueAdjustment.adjustActiveDatePartValue('ArrowDown', 0);
+        store.selectClosestDatePart(0);
+        store.adjustActiveDatePartValue('ArrowDown', 0);
 
         // Should now show Thursday
         expect(getDatePartValue(store, 0)).to.equal('Thursday');
 
         // The actual date should be January 29, 2026 (Thursday)
-        const value = TemporalFieldValuePlugin.selectors.value(store.state);
+        const value = selectors.value(store.state);
         expect(adapter.getDate(value!)).to.equal(29);
       });
     });
@@ -1602,14 +1601,14 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
           direction: 'ltr',
         });
 
-        store.section.selectClosestDatePart(0);
-        store.valueAdjustment.adjustActiveDatePartValue('ArrowUp', 0);
+        store.selectClosestDatePart(0);
+        store.adjustActiveDatePartValue('ArrowUp', 0);
 
         // Should now show Saturday
         expect(getDatePartValue(store, 0)).to.equal('Saturday');
 
         // The actual date should be January 31, 2026 (Saturday)
-        const value = TemporalFieldValuePlugin.selectors.value(store.state);
+        const value = selectors.value(store.state);
         expect(adapter.getDate(value!)).to.equal(31);
       });
     });
@@ -1623,14 +1622,14 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
           direction: 'ltr',
         });
 
-        store.section.selectClosestDatePart(0);
-        store.valueAdjustment.adjustActiveDatePartValue('PageDown', 0);
+        store.selectClosestDatePart(0);
+        store.adjustActiveDatePartValue('PageDown', 0);
 
         // Friday - 5 = Sunday (wraps around)
         expect(getDatePartValue(store, 0)).to.equal('Sunday');
 
         // The actual date should be January 25, 2026 (Sunday)
-        const value = TemporalFieldValuePlugin.selectors.value(store.state);
+        const value = selectors.value(store.state);
         expect(adapter.getDate(value!)).to.equal(25);
       });
     });
@@ -1644,15 +1643,15 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
           direction: 'ltr',
         });
 
-        store.section.selectClosestDatePart(0);
-        store.valueAdjustment.adjustActiveDatePartValue('PageUp', 0);
+        store.selectClosestDatePart(0);
+        store.adjustActiveDatePartValue('PageUp', 0);
 
         // Friday + 5 in options = Wednesday (wraps around in the cycle)
         expect(getDatePartValue(store, 0)).to.equal('Wednesday');
 
         // The actual date should be January 28, 2026 (Wednesday)
         // Wednesday is 2 days before Friday, so Jan 30 - 2 = Jan 28
-        const value = TemporalFieldValuePlugin.selectors.value(store.state);
+        const value = selectors.value(store.state);
         expect(adapter.getDate(value!)).to.equal(28);
         expect(adapter.getMonth(value!)).to.equal(0); // January (0-indexed)
       });
@@ -1668,8 +1667,8 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
         });
 
         // month section is index 2
-        store.section.selectClosestDatePart(2);
-        store.valueAdjustment.adjustActiveDatePartValue('ArrowUp', 2);
+        store.selectClosestDatePart(2);
+        store.adjustActiveDatePartValue('ArrowUp', 2);
 
         // Should now show February
         expect(getDatePartValue(store, 2)).to.equal('February');
@@ -1684,8 +1683,8 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
         });
 
         // day section is index 4
-        store.section.selectClosestDatePart(4);
-        store.valueAdjustment.adjustActiveDatePartValue('ArrowUp', 4);
+        store.selectClosestDatePart(4);
+        store.adjustActiveDatePartValue('ArrowUp', 4);
 
         // Day should be 31
         expect(getDatePartValue(store, 4)).to.equal('31');
@@ -1703,8 +1702,8 @@ describe('TemporalFieldValueAdjustmentPlugin', () => {
         });
 
         // year section is index 6
-        store.section.selectClosestDatePart(6);
-        store.valueAdjustment.adjustActiveDatePartValue('ArrowUp', 6);
+        store.selectClosestDatePart(6);
+        store.adjustActiveDatePartValue('ArrowUp', 6);
 
         // Year should be 2027
         expect(getDatePartValue(store, 6)).to.equal('2027');

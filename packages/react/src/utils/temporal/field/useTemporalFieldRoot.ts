@@ -4,16 +4,16 @@ import { useOnMount } from '@base-ui/utils/useOnMount';
 import { TemporalSupportedValue } from '../../../types';
 import { useField } from '../../../field/useField';
 import { TemporalFieldStore } from './TemporalFieldStore';
-import { TemporalFieldElementsPropsPlugin } from './plugins/TemporalFieldElementsPropsPlugin';
+import { selectors } from './selectors';
 
 interface UseTemporalFieldRootParameters<TValue extends TemporalSupportedValue> {
   store: TemporalFieldStore<TValue>;
 }
 
 interface UseTemporalFieldRootReturnValue {
-  hiddenInputProps: ReturnType<typeof TemporalFieldElementsPropsPlugin.selectors.hiddenInputProps>;
-  state: ReturnType<typeof TemporalFieldElementsPropsPlugin.selectors.rootState>;
-  rootProps: ReturnType<typeof TemporalFieldElementsPropsPlugin.selectors.rootProps>;
+  hiddenInputProps: ReturnType<typeof selectors.hiddenInputProps>;
+  state: ReturnType<typeof selectors.rootState>;
+  rootProps: ReturnType<typeof selectors.rootProps>;
   rootRef: React.RefObject<HTMLElement | null>;
 }
 
@@ -27,12 +27,12 @@ export function useTemporalFieldRoot<TValue extends TemporalSupportedValue>(
 
   const hiddenInputProps = useStore(
     store,
-    TemporalFieldElementsPropsPlugin.selectors.hiddenInputProps,
+    selectors.hiddenInputProps,
     store,
   );
-  const state = useStore(store, TemporalFieldElementsPropsPlugin.selectors.rootState);
-  const rootProps = useStore(store, TemporalFieldElementsPropsPlugin.selectors.rootProps, store);
-  const useFieldParams = useStore(store, TemporalFieldElementsPropsPlugin.selectors.useFieldParams);
+  const state = useStore(store, selectors.rootState);
+  const rootProps = useStore(store, selectors.rootProps, store);
+  const useFieldParams = useStore(store, selectors.useFieldParams);
 
   useField(useFieldParams);
   useOnMount(store.mountEffect);

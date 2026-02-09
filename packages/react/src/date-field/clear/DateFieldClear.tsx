@@ -4,8 +4,6 @@ import { useStore } from '@base-ui/utils/store';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useTemporalFieldRootContext } from '../../utils/temporal/field/TemporalFieldRootContext';
-import { TemporalFieldElementsPropsPlugin } from '../../utils/temporal/field/plugins/TemporalFieldElementsPropsPlugin';
-import { TemporalFieldSectionPlugin } from '../../utils/temporal/field/plugins/TemporalFieldSectionPlugin';
 import { selectors } from '../../utils/temporal/field/selectors';
 import { useButton } from '../../use-button';
 
@@ -32,12 +30,12 @@ export const DateFieldClear = React.forwardRef(function DateFieldClear(
   const store = useTemporalFieldRootContext();
   const propsFromState = useStore(
     store,
-    TemporalFieldElementsPropsPlugin.selectors.clearProps,
+    selectors.clearProps,
     store,
   );
 
   const storeDisabled = useStore(store, selectors.disabled);
-  const empty = useStore(store, TemporalFieldSectionPlugin.selectors.areAllSectionsEmpty);
+  const empty = useStore(store, selectors.areAllSectionsEmpty);
 
   const disabled = storeDisabled || disabledProp;
 

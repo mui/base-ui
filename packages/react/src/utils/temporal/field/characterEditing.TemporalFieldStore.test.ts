@@ -1,10 +1,10 @@
 import { expect } from 'chai';
 import { createTemporalRenderer } from '#test-utils';
-import { DateFieldStore } from '../../../../date-field/root/DateFieldStore';
-import { TimeFieldStore } from '../../../../time-field/root/TimeFieldStore';
-import { TemporalFieldSectionPlugin } from './TemporalFieldSectionPlugin';
+import { DateFieldStore } from '../../../date-field/root/DateFieldStore';
+import { TimeFieldStore } from '../../../time-field/root/TimeFieldStore';
+import { selectors } from './selectors';
 
-describe('TemporalFieldCharacterEditingPlugin', () => {
+describe('TemporalFieldStore - Character Editing', () => {
   const { adapter } = createTemporalRenderer();
 
   // Date formats
@@ -23,14 +23,14 @@ describe('TemporalFieldCharacterEditingPlugin', () => {
           adapter,
           direction: 'ltr',
         });
-        store.section.selectClosestDatePart(0); // month section
+        store.selectClosestDatePart(0); // month section
 
-        store.characterEditing.editSection({
+        store.editSection({
           keyPressed: '5',
           sectionIndex: 0,
         });
 
-        const datePart = TemporalFieldSectionPlugin.selectors.datePart(store.state, 0);
+        const datePart = selectors.datePart(store.state, 0);
         expect(datePart!.value).to.equal('05');
       });
 
@@ -40,14 +40,14 @@ describe('TemporalFieldCharacterEditingPlugin', () => {
           adapter,
           direction: 'ltr',
         });
-        store.section.selectClosestDatePart(2); // day section (index 2 because of separator at index 1)
+        store.selectClosestDatePart(2); // day section (index 2 because of separator at index 1)
 
-        store.characterEditing.editSection({
+        store.editSection({
           keyPressed: '7',
           sectionIndex: 2, // Full section index for day
         });
 
-        const datePart = TemporalFieldSectionPlugin.selectors.datePart(store.state, 2);
+        const datePart = selectors.datePart(store.state, 2);
         expect(datePart!.value).to.equal('07');
       });
 
@@ -57,14 +57,14 @@ describe('TemporalFieldCharacterEditingPlugin', () => {
           adapter,
           direction: 'ltr',
         });
-        store.section.selectClosestDatePart(4); // year section (index 4 because of separators)
+        store.selectClosestDatePart(4); // year section (index 4 because of separators)
 
-        store.characterEditing.editSection({
+        store.editSection({
           keyPressed: '2',
           sectionIndex: 4, // Full section index (not datePart index)
         });
 
-        const datePart = TemporalFieldSectionPlugin.selectors.datePart(store.state, 4);
+        const datePart = selectors.datePart(store.state, 4);
         expect(datePart!.value).to.equal('0002');
       });
     });
@@ -76,25 +76,25 @@ describe('TemporalFieldCharacterEditingPlugin', () => {
           adapter,
           direction: 'ltr',
         });
-        store.section.selectClosestDatePart(0); // month section
+        store.selectClosestDatePart(0); // month section
 
         // Type '0'
-        store.characterEditing.editSection({
+        store.editSection({
           keyPressed: '0',
           sectionIndex: 0,
         });
 
         // Value should not be set yet (0 is below minimum)
-        let datePart = TemporalFieldSectionPlugin.selectors.datePart(store.state, 0);
+        let datePart = selectors.datePart(store.state, 0);
         expect(datePart!.value).to.equal('');
 
         // Type '9'
-        store.characterEditing.editSection({
+        store.editSection({
           keyPressed: '9',
           sectionIndex: 0,
         });
 
-        datePart = TemporalFieldSectionPlugin.selectors.datePart(store.state, 0);
+        datePart = selectors.datePart(store.state, 0);
         expect(datePart!.value).to.equal('09');
       });
 
@@ -104,24 +104,24 @@ describe('TemporalFieldCharacterEditingPlugin', () => {
           adapter,
           direction: 'ltr',
         });
-        store.section.selectClosestDatePart(2); // day section (index 2 because of separator at index 1)
+        store.selectClosestDatePart(2); // day section (index 2 because of separator at index 1)
 
         // Type '1'
-        store.characterEditing.editSection({
+        store.editSection({
           keyPressed: '1',
           sectionIndex: 2, // Day section index
         });
 
-        let datePart = TemporalFieldSectionPlugin.selectors.datePart(store.state, 2);
+        let datePart = selectors.datePart(store.state, 2);
         expect(datePart!.value).to.equal('01');
 
         // Type '5'
-        store.characterEditing.editSection({
+        store.editSection({
           keyPressed: '5',
           sectionIndex: 2, // Day section index
         });
 
-        datePart = TemporalFieldSectionPlugin.selectors.datePart(store.state, 2);
+        datePart = selectors.datePart(store.state, 2);
         expect(datePart!.value).to.equal('15');
       });
 
@@ -131,17 +131,17 @@ describe('TemporalFieldCharacterEditingPlugin', () => {
           adapter,
           direction: 'ltr',
         });
-        store.section.selectClosestDatePart(4); // year section (index 4 because of separators)
+        store.selectClosestDatePart(4); // year section (index 4 because of separators)
 
         const digits = ['2', '0', '2', '4'];
         digits.forEach((digit) => {
-          store.characterEditing.editSection({
+          store.editSection({
             keyPressed: digit,
             sectionIndex: 4,
           });
         });
 
-        const datePart = TemporalFieldSectionPlugin.selectors.datePart(store.state, 4);
+        const datePart = selectors.datePart(store.state, 4);
         expect(datePart!.value).to.equal('2024');
       });
     });
@@ -153,23 +153,23 @@ describe('TemporalFieldCharacterEditingPlugin', () => {
           adapter,
           direction: 'ltr',
         });
-        store.section.selectClosestDatePart(0); // month section
+        store.selectClosestDatePart(0); // month section
 
         // Type '1' - should work
-        store.characterEditing.editSection({
+        store.editSection({
           keyPressed: '1',
           sectionIndex: 0,
         });
-        let datePart = TemporalFieldSectionPlugin.selectors.datePart(store.state, 0);
+        let datePart = selectors.datePart(store.state, 0);
         expect(datePart!.value).to.equal('01');
 
         // Type '5' - should be rejected (15 > 12)
-        store.characterEditing.editSection({
+        store.editSection({
           keyPressed: '5',
           sectionIndex: 0,
         });
 
-        datePart = TemporalFieldSectionPlugin.selectors.datePart(store.state, 0);
+        datePart = selectors.datePart(store.state, 0);
         expect(datePart!.value).to.equal('01'); // Value should not change
       });
 
@@ -179,23 +179,23 @@ describe('TemporalFieldCharacterEditingPlugin', () => {
           adapter,
           direction: 'ltr',
         });
-        store.section.selectClosestDatePart(2); // day section (index 2 because of separator at index 1)
+        store.selectClosestDatePart(2); // day section (index 2 because of separator at index 1)
 
         // Type '3' - should work
-        store.characterEditing.editSection({
+        store.editSection({
           keyPressed: '3',
           sectionIndex: 2, // Day section index
         });
-        let datePart = TemporalFieldSectionPlugin.selectors.datePart(store.state, 2);
+        let datePart = selectors.datePart(store.state, 2);
         expect(datePart!.value).to.equal('03');
 
         // Type '5' - should be rejected (35 > 31)
-        store.characterEditing.editSection({
+        store.editSection({
           keyPressed: '5',
           sectionIndex: 2, // Day section index
         });
 
-        datePart = TemporalFieldSectionPlugin.selectors.datePart(store.state, 2);
+        datePart = selectors.datePart(store.state, 2);
         expect(datePart!.value).to.equal('03'); // Value should not change
       });
     });
@@ -207,10 +207,10 @@ describe('TemporalFieldCharacterEditingPlugin', () => {
           adapter,
           direction: 'ltr',
         });
-        store.section.selectClosestDatePart(0); // month section
+        store.selectClosestDatePart(0); // month section
 
         // Type '9' - should move to next section (9*10 = 90 > 12)
-        store.characterEditing.editSection({
+        store.editSection({
           keyPressed: '9',
           sectionIndex: 0,
         });
@@ -224,19 +224,19 @@ describe('TemporalFieldCharacterEditingPlugin', () => {
           adapter,
           direction: 'ltr',
         });
-        store.section.selectClosestDatePart(4); // year section (index 4 because of separators)
+        store.selectClosestDatePart(4); // year section (index 4 because of separators)
 
         // Type 4 digits
         const digits = ['2', '0', '2', '4'];
         digits.forEach((digit) => {
-          store.characterEditing.editSection({
+          store.editSection({
             keyPressed: digit,
             sectionIndex: 4,
           });
         });
 
         // Year should be fully entered
-        const datePart = TemporalFieldSectionPlugin.selectors.datePart(store.state, 4);
+        const datePart = selectors.datePart(store.state, 4);
         expect(datePart).to.not.equal(null);
         expect(datePart!.value).to.equal('2024');
         // Note: Navigation from last section is not implemented
@@ -254,14 +254,14 @@ describe('TemporalFieldCharacterEditingPlugin', () => {
           adapter,
           direction: 'ltr',
         });
-        store.section.selectClosestDatePart(0); // month section
+        store.selectClosestDatePart(0); // month section
 
-        store.characterEditing.editSection({
+        store.editSection({
           keyPressed: 'J',
           sectionIndex: 0,
         });
 
-        const datePart = TemporalFieldSectionPlugin.selectors.datePart(store.state, 0);
+        const datePart = selectors.datePart(store.state, 0);
         expect(datePart!.value).to.equal('Jan');
       });
 
@@ -271,22 +271,22 @@ describe('TemporalFieldCharacterEditingPlugin', () => {
           adapter,
           direction: 'ltr',
         });
-        store.section.selectClosestDatePart(0); // month section
+        store.selectClosestDatePart(0); // month section
 
         // Type 'J' - could be Jan, Jun, Jul
-        store.characterEditing.editSection({
+        store.editSection({
           keyPressed: 'J',
           sectionIndex: 0,
         });
-        let datePart = TemporalFieldSectionPlugin.selectors.datePart(store.state, 0);
+        let datePart = selectors.datePart(store.state, 0);
         expect(datePart!.value).to.equal('Jan'); // First match
 
         // Type 'u' - should narrow down to Jun or Jul
-        store.characterEditing.editSection({
+        store.editSection({
           keyPressed: 'u',
           sectionIndex: 0,
         });
-        datePart = TemporalFieldSectionPlugin.selectors.datePart(store.state, 0);
+        datePart = selectors.datePart(store.state, 0);
         expect(datePart!.value).to.equal('Jun'); // First match for 'ju'
       });
 
@@ -296,23 +296,23 @@ describe('TemporalFieldCharacterEditingPlugin', () => {
           adapter,
           direction: 'ltr',
         });
-        store.section.selectClosestDatePart(0); // month section
+        store.selectClosestDatePart(0); // month section
 
         // Type 'Jul' one by one
-        store.characterEditing.editSection({
+        store.editSection({
           keyPressed: 'J',
           sectionIndex: 0,
         });
-        store.characterEditing.editSection({
+        store.editSection({
           keyPressed: 'u',
           sectionIndex: 0,
         });
-        store.characterEditing.editSection({
+        store.editSection({
           keyPressed: 'l',
           sectionIndex: 0,
         });
 
-        const datePart = TemporalFieldSectionPlugin.selectors.datePart(store.state, 0);
+        const datePart = selectors.datePart(store.state, 0);
         expect(datePart!.value).to.equal('Jul');
         expect(store.state.selectedSection).to.equal(2); // Should move to next section (day at index 2)
       });
@@ -323,15 +323,15 @@ describe('TemporalFieldCharacterEditingPlugin', () => {
           adapter,
           direction: 'ltr',
         });
-        store.section.selectClosestDatePart(0); // month section
+        store.selectClosestDatePart(0); // month section
 
         // Type lowercase 'j'
-        store.characterEditing.editSection({
+        store.editSection({
           keyPressed: 'j',
           sectionIndex: 0,
         });
 
-        const datePart = TemporalFieldSectionPlugin.selectors.datePart(store.state, 0);
+        const datePart = selectors.datePart(store.state, 0);
         expect(datePart!.value).to.equal('Jan');
       });
     });
@@ -343,14 +343,14 @@ describe('TemporalFieldCharacterEditingPlugin', () => {
           adapter,
           direction: 'ltr',
         });
-        store.section.selectClosestDatePart(4); // meridiem section (index 4 because of separators)
+        store.selectClosestDatePart(4); // meridiem section (index 4 because of separators)
 
-        store.characterEditing.editSection({
+        store.editSection({
           keyPressed: 'A',
           sectionIndex: 4,
         });
 
-        const datePart = TemporalFieldSectionPlugin.selectors.datePart(store.state, 4);
+        const datePart = selectors.datePart(store.state, 4);
         expect(datePart!.value).to.equal('AM');
       });
 
@@ -360,14 +360,14 @@ describe('TemporalFieldCharacterEditingPlugin', () => {
           adapter,
           direction: 'ltr',
         });
-        store.section.selectClosestDatePart(4); // meridiem section (index 4 because of separators)
+        store.selectClosestDatePart(4); // meridiem section (index 4 because of separators)
 
-        store.characterEditing.editSection({
+        store.editSection({
           keyPressed: 'P',
           sectionIndex: 4,
         });
 
-        const datePart = TemporalFieldSectionPlugin.selectors.datePart(store.state, 4);
+        const datePart = selectors.datePart(store.state, 4);
         expect(datePart!.value).to.equal('PM');
       });
 
@@ -377,15 +377,15 @@ describe('TemporalFieldCharacterEditingPlugin', () => {
           adapter,
           direction: 'ltr',
         });
-        store.section.selectClosestDatePart(4); // meridiem section (index 4 because of separators)
+        store.selectClosestDatePart(4); // meridiem section (index 4 because of separators)
 
-        store.characterEditing.editSection({
+        store.editSection({
           keyPressed: 'A',
           sectionIndex: 4,
         });
 
         // 'A' uniquely identifies AM
-        const datePart = TemporalFieldSectionPlugin.selectors.datePart(store.state, 4);
+        const datePart = selectors.datePart(store.state, 4);
         expect(datePart).to.not.equal(null);
         expect(datePart!.value).to.equal('AM');
         // Note: Navigation from last section is not implemented
@@ -402,15 +402,15 @@ describe('TemporalFieldCharacterEditingPlugin', () => {
         adapter,
         direction: 'ltr',
       });
-      store.section.selectClosestDatePart(0); // month section (letter format)
+      store.selectClosestDatePart(0); // month section (letter format)
 
       // Type '5' for May (5th month)
-      store.characterEditing.editSection({
+      store.editSection({
         keyPressed: '5',
         sectionIndex: 0,
       });
 
-      const datePart = TemporalFieldSectionPlugin.selectors.datePart(store.state, 0);
+      const datePart = selectors.datePart(store.state, 0);
       expect(datePart!.value).to.equal('May');
     });
 
@@ -420,25 +420,25 @@ describe('TemporalFieldCharacterEditingPlugin', () => {
         adapter,
         direction: 'ltr',
       });
-      store.section.selectClosestDatePart(0); // month section (letter format)
+      store.selectClosestDatePart(0); // month section (letter format)
 
       // Type '0'
-      store.characterEditing.editSection({
+      store.editSection({
         keyPressed: '0',
         sectionIndex: 0,
       });
 
       // Value should not be set yet
-      let datePart = TemporalFieldSectionPlugin.selectors.datePart(store.state, 0);
+      let datePart = selectors.datePart(store.state, 0);
       expect(datePart!.value).to.equal('');
 
       // Type '7' -> July
-      store.characterEditing.editSection({
+      store.editSection({
         keyPressed: '7',
         sectionIndex: 0,
       });
 
-      datePart = TemporalFieldSectionPlugin.selectors.datePart(store.state, 0);
+      datePart = selectors.datePart(store.state, 0);
       expect(datePart!.value).to.equal('Jul');
     });
 
@@ -448,24 +448,24 @@ describe('TemporalFieldCharacterEditingPlugin', () => {
         adapter,
         direction: 'ltr',
       });
-      store.section.selectClosestDatePart(0); // month section (letter format)
+      store.selectClosestDatePart(0); // month section (letter format)
 
       // Type '1'
-      store.characterEditing.editSection({
+      store.editSection({
         keyPressed: '1',
         sectionIndex: 0,
       });
 
-      let datePart = TemporalFieldSectionPlugin.selectors.datePart(store.state, 0);
+      let datePart = selectors.datePart(store.state, 0);
       expect(datePart!.value).to.equal('Jan');
 
       // Type '2' -> December
-      store.characterEditing.editSection({
+      store.editSection({
         keyPressed: '2',
         sectionIndex: 0,
       });
 
-      datePart = TemporalFieldSectionPlugin.selectors.datePart(store.state, 0);
+      datePart = selectors.datePart(store.state, 0);
       expect(datePart!.value).to.equal('Dec');
     });
   });
@@ -477,24 +477,24 @@ describe('TemporalFieldCharacterEditingPlugin', () => {
         adapter,
         direction: 'ltr',
       });
-      store.section.selectClosestDatePart(0); // month section
+      store.selectClosestDatePart(0); // month section
 
       // Type 'D' - should get 'Dec'
-      store.characterEditing.editSection({
+      store.editSection({
         keyPressed: 'D',
         sectionIndex: 0,
       });
 
-      let datePart = TemporalFieldSectionPlugin.selectors.datePart(store.state, 0);
+      let datePart = selectors.datePart(store.state, 0);
       expect(datePart!.value).to.equal('Dec');
 
       // Type 'a' - 'Da' doesn't match any month, should reset query
-      store.characterEditing.editSection({
+      store.editSection({
         keyPressed: 'a',
         sectionIndex: 0,
       });
 
-      datePart = TemporalFieldSectionPlugin.selectors.datePart(store.state, 0);
+      datePart = selectors.datePart(store.state, 0);
       // Value should still be 'Dec' (query reset, 'a' not valid)
       expect(datePart!.value).to.equal('Dec');
     });
@@ -507,22 +507,22 @@ describe('TemporalFieldCharacterEditingPlugin', () => {
       });
 
       // Type '0' in month section
-      store.section.selectClosestDatePart(0);
-      store.characterEditing.editSection({
+      store.selectClosestDatePart(0);
+      store.editSection({
         keyPressed: '0',
         sectionIndex: 0,
       });
 
       // Switch to day section
-      store.section.selectClosestDatePart(2);
+      store.selectClosestDatePart(2);
 
       // Type '9' in day section - should not concatenate with previous '0' from month
-      store.characterEditing.editSection({
+      store.editSection({
         keyPressed: '9',
         sectionIndex: 2, // Day section index
       });
 
-      const datePart = TemporalFieldSectionPlugin.selectors.datePart(store.state, 2);
+      const datePart = selectors.datePart(store.state, 2);
       expect(datePart!.value).to.equal('09'); // Should be '09', not affected by previous '0'
     });
 
@@ -532,21 +532,21 @@ describe('TemporalFieldCharacterEditingPlugin', () => {
         adapter,
         direction: 'ltr',
       });
-      store.section.selectClosestDatePart(0); // month section
+      store.selectClosestDatePart(0); // month section
 
       // Type 'J'
-      store.characterEditing.editSection({
+      store.editSection({
         keyPressed: 'J',
         sectionIndex: 0,
       });
 
       // Type 'a' immediately after
-      store.characterEditing.editSection({
+      store.editSection({
         keyPressed: 'a',
         sectionIndex: 0,
       });
 
-      const datePart = TemporalFieldSectionPlugin.selectors.datePart(store.state, 0);
+      const datePart = selectors.datePart(store.state, 0);
       expect(datePart!.value).to.equal('Jan');
     });
   });
@@ -558,14 +558,14 @@ describe('TemporalFieldCharacterEditingPlugin', () => {
         adapter,
         direction: 'ltr',
       });
-      store.section.selectClosestDatePart(0); // month section
+      store.selectClosestDatePart(0); // month section
 
-      store.characterEditing.editSection({
+      store.editSection({
         keyPressed: 'J',
         sectionIndex: 0,
       });
 
-      const datePart = TemporalFieldSectionPlugin.selectors.datePart(store.state, 0);
+      const datePart = selectors.datePart(store.state, 0);
       expect(datePart!.value).to.equal('January');
     });
 
@@ -575,18 +575,18 @@ describe('TemporalFieldCharacterEditingPlugin', () => {
         adapter,
         direction: 'ltr',
       });
-      store.section.selectClosestDatePart(0); // month section
+      store.selectClosestDatePart(0); // month section
 
-      store.characterEditing.editSection({
+      store.editSection({
         keyPressed: 'J',
         sectionIndex: 0,
       });
-      store.characterEditing.editSection({
+      store.editSection({
         keyPressed: 'a',
         sectionIndex: 0,
       });
 
-      const datePart = TemporalFieldSectionPlugin.selectors.datePart(store.state, 0);
+      const datePart = selectors.datePart(store.state, 0);
       expect(datePart!.value).to.equal('January');
     });
   });
@@ -598,24 +598,24 @@ describe('TemporalFieldCharacterEditingPlugin', () => {
         adapter,
         direction: 'ltr',
       });
-      store.section.selectClosestDatePart(0); // month section
+      store.selectClosestDatePart(0); // month section
 
       // Type '0'
-      store.characterEditing.editSection({
+      store.editSection({
         keyPressed: '0',
         sectionIndex: 0,
       });
 
       // Reset query
-      store.characterEditing.resetCharacterQuery();
+      store.resetCharacterQuery();
 
       // Type '5' - should start fresh query, result in '05'
-      store.characterEditing.editSection({
+      store.editSection({
         keyPressed: '5',
         sectionIndex: 0,
       });
 
-      const datePart = TemporalFieldSectionPlugin.selectors.datePart(store.state, 0);
+      const datePart = selectors.datePart(store.state, 0);
       expect(datePart!.value).to.equal('05');
     });
 
@@ -625,15 +625,15 @@ describe('TemporalFieldCharacterEditingPlugin', () => {
         adapter,
         direction: 'ltr',
       });
-      store.section.selectClosestDatePart(0); // month section (empty)
+      store.selectClosestDatePart(0); // month section (empty)
 
       // Type '3'
-      store.characterEditing.editSection({
+      store.editSection({
         keyPressed: '3',
         sectionIndex: 0,
       });
 
-      const datePart = TemporalFieldSectionPlugin.selectors.datePart(store.state, 0);
+      const datePart = selectors.datePart(store.state, 0);
       expect(datePart!.value).to.equal('03');
     });
 
@@ -643,15 +643,15 @@ describe('TemporalFieldCharacterEditingPlugin', () => {
         adapter,
         direction: 'ltr',
       });
-      store.section.selectClosestDatePart(0); // month section
+      store.selectClosestDatePart(0); // month section
 
       // Type letter 'a' on numeric month - should match April and convert to 04
-      store.characterEditing.editSection({
+      store.editSection({
         keyPressed: 'a',
         sectionIndex: 0,
       });
 
-      const datePart = TemporalFieldSectionPlugin.selectors.datePart(store.state, 0);
+      const datePart = selectors.datePart(store.state, 0);
       expect(datePart!.value).to.equal('04'); // April = month 4
     });
 
@@ -661,15 +661,15 @@ describe('TemporalFieldCharacterEditingPlugin', () => {
         adapter,
         direction: 'ltr',
       });
-      store.section.selectClosestDatePart(4); // meridiem section (index 4 because of separators)
+      store.selectClosestDatePart(4); // meridiem section (index 4 because of separators)
 
       // Type digit '1' on meridiem
-      store.characterEditing.editSection({
+      store.editSection({
         keyPressed: '1',
         sectionIndex: 4,
       });
 
-      const datePart = TemporalFieldSectionPlugin.selectors.datePart(store.state, 2);
+      const datePart = selectors.datePart(store.state, 2);
       // Meridiem sections should reject numeric input
       expect(datePart!.value).to.be.oneOf(['', 'AM', 'PM']); // Either empty or a meridiem value
     });

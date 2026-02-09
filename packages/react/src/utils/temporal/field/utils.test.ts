@@ -3,7 +3,7 @@ import { createTemporalRenderer } from '#test-utils';
 import { getLetterEditingOptions, cleanDigitDatePartValue, mergeDateIntoReferenceDate } from './utils';
 import { DateFieldStore } from '../../../date-field/root/DateFieldStore';
 import { TimeFieldStore } from '../../../time-field/root/TimeFieldStore';
-import { TemporalFieldSectionPlugin } from './plugins/TemporalFieldSectionPlugin';
+import { selectors } from './selectors';
 import { FormatParser } from './formatParser';
 
 const STANDARD_DIGITS = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
@@ -318,7 +318,7 @@ describe('mergeDateIntoReferenceDate', () => {
         direction: 'ltr',
       });
 
-      const sections = TemporalFieldSectionPlugin.selectors.sections(store.state);
+      const sections = selectors.sections(store.state);
       const source = adapter.date('2030-06-20', 'default');
       const reference = adapter.date('2024-03-15', 'default');
 
@@ -337,7 +337,7 @@ describe('mergeDateIntoReferenceDate', () => {
         direction: 'ltr',
       });
 
-      const sections = TemporalFieldSectionPlugin.selectors.sections(store.state);
+      const sections = selectors.sections(store.state);
       const source = adapter.date('2024-09-15', 'default');
       const reference = adapter.date('2024-03-15', 'default');
 
@@ -354,7 +354,7 @@ describe('mergeDateIntoReferenceDate', () => {
         direction: 'ltr',
       });
 
-      const sections = TemporalFieldSectionPlugin.selectors.sections(store.state);
+      const sections = selectors.sections(store.state);
       const source = adapter.date('2024-03-25', 'default');
       const reference = adapter.date('2024-03-15', 'default');
 
@@ -371,7 +371,7 @@ describe('mergeDateIntoReferenceDate', () => {
         direction: 'ltr',
       });
 
-      const sections = TemporalFieldSectionPlugin.selectors.sections(store.state);
+      const sections = selectors.sections(store.state);
       const source = adapter.date('2024-03-15T09:30:45', 'default');
       const reference = adapter.date('2024-03-15T14:30:45', 'default');
 
@@ -388,7 +388,7 @@ describe('mergeDateIntoReferenceDate', () => {
         direction: 'ltr',
       });
 
-      const sections = TemporalFieldSectionPlugin.selectors.sections(store.state);
+      const sections = selectors.sections(store.state);
       const source = adapter.date('2024-03-15T14:55:45', 'default');
       const reference = adapter.date('2024-03-15T14:30:45', 'default');
 
@@ -405,7 +405,7 @@ describe('mergeDateIntoReferenceDate', () => {
         direction: 'ltr',
       });
 
-      const sections = TemporalFieldSectionPlugin.selectors.sections(store.state);
+      const sections = selectors.sections(store.state);
       const source = adapter.date('2024-03-15T14:30:10', 'default');
       const reference = adapter.date('2024-03-15T14:30:45', 'default');
 
@@ -424,7 +424,7 @@ describe('mergeDateIntoReferenceDate', () => {
         direction: 'ltr',
       });
 
-      const sections = TemporalFieldSectionPlugin.selectors.sections(store.state);
+      const sections = selectors.sections(store.state);
       const source = adapter.date('2030-09-25', 'default');
       const reference = adapter.date('2024-03-15', 'default');
 
@@ -443,7 +443,7 @@ describe('mergeDateIntoReferenceDate', () => {
         direction: 'ltr',
       });
 
-      const sections = TemporalFieldSectionPlugin.selectors.sections(store.state).map((section) => {
+      const sections = selectors.sections(store.state).map((section) => {
         if ('token' in section && section.token.config.part === 'month') {
           return { ...section, modified: true };
         }
@@ -469,7 +469,7 @@ describe('mergeDateIntoReferenceDate', () => {
         direction: 'ltr',
       });
 
-      const sections = TemporalFieldSectionPlugin.selectors
+      const sections = selectors
         .sections(store.state)
         .map((section) => ({ ...section, modified: false }));
 
@@ -494,7 +494,7 @@ describe('mergeDateIntoReferenceDate', () => {
         direction: 'ltr',
       });
 
-      const sections = TemporalFieldSectionPlugin.selectors.sections(store.state);
+      const sections = selectors.sections(store.state);
       const source = adapter.date('2024-03-15T08:30:00', 'default'); // 8 AM
       const reference = adapter.date('2024-03-15T20:30:00', 'default'); // 8 PM
 
@@ -511,7 +511,7 @@ describe('mergeDateIntoReferenceDate', () => {
         direction: 'ltr',
       });
 
-      const sections = TemporalFieldSectionPlugin.selectors.sections(store.state);
+      const sections = selectors.sections(store.state);
       const source = adapter.date('2024-03-15T20:30:00', 'default'); // 8 PM
       const reference = adapter.date('2024-03-15T08:30:00', 'default'); // 8 AM
 
@@ -528,7 +528,7 @@ describe('mergeDateIntoReferenceDate', () => {
         direction: 'ltr',
       });
 
-      const sections = TemporalFieldSectionPlugin.selectors.sections(store.state);
+      const sections = selectors.sections(store.state);
       const source = adapter.date('2024-03-15T14:30:00', 'default'); // 2 PM
       const reference = adapter.date('2024-03-15T16:45:00', 'default'); // 4 PM
 
@@ -548,7 +548,7 @@ describe('mergeDateIntoReferenceDate', () => {
         direction: 'ltr',
       });
 
-      const sections = TemporalFieldSectionPlugin.selectors.sections(store.state);
+      const sections = selectors.sections(store.state);
 
       // Verify that there are separator sections in the format (MM/DD/YYYY has 2 separators)
       const separatorCount = sections.filter(
@@ -577,7 +577,7 @@ describe('mergeDateIntoReferenceDate', () => {
         direction: 'ltr',
       });
 
-      const sections = TemporalFieldSectionPlugin.selectors.sections(store.state);
+      const sections = selectors.sections(store.state);
       const source = adapter.date('2030-09-25', 'default');
       const reference = adapter.date('2024-03-15', 'default');
 

@@ -195,7 +195,7 @@ describe('TemporalFieldStore - Field Integration', () => {
       // But the effect should be registered
 
       // Change value to non-null
-      store.value.updateFromString('01/15/2024');
+      store.updateFromString('01/15/2024');
 
       // setFilled should be called with true
       expect(setFilledSpy.callCount).to.be.greaterThan(0);
@@ -224,7 +224,7 @@ describe('TemporalFieldStore - Field Integration', () => {
       setFilledSpy.resetHistory();
 
       // Change value to null
-      store.value.clear();
+      store.clear();
 
       // setFilled should be called with false
       expect(setFilledSpy.callCount).to.be.greaterThan(0);
@@ -239,7 +239,7 @@ describe('TemporalFieldStore - Field Integration', () => {
       });
 
       // This should not throw even without fieldContext
-      store.value.updateFromString('01/15/2024');
+      store.updateFromString('01/15/2024');
 
       // No error should occur - value is stored as a Date object
       expect(store.state.value).to.not.equal(null);
@@ -269,7 +269,7 @@ describe('TemporalFieldStore - Field Integration', () => {
       setDirtySpy.resetHistory();
 
       // Set value to same as initial
-      store.value.updateFromString('01/15/2024');
+      store.updateFromString('01/15/2024');
 
       // setDirty should be called with false
       expect(setDirtySpy.callCount).to.be.greaterThan(0);
@@ -297,7 +297,7 @@ describe('TemporalFieldStore - Field Integration', () => {
       setDirtySpy.resetHistory();
 
       // Set value to different from initial
-      store.value.updateFromString('01/16/2024');
+      store.updateFromString('01/16/2024');
 
       // setDirty should be called with true
       expect(setDirtySpy.callCount).to.be.greaterThan(0);
@@ -313,7 +313,7 @@ describe('TemporalFieldStore - Field Integration', () => {
       });
 
       // This should not throw even without fieldContext
-      store.value.updateFromString('01/16/2024');
+      store.updateFromString('01/16/2024');
 
       // No error should occur - value is stored as a Date object
       expect(store.state.value).to.not.equal(null);
@@ -341,7 +341,7 @@ describe('TemporalFieldStore - Field Integration', () => {
       });
 
       // Change value
-      store.value.updateFromString('01/15/2024');
+      store.updateFromString('01/15/2024');
 
       // shouldValidateOnChange should be called
       expect(shouldValidateOnChangeSpy.callCount).to.be.greaterThan(0);
@@ -370,7 +370,7 @@ describe('TemporalFieldStore - Field Integration', () => {
       });
 
       // Change value
-      store.value.updateFromString('01/15/2024');
+      store.updateFromString('01/15/2024');
 
       // shouldValidateOnChange should be called
       expect(shouldValidateOnChangeSpy.callCount).to.be.greaterThan(0);
@@ -387,7 +387,7 @@ describe('TemporalFieldStore - Field Integration', () => {
       });
 
       // This should not throw even without fieldContext
-      store.value.updateFromString('01/15/2024');
+      store.updateFromString('01/15/2024');
 
       // No error should occur - value is stored as a Date object
       expect(store.state.value).to.not.equal(null);
@@ -432,7 +432,7 @@ describe('TemporalFieldStore - Field Integration', () => {
       setDirtySpy.resetHistory();
 
       // Change time value
-      store.value.updateFromString('14:30');
+      store.updateFromString('14:30');
 
       // setDirty should be called with true (differs from initial null)
       expect(setDirtySpy.callCount).to.be.greaterThan(0);
@@ -457,7 +457,7 @@ describe('TemporalFieldStore - Field Integration', () => {
       });
 
       // Change time value
-      store.value.updateFromString('14:30');
+      store.updateFromString('14:30');
 
       // validation.commit should be called with the new value (PlainTime object)
       expect(validationCommitSpy.callCount).to.be.greaterThan(0);
@@ -483,7 +483,7 @@ describe('TemporalFieldStore - Field Integration', () => {
       setFilledSpy.resetHistory();
 
       // Change time value to non-null
-      store.value.updateFromString('14:30');
+      store.updateFromString('14:30');
 
       // setFilled should be called with true
       expect(setFilledSpy.callCount).to.be.greaterThan(0);
@@ -513,7 +513,7 @@ describe('TemporalFieldStore - Field Integration', () => {
       });
 
       // Change value
-      store.value.updateFromString('01/15/2024');
+      store.updateFromString('01/15/2024');
 
       // onValueChange should be called
       expect(onValueChangeSpy.callCount).to.be.greaterThan(0);
@@ -550,7 +550,7 @@ describe('TemporalFieldStore - Field Integration', () => {
       expect(store.state.fieldContext).to.equal(null);
 
       // Value changes should work
-      store.value.updateFromString('01/15/2024');
+      store.updateFromString('01/15/2024');
 
       expect(onValueChangeSpy.callCount).to.be.greaterThan(0);
       // Value is passed as Date object
@@ -575,24 +575,24 @@ describe('TemporalFieldStore - Field Integration', () => {
       expect(store.state.value).to.equal(null);
 
       // Fill month
-      store.section.selectClosestDatePart(0);
-      store.section.updateDatePart({
+      store.selectClosestDatePart(0);
+      store.updateDatePart({
         sectionIndex: 0,
         newDatePartValue: '03',
         shouldGoToNextSection: true,
       });
 
       // Fill day
-      store.section.selectClosestDatePart(2);
-      store.section.updateDatePart({
+      store.selectClosestDatePart(2);
+      store.updateDatePart({
         sectionIndex: 2,
         newDatePartValue: '15',
         shouldGoToNextSection: true,
       });
 
       // Fill year
-      store.section.selectClosestDatePart(4);
-      store.section.updateDatePart({
+      store.selectClosestDatePart(4);
+      store.updateDatePart({
         sectionIndex: 4,
         newDatePartValue: '2024',
         shouldGoToNextSection: false,
@@ -623,24 +623,24 @@ describe('TemporalFieldStore - Field Integration', () => {
       expect(store.state.value).to.equal(null);
 
       // Fill month with letter
-      store.section.selectClosestDatePart(0);
-      store.section.updateDatePart({
+      store.selectClosestDatePart(0);
+      store.updateDatePart({
         sectionIndex: 0,
         newDatePartValue: 'Feb',
         shouldGoToNextSection: true,
       });
 
       // Fill day
-      store.section.selectClosestDatePart(2);
-      store.section.updateDatePart({
+      store.selectClosestDatePart(2);
+      store.updateDatePart({
         sectionIndex: 2,
         newDatePartValue: '14',
         shouldGoToNextSection: true,
       });
 
       // Fill year
-      store.section.selectClosestDatePart(4);
-      store.section.updateDatePart({
+      store.selectClosestDatePart(4);
+      store.updateDatePart({
         sectionIndex: 4,
         newDatePartValue: '2024',
         shouldGoToNextSection: false,
@@ -670,16 +670,16 @@ describe('TemporalFieldStore - Field Integration', () => {
       expect(store.state.value).to.equal(null);
 
       // Fill hour
-      store.section.selectClosestDatePart(0);
-      store.section.updateDatePart({
+      store.selectClosestDatePart(0);
+      store.updateDatePart({
         sectionIndex: 0,
         newDatePartValue: '14',
         shouldGoToNextSection: true,
       });
 
       // Fill minute
-      store.section.selectClosestDatePart(2);
-      store.section.updateDatePart({
+      store.selectClosestDatePart(2);
+      store.updateDatePart({
         sectionIndex: 2,
         newDatePartValue: '30',
         shouldGoToNextSection: false,
@@ -709,24 +709,24 @@ describe('TemporalFieldStore - Field Integration', () => {
       expect(store.state.value).to.equal(null);
 
       // Fill hour
-      store.section.selectClosestDatePart(0);
-      store.section.updateDatePart({
+      store.selectClosestDatePart(0);
+      store.updateDatePart({
         sectionIndex: 0,
         newDatePartValue: '02',
         shouldGoToNextSection: true,
       });
 
       // Fill minute
-      store.section.selectClosestDatePart(2);
-      store.section.updateDatePart({
+      store.selectClosestDatePart(2);
+      store.updateDatePart({
         sectionIndex: 2,
         newDatePartValue: '30',
         shouldGoToNextSection: true,
       });
 
       // Fill meridiem
-      store.section.selectClosestDatePart(4);
-      store.section.updateDatePart({
+      store.selectClosestDatePart(4);
+      store.updateDatePart({
         sectionIndex: 4,
         newDatePartValue: 'PM',
         shouldGoToNextSection: false,
@@ -756,24 +756,24 @@ describe('TemporalFieldStore - Field Integration', () => {
       expect(store.state.value).to.equal(null);
 
       // Fill day
-      store.section.selectClosestDatePart(0);
-      store.section.updateDatePart({
+      store.selectClosestDatePart(0);
+      store.updateDatePart({
         sectionIndex: 0,
         newDatePartValue: '25',
         shouldGoToNextSection: true,
       });
 
       // Fill month
-      store.section.selectClosestDatePart(2);
-      store.section.updateDatePart({
+      store.selectClosestDatePart(2);
+      store.updateDatePart({
         sectionIndex: 2,
         newDatePartValue: '12',
         shouldGoToNextSection: true,
       });
 
       // Fill year
-      store.section.selectClosestDatePart(4);
-      store.section.updateDatePart({
+      store.selectClosestDatePart(4);
+      store.updateDatePart({
         sectionIndex: 4,
         newDatePartValue: '2024',
         shouldGoToNextSection: false,
@@ -803,7 +803,7 @@ describe('TemporalFieldStore - Field Integration', () => {
       expect(store.state.value).to.equal(null);
 
       // Paste complete date
-      store.value.updateFromString('03/15/2024');
+      store.updateFromString('03/15/2024');
 
       // Verify final value
       const value = store.state.value;
@@ -833,14 +833,14 @@ describe('TemporalFieldStore - Field Integration', () => {
       });
 
       // Edit month from 01 to 02: Jan 30 → Feb 30 (invalid) → sets sectionToUpdateOnNextInvalidDate
-      store.section.selectClosestDatePart(0); // month section
-      store.section.updateDatePart({
+      store.selectClosestDatePart(0); // month section
+      store.updateDatePart({
         sectionIndex: 0,
         newDatePartValue: '02',
         shouldGoToNextSection: false,
       });
 
-      expect(store.section.sectionToUpdateOnNextInvalidDate).to.not.equal(null);
+      expect(store.sectionToUpdateOnNextInvalidDate).to.not.equal(null);
 
       // Change format via syncState (simulates parent re-render with new format prop)
       store.syncState({
@@ -851,7 +851,7 @@ describe('TemporalFieldStore - Field Integration', () => {
       });
 
       // The stale pending patch should have been cleared
-      expect(store.section.sectionToUpdateOnNextInvalidDate).to.equal(null);
+      expect(store.sectionToUpdateOnNextInvalidDate).to.equal(null);
     });
 
     it('should not corrupt sections when format and value change simultaneously with a pending invalid date', () => {
@@ -863,14 +863,14 @@ describe('TemporalFieldStore - Field Integration', () => {
       });
 
       // Edit month from 01 to 02: Jan 30 → Feb 30 (invalid) → sets sectionToUpdateOnNextInvalidDate
-      store.section.selectClosestDatePart(0); // month section
-      store.section.updateDatePart({
+      store.selectClosestDatePart(0); // month section
+      store.updateDatePart({
         sectionIndex: 0,
         newDatePartValue: '02',
         shouldGoToNextSection: false,
       });
 
-      expect(store.section.sectionToUpdateOnNextInvalidDate).to.not.equal(null);
+      expect(store.sectionToUpdateOnNextInvalidDate).to.not.equal(null);
 
       // Simulate parent re-render that changes BOTH format and value
       const newValue = adapter.date('2024-06-15', 'default');
