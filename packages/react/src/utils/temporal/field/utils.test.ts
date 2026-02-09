@@ -5,10 +5,24 @@ import { DateFieldStore } from '../../../date-field/root/DateFieldStore';
 import { TimeFieldStore } from '../../../time-field/root/TimeFieldStore';
 import { selectors } from './selectors';
 import { FormatParser } from './formatParser';
+import { LocalizedDigits } from './adapter-cache';
 
-const STANDARD_DIGITS = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
-const ARABIC_INDIC_DIGITS = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
-const EASTERN_ARABIC_INDIC_DIGITS = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'];
+function buildLocalizedDigits(digits: string[]): LocalizedDigits {
+  const toLocalized = new Map<string, string>();
+  const fromLocalized = new Map<string, string>();
+  for (let i = 0; i < digits.length; i += 1) {
+    toLocalized.set(i.toString(), digits[i]);
+    fromLocalized.set(digits[i], i.toString());
+  }
+  return { toLocalized, fromLocalized };
+}
+
+const ARABIC_INDIC_DIGITS = buildLocalizedDigits([
+  '٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩',
+]);
+const EASTERN_ARABIC_INDIC_DIGITS = buildLocalizedDigits([
+  '۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹',
+]);
 
 describe('getLetterEditingOptions', () => {
   const { adapter } = createTemporalRenderer();
@@ -124,28 +138,28 @@ describe('cleanDigitSectionValue', () => {
       // Unpadded month format - not in adapter.formats
       const token = FormatParser.buildSingleToken(adapter, 'M', {});
 
-      const result = cleanDigitDatePartValue(adapter, 5, STANDARD_DIGITS, token);
+      const result = cleanDigitDatePartValue(adapter, 5, null, token);
       expect(result).to.equal('5');
     });
 
     it('should format a padded value with leading zeros', () => {
       const token = FormatParser.buildSingleToken(adapter, adapter.formats.monthPadded, {});
 
-      const result = cleanDigitDatePartValue(adapter, 5, STANDARD_DIGITS, token);
+      const result = cleanDigitDatePartValue(adapter, 5, null, token);
       expect(result).to.equal('05');
     });
 
     it('should handle single-digit values without padding', () => {
       const token = FormatParser.buildSingleToken(adapter, adapter.formats.dayOfMonth, {});
 
-      const result = cleanDigitDatePartValue(adapter, 3, STANDARD_DIGITS, token);
+      const result = cleanDigitDatePartValue(adapter, 3, null, token);
       expect(result).to.equal('3');
     });
 
     it('should handle double-digit values with padding', () => {
       const token = FormatParser.buildSingleToken(adapter, adapter.formats.dayOfMonthPadded, {});
 
-      const result = cleanDigitDatePartValue(adapter, 15, STANDARD_DIGITS, token);
+      const result = cleanDigitDatePartValue(adapter, 15, null, token);
       expect(result).to.equal('15');
     });
   });
@@ -154,28 +168,28 @@ describe('cleanDigitSectionValue', () => {
     it('should pad year values correctly', () => {
       const token = FormatParser.buildSingleToken(adapter, adapter.formats.yearPadded, {});
 
-      const result = cleanDigitDatePartValue(adapter, 2023, STANDARD_DIGITS, token);
+      const result = cleanDigitDatePartValue(adapter, 2023, null, token);
       expect(result).to.equal('2023');
     });
 
     it('should pad hours correctly', () => {
       const token = FormatParser.buildSingleToken(adapter, adapter.formats.hours24hPadded, {});
 
-      const result = cleanDigitDatePartValue(adapter, 9, STANDARD_DIGITS, token);
+      const result = cleanDigitDatePartValue(adapter, 9, null, token);
       expect(result).to.equal('09');
     });
 
     it('should pad minutes correctly', () => {
       const token = FormatParser.buildSingleToken(adapter, adapter.formats.minutesPadded, {});
 
-      const result = cleanDigitDatePartValue(adapter, 5, STANDARD_DIGITS, token);
+      const result = cleanDigitDatePartValue(adapter, 5, null, token);
       expect(result).to.equal('05');
     });
 
     it('should pad seconds correctly', () => {
       const token = FormatParser.buildSingleToken(adapter, adapter.formats.secondsPadded, {});
 
-      const result = cleanDigitDatePartValue(adapter, 7, STANDARD_DIGITS, token);
+      const result = cleanDigitDatePartValue(adapter, 7, null, token);
       expect(result).to.equal('07');
     });
   });
@@ -203,10 +217,10 @@ describe('cleanDigitSectionValue', () => {
       expect(result).to.equal('۱۵');
     });
 
-    it('should skip localization when digits start with 0', () => {
+    it('should skip localization when localizedDigits is null (standard ASCII)', () => {
       const token = FormatParser.buildSingleToken(adapter, adapter.formats.monthPadded, {});
 
-      const result = cleanDigitDatePartValue(adapter, 5, STANDARD_DIGITS, token);
+      const result = cleanDigitDatePartValue(adapter, 5, null, token);
       expect(result).to.equal('05');
     });
   });
@@ -219,10 +233,10 @@ describe('cleanDigitSectionValue', () => {
         {},
       );
 
-      expect(cleanDigitDatePartValue(adapter, 1, STANDARD_DIGITS, token)).to.equal('1st');
-      expect(cleanDigitDatePartValue(adapter, 2, STANDARD_DIGITS, token)).to.equal('2nd');
-      expect(cleanDigitDatePartValue(adapter, 3, STANDARD_DIGITS, token)).to.equal('3rd');
-      expect(cleanDigitDatePartValue(adapter, 15, STANDARD_DIGITS, token)).to.equal('15th');
+      expect(cleanDigitDatePartValue(adapter, 1, null, token)).to.equal('1st');
+      expect(cleanDigitDatePartValue(adapter, 2, null, token)).to.equal('2nd');
+      expect(cleanDigitDatePartValue(adapter, 3, null, token)).to.equal('3rd');
+      expect(cleanDigitDatePartValue(adapter, 15, null, token)).to.equal('15th');
     });
 
     it('should format days 4-9 with "th" suffix', () => {
@@ -232,12 +246,12 @@ describe('cleanDigitSectionValue', () => {
         {},
       );
 
-      expect(cleanDigitDatePartValue(adapter, 4, STANDARD_DIGITS, token)).to.equal('4th');
-      expect(cleanDigitDatePartValue(adapter, 5, STANDARD_DIGITS, token)).to.equal('5th');
-      expect(cleanDigitDatePartValue(adapter, 6, STANDARD_DIGITS, token)).to.equal('6th');
-      expect(cleanDigitDatePartValue(adapter, 7, STANDARD_DIGITS, token)).to.equal('7th');
-      expect(cleanDigitDatePartValue(adapter, 8, STANDARD_DIGITS, token)).to.equal('8th');
-      expect(cleanDigitDatePartValue(adapter, 9, STANDARD_DIGITS, token)).to.equal('9th');
+      expect(cleanDigitDatePartValue(adapter, 4, null, token)).to.equal('4th');
+      expect(cleanDigitDatePartValue(adapter, 5, null, token)).to.equal('5th');
+      expect(cleanDigitDatePartValue(adapter, 6, null, token)).to.equal('6th');
+      expect(cleanDigitDatePartValue(adapter, 7, null, token)).to.equal('7th');
+      expect(cleanDigitDatePartValue(adapter, 8, null, token)).to.equal('8th');
+      expect(cleanDigitDatePartValue(adapter, 9, null, token)).to.equal('9th');
     });
 
     it('should format 11th, 12th, 13th with "th" suffix (not st/nd/rd)', () => {
@@ -248,9 +262,9 @@ describe('cleanDigitSectionValue', () => {
       );
 
       // These are exceptions - even though they end in 1, 2, 3
-      expect(cleanDigitDatePartValue(adapter, 11, STANDARD_DIGITS, token)).to.equal('11th');
-      expect(cleanDigitDatePartValue(adapter, 12, STANDARD_DIGITS, token)).to.equal('12th');
-      expect(cleanDigitDatePartValue(adapter, 13, STANDARD_DIGITS, token)).to.equal('13th');
+      expect(cleanDigitDatePartValue(adapter, 11, null, token)).to.equal('11th');
+      expect(cleanDigitDatePartValue(adapter, 12, null, token)).to.equal('12th');
+      expect(cleanDigitDatePartValue(adapter, 13, null, token)).to.equal('13th');
     });
 
     it('should format 21st, 22nd, 23rd, 31st with special suffixes', () => {
@@ -260,10 +274,10 @@ describe('cleanDigitSectionValue', () => {
         {},
       );
 
-      expect(cleanDigitDatePartValue(adapter, 21, STANDARD_DIGITS, token)).to.equal('21st');
-      expect(cleanDigitDatePartValue(adapter, 22, STANDARD_DIGITS, token)).to.equal('22nd');
-      expect(cleanDigitDatePartValue(adapter, 23, STANDARD_DIGITS, token)).to.equal('23rd');
-      expect(cleanDigitDatePartValue(adapter, 31, STANDARD_DIGITS, token)).to.equal('31st');
+      expect(cleanDigitDatePartValue(adapter, 21, null, token)).to.equal('21st');
+      expect(cleanDigitDatePartValue(adapter, 22, null, token)).to.equal('22nd');
+      expect(cleanDigitDatePartValue(adapter, 23, null, token)).to.equal('23rd');
+      expect(cleanDigitDatePartValue(adapter, 31, null, token)).to.equal('31st');
     });
   });
 
@@ -271,21 +285,21 @@ describe('cleanDigitSectionValue', () => {
     it('should handle zero value', () => {
       const token = FormatParser.buildSingleToken(adapter, adapter.formats.hours24hPadded, {});
 
-      const result = cleanDigitDatePartValue(adapter, 0, STANDARD_DIGITS, token);
+      const result = cleanDigitDatePartValue(adapter, 0, null, token);
       expect(result).to.equal('00');
     });
 
     it('should handle maximum boundary value', () => {
       const token = FormatParser.buildSingleToken(adapter, adapter.formats.hours24hPadded, {});
 
-      const result = cleanDigitDatePartValue(adapter, 23, STANDARD_DIGITS, token);
+      const result = cleanDigitDatePartValue(adapter, 23, null, token);
       expect(result).to.equal('23');
     });
 
     it('should handle 4-digit year with full padding', () => {
       const token = FormatParser.buildSingleToken(adapter, adapter.formats.yearPadded, {});
 
-      const result = cleanDigitDatePartValue(adapter, 50, STANDARD_DIGITS, token);
+      const result = cleanDigitDatePartValue(adapter, 50, null, token);
       expect(result).to.equal('0050');
     });
 
@@ -293,7 +307,7 @@ describe('cleanDigitSectionValue', () => {
       // 2-digit year format - not in adapter.formats
       const token = FormatParser.buildSingleToken(adapter, 'yy', {});
 
-      const result = cleanDigitDatePartValue(adapter, 5, STANDARD_DIGITS, token);
+      const result = cleanDigitDatePartValue(adapter, 5, null, token);
       expect(result).to.equal('05');
     });
   });

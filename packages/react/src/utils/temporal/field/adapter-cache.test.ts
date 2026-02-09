@@ -151,10 +151,10 @@ describe('getLongestMonthInCurrentYear', () => {
 describe('getLocalizedDigits', () => {
   const { adapter } = createTemporalRenderer();
 
-  it('should return standard digits for the default locale', () => {
+  it('should return null for the default locale (standard ASCII digits)', () => {
     const result = getLocalizedDigits(adapter);
 
-    expect(result).to.deep.equal(['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']);
+    expect(result).to.equal(null);
   });
 
   it('should return the same reference when called twice', () => {

@@ -12,6 +12,7 @@ import {
   getMeridiemsStr,
   getMonthsStr,
   getWeekDaysStr,
+  LocalizedDigits,
 } from './adapter-cache';
 import {
   AdjustDatePartValueKeyCode,
@@ -27,7 +28,9 @@ import {
 
 /**
  * Ordering of date part types by granularity (from least to most granular).
- * Used for determining the most granular part in a format.
+ * Used to determine which section is the "most granular" in a format (for applying the `step` prop).
+ * Meridiem is placed between weekDay and hours because it's a time-level concept
+ * but less granular than specific hours/minutes/seconds.
  */
 export const DATE_PART_GRANULARITY: Record<string, number> = {
   year: 1,
@@ -41,8 +44,10 @@ export const DATE_PART_GRANULARITY: Record<string, number> = {
 };
 
 /**
- * Ordering of date part types by granularity (from least to most granular).
- * Used for ordering section modifications during date merging.
+ * Priority ordering for transferring date part values during `mergeDateIntoReferenceDate`.
+ * Parts are applied from lowest to highest priority.
+ * Meridiem is last (8) because it depends on the hours value — setting meridiem before hours
+ * would be overwritten when hours are subsequently applied.
  */
 export const DATE_PART_TRANSFER_PRIORITY: Record<string, number> = {
   year: 1,
@@ -87,14 +92,14 @@ export function deriveStateFromParameters<TValue extends TemporalSupportedValue>
   };
 }
 
-export function applyLocalizedDigits(valueStr: string, localizedDigits: string[]) {
-  if (localizedDigits[0] === '0') {
+export function applyLocalizedDigits(valueStr: string, localizedDigits: LocalizedDigits | null) {
+  if (localizedDigits == null) {
     return valueStr;
   }
 
   return valueStr
     .split('')
-    .map((char) => localizedDigits[Number(char)])
+    .map((char) => localizedDigits.toLocalized.get(char) ?? char)
     .join('');
 }
 
@@ -108,19 +113,19 @@ export function normalizeLeadingZeros(valueStr: string, size: number) {
   return Number(valueStr).toString().padStart(size, '0');
 }
 
-export function removeLocalizedDigits(valueStr: string, localizedDigits: string[]) {
-  if (localizedDigits[0] === '0') {
+export function removeLocalizedDigits(valueStr: string, localizedDigits: LocalizedDigits | null) {
+  if (localizedDigits == null) {
     return valueStr;
   }
 
   const digits: string[] = [];
-  let currentFormattedDigit = '';
+  let current = '';
   for (let i = 0; i < valueStr.length; i += 1) {
-    currentFormattedDigit += valueStr[i];
-    const matchingDigitIndex = localizedDigits.indexOf(currentFormattedDigit);
-    if (matchingDigitIndex > -1) {
-      digits.push(matchingDigitIndex.toString());
-      currentFormattedDigit = '';
+    current += valueStr[i];
+    const match = localizedDigits.fromLocalized.get(current);
+    if (match !== undefined) {
+      digits.push(match);
+      current = '';
     }
   }
 
@@ -195,7 +200,7 @@ export function getLetterEditingOptions(
 export function cleanDigitDatePartValue(
   adapter: TemporalAdapter,
   value: number,
-  localizedDigits: string[],
+  localizedDigits: LocalizedDigits | null,
   token: TemporalFieldToken,
 ) {
   if (token.config.contentType === 'digit-with-letter') {
@@ -225,7 +230,7 @@ export function cleanDigitDatePartValue(
   return applyLocalizedDigits(valueStr, localizedDigits);
 }
 
-export function isStringNumber(valueStr: string, localizedDigits: string[]) {
+export function isStringNumber(valueStr: string, localizedDigits: LocalizedDigits | null) {
   const nonLocalizedValueStr = removeLocalizedDigits(valueStr, localizedDigits);
   // `Number(' ')` returns `0` even if ' ' is not a valid number.
   return nonLocalizedValueStr !== ' ' && !Number.isNaN(Number(nonLocalizedValueStr));

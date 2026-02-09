@@ -51,6 +51,10 @@ import { getLocalizedDigits, getWeekDaysStr } from './adapter-cache';
 import { activeElement } from '../../../floating-ui-react/utils';
 import { createChangeEventDetails } from '../../createBaseUIEventDetails';
 
+const LETTERS_ONLY_REGEX = /^[a-zA-Z]+$/;
+const DIGITS_ONLY_REGEX = /^[0-9]+$/;
+const DIGITS_AND_LETTER_REGEX = /^(?:[a-zA-Z]+)?[0-9]+(?:[a-zA-Z]+)?$/;
+
 export class TemporalFieldStore<TValue extends TemporalSupportedValue> extends ReactStore<
   TemporalFieldState<TValue>,
   Record<string, never>,
@@ -64,13 +68,14 @@ export class TemporalFieldStore<TValue extends TemporalSupportedValue> extends R
 
   private timeoutManager = new TimeoutManager();
 
-  // Section state
-  private sectionToUpdateOnNextInvalidDate: { index: number; value: string } | null = null;
+  public sectionToUpdateOnNextInvalidDate: { index: number; value: string } | null = null;
 
-  // DOM state
   private sectionElementMap = new Map<number, HTMLElement>();
 
-  // Value Adjustment statics
+  /**
+   * Duration in milliseconds before the character query is cleared.
+   * After this time without a new keystroke, the accumulated query (e.g., "1" waiting for "12") is discarded.
+   */
   private static queryLifeDuration = 5000;
 
   private static adjustKeyCodes: Set<AdjustDatePartValueKeyCode> = new Set([
@@ -586,11 +591,11 @@ export class TemporalFieldStore<TValue extends TemporalSupportedValue> extends R
     const sectionsList = selectors.sections(this.state);
 
     // First, try to find a date part by searching backward
-    let closestIndex = this.getPreviousDatePartIndex(sectionsList, sectionIndex + 1);
+    let closestIndex = this.getAdjacentDatePartIndex(sectionsList, sectionIndex, -1);
 
     // If we didn't find a date part searching backward, search forward
     if (closestIndex == null) {
-      closestIndex = this.getNextDatePartIndex(sectionsList, sectionIndex);
+      closestIndex = this.getAdjacentDatePartIndex(sectionsList, sectionIndex, 1);
     }
 
     if (closestIndex != null) {
@@ -605,7 +610,7 @@ export class TemporalFieldStore<TValue extends TemporalSupportedValue> extends R
     }
 
     const sectionsList = selectors.sections(this.state);
-    const nextIndex = this.getNextDatePartIndex(sectionsList, selected + 1);
+    const nextIndex = this.getAdjacentDatePartIndex(sectionsList, selected + 1, 1);
     if (nextIndex != null) {
       this.set('selectedSection', nextIndex);
     }
@@ -618,7 +623,7 @@ export class TemporalFieldStore<TValue extends TemporalSupportedValue> extends R
     }
 
     const sectionsList = selectors.sections(this.state);
-    const previousIndex = this.getPreviousDatePartIndex(sectionsList, selected);
+    const previousIndex = this.getAdjacentDatePartIndex(sectionsList, selected - 1, -1);
     if (previousIndex != null) {
       this.set('selectedSection', previousIndex);
     }
@@ -628,32 +633,17 @@ export class TemporalFieldStore<TValue extends TemporalSupportedValue> extends R
     this.set('selectedSection', null);
   }
 
-  private getNextDatePartIndex(
+  private getAdjacentDatePartIndex(
     sectionsList: TemporalFieldSection[],
     startIndex: number,
+    direction: 1 | -1,
   ): number | null {
     let index = startIndex;
-    while (index < sectionsList.length && !isDatePart(sectionsList[index])) {
-      index += 1;
+    while (index >= 0 && index < sectionsList.length && !isDatePart(sectionsList[index])) {
+      index += direction;
     }
 
-    if (index < sectionsList.length) {
-      return index;
-    }
-
-    return null;
-  }
-
-  private getPreviousDatePartIndex(
-    sectionsList: TemporalFieldSection[],
-    startIndex: number,
-  ): number | null {
-    let index = startIndex - 1;
-    while (index >= 0 && !isDatePart(sectionsList[index])) {
-      index -= 1;
-    }
-
-    if (index >= 0) {
+    if (index >= 0 && index < sectionsList.length) {
       return index;
     }
 
@@ -1316,37 +1306,23 @@ export class TemporalFieldStore<TValue extends TemporalSupportedValue> extends R
       return;
     }
 
-    if (!selectors.editable(this.state)) {
-      this.syncDatePartContentToDOM(sectionIndex);
-      return;
-    }
-
-    const section = selectors.datePart(this.state, sectionIndex);
-    if (section == null) {
-      return;
-    }
-
-    if (keyPressed.length === 0) {
-      if (section.value === '') {
-        this.syncDatePartContentToDOM(sectionIndex);
-        return;
+    if (selectors.editable(this.state)) {
+      const section = selectors.datePart(this.state, sectionIndex);
+      if (section != null) {
+        if (keyPressed.length === 0) {
+          const inputType = (event.nativeEvent as InputEvent).inputType;
+          if (
+            section.value !== '' &&
+            inputType !== 'insertParagraph' &&
+            inputType !== 'insertLineBreak'
+          ) {
+            this.clearActive();
+          }
+        } else {
+          this.editSection({ keyPressed, sectionIndex });
+        }
       }
-
-      const inputType = (event.nativeEvent as InputEvent).inputType;
-      if (inputType === 'insertParagraph' || inputType === 'insertLineBreak') {
-        this.syncDatePartContentToDOM(sectionIndex);
-        return;
-      }
-
-      this.syncDatePartContentToDOM(sectionIndex);
-      this.clearActive();
-      return;
     }
-
-    this.editSection({
-      keyPressed,
-      sectionIndex,
-    });
 
     // The DOM value needs to remain the one React is expecting.
     this.syncDatePartContentToDOM(sectionIndex);
@@ -1367,9 +1343,9 @@ export class TemporalFieldStore<TValue extends TemporalSupportedValue> extends R
     }
 
     const pastedValue = event.clipboardData.getData('text');
-    const lettersOnly = /^[a-zA-Z]+$/.test(pastedValue);
-    const digitsOnly = /^[0-9]+$/.test(pastedValue);
-    const digitsAndLetterOnly = /^(([a-zA-Z]+)|)([0-9]+)(([a-zA-Z]+)|)$/.test(pastedValue);
+    const lettersOnly = LETTERS_ONLY_REGEX.test(pastedValue);
+    const digitsOnly = DIGITS_ONLY_REGEX.test(pastedValue);
+    const digitsAndLetterOnly = DIGITS_AND_LETTER_REGEX.test(pastedValue);
     const isValidPastedValue =
       (section.token.config.contentType === 'letter' && lettersOnly) ||
       (section.token.config.contentType === 'digit' && digitsOnly) ||

@@ -47,9 +47,10 @@ interface TemporalAdapterFieldCache {
       }
     | undefined;
   /**
-   *  The 10 digits (0–9) in the adapter's locale (e.g., ['0', '1', ...] or ['٠', '١', ...])
+   * Localized digit mappings for the adapter's locale, or `null` if digits are standard ASCII ('0'-'9').
+   * `undefined` means not yet computed.
    */
-  localizedDigits?: string[] | undefined;
+  localizedDigits?: LocalizedDigits | null | undefined;
   /**
    * An arbitrary date used for locale-dependent computations where the actual date value doesn't matter.
    * This is cached to avoid repeated `adapter.now('default')` calls when only invariant information is needed
@@ -253,25 +254,34 @@ export function getLongestMonthInCurrentYear(adapter: TemporalAdapter) {
   return getMonthCache(adapter).longestMonth;
 }
 
+/**
+ * Bidirectional mapping between ASCII digits ('0'-'9') and their localized representations.
+ * When the locale uses standard ASCII digits, `getLocalizedDigits` returns `null` instead.
+ */
+export interface LocalizedDigits {
+  /** Maps ASCII digit char ('0'-'9') to localized string. E.g., '5' → '٥' */
+  toLocalized: Map<string, string>;
+  /** Maps localized digit string to ASCII digit char. E.g., '٥' → '5' */
+  fromLocalized: Map<string, string>;
+}
+
 // This format should be the same on all the adapters.
 // If some adapter does not respect this convention, then we will need to hardcode the format on each adapter.
 const FORMAT_SECONDS_NO_LEADING_ZEROS = 's';
 
-const NON_LOCALIZED_DIGITS = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
-
 /**
- * Returns the localized digits used by the adapter.
- * This is an array of 10 strings representing the digits 0 to 9 in the localized format.
+ * Returns localized digit mappings for the adapter's locale.
+ * Returns `null` when the locale uses standard ASCII digits ('0'-'9'), meaning no localization is needed.
  *
  * ```ts
  * getLocalizedDigits(adapter);
- * // Returns: ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'] (for most locales)
- * // Returns: ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'] (for Arabic locale)
+ * // Returns: null (for most locales — standard ASCII digits)
+ * // Returns: { toLocalized: Map{'0' → '٠', ...}, fromLocalized: Map{'٠' → '0', ...} } (for Arabic locale)
  * ```
  */
-export function getLocalizedDigits(adapter: TemporalAdapter): string[] {
+export function getLocalizedDigits(adapter: TemporalAdapter): LocalizedDigits | null {
   const cache = getAdapterFieldCache(adapter);
-  if (cache.localizedDigits == null) {
+  if (cache.localizedDigits === undefined) {
     const arbitraryDate = getArbitraryDate(adapter);
     const formattedZero = adapter.formatByString(
       adapter.setSeconds(arbitraryDate, 0),
@@ -279,14 +289,19 @@ export function getLocalizedDigits(adapter: TemporalAdapter): string[] {
     );
 
     if (formattedZero === '0') {
-      cache.localizedDigits = NON_LOCALIZED_DIGITS;
+      cache.localizedDigits = null;
     } else {
-      cache.localizedDigits = Array.from({ length: 10 }).map((_, index) =>
-        adapter.formatByString(
-          adapter.setSeconds(arbitraryDate, index),
+      const toLocalized = new Map<string, string>();
+      const fromLocalized = new Map<string, string>();
+      for (let i = 0; i < 10; i += 1) {
+        const localized = adapter.formatByString(
+          adapter.setSeconds(arbitraryDate, i),
           FORMAT_SECONDS_NO_LEADING_ZEROS,
-        ),
-      );
+        );
+        toLocalized.set(i.toString(), localized);
+        fromLocalized.set(localized, i.toString());
+      }
+      cache.localizedDigits = { toLocalized, fromLocalized };
     }
   }
 
