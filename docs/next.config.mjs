@@ -72,9 +72,9 @@ const nextConfig = {
   pageExtensions: ['mdx', 'tsx'],
   turbopack: {
     rules: {
-      './app/**/types.ts': {
+      './src/app/**/types.ts': {
         as: '*.ts',
-        loaders: ['@mui/internal-docs-infra/pipeline/loadPrecomputedTypesMeta'],
+        loaders: ['@mui/internal-docs-infra/pipeline/loadPrecomputedTypes'],
       },
       './src/app/sitemap/index.ts': {
         as: '*.ts',
@@ -97,7 +97,7 @@ const nextConfig = {
       use: [
         defaultLoaders.babel,
         {
-          loader: '@mui/internal-docs-infra/pipeline/loadPrecomputedTypesMeta',
+          loader: '@mui/internal-docs-infra/pipeline/loadPrecomputedTypes',
           options: { performance: { logging: true } },
         },
       ],
