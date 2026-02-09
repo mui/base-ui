@@ -45,16 +45,16 @@ export class TemporalFieldStore<TValue extends TemporalSupportedValue> extends R
   Record<string, never>,
   typeof selectors
 > {
-  public parameters: TemporalFieldStoreSharedParameters<TValue>;
+  private parameters: TemporalFieldStoreSharedParameters<TValue>;
 
   private initialParameters: TemporalFieldStoreSharedParameters<TValue> | null = null;
 
-  public instanceName: string;
+  private instanceName: string;
 
-  public timeoutManager = new TimeoutManager();
+  private timeoutManager = new TimeoutManager();
 
   // Section state
-  public sectionToUpdateOnNextInvalidDate: { index: number; value: string } | null = null;
+  private sectionToUpdateOnNextInvalidDate: { index: number; value: string } | null = null;
 
   // DOM state
   private sectionElementMap = new Map<number, HTMLElement>();
@@ -133,10 +133,36 @@ export class TemporalFieldStore<TValue extends TemporalSupportedValue> extends R
       this.initialParameters = parameters;
     }
 
-    // Initialize character query sync (from CharacterEditingPlugin constructor)
-    syncCharacterQueryWithSections(this);
+    // Character query sync
+    this.registerStoreEffect(
+      createSelectorMemoized(
+        selectors.characterQuery,
+        selectors.sections,
+        selectors.activeDatePart,
+        (characterQuery, sectionsList, activeSection) => ({
+          characterQuery,
+          sections: sectionsList,
+          activeSection,
+        }),
+      ),
+      (_, { characterQuery, sections: sectionsList, activeSection }) => {
+        if (characterQuery == null) {
+          return;
+        }
 
-    // Register effect to update Field's filled state when value changes
+        const querySection = sectionsList[characterQuery.sectionIndex];
+
+        const shouldReset =
+          (isDatePart(querySection) && querySection.token.config.part !== characterQuery.part) ||
+          activeSection == null; /* && error != null */ // TODO: Support error state
+
+        if (shouldReset) {
+          this.set('characterQuery', null);
+        }
+      },
+    );
+
+    // Filled state sync when value changes
     this.registerStoreEffect(
       (state) => state.value,
       (_previousValue, nextValue) => {
@@ -146,13 +172,6 @@ export class TemporalFieldStore<TValue extends TemporalSupportedValue> extends R
         }
       },
     );
-  }
-
-  /**
-   * Updates the field context in the store.
-   */
-  public updateFieldContext(fieldContext: any | null) {
-    this.update({ fieldContext });
   }
 
   /**
@@ -269,7 +288,7 @@ export class TemporalFieldStore<TValue extends TemporalSupportedValue> extends R
   /**
    * Registers an effect to be run when the value returned by the selector changes.
    */
-  public registerStoreEffect = <Value>(
+  private registerStoreEffect = <Value>(
     selector: (state: TemporalFieldState<TValue>) => Value,
     effect: (previous: Value, next: Value) => void,
   ) => {
@@ -423,7 +442,7 @@ export class TemporalFieldStore<TValue extends TemporalSupportedValue> extends R
     };
   }
 
-  public getDatePartRenderedValue(datePart: TemporalFieldDatePart) {
+  private getDatePartRenderedValue(datePart: TemporalFieldDatePart) {
     return datePart.value || datePart.token.placeholder;
   }
 
@@ -1140,12 +1159,12 @@ export class TemporalFieldStore<TValue extends TemporalSupportedValue> extends R
     return options[wrappedIndex];
   }
 
-  public getActiveElement() {
+  private getActiveElement() {
     const doc = ownerDocument(this.state.inputRef.current);
     return activeElement(doc);
   }
 
-  public getSectionIndexFromDOMElement(element: Element | null | undefined) {
+  private getSectionIndexFromDOMElement(element: Element | null | undefined) {
     if (element == null) {
       return null;
     }
@@ -1158,17 +1177,8 @@ export class TemporalFieldStore<TValue extends TemporalSupportedValue> extends R
     return Number(indexStr);
   }
 
-  public isFocused() {
+  private isFocused() {
     return !!this.state.inputRef.current?.contains(this.getActiveElement());
-  }
-
-  public focusSection(sectionIndex: number) {
-    const sectionElement = this.getSectionElement(sectionIndex);
-    if (sectionElement == null) {
-      return;
-    }
-
-    sectionElement.focus();
   }
 
   public registerSection = (sectionElement: HTMLDivElement | null) => {
@@ -1185,7 +1195,7 @@ export class TemporalFieldStore<TValue extends TemporalSupportedValue> extends R
    * Updates the content of a section in the DOM to match the store state.
    * This is needed to revert unwanted change made when the section has contentEditable enabled.
    */
-  public syncDatePartContentToDOM(sectionIndex: number) {
+  private syncDatePartContentToDOM(sectionIndex: number) {
     const sectionElement = this.getSectionElement(sectionIndex);
     if (sectionElement == null) {
       return;
@@ -1199,7 +1209,7 @@ export class TemporalFieldStore<TValue extends TemporalSupportedValue> extends R
     this.syncSelectionToDOM();
   }
 
-  public syncSelectionToDOM = () => {
+  private syncSelectionToDOM = () => {
     if (!this.state.inputRef.current) {
       return;
     }
@@ -1458,40 +1468,6 @@ function isQueryResponseWithoutValue(
   response: ReturnType<QueryApplier>,
 ): response is { saveQuery: boolean } {
   return (response as { saveQuery: boolean }).saveQuery != null;
-}
-
-function syncCharacterQueryWithSections<TValue extends TemporalSupportedValue>(
-  store: TemporalFieldStore<TValue>,
-) {
-  const selector = createSelectorMemoized(
-    selectors.characterQuery,
-    selectors.sections,
-    selectors.activeDatePart,
-    (characterQuery, sectionsList, activeSection) => ({
-      characterQuery,
-      sections: sectionsList,
-      activeSection,
-    }),
-  );
-
-  store.registerStoreEffect(
-    selector,
-    (_, { characterQuery, sections: sectionsList, activeSection }) => {
-      if (characterQuery == null) {
-        return;
-      }
-
-      const querySection = sectionsList[characterQuery.sectionIndex];
-
-      const shouldReset =
-        (isDatePart(querySection) && querySection.token.config.part !== characterQuery.part) ||
-        activeSection == null; /* && error != null */ // TODO: Support error state
-
-      if (shouldReset) {
-        store.set('characterQuery', null);
-      }
-    },
-  );
 }
 
 function getAdjustmentDelta(
