@@ -1480,7 +1480,7 @@ interface ComboboxRootProps<ItemValue> {
   autoComplete?: ('list' | 'both' | 'inline' | 'none') | undefined;
   /**
    * Provides a hint to the browser for autofill on the hidden input element.
-   * @see https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/autocomplete
+   * @see https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Attributes/autocomplete
    */
   formAutoComplete?: string | undefined;
   /**
