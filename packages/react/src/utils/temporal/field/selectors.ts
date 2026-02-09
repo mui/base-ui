@@ -24,13 +24,16 @@ import {
   getMonthsStr,
   getWeekDaysStr,
 } from './adapter-cache';
-import type { TemporalFieldStore } from './TemporalFieldStore';
+
+// NOTE: We intentionally avoid importing TemporalFieldStore here to prevent
+// a circular type reference (TemporalFieldStore extends ReactStore<..., typeof selectors>).
+// Selectors that accept the store as an extra argument use `any` for the store parameter.
 
 // =============================================
-// Base selectors (from original selectors.ts)
+// Base selectors
 // =============================================
 
-const timezoneToRender = createSelectorMemoized(
+const timezoneToRenderSelector = createSelectorMemoized(
   (state: State) => state.adapter,
   (state: State) => state.manager,
   (state: State) => state.value,
@@ -38,94 +41,55 @@ const timezoneToRender = createSelectorMemoized(
   (state: State) => state.timezoneProp,
   getTimezoneToRender,
 );
-const required = createSelector((state: State) => state.required);
-const disabled = createSelector(
+const requiredSelector = createSelector((state: State) => state.required);
+const disabledSelector = createSelector(
   (state: State) => state.fieldContext?.state.disabled || state.disabledProp,
 );
-const readOnly = createSelector((state: State) => state.readOnly);
-const editable = createSelector(
+const readOnlySelector = createSelector((state: State) => state.readOnly);
+const editableSelector = createSelector(
   (state: State) =>
     !(state.fieldContext?.state.disabled || state.disabledProp) && !state.readOnly,
 );
-const invalid = createSelector((state: State) => state.fieldContext?.invalid ?? false);
-const name = createSelector((state: State) => state.fieldContext?.name ?? state.nameProp);
-const id = createSelector((state: State) => state.id);
-const adapter = createSelector((state: State) => state.adapter);
-const manager = createSelector((state: State) => state.manager);
-const config = createSelector((state: State) => state.config);
-const validationProps = createSelectorMemoized(
+const invalidSelector = createSelector((state: State) => state.fieldContext?.invalid ?? false);
+const nameSelector = createSelector(
+  (state: State) => state.fieldContext?.name ?? state.nameProp,
+);
+const idSelector = createSelector((state: State) => state.id);
+const adapterSelector = createSelector((state: State) => state.adapter);
+const managerSelector = createSelector((state: State) => state.manager);
+const configSelector = createSelector((state: State) => state.config);
+const validationPropsSelector = createSelectorMemoized(
   (state: State) => state.minDate,
   (state: State) => state.maxDate,
   (minDate, maxDate) => ({ minDate, maxDate }),
 );
-const fieldContext = createSelector((state: State) => state.fieldContext);
-const step = createSelector((state: State) => state.step);
-const inputRef = createSelector((state: State) => state.inputRef);
-
-// =============================================
-// CharacterEditing selectors
-// =============================================
-
-const characterQuery = createSelector((state: State) => state.characterQuery);
+const fieldContextSelector = createSelector((state: State) => state.fieldContext);
+const stepSelector = createSelector((state: State) => state.step);
+const inputRefSelector = createSelector((state: State) => state.inputRef);
 
 // =============================================
 // Value selectors
 // =============================================
 
-const value = createSelector((state: State) => state.value);
-const referenceValue = createSelector((state: State) => state.referenceValue);
+const valueSelector = createSelector((state: State) => state.value);
 
 // =============================================
 // Section selectors
 // =============================================
 
-const sections = createSelector((state: State) => state.sections);
-const selectedSection = createSelector((state: State) => state.selectedSection);
-const areAllSectionsEmpty = createSelector((state: State) =>
-  state.sections.every((section) => !isDatePart(section) || section.value === ''),
-);
-const datePart = createSelectorMemoized(
-  (state: State) => state.sections,
-  (sectionsList, sectionIndex: number) => {
-    if (!isDatePart(sectionsList[sectionIndex])) {
-      return null;
-    }
-
-    return { ...sectionsList[sectionIndex], index: sectionIndex };
-  },
-);
-const activeDatePart = createSelectorMemoized(
-  (state: State) => state.sections,
-  (state: State) => state.selectedSection,
-  (sectionsList, activeSectionIndex): TemporalFieldDatePart | null => {
-    if (activeSectionIndex == null) {
-      return null;
-    }
-
-    const activeSection = sectionsList[activeSectionIndex];
-    if (!isDatePart(activeSection)) {
-      return null;
-    }
-
-    return {
-      ...activeSection,
-      index: activeSectionIndex,
-    };
-  },
-);
+const sectionsSelector = createSelector((state: State) => state.sections);
 
 // =============================================
 // Format selectors
 // =============================================
 
-const format = createSelector((state: State) => state.format);
-const parsedFormat = createSelectorMemoized(
-  adapter,
-  manager,
+const parsedFormatSelector = createSelectorMemoized(
+  adapterSelector,
+  managerSelector,
   (state: State) => state.format,
   (state: State) => state.direction,
   (state: State) => state.placeholderGetters,
-  validationProps,
+  validationPropsSelector,
   (adapterVal, managerVal, formatVal, direction, placeholderGetters, validationPropsVal) => {
     const parsed = FormatParser.parse(
       adapterVal,
@@ -141,243 +105,275 @@ const parsedFormat = createSelectorMemoized(
 );
 
 // =============================================
-// ElementsProps selectors
-// =============================================
-
-const rootState = createSelectorMemoized(
-  required,
-  readOnly,
-  disabled,
-  invalid,
-  fieldContext,
-  (requiredVal, readOnlyVal, disabledVal, invalidVal, fieldContextVal: any) => ({
-    ...(fieldContextVal?.state || {}),
-    required: requiredVal,
-    readOnly: readOnlyVal,
-    disabled: disabledVal,
-    invalid: invalidVal,
-  }),
-);
-const rootProps = createSelectorMemoized(
-  sections,
-  (state: State) => state.children,
-  (sectionsList, children, store: TemporalFieldStore<any>) => {
-    const resolvedChildren =
-      typeof children === 'function'
-        ? sectionsList.map((section) => children(section))
-        : children;
-
-    return {
-      onClick: store.handleRootClick,
-      children: resolvedChildren,
-    };
-  },
-);
-const hiddenInputProps = createSelectorMemoized(
-  value,
-  parsedFormat,
-  adapter,
-  config,
-  required,
-  disabled,
-  readOnly,
-  name,
-  id,
-  validationProps,
-  step,
-  (
-    valueVal,
-    parsedFormatVal,
-    adapterVal,
-    configVal,
-    requiredVal,
-    disabledVal,
-    readOnlyVal,
-    nameVal,
-    idVal,
-    validationPropsVal,
-    stepVal,
-    store: TemporalFieldStore<any>,
-  ) => ({
-    ...configVal.stringifyValidationPropsForHiddenInput(
-      adapterVal,
-      validationPropsVal,
-      parsedFormatVal,
-      stepVal,
-    ),
-    type: configVal.hiddenInputType,
-    value: configVal.stringifyValueForHiddenInput(adapterVal, valueVal, parsedFormatVal.granularity),
-    name: nameVal,
-    id: idVal,
-    disabled: disabledVal,
-    readOnly: readOnlyVal,
-    required: requiredVal,
-    'aria-hidden': true,
-    tabIndex: -1,
-    style: visuallyHiddenInput,
-    onChange: store.handleHiddenInputChange,
-    onFocus: store.handleHiddenInputFocus,
-  }),
-);
-/**
- * Returns the params to pass to `useField` hook for form integration.
- */
-const useFieldParams = createSelectorMemoized(
-  id,
-  name,
-  adapter,
-  config,
-  fieldContext,
-  inputRef,
-  value,
-  parsedFormat,
-  (idVal, nameVal, adapterVal, configVal, fieldContextVal, inputRefVal, valueVal, parsedFormatVal) => {
-    const formValue = configVal.stringifyValueForHiddenInput(
-      adapterVal,
-      valueVal,
-      parsedFormatVal.granularity,
-    );
-    return {
-      id: idVal,
-      name: nameVal,
-      value: formValue,
-      getValue: () => formValue,
-      commit: fieldContextVal?.validation.commit ?? (async () => {}),
-      controlRef: inputRefVal,
-    };
-  },
-);
-const sectionProps = createSelectorMemoized(
-  (state: State) => state.adapter,
-  editable,
-  disabled,
-  readOnly,
-  timezoneToRender,
-  (
-    adapterVal,
-    editableVal,
-    disabledVal,
-    readOnlyVal,
-    timezone,
-    section: TemporalFieldSection,
-    store: TemporalFieldStore<any>,
-  ): React.HTMLAttributes<HTMLDivElement> => {
-    const eventHandlers = {
-      onClick: store.handleSectionClick,
-      onInput: store.handleSectionInput,
-      onPaste: store.handleSectionPaste,
-      onKeyDown: store.handleSectionKeyDown,
-      onMouseUp: store.handleSectionMouseUp,
-      onDragOver: store.handleSectionDragOver,
-      onFocus: store.handleSectionFocus,
-      onBlur: store.handleSectionBlur,
-    };
-
-    // Date part
-    if (isDatePart(section)) {
-      return {
-        // Aria attributes
-        'aria-readonly': readOnlyVal,
-        'aria-valuenow': getAriaValueNow(adapterVal, section),
-        'aria-valuemin': section.token.boundaries.characterEditing.minimum,
-        'aria-valuemax': section.token.boundaries.characterEditing.maximum,
-        'aria-valuetext': section.value
-          ? getAriaValueText(adapterVal, section, timezone)
-          : translations.empty,
-        'aria-label': translations[section.token.config.part],
-        'aria-disabled': disabledVal,
-
-        // Other
-        children: section.value || section.token.placeholder,
-        tabIndex: editableVal ? 0 : -1,
-        contentEditable: editableVal,
-        suppressContentEditableWarning: true,
-        role: 'spinbutton',
-        spellCheck: editableVal ? false : undefined,
-        // Firefox hydrates this as `'none`' instead of `'off'`. No problems in chromium with both values.
-        // For reference https://github.com/mui/mui-x/issues/19012
-        autoCapitalize: editableVal ? 'none' : undefined,
-        autoCorrect: editableVal ? 'off' : undefined,
-        inputMode: section.token.config.contentType === 'letter' ? 'text' : 'numeric',
-
-        // Event handlers
-        ...eventHandlers,
-      };
-    }
-
-    // Separator
-    return {
-      // Aria attributes
-      'aria-hidden': true,
-
-      // Other
-      children: section.value,
-      style: { whiteSpace: 'pre' },
-
-      // Event handlers
-      ...eventHandlers,
-    };
-  },
-);
-const clearProps = createSelectorMemoized(
-  disabled,
-  readOnly,
-  (
-    disabledVal,
-    readOnlyVal,
-    store: TemporalFieldStore<any>,
-  ): React.HTMLAttributes<HTMLButtonElement> => ({
-    tabIndex: -1,
-    children: '✕',
-    'aria-readonly': readOnlyVal || undefined,
-    'aria-disabled': disabledVal || undefined,
-    onMouseDown: store.handleClearMouseDown,
-    onClick: store.handleClearClick,
-  }),
-);
-
-// =============================================
 // Exported selectors object
 // =============================================
 
 export const selectors = {
   // Base
-  timezoneToRender,
-  required,
-  disabled,
-  readOnly,
-  editable,
-  invalid,
-  name,
-  id,
-  adapter,
-  manager,
-  config,
-  validationProps,
-  fieldContext,
-  step,
-  inputRef,
+  timezoneToRender: timezoneToRenderSelector,
+  required: requiredSelector,
+  disabled: disabledSelector,
+  readOnly: readOnlySelector,
+  editable: editableSelector,
+  invalid: invalidSelector,
+  name: nameSelector,
+  id: idSelector,
+  adapter: adapterSelector,
+  manager: managerSelector,
+  config: configSelector,
+  validationProps: validationPropsSelector,
+  fieldContext: fieldContextSelector,
+  step: stepSelector,
+  inputRef: inputRefSelector,
+
   // CharacterEditing
-  characterQuery,
+  characterQuery: createSelector((state: State) => state.characterQuery),
+
   // Value
-  value,
-  referenceValue,
+  value: valueSelector,
+  referenceValue: createSelector((state: State) => state.referenceValue),
+
   // Section
-  sections,
-  selectedSection,
-  areAllSectionsEmpty,
-  datePart,
-  activeDatePart,
+  sections: sectionsSelector,
+  selectedSection: createSelector((state: State) => state.selectedSection),
+  areAllSectionsEmpty: createSelector((state: State) =>
+    state.sections.every((section) => !isDatePart(section) || section.value === ''),
+  ),
+  datePart: createSelectorMemoized(
+    (state: State) => state.sections,
+    (sectionsList, sectionIndex: number) => {
+      if (!isDatePart(sectionsList[sectionIndex])) {
+        return null;
+      }
+
+      return { ...sectionsList[sectionIndex], index: sectionIndex };
+    },
+  ),
+  activeDatePart: createSelectorMemoized(
+    (state: State) => state.sections,
+    (state: State) => state.selectedSection,
+    (sectionsList, activeSectionIndex): TemporalFieldDatePart | null => {
+      if (activeSectionIndex == null) {
+        return null;
+      }
+
+      const activeSection = sectionsList[activeSectionIndex];
+      if (!isDatePart(activeSection)) {
+        return null;
+      }
+
+      return {
+        ...activeSection,
+        index: activeSectionIndex,
+      };
+    },
+  ),
+
   // Format
-  format,
-  parsedFormat,
+  format: createSelector((state: State) => state.format),
+  parsedFormat: parsedFormatSelector,
+
   // ElementsProps
-  rootState,
-  rootProps,
-  hiddenInputProps,
-  useFieldParams,
-  sectionProps,
-  clearProps,
+  rootState: createSelectorMemoized(
+    requiredSelector,
+    readOnlySelector,
+    disabledSelector,
+    invalidSelector,
+    fieldContextSelector,
+    (requiredVal, readOnlyVal, disabledVal, invalidVal, fieldContextVal: any) => ({
+      ...(fieldContextVal?.state || {}),
+      required: requiredVal,
+      readOnly: readOnlyVal,
+      disabled: disabledVal,
+      invalid: invalidVal,
+    }),
+  ),
+  rootProps: createSelectorMemoized(
+    sectionsSelector,
+    (state: State) => state.children,
+    (sectionsList, children, store: any) => {
+      const resolvedChildren =
+        typeof children === 'function'
+          ? sectionsList.map((section) => children(section))
+          : children;
+
+      return {
+        onClick: store.handleRootClick,
+        children: resolvedChildren,
+      };
+    },
+  ),
+  hiddenInputProps: createSelectorMemoized(
+    valueSelector,
+    parsedFormatSelector,
+    adapterSelector,
+    configSelector,
+    requiredSelector,
+    disabledSelector,
+    readOnlySelector,
+    nameSelector,
+    idSelector,
+    validationPropsSelector,
+    stepSelector,
+    (
+      valueVal,
+      parsedFormatVal,
+      adapterVal,
+      configVal,
+      requiredVal,
+      disabledVal,
+      readOnlyVal,
+      nameVal,
+      idVal,
+      validationPropsVal,
+      stepVal,
+      store: any,
+    ) => ({
+      ...configVal.stringifyValidationPropsForHiddenInput(
+        adapterVal,
+        validationPropsVal,
+        parsedFormatVal,
+        stepVal,
+      ),
+      type: configVal.hiddenInputType,
+      value: configVal.stringifyValueForHiddenInput(
+        adapterVal,
+        valueVal,
+        parsedFormatVal.granularity,
+      ),
+      name: nameVal,
+      id: idVal,
+      disabled: disabledVal,
+      readOnly: readOnlyVal,
+      required: requiredVal,
+      'aria-hidden': true,
+      tabIndex: -1,
+      style: visuallyHiddenInput,
+      onChange: store.handleHiddenInputChange,
+      onFocus: store.handleHiddenInputFocus,
+    }),
+  ),
+  /**
+   * Returns the params to pass to `useField` hook for form integration.
+   */
+  useFieldParams: createSelectorMemoized(
+    idSelector,
+    nameSelector,
+    adapterSelector,
+    configSelector,
+    fieldContextSelector,
+    inputRefSelector,
+    valueSelector,
+    parsedFormatSelector,
+    (
+      idVal,
+      nameVal,
+      adapterVal,
+      configVal,
+      fieldContextVal,
+      inputRefVal,
+      valueVal,
+      parsedFormatVal,
+    ) => {
+      const formValue = configVal.stringifyValueForHiddenInput(
+        adapterVal,
+        valueVal,
+        parsedFormatVal.granularity,
+      );
+      return {
+        id: idVal,
+        name: nameVal,
+        value: formValue,
+        getValue: () => formValue,
+        commit: fieldContextVal?.validation.commit ?? (async () => {}),
+        controlRef: inputRefVal,
+      };
+    },
+  ),
+  sectionProps: createSelectorMemoized(
+    (state: State) => state.adapter,
+    editableSelector,
+    disabledSelector,
+    readOnlySelector,
+    timezoneToRenderSelector,
+    (
+      adapterVal,
+      editableVal,
+      disabledVal,
+      readOnlyVal,
+      timezone,
+      section: TemporalFieldSection,
+      store: any,
+    ): React.HTMLAttributes<HTMLDivElement> => {
+      const eventHandlers = {
+        onClick: store.handleSectionClick,
+        onInput: store.handleSectionInput,
+        onPaste: store.handleSectionPaste,
+        onKeyDown: store.handleSectionKeyDown,
+        onMouseUp: store.handleSectionMouseUp,
+        onDragOver: store.handleSectionDragOver,
+        onFocus: store.handleSectionFocus,
+        onBlur: store.handleSectionBlur,
+      };
+
+      // Date part
+      if (isDatePart(section)) {
+        return {
+          // Aria attributes
+          'aria-readonly': readOnlyVal,
+          'aria-valuenow': getAriaValueNow(adapterVal, section),
+          'aria-valuemin': section.token.boundaries.characterEditing.minimum,
+          'aria-valuemax': section.token.boundaries.characterEditing.maximum,
+          'aria-valuetext': section.value
+            ? getAriaValueText(adapterVal, section, timezone)
+            : translations.empty,
+          'aria-label': translations[section.token.config.part],
+          'aria-disabled': disabledVal,
+
+          // Other
+          children: section.value || section.token.placeholder,
+          tabIndex: editableVal ? 0 : -1,
+          contentEditable: editableVal,
+          suppressContentEditableWarning: true,
+          role: 'spinbutton',
+          spellCheck: editableVal ? false : undefined,
+          // Firefox hydrates this as `'none`' instead of `'off'`. No problems in chromium with both values.
+          // For reference https://github.com/mui/mui-x/issues/19012
+          autoCapitalize: editableVal ? 'none' : undefined,
+          autoCorrect: editableVal ? 'off' : undefined,
+          inputMode: section.token.config.contentType === 'letter' ? 'text' : 'numeric',
+
+          // Event handlers
+          ...eventHandlers,
+        };
+      }
+
+      // Separator
+      return {
+        // Aria attributes
+        'aria-hidden': true,
+
+        // Other
+        children: section.value,
+        style: { whiteSpace: 'pre' },
+
+        // Event handlers
+        ...eventHandlers,
+      };
+    },
+  ),
+  clearProps: createSelectorMemoized(
+    disabledSelector,
+    readOnlySelector,
+    (disabledVal, readOnlyVal, store: any): React.HTMLAttributes<HTMLButtonElement> => ({
+      tabIndex: -1,
+      children: '✕',
+      'aria-readonly': readOnlyVal || undefined,
+      'aria-disabled': disabledVal || undefined,
+      onMouseDown: store.handleClearMouseDown,
+      onClick: store.handleClearClick,
+    }),
+  ),
 };
 
 // =============================================

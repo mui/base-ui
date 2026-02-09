@@ -1,6 +1,5 @@
 import * as React from 'react';
-import { createSelectorMemoized } from '@base-ui/utils/store';
-import { Store } from '@base-ui/utils/store';
+import { createSelectorMemoized, ReactStore } from '@base-ui/utils/store';
 import { warn } from '@base-ui/utils/warn';
 import { ownerDocument } from '@base-ui/utils/owner';
 import {
@@ -41,8 +40,10 @@ import { getLocalizedDigits, getWeekDaysStr } from './adapter-cache';
 import { activeElement } from '../../../floating-ui-react/utils';
 import { createChangeEventDetails } from '../../createBaseUIEventDetails';
 
-export class TemporalFieldStore<TValue extends TemporalSupportedValue> extends Store<
-  TemporalFieldState<TValue>
+export class TemporalFieldStore<TValue extends TemporalSupportedValue> extends ReactStore<
+  TemporalFieldState<TValue>,
+  Record<string, never>,
+  typeof selectors
 > {
   public parameters: TemporalFieldStoreSharedParameters<TValue>;
 
@@ -110,16 +111,20 @@ export class TemporalFieldStore<TValue extends TemporalSupportedValue> extends S
 
     const inputRef = React.createRef<HTMLElement>();
 
-    super({
-      ...deriveStateFromParameters(parameters, adapter, config, direction),
-      manager,
-      value,
-      sections,
-      referenceValue,
-      characterQuery: null,
-      selectedSection: null,
-      inputRef,
-    });
+    super(
+      {
+        ...deriveStateFromParameters(parameters, adapter, config, direction),
+        manager,
+        value,
+        sections,
+        referenceValue,
+        characterQuery: null,
+        selectedSection: null,
+        inputRef,
+      },
+      {},
+      selectors,
+    );
 
     this.parameters = parameters;
     this.instanceName = instanceName;

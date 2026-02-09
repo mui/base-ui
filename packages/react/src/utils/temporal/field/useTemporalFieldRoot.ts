@@ -1,5 +1,4 @@
 'use client';
-import { useStore } from '@base-ui/utils/store';
 import { useOnMount } from '@base-ui/utils/useOnMount';
 import { TemporalSupportedValue } from '../../../types';
 import { useField } from '../../../field/useField';
@@ -25,14 +24,10 @@ export function useTemporalFieldRoot<TValue extends TemporalSupportedValue>(
 ): UseTemporalFieldRootReturnValue {
   const { store } = params;
 
-  const hiddenInputProps = useStore(
-    store,
-    selectors.hiddenInputProps,
-    store,
-  );
-  const state = useStore(store, selectors.rootState);
-  const rootProps = useStore(store, selectors.rootProps, store);
-  const useFieldParams = useStore(store, selectors.useFieldParams);
+  const hiddenInputProps = store.useState('hiddenInputProps', store);
+  const state = store.useState('rootState');
+  const rootProps = store.useState('rootProps', store);
+  const useFieldParams = store.useState('useFieldParams');
 
   useField(useFieldParams);
   useOnMount(store.mountEffect);

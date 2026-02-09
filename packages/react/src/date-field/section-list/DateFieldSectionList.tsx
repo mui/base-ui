@@ -1,8 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useStore } from '@base-ui/utils/store';
 import { useTemporalFieldRootContext } from '../../utils/temporal/field/TemporalFieldRootContext';
-import { selectors } from '../../utils/temporal/field/selectors';
 import { TemporalFieldSection } from '../../utils/temporal/field/types';
 
 /**
@@ -15,7 +13,7 @@ export function DateFieldSectionList(props: DateFieldSectionList.Props): React.J
   const { children } = props;
 
   const store = useTemporalFieldRootContext();
-  const sections = useStore(store, selectors.sections);
+  const sections = store.useState('sections');
 
   if (!sections || sections.length === 0) {
     return null;

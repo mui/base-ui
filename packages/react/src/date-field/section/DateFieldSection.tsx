@@ -1,13 +1,11 @@
 'use client';
 import * as React from 'react';
-import { useStore } from '@base-ui/utils/store';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useTemporalFieldRootContext } from '../../utils/temporal/field/TemporalFieldRootContext';
 import { TemporalFieldSection } from '../../utils/temporal/field/types';
 import { StateAttributesMapping } from '../../utils/getStateAttributesProps';
 import { DateFieldSectionDataAttributes } from './DateFieldSectionDataAttributes';
-import { selectors } from '../../utils/temporal/field/selectors';
 
 const stateAttributesMapping: StateAttributesMapping<DateFieldSectionState> = {
   sectionIndex: (index) => {
@@ -38,12 +36,7 @@ export const DateFieldSection = React.forwardRef(function DateFieldSection(
   } = componentProps;
 
   const store = useTemporalFieldRootContext();
-  const propsFromState = useStore(
-    store,
-    selectors.sectionProps,
-    section,
-    store,
-  );
+  const propsFromState = store.useState('sectionProps', section, store);
 
   const state: DateFieldSection.State = {
     sectionIndex: section.index,

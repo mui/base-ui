@@ -1,10 +1,8 @@
 'use client';
 import * as React from 'react';
-import { useStore } from '@base-ui/utils/store';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useTemporalFieldRootContext } from '../../utils/temporal/field/TemporalFieldRootContext';
-import { selectors } from '../../utils/temporal/field/selectors';
 import { useButton } from '../../use-button';
 
 /**
@@ -28,14 +26,9 @@ export const DateFieldClear = React.forwardRef(function DateFieldClear(
   } = componentProps;
 
   const store = useTemporalFieldRootContext();
-  const propsFromState = useStore(
-    store,
-    selectors.clearProps,
-    store,
-  );
-
-  const storeDisabled = useStore(store, selectors.disabled);
-  const empty = useStore(store, selectors.areAllSectionsEmpty);
+  const propsFromState = store.useState('clearProps', store);
+  const storeDisabled = store.useState('disabled');
+  const empty = store.useState('areAllSectionsEmpty');
 
   const disabled = storeDisabled || disabledProp;
 
