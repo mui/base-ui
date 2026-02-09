@@ -4,6 +4,7 @@ import { act, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 import { expect } from 'chai';
 import { Field } from '@base-ui/react/field';
 import { spy } from 'sinon';
+import { REASONS } from '../../utils/reasons';
 
 describe('<Combobox.Trigger />', () => {
   const { render } = createRenderer();
@@ -266,6 +267,32 @@ describe('<Combobox.Trigger />', () => {
       expect(screen.queryByRole('listbox')).to.equal(null);
       await user.keyboard('{ArrowUp}');
       expect(screen.queryByRole('listbox')).to.equal(null);
+    });
+
+    it('fires with reason trigger-press when Trigger is clicked', async () => {
+      const onOpenChange = spy();
+      const { user } = await render(
+        <Combobox.Root onOpenChange={onOpenChange}>
+          <Combobox.Trigger data-testid="trigger">Open</Combobox.Trigger>
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  <Combobox.Item value="alpha">Alpha</Combobox.Item>
+                  <Combobox.Item value="beta">Beta</Combobox.Item>
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+      await user.click(trigger);
+
+      expect(onOpenChange.callCount).to.be.greaterThan(0);
+      expect(onOpenChange.lastCall.args[0]).to.equal(true);
+      expect(onOpenChange.lastCall.args[1].reason).to.equal(REASONS.triggerPress);
     });
   });
 
