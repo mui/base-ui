@@ -1120,8 +1120,9 @@ describe('<Combobox.Root />', () => {
   });
 
   it('should handle browser autofill', async () => {
+    const onInputValueChange = spy();
     const { user } = await render(
-      <Combobox.Root name="test">
+      <Combobox.Root name="test" onInputValueChange={onInputValueChange}>
         <Combobox.Input />
         <Combobox.Portal>
           <Combobox.Positioner>
@@ -1143,12 +1144,92 @@ describe('<Combobox.Root />', () => {
       { target: { value: 'b' } },
     );
     await flushMicrotasks();
+    expect(onInputValueChange.lastCall.args[0]).to.equal('b');
+    expect(onInputValueChange.lastCall.args[1].reason).to.equal(REASONS.none);
 
     await user.click(input);
 
     await waitFor(() => {
       expect(screen.getByRole('option', { name: 'b' })).to.have.attribute('aria-selected', 'true');
     });
+  });
+
+  it('shows all items when opening after browser autofill', async () => {
+    const items = ['a', 'b', 'c'];
+    const { user } = await render(
+      <Combobox.Root name="test" items={items}>
+        <Combobox.Input />
+        <Combobox.Portal>
+          <Combobox.Positioner>
+            <Combobox.Popup>
+              <Combobox.List>
+                {(item: string) => (
+                  <Combobox.Item key={item} value={item}>
+                    {item}
+                  </Combobox.Item>
+                )}
+              </Combobox.List>
+            </Combobox.Popup>
+          </Combobox.Positioner>
+        </Combobox.Portal>
+      </Combobox.Root>,
+    );
+
+    const input = screen.getByRole('combobox');
+
+    fireEvent.change(
+      screen.getAllByDisplayValue('').find((el) => el.getAttribute('name') === 'test')!,
+      { target: { value: 'b' } },
+    );
+    await flushMicrotasks();
+
+    await user.click(input);
+
+    await waitFor(() => {
+      expect(screen.getByRole('listbox')).not.to.equal(null);
+    });
+    expect(screen.getByRole('option', { name: 'a' })).not.to.equal(null);
+    expect(screen.getByRole('option', { name: 'b' })).not.to.equal(null);
+    expect(screen.getByRole('option', { name: 'c' })).not.to.equal(null);
+  });
+
+  it('shows all items when opening after browser autofill with insertReplacementText', async () => {
+    const items = ['a', 'b', 'c'];
+    const { user } = await render(
+      <Combobox.Root name="test" items={items}>
+        <Combobox.Input />
+        <Combobox.Portal>
+          <Combobox.Positioner>
+            <Combobox.Popup>
+              <Combobox.List>
+                {(item: string) => (
+                  <Combobox.Item key={item} value={item}>
+                    {item}
+                  </Combobox.Item>
+                )}
+              </Combobox.List>
+            </Combobox.Popup>
+          </Combobox.Positioner>
+        </Combobox.Portal>
+      </Combobox.Root>,
+    );
+
+    const input = screen.getByRole('combobox');
+
+    fireEvent.input(
+      screen.getAllByDisplayValue('').find((el) => el.getAttribute('name') === 'test')!,
+      { target: { value: 'b' }, inputType: 'insertReplacementText' },
+    );
+    await flushMicrotasks();
+
+    await user.click(input);
+
+    await waitFor(() => {
+      expect(screen.getByRole('listbox')).not.to.equal(null);
+    });
+    expect(screen.getByRole('option', { name: 'a' })).not.to.equal(null);
+    expect(screen.getByRole('option', { name: 'b' })).not.to.equal(null);
+    expect(screen.getByRole('option', { name: 'c' })).not.to.equal(null);
   });
 
   it('should handle browser autofill with object values', async () => {
@@ -1198,6 +1279,85 @@ describe('<Combobox.Root />', () => {
         'aria-selected',
         'true',
       );
+    });
+  });
+
+  it('should pass autoComplete to the hidden input', async () => {
+    await render(
+      <Combobox.Root name="country" autoComplete="country">
+        <Combobox.Input />
+        <Combobox.Portal>
+          <Combobox.Positioner>
+            <Combobox.Popup>
+              <Combobox.List>
+                <Combobox.Item value="US">United States</Combobox.Item>
+                <Combobox.Item value="CA">Canada</Combobox.Item>
+              </Combobox.List>
+            </Combobox.Popup>
+          </Combobox.Positioner>
+        </Combobox.Portal>
+      </Combobox.Root>,
+    );
+
+    const input = screen.getByRole('combobox');
+    const hiddenInput = screen.getByRole('textbox', { hidden: true });
+
+    expect(input).to.have.attribute('autocomplete', 'off');
+    expect(input).not.to.have.attribute('name');
+    expect(hiddenInput).to.have.attribute('name', 'country');
+    expect(hiddenInput).not.to.have.attribute('id');
+    expect(hiddenInput).to.have.attribute('autocomplete', 'country');
+  });
+
+  it('does not open on programmatic input events', async () => {
+    await render(
+      <Combobox.Root>
+        <Combobox.Input />
+        <Combobox.Portal>
+          <Combobox.Positioner>
+            <Combobox.Popup>
+              <Combobox.List>
+                <Combobox.Item value="Darlinghurst">Darlinghurst</Combobox.Item>
+                <Combobox.Item value="Sydney">Sydney</Combobox.Item>
+              </Combobox.List>
+            </Combobox.Popup>
+          </Combobox.Positioner>
+        </Combobox.Portal>
+      </Combobox.Root>,
+    );
+
+    const input = screen.getByRole('combobox');
+    fireEvent.change(input, { target: { value: 'Darlinghurst' } });
+    await flushMicrotasks();
+
+    expect(screen.queryByRole('listbox')).to.equal(null);
+  });
+
+  it('opens on paste input events', async () => {
+    await render(
+      <Combobox.Root>
+        <Combobox.Input />
+        <Combobox.Portal>
+          <Combobox.Positioner>
+            <Combobox.Popup>
+              <Combobox.List>
+                <Combobox.Item value="Darlinghurst">Darlinghurst</Combobox.Item>
+                <Combobox.Item value="Sydney">Sydney</Combobox.Item>
+              </Combobox.List>
+            </Combobox.Popup>
+          </Combobox.Positioner>
+        </Combobox.Portal>
+      </Combobox.Root>,
+    );
+
+    const input = screen.getByRole('combobox');
+    fireEvent.input(input, {
+      target: { value: 'Darlinghurst' },
+      inputType: 'insertFromPaste',
+    });
+
+    await waitFor(() => {
+      expect(screen.getByRole('listbox')).not.to.equal(null);
     });
   });
 
@@ -2636,6 +2796,36 @@ describe('<Combobox.Root />', () => {
 
       const cherry = await screen.findByRole('option', { name: 'cherry' });
       expect(input).to.have.attribute('aria-activedescendant', cherry.id);
+    });
+
+    it('highlights the first matching item after IME composition', async () => {
+      await render(
+        <Combobox.Root items={['apple', 'banana', 'cherry']} autoHighlight openOnInputClick={false}>
+          <Combobox.Input data-testid="input" />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  {(item: string) => (
+                    <Combobox.Item key={item} value={item}>
+                      {item}
+                    </Combobox.Item>
+                  )}
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByRole<HTMLInputElement>('combobox');
+      fireEvent.compositionStart(input);
+      fireEvent.change(input, { target: { value: 'ch' } });
+      fireEvent.compositionEnd(input, { data: 'ch' });
+
+      await waitFor(() => expect(screen.getByRole('listbox')).not.to.equal(null));
+      const cherry = await screen.findByRole('option', { name: 'cherry' });
+      await waitFor(() => expect(input).to.have.attribute('aria-activedescendant', cherry.id));
     });
 
     it('highlights the first matching item for a static list without the items prop', async () => {

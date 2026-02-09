@@ -97,6 +97,33 @@ describe('<Autocomplete.Root />', () => {
     expect(input.value).to.equal('beta');
   });
 
+  it('should pass autoComplete to the visible input', async () => {
+    await render(
+      <Autocomplete.Root name="search">
+        <Autocomplete.Input autoComplete="on" />
+        <Autocomplete.Portal>
+          <Autocomplete.Positioner>
+            <Autocomplete.Popup>
+              <Autocomplete.List>
+                <Autocomplete.Item value="alpha">alpha</Autocomplete.Item>
+                <Autocomplete.Item value="beta">beta</Autocomplete.Item>
+              </Autocomplete.List>
+            </Autocomplete.Popup>
+          </Autocomplete.Positioner>
+        </Autocomplete.Portal>
+      </Autocomplete.Root>,
+    );
+
+    const input = screen.getByRole('combobox');
+    const hiddenInput = screen.getByRole('textbox', { hidden: true });
+
+    expect(input).to.have.attribute('name', 'search');
+    expect(input).to.have.attribute('autocomplete', 'on');
+    expect(hiddenInput).not.to.have.attribute('name');
+    expect(hiddenInput).to.have.attribute('id');
+    expect(hiddenInput).not.to.have.attribute('autocomplete');
+  });
+
   describe('prop: autoHighlight', () => {
     it('calls onItemHighlighted when the popup auto highlights on open', async () => {
       const onItemHighlighted = spy();
