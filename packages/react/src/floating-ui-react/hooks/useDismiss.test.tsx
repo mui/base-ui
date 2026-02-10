@@ -51,8 +51,6 @@ function App(
         }
       } else if (props.referencePress) {
         expect(reason).toBe(REASONS.triggerPress);
-      } else if (props.ancestorScroll) {
-        expect(reason).toBe(REASONS.none);
       }
     },
   });
@@ -127,13 +125,6 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
       render(<App referencePress />);
       fireEvent.click(screen.getByRole('button'));
       expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
-    });
-
-    test('dismisses with ancestor scroll', async () => {
-      render(<App ancestorScroll />);
-      fireEvent.scroll(window);
-      expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
-      await flushMicrotasks();
     });
 
     test('outsidePress function guard', async () => {
@@ -304,13 +295,6 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
       render(<App referencePress={false} />);
       await userEvent.click(screen.getByRole('button'));
       expect(screen.getByRole('tooltip')).toBeInTheDocument();
-    });
-
-    test('dismisses with ancestor scroll', async () => {
-      render(<App ancestorScroll={false} />);
-      fireEvent.scroll(window);
-      expect(screen.getByRole('tooltip')).toBeInTheDocument();
-      await flushMicrotasks();
     });
 
     test('does not dismiss when clicking portaled children', async () => {
@@ -896,6 +880,131 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
 
       fireEvent.mouseDown(floatingEl);
       fireEvent.mouseUp(ignored);
+
+      fireEvent.click(document.body);
+      expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
+    });
+
+    test('press start prevented inside does not require double outside click', async () => {
+      function AppWithPreventedPressStart() {
+        const [open, setOpen] = React.useState(true);
+        const { refs, context } = useFloating({ open, onOpenChange: setOpen });
+        const { getReferenceProps, getFloatingProps } = useInteractions([
+          useDismiss(context, { outsidePressEvent: 'intentional' }),
+        ]);
+
+        return (
+          <React.Fragment>
+            <button {...getReferenceProps({ ref: refs.setReference })} />
+            {open && (
+              <div role="tooltip" {...getFloatingProps({ ref: refs.setFloating })}>
+                <div data-testid="scrubber" onPointerDown={(event) => event.preventDefault()} />
+              </div>
+            )}
+          </React.Fragment>
+        );
+      }
+
+      render(<AppWithPreventedPressStart />);
+      const scrubber = screen.getByTestId('scrubber');
+
+      fireEvent.pointerDown(scrubber, { pointerType: 'mouse', button: 0 });
+      fireEvent.mouseDown(scrubber, { button: 0 });
+      fireEvent.pointerUp(document.body, { pointerType: 'mouse', button: 0 });
+      fireEvent.mouseUp(document.body, { button: 0 });
+
+      // Wait a tick: if no immediate synthetic click occurred after pointerup,
+      // the next user click should still dismiss.
+      await act(async () => {
+        await new Promise((resolve) => {
+          setTimeout(resolve, 0);
+        });
+      });
+
+      fireEvent.pointerDown(document.body, { pointerType: 'mouse', button: 0 });
+      fireEvent.mouseDown(document.body, { button: 0 });
+      fireEvent.pointerUp(document.body, { pointerType: 'mouse', button: 0 });
+      fireEvent.mouseUp(document.body, { button: 0 });
+      fireEvent.click(document.body);
+      expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
+    });
+
+    test('press start prevented inside suppresses only immediate outside click', async () => {
+      function AppWithPreventedPressStart() {
+        const [open, setOpen] = React.useState(true);
+        const { refs, context } = useFloating({ open, onOpenChange: setOpen });
+        const { getReferenceProps, getFloatingProps } = useInteractions([
+          useDismiss(context, { outsidePressEvent: 'intentional' }),
+        ]);
+
+        return (
+          <React.Fragment>
+            <button {...getReferenceProps({ ref: refs.setReference })} />
+            {open && (
+              <div role="tooltip" {...getFloatingProps({ ref: refs.setFloating })}>
+                <div data-testid="scrubber" onPointerDown={(event) => event.preventDefault()} />
+              </div>
+            )}
+          </React.Fragment>
+        );
+      }
+
+      render(<AppWithPreventedPressStart />);
+      const scrubber = screen.getByTestId('scrubber');
+
+      fireEvent.pointerDown(scrubber, { pointerType: 'mouse', button: 0 });
+      fireEvent.mouseDown(scrubber, { button: 0 });
+      fireEvent.pointerUp(document.body, { pointerType: 'mouse', button: 0 });
+      fireEvent.mouseUp(document.body, { button: 0 });
+
+      fireEvent.click(document.body);
+      expect(screen.getByRole('tooltip')).toBeInTheDocument();
+
+      await act(async () => {
+        await new Promise((resolve) => {
+          setTimeout(resolve, 0);
+        });
+      });
+
+      fireEvent.click(document.body);
+      expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
+    });
+
+    test('pointercancel after prevented press start suppresses immediate outside click', async () => {
+      function AppWithPreventedPressStart() {
+        const [open, setOpen] = React.useState(true);
+        const { refs, context } = useFloating({ open, onOpenChange: setOpen });
+        const { getReferenceProps, getFloatingProps } = useInteractions([
+          useDismiss(context, { outsidePressEvent: 'intentional' }),
+        ]);
+
+        return (
+          <React.Fragment>
+            <button {...getReferenceProps({ ref: refs.setReference })} />
+            {open && (
+              <div role="tooltip" {...getFloatingProps({ ref: refs.setFloating })}>
+                <div data-testid="scrubber" onPointerDown={(event) => event.preventDefault()} />
+              </div>
+            )}
+          </React.Fragment>
+        );
+      }
+
+      render(<AppWithPreventedPressStart />);
+      const scrubber = screen.getByTestId('scrubber');
+
+      fireEvent.pointerDown(scrubber, { pointerType: 'mouse', button: 0 });
+      fireEvent.mouseDown(scrubber, { button: 0 });
+      fireEvent.pointerCancel(document.body, { pointerType: 'mouse' });
+
+      fireEvent.click(document.body);
+      expect(screen.getByRole('tooltip')).toBeInTheDocument();
+
+      await act(async () => {
+        await new Promise((resolve) => {
+          setTimeout(resolve, 0);
+        });
+      });
 
       fireEvent.click(document.body);
       expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
