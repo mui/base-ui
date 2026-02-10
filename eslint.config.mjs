@@ -85,9 +85,10 @@ export default defineConfig(
   },
   {
     files: [`packages/*/src/**/*${EXTENSION_TS}`],
-    ignores: [`**/*${EXTENSION_TEST_FILE}`, `test/**/*${EXTENSION_TS}`],
+    ignores: [`**/*${EXTENSION_TEST_FILE}`, `**/*.spec${EXTENSION_TS}`, `test/**/*${EXTENSION_TS}`],
     rules: {
-      'material-ui/add-undef-to-optional': 'error',
+      'mui/add-undef-to-optional': 'error',
+      'mui/disallow-react-api-in-server-components': 'error',
     },
   },
   {
@@ -97,7 +98,7 @@ export default defineConfig(
     ],
     extends: createTestConfig({ useMocha: false }),
     rules: {
-      'material-ui/add-undef-to-optional': 'off',
+      'mui/add-undef-to-optional': 'off',
     },
   },
   baseSpecRules,
@@ -160,7 +161,7 @@ export default defineConfig(
       'testing-library/prefer-screen-queries': 'off', // Enable usage of playwright queries
       'testing-library/no-await-sync-queries': 'off',
       'testing-library/render-result-naming-convention': 'off', // inconsequential in regression tests
-      'material-ui/consistent-production-guard': 'off',
+      'mui/consistent-production-guard': 'off',
     },
   },
 );

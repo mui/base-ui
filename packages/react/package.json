@@ -79,7 +79,7 @@
     "build": "code-infra build --ignore \"**/*.template.js\" --copy .npmignore",
     "test:package": "publint --pack pnpm && attw --pack ./build --exclude-entrypoints package.json --exclude-entrypoints esm --exclude-entrypoints cjs",
     "release": "pnpm build && pnpm publish",
-    "test": "cross-env NODE_ENV=test VITEST_ENV=jsdom vitest",
+    "test": "cross-env VITEST_ENV=jsdom vitest",
     "typescript": "tsc -b tsconfig.json"
   },
   "dependencies": {
@@ -87,7 +87,6 @@
     "@base-ui/utils": "workspace:*",
     "@floating-ui/react-dom": "^2.1.6",
     "@floating-ui/utils": "^0.2.10",
-    "reselect": "^5.1.1",
     "tabbable": "^6.4.0",
     "use-sync-external-store": "^1.6.0"
   },
@@ -96,18 +95,18 @@
     "@testing-library/user-event": "14.6.1",
     "@types/chai": "5.2.3",
     "@types/chai-dom": "1.11.3",
-    "@types/react": "19.2.8",
+    "@types/react": "19.2.10",
     "@types/react-dom": "19.2.3",
     "@types/sinon": "21.0.0",
     "@types/use-sync-external-store": "1.5.0",
     "chai": "6.2.2",
     "clsx": "2.1.1",
-    "react": "19.2.3",
-    "react-dom": "19.2.3",
-    "react-router": "7.12.0",
+    "react": "19.2.4",
+    "react-dom": "19.2.4",
+    "react-router": "7.13.0",
     "sinon": "21.0.1",
     "typescript": "5.9.3",
-    "vitest-browser-react": "2.0.2"
+    "vitest-browser-react": "2.0.4"
   },
   "peerDependencies": {
     "@types/react": "^17 || ^18 || ^19",
