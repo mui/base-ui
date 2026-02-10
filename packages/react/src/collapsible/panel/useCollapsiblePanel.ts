@@ -189,18 +189,19 @@ export function useCollapsiblePanel(
       setDimensions({ height: panel.scrollHeight, width: panel.scrollWidth });
 
       resizeFrame = AnimationFrame.request(() => {
-        panel.style.justifyContent === ''
-          ? panel.style.removeProperty('justify-content')
-          : panel.style.setProperty('justify-content', panel.style.justifyContent);
-        panel.style.alignItems === ''
-          ? panel.style.removeProperty('align-items')
-          : panel.style.setProperty('align-items', panel.style.alignItems);
-        panel.style.alignContent === ''
-          ? panel.style.removeProperty('align-content')
-          : panel.style.setProperty('align-content', panel.style.alignContent);
-        panel.style.justifyItems === ''
-          ? panel.style.removeProperty('justify-items')
-          : panel.style.setProperty('justify-items', panel.style.justifyItems);
+        const originalLayoutStyles = {
+          'justify-content': panel.style.justifyContent,
+          'align-items': panel.style.alignItems,
+          'align-content': panel.style.alignContent,
+          'justify-items': panel.style.justifyItems,
+        };
+        Object.entries(originalLayoutStyles).forEach(([key, value]) => {
+          if (value === '') {
+            panel.style.removeProperty(key);
+          } else {
+            panel.style.setProperty(key, value);
+          }
+        });
       });
     } else {
       if (panel.scrollHeight === 0 && panel.scrollWidth === 0) {
