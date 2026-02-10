@@ -881,6 +881,25 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
       fireEvent.click(document.body);
       expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
     });
+
+    test('drag ending on outsidePress-ignored target does not consume next outside click', async () => {
+      render(
+        <App
+          outsidePressEvent="intentional"
+          outsidePress={(event) => !(event.target as Element)?.closest('[data-testid="ignore"]')}
+        />,
+      );
+      const floatingEl = screen.getByRole('tooltip');
+      const ignored = document.createElement('div');
+      ignored.setAttribute('data-testid', 'ignore');
+      document.body.append(ignored);
+
+      fireEvent.mouseDown(floatingEl);
+      fireEvent.mouseUp(ignored);
+
+      fireEvent.click(document.body);
+      expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
+    });
   });
 
   test('nested floating elements with different portal containers', async () => {

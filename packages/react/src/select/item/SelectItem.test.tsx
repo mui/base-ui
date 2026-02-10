@@ -294,6 +294,7 @@ describe('<Select.Item />', () => {
     });
 
     it('should call onClick when selecting via drag-to-select (mousedown on trigger, mouseup on item)', async () => {
+      ignoreActWarnings();
       const handleClick = vi.fn();
 
       await renderFakeTimers(
@@ -323,7 +324,9 @@ describe('<Select.Item />', () => {
       fireEvent.pointerMove(option, { pointerType: 'mouse' });
 
       // Wait past the delay gates and release the mouse over the option
-      await clock.tickAsync(500);
+      await act(async () => {
+        await clock.tickAsync(500);
+      });
       fireEvent.mouseUp(option);
 
       await waitFor(() => expect(screen.getByTestId('value').textContent).to.equal('one'));
@@ -331,6 +334,7 @@ describe('<Select.Item />', () => {
     });
 
     it('should not select item when onClick calls preventBaseUIHandler during drag-to-select', async () => {
+      ignoreActWarnings();
       const handleClick = vi.fn((event) => event.preventBaseUIHandler());
 
       await renderFakeTimers(
@@ -360,7 +364,9 @@ describe('<Select.Item />', () => {
       fireEvent.pointerMove(option, { pointerType: 'mouse' });
 
       // Wait past the delay gates and release the mouse over the option
-      await clock.tickAsync(500);
+      await act(async () => {
+        await clock.tickAsync(500);
+      });
       fireEvent.mouseUp(option);
 
       expect(handleClick).toHaveBeenCalledOnce();

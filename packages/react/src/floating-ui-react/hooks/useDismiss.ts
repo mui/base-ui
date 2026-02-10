@@ -490,6 +490,11 @@ export function useDismiss(
       return;
     }
 
+    // Avoid suppressing when outsidePress explicitly ignores this target.
+    if (typeof outsidePress === 'function' && !outsidePress(event as MouseEvent)) {
+      return;
+    }
+
     suppressNextOutsideClickRef.current = true;
     clearInsideReactTree();
   });
