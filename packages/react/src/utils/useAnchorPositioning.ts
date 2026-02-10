@@ -164,32 +164,37 @@ export function useAnchorPositioning(
 
   const placement = align === 'center' ? side : (`${side}-${align}` as Placement);
 
+  let collisionPadding = collisionPaddingParam as {
+    top: number;
+    right: number;
+    bottom: number;
+    left: number;
+  };
+
   // Create a bias to the preferred side.
   // On iOS, when the mobile software keyboard opens, the input is exactly centered
   // in the viewport, but this can cause it to flip to the top undesirably.
   const bias = 1;
-  const cp =
-    typeof collisionPaddingParam === 'number'
-      ? {
-          top: collisionPaddingParam,
-          right: collisionPaddingParam,
-          bottom: collisionPaddingParam,
-          left: collisionPaddingParam,
-        }
-      : {
-          top: 0,
-          right: 0,
-          bottom: 0,
-          left: 0,
-          ...collisionPaddingParam,
-        };
+  const biasTop = sideParam === 'bottom' ? bias : 0;
+  const biasBottom = sideParam === 'top' ? bias : 0;
+  const biasLeft = sideParam === 'right' ? bias : 0;
+  const biasRight = sideParam === 'left' ? bias : 0;
 
-  const collisionPadding = {
-    top: cp.top + (sideParam === 'bottom' ? bias : 0),
-    right: cp.right + (sideParam === 'left' ? bias : 0),
-    bottom: cp.bottom + (sideParam === 'top' ? bias : 0),
-    left: cp.left + (sideParam === 'right' ? bias : 0),
-  };
+  if (typeof collisionPadding === 'number') {
+    collisionPadding = {
+      top: collisionPadding + biasTop,
+      right: collisionPadding + biasRight,
+      bottom: collisionPadding + biasBottom,
+      left: collisionPadding + biasLeft,
+    };
+  } else if (collisionPadding) {
+    collisionPadding = {
+      top: (collisionPadding.top || 0) + biasTop,
+      right: (collisionPadding.right || 0) + biasRight,
+      bottom: (collisionPadding.bottom || 0) + biasBottom,
+      left: (collisionPadding.left || 0) + biasLeft,
+    };
+  }
 
   const commonCollisionProps = {
     boundary: collisionBoundary === 'clipping-ancestors' ? 'clippingAncestors' : collisionBoundary,
@@ -304,11 +309,11 @@ export function useAnchorPositioning(
     size({
       ...commonCollisionProps,
       apply({ elements: { floating }, rects: { reference }, availableWidth, availableHeight }) {
-        const s = floating.style;
-        s.setProperty('--available-width', `${availableWidth}px`);
-        s.setProperty('--available-height', `${availableHeight}px`);
-        s.setProperty('--anchor-width', `${reference.width}px`);
-        s.setProperty('--anchor-height', `${reference.height}px`);
+        const floatingStyle = floating.style;
+        floatingStyle.setProperty('--available-width', `${availableWidth}px`);
+        floatingStyle.setProperty('--available-height', `${availableHeight}px`);
+        floatingStyle.setProperty('--anchor-width', `${reference.width}px`);
+        floatingStyle.setProperty('--anchor-height', `${reference.height}px`);
       },
     }),
     arrow(
@@ -329,9 +334,8 @@ export function useAnchorPositioning(
         const currentRenderedSide = getSide(renderedPlacement);
         const currentRenderedAxis = getSideAxis(currentRenderedSide);
         const arrowEl = arrowRef.current;
-        const arrowData = middlewareData.arrow;
-        const arrowX = arrowData?.x || 0;
-        const arrowY = arrowData?.y || 0;
+        const arrowX = middlewareData.arrow?.x || 0;
+        const arrowY = middlewareData.arrow?.y || 0;
         const arrowWidth = arrowEl?.clientWidth || 0;
         const arrowHeight = arrowEl?.clientHeight || 0;
         const transformX = arrowX + arrowWidth / 2;
@@ -486,18 +490,16 @@ export function useAnchorPositioning(
     }
   }, [lazyFlip, mounted, isPositioned, renderedSide]);
 
-  const arrowData = middlewareData.arrow;
-
   const arrowStyles = React.useMemo(
     () => ({
       position: 'absolute' as const,
-      top: arrowData?.y,
-      left: arrowData?.x,
+      top: middlewareData.arrow?.y,
+      left: middlewareData.arrow?.x,
     }),
-    [arrowData],
+    [middlewareData.arrow],
   );
 
-  const arrowUncentered = arrowData?.centerOffset !== 0;
+  const arrowUncentered = middlewareData.arrow?.centerOffset !== 0;
 
   return React.useMemo(
     () => ({
