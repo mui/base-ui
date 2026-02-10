@@ -470,6 +470,9 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
     listRef: store.context.itemLabels,
     activeIndex,
     resetMs: TYPEAHEAD_RESET_MS,
+    // Let nested menu keydowns bubble through the menu tree (e.g. Group handlers),
+    // then stop them at the menu root so they don't reach higher-level listeners.
+    stopPropagation: parent.type !== 'menu' && parent.type !== 'nested-context-menu',
     onMatch: (index) => {
       if (open && index !== activeIndex) {
         store.set('activeIndex', index);
