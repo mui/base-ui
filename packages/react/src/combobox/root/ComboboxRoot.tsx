@@ -40,6 +40,50 @@ type ComboboxValueType<Value, Multiple extends boolean | undefined> = Multiple e
   ? Value[]
   : Value;
 
+type NoInferCompat<T> = [T][T extends any ? 0 : never];
+
+type WidenLiteral<T> = T extends string
+  ? string
+  : T extends number
+    ? number
+    : T extends boolean
+      ? boolean
+      : T extends bigint
+        ? bigint
+        : T extends symbol
+          ? symbol
+          : T;
+
+type WidenObjectLiterals<T> = T extends (...args: any[]) => any
+  ? T
+  : T extends readonly any[]
+    ? T
+    : T extends object
+      ? { [K in keyof T]: WidenLiteral<T[K]> }
+      : WidenLiteral<T>;
+
+type ComboboxItemsValue<Value> = [NonNullable<Value>] extends [never]
+  ? unknown
+  : WidenObjectLiterals<NonNullable<Value>>;
+
+type LabeledValue<Value> = {
+  value: Value;
+  label: React.ReactNode;
+};
+
+type ComboboxGroup<Item> = {
+  items: ReadonlyArray<Item>;
+};
+
+type ComboboxItems<Value> =
+  | ReadonlyArray<NoInferCompat<ComboboxItemsValue<Value>>>
+  | ReadonlyArray<ComboboxGroup<NoInferCompat<ComboboxItemsValue<Value>>>>
+  | (ComboboxItemsValue<Value> extends string | number
+      ?
+          | ReadonlyArray<LabeledValue<NoInferCompat<ComboboxItemsValue<Value>>>>
+          | ReadonlyArray<ComboboxGroup<LabeledValue<NoInferCompat<ComboboxItemsValue<Value>>>>>
+      : never);
+
 export type ComboboxRootProps<Value, Multiple extends boolean | undefined = false> = Omit<
   AriaCombobox.Props<Value, ModeFromMultiple<Multiple>>,
   | 'fillInputOnItemPress'
@@ -52,6 +96,8 @@ export type ComboboxRootProps<Value, Multiple extends boolean | undefined = fals
   | 'itemToStringLabel'
   | 'itemToStringValue'
   | 'isItemEqualToValue'
+  | 'items'
+  | 'filteredItems'
   // Different names
   | 'selectionMode'
   | 'defaultSelectedValue'
@@ -105,6 +151,17 @@ export type ComboboxRootProps<Value, Multiple extends boolean | undefined = fals
    * To render a controlled combobox, use the `value` prop instead.
    */
   defaultValue?: (ComboboxValueType<Value, Multiple> | null) | undefined;
+  /**
+   * The items to be displayed in the list.
+   * Can be either a flat array of items or an array of groups with items.
+   */
+  items?: ComboboxItems<Value> | undefined;
+  /**
+   * Filtered items to display in the list.
+   * When provided, the list will use these items instead of filtering the `items` prop internally.
+   * Use when you want to control filtering logic externally with the `useFilter()` hook.
+   */
+  filteredItems?: ComboboxItems<Value> | undefined;
   /**
    * A ref to imperative actions.
    * - `unmount`: When specified, the combobox will not be unmounted when closed.

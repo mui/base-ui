@@ -18,6 +18,7 @@ import { selectors } from '../store';
 import { useButton } from '../../use-button';
 import { useComboboxRowContext } from '../row/ComboboxRowContext';
 import { compareItemEquality, findItemIndex } from '../../utils/itemEquality';
+import { hasValueField, isPrimitiveValue } from '../../utils/resolveValueLabel';
 
 /**
  * An individual item in the list.
@@ -48,8 +49,10 @@ export const ComboboxItem = React.memo(
 
     const store = useComboboxRootContext();
     const isRow = useComboboxRowContext();
-    const { flatFilteredItems } = useComboboxDerivedItemsContext();
+    const { flatFilteredItems, flatFilteredValues, itemValueModeRef } =
+      useComboboxDerivedItemsContext();
 
+    const items = useStore(store, selectors.items);
     const open = useStore(store, selectors.open);
     const selectionMode = useStore(store, selectors.selectionMode);
     const readOnly = useStore(store, selectors.readOnly);
@@ -57,15 +60,21 @@ export const ComboboxItem = React.memo(
     const isItemEqualToValue = useStore(store, selectors.isItemEqualToValue);
 
     const selectable = selectionMode !== 'none';
+    const isPrimitiveItemValue = isPrimitiveValue(value);
     const index =
       indexProp ??
-      (virtualized ? findItemIndex(flatFilteredItems, value, isItemEqualToValue) : listItem.index);
+      (virtualized
+        ? findItemIndex(
+            isPrimitiveItemValue ? flatFilteredValues : flatFilteredItems,
+            value,
+            isItemEqualToValue,
+          )
+        : listItem.index);
     const hasRegistered = listItem.index !== -1;
 
     const rootId = useStore(store, selectors.id);
     const highlighted = useStore(store, selectors.isActive, index);
     const matchesSelectedValue = useStore(store, selectors.isSelected, value);
-    const items = useStore(store, selectors.items);
     const getItemProps = useStore(store, selectors.getItemProps);
 
     const itemRef = React.useRef<HTMLDivElement | null>(null);
@@ -74,18 +83,43 @@ export const ComboboxItem = React.memo(
     const selected = matchesSelectedValue && selectable;
 
     useIsoLayoutEffect(() => {
-      const shouldRun = hasRegistered && (virtualized || indexProp != null);
-      if (!shouldRun) {
-        return undefined;
+      const shouldRegister = hasRegistered && (virtualized || indexProp != null);
+      const list = store.state.listRef.current;
+
+      if (shouldRegister) {
+        list[index] = itemRef.current;
       }
 
-      const list = store.state.listRef.current;
-      list[index] = itemRef.current;
+      if (items && index !== -1) {
+        const resolvedItem = flatFilteredItems[index];
+        const usesPrimitiveItemValue =
+          hasValueField(resolvedItem) &&
+          isPrimitiveValue(resolvedItem.value) &&
+          Object.is(value, resolvedItem.value);
+
+        // Keep inferred value mode in sync when item value shape changes.
+        // Assumes all rendered items use the same value shape.
+        itemValueModeRef.current = usesPrimitiveItemValue ? 'value' : null;
+      }
+
+      if (!shouldRegister) {
+        return undefined;
+      }
 
       return () => {
         delete list[index];
       };
-    }, [hasRegistered, virtualized, index, indexProp, store]);
+    }, [
+      hasRegistered,
+      virtualized,
+      index,
+      indexProp,
+      store,
+      items,
+      flatFilteredItems,
+      value,
+      itemValueModeRef,
+    ]);
 
     useIsoLayoutEffect(() => {
       if (!hasRegistered || items) {

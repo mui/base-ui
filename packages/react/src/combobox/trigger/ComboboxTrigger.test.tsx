@@ -556,7 +556,7 @@ describe('<Combobox.Trigger />', () => {
   });
 
   describe('typeahead', () => {
-    it('selects item when typing on focused trigger (input inside popup)', async () => {
+    it('opens the popup when typing on focused trigger (input inside popup)', async () => {
       const { user } = await render(
         <Combobox.Root items={['apple', 'banana', 'cherry']}>
           <Combobox.Trigger data-testid="trigger">
@@ -587,8 +587,10 @@ describe('<Combobox.Trigger />', () => {
       });
       await user.keyboard('a');
 
-      expect(trigger).to.have.text('apple');
-      expect(screen.queryByRole('listbox')).to.equal(null);
+      await waitFor(() => {
+        expect(screen.queryByRole('listbox')).not.to.equal(null);
+      });
+      expect(trigger).not.to.have.text('apple');
     });
   });
 

@@ -17,12 +17,17 @@ import { triggerStateAttributesMapping } from '../utils/stateAttributesMapping';
 import { selectors } from '../store';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { useLabelableContext } from '../../labelable-provider/LabelableContext';
-import { stopEvent, contains, getTarget } from '../../floating-ui-react/utils';
+import {
+  stopEvent,
+  contains,
+  getTarget,
+  isTypeaheadCharacterKey,
+} from '../../floating-ui-react/utils';
 import { getPseudoElementBounds } from '../../utils/getPseudoElementBounds';
 import type { FieldRoot } from '../../field/root/FieldRoot';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
-import { useClick, useTypeahead } from '../../floating-ui-react';
+import { useClick } from '../../floating-ui-react';
 import type { Side } from '../../utils/useAnchorPositioning';
 import { useLabelableId } from '../../labelable-provider/useLabelableId';
 
@@ -71,8 +76,6 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
   const rootId = useStore(store, selectors.id);
   const open = useStore(store, selectors.open);
   const selectedValue = useStore(store, selectors.selectedValue);
-  const activeIndex = useStore(store, selectors.activeIndex);
-  const selectedIndex = useStore(store, selectors.selectedIndex);
   const hasSelectedValue = useStore(store, selectors.hasSelectedValue);
 
   const floatingRootContext = useComboboxFloatingContext();
@@ -96,7 +99,7 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
   const domReference = floatingRootContext.useState('domReferenceElement');
 
   // Update the floating root context to use the trigger element when it differs from the current reference.
-  // This ensures useClick and useTypeahead attach handlers to the correct element.
+  // This ensures floating interaction hooks attach handlers to the correct element.
   React.useEffect(() => {
     if (!inputInsidePopup) {
       return;
@@ -105,19 +108,6 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
       floatingRootContext.set('domReferenceElement', triggerElement);
     }
   }, [triggerElement, domReference, floatingRootContext, inputInsidePopup]);
-
-  const { reference: triggerTypeaheadProps } = useTypeahead(floatingRootContext, {
-    enabled: !open && !readOnly && !comboboxDisabled && selectionMode === 'single',
-    listRef: store.state.labelsRef,
-    activeIndex,
-    selectedIndex,
-    onMatch(index) {
-      const nextSelectedValue = store.state.valuesRef.current[index];
-      if (nextSelectedValue !== undefined) {
-        store.state.setSelectedValue(nextSelectedValue, createChangeEventDetails('none'));
-      }
-    },
-  });
 
   const { reference: triggerClickProps } = useClick(floatingRootContext, {
     enabled: !readOnly && !comboboxDisabled,
@@ -148,7 +138,6 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
     props: [
       triggerProps,
       triggerClickProps,
-      triggerTypeaheadProps,
       {
         id,
         tabIndex: inputInsidePopup ? 0 : -1,
@@ -259,6 +248,18 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
               createChangeEventDetails(REASONS.listNavigation, event.nativeEvent),
             );
             store.state.inputRef.current?.focus();
+            return;
+          }
+
+          if (!open && inputInsidePopup && event.key !== ' ' && isTypeaheadCharacterKey(event)) {
+            stopEvent(event);
+            const nativeEvent = event.nativeEvent;
+            store.state.setIndices({ activeIndex: null, selectedIndex: null });
+            store.state.setInputValue(
+              event.key,
+              createChangeEventDetails(REASONS.none, nativeEvent),
+            );
+            store.state.setOpen(true, createChangeEventDetails(REASONS.inputPress, nativeEvent));
           }
         },
       },
