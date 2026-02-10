@@ -117,7 +117,7 @@ describe('<Combobox.ChipRemove />', () => {
       const remove = screen.getByTestId('remove');
 
       // Should be focusable
-      act(() => {
+      await act(async () => {
         remove.focus();
       });
       expect(remove).toHaveFocus();
@@ -225,7 +225,7 @@ describe('<Combobox.ChipRemove />', () => {
 
       const remove = screen.getByTestId('remove');
 
-      act(() => {
+      await act(async () => {
         remove.focus();
       });
       await user.keyboard('{Enter}');

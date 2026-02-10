@@ -46,7 +46,7 @@ describe('<Combobox.Chip />', () => {
       const chipApple = screen.getByTestId('chip-apple');
 
       // Focus the chip manually (simulating navigation)
-      act(() => {
+      await act(async () => {
         chipApple.focus();
       });
 
@@ -77,7 +77,7 @@ describe('<Combobox.Chip />', () => {
       const chipApple = screen.getByTestId('chip-apple');
 
       // Focus the chip manually
-      act(() => {
+      await act(async () => {
         chipApple.focus();
       });
 
@@ -141,7 +141,7 @@ describe('<Combobox.Chip />', () => {
       const chipApple = screen.getByTestId('chip-apple');
 
       // Focus the chip manually
-      act(() => {
+      await act(async () => {
         chipApple.focus();
       });
 
@@ -166,7 +166,7 @@ describe('<Combobox.Chip />', () => {
       const chipApple = screen.getByTestId('chip-apple');
 
       // Focus the first chip
-      act(() => {
+      await act(async () => {
         chipApple.focus();
       });
 
@@ -235,7 +235,7 @@ describe('<Combobox.Chip />', () => {
 
       await user.click(input);
       const chipApple = screen.getByTestId('chip-apple');
-      act(() => {
+      await act(async () => {
         chipApple.focus();
       });
 
@@ -260,7 +260,7 @@ describe('<Combobox.Chip />', () => {
       const input = screen.getByTestId('input');
 
       // Focus the first chip
-      act(() => {
+      await act(async () => {
         chipApple.focus();
       });
 
@@ -277,7 +277,7 @@ describe('<Combobox.Chip />', () => {
       expect(input).toHaveFocus();
 
       // Navigate left from first chip should also focus input
-      act(() => {
+      await act(async () => {
         chipApple.focus();
       });
       await user.keyboard('{ArrowLeft}');
@@ -303,7 +303,7 @@ describe('<Combobox.Chip />', () => {
       const chipApple = screen.getByTestId('chip-apple');
 
       // Focus the chip and delete it
-      act(() => {
+      await act(async () => {
         chipApple.focus();
       });
       await user.keyboard('{Backspace}');
