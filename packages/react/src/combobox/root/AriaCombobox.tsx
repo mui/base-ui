@@ -52,6 +52,7 @@ import {
   isGroupedItems,
 } from '../../utils/resolveValueLabel';
 import {
+  compareItemEquality,
   defaultItemEquality,
   findItemIndex,
   itemIncludes,
@@ -848,7 +849,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     const lastHighlightedValue = lastHighlightRef.current.value;
     const isSameItem =
       lastHighlightedValue !== NO_ACTIVE_VALUE &&
-      store.state.isItemEqualToValue(nextActiveValue, lastHighlightedValue);
+      compareItemEquality(nextActiveValue, lastHighlightedValue, store.state.isItemEqualToValue);
 
     if (lastHighlightRef.current.index !== storeActiveIndex || !isSameItem) {
       lastHighlightRef.current = { value: nextActiveValue, index: storeActiveIndex };
@@ -1152,10 +1153,11 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
   const itemsContextValue: ComboboxDerivedItemsContext = React.useMemo(
     () => ({
       query,
+      hasItems,
       filteredItems,
       flatFilteredItems,
     }),
-    [query, filteredItems, flatFilteredItems],
+    [query, hasItems, filteredItems, flatFilteredItems],
   );
 
   const serializedValue = React.useMemo(() => {
