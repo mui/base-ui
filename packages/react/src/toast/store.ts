@@ -232,7 +232,7 @@ export class ToastStore extends ReactStore<State, {}, typeof selectors> {
 
     if (closeAll) {
       toasts.forEach((toast) => {
-        toast?.onClose?.();
+        toast.onClose?.();
       });
     } else {
       const toast = selectors.toast(this.state, toastId);
