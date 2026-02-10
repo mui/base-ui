@@ -15,7 +15,7 @@
   color: var(--color-gray-900);
 }
 
-.Chips {
+.InputGroup {
   box-sizing: border-box;
   display: flex;
   flex-wrap: wrap;
@@ -23,17 +23,30 @@
   gap: 0.125rem;
   border: 1px solid var(--color-gray-200);
   border-radius: 0.375rem;
+  background-color: canvas;
   padding: 0.25rem 0.375rem;
   width: 16rem;
 
   &:focus-within {
-    outline: 2px solid var(--color-blue);
+    outline: 1px solid var(--color-blue);
     outline-offset: -1px;
+  }
+
+  &[data-highlighted]:focus-within {
+    outline-width: 2px;
   }
 
   @media (min-width: 500px) {
     width: 22rem;
   }
+}
+
+.Chips {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.125rem;
+  width: 100%;
 }
 
 .Chip {

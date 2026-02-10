@@ -4,7 +4,6 @@ import { Combobox } from '@base-ui/react/combobox';
 import styles from './index.module.css';
 
 export default function ExampleMultipleCombobox() {
-  const containerRef = React.useRef<HTMLDivElement | null>(null);
   const id = React.useId();
 
   return (
@@ -13,35 +12,37 @@ export default function ExampleMultipleCombobox() {
         <label className={styles.Label} htmlFor={id}>
           Programming languages
         </label>
-        <Combobox.Chips className={styles.Chips} ref={containerRef}>
-          <Combobox.Value>
-            {(value: ProgrammingLanguage[]) => (
-              <React.Fragment>
-                {value.map((language) => (
-                  <Combobox.Chip
-                    key={language.id}
-                    className={styles.Chip}
-                    aria-label={language.value}
-                  >
-                    {language.value}
-                    <Combobox.ChipRemove className={styles.ChipRemove} aria-label="Remove">
-                      <XIcon />
-                    </Combobox.ChipRemove>
-                  </Combobox.Chip>
-                ))}
-                <Combobox.Input
-                  id={id}
-                  placeholder={value.length > 0 ? '' : 'e.g. TypeScript'}
-                  className={styles.Input}
-                />
-              </React.Fragment>
-            )}
-          </Combobox.Value>
-        </Combobox.Chips>
+        <Combobox.InputGroup className={styles.InputGroup}>
+          <Combobox.Chips className={styles.Chips}>
+            <Combobox.Value>
+              {(value: ProgrammingLanguage[]) => (
+                <React.Fragment>
+                  {value.map((language) => (
+                    <Combobox.Chip
+                      key={language.id}
+                      className={styles.Chip}
+                      aria-label={language.value}
+                    >
+                      {language.value}
+                      <Combobox.ChipRemove className={styles.ChipRemove} aria-label="Remove">
+                        <XIcon />
+                      </Combobox.ChipRemove>
+                    </Combobox.Chip>
+                  ))}
+                  <Combobox.Input
+                    id={id}
+                    placeholder={value.length > 0 ? '' : 'e.g. TypeScript'}
+                    className={styles.Input}
+                  />
+                </React.Fragment>
+              )}
+            </Combobox.Value>
+          </Combobox.Chips>
+        </Combobox.InputGroup>
       </div>
 
       <Combobox.Portal>
-        <Combobox.Positioner className={styles.Positioner} sideOffset={4} anchor={containerRef}>
+        <Combobox.Positioner className={styles.Positioner} sideOffset={4}>
           <Combobox.Popup className={styles.Popup}>
             <Combobox.Empty className={styles.Empty}>No languages found.</Combobox.Empty>
             <Combobox.List>

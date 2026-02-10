@@ -374,6 +374,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
         inline: inlineProp,
         activeIndex: null,
         selectedIndex: null,
+        highlightedByKeyboard: false,
         popupProps: {},
         inputProps: {},
         triggerProps: {},
@@ -381,6 +382,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
         listElement: null,
         triggerElement: null,
         inputElement: null,
+        inputGroupElement: null,
         popupSide: null,
         openMethod: null,
         inputInsidePopup: true,
@@ -418,6 +420,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
   const listElement = useStore(store, selectors.listElement);
   const triggerElement = useStore(store, selectors.triggerElement);
   const inputElement = useStore(store, selectors.inputElement);
+  const inputGroupElement = useStore(store, selectors.inputGroupElement);
   const inline = useStore(store, selectors.inline);
   const inputInsidePopup = useStore(store, selectors.inputInsidePopup);
 
@@ -464,12 +467,16 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       selectedIndex?: (number | null) | undefined;
       type?: ('none' | 'keyboard' | 'pointer') | undefined;
     }) => {
-      store.update(options);
       const type: AriaCombobox.HighlightEventReason = options.type || 'none';
-
       if (options.activeIndex === undefined) {
+        store.update(options);
         return;
       }
+
+      store.update({
+        ...options,
+        highlightedByKeyboard: type === 'keyboard',
+      });
 
       if (options.activeIndex === null) {
         if (lastHighlightRef.current !== INITIAL_LAST_HIGHLIGHT) {
@@ -488,6 +495,13 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       }
     },
   );
+
+  const setAutoHighlightIndex = useStableCallback((nextIndex: number | null) => {
+    store.update({
+      activeIndex: nextIndex,
+      highlightedByKeyboard: store.state.keyboardActiveRef.current,
+    });
+  });
 
   const setInputValue = useStableCallback(
     (next: string, eventDetails: AriaCombobox.ChangeEventDetails) => {
@@ -518,7 +532,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
           // `onItemHighlighted` receives the latest item.
           pendingQueryHighlightRef.current = { hasQuery };
           if (hasQuery && autoHighlightMode && store.state.activeIndex == null) {
-            store.set('activeIndex', 0);
+            setAutoHighlightIndex(0);
           }
         }
       }
@@ -697,6 +711,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     setQueryChangedAfterOpen(false);
     resetOpenInteractionType();
     setCloseQuery(null);
+    store.set('highlightedByKeyboard', false);
 
     if (selectionMode === 'none') {
       setIndices({ activeIndex: null, selectedIndex: null });
@@ -801,10 +816,10 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     if (pendingHighlight) {
       if (pendingHighlight.hasQuery) {
         if (autoHighlightMode) {
-          store.set('activeIndex', 0);
+          setAutoHighlightIndex(0);
         }
       } else if (autoHighlightMode === 'always') {
-        store.set('activeIndex', 0);
+        setAutoHighlightIndex(0);
       }
       pendingQueryHighlightRef.current = null;
     }
@@ -819,7 +834,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
 
     if (storeActiveIndex == null) {
       if (autoHighlightMode === 'always' && candidateItems.length > 0) {
-        store.set('activeIndex', 0);
+        setAutoHighlightIndex(0);
         return;
       }
       if (lastHighlightRef.current !== INITIAL_LAST_HIGHLIGHT) {
@@ -840,7 +855,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
           createGenericEventDetails(REASONS.none, undefined, { index: -1 }),
         );
       }
-      store.set('activeIndex', null);
+      setAutoHighlightIndex(null);
       return;
     }
 
@@ -865,6 +880,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     flatFilteredItems,
     inline,
     open,
+    setAutoHighlightIndex,
     store,
   ]);
 
@@ -947,7 +963,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     open: inline ? true : open,
     onOpenChange: setOpen,
     elements: {
-      reference: inputInsidePopup ? triggerElement : inputElement,
+      reference: inputInsidePopup ? triggerElement : (inputGroupElement ?? inputElement),
       floating: positionerElement,
     },
   });
@@ -1012,7 +1028,8 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       return (
         !contains(triggerElement, target) &&
         !contains(clearRef.current, target) &&
-        !contains(chipsContainerRef.current, target)
+        !contains(chipsContainerRef.current, target) &&
+        !contains(inputGroupElement, target)
       );
     },
   });
@@ -1046,6 +1063,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       if (!event) {
         setIndices({
           activeIndex: nextActiveIndex,
+          type: keyboardActiveRef.current ? 'keyboard' : 'none',
         });
       } else {
         setIndices({

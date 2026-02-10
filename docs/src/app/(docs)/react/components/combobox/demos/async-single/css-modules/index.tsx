@@ -109,7 +109,7 @@ export default function ExampleAsyncSingleCombobox() {
     >
       <div className={styles.Label}>
         <label htmlFor={id}>Assign reviewer</label>
-        <div className={styles.InputWrapper}>
+        <Combobox.InputGroup className={styles.InputGroup}>
           <Combobox.Input id={id} placeholder="e.g. Michael" className={styles.Input} />
           <div className={styles.ActionButtons}>
             <Combobox.Clear className={styles.Clear} aria-label="Clear selection">
@@ -119,7 +119,7 @@ export default function ExampleAsyncSingleCombobox() {
               <ChevronDownIcon className={styles.TriggerIcon} />
             </Combobox.Trigger>
           </div>
-        </div>
+        </Combobox.InputGroup>
       </div>
 
       <Combobox.Portal>

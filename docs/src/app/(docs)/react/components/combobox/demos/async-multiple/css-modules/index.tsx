@@ -6,8 +6,6 @@ import styles from './index.module.css';
 export default function ExampleAsyncMultipleCombobox() {
   const id = React.useId();
 
-  const containerRef = React.useRef<HTMLDivElement | null>(null);
-
   const [searchResults, setSearchResults] = React.useState<DirectoryUser[]>([]);
   const [selectedValues, setSelectedValues] = React.useState<DirectoryUser[]>([]);
   const [searchValue, setSearchValue] = React.useState('');
@@ -135,31 +133,33 @@ export default function ExampleAsyncMultipleCombobox() {
         <label className={styles.Label} htmlFor={id}>
           Assign reviewers
         </label>
-        <Combobox.Chips className={styles.Chips} ref={containerRef}>
-          <Combobox.Value>
-            {(value: DirectoryUser[]) => (
-              <React.Fragment>
-                {value.map((user) => (
-                  <Combobox.Chip key={user.id} className={styles.Chip} aria-label={user.name}>
-                    {user.name}
-                    <Combobox.ChipRemove className={styles.ChipRemove} aria-label="Remove">
-                      <XIcon />
-                    </Combobox.ChipRemove>
-                  </Combobox.Chip>
-                ))}
-                <Combobox.Input
-                  id={id}
-                  placeholder={value.length > 0 ? '' : 'e.g. Michael'}
-                  className={styles.Input}
-                />
-              </React.Fragment>
-            )}
-          </Combobox.Value>
-        </Combobox.Chips>
+        <Combobox.InputGroup className={styles.InputGroup}>
+          <Combobox.Chips className={styles.Chips}>
+            <Combobox.Value>
+              {(value: DirectoryUser[]) => (
+                <React.Fragment>
+                  {value.map((user) => (
+                    <Combobox.Chip key={user.id} className={styles.Chip} aria-label={user.name}>
+                      {user.name}
+                      <Combobox.ChipRemove className={styles.ChipRemove} aria-label="Remove">
+                        <XIcon />
+                      </Combobox.ChipRemove>
+                    </Combobox.Chip>
+                  ))}
+                  <Combobox.Input
+                    id={id}
+                    placeholder={value.length > 0 ? '' : 'e.g. Michael'}
+                    className={styles.Input}
+                  />
+                </React.Fragment>
+              )}
+            </Combobox.Value>
+          </Combobox.Chips>
+        </Combobox.InputGroup>
       </div>
 
       <Combobox.Portal>
-        <Combobox.Positioner className={styles.Positioner} anchor={containerRef} sideOffset={4}>
+        <Combobox.Positioner className={styles.Positioner} sideOffset={4}>
           <Combobox.Popup className={styles.Popup} aria-busy={isPending || undefined}>
             <Combobox.Status className={styles.Status}>{getStatus()}</Combobox.Status>
             <Combobox.Empty className={styles.Empty}>{getEmptyMessage()}</Combobox.Empty>

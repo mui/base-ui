@@ -1,6 +1,7 @@
 export { ComboboxRoot as Root } from './root/ComboboxRoot';
 export { ComboboxValue as Value } from './value/ComboboxValue';
 export { ComboboxInput as Input } from './input/ComboboxInput';
+export { ComboboxInputGroup as InputGroup } from './input-group/ComboboxInputGroup';
 export { ComboboxTrigger as Trigger } from './trigger/ComboboxTrigger';
 export { ComboboxList as List } from './list/ComboboxList';
 export { ComboboxStatus as Status } from './status/ComboboxStatus';

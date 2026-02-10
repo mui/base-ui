@@ -12,6 +12,10 @@ export type {
   ComboboxInputState as AutocompleteInputState,
 } from '../combobox/input/ComboboxInput';
 export type {
+  ComboboxInputGroupProps as AutocompleteInputGroupProps,
+  ComboboxInputGroupState as AutocompleteInputGroupState,
+} from '../combobox/input-group/ComboboxInputGroup';
+export type {
   ComboboxPopupProps as AutocompletePopupProps,
   ComboboxPopupState as AutocompletePopupState,
 } from '../combobox/popup/ComboboxPopup';
