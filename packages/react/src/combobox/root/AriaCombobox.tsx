@@ -1499,10 +1499,10 @@ interface ComboboxRootProps<ItemValue> {
   fillInputOnItemPress?: boolean | undefined;
 }
 
-export type ComboboxRootConditionalProps<Value, Mode extends SelectionMode = 'none'> = Omit<
-  ComboboxRootProps<Value>,
-  'selectionMode' | 'selectedValue' | 'defaultSelectedValue' | 'onSelectedValueChange'
-> & {
+export type ComboboxRootConditionalProps<
+  Value,
+  Mode extends SelectionMode = 'none',
+> = ComboboxRootProps<Value> & {
   /**
    * How the combobox should remember the selected value.
    * - `single`: Remembers the last selected value.
