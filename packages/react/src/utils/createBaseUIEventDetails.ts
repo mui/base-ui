@@ -22,6 +22,7 @@ interface ReasonToEventMap {
   [REASONS.inputClear]: InputEvent | FocusEvent | Event;
   [REASONS.inputBlur]: FocusEvent;
   [REASONS.inputPaste]: ClipboardEvent;
+  [REASONS.inputPress]: MouseEvent | PointerEvent | TouchEvent | KeyboardEvent;
 
   [REASONS.focusOut]: FocusEvent | KeyboardEvent;
   [REASONS.escapeKey]: KeyboardEvent;
