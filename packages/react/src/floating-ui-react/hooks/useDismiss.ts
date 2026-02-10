@@ -30,11 +30,6 @@ import { REASONS } from '../../utils/reasons';
 import { createAttribute } from '../utils/createAttribute';
 
 type PressType = 'intentional' | 'sloppy';
-type InsidePressState = 0 | 1 | 2;
-
-const INSIDE_PRESS_NONE = 0;
-const INSIDE_PRESS_STARTED = 1;
-const INSIDE_PRESS_STARTED_PREVENTED = 2;
 
 const bubbleHandlerKeys = {
   intentional: 'onClick',
@@ -159,7 +154,8 @@ export function useDismiss(
   const outsidePressEnabled = outsidePress !== false;
   const getOutsidePressEventProp = useStableCallback(() => outsidePressEvent);
 
-  const insidePressStateRef = React.useRef<InsidePressState>(INSIDE_PRESS_NONE);
+  const pressStartedInsideRef = React.useRef(false);
+  const pressStartPreventedRef = React.useRef(false);
   // Ignore only the very next outside click after dragging from inside to outside.
   const suppressNextOutsideClickRef = React.useRef(false);
 
@@ -271,8 +267,9 @@ export function useDismiss(
       });
     }
 
-    function trackPointerType(event: PointerEvent) {
-      currentPointerTypeRef.current = event.pointerType;
+    function resetPressStartState() {
+      pressStartedInsideRef.current = false;
+      pressStartPreventedRef.current = false;
     }
 
     function getOutsidePressEvent(): PressType {
@@ -483,6 +480,7 @@ export function useDismiss(
     }
 
     function handleTouchStartCapture(event: TouchEvent) {
+      currentPointerTypeRef.current = 'touch';
       const target = getTarget(event);
       function callback() {
         handleTouchStart(event);
@@ -493,6 +491,10 @@ export function useDismiss(
 
     function closeOnPressOutsideCapture(event: PointerEvent | MouseEvent) {
       cancelDismissOnEndTimeout.clear();
+
+      if (event.type === 'pointerdown') {
+        currentPointerTypeRef.current = (event as PointerEvent).pointerType;
+      }
 
       if (
         event.type === 'mousedown' &&
@@ -516,15 +518,21 @@ export function useDismiss(
     }
 
     function handlePressEndCapture(event: PointerEvent | MouseEvent) {
-      if (insidePressStateRef.current === INSIDE_PRESS_NONE) {
+      if (!pressStartedInsideRef.current) {
         return;
       }
 
-      const pressStartedInsideDefaultPrevented =
-        insidePressStateRef.current === INSIDE_PRESS_STARTED_PREVENTED;
-      insidePressStateRef.current = INSIDE_PRESS_NONE;
+      const pressStartedInsideDefaultPrevented = pressStartPreventedRef.current;
+      resetPressStartState();
 
       if (getOutsidePressEvent() !== 'intentional') {
+        return;
+      }
+
+      if (event.type === 'pointercancel') {
+        if (pressStartedInsideDefaultPrevented) {
+          suppressImmediateOutsideClickAfterPreventedStart();
+        }
         return;
       }
 
@@ -549,17 +557,6 @@ export function useDismiss(
       preventedPressSupressionTimeout.clear();
       suppressNextOutsideClickRef.current = true;
       clearInsideReactTree();
-    }
-
-    function handlePointerCancelCapture() {
-      if (
-        insidePressStateRef.current === INSIDE_PRESS_STARTED_PREVENTED &&
-        getOutsidePressEvent() === 'intentional'
-      ) {
-        suppressImmediateOutsideClickAfterPreventedStart();
-      }
-
-      insidePressStateRef.current = INSIDE_PRESS_NONE;
     }
 
     function handleTouchMove(event: TouchEvent) {
@@ -630,8 +627,6 @@ export function useDismiss(
 
     const doc = getDocument(floatingElement);
 
-    doc.addEventListener('pointerdown', trackPointerType, true);
-
     if (escapeKey) {
       doc.addEventListener('keydown', closeOnEscapeKeyDown);
       doc.addEventListener('compositionstart', handleCompositionStart);
@@ -642,7 +637,7 @@ export function useDismiss(
       doc.addEventListener('click', closeOnPressOutsideCapture, true);
       doc.addEventListener('pointerdown', closeOnPressOutsideCapture, true);
       doc.addEventListener('pointerup', handlePressEndCapture, true);
-      doc.addEventListener('pointercancel', handlePointerCancelCapture, true);
+      doc.addEventListener('pointercancel', handlePressEndCapture, true);
       doc.addEventListener('mousedown', closeOnPressOutsideCapture, true);
       doc.addEventListener('mouseup', handlePressEndCapture, true);
       doc.addEventListener('touchstart', handleTouchStartCapture, true);
@@ -651,8 +646,6 @@ export function useDismiss(
     }
 
     return () => {
-      doc.removeEventListener('pointerdown', trackPointerType, true);
-
       if (escapeKey) {
         doc.removeEventListener('keydown', closeOnEscapeKeyDown);
         doc.removeEventListener('compositionstart', handleCompositionStart);
@@ -663,7 +656,7 @@ export function useDismiss(
         doc.removeEventListener('click', closeOnPressOutsideCapture, true);
         doc.removeEventListener('pointerdown', closeOnPressOutsideCapture, true);
         doc.removeEventListener('pointerup', handlePressEndCapture, true);
-        doc.removeEventListener('pointercancel', handlePointerCancelCapture, true);
+        doc.removeEventListener('pointercancel', handlePressEndCapture, true);
         doc.removeEventListener('mousedown', closeOnPressOutsideCapture, true);
         doc.removeEventListener('mouseup', handlePressEndCapture, true);
         doc.removeEventListener('touchstart', handleTouchStartCapture, true);
@@ -673,7 +666,7 @@ export function useDismiss(
 
       compositionTimeout.clear();
       preventedPressSupressionTimeout.clear();
-      insidePressStateRef.current = INSIDE_PRESS_NONE;
+      resetPressStartState();
       suppressNextOutsideClickRef.current = false;
     };
   }, [
@@ -728,8 +721,9 @@ export function useDismiss(
         return;
       }
 
-      if (insidePressStateRef.current === INSIDE_PRESS_NONE) {
-        insidePressStateRef.current = INSIDE_PRESS_STARTED;
+      if (!pressStartedInsideRef.current) {
+        pressStartedInsideRef.current = true;
+        pressStartPreventedRef.current = false;
       }
     },
   );
@@ -744,8 +738,8 @@ export function useDismiss(
         return;
       }
 
-      if (insidePressStateRef.current === INSIDE_PRESS_STARTED) {
-        insidePressStateRef.current = INSIDE_PRESS_STARTED_PREVENTED;
+      if (pressStartedInsideRef.current) {
+        pressStartPreventedRef.current = true;
       }
     },
   );
