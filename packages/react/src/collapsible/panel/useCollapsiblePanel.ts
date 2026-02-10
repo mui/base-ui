@@ -169,17 +169,11 @@ export function useCollapsiblePanel(
     }
 
     if (open) {
-      const originalLayoutStyles = {
-        'justify-content': panel.style.justifyContent,
-        'align-items': panel.style.alignItems,
-        'align-content': panel.style.alignContent,
-        'justify-items': panel.style.justifyItems,
-      };
-
       /* opening */
-      Object.keys(originalLayoutStyles).forEach((key) => {
-        panel.style.setProperty(key, 'initial', 'important');
-      });
+      panel.style.setProperty('justify-content', 'initial', 'important');
+      panel.style.setProperty('align-items', 'initial', 'important');
+      panel.style.setProperty('align-content', 'initial', 'important');
+      panel.style.setProperty('justify-items', 'initial', 'important');
 
       /**
        * When `keepMounted={false}` and the panel is initially closed, the very
@@ -195,13 +189,18 @@ export function useCollapsiblePanel(
       setDimensions({ height: panel.scrollHeight, width: panel.scrollWidth });
 
       resizeFrame = AnimationFrame.request(() => {
-        Object.entries(originalLayoutStyles).forEach(([key, value]) => {
-          if (value === '') {
-            panel.style.removeProperty(key);
-          } else {
-            panel.style.setProperty(key, value);
-          }
-        });
+        panel.style.justifyContent === ''
+          ? panel.style.removeProperty('justify-content')
+          : panel.style.setProperty('justify-content', panel.style.justifyContent);
+        panel.style.alignItems === ''
+          ? panel.style.removeProperty('align-items')
+          : panel.style.setProperty('align-items', panel.style.alignItems);
+        panel.style.alignContent === ''
+          ? panel.style.removeProperty('align-content')
+          : panel.style.setProperty('align-content', panel.style.alignContent);
+        panel.style.justifyItems === ''
+          ? panel.style.removeProperty('justify-items')
+          : panel.style.setProperty('justify-items', panel.style.justifyItems);
       });
     } else {
       if (panel.scrollHeight === 0 && panel.scrollWidth === 0) {
