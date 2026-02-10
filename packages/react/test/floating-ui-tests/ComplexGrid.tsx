@@ -66,7 +66,6 @@ export function Main({ orientation = 'horizontal', loopFocus = false, rtl = fals
       rtl,
       openOnArrowKeyDown: false,
       disabledIndices,
-      itemSizes,
     }),
     useDismiss(context),
   ]);
