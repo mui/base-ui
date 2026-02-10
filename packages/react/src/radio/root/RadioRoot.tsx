@@ -30,8 +30,8 @@ import { RadioRootContext } from './RadioRootContext';
  *
  * Documentation: [Base UI Radio](https://base-ui.com/react/components/radio)
  */
-export const RadioRoot = React.forwardRef(function RadioRoot(
-  componentProps: RadioRoot.Props,
+export const RadioRoot = React.forwardRef(function RadioRoot<Value>(
+  componentProps: RadioRoot.Props<Value>,
   forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
   const {
@@ -47,19 +47,21 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
     ...elementProps
   } = componentProps;
 
+  const groupContext = useRadioGroupContext();
+
   const {
     disabled: disabledGroup,
     readOnly: readOnlyGroup,
     required: requiredGroup,
     checkedValue,
-    setCheckedValue,
-    touched,
-    setTouched,
+    touched = false,
     validation,
-    registerControlRef,
-    registerInputRef,
     name,
-  } = useRadioGroupContext();
+  } = groupContext ?? {};
+  const setCheckedValue = groupContext?.setCheckedValue ?? NOOP;
+  const setTouched = groupContext?.setTouched ?? NOOP;
+  const registerControlRef = groupContext?.registerControlRef ?? NOOP;
+  const registerInputRef = groupContext?.registerInputRef ?? NOOP;
 
   const {
     setDirty,
@@ -76,7 +78,7 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
   const readOnly = readOnlyGroup || readOnlyProp;
   const required = requiredGroup || requiredProp;
 
-  const checked = checkedValue === value;
+  const checked = groupContext ? checkedValue === value : value === '';
   const serializedValue = React.useMemo(() => serializeValue(value), [value]);
 
   const radioRef = React.useRef<HTMLElement>(null);
@@ -221,7 +223,7 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
 
   const contextValue: RadioRootContext = state;
 
-  const isRadioGroup = setCheckedValue !== NOOP;
+  const isRadioGroup = groupContext !== undefined;
 
   const refs = [forwardedRef, radioRef, buttonRef, handleControlRef];
   const props = [
@@ -258,7 +260,9 @@ export const RadioRoot = React.forwardRef(function RadioRoot(
       <input {...inputProps} />
     </RadioRootContext.Provider>
   );
-});
+}) as {
+  <Value>(props: RadioRoot.Props<Value>): React.JSX.Element;
+};
 
 export interface RadioRootState extends FieldRoot.State {
   /**
@@ -279,12 +283,12 @@ export interface RadioRootState extends FieldRoot.State {
   required: boolean;
 }
 
-export interface RadioRootProps
+export interface RadioRootProps<Value>
   extends NonNativeButtonProps, Omit<BaseUIComponentProps<'span', RadioRoot.State>, 'value'> {
   /**
    * The unique identifying value of the radio in a group.
    */
-  value: any;
+  value: Value;
   /**
    * Whether the component should ignore user interaction.
    */
@@ -305,5 +309,5 @@ export interface RadioRootProps
 
 export namespace RadioRoot {
   export type State = RadioRootState;
-  export type Props = RadioRootProps;
+  export type Props<TValue = any> = RadioRootProps<TValue>;
 }
