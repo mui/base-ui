@@ -63,17 +63,17 @@ import { INITIAL_LAST_HIGHLIGHT, NO_ACTIVE_VALUE } from './utils/constants';
  * @internal
  */
 export function AriaCombobox<Value, Mode extends SelectionMode = 'none'>(
-  props: Omit<ComboboxRootConditionalProps<Value, Mode>, 'items'> & {
+  props: Omit<AriaComboboxProps<Value, Mode>, 'items'> & {
     items: readonly Group<any>[];
   },
 ): React.JSX.Element;
 export function AriaCombobox<Value, Mode extends SelectionMode = 'none'>(
-  props: Omit<ComboboxRootConditionalProps<Value, Mode>, 'items'> & {
+  props: Omit<AriaComboboxProps<Value, Mode>, 'items'> & {
     items?: readonly any[] | undefined;
   },
 ): React.JSX.Element;
 export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
-  props: ComboboxRootConditionalProps<Value, Mode>,
+  props: AriaComboboxProps<Value, Mode>,
 ): React.JSX.Element {
   const {
     id: idProp,
@@ -1499,10 +1499,10 @@ interface ComboboxRootProps<ItemValue> {
   fillInputOnItemPress?: boolean | undefined;
 }
 
-export type ComboboxRootConditionalProps<Value, Mode extends SelectionMode = 'none'> = Omit<
-  ComboboxRootProps<Value>,
-  'selectionMode' | 'selectedValue' | 'defaultSelectedValue' | 'onSelectedValueChange'
-> & {
+export type AriaComboboxProps<
+  Value,
+  Mode extends SelectionMode = 'none',
+> = ComboboxRootProps<Value> & {
   /**
    * How the combobox should remember the selected value.
    * - `single`: Remembers the last selected value.
@@ -1533,10 +1533,7 @@ export type ComboboxRootConditionalProps<Value, Mode extends SelectionMode = 'no
 };
 
 export namespace AriaCombobox {
-  export type Props<Value, Mode extends SelectionMode = 'none'> = ComboboxRootConditionalProps<
-    Value,
-    Mode
-  >;
+  export type Props<Value, Mode extends SelectionMode = 'none'> = AriaComboboxProps<Value, Mode>;
 
   export interface State {}
 
