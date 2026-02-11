@@ -556,10 +556,9 @@ describe('<Combobox.Trigger />', () => {
   });
 
   describe('typeahead', () => {
-    it('opens the popup with trigger-press reason when typing on focused trigger (input inside popup)', async () => {
-      const onOpenChange = spy();
+    it('selects item when typing on focused trigger (input inside popup)', async () => {
       const { user } = await render(
-        <Combobox.Root items={['apple', 'banana', 'cherry']} onOpenChange={onOpenChange}>
+        <Combobox.Root items={['apple', 'banana', 'cherry']}>
           <Combobox.Trigger data-testid="trigger">
             <Combobox.Value data-testid="value" />
           </Combobox.Trigger>
@@ -588,12 +587,8 @@ describe('<Combobox.Trigger />', () => {
       });
       await user.keyboard('a');
 
-      await waitFor(() => {
-        expect(screen.queryByRole('listbox')).not.to.equal(null);
-      });
-      expect(trigger).not.to.have.text('apple');
-      expect(onOpenChange.callCount).to.equal(1);
-      expect(onOpenChange.lastCall.args[1].reason).to.equal(REASONS.triggerPress);
+      expect(trigger).to.have.text('apple');
+      expect(screen.queryByRole('listbox')).to.equal(null);
     });
   });
 

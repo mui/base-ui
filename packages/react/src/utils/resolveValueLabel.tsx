@@ -43,6 +43,18 @@ export function isGroupedItems(
   );
 }
 
+export function getFirstFlatItem(items: readonly any[] | readonly Group<any>[] | undefined) {
+  if (items == null || items.length === 0) {
+    return undefined;
+  }
+
+  if (isGroupedItems(items)) {
+    return items[0]?.items[0];
+  }
+
+  return items[0];
+}
+
 /**
  * Checks if the items array contains an item with a null value that has a non-null label.
  */

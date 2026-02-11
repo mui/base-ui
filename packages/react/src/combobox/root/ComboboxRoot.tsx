@@ -8,17 +8,12 @@ import { AriaCombobox } from './AriaCombobox';
  *
  * Documentation: [Base UI Combobox](https://base-ui.com/react/components/combobox)
  */
-export function ComboboxRoot<Value, Multiple extends boolean | undefined = false>(
-  props: ComboboxRoot.Props<Value, Multiple>,
-): React.JSX.Element {
-  const {
-    multiple = false as Multiple,
-    defaultValue,
-    value,
-    onValueChange,
-    autoComplete,
-    ...other
-  } = props;
+export function ComboboxRoot<
+  Value,
+  Multiple extends boolean | undefined = false,
+  ValueMode extends ComboboxRootValueMode | undefined = 'item',
+>(props: ComboboxRoot.Props<Value, Multiple, ValueMode>): React.JSX.Element {
+  const { multiple = false, defaultValue, value, onValueChange, autoComplete, ...other } = props;
 
   return (
     <AriaCombobox
@@ -39,6 +34,7 @@ type ModeFromMultiple<Multiple extends boolean | undefined> = Multiple extends t
 type ComboboxValueType<Value, Multiple extends boolean | undefined> = Multiple extends true
   ? Value[]
   : Value;
+export type ComboboxRootValueMode = 'item' | 'value';
 
 type NoInferCompat<T> = [T][T extends any ? 0 : never];
 
@@ -75,16 +71,22 @@ type ComboboxGroup<Item> = {
   items: ReadonlyArray<Item>;
 };
 
-type ComboboxItems<Value> =
+type ComboboxItems<Value, ValueMode extends ComboboxRootValueMode | undefined = 'item'> =
   | ReadonlyArray<NoInferCompat<ComboboxItemsValue<Value>>>
   | ReadonlyArray<ComboboxGroup<NoInferCompat<ComboboxItemsValue<Value>>>>
-  | (ComboboxItemsValue<Value> extends string | number
-      ?
-          | ReadonlyArray<LabeledValue<NoInferCompat<ComboboxItemsValue<Value>>>>
-          | ReadonlyArray<ComboboxGroup<LabeledValue<NoInferCompat<ComboboxItemsValue<Value>>>>>
+  | (ValueMode extends 'value'
+      ? ComboboxItemsValue<Value> extends string | number
+        ?
+            | ReadonlyArray<LabeledValue<NoInferCompat<ComboboxItemsValue<Value>>>>
+            | ReadonlyArray<ComboboxGroup<LabeledValue<NoInferCompat<ComboboxItemsValue<Value>>>>>
+        : never
       : never);
 
-export type ComboboxRootProps<Value, Multiple extends boolean | undefined = false> = Omit<
+export type ComboboxRootProps<
+  Value,
+  Multiple extends boolean | undefined = false,
+  ValueMode extends ComboboxRootValueMode | undefined = 'item',
+> = Omit<
   AriaCombobox.Props<Value, ModeFromMultiple<Multiple>>,
   | 'fillInputOnItemPress'
   | 'autoComplete'
@@ -96,6 +98,7 @@ export type ComboboxRootProps<Value, Multiple extends boolean | undefined = fals
   | 'itemToStringLabel'
   | 'itemToStringValue'
   | 'isItemEqualToValue'
+  | 'valueMode'
   | 'items'
   | 'filteredItems'
   // Different names
@@ -146,6 +149,14 @@ export type ComboboxRootProps<Value, Multiple extends boolean | undefined = fals
    */
   isItemEqualToValue?: ((itemValue: Value, selectedValue: Value) => boolean) | undefined;
   /**
+   * Controls how selected and highlighted values are represented when `items` are object-like.
+   * The `value` prop passed to `<Combobox.Item>` must match the selected mode.
+   * - `'item'`: each `Item` component accepts the full item as its `value`.
+   * - `'value'`: each `Item` component accepts the item's `value` field.
+   * @default 'item'
+   */
+  valueMode?: ValueMode | undefined;
+  /**
    * The uncontrolled selected value of the combobox when it's initially rendered.
    *
    * To render a controlled combobox, use the `value` prop instead.
@@ -155,13 +166,13 @@ export type ComboboxRootProps<Value, Multiple extends boolean | undefined = fals
    * The items to be displayed in the list.
    * Can be either a flat array of items or an array of groups with items.
    */
-  items?: ComboboxItems<Value> | undefined;
+  items?: ComboboxItems<Value, NoInferCompat<ValueMode>> | undefined;
   /**
    * Filtered items to display in the list.
    * When provided, the list will use these items instead of filtering the `items` prop internally.
    * Use when you want to control filtering logic externally with the `useFilter()` hook.
    */
-  filteredItems?: ComboboxItems<Value> | undefined;
+  filteredItems?: ComboboxItems<Value, NoInferCompat<ValueMode>> | undefined;
   /**
    * A ref to imperative actions.
    * - `unmount`: When specified, the combobox will not be unmounted when closed.
@@ -221,10 +232,12 @@ export type ComboboxRootHighlightEventReason = AriaCombobox.HighlightEventReason
 export type ComboboxRootHighlightEventDetails = AriaCombobox.HighlightEventDetails;
 
 export namespace ComboboxRoot {
-  export type Props<Value, Multiple extends boolean | undefined = false> = ComboboxRootProps<
+  export type Props<
     Value,
-    Multiple
-  >;
+    Multiple extends boolean | undefined = false,
+    Mode extends ComboboxRootValueMode | undefined = 'item',
+  > = ComboboxRootProps<Value, Multiple, Mode>;
+  export type ValueMode = ComboboxRootValueMode;
   export type State = ComboboxRootState;
   export type Actions = ComboboxRootActions;
   export type ChangeEventReason = ComboboxRootChangeEventReason;

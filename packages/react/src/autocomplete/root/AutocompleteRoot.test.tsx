@@ -1313,6 +1313,83 @@ describe('<Autocomplete.Root />', () => {
       });
       expect(screen.getByRole('option', { name: 'Canada' })).not.to.equal(null);
     });
+
+    it('fills input with item label when items are {value,label} and item value is primitive', async () => {
+      const items = [
+        { value: 'us', label: 'United States' },
+        { value: 'ca', label: 'Canada' },
+        { value: 'au', label: 'Australia' },
+      ];
+      const onValueChange = spy();
+
+      const { user } = await render(
+        <Autocomplete.Root items={items} openOnInputClick onValueChange={onValueChange}>
+          <Autocomplete.Input data-testid="input" />
+          <Autocomplete.Portal>
+            <Autocomplete.Positioner>
+              <Autocomplete.Popup>
+                <Autocomplete.List>
+                  {(item: { value: string; label: string }) => (
+                    <Autocomplete.Item key={item.value} value={item.value}>
+                      {item.label}
+                    </Autocomplete.Item>
+                  )}
+                </Autocomplete.List>
+              </Autocomplete.Popup>
+            </Autocomplete.Positioner>
+          </Autocomplete.Portal>
+        </Autocomplete.Root>,
+      );
+
+      const input = screen.getByTestId<HTMLInputElement>('input');
+      await user.click(input);
+      await user.click(screen.getByRole('option', { name: 'Canada' }));
+
+      expect(input).to.have.value('Canada');
+      expect(onValueChange.callCount).to.be.greaterThan(0);
+      expect(onValueChange.lastCall.args[0]).to.equal('Canada');
+    });
+
+    it('fills input from itemToStringValue when selecting object item values', async () => {
+      const items = [
+        { code: 'us', country: 'United States' },
+        { code: 'ca', country: 'Canada' },
+        { code: 'au', country: 'Australia' },
+      ];
+      const onValueChange = spy();
+
+      const { user } = await render(
+        <Autocomplete.Root
+          items={items}
+          itemToStringValue={(item) => item.country}
+          openOnInputClick
+          onValueChange={onValueChange}
+        >
+          <Autocomplete.Input data-testid="input" />
+          <Autocomplete.Portal>
+            <Autocomplete.Positioner>
+              <Autocomplete.Popup>
+                <Autocomplete.List>
+                  {(item: { code: string; country: string }) => (
+                    <Autocomplete.Item key={item.code} value={item}>
+                      {item.country}
+                    </Autocomplete.Item>
+                  )}
+                </Autocomplete.List>
+              </Autocomplete.Popup>
+            </Autocomplete.Positioner>
+          </Autocomplete.Portal>
+        </Autocomplete.Root>,
+      );
+
+      const input = screen.getByTestId<HTMLInputElement>('input');
+      await user.click(input);
+      await user.click(screen.getByRole('option', { name: 'Canada' }));
+
+      expect(input).to.have.value('Canada');
+      expect(onValueChange.callCount).to.be.greaterThan(0);
+      expect(onValueChange.lastCall.args[0]).to.equal('Canada');
+    });
   });
 
   describe('Field', () => {

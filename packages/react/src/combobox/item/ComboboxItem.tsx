@@ -3,6 +3,8 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { useStore } from '@base-ui/utils/store';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { error } from '@base-ui/utils/error';
+import { SafeReact } from '@base-ui/utils/safeReact';
 import {
   useComboboxRootContext,
   useComboboxDerivedItemsContext,
@@ -18,7 +20,7 @@ import { selectors } from '../store';
 import { useButton } from '../../use-button';
 import { useComboboxRowContext } from '../row/ComboboxRowContext';
 import { compareItemEquality, findItemIndex } from '../../utils/itemEquality';
-import { hasValueField, isPrimitiveValue } from '../../utils/resolveValueLabel';
+import { isPrimitiveValue } from '../../utils/resolveValueLabel';
 
 /**
  * An individual item in the list.
@@ -49,8 +51,7 @@ export const ComboboxItem = React.memo(
 
     const store = useComboboxRootContext();
     const isRow = useComboboxRowContext();
-    const { flatFilteredItems, flatFilteredValues, itemValueModeRef } =
-      useComboboxDerivedItemsContext();
+    const { flatFilteredItems, flatFilteredValues, valueMode } = useComboboxDerivedItemsContext();
 
     const items = useStore(store, selectors.items);
     const open = useStore(store, selectors.open);
@@ -60,12 +61,11 @@ export const ComboboxItem = React.memo(
     const isItemEqualToValue = useStore(store, selectors.isItemEqualToValue);
 
     const selectable = selectionMode !== 'none';
-    const isPrimitiveLikeItemValue = value === null || isPrimitiveValue(value);
     const index =
       indexProp ??
       (virtualized
         ? findItemIndex(
-            isPrimitiveLikeItemValue ? flatFilteredValues : flatFilteredItems,
+            valueMode === 'value' ? flatFilteredValues : flatFilteredItems,
             value,
             isItemEqualToValue,
           )
@@ -83,50 +83,18 @@ export const ComboboxItem = React.memo(
     const selected = matchesSelectedValue && selectable;
 
     useIsoLayoutEffect(() => {
-      const shouldRegister = hasRegistered && (virtualized || indexProp != null);
-      const list = store.state.listRef.current;
-
-      if (shouldRegister) {
-        list[index] = itemRef.current;
-      }
-
-      if (items && index !== -1) {
-        const resolvedItem = flatFilteredItems[index];
-        const usesPrimitiveItemValue =
-          hasValueField(resolvedItem) &&
-          resolvedItem.value !== null &&
-          isPrimitiveValue(resolvedItem.value) &&
-          Object.is(value, resolvedItem.value);
-
-        // Keep inferred value mode in sync when item value shape changes.
-        // Assumes all rendered items use the same value shape.
-        // `null` is intentionally ignored here as it can be valid in either mode.
-        if (usesPrimitiveItemValue) {
-          itemValueModeRef.current = 'value';
-        } else if (value !== null && !isPrimitiveValue(value)) {
-          itemValueModeRef.current = null;
-        }
-      }
-
-      if (!shouldRegister) {
+      const shouldRun = hasRegistered && (virtualized || indexProp != null);
+      if (!shouldRun) {
         return undefined;
       }
+
+      const list = store.state.listRef.current;
+      list[index] = itemRef.current;
 
       return () => {
         delete list[index];
       };
-    }, [
-      hasRegistered,
-      virtualized,
-      index,
-      indexProp,
-      store,
-      items,
-      flatFilteredItems,
-      value,
-      isPrimitiveLikeItemValue,
-      itemValueModeRef,
-    ]);
+    }, [hasRegistered, virtualized, index, indexProp, store]);
 
     useIsoLayoutEffect(() => {
       if (!hasRegistered || items) {
@@ -167,6 +135,24 @@ export const ComboboxItem = React.memo(
         store.set('selectedIndex', index);
       }
     }, [hasRegistered, items, open, store, index, value, isItemEqualToValue]);
+
+    if (process.env.NODE_ENV !== 'production') {
+      // eslint-disable-next-line react-hooks/rules-of-hooks
+      React.useEffect(() => {
+        if (valueMode !== 'value' || value === null || isPrimitiveValue(value)) {
+          return;
+        }
+
+        const ownerStackMessage = SafeReact.captureOwnerStack?.() || '';
+        const message =
+          '`<Combobox.Item>` received a non-primitive `value` while `valueMode="value"` is set. ' +
+          'This prevents the combobox from matching and serializing selected values correctly. ' +
+          'Pass a primitive `value` such as `item.value`, or switch to `valueMode="item"` and use `<Combobox.Item value={item}>`. ' +
+          'https://base-ui.com/react/components/combobox#value-modes';
+
+        error(`${message}${ownerStackMessage}`);
+      }, [value, valueMode]);
+    }
 
     const state: ComboboxItem.State = {
       disabled,

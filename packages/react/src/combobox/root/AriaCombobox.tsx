@@ -7,6 +7,8 @@ import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { visuallyHidden, visuallyHiddenInput } from '@base-ui/utils/visuallyHidden';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
+import { error } from '@base-ui/utils/error';
+import { SafeReact } from '@base-ui/utils/safeReact';
 import { Store, useStore } from '@base-ui/utils/store';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import {
@@ -50,8 +52,8 @@ import {
   stringifyAsLabel,
   stringifyAsValue,
   Group,
+  getFirstFlatItem,
   isGroupedItems,
-  isPrimitiveValue,
   hasValueField,
   getItemValue,
 } from '../../utils/resolveValueLabel';
@@ -106,6 +108,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     itemToStringLabel,
     itemToStringValue,
     isItemEqualToValue = defaultItemEquality,
+    valueMode = 'item',
     virtualized = false,
     inline: inlineProp = false,
     fillInputOnItemPress = true,
@@ -149,11 +152,6 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
   const selectionEventRef = React.useRef<MouseEvent | PointerEvent | KeyboardEvent | null>(null);
   const lastHighlightRef = React.useRef(INITIAL_LAST_HIGHLIGHT);
   const pendingQueryHighlightRef = React.useRef<null | { hasQuery: boolean }>(null);
-  const itemValueModeRef = React.useRef<'value' | null>(null);
-  const mappedFlatFilteredValuesRef = React.useRef<{
-    items: readonly Value[];
-    values: any[];
-  } | null>(null);
 
   /**
    * Contains the currently visible list of item values post-filtering.
@@ -188,11 +186,6 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     name: 'Combobox',
     state: 'selectedValue',
   });
-
-  const selectionSample =
-    multiple && Array.isArray(selectedValue)
-      ? selectedValue.find((value) => value != null)
-      : selectedValue;
 
   const filter = React.useMemo(() => {
     if (filterProp === null) {
@@ -265,14 +258,31 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     return items;
   }, [items, isGrouped]);
 
-  const hasValueItems = items != null && flatItems.length > 0 && hasValueField(flatItems[0]);
-
-  // Render-time mode derived from selectedValue shape.
-  // This is reactive and should be preferred for render-time data derivation.
+  const valueModeSourceFirstItem = getFirstFlatItem(items ?? filteredItemsProp);
   const itemValueMode =
-    !hasValueItems || selectionMode === 'none' || !isPrimitiveValue(selectionSample)
-      ? 'item'
-      : 'value';
+    valueMode === 'value' && hasValueField(valueModeSourceFirstItem) ? 'value' : 'item';
+
+  if (process.env.NODE_ENV !== 'production') {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    React.useEffect(() => {
+      const hasObjectItems =
+        valueModeSourceFirstItem != null &&
+        typeof valueModeSourceFirstItem === 'object' &&
+        valueModeSourceFirstItem !== null;
+
+      if (valueMode !== 'value' || !hasObjectItems || itemValueMode === 'value') {
+        return;
+      }
+
+      const ownerStackMessage = SafeReact.captureOwnerStack?.() || '';
+      const message =
+        'The `valueMode="value"` prop on `Combobox` expects object `items` to include a `value` field. ' +
+        'Use `valueMode="item"` with `<Combobox.Item value={item}>`, ' +
+        'or provide `{ value, label }` items with `<Combobox.Item value={item.value}>`.';
+
+      error(`${message}${ownerStackMessage}`);
+    }, [itemValueMode, valueMode, valueModeSourceFirstItem]);
+  }
 
   const { filteredItems, flatFilteredItems, flatFilteredValues } = React.useMemo(() => {
     const hasLimit = limit > -1;
@@ -283,7 +293,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
 
     if (filteredItemsProp && !shouldIgnoreExternalFiltering) {
       filtered = filteredItemsProp as Value[] | Group<Value>[];
-      if (isGrouped) {
+      if (isGroupedItems(filteredItemsProp)) {
         const grouped = filtered as Group<Value>[];
         const flatItemsLocal: Value[] = [];
         for (const group of grouped) {
@@ -366,8 +376,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       flat = flatItemsLocal;
     }
 
-    const values =
-      hasValueItems && (itemValueMode === 'value' || virtualized) ? flat.map(getItemValue) : flat;
+    const values = itemValueMode === 'value' ? flat.map(getItemValue) : flat;
 
     return {
       filteredItems: filtered,
@@ -384,44 +393,10 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     filter,
     itemToStringLabel,
     flatItems,
-    hasValueItems,
     itemValueMode,
-    virtualized,
   ]);
 
-  const getActiveItems = useStableCallback(() => {
-    // Prefer the reactive render-time mode first.
-    if (itemValueMode === 'value') {
-      return flatFilteredValues;
-    }
-
-    // Fallback for post-commit effects/handlers where item mode can be inferred
-    // from rendered <Combobox.Item value={...}> before selectedValue is set.
-    // itemValueModeRef is imperative and non-reactive, so we only use it outside render.
-    if (
-      selectionMode !== 'none' &&
-      selectionSample == null &&
-      itemValueModeRef.current === 'value'
-    ) {
-      if (!hasValueItems || flatFilteredValues !== flatFilteredItems) {
-        return flatFilteredValues;
-      }
-
-      const cached = mappedFlatFilteredValuesRef.current;
-      if (cached?.items === flatFilteredItems) {
-        return cached.values;
-      }
-
-      const mapped = flatFilteredItems.map(getItemValue);
-      mappedFlatFilteredValuesRef.current = {
-        items: flatFilteredItems,
-        values: mapped,
-      };
-      return mapped;
-    }
-
-    return flatFilteredItems;
-  });
+  const activeItems = itemValueMode === 'value' ? flatFilteredValues : flatFilteredItems;
 
   const store = useRefWithInit(
     () =>
@@ -569,7 +544,6 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       } else {
         let activeValue: any;
         if (items) {
-          const activeItems = getActiveItems();
           activeValue = activeItems[options.activeIndex];
         } else {
           activeValue = valuesRef.current[options.activeIndex];
@@ -601,12 +575,10 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       if (eventDetails.reason === REASONS.inputChange) {
         const event = eventDetails.event as Event;
         const inputType = (event as InputEvent).inputType;
-        const isTriggerTypingKeydown = event.type === 'keydown';
         // Treat composition commits as typed input; autofill may omit `inputType` or
-        // report `insertReplacementText`. Trigger-typing paths provide a keydown event.
+        // report `insertReplacementText`.
         const isTypedInput =
           event.type === 'compositionend' ||
-          isTriggerTypingKeydown ||
           (inputType != null && inputType !== '' && inputType !== 'insertReplacementText');
         if (isTypedInput) {
           const hasQuery = next.trim() !== '';
@@ -898,10 +870,10 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
 
   useIsoLayoutEffect(() => {
     if (items) {
-      valuesRef.current = getActiveItems();
+      valuesRef.current = activeItems;
       listRef.current.length = flatFilteredItems.length;
     }
-  }, [items, flatFilteredItems, flatFilteredValues, itemValueMode, open, getActiveItems]);
+  }, [activeItems, flatFilteredItems, items, open]);
 
   useIsoLayoutEffect(() => {
     const pendingHighlight = pendingQueryHighlightRef.current;
@@ -923,7 +895,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     const shouldUseFlatFilteredItems = hasItems || hasFilteredItemsProp;
     let candidateItems = valuesRef.current;
     if (shouldUseFlatFilteredItems) {
-      candidateItems = getActiveItems();
+      candidateItems = activeItems;
     }
     const storeActiveIndex = store.state.activeIndex;
 
@@ -969,16 +941,13 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     }
   }, [
     activeIndex,
+    activeItems,
     autoHighlightMode,
     hasFilteredItemsProp,
     hasItems,
-    flatFilteredItems,
-    flatFilteredValues,
-    itemValueMode,
     inline,
     open,
     store,
-    getActiveItems,
   ]);
 
   useIsoLayoutEffect(() => {
@@ -1268,9 +1237,9 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       filteredItems,
       flatFilteredItems,
       flatFilteredValues,
-      itemValueModeRef,
+      valueMode: itemValueMode,
     }),
-    [query, filteredItems, flatFilteredItems, flatFilteredValues],
+    [query, filteredItems, flatFilteredItems, flatFilteredValues, itemValueMode],
   );
 
   const serializedValue = React.useMemo(() => {
@@ -1562,6 +1531,14 @@ interface ComboboxRootProps<ItemValue> {
    * Defaults to `Object.is` comparison.
    */
   isItemEqualToValue?: ((itemValue: ItemValue, selectedValue: ItemValue) => boolean) | undefined;
+  /**
+   * Controls how selected and highlighted values are represented when `items` are object-like.
+   * The value passed to `<Combobox.Item value={...}>` must match the selected mode.
+   * - `'item'`: use full items.
+   * - `'value'`: use each item's `.value` field.
+   * @default 'item'
+   */
+  valueMode?: ('item' | 'value') | undefined;
   /**
    * Whether the items are being externally virtualized.
    * @default false

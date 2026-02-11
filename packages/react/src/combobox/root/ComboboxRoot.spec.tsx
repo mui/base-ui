@@ -68,10 +68,18 @@ const groupedOptions: GroupedOptions = [
   { title: 'Other', items: objectItems },
 ];
 
+function acceptsValueMode(_valueMode: Combobox.Root.ValueMode | undefined) {}
+
+acceptsValueMode('item');
+acceptsValueMode('value');
+acceptsValueMode(undefined);
+// @ts-expect-error - unsupported value mode
+acceptsValueMode('auto');
+
 <Combobox.Root
   items={objectItems}
   itemToStringValue={(item) => {
-    // @ts-expect-error - inference always comes from `value`/`defaultValue`
+    // @ts-expect-error - `item` is unknown without `value`/`defaultValue`
     return item.value;
   }}
 />;
@@ -79,7 +87,7 @@ const groupedOptions: GroupedOptions = [
 <Combobox.Root
   items={groupItemsReadonly}
   itemToStringValue={(item) => {
-    // @ts-expect-error - inference always comes from `value`/`defaultValue`
+    // @ts-expect-error - `item` is unknown without `value`/`defaultValue`
     return item.value;
   }}
 />;
@@ -94,6 +102,7 @@ const groupedOptions: GroupedOptions = [
 
 <Combobox.Root
   items={objectItems}
+  valueMode="value"
   defaultValue="a"
   onValueChange={(value) => {
     // @ts-expect-error - possibly null
@@ -103,13 +112,27 @@ const groupedOptions: GroupedOptions = [
 />;
 
 <Combobox.Root
+  // @ts-expect-error - primitive selected values with object items require `valueMode="value"`
+  items={objectItems}
+  defaultValue="a"
+/>;
+
+<Combobox.Root
   // @ts-expect-error - items shape doesn't match string value type
   items={mismatchedItems}
   defaultValue="a"
 />;
 
 <Combobox.Root
+  // @ts-expect-error - with `valueMode="value"`, primitive selected values require `{ value, label }` object items
+  items={mismatchedItems}
+  valueMode="value"
+  defaultValue="a"
+/>;
+
+<Combobox.Root
   items={objectItemsReadonly}
+  valueMode="value"
   defaultValue="a"
   onValueChange={(value) => {
     // @ts-expect-error - possibly null
@@ -120,6 +143,7 @@ const groupedOptions: GroupedOptions = [
 
 <Combobox.Root
   items={objectItems}
+  valueMode="value"
   value="a"
   onValueChange={(value) => {
     // @ts-expect-error - possibly null
@@ -127,9 +151,9 @@ const groupedOptions: GroupedOptions = [
   }}
 />;
 
-<Combobox.Root items={objectItems} defaultValue="a" />;
+<Combobox.Root items={objectItems} valueMode="value" defaultValue="a" />;
 
-<Combobox.Root items={numberItems} defaultValue={1} />;
+<Combobox.Root items={numberItems} valueMode="value" defaultValue={1} />;
 
 <Combobox.Root
   // @ts-expect-error - items shape doesn't match string value type
@@ -137,16 +161,29 @@ const groupedOptions: GroupedOptions = [
   defaultValue="1"
 />;
 
-<Combobox.Root items={groupItemsReadonly} defaultValue="a" />;
+<Combobox.Root items={groupItemsReadonly} valueMode="value" defaultValue="a" />;
 
-<Combobox.Root items={groupNumberItems} defaultValue={1} />;
+<Combobox.Root items={groupNumberItems} valueMode="value" defaultValue={1} />;
+
+<Combobox.Root items={objectItems} valueMode="item" defaultValue={objectItems[0]} />;
+
+<Combobox.Root items={objectItems} valueMode="value" defaultValue="a" />;
+
+<Combobox.Root items={objectItems} valueMode="value" defaultValue={null} />;
+
+<Combobox.Root items={objectItems} valueMode="value" value={null} />;
+
+<Combobox.Root
+  // @ts-expect-error - unsupported value mode
+  valueMode="auto"
+/>;
 
 interface SelectProps<
   Data extends OptionData = any,
   Multiple extends boolean | undefined = false,
 > extends Omit<
   Combobox.Root.Props<Option['value'], Multiple>,
-  'isItemEqualToValue' | 'items' | 'children'
+  'isItemEqualToValue' | 'valueMode' | 'items' | 'children'
 > {
   items: Option<Data>[] | GroupedOptions<Data>;
 }
@@ -155,7 +192,7 @@ function Select<Data extends OptionData, Multiple extends boolean | undefined = 
   items,
   ...rest
 }: SelectProps<Data, Multiple>) {
-  return <Combobox.Root items={items} {...rest} />;
+  return <Combobox.Root valueMode="value" items={items} {...rest} />;
 }
 
 <Select items={objectItems} />;
@@ -313,6 +350,32 @@ function App() {
   }}
 />;
 
+<Combobox.Root items={['a', 'b', 'c']} value="a" />;
+
+<Combobox.Root
+  items={['a', 'b', 'c']}
+  value="a"
+  onValueChange={(value) => {
+    // @ts-expect-error - possibly null
+    value.toUpperCase();
+    value?.toUpperCase();
+  }}
+/>;
+
+<Combobox.Root items={[1, 2, 3]} defaultValue={2} />;
+
+<Combobox.Root items={[1, 2, 3]} value={2} />;
+
+<Combobox.Root
+  items={[1, 2, 3]}
+  value={2}
+  onValueChange={(value) => {
+    // @ts-expect-error - possibly null
+    value.toFixed(1);
+    value?.toFixed(1);
+  }}
+/>;
+
 <Combobox.Root
   items={[
     { id: 1, name: 'Alice' },
@@ -377,3 +440,24 @@ export function Wrapper<Value, Multiple extends boolean | undefined = false>(
 ) {
   return <Combobox.Root {...props} />;
 }
+
+export function WrapperWithValueMode<
+  Value,
+  Multiple extends boolean | undefined = false,
+  ValueMode extends Combobox.Root.ValueMode | undefined = 'item',
+>(props: Combobox.Root.Props<Value, Multiple, ValueMode>) {
+  return <Combobox.Root {...props} />;
+}
+
+<Wrapper items={objectItems} value={objectItems[0]} />;
+
+<WrapperWithValueMode
+  valueMode="value"
+  items={objectItems}
+  value="a"
+  onValueChange={(value) => {
+    // @ts-expect-error - possibly null
+    value.startsWith('a');
+    value?.startsWith('a');
+  }}
+/>;

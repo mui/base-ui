@@ -8,7 +8,7 @@ export interface ComboboxDerivedItemsContext {
   filteredItems: any[];
   flatFilteredItems: any[];
   flatFilteredValues: any[];
-  itemValueModeRef: React.RefObject<'value' | null>;
+  valueMode: 'item' | 'value';
 }
 
 export const ComboboxRootContext = React.createContext<ComboboxStore | undefined>(undefined);

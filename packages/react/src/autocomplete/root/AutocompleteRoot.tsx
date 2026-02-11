@@ -157,6 +157,7 @@ export interface AutocompleteRootProps<ItemValue> extends Omit<
   | 'fillInputOnItemPress'
   | 'itemToStringValue'
   | 'isItemEqualToValue'
+  | 'valueMode'
   // Different names
   | 'inputValue' // value
   | 'defaultInputValue' // defaultValue
