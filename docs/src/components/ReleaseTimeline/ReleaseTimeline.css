@@ -5,9 +5,16 @@
     padding-bottom: 2rem;
     list-style: none;
     padding-left: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
   }
 
   @media (min-width: 768px) {
+    .ReleaseTimeline {
+      gap: 3rem;
+    }
+
     .TimelineSpine {
       position: absolute;
       top: 0.75rem;
@@ -23,10 +30,6 @@
     position: relative;
   }
 
-  .TimelineItem + .TimelineItem {
-    margin-top: 1.5em;
-  }
-
   @media (min-width: 768px) {
     .TimelineItem {
       padding-left: 0;
@@ -34,10 +37,6 @@
       grid-template-columns: 1fr 1fr;
       gap: 4rem;
       align-items: start;
-    }
-
-    .TimelineItem + .TimelineItem {
-      margin-top: 3em;
     }
 
     .TimelineItem:nth-child(even) .TimelineCard {
@@ -67,6 +66,9 @@
   .TimelineCard {
     position: relative;
     z-index: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
     background-color: var(--color-gray-200);
     border-radius: var(--radius-lg);
     padding: 1.25rem;
@@ -98,15 +100,29 @@
     z-index: -1;
   }
 
+  .TimelineCardHeader {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .TimelineDate {
+    margin: 0 0 0.125rem;
+    font-size: var(--text-sm);
+    line-height: var(--text-sm--line-height);
+    letter-spacing: var(--text-sm--letter-spacing);
+    color: var(--color-gray-500);
+  }
+
   .TimelineVersion {
     display: flex;
     align-items: center;
     gap: 0.5rem;
+    margin: 0;
     font-size: var(--text-lg);
     line-height: var(--text-lg--line-height);
     letter-spacing: var(--text-lg--letter-spacing);
     font-weight: 500;
-    margin: 0;
     color: var(--color-foreground);
   }
 
@@ -135,34 +151,24 @@
     border-radius: 999px;
   }
 
-  .TimelineDate {
-    margin: 0.125rem 0 0;
-    font-size: var(--text-sm);
-    line-height: var(--text-sm--line-height);
-    letter-spacing: var(--text-sm--letter-spacing);
-    color: var(--color-gray-500);
-  }
-
   .TimelineHighlights {
     list-style: none;
     padding: 0;
-    margin: 1rem 0;
     letter-spacing: var(--text-md--letter-spacing);
   }
 
   .TimelineHighlights li {
     position: relative;
     padding-left: 1rem;
-    margin-bottom: 0.5rem;
+  }
+
+  .TimelineHighlights li + li {
+    margin-top: 0.5rem;
   }
 
   .TimelineHighlights li::before {
     content: '•';
     position: absolute;
     left: 0;
-  }
-
-  .TimelineHighlights li:last-child {
-    margin-bottom: 0;
   }
 }

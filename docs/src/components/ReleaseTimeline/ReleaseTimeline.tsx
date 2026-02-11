@@ -12,16 +12,18 @@ export function ReleaseTimeline() {
       {releases.map((release, index) => (
         <li key={release.versionSlug} className="TimelineItem">
           <article className="TimelineCard">
-            <h3 className="TimelineVersion">
-              <Link
-                className="TimelineVersionLink"
-                href={`/react/overview/releases/${release.versionSlug}`}
-              >
-                {release.version}
-              </Link>
-              {index === 0 && <span className="TimelineBadge">Latest</span>}
-            </h3>
-            <p className="TimelineDate">{release.date}</p>
+            <div className="TimelineCardHeader">
+              <p className="TimelineDate">{release.date}</p>
+              <h3 className="TimelineVersion">
+                <Link
+                  className="TimelineVersionLink"
+                  href={`/react/overview/releases/${release.versionSlug}`}
+                >
+                  {release.version}
+                </Link>
+                {index === 0 && <span className="TimelineBadge">Latest</span>}
+              </h3>
+            </div>
             <ul className="TimelineHighlights">
               {release.highlights.map((highlight, i) => (
                 <li key={i}>{highlight}</li>
