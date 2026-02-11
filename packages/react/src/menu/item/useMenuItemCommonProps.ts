@@ -85,6 +85,8 @@ export function useMenuItemCommonProps(params: UseMenuItemCommonPropsParameters)
             return;
           }
 
+          // On non-macOS platforms, this mouseup belongs to the right-click gesture
+          // that opened the context menu, so it must not activate an item.
           if (isContextMenu && !isMac && event.button === 2) {
             return;
           }
