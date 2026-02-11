@@ -38,13 +38,6 @@ export function ReleaseTimeline() {
                 <li key={i}>{highlight}</li>
               ))}
             </ul>
-            <Link
-              className="Link"
-              href={`/react/overview/releases/${release.versionSlug}`}
-              aria-label={`Read the full release notes for ${release.version}`}
-            >
-              Read more
-            </Link>
           </article>
         </li>
       ))}
