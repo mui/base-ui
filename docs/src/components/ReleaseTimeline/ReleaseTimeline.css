@@ -108,7 +108,6 @@
   }
 
   .TimelineDate {
-    margin: 0 0 0.125rem;
     font-size: var(--text-sm);
     line-height: var(--text-sm--line-height);
     letter-spacing: var(--text-sm--letter-spacing);
