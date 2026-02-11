@@ -1,16 +1,9 @@
-'use client';
-import * as React from 'react';
 import { Slider } from '@base-ui/react/slider';
 import styles from './index.module.css';
 
 export default function RangeSlider() {
-  const id = React.useId();
   return (
-    <Slider.Root defaultValue={[25, 45]} className={styles.Root} aria-labelledby={id}>
-      <label id={id} className={styles.Label}>
-        Price range
-      </label>
-      <Slider.Value className={styles.Value} />
+    <Slider.Root defaultValue={[25, 45]}>
       <Slider.Control className={styles.Control}>
         <Slider.Track className={styles.Track}>
           <Slider.Indicator className={styles.Indicator} />
