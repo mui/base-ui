@@ -68,6 +68,7 @@
     z-index: 0;
     display: flex;
     flex-direction: column;
+    align-items: start;
     gap: 1rem;
     background-color: var(--color-gray-200);
     border-radius: var(--radius-lg);
