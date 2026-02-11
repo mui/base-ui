@@ -1,22 +1,22 @@
 @layer components {
   .ReleaseTimeline {
     position: relative;
-    margin: 2rem auto;
     padding-bottom: 2rem;
     list-style: none;
     padding-left: 0;
     display: flex;
     flex-direction: column;
-    gap: 1.5rem;
+    gap: 1rem;
+  }
+
+  .TimelineSpine {
+    display: none;
   }
 
   @media (min-width: 768px) {
-    .ReleaseTimeline {
-      gap: 3rem;
-    }
-
     .TimelineSpine {
       position: absolute;
+      display: block;
       top: 0.75rem;
       left: 50%;
       bottom: 0;
