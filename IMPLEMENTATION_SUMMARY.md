@@ -2,7 +2,7 @@
 
 ## Overview
 
-Implemented a visual timeline for Base UI releases page that provides an overview of all releases with key highlights, similar to MUI X's "What's New" page.
+Implemented a visual timeline for Base UI releases page that provides an overview of all releases with key highlights, similar to MUI X's "What's New" page.
 
 ## Features Implemented
 
@@ -88,7 +88,7 @@ docs/src/
    - SEO-friendly with proper metadata
 
 4. **Styling**:
-   - Uses existing Base UI design tokens and CSS conventions
+   - Uses existing Base UI design tokens and CSS conventions
    - Follows the repository's styling patterns (@layer components)
    - Responsive and accessible
 
