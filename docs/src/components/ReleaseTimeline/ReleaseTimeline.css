@@ -63,6 +63,7 @@
       grid-column: 2;
     }
 
+    /* Dot */
     .TimelineItem::before {
       content: '';
       display: block;
@@ -79,6 +80,7 @@
       z-index: 1;
     }
 
+    /* Horizontal line connecting the dot with the card */
     .TimelineItem::after {
       content: '';
       display: block;
