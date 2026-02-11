@@ -13,19 +13,24 @@ export function ReleaseTimeline() {
         <div key={release.versionSlug} className="TimelineItem">
           <div className="TimelineDot" />
           <div className="TimelineCard">
-            <Link
-              href={`/react/overview/releases/${release.versionSlug}`}
-              className="TimelineCardLink"
-            >
-              <div className="TimelineCardHeader">
-                <h3 className="TimelineVersion">{release.version}</h3>
-                <p className="TimelineDate">{release.date}</p>
-              </div>
-              <ul className="TimelineHighlights">
-                {release.highlights.map((highlight, i) => (
-                  <li key={i}>{highlight}</li>
-                ))}
-              </ul>
+            <div className="TimelineCardHeader">
+              <h3 className="TimelineVersion">
+                <Link
+                  className="TimelineVersionLink"
+                  href={`/react/overview/releases/${release.versionSlug}`}
+                >
+                  {release.version}
+                </Link>
+              </h3>
+              <p className="TimelineDate">{release.date}</p>
+            </div>
+            <ul className="TimelineHighlights">
+              {release.highlights.map((highlight, i) => (
+                <li key={i}>{highlight}</li>
+              ))}
+            </ul>
+            <Link className="Link" href={`/react/overview/releases/${release.versionSlug}`}>
+              Read more
             </Link>
           </div>
         </div>

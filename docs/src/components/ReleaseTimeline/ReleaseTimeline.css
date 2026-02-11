@@ -1,15 +1,13 @@
 @layer components {
   .ReleaseTimeline {
     position: relative;
-    padding: 2rem 0;
-    max-width: 800px;
-    margin: 0 auto;
+    margin: 2rem auto;
   }
 
   .TimelineSpine {
     position: absolute;
     left: 1.5rem;
-    top: 0;
+    top: 0.5rem;
     bottom: 0;
     width: 1px;
     background: var(--color-gray-200);
@@ -17,6 +15,7 @@
 
   @media (min-width: 640px) {
     .TimelineSpine {
+      top: 0.75rem;
       left: 50%;
       transform: translateX(-50%);
     }
@@ -33,7 +32,7 @@
       padding-left: 0;
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 2rem;
+      gap: 4rem;
       align-items: start;
     }
 
@@ -59,11 +58,11 @@
     position: absolute;
     left: 1.5rem;
     top: 0.5rem;
-    width: 1rem;
-    height: 1rem;
+    width: 12px;
+    height: 12px;
     border-radius: 50%;
-    background: var(--color-content);
-    border: 3px solid var(--color-gray-200);
+    background: white;
+    border: 1px solid var(--color-gray-200);
     transform: translateX(-50%);
   }
 
@@ -75,23 +74,13 @@
   }
 
   .TimelineCard {
-    background: var(--color-background);
     border: 1px solid var(--color-gray-200);
     border-radius: var(--radius-md);
     padding: 1.5rem;
+    font-size: var(--text-md);
+    color: var(--color-gray);
+    line-height: var(--text-md--line-height);
     transition: all 0.2s ease;
-  }
-
-  .TimelineCard:hover {
-    border-color: var(--color-purple-500);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    transform: translateY(-2px);
-  }
-
-  .TimelineCardLink {
-    text-decoration: none;
-    color: inherit;
-    display: block;
   }
 
   .TimelineCardHeader {
@@ -101,39 +90,50 @@
   }
 
   .TimelineVersion {
-    font-size: 1.25rem;
-    font-weight: 600;
+    font-size: var(--text-lg);
+    line-height: var(--text-lg--line-height);
+    letter-spacing: var(--text-lg--letter-spacing);
+    font-weight: 500;
     margin: 0;
     color: var(--color-gray-900);
   }
 
+  .TimelineVersionLink {
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+      text-underline-offset: 4px;
+      text-decoration-thickness: 1px;
+      text-decoration-color: currentColor;
+    }
+  }
+
   .TimelineDate {
-    font-size: 0.875rem;
-    color: var(--color-gray-600);
-    margin: 0.25rem 0 0 0;
+    margin: 0.125rem 0 0;
+    font-size: var(--text-sm);
+    line-height: var(--text-sm--line-height);
+    letter-spacing: var(--text-sm--letter-spacing);
+    color: var(--color-gray-500);
   }
 
   .TimelineHighlights {
     list-style: none;
     padding: 0;
-    margin: 0;
+    margin: 0 0 1rem;
+    letter-spacing: var(--text-md--letter-spacing);
   }
 
   .TimelineHighlights li {
     position: relative;
-    padding-left: 1.5rem;
+    padding-left: 1rem;
     margin-bottom: 0.5rem;
-    font-size: 0.9375rem;
-    color: var(--color-gray);
-    line-height: 1.6;
   }
 
   .TimelineHighlights li::before {
     content: '•';
     position: absolute;
-    left: 0.5rem;
-    color: var(--color-purple-500);
-    font-weight: bold;
+    left: 0;
   }
 
   .TimelineHighlights li:last-child {
