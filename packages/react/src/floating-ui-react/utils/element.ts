@@ -2,6 +2,8 @@ import { isHTMLElement, isShadowRoot } from '@floating-ui/utils/dom';
 import { isJSDOM } from '@base-ui/utils/detectBrowser';
 import { FOCUSABLE_ATTRIBUTE, TYPEABLE_SELECTOR } from './constants';
 
+export { ownerDocument as getDocument } from '@base-ui/utils/owner';
+
 export function activeElement(doc: Document) {
   let element = doc.activeElement;
 
@@ -65,10 +67,6 @@ export function isEventTargetWithin(event: Event, node: Node | null | undefined)
 
 export function isRootElement(element: Element): boolean {
   return element.matches('html,body');
-}
-
-export function getDocument(node: Element | null) {
-  return node?.ownerDocument || document;
 }
 
 export function isTypeableElement(element: unknown): boolean {
