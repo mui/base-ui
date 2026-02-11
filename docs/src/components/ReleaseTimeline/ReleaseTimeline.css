@@ -17,7 +17,8 @@
     .TimelineSpine {
       position: absolute;
       display: block;
-      top: calc(1.25rem + var(--text-sm--line-height) + 0.5rem + var(--text-lg--line-height) / 2);
+      /* Align vertically with the first .TimelineDate  */
+      top: calc(1.25rem + var(--text-sm--line-height) / 2);
       left: 50%;
       bottom: 0;
       width: 1px;
@@ -53,7 +54,8 @@
       display: block;
       position: absolute;
       left: 50%;
-      top: calc(1.25rem + var(--text-sm--line-height) + 0.5rem + var(--text-lg--line-height) / 2 - 6px);
+      /* Align vertically with .TimelineDate */
+      top: calc(1.25rem + var(--text-sm--line-height) / 2 - 6px);
       width: 12px;
       height: 12px;
       border-radius: 50%;
