@@ -196,6 +196,7 @@
     color: var(--color-green);
     border: 1px solid currentColor;
     border-radius: 999px;
+    user-select: none;
   }
 
   .TimelineHighlights {
