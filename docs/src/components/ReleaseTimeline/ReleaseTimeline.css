@@ -62,11 +62,9 @@
     width: 1rem;
     height: 1rem;
     border-radius: 50%;
-    background: var(--color-purple-500);
-    border: 3px solid var(--color-background);
-    box-shadow: 0 0 0 2px var(--color-purple-500);
+    background: var(--color-content);
+    border: 3px solid var(--color-gray-200);
     transform: translateX(-50%);
-    z-index: 2;
   }
 
   @media (min-width: 640px) {
