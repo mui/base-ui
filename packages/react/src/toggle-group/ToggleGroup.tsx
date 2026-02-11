@@ -127,6 +127,7 @@ export const ToggleGroup = React.forwardRef(function ToggleGroup(
           props={[defaultProps, elementProps]}
           stateAttributesMapping={stateAttributesMapping}
           loopFocus={loopFocus}
+          enableHomeAndEndKeys
         />
       )}
     </ToggleGroupContext.Provider>

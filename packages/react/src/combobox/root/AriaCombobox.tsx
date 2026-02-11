@@ -108,6 +108,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     modal = false,
     limit = -1,
     autoComplete = 'list',
+    formAutoComplete,
     locale,
     submitOnItemClick = false,
   } = props;
@@ -543,7 +544,9 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
 
       if (!nextOpen && queryChangedAfterOpen) {
         if (single) {
-          setCloseQuery(query);
+          if (!inline) {
+            setCloseQuery(query);
+          }
           // Avoid a flicker when closing the popup with an empty query.
           if (query === '') {
             setQueryChangedAfterOpen(false);
@@ -606,7 +609,8 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
         single &&
         nextValue != null &&
         eventDetails.reason !== REASONS.inputChange &&
-        queryChangedAfterOpen
+        queryChangedAfterOpen &&
+        !inline
       ) {
         setCloseQuery(query);
       }
@@ -855,52 +859,6 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     store,
   ]);
 
-  // When the available items change, ensure the selected value(s) remain valid.
-  // - Single: if current selection is removed, fall back to defaultSelectedValue if it exists in the list; else null.
-  // - Multiple: drop any removed selections.
-  useIsoLayoutEffect(() => {
-    if (!items || selectionMode === 'none') {
-      return;
-    }
-
-    const registry = flatItems;
-
-    if (multiple) {
-      const current = Array.isArray(selectedValue) ? selectedValue : EMPTY_ARRAY;
-      const next = current.filter((v) => itemIncludes(registry, v, store.state.isItemEqualToValue));
-      if (next.length !== current.length) {
-        setSelectedValue(next, createChangeEventDetails(REASONS.none));
-      }
-      return;
-    }
-
-    const isStillPresent =
-      selectedValue == null ||
-      itemIncludes(registry, selectedValue, store.state.isItemEqualToValue);
-    if (isStillPresent) {
-      return;
-    }
-
-    let fallback = null;
-    if (
-      defaultSelectedValue != null &&
-      itemIncludes(registry, defaultSelectedValue, store.state.isItemEqualToValue)
-    ) {
-      fallback = defaultSelectedValue;
-    }
-
-    setSelectedValue(fallback, createChangeEventDetails(REASONS.none));
-  }, [
-    items,
-    flatItems,
-    multiple,
-    selectionMode,
-    selectedValue,
-    defaultSelectedValue,
-    store,
-    setSelectedValue,
-  ]);
-
   useIsoLayoutEffect(() => {
     if (selectionMode === 'none') {
       setFilled(String(inputValue) !== '');
@@ -938,14 +896,6 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       validation.commit(selectedValue);
     } else {
       validation.commit(selectedValue, true);
-    }
-
-    if (
-      multiple &&
-      store.state.selectedIndex !== null &&
-      (!Array.isArray(selectedValue) || selectedValue.length === 0)
-    ) {
-      setIndices({ activeIndex: null, selectedIndex: null });
     }
 
     if (single && !hasInputValue && !inputInsidePopup) {
@@ -1292,6 +1242,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
           },
         })}
         name={multiple || selectionMode === 'none' ? undefined : name}
+        autoComplete={formAutoComplete}
         disabled={disabled}
         required={required && !hasMultipleSelection}
         readOnly={readOnly}
@@ -1515,6 +1466,11 @@ interface ComboboxRootProps<ItemValue> {
    * @default 'list'
    */
   autoComplete?: ('list' | 'both' | 'inline' | 'none') | undefined;
+  /**
+   * Provides a hint to the browser for autofill on the hidden input element.
+   * @see https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/autocomplete
+   */
+  formAutoComplete?: string | undefined;
   /**
    * The locale to use for string comparison.
    * Defaults to the user's runtime locale.

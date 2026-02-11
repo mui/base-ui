@@ -13,9 +13,9 @@
       "description": "Value of the radio item.\nThis is the value that will be set in the Menu.RadioGroup when the item is selected."
     },
     "onClick": {
-      "type": "MouseEventHandler<HTMLElement>",
+      "type": "((event: BaseUIEvent<MouseEvent<HTMLDivElement, MouseEvent>>) => void)",
       "description": "The click handler for the menu item.",
-      "detailedType": "React.MouseEventHandler<HTMLElement> | undefined"
+      "detailedType": "| ((\n    event: BaseUIEvent<\n      MouseEvent<HTMLDivElement, MouseEvent>\n    >,\n  ) => void)\n| undefined"
     },
     "closeOnClick": {
       "type": "boolean",
