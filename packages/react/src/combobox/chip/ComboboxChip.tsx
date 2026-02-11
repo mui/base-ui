@@ -117,11 +117,12 @@ export const ComboboxChip = React.forwardRef(function ComboboxChip(
           if (readOnly) {
             return;
           }
+
+          event.preventDefault();
+
           if (disabled) {
-            event.preventDefault();
             return;
           }
-          event.preventDefault();
           store.state.inputRef.current?.focus();
         },
       },
