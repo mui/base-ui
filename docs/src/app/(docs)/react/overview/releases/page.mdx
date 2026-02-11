@@ -9,23 +9,25 @@ import { ReleaseTimeline } from 'docs/src/components/ReleaseTimeline';
 
 ## Canary Releases
 
-Want to get the latest features and fixes before the next stable release?
-You can install the canary version of Base UI to access pre-release features and bug fixes.
+Base UI publishes canary releases for each master commit. This is useful if you want to try out the latest features and fixes before they are released.
 
-To install the canary version:
+Note that canary releases may contain breaking changes and experimental features.
+
+To install one of the canary versions run:
 
 ```bash
-npm install @base-ui/react@canary
+npm i https://pkg.pr.new/@base-ui/react@{master-commit}
 ```
 
-Canary releases are published automatically from the latest commits on the main branch.
-They may contain breaking changes and experimental features that are not yet ready for production use.
+Each PR also has its own canary release. To install one, run:
+
+```bash
+npm i https://pkg.pr.new/@base-ui/react@{pr-number}
+```
 
 ## Full Release Notes
 
-For detailed release notes including all changes and component-specific updates,
-view individual release pages by clicking on any release in the timeline above,
-or see the [full changelog on GitHub](https://github.com/mui/base-ui/blob/master/CHANGELOG.md).
+You can see the [full changelog on GitHub](https://github.com/mui/base-ui/blob/master/CHANGELOG.md).
 
 export const metadata = {
   keywords: [
