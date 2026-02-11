@@ -9,7 +9,7 @@ const demoTooltip = Tooltip.createHandle();
 export default function TooltipDetachedTriggersSimpleDemo() {
   return (
     <React.Fragment>
-      <div className={styles.Buttons}>
+      <div className={styles.ButtonGroup}>
         <Tooltip.Trigger className={styles.Button} handle={demoTooltip}>
           Enabled trigger
         </Tooltip.Trigger>

@@ -9,12 +9,6 @@
   display: flex;
 }
 
-.Buttons {
-  display: flex;
-  flex-direction: row;
-  gap: 0px;
-}
-
 .IconButton {
   box-sizing: border-box;
   display: flex;
