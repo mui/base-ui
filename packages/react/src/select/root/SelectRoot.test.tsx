@@ -561,7 +561,7 @@ describe('<Select.Root />', () => {
 
       await act(async () => {
         await new Promise((resolve) => {
-          setTimeout(resolve, 350);
+          setTimeout(resolve, 250);
         });
       });
 

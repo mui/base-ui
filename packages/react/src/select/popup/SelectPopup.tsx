@@ -33,7 +33,7 @@ import { clamp } from '../../utils/clamp';
 import { useCSPContext } from '../../csp-provider/CSPContext';
 
 const SCROLL_EPS_PX = 1;
-const WINDOW_RESIZE_DISMISSAL_DELAY_MS = 300;
+const WINDOW_RESIZE_DISMISSAL_DELAY_MS = 200;
 
 const stateAttributesMapping: StateAttributesMapping<SelectPopup.State> = {
   ...popupStateMapping,
