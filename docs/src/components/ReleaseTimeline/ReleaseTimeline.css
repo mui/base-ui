@@ -13,30 +13,34 @@
     display: none;
   }
 
+  .TimelineItem {
+    position: relative;
+  }
+
   @media (min-width: 768px) {
+    .ReleaseTimeline {
+      --dot-size: 12px;
+      /* Vertically centered with .TimelineDate */
+      --dot-y: calc(1.25rem + var(--text-sm--line-height) / 2);
+      --column-gap: 4rem;
+    }
+
     .TimelineSpine {
       position: absolute;
       display: block;
-      /* Align vertically with the first .TimelineVersion */
-      top: calc(1.25rem + var(--text-sm--line-height) + 0.5rem + var(--text-lg--line-height) / 2);
+      top: var(--dot-y);
       left: 50%;
       bottom: 0;
       width: 1px;
       transform: translateX(-50%);
       background: var(--color-gray-200);
     }
-  }
 
-  .TimelineItem {
-    position: relative;
-  }
-
-  @media (min-width: 768px) {
     .TimelineItem {
       padding-left: 0;
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 4rem;
+      gap: var(--column-gap);
       align-items: start;
     }
 
@@ -54,10 +58,9 @@
       display: block;
       position: absolute;
       left: 50%;
-      /* Align vertically with .TimelineVersion */
-      top: calc(1.25rem + var(--text-sm--line-height) + 0.5rem + var(--text-lg--line-height) / 2 - 6px);
-      width: 12px;
-      height: 12px;
+      top: calc(var(--dot-y) - var(--dot-size) / 2);
+      width: var(--dot-size);
+      height: var(--dot-size);
       border-radius: 50%;
       background: var(--color-content);
       border: 1px solid var(--color-gray-300);
@@ -68,18 +71,18 @@
       content: '';
       display: block;
       position: absolute;
-      top: calc(1.25rem + var(--text-sm--line-height) + 0.5rem + var(--text-lg--line-height) / 2);
-      width: calc(2rem - 6px);
+      top: var(--dot-y);
+      width: calc(var(--column-gap) / 2 - var(--dot-size) / 2);
       height: 1px;
       background: var(--color-gray-200);
     }
 
     .TimelineItem:nth-child(odd)::after {
-      left: calc(50% + 6px);
+      left: calc(50% + var(--dot-size) / 2);
     }
 
     .TimelineItem:nth-child(even)::after {
-      right: calc(50% + 6px);
+      right: calc(50% + var(--dot-size) / 2);
     }
   }
 
