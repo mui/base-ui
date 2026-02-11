@@ -273,7 +273,7 @@ export interface RadioGroupState extends FieldRoot.State {
   required: boolean;
 }
 
-export interface RadioGroupProps<Value> extends Omit<
+export interface RadioGroupProps<Value = any> extends Omit<
   BaseUIComponentProps<'div', RadioGroup.State>,
   'value'
 > {

@@ -283,7 +283,7 @@ export interface RadioRootState extends FieldRoot.State {
   required: boolean;
 }
 
-export interface RadioRootProps<Value>
+export interface RadioRootProps<Value = any>
   extends NonNativeButtonProps, Omit<BaseUIComponentProps<'span', RadioRoot.State>, 'value'> {
   /**
    * The unique identifying value of the radio in a group.
