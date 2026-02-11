@@ -5,7 +5,12 @@ import { isElement } from '@floating-ui/utils/dom';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import type { FloatingContext, FloatingRootContext } from '../types';
-import { contains, getDocument, isMouseLikePointerType } from '../utils';
+import {
+  contains,
+  getDocument,
+  isMouseLikePointerType,
+  isTargetInsideEnabledTrigger,
+} from '../utils';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
 import type { UseHoverProps } from './useHover';
@@ -88,6 +93,10 @@ export function useHoverReferenceInteraction(
       : false;
   });
 
+  const isRelatedTargetInsideEnabledTrigger = useStableCallback((target: EventTarget | null) => {
+    return isTargetInsideEnabledTrigger(target, store.context.triggerElements);
+  });
+
   const closeWithDelay = React.useCallback(
     (event: MouseEvent, runElseBranch = true) => {
       const closeDelay = getDelay(delayRef.current, 'close', instance.pointerType);
@@ -147,8 +156,7 @@ export function useHoverReferenceInteraction(
       return;
     }
 
-    const triggerElements = store.context.triggerElements;
-    if (event.relatedTarget && triggerElements.hasElement(event.relatedTarget as Element)) {
+    if (isRelatedTargetInsideEnabledTrigger(event.relatedTarget)) {
       return;
     }
 
@@ -237,9 +245,7 @@ export function useHoverReferenceInteraction(
       instance.restTimeout.clear();
       instance.restTimeoutPending = false;
 
-      const triggerElements = store.context.triggerElements;
-
-      if (event.relatedTarget && triggerElements.hasElement(event.relatedTarget as Element)) {
+      if (isRelatedTargetInsideEnabledTrigger(event.relatedTarget)) {
         return;
       }
 
@@ -329,6 +335,7 @@ export function useHoverReferenceInteraction(
     instance,
     isActiveTrigger,
     isClickLikeOpenEvent,
+    isRelatedTargetInsideEnabledTrigger,
     mouseOnly,
     move,
     restMsRef,
@@ -337,7 +344,11 @@ export function useHoverReferenceInteraction(
     enabledRef,
   ]);
 
-  return React.useMemo<HTMLProps>(() => {
+  return React.useMemo<HTMLProps | undefined>(() => {
+    if (!enabled) {
+      return undefined;
+    }
+
     function setPointerRef(event: React.PointerEvent) {
       instance.pointerType = event.pointerType;
     }
@@ -407,5 +418,5 @@ export function useHoverReferenceInteraction(
         }
       },
     };
-  }, [instance, isClickLikeOpenEvent, mouseOnly, store, restMsRef]);
+  }, [enabled, instance, isClickLikeOpenEvent, mouseOnly, store, restMsRef]);
 }

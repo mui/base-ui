@@ -122,11 +122,24 @@ export const TooltipTrigger = fastComponentRef(function TooltipTrigger(
   const state: TooltipTrigger.State = { open: isOpenedByThisTrigger };
 
   const rootTriggerProps = store.useState('triggerProps', isMountedByThisTrigger);
+  const elementPropsWithDisabledDataAttr = React.useMemo(
+    () => ({
+      ...elementProps,
+      'data-trigger-disabled': disabled ? '' : undefined,
+    }),
+    [disabled, elementProps],
+  );
 
   const element = useRenderElement('button', componentProps, {
     state,
     ref: [forwardedRef, registerTrigger, triggerElementRef],
-    props: [hoverProps, focusProps, rootTriggerProps, { id: thisTriggerId }, elementProps],
+    props: [
+      hoverProps,
+      focusProps,
+      rootTriggerProps,
+      { id: thisTriggerId },
+      elementPropsWithDisabledDataAttr,
+    ],
     stateAttributesMapping: triggerOpenStateMapping,
   });
 

@@ -8,6 +8,7 @@ import {
   contains,
   getDocument,
   getTarget,
+  isTargetInsideEnabledTrigger,
   isTypeableElement,
   matchesFocusVisible,
 } from '../utils';
@@ -153,15 +154,16 @@ export function useFocus(
           }
         }
 
-        const movedFromOtherTrigger =
-          event.relatedTarget &&
-          store.context.triggerElements.hasElement(event.relatedTarget as Element);
+        const movedFromOtherEnabledTrigger = isTargetInsideEnabledTrigger(
+          event.relatedTarget,
+          store.context.triggerElements,
+        );
 
         const { nativeEvent, currentTarget } = event;
         const delayValue = typeof delay === 'function' ? delay() : delay;
 
         if (
-          (store.select('open') && movedFromOtherTrigger) ||
+          (store.select('open') && movedFromOtherEnabledTrigger) ||
           delayValue === 0 ||
           delayValue === undefined
         ) {
@@ -233,14 +235,8 @@ export function useFocus(
           // the floating element. The focus handler of that trigger will
           // handle the open state.
           const nextFocusedElement = relatedTarget ?? activeEl;
-          if (isElement(nextFocusedElement)) {
-            const triggerElements = store.context.triggerElements;
-            if (
-              triggerElements.hasElement(nextFocusedElement) ||
-              triggerElements.hasMatchingElement((trigger) => contains(trigger, nextFocusedElement))
-            ) {
-              return;
-            }
+          if (isTargetInsideEnabledTrigger(nextFocusedElement, store.context.triggerElements)) {
+            return;
           }
 
           store.setOpen(false, createChangeEventDetails(REASONS.triggerFocus, nativeEvent));
