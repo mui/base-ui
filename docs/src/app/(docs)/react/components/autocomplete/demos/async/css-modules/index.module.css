@@ -122,6 +122,7 @@
 }
 
 .Spinner {
+  box-sizing: border-box;
   width: 1rem;
   height: 1rem;
   border: 2px solid var(--color-gray-200);

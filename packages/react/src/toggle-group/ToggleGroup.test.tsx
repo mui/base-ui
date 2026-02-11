@@ -1,4 +1,4 @@
-import { expect } from 'chai';
+import { expect } from 'vitest';
 import { spy } from 'sinon';
 import { act, screen } from '@mui/internal-test-utils';
 import { DirectionProvider, type TextDirection } from '@base-ui/react/direction-provider';
@@ -92,6 +92,23 @@ describe('<ToggleGroup />', () => {
       await user.click(button2);
       expect(button1).to.have.attribute('aria-pressed', 'false');
       expect(button2).to.have.attribute('aria-pressed', 'true');
+    });
+
+    it('should warn if Toggle value is not set and ToggleGroup value is defined', async () => {
+      vi.spyOn(console, 'error')
+        .mockName('console.error')
+        .mockImplementation(() => {});
+
+      await render(
+        <ToggleGroup defaultValue={['one']}>
+          <Toggle />
+          <Toggle />
+        </ToggleGroup>,
+      );
+
+      expect(console.error).toHaveBeenCalledExactlyOnceWith(
+        'Base UI: A `<Toggle>` component rendered in a `<ToggleGroup>` has no explicit `value` prop. This will cause issues between the Toggle Group and Toggle values. Provide the `<Toggle>` with a `value` prop matching the `<ToggleGroup>` values prop type.',
+      );
     });
   });
 
@@ -215,7 +232,7 @@ describe('<ToggleGroup />', () => {
 
     it('only one item can be pressed when false', async () => {
       const { user } = await render(
-        <ToggleGroup multiple={false} defaultValue={['one']}>
+        <ToggleGroup defaultValue={['one']}>
           <Toggle value="one" />
           <Toggle value="two" />
         </ToggleGroup>,
@@ -315,6 +332,61 @@ describe('<ToggleGroup />', () => {
         expect(button3).to.have.attribute('tabindex', '0');
         expect(button3).toHaveFocus();
       });
+    });
+
+    it('Home key moves focus to the first item', async () => {
+      const { user } = await render(
+        <ToggleGroup>
+          <Toggle value="one" />
+          <Toggle value="two" />
+          <Toggle value="three" />
+        </ToggleGroup>,
+      );
+
+      const [button1, button2, button3] = screen.getAllByRole('button');
+
+      await user.keyboard('[Tab]');
+      expect(button1).toHaveFocus();
+
+      await user.keyboard('[ArrowRight][ArrowRight]');
+      expect(button3).toHaveFocus();
+
+      await user.keyboard('[Home]');
+      expect(button1).to.have.attribute('tabindex', '0');
+      expect(button1).toHaveFocus();
+
+      await user.keyboard('[ArrowRight]');
+      expect(button2).toHaveFocus();
+
+      await user.keyboard('[Home]');
+      expect(button1).to.have.attribute('tabindex', '0');
+      expect(button1).toHaveFocus();
+    });
+
+    it('End key moves focus to the last item', async () => {
+      const { user } = await render(
+        <ToggleGroup>
+          <Toggle value="one" />
+          <Toggle value="two" />
+          <Toggle value="three" />
+        </ToggleGroup>,
+      );
+
+      const [button1, button2, button3] = screen.getAllByRole('button');
+
+      await user.keyboard('[Tab]');
+      expect(button1).toHaveFocus();
+
+      await user.keyboard('[End]');
+      expect(button3).to.have.attribute('tabindex', '0');
+      expect(button3).toHaveFocus();
+
+      await user.keyboard('[ArrowLeft]');
+      expect(button2).toHaveFocus();
+
+      await user.keyboard('[End]');
+      expect(button3).to.have.attribute('tabindex', '0');
+      expect(button3).toHaveFocus();
     });
 
     ['Enter', 'Space'].forEach((key) => {
