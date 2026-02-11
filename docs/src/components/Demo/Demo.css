@@ -228,12 +228,16 @@
   .DemoSourceBrowser {
     @apply text-xs;
     cursor: text;
+    display: flex;
 
-    & code {
+    & pre {
       /* Different fonts may introduce vertical align issues */
       display: flex;
       /* Make sure selection highlight spans full container width in Safari */
       flex-grow: 1;
+    }
+
+    & code {
       padding: 0.5rem 0;
     }
 
