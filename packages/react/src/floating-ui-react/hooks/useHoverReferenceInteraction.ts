@@ -11,13 +11,17 @@ import { REASONS } from '../../utils/reasons';
 import type { UseHoverProps } from './useHover';
 import { getDelay } from './useHover';
 import { useFloatingTree } from '../components/FloatingTree';
+import type { FloatingTreeStore } from '../components/FloatingTreeStore';
 import {
   safePolygonIdentifier,
   useHoverInteractionSharedState,
 } from './useHoverInteractionSharedState';
 import { FloatingUIOpenChangeDetails, HTMLProps } from '../../utils/types';
 
-export interface UseHoverReferenceInteractionProps extends Omit<UseHoverProps, 'triggerElement'> {
+export interface UseHoverReferenceInteractionProps extends UseHoverProps {
+  enabled?: boolean | undefined;
+  mouseOnly?: boolean | undefined;
+  externalTree?: FloatingTreeStore | undefined;
   /**
    * Whether the hook controls the active trigger. When false, the props are
    * returned under the `trigger` key so they can be applied to inactive
