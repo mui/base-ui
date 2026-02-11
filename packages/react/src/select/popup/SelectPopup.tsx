@@ -33,6 +33,7 @@ import { clamp } from '../../utils/clamp';
 import { useCSPContext } from '../../csp-provider/CSPContext';
 
 const SCROLL_EPS_PX = 1;
+const WINDOW_RESIZE_DISMISSAL_DELAY_MS = 300;
 
 const stateAttributesMapping: StateAttributesMapping<SelectPopup.State> = {
   ...popupStateMapping,
@@ -78,7 +79,6 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
   const { nonce, disableStyleElements } = useCSPContext();
 
   const highlightTimeout = useTimeout();
-  const resizeDismissalTimeout = useTimeout();
 
   const id = useStore(store, selectors.id);
   const open = useStore(store, selectors.open);
@@ -94,7 +94,6 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
   const maxHeightRef = React.useRef(0);
   const initialPlacedRef = React.useRef(false);
   const originalPositionerStylesRef = React.useRef<React.CSSProperties>({});
-  const allowWindowResizeDismissalRef = React.useRef(false);
 
   const scrollArrowFrame = useAnimationFrame();
 
@@ -439,34 +438,16 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
   ]);
 
   React.useEffect(() => {
-    if (!open || !alignItemWithTriggerActive) {
-      allowWindowResizeDismissalRef.current = false;
-      resizeDismissalTimeout.clear();
-      return () => {
-        resizeDismissalTimeout.clear();
-      };
-    }
-
-    // Avoid closing immediately when the popup causes a resize (e.g. extension popups).
-    allowWindowResizeDismissalRef.current = false;
-    resizeDismissalTimeout.start(300, () => {
-      allowWindowResizeDismissalRef.current = true;
-    });
-
-    return () => {
-      resizeDismissalTimeout.clear();
-    };
-  }, [open, alignItemWithTriggerActive, resizeDismissalTimeout]);
-
-  React.useEffect(() => {
     if (!open || !alignItemWithTriggerActive || !positionerElement) {
       return undefined;
     }
 
     const win = ownerWindow(positionerElement);
+    const openedAt = Date.now();
 
     function handleResize(event: UIEvent) {
-      if (!allowWindowResizeDismissalRef.current) {
+      // Avoid closing immediately when opening causes a resize (e.g. extension popups).
+      if (Date.now() - openedAt < WINDOW_RESIZE_DISMISSAL_DELAY_MS) {
         return;
       }
       setOpen(false, createChangeEventDetails(REASONS.windowResize, event));

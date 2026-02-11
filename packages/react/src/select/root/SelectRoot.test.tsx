@@ -10,7 +10,7 @@ import {
   reactMajor,
 } from '@mui/internal-test-utils';
 import { createRenderer, isJSDOM, popupConformanceTests } from '#test-utils';
-import { expect } from 'vitest';
+import { expect, vi } from 'vitest';
 import { spy } from 'sinon';
 import { Field } from '@base-ui/react/field';
 import { Form } from '@base-ui/react/form';
@@ -524,6 +524,53 @@ describe('<Select.Root />', () => {
         expect(handleOpenChange.callCount).to.equal(1);
       });
       expect(handleOpenChange.args[0][0]).to.equal(true);
+    });
+
+    it('should ignore immediate window resize after opening', async () => {
+      const handleOpenChange = spy();
+      const dateNowSpy = vi.spyOn(Date, 'now').mockReturnValue(1000);
+
+      try {
+        const { user } = await render(
+          <Select.Root onOpenChange={handleOpenChange}>
+            <Select.Trigger data-testid="trigger">
+              <Select.Value />
+            </Select.Trigger>
+            <Select.Portal>
+              <Select.Positioner>
+                <Select.Popup>
+                  <Select.Item value="a">a</Select.Item>
+                  <Select.Item value="b">b</Select.Item>
+                </Select.Popup>
+              </Select.Positioner>
+            </Select.Portal>
+          </Select.Root>,
+        );
+
+        const trigger = screen.getByTestId('trigger');
+
+        await user.click(trigger);
+        await flushMicrotasks();
+
+        expect(screen.getByRole('listbox', { hidden: false })).toBeVisible();
+
+        dateNowSpy.mockReturnValue(1001);
+        fireEvent(window, new UIEvent('resize'));
+        await flushMicrotasks();
+
+        expect(handleOpenChange.callCount).to.equal(1);
+        expect(screen.getByRole('listbox', { hidden: false })).toBeVisible();
+
+        dateNowSpy.mockReturnValue(1301);
+        fireEvent(window, new UIEvent('resize'));
+
+        await waitFor(() => {
+          expect(handleOpenChange.callCount).to.equal(2);
+        });
+        expect(handleOpenChange.args[1][0]).to.equal(false);
+      } finally {
+        dateNowSpy.mockRestore();
+      }
     });
   });
 
