@@ -27,7 +27,7 @@ export const AccordionHeader = React.forwardRef(function AccordionHeader(
     stateAttributesMapping: accordionStateAttributesMapping,
   });
 
-  return element;
+  return <React.Fragment>{element}</React.Fragment>;
 });
 
 export interface AccordionHeaderProps extends BaseUIComponentProps<'h3', AccordionItem.State> {}

@@ -34,7 +34,7 @@ export const PopoverTitle = React.forwardRef(function PopoverTitle(
     props: [{ id }, elementProps],
   });
 
-  return element;
+  return <React.Fragment>{element}</React.Fragment>;
 });
 
 export interface PopoverTitleState {}
