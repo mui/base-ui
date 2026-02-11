@@ -48,7 +48,7 @@ export const ComboboxItem = React.memo(
 
     const store = useComboboxRootContext();
     const isRow = useComboboxRowContext();
-    const { flatFilteredItems } = useComboboxDerivedItemsContext();
+    const { flatFilteredItems, hasItems } = useComboboxDerivedItemsContext();
 
     const open = useStore(store, selectors.open);
     const selectionMode = useStore(store, selectors.selectionMode);
@@ -65,7 +65,6 @@ export const ComboboxItem = React.memo(
     const rootId = useStore(store, selectors.id);
     const highlighted = useStore(store, selectors.isActive, index);
     const matchesSelectedValue = useStore(store, selectors.isSelected, value);
-    const items = useStore(store, selectors.items);
     const getItemProps = useStore(store, selectors.getItemProps);
 
     const itemRef = React.useRef<HTMLDivElement | null>(null);
@@ -88,7 +87,7 @@ export const ComboboxItem = React.memo(
     }, [hasRegistered, virtualized, index, indexProp, store]);
 
     useIsoLayoutEffect(() => {
-      if (!hasRegistered || items) {
+      if (!hasRegistered || hasItems) {
         return undefined;
       }
 
@@ -105,7 +104,7 @@ export const ComboboxItem = React.memo(
       return () => {
         delete visibleMap[index];
       };
-    }, [hasRegistered, items, index, value, store, selectionMode]);
+    }, [hasRegistered, hasItems, index, value, store, selectionMode]);
 
     useIsoLayoutEffect(() => {
       if (!open) {
@@ -113,7 +112,7 @@ export const ComboboxItem = React.memo(
         return;
       }
 
-      if (!hasRegistered || items) {
+      if (!hasRegistered || hasItems) {
         return;
       }
 
@@ -125,7 +124,7 @@ export const ComboboxItem = React.memo(
       if (compareItemEquality(lastSelectedValue, value, isItemEqualToValue)) {
         store.set('selectedIndex', index);
       }
-    }, [hasRegistered, items, open, store, index, value, isItemEqualToValue]);
+    }, [hasRegistered, hasItems, open, store, index, value, isItemEqualToValue]);
 
     const state: ComboboxItem.State = {
       disabled,
