@@ -2,6 +2,7 @@
   .ReleaseTimeline {
     position: relative;
     margin: 2rem auto;
+    padding-bottom: 2rem;
   }
 
   .TimelineSpine {
