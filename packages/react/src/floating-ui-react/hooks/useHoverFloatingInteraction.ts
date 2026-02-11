@@ -10,7 +10,6 @@ import { getDocument, getTarget, isMouseLikePointerType } from '../utils';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
 import { useFloatingParentNodeId, useFloatingTree } from '../components/FloatingTree';
-import { FloatingTreeStore } from '../components/FloatingTreeStore';
 import {
   isInteractiveElement,
   safePolygonIdentifier,
@@ -30,10 +29,6 @@ export type UseHoverFloatingInteractionProps = {
    * @default 0
    */
   closeDelay?: (number | (() => number)) | undefined;
-  /**
-   * An optional external floating tree to use instead of the default context.
-   */
-  externalTree?: FloatingTreeStore | undefined;
 };
 
 const clickLikeEvents = new Set(['click', 'mousedown']);
@@ -51,11 +46,11 @@ export function useHoverFloatingInteraction(
   const domReferenceElement = store.useState('domReferenceElement');
   const { dataRef } = store.context;
 
-  const { enabled = true, closeDelay: closeDelayProp = 0, externalTree } = parameters;
+  const { enabled = true, closeDelay: closeDelayProp = 0 } = parameters;
 
   const instance = useHoverInteractionSharedState(store);
 
-  const tree = useFloatingTree(externalTree);
+  const tree = useFloatingTree();
   const parentId = useFloatingParentNodeId();
 
   const isClickLikeOpenEvent = useStableCallback(() => {
