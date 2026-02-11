@@ -21,7 +21,7 @@
     "build": "code-infra build --copy .npmignore",
     "test:package": "publint --pack pnpm run ./build && attw --pack ./build --exclude-entrypoints package.json --exclude-entrypoints esm --exclude-entrypoints cjs",
     "release": "pnpm build && pnpm publish",
-    "test": "cross-env NODE_ENV=test VITEST_ENV=jsdom vitest",
+    "test": "cross-env VITEST_ENV=jsdom vitest",
     "typescript": "tsc -b tsconfig.json"
   },
   "dependencies": {
