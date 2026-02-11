@@ -3,22 +3,19 @@
     position: relative;
     margin: 2rem auto;
     padding-bottom: 2rem;
-  }
-
-  .TimelineSpine {
-    display: none;
-    position: absolute;
-    top: 0.75rem;
-    left: 50%;
-    bottom: 0;
-    width: 1px;
-    transform: translateX(-50%);
-    background: var(--color-gray-200);
+    list-style: none;
+    padding-left: 0;
   }
 
   @media (min-width: 768px) {
     .TimelineSpine {
-      display: block;
+      position: absolute;
+      top: 0.75rem;
+      left: 50%;
+      bottom: 0;
+      width: 1px;
+      transform: translateX(-50%);
+      background: var(--color-gray-200);
     }
   }
 
@@ -48,35 +45,22 @@
       grid-row: 1;
     }
 
-    .TimelineItem:nth-child(even) .TimelineDot {
-      left: 50%;
-    }
-
     .TimelineItem:nth-child(odd) .TimelineCard {
       grid-column: 2;
     }
 
-    .TimelineItem:nth-child(odd) .TimelineDot {
-      left: 50%;
-    }
-  }
-
-  .TimelineDot {
-    display: none;
-    position: absolute;
-    left: 0.5rem;
-    top: 0.5rem;
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    background: var(--color-content);
-    border: 1px solid var(--color-gray-300);
-    transform: translateX(-50%);
-  }
-
-  @media (min-width: 768px) {
-    .TimelineDot {
+    .TimelineItem::before {
+      content: '';
       display: block;
+      position: absolute;
+      left: 50%;
+      top: 0.5rem;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: var(--color-content);
+      border: 1px solid var(--color-gray-300);
+      transform: translateX(-50%);
     }
   }
 

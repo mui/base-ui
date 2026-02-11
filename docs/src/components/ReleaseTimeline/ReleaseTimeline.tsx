@@ -7,11 +7,10 @@ import './ReleaseTimeline.css';
 
 export function ReleaseTimeline() {
   return (
-    <div className="ReleaseTimeline">
+    <ul className="ReleaseTimeline" aria-label="Release timeline">
       <div className="TimelineSpine" />
       {releases.map((release) => (
-        <div key={release.versionSlug} className="TimelineItem">
-          <div className="TimelineDot" />
+        <li key={release.versionSlug} className="TimelineItem">
           <article className="TimelineCard">
             <div className="TimelineCardHeader">
               <h3 className="TimelineVersion">
@@ -37,8 +36,8 @@ export function ReleaseTimeline() {
               Read more
             </Link>
           </article>
-        </div>
+        </li>
       ))}
-    </div>
+    </ul>
   );
 }
