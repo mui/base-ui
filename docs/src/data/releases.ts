@@ -7,6 +7,17 @@ export interface Release {
 
 export const releases: Release[] = [
   {
+    version: 'v1.1.0',
+    versionSlug: 'v1-1-0',
+    date: 'Jan 15, 2026',
+    highlights: [
+      'New CSP Provider component for Content Security Policy support',
+      'Added loopFocus prop to Autocomplete and Combobox',
+      'Fixed multiple accessibility and form integration issues',
+      'Improved popup state attributes and detached trigger handling',
+    ],
+  },
+  {
     version: 'v1.0.0',
     versionSlug: 'v1-0-0',
     date: 'Dec 11, 2025',
