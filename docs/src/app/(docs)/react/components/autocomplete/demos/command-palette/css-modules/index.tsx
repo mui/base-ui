@@ -23,78 +23,80 @@ export default function ExampleAutocompleteCommandPalette() {
       <Dialog.Trigger className={styles.Button}>Open command palette</Dialog.Trigger>
       <Dialog.Portal>
         <Dialog.Backdrop className={styles.Backdrop} />
-        <Dialog.Popup className={styles.Popup} aria-label="Command palette">
-          <Autocomplete.Root
-            open
-            inline
-            items={groupedItems}
-            filter={customFilter}
-            autoHighlight="always"
-            keepHighlight
-          >
-            <Autocomplete.Input
-              className={styles.Input}
-              placeholder="Search for apps and commands..."
-            />
-            <Dialog.Close className={styles.VisuallyHiddenClose}>
-              Close command palette
-            </Dialog.Close>
+        <Dialog.Viewport className={styles.Viewport}>
+          <Dialog.Popup className={styles.Popup} aria-label="Command palette">
+            <Autocomplete.Root
+              open
+              inline
+              items={groupedItems}
+              filter={customFilter}
+              autoHighlight="always"
+              keepHighlight
+            >
+              <Autocomplete.Input
+                className={styles.Input}
+                placeholder="Search for apps and commands..."
+              />
+              <Dialog.Close className={styles.VisuallyHiddenClose}>
+                Close command palette
+              </Dialog.Close>
 
-            <ScrollArea.Root className={styles.ListArea}>
-              <ScrollArea.Viewport className={styles.ListViewport}>
-                <ScrollArea.Content className={styles.ListContent}>
-                  <Autocomplete.Empty className={styles.Empty}>
-                    No results found.
-                  </Autocomplete.Empty>
+              <ScrollArea.Root className={styles.ListArea}>
+                <ScrollArea.Viewport className={styles.ListViewport}>
+                  <ScrollArea.Content className={styles.ListContent}>
+                    <Autocomplete.Empty className={styles.Empty}>
+                      No results found.
+                    </Autocomplete.Empty>
 
-                  <Autocomplete.List className={styles.List}>
-                    {(group: Group) => (
-                      <Autocomplete.Group
-                        key={group.value}
-                        items={group.items}
-                        className={styles.Group}
-                      >
-                        <Autocomplete.GroupLabel className={styles.GroupLabel}>
-                          {group.value}
-                        </Autocomplete.GroupLabel>
-                        <Autocomplete.Collection>
-                          {(item: Item) => (
-                            <Autocomplete.Item
-                              key={item.value}
-                              value={item}
-                              className={styles.Item}
-                              onClick={handleItemClick}
-                            >
-                              <span className={styles.ItemLabel}>{item.label}</span>
-                              <span className={styles.ItemType}>
-                                {group.value === 'Suggestions' ? 'Application' : 'Command'}
-                              </span>
-                            </Autocomplete.Item>
-                          )}
-                        </Autocomplete.Collection>
-                      </Autocomplete.Group>
-                    )}
-                  </Autocomplete.List>
-                </ScrollArea.Content>
-              </ScrollArea.Viewport>
-              <ScrollArea.Scrollbar className={styles.Scrollbar}>
-                <ScrollArea.Thumb className={styles.ScrollbarThumb} />
-              </ScrollArea.Scrollbar>
-            </ScrollArea.Root>
+                    <Autocomplete.List className={styles.List}>
+                      {(group: Group) => (
+                        <Autocomplete.Group
+                          key={group.value}
+                          items={group.items}
+                          className={styles.Group}
+                        >
+                          <Autocomplete.GroupLabel className={styles.GroupLabel}>
+                            {group.value}
+                          </Autocomplete.GroupLabel>
+                          <Autocomplete.Collection>
+                            {(item: Item) => (
+                              <Autocomplete.Item
+                                key={item.value}
+                                value={item}
+                                className={styles.Item}
+                                onClick={handleItemClick}
+                              >
+                                <span className={styles.ItemLabel}>{item.label}</span>
+                                <span className={styles.ItemType}>
+                                  {group.value === 'Suggestions' ? 'Application' : 'Command'}
+                                </span>
+                              </Autocomplete.Item>
+                            )}
+                          </Autocomplete.Collection>
+                        </Autocomplete.Group>
+                      )}
+                    </Autocomplete.List>
+                  </ScrollArea.Content>
+                </ScrollArea.Viewport>
+                <ScrollArea.Scrollbar className={styles.Scrollbar}>
+                  <ScrollArea.Thumb className={styles.ScrollbarThumb} />
+                </ScrollArea.Scrollbar>
+              </ScrollArea.Root>
 
-            <div className={styles.Footer}>
-              <div className={styles.FooterLeft}>
-                <span>Activate</span>
-                <kbd className={styles.Kbd}>Enter</kbd>
+              <div className={styles.Footer}>
+                <div className={styles.FooterLeft}>
+                  <span>Activate</span>
+                  <kbd className={styles.Kbd}>Enter</kbd>
+                </div>
+                <div className={styles.FooterRight}>
+                  <span>Actions</span>
+                  <kbd className={styles.Kbd}>Cmd</kbd>
+                  <kbd className={styles.Kbd}>K</kbd>
+                </div>
               </div>
-              <div className={styles.FooterRight}>
-                <span>Actions</span>
-                <kbd className={styles.Kbd}>Cmd</kbd>
-                <kbd className={styles.Kbd}>K</kbd>
-              </div>
-            </div>
-          </Autocomplete.Root>
-        </Dialog.Popup>
+            </Autocomplete.Root>
+          </Dialog.Popup>
+        </Dialog.Viewport>
       </Dialog.Portal>
     </Dialog.Root>
   );
@@ -120,12 +122,9 @@ const suggestions: Item[] = [
   { value: 'github', label: 'GitHub' },
   { value: 'jira', label: 'Jira' },
   { value: 'calendar', label: 'Google Calendar' },
-  { value: 'drive', label: 'Google Drive' },
-  { value: 'spotify', label: 'Spotify' },
   { value: 'chrome', label: 'Google Chrome' },
   { value: 'mail', label: 'Apple Mail' },
   { value: 'terminal', label: 'Terminal' },
-  { value: 'notes', label: 'Notes' },
 ];
 
 const commands: Item[] = [
@@ -139,11 +138,9 @@ const commands: Item[] = [
   { value: 'new-tab', label: 'New Tab' },
   { value: 'search-docs', label: 'Search Documentation' },
   { value: 'capture-screen', label: 'Capture Screenshot' },
-  { value: 'open-recent', label: 'Open Recent Project' },
   { value: 'close-sidebar', label: 'Toggle Sidebar' },
   { value: 'toggle-terminal', label: 'Toggle Integrated Terminal' },
-  { value: 'run-tests', label: 'Run Test Suite' },
-  { value: 'sync-settings', label: 'Sync Settings' },
+  { value: 'run-script', label: 'Run Script' },
 ];
 
 const groupedItems: Group[] = [
