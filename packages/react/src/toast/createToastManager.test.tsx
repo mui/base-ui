@@ -223,7 +223,7 @@ describe.skipIf(!isJSDOM)('createToastManager', () => {
         });
       }
 
-      function Buttons() {
+      function Button() {
         return (
           <button type="button" onClick={add}>
             add
