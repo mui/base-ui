@@ -307,7 +307,15 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
 
           event.preventDefault();
 
-          inputRef.current?.click();
+          inputRef.current?.dispatchEvent(
+            new PointerEvent('click', {
+              bubbles: true,
+              shiftKey: event.shiftKey,
+              ctrlKey: event.ctrlKey,
+              altKey: event.altKey,
+              metaKey: event.metaKey,
+            }),
+          );
         },
       },
       getDescriptionProps,
