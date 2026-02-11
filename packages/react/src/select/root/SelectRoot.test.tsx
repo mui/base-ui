@@ -10,7 +10,7 @@ import {
   reactMajor,
 } from '@mui/internal-test-utils';
 import { createRenderer, isJSDOM, popupConformanceTests } from '#test-utils';
-import { expect, vi } from 'vitest';
+import { expect } from 'vitest';
 import { spy } from 'sinon';
 import { Field } from '@base-ui/react/field';
 import { Form } from '@base-ui/react/form';
@@ -526,12 +526,10 @@ describe('<Select.Root />', () => {
       expect(handleOpenChange.args[0][0]).to.equal(true);
     });
 
-    it('should ignore immediate window resize after opening', async () => {
+    it.skipIf(isJSDOM)('should ignore immediate window resize after opening', async () => {
       const handleOpenChange = spy();
-      const dateNowSpy = vi.spyOn(Date, 'now').mockReturnValue(1000);
-
-      try {
-        const { user } = await render(
+      const { user } = await render(
+        <div style={{ paddingTop: 100, paddingLeft: 100 }}>
           <Select.Root onOpenChange={handleOpenChange}>
             <Select.Trigger data-testid="trigger">
               <Select.Value />
@@ -544,33 +542,35 @@ describe('<Select.Root />', () => {
                 </Select.Popup>
               </Select.Positioner>
             </Select.Portal>
-          </Select.Root>,
-        );
+          </Select.Root>
+        </div>,
+      );
 
-        const trigger = screen.getByTestId('trigger');
+      const trigger = screen.getByTestId('trigger');
 
-        await user.click(trigger);
-        await flushMicrotasks();
-
+      await user.click(trigger);
+      await waitFor(() => {
         expect(screen.getByRole('listbox', { hidden: false })).toBeVisible();
+      });
 
-        dateNowSpy.mockReturnValue(1001);
-        fireEvent(window, new UIEvent('resize'));
-        await flushMicrotasks();
+      fireEvent(window, new UIEvent('resize'));
+      await flushMicrotasks();
 
-        expect(handleOpenChange.callCount).to.equal(1);
-        expect(screen.getByRole('listbox', { hidden: false })).toBeVisible();
+      expect(handleOpenChange.callCount).to.equal(1);
+      expect(screen.getByRole('listbox', { hidden: false })).toBeVisible();
 
-        dateNowSpy.mockReturnValue(1301);
-        fireEvent(window, new UIEvent('resize'));
-
-        await waitFor(() => {
-          expect(handleOpenChange.callCount).to.equal(2);
+      await act(async () => {
+        await new Promise((resolve) => {
+          setTimeout(resolve, 350);
         });
-        expect(handleOpenChange.args[1][0]).to.equal(false);
-      } finally {
-        dateNowSpy.mockRestore();
-      }
+      });
+
+      fireEvent(window, new UIEvent('resize'));
+
+      await waitFor(() => {
+        expect(handleOpenChange.callCount).to.equal(2);
+      });
+      expect(handleOpenChange.args[1][0]).to.equal(false);
     });
   });
 
