@@ -162,7 +162,7 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
       store.updateToastInternal(toast.id, {
         ref: rootRef,
         height,
-        transitionStatus: undefined,
+        ...(toast.transitionStatus === 'starting' ? { transitionStatus: undefined } : {}),
       });
     }
 
