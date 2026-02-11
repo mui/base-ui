@@ -1,6 +1,12 @@
-# v1.1.0
+import { releases } from 'docs/src/data/releases';
 
-_Jan 15, 2026_
+export const version = 'v1.1.0';
+export const release = releases.find((release) => release.version === version);
+
+# {version} release notes
+
+<Subtitle>{release?.date}</Subtitle>
+<Meta name="description" content={`${version} release notes. ${release?.date}`} />
 
 ## General changes
 
