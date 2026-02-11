@@ -5,35 +5,41 @@
   }
 
   .TimelineSpine {
+    display: none;
     position: absolute;
-    left: 1.5rem;
-    top: 0.5rem;
+    top: 0.75rem;
+    left: 50%;
     bottom: 0;
     width: 1px;
+    transform: translateX(-50%);
     background: var(--color-gray-200);
   }
 
-  @media (min-width: 640px) {
+  @media (min-width: 768px) {
     .TimelineSpine {
-      top: 0.75rem;
-      left: 50%;
-      transform: translateX(-50%);
+      display: block;
     }
   }
 
   .TimelineItem {
     position: relative;
-    margin-bottom: 3rem;
-    padding-left: 4rem;
   }
 
-  @media (min-width: 640px) {
+  .TimelineItem + .TimelineItem {
+    margin-top: 1.5em;
+  }
+
+  @media (min-width: 768px) {
     .TimelineItem {
       padding-left: 0;
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 4rem;
       align-items: start;
+    }
+
+    .TimelineItem + .TimelineItem {
+      margin-top: 3em;
     }
 
     .TimelineItem:nth-child(even) .TimelineCard {
@@ -55,8 +61,9 @@
   }
 
   .TimelineDot {
+    display: none;
     position: absolute;
-    left: 1.5rem;
+    left: 0.5rem;
     top: 0.5rem;
     width: 12px;
     height: 12px;
@@ -66,10 +73,9 @@
     transform: translateX(-50%);
   }
 
-  @media (min-width: 640px) {
+  @media (min-width: 768px) {
     .TimelineDot {
-      left: 50%;
-      top: 0.75rem;
+      display: block;
     }
   }
 
