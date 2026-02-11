@@ -193,6 +193,21 @@ describe('<Combobox.Chip />', () => {
       await user.keyboard('{Delete}');
       expect(screen.getByTestId('chip-banana')).not.to.equal(null);
     });
+
+    it('should focus when readOnly', async () => {
+      const { user } = await render(
+        <Combobox.Root multiple readOnly>
+          <Combobox.Chips>
+            <Combobox.Chip data-testid="chip">apple</Combobox.Chip>
+          </Combobox.Chips>
+        </Combobox.Root>,
+      );
+
+      const chip = screen.getByTestId('chip');
+      await user.click(chip);
+
+      expect(chip).toHaveFocus();
+    });
   });
 
   describe('interaction behavior', () => {

@@ -114,10 +114,14 @@ export const ComboboxChip = React.forwardRef(function ComboboxChip(
           }
         },
         onMouseDown(event) {
-          event.preventDefault();
-          if (disabled || readOnly) {
+          if (readOnly) {
             return;
           }
+          if (disabled) {
+            event.preventDefault();
+            return;
+          }
+          event.preventDefault();
           store.state.inputRef.current?.focus();
         },
       },
