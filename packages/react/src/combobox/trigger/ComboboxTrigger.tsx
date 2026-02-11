@@ -2,7 +2,6 @@
 import * as React from 'react';
 import { useStore } from '@base-ui/utils/store';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
-import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useTimeout } from '@base-ui/utils/useTimeout';
 import { ownerDocument } from '@base-ui/utils/owner';
 import { BaseUIComponentProps, NativeButtonProps } from '../../utils/types';
@@ -17,6 +16,7 @@ import {
 import { triggerStateAttributesMapping } from '../utils/stateAttributesMapping';
 import { selectors } from '../store';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
+import { useClearFocusWhenDisabled } from '../../field/useField';
 import { useLabelableContext } from '../../labelable-provider/LabelableContext';
 import { stopEvent, contains, getTarget } from '../../floating-ui-react/utils';
 import { getPseudoElementBounds } from '../../utils/getPseudoElementBounds';
@@ -130,11 +130,7 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
     disabled,
   });
 
-  useIsoLayoutEffect(() => {
-    if (disabled) {
-      setFocused(false);
-    }
-  }, [disabled, setFocused]);
+  useClearFocusWhenDisabled(disabled);
 
   const state: ComboboxTrigger.State = {
     ...fieldState,

@@ -1,7 +1,6 @@
 'use client';
 import * as React from 'react';
 import { useStore } from '@base-ui/utils/store';
-import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { isAndroid, isFirefox } from '@base-ui/utils/detectBrowser';
 import { BaseUIComponentProps } from '../../utils/types';
@@ -16,6 +15,7 @@ import { triggerStateAttributesMapping } from '../utils/stateAttributesMapping';
 import { selectors } from '../store';
 import type { FieldRoot } from '../../field/root/FieldRoot';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
+import { useClearFocusWhenDisabled } from '../../field/useField';
 import { useLabelableContext } from '../../labelable-provider/LabelableContext';
 import { useComboboxChipsContext } from '../chips/ComboboxChipsContext';
 import { stopEvent } from '../../floating-ui-react/utils';
@@ -102,11 +102,7 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
     });
   });
 
-  useIsoLayoutEffect(() => {
-    if (disabled) {
-      setFocused(false);
-    }
-  }, [disabled, setFocused]);
+  useClearFocusWhenDisabled(disabled);
 
   const state: ComboboxInput.State = {
     ...fieldState,

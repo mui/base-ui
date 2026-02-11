@@ -93,6 +93,7 @@ export const CheckboxGroup = React.forwardRef(function CheckboxGroup(
 
   useField({
     enabled: !!fieldName,
+    disabled,
     id,
     commit: validation.commit,
     value,

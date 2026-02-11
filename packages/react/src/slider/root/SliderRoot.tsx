@@ -104,7 +104,6 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
     state: fieldState,
     disabled: fieldDisabled,
     name: fieldName,
-    setFocused,
     setTouched,
     setDirty,
     validityData,
@@ -166,6 +165,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
   });
 
   useField({
+    disabled,
     id,
     commit: validation.commit,
     value: valueUnwrapped,
@@ -275,7 +275,6 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
 
   useIsoLayoutEffect(() => {
     if (disabled) {
-      setFocused(false);
       const activeEl = activeElement(ownerDocument(sliderRef.current));
       if (activeEl && sliderRef.current?.contains(activeEl)) {
         // This is necessary because Firefox and Safari will keep focus
@@ -284,7 +283,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
         (activeEl as HTMLElement).blur();
       }
     }
-  }, [disabled, setFocused]);
+  }, [disabled]);
 
   if (disabled && active !== -1) {
     setActive(-1);

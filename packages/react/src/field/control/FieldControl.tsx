@@ -80,12 +80,10 @@ export const FieldControl = React.forwardRef(function FieldControl(
   const inputRef = React.useRef<HTMLElement>(null);
 
   useIsoLayoutEffect(() => {
-    if (disabled) {
-      setFocused(false);
-    } else if (autoFocus && inputRef.current === activeElement(ownerDocument(inputRef.current))) {
+    if (autoFocus && inputRef.current === activeElement(ownerDocument(inputRef.current))) {
       setFocused(true);
     }
-  }, [disabled, autoFocus, setFocused]);
+  }, [autoFocus, setFocused]);
 
   const [valueUnwrapped] = useControlled({
     controlled: valueProp,
@@ -98,6 +96,7 @@ export const FieldControl = React.forwardRef(function FieldControl(
   const value = isControlled ? valueUnwrapped : undefined;
 
   useField({
+    disabled,
     id,
     name,
     commit: validation.commit,

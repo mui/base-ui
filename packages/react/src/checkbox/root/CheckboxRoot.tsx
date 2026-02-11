@@ -165,6 +165,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
 
   useField({
     enabled: !groupContext,
+    disabled,
     id,
     commit: validation.commit,
     value: checked,
@@ -184,12 +185,6 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
       }
     }
   }, [checked, groupIndeterminate, setFilled]);
-
-  useIsoLayoutEffect(() => {
-    if (disabled) {
-      setFocused(false);
-    }
-  }, [disabled, setFocused]);
 
   useValueChanged(checked, () => {
     if (groupContext && !parent) {

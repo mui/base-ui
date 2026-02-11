@@ -2,7 +2,6 @@
 import * as React from 'react';
 import { ownerDocument } from '@base-ui/utils/owner';
 import { useTimeout } from '@base-ui/utils/useTimeout';
-import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
@@ -10,6 +9,7 @@ import { useStore } from '@base-ui/utils/store';
 import { useSelectRootContext } from '../root/SelectRootContext';
 import { BaseUIComponentProps, HTMLProps, NativeButtonProps } from '../../utils/types';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
+import { useClearFocusWhenDisabled } from '../../field/useField';
 import { useLabelableContext } from '../../labelable-provider/LabelableContext';
 import { pressableTriggerOpenStateMapping } from '../../utils/popupStateMapping';
 import { fieldValidityMapping } from '../../field/utils/constants';
@@ -86,11 +86,7 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
   const shouldCheckNullItemLabel = !hasSelectedValue && open;
   const hasNullItemLabel = useStore(store, selectors.hasNullItemLabel, shouldCheckNullItemLabel);
 
-  useIsoLayoutEffect(() => {
-    if (disabled) {
-      setFocused(false);
-    }
-  }, [disabled, setFocused]);
+  useClearFocusWhenDisabled(disabled);
 
   const id = idProp ?? rootId;
   useLabelableId({ id });

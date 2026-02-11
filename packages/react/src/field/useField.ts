@@ -6,8 +6,19 @@ import { getCombinedFieldValidityData } from './utils/getCombinedFieldValidityDa
 import { useFormContext } from '../form/FormContext';
 import { useFieldRootContext } from './root/FieldRootContext';
 
+// exported for subcomponents that have their own disabled prop e.g. SelectTrigger
+export function useClearFocusWhenDisabled(disabled: boolean) {
+  const { setFocused } = useFieldRootContext();
+
+  useIsoLayoutEffect(() => {
+    if (disabled) {
+      setFocused(false);
+    }
+  }, [disabled, setFocused]);
+}
+
 export function useField(params: UseFieldParameters) {
-  const { enabled = true, value, id, name, controlRef, commit } = params;
+  const { enabled = true, disabled = false, value, id, name, controlRef, commit } = params;
 
   const { formRef } = useFormContext();
   const { invalid, markedDirtyRef, validityData, setValidityData } = useFieldRootContext();
@@ -69,6 +80,8 @@ export function useField(params: UseFieldParameters) {
     value,
   ]);
 
+  useClearFocusWhenDisabled(disabled);
+
   useIsoLayoutEffect(() => {
     const fields = formRef.current.fields;
     return () => {
@@ -81,6 +94,12 @@ export function useField(params: UseFieldParameters) {
 
 export interface UseFieldParameters {
   enabled?: boolean | undefined;
+  /**
+   * Whether the component should ignore user interaction.
+   * When `true`, the field's focused state is cleared.
+   * @default false
+   */
+  disabled?: boolean | undefined;
   value: unknown;
   getValue?: (() => unknown) | undefined;
   id: string | undefined;

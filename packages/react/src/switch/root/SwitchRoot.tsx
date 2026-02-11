@@ -95,6 +95,7 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
   });
 
   useField({
+    disabled,
     id,
     commit: validation.commit,
     value: checked,
@@ -108,12 +109,6 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
       setFilled(inputRef.current.checked);
     }
   }, [inputRef, setFilled]);
-
-  useIsoLayoutEffect(() => {
-    if (disabled) {
-      setFocused(false);
-    }
-  }, [disabled, setFocused]);
 
   useValueChanged(checked, () => {
     clearErrors(name);
