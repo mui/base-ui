@@ -55,11 +55,11 @@ export function useFocus(
   const keyboardModalityRef = React.useRef(true);
 
   React.useEffect(() => {
-    const domReference = store.select('domReferenceElement');
     if (!enabled) {
       return undefined;
     }
 
+    const domReference = store.select('domReferenceElement');
     const win = getWindow(domReference);
 
     // If the reference was focused and the user left the tab/window, and the

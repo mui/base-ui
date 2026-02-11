@@ -447,6 +447,10 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
       const target = getTarget(event) as HTMLElement | null;
 
       queueMicrotask(() => {
+        if (!store.select('open')) {
+          return;
+        }
+
         const nodeId = getNodeId();
         const triggers = store.context.triggerElements;
         const isRelatedFocusGuard =
