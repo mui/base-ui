@@ -106,6 +106,10 @@
   --font-mono: 'SF Mono', 'Menlo', 'DejaVu Sans Mono', 'Consolas', 'Inconsolata', monospace;
   --font-sans: 'Unica 77', system-ui, sans-serif;
 
+  --text-xxs: 0.75rem;
+  --text-xxs--line-height: 1.25rem;
+  --text-xxs--letter-spacing: 0.001em;
+
   --text-xs: 0.8125rem;
   --text-xs--line-height: 1.25rem;
   --text-xs--letter-spacing: 0.001em;

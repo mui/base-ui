@@ -98,11 +98,14 @@
   }
 
   .TimelineBadge {
-    display: inline-block;
+    box-sizing: border-box;
+    display: inline-flex;
+    align-items: center;
+    height: 1.25rem;
     padding: 0 0.375rem;
-    font-size: 0.625rem;
-    line-height: 1rem;
-    letter-spacing: 0.03em;
+    font-size: var(--text-xxs);
+    line-height: var(--text-xxs--line-height);
+    letter-spacing: var(--text-xxs--letter-spacing);
     font-weight: 500;
     color: var(--color-green);
     border: 1px solid currentColor;
