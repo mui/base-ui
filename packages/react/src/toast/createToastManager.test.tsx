@@ -204,6 +204,53 @@ describe.skipIf(!isJSDOM)('createToastManager', () => {
 
       expect(screen.getByTestId('description')).to.have.text('error');
     });
+
+    it('does not reopen a dismissed promise toast when it resolves', async () => {
+      const toastManager = Toast.createToastManager();
+      let resolvePromise: (value: string) => void = () => {
+        throw new Error('Promise resolver should be assigned before resolving.');
+      };
+
+      function add() {
+        const pendingPromise = new Promise<string>((resolve) => {
+          resolvePromise = resolve;
+        });
+
+        toastManager.promise(pendingPromise, {
+          loading: 'loading',
+          success: 'success',
+          error: 'error',
+        });
+      }
+
+      function Button() {
+        return (
+          <button type="button" onClick={add}>
+            add
+          </button>
+        );
+      }
+
+      await render(
+        <Toast.Provider toastManager={toastManager}>
+          <Toast.Viewport>
+            <List />
+          </Toast.Viewport>
+          <Button />
+        </Toast.Provider>,
+      );
+
+      fireEvent.click(screen.getByRole('button', { name: 'add' }));
+
+      expect(screen.getByTestId('description')).to.have.text('loading');
+
+      fireEvent.click(screen.getByLabelText('close-press'));
+      resolvePromise('success');
+
+      await flushMicrotasks();
+
+      expect(screen.queryByTestId('title')).to.equal(null);
+    });
   });
 
   describe('update', () => {
