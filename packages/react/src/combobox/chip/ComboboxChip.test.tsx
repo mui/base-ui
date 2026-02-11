@@ -105,6 +105,21 @@ describe('<Combobox.Chip />', () => {
       await user.click(chip);
       expect(input).not.toHaveFocus();
     });
+
+    it('should prevent focus when disabled', async () => {
+      const { user } = await render(
+        <Combobox.Root multiple disabled>
+          <Combobox.Chips>
+            <Combobox.Chip data-testid="chip">apple</Combobox.Chip>
+          </Combobox.Chips>
+        </Combobox.Root>,
+      );
+
+      const chip = screen.getByTestId('chip');
+      await user.click(chip);
+
+      expect(chip).not.toHaveFocus();
+    });
   });
 
   describe('prop: readOnly', () => {
