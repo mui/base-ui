@@ -5,6 +5,13 @@ import Link from 'next/link';
 import { releases } from 'docs/src/data/releases';
 import './ReleaseTimeline.css';
 
+const dateFormatter = new Intl.DateTimeFormat('en-US', {
+  month: 'short',
+  day: 'numeric',
+  year: 'numeric',
+  timeZone: 'UTC',
+});
+
 export function ReleaseTimeline() {
   return (
     <ul className="ReleaseTimeline" aria-label="Release timeline">
@@ -13,7 +20,9 @@ export function ReleaseTimeline() {
         <li key={release.versionSlug} className="TimelineItem">
           <article className="TimelineCard">
             <div className="TimelineCardHeader">
-              <p className="TimelineDate">{release.date}</p>
+              <time className="TimelineDate" dateTime={release.date}>
+                {dateFormatter.format(new Date(release.date))}
+              </time>
               <h3 className="TimelineVersion">
                 <Link
                   className="TimelineVersionLink"

@@ -9,7 +9,7 @@ export const releases: Release[] = [
   {
     version: 'v1.1.0',
     versionSlug: 'v1-1-0',
-    date: 'Jan 15, 2026',
+    date: '2026-01-15',
     highlights: [
       'New CSP Provider component for Content Security Policy support',
       'Added loopFocus prop to Autocomplete and Combobox',
@@ -20,7 +20,7 @@ export const releases: Release[] = [
   {
     version: 'v1.0.0',
     versionSlug: 'v1-0-0',
-    date: 'Dec 11, 2025',
+    date: '2025-12-11',
     highlights: [
       'Renamed packages to use the @base-ui org',
       'Fixed focus and transition issues across multiple components',
@@ -30,19 +30,19 @@ export const releases: Release[] = [
   {
     version: 'v1.0.0-rc.2',
     versionSlug: 'v1-0-0-rc-2',
-    date: 'Dec 11, 2025',
+    date: '2025-12-11',
     highlights: ['Same code as v1.0.0'],
   },
   {
     version: 'v1.0.0-rc.1',
     versionSlug: 'v1-0-0-rc-1',
-    date: 'Dec 11, 2025',
+    date: '2025-12-11',
     highlights: ['Same code as v1.0.0'],
   },
   {
     version: 'v1.0.0-rc.0',
     versionSlug: 'v1-0-0-rc-0',
-    date: 'Dec 4, 2025',
+    date: '2025-12-04',
     highlights: [
       'Fixed missing "use client" directives',
       'Breaking change: Match native unchecked state in Checkbox and Switch form submission',
@@ -53,7 +53,7 @@ export const releases: Release[] = [
   {
     version: 'v1.0.0-beta.7',
     versionSlug: 'v1-0-0-beta-7',
-    date: 'Nov 27, 2025',
+    date: '2025-11-27',
     highlights: [
       'Fixed error about props.ref access in React <=18',
       'Improved performance when detached triggers are used',
@@ -64,7 +64,7 @@ export const releases: Release[] = [
   {
     version: 'v1.0.0-beta.6',
     versionSlug: 'v1-0-0-beta-6',
-    date: 'Nov 17, 2025',
+    date: '2025-11-17',
     highlights: [
       'Hotfix for Alert Dialog, Dialog, Menu, Popover, and Tooltip in React Server Components',
       'Fixed refs types in Checkbox, Switch and Radio components',
@@ -73,7 +73,7 @@ export const releases: Release[] = [
   {
     version: 'v1.0.0-beta.5',
     versionSlug: 'v1-0-0-beta-5',
-    date: 'Nov 17, 2025',
+    date: '2025-11-17',
     highlights: [
       'Breaking change: Replaced trackAnchor with disableAnchorTracking',
       'Breaking change: Renamed loop to loopFocus',
@@ -85,7 +85,7 @@ export const releases: Release[] = [
   {
     version: 'v1.0.0-beta.4',
     versionSlug: 'v1-0-0-beta-4',
-    date: 'Oct 1, 2025',
+    date: '2025-10-01',
     highlights: [
       'Breaking change: Generic event details API',
       'Improved Combobox with support for object values',
@@ -96,7 +96,7 @@ export const releases: Release[] = [
   {
     version: 'v1.0.0-beta.3',
     versionSlug: 'v1-0-0-beta-3',
-    date: 'Sep 3, 2025',
+    date: '2025-09-03',
     highlights: [
       'Breaking change: Base UI event details standardization',
       'New Autocomplete component',
@@ -107,7 +107,7 @@ export const releases: Release[] = [
   {
     version: 'v1.0.0-beta.2',
     versionSlug: 'v1-0-0-beta-2',
-    date: 'Jul 30, 2025',
+    date: '2025-07-30',
     highlights: [
       'Breaking change: Navigation Menu semantic element structure',
       'Added multiple prop to Select',
@@ -118,7 +118,7 @@ export const releases: Release[] = [
   {
     version: 'v1.0.0-beta.1',
     versionSlug: 'v1-0-0-beta-1',
-    date: 'Jul 1, 2025',
+    date: '2025-07-01',
     highlights: [
       'Breaking change: Support implicit Field.Label',
       'Context Menu SubmenuRoot part added',
@@ -129,7 +129,7 @@ export const releases: Release[] = [
   {
     version: 'v1.0.0-beta.0',
     versionSlug: 'v1-0-0-beta-0',
-    date: 'May 29, 2025',
+    date: '2025-05-29',
     highlights: [
       'New Context Menu component',
       'New Menubar component',
@@ -141,7 +141,7 @@ export const releases: Release[] = [
   {
     version: 'v1.0.0-alpha.8',
     versionSlug: 'v1-0-0-alpha-8',
-    date: 'Apr 17, 2025',
+    date: '2025-04-17',
     highlights: [
       'New Meter component',
       'New Toast component',
@@ -152,7 +152,7 @@ export const releases: Release[] = [
   {
     version: 'v1.0.0-alpha.7',
     versionSlug: 'v1-0-0-alpha-7',
-    date: 'Mar 20, 2025',
+    date: '2025-03-20',
     highlights: [
       'New Toolbar component',
       'Avatar component support',
@@ -163,7 +163,7 @@ export const releases: Release[] = [
   {
     version: 'v1.0.0-alpha.6',
     versionSlug: 'v1-0-0-alpha-6',
-    date: 'Feb 6, 2025',
+    date: '2025-02-06',
     highlights: [
       'Added onOpenChangeComplete prop to multiple components',
       'Progress component Value part and format prop',
@@ -174,7 +174,7 @@ export const releases: Release[] = [
   {
     version: 'v1.0.0-alpha.5',
     versionSlug: 'v1-0-0-alpha-5',
-    date: 'Jan 10, 2025',
+    date: '2025-01-10',
     highlights: [
       'Breaking change: Portal part required for dialogs and popups',
       'Improved nested dialog handling',
@@ -185,7 +185,7 @@ export const releases: Release[] = [
   {
     version: 'v1.0.0-alpha.4',
     versionSlug: 'v1-0-0-alpha-4',
-    date: 'Dec 17, 2024',
+    date: '2024-12-17',
     highlights: ['Public alpha launch 🐣'],
   },
 ];
