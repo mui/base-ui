@@ -5873,6 +5873,53 @@ describe('<Combobox.Root />', () => {
       expect(onValueChange.callCount).to.equal(0);
     });
 
+    it('auto-highlights the first match when typing on a closed trigger', async () => {
+      const items: FruitItem[] = [
+        { value: 'apple', label: 'Apple' },
+        { value: 'banana', label: 'Banana' },
+      ];
+      const onItemHighlighted = spy();
+
+      const { user } = await render(
+        <Combobox.Root items={items} autoHighlight onItemHighlighted={onItemHighlighted}>
+          <Combobox.Trigger data-testid="trigger">
+            <Combobox.Value />
+          </Combobox.Trigger>
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.Input aria-label="combobox-input" />
+                <Combobox.List>
+                  {(item: FruitItem) => (
+                    <Combobox.Item key={item.value} value={item.value}>
+                      {item.label}
+                    </Combobox.Item>
+                  )}
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+      trigger.focus();
+      await waitFor(() => {
+        expect(trigger).toHaveFocus();
+      });
+
+      await user.keyboard('b');
+
+      await waitFor(() => {
+        expect(onItemHighlighted.callCount).to.be.greaterThan(0);
+      });
+
+      const popupInput = screen.getByRole<HTMLInputElement>('combobox', {
+        name: 'combobox-input',
+      });
+      expect(popupInput).to.have.attribute('aria-activedescendant');
+    });
+
     it('does not highlight an unrelated item when typing on a closed trigger with an existing selection', async () => {
       const items: FruitItem[] = [
         { value: 'apple', label: 'Apple' },
@@ -6293,6 +6340,125 @@ describe('<Combobox.Root />', () => {
       });
 
       expect(onItemHighlighted.lastCall.args[0]).to.equal(nextItems[1]);
+    });
+
+    it('keeps primitive value inference after items change with no selection', async () => {
+      const initialItems: FruitItem[] = [
+        { value: 'apple', label: 'Apple' },
+        { value: 'banana', label: 'Banana' },
+      ];
+      const nextItems: FruitItem[] = [
+        { value: 'apricot', label: 'Apricot' },
+        { value: 'blueberry', label: 'Blueberry' },
+      ];
+      const onItemHighlighted = spy();
+      const onValueChange = spy();
+
+      function PrimitiveValueCombobox({
+        items,
+        onHighlighted,
+        onChange,
+      }: {
+        items: FruitItem[];
+        onHighlighted: (value: any) => void;
+        onChange: (value: any) => void;
+      }) {
+        return (
+          <Combobox.Root
+            items={items}
+            defaultOpen
+            onItemHighlighted={onHighlighted}
+            onValueChange={onChange}
+          >
+            <Combobox.Input />
+            <Combobox.Portal>
+              <Combobox.Positioner>
+                <Combobox.Popup>
+                  <Combobox.List>
+                    {(item: FruitItem) => (
+                      <Combobox.Item key={item.value} value={item.value}>
+                        {item.label}
+                      </Combobox.Item>
+                    )}
+                  </Combobox.List>
+                </Combobox.Popup>
+              </Combobox.Positioner>
+            </Combobox.Portal>
+          </Combobox.Root>
+        );
+      }
+
+      const { user, setProps } = await render(
+        <PrimitiveValueCombobox
+          items={initialItems}
+          onHighlighted={onItemHighlighted}
+          onChange={onValueChange}
+        />,
+      );
+
+      const input = screen.getByRole('combobox');
+      await user.click(input);
+      await user.keyboard('{ArrowDown}{ArrowDown}');
+
+      await waitFor(() => {
+        expect(onItemHighlighted.callCount).to.be.greaterThan(0);
+      });
+
+      expect(onItemHighlighted.lastCall.args[0]).to.equal('banana');
+
+      onItemHighlighted.resetHistory();
+      await setProps({ items: nextItems });
+
+      await waitFor(() => {
+        expect(onItemHighlighted.callCount).to.be.greaterThan(0);
+      });
+
+      expect(onItemHighlighted.lastCall.args[0]).to.equal('blueberry');
+
+      await user.keyboard('{Enter}');
+
+      await waitFor(() => {
+        expect(onValueChange.callCount).to.be.greaterThan(0);
+      });
+
+      expect(onValueChange.lastCall.args[0]).to.equal('blueberry');
+    });
+
+    it('keeps primitive mode when a later item has null value', async () => {
+      const items = [
+        { value: 'apple', label: 'Apple' },
+        { value: null, label: 'None' },
+      ];
+      const onItemHighlighted = spy();
+
+      const { user } = await render(
+        <Combobox.Root items={items} defaultOpen onItemHighlighted={onItemHighlighted}>
+          <Combobox.Input />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  {(item: { value: string | null; label: string }) => (
+                    <Combobox.Item key={item.label} value={item.value}>
+                      {item.label}
+                    </Combobox.Item>
+                  )}
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByRole('combobox');
+      await user.click(input);
+      await user.keyboard('{ArrowDown}{ArrowDown}');
+
+      await waitFor(() => {
+        expect(onItemHighlighted.callCount).to.be.greaterThan(0);
+      });
+
+      expect(onItemHighlighted.lastCall.args[0]).to.equal(null);
     });
 
     it('falls back to item value when selected item label is a non-text React node', async () => {

@@ -257,9 +257,9 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
             store.state.setIndices({ activeIndex: null, selectedIndex: null });
             store.state.setInputValue(
               event.key,
-              createChangeEventDetails(REASONS.none, nativeEvent),
+              createChangeEventDetails(REASONS.inputChange, nativeEvent),
             );
-            store.state.setOpen(true, createChangeEventDetails(REASONS.inputPress, nativeEvent));
+            store.state.setOpen(true, createChangeEventDetails(REASONS.triggerPress, nativeEvent));
           }
         },
       },

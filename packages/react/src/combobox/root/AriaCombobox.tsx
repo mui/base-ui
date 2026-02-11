@@ -194,12 +194,6 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       ? selectedValue.find((value) => value != null)
       : selectedValue;
 
-  useValueChanged(items, () => {
-    // Reset inferred value mode when items change.
-    itemValueModeRef.current = null;
-    mappedFlatFilteredValuesRef.current = null;
-  });
-
   const filter = React.useMemo(() => {
     if (filterProp === null) {
       return () => true;
@@ -601,15 +595,18 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
         return;
       }
 
-      // If user is typing, ensure we don't auto-highlight on open due to a race
-      // with the post-open effect that sets this flag.
+      // Mark typed query changes immediately.
+      // `queryChangedAfterOpen` is also set in a later `useValueChanged(query)`
+      // effect, so setting it here avoids open/input race conditions.
       if (eventDetails.reason === REASONS.inputChange) {
         const event = eventDetails.event as Event;
         const inputType = (event as InputEvent).inputType;
+        const isTriggerTypingKeydown = event.type === 'keydown';
         // Treat composition commits as typed input; autofill may omit `inputType` or
-        // report `insertReplacementText`.
+        // report `insertReplacementText`. Trigger-typing paths provide a keydown event.
         const isTypedInput =
           event.type === 'compositionend' ||
+          isTriggerTypingKeydown ||
           (inputType != null && inputType !== '' && inputType !== 'insertReplacementText');
         if (isTypedInput) {
           const hasQuery = next.trim() !== '';

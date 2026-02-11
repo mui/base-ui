@@ -67,18 +67,22 @@ import { Combobox } from '@base-ui/react/combobox';
 </Combobox.Root>;
 ```
 
-## TypeScript
+## Value modes
 
-Combobox infers the selection value type from the `value`/`defaultValue` props on `<Combobox.Root>`.
-If your `items` array contains objects with the shape `{ value, label }`, you can choose either of these patterns:
+The value mode is inferred from `value`/`defaultValue` together with what you pass to
+`<Combobox.Item value={...}>`.
 
-1. **Object selection**
+1. **Object mode**
    - `<Combobox.Item value={item}>`
-   - `value`/`defaultValue` are the full item objects (or `null`)
+   - `value`/`defaultValue` are the full item objects or `null`
+   - Item objects can use any shape
+   - For custom object shapes other than `{ value, label }`, use `itemToStringLabel` to control the input text and `itemToStringValue` to control form serialization
+   - If object references between `items` and root `value` are different, use `isItemEqualToValue` to compare primitive fields (for example by `id`)
 
-2. **Primitive selection**
+2. **Primitive mode**
    - `<Combobox.Item value={item.value}>`
-   - `value`/`defaultValue` are the primitive `item.value` (string/number)
+   - `value`/`defaultValue` are primitive values: `string`, `number`, or `null`
+   - When the `items` array contains objects, they must have a `value` field, otherwise items should be primitive values themselves
 
 ## Examples
 

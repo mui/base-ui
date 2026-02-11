@@ -60,12 +60,12 @@ export const ComboboxItem = React.memo(
     const isItemEqualToValue = useStore(store, selectors.isItemEqualToValue);
 
     const selectable = selectionMode !== 'none';
-    const isPrimitiveItemValue = isPrimitiveValue(value);
+    const isPrimitiveLikeItemValue = value === null || isPrimitiveValue(value);
     const index =
       indexProp ??
       (virtualized
         ? findItemIndex(
-            isPrimitiveItemValue ? flatFilteredValues : flatFilteredItems,
+            isPrimitiveLikeItemValue ? flatFilteredValues : flatFilteredItems,
             value,
             isItemEqualToValue,
           )
@@ -94,12 +94,18 @@ export const ComboboxItem = React.memo(
         const resolvedItem = flatFilteredItems[index];
         const usesPrimitiveItemValue =
           hasValueField(resolvedItem) &&
+          resolvedItem.value !== null &&
           isPrimitiveValue(resolvedItem.value) &&
           Object.is(value, resolvedItem.value);
 
         // Keep inferred value mode in sync when item value shape changes.
         // Assumes all rendered items use the same value shape.
-        itemValueModeRef.current = usesPrimitiveItemValue ? 'value' : null;
+        // `null` is intentionally ignored here as it can be valid in either mode.
+        if (usesPrimitiveItemValue) {
+          itemValueModeRef.current = 'value';
+        } else if (value !== null && !isPrimitiveValue(value)) {
+          itemValueModeRef.current = null;
+        }
       }
 
       if (!shouldRegister) {
@@ -118,6 +124,7 @@ export const ComboboxItem = React.memo(
       items,
       flatFilteredItems,
       value,
+      isPrimitiveLikeItemValue,
       itemValueModeRef,
     ]);
 
