@@ -64,7 +64,9 @@
       border-radius: 50%;
       background: var(--color-content);
       border: 1px solid var(--color-gray-300);
+      box-shadow: 0 0 0 4px var(--color-content);
       transform: translateX(-50%);
+      z-index: 1;
     }
 
     .TimelineItem::after {
