@@ -624,13 +624,13 @@ describe.skipIf(!isJSDOM)('FloatingFocusManager', () => {
     function IframeApp() {
       React.useEffect(() => {
         function createIframe() {
-          const container = document.querySelector('#innerRoot');
+          const innerRoot = document.querySelector('#innerRoot');
           const iframe = document.createElement('iframe');
           iframe.setAttribute('data-testid', 'iframe');
           iframe.src = 'about:blank';
           iframe.style.height = '300px';
 
-          container?.appendChild(iframe);
+          innerRoot?.appendChild(iframe);
 
           // Properly open, write, and close the iframe document.
           const iframeDoc = iframe.contentWindow?.document;
@@ -940,7 +940,7 @@ describe.skipIf(!isJSDOM)('FloatingFocusManager', () => {
               ref={refs.setReference}
               onClick={() => setIsOpen((v) => !v)}
             />
-            <div>
+            <div data-testid="outside-wrapper">
               <div data-testid="aria-live" aria-live="polite" />
               <button data-testid="btn-1" />
               <button data-testid="btn-2" />
@@ -988,7 +988,7 @@ describe.skipIf(!isJSDOM)('FloatingFocusManager', () => {
               ref={refs.setReference}
               onClick={() => setIsOpen((v) => !v)}
             />
-            <div>
+            <div data-testid="outside-wrapper">
               <div data-testid="aria-live" aria-live="polite" />
               <button data-testid="btn-1" />
               <button data-testid="btn-2" />
@@ -1012,12 +1012,14 @@ describe.skipIf(!isJSDOM)('FloatingFocusManager', () => {
       expect(screen.getByTestId('btn-1')).not.toHaveAttribute('inert');
       expect(screen.getByTestId('btn-2')).not.toHaveAttribute('inert');
       expect(screen.getByTestId('reference')).toHaveAttribute('data-base-ui-inert');
-      expect(screen.getByTestId('btn-1')).toHaveAttribute('data-base-ui-inert');
-      expect(screen.getByTestId('btn-2')).toHaveAttribute('data-base-ui-inert');
+      expect(screen.getByTestId('outside-wrapper')).toHaveAttribute('data-base-ui-inert');
+      expect(screen.getByTestId('btn-1')).not.toHaveAttribute('data-base-ui-inert');
+      expect(screen.getByTestId('btn-2')).not.toHaveAttribute('data-base-ui-inert');
 
       fireEvent.click(screen.getByTestId('reference'));
 
       expect(screen.getByTestId('reference')).not.toHaveAttribute('data-base-ui-inert');
+      expect(screen.getByTestId('outside-wrapper')).not.toHaveAttribute('data-base-ui-inert');
       expect(screen.getByTestId('btn-1')).not.toHaveAttribute('data-base-ui-inert');
       expect(screen.getByTestId('btn-2')).not.toHaveAttribute('data-base-ui-inert');
     });
