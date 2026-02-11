@@ -44,7 +44,7 @@ export default function ExampleAutocompleteCommandPalette() {
               <Dialog.Close className="sr-only">Close command palette</Dialog.Close>
 
               <ScrollArea.Root className="relative flex max-h-[min(60dvh,24rem)] min-h-0 flex-[0_1_auto] overflow-hidden">
-                <ScrollArea.Viewport className="min-h-0 flex-1 overscroll-contain [scroll-padding-block:0.5rem] focus-visible:outline focus-visible:outline-1 focus-visible:-outline-offset-1 focus-visible:outline-blue-800">
+                <ScrollArea.Viewport className="min-h-0 flex-1 overscroll-contain [scroll-padding-block:0.25rem] focus-visible:outline focus-visible:outline-1 focus-visible:-outline-offset-1 focus-visible:outline-blue-800">
                   <ScrollArea.Content style={{ minWidth: '100%' }}>
                     <Autocomplete.Empty className="flex min-h-32 items-center justify-center p-4 text-[0.925rem] leading-4 text-gray-600 empty:m-0 empty:min-h-0 empty:p-0">
                       No results found.
@@ -66,7 +66,7 @@ export default function ExampleAutocompleteCommandPalette() {
                                 key={item.value}
                                 value={item}
                                 onClick={handleItemClick}
-                                className="grid min-h-8 cursor-default grid-cols-[minmax(0,1fr)_auto] items-center gap-2 rounded-md pl-9 pr-3 text-[0.9375rem] tracking-[0.016em] font-normal leading-[1.25] select-none outline-none [scroll-margin-block:0.5rem] data-[highlighted]:bg-gray-100"
+                                className="grid min-h-8 cursor-default grid-cols-[minmax(0,1fr)_auto] items-center gap-2 rounded-md pl-9 pr-3 text-[0.9375rem] tracking-[0.016em] font-normal leading-[1.25] select-none outline-none [scroll-margin-block:0.25rem] data-[highlighted]:bg-gray-100"
                               >
                                 <span className="truncate font-normal">{item.label}</span>
                                 <span className="shrink-0 whitespace-nowrap text-[0.875rem] tracking-[0.00625em] text-gray-500 data-[highlighted]:text-gray-700">
