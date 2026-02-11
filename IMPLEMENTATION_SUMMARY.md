@@ -50,7 +50,7 @@ Implemented a visual timeline for Base UI releases page that provides an overvie
 
 ## File Structure
 
-```
+```text
 docs/src/
 ├── app/(docs)/react/overview/releases/
 │   ├── page.tsx                    # Main releases page
