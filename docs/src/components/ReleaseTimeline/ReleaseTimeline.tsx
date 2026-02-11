@@ -12,7 +12,7 @@ export function ReleaseTimeline() {
       {releases.map((release) => (
         <div key={release.versionSlug} className="TimelineItem">
           <div className="TimelineDot" />
-          <div className="TimelineCard">
+          <article className="TimelineCard">
             <div className="TimelineCardHeader">
               <h3 className="TimelineVersion">
                 <Link
@@ -29,10 +29,14 @@ export function ReleaseTimeline() {
                 <li key={i}>{highlight}</li>
               ))}
             </ul>
-            <Link className="Link" href={`/react/overview/releases/${release.versionSlug}`}>
+            <Link
+              className="Link"
+              href={`/react/overview/releases/${release.versionSlug}`}
+              aria-label={`Read the full release notes for ${release.version}`}
+            >
               Read more
             </Link>
-          </div>
+          </article>
         </div>
       ))}
     </div>

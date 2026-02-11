@@ -70,7 +70,7 @@
     height: 12px;
     border-radius: 50%;
     background: white;
-    border: 1px solid var(--color-gray-200);
+    border: 1px solid var(--color-gray-300);
     transform: translateX(-50%);
   }
 
