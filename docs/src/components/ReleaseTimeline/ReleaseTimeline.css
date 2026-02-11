@@ -1,12 +1,23 @@
 @layer components {
   .ReleaseTimeline {
     position: relative;
-    padding-bottom: 2rem;
     list-style: none;
     padding-left: 0;
     display: flex;
     flex-direction: column;
     gap: 1rem;
+  }
+
+  @media (min-width: 768px) {
+    .ReleaseTimeline {
+      --dot-size: 12px;
+      /* Vertically centered with .TimelineDate */
+      --dot-y: calc(1.25rem + var(--text-sm--line-height) / 2);
+      --column-gap: 4rem;
+
+      padding-block: 2rem;
+    }
+
   }
 
   .TimelineSpine {
@@ -18,22 +29,21 @@
   }
 
   @media (min-width: 768px) {
-    .ReleaseTimeline {
-      --dot-size: 12px;
-      /* Vertically centered with .TimelineDate */
-      --dot-y: calc(1.25rem + var(--text-sm--line-height) / 2);
-      --column-gap: 4rem;
-    }
-
     .TimelineSpine {
       position: absolute;
       display: block;
-      top: var(--dot-y);
+      top: 0;
       left: 50%;
       bottom: 0;
       width: 1px;
       transform: translateX(-50%);
-      background: var(--color-gray-200);
+      background: linear-gradient(
+        to bottom,
+        transparent,
+        var(--color-gray-200) 2rem,
+        var(--color-gray-200) calc(100% - 2rem),
+        transparent
+      );
     }
 
     .TimelineItem {
