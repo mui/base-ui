@@ -34,6 +34,11 @@ export function rehypeInlineCode() {
         }
       });
 
+      // Mark inline code that contains a parameter token for code highlighting
+      if (node.children?.some((part) => part.properties?.style?.includes('--syntax-parameter'))) {
+        node.properties['data-syntax'] = 'parameter';
+      }
+
       // Tweak `<tag>` highlights to paint the bracket with the tag highlight color
       if (toString(node).match(/^<.+>$/)) {
         const keyNode = node.children?.find(

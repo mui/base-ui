@@ -4,6 +4,7 @@
   --syntax-constant: var(--color-blue);
   --syntax-entity: var(--color-violet);
   --syntax-parameter: var(--color-navy);
+  --syntax-parameter-background: var(--color-inline-highlight);
   --syntax-tag: var(--color-green);
   --syntax-keyword: var(--color-red);
   --syntax-string: var(--color-navy);
@@ -31,6 +32,14 @@
   --syntax-keyword: var(--color-blue);
   --syntax-string: var(--color-blue);
   --syntax-nullish: var(--color-blue);
+}
+
+/* Highlight inline code parameters */
+[data-inline][data-syntax='parameter']:not([data-table-code]) {
+  color: var(--syntax-parameter);
+  background-color: var(--syntax-parameter-background);
+  border-radius: calc((0.5px + 0.2em));
+  padding: 0.05em 0.2em;
 }
 
 /* Recover some of the syntax highlighting colors in tables */
