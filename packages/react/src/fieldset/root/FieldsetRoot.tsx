@@ -6,6 +6,7 @@ import { useRenderElement } from '../../utils/useRenderElement';
 
 /**
  * Groups a shared legend with related controls.
+ * Renders a `<fieldset>` element.
  *
  * Documentation: [Base UI Fieldset](https://base-ui.com/react/components/fieldset)
  */

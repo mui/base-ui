@@ -1,6 +1,6 @@
 {
   "name": "FieldItem",
-  "description": "Groups individual items in a checkbox group or radio group with a label and description.",
+  "description": "Groups individual items in a checkbox group or radio group with a label and description.\nRenders a `<div>` element.",
   "props": {
     "disabled": {
       "type": "boolean",
