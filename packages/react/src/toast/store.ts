@@ -187,6 +187,13 @@ export class ToastStore extends ReactStore<State, {}, typeof selectors> {
       return;
     }
 
+    // Ignore updates for toasts that are already closing.
+    // This prevents races where async updates (e.g. promise success/error)
+    // can block a dismissal from completing.
+    if (prevToast.transitionStatus === 'ending') {
+      return;
+    }
+
     const nextToast = { ...prevToast, ...updates };
 
     this.setToasts(toasts.map((toast) => (toast.id === id ? { ...toast, ...updates } : toast)));

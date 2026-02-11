@@ -51,7 +51,8 @@ export const ComboboxItem = React.memo(
 
     const store = useComboboxRootContext();
     const isRow = useComboboxRowContext();
-    const { flatFilteredItems, flatFilteredValues, valueMode } = useComboboxDerivedItemsContext();
+    const { flatFilteredItems, flatFilteredValues, valueMode, hasItems } =
+      useComboboxDerivedItemsContext();
 
     const items = useStore(store, selectors.items);
     const open = useStore(store, selectors.open);
@@ -97,7 +98,7 @@ export const ComboboxItem = React.memo(
     }, [hasRegistered, virtualized, index, indexProp, store]);
 
     useIsoLayoutEffect(() => {
-      if (!hasRegistered || items) {
+      if (!hasRegistered || hasItems) {
         return undefined;
       }
 
@@ -114,7 +115,7 @@ export const ComboboxItem = React.memo(
       return () => {
         delete visibleMap[index];
       };
-    }, [hasRegistered, items, index, value, store, selectionMode]);
+    }, [hasRegistered, hasItems, index, value, store, selectionMode]);
 
     useIsoLayoutEffect(() => {
       if (!open) {
@@ -122,7 +123,7 @@ export const ComboboxItem = React.memo(
         return;
       }
 
-      if (!hasRegistered || items) {
+      if (!hasRegistered || hasItems) {
         return;
       }
 
@@ -134,7 +135,7 @@ export const ComboboxItem = React.memo(
       if (compareItemEquality(lastSelectedValue, value, isItemEqualToValue)) {
         store.set('selectedIndex', index);
       }
-    }, [hasRegistered, items, open, store, index, value, isItemEqualToValue]);
+    }, [hasRegistered, hasItems, open, store, index, value, isItemEqualToValue]);
 
     if (process.env.NODE_ENV !== 'production') {
       // eslint-disable-next-line react-hooks/rules-of-hooks
