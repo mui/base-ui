@@ -168,11 +168,6 @@ export interface FloatingFocusManagerProps {
    */
   disabled?: boolean | undefined;
   /**
-   * The order in which focus cycles.
-   * @default ['content']
-   */
-  order?: Array<'reference' | 'floating' | 'content'> | undefined;
-  /**
    * Determines the element to focus when the floating element is opened.
    *
    * - `false`: Do not move focus.
@@ -235,11 +230,6 @@ export interface FloatingFocusManagerProps {
    */
   closeOnFocusOut?: boolean | undefined;
   /**
-   * Returns a list of elements that should be considered part of the
-   * floating element.
-   */
-  getInsideElements?: (() => Element[]) | undefined;
-  /**
    * Overrides the element to focus when tabbing forward out of the floating element.
    */
   nextFocusableElement?: (HTMLElement | React.RefObject<HTMLElement | null> | null) | undefined;
@@ -268,14 +258,12 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     context,
     children,
     disabled = false,
-    order = ['content'],
     initialFocus = true,
     returnFocus = true,
     restoreFocus = false,
     modal = true,
     closeOnFocusOut = true,
     openInteractionType = '',
-    getInsideElements: getInsideElementsProp = () => [],
     nextFocusableElement,
     previousFocusableElement,
     beforeContentFocusGuardRef,
@@ -290,7 +278,6 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
   const { events, dataRef } = store.context;
 
   const getNodeId = useStableCallback(() => dataRef.current.floatingContext?.nodeId);
-  const getInsideElements = useStableCallback(getInsideElementsProp);
 
   const ignoreInitialFocus = initialFocus === false;
   // If the reference is a combobox and is typeable (e.g. input/textarea),
@@ -300,7 +287,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
   // start.
   const isUntrappedTypeableCombobox = isTypeableCombobox(domReference) && ignoreInitialFocus;
 
-  const orderRef = useValueAsRef(order);
+  const orderRef = React.useRef<Array<'reference' | 'floating' | 'content'>>(['content']);
   const initialFocusRef = useValueAsRef(initialFocus);
   const returnFocusRef = useValueAsRef(returnFocus);
   const openInteractionTypeRef = useValueAsRef(openInteractionType);
@@ -657,7 +644,8 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     const commonInsideElements = [
       floating,
       ...portalNodes,
-      ...getInsideElements(),
+      startDismissButtonRef.current,
+      endDismissButtonRef.current,
       beforeGuardRef.current,
       afterGuardRef.current,
       portalContext?.beforeOutsideRef.current,
@@ -666,8 +654,6 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     const insideElements = [
       ...commonInsideElements,
       rootAncestorComboboxDomReference,
-      startDismissButtonRef.current,
-      endDismissButtonRef.current,
       resolveRef(previousFocusableElement),
       resolveRef(nextFocusableElement),
       isUntrappedTypeableCombobox ? domReference : null,
@@ -696,7 +682,6 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     isUntrappedTypeableCombobox,
     tree,
     getNodeId,
-    getInsideElements,
     nextFocusableElement,
     previousFocusableElement,
   ]);
