@@ -49,7 +49,13 @@ export function getFirstFlatItem(items: readonly any[] | readonly Group<any>[] |
   }
 
   if (isGroupedItems(items)) {
-    return items[0]?.items[0];
+    for (const group of items) {
+      const firstGroupItem = group.items[0];
+      if (firstGroupItem !== undefined) {
+        return firstGroupItem;
+      }
+    }
+    return undefined;
   }
 
   return items[0];

@@ -258,7 +258,8 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     return items;
   }, [items, isGrouped]);
 
-  const valueModeSourceFirstItem = getFirstFlatItem(items ?? filteredItemsProp);
+  const valueModeSourceItems = items != null && items.length > 0 ? items : filteredItemsProp;
+  const valueModeSourceFirstItem = getFirstFlatItem(valueModeSourceItems);
   const itemValueMode =
     valueMode === 'value' && hasValueField(valueModeSourceFirstItem) ? 'value' : 'item';
 

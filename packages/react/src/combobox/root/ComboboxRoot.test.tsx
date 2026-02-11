@@ -5905,6 +5905,49 @@ describe('<Combobox.Root />', () => {
       expect(onItemHighlighted.lastCall.args[0]).to.equal('apple');
     });
 
+    it('emits primitive highlighted values when items is empty and filteredItems is provided', async () => {
+      const filteredItems: FruitItem[] = [
+        { value: 'apple', label: 'Apple' },
+        { value: 'banana', label: 'Banana' },
+      ];
+      const onItemHighlighted = spy();
+
+      const { user } = await render(
+        <Combobox.Root
+          items={[]}
+          filteredItems={filteredItems}
+          valueMode="value"
+          defaultOpen
+          onItemHighlighted={onItemHighlighted}
+        >
+          <Combobox.Input />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  {(item: FruitItem) => (
+                    <Combobox.Item key={item.value} value={item.value}>
+                      {item.label}
+                    </Combobox.Item>
+                  )}
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByRole('combobox');
+      await user.click(input);
+      await user.keyboard('{ArrowDown}');
+
+      await waitFor(() => {
+        expect(onItemHighlighted.callCount).to.be.greaterThan(0);
+      });
+
+      expect(onItemHighlighted.lastCall.args[0]).to.equal('apple');
+    });
+
     it('highlights items correctly when items are objects with value field and no initial selection', async () => {
       const items: FruitItem[] = [
         { value: 'apple', label: 'Apple' },
@@ -6610,6 +6653,63 @@ describe('<Combobox.Root />', () => {
       await waitFor(() => {
         expect(onItemHighlighted.lastCall.args[0]).to.equal('carrot');
       });
+    });
+
+    it('highlights primitive values when the first group is empty', async () => {
+      const items = [
+        {
+          value: 'empty-group',
+          items: [],
+        },
+        {
+          value: 'fruits',
+          items: [
+            { value: 'apple', label: 'Apple' },
+            { value: 'banana', label: 'Banana' },
+          ],
+        },
+      ];
+      const onItemHighlighted = spy();
+
+      const { user } = await render(
+        <Combobox.Root
+          items={items}
+          valueMode="value"
+          defaultOpen
+          onItemHighlighted={onItemHighlighted}
+        >
+          <Combobox.Input />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  {(group) => (
+                    <Combobox.Group key={group.value} items={group.items}>
+                      <Combobox.Collection>
+                        {(item: FruitItem) => (
+                          <Combobox.Item key={item.value} value={item.value}>
+                            {item.label}
+                          </Combobox.Item>
+                        )}
+                      </Combobox.Collection>
+                    </Combobox.Group>
+                  )}
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByRole('combobox');
+      await user.click(input);
+      await user.keyboard('{ArrowDown}');
+
+      await waitFor(() => {
+        expect(onItemHighlighted.callCount).to.be.greaterThan(0);
+      });
+
+      expect(onItemHighlighted.lastCall.args[0]).to.equal('apple');
     });
 
     it('highlights multiple items correctly with primitive values', async () => {
