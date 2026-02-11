@@ -9,7 +9,7 @@ export interface LabelableContext {
    * When `null` the association is implicit.
    */
   controlId: string | null | undefined;
-  setControlId: React.Dispatch<React.SetStateAction<string | null | undefined>>;
+  registerControlId: (source: symbol, id: string | null | undefined) => void;
   /**
    * The `id` of the label.
    */
@@ -29,7 +29,7 @@ export interface LabelableContext {
  */
 export const LabelableContext = React.createContext<LabelableContext>({
   controlId: undefined,
-  setControlId: NOOP,
+  registerControlId: NOOP,
   labelId: undefined,
   setLabelId: NOOP,
   messageIds: [],

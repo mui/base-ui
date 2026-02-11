@@ -108,7 +108,10 @@ describe('<Toolbar.Button />', () => {
         expect(console.error).toHaveBeenCalledTimes(1);
         expect(console.error).toHaveBeenCalledWith(
           expect.stringContaining(
-            'Base UI: A component that acts as a button was not rendered as a native <button>, which does not match the default. Ensure that the element passed to the `render` prop of the component is a real <button>, or set the `nativeButton` prop on the component to `false`.',
+            'Base UI: A component that acts as a button expected a native <button> because ' +
+              'the `nativeButton` prop is true. Rendering a non-<button> removes native button semantics, ' +
+              'which can impact forms and accessibility. Use a real <button> in the `render` prop, or ' +
+              'set `nativeButton` to `false`.',
           ),
         );
 
@@ -134,7 +137,10 @@ describe('<Toolbar.Button />', () => {
         expect(console.error).toHaveBeenCalledTimes(1);
         expect(console.error).toHaveBeenCalledWith(
           expect.stringContaining(
-            'Base UI: A component that acts as a button was not rendered as a native <button>, which does not match the default. Ensure that the element passed to the `render` prop of the component is a real <button>, or set the `nativeButton` prop on the component to `false`.',
+            'Base UI: A component that acts as a button expected a native <button> because ' +
+              'the `nativeButton` prop is true. Rendering a non-<button> removes native button semantics, ' +
+              'which can impact forms and accessibility. Use a real <button> in the `render` prop, or ' +
+              'set `nativeButton` to `false`.',
           ),
         );
 
@@ -180,7 +186,10 @@ describe('<Toolbar.Button />', () => {
         expect(console.error).toHaveBeenCalledTimes(1);
         expect(console.error).toHaveBeenCalledWith(
           expect.stringContaining(
-            'Base UI: A component that acts as a button was not rendered as a native <button>, which does not match the default. Ensure that the element passed to the `render` prop of the component is a real <button>, or set the `nativeButton` prop on the component to `false`.',
+            'Base UI: A component that acts as a button expected a native <button> because ' +
+              'the `nativeButton` prop is true. Rendering a non-<button> removes native button semantics, ' +
+              'which can impact forms and accessibility. Use a real <button> in the `render` prop, or ' +
+              'set `nativeButton` to `false`.',
           ),
         );
 
@@ -462,7 +471,11 @@ describe('<Toolbar.Button />', () => {
           expect(onOpenChange).toHaveBeenCalledTimes(0);
           expect(onValueChange).toHaveBeenCalledTimes(0);
         }).toErrorDev([
-          'Base UI: A component that acts as a button was rendered as a native <button>, which does not match the default. Ensure that the element passed to the `render` prop of the component is not a real <button>, or set the `nativeButton` prop on the component to `true`.',
+          'Base UI: A component that acts as a button expected a non-<button> because ' +
+            'the `nativeButton` prop is false. Rendering a <button> keeps native behavior while Base UI ' +
+            'applies non-native attributes and handlers, which can add unintended extra attributes ' +
+            '(such as `role` or `aria-disabled`). Use a non-<button> in the `render` prop, or set ' +
+            '`nativeButton` to `true`.',
         ]);
       });
     });
