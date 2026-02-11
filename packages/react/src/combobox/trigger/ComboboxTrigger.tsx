@@ -125,12 +125,12 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
     event: 'mousedown',
   });
 
-  const { buttonRef, getButtonProps } = useButton({
+  const { buttonRef, getButtonProps, focusableWhenDisabled } = useButton({
     native: nativeButton,
     disabled,
   });
 
-  useClearFocusWhenDisabled(disabled);
+  useClearFocusWhenDisabled(disabled, focusableWhenDisabled);
 
   const state: ComboboxTrigger.State = {
     ...fieldState,

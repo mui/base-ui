@@ -86,7 +86,12 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
   const shouldCheckNullItemLabel = !hasSelectedValue && open;
   const hasNullItemLabel = useStore(store, selectors.hasNullItemLabel, shouldCheckNullItemLabel);
 
-  useClearFocusWhenDisabled(disabled);
+  const { getButtonProps, buttonRef, focusableWhenDisabled } = useButton({
+    disabled,
+    native: nativeButton,
+  });
+
+  useClearFocusWhenDisabled(disabled, focusableWhenDisabled);
 
   const id = idProp ?? rootId;
   useLabelableId({ id });
@@ -94,11 +99,6 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
   const positionerRef = useValueAsRef(positionerElement);
 
   const triggerRef = React.useRef<HTMLElement | null>(null);
-
-  const { getButtonProps, buttonRef } = useButton({
-    disabled,
-    native: nativeButton,
-  });
 
   const setTriggerElement = useStableCallback((element) => {
     store.set('triggerElement', element);

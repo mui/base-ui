@@ -7,18 +7,27 @@ import { useFormContext } from '../form/FormContext';
 import { useFieldRootContext } from './root/FieldRootContext';
 
 // exported for subcomponents that have their own disabled prop e.g. SelectTrigger
-export function useClearFocusWhenDisabled(disabled: boolean) {
+export function useClearFocusWhenDisabled(disabled: boolean, focusableWhenDisabled = false) {
   const { setFocused } = useFieldRootContext();
 
   useIsoLayoutEffect(() => {
-    if (disabled) {
+    if (disabled && !focusableWhenDisabled) {
       setFocused(false);
     }
-  }, [disabled, setFocused]);
+  }, [disabled, focusableWhenDisabled, setFocused]);
 }
 
 export function useField(params: UseFieldParameters) {
-  const { enabled = true, disabled = false, value, id, name, controlRef, commit } = params;
+  const {
+    enabled = true,
+    disabled = false,
+    focusableWhenDisabled = false,
+    value,
+    id,
+    name,
+    controlRef,
+    commit,
+  } = params;
 
   const { formRef } = useFormContext();
   const { invalid, markedDirtyRef, validityData, setValidityData } = useFieldRootContext();
@@ -80,7 +89,7 @@ export function useField(params: UseFieldParameters) {
     value,
   ]);
 
-  useClearFocusWhenDisabled(disabled);
+  useClearFocusWhenDisabled(disabled, focusableWhenDisabled);
 
   useIsoLayoutEffect(() => {
     const fields = formRef.current.fields;
@@ -94,12 +103,8 @@ export function useField(params: UseFieldParameters) {
 
 export interface UseFieldParameters {
   enabled?: boolean | undefined;
-  /**
-   * Whether the component should ignore user interaction.
-   * When `true`, the field's focused state is cleared.
-   * @default false
-   */
   disabled?: boolean | undefined;
+  focusableWhenDisabled?: boolean | undefined;
   value: unknown;
   getValue?: (() => unknown) | undefined;
   id: string | undefined;
