@@ -66,8 +66,8 @@
 
   .TimelineCard {
     border: 1px solid var(--color-gray-200);
-    border-radius: var(--radius-md);
-    padding: 1.5rem;
+    border-radius: var(--radius-lg);
+    padding: 1.25rem;
     font-size: var(--text-md);
     color: var(--color-foreground);
     line-height: var(--text-md--line-height);
