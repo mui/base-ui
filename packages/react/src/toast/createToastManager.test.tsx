@@ -236,7 +236,7 @@ describe.skipIf(!isJSDOM)('createToastManager', () => {
           <Toast.Viewport>
             <List />
           </Toast.Viewport>
-          <Buttons />
+          <Button />
         </Toast.Provider>,
       );
 
