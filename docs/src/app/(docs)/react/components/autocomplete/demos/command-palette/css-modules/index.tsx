@@ -7,12 +7,6 @@ import styles from './index.module.css';
 
 export default function ExampleAutocompleteCommandPalette() {
   const [open, setOpen] = React.useState(false);
-  const { contains } = Autocomplete.useFilter();
-
-  const customFilter = React.useCallback(
-    (item: Item, query: string) => contains(item.label, query),
-    [contains],
-  );
 
   function handleItemClick() {
     setOpen(false);
@@ -29,7 +23,6 @@ export default function ExampleAutocompleteCommandPalette() {
               open
               inline
               items={groupedItems}
-              filter={customFilter}
               autoHighlight="always"
               keepHighlight
             >
