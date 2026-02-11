@@ -25,8 +25,8 @@ export function ReleaseTimeline() {
               <p className="TimelineDate">{release.date}</p>
             </div>
             <ul className="TimelineHighlights">
-              {release.highlights.map((highlight, i) => (
-                <li key={i}>{highlight}</li>
+              {release.highlights.map((highlight) => (
+                <li key={highlight}>{highlight}</li>
               ))}
             </ul>
             <Link
