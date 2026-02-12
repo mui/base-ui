@@ -8,6 +8,11 @@ import { CompositeRoot } from '../composite/root/CompositeRoot';
 
 describe('useButton', () => {
   const { render, renderToString } = createRenderer();
+  const focusElement = async (element: HTMLElement) => {
+    await act(async () => {
+      element.focus();
+    });
+  };
 
   describe('non-native button', () => {
     describe('keyboard interactions', () => {
@@ -50,7 +55,7 @@ describe('useButton', () => {
       }
       await render(<TestButton disabled />);
       const button = screen.getByRole('button');
-      await act(() => button.focus());
+      await focusElement(button);
       expect(button).toHaveFocus();
     });
 
@@ -73,7 +78,7 @@ describe('useButton', () => {
 
       async function verify() {
         const button = screen.getByRole('button');
-        await act(() => button.focus());
+        await focusElement(button);
         expect(button).toHaveFocus();
       }
 
@@ -200,6 +205,261 @@ describe('useButton', () => {
   });
 
   describe('event handlers', () => {
+    it('key: Space fires keyup then click on non-composite buttons', async () => {
+      const handleKeyDown = vi.fn();
+      const handleKeyUp = vi.fn();
+      const handleClick = vi.fn();
+
+      function TestButton(props: React.ButtonHTMLAttributes<HTMLButtonElement>) {
+        const { getButtonProps } = useButton({ native: false });
+
+        return <span {...getButtonProps(props)} />;
+      }
+
+      await render(
+        <TestButton onKeyDown={handleKeyDown} onKeyUp={handleKeyUp} onClick={handleClick} />,
+      );
+
+      const button = screen.getByRole('button');
+
+      await focusElement(button);
+      expect(button).toHaveFocus();
+
+      fireEvent.keyDown(button, { key: ' ' });
+      expect(handleKeyDown).toHaveBeenCalledTimes(1);
+      expect(handleClick).toHaveBeenCalledTimes(0);
+
+      fireEvent.keyUp(button, { key: ' ' });
+      expect(handleKeyUp).toHaveBeenCalledTimes(1);
+      expect(handleClick).toHaveBeenCalledTimes(1);
+    });
+
+    it('key: Space fires keydown then click on composite buttons', async () => {
+      const handleKeyDown = vi.fn();
+      const handleKeyUp = vi.fn();
+      const handleClick = vi.fn();
+
+      function TestButton(props: React.ButtonHTMLAttributes<HTMLButtonElement>) {
+        const { getButtonProps } = useButton({ native: false, composite: true });
+
+        return <span {...getButtonProps(props)} />;
+      }
+
+      await render(
+        <TestButton
+          tabIndex={0}
+          onKeyDown={handleKeyDown}
+          onKeyUp={handleKeyUp}
+          onClick={handleClick}
+        />,
+      );
+
+      const button = screen.getByRole('button');
+
+      await focusElement(button);
+      expect(button).toHaveFocus();
+
+      fireEvent.keyDown(button, { key: ' ' });
+      expect(handleKeyDown).toHaveBeenCalledTimes(1);
+      expect(handleClick).toHaveBeenCalledTimes(1);
+
+      fireEvent.keyUp(button, { key: ' ' });
+      expect(handleKeyUp).toHaveBeenCalledTimes(1);
+      expect(handleClick).toHaveBeenCalledTimes(1);
+    });
+
+    it('key: Space fires keydown then click on composite links', async () => {
+      const handleClick = vi.fn();
+
+      function TestButton(props: React.AnchorHTMLAttributes<HTMLAnchorElement>) {
+        const { getButtonProps } = useButton({ native: false, composite: true });
+
+        return <a href="#test" {...getButtonProps(props)} />;
+      }
+
+      await render(<TestButton onClick={handleClick} />);
+
+      const link = screen.getByRole('button');
+
+      await focusElement(link);
+      expect(link).toHaveFocus();
+
+      fireEvent.keyDown(link, { key: ' ' });
+      expect(handleClick).toHaveBeenCalledTimes(1);
+
+      fireEvent.keyUp(link, { key: ' ' });
+      expect(handleClick).toHaveBeenCalledTimes(1);
+    });
+
+    it('does not click composite links when Space is prevented for text navigation', async () => {
+      const handleClick = vi.fn();
+
+      function TestButton(props: React.AnchorHTMLAttributes<HTMLAnchorElement>) {
+        const { getButtonProps } = useButton({ native: false, composite: true });
+
+        return <a href="#test" {...getButtonProps({ role: 'menuitem', ...props })} />;
+      }
+
+      await render(
+        <TestButton onKeyDown={(event) => event.preventDefault()} onClick={handleClick} />,
+      );
+
+      const link = screen.getByRole('menuitem');
+
+      await focusElement(link);
+      expect(link).toHaveFocus();
+
+      fireEvent.keyDown(link, { key: ' ' });
+      expect(handleClick).toHaveBeenCalledTimes(0);
+    });
+
+    it('key: Space fires keydown then click on native composite buttons', async () => {
+      const handleKeyDown = vi.fn();
+      const handleKeyUp = vi.fn();
+      const handleClick = vi.fn();
+
+      function TestButton(props: React.ButtonHTMLAttributes<HTMLButtonElement>) {
+        const { getButtonProps } = useButton({ composite: true });
+
+        return <button {...getButtonProps(props)} />;
+      }
+
+      await render(
+        <TestButton onKeyDown={handleKeyDown} onKeyUp={handleKeyUp} onClick={handleClick} />,
+      );
+
+      const button = screen.getByRole('button');
+
+      await focusElement(button);
+      expect(button).toHaveFocus();
+
+      fireEvent.keyDown(button, { key: ' ' });
+      expect(handleKeyDown).toHaveBeenCalledTimes(1);
+      expect(handleClick).toHaveBeenCalledTimes(1);
+
+      fireEvent.keyUp(button, { key: ' ' });
+      expect(handleKeyUp).toHaveBeenCalledTimes(1);
+      expect(handleClick).toHaveBeenCalledTimes(1);
+    });
+
+    it('does not fire duplicate clicks for Space on native composite buttons', async () => {
+      const handleClick = vi.fn();
+
+      function TestButton(props: React.ButtonHTMLAttributes<HTMLButtonElement>) {
+        const { getButtonProps } = useButton({ composite: true });
+
+        return <button {...getButtonProps(props)} />;
+      }
+
+      const { user } = await render(<TestButton onClick={handleClick} />);
+
+      const button = screen.getByRole('button');
+
+      await focusElement(button);
+      expect(button).toHaveFocus();
+
+      await user.keyboard('[Space]');
+      expect(handleClick).toHaveBeenCalledTimes(1);
+    });
+
+    it('key: Space fires keydown then click when in composite root context', async () => {
+      const handleKeyDown = vi.fn();
+      const handleKeyUp = vi.fn();
+      const handleClick = vi.fn();
+
+      function TestButton(props: React.ButtonHTMLAttributes<HTMLButtonElement>) {
+        const { getButtonProps } = useButton({ native: false });
+
+        return <span {...getButtonProps(props)} />;
+      }
+
+      await render(
+        <CompositeRoot>
+          <TestButton
+            tabIndex={0}
+            onKeyDown={handleKeyDown}
+            onKeyUp={handleKeyUp}
+            onClick={handleClick}
+          />
+        </CompositeRoot>,
+      );
+
+      const button = screen.getByRole('button');
+
+      await focusElement(button);
+      expect(button).toHaveFocus();
+
+      fireEvent.keyDown(button, { key: ' ' });
+      expect(handleKeyDown).toHaveBeenCalledTimes(1);
+      expect(handleClick).toHaveBeenCalledTimes(1);
+
+      fireEvent.keyUp(button, { key: ' ' });
+      expect(handleKeyUp).toHaveBeenCalledTimes(1);
+      expect(handleClick).toHaveBeenCalledTimes(1);
+    });
+
+    it('key: Space fires keydown then click on native buttons in composite root context', async () => {
+      const handleKeyDown = vi.fn();
+      const handleKeyUp = vi.fn();
+      const handleClick = vi.fn();
+
+      function TestButton(props: React.ButtonHTMLAttributes<HTMLButtonElement>) {
+        const { getButtonProps } = useButton();
+
+        return <button {...getButtonProps(props)} />;
+      }
+
+      await render(
+        <CompositeRoot>
+          <TestButton onKeyDown={handleKeyDown} onKeyUp={handleKeyUp} onClick={handleClick} />
+        </CompositeRoot>,
+      );
+
+      const button = screen.getByRole('button');
+
+      await focusElement(button);
+      expect(button).toHaveFocus();
+
+      fireEvent.keyDown(button, { key: ' ' });
+      expect(handleKeyDown).toHaveBeenCalledTimes(1);
+      expect(handleClick).toHaveBeenCalledTimes(1);
+
+      fireEvent.keyUp(button, { key: ' ' });
+      expect(handleKeyUp).toHaveBeenCalledTimes(1);
+      expect(handleClick).toHaveBeenCalledTimes(1);
+    });
+
+    it('`composite=false` keeps keyup activation inside composite root context', async () => {
+      const handleKeyDown = vi.fn();
+      const handleKeyUp = vi.fn();
+      const handleClick = vi.fn();
+
+      function TestButton(props: React.ButtonHTMLAttributes<HTMLButtonElement>) {
+        const { getButtonProps } = useButton({ native: false, composite: false });
+
+        return <span {...getButtonProps(props)} />;
+      }
+
+      await render(
+        <CompositeRoot>
+          <TestButton onKeyDown={handleKeyDown} onKeyUp={handleKeyUp} onClick={handleClick} />
+        </CompositeRoot>,
+      );
+
+      const button = screen.getByRole('button');
+
+      await focusElement(button);
+      expect(button).toHaveFocus();
+
+      fireEvent.keyDown(button, { key: ' ' });
+      expect(handleKeyDown).toHaveBeenCalledTimes(1);
+      expect(handleClick).toHaveBeenCalledTimes(0);
+
+      fireEvent.keyUp(button, { key: ' ' });
+      expect(handleKeyUp).toHaveBeenCalledTimes(1);
+      expect(handleClick).toHaveBeenCalledTimes(1);
+    });
+
     // calling preventDefault in keyUp on a <button> will not dispatch a click event if Space is pressed
     // https://codesandbox.io/p/sandbox/button-keyup-preventdefault-dn7f0
     it('key: Space fires a click event even if preventDefault was called on keyUp', async () => {
@@ -241,7 +501,7 @@ describe('useButton', () => {
 
       const button = screen.getByRole('button');
 
-      await act(() => button.focus());
+      await focusElement(button);
       expect(button).toHaveFocus();
 
       expect(handleKeyDown).toHaveBeenCalledTimes(0);

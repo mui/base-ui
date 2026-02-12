@@ -18,6 +18,7 @@ export function useMenuItem(params: useMenuItem.Parameters): useMenuItem.ReturnV
     highlighted,
     id,
     store,
+    typingRef = store.context.typingRef,
     nativeButton,
     itemMetadata,
     nodeId,
@@ -29,6 +30,7 @@ export function useMenuItem(params: useMenuItem.Parameters): useMenuItem.ReturnV
     disabled,
     focusableWhenDisabled: true,
     native: nativeButton,
+    composite: true,
   });
 
   const commonProps = useMenuItemCommonProps({
@@ -53,9 +55,9 @@ export function useMenuItem(params: useMenuItem.Parameters): useMenuItem.ReturnV
 
             itemMetadata.setActive();
           },
-          onKeyUp(event: BaseUIEvent<React.KeyboardEvent>) {
-            if (event.key === ' ' && store.context.typingRef.current) {
-              event.preventBaseUIHandler();
+          onKeyDown(event: BaseUIEvent<React.KeyboardEvent>) {
+            if (event.key === ' ' && typingRef.current) {
+              event.preventDefault();
             }
           },
         },
@@ -63,7 +65,7 @@ export function useMenuItem(params: useMenuItem.Parameters): useMenuItem.ReturnV
         getButtonProps,
       );
     },
-    [commonProps, getButtonProps, store, itemMetadata],
+    [commonProps, getButtonProps, typingRef, itemMetadata],
   );
 
   const mergedRef = useMergedRefs(itemRef, buttonRef);
@@ -113,6 +115,11 @@ export interface UseMenuItemParameters {
    * The menu store.
    */
   store: MenuStore<any>;
+  /**
+   * Whether a typeahead session is in progress.
+   * @default store.context.typingRef
+   */
+  typingRef?: React.RefObject<boolean> | undefined;
 }
 
 export type UseMenuItemMetadata =

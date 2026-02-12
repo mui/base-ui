@@ -10,7 +10,12 @@ import {
   useCompositeListItem,
   IndexGuessBehavior,
 } from '../../composite/list/useCompositeListItem';
-import type { BaseUIComponentProps, HTMLProps, NonNativeButtonProps } from '../../utils/types';
+import type {
+  BaseUIComponentProps,
+  BaseUIEvent,
+  HTMLProps,
+  NonNativeButtonProps,
+} from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { SelectItemContext } from './SelectItemContext';
 import { selectors } from '../store';
@@ -124,6 +129,7 @@ export const SelectItem = React.memo(
       disabled,
       focusableWhenDisabled: true,
       native: nativeButton,
+      composite: true,
     });
 
     function commitSelection(event: MouseEvent) {
@@ -178,9 +184,13 @@ export const SelectItem = React.memo(
           allowUnselectedMouseUp: false,
         };
       },
-      onKeyDown(event) {
+      onKeyDown(event: BaseUIEvent<React.KeyboardEvent>) {
         lastKeyRef.current = event.key;
         store.set('activeIndex', index);
+
+        if (event.key === ' ' && typingRef.current) {
+          event.preventDefault();
+        }
       },
       onClick(event) {
         didPointerDownRef.current = false;
