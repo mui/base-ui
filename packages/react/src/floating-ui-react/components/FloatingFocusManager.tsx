@@ -231,6 +231,11 @@ export interface FloatingFocusManagerProps {
    */
   closeOnFocusOut?: boolean | undefined;
   /**
+   * Returns a list of elements that should be considered part of the
+   * floating element for outside-content hiding.
+   */
+  getInsideElements?: (() => Element[]) | undefined;
+  /**
    * Overrides the element to focus when tabbing forward out of the floating element.
    */
   nextFocusableElement?: (HTMLElement | React.RefObject<HTMLElement | null> | null) | undefined;
@@ -265,6 +270,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     modal = true,
     closeOnFocusOut = true,
     openInteractionType = '',
+    getInsideElements: getInsideElementsProp = () => [],
     nextFocusableElement,
     previousFocusableElement,
     beforeContentFocusGuardRef,
@@ -279,6 +285,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
   const { events, dataRef } = store.context;
 
   const getNodeId = useStableCallback(() => dataRef.current.floatingContext?.nodeId);
+  const getInsideElements = useStableCallback(getInsideElementsProp);
 
   const ignoreInitialFocus = initialFocus === false;
   // If the reference is a combobox and is typeable (e.g. input/textarea),
@@ -646,6 +653,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
       floating,
       rootAncestorComboboxDomReference,
       ...portalNodes,
+      ...getInsideElements(),
       startDismissButtonRef.current,
       endDismissButtonRef.current,
       beforeGuardRef.current,
@@ -669,6 +677,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     isUntrappedTypeableCombobox,
     tree,
     getNodeId,
+    getInsideElements,
     nextFocusableElement,
     previousFocusableElement,
   ]);
