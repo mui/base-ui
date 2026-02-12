@@ -242,7 +242,10 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
     const isAutomaticDefault = isInitialRun && hasImplicitDefaultValue;
     const shouldAutoSelectFromEmptyValue = hasNoSelection && hasImplicitDefaultValue;
     const needsAutoSelection =
-      selectionIsDisabled || selectionIsMissing || shouldAutoSelectFromEmptyValue || isAutomaticDefault;
+      selectionIsDisabled ||
+      selectionIsMissing ||
+      shouldAutoSelectFromEmptyValue ||
+      isAutomaticDefault;
 
     if (!needsAutoSelection) {
       return;
