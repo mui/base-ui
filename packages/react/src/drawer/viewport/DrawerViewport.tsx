@@ -20,7 +20,7 @@ import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { contains } from '../../floating-ui-react/utils';
 import { DrawerViewportContext } from './DrawerViewportContext';
 import { TransitionStatusDataAttributes } from '../../utils/stateAttributesMapping';
-import { findScrollableTouchTarget } from '../../utils/scrollable';
+import { findScrollableTouchTarget, type ScrollAxis } from '../../utils/scrollable';
 import type { BaseUIComponentProps } from '../../utils/types';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
 
@@ -67,6 +67,8 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
   const popupElementState = store.useState('popupElement');
 
   const nestedDrawerOpen = nestedOpenDialogCount > 0;
+  const scrollAxis =
+    swipeDirection === 'left' || swipeDirection === 'right' ? 'horizontal' : 'vertical';
 
   const {
     snapPoints,
@@ -85,6 +87,7 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
   const lastPointerTypeRef = React.useRef<React.PointerEvent['pointerType'] | ''>('');
   const ignoreNextTouchStartFromPenRef = React.useRef(false);
   const touchScrollStateRef = React.useRef<{
+    lastX: number;
     lastY: number;
     scrollTarget: HTMLElement | null;
     allowSwipe: boolean | null;
@@ -719,10 +722,21 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
       }
 
       const target = isElement(event.target) ? event.target : null;
+      const updateTouchPosition = () => {
+        touchState.lastX = touch.clientX;
+        touchState.lastY = touch.clientY;
+      };
+
+      // Preserve native range interaction by never locking touchmove for range inputs.
+      if (isEventOnRangeInput(event, win)) {
+        touchState.allowSwipe = false;
+        updateTouchPosition();
+        return;
+      }
 
       // Avoid blocking pinch zoom or text selection adjustments on iOS Safari.
       if (event.touches.length === 2) {
-        touchState.lastY = touch.clientY;
+        updateTouchPosition();
         return;
       }
 
@@ -749,13 +763,8 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
         }
       }
 
-      if (allowTouchMove) {
-        touchState.lastY = touch.clientY;
-        return;
-      }
-
-      if (!open || !mounted || nestedDrawerOpen) {
-        touchState.lastY = touch.clientY;
+      if (allowTouchMove || !open || !mounted || nestedDrawerOpen) {
+        updateTouchPosition();
         return;
       }
 
@@ -764,36 +773,37 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
         if (event.cancelable) {
           event.preventDefault();
         }
-        touchState.lastY = touch.clientY;
+        updateTouchPosition();
         return;
       }
 
-      // If the scroll container doesn't overflow, prevent the window from scrolling.
-      if (
-        scrollTarget.scrollHeight === scrollTarget.clientHeight &&
-        scrollTarget.scrollWidth === scrollTarget.clientWidth
-      ) {
+      const hasScrollableContent = hasScrollableContentOnAxis(scrollTarget, scrollAxis);
+      if (!hasScrollableContent) {
+        // If the scroll container doesn't overflow on the drawer axis, prevent the window from
+        // scrolling instead.
         if (event.cancelable) {
           event.preventDefault();
         }
-        touchState.lastY = touch.clientY;
+        updateTouchPosition();
         return;
       }
 
-      const deltaY = touch.clientY - touchState.lastY;
-      if (deltaY !== 0) {
-        const movingDown = deltaY > 0;
-        const movingUp = deltaY < 0;
-        const maxScrollTop = Math.max(0, scrollTarget.scrollHeight - scrollTarget.clientHeight);
-        const atTop = scrollTarget.scrollTop <= 0;
-        const atBottom = scrollTarget.scrollTop >= maxScrollTop;
-        const canSwipeDown = movingDown && atTop && swipeDirections.includes('down');
-        const canSwipeUp = movingUp && atBottom && swipeDirections.includes('up');
+      const delta =
+        scrollAxis === 'vertical'
+          ? touch.clientY - touchState.lastY
+          : touch.clientX - touchState.lastX;
+      if (delta !== 0) {
+        const canSwipeFromScrollEdge = canSwipeFromScrollEdgeOnMove(
+          scrollTarget,
+          scrollAxis,
+          swipeDirection,
+          delta,
+        );
 
         if (touchState.allowSwipe !== true) {
           if (!event.cancelable) {
             touchState.allowSwipe = false;
-          } else if (canSwipeDown || canSwipeUp) {
+          } else if (canSwipeFromScrollEdge) {
             touchState.allowSwipe = true;
             event.preventDefault();
           } else {
@@ -804,7 +814,7 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
         }
       }
 
-      touchState.lastY = touch.clientY;
+      updateTouchPosition();
     }
 
     doc.addEventListener('touchmove', handleNativeTouchMove, { passive: false, capture: true });
@@ -812,7 +822,15 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
     return () => {
       doc.removeEventListener('touchmove', handleNativeTouchMove, { capture: true });
     };
-  }, [mounted, nestedDrawerOpen, open, popupElementState, swipeDirections, viewportElement]);
+  }, [
+    mounted,
+    nestedDrawerOpen,
+    open,
+    popupElementState,
+    scrollAxis,
+    swipeDirection,
+    viewportElement,
+  ]);
 
   React.useEffect(() => {
     if (!snapPointRange || swipe.swiping) {
@@ -962,26 +980,27 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
             return;
           }
 
+          const win = ownerWindow(event.currentTarget);
+          if (isEventOnRangeInput(event.nativeEvent, win)) {
+            touchScrollStateRef.current = null;
+            return;
+          }
+
           const rootElement = viewportElement ?? popupElementState;
           const target = isElement(event.target) ? event.target : null;
           const scrollTarget =
             rootElement && target && contains(rootElement, target)
-              ? findScrollableTouchTarget(target, rootElement)
+              ? findScrollableTouchTarget(target, rootElement, scrollAxis)
               : null;
-          const maxScrollTop = scrollTarget
-            ? Math.max(0, scrollTarget.scrollHeight - scrollTarget.clientHeight)
-            : 0;
-          const startedAtTop = scrollTarget ? scrollTarget.scrollTop <= 0 : false;
-          const startedAtBottom = scrollTarget ? scrollTarget.scrollTop >= maxScrollTop : false;
 
           let allowSwipe: boolean | null = null;
           if (scrollTarget) {
-            const canSwipeFromTop = startedAtTop && swipeDirections.includes('down');
-            const canSwipeFromBottom = startedAtBottom && swipeDirections.includes('up');
-            allowSwipe = canSwipeFromTop || canSwipeFromBottom ? null : false;
+            const canSwipeFromEdge = isAtSwipeStartEdge(scrollTarget, scrollAxis, swipeDirection);
+            allowSwipe = canSwipeFromEdge ? null : false;
           }
 
           touchScrollStateRef.current = {
+            lastX: touch.clientX,
             lastY: touch.clientY,
             scrollTarget,
             allowSwipe,
@@ -990,12 +1009,13 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
           swipeTouchProps.onTouchStart?.(event);
         },
         onTouchMove(event) {
+          const win = ownerWindow(event.currentTarget);
+          if (isEventOnRangeInput(event.nativeEvent, win)) {
+            return;
+          }
+
           const touchState = touchScrollStateRef.current;
-          if (
-            touchState?.scrollTarget &&
-            (swipeDirections.includes('down') || swipeDirections.includes('up')) &&
-            touchState.allowSwipe !== true
-          ) {
+          if (touchState?.scrollTarget && touchState.allowSwipe !== true) {
             return;
           }
 
@@ -1073,4 +1093,83 @@ function getBaseSwipeThreshold(element: HTMLElement, direction: SwipeDirection):
   const size =
     direction === 'left' || direction === 'right' ? element.offsetWidth : element.offsetHeight;
   return Math.max(size * 0.5, MIN_SWIPE_THRESHOLD);
+}
+
+function isRangeInput(
+  target: EventTarget | null,
+  win: ReturnType<typeof ownerWindow>,
+): target is HTMLInputElement {
+  return target instanceof win.HTMLInputElement && target.type === 'range';
+}
+
+function isEventOnRangeInput(event: TouchEvent, win: ReturnType<typeof ownerWindow>): boolean {
+  const composedPath = event.composedPath();
+  if (composedPath) {
+    return composedPath.some((pathTarget) => isRangeInput(pathTarget, win));
+  }
+
+  return isRangeInput(event.target, win);
+}
+
+function hasScrollableContentOnAxis(scrollTarget: HTMLElement, axis: ScrollAxis): boolean {
+  return axis === 'vertical'
+    ? scrollTarget.scrollHeight > scrollTarget.clientHeight
+    : scrollTarget.scrollWidth > scrollTarget.clientWidth;
+}
+
+function getScrollMetrics(scrollTarget: HTMLElement, axis: ScrollAxis) {
+  if (axis === 'vertical') {
+    const max = Math.max(0, scrollTarget.scrollHeight - scrollTarget.clientHeight);
+    return { offset: scrollTarget.scrollTop, max };
+  }
+
+  const max = Math.max(0, scrollTarget.scrollWidth - scrollTarget.clientWidth);
+  return { offset: scrollTarget.scrollLeft, max };
+}
+
+function isAtSwipeStartEdge(
+  scrollTarget: HTMLElement,
+  axis: ScrollAxis,
+  direction: SwipeDirection,
+): boolean {
+  const { offset, max } = getScrollMetrics(scrollTarget, axis);
+
+  if (direction === 'down' && axis === 'vertical') {
+    return offset <= 0;
+  }
+  if (direction === 'up' && axis === 'vertical') {
+    return offset >= max;
+  }
+  if (direction === 'right' && axis === 'horizontal') {
+    return offset <= 0;
+  }
+  if (direction === 'left' && axis === 'horizontal') {
+    return offset >= max;
+  }
+
+  return false;
+}
+
+function canSwipeFromScrollEdgeOnMove(
+  scrollTarget: HTMLElement,
+  axis: ScrollAxis,
+  direction: SwipeDirection,
+  delta: number,
+): boolean {
+  const { offset, max } = getScrollMetrics(scrollTarget, axis);
+
+  if (direction === 'down' && axis === 'vertical') {
+    return delta > 0 && offset <= 0;
+  }
+  if (direction === 'up' && axis === 'vertical') {
+    return delta < 0 && offset >= max;
+  }
+  if (direction === 'right' && axis === 'horizontal') {
+    return delta > 0 && offset <= 0;
+  }
+  if (direction === 'left' && axis === 'horizontal') {
+    return delta < 0 && offset >= max;
+  }
+
+  return false;
 }

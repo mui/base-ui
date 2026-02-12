@@ -1,6 +1,7 @@
 import { DrawerPreview as Drawer } from '@base-ui/react/drawer';
+import { Slider } from '@base-ui/react/slider';
 import { fireEvent, flushMicrotasks, screen } from '@mui/internal-test-utils';
-import { beforeAll, describe, expect, it } from 'vitest';
+import { beforeAll, describe, expect, it, vi } from 'vitest';
 import { createRenderer } from '#test-utils';
 
 describe('<Drawer.Viewport />', () => {
@@ -170,6 +171,127 @@ describe('<Drawer.Viewport />', () => {
     } finally {
       document.elementFromPoint = originalElementFromPoint;
     }
+  });
+
+  it('does not jump when touch starts outside the popup and then enters it', async () => {
+    await render(
+      <Drawer.Root open swipeDirection="down">
+        <Drawer.Portal>
+          <Drawer.Backdrop data-testid="backdrop" />
+          <Drawer.Viewport data-testid="viewport">
+            <Drawer.Popup data-testid="popup">
+              <Drawer.Content>Content</Drawer.Content>
+            </Drawer.Popup>
+          </Drawer.Viewport>
+        </Drawer.Portal>
+      </Drawer.Root>,
+    );
+
+    const viewport = screen.getByTestId('viewport');
+    const popup = screen.getByTestId('popup');
+    const backdrop = screen.getByTestId('backdrop');
+    Object.defineProperty(popup, 'offsetHeight', { value: 200, configurable: true });
+
+    const originalElementFromPoint = document.elementFromPoint;
+    document.elementFromPoint = (_x, y) => (y < 100 ? viewport : popup);
+
+    try {
+      fireEvent.touchStart(viewport, {
+        touches: [
+          createTouch(viewport, {
+            clientX: 0,
+            clientY: 0,
+          }),
+        ],
+      });
+
+      fireEvent.touchMove(viewport, {
+        touches: [
+          createTouch(viewport, {
+            clientX: 0,
+            clientY: 120,
+          }),
+        ],
+      });
+
+      await flushMicrotasks();
+
+      expect(backdrop).toHaveAttribute('data-swiping', '');
+      expect(Number.parseFloat(popup.style.getPropertyValue('--drawer-swipe-movement-y'))).toBe(0);
+    } finally {
+      document.elementFromPoint = originalElementFromPoint;
+    }
+  });
+
+  it('dismisses when touch starts outside the popup, then continues swiping down inside it', async () => {
+    const handleOpenChange = vi.fn();
+
+    await render(
+      <Drawer.Root open onOpenChange={handleOpenChange} swipeDirection="down">
+        <Drawer.Portal>
+          <Drawer.Backdrop data-testid="backdrop" />
+          <Drawer.Viewport data-testid="viewport">
+            <Drawer.Popup data-testid="popup">
+              <Drawer.Content>Content</Drawer.Content>
+            </Drawer.Popup>
+          </Drawer.Viewport>
+        </Drawer.Portal>
+      </Drawer.Root>,
+    );
+
+    const viewport = screen.getByTestId('viewport');
+    const popup = screen.getByTestId('popup');
+    Object.defineProperty(popup, 'offsetHeight', { value: 200, configurable: true });
+
+    const originalElementFromPoint = document.elementFromPoint;
+    document.elementFromPoint = (_x, y) => (y < 100 ? viewport : popup);
+
+    try {
+      fireEvent.touchStart(viewport, {
+        touches: [
+          createTouch(viewport, {
+            clientX: 0,
+            clientY: 0,
+          }),
+        ],
+      });
+
+      fireEvent.touchMove(viewport, {
+        touches: [
+          createTouch(viewport, {
+            clientX: 0,
+            clientY: 120,
+          }),
+        ],
+      });
+
+      fireEvent.touchMove(viewport, {
+        touches: [
+          createTouch(viewport, {
+            clientX: 0,
+            clientY: 170,
+          }),
+        ],
+      });
+
+      fireEvent.touchEnd(viewport, {
+        changedTouches: [
+          createTouch(viewport, {
+            clientX: 0,
+            clientY: 170,
+          }),
+        ],
+      });
+
+      await flushMicrotasks();
+    } finally {
+      document.elementFromPoint = originalElementFromPoint;
+    }
+
+    expect(handleOpenChange).toHaveBeenCalledWith(
+      false,
+      expect.objectContaining({ reason: 'swipe' }),
+    );
   });
 
   it('treats pen interactions on swipe-ignored content as non-touch swipes', async () => {
@@ -479,6 +601,99 @@ describe('<Drawer.Viewport />', () => {
     expect(prevented).toBe(false);
   });
 
+  it('does not block touchmove on native range inputs', async () => {
+    await render(
+      <Drawer.Root open swipeDirection="down">
+        <Drawer.Portal>
+          <Drawer.Backdrop data-testid="backdrop" />
+          <Drawer.Viewport>
+            <Drawer.Popup>
+              <input type="range" data-testid="range" />
+            </Drawer.Popup>
+          </Drawer.Viewport>
+        </Drawer.Portal>
+      </Drawer.Root>,
+    );
+
+    await flushMicrotasks();
+
+    const range = screen.getByTestId('range');
+    const backdrop = screen.getByTestId('backdrop');
+
+    fireEvent.touchStart(range, {
+      touches: [
+        createTouch(range, {
+          clientX: 0,
+          clientY: 0,
+        }),
+      ],
+    });
+
+    const dispatched = fireEvent.touchMove(range, {
+      touches: [
+        createTouch(range, {
+          clientX: 20,
+          clientY: 0,
+        }),
+      ],
+    });
+
+    await flushMicrotasks();
+
+    expect(dispatched).toBe(true);
+    expect(backdrop).not.toHaveAttribute('data-swiping');
+  });
+
+  it('does not block touchmove on slider thumb range inputs', async () => {
+    await render(
+      <Drawer.Root open swipeDirection="down">
+        <Drawer.Portal>
+          <Drawer.Backdrop data-testid="backdrop" />
+          <Drawer.Viewport>
+            <Drawer.Popup>
+              <Slider.Root defaultValue={50}>
+                <Slider.Control>
+                  <Slider.Track>
+                    <Slider.Indicator />
+                    <Slider.Thumb />
+                  </Slider.Track>
+                </Slider.Control>
+              </Slider.Root>
+            </Drawer.Popup>
+          </Drawer.Viewport>
+        </Drawer.Portal>
+      </Drawer.Root>,
+    );
+
+    await flushMicrotasks();
+
+    const sliderInput = screen.getByRole('slider');
+    const backdrop = screen.getByTestId('backdrop');
+
+    fireEvent.touchStart(sliderInput, {
+      touches: [
+        createTouch(sliderInput, {
+          clientX: 0,
+          clientY: 0,
+        }),
+      ],
+    });
+
+    const dispatched = fireEvent.touchMove(sliderInput, {
+      touches: [
+        createTouch(sliderInput, {
+          clientX: 20,
+          clientY: 0,
+        }),
+      ],
+    });
+
+    await flushMicrotasks();
+
+    expect(dispatched).toBe(true);
+    expect(backdrop).not.toHaveAttribute('data-swiping');
+  });
+
   it('allows touchmove when scrolling down from scroll top', async () => {
     await render(
       <Drawer.Root open swipeDirection="down">
@@ -518,6 +733,102 @@ describe('<Drawer.Viewport />', () => {
     });
 
     expect(prevented).toBe(true);
+  });
+
+  it('does not start an opposite-direction swipe from scroll bottom for down drawers with snap points', async () => {
+    await render(
+      <Drawer.Root open swipeDirection="down" snapPoints={['100px', 1]}>
+        <Drawer.Portal>
+          <Drawer.Backdrop data-testid="backdrop" />
+          <Drawer.Viewport>
+            <Drawer.Popup>
+              <div data-testid="scroll" style={{ overflowY: 'auto', maxHeight: 40 }}>
+                <div style={{ height: 120 }}>Scrollable content</div>
+              </div>
+            </Drawer.Popup>
+          </Drawer.Viewport>
+        </Drawer.Portal>
+      </Drawer.Root>,
+    );
+
+    await flushMicrotasks();
+
+    const scroll = screen.getByTestId('scroll');
+    const backdrop = screen.getByTestId('backdrop');
+    Object.defineProperty(scroll, 'scrollHeight', { value: 120, configurable: true });
+    Object.defineProperty(scroll, 'clientHeight', { value: 40, configurable: true });
+    scroll.scrollTop = 80;
+
+    fireEvent.touchStart(scroll, {
+      touches: [
+        createTouch(scroll, {
+          clientX: 0,
+          clientY: 40,
+        }),
+      ],
+    });
+
+    const moveAllowed = fireEvent.touchMove(scroll, {
+      touches: [
+        createTouch(scroll, {
+          clientX: 0,
+          clientY: 20,
+        }),
+      ],
+    });
+
+    await flushMicrotasks();
+
+    expect(moveAllowed).toBe(true);
+    expect(backdrop).not.toHaveAttribute('data-swiping');
+  });
+
+  it('does not start an opposite-direction swipe from scroll right edge for right drawers', async () => {
+    await render(
+      <Drawer.Root open swipeDirection="right">
+        <Drawer.Portal>
+          <Drawer.Backdrop data-testid="backdrop" />
+          <Drawer.Viewport>
+            <Drawer.Popup>
+              <div data-testid="scroll" style={{ overflowX: 'auto', maxWidth: 40 }}>
+                <div style={{ width: 120, height: 40 }}>Scrollable content</div>
+              </div>
+            </Drawer.Popup>
+          </Drawer.Viewport>
+        </Drawer.Portal>
+      </Drawer.Root>,
+    );
+
+    await flushMicrotasks();
+
+    const scroll = screen.getByTestId('scroll');
+    const backdrop = screen.getByTestId('backdrop');
+    Object.defineProperty(scroll, 'scrollWidth', { value: 120, configurable: true });
+    Object.defineProperty(scroll, 'clientWidth', { value: 40, configurable: true });
+    scroll.scrollLeft = 80;
+
+    fireEvent.touchStart(scroll, {
+      touches: [
+        createTouch(scroll, {
+          clientX: 40,
+          clientY: 0,
+        }),
+      ],
+    });
+
+    const moveAllowed = fireEvent.touchMove(scroll, {
+      touches: [
+        createTouch(scroll, {
+          clientX: 20,
+          clientY: 0,
+        }),
+      ],
+    });
+
+    await flushMicrotasks();
+
+    expect(moveAllowed).toBe(true);
+    expect(backdrop).not.toHaveAttribute('data-swiping');
   });
 
   it('starts swipe-to-dismiss after a scrollable container reaches the dismiss edge', async () => {
@@ -588,6 +899,290 @@ describe('<Drawer.Viewport />', () => {
     } finally {
       document.elementFromPoint = originalElementFromPoint;
     }
+  });
+
+  it('dismisses from a top-edge scroll container with a touch swipe down', async () => {
+    const handleOpenChange = vi.fn();
+
+    await render(
+      <Drawer.Root open onOpenChange={handleOpenChange} swipeDirection="down">
+        <Drawer.Portal>
+          <Drawer.Backdrop data-testid="backdrop" />
+          <Drawer.Viewport>
+            <Drawer.Popup data-testid="popup">
+              <div data-testid="scroll" style={{ overflowY: 'auto', maxHeight: 40 }}>
+                <div style={{ height: 120 }}>Scrollable content</div>
+              </div>
+            </Drawer.Popup>
+          </Drawer.Viewport>
+        </Drawer.Portal>
+      </Drawer.Root>,
+    );
+
+    const scroll = screen.getByTestId('scroll');
+    const backdrop = screen.getByTestId('backdrop');
+    const popup = screen.getByTestId('popup');
+    Object.defineProperty(scroll, 'scrollHeight', { value: 120, configurable: true });
+    Object.defineProperty(scroll, 'clientHeight', { value: 40, configurable: true });
+    scroll.scrollTop = 0;
+
+    Object.defineProperty(popup, 'offsetHeight', { value: 200, configurable: true });
+
+    const originalElementFromPoint = document.elementFromPoint;
+    document.elementFromPoint = () => scroll;
+
+    try {
+      fireEvent.touchStart(scroll, {
+        touches: [
+          createTouch(scroll, {
+            clientX: 0,
+            clientY: 0,
+          }),
+        ],
+      });
+
+      fireEvent.touchMove(scroll, {
+        touches: [
+          createTouch(scroll, {
+            clientX: 0,
+            clientY: 140,
+          }),
+        ],
+      });
+
+      expect(backdrop).toHaveAttribute('data-swiping', '');
+
+      fireEvent.touchEnd(scroll, {
+        changedTouches: [
+          createTouch(scroll, {
+            clientX: 0,
+            clientY: 140,
+          }),
+        ],
+      });
+
+      await flushMicrotasks();
+    } finally {
+      document.elementFromPoint = originalElementFromPoint;
+    }
+
+    expect(handleOpenChange).toHaveBeenCalledWith(
+      false,
+      expect.objectContaining({ reason: 'swipe' }),
+    );
+  });
+
+  it('dismisses from a bottom-edge scroll container with a touch swipe up', async () => {
+    const handleOpenChange = vi.fn();
+
+    await render(
+      <Drawer.Root open onOpenChange={handleOpenChange} swipeDirection="up">
+        <Drawer.Portal>
+          <Drawer.Backdrop data-testid="backdrop" />
+          <Drawer.Viewport>
+            <Drawer.Popup data-testid="popup">
+              <div data-testid="scroll" style={{ overflowY: 'auto', maxHeight: 40 }}>
+                <div style={{ height: 120 }}>Scrollable content</div>
+              </div>
+            </Drawer.Popup>
+          </Drawer.Viewport>
+        </Drawer.Portal>
+      </Drawer.Root>,
+    );
+
+    const scroll = screen.getByTestId('scroll');
+    const backdrop = screen.getByTestId('backdrop');
+    const popup = screen.getByTestId('popup');
+    Object.defineProperty(scroll, 'scrollHeight', { value: 120, configurable: true });
+    Object.defineProperty(scroll, 'clientHeight', { value: 40, configurable: true });
+    scroll.scrollTop = 80;
+
+    Object.defineProperty(popup, 'offsetHeight', { value: 200, configurable: true });
+
+    const originalElementFromPoint = document.elementFromPoint;
+    document.elementFromPoint = () => scroll;
+
+    try {
+      fireEvent.touchStart(scroll, {
+        touches: [
+          createTouch(scroll, {
+            clientX: 0,
+            clientY: 140,
+          }),
+        ],
+      });
+
+      fireEvent.touchMove(scroll, {
+        touches: [
+          createTouch(scroll, {
+            clientX: 0,
+            clientY: 0,
+          }),
+        ],
+      });
+
+      expect(backdrop).toHaveAttribute('data-swiping', '');
+
+      fireEvent.touchEnd(scroll, {
+        changedTouches: [
+          createTouch(scroll, {
+            clientX: 0,
+            clientY: 0,
+          }),
+        ],
+      });
+
+      await flushMicrotasks();
+    } finally {
+      document.elementFromPoint = originalElementFromPoint;
+    }
+
+    expect(handleOpenChange).toHaveBeenCalledWith(
+      false,
+      expect.objectContaining({ reason: 'swipe' }),
+    );
+  });
+
+  it('dismisses from a left-edge horizontal scroll container with a touch swipe right', async () => {
+    const handleOpenChange = vi.fn();
+
+    await render(
+      <Drawer.Root open onOpenChange={handleOpenChange} swipeDirection="right">
+        <Drawer.Portal>
+          <Drawer.Backdrop data-testid="backdrop" />
+          <Drawer.Viewport>
+            <Drawer.Popup data-testid="popup">
+              <div data-testid="scroll" style={{ overflowX: 'auto', maxWidth: 40 }}>
+                <div style={{ width: 120, height: 40 }}>Scrollable content</div>
+              </div>
+            </Drawer.Popup>
+          </Drawer.Viewport>
+        </Drawer.Portal>
+      </Drawer.Root>,
+    );
+
+    const scroll = screen.getByTestId('scroll');
+    const backdrop = screen.getByTestId('backdrop');
+    const popup = screen.getByTestId('popup');
+    Object.defineProperty(scroll, 'scrollWidth', { value: 120, configurable: true });
+    Object.defineProperty(scroll, 'clientWidth', { value: 40, configurable: true });
+    scroll.scrollLeft = 0;
+
+    Object.defineProperty(popup, 'offsetWidth', { value: 200, configurable: true });
+
+    const originalElementFromPoint = document.elementFromPoint;
+    document.elementFromPoint = () => scroll;
+
+    try {
+      fireEvent.touchStart(scroll, {
+        touches: [
+          createTouch(scroll, {
+            clientX: 0,
+            clientY: 0,
+          }),
+        ],
+      });
+
+      fireEvent.touchMove(scroll, {
+        touches: [
+          createTouch(scroll, {
+            clientX: 140,
+            clientY: 0,
+          }),
+        ],
+      });
+
+      expect(backdrop).toHaveAttribute('data-swiping', '');
+
+      fireEvent.touchEnd(scroll, {
+        changedTouches: [
+          createTouch(scroll, {
+            clientX: 140,
+            clientY: 0,
+          }),
+        ],
+      });
+
+      await flushMicrotasks();
+    } finally {
+      document.elementFromPoint = originalElementFromPoint;
+    }
+
+    expect(handleOpenChange).toHaveBeenCalledWith(
+      false,
+      expect.objectContaining({ reason: 'swipe' }),
+    );
+  });
+
+  it('dismisses from a right-edge horizontal scroll container with a touch swipe left', async () => {
+    const handleOpenChange = vi.fn();
+
+    await render(
+      <Drawer.Root open onOpenChange={handleOpenChange} swipeDirection="left">
+        <Drawer.Portal>
+          <Drawer.Backdrop data-testid="backdrop" />
+          <Drawer.Viewport>
+            <Drawer.Popup data-testid="popup">
+              <div data-testid="scroll" style={{ overflowX: 'auto', maxWidth: 40 }}>
+                <div style={{ width: 120, height: 40 }}>Scrollable content</div>
+              </div>
+            </Drawer.Popup>
+          </Drawer.Viewport>
+        </Drawer.Portal>
+      </Drawer.Root>,
+    );
+
+    const scroll = screen.getByTestId('scroll');
+    const backdrop = screen.getByTestId('backdrop');
+    const popup = screen.getByTestId('popup');
+    Object.defineProperty(scroll, 'scrollWidth', { value: 120, configurable: true });
+    Object.defineProperty(scroll, 'clientWidth', { value: 40, configurable: true });
+    scroll.scrollLeft = 80;
+
+    Object.defineProperty(popup, 'offsetWidth', { value: 200, configurable: true });
+
+    const originalElementFromPoint = document.elementFromPoint;
+    document.elementFromPoint = () => scroll;
+
+    try {
+      fireEvent.touchStart(scroll, {
+        touches: [
+          createTouch(scroll, {
+            clientX: 140,
+            clientY: 0,
+          }),
+        ],
+      });
+
+      fireEvent.touchMove(scroll, {
+        touches: [
+          createTouch(scroll, {
+            clientX: 0,
+            clientY: 0,
+          }),
+        ],
+      });
+
+      expect(backdrop).toHaveAttribute('data-swiping', '');
+
+      fireEvent.touchEnd(scroll, {
+        changedTouches: [
+          createTouch(scroll, {
+            clientX: 0,
+            clientY: 0,
+          }),
+        ],
+      });
+
+      await flushMicrotasks();
+    } finally {
+      document.elementFromPoint = originalElementFromPoint;
+    }
+
+    expect(handleOpenChange).toHaveBeenCalledWith(
+      false,
+      expect.objectContaining({ reason: 'swipe' }),
+    );
   });
 
   it('allows horizontal swipe dismiss from a vertical scroll container', async () => {

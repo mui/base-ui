@@ -498,7 +498,7 @@ export function useSwipeDismiss(options: useSwipeDismiss.Options): useSwipeDismi
     position: { x: number; y: number },
     movement: { x: number; y: number },
   ) {
-    if (!enabled || !isSwiping) {
+    if (!enabled || !isSwipingRef.current) {
       return;
     }
 
@@ -718,10 +718,10 @@ export function useSwipeDismiss(options: useSwipeDismiss.Options): useSwipeDismi
         : true;
 
       if (allowedToStart) {
+        const pendingStartPos = pendingSwipeStartPosRef.current;
         let ignoreScrollableTarget = false;
         let ignoreScrollableAncestorsOnStart = false;
         if (isTouchLikeEvent(event)) {
-          const pendingStartPos = pendingSwipeStartPosRef.current;
           const element = elementRef.current;
           if (pendingStartPos && element) {
             const target = getTargetAtPoint(currentPos, event.nativeEvent);
@@ -735,7 +735,14 @@ export function useSwipeDismiss(options: useSwipeDismiss.Options): useSwipeDismi
             ) {
               const deltaX = currentPos.x - pendingStartPos.x;
               const deltaY = currentPos.y - pendingStartPos.y;
-              if (hasVertical && deltaY !== 0 && Math.abs(deltaY) >= Math.abs(deltaX)) {
+              const absDeltaX = Math.abs(deltaX);
+              const absDeltaY = Math.abs(deltaY);
+              const useVerticalAxis =
+                hasVertical && deltaY !== 0 && (!hasHorizontal || absDeltaY >= absDeltaX);
+              const useHorizontalAxis =
+                hasHorizontal && deltaX !== 0 && (!hasVertical || absDeltaX > absDeltaY);
+
+              if (useVerticalAxis) {
                 const maxScrollTop = Math.max(
                   0,
                   scrollTarget.scrollHeight - scrollTarget.clientHeight,
@@ -753,6 +760,24 @@ export function useSwipeDismiss(options: useSwipeDismiss.Options): useSwipeDismi
                 } else {
                   return;
                 }
+              } else if (useHorizontalAxis) {
+                const maxScrollLeft = Math.max(
+                  0,
+                  scrollTarget.scrollWidth - scrollTarget.clientWidth,
+                );
+                const atLeft = scrollTarget.scrollLeft <= 0;
+                const atRight = scrollTarget.scrollLeft >= maxScrollLeft;
+                const movingRight = deltaX > 0;
+                const movingLeft = deltaX < 0;
+                const canSwipeRight = movingRight && atLeft && allowRight;
+                const canSwipeLeft = movingLeft && atRight && allowLeft;
+
+                if (canSwipeRight || canSwipeLeft) {
+                  ignoreScrollableTarget = true;
+                  ignoreScrollableAncestorsOnStart = true;
+                } else {
+                  return;
+                }
               }
             }
           }
@@ -763,8 +788,23 @@ export function useSwipeDismiss(options: useSwipeDismiss.Options): useSwipeDismi
           ignoreScrollableAncestors: ignoreScrollableAncestorsOnStart,
         });
         if (started) {
-          resetPendingSwipeState();
-          return;
+          if (pendingStartPos && (ignoreScrollableTarget || ignoreScrollableAncestorsOnStart)) {
+            // Preserve displacement between touchstart and the move that activates swipe from
+            // a scroll-edge so quick flicks can dismiss.
+            pendingSwipeRef.current = false;
+            pendingSwipeStartPosRef.current = null;
+            dragStartPosRef.current = pendingStartPos;
+            swipeCancelBaselineRef.current = pendingStartPos;
+            lastMovePosRef.current = pendingStartPos;
+            isFirstPointerMoveRef.current = false;
+          } else {
+            // Start from the current in-bounds position without dropping follow-up move
+            // displacement; this avoids jumps when entering from outside the element while
+            // keeping swipe tracking responsive on the next move.
+            pendingSwipeRef.current = false;
+            pendingSwipeStartPosRef.current = null;
+            swipeFromScrollableRef.current = false;
+          }
         }
       }
     }
@@ -784,8 +824,8 @@ export function useSwipeDismiss(options: useSwipeDismiss.Options): useSwipeDismi
       return;
     }
 
-    const resolvedDragOffset = trackDrag ? dragOffset : dragOffsetRef.current;
-    const resolvedInitialTransform = trackDrag ? initialTransform : initialTransformRef.current;
+    const resolvedDragOffset = dragOffsetRef.current;
+    const resolvedInitialTransform = initialTransformRef.current;
     const releaseDeltaX = resolvedDragOffset.x - resolvedInitialTransform.x;
     const releaseDeltaY = resolvedDragOffset.y - resolvedInitialTransform.y;
     const progressDetails: SwipeProgressDetailsInternal = {
@@ -794,7 +834,7 @@ export function useSwipeDismiss(options: useSwipeDismiss.Options): useSwipeDismi
       direction: currentSwipeDirection ?? intendedSwipeDirectionRef.current,
     };
 
-    if (!isSwiping) {
+    if (!isSwipingRef.current) {
       resetPendingSwipeState();
       updateSwipeProgress(0, progressDetails);
       return;

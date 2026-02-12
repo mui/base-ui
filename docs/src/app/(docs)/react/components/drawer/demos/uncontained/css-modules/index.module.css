@@ -23,10 +23,6 @@
     }
   }
 
-  &:active {
-    background-color: var(--color-gray-100);
-  }
-
   &:focus-visible {
     outline: 2px solid var(--color-blue);
     outline-offset: -1px;
@@ -73,7 +69,6 @@
   display: flex;
   align-items: flex-end;
   justify-content: center;
-  pointer-events: none;
 }
 
 .Popup {
@@ -147,10 +142,6 @@
     }
   }
 
-  &:active {
-    background-color: var(--color-gray-100);
-  }
-
   &:focus-visible {
     outline: 0;
     background-color: var(--color-gray-100);
@@ -187,10 +178,6 @@
     &:hover {
       background-color: var(--color-gray-100);
     }
-  }
-
-  &:active {
-    background-color: var(--color-gray-100);
   }
 
   &:focus-visible {
