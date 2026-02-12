@@ -56,7 +56,12 @@ export function PropertiesReferenceAccordion({ data, name: partName, ...props }:
         const modifiersText = modifiers.join(', ') || '—';
 
         return (
-          <Accordion.Item key={name}>
+          <Accordion.Item
+            key={name}
+            gaCategory="reference"
+            gaLabel={`Property: ${id}`}
+            gaParams={{ type: 'property', slug: id, part_name: partName }}
+          >
             <Accordion.Trigger
               id={id}
               index={index}

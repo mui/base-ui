@@ -1,54 +1,60 @@
-export type ItemEqualityComparer<Item = any, Value = Item> = (item: Item, value: Value) => boolean;
+export type ItemEqualityComparer<Item = any, Value = Item> = (
+  itemValue: Item,
+  selectedValue: Value,
+) => boolean;
 
-export const defaultItemEquality: ItemEqualityComparer = (item, value) => Object.is(item, value);
+export const defaultItemEquality: ItemEqualityComparer = (itemValue, selectedValue) =>
+  Object.is(itemValue, selectedValue);
 
 export function compareItemEquality<Item, Value>(
-  item: Item,
-  value: Value,
+  itemValue: Item,
+  selectedValue: Value,
   comparer: ItemEqualityComparer<Item, Value>,
 ): boolean {
-  if (item == null || value == null) {
-    return Object.is(item, value);
+  if (itemValue == null || selectedValue == null) {
+    return Object.is(itemValue, selectedValue);
   }
-  return comparer(item, value);
+  return comparer(itemValue, selectedValue);
 }
 
-export function itemIncludes<Item, Value>(
-  collection: readonly Item[] | undefined | null,
-  value: Value,
-  comparer: ItemEqualityComparer<Item, Value>,
+export function selectedValueIncludes<Item, Value>(
+  selectedValues: readonly Item[] | undefined | null,
+  itemValue: Value,
+  comparer: ItemEqualityComparer<Value, Item>,
 ): boolean {
-  if (!collection || collection.length === 0) {
+  if (!selectedValues || selectedValues.length === 0) {
     return false;
   }
-  return collection.some((item) => {
-    if (item === undefined) {
+  return selectedValues.some((selectedValue) => {
+    if (selectedValue === undefined) {
       return false;
     }
-    return compareItemEquality(item, value, comparer);
+    return compareItemEquality(itemValue, selectedValue, comparer);
   });
 }
 
 export function findItemIndex<Item, Value>(
-  collection: readonly Item[] | undefined | null,
-  value: Value,
+  itemValues: readonly Item[] | undefined | null,
+  selectedValue: Value,
   comparer: ItemEqualityComparer<Item, Value>,
 ): number {
-  if (!collection || collection.length === 0) {
+  if (!itemValues || itemValues.length === 0) {
     return -1;
   }
-  return collection.findIndex((item) => {
-    if (item === undefined) {
+  return itemValues.findIndex((itemValue) => {
+    if (itemValue === undefined) {
       return false;
     }
-    return compareItemEquality(item, value, comparer);
+    return compareItemEquality(itemValue, selectedValue, comparer);
   });
 }
 
 export function removeItem<Item, Value>(
-  collection: readonly Item[],
-  value: Value,
-  comparer: ItemEqualityComparer<Item, Value>,
+  selectedValues: readonly Item[],
+  itemValue: Value,
+  comparer: ItemEqualityComparer<Value, Item>,
 ): Item[] {
-  return collection.filter((item) => !compareItemEquality(item, value, comparer));
+  return selectedValues.filter(
+    (selectedValue) => !compareItemEquality(itemValue, selectedValue, comparer),
+  );
 }

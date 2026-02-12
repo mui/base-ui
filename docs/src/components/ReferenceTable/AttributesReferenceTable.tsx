@@ -7,9 +7,14 @@ import { TableCode } from '../TableCode';
 
 interface AttributesReferenceTableProps extends React.ComponentProps<typeof Table.Root> {
   data: Record<string, ProcessedEnumMember>;
+  name?: string;
 }
 
-export function AttributesReferenceTable({ data, ...props }: AttributesReferenceTableProps) {
+export function AttributesReferenceTable({
+  data,
+  name: partName,
+  ...props
+}: AttributesReferenceTableProps) {
   return (
     <React.Fragment>
       <Accordion.Root {...props} className={clsx(props.className, 'xs:hidden')}>
@@ -20,7 +25,16 @@ export function AttributesReferenceTable({ data, ...props }: AttributesReference
           const attribute = data[name];
 
           return (
-            <Accordion.Item key={name}>
+            <Accordion.Item
+              key={name}
+              gaCategory="reference"
+              gaLabel={`Attribute: ${partName ? `${partName}-` : ''}${name}`}
+              gaParams={{
+                type: 'attribute',
+                slug: `${partName ? `${partName}-` : ''}${name}`,
+                part_name: partName || '',
+              }}
+            >
               <Accordion.Trigger index={index}>
                 <TableCode className="text-navy">{name}</TableCode>
                 <svg

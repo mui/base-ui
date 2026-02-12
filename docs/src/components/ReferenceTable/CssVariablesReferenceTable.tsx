@@ -7,9 +7,14 @@ import { TableCode } from '../TableCode';
 
 interface CssVariablesReferenceTableProps extends React.ComponentProps<typeof Table.Root> {
   data: Record<string, ProcessedEnumMember>;
+  name?: string;
 }
 
-export function CssVariablesReferenceTable({ data, ...props }: CssVariablesReferenceTableProps) {
+export function CssVariablesReferenceTable({
+  data,
+  name: partName,
+  ...props
+}: CssVariablesReferenceTableProps) {
   return (
     <React.Fragment>
       <Accordion.Root {...props} className={clsx(props.className, 'xs:hidden')}>
@@ -20,7 +25,16 @@ export function CssVariablesReferenceTable({ data, ...props }: CssVariablesRefer
           const attribute = data[name];
 
           return (
-            <Accordion.Item key={name}>
+            <Accordion.Item
+              key={name}
+              gaCategory="reference"
+              gaLabel={`CSS variable: ${partName ? `${partName}-` : ''}${name}`}
+              gaParams={{
+                type: 'css_variable',
+                slug: `${partName ? `${partName}-` : ''}${name}`,
+                part_name: partName || '',
+              }}
+            >
               <Accordion.Trigger index={index}>
                 <TableCode className="text-navy">{name}</TableCode>
                 <svg

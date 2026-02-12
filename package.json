@@ -1,6 +1,6 @@
 {
   "name": "@base-ui/monorepo",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "private": true,
   "scripts": {
     "preinstall": "npx only-allow pnpm",
@@ -12,12 +12,13 @@
     "release:changelog:docs": "FORMAT=docs code-infra generate-changelog",
     "release:publish": "code-infra publish --github-release",
     "release:publish:dry-run": "code-infra publish --github-release --dry-run ",
-    "docs:build": "pnpm --filter docs generate-llms && pnpm --filter docs build",
     "docs:api": "echo -e '\\e[31m run `pnpm docs:validate --types` to update types.md files.\n\n\\e[0;34m Also updates when running `pnpm docs:build` or viewing the page with `pnpm docs:dev`\\e[0m'",
+    "docs:build": "pnpm --filter docs generate-llms && pnpm --filter docs build && pnpm playground:build:export",
     "docs:deploy": "pnpm --filter docs run deploy",
     "docs:dev": "pnpm --filter docs dev",
     "docs:size-why": "cross-env DOCS_STATS_ENABLED=true pnpm docs:build",
     "docs:start": "pnpm --filter docs serve",
+    "playground:build:export": "cross-env PLAYGROUND_BASE=/vite-playground/ PLAYGROUND_OUT_DIR=../../docs/export/vite-playground pnpm -C playground/vite-app build",
     "docs:link-check": "pnpm --filter docs link-check",
     "docs:generate-llms": "pnpm --filter docs run generate-llms",
     "docs:infra": "pnpm --filter docs run docs-infra",

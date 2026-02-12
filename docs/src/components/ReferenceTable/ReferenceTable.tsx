@@ -35,11 +35,19 @@ export function ReferenceTable(props: ReferenceTableProps) {
         )}
 
         {Object.keys(data.dataAttributes).length > 0 && (
-          <AttributesReferenceTable data={data.dataAttributes} className="mt-5 mb-6" />
+          <AttributesReferenceTable
+            name={data.name}
+            data={data.dataAttributes}
+            className="mt-5 mb-6"
+          />
         )}
 
         {Object.keys(data.cssVariables).length > 0 && (
-          <CssVariablesReferenceTable data={data.cssVariables} className="mt-5 mb-6" />
+          <CssVariablesReferenceTable
+            name={data.name}
+            data={data.cssVariables}
+            className="mt-5 mb-6"
+          />
         )}
 
         {additionalTypes && additionalTypes.length > 0 && (

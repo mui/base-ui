@@ -26,6 +26,13 @@ export function AdditionalTypesAccordion({
             <Accordion.Item
               className={isLast ? undefined : 'border-b border-gray-200'}
               key={additionalType.name}
+              gaCategory="reference"
+              gaLabel={`Additional type: ${additionalType.name}`}
+              gaParams={{
+                type: 'additional_type',
+                slug: additionalType.slug ?? additionalType.name,
+                part_name: additionalType.name,
+              }}
             >
               <Accordion.Trigger
                 id={additionalType.slug}

@@ -41,7 +41,12 @@ export function MethodsReferenceAccordion({
         const paramEntries = Object.entries(method.parameters);
 
         return (
-          <Accordion.Item key={name}>
+          <Accordion.Item
+            key={name}
+            gaCategory="reference"
+            gaLabel={`Method: ${id}`}
+            gaParams={{ type: 'method', slug: id, part_name: partName }}
+          >
             <Accordion.Trigger
               id={id}
               index={index}

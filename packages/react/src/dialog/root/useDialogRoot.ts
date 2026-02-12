@@ -81,6 +81,10 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
       };
     },
     outsidePress(event) {
+      if (!store.context.outsidePressEnabledRef.current) {
+        return false;
+      }
+
       // For mouse events, only accept left button (button 0)
       // For touch events, a single touch is equivalent to left button
       if ('button' in event && event.button !== 0) {

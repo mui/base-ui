@@ -82,13 +82,15 @@ function transformJsx() {
           if (node.data.estree.type === 'Program') {
             const estree = node.data.estree;
             if (estree.body[0].type === 'ImportDeclaration') {
-              // Collect demo for processing
               const importPath = estree.body[0].source.value;
 
               // Determine if this is a types import or demo import
               const specifiers = estree.body[0].specifiers || [];
               const isTypesImport = specifiers.some((spec) =>
                 spec.imported?.name?.startsWith('Type'),
+              );
+              const isDemoImport = specifiers.some((spec) =>
+                spec.imported?.name?.startsWith('Demo'),
               );
 
               if (isTypesImport) {
@@ -109,7 +111,7 @@ function transformJsx() {
                 const processedContent = processTypedoc(node, file.path || '', importPath);
                 // Replace the import with the generated content
                 parent.children.splice(index, 1, ...processedContent);
-              } else {
+              } else if (isDemoImport) {
                 // Collect demos for parallel processing later
                 demosToProcess.push({
                   index,
@@ -170,6 +172,12 @@ function transformJsx() {
           case 'Subtitle': {
             parent.children.splice(index, 1);
             return visit.CONTINUE;
+          }
+
+          case 'ReleaseTimeline': {
+            // Remove the ReleaseTimeline component from LLM output
+            parent.children.splice(index, 1);
+            return [visit.SKIP, index];
           }
 
           case 'Meta': {

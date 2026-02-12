@@ -62,6 +62,9 @@ export const DialogViewport = React.forwardRef(function DialogViewport(
       {
         role: 'presentation',
         hidden: !mounted,
+        style: {
+          pointerEvents: !open ? 'none' : undefined,
+        },
         children,
       },
       elementProps,

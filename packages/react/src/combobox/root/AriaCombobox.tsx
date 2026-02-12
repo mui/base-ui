@@ -52,10 +52,11 @@ import {
   isGroupedItems,
 } from '../../utils/resolveValueLabel';
 import {
+  compareItemEquality,
   defaultItemEquality,
   findItemIndex,
-  itemIncludes,
   removeItem,
+  selectedValueIncludes,
 } from '../../utils/itemEquality';
 import { INITIAL_LAST_HIGHLIGHT, NO_ACTIVE_VALUE } from './utils/constants';
 
@@ -628,12 +629,12 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
 
   const handleSelection = useStableCallback(
     (event: MouseEvent | PointerEvent | KeyboardEvent, passedValue?: any) => {
-      let value = passedValue;
-      if (value === undefined) {
+      let itemValue = passedValue;
+      if (itemValue === undefined) {
         if (activeIndex === null) {
           return;
         }
-        value = valuesRef.current[activeIndex];
+        itemValue = valuesRef.current[activeIndex];
       }
 
       const targetEl = getTarget(event) as HTMLElement | null;
@@ -652,14 +653,14 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
 
       if (multiple) {
         const currentSelectedValue = Array.isArray(selectedValue) ? selectedValue : [];
-        const isCurrentlySelected = itemIncludes(
+        const isCurrentlySelected = selectedValueIncludes(
           currentSelectedValue,
-          value,
+          itemValue,
           store.state.isItemEqualToValue,
         );
         const nextValue = isCurrentlySelected
-          ? removeItem(currentSelectedValue, value, store.state.isItemEqualToValue)
-          : [...currentSelectedValue, value];
+          ? removeItem(currentSelectedValue, itemValue, store.state.isItemEqualToValue)
+          : [...currentSelectedValue, itemValue];
 
         setSelectedValue(nextValue, eventDetails);
 
@@ -674,7 +675,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
           setOpen(false, eventDetails);
         }
       } else {
-        setSelectedValue(value, eventDetails);
+        setSelectedValue(itemValue, eventDetails);
         setOpen(false, eventDetails);
       }
     },
@@ -844,16 +845,20 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       return;
     }
 
-    const nextActiveValue = candidateItems[storeActiveIndex];
-    const lastHighlightedValue = lastHighlightRef.current.value;
+    const itemValue = candidateItems[storeActiveIndex];
+    const previouslyHighlightedItemValue = lastHighlightRef.current.value;
     const isSameItem =
-      lastHighlightedValue !== NO_ACTIVE_VALUE &&
-      store.state.isItemEqualToValue(nextActiveValue, lastHighlightedValue);
+      previouslyHighlightedItemValue !== NO_ACTIVE_VALUE &&
+      compareItemEquality(
+        itemValue,
+        previouslyHighlightedItemValue,
+        store.state.isItemEqualToValue,
+      );
 
     if (lastHighlightRef.current.index !== storeActiveIndex || !isSameItem) {
-      lastHighlightRef.current = { value: nextActiveValue, index: storeActiveIndex };
+      lastHighlightRef.current = { value: itemValue, index: storeActiveIndex };
       store.state.onItemHighlighted(
-        nextActiveValue,
+        itemValue,
         createGenericEventDetails(REASONS.none, undefined, { index: storeActiveIndex }),
       );
     }
@@ -1152,10 +1157,11 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
   const itemsContextValue: ComboboxDerivedItemsContext = React.useMemo(
     () => ({
       query,
+      hasItems,
       filteredItems,
       flatFilteredItems,
     }),
-    [query, filteredItems, flatFilteredItems],
+    [query, hasItems, filteredItems, flatFilteredItems],
   );
 
   const serializedValue = React.useMemo(() => {
@@ -1446,7 +1452,7 @@ interface ComboboxRootProps<ItemValue> {
    * Custom comparison logic used to determine if a combobox item value matches the current selected value. Useful when item values are objects without matching referentially.
    * Defaults to `Object.is` comparison.
    */
-  isItemEqualToValue?: ((itemValue: ItemValue, selectedValue: ItemValue) => boolean) | undefined;
+  isItemEqualToValue?: ((itemValue: ItemValue, value: ItemValue) => boolean) | undefined;
   /**
    * Whether the items are being externally virtualized.
    * @default false
@@ -1480,7 +1486,7 @@ interface ComboboxRootProps<ItemValue> {
   autoComplete?: ('list' | 'both' | 'inline' | 'none') | undefined;
   /**
    * Provides a hint to the browser for autofill on the hidden input element.
-   * @see https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/autocomplete
+   * @see https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Attributes/autocomplete
    */
   formAutoComplete?: string | undefined;
   /**

@@ -64,7 +64,12 @@ export function ReferenceAccordion({
         const defaultText = prop.defaultText;
 
         return (
-          <Accordion.Item key={name}>
+          <Accordion.Item
+            key={name}
+            gaCategory="reference"
+            gaLabel={`${nameLabel}: ${id}`}
+            gaParams={{ type: nameLabel.toLowerCase(), slug: id, part_name: partName }}
+          >
             <Accordion.Trigger
               id={id}
               index={index}
