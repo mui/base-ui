@@ -507,6 +507,111 @@ describe('useSwipeDismiss', () => {
     expect(onSwipingChange).toHaveBeenLastCalledWith(false);
   });
 
+  it('cancels pointer swipe when the primary mouse button is released without pointerup', async () => {
+    const onDismiss = vi.fn();
+    const onSwipingChange = vi.fn();
+
+    function SwipeBoxPointerCancel() {
+      const ref = React.useRef<HTMLDivElement>(null);
+      const swipe = useSwipeDismiss({
+        enabled: true,
+        directions: ['down'],
+        elementRef: ref,
+        movementCssVars: { x: '--x', y: '--y' },
+        onDismiss,
+        onSwipingChange,
+      });
+
+      return (
+        <div
+          data-testid="pointer-cancel"
+          ref={ref}
+          style={swipe.getDragStyles()}
+          {...swipe.getPointerProps()}
+        />
+      );
+    }
+
+    await render(<SwipeBoxPointerCancel />);
+    const element = screen.getByTestId('pointer-cancel');
+
+    fireEvent.pointerDown(element, {
+      button: 0,
+      buttons: 1,
+      pointerId: 1,
+      clientX: 0,
+      clientY: 0,
+      bubbles: true,
+      pointerType: 'mouse',
+      movementX: 0,
+      movementY: 0,
+    });
+
+    await flushMicrotasks();
+
+    fireEvent.pointerMove(element, {
+      pointerId: 1,
+      buttons: 1,
+      clientX: 0,
+      clientY: 0,
+      bubbles: true,
+      pointerType: 'mouse',
+      movementX: 0,
+      movementY: 0,
+    });
+
+    await flushMicrotasks();
+
+    fireEvent.pointerMove(element, {
+      pointerId: 1,
+      buttons: 1,
+      clientX: 0,
+      clientY: 12,
+      bubbles: true,
+      pointerType: 'mouse',
+      movementX: 0,
+      movementY: 12,
+    });
+
+    await flushMicrotasks();
+
+    expect(onSwipingChange).toHaveBeenCalledWith(true);
+    expect(element.style.getPropertyValue('--y')).not.toBe('0px');
+
+    fireEvent.pointerMove(element, {
+      pointerId: 1,
+      buttons: 0,
+      clientX: 0,
+      clientY: 16,
+      bubbles: true,
+      pointerType: 'mouse',
+      movementX: 0,
+      movementY: 4,
+    });
+
+    await flushMicrotasks();
+
+    expect(onSwipingChange).toHaveBeenLastCalledWith(false);
+    expect(element.style.getPropertyValue('--y')).toBe('0px');
+    expect(onDismiss).not.toHaveBeenCalled();
+
+    fireEvent.pointerMove(element, {
+      pointerId: 1,
+      buttons: 0,
+      clientX: 0,
+      clientY: 40,
+      bubbles: true,
+      pointerType: 'mouse',
+      movementX: 0,
+      movementY: 24,
+    });
+
+    await flushMicrotasks();
+
+    expect(element.style.getPropertyValue('--y')).toBe('0px');
+    expect(onDismiss).not.toHaveBeenCalled();
+  });
+
   it('resets swiping when touch ends over a scrollable descendant', async () => {
     const onSwipingChange = vi.fn();
 

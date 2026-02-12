@@ -114,13 +114,13 @@ export function useSwipeDismiss(options: useSwipeDismiss.Options): useSwipeDismi
   } = options;
 
   const ignoreSelector = DEFAULT_IGNORE_SELECTOR;
+  const primaryDirection = directions.length === 1 ? directions[0] : undefined;
 
   const swipeThresholdDefault = Math.max(
     0,
     typeof swipeThresholdProp === 'number' ? swipeThresholdProp : DEFAULT_SWIPE_THRESHOLD,
   );
 
-  const primaryDirection = directions.length === 1 ? directions[0] : undefined;
   const allowLeft = directions.includes('left');
   const allowRight = directions.includes('right');
   const allowUp = directions.includes('up');
@@ -163,6 +163,7 @@ export function useSwipeDismiss(options: useSwipeDismiss.Options): useSwipeDismi
   const pendingSwipeRef = React.useRef(false);
   const pendingSwipeStartPosRef = React.useRef<{ x: number; y: number } | null>(null);
   const swipeFromScrollableRef = React.useRef(false);
+  const sawPrimaryButtonsOnMoveRef = React.useRef(false);
   const elementSizeRef = React.useRef({ width: 0, height: 0 });
   const swipeProgressRef = React.useRef(0);
   const swipeThresholdRef = React.useRef(swipeThresholdDefault);
@@ -270,6 +271,7 @@ export function useSwipeDismiss(options: useSwipeDismiss.Options): useSwipeDismi
     pendingSwipeRef.current = false;
     pendingSwipeStartPosRef.current = null;
     swipeFromScrollableRef.current = false;
+    sawPrimaryButtonsOnMoveRef.current = false;
     elementSizeRef.current = { width: 0, height: 0 };
     swipeStartTimeRef.current = null;
     lastDragSampleRef.current = null;
@@ -416,7 +418,7 @@ export function useSwipeDismiss(options: useSwipeDismiss.Options): useSwipeDismi
   function cancelSwipeInteraction(event: React.PointerEvent) {
     resetPendingSwipeState();
 
-    if (!isSwiping) {
+    if (!isSwipingRef.current) {
       return;
     }
 
@@ -428,6 +430,7 @@ export function useSwipeDismiss(options: useSwipeDismiss.Options): useSwipeDismi
     dragOffsetRef.current = { x: resolvedInitialTransform.x, y: resolvedInitialTransform.y };
     setDragOffset({ x: resolvedInitialTransform.x, y: resolvedInitialTransform.y });
     setCurrentSwipeDirection(undefined);
+    sawPrimaryButtonsOnMoveRef.current = false;
 
     const element = elementRef.current;
     if (element) {
@@ -517,6 +520,7 @@ export function useSwipeDismiss(options: useSwipeDismiss.Options): useSwipeDismi
     pendingSwipeRef.current = true;
     pendingSwipeStartPosRef.current = startPos;
     swipeFromScrollableRef.current = false;
+    sawPrimaryButtonsOnMoveRef.current = false;
 
     const allowedToStart = canStart
       ? canStart(startPos, {
@@ -734,11 +738,20 @@ export function useSwipeDismiss(options: useSwipeDismiss.Options): useSwipeDismi
       return;
     }
 
-    // Cancel the swipe if a non-primary button takes over the interaction.
-    // This handles cases where a right-click interrupts dragging.
-    if (!('touches' in event) && event.buttons !== 0 && !hasPrimaryMouseButton(event.buttons)) {
-      cancelSwipeInteraction(event);
-      return;
+    if (!('touches' in event)) {
+      const hasPrimaryButton = hasPrimaryMouseButton(event.buttons);
+      if (hasPrimaryButton) {
+        sawPrimaryButtonsOnMoveRef.current = true;
+      }
+
+      // Cancel the swipe if a non-primary button takes over the interaction.
+      // This handles cases where a right-click interrupts dragging.
+      const lostPrimaryButtonDuringSwipe =
+        event.buttons === 0 && sawPrimaryButtonsOnMoveRef.current;
+      if ((event.buttons !== 0 && !hasPrimaryButton) || lostPrimaryButtonDuringSwipe) {
+        cancelSwipeInteraction(event);
+        return;
+      }
     }
 
     if (!isSwiping && pendingSwipeRef.current) {
@@ -850,6 +863,7 @@ export function useSwipeDismiss(options: useSwipeDismiss.Options): useSwipeDismi
     setIsRealSwipe(false);
     setLockedDirection(null);
     resetPendingSwipeState();
+    sawPrimaryButtonsOnMoveRef.current = false;
 
     const element = elementRef.current;
     if (element) {

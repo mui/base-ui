@@ -1,11 +1,15 @@
+'use client';
+import * as React from 'react';
 import { DrawerPreview as Drawer } from '@base-ui/react/drawer';
 import styles from './index.module.css';
 
 const ACTIONS = ['Unfollow', 'Mute', 'Add to Favourites', 'Add to Close Friends', 'Restrict'];
 
 export default function ExampleDrawerUncontained() {
+  const [open, setOpen] = React.useState(false);
+
   return (
-    <Drawer.Root>
+    <Drawer.Root open={open} onOpenChange={setOpen}>
       <Drawer.Trigger className={styles.Button}>Open action sheet</Drawer.Trigger>
       <Drawer.Portal>
         <Drawer.Backdrop className={styles.Backdrop} />
@@ -18,9 +22,18 @@ export default function ExampleDrawerUncontained() {
               </Drawer.Description>
 
               <ul className={styles.Actions} aria-label="Profile actions">
-                {ACTIONS.map((action) => (
+                {ACTIONS.map((action, index) => (
                   <li key={action} className={styles.Action}>
-                    <button type="button" className={styles.ActionButton}>
+                    {index === 0 && (
+                      <Drawer.Close className={styles.VisuallyHidden}>
+                        Close action sheet
+                      </Drawer.Close>
+                    )}
+                    <button
+                      type="button"
+                      className={styles.ActionButton}
+                      onClick={() => setOpen(false)}
+                    >
                       {action}
                     </button>
                   </li>
@@ -28,7 +41,7 @@ export default function ExampleDrawerUncontained() {
               </ul>
             </Drawer.Content>
             <div className={styles.DangerSurface}>
-              <button type="button" className={styles.DangerButton}>
+              <button type="button" className={styles.DangerButton} onClick={() => setOpen(false)}>
                 Block User
               </button>
             </div>
