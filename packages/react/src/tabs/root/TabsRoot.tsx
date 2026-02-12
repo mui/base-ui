@@ -207,7 +207,7 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
       return;
     }
 
-    const selectionIsDisabled = selectedTabMetadata?.disabled;
+    const selectionIsDisabled = selectedTabMetadata?.disabled === true;
     const selectionIsMissing = selectedTabMetadata == null && value !== null;
     const hasNoSelection = value == null; // Catches both null and undefined
     const isInitialRun = !hasRunOnceRef.current;
@@ -238,12 +238,11 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
     // - Selection is missing (tab removed or invalid value)
     // - No selection at all (value is null/undefined), but only without explicit defaultValue
     // - Initial run with no explicit defaultValue (automatic default to 0)
-    const isAutomaticDefault = isInitialRun && !hasExplicitDefaultValueProp;
+    const hasImplicitDefaultValue = !hasExplicitDefaultValueProp;
+    const isAutomaticDefault = isInitialRun && hasImplicitDefaultValue;
+    const shouldAutoSelectFromEmptyValue = hasNoSelection && hasImplicitDefaultValue;
     const needsAutoSelection =
-      selectionIsDisabled ||
-      selectionIsMissing ||
-      (hasNoSelection && !hasExplicitDefaultValueProp) ||
-      isAutomaticDefault;
+      selectionIsDisabled || selectionIsMissing || shouldAutoSelectFromEmptyValue || isAutomaticDefault;
 
     if (!needsAutoSelection) {
       return;
@@ -261,13 +260,11 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
     // - 'initial': First automatic selection (no value/defaultValue provided)
     // - 'disabled': Tab became disabled after initial render
     // - 'missing': Tab was removed from DOM
-    let reason: TabsRoot.ChangeEventReason;
+    let reason: TabsRoot.ChangeEventReason = REASONS.missing;
     if (isAutomaticDefault) {
       reason = REASONS.initial;
     } else if (selectionIsDisabled) {
       reason = REASONS.disabled;
-    } else {
-      reason = REASONS.missing;
     }
 
     // Call onValueChange to notify about automatic selection
