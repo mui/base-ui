@@ -15,7 +15,7 @@
     "disabled": {
       "type": "boolean",
       "default": "false",
-      "description": "Whether the trigger is disabled. If `true`, the tooltip will not open when interacting with this trigger.\nNote that this doesn't apply the `disabled` attribute to the trigger element.\nIf you want to disable the trigger element itself, you can pass the `disabled` prop to the trigger element via the `render` prop.",
+      "description": "If `true`, the tooltip will not open when interacting with this trigger.\nNote that this doesn't apply the `disabled` attribute to the trigger element.\nIf you want to disable the trigger element itself, you can pass the `disabled` prop to the trigger element via the `render` prop.",
       "detailedType": "boolean | undefined"
     },
     "delay": {

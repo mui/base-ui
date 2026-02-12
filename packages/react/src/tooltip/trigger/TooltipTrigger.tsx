@@ -179,7 +179,7 @@ export interface TooltipTriggerProps<Payload = unknown> extends BaseUIComponentP
    */
   closeDelay?: number | undefined;
   /**
-   * Whether the trigger is disabled. If `true`, the tooltip will not open when interacting with this trigger.
+   * If `true`, the tooltip will not open when interacting with this trigger.
    * Note that this doesn't apply the `disabled` attribute to the trigger element.
    * If you want to disable the trigger element itself, you can pass the `disabled` prop to the trigger element via the `render` prop.
    * @default false
