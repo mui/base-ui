@@ -3,10 +3,12 @@ export interface Release {
   versionSlug: string;
   date: string;
   highlights: string[];
+  latest?: true;
 }
 
 export const releases: Release[] = [
   {
+    latest: true,
     version: 'v1.1.0',
     versionSlug: 'v1-1-0',
     date: '2026-01-15',

@@ -16,7 +16,7 @@ export function ReleaseTimeline() {
   return (
     <ul className="ReleaseTimeline" aria-label="Release timeline">
       <div className="TimelineSpine" />
-      {releases.map((release, index) => (
+      {releases.map((release) => (
         <li key={release.versionSlug} className="TimelineItem">
           <article className="TimelineCard">
             <div className="TimelineCardHeader">
@@ -30,7 +30,7 @@ export function ReleaseTimeline() {
                 >
                   {release.version}
                 </Link>
-                {index === 0 && <span className="TimelineBadge">Latest</span>}
+                {release.latest && <span className="TimelineBadge">Latest</span>}
               </h3>
             </div>
             <ul className="TimelineHighlights">
