@@ -14,6 +14,10 @@ export const releases: Release[] = [
     date: '2026-02-12',
     highlights: [
       'New Drawer component.',
+      'Added Menu.LinkItem for semantic navigation links.',
+      'New useFilteredItems hook for custom filtering in Autocomplete and Combobox.',
+      'Improved type safety and inference for Toggle and ToggleGroup.',
+      'Enhanced NumberField with allowOutOfRange prop.',
     ],
   },
   {
