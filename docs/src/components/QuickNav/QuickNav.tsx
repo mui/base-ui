@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import clsx from 'clsx';
+import { usePathname } from 'next/navigation';
 import { useGoogleAnalytics } from 'docs/src/blocks/GoogleAnalyticsProvider';
 
 export function Container({ className, ...props }: React.ComponentProps<'div'>) {
@@ -282,17 +283,21 @@ export function Item({ className, ...props }: React.ComponentProps<'li'>) {
 
 export function Link({ className, onClick, ...props }: React.ComponentProps<'a'>) {
   const ga = useGoogleAnalytics();
+  const pathname = usePathname();
 
   const handleClick = React.useCallback(
     (event: React.MouseEvent<HTMLAnchorElement>) => {
+      const slug = props.href ?? undefined;
+      const tocId = slug ? `${pathname}${slug}` : pathname;
       ga?.trackEvent({
         category: 'table_of_contents',
         action: 'click',
-        label: props.href ?? undefined,
+        label: tocId,
+        params: { click: tocId, slug: slug || '' },
       });
       onClick?.(event);
     },
-    [ga, props.href, onClick],
+    [ga, props.href, onClick, pathname],
   );
 
   // The anchor element is interactive via `href` from `...props`, but the

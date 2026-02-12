@@ -67,6 +67,11 @@ export async function ReturnValueReferenceTable({
               key={name}
               gaCategory="reference"
               gaLabel={`Return value: ${partName ? `${partName}-` : ''}${name}`}
+              gaParams={{
+                type: 'return_value',
+                slug: `${partName ? `${partName}-` : ''}${name}`,
+                part_name: partName || '',
+              }}
             >
               <Accordion.Trigger index={index}>
                 {ReturnType ? (

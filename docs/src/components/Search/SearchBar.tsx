@@ -108,7 +108,7 @@ export function SearchBar({
   const searchQueryRef = React.useRef('');
   const resultCountRef = React.useRef(0);
   const attemptRef = React.useRef(0);
-  const selectedResultRef = React.useRef(false);
+  const selectedResultRef = React.useRef<SearchResult | null>(null);
   const lastTrackedQueryRef = React.useRef('');
   const queryDebounceRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -159,7 +159,7 @@ export function SearchBar({
     searchQueryRef.current = '';
     resultCountRef.current = 0;
     attemptRef.current = 0;
-    selectedResultRef.current = false;
+    selectedResultRef.current = null;
     lastTrackedQueryRef.current = '';
     if (queryDebounceRef.current) {
       clearTimeout(queryDebounceRef.current);
@@ -180,14 +180,21 @@ export function SearchBar({
 
         // Fire final search event for the current query
         if (searchQueryRef.current) {
+          const selected = selectedResultRef.current;
           ga?.trackEvent({
             category: 'search',
-            action: selectedResultRef.current ? 'select' : 'dismiss',
+            action: selected ? 'select' : 'dismiss',
             label: searchQueryRef.current,
             params: {
               search_term: searchQueryRef.current,
               result_count: resultCountRef.current,
               attempt: attemptRef.current,
+              ...(selected
+                ? {
+                    selected_result: selected.title || selected.slug,
+                    selected_type: selected.type || '',
+                  }
+                : { failed: searchQueryRef.current }),
             },
           });
           lastTrackedQueryRef.current = searchQueryRef.current;
@@ -277,7 +284,7 @@ export function SearchBar({
   const highlightedResultRef = React.useRef<SearchResult | undefined>(undefined);
 
   const handleItemClick = React.useCallback(() => {
-    selectedResultRef.current = true;
+    selectedResultRef.current = highlightedResultRef.current ?? null;
     handleCloseDialog(false);
   }, [handleCloseDialog]);
 

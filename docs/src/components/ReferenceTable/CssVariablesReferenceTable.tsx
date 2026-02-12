@@ -42,6 +42,11 @@ export async function CssVariablesReferenceTable({
               key={name}
               gaCategory="reference"
               gaLabel={`CSS variable: ${partName ? `${partName}-` : ''}${name}`}
+              gaParams={{
+                type: 'css_variable',
+                slug: `${partName ? `${partName}-` : ''}${name}`,
+                part_name: partName || '',
+              }}
             >
               <Accordion.Trigger index={index}>
                 <TableCode className="text-navy">{name}</TableCode>

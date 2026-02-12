@@ -2,6 +2,7 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { Collapsible } from '@base-ui/react/collapsible';
+import { usePathname } from 'next/navigation';
 import type { ContentProps } from '@mui/internal-docs-infra/CodeHighlighter/types';
 import { useDemo } from '@mui/internal-docs-infra/useDemo';
 import { CopyIcon } from 'docs/src/icons/CopyIcon';
@@ -36,10 +37,12 @@ export function Demo({
   const collapsibleTriggerRef = React.useRef<HTMLButtonElement>(null);
   const [copyTimeout, setCopyTimeout] = React.useState<number>(0);
   const ga = useGoogleAnalytics();
+  const pathname = usePathname();
   const demoSlug = React.useMemo(
     () => demoProps.slug || (demoProps.name ? kebabCase(demoProps.name) : undefined),
     [demoProps.slug, demoProps.name],
   );
+  const demoId = demoSlug ? `${pathname}#${demoSlug}` : pathname;
   const hasLoggedInteraction = React.useRef(false);
 
   const onPlaygroundInteraction = React.useCallback(() => {
@@ -48,16 +51,18 @@ export function Demo({
       ga?.trackEvent({
         category: 'demo',
         action: 'interaction',
-        label: demoSlug,
+        label: demoId,
+        params: { interaction: demoId, slug: demoSlug || '' },
       });
     }
-  }, [ga, demoSlug]);
+  }, [ga, demoId, demoSlug]);
 
   const onCopied = React.useCallback(() => {
     ga?.trackEvent({
       category: 'demo',
       action: 'copy',
-      label: demoSlug,
+      label: demoId,
+      params: { copy: demoId, slug: demoSlug || '' },
     });
 
     /* eslint-disable no-restricted-syntax */
@@ -68,7 +73,7 @@ export function Demo({
     window.clearTimeout(copyTimeout);
     setCopyTimeout(newTimeout);
     /* eslint-enable no-restricted-syntax */
-  }, [copyTimeout, ga, demoSlug]);
+  }, [copyTimeout, ga, demoId, demoSlug]);
 
   const demo = useDemo(demoProps, {
     copy: { onCopied },
@@ -78,10 +83,12 @@ export function Demo({
   });
 
   const onOpenChange = useStableCallback((nextOpen: boolean) => {
+    const action = nextOpen ? 'expand' : 'collapse';
     ga?.trackEvent({
       category: 'demo',
-      action: nextOpen ? 'expand' : 'collapse',
-      label: demoSlug,
+      action,
+      label: demoId,
+      params: { [action]: demoId, slug: demoSlug || '' },
     });
 
     if (!nextOpen && collapsibleTriggerRef.current != null) {
@@ -103,6 +110,16 @@ export function Demo({
     }
 
     demo.setExpanded(nextOpen);
+  });
+
+  const onSelectFile = useStableCallback((fileName: string) => {
+    ga?.trackEvent({
+      category: 'demo',
+      action: 'file_select',
+      label: demoId,
+      params: { file_select: fileName, slug: demoSlug || '' },
+    });
+    demo.selectFileName(fileName);
   });
 
   const [fallbackToCodeSandbox, setFallbackToCodeSandbox] = React.useState(false);
@@ -143,7 +160,7 @@ export function Demo({
               <DemoFileSelector
                 files={demo.files}
                 selectedFileName={demo.selectedFileName}
-                selectFileName={demo.selectFileName}
+                selectFileName={onSelectFile}
                 onTabChange={demo.expand}
               />
 

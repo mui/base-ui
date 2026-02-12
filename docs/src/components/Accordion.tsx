@@ -106,8 +106,13 @@ export function Trigger({
 export function Item({
   gaCategory,
   gaLabel,
+  gaParams,
   ...props
-}: React.ComponentProps<'details'> & { gaCategory?: string; gaLabel?: string }) {
+}: React.ComponentProps<'details'> & {
+  gaCategory?: string;
+  gaLabel?: string;
+  gaParams?: Record<string, string | number | boolean>;
+}) {
   const [open, setOpen] = React.useState<boolean>(false);
   const ga = useGoogleAnalytics();
   // in Chrome, the <details> opens automatically when the hash part of a URL
@@ -133,7 +138,12 @@ export function Item({
       className={clsx('AccordionItem', props.className)}
       onToggle={(event) => {
         if (gaCategory && event.currentTarget.open) {
-          ga?.trackEvent({ category: gaCategory, action: 'expand', label: gaLabel });
+          ga?.trackEvent({
+            category: gaCategory,
+            action: 'expand',
+            label: gaLabel,
+            params: gaParams,
+          });
         }
       }}
     />

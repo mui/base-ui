@@ -42,6 +42,11 @@ export async function AttributesReferenceTable({
               key={name}
               gaCategory="reference"
               gaLabel={`Attribute: ${partName ? `${partName}-` : ''}${name}`}
+              gaParams={{
+                type: 'attribute',
+                slug: `${partName ? `${partName}-` : ''}${name}`,
+                part_name: partName || '',
+              }}
             >
               <Accordion.Trigger index={index}>
                 <TableCode className="text-navy">{name}</TableCode>
