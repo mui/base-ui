@@ -1,3 +1,4 @@
+'use client';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { isElement } from '@floating-ui/utils/dom';
@@ -10,13 +11,17 @@ import { REASONS } from '../../utils/reasons';
 import type { UseHoverProps } from './useHover';
 import { getDelay } from './useHover';
 import { useFloatingTree } from '../components/FloatingTree';
+import type { FloatingTreeStore } from '../components/FloatingTreeStore';
 import {
   safePolygonIdentifier,
   useHoverInteractionSharedState,
 } from './useHoverInteractionSharedState';
 import { FloatingUIOpenChangeDetails, HTMLProps } from '../../utils/types';
 
-export interface UseHoverReferenceInteractionProps extends Omit<UseHoverProps, 'triggerElement'> {
+export interface UseHoverReferenceInteractionProps extends UseHoverProps {
+  enabled?: boolean | undefined;
+  mouseOnly?: boolean | undefined;
+  externalTree?: FloatingTreeStore | undefined;
   /**
    * Whether the hook controls the active trigger. When false, the props are
    * returned under the `trigger` key so they can be applied to inactive
@@ -61,30 +66,20 @@ export function useHoverReferenceInteraction(
 
   const tree = useFloatingTree(externalTree);
 
-  const {
-    pointerTypeRef,
-    interactedInsideRef,
-    handlerRef: closeHandlerRef,
-    blockMouseMoveRef,
-    performedPointerEventsMutationRef,
-    unbindMouseMoveRef,
-    restTimeoutPendingRef,
-    openChangeTimeout,
-    restTimeout,
-    handleCloseOptionsRef,
-  } = useHoverInteractionSharedState(store);
+  const instance = useHoverInteractionSharedState(store);
 
   const handleCloseRef = useValueAsRef(handleClose);
   const delayRef = useValueAsRef(delay);
   const restMsRef = useValueAsRef(restMs);
+  const enabledRef = useValueAsRef(enabled);
 
   if (isActiveTrigger) {
     // eslint-disable-next-line no-underscore-dangle
-    handleCloseOptionsRef.current = handleCloseRef.current?.__options;
+    instance.handleCloseOptions = handleCloseRef.current?.__options;
   }
 
   const isClickLikeOpenEvent = useStableCallback(() => {
-    if (interactedInsideRef.current) {
+    if (instance.interactedInside) {
       return true;
     }
 
@@ -95,30 +90,30 @@ export function useHoverReferenceInteraction(
 
   const closeWithDelay = React.useCallback(
     (event: MouseEvent, runElseBranch = true) => {
-      const closeDelay = getDelay(delayRef.current, 'close', pointerTypeRef.current);
-      if (closeDelay && !closeHandlerRef.current) {
-        openChangeTimeout.start(closeDelay, () =>
+      const closeDelay = getDelay(delayRef.current, 'close', instance.pointerType);
+      if (closeDelay && !instance.handler) {
+        instance.openChangeTimeout.start(closeDelay, () =>
           store.setOpen(false, createChangeEventDetails(REASONS.triggerHover, event)),
         );
       } else if (runElseBranch) {
-        openChangeTimeout.clear();
+        instance.openChangeTimeout.clear();
         store.setOpen(false, createChangeEventDetails(REASONS.triggerHover, event));
       }
     },
-    [delayRef, closeHandlerRef, store, pointerTypeRef, openChangeTimeout],
+    [delayRef, store, instance],
   );
 
   const cleanupMouseMoveHandler = useStableCallback(() => {
-    unbindMouseMoveRef.current();
-    closeHandlerRef.current = undefined;
+    instance.unbindMouseMove();
+    instance.handler = undefined;
   });
 
   const clearPointerEvents = useStableCallback(() => {
-    if (performedPointerEventsMutationRef.current) {
+    if (instance.performedPointerEventsMutation) {
       const body = getDocument(store.select('domReferenceElement')).body;
       body.style.pointerEvents = '';
       body.removeAttribute(safePolygonIdentifier);
-      performedPointerEventsMutationRef.current = false;
+      instance.performedPointerEventsMutation = false;
     }
   });
 
@@ -131,10 +126,10 @@ export function useHoverReferenceInteraction(
 
     function onOpenChangeLocal(details: FloatingUIOpenChangeDetails) {
       if (!details.open) {
-        openChangeTimeout.clear();
-        restTimeout.clear();
-        blockMouseMoveRef.current = true;
-        restTimeoutPendingRef.current = false;
+        instance.openChangeTimeout.clear();
+        instance.restTimeout.clear();
+        instance.blockMouseMove = true;
+        instance.restTimeoutPending = false;
       }
     }
 
@@ -142,7 +137,7 @@ export function useHoverReferenceInteraction(
     return () => {
       events.off('openchange', onOpenChangeLocal);
     };
-  }, [enabled, events, openChangeTimeout, restTimeout, blockMouseMoveRef, restTimeoutPendingRef]);
+  }, [enabled, events, instance]);
 
   const handleScrollMouseLeave = useStableCallback((event: MouseEvent) => {
     if (isClickLikeOpenEvent()) {
@@ -188,10 +183,10 @@ export function useHoverReferenceInteraction(
     }
 
     function onMouseEnter(event: MouseEvent) {
-      openChangeTimeout.clear();
-      blockMouseMoveRef.current = false;
+      instance.openChangeTimeout.clear();
+      instance.blockMouseMove = false;
 
-      if (mouseOnly && !isMouseLikePointerType(pointerTypeRef.current)) {
+      if (mouseOnly && !isMouseLikePointerType(instance.pointerType)) {
         return;
       }
 
@@ -201,7 +196,7 @@ export function useHoverReferenceInteraction(
         return;
       }
 
-      const openDelay = getDelay(delayRef.current, 'open', pointerTypeRef.current);
+      const openDelay = getDelay(delayRef.current, 'open', instance.pointerType);
       const currentDomReference = store.select('domReferenceElement');
       const allTriggers = store.context.triggerElements;
 
@@ -219,7 +214,7 @@ export function useHoverReferenceInteraction(
       if (isOverInactiveTrigger && isOpen) {
         store.setOpen(true, createChangeEventDetails(REASONS.triggerHover, event, triggerNode));
       } else if (openDelay) {
-        openChangeTimeout.start(openDelay, () => {
+        instance.openChangeTimeout.start(openDelay, () => {
           if (shouldOpen) {
             store.setOpen(true, createChangeEventDetails(REASONS.triggerHover, event, triggerNode));
           }
@@ -235,12 +230,12 @@ export function useHoverReferenceInteraction(
         return;
       }
 
-      unbindMouseMoveRef.current();
+      instance.unbindMouseMove();
 
       const domReferenceElement = store.select('domReferenceElement');
       const doc = getDocument(domReferenceElement);
-      restTimeout.clear();
-      restTimeoutPendingRef.current = false;
+      instance.restTimeout.clear();
+      instance.restTimeoutPending = false;
 
       const triggerElements = store.context.triggerElements;
 
@@ -250,12 +245,12 @@ export function useHoverReferenceInteraction(
 
       if (handleCloseRef.current && dataRef.current.floatingContext) {
         if (!store.select('open')) {
-          openChangeTimeout.clear();
+          instance.openChangeTimeout.clear();
         }
 
         const currentTrigger = triggerElementRef.current;
 
-        closeHandlerRef.current = handleCloseRef.current({
+        instance.handler = handleCloseRef.current({
           ...dataRef.current.floatingContext,
           tree,
           x: event.clientX,
@@ -263,17 +258,21 @@ export function useHoverReferenceInteraction(
           onClose() {
             clearPointerEvents();
             cleanupMouseMoveHandler();
-            if (!isClickLikeOpenEvent() && currentTrigger === store.select('domReferenceElement')) {
+            if (
+              enabledRef.current &&
+              !isClickLikeOpenEvent() &&
+              currentTrigger === store.select('domReferenceElement')
+            ) {
               closeWithDelay(event, true);
             }
           },
         });
 
-        const handler = closeHandlerRef.current;
+        const handler = instance.handler;
         handler(event);
 
         doc.addEventListener('mousemove', handler);
-        unbindMouseMoveRef.current = () => {
+        instance.unbindMouseMove = () => {
           doc.removeEventListener('mousemove', handler);
         };
 
@@ -281,7 +280,7 @@ export function useHoverReferenceInteraction(
       }
 
       const shouldClose =
-        pointerTypeRef.current === 'touch'
+        instance.pointerType === 'touch'
           ? !contains(store.select('floatingElement'), event.relatedTarget as Element | null)
           : true;
 
@@ -320,7 +319,6 @@ export function useHoverReferenceInteraction(
   }, [
     cleanupMouseMoveHandler,
     clearPointerEvents,
-    blockMouseMoveRef,
     dataRef,
     delayRef,
     closeWithDelay,
@@ -328,24 +326,20 @@ export function useHoverReferenceInteraction(
     enabled,
     handleCloseRef,
     handleScrollMouseLeave,
+    instance,
     isActiveTrigger,
     isClickLikeOpenEvent,
     mouseOnly,
     move,
-    pointerTypeRef,
     restMsRef,
-    restTimeout,
-    restTimeoutPendingRef,
-    openChangeTimeout,
     triggerElementRef,
     tree,
-    unbindMouseMoveRef,
-    closeHandlerRef,
+    enabledRef,
   ]);
 
   return React.useMemo<HTMLProps>(() => {
     function setPointerRef(event: React.PointerEvent) {
-      pointerTypeRef.current = event.pointerType;
+      instance.pointerType = event.pointerType;
     }
 
     return {
@@ -364,7 +358,7 @@ export function useHoverReferenceInteraction(
             allTriggers.hasMatchingElement((t) => contains(t, event.target as Element))) &&
           (!currentDomReference || !contains(currentDomReference, event.target as Element));
 
-        if (mouseOnly && !isMouseLikePointerType(pointerTypeRef.current)) {
+        if (mouseOnly && !isMouseLikePointerType(instance.pointerType)) {
           return;
         }
 
@@ -374,16 +368,16 @@ export function useHoverReferenceInteraction(
 
         if (
           !isOverInactiveTrigger &&
-          restTimeoutPendingRef.current &&
+          instance.restTimeoutPending &&
           event.movementX ** 2 + event.movementY ** 2 < 2
         ) {
           return;
         }
 
-        restTimeout.clear();
+        instance.restTimeout.clear();
 
         function handleMouseMove() {
-          restTimeoutPendingRef.current = false;
+          instance.restTimeoutPending = false;
 
           // A delayed hover open should not override a click-like open that happened
           // while the hover delay was pending.
@@ -393,7 +387,7 @@ export function useHoverReferenceInteraction(
 
           const latestOpen = store.select('open');
 
-          if (!blockMouseMoveRef.current && (!latestOpen || isOverInactiveTrigger)) {
+          if (!instance.blockMouseMove && (!latestOpen || isOverInactiveTrigger)) {
             store.setOpen(
               true,
               createChangeEventDetails(REASONS.triggerHover, nativeEvent, trigger),
@@ -401,26 +395,17 @@ export function useHoverReferenceInteraction(
           }
         }
 
-        if (pointerTypeRef.current === 'touch') {
+        if (instance.pointerType === 'touch') {
           ReactDOM.flushSync(() => {
             handleMouseMove();
           });
         } else if (isOverInactiveTrigger && currentOpen) {
           handleMouseMove();
         } else {
-          restTimeoutPendingRef.current = true;
-          restTimeout.start(getRestMs(restMsRef.current), handleMouseMove);
+          instance.restTimeoutPending = true;
+          instance.restTimeout.start(getRestMs(restMsRef.current), handleMouseMove);
         }
       },
     };
-  }, [
-    blockMouseMoveRef,
-    isClickLikeOpenEvent,
-    mouseOnly,
-    store,
-    pointerTypeRef,
-    restMsRef,
-    restTimeout,
-    restTimeoutPendingRef,
-  ]);
+  }, [instance, isClickLikeOpenEvent, mouseOnly, store, restMsRef]);
 }

@@ -14,12 +14,10 @@ function expectLocation({ x, y }: Coords) {
 
 function App({
   enabled = true,
-  point,
   axis,
   useTriggerProps = false,
 }: {
   enabled?: boolean;
-  point?: Coords;
   axis?: 'both' | 'x' | 'y';
   useTriggerProps?: boolean;
 }) {
@@ -30,7 +28,6 @@ function App({
   });
   const clientPoint = useClientPoint(context, {
     enabled,
-    ...point,
     axis,
   });
   const { getReferenceProps, getTriggerProps, getFloatingProps } = useInteractions([clientPoint]);
@@ -61,22 +58,6 @@ function App({
     </React.Fragment>
   );
 }
-
-test('renders at explicit client point and can be updated', async () => {
-  const { rerender } = render(<App point={{ x: 0, y: 0 }} />);
-
-  fireEvent.click(screen.getByRole('button'));
-
-  await flushMicrotasks();
-
-  expectLocation({ x: 0, y: 0 });
-
-  rerender(<App point={{ x: 1000, y: 1000 }} />);
-
-  await flushMicrotasks();
-
-  expectLocation({ x: 1000, y: 1000 });
-});
 
 test('updates position from trigger props', async () => {
   render(<App useTriggerProps />);
@@ -191,22 +172,6 @@ test('renders at mouse event coords', async () => {
       bubbles: true,
       clientX: 0,
       clientY: 0,
-    }),
-  );
-  await flushMicrotasks();
-
-  expectLocation({ x: 0, y: 0 });
-});
-
-test('ignores mouse events when explicit coords are specified', async () => {
-  render(<App point={{ x: 0, y: 0 }} />);
-
-  fireEvent(
-    screen.getByTestId('reference'),
-    new MouseEvent('mousemove', {
-      bubbles: true,
-      clientX: 500,
-      clientY: 500,
     }),
   );
   await flushMicrotasks();

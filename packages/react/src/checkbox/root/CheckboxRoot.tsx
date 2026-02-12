@@ -5,6 +5,7 @@ import { useControlled } from '@base-ui/utils/useControlled';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
+import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { visuallyHidden, visuallyHiddenInput } from '@base-ui/utils/visuallyHidden';
 import { NOOP } from '../../utils/noop';
 import { useStateAttributesMapping } from '../utils/useStateAttributesMapping';
@@ -75,7 +76,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     validation: localValidation,
   } = useFieldRootContext();
   const fieldItemContext = useFieldItemContext();
-  const { labelId, controlId, setControlId, getDescriptionProps } = useLabelableContext();
+  const { labelId, controlId, registerControlId, getDescriptionProps } = useLabelableContext();
 
   const groupContext = useCheckboxGroupContext();
   const parentContext = groupContext?.parent;
@@ -119,6 +120,8 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
   const defaultGroupValue = groupContext?.defaultValue;
 
   const controlRef = React.useRef<HTMLButtonElement>(null);
+  const controlSourceRef = useRefWithInit(() => Symbol('checkbox-control'));
+  const hasRegisteredRef = React.useRef(false);
 
   const { getButtonProps, buttonRef } = useButton({
     disabled,
@@ -137,16 +140,28 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
 
   // can't use useLabelableId because of optional groupContext and/or parent
   useIsoLayoutEffect(() => {
-    if (setControlId === NOOP) {
+    if (registerControlId === NOOP) {
       return undefined;
     }
 
-    setControlId(inputId);
+    hasRegisteredRef.current = true;
+    registerControlId(controlSourceRef.current, inputId);
+
+    return undefined;
+  }, [inputId, groupContext, registerControlId, parent, controlSourceRef]);
+
+  React.useEffect(() => {
+    const controlSource = controlSourceRef.current;
 
     return () => {
-      setControlId(undefined);
+      if (!hasRegisteredRef.current || registerControlId === NOOP) {
+        return;
+      }
+
+      hasRegisteredRef.current = false;
+      registerControlId(controlSource, undefined);
     };
-  }, [inputId, groupContext, setControlId, parent]);
+  }, [registerControlId, controlSourceRef]);
 
   useField({
     enabled: !groupContext,
@@ -246,9 +261,16 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     : indeterminate;
 
   React.useEffect(() => {
-    if (parentContext && value) {
-      parentContext.disabledStatesRef.current.set(value, disabled);
+    if (!parentContext || !value) {
+      return undefined;
     }
+
+    const disabledStates = parentContext.disabledStatesRef.current;
+    disabledStates.set(value, disabled);
+
+    return () => {
+      disabledStates.delete(value);
+    };
   }, [parentContext, disabled, value]);
 
   const state: CheckboxRoot.State = React.useMemo(
@@ -300,7 +322,15 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
 
           event.preventDefault();
 
-          inputRef.current?.click();
+          inputRef.current?.dispatchEvent(
+            new PointerEvent('click', {
+              bubbles: true,
+              shiftKey: event.shiftKey,
+              ctrlKey: event.ctrlKey,
+              altKey: event.altKey,
+              metaKey: event.metaKey,
+            }),
+          );
         },
       },
       getDescriptionProps,

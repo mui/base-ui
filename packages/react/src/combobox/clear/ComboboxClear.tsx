@@ -67,14 +67,11 @@ export const ComboboxClear = React.forwardRef(function ComboboxClear(
 
   const { mounted, transitionStatus, setMounted } = useTransitionStatus(visible);
 
-  const state: ComboboxClear.State = React.useMemo(
-    () => ({
-      disabled,
-      open,
-      transitionStatus,
-    }),
-    [disabled, open, transitionStatus],
-  );
+  const state: ComboboxClear.State = {
+    disabled,
+    open,
+    transitionStatus,
+  };
 
   useOpenChangeComplete({
     open: visible,
@@ -93,7 +90,6 @@ export const ComboboxClear = React.forwardRef(function ComboboxClear(
       {
         tabIndex: -1,
         children: 'x',
-        'aria-readonly': readOnly || undefined,
         // Avoid stealing focus from the input.
         onMouseDown(event) {
           event.preventDefault();

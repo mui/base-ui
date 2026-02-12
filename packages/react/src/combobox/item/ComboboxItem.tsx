@@ -48,7 +48,7 @@ export const ComboboxItem = React.memo(
 
     const store = useComboboxRootContext();
     const isRow = useComboboxRowContext();
-    const { flatFilteredItems } = useComboboxDerivedItemsContext();
+    const { flatFilteredItems, hasItems } = useComboboxDerivedItemsContext();
 
     const open = useStore(store, selectors.open);
     const selectionMode = useStore(store, selectors.selectionMode);
@@ -65,7 +65,6 @@ export const ComboboxItem = React.memo(
     const rootId = useStore(store, selectors.id);
     const highlighted = useStore(store, selectors.isActive, index);
     const matchesSelectedValue = useStore(store, selectors.isSelected, value);
-    const items = useStore(store, selectors.items);
     const getItemProps = useStore(store, selectors.getItemProps);
 
     const itemRef = React.useRef<HTMLDivElement | null>(null);
@@ -88,7 +87,7 @@ export const ComboboxItem = React.memo(
     }, [hasRegistered, virtualized, index, indexProp, store]);
 
     useIsoLayoutEffect(() => {
-      if (!hasRegistered || items) {
+      if (!hasRegistered || hasItems) {
         return undefined;
       }
 
@@ -105,7 +104,7 @@ export const ComboboxItem = React.memo(
       return () => {
         delete visibleMap[index];
       };
-    }, [hasRegistered, items, index, value, store, selectionMode]);
+    }, [hasRegistered, hasItems, index, value, store, selectionMode]);
 
     useIsoLayoutEffect(() => {
       if (!open) {
@@ -113,7 +112,7 @@ export const ComboboxItem = React.memo(
         return;
       }
 
-      if (!hasRegistered || items) {
+      if (!hasRegistered || hasItems) {
         return;
       }
 
@@ -125,16 +124,13 @@ export const ComboboxItem = React.memo(
       if (compareItemEquality(lastSelectedValue, value, isItemEqualToValue)) {
         store.set('selectedIndex', index);
       }
-    }, [hasRegistered, items, open, store, index, value, isItemEqualToValue]);
+    }, [hasRegistered, hasItems, open, store, index, value, isItemEqualToValue]);
 
-    const state: ComboboxItem.State = React.useMemo(
-      () => ({
-        disabled,
-        selected,
-        highlighted,
-      }),
-      [disabled, selected, highlighted],
-    );
+    const state: ComboboxItem.State = {
+      disabled,
+      selected,
+      highlighted,
+    };
 
     const rootProps = getItemProps({ active: highlighted, selected });
     rootProps.id = undefined;
@@ -232,7 +228,7 @@ export interface ComboboxItemProps
    * An optional click handler for the item when selected.
    * It fires when clicking the item with the pointer, as well as when pressing `Enter` with the keyboard if the item is highlighted when the `Input` or `List` element has focus.
    */
-  onClick?: React.MouseEventHandler<HTMLElement> | undefined;
+  onClick?: BaseUIComponentProps<'div', ComboboxItemState>['onClick'] | undefined;
   /**
    * The index of the item in the list. Improves performance when specified by avoiding the need to calculate the index automatically from the DOM.
    */

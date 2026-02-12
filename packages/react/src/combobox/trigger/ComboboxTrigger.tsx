@@ -93,7 +93,7 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
     currentPointerTypeRef.current = event.pointerType;
   }
 
-  const domReference = floatingRootContext.select('domReferenceElement');
+  const domReference = floatingRootContext.useState('domReferenceElement');
 
   // Update the floating root context to use the trigger element when it differs from the current reference.
   // This ensures useClick and useTypeahead attach handlers to the correct element.
@@ -129,17 +129,14 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
     disabled,
   });
 
-  const state: ComboboxTrigger.State = React.useMemo(
-    () => ({
-      ...fieldState,
-      open,
-      disabled,
-      popupSide,
-      listEmpty,
-      placeholder: !hasSelectedValue,
-    }),
-    [fieldState, open, disabled, popupSide, listEmpty, hasSelectedValue],
-  );
+  const state: ComboboxTrigger.State = {
+    ...fieldState,
+    open,
+    disabled,
+    popupSide,
+    listEmpty,
+    placeholder: !hasSelectedValue,
+  };
 
   const setTriggerElement = useStableCallback((element) => {
     store.set('triggerElement', element);
@@ -159,7 +156,6 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
         'aria-expanded': open ? 'true' : 'false',
         'aria-haspopup': inputInsidePopup ? 'dialog' : 'listbox',
         'aria-controls': open ? listElement?.id : undefined,
-        'aria-readonly': readOnly || undefined,
         'aria-required': inputInsidePopup ? required || undefined : undefined,
         'aria-labelledby': labelId,
         onPointerDown: trackPointerType,

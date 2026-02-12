@@ -2,10 +2,10 @@ import * as React from 'react';
 import { Toast } from '@base-ui/react/toast';
 import { fireEvent, flushMicrotasks, screen } from '@mui/internal-test-utils';
 import { expect } from 'chai';
-import { createRenderer } from '#test-utils';
+import { createRenderer, isJSDOM } from '#test-utils';
 import { List } from './utils/test-utils';
 
-describe('Manager', () => {
+describe.skipIf(!isJSDOM)('createToastManager', () => {
   const { render, clock } = createRenderer();
 
   clock.withFakeTimers();
@@ -44,7 +44,7 @@ describe('Manager', () => {
 
       expect(screen.queryByTestId('title')).not.to.equal(null);
 
-      clock.tick(5000);
+      await clock.tickAsync(5000);
 
       expect(screen.queryByTestId('title')).to.equal(null);
     });
@@ -102,8 +102,7 @@ describe('Manager', () => {
 
       expect(screen.queryByTestId('description')).to.have.text('loading');
 
-      clock.tick(1000);
-      await flushMicrotasks();
+      await clock.tickAsync(1000);
 
       expect(screen.queryByTestId('description')).to.have.text('success');
     });
@@ -153,13 +152,11 @@ describe('Manager', () => {
 
       expect(screen.queryByTestId('description')).to.have.text('loading');
 
-      clock.tick(1000);
-      await flushMicrotasks();
+      await clock.tickAsync(1000);
 
       expect(screen.queryByTestId('description')).to.have.text('success');
 
-      clock.tick(5000);
-      await flushMicrotasks();
+      await clock.tickAsync(5000);
 
       expect(screen.queryByTestId('description')).to.equal(null);
     });
@@ -206,6 +203,53 @@ describe('Manager', () => {
       await flushMicrotasks();
 
       expect(screen.getByTestId('description')).to.have.text('error');
+    });
+
+    it('does not reopen a dismissed promise toast when it resolves', async () => {
+      const toastManager = Toast.createToastManager();
+      let resolvePromise: (value: string) => void = () => {
+        throw new Error('Promise resolver should be assigned before resolving.');
+      };
+
+      function add() {
+        const pendingPromise = new Promise<string>((resolve) => {
+          resolvePromise = resolve;
+        });
+
+        toastManager.promise(pendingPromise, {
+          loading: 'loading',
+          success: 'success',
+          error: 'error',
+        });
+      }
+
+      function Button() {
+        return (
+          <button type="button" onClick={add}>
+            add
+          </button>
+        );
+      }
+
+      await render(
+        <Toast.Provider toastManager={toastManager}>
+          <Toast.Viewport>
+            <List />
+          </Toast.Viewport>
+          <Button />
+        </Toast.Provider>,
+      );
+
+      fireEvent.click(screen.getByRole('button', { name: 'add' }));
+
+      expect(screen.getByTestId('description')).to.have.text('loading');
+
+      fireEvent.click(screen.getByLabelText('close-press'));
+      resolvePromise('success');
+
+      await flushMicrotasks();
+
+      expect(screen.queryByTestId('title')).to.equal(null);
     });
   });
 
@@ -301,17 +345,15 @@ describe('Manager', () => {
       fireEvent.click(screen.getByRole('button', { name: 'add' }));
       expect(screen.queryByTestId('title')).not.to.equal(null);
 
-      clock.tick(900);
+      await clock.tickAsync(900);
       expect(screen.queryByTestId('title')).not.to.equal(null);
 
       fireEvent.click(screen.getByRole('button', { name: 'reset timeout' }));
 
-      clock.tick(200);
-      await flushMicrotasks();
+      await clock.tickAsync(200);
       expect(screen.queryByTestId('title')).not.to.equal(null);
 
-      clock.tick(800);
-      await flushMicrotasks();
+      await clock.tickAsync(800);
       expect(screen.queryByTestId('title')).to.equal(null);
     });
 
@@ -369,17 +411,15 @@ describe('Manager', () => {
 
       fireEvent.click(screen.getByRole('button', { name: 'set timeout' }));
 
-      clock.tick(900);
+      await clock.tickAsync(900);
       expect(screen.queryByTestId('title')).not.to.equal(null);
 
       fireEvent.click(screen.getByRole('button', { name: 'reset timeout' }));
 
-      clock.tick(200);
-      await flushMicrotasks();
+      await clock.tickAsync(200);
       expect(screen.queryByTestId('title')).not.to.equal(null);
 
-      clock.tick(800);
-      await flushMicrotasks();
+      await clock.tickAsync(800);
       expect(screen.queryByTestId('title')).to.equal(null);
     });
 
@@ -427,8 +467,7 @@ describe('Manager', () => {
       expect(screen.queryByTestId('title')).not.to.equal(null);
 
       fireEvent.click(screen.getByRole('button', { name: 'update method' }));
-      clock.tick(1000);
-      await flushMicrotasks();
+      await clock.tickAsync(1000);
 
       expect(screen.queryByTestId('title')).to.equal(null);
     });
@@ -481,8 +520,7 @@ describe('Manager', () => {
       fireEvent.click(screen.getByRole('button', { name: 'update method' }));
       expect(screen.getByTestId('title')).to.have.text('success');
 
-      clock.tick(1000);
-      await flushMicrotasks();
+      await clock.tickAsync(1000);
 
       expect(screen.queryByTestId('title')).to.equal(null);
     });
@@ -538,8 +576,7 @@ describe('Manager', () => {
       fireEvent.click(screen.getByRole('button', { name: 'double update' }));
       expect(screen.getByTestId('title')).to.have.text('new');
 
-      clock.tick(1000);
-      await flushMicrotasks();
+      await clock.tickAsync(1000);
 
       expect(screen.queryByTestId('title')).to.equal(null);
     });

@@ -27,17 +27,14 @@ export const CheckboxIndicator = React.forwardRef(function CheckboxIndicator(
 
   const rendered = rootState.checked || rootState.indeterminate;
 
-  const { transitionStatus, setMounted } = useTransitionStatus(rendered);
+  const { mounted, transitionStatus, setMounted } = useTransitionStatus(rendered);
 
   const indicatorRef = React.useRef<HTMLSpanElement | null>(null);
 
-  const state: CheckboxIndicator.State = React.useMemo(
-    () => ({
-      ...rootState,
-      transitionStatus,
-    }),
-    [rootState, transitionStatus],
-  );
+  const state: CheckboxIndicator.State = {
+    ...rootState,
+    transitionStatus,
+  };
 
   useOpenChangeComplete({
     open: rendered,
@@ -60,10 +57,9 @@ export const CheckboxIndicator = React.forwardRef(function CheckboxIndicator(
     [baseStateAttributesMapping],
   );
 
-  const shouldRender = keepMounted || rendered;
+  const shouldRender = keepMounted || mounted;
 
   const element = useRenderElement('span', componentProps, {
-    enabled: shouldRender,
     ref: [forwardedRef, indicatorRef],
     state,
     stateAttributesMapping,
