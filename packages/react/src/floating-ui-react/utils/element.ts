@@ -67,10 +67,6 @@ export function isRootElement(element: Element): boolean {
   return element.matches('html,body');
 }
 
-export function getDocument(node: Element | null) {
-  return node?.ownerDocument || document;
-}
-
 export function isTypeableElement(element: unknown): boolean {
   return isHTMLElement(element) && element.matches(TYPEABLE_SELECTOR);
 }
