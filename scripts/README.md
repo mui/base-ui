@@ -25,7 +25,7 @@ A typical release goes like this:
    Run `pnpm release:changelog --help` for more information. If your GitHub token is not in your env, pass it as `--githubToken <my-token>` to the above command.
 3. Update the changelog as necessary. In particular, describe all the breaking changes.
 4. Generate the changelog in a format suitable for the docs with `pnpm release:changelog:docs`.
-5. Create a new release page at `docs/src/app/(docs)/react/overview/releases/<version-slug>/page.mdx` (where `<version-slug>` uses hyphens, e.g., `v1-1-0` for v1.1.0). Paste the generated changelog there, following the format of existing release pages (title, `<Subtitle>` with the date, `<Meta>` tag).
+5. Create a new release page at `docs/src/app/(docs)/react/overview/releases/<version-slug>/page.mdx` (where `<version-slug>` uses hyphens, for example, `v1-1-0` for v1.1.0). Paste the generated changelog there, following the format of existing release pages (title, `<Subtitle>` with the date, `<Meta>` tag).
 6. Copy the changes made in point 3 to the new release page.
 7. Add a new entry to `docs/src/data/releases.ts` with the version, versionSlug, date, and highlights. Move the `latest: true` flag to the new release if it's the latest stable release.
 8. Run `pnpm release:version`. Keep the package versions of stable public packages the same as the root `package.json` version.
