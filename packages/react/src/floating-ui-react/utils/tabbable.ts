@@ -37,7 +37,8 @@ export function getNextTabbable(referenceElement: Element | null): FocusableElem
 
 export function getPreviousTabbable(referenceElement: Element | null): FocusableElement | null {
   return (
-    getTabbableIn(ownerDocument(referenceElement).body, -1) || (referenceElement as FocusableElement)
+    getTabbableIn(ownerDocument(referenceElement).body, -1) ||
+    (referenceElement as FocusableElement)
   );
 }
 

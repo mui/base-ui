@@ -280,7 +280,9 @@ export function useDismiss(
 
       const target = getTarget(event);
       const inertSelector = `[${createAttribute('inert')}]`;
-      const markers = ownerDocument(store.select('floatingElement')).querySelectorAll(inertSelector);
+      const markers = ownerDocument(store.select('floatingElement')).querySelectorAll(
+        inertSelector,
+      );
 
       const triggers = store.context.triggerElements;
 
