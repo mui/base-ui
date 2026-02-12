@@ -6,7 +6,7 @@ import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 
 import { ownerDocument } from '@base-ui/utils/owner';
 import type { FloatingContext, FloatingRootContext } from '../types';
-import { getTarget, isMouseLikePointerType } from '../utils';
+import { getTarget, isMouseLikePointerType, isTargetInsideEnabledTrigger } from '../utils';
 
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
@@ -65,6 +65,10 @@ export function useHoverFloatingInteraction(
   const isHoverOpen = useStableCallback(() => {
     const type = dataRef.current.openEvent?.type;
     return type?.includes('mouse') && type !== 'mousedown';
+  });
+
+  const isRelatedTargetInsideEnabledTrigger = useStableCallback((target: EventTarget | null) => {
+    return isTargetInsideEnabledTrigger(target, store.context.triggerElements);
   });
 
   const closeWithDelay = React.useCallback(
@@ -179,8 +183,7 @@ export function useHoverFloatingInteraction(
         return;
       }
 
-      const triggerElements = store.context.triggerElements;
-      if (event.relatedTarget && triggerElements.hasElement(event.relatedTarget as Element)) {
+      if (isRelatedTargetInsideEnabledTrigger(event.relatedTarget)) {
         // If the mouse is leaving the reference element to another trigger, don't explicitly close the popup
         // as it will be moved.
         return;
@@ -228,6 +231,7 @@ export function useHoverFloatingInteraction(
     store,
     dataRef,
     isClickLikeOpenEvent,
+    isRelatedTargetInsideEnabledTrigger,
     closeWithDelay,
     clearPointerEvents,
     cleanupMouseMoveHandler,

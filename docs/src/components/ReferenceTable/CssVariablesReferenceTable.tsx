@@ -10,6 +10,7 @@ import { TableCode } from '../TableCode';
 
 interface CssVariablesReferenceTableProps extends React.ComponentProps<typeof Table.Root> {
   data: Record<string, CssVariableDef>;
+  name?: string;
 }
 
 const CREATE_MDX_OPTIONS = {
@@ -19,6 +20,7 @@ const CREATE_MDX_OPTIONS = {
 
 export async function CssVariablesReferenceTable({
   data,
+  name: partName,
   ...props
 }: CssVariablesReferenceTableProps) {
   return (
@@ -36,7 +38,16 @@ export async function CssVariablesReferenceTable({
           );
 
           return (
-            <Accordion.Item key={name}>
+            <Accordion.Item
+              key={name}
+              gaCategory="reference"
+              gaLabel={`CSS variable: ${partName ? `${partName}-` : ''}${name}`}
+              gaParams={{
+                type: 'css_variable',
+                slug: `${partName ? `${partName}-` : ''}${name}`,
+                part_name: partName || '',
+              }}
+            >
               <Accordion.Trigger index={index}>
                 <TableCode className="text-navy">{name}</TableCode>
                 <svg
