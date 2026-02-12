@@ -1,7 +1,18 @@
 import { expect } from 'chai';
-import { hasNullItemLabel } from './resolveValueLabel';
+import { getFirstFlatItem, hasNullItemLabel } from './resolveValueLabel';
 
 describe('resolveValueLabel', () => {
+  describe('getFirstFlatItem', () => {
+    it('returns the first item from the first non-empty group', () => {
+      const items = [
+        { value: 'empty', items: [] },
+        { value: 'group-1', items: [{ value: 'a', label: 'A' }] },
+      ];
+
+      expect(getFirstFlatItem(items)).to.deep.equal({ value: 'a', label: 'A' });
+    });
+  });
+
   describe('hasNullItemLabel', () => {
     it('returns true when grouped items contain a null-valued item with a label', () => {
       const items = [

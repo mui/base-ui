@@ -7,6 +7,8 @@ import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { visuallyHidden, visuallyHiddenInput } from '@base-ui/utils/visuallyHidden';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
+import { error } from '@base-ui/utils/error';
+import { SafeReact } from '@base-ui/utils/safeReact';
 import { Store, useStore } from '@base-ui/utils/store';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import {
@@ -46,10 +48,14 @@ import { HTMLProps } from '../../utils/types';
 import { useValueChanged } from '../../utils/useValueChanged';
 import { NOOP } from '../../utils/noop';
 import {
+  resolveSelectedLabelString,
   stringifyAsLabel,
   stringifyAsValue,
   Group,
+  getFirstFlatItem,
   isGroupedItems,
+  hasValueField,
+  getItemValue,
 } from '../../utils/resolveValueLabel';
 import {
   compareItemEquality,
@@ -103,6 +109,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     itemToStringLabel,
     itemToStringValue,
     isItemEqualToValue = defaultItemEquality,
+    valueMode = 'item',
     virtualized = false,
     inline: inlineProp = false,
     fillInputOnItemPress = true,
@@ -202,7 +209,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
         return defaultInputValueProp ?? '';
       }
       if (single) {
-        return stringifyAsLabel(selectedValue, itemToStringLabel);
+        return resolveSelectedLabelString(selectedValue, items, itemToStringLabel);
       }
       return '';
     },
@@ -225,7 +232,9 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
   const isGrouped = isGroupedItems(items);
   const query = closeQuery ?? (inputValue === '' ? '' : String(inputValue).trim());
 
-  const selectedLabelString = single ? stringifyAsLabel(selectedValue, itemToStringLabel) : '';
+  const selectedLabelString = single
+    ? resolveSelectedLabelString(selectedValue, items, itemToStringLabel)
+    : '';
 
   const shouldBypassFiltering =
     single &&
@@ -250,70 +259,132 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     return items;
   }, [items, isGrouped]);
 
-  const filteredItems: Value[] | Group<Value>[] = React.useMemo(() => {
+  const valueModeSourceItems = items != null && items.length > 0 ? items : filteredItemsProp;
+  const valueModeSourceFirstItem = getFirstFlatItem(valueModeSourceItems);
+  const itemValueMode =
+    valueMode === 'value' && hasValueField(valueModeSourceFirstItem) ? 'value' : 'item';
+
+  if (process.env.NODE_ENV !== 'production') {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    React.useEffect(() => {
+      const hasObjectItems =
+        valueModeSourceFirstItem != null &&
+        typeof valueModeSourceFirstItem === 'object' &&
+        valueModeSourceFirstItem !== null;
+
+      if (valueMode !== 'value' || !hasObjectItems || itemValueMode === 'value') {
+        return;
+      }
+
+      const ownerStackMessage = SafeReact.captureOwnerStack?.() || '';
+      const message =
+        'The `valueMode="value"` prop on `Combobox` expects object `items` to include a `value` field. ' +
+        'Use `valueMode="item"` with `<Combobox.Item value={item}>`, ' +
+        'or provide `{ value, label }` items with `<Combobox.Item value={item.value}>`.';
+
+      error(`${message}${ownerStackMessage}`);
+    }, [itemValueMode, valueMode, valueModeSourceFirstItem]);
+  }
+
+  const { filteredItems, flatFilteredItems, flatFilteredValues } = React.useMemo(() => {
+    const hasLimit = limit > -1;
+    const shouldFilter = filterQuery !== '';
+
+    let filtered: Value[] | Group<Value>[] = EMPTY_ARRAY as Value[];
+    let flat: Value[] = EMPTY_ARRAY as Value[];
+
     if (filteredItemsProp && !shouldIgnoreExternalFiltering) {
-      return filteredItemsProp as Value[] | Group<Value>[];
-    }
-
-    if (!items) {
-      return EMPTY_ARRAY as Value[];
-    }
-
-    if (isGrouped) {
+      filtered = filteredItemsProp as Value[] | Group<Value>[];
+      if (isGroupedItems(filteredItemsProp)) {
+        const grouped = filtered as Group<Value>[];
+        const flatItemsLocal: Value[] = [];
+        for (const group of grouped) {
+          for (const item of group.items as ReadonlyArray<Value>) {
+            flatItemsLocal.push(item);
+          }
+        }
+        flat = flatItemsLocal;
+      } else {
+        flat = filtered as Value[];
+      }
+    } else if (items && isGrouped) {
       const groupedItems = items;
       const resultingGroups: Group<Value>[] = [];
+      const flatItemsLocal: Value[] = [];
       let currentCount = 0;
 
       for (const group of groupedItems) {
-        if (limit > -1 && currentCount >= limit) {
+        if (hasLimit && currentCount >= limit) {
           break;
         }
 
-        const candidateItems =
-          filterQuery === ''
-            ? group.items
-            : group.items.filter((item) => filter(item, filterQuery, itemToStringLabel));
+        let candidateItems: ReadonlyArray<Value> = group.items;
+        if (shouldFilter) {
+          candidateItems = candidateItems.filter((item) =>
+            filter(item, filterQuery, itemToStringLabel),
+          );
+        }
 
         if (candidateItems.length === 0) {
           continue;
         }
 
-        const remainingLimit = limit > -1 ? limit - currentCount : Infinity;
-        const itemsToTake = candidateItems.slice(0, remainingLimit);
+        if (hasLimit) {
+          const remainingLimit = limit - currentCount;
+          if (remainingLimit <= 0) {
+            break;
+          }
+          if (candidateItems.length > remainingLimit) {
+            candidateItems = candidateItems.slice(0, remainingLimit);
+          }
+        }
 
-        if (itemsToTake.length > 0) {
-          const newGroup = { ...group, items: itemsToTake };
-          resultingGroups.push(newGroup);
-          currentCount += itemsToTake.length;
+        if (candidateItems.length === 0) {
+          continue;
+        }
+
+        const newGroup =
+          candidateItems === group.items ? group : { ...group, items: candidateItems };
+        resultingGroups.push(newGroup);
+        currentCount += candidateItems.length;
+        for (const item of candidateItems) {
+          flatItemsLocal.push(item);
         }
       }
 
-      return resultingGroups;
-    }
-
-    if (filterQuery === '') {
-      return limit > -1
-        ? flatItems.slice(0, limit)
-        : // The cast here is done as `flatItems` is readonly.
-          // valuesRef.current, a mutable ref, can be set to `flatFilteredItems`, which may
-          // reference this exact readonly value, creating a mutation risk.
-          // However, <Combobox.Item> can never mutate this value as the mutating effect
-          // bails early when `items` is provided, and this is only ever returned
-          // when `items` is provided due to the early return at the top of this hook.
-          (flatItems as Value[]);
-    }
-
-    const limitedItems: Value[] = [];
-    for (const item of flatItems) {
-      if (limit > -1 && limitedItems.length >= limit) {
-        break;
+      filtered = resultingGroups;
+      flat = flatItemsLocal;
+    } else if (items && !shouldFilter && !hasLimit) {
+      // The cast is done as `flatItems` is readonly.
+      // valuesRef.current, a mutable ref, can be set to `flatFilteredItems`, which may
+      // reference this exact readonly value, creating a mutation risk.
+      // However, <Combobox.Item> can never mutate this value as the mutating effect
+      // bails early when `items` is provided, and this is only ever returned
+      // when `items` is provided due to the early return at the top of this hook.
+      filtered = flatItems as Value[];
+      flat = flatItems as Value[];
+    } else if (items) {
+      const flatItemsLocal: Value[] = [];
+      for (const item of flatItems) {
+        if (hasLimit && flatItemsLocal.length >= limit) {
+          break;
+        }
+        if (shouldFilter && !filter(item, filterQuery, itemToStringLabel)) {
+          continue;
+        }
+        flatItemsLocal.push(item);
       }
-      if (filter(item, filterQuery, itemToStringLabel)) {
-        limitedItems.push(item);
-      }
+      filtered = flatItemsLocal;
+      flat = flatItemsLocal;
     }
 
-    return limitedItems;
+    const values = itemValueMode === 'value' ? flat.map(getItemValue) : flat;
+
+    return {
+      filteredItems: filtered,
+      flatFilteredItems: flat,
+      flatFilteredValues: values,
+    };
   }, [
     filteredItemsProp,
     shouldIgnoreExternalFiltering,
@@ -324,15 +395,10 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     filter,
     itemToStringLabel,
     flatItems,
+    itemValueMode,
   ]);
 
-  const flatFilteredItems: Value[] = React.useMemo(() => {
-    if (isGrouped) {
-      const groups = filteredItems as Group<Value>[];
-      return groups.flatMap((g) => g.items);
-    }
-    return filteredItems as Value[];
-  }, [filteredItems, isGrouped]);
+  const activeItems = itemValueMode === 'value' ? flatFilteredValues : flatFilteredItems;
 
   const store = useRefWithInit(
     () =>
@@ -478,7 +544,12 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
           onItemHighlighted(undefined, createGenericEventDetails(type, undefined, { index: -1 }));
         }
       } else {
-        const activeValue = valuesRef.current[options.activeIndex];
+        let activeValue: any;
+        if (items) {
+          activeValue = activeItems[options.activeIndex];
+        } else {
+          activeValue = valuesRef.current[options.activeIndex];
+        }
         lastHighlightRef.current = { value: activeValue, index: options.activeIndex };
         onItemHighlighted(
           activeValue,
@@ -500,8 +571,9 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
         return;
       }
 
-      // If user is typing, ensure we don't auto-highlight on open due to a race
-      // with the post-open effect that sets this flag.
+      // Mark typed query changes immediately.
+      // `queryChangedAfterOpen` is also set in a later `useValueChanged(query)`
+      // effect, so setting it here avoids open/input race conditions.
       if (eventDetails.reason === REASONS.inputChange) {
         const event = eventDetails.event as Event;
         const inputType = (event as InputEvent).inputType;
@@ -610,7 +682,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
 
       if (shouldFillInput) {
         setInputValue(
-          stringifyAsLabel(nextValue, itemToStringLabel),
+          resolveSelectedLabelString(nextValue, items, itemToStringLabel),
           createChangeEventDetails(eventDetails.reason, eventDetails.event),
         );
       }
@@ -726,7 +798,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
           setInputValue('', createChangeEventDetails(REASONS.inputClear));
         }
       } else {
-        const stringVal = stringifyAsLabel(selectedValue, itemToStringLabel);
+        const stringVal = resolveSelectedLabelString(selectedValue, items, itemToStringLabel);
         if (inputRef.current && inputRef.current.value !== stringVal) {
           // If no selection was made, treat this as clearing the typed filter.
           const reason = stringVal === '' ? REASONS.inputClear : REASONS.none;
@@ -766,7 +838,14 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
         return;
       }
 
-      const registry = items ? flatItems : allValuesRef.current;
+      let registry: readonly any[] = allValuesRef.current;
+      if (items) {
+        if (itemValueMode === 'value') {
+          registry = flatItems.map(getItemValue);
+        } else {
+          registry = flatItems;
+        }
+      }
 
       if (multiple) {
         const currentValue = Array.isArray(selectedValue) ? selectedValue : [];
@@ -784,6 +863,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       items,
       selectionMode,
       flatItems,
+      itemValueMode,
       multiple,
       isItemEqualToValue,
       setIndices,
@@ -792,10 +872,10 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
 
   useIsoLayoutEffect(() => {
     if (items) {
-      valuesRef.current = flatFilteredItems;
+      valuesRef.current = activeItems;
       listRef.current.length = flatFilteredItems.length;
     }
-  }, [items, flatFilteredItems]);
+  }, [activeItems, flatFilteredItems, items, open]);
 
   useIsoLayoutEffect(() => {
     const pendingHighlight = pendingQueryHighlightRef.current;
@@ -815,7 +895,10 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     }
 
     const shouldUseFlatFilteredItems = hasItems || hasFilteredItemsProp;
-    const candidateItems = shouldUseFlatFilteredItems ? flatFilteredItems : valuesRef.current;
+    let candidateItems = valuesRef.current;
+    if (shouldUseFlatFilteredItems) {
+      candidateItems = activeItems;
+    }
     const storeActiveIndex = store.state.activeIndex;
 
     if (storeActiveIndex == null) {
@@ -860,10 +943,10 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     }
   }, [
     activeIndex,
+    activeItems,
     autoHighlightMode,
     hasFilteredItemsProp,
     hasItems,
-    flatFilteredItems,
     inline,
     open,
     store,
@@ -909,7 +992,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     }
 
     if (single && !hasInputValue && !inputInsidePopup) {
-      const nextInputValue = stringifyAsLabel(selectedValue, itemToStringLabel);
+      const nextInputValue = resolveSelectedLabelString(selectedValue, items, itemToStringLabel);
 
       if (inputValue !== nextInputValue) {
         setInputValue(nextInputValue, createChangeEventDetails(REASONS.none));
@@ -937,7 +1020,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       return;
     }
 
-    const nextInputValue = stringifyAsLabel(selectedValue, itemToStringLabel);
+    const nextInputValue = resolveSelectedLabelString(selectedValue, items, itemToStringLabel);
 
     if (inputValue !== nextInputValue) {
       setInputValue(nextInputValue, createChangeEventDetails(REASONS.none));
@@ -1156,8 +1239,10 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       hasItems,
       filteredItems,
       flatFilteredItems,
+      flatFilteredValues,
+      valueMode: itemValueMode,
     }),
-    [query, hasItems, filteredItems, flatFilteredItems],
+    [query, hasItems, filteredItems, flatFilteredItems, flatFilteredValues, itemValueMode],
   );
 
   const serializedValue = React.useMemo(() => {
@@ -1449,6 +1534,14 @@ interface ComboboxRootProps<ItemValue> {
    * Defaults to `Object.is` comparison.
    */
   isItemEqualToValue?: ((itemValue: ItemValue, selectedValue: ItemValue) => boolean) | undefined;
+  /**
+   * Controls how selected and highlighted values are represented when `items` are object-like.
+   * The value passed to `<Combobox.Item value={...}>` must match the selected mode.
+   * - `'item'`: use full items.
+   * - `'value'`: use each item's `.value` field.
+   * @default 'item'
+   */
+  valueMode?: ('item' | 'value') | undefined;
   /**
    * Whether the items are being externally virtualized.
    * @default false

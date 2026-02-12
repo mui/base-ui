@@ -67,10 +67,24 @@ import { Combobox } from '@base-ui/react/combobox';
 </Combobox.Root>;
 ```
 
-## TypeScript
+## Value modes
 
-Combobox infers the item type from the `defaultValue` or `value` props passed to `<Combobox.Root>`.
-The type of items held in the `items` array must also match the `value` prop type passed to `<Combobox.Item>`.
+Use the `valueMode` prop on `<Combobox.Root>` to control how item values are determined.
+
+Use item mode (default) when each `<Combobox.Item>` receives the full item from the `items` array as its `value`.
+
+1. **Item mode**
+   - `<Combobox.Root valueMode="item">` and `<Combobox.Item value={item}>`
+   - `value`/`defaultValue` are full items from `items` or `null`
+   - When items are objects, they can use any shape
+   - The normative object item shape is `{value, label}`; for custom shapes, use `itemToStringLabel` for input text and `itemToStringValue` for form serialization
+   - If object references differ between `items` and root `value`, use `isItemEqualToValue` to compare stable fields such as `id`
+
+Use value mode when each `<Combobox.Item>` receives a primitive `value` from object `items`.
+
+2. **Value mode**
+   - `<Combobox.Root valueMode="value">` and `<Combobox.Item value={item.value}>`
+   - `value`/`defaultValue` are primitive values: `string`, `number`, or `null`, while `items` is an array of objects with shape `{value, label}`
 
 ## Examples
 
@@ -82,9 +96,11 @@ The following example shows a typed wrapper around the Combobox component with c
 import * as React from 'react';
 import { Combobox } from '@base-ui/react/combobox';
 
-export function MyCombobox<Value, Multiple extends boolean | undefined = false>(
-  props: Combobox.Root.Props<Value, Multiple>,
-): React.JSX.Element {
+export function MyCombobox<
+  Value,
+  Multiple extends boolean | undefined = false,
+  ValueMode extends Combobox.Root.ValueMode | undefined = 'item',
+>(props: Combobox.Root.Props<Value, Multiple, ValueMode>): React.JSX.Element {
   return <Combobox.Root {...props}>{/* ... */}</Combobox.Root>;
 }
 ```

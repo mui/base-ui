@@ -81,9 +81,9 @@
       "detailedType": "| ((\n    itemValue: Value,\n    query: string,\n    itemToString:\n      | ((itemValue: Value) => string)\n      | undefined,\n  ) => boolean)\n| null\n| undefined"
     },
     "filteredItems": {
-      "type": "any[] | Group[]",
+      "type": "ComboboxItems<Value, NoInferCompat<Combobox.Root.ValueMode | undefined>>",
       "description": "Filtered items to display in the list.\nWhen provided, the list will use these items instead of filtering the `items` prop internally.\nUse when you want to control filtering logic externally with the `useFilter()` hook.",
-      "detailedType": "any[] | Group[] | undefined"
+      "detailedType": "| NoInferCompat<\n    | unknown\n    | ((args: any[]) => any)\n    | (any[] & Value)\n    | {}\n    | string\n    | number\n    | boolean\n    | bigint\n    | NonNullable<Value>\n    | any\n  >[]\n| Combobox.Group<\n    NoInferCompat<\n      | any\n    >\n  >[]\n| LabeledValue<\n    NoInferCompat<\n      | (string & unknown)\n      | any\n      | (number & unknown)\n| Combobox.Group<\n    LabeledValue<\n      NoInferCompat<\n        | any\n      >\n    >\n  >[]\n| undefined"
     },
     "grid": {
       "type": "boolean",
@@ -113,9 +113,9 @@
       "detailedType": "((itemValue: Value) => string) | undefined"
     },
     "items": {
-      "type": "any[] | Group[]",
+      "type": "ComboboxItems<Value, NoInferCompat<Combobox.Root.ValueMode | undefined>>",
       "description": "The items to be displayed in the list.\nCan be either a flat array of items or an array of groups with items.",
-      "detailedType": "any[] | Group[] | undefined"
+      "detailedType": "| NoInferCompat<\n    | unknown\n    | ((args: any[]) => any)\n    | (any[] & Value)\n    | {}\n    | string\n    | number\n    | boolean\n    | bigint\n    | NonNullable<Value>\n    | any\n  >[]\n| Combobox.Group<\n    NoInferCompat<\n      | any\n    >\n  >[]\n| LabeledValue<\n    NoInferCompat<\n      | (string & unknown)\n      | any\n      | (number & unknown)\n| Combobox.Group<\n    LabeledValue<\n      NoInferCompat<\n        | any\n      >\n    >\n  >[]\n| undefined"
     },
     "limit": {
       "type": "number",
@@ -161,6 +161,12 @@
       "default": "true",
       "description": "Whether the popup opens when clicking the input.",
       "detailedType": "boolean | undefined"
+    },
+    "valueMode": {
+      "type": "Combobox.Root.ValueMode | undefined",
+      "default": "'item'",
+      "description": "Controls how selected and highlighted values are represented when `items` are object-like.\nThe `value` prop passed to `<Combobox.Item>` must match the selected mode.\n- `'item'`: each `Item` component accepts the full item as its `value`.\n- `'value'`: each `Item` component accepts the item's `value` field.",
+      "detailedType": "Combobox.Root.ValueMode | undefined"
     },
     "virtualized": {
       "type": "boolean",

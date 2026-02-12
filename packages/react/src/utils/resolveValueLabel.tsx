@@ -14,9 +14,21 @@ interface LabeledItem {
   label: React.ReactNode;
 }
 
+export function isPrimitiveValue(value: unknown): boolean {
+  return value != null && typeof value !== 'object' && typeof value !== 'function';
+}
+
+export function hasValueField(item: any): item is { value: unknown } {
+  return item != null && typeof item === 'object' && 'value' in item;
+}
+
+export function getItemValue(item: any) {
+  return hasValueField(item) ? item.value : item;
+}
+
 export interface Group<Item = any> {
   value: unknown;
-  items: Item[];
+  items: ReadonlyArray<Item>;
 }
 
 export function isGroupedItems(
@@ -29,6 +41,24 @@ export function isGroupedItems(
     items[0] != null &&
     'items' in items[0]
   );
+}
+
+export function getFirstFlatItem(items: readonly any[] | readonly Group<any>[] | undefined) {
+  if (items == null || items.length === 0) {
+    return undefined;
+  }
+
+  if (isGroupedItems(items)) {
+    for (const group of items) {
+      const firstGroupItem = group.items[0];
+      if (firstGroupItem !== undefined) {
+        return firstGroupItem;
+      }
+    }
+    return undefined;
+  }
+
+  return items[0];
 }
 
 /**
@@ -64,11 +94,17 @@ export function stringifyAsLabel(item: any, itemToStringLabel?: (item: any) => s
     return itemToStringLabel(item) ?? '';
   }
   if (item && typeof item === 'object') {
-    if ('label' in item && item.label != null) {
+    if (
+      'label' in item &&
+      item.label != null &&
+      (typeof item.label === 'string' ||
+        typeof item.label === 'number' ||
+        typeof item.label === 'bigint')
+    ) {
       return String(item.label);
     }
     if ('value' in item) {
-      return String(item.value);
+      return serializeValue(item.value);
     }
   }
   return serializeValue(item);
@@ -112,7 +148,7 @@ export function resolveSelectedLabel(
     const flatItems: LabeledItem[] = isGroupedItems(items) ? items.flatMap((g) => g.items) : items;
 
     if (value == null || typeof value !== 'object') {
-      const match = flatItems.find((item) => item.value === value);
+      const match = flatItems.find((item) => Object.is(item.value, value));
       if (match && match.label != null) {
         return match.label;
       }
@@ -121,7 +157,7 @@ export function resolveSelectedLabel(
 
     // Object without explicit label: try matching by its `value` property
     if ('value' in value) {
-      const match = flatItems.find((item) => item && item.value === value.value);
+      const match = flatItems.find((item) => item && Object.is(item.value, value.value));
       if (match && match.label != null) {
         return match.label;
       }
@@ -129,6 +165,21 @@ export function resolveSelectedLabel(
   }
 
   return fallback();
+}
+
+export function resolveSelectedLabelString(
+  value: any,
+  items: ItemsInput,
+  itemToStringLabel?: (item: any) => string,
+): string {
+  const label = resolveSelectedLabel(value, items, itemToStringLabel);
+  if (label == null || typeof label === 'boolean') {
+    return '';
+  }
+  if (typeof label === 'string' || typeof label === 'number' || typeof label === 'bigint') {
+    return String(label);
+  }
+  return stringifyAsLabel(value, itemToStringLabel);
 }
 
 export function resolveMultipleLabels(

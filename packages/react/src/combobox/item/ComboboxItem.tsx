@@ -3,6 +3,8 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { useStore } from '@base-ui/utils/store';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { error } from '@base-ui/utils/error';
+import { SafeReact } from '@base-ui/utils/safeReact';
 import {
   useComboboxRootContext,
   useComboboxDerivedItemsContext,
@@ -18,6 +20,7 @@ import { selectors } from '../store';
 import { useButton } from '../../use-button';
 import { useComboboxRowContext } from '../row/ComboboxRowContext';
 import { compareItemEquality, findItemIndex } from '../../utils/itemEquality';
+import { isPrimitiveValue } from '../../utils/resolveValueLabel';
 
 /**
  * An individual item in the list.
@@ -48,7 +51,8 @@ export const ComboboxItem = React.memo(
 
     const store = useComboboxRootContext();
     const isRow = useComboboxRowContext();
-    const { flatFilteredItems, hasItems } = useComboboxDerivedItemsContext();
+    const { flatFilteredItems, flatFilteredValues, valueMode, hasItems } =
+      useComboboxDerivedItemsContext();
 
     const open = useStore(store, selectors.open);
     const selectionMode = useStore(store, selectors.selectionMode);
@@ -59,7 +63,13 @@ export const ComboboxItem = React.memo(
     const selectable = selectionMode !== 'none';
     const index =
       indexProp ??
-      (virtualized ? findItemIndex(flatFilteredItems, value, isItemEqualToValue) : listItem.index);
+      (virtualized
+        ? findItemIndex(
+            valueMode === 'value' ? flatFilteredValues : flatFilteredItems,
+            value,
+            isItemEqualToValue,
+          )
+        : listItem.index);
     const hasRegistered = listItem.index !== -1;
 
     const rootId = useStore(store, selectors.id);
@@ -125,6 +135,24 @@ export const ComboboxItem = React.memo(
         store.set('selectedIndex', index);
       }
     }, [hasRegistered, hasItems, open, store, index, value, isItemEqualToValue]);
+
+    if (process.env.NODE_ENV !== 'production') {
+      // eslint-disable-next-line react-hooks/rules-of-hooks
+      React.useEffect(() => {
+        if (valueMode !== 'value' || value === null || isPrimitiveValue(value)) {
+          return;
+        }
+
+        const ownerStackMessage = SafeReact.captureOwnerStack?.() || '';
+        const message =
+          '`<Combobox.Item>` received a non-primitive `value` while `valueMode="value"` is set. ' +
+          'This prevents the combobox from matching and serializing selected values correctly. ' +
+          'Pass a primitive `value` such as `item.value`, or switch to `valueMode="item"` and use `<Combobox.Item value={item}>`. ' +
+          'https://base-ui.com/react/components/combobox#value-modes';
+
+        error(`${message}${ownerStackMessage}`);
+      }, [value, valueMode]);
+    }
 
     const state: ComboboxItem.State = {
       disabled,

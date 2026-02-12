@@ -57,3 +57,7 @@ export function isClickLikeEvent(event: Event | React.SyntheticEvent) {
   const type = event.type;
   return type === 'click' || type === 'mousedown' || type === 'keydown' || type === 'keyup';
 }
+
+export function isTypeaheadCharacterKey(event: KeyboardEvent | React.KeyboardEvent) {
+  return event.key.length === 1 && !event.ctrlKey && !event.metaKey && !event.altKey;
+}

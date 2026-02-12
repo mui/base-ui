@@ -23,6 +23,7 @@ import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
 import type { Side } from '../../utils/useAnchorPositioning';
 import { useDirection } from '../../direction-provider/DirectionContext';
+import { resolveSelectedLabelString } from '../../utils/resolveValueLabel';
 
 /**
  * A text input to search for items in the list.
@@ -92,7 +93,16 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
     const nextIsInsidePopup = hasPositionerParent || store.state.inline;
 
     if (nextIsInsidePopup && !store.state.hasInputValue) {
-      store.state.setInputValue('', createChangeEventDetails(REASONS.none));
+      const normalizedInputValue = inputValue == null ? '' : String(inputValue);
+      const selectedLabelString = resolveSelectedLabelString(
+        store.state.selectedValue,
+        store.state.items,
+        store.state.itemToStringLabel,
+      );
+
+      if (normalizedInputValue === selectedLabelString) {
+        store.state.setInputValue('', createChangeEventDetails(REASONS.none));
+      }
     }
 
     store.update({

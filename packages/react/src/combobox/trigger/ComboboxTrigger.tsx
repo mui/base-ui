@@ -96,7 +96,7 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
   const domReference = floatingRootContext.useState('domReferenceElement');
 
   // Update the floating root context to use the trigger element when it differs from the current reference.
-  // This ensures useClick and useTypeahead attach handlers to the correct element.
+  // This ensures floating interaction hooks attach handlers to the correct element.
   React.useEffect(() => {
     if (!inputInsidePopup) {
       return;
