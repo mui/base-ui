@@ -30,6 +30,7 @@ export type State<Payload> = PopupStoreState<Payload> & {
   itemProps: HTMLProps;
   closeDelay: number;
   keyboardEventRelay: ((event: React.KeyboardEvent<any>) => void) | undefined;
+  hasViewport: boolean;
 };
 
 type Context = PopupStoreContext<MenuRoot.ChangeEventDetails> & {
@@ -85,6 +86,7 @@ const selectors = {
   floatingParentNodeId: createSelector((state: State<unknown>) => state.floatingParentNodeId),
   itemProps: createSelector((state: State<unknown>) => state.itemProps),
   closeDelay: createSelector((state: State<unknown>) => state.closeDelay),
+  hasViewport: createSelector((state: State<unknown>) => state.hasViewport),
   keyboardEventRelay: createSelector(
     (state: State<unknown>): React.KeyboardEventHandler<any> | undefined => {
       if (state.keyboardEventRelay) {
@@ -184,5 +186,6 @@ function createInitialState<Payload>(): State<Payload> {
     itemProps: EMPTY_OBJECT as HTMLProps,
     keyboardEventRelay: undefined,
     closeDelay: 0,
+    hasViewport: false,
   };
 }

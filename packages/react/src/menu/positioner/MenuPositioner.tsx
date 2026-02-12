@@ -18,6 +18,7 @@ import { useContextMenuRootContext } from '../../context-menu/root/ContextMenuRo
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
 import { MenuOpenEventDetails } from '../utils/types';
+import { adaptiveOrigin } from '../../utils/adaptiveOriginMiddleware';
 
 /**
  * Positions the menu popup against the trigger.
@@ -60,6 +61,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
   const modal = store.useState('modal');
   const triggerElement = store.useState('activeTriggerElement');
   const transitionStatus = store.useState('transitionStatus');
+  const hasViewport = store.useState('hasViewport');
   const lastOpenChangeReason = store.useState('lastOpenChangeReason');
   const floatingNodeId = store.useState('floatingNodeId');
   const floatingParentNodeId = store.useState('floatingParentNodeId');
@@ -111,6 +113,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
     shiftCrossAxis:
       contextMenu && !('side' in collisionAvoidance && collisionAvoidance.side === 'flip'),
     externalTree: floatingTreeRoot,
+    adaptiveOrigin: hasViewport ? adaptiveOrigin : undefined,
   });
 
   const positionerProps = React.useMemo(() => {
