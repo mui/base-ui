@@ -2,8 +2,6 @@ import { isHTMLElement, isShadowRoot } from '@floating-ui/utils/dom';
 import { isJSDOM } from '@base-ui/utils/detectBrowser';
 import { FOCUSABLE_ATTRIBUTE, TYPEABLE_SELECTOR } from './constants';
 
-export { ownerDocument as getDocument } from '@base-ui/utils/owner';
-
 export function activeElement(doc: Document) {
   let element = doc.activeElement;
 
