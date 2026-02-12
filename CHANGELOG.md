@@ -10,7 +10,6 @@ _Feb 13, 2026_
 - Support lazy element in `render` prop (#3856) by @oliviertassinari
 - Replace Firefox deprecated mozInputSource check for virtual click detection (#3942) by @CiscoFran10
 - Use `WeakRef` for previously focused elements (#3916) by @atomiks
-- Avoid unanchoring menu (#3799) by @LukasTy
 - Add TanStack Start example (#3303) by @mj12albert
 - Create Vite playground (#3874) by @michaldudak
 - Fix page scroll jump when input has focus on unmount in Safari (#3925) by @atomiks
@@ -39,7 +38,7 @@ _Feb 13, 2026_
 
 - Cleanup disabled state tracking (#3913) by @atomiks
 - Preserve modifier key properties in the change event (#3935) by @mj12albert
-- Add transition attributes (#3939) by @atomiks
+- Add transition attributes and allow exit animations on `<Checkbox.Indicator>` when `keepMounted={false}` (#3939) by @atomiks
 
 ### Combobox
 
@@ -115,7 +114,7 @@ _Feb 13, 2026_
 ### Radio Group
 
 - Preserve modifier key properties in the change event (#3935) by @mj12albert
-- Add transition attributes (#3939) by @atomiks
+- Add transition attributes and allow exit animations on `<Radio.Indicator>` when `keepMounted={false}` (#3939) by @atomiks
 - Rely on individual radio hidden inputs (#3826) by @atomiks
 - Add generic `Value` typing to `Radio` (#4033) by @atomiks
 
