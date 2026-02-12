@@ -84,6 +84,7 @@
   flex-direction: column;
   gap: 0.75rem;
   padding: 0 1rem calc(1rem + env(safe-area-inset-bottom, 0px));
+  outline: 0;
   pointer-events: none;
   transform: translateY(var(--drawer-swipe-movement-y));
   transition: transform 450ms cubic-bezier(0.32, 0.72, 0, 1);
@@ -151,8 +152,8 @@
   }
 
   &:focus-visible {
-    outline: 2px solid var(--color-blue);
-    outline-offset: -2px;
+    outline: 0;
+    background-color: var(--color-gray-100);
   }
 }
 
@@ -193,8 +194,8 @@
   }
 
   &:focus-visible {
-    outline: 2px solid var(--color-blue);
-    outline-offset: -2px;
+    outline: 0;
+    background-color: var(--color-gray-100);
   }
 }
 

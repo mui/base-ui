@@ -11,7 +11,7 @@ export default function ExampleDrawerUncontained() {
       <Drawer.Portal>
         <Drawer.Backdrop className="[--backdrop-opacity:0.4] fixed inset-0 min-h-dvh bg-black opacity-[calc(var(--backdrop-opacity)*(1-var(--drawer-swipe-progress)))] transition-opacity duration-[450ms] ease-[cubic-bezier(0.32,0.72,0,1)] data-[swiping]:duration-0 data-[starting-style]:opacity-0 data-[ending-style]:opacity-0 data-[ending-style]:duration-[calc(var(--drawer-swipe-strength)*400ms)] supports-[-webkit-touch-callout:none]:absolute dark:[--backdrop-opacity:0.7]" />
         <Drawer.Viewport className="fixed inset-0 flex items-end justify-center pointer-events-none">
-          <Drawer.Popup className="box-border pointer-events-none flex w-full max-w-[28rem] flex-col gap-3 px-4 pb-[calc(1rem+env(safe-area-inset-bottom,0px))] [transform:translateY(var(--drawer-swipe-movement-y))] transition-transform duration-[450ms] ease-[cubic-bezier(0.32,0.72,0,1)] data-[swiping]:select-none data-[starting-style]:[transform:translateY(calc(100%+1rem))] data-[ending-style]:[transform:translateY(calc(100%+1rem))] data-[ending-style]:duration-[calc(var(--drawer-swipe-strength)*400ms)]">
+          <Drawer.Popup className="box-border pointer-events-none flex w-full max-w-[28rem] flex-col gap-3 px-4 pb-[calc(1rem+env(safe-area-inset-bottom,0px))] outline-none focus-visible:outline-none [transform:translateY(var(--drawer-swipe-movement-y))] transition-transform duration-[450ms] ease-[cubic-bezier(0.32,0.72,0,1)] data-[swiping]:select-none data-[starting-style]:[transform:translateY(calc(100%+1rem))] data-[ending-style]:[transform:translateY(calc(100%+1rem))] data-[ending-style]:duration-[calc(var(--drawer-swipe-strength)*400ms)]">
             <Drawer.Content className="pointer-events-auto overflow-hidden rounded-2xl bg-gray-50 text-gray-900 outline outline-1 outline-gray-200 dark:outline-gray-300">
               <Drawer.Title className="sr-only">Profile actions</Drawer.Title>
               <Drawer.Description className="sr-only">
@@ -26,7 +26,7 @@ export default function ExampleDrawerUncontained() {
                   <li key={action}>
                     <button
                       type="button"
-                      className="block w-full border-0 bg-transparent px-5 py-4 text-center text-base text-gray-900 select-none hover:bg-gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800"
+                      className="block w-full border-0 bg-transparent px-5 py-4 text-center text-base text-gray-900 select-none hover:bg-gray-100 focus-visible:bg-gray-100 focus-visible:outline-none"
                     >
                       {action}
                     </button>
@@ -37,7 +37,7 @@ export default function ExampleDrawerUncontained() {
             <div className="pointer-events-auto overflow-hidden rounded-2xl bg-gray-50 outline outline-1 outline-gray-200 dark:outline-gray-300">
               <button
                 type="button"
-                className="block w-full border-0 bg-transparent px-5 py-4 text-center text-base text-red-700 select-none hover:bg-gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-800"
+                className="block w-full border-0 bg-transparent px-5 py-4 text-center text-base text-red-700 select-none hover:bg-gray-100 focus-visible:bg-gray-100 focus-visible:outline-none"
               >
                 Block User
               </button>

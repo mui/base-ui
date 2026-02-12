@@ -19,7 +19,7 @@ const LONG_LIST = Array.from({ length: 50 }, (_, i) => ({
 export default function ExampleDrawerMobileNav() {
   return (
     <Drawer.Root>
-      <Drawer.Trigger className="box-border flex h-10 items-center justify-center rounded-md border border-gray-200 bg-gray-50 px-3.5 m-0 outline-none text-base font-medium leading-6 text-gray-900 select-none hover:bg-gray-100 active:bg-gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue focus-visible:-outline-offset-1">
+      <Drawer.Trigger className="box-border flex h-10 items-center justify-center rounded-md border border-gray-200 bg-gray-50 px-3.5 m-0 outline-none text-base font-medium leading-6 text-gray-900 select-none hover:bg-gray-100 active:bg-gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-800 focus-visible:-outline-offset-1">
         Open mobile menu
       </Drawer.Trigger>
       <Drawer.Portal>
@@ -41,7 +41,7 @@ export default function ExampleDrawerMobileNav() {
                       <div className="h-1 w-12 justify-self-center rounded-full bg-gray-300" />
                       <Drawer.Close
                         aria-label="Close menu"
-                        className="flex h-9 w-9 items-center justify-center justify-self-end rounded-full border border-gray-200 bg-gray-50 text-gray-900 hover:bg-gray-100 active:bg-gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue focus-visible:outline-offset-2"
+                        className="flex h-9 w-9 items-center justify-center justify-self-end rounded-full border border-gray-200 bg-gray-50 text-gray-900 hover:bg-gray-100 active:bg-gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-800 focus-visible:-outline-offset-1"
                       >
                         <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
                           <path
@@ -68,7 +68,7 @@ export default function ExampleDrawerMobileNav() {
                           {ITEMS.map((item) => (
                             <li key={item.label} className="flex">
                               <NextLink
-                                className="w-full rounded-xl bg-gray-100 px-4 py-3 text-gray-900 no-underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue focus-visible:outline-offset-2"
+                                className="w-full rounded-xl bg-gray-100 px-4 py-3 text-gray-900 no-underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-800 focus-visible:-outline-offset-1"
                                 href={item.href}
                               >
                                 {item.label}
@@ -81,7 +81,7 @@ export default function ExampleDrawerMobileNav() {
                           {LONG_LIST.map((item) => (
                             <li key={item.label} className="flex">
                               <NextLink
-                                className="w-full rounded-xl bg-gray-100 px-4 py-3 text-gray-900 no-underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue focus-visible:outline-offset-2"
+                                className="w-full rounded-xl bg-gray-100 px-4 py-3 text-gray-900 no-underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-800 focus-visible:-outline-offset-1"
                                 href={item.href}
                               >
                                 {item.label}
