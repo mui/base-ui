@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import clsx from 'clsx';
+import { useGoogleAnalytics } from 'docs/src/blocks/GoogleAnalyticsProvider';
 
 export function Container({ className, ...props }: React.ComponentProps<'div'>) {
   return <div className={clsx('QuickNavContainer', className)} {...props} />;
@@ -279,6 +280,23 @@ export function Item({ className, ...props }: React.ComponentProps<'li'>) {
   return <li className={clsx('QuickNavItem', className)} {...props} />;
 }
 
-export function Link({ className, ...props }: React.ComponentProps<'a'>) {
-  return <a className={clsx('QuickNavLink', className)} {...props} />;
+export function Link({ className, onClick, ...props }: React.ComponentProps<'a'>) {
+  const ga = useGoogleAnalytics();
+
+  const handleClick = React.useCallback(
+    (event: React.MouseEvent<HTMLAnchorElement>) => {
+      ga?.trackEvent({
+        category: 'Table of contents',
+        action: 'click',
+        label: props.href ?? undefined,
+      });
+      onClick?.(event);
+    },
+    [ga, props.href, onClick],
+  );
+
+  // The anchor element is interactive via `href` from `...props`, but the
+  // lint rules can't see through the spread to know that.
+  // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
+  return <a className={clsx('QuickNavLink', className)} {...props} onClick={handleClick} />;
 }

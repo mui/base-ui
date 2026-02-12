@@ -13,6 +13,7 @@ import { Dialog } from '@base-ui/react/dialog';
 import { ScrollArea } from '@base-ui/react/scroll-area';
 import { isMac } from '@base-ui/utils/detectBrowser';
 import { CornerDownLeft, Search } from 'lucide-react';
+import { useGoogleAnalytics } from 'docs/src/blocks/GoogleAnalyticsProvider';
 import { stringToUrl } from '../QuickNav/rehypeSlug.mjs';
 import './SearchBar.css';
 
@@ -101,6 +102,24 @@ export function SearchBar({
   const [dialogOpen, setDialogOpen] = React.useState(false);
   const inputRef = React.useRef<HTMLInputElement>(null);
   const popupRef = React.useRef<HTMLDivElement>(null);
+  const ga = useGoogleAnalytics();
+
+  // Search session tracking
+  const searchQueryRef = React.useRef('');
+  const resultCountRef = React.useRef(0);
+  const attemptRef = React.useRef(0);
+  const selectedResultRef = React.useRef(false);
+  const lastTrackedQueryRef = React.useRef('');
+  const queryDebounceRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Clean up pending debounce on unmount
+  React.useEffect(() => {
+    return () => {
+      if (queryDebounceRef.current) {
+        clearTimeout(queryDebounceRef.current);
+      }
+    };
+  }, []);
 
   // Use the generic search hook with Base UI specific configuration
   const { results, search, defaultResults, buildResultUrl } = useSearch({
@@ -117,6 +136,10 @@ export function SearchBar({
   const [searchResults, setSearchResults] =
     React.useState<ReturnType<typeof useSearch>['results']>(defaultResults);
   React.useEffect(() => {
+    // Track result count for the current query
+    const totalResults = results.results.reduce((sum, group) => sum + group.items.length, 0);
+    resultCountRef.current = totalResults;
+
     const updateResults = () => {
       setSearchResults(results);
     };
@@ -132,12 +155,44 @@ export function SearchBar({
   }, [results]);
 
   const handleOpenDialog = React.useCallback(() => {
+    // Reset search session tracking
+    searchQueryRef.current = '';
+    resultCountRef.current = 0;
+    attemptRef.current = 0;
+    selectedResultRef.current = false;
+    lastTrackedQueryRef.current = '';
+    if (queryDebounceRef.current) {
+      clearTimeout(queryDebounceRef.current);
+      queryDebounceRef.current = null;
+    }
+    ga?.trackEvent({ category: 'Search', action: 'open' });
     setDialogOpen(true);
-  }, []);
+  }, [ga]);
 
   const handleCloseDialog = React.useCallback(
     (open: boolean) => {
       if (!open) {
+        // Cancel any pending debounced query event
+        if (queryDebounceRef.current) {
+          clearTimeout(queryDebounceRef.current);
+          queryDebounceRef.current = null;
+        }
+
+        // Fire final search event for the current query
+        if (searchQueryRef.current) {
+          ga?.trackEvent({
+            category: 'Search',
+            action: selectedResultRef.current ? 'select' : 'dismiss',
+            label: searchQueryRef.current,
+            params: {
+              search_term: searchQueryRef.current,
+              result_count: resultCountRef.current,
+              attempt: attemptRef.current,
+            },
+          });
+          lastTrackedQueryRef.current = searchQueryRef.current;
+        }
+
         setDialogOpen(false);
 
         // Wait for the closing animation to complete before resetting state
@@ -148,7 +203,7 @@ export function SearchBar({
         handleOpenDialog();
       }
     },
-    [handleOpenDialog, defaultResults],
+    [handleOpenDialog, defaultResults, ga],
   );
 
   const handleAutocompleteEscape = React.useCallback(
@@ -184,14 +239,45 @@ export function SearchBar({
 
   const handleValueChange = React.useCallback(
     async (value: string) => {
+      // Cancel any pending debounced query event
+      if (queryDebounceRef.current) {
+        clearTimeout(queryDebounceRef.current);
+        queryDebounceRef.current = null;
+      }
+
+      searchQueryRef.current = value;
+      if (value) {
+        // Increment attempt when starting a new query (first char after empty)
+        if (value.length === 1) {
+          attemptRef.current += 1;
+        }
+
+        // Fire a debounced 'query' event when the user pauses typing
+        queryDebounceRef.current = setTimeout(() => {
+          if (searchQueryRef.current && searchQueryRef.current !== lastTrackedQueryRef.current) {
+            ga?.trackEvent({
+              category: 'Search',
+              action: 'query',
+              label: searchQueryRef.current,
+              params: {
+                search_term: searchQueryRef.current,
+                result_count: resultCountRef.current,
+                attempt: attemptRef.current,
+              },
+            });
+            lastTrackedQueryRef.current = searchQueryRef.current;
+          }
+        }, 1500);
+      }
       await search(value, { groupBy: { properties: ['group'], maxResult: 5 } });
     },
-    [search],
+    [search, ga],
   );
 
   const highlightedResultRef = React.useRef<SearchResult | undefined>(undefined);
 
   const handleItemClick = React.useCallback(() => {
+    selectedResultRef.current = true;
     handleCloseDialog(false);
   }, [handleCloseDialog]);
 

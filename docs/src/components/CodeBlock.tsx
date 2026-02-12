@@ -2,6 +2,7 @@
 import * as React from 'react';
 import copy from 'clipboard-copy';
 import clsx from 'clsx';
+import { useGoogleAnalytics } from 'docs/src/blocks/GoogleAnalyticsProvider';
 import * as ScrollArea from './ScrollArea';
 import { CopyIcon } from '../icons/CopyIcon';
 import { CheckIcon } from '../icons/CheckIcon';
@@ -28,6 +29,7 @@ export function Root(props: React.ComponentPropsWithoutRef<'div'>) {
 export function Panel({ className, children, ...other }: React.ComponentPropsWithoutRef<'div'>) {
   const { codeId, titleId } = React.useContext(CodeBlockContext);
   const [copyTimeout, setCopyTimeout] = React.useState<number>(0);
+  const ga = useGoogleAnalytics();
 
   return (
     <div className={clsx('CodeBlockPanel', className)} {...other}>
@@ -42,6 +44,11 @@ export function Panel({ className, children, ...other }: React.ComponentPropsWit
 
           if (code) {
             await copy(code);
+            ga?.trackEvent({
+              category: 'code-block',
+              action: 'copy',
+              label: document.getElementById(titleId)?.textContent ?? undefined,
+            });
             /* eslint-disable no-restricted-syntax */
             const newTimeout = window.setTimeout(() => {
               window.clearTimeout(newTimeout);

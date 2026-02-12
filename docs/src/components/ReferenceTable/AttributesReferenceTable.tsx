@@ -10,6 +10,7 @@ import { TableCode } from '../TableCode';
 
 interface AttributesReferenceTableProps extends React.ComponentProps<typeof Table.Root> {
   data: Record<string, AttributeDef>;
+  name?: string;
 }
 
 const CREATE_MDX_OPTIONS = {
@@ -17,7 +18,11 @@ const CREATE_MDX_OPTIONS = {
   useMDXComponents: () => inlineMdxComponents,
 };
 
-export async function AttributesReferenceTable({ data, ...props }: AttributesReferenceTableProps) {
+export async function AttributesReferenceTable({
+  data,
+  name: partName,
+  ...props
+}: AttributesReferenceTableProps) {
   return (
     <React.Fragment>
       <Accordion.Root {...props} className={clsx(props.className, 'xs:hidden')}>
@@ -33,7 +38,11 @@ export async function AttributesReferenceTable({ data, ...props }: AttributesRef
           );
 
           return (
-            <Accordion.Item key={name}>
+            <Accordion.Item
+              key={name}
+              gaCategory="Reference"
+              gaLabel={`Attribute: ${partName ? `${partName}-` : ''}${name}`}
+            >
               <Accordion.Trigger index={index}>
                 <TableCode className="text-navy">{name}</TableCode>
                 <svg

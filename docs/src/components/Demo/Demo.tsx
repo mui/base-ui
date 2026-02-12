@@ -6,11 +6,13 @@ import type { ContentProps } from '@mui/internal-docs-infra/CodeHighlighter/type
 import { useDemo } from '@mui/internal-docs-infra/useDemo';
 import { CopyIcon } from 'docs/src/icons/CopyIcon';
 import clsx from 'clsx';
+import kebabCase from 'es-toolkit/compat/kebabCase';
 import { CheckIcon } from 'docs/src/icons/CheckIcon';
 import { ExternalLinkIcon } from 'docs/src/icons/ExternalLinkIcon';
 import { exportCodeSandbox, exportOpts } from 'docs/src/utils/demoExportOptions';
 import { isSafari, isEdge } from '@base-ui/utils/detectBrowser';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { useGoogleAnalytics } from 'docs/src/blocks/GoogleAnalyticsProvider';
 import { DemoVariantSelector } from './DemoVariantSelector';
 import { DemoFileSelector } from './DemoFileSelector';
 import { DemoCodeBlock } from './DemoCodeBlock';
@@ -33,8 +35,31 @@ export function Demo({
 }: DemoProps) {
   const collapsibleTriggerRef = React.useRef<HTMLButtonElement>(null);
   const [copyTimeout, setCopyTimeout] = React.useState<number>(0);
+  const ga = useGoogleAnalytics();
+  const demoSlug = React.useMemo(
+    () => demoProps.slug || (demoProps.name ? kebabCase(demoProps.name) : undefined),
+    [demoProps.slug, demoProps.name],
+  );
+  const hasLoggedInteraction = React.useRef(false);
+
+  const onPlaygroundInteraction = React.useCallback(() => {
+    if (!hasLoggedInteraction.current) {
+      hasLoggedInteraction.current = true;
+      ga?.trackEvent({
+        category: 'demo',
+        action: 'interaction',
+        label: demoSlug,
+      });
+    }
+  }, [ga, demoSlug]);
 
   const onCopied = React.useCallback(() => {
+    ga?.trackEvent({
+      category: 'demo',
+      action: 'copy',
+      label: demoSlug,
+    });
+
     /* eslint-disable no-restricted-syntax */
     const newTimeout = window.setTimeout(() => {
       window.clearTimeout(newTimeout);
@@ -43,9 +68,22 @@ export function Demo({
     window.clearTimeout(copyTimeout);
     setCopyTimeout(newTimeout);
     /* eslint-enable no-restricted-syntax */
-  }, [copyTimeout]);
+  }, [copyTimeout, ga, demoSlug]);
 
-  const onOpenChange = useStableCallback((nextOpen) => {
+  const demo = useDemo(demoProps, {
+    copy: { onCopied },
+    defaultOpen,
+    export: exportOpts,
+    exportCodeSandbox,
+  });
+
+  const onOpenChange = useStableCallback((nextOpen: boolean) => {
+    ga?.trackEvent({
+      category: 'demo',
+      action: nextOpen ? 'expand' : 'collapse',
+      label: demoSlug,
+    });
+
     if (!nextOpen && collapsibleTriggerRef.current != null) {
       const triggerEl = collapsibleTriggerRef.current;
       const rectTopBeforeClose = triggerEl.getBoundingClientRect().top;
@@ -65,13 +103,6 @@ export function Demo({
     }
 
     demo.setExpanded(nextOpen);
-  });
-
-  const demo = useDemo(demoProps, {
-    copy: { onCopied },
-    defaultOpen,
-    export: exportOpts,
-    exportCodeSandbox,
   });
 
   const [fallbackToCodeSandbox, setFallbackToCodeSandbox] = React.useState(false);
@@ -98,11 +129,13 @@ export function Demo({
       {demo.allFilesSlugs.map(({ slug }) => (
         <span key={slug} id={slug} className="scroll-mt-4" />
       ))}
-      <DemoPlayground component={demo.component} variant={demo.selectedVariant}>
-        {showExtraPlaygroundLink && (
-          <span className="absolute top-3 right-4.5">{externalPlaygroundLink}</span>
-        )}
-      </DemoPlayground>
+      <div onPointerDown={onPlaygroundInteraction} onKeyDownCapture={onPlaygroundInteraction}>
+        <DemoPlayground component={demo.component} variant={demo.selectedVariant}>
+          {showExtraPlaygroundLink && (
+            <span className="absolute top-3 right-4.5">{externalPlaygroundLink}</span>
+          )}
+        </DemoPlayground>
+      </div>
       <Collapsible.Root open={demo.expanded} onOpenChange={onOpenChange}>
         <div role="figure" aria-label="Component demo code">
           {(compact ? demo.expanded : true) && (
