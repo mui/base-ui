@@ -980,8 +980,7 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
             return;
           }
 
-          const win = ownerWindow(event.currentTarget);
-          if (isEventOnRangeInput(event.nativeEvent, win)) {
+          if (isReactTouchEventOnRangeInput(event)) {
             touchScrollStateRef.current = null;
             return;
           }
@@ -1009,8 +1008,7 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
           swipeTouchProps.onTouchStart?.(event);
         },
         onTouchMove(event) {
-          const win = ownerWindow(event.currentTarget);
-          if (isEventOnRangeInput(event.nativeEvent, win)) {
+          if (isReactTouchEventOnRangeInput(event)) {
             return;
           }
 
@@ -1111,6 +1109,10 @@ function isEventOnRangeInput(event: TouchEvent, win: ReturnType<typeof ownerWind
   return isRangeInput(event.target, win);
 }
 
+function isReactTouchEventOnRangeInput(event: React.TouchEvent<Element>): boolean {
+  return isEventOnRangeInput(event.nativeEvent, ownerWindow(event.currentTarget));
+}
+
 function hasScrollableContentOnAxis(scrollTarget: HTMLElement, axis: ScrollAxis): boolean {
   return axis === 'vertical'
     ? scrollTarget.scrollHeight > scrollTarget.clientHeight
@@ -1133,21 +1135,12 @@ function isAtSwipeStartEdge(
   direction: SwipeDirection,
 ): boolean {
   const { offset, max } = getScrollMetrics(scrollTarget, axis);
-
-  if (direction === 'down' && axis === 'vertical') {
-    return offset <= 0;
-  }
-  if (direction === 'up' && axis === 'vertical') {
-    return offset >= max;
-  }
-  if (direction === 'right' && axis === 'horizontal') {
-    return offset <= 0;
-  }
-  if (direction === 'left' && axis === 'horizontal') {
-    return offset >= max;
+  const dismissFromStartEdge = shouldDismissFromStartEdge(direction, axis);
+  if (dismissFromStartEdge === null) {
+    return false;
   }
 
-  return false;
+  return dismissFromStartEdge ? offset <= 0 : offset >= max;
 }
 
 function canSwipeFromScrollEdgeOnMove(
@@ -1157,19 +1150,36 @@ function canSwipeFromScrollEdgeOnMove(
   delta: number,
 ): boolean {
   const { offset, max } = getScrollMetrics(scrollTarget, axis);
-
-  if (direction === 'down' && axis === 'vertical') {
-    return delta > 0 && offset <= 0;
-  }
-  if (direction === 'up' && axis === 'vertical') {
-    return delta < 0 && offset >= max;
-  }
-  if (direction === 'right' && axis === 'horizontal') {
-    return delta > 0 && offset <= 0;
-  }
-  if (direction === 'left' && axis === 'horizontal') {
-    return delta < 0 && offset >= max;
+  const dismissFromStartEdge = shouldDismissFromStartEdge(direction, axis);
+  if (dismissFromStartEdge === null) {
+    return false;
   }
 
-  return false;
+  const movingTowardDismiss = dismissFromStartEdge ? delta > 0 : delta < 0;
+  if (!movingTowardDismiss) {
+    return false;
+  }
+
+  return dismissFromStartEdge ? offset <= 0 : offset >= max;
+}
+
+function shouldDismissFromStartEdge(direction: SwipeDirection, axis: ScrollAxis): boolean | null {
+  if (axis === 'vertical') {
+    if (direction === 'down') {
+      return true;
+    }
+    if (direction === 'up') {
+      return false;
+    }
+    return null;
+  }
+
+  if (direction === 'right') {
+    return true;
+  }
+  if (direction === 'left') {
+    return false;
+  }
+
+  return null;
 }

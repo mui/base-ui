@@ -403,10 +403,14 @@ export function useSwipeDismiss(options: useSwipeDismiss.Options): useSwipeDismi
   }
 
   function resetPendingSwipeState() {
-    pendingSwipeRef.current = false;
-    pendingSwipeStartPosRef.current = null;
+    clearPendingSwipeStartState();
     swipeFromScrollableRef.current = false;
     lastMovePosRef.current = null;
+  }
+
+  function clearPendingSwipeStartState() {
+    pendingSwipeRef.current = false;
+    pendingSwipeStartPosRef.current = null;
   }
 
   function cancelSwipeInteraction(event: React.PointerEvent) {
@@ -455,6 +459,43 @@ export function useSwipeDismiss(options: useSwipeDismiss.Options): useSwipeDismi
     return { x: newDeltaX, y: newDeltaY };
   }
 
+  function canSwipeFromScrollEdgeOnPendingMove(
+    scrollTarget: HTMLElement,
+    deltaX: number,
+    deltaY: number,
+  ): boolean | null {
+    const absDeltaX = Math.abs(deltaX);
+    const absDeltaY = Math.abs(deltaY);
+    const useVerticalAxis =
+      hasVertical && deltaY !== 0 && (!hasHorizontal || absDeltaY >= absDeltaX);
+
+    if (useVerticalAxis) {
+      const maxScrollTop = Math.max(0, scrollTarget.scrollHeight - scrollTarget.clientHeight);
+      const atTop = scrollTarget.scrollTop <= 0;
+      const atBottom = scrollTarget.scrollTop >= maxScrollTop;
+      const movingDown = deltaY > 0;
+      const movingUp = deltaY < 0;
+      const canSwipeDown = movingDown && atTop && allowDown;
+      const canSwipeUp = movingUp && atBottom && allowUp;
+      return canSwipeDown || canSwipeUp;
+    }
+
+    const useHorizontalAxis =
+      hasHorizontal && deltaX !== 0 && (!hasVertical || absDeltaX > absDeltaY);
+    if (useHorizontalAxis) {
+      const maxScrollLeft = Math.max(0, scrollTarget.scrollWidth - scrollTarget.clientWidth);
+      const atLeft = scrollTarget.scrollLeft <= 0;
+      const atRight = scrollTarget.scrollLeft >= maxScrollLeft;
+      const movingRight = deltaX > 0;
+      const movingLeft = deltaX < 0;
+      const canSwipeRight = movingRight && atLeft && allowRight;
+      const canSwipeLeft = movingLeft && atRight && allowLeft;
+      return canSwipeRight || canSwipeLeft;
+    }
+
+    return null;
+  }
+
   const handleStart = useStableCallback((event: SwipeDismissStartEvent) => {
     if (!enabled) {
       return;
@@ -488,8 +529,7 @@ export function useSwipeDismiss(options: useSwipeDismiss.Options): useSwipeDismi
     }
 
     if (startSwipeAtPosition(event, startPos)) {
-      pendingSwipeRef.current = false;
-      pendingSwipeStartPosRef.current = null;
+      clearPendingSwipeStartState();
     }
   });
 
@@ -719,8 +759,7 @@ export function useSwipeDismiss(options: useSwipeDismiss.Options): useSwipeDismi
 
       if (allowedToStart) {
         const pendingStartPos = pendingSwipeStartPosRef.current;
-        let ignoreScrollableTarget = false;
-        let ignoreScrollableAncestorsOnStart = false;
+        let ignoreScrollableOnStart = false;
         if (isTouchLikeEvent(event)) {
           const element = elementRef.current;
           if (pendingStartPos && element) {
@@ -735,64 +774,32 @@ export function useSwipeDismiss(options: useSwipeDismiss.Options): useSwipeDismi
             ) {
               const deltaX = currentPos.x - pendingStartPos.x;
               const deltaY = currentPos.y - pendingStartPos.y;
-              const absDeltaX = Math.abs(deltaX);
-              const absDeltaY = Math.abs(deltaY);
-              const useVerticalAxis =
-                hasVertical && deltaY !== 0 && (!hasHorizontal || absDeltaY >= absDeltaX);
-              const useHorizontalAxis =
-                hasHorizontal && deltaX !== 0 && (!hasVertical || absDeltaX > absDeltaY);
+              const canSwipeFromEdge = canSwipeFromScrollEdgeOnPendingMove(
+                scrollTarget,
+                deltaX,
+                deltaY,
+              );
 
-              if (useVerticalAxis) {
-                const maxScrollTop = Math.max(
-                  0,
-                  scrollTarget.scrollHeight - scrollTarget.clientHeight,
-                );
-                const atTop = scrollTarget.scrollTop <= 0;
-                const atBottom = scrollTarget.scrollTop >= maxScrollTop;
-                const movingDown = deltaY > 0;
-                const movingUp = deltaY < 0;
-                const canSwipeDown = movingDown && atTop && allowDown;
-                const canSwipeUp = movingUp && atBottom && allowUp;
+              if (canSwipeFromEdge === false) {
+                return;
+              }
 
-                if (canSwipeDown || canSwipeUp) {
-                  ignoreScrollableTarget = true;
-                  ignoreScrollableAncestorsOnStart = true;
-                } else {
-                  return;
-                }
-              } else if (useHorizontalAxis) {
-                const maxScrollLeft = Math.max(
-                  0,
-                  scrollTarget.scrollWidth - scrollTarget.clientWidth,
-                );
-                const atLeft = scrollTarget.scrollLeft <= 0;
-                const atRight = scrollTarget.scrollLeft >= maxScrollLeft;
-                const movingRight = deltaX > 0;
-                const movingLeft = deltaX < 0;
-                const canSwipeRight = movingRight && atLeft && allowRight;
-                const canSwipeLeft = movingLeft && atRight && allowLeft;
-
-                if (canSwipeRight || canSwipeLeft) {
-                  ignoreScrollableTarget = true;
-                  ignoreScrollableAncestorsOnStart = true;
-                } else {
-                  return;
-                }
+              if (canSwipeFromEdge === true) {
+                ignoreScrollableOnStart = true;
               }
             }
           }
         }
 
         const started = startSwipeAtPosition(event, currentPos, {
-          ignoreScrollableTarget,
-          ignoreScrollableAncestors: ignoreScrollableAncestorsOnStart,
+          ignoreScrollableTarget: ignoreScrollableOnStart,
+          ignoreScrollableAncestors: ignoreScrollableOnStart,
         });
         if (started) {
-          if (pendingStartPos && (ignoreScrollableTarget || ignoreScrollableAncestorsOnStart)) {
+          if (pendingStartPos && ignoreScrollableOnStart) {
             // Preserve displacement between touchstart and the move that activates swipe from
             // a scroll-edge so quick flicks can dismiss.
-            pendingSwipeRef.current = false;
-            pendingSwipeStartPosRef.current = null;
+            clearPendingSwipeStartState();
             dragStartPosRef.current = pendingStartPos;
             swipeCancelBaselineRef.current = pendingStartPos;
             lastMovePosRef.current = pendingStartPos;
@@ -801,8 +808,7 @@ export function useSwipeDismiss(options: useSwipeDismiss.Options): useSwipeDismi
             // Start from the current in-bounds position without dropping follow-up move
             // displacement; this avoids jumps when entering from outside the element while
             // keeping swipe tracking responsive on the next move.
-            pendingSwipeRef.current = false;
-            pendingSwipeStartPosRef.current = null;
+            clearPendingSwipeStartState();
             swipeFromScrollableRef.current = false;
           }
         }

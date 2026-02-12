@@ -119,13 +119,7 @@
 .Popup {
   --bleed: 3rem;
   --peek: 1rem;
-  --stack-progress: clamp(
-    0,
-    calc(
-      var(--drawer-swipe-progress) * (var(--drawer-height) / (var(--drawer-height) - var(--bleed)))
-    ),
-    1
-  );
+  --stack-progress: clamp(0, var(--drawer-swipe-progress), 1);
   --stack-step: 0.05;
   --stack-peek-offset: max(
     0px,

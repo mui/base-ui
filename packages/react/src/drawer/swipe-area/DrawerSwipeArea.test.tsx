@@ -139,6 +139,25 @@ describe('<Drawer.SwipeArea />', () => {
     expect(handleOpenChange).not.toHaveBeenCalled();
   });
 
+  it('prevents default pointer down for non-touch swipes', async () => {
+    await render(
+      <Drawer.Root>
+        <Drawer.SwipeArea data-testid="swipe-area" />
+      </Drawer.Root>,
+    );
+
+    const notCancelled = fireEvent.pointerDown(screen.getByTestId('swipe-area'), {
+      button: 0,
+      buttons: 1,
+      pointerId: 1,
+      clientX: 10,
+      clientY: 120,
+      pointerType: 'mouse',
+    });
+
+    expect(notCancelled).toBe(false);
+  });
+
   it('does not open the drawer when disabled', async () => {
     await render(
       <Drawer.Root>
@@ -161,6 +180,29 @@ describe('<Drawer.SwipeArea />', () => {
     await swipeLeft(screen.getByTestId('swipe-area'), 120, 40);
 
     expect(screen.getByTestId('swipe-area')).toHaveAttribute('data-open', '');
+  });
+
+  it('re-enables outside press dismissal after opening by swipe', async () => {
+    await render(
+      <Drawer.Root>
+        <Drawer.SwipeArea data-testid="swipe-area" />
+      </Drawer.Root>,
+    );
+
+    const swipeArea = screen.getByTestId('swipe-area');
+
+    await swipeUp(swipeArea, 120, 40);
+
+    expect(swipeArea).toHaveAttribute('data-open', '');
+
+    await act(async () => {
+      await wait(20);
+    });
+
+    fireEvent.click(document.body);
+    await flushMicrotasks();
+
+    expect(swipeArea).toHaveAttribute('data-closed', '');
   });
 
   it.skipIf(isJSDOM)('uses a size-based swipe threshold by default', async () => {

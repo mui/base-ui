@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { useTimeout } from '@base-ui/utils/useTimeout';
 import { useDialogRootContext } from '../../dialog/root/DialogRootContext';
 import { useRenderElement } from '../../utils/useRenderElement';
 import type { BaseUIComponentProps } from '../../utils/types';
@@ -83,10 +84,12 @@ export const DrawerSwipeArea = React.forwardRef(function DrawerSwipeArea(
   const { swipeDirection, frontmostHeight } = useDrawerRootContext();
   const providerContext = useDrawerProviderContext(true);
 
+  const [swipeActive, setSwipeActive] = React.useState(false);
+
+  const releaseDismissTimeout = useTimeout();
   const swipeAreaRef = React.useRef<HTMLDivElement>(null);
   const swipeStartEventRef = React.useRef<PointerEvent | TouchEvent | null>(null);
   const openedBySwipeRef = React.useRef(false);
-  const swipeActiveRef = React.useRef(false);
   const dragDeltaRef = React.useRef({ x: 0, y: 0 });
   const closedOffsetRef = React.useRef<number | null>(null);
   const appliedSwipeStylesRef = React.useRef(false);
@@ -99,14 +102,27 @@ export const DrawerSwipeArea = React.forwardRef(function DrawerSwipeArea(
 
   const resolvedSwipeDirection = swipeDirectionProp ?? oppositeSwipeDirection[swipeDirection];
   const dismissDirection = oppositeSwipeDirection[resolvedSwipeDirection];
-  const enabled = !disabled && (!open || swipeActiveRef.current);
+  const enabled = !disabled && (!open || swipeActive);
 
   const resetDragDelta = useStableCallback(() => {
     dragDeltaRef.current.x = 0;
     dragDeltaRef.current.y = 0;
   });
 
-  const resolvePopupSize = useStableCallback(() => {
+  function disableDismissForSwipe() {
+    releaseDismissTimeout.clear();
+    store.context.outsidePressEnabledRef.current = false;
+  }
+
+  function enableDismissAfterRelease() {
+    // Safari can dispatch outside-press for the same swipe-open gesture
+    // after release, so defer re-enabling dismissal to the next macrotask.
+    releaseDismissTimeout.start(0, () => {
+      store.context.outsidePressEnabledRef.current = true;
+    });
+  }
+
+  function resolvePopupSize() {
     const popupElement = store.context.popupRef.current;
     if (!popupElement) {
       return null;
@@ -119,9 +135,9 @@ export const DrawerSwipeArea = React.forwardRef(function DrawerSwipeArea(
     }
 
     return size;
-  });
+  }
 
-  const resolveClosedOffset = useStableCallback(() => {
+  function resolveClosedOffset() {
     const offset = resolvePopupSize();
     if (offset == null) {
       return null;
@@ -140,19 +156,19 @@ export const DrawerSwipeArea = React.forwardRef(function DrawerSwipeArea(
     }
 
     return offset;
-  });
+  }
 
-  const resolveSwipeOpenThreshold = useStableCallback(() => {
+  function resolveSwipeOpenThreshold() {
     const popupSize = resolvePopupSize();
     if (popupSize == null) {
       return FALLBACK_SWIPE_OPEN_THRESHOLD;
     }
 
     return popupSize * DEFAULT_SWIPE_OPEN_RATIO;
-  });
+  }
 
-  const applySwipeMovement = useStableCallback(() => {
-    if (!swipeActiveRef.current) {
+  function applySwipeMovement() {
+    if (!swipeActive) {
       return;
     }
 
@@ -214,7 +230,7 @@ export const DrawerSwipeArea = React.forwardRef(function DrawerSwipeArea(
       frontmostHeight: openProgress > 0 ? frontmostHeight : 0,
     });
     appliedSwipeStylesRef.current = true;
-  });
+  }
 
   const clearSwipeStyles = useStableCallback(() => {
     const popupElement = store.context.popupRef.current;
@@ -240,28 +256,26 @@ export const DrawerSwipeArea = React.forwardRef(function DrawerSwipeArea(
     appliedSwipeStylesRef.current = false;
   });
 
-  const openDrawer = useStableCallback((event?: PointerEvent | TouchEvent) => {
+  function openDrawer(event?: PointerEvent | TouchEvent) {
     if (store.select('open')) {
       return;
     }
-
     openedBySwipeRef.current = true;
     store.setOpen(
       true,
       createChangeEventDetails(REASONS.swipe, event, swipeAreaRef.current ?? undefined),
     );
-  });
+  }
 
-  const closeDrawer = useStableCallback((event?: PointerEvent | TouchEvent) => {
+  function closeDrawer(event?: PointerEvent | TouchEvent) {
     if (!store.select('open')) {
       return;
     }
-
     store.setOpen(
       false,
       createChangeEventDetails(REASONS.swipe, event, swipeAreaRef.current ?? undefined),
     );
-  });
+  }
 
   const swipe = useSwipeDismiss({
     enabled,
@@ -273,9 +287,10 @@ export const DrawerSwipeArea = React.forwardRef(function DrawerSwipeArea(
       y: DrawerPopupCssVars.swipeMovementY,
     },
     onSwipeStart(event) {
+      disableDismissForSwipe();
       swipeStartEventRef.current = event;
       openedBySwipeRef.current = false;
-      swipeActiveRef.current = true;
+      setSwipeActive(true);
       resetDragDelta();
     },
     onProgress(_progress, details) {
@@ -332,9 +347,10 @@ export const DrawerSwipeArea = React.forwardRef(function DrawerSwipeArea(
 
       swipeStartEventRef.current = null;
       openedBySwipeRef.current = false;
-      swipeActiveRef.current = false;
+      setSwipeActive(false);
       closedOffsetRef.current = null;
 
+      enableDismissAfterRelease();
       resetDragDelta();
       clearSwipeStyles();
 
@@ -351,12 +367,18 @@ export const DrawerSwipeArea = React.forwardRef(function DrawerSwipeArea(
       resetSwipe();
       resetDragDelta();
       clearSwipeStyles();
-      swipeActiveRef.current = false;
+      setSwipeActive(false);
       openedBySwipeRef.current = false;
       swipeStartEventRef.current = null;
       closedOffsetRef.current = null;
     }
   }, [clearSwipeStyles, enabled, resetDragDelta, resetSwipe]);
+
+  React.useEffect(() => {
+    return () => {
+      store.context.outsidePressEnabledRef.current = true;
+    };
+  }, [store]);
 
   const state: DrawerSwipeArea.State = {
     open,
@@ -382,6 +404,10 @@ export const DrawerSwipeArea = React.forwardRef(function DrawerSwipeArea(
             return;
           }
           swipePointerProps.onPointerDown?.(event);
+          // Prevent native text selection/drag gestures from competing with swipe-open dragging.
+          if (event.cancelable) {
+            event.preventDefault();
+          }
         },
         onPointerMove(event: React.PointerEvent<HTMLDivElement>) {
           if (event.pointerType === 'touch') {
