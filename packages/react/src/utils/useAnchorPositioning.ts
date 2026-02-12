@@ -309,14 +309,11 @@ export function useAnchorPositioning(
     size({
       ...commonCollisionProps,
       apply({ elements: { floating }, rects: { reference }, availableWidth, availableHeight }) {
-        Object.entries({
-          '--available-width': `${availableWidth}px`,
-          '--available-height': `${availableHeight}px`,
-          '--anchor-width': `${reference.width}px`,
-          '--anchor-height': `${reference.height}px`,
-        }).forEach(([key, value]) => {
-          floating.style.setProperty(key, value);
-        });
+        const floatingStyle = floating.style;
+        floatingStyle.setProperty('--available-width', `${availableWidth}px`);
+        floatingStyle.setProperty('--available-height', `${availableHeight}px`);
+        floatingStyle.setProperty('--anchor-width', `${reference.width}px`);
+        floatingStyle.setProperty('--anchor-height', `${reference.height}px`);
       },
     }),
     arrow(
@@ -422,13 +419,15 @@ export function useAnchorPositioning(
   // This ensures the popup is inside the viewport initially before it gets positioned.
   const resolvedPosition: 'absolute' | 'fixed' = isPositioned ? positionMethod : 'fixed';
 
-  const floatingStyles = React.useMemo<React.CSSProperties>(
-    () =>
-      adaptiveOrigin
-        ? { position: resolvedPosition, [sideX]: x, [sideY]: y }
-        : { position: resolvedPosition, ...originalFloatingStyles },
-    [adaptiveOrigin, resolvedPosition, sideX, x, sideY, y, originalFloatingStyles],
-  );
+  const floatingStyles = React.useMemo<React.CSSProperties>(() => {
+    const base = adaptiveOrigin
+      ? { position: resolvedPosition, [sideX]: x, [sideY]: y }
+      : { position: resolvedPosition, ...originalFloatingStyles };
+    if (!isPositioned) {
+      base.opacity = 0;
+    }
+    return base;
+  }, [adaptiveOrigin, resolvedPosition, sideX, x, sideY, y, originalFloatingStyles, isPositioned]);
 
   const registeredPositionReferenceRef = React.useRef<Element | VirtualElement | null>(null);
 

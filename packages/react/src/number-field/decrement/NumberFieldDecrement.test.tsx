@@ -127,6 +127,34 @@ describe('<NumberField.Decrement />', () => {
       expect(input).to.have.value('-4');
     });
 
+    it('stops calling onValueChange once min is reached', async () => {
+      const handleValueChange = spy();
+      await render(
+        <NumberField.Root defaultValue={-9} min={-10} onValueChange={handleValueChange}>
+          <NumberField.Decrement />
+          <NumberField.Input />
+        </NumberField.Root>,
+      );
+
+      const button = screen.getByRole('button');
+      const input = screen.getByRole('textbox');
+
+      fireEvent.pointerDown(button); // onChange x1
+
+      expect(input).to.have.value('-10');
+      expect(handleValueChange.callCount).to.equal(1);
+
+      clock.tick(START_AUTO_CHANGE_DELAY);
+
+      clock.tick(CHANGE_VALUE_TICK_DELAY);
+      clock.tick(CHANGE_VALUE_TICK_DELAY);
+
+      expect(input).to.have.value('-10');
+      expect(handleValueChange.callCount).to.equal(1);
+
+      fireEvent.pointerUp(button);
+    });
+
     it('does not decrement twice with pointerdown and click', async () => {
       await render(
         <NumberField.Root defaultValue={0}>

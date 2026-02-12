@@ -12,6 +12,7 @@ const defaultOptions = {
   format: undefined,
   snapOnStep: true,
   small: false,
+  clamp: true,
 } as const;
 
 describe('NumberField validate', () => {
@@ -42,6 +43,19 @@ describe('NumberField validate', () => {
   describe('toValidatedNumber', () => {
     it('returns null when value is null', () => {
       expect(toValidatedNumber(null, defaultOptions)).to.equal(null);
+    });
+
+    it('skips clamping when clamp is false', () => {
+      expect(
+        toValidatedNumber(12, {
+          ...defaultOptions,
+          minWithDefault: 0,
+          maxWithDefault: 10,
+          step: undefined,
+          snapOnStep: false,
+          clamp: false,
+        }),
+      ).to.equal(12);
     });
 
     describe('incrementing', () => {

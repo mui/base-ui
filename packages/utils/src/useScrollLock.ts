@@ -30,20 +30,24 @@ function supportsStableScrollbarGutter(referenceElement: Element | null) {
 
   const doc = ownerDocument(referenceElement);
   const html = doc.documentElement;
+  const body = doc.body;
 
-  const originalStyles = {
-    scrollbarGutter: html.style.scrollbarGutter,
-    overflowY: html.style.overflowY,
-  };
+  const scrollContainer = isOverflowElement(html) ? html : body;
+
+  const originalScrollContainerOverflowY = scrollContainer.style.overflowY;
+  const originalHtmlStyleGutter = html.style.scrollbarGutter;
 
   html.style.scrollbarGutter = 'stable';
-  html.style.overflowY = 'scroll';
-  const before = html.offsetWidth;
 
-  html.style.overflowY = 'hidden';
-  const after = html.offsetWidth;
+  scrollContainer.style.overflowY = 'scroll';
+  const before = scrollContainer.offsetWidth;
 
-  Object.assign(html.style, originalStyles);
+  scrollContainer.style.overflowY = 'hidden';
+  const after = scrollContainer.offsetWidth;
+
+  scrollContainer.style.overflowY = originalScrollContainerOverflowY;
+  html.style.scrollbarGutter = originalHtmlStyleGutter;
+
   return before === after;
 }
 
@@ -57,10 +61,18 @@ function preventScrollOverlayScrollbars(referenceElement: Element | null) {
   // But if <body> has an `overflow` style (like `overflow-x: hidden`), we need to lock it
   // instead, as sticky elements shift otherwise.
   const elementToLock = isOverflowElement(html) ? html : body;
-  const originalOverflow = elementToLock.style.overflow;
-  elementToLock.style.overflow = 'hidden';
+  const originalElementToLockStyles = {
+    overflowY: elementToLock.style.overflowY,
+    overflowX: elementToLock.style.overflowX,
+  };
+
+  Object.assign(elementToLock.style, {
+    overflowY: 'hidden',
+    overflowX: 'hidden',
+  });
+
   return () => {
-    elementToLock.style.overflow = originalOverflow;
+    Object.assign(elementToLock.style, originalElementToLockStyles);
   };
 }
 

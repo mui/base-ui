@@ -1,3 +1,4 @@
+'use client';
 import * as React from 'react';
 import { getOverflowAncestors } from '@floating-ui/react-dom';
 import {
@@ -10,9 +11,9 @@ import {
 } from '@floating-ui/utils/dom';
 import { Timeout, useTimeout } from '@base-ui/utils/useTimeout';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { ownerDocument } from '@base-ui/utils/owner';
 import {
   contains,
-  getDocument,
   getTarget,
   isEventTargetWithin,
   isReactEvent,
@@ -279,7 +280,9 @@ export function useDismiss(
 
       const target = getTarget(event);
       const inertSelector = `[${createAttribute('inert')}]`;
-      const markers = getDocument(store.select('floatingElement')).querySelectorAll(inertSelector);
+      const markers = ownerDocument(store.select('floatingElement')).querySelectorAll(
+        inertSelector,
+      );
 
       const triggers = store.context.triggerElements;
 
@@ -571,7 +574,7 @@ export function useDismiss(
       );
     }
 
-    const doc = getDocument(floatingElement);
+    const doc = ownerDocument(floatingElement);
 
     doc.addEventListener('pointerdown', trackPointerType, true);
 
