@@ -1,3 +1,4 @@
+import type * as React from 'react';
 import type { BaseUIEvent, ComponentRenderFn, HTMLProps } from '../types';
 export type { HTMLProps, BaseUIEvent, ComponentRenderFn };
 
