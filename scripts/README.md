@@ -27,7 +27,7 @@ A typical release goes like this:
 4. Generate the changelog in a format suitable for the docs with `pnpm release:changelog:docs`.
 5. Create a new release page at `docs/src/app/(docs)/react/overview/releases/<version-slug>/page.mdx` (where `<version-slug>` uses hyphens, for example, `v1-1-0` for v1.1.0). Paste the generated changelog there, following the format of existing release pages (title, `<Subtitle>` with the date, `<Meta>` tag).
 6. Copy the changes made in point 3 to the new release page.
-7. Add a new entry to `docs/src/data/releases.ts` with the version, versionSlug, date, and highlights. Move the `latest: true` flag to the new release if it's the latest stable release.
+7. Add a new entry to `docs/src/data/releases.ts` with the version, versionSlug, date, and highlights. Move the `latest: true` flag to the new release if appropriate.
 8. Run `pnpm release:version`. Keep the package versions of stable public packages the same as the root `package.json` version.
 9. Open a PR with changes and wait for review and green CI.
 10. Merge the PR once the CI is green and it has been approved.
