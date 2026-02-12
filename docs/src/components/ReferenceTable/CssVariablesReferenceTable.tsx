@@ -40,7 +40,7 @@ export async function CssVariablesReferenceTable({
           return (
             <Accordion.Item
               key={name}
-              gaCategory="Reference"
+              gaCategory="reference"
               gaLabel={`CSS variable: ${partName ? `${partName}-` : ''}${name}`}
             >
               <Accordion.Trigger index={index}>

@@ -45,7 +45,7 @@ export function Panel({ className, children, ...other }: React.ComponentPropsWit
           if (code) {
             await copy(code);
             ga?.trackEvent({
-              category: 'code-block',
+              category: 'code_block',
               action: 'copy',
               label: document.getElementById(titleId)?.textContent ?? undefined,
             });

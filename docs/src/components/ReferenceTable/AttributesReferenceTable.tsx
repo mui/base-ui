@@ -40,7 +40,7 @@ export async function AttributesReferenceTable({
           return (
             <Accordion.Item
               key={name}
-              gaCategory="Reference"
+              gaCategory="reference"
               gaLabel={`Attribute: ${partName ? `${partName}-` : ''}${name}`}
             >
               <Accordion.Trigger index={index}>

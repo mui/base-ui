@@ -179,7 +179,7 @@ export async function ReferenceAccordion({
         const id = `${partName}-${name}`;
 
         return (
-          <Accordion.Item key={name} gaCategory="Reference" gaLabel={`${nameLabel}: ${id}`}>
+          <Accordion.Item key={name} gaCategory="reference" gaLabel={`${nameLabel}: ${id}`}>
             <Accordion.Trigger
               id={id}
               index={index}

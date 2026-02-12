@@ -165,7 +165,7 @@ export function SearchBar({
       clearTimeout(queryDebounceRef.current);
       queryDebounceRef.current = null;
     }
-    ga?.trackEvent({ category: 'Search', action: 'open' });
+    ga?.trackEvent({ category: 'search', action: 'open' });
     setDialogOpen(true);
   }, [ga]);
 
@@ -181,7 +181,7 @@ export function SearchBar({
         // Fire final search event for the current query
         if (searchQueryRef.current) {
           ga?.trackEvent({
-            category: 'Search',
+            category: 'search',
             action: selectedResultRef.current ? 'select' : 'dismiss',
             label: searchQueryRef.current,
             params: {
@@ -256,7 +256,7 @@ export function SearchBar({
         queryDebounceRef.current = setTimeout(() => {
           if (searchQueryRef.current && searchQueryRef.current !== lastTrackedQueryRef.current) {
             ga?.trackEvent({
-              category: 'Search',
+              category: 'search',
               action: 'query',
               label: searchQueryRef.current,
               params: {

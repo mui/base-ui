@@ -286,7 +286,7 @@ export function Link({ className, onClick, ...props }: React.ComponentProps<'a'>
   const handleClick = React.useCallback(
     (event: React.MouseEvent<HTMLAnchorElement>) => {
       ga?.trackEvent({
-        category: 'Table of contents',
+        category: 'table_of_contents',
         action: 'click',
         label: props.href ?? undefined,
       });

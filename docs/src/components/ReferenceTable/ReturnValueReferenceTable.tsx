@@ -65,7 +65,7 @@ export async function ReturnValueReferenceTable({
           return (
             <Accordion.Item
               key={name}
-              gaCategory="Reference"
+              gaCategory="reference"
               gaLabel={`Return value: ${partName ? `${partName}-` : ''}${name}`}
             >
               <Accordion.Trigger index={index}>
