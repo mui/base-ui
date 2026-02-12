@@ -56,11 +56,16 @@ _Feb 13, 2026_
 - Fix `onClick` `Item` type (#3964) by @atomiks
 - Use reactive `domReferenceElement` subscriptions (#4017) by @atomiks
 - Add `autoComplete` prop for explicit browser autofill support (#4005) by @mattrothenberg
+- Fix inconsistent isItemEqualToValue argument order (#4056) by @atomiks
 
 ### Context Menu
 
 - Fix `disabled` prop not working (#3806) by @arturbien
 - Fix explicit `collisionAvoidance` with `side: 'flip'` not working (#3877) by @obeattie
+
+### Drawer
+
+- Create new Drawer / Sheet component (#3680) by @atomiks
 
 ### Field
 
@@ -129,6 +134,7 @@ _Feb 13, 2026_
 - Reset typeahead on external blur (#2618) by @antonfrolovsky
 - Fix scroll height loop (#3795) by @atomiks
 - Add `autoComplete` prop for explicit browser autofill support (#4005) by @mattrothenberg
+- Fix inconsistent isItemEqualToValue argument order (#4056) by @atomiks
 
 ### Slider
 
@@ -163,6 +169,7 @@ _Feb 13, 2026_
 
 - Prevent opening when focusing a disabled Trigger (#3902) by @michaldudak
 - Fix broken scale transition with detached triggers (#3810) by @michaldudak
+- Fix disabled prop on Triggers (#4049) by @michaldudak
 
 All contributors of this release in alphabetical order : @antonfrolovsky, @arturbien, @atomiks, @CiscoFran10, @CrawlerCode, @flaviendelangle, @guisehn, @jijiseong, @LukasTy, @markocupic024, @mattrothenberg, @mdm317, @michaelhazan, @michaldudak, @mj12albert, @obeattie, @OliverSpeir, @oliviertassinari, @sai6855, @sarthakmalik0810, @solastley, @ZeeshanTamboli
 

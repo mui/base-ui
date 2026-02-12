@@ -9,6 +9,14 @@ export interface Release {
 export const releases: Release[] = [
   {
     latest: true,
+    version: 'v1.2.0',
+    versionSlug: 'v1-2-0',
+    date: '2026-02-12',
+    highlights: [
+      'New Drawer component.',
+    ],
+  },
+  {
     version: 'v1.1.0',
     versionSlug: 'v1-1-0',
     date: '2026-01-15',
