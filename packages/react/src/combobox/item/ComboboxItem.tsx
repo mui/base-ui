@@ -54,7 +54,6 @@ export const ComboboxItem = React.memo(
     const { flatFilteredItems, flatFilteredValues, valueMode, hasItems } =
       useComboboxDerivedItemsContext();
 
-    const items = useStore(store, selectors.items);
     const open = useStore(store, selectors.open);
     const selectionMode = useStore(store, selectors.selectionMode);
     const readOnly = useStore(store, selectors.readOnly);
