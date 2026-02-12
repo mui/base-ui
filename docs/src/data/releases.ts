@@ -9,6 +9,18 @@ export interface Release {
 export const releases: Release[] = [
   {
     latest: true,
+    version: 'v1.2.0',
+    versionSlug: 'v1-2-0',
+    date: '2026-02-12',
+    highlights: [
+      'New Drawer component.',
+      'Added Menu.LinkItem for semantic navigation links.',
+      'New useFilteredItems hook for custom filtering in Autocomplete and Combobox.',
+      'Improved type safety and inference for Toggle and ToggleGroup.',
+      'Enhanced NumberField with allowOutOfRange prop.',
+    ],
+  },
+  {
     version: 'v1.1.0',
     versionSlug: 'v1-1-0',
     date: '2026-01-15',
