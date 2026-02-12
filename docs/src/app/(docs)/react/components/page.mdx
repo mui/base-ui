@@ -13,6 +13,7 @@
 - [Combobox](#combobox) - [Full Docs](./combobox/page.mdx)
 - [Context Menu](#context-menu) - [Full Docs](./context-menu/page.mdx)
 - [Dialog](#dialog) - [Full Docs](./dialog/page.mdx)
+- [Drawer](#drawer) [Preview] - [Full Docs](./drawer/page.mdx)
 - [Field](#field) - [Full Docs](./field/page.mdx)
 - [Fieldset](#fieldset) - [Full Docs](./fieldset/page.mdx)
 - [Form](#form) - [Full Docs](./form/page.mdx)
@@ -460,6 +461,66 @@ A popup that opens on top of the entire page.
 </details>
 
 [Read more](./dialog/page.mdx)
+
+## Drawer
+
+A panel that slides in from the edge of the screen.
+
+<details>
+
+<summary>Outline</summary>
+
+- Keywords: React Drawer, Drawer Component, Side Panel, Bottom Sheet, Swipe Dismiss Drawer, Offcanvas, Sliding Panel, Modal Drawer, Controlled Drawer State, Accessible Drawer, Headless React Components, Base UI
+- Sections:
+  - Anatomy
+  - Examples
+    - State
+    - Position
+    - Nested drawers
+    - Snap points
+    - Indent effect
+    - Non-modal
+    - Mobile navigation
+    - Action sheet with separate destructive action
+    - Detached triggers
+    - Stacking and animations
+  - API reference
+- Exports:
+  - Drawer - Root
+    - Props: actionsRef, children, defaultOpen, defaultSnapPoint, defaultTriggerId, disablePointerDismissal, handle, modal, onOpenChange, onOpenChangeComplete, onSnapPointChange, open, snapPoint, snapPoints, snapToSequentialPoints, swipeDirection, triggerId
+  - Drawer - Provider
+    - Props: children
+  - Drawer - Indent
+    - Props: className, render, style
+  - Drawer - IndentBackground
+    - Props: className, render, style
+  - Drawer - Trigger
+    - Props: className, handle, id, nativeButton, payload, render, style
+  - Drawer - Portal
+    - Props: className, container, keepMounted, render, style
+  - Drawer - Popup
+    - Props: className, finalFocus, initialFocus, render, style
+    - Data Attributes: data-expanded, data-nested-drawer-open, data-nested-drawer-swiping, data-swipe-direction, data-swipe-dismiss, data-swiping
+    - CSS Variables: --drawer-frontmost-height, --drawer-height, --drawer-snap-point-offset, --drawer-swipe-movement-x, --drawer-swipe-movement-y, --drawer-swipe-strength, --nested-drawers
+  - Drawer - Content
+    - Props: className, render, style
+  - Drawer - Backdrop
+    - Props: className, forceRender, render, style
+    - CSS Variables: --drawer-swipe-progress
+  - Drawer - Viewport
+    - Props: className, render, style
+  - Drawer - Title
+    - Props: className, render, style
+  - Drawer - Description
+    - Props: className, render, style
+  - Drawer - Close
+    - Props: className, nativeButton, render, style
+  - Drawer - SwipeArea
+    - Props: className, disabled, render, style, swipeDirection
+
+</details>
+
+[Read more](./drawer/page.mdx)
 
 ## Field
 
