@@ -27,7 +27,6 @@ const objectItemsReadonly = [
     return item;
   }}
   onValueChange={(value) => {
-    // @ts-expect-error
     value.startsWith('a');
   }}
 />;
@@ -44,7 +43,6 @@ const objectItemsReadonly = [
     return item;
   }}
   onValueChange={(value) => {
-    // @ts-expect-error
     value.startsWith('a');
   }}
 />;
@@ -61,7 +59,6 @@ const objectItemsReadonly = [
     return item;
   }}
   onValueChange={(value) => {
-    // @ts-expect-error - possibly null
     value.startsWith('a');
   }}
 />;
@@ -78,7 +75,6 @@ const objectValueItems: Array<{ value: Obj; label: string }> = [
   itemToStringLabel={(item) => item.code}
   itemToStringValue={(item) => item.code}
   onValueChange={(value) => {
-    // @ts-expect-error
     value.code;
   }}
 />;
@@ -89,7 +85,6 @@ const objectValueItems: Array<{ value: Obj; label: string }> = [
   itemToStringLabel={(item) => item.code}
   itemToStringValue={(item) => item.code}
   onValueChange={(value) => {
-    // @ts-expect-error - possibly null
     value.code;
   }}
 />;
@@ -174,7 +169,6 @@ function App() {
 <Select.Root
   defaultValue="test"
   onValueChange={(value) => {
-    // @ts-expect-error
     value.length;
   }}
 />;
@@ -191,16 +185,20 @@ function App() {
 // Should accept null value
 <Select.Root items={objectItemsReadonly} value={null} />;
 
+<Select.Root
+  value="hello"
+  onValueChange={(value) => {
+    expectType<string, typeof value>(value);
+  }}
+/>;
+
 function App2() {
   const [value, setValue] = React.useState('a');
   return (
     <Select.Root
       value={value}
       onValueChange={(newValue) => {
-        // @ts-expect-error
         newValue.length;
-        // @ts-expect-error - user is forced to type useState with null
-        // even if they don't want to allow null
         setValue(newValue);
       }}
     />
@@ -213,7 +211,9 @@ function App3() {
     <Select.Root
       value={value}
       onValueChange={(newValue) => {
-        // @ts-expect-error
+        // The callback correctly omits null from the type of newValue, even though the `value` is specified as `string | null`.
+        // This is because the Select component will never pass null to the onValueChange callback, even if the value can be null.
+        expectType<string, typeof newValue>(newValue);
         newValue.length;
         setValue(newValue);
       }}

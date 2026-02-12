@@ -680,7 +680,7 @@ export interface SelectRootProps<Value, Multiple extends boolean | undefined = f
    * ```
    */
   items?:
-    | (Record<string, React.ReactNode> | ReadonlyArray<{ label: React.ReactNode; value: any }>)
+    | (Record<string, React.ReactNode> | ReadonlyArray<{ label: React.ReactNode; value: Value }>)
     | undefined;
   /**
    * When the item values are objects (`<Select.Item value={object}>`), this function converts the object value to a string representation for display in the trigger.
@@ -712,7 +712,7 @@ export interface SelectRootProps<Value, Multiple extends boolean | undefined = f
    */
   onValueChange?:
     | ((
-        value: SelectValueType<Value, Multiple> | (Multiple extends true ? never : null),
+        value: SelectValueType<Value, Multiple>,
         eventDetails: SelectRootChangeEventDetails,
       ) => void)
     | undefined;
