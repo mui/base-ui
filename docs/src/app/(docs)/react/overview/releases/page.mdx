@@ -9,21 +9,18 @@ import { ReleaseTimeline } from 'docs/src/components/ReleaseTimeline';
 
 ## Canary Releases
 
-A canary release is published for every master commit and pull request, letting you try out the latest changes before the next versioned release.
-
-Canary versions are identified by commit hash or PR number rather than semver, so it may not always be obvious whether one includes breaking changes. Check the associated pull requests on GitHub for details.
-
-To install a canary version by master commit hash, use the pkg.pr.new URL appending the commit hash:
+A canary release is published for every master commit and pull request. Install one by using the corresponding pkg.pr.new URL:
 
 ```bash
+
+# Install by master commit hash
 npm i https://pkg.pr.new/@base-ui/react@ad745f1
-```
 
-To install by pull request number, append the PR number:
-
-```bash
+# Install by PR number
 npm i https://pkg.pr.new/@base-ui/react@3713
 ```
+
+Canary releases may contain breaking changes. Check the associated pull requests on GitHub for details.
 
 ## Full Release Notes
 
