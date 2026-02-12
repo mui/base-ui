@@ -252,10 +252,11 @@ export function SearchBar({
         queryDebounceRef.current = null;
       }
 
+      const previousLength = searchQueryRef.current?.length ?? 0;
       searchQueryRef.current = value;
       if (value) {
-        // Increment attempt when starting a new query (first char after empty)
-        if (value.length === 1) {
+        // Increment attempt when starting a new query (transition from empty to non-empty)
+        if (previousLength === 0 && value.length > 0) {
           attemptRef.current += 1;
         }
 

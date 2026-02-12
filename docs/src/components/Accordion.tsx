@@ -137,7 +137,8 @@ export function Item({
       open={open || undefined}
       className={clsx('AccordionItem', props.className)}
       onToggle={(event) => {
-        if (gaCategory && event.currentTarget.open) {
+        props.onToggle?.(event);
+        if (gaCategory && event.currentTarget.open && event.nativeEvent.isTrusted) {
           ga?.trackEvent({
             category: gaCategory,
             action: 'expand',
