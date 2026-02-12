@@ -4,14 +4,12 @@
 
 _Feb 13, 2026_
 
-### General Changes
+### General changes
 
-- Do not memoize the state when not needed (#3812) by @flaviendelangle
+- Do not memoize `state` when not needed (#3812) by @flaviendelangle
 - Support lazy element in `render` prop (#3856) by @oliviertassinari
 - Replace Firefox deprecated mozInputSource check for virtual click detection (#3942) by @CiscoFran10
 - Use `WeakRef` for previously focused elements (#3916) by @atomiks
-- Add TanStack Start example (#3303) by @mj12albert
-- Create Vite playground (#3874) by @michaldudak
 - Fix page scroll jump when input has focus on unmount in Safari (#3925) by @atomiks
 - Fix flash at origin before positioning completes in Preact (#3975) by @OliverSpeir
 - Reduce style recalculation with classic scrollbars (#3854) by @mdm317
@@ -38,7 +36,7 @@ _Feb 13, 2026_
 
 - Cleanup disabled state tracking (#3913) by @atomiks
 - Preserve modifier key properties in the change event (#3935) by @mj12albert
-- Add transition attributes and allow exit animations on `<Checkbox.Indicator>` when `keepMounted={false}` (#3939) by @atomiks
+- Allow exit animations on `<Checkbox.Indicator>` when `keepMounted={false}` (#3939) by @atomiks
 
 ### Combobox
 
@@ -114,7 +112,7 @@ _Feb 13, 2026_
 ### Radio Group
 
 - Preserve modifier key properties in the change event (#3935) by @mj12albert
-- Add transition attributes and allow exit animations on `<Radio.Indicator>` when `keepMounted={false}` (#3939) by @atomiks
+- Allow exit animations on `<Radio.Indicator>` when `keepMounted={false}` (#3939) by @atomiks
 - Rely on individual radio hidden inputs (#3826) by @atomiks
 - Add generic `Value` typing to `Radio` (#4033) by @atomiks
 
