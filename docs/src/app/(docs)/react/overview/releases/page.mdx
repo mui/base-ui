@@ -9,19 +9,17 @@ import { ReleaseTimeline } from 'docs/src/components/ReleaseTimeline';
 
 ## Canary Releases
 
-Base UI publishes canary releases for each master commit. This is useful if you want to try out the latest features and fixes before they are released.
+A canary release is published for every master commit and pull request, letting you try out the latest changes before the next versioned release.
 
-**Important:** canary releases may contain breaking changes and experimental features.
+Canary versions are identified by commit hash or PR number rather than semver, so it may not always be obvious whether one includes breaking changes. Check the associated pull requests on GitHub for details.
 
-To install one of the canary versions run:
+To install a canary version, run:
 
 ```bash
+# By master commit hash
 npm i https://pkg.pr.new/@base-ui/react@{master-commit}
-```
 
-Each GitHub pull request has its own release too. To install one, run:
-
-```bash
+# By pull request number
 npm i https://pkg.pr.new/@base-ui/react@{pr-number}
 ```
 
