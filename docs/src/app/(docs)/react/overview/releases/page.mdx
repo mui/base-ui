@@ -13,13 +13,15 @@ A canary release is published for every master commit and pull request, letting 
 
 Canary versions are identified by commit hash or PR number rather than semver, so it may not always be obvious whether one includes breaking changes. Check the associated pull requests on GitHub for details.
 
-To install a canary version, run:
+To install a canary version by master commit hash, run:
 
 ```bash
-# By master commit hash
 npm i https://pkg.pr.new/@base-ui/react@{master-commit}
+```
 
-# By pull request number
+To install by pull request number, run:
+
+```bash
 npm i https://pkg.pr.new/@base-ui/react@{pr-number}
 ```
 
