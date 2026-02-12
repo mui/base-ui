@@ -13,6 +13,8 @@ import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
 import { isIOS } from '@base-ui/utils/detectBrowser';
 import { InputMode, NumberFieldRootContext } from './NumberFieldRootContext';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
+import { useFieldInteractionStateContext } from '../../field/FieldInteractionStateContext';
+import { FieldInteractionStateProvider } from '../../field/FieldInteractionStateProvider';
 import type { FieldRoot } from '../../field/root/FieldRoot';
 import { useLabelableId } from '../../labelable-provider/useLabelableId';
 import type { BaseUIComponentProps } from '../../utils/types';
@@ -42,12 +44,9 @@ import {
 import { REASONS } from '../../utils/reasons';
 
 /**
- * Groups all parts of the number field and manages its state.
- * Renders a `<div>` element.
- *
- * Documentation: [Base UI Number Field](https://base-ui.com/react/components/number-field)
+ * @internal
  */
-export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
+const NumberFieldRootInner = React.forwardRef(function NumberFieldRootInner(
   componentProps: NumberFieldRoot.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
@@ -78,16 +77,16 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
   } = componentProps;
 
   const {
-    setDirty,
     validityData,
     disabled: fieldDisabled,
-    setFilled,
     invalid,
     name: fieldName,
     state: fieldState,
     validation,
     shouldValidateOnChange,
   } = useFieldRootContext();
+
+  const { setDirty, setFilled, state: fieldInteractionState } = useFieldInteractionStateContext();
 
   const disabled = fieldDisabled || disabledProp;
   const name = fieldName ?? nameProp;
@@ -114,6 +113,8 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
 
   const value = valueUnwrapped ?? null;
   const valueRef = useValueAsRef(value);
+
+  const initialValueRef = React.useRef<number | null>(valueProp ?? defaultValue ?? null);
 
   useIsoLayoutEffect(() => {
     setFilled(value !== null);
@@ -263,7 +264,9 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
         }
 
         setValueUnwrapped(validatedValue);
-        setDirty(validatedValue !== validityData.initialValue);
+        const initialValue =
+          validityData.initialValue !== null ? validityData.initialValue : initialValueRef.current;
+        setDirty(validatedValue !== initialValue);
         hasPendingCommitRef.current = true;
       }
 
@@ -455,6 +458,7 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
   const state: NumberFieldRoot.State = React.useMemo(
     () => ({
       ...fieldState,
+      ...fieldInteractionState,
       disabled,
       readOnly,
       required,
@@ -462,7 +466,16 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
       inputValue,
       scrubbing: isScrubbing,
     }),
-    [fieldState, disabled, readOnly, required, value, inputValue, isScrubbing],
+    [
+      fieldState,
+      fieldInteractionState,
+      disabled,
+      readOnly,
+      required,
+      value,
+      inputValue,
+      isScrubbing,
+    ],
   );
 
   const contextValue: NumberFieldRootContext = React.useMemo(
@@ -560,7 +573,11 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
             const parsedValue = Number.isNaN(nextValue) ? null : nextValue;
             const details = createChangeEventDetails(REASONS.none, event.nativeEvent);
 
-            setDirty(parsedValue !== validityData.initialValue);
+            const initialValue =
+              validityData.initialValue !== null
+                ? validityData.initialValue
+                : initialValueRef.current;
+            setDirty(parsedValue !== initialValue);
             setValue(parsedValue, details);
 
             if (shouldValidateOnChange()) {
@@ -584,6 +601,23 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
         style={name ? visuallyHiddenInput : visuallyHidden}
       />
     </NumberFieldRootContext.Provider>
+  );
+});
+
+/**
+ * Groups all parts of the number field and manages its state.
+ * Renders a `<div>` element.
+ *
+ * Documentation: [Base UI Number Field](https://base-ui.com/react/components/number-field)
+ */
+export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
+  componentProps: NumberFieldRoot.Props,
+  forwardedRef: React.ForwardedRef<HTMLDivElement>,
+) {
+  return (
+    <FieldInteractionStateProvider>
+      <NumberFieldRootInner {...componentProps} ref={forwardedRef} />
+    </FieldInteractionStateProvider>
   );
 });
 

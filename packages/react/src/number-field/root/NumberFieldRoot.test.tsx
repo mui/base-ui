@@ -1967,7 +1967,9 @@ describe('<NumberField />', () => {
   it('should allow navigation keys and not prevent their default behavior', async () => {
     await render(<NumberField />);
     const input = screen.getByRole('textbox') as HTMLInputElement;
-    input.focus();
+    act(() => {
+      input.focus();
+    });
     fireEvent.change(input, { target: { value: '123' } });
 
     const navigateKeys = ['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'Tab', 'Enter'];
