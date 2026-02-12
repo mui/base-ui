@@ -52,27 +52,39 @@ export default function Layout({ children }: React.PropsWithChildren) {
                           {
                             title?: string;
                             prefix?: string;
-                            pages: { title: string; tags?: string[]; path: string }[];
+                            pages: {
+                              title: string;
+                              tags?: string[];
+                              isNew?: boolean;
+                              isPreview?: boolean;
+                              path: string;
+                            }[];
                           }
                         >,
                       ).map(([name, section]) => (
                         <SideNav.Section key={name}>
                           <SideNav.Heading>{name}</SideNav.Heading>
                           <SideNav.List>
-                            {section.pages.map((page) => (
-                              <SideNav.Item
-                                key={page.title}
-                                href={
-                                  page.path.startsWith('./')
-                                    ? `${section.prefix}${page.path.replace(/^\.\//, '').replace(/\/page\.mdx$/, '')}`
-                                    : page.path
-                                }
-                                external={page.tags?.includes('External')}
-                              >
-                                {titleMap[page.title] || page.title}
-                                {page.tags?.includes('New') && <SideNav.Badge>New</SideNav.Badge>}
-                              </SideNav.Item>
-                            ))}
+                            {section.pages.map((page) => {
+                              const isNew = page.isNew ?? page.tags?.includes('New');
+                              const isPreview = page.isPreview ?? page.tags?.includes('Preview');
+
+                              return (
+                                <SideNav.Item
+                                  key={page.title}
+                                  href={
+                                    page.path.startsWith('./')
+                                      ? `${section.prefix}${page.path.replace(/^\.\//, '').replace(/\/page\.mdx$/, '')}`
+                                      : page.path
+                                  }
+                                  external={page.tags?.includes('External')}
+                                >
+                                  {titleMap[page.title] || page.title}
+                                  {isPreview && <SideNav.Badge>Preview</SideNav.Badge>}
+                                  {isNew && !isPreview && <SideNav.Badge>New</SideNav.Badge>}
+                                </SideNav.Item>
+                              );
+                            })}
                           </SideNav.List>
                         </SideNav.Section>
                       ))}
