@@ -1,8 +1,5 @@
-import * as React from 'react';
-
-export type HTMLProps<T = any> = React.HTMLAttributes<T> & {
-  ref?: React.Ref<T> | undefined;
-};
+import type { BaseUIEvent, ComponentRenderFn, HTMLProps } from '../types';
+export type { HTMLProps, BaseUIEvent, ComponentRenderFn };
 
 export interface FloatingUIOpenChangeDetails {
   open: boolean;
@@ -11,11 +8,6 @@ export interface FloatingUIOpenChangeDetails {
   nested: boolean;
   triggerElement?: Element | undefined;
 }
-
-export type BaseUIEvent<E extends React.SyntheticEvent<Element, Event>> = E & {
-  preventBaseUIHandler: () => void;
-  readonly baseUIHandlerPrevented?: boolean | undefined;
-};
 
 type WithPreventBaseUIHandler<T> = T extends (event: infer E) => any
   ? E extends React.SyntheticEvent<Element, Event>
@@ -31,17 +23,6 @@ type WithPreventBaseUIHandler<T> = T extends (event: infer E) => any
 export type WithBaseUIEvent<T> = {
   [K in keyof T]: WithPreventBaseUIHandler<T[K]>;
 };
-
-/**
- * Shape of the render prop: a function that takes props to be spread on the element and component's state and returns a React element.
- *
- * @template Props Props to be spread on the rendered element.
- * @template State Component's internal state.
- */
-export type ComponentRenderFn<Props, State> = (
-  props: Props,
-  state: State,
-) => React.ReactElement<unknown>;
 
 /**
  * Props shared by all Base UI components.
