@@ -34,16 +34,25 @@ Renders an `<img>` element.
 
 **Image Props:**
 
-| Prop                  | Type                                                                                      | Default | Description                                                                                                                                                                                   |
-| :-------------------- | :---------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| onLoadingStatusChange | `((status: ImageLoadingStatus) => void)`                                                  | -       | Callback fired when the loading status changes.                                                                                                                                               |
-| className             | `string \| ((state: Avatar.Root.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
-| style                 | `React.CSSProperties \| ((state: Avatar.Root.State) => React.CSSProperties \| undefined)` | -       | -                                                                                                                                                                                             |
-| render                | `ReactElement \| ((props: HTMLProps, state: Avatar.Root.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop                  | Type                                                                                       | Default | Description                                                                                                                                                                                   |
+| :-------------------- | :----------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| onLoadingStatusChange | `((status: ImageLoadingStatus) => void)`                                                   | -       | Callback fired when the loading status changes.                                                                                                                                               |
+| className             | `string \| ((state: Avatar.Image.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
+| style                 | `React.CSSProperties \| ((state: Avatar.Image.State) => React.CSSProperties \| undefined)` | -       | -                                                                                                                                                                                             |
+| render                | `ReactElement \| ((props: HTMLProps, state: Avatar.Image.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
 
 ### Image.Props
 
 Re-export of [Image](#image) props.
+
+### Image.State
+
+```typescript
+type AvatarImageState = {
+  transitionStatus: TransitionStatus;
+  imageLoadingStatus: ImageLoadingStatus;
+};
+```
 
 ### Fallback
 
@@ -52,16 +61,25 @@ Renders a `<span>` element.
 
 **Fallback Props:**
 
-| Prop      | Type                                                                                      | Default | Description                                                                                                                                                                                   |
-| :-------- | :---------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| delay     | `number`                                                                                  | -       | How long to wait before showing the fallback. Specified in milliseconds.                                                                                                                      |
-| className | `string \| ((state: Avatar.Root.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
-| style     | `React.CSSProperties \| ((state: Avatar.Root.State) => React.CSSProperties \| undefined)` | -       | -                                                                                                                                                                                             |
-| render    | `ReactElement \| ((props: HTMLProps, state: Avatar.Root.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop      | Type                                                                                          | Default | Description                                                                                                                                                                                   |
+| :-------- | :-------------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| delay     | `number`                                                                                      | -       | How long to wait before showing the fallback. Specified in milliseconds.                                                                                                                      |
+| className | `string \| ((state: Avatar.Fallback.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
+| style     | `React.CSSProperties \| ((state: Avatar.Fallback.State) => React.CSSProperties \| undefined)` | -       | -                                                                                                                                                                                             |
+| render    | `ReactElement \| ((props: HTMLProps, state: Avatar.Fallback.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
 
 ### Fallback.Props
 
 Re-export of [Fallback](#fallback) props.
+
+### Fallback.State
+
+```typescript
+type AvatarFallbackState = {
+  transitionStatus: TransitionStatus;
+  imageLoadingStatus: ImageLoadingStatus;
+};
+```
 
 ## Additional Types
 
@@ -74,9 +92,9 @@ type ImageLoadingStatus = 'idle' | 'loading' | 'loaded' | 'error';
 ## Export Groups
 
 - `Avatar.Root`: `Avatar.Root`, `Avatar.Root.State`, `Avatar.Root.Props`
-- `Avatar.Image`: `Avatar.Image`, `Avatar.Image.Props`
-- `Avatar.Fallback`: `Avatar.Fallback`, `Avatar.Fallback.Props`
-- `Default`: `ImageLoadingStatus`, `AvatarRootState`, `AvatarRootProps`, `AvatarImageProps`, `AvatarFallbackProps`
+- `Avatar.Image`: `Avatar.Image`, `Avatar.Image.State`, `Avatar.Image.Props`
+- `Avatar.Fallback`: `Avatar.Fallback`, `Avatar.Fallback.State`, `Avatar.Fallback.Props`
+- `Default`: `ImageLoadingStatus`, `AvatarRootState`, `AvatarRootProps`, `AvatarImageState`, `AvatarImageProps`, `AvatarFallbackState`, `AvatarFallbackProps`
 
 ## Canonical Types
 
@@ -84,5 +102,7 @@ Maps `Canonical`: `Alias` — rename aliases to their canonical form for consist
 
 - `Avatar.Root.State`: `AvatarRootState`
 - `Avatar.Root.Props`: `AvatarRootProps`
+- `Avatar.Image.State`: `AvatarImageState`
 - `Avatar.Image.Props`: `AvatarImageProps`
+- `Avatar.Fallback.State`: `AvatarFallbackState`
 - `Avatar.Fallback.Props`: `AvatarFallbackProps`

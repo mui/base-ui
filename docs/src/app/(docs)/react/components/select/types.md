@@ -51,7 +51,7 @@ const items = {
 
 **`autoComplete` Prop References:**
 
-- See [developer.mozilla.org](https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/autocomplete)
+- See [developer.mozilla.org](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Attributes/autocomplete)
 
 ### Root.Props
 

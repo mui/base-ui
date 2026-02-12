@@ -6,7 +6,7 @@
 
 ### Root
 
-Groups the fieldset legend and the associated fields.
+Groups a shared legend with related controls.
 Renders a `<fieldset>` element.
 
 **Root Props:**

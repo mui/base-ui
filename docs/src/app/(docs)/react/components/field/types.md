@@ -255,9 +255,9 @@ Renders a `<div>` element.
 | Prop      | Type                                                                                                                                                                                             | Default | Description                                                                                                                                                                                                                                                                  |
 | :-------- | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | match     | `boolean \| 'valid' \| 'badInput' \| 'customError' \| 'patternMismatch' \| 'rangeOverflow' \| 'rangeUnderflow' \| 'stepMismatch' \| 'tooLong' \| 'tooShort' \| 'typeMismatch' \| 'valueMissing'` | -       | Determines whether to show the error message according to the field's&#xA;[ValidityState](https://developer.mozilla.org/en-US/docs/Web/API/ValidityState).&#xA;Specifying `true` will always show the error message, and lets external libraries&#xA;control the visibility. |
-| className | `string \| ((state: Field.Root.State) => string \| undefined)`                                                                                                                                   | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                                                                                                     |
-| style     | `React.CSSProperties \| ((state: Field.Root.State) => React.CSSProperties \| undefined)`                                                                                                         | -       | -                                                                                                                                                                                                                                                                            |
-| render    | `ReactElement \| ((props: HTMLProps, state: Field.Root.State) => ReactElement)`                                                                                                                  | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render.                                                                                |
+| className | `string \| ((state: Field.Error.State) => string \| undefined)`                                                                                                                                  | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                                                                                                     |
+| style     | `React.CSSProperties \| ((state: Field.Error.State) => React.CSSProperties \| undefined)`                                                                                                        | -       | -                                                                                                                                                                                                                                                                            |
+| render    | `ReactElement \| ((props: HTMLProps, state: Field.Error.State) => ReactElement)`                                                                                                                 | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render.                                                                                |
 
 **Error Data Attributes:**
 
@@ -279,6 +279,7 @@ Re-export of [Error](#error) props.
 
 ```typescript
 type FieldErrorState = {
+  transitionStatus: TransitionStatus;
   disabled: boolean;
   touched: boolean;
   dirty: boolean;
@@ -320,6 +321,7 @@ type FieldValidityState = {
     valueMissing: boolean;
     valid: boolean | null;
   };
+  transitionStatus: TransitionStatus;
   errors: string[];
   value: unknown;
   error: string;
