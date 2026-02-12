@@ -10,25 +10,22 @@ export function isDifferentGridRow(index: number, cols: number, prevRow: number)
   return Math.floor(index / cols) !== prevRow;
 }
 
-export function isIndexOutOfListBounds(
-  listRef: React.RefObject<Array<HTMLElement | null>>,
-  index: number,
-) {
-  return index < 0 || index >= listRef.current.length;
+export function isIndexOutOfListBounds(list: Array<HTMLElement | null>, index: number) {
+  return index < 0 || index >= list.length;
 }
 
 export function getMinListIndex(
   listRef: React.RefObject<ReadonlyArray<HTMLElement | null>>,
   disabledIndices?: DisabledIndices | undefined,
 ) {
-  return findNonDisabledListIndex(listRef, { disabledIndices });
+  return findNonDisabledListIndex(listRef.current, { disabledIndices });
 }
 
 export function getMaxListIndex(
   listRef: React.RefObject<Array<HTMLElement | null>>,
   disabledIndices?: DisabledIndices | undefined,
 ) {
-  return findNonDisabledListIndex(listRef, {
+  return findNonDisabledListIndex(listRef.current, {
     decrement: true,
     startingIndex: listRef.current.length,
     disabledIndices,
@@ -36,7 +33,7 @@ export function getMaxListIndex(
 }
 
 export function findNonDisabledListIndex(
-  listRef: React.RefObject<ReadonlyArray<HTMLElement | null>>,
+  list: ReadonlyArray<HTMLElement | null>,
   {
     startingIndex = -1,
     decrement = false,
@@ -54,19 +51,20 @@ export function findNonDisabledListIndex(
     index += decrement ? -amount : amount;
   } while (
     index >= 0 &&
-    index <= listRef.current.length - 1 &&
-    isListIndexDisabled(listRef, index, disabledIndices)
+    index <= list.length - 1 &&
+    isListIndexDisabled(list, index, disabledIndices)
   );
 
   return index;
 }
 
 export function getGridNavigatedIndex(
-  listRef: React.RefObject<Array<HTMLElement | null>>,
+  list: Array<HTMLElement | null>,
   {
     event,
     orientation,
     loopFocus,
+    onLoop,
     rtl,
     cols,
     disabledIndices,
@@ -78,6 +76,9 @@ export function getGridNavigatedIndex(
     event: React.KeyboardEvent;
     orientation: 'horizontal' | 'vertical' | 'both';
     loopFocus: boolean;
+    onLoop?:
+      | ((event: React.KeyboardEvent, prevIndex: number, nextIndex: number) => number)
+      | undefined;
     rtl: boolean;
     cols: number;
     disabledIndices: DisabledIndices | undefined;
@@ -103,7 +104,7 @@ export function getGridNavigatedIndex(
     let currentRowEl: Element | null = null;
     let currentRowIndex = -1;
 
-    listRef.current.forEach((el, idx) => {
+    list.forEach((el, idx) => {
       if (el == null) {
         return;
       }
@@ -140,6 +141,9 @@ export function getGridNavigatedIndex(
       } else if (nextRow >= rows.length) {
         nextRow = 0;
       }
+      if (onLoop) {
+        nextRow = onLoop(event, prevIndex, nextRow);
+      }
     }
 
     const visited = new Set<number>();
@@ -155,7 +159,7 @@ export function getGridNavigatedIndex(
       // enabled item is found.
       for (let col = clampedCol; col >= 0; col -= 1) {
         const candidate = targetRow[col];
-        if (!isListIndexDisabled(listRef, candidate, disabledIndices)) {
+        if (!isListIndexDisabled(list, candidate, disabledIndices)) {
           return candidate;
         }
       }
@@ -189,7 +193,7 @@ export function getGridNavigatedIndex(
       if (prevIndex === -1) {
         nextIndex = maxIndex;
       } else {
-        nextIndex = findNonDisabledListIndex(listRef, {
+        nextIndex = findNonDisabledListIndex(list, {
           startingIndex: nextIndex,
           amount: cols,
           decrement: true,
@@ -206,10 +210,13 @@ export function getGridNavigatedIndex(
           } else {
             nextIndex = maxCol > col ? offset : offset - cols;
           }
+          if (onLoop) {
+            nextIndex = onLoop(event, prevIndex, nextIndex);
+          }
         }
       }
 
-      if (isIndexOutOfListBounds(listRef, nextIndex)) {
+      if (isIndexOutOfListBounds(list, nextIndex)) {
         nextIndex = prevIndex;
       }
     }
@@ -230,22 +237,25 @@ export function getGridNavigatedIndex(
       if (prevIndex === -1) {
         nextIndex = minIndex;
       } else {
-        nextIndex = findNonDisabledListIndex(listRef, {
+        nextIndex = findNonDisabledListIndex(list, {
           startingIndex: prevIndex,
           amount: cols,
           disabledIndices,
         });
 
         if (loopFocus && prevIndex + cols > maxIndex) {
-          nextIndex = findNonDisabledListIndex(listRef, {
+          nextIndex = findNonDisabledListIndex(list, {
             startingIndex: (prevIndex % cols) - cols,
             amount: cols,
             disabledIndices,
           });
+          if (onLoop) {
+            nextIndex = onLoop(event, prevIndex, nextIndex);
+          }
         }
       }
 
-      if (isIndexOutOfListBounds(listRef, nextIndex)) {
+      if (isIndexOutOfListBounds(list, nextIndex)) {
         nextIndex = prevIndex;
       }
     }
@@ -261,22 +271,28 @@ export function getGridNavigatedIndex(
       }
 
       if (prevIndex % cols !== cols - 1) {
-        nextIndex = findNonDisabledListIndex(listRef, {
+        nextIndex = findNonDisabledListIndex(list, {
           startingIndex: prevIndex,
           disabledIndices,
         });
 
         if (loopFocus && isDifferentGridRow(nextIndex, cols, prevRow)) {
-          nextIndex = findNonDisabledListIndex(listRef, {
+          nextIndex = findNonDisabledListIndex(list, {
             startingIndex: prevIndex - (prevIndex % cols) - 1,
             disabledIndices,
           });
+          if (onLoop) {
+            nextIndex = onLoop(event, prevIndex, nextIndex);
+          }
         }
       } else if (loopFocus) {
-        nextIndex = findNonDisabledListIndex(listRef, {
+        nextIndex = findNonDisabledListIndex(list, {
           startingIndex: prevIndex - (prevIndex % cols) - 1,
           disabledIndices,
         });
+        if (onLoop) {
+          nextIndex = onLoop(event, prevIndex, nextIndex);
+        }
       }
 
       if (isDifferentGridRow(nextIndex, cols, prevRow)) {
@@ -290,25 +306,31 @@ export function getGridNavigatedIndex(
       }
 
       if (prevIndex % cols !== 0) {
-        nextIndex = findNonDisabledListIndex(listRef, {
+        nextIndex = findNonDisabledListIndex(list, {
           startingIndex: prevIndex,
           decrement: true,
           disabledIndices,
         });
 
         if (loopFocus && isDifferentGridRow(nextIndex, cols, prevRow)) {
-          nextIndex = findNonDisabledListIndex(listRef, {
+          nextIndex = findNonDisabledListIndex(list, {
             startingIndex: prevIndex + (cols - (prevIndex % cols)),
             decrement: true,
             disabledIndices,
           });
+          if (onLoop) {
+            nextIndex = onLoop(event, prevIndex, nextIndex);
+          }
         }
       } else if (loopFocus) {
-        nextIndex = findNonDisabledListIndex(listRef, {
+        nextIndex = findNonDisabledListIndex(list, {
           startingIndex: prevIndex + (cols - (prevIndex % cols)),
           decrement: true,
           disabledIndices,
         });
+        if (onLoop) {
+          nextIndex = onLoop(event, prevIndex, nextIndex);
+        }
       }
 
       if (isDifferentGridRow(nextIndex, cols, prevRow)) {
@@ -318,15 +340,18 @@ export function getGridNavigatedIndex(
 
     const lastRow = floor(maxIndex / cols) === prevRow;
 
-    if (isIndexOutOfListBounds(listRef, nextIndex)) {
+    if (isIndexOutOfListBounds(list, nextIndex)) {
       if (loopFocus && lastRow) {
         nextIndex =
           event.key === (rtl ? ARROW_RIGHT : ARROW_LEFT)
             ? maxIndex
-            : findNonDisabledListIndex(listRef, {
+            : findNonDisabledListIndex(list, {
                 startingIndex: prevIndex - (prevIndex % cols) - 1,
                 disabledIndices,
               });
+        if (onLoop) {
+          nextIndex = onLoop(event, prevIndex, nextIndex);
+        }
       } else {
         nextIndex = prevIndex;
       }
@@ -421,7 +446,7 @@ export function getGridCellIndices(
 }
 
 export function isListIndexDisabled(
-  listRef: React.RefObject<ReadonlyArray<HTMLElement | null>>,
+  list: ReadonlyArray<HTMLElement | null>,
   index: number,
   disabledIndices?: DisabledIndices,
 ) {
@@ -432,7 +457,7 @@ export function isListIndexDisabled(
     return disabledIndices.includes(index);
   }
 
-  const element = listRef.current[index];
+  const element = list[index];
   if (!element) {
     return false;
   }

@@ -1,0 +1,69 @@
+'use client';
+import * as React from 'react';
+import { BaseUIComponentProps } from '../../utils/types';
+import { useRenderElement } from '../../utils/useRenderElement';
+import { TemporalSupportedObject } from '../../types/temporal';
+import { useCalendarDayList } from '../use-day-list/useCalendarDayList';
+import { useSharedCalendarRootContext } from '../root/SharedCalendarRootContext';
+
+/**
+ * Groups all cells of a given calendar's day grid row.
+ * Renders a `<tr>` element.
+ *
+ * Documentation: [Base UI Calendar](https://base-ui.com/react/components/calendar)
+ */
+export const CalendarDayGridRow = React.forwardRef(function CalendarDayGridRow(
+  componentProps: CalendarDayGridRow.Props,
+  forwardedRef: React.ForwardedRef<HTMLTableRowElement>,
+) {
+  const { className, render, value, children, ...elementProps } = componentProps;
+
+  const getDayList = useCalendarDayList();
+  const store = useSharedCalendarRootContext();
+  const days = React.useMemo(() => getDayList({ date: value, amount: 7 }), [getDayList, value]);
+
+  React.useEffect(() => store.registerCurrentMonthDayGrid(value, days), [store, days, value]);
+
+  const resolvedChildren = React.useMemo(() => {
+    if (!React.isValidElement(children) && typeof children === 'function') {
+      return days.map(children);
+    }
+
+    return children;
+  }, [children, days]);
+
+  const element = useRenderElement('tr', componentProps, {
+    ref: forwardedRef,
+    props: [{ children: resolvedChildren }, elementProps],
+  });
+
+  return element;
+});
+
+export interface CalendarDayGridRowState {}
+
+export interface CalendarDayGridRowProps extends Omit<
+  BaseUIComponentProps<'tr', CalendarDayGridRowState>,
+  'children'
+> {
+  /**
+   * The date object representing the week.
+   */
+  value: TemporalSupportedObject;
+  /**
+   * The children of the component.
+   * If a function is provided, it will be called for each day of the week as its parameter.
+   */
+  children?:
+    | React.ReactNode
+    | ((
+        day: TemporalSupportedObject,
+        index: number,
+        days: TemporalSupportedObject[],
+      ) => React.ReactNode);
+}
+
+export namespace CalendarDayGridRow {
+  export type State = CalendarDayGridRowState;
+  export type Props = CalendarDayGridRowProps;
+}
