@@ -11,12 +11,11 @@ import { useTimeout } from '@base-ui/utils/useTimeout';
 import { isWebKit } from '@base-ui/utils/detectBrowser';
 import type { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
-import { ownerWindow } from '@base-ui/utils/owner';
+import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
 import { FocusGuard } from '../../utils/FocusGuard';
 import {
   activeElement,
   contains,
-  getDocument,
   getTarget,
   isTypeableCombobox,
   isVirtualClick,
@@ -348,7 +347,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
       if (event.key === 'Tab') {
         // The focus guards have nothing to focus, so we need to stop the event.
         if (
-          contains(floatingFocusElement, activeElement(getDocument(floatingFocusElement))) &&
+          contains(floatingFocusElement, activeElement(ownerDocument(floatingFocusElement))) &&
           getTabbableContent().length === 0 &&
           !isUntrappedTypeableCombobox
         ) {
@@ -357,7 +356,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
       }
     }
 
-    const doc = getDocument(floatingFocusElement);
+    const doc = ownerDocument(floatingFocusElement);
     doc.addEventListener('keydown', onKeyDown);
     return () => {
       doc.removeEventListener('keydown', onKeyDown);
@@ -379,7 +378,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
       return undefined;
     }
 
-    const doc = getDocument(floatingFocusElement);
+    const doc = ownerDocument(floatingFocusElement);
 
     function clearPointerDownOutside() {
       pointerDownOutsideRef.current = false;
@@ -422,7 +421,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
       return undefined;
     }
 
-    const doc = getDocument(floatingFocusElement);
+    const doc = ownerDocument(floatingFocusElement);
 
     // In Safari, buttons lose focus when pressing them.
     function handlePointerDown() {
@@ -680,7 +679,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
       return;
     }
 
-    const doc = getDocument(floatingFocusElement);
+    const doc = ownerDocument(floatingFocusElement);
     const previouslyFocusedElement = activeElement(doc);
 
     // Wait for any layout effect state setters to execute to set `tabIndex`.
@@ -731,7 +730,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
       return undefined;
     }
 
-    const doc = getDocument(floatingFocusElement);
+    const doc = ownerDocument(floatingFocusElement);
     const previouslyFocusedElement = activeElement(doc);
 
     addPreviouslyFocusedElement(previouslyFocusedElement);
@@ -870,7 +869,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
       return;
     }
 
-    const activeEl = activeElement(getDocument(floating));
+    const activeEl = activeElement(ownerDocument(floating));
     if (!isHTMLElement(activeEl) || !isTypeableElement(activeEl)) {
       return;
     }
