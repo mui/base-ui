@@ -599,7 +599,7 @@ export interface SelectRootProps<Value, Multiple extends boolean | undefined = f
   name?: string | undefined;
   /**
    * Provides a hint to the browser for autofill.
-   * @see https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/autocomplete
+   * @see https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Attributes/autocomplete
    */
   autoComplete?: string | undefined;
   /**

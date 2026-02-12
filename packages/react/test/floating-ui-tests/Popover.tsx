@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-shadow */
 'use client';
 import * as React from 'react';
+import { getEmptyRootContext } from '../../src/floating-ui-react/utils/getEmptyRootContext';
 import type { Placement } from '../../src/floating-ui-react/types';
 import {
   autoUpdate,
@@ -122,10 +123,10 @@ function PopoverComponent({
   const id = React.useId();
   const labelId = `${id}-label`;
   const descriptionId = `${id}-description`;
+  const fallbackContext = React.useMemo(() => getEmptyRootContext(), []);
 
   const { getReferenceProps, getFloatingProps } = useInteractions([
-    useHover(context, {
-      enabled: hover,
+    useHover(hover ? context : fallbackContext, {
       handleClose: safePolygon({ blockPointerEvents: true }),
     }),
     useClick(context),

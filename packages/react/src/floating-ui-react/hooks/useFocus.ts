@@ -28,12 +28,6 @@ export interface UseFocusProps {
    */
   enabled?: boolean | undefined;
   /**
-   * Whether the open state only changes if the focus event is considered
-   * visible (`:focus-visible` CSS selector).
-   * @default true
-   */
-  visibleOnly?: boolean | undefined;
-  /**
    * Waits for the specified time before opening.
    * @default undefined
    */
@@ -52,7 +46,7 @@ export function useFocus(
   const store = 'rootStore' in context ? context.rootStore : context;
 
   const { events, dataRef } = store.context;
-  const { enabled = true, visibleOnly = true, delay } = props;
+  const { enabled = true, delay } = props;
 
   const blockFocusRef = React.useRef(false);
   // Track which reference should be blocked from re-opening after Escape/press dismissal.
@@ -147,7 +141,7 @@ export function useFocus(
 
         const target = getTarget(event.nativeEvent);
 
-        if (visibleOnly && isElement(target)) {
+        if (isElement(target)) {
           // Safari fails to match `:focus-visible` if focus was initially
           // outside the document.
           if (isMacSafari && !event.relatedTarget) {
@@ -253,7 +247,7 @@ export function useFocus(
         });
       },
     }),
-    [dataRef, store, visibleOnly, timeout, delay],
+    [dataRef, store, timeout, delay],
   );
 
   return React.useMemo(

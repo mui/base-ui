@@ -68,16 +68,18 @@ function getEventType(event: Event, lastInteractionType?: InteractionType): Inte
 }
 
 const LIST_LIMIT = 20;
-let previouslyFocusedElements: Element[] = [];
+let previouslyFocusedElements: WeakRef<Element>[] = [];
 
 function clearDisconnectedPreviouslyFocusedElements() {
-  previouslyFocusedElements = previouslyFocusedElements.filter((el) => el.isConnected);
+  previouslyFocusedElements = previouslyFocusedElements.filter((entry) => {
+    return entry.deref()?.isConnected;
+  });
 }
 
-function addPreviouslyFocusedElement(element: Element | null) {
+function addPreviouslyFocusedElement(element: Element | null | undefined) {
   clearDisconnectedPreviouslyFocusedElements();
   if (element && getNodeName(element) !== 'body') {
-    previouslyFocusedElements.push(element);
+    previouslyFocusedElements.push(new WeakRef(element));
     if (previouslyFocusedElements.length > LIST_LIMIT) {
       previouslyFocusedElements = previouslyFocusedElements.slice(-LIST_LIMIT);
     }
@@ -86,7 +88,7 @@ function addPreviouslyFocusedElement(element: Element | null) {
 
 function getPreviouslyFocusedElement() {
   clearDisconnectedPreviouslyFocusedElements();
-  return previouslyFocusedElements[previouslyFocusedElements.length - 1];
+  return previouslyFocusedElements[previouslyFocusedElements.length - 1]?.deref();
 }
 
 function getFirstTabbableElement(container: Element | null) {
@@ -168,11 +170,6 @@ export interface FloatingFocusManagerProps {
    */
   disabled?: boolean | undefined;
   /**
-   * The order in which focus cycles.
-   * @default ['content']
-   */
-  order?: Array<'reference' | 'floating' | 'content'> | undefined;
-  /**
    * Determines the element to focus when the floating element is opened.
    *
    * - `false`: Do not move focus.
@@ -235,11 +232,6 @@ export interface FloatingFocusManagerProps {
    */
   closeOnFocusOut?: boolean | undefined;
   /**
-   * Returns a list of elements that should be considered part of the
-   * floating element.
-   */
-  getInsideElements?: (() => Element[]) | undefined;
-  /**
    * Overrides the element to focus when tabbing forward out of the floating element.
    */
   nextFocusableElement?: (HTMLElement | React.RefObject<HTMLElement | null> | null) | undefined;
@@ -268,14 +260,12 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     context,
     children,
     disabled = false,
-    order = ['content'],
     initialFocus = true,
     returnFocus = true,
     restoreFocus = false,
     modal = true,
     closeOnFocusOut = true,
     openInteractionType = '',
-    getInsideElements: getInsideElementsProp = () => [],
     nextFocusableElement,
     previousFocusableElement,
     beforeContentFocusGuardRef,
@@ -290,7 +280,6 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
   const { events, dataRef } = store.context;
 
   const getNodeId = useStableCallback(() => dataRef.current.floatingContext?.nodeId);
-  const getInsideElements = useStableCallback(getInsideElementsProp);
 
   const ignoreInitialFocus = initialFocus === false;
   // If the reference is a combobox and is typeable (e.g. input/textarea),
@@ -300,7 +289,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
   // start.
   const isUntrappedTypeableCombobox = isTypeableCombobox(domReference) && ignoreInitialFocus;
 
-  const orderRef = useValueAsRef(order);
+  const orderRef = React.useRef<Array<'reference' | 'floating' | 'content'>>(['content']);
   const initialFocusRef = useValueAsRef(initialFocus);
   const returnFocusRef = useValueAsRef(returnFocus);
   const openInteractionTypeRef = useValueAsRef(openInteractionType);
@@ -658,7 +647,6 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
       floating,
       rootAncestorComboboxDomReference,
       ...portalNodes,
-      ...getInsideElements(),
       startDismissButtonRef.current,
       endDismissButtonRef.current,
       beforeGuardRef.current,
@@ -682,7 +670,6 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     isUntrappedTypeableCombobox,
     tree,
     getNodeId,
-    getInsideElements,
     nextFocusableElement,
     previousFocusableElement,
   ]);
