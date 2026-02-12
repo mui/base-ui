@@ -601,6 +601,53 @@ describe('<Tabs.Root />', () => {
       expect(tabs[1]).to.have.attribute('aria-selected', 'true');
     });
 
+    it('does not auto-select or call onValueChange on initial render when defaultValue is null', async () => {
+      const handleChange = spy();
+
+      await render(
+        <Tabs.Root defaultValue={null} onValueChange={handleChange}>
+          <Tabs.List>
+            <Tabs.Tab value={0}>Tab 0</Tabs.Tab>
+            <Tabs.Tab value={1}>Tab 1</Tabs.Tab>
+            <Tabs.Tab value={2}>Tab 2</Tabs.Tab>
+          </Tabs.List>
+        </Tabs.Root>,
+      );
+
+      await flushMicrotasks();
+
+      expect(handleChange.callCount).to.equal(0);
+
+      const tabs = screen.getAllByRole('tab');
+      expect(tabs[0]).to.have.attribute('aria-selected', 'false');
+      expect(tabs[1]).to.have.attribute('aria-selected', 'false');
+      expect(tabs[2]).to.have.attribute('aria-selected', 'false');
+    });
+
+    it('calls onValueChange with "missing" reason when defaultValue is explicitly invalid on mount', async () => {
+      const handleChange = spy();
+
+      await render(
+        <Tabs.Root defaultValue={99} onValueChange={handleChange}>
+          <Tabs.List>
+            <Tabs.Tab value={0}>Tab 0</Tabs.Tab>
+            <Tabs.Tab value={1}>Tab 1</Tabs.Tab>
+            <Tabs.Tab value={2}>Tab 2</Tabs.Tab>
+          </Tabs.List>
+        </Tabs.Root>,
+      );
+
+      await flushMicrotasks();
+
+      expect(handleChange.callCount).to.equal(1);
+      expect(handleChange.firstCall.args[0]).to.equal(0);
+      expect(handleChange.firstCall.args[1].reason).to.equal('missing');
+      expect(handleChange.firstCall.args[1].activationDirection).to.equal('none');
+
+      const tabs = screen.getAllByRole('tab');
+      expect(tabs[0]).to.have.attribute('aria-selected', 'true');
+    });
+
     it('does not call onValueChange on initial render when value is provided', async () => {
       const handleChange = spy();
 
