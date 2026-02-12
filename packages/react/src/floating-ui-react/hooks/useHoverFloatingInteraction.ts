@@ -4,13 +4,9 @@ import { isElement } from '@floating-ui/utils/dom';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 
+import { ownerDocument } from '@base-ui/utils/owner';
 import type { FloatingContext, FloatingRootContext } from '../types';
-import {
-  getDocument,
-  getTarget,
-  isMouseLikePointerType,
-  isTargetInsideEnabledTrigger,
-} from '../utils';
+import { getTarget, isMouseLikePointerType, isTargetInsideEnabledTrigger } from '../utils';
 
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
@@ -97,7 +93,7 @@ export function useHoverFloatingInteraction(
 
   const clearPointerEvents = useStableCallback(() => {
     if (instance.performedPointerEventsMutation) {
-      const body = getDocument(floatingElement).body;
+      const body = ownerDocument(floatingElement).body;
       body.style.pointerEvents = '';
       body.removeAttribute(safePolygonIdentifier);
       instance.performedPointerEventsMutation = false;
@@ -147,7 +143,7 @@ export function useHoverFloatingInteraction(
       floatingElement
     ) {
       instance.performedPointerEventsMutation = true;
-      const body = getDocument(floatingElement).body;
+      const body = ownerDocument(floatingElement).body;
       body.setAttribute(safePolygonIdentifier, '');
 
       const ref = domReferenceElement as HTMLElement | SVGSVGElement;
