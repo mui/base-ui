@@ -5315,6 +5315,54 @@ describe('<Combobox.Root />', () => {
       });
     });
 
+    it('passes item as the first comparator argument in multiple mode', async () => {
+      const users = [
+        { id: 1, name: 'Alice', source: 'item' },
+        { id: 2, name: 'Bob', source: 'item' },
+      ];
+
+      await render(
+        <Combobox.Root
+          items={users}
+          defaultValue={[{ id: 2, name: 'Bob', source: 'selected' }]}
+          itemToStringLabel={(item) => item.name}
+          itemToStringValue={(item) => String(item.id)}
+          isItemEqualToValue={(item, value) =>
+            item.id === value.id && item.source === 'item' && value.source === 'selected'
+          }
+          defaultOpen
+          multiple
+        >
+          <Combobox.Input data-testid="input" />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  {(item) => (
+                    <Combobox.Item key={item.id} value={item}>
+                      {item.name}
+                    </Combobox.Item>
+                  )}
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const option = screen.getByRole('option', { name: 'Bob' });
+      expect(option).to.have.attribute('aria-selected', 'true');
+
+      fireEvent.click(option);
+
+      await waitFor(() => {
+        expect(screen.getByRole('option', { name: 'Bob' })).to.have.attribute(
+          'aria-selected',
+          'false',
+        );
+      });
+    });
+
     it('does not call comparator with null when clearing the value', async () => {
       const users = [
         { id: 1, name: 'Alice' },
