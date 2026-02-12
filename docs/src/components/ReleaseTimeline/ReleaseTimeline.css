@@ -114,7 +114,6 @@
     font-size: var(--text-md);
     color: var(--color-foreground);
     line-height: var(--text-md--line-height);
-    transition: all 0.2s ease;
   }
 
   .TimelineCard::before,
