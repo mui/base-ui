@@ -2,7 +2,7 @@
 
 ## v1.2.0
 
-_Feb 13, 2026_
+_Feb 12, 2026_
 
 ### General changes
 
