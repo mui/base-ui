@@ -20,8 +20,8 @@ export function useRender<
 }
 
 export type UseRenderRenderProp<State = Record<string, unknown>> =
-  | ComponentRenderFn<React.HTMLAttributes<any>, State>
-  | React.ReactElement;
+  | React.ReactElement
+  | ComponentRenderFn<React.HTMLAttributes<any>, State>;
 
 export type UseRenderElementProps<ElementType extends React.ElementType> =
   React.ComponentPropsWithRef<ElementType>;
@@ -37,7 +37,7 @@ export type UseRenderComponentProps<
    *
    * Accepts a `ReactElement` or a function that returns the element to render.
    */
-  render?: (ComponentRenderFn<RenderFunctionProps, State> | React.ReactElement) | undefined;
+  render?: (React.ReactElement | ComponentRenderFn<RenderFunctionProps, State>) | undefined;
 };
 
 export interface UseRenderParameters<

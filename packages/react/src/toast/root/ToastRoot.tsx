@@ -11,7 +11,7 @@ import type { ToastObject as ToastObjectType } from '../useToastManager';
 import { ToastRootContext } from './ToastRootContext';
 import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
 import type { TransitionStatus } from '../../utils/useTransitionStatus';
-import { useToastContext } from '../provider/ToastProviderContext';
+import { useToastProviderContext } from '../provider/ToastProviderContext';
 import { StateAttributesMapping } from '../../utils/getStateAttributesProps';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
@@ -99,8 +99,7 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
 
   const swipeEnabled = swipeDirections.length > 0;
 
-  const { toasts, focused, close, remove, setToasts, pauseTimers, expanded, setHovering } =
-    useToastContext();
+  const store = useToastProviderContext();
 
   const [currentSwipeDirection, setCurrentSwipeDirection] = React.useState<
     'up' | 'down' | 'left' | 'right' | undefined
@@ -127,21 +126,18 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
   const swipeCancelBaselineRef = React.useRef({ x: 0, y: 0 });
   const isFirstPointerMoveRef = React.useRef(false);
 
-  const domIndex = React.useMemo(() => toasts.indexOf(toast), [toast, toasts]);
-  const visibleIndex = React.useMemo(
-    () => toasts.filter((t) => t.transitionStatus !== 'ending').indexOf(toast),
-    [toast, toasts],
-  );
-  const offsetY = React.useMemo(() => {
-    return toasts.slice(0, toasts.indexOf(toast)).reduce((acc, t) => acc + (t.height || 0), 0);
-  }, [toasts, toast]);
+  const domIndex = store.useState('toastIndex', toast.id);
+  const visibleIndex = store.useState('toastVisibleIndex', toast.id);
+  const offsetY = store.useState('toastOffsetY', toast.id);
+  const focused = store.useState('focused');
+  const expanded = store.useState('expanded');
 
   useOpenChangeComplete({
     open: toast.transitionStatus !== 'ending',
     ref: rootRef,
     onComplete() {
       if (toast.transitionStatus === 'ending') {
-        remove(toast.id);
+        store.removeToast(toast.id);
       }
     },
   });
@@ -163,18 +159,11 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
     element.style.height = previousHeight;
 
     function update() {
-      setToasts((prev) =>
-        prev.map((t) =>
-          t.id === toast.id
-            ? {
-                ...t,
-                ref: rootRef,
-                height,
-                transitionStatus: undefined,
-              }
-            : t,
-        ),
-      );
+      store.updateToastInternal(toast.id, {
+        ref: rootRef,
+        height,
+        ...(toast.transitionStatus === 'starting' ? { transitionStatus: undefined } : {}),
+      });
     }
 
     if (flushSync) {
@@ -227,7 +216,7 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
     }
 
     if (event.pointerType === 'touch') {
-      pauseTimers();
+      store.pauseTimers();
     }
 
     const target = getTarget(event.nativeEvent) as HTMLElement | null;
@@ -256,7 +245,7 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
       });
     }
 
-    setHovering(true);
+    store.setHovering(true);
     setIsSwiping(true);
     setIsRealSwipe(false);
     setLockedDirection(null);
@@ -442,7 +431,7 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
     if (shouldClose) {
       setCurrentSwipeDirection(dismissDirection);
       setDragDismissed(true);
-      close(toast.id);
+      store.closeToast(toast.id);
     } else {
       setDragOffset({ x: initialTransform.x, y: initialTransform.y });
       setCurrentSwipeDirection(undefined);
@@ -457,7 +446,7 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
       ) {
         return;
       }
-      close(toast.id);
+      store.closeToast(toast.id);
     }
   }
 
@@ -562,24 +551,14 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
     ],
   );
 
-  const state: ToastRoot.State = React.useMemo(
-    () => ({
-      transitionStatus: toast.transitionStatus,
-      expanded,
-      limited: toast.limited || false,
-      type: toast.type,
-      swiping: toastRoot.swiping,
-      swipeDirection: toastRoot.swipeDirection,
-    }),
-    [
-      expanded,
-      toast.transitionStatus,
-      toast.limited,
-      toast.type,
-      toastRoot.swiping,
-      toastRoot.swipeDirection,
-    ],
-  );
+  const state: ToastRoot.State = {
+    transitionStatus: toast.transitionStatus,
+    expanded,
+    limited: toast.limited || false,
+    type: toast.type,
+    swiping: toastRoot.swiping,
+    swipeDirection: toastRoot.swipeDirection,
+  };
 
   const element = useRenderElement('div', componentProps, {
     ref: [forwardedRef, toastRoot.rootRef],

@@ -59,13 +59,10 @@ export const TabsList = React.forwardRef(function TabsList(
     },
   );
 
-  const state: TabsList.State = React.useMemo(
-    () => ({
-      orientation,
-      tabActivationDirection,
-    }),
-    [orientation, tabActivationDirection],
-  );
+  const state: TabsList.State = {
+    orientation,
+    tabActivationDirection,
+  };
 
   const defaultProps: HTMLProps = {
     'aria-orientation': orientation === 'vertical' ? 'vertical' : undefined,

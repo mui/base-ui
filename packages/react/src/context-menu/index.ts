@@ -33,6 +33,10 @@ export type {
   MenuItemState as ContextMenuItemState,
 } from '../menu/item/MenuItem';
 export type {
+  MenuLinkItemProps as ContextMenuLinkItemProps,
+  MenuLinkItemState as ContextMenuLinkItemState,
+} from '../menu/link-item/MenuLinkItem';
+export type {
   MenuCheckboxItemProps as ContextMenuCheckboxItemProps,
   MenuCheckboxItemState as ContextMenuCheckboxItemState,
 } from '../menu/checkbox-item/MenuCheckboxItem';

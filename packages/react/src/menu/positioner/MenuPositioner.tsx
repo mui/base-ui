@@ -13,6 +13,7 @@ import { CompositeList } from '../../composite/list/CompositeList';
 import { InternalBackdrop } from '../../utils/InternalBackdrop';
 import { useMenuPortalContext } from '../portal/MenuPortalContext';
 import { DROPDOWN_COLLISION_AVOIDANCE, POPUP_COLLISION_AVOIDANCE } from '../../utils/constants';
+import { getDisabledMountTransitionStyles } from '../../utils/getDisabledMountTransitionStyles';
 import { useContextMenuRootContext } from '../../context-menu/root/ContextMenuRootContext';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
@@ -58,6 +59,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
   const open = store.useState('open');
   const modal = store.useState('modal');
   const triggerElement = store.useState('activeTriggerElement');
+  const transitionStatus = store.useState('transitionStatus');
   const lastOpenChangeReason = store.useState('lastOpenChangeReason');
   const floatingNodeId = store.useState('floatingNodeId');
   const floatingParentNodeId = store.useState('floatingParentNodeId');
@@ -106,7 +108,8 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
     keepMounted,
     disableAnchorTracking,
     collisionAvoidance,
-    shiftCrossAxis: contextMenu,
+    shiftCrossAxis:
+      contextMenu && !('side' in collisionAvoidance && collisionAvoidance.side === 'flip'),
     externalTree: floatingTreeRoot,
   });
 
@@ -138,14 +141,6 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
           details.parentNodeId === store.select('floatingParentNodeId')
         ) {
           store.setOpen(false, createChangeEventDetails(REASONS.siblingOpen));
-        }
-      } else if (details.parentNodeId === floatingNodeId) {
-        // Re-enable hover on the parent when a child closes, except when the child
-        // closed due to hovering a different sibling item in this parent (sibling-open).
-        // Keeping hover disabled in that scenario prevents the parent from closing
-        // immediately when the pointer then leaves it.
-        if (details.reason !== REASONS.siblingOpen) {
-          store.set('hoverEnabled', true);
         }
       }
     }
@@ -209,16 +204,13 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
     floatingTreeRoot.events.emit('menuopenchange', eventDetails);
   }, [floatingTreeRoot.events, open, store, floatingNodeId, floatingParentNodeId]);
 
-  const state: MenuPositioner.State = React.useMemo(
-    () => ({
-      open,
-      side: positioner.side,
-      align: positioner.align,
-      anchorHidden: positioner.anchorHidden,
-      nested: parent.type === 'menu',
-    }),
-    [open, positioner.side, positioner.align, positioner.anchorHidden, parent.type],
-  );
+  const state: MenuPositioner.State = {
+    open,
+    side: positioner.side,
+    align: positioner.align,
+    anchorHidden: positioner.anchorHidden,
+    nested: parent.type === 'menu',
+  };
 
   const contextValue: MenuPositionerContext = React.useMemo(
     () => ({
@@ -243,7 +235,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
     state,
     stateAttributesMapping: popupStateMapping,
     ref: [forwardedRef, store.useStateSetter('positionerElement')],
-    props: [positionerProps, elementProps],
+    props: [positionerProps, getDisabledMountTransitionStyles(transitionStatus), elementProps],
   });
 
   const shouldRenderBackdrop =

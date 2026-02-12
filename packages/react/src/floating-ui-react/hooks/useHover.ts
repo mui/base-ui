@@ -1,3 +1,4 @@
+'use client';
 import * as React from 'react';
 import { isElement } from '@floating-ui/utils/dom';
 import { useTimeout } from '@base-ui/utils/useTimeout';
@@ -7,7 +8,6 @@ import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { contains, getDocument, getTarget, isMouseLikePointerType } from '../utils';
 
 import { useFloatingParentNodeId, useFloatingTree } from '../components/FloatingTree';
-import { FloatingTreeStore } from '../components/FloatingTreeStore';
 import type {
   Delay,
   ElementProps,
@@ -73,12 +73,6 @@ function getRestMs(value: number | (() => number)) {
 
 export interface UseHoverProps {
   /**
-   * Whether the Hook is enabled, including all internal Effects and event
-   * handlers.
-   * @default true
-   */
-  enabled?: boolean | undefined;
-  /**
    * Accepts an event handler that runs on `mousemove` to control when the
    * floating element closes once the cursor leaves the reference element.
    * @default null
@@ -97,27 +91,11 @@ export interface UseHoverProps {
    */
   delay?: (Delay | (() => Delay)) | undefined;
   /**
-   * Whether the logic only runs for mouse input, ignoring touch input.
-   * Note: due to a bug with Linux Chrome, "pen" inputs are considered "mouse".
-   * @default false
-   */
-  mouseOnly?: boolean | undefined;
-  /**
    * Whether moving the cursor over the floating element will open it, without a
    * regular hover event required.
    * @default true
    */
   move?: boolean | undefined;
-  /**
-   * Allows to override the element that will trigger the popup.
-   * When it's set, useHover won't read the reference element from the root context.
-   * This allows to have multiple triggers per floating element (assuming `useHover` is called per trigger).
-   */
-  triggerElement?: (HTMLElement | null) | undefined;
-  /**
-   * External FlatingTree to use when the one provided by context can't be used.
-   */
-  externalTree?: FloatingTreeStore | undefined;
 }
 
 /**
@@ -134,18 +112,9 @@ export function useHover(
   const floatingElement = store.useState('floatingElement');
   const domReferenceElement = store.useState('domReferenceElement');
   const { dataRef, events } = store.context;
-  const {
-    enabled = true,
-    delay = 0,
-    handleClose = null,
-    mouseOnly = false,
-    restMs = 0,
-    move = true,
-    triggerElement = null,
-    externalTree,
-  } = props;
+  const { delay = 0, handleClose = null, restMs = 0, move = true } = props;
 
-  const tree = useFloatingTree(externalTree);
+  const tree = useFloatingTree();
   const parentId = useFloatingParentNodeId();
   const handleCloseRef = useValueAsRef(handleClose);
   const delayRef = useValueAsRef(delay);
@@ -179,10 +148,6 @@ export function useHover(
   // When closing before opening, clear the delay timeouts to cancel it
   // from showing.
   React.useEffect(() => {
-    if (!enabled) {
-      return undefined;
-    }
-
     function onOpenChangeLocal(details: FloatingUIOpenChangeDetails) {
       if (!details.open) {
         timeout.clear();
@@ -196,12 +161,9 @@ export function useHover(
     return () => {
       events.off('openchange', onOpenChangeLocal);
     };
-  }, [enabled, events, timeout, restTimeout]);
+  }, [events, timeout, restTimeout]);
 
   React.useEffect(() => {
-    if (!enabled) {
-      return undefined;
-    }
     if (!handleCloseRef.current) {
       return undefined;
     }
@@ -231,7 +193,7 @@ export function useHover(
     return () => {
       html.removeEventListener('mouseleave', onLeave);
     };
-  }, [floatingElement, open, store, enabled, handleCloseRef, isHoverOpen, isClickLikeOpenEvent]);
+  }, [floatingElement, open, store, handleCloseRef, isHoverOpen, isClickLikeOpenEvent]);
 
   const closeWithDelay = React.useCallback(
     (event: MouseEvent, runElseBranch = true) => {
@@ -276,18 +238,11 @@ export function useHover(
   // delegation system. If the cursor was on a disabled element and then entered
   // the reference (no gap), `mouseenter` doesn't fire in the delegation system.
   React.useEffect(() => {
-    if (!enabled) {
-      return undefined;
-    }
-
     function onReferenceMouseEnter(event: MouseEvent) {
       timeout.clear();
       blockMouseMoveRef.current = false;
 
-      if (
-        (mouseOnly && !isMouseLikePointerType(pointerTypeRef.current)) ||
-        (getRestMs(restMsRef.current) > 0 && !getDelay(delayRef.current, 'open'))
-      ) {
+      if (getRestMs(restMsRef.current) > 0 && !getDelay(delayRef.current, 'open')) {
         return;
       }
 
@@ -413,7 +368,7 @@ export function useHover(
       }
     }
 
-    const trigger = (triggerElement ?? domReferenceElement) as HTMLElement | null;
+    const trigger = domReferenceElement as HTMLElement | null;
 
     if (isElement(trigger)) {
       const floating = floatingElement;
@@ -461,12 +416,9 @@ export function useHover(
 
     return undefined;
   }, [
-    enabled,
-    mouseOnly,
     move,
     domReferenceElement,
     floatingElement,
-    triggerElement,
     store,
     closeWithDelay,
     cleanupMouseMoveHandler,
@@ -488,10 +440,6 @@ export function useHover(
   // handles nested floating elements.
   // https://github.com/floating-ui/floating-ui/issues/1722
   useIsoLayoutEffect(() => {
-    if (!enabled) {
-      return undefined;
-    }
-
     // eslint-disable-next-line no-underscore-dangle
     if (open && handleCloseRef.current?.__options?.blockPointerEvents && isHoverOpen()) {
       performedPointerEventsMutationRef.current = true;
@@ -523,16 +471,7 @@ export function useHover(
     }
 
     return undefined;
-  }, [
-    enabled,
-    open,
-    parentId,
-    tree,
-    handleCloseRef,
-    isHoverOpen,
-    domReferenceElement,
-    floatingElement,
-  ]);
+  }, [open, parentId, tree, handleCloseRef, isHoverOpen, domReferenceElement, floatingElement]);
 
   useIsoLayoutEffect(() => {
     if (!open) {
@@ -551,7 +490,7 @@ export function useHover(
       restTimeout.clear();
       interactedInsideRef.current = false;
     };
-  }, [enabled, domReferenceElement, cleanupMouseMoveHandler, timeout, restTimeout]);
+  }, [domReferenceElement, cleanupMouseMoveHandler, timeout, restTimeout]);
 
   React.useEffect(() => {
     return clearPointerEvents;
@@ -584,10 +523,6 @@ export function useHover(
           }
         }
 
-        if (mouseOnly && !isMouseLikePointerType(pointerTypeRef.current)) {
-          return;
-        }
-
         if (
           (store.select('open') && !isOverInactiveTrigger) ||
           getRestMs(restMsRef.current) === 0
@@ -616,7 +551,7 @@ export function useHover(
         }
       },
     };
-  }, [mouseOnly, store, restMsRef, restTimeout]);
+  }, [store, restMsRef, restTimeout]);
 
-  return React.useMemo(() => (enabled ? { reference } : {}), [enabled, reference]);
+  return React.useMemo(() => ({ reference }), [reference]);
 }

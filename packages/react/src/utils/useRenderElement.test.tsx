@@ -1,7 +1,9 @@
 /* eslint-disable testing-library/render-result-naming-convention */
 import * as React from 'react';
 import { expect } from 'chai';
+import { vi } from 'vitest';
 import { createRenderer } from '#test-utils';
+import { reactMajor } from '@mui/internal-test-utils';
 import type { BaseUIComponentProps } from '../utils/types';
 import { useRenderElement } from './useRenderElement';
 
@@ -14,7 +16,7 @@ describe('useRenderElement', () => {
   ) {
     const { className, render: renderProp, active, ...elementProps } = componentProps;
 
-    const state = React.useMemo(() => ({ active }), [active]);
+    const state = { active };
 
     const element = useRenderElement('div', componentProps, {
       state,
@@ -69,5 +71,188 @@ describe('useRenderElement', () => {
     const element = container.firstElementChild;
 
     expect(element?.getAttribute('style')).to.equal('padding: 10px;');
+  });
+
+  describe('render prop', () => {
+    it('accepts render as a function that receives props and state', async () => {
+      const renderFn = vi.fn((props, state) => {
+        return <span {...props} data-active={String(state.active)} />;
+      });
+
+      const { container } = await render(
+        <TestComponent active render={renderFn} data-testid="custom" />,
+      );
+
+      const element = container.firstElementChild;
+
+      expect(renderFn.mock.calls.length).to.be.greaterThan(0);
+      const [firstCallProps, firstCallState] = renderFn.mock.calls[0];
+      expect(firstCallProps).to.include({
+        className: 'test-component',
+        'data-testid': 'custom',
+      });
+      expect(firstCallProps.style).to.deep.equal({ padding: '10px' });
+      expect(firstCallState).to.deep.equal({ active: true });
+      expect(element?.tagName).to.equal('SPAN');
+      expect(element).to.have.attribute('data-testid', 'custom');
+      expect(element).to.have.attribute('data-active', 'true');
+    });
+
+    it('accepts render as a React element and clones it with merged props', async () => {
+      const CustomElement = React.forwardRef<HTMLSpanElement, React.ComponentPropsWithRef<'span'>>(
+        function CustomElement(props, ref) {
+          return <span ref={ref} {...props} />;
+        },
+      );
+
+      const { container } = await render(
+        <TestComponent active render={<CustomElement data-active="true" />} data-testid="custom" />,
+      );
+
+      const element = container.firstElementChild;
+
+      expect(element?.tagName).to.equal('SPAN');
+      expect(element).to.have.attribute('data-testid', 'custom');
+      expect(element).to.have.attribute('data-active', 'true');
+    });
+
+    it('forwards ref to render element', async () => {
+      const CustomElement = React.forwardRef<HTMLDivElement, React.ComponentPropsWithRef<'div'>>(
+        function CustomElement(props, ref) {
+          return <div ref={ref} {...props} />;
+        },
+      );
+
+      const ref = React.createRef<HTMLDivElement>();
+      const { container } = await render(<TestComponent ref={ref} render={<CustomElement />} />);
+      const element = container.firstElementChild;
+      expect(ref.current).to.equal(element);
+    });
+
+    it('merges className from render element and component props', async () => {
+      const { container } = await render(
+        <TestComponent
+          active
+          className="component-class"
+          render={<div className="render-class" />}
+        />,
+      );
+
+      const element = container.firstElementChild;
+
+      expect(element?.className).to.contain('component-class');
+      expect(element?.className).to.contain('render-class');
+      expect(element?.className).to.contain('test-component');
+    });
+
+    it('merges className function with render element', async () => {
+      const { container } = await render(
+        <TestComponent
+          active
+          className={(state) => (state.active ? 'active-class' : '')}
+          render={<div className="render-class" />}
+        />,
+      );
+
+      const element = container.firstElementChild;
+
+      expect(element?.className).to.contain('active-class');
+      expect(element?.className).to.contain('render-class');
+      expect(element?.className).to.contain('test-component');
+    });
+
+    it('merges style from render element and component props', async () => {
+      const { container } = await render(
+        <TestComponent
+          active
+          style={{ color: 'rgb(255, 0, 0)' }}
+          render={<div style={{ fontSize: '16px' }} />}
+        />,
+      );
+
+      const element = container.firstElementChild as HTMLElement;
+      expect(element.style.padding).to.equal('10px');
+      expect(element.style.color).to.equal('rgb(255, 0, 0)');
+      expect(element.style.fontSize).to.equal('16px');
+    });
+
+    it('merges style function with render element', async () => {
+      const { container } = await render(
+        <TestComponent
+          active
+          style={(state) => ({ color: state.active ? 'rgb(255, 0, 0)' : 'rgb(0, 0, 0)' })}
+          render={<div style={{ fontSize: '16px' }} />}
+        />,
+      );
+
+      const element = container.firstElementChild as HTMLElement;
+      expect(element.style.padding).to.equal('10px');
+      expect(element.style.color).to.equal('rgb(255, 0, 0)');
+      expect(element.style.fontSize).to.equal('16px');
+    });
+
+    it('handles lazy elements', async () => {
+      const LazyComponent = React.lazy(() =>
+        Promise.resolve({
+          default: React.forwardRef<HTMLDivElement, React.ComponentPropsWithRef<'div'>>(
+            function LazyDiv(props, ref) {
+              return <div ref={ref} data-lazy="true" {...props} />;
+            },
+          ),
+        }),
+      );
+
+      const { container } = await render(
+        <React.Suspense fallback={<div>Loading…</div>}>
+          <TestComponent active render={<LazyComponent data-testid="lazy" />} />
+        </React.Suspense>,
+      );
+
+      const element = container.firstElementChild;
+      expect(element).to.not.equal(null);
+      expect(element?.getAttribute('data-testid')).to.equal('lazy');
+      expect(element?.getAttribute('data-lazy')).to.equal('true');
+      expect(element?.className).to.contain('test-component');
+    });
+
+    // React 18 also log console error, React 19 fixed that. Ignoring this test for React 18.
+    it.skipIf(reactMajor < 19)(
+      'throws error for invalid render element in development',
+      async () => {
+        const originalEnv = process.env.NODE_ENV;
+
+        let error: Error | null = null;
+        try {
+          process.env.NODE_ENV = 'development';
+          await render(<TestComponent render={'not a valid element' as any} />);
+        } catch (err) {
+          error = err as Error;
+        } finally {
+          process.env.NODE_ENV = originalEnv;
+        }
+
+        expect(error).to.not.equal(null);
+        expect(error?.message).to.match(
+          /Base UI: The `render` prop was provided an invalid React element/,
+        );
+      },
+    );
+
+    it('handles render element with existing ref', async () => {
+      const CustomElement = React.forwardRef<HTMLDivElement, React.ComponentPropsWithRef<'div'>>(
+        function CustomElement(props, ref) {
+          return <div ref={ref} {...props} />;
+        },
+      );
+
+      const renderRef = React.createRef<HTMLDivElement>();
+      const componentRef = React.createRef<HTMLDivElement>();
+
+      await render(<TestComponent ref={componentRef} render={<CustomElement ref={renderRef} />} />);
+
+      expect(renderRef.current).to.be.instanceOf(HTMLDivElement);
+      expect(componentRef.current).to.be.instanceOf(HTMLDivElement);
+      expect(renderRef.current).to.equal(componentRef.current);
+    });
   });
 });

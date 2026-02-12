@@ -6,24 +6,24 @@ import type { ToastPositionerProps } from './positioner/ToastPositioner';
 /**
  * Returns the array of toasts and methods to manage them.
  */
-export function useToastManager(): UseToastManagerReturnValue {
-  const context = React.useContext(ToastContext);
+export function useToastManager<Data extends object = any>(): UseToastManagerReturnValue<Data> {
+  const store = React.useContext(ToastContext);
 
-  if (!context) {
+  if (!store) {
     throw new Error('Base UI: useToastManager must be used within <Toast.Provider>.');
   }
 
-  const { toasts, add, close, update, promise } = context;
+  const toasts = store.useState('toasts');
 
   return React.useMemo(
     () => ({
       toasts,
-      add,
-      close,
-      update,
-      promise,
+      add: store.addToast,
+      close: store.closeToast,
+      update: store.updateToast,
+      promise: store.promiseToast,
     }),
-    [toasts, add, close, update, promise],
+    [toasts, store],
   );
 }
 
@@ -106,14 +106,14 @@ export interface ToastManagerPositionerProps extends Omit<
   anchor?: (Element | null) | undefined;
 }
 
-export interface UseToastManagerReturnValue {
-  toasts: ToastContext<any>['toasts'];
-  add: <Data extends object>(options: ToastManagerAddOptions<Data>) => string;
+export interface UseToastManagerReturnValue<Data extends object = any> {
+  toasts: ToastObject<Data>[];
+  add: <T extends Data = Data>(options: ToastManagerAddOptions<T>) => string;
   close: (toastId: string) => void;
-  update: <Data extends object>(toastId: string, options: ToastManagerUpdateOptions<Data>) => void;
-  promise: <Value, Data extends object>(
+  update: <T extends Data = Data>(toastId: string, options: ToastManagerUpdateOptions<T>) => void;
+  promise: <Value, T extends Data = Data>(
     promise: Promise<Value>,
-    options: ToastManagerPromiseOptions<Value, Data>,
+    options: ToastManagerPromiseOptions<Value, T>,
   ) => Promise<Value>;
 }
 
@@ -125,7 +125,7 @@ export interface ToastManagerAddOptions<Data extends object> extends Omit<
 }
 
 export interface ToastManagerUpdateOptions<Data extends object> extends Partial<
-  ToastManagerAddOptions<Data>
+  Omit<ToastObject<Data>, 'id' | 'ref' | 'height' | 'transitionStatus' | 'limited'>
 > {}
 
 export interface ToastManagerPromiseOptions<Value, Data extends object> {

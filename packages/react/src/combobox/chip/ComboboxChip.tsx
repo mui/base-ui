@@ -84,12 +84,9 @@ export const ComboboxChip = React.forwardRef(function ComboboxChip(
     return nextIndex;
   }
 
-  const state: ComboboxChip.State = React.useMemo(
-    () => ({
-      disabled,
-    }),
-    [disabled],
-  );
+  const state: ComboboxChip.State = {
+    disabled,
+  };
 
   const element = useRenderElement('div', componentProps, {
     ref: [forwardedRef, ref],
@@ -117,10 +114,15 @@ export const ComboboxChip = React.forwardRef(function ComboboxChip(
           }
         },
         onMouseDown(event) {
-          if (disabled || readOnly) {
+          if (readOnly) {
             return;
           }
+
           event.preventDefault();
+
+          if (disabled) {
+            return;
+          }
           store.state.inputRef.current?.focus();
         },
       },

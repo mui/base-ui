@@ -33,12 +33,9 @@ export const NavigationMenuLink = React.forwardRef(function NavigationMenuLink(
   const nodeId = useNavigationMenuTreeContext();
   const tree = useFloatingTree();
 
-  const state: NavigationMenuLink.State = React.useMemo(
-    () => ({
-      active,
-    }),
-    [active],
-  );
+  const state: NavigationMenuLink.State = {
+    active,
+  };
 
   const defaultProps: HTMLProps = {
     'aria-current': active ? 'page' : undefined,
