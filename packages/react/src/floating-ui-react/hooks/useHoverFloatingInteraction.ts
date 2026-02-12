@@ -204,10 +204,10 @@ export function useHoverFloatingInteraction(
       }
     }
 
-    function onFloatingMouseEnter() {
+    function onFloatingMouseEnter(event: MouseEvent) {
       instance.openChangeTimeout.clear();
       clearPointerEvents();
-      cleanupMouseMoveHandler();
+      instance.handler?.(event);
     }
 
     function onFloatingMouseLeave(event: MouseEvent) {
