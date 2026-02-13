@@ -29,10 +29,7 @@ export function useCalendarDayGridCellContext() {
   const context = React.useContext(SharedCalendarDayGridCellContext);
   if (context === undefined) {
     throw new Error(
-      [
-        'Base UI X: SharedCalendarDayGridCellContext is missing.',
-        '<Calendar.DayGridButton /> must be placed within <Calendar.DayGridCell /> and <RangeCalendar.DayGridButton /> must be placed within <RangeCalendar.DayGriCell />.',
-      ].join('\n'),
+      'Base UI: SharedCalendarDayGridCellContext is missing. <Calendar.DayButton /> must be placed within <Calendar.DayGridCell /> and <RangeCalendar.DayButton /> must be placed within <RangeCalendar.DayGriCell />.',
     );
   }
   return context;

@@ -17,10 +17,7 @@ export function useTemporalLocale() {
   const context = React.useContext(TemporalLocaleContext);
   if (context === undefined) {
     throw new Error(
-      [
-        'Base UI: TemporalLocaleContext is missing.',
-        'Temporal components must be place within <TemporalLocaleProvider />',
-      ].join('\n'),
+      'Base UI: TemporalLocaleContext is missing. Temporal components must be place within <TemporalLocaleProvider />',
     );
   }
 

@@ -16,10 +16,7 @@ export function useCalendarContext() {
   const store = React.useContext(SharedCalendarRootContext);
   if (store === undefined) {
     throw new Error(
-      [
-        'Base UI: SharedCalendarRootContext is missing.',
-        'Calendar parts must be placed within <Calendar.Root />.',
-      ].join('\n'),
+      'Base UI: SharedCalendarRootContext is missing. Calendar parts must be placed within <Calendar.Root />.',
     );
   }
 
