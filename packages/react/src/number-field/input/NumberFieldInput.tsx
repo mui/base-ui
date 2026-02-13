@@ -57,11 +57,11 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
   componentProps: NumberFieldInput.Props,
   forwardedRef: React.ForwardedRef<HTMLInputElement>,
 ) {
-  const { render, className, ...elementProps } = componentProps;
+  const { render, className, disabled: disabledProp, ...elementProps } = componentProps;
 
   const {
     allowInputSyncRef,
-    disabled,
+    disabled: contextDisabled,
     formatOptionsRef,
     getAllowedNonNumericKeys,
     getStepAmount,
@@ -86,6 +86,8 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
     valueRef,
   } = useNumberFieldRootContext();
 
+  const disabled = disabledProp || contextDisabled;
+
   const { clearErrors } = useFormContext();
   const { validationMode, setTouched, setFocused, invalid, shouldValidateOnChange, validation } =
     useFieldRootContext();
@@ -95,6 +97,7 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
   const blockRevalidationRef = React.useRef(false);
 
   useField({
+    disabled,
     id,
     commit: validation.commit,
     value,

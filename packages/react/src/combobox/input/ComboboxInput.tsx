@@ -15,6 +15,7 @@ import { triggerStateAttributesMapping } from '../utils/stateAttributesMapping';
 import { selectors } from '../store';
 import type { FieldRoot } from '../../field/root/FieldRoot';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
+import { useClearFocusWhenDisabled } from '../../field/useField';
 import { useLabelableContext } from '../../labelable-provider/LabelableContext';
 import { useComboboxChipsContext } from '../chips/ComboboxChipsContext';
 import { stopEvent } from '../../floating-ui-react/utils';
@@ -100,6 +101,8 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
       inputInsidePopup: nextIsInsidePopup,
     });
   });
+
+  useClearFocusWhenDisabled(disabled);
 
   const state: ComboboxInput.State = {
     ...fieldState,

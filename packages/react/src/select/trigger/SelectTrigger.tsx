@@ -9,6 +9,7 @@ import { useStore } from '@base-ui/utils/store';
 import { useSelectRootContext } from '../root/SelectRootContext';
 import { BaseUIComponentProps, HTMLProps, NativeButtonProps } from '../../utils/types';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
+import { useClearFocusWhenDisabled } from '../../field/useField';
 import { useLabelableContext } from '../../labelable-provider/LabelableContext';
 import { pressableTriggerOpenStateMapping } from '../../utils/popupStateMapping';
 import { fieldValidityMapping } from '../../field/utils/constants';
@@ -85,17 +86,19 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
   const shouldCheckNullItemLabel = !hasSelectedValue && open;
   const hasNullItemLabel = useStore(store, selectors.hasNullItemLabel, shouldCheckNullItemLabel);
 
+  const { getButtonProps, buttonRef, focusableWhenDisabled } = useButton({
+    disabled,
+    native: nativeButton,
+  });
+
+  useClearFocusWhenDisabled(disabled, focusableWhenDisabled);
+
   const id = idProp ?? rootId;
   useLabelableId({ id });
 
   const positionerRef = useValueAsRef(positionerElement);
 
   const triggerRef = React.useRef<HTMLElement | null>(null);
-
-  const { getButtonProps, buttonRef } = useButton({
-    disabled,
-    native: nativeButton,
-  });
 
   const setTriggerElement = useStableCallback((element) => {
     store.set('triggerElement', element);

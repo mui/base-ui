@@ -27,13 +27,14 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
     return Boolean(element?.tagName === 'A' && (element as HTMLAnchorElement)?.href);
   });
 
-  const { props: focusableWhenDisabledProps } = useFocusableWhenDisabled({
-    focusableWhenDisabled,
-    disabled,
-    composite: isCompositeItem,
-    tabIndex,
-    isNativeButton,
-  });
+  const { props: focusableWhenDisabledProps, focusableWhenDisabled: isFocusableWhenDisabled } =
+    useFocusableWhenDisabled({
+      focusableWhenDisabled,
+      disabled,
+      composite: isCompositeItem,
+      tabIndex,
+      isNativeButton,
+    });
 
   if (process.env.NODE_ENV !== 'production') {
     // eslint-disable-next-line react-hooks/rules-of-hooks
@@ -193,6 +194,7 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
   return {
     getButtonProps,
     buttonRef,
+    focusableWhenDisabled: isFocusableWhenDisabled,
   };
 }
 
@@ -246,6 +248,7 @@ export interface UseButtonReturnValue {
    * It is not a part of the props returned by `getButtonProps`.
    */
   buttonRef: React.Ref<HTMLElement>;
+  focusableWhenDisabled: boolean;
 }
 
 export namespace useButton {

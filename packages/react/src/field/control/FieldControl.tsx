@@ -96,6 +96,7 @@ export const FieldControl = React.forwardRef(function FieldControl(
   const value = isControlled ? valueUnwrapped : undefined;
 
   useField({
+    disabled,
     id,
     name,
     commit: validation.commit,

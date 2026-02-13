@@ -8,6 +8,7 @@ import { AlertDialog } from '@base-ui/react/alert-dialog';
 import { Popover } from '@base-ui/react/popover';
 import { Toggle } from '@base-ui/react/toggle';
 import { ToggleGroup } from '@base-ui/react/toggle-group';
+import { Field } from '@base-ui/react/field';
 import { screen, waitFor } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import { NOOP } from '../../utils/noop';
@@ -213,6 +214,37 @@ describe('<Toolbar.Button />', () => {
         await user.click(switchElement);
         expect(handleCheckedChange).toHaveBeenCalledTimes(0);
         expect(handleClick).toHaveBeenCalledTimes(0);
+      });
+
+      it('keeps [data-focused] when disabled while remaining focusable', async () => {
+        function App({ disabled }: { disabled: boolean }) {
+          return (
+            <Toolbar.Root>
+              <Field.Root data-testid="field">
+                <Toolbar.Button
+                  nativeButton={false}
+                  render={<Switch.Root data-testid="switch" />}
+                  disabled={disabled}
+                />
+              </Field.Root>
+            </Toolbar.Root>
+          );
+        }
+
+        const { user, setProps } = await render(<App disabled={false} />);
+
+        const field = screen.getByTestId('field');
+        const switchElement = screen.getByTestId('switch');
+
+        await user.keyboard('[Tab]');
+
+        expect(field).to.have.attribute('data-focused', '');
+        expect(switchElement).to.have.attribute('data-focused', '');
+
+        await setProps({ disabled: true });
+
+        expect(field).to.have.attribute('data-focused', '');
+        expect(switchElement).to.have.attribute('data-focused', '');
       });
     });
 

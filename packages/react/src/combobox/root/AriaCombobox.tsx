@@ -432,6 +432,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
   } = useOpenInteractionType(open);
 
   useField({
+    disabled,
     id,
     name,
     commit: validation.commit,

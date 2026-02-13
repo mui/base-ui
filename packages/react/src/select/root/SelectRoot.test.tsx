@@ -1621,34 +1621,120 @@ describe('<Select.Root />', () => {
       });
     });
 
-    it('[data-focused]', async () => {
-      await render(
-        <Field.Root>
-          <Select.Root>
-            <Select.Trigger data-testid="trigger" />
-            <Select.Portal>
-              <Select.Positioner>
-                <Select.Popup>
-                  <Select.Item value="">Select</Select.Item>
-                  <Select.Item value="1">Option 1</Select.Item>
-                </Select.Popup>
-              </Select.Positioner>
-            </Select.Portal>
-          </Select.Root>
-        </Field.Root>,
-      );
+    describe('[data-focused]', () => {
+      it('sets [data-focused] when focused', async () => {
+        await render(
+          <Field.Root>
+            <Select.Root>
+              <Select.Trigger data-testid="trigger" />
+              <Select.Portal>
+                <Select.Positioner>
+                  <Select.Popup>
+                    <Select.Item value="">Select</Select.Item>
+                    <Select.Item value="1">Option 1</Select.Item>
+                  </Select.Popup>
+                </Select.Positioner>
+              </Select.Portal>
+            </Select.Root>
+          </Field.Root>,
+        );
 
-      const trigger = screen.getByTestId('trigger');
+        const trigger = screen.getByTestId('trigger');
+        expect(trigger).not.to.have.attribute('data-focused');
 
-      expect(trigger).not.to.have.attribute('data-focused');
+        fireEvent.focus(trigger);
+        expect(trigger).to.have.attribute('data-focused', '');
 
-      fireEvent.focus(trigger);
+        fireEvent.blur(trigger);
+        expect(trigger).not.to.have.attribute('data-focused');
+      });
 
-      expect(trigger).to.have.attribute('data-focused', '');
+      it('should remove data-focused when the field becomes disabled', async () => {
+        const { setProps } = await render(
+          <Field.Root>
+            <Select.Root>
+              <Select.Trigger data-testid="trigger" />
+              <Select.Portal>
+                <Select.Positioner>
+                  <Select.Popup>
+                    <Select.Item value="">Select</Select.Item>
+                    <Select.Item value="1">Option 1</Select.Item>
+                  </Select.Popup>
+                </Select.Positioner>
+              </Select.Portal>
+            </Select.Root>
+          </Field.Root>,
+        );
 
-      fireEvent.blur(trigger);
+        const trigger = screen.getByTestId('trigger');
+        expect(trigger).not.to.have.attribute('data-focused');
 
-      expect(trigger).not.to.have.attribute('data-focused');
+        fireEvent.focus(trigger);
+        expect(trigger).to.have.attribute('data-focused', '');
+
+        await setProps({ disabled: true });
+        expect(trigger).not.to.have.attribute('data-focused');
+      });
+
+      it('should remove data-focused when the root becomes disabled', async () => {
+        function App({ disabled }: { disabled: boolean }) {
+          return (
+            <Field.Root>
+              <Select.Root disabled={disabled}>
+                <Select.Trigger data-testid="trigger" />
+                <Select.Portal>
+                  <Select.Positioner>
+                    <Select.Popup>
+                      <Select.Item value="">Select</Select.Item>
+                      <Select.Item value="1">Option 1</Select.Item>
+                    </Select.Popup>
+                  </Select.Positioner>
+                </Select.Portal>
+              </Select.Root>
+            </Field.Root>
+          );
+        }
+        const { setProps } = await render(<App disabled={false} />);
+
+        const trigger = screen.getByTestId('trigger');
+        expect(trigger).not.to.have.attribute('data-focused');
+
+        fireEvent.focus(trigger);
+        expect(trigger).to.have.attribute('data-focused', '');
+
+        await setProps({ disabled: true });
+        expect(trigger).not.to.have.attribute('data-focused');
+      });
+
+      it('should remove data-focused when the trigger becomes disabled', async () => {
+        function App({ disabled }: { disabled: boolean }) {
+          return (
+            <Field.Root>
+              <Select.Root>
+                <Select.Trigger data-testid="trigger" disabled={disabled} />
+                <Select.Portal>
+                  <Select.Positioner>
+                    <Select.Popup>
+                      <Select.Item value="">Select</Select.Item>
+                      <Select.Item value="1">Option 1</Select.Item>
+                    </Select.Popup>
+                  </Select.Positioner>
+                </Select.Portal>
+              </Select.Root>
+            </Field.Root>
+          );
+        }
+        const { setProps } = await render(<App disabled={false} />);
+
+        const trigger = screen.getByTestId('trigger');
+        expect(trigger).not.to.have.attribute('data-focused');
+
+        fireEvent.focus(trigger);
+        expect(trigger).to.have.attribute('data-focused', '');
+
+        await setProps({ disabled: true });
+        expect(trigger).not.to.have.attribute('data-focused');
+      });
     });
 
     it('does not mark as touched when focus moves into the popup', async () => {
