@@ -203,6 +203,7 @@ async function generateLlmsTxt() {
       'This is the documentation for the `@base-ui/react` package.',
       'It contains a collection of components and utilities for building user interfaces in React.',
       'The library is designed to be composable and styling agnostic.',
+      'The Tailwind CSS examples are written for Tailwind CSS v4. If `package.json` uses Tailwind CSS v3, automatically convert unsupported styles to v3-compatible equivalents.',
       '',
     ];
 
