@@ -22,14 +22,17 @@ interface ReasonToEventMap {
   [REASONS.inputClear]: InputEvent | FocusEvent | Event;
   [REASONS.inputBlur]: FocusEvent;
   [REASONS.inputPaste]: ClipboardEvent;
+  [REASONS.inputPress]: MouseEvent | PointerEvent | TouchEvent | KeyboardEvent;
 
   [REASONS.focusOut]: FocusEvent | KeyboardEvent;
   [REASONS.escapeKey]: KeyboardEvent;
+  [REASONS.closeWatcher]: Event;
   [REASONS.listNavigation]: KeyboardEvent;
   [REASONS.keyboard]: KeyboardEvent;
 
   [REASONS.pointer]: PointerEvent;
   [REASONS.drag]: PointerEvent | TouchEvent;
+  [REASONS.swipe]: PointerEvent | TouchEvent;
   [REASONS.wheel]: WheelEvent;
   [REASONS.scrub]: PointerEvent;
 

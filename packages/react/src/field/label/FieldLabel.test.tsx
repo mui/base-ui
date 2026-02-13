@@ -79,7 +79,11 @@ describe('<Field.Label />', () => {
 
       expect(errorSpy).toHaveBeenCalledTimes(1);
       expect(errorSpy).toHaveBeenCalledWith(
-        'Base UI: <Field.Label> was not rendered as a <label> element, which does not match the `nativeLabel` prop on the component. Ensure that the element passed to the `render` prop of <Field.Label> is a real <label>, or set the `nativeLabel` prop on the component to `false`.',
+        expect.stringContaining(
+          'Base UI: <Field.Label> expected a <label> element because the `nativeLabel` prop is true. ' +
+            'Rendering a non-<label> disables native label association, so `htmlFor` will not ' +
+            'work. Use a real <label> in the `render` prop, or set `nativeLabel` to `false`.',
+        ),
       );
       errorSpy.mockRestore();
     });
@@ -99,7 +103,12 @@ describe('<Field.Label />', () => {
 
       expect(errorSpy).toHaveBeenCalledTimes(1);
       expect(errorSpy).toHaveBeenCalledWith(
-        'Base UI: <Field.Label> was rendered as a <label> element, which does not match the `nativeLabel` prop on the component. Ensure that the element passed to the `render` prop of <Field.Label> is not a real <label>, or set the `nativeLabel` prop on the component to `true`.',
+        expect.stringContaining(
+          'Base UI: <Field.Label> expected a non-<label> element because the `nativeLabel` prop is false. ' +
+            'Rendering a <label> assumes native label behavior while Base UI treats it as ' +
+            'non-native, which can cause unexpected pointer behavior. Use a non-<label> in the ' +
+            '`render` prop, or set `nativeLabel` to `true`.',
+        ),
       );
       errorSpy.mockRestore();
     });

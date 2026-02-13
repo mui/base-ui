@@ -127,6 +127,34 @@ describe('<NumberField.Increment />', () => {
       expect(input).to.have.value('4');
     });
 
+    it('stops calling onValueChange once max is reached', async () => {
+      const handleValueChange = spy();
+      await render(
+        <NumberField.Root defaultValue={9} max={10} onValueChange={handleValueChange}>
+          <NumberField.Increment />
+          <NumberField.Input />
+        </NumberField.Root>,
+      );
+
+      const button = screen.getByRole('button');
+      const input = screen.getByRole('textbox');
+
+      fireEvent.pointerDown(button); // onChange x1
+
+      expect(input).to.have.value('10');
+      expect(handleValueChange.callCount).to.equal(1);
+
+      clock.tick(START_AUTO_CHANGE_DELAY);
+
+      clock.tick(CHANGE_VALUE_TICK_DELAY);
+      clock.tick(CHANGE_VALUE_TICK_DELAY);
+
+      expect(input).to.have.value('10');
+      expect(handleValueChange.callCount).to.equal(1);
+
+      fireEvent.pointerUp(button);
+    });
+
     it('does not increment twice with pointerdown and click', async () => {
       await render(
         <NumberField.Root defaultValue={0}>
@@ -301,6 +329,22 @@ describe('<NumberField.Increment />', () => {
     fireEvent.pointerDown(screen.getByRole('button'));
 
     expect(input).to.have.value('101');
+  });
+
+  it('treats pen pointer as touch-like', async () => {
+    await render(
+      <NumberField.Root defaultValue={0}>
+        <NumberField.Increment />
+        <NumberField.Input />
+      </NumberField.Root>,
+    );
+
+    const button = screen.getByRole('button');
+    const input = screen.getByRole('textbox');
+
+    fireEvent.pointerDown(button, { pointerType: 'pen', button: 0 });
+
+    expect(document.activeElement).not.to.equal(input);
   });
 
   it('always increments on quick touch (touchend that occurs before TOUCH_TIMEOUT)', async () => {

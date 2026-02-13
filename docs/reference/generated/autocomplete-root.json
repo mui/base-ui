@@ -134,7 +134,7 @@
     },
     "openOnInputClick": {
       "type": "boolean",
-      "default": "true",
+      "default": "false",
       "description": "Whether the popup opens when clicking the input.",
       "detailedType": "boolean | undefined"
     },

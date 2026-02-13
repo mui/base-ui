@@ -69,43 +69,47 @@ describe('e2e', () => {
       it('<Field.Control />', async () => {
         await renderFixture('field/validate-on-change/Input');
 
-        const error = await page.getByTestId('error');
-        await expect(error).toBeHidden();
+        const valueMissingError = page.getByText('valueMissing error');
+        const tooShortError = page.getByText('tooShort error');
+        const customError = page.getByText('custom error');
+
+        await expect(valueMissingError).toBeHidden();
+        await expect(tooShortError).toBeHidden();
+        await expect(customError).toBeHidden();
 
         const input = page.getByRole('textbox');
 
         await input.press('a');
-        await expect(page.getByText('tooShort error')).toBeVisible();
-        expect(error).toHaveCount(1);
+        await expect(tooShortError).toBeVisible();
 
         // clear the input
         await input.press('Backspace');
-        await expect(page.getByText('valueMissing error')).toBeVisible();
-        expect(error).toHaveCount(1);
+        await expect(valueMissingError).toBeVisible();
 
         await input.pressSequentially('abc');
         await expect(input).toHaveValue('abc');
-        await expect(error).toBeHidden();
+        await expect(valueMissingError).toBeHidden();
+        await expect(tooShortError).toBeHidden();
+        await expect(customError).toBeHidden();
 
         await input.press('d');
         await expect(input).toHaveValue('abcd');
-        await expect(page.getByText('custom error')).toBeVisible();
-        expect(error).toHaveCount(1);
+        await expect(customError).toBeVisible();
 
         await input.press('Backspace');
         await expect(input).toHaveValue('abc');
-        await expect(error).toBeHidden();
+        await expect(valueMissingError).toBeHidden();
+        await expect(tooShortError).toBeHidden();
+        await expect(customError).toBeHidden();
 
         await input.press('Backspace');
         await expect(input).toHaveValue('ab');
-        expect(error).toHaveCount(1);
-        await expect(page.getByText('tooShort error')).toBeVisible();
+        await expect(tooShortError).toBeVisible();
 
         await input.press('Backspace');
         await input.press('Backspace');
         await expect(input).toHaveValue('');
-        expect(error).toHaveCount(1);
-        await expect(page.getByText('valueMissing error')).toBeVisible();
+        await expect(valueMissingError).toBeVisible();
       });
 
       it('<Select />', async () => {
@@ -114,8 +118,13 @@ describe('e2e', () => {
         // the field is required
         await renderFixture('field/validate-on-change/Select');
 
-        const error = await page.getByTestId('error');
-        await expect(error).toBeHidden();
+        const valueMissingError = page.getByText('valueMissing error');
+        const errorOne = page.getByText('error one');
+        const errorThree = page.getByText('error three');
+
+        await expect(valueMissingError).toBeHidden();
+        await expect(errorOne).toBeHidden();
+        await expect(errorThree).toBeHidden();
 
         const trigger = await page.getByRole('combobox');
         await expect(trigger).toHaveText('select');
@@ -125,28 +134,32 @@ describe('e2e', () => {
         await trigger.click();
         await options.filter({ hasText: 'one' }).click();
         await expect(trigger).toHaveText('one');
-        await expect(error).toHaveText('error one');
+        await expect(errorOne).toBeVisible();
 
         await trigger.click();
         await options.filter({ hasText: 'two' }).click();
         await expect(trigger).toHaveText('two');
-        await expect(error).toBeHidden();
+        await expect(valueMissingError).toBeHidden();
+        await expect(errorOne).toBeHidden();
+        await expect(errorThree).toBeHidden();
 
         await trigger.click();
         // clear the value
         await options.filter({ hasText: 'select' }).click();
         await expect(trigger).toHaveText('select');
-        await expect(error).toHaveText('valueMissing error');
+        await expect(valueMissingError).toBeVisible();
 
         await trigger.click();
         await options.filter({ hasText: 'three' }).click();
         await expect(trigger).toHaveText('three');
-        await expect(error).toHaveText('error three');
+        await expect(errorThree).toBeVisible();
 
         await trigger.click();
         await options.filter({ hasText: 'four' }).click();
         await expect(trigger).toHaveText('four');
-        await expect(error).toBeHidden();
+        await expect(valueMissingError).toBeHidden();
+        await expect(errorOne).toBeHidden();
+        await expect(errorThree).toBeHidden();
       });
     });
   });
