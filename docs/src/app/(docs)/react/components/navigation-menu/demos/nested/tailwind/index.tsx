@@ -6,18 +6,21 @@ export default function ExampleNavigationMenu() {
     <NavigationMenu.Root className="min-w-max rounded-lg bg-gray-50 p-1 text-gray-900">
       <NavigationMenu.List className="relative flex">
         <NavigationMenu.Item>
-          <NavigationMenu.Trigger className={triggerClassName}>
+          <NavigationMenu.Trigger className="box-border flex items-center justify-center gap-1.5 h-10 px-2 sm:px-3.5 m-0 rounded-md bg-gray-50 text-gray-900 font-medium text-[0.925rem] sm:text-base leading-6 select-none no-underline hover:bg-gray-100 active:bg-gray-100 data-[popup-open]:bg-gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 focus-visible:relative">
             Overview
             <NavigationMenu.Icon className="transition-transform duration-200 ease-in-out data-[popup-open]:rotate-180">
               <ChevronDownIcon />
             </NavigationMenu.Icon>
           </NavigationMenu.Trigger>
 
-          <NavigationMenu.Content className={contentClassName}>
+          <NavigationMenu.Content className="w-[calc(100vw_-_40px)] h-full p-6 [@media(min-width:32rem)]:w-max [@media(min-width:32rem)]:min-w-[400px] transition-[opacity,transform,translate] duration-[var(--duration)] ease-[var(--easing)] data-[starting-style]:opacity-0 data-[ending-style]:opacity-0 data-[starting-style]:data-[activation-direction=left]:translate-x-[-50%] data-[starting-style]:data-[activation-direction=right]:translate-x-[50%] data-[ending-style]:data-[activation-direction=left]:translate-x-[50%] data-[ending-style]:data-[activation-direction=right]:translate-x-[-50%]">
             <ul className="grid list-none grid-cols-1 gap-0 sm:grid-cols-[12rem_12rem]">
               {overviewLinks.map((item) => (
                 <li key={item.href}>
-                  <Link href={item.href} className={linkCardClassName}>
+                  <Link
+                    href={item.href}
+                    className="w-full text-left relative block rounded-md p-2 [@media(min-width:32rem)]:p-3 no-underline text-inherit hover:bg-gray-100 focus-visible:relative focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 data-[popup-open]:bg-gray-100"
+                  >
                     <h3 className="m-0 mb-1 text-base leading-5 font-medium">{item.title}</h3>
                     <p className="m-0 text-sm leading-5 text-gray-500">{item.description}</p>
                   </Link>
@@ -26,20 +29,23 @@ export default function ExampleNavigationMenu() {
               <li>
                 <NavigationMenu.Root orientation="vertical">
                   <NavigationMenu.Item>
-                    <NavigationMenu.Trigger className={linkCardClassName}>
+                    <NavigationMenu.Trigger className="w-full text-left relative block rounded-md p-2 [@media(min-width:32rem)]:p-3 no-underline text-inherit hover:bg-gray-100 focus-visible:relative focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 data-[popup-open]:bg-gray-100">
                       <span className="m-0 mb-1 text-base leading-5 font-medium">Handbook</span>
                       <p className="m-0 text-sm leading-5 text-gray-500">
-                        How to use Base UI effectively.
+                        How to use Base UI effectively.
                       </p>
                       <NavigationMenu.Icon className="absolute top-1/2 right-2.5 flex h-2.5 w-2.5 -translate-y-1/2 items-center justify-center transition-transform duration-200 ease-in-out data-[popup-open]:rotate-180">
                         <ChevronRightIcon />
                       </NavigationMenu.Icon>
                     </NavigationMenu.Trigger>
-                    <NavigationMenu.Content className={contentClassName}>
+                    <NavigationMenu.Content className="w-[calc(100vw_-_40px)] h-full p-6 [@media(min-width:32rem)]:w-max [@media(min-width:32rem)]:min-w-[400px] transition-[opacity,transform,translate] duration-[var(--duration)] ease-[var(--easing)] data-[starting-style]:opacity-0 data-[ending-style]:opacity-0 data-[starting-style]:data-[activation-direction=left]:translate-x-[-50%] data-[starting-style]:data-[activation-direction=right]:translate-x-[50%] data-[ending-style]:data-[activation-direction=left]:translate-x-[50%] data-[ending-style]:data-[activation-direction=right]:translate-x-[-50%]">
                       <ul className="flex max-w-[400px] flex-col justify-center">
                         {handbookLinks.map((item) => (
                           <li key={item.href}>
-                            <Link href={item.href} className={linkCardClassName}>
+                            <Link
+                              href={item.href}
+                              className="w-full text-left relative block rounded-md p-2 [@media(min-width:32rem)]:p-3 no-underline text-inherit hover:bg-gray-100 focus-visible:relative focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 data-[popup-open]:bg-gray-100"
+                            >
                               <h3 className="m-0 mb-1 text-base leading-5 font-medium">
                                 {item.title}
                               </h3>
@@ -65,7 +71,7 @@ export default function ExampleNavigationMenu() {
                         ['--easing' as string]: 'cubic-bezier(0.22, 1, 0.36, 1)',
                       }}
                     >
-                      <NavigationMenu.Popup className="data-[ending-style]:easing-[ease] relative h-[var(--popup-height)] w-[300px] origin-[var(--transform-origin)] rounded-lg bg-[canvas] text-gray-900 shadow-lg shadow-gray-200 outline outline-1 outline-gray-200 transition-[opacity,transform,width,height,scale,translate] duration-[var(--duration)] ease-[var(--easing)] data-[ending-style]:scale-90 data-[ending-style]:opacity-0 data-[ending-style]:duration-150 data-[starting-style]:scale-90 data-[starting-style]:opacity-0 min-[500px]:w-[var(--popup-width)] dark:shadow-none dark:-outline-offset-1 dark:outline-gray-300">
+                      <NavigationMenu.Popup className="data-[ending-style]:easing-[ease] relative h-[var(--popup-height)] w-[var(--popup-width)] origin-[var(--transform-origin)] rounded-lg bg-[canvas] text-gray-900 shadow-lg shadow-gray-200 outline outline-1 outline-gray-200 transition-[opacity,transform,width,height,scale,translate] duration-[var(--duration)] ease-[var(--easing)] data-[ending-style]:scale-90 data-[ending-style]:opacity-0 data-[ending-style]:duration-150 data-[starting-style]:scale-90 data-[starting-style]:opacity-0 dark:shadow-none dark:-outline-offset-1 dark:outline-gray-300">
                         <NavigationMenu.Viewport className="relative h-full w-full overflow-hidden" />
                       </NavigationMenu.Popup>
                     </NavigationMenu.Positioner>
@@ -147,28 +153,6 @@ function ArrowSvg(props: React.ComponentProps<'svg'>) {
     </svg>
   );
 }
-
-const triggerClassName =
-  'box-border flex items-center justify-center gap-1.5 h-10 ' +
-  'px-2 sm:px-3.5 m-0 rounded-md bg-gray-50 text-gray-900 font-medium ' +
-  'text-[0.925rem] sm:text-base leading-6 select-none no-underline ' +
-  'hover:bg-gray-100 active:bg-gray-100 data-[popup-open]:bg-gray-100 ' +
-  'focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 focus-visible:relative';
-
-const contentClassName =
-  'w-[calc(100vw_-_40px)] h-full p-6 min-[32rem]:w-max min-[32rem]:min-w-[400px] min-[32rem]:w-max ' +
-  'transition-[opacity,transform,translate] duration-[var(--duration)] ease-[var(--easing)] ' +
-  'data-[starting-style]:opacity-0 data-[ending-style]:opacity-0 ' +
-  'data-[starting-style]:data-[activation-direction=left]:translate-x-[-50%] ' +
-  'data-[starting-style]:data-[activation-direction=right]:translate-x-[50%] ' +
-  'data-[ending-style]:data-[activation-direction=left]:translate-x-[50%] ' +
-  'data-[ending-style]:data-[activation-direction=right]:translate-x-[-50%]';
-
-const linkCardClassName =
-  'w-full text-left relative block rounded-md p-2 sm:p-3 no-underline text-inherit ' +
-  'hover:bg-gray-100 focus-visible:relative focus-visible:outline focus-visible:outline-2 ' +
-  'focus-visible:-outline-offset-1 focus-visible:outline-blue-800 ' +
-  'data-[popup-open]:bg-gray-100';
 
 const overviewLinks = [
   {
