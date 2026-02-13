@@ -2,7 +2,7 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { Collapsible } from '@base-ui/react/collapsible';
-import { Menu } from '@base-ui/react/menu';
+import * as Menu from 'docs/src/components/Menu';
 import { usePathname } from 'next/navigation';
 import type { ContentProps } from '@mui/internal-docs-infra/CodeHighlighter/types';
 import { useDemo } from '@mui/internal-docs-infra/useDemo';
@@ -92,9 +92,18 @@ export function Demo({
   const onViewSource = useStableCallback(() => {
     ga?.trackEvent({
       category: 'demo',
-      action: 'github',
+      action: 'open_github',
       label: demoId,
       params: { github: demoId, slug: demoSlug || '' },
+    });
+  });
+
+  const onOpenIssue = useStableCallback(() => {
+    ga?.trackEvent({
+      category: 'demo',
+      action: 'open_issue',
+      label: demoId,
+      params: { issue: demoId, slug: demoSlug || '' },
     });
   });
 
@@ -224,18 +233,13 @@ export function Demo({
                 </GhostButton>
                 {githubUrl && (
                   <Menu.Root>
-                    <Menu.Trigger
-                      className="GhostButton"
-                      data-layout="icon"
-                      aria-label="More actions"
-                    >
+                    <Menu.Trigger data-layout="icon" aria-label="More actions">
                       <MoreVertIcon aria-hidden="true" />
                     </Menu.Trigger>
                     <Menu.Portal>
-                      <Menu.Positioner className="DemoMenuPositioner" sideOffset={8}>
-                        <Menu.Popup className="DemoMenuPopup">
+                      <Menu.Positioner>
+                        <Menu.Popup>
                           <Menu.LinkItem
-                            className="DemoMenuItem"
                             href={githubUrl}
                             target="_blank"
                             rel="noopener"
@@ -244,11 +248,7 @@ export function Demo({
                             <GitHubIcon aria-hidden="true" className="size-3.5" />
                             View source on GitHub
                           </Menu.LinkItem>
-                          <Menu.Item
-                            className="DemoMenuItem"
-                            closeOnClick={false}
-                            onClick={onCopySourceLink}
-                          >
+                          <Menu.Item closeOnClick={false} onClick={onCopySourceLink}>
                             <span className="flex size-3.5 items-center justify-center">
                               {sourceLinkCopied ? (
                                 <CheckIcon aria-hidden="true" />
@@ -261,12 +261,12 @@ export function Demo({
                               {sourceLinkCopied && 'Link copied!'}
                             </span>
                           </Menu.Item>
-                          <Menu.Separator className="DemoMenuSeparator" />
+                          <Menu.Separator />
                           <Menu.LinkItem
-                            className="DemoMenuItem"
                             href={issueUrl}
                             target="_blank"
                             rel="noopener"
+                            onClick={onOpenIssue}
                           >
                             <ExternalLinkIcon aria-hidden="true" className="size-3.5" />
                             Report an issue
