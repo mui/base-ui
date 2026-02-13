@@ -74,6 +74,6 @@ export namespace MenuViewport {
     /**
      * Present if animations should be instant.
      */
-    instant: 'dismiss' | 'click' | 'group' | undefined;
+    instant: 'dismiss' | 'click' | 'group' | 'trigger-change' | undefined;
   }
 }

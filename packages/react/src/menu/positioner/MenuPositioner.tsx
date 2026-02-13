@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import { inertValue } from '@base-ui/utils/inertValue';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { FloatingNode } from '../../floating-ui-react';
 import { MenuPositionerContext } from './MenuPositionerContext';
 import { useMenuRootContext } from '../root/MenuRootContext';
@@ -19,6 +20,7 @@ import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
 import { MenuOpenEventDetails } from '../utils/types';
 import { adaptiveOrigin } from '../../utils/adaptiveOriginMiddleware';
+import { useAnimationsFinished } from '../../utils/useAnimationsFinished';
 
 /**
  * Positions the menu popup against the trigger.
@@ -61,10 +63,16 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
   const modal = store.useState('modal');
   const triggerElement = store.useState('activeTriggerElement');
   const transitionStatus = store.useState('transitionStatus');
+  const positionerElement = store.useState('positionerElement');
+  const instantType = store.useState('instantType');
   const hasViewport = store.useState('hasViewport');
   const lastOpenChangeReason = store.useState('lastOpenChangeReason');
   const floatingNodeId = store.useState('floatingNodeId');
   const floatingParentNodeId = store.useState('floatingParentNodeId');
+  const domReference = floatingRootContext.useState('domReferenceElement');
+
+  const previousTriggerRef = React.useRef<Element | null>(null);
+  const runOnceAnimationsFinish = useAnimationsFinished(positionerElement, false, false);
 
   let anchor = anchorProp;
   let sideOffset = sideOffsetProp;
@@ -207,12 +215,38 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
     floatingTreeRoot.events.emit('menuopenchange', eventDetails);
   }, [floatingTreeRoot.events, open, store, floatingNodeId, floatingParentNodeId]);
 
+  // Keep positioner transition behavior aligned with Popover when switching detached triggers.
+  useIsoLayoutEffect(() => {
+    const currentTrigger = domReference;
+    const previousTrigger = previousTriggerRef.current;
+
+    if (currentTrigger) {
+      previousTriggerRef.current = currentTrigger;
+    }
+
+    if (previousTrigger && currentTrigger && currentTrigger !== previousTrigger) {
+      store.set('instantType', undefined);
+
+      const abortController = new AbortController();
+      runOnceAnimationsFinish(() => {
+        store.set('instantType', 'trigger-change');
+      }, abortController.signal);
+
+      return () => {
+        abortController.abort();
+      };
+    }
+
+    return undefined;
+  }, [domReference, runOnceAnimationsFinish, store]);
+
   const state: MenuPositioner.State = {
     open,
     side: positioner.side,
     align: positioner.align,
     anchorHidden: positioner.anchorHidden,
     nested: parent.type === 'menu',
+    instant: instantType,
   };
 
   const contextValue: MenuPositionerContext = React.useMemo(
@@ -289,6 +323,10 @@ export interface MenuPositionerState {
   align: Align;
   anchorHidden: boolean;
   nested: boolean;
+  /**
+   * Whether CSS transitions should be disabled.
+   */
+  instant: string | undefined;
 }
 
 export interface MenuPositionerProps

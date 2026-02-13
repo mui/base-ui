@@ -187,6 +187,12 @@ describe('<Menu.Viewport />', () => {
 
       expect(previousContainer).to.have.attribute('inert');
       expect(previousContainer!.textContent).to.equal('Content 0');
+      expect(previousContainer!.style.getPropertyValue('--popup-width')).to.match(
+        /^\d+(?:\.\d+)?px$/,
+      );
+      expect(previousContainer!.style.getPropertyValue('--popup-height')).to.match(
+        /^\d+(?:\.\d+)?px$/,
+      );
 
       const nextContainer = document.querySelector('[data-current]');
       expect(nextContainer).not.to.equal(null);

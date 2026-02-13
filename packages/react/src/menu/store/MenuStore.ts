@@ -22,7 +22,7 @@ export type State<Payload> = PopupStoreState<Payload> & {
   activeIndex: number | null;
   hoverEnabled: boolean;
   stickIfOpen: boolean;
-  instantType: 'dismiss' | 'click' | 'group' | undefined;
+  instantType: 'dismiss' | 'click' | 'group' | 'trigger-change' | undefined;
   openChangeReason: MenuRoot.ChangeEventReason | null;
   floatingTreeRoot: FloatingTreeStore;
   floatingNodeId: string | undefined;
