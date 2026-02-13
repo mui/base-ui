@@ -515,7 +515,8 @@ interface FingerState {
   didSwap: boolean;
 }
 
-export interface SliderControlProps extends BaseUIComponentProps<'div', SliderRoot.State> {}
+export interface SliderControlProps
+  extends BaseUIComponentProps<'div', SliderRoot.State, 'onPointerDown'> {}
 
 export namespace SliderControl {
   export type State = SliderRoot.State;

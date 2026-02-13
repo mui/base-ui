@@ -130,7 +130,7 @@ export const SliderIndicator = React.forwardRef(function SliderIndicator(
   return element;
 });
 
-export interface SliderIndicatorProps extends BaseUIComponentProps<'div', SliderRoot.State> {}
+export interface SliderIndicatorProps extends BaseUIComponentProps<'div', SliderRoot.State, never> {}
 
 export namespace SliderIndicator {
   export type Props = SliderIndicatorProps;

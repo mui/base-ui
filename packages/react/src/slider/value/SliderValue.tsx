@@ -74,7 +74,7 @@ export const SliderValue = React.forwardRef(function SliderValue(
 });
 
 export interface SliderValueProps extends Omit<
-  BaseUIComponentProps<'output', SliderRoot.State>,
+  BaseUIComponentProps<'output', SliderRoot.State, never>,
   'children'
 > {
   children?:

@@ -461,7 +461,7 @@ export interface SliderRootState extends FieldRoot.State {
 
 export interface SliderRootProps<
   Value extends number | readonly number[] = number | readonly number[],
-> extends BaseUIComponentProps<'div', SliderRoot.State> {
+> extends BaseUIComponentProps<'div', SliderRoot.State, never> {
   /**
    * The uncontrolled value of the slider when it’s initially rendered.
    *

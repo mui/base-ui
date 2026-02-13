@@ -106,17 +106,15 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
       return mergeProps<'button'>(
         {
           type,
-          onClick(event: BaseUIEvent<React.MouseEvent>) {
+          onClick(event: React.MouseEvent) {
             if (disabled) {
               event.preventDefault();
               return;
             }
-            makeEventPreventable(event);
             externalOnClick?.(event);
           },
-          onMouseDown(event: BaseUIEvent<React.MouseEvent>) {
+          onMouseDown(event: React.MouseEvent) {
             if (!disabled) {
-              makeEventPreventable(event);
               externalOnMouseDown?.(event);
             }
           },
@@ -171,12 +169,11 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
               externalOnClick?.(event);
             }
           },
-          onPointerDown(event: BaseUIEvent<React.PointerEvent>) {
+          onPointerDown(event: React.PointerEvent) {
             if (disabled) {
               event.preventDefault();
               return;
             }
-            makeEventPreventable(event);
             externalOnPointerDown?.(event);
           },
         },
@@ -254,4 +251,10 @@ export interface UseButtonReturnValue {
 export namespace useButton {
   export type Parameters = UseButtonParameters;
   export type ReturnValue = UseButtonReturnValue;
+  /**
+   * Event handler keys that useButton makes preventable via `makeEventPreventable`.
+   * Pass this type (or a union including it) as the `PreventableEvents` generic
+   * of `BaseUIComponentProps` for components that use `useButton`.
+   */
+  export type PreventableEvents = 'onKeyDown' | 'onKeyUp';
 }

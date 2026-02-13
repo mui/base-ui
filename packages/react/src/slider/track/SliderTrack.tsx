@@ -37,7 +37,7 @@ export const SliderTrack = React.forwardRef(function SliderTrack(
   return element;
 });
 
-export interface SliderTrackProps extends BaseUIComponentProps<'div', SliderRoot.State> {}
+export interface SliderTrackProps extends BaseUIComponentProps<'div', SliderRoot.State, never> {}
 
 export namespace SliderTrack {
   export type Props = SliderTrackProps;

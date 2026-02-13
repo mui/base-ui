@@ -44,30 +44,6 @@ describe('<Menu.Item />', () => {
     expect(onClick.callCount).to.equal(1);
   });
 
-  it('provides preventBaseUIHandler on onMouseDown', async () => {
-    let hasPreventBaseUIHandler = false;
-    const onMouseDown = spy((event: any) => {
-      hasPreventBaseUIHandler = typeof event.preventBaseUIHandler === 'function';
-    });
-    await render(
-      <Menu.Root open>
-        <Menu.Portal>
-          <Menu.Positioner>
-            <Menu.Popup>
-              <Menu.Item onMouseDown={onMouseDown}>Item</Menu.Item>
-            </Menu.Popup>
-          </Menu.Positioner>
-        </Menu.Portal>
-      </Menu.Root>,
-    );
-
-    const item = screen.getByRole('menuitem');
-    fireEvent.mouseDown(item);
-
-    expect(onMouseDown.callCount).to.equal(1);
-    expect(hasPreventBaseUIHandler).to.equal(true);
-  });
-
   it('does not close the menu when onClick prevents Base UI handler', async () => {
     const onClick = spy((event) => event.preventBaseUIHandler());
     const { user } = await render(

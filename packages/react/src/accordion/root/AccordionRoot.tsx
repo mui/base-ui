@@ -171,7 +171,7 @@ export interface AccordionRootState {
   orientation: Orientation;
 }
 
-export interface AccordionRootProps extends BaseUIComponentProps<'div', AccordionRoot.State> {
+export interface AccordionRootProps extends BaseUIComponentProps<'div', AccordionRoot.State, never> {
   /**
    * The controlled value of the item(s) that should be expanded.
    *

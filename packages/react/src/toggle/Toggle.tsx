@@ -148,7 +148,8 @@ export interface ToggleState {
 }
 
 export interface ToggleProps<Value extends string>
-  extends NativeButtonProps, BaseUIComponentProps<'button', Toggle.State> {
+  extends NativeButtonProps,
+    BaseUIComponentProps<'button', Toggle.State, useButton.PreventableEvents> {
   /**
    * Whether the toggle button is currently pressed.
    * This is the controlled counterpart of `defaultPressed`.

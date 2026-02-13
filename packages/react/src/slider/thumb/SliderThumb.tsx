@@ -470,7 +470,7 @@ export interface ThumbMetadata {
 export interface SliderThumbState extends SliderRoot.State {}
 
 export interface SliderThumbProps extends Omit<
-  BaseUIComponentProps<'div', SliderThumb.State>,
+  BaseUIComponentProps<'div', SliderThumb.State, 'onPointerDown'>,
   'onBlur' | 'onFocus'
 > {
   /**

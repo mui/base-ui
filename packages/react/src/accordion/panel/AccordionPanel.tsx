@@ -170,7 +170,7 @@ export interface AccordionPanelState extends AccordionItem.State {
 
 export interface AccordionPanelProps
   extends
-    BaseUIComponentProps<'div', AccordionPanel.State>,
+    BaseUIComponentProps<'div', AccordionPanel.State, never>,
     Pick<AccordionRoot.Props, 'hiddenUntilFound' | 'keepMounted'> {}
 
 export namespace AccordionPanel {

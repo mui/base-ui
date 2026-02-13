@@ -190,24 +190,12 @@ function resolvePropsGetter<T extends ElementType>(
   return inputProps ?? (EMPTY_PROPS as PropsOf<T>);
 }
 
-function wrapWithMakeEventPreventable(handler: Function) {
-  return (event: unknown) => {
-    if (isSyntheticEvent(event)) {
-      makeEventPreventable(event as BaseUIEvent<typeof event>);
-    }
-    return handler(event);
-  };
-}
-
 function mergeEventHandlers(ourHandler: Function | undefined, theirHandler: Function | undefined) {
   if (!theirHandler) {
-    if (!ourHandler) {
-      return undefined;
-    }
-    return wrapWithMakeEventPreventable(ourHandler);
+    return ourHandler;
   }
   if (!ourHandler) {
-    return wrapWithMakeEventPreventable(theirHandler);
+    return theirHandler;
   }
 
   return (event: unknown) => {

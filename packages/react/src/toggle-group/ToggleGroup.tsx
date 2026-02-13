@@ -164,7 +164,8 @@ export interface ToggleGroupState {
 
 export interface ToggleGroupProps<Value extends string> extends BaseUIComponentProps<
   'div',
-  ToggleGroup.State
+  ToggleGroup.State,
+  'onFocus' | 'onKeyDown'
 > {
   /**
    * The open state of the toggle group represented by an array of
