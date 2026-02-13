@@ -299,7 +299,7 @@ export interface DrawerRootProps<Payload = unknown> {
   /**
    * ID of the trigger that the drawer is associated with.
    * This is useful in conjunction with the `open` prop to create a controlled drawer.
-   * There's no need to specify this prop when the drawer is uncontrolled (i.e. when the `open` prop is not set).
+   * There's no need to specify this prop when the drawer is uncontrolled (that is, when the `open` prop is not set).
    */
   triggerId?: (string | null) | undefined;
   /**

@@ -3,11 +3,6 @@ import * as CodeBlock from './components/CodeBlock';
 import * as Table from './components/Table';
 import * as QuickNav from './components/QuickNav/QuickNav';
 import { Code } from './components/Code';
-import { ReferenceAccordion } from './components/ReferenceTable/ReferenceAccordion';
-import { ParametersReferenceTable } from './components/ReferenceTable/ParametersReferenceTable';
-import { ReturnValueReferenceTable } from './components/ReferenceTable/ReturnValueReferenceTable';
-import { AttributesReferenceTable } from './components/ReferenceTable/AttributesReferenceTable';
-import { CssVariablesReferenceTable } from './components/ReferenceTable/CssVariablesReferenceTable';
 import { Link } from './components/Link';
 import { HeadingLink } from './components/HeadingLink';
 import { Subtitle } from './components/Subtitle/Subtitle';
@@ -89,21 +84,6 @@ export const mdxComponents: MDXComponents = {
     return <meta {...props} />;
   },
   Subtitle: (props) => <Subtitle className="-mt-2 mb-5" {...props} />,
-
-  // API reference components
-  AttributesReferenceTable: (props) => (
-    <AttributesReferenceTable className="mt-5 mb-6" {...props} />
-  ),
-  CssVariablesReferenceTable: (props) => (
-    <CssVariablesReferenceTable className="mt-5 mb-6" {...props} />
-  ),
-  PropsReferenceTable: (props) => <ReferenceAccordion className="mt-5 mb-6" {...props} />,
-  ParametersReferenceTable: (props) => (
-    <ParametersReferenceTable className="mt-5 mb-6" {...props} />
-  ),
-  ReturnValueReferenceTable: (props) => (
-    <ReturnValueReferenceTable className="mt-5 mb-6" {...props} />
-  ),
 };
 
 export const inlineMdxComponents: MDXComponents = {
