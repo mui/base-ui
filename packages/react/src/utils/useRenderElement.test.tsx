@@ -101,6 +101,11 @@ describe('useRenderElement', () => {
     });
 
     it('throws when render is passed a function with an uppercase name', async () => {
+      const errorSpy = vi
+        .spyOn(console, 'error')
+        .mockName('console.error')
+        .mockImplementation(() => {});
+
       function UppercaseRenderPropWarningTestComponent(props: React.ComponentPropsWithRef<'span'>) {
         return <span {...props} />;
       }
@@ -119,6 +124,7 @@ describe('useRenderElement', () => {
       expect(error?.message).to.contain(
         'Use `render={<Component />}` or `render={(props) => <Component {...props} />}` instead.',
       );
+      errorSpy.mockRestore();
     });
 
     it('does not warn when render is passed a lowercase callback', async () => {
