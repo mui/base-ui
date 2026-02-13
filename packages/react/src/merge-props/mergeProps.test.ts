@@ -267,6 +267,23 @@ describe('mergeProps', () => {
     expect(mergedProps.title).to.equal('internal title 1');
   });
 
+  it('provides preventBaseUIHandler on synthetic events when only one handler exists', () => {
+    let hasPreventBaseUIHandler = false;
+
+    const mergedProps = mergeProps<'button'>(
+      {},
+      {
+        onClick(event) {
+          hasPreventBaseUIHandler = typeof event.preventBaseUIHandler === 'function';
+        },
+      },
+    );
+
+    mergedProps.onClick?.({ nativeEvent: new MouseEvent('click') } as any);
+
+    expect(hasPreventBaseUIHandler).to.equal(true);
+  });
+
   it('sets baseUIHandlerPrevented to true after calling preventBaseUIHandler()', () => {
     let observedFlag: boolean | undefined;
 
