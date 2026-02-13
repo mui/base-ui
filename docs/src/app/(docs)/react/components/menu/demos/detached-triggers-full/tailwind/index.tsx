@@ -35,31 +35,35 @@ type MenuKey = keyof typeof MENUS;
 
 const demoMenu = Menu.createHandle<MenuKey>();
 
-const itemClass =
-  'flex cursor-default py-2 pr-8 pl-4 text-sm leading-4 outline-none select-none data-[highlighted]:relative data-[highlighted]:z-0 data-[highlighted]:text-gray-50 data-[highlighted]:before:absolute data-[highlighted]:before:inset-x-1 data-[highlighted]:before:inset-y-0 data-[highlighted]:before:z-[-1] data-[highlighted]:before:rounded-sm data-[highlighted]:before:bg-gray-900';
+const triggerClass = `
+  flex h-10 items-center justify-center
+  rounded-md border border-gray-200 bg-gray-50
+  px-3.5 text-base font-medium text-gray-900
+  select-none
+  hover:bg-gray-100 active:bg-gray-100 data-popup-open:bg-gray-100
+  focus-visible:outline focus-visible:outline-2
+  focus-visible:-outline-offset-1 focus-visible:outline-blue-800
+`;
+
+const itemClass = `
+  flex cursor-default py-2 pr-8 pl-4
+  text-sm leading-4 outline-none select-none
+  data-[highlighted]:relative data-[highlighted]:z-0 data-[highlighted]:text-gray-50
+  data-[highlighted]:before:absolute data-[highlighted]:before:inset-x-1
+  data-[highlighted]:before:inset-y-0 data-[highlighted]:before:z-[-1]
+  data-[highlighted]:before:rounded-sm data-[highlighted]:before:bg-gray-900
+`;
 
 export default function MenuDetachedTriggersFullDemo() {
   return (
     <div className="flex flex-wrap items-center gap-2">
-      <Menu.Trigger
-        handle={demoMenu}
-        payload={'library' as const}
-        className="flex h-10 items-center justify-center rounded-md border border-gray-200 bg-gray-50 px-3.5 text-base font-medium text-gray-900 select-none hover:bg-gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 active:bg-gray-100 data-popup-open:bg-gray-100"
-      >
+      <Menu.Trigger handle={demoMenu} payload={'library' as const} className={triggerClass}>
         Library
       </Menu.Trigger>
-      <Menu.Trigger
-        handle={demoMenu}
-        payload={'playback' as const}
-        className="flex h-10 items-center justify-center rounded-md border border-gray-200 bg-gray-50 px-3.5 text-base font-medium text-gray-900 select-none hover:bg-gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 active:bg-gray-100 data-popup-open:bg-gray-100"
-      >
+      <Menu.Trigger handle={demoMenu} payload={'playback' as const} className={triggerClass}>
         Playback
       </Menu.Trigger>
-      <Menu.Trigger
-        handle={demoMenu}
-        payload={'share' as const}
-        className="flex h-10 items-center justify-center rounded-md border border-gray-200 bg-gray-50 px-3.5 text-base font-medium text-gray-900 select-none hover:bg-gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 active:bg-gray-100 data-popup-open:bg-gray-100"
-      >
+      <Menu.Trigger handle={demoMenu} payload={'share' as const} className={triggerClass}>
         Share
       </Menu.Trigger>
 
@@ -68,14 +72,66 @@ export default function MenuDetachedTriggersFullDemo() {
           <Menu.Portal>
             <Menu.Positioner
               sideOffset={8}
-              className="outline-none h-[var(--positioner-height)] w-[var(--positioner-width)] max-w-[var(--available-width)] transition-[top,left,right,bottom,transform] duration-[0.35s] ease-[cubic-bezier(0.22,1,0.36,1)] data-instant:transition-none"
+              className={`
+                outline-none
+                h-[var(--positioner-height)] w-[var(--positioner-width)] max-w-[var(--available-width)]
+                transition-[top,left,right,bottom,transform]
+                duration-[0.35s] ease-[cubic-bezier(0.22,1,0.36,1)]
+                data-instant:transition-none
+              `}
             >
-              <Menu.Popup className="relative h-[var(--popup-height,auto)] w-[var(--popup-width,auto)] py-1 origin-[var(--transform-origin)] rounded-md bg-[canvas] text-gray-900 shadow-lg shadow-gray-200 outline outline-1 outline-gray-200 transition-[width,height,transform,scale,opacity] duration-[0.35s] ease-[cubic-bezier(0.22,1,0.36,1)] data-[ending-style]:scale-90 data-[ending-style]:opacity-0 data-[starting-style]:scale-90 data-[starting-style]:opacity-0 data-instant:transition-none dark:shadow-none dark:-outline-offset-1 dark:outline-gray-300">
-                <Menu.Arrow className="transition-[left] duration-[0.35s] ease-[cubic-bezier(0.22,1,0.36,1)] data-[side=bottom]:top-[-8px] data-[side=left]:right-[-13px] data-[side=left]:rotate-90 data-[side=right]:left-[-13px] data-[side=right]:-rotate-90 data-[side=top]:bottom-[-8px] data-[side=top]:rotate-180">
+              <Menu.Popup
+                className={`
+                  relative h-[var(--popup-height,auto)] w-[var(--popup-width,auto)] py-1
+                  origin-[var(--transform-origin)] rounded-md
+                  bg-[canvas] text-gray-900 shadow-lg shadow-gray-200
+                  outline outline-1 outline-gray-200
+                  transition-[width,height,opacity,scale]
+                  duration-[0.35s] ease-[cubic-bezier(0.22,1,0.36,1)]
+                  data-[starting-style]:scale-90 data-[starting-style]:opacity-0
+                  data-[ending-style]:scale-90 data-[ending-style]:opacity-0
+                  data-instant:transition-none
+                  dark:shadow-none dark:-outline-offset-1 dark:outline-gray-300
+                `}
+              >
+                <Menu.Arrow
+                  className={`
+                    flex
+                    transition-[left]
+                    duration-[0.35s] ease-[cubic-bezier(0.22,1,0.36,1)]
+                    data-[side=bottom]:top-[-8px]
+                    data-[side=left]:right-[-13px] data-[side=left]:rotate-90
+                    data-[side=right]:left-[-13px] data-[side=right]:-rotate-90
+                    data-[side=top]:bottom-[-8px] data-[side=top]:rotate-180
+                  `}
+                >
                   <ArrowSvg />
                 </Menu.Arrow>
 
-                <Menu.Viewport className="relative h-full w-full overflow-clip [&_[data-previous]]:w-[var(--popup-width)] [&_[data-previous]]:translate-x-0 [&_[data-previous]]:opacity-100 [&_[data-previous]]:transition-[translate,opacity] [&_[data-previous]]:duration-[350ms,175ms] [&_[data-previous]]:ease-[cubic-bezier(0.22,1,0.36,1)] [&_[data-current]]:w-[var(--popup-width)] [&_[data-current]]:translate-x-0 [&_[data-current]]:opacity-100 [&_[data-current]]:transition-[translate,opacity] [&_[data-current]]:duration-[350ms,175ms] [&_[data-current]]:ease-[cubic-bezier(0.22,1,0.36,1)] data-[activation-direction~='left']:[&_[data-current][data-starting-style]]:-translate-x-1/2 data-[activation-direction~='left']:[&_[data-current][data-starting-style]]:opacity-0 data-[activation-direction~='right']:[&_[data-current][data-starting-style]]:translate-x-1/2 data-[activation-direction~='right']:[&_[data-current][data-starting-style]]:opacity-0 data-[activation-direction~='left']:[&_[data-previous][data-ending-style]]:translate-x-1/2 data-[activation-direction~='left']:[&_[data-previous][data-ending-style]]:opacity-0 data-[activation-direction~='right']:[&_[data-previous][data-ending-style]]:-translate-x-1/2 data-[activation-direction~='right']:[&_[data-previous][data-ending-style]]:opacity-0">
+                <Menu.Viewport
+                  className={`
+                    relative h-full w-full box-border overflow-clip
+                    [--viewport-inline-padding:0rem] px-[var(--viewport-inline-padding)] py-0
+                    [&_[data-current]]:w-[calc(var(--popup-width)-2*var(--viewport-inline-padding))]
+                    [&_[data-current]]:translate-x-0 [&_[data-current]]:opacity-100
+                    [&_[data-current]]:transition-[translate,opacity]
+                    [&_[data-current]]:duration-[350ms,175ms]
+                    [&_[data-current]]:ease-[cubic-bezier(0.22,1,0.36,1)]
+                    data-[activation-direction~='left']:[&_[data-current][data-starting-style]]:-translate-x-1/2
+                    data-[activation-direction~='left']:[&_[data-current][data-starting-style]]:opacity-0
+                    data-[activation-direction~='right']:[&_[data-current][data-starting-style]]:translate-x-1/2
+                    data-[activation-direction~='right']:[&_[data-current][data-starting-style]]:opacity-0
+                    [&_[data-previous]]:w-[calc(var(--popup-width)-2*var(--viewport-inline-padding))]
+                    [&_[data-previous]]:translate-x-0 [&_[data-previous]]:opacity-100
+                    [&_[data-previous]]:transition-[translate,opacity]
+                    [&_[data-previous]]:duration-[350ms,175ms]
+                    [&_[data-previous]]:ease-[cubic-bezier(0.22,1,0.36,1)]
+                    data-[activation-direction~='left']:[&_[data-previous][data-ending-style]]:translate-x-1/2
+                    data-[activation-direction~='left']:[&_[data-previous][data-ending-style]]:opacity-0
+                    data-[activation-direction~='right']:[&_[data-previous][data-ending-style]]:-translate-x-1/2
+                    data-[activation-direction~='right']:[&_[data-previous][data-ending-style]]:opacity-0
+                  `}
+                >
                   {payload &&
                     MENUS[payload].groups.map((group, groupIndex) => (
                       <React.Fragment key={groupIndex}>
