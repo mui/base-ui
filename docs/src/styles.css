@@ -29,6 +29,7 @@
 @import './syntax-highlighting/index.css';
 @import './components/Code.css';
 @import './components/CodeBlock.css';
+@import './components/InstallationBlock.css';
 @import './components/Demo/Demo.css';
 @import './components/GhostButton.css';
 @import './components/Header.css';
