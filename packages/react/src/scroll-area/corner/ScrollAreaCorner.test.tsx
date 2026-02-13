@@ -1,8 +1,11 @@
-import { ScrollArea } from '@base-ui/react/scroll-area';
 import { expect } from 'chai';
 import { screen } from '@mui/internal-test-utils';
 import { createRenderer, isJSDOM } from '#test-utils';
+import { ScrollArea } from '@base-ui/react/scroll-area';
 import { describeConformance } from '../../../test/describeConformance';
+
+const VIEWPORT_SIZE = 100;
+const CONTENT_SIZE = 200;
 
 describe('<ScrollArea.Corner />', () => {
   const { render } = createRenderer();
@@ -10,7 +13,26 @@ describe('<ScrollArea.Corner />', () => {
   describeConformance(<ScrollArea.Corner />, () => ({
     refInstanceof: window.HTMLDivElement,
     render(node) {
-      return render(<ScrollArea.Root>{node}</ScrollArea.Root>);
+      return render(
+        <ScrollArea.Root>
+          <ScrollArea.Viewport
+            ref={(viewport) => {
+              if (!viewport) {
+                return;
+              }
+
+              // JSDOM doesn't measure layout, so stub scroll metrics to unhide the corner.
+              Object.defineProperties(viewport, {
+                clientWidth: { value: VIEWPORT_SIZE, configurable: true },
+                clientHeight: { value: VIEWPORT_SIZE, configurable: true },
+                scrollWidth: { value: CONTENT_SIZE, configurable: true },
+                scrollHeight: { value: CONTENT_SIZE, configurable: true },
+              });
+            }}
+          />
+          {node}
+        </ScrollArea.Root>,
+      );
     },
   }));
 
