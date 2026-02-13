@@ -18,6 +18,11 @@
       "example": "```tsx\n<Slider.Root value={[10, 20]}>\n  <Slider.Thumb index={0} />\n  <Slider.Thumb index={1} />\n</Slider.Root>\n```",
       "detailedType": "number | undefined"
     },
+    "initialPosition": {
+      "type": "number",
+      "description": "The relative initial position of the thumb along the control represented\nby a number between 0–1.\nThis is required to support server-side rendering when using a non-linear\nscale and `thumbAlignment=\"edge\"`. The value is typically the return value\nfrom calling your `scale.valueToPosition` function with the initial value.",
+      "detailedType": "number | undefined"
+    },
     "onBlur": {
       "type": "FocusEventHandler<HTMLInputElement>",
       "description": "A blur handler forwarded to the `input`.",
