@@ -87,6 +87,8 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
   const triggerElement = useStore(store, selectors.triggerElement);
   const positionerElement = useStore(store, selectors.positionerElement);
   const listElement = useStore(store, selectors.listElement);
+  const modal = useStore(store, selectors.modal);
+  const hasClosePart = useStore(store, selectors.hasClosePart);
 
   const initialHeightRef = React.useRef(0);
   const reachedMaxHeightRef = React.useRef(false);
@@ -518,7 +520,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
       {!disableStyleElements && styleDisableScrollbar.getElement(nonce)}
       <FloatingFocusManager
         context={floatingRootContext}
-        modal={false}
+        modal={modal && hasClosePart}
         disabled={!mounted}
         returnFocus={finalFocus}
         restoreFocus

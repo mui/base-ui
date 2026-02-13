@@ -4,6 +4,7 @@ export type * from './root/ComboboxRoot';
 export type * from './trigger/ComboboxTrigger';
 export type * from './input/ComboboxInput';
 export type * from './popup/ComboboxPopup';
+export type * from './close/ComboboxClose';
 export type * from './positioner/ComboboxPositioner';
 export type * from './list/ComboboxList';
 export type * from './item/ComboboxItem';

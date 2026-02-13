@@ -46,4 +46,22 @@ describe('<Popover.Close />', () => {
 
     expect(screen.queryByText('Content')).to.equal(null);
   });
+
+  it('supports the `visuallyHidden` prop', async () => {
+    await render(
+      <Popover.Root open>
+        <Popover.Trigger>Trigger</Popover.Trigger>
+        <Popover.Portal>
+          <Popover.Positioner>
+            <Popover.Popup>
+              <Popover.Close visuallyHidden aria-label="Close popover" />
+            </Popover.Popup>
+          </Popover.Positioner>
+        </Popover.Portal>
+      </Popover.Root>,
+    );
+
+    const closeButton = screen.getByRole('button', { name: 'Close popover' });
+    expect(closeButton.style.position).to.equal('fixed');
+  });
 });

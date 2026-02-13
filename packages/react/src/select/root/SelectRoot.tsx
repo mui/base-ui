@@ -133,6 +133,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
       new Store<StoreState>({
         id: generatedId,
         modal,
+        closePartCount: 0,
         multiple,
         itemToStringLabel,
         itemToStringValue,
@@ -731,6 +732,7 @@ export type SelectRootChangeEventReason =
   | typeof REASONS.escapeKey
   | typeof REASONS.windowResize
   | typeof REASONS.itemPress
+  | typeof REASONS.closePress
   | typeof REASONS.focusOut
   | typeof REASONS.listNavigation
   | typeof REASONS.cancelOpen
