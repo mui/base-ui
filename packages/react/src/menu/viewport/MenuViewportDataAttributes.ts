@@ -11,7 +11,7 @@ export enum MenuViewportDataAttributes {
    * Indicates the direction from which the popup was activated.
    * This can be used to create directional animations based on how the popup was triggered.
    * Contains space-separated values for both horizontal and vertical axes.
-   * @type {`${'left' | 'right'} {'top' | 'bottom'}`}
+   * @type {`${'left' | 'right'} {'down' | 'up'}`}
    */
   activationDirection = 'data-activation-direction',
   /**
@@ -20,7 +20,7 @@ export enum MenuViewportDataAttributes {
   transitioning = 'data-transitioning',
   /**
    * Present if animations should be instant.
-   * @type {'click' | 'dismiss' | 'group'}
+   * @type {'click' | 'dismiss' | 'group' | 'trigger-change'}
    */
   instant = 'data-instant',
 }
