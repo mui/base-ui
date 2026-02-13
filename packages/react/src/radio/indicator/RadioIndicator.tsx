@@ -23,22 +23,18 @@ export const RadioIndicator = React.forwardRef(function RadioIndicator(
 
   const rendered = rootState.checked;
 
-  const { transitionStatus, setMounted } = useTransitionStatus(rendered);
+  const { mounted, transitionStatus, setMounted } = useTransitionStatus(rendered);
 
-  const state: RadioIndicator.State = React.useMemo(
-    () => ({
-      ...rootState,
-      transitionStatus,
-    }),
-    [rootState, transitionStatus],
-  );
+  const state: RadioIndicator.State = {
+    ...rootState,
+    transitionStatus,
+  };
 
   const indicatorRef = React.useRef<HTMLSpanElement | null>(null);
 
-  const shouldRender = keepMounted || rendered;
+  const shouldRender = keepMounted || mounted;
 
   const element = useRenderElement('span', componentProps, {
-    enabled: shouldRender,
     ref: [forwardedRef, indicatorRef],
     state,
     props: elementProps,

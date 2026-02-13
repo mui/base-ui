@@ -16,6 +16,7 @@ import type { BaseUIComponentProps, HTMLProps } from '../../utils/types';
 import { popupStateMapping } from '../../utils/popupStateMapping';
 import { useComboboxPortalContext } from '../portal/ComboboxPortalContext';
 import { DROPDOWN_COLLISION_AVOIDANCE } from '../../utils/constants';
+import { getDisabledMountTransitionStyles } from '../../utils/getDisabledMountTransitionStyles';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { selectors } from '../store';
 import { InternalBackdrop } from '../../utils/InternalBackdrop';
@@ -58,6 +59,7 @@ export const ComboboxPositioner = React.forwardRef(function ComboboxPositioner(
   const triggerElement = useStore(store, selectors.triggerElement);
   const inputElement = useStore(store, selectors.inputElement);
   const inputInsidePopup = useStore(store, selectors.inputInsidePopup);
+  const transitionStatus = useStore(store, selectors.transitionStatus);
 
   const empty = filteredItems.length === 0;
   const resolvedAnchor = anchor ?? (inputInsidePopup ? triggerElement : inputElement);
@@ -99,16 +101,13 @@ export const ComboboxPositioner = React.forwardRef(function ComboboxPositioner(
     };
   }, [open, mounted, positioning.positionerStyles]);
 
-  const state: ComboboxPositioner.State = React.useMemo(
-    () => ({
-      open,
-      side: positioning.side,
-      align: positioning.align,
-      anchorHidden: positioning.anchorHidden,
-      empty,
-    }),
-    [open, positioning.side, positioning.align, positioning.anchorHidden, empty],
-  );
+  const state: ComboboxPositioner.State = {
+    open,
+    side: positioning.side,
+    align: positioning.align,
+    anchorHidden: positioning.anchorHidden,
+    empty,
+  };
 
   useIsoLayoutEffect(() => {
     store.set('popupSide', positioning.side);
@@ -142,7 +141,7 @@ export const ComboboxPositioner = React.forwardRef(function ComboboxPositioner(
   const element = useRenderElement('div', componentProps, {
     state,
     ref: [forwardedRef, setPositionerElement],
-    props: [defaultProps, elementProps],
+    props: [defaultProps, getDisabledMountTransitionStyles(transitionStatus), elementProps],
     stateAttributesMapping: popupStateMapping,
   });
 

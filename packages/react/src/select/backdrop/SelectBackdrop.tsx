@@ -33,13 +33,10 @@ export const SelectBackdrop = React.forwardRef(function SelectBackdrop(
   const mounted = useStore(store, selectors.mounted);
   const transitionStatus = useStore(store, selectors.transitionStatus);
 
-  const state: SelectBackdrop.State = React.useMemo(
-    () => ({
-      open,
-      transitionStatus,
-    }),
-    [open, transitionStatus],
-  );
+  const state: SelectBackdrop.State = {
+    open,
+    transitionStatus,
+  };
 
   const element = useRenderElement('div', componentProps, {
     state,

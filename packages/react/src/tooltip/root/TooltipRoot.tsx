@@ -4,7 +4,7 @@ import { fastComponent } from '@base-ui/utils/fastHooks';
 import { useOnFirstRender } from '@base-ui/utils/useOnFirstRender';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { TooltipRootContext } from './TooltipRootContext';
-import { useClientPoint, useDismiss, useFocus, useInteractions } from '../../floating-ui-react';
+import { useClientPoint, useDismiss, useInteractions } from '../../floating-ui-react';
 import {
   type BaseUIChangeEventDetails,
   createChangeEventDetails,
@@ -134,7 +134,6 @@ export const TooltipRoot = fastComponent(function TooltipRoot<Payload>(
 
   const floatingRootContext = store.useState('floatingRootContext');
 
-  const focus = useFocus(floatingRootContext, { enabled: !disabled });
   const dismiss = useDismiss(floatingRootContext, { enabled: !disabled, referencePress: true });
   const clientPoint = useClientPoint(floatingRootContext, {
     enabled: !disabled && trackCursorAxis !== 'none',
@@ -142,7 +141,6 @@ export const TooltipRoot = fastComponent(function TooltipRoot<Payload>(
   });
 
   const { getReferenceProps, getFloatingProps, getTriggerProps } = useInteractions([
-    focus,
     dismiss,
     clientPoint,
   ]);

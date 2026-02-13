@@ -10,15 +10,15 @@ export default function TooltipDetachedTriggersFullDemo() {
     <Tooltip.Provider>
       <div className={styles.ButtonGroup}>
         <Tooltip.Trigger className={styles.Button} handle={demoTooltip} payload={InfoContent}>
-          <InfoIcon aria-label="Information" className={styles.Icon} />
+          <InfoIcon aria-label="This is information about the feature" className={styles.Icon} />
         </Tooltip.Trigger>
 
         <Tooltip.Trigger className={styles.Button} handle={demoTooltip} payload={HelpContent}>
-          <HelpIcon aria-label="Help" className={styles.Icon} />
+          <HelpIcon aria-label="Need help?" className={styles.Icon} />
         </Tooltip.Trigger>
 
         <Tooltip.Trigger className={styles.Button} handle={demoTooltip} payload={AlertContent}>
-          <AlertIcon aria-label="Alert" className={styles.Icon} />
+          <AlertIcon aria-label="Warning: This action cannot be undone" className={styles.Icon} />
         </Tooltip.Trigger>
       </div>
 
