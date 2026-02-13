@@ -18,6 +18,7 @@ import { rehypeSubtitle } from 'docs/src/components/Subtitle/rehypeSubtitle.mjs'
 
 const currentDirectory = url.fileURLToPath(new URL('.', import.meta.url));
 const workspaceRoot = path.resolve(currentDirectory, '../');
+const baseDir = path.dirname(url.fileURLToPath(import.meta.url));
 
 const withMdx = nextMdx({
   options: {
@@ -36,7 +37,7 @@ const withMdx = nextMdx({
               'src/app/experiments',
               'src/app/playground',
             ],
-            baseDir: path.dirname(url.fileURLToPath(import.meta.url)),
+            baseDir,
             useVisibleDescription: true,
           },
         },
@@ -74,7 +75,18 @@ const nextConfig = {
     rules: {
       './src/app/**/types.ts': {
         as: '*.ts',
-        loaders: ['@mui/internal-docs-infra/pipeline/loadPrecomputedTypes'],
+        loaders: [
+          {
+            loader: '@mui/internal-docs-infra/pipeline/loadPrecomputedTypes',
+            options: {
+              socketDir: '.next/cache/docs-infra/types-meta-worker',
+              updateParentIndex: {
+                baseDir,
+                onlyUpdateIndexes: true,
+              },
+            },
+          },
+        ],
       },
       './src/app/sitemap/index.ts': {
         as: '*.ts',
@@ -98,7 +110,13 @@ const nextConfig = {
         defaultLoaders.babel,
         {
           loader: '@mui/internal-docs-infra/pipeline/loadPrecomputedTypes',
-          options: { performance: { logging: true } },
+          options: {
+            socketDir: '.next/cache/docs-infra/types-meta-worker',
+            updateParentIndex: {
+              baseDir,
+              onlyUpdateIndexes: true,
+            },
+          },
         },
       ],
     });
