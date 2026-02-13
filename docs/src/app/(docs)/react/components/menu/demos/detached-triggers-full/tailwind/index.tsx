@@ -111,8 +111,8 @@ export default function MenuDetachedTriggersFullDemo() {
                 <Menu.Viewport
                   className={`
                     relative h-full w-full box-border overflow-clip
-                    [--viewport-inline-padding:0rem] px-[var(--viewport-inline-padding)] py-0
-                    [&_[data-current]]:w-[calc(var(--popup-width)-2*var(--viewport-inline-padding))]
+                    p-0
+                    [&_[data-current]]:w-[var(--popup-width)]
                     [&_[data-current]]:translate-x-0 [&_[data-current]]:opacity-100
                     [&_[data-current]]:transition-[translate,opacity]
                     [&_[data-current]]:duration-[350ms,175ms]
@@ -121,7 +121,7 @@ export default function MenuDetachedTriggersFullDemo() {
                     data-[activation-direction~='left']:[&_[data-current][data-starting-style]]:opacity-0
                     data-[activation-direction~='right']:[&_[data-current][data-starting-style]]:translate-x-1/2
                     data-[activation-direction~='right']:[&_[data-current][data-starting-style]]:opacity-0
-                    [&_[data-previous]]:w-[calc(var(--popup-width)-2*var(--viewport-inline-padding))]
+                    [&_[data-previous]]:w-[var(--popup-width)]
                     [&_[data-previous]]:translate-x-0 [&_[data-previous]]:opacity-100
                     [&_[data-previous]]:transition-[translate,opacity]
                     [&_[data-previous]]:duration-[350ms,175ms]
