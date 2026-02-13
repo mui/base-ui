@@ -25,14 +25,14 @@
   "dataAttributes": {
     "data-activation-direction": {
       "description": "Indicates the direction from which the popup was activated.\nThis can be used to create directional animations based on how the popup was triggered.\nContains space-separated values for both horizontal and vertical axes.",
-      "type": "`${'left' | 'right'} {'top' | 'bottom'}`"
+      "type": "`${'left' | 'right'} {'down' | 'up'}`"
     },
     "data-current": {
       "description": "Applied to the direct child of the viewport when no transitions are present or the new content when it's entering."
     },
     "data-instant": {
       "description": "Present if animations should be instant.",
-      "type": "'click' | 'dismiss' | 'group'"
+      "type": "'click' | 'dismiss' | 'group' | 'trigger-change'"
     },
     "data-previous": {
       "description": "Applied to the direct child of the viewport that contains the exiting content when transitions are present."
