@@ -527,6 +527,368 @@ describe('<Tabs.Root />', () => {
 
       expect(handleChange.callCount).to.equal(0);
     });
+
+    it('calls onValueChange with "initial" reason when auto-selecting first tab on mount', async () => {
+      const handleChange = spy();
+
+      await render(
+        <Tabs.Root onValueChange={handleChange}>
+          <Tabs.List>
+            <Tabs.Tab value={0}>Tab 0</Tabs.Tab>
+            <Tabs.Tab value={1}>Tab 1</Tabs.Tab>
+            <Tabs.Tab value={2}>Tab 2</Tabs.Tab>
+          </Tabs.List>
+        </Tabs.Root>,
+      );
+
+      await flushMicrotasks();
+
+      // onValueChange should be called with the first tab (0)
+      expect(handleChange.callCount).to.equal(1);
+      expect(handleChange.firstCall.args[0]).to.equal(0);
+      expect(handleChange.firstCall.args[1].reason).to.equal('initial');
+      expect(handleChange.firstCall.args[1].activationDirection).to.equal('none');
+
+      const tabs = screen.getAllByRole('tab');
+      expect(tabs[0]).to.have.attribute('aria-selected', 'true');
+    });
+
+    it('calls onValueChange with "initial" reason when first tab is disabled', async () => {
+      const handleChange = spy();
+
+      await render(
+        <Tabs.Root onValueChange={handleChange}>
+          <Tabs.List>
+            <Tabs.Tab value={0} disabled>
+              Tab 0
+            </Tabs.Tab>
+            <Tabs.Tab value={1}>Tab 1</Tabs.Tab>
+            <Tabs.Tab value={2}>Tab 2</Tabs.Tab>
+          </Tabs.List>
+        </Tabs.Root>,
+      );
+
+      await flushMicrotasks();
+
+      // onValueChange should be called with the first enabled tab (1)
+      expect(handleChange.callCount).to.equal(1);
+      expect(handleChange.firstCall.args[0]).to.equal(1);
+      expect(handleChange.firstCall.args[1].reason).to.equal('initial');
+
+      const tabs = screen.getAllByRole('tab');
+      expect(tabs[1]).to.have.attribute('aria-selected', 'true');
+    });
+
+    it('does not call onValueChange on initial render when defaultValue is provided', async () => {
+      const handleChange = spy();
+
+      await render(
+        <Tabs.Root defaultValue={1} onValueChange={handleChange}>
+          <Tabs.List>
+            <Tabs.Tab value={0}>Tab 0</Tabs.Tab>
+            <Tabs.Tab value={1}>Tab 1</Tabs.Tab>
+            <Tabs.Tab value={2}>Tab 2</Tabs.Tab>
+          </Tabs.List>
+        </Tabs.Root>,
+      );
+
+      await flushMicrotasks();
+
+      // onValueChange should NOT be called because user provided explicit defaultValue
+      expect(handleChange.callCount).to.equal(0);
+
+      const tabs = screen.getAllByRole('tab');
+      expect(tabs[1]).to.have.attribute('aria-selected', 'true');
+    });
+
+    it('does not auto-select or call onValueChange on initial render when defaultValue is null', async () => {
+      const handleChange = spy();
+
+      await render(
+        <Tabs.Root defaultValue={null} onValueChange={handleChange}>
+          <Tabs.List>
+            <Tabs.Tab value={0}>Tab 0</Tabs.Tab>
+            <Tabs.Tab value={1}>Tab 1</Tabs.Tab>
+            <Tabs.Tab value={2}>Tab 2</Tabs.Tab>
+          </Tabs.List>
+        </Tabs.Root>,
+      );
+
+      await flushMicrotasks();
+
+      expect(handleChange.callCount).to.equal(0);
+
+      const tabs = screen.getAllByRole('tab');
+      expect(tabs[0]).to.have.attribute('aria-selected', 'false');
+      expect(tabs[1]).to.have.attribute('aria-selected', 'false');
+      expect(tabs[2]).to.have.attribute('aria-selected', 'false');
+    });
+
+    it('calls onValueChange with "missing" reason when defaultValue is explicitly invalid on mount', async () => {
+      const handleChange = spy();
+
+      await render(
+        <Tabs.Root defaultValue={99} onValueChange={handleChange}>
+          <Tabs.List>
+            <Tabs.Tab value={0}>Tab 0</Tabs.Tab>
+            <Tabs.Tab value={1}>Tab 1</Tabs.Tab>
+            <Tabs.Tab value={2}>Tab 2</Tabs.Tab>
+          </Tabs.List>
+        </Tabs.Root>,
+      );
+
+      await flushMicrotasks();
+
+      expect(handleChange.callCount).to.equal(1);
+      expect(handleChange.firstCall.args[0]).to.equal(0);
+      expect(handleChange.firstCall.args[1].reason).to.equal('missing');
+      expect(handleChange.firstCall.args[1].activationDirection).to.equal('none');
+
+      const tabs = screen.getAllByRole('tab');
+      expect(tabs[0]).to.have.attribute('aria-selected', 'true');
+    });
+
+    it('does not call onValueChange on initial render when value is provided', async () => {
+      const handleChange = spy();
+
+      await render(
+        <Tabs.Root value={1} onValueChange={handleChange}>
+          <Tabs.List>
+            <Tabs.Tab value={0}>Tab 0</Tabs.Tab>
+            <Tabs.Tab value={1}>Tab 1</Tabs.Tab>
+            <Tabs.Tab value={2}>Tab 2</Tabs.Tab>
+          </Tabs.List>
+        </Tabs.Root>,
+      );
+
+      await flushMicrotasks();
+
+      // onValueChange should NOT be called in controlled mode
+      expect(handleChange.callCount).to.equal(0);
+
+      const tabs = screen.getAllByRole('tab');
+      expect(tabs[1]).to.have.attribute('aria-selected', 'true');
+    });
+
+    it('calls onValueChange with "disabled" reason when selected tab becomes disabled', async () => {
+      const handleChange = spy();
+
+      function TestComponent({ disableFirst }: { disableFirst: boolean }) {
+        return (
+          <Tabs.Root defaultValue={0} onValueChange={handleChange}>
+            <Tabs.List>
+              <Tabs.Tab value={0} disabled={disableFirst}>
+                Tab 0
+              </Tabs.Tab>
+              <Tabs.Tab value={1}>Tab 1</Tabs.Tab>
+              <Tabs.Tab value={2}>Tab 2</Tabs.Tab>
+            </Tabs.List>
+          </Tabs.Root>
+        );
+      }
+
+      const { setProps } = await render(<TestComponent disableFirst={false} />);
+
+      const tabs = screen.getAllByRole('tab');
+      expect(tabs[0]).to.have.attribute('aria-selected', 'true');
+
+      // Disable the selected tab
+      await setProps({ disableFirst: true });
+      await flushMicrotasks();
+
+      // onValueChange should be called with the fallback tab (1)
+      expect(handleChange.callCount).to.equal(1);
+      expect(handleChange.firstCall.args[0]).to.equal(1);
+      expect(handleChange.firstCall.args[1].reason).to.equal('disabled');
+      expect(handleChange.firstCall.args[1].activationDirection).to.equal('none');
+
+      // The first enabled tab should now be selected
+      expect(tabs[1]).to.have.attribute('aria-selected', 'true');
+      expect(tabs[0]).to.have.attribute('aria-selected', 'false');
+    });
+
+    it('calls onValueChange with "missing" reason when selected tab is removed', async () => {
+      const handleChange = spy();
+
+      function TestComponent({ showFirstTab }: { showFirstTab: boolean }) {
+        return (
+          <Tabs.Root defaultValue={0} onValueChange={handleChange}>
+            <Tabs.List>
+              {showFirstTab && <Tabs.Tab value={0}>Tab 0</Tabs.Tab>}
+              <Tabs.Tab value={1}>Tab 1</Tabs.Tab>
+              <Tabs.Tab value={2}>Tab 2</Tabs.Tab>
+            </Tabs.List>
+          </Tabs.Root>
+        );
+      }
+
+      const { setProps } = await render(<TestComponent showFirstTab={true} />);
+
+      const tabs = screen.getAllByRole('tab');
+      expect(tabs[0]).to.have.attribute('aria-selected', 'true');
+
+      // Remove the selected tab
+      await setProps({ showFirstTab: false });
+      await flushMicrotasks();
+
+      // onValueChange should be called with the fallback tab (1)
+      expect(handleChange.callCount).to.equal(1);
+      expect(handleChange.firstCall.args[0]).to.equal(1);
+      expect(handleChange.firstCall.args[1].reason).to.equal('missing');
+
+      const updatedTabs = screen.getAllByRole('tab');
+      expect(updatedTabs[0]).to.have.attribute('aria-selected', 'true');
+      expect(updatedTabs[0]).to.have.text('Tab 1');
+    });
+
+    it('respects cancellation when onValueChange cancels automatic fallback', async () => {
+      const handleChange = spy((_value: number, eventDetails: Tabs.Root.ChangeEventDetails) => {
+        // Cancel automatic selection
+        if (eventDetails.reason === 'disabled') {
+          eventDetails.cancel();
+        }
+      });
+
+      function TestComponent({ disableFirst }: { disableFirst: boolean }) {
+        return (
+          <Tabs.Root defaultValue={0} onValueChange={handleChange}>
+            <Tabs.List>
+              <Tabs.Tab value={0} disabled={disableFirst}>
+                Tab 0
+              </Tabs.Tab>
+              <Tabs.Tab value={1}>Tab 1</Tabs.Tab>
+            </Tabs.List>
+          </Tabs.Root>
+        );
+      }
+
+      const { setProps } = await render(<TestComponent disableFirst={false} />);
+
+      const tabs = screen.getAllByRole('tab');
+      expect(tabs[0]).to.have.attribute('aria-selected', 'true');
+
+      // Disable the selected tab
+      await setProps({ disableFirst: true });
+      await flushMicrotasks();
+
+      // onValueChange should be called
+      expect(handleChange.callCount).to.equal(1);
+
+      // But the selection should not change because we canceled
+      expect(tabs[0]).to.have.attribute('aria-selected', 'true');
+      expect(tabs[1]).to.have.attribute('aria-selected', 'false');
+    });
+
+    it('calls onValueChange with "missing" reason when tabs are reordered and selection becomes invalid', async () => {
+      const handleChange = spy();
+
+      function TestComponent({ includeFirstTab }: { includeFirstTab: boolean }) {
+        const values = includeFirstTab ? [0, 1, 2] : [1, 2];
+        return (
+          <Tabs.Root defaultValue={0} onValueChange={handleChange}>
+            <Tabs.List>
+              {values.map((v) => (
+                <Tabs.Tab key={v} value={v}>
+                  Tab {v}
+                </Tabs.Tab>
+              ))}
+            </Tabs.List>
+          </Tabs.Root>
+        );
+      }
+
+      const { setProps } = await render(<TestComponent includeFirstTab={true} />);
+
+      // Initial state
+      const tabs = screen.getAllByRole('tab');
+      expect(tabs[0]).to.have.text('Tab 0');
+      expect(tabs[0]).to.have.attribute('aria-selected', 'true');
+
+      // Clear any initial calls
+      handleChange.resetHistory();
+
+      // Remove tab 0
+      await setProps({ includeFirstTab: false });
+      await flushMicrotasks();
+
+      // Tab 0 is removed, so callback should fire with 'missing' reason
+      expect(handleChange.callCount).to.equal(1);
+      expect(handleChange.firstCall.args[0]).to.equal(1);
+      expect(handleChange.firstCall.args[1].reason).to.equal('missing');
+
+      const reorderedTabs = screen.getAllByRole('tab');
+      expect(reorderedTabs[0]).to.have.text('Tab 1');
+      expect(reorderedTabs[0]).to.have.attribute('aria-selected', 'true');
+    });
+
+    it('does not call onValueChange for automatic fallback in controlled mode', async () => {
+      const handleChange = spy();
+
+      const { setProps } = await render(
+        <Tabs.Root value={0} onValueChange={handleChange}>
+          <Tabs.List>
+            <Tabs.Tab value={0}>Tab 0</Tabs.Tab>
+            <Tabs.Tab value={1}>Tab 1</Tabs.Tab>
+          </Tabs.List>
+        </Tabs.Root>,
+      );
+
+      const tabs = screen.getAllByRole('tab');
+
+      // Disable the selected tab in controlled mode
+      await setProps({
+        value: 0,
+        children: (
+          <Tabs.List>
+            <Tabs.Tab value={0} disabled>
+              Tab 0
+            </Tabs.Tab>
+            <Tabs.Tab value={1}>Tab 1</Tabs.Tab>
+          </Tabs.List>
+        ),
+      });
+
+      await flushMicrotasks();
+
+      // In controlled mode, automatic fallback should NOT happen
+      // The parent component controls the value
+      expect(handleChange.callCount).to.equal(0);
+      expect(tabs[0]).to.have.attribute('aria-selected', 'true');
+    });
+
+    it('calls onValueChange with null and "disabled" reason when all tabs become disabled', async () => {
+      const handleChange = spy();
+
+      function TestComponent({ disableAll }: { disableAll: boolean }) {
+        return (
+          <Tabs.Root defaultValue={0} onValueChange={handleChange}>
+            <Tabs.List>
+              <Tabs.Tab value={0} disabled={disableAll}>
+                Tab 0
+              </Tabs.Tab>
+              <Tabs.Tab value={1} disabled={disableAll}>
+                Tab 1
+              </Tabs.Tab>
+            </Tabs.List>
+          </Tabs.Root>
+        );
+      }
+
+      const { setProps } = await render(<TestComponent disableAll={false} />);
+
+      // Disable all tabs
+      await setProps({ disableAll: true });
+      await flushMicrotasks();
+
+      // onValueChange should be called with null
+      expect(handleChange.callCount).to.equal(1);
+      expect(handleChange.firstCall.args[0]).to.equal(null);
+      expect(handleChange.firstCall.args[1].reason).to.equal('disabled');
+
+      const tabs = screen.getAllByRole('tab');
+      expect(tabs[0]).to.have.attribute('aria-selected', 'false');
+      expect(tabs[1]).to.have.attribute('aria-selected', 'false');
+    });
   });
 
   describe('prop: orientation', () => {
