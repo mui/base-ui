@@ -56,23 +56,27 @@ export function Header({ isProduction }: { isProduction: boolean }) {
                     <MobileNav.Section key={name}>
                       <MobileNav.Heading>{name}</MobileNav.Heading>
                       <MobileNav.List>
-                        {section.pages.map((page) => (
-                          <MobileNav.Item
-                            key={page.title}
-                            href={
-                              page.path.startsWith('./')
-                                ? `${section.prefix}${page.path.replace(/^\.\//, '').replace(/\/page\.mdx$/, '')}`
-                                : page.path
-                            }
-                            external={page.tags?.includes('External')}
-                          >
-                            {titleMap[page.title] || page.title}
-                            {page.tags?.includes('New') && <MobileNav.Badge>New</MobileNav.Badge>}
-                            {page.tags?.includes('Preview') && (
-                              <MobileNav.Badge>Preview</MobileNav.Badge>
-                            )}
-                          </MobileNav.Item>
-                        ))}
+                        {section.pages
+                          .filter((page) =>
+                            page.tags?.includes('Internal') ? !isProduction : true,
+                          )
+                          .map((page) => (
+                            <MobileNav.Item
+                              key={page.title}
+                              href={
+                                page.path.startsWith('./')
+                                  ? `${section.prefix}${page.path.replace(/^\.\//, '').replace(/\/page\.mdx$/, '')}`
+                                  : page.path
+                              }
+                              external={page.tags?.includes('External')}
+                            >
+                              {(page.title !== undefined && titleMap[page.title]) || page.title}
+                              {page.tags?.includes('New') && <MobileNav.Badge>New</MobileNav.Badge>}
+                              {page.tags?.includes('Preview') && (
+                                <MobileNav.Badge>Preview</MobileNav.Badge>
+                              )}
+                            </MobileNav.Item>
+                          ))}
                       </MobileNav.List>
                     </MobileNav.Section>
                   ))}
