@@ -1,6 +1,6 @@
 import kebabCase from 'es-toolkit/compat/kebabCase';
 
-const GITHUB_BASE = 'https://github.com/mui/base-ui/tree/master';
+export const GITHUB_BASE = 'https://github.com/mui/base-ui/tree/HEAD';
 
 /**
  * Converts a file:// URL from import.meta.url to a GitHub source URL
