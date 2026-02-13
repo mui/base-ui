@@ -109,6 +109,7 @@ export interface UseComboboxFilterOptions extends UseFilterOptions {
 
 /**
  * Matches items against a query using `Intl.Collator` for robust string matching.
+ * When the item is an object with a `keywords` array, those keywords are also matched.
  */
 export function useComboboxFilter(options: UseComboboxFilterOptions = {}): Filter {
   const { multiple = false, value, ...collatorOptions } = options;
