@@ -100,25 +100,26 @@ describe('useRenderElement', () => {
       expect(element).to.have.attribute('data-active', 'true');
     });
 
-    it('throws when render is passed a function with an uppercase name', async () => {
+    it('warns when render is passed a function with an uppercase name', async () => {
+      const warnSpy = vi
+        .spyOn(console, 'warn')
+        .mockName('console.warn')
+        .mockImplementation(() => {});
+
       function UppercaseRenderPropWarningTestComponent(props: React.ComponentPropsWithRef<'span'>) {
         return <span {...props} />;
       }
 
-      let error: Error | null = null;
-      try {
-        await render(<TestComponent render={UppercaseRenderPropWarningTestComponent} />);
-      } catch (err) {
-        error = err as Error;
-      }
+      await render(<TestComponent render={UppercaseRenderPropWarningTestComponent} />);
 
-      expect(error).to.not.equal(null);
-      expect(error?.message).to.contain(
+      expect(warnSpy.mock.calls.length).to.equal(1);
+      expect(warnSpy.mock.calls[0][0]).to.contain(
         'Base UI: The `render` prop received a function named `UppercaseRenderPropWarningTestComponent` that starts with an uppercase letter.',
       );
-      expect(error?.message).to.contain(
+      expect(warnSpy.mock.calls[0][0]).to.contain(
         'Use `render={<Component />}` or `render={(props) => <Component {...props} />}` instead.',
       );
+      warnSpy.mockRestore();
     });
 
     it('does not warn when render is passed a lowercase callback', async () => {

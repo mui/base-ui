@@ -2,6 +2,7 @@ import * as React from 'react';
 import { useMergedRefs, useMergedRefsN } from '@base-ui/utils/useMergedRefs';
 import { getReactElementRef } from '@base-ui/utils/getReactElementRef';
 import { mergeObjects } from '@base-ui/utils/mergeObjects';
+import { warn } from '@base-ui/utils/warn';
 import type { BaseUIComponentProps, ComponentRenderFn, HTMLProps } from './types';
 import { getStateAttributesProps, StateAttributesMapping } from './getStateAttributesProps';
 import { resolveClassName } from './resolveClassName';
@@ -119,7 +120,7 @@ function evaluateRenderProp<T extends React.ElementType, S>(
   if (render) {
     if (typeof render === 'function') {
       if (process.env.NODE_ENV !== 'production') {
-        throwIfRenderPropLooksLikeComponent(render);
+        warnIfRenderPropLooksLikeComponent(render);
       }
       return render(props, state);
     }
@@ -166,7 +167,7 @@ function evaluateRenderProp<T extends React.ElementType, S>(
   throw new Error('Base UI: Render element or function are not defined.');
 }
 
-function throwIfRenderPropLooksLikeComponent(renderFn: { name: string }) {
+function warnIfRenderPropLooksLikeComponent(renderFn: { name: string }) {
   const functionName = renderFn.name;
   if (functionName.length === 0) {
     return;
@@ -177,13 +178,13 @@ function throwIfRenderPropLooksLikeComponent(renderFn: { name: string }) {
     return;
   }
 
-  throw new Error(
-    `Base UI: The \`render\` prop received a function named \`${functionName}\` that starts with an uppercase letter.\n` +
-      'This usually means a React component was passed directly as `render={Component}`.\n' +
-      'Base UI calls `render` as a plain function, which can break the Rules of Hooks during reconciliation.\n' +
-      'If this is an intentional render callback, rename it to start with a lowercase letter.\n' +
-      'Use `render={<Component />}` or `render={(props) => <Component {...props} />}` instead.\n' +
-      'https://base-ui.com/r/invalid-render-prop',
+  warn(
+    `The \`render\` prop received a function named \`${functionName}\` that starts with an uppercase letter.`,
+    'This usually means a React component was passed directly as `render={Component}`.',
+    'Base UI calls `render` as a plain function, which can break the Rules of Hooks during reconciliation.',
+    'If this is an intentional render callback, rename it to start with a lowercase letter.',
+    'Use `render={<Component />}` or `render={(props) => <Component {...props} />}` instead.',
+    'https://base-ui.com/r/invalid-render-prop',
   );
 }
 
