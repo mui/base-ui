@@ -63,29 +63,26 @@ export default function MenuDetachedTriggersFullDemo() {
                 </Menu.Arrow>
 
                 <Menu.Viewport className={transitionStyles.Viewport}>
-                  {payload && (
-                    <div className={transitionStyles.Content}>
-                      {MENUS[payload].groups.map((group, groupIndex) => (
-                        <React.Fragment key={groupIndex}>
-                          <Menu.Group>
-                            {groupIndex === 0 && (
-                              <Menu.GroupLabel className={styles.Label}>
-                                {MENUS[payload].heading}
-                              </Menu.GroupLabel>
-                            )}
-                            {group.map((item) => (
-                              <Menu.Item key={item} className={styles.Item}>
-                                {item}
-                              </Menu.Item>
-                            ))}
-                          </Menu.Group>
-                          {groupIndex < MENUS[payload].groups.length - 1 && (
-                            <Menu.Separator className={styles.Separator} />
+                  {payload &&
+                    MENUS[payload].groups.map((group, groupIndex) => (
+                      <React.Fragment key={groupIndex}>
+                        <Menu.Group>
+                          {groupIndex === 0 && (
+                            <Menu.GroupLabel className={styles.Label}>
+                              {MENUS[payload].heading}
+                            </Menu.GroupLabel>
                           )}
-                        </React.Fragment>
-                      ))}
-                    </div>
-                  )}
+                          {group.map((item) => (
+                            <Menu.Item key={item} className={styles.Item}>
+                              {item}
+                            </Menu.Item>
+                          ))}
+                        </Menu.Group>
+                        {groupIndex < MENUS[payload].groups.length - 1 && (
+                          <Menu.Separator className={styles.Separator} />
+                        )}
+                      </React.Fragment>
+                    ))}
                 </Menu.Viewport>
               </Menu.Popup>
             </Menu.Positioner>

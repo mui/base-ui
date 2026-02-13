@@ -70,35 +70,32 @@ export default function MenuDetachedTriggersFullDemo() {
               sideOffset={8}
               className="outline-none h-[var(--positioner-height)] w-[var(--positioner-width)] max-w-[var(--available-width)] transition-[top,left,right,bottom,transform] duration-[0.35s] ease-[cubic-bezier(0.22,1,0.36,1)] data-instant:transition-none"
             >
-              <Menu.Popup className="relative h-[var(--popup-height,auto)] w-[var(--popup-width,auto)] origin-[var(--transform-origin)] rounded-md bg-[canvas] text-gray-900 shadow-lg shadow-gray-200 outline outline-1 outline-gray-200 transition-[width,height,transform,scale,opacity] duration-[0.35s] ease-[cubic-bezier(0.22,1,0.36,1)] data-[ending-style]:scale-90 data-[ending-style]:opacity-0 data-[starting-style]:scale-90 data-[starting-style]:opacity-0 data-instant:transition-none dark:shadow-none dark:-outline-offset-1 dark:outline-gray-300">
+              <Menu.Popup className="relative h-[var(--popup-height,auto)] w-[var(--popup-width,auto)] py-1 origin-[var(--transform-origin)] rounded-md bg-[canvas] text-gray-900 shadow-lg shadow-gray-200 outline outline-1 outline-gray-200 transition-[width,height,transform,scale,opacity] duration-[0.35s] ease-[cubic-bezier(0.22,1,0.36,1)] data-[ending-style]:scale-90 data-[ending-style]:opacity-0 data-[starting-style]:scale-90 data-[starting-style]:opacity-0 data-instant:transition-none dark:shadow-none dark:-outline-offset-1 dark:outline-gray-300">
                 <Menu.Arrow className="transition-[left] duration-[0.35s] ease-[cubic-bezier(0.22,1,0.36,1)] data-[side=bottom]:top-[-8px] data-[side=left]:right-[-13px] data-[side=left]:rotate-90 data-[side=right]:left-[-13px] data-[side=right]:-rotate-90 data-[side=top]:bottom-[-8px] data-[side=top]:rotate-180">
                   <ArrowSvg />
                 </Menu.Arrow>
 
-                <Menu.Viewport className="relative h-full w-full overflow-clip [&_[data-previous]]:w-[var(--popup-width)] [&_[data-previous]]:translate-x-0 [&_[data-previous]]:opacity-100 [&_[data-previous]]:transition-[translate,opacity] [&_[data-previous]]:duration-[350ms,175ms] [&_[data-previous]]:ease-[cubic-bezier(0.22,1,0.36,1)] [&_[data-current]]:w-[var(--popup-width)] [&_[data-current]]:translate-x-0 [&_[data-current]]:opacity-100 [&_[data-current]]:transition-[translate,opacity] [&_[data-current]]:duration-[350ms,175ms] [&_[data-current]]:ease-[cubic-bezier(0.22,1,0.36,1)] data-[activation-direction~='left']:[&_[data-current][data-starting-style]]:-translate-x-[30%] data-[activation-direction~='left']:[&_[data-current][data-starting-style]]:opacity-0 data-[activation-direction~='right']:[&_[data-current][data-starting-style]]:translate-x-[30%] data-[activation-direction~='right']:[&_[data-current][data-starting-style]]:opacity-0 data-[activation-direction~='left']:[&_[data-previous][data-ending-style]]:translate-x-[30%] data-[activation-direction~='left']:[&_[data-previous][data-ending-style]]:opacity-0 data-[activation-direction~='right']:[&_[data-previous][data-ending-style]]:-translate-x-[30%] data-[activation-direction~='right']:[&_[data-previous][data-ending-style]]:opacity-0">
-                  {payload && (
-                    <div className="py-1">
-                      {MENUS[payload].groups.map((group, groupIndex) => (
-                        <React.Fragment key={groupIndex}>
-                          <Menu.Group>
-                            {groupIndex === 0 && (
-                              <Menu.GroupLabel className="px-4 py-2 text-xs tracking-[0.05em] text-gray-500 uppercase">
-                                {MENUS[payload].heading}
-                              </Menu.GroupLabel>
-                            )}
-                            {group.map((item) => (
-                              <Menu.Item key={item} className={itemClass}>
-                                {item}
-                              </Menu.Item>
-                            ))}
-                          </Menu.Group>
-                          {groupIndex < MENUS[payload].groups.length - 1 && (
-                            <Menu.Separator className="mx-4 my-1.5 h-px bg-gray-200" />
+                <Menu.Viewport className="relative h-full w-full overflow-clip [&_[data-previous]]:w-[var(--popup-width)] [&_[data-previous]]:translate-x-0 [&_[data-previous]]:opacity-100 [&_[data-previous]]:transition-[translate,opacity] [&_[data-previous]]:duration-[350ms,175ms] [&_[data-previous]]:ease-[cubic-bezier(0.22,1,0.36,1)] [&_[data-current]]:w-[var(--popup-width)] [&_[data-current]]:translate-x-0 [&_[data-current]]:opacity-100 [&_[data-current]]:transition-[translate,opacity] [&_[data-current]]:duration-[350ms,175ms] [&_[data-current]]:ease-[cubic-bezier(0.22,1,0.36,1)] data-[activation-direction~='left']:[&_[data-current][data-starting-style]]:-translate-x-1/2 data-[activation-direction~='left']:[&_[data-current][data-starting-style]]:opacity-0 data-[activation-direction~='right']:[&_[data-current][data-starting-style]]:translate-x-1/2 data-[activation-direction~='right']:[&_[data-current][data-starting-style]]:opacity-0 data-[activation-direction~='left']:[&_[data-previous][data-ending-style]]:translate-x-1/2 data-[activation-direction~='left']:[&_[data-previous][data-ending-style]]:opacity-0 data-[activation-direction~='right']:[&_[data-previous][data-ending-style]]:-translate-x-1/2 data-[activation-direction~='right']:[&_[data-previous][data-ending-style]]:opacity-0">
+                  {payload &&
+                    MENUS[payload].groups.map((group, groupIndex) => (
+                      <React.Fragment key={groupIndex}>
+                        <Menu.Group>
+                          {groupIndex === 0 && (
+                            <Menu.GroupLabel className="px-4 py-2 text-xs tracking-[0.05em] text-gray-500 uppercase">
+                              {MENUS[payload].heading}
+                            </Menu.GroupLabel>
                           )}
-                        </React.Fragment>
-                      ))}
-                    </div>
-                  )}
+                          {group.map((item) => (
+                            <Menu.Item key={item} className={itemClass}>
+                              {item}
+                            </Menu.Item>
+                          ))}
+                        </Menu.Group>
+                        {groupIndex < MENUS[payload].groups.length - 1 && (
+                          <Menu.Separator className="mx-4 my-1.5 h-px bg-gray-200" />
+                        )}
+                      </React.Fragment>
+                    ))}
                 </Menu.Viewport>
               </Menu.Popup>
             </Menu.Positioner>
