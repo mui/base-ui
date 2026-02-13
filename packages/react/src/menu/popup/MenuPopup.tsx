@@ -98,9 +98,16 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
     instant: instantType,
   };
 
+  const setPopupElement = React.useCallback(
+    (element: HTMLElement | null) => {
+      store.set('popupElement', element);
+    },
+    [store],
+  );
+
   const element = useRenderElement('div', componentProps, {
     state,
-    ref: [forwardedRef, store.context.popupRef],
+    ref: [forwardedRef, store.context.popupRef, setPopupElement],
     stateAttributesMapping,
     props: [
       popupProps,
@@ -178,7 +185,7 @@ export type MenuPopupState = {
    */
   open: boolean;
   nested: boolean;
-  instant: 'dismiss' | 'click' | 'group' | undefined;
+  instant: 'dismiss' | 'click' | 'group' | 'trigger-change' | undefined;
 };
 
 export namespace MenuPopup {
