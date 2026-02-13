@@ -658,7 +658,7 @@ importers:
         specifier: ^0.4.20
         version: 0.4.26(eslint@9.39.2(jiti@2.6.1))
       globals:
-        specifier: ^16.3.0
+        specifier: 16.5.0
         version: 16.5.0
       tailwindcss:
         specifier: 4.1.18
