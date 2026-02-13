@@ -487,7 +487,8 @@ export interface SliderThumbProps extends Omit<
    * This is important for screen reader users.
    */
   getAriaValueText?:
-    | ((formattedValue: string, value: number, index: number) => string) | null
+    | ((formattedValue: string, value: number, index: number) => string)
+    | null
     | undefined;
   /**
    * The index of the thumb which corresponds to the index of its value in the
