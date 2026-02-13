@@ -78,19 +78,19 @@ export default function ExampleAutocompleteCommandPalette() {
                 </ScrollArea.Scrollbar>
               </ScrollArea.Root>
 
-              <div className="flex items-center justify-between border-t border-gray-100 bg-white px-3 py-2.5 text-xs text-gray-500">
+              <div className="flex items-center justify-between border-t border-gray-200 bg-gray-50 px-3 py-2.5 text-xs text-gray-600">
                 <div className="flex items-center gap-2">
                   <span>Activate</span>
-                  <kbd className="inline-flex h-5 min-w-5 items-center justify-center rounded border border-gray-300 bg-gray-50 px-1 text-[0.625rem] font-medium text-gray-600">
+                  <kbd className="inline-flex h-5 min-w-5 items-center justify-center rounded border border-gray-300 bg-gray-100 px-1 text-[0.625rem] font-medium text-gray-700">
                     Enter
                   </kbd>
                 </div>
                 <div className="flex items-center gap-2">
                   <span>Actions</span>
-                  <kbd className="inline-flex h-5 min-w-5 items-center justify-center rounded border border-gray-300 bg-gray-50 px-1 text-[0.625rem] font-medium text-gray-600">
+                  <kbd className="inline-flex h-5 min-w-5 items-center justify-center rounded border border-gray-300 bg-gray-100 px-1 text-[0.625rem] font-medium text-gray-700">
                     Cmd
                   </kbd>
-                  <kbd className="inline-flex h-5 min-w-5 items-center justify-center rounded border border-gray-300 bg-gray-50 px-1 text-[0.625rem] font-medium text-gray-600">
+                  <kbd className="inline-flex h-5 min-w-5 items-center justify-center rounded border border-gray-300 bg-gray-100 px-1 text-[0.625rem] font-medium text-gray-700">
                     K
                   </kbd>
                 </div>
