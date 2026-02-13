@@ -78,7 +78,7 @@ export interface SliderValueProps extends Omit<
   'children'
 > {
   children?:
-    | (null | ((formattedValues: readonly string[], values: readonly number[]) => React.ReactNode))
+    | null | ((formattedValues: readonly string[], values: readonly number[]) => React.ReactNode)
     | undefined;
 }
 

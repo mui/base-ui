@@ -5,7 +5,7 @@ import { useCompositeListContext } from './CompositeListContext';
 
 export interface UseCompositeListItemParameters<Metadata> {
   index?: number | undefined;
-  label?: (string | null) | undefined;
+  label?: string | null | undefined;
   metadata?: Metadata | undefined;
   textRef?: React.RefObject<HTMLElement | null> | undefined;
   /** Enables guessing the indexes. This avoids a re-render after mount, which is useful for
