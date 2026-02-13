@@ -2,17 +2,23 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { Collapsible } from '@base-ui/react/collapsible';
+import { Menu } from '@base-ui/react/menu';
 import { usePathname } from 'next/navigation';
 import type { ContentProps } from '@mui/internal-docs-infra/CodeHighlighter/types';
 import { useDemo } from '@mui/internal-docs-infra/useDemo';
 import { CopyIcon } from 'docs/src/icons/CopyIcon';
+import copy from 'clipboard-copy';
 import clsx from 'clsx';
 import kebabCase from 'es-toolkit/compat/kebabCase';
 import { CheckIcon } from 'docs/src/icons/CheckIcon';
 import { ExternalLinkIcon } from 'docs/src/icons/ExternalLinkIcon';
+import { GitHubIcon } from 'docs/src/icons/GitHubIcon';
+import { MoreVertIcon } from 'docs/src/icons/MoreVertIcon';
 import { exportCodeSandbox, exportOpts } from 'docs/src/utils/demoExportOptions';
+import { getGitHubDemoUrl } from 'docs/src/utils/getGitHubDemoUrl';
 import { isSafari, isEdge } from '@base-ui/utils/detectBrowser';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { useTimeout } from '@base-ui/utils/useTimeout';
 import { useGoogleAnalytics } from 'docs/src/blocks/GoogleAnalyticsProvider';
 import { DemoVariantSelector } from './DemoVariantSelector';
 import { DemoFileSelector } from './DemoFileSelector';
@@ -35,7 +41,10 @@ export function Demo({
   ...demoProps
 }: DemoProps) {
   const collapsibleTriggerRef = React.useRef<HTMLButtonElement>(null);
-  const [copyTimeout, setCopyTimeout] = React.useState<number>(0);
+  const [codeCopied, setCodeCopied] = React.useState(false);
+  const [sourceLinkCopied, setSourceLinkCopied] = React.useState(false);
+  const codeCopyResetTimeout = useTimeout();
+  const sourceLinkCopyResetTimeout = useTimeout();
   const ga = useGoogleAnalytics();
   const pathname = usePathname();
   const demoSlug = React.useMemo(
@@ -57,7 +66,7 @@ export function Demo({
     }
   }, [ga, demoId, demoSlug]);
 
-  const onCopied = React.useCallback(() => {
+  const onCodeCopied = useStableCallback(() => {
     ga?.trackEvent({
       category: 'demo',
       action: 'copy',
@@ -65,21 +74,45 @@ export function Demo({
       params: { copy: demoId, slug: demoSlug || '' },
     });
 
-    /* eslint-disable no-restricted-syntax */
-    const newTimeout = window.setTimeout(() => {
-      window.clearTimeout(newTimeout);
-      setCopyTimeout(0);
-    }, 2000);
-    window.clearTimeout(copyTimeout);
-    setCopyTimeout(newTimeout);
-    /* eslint-enable no-restricted-syntax */
-  }, [copyTimeout, ga, demoId, demoSlug]);
+    setCodeCopied(true);
+    codeCopyResetTimeout.start(2000, () => setCodeCopied(false));
+  });
 
   const demo = useDemo(demoProps, {
-    copy: { onCopied },
+    copy: { onCopied: onCodeCopied },
     defaultOpen,
     export: exportOpts,
     exportCodeSandbox,
+  });
+
+  const githubUrl = getGitHubDemoUrl(demoProps.url, demo.selectedVariant);
+
+  const issueUrl = `https://github.com/mui/base-ui/issues/new/choose?title=${encodeURIComponent(`[${pathname.split('/').filter(Boolean).pop()}] `)}`;
+
+  const onViewSource = useStableCallback(() => {
+    ga?.trackEvent({
+      category: 'demo',
+      action: 'github',
+      label: demoId,
+      params: { github: demoId, slug: demoSlug || '' },
+    });
+  });
+
+  const onCopySourceLink = useStableCallback(async () => {
+    if (!githubUrl) {
+      return;
+    }
+    await copy(githubUrl);
+    setSourceLinkCopied(true);
+
+    ga?.trackEvent({
+      category: 'demo',
+      action: 'copy_source_link',
+      label: demoId,
+      params: { copy_source_link: demoId, slug: demoSlug || '' },
+    });
+
+    sourceLinkCopyResetTimeout.start(2000, () => setSourceLinkCopied(false));
   });
 
   const onOpenChange = useStableCallback((nextOpen: boolean) => {
@@ -179,9 +212,70 @@ export function Demo({
                 <GhostButton aria-label="Copy code" onClick={demo.copy}>
                   Copy
                   <span className="flex size-3.5 items-center justify-center">
-                    {copyTimeout ? <CheckIcon /> : <CopyIcon />}
+                    {codeCopied ? (
+                      <CheckIcon aria-hidden="true" />
+                    ) : (
+                      <CopyIcon aria-hidden="true" />
+                    )}
+                    <span className="sr-only" aria-live="polite">
+                      {codeCopied && 'Code copied!'}
+                    </span>
                   </span>
                 </GhostButton>
+                {githubUrl && (
+                  <Menu.Root>
+                    <Menu.Trigger
+                      className="GhostButton"
+                      data-layout="icon"
+                      aria-label="More actions"
+                    >
+                      <MoreVertIcon aria-hidden="true" />
+                    </Menu.Trigger>
+                    <Menu.Portal>
+                      <Menu.Positioner className="DemoMenuPositioner" sideOffset={8}>
+                        <Menu.Popup className="DemoMenuPopup">
+                          <Menu.LinkItem
+                            className="DemoMenuItem"
+                            href={githubUrl}
+                            target="_blank"
+                            rel="noopener"
+                            onClick={onViewSource}
+                          >
+                            <GitHubIcon aria-hidden="true" className="size-3.5" />
+                            View source on GitHub
+                          </Menu.LinkItem>
+                          <Menu.Item
+                            className="DemoMenuItem"
+                            closeOnClick={false}
+                            onClick={onCopySourceLink}
+                          >
+                            <span className="flex size-3.5 items-center justify-center">
+                              {sourceLinkCopied ? (
+                                <CheckIcon aria-hidden="true" />
+                              ) : (
+                                <CopyIcon aria-hidden="true" />
+                              )}
+                            </span>
+                            Copy link to source
+                            <span className="sr-only" aria-live="polite">
+                              {sourceLinkCopied && 'Link copied!'}
+                            </span>
+                          </Menu.Item>
+                          <Menu.Separator className="DemoMenuSeparator" />
+                          <Menu.LinkItem
+                            className="DemoMenuItem"
+                            href={issueUrl}
+                            target="_blank"
+                            rel="noopener"
+                          >
+                            <ExternalLinkIcon aria-hidden="true" className="size-3.5" />
+                            Report an issue
+                          </Menu.LinkItem>
+                        </Menu.Popup>
+                      </Menu.Positioner>
+                    </Menu.Portal>
+                  </Menu.Root>
+                )}
               </div>
             </div>
           )}

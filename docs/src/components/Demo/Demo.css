@@ -262,6 +262,46 @@
     }
   }
 
+  .DemoMenuPositioner {
+    z-index: 50;
+  }
+
+  .DemoMenuPopup {
+    @apply text-xs;
+    background-color: var(--color-content);
+    border: 1px solid var(--color-gray-200);
+    border-radius: var(--radius-sm);
+    padding: 0.25rem;
+    box-shadow: 0 4px 12px rgb(0 0 0 / 8%);
+    min-width: 10rem;
+
+    @media (prefers-color-scheme: dark) {
+      box-shadow: 0 4px 12px rgb(0 0 0 / 24%);
+    }
+  }
+
+  .DemoMenuItem {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.375rem 0.5rem;
+    border-radius: calc(var(--radius-sm) - 2px);
+    cursor: default;
+    color: var(--color-foreground);
+    text-decoration: none;
+    outline: 0;
+
+    &[data-highlighted] {
+      background-color: var(--color-gray-100);
+    }
+  }
+
+  .DemoMenuSeparator {
+    height: 1px;
+    margin: 0.25rem;
+    background-color: var(--color-gray-200);
+  }
+
   .DemoCollapseButton {
     @apply text-xs;
     background-color: var(--color-gray-50);
