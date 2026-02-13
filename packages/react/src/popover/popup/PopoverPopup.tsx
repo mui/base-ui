@@ -48,6 +48,7 @@ export const PopoverPopup = React.forwardRef(function PopoverPopup(
   const titleId = store.useState('titleElementId');
   const descriptionId = store.useState('descriptionElementId');
   const modal = store.useState('modal');
+  const hasClosePart = store.useState('hasClosePart');
   const mounted = store.useState('mounted');
   const openReason = store.useState('openChangeReason');
   const activeTriggerElement = store.useState('activeTriggerElement');
@@ -120,7 +121,7 @@ export const PopoverPopup = React.forwardRef(function PopoverPopup(
     <FloatingFocusManager
       context={floatingContext}
       openInteractionType={openMethod}
-      modal={modal === 'trap-focus'}
+      modal={modal === 'trap-focus' || (modal === true && hasClosePart)}
       disabled={!mounted || openReason === REASONS.triggerHover}
       initialFocus={resolvedInitialFocus}
       returnFocus={finalFocus}

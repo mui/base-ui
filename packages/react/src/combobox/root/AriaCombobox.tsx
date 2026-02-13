@@ -338,6 +338,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     () =>
       new Store<StoreState>({
         id,
+        closePartCount: 0,
         selectedValue,
         open,
         filter,
@@ -1557,6 +1558,7 @@ export namespace AriaCombobox {
     | typeof REASONS.triggerPress
     | typeof REASONS.outsidePress
     | typeof REASONS.itemPress
+    | typeof REASONS.closePress
     | typeof REASONS.escapeKey
     | typeof REASONS.listNavigation
     | typeof REASONS.focusOut
