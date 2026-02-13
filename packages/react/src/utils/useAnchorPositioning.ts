@@ -308,12 +308,25 @@ export function useAnchorPositioning(
   middleware.push(
     size({
       ...commonCollisionProps,
-      apply({ elements: { floating }, rects: { reference }, availableWidth, availableHeight }) {
+      apply({
+        elements: { floating, reference: referenceElement },
+        availableWidth,
+        availableHeight,
+      }) {
         const floatingStyle = floating.style;
         floatingStyle.setProperty('--available-width', `${availableWidth}px`);
         floatingStyle.setProperty('--available-height', `${availableHeight}px`);
-        floatingStyle.setProperty('--anchor-width', `${reference.width}px`);
-        floatingStyle.setProperty('--anchor-height', `${reference.height}px`);
+
+        // Snap anchor dimensions to device pixels to ensure the popup's visual width matches the anchor's one.
+        const dpr = window.devicePixelRatio || 1;
+        const anchorRect = referenceElement.getBoundingClientRect();
+        const anchorWidth =
+          (Math.round(anchorRect.right * dpr) - Math.round(anchorRect.left * dpr)) / dpr;
+        const anchorHeight =
+          (Math.round(anchorRect.bottom * dpr) - Math.round(anchorRect.top * dpr)) / dpr;
+
+        floatingStyle.setProperty('--anchor-width', `${anchorWidth}px`);
+        floatingStyle.setProperty('--anchor-height', `${anchorHeight}px`);
       },
     }),
     arrow(
