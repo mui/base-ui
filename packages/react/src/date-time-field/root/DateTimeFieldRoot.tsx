@@ -155,8 +155,9 @@ export interface DateTimeFieldRootState extends FieldRoot.State {
 }
 
 export interface DateTimeFieldRootProps
-  extends Omit<BaseUIComponentProps<'div', DateTimeFieldRootState>, 'children'>,
-    MakeOptional<TemporalFieldStoreSharedParameters<TemporalValue>, 'format'>,
+  extends
+    Omit<BaseUIComponentProps<'div', DateTimeFieldRootState>, 'children'>,
+    Omit<MakeOptional<TemporalFieldStoreSharedParameters<TemporalValue>, 'format'>, 'fieldContext'>,
     AmPmParameters {
   /**
    * The children of the component.

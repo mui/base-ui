@@ -4,7 +4,7 @@ import { useTemporalFieldRootContext } from '../../utils/temporal/field/Temporal
 import { TemporalFieldSection } from '../../utils/temporal/field/types';
 
 /**
- * Renders all sections of the date field.
+ * Renders all sections of a temporal field.
  * Doesn't render its own HTML element.
  *
  * Documentation: [Base UI Date Field](https://base-ui.com/react/components/date-field)

@@ -155,8 +155,9 @@ export interface TimeFieldRootState extends FieldRoot.State {
 }
 
 export interface TimeFieldRootProps
-  extends Omit<BaseUIComponentProps<'div', TimeFieldRootState>, 'children'>,
-    MakeOptional<TemporalFieldStoreSharedParameters<TemporalValue>, 'format'>,
+  extends
+    Omit<BaseUIComponentProps<'div', TimeFieldRootState>, 'children'>,
+    Omit<MakeOptional<TemporalFieldStoreSharedParameters<TemporalValue>, 'format'>, 'fieldContext'>,
     AmPmParameters {
   /**
    * The children of the component.

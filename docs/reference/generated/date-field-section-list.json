@@ -1,0 +1,14 @@
+{
+  "name": "DateFieldSectionList",
+  "description": "Renders all sections of a temporal field.\nDoesn't render its own HTML element.",
+  "props": {
+    "children": {
+      "type": "((section: TemporalFieldSection, index: number) => ReactNode)",
+      "required": true,
+      "description": "A function that receives each section and returns a React node.",
+      "detailedType": "  section: TemporalFieldSection,\n  index: number,\n) => ReactNode"
+    }
+  },
+  "dataAttributes": {},
+  "cssVariables": {}
+}

@@ -149,8 +149,12 @@ export interface DateFieldRootState extends FieldRoot.State {
 }
 
 export interface DateFieldRootProps
-  extends Omit<BaseUIComponentProps<'div', DateFieldRootState>, 'children'>,
-    Omit<MakeOptional<TemporalFieldStoreSharedParameters<TemporalValue>, 'format'>, 'step'> {
+  extends
+    Omit<BaseUIComponentProps<'div', DateFieldRootState>, 'children'>,
+    Omit<
+      MakeOptional<TemporalFieldStoreSharedParameters<TemporalValue>, 'format'>,
+      'fieldContext' | 'step'
+    > {
   /**
    * The children of the component.
    * If a function is provided, it will be called with each section as its parameter.
