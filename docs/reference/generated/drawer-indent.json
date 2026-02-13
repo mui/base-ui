@@ -1,6 +1,6 @@
 {
   "name": "DrawerIndent",
-  "description": "A wrapper element intended to contain your app's main UI.\nApplies `data-active` when any drawer within the nearest <Drawer.Provider> is open.",
+  "description": "A wrapper element intended to contain your app's main UI.\nApplies `data-active` when any drawer within the nearest `<Drawer.Provider>` is open.\nRenders a `<div>` element.",
   "props": {
     "className": {
       "type": "string | ((state: Drawer.Indent.State) => string | undefined)",
