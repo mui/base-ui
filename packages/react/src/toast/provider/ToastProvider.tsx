@@ -43,7 +43,7 @@ export const ToastProvider: React.FC<ToastProvider.Props> = function ToastProvid
           store.promiseToast(options.promise, options);
         } else if (action === 'update' && id) {
           store.updateToast(id, options);
-        } else if (action === 'close' && id) {
+        } else if (action === 'close') {
           store.closeToast(id);
         } else {
           store.addToast(options);
