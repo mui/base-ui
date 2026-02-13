@@ -272,6 +272,59 @@ describe('<Combobox.Chip />', () => {
       await waitFor(() => expect(screen.queryByRole('listbox')).to.equal(null));
     });
 
+    it('does not apply aria-hidden to chips when the popup is open', async () => {
+      await render(
+        <Combobox.Root multiple defaultOpen defaultValue={['apple']}>
+          <Combobox.Chips data-testid="chips">
+            <Combobox.Chip data-testid="chip-apple">apple</Combobox.Chip>
+            <Combobox.Input data-testid="input" />
+          </Combobox.Chips>
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  <Combobox.Item value="apple">apple</Combobox.Item>
+                  <Combobox.Item value="banana">banana</Combobox.Item>
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      expect(screen.getByRole('listbox')).not.to.equal(null);
+
+      expect(screen.getByTestId('chips')).not.to.have.attribute('aria-hidden');
+      expect(screen.getByTestId('chip-apple')).not.to.have.attribute('aria-hidden');
+    });
+
+    it('applies aria-hidden to chips when input is outside the chips container', async () => {
+      await render(
+        <Combobox.Root multiple defaultOpen defaultValue={['apple']}>
+          <Combobox.Input data-testid="input" />
+          <Combobox.Chips data-testid="chips">
+            <Combobox.Chip data-testid="chip-apple">apple</Combobox.Chip>
+          </Combobox.Chips>
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  <Combobox.Item value="apple">apple</Combobox.Item>
+                  <Combobox.Item value="banana">banana</Combobox.Item>
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      expect(screen.getByRole('listbox')).not.to.equal(null);
+
+      await waitFor(() =>
+        expect(screen.getByTestId('chips')).to.have.attribute('aria-hidden', 'true'),
+      );
+    });
+
     it('should handle keyboard navigation when enabled', async () => {
       const { user } = await render(
         <Combobox.Root multiple defaultValue={['apple', 'banana', 'cherry']}>

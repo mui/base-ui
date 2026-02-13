@@ -118,6 +118,15 @@ export const ComboboxPopup = React.forwardRef(function ComboboxPopup(
       openInteractionType={openMethod}
       initialFocus={resolvedInitialFocus}
       returnFocus={resolvedFinalFocus}
+      getInsideElements={() => {
+        const chipsContainer = store.state.chipsContainerRef.current;
+        const input = store.state.inputRef.current;
+        if (!chipsContainer || !contains(chipsContainer, input)) {
+          return [];
+        }
+
+        return [chipsContainer];
+      }}
     >
       {element}
     </FloatingFocusManager>
