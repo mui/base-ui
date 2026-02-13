@@ -6,7 +6,6 @@ import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import { visuallyHidden } from '@base-ui/utils/visuallyHidden';
 import { useTimeout } from '@base-ui/utils/useTimeout';
 import { isWebKit } from '@base-ui/utils/detectBrowser';
 import type { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
@@ -776,15 +775,6 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
 
     events.on('openchange', onOpenChangeLocal);
 
-    const fallbackEl = doc.createElement('span');
-    fallbackEl.setAttribute('tabindex', '-1');
-    fallbackEl.setAttribute('aria-hidden', 'true');
-    Object.assign(fallbackEl.style, visuallyHidden);
-
-    if (isInsidePortal && domReference) {
-      domReference.insertAdjacentElement('afterend', fallbackEl);
-    }
-
     function getReturnElement() {
       const returnFocusValueOrFn = returnFocusRef.current;
       let resolvedReturnFocusValue =
@@ -803,12 +793,12 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
 
       if (typeof resolvedReturnFocusValue === 'boolean') {
         const el = domReference || getPreviouslyFocusedElement();
-        return el && el.isConnected ? el : fallbackEl;
+        return el && el.isConnected ? el : null;
       }
 
-      const fallback = domReference || getPreviouslyFocusedElement() || fallbackEl;
+      const fallback = domReference || getPreviouslyFocusedElement();
 
-      return resolveRef(resolvedReturnFocusValue) || fallback;
+      return resolveRef(resolvedReturnFocusValue) || fallback || null;
     }
 
     return () => {
@@ -844,7 +834,6 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
           tabbableReturnElement.focus({ preventScroll: true });
         }
 
-        fallbackEl.remove();
         preventReturnFocusRef.current = false;
       });
     };
