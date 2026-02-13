@@ -81,24 +81,16 @@ function transformJsx() {
           if (node.data.estree.type === 'Program') {
             const estree = node.data.estree;
             if (estree.body[0].type === 'ImportDeclaration') {
-              const importDecl = estree.body[0];
-              const isDemoImport = importDecl.specifiers?.some((s) =>
-                s.local?.name?.startsWith('Demo'),
-              );
-
-              if (isDemoImport) {
-                // Collect demo for processing
+              const importPath = estree.body[0].source.value;
+              // Only collect demo imports (those starting with ./demos/)
+              if (importPath.startsWith('./demos/')) {
                 demosToProcess.push({
                   index,
                   parent,
-                  importPath: importDecl.source.value,
+                  importPath,
                 });
-                return visit.CONTINUE;
               }
-
-              // Remove non-demo imports (handled by their component cases)
-              parent.children.splice(index, 1);
-              return [visit.SKIP, index];
+              return visit.CONTINUE;
             }
             if (estree.body[0].type === 'ExportNamedDeclaration') {
               // Check if this is a metadata export
