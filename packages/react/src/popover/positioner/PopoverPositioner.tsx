@@ -2,6 +2,7 @@
 import * as React from 'react';
 import { inertValue } from '@base-ui/utils/inertValue';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
 import { FloatingNode, useFloatingNodeId } from '../../floating-ui-react';
 import { usePopoverRootContext } from '../root/PopoverRootContext';
 import { PopoverPositionerContext } from './PopoverPositionerContext';
@@ -63,6 +64,7 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
   const prevTriggerElementRef = React.useRef<Element | null>(null);
 
   const runOnceAnimationsFinish = useAnimationsFinished(positionerElement, false, false);
+  const transitionStartFrame = useAnimationFrame();
 
   const positioning = useAnchorPositioning({
     anchor,
@@ -128,17 +130,23 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
     ) {
       store.set('instantType', undefined);
       const ac = new AbortController();
-      runOnceAnimationsFinish(() => {
-        store.set('instantType', 'trigger-change');
-      }, ac.signal);
+
+      // Force layout once transitions are enabled, then wait for them to finish.
+      transitionStartFrame.request(() => {
+        positionerElement?.getBoundingClientRect();
+        runOnceAnimationsFinish(() => {
+          store.set('instantType', 'trigger-change');
+        }, ac.signal);
+      });
 
       return () => {
         ac.abort();
+        transitionStartFrame.cancel();
       };
     }
 
     return undefined;
-  }, [domReference, runOnceAnimationsFinish, store]);
+  }, [domReference, positionerElement, runOnceAnimationsFinish, store, transitionStartFrame]);
 
   const state: PopoverPositioner.State = {
     open,

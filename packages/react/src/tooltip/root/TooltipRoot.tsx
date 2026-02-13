@@ -97,9 +97,12 @@ export const TooltipRoot = fastComponent(function TooltipRoot<Payload>(
   // during the 'ending' phase unless it's due to a sibling opening.
   const previousInstantTypeRef = React.useRef<string | undefined | null>(null);
   useIsoLayoutEffect(() => {
+    const hasViewport = store.select('hasViewport');
+
     if (
-      (transitionStatus === 'ending' && lastOpenChangeReason === REASONS.none) ||
-      (transitionStatus !== 'ending' && isInstantPhase)
+      !hasViewport &&
+      ((transitionStatus === 'ending' && lastOpenChangeReason === REASONS.none) ||
+        (transitionStatus !== 'ending' && isInstantPhase))
     ) {
       // Capture the current instant type so we can restore it later
       // and set to 'delay' to disable animations while moving from one trigger to another
