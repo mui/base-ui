@@ -49,6 +49,7 @@ export function InstallationBlock(props: InstallationBlockProps) {
   }, [globalPreference]);
 
   const handleValueChange = useStableCallback((newValue: string) => {
+    setValue(newValue);
     setGlobalPreference(newValue);
   });
 
@@ -81,16 +82,15 @@ export function InstallationBlock(props: InstallationBlockProps) {
             ))}
           </Tabs.List>
 
-          <GhostButton
-            className="ml-auto"
-            aria-label={copied ? 'Copied' : 'Copy code'}
-            onClick={handleCopy}
-          >
+          <GhostButton className="ml-auto" aria-label="Copy code" onClick={handleCopy}>
             Copy
             <span className="flex size-3.5 items-center justify-center">
               {copied ? <CheckIcon /> : <CopyIcon />}
             </span>
           </GhostButton>
+          <span className="sr-only" aria-live="polite">
+            {copied ? 'Copied to clipboard' : ''}
+          </span>
         </div>
 
         {PACKAGE_MANAGERS.map((pm) => (
