@@ -1020,6 +1020,58 @@ describe('<Popover.Root />', () => {
           expect(positioner.previousElementSibling).to.have.attribute('role', 'presentation');
         });
       });
+
+      describe.skipIf(isJSDOM)('scroll lock', () => {
+        it('locks scroll when hover-opened with `lockScrollOnHover`', async () => {
+          await render(
+            <TestPopover
+              rootProps={{ modal: true, lockScrollOnHover: true }}
+              triggerProps={{ openOnHover: true, delay: 0 }}
+            />,
+          );
+
+          const trigger = screen.getByRole('button', { name: 'Toggle' });
+          const doc = trigger.ownerDocument;
+
+          fireEvent.mouseEnter(trigger);
+          fireEvent.mouseMove(trigger);
+
+          await flushMicrotasks();
+          await screen.findByRole('dialog');
+
+          const isScrollLocked =
+            doc.documentElement.style.overflow === 'hidden' ||
+            doc.documentElement.hasAttribute('data-base-ui-scroll-locked') ||
+            doc.body.style.overflow === 'hidden';
+
+          expect(isScrollLocked).to.equal(true);
+        });
+
+        it('does not lock scroll when hover-opened by default', async () => {
+          await render(
+            <TestPopover
+              rootProps={{ modal: true }}
+              triggerProps={{ openOnHover: true, delay: 0 }}
+            />,
+          );
+
+          const trigger = screen.getByRole('button', { name: 'Toggle' });
+          const doc = trigger.ownerDocument;
+
+          fireEvent.mouseEnter(trigger);
+          fireEvent.mouseMove(trigger);
+
+          await flushMicrotasks();
+          await screen.findByRole('dialog');
+
+          const isScrollLocked =
+            doc.documentElement.style.overflow === 'hidden' ||
+            doc.documentElement.hasAttribute('data-base-ui-scroll-locked') ||
+            doc.body.style.overflow === 'hidden';
+
+          expect(isScrollLocked).to.equal(false);
+        });
+      });
     });
 
     describe.skipIf(isJSDOM)('prop: onOpenChangeComplete', () => {
