@@ -81,14 +81,24 @@ function transformJsx() {
           if (node.data.estree.type === 'Program') {
             const estree = node.data.estree;
             if (estree.body[0].type === 'ImportDeclaration') {
-              // Collect demo for processing
-              const importPath = estree.body[0].source.value;
-              demosToProcess.push({
-                index,
-                parent,
-                importPath,
-              });
-              return visit.CONTINUE;
+              const importDecl = estree.body[0];
+              const isDemoImport = importDecl.specifiers?.some((s) =>
+                s.local?.name?.startsWith('Demo'),
+              );
+
+              if (isDemoImport) {
+                // Collect demo for processing
+                demosToProcess.push({
+                  index,
+                  parent,
+                  importPath: importDecl.source.value,
+                });
+                return visit.CONTINUE;
+              }
+
+              // Remove non-demo imports (handled by their component cases)
+              parent.children.splice(index, 1);
+              return [visit.SKIP, index];
             }
             if (estree.body[0].type === 'ExportNamedDeclaration') {
               // Check if this is a metadata export
@@ -174,6 +184,46 @@ function transformJsx() {
           case 'sup':
           case 'time': {
             // Support some HTML elements from GitHub flavored markdown
+            return visit.CONTINUE;
+          }
+
+          case 'InstallationBlock': {
+            const pkg =
+              node.attributes?.find((attr) => attr.name === 'package')?.value || '@base-ui/react';
+
+            const nodes = [
+              mdx.paragraph(
+                'Use the package manager detected from the project lock file. If no lock file exists, use pnpm.',
+              ),
+
+              {
+                type: 'list',
+                ordered: false,
+                children: [
+                  'pnpm-lock.yaml → pnpm',
+                  'bun.lock → bun',
+                  'yarn.lock → yarn',
+                  'package-lock.json → npm',
+                ].map((item) => ({
+                  type: 'listItem',
+                  children: [mdx.paragraph(item)],
+                })),
+              },
+
+              mdx.heading(3, 'pnpm'),
+              mdx.code(`pnpm add ${pkg}`, 'bash'),
+
+              mdx.heading(3, 'npm'),
+              mdx.code(`npm install ${pkg}`, 'bash'),
+
+              mdx.heading(3, 'yarn'),
+              mdx.code(`yarn add ${pkg}`, 'bash'),
+
+              mdx.heading(3, 'bun'),
+              mdx.code(`bun add ${pkg}`, 'bash'),
+            ];
+
+            parent.children.splice(index, 1, ...nodes);
             return visit.CONTINUE;
           }
 
