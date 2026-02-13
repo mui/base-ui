@@ -119,6 +119,7 @@ export function useAnchorPositioning(
     sticky = false,
     arrowPadding = 5,
     disableAnchorTracking = false,
+    disabledAnimationFrame = false,
     // Private parameters
     keepMounted = false,
     floatingRootContext,
@@ -393,8 +394,9 @@ export function useAnchorPositioning(
     () => ({
       elementResize: !disableAnchorTracking && typeof ResizeObserver !== 'undefined',
       layoutShift: !disableAnchorTracking && typeof IntersectionObserver !== 'undefined',
+      animationFrame: !disabledAnimationFrame,
     }),
-    [disableAnchorTracking],
+    [disableAnchorTracking, disabledAnimationFrame],
   );
 
   const {
@@ -676,6 +678,7 @@ export interface UseAnchorPositioningParameters extends useAnchorPositioning.Sha
   floatingRootContext?: FloatingRootContext | undefined;
   mounted: boolean;
   disableAnchorTracking: boolean;
+  disabledAnimationFrame: boolean;
   nodeId?: string | undefined;
   adaptiveOrigin?: Middleware | undefined;
   collisionAvoidance: CollisionAvoidance;

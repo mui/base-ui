@@ -63,6 +63,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
   const lastOpenChangeReason = store.useState('lastOpenChangeReason');
   const floatingNodeId = store.useState('floatingNodeId');
   const floatingParentNodeId = store.useState('floatingParentNodeId');
+  const parentAnimationFinished = store.useState('parentAnimationFinished');
 
   let anchor = anchorProp;
   let sideOffset = sideOffsetProp;
@@ -107,6 +108,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
     nodeId: floatingNodeId,
     keepMounted,
     disableAnchorTracking,
+    disabledAnimationFrame: parentAnimationFinished,
     collisionAvoidance,
     shiftCrossAxis:
       contextMenu && !('side' in collisionAvoidance && collisionAvoidance.side === 'flip'),
