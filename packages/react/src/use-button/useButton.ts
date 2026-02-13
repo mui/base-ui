@@ -106,15 +106,17 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
       return mergeProps<'button'>(
         {
           type,
-          onClick(event: React.MouseEvent) {
+          onClick(event: BaseUIEvent<React.MouseEvent>) {
             if (disabled) {
               event.preventDefault();
               return;
             }
+            makeEventPreventable(event);
             externalOnClick?.(event);
           },
-          onMouseDown(event: React.MouseEvent) {
+          onMouseDown(event: BaseUIEvent<React.MouseEvent>) {
             if (!disabled) {
+              makeEventPreventable(event);
               externalOnMouseDown?.(event);
             }
           },
@@ -169,11 +171,12 @@ export function useButton(parameters: useButton.Parameters = {}): useButton.Retu
               externalOnClick?.(event);
             }
           },
-          onPointerDown(event: React.PointerEvent) {
+          onPointerDown(event: BaseUIEvent<React.PointerEvent>) {
             if (disabled) {
               event.preventDefault();
               return;
             }
+            makeEventPreventable(event);
             externalOnPointerDown?.(event);
           },
         },
