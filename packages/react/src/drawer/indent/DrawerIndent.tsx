@@ -19,7 +19,8 @@ const stateAttributesMapping: StateAttributesMapping<DrawerIndent.State> = {
 
 /**
  * A wrapper element intended to contain your app's main UI.
- * Applies `data-active` when any drawer within the nearest <Drawer.Provider> is open.
+ * Applies `data-active` when any drawer within the nearest `<Drawer.Provider>` is open.
+ * Renders a `<div>` element.
  *
  * Documentation: [Base UI Drawer](https://base-ui.com/react/components/drawer)
  */

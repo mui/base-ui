@@ -189,6 +189,13 @@ export function useHoverFloatingInteraction(
         return;
       }
 
+      // If the safePolygon handler is active, let it handle the close logic.
+      // The handler checks for open children in the floating tree.
+      if (instance.handler) {
+        instance.handler(event);
+        return;
+      }
+
       clearPointerEvents();
       cleanupMouseMoveHandler();
       if (!isClickLikeOpenEvent()) {
@@ -200,7 +207,6 @@ export function useHoverFloatingInteraction(
       instance.openChangeTimeout.clear();
       clearPointerEvents();
       instance.handler?.(event);
-      cleanupMouseMoveHandler();
     }
 
     function onFloatingMouseLeave(event: MouseEvent) {

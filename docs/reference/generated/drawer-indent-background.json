@@ -1,6 +1,6 @@
 {
   "name": "DrawerIndentBackground",
-  "description": "An element placed before <Drawer.Indent> to render a background layer\nthat can be styled based on whether any drawer is open.",
+  "description": "An element placed before `<Drawer.Indent>` to render a background layer that can be styled based on whether any drawer is open.\nRenders a `<div>` element.",
   "props": {
     "className": {
       "type": "string | ((state: Drawer.IndentBackground.State) => string | undefined)",
