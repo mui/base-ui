@@ -31,7 +31,7 @@ export const ComboboxItem = React.memo(
     const {
       render,
       className,
-      value = null,
+      value: itemValue = null,
       index: indexProp,
       disabled = false,
       nativeButton = false,
@@ -59,12 +59,14 @@ export const ComboboxItem = React.memo(
     const selectable = selectionMode !== 'none';
     const index =
       indexProp ??
-      (virtualized ? findItemIndex(flatFilteredItems, value, isItemEqualToValue) : listItem.index);
+      (virtualized
+        ? findItemIndex(flatFilteredItems, itemValue, isItemEqualToValue)
+        : listItem.index);
     const hasRegistered = listItem.index !== -1;
 
     const rootId = useStore(store, selectors.id);
     const highlighted = useStore(store, selectors.isActive, index);
-    const matchesSelectedValue = useStore(store, selectors.isSelected, value);
+    const matchesSelectedValue = useStore(store, selectors.isSelected, itemValue);
     const getItemProps = useStore(store, selectors.getItemProps);
 
     const itemRef = React.useRef<HTMLDivElement | null>(null);
@@ -92,19 +94,19 @@ export const ComboboxItem = React.memo(
       }
 
       const visibleMap = store.state.valuesRef.current;
-      visibleMap[index] = value;
+      visibleMap[index] = itemValue;
 
       // Stable registry that doesn't depend on filtering. Assume that no
       // filtering had occurred at this point; otherwise, an `items` prop is
       // required.
       if (selectionMode !== 'none') {
-        store.state.allValuesRef.current.push(value);
+        store.state.allValuesRef.current.push(itemValue);
       }
 
       return () => {
         delete visibleMap[index];
       };
-    }, [hasRegistered, hasItems, index, value, store, selectionMode]);
+    }, [hasRegistered, hasItems, index, itemValue, store, selectionMode]);
 
     useIsoLayoutEffect(() => {
       if (!open) {
@@ -121,10 +123,10 @@ export const ComboboxItem = React.memo(
         ? selectedValue[selectedValue.length - 1]
         : selectedValue;
 
-      if (compareItemEquality(lastSelectedValue, value, isItemEqualToValue)) {
+      if (compareItemEquality(itemValue, lastSelectedValue, isItemEqualToValue)) {
         store.set('selectedIndex', index);
       }
-    }, [hasRegistered, hasItems, open, store, index, value, isItemEqualToValue]);
+    }, [hasRegistered, hasItems, open, store, index, itemValue, isItemEqualToValue]);
 
     const state: ComboboxItem.State = {
       disabled,
@@ -144,7 +146,7 @@ export const ComboboxItem = React.memo(
 
     function commitSelection(nativeEvent: MouseEvent) {
       function selectItem() {
-        store.state.handleSelection(nativeEvent, value);
+        store.state.handleSelection(nativeEvent, itemValue);
       }
 
       if (store.state.submitOnItemClick) {
