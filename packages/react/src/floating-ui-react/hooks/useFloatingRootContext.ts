@@ -14,8 +14,8 @@ export interface UseFloatingRootContextOptions {
   onOpenChange?(open: boolean, eventDetails: BaseUIChangeEventDetails<string>): void;
   elements?:
     | {
-        reference?: (ReferenceType | null) | undefined;
-        floating?: (HTMLElement | null) | undefined;
+        reference?: ReferenceType | null | undefined;
+        floating?: HTMLElement | null | undefined;
       }
     | undefined;
 }

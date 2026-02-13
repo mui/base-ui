@@ -7,7 +7,7 @@ import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { CompositeListContext } from './CompositeListContext';
 
 export type CompositeMetadata<CustomMetadata> = {
-  index?: (number | null) | undefined;
+  index?: number | null | undefined;
 } & CustomMetadata;
 
 /**

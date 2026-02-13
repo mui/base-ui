@@ -640,12 +640,12 @@ export interface MenuRootProps<Payload = unknown> {
    * This is useful in conjunction with the `open` prop to create a controlled popover.
    * There's no need to specify this prop when the popover is uncontrolled (i.e. when the `open` prop is not set).
    */
-  triggerId?: (string | null) | undefined;
+  triggerId?: string | null | undefined;
   /**
    * ID of the trigger that the popover is associated with.
    * This is useful in conjunction with the `defaultOpen` prop to create an initially open popover.
    */
-  defaultTriggerId?: (string | null) | undefined;
+  defaultTriggerId?: string | null | undefined;
   /**
    * A handle to associate the menu with a trigger.
    * If specified, allows external triggers to control the menu's open state.

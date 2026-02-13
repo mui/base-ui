@@ -180,12 +180,12 @@ export interface PreviewCardRootProps<Payload = unknown> {
    * This is useful in conjuntion with the `open` prop to create a controlled preview card.
    * There's no need to specify this prop when the preview card is uncontrolled (i.e. when the `open` prop is not set).
    */
-  triggerId?: (string | null) | undefined;
+  triggerId?: string | null | undefined;
   /**
    * ID of the trigger that the preview card is associated with.
    * This is useful in conjunction with the `defaultOpen` prop to create an initially open preview card.
    */
-  defaultTriggerId?: (string | null) | undefined;
+  defaultTriggerId?: string | null | undefined;
 }
 
 export interface PreviewCardRootActions {

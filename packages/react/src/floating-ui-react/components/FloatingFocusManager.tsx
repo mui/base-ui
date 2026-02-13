@@ -160,7 +160,7 @@ export interface FloatingFocusManagerProps {
   /**
    * The interaction type used to open the floating element.
    */
-  openInteractionType?: (InteractionType | null) | undefined;
+  openInteractionType?: InteractionType | null | undefined;
   /**
    * Whether or not the focus manager should be disabled. Useful to delay focus
    * management until after a transition completes or some other conditional
@@ -180,11 +180,9 @@ export interface FloatingFocusManagerProps {
    * @default true
    */
   initialFocus?:
-    | (
-        | boolean
-        | React.RefObject<HTMLElement | null>
-        | ((openType: InteractionType) => boolean | HTMLElement | null | void)
-      )
+    | boolean
+    | React.RefObject<HTMLElement | null>
+    | ((openType: InteractionType) => boolean | HTMLElement | null | void)
     | undefined;
   /**
    * Determines the element to focus when the floating element is closed.
@@ -198,11 +196,9 @@ export interface FloatingFocusManagerProps {
    * @default true
    */
   returnFocus?:
-    | (
-        | boolean
-        | React.RefObject<HTMLElement | null>
-        | ((closeType: InteractionType) => boolean | HTMLElement | null | void)
-      )
+    | boolean
+    | React.RefObject<HTMLElement | null>
+    | ((closeType: InteractionType) => boolean | HTMLElement | null | void)
     | undefined;
   /**
    * Determines where focus should be restored if focus inside the floating element is lost
@@ -214,7 +210,7 @@ export interface FloatingFocusManagerProps {
    * - `false`: do not restore focus
    * @default false
    */
-  restoreFocus?: (boolean | 'popup') | undefined;
+  restoreFocus?: boolean | 'popup' | undefined;
   /**
    * Determines if focus is “modal”, meaning focus is fully trapped inside the
    * floating element and outside content cannot be accessed. This includes
@@ -233,11 +229,11 @@ export interface FloatingFocusManagerProps {
   /**
    * Overrides the element to focus when tabbing forward out of the floating element.
    */
-  nextFocusableElement?: (HTMLElement | React.RefObject<HTMLElement | null> | null) | undefined;
+  nextFocusableElement?: HTMLElement | React.RefObject<HTMLElement | null> | null | undefined;
   /**
    * Overrides the element to focus when tabbing backward out of the floating element.
    */
-  previousFocusableElement?: (HTMLElement | React.RefObject<HTMLElement | null> | null) | undefined;
+  previousFocusableElement?: HTMLElement | React.RefObject<HTMLElement | null> | null | undefined;
   /**
    * Ref to the focus guard preceding the floating element content.
    * Can be useful to focus the popup progammatically.

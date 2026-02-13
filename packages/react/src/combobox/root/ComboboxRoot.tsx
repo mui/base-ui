@@ -104,7 +104,7 @@ export type ComboboxRootProps<Value, Multiple extends boolean | undefined = fals
    *
    * To render a controlled combobox, use the `value` prop instead.
    */
-  defaultValue?: (ComboboxValueType<Value, Multiple> | null) | undefined;
+  defaultValue?: ComboboxValueType<Value, Multiple> | null | undefined;
   /**
    * A ref to imperative actions.
    * - `unmount`: When specified, the combobox will not be unmounted when closed.
@@ -141,7 +141,7 @@ export type ComboboxRootProps<Value, Multiple extends boolean | undefined = fals
   /**
    * The selected value of the combobox. Use when controlled.
    */
-  value?: (ComboboxValueType<Value, Multiple> | null) | undefined;
+  value?: ComboboxValueType<Value, Multiple> | null | undefined;
   /**
    * Event handler called when the selected value of the combobox changes.
    */
