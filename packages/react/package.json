@@ -77,7 +77,7 @@
   "type": "commonjs",
   "scripts": {
     "prebuild": "rimraf --glob build build-tests \"*.tsbuildinfo\"",
-    "build": "code-infra build --ignore \"**/*.template.js\" --copy .npmignore",
+    "build": "code-infra build --flat --ignore \"**/*.template.js\" --copy .npmignore",
     "test:package": "publint --pack pnpm && attw --pack ./build --exclude-entrypoints package.json --exclude-entrypoints esm --exclude-entrypoints cjs",
     "release": "pnpm build && pnpm publish",
     "test": "cross-env VITEST_ENV=jsdom vitest",
