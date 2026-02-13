@@ -118,6 +118,9 @@ function evaluateRenderProp<T extends React.ElementType, S>(
 ): React.ReactElement {
   if (render) {
     if (typeof render === 'function') {
+      if (process.env.NODE_ENV !== 'production') {
+        throwIfRenderPropLooksLikeComponent(render);
+      }
       return render(props, state);
     }
     const mergedProps = mergeProps(props, render.props);
@@ -161,6 +164,27 @@ function evaluateRenderProp<T extends React.ElementType, S>(
   // Unreachable, but the typings on `useRenderElement` need to be reworked
   // to annotate it correctly.
   throw new Error('Base UI: Render element or function are not defined.');
+}
+
+function throwIfRenderPropLooksLikeComponent(renderFn: { name: string }) {
+  const functionName = renderFn.name;
+  if (functionName.length === 0) {
+    return;
+  }
+
+  const firstCharacterCode = functionName.charCodeAt(0);
+  if (firstCharacterCode < 65 || firstCharacterCode > 90) {
+    return;
+  }
+
+  throw new Error(
+    `Base UI: The \`render\` prop received a function named \`${functionName}\` that starts with an uppercase letter.\n` +
+      'This usually means a React component was passed directly as `render={Component}`.\n' +
+      'Base UI calls `render` as a plain function, which can break the Rules of Hooks during reconciliation.\n' +
+      'If this is an intentional render callback, rename it to start with a lowercase letter.\n' +
+      'Use `render={<Component />}` or `render={(props) => <Component {...props} />}` instead.\n' +
+      'https://base-ui.com/r/invalid-render-prop',
+  );
 }
 
 function renderTag(Tag: string, props: Record<string, any>) {
