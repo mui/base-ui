@@ -4,7 +4,7 @@ import { expect } from 'chai';
 import { vi } from 'vitest';
 import { createRenderer } from '#test-utils';
 import { reactMajor } from '@mui/internal-test-utils';
-import type { BaseUIComponentProps } from '../utils/types';
+import type { BaseUIComponentProps, ComponentRenderFn, HTMLProps } from '../utils/types';
 import { useRenderElement } from './useRenderElement';
 
 describe('useRenderElement', () => {
@@ -75,9 +75,11 @@ describe('useRenderElement', () => {
 
   describe('prop: render', () => {
     it('accepts render as a function that receives props and state', async () => {
-      const renderFn = vi.fn((props, state) => {
+      const renderCalls: Array<[HTMLProps, { active?: boolean }]> = [];
+      const renderFn: ComponentRenderFn<HTMLProps, { active?: boolean }> = (props, state) => {
+        renderCalls.push([props, state]);
         return <span {...props} data-active={String(state.active)} />;
-      });
+      };
 
       const { container } = await render(
         <TestComponent active render={renderFn} data-testid="custom" />,
@@ -85,8 +87,8 @@ describe('useRenderElement', () => {
 
       const element = container.firstElementChild;
 
-      expect(renderFn.mock.calls.length).to.be.greaterThan(0);
-      const [firstCallProps, firstCallState] = renderFn.mock.calls[0];
+      expect(renderCalls.length).to.be.greaterThan(0);
+      const [firstCallProps, firstCallState] = renderCalls[0];
       expect(firstCallProps).to.include({
         className: 'test-component',
         'data-testid': 'custom',
@@ -96,6 +98,57 @@ describe('useRenderElement', () => {
       expect(element?.tagName).to.equal('SPAN');
       expect(element).to.have.attribute('data-testid', 'custom');
       expect(element).to.have.attribute('data-active', 'true');
+    });
+
+    it('throws when render is passed a function with an uppercase name', async () => {
+      function UppercaseRenderPropWarningTestComponent(props: React.ComponentPropsWithRef<'span'>) {
+        return <span {...props} />;
+      }
+
+      let error: Error | null = null;
+      try {
+        await render(<TestComponent render={UppercaseRenderPropWarningTestComponent} />);
+      } catch (err) {
+        error = err as Error;
+      }
+
+      expect(error).to.not.equal(null);
+      expect(error?.message).to.contain(
+        'Base UI: The `render` prop received a function named `UppercaseRenderPropWarningTestComponent` that starts with an uppercase letter.',
+      );
+      expect(error?.message).to.contain(
+        'Use `render={<Component />}` or `render={(props) => <Component {...props} />}` instead.',
+      );
+    });
+
+    it('does not warn when render is passed a lowercase callback', async () => {
+      const warnSpy = vi
+        .spyOn(console, 'warn')
+        .mockName('console.warn')
+        .mockImplementation(() => {});
+
+      const renderFn = (props: React.ComponentPropsWithRef<'span'>) => <span {...props} />;
+
+      await render(<TestComponent render={renderFn} />);
+
+      expect(warnSpy.mock.calls.length).to.equal(0);
+      warnSpy.mockRestore();
+    });
+
+    it('does not warn when render is passed as a React element', async () => {
+      const warnSpy = vi
+        .spyOn(console, 'warn')
+        .mockName('console.warn')
+        .mockImplementation(() => {});
+
+      function UppercaseRenderElement(props: React.ComponentPropsWithRef<'span'>) {
+        return <span {...props} />;
+      }
+
+      await render(<TestComponent render={<UppercaseRenderElement />} />);
+
+      expect(warnSpy.mock.calls.length).to.equal(0);
+      warnSpy.mockRestore();
     });
 
     it('accepts render as a React element and clones it with merged props', async () => {

@@ -89,5 +89,6 @@
   "89": "Base UI: <PreviewCard.Trigger> must be either used within a <PreviewCard.Root> component or provided with a handle.",
   "90": "Base UI: DrawerRootContext is missing. Drawer parts must be placed within <Drawer.Root>.",
   "91": "Base UI: DrawerProviderContext is missing. Use <Drawer.Provider>.",
-  "92": "Base UI: DrawerViewportContext is missing. Drawer parts must be placed within <Drawer.Viewport>."
+  "92": "Base UI: DrawerViewportContext is missing. Drawer parts must be placed within <Drawer.Viewport>.",
+  "93": "Base UI: The `render` prop received a function named `%s` that starts with an uppercase letter.\nThis usually means a React component was passed directly as `render={Component}`.\nBase UI calls `render` as a plain function, which can break the Rules of Hooks during reconciliation.\nIf this is an intentional render callback, rename it to start with a lowercase letter.\nUse `render={<Component />}` or `render={(props) => <Component {...props} />}` instead.\nhttps://base-ui.com/r/invalid-render-prop"
 }
