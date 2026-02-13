@@ -82,7 +82,7 @@ export type State = {
   onOpenChangeComplete: (open: boolean) => void;
   openOnInputClick: boolean;
   itemToStringLabel?: ((item: any) => string) | undefined;
-  isItemEqualToValue: (item: any, value: any) => boolean;
+  isItemEqualToValue: (itemValue: any, selectedValue: any) => boolean;
   modal: boolean;
   autoHighlight: false | 'always' | 'input-change';
   submitOnItemClick: boolean;
@@ -128,13 +128,15 @@ export const selectors = {
   activeIndex: createSelector((state: State) => state.activeIndex),
   selectedIndex: createSelector((state: State) => state.selectedIndex),
   isActive: createSelector((state: State, index: number) => state.activeIndex === index),
-  isSelected: createSelector((state: State, candidate: any) => {
+  isSelected: createSelector((state: State, itemValue: any) => {
     const comparer = state.isItemEqualToValue;
     const selectedValue = state.selectedValue;
     if (Array.isArray(selectedValue)) {
-      return selectedValue.some((value) => compareItemEquality(value, candidate, comparer));
+      return selectedValue.some((selectedItem) =>
+        compareItemEquality(itemValue, selectedItem, comparer),
+      );
     }
-    return compareItemEquality(selectedValue, candidate, comparer);
+    return compareItemEquality(itemValue, selectedValue, comparer);
   }),
 
   transitionStatus: createSelector((state: State) => state.transitionStatus),

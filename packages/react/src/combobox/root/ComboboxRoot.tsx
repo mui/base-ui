@@ -98,7 +98,7 @@ export type ComboboxRootProps<Value, Multiple extends boolean | undefined = fals
    * Custom comparison logic used to determine if a combobox item value matches the current selected value. Useful when item values are objects without matching referentially.
    * Defaults to `Object.is` comparison.
    */
-  isItemEqualToValue?: ((itemValue: Value, selectedValue: Value) => boolean) | undefined;
+  isItemEqualToValue?: ((itemValue: Value, value: Value) => boolean) | undefined;
   /**
    * The uncontrolled selected value of the combobox when it's initially rendered.
    *

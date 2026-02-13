@@ -40,3 +40,4 @@ jobs:
         uses: mui/mui-public/.github/actions/ci-publish@master
         with:
           pr-comment: true
+          use-compact-url: true

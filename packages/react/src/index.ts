@@ -12,6 +12,7 @@ export * from './context-menu';
 export * from './csp-provider';
 export * from './dialog';
 export * from './direction-provider';
+export * from './drawer';
 export * from './field';
 export * from './fieldset';
 export * from './form';

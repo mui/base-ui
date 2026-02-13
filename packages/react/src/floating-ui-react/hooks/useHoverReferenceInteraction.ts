@@ -4,8 +4,9 @@ import * as ReactDOM from 'react-dom';
 import { isElement } from '@floating-ui/utils/dom';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { ownerDocument } from '@base-ui/utils/owner';
 import type { FloatingContext, FloatingRootContext } from '../types';
-import { contains, getDocument, isMouseLikePointerType } from '../utils';
+import { contains, isMouseLikePointerType, isTargetInsideEnabledTrigger } from '../utils';
 import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 import { REASONS } from '../../utils/reasons';
 import type { UseHoverProps } from './useHover';
@@ -88,6 +89,10 @@ export function useHoverReferenceInteraction(
       : false;
   });
 
+  const isRelatedTargetInsideEnabledTrigger = useStableCallback((target: EventTarget | null) => {
+    return isTargetInsideEnabledTrigger(target, store.context.triggerElements);
+  });
+
   const closeWithDelay = React.useCallback(
     (event: MouseEvent, runElseBranch = true) => {
       const closeDelay = getDelay(delayRef.current, 'close', instance.pointerType);
@@ -110,7 +115,7 @@ export function useHoverReferenceInteraction(
 
   const clearPointerEvents = useStableCallback(() => {
     if (instance.performedPointerEventsMutation) {
-      const body = getDocument(store.select('domReferenceElement')).body;
+      const body = ownerDocument(store.select('domReferenceElement')).body;
       body.style.pointerEvents = '';
       body.removeAttribute(safePolygonIdentifier);
       instance.performedPointerEventsMutation = false;
@@ -147,8 +152,7 @@ export function useHoverReferenceInteraction(
       return;
     }
 
-    const triggerElements = store.context.triggerElements;
-    if (event.relatedTarget && triggerElements.hasElement(event.relatedTarget as Element)) {
+    if (isRelatedTargetInsideEnabledTrigger(event.relatedTarget)) {
       return;
     }
 
@@ -233,13 +237,11 @@ export function useHoverReferenceInteraction(
       instance.unbindMouseMove();
 
       const domReferenceElement = store.select('domReferenceElement');
-      const doc = getDocument(domReferenceElement);
+      const doc = ownerDocument(domReferenceElement);
       instance.restTimeout.clear();
       instance.restTimeoutPending = false;
 
-      const triggerElements = store.context.triggerElements;
-
-      if (event.relatedTarget && triggerElements.hasElement(event.relatedTarget as Element)) {
+      if (isRelatedTargetInsideEnabledTrigger(event.relatedTarget)) {
         return;
       }
 
@@ -329,6 +331,7 @@ export function useHoverReferenceInteraction(
     instance,
     isActiveTrigger,
     isClickLikeOpenEvent,
+    isRelatedTargetInsideEnabledTrigger,
     mouseOnly,
     move,
     restMsRef,
@@ -337,7 +340,11 @@ export function useHoverReferenceInteraction(
     enabledRef,
   ]);
 
-  return React.useMemo<HTMLProps>(() => {
+  return React.useMemo<HTMLProps | undefined>(() => {
+    if (!enabled) {
+      return undefined;
+    }
+
     function setPointerRef(event: React.PointerEvent) {
       instance.pointerType = event.pointerType;
     }
@@ -407,5 +414,5 @@ export function useHoverReferenceInteraction(
         }
       },
     };
-  }, [instance, isClickLikeOpenEvent, mouseOnly, store, restMsRef]);
+  }, [enabled, instance, isClickLikeOpenEvent, mouseOnly, store, restMsRef]);
 }
