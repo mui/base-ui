@@ -7,30 +7,6 @@ import { stringToUrl } from './rehypeSlug.mjs';
 export function rehypeConcatHeadings() {
   return (tree) => {
     /**
-     * Releases page: adds `id`s prefixed with a semver string to <h3>s
-     */
-    visit(tree, 'element', (node, _, parent) => {
-      if (headingRank(node) === 1 && toString(node) !== 'Releases') {
-        return EXIT;
-      }
-
-      if (headingRank(node) === 3) {
-        let index = parent.children.indexOf(node);
-
-        while (index--) {
-          const candidate = toString(parent.children[index]);
-          if (SEMVER_PATTERN.test(candidate) && !node.properties.id) {
-            node.properties.id = `${candidate}-${stringToUrl(toString(node))}`;
-            break;
-          }
-        }
-      } else if (headingRank(node) && !node.properties.id) {
-        node.properties.id = stringToUrl(toString(node));
-      }
-      return CONTINUE;
-    });
-
-    /**
      * Forms page: prefix <h3>s under React Hook Form/TanStack Form with the library name
      */
     visit(tree, 'element', (node, _, parent) => {
