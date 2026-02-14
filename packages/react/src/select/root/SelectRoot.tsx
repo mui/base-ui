@@ -31,7 +31,7 @@ import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
 import { useFormContext } from '../../form/FormContext';
 import { useField } from '../../field/useField';
 import { stringifyAsValue } from '../../utils/resolveValueLabel';
-import { EMPTY_ARRAY, EMPTY_OBJECT } from '../../utils/constants';
+import { EMPTY_ARRAY } from '../../utils/constants';
 import { defaultItemEquality, findItemIndex } from '../../utils/itemEquality';
 import { useValueChanged } from '../../utils/useValueChanged';
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
@@ -390,12 +390,8 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
   ]);
 
   const mergedTriggerProps = React.useMemo(() => {
-    return mergeProps(
-      getReferenceProps(),
-      interactionTypeProps,
-      generatedId ? { id: generatedId } : EMPTY_OBJECT,
-    );
-  }, [getReferenceProps, interactionTypeProps, generatedId]);
+    return mergeProps(getReferenceProps(), interactionTypeProps);
+  }, [getReferenceProps, interactionTypeProps]);
 
   useOnFirstRender(() => {
     store.update({
@@ -566,6 +562,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
               queueMicrotask(handleChange);
             },
           })}
+          id={generatedId}
           name={multiple ? undefined : name}
           autoComplete={autoComplete}
           value={serializedValue}
@@ -604,6 +601,7 @@ export interface SelectRootProps<Value, Multiple extends boolean | undefined = f
   autoComplete?: string | undefined;
   /**
    * The id of the Select.
+   * @deprecated use the `id` prop on the `<Select.Trigger>` component instead.
    */
   id?: string | undefined;
   /**

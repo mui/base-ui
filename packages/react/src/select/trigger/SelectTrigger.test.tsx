@@ -206,4 +206,28 @@ describe('<Select.Trigger />', () => {
       expect(trigger).to.have.attribute('aria-required', 'true');
     });
   });
+
+  describe('prop: id', () => {
+    it('should not be set the id attribute on the trigger when not provided', async () => {
+      await render(
+        <Select.Root>
+          <Select.Trigger />
+        </Select.Root>,
+      );
+
+      const trigger = screen.getByRole('combobox');
+      expect(trigger).not.to.have.attribute('id');
+    });
+
+    it('should set the id attribute on the trigger when provided', async () => {
+      await render(
+        <Select.Root>
+          <Select.Trigger id="trigger" />
+        </Select.Root>,
+      );
+
+      const trigger = screen.getByRole('combobox');
+      expect(trigger).to.have.attribute('id', 'trigger');
+    });
+  });
 });

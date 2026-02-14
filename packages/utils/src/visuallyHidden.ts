@@ -9,6 +9,7 @@ const visuallyHiddenBase: React.CSSProperties = {
   width: 1,
   height: 1,
   margin: -1,
+  fontSize: 16,
 };
 
 export const visuallyHidden: React.CSSProperties = {

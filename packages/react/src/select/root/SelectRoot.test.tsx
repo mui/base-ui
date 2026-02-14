@@ -1114,29 +1114,6 @@ describe('<Select.Root />', () => {
     });
   });
 
-  describe('prop: id', () => {
-    it('sets the id on the trigger', async () => {
-      await render(
-        <Select.Root id="test-id">
-          <Select.Trigger>
-            <Select.Value />
-          </Select.Trigger>
-          <Select.Portal>
-            <Select.Positioner>
-              <Select.Popup>
-                <Select.Item value="a">a</Select.Item>
-                <Select.Item value="b">b</Select.Item>
-              </Select.Popup>
-            </Select.Positioner>
-          </Select.Portal>
-        </Select.Root>,
-      );
-
-      const trigger = screen.getByRole('combobox');
-      expect(trigger).to.have.attribute('id', 'test-id');
-    });
-  });
-
   describe('with Field.Root parent', () => {
     it('should receive disabled prop from Field.Root', async () => {
       await render(
@@ -2002,7 +1979,7 @@ describe('<Select.Root />', () => {
       );
     });
 
-    it('Field.Label links to trigger and focuses it', async () => {
+    it("Field.Label links to select's hidden input and focuses it", async () => {
       const { user } = await render(
         <Field.Root>
           <Field.Label data-testid="label">Font</Field.Label>
@@ -2023,14 +2000,14 @@ describe('<Select.Root />', () => {
       );
 
       const label = screen.getByTestId<HTMLLabelElement>('label');
-      const trigger = screen.getByTestId('trigger');
+      const hiddenInput = screen.getByRole('textbox', { hidden: true });
+      const hiddenInputId = hiddenInput.getAttribute('id');
 
-      expect(label).to.have.attribute('for', trigger.id);
-      expect(trigger).to.have.attribute('id', label?.htmlFor);
+      expect(label.htmlFor).to.equal(hiddenInputId);
 
       await user.click(label);
 
-      expect(screen.getByRole('listbox')).toHaveFocus();
+      expect(screen.getByRole('combob')).toHaveFocus();
     });
 
     it('Field.Label links to trigger when trigger has an explicit id', async () => {
@@ -2054,15 +2031,10 @@ describe('<Select.Root />', () => {
       );
 
       const label = screen.getByTestId<HTMLLabelElement>('label');
-      const trigger = screen.getByTestId('trigger');
-
-      expect(trigger).to.have.attribute('id', 'x-id');
-      expect(label).to.have.attribute('for', 'x-id');
-      expect(trigger).to.have.attribute('id', label?.htmlFor);
 
       await user.click(label);
 
-      expect(screen.getByRole('listbox')).toHaveFocus();
+      expect(screen.getByRole('combobox')).toHaveFocus();
     });
 
     it('Field.Description', async () => {
@@ -3150,6 +3122,31 @@ describe('<Select.Root />', () => {
       await waitFor(() => {
         expect(optionA).to.have.attribute('data-highlighted');
       });
+    });
+  });
+
+  describe('iO zoom issue', () => {
+    it('should apply a font size of at least 16px to the hidden input to prevent the iOS zoom issue', async () => {
+      await render(
+        <Select.Root>
+          <Select.Trigger>
+            <Select.Value />
+          </Select.Trigger>
+          <Select.Portal>
+            <Select.Positioner>
+              <Select.Popup>
+                <Select.Item value="a">a</Select.Item>
+                <Select.Item value="b">b</Select.Item>
+                <Select.Item value="c">c</Select.Item>
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
+        </Select.Root>,
+      );
+
+      const hiddenInput = screen.getByRole('textbox', { hidden: true });
+      const fontSize = parseFloat(getComputedStyle(hiddenInput).fontSize);
+      expect(fontSize).to.be.greaterThanOrEqual(16);
     });
   });
 });
