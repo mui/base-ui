@@ -1,47 +1,36 @@
-import { Menu as BaseMenu } from '@base-ui/react/menu';
+import { Menu } from '@base-ui/react/menu';
 import clsx from 'clsx';
 
-export const Root = BaseMenu.Root;
-export const Portal = BaseMenu.Portal;
+export const Root = Menu.Root;
 
-export function Trigger({ className, ...props }: BaseMenu.Trigger.Props) {
-  return <BaseMenu.Trigger className={clsx('GhostButton', className)} {...props} />;
-}
+export const Trigger = Menu.Trigger;
 
-export function Positioner({ className, sideOffset = 8, ...props }: BaseMenu.Positioner.Props) {
+export function Popup({ children, className, sideOffset = 8, ...props }: Menu.Positioner.Props) {
   return (
-    <BaseMenu.Positioner
-      sideOffset={sideOffset}
-      className={clsx('MenuPositioner', className)}
-      {...props}
-    />
+    <Menu.Portal>
+      <Menu.Positioner sideOffset={sideOffset} className="MenuPositioner" {...props}>
+        <Menu.Popup className={clsx('MenuPopup', className)}>{children}</Menu.Popup>
+      </Menu.Positioner>
+    </Menu.Portal>
   );
 }
 
-export function Popup({ children, className, ...props }: BaseMenu.Popup.Props) {
+export function Item({ children, className, ...props }: Menu.Item.Props) {
   return (
-    <BaseMenu.Popup className={clsx('MenuPopup', className)} {...props}>
+    <Menu.Item className={clsx('MenuItem', className)} {...props}>
       {children}
-    </BaseMenu.Popup>
+    </Menu.Item>
   );
 }
 
-export function Item({ children, className, ...props }: BaseMenu.Item.Props) {
+export function LinkItem({ children, className, ...props }: Menu.LinkItem.Props) {
   return (
-    <BaseMenu.Item className={clsx('MenuItem', className)} {...props}>
+    <Menu.LinkItem className={clsx('MenuItem', className)} {...props}>
       {children}
-    </BaseMenu.Item>
+    </Menu.LinkItem>
   );
 }
 
-export function LinkItem({ children, className, ...props }: BaseMenu.LinkItem.Props) {
-  return (
-    <BaseMenu.LinkItem className={clsx('MenuItem', className)} {...props}>
-      {children}
-    </BaseMenu.LinkItem>
-  );
-}
-
-export function Separator({ className, ...props }: BaseMenu.Separator.Props) {
-  return <BaseMenu.Separator className={clsx('MenuSeparator', className)} {...props} />;
+export function Separator({ className, ...props }: Menu.Separator.Props) {
+  return <Menu.Separator className={clsx('MenuSeparator', className)} {...props} />;
 }

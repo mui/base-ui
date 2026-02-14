@@ -231,49 +231,53 @@ export function Demo({
                     </span>
                   </span>
                 </GhostButton>
+
                 {githubUrl && (
                   <Menu.Root>
-                    <Menu.Trigger data-layout="icon" aria-label="More actions">
-                      <MoreVertIcon aria-hidden="true" />
-                    </Menu.Trigger>
-                    <Menu.Portal>
-                      <Menu.Positioner>
-                        <Menu.Popup>
-                          <Menu.LinkItem
-                            href={githubUrl}
-                            target="_blank"
-                            rel="noopener"
-                            onClick={onViewSource}
-                          >
-                            <GitHubIcon aria-hidden="true" className="size-3.5" />
-                            View source on GitHub
-                          </Menu.LinkItem>
-                          <Menu.Item closeOnClick={false} onClick={onCopySourceLink}>
-                            <span className="flex size-3.5 items-center justify-center">
-                              {sourceLinkCopied ? (
-                                <CheckIcon aria-hidden="true" />
-                              ) : (
-                                <CopyIcon aria-hidden="true" />
-                              )}
-                            </span>
-                            Copy link to source
-                            <span className="sr-only" aria-live="polite">
-                              {sourceLinkCopied && 'Link copied!'}
-                            </span>
-                          </Menu.Item>
-                          <Menu.Separator />
-                          <Menu.LinkItem
-                            href={issueUrl}
-                            target="_blank"
-                            rel="noopener"
-                            onClick={onOpenIssue}
-                          >
-                            <ExternalLinkIcon aria-hidden="true" className="size-3.5" />
-                            Report an issue
-                          </Menu.LinkItem>
-                        </Menu.Popup>
-                      </Menu.Positioner>
-                    </Menu.Portal>
+                    <Menu.Trigger
+                      render={
+                        <GhostButton layout="icon" aria-label="More actions">
+                          <MoreVertIcon aria-hidden="true" />
+                        </GhostButton>
+                      }
+                    />
+                    <Menu.Popup align="end" alignOffset={-5}>
+                      <Menu.LinkItem
+                        href={githubUrl}
+                        target="_blank"
+                        rel="noopener"
+                        onClick={onViewSource}
+                      >
+                        <GitHubIcon aria-hidden="true" className="size-3.5" />
+                        View source on GitHub
+                      </Menu.LinkItem>
+
+                      <Menu.Item closeOnClick={false} onClick={onCopySourceLink}>
+                        <span className="flex size-3.5 items-center justify-center">
+                          {sourceLinkCopied ? (
+                            <CheckIcon aria-hidden="true" />
+                          ) : (
+                            <CopyIcon aria-hidden="true" />
+                          )}
+                        </span>
+                        Copy link to source
+                        <span className="sr-only" aria-live="polite">
+                          {sourceLinkCopied && 'Link copied!'}
+                        </span>
+                      </Menu.Item>
+
+                      <Menu.Separator />
+
+                      <Menu.LinkItem
+                        href={issueUrl}
+                        target="_blank"
+                        rel="noopener"
+                        onClick={onOpenIssue}
+                      >
+                        <ExternalLinkIcon aria-hidden="true" className="size-3.5" />
+                        Report an issue
+                      </Menu.LinkItem>
+                    </Menu.Popup>
                   </Menu.Root>
                 )}
               </div>
