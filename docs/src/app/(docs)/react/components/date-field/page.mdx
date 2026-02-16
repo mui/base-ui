@@ -1,12 +1,15 @@
 # Date Field
 
 <Subtitle>An easily stylable date field component.</Subtitle>
+
 <Meta
   name="description"
   content="A high-quality, unstyled React date field that is easy to customize."
 />
 
-TODO: Add Hero
+import { DemoDateFieldHero } from './demos/hero';
+
+<DemoDateFieldHero />
 
 ## Anatomy
 
@@ -30,4 +33,44 @@ import { DateField } from '@base-ui/react/date-field';
 
 ## Examples
 
-TODO: Migrate some experiments here
+### Custom format
+
+Use the `format` prop to customize the date display format. The format string follows [date-fns format patterns](https://date-fns.org/docs/format).
+
+import { DemoDateFieldCustomFormat } from './demos/custom-format';
+
+<DemoDateFieldCustomFormat />
+
+### Clear button
+
+Use `<DateField.SectionList>` with `<DateField.Clear>` to add a clear button that resets the field value.
+
+import { DemoDateFieldClearButton } from './demos/clear-button';
+
+<DemoDateFieldClearButton />
+
+### Validation
+
+Use the `minDate` and `maxDate` props to constrain the allowed date range. Combine with `<Field.Error>` to display validation messages.
+
+import { DemoDateFieldValidation } from './demos/validation';
+
+<DemoDateFieldValidation />
+
+### Localization
+
+Use `<TemporalLocaleProvider>` to set the locale and `placeholderGetters` to customize placeholder text.
+
+import { DemoDateFieldLocalization } from './demos/localization';
+
+<DemoDateFieldLocalization />
+
+export const metadata = {
+  keywords: [
+    'React Date Field',
+    'Date Input',
+    'Date Picker',
+    'Temporal',
+    'Base UI',
+  ],
+};

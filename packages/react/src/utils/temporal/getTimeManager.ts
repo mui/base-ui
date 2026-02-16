@@ -13,7 +13,7 @@ export function getTimeManager(adapter: TemporalAdapter): GetTimeManagerReturnVa
     getValidationError: (value, validationProps) =>
       validateTime({ adapter, value, validationProps }),
     areValidationErrorEquals: (errorA, errorB) => errorA === errorB,
-    isValidationErrorEmpty: (error) => error != null,
+    isValidationErrorEmpty: (error) => error == null,
     getTimezone: (value) => (adapter.isValid(value) ? adapter.getTimezone(value) : null),
     setTimezone: (value, timezone) => (value == null ? null : adapter.setTimezone(value, timezone)),
     getDatesFromValue: (value) => (value == null ? [] : [value]),

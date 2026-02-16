@@ -1,12 +1,7 @@
 import { createSelector, createSelectorMemoized } from '@base-ui/utils/store';
 import { warn } from '@base-ui/utils/warn';
 import { visuallyHiddenInput } from '@base-ui/utils/visuallyHidden';
-import {
-  TemporalAdapter,
-  TemporalFieldDatePartType,
-  TemporalSupportedValue,
-  TemporalTimezone,
-} from '../../../types';
+import { TemporalAdapter, TemporalFieldDatePartType } from '../../../types';
 import {
   TemporalFieldState as State,
   TemporalFieldDatePart,
@@ -17,21 +12,20 @@ import {
 import { getTimezoneToRender, isDatePart, isToken } from './utils';
 import { FormatParser } from './formatParser';
 import { TemporalDateType } from '../types';
-import {
-  getArbitraryDate,
-  getLongestMonthInCurrentYear,
-  getMeridiemsStr,
-  getMonthsStr,
-  getWeekDaysStr,
-} from './adapter-cache';
+import { getAriaValueText, getMeridiemsStr, getMonthsStr, getWeekDaysStr } from './adapter-cache';
+import { NOOP } from '@base-ui/utils/empty';
 
-// NOTE: We intentionally avoid importing TemporalFieldStore here to prevent
-// a circular type reference (TemporalFieldStore extends ReactStore<..., typeof selectors>).
-// Selectors that accept the store as an extra argument use `any` for the store parameter.
-
-// =============================================
-// Base selectors
-// =============================================
+const translations = {
+  empty: 'Empty',
+  year: 'Year',
+  month: 'Month',
+  day: 'Day',
+  weekDay: 'Week day',
+  hours: 'Hours',
+  minutes: 'Minutes',
+  seconds: 'Seconds',
+  meridiem: 'Meridiem',
+};
 
 const timezoneToRenderSelector = createSelectorMemoized(
   (state: State) => state.adapter,
@@ -47,13 +41,10 @@ const disabledSelector = createSelector(
 );
 const readOnlySelector = createSelector((state: State) => state.readOnly);
 const editableSelector = createSelector(
-  (state: State) =>
-    !(state.fieldContext?.state.disabled || state.disabledProp) && !state.readOnly,
+  (state: State) => !(state.fieldContext?.state.disabled || state.disabledProp) && !state.readOnly,
 );
 const invalidSelector = createSelector((state: State) => state.fieldContext?.invalid ?? false);
-const nameSelector = createSelector(
-  (state: State) => state.fieldContext?.name ?? state.nameProp,
-);
+const nameSelector = createSelector((state: State) => state.fieldContext?.name ?? state.nameProp);
 const idSelector = createSelector((state: State) => state.id);
 const adapterSelector = createSelector((state: State) => state.adapter);
 const managerSelector = createSelector((state: State) => state.manager);
@@ -66,22 +57,8 @@ const validationPropsSelector = createSelectorMemoized(
 const fieldContextSelector = createSelector((state: State) => state.fieldContext);
 const stepSelector = createSelector((state: State) => state.step);
 const inputRefSelector = createSelector((state: State) => state.inputRef);
-
-// =============================================
-// Value selectors
-// =============================================
-
 const valueSelector = createSelector((state: State) => state.value);
-
-// =============================================
-// Section selectors
-// =============================================
-
 const sectionsSelector = createSelector((state: State) => state.sections);
-
-// =============================================
-// Format selectors
-// =============================================
 
 const parsedFormatSelector = createSelectorMemoized(
   adapterSelector,
@@ -90,23 +67,19 @@ const parsedFormatSelector = createSelectorMemoized(
   (state: State) => state.direction,
   (state: State) => state.placeholderGetters,
   validationPropsSelector,
-  (adapterVal, managerVal, formatVal, direction, placeholderGetters, validationPropsVal) => {
+  (adapter, manager, format, direction, placeholderGetters, validationProps) => {
     const parsed = FormatParser.parse(
-      adapterVal,
-      formatVal,
+      adapter,
+      format,
       direction,
       placeholderGetters,
-      validationPropsVal,
+      validationProps,
     );
-    validateFormat(parsed, managerVal.dateType);
+    validateFormat(parsed, manager.dateType);
 
     return parsed;
   },
 );
-
-// =============================================
-// Exported selectors object
-// =============================================
 
 export const selectors = {
   // Base
@@ -180,12 +153,12 @@ export const selectors = {
     disabledSelector,
     invalidSelector,
     fieldContextSelector,
-    (requiredVal, readOnlyVal, disabledVal, invalidVal, fieldContextVal: any) => ({
-      ...(fieldContextVal?.state || {}),
-      required: requiredVal,
-      readOnly: readOnlyVal,
-      disabled: disabledVal,
-      invalid: invalidVal,
+    (required, readOnly, disabled, invalid, fieldContext: any) => ({
+      ...(fieldContext?.state || {}),
+      required,
+      readOnly,
+      disabled,
+      invalid,
     }),
   ),
   rootProps: createSelectorMemoized(
@@ -216,36 +189,32 @@ export const selectors = {
     validationPropsSelector,
     stepSelector,
     (
-      valueVal,
-      parsedFormatVal,
-      adapterVal,
-      configVal,
-      requiredVal,
-      disabledVal,
-      readOnlyVal,
-      nameVal,
-      idVal,
-      validationPropsVal,
-      stepVal,
+      value,
+      parsedFormat,
+      adapter,
+      config,
+      required,
+      disabled,
+      readOnly,
+      name,
+      id,
+      validationProps,
+      step,
       store: any,
     ) => ({
-      ...configVal.stringifyValidationPropsForHiddenInput(
-        adapterVal,
-        validationPropsVal,
-        parsedFormatVal,
-        stepVal,
+      ...config.stringifyValidationPropsForHiddenInput(
+        adapter,
+        validationProps,
+        parsedFormat,
+        step,
       ),
-      type: configVal.hiddenInputType,
-      value: configVal.stringifyValueForHiddenInput(
-        adapterVal,
-        valueVal,
-        parsedFormatVal.granularity,
-      ),
-      name: nameVal,
-      id: idVal,
-      disabled: disabledVal,
-      readOnly: readOnlyVal,
-      required: requiredVal,
+      type: config.hiddenInputType,
+      value: config.stringifyValueForHiddenInput(adapter, value, parsedFormat.granularity),
+      name,
+      id,
+      disabled,
+      readOnly,
+      required,
       'aria-hidden': true,
       tabIndex: -1,
       style: visuallyHiddenInput,
@@ -265,28 +234,21 @@ export const selectors = {
     inputRefSelector,
     valueSelector,
     parsedFormatSelector,
-    (
-      idVal,
-      nameVal,
-      adapterVal,
-      configVal,
-      fieldContextVal,
-      inputRefVal,
-      valueVal,
-      parsedFormatVal,
-    ) => {
-      const formValue = configVal.stringifyValueForHiddenInput(
-        adapterVal,
-        valueVal,
-        parsedFormatVal.granularity,
+    (id, name, adapter, config, fieldContext, inputRef, value, parsedFormat) => {
+      const formValue = config.stringifyValueForHiddenInput(
+        adapter,
+        value,
+        parsedFormat.granularity,
       );
+      const commit = fieldContext != null ? fieldContext.validation.commit : NOOP;
+
       return {
-        id: idVal,
-        name: nameVal,
+        id,
+        name,
         value: formValue,
         getValue: () => formValue,
-        commit: fieldContextVal?.validation.commit ?? (async () => {}),
-        controlRef: inputRefVal,
+        commit,
+        controlRef: inputRef,
       };
     },
   ),
@@ -297,10 +259,10 @@ export const selectors = {
     readOnlySelector,
     timezoneToRenderSelector,
     (
-      adapterVal,
-      editableVal,
-      disabledVal,
-      readOnlyVal,
+      adapter,
+      editable,
+      disabled,
+      readOnly,
       timezone,
       section: TemporalFieldSection,
       store: any,
@@ -320,27 +282,27 @@ export const selectors = {
       if (isDatePart(section)) {
         return {
           // Aria attributes
-          'aria-readonly': readOnlyVal,
-          'aria-valuenow': getAriaValueNow(adapterVal, section),
+          'aria-readonly': readOnly,
+          'aria-valuenow': getAriaValueNow(adapter, section),
           'aria-valuemin': section.token.boundaries.characterEditing.minimum,
           'aria-valuemax': section.token.boundaries.characterEditing.maximum,
           'aria-valuetext': section.value
-            ? getAriaValueText(adapterVal, section, timezone)
+            ? getAriaValueText(adapter, section, timezone)
             : translations.empty,
           'aria-label': translations[section.token.config.part],
-          'aria-disabled': disabledVal,
+          'aria-disabled': disabled,
 
           // Other
           children: section.value || section.token.placeholder,
-          tabIndex: editableVal ? 0 : -1,
-          contentEditable: editableVal,
+          tabIndex: editable ? 0 : -1,
+          contentEditable: editable,
           suppressContentEditableWarning: true,
           role: 'spinbutton',
-          spellCheck: editableVal ? false : undefined,
+          spellCheck: editable ? false : undefined,
           // Firefox hydrates this as `'none`' instead of `'off'`. No problems in chromium with both values.
           // For reference https://github.com/mui/mui-x/issues/19012
-          autoCapitalize: editableVal ? 'none' : undefined,
-          autoCorrect: editableVal ? 'off' : undefined,
+          autoCapitalize: editable ? 'none' : undefined,
+          autoCorrect: editable ? 'off' : undefined,
           inputMode: section.token.config.contentType === 'letter' ? 'text' : 'numeric',
 
           // Event handlers
@@ -365,34 +327,18 @@ export const selectors = {
   clearProps: createSelectorMemoized(
     disabledSelector,
     readOnlySelector,
-    (disabledVal, readOnlyVal, store: any): React.HTMLAttributes<HTMLButtonElement> => ({
+    (disabled, readOnly, store: any): React.HTMLAttributes<HTMLButtonElement> => ({
       tabIndex: -1,
       children: '✕',
-      'aria-readonly': readOnlyVal || undefined,
-      'aria-disabled': disabledVal || undefined,
+      'aria-readonly': readOnly || undefined,
+      'aria-disabled': disabled || undefined,
       onMouseDown: store.handleClearMouseDown,
       onClick: store.handleClearClick,
     }),
   ),
 };
 
-// =============================================
-// Helper functions used by selectors
-// =============================================
-
-const translations = {
-  empty: 'Empty',
-  year: 'Year',
-  month: 'Month',
-  day: 'Day',
-  weekDay: 'Week day',
-  hours: 'Hours',
-  minutes: 'Minutes',
-  seconds: 'Seconds',
-  meridiem: 'Meridiem',
-};
-
-function validateFormat(parsedFormatVal: TemporalFieldParsedFormat, dateType: TemporalDateType) {
+function validateFormat(parsedFormat: TemporalFieldParsedFormat, dateType: TemporalDateType) {
   if (process.env.NODE_ENV !== 'production') {
     const supportedSections: TemporalFieldDatePartType[] = [];
     if (['date', 'date-time'].includes(dateType)) {
@@ -402,7 +348,7 @@ function validateFormat(parsedFormatVal: TemporalFieldParsedFormat, dateType: Te
       supportedSections.push('hours', 'minutes', 'seconds', 'meridiem');
     }
 
-    const invalidDatePartEl = parsedFormatVal.elements.find(
+    const invalidDatePartEl = parsedFormat.elements.find(
       (element) => isToken(element) && !supportedSections.includes(element.config.part),
     ) as TemporalFieldToken | undefined;
 
@@ -416,7 +362,7 @@ function validateFormat(parsedFormatVal: TemporalFieldParsedFormat, dateType: Te
 }
 
 function getAriaValueNow(
-  adapterVal: TemporalAdapter,
+  adapter: TemporalAdapter,
   section: TemporalFieldDatePart,
 ): number | undefined {
   if (section.value === '') {
@@ -426,14 +372,14 @@ function getAriaValueNow(
   switch (section.token.config.part) {
     case 'month': {
       if (section.token.config.contentType === 'letter') {
-        const index = getMonthsStr(adapterVal, section.token.value).indexOf(section.value);
+        const index = getMonthsStr(adapter, section.token.value).indexOf(section.value);
         return index >= 0 ? index + 1 : undefined;
       }
       return Number(section.value);
     }
     case 'weekDay': {
       if (section.token.config.contentType === 'letter') {
-        const index = getWeekDaysStr(adapterVal, section.token.value).indexOf(section.value);
+        const index = getWeekDaysStr(adapter, section.token.value).indexOf(section.value);
         return index >= 0 ? index + 1 : undefined;
       }
       return Number(section.value);
@@ -441,70 +387,10 @@ function getAriaValueNow(
     case 'day':
       return parseInt(section.value, 10);
     case 'meridiem': {
-      const index = getMeridiemsStr(adapterVal, section.token.value).indexOf(section.value);
+      const index = getMeridiemsStr(adapter, section.token.value).indexOf(section.value);
       return index >= 0 ? index : undefined;
     }
     default:
       return section.token.config.contentType !== 'letter' ? Number(section.value) : undefined;
-  }
-}
-
-function getAriaValueText(
-  adapterVal: TemporalAdapter,
-  section: TemporalFieldDatePart,
-  timezone: TemporalTimezone,
-): string | undefined {
-  if (section.value === '') {
-    return undefined;
-  }
-
-  const arbitraryDate = getArbitraryDate(adapterVal);
-  switch (section.token.config.part) {
-    case 'month': {
-      if (section.token.config.contentType === 'digit') {
-        const dateWithMonth = adapterVal.setMonth(
-          adapterVal.startOfYear(arbitraryDate),
-          Number(section.value) - 1,
-        );
-        return adapterVal.isValid(dateWithMonth)
-          ? adapterVal.format(dateWithMonth, 'monthFullLetter')
-          : '';
-      }
-      const parsedDate = adapterVal.parse(section.value, section.token.value, timezone);
-      return parsedDate && adapterVal.isValid(parsedDate)
-        ? adapterVal.format(parsedDate, 'monthFullLetter')
-        : undefined;
-    }
-    case 'day':
-      if (section.token.config.contentType === 'digit') {
-        const dateWithDay = adapterVal.setDate(
-          getLongestMonthInCurrentYear(adapterVal),
-          Number(section.value),
-        );
-        return adapterVal.isValid(dateWithDay)
-          ? adapterVal.format(dateWithDay, 'dayOfMonthWithLetter')
-          : '';
-      }
-      return section.value;
-    case 'weekDay': {
-      const startOfWeekDate = adapterVal.startOfWeek(arbitraryDate);
-      if (section.token.config.contentType === 'digit') {
-        const dateWithWeekDay = adapterVal.addDays(startOfWeekDate, Number(section.value) - 1);
-        return adapterVal.isValid(dateWithWeekDay)
-          ? adapterVal.format(dateWithWeekDay, 'weekday')
-          : '';
-      }
-      const formattedDaysInWeek = getWeekDaysStr(adapterVal, section.token.value);
-      const index = formattedDaysInWeek.indexOf(section.value);
-      if (index < 0) {
-        return undefined;
-      }
-      const dateWithWeekDay = adapterVal.addDays(startOfWeekDate, index);
-      return adapterVal.isValid(dateWithWeekDay)
-        ? adapterVal.format(dateWithWeekDay, 'weekday')
-        : undefined;
-    }
-    default:
-      return undefined;
   }
 }

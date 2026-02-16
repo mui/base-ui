@@ -372,17 +372,17 @@ export class TemporalFieldStore<TValue extends TemporalSupportedValue> extends R
    */
   public updateFromString(valueStr: string) {
     const formatVal = selectors.format(this.state);
-    const adapterVal = selectors.adapter(this.state);
+    const adapter = selectors.adapter(this.state);
     const fieldConfig = selectors.config(this.state);
     const parsedFormatVal = selectors.parsedFormat(this.state);
 
     const parseDateStr = (dateStr: string, referenceDate: TemporalSupportedObject) => {
-      const date = adapterVal.parse(dateStr, formatVal, selectors.timezoneToRender(this.state));
-      if (!adapterVal.isValid(date)) {
+      const date = adapter.parse(dateStr, formatVal, selectors.timezoneToRender(this.state));
+      if (!adapter.isValid(date)) {
         return null;
       }
 
-      const sectionsList = buildSections(adapterVal, parsedFormatVal, date);
+      const sectionsList = buildSections(adapter, parsedFormatVal, date);
       return mergeDateIntoReferenceDate(date, sectionsList, referenceDate, false);
     };
 
@@ -421,7 +421,7 @@ export class TemporalFieldStore<TValue extends TemporalSupportedValue> extends R
    * Generates the sections and the reference value from a new value.
    */
   public deriveStateFromNewValue(newValue: TValue) {
-    const adapterVal = selectors.adapter(this.state);
+    const adapter = selectors.adapter(this.state);
     const configVal = selectors.config(this.state);
     const parsedFormatVal = selectors.parsedFormat(this.state);
     const sectionsBefore = selectors.sections(this.state);
@@ -430,7 +430,7 @@ export class TemporalFieldStore<TValue extends TemporalSupportedValue> extends R
 
     const isActiveDateInvalid =
       sectionToUpdate != null &&
-      !adapterVal.isValid(
+      !adapter.isValid(
         configVal.getDateFromSection(newValue, sectionsBefore[sectionToUpdate.index]),
       );
     let sectionsList: TemporalFieldSection[];
@@ -442,7 +442,7 @@ export class TemporalFieldStore<TValue extends TemporalSupportedValue> extends R
       );
     } else {
       sectionsList = configVal.getSectionsFromValue(newValue, (date) =>
-        buildSections(adapterVal, parsedFormatVal, date),
+        buildSections(adapter, parsedFormatVal, date),
       );
     }
 
@@ -451,7 +451,7 @@ export class TemporalFieldStore<TValue extends TemporalSupportedValue> extends R
       referenceValue: (isActiveDateInvalid
         ? referenceValueBefore
         : configVal.updateReferenceValue(
-            adapterVal,
+            adapter,
             newValue,
             referenceValueBefore,
           )) as TemporalNonNullableValue<TValue>,
@@ -503,7 +503,7 @@ export class TemporalFieldStore<TValue extends TemporalSupportedValue> extends R
     const currentValue = selectors.value(this.state);
     const fieldConfig = selectors.config(this.state);
     const refValue = selectors.referenceValue(this.state);
-    const adapterVal = selectors.adapter(this.state);
+    const adapter = selectors.adapter(this.state);
     const dp = selectors.datePart(this.state, sectionIndex);
     if (dp == null) {
       return undefined;
@@ -539,7 +539,7 @@ export class TemporalFieldStore<TValue extends TemporalSupportedValue> extends R
      * Then we merge the value of the modified sections into the reference date.
      * This makes sure that we don't lose some information of the initial date (like the time on a date field).
      */
-    if (adapterVal.isValid(newActiveDate)) {
+    if (adapter.isValid(newActiveDate)) {
       const mergedDate = mergeDateIntoReferenceDate(
         newActiveDate,
         newActiveDateSections,
@@ -564,7 +564,7 @@ export class TemporalFieldStore<TValue extends TemporalSupportedValue> extends R
      */
     if (
       newActiveDateSections.every((sectionBis) => sectionBis.value !== '') &&
-      (activeDate == null || adapterVal.isValid(activeDate))
+      (activeDate == null || adapter.isValid(activeDate))
     ) {
       this.setSectionUpdateToApplyOnNextInvalidDate(sectionIndex, newDatePartValue);
       return this.publish(fieldConfig.updateDateInValue(currentValue, dp, newActiveDate));
@@ -670,7 +670,7 @@ export class TemporalFieldStore<TValue extends TemporalSupportedValue> extends R
    * To make sure that the parsing works, we are building a format and a date without any separator.
    */
   private getDateFromDateSections(sectionsList: TemporalFieldSection[]) {
-    const adapterVal = selectors.adapter(this.state);
+    const adapter = selectors.adapter(this.state);
     const timezone = selectors.timezoneToRender(this.state);
 
     // If we have both a day and a weekDay section,
@@ -696,7 +696,7 @@ export class TemporalFieldStore<TValue extends TemporalSupportedValue> extends R
     const formatWithoutSeparator = sectionFormats.join(' ');
     const dateWithoutSeparatorStr = sectionValues.join(' ');
 
-    return adapterVal.parse(dateWithoutSeparatorStr, formatWithoutSeparator, timezone);
+    return adapter.parse(dateWithoutSeparatorStr, formatWithoutSeparator, timezone);
   }
 
   private setSectionUpdateToApplyOnNextInvalidDate = (
@@ -734,7 +734,7 @@ export class TemporalFieldStore<TValue extends TemporalSupportedValue> extends R
   }
 
   private applyLetterEditing(parameters: EditSectionParameters) {
-    const adapterVal = selectors.adapter(this.state);
+    const adapter = selectors.adapter(this.state);
 
     const findMatchingOptions = (
       _format: string,
@@ -761,8 +761,7 @@ export class TemporalFieldStore<TValue extends TemporalSupportedValue> extends R
       fallbackFormat?: string,
       formatFallbackValue?: (fallbackValue: string, fallbackOptions: string[]) => string,
     ) => {
-      const getOptions = (fmt: string) =>
-        getLetterEditingOptions(adapterVal, token.config.part, fmt);
+      const getOptions = (fmt: string) => getLetterEditingOptions(adapter, token.config.part, fmt);
 
       if (token.config.contentType === 'letter') {
         return findMatchingOptions(token.value, getOptions(token.value), queryValue);
@@ -774,7 +773,7 @@ export class TemporalFieldStore<TValue extends TemporalSupportedValue> extends R
       if (
         fallbackFormat &&
         formatFallbackValue != null &&
-        FormatParser.getTokenConfig(adapterVal, fallbackFormat).contentType === 'letter'
+        FormatParser.getTokenConfig(adapter, fallbackFormat).contentType === 'letter'
       ) {
         const fallbackOptions = getOptions(fallbackFormat);
         const response = findMatchingOptions(fallbackFormat, fallbackOptions, queryValue);
@@ -797,14 +796,14 @@ export class TemporalFieldStore<TValue extends TemporalSupportedValue> extends R
           const formatFallbackValue = (fallbackValue: string) =>
             this.getDatePartValueInForAnotherToken(
               fallbackValue,
-              adapterVal.formats.monthFullLetter,
+              adapter.formats.monthFullLetter,
               dp.token.value,
             );
 
           return testQueryOnFormatAndFallbackFormat(
             queryValue,
             dp.token,
-            adapterVal.formats.monthFullLetter,
+            adapter.formats.monthFullLetter,
             formatFallbackValue,
           );
         }
@@ -816,7 +815,7 @@ export class TemporalFieldStore<TValue extends TemporalSupportedValue> extends R
           return testQueryOnFormatAndFallbackFormat(
             queryValue,
             dp.token,
-            adapterVal.formats.weekday,
+            adapter.formats.weekday,
             formatFallbackValue,
           );
         }
@@ -835,8 +834,8 @@ export class TemporalFieldStore<TValue extends TemporalSupportedValue> extends R
   }
 
   private applyNumericEditing(parameters: EditSectionParameters) {
-    const adapterVal = selectors.adapter(this.state);
-    const localizedDigits = getLocalizedDigits(adapterVal);
+    const adapter = selectors.adapter(this.state);
+    const localizedDigits = getLocalizedDigits(adapter);
 
     const getNewDatePartValue = ({
       queryValue,
@@ -867,7 +866,7 @@ export class TemporalFieldStore<TValue extends TemporalSupportedValue> extends R
         cleanQueryValue.length === boundaries.maximum.toString().length;
 
       const newDatePartValue = cleanDigitDatePartValue(
-        adapterVal,
+        adapter,
         queryValueNumber,
         localizedDigits,
         dp.token,
@@ -897,8 +896,8 @@ export class TemporalFieldStore<TValue extends TemporalSupportedValue> extends R
           datePart: {
             ...dp,
             token: FormatParser.buildSingleToken(
-              adapterVal,
-              adapterVal.formats.monthPadded,
+              adapter,
+              adapter.formats.monthPadded,
               selectors.validationProps(this.state),
             ),
           },
@@ -910,7 +909,7 @@ export class TemporalFieldStore<TValue extends TemporalSupportedValue> extends R
 
         const formattedValue = this.getDatePartValueInForAnotherToken(
           response.datePartValue,
-          adapterVal.formats.monthPadded,
+          adapter.formats.monthPadded,
           dp.token.value,
         );
 
@@ -932,7 +931,7 @@ export class TemporalFieldStore<TValue extends TemporalSupportedValue> extends R
           return response;
         }
 
-        const formattedValue = getWeekDaysStr(adapterVal, dp.token.value)[
+        const formattedValue = getWeekDaysStr(adapter, dp.token.value)[
           Number(response.datePartValue) - 1
         ];
         return {
@@ -1031,19 +1030,16 @@ export class TemporalFieldStore<TValue extends TemporalSupportedValue> extends R
     currentFormat: string,
     newFormat: string,
   ) {
-    const adapterVal = selectors.adapter(this.state);
+    const adapter = selectors.adapter(this.state);
     const timezone = selectors.timezoneToRender(this.state);
 
     if (process.env.NODE_ENV !== 'production') {
-      if (FormatParser.getTokenConfig(adapterVal, currentFormat).part === 'weekDay') {
+      if (FormatParser.getTokenConfig(adapter, currentFormat).part === 'weekDay') {
         throw new Error("getDatePartValueInForAnotherToken doesn't support week day formats");
       }
     }
 
-    return adapterVal.formatByString(
-      adapterVal.parse(valueStr, currentFormat, timezone)!,
-      newFormat,
-    );
+    return adapter.formatByString(adapter.parse(valueStr, currentFormat, timezone)!, newFormat);
   }
 
   public isAdjustSectionValueKeyCode(keyCode: string): keyCode is AdjustDatePartValueKeyCode {
@@ -1073,7 +1069,7 @@ export class TemporalFieldStore<TValue extends TemporalSupportedValue> extends R
   }
 
   private getAdjustedDatePartValue(keyCode: AdjustDatePartValueKeyCode, sectionIndex: number) {
-    const adapterVal = selectors.adapter(this.state);
+    const adapter = selectors.adapter(this.state);
     const validationPropsVal = selectors.validationProps(this.state);
     const datePart = selectors.datePart(this.state, sectionIndex);
     if (datePart == null) {
@@ -1088,7 +1084,7 @@ export class TemporalFieldStore<TValue extends TemporalSupportedValue> extends R
       (isIncrementDirection(keyCode) && validationPropsVal.minDate == null);
     if (isYearInitialization && hasNoBoundaryInDirection) {
       const timezone = selectors.timezoneToRender(this.state);
-      return adapterVal.formatByString(adapterVal.now(timezone), datePart.token.value);
+      return adapter.formatByString(adapter.now(timezone), datePart.token.value);
     }
 
     const stepVal = datePart.token.isMostGranularPart ? selectors.step(this.state) : 1;
@@ -1109,12 +1105,12 @@ export class TemporalFieldStore<TValue extends TemporalSupportedValue> extends R
     direction: 'up' | 'down',
     stepVal: number,
   ) {
-    const adapterVal = selectors.adapter(this.state);
-    const localizedDigits = getLocalizedDigits(adapterVal);
+    const adapter = selectors.adapter(this.state);
+    const localizedDigits = getLocalizedDigits(adapter);
     const boundaries = dp.token.boundaries.adjustment;
 
     const formatValue = (val: number) =>
-      cleanDigitDatePartValue(adapterVal, val, localizedDigits, dp.token);
+      cleanDigitDatePartValue(adapter, val, localizedDigits, dp.token);
 
     let newValue: number;
 
@@ -1139,9 +1135,9 @@ export class TemporalFieldStore<TValue extends TemporalSupportedValue> extends R
     direction: 'up' | 'down',
     stepVal: number,
   ) {
-    const adapterVal = selectors.adapter(this.state);
+    const adapter = selectors.adapter(this.state);
 
-    const options = getLetterEditingOptions(adapterVal, dp.token.config.part, dp.token.value);
+    const options = getLetterEditingOptions(adapter, dp.token.config.part, dp.token.value);
 
     if (options.length === 0) {
       return dp.value;

@@ -1,4 +1,9 @@
-import { TemporalAdapter, TemporalSupportedObject } from '../../../types';
+import {
+  TemporalAdapter,
+  TemporalSupportedObject,
+  TemporalTimezone,
+} from '../../../types';
+import { TemporalFieldDatePart } from './types';
 
 /**
  * Cache for locale-dependent computations that are shared across all field instances using the same adapter.
@@ -51,6 +56,11 @@ interface TemporalAdapterFieldCache {
    * `undefined` means not yet computed.
    */
   localizedDigits?: LocalizedDigits | null | undefined;
+  /**
+   * Cached aria-valuetext results keyed by `tokenValue\0sectionValue\0timezone`.
+   * For a given adapter (locale), the mapping from (token, value, timezone) to aria text is immutable.
+   */
+  ariaValueText?: Map<string, string | undefined> | undefined;
   /**
    * An arbitrary date used for locale-dependent computations where the actual date value doesn't matter.
    * This is cached to avoid repeated `adapter.now('default')` calls when only invariant information is needed
@@ -306,4 +316,93 @@ export function getLocalizedDigits(adapter: TemporalAdapter): LocalizedDigits | 
   }
 
   return cache.localizedDigits;
+}
+
+/**
+ * Returns the aria-valuetext for a date part section, with caching.
+ * For a given adapter (locale), the result is deterministic based on the token format,
+ * section value, and timezone — so it's safe to cache indefinitely per adapter instance.
+ */
+export function getAriaValueText(
+  adapter: TemporalAdapter,
+  section: TemporalFieldDatePart,
+  timezone: TemporalTimezone,
+): string | undefined {
+  if (section.value === '') {
+    return undefined;
+  }
+
+  const cache = getAdapterFieldCache(adapter);
+  if (cache.ariaValueText == null) {
+    cache.ariaValueText = new Map();
+  }
+
+  const key = `${section.token.value}\0${section.value}\0${timezone}`;
+  const cached = cache.ariaValueText.get(key);
+  if (cached !== undefined) {
+    return cached;
+  }
+
+  // Check if the key exists with an `undefined` value (explicit cache of `undefined` result)
+  if (cache.ariaValueText.has(key)) {
+    return undefined;
+  }
+
+  const result = computeAriaValueText(adapter, section, timezone);
+  cache.ariaValueText.set(key, result);
+  return result;
+}
+
+function computeAriaValueText(
+  adapter: TemporalAdapter,
+  section: TemporalFieldDatePart,
+  timezone: TemporalTimezone,
+): string | undefined {
+  const arbitraryDate = getArbitraryDate(adapter);
+  switch (section.token.config.part) {
+    case 'month': {
+      if (section.token.config.contentType === 'digit') {
+        const dateWithMonth = adapter.setMonth(
+          adapter.startOfYear(arbitraryDate),
+          Number(section.value) - 1,
+        );
+        return adapter.isValid(dateWithMonth)
+          ? adapter.format(dateWithMonth, 'monthFullLetter')
+          : '';
+      }
+      const parsedDate = adapter.parse(section.value, section.token.value, timezone);
+      return parsedDate && adapter.isValid(parsedDate)
+        ? adapter.format(parsedDate, 'monthFullLetter')
+        : undefined;
+    }
+    case 'day':
+      if (section.token.config.contentType === 'digit') {
+        const dateWithDay = adapter.setDate(
+          getLongestMonthInCurrentYear(adapter),
+          Number(section.value),
+        );
+        return adapter.isValid(dateWithDay)
+          ? adapter.format(dateWithDay, 'dayOfMonthWithLetter')
+          : '';
+      }
+      return section.value;
+    case 'weekDay': {
+      const startOfWeekDate = adapter.startOfWeek(arbitraryDate);
+      if (section.token.config.contentType === 'digit') {
+        const dateWithWeekDay = adapter.addDays(startOfWeekDate, Number(section.value) - 1);
+        return adapter.isValid(dateWithWeekDay) ? adapter.format(dateWithWeekDay, 'weekday') : '';
+      }
+      const formattedDaysInWeek = getWeekDaysStr(adapter, section.token.value);
+      const index = formattedDaysInWeek.indexOf(section.value);
+      if (index < 0) {
+        return undefined;
+      }
+      const dateWithWeekDay = adapter.addDays(startOfWeekDate, index);
+      return adapter.isValid(dateWithWeekDay)
+        ? adapter.format(dateWithWeekDay, 'weekday')
+        : undefined;
+    }
+    default:
+      return undefined;
+  }
 }

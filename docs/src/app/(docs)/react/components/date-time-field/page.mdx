@@ -1,12 +1,15 @@
 # Date Time Field
 
 <Subtitle>An easily stylable date time field component.</Subtitle>
+
 <Meta
   name="description"
   content="A high-quality, unstyled React date time field that is easy to customize."
 />
 
-TODO: Add Hero
+import { DemoDateTimeFieldHero } from './demos/hero';
+
+<DemoDateTimeFieldHero />
 
 ## Anatomy
 
@@ -26,9 +29,49 @@ import { DateTimeField } from '@base-ui/react/date-time-field';
 
 ## API reference
 
-<Reference component="TimeField" parts="Root" />
-<Reference component="DateTimeField" parts="Section, SectionList, Clear" />
+<Reference component="DateTimeField" parts="Root" />
+<Reference component="DateField" parts="Section, SectionList, Clear" />
 
 ## Examples
 
-TODO: Migrate some experiments here
+### Custom format
+
+Use the `format` prop to customize the date and time display format. The format string follows [date-fns format patterns](https://date-fns.org/docs/format).
+
+import { DemoDateTimeFieldCustomFormat } from './demos/custom-format';
+
+<DemoDateTimeFieldCustomFormat />
+
+### Clear button
+
+Use `<DateTimeField.SectionList>` with `<DateTimeField.Clear>` to add a clear button that resets the field value.
+
+import { DemoDateTimeFieldClearButton } from './demos/clear-button';
+
+<DemoDateTimeFieldClearButton />
+
+### Validation
+
+Use the `minDate` and `maxDate` props to constrain the allowed date and time range. Combine with `<Field.Error>` to display validation messages.
+
+import { DemoDateTimeFieldValidation } from './demos/validation';
+
+<DemoDateTimeFieldValidation />
+
+### Localization
+
+Use `<TemporalLocaleProvider>` to set the locale and `placeholderGetters` to customize placeholder text.
+
+import { DemoDateTimeFieldLocalization } from './demos/localization';
+
+<DemoDateTimeFieldLocalization />
+
+export const metadata = {
+  keywords: [
+    'React Date Time Field',
+    'Date Time Input',
+    'Date Time Picker',
+    'Temporal',
+    'Base UI',
+  ],
+};

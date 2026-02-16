@@ -1,12 +1,15 @@
 # Time Field
 
 <Subtitle>An easily stylable time field component.</Subtitle>
+
 <Meta
   name="description"
   content="A high-quality, unstyled React time field that is easy to customize."
 />
 
-TODO: Add Hero
+import { DemoTimeFieldHero } from './demos/hero';
+
+<DemoTimeFieldHero />
 
 ## Anatomy
 
@@ -31,4 +34,44 @@ import { TimeField } from '@base-ui/react/time-field';
 
 ## Examples
 
-TODO: Migrate some experiments here
+### Custom format
+
+Use the `format` prop to customize the time display format. The format string follows [date-fns format patterns](https://date-fns.org/docs/format).
+
+import { DemoTimeFieldCustomFormat } from './demos/custom-format';
+
+<DemoTimeFieldCustomFormat />
+
+### Clear button
+
+Use `<TimeField.SectionList>` with `<TimeField.Clear>` to add a clear button that resets the field value.
+
+import { DemoTimeFieldClearButton } from './demos/clear-button';
+
+<DemoTimeFieldClearButton />
+
+### Validation
+
+Use the `minDate` and `maxDate` props to constrain the allowed time range. Combine with `<Field.Error>` to display validation messages.
+
+import { DemoTimeFieldValidation } from './demos/validation';
+
+<DemoTimeFieldValidation />
+
+### Localization
+
+Use `<TemporalLocaleProvider>` to set the locale and `placeholderGetters` to customize placeholder text.
+
+import { DemoTimeFieldLocalization } from './demos/localization';
+
+<DemoTimeFieldLocalization />
+
+export const metadata = {
+  keywords: [
+    'React Time Field',
+    'Time Input',
+    'Time Picker',
+    'Temporal',
+    'Base UI',
+  ],
+};
