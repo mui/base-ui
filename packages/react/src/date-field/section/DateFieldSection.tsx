@@ -36,7 +36,7 @@ export const DateFieldSection = React.forwardRef(function DateFieldSection(
   } = componentProps;
 
   const store = useTemporalFieldRootContext();
-  const propsFromState = store.useState('sectionProps', section, store);
+  const propsFromState = store.useState('sectionProps', section);
 
   const state: DateFieldSection.State = {
     sectionIndex: section.index,
@@ -47,7 +47,7 @@ export const DateFieldSection = React.forwardRef(function DateFieldSection(
   return useRenderElement('div', componentProps, {
     state,
     ref: [forwardedRef, store.registerSection],
-    props: [propsFromState, elementProps],
+    props: [propsFromState, store.sectionEventHandlers, elementProps],
     stateAttributesMapping,
   });
 });

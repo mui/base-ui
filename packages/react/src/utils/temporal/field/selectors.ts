@@ -163,21 +163,6 @@ export const selectors = {
       invalid,
     }),
   ),
-  rootProps: createSelectorMemoized(
-    sectionsSelector,
-    (state: State) => state.children,
-    (sectionsList, children, store: any) => {
-      const resolvedChildren =
-        typeof children === 'function'
-          ? sectionsList.map((section) => children(section))
-          : children;
-
-      return {
-        ...store.rootEventHandlers,
-        children: resolvedChildren,
-      };
-    },
-  ),
   hiddenInputProps: createSelectorMemoized(
     valueSelector,
     parsedFormatSelector,
@@ -190,20 +175,7 @@ export const selectors = {
     idSelector,
     validationPropsSelector,
     stepSelector,
-    (
-      value,
-      parsedFormat,
-      adapter,
-      config,
-      required,
-      disabled,
-      readOnly,
-      name,
-      id,
-      validationProps,
-      step,
-      store: any,
-    ) => ({
+    (value, parsedFormat, adapter, config, required, disabled, readOnly, name, id, validationProps, step) => ({
       ...config.stringifyValidationPropsForHiddenInput(
         adapter,
         validationProps,
@@ -220,7 +192,6 @@ export const selectors = {
       'aria-hidden': true,
       tabIndex: -1,
       style: visuallyHiddenInput,
-      ...store.hiddenInputEventHandlers,
     }),
   ),
   /**
@@ -266,7 +237,6 @@ export const selectors = {
       readOnly,
       timezone,
       section: TemporalFieldSection,
-      store: any,
     ): React.HTMLAttributes<HTMLDivElement> => {
       // Date part
       if (isDatePart(section)) {
@@ -294,8 +264,6 @@ export const selectors = {
           autoCapitalize: editable ? 'none' : undefined,
           autoCorrect: editable ? 'off' : undefined,
           inputMode: section.token.config.contentType === 'letter' ? 'text' : 'numeric',
-
-          ...store.sectionEventHandlers,
         };
       }
 
@@ -307,20 +275,17 @@ export const selectors = {
         // Other
         children: section.value,
         style: SEPARATOR_STYLE,
-
-        ...store.sectionEventHandlers,
       };
     },
   ),
   clearProps: createSelectorMemoized(
     disabledSelector,
     readOnlySelector,
-    (disabled, readOnly, store: any): React.HTMLAttributes<HTMLButtonElement> => ({
+    (disabled, readOnly): React.HTMLAttributes<HTMLButtonElement> => ({
       tabIndex: -1,
       children: '✕',
       'aria-readonly': readOnly || undefined,
       'aria-disabled': disabled || undefined,
-      ...store.clearEventHandlers,
     }),
   ),
 };

@@ -26,7 +26,7 @@ export const DateFieldClear = React.forwardRef(function DateFieldClear(
   } = componentProps;
 
   const store = useTemporalFieldRootContext();
-  const propsFromState = store.useState('clearProps', store);
+  const propsFromState = store.useState('clearProps');
   const storeDisabled = store.useState('disabled');
   const empty = store.useState('areAllSectionsEmpty');
 
@@ -44,7 +44,7 @@ export const DateFieldClear = React.forwardRef(function DateFieldClear(
   return useRenderElement('button', componentProps, {
     state,
     ref: [forwardedRef, buttonRef],
-    props: [propsFromState, elementProps, getButtonProps],
+    props: [propsFromState, store.clearEventHandlers, elementProps, getButtonProps],
   });
 });
 

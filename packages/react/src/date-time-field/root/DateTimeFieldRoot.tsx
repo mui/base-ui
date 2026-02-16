@@ -89,7 +89,6 @@ export const DateTimeFieldRoot = React.forwardRef(function DateTimeFieldRoot(
       minDate,
       maxDate,
       placeholderGetters,
-      children,
     }),
     [
       readOnly,
@@ -111,7 +110,6 @@ export const DateTimeFieldRoot = React.forwardRef(function DateTimeFieldRoot(
       minDate,
       maxDate,
       placeholderGetters,
-      children,
     ],
   );
 
@@ -121,19 +119,20 @@ export const DateTimeFieldRoot = React.forwardRef(function DateTimeFieldRoot(
 
   React.useImperativeHandle(actionsRef, () => store.getActions(), [store]);
 
-  const { state, hiddenInputProps, rootProps, rootRef } = useTemporalFieldRoot({
+  const { state, hiddenInputProps, rootRef, resolvedChildren } = useTemporalFieldRoot({
     store,
+    children,
   });
 
   const element = useRenderElement('div', componentProps, {
     state,
     ref: [forwardedRef, rootRef],
-    props: [rootProps, elementProps],
+    props: [store.rootEventHandlers, { children: resolvedChildren }, elementProps],
   });
 
   return (
     <TemporalFieldRootContext.Provider value={store}>
-      <input {...hiddenInputProps} ref={hiddenInputRef} />
+      <input {...hiddenInputProps} {...store.hiddenInputEventHandlers} ref={hiddenInputRef} />
       {element}
     </TemporalFieldRootContext.Provider>
   );

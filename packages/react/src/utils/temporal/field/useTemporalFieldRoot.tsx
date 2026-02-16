@@ -1,19 +1,23 @@
 'use client';
+import * as React from 'react';
 import { useOnMount } from '@base-ui/utils/useOnMount';
 import { TemporalSupportedValue } from '../../../types';
 import { useField } from '../../../field/useField';
 import { TemporalFieldStore } from './TemporalFieldStore';
+import { DateFieldSectionList } from '../../../date-field/section-list/DateFieldSectionList';
 import { selectors } from './selectors';
+import { TemporalFieldSection } from './types';
 
 interface UseTemporalFieldRootParameters<TValue extends TemporalSupportedValue> {
   store: TemporalFieldStore<TValue>;
+  children?: React.ReactNode | ((section: TemporalFieldSection, index: number) => React.ReactNode);
 }
 
 interface UseTemporalFieldRootReturnValue {
   hiddenInputProps: ReturnType<typeof selectors.hiddenInputProps>;
   state: ReturnType<typeof selectors.rootState>;
-  rootProps: ReturnType<typeof selectors.rootProps>;
   rootRef: React.RefObject<HTMLElement | null>;
+  resolvedChildren: React.ReactNode;
 }
 
 /**
@@ -22,20 +26,26 @@ interface UseTemporalFieldRootReturnValue {
 export function useTemporalFieldRoot<TValue extends TemporalSupportedValue>(
   params: UseTemporalFieldRootParameters<TValue>,
 ): UseTemporalFieldRootReturnValue {
-  const { store } = params;
+  const { store, children } = params;
 
-  const hiddenInputProps = store.useState('hiddenInputProps', store);
+  const hiddenInputProps = store.useState('hiddenInputProps');
   const state = store.useState('rootState');
-  const rootProps = store.useState('rootProps', store);
   const useFieldParams = store.useState('useFieldParams');
 
   useField(useFieldParams);
   useOnMount(store.mountEffect);
 
+  const resolvedChildren =
+    typeof children === 'function' ? (
+      <DateFieldSectionList>{children}</DateFieldSectionList>
+    ) : (
+      children
+    );
+
   return {
     hiddenInputProps,
     state,
-    rootProps,
     rootRef: useFieldParams.controlRef,
+    resolvedChildren,
   };
 }
