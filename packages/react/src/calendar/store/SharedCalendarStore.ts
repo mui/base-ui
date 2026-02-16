@@ -118,6 +118,14 @@ export class SharedCalendarStore<
     updateModel(newState, 'value', 'defaultValue');
     updateModel(newState, 'visibleDate', 'defaultVisibleDate');
 
+    // Update the visible date if the timezone has changed and the visible date is not controlled.
+    if (parameters.visibleDate === undefined && parameters.timezone !== this.parameters.timezone) {
+      newState.visibleDate = adapter.setTimezone(
+        this.state.visibleDate,
+        parameters.timezone ?? 'default',
+      );
+    }
+
     if (
       parameters.value !== undefined &&
       this.parameters.value !== undefined &&
