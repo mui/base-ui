@@ -1,5 +1,9 @@
 'use client';
 import * as React from 'react';
+import { isElementDisabled } from '@base-ui/utils/isElementDisabled';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { warn } from '@base-ui/utils/warn';
+import { SafeReact } from '@base-ui/utils/safeReact';
 import {
   safePolygon,
   useClick,
@@ -76,6 +80,19 @@ export const MenuSubmenuTrigger = React.forwardRef(function SubmenuTriggerCompon
     },
     [store],
   );
+
+  if (process.env.NODE_ENV !== 'production') {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    useIsoLayoutEffect(() => {
+      const element = triggerElementRef.current;
+      if (element && isElementDisabled(element) && !disabledProp) {
+        const ownerStackMessage = SafeReact.captureOwnerStack?.() || '';
+        warn(
+          `A disabled element was detected on <Menu.SubmenuTrigger>. To properly disable the trigger, use the \`disabled\` prop on the component instead of setting it on the rendered element.${ownerStackMessage}`,
+        );
+      }
+    });
+  }
 
   const submenuRootContext = useMenuSubmenuRootContext();
   if (!submenuRootContext?.parentMenu) {
