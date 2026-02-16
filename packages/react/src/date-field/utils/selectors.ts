@@ -6,13 +6,11 @@ import { TemporalAdapter, TemporalFieldDatePartType } from '../../types';
 import {
   TemporalFieldState as State,
   TemporalFieldDatePart,
-  TemporalFieldParsedFormat,
   TemporalFieldSection,
   TemporalFieldToken,
 } from './types';
 import { getTimezoneToRender, isDatePart, isToken } from './utils';
 import { FormatParser } from './formatParser';
-import { TemporalDateType } from '../../utils/temporal/types';
 import { getAriaValueText, getMeridiemsStr, getMonthsStr, getWeekDaysStr } from './adapter-cache';
 
 const SEPARATOR_STYLE: React.CSSProperties = { whiteSpace: 'pre' };
@@ -74,16 +72,36 @@ const parsedFormatSelector = createSelectorMemoized(
   (state: State) => state.placeholderGetters,
   validationPropsSelector,
   (adapter, manager, format, direction, placeholderGetters, validationProps) => {
-    const parsed = FormatParser.parse(
+    const parsedFormat = FormatParser.parse(
       adapter,
       format,
       direction,
       placeholderGetters,
       validationProps,
     );
-    validateFormat(parsed, manager.dateType);
 
-    return parsed;
+    if (process.env.NODE_ENV !== 'production') {
+      const supportedSections: TemporalFieldDatePartType[] = [];
+      if (['date', 'date-time'].includes(manager.dateType)) {
+        supportedSections.push('weekDay', 'day', 'month', 'year');
+      }
+      if (['time', 'date-time'].includes(manager.dateType)) {
+        supportedSections.push('hours', 'minutes', 'seconds', 'meridiem');
+      }
+
+      const invalidDatePartEl = parsedFormat.elements.find(
+        (element) => isToken(element) && !supportedSections.includes(element.config.part),
+      ) as TemporalFieldToken | undefined;
+
+      if (invalidDatePartEl) {
+        warn(
+          `Base UI: The field component you are using is not compatible with the "${invalidDatePartEl.config.part}" date section.`,
+          `The supported date parts are ["${supportedSections.join('", "')}"]\`.`,
+        );
+      }
+    }
+
+    return parsedFormat;
   },
 );
 
@@ -292,7 +310,7 @@ export const selectors = {
       };
     },
   ),
-  clearProps: createSelectorMemoized(
+  clearPropsAndState: createSelectorMemoized(
     disabledSelector,
     readOnlySelector,
     areAllSectionsEmptySelector,
@@ -309,29 +327,6 @@ export const selectors = {
     }),
   ),
 };
-
-function validateFormat(parsedFormat: TemporalFieldParsedFormat, dateType: TemporalDateType) {
-  if (process.env.NODE_ENV !== 'production') {
-    const supportedSections: TemporalFieldDatePartType[] = [];
-    if (['date', 'date-time'].includes(dateType)) {
-      supportedSections.push('weekDay', 'day', 'month', 'year');
-    }
-    if (['time', 'date-time'].includes(dateType)) {
-      supportedSections.push('hours', 'minutes', 'seconds', 'meridiem');
-    }
-
-    const invalidDatePartEl = parsedFormat.elements.find(
-      (element) => isToken(element) && !supportedSections.includes(element.config.part),
-    ) as TemporalFieldToken | undefined;
-
-    if (invalidDatePartEl) {
-      warn(
-        `Base UI: The field component you are using is not compatible with the "${invalidDatePartEl.config.part}" date section.`,
-        `The supported date parts are ["${supportedSections.join('", "')}"]\`.`,
-      );
-    }
-  }
-}
 
 function getAriaValueNow(
   adapter: TemporalAdapter,
