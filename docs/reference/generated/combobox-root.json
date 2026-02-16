@@ -85,6 +85,11 @@
       "description": "Filtered items to display in the list.\nWhen provided, the list will use these items instead of filtering the `items` prop internally.\nUse when you want to control filtering logic externally with the `useFilter()` hook.",
       "detailedType": "any[] | Group[] | undefined"
     },
+    "getValueFromItem": {
+      "type": "GetValueFromItemFn<Value, any[] | Group[] | undefined>",
+      "description": "Maps each item in the `items` array to the selected value shape.\nUseful when `items` are objects while `value` / `defaultValue` are primitive values.\nWhen omitted, the full item is used as the selected value.",
+      "detailedType": "| ((item: GroupItem | Item | any) => Value)\n| undefined"
+    },
     "grid": {
       "type": "boolean",
       "default": "false",
@@ -113,7 +118,7 @@
       "detailedType": "((itemValue: Value) => string) | undefined"
     },
     "items": {
-      "type": "any[] | Group[]",
+      "type": "any[] | Group[] | undefined",
       "description": "The items to be displayed in the list.\nCan be either a flat array of items or an array of groups with items.",
       "detailedType": "any[] | Group[] | undefined"
     },

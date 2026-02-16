@@ -5631,6 +5631,398 @@ describe('<Combobox.Root />', () => {
     });
   });
 
+  describe('primitive string values with object items', () => {
+    interface FruitItem {
+      value: string;
+      label: string;
+    }
+
+    const items: FruitItem[] = [
+      { value: 'apple', label: 'Apple' },
+      { value: 'banana', label: 'Banana' },
+      { value: 'cherry', label: 'Cherry' },
+    ];
+
+    const groupedItems = [
+      {
+        value: 'fruits',
+        items,
+      },
+    ];
+
+    it('derives input value from matching item label on first mount (single)', async () => {
+      await render(
+        <Combobox.Root items={items} defaultValue="banana" getValueFromItem={(item) => item.value}>
+          <Combobox.Input />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  {(item: FruitItem) => (
+                    <Combobox.Item key={item.value} value={item.value}>
+                      {item.label}
+                    </Combobox.Item>
+                  )}
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      expect(screen.getByRole('combobox')).to.have.value('Banana');
+    });
+
+    it('derives input value from matching grouped item label on first mount (single)', async () => {
+      await render(
+        <Combobox.Root
+          items={groupedItems}
+          defaultValue="banana"
+          getValueFromItem={(item) => item.value}
+        >
+          <Combobox.Input />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  <Combobox.Group items={groupedItems[0].items}>
+                    <Combobox.Collection>
+                      {(item: FruitItem) => (
+                        <Combobox.Item key={item.value} value={item.value}>
+                          {item.label}
+                        </Combobox.Item>
+                      )}
+                    </Combobox.Collection>
+                  </Combobox.Group>
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      expect(screen.getByRole('combobox')).to.have.value('Banana');
+    });
+
+    it('syncs selectedIndex for primitive string selected value when closed', async () => {
+      await render(
+        <Combobox.Root items={items} defaultValue="banana" getValueFromItem={(item) => item.value}>
+          <SelectedIndexProbe />
+        </Combobox.Root>,
+      );
+
+      await waitFor(() => {
+        expect(screen.getByTestId('selected-index')).to.have.text('1');
+      });
+    });
+
+    it('syncs selectedIndex for primitive string selected values in multiple mode when closed', async () => {
+      await render(
+        <Combobox.Root
+          items={items}
+          multiple
+          defaultValue={['apple', 'banana']}
+          getValueFromItem={(item) => item.value}
+        >
+          <SelectedIndexProbe />
+        </Combobox.Root>,
+      );
+
+      await waitFor(() => {
+        expect(screen.getByTestId('selected-index')).to.have.text('1');
+      });
+    });
+
+    it('emits primitive highlighted values when navigating with keyboard', async () => {
+      const onItemHighlighted = spy();
+      const { user } = await render(
+        <Combobox.Root
+          items={items}
+          defaultOpen
+          getValueFromItem={(item) => item.value}
+          onItemHighlighted={onItemHighlighted}
+        >
+          <Combobox.Input />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  {(item: FruitItem) => (
+                    <Combobox.Item key={item.value} value={item.value}>
+                      {item.label}
+                    </Combobox.Item>
+                  )}
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByRole('combobox');
+      await user.click(input);
+      await user.keyboard('{ArrowDown}');
+
+      await waitFor(() => {
+        expect(onItemHighlighted.callCount).to.be.greaterThan(0);
+      });
+
+      expect(onItemHighlighted.lastCall.args[0]).to.equal('apple');
+    });
+
+    it('uses primitive item values in closed trigger typeahead selection', async () => {
+      const onValueChange = spy();
+      const { user } = await render(
+        <Combobox.Root
+          items={items}
+          getValueFromItem={(item) => item.value}
+          onValueChange={onValueChange}
+        >
+          <Combobox.Trigger data-testid="trigger">
+            <Combobox.Value />
+          </Combobox.Trigger>
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  {(item: FruitItem) => (
+                    <Combobox.Item key={item.value} value={item.value}>
+                      {item.label}
+                    </Combobox.Item>
+                  )}
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+      await act(async () => {
+        trigger.focus();
+      });
+      await user.keyboard('b');
+
+      await waitFor(() => {
+        expect(onValueChange.callCount).to.be.greaterThan(0);
+      });
+
+      expect(onValueChange.lastCall.args[0]).to.equal('banana');
+    });
+
+    it('normalizes clicked object item values through getValueFromItem', async () => {
+      const onValueChange = spy();
+      const { user } = await render(
+        <Combobox.Root
+          items={items}
+          getValueFromItem={(item) => item.value}
+          onValueChange={onValueChange}
+        >
+          <Combobox.Input />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  {(item: FruitItem) => (
+                    <Combobox.Item key={item.value} value={item}>
+                      {item.label}
+                    </Combobox.Item>
+                  )}
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      await user.click(screen.getByRole('combobox'));
+      await user.click(screen.getByRole('option', { name: 'Banana' }));
+
+      await waitFor(() => {
+        expect(onValueChange.callCount).to.be.greaterThan(0);
+      });
+
+      expect(onValueChange.lastCall.args[0]).to.equal('banana');
+    });
+
+    it('normalizes clicked object item values without coupling to item index order', async () => {
+      const onValueChange = spy();
+      const renderedItems = [...items].reverse();
+      const { user } = await render(
+        <Combobox.Root
+          items={items}
+          getValueFromItem={(item) => item.value}
+          onValueChange={onValueChange}
+        >
+          <Combobox.Input />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  {renderedItems.map((item) => (
+                    <Combobox.Item key={item.value} value={item}>
+                      {item.label}
+                    </Combobox.Item>
+                  ))}
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      await user.click(screen.getByRole('combobox'));
+      await user.click(screen.getByRole('option', { name: 'Apple' }));
+
+      await waitFor(() => {
+        expect(onValueChange.callCount).to.be.greaterThan(0);
+      });
+
+      expect(onValueChange.lastCall.args[0]).to.equal('apple');
+    });
+
+    it('updates derived input label when item labels change for a controlled primitive string value', async () => {
+      const initialItems = [
+        { value: 'apple', label: 'Apple' },
+        { value: 'banana', label: 'Banana' },
+      ];
+
+      const nextItems = [
+        { value: 'apple', label: 'Apricot' },
+        { value: 'banana', label: 'Blue Java Banana' },
+      ];
+
+      function App() {
+        const [list, setList] = React.useState(initialItems);
+
+        return (
+          <div>
+            <button onClick={() => setList(nextItems)}>update</button>
+            <Combobox.Root items={list} value="banana" getValueFromItem={(item) => item.value}>
+              <Combobox.Input />
+              <Combobox.Portal>
+                <Combobox.Positioner>
+                  <Combobox.Popup>
+                    <Combobox.List>
+                      {(item: FruitItem) => (
+                        <Combobox.Item key={item.value} value={item.value}>
+                          {item.label}
+                        </Combobox.Item>
+                      )}
+                    </Combobox.List>
+                  </Combobox.Popup>
+                </Combobox.Positioner>
+              </Combobox.Portal>
+            </Combobox.Root>
+          </div>
+        );
+      }
+
+      const { user } = await render(<App />);
+
+      const input = screen.getByRole<HTMLInputElement>('combobox');
+      expect(input).to.have.value('Banana');
+
+      await user.click(screen.getByRole('button', { name: 'update' }));
+      expect(input).to.have.value('Blue Java Banana');
+    });
+
+    it('calls itemToStringLabel with the selected primitive when an item matches', async () => {
+      await render(
+        <Combobox.Root
+          items={items}
+          defaultValue="banana"
+          getValueFromItem={(item) => item.value}
+          itemToStringLabel={(value) => value.toUpperCase()}
+        >
+          <Combobox.Input />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  {(item: FruitItem) => (
+                    <Combobox.Item key={item.value} value={item.value}>
+                      {item.label}
+                    </Combobox.Item>
+                  )}
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      expect(screen.getByRole('combobox')).to.have.value('BANANA');
+    });
+
+    it('does not call itemToStringLabel with selected primitives when no item matches', async () => {
+      const itemToStringLabel = spy((value: string) => value.toUpperCase());
+
+      await render(
+        <Combobox.Root
+          items={items}
+          defaultValue="durian"
+          getValueFromItem={(item) => item.value}
+          itemToStringLabel={itemToStringLabel}
+        >
+          <Combobox.Input />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  {(item: FruitItem) => (
+                    <Combobox.Item key={item.value} value={item.value}>
+                      {item.label}
+                    </Combobox.Item>
+                  )}
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      expect(itemToStringLabel.callCount).to.equal(0);
+      expect(screen.getByRole('combobox')).to.have.value('durian');
+    });
+  });
+
+  describe('primitive number values with object items', () => {
+    interface NumberItem {
+      value: number;
+      label: string;
+    }
+
+    const items: NumberItem[] = [
+      { value: 1, label: 'One' },
+      { value: 2, label: 'Two' },
+      { value: 3, label: 'Three' },
+    ];
+
+    it('derives input value from matching item label on first mount (single)', async () => {
+      await render(
+        <Combobox.Root items={items} defaultValue={2} getValueFromItem={(item) => item.value}>
+          <Combobox.Input />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  {(item: NumberItem) => (
+                    <Combobox.Item key={item.value} value={item.value}>
+                      {item.label}
+                    </Combobox.Item>
+                  )}
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      expect(screen.getByRole('combobox')).to.have.value('Two');
+    });
+  });
+
   describe('prop: loopFocus', () => {
     it('loops focus from last to first item with ArrowDown by default', async () => {
       const { user } = await render(
