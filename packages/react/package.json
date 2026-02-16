@@ -98,7 +98,7 @@
     "@types/chai": "5.2.3",
     "@types/chai-dom": "1.11.3",
     "@types/luxon": "^3.7.1",
-    "@types/react": "19.2.10",
+    "@types/react": "19.2.13",
     "@types/react-dom": "19.2.3",
     "@types/sinon": "21.0.0",
     "@types/use-sync-external-store": "1.5.0",

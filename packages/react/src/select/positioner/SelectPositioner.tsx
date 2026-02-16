@@ -164,7 +164,7 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
   const prevMapSizeRef = React.useRef(0);
 
   const onMapChange = useStableCallback(
-    (map: Map<Element, { index?: (number | null) | undefined } | null>) => {
+    (map: Map<Element, { index?: number | null | undefined } | null>) => {
       if (map.size === 0 && prevMapSizeRef.current === 0) {
         return;
       }

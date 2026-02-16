@@ -42,19 +42,19 @@ export type BaseUIComponentProps<
    * CSS class applied to the element, or a function that
    * returns a class based on the component’s state.
    */
-  className?: (string | ((state: State) => string | undefined)) | undefined;
+  className?: string | ((state: State) => string | undefined) | undefined;
   /**
    * Allows you to replace the component’s HTML element
    * with a different tag, or compose it with another component.
    *
    * Accepts a `ReactElement` or a function that returns the element to render.
    */
-  render?: (React.ReactElement | ComponentRenderFn<RenderFunctionProps, State>) | undefined;
+  render?: React.ReactElement | ComponentRenderFn<RenderFunctionProps, State> | undefined;
   /**
    * Style applied to the element, or a function that
    * returns a style object based on the component’s state.
    */
-  style?: (React.CSSProperties | ((state: State) => React.CSSProperties | undefined)) | undefined;
+  style?: React.CSSProperties | ((state: State) => React.CSSProperties | undefined) | undefined;
 };
 
 export interface NativeButtonProps {
