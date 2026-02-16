@@ -9,7 +9,7 @@ import { useButton } from '../../use-button';
  * Clears the field value when clicked.
  * Renders a `<button>` element.
  *
- * Documentation: [Base UI Date Field](https://base-ui.com/react/components/date-field)
+ * Documentation: [Base UI Date Field](https://base-ui.com/react/components/unstable-date-field)
  */
 export const DateFieldClear = React.forwardRef(function DateFieldClear(
   componentProps: DateFieldClear.Props,

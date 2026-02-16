@@ -7,7 +7,7 @@ import { TemporalFieldSection } from '../utils/types';
  * Renders all sections of a temporal field.
  * Doesn't render its own HTML element.
  *
- * Documentation: [Base UI Date Field](https://base-ui.com/react/components/date-field)
+ * Documentation: [Base UI Date Field](https://base-ui.com/react/components/unstable-date-field)
  */
 export function DateFieldSectionList(props: DateFieldSectionList.Props): React.JSX.Element | null {
   const { children } = props;

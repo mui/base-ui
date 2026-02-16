@@ -19,7 +19,7 @@ const stateAttributesMapping: StateAttributesMapping<DateFieldSectionState> = {
  * Renders a the content of a temporal field's section.
  * Renders a `<div>` element.
  *
- * Documentation: [Base UI Date Field](https://base-ui.com/react/components/date-field)
+ * Documentation: [Base UI Date Field](https://base-ui.com/react/components/unstable-date-field)
  */
 export const DateFieldSection = React.forwardRef(function DateFieldSection(
   componentProps: DateFieldSection.Props,

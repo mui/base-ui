@@ -13,6 +13,12 @@ export default defineConfig({
         ? // TODO: Remove and revert to `undefined` when calendar is publicly exported
           {
             '@base-ui/react/calendar': path.join(process.cwd(), 'packages/react/src/calendar'),
+            '@base-ui/react/date-field': path.join(process.cwd(), 'packages/react/src/date-field'),
+            '@base-ui/react/time-field': path.join(process.cwd(), 'packages/react/src/time-field'),
+            '@base-ui/react/date-time-field': path.join(
+              process.cwd(),
+              'packages/react/src/date-time-field',
+            ),
             '@base-ui/react/temporal-locale-provider': path.join(
               process.cwd(),
               'packages/react/src/temporal-locale-provider',

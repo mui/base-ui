@@ -24,7 +24,7 @@ import { useTemporalFieldRoot } from '../utils/useTemporalFieldRoot';
  * Groups all parts of the date field.
  * Renders a `<div>` element and a hidden `<input>` beside.
  *
- * Documentation: [Base UI Date Field](https://base-ui.com/react/components/date-field)
+ * Documentation: [Base UI Date Field](https://base-ui.com/react/components/unstable-date-field)
  */
 export const DateFieldRoot = React.forwardRef(function DateFieldRoot(
   componentProps: DateFieldRoot.Props,
