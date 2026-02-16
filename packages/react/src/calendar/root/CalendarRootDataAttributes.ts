@@ -4,7 +4,7 @@ export enum CalendarRootDataAttributes {
    */
   empty = 'data-empty',
   /**
-   * Present when the current value is invalid.
+   * Present when the current value is invalid (fails validation).
    */
   invalid = 'data-invalid',
   /**

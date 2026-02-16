@@ -110,7 +110,7 @@
       "description": "Present when the calendar is readonly."
     },
     "data-invalid": {
-      "description": "Present when the current value is invalid."
+      "description": "Present when the current value is invalid (fails validation)."
     },
     "data-empty": {
       "description": "Present when the current value is empty."

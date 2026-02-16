@@ -279,7 +279,7 @@ export interface UseSharedCalendarDayGridBodyParameters {
       ) => React.ReactNode);
   /**
    * Will render the requested amount of weeks by adding weeks of the next month if needed.
-   * Set it to 6 to create a Gregorian calendar where all months have the same amount of weeks.
+   * Set it to 6 to create a Gregorian calendar where all months have the same number of weeks.
    */
   fixedWeekNumber?: number | undefined;
   /**
