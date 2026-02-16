@@ -16,7 +16,7 @@ describe('TemporalFieldStore - Elements Props', () => {
 
   function getProps(store: DateFieldStore | TimeFieldStore, sectionIndex: number) {
     const sections = getSections(store);
-    return selectors.sectionProps(store.state, sections[sectionIndex], store);
+    return selectors.sectionProps(store.state, sections[sectionIndex]);
   }
 
   describe('date part sections', () => {

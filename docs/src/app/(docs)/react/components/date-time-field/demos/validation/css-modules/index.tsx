@@ -18,6 +18,7 @@ export default function ExampleDateTimeFieldValidation() {
     <Form
       className={styles.Form}
       onFormSubmit={(formData) => {
+        // eslint-disable-next-line no-alert
         alert(`Submitted: ${formData.datetime}`);
       }}
     >
