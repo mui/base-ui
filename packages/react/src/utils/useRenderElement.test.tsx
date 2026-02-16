@@ -73,7 +73,7 @@ describe('useRenderElement', () => {
     expect(element?.getAttribute('style')).to.equal('padding: 10px;');
   });
 
-  describe('render prop', () => {
+  describe('prop: render', () => {
     it('accepts render as a function that receives props and state', async () => {
       const renderFn = vi.fn((props, state) => {
         return <span {...props} data-active={String(state.active)} />;

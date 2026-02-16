@@ -181,8 +181,10 @@ An easily stylable avatar component.
     - Props: className, render, style
   - Avatar - Image
     - Props: className, onLoadingStatusChange, render, style
+    - Data Attributes: data-ending-style, data-starting-style
   - Avatar - Fallback
     - Props: className, delay, render, style
+    - Data Attributes: data-ending-style, data-starting-style
 
 </details>
 
@@ -346,6 +348,7 @@ An input combined with a list of predefined items to select.
     - Data Attributes: data-disabled, data-highlighted, data-selected
   - Combobox - ItemIndicator
     - Props: children, className, keepMounted, render, style
+    - Data Attributes: data-ending-style, data-starting-style
   - Combobox - Value
     - Props: children, placeholder
   - Combobox - Icon
@@ -500,15 +503,17 @@ A panel that slides in from the edge of the screen.
     - Props: className, container, keepMounted, render, style
   - Drawer - Popup
     - Props: className, finalFocus, initialFocus, render, style
-    - Data Attributes: data-expanded, data-nested-drawer-open, data-nested-drawer-swiping, data-swipe-direction, data-swipe-dismiss, data-swiping
+    - Data Attributes: data-closed, data-ending-style, data-expanded, data-nested-drawer-open, data-nested-drawer-swiping, data-open, data-starting-style, data-swipe-direction, data-swipe-dismiss, data-swiping
     - CSS Variables: --drawer-frontmost-height, --drawer-height, --drawer-snap-point-offset, --drawer-swipe-movement-x, --drawer-swipe-movement-y, --drawer-swipe-strength, --nested-drawers
   - Drawer - Content
     - Props: className, render, style
   - Drawer - Backdrop
     - Props: className, forceRender, render, style
+    - Data Attributes: data-closed, data-ending-style, data-open, data-starting-style
     - CSS Variables: --drawer-swipe-progress
   - Drawer - Viewport
     - Props: className, render, style
+    - Data Attributes: data-closed, data-ending-style, data-nested, data-open, data-starting-style
   - Drawer - Title
     - Props: className, render, style
   - Drawer - Description
@@ -546,7 +551,7 @@ A component that provides labeling and validation for form controls.
     - Data Attributes: data-dirty, data-disabled, data-filled, data-focused, data-invalid, data-touched, data-valid
   - Field - Error
     - Props: className, match, render, style
-    - Data Attributes: data-dirty, data-disabled, data-filled, data-focused, data-invalid, data-touched, data-valid
+    - Data Attributes: data-dirty, data-disabled, data-ending-style, data-filled, data-focused, data-invalid, data-starting-style, data-touched, data-valid
   - Field - Control
     - Props: className, defaultValue, onValueChange, render, style
     - Data Attributes: data-dirty, data-disabled, data-filled, data-focused, data-invalid, data-touched, data-valid
@@ -1013,7 +1018,7 @@ An easily stylable radio button component.
     - Data Attributes: data-checked, data-dirty, data-disabled, data-filled, data-focused, data-invalid, data-readonly, data-required, data-touched, data-unchecked, data-valid
   - Radio - Indicator
     - Props: className, keepMounted, render, style
-    - Data Attributes: data-checked, data-dirty, data-disabled, data-filled, data-focused, data-invalid, data-readonly, data-required, data-touched, data-unchecked, data-valid
+    - Data Attributes: data-checked, data-dirty, data-disabled, data-ending-style, data-filled, data-focused, data-invalid, data-readonly, data-required, data-starting-style, data-touched, data-unchecked, data-valid
 
 </details>
 
@@ -1111,6 +1116,7 @@ A common form component for choosing a predefined value in a dropdown menu.
     - Data Attributes: data-disabled, data-highlighted, data-selected
   - Select - ItemIndicator
     - Props: children, className, keepMounted, render, style
+    - Data Attributes: data-ending-style, data-starting-style
   - Select - ItemText
     - Props: className, render, style
   - Select - Arrow
@@ -1246,7 +1252,7 @@ A component for toggling between related panels on the same page.
     - Data Attributes: data-activation-direction, data-active, data-disabled, data-orientation
   - Tabs - Panel
     - Props: className, keepMounted, render, style, value
-    - Data Attributes: data-activation-direction, data-hidden, data-index, data-orientation
+    - Data Attributes: data-activation-direction, data-ending-style, data-hidden, data-index, data-orientation, data-starting-style
   - Tabs - List
     - Props: activateOnFocus, className, loopFocus, render, style
     - Data Attributes: data-activation-direction, data-orientation
