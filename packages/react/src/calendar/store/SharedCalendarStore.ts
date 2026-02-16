@@ -334,6 +334,7 @@ export interface SharedCalendarStoreParameters<TValue extends TemporalSupportedV
   readOnly?: boolean | undefined;
   /**
    * Whether the calendar is forcefully marked as invalid.
+   * @default false
    */
   invalid?: boolean | undefined;
   /**

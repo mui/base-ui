@@ -79,6 +79,7 @@
     },
     "invalid": {
       "type": "boolean",
+      "default": "false",
       "description": "Whether the calendar is forcefully marked as invalid.",
       "detailedType": "boolean | undefined"
     },
