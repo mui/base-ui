@@ -71,7 +71,7 @@ function App(
 }
 
 describe.skipIf(!isJSDOM)('useDismiss', () => {
-  describe('true', () => {
+  describe('default options', () => {
     test('dismisses with escape key', async () => {
       render(<App />);
       fireEvent.keyDown(document.body, { key: 'Escape' });
@@ -286,27 +286,27 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
     });
   });
 
-  describe('false', () => {
-    test('dismisses with escape key', async () => {
+  describe('options set to false', () => {
+    test('does not dismiss with escape key', async () => {
       render(<App escapeKey={false} />);
       fireEvent.keyDown(document.body, { key: 'Escape' });
       expect(screen.getByRole('tooltip')).toBeInTheDocument();
       await flushMicrotasks();
     });
 
-    test('dismisses with outside press', async () => {
+    test('does not dismiss with outside press', async () => {
       render(<App outsidePress={false} />);
       await userEvent.click(document.body);
       expect(screen.getByRole('tooltip')).toBeInTheDocument();
     });
 
-    test('dismisses with reference pointer down', async () => {
+    test('does not dismiss with reference pointer down', async () => {
       render(<App referencePress={false} />);
       await userEvent.click(screen.getByRole('button'));
       expect(screen.getByRole('tooltip')).toBeInTheDocument();
     });
 
-    test('dismisses with ancestor scroll', async () => {
+    test('does not dismiss with ancestor scroll', async () => {
       render(<App ancestorScroll={false} />);
       fireEvent.scroll(window);
       expect(screen.getByRole('tooltip')).toBeInTheDocument();
@@ -354,7 +354,7 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
     });
   });
 
-  describe('bubbles', () => {
+  describe('prop: bubbles', () => {
     function Dialog({
       testId,
       children,
@@ -443,7 +443,7 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
       });
     });
 
-    describe('outsidePress', () => {
+    describe('prop: bubbles.outsidePress', () => {
       test('true', async () => {
         render(
           <NestedDialog testId="outer">
@@ -509,7 +509,7 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
       });
     });
 
-    describe('escapeKey', () => {
+    describe('prop: bubbles.escapeKey', () => {
       test('without FloatingTree', async () => {
         function App() {
           const [popoverOpen, setPopoverOpen] = React.useState(true);
@@ -645,7 +645,7 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
     });
   });
 
-  describe('capture', () => {
+  describe('prop: capture', () => {
     describe('prop resolution', () => {
       test('undefined', () => {
         const { escapeKey: escapeKeyCapture, outsidePress: outsidePressCapture } = normalizeProp();
@@ -762,7 +762,7 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
       return <Dialog {...props} />;
     }
 
-    describe('outsidePress', () => {
+    describe('prop: capture.outsidePress', () => {
       test('true', async () => {
         const user = userEvent.setup();
 
@@ -789,7 +789,7 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
       });
     });
 
-    describe('escapeKey', () => {
+    describe('prop: capture.escapeKey', () => {
       test('false', async () => {
         const user = userEvent.setup();
 

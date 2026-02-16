@@ -160,7 +160,7 @@ function Dialog({ render, open: passedOpen = false, children }: DialogProps) {
 }
 
 describe.skipIf(!isJSDOM)('FloatingFocusManager', () => {
-  describe('initialFocus', () => {
+  describe('prop: initialFocus', () => {
     test('default behavior focuses first tabbable element', async () => {
       render(<App />);
 
@@ -190,7 +190,7 @@ describe.skipIf(!isJSDOM)('FloatingFocusManager', () => {
     });
   });
 
-  describe('returnFocus', () => {
+  describe('prop: returnFocus', () => {
     test('true', async () => {
       const { rerender } = render(<App />);
 
@@ -706,7 +706,7 @@ describe.skipIf(!isJSDOM)('FloatingFocusManager', () => {
   });
   /* eslint-enable testing-library/prefer-screen-queries */
 
-  describe('modal', () => {
+  describe('prop: modal', () => {
     test('true', async () => {
       render(<App modal />);
 
@@ -1023,7 +1023,7 @@ describe.skipIf(!isJSDOM)('FloatingFocusManager', () => {
     });
   });
 
-  describe('disabled', () => {
+  describe('prop: disabled', () => {
     test('true -> false', async () => {
       function App() {
         const [isOpen, setIsOpen] = React.useState(false);
@@ -1280,7 +1280,7 @@ describe.skipIf(!isJSDOM)('FloatingFocusManager', () => {
     });
   });
 
-  describe('restoreFocus', () => {
+  describe('prop: restoreFocus', () => {
     function App({ restoreFocus = true }: { restoreFocus?: boolean }) {
       const [isOpen, setIsOpen] = React.useState(false);
       const [removed, setRemoved] = React.useState(false);
