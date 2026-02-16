@@ -49,7 +49,7 @@ export const CalendarDecrementMonth = React.forwardRef(function CalendarDecremen
     props: [
       {
         tabIndex: 0,
-        'aria-label': 'Previous',
+        'aria-label': monthPageSize > 1 ? 'Previous months' : 'Previous month',
         onClick(event) {
           if (isDisabled) {
             return;

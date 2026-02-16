@@ -48,7 +48,7 @@ export const CalendarIncrementMonth = React.forwardRef(function CalendarIncremen
     props: [
       {
         tabIndex: 0,
-        'aria-label': 'Next',
+        'aria-label': monthPageSize > 1 ? 'Next months' : 'Next month',
         onClick(event) {
           if (isDisabled) {
             return;
