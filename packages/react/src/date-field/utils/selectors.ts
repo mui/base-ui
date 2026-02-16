@@ -61,6 +61,10 @@ const stepSelector = createSelector((state: State) => state.step);
 const inputRefSelector = createSelector((state: State) => state.inputRef);
 const valueSelector = createSelector((state: State) => state.value);
 const sectionsSelector = createSelector((state: State) => state.sections);
+const areAllSectionsEmptySelector = createSelectorMemoized(
+  (state: State) => state.sections,
+  (sections) => sections.every((section) => !isDatePart(section) || section.value === ''),
+);
 
 const parsedFormatSelector = createSelectorMemoized(
   adapterSelector,
@@ -111,9 +115,7 @@ export const selectors = {
   // Section
   sections: sectionsSelector,
   selectedSection: createSelector((state: State) => state.selectedSection),
-  areAllSectionsEmpty: createSelector((state: State) =>
-    state.sections.every((section) => !isDatePart(section) || section.value === ''),
-  ),
+  areAllSectionsEmpty: areAllSectionsEmptySelector,
   datePart: createSelectorMemoized(
     (state: State) => state.sections,
     (sectionsList, sectionIndex: number) => {
@@ -293,11 +295,17 @@ export const selectors = {
   clearProps: createSelectorMemoized(
     disabledSelector,
     readOnlySelector,
-    (disabled, readOnly): React.HTMLAttributes<HTMLButtonElement> => ({
-      tabIndex: -1,
-      children: '✕',
-      'aria-readonly': readOnly || undefined,
-      'aria-disabled': disabled || undefined,
+    areAllSectionsEmptySelector,
+    (disabledFromState, readOnly, areAllSectionsEmpty, disabledProp: boolean) => ({
+      props: {
+        tabIndex: -1,
+        children: '✕',
+        'aria-readonly': readOnly || undefined,
+      },
+      state: {
+        disabled: disabledFromState || disabledProp,
+        empty: areAllSectionsEmpty,
+      },
     }),
   ),
 };

@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { BaseUIComponentProps } from '../../utils/types';
+import { BaseUIComponentProps, NativeButtonProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useTemporalFieldRootContext } from '../utils/TemporalFieldRootContext';
 import { useButton } from '../../use-button';
@@ -21,30 +21,23 @@ export const DateFieldClear = React.forwardRef(function DateFieldClear(
     render,
     // Component props
     disabled: disabledProp = false,
+    nativeButton = true,
     // Props forwarded to the DOM element
     ...elementProps
   } = componentProps;
 
   const store = useTemporalFieldRootContext();
-  const propsFromState = store.useState('clearProps');
-  const storeDisabled = store.useState('disabled');
-  const empty = store.useState('areAllSectionsEmpty');
-
-  const disabled = storeDisabled || disabledProp;
+  const { props, state } = store.useState('clearPropsAndState', disabledProp);
 
   const { buttonRef, getButtonProps } = useButton({
-    disabled,
+    disabled: state.disabled,
+    native: nativeButton,
   });
-
-  const state: DateFieldClear.State = {
-    disabled,
-    empty,
-  };
 
   return useRenderElement('button', componentProps, {
     state,
     ref: [forwardedRef, buttonRef],
-    props: [propsFromState, store.clearEventHandlers, elementProps, getButtonProps],
+    props: [props, store.clearEventHandlers, elementProps, getButtonProps],
   });
 });
 
@@ -59,7 +52,8 @@ export interface DateFieldClearState {
   empty: boolean;
 }
 
-export interface DateFieldClearProps extends BaseUIComponentProps<'button', DateFieldClearState> {
+export interface DateFieldClearProps
+  extends BaseUIComponentProps<'button', DateFieldClearState>, NativeButtonProps {
   /**
    * Whether the component should ignore user interaction.
    * @default false
