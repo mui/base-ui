@@ -24,6 +24,7 @@ import { DrawerPreview as Drawer } from '@base-ui/react/drawer';
   <Drawer.Indent>
     <Drawer.Root>
       <Drawer.Trigger />
+      <Drawer.SwipeArea />
       <Drawer.Portal>
         <Drawer.Backdrop />
         <Drawer.Viewport>
@@ -158,6 +159,14 @@ You can build a full-screen mobile navigation sheet using Drawer parts, includin
 import { DemoDrawerMobileNav } from './demos/mobile-nav';
 
 <DemoDrawerMobileNav />
+
+### Swipe to open
+
+Place `<Drawer.SwipeArea>` along the edge of the viewport to enable swipe-to-open gestures.
+
+import { DemoDrawerSwipeArea } from './demos/swipe-area';
+
+<DemoDrawerSwipeArea />
 
 ### Action sheet with separate destructive action
 
@@ -304,7 +313,7 @@ Use `--drawer-swipe-progress` to fade the backdrop as the drawer is swiped, and 
 
 <Reference
   component="Drawer"
-  parts="Provider, IndentBackground, Indent, Root, Trigger, Portal, Backdrop, Viewport, Popup, Title, Description, Close"
+  parts="Provider, IndentBackground, Indent, Root, Trigger, SwipeArea, Portal, Backdrop, Viewport, Popup, Title, Description, Close"
 />
 
 export const metadata = {

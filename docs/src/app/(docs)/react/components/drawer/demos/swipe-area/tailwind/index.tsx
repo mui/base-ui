@@ -11,11 +11,11 @@ export default function ExampleDrawerSwipeArea() {
       className="relative min-h-[320px] w-full overflow-hidden border border-gray-200 bg-gray-50 text-gray-900"
     >
       <Drawer.Root swipeDirection="right" modal={false}>
-        {/* <Drawer.SwipeArea className="absolute inset-y-0 right-0 z-10 box-border w-10 border-l-2 border-dashed border-blue-800 bg-blue-800/10">
+        <Drawer.SwipeArea className="absolute inset-y-0 right-0 z-10 box-border w-10 border-l-2 border-dashed border-blue-800 bg-blue-800/10">
           <span className="pointer-events-none absolute right-0 top-1/2 mr-2 -translate-y-1/2 -rotate-90 origin-center whitespace-nowrap text-xs font-semibold tracking-[0.12em] text-blue-800 uppercase">
             Swipe here
           </span>
-        </Drawer.SwipeArea> */}
+        </Drawer.SwipeArea>
         <div className="flex min-h-[320px] flex-col items-center justify-center gap-3 px-4 text-center">
           <p className="text-base text-gray-600 text-center pr-12">
             Swipe from the right edge to open the drawer.

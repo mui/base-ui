@@ -9,9 +9,9 @@ export default function ExampleDrawerSwipeArea() {
   return (
     <div className={styles.Root} ref={setPortalContainer}>
       <Drawer.Root swipeDirection="right" modal={false}>
-        {/* <Drawer.SwipeArea className={styles.SwipeArea}>
+        <Drawer.SwipeArea className={styles.SwipeArea}>
           <span className={styles.SwipeLabel}>Swipe here</span>
-        </Drawer.SwipeArea> */}
+        </Drawer.SwipeArea>
         <div className={styles.Center}>
           <div className={styles.Instructions}>
             <p className={styles.Hint}>Swipe from the right edge to open the drawer.</p>
