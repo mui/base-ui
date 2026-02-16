@@ -29,6 +29,9 @@
     },
     "data-section-index": {
       "description": "Index of the section in the field."
+    },
+    "data-separator": {
+      "description": "Present when the section is a separator (e.g. \"/\", \"-\")."
     }
   },
   "cssVariables": {}
