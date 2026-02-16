@@ -31,7 +31,7 @@ export const ComboboxItem = React.memo(
     const {
       render,
       className,
-      value: itemValue = null,
+      value: itemValueProp = null,
       index: indexProp,
       disabled = false,
       nativeButton = false,
@@ -54,14 +54,37 @@ export const ComboboxItem = React.memo(
     const selectionMode = useStore(store, selectors.selectionMode);
     const readOnly = useStore(store, selectors.readOnly);
     const virtualized = useStore(store, selectors.virtualized);
+    const getValueFromItem = useStore(store, selectors.getValueFromItem);
     const isItemEqualToValue = useStore(store, selectors.isItemEqualToValue);
 
+    const itemValue =
+      hasItems && getValueFromItem && itemValueProp != null && typeof itemValueProp === 'object'
+        ? getValueFromItem(itemValueProp)
+        : itemValueProp;
+
     const selectable = selectionMode !== 'none';
-    const index =
-      indexProp ??
-      (virtualized
-        ? findItemIndex(flatFilteredItems, itemValue, isItemEqualToValue)
-        : listItem.index);
+    let index = indexProp;
+    if (index == null) {
+      if (virtualized) {
+        if (hasItems && getValueFromItem) {
+          const mappedIndex = findItemIndex(
+            flatFilteredItems,
+            itemValue,
+            isItemEqualToValue,
+            getValueFromItem,
+          );
+          index =
+            mappedIndex > -1
+              ? mappedIndex
+              : findItemIndex(flatFilteredItems, itemValueProp, isItemEqualToValue);
+        } else {
+          index = findItemIndex(flatFilteredItems, itemValueProp, isItemEqualToValue);
+        }
+      } else {
+        index = listItem.index;
+      }
+    }
+
     const hasRegistered = listItem.index !== -1;
 
     const rootId = useStore(store, selectors.id);

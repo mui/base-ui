@@ -37,6 +37,18 @@ export function findItemIndex<Item, Value>(
   itemValues: readonly Item[] | undefined | null,
   selectedValue: Value,
   comparer: ItemEqualityComparer<Item, Value>,
+): number;
+export function findItemIndex<Item, Value, Candidate>(
+  itemValues: readonly Item[] | undefined | null,
+  selectedValue: Value,
+  comparer: ItemEqualityComparer<Candidate, Value>,
+  getItemValue: (itemValue: Item) => Candidate,
+): number;
+export function findItemIndex<Item, Value, Candidate = Item>(
+  itemValues: readonly Item[] | undefined | null,
+  selectedValue: Value,
+  comparer: ItemEqualityComparer<Candidate, Value>,
+  getItemValue?: ((itemValue: Item) => Candidate) | undefined,
 ): number {
   if (!itemValues || itemValues.length === 0) {
     return -1;
@@ -45,7 +57,10 @@ export function findItemIndex<Item, Value>(
     if (itemValue === undefined) {
       return false;
     }
-    return compareItemEquality(itemValue, selectedValue, comparer);
+    const candidateValue = getItemValue
+      ? getItemValue(itemValue)
+      : (itemValue as unknown as Candidate);
+    return compareItemEquality(candidateValue, selectedValue, comparer);
   });
 }
 
