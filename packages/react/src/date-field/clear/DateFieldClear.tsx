@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { BaseUIComponentProps, NativeButtonProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
-import { useTemporalFieldRootContext } from '../utils/TemporalFieldRootContext';
+import { useDateFieldRootContext } from '../root/DateFieldRootContext';
 import { useButton } from '../../use-button';
 
 /**
@@ -26,7 +26,7 @@ export const DateFieldClear = React.forwardRef(function DateFieldClear(
     ...elementProps
   } = componentProps;
 
-  const store = useTemporalFieldRootContext();
+  const store = useDateFieldRootContext();
   const { props, state } = store.useState('clearPropsAndState', disabledProp);
 
   const { buttonRef, getButtonProps } = useButton({

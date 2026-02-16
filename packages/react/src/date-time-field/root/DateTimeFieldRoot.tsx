@@ -8,7 +8,7 @@ import { BaseUIComponentProps, MakeOptional } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useDirection } from '../../direction-provider';
 import { AmPmParameters, DateTimeFieldStore } from './DateTimeFieldStore';
-import { TemporalFieldRootContext } from '../../date-field/utils/TemporalFieldRootContext';
+import { DateFieldRootContext } from '../../date-field/root/DateFieldRootContext';
 import { FieldRoot } from '../../field';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { useLabelableId } from '../../labelable-provider/useLabelableId';
@@ -131,10 +131,10 @@ export const DateTimeFieldRoot = React.forwardRef(function DateTimeFieldRoot(
   });
 
   return (
-    <TemporalFieldRootContext.Provider value={store}>
+    <DateFieldRootContext.Provider value={store}>
       <input {...hiddenInputProps} {...store.hiddenInputEventHandlers} ref={hiddenInputRef} />
       {element}
-    </TemporalFieldRootContext.Provider>
+    </DateFieldRootContext.Provider>
   );
 });
 

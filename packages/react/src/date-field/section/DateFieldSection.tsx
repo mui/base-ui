@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
-import { useTemporalFieldRootContext } from '../utils/TemporalFieldRootContext';
+import { useDateFieldRootContext } from '../root/DateFieldRootContext';
 import { TemporalFieldSection } from '../utils/types';
 import { StateAttributesMapping } from '../../utils/getStateAttributesProps';
 import { DateFieldSectionDataAttributes } from './DateFieldSectionDataAttributes';
@@ -35,7 +35,7 @@ export const DateFieldSection = React.forwardRef(function DateFieldSection(
     ...elementProps
   } = componentProps;
 
-  const store = useTemporalFieldRootContext();
+  const store = useDateFieldRootContext();
   const propsFromState = store.useState('sectionProps', section);
 
   const state: DateFieldSection.State = {

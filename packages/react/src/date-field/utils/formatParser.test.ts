@@ -159,7 +159,7 @@ describe('FormatParser', () => {
     it('should throw error for an invalid token', () => {
       expect(() => {
         FormatParser.getTokenConfig(adapter, 'INVALID');
-      }).to.throw(/The token "INVALID" is not supported/);
+      }).to.throw(/Some token in the format is not supported/);
     });
   });
 

@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useTemporalFieldRootContext } from '../utils/TemporalFieldRootContext';
+import { useDateFieldRootContext } from '../root/DateFieldRootContext';
 import { TemporalFieldSection } from '../utils/types';
 
 /**
@@ -12,7 +12,7 @@ import { TemporalFieldSection } from '../utils/types';
 export function DateFieldSectionList(props: DateFieldSectionList.Props): React.JSX.Element | null {
   const { children } = props;
 
-  const store = useTemporalFieldRootContext();
+  const store = useDateFieldRootContext();
   const sections = store.useState('sections');
 
   if (!sections || sections.length === 0) {
