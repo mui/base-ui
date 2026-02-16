@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
-import { useTemporalFieldRootContext } from '../../utils/temporal/field/TemporalFieldRootContext';
-import { TemporalFieldSection } from '../../utils/temporal/field/types';
+import { useTemporalFieldRootContext } from '../utils/TemporalFieldRootContext';
+import { TemporalFieldSection } from '../utils/types';
 
 /**
  * Renders all sections of a temporal field.

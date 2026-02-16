@@ -1,10 +1,10 @@
 'use client';
 import * as React from 'react';
 import { useOnMount } from '@base-ui/utils/useOnMount';
-import { TemporalSupportedValue } from '../../../types';
-import { useField } from '../../../field/useField';
+import { TemporalSupportedValue } from '../../types';
+import { useField } from '../../field/useField';
 import { TemporalFieldStore } from './TemporalFieldStore';
-import { DateFieldSectionList } from '../../../date-field/section-list/DateFieldSectionList';
+import { DateFieldSectionList } from '../section-list/DateFieldSectionList';
 import { selectors } from './selectors';
 import { TemporalFieldSection } from './types';
 

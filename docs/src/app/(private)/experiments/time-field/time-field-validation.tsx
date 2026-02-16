@@ -34,7 +34,12 @@ export default function TimeFieldValidation() {
                 <label className={styles.Label} htmlFor="time-required-native">
                   Time (required)
                 </label>
-                <TimeField.Root id="time-required-native" name="time-required-native" className={styles.Root} required>
+                <TimeField.Root
+                  id="time-required-native"
+                  name="time-required-native"
+                  className={styles.Root}
+                  required
+                >
                   {(section) => (
                     <TimeField.Section
                       key={section.index}
@@ -97,7 +102,12 @@ export default function TimeFieldValidation() {
                 <label className={styles.Label} htmlFor="time-min-native">
                   Time (min: {format(minDate, 'h:mm a')})
                 </label>
-                <TimeField.Root id="time-min-native" name="time-min-native" className={styles.Root} minDate={minDate}>
+                <TimeField.Root
+                  id="time-min-native"
+                  name="time-min-native"
+                  className={styles.Root}
+                  minDate={minDate}
+                >
                   {(section) => (
                     <TimeField.Section
                       key={section.index}
@@ -162,7 +172,12 @@ export default function TimeFieldValidation() {
                 <label className={styles.Label} htmlFor="time-max-native">
                   Time (max: {format(maxDate, 'h:mm a')})
                 </label>
-                <TimeField.Root id="time-max-native" name="time-max-native" className={styles.Root} maxDate={maxDate}>
+                <TimeField.Root
+                  id="time-max-native"
+                  name="time-max-native"
+                  className={styles.Root}
+                  maxDate={maxDate}
+                >
                   {(section) => (
                     <TimeField.Section
                       key={section.index}

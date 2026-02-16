@@ -11,11 +11,7 @@ export default function ExampleTimeFieldClearButton() {
       <TimeField.Root className={styles.Root}>
         <TimeField.SectionList>
           {(section) => (
-            <TimeField.Section
-              key={section.index}
-              className={styles.Section}
-              section={section}
-            />
+            <TimeField.Section key={section.index} className={styles.Section} section={section} />
           )}
         </TimeField.SectionList>
         <TimeField.Clear className={styles.Clear}>{'\u2715'}</TimeField.Clear>

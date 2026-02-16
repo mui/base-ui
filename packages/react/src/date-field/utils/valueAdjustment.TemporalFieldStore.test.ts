@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { createTemporalRenderer } from '#test-utils';
-import { DateFieldStore } from '../../../date-field/root/DateFieldStore';
-import { TimeFieldStore } from '../../../time-field/root/TimeFieldStore';
+import { DateFieldStore } from '../root/DateFieldStore';
+import { TimeFieldStore } from '../../time-field/root/TimeFieldStore';
 import { selectors } from './selectors';
 
 describe('TemporalFieldStore - Value Adjustment', () => {
@@ -1412,7 +1412,7 @@ describe('TemporalFieldStore - Value Adjustment', () => {
             format: numericDateFormat,
             adapter,
             direction: 'ltr',
-            maxDate: adapter.date('2025-07-15', 'default')
+            maxDate: adapter.date('2025-07-15', 'default'),
           });
 
           store.selectClosestDatePart(4); // year section

@@ -7,7 +7,7 @@ import {
   TemporalNonNullableValue,
   TemporalSupportedObject,
   TemporalSupportedValue,
-} from '../../../types';
+} from '../../types';
 import {
   AdjustDatePartValueKeyCode,
   EditSectionParameters,
@@ -44,12 +44,12 @@ import {
   removeLocalizedDigits,
   wrapInRange,
 } from './utils';
-import { TextDirection } from '../../../direction-provider';
-import { TimeoutManager } from '../../TimeoutManager';
+import { TextDirection } from '../../direction-provider';
+import { TimeoutManager } from '../../utils/TimeoutManager';
 import { selectors } from './selectors';
 import { getLocalizedDigits, getWeekDaysStr } from './adapter-cache';
-import { activeElement } from '../../../floating-ui-react/utils';
-import { createChangeEventDetails } from '../../createBaseUIEventDetails';
+import { activeElement } from '../../floating-ui-react/utils';
+import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
 
 const LETTERS_ONLY_REGEX = /^[a-zA-Z]+$/;
 const DIGITS_ONLY_REGEX = /^[0-9]+$/;

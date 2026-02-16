@@ -8,7 +8,7 @@ import { BaseUIComponentProps, MakeOptional } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
 import { useDirection } from '../../direction-provider';
 import { DateFieldStore } from './DateFieldStore';
-import { TemporalFieldRootContext } from '../../utils/temporal/field/TemporalFieldRootContext';
+import { TemporalFieldRootContext } from '../utils/TemporalFieldRootContext';
 import { FieldRoot } from '../../field';
 import { useFieldRootContext } from '../../field/root/FieldRootContext';
 import { useLabelableId } from '../../labelable-provider/useLabelableId';
@@ -17,8 +17,8 @@ import {
   TemporalFieldSection,
   TemporalFieldStoreSharedParameters,
   TemporalFieldRootActions,
-} from '../../utils/temporal/field/types';
-import { useTemporalFieldRoot } from '../../utils/temporal/field/useTemporalFieldRoot';
+} from '../utils/types';
+import { useTemporalFieldRoot } from '../utils/useTemporalFieldRoot';
 
 /**
  * Groups all parts of the date field.

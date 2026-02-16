@@ -1,8 +1,12 @@
 import { expect } from 'chai';
 import { createTemporalRenderer } from '#test-utils';
-import { getLetterEditingOptions, cleanDigitDatePartValue, mergeDateIntoReferenceDate } from './utils';
-import { DateFieldStore } from '../../../date-field/root/DateFieldStore';
-import { TimeFieldStore } from '../../../time-field/root/TimeFieldStore';
+import {
+  getLetterEditingOptions,
+  cleanDigitDatePartValue,
+  mergeDateIntoReferenceDate,
+} from './utils';
+import { DateFieldStore } from '../root/DateFieldStore';
+import { TimeFieldStore } from '../../time-field/root/TimeFieldStore';
 import { selectors } from './selectors';
 import { FormatParser } from './formatParser';
 import { LocalizedDigits } from './adapter-cache';
@@ -18,10 +22,28 @@ function buildLocalizedDigits(digits: string[]): LocalizedDigits {
 }
 
 const ARABIC_INDIC_DIGITS = buildLocalizedDigits([
-  '٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩',
+  '٠',
+  '١',
+  '٢',
+  '٣',
+  '٤',
+  '٥',
+  '٦',
+  '٧',
+  '٨',
+  '٩',
 ]);
 const EASTERN_ARABIC_INDIC_DIGITS = buildLocalizedDigits([
-  '۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹',
+  '۰',
+  '۱',
+  '۲',
+  '۳',
+  '۴',
+  '۵',
+  '۶',
+  '۷',
+  '۸',
+  '۹',
 ]);
 
 describe('getLetterEditingOptions', () => {

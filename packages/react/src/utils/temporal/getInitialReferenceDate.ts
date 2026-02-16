@@ -71,11 +71,19 @@ export function getInitialReferenceDate(
     }
 
     // Also adjust time portion if needed (for time-only or datetime fields)
-    if (minDate != null && adapter.isValid(minDate) && isTimePartBefore(adapter, referenceDate, minDate)) {
+    if (
+      minDate != null &&
+      adapter.isValid(minDate) &&
+      isTimePartBefore(adapter, referenceDate, minDate)
+    ) {
       referenceDate = roundDate(adapter, granularity, setTimePart(adapter, referenceDate, minDate));
     }
 
-    if (maxDate != null && adapter.isValid(maxDate) && isTimePartAfter(adapter, referenceDate, maxDate)) {
+    if (
+      maxDate != null &&
+      adapter.isValid(maxDate) &&
+      isTimePartAfter(adapter, referenceDate, maxDate)
+    ) {
       referenceDate = roundDate(adapter, granularity, setTimePart(adapter, referenceDate, maxDate));
     }
   }

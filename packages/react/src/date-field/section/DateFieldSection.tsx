@@ -2,8 +2,8 @@
 import * as React from 'react';
 import { BaseUIComponentProps } from '../../utils/types';
 import { useRenderElement } from '../../utils/useRenderElement';
-import { useTemporalFieldRootContext } from '../../utils/temporal/field/TemporalFieldRootContext';
-import { TemporalFieldSection } from '../../utils/temporal/field/types';
+import { useTemporalFieldRootContext } from '../utils/TemporalFieldRootContext';
+import { TemporalFieldSection } from '../utils/types';
 import { StateAttributesMapping } from '../../utils/getStateAttributesProps';
 import { DateFieldSectionDataAttributes } from './DateFieldSectionDataAttributes';
 

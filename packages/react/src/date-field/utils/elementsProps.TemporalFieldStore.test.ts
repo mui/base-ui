@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { createTemporalRenderer } from '#test-utils';
-import { DateFieldStore } from '../../../date-field/root/DateFieldStore';
-import { TimeFieldStore } from '../../../time-field/root/TimeFieldStore';
+import { DateFieldStore } from '../root/DateFieldStore';
+import { TimeFieldStore } from '../../time-field/root/TimeFieldStore';
 import { selectors } from './selectors';
 
 describe('TemporalFieldStore - Elements Props', () => {
@@ -16,11 +16,7 @@ describe('TemporalFieldStore - Elements Props', () => {
 
   function getProps(store: DateFieldStore | TimeFieldStore, sectionIndex: number) {
     const sections = getSections(store);
-    return selectors.sectionProps(
-      store.state,
-      sections[sectionIndex],
-      store,
-    );
+    return selectors.sectionProps(store.state, sections[sectionIndex], store);
   }
 
   describe('date part sections', () => {

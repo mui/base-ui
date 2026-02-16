@@ -1,10 +1,10 @@
 import { TemporalAdapter, TemporalFieldDatePartType, TemporalValue } from '../../types';
-import { TemporalFieldStore } from '../../utils/temporal/field/TemporalFieldStore';
+import { TemporalFieldStore } from '../../date-field/utils/TemporalFieldStore';
 import {
   TemporalFieldStoreSharedParameters,
   TemporalFieldConfiguration,
   HiddenInputValidationProps,
-} from '../../utils/temporal/field/types';
+} from '../../date-field/utils/types';
 import { getInitialReferenceDate } from '../../utils/temporal/getInitialReferenceDate';
 import { getTimeManager } from '../../utils/temporal/getTimeManager';
 import { TextDirection } from '../../direction-provider';
@@ -132,7 +132,8 @@ export class TimeFieldStore extends TemporalFieldStore<TemporalValue> {
 }
 
 interface TimeFieldStoreParameters
-  extends MakeOptional<TemporalFieldStoreSharedParameters<TemporalValue>, 'format'>,
+  extends
+    MakeOptional<TemporalFieldStoreSharedParameters<TemporalValue>, 'format'>,
     AmPmParameters {
   adapter: TemporalAdapter;
   direction: TextDirection;

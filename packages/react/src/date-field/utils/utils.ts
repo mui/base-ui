@@ -1,12 +1,12 @@
-import { TextDirection } from '../../../direction-provider';
+import { TextDirection } from '../../direction-provider';
 import {
   TemporalAdapter,
   TemporalFieldDatePartType,
   TemporalSupportedObject,
   TemporalSupportedValue,
   TemporalTimezone,
-} from '../../../types';
-import { TemporalManager } from '../types';
+} from '../../types';
+import { TemporalManager } from '../../utils/temporal/types';
 import {
   getLongestMonthInCurrentYear,
   getMeridiemsStr,

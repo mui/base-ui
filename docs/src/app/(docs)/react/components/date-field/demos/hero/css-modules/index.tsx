@@ -10,11 +10,7 @@ export default function ExampleDateField() {
       <Field.Label className={styles.Label}>Date</Field.Label>
       <DateField.Root className={styles.Root}>
         {(section) => (
-          <DateField.Section
-            key={section.index}
-            className={styles.Section}
-            section={section}
-          />
+          <DateField.Section key={section.index} className={styles.Section} section={section} />
         )}
       </DateField.Root>
     </Field.Root>

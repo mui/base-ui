@@ -1,8 +1,4 @@
-import {
-  TemporalAdapter,
-  TemporalSupportedObject,
-  TemporalTimezone,
-} from '../../../types';
+import { TemporalAdapter, TemporalSupportedObject, TemporalTimezone } from '../../types';
 import { TemporalFieldDatePart } from './types';
 
 /**

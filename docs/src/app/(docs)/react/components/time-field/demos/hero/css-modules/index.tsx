@@ -10,11 +10,7 @@ export default function ExampleTimeField() {
       <Field.Label className={styles.Label}>Time</Field.Label>
       <TimeField.Root className={styles.Root}>
         {(section) => (
-          <TimeField.Section
-            key={section.index}
-            className={styles.Section}
-            section={section}
-          />
+          <TimeField.Section key={section.index} className={styles.Section} section={section} />
         )}
       </TimeField.Root>
     </Field.Root>

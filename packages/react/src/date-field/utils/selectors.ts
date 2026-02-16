@@ -2,7 +2,7 @@ import { createSelector, createSelectorMemoized } from '@base-ui/utils/store';
 import { warn } from '@base-ui/utils/warn';
 import { visuallyHiddenInput } from '@base-ui/utils/visuallyHidden';
 import { NOOP } from '@base-ui/utils/empty';
-import { TemporalAdapter, TemporalFieldDatePartType } from '../../../types';
+import { TemporalAdapter, TemporalFieldDatePartType } from '../../types';
 import {
   TemporalFieldState as State,
   TemporalFieldDatePart,
@@ -12,7 +12,7 @@ import {
 } from './types';
 import { getTimezoneToRender, isDatePart, isToken } from './utils';
 import { FormatParser } from './formatParser';
-import { TemporalDateType } from '../types';
+import { TemporalDateType } from '../../utils/temporal/types';
 import { getAriaValueText, getMeridiemsStr, getMonthsStr, getWeekDaysStr } from './adapter-cache';
 
 const SEPARATOR_STYLE: React.CSSProperties = { whiteSpace: 'pre' };
@@ -175,7 +175,19 @@ export const selectors = {
     idSelector,
     validationPropsSelector,
     stepSelector,
-    (value, parsedFormat, adapter, config, required, disabled, readOnly, name, id, validationProps, step) => ({
+    (
+      value,
+      parsedFormat,
+      adapter,
+      config,
+      required,
+      disabled,
+      readOnly,
+      name,
+      id,
+      validationProps,
+      step,
+    ) => ({
       ...config.stringifyValidationPropsForHiddenInput(
         adapter,
         validationProps,

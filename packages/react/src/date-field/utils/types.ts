@@ -1,5 +1,5 @@
-import { FieldRootContext } from '../../../field/root/FieldRootContext';
-import { TextDirection } from '../../../direction-provider';
+import { FieldRootContext } from '../../field/root/FieldRootContext';
+import { TextDirection } from '../../direction-provider';
 import {
   BaseUIChangeEventDetails,
   TemporalAdapter,
@@ -10,10 +10,10 @@ import {
   TemporalTimezone,
   TemporalFieldDatePartType,
   TemporalFieldPlaceholderGetters,
-} from '../../../types';
-import { GetInitialReferenceDateValidationProps } from '../getInitialReferenceDate';
-import { TemporalManager, TemporalTimezoneProps } from '../types';
-import { ValidateDateValidationProps } from '../validateDate';
+} from '../../types';
+import { GetInitialReferenceDateValidationProps } from '../../utils/temporal/getInitialReferenceDate';
+import { TemporalManager, TemporalTimezoneProps } from '../../utils/temporal/types';
+import { ValidateDateValidationProps } from '../../utils/temporal/validateDate';
 
 /**
  * Parameters shared across all temporal field stores.

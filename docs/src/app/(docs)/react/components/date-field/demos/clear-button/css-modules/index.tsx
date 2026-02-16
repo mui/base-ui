@@ -11,11 +11,7 @@ export default function ExampleDateFieldClearButton() {
       <DateField.Root className={styles.Root}>
         <DateField.SectionList>
           {(section) => (
-            <DateField.Section
-              key={section.index}
-              className={styles.Section}
-              section={section}
-            />
+            <DateField.Section key={section.index} className={styles.Section} section={section} />
           )}
         </DateField.SectionList>
         <DateField.Clear className={styles.Clear}>{'\u2715'}</DateField.Clear>
