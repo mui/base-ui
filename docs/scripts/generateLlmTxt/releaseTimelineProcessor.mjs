@@ -10,19 +10,20 @@ import remarkParse from 'remark-parse';
 import { releases } from 'docs/src/data/releases.ts';
 import * as mdx from './mdxNodeHelpers.mjs';
 
+const dateFormatter = new Intl.DateTimeFormat('en-US', {
+  month: 'long',
+  day: 'numeric',
+  year: 'numeric',
+  timeZone: 'UTC',
+});
+
 /**
  * Format an ISO date string (YYYY-MM-DD) to a human-readable format
  * @param {string} dateStr - ISO date string
  * @returns {string} Formatted date (e.g., "February 12, 2026")
  */
 function formatDate(dateStr) {
-  const [year, month, day] = dateStr.split('-').map(Number);
-  const date = new Date(year, month - 1, day);
-  return date.toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  });
+  return dateFormatter.format(new Date(dateStr));
 }
 
 /**
