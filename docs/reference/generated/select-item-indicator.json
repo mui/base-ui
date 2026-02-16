@@ -26,6 +26,13 @@
       "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Select.ItemIndicator.State,\n  ) => ReactElement)"
     }
   },
-  "dataAttributes": {},
+  "dataAttributes": {
+    "data-starting-style": {
+      "description": "Present when the indicator is animating in."
+    },
+    "data-ending-style": {
+      "description": "Present when the indicator is animating out."
+    }
+  },
   "cssVariables": {}
 }

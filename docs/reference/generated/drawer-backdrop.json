@@ -23,7 +23,20 @@
       "detailedType": "| ReactElement\n| ((\n    props: HTMLProps,\n    state: Drawer.Backdrop.State,\n  ) => ReactElement)"
     }
   },
-  "dataAttributes": {},
+  "dataAttributes": {
+    "data-open": {
+      "description": "Present when the drawer is open."
+    },
+    "data-closed": {
+      "description": "Present when the drawer is closed."
+    },
+    "data-starting-style": {
+      "description": "Present when the drawer is animating in."
+    },
+    "data-ending-style": {
+      "description": "Present when the drawer is animating out."
+    }
+  },
   "cssVariables": {
     "--drawer-swipe-progress": {
       "description": "The swipe progress of the drawer gesture.",
