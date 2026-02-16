@@ -461,10 +461,7 @@ export class FormatParser {
 
     if (config == null) {
       throw new Error(
-        [
-          `Base UI: The token "${tokenValue}" is not supported by the Base UI components.`,
-          'Please try using another token or open an issue on https://github.com/mui/base-ui/issues/new/choose if you think it should be supported.',
-        ].join('\n'),
+        'Base UI: Some token in the format is not supported by the Base UI components.\nPlease try using another token or open an issue on https://github.com/mui/base-ui/issues/new/choose if you think it should be supported.',
       );
     }
 

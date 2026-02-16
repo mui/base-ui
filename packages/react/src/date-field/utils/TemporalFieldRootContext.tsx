@@ -12,10 +12,7 @@ export function useTemporalFieldRootContext() {
   const context = React.useContext(TemporalFieldRootContext);
   if (context === undefined) {
     throw new Error(
-      [
-        'Base UI: TemporalFieldRootContext is missing.',
-        'Temporal Field parts must be placed within <DateField.Root /> or <TimeField.Root />.',
-      ].join('\n'),
+      'Base UI: TemporalFieldRootContext is missing. Temporal Field parts must be placed within <DateField.Root />, <TimeField.Root /> or <DateTimeField.Root />.',
     );
   }
   return context;
