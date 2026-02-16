@@ -98,5 +98,6 @@
   "98": "Base UI: The format expansion seems to be in an infinite loop. Please open an issue with the format passed to the component.",
   "99": "Base UI: Should not call `createToken` with an empty token",
   "100": "Base UI: Some token in the format is not supported by the Base UI components.\nPlease try using another token or open an issue on https://github.com/mui/base-ui/issues/new/choose if you think it should be supported.",
-  "101": "Base UI: TemporalFieldRootContext is missing. Temporal Field parts must be placed within <DateField.Root />, <TimeField.Root /> or <DateTimeField.Root />."
+  "101": "Base UI: TemporalFieldRootContext is missing. Temporal Field parts must be placed within <DateField.Root />, <TimeField.Root /> or <DateTimeField.Root />.",
+  "102": "Base UI: DateFieldRootContext is missing. DateField parts must be placed within <DateField.Root />, <TimeField.Root /> or <DateTimeField.Root />."
 }
