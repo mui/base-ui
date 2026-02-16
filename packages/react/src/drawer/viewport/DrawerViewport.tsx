@@ -743,21 +743,26 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
       let allowTouchMove = false;
 
       // Allow the ability to adjust text selection.
-      if (target) {
-        const selection = target.ownerDocument.defaultView?.getSelection();
-        if (selection && !selection.isCollapsed && selection.containsNode(target, true)) {
+      const selection = win.getSelection();
+      if (selection && !selection.isCollapsed) {
+        if (target && hasExpandedSelectionWithinTarget(selection, target)) {
+          allowTouchMove = true;
+        } else if (
+          isContentEditableElement(doc.activeElement) &&
+          hasExpandedSelectionWithinTarget(selection, doc.activeElement)
+        ) {
           allowTouchMove = true;
         }
       }
 
-      // Allow user to drag the selection handles in an input element.
-      if (target instanceof win.HTMLInputElement) {
-        const input = target;
+      // Allow user to drag selection handles in native text controls.
+      if (isTextSelectionControl(target, win)) {
+        const textControl = target;
         if (
-          input.selectionStart != null &&
-          input.selectionEnd != null &&
-          input.selectionStart < input.selectionEnd &&
-          doc.activeElement === input
+          textControl.selectionStart != null &&
+          textControl.selectionEnd != null &&
+          textControl.selectionStart < textControl.selectionEnd &&
+          doc.activeElement === textControl
         ) {
           allowTouchMove = true;
         }
@@ -1098,6 +1103,27 @@ function isRangeInput(
   win: ReturnType<typeof ownerWindow>,
 ): target is HTMLInputElement {
   return target instanceof win.HTMLInputElement && target.type === 'range';
+}
+
+function isTextSelectionControl(
+  target: EventTarget | null,
+  win: ReturnType<typeof ownerWindow>,
+): target is HTMLInputElement | HTMLTextAreaElement {
+  return target instanceof win.HTMLInputElement || target instanceof win.HTMLTextAreaElement;
+}
+
+function isContentEditableElement(
+  target: EventTarget | null,
+): target is Element {
+  return isElement(target) && 'isContentEditable' in target && !!target.isContentEditable;
+}
+
+function hasExpandedSelectionWithinTarget(selection: Selection, target: Element): boolean {
+  return (
+    selection.containsNode(target, true) ||
+    (selection.anchorNode != null && target.contains(selection.anchorNode)) ||
+    (selection.focusNode != null && target.contains(selection.focusNode))
+  );
 }
 
 function isEventOnRangeInput(event: TouchEvent, win: ReturnType<typeof ownerWindow>): boolean {
