@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import Link from 'next/link';
+import { Code } from 'docs/src/components/Code';
 import { releases } from 'docs/src/data/releases';
 import './ReleaseTimeline.css';
 
@@ -11,6 +12,21 @@ const dateFormatter = new Intl.DateTimeFormat('en-US', {
   year: 'numeric',
   timeZone: 'UTC',
 });
+
+function renderHighlight(text: string): React.ReactNode {
+  const parts = text.split(/`([^`]+)`/);
+  return parts.length === 1
+    ? text
+    : parts.map((part, i) =>
+        i % 2 === 1 ? (
+          <Code key={i} data-inline style={{ color: 'var(--syntax-default)' }}>
+            {part}
+          </Code>
+        ) : (
+          part
+        ),
+      );
+}
 
 export function ReleaseTimeline() {
   return (
@@ -35,7 +51,7 @@ export function ReleaseTimeline() {
             </div>
             <ul className="TimelineHighlights">
               {release.highlights.map((highlight, i) => (
-                <li key={i}>{highlight}</li>
+                <li key={i}>{renderHighlight(highlight)}</li>
               ))}
             </ul>
           </article>

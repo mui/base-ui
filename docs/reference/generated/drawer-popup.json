@@ -28,6 +28,12 @@
     }
   },
   "dataAttributes": {
+    "data-open": {
+      "description": "Present when the drawer is open."
+    },
+    "data-closed": {
+      "description": "Present when the drawer is closed."
+    },
     "data-expanded": {
       "description": "Present when the drawer is at the expanded (full-height) snap point."
     },
@@ -46,6 +52,12 @@
     },
     "data-swiping": {
       "description": "Present when the drawer is being swiped."
+    },
+    "data-starting-style": {
+      "description": "Present when the drawer is animating in."
+    },
+    "data-ending-style": {
+      "description": "Present when the drawer is animating out."
     }
   },
   "cssVariables": {

@@ -46,7 +46,7 @@ describe.skipIf(!isJSDOM)('useHover', () => {
     expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
   });
 
-  describe('delay', () => {
+  describe('prop: delay', () => {
     test('symmetric number', async () => {
       render(<App delay={1000} />);
 
