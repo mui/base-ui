@@ -499,7 +499,7 @@ describe('useListNavigation', () => {
   });
 
   describe('allowEscape + virtual', () => {
-    it('true', async () => {
+    it('when true', async () => {
       render(<App allowEscape virtual loopFocus />);
       fireEvent.keyDown(screen.getByRole('button'), { key: 'ArrowDown' });
       expect(screen.getByTestId('item-0').getAttribute('aria-selected')).toBe('true');
@@ -516,7 +516,7 @@ describe('useListNavigation', () => {
       await flushMicrotasks();
     });
 
-    it('false', async () => {
+    it('when false', async () => {
       render(<App allowEscape={false} virtual loopFocus />);
       fireEvent.keyDown(screen.getByRole('button'), { key: 'ArrowDown' });
       expect(screen.getByTestId('item-0').getAttribute('aria-selected')).toBe('true');

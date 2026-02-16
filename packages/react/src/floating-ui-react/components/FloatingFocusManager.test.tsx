@@ -191,7 +191,7 @@ describe.skipIf(!isJSDOM)('FloatingFocusManager', () => {
   });
 
   describe('prop: returnFocus', () => {
-    test('true', async () => {
+    test('when true', async () => {
       const { rerender } = render(<App />);
 
       screen.getByTestId('reference').focus();
@@ -210,7 +210,7 @@ describe.skipIf(!isJSDOM)('FloatingFocusManager', () => {
       expect(screen.getByTestId('reference')).not.toHaveFocus();
     });
 
-    test('false', async () => {
+    test('when false', async () => {
       render(<App returnFocus={false} />);
 
       screen.getByTestId('reference').focus();
@@ -707,7 +707,7 @@ describe.skipIf(!isJSDOM)('FloatingFocusManager', () => {
   /* eslint-enable testing-library/prefer-screen-queries */
 
   describe('prop: modal', () => {
-    test('true', async () => {
+    test('when true', async () => {
       render(<App modal />);
 
       fireEvent.click(screen.getByTestId('reference'));
@@ -738,7 +738,7 @@ describe.skipIf(!isJSDOM)('FloatingFocusManager', () => {
       expect(screen.getByTestId('one')).toHaveFocus();
     });
 
-    test('false', async () => {
+    test('when false', async () => {
       render(<App modal={false} />);
 
       fireEvent.click(screen.getByTestId('reference'));
@@ -1063,7 +1063,7 @@ describe.skipIf(!isJSDOM)('FloatingFocusManager', () => {
       });
     });
 
-    test('false', async () => {
+    test('when false', async () => {
       function App() {
         const [isOpen, setIsOpen] = React.useState(false);
         const [disabled, setDisabled] = React.useState(false);

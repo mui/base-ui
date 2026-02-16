@@ -399,7 +399,7 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
       return <Dialog {...props} />;
     }
 
-    describe('prop resolution', () => {
+    describe('normalizeProp', () => {
       test('undefined', () => {
         const { escapeKey: escapeKeyBubbles, outsidePress: outsidePressBubbles } = normalizeProp();
 
@@ -407,7 +407,7 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
         expect(outsidePressBubbles).toBe(true);
       });
 
-      test('false', () => {
+      test('when false', () => {
         const { escapeKey: escapeKeyBubbles, outsidePress: outsidePressBubbles } =
           normalizeProp(false);
 
@@ -444,7 +444,7 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
     });
 
     describe('prop: bubbles.outsidePress', () => {
-      test('true', async () => {
+      test('when true', async () => {
         render(
           <NestedDialog testId="outer">
             <NestedDialog testId="inner">
@@ -462,7 +462,7 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
         expect(screen.queryByTestId('inner')).not.toBeInTheDocument();
       });
 
-      test('false', async () => {
+      test('when false', async () => {
         render(
           <NestedDialog testId="outer" bubbles={{ outsidePress: false }}>
             <NestedDialog testId="inner" bubbles={{ outsidePress: false }}>
@@ -579,7 +579,7 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
         expect(screen.getByRole('dialog')).toBeInTheDocument();
       });
 
-      test('true', async () => {
+      test('when true', async () => {
         render(
           <NestedDialog testId="outer" bubbles>
             <NestedDialog testId="inner" bubbles>
@@ -597,7 +597,7 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
         expect(screen.queryByTestId('inner')).not.toBeInTheDocument();
       });
 
-      test('false', async () => {
+      test('when false', async () => {
         render(
           <NestedDialog testId="outer" bubbles={{ escapeKey: false }}>
             <NestedDialog testId="inner" bubbles={{ escapeKey: false }}>
@@ -646,7 +646,7 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
   });
 
   describe('prop: capture', () => {
-    describe('prop resolution', () => {
+    describe('normalizeProp', () => {
       test('undefined', () => {
         const { escapeKey: escapeKeyCapture, outsidePress: outsidePressCapture } = normalizeProp();
 
@@ -663,7 +663,7 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
         expect(outsidePressCapture).toBe(true);
       });
 
-      test('true', () => {
+      test('when true', () => {
         const { escapeKey: escapeKeyCapture, outsidePress: outsidePressCapture } =
           normalizeProp(true);
 
@@ -671,7 +671,7 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
         expect(outsidePressCapture).toBe(true);
       });
 
-      test('false', () => {
+      test('when false', () => {
         const { escapeKey: escapeKeyCapture, outsidePress: outsidePressCapture } =
           normalizeProp(false);
 
@@ -763,7 +763,7 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
     }
 
     describe('prop: capture.outsidePress', () => {
-      test('true', async () => {
+      test('when true', async () => {
         const user = userEvent.setup();
 
         render(
@@ -790,7 +790,7 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
     });
 
     describe('prop: capture.escapeKey', () => {
-      test('false', async () => {
+      test('when false', async () => {
         const user = userEvent.setup();
 
         render(
