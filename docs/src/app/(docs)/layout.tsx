@@ -40,54 +40,59 @@ export default function Layout({ children }: React.PropsWithChildren) {
         />
       </head>
       <body suppressHydrationWarning>
-        <DocsProviders>
-          <div className="RootLayout">
-            <div className="RootLayoutContainer">
-              <div className="RootLayoutContent">
-                <div className="ContentLayoutRoot">
-                  <Header isProduction={isProduction} />
-                  <SideNav.Root>
-                    {sitemap &&
-                      Object.entries(sitemap.data).map(([name, section]) => (
-                        <SideNav.Section key={name}>
-                          <SideNav.Heading>{name}</SideNav.Heading>
-                          <SideNav.List>
-                            {section.pages
-                              .filter((page) =>
-                                page.tags?.includes('Preview') ? !isProduction : true,
-                              )
-                              .map((page) => (
-                                <SideNav.Item
-                                  key={page.title}
-                                  href={
-                                    page.path.startsWith('./')
-                                      ? `${section.prefix}${page.path.replace(/^\.\//, '').replace(/\/page\.mdx$/, '')}`
-                                      : page.path
-                                  }
-                                  external={page.tags?.includes('External')}
-                                >
-                                  {(page.title !== undefined && titleMap[page.title]) || page.title}
-                                  {page.tags?.includes('New') && <SideNav.Badge>New</SideNav.Badge>}
-                                  {page.tags?.includes('Preview') && (
-                                    <SideNav.Badge>Preview</SideNav.Badge>
-                                  )}
-                                </SideNav.Item>
-                              ))}
-                          </SideNav.List>
-                        </SideNav.Section>
-                      ))}
-                  </SideNav.Root>
+        <GoogleAnalytics>
+          <DocsProviders>
+            <div className="RootLayout">
+              <div className="RootLayoutContainer">
+                <div className="RootLayoutContent">
+                  <div className="ContentLayoutRoot">
+                    <Header isProduction={isProduction} />
+                    <SideNav.Root>
+                      {sitemap &&
+                        Object.entries(sitemap.data).map(([name, section]) => (
+                          <SideNav.Section key={name}>
+                            <SideNav.Heading>{name}</SideNav.Heading>
+                            <SideNav.List>
+                              {section.pages
+                                .filter((page) =>
+                                  page.tags?.includes('Internal') ? !isProduction : true,
+                                )
+                                .map((page) => {
+                                  const isNew = page.tags?.includes('New');
+                                  const isPreview = page.tags?.includes('Preview');
 
-                  <main className="ContentLayoutMain" id={MAIN_CONTENT_ID}>
-                    <QuickNav.Container>{children}</QuickNav.Container>
-                  </main>
+                                  return (
+                                    <SideNav.Item
+                                      key={page.title}
+                                      href={
+                                        page.path.startsWith('./')
+                                          ? `${section.prefix}${page.path.replace(/^\.\//, '').replace(/\/page\.mdx$/, '')}`
+                                          : page.path
+                                      }
+                                      external={page.tags?.includes('External')}
+                                    >
+                                      {(page.title !== undefined && titleMap[page.title]) ||
+                                        page.title}
+                                      {isPreview && <SideNav.Badge>Preview</SideNav.Badge>}
+                                      {isNew && !isPreview && <SideNav.Badge>New</SideNav.Badge>}
+                                    </SideNav.Item>
+                                  );
+                                })}
+                            </SideNav.List>
+                          </SideNav.Section>
+                        ))}
+                    </SideNav.Root>
+
+                    <main className="ContentLayoutMain" id={MAIN_CONTENT_ID}>
+                      <QuickNav.Container>{children}</QuickNav.Container>
+                    </main>
+                  </div>
                 </div>
+                <span className="RootLayoutFooter" />
               </div>
-              <span className="RootLayoutFooter" />
             </div>
-          </div>
-          <GoogleAnalytics />
-        </DocsProviders>
+          </DocsProviders>
+        </GoogleAnalytics>
       </body>
     </html>
   );

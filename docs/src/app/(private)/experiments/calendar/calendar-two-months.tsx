@@ -12,14 +12,14 @@ function Header() {
   return (
     <header className={styles.Header}>
       <div className={styles.HeaderPanel}>
-        <Calendar.SetPreviousMonth className={styles.SetPreviousMonth}>◀</Calendar.SetPreviousMonth>
+        <Calendar.DecrementMonth className={styles.DecrementMonth}>◀</Calendar.DecrementMonth>
         <span className={styles.HeaderLabel}>{format(visibleDate, 'MMMM yyyy')}</span>
         <span />
       </div>
       <div className={styles.HeaderPanel}>
         <span />
         <span className={styles.HeaderLabel}>{format(addMonths(visibleDate, 1), 'MMMM yyyy')}</span>
-        <Calendar.SetNextMonth className={styles.SetNextMonth}>▶</Calendar.SetNextMonth>
+        <Calendar.IncrementMonth className={styles.IncrementMonth}>▶</Calendar.IncrementMonth>
       </div>
     </header>
   );

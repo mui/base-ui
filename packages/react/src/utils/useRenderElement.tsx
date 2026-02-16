@@ -196,9 +196,7 @@ export type UseRenderElementParameters<
   /**
    * The ref to apply to the rendered element.
    */
-  ref?:
-    | (React.Ref<RenderedElementType> | (React.Ref<RenderedElementType> | undefined)[])
-    | undefined;
+  ref?: React.Ref<RenderedElementType> | (React.Ref<RenderedElementType> | undefined)[] | undefined;
   /**
    * The state of the component.
    */
@@ -207,14 +205,12 @@ export type UseRenderElementParameters<
    * Intrinsic props to be spread on the rendered element.
    */
   props?:
-    | (
+    | RenderFunctionProps<TagName>
+    | Array<
         | RenderFunctionProps<TagName>
-        | Array<
-            | RenderFunctionProps<TagName>
-            | undefined
-            | ((props: RenderFunctionProps<TagName>) => RenderFunctionProps<TagName>)
-          >
-      )
+        | undefined
+        | ((props: RenderFunctionProps<TagName>) => RenderFunctionProps<TagName>)
+      >
     | undefined;
   /**
    * A mapping of state to `data-*` attributes.
@@ -227,7 +223,7 @@ export interface UseRenderElementComponentProps<State> {
    * The class name to apply to the rendered element.
    * Can be a string or a function that accepts the state and returns a string.
    */
-  className?: (string | ((state: State) => string | undefined)) | undefined;
+  className?: string | ((state: State) => string | undefined) | undefined;
   /**
    * The render prop or React element to override the default element.
    */
@@ -236,7 +232,7 @@ export interface UseRenderElementComponentProps<State> {
    * The style to apply to the rendered element.
    * Can be a style object or a function that accepts the state and returns a style object.
    */
-  style?: (React.CSSProperties | ((state: State) => React.CSSProperties | undefined)) | undefined;
+  style?: React.CSSProperties | ((state: State) => React.CSSProperties | undefined) | undefined;
 }
 
 export namespace useRenderElement {

@@ -1,3 +1,4 @@
+'use client';
 import * as React from 'react';
 import { useStore } from '@base-ui/utils/store';
 import { useSharedCalendarRootContext } from '../root/SharedCalendarRootContext';

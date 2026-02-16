@@ -56,8 +56,8 @@
 }
 
 .SetMonth,
-.SetPreviousMonth,
-.SetNextMonth {
+.DecrementMonth,
+.IncrementMonth {
   height: 24px;
   width: 24px;
   font-size: 0.75rem;

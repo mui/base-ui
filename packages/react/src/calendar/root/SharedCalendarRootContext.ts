@@ -1,3 +1,4 @@
+'use client';
 import * as React from 'react';
 import { SharedCalendarStore } from '../store';
 
@@ -11,10 +12,7 @@ export function useSharedCalendarRootContext() {
   const context = React.useContext(SharedCalendarRootContext);
   if (context === undefined) {
     throw new Error(
-      [
-        'Base UI: SharedCalendarRootContext is missing.',
-        'Calendar parts must be placed within <Calendar.Root /> and Range Calendar parts must be placed within <RangeCalendar.Root />.',
-      ].join('\n'),
+      'Base UI: SharedCalendarRootContext is missing. Calendar parts must be placed within <Calendar.Root /> and Range Calendar parts must be placed within <RangeCalendar.Root />.',
     );
   }
   return context;

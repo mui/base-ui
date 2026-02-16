@@ -14,6 +14,7 @@ export * from './date-field';
 export * from './date-time-field';
 export * from './dialog';
 export * from './direction-provider';
+export * from './drawer';
 export * from './field';
 export * from './fieldset';
 export * from './form';

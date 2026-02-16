@@ -57,7 +57,9 @@ export function Header({ isProduction }: { isProduction: boolean }) {
                       <MobileNav.Heading>{name}</MobileNav.Heading>
                       <MobileNav.List>
                         {section.pages
-                          .filter((page) => (page.tags?.includes('Preview') ? !isProduction : true))
+                          .filter((page) =>
+                            page.tags?.includes('Internal') ? !isProduction : true,
+                          )
                           .map((page) => (
                             <MobileNav.Item
                               key={page.title}

@@ -1,3 +1,4 @@
+'use client';
 import * as React from 'react';
 import { inertValue } from '@base-ui/utils/inertValue';
 import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';

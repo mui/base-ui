@@ -348,7 +348,7 @@ export const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
         return;
       }
 
-      Promise.all(animations.map((animation) => animation.finished))
+      Promise.allSettled(animations.map((animation) => animation.finished))
         .then(computeThumbPosition)
         .catch(() => {});
     });

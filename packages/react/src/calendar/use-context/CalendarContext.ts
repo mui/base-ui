@@ -1,26 +1,12 @@
-import * as React from 'react';
+'use client';
 import { useStore } from '@base-ui/utils/store';
-import { TemporalSupportedObject } from '../../types/temporal';
-import { SharedCalendarRootContext } from '../root/SharedCalendarRootContext';
+import { useSharedCalendarRootContext } from '../root/SharedCalendarRootContext';
 import { selectors } from '../store';
 
-export interface CalendarContext {
-  /**
-   * The currently visible date.
-   */
-  visibleDate: TemporalSupportedObject;
-}
+export type CalendarContext = ReturnType<typeof selectors.publicContext>;
 
 export function useCalendarContext() {
-  const store = React.useContext(SharedCalendarRootContext);
-  if (store === undefined) {
-    throw new Error(
-      [
-        'Base UI: SharedCalendarRootContext is missing.',
-        'Calendar parts must be placed within <Calendar.Root />.',
-      ].join('\n'),
-    );
-  }
+  const store = useSharedCalendarRootContext();
 
   return useStore(store, selectors.publicContext);
 }

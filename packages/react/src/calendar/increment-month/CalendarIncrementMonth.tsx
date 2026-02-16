@@ -1,0 +1,80 @@
+'use client';
+import * as React from 'react';
+import { useStore } from '@base-ui/utils/store';
+import { useSharedCalendarRootContext } from '../root/SharedCalendarRootContext';
+import { useRenderElement } from '../../utils/useRenderElement';
+import { BaseUIComponentProps, NativeButtonProps } from '../../utils/types';
+import { useButton } from '../../use-button';
+import { useTemporalAdapter } from '../../temporal-adapter-provider/TemporalAdapterContext';
+import { selectors } from '../store';
+
+/**
+ * Displays an element to navigate to the next month in the calendar.
+ * Renders a `<button>` element.
+ *
+ * Documentation: [Base UI Calendar](https://base-ui.com/react/components/calendar)
+ */
+export const CalendarIncrementMonth = React.forwardRef(function CalendarIncrementMonth(
+  componentProps: CalendarIncrementMonth.Props,
+  forwardedRef: React.ForwardedRef<HTMLButtonElement>,
+) {
+  const { className, render, nativeButton, disabled, ...elementProps } = componentProps;
+
+  const store = useSharedCalendarRootContext();
+  const adapter = useTemporalAdapter();
+  const monthPageSize = useStore(store, selectors.monthPageSize);
+  const visibleDate = useStore(store, selectors.visibleDate);
+
+  const targetDate = React.useMemo(
+    () => adapter.addMonths(visibleDate, monthPageSize),
+    [visibleDate, monthPageSize, adapter],
+  );
+
+  const isDisabled = useStore(store, selectors.isSetMonthButtonDisabled, disabled, targetDate);
+
+  const { getButtonProps, buttonRef } = useButton({
+    disabled: isDisabled,
+    native: nativeButton,
+  });
+
+  const state: CalendarIncrementMonth.State = React.useMemo(
+    () => ({ disabled: isDisabled }),
+    [isDisabled],
+  );
+
+  const element = useRenderElement('button', componentProps, {
+    state,
+    ref: [buttonRef, forwardedRef],
+    props: [
+      {
+        tabIndex: 0,
+        'aria-label': monthPageSize > 1 ? 'Next months' : 'Next month',
+        onClick(event) {
+          if (isDisabled) {
+            return;
+          }
+          store.setVisibleDate(targetDate, event, false);
+        },
+      },
+      elementProps,
+      getButtonProps,
+    ],
+  });
+
+  return element;
+});
+
+export interface CalendarIncrementMonthState {
+  /**
+   * Whether the button is disabled.
+   */
+  disabled: boolean;
+}
+
+export interface CalendarIncrementMonthProps
+  extends BaseUIComponentProps<'button', CalendarIncrementMonthState>, NativeButtonProps {}
+
+export namespace CalendarIncrementMonth {
+  export type State = CalendarIncrementMonthState;
+  export type Props = CalendarIncrementMonthProps;
+}
