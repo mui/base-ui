@@ -86,12 +86,17 @@ describe('mdxToMarkdown', () => {
 
     // Strip markdown backslash escapes (e.g. \<) for content comparison
     const normalized = result.markdown.replace(/\\(.)/g, '$1');
+    // Split into per-release sections so duplicate highlights are verified per release
+    const sections = normalized.split(/(?=^### )/m);
 
     for (const release of releases) {
       const heading = `### [${release.version}](/react/overview/releases/${release.versionSlug}.md)`;
       expect(result.markdown).toContain(heading);
+
+      const section = sections.find((s) => s.startsWith(heading));
+      expect(section).toBeDefined();
       for (const highlight of release.highlights) {
-        expect(normalized).toContain(highlight);
+        expect(section).toContain(`- ${highlight}`);
       }
     }
   });
