@@ -18,7 +18,7 @@ import { useCSPContext } from '../../csp-provider/CSPContext';
 const DEFAULT_COORDS = { x: 0, y: 0 };
 const DEFAULT_SIZE = { width: 0, height: 0 };
 const DEFAULT_OVERFLOW_EDGES = { xStart: false, xEnd: false, yStart: false, yEnd: false };
-const DEFAULT_HIDDEN_STATE = { x: false, y: false, corner: false };
+const DEFAULT_HIDDEN_STATE = { x: true, y: true, corner: true };
 
 export type HiddenState = typeof DEFAULT_HIDDEN_STATE;
 export type OverflowEdges = typeof DEFAULT_OVERFLOW_EDGES;
@@ -56,6 +56,7 @@ export const ScrollAreaRoot = React.forwardRef(function ScrollAreaRoot(
   const [touchModality, setTouchModality] = React.useState(false);
   const [cornerSize, setCornerSize] = React.useState<Size>(DEFAULT_SIZE);
   const [thumbSize, setThumbSize] = React.useState<Size>(DEFAULT_SIZE);
+  const [hasMeasuredScrollbar, setHasMeasuredScrollbar] = React.useState(false);
   const [overflowEdges, setOverflowEdges] = React.useState(DEFAULT_OVERFLOW_EDGES);
   const [hiddenState, setHiddenState] = React.useState(DEFAULT_HIDDEN_STATE);
 
@@ -251,6 +252,8 @@ export const ScrollAreaRoot = React.forwardRef(function ScrollAreaRoot(
       setCornerSize,
       thumbSize,
       setThumbSize,
+      hasMeasuredScrollbar,
+      setHasMeasuredScrollbar,
       touchModality,
       cornerRef,
       scrollingX,
@@ -280,6 +283,7 @@ export const ScrollAreaRoot = React.forwardRef(function ScrollAreaRoot(
       handleScroll,
       cornerSize,
       thumbSize,
+      hasMeasuredScrollbar,
       touchModality,
       scrollingX,
       setScrollingX,

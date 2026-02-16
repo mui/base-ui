@@ -26,6 +26,7 @@ export const ScrollAreaThumb = React.forwardRef(function ScrollAreaThumb(
     handlePointerUp,
     setScrollingX,
     setScrollingY,
+    hasMeasuredScrollbar,
   } = useScrollAreaRootContext();
 
   const { orientation } = useScrollAreaScrollbarContext();
@@ -49,6 +50,8 @@ export const ScrollAreaThumb = React.forwardRef(function ScrollAreaThumb(
           handlePointerUp(event);
         },
         style: {
+          visibility: hasMeasuredScrollbar ? undefined : 'hidden',
+          pointerEvents: hasMeasuredScrollbar ? undefined : 'none',
           ...(orientation === 'vertical' && {
             height: `var(${ScrollAreaScrollbarCssVars.scrollAreaThumbHeight})`,
           }),

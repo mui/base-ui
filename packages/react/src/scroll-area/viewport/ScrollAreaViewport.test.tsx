@@ -1,6 +1,6 @@
 import { ScrollArea } from '@base-ui/react/scroll-area';
 import { createRenderer, isJSDOM, describeConformance } from '#test-utils';
-import { fireEvent, screen } from '@mui/internal-test-utils';
+import { fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 import { expect } from 'chai';
 import { SCROLL_TIMEOUT } from '../constants';
 
@@ -96,12 +96,14 @@ describe('<ScrollArea.Viewport />', () => {
 
       const viewport = screen.getByTestId('viewport');
 
-      expect(viewport).to.have.attribute('data-has-overflow-x');
-      expect(viewport).to.have.attribute('data-has-overflow-y');
-      expect(viewport).not.to.have.attribute('data-overflow-x-start');
-      expect(viewport).to.have.attribute('data-overflow-x-end');
-      expect(viewport).not.to.have.attribute('data-overflow-y-start');
-      expect(viewport).to.have.attribute('data-overflow-y-end');
+      await waitFor(() => {
+        expect(viewport).to.have.attribute('data-has-overflow-x');
+        expect(viewport).to.have.attribute('data-has-overflow-y');
+        expect(viewport).not.to.have.attribute('data-overflow-x-start');
+        expect(viewport).to.have.attribute('data-overflow-x-end');
+        expect(viewport).not.to.have.attribute('data-overflow-y-start');
+        expect(viewport).to.have.attribute('data-overflow-y-end');
+      });
     });
   });
 });

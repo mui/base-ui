@@ -1,5 +1,6 @@
+import * as React from 'react';
 import { ScrollArea } from '@base-ui/react/scroll-area';
-import { fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
+import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
 import { createRenderer, isJSDOM } from '#test-utils';
 import { expect } from 'chai';
 import { describeConformance } from '../../../test/describeConformance';
@@ -60,6 +61,172 @@ describe('<ScrollArea.Root />', () => {
   });
 
   describe.skipIf(isJSDOM)('sizing', () => {
+    it('recomputes thumb size when becoming visible without requiring scroll', async () => {
+      function App() {
+        const [visible, setVisible] = React.useState(false);
+
+        return (
+          <React.Fragment>
+            <button type="button" onClick={() => setVisible(true)}>
+              show
+            </button>
+            <div style={{ display: visible ? 'block' : 'none' }}>
+              <ScrollArea.Root style={{ width: VIEWPORT_SIZE, height: VIEWPORT_SIZE }}>
+                <ScrollArea.Viewport
+                  data-testid="viewport"
+                  style={{ width: '100%', height: '100%' }}
+                >
+                  <div
+                    style={{ width: SCROLLABLE_CONTENT_SIZE, height: SCROLLABLE_CONTENT_SIZE }}
+                  />
+                </ScrollArea.Viewport>
+                <ScrollArea.Scrollbar orientation="vertical" style={{ display: 'flex' }}>
+                  <ScrollArea.Thumb data-testid="vertical-thumb" style={{ paddingBlock: 8 }} />
+                </ScrollArea.Scrollbar>
+              </ScrollArea.Root>
+            </div>
+          </React.Fragment>
+        );
+      }
+
+      await render(<App />);
+
+      fireEvent.click(screen.getByRole('button', { name: 'show' }));
+
+      const verticalThumb = await screen.findByTestId('vertical-thumb');
+
+      await waitFor(() => {
+        expect(
+          getComputedStyle(verticalThumb).getPropertyValue('--scroll-area-thumb-height'),
+        ).to.not.equal('0px');
+      });
+    });
+
+    it('keeps scrollbars hidden until the first ResizeObserver measurement', async () => {
+      const originalResizeObserver = window.ResizeObserver;
+      let notifyResizeObserver: (() => void) | null = null;
+
+      class ResizeObserverMock implements ResizeObserver {
+        callback: ResizeObserverCallback;
+
+        constructor(callback: ResizeObserverCallback) {
+          this.callback = callback;
+        }
+
+        observe() {
+          notifyResizeObserver = () => {
+            this.callback([], this);
+          };
+        }
+
+        unobserve() {}
+
+        disconnect() {}
+
+        takeRecords() {
+          return [];
+        }
+      }
+
+      window.ResizeObserver = ResizeObserverMock;
+
+      try {
+        await render(
+          <ScrollArea.Root style={{ width: VIEWPORT_SIZE, height: VIEWPORT_SIZE }}>
+            <ScrollArea.Viewport data-testid="viewport" style={{ width: '100%', height: '100%' }}>
+              <div style={{ width: SCROLLABLE_CONTENT_SIZE, height: SCROLLABLE_CONTENT_SIZE }} />
+            </ScrollArea.Viewport>
+            <ScrollArea.Scrollbar orientation="vertical" data-testid="vertical-scrollbar">
+              <ScrollArea.Thumb data-testid="vertical-thumb" />
+            </ScrollArea.Scrollbar>
+          </ScrollArea.Root>,
+        );
+
+        const verticalScrollbar = await screen.findByTestId('vertical-scrollbar');
+
+        await waitFor(() => {
+          expect(getComputedStyle(verticalScrollbar).visibility).to.equal('hidden');
+        });
+
+        expect(notifyResizeObserver).not.to.equal(null);
+        await act(async () => {
+          notifyResizeObserver?.();
+        });
+
+        await waitFor(() => {
+          expect(getComputedStyle(verticalScrollbar).visibility).to.equal('visible');
+        });
+      } finally {
+        window.ResizeObserver = originalResizeObserver;
+      }
+    });
+
+    it('keeps keepMounted scrollbar track visible while thumb waits for first measurement', async () => {
+      const originalResizeObserver = window.ResizeObserver;
+      let notifyResizeObserver: (() => void) | null = null;
+
+      class ResizeObserverMock implements ResizeObserver {
+        callback: ResizeObserverCallback;
+
+        constructor(callback: ResizeObserverCallback) {
+          this.callback = callback;
+        }
+
+        observe() {
+          notifyResizeObserver = () => {
+            this.callback([], this);
+          };
+        }
+
+        unobserve() {}
+
+        disconnect() {}
+
+        takeRecords() {
+          return [];
+        }
+      }
+
+      window.ResizeObserver = ResizeObserverMock;
+
+      try {
+        await render(
+          <ScrollArea.Root style={{ width: VIEWPORT_SIZE, height: VIEWPORT_SIZE }}>
+            <ScrollArea.Viewport data-testid="viewport" style={{ width: '100%', height: '100%' }}>
+              <div style={{ width: SCROLLABLE_CONTENT_SIZE, height: SCROLLABLE_CONTENT_SIZE }} />
+            </ScrollArea.Viewport>
+            <ScrollArea.Scrollbar
+              orientation="vertical"
+              data-testid="vertical-scrollbar"
+              keepMounted
+            >
+              <ScrollArea.Thumb data-testid="vertical-thumb" />
+            </ScrollArea.Scrollbar>
+          </ScrollArea.Root>,
+        );
+
+        const verticalScrollbar = await screen.findByTestId('vertical-scrollbar');
+        const verticalThumb = await screen.findByTestId('vertical-thumb');
+
+        await waitFor(() => {
+          expect(getComputedStyle(verticalScrollbar).visibility).to.equal('visible');
+          expect(getComputedStyle(verticalThumb).visibility).to.equal('hidden');
+        });
+
+        expect(notifyResizeObserver).not.to.equal(null);
+        await act(async () => {
+          notifyResizeObserver?.();
+        });
+
+        await waitFor(() => {
+          expect(getComputedStyle(verticalScrollbar).visibility).to.equal('visible');
+          expect(getComputedStyle(verticalThumb).visibility).to.equal('visible');
+        });
+      } finally {
+        window.ResizeObserver = originalResizeObserver;
+      }
+    });
+
     it('should correctly set thumb height and width based on scrollable content', async () => {
       await render(
         <ScrollArea.Root style={{ width: VIEWPORT_SIZE, height: VIEWPORT_SIZE }}>
@@ -78,12 +245,14 @@ describe('<ScrollArea.Root />', () => {
       const verticalThumb = screen.getByTestId('vertical-thumb');
       const horizontalThumb = screen.getByTestId('horizontal-thumb');
 
-      expect(
-        getComputedStyle(verticalThumb).getPropertyValue('--scroll-area-thumb-height'),
-      ).to.equal(`${(VIEWPORT_SIZE / SCROLLABLE_CONTENT_SIZE) * VIEWPORT_SIZE}px`);
-      expect(
-        getComputedStyle(horizontalThumb).getPropertyValue('--scroll-area-thumb-width'),
-      ).to.equal(`${(VIEWPORT_SIZE / SCROLLABLE_CONTENT_SIZE) * VIEWPORT_SIZE}px`);
+      await waitFor(() => {
+        expect(
+          getComputedStyle(verticalThumb).getPropertyValue('--scroll-area-thumb-height'),
+        ).to.equal(`${(VIEWPORT_SIZE / SCROLLABLE_CONTENT_SIZE) * VIEWPORT_SIZE}px`);
+        expect(
+          getComputedStyle(horizontalThumb).getPropertyValue('--scroll-area-thumb-width'),
+        ).to.equal(`${(VIEWPORT_SIZE / SCROLLABLE_CONTENT_SIZE) * VIEWPORT_SIZE}px`);
+      });
     });
 
     it('should not add padding for overlay scrollbars', async () => {
@@ -139,12 +308,18 @@ describe('<ScrollArea.Root />', () => {
       const verticalThumb = screen.getByTestId('vertical-thumb');
       const horizontalThumb = screen.getByTestId('horizontal-thumb');
 
-      expect(
-        getComputedStyle(verticalThumb).getPropertyValue('--scroll-area-thumb-height'),
-      ).to.equal(`${(VIEWPORT_SIZE - PADDING * 2) * (VIEWPORT_SIZE / SCROLLABLE_CONTENT_SIZE)}px`);
-      expect(
-        getComputedStyle(horizontalThumb).getPropertyValue('--scroll-area-thumb-width'),
-      ).to.equal(`${(VIEWPORT_SIZE - PADDING * 2) * (VIEWPORT_SIZE / SCROLLABLE_CONTENT_SIZE)}px`);
+      await waitFor(() => {
+        expect(
+          getComputedStyle(verticalThumb).getPropertyValue('--scroll-area-thumb-height'),
+        ).to.equal(
+          `${(VIEWPORT_SIZE - PADDING * 2) * (VIEWPORT_SIZE / SCROLLABLE_CONTENT_SIZE)}px`,
+        );
+        expect(
+          getComputedStyle(horizontalThumb).getPropertyValue('--scroll-area-thumb-width'),
+        ).to.equal(
+          `${(VIEWPORT_SIZE - PADDING * 2) * (VIEWPORT_SIZE / SCROLLABLE_CONTENT_SIZE)}px`,
+        );
+      });
     });
 
     it('accounts for scrollbar margin', async () => {
@@ -176,12 +351,14 @@ describe('<ScrollArea.Root />', () => {
       const verticalThumb = screen.getByTestId('vertical-thumb');
       const horizontalThumb = screen.getByTestId('horizontal-thumb');
 
-      expect(
-        getComputedStyle(verticalThumb).getPropertyValue('--scroll-area-thumb-height'),
-      ).to.equal(`${viewportSize * (viewportSize / SCROLLABLE_CONTENT_SIZE)}px`);
-      expect(
-        getComputedStyle(horizontalThumb).getPropertyValue('--scroll-area-thumb-width'),
-      ).to.equal(`${viewportSize * (viewportSize / SCROLLABLE_CONTENT_SIZE)}px`);
+      await waitFor(() => {
+        expect(
+          getComputedStyle(verticalThumb).getPropertyValue('--scroll-area-thumb-height'),
+        ).to.equal(`${viewportSize * (viewportSize / SCROLLABLE_CONTENT_SIZE)}px`);
+        expect(
+          getComputedStyle(horizontalThumb).getPropertyValue('--scroll-area-thumb-width'),
+        ).to.equal(`${viewportSize * (viewportSize / SCROLLABLE_CONTENT_SIZE)}px`);
+      });
     });
 
     it('accounts for thumb margin', async () => {
@@ -204,12 +381,14 @@ describe('<ScrollArea.Root />', () => {
       const verticalThumb = screen.getByTestId('vertical-thumb');
       const horizontalThumb = screen.getByTestId('horizontal-thumb');
 
-      expect(
-        getComputedStyle(verticalThumb).getPropertyValue('--scroll-area-thumb-height'),
-      ).to.equal(`${(VIEWPORT_SIZE - MARGIN * 2) * (VIEWPORT_SIZE / SCROLLABLE_CONTENT_SIZE)}px`);
-      expect(
-        getComputedStyle(horizontalThumb).getPropertyValue('--scroll-area-thumb-width'),
-      ).to.equal(`${(VIEWPORT_SIZE - MARGIN * 2) * (VIEWPORT_SIZE / SCROLLABLE_CONTENT_SIZE)}px`);
+      await waitFor(() => {
+        expect(
+          getComputedStyle(verticalThumb).getPropertyValue('--scroll-area-thumb-height'),
+        ).to.equal(`${(VIEWPORT_SIZE - MARGIN * 2) * (VIEWPORT_SIZE / SCROLLABLE_CONTENT_SIZE)}px`);
+        expect(
+          getComputedStyle(horizontalThumb).getPropertyValue('--scroll-area-thumb-width'),
+        ).to.equal(`${(VIEWPORT_SIZE - MARGIN * 2) * (VIEWPORT_SIZE / SCROLLABLE_CONTENT_SIZE)}px`);
+      });
     });
   });
 
@@ -238,32 +417,34 @@ describe('<ScrollArea.Root />', () => {
       const hScrollbar = screen.getByTestId('scrollbar-horizontal');
 
       // Initial: at start (top/left)
-      expect(root).to.have.attribute('data-has-overflow-x');
-      expect(root).to.have.attribute('data-has-overflow-y');
-      expect(root).not.to.have.attribute('data-overflow-x-start');
-      expect(root).to.have.attribute('data-overflow-x-end');
-      expect(root).not.to.have.attribute('data-overflow-y-start');
-      expect(root).to.have.attribute('data-overflow-y-end');
+      await waitFor(() => {
+        expect(root).to.have.attribute('data-has-overflow-x');
+        expect(root).to.have.attribute('data-has-overflow-y');
+        expect(root).not.to.have.attribute('data-overflow-x-start');
+        expect(root).to.have.attribute('data-overflow-x-end');
+        expect(root).not.to.have.attribute('data-overflow-y-start');
+        expect(root).to.have.attribute('data-overflow-y-end');
 
-      expect(viewport).to.have.attribute('data-has-overflow-x');
-      expect(viewport).to.have.attribute('data-has-overflow-y');
-      expect(viewport).not.to.have.attribute('data-overflow-x-start');
-      expect(viewport).to.have.attribute('data-overflow-x-end');
-      expect(viewport).not.to.have.attribute('data-overflow-y-start');
-      expect(viewport).to.have.attribute('data-overflow-y-end');
-      expect(content).to.have.attribute('data-has-overflow-x');
-      expect(content).to.have.attribute('data-has-overflow-y');
-      expect(content).not.to.have.attribute('data-overflow-x-start');
-      expect(content).to.have.attribute('data-overflow-x-end');
-      expect(content).not.to.have.attribute('data-overflow-y-start');
-      expect(content).to.have.attribute('data-overflow-y-end');
+        expect(viewport).to.have.attribute('data-has-overflow-x');
+        expect(viewport).to.have.attribute('data-has-overflow-y');
+        expect(viewport).not.to.have.attribute('data-overflow-x-start');
+        expect(viewport).to.have.attribute('data-overflow-x-end');
+        expect(viewport).not.to.have.attribute('data-overflow-y-start');
+        expect(viewport).to.have.attribute('data-overflow-y-end');
+        expect(content).to.have.attribute('data-has-overflow-x');
+        expect(content).to.have.attribute('data-has-overflow-y');
+        expect(content).not.to.have.attribute('data-overflow-x-start');
+        expect(content).to.have.attribute('data-overflow-x-end');
+        expect(content).not.to.have.attribute('data-overflow-y-start');
+        expect(content).to.have.attribute('data-overflow-y-end');
 
-      expect(vScrollbar).to.have.attribute('data-has-overflow-y');
-      expect(vScrollbar).not.to.have.attribute('data-overflow-y-start');
-      expect(vScrollbar).to.have.attribute('data-overflow-y-end');
-      expect(hScrollbar).to.have.attribute('data-has-overflow-x');
-      expect(hScrollbar).not.to.have.attribute('data-overflow-x-start');
-      expect(hScrollbar).to.have.attribute('data-overflow-x-end');
+        expect(vScrollbar).to.have.attribute('data-has-overflow-y');
+        expect(vScrollbar).not.to.have.attribute('data-overflow-y-start');
+        expect(vScrollbar).to.have.attribute('data-overflow-y-end');
+        expect(hScrollbar).to.have.attribute('data-has-overflow-x');
+        expect(hScrollbar).not.to.have.attribute('data-overflow-x-start');
+        expect(hScrollbar).to.have.attribute('data-overflow-x-end');
+      });
 
       // Scroll to middle
       const halfY = (viewport.scrollHeight - viewport.clientHeight) / 2;

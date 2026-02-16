@@ -1,13 +1,11 @@
 import { ScrollArea } from '@base-ui/react/scroll-area';
-import { screen, fireEvent, flushMicrotasks } from '@mui/internal-test-utils';
+import { screen, fireEvent, flushMicrotasks, waitFor } from '@mui/internal-test-utils';
 import { createRenderer, isJSDOM, describeConformance } from '#test-utils';
 import { expect } from 'chai';
 import { SCROLL_TIMEOUT } from '../constants';
 
 describe('<ScrollArea.Scrollbar />', () => {
-  const { render, clock } = createRenderer();
-
-  clock.withFakeTimers();
+  const { render } = createRenderer();
 
   describeConformance(<ScrollArea.Scrollbar keepMounted />, () => ({
     refInstanceof: window.HTMLDivElement,
@@ -16,61 +14,67 @@ describe('<ScrollArea.Scrollbar />', () => {
     },
   }));
 
-  it('adds [data-scrolling] attribute when viewport is scrolled in the correct direction', async () => {
-    await render(
-      <ScrollArea.Root style={{ width: 200, height: 200 }}>
-        <ScrollArea.Viewport data-testid="viewport" style={{ width: '100%', height: '100%' }}>
-          <div style={{ width: 1000, height: 1000 }} />
-        </ScrollArea.Viewport>
-        <ScrollArea.Scrollbar orientation="vertical" data-testid="vertical" keepMounted />
-        <ScrollArea.Scrollbar orientation="horizontal" data-testid="horizontal" keepMounted />
-        <ScrollArea.Corner />
-      </ScrollArea.Root>,
-    );
+  describe('data-scrolling attribute', () => {
+    const { render: renderWithClock, clock } = createRenderer();
 
-    const verticalScrollbar = screen.getByTestId('vertical');
-    const horizontalScrollbar = screen.getByTestId('horizontal');
-    const viewport = screen.getByTestId('viewport');
+    clock.withFakeTimers();
 
-    expect(verticalScrollbar).not.to.have.attribute('data-scrolling');
-    expect(horizontalScrollbar).not.to.have.attribute('data-scrolling');
+    it('adds [data-scrolling] attribute when viewport is scrolled in the correct direction', async () => {
+      await renderWithClock(
+        <ScrollArea.Root style={{ width: 200, height: 200 }}>
+          <ScrollArea.Viewport data-testid="viewport" style={{ width: '100%', height: '100%' }}>
+            <div style={{ width: 1000, height: 1000 }} />
+          </ScrollArea.Viewport>
+          <ScrollArea.Scrollbar orientation="vertical" data-testid="vertical" keepMounted />
+          <ScrollArea.Scrollbar orientation="horizontal" data-testid="horizontal" keepMounted />
+          <ScrollArea.Corner />
+        </ScrollArea.Root>,
+      );
 
-    fireEvent.pointerEnter(viewport);
-    fireEvent.scroll(viewport, {
-      target: {
-        scrollTop: 1,
-      },
+      const verticalScrollbar = screen.getByTestId('vertical');
+      const horizontalScrollbar = screen.getByTestId('horizontal');
+      const viewport = screen.getByTestId('viewport');
+
+      expect(verticalScrollbar).not.to.have.attribute('data-scrolling');
+      expect(horizontalScrollbar).not.to.have.attribute('data-scrolling');
+
+      fireEvent.pointerEnter(viewport);
+      fireEvent.scroll(viewport, {
+        target: {
+          scrollTop: 1,
+        },
+      });
+
+      expect(verticalScrollbar).to.have.attribute('data-scrolling', '');
+      expect(horizontalScrollbar).not.to.have.attribute('data-scrolling', '');
+
+      await clock.tickAsync(SCROLL_TIMEOUT - 1);
+
+      expect(verticalScrollbar).to.have.attribute('data-scrolling', '');
+      expect(horizontalScrollbar).not.to.have.attribute('data-scrolling', '');
+
+      fireEvent.pointerEnter(viewport);
+      fireEvent.scroll(viewport, {
+        target: {
+          scrollLeft: 1,
+        },
+      });
+
+      await clock.tickAsync(1); // vertical just finished
+
+      expect(verticalScrollbar).not.to.have.attribute('data-scrolling');
+      expect(horizontalScrollbar).to.have.attribute('data-scrolling');
+
+      await clock.tickAsync(SCROLL_TIMEOUT - 2); // already ticked 1ms above
+
+      expect(verticalScrollbar).not.to.have.attribute('data-scrolling');
+      expect(horizontalScrollbar).to.have.attribute('data-scrolling');
+
+      await clock.tickAsync(1);
+
+      expect(verticalScrollbar).not.to.have.attribute('data-scrolling');
+      expect(horizontalScrollbar).not.to.have.attribute('data-scrolling');
     });
-
-    expect(verticalScrollbar).to.have.attribute('data-scrolling', '');
-    expect(horizontalScrollbar).not.to.have.attribute('data-scrolling', '');
-
-    await clock.tickAsync(SCROLL_TIMEOUT - 1);
-
-    expect(verticalScrollbar).to.have.attribute('data-scrolling', '');
-    expect(horizontalScrollbar).not.to.have.attribute('data-scrolling', '');
-
-    fireEvent.pointerEnter(viewport);
-    fireEvent.scroll(viewport, {
-      target: {
-        scrollLeft: 1,
-      },
-    });
-
-    await clock.tickAsync(1); // vertical just finished
-
-    expect(verticalScrollbar).not.to.have.attribute('data-scrolling');
-    expect(horizontalScrollbar).to.have.attribute('data-scrolling');
-
-    await clock.tickAsync(SCROLL_TIMEOUT - 2); // already ticked 1ms above
-
-    expect(verticalScrollbar).not.to.have.attribute('data-scrolling');
-    expect(horizontalScrollbar).to.have.attribute('data-scrolling');
-
-    await clock.tickAsync(1);
-
-    expect(verticalScrollbar).not.to.have.attribute('data-scrolling');
-    expect(horizontalScrollbar).not.to.have.attribute('data-scrolling');
   });
 
   describe.skipIf(isJSDOM)('data overflow attributes (scrollbars)', () => {
@@ -96,13 +100,15 @@ describe('<ScrollArea.Scrollbar />', () => {
       const vScrollbar = screen.getByTestId('scrollbar-vertical');
       const hScrollbar = screen.getByTestId('scrollbar-horizontal');
 
-      expect(vScrollbar).to.have.attribute('data-has-overflow-y');
-      expect(vScrollbar).not.to.have.attribute('data-overflow-y-start');
-      expect(vScrollbar).to.have.attribute('data-overflow-y-end');
+      await waitFor(() => {
+        expect(vScrollbar).to.have.attribute('data-has-overflow-y');
+        expect(vScrollbar).not.to.have.attribute('data-overflow-y-start');
+        expect(vScrollbar).to.have.attribute('data-overflow-y-end');
 
-      expect(hScrollbar).to.have.attribute('data-has-overflow-x');
-      expect(hScrollbar).not.to.have.attribute('data-overflow-x-start');
-      expect(hScrollbar).to.have.attribute('data-overflow-x-end');
+        expect(hScrollbar).to.have.attribute('data-has-overflow-x');
+        expect(hScrollbar).not.to.have.attribute('data-overflow-x-start');
+        expect(hScrollbar).to.have.attribute('data-overflow-x-end');
+      });
 
       // Scroll to middle
       const halfY = (viewport.scrollHeight - viewport.clientHeight) / 2;
