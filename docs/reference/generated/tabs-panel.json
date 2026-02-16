@@ -42,6 +42,12 @@
     },
     "data-index": {
       "description": "Indicates the index of the tab panel."
+    },
+    "data-starting-style": {
+      "description": "Present when the panel is animating in."
+    },
+    "data-ending-style": {
+      "description": "Present when the panel is animating out."
     }
   },
   "cssVariables": {}

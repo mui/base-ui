@@ -369,11 +369,11 @@ describe('<Drawer.Viewport />', () => {
     await render(
       <Drawer.Root open swipeDirection="down">
         <Drawer.Portal>
-          <Drawer.Viewport>
+          <Drawer.Viewport data-testid="parent-viewport">
             <Drawer.Popup data-testid="parent-popup">
               <Drawer.Root open swipeDirection="down">
                 <Drawer.Portal>
-                  <Drawer.Viewport>
+                  <Drawer.Viewport data-testid="child-viewport">
                     <Drawer.Popup data-testid="child-popup">
                       <button type="button" data-testid="child-button">
                         Action
@@ -392,6 +392,8 @@ describe('<Drawer.Viewport />', () => {
 
     const parentPopup = screen.getByTestId('parent-popup');
     const childPopup = screen.getByTestId('child-popup');
+    const parentViewport = screen.getByTestId('parent-viewport');
+    const childViewport = screen.getByTestId('child-viewport');
     const button = screen.getByTestId('child-button');
     Object.defineProperty(childPopup, 'offsetHeight', { value: 200, configurable: true });
 
@@ -410,6 +412,8 @@ describe('<Drawer.Viewport />', () => {
 
       await flushMicrotasks();
 
+      expect(parentViewport).not.toHaveAttribute('data-nested-dialog-open');
+      expect(childViewport).not.toHaveAttribute('data-nested-dialog-open');
       expect(parentPopup).not.toHaveAttribute('data-nested-drawer-swiping');
 
       fireEvent.touchMove(button, {
