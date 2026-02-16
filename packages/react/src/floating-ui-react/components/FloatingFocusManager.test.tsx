@@ -160,7 +160,7 @@ function Dialog({ render, open: passedOpen = false, children }: DialogProps) {
 }
 
 describe.skipIf(!isJSDOM)('FloatingFocusManager', () => {
-  describe('initialFocus', () => {
+  describe('prop: initialFocus', () => {
     test('default behavior focuses first tabbable element', async () => {
       render(<App />);
 
@@ -190,8 +190,8 @@ describe.skipIf(!isJSDOM)('FloatingFocusManager', () => {
     });
   });
 
-  describe('returnFocus', () => {
-    test('true', async () => {
+  describe('prop: returnFocus', () => {
+    test('when true', async () => {
       const { rerender } = render(<App />);
 
       screen.getByTestId('reference').focus();
@@ -210,7 +210,7 @@ describe.skipIf(!isJSDOM)('FloatingFocusManager', () => {
       expect(screen.getByTestId('reference')).not.toHaveFocus();
     });
 
-    test('false', async () => {
+    test('when false', async () => {
       render(<App returnFocus={false} />);
 
       screen.getByTestId('reference').focus();
@@ -706,8 +706,8 @@ describe.skipIf(!isJSDOM)('FloatingFocusManager', () => {
   });
   /* eslint-enable testing-library/prefer-screen-queries */
 
-  describe('modal', () => {
-    test('true', async () => {
+  describe('prop: modal', () => {
+    test('when true', async () => {
       render(<App modal />);
 
       fireEvent.click(screen.getByTestId('reference'));
@@ -738,7 +738,7 @@ describe.skipIf(!isJSDOM)('FloatingFocusManager', () => {
       expect(screen.getByTestId('one')).toHaveFocus();
     });
 
-    test('false', async () => {
+    test('when false', async () => {
       render(<App modal={false} />);
 
       fireEvent.click(screen.getByTestId('reference'));
@@ -1023,7 +1023,7 @@ describe.skipIf(!isJSDOM)('FloatingFocusManager', () => {
     });
   });
 
-  describe('disabled', () => {
+  describe('prop: disabled', () => {
     test('true -> false', async () => {
       function App() {
         const [isOpen, setIsOpen] = React.useState(false);
@@ -1063,7 +1063,7 @@ describe.skipIf(!isJSDOM)('FloatingFocusManager', () => {
       });
     });
 
-    test('false', async () => {
+    test('when false', async () => {
       function App() {
         const [isOpen, setIsOpen] = React.useState(false);
         const [disabled, setDisabled] = React.useState(false);
@@ -1280,7 +1280,7 @@ describe.skipIf(!isJSDOM)('FloatingFocusManager', () => {
     });
   });
 
-  describe('restoreFocus', () => {
+  describe('prop: restoreFocus', () => {
     function App({ restoreFocus = true }: { restoreFocus?: boolean }) {
       const [isOpen, setIsOpen] = React.useState(false);
       const [removed, setRemoved] = React.useState(false);
