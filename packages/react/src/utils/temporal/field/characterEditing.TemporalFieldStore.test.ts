@@ -593,6 +593,7 @@ describe('TemporalFieldStore - Character Editing', () => {
 
   describe('edge cases', () => {
     it('should handle resetCharacterQuery', () => {
+      vi.useFakeTimers();
       const store = new DateFieldStore({
         format: numericDateFormat,
         adapter,
@@ -606,8 +607,8 @@ describe('TemporalFieldStore - Character Editing', () => {
         sectionIndex: 0,
       });
 
-      // Reset query
-      store.resetCharacterQuery();
+      // Advance past queryLifeDuration to trigger auto-cleanup
+      vi.advanceTimersByTime(5000);
 
       // Type '5' - should start fresh query, result in '05'
       store.editSection({
@@ -617,6 +618,8 @@ describe('TemporalFieldStore - Character Editing', () => {
 
       const datePart = selectors.datePart(store.state, 0);
       expect(datePart!.value).to.equal('05');
+
+      vi.useRealTimers();
     });
 
     it('should handle empty section', () => {

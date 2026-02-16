@@ -611,7 +611,7 @@ export class TemporalFieldStore<TValue extends TemporalSupportedValue> extends R
     this.set('selectedSection', null);
   }
 
-  public resetCharacterQuery() {
+  private resetCharacterQuery() {
     this.setCharacterQuery(null);
   }
 
@@ -650,12 +650,6 @@ export class TemporalFieldStore<TValue extends TemporalSupportedValue> extends R
       newDatePartValue: this.getAdjustedDatePartValue(keyCode, sectionIndex),
       shouldGoToNextSection: false,
     });
-
-    this.timeoutManager.startInterval(
-      'cleanCharacterQuery',
-      TemporalFieldStore.queryLifeDuration,
-      () => this.set('characterQuery', null),
-    );
   }
 
   public registerSection = (sectionElement: HTMLDivElement | null) => {
@@ -1432,6 +1426,15 @@ export class TemporalFieldStore<TValue extends TemporalSupportedValue> extends R
 
   private setCharacterQuery(characterQuery: TemporalFieldCharacterEditingQuery | null) {
     this.set('characterQuery', characterQuery);
+    if (characterQuery != null) {
+      this.timeoutManager.startTimeout(
+        'cleanCharacterQuery',
+        TemporalFieldStore.queryLifeDuration,
+        () => this.set('characterQuery', null),
+      );
+    } else {
+      this.timeoutManager.clearTimeout('cleanCharacterQuery');
+    }
   }
 
   private getDatePartValueInForAnotherToken(
